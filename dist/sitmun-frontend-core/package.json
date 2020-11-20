@@ -1,0 +1,50 @@
+{
+  "name": "@sitmun/frontend-core",
+  "version": "0.7.3",
+  "repository": "git://github.com/sitmun/sitmun-frontend-core.git",
+  "peerDependencies": {
+    "@angular/common": "^6.0.0-rc.0 || ^6.0.0",
+    "@angular/core": "^6.0.0-rc.0 || ^6.0.0",
+    "@angular/animations": "~6.1.0",
+    "@angular/cdk": "~6.1.0",
+    "@angular/forms": "~6.1.0",
+    "@angular/http": "~6.1.0",
+    "@angular/material": "~6.1.0",
+    "@angular/platform-browser": "~6.1.0",
+    "@angular/platform-browser-dynamic": "~6.1.0",
+    "@angular/router": "~6.1.0",
+    "@ngx-translate/core": "~10.0.2",
+    "@ngx-translate/http-loader": "~3.0.1",
+    "ol": "~4.6.5",
+    "openlayers": "~4.6.5",
+    "proj4": "~2.4.4",
+    "@types/moment": "~2.13.0",
+    "@types/openlayers": "~4.6.9",
+    "core-js": "~2.5.4",
+    "moment": "~2.22.2",
+    "zone.js": "~0.8.26"
+  },
+  "main": "bundles/sitmun-frontend-core.umd.js",
+  "module": "fesm5/sitmun-frontend-core.js",
+  "es2015_ivy_ngcc": "__ivy_ngcc__/fesm2015/sitmun-frontend-core.js",
+  "es2015": "fesm2015/sitmun-frontend-core.js",
+  "esm5": "esm5/sitmun-frontend-core.js",
+  "esm2015": "esm2015/sitmun-frontend-core.js",
+  "fesm5": "fesm5/sitmun-frontend-core.js",
+  "fesm2015_ivy_ngcc": "__ivy_ngcc__/fesm2015/sitmun-frontend-core.js",
+  "fesm2015": "fesm2015/sitmun-frontend-core.js",
+  "typings": "sitmun-frontend-core.d.ts",
+  "metadata": "sitmun-frontend-core.metadata.json",
+  "sideEffects": false,
+  "dependencies": {
+    "tslib": "^1.9.0"
+  },
+  "__processed_by_ivy_ngcc__": {
+    "es2015": "10.1.6",
+    "fesm2015": "10.1.6",
+    "typings": "10.1.6"
+  },
+  "scripts": {
+    "prepublishOnly": "node --eval \"console.error('ERROR: Trying to publish a package that has been compiled by NGCC. This is not allowed.\\nPlease delete and rebuild the package, without compiling with NGCC, before attempting to publish.\\nNote that NGCC may have been run by importing this package into another project that is being built with Ivy enabled.\\n')\" && exit 1"
+  }
+}

@@ -1,0 +1,239 @@
+@import '~@angular/material/theming';
+// Plus imports for other components in your app.
+
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// Be sure that you only ever include this mixin once!
+@include mat-core();
+
+// Define the palettes for your theme using the Material Design palettes available in palette.scss
+// (imported above). For each palette, you can optionally specify a default, lighter, and darker
+// hue. Available color palettes: https://material.io/design/color/
+$candy-app-primary: mat-palette($mat-grey, A200, A300, A800);
+$candy-app-accent: mat-palette($mat-grey, A900, A300, A800);
+
+// The warn palette is optional (defaults to red).
+$candy-app-warn: mat-palette($mat-red);
+
+// Create the theme object (a Sass map containing all of the palettes).
+$candy-app-theme: mat-light-theme($candy-app-primary, $candy-app-accent, $candy-app-warn);
+
+// Include theme styles for core and each component used in your app.
+// Alternatively, you can import and @include the theme mixins for each component
+// that you are using.
+@include angular-material-theme($candy-app-theme);
+
+.mat-primary .mat-option.mat-selected:not(.mat-option-disabled) {
+  color: #bf0000 !important;
+}
+
+.mat-primary .mat-pseudo-checkbox-checked {
+  background: #bf0000 !important;
+}
+
+//Color dels butons vermell
+.mat-raised-button.mat-red,
+.mat-flat-button.mat-red,
+.mat-mini-fab.mat-red,
+.mat-icon.mat-red {
+  background-color: #BF0000 !important;
+  color: white !important
+}
+
+.mat-raised-button.mat-red:disabled,
+.mat-flat-button.mat-red:disabled,
+.mat-mini-fab.mat-red:disabled,
+.mat-icon.mat-red:disabled {
+  background-color: #df8080 !important;
+  border-color: #df8080 !important;
+}
+
+//Botó Eliminar intern formularis
+.mat-stroked-button.mat-red{
+  color: #333333 !important
+}
+.mat-stroked-button.mat-red .mat-icon, .redTitle,.mat-red.mat-datepicker-toggle{
+  color: #BF0000 !important
+}
+.mat-stroked-button.mat-red[disabled][disabled],
+.mat-stroked-button.mat-red[disabled][disabled] .mat-icon {
+  color: rgba(0, 0, 0, 0.26) !important;
+}
+
+.mat-icon-button.mat-blue2{
+  color: #005EB8 !important;
+  border-color: #005EB8 !important;
+}
+.mat-icon-button.mat-blue3,.mat-icon.mat-blue3 {
+  color: #0494F7 !important;
+  border-color: #0494F7 !important;
+  cursor: pointer;
+}
+.mat-icon-button.mat-red{
+  color: #BF0000 !important;
+  border-color: #BF0000 !important;
+}
+.mat-icon-button.mat-green{
+  color: #68A225 !important;
+  border-color: #68A225 !important;
+}
+
+.mat-button.mat-green{
+  color: #68A225 !important;
+}
+.mat-icon-button.mat-orange{
+  color: #E65100 !important
+}
+
+.mat-icon-button .mat-icon{
+  // border: 2px solid;
+  // border-radius: 16px;
+  width: 26px;
+  height: 26px;
+  font-size: 20px;
+  margin-right: 0;
+  line-height: 26px !important;
+}
+
+.mat-icon-button .mat-icon svg{
+  width: 14px;
+  height: 26px;
+}
+
+.mat-icon-button.mat-small{
+  line-height: 28px;
+}
+
+.mat-icon-button.mat-small .mat-icon{
+  width: 18px;
+  height: 18px;
+  font-size: 14px;
+  line-height: 19px !important;
+}
+
+//Color dels butons gris
+.mat-raised-button.mat-grey,
+.mat-flat-button.mat-grey,
+.mat-mini-fab.mat-grey,
+.mat-icon.mat-grey {
+  background-color: #888888 !important;
+  color: white !important
+}
+
+.mat-flat-button.mat-red{
+  border: 1px solid #BF0000 !important;;
+}
+
+.mat-flat-button.mat-grey{
+  border: 1px solid #888888 !important;;
+}
+
+.mat-flat-button.mat-green{
+  border: 1px solid #68A225 !important;;
+}
+
+//Color dels butons blau
+.mat-raised-button.mat-blue,
+.mat-flat-button.mat-blue,
+.mat-mini-fab.mat-blue,
+.mat-icon.mat-blue {
+  background-color: #0494F7 !important;
+  color: white !important
+}
+
+.mat-raised-button.mat-blue:disabled,
+.mat-flat-button.mat-blue:disabled,
+.mat-mini-fab.mat-blue:disabled,
+.mat-icon.mat-blue:disabled {
+  background-color: rgb(112, 198, 255) !important;
+}
+
+//Color dels butons vermell
+.mat-icon.mat-red {
+  color: #BF0000 !important;
+  background-color: inherit !important;
+}
+
+//Color dels butons gris
+.mat-icon.mat-grey {
+  color: #888888 !important;
+  background-color: inherit !important;
+}
+
+//Color dels butons blau
+.mat-icon.mat-blue {
+  color: #0494F7 !important;
+  background-color: inherit !important;
+}
+
+//Color dels butons blau
+.mat-raised-button.mat-green,
+.mat-flat-button.mat-green {
+  background-color: #68A225 !important;
+  color: white !important;
+}
+
+//Color dels butons grocs
+.mat-raised-button.mat-yellow,
+.mat-flat-button.mat-yellow,
+.mat-mini-fab.mat-yellow,
+.mat-icon.mat-yellow {
+  background-color: #FAD40F !important;
+  color: black !important;
+}
+
+//Color dels butons blancs
+.mat-raised-button.mat-white,
+.mat-flat-button.mat-white,
+.mat-mini-fab.mat-white,
+.mat-icon.mat-white {
+  background-color: white !important;
+  color: black !important;
+  border: 1px solid #DDDDDD;
+}
+
+.mat-raised-button.mat-white:disabled,
+.mat-flat-button.mat-white:disabled,
+.mat-mini-fab.mat-white:disabled,
+.mat-icon.mat-white:disabled {
+  color: #DDDDDD !important;
+}
+
+.e-today {
+  display: none !important;
+}
+
+//Checkboxes
+.mat-checkbox-checked .mat-checkbox-background {
+  background-color: #BF0000 !important;
+}
+
+//Mat form field outline
+.mat-form-field-appearance-outline .mat-form-field-outline-thick.mat-form-field-outline-thick {
+  color: #BF0000 !important;
+}
+
+
+//Mat slide green
+mat-slide-toggle.mat-green.mat-checked .mat-slide-toggle-bar {
+  background-color: rgba(104, 162, 37, 0.5);
+}
+
+mat-slide-toggle.mat-green.mat-checked .mat-slide-toggle-thumb {
+  background-color: #0EA728;
+}
+
+//Radio buttons
+.mat-radio-button.mat-accent .mat-radio-inner-circle {
+  background-color: #BF0000 !important;
+}
+
+.mat-radio-button.mat-accent.mat-radio-checked .mat-radio-outer-circle {
+  border-color: #BF0000 !important;
+}
+
+//Mat spinner
+.mat-progress-spinner.mat-primary circle,
+.mat-spinner.mat-primary circle {
+  stroke: #BF0000 !important;
+}

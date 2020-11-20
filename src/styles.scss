@@ -1,0 +1,966 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import "../node_modules/@ag-grid-community/all-modules/dist/styles/ag-grid.css";
+@import "../node_modules/@ag-grid-community/all-modules/dist/styles/ag-theme-balham.css";
+
+@import '../node_modules/@syncfusion/ej2-base/styles/material.css';
+@import '../node_modules/@syncfusion/ej2-buttons/styles/material.css';
+@import '../node_modules/@syncfusion/ej2-inputs/styles/material.css';
+@import '../node_modules/@syncfusion/ej2-popups/styles/material.css';
+@import '../node_modules/@syncfusion/ej2-lists/styles/material.css';
+@import '../node_modules/@syncfusion/ej2-splitbuttons/styles/material.css';
+
+
+// CSS Reset, comment out if not required or using a different module
+// @import '~minireset.css/minireset';
+@import '~igniteui-angular/lib/core/styles/themes/index';
+@include igx-core();
+
+// Custom Theming for Angular Material
+// For more information: https://material.angular.io/guide/theming
+@import '~@angular/material/theming';
+
+// Plus imports for other components in your app.
+
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// Be sure that you only ever include this mixin once!
+@include mat-core();
+
+// Define the palettes for your theme using the Material Design palettes available in palette.scss
+// (imported above). For each palette, you can optionally specify a default, lighter, and darker
+// hue. Available color palettes: https://material.io/design/color/
+
+$md-primarycolor: (
+    50 : #f7e0e0,
+    100 : #ecb3b3,
+    200 : #df8080,
+    300 : #d24d4d,
+    400 : #c92626,
+    500 : #bf0000,
+    600 : #b90000,
+    700 : #b10000,
+    800 : #a90000,
+    900 : #9b0000,
+    A100 : #ffc6c6,
+    A200 : #ff9393,
+    A400 : #ff6060,
+    A700 : #ff4747,
+    contrast: (
+        50 : #000000,
+        100 : #000000,
+        200 : #000000,
+        300 : #ffffff,
+        400 : #ffffff,
+        500 : #ffffff,
+        600 : #ffffff,
+        700 : #ffffff,
+        800 : #ffffff,
+        900 : #ffffff,
+        A100 : #000000,
+        A200 : #000000,
+        A400 : #000000,
+        A700 : #ffffff,
+    )
+);
+
+$md-secondcolor: (
+    50 : #f1f1f1,
+    100 : #dbdbdb,
+    200 : #c4c4c4,
+    300 : #acacac,
+    400 : #9a9a9a,
+    500 : #888888,
+    600 : #808080,
+    700 : #757575,
+    800 : #6b6b6b,
+    900 : #585858,
+    A100 : #f9cdcd,
+    A200 : #f49f9f,
+    A400 : #ff6161,
+    A700 : #ff4747,
+    contrast: (
+        50 : #000000,
+        100 : #000000,
+        200 : #000000,
+        300 : #000000,
+        400 : #000000,
+        500 : #000000,
+        600 : #000000,
+        700 : #ffffff,
+        800 : #ffffff,
+        900 : #ffffff,
+        A100 : #000000,
+        A200 : #000000,
+        A400 : #000000,
+        A700 : #ffffff,
+    )
+);
+
+$md-thirdcolor: (
+    50 : #e1f2fe,
+    100 : #b4dffd,
+    200 : #82cafb,
+    300 : #4fb4f9,
+    400 : #2aa4f8,
+    500 : #0494f7,
+    600 : #038cf6,
+    700 : #0381f5,
+    800 : #0277f3,
+    900 : #0165f1,
+    A100 : #ffffff,
+    A200 : #e5eeff,
+    A400 : #b2cdff,
+    A700 : #98bdff,
+    contrast: (
+        50 : #000000,
+        100 : #000000,
+        200 : #000000,
+        300 : #000000,
+        400 : #000000,
+        500 : #ffffff,
+        600 : #ffffff,
+        700 : #ffffff,
+        800 : #ffffff,
+        900 : #ffffff,
+        A100 : #000000,
+        A200 : #000000,
+        A400 : #000000,
+        A700 : #000000,
+    )
+);
+
+
+$sitmun-primary: mat-palette($md-primarycolor);
+$sitmun-accent: mat-palette($md-secondcolor);
+$sitmun-warn: mat-palette($md-thirdcolor);
+
+// Create the theme object (a Sass map containing all of the palettes).
+$sitmun-theme: mat-light-theme($sitmun-primary,$sitmun-accent,$sitmun-warn);
+
+// Include theme styles for core and each component used in your app.
+// Alternatively, you can import and @include the theme mixins for each component
+// that you are using.
+@include angular-material-theme($sitmun-theme);
+
+/* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; font-family: 'Open Sans', sans-serif; }
+
+h2 {
+    margin-bottom: 10px;
+    width: calc(100% - 100px);
+    display: inline-block;
+}
+
+.divider {
+    height: 3px;
+    background: #ddd;
+    width: calc(100% - 20px);
+    display: block;
+    margin-bottom: 15px;
+}
+
+.mat-app-background,
+.mat-drawer-container {
+    background:white !important
+}
+
+.basic-container {
+  padding: 0px;
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+}
+
+.mat-stroked-button,
+.mat-flat-button {
+    padding: 0 10px !important;
+    margin-right: 10px !important;
+}
+
+// .mat-icon{
+//     margin-right:5px;
+// }
+
+.mat-table{
+    width: calc(100% - 20px);
+    margin-top: 5px;
+    border: 1px solid #DDD;
+    border-radius: 3px;
+    overflow: auto;
+  }
+
+.flexDiv{
+  display: flex;
+  align-items: center;
+}
+
+.flexDiv .mat-form-field {
+  margin-left: auto;
+}
+
+//Per fer el input del formulari no tant alt
+.mat-form-field-appearance-outline .mat-form-field-infix {
+    padding: 0.4em 0 0.4em 0 !important;
+    top: -0.25em;
+  }
+
+.mat-form-field-appearance-outline .mat-select-arrow-wrapper {
+    transform: translateY(0%) !important;
+}
+
+.mat-form-field .mat-form-field-suffix{
+  top: 2px !important;
+  right: -5px;
+}
+
+.mat-form-field .mat-form-field-suffix .search{
+  top: -2px !important;
+  right: 0px;
+}
+
+.mat-form-field .mat-form-field-suffix .edit {
+  top: -3px !important;
+  right: 0px;
+}
+
+.formDiv{
+    margin-top: 20px;
+  }
+
+.formLabel{
+    display: block;
+    font-weight: 500;
+    margin-bottom: 5px;
+    padding-left: 5px;
+    width: 100%;
+}
+
+.formLabel1Line{
+  display: inline-block;
+  font-weight: 500;
+  margin-right: 5px;
+  padding-left: 5px;
+}
+
+.mat-list-base .mat-list-item .mat-list-item-content {
+  padding: 0 6px 0 15px !important;
+}
+
+.mat-list-item .list-text{
+  margin-right: auto;
+}
+
+.formLabel span {
+  color: gray;
+  font-weight: normal;
+}
+
+.singleColFormDiv {
+  display: inline-block;
+  width: 100%;
+}
+
+.rowFormDiv{
+    width: 100%;
+    margin: 10px 0px;
+    display: flex;
+  }
+
+.rowFormDiv.actionBtns{
+  width: 100% !important;
+  padding-top: 10px;
+}
+
+.tabForm .actionBtns{
+  margin:0 !important;
+  padding: 20px 0 !important;
+}
+
+.rowFormDiv.actionBtns button:first-child,
+.tabForm .actionBtns button:first-child{
+  margin-left: auto;
+}
+
+.tabForm .actionBtns button:last-child{
+  margin-right: 20px !important;
+}
+
+.bgColor {
+    background: #f5f5f5;
+    padding: 20px;
+    margin-bottom: 20px;
+    margin-right: 20px;
+}
+
+.bgColor.Twolines{
+    display: flex;
+    align-items: center;
+}
+
+.listActions{
+    display: flex;
+    align-items: center;
+}
+
+.paginator {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    margin-right: 25px;
+  }
+
+.bgColor .mat-form-field {display: block;}
+
+.bgColor .mat-form-field-outline, .bgColor .mat-list{
+    background: white !important;
+}
+
+.bgColor .mat-form-field-appearance-outline .mat-form-field-outline, .bgColor .mat-list {
+    color: #888 !important;
+    border-color: #888 !important;
+  }
+
+  .bgColor .mat-list{
+    border: solid 1px;
+    border-radius: 5px;
+  }
+
+.bgColor .mat-form-field-wrapper {
+    padding-bottom: 0 !important;
+}
+
+.mat-paginator {
+  background: transparent !important;
+}
+
+.mat-paginator-container .mat-form-field-wrapper {
+  padding-bottom: 1.25em !important;
+}
+
+
+.bgColor .colMainFormDiv{
+    width: 80%;
+    display: inline-block;
+}
+
+.bgColor.Twolines .colMainFormDiv{
+    border-right: 1px solid #ccc;
+}
+
+@media screen and (max-width: 1440px) {
+    .bgColor.Twolines .colMainFormDiv{
+        border-right: 0px;
+    }
+}
+
+@media screen and (max-width: 1060px) {
+    .mat-paginator-page-size {
+        display:none !important;
+    }
+}
+
+.bgColor .colButtons {
+    display: flex;
+    width: 22%;
+    border-left: 1px solid #ccc;
+    box-sizing: border-box;
+    padding-left: 3%;
+    max-height: 36px;
+    align-self: flex-end;
+    margin-bottom: 5px;
+  }
+
+.bgColor.Twolines .colButton {
+    display: flex;
+    width: 20%;
+    justify-content: center;
+  }
+
+.ShortColFormDiv{
+    display: inline-block;
+    width: 15%;
+    margin-right: 3%;
+ }
+
+.MidColFormDiv{
+    display: inline-block;
+    width: 27%;
+    margin-right: 3%
+  }
+
+.MidLargeColFormDiv{
+    display: inline-block;
+    width: 47%;
+    margin-right: 3%
+  }
+
+.HalfMidLargeColFormDiv{
+    display: inline-block;
+    width: 22%;
+    margin-right: 3%;
+}
+
+.LargeColFormDiv{
+    display: inline-block;
+    width: 72%;
+    margin-right: 3%
+  }
+
+.bgColor.Twolines .ShortColFormDiv{
+    display: inline-block;
+    width: 22%;
+    margin-right: 3%
+  }
+
+.bgColor.Twolines .MidColFormDiv{
+    display: inline-block;
+    width: 47%;
+    margin-right: 3%
+  }
+
+.bgColor.Twolines .MidLargeColFormDiv{
+    display: inline-block;
+    width: 72%;
+    margin-right: 3%
+  }
+
+.bgColor.Twolines .LargeColFormDiv{
+    display: inline-block;
+    width: 97%;
+    margin-right: 3%
+  }
+
+.longCol {
+  display: inline-block;
+  width: 75%;
+}
+
+.bgColor.Twolines .longCol{
+    width: 96%;
+    display: block;
+  }
+
+.shortCol {
+  display: inline-block;
+  width: 20%;
+  margin-right: 5%;
+}
+
+.middleCol {
+  display: inline-block;
+  width: 50%;
+}
+
+//Estils etiquetes
+.mat-chip-list-wrapper .mat-standard-chip {
+  margin: 2px !important;
+  font-size: 13px;
+}
+
+.mat-standard-chip.mat-chip-with-trailing-icon {
+  padding-top: 11px !important;
+  padding-bottom: 11px !important;
+  padding-right: 8px !important;
+  padding-left: 12px !important;
+}
+
+.mat-standard-chip {
+  min-height: unset !important;
+}
+
+.routerTitle > h6{
+  display: inline-block;
+}
+
+.routerTitle{
+  display: block;
+  margin-bottom: -30px;
+  margin-top: -20px;
+}
+
+.routerTitle a{
+  color: #BF0000 !important;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.title-row h2 {
+  flex-grow: 1;
+  width: unset;
+}
+
+.mat-header-cell,
+.mat-header-cell .mat-sort-header-button {
+  text-transform: capitalize;
+}
+
+.mat-paginator-icon {
+  width: 30px!important;
+  height: 30px!important;
+  background-color: #f5f5f5!important;
+  margin: 1px!important;
+  border-radius: 10%!important;
+  border: 1px solid gray!important;
+  border-color: lightgray!important;
+}
+
+.tabForm .bgColor{
+  padding: 0;
+}
+//transicio entre tabs
+.mat-tab-body.mat-tab-body-active {
+  animation: fade 0.5s;
+}
+
+.mat-tab-body{
+  padding-top:20px;
+}
+
+.mat-tab-body-content{
+  display: flex;
+  overflow: hidden !important;
+}
+
+@keyframes fade {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.mat-tab-label-active{
+  box-shadow: inset 0px -4px 0px 0px #bf0000;
+  opacity: 1!important;
+}
+
+.mat-tab-label-active .mat-tab-label-content{
+  font-weight: 700;
+}
+
+.mat-ink-bar {
+  height: 0px!important;
+}
+
+.mat-tab-label {
+  font-size: 16px !important;
+}
+
+//botons dels DatePickers
+.mat-datepicker-toggle{
+  color:#bf0000!important;
+}
+//Modifica estadistiques amb Color primari
+.mat-table a {
+  color: #bf0000;
+}
+
+//per fer les 2 primeres columnes de les taules més primes
+/*.mat-cell:nth-child(1),
+.mat-header-cell:nth-child(1) {
+    flex: 0 0 30px;
+}
+
+.mat-cell:nth-child(2),
+.mat-header-cell:nth-child(2) {
+    flex: 0 0 60px;
+}*/
+// .e-calendar .e-content td.e-selected span.e-day,
+// .e-calendar .e-content td.e-selected:hover span.e-day,
+// .e-calendar .e-content td.e-today.e-selected span.e-day,
+// .e-calendar .e-content.e-year td.e-selected:hover span.e-day,
+// .e-calendar .e-content.e-decade td.e-selected:hover span.e-day{
+//   background: transparent;
+//   border: transparent;
+// }
+
+// .e-calendar .e-header {
+//   text-align: left !important;
+// }
+
+// .e-calendar .e-icon-container {
+//   float:none !important;
+//   margin-left: 12px;
+// }
+
+// .e-calendar .e-title {
+//   border:1px solid #ccc !important;
+//   padding: 0 10px;
+//   border-radius: 4px;
+//   line-height: 32px !important;
+// }
+
+
+.sample-wrapper {
+    width: inherit;
+    position: relative;
+    height: 100%;
+    margin: 0 auto;
+    background: transparent;
+}
+
+.sample-content {
+    display: flex;
+    flex-grow: 1;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+    padding: 0;
+    -webkit-animation: fade-in .3s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
+    -moz-animation: fade-in .3s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
+    animation: fade-in .3s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
+}
+
+.sample-column {
+    display: flex;
+    flex-flow: column nowrap;
+    flex: 1 0 25%;
+    align-content: flex-start;
+    margin: 16px;
+    min-width: 280px;
+}
+
+.sample-title {
+    color: #0375be;
+    margin-bottom: 12px;
+    margin-top: 12px;
+}
+
+.sample-title .light {
+    font-weight: 400;
+}
+
+.sample-description {
+    font-size: 14px;
+    font-weight: normal;
+    color: #717171;
+}
+
+
+@-webkit-keyframes color-change-2x {
+    0% {
+        background: #fdf8f0;
+    }
+    100% {
+        background: #f6e7ec;
+    }
+}
+
+@keyframes color-change-2x {
+    0% {
+        background: #fdf8f0;
+    }
+    100% {
+        background: #f6e7ec;
+    }
+}
+
+@-webkit-keyframes fade-in {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes fade-in {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.headerAlignSyle {
+    text-align: right !important;
+}
+
+
+.sample-wrapper {
+  overflow-y: auto;
+}
+
+// .calendar-wrapper {
+//   max-width: 700px;
+//   min-width: 200px;
+//   border: 1px solid #0494F7;
+//   text-align: center;
+// }
+
+.item-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stay__info > span {
+  color: #0494F7;
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: 0.046875rem;
+  text-transform: uppercase;
+  line-height: 1rem;
+  text-align: center;
+}
+// .yearCalendar .igx-calendar-picker__next, .yearCalendar .igx-calendar-picker__prev{
+//   display: none !important;
+// }
+// .yearCalendar .igx-calendar-picker__dates,
+// .monthCalendar .igx-calendar-picker__dates span:nth-child(2),
+// .igx-calendar__date--single, .igx-calendar__date--selected.igx-calendar__date--first.igx-calendar__date--last {
+// }
+
+// .igx-calendar__date--selected .igx-calendar__date-content {
+//   color: white;
+//   background: #0375be;
+//   border-radius: 0px;
+// }
+
+/*.igx-calendar__date--current .igx-calendar__date-content {
+  color: #0375be;
+  font-weight: 600;
+  background: transparent;
+}*/
+
+/*.igx-calendar__date--current .igx-calendar__date-content{
+  color: black !important;
+}*/
+
+// .yearCalendar .igx-calendar-picker__next, .yearCalendar .igx-calendar-picker__prev{
+//   display: none !important;
+// }
+// .yearCalendar .igx-calendar-picker__dates,.igx-calendar__date--single,
+// .igx-calendar__date--selected.igx-calendar__date--first.igx-calendar__date--last {
+//   pointer-events: none !important;
+// }
+
+// .contentDivCalendar .matFormField {
+//   margin-bottom: 20px;
+// }
+
+// .contentDivCalendar .btnCalendarForm {
+//   margin-bottom: 15px;
+// }
+
+
+/**********************************
+ *  ZEBRA LIST
+ *********************************/
+.zebra-list {
+  list-style: none;
+  margin: 20px 0;
+  padding: 5px 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.zebra-list li {
+  padding: 10px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  min-height: 48px;
+}
+
+.zebra-list li:nth-child(even) {
+  background: rgb(236, 236, 236);
+}
+
+.zebra-list li.modified {
+  background-color: #fff8ea;
+}
+
+.zebra-list li.saved {
+  animation-name: zebraListConfirmation;
+  animation-duration: 1s;
+}
+
+.zebra-list li:last-child {
+  border-bottom: 0;
+}
+
+.zebra-list li span {
+  flex-grow: 1;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.zebra-list li .input input {
+  width: 250px;
+  text-align: right;
+  padding-right: 5px;
+}
+
+.align-right {
+  text-align: right;
+}
+
+.zebra-list li .mat-form-field-wrapper {
+  padding-bottom: 0;
+}
+
+.zebra-list li .mat-form-field-appearance-outline .mat-form-field-flex {
+  align-items: center;
+}
+
+.zebra-list li .mat-form-field-appearance-outline .mat-form-field-suffix {
+  padding-top: 6px;
+}
+
+.zebra-list li .mat-form-field-appearance-outline .mat-form-field-outline {
+  background-color: white;
+}
+
+.zebra-list li .mat-checkbox {
+  margin-right: 10px;
+}
+
+@keyframes zebraListConfirmation {
+  from {background-color: green;}
+  to {background-color: initial;}
+}
+
+//select styles
+.mat-form-field.mat-focused .mat-form-field-ripple{
+  background-color: #bf0000!important;
+}
+
+.mat-form-field.mat-focused .mat-form-field-label {
+  color: #bf0000!important;
+}
+
+.btnActive{
+  color: #bf0000!important;
+  font-weight: bold !important;
+}
+
+$my-calendar-theme: igx-calendar-theme(
+  $header-background: #888,
+  $content-background: #fdfdfd,
+  $header-text-color: #ffffff,
+  $date-current-text-color: #BF0000,
+  $picker-arrow-color: #BF0000,
+  $picker-arrow-hover-color: #BF0000,
+  $year-current-text-color: #BF0000,
+  $year-hover-text-color: #BF0000,
+  $month-current-text-color: #BF0000,
+  $month-hover-text-color: #BF0000,
+  $picker-text-color: #BF0000,
+  $picker-text-hover-color: #BF0000
+);
+
+@include igx-calendar($my-calendar-theme);
+
+.yearCalendar .igx-calendar-picker__date {
+  color:black;
+}
+
+.igx-calendar__date--current .igx-calendar__date-content{
+  position: relative;
+}
+
+.igx-calendar__date--current .igx-calendar__date-content::before{
+  content: '';
+  display: block;
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+  border-color: white;
+  border-width: 1px;
+  border-style: solid;
+  position: absolute;
+  top: 4px;
+  left: 4px;
+}
+
+.error-snackbar {
+  background-color: #BF0000;
+}
+
+
+//Dialogs
+.dialog h1 {
+  font-size: 18px;
+  display: flex;
+  width: 100%;
+  border-bottom: 2px solid #ddd;
+  font-weight: 700;
+  margin: 0 0 10px;
+  align-items: center;
+}
+
+@-webkit-keyframes rotating {
+  from {
+    -webkit-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+.dialog h1 mat-icon {
+  margin-left: 20px;
+}
+
+.dialog h1 mat-icon.loading {
+  -webkit-animation: rotating 1s linear infinite;
+  -moz-animation: rotating 1s linear infinite;
+  -ms-animation: rotating 1s linear infinite;
+  -o-animation: rotating 1s linear infinite;
+  animation: rotating 1s linear infinite;
+}
+
+.dialog div.mat-dialog-actions {
+  justify-content: flex-end;
+}
+
+.dialog div.mat-dialog-content {
+  padding: 24px;
+  margin: 0;
+}
+
+@media print {
+  app-toolbar,
+  mat-sidenav,
+  .mat-drawer-backdrop,
+  app-loading,
+  app-breadcrumbs,
+  .sidenav-container .mat-icon-button,
+  .sidenav-container .mat-flat-button,
+  .sidenav-container .paginator,
+  [no-print] {
+    display: none !important;
+  }
+
+  .sidenav-container {
+    position: absolute !important;
+    width: 100% !important;
+    top: 0 !important;
+    left: 0 !important;
+    margin-left: unset !important;
+    padding-left: unset !important;
+  }
+
+  .sidenav-content {
+    padding-left: unset !important;
+    margin-left: unset !important;
+  }
+
+}

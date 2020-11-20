@@ -1,0 +1,99 @@
+@import "../../../variables.scss";
+
+.sidenav-container {
+  position: absolute;
+  top: 65px;
+  bottom: $default-margin;
+  left: 0px;
+  right: $default-margin;
+}
+
+.sidenav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 230px;
+  background-color: #F5F5F5;
+  border: 0px black;
+}
+
+.mat-expansion-panel{
+
+  width: 230px;
+  background-color: #F5F5F5;
+  border: 0px #F5F5F5;
+  
+}
+
+mat-expansion-panel-header{
+  padding: 10px 10px 10px 15px;
+}
+
+.sidenav ul {
+  padding-left: 0px;
+}
+
+.sidenav ul li{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidenav ul li a{
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px 10px 10px 15px;
+}
+
+.sidenav ul li a .mat-icon{
+  color: #333 !important;
+}
+
+.sidenav ul li a.active, .sidenav ul li a.active .mat-icon{
+  color: #C56400 !important;
+  font-weight: 700;
+}
+
+
+.sidenav ul li .mat-icon {
+  margin-right:10px;
+  width:20px;
+  height: 20px;
+}
+
+.sidenav-content {
+	padding-left: default; //canviat de default
+}
+
+.sidenav-margin-div{
+	background-color: white;
+	height: 30px;
+	width: 100%;
+	position: absolute;
+    bottom: 60px;
+}
+
+.side-nav-option {
+  list-style: none;
+  color: $black !important;
+}
+
+.side-nav-option a {
+  text-decoration: none !important;
+  color: $black !important;
+}
+
+.altresMenus{
+  border-top: 1px solid #DDDDDD;
+}
+
+.span{
+  font-size: normal;
+  text-align: left;
+}
+
+.opcio{
+  margin-top: 10px;
+}
+ 

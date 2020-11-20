@@ -1,0 +1,22 @@
+{
+  "connection": "Conexión",
+  "service": "Servicio",
+  "layers": "Capas",
+  "trees": "Árboles",
+  "backgroundLayers": "Capas de fondo",
+  "layersPermits": "Permisos sobre les capas",
+  "territory": "Territorio",
+  "role": "ROL",
+  "user": "Usuario",
+  "tasks": "Tareas",
+  "tasksDownload": "Descarga",
+  "tasksDocument": "Documento",
+  "tasksConsultation": "Consulta",
+  "tasksMoreInformation": "Más información",
+  "tasksLocator": "Localizador",
+  "tasksReport": "Informe",
+  "tasksEdition": "Edición",
+  "tasksThematic": "Temática",
+  "tasksExtractionFME": "Extracción FME",
+  "application": "Aplicación"
+}

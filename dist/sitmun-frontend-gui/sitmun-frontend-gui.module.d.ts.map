@@ -1,0 +1,1 @@
+{"version":3,"file":"sitmun-frontend-gui.module.d.ts","sources":["sitmun-frontend-gui.module.d.ts"],"names":[],"mappings":"AAAA;;;;;;;;;;;;;AACA;;;AACA","sourcesContent":["/** SITMUN plugin core module */\r\nexport declare class SitmunFrontendGuiModule {\r\n}\r\n"]}

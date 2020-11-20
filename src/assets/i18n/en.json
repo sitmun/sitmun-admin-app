@@ -1,0 +1,22 @@
+{
+  "connection": "Connection",
+  "service": "Service",
+  "layers": "Layers",
+  "trees": "Trees",
+  "backgroundLayers": "Background layers",
+  "layersPermits": "Layers permits",
+  "territory": "Territory",
+  "role": "ROLE",
+  "user": "User",
+  "tasks": "Tasks",
+  "tasksDownload": "Download",
+  "tasksDocument": "Document",
+  "tasksConsultation": "Consultation",
+  "tasksMoreInformation": "More information",
+  "tasksLocator": "Locator",
+  "tasksReport": "Report",
+  "tasksEdition": "Edition",
+  "tasksThematic": "Thematic",
+  "tasksExtractionFME": "FME extraction",
+  "application": "Application"
+}

@@ -1,0 +1,22 @@
+{
+  "connection": "Connexió",
+  "service": "Servei",
+  "layers": "Capes",
+  "trees": "Arbres",
+  "backgroundLayers": "Capes de fons",
+  "layersPermits": "Permisos sobre les capes",
+  "territory": "Territori",
+  "role": "ROL",
+  "user": "Usuari",
+  "tasks": "Tasques",
+  "tasksDownload": "Descàrrega",
+  "tasksDocument": "Document",
+  "tasksConsultation": "Consulta",
+  "tasksMoreInformation": "Més informació",
+  "tasksLocator": "Llocalitzador",
+  "tasksReport": "Informe",
+  "tasksEdition": "Edició",
+  "tasksThematic": "Temàtica",
+  "tasksExtractionFME": "Extracció FME",
+  "application": "Aplicació"
+}
