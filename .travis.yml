@@ -13,6 +13,7 @@ cache:
     - ./node_modules
 
 install:
+  - npm set //npm.pkg.github.com/:_authToken $GITHUB_API_KEY
   - npm install
 
 script:
