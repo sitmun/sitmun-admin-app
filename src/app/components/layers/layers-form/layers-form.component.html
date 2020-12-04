@@ -1,0 +1,148 @@
+<div class="titleDiv" *ngIf="layerID==-1" >
+    <h4><mat-icon aria-hidden="false"  svgIcon="menu_capes"></mat-icon> {{ "layersEntity.layers" | translate }}-{{"layersEntity.new" | translate}}</h4>
+    <span class="divider"></span>
+  </div>
+  <div class="titleDiv" *ngIf="layerID!=-1" >
+    <h4><mat-icon aria-hidden="false"  svgIcon="menu_capes"></mat-icon>{{ "layersEntity.layers" | translate }}-{{"layersEntity.edit" | translate}}</h4>
+    <span class="divider"></span>
+  </div>
+  <div class="formHeader">
+    <h5> Dades generals  </h5>
+    <button   mat-flat-button class="saveButton"  >
+      <mat-icon fontSet="material-icons-round"  > save </mat-icon>
+      {{ "layersEntity.save" | translate }}
+    </button>
+  </div>
+  <span class="divider"></span>
+  <form [formGroup]='layerForm' #f="ngForm"> 
+  
+    <!-- Primera Fila  -->
+      <div class="rowFormDiv">
+          <div class="colFormDiv">
+            <label class="formLabel">
+              {{'layersEntity.name' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="name">
+            </mat-form-field>
+          </div>
+  
+          <div class="colFormDiv" >
+            <label class="formLabel">
+              {{'layersEntity.source' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="source">
+            </mat-form-field>
+          </div>
+  
+          <div class="colFormDiv">
+              <label class="formLabel">
+                {{'layersEntity.minimumScale' | translate}}
+              </label>
+              <mat-form-field appearance="outline">
+                <input matInput type="text" formControlName="minimumScale">
+              </mat-form-field>
+            </div>
+  
+            <div class="colFormDiv" id="right-column">
+              <label class="formLabel">
+                {{'layersEntity.maximumScale' | translate}}
+              </label>
+              <mat-form-field appearance="outline">
+                <input matInput type="text" formControlName="maximumScale">
+              </mat-form-field>
+            </div>
+      </div>
+ 
+    <!-- Segona Fila  -->
+      <div class="rowFormDiv">
+        <div class="colFormDiv">
+          <label class="formLabel">
+            {{'layersEntity.geometryType' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="text" formControlName="geometryType">
+          </mat-form-field>
+        </div>
+
+        <div class="colFormDiv" >
+          <label class="formLabel">
+            {{'layersEntity.order' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="text" formControlName="order">
+          </mat-form-field>
+        </div>
+
+        <div class="colFormDiv">
+            <label class="formLabel">
+              {{'layersEntity.transparency' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="transparency">
+            </mat-form-field>
+          </div>
+
+          <div class="colFormDiv" id="right-column">
+            <label class="formLabel">
+              {{'layersEntity.metadataURL' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="metadataURL">
+            </mat-form-field>
+          </div>
+    </div>
+
+      <div class="rowFormDiv">
+      
+          <div class="thirdColumnColFormDiv" >
+            <label class="formLabel">
+              {{'layersEntity.legendType' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="legendType">
+            </mat-form-field>
+          </div>
+  
+          <div class="thirdColumnColFormDiv" >
+            <label class="formLabel">
+              {{'layersEntity.description' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="description">
+            </mat-form-field>
+          </div>
+  
+          <div class="thirdColumnColFormDiv" >
+            <label class="formLabel">
+              {{'layersEntity.datasetURL' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="datasetURL">
+            </mat-form-field>
+          </div>
+  
+          <button *ngIf="layerID==-1" (click)="addNewLayer()" mat-flat-button class="validateButton" >{{ "layersEntity.validate" | translate }}</button>
+          <button *ngIf="layerID!=-1" (click)="updateLayer()" mat-flat-button class="validateButton" >{{ "layersEntity.update" | translate }}</button>
+    </div>
+  
+    <mat-accordion *ngIf="layerID!=-1">
+      <mat-expansion-panel [expanded]="false" class="agGridExpansionPanel">
+        <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+          <mat-panel-title  >
+            {{ "layersEntity.parametersConfiguration" | translate }}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+    
+    
+      <div class="appDataGridEditDiv">
+          <app-data-grid  class="ag-theme-balham" [columnDefs]="columnDefs"  [getAll]='getAllParameters'  [frameworkComponents]="frameworkComponents"
+          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
+          (remove)="removeDataParameters($event)" (new)='newDataParameters($event)'  > </app-data-grid>
+      </div>
+    
+    
+      </mat-expansion-panel>
+    </mat-accordion>
+    

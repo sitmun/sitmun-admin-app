@@ -1,7 +1,9 @@
-import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Connection } from 'dist/sitmun-frontend-core/connection/connection.model';
 import { ConnectionService } from 'dist/sitmun-frontend-core/';
+import { UtilsService } from '../../services/utils.service';
+import { BtnEditRenderedComponent } from 'dist/sitmun-frontend-gui/';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -9,20 +11,51 @@ import { ConnectionService } from 'dist/sitmun-frontend-core/';
   templateUrl: './connection.component.html',
   styleUrls: ['./connection.component.scss']
 })
-export class ConnectionComponent {
+export class ConnectionComponent implements OnInit {
 
-  columnDefs = [
-    { field: 'id', checkboxSelection: true, },
-    { field: 'name' },
-    { field: 'user'},
-    { field: 'driver'},
-    { field: 'url'},
-    { field: 'estat'},
-  ];
+  columnDefs: any[];
+  public frameworkComponents = {
+    btnEditRendererComponent: BtnEditRenderedComponent
+  };
 
-    constructor(private http: HttpClient,
-                public connectionService: ConnectionService,
+    constructor(public connectionService: ConnectionService,
+                private utils: UtilsService,
+                private router: Router,
                 ) {
+
+    }
+
+     ngOnInit()  {
+      this.columnDefs = [
+        {
+          headerName: '',
+          checkboxSelection: true,
+          headerCheckboxSelection: true,
+          editable: false,
+          filter: false,
+          width: 50,
+          lockPosition:true,
+        },
+        {
+          headerName: '',
+          field: 'id',
+          editable: false,
+          filter: false,
+          width: 55,
+          lockPosition:true,
+          cellRenderer: 'btnEditRendererComponent',
+          cellRendererParams: {
+            clicked: this.newData.bind(this)
+          },
+        },
+        { headerName: 'ID', field: 'id', editable: false },
+        { headerName: this.utils.getTranslate('connectionEntity.name'), field: 'name' },
+        { headerName: this.utils.getTranslate('connectionEntity.user'), field: 'user'},
+        { headerName: this.utils.getTranslate('connectionEntity.driver'), field: 'driver'},
+        { headerName: this.utils.getTranslate('connectionEntity.connection'), field: 'url'}
+      ];
+
+      
 
     }
 
@@ -45,12 +78,14 @@ export class ConnectionComponent {
 
     removeData( data: Connection[])
     {
-      console.log(data);
+      data.forEach(connection => {
+        this.connectionService.delete(connection);
+      });
     }
 
-    newData()
+    newData(id: any)
     {
-      console.log('Crear nou objecte!');
+      this.router.navigate(['connection', id, 'connectionForm']);
     }
 
     applyChanges( data: Connection[])

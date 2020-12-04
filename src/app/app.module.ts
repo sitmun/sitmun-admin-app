@@ -1,14 +1,16 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, LOCALE_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { RouterModule } from '@angular/router';
 import { ExternalConfigurationService } from './ExternalConfigurationService';
-import { AngularHalModule, ConnectionService } from 'dist/sitmun-frontend-core/';
+import { AngularHalModule, BackgroundService, CartographyGroupService, CartographyService,
+   ConnectionService, TaskGroupService, TerritoryService } from 'dist/sitmun-frontend-core/';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { AgGridModule } from '@ag-grid-community/angular';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from './material-module';
+import { APP_ROUTING } from './app-routes';
 
 
 //i18n
@@ -52,8 +54,23 @@ import { TasksExtractionFmeComponent } from './components/tasks-extraction-fme/t
 //Services
 import { SidenavService } from './services/sidenav.service';
 import { RoleService } from 'dist/sitmun-frontend-core/';
-import { UserService } from '@sitmun/frontend-core';
-
+import { UserService } from 'dist/sitmun-frontend-core/';
+import { TreeService } from 'dist/sitmun-frontend-core/';
+import { UtilsService } from './services/utils.service';
+import { ServiceService } from 'dist/sitmun-frontend-core/';
+import { ApplicationService } from 'dist/sitmun-frontend-core/';
+import { ConnectionFormComponent } from './components/connection/connection-form/connection-form.component';
+import { RoleFormComponent } from './components/role/role-form/role-form.component';
+import { UserFormComponent } from './components/user/user-form/user-form.component';
+import { TerritoryFormComponent } from './components/territory/territory-form/territory-form.component';
+import { ServiceFormComponent } from './components/service/service-form/service-form.component';
+import { ApplicationFormComponent } from './components/application/application-form/application-form.component';
+import { TreesFormComponent } from './components/trees/trees-form/trees-form.component';
+import { BackgroundLayersFormComponent } from './components/background-layers/background-layers-form/background-layers-form.component';
+import { LayersPermitsFormComponent } from './components/layers-permits/layers-permits-form/layers-permits-form.component';
+import { LayersFormComponent } from './components/layers/layers-form/layers-form.component';
+import { TaskGroupComponent } from './components/task-group/task-group.component';
+import { TaskGroupFormComponent } from './components/task-group/task-group-form/task-group-form.component';
 
 @NgModule({
   declarations: [
@@ -80,7 +97,19 @@ import { UserService } from '@sitmun/frontend-core';
     TasksReportComponent,
     TasksEditionComponent,
     TasksThematicComponent,
-    TasksExtractionFmeComponent
+    TasksExtractionFmeComponent,
+    ConnectionFormComponent,
+    RoleFormComponent,
+    UserFormComponent,
+    TerritoryFormComponent,
+    ServiceFormComponent,
+    ApplicationFormComponent,
+    TreesFormComponent,
+    BackgroundLayersFormComponent,
+    LayersPermitsFormComponent,
+    LayersFormComponent,
+    TaskGroupComponent,
+    TaskGroupFormComponent
   ],
   imports: [
     BrowserModule,
@@ -89,7 +118,7 @@ import { UserService } from '@sitmun/frontend-core';
     AngularHalModule,
     SitmunFrontendGuiModule,
     MaterialModule,
-    HttpClientModule,
+    RouterModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
@@ -99,13 +128,15 @@ import { UserService } from '@sitmun/frontend-core';
         deps: [HttpClient]
       }
     }),
+    APP_ROUTING,
     AgGridModule.withComponents([]),
-    RouterModule.forRoot(APP_ROUTES, { useHash: true }),
     BrowserAnimationsModule
   ],
-  providers: [SidenavService,
+  providers: [SidenavService, UtilsService,
      { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
-    RoleService, ConnectionService, UserService],
+     { provide: LOCALE_ID, useValue: 'es-ES' },
+    RoleService, ConnectionService, UserService, TerritoryService, ServiceService, ApplicationService, TreeService,
+    BackgroundService, CartographyService, CartographyGroupService, TaskGroupService],
   bootstrap: [AppComponent]
 })
 export class AppModule {

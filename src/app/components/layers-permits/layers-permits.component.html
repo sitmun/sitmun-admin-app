@@ -1,1 +1,9 @@
-<p>layers-permits works!</p>
+<div class="titleDiv">
+    <h4><mat-icon aria-hidden="false"  svgIcon="menu_permisos"></mat-icon> {{ "layersPermitsEntity.layersPermits" | translate }}</h4>
+    <span class="divider"></span>
+</div>
+<div class="appDataGridDiv">
+    <app-data-grid  class="ag-theme-balham" [columnDefs]="columnDefs"  [getAll]='getAllLayersPermits' [globalSearch]=true [frameworkComponents]="frameworkComponents"
+    [discardChangesButton]=true [redoButton]=true [undoButton]=true [applyChangesButton]=true  [deleteButton]=true [newButton]=true 
+    (remove)="removeData($event)" (new)='newData($event)' (sendChanges)='applyChanges($event)' > </app-data-grid>
+</div>

@@ -10,6 +10,8 @@ export declare const TERRITORIAL_APP_NAME: string;
  * Application model
  */
 export declare class Application extends Resource {
+    /** id */
+    id: number;
     /** name*/
     name: string;
     /** type*/
@@ -25,9 +27,9 @@ export declare class Application extends Resource {
     /** trees*/
     trees: Tree[];
     /** scales (comma-separated values)*/
-    scales: string;
+    scales: string[];
     /** projections(comma-separated EPSG codes)*/
-    projections: string;
+    srs: string;
     /** whether application tree will auto refresh*/
     treeAutoRefresh: Boolean;
     /** backgrounds*/

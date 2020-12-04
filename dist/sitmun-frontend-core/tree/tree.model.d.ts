@@ -5,6 +5,8 @@ import { Role } from '../role/role.model';
  * Tree model
  */
 export declare class Tree extends Resource {
+    /** id */
+    id: number;
     /** name */
     name: string;
     /** nodes */

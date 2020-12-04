@@ -10,6 +10,8 @@ export declare const GEOADMIN_TREE_TASK_ID: string;
 import { TaskUI } from './task-ui.model';
 /** Task model */
 export declare class Task extends Resource {
+    /** id */
+    id: number;
     /** name */
     name: string;
     /** order*/

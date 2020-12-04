@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { TasksExtractionFmeComponent } from './tasks-extraction-fme.component';
+import { RouterModule } from '@angular/router';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('TasksExtractionFmeComponent', () => {
   let component: TasksExtractionFmeComponent;
@@ -8,7 +10,8 @@ describe('TasksExtractionFmeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TasksExtractionFmeComponent ]
+      declarations: [ TasksExtractionFmeComponent ],
+      imports: [ RouterModule, MatIconTestingModule]
     })
     .compileComponents();
   });

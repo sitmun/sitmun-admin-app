@@ -1,5 +1,10 @@
-<div style="width: 850px; height: 430px;  margin: 50px;" >
-    <app-data-grid  class="ag-theme-balham" [columnDefs]="columnDefs"  [getAll]='getAllRoles' [searchGeneral]=true
-    [botoDescartarCanvis]=true [botoRedo]=true [botoUndo]=true [botoAplicarCanvis]=true  [botoElimina]=true [botoNou]=true 
-    (remove)="removeData($event)" (new)='newData()' (sendChanges)='applyChanges($event)' > </app-data-grid>
+
+<div class="titleDiv">
+    <h4><mat-icon aria-hidden="false"  svgIcon="menu_rol"></mat-icon> {{ "roleEntity.role" | translate }}</h4>
+    <span class="divider"></span>
+</div>
+<div class="appDataGridDiv">
+    <app-data-grid  class="ag-theme-balham" [columnDefs]="columnDefs"  [getAll]='getAllRoles' [globalSearch]=true [frameworkComponents]="frameworkComponents"
+    [discardChangesButton]=true [redoButton]=true [undoButton]=true [applyChangesButton]=true  [deleteButton]=true [newButton]=true 
+    (remove)="removeData($event)" (new)='newData($event)' (sendChanges)='applyChanges($event)' > </app-data-grid>
 </div>

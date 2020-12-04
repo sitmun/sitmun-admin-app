@@ -6,7 +6,7 @@
   "backgroundLayers": "Background layers",
   "layersPermits": "Layers permits",
   "territory": "Territory",
-  "role": "ROLE",
+  "role": "Role",
   "user": "User",
   "tasks": "Tasks",
   "tasksDownload": "Download",
@@ -18,5 +18,14 @@
   "tasksEdition": "Edition",
   "tasksThematic": "Thematic",
   "tasksExtractionFME": "FME extraction",
-  "application": "Application"
+  "application": "Application",
+  "Remove": "Remove",
+  "Search": "Search",
+  "New": "New",
+  "name": "Name",
+  "description": "Description",
+  "status": "Status",
+  "firstname": "FirstName",
+  "lastname" : "LastName",
+  "code" : "Code"
 }

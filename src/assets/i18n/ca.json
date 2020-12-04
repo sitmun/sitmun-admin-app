@@ -1,22 +1,157 @@
 {
-  "connection": "Connexió",
-  "service": "Servei",
-  "layers": "Capes",
-  "trees": "Arbres",
-  "backgroundLayers": "Capes de fons",
-  "layersPermits": "Permisos sobre les capes",
-  "territory": "Territori",
-  "role": "ROL",
-  "user": "Usuari",
-  "tasks": "Tasques",
-  "tasksDownload": "Descàrrega",
-  "tasksDocument": "Document",
-  "tasksConsultation": "Consulta",
-  "tasksMoreInformation": "Més informació",
-  "tasksLocator": "Llocalitzador",
-  "tasksReport": "Informe",
-  "tasksEdition": "Edició",
-  "tasksThematic": "Temàtica",
-  "tasksExtractionFME": "Extracció FME",
-  "application": "Aplicació"
+  "Remove": "Elimina",
+  "Search": "Cerca",
+  "New": "Nou",
+
+  
+  "sideMenu":{
+    "connection": "Connexió",
+    "service": "Servei",
+    "layers": "Capes",
+    "trees": "Arbres",
+    "backgroundLayers": "Capes de fons",
+    "layersPermits": "Permisos sobre les capes",
+    "territory": "Territori",
+    "role": "Rol",
+    "user": "Usuari",
+    "tasks": "Tasques",
+    "tasksDownload": "Descàrrega",
+    "tasksDocument": "Document",
+    "tasksConsultation": "Consulta",
+    "tasksMoreInformation": "Més informació",
+    "tasksLocator": "Llocalitzador",
+    "tasksReport": "Informe",
+    "tasksEdition": "Edició",
+    "tasksThematic": "Temàtica",
+    "tasksExtractionFME": "Extracció FME",
+    "application": "Aplicació",
+    "taskGroup": "Grup tasca"
+  },
+  "userEntity":{
+    "user":"Usuari",
+    "firstname":"Nom",
+    "lastname" : "Cognom",
+    "administrator": "Administrador",
+    "blocked":"Bloquejat",
+    "password": "Contrasenya",
+    "confirmPassword": "Confirmació contrasenya",
+    "new": "Nou",
+    "edit": "Edita",
+    "validate": "Valida",
+    "update": "Actualitza",
+    "save": "Desa",
+    "permissions": "Permisos",
+    "role": "Rol"
+  },
+  "connectionEntity":{
+    "user":"Usuari",
+    "name": "Nom",
+    "driver": "Driver",
+    "connection":"Connexió",
+    "password": "Contrasenya",
+    "new": "Nova",
+    "edit": "Edita",
+    "validate": "Valida",
+    "update": "Actualitza",
+    "save": "Desa"
+
+  },
+  "serviceEntity":{
+    "service": "Servei",
+    "name": "Nom",
+    "type": "Tipus",
+    "serviceURL": "Url",
+    "supportedSRS": "Projeccions",
+    "createdDate":"Alta"
+  },
+  "layersEntity":{
+    "layers": "Capes",
+    "name": "Nom",
+    "source": "Servei",
+    "order": "Ordre",
+    "layers": "Capes",
+    "createdDate": "Alta",
+    "minimumScale": "Escala Min",
+    "maximumScale": "Escala Max",
+    "metadataURL":"URL dades",
+    "geometryType": "Tipus Geometria",
+    "transparency": "Transparència",
+    "legendType": "Tipus llegenda",
+    "description": "Descripció",
+    "datasetURL": "Url de dades",
+    "edit": "Edita",
+    "new": "Nova",
+    "save": "Desa",
+    "validate": "Valida",
+    "update": "Actualitza",
+    "territory": "Territori",
+    "code": "Codi",
+    "administrator": "Administrador",
+    "parametersConfiguration": "Configuració de paràmetres"
+  },
+  "layersPermitsEntity":{
+    "layersPermits": "Permisos sobre les capes",
+    "name": "Nom",
+    "type": "Tipus",
+    "serviceURL": "Url",
+    "supportedSRS": "Projeccions",
+    "createdDate":"Alta",
+    "edit": "Edita",
+    "new": "Nou",
+    "save": "Desa",
+    "validate": "Valida",
+    "update": "Actualitza",
+    "roles" : "Rols"
+  },
+  "treesEntity":{
+    "trees":"Arbres",
+    "name": "Nom"
+  },
+  "taskGroupEntity":{
+    "taskGroup":"Grup tasca",
+    "name": "Nom"
+  },
+  "backgroundEntity":{
+    "backgroundLayers":"Capes de fons",
+    "name": "Nom",
+    "description": "Descripció",
+    "active": "Actiu",
+    "cartographyGroup": "Grup cartografia"
+  },
+  "applicationEntity":{
+    "application":"Aplicació",
+    "name": "Nom",
+    "type": "Tipus",
+    "theme": "Tema",
+    "srs": "Projeccio",
+    "createdDate":"Alta"
+  },
+  "territoryEntity":{
+    "territory": "Territori",
+    "code" : "Codi",
+    "name" : "Nom",
+    "scope": "Àmbit",
+    "createdDate": "Data alta",
+    "administrator": "Administrador",
+    "email": "Correu",
+    "address":"Direcció",
+    "extent":"Extensió",
+    "note":"Observacions",
+    "blocked":"Bloquejat"
+  },
+  "roleEntity":{
+    "role":"Rol",
+    "note":"Observacions",
+    "name":"Nom",
+    "application":"Aplicació",
+    "edit": "Edita",
+    "new": "Nou",
+    "save": "Desa",
+    "validate": "Valida",
+    "update": "Actualitza",
+    "users": "Usuaris"
+  }
+
+
+
 }

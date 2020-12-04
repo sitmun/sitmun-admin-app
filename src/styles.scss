@@ -148,10 +148,60 @@ $sitmun-theme: mat-light-theme($sitmun-primary,$sitmun-accent,$sitmun-warn);
 html, body { height: 100%; }
 body { margin: 0; font-family: 'Open Sans', sans-serif; }
 
+//Button validate of forms
+
+.formHeader{
+  display: inline-block;
+}
+
+.validateButton{
+  background-color: #FF9300;
+  color: white;
+  width: 85px;
+  height: 40px;
+  margin-top: 34px !important;
+  justify-self: right !important;
+}
+.saveButton{
+  background-color: #68A225;
+  color: white;
+  width: 85px;
+  height: 40px;
+}
+
+h4 {
+  display: inline-block;
+
+}
+h5 {
+  display: inline-block;
+
+}
 h2 {
-    margin-bottom: 10px;
     width: calc(100% - 100px);
     display: inline-block;
+}
+
+.titleDiv{
+  margin-left: 10px;
+}
+
+.agGridExpansionPanel{
+  // box-sizing: inherit !important;
+}
+
+.agGridExpansionPanelTitle{
+  background-color: #FFE9CC !important;
+}
+
+.appDataGridDiv{
+  height: calc(100% - 230px);
+  margin: 50px;
+}
+.appDataGridEditDiv{
+
+  height: 200px;
+  margin: 50px;
 }
 
 .divider {
@@ -185,6 +235,7 @@ h2 {
 // .mat-icon{
 //     margin-right:5px;
 // }
+
 
 .mat-table{
     width: calc(100% - 20px);

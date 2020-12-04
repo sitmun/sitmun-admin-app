@@ -5,7 +5,7 @@
                 <li  *ngFor="let option of menuOptions" class="side-nav-option">
                     <a *ngIf="option.children == null" [routerLink]="[option.id]" routerLinkActive="active"> 
                         <mat-icon aria-hidden="false" aria-label="Example home icon" svgIcon="{{ option.icon }}"></mat-icon>
-                        <span class="opcio" [translate]=" option.id"> </span>
+                        <span class="opcio" >{{ "sideMenu."+option.id | translate }} </span>
                     </a>
                     <!-- [routerLink]="[option.id]" routerLinkActive="active" -->
                
@@ -15,12 +15,12 @@
                         <mat-expansion-panel-header id="header"> 
                            <mat-panel-title>
                                 <mat-icon aria-hidden="false" aria-label="Example home icon" svgIcon="{{ option.icon }}"></mat-icon>
-                                <span [translate]="option.id"> </span>
+                                <span>{{ "sideMenu."+option.id | translate }} </span>
                             </mat-panel-title>
                         </mat-expansion-panel-header>
                         <li *ngFor="let expandOption of option.children">
                             <a  [routerLink]="[expandOption.id]"  routerLinkActive="active" > 
-                                <span [translate]="expandOption.id"> </span>
+                                <span> {{ "sideMenu."+expandOption.id | translate }}</span>
                                 
                             </a>
                          </li>

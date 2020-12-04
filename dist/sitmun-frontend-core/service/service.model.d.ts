@@ -5,14 +5,16 @@ import { ServiceParameter } from './service-parameter.model';
  * Service model
  */
 export declare class Service extends Resource {
+    /** id */
+    id: number;
     /** name*/
     name: string;
     /** type*/
     type: string;
     /** url*/
-    url: string;
+    serviceURL: string;
     /** projections*/
-    projections: string;
+    supportedSRS: string;
     /** legend*/
     legend: string;
     /** infoUrl*/

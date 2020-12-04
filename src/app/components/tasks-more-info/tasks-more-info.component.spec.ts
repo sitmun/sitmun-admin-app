@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { TasksMoreInfoComponent } from './tasks-more-info.component';
+import { RouterModule } from '@angular/router';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('TasksMoreInfoComponent', () => {
   let component: TasksMoreInfoComponent;
@@ -8,7 +10,8 @@ describe('TasksMoreInfoComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TasksMoreInfoComponent ]
+      declarations: [ TasksMoreInfoComponent ],
+      imports: [ RouterModule, MatIconTestingModule]
     })
     .compileComponents();
   });

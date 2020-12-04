@@ -1,0 +1,22 @@
+.rowFormDiv{
+    width: 100%;
+  }
+  .colFormDiv{
+    display: inline-block;
+    width: 47.5%;
+    margin-right: 5%;
+  }
+
+  mat-form-field {
+    width: 100%;
+}
+#right-column {
+  margin-right: 0%;
+}
+
+
+.thirdColumnColFormDiv{
+  display: inline-block;
+  width: 21.5%;
+  margin-right: 4.7%;
+}

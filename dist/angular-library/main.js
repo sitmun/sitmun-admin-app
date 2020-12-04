@@ -1,5 +1,77 @@
 (window["webpackJsonp"] = window["webpackJsonp"] || []).push([["main"],{
 
+/***/ "./src/main/angular-library/projects/sitmun-frontend-gui/src/lib/btn-edit-rendered/btn-edit-rendered.component.css":
+/*!*************************************************************************************************************************!*\
+  !*** ./src/main/angular-library/projects/sitmun-frontend-gui/src/lib/btn-edit-rendered/btn-edit-rendered.component.css ***!
+  \*************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = ".buttonEdit {\r\n    color: #000000;\r\n    background-color: #DDDDDD;\r\n    width: 24px;\r\n    height: 24px;\r\n}\r\n.iconEdit {\r\n    font-size: 16px;\r\n    margin-top: -8px;\r\n}"
+
+/***/ }),
+
+/***/ "./src/main/angular-library/projects/sitmun-frontend-gui/src/lib/btn-edit-rendered/btn-edit-rendered.component.html":
+/*!**************************************************************************************************************************!*\
+  !*** ./src/main/angular-library/projects/sitmun-frontend-gui/src/lib/btn-edit-rendered/btn-edit-rendered.component.html ***!
+  \**************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "<button mat-mini-fab class=\"buttonEdit\"  type=\"button\"  (click)=\"btnClickedHandler($event)\" >\n  <mat-icon class=\"iconEdit\"   fontSet=\"material-icons-round\" > edit </mat-icon>\n</button> "
+
+/***/ }),
+
+/***/ "./src/main/angular-library/projects/sitmun-frontend-gui/src/lib/btn-edit-rendered/btn-edit-rendered.component.ts":
+/*!************************************************************************************************************************!*\
+  !*** ./src/main/angular-library/projects/sitmun-frontend-gui/src/lib/btn-edit-rendered/btn-edit-rendered.component.ts ***!
+  \************************************************************************************************************************/
+/*! exports provided: BtnEditRenderedComponent */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BtnEditRenderedComponent", function() { return BtnEditRenderedComponent; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+
+var BtnEditRenderedComponent = /** @class */ (function () {
+    function BtnEditRenderedComponent() {
+    }
+    BtnEditRenderedComponent.prototype.agInit = function (params) {
+        this.params = params;
+    };
+    BtnEditRenderedComponent.prototype.refresh = function (params) {
+        return true;
+    };
+    BtnEditRenderedComponent.prototype.btnClickedHandler = function ($event) {
+        this.params.clicked(this.params.value);
+    };
+    BtnEditRenderedComponent.prototype.getParams = function () {
+        return this.params;
+    };
+    BtnEditRenderedComponent.prototype.ngOnDestroy = function () {
+        // no need to remove the button click handler 
+    };
+    BtnEditRenderedComponent = __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"])({
+            selector: 'app-btn-edit-rendered',
+            template: __webpack_require__(/*! ./btn-edit-rendered.component.html */ "./src/main/angular-library/projects/sitmun-frontend-gui/src/lib/btn-edit-rendered/btn-edit-rendered.component.html"),
+            styles: [__webpack_require__(/*! ./btn-edit-rendered.component.css */ "./src/main/angular-library/projects/sitmun-frontend-gui/src/lib/btn-edit-rendered/btn-edit-rendered.component.css")]
+        })
+    ], BtnEditRenderedComponent);
+    return BtnEditRenderedComponent;
+}());
+
+
+
+/***/ }),
+
 /***/ "./src/main/angular-library/projects/sitmun-frontend-gui/src/lib/data-grid/data-grid.component.css":
 /*!*********************************************************************************************************!*\
   !*** ./src/main/angular-library/projects/sitmun-frontend-gui/src/lib/data-grid/data-grid.component.css ***!
@@ -7,7 +79,7 @@
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "label,\r\ninput {\r\n  display: inline-block;\r\n  margin-right: 5px;\r\n  margin-left: 10px;\r\n  margin-top: 5px;\r\n  margin-bottom: 5px;\r\n}\r\n\r\n#botoNou {\r\n  color: white;\r\n  background: #68a225 0% 0% no-repeat padding-box;\r\n  margin-left: 3px;\r\n}\r\n\r\n#botoElimina {\r\n  background: #ffffff 0% 0% no-repeat padding-box;\r\n  margin-left: 3px;\r\n}\r\n\r\n#aplicarCanvis {\r\n  color: white !important;\r\n  background: #68a225 0% 0% no-repeat padding-box;\r\n  margin-left: 3px;\r\n}\r\n\r\n#aplicarCanvis[disabled]\r\n{\r\n  background: #83976c 0% 0% no-repeat padding-box;\r\n}\r\n\r\n#redo {\r\n  color: white !important;\r\n  background: #ff9300;\r\n  margin-left: 3px;\r\n}\r\n\r\n#redo[disabled] {\r\n  background: #ffc97f;\r\n  margin-left: 3px;\r\n}\r\n\r\n#undo {\r\n  color: white !important;\r\n  background: #ff9300;\r\n  margin-left: 3px;\r\n}\r\n\r\n#undo[disabled] {\r\n  background: #ffc97f;\r\n  margin-left: 3px;\r\n}\r\n\r\n#borrarCanvis {\r\n  color: white !important;\r\n  background: #df3133;\r\n}\r\n\r\n#borrarCanvis[disabled] {\r\n  color: white !important;\r\n  background: #da8c8e;\r\n}\r\n\r\n#grup1 {\r\n  text-align: start;\r\n  display: inline-block;\r\n  width: 40%;\r\n}\r\n\r\n#grup2 {\r\n  text-align: end;\r\n  width: 60%;\r\n}\r\n\r\n#grup1,\r\n#grup2 {\r\n  display: inline-block !important;\r\n}\r\n"
+module.exports = "label,\r\ninput {\r\n  display: inline-block;\r\n  margin-right: 5px;\r\n  margin-left: 10px;\r\n  margin-top: 5px;\r\n  margin-bottom: 5px;\r\n}\r\n\r\n#botoNou {\r\n  color: white;\r\n  background: #68a225 0% 0% no-repeat padding-box;\r\n  margin-left: 3px;\r\n}\r\n\r\n#botoElimina {\r\n  background: #ffffff 0% 0% no-repeat padding-box;\r\n  margin-left: 3px;\r\n}\r\n\r\n#aplicarCanvis {\r\n  color: white !important;\r\n  background: #68a225 0% 0% no-repeat padding-box;\r\n  margin-left: 3px;\r\n}\r\n\r\n#aplicarCanvis[disabled]\r\n{\r\n  background: #83976c 0% 0% no-repeat padding-box;\r\n}\r\n\r\n#redo {\r\n  color: white !important;\r\n  background: #ff9300;\r\n  margin-left: 3px;\r\n}\r\n\r\n#redo[disabled] {\r\n  background: #ffc97f;\r\n  margin-left: 3px;\r\n}\r\n\r\n#undo {\r\n  color: white !important;\r\n  background: #ff9300;\r\n  margin-left: 3px;\r\n}\r\n\r\n#undo[disabled] {\r\n  background: #ffc97f;\r\n  margin-left: 3px;\r\n}\r\n\r\n#borrarCanvis {\r\n  color: white !important;\r\n  background: #df3133;\r\n}\r\n\r\n#borrarCanvis[disabled] {\r\n  color: white !important;\r\n  background: #da8c8e;\r\n}\r\n\r\n.editDivBtns {\r\n  text-align: start;\r\n  display: inline-block;\r\n  width: 20%;\r\n  height: 30px !important;\r\n  line-height: 30px !important;\r\n}\r\n\r\n.actionsDivBtns {\r\n  text-align: end;\r\n  width:80%;\r\n  height: 60px;\r\n}\r\n\r\n.actionsDivBtns,\r\n.editDivBtns {\r\n  display: inline-block !important;\r\n}\r\n\r\n.actionsDivBtns .mat-stroked-button{\r\n padding: 5px 20px!important;\r\n}\r\n\r\n.editDivBtns .mat-mini-fab .mat-button-wrapper {\r\n  padding: inherit !important;\r\n  display: inherit !important;\r\n}\r\n\r\n.editDivBtns .mat-icon{\r\n  height: 30px !important;\r\n  bottom: 5px;\r\n  position: relative;\r\n}\r\n\r\n.editDivBtns .mat-mini-fab {\r\n  width: 30px;\r\n  height: 30px;\r\n}\r\n\r\n.actionsDivBtns .searchGenericInput{\r\n  height: 45px!important;\r\n  width: 50% !important;\r\n}\r\n\r\n.ag-body-viewport.ag-layout-normal ::-webkit-scrollbar-thumb {\r\n  background: #eee;\r\n}\r\n\r\n​\r\n.ag-body-viewport.ag-layout-normal ::-webkit-scrollbar {\r\n  width: 2em;\r\n  height: 2em;\r\n}\r\n\r\n.ag-body-viewport.ag-layout-normal ::-webkit-scrollbar-button {\r\n  background: #ccc;\r\n}\r\n\r\n.ag-body-viewport.ag-layout-normal::-webkit-scrollbar-track-piece {\r\n  background: #888;\r\n}\r\n"
 
 /***/ }),
 
@@ -18,7 +90,7 @@ module.exports = "label,\r\ninput {\r\n  display: inline-block;\r\n  margin-righ
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "\n\n\n    <div id=grup1 >\n        <button  mat-mini-fab *ngIf=\"botoDescartarCanvis\"  id=\"borrarCanvis\" type=\"button\"  (click)=\"deleteChanges()\" [disabled]=\"comptadorCanvis <= 0\">\n            <mat-icon fontSet=\"material-icons-round\" > close </mat-icon>\n        </button>\n        <button mat-mini-fab *ngIf=\"botoUndo\"  id=\"undo\"  (click)=\"undo()\" [disabled]=\"comptadorCanvis <= 0\" >\n            <mat-icon fontSet=\"material-icons-round\" > undo </mat-icon>\n        </button>\n        <button mat-mini-fab *ngIf=\"botoRedo\"  id=\"redo\"  (click)=\"redo()\" [disabled]=\"comptadorRedo <= 0\">\n            <mat-icon fontSet=\"material-icons-round\" > redo </mat-icon>\n        </button>\n        <button mat-mini-fab  *ngIf=\"botoAplicarCanvis\"  id=\"aplicarCanvis\"  (click)=\"applyChanges()\" [disabled]=\"comptadorCanvis <= 0\" >\n            <mat-icon fontSet=\"material-icons-round\" > check </mat-icon>\n        </button>\n    </div>\n\n    <div id=grup2 >\n        <label *ngIf=\"searchGeneral\" >Search </label>\n        <input *ngIf=\"searchGeneral\"type=\"text\" placeholder=\"\" (keyup)=\"quickSearch()\" [(ngModel)]=\"searchValue\" ml-2 >\n        <button *ngIf=\"botoElimina\"  mat-stroked-button id=\"botoElimina\"  (click)=\"removeData()\">\n            <mat-icon fontSet=\"material-icons-round\" > delete </mat-icon>\n            Elimina\n        </button>\n        <button  *ngIf=\"botoNou\" mat-stroked-button id=\"botoNou\"  (click)=\"newData()\">\n            <mat-icon fontSet=\"material-icons-round\"> add_circle_outline </mat-icon>                 \n            Nou\n        </button>\n\n\n        \n    </div>\n\n\n\n    <div class=\"row\" style=\" height: 100%\">\n        <div class=\"ag-theme-balham\" id=\"myGrid\" style=\" width:100%; height: 100%\" >\n            <ag-grid-angular\n            style=\" width: 100%; height: 100%;\"\n            class=\"ag-theme-balham\"\n            [floatingFilter]=\"true\"\n            [rowData]=\"rowData\"\n            [columnDefs]=\"columnDefs\"\n            [gridOptions]=\"gridOptions\"\n            [animateRows]=\"true\"\n            [pagination]=\"false\"\n            [modules]=\"modules\"     \n            [undoRedoCellEditing]=\"true\"    \n            [undoRedoCellEditingLimit]= 200\n            [suppressRowClickSelection]=true\n            [enableCellChangeFlash]=true\n            rowSelection=\"multiple\"\n            (filterModified)=\"onFilterModified()\"\n            (cellEditingStopped) =\"onCellEditingStopped($event)\"\n            (cellValueChanged)=\"onCellValueChanged($event)\"\n            (gridReady)=\"onGridReady($event)\">\n            \n            </ag-grid-angular>\n        </div>\n    </div>\n\n\n"
+module.exports = "    <div id=grup1 class=\"editDivBtns\">\r\n        <button  mat-mini-fab class=\"editBtn\"  *ngIf=\"discardChangesButton\"  id=\"borrarCanvis\" type=\"button\"  (click)=\"deleteChanges()\" [disabled]=\"changeCounter <= 0\">\r\n            <mat-icon  fontSet=\"material-icons-round\" > close </mat-icon>\r\n        </button>\r\n        <button mat-mini-fab class=\"editBtn\" *ngIf=\"undoButton\"  id=\"undo\"  (click)=\"undo()\" [disabled]=\"changeCounter <= 0\" >\r\n            <mat-icon fontSet=\"material-icons-round\" > undo </mat-icon>\r\n        </button>\r\n        <button mat-mini-fab class=\"editBtn\" *ngIf=\"redoButton\"  id=\"redo\"  (click)=\"redo()\" [disabled]=\"redoCounter <= 0\">\r\n            <mat-icon fontSet=\"material-icons-round\" > redo </mat-icon>\r\n        </button>\r\n        <button mat-mini-fab class=\"editBtn\" *ngIf=\"applyChangesButton\"  id=\"aplicarCanvis\"  (click)=\"applyChanges()\" [disabled]=\"changeCounter <= 0\" >\r\n            <mat-icon fontSet=\"material-icons-round\" > check </mat-icon>\r\n        </button>\r\n    </div>\r\n\r\n    <div id=grup2 class=\"actionsDivBtns\" >\r\n        <label *ngIf=\"globalSearch\" [translate]=\"'Search'\"> </label>\r\n        <input *ngIf=\"globalSearch\"type=\"text\" class=\"searchGenericInput\" placeholder=\"\" (keyup)=\"quickSearch()\" [(ngModel)]=\"searchValue\" ml-2 >\r\n        <button *ngIf=\"deleteButton\"  mat-stroked-button id=\"botoElimina\"  (click)=\"removeData()\">\r\n            <mat-icon fontSet=\"material-icons-round\" > delete </mat-icon>\r\n            <span  [translate]=\"'Remove'\"> </span>\r\n            \r\n        </button>\r\n        <button  *ngIf=\"newButton\" mat-stroked-button id=\"botoNou\"  (click)=\"newData()\">\r\n            <mat-icon fontSet=\"material-icons-round\"> add_circle_outline </mat-icon>      \r\n            <span  [translate]=\"'New'\"> </span>           \r\n        </button>\r\n\r\n\r\n        \r\n    </div>\r\n\r\n\r\n\r\n    <div class=\"row\" style=\" height: 100%\">\r\n        <div class=\"ag-theme-alpine\" id=\"myGrid\" style=\" width:100%; height: 100%\" >\r\n            <ag-grid-angular\r\n            style=\" width: 100%; height: 100%;\"\r\n            class=\"ag-theme-alpine\"\r\n            [floatingFilter]=\"true\"\r\n            [rowData]=\"rowData\"\r\n            [columnDefs]=\"columnDefs\"\r\n            [gridOptions]=\"gridOptions\"\r\n            [animateRows]=\"true\"\r\n            [pagination]=\"false\"\r\n            [modules]=\"modules\"     \r\n            [undoRedoCellEditing]=\"true\"    \r\n            [undoRedoCellEditingLimit]= 200\r\n            [suppressRowClickSelection]=true\r\n            [enableCellChangeFlash]=true\r\n            [frameworkComponents]=\"frameworkComponents\"\r\n            rowSelection=\"multiple\"\r\n            (filterModified)=\"onFilterModified()\"\r\n            (cellEditingStopped) =\"onCellEditingStopped($event)\"\r\n            (cellValueChanged)=\"onCellValueChanged($event)\"\r\n            (gridReady)=\"onGridReady($event)\">\r\n            \r\n            </ag-grid-angular>\r\n        </div>\r\n    </div>\r\n\r\n\r\n"
 
 /***/ }),
 
@@ -58,23 +130,47 @@ var __values = (undefined && undefined.__values) || function (o) {
 var DataGridComponent = /** @class */ (function () {
     function DataGridComponent() {
         this.modules = _ag_grid_community_all_modules__WEBPACK_IMPORTED_MODULE_1__["AllCommunityModules"];
-        this.columnaEstat = false;
-        this.map = new Map(); // Guardaremos el id de las celas modificadas i el nº de ediciones hechas sobre estas
-        this.canviAmbModificacions = false;
+        this.statusColumn = false;
+        this.changesMap = new Map();
+        this.modificationChange = false;
+        this.undoNoChanges = false; // Booleano para saber si es un undo provocado por un cambio sin modificaciones
         this.remove = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
         this.new = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
         this.sendChanges = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
-        this.comptadorCanvis = 0;
-        this.comptadorCanvisAnterior = 0;
-        this.comptadorRedo = 0;
+        this.changeCounter = 0;
+        this.previousChangeCounter = 0;
+        this.redoCounter = 0;
         this.gridOptions = {
             defaultColDef: {
+                sortable: true,
                 flex: 1,
                 filter: true,
                 editable: true,
                 cellStyle: { backgroundColor: '#FFFFFF' },
             },
+            columnTypes: {
+                dateColumn: {
+                    filter: 'agDateColumnFilter',
+                    filterParams: {
+                        comparator: function (filterLocalDateAtMidnight, cellValue) {
+                            var dateCellValue = new Date(cellValue);
+                            var dateFilter = new Date(filterLocalDateAtMidnight);
+                            if (dateCellValue.getTime() < dateFilter.getTime()) {
+                                return -1;
+                            }
+                            else if (dateCellValue.getTime() > dateFilter.getTime()) {
+                                return 1;
+                            }
+                            else {
+                                return 0;
+                            }
+                        },
+                    },
+                    suppressMenu: true
+                }
+            },
             rowSelection: 'multiple',
+            singleClickEdit: true,
         };
     }
     DataGridComponent.prototype.onGridReady = function (params) {
@@ -87,7 +183,7 @@ var DataGridComponent = /** @class */ (function () {
             for (var _a = __values(this.columnDefs), _b = _a.next(); !_b.done; _b = _a.next()) {
                 var col = _b.value;
                 if (col.field === 'estat') {
-                    this.columnaEstat = true;
+                    this.statusColumn = true;
                 }
             }
         }
@@ -117,7 +213,7 @@ var DataGridComponent = /** @class */ (function () {
         var selectedNodes = this.gridApi.getSelectedNodes();
         var selectedData = selectedNodes.map(function (node) { return node.data; });
         this.remove.emit(selectedData);
-        if (this.columnaEstat) {
+        if (this.statusColumn) {
             var selectedRows = selectedNodes.map(function (node) { return node.rowIndex; });
             try {
                 for (var selectedRows_1 = __values(selectedRows), selectedRows_1_1 = selectedRows_1.next(); !selectedRows_1_1.done; selectedRows_1_1 = selectedRows_1.next()) {
@@ -139,13 +235,13 @@ var DataGridComponent = /** @class */ (function () {
     };
     DataGridComponent.prototype.newData = function () {
         this.gridApi.stopEditing(false);
-        this.new.emit(true);
+        this.new.emit(-1);
     };
     DataGridComponent.prototype.applyChanges = function () {
         var itemsChanged = [];
         this.gridApi.stopEditing(false);
         try {
-            for (var _a = __values(this.map.keys()), _b = _a.next(); !_b.done; _b = _a.next()) {
+            for (var _a = __values(this.changesMap.keys()), _b = _a.next(); !_b.done; _b = _a.next()) {
                 var key = _b.value;
                 itemsChanged.push(this.gridApi.getRowNode(key).data);
             }
@@ -158,22 +254,22 @@ var DataGridComponent = /** @class */ (function () {
             finally { if (e_3) throw e_3.error; }
         }
         this.sendChanges.emit(itemsChanged);
-        this.map.clear();
-        this.comptadorCanvis = 0;
-        this.comptadorCanvisAnterior = 0;
-        this.comptadorRedo = 0;
+        this.changesMap.clear();
+        this.changeCounter = 0;
+        this.previousChangeCounter = 0;
+        this.redoCounter = 0;
         this.params.colDef.cellStyle = { backgroundColor: '#FFFFFF' };
         this.gridApi.redrawRows();
         var e_3, _c;
     };
     DataGridComponent.prototype.deleteChanges = function () {
-        for (var i = 0; i < this.comptadorCanvis; i++) {
+        for (var i = 0; i < this.changeCounter; i++) {
             this.gridApi.undoCellEditing();
         }
-        this.map.clear();
-        this.comptadorCanvisAnterior = 0;
-        this.comptadorCanvis = 0;
-        this.comptadorRedo = 0;
+        this.changesMap.clear();
+        this.previousChangeCounter = 0;
+        this.changeCounter = 0;
+        this.redoCounter = 0;
         this.params.colDef.cellStyle = { backgroundColor: '#FFFFFF' };
         this.gridApi.redrawRows();
     };
@@ -183,81 +279,130 @@ var DataGridComponent = /** @class */ (function () {
     DataGridComponent.prototype.undo = function () {
         this.gridApi.stopEditing(false);
         this.gridApi.undoCellEditing();
-        this.comptadorCanvis -= 1;
-        this.comptadorRedo += 1;
+        this.changeCounter -= 1;
+        this.redoCounter += 1;
     };
     DataGridComponent.prototype.redo = function () {
         this.gridApi.stopEditing(false);
         this.gridApi.redoCellEditing();
-        this.comptadorCanvis += 1;
-        this.comptadorRedo -= 1;
+        this.changeCounter += 1;
+        this.redoCounter -= 1;
     };
     DataGridComponent.prototype.onCellEditingStopped = function (e) {
-        if (this.canviAmbModificacions) {
-            this.comptadorCanvis++;
-            this.comptadorRedo = 0;
+        if (this.modificationChange) {
+            this.changeCounter++;
+            this.redoCounter = 0;
             this.onCellValueChanged(e);
-            this.canviAmbModificacions = false;
+            this.modificationChange = false;
         }
     };
     DataGridComponent.prototype.onCellValueChanged = function (params) {
         this.params = params; // Guardaremos los parametros por si hay que hacer un apply changes
-        if (this.comptadorCanvis > this.comptadorCanvisAnterior) 
+        if (this.changeCounter > this.previousChangeCounter) 
         // Esta condición será cierta si venimos de editar la cela o de hacer un redo
         {
             if (params.oldValue !== params.value && !(params.oldValue == null && params.value === '')) {
-                if (!this.map.has(params.node.id)) {
-                    this.map.set(params.node.id, 1);
+                if (!this.changesMap.has(params.node.id)) {
+                    var addMap = new Map();
+                    addMap.set(params.colDef.field, 1);
+                    this.changesMap.set(params.node.id, addMap);
                 }
                 else {
-                    // Si ya habíamos modificado la cela, aumentamos el numero de cambios en esta
-                    var modificacionsActuals = this.map.get(params.node.id);
-                    this.map.set(params.node.id, (modificacionsActuals + 1));
+                    if (!this.changesMap.get(params.node.id).has(params.colDef.field)) {
+                        this.changesMap.get(params.node.id).set(params.colDef.field, 1);
+                    }
+                    else {
+                        // Si ya habíamos modificado la cela, aumentamos el numero de cambios en esta
+                        var currentChanges = this.changesMap.get(params.node.id).get(params.colDef.field);
+                        this.changesMap.get(params.node.id).set(params.colDef.field, (currentChanges + 1));
+                    }
                 }
-                var row = this.gridApi.getDisplayedRowAtIndex(params.rowIndex); // Com ha estado modificada la linia, la pintamos de verde
-                params.colDef.cellStyle = { backgroundColor: '#E8F1DE' };
-                this.gridApi.redrawRows({ rowNodes: [row] });
-                params.colDef.cellStyle = { backgroundColor: '#FFFFFF' }; // Definiremos el cellStyle blanco para futuras modificaciones internas (ej: filtro)
-                this.comptadorCanvisAnterior++;
+                this.paintCells(params, this.changesMap); // Com ha estado modificada la linia, la pintamos de verde
+                this.previousChangeCounter++; //Igualamos el contador de cambios anterior al actual
             }
         }
-        else if (this.comptadorCanvis < this.comptadorCanvisAnterior) {
-            var modificacionsActuals = this.map.get(params.node.id);
-            if (modificacionsActuals === 1) {
-                // Si solo tiene una modificacion, quiere decir que la cela está en su estado inicial, por lo que la pintamos de blanco
-                this.map.delete(params.node.id);
-                var row = this.gridApi.getDisplayedRowAtIndex(params.rowIndex);
-                params.colDef.cellStyle = { backgroundColor: '#FFFFFF' }; // Li posarem un altre cop el background blanc
-                this.gridApi.redrawRows({ rowNodes: [row] });
+        else if (this.changeCounter < this.previousChangeCounter) {
+            var currentChanges = -1;
+            if (this.changesMap.has(params.node.id)) {
+                currentChanges = this.changesMap.get(params.node.id).get(params.colDef.field);
             }
-            else if (modificacionsActuals > 1) {
-                this.map.set(params.node.id, (modificacionsActuals - 1));
-                var row = this.gridApi.getDisplayedRowAtIndex(params.rowIndex); // Como aun tiene cambios, el background tiene que seguir verde
-                params.colDef.cellStyle = { backgroundColor: '#E8F1DE' };
-                this.gridApi.redrawRows({ rowNodes: [row] });
-                params.colDef.cellStyle = { backgroundColor: '#FFFFFF' }; // Definirem el cellStyle blanc per proximes celes
+            if (currentChanges === 1) {
+                this.changesMap.get(params.node.id).delete(params.colDef.field);
+                if (this.changesMap.get(params.node.id).size === 0) {
+                    this.changesMap.delete(params.node.id);
+                    var row = this.gridApi.getDisplayedRowAtIndex(params.rowIndex);
+                    // Si solo tiene una modificacion, quiere decir que la cela está en su estado inicial, por lo que la pintamos de blanco
+                    this.gridApi.redrawRows({ rowNodes: [row] });
+                }
+                else {
+                    this.paintCells(params, this.changesMap);
+                }
             }
-            this.comptadorCanvisAnterior--; // Com veniem d'undo, hem de decrementar el comptador de canvisAnterior
+            else if (currentChanges > 1) {
+                this.changesMap.get(params.node.id).set(params.colDef.field, (currentChanges - 1));
+                this.paintCells(params, this.changesMap); // Como aun tiene cambios, el background tiene que seguir verde
+            }
+            this.previousChangeCounter--; // Com veniem d'undo, hem de decrementar el comptador de canvisAnterior
         }
         else {
-            console.log(params);
             if (params.oldValue !== params.value && !(params.oldValue == null && params.value === '')) {
-                this.canviAmbModificacions = true;
+                this.modificationChange = true;
             }
             else {
-                if (this.map.has(params.node.id)) {
-                    var row = this.gridApi.getDisplayedRowAtIndex(params.rowIndex); // Com encara te modificacions, ha de tenir el background verd
-                    params.colDef.cellStyle = { backgroundColor: '#E8F1DE' };
-                    this.gridApi.redrawRows({ rowNodes: [row] });
-                    params.colDef.cellStyle = { backgroundColor: '#FFFFFF' }; // Definiremos el cellStyle blanco para futuras modificaciones internas (ej: filtro)
+                if (this.changesMap.has(params.node.id)) {
+                    if (!this.undoNoChanges) {
+                        this.gridApi.undoCellEditing(); // Undo para deshacer el cambio sin modificaciones internamente
+                        this.undoNoChanges = true;
+                        this.paintCells(params, this.changesMap); // Como aun tiene modificaciones, el background sigue siendo verde
+                    }
+                    else {
+                        this.undoNoChanges = false;
+                    }
                 }
                 else {
-                    this.comptadorCanvisAnterior++; // Como al hacer undo volverá a entrar a esta misma función, hay que enviarlo a su if correspondiente
-                    this.gridApi.undoCellEditing(); //Undo para deshacer el cambio sin modificaciones internamente
+                    // Como al hacer undo volverá a entrar a esta misma función, hay que enviarlo a su if correspondiente
+                    if (!this.undoNoChanges) {
+                        this.gridApi.undoCellEditing(); // Undo para deshacer el cambio sin modificaciones internamente
+                        this.undoNoChanges = true;
+                    }
+                    else {
+                        this.undoNoChanges = false;
+                    }
                 }
             }
         }
     };
+    DataGridComponent.prototype.getColumnIndexByColId = function (api, colId) {
+        return api.getAllColumns().findIndex(function (col) { return col.getColId() === colId; });
+    };
+    DataGridComponent.prototype.paintCells = function (params, changesMap) {
+        var row = this.gridApi.getDisplayedRowAtIndex(params.rowIndex);
+        this.changeCellStyleColumns(params, changesMap, '#E8F1DE');
+        this.gridApi.redrawRows({ rowNodes: [row] });
+        this.changeCellStyleColumns(params, changesMap, '#FFFFFF');
+        // Definiremos el cellStyle blanco para futuras modificaciones internas (ej: filtro)
+    };
+    DataGridComponent.prototype.changeCellStyleColumns = function (params, changesMap, color) {
+        try {
+            for (var _a = __values(changesMap.get(params.node.id).keys()), _b = _a.next(); !_b.done; _b = _a.next()) {
+                var key = _b.value;
+                var columnNumber = this.getColumnIndexByColId(this.gridColumnApi, key);
+                this.gridColumnApi.columnController.gridColumns[columnNumber].colDef.cellStyle = { backgroundColor: color };
+            }
+        }
+        catch (e_4_1) { e_4 = { error: e_4_1 }; }
+        finally {
+            try {
+                if (_b && !_b.done && (_c = _a.return)) _c.call(_a);
+            }
+            finally { if (e_4) throw e_4.error; }
+        }
+        var e_4, _c;
+    };
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
+        __metadata("design:type", Object)
+    ], DataGridComponent.prototype, "frameworkComponents", void 0);
     __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
         __metadata("design:type", Array)
@@ -269,31 +414,31 @@ var DataGridComponent = /** @class */ (function () {
     __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
         __metadata("design:type", Boolean)
-    ], DataGridComponent.prototype, "botoDescartarCanvis", void 0);
+    ], DataGridComponent.prototype, "discardChangesButton", void 0);
     __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
         __metadata("design:type", Boolean)
-    ], DataGridComponent.prototype, "botoUndo", void 0);
+    ], DataGridComponent.prototype, "undoButton", void 0);
     __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
         __metadata("design:type", Boolean)
-    ], DataGridComponent.prototype, "botoRedo", void 0);
+    ], DataGridComponent.prototype, "redoButton", void 0);
     __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
         __metadata("design:type", Boolean)
-    ], DataGridComponent.prototype, "botoAplicarCanvis", void 0);
+    ], DataGridComponent.prototype, "applyChangesButton", void 0);
     __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
         __metadata("design:type", Boolean)
-    ], DataGridComponent.prototype, "botoElimina", void 0);
+    ], DataGridComponent.prototype, "deleteButton", void 0);
     __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
         __metadata("design:type", Boolean)
-    ], DataGridComponent.prototype, "botoNou", void 0);
+    ], DataGridComponent.prototype, "newButton", void 0);
     __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
         __metadata("design:type", Boolean)
-    ], DataGridComponent.prototype, "searchGeneral", void 0);
+    ], DataGridComponent.prototype, "globalSearch", void 0);
     __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Output"])(),
         __metadata("design:type", _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"])
@@ -325,7 +470,7 @@ var DataGridComponent = /** @class */ (function () {
 /*!*************************************************************************************!*\
   !*** ./src/main/angular-library/projects/sitmun-frontend-gui/src/lib/public_api.ts ***!
   \*************************************************************************************/
-/*! exports provided: DataGridComponent, SitmunFrontendGuiModule */
+/*! exports provided: DataGridComponent, SitmunFrontendGuiModule, BtnEditRenderedComponent */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -336,9 +481,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _sitmun_frontend_gui_module__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./sitmun-frontend-gui.module */ "./src/main/angular-library/projects/sitmun-frontend-gui/src/lib/sitmun-frontend-gui.module.ts");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "SitmunFrontendGuiModule", function() { return _sitmun_frontend_gui_module__WEBPACK_IMPORTED_MODULE_1__["SitmunFrontendGuiModule"]; });
 
+/* harmony import */ var _btn_edit_rendered_btn_edit_rendered_component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./btn-edit-rendered/btn-edit-rendered.component */ "./src/main/angular-library/projects/sitmun-frontend-gui/src/lib/btn-edit-rendered/btn-edit-rendered.component.ts");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "BtnEditRenderedComponent", function() { return _btn_edit_rendered_btn_edit_rendered_component__WEBPACK_IMPORTED_MODULE_2__["BtnEditRenderedComponent"]; });
+
 /*
  * Public API Surface of sitmun-frontend-gui
  */
+
 
 
 
@@ -368,6 +517,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ag_grid_community_angular__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(_ag_grid_community_angular__WEBPACK_IMPORTED_MODULE_9__);
 /* harmony import */ var _angular_material_button__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @angular/material/button */ "./node_modules/@angular/material/esm5/button.es5.js");
 /* harmony import */ var _angular_material_icon__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @angular/material/icon */ "./node_modules/@angular/material/esm5/icon.es5.js");
+/* harmony import */ var _btn_edit_rendered_btn_edit_rendered_component__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./btn-edit-rendered/btn-edit-rendered.component */ "./src/main/angular-library/projects/sitmun-frontend-gui/src/lib/btn-edit-rendered/btn-edit-rendered.component.ts");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -381,6 +531,7 @@ var __decorate = (undefined && undefined.__decorate) || function (decorators, ta
 
 
 //import * as ol from 'openlayers';
+
 
 
 
@@ -410,7 +561,8 @@ var SitmunFrontendGuiModule = /** @class */ (function () {
                 _angular_material_icon__WEBPACK_IMPORTED_MODULE_11__["MatIconModule"],
             ],
             declarations: [
-                _data_grid_data_grid_component__WEBPACK_IMPORTED_MODULE_8__["DataGridComponent"]
+                _data_grid_data_grid_component__WEBPACK_IMPORTED_MODULE_8__["DataGridComponent"],
+                _btn_edit_rendered_btn_edit_rendered_component__WEBPACK_IMPORTED_MODULE_12__["BtnEditRenderedComponent"],
             ],
             entryComponents: [],
             providers: [],
@@ -701,7 +853,7 @@ var AppModule = /** @class */ (function () {
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["NgModule"])({
             declarations: [
                 _app_component__WEBPACK_IMPORTED_MODULE_3__["AppComponent"],
-                _home_home_component__WEBPACK_IMPORTED_MODULE_6__["HomeComponent"]
+                _home_home_component__WEBPACK_IMPORTED_MODULE_6__["HomeComponent"],
             ],
             imports: [
                 _angular_platform_browser__WEBPACK_IMPORTED_MODULE_0__["BrowserModule"],

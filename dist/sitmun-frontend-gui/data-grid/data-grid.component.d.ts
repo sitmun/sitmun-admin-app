@@ -1,32 +1,34 @@
 import { EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Module } from '@ag-grid-community/all-modules';
+import { ColumnApi, Module } from '@ag-grid-community/all-modules';
 import * as ɵngcc0 from '@angular/core';
 export declare class DataGridComponent {
     modules: Module[];
     searchValue: string;
     private gridApi;
     private gridColumnApi;
-    columnaEstat: boolean;
-    map: Map<number, number>;
+    statusColumn: boolean;
+    changesMap: Map<number, Map<string, number>>;
     private params;
     rowData: any[];
-    comptadorCanvis: number;
-    comptadorCanvisAnterior: number;
-    comptadorRedo: number;
-    canviAmbModificacions: boolean;
+    changeCounter: number;
+    previousChangeCounter: number;
+    redoCounter: number;
+    modificationChange: boolean;
+    undoNoChanges: boolean;
     gridOptions: any;
+    frameworkComponents: any;
     columnDefs: any[];
     getAll: () => Observable<any>;
-    botoDescartarCanvis: boolean;
-    botoUndo: boolean;
-    botoRedo: boolean;
-    botoAplicarCanvis: boolean;
-    botoElimina: boolean;
-    botoNou: boolean;
-    searchGeneral: boolean;
+    discardChangesButton: boolean;
+    undoButton: boolean;
+    redoButton: boolean;
+    applyChangesButton: boolean;
+    deleteButton: boolean;
+    newButton: boolean;
+    globalSearch: boolean;
     remove: EventEmitter<any[]>;
-    new: EventEmitter<boolean>;
+    new: EventEmitter<number>;
     sendChanges: EventEmitter<any[]>;
     constructor();
     onGridReady(params: any): void;
@@ -41,8 +43,11 @@ export declare class DataGridComponent {
     redo(): void;
     onCellEditingStopped(e: any): void;
     onCellValueChanged(params: any): void;
+    getColumnIndexByColId(api: ColumnApi, colId: string): number;
+    paintCells(params: any, changesMap: Map<number, Map<string, number>>): void;
+    changeCellStyleColumns(params: any, changesMap: Map<number, Map<string, number>>, color: string): void;
     static ɵfac: ɵngcc0.ɵɵFactoryDef<DataGridComponent, never>;
-    static ɵcmp: ɵngcc0.ɵɵComponentDefWithMeta<DataGridComponent, "app-data-grid", never, { "columnDefs": "columnDefs"; "getAll": "getAll"; "botoDescartarCanvis": "botoDescartarCanvis"; "botoUndo": "botoUndo"; "botoRedo": "botoRedo"; "botoAplicarCanvis": "botoAplicarCanvis"; "botoElimina": "botoElimina"; "botoNou": "botoNou"; "searchGeneral": "searchGeneral"; }, { "remove": "remove"; "new": "new"; "sendChanges": "sendChanges"; }, never, never>;
+    static ɵcmp: ɵngcc0.ɵɵComponentDefWithMeta<DataGridComponent, "app-data-grid", never, { "frameworkComponents": "frameworkComponents"; "columnDefs": "columnDefs"; "getAll": "getAll"; "discardChangesButton": "discardChangesButton"; "undoButton": "undoButton"; "redoButton": "redoButton"; "applyChangesButton": "applyChangesButton"; "deleteButton": "deleteButton"; "newButton": "newButton"; "globalSearch": "globalSearch"; }, { "remove": "remove"; "new": "new"; "sendChanges": "sendChanges"; }, never, never>;
 }
 
 //# sourceMappingURL=data-grid.component.d.ts.map

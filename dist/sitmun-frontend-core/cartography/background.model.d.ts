@@ -4,6 +4,8 @@ import { CartographyGroup } from './cartography-group.model';
  * Background model
  */
 export declare class Background extends Resource {
+    /** id */
+    id: number;
     /** name*/
     name: string;
     /** description*/

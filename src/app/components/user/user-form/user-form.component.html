@@ -1,0 +1,108 @@
+<div class="titleDiv" *ngIf="userID==-1" >
+    <h4><mat-icon aria-hidden="false"  svgIcon="menu_connexio"></mat-icon> {{ "userEntity.user" | translate }}-{{"userEntity.new" | translate}}</h4>
+    <span class="divider"></span>
+  </div>
+  <div class="titleDiv" *ngIf="userID!=-1" >
+    <h4><mat-icon aria-hidden="false"  svgIcon="menu_connexio"></mat-icon>{{ "userEntity.user" | translate }}-{{"userEntity.edit" | translate}}</h4>
+    <span class="divider"></span>
+  </div>
+  <div class="formHeader">
+    <h5> Dades generals  </h5>
+    <button   mat-flat-button class="saveButton"  >
+      <mat-icon fontSet="material-icons-round"  > save </mat-icon>
+      {{ "userEntity.save" | translate }}
+    </button>
+  </div>
+  <span class="divider"></span>
+  <form [formGroup]='userForm' #f="ngForm"> 
+  
+      <div class="rowFormDiv">
+          <div class="colFormDiv">
+            <label class="formLabel">
+              {{'userEntity.user' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="username">
+            </mat-form-field>
+          </div>
+  
+          <div class="colFormDiv" >
+            <label class="formLabel">
+              {{'userEntity.firstname' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="firstName">
+            </mat-form-field>
+          </div>
+  
+          <div class="LargeColFormDiv">
+              <label class="formLabel">
+                {{'userEntity.lastname' | translate}}
+              </label>
+              <mat-form-field appearance="outline">
+                <input matInput type="text" formControlName="lastName">
+              </mat-form-field>
+            </div>
+
+      </div>
+  
+      <div class="rowFormDiv">
+      
+          
+        <div class="MidColFormDiv" >
+            <label class="formLabel">
+              {{'userEntity.password' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="password">
+            </mat-form-field>
+          </div>
+
+          <div class="MidColFormDiv" >
+            <label class="formLabel">
+              {{'userEntity.confirmPassword' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="confirmPassword">
+            </mat-form-field>
+          </div>
+
+          <div class="ShortColFormDiv" >
+            <label class="formLabel">
+              {{'userEntity.administrator' | translate}}
+            </label>
+            <mat-checkbox formControlName="administrator"> </mat-checkbox>
+          </div>
+
+          <div class="ShortColFormDiv" >
+            <label class="formLabel" id="right-column">
+              {{'userEntity.blocked' | translate}}
+            </label>
+            <mat-checkbox formControlName="blocked"> </mat-checkbox>
+          </div>
+    </div>
+
+
+    <mat-accordion *ngIf="userID!=-1">
+      <mat-expansion-panel [expanded]="false" class="agGridExpansionPanel">
+        <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+          <mat-panel-title  >
+            {{ "userEntity.permissions" | translate }}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+    
+    
+      <div class="appDataGridEditDiv">
+          <app-data-grid  class="ag-theme-balham" [columnDefs]="columnDefsPermissions"  [getAll]='getAllPermissions'  [frameworkComponents]="frameworkComponents"
+          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
+          (remove)="removeDataPermissions($event)" (new)='newDataPermissions($event)'  > </app-data-grid>
+      </div>
+    
+    
+      </mat-expansion-panel>
+    </mat-accordion>
+
+
+  
+  
+  

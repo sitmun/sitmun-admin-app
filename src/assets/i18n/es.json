@@ -6,7 +6,7 @@
   "backgroundLayers": "Capas de fondo",
   "layersPermits": "Permisos sobre les capas",
   "territory": "Territorio",
-  "role": "ROL",
+  "role": "Rol",
   "user": "Usuario",
   "tasks": "Tareas",
   "tasksDownload": "Descarga",
@@ -18,5 +18,14 @@
   "tasksEdition": "Edición",
   "tasksThematic": "Temática",
   "tasksExtractionFME": "Extracción FME",
-  "application": "Aplicación"
+  "application": "Aplicación",
+  "Remove": "Elimina",
+  "Search": "Busca",
+  "New": "Nuevo",
+  "name": "Nombre",
+  "description": "Descripción",
+  "status": "Estado",
+  "firstname": "Nombre",
+  "lastname" : "Apellido",
+  "code" : "Código"
 }
