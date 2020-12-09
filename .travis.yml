@@ -16,7 +16,7 @@ before_install:
   - npm set //npm.pkg.github.com/:_authToken $GITHUB_API_KEY
 
 install:
-  - npm install
+  - npm ci
 
 script:
   - npm run test -- --watch=false --no-progress --browsers=ChromeHeadless
