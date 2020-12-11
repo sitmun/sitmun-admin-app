@@ -1,12 +1,16 @@
 language: node_js
+
 node_js:
   - '12'
+
 addons:
   apt:
     sources:
       - google-chrome
     packages:
       - google-chrome-stable
+  sonarcloud:
+    organization: sitmun
 
 cache:
   directories:
@@ -19,4 +23,5 @@ install:
   - npm ci
 
 script:
-  - npm run test -- --watch=false --no-progress --browsers=ChromeHeadless
+  - npm run test -- --watch=false --no-progress --browsers=ChromeHeadless --code-coverage
+  - npm run sonar
