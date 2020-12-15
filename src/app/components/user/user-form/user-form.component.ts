@@ -9,6 +9,7 @@ import { UtilsService } from '../../../services/utils.service';
 import { BtnEditRenderedComponent } from 'dist/sitmun-frontend-gui/';
 import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 
 @Component({
@@ -18,7 +19,7 @@ import { Observable } from 'rxjs';
 })
 export class UserFormComponent implements OnInit {
 
-  
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -129,7 +130,7 @@ export class UserFormComponent implements OnInit {
 }
 
   addNewUser() {
-  
+
 
     if(this.userForm.get('password').value === this.userForm.get('confirmPassword').value)
     {
@@ -176,25 +177,25 @@ export class UserFormComponent implements OnInit {
     pel que de moment hem dit de deixar-ho així!
   */
    getAllPermissions = (): Observable<any> => {
-    return (this.http.get(`http://localhost:8080/api/users/${this.userID}/permissions`))
+    return (this.http.get(environment.apiBaseURL + `/api/users/${this.userID}/permissions`))
     .pipe( map( data =>  data['_embedded']['user-configurations']) );
   }
-  
+
   /*Les dues funcions que venen ara s'activaran quan es cliqui el botó de remove o el de new a la taula,
     si volguessim canviar el nom de la funció o qualsevol cosa, cal mirar l'html, allà es on es crida la funció
     corresponent!
   */
-  
+
   removeDataPermissions( data)
   {
     console.log(data);
   }
-  
+
   newDataPermissions(id: any)
   {
     // this.router.navigate(['territory', id, 'territoryForm']);
     console.log('screen in progress');
   }
-  
+
 
 }

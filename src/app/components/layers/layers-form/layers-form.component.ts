@@ -9,6 +9,7 @@ import { UtilsService } from '../../../services/utils.service';
 import { BtnEditRenderedComponent } from 'dist/sitmun-frontend-gui/';
 import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-layers-form',
@@ -146,7 +147,7 @@ export class LayersFormComponent implements OnInit {
     pel que de moment hem dit de deixar-ho així!
   */
    getAllParameters = (): Observable<any> => {
-    return (this.http.get(`http://localhost:8080/api/cartographies/${this.layerID}/parameters`))
+     return (this.http.get(environment.apiBaseURL + `/api/cartographies/${this.layerID}/parameters`))
     .pipe( map( data =>  data['_embedded']['cartography-parameters']) );
   }
 

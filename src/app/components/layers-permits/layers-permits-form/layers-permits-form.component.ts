@@ -8,6 +8,8 @@ import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { BtnEditRenderedComponent } from 'dist/sitmun-frontend-gui/';
 import { map } from 'rxjs/operators';
+import { environment } from '../../../../environments/environment';
+
 @Component({
   selector: 'app-layers-permits-form',
   templateUrl: './layers-permits-form.component.html',
@@ -144,25 +146,25 @@ export class LayersPermitsFormComponent implements OnInit {
       pel que de moment hem dit de deixar-ho així!
     */
     getAllRoles = () => {
-      return (this.http.get(`http://localhost:8080/api/cartography-groups/${this.layersPermitsID}/roles`))
+      return (this.http.get(environment.apiBaseURL + `/api/cartography-groups/${this.layersPermitsID}/roles`))
       .pipe( map( data =>  data['_embedded']['roles']) );
   }
-  
+
     /*Les dues funcions que venen ara s'activaran quan es cliqui el botó de remove o el de new a la taula,
       si volguessim canviar el nom de la funció o qualsevol cosa, cal mirar l'html, allà es on es crida la funció
       corresponent!
     */
-  
+
   removeDataRole( data: Role[])
   {
     console.log(data);
   }
-  
+
   newDataRole(id: any)
   {
     this.router.navigate(['role', id, 'roleForm']);
   }
-  
+
   applyChangesRole( data: Role[])
   {
         console.log(data);

@@ -1,6 +1,7 @@
 import { ExternalConfiguration , ExternalConfigurationHandlerInterface } from '@sitmun/frontend-core';
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
+import {environment } from '../environments/environment';
 
 /** REST API access configuration service*/
 @Injectable()
@@ -17,12 +18,13 @@ export class ExternalConfigurationService implements ExternalConfigurationHandle
 
   /** get proxy uri*/
   getProxyUri(): string {
-    return "http://localhost:8080/api/";
+    // TODO: ProxyURI and RootURI will be needing different parameters in environment
+    return environment.apiBaseURL + `/api/`
   }
 
   /** get REST API root uri*/
   getRootUri(): string {
-    return "http://localhost:8080/api/";
+    return environment.apiBaseURL + `/api/`
   }
 
   /** get HttpClient*/
