@@ -3,8 +3,6 @@ echo
 echo "Deploying to testdeployment configuration ..."
 echo
 
-export TRAVIS_BUILD_DIR=${PWD}
-
 # This builds a project that can be deployed remotely in GitHub pages with the API where
 # the testdeployment configuration says (currently Heroku)
 ng build --configuration=testdeployment --baseHref="https://sitmun.github.io/admin-app/"
