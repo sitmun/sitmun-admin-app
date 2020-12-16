@@ -28,6 +28,6 @@ script:
 
 deploy:
   provider: script
-  script: bash ./build_scripts/deploy.sh
+  script: ./build_scripts/deploy.sh
   on:
     all_branches: true
