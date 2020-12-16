@@ -25,3 +25,9 @@ install:
 script:
   - npm run test -- --watch=false --no-progress --browsers=ChromeHeadless --code-coverage
   - npm run sonar
+
+deploy:
+  provider: script
+  script: bash ./build_scripts/deploy.sh
+  on:
+    all_branches: true
