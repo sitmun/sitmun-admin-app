@@ -30,6 +30,7 @@ before_deploy:
   - ng build --configuration=testdeployment --baseHref="https://sitmun.github.io/admin-app/"
 
 deploy:
+  skip_cleanup: true
   provider: script
   script: ./build-scripts/deploy.sh
   on:
