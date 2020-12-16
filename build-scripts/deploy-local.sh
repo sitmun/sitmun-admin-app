@@ -24,5 +24,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # Using source makes all of them run in the same shell process
 # so they can share functions and variables
 
+# This builds a project that can be deployed remotely in GitHub pages with the API where
+# the testdeployment configuration says (currently Heroku)
+ng build --configuration=testdeployment --baseHref="https://sitmun.github.io/admin-app/"
 
 source $DIR/deploy.sh

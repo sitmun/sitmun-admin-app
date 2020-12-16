@@ -26,8 +26,11 @@ script:
   - npm run test -- --watch=false --no-progress --browsers=ChromeHeadless --code-coverage
   - npm run sonar
 
+before_deploy:
+  - ng build --configuration=testdeployment --baseHref="https://sitmun.github.io/admin-app/"
+
 deploy:
   provider: script
-  script: ./build_scripts/deploy.sh
+  script: ./build-scripts/deploy.sh
   on:
     all_branches: true
