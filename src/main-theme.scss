@@ -24,11 +24,11 @@ $candy-app-theme: mat-light-theme($candy-app-primary, $candy-app-accent, $candy-
 @include angular-material-theme($candy-app-theme);
 
 .mat-primary .mat-option.mat-selected:not(.mat-option-disabled) {
-  color: #bf0000 !important;
+  color:#FF9300!important;
 }
 
 .mat-primary .mat-pseudo-checkbox-checked {
-  background: #bf0000 !important;
+  background: #FF9300 !important;
 }
 
 //Color dels butons vermell
@@ -205,12 +205,12 @@ $candy-app-theme: mat-light-theme($candy-app-primary, $candy-app-accent, $candy-
 
 //Checkboxes
 .mat-checkbox-checked .mat-checkbox-background {
-  background-color: #BF0000 !important;
+  background-color: #FF9300 !important;
 }
 
 //Mat form field outline
 .mat-form-field-appearance-outline .mat-form-field-outline-thick.mat-form-field-outline-thick {
-  color: #BF0000 !important;
+  color: #FF9300 !important;
 }
 
 
@@ -225,15 +225,15 @@ mat-slide-toggle.mat-green.mat-checked .mat-slide-toggle-thumb {
 
 //Radio buttons
 .mat-radio-button.mat-accent .mat-radio-inner-circle {
-  background-color: #BF0000 !important;
+  background-color: #FF9300 !important;
 }
 
 .mat-radio-button.mat-accent.mat-radio-checked .mat-radio-outer-circle {
-  border-color: #BF0000 !important;
+  border-color: #FF9300 !important;
 }
 
 //Mat spinner
 .mat-progress-spinner.mat-primary circle,
 .mat-spinner.mat-primary circle {
-  stroke: #BF0000 !important;
+  stroke:#FF9300 !important;
 }

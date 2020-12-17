@@ -1,0 +1,31 @@
+.rowFormDiv{
+    width: 100%;
+  }
+  .colFormDiv{
+    display: inline-block;
+    width: 47.5%;
+    margin-right: 3%;
+  }
+
+  mat-form-field {
+    width: 100%;
+}
+#right-column {
+  margin-right: 0%;
+}
+
+
+.thirdColumnColFormDiv{
+  display: inline-block;
+  width: 21.5%;
+  margin-right: 2%;
+}
+
+.validateButton{
+    background-color: #FF9300;
+    color: white;
+    width: 105px;
+    height: 40px;
+    margin-top: 34px !important;
+    justify-self: right !important;
+  }

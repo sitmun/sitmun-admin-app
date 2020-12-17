@@ -14,6 +14,8 @@ export * from './territory/territory.model';
 export * from './territory/territory.service';
 export * from './territory/territory-type.model';
 export * from './territory/territory-type.service';
+export * from './territory/territory-group-type.model';
+export * from './territory/territory-group-type.service';
 export * from './role/role.model';
 export * from './role/role.service';
 export * from './connection/connection.model';

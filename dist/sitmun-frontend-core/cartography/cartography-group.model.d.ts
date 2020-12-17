@@ -5,6 +5,8 @@ import { Role } from '../role/role.model';
  * Cartography group
  */
 export declare class CartographyGroup extends Resource {
+    /** id */
+    id: number;
     /** name*/
     name: string;
     /** type*/

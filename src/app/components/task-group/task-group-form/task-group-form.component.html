@@ -1,1 +1,32 @@
-<p>task-group-form works!</p>
+<div class="titleDiv" >
+  <h4><mat-icon aria-hidden="false"  svgIcon="ic_gruptasca"></mat-icon> {{ "taskGroupEntity.taskGroup" | translate }}-{{"taskGroupEntity."+(taskGroupID==-1?"new":"edit") | translate}}</h4>
+  <span class="divider"></span>
+</div>
+
+
+<div class="formDiv">  
+  <div class="formHeader">
+    <h5> Dades generals  </h5>
+    <button   mat-flat-button class="saveButton"  >
+      <mat-icon fontSet="material-icons-round"  > save </mat-icon>
+      {{ "taskGroupEntity.save" | translate }}
+    </button>
+  </div>
+  <span class="divider"></span>
+  <form [formGroup]='formtaskGroup' #f="ngForm"> 
+  
+      <div class="rowFormDiv">
+          <div class="MidLargeColFormDiv">
+            <label class="formLabel">
+              {{'taskGroupEntity.name' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="name">
+            </mat-form-field>
+          </div>
+
+      </div>
+
+  
+  </form>
+</div>

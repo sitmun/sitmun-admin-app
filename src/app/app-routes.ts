@@ -11,7 +11,6 @@ import { TerritoryComponent } from './components/territory/territory.component';
 import { RoleComponent } from './components/role/role.component';
 import { UserComponent } from './components/user/user.component';
 import { ApplicationComponent } from './components/application/application.component';
-import { ProvesComponent } from './components/proves/proves.component';
 import { TasksDownloadComponent } from './components/tasks-download/tasks-download.component';
 import { TasksDocumentComponent } from './components/tasks-document/tasks-document.component';
 import { TasksConsultationComponent } from './components/tasks-consultation/tasks-consultation.component';
@@ -33,6 +32,7 @@ import { LayersPermitsFormComponent } from './components/layers-permits/layers-p
 import { TaskGroupComponent } from './components/task-group/task-group.component';
 import { TaskGroupFormComponent } from './components/task-group/task-group-form/task-group-form.component';
 import { LayersFormComponent } from './components/layers/layers-form/layers-form.component';
+import { TasksComponent } from './components/tasks/tasks.component';
 
 export const APP_ROUTES: Routes = [
     {path: 'index', component: IndexComponent},
@@ -48,6 +48,7 @@ export const APP_ROUTES: Routes = [
     {path: 'backgroundLayers/:id/backgroundLayersForm', component: BackgroundLayersFormComponent},
     {path: 'layersPermits', component: LayersPermitsComponent},
     {path: 'layersPermits/:id/layersPermitsForm', component: LayersPermitsFormComponent},
+    {path: 'tasks', component: TasksComponent},
     {path: 'taskGroup', component: TaskGroupComponent},
     {path: 'taskGroup/:id/taskGroupForm', component: TaskGroupFormComponent},
     {path: 'tasksDownload', component: TasksDownloadComponent},
@@ -67,9 +68,8 @@ export const APP_ROUTES: Routes = [
     {path: 'user/:id/userForm', component: UserFormComponent},
     {path: 'application', component: ApplicationComponent},
     {path: 'application/:id/applicationForm', component: ApplicationFormComponent},
-    {path: 'proves', component: ProvesComponent},
-    {path: '', pathMatch: 'full', redirectTo: 'proves' },
-    {path: '**', pathMatch: 'full', redirectTo: 'proves' }
+    {path: '', pathMatch: 'full', redirectTo: 'connection' },
+    {path: '**', pathMatch: 'full', redirectTo: 'connection' }
 
 ];
 

@@ -1,11 +1,10 @@
-<div class="titleDiv" *ngIf="userID==-1" >
-    <h4><mat-icon aria-hidden="false"  svgIcon="menu_connexio"></mat-icon> {{ "userEntity.user" | translate }}-{{"userEntity.new" | translate}}</h4>
-    <span class="divider"></span>
-  </div>
-  <div class="titleDiv" *ngIf="userID!=-1" >
-    <h4><mat-icon aria-hidden="false"  svgIcon="menu_connexio"></mat-icon>{{ "userEntity.user" | translate }}-{{"userEntity.edit" | translate}}</h4>
-    <span class="divider"></span>
-  </div>
+<div class="titleDiv" >
+  <h4><mat-icon aria-hidden="false"  svgIcon="menu_usuari"></mat-icon> {{ "userEntity.user" | translate }}-{{"userEntity."+(userID==-1?"new":"edit") | translate}}</h4>
+  <span class="divider"></span>
+</div>
+
+
+<div class="formDiv">
   <div class="formHeader">
     <h5> Dades generals  </h5>
     <button   mat-flat-button class="saveButton"  >
@@ -81,28 +80,54 @@
             <mat-checkbox formControlName="blocked"> </mat-checkbox>
           </div>
     </div>
+  </form>
+</div>
 
+<div class="tableDiv" *ngIf="dataLoaded">
+  <mat-accordion *ngIf="userID!=-1" multi>
 
-    <mat-accordion *ngIf="userID!=-1">
-      <mat-expansion-panel [expanded]="false" class="agGridExpansionPanel">
-        <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-          <mat-panel-title  >
-            {{ "userEntity.permissions" | translate }}
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-    
-    
+    <!-- Permits table -->
+    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+        <mat-panel-title  >
+          {{ "userEntity.permissions" | translate }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+  
+    <ng-template matExpansionPanelContent>  
       <div class="appDataGridEditDiv">
-          <app-data-grid  class="ag-theme-balham" [columnDefs]="columnDefsPermissions"  [getAll]='getAllPermissions'  [frameworkComponents]="frameworkComponents"
+          <app-data-grid [columnDefs]="columnDefsPermissions" [themeGrid]='themeGrid' [getAll]='getAllPermissions'  [frameworkComponents]="frameworkComponents"
           [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
           (remove)="removeDataPermissions($event)" (new)='newDataPermissions($event)'  > </app-data-grid>
       </div>
-    
-    
-      </mat-expansion-panel>
-    </mat-accordion>
+    </ng-template>
+  
+  
+    </mat-expansion-panel>
 
 
+      <!-- Territory data table -->     
+    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+        <mat-panel-title  >
+          {{ "userEntity.dataOfTerritory" | translate }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+  
+    <ng-template matExpansionPanelContent>  
+      <div class="appDataGridEditDiv">
+          <app-data-grid [columnDefs]="columnDefsData" [themeGrid]='themeGrid' [getAll]='getAllData'  [frameworkComponents]="frameworkComponents"
+          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=false 
+          (remove)="removeDataData($event)" (new)='newDataData($event)'  > </app-data-grid>
+      </div>
+    </ng-template>
+  
+  
+    </mat-expansion-panel>
+
+  </mat-accordion>
+
+</div>
   
   
   

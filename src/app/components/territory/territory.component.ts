@@ -4,7 +4,9 @@ import { TerritoryService } from 'dist/sitmun-frontend-core/';
 import { UtilsService } from '../../services/utils.service';
 import { BtnEditRenderedComponent } from 'dist/sitmun-frontend-gui/';
 import { Router } from '@angular/router';
-
+import { environment } from 'src/environments/environment';
+import { Subject } from 'rxjs';
+ 
 
 @Component({
   selector: 'app-territory',
@@ -13,6 +15,8 @@ import { Router } from '@angular/router';
 })
 export class TerritoryComponent implements OnInit {
 
+  dataUpdatedEvent: Subject<boolean> = new Subject <boolean>();
+  themeGrid: any = environment.agGridTheme;
   columnDefs: any[];
   public frameworkComponents = {
     btnEditRendererComponent: BtnEditRenderedComponent
@@ -20,13 +24,12 @@ export class TerritoryComponent implements OnInit {
 
 
   constructor(public territoryService: TerritoryService,
-              private utils: UtilsService,
-              private router: Router,
-              )
-              { }
+    private utils: UtilsService,
+    private router: Router,
+  ) { }
 
 
-  ngOnInit()  {
+  ngOnInit() {
 
     this.columnDefs = [
       {
@@ -35,63 +38,74 @@ export class TerritoryComponent implements OnInit {
         headerCheckboxSelection: true,
         editable: false,
         filter: false,
-        width: 105,
-        lockPosition:true,
+        width: 70,
+        lockPosition: true,
       },
       {
         headerName: '',
         field: 'id',
         editable: false,
         filter: false,
-        width: 120,
-        lockPosition:true,
+        width: 75,
+        lockPosition: true,
         cellRenderer: 'btnEditRendererComponent',
         cellRendererParams: {
           clicked: this.newData.bind(this)
         },
       },
-      { headerName: 'ID',  field: 'id', editable: false},
-      { headerName: this.utils.getTranslate('territoryEntity.code'),  field: 'code' },
-      { headerName: this.utils.getTranslate('territoryEntity.name'),  field: 'name'},
-      { headerName: this.utils.getTranslate('territoryEntity.scope'),  field: 'scope'},
-      { headerName: this.utils.getTranslate('territoryEntity.createdDate'),  field: 'createdDate', }, // type: 'dateColumn'
-      { headerName: this.utils.getTranslate('territoryEntity.administrator'),  field: 'territorialAuthorityName'},
-      { headerName: this.utils.getTranslate('territoryEntity.email'),  field: 'territorialAuthorityEmail'},
-      { headerName: this.utils.getTranslate('territoryEntity.address'),  field: 'territorialAuthorityAddress'},
-      { headerName: this.utils.getTranslate('territoryEntity.extent'),  field: 'extent'},
-      { headerName: this.utils.getTranslate('territoryEntity.note'),  field: 'note'},
-      { headerName: this.utils.getTranslate('territoryEntity.blocked'),  field: 'blocked'},
+      { headerName: 'Id', field: 'id', editable: false },
+      { headerName: this.utils.getTranslate('territoryEntity.code'), field: 'code' },
+      { headerName: this.utils.getTranslate('territoryEntity.name'), field: 'name' },
+      { headerName: this.utils.getTranslate('territoryEntity.scope'), field: 'scope' },
+      { headerName: this.utils.getTranslate('territoryEntity.createdDate'), field: 'createdDate', }, // type: 'dateColumn'
+      { headerName: this.utils.getTranslate('territoryEntity.administrator'), field: 'territorialAuthorityName' },
+      { headerName: this.utils.getTranslate('territoryEntity.email'), field: 'territorialAuthorityEmail' },
+      { headerName: this.utils.getTranslate('territoryEntity.address'), field: 'territorialAuthorityAddress' },
+      { headerName: this.utils.getTranslate('territoryEntity.extent'), field: 'extent' },
+      { headerName: this.utils.getTranslate('territoryEntity.note'), field: 'note' },
+      { headerName: this.utils.getTranslate('territoryEntity.blocked'), field: 'blocked' },
     ];
   }
 
-
-    /*
-    Important! Aquesta és la funció que li passarem al data grid a través de l'html per obtenir les files de la taula,
-    de moment no he trobat cap altre manera de que funcioni sense posar la nomenclatura = () =>,
-    pel que de moment hem dit de deixar-ho així!
-  */
   getAllTerritories = () => {
     return this.territoryService.getAll();
   }
 
-  /*Les dues funcions que venen ara s'activaran quan es cliqui el botó de remove o el de new a la taula,
-    si volguessim canviar el nom de la funció o qualsevol cosa, cal mirar l'html, allà es on es crida la funció
-    corresponent!
-  */
+  newData(id: any) {
+    this.router.navigate(['territory', id, 'territoryForm']);
+  }
 
-removeData( data: Territory[])
-{
-  console.log(data);
-}
+  applyChanges(data: Territory[]) {
+    const promises: Promise<any>[] = [];
+    data.forEach(territory => {
+      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.territoryService.update(territory).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+      Promise.all(promises).then(() => {
+        this.dataUpdatedEvent.next(true);
+      });
+    });
+  }
 
-newData(id: any)
-{
-  this.router.navigate(['territory', id, 'territoryForm']);
-}
+  add(data: Territory[]) {
+    const promises: Promise<any>[] = [];
+    data.forEach(territory => {
+      territory.id = null;
+      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.territoryService.create(territory).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+      Promise.all(promises).then(() => {
+        this.dataUpdatedEvent.next(true);
+      });
+    });
 
-applyChanges( data: Territory[])
-{
-      console.log(data);
-}
+  }
+
+  removeData(data: Territory[]) {
+    const promises: Promise<any>[] = [];
+    data.forEach(territory => {
+      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.territoryService.delete(territory).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+      Promise.all(promises).then(() => {
+        this.dataUpdatedEvent.next(true);
+      });
+    });
+
+  }
 
 }

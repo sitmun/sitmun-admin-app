@@ -1,12 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
-import { FormControl, FormGroup, Validators  } from '@angular/forms';
-import {  ActivatedRoute,  Router} from '@angular/router';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { RoleService, UserService, User } from 'dist/sitmun-frontend-core/';
 import { Connection } from 'dist/sitmun-frontend-core/connection/connection.model';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { BtnEditRenderedComponent } from 'dist/sitmun-frontend-gui/';
+import { Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
+
 
 @Component({
   selector: 'app-role-form',
@@ -15,15 +19,19 @@ import { BtnEditRenderedComponent } from 'dist/sitmun-frontend-gui/';
 })
 export class RoleFormComponent implements OnInit {
 
-  columnDefs: any[];
+  columnDefsUsers: any[];
+  columnDefsTasks: any[];
+  columnDefsCartography: any[];
   public frameworkComponents = {
     btnEditRendererComponent: BtnEditRenderedComponent
   };
+  dataLoaded: Boolean = false;
+  themeGrid: any = environment.agGridTheme;
 
 
   formRole: FormGroup;
   roleToEdit;
-  stopID: number = -1;
+  roleID: number = -1;
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -31,28 +39,28 @@ export class RoleFormComponent implements OnInit {
     private userService: UserService,
     private http: HttpClient,
     private utils: UtilsService,
-    ) {
-        this.initializeLayersPermitsForm();
-    }
+  ) {
+    this.initializeRoleForm();
+  }
 
   ngOnInit(): void {
     this.activatedRoute.params.subscribe(params => {
-      this.stopID = +params.id;
-      if (this.stopID !== -1){
-        console.log(this.stopID);
+      this.roleID = +params.id;
+      if (this.roleID !== -1) {
+        console.log(this.roleID);
 
-        this.roleService.get(this.stopID).subscribe(
+        this.roleService.get(this.roleID).subscribe(
           resp => {
             console.log(resp);
-            this.roleToEdit=resp;
+            this.roleToEdit = resp;
             this.formRole.setValue({
-                id:           this.stopID,
-                name:         this.roleToEdit.name,
-                description:  this.roleToEdit.description,
-                _links:       this.roleToEdit._links
-              });
+              id: this.roleID,
+              name: this.roleToEdit.name,
+              description: this.roleToEdit.description,
+              _links: this.roleToEdit._links
+            });
 
-
+            this.dataLoaded = true;
           },
           error => {
 
@@ -61,49 +69,60 @@ export class RoleFormComponent implements OnInit {
       }
 
     },
-    error => {
+      error => {
 
-    });
+      });
 
 
-    this.columnDefs = [
+    this.columnDefsUsers = [
       {
         headerName: '',
         checkboxSelection: true,
         headerCheckboxSelection: true,
         editable: false,
         filter: false,
-        width: 50,
-        lockPosition:true,
+        width: 25,
+        lockPosition: true,
       },
+      { headerName: 'Id', field: 'id', editable: false },
+      { headerName: this.utils.getTranslate('roleEntity.username'), field: 'username' },
+      { headerName: this.utils.getTranslate('roleEntity.territory'), field: 'territory' },
+    ];
+
+    this.columnDefsTasks = [
       {
         headerName: '',
-        field: 'id',
+        checkboxSelection: true,
+        headerCheckboxSelection: true,
         editable: false,
         filter: false,
-        width: 70,
-        lockPosition:true,
-        cellRenderer: 'btnEditRendererComponent',
-        cellRendererParams: {
-          clicked: this.newDataUsers.bind(this)
-        },
+        width: 25,
+        lockPosition: true,
       },
-      { headerName: 'ID',  field: 'id', editable: false},
-      { headerName: this.utils.getTranslate('userEntity.user'), field: 'username' },
-      { headerName: this.utils.getTranslate('userEntity.firstname'),  field: 'firstName' },
-      { headerName: this.utils.getTranslate('userEntity.lastname'),  field: 'lastName'},
-      { headerName: this.utils.getTranslate('userEntity.administrator'), field: 'administrator'},
-      { headerName: this.utils.getTranslate('userEntity.blocked'), field: 'blocked'}
-      // { headerName: this.translate.instant, field: 'username', checkboxSelection: true, },
-      // { headerName: this.headerNameColumnFirstName,  field: 'firstName' },
-      // { headerName: this.headerNameColumnLastName,  field: 'lastName'},
-      // { headerName: this.headerNameColumnStatus, field: 'estat'},
+      { headerName: 'Id', field: 'id', editable: false },
+      { headerName: this.utils.getTranslate('roleEntity.code'), field: 'code' },
+      { headerName: this.utils.getTranslate('roleEntity.groupTask'), field: 'groupTask' },
+    ];
+
+    this.columnDefsCartography = [
+      {
+        headerName: '',
+        checkboxSelection: true,
+        headerCheckboxSelection: true,
+        editable: false,
+        filter: false,
+        width: 25,
+        lockPosition: true,
+      },
+      { headerName: 'Id', field: 'id', editable: false },
+      { headerName: this.utils.getTranslate('roleEntity.name'), field: 'name' },
+      { headerName: this.utils.getTranslate('roleEntity.layers'), field: 'layers' },
     ];
 
   }
 
 
-  initializeLayersPermitsForm(): void {
+  initializeRoleForm(): void {
 
     this.formRole = new FormGroup({
       id: new FormControl(null, []),
@@ -145,31 +164,61 @@ export class RoleFormComponent implements OnInit {
 
   //AG GRID
 
-     /*
-      Important! Aquesta és la funció que li passarem al data grid a través de l'html per obtenir les files de la taula,
-      de moment no he trobat cap altre manera de que funcioni sense posar la nomenclatura = () =>,
-      pel que de moment hem dit de deixar-ho així!
-    */
-   getAllUsers = () => {
 
-    return this.userService.getAll();
+  // ******** Users ******** //
+  getAllUsers = (): Observable<any> => {
+    //TODO Change the link when available
+    //  return (this.http.get(`${this.formRole.value._links.members.href}`))
+    //  .pipe( map( data =>  data[`_embedded`][`territories`]) );
+    const aux: Array<any> = [];
+    return of(aux);
+
   }
-
-  /*Les dues funcions que venen ara s'activaran quan es cliqui el botó de remove o el de new a la taula,
-    si volguessim canviar el nom de la funció o qualsevol cosa, cal mirar l'html, allà es on es crida la funció
-    corresponent!
-  */
-
-  removeDataUsers( data: User[])
-  {
+  removeUsers(data: any[]) {
     console.log(data);
   }
 
-  newDataUsers(id: any)
-  {
-    this.router.navigate(['user', id, 'userForm']);
+  newDataUsers(id: any) {
+    // this.router.navigate(['territory', id, 'territoryForm']);
+    console.log('screen in progress');
   }
 
+  // ******** Task ******** //
+  getAllTasks = (): Observable<any> => {
+    //TODO Change the link when available
+    //  return (this.http.get(`${this.formRole.value._links.members.href}`))
+    //  .pipe( map( data =>  data[`_embedded`][`territories`]) );
+    const aux: Array<any> = [];
+    return of(aux);
+
+  }
+  removeTasks(data: any[]) {
+    console.log(data);
+  }
+
+  newDataTasks(id: any) {
+    // this.router.navigate(['territory', id, 'territoryForm']);
+    console.log('screen in progress');
+  }
+
+  // ******** Cartography ******** //
+  getAllCartographies = (): Observable<any> => {
+    //TODO Change the link when available
+    //  return (this.http.get(`${this.formRole.value._links.members.href}`))
+    //  .pipe( map( data =>  data[`_embedded`][`territories`]) );
+    const aux: Array<any> = [];
+    return of(aux);
+
+  }
+
+  removeCartographies(data: any[]) {
+    console.log(data);
+  }
+
+  newDataCartographies(id: any) {
+    // this.router.navigate(['territory', id, 'territoryForm']);
+    console.log('screen in progress');
+  }
 
 
 }

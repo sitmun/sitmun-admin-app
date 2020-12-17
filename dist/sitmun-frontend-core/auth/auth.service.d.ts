@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs-compat';
 /** Authentication service*/
-import * as ɵngcc0 from '@angular/core';
 export declare class AuthService {
     private http;
     /** API base URL */
@@ -22,8 +21,4 @@ export declare class AuthService {
     isLoggedOut(): boolean;
     /** logout operation */
     logout(): Observable<any>;
-    static ɵfac: ɵngcc0.ɵɵFactoryDef<AuthService, never>;
-    static ɵprov: ɵngcc0.ɵɵInjectableDef<AuthService>;
 }
-
-//# sourceMappingURL=auth.service.d.ts.map

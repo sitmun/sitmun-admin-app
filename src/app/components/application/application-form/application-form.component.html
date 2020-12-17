@@ -1,1 +1,241 @@
-<p>application-form works!</p>
+<div class="titleDiv" >
+    <h4><mat-icon aria-hidden="false"  svgIcon="menu_aplicacio"></mat-icon> {{ "applicationEntity.application" | translate }}-{{"applicationEntity."+(applicationID==-1?"new":"edit") | translate}}</h4>
+    <span class="divider"></span>
+  </div>
+<div class="formDiv">
+  <div class="formHeader">
+    <h5> Dades generals  </h5>
+    <button   mat-flat-button class="saveButton" (click)="updateApplication()" >
+      <mat-icon fontSet="material-icons-round"  > save </mat-icon>
+      {{ "applicationEntity.save" | translate }}
+    </button>
+  </div>
+  <span class="divider"></span>
+  <form [formGroup]='applicationForm'> 
+  
+ 
+      <div class="rowFormDiv">
+      
+          
+        <div class="colFormDiv" >
+            <label class="formLabel">
+              {{'applicationEntity.name' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="name">
+            </mat-form-field>
+          </div>
+
+          <div class="colFormDiv" >
+            <label class="formLabel">
+              {{'applicationEntity.user' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="user">
+            </mat-form-field>
+          </div>
+
+          <div class="colFormDiv" >
+            <label class="formLabel">
+              {{'applicationEntity.type' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="type">
+            </mat-form-field>
+          </div>
+
+          <div class="colFormDiv" >
+            <label class="formLabel">
+              {{'applicationEntity.title' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="title">
+            </mat-form-field>
+          </div>
+
+    </div>
+      <div class="rowFormDiv">
+      
+          
+        <div class="colFormDiv" >
+            <label class="formLabel">
+              {{'applicationEntity.tree' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="tree">
+            </mat-form-field>
+          </div>
+
+          <div class="colFormDiv" >
+            <label class="formLabel">
+              {{'applicationEntity.desktopUrl' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="desktopUrl">
+            </mat-form-field>
+          </div>
+
+          <div class="colFormDiv" >
+            <label class="formLabel">
+              {{'applicationEntity.desktopCSS' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="desktopCSS">
+            </mat-form-field>
+          </div>
+
+          <div class="colFormDiv" >
+            <label class="formLabel">
+              {{'applicationEntity.mobileUrl' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="mobileUrl">
+            </mat-form-field>
+          </div>
+
+    </div>
+      <div class="rowFormDiv">
+      
+          
+        <div class="colFormDiv" >
+            <label class="formLabel">
+              {{'applicationEntity.mobileCSS' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="mobileCSS">
+            </mat-form-field>
+          </div>
+
+          <div class="colFormDiv" >
+            <label class="formLabel">
+              {{'applicationEntity.defaultTool' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="defaultTool">
+            </mat-form-field>
+          </div>
+
+          
+          <div class="colFormDiv" >
+            <label class="formLabel">
+              {{'applicationEntity.desplacamentSupramunicipal' | translate}}
+            </label>
+            <mat-checkbox formControlName="desplacamentSupramunicipal"> </mat-checkbox>
+          </div>
+
+          <div class="colFormDiv" >
+            <label class="formLabel">
+              {{'applicationEntity.situationMap' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="situationMap">
+            </mat-form-field>
+          </div>
+
+
+    </div>
+      <div class="rowFormDiv">
+      
+          
+        <div class="lastColFormDiv" >
+            <label class="formLabel">
+              {{'applicationEntity.scales' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="scales">
+            </mat-form-field>
+          </div>
+
+          <div class="lastColFormDiv" >
+            <label class="formLabel">
+              {{'applicationEntity.srs' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="srs">
+            </mat-form-field>
+          </div>
+
+          <div class="lastColFormDiv" >
+            <label class="formLabel">
+              {{'applicationEntity.treeAutoRefresh' | translate}}
+            </label>
+            <mat-checkbox formControlName="treeAutoRefresh"> </mat-checkbox>
+          </div>
+
+      </div>
+    </form>
+</div>
+
+<div class="tableDiv" *ngIf="dataLoaded">
+  <mat-accordion *ngIf="applicationID != -1" multi>
+    <!-- Parameters configuration table -->
+    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+        <mat-panel-title  >
+          {{ "applicationEntity.parametersConfiguration" | translate }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <ng-template matExpansionPanelContent>  
+          <div class="appDataGridEditDiv">
+              <app-data-grid  [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'  [frameworkComponents]="frameworkComponents"
+              [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
+              (remove)="removeParameters($event)" (new)='newDataParameters($event)'  > </app-data-grid>
+          </div>
+      </ng-template>
+        </mat-expansion-panel>
+
+    <!-- Template table -->
+        <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+          <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+            <mat-panel-title  >
+              {{ "applicationEntity.templateConfiguration" | translate }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+      
+          <ng-template matExpansionPanelContent>    
+              <div class="appDataGridEditDiv">
+                  <app-data-grid [columnDefs]="columnDefsTemplates" [themeGrid]='themeGrid' [getAll]='getAllTemplates'  [frameworkComponents]="frameworkComponents"
+                  [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=false 
+                  (remove)="removeTemplates($event)" (new)='newDataTemplates($event)'  > </app-data-grid>
+              </div>
+          </ng-template>
+          </mat-expansion-panel>
+
+    <!-- Rols table -->
+        <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+          <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+            <mat-panel-title  >
+              {{ "applicationEntity.roles" | translate }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+      
+          <ng-template matExpansionPanelContent>    
+              <div class="appDataGridEditDiv">
+                  <app-data-grid [columnDefs]="columnDefsRoles" [themeGrid]='themeGrid' [getAll]='getAllRoles'  [frameworkComponents]="frameworkComponents"
+                  [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=false 
+                  (remove)="removeRoles($event)" (new)='newDataRoles($event)'  > </app-data-grid>
+              </div>
+          </ng-template>
+          </mat-expansion-panel>
+
+    <!-- Background table -->
+        <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+          <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+            <mat-panel-title  >
+              {{ "applicationEntity.background" | translate }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+      
+          <ng-template matExpansionPanelContent>    
+              <div class="appDataGridEditDiv">
+                  <app-data-grid [columnDefs]="columnDefsBackgrounds" [themeGrid]='themeGrid' [getAll]='getAllBackgrounds'  [frameworkComponents]="frameworkComponents"
+                  [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=false 
+                  (remove)="removeBackgrounds($event)" (new)='newDataBackgrounds($event)'  > </app-data-grid>
+              </div>
+          </ng-template>
+          </mat-expansion-panel>
+
+        
+  </mat-accordion>
+</div>

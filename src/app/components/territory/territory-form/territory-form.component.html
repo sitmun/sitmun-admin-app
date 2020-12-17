@@ -1,1 +1,251 @@
-<p>territory-form works!</p>
+<div class="titleDiv" >
+  <h4><mat-icon aria-hidden="false"  svgIcon="menu_territori"></mat-icon> {{ "territoryEntity.territory" | translate }}-{{"territoryEntity."+(territoryID==-1?"new":"edit") | translate}}</h4>
+  <span class="divider"></span>
+</div>
+
+
+<div class="formDiv">
+  <div class="formHeader">
+    <h5> Dades generals </h5>
+    <button mat-flat-button class="saveButton" (click)="updateTerritory()">
+      <mat-icon fontSet="material-icons-round"> save </mat-icon>
+      {{ "territoryEntity.save" | translate }}
+    </button>
+  </div>
+  <span class="divider"></span>
+  <form [formGroup]='territoryForm' #f="ngForm">
+    <div class="rowFormDiv">
+      <div class="HalfMidLargeColFormDiv">
+        <label class="formLabel">
+          {{'territoryEntity.code' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="code">
+        </mat-form-field>
+      </div>
+
+      <div class="HalfMidLargeColFormDiv">
+        <label class="formLabel">
+          {{'territoryEntity.name' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="name">
+        </mat-form-field>
+      </div>
+
+      <div class="LastMidLargeColFormDiv">
+        <label class="formLabel">
+          {{'territoryEntity.address' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="territorialAuthorityAddress">
+        </mat-form-field>
+      </div>
+
+    </div>
+    <div class="rowFormDiv">
+      <div class="HalfMidLargeColFormDiv">
+        <label class="formLabel">
+          {{'territoryEntity.logo' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="territorialAuthorityLogo">
+        </mat-form-field>
+      </div>
+
+      <div class="HalfMidLargeColFormDiv">
+        <label class="formLabel">
+          {{'territoryEntity.scope' | translate}} 
+        </label>
+        <mat-form-field appearance="outline">
+          <mat-select matInput formControlName="scope" class="form-control">
+            <mat-option [value]="scope" *ngFor="let scope of scopeTypes">
+              {{ scope | translate}}
+            </mat-option>
+          </mat-select>
+
+        </mat-form-field>
+
+      </div>
+
+      <div class="HalfMidLargeColFormDiv">
+        <label class="formLabel">
+          {{'territoryEntity.groupType' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <mat-select matInput formControlName="groupType" class="form-control">
+            <mat-option [value]="territoryGroup.id" *ngFor="let territoryGroup of territoryGroups">
+              {{territoryGroup.name}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+    </div>
+    <div class="rowFormDiv">
+      <div class="HalfMidLargeColFormDiv">
+        <label class="formLabel">
+          {{'territoryEntity.extent' | translate}} X0
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="extensionX0">
+        </mat-form-field>
+      </div>
+
+      <div class="HalfMidLargeColFormDiv">
+        <label class="formLabel">
+          {{'territoryEntity.extent' | translate}} X1
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="extensionX1">
+        </mat-form-field>
+      </div>
+
+      <div class="HalfMidLargeColFormDiv">
+        <label class="formLabel">
+          {{'territoryEntity.extent' | translate}} Y0
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="extensionY0">
+        </mat-form-field>
+      </div>
+
+      <div class="HalfMidLargeColFormDiv" id="right-column">
+        <label class="formLabel">
+          {{'territoryEntity.extent' | translate}} Y1
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="extensionY1">
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="rowFormDiv">
+
+      <div class="colFormDiv">
+        <label class="formLabel">
+          {{'territoryEntity.note' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="note">
+        </mat-form-field>
+      </div>
+
+      <div class="MidColFormDiv">
+        <label class="formLabel" id="right-column">
+          {{'territoryEntity.blocked' | translate}}
+        </label>
+        <mat-checkbox formControlName="blocked"> </mat-checkbox>
+      </div>
+
+    </div>
+
+
+  </form>
+</div>
+<div class="tableDiv" *ngIf="dataLoaded">
+  <mat-accordion *ngIf="territoryID!=-1" multi>
+
+    <!-- Permits table -->
+    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+        <mat-panel-title>
+          {{ "territoryEntity.permits" | translate }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <ng-template matExpansionPanelContent>
+        <div class="appDataGridEditDiv">
+          <app-data-grid [columnDefs]="columnDefsPermits" [themeGrid]='themeGrid' [getAll]='getAllPermits'
+            [frameworkComponents]="frameworkComponents" [discardChangesButton]=true [redoButton]=true [undoButton]=true
+            [deleteButton]=true [newButton]=false (remove)="removePermits($event)" (new)='newDataPermits($event)'>
+          </app-data-grid>
+        </div>
+
+      </ng-template>
+    </mat-expansion-panel>
+
+    <!-- MemberOf table -->
+    <div *ngIf="territoryForm.value.scope =='M' ">
+      <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+        <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+          <mat-panel-title>
+            {{ "territoryEntity.memberOfTerritories" | translate }}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <ng-template matExpansionPanelContent>
+          <div class="appDataGridEditDiv">
+            <app-data-grid [columnDefs]="columnDefsMemberOf" [themeGrid]='themeGrid' [getAll]='getAllMembersOf'
+              [frameworkComponents]="frameworkComponents" [discardChangesButton]=true [redoButton]=true
+              [undoButton]=true [deleteButton]=true [newButton]=false (remove)="removeMembersOf($event)"
+              (new)='newDataMembersOf($event)'>
+            </app-data-grid>
+          </div>
+
+        </ng-template>
+      </mat-expansion-panel>
+    </div>
+
+    <!-- Members table -->
+    <div *ngIf="territoryForm.value.scope =='R' ">
+
+      <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+        <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+          <mat-panel-title>
+            {{ "territoryEntity.members" | translate }}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <ng-template matExpansionPanelContent>
+          <div class="appDataGridEditDiv">
+            <app-data-grid [columnDefs]="columnDefsMembers" [themeGrid]='themeGrid'  [getAll]='getAllMembers'
+              [frameworkComponents]="frameworkComponents" [discardChangesButton]=true [redoButton]=true
+              [undoButton]=true [deleteButton]=true [newButton]=false (remove)="removeMembersOf($event)"
+              (new)='newDataMembers($event)'>
+            </app-data-grid>
+          </div>
+        </ng-template>
+
+      </mat-expansion-panel>
+    </div>
+
+    <!-- Cartography table -->
+    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+        <mat-panel-title>
+          {{ "territoryEntity.cartography" | translate }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <ng-template matExpansionPanelContent>
+        <div class="appDataGridEditDiv">
+          <app-data-grid [columnDefs]="columnDefsCartographies" [themeGrid]='themeGrid' [getAll]='getAllCartographies'
+            [frameworkComponents]="frameworkComponents" [discardChangesButton]=true [redoButton]=true [undoButton]=true
+            [deleteButton]=true [newButton]=false (remove)="removeCartographies($event)"
+            (new)='newDataCartographies($event)'> </app-data-grid>
+        </div>
+
+      </ng-template>
+    </mat-expansion-panel>
+
+    <!-- Task table -->
+    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+        <mat-panel-title>
+          {{ "territoryEntity.task" | translate }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <ng-template matExpansionPanelContent>
+        <div class="appDataGridEditDiv">
+          <app-data-grid [columnDefs]="columnDefsTasks" [themeGrid]='themeGrid' [getAll]='getAllTasks'
+            [frameworkComponents]="frameworkComponents" [discardChangesButton]=true [redoButton]=true [undoButton]=true
+            [deleteButton]=true [newButton]=false (remove)="removeTasks($event)" (new)='newDataTasks($event)'>
+          </app-data-grid>
+        </div>
+
+      </ng-template>
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>

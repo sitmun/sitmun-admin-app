@@ -24,8 +24,6 @@ import 'rxjs/add/operator/take';
 import 'rxjs/add/operator/takeWhile';
 import 'rxjs/add/observable/throw';
 import 'rxjs/add/operator/catch';
-import * as ɵngcc0 from '@angular/core';
-import * as ɵngcc1 from '@angular/common/http';
 export { ExternalService } from './external.service';
 export { RestService } from './rest.service';
 export { Resource } from './resource';
@@ -38,9 +36,5 @@ export { HalOptions, HalParam } from './rest.service';
 export { SubTypeBuilder } from './subtype-builder';
 /** Angular HAL module */
 export declare class AngularHalModule {
-    static forRoot(): ModuleWithProviders<AngularHalModule>;
-    static ɵmod: ɵngcc0.ɵɵNgModuleDefWithMeta<AngularHalModule, never, [typeof ɵngcc1.HttpClientModule], [typeof ɵngcc1.HttpClientModule]>;
-    static ɵinj: ɵngcc0.ɵɵInjectorDef<AngularHalModule>;
+    static forRoot(): ModuleWithProviders;
 }
-
-//# sourceMappingURL=angular-hal.module.d.ts.map

@@ -5,23 +5,22 @@ import { AppComponent } from './app.component';
 import { RouterModule } from '@angular/router';
 import { ExternalConfigurationService } from './ExternalConfigurationService';
 import { AngularHalModule, BackgroundService, CartographyGroupService, CartographyService,
-   ConnectionService, TaskGroupService, TerritoryService } from 'dist/sitmun-frontend-core/';
+   ConnectionService, TaskGroupService, TaskService, TerritoryService } from 'dist/sitmun-frontend-core/';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
-import { AgGridModule } from '@ag-grid-community/angular';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from './material-module';
 import { APP_ROUTING } from './app-routes';
 
-
+import { MessagesInterceptor } from './interceptors/messages.interceptor';
 //i18n
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { registerLocaleData } from '@angular/common';
 import localeEs from '@angular/common/locales/es';
-
+import localeCa from '@angular/common/locales/ca';
 registerLocaleData(localeEs, 'es-ES');
-
+registerLocaleData(localeCa, 'ca-ES');
 
 //Rutes
 import { APP_ROUTES } from './app-routes';
@@ -38,7 +37,6 @@ import { UserComponent } from './components/user/user.component';
 import { ApplicationComponent } from './components/application/application.component';
 import { IndexComponent } from './components/index/index.component';
 import { RoleComponent } from './components/role/role.component';
-import { ProvesComponent } from './components/proves/proves.component';
 import { ToolbarComponent } from './components/shared/toolbar/toolbar.component';
 import { SideMenuComponent } from './components/shared/side-menu/side-menu.component';
 import { TasksDownloadComponent } from './components/tasks-download/tasks-download.component';
@@ -71,6 +69,7 @@ import { LayersPermitsFormComponent } from './components/layers-permits/layers-p
 import { LayersFormComponent } from './components/layers/layers-form/layers-form.component';
 import { TaskGroupComponent } from './components/task-group/task-group.component';
 import { TaskGroupFormComponent } from './components/task-group/task-group-form/task-group-form.component';
+import { TasksComponent } from './components/tasks/tasks.component';
 
 @NgModule({
   declarations: [
@@ -88,7 +87,6 @@ import { TaskGroupFormComponent } from './components/task-group/task-group-form/
     SideMenuComponent,
     RoleComponent,
     ToolbarComponent,
-    ProvesComponent,
     TasksDownloadComponent,
     TasksDocumentComponent,
     TasksConsultationComponent,
@@ -109,7 +107,8 @@ import { TaskGroupFormComponent } from './components/task-group/task-group-form/
     LayersPermitsFormComponent,
     LayersFormComponent,
     TaskGroupComponent,
-    TaskGroupFormComponent
+    TaskGroupFormComponent,
+    TasksComponent
   ],
   imports: [
     BrowserModule,
@@ -129,14 +128,14 @@ import { TaskGroupFormComponent } from './components/task-group/task-group-form/
       }
     }),
     APP_ROUTING,
-    AgGridModule.withComponents([]),
     BrowserAnimationsModule
   ],
   providers: [SidenavService, UtilsService,
      { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
      { provide: LOCALE_ID, useValue: 'es-ES' },
     RoleService, ConnectionService, UserService, TerritoryService, ServiceService, ApplicationService, TreeService,
-    BackgroundService, CartographyService, CartographyGroupService, TaskGroupService],
+    BackgroundService, CartographyService, CartographyGroupService, TaskGroupService, TaskService,
+    { provide: HTTP_INTERCEPTORS, useClass: MessagesInterceptor, multi: true }],
   bootstrap: [AppComponent]
 })
 export class AppModule {

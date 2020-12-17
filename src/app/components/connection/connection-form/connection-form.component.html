@@ -1,91 +1,115 @@
-<div class="titleDiv" *ngIf="connectionID==-1" >
-  <h4><mat-icon aria-hidden="false"  svgIcon="menu_connexio"></mat-icon> {{ "connectionEntity.connection" | translate }}-{{"connectionEntity.new" | translate}}</h4>
+<div class="titleDiv" >
+  <h4><mat-icon aria-hidden="false"  svgIcon="menu_connexio"></mat-icon> {{ "connectionEntity.connection" | translate }}-{{"connectionEntity."+(connectionID==-1?"new":"edit") | translate}}</h4>
   <span class="divider"></span>
 </div>
-<div class="titleDiv" *ngIf="connectionID!=-1" >
-  <h4><mat-icon aria-hidden="false"  svgIcon="menu_connexio"></mat-icon>{{ "connectionEntity.connection" | translate }}-{{"connectionEntity.edit" | translate}}</h4>
+
+<div class="formDiv">
+  <div class="formHeader">
+    <h5> Dades generals  </h5>
+    <button   mat-flat-button class="saveButton"  >
+      <mat-icon fontSet="material-icons-round"  > save </mat-icon>
+      {{ "connectionEntity.save" | translate }}
+    </button>
+  </div>
   <span class="divider"></span>
-</div>
-<div class="formHeader">
-  <h5> Dades generals  </h5>
-  <button   mat-flat-button class="saveButton"  >
-    <mat-icon fontSet="material-icons-round"  > save </mat-icon>
-    {{ "connectionEntity.save" | translate }}
-  </button>
-</div>
-<span class="divider"></span>
-<form [formGroup]='formConnection' #f="ngForm"> 
+  <form [formGroup]='formConnection' #f="ngForm"> 
 
-    <div class="rowFormDiv">
-        <div class="colFormDiv">
-          <label class="formLabel">
-            {{'connectionEntity.name' | translate}}
-          </label>
-          <mat-form-field appearance="outline">
-            <input matInput type="text" formControlName="name">
-          </mat-form-field>
-        </div>
-
-        <div class="colFormDiv" >
-          <label class="formLabel">
-            {{'connectionEntity.driver' | translate}}
-          </label>
-          <mat-form-field appearance="outline">
-            <input matInput type="text" formControlName="driver">
-          </mat-form-field>
-        </div>
-
-        <div class="colFormDiv">
+      <div class="rowFormDiv">
+          <div class="colFormDiv">
             <label class="formLabel">
-              {{'connectionEntity.user' | translate}}
+              {{'connectionEntity.name' | translate}}
             </label>
             <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="user">
+              <input matInput type="text" formControlName="name">
             </mat-form-field>
           </div>
 
-          <div class="colFormDiv" id="right-column">
+          <div class="colFormDiv" >
             <label class="formLabel">
-              {{'connectionEntity.password' | translate}}
+              {{'connectionEntity.driver' | translate}}
             </label>
             <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="password">
+              <input matInput type="text" formControlName="driver">
             </mat-form-field>
           </div>
+
+          <div class="colFormDiv">
+              <label class="formLabel">
+                {{'connectionEntity.user' | translate}}
+              </label>
+              <mat-form-field appearance="outline">
+                <input matInput type="text" formControlName="user">
+              </mat-form-field>
+            </div>
+
+            <div class="colFormDiv" id="right-column">
+              <label class="formLabel">
+                {{'connectionEntity.password' | translate}}
+              </label>
+              <mat-form-field appearance="outline">
+                <input matInput type="text" formControlName="password">
+              </mat-form-field>
+            </div>
+      </div>
+
+      <div class="rowFormDiv">
+      
+          <div class="colFormDiv" >
+            <label class="formLabel">
+              {{'connectionEntity.connection' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="url">
+            </mat-form-field>
+          </div>
+
+          <button *ngIf="connectionID==-1" (click)="addNewConnection()" mat-flat-button class="validateButton" >{{ "connectionEntity.validate" | translate }}</button>
+          <button *ngIf="connectionID!=-1" (click)="updateConnection()" mat-flat-button class="validateButton" >{{ "connectionEntity.update" | translate }}</button>
     </div>
 
-    <div class="rowFormDiv">
-    
-        <div class="colFormDiv" >
-          <label class="formLabel">
-            {{'connectionEntity.connection' | translate}}
-          </label>
-          <mat-form-field appearance="outline">
-            <input matInput type="text" formControlName="url">
-          </mat-form-field>
+
+  </form>
+
+</div>
+
+
+<div class="tableDiv" *ngIf="dataLoaded">
+  <mat-accordion *ngIf="connectionID!=-1" multi>
+
+      <!-- Cartography table -->
+    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+        <mat-panel-title  >
+          {{ "connectionEntity.cartography" | translate }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <ng-template matExpansionPanelContent>  
+        <div class="appDataGridEditDiv">
+            <app-data-grid  [columnDefs]="columnDefsCartographies" [themeGrid]='themeGrid' [getAll]='getAllCartographies' 
+            [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=false 
+            (remove)="removeDataCartographies($event)" (new)='newDataCartographies($event)' (sendChanges)='applyChangesCartographies($event)' > </app-data-grid>
         </div>
+      </ng-template>
+    </mat-expansion-panel>
 
-        <button *ngIf="connectionID==-1" (click)="addNewConnection()" mat-flat-button class="validateButton" >{{ "connectionEntity.validate" | translate }}</button>
-        <button *ngIf="connectionID!=-1" (click)="updateConnection()" mat-flat-button class="validateButton" >{{ "connectionEntity.update" | translate }}</button>
-  </div>
+      <!-- Tasks table -->
+    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+        <mat-panel-title  >
+          {{ "connectionEntity.tasks" | translate }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <ng-template matExpansionPanelContent>  
+        <div class="appDataGridEditDiv">
+            <app-data-grid [columnDefs]="columnDefsTasks" [themeGrid]='themeGrid' [getAll]='getAllTasks'
+            [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=false 
+            (remove)="removeDataTasks($event)" (new)='newDataTasks($event)' (sendChanges)='applyChangesTasks($event)' > </app-data-grid>
+        </div>
+    </ng-template>
+
+    </mat-expansion-panel>
 
 
-</form>
-<!-- <mat-accordion>
-  <mat-expansion-panel [expanded]="false" class="agGridExpansionPanel">
-    <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-      <mat-panel-title  >
-        Consultes
-      </mat-panel-title>
-    </mat-expansion-panel-header>
-
-
-  <div class="appDataGridEditDiv">
-      <app-data-grid  class="ag-theme-balham" [columnDefs]="columnDefs"  [getAll]='getAllConnections'  [frameworkComponents]="frameworkComponents"
-      [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
-      (remove)="removeData($event)" (new)='newData($event)' (sendChanges)='applyChanges($event)' > </app-data-grid>
-  </div>
-
-
-  </mat-expansion-panel>
-</mat-accordion> -->
+  </mat-accordion>

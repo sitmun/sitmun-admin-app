@@ -6,6 +6,8 @@ import { CartographyAvailability } from './cartography-availability.model';
  * Cartography
  */
 export declare class Cartography extends Resource {
+    /** id */
+    id: number;
     /** name*/
     name: string;
     /** type*/

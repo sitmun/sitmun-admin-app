@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
-import { FormControl, FormGroup, Validators  } from '@angular/forms';
-import {  ActivatedRoute,  Router} from '@angular/router';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CartographyGroupService, RoleService, Role } from 'dist/sitmun-frontend-core/';
 import { Connection } from 'dist/sitmun-frontend-core/connection/connection.model';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
-import { BtnEditRenderedComponent } from 'dist/sitmun-frontend-gui/';
 import { map } from 'rxjs/operators';
-import { environment } from '../../../../environments/environment';
+import { of } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-layers-permits-form',
@@ -17,10 +17,12 @@ import { environment } from '../../../../environments/environment';
 })
 export class LayersPermitsFormComponent implements OnInit {
 
-  columnDefs: any[];
-  public frameworkComponents = {
-    btnEditRendererComponent: BtnEditRenderedComponent
-  };
+  themeGrid: any = environment.agGridTheme;
+  columnDefsCartographies: any[];
+  columnDefsRoles: any[];
+  dataLoaded: Boolean = false;
+
+
   formLayersPermits: FormGroup;
   layersPermitsToEdit;
   layersPermitsID = -1;
@@ -32,28 +34,28 @@ export class LayersPermitsFormComponent implements OnInit {
     private roleService: RoleService,
     private http: HttpClient,
     private utils: UtilsService,
-    ) {
-        this.initializeLayersPermitsForm();
-    }
+  ) {
+    this.initializeLayersPermitsForm();
+  }
 
   ngOnInit(): void {
     this.activatedRoute.params.subscribe(params => {
       this.layersPermitsID = +params.id;
-      if (this.layersPermitsID !== -1){
+      if (this.layersPermitsID !== -1) {
         console.log(this.layersPermitsID);
 
         this.cartographyGroupService.get(this.layersPermitsID).subscribe(
           resp => {
             console.log(resp);
-            this.layersPermitsToEdit=resp;
+            this.layersPermitsToEdit = resp;
             this.formLayersPermits.setValue({
-                id:       this.layersPermitsID,
-                name:     this.layersPermitsToEdit.name,
-                type:   this.layersPermitsToEdit.type,
-                _links:   this.layersPermitsToEdit._links
-              });
+              id: this.layersPermitsID,
+              name: this.layersPermitsToEdit.name,
+              type: this.layersPermitsToEdit.type,
+              _links: this.layersPermitsToEdit._links
+            });
 
-
+            this.dataLoaded = true;
           },
           error => {
 
@@ -62,38 +64,39 @@ export class LayersPermitsFormComponent implements OnInit {
       }
 
     },
-    error => {
+      error => {
 
-    });
+      });
 
 
 
-    this.columnDefs = [
+    this.columnDefsCartographies = [
       {
         headerName: '',
         checkboxSelection: true,
         headerCheckboxSelection: true,
         editable: false,
         filter: false,
-        width: 40,
-        lockPosition:true,
+        width: 20,
+        lockPosition: true,
       },
+      { headerName: 'Id', field: 'id', editable: false },
+      { headerName: this.utils.getTranslate('layersPermitsEntity.name'), field: 'name' },
+    ];
+
+
+    this.columnDefsRoles = [
       {
         headerName: '',
-        field: 'id',
+        checkboxSelection: true,
+        headerCheckboxSelection: true,
         editable: false,
         filter: false,
-        width: 40,
-        lockPosition:true,
-        cellRenderer: 'btnEditRendererComponent',
-        cellRendererParams: {
-          clicked: this.newDataRole.bind(this)
-        },
+        width: 20,
+        lockPosition: true,
       },
-      { headerName: 'ID',  field: 'id', editable: false},
-      { headerName: this.utils.getTranslate('roleEntity.name'),  field: 'name'},
-      { headerName: this.utils.getTranslate('roleEntity.note'),  field: 'description' },
-     // { headerName: this.utils.getTranslate('application'),  field: 'application' },
+      { headerName: 'Id', field: 'id', editable: false },
+      { headerName: this.utils.getTranslate('layersPermitsEntity.name'), field: 'name' },
     ];
   }
 
@@ -140,34 +143,47 @@ export class LayersPermitsFormComponent implements OnInit {
 
   // AG GRID
 
-       /*
-      Important! Aquesta és la funció que li passarem al data grid a través de l'html per obtenir les files de la taula,
-      de moment no he trobat cap altre manera de que funcioni sense posar la nomenclatura = () =>,
-      pel que de moment hem dit de deixar-ho així!
-    */
-    getAllRoles = () => {
-      return (this.http.get(environment.apiBaseURL + `/api/cartography-groups/${this.layersPermitsID}/roles`))
-      .pipe( map( data =>  data['_embedded']['roles']) );
+  // ******** Cartographies configuration ******** //
+  getAllCartographies = () => {
+    //TODO Change the link when available
+    // return (this.http.get(`${this.formLayersPermits.value._links.roles.href}`))
+    // .pipe( map( data =>  data['_embedded']['roles']) );
+    const aux: Array<any> = [];
+    return of(aux);
   }
 
-    /*Les dues funcions que venen ara s'activaran quan es cliqui el botó de remove o el de new a la taula,
-      si volguessim canviar el nom de la funció o qualsevol cosa, cal mirar l'html, allà es on es crida la funció
-      corresponent!
-    */
-
-  removeDataRole( data: Role[])
-  {
+  removeDataCartographies(data: Role[]) {
     console.log(data);
   }
 
-  newDataRole(id: any)
-  {
+  newDataCartographies(id: any) {
     this.router.navigate(['role', id, 'roleForm']);
   }
 
-  applyChangesRole( data: Role[])
-  {
-        console.log(data);
+  applyChangesCartographies(data: Role[]) {
+    console.log(data);
+  }
+
+
+  // ******** Roles  ******** //
+  getAllRoles = () => {
+    //TODO Uncomment when the link works
+    // return (this.http.get(`${this.formLayersPermits.value._links.roles.href}`))
+    //   .pipe(map(data => data['_embedded']['roles']));
+    const aux: Array<any> = [];
+    return of(aux);
+  }
+
+  removeDataRole(data: Role[]) {
+    console.log(data);
+  }
+
+  newDataRole(id: any) {
+    this.router.navigate(['role', id, 'roleForm']);
+  }
+
+  applyChangesRole(data: Role[]) {
+    console.log(data);
   }
 
 }

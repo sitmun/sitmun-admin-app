@@ -2,8 +2,18 @@
   "Remove": "Elimina",
   "Search": "Cerca",
   "New": "Nou",
-
-  
+  "Add": "Afegeix",
+  "Actions": "Accions",
+  "Export": "Exportar",
+  "Duplicate": "Duplicar",
+  "Search/Replace": "Buscar/Reemplaçar",
+  "selectType": "Selecciona el tipus",
+  "ok-created": "Els elements s'han creat correctament",
+  "error-created": "S'ha produït un error al crear els elements",
+  "ok-updated": "Els element s'han actualitzat correctament",
+  "error-updated": "S'ha produït un error actualitzant els elements", 
+  "ok-deleted": "Els elements s'han eliminat correctament",
+  "error-deleted": "S'ha produït un error en esborrar els elements", 
   "sideMenu":{
     "connection": "Connexió",
     "service": "Servei",
@@ -27,12 +37,12 @@
     "application": "Aplicació",
     "taskGroup": "Grup tasca"
   },
-  "userEntity":{
-    "user":"Usuari",
-    "firstname":"Nom",
-    "lastname" : "Cognom",
+  "userEntity": {
+    "user": "Usuari",
+    "firstname": "Nom",
+    "lastname": "Cognom",
     "administrator": "Administrador",
-    "blocked":"Bloquejat",
+    "blocked": "Bloquejat",
     "password": "Contrasenya",
     "confirmPassword": "Confirmació contrasenya",
     "new": "Nou",
@@ -41,39 +51,66 @@
     "update": "Actualitza",
     "save": "Desa",
     "permissions": "Permisos",
-    "role": "Rol"
+    "role": "Rol",
+    "territory": "Territori",
+    "dataOfTerritory": "Dades associades al territori",
+    "position": "Position",
+    "organization": "Organització",
+    "mail": "Correu",
+    "field": "Camp",
+    "dataCreated": "Alta",
+    "code": "Codi"
   },
-  "connectionEntity":{
-    "user":"Usuari",
+  "connectionEntity": {
+    "user": "Usuari",
     "name": "Nom",
     "driver": "Driver",
-    "connection":"Connexió",
+    "connection": "Connexió",
     "password": "Contrasenya",
     "new": "Nova",
     "edit": "Edita",
     "validate": "Valida",
     "update": "Actualitza",
-    "save": "Desa"
-
+    "save": "Desa",
+    "tasks": "Tasques",
+    "cartography": "Cartografia",
+    "layers": "Capes",
+    "code": "Codi",
+    "taskGroup": "Grup tasca"
   },
-  "serviceEntity":{
+  "serviceEntity": {
     "service": "Servei",
     "name": "Nom",
     "type": "Tipus",
     "serviceURL": "Url",
+    "url": "Url",
+    "connection": "Connexió",
     "supportedSRS": "Projeccions",
-    "createdDate":"Alta"
+    "projections": "Projeccions",
+    "metadataURL": "URL metadades associades",
+    "createdDate": "Alta",
+    "new": "Nou",
+    "edit": "Edita",
+    "validate": "Valida",
+    "update": "Actualitza",
+    "save": "Desa",
+    "getData": "Obtenir dades",
+    "parameter": "Paràmetre",
+    "value": "Valor",
+    "configurationParameters": "Paràmetres de configuració",
+    "layersToRegister": "Selecciona les capes que vols donar d'alta",
+    "description": "Descripció",
+    "status": "Estat"
   },
-  "layersEntity":{
+  "layersEntity": {
     "layers": "Capes",
     "name": "Nom",
     "source": "Servei",
     "order": "Ordre",
-    "layers": "Capes",
     "createdDate": "Alta",
     "minimumScale": "Escala Min",
     "maximumScale": "Escala Max",
-    "metadataURL":"URL dades",
+    "metadataURL": "URL dades",
     "geometryType": "Tipus Geometria",
     "transparency": "Transparència",
     "legendType": "Tipus llegenda",
@@ -87,71 +124,242 @@
     "territory": "Territori",
     "code": "Codi",
     "administrator": "Administrador",
-    "parametersConfiguration": "Configuració de paràmetres"
+    "parametersConfiguration": "Configuració de paràmetres",
+    "spatialSelection": "Selecció espacial",
+    "groupCartographyLayersConfiguration": "Configuració de capes per grups de cartografia",
+    "nodes": "Nodes",
+    "column": "Columna",
+    "label": "Etiqueta",
+    "type": "Tipus",
+    "help": "Ajuda",
+    "selectPath": "Select/Path",
+    "field": "Camp",
+    "format": "Format"
   },
-  "layersPermitsEntity":{
+  "layersPermitsEntity": {
     "layersPermits": "Permisos sobre les capes",
     "name": "Nom",
     "type": "Tipus",
     "serviceURL": "Url",
     "supportedSRS": "Projeccions",
-    "createdDate":"Alta",
+    "createdDate": "Alta",
     "edit": "Edita",
     "new": "Nou",
     "save": "Desa",
     "validate": "Valida",
     "update": "Actualitza",
-    "roles" : "Rols"
+    "roles": "Rols",
+    "cartographiesConfiguration": "Configuració de cartografies"
   },
-  "treesEntity":{
-    "trees":"Arbres",
+  "treesEntity": {
+    "trees": "Arbres",
     "name": "Nom"
   },
-  "taskGroupEntity":{
-    "taskGroup":"Grup tasca",
-    "name": "Nom"
+  "taskGroupEntity": {
+    "taskGroup": "Grup tasca",
+    "name": "Nom",
+    "edit": "Edita",
+    "new": "Nou",
+    "save": "Desa",
+    "validate": "Valida",
+    "update": "Actualitza"
   },
-  "backgroundEntity":{
-    "backgroundLayers":"Capes de fons",
+  "backgroundEntity": {
+    "backgroundLayers": "Capes de fons",
     "name": "Nom",
     "description": "Descripció",
     "active": "Actiu",
-    "cartographyGroup": "Grup cartografia"
+    "cartographyGroup": "Grup cartografia",
+    "edit": "Edita",
+    "new": "Nou",
+    "save": "Desa",
+    "validate": "Valida",
+    "update": "Actualitza"
   },
-  "applicationEntity":{
-    "application":"Aplicació",
+  "applicationEntity": {
+    "application": "Aplicació",
     "name": "Nom",
     "type": "Tipus",
     "theme": "Tema",
     "srs": "Projeccio",
-    "createdDate":"Alta"
+    "supportedSRS": "Projeccions",
+    "serviceURL": "Url",
+    "user": "Usuari",
+    "title": "Títol",
+    "tree": "Arbre",
+    "desktopUrl": "Url per desktop",
+    "desktopCSS": "CSS desktop",
+    "mobileUrl": "Url mòbil",
+    "mobileCSS": "CSS mòbil",
+    "defaultTool": "Eina per defecte",
+    "desplacamentSupramunicipal": "Habilitat desplaçament supramunicipal",
+    "situationMap": "Mapa situació",
+    "scales": "Escales",
+    "treeAutoRefresh": "Refrescar automàticament l'arbre",
+    "createdDate": "Alta",
+    "edit": "Edita",
+    "new": "Nova",
+    "save": "Desa",
+    "validate": "Valida",
+    "update": "Actualitza",
+    "parametersConfiguration": "Configuració de paràmetres",
+    "templateConfiguration": "Configuració de plantilla",
+    "roles": "Rols",
+    "background": "Fons",
+    "selectedBackground": "Fons seleccionat",
+    "value": "Valor"
   },
-  "territoryEntity":{
+  "territoryEntity": {
     "territory": "Territori",
-    "code" : "Codi",
-    "name" : "Nom",
+    "code": "Codi",
+    "name": "Nom",
     "scope": "Àmbit",
     "createdDate": "Data alta",
     "administrator": "Administrador",
     "email": "Correu",
-    "address":"Direcció",
-    "extent":"Extensió",
-    "note":"Observacions",
-    "blocked":"Bloquejat"
-  },
-  "roleEntity":{
-    "role":"Rol",
-    "note":"Observacions",
-    "name":"Nom",
-    "application":"Aplicació",
+    "address": "Direcció",
+    "groupType": "Grup tipus",
+    "extent": "Extensió",
+    "note": "Observacions",
+    "logo": "Logo",
+    "blocked": "Bloquejat",
     "edit": "Edita",
     "new": "Nou",
     "save": "Desa",
     "validate": "Valida",
     "update": "Actualitza",
-    "users": "Usuaris"
-  }
+    "memberOfTerritories": "Territoris pares",
+    "members": "Territoris fills",
+    "permits": "Permisos",
+    "cartography": "Cartografia",
+    "task": "Tasca",
+    "user": "Usuari",
+    "role": "Rol",
+    "taskGroup": "Grup tasca",
+    "layers": "Capes"
 
-
-
+  },
+  "roleEntity": {
+    "role": "Rol",
+    "note": "Observacions",
+    "name": "Nom",
+    "application": "Aplicació",
+    "edit": "Edita",
+    "new": "Nou",
+    "save": "Desa",
+    "validate": "Valida",
+    "update": "Actualitza",
+    "users": "Usuaris",
+    "cartography": "Cartografia",
+    "tasks": "Tasques",
+    "username": "Nom d'usuari",
+    "territory": "Territori",
+    "layers": "Capes",
+    "code": "Codi",
+    "groupTask": "Grup tasca"
+  },
+  "tasksEntity": {
+    "tasks": "Tasques",
+    "task": "Tasca",
+    "name": "Nom",
+    "informationType": "Tipus d'informació"
+  },
+  "tasksConsultationEntity": {
+    "tasksConsultation": "Tasques-Consultes",
+    "name": "Nom",
+    "task": "Tasca",
+    "informationType": "Tipus d'informació",
+    "accesType": "Tipus d'accés",
+    "command": "Comanda",
+    "connection": "Connexió",
+    "associatedLayer": "Capa associada"
+  },
+  "tasksDownloadEntity": {
+    "tasksDownload": "Tasques-Descàrrega",
+    "name": "Nom",
+    "observations": "Observacions",
+    "application": "Aplicació"
+  },
+  "tasksDocumentEntity": {
+    "tasksDocument": "Tasques-Document",
+    "task": "Tasca",
+    "informationType": "Tipus d'informació",
+    "path": "Path",
+    "extent": "Extensió",
+    "associatedLayer": "Capa associada"
+  },
+  "tasksEditionEntity": {
+    "tasksEdition": "Tasques-Edició",
+    "name": "Nom",
+    "associatedLayer": "Capa associada",
+    "informationType": "Tipus d'informació",
+    "dataCreated": "Alta"
+  },
+  "tasksExtractionFMEEntity": {
+    "tasksExtractionFME": "Tasques-Extracció FME",
+    "cartography": "Cartografia",
+    "service": "Servei",
+    "layer": "Capa",
+    "dataCreated": "Alta"
+  },
+  "tasksLocatorEntity": {
+    "tasksLocator": "Tasques-Localitzador",
+    "task": "Tasca",
+    "informationType": "Tipus d'informació",
+    "accesType": "Tipus d'accés",
+    "command": "Comanda",
+    "connection": "Connexió",
+    "associatedLayer": "Capa associada"
+  },
+  "tasksMoreInfoEntity": {
+    "tasksMoreInfo": "Tasques-Més informació",
+    "task": "Tasca",
+    "informationType": "Tipus d'informació",
+    "accesType": "Tipus d'accés",
+    "command": "Comanda",
+    "connection": "Connexió",
+    "associatedLayer": "Capa associada"
+  },
+  "tasksReportEntity": {
+    "tasksReport": "Tasques-Informe",
+    "task": "Tasca",
+    "informationType": "Tipus d'informació",
+    "template": "Plantilla"
+  },
+  "tasksTHematicEntity": {
+    "tasksThematic": "Tasques-Temàtic",
+    "name": "Nom",
+    "origin": "Origen",
+    "creator": "Creador",
+    "dataCreated": "Alta"
+  },
+  "selectAll": "Seleccionar tot",
+  "selectAllSearchResults": "Seleccionar tots els resultats de cerca",
+  "searchOoo": "Buscar...",
+  "blanks": "Buits",
+  "noMatches": "Sense coincidències",
+  "filterOoo": "Filtre...",
+  "equals": "Igual",
+  "notEqual": "Diferent",
+  "lessThan": "Menor que",
+  "greaterThan": "Major que",
+  "lessThanOrEqual": "Menor o igual que",
+  "greaterThanOrEqual": "Major o igual que",
+  "inRange": "En el rang",
+  "inRangeStart": "Des de",
+  "inRangeEnd": "Fins a",
+  "contains": "Conté",
+  "notContains": "No conté",
+  "startsWith": "Comença amb",
+  "endsWith": "Acaba amb",
+  "dateFormatOoo": "dd-mm-*Yyyy",
+  "andCondition": "I",
+  "orCondition": "O",
+  "applyFilter": "Aplicar",
+  "resetFilter": "Reiniciar",
+  "clearFilter": "Esborrar",
+  "cancelFilter": "Cancel·lar",
+  "loadingOoo": "Carregant...",
+  "noRowsToShow": "No hi ha files per a mostrar",
+  "enabled": "Activat"
 }

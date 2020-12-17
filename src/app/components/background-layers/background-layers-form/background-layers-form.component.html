@@ -1,1 +1,53 @@
-<p>background-layers-form works!</p>
+<div class="titleDiv" >
+    <h4><mat-icon aria-hidden="false"  svgIcon="menu_capes_fons"></mat-icon> {{ "backgroundEntity.backgroundLayers" | translate }}-{{"backgroundEntity."+(backgroundID==-1?"new":"edit") | translate}}</h4>
+    <span class="divider"></span>
+</div>
+
+  <div class="formDiv">
+    <div class="formHeader">
+      <h5> Dades generals  </h5>
+      <button   mat-flat-button class="saveButton" >
+        <mat-icon fontSet="material-icons-round"  > save </mat-icon>
+        {{ "backgroundEntity.save" | translate }}
+      </button>
+    </div>
+    <span class="divider"></span>
+    <form [formGroup]='backgroundForm' #f="ngForm"> 
+        <div class="rowFormDiv">     
+          <div class="colFormDiv" >
+              <label class="formLabel">
+                {{'backgroundEntity.name' | translate}}
+              </label>
+              <mat-form-field appearance="outline">
+                <input matInput type="text" formControlName="name">
+              </mat-form-field>
+            </div>
+
+            <div class="colFormDiv" >
+              <label class="formLabel">
+                {{'backgroundEntity.description' | translate}}
+              </label>
+              <mat-form-field appearance="outline">
+                <input matInput type="text" formControlName="description">
+              </mat-form-field>
+            </div>
+
+            <div class="colFormDiv" >
+              <label class="formLabel">
+                {{'backgroundEntity.cartographyGroup' | translate}}
+              </label>
+              <mat-form-field appearance="outline">
+                <input matInput type="text" formControlName="cartographyGroup">
+              </mat-form-field>
+            </div>
+
+            <div class="colFormDiv" >
+              <label class="formLabel">
+                {{'backgroundEntity.active' | translate}}
+              </label>
+              <mat-checkbox formControlName="active"> </mat-checkbox>
+            </div>
+
+      </div>
+    </form>
+</div>

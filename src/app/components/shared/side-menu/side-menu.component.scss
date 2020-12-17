@@ -3,9 +3,9 @@
 .sidenav-container {
   position: absolute;
   top: 65px;
-  bottom: $default-margin;
+  bottom:1px;
   left: 0px;
-  right: $default-margin;
+  right: 0px;
 }
 
 .sidenav {
@@ -25,8 +25,8 @@
   
 }
 
-mat-expansion-panel-header{
-  padding: 10px 10px 10px 15px;
+.mat-expansion-panel-header{
+  padding: 10px 10px 10px 0px;
 }
 
 .sidenav ul {
@@ -63,7 +63,7 @@ mat-expansion-panel-header{
 }
 
 .sidenav-content {
-	padding-left: default; //canviat de default
+	padding-left: default;
 }
 
 .sidenav-margin-div{

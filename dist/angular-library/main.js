@@ -7,7 +7,7 @@
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = ".buttonEdit {\r\n    color: #000000;\r\n    background-color: #DDDDDD;\r\n    width: 24px;\r\n    height: 24px;\r\n}\r\n.iconEdit {\r\n    font-size: 16px;\r\n    margin-top: -8px;\r\n}"
+module.exports = ".buttonEdit {\r\n    color: #000;\r\n    background-color: #ddd;\r\n    width: 20px;\r\n    margin-top: 3px;\r\n    height: 20px;\r\n    box-shadow: none;\r\n}\r\n.iconEdit {\r\n    font-size: 13px;\r\n    margin-top: -10px;\r\n    margin-left: -2px;\r\n}"
 
 /***/ }),
 
@@ -18,7 +18,7 @@ module.exports = ".buttonEdit {\r\n    color: #000000;\r\n    background-color: 
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<button mat-mini-fab class=\"buttonEdit\"  type=\"button\"  (click)=\"btnClickedHandler($event)\" >\n  <mat-icon class=\"iconEdit\"   fontSet=\"material-icons-round\" > edit </mat-icon>\n</button> "
+module.exports = "<button mat-mini-fab class=\"buttonEdit\"  type=\"button\"  (click)=\"btnClickedHandler($event)\" >\r\n  <mat-icon class=\"iconEdit\"   fontSet=\"material-icons-round\" > edit </mat-icon>\r\n</button> "
 
 /***/ }),
 
@@ -79,7 +79,7 @@ var BtnEditRenderedComponent = /** @class */ (function () {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "label,\r\ninput {\r\n  display: inline-block;\r\n  margin-right: 5px;\r\n  margin-left: 10px;\r\n  margin-top: 5px;\r\n  margin-bottom: 5px;\r\n}\r\n\r\n#botoNou {\r\n  color: white;\r\n  background: #68a225 0% 0% no-repeat padding-box;\r\n  margin-left: 3px;\r\n}\r\n\r\n#botoElimina {\r\n  background: #ffffff 0% 0% no-repeat padding-box;\r\n  margin-left: 3px;\r\n}\r\n\r\n#aplicarCanvis {\r\n  color: white !important;\r\n  background: #68a225 0% 0% no-repeat padding-box;\r\n  margin-left: 3px;\r\n}\r\n\r\n#aplicarCanvis[disabled]\r\n{\r\n  background: #83976c 0% 0% no-repeat padding-box;\r\n}\r\n\r\n#redo {\r\n  color: white !important;\r\n  background: #ff9300;\r\n  margin-left: 3px;\r\n}\r\n\r\n#redo[disabled] {\r\n  background: #ffc97f;\r\n  margin-left: 3px;\r\n}\r\n\r\n#undo {\r\n  color: white !important;\r\n  background: #ff9300;\r\n  margin-left: 3px;\r\n}\r\n\r\n#undo[disabled] {\r\n  background: #ffc97f;\r\n  margin-left: 3px;\r\n}\r\n\r\n#borrarCanvis {\r\n  color: white !important;\r\n  background: #df3133;\r\n}\r\n\r\n#borrarCanvis[disabled] {\r\n  color: white !important;\r\n  background: #da8c8e;\r\n}\r\n\r\n.editDivBtns {\r\n  text-align: start;\r\n  display: inline-block;\r\n  width: 20%;\r\n  height: 30px !important;\r\n  line-height: 30px !important;\r\n}\r\n\r\n.actionsDivBtns {\r\n  text-align: end;\r\n  width:80%;\r\n  height: 60px;\r\n}\r\n\r\n.actionsDivBtns,\r\n.editDivBtns {\r\n  display: inline-block !important;\r\n}\r\n\r\n.actionsDivBtns .mat-stroked-button{\r\n padding: 5px 20px!important;\r\n}\r\n\r\n.editDivBtns .mat-mini-fab .mat-button-wrapper {\r\n  padding: inherit !important;\r\n  display: inherit !important;\r\n}\r\n\r\n.editDivBtns .mat-icon{\r\n  height: 30px !important;\r\n  bottom: 5px;\r\n  position: relative;\r\n}\r\n\r\n.editDivBtns .mat-mini-fab {\r\n  width: 30px;\r\n  height: 30px;\r\n}\r\n\r\n.actionsDivBtns .searchGenericInput{\r\n  height: 45px!important;\r\n  width: 50% !important;\r\n}\r\n\r\n.ag-body-viewport.ag-layout-normal ::-webkit-scrollbar-thumb {\r\n  background: #eee;\r\n}\r\n\r\n​\r\n.ag-body-viewport.ag-layout-normal ::-webkit-scrollbar {\r\n  width: 2em;\r\n  height: 2em;\r\n}\r\n\r\n.ag-body-viewport.ag-layout-normal ::-webkit-scrollbar-button {\r\n  background: #ccc;\r\n}\r\n\r\n.ag-body-viewport.ag-layout-normal::-webkit-scrollbar-track-piece {\r\n  background: #888;\r\n}\r\n"
+module.exports = "label,\r\ninput {\r\n  display: inline-block;\r\n  margin-right: 5px;\r\n  margin-left: 10px;\r\n  margin-top: 5px;\r\n  margin-bottom: 5px;\r\n}\r\n\r\n#newButton {\r\n  color: white;\r\n  background: #68a225 0% 0% no-repeat padding-box;\r\n  margin-left: 3px;\r\n}\r\n\r\n#deleteButton {\r\n  background: #ffffff 0% 0% no-repeat padding-box;\r\n  margin-left: 3px;\r\n}\r\n\r\n#actionButton {\r\n  background: #ffffff 0% 0% no-repeat padding-box;\r\n  margin-left: 3px;\r\n  text-align: center !important;\r\n}\r\n\r\n#applyChangesButton {\r\n  color: white !important;\r\n  background: #68a225 0% 0% no-repeat padding-box;\r\n  margin-left: 3px;\r\n}\r\n\r\n#applyChangesButton[disabled]\r\n{\r\n  background: #83976c 0% 0% no-repeat padding-box;\r\n}\r\n\r\n#redo {\r\n  color: white !important;\r\n  background: #ff9300;\r\n  margin-left: 3px;\r\n}\r\n\r\n#redo[disabled] {\r\n  background: #ffc97f;\r\n  margin-left: 3px;\r\n}\r\n\r\n#undo {\r\n  color: white !important;\r\n  background: #ff9300;\r\n  margin-left: 3px;\r\n}\r\n\r\n#undo[disabled] {\r\n  background: #ffc97f;\r\n  margin-left: 3px;\r\n}\r\n\r\n#deleteChangesButton {\r\n  color: white !important;\r\n  background: #df3133;\r\n}\r\n\r\n#deleteChangesButton[disabled] {\r\n  color: white !important;\r\n  background: #da8c8e;\r\n}\r\n\r\n.editDivBtns {\r\n  margin-left: 10px;\r\n  text-align: start;\r\n  width: 130px;\r\n  height: 30px !important;\r\n  line-height: 30px !important;\r\n}\r\n\r\n.actionsDivBtns {\r\n  text-align: end;\r\n  width: calc(100% - 140px);\r\n  height: 60px;\r\n}\r\n\r\n.actionsDivBtns,\r\n.editDivBtns {\r\n  display: inline-block !important;\r\n}\r\n\r\n.actionsDivBtns .mat-stroked-button{\r\n padding: 5px 20px!important;\r\n}\r\n\r\n.editDivBtns .mat-mini-fab .mat-button-wrapper {\r\n  padding: inherit !important;\r\n  display: inherit !important;\r\n}\r\n\r\n.editDivBtns .mat-icon{\r\n  height: 30px !important;\r\n  bottom: 5px;\r\n  position: relative;\r\n}\r\n\r\n.editDivBtns .mat-mini-fab {\r\n  width: 30px;\r\n  height: 30px;\r\n}\r\n\r\n.actionsDivBtns .searchGenericInput{\r\n  height: 45px!important;\r\n  width: 45% !important;\r\n}\r\n\r\n.ag-body-viewport.ag-layout-normal ::-webkit-scrollbar-thumb {\r\n  background: #eee;\r\n}\r\n\r\n​\r\n.ag-body-viewport.ag-layout-normal ::-webkit-scrollbar {\r\n  width: 2em;\r\n  height: 2em;\r\n}\r\n\r\n.ag-body-viewport.ag-layout-normal ::-webkit-scrollbar-button {\r\n  background: #ccc;\r\n}\r\n\r\n.ag-body-viewport.ag-layout-normal::-webkit-scrollbar-track-piece {\r\n  background: #888;\r\n}\r\n"
 
 /***/ }),
 
@@ -90,7 +90,7 @@ module.exports = "label,\r\ninput {\r\n  display: inline-block;\r\n  margin-righ
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "    <div id=grup1 class=\"editDivBtns\">\r\n        <button  mat-mini-fab class=\"editBtn\"  *ngIf=\"discardChangesButton\"  id=\"borrarCanvis\" type=\"button\"  (click)=\"deleteChanges()\" [disabled]=\"changeCounter <= 0\">\r\n            <mat-icon  fontSet=\"material-icons-round\" > close </mat-icon>\r\n        </button>\r\n        <button mat-mini-fab class=\"editBtn\" *ngIf=\"undoButton\"  id=\"undo\"  (click)=\"undo()\" [disabled]=\"changeCounter <= 0\" >\r\n            <mat-icon fontSet=\"material-icons-round\" > undo </mat-icon>\r\n        </button>\r\n        <button mat-mini-fab class=\"editBtn\" *ngIf=\"redoButton\"  id=\"redo\"  (click)=\"redo()\" [disabled]=\"redoCounter <= 0\">\r\n            <mat-icon fontSet=\"material-icons-round\" > redo </mat-icon>\r\n        </button>\r\n        <button mat-mini-fab class=\"editBtn\" *ngIf=\"applyChangesButton\"  id=\"aplicarCanvis\"  (click)=\"applyChanges()\" [disabled]=\"changeCounter <= 0\" >\r\n            <mat-icon fontSet=\"material-icons-round\" > check </mat-icon>\r\n        </button>\r\n    </div>\r\n\r\n    <div id=grup2 class=\"actionsDivBtns\" >\r\n        <label *ngIf=\"globalSearch\" [translate]=\"'Search'\"> </label>\r\n        <input *ngIf=\"globalSearch\"type=\"text\" class=\"searchGenericInput\" placeholder=\"\" (keyup)=\"quickSearch()\" [(ngModel)]=\"searchValue\" ml-2 >\r\n        <button *ngIf=\"deleteButton\"  mat-stroked-button id=\"botoElimina\"  (click)=\"removeData()\">\r\n            <mat-icon fontSet=\"material-icons-round\" > delete </mat-icon>\r\n            <span  [translate]=\"'Remove'\"> </span>\r\n            \r\n        </button>\r\n        <button  *ngIf=\"newButton\" mat-stroked-button id=\"botoNou\"  (click)=\"newData()\">\r\n            <mat-icon fontSet=\"material-icons-round\"> add_circle_outline </mat-icon>      \r\n            <span  [translate]=\"'New'\"> </span>           \r\n        </button>\r\n\r\n\r\n        \r\n    </div>\r\n\r\n\r\n\r\n    <div class=\"row\" style=\" height: 100%\">\r\n        <div class=\"ag-theme-alpine\" id=\"myGrid\" style=\" width:100%; height: 100%\" >\r\n            <ag-grid-angular\r\n            style=\" width: 100%; height: 100%;\"\r\n            class=\"ag-theme-alpine\"\r\n            [floatingFilter]=\"true\"\r\n            [rowData]=\"rowData\"\r\n            [columnDefs]=\"columnDefs\"\r\n            [gridOptions]=\"gridOptions\"\r\n            [animateRows]=\"true\"\r\n            [pagination]=\"false\"\r\n            [modules]=\"modules\"     \r\n            [undoRedoCellEditing]=\"true\"    \r\n            [undoRedoCellEditingLimit]= 200\r\n            [suppressRowClickSelection]=true\r\n            [enableCellChangeFlash]=true\r\n            [frameworkComponents]=\"frameworkComponents\"\r\n            rowSelection=\"multiple\"\r\n            (filterModified)=\"onFilterModified()\"\r\n            (cellEditingStopped) =\"onCellEditingStopped($event)\"\r\n            (cellValueChanged)=\"onCellValueChanged($event)\"\r\n            (gridReady)=\"onGridReady($event)\">\r\n            \r\n            </ag-grid-angular>\r\n        </div>\r\n    </div>\r\n\r\n\r\n"
+module.exports = "    <div id=grup1 class=\"editDivBtns\">\r\n        <button  mat-mini-fab class=\"editBtn\"  *ngIf=\"discardChangesButton\"  id=\"deleteChangesButton\" type=\"button\"  (click)=\"deleteChanges()\" [disabled]=\"changeCounter <= 0\">\r\n            <mat-icon  fontSet=\"material-icons-round\" > close </mat-icon>\r\n        </button>\r\n        <button mat-mini-fab class=\"editBtn\" *ngIf=\"undoButton\"  id=\"undo\"  (click)=\"undo()\" [disabled]=\"changeCounter <= 0\" >\r\n            <mat-icon fontSet=\"material-icons-round\" > undo </mat-icon>\r\n        </button>\r\n        <button mat-mini-fab class=\"editBtn\" *ngIf=\"redoButton\"  id=\"redo\"  (click)=\"redo()\" [disabled]=\"redoCounter <= 0\">\r\n            <mat-icon fontSet=\"material-icons-round\" > redo </mat-icon>\r\n        </button>\r\n        <button mat-mini-fab class=\"editBtn\" *ngIf=\"applyChangesButton\"  id=\"applyChangesButton\"  (click)=\"applyChanges()\" [disabled]=\"changeCounter <= 0\" >\r\n            <mat-icon fontSet=\"material-icons-round\" > check </mat-icon>\r\n        </button>\r\n    </div>\r\n\r\n    <div id=grup2 class=\"actionsDivBtns\" >\r\n        <label *ngIf=\"globalSearch\" [translate]=\"'Search'\"> </label>\r\n        <input *ngIf=\"globalSearch\"type=\"text\" class=\"searchGenericInput\" placeholder=\"\" (keyup)=\"quickSearch()\" [(ngModel)]=\"searchValue\" ml-2 >\r\n        <button *ngIf=\"deleteButton\"  mat-stroked-button id=\"deleteButton\"  (click)=\"removeData()\">\r\n            <mat-icon fontSet=\"material-icons-round\" > delete </mat-icon>\r\n            <span  [translate]=\"'Remove'\"> </span>\r\n            \r\n        </button>\r\n\r\n        \r\n        <button  mat-stroked-button [matMenuTriggerFor]=\"menu\" id=\"actionButton\">\r\n            <span  [translate]=\"'Actions'\"> </span>    \r\n            <mat-icon fontSet=\"material-icons-round\" > keyboard_arrow_down </mat-icon>     \r\n        </button>\r\n        <mat-menu #menu=\"matMenu\">\r\n            <button mat-menu-item (click)=\"exportData()\" > {{\"Export\" | translate}} </button>\r\n            <button mat-menu-item (click)=\"duplicateSelectedRows()\"> {{\"Duplicate\" | translate}}</button>\r\n            <button mat-menu-item> {{\"Search/Replace\" | translate}}</button>\r\n        </mat-menu>  \r\n            \r\n\r\n        <button  *ngIf=\"newButton\" mat-stroked-button id=\"newButton\"  (click)=\"newData()\">\r\n            <mat-icon fontSet=\"material-icons-round\"> add_circle_outline </mat-icon>      \r\n            <span  [translate]=\"'New'\"> </span>           \r\n        </button>\r\n\r\n        <button  *ngIf=\"!newButton\" mat-stroked-button id=\"newButton\"  (click)=\"newData()\">\r\n            <mat-icon fontSet=\"material-icons-round\"> add_circle_outline </mat-icon>      \r\n            <span  [translate]=\"'Add'\"> </span>           \r\n        </button>\r\n        \r\n\r\n        \r\n    </div>\r\n\r\n\r\n\r\n    <div class=\"row\" style=\" height: 100%\">\r\n        <div id=\"myGrid\" style=\" width:100%; height: 100%\" >\r\n            <ag-grid-angular\r\n            style=\" width: 100%; height: 100%;\"\r\n            [class]=\"themeGrid\"\r\n            [floatingFilter]=\"true\"\r\n            [rowData]=\"rowData\"\r\n            [columnDefs]=\"columnDefs\"\r\n            [gridOptions]=\"gridOptions\"\r\n            [animateRows]=\"true\"\r\n            [pagination]=\"false\"\r\n            [modules]=\"modules\"     \r\n            [undoRedoCellEditing]=\"true\"    \r\n            [undoRedoCellEditingLimit]= 200\r\n            [suppressRowClickSelection]=true\r\n            [enableCellChangeFlash]=true\r\n            [frameworkComponents]=\"frameworkComponents\"\r\n            rowSelection=\"multiple\"\r\n            (filterModified)=\"onFilterModified()\"\r\n            (cellEditingStopped) =\"onCellEditingStopped($event)\"\r\n            (cellValueChanged)=\"onCellValueChanged($event)\"\r\n            (gridReady)=\"onGridReady($event)\">\r\n            \r\n            </ag-grid-angular>\r\n        </div>\r\n    </div>\r\n\r\n\r\n"
 
 /***/ }),
 
@@ -105,7 +105,9 @@ module.exports = "    <div id=grup1 class=\"editDivBtns\">\r\n        <button  m
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DataGridComponent", function() { return DataGridComponent; });
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
-/* harmony import */ var _ag_grid_community_all_modules__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @ag-grid-community/all-modules */ "./node_modules/@ag-grid-community/all-modules/dist/es6/main.js");
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! rxjs */ "./node_modules/rxjs/_esm5/index.js");
+/* harmony import */ var _ag_grid_community_all_modules__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @ag-grid-community/all-modules */ "./node_modules/@ag-grid-community/all-modules/dist/es6/main.js");
+/* harmony import */ var _ngx_translate_core__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @ngx-translate/core */ "./node_modules/@ngx-translate/core/fesm5/ngx-translate-core.js");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -127,16 +129,22 @@ var __values = (undefined && undefined.__values) || function (o) {
 };
 
 
+
+
 var DataGridComponent = /** @class */ (function () {
-    function DataGridComponent() {
-        this.modules = _ag_grid_community_all_modules__WEBPACK_IMPORTED_MODULE_1__["AllCommunityModules"];
+    function DataGridComponent(translate) {
+        var _this = this;
+        this.translate = translate;
+        this.modules = _ag_grid_community_all_modules__WEBPACK_IMPORTED_MODULE_2__["AllCommunityModules"];
         this.statusColumn = false;
         this.changesMap = new Map();
         this.modificationChange = false;
-        this.undoNoChanges = false; // Booleano para saber si es un undo provocado por un cambio sin modificaciones
+        this.undoNoChanges = false; // Boolean that indicates if an undo hasn't modifications
+        this.translate = translate;
         this.remove = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
         this.new = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
         this.sendChanges = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
+        this.duplicate = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
         this.changeCounter = 0;
         this.previousChangeCounter = 0;
         this.redoCounter = 0;
@@ -171,9 +179,25 @@ var DataGridComponent = /** @class */ (function () {
             },
             rowSelection: 'multiple',
             singleClickEdit: true,
+            // suppressHorizontalScroll: true,
+            localeTextFunc: function (key, defaultValue) {
+                var data = _this.translate.instant(key);
+                return data === key ? defaultValue : data;
+            }
         };
     }
+    DataGridComponent.prototype.ngOnInit = function () {
+        var _this = this;
+        if (this.eventRefreshSubscription) {
+            this._eventRefreshSubscription = this.eventRefreshSubscription.subscribe(function () {
+                _this.getElements();
+            });
+        }
+    };
     DataGridComponent.prototype.onGridReady = function (params) {
+        if (this.singleSelection) {
+            this.gridOptions.rowSelection = 'single';
+        }
         this.params = params;
         this.gridApi = params.api;
         this.gridColumnApi = params.columnApi;
@@ -196,6 +220,40 @@ var DataGridComponent = /** @class */ (function () {
         }
         var e_1, _c;
     };
+    DataGridComponent.prototype.duplicateSelectedRows = function () {
+        var selectedNodes = this.gridApi.getSelectedNodes();
+        var selectedData = selectedNodes.map(function (node) { return node.data; });
+        this.duplicate.emit(selectedData);
+    };
+    DataGridComponent.prototype.getColumnKeysAndHeaders = function (columnkeys) {
+        var header = [];
+        if (this.columnDefs.length == 0) {
+            return '';
+        }
+        ;
+        var allColumnKeys = this.gridOptions.columnApi.getAllDisplayedColumns();
+        console.log(allColumnKeys);
+        allColumnKeys.forEach(function (element) {
+            if (element.userProvidedColDef.headerName !== '') {
+                columnkeys.push(element.userProvidedColDef.field);
+                header.push(element.userProvidedColDef.headerName);
+            }
+        });
+        return header.join(",");
+    };
+    DataGridComponent.prototype.exportData = function () {
+        var columnkeys = [];
+        var customHeader = '';
+        customHeader = this.getColumnKeysAndHeaders(columnkeys);
+        console.log(this.gridApi);
+        var params = {
+            onlySelected: true,
+            columnKeys: columnkeys,
+            customHeader: customHeader,
+            skipHeader: true
+        };
+        this.gridApi.exportDataAsCsv(params);
+    };
     DataGridComponent.prototype.quickSearch = function () {
         this.gridApi.setQuickFilter(this.searchValue);
     };
@@ -203,9 +261,10 @@ var DataGridComponent = /** @class */ (function () {
         var _this = this;
         this.getAll()
             .subscribe(function (items) {
-            console.log(items);
             _this.rowData = items;
             setTimeout(function () { _this.gridApi.sizeColumnsToFit(); }, 30);
+            _this.gridApi.setRowData(_this.rowData);
+            console.log(_this.rowData);
         });
     };
     DataGridComponent.prototype.removeData = function () {
@@ -297,9 +356,9 @@ var DataGridComponent = /** @class */ (function () {
         }
     };
     DataGridComponent.prototype.onCellValueChanged = function (params) {
-        this.params = params; // Guardaremos los parametros por si hay que hacer un apply changes
+        this.params = params;
         if (this.changeCounter > this.previousChangeCounter) 
-        // Esta condición será cierta si venimos de editar la cela o de hacer un redo
+        // True if we have edited some cell or we have done a redo 
         {
             if (params.oldValue !== params.value && !(params.oldValue == null && params.value === '')) {
                 if (!this.changesMap.has(params.node.id)) {
@@ -312,13 +371,13 @@ var DataGridComponent = /** @class */ (function () {
                         this.changesMap.get(params.node.id).set(params.colDef.field, 1);
                     }
                     else {
-                        // Si ya habíamos modificado la cela, aumentamos el numero de cambios en esta
+                        // We already had edited this cell, so we only increment number of changes of it on the map 
                         var currentChanges = this.changesMap.get(params.node.id).get(params.colDef.field);
                         this.changesMap.get(params.node.id).set(params.colDef.field, (currentChanges + 1));
                     }
                 }
-                this.paintCells(params, this.changesMap); // Com ha estado modificada la linia, la pintamos de verde
-                this.previousChangeCounter++; //Igualamos el contador de cambios anterior al actual
+                this.paintCells(params, this.changesMap); //We paint the row of the edited cell 
+                this.previousChangeCounter++; //We match the current previousChangeCounter with changeCounter
             }
         }
         else if (this.changeCounter < this.previousChangeCounter) {
@@ -331,7 +390,7 @@ var DataGridComponent = /** @class */ (function () {
                 if (this.changesMap.get(params.node.id).size === 0) {
                     this.changesMap.delete(params.node.id);
                     var row = this.gridApi.getDisplayedRowAtIndex(params.rowIndex);
-                    // Si solo tiene una modificacion, quiere decir que la cela está en su estado inicial, por lo que la pintamos de blanco
+                    // We paint it white
                     this.gridApi.redrawRows({ rowNodes: [row] });
                 }
                 else {
@@ -340,9 +399,9 @@ var DataGridComponent = /** @class */ (function () {
             }
             else if (currentChanges > 1) {
                 this.changesMap.get(params.node.id).set(params.colDef.field, (currentChanges - 1));
-                this.paintCells(params, this.changesMap); // Como aun tiene cambios, el background tiene que seguir verde
+                this.paintCells(params, this.changesMap); //Not initial state -> green background
             }
-            this.previousChangeCounter--; // Com veniem d'undo, hem de decrementar el comptador de canvisAnterior
+            this.previousChangeCounter--; //We decrement previousChangeCounter because we have done undo
         }
         else {
             if (params.oldValue !== params.value && !(params.oldValue == null && params.value === '')) {
@@ -351,18 +410,18 @@ var DataGridComponent = /** @class */ (function () {
             else {
                 if (this.changesMap.has(params.node.id)) {
                     if (!this.undoNoChanges) {
-                        this.gridApi.undoCellEditing(); // Undo para deshacer el cambio sin modificaciones internamente
+                        this.gridApi.undoCellEditing(); // Undo to delete the change without changes internally 
                         this.undoNoChanges = true;
-                        this.paintCells(params, this.changesMap); // Como aun tiene modificaciones, el background sigue siendo verde
+                        this.paintCells(params, this.changesMap); //The cell has modifications yet -> green background 
                     }
                     else {
                         this.undoNoChanges = false;
                     }
                 }
                 else {
-                    // Como al hacer undo volverá a entrar a esta misma función, hay que enviarlo a su if correspondiente
+                    //With the internally undo will enter at this function, so we have to control when done the undo or not 
                     if (!this.undoNoChanges) {
-                        this.gridApi.undoCellEditing(); // Undo para deshacer el cambio sin modificaciones internamente
+                        this.gridApi.undoCellEditing(); // Undo to delete the change internally
                         this.undoNoChanges = true;
                     }
                     else {
@@ -380,7 +439,7 @@ var DataGridComponent = /** @class */ (function () {
         this.changeCellStyleColumns(params, changesMap, '#E8F1DE');
         this.gridApi.redrawRows({ rowNodes: [row] });
         this.changeCellStyleColumns(params, changesMap, '#FFFFFF');
-        // Definiremos el cellStyle blanco para futuras modificaciones internas (ej: filtro)
+        // We will define cellStyle white to future modifications (like filter)
     };
     DataGridComponent.prototype.changeCellStyleColumns = function (params, changesMap, color) {
         try {
@@ -399,6 +458,10 @@ var DataGridComponent = /** @class */ (function () {
         }
         var e_4, _c;
     };
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
+        __metadata("design:type", rxjs__WEBPACK_IMPORTED_MODULE_1__["Observable"])
+    ], DataGridComponent.prototype, "eventRefreshSubscription", void 0);
     __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
         __metadata("design:type", Object)
@@ -440,6 +503,14 @@ var DataGridComponent = /** @class */ (function () {
         __metadata("design:type", Boolean)
     ], DataGridComponent.prototype, "globalSearch", void 0);
     __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
+        __metadata("design:type", Object)
+    ], DataGridComponent.prototype, "themeGrid", void 0);
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
+        __metadata("design:type", Boolean)
+    ], DataGridComponent.prototype, "singleSelection", void 0);
+    __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Output"])(),
         __metadata("design:type", _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"])
     ], DataGridComponent.prototype, "remove", void 0);
@@ -451,13 +522,17 @@ var DataGridComponent = /** @class */ (function () {
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Output"])(),
         __metadata("design:type", _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"])
     ], DataGridComponent.prototype, "sendChanges", void 0);
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Output"])(),
+        __metadata("design:type", _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"])
+    ], DataGridComponent.prototype, "duplicate", void 0);
     DataGridComponent = __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"])({
             selector: 'app-data-grid',
             template: __webpack_require__(/*! ./data-grid.component.html */ "./src/main/angular-library/projects/sitmun-frontend-gui/src/lib/data-grid/data-grid.component.html"),
             styles: [__webpack_require__(/*! ./data-grid.component.css */ "./src/main/angular-library/projects/sitmun-frontend-gui/src/lib/data-grid/data-grid.component.css")]
         }),
-        __metadata("design:paramtypes", [])
+        __metadata("design:paramtypes", [_ngx_translate_core__WEBPACK_IMPORTED_MODULE_3__["TranslateService"]])
     ], DataGridComponent);
     return DataGridComponent;
 }());
@@ -470,7 +545,7 @@ var DataGridComponent = /** @class */ (function () {
 /*!*************************************************************************************!*\
   !*** ./src/main/angular-library/projects/sitmun-frontend-gui/src/lib/public_api.ts ***!
   \*************************************************************************************/
-/*! exports provided: DataGridComponent, SitmunFrontendGuiModule, BtnEditRenderedComponent */
+/*! exports provided: DataGridComponent, createTranslateLoader, SitmunFrontendGuiModule, BtnEditRenderedComponent */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -479,6 +554,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "DataGridComponent", function() { return _data_grid_data_grid_component__WEBPACK_IMPORTED_MODULE_0__["DataGridComponent"]; });
 
 /* harmony import */ var _sitmun_frontend_gui_module__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./sitmun-frontend-gui.module */ "./src/main/angular-library/projects/sitmun-frontend-gui/src/lib/sitmun-frontend-gui.module.ts");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createTranslateLoader", function() { return _sitmun_frontend_gui_module__WEBPACK_IMPORTED_MODULE_1__["createTranslateLoader"]; });
+
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "SitmunFrontendGuiModule", function() { return _sitmun_frontend_gui_module__WEBPACK_IMPORTED_MODULE_1__["SitmunFrontendGuiModule"]; });
 
 /* harmony import */ var _btn_edit_rendered_btn_edit_rendered_component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./btn-edit-rendered/btn-edit-rendered.component */ "./src/main/angular-library/projects/sitmun-frontend-gui/src/lib/btn-edit-rendered/btn-edit-rendered.component.ts");
@@ -498,11 +575,12 @@ __webpack_require__.r(__webpack_exports__);
 /*!*****************************************************************************************************!*\
   !*** ./src/main/angular-library/projects/sitmun-frontend-gui/src/lib/sitmun-frontend-gui.module.ts ***!
   \*****************************************************************************************************/
-/*! exports provided: SitmunFrontendGuiModule */
+/*! exports provided: createTranslateLoader, SitmunFrontendGuiModule */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createTranslateLoader", function() { return createTranslateLoader; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SitmunFrontendGuiModule", function() { return SitmunFrontendGuiModule; });
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
 /* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/forms */ "./node_modules/@angular/forms/fesm5/forms.js");
@@ -512,12 +590,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @angular/router */ "./node_modules/@angular/router/fesm5/router.js");
 /* harmony import */ var _ngx_translate_core__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @ngx-translate/core */ "./node_modules/@ngx-translate/core/fesm5/ngx-translate-core.js");
 /* harmony import */ var _sitmun_frontend_core__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @sitmun/frontend-core */ "./node_modules/@sitmun/frontend-core/fesm5/sitmun-frontend-core.js");
-/* harmony import */ var _data_grid_data_grid_component__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./data-grid/data-grid.component */ "./src/main/angular-library/projects/sitmun-frontend-gui/src/lib/data-grid/data-grid.component.ts");
-/* harmony import */ var _ag_grid_community_angular__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @ag-grid-community/angular */ "./node_modules/@ag-grid-community/angular/main.js");
-/* harmony import */ var _ag_grid_community_angular__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(_ag_grid_community_angular__WEBPACK_IMPORTED_MODULE_9__);
-/* harmony import */ var _angular_material_button__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @angular/material/button */ "./node_modules/@angular/material/esm5/button.es5.js");
-/* harmony import */ var _angular_material_icon__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @angular/material/icon */ "./node_modules/@angular/material/esm5/icon.es5.js");
-/* harmony import */ var _btn_edit_rendered_btn_edit_rendered_component__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./btn-edit-rendered/btn-edit-rendered.component */ "./src/main/angular-library/projects/sitmun-frontend-gui/src/lib/btn-edit-rendered/btn-edit-rendered.component.ts");
+/* harmony import */ var _angular_common_locales_ca__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @angular/common/locales/ca */ "./node_modules/@angular/common/locales/ca.js");
+/* harmony import */ var _angular_common_locales_ca__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(_angular_common_locales_ca__WEBPACK_IMPORTED_MODULE_8__);
+/* harmony import */ var _angular_common_locales_es__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @angular/common/locales/es */ "./node_modules/@angular/common/locales/es.js");
+/* harmony import */ var _angular_common_locales_es__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(_angular_common_locales_es__WEBPACK_IMPORTED_MODULE_9__);
+/* harmony import */ var _data_grid_data_grid_component__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./data-grid/data-grid.component */ "./src/main/angular-library/projects/sitmun-frontend-gui/src/lib/data-grid/data-grid.component.ts");
+/* harmony import */ var _ag_grid_community_angular__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @ag-grid-community/angular */ "./node_modules/@ag-grid-community/angular/main.js");
+/* harmony import */ var _ag_grid_community_angular__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(_ag_grid_community_angular__WEBPACK_IMPORTED_MODULE_11__);
+/* harmony import */ var _angular_material_button__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! @angular/material/button */ "./node_modules/@angular/material/esm5/button.es5.js");
+/* harmony import */ var _angular_material_icon__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @angular/material/icon */ "./node_modules/@angular/material/esm5/icon.es5.js");
+/* harmony import */ var _angular_material_menu__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! @angular/material/menu */ "./node_modules/@angular/material/esm5/menu.es5.js");
+/* harmony import */ var _btn_edit_rendered_btn_edit_rendered_component__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./btn-edit-rendered/btn-edit-rendered.component */ "./src/main/angular-library/projects/sitmun-frontend-gui/src/lib/btn-edit-rendered/btn-edit-rendered.component.ts");
+/* harmony import */ var _ngx_translate_http_loader__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! @ngx-translate/http-loader */ "./node_modules/@ngx-translate/http-loader/esm5/ngx-translate-http-loader.js");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -540,6 +624,17 @@ var __decorate = (undefined && undefined.__decorate) || function (decorators, ta
 
 
 
+
+
+
+
+
+Object(_angular_common__WEBPACK_IMPORTED_MODULE_2__["registerLocaleData"])(_angular_common_locales_ca__WEBPACK_IMPORTED_MODULE_8___default.a, 'ca');
+Object(_angular_common__WEBPACK_IMPORTED_MODULE_2__["registerLocaleData"])(_angular_common_locales_es__WEBPACK_IMPORTED_MODULE_9___default.a, 'es');
+/** Load translation assets */
+function createTranslateLoader(http) {
+    return new _ngx_translate_http_loader__WEBPACK_IMPORTED_MODULE_16__["TranslateHttpLoader"](http, '../assets/i18n/', '.json');
+}
 /** SITMUN plugin core module */
 var SitmunFrontendGuiModule = /** @class */ (function () {
     function SitmunFrontendGuiModule() {
@@ -555,14 +650,22 @@ var SitmunFrontendGuiModule = /** @class */ (function () {
                 _sitmun_frontend_core__WEBPACK_IMPORTED_MODULE_7__["AngularHalModule"],
                 _angular_forms__WEBPACK_IMPORTED_MODULE_1__["ReactiveFormsModule"],
                 _angular_platform_browser_animations__WEBPACK_IMPORTED_MODULE_4__["BrowserAnimationsModule"],
-                _ag_grid_community_angular__WEBPACK_IMPORTED_MODULE_9__["AgGridModule"].withComponents([]),
+                _ag_grid_community_angular__WEBPACK_IMPORTED_MODULE_11__["AgGridModule"].withComponents([]),
                 _sitmun_frontend_core__WEBPACK_IMPORTED_MODULE_7__["SitmunFrontendCoreModule"],
-                _angular_material_button__WEBPACK_IMPORTED_MODULE_10__["MatButtonModule"],
-                _angular_material_icon__WEBPACK_IMPORTED_MODULE_11__["MatIconModule"],
+                _angular_material_button__WEBPACK_IMPORTED_MODULE_12__["MatButtonModule"],
+                _angular_material_icon__WEBPACK_IMPORTED_MODULE_13__["MatIconModule"],
+                _angular_material_menu__WEBPACK_IMPORTED_MODULE_14__["MatMenuModule"],
+                _ngx_translate_core__WEBPACK_IMPORTED_MODULE_6__["TranslateModule"].forRoot({
+                    loader: {
+                        provide: _ngx_translate_core__WEBPACK_IMPORTED_MODULE_6__["TranslateLoader"],
+                        useFactory: (createTranslateLoader),
+                        deps: [_angular_common_http__WEBPACK_IMPORTED_MODULE_3__["HttpClient"]]
+                    }
+                })
             ],
             declarations: [
-                _data_grid_data_grid_component__WEBPACK_IMPORTED_MODULE_8__["DataGridComponent"],
-                _btn_edit_rendered_btn_edit_rendered_component__WEBPACK_IMPORTED_MODULE_12__["BtnEditRenderedComponent"],
+                _data_grid_data_grid_component__WEBPACK_IMPORTED_MODULE_10__["DataGridComponent"],
+                _btn_edit_rendered_btn_edit_rendered_component__WEBPACK_IMPORTED_MODULE_15__["BtnEditRenderedComponent"],
             ],
             entryComponents: [],
             providers: [],
@@ -574,7 +677,7 @@ var SitmunFrontendGuiModule = /** @class */ (function () {
                 _sitmun_frontend_core__WEBPACK_IMPORTED_MODULE_7__["AngularHalModule"],
                 _ngx_translate_core__WEBPACK_IMPORTED_MODULE_6__["TranslateModule"],
                 _angular_forms__WEBPACK_IMPORTED_MODULE_1__["ReactiveFormsModule"],
-                _data_grid_data_grid_component__WEBPACK_IMPORTED_MODULE_8__["DataGridComponent"],
+                _data_grid_data_grid_component__WEBPACK_IMPORTED_MODULE_10__["DataGridComponent"],
                 _sitmun_frontend_core__WEBPACK_IMPORTED_MODULE_7__["SitmunFrontendCoreModule"]
             ]
         })
@@ -806,13 +909,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ag_grid_community_angular__WEBPACK_IMPORTED_MODULE_14___default = /*#__PURE__*/__webpack_require__.n(_ag_grid_community_angular__WEBPACK_IMPORTED_MODULE_14__);
 /* harmony import */ var _angular_material_button__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! @angular/material/button */ "./node_modules/@angular/material/esm5/button.es5.js");
 /* harmony import */ var _angular_material_icon__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! @angular/material/icon */ "./node_modules/@angular/material/esm5/icon.es5.js");
-/* harmony import */ var _angular_platform_browser_animations__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! @angular/platform-browser/animations */ "./node_modules/@angular/platform-browser/fesm5/animations.js");
+/* harmony import */ var _angular_material_menu__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! @angular/material/menu */ "./node_modules/@angular/material/esm5/menu.es5.js");
+/* harmony import */ var _angular_platform_browser_animations__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! @angular/platform-browser/animations */ "./node_modules/@angular/platform-browser/fesm5/animations.js");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+
 
 
 
@@ -857,7 +962,7 @@ var AppModule = /** @class */ (function () {
             ],
             imports: [
                 _angular_platform_browser__WEBPACK_IMPORTED_MODULE_0__["BrowserModule"],
-                _angular_platform_browser_animations__WEBPACK_IMPORTED_MODULE_17__["BrowserAnimationsModule"],
+                _angular_platform_browser_animations__WEBPACK_IMPORTED_MODULE_18__["BrowserAnimationsModule"],
                 _sitmun_frontend_core__WEBPACK_IMPORTED_MODULE_5__["SitmunFrontendCoreModule"].forRoot(),
                 sitmun_frontend_gui__WEBPACK_IMPORTED_MODULE_7__["SitmunFrontendGuiModule"],
                 _ag_grid_community_angular__WEBPACK_IMPORTED_MODULE_14__["AgGridModule"].withComponents([]),
@@ -870,6 +975,7 @@ var AppModule = /** @class */ (function () {
                 }),
                 _angular_material_button__WEBPACK_IMPORTED_MODULE_15__["MatButtonModule"],
                 _angular_material_icon__WEBPACK_IMPORTED_MODULE_16__["MatIconModule"],
+                _angular_material_menu__WEBPACK_IMPORTED_MODULE_17__["MatMenuModule"],
                 _sitmun_frontend_core__WEBPACK_IMPORTED_MODULE_5__["AngularHalModule"].forRoot(),
                 _angular_router__WEBPACK_IMPORTED_MODULE_2__["RouterModule"].forRoot(appRoutes)
             ],
@@ -1048,7 +1154,7 @@ Object(_angular_platform_browser_dynamic__WEBPACK_IMPORTED_MODULE_1__["platformB
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! C:\Users\ggaliano\Desktop\Sitmun3\sitmun3-frontend-gui\src\main\angular-library\src\main.ts */"./src/main/angular-library/src/main.ts");
+module.exports = __webpack_require__(/*! C:\PROJECTES\SITMUN3\FrontendGUI\src\main\angular-library\src\main.ts */"./src/main/angular-library/src/main.ts");
 
 
 /***/ })

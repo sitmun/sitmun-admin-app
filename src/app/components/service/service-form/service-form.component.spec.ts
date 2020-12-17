@@ -1,10 +1,14 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { ServiceFormComponent } from '../service-form/service-form.component';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterModule } from '@angular/router';
 import { MaterialModule } from '../../../material-module';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-
+import { ServiceService } from 'dist/sitmun-frontend-core/';
+import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
+import { HttpClientModule } from '@angular/common/http';
+import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
+import { RouterTestingModule } from '@angular/router/testing';
 describe('ServiceFormComponent', () => {
   let component: ServiceFormComponent;
   let fixture: ComponentFixture<ServiceFormComponent>;
@@ -12,7 +16,10 @@ describe('ServiceFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ ServiceFormComponent ],
-      imports: [ RouterModule.forRoot([]), MaterialModule, MatIconTestingModule]
+      imports: [HttpClientTestingModule, RouterModule.forRoot([]), HttpClientModule,
+      SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
+      providers: [ServiceService,
+        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();
   });

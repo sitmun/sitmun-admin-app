@@ -2,11 +2,12 @@
     <mat-sidenav #sidenav class="sidenav"  mode="side" opened >
         <ul>
             <div  *ngFor="let menuOptions of menus; let i = index" [ngClass]="i === 0 ? 'primerMenu' : 'altresMenus'"> 
-                <li  *ngFor="let option of menuOptions" class="side-nav-option">
+                <li  *ngFor="let option of menuOptions" class="side-nav-option"  >
                     <a *ngIf="option.children == null" [routerLink]="[option.id]" routerLinkActive="active"> 
                         <mat-icon aria-hidden="false" aria-label="Example home icon" svgIcon="{{ option.icon }}"></mat-icon>
                         <span class="opcio" >{{ "sideMenu."+option.id | translate }} </span>
                     </a>
+                    
                     <!-- [routerLink]="[option.id]" routerLinkActive="active" -->
                
 
@@ -14,8 +15,10 @@
 
                         <mat-expansion-panel-header id="header"> 
                            <mat-panel-title>
+                            <a  [routerLink]="[option.id]" routerLinkActive="active" class="side-nav-option"> 
                                 <mat-icon aria-hidden="false" aria-label="Example home icon" svgIcon="{{ option.icon }}"></mat-icon>
                                 <span>{{ "sideMenu."+option.id | translate }} </span>
+                            </a>
                             </mat-panel-title>
                         </mat-expansion-panel-header>
                         <li *ngFor="let expandOption of option.children">

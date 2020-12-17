@@ -8,8 +8,8 @@ import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { BtnEditRenderedComponent } from 'dist/sitmun-frontend-gui/';
 import { map } from 'rxjs/operators';
-import { Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment';
+import { Observable, of } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 
 @Component({
@@ -18,8 +18,19 @@ import { environment } from '../../../../environments/environment';
   styleUrls: ['./user-form.component.scss']
 })
 export class UserFormComponent implements OnInit {
+ 
+  themeGrid:any=environment.agGridTheme;
+  userForm: FormGroup;
+  userToEdit;
+  userID = -1;
+  columnDefsPermissions: any[];
+  columnDefsData: any[];
+  dataLoaded: Boolean = false;
 
-
+  public frameworkComponents = {
+    btnEditRendererComponent: BtnEditRenderedComponent
+  };
+  
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -27,20 +38,8 @@ export class UserFormComponent implements OnInit {
     private http: HttpClient,
     private utils: UtilsService,
     ) {
-        this.initializeConnectionForm();
+        this.initializeUserForm();
     }
-
-
-  userForm: FormGroup;
-  userToEdit;
-  userID = -1;
-
-  columnDefsPermissions: any[];
-  public frameworkComponents = {
-    btnEditRendererComponent: BtnEditRenderedComponent
-  };
-
-
 
   ngOnInit(): void {
     this.activatedRoute.params.subscribe(params => {
@@ -64,12 +63,18 @@ export class UserFormComponent implements OnInit {
                 _links:        this.userToEdit._links
               });
 
-
+            this.dataLoaded = true;
           },
           error => {
 
           }
         );
+      }
+      else {
+        this.userForm.patchValue({
+          administrator: false,
+          blocked: false
+        });
       }
 
     },
@@ -80,17 +85,45 @@ export class UserFormComponent implements OnInit {
 
     this.columnDefsPermissions = [
 
-      // { headerName: 'ID',  field: 'id', editable: false},
-      { headerName: this.utils.getTranslate('layersEntity.code'),  field: 'code' },
-      { headerName: this.utils.getTranslate('layersEntity.territory'),  field: 'territory'},
-      { headerName: this.utils.getTranslate('layersEntity.role'),  field: 'role', },
+      {
+        headerName: '',
+        checkboxSelection: true,
+        headerCheckboxSelection: true,
+        editable: false,
+        filter: false,
+        width: 25,
+        lockPosition:true,
+      },
+      { headerName: this.utils.getTranslate('userEntity.code'),  field: 'code' },
+      { headerName: this.utils.getTranslate('userEntity.territory'),  field: 'territory'},
+      { headerName: this.utils.getTranslate('userEntity.role'),  field: 'role', },
+
+    ];
+
+    this.columnDefsData = [
+
+      {
+        headerName: '',
+        checkboxSelection: true,
+        headerCheckboxSelection: true,
+        editable: false,
+        filter: false,
+        width: 50,
+        lockPosition:true,
+      },
+      { headerName: this.utils.getTranslate('userEntity.territory'),  field: 'territory'},
+      { headerName: this.utils.getTranslate('userEntity.position'),  field: 'position', },
+      { headerName: this.utils.getTranslate('userEntity.organization'),  field: 'organization', },
+      { headerName: this.utils.getTranslate('userEntity.mail'),  field: 'mail', },
+      { headerName: this.utils.getTranslate('userEntity.field'),  field: 'caducity', },
+      { headerName: this.utils.getTranslate('userEntity.dataCreated'),  field: 'dataCreated', },
 
     ];
 
   }
 
 
-  initializeConnectionForm(): void {
+  initializeUserForm(): void {
 
     this.userForm = new FormGroup({
       id: new FormControl(null, []),
@@ -130,21 +163,19 @@ export class UserFormComponent implements OnInit {
 }
 
   addNewUser() {
-
-
+  
     if(this.userForm.get('password').value === this.userForm.get('confirmPassword').value)
     {
-      console.log(this.userForm.get('administrator'));
-      if(this.userForm.get('administrator')==null) {
-        this.userForm.patchValue({
-            administrator: false
-        })
-      }
-      if(this.userForm.get('blocked')==null) {
-        this.userForm.patchValue({
-            blocked: false
-        })
-      }
+      // if(this.userForm.get('administrator')==null) {
+      //   this.userForm.patchValue({
+      //       administrator: false
+      //   })
+      // }
+      // if(this.userForm.get('blocked')==null) {
+      //   this.userForm.patchValue({
+      //       blocked: false
+      //   })
+      // }
       console.log(this.userForm.value);
       this.userService.create(this.userForm.value)
         .subscribe(resp => {
@@ -171,31 +202,45 @@ export class UserFormComponent implements OnInit {
 
   // AG-GRID
 
-      /*
-    Important! Aquesta és la funció que li passarem al data grid a través de l'html per obtenir les files de la taula,
-    de moment no he trobat cap altre manera de que funcioni sense posar la nomenclatura = () =>,
-    pel que de moment hem dit de deixar-ho així!
-  */
+  // ******** Permits ******** //
    getAllPermissions = (): Observable<any> => {
-    return (this.http.get(environment.apiBaseURL + `/api/users/${this.userID}/permissions`))
-    .pipe( map( data =>  data['_embedded']['user-configurations']) );
+     //TODO Arreglar problema de permisos
+    // return (this.http.get(`${this.userForm.value._links.permissions.href}`))
+    // .pipe( map( data =>  data['_embedded']['user-configurations']) );
+    const aux:Array<any> = [];
+    return of(aux);
   }
-
-  /*Les dues funcions que venen ara s'activaran quan es cliqui el botó de remove o el de new a la taula,
-    si volguessim canviar el nom de la funció o qualsevol cosa, cal mirar l'html, allà es on es crida la funció
-    corresponent!
-  */
 
   removeDataPermissions( data)
   {
     console.log(data);
   }
-
+  
   newDataPermissions(id: any)
   {
     // this.router.navigate(['territory', id, 'territoryForm']);
     console.log('screen in progress');
   }
 
+  // ******** Data of Territory ******** //
+   getAllData = (): Observable<any> => {
+    //TODO Arreglar problema de permisos
+    // return (this.http.get(`${this.userForm.value._links.permissions.href}`))
+    // .pipe( map( data =>  data['_embedded']['user-configurations']) );
+    const aux:Array<any> = [];
+    return of(aux);
+  }
+
+  removeDataData( data)
+  {
+    console.log(data);
+  }
+  
+  newDataData(id: any)
+  {
+    // this.router.navigate(['territory', id, 'territoryForm']);
+    console.log('screen in progress');
+  }
+  
 
 }

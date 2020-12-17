@@ -1,11 +1,9 @@
-<div class="titleDiv" *ngIf="layerID==-1" >
-    <h4><mat-icon aria-hidden="false"  svgIcon="menu_capes"></mat-icon> {{ "layersEntity.layers" | translate }}-{{"layersEntity.new" | translate}}</h4>
-    <span class="divider"></span>
-  </div>
-  <div class="titleDiv" *ngIf="layerID!=-1" >
-    <h4><mat-icon aria-hidden="false"  svgIcon="menu_capes"></mat-icon>{{ "layersEntity.layers" | translate }}-{{"layersEntity.edit" | translate}}</h4>
-    <span class="divider"></span>
-  </div>
+<div class="titleDiv" >
+  <h4><mat-icon aria-hidden="false"  svgIcon="menu_capes"></mat-icon> {{ "layersEntity.layers" | translate }}-{{"layersEntity."+(layerID==-1?"new":"edit") | translate}}</h4>
+  <span class="divider"></span>
+</div>
+
+<div class="formDiv">
   <div class="formHeader">
     <h5> Dades generals  </h5>
     <button   mat-flat-button class="saveButton"  >
@@ -15,8 +13,7 @@
   </div>
   <span class="divider"></span>
   <form [formGroup]='layerForm' #f="ngForm"> 
-  
-    <!-- Primera Fila  -->
+
       <div class="rowFormDiv">
           <div class="colFormDiv">
             <label class="formLabel">
@@ -54,8 +51,7 @@
               </mat-form-field>
             </div>
       </div>
- 
-    <!-- Segona Fila  -->
+
       <div class="rowFormDiv">
         <div class="colFormDiv">
           <label class="formLabel">
@@ -126,23 +122,102 @@
           <button *ngIf="layerID==-1" (click)="addNewLayer()" mat-flat-button class="validateButton" >{{ "layersEntity.validate" | translate }}</button>
           <button *ngIf="layerID!=-1" (click)="updateLayer()" mat-flat-button class="validateButton" >{{ "layersEntity.update" | translate }}</button>
     </div>
+  </form>
+</div>
   
-    <mat-accordion *ngIf="layerID!=-1">
-      <mat-expansion-panel [expanded]="false" class="agGridExpansionPanel">
-        <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-          <mat-panel-title  >
-            {{ "layersEntity.parametersConfiguration" | translate }}
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-    
-    
+<div class="tableDiv" *ngIf="dataLoaded">
+  <mat-accordion *ngIf="layerID!=-1" multi>
+
+    <!-- Parameters configuration table -->
+    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+        <mat-panel-title  >
+          {{ "layersEntity.parametersConfiguration" | translate }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+  
+    <ng-template matExpansionPanelContent>  
       <div class="appDataGridEditDiv">
-          <app-data-grid  class="ag-theme-balham" [columnDefs]="columnDefs"  [getAll]='getAllParameters'  [frameworkComponents]="frameworkComponents"
+          <app-data-grid  [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'  [frameworkComponents]="frameworkComponents"
           [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
           (remove)="removeDataParameters($event)" (new)='newDataParameters($event)'  > </app-data-grid>
       </div>
-    
-    
-      </mat-expansion-panel>
-    </mat-accordion>
-    
+    </ng-template>
+    </mat-expansion-panel>
+
+
+    <!-- Spatial selection table -->
+    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+        <mat-panel-title  >
+          {{ "layersEntity.spatialSelection" | translate }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+  
+    <ng-template matExpansionPanelContent>  
+      <div class="appDataGridEditDiv">
+          <app-data-grid  [columnDefs]="columnDefsSpatialConfigurations" [themeGrid]='themeGrid' [getAll]='getAllSpatialConfigurations'  [frameworkComponents]="frameworkComponents"
+          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=false 
+          (remove)="removeDataSpatialConfigurations($event)" (new)='newDataSpatialConfigurations($event)'  > </app-data-grid>
+      </div>
+    </ng-template>
+    </mat-expansion-panel>
+
+
+    <!-- Territory configuration table -->
+    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+        <mat-panel-title  >
+          {{ "layersEntity.territory" | translate }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+  
+    <ng-template matExpansionPanelContent>  
+      <div class="appDataGridEditDiv">
+          <app-data-grid [columnDefs]="columnDefsTerritories" [themeGrid]='themeGrid' [getAll]='getAllTerritories'  [frameworkComponents]="frameworkComponents"
+          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=false 
+          (remove)="removeDataTerritories($event)" (new)='newDataTerritories($event)'  > </app-data-grid>
+      </div>
+    </ng-template>
+    </mat-expansion-panel>
+
+
+    <!-- Layers configuration by cartoghaphy group table -->
+    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+        <mat-panel-title  >
+          {{ "layersEntity.groupCartographyLayersConfiguration" | translate }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+  
+    <ng-template matExpansionPanelContent>  
+      <div class="appDataGridEditDiv">
+          <app-data-grid [columnDefs]="columnDefsLayersConfiguration" [themeGrid]='themeGrid' [getAll]='getAllLayersConfiguration'  [frameworkComponents]="frameworkComponents"
+          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=false 
+          (remove)="removeDataLayersConfiguration($event)" (new)='newDataLayersConfiguration($event)'  > </app-data-grid>
+      </div>
+    </ng-template>
+    </mat-expansion-panel>
+
+
+    <!-- Nodes table -->
+    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+        <mat-panel-title  >
+          {{ "layersEntity.nodes" | translate }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+  
+    <ng-template matExpansionPanelContent>  
+      <div class="appDataGridEditDiv">
+          <app-data-grid [columnDefs]="columnDefsNodes" [themeGrid]='themeGrid' [getAll]='getAllNodes'  [frameworkComponents]="frameworkComponents"
+          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=false 
+          (remove)="removeDataNodes($event)" (new)='newDataNodes($event)'  > </app-data-grid>
+      </div>
+    </ng-template>
+    </mat-expansion-panel>
+
+
+
+  </mat-accordion>
+</div>

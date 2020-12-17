@@ -1,1 +1,144 @@
-<p>service-form works!</p>
+<div class="titleDiv" >
+  <h4><mat-icon aria-hidden="false"  svgIcon="menu_servei"></mat-icon> {{ "serviceEntity.service" | translate }}-{{"serviceEntity."+(serviceID==-1?"new":"edit") | translate}}</h4>
+  <span class="divider"></span>
+</div>
+
+
+<div class="formDiv">
+  <div class="formHeader">
+    <h5> Dades generals  </h5>
+    <button   mat-flat-button class="saveButton"  >
+      <mat-icon fontSet="material-icons-round"  > save </mat-icon>
+      {{ "serviceEntity.save" | translate }}
+    </button>
+  </div>
+  <span class="divider"></span>
+  <form [formGroup]='serviceForm' #f="ngForm"> 
+
+
+      <div class="rowFormDiv">
+      
+          <div class="thirdColumnColFormDiv" >
+            <label class="formLabel">
+              {{'serviceEntity.name' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="name">
+            </mat-form-field>
+          </div>
+  
+          <div class="thirdColumnColFormDiv" >
+            <label class="formLabel">
+              {{'serviceEntity.type' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="type">
+            </mat-form-field>
+          </div>
+  
+          <div class="thirdColumnColFormDiv" >
+            <label class="formLabel">
+              {{'serviceEntity.url' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="serviceURL">
+            </mat-form-field>
+          </div>
+          
+            <button *ngIf="serviceID==-1" (click)="addNewLayer()" mat-flat-button class="validateButton" >{{ "serviceEntity.getData" | translate }}</button>
+            <button *ngIf="serviceID!=-1" (click)="updateLayer()" mat-flat-button class="validateButton" >{{ "serviceEntity.update" | translate }}</button>
+     </div>
+
+      <div class="rowFormDiv">
+      
+          <div class="colFormDiv" >
+            <label class="formLabel">
+              {{'serviceEntity.connection' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="connection">
+            </mat-form-field>
+          </div>
+  
+          <div class="colFormDiv" >
+            <label class="formLabel">
+              {{'serviceEntity.projections' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+                <mat-chip-list #chipList aria-label="Selecció de projecció">
+                  <mat-chip
+                    *ngFor="let projection of projections"
+                    [selectable]="selectable"
+                    [removable]="removable"
+                    (removed)="removeProjection(projection)"
+                  >
+                    {{ projection }}
+                    <mat-icon matChipRemove>cancel</mat-icon>
+                  </mat-chip>
+                  <input
+                    [matChipInputFor]="chipList"
+                    [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                    [matChipInputAddOnBlur]="addOnBlur"
+                    (matChipInputTokenEnd)="addProjection($event)"
+                  />
+                </mat-chip-list>
+  
+
+
+            </mat-form-field>
+          </div>
+  
+          <div class="colFormDiv" >
+            <label class="formLabel">
+              {{'serviceEntity.metadataURL' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="metadataURL">
+            </mat-form-field>
+
+        </div>
+  
+    </div>
+  </form>
+</div>
+
+<div class="tableDiv" *ngIf="dataLoaded">
+  <mat-accordion *ngIf="serviceID!=-1" multi>
+
+    <!-- Configuration parameters table -->
+    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+        <mat-panel-title  >
+          {{ "serviceEntity.configurationParameters" | translate }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+  
+    <ng-template matExpansionPanelContent>  
+        <div class="appDataGridEditDiv">
+            <app-data-grid  [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'  [frameworkComponents]="frameworkComponents"
+            [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
+            (remove)="removeParameters($event)" (new)='newDataParameters($event)'  > </app-data-grid>
+        </div>
+    </ng-template>
+  
+    </mat-expansion-panel>
+
+    <!-- Layers -->
+    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+        <mat-panel-title  >
+          {{ "serviceEntity.layersToRegister" | translate }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+  
+    <ng-template matExpansionPanelContent>  
+        <div class="appDataGridEditDiv">
+            <app-data-grid  [columnDefs]="columnDefsLayers" [themeGrid]='themeGrid' [getAll]='getAllLayers'  [frameworkComponents]="frameworkComponents"
+            [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=false 
+            (remove)="removeLayers($event)" (new)='newDataLayers($event)'  > </app-data-grid>
+        </div>
+    </ng-template>
+  
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>
