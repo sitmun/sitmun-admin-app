@@ -22,6 +22,7 @@ export class LayersPermitsFormComponent implements OnInit {
   columnDefsRoles: any[];
   dataLoaded: Boolean = false;
 
+  permissionGroupTypes: Array<any> = [];
 
   formLayersPermits: FormGroup;
   layersPermitsToEdit;
@@ -39,6 +40,17 @@ export class LayersPermitsFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    let permissionGroupTypesByDefault = {
+      value: null,
+      description: '------'
+    }
+    this.permissionGroupTypes.push(permissionGroupTypesByDefault);
+
+    this.utils.getCodeListValues('cartographyPermission.type').subscribe(
+      resp => {
+        this.permissionGroupTypes.push(...resp);
+      }
+    );
     this.activatedRoute.params.subscribe(params => {
       this.layersPermitsID = +params.id;
       if (this.layersPermitsID !== -1) {
@@ -145,11 +157,10 @@ export class LayersPermitsFormComponent implements OnInit {
 
   // ******** Cartographies configuration ******** //
   getAllCartographies = () => {
-    //TODO Change the link when available
-    // return (this.http.get(`${this.formLayersPermits.value._links.roles.href}`))
-    // .pipe( map( data =>  data['_embedded']['roles']) );
-    const aux: Array<any> = [];
-    return of(aux);
+    
+    return (this.http.get(`${this.formLayersPermits.value._links.members.href}`))
+     .pipe( map( data =>  data['_embedded']['cartographies']) );
+
   }
 
   removeDataCartographies(data: Role[]) {
@@ -167,11 +178,10 @@ export class LayersPermitsFormComponent implements OnInit {
 
   // ******** Roles  ******** //
   getAllRoles = () => {
-    //TODO Uncomment when the link works
-    // return (this.http.get(`${this.formLayersPermits.value._links.roles.href}`))
-    //   .pipe(map(data => data['_embedded']['roles']));
-    const aux: Array<any> = [];
-    return of(aux);
+   
+    return (this.http.get(`${this.formLayersPermits.value._links.roles.href}`))
+       .pipe(map(data => data['_embedded']['roles']));
+
   }
 
   removeDataRole(data: Role[]) {

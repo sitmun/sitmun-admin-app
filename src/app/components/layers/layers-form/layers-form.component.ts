@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CartographyService, TerritoryService, Territory } from 'dist/sitmun-frontend-core/';
+import { CartographyService, TerritoryService, Territory} from 'dist/sitmun-frontend-core/';
 import { Connection } from 'dist/sitmun-frontend-core/connection/connection.model';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
@@ -25,7 +25,8 @@ export class LayersFormComponent implements OnInit {
   columnDefsLayersConfiguration: any[];
   columnDefsNodes: any[];
   dataLoaded: Boolean = false;
-
+  geometryTypes: Array<any> = [];
+  legendTypes: Array<any> = [];
 
   public frameworkComponents = {
     btnEditRendererComponent: BtnEditRenderedComponent
@@ -43,7 +44,7 @@ export class LayersFormComponent implements OnInit {
     private cartographyService: CartographyService,
     private territoryService: TerritoryService,
     private http: HttpClient,
-    private utils: UtilsService,
+    private utils: UtilsService
   ) {
     this.initializeLayersForm();
 
@@ -90,6 +91,29 @@ export class LayersFormComponent implements OnInit {
 
   ngOnInit(): void {
 
+    let geometryTypeByDefault = {
+      value: null,
+      description: '-------'
+    }
+    this.geometryTypes.push(geometryTypeByDefault);
+
+    this.utils.getCodeListValues('cartography.geometryType').subscribe(
+      resp => {
+        this.geometryTypes.push(...resp);
+      }
+    );
+
+    let legendTypeByDefault = {
+      value: null,
+      description: '-------'
+    }
+    this.legendTypes.push(legendTypeByDefault);
+
+    this.utils.getCodeListValues('cartography.legendType').subscribe(
+      resp => {
+        this.legendTypes.push(...resp);
+      }
+    );
 
 
     this.columnDefsParameters = [
@@ -182,6 +206,13 @@ export class LayersFormComponent implements OnInit {
     ];
 
   }
+
+  
+  getGeometryTypes() {
+  
+  }
+
+   
 
   initializeLayersForm(): void {
 

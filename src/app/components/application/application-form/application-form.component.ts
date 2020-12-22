@@ -26,7 +26,8 @@ export class ApplicationFormComponent implements OnInit {
   columnDefsBackgrounds: any[];
   dataLoaded: Boolean = false;
   themeGrid: any = environment.agGridTheme;
-
+  applicationTypes: Array<any> = [];
+  
   public frameworkComponents = {
     btnEditRendererComponent: BtnEditRenderedComponent
   };
@@ -36,19 +37,30 @@ export class ApplicationFormComponent implements OnInit {
     private router: Router,
     private applicationService: ApplicationService,
     private http: HttpClient,
-    private utils: UtilsService,
+    private utils: UtilsService
   ) {
     this.initializeApplicationForm();
   }
-
 
   applicationForm: FormGroup;
   applicationToEdit;
   applicationID = -1;
 
-
-
   ngOnInit(): void {
+
+    let applicationTypeByDefault = {
+      value: null,
+      description: '-------'
+    }
+    this.applicationTypes.push(applicationTypeByDefault);
+
+    this.utils.getCodeListValues('applicationParameter.type').subscribe(
+      resp => {
+        this.applicationTypes.push(...resp);
+      }
+    );
+
+
     this.activatedRoute.params.subscribe(params => {
       this.applicationID = +params.id;
       if (this.applicationID !== -1) {
@@ -167,9 +179,9 @@ export class ApplicationFormComponent implements OnInit {
       { headerName: this.utils.getTranslate('applicationEntity.selectedBackground'), field: 'selectedBackground' },
 
     ];
-
-
   }
+
+
 
 
   initializeApplicationForm(): void {
@@ -317,10 +329,17 @@ export class ApplicationFormComponent implements OnInit {
   // ******** Background ******** //
 
   getAllBackgrounds = (): Observable<any> => {
-    return (this.http.get(`${this.applicationForm.value._links.backgrounds.href}`))
-      .pipe(map(data => data[`_embedded`][`application-backgrounds`]));
-    // return (this.http.get(`http://localhost:8080/api/territories/${this.territoryID}/memberOf`))
-    // .pipe( map( data =>  data['_embedded']['territories']) );
+      var urlReq=`${this.applicationForm.value._links.backgrounds.href}`
+      if(this.applicationForm.value._links.backgrounds.templated){
+        var url=new URL(urlReq.split("{")[0]);
+        url.searchParams.append("projecction","view")
+        urlReq=url.toString();
+      }
+  
+      return (this.http.get(urlReq))
+      .pipe( map( data =>  data['_embedded']['application-backgrounds']) );
+  
+
   }
 
   removeBackgrounds(data: any[]) {

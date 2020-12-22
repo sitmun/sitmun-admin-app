@@ -58,8 +58,12 @@
             {{'layersEntity.geometryType' | translate}}
           </label>
           <mat-form-field appearance="outline">
-            <input matInput type="text" formControlName="geometryType">
-          </mat-form-field>
+            <mat-select matInput formControlName="geometryType" class="form-control">
+              <mat-option [value]="geometryType.value" *ngFor="let geometryType of geometryTypes">
+                {{ geometryType.description}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field> 
         </div>
 
         <div class="colFormDiv" >
@@ -96,9 +100,14 @@
             <label class="formLabel">
               {{'layersEntity.legendType' | translate}}
             </label>
+
             <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="legendType">
-            </mat-form-field>
+              <mat-select matInput formControlName="legendType" class="form-control">
+                <mat-option [value]="legendType.value" *ngFor="let legendType of legendTypes">
+                  {{ legendType.description}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field> 
           </div>
   
           <div class="thirdColumnColFormDiv" >
@@ -119,8 +128,8 @@
             </mat-form-field>
           </div>
   
-          <button *ngIf="layerID==-1" (click)="addNewLayer()" mat-flat-button class="validateButton" >{{ "layersEntity.validate" | translate }}</button>
-          <button *ngIf="layerID!=-1" (click)="updateLayer()" mat-flat-button class="validateButton" >{{ "layersEntity.update" | translate }}</button>
+         <!-- <button *ngIf="layerID==-1" (click)="addNewLayer()" mat-flat-button class="validateButton" >{{ "layersEntity.validate" | translate }}</button>
+          <button *ngIf="layerID!=-1" (click)="updateLayer()" mat-flat-button class="validateButton" >{{ "layersEntity.update" | translate }}</button>-->
     </div>
   </form>
 </div>
@@ -140,7 +149,7 @@
       <div class="appDataGridEditDiv">
           <app-data-grid  [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'  [frameworkComponents]="frameworkComponents"
           [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
-          (remove)="removeDataParameters($event)" (new)='newDataParameters($event)'  > </app-data-grid>
+          [actionButton]=true (remove)="removeDataParameters($event)" (new)='newDataParameters($event)'  > </app-data-grid>
       </div>
     </ng-template>
     </mat-expansion-panel>
@@ -157,8 +166,8 @@
     <ng-template matExpansionPanelContent>  
       <div class="appDataGridEditDiv">
           <app-data-grid  [columnDefs]="columnDefsSpatialConfigurations" [themeGrid]='themeGrid' [getAll]='getAllSpatialConfigurations'  [frameworkComponents]="frameworkComponents"
-          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=false 
-          (remove)="removeDataSpatialConfigurations($event)" (new)='newDataSpatialConfigurations($event)'  > </app-data-grid>
+          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true   
+          [actionButton]=true (remove)="removeDataSpatialConfigurations($event)" (new)='newDataSpatialConfigurations($event)'  > </app-data-grid>
       </div>
     </ng-template>
     </mat-expansion-panel>
@@ -175,8 +184,8 @@
     <ng-template matExpansionPanelContent>  
       <div class="appDataGridEditDiv">
           <app-data-grid [columnDefs]="columnDefsTerritories" [themeGrid]='themeGrid' [getAll]='getAllTerritories'  [frameworkComponents]="frameworkComponents"
-          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=false 
-          (remove)="removeDataTerritories($event)" (new)='newDataTerritories($event)'  > </app-data-grid>
+          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true   
+          [actionButton]=true (remove)="removeDataTerritories($event)" (new)='newDataTerritories($event)'  > </app-data-grid>
       </div>
     </ng-template>
     </mat-expansion-panel>
@@ -193,8 +202,8 @@
     <ng-template matExpansionPanelContent>  
       <div class="appDataGridEditDiv">
           <app-data-grid [columnDefs]="columnDefsLayersConfiguration" [themeGrid]='themeGrid' [getAll]='getAllLayersConfiguration'  [frameworkComponents]="frameworkComponents"
-          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=false 
-          (remove)="removeDataLayersConfiguration($event)" (new)='newDataLayersConfiguration($event)'  > </app-data-grid>
+          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true   
+          [actionButton]=true (remove)="removeDataLayersConfiguration($event)" (new)='newDataLayersConfiguration($event)'  > </app-data-grid>
       </div>
     </ng-template>
     </mat-expansion-panel>
@@ -211,8 +220,8 @@
     <ng-template matExpansionPanelContent>  
       <div class="appDataGridEditDiv">
           <app-data-grid [columnDefs]="columnDefsNodes" [themeGrid]='themeGrid' [getAll]='getAllNodes'  [frameworkComponents]="frameworkComponents"
-          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=false 
-          (remove)="removeDataNodes($event)" (new)='newDataNodes($event)'  > </app-data-grid>
+          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true  
+          [actionButton]=true (remove)="removeDataNodes($event)" (new)='newDataNodes($event)'  > </app-data-grid>
       </div>
     </ng-template>
     </mat-expansion-panel>

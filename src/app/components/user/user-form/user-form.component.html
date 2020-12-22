@@ -98,7 +98,7 @@
       <div class="appDataGridEditDiv">
           <app-data-grid [columnDefs]="columnDefsPermissions" [themeGrid]='themeGrid' [getAll]='getAllPermissions'  [frameworkComponents]="frameworkComponents"
           [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
-          (remove)="removeDataPermissions($event)" (new)='newDataPermissions($event)'  > </app-data-grid>
+          [actionButton]=true (remove)="removeDataPermissions($event)" (new)='newDataPermissions($event)'  > </app-data-grid>
       </div>
     </ng-template>
   
@@ -117,8 +117,8 @@
     <ng-template matExpansionPanelContent>  
       <div class="appDataGridEditDiv">
           <app-data-grid [columnDefs]="columnDefsData" [themeGrid]='themeGrid' [getAll]='getAllData'  [frameworkComponents]="frameworkComponents"
-          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=false 
-          (remove)="removeDataData($event)" (new)='newDataData($event)'  > </app-data-grid>
+          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true  
+          [actionButton]=true (remove)="removeDataData($event)" (new)='newDataData($event)'  > </app-data-grid>
       </div>
     </ng-template>
   

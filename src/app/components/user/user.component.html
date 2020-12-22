@@ -6,5 +6,5 @@
 <div class="appDataGridDiv">
     <app-data-grid [columnDefs]="columnDefs" [themeGrid]='themeGrid' [getAll]='getAllUsers' [globalSearch]=true [frameworkComponents]="frameworkComponents"
     [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true [applyChangesButton]=true  [deleteButton]=true [newButton]=true 
-    (remove)="removeData($event)" (new)='newData($event)' (sendChanges)='applyChanges($event)' (duplicate)='add($event)' > </app-data-grid>
+    [actionButton]=true (remove)="removeData($event)" (new)='newData($event)' (sendChanges)='applyChanges($event)' (duplicate)='add($event)' > </app-data-grid>
 </div>

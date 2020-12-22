@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BackgroundService } from 'dist/sitmun-frontend-core/';
+import { BackgroundService, HalOptions, HalParam, CartographyGroupService } from 'dist/sitmun-frontend-core/';
 import { Connection } from 'dist/sitmun-frontend-core/connection/connection.model';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
@@ -18,7 +18,7 @@ import { Observable } from 'rxjs';
 })
 export class BackgroundLayersFormComponent implements OnInit {
 
-  cartographyGroups: Array<any> = [];
+  permissionGroups: Array<any> = [];
   cartographyGroupOfThisLayer;
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -26,6 +26,7 @@ export class BackgroundLayersFormComponent implements OnInit {
     private backgroundService: BackgroundService,
     private http: HttpClient,
     private utils: UtilsService,
+    private cartographyGroupService:CartographyGroupService,
   ) {
     this.initializeBackgroundForm();
   }
@@ -40,22 +41,17 @@ export class BackgroundLayersFormComponent implements OnInit {
 
   ngOnInit(): void {
 
-    // let cartographyGroupByDefault = {
-    //   id: -1,
-    //   name: 'Selecciona el grup del territory'
-    // }
-    // this.cartographyGroups.push(cartographyGroupByDefault);
-    // this.cartographyGroupOfThisLayer = cartographyGroupByDefault;
-    // console.log(this.cartographyGroupOfThisLayer);
-    // this.cartographyGroupService.getAll()
-    // .pipe(map(data => data[`_embedded`][`backgroundMaps`]))
-    // .subscribe(
-    //   resp => {
-    //     console.log(resp);
-    //     this.cartographyGroups.push(...resp);
-    //   }
-    // );
+    let permissionGroupByDefault = {
+      id: -1,
+      name: '-------'
+    }
+    this.permissionGroups.push(permissionGroupByDefault);
 
+    this.getPermissionGroups().subscribe(
+      resp => {
+        this.permissionGroups.push(...resp);
+      }
+    );
 
 
 
@@ -72,7 +68,7 @@ export class BackgroundLayersFormComponent implements OnInit {
               id: this.backgroundID,
               name: this.backgroundToEdit.name,
               description: this.backgroundToEdit.description,
-              cartographyGroup: this.backgroundToEdit.cartographyGroup.name,
+              cartographyGroup: this.backgroundToEdit['cartographyGroup.id'],
               active: this.backgroundToEdit.active,
               _links: this.backgroundToEdit._links
             });
@@ -96,6 +92,15 @@ export class BackgroundLayersFormComponent implements OnInit {
       });
 
 
+  }
+
+  getPermissionGroups() {
+    let params2:HalParam[]=[];
+    let param:HalParam={key:'type', value:'F'}
+    params2.push(param);
+    let query:HalOptions={ params:params2};
+
+    return this.cartographyGroupService.getAll(query);
   }
 
 

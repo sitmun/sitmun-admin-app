@@ -10,7 +10,7 @@
   "selectType": "Selecciona el tipus",
   "ok-created": "Els elements s'han creat correctament",
   "error-created": "S'ha produït un error al crear els elements",
-  "ok-updated": "Els element s'han actualitzat correctament",
+  "ok-updated": "Els elements s'han actualitzat correctament",
   "error-updated": "S'ha produït un error actualitzant els elements", 
   "ok-deleted": "Els elements s'han eliminat correctament",
   "error-deleted": "S'ha produït un error en esborrar els elements", 

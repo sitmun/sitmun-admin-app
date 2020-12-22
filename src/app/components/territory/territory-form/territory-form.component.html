@@ -1,5 +1,8 @@
-<div class="titleDiv" >
-  <h4><mat-icon aria-hidden="false"  svgIcon="menu_territori"></mat-icon> {{ "territoryEntity.territory" | translate }}-{{"territoryEntity."+(territoryID==-1?"new":"edit") | translate}}</h4>
+<div class="titleDiv">
+  <h4>
+    <mat-icon aria-hidden="false" svgIcon="menu_territori"></mat-icon> {{ "territoryEntity.territory" | translate
+    }}-{{"territoryEntity."+(territoryID==-1?"new":"edit") | translate}}
+  </h4>
   <span class="divider"></span>
 </div>
 
@@ -55,15 +58,14 @@
 
       <div class="HalfMidLargeColFormDiv">
         <label class="formLabel">
-          {{'territoryEntity.scope' | translate}} 
+          {{'territoryEntity.scope' | translate}}
         </label>
         <mat-form-field appearance="outline">
           <mat-select matInput formControlName="scope" class="form-control">
-            <mat-option [value]="scope" *ngFor="let scope of scopeTypes">
-              {{ scope | translate}}
+            <mat-option [value]="scope.value" *ngFor="let scope of scopeTypes">
+              {{scope.description}}
             </mat-option>
           </mat-select>
-
         </mat-form-field>
 
       </div>
@@ -158,10 +160,10 @@
         <div class="appDataGridEditDiv">
           <app-data-grid [columnDefs]="columnDefsPermits" [themeGrid]='themeGrid' [getAll]='getAllPermits'
             [frameworkComponents]="frameworkComponents" [discardChangesButton]=true [redoButton]=true [undoButton]=true
-            [deleteButton]=true [newButton]=false (remove)="removePermits($event)" (new)='newDataPermits($event)'>
+            [deleteButton]=true [addButton]=true [actionButton]=true (remove)="removePermits($event)"
+            (new)='newDataPermits($event)'>
           </app-data-grid>
         </div>
-
       </ng-template>
     </mat-expansion-panel>
 
@@ -178,8 +180,8 @@
           <div class="appDataGridEditDiv">
             <app-data-grid [columnDefs]="columnDefsMemberOf" [themeGrid]='themeGrid' [getAll]='getAllMembersOf'
               [frameworkComponents]="frameworkComponents" [discardChangesButton]=true [redoButton]=true
-              [undoButton]=true [deleteButton]=true [newButton]=false (remove)="removeMembersOf($event)"
-              (new)='newDataMembersOf($event)'>
+              [undoButton]=true [deleteButton]=true [addButton]=true [actionButton]=true
+              (remove)="removeMembersOf($event)" (new)='newDataMembersOf($event)'>
             </app-data-grid>
           </div>
 
@@ -199,10 +201,10 @@
 
         <ng-template matExpansionPanelContent>
           <div class="appDataGridEditDiv">
-            <app-data-grid [columnDefs]="columnDefsMembers" [themeGrid]='themeGrid'  [getAll]='getAllMembers'
+            <app-data-grid [columnDefs]="columnDefsMembers" [themeGrid]='themeGrid' [getAll]='getAllMembers'
               [frameworkComponents]="frameworkComponents" [discardChangesButton]=true [redoButton]=true
-              [undoButton]=true [deleteButton]=true [newButton]=false (remove)="removeMembersOf($event)"
-              (new)='newDataMembers($event)'>
+              [undoButton]=true [deleteButton]=true [addButton]=true [actionButton]=true
+              (remove)="removeMembersOf($event)" (new)='newDataMembers($event)'>
             </app-data-grid>
           </div>
         </ng-template>
@@ -222,7 +224,7 @@
         <div class="appDataGridEditDiv">
           <app-data-grid [columnDefs]="columnDefsCartographies" [themeGrid]='themeGrid' [getAll]='getAllCartographies'
             [frameworkComponents]="frameworkComponents" [discardChangesButton]=true [redoButton]=true [undoButton]=true
-            [deleteButton]=true [newButton]=false (remove)="removeCartographies($event)"
+            [deleteButton]=true [addButton]=true [actionButton]=true (remove)="removeCartographies($event)"
             (new)='newDataCartographies($event)'> </app-data-grid>
         </div>
 
@@ -241,7 +243,8 @@
         <div class="appDataGridEditDiv">
           <app-data-grid [columnDefs]="columnDefsTasks" [themeGrid]='themeGrid' [getAll]='getAllTasks'
             [frameworkComponents]="frameworkComponents" [discardChangesButton]=true [redoButton]=true [undoButton]=true
-            [deleteButton]=true [newButton]=false (remove)="removeTasks($event)" (new)='newDataTasks($event)'>
+            [deleteButton]=true [addButton]=true [actionButton]=true (remove)="removeTasks($event)"
+            (new)='newDataTasks($event)'>
           </app-data-grid>
         </div>
 

@@ -16,6 +16,8 @@ export class BackgroundLayersComponent implements OnInit {
   dataUpdatedEvent: Subject<boolean> = new Subject <boolean>();
   themeGrid: any = environment.agGridTheme;
   columnDefs: any[];
+
+
   public frameworkComponents = {
     btnEditRendererComponent: BtnEditRenderedComponent
   };
@@ -23,11 +25,15 @@ export class BackgroundLayersComponent implements OnInit {
   constructor(public backgroundService: BackgroundService,
     private utils: UtilsService,
     private router: Router,
+
   ) {
 
   }
 
   ngOnInit() {
+
+
+
     this.columnDefs = [
       {
         headerName: '',
@@ -54,10 +60,12 @@ export class BackgroundLayersComponent implements OnInit {
       { headerName: this.utils.getTranslate('backgroundEntity.name'), field: 'name' },
       { headerName: this.utils.getTranslate('backgroundEntity.description'), field: 'description' },
       { headerName: this.utils.getTranslate('backgroundEntity.active'), field: 'active' },
-      { headerName: this.utils.getTranslate('backgroundEntity.cartographyGroup'), field: 'cartographyGroup.name' }
+      { headerName: this.utils.getTranslate('backgroundEntity.cartographyGroup'), field: 'cartographyGroupName' }
     ];
 
   }
+
+
  
   getAllBackgroundLayers = () => {
 

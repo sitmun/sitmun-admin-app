@@ -6,9 +6,10 @@ import { ConnectionService } from 'dist/sitmun-frontend-core/';
 import { Connection } from 'dist/sitmun-frontend-core/connection/connection.model';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
-import { BtnEditRenderedComponent } from 'dist/sitmun-frontend-gui/';
 import { of } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { map } from 'rxjs/operators';
+
 
 @Component({
   selector: 'app-connection-form',
@@ -23,14 +24,14 @@ export class ConnectionFormComponent implements OnInit {
   formConnection: FormGroup;
   connectionToEdit;
   connectionID = -1;
-  dataLoaded: Boolean = false;
+  dataLoaded: Boolean = false;s
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private connectionService: ConnectionService,
     private http: HttpClient,
-    private utils: UtilsService,
+    private utils: UtilsService
   ) {
     this.initializeConnectionForm();
   }
@@ -96,7 +97,7 @@ export class ConnectionFormComponent implements OnInit {
           lockPosition: true,
         },
         { headerName: 'Id', field: 'id', editable: false },
-        { headerName: this.utils.getTranslate('connectionEntity.code'), field: 'code' },
+        { headerName: this.utils.getTranslate('connectionEntity.code'), field: 'name' },
         { headerName: this.utils.getTranslate('connectionEntity.taskGroup'), field: 'taskGroup' },
   
       ];
@@ -118,9 +119,7 @@ export class ConnectionFormComponent implements OnInit {
       password: new FormControl(null, []),
       url: new FormControl(null, []),
       _links: new FormControl(null, []),
-
     })
-
   }
 
   addNewConnection() {
@@ -130,30 +129,23 @@ export class ConnectionFormComponent implements OnInit {
         console.log(resp);
         // this.router.navigate(["/company", resp.id, "formConnection"]);
       });
-
-
   }
 
   updateConnection() {
-
     console.log(this.formConnection.value);
 
     this.connectionService.update(this.formConnection.value)
       .subscribe(resp => {
         console.log(resp);
-
       });
-
   }
-
   
   // ******** Cartographies ******** //
   getAllCartographies = () => {
-    //TODO Change the link when available
-    // return (this.http.get(`${this.formLayersPermits.value._links.roles.href}`))
-    // .pipe( map( data =>  data['_embedded']['roles']) );
-    const aux: Array<any> = [];
-    return of(aux);
+    
+    return (this.http.get(`${this.formConnection.value._links.cartographies.href}`))
+    .pipe( map( data =>  data['_embedded']['cartographies']) );
+
   }
 
   removeDataCartographies(data: any[]) {
@@ -171,11 +163,17 @@ export class ConnectionFormComponent implements OnInit {
 
   // ******** Tasks  ******** //
   getAllTasks = () => {
-    //TODO Change the link when available
-    // return (this.http.get(`${this.formLayersPermits.value._links.roles.href}`))
-    //   .pipe(map(data => data['_embedded']['roles']));
-    const aux: Array<any> = [];
-    return of(aux);
+    var urlReq=`${this.formConnection.value._links.tasks.href}`
+    if(this.formConnection.value._links.tasks.templated){
+      var url=new URL(urlReq.split("{")[0]);
+      url.searchParams.append("projecction","view")
+      urlReq=url.toString();
+    }
+
+    return (this.http.get(urlReq))
+    .pipe( map( data =>  data['_embedded']['tasks']) );
+
+
   }
 
   removeDataTasks(data: any[]) {

@@ -54,8 +54,8 @@
     <ng-template matExpansionPanelContent>  
         <div class="appDataGridEditDiv">
             <app-data-grid [columnDefs]="columnDefsUsers" [themeGrid]='themeGrid' [getAll]='getAllUsers'  [frameworkComponents]="frameworkComponents"
-            [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=false 
-            (remove)="removeUsers($event)" (new)='newDataUsers($event)'  > </app-data-grid>
+            [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true  
+            [actionButton]=true (remove)="removeUsers($event)" (new)='newDataUsers($event)'  > </app-data-grid>
         </div>
         
     </ng-template>
@@ -72,8 +72,8 @@
     <ng-template matExpansionPanelContent>  
         <div class="appDataGridEditDiv">
             <app-data-grid [columnDefs]="columnDefsCartography" [themeGrid]='themeGrid' [getAll]='getAllCartographies'  [frameworkComponents]="frameworkComponents"
-            [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=false 
-            (remove)="removeCartographies($event)" (new)='newDataCartographies($event)'  > </app-data-grid>
+            [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true   
+            [actionButton]=true (remove)="removeCartographies($event)" (new)='newDataCartographies($event)'  > </app-data-grid>
         </div>
         
     </ng-template>
@@ -90,8 +90,8 @@
     <ng-template matExpansionPanelContent>  
         <div class="appDataGridEditDiv">
             <app-data-grid [columnDefs]="columnDefsTasks" [themeGrid]='themeGrid' [getAll]='getAllTasks'  [frameworkComponents]="frameworkComponents"
-            [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=false 
-            (remove)="removeTasks($event)" (new)='newDataTasks($event)'  > </app-data-grid>
+            [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true  
+            [actionButton]=true (remove)="removeTasks($event)" (new)='newDataTasks($event)'  > </app-data-grid>
         </div>
         
     </ng-template>

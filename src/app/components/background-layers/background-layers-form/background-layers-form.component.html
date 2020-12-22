@@ -37,7 +37,11 @@
                 {{'backgroundEntity.cartographyGroup' | translate}}
               </label>
               <mat-form-field appearance="outline">
-                <input matInput type="text" formControlName="cartographyGroup">
+                <mat-select matInput formControlName="cartographyGroup" class="form-control">
+                  <mat-option [value]="group.id" *ngFor="let group of permissionGroups">
+                    {{group.name}}
+                  </mat-option>
+                </mat-select>
               </mat-form-field>
             </div>
 

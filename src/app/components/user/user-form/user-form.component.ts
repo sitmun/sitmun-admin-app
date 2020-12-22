@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators  } from '@angular/forms';
 import {  ActivatedRoute,  Router} from '@angular/router';
-import { UserService } from 'dist/sitmun-frontend-core/';
+import { UserService,UserConfigurationService, HalOptions, HalParam } from 'dist/sitmun-frontend-core/';
 import { Connection } from 'dist/sitmun-frontend-core/connection/connection.model';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
@@ -16,7 +16,7 @@ import { environment } from 'src/environments/environment';
   selector: 'app-user-form',
   templateUrl: './user-form.component.html',
   styleUrls: ['./user-form.component.scss']
-})
+}) 
 export class UserFormComponent implements OnInit {
  
   themeGrid:any=environment.agGridTheme;
@@ -37,6 +37,7 @@ export class UserFormComponent implements OnInit {
     private userService: UserService,
     private http: HttpClient,
     private utils: UtilsService,
+    private userConfigurationService: UserConfigurationService,
     ) {
         this.initializeUserForm();
     }
@@ -94,7 +95,7 @@ export class UserFormComponent implements OnInit {
         width: 25,
         lockPosition:true,
       },
-      { headerName: this.utils.getTranslate('userEntity.code'),  field: 'code' },
+      { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('userEntity.territory'),  field: 'territory'},
       { headerName: this.utils.getTranslate('userEntity.role'),  field: 'role', },
 
@@ -204,11 +205,13 @@ export class UserFormComponent implements OnInit {
 
   // ******** Permits ******** //
    getAllPermissions = (): Observable<any> => {
-     //TODO Arreglar problema de permisos
-    // return (this.http.get(`${this.userForm.value._links.permissions.href}`))
-    // .pipe( map( data =>  data['_embedded']['user-configurations']) );
-    const aux:Array<any> = [];
-    return of(aux);
+
+    let params2:HalParam[]=[];
+    let param:HalParam={key:'user.id', value:this.userID}
+    params2.push(param);
+    let query:HalOptions={ params:params2};
+
+    return this.userConfigurationService.getAll(query);
   }
 
   removeDataPermissions( data)

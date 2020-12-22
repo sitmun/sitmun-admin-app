@@ -32,7 +32,11 @@
               {{'serviceEntity.type' | translate}}
             </label>
             <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="type">
+              <mat-select matInput formControlName="type" class="form-control">
+                <mat-option [value]="serviceType.value" *ngFor="let serviceType of serviceTypes">
+                  {{ serviceType.description}}
+                </mat-option>
+              </mat-select>
             </mat-form-field>
           </div>
   
@@ -117,7 +121,7 @@
         <div class="appDataGridEditDiv">
             <app-data-grid  [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'  [frameworkComponents]="frameworkComponents"
             [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
-            (remove)="removeParameters($event)" (new)='newDataParameters($event)'  > </app-data-grid>
+            [actionButton]=true (remove)="removeParameters($event)" (new)='newDataParameters($event)'  > </app-data-grid>
         </div>
     </ng-template>
   
@@ -134,8 +138,8 @@
     <ng-template matExpansionPanelContent>  
         <div class="appDataGridEditDiv">
             <app-data-grid  [columnDefs]="columnDefsLayers" [themeGrid]='themeGrid' [getAll]='getAllLayers'  [frameworkComponents]="frameworkComponents"
-            [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=false 
-            (remove)="removeLayers($event)" (new)='newDataLayers($event)'  > </app-data-grid>
+            [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true  
+            [actionButton]=true (remove)="removeLayers($event)" (new)='newDataLayers($event)'  > </app-data-grid>
         </div>
     </ng-template>
   

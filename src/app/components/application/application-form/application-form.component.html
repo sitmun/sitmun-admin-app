@@ -40,8 +40,12 @@
               {{'applicationEntity.type' | translate}}
             </label>
             <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="type">
-            </mat-form-field>
+              <mat-select matInput formControlName="type" class="form-control">
+                <mat-option [value]="appType.value" *ngFor="let appType of applicationTypes">
+                  {{ appType.description}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field> 
           </div>
 
           <div class="colFormDiv" >
@@ -196,8 +200,8 @@
           <ng-template matExpansionPanelContent>    
               <div class="appDataGridEditDiv">
                   <app-data-grid [columnDefs]="columnDefsTemplates" [themeGrid]='themeGrid' [getAll]='getAllTemplates'  [frameworkComponents]="frameworkComponents"
-                  [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=false 
-                  (remove)="removeTemplates($event)" (new)='newDataTemplates($event)'  > </app-data-grid>
+                  [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true 
+                  [actionButton]=true (remove)="removeTemplates($event)" (new)='newDataTemplates($event)'  > </app-data-grid>
               </div>
           </ng-template>
           </mat-expansion-panel>
@@ -213,8 +217,8 @@
           <ng-template matExpansionPanelContent>    
               <div class="appDataGridEditDiv">
                   <app-data-grid [columnDefs]="columnDefsRoles" [themeGrid]='themeGrid' [getAll]='getAllRoles'  [frameworkComponents]="frameworkComponents"
-                  [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=false 
-                  (remove)="removeRoles($event)" (new)='newDataRoles($event)'  > </app-data-grid>
+                  [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true  
+                  [actionButton]=true (remove)="removeRoles($event)" (new)='newDataRoles($event)'  > </app-data-grid>
               </div>
           </ng-template>
           </mat-expansion-panel>
@@ -230,8 +234,8 @@
           <ng-template matExpansionPanelContent>    
               <div class="appDataGridEditDiv">
                   <app-data-grid [columnDefs]="columnDefsBackgrounds" [themeGrid]='themeGrid' [getAll]='getAllBackgrounds'  [frameworkComponents]="frameworkComponents"
-                  [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=false 
-                  (remove)="removeBackgrounds($event)" (new)='newDataBackgrounds($event)'  > </app-data-grid>
+                  [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true  
+                  [actionButton]=true (remove)="removeBackgrounds($event)" (new)='newDataBackgrounds($event)'  > </app-data-grid>
               </div>
           </ng-template>
           </mat-expansion-panel>

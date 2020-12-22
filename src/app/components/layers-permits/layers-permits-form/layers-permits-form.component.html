@@ -1,44 +1,51 @@
-<div class="titleDiv" >
-  <h4><mat-icon aria-hidden="false"  svgIcon="menu_permisos"></mat-icon> {{ "layersPermitsEntity.layersPermits" | translate }}-{{"layersPermitsEntity."+(layersPermitsID==-1?"new":"edit") | translate}}</h4>
+<div class="titleDiv">
+  <h4>
+    <mat-icon aria-hidden="false" svgIcon="menu_permisos"></mat-icon> {{ "layersPermitsEntity.layersPermits" | translate
+    }}-{{"layersPermitsEntity."+(layersPermitsID==-1?"new":"edit") | translate}}
+  </h4>
   <span class="divider"></span>
 </div>
 
 <div class="formDiv">
   <div class="formHeader">
-    <h5> Dades generals  </h5>
-    <button   mat-flat-button class="saveButton"  >
-      <mat-icon fontSet="material-icons-round"  > save </mat-icon>
+    <h5> Dades generals </h5>
+    <button mat-flat-button class="saveButton">
+      <mat-icon fontSet="material-icons-round"> save </mat-icon>
       {{ "layersPermitsEntity.save" | translate }}
     </button>
   </div>
   <span class="divider"></span>
-  <form [formGroup]='formLayersPermits' #f="ngForm"> 
-  
-      <div class="rowFormDiv">
-          <div class="MidColFormDiv">
-            <label class="formLabel">
-              {{'layersPermitsEntity.name' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="name">
-            </mat-form-field>
-          </div>
- 
-            <div class="MidColFormDiv" >
-              <label class="formLabel">
-                {{'layersPermitsEntity.type' | translate}}
-              </label>
-              <mat-form-field appearance="outline">
-                <input matInput type="text" formControlName="type">
-              </mat-form-field>
-            </div>
-<!-- 
+  <form [formGroup]='formLayersPermits' #f="ngForm">
+
+    <div class="rowFormDiv">
+      <div class="MidColFormDiv">
+        <label class="formLabel">
+          {{'layersPermitsEntity.name' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="name">
+        </mat-form-field>
+      </div>
+
+      <div class="MidColFormDiv">
+        <label class="formLabel">
+          {{'layersPermitsEntity.type' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <mat-select matInput formControlName="type" class="form-control">
+            <mat-option [value]="permissionGroupType.value" *ngFor="let permissionGroupType of permissionGroupTypes">
+              {{permissionGroupType.description}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <!-- 
             <button *ngIf="layersPermitsID==-1" (click)="addNewConnection()" mat-flat-button class="validateButton" >{{ "layersPermitsEntity.validate" | translate }}</button>
             <button *ngIf="layersPermitsID!=-1" (click)="updateConnection()" mat-flat-button class="validateButton" >{{ "layersPermitsEntity.update" | translate }}</button> -->
 
-      </div>
+    </div>
 
-  
+
   </form>
 
 </div>
@@ -46,38 +53,40 @@
 <div class="tableDiv" *ngIf="dataLoaded">
   <mat-accordion *ngIf="layersPermitsID!=-1" multi>
 
-      <!-- Cartography configuration table -->
+    <!-- Cartography configuration table -->
     <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
       <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-        <mat-panel-title  >
+        <mat-panel-title>
           {{ "layersPermitsEntity.cartographiesConfiguration" | translate }}
         </mat-panel-title>
       </mat-expansion-panel-header>
 
-      <ng-template matExpansionPanelContent>  
+      <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-            <app-data-grid  [columnDefs]="columnDefsCartographies" [themeGrid]='themeGrid' [getAll]='getAllCartographies' 
-            [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=false 
-            (remove)="removeDataCartographies($event)" (new)='newDataCartographies($event)' (sendChanges)='applyChangesCartographies($event)' > </app-data-grid>
+          <app-data-grid [columnDefs]="columnDefsCartographies" [themeGrid]='themeGrid' [getAll]='getAllCartographies'
+            [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true
+            [actionButton]=true (remove)="removeDataCartographies($event)" (new)='newDataCartographies($event)'
+            (sendChanges)='applyChangesCartographies($event)'> </app-data-grid>
         </div>
       </ng-template>
     </mat-expansion-panel>
 
-      <!-- Rols table -->
+    <!-- Rols table -->
     <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
       <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-        <mat-panel-title  >
+        <mat-panel-title>
           {{ "layersPermitsEntity.roles" | translate }}
         </mat-panel-title>
       </mat-expansion-panel-header>
 
-      <ng-template matExpansionPanelContent>  
+      <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-            <app-data-grid [columnDefs]="columnDefsRoles" [themeGrid]='themeGrid' [getAll]='getAllRoles'
-            [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=false 
-            (remove)="removeDataRole($event)" (new)='newDataRole($event)' (sendChanges)='applyChangesRole($event)' > </app-data-grid>
+          <app-data-grid [columnDefs]="columnDefsRoles" [themeGrid]='themeGrid' [getAll]='getAllRoles'
+            [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true
+            [actionButton]=true (remove)="removeDataRole($event)" (new)='newDataRole($event)'
+            (sendChanges)='applyChangesRole($event)'> </app-data-grid>
         </div>
-    </ng-template>
+      </ng-template>
 
     </mat-expansion-panel>
 

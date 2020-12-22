@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Territory, TerritoryService, TerritoryGroupTypeService } from 'dist/sitmun-frontend-core/';
+import { Territory, TerritoryService, TerritoryGroupTypeService, UserConfigurationService, HalOptions, HalParam } from 'dist/sitmun-frontend-core/';
 import { Connection } from 'dist/sitmun-frontend-core/connection/connection.model';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
@@ -20,7 +20,7 @@ import { environment } from 'src/environments/environment';
 export class TerritoryFormComponent implements OnInit {
 
   themeGrid: any = environment.agGridTheme;
-  scopeTypes: any = environment.scopeTypes;
+  scopeTypes: Array<any> = [];
   groupTypeOfThisTerritory;
   territoryForm: FormGroup;
   territoryToEdit;
@@ -44,6 +44,7 @@ export class TerritoryFormComponent implements OnInit {
     private router: Router,
     private territoryService: TerritoryService,
     private territoryGroupTypeService: TerritoryGroupTypeService,
+    private userConfigurationService: UserConfigurationService,
     private http: HttpClient,
     private utils: UtilsService,
   ) {
@@ -54,7 +55,7 @@ export class TerritoryFormComponent implements OnInit {
 
     let territoryByDefault = {
       id: -1,
-      name: 'Selecciona el grup del territory'
+      name: '-------'
     }
     this.territoryGroups.push(territoryByDefault);
     this.groupTypeOfThisTerritory = territoryByDefault;
@@ -65,6 +66,17 @@ export class TerritoryFormComponent implements OnInit {
       }
     );
 
+    let scopeTypesByDefault = {
+      value: null,
+      description: '------'
+    }
+    this.scopeTypes.push(scopeTypesByDefault);
+
+    this.utils.getCodeListValues('territory.scope').subscribe(
+      resp => {
+        this.scopeTypes.push(...resp);
+      }
+    );
 
 
     this.activatedRoute.params.subscribe(params => {
@@ -94,7 +106,7 @@ export class TerritoryFormComponent implements OnInit {
               name: this.territoryToEdit.name,
               territorialAuthorityAddress: this.territoryToEdit.territorialAuthorityAddress,
               territorialAuthorityLogo: this.territoryToEdit.territorialAuthorityLogo,
-              scope: this.translateScopeType('short',this.territoryToEdit.scope),
+              scope: this.territoryToEdit.scope,
               groupType: this.groupTypeOfThisTerritory[`id`],
               extent: ' ',
               extensionX0: this.extensions[0],
@@ -142,7 +154,6 @@ export class TerritoryFormComponent implements OnInit {
         lockPosition: true,
       },
       { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('territoryEntity.code'), field: 'code' },
       { headerName: this.utils.getTranslate('territoryEntity.user'), field: 'user' },
       { headerName: this.utils.getTranslate('territoryEntity.role'), field: 'role' },
 
@@ -313,28 +324,26 @@ export class TerritoryFormComponent implements OnInit {
   }
 
   private updateScope(currentFormat: string) {
-    let scopeToUpdate = this.translateScopeType(currentFormat,this.territoryForm.get('scope').value)
+    let scopeToUpdate = this.translateScopeType(currentFormat, this.territoryForm.get('scope').value)
     this.territoryForm.patchValue({
       scope: scopeToUpdate
     });
   }
 
-  
+
   private translateScopeType(currentFormat: string, type: string) {
-    
-    if(currentFormat === 'large')
-    {
-      if (type === 'Municipal') {return 'M'}
-      else if (type === 'Supramunicipal') {return 'R'}
-      else if (type === 'Total') {return 'T'} 
-      else if (type === 'selectType') {return null} 
+
+    if (currentFormat === 'large') {
+      if (type === 'Municipal') { return 'M' }
+      else if (type === 'Supramunicipal') { return 'R' }
+      else if (type === 'Total') { return 'T' }
+      else if (type === 'selectType') { return null }
     }
-    else if (currentFormat === 'short')
-    {
-      if (type === 'M') {return 'Municipal'}
-      else if (type === 'R') {return 'Supramunicipal'}
-      else if (type === 'T') {return 'Total'} 
-      else if (type === null) {return 'selectType'} 
+    else if (currentFormat === 'short') {
+      if (type === 'M') { return 'Municipal' }
+      else if (type === 'R') { return 'Supramunicipal' }
+      else if (type === 'T') { return 'Total' }
+      else if (type === null) { return 'selectType' }
     }
 
   }
@@ -343,11 +352,14 @@ export class TerritoryFormComponent implements OnInit {
 
   // ******** Permits ******** //
   getAllPermits = (): Observable<any> => {
-    //TODO Change the link when available
-    // return (this.http.get(`${this.territoryForm.value._links.memberOf.href}`))
-    // .pipe( map( data =>  data[`_embedded`][`territories`]) );
-    const aux: Array<any> = [];
-    return of(aux);
+
+    let params2: HalParam[] = [];
+    let param: HalParam = { key: 'territory.id', value: this.territoryID }
+    params2.push(param);
+    let query: HalOptions = { params: params2 };
+
+    return this.userConfigurationService.getAll(query);
+
   }
 
   removePermits(data: any[]) {

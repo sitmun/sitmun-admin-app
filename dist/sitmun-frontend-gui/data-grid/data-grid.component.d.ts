@@ -2,9 +2,11 @@ import { OnInit, EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ColumnApi, Module } from '@ag-grid-community/all-modules';
 import { TranslateService } from '@ngx-translate/core';
+import * as ɵngcc0 from '@angular/core';
 export declare class DataGridComponent implements OnInit {
     translate: TranslateService;
     private _eventRefreshSubscription;
+    private _eventGetSelectedRowsSubscription;
     modules: Module[];
     searchValue: string;
     private gridApi;
@@ -20,6 +22,7 @@ export declare class DataGridComponent implements OnInit {
     undoNoChanges: boolean;
     gridOptions: any;
     eventRefreshSubscription: Observable<boolean>;
+    eventGetSelectedRowsSubscription: Observable<boolean>;
     frameworkComponents: any;
     columnDefs: any[];
     getAll: () => Observable<any>;
@@ -29,17 +32,21 @@ export declare class DataGridComponent implements OnInit {
     applyChangesButton: boolean;
     deleteButton: boolean;
     newButton: boolean;
+    actionButton: boolean;
+    addButton: boolean;
     globalSearch: boolean;
     themeGrid: any;
     singleSelection: boolean;
+    nonEditable: boolean;
+    title: string;
     remove: EventEmitter<any[]>;
     new: EventEmitter<number>;
     sendChanges: EventEmitter<any[]>;
-    duplicate: EventEmitter<any[]>;
+    getSelectedRows: EventEmitter<any[]>;
     constructor(translate: TranslateService);
     ngOnInit(): void;
     onGridReady(params: any): void;
-    duplicateSelectedRows(): void;
+    emitSelectedRows(): void;
     getColumnKeysAndHeaders(columnkeys: Array<any>): String;
     exportData(): void;
     quickSearch(): void;
@@ -56,4 +63,8 @@ export declare class DataGridComponent implements OnInit {
     getColumnIndexByColId(api: ColumnApi, colId: string): number;
     paintCells(params: any, changesMap: Map<number, Map<string, number>>): void;
     changeCellStyleColumns(params: any, changesMap: Map<number, Map<string, number>>, color: string): void;
+    static ɵfac: ɵngcc0.ɵɵFactoryDef<DataGridComponent, never>;
+    static ɵcmp: ɵngcc0.ɵɵComponentDefWithMeta<DataGridComponent, "app-data-grid", never, { "eventRefreshSubscription": "eventRefreshSubscription"; "eventGetSelectedRowsSubscription": "eventGetSelectedRowsSubscription"; "frameworkComponents": "frameworkComponents"; "columnDefs": "columnDefs"; "getAll": "getAll"; "discardChangesButton": "discardChangesButton"; "undoButton": "undoButton"; "redoButton": "redoButton"; "applyChangesButton": "applyChangesButton"; "deleteButton": "deleteButton"; "newButton": "newButton"; "actionButton": "actionButton"; "addButton": "addButton"; "globalSearch": "globalSearch"; "themeGrid": "themeGrid"; "singleSelection": "singleSelection"; "nonEditable": "nonEditable"; "title": "title"; }, { "remove": "remove"; "new": "new"; "sendChanges": "sendChanges"; "getSelectedRows": "getSelectedRows"; }, never, never>;
 }
+
+//# sourceMappingURL=data-grid.component.d.ts.map

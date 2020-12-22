@@ -4,7 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { Subject } from 'rxjs';
-
+import { HalOptions, HalParam, CodeListService  } from 'dist/sitmun-frontend-core/';
 @Injectable({
   providedIn: 'root'
 })
@@ -17,7 +17,8 @@ export class UtilsService {
     private snackBar: MatSnackBar,
     private activatedRoute: ActivatedRoute,
     private router: Router,
-    private location: Location) { }
+    private location: Location,
+    private codeListService:CodeListService) { }
 
 
   showMessage(message) {
@@ -73,6 +74,15 @@ export class UtilsService {
    */
   navigateBack() {
     this.location.back();
+  }
+
+  getCodeListValues(valueList){
+    let params2:HalParam[]=[];
+    let param:HalParam={key:'codeListName', value:valueList}
+    params2.push(param);
+    let query:HalOptions={ params:params2};
+
+    return this.codeListService.getAll(query);
   }
 
 }

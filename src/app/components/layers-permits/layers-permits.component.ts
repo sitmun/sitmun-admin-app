@@ -13,12 +13,14 @@ import { Subject } from 'rxjs';
 })
 export class LayersPermitsComponent implements OnInit {
 
-  dataUpdatedEvent: Subject<boolean> = new Subject <boolean>();
+  dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
   themeGrid: any = environment.agGridTheme;
   columnDefs: any[];
   public frameworkComponents = {
     btnEditRendererComponent: BtnEditRenderedComponent
   };
+
+  permissionGroupTypes: Array<any> = [];
 
   constructor(public cartographyGroupService: CartographyGroupService,
     private utils: UtilsService,
@@ -28,6 +30,13 @@ export class LayersPermitsComponent implements OnInit {
   }
 
   ngOnInit() {
+
+    this.utils.getCodeListValues('cartographyPermission.type').subscribe(
+      resp => {
+        this.permissionGroupTypes.push(...resp);
+      }
+    );
+
     this.columnDefs = [
       {
         headerName: '',
@@ -53,7 +62,13 @@ export class LayersPermitsComponent implements OnInit {
       },
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('layersPermitsEntity.name'), field: 'name' },
-      { headerName: this.utils.getTranslate('layersPermitsEntity.type'), field: 'type' },
+      {
+        headerName: this.utils.getTranslate('layersPermitsEntity.type'),
+        valueGetter: (params) => { 
+          var alias=this.permissionGroupTypes.filter((type) => type.value == params.data.type)[0];
+          return alias!=undefined? alias.description: params.data.type
+        }
+      },
     ];
 
   }
@@ -70,7 +85,7 @@ export class LayersPermitsComponent implements OnInit {
   applyChanges(data: CartographyGroup[]) {
     const promises: Promise<any>[] = [];
     data.forEach(cartographyGroup => {
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.cartographyGroupService.update(cartographyGroup).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+      promises.push(new Promise((resolve, reject) => { this.cartographyGroupService.update(cartographyGroup).toPromise().then((resp) => { resolve() }) }));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);
       });
@@ -81,7 +96,7 @@ export class LayersPermitsComponent implements OnInit {
     const promises: Promise<any>[] = [];
     data.forEach(cartographyGroup => {
       cartographyGroup.id = null;
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.cartographyGroupService.create(cartographyGroup).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+      promises.push(new Promise((resolve, reject) => { this.cartographyGroupService.create(cartographyGroup).toPromise().then((resp) => { resolve() }) }));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);
       });
@@ -92,7 +107,7 @@ export class LayersPermitsComponent implements OnInit {
   removeData(data: CartographyGroup[]) {
     const promises: Promise<any>[] = [];
     data.forEach(cartographyGroup => {
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.cartographyGroupService.delete(cartographyGroup).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+      promises.push(new Promise((resolve, reject) => { this.cartographyGroupService.delete(cartographyGroup).toPromise().then((resp) => { resolve() }) }));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);
       });

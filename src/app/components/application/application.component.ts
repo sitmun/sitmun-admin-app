@@ -14,9 +14,11 @@ import { Subject } from 'rxjs';
 })
 export class ApplicationComponent implements OnInit {
 
-  dataUpdatedEvent: Subject<boolean> = new Subject <boolean>();
+  dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
   themeGrid: any = environment.agGridTheme;
   columnDefs: any[];
+
+  applicationTypes: Array<any> = [];
 
   public frameworkComponents = {
     btnEditRendererComponent: BtnEditRenderedComponent
@@ -30,6 +32,15 @@ export class ApplicationComponent implements OnInit {
   }
 
   ngOnInit() {
+
+
+    this.utils.getCodeListValues('applicationParameter.type').subscribe(
+      resp => {
+        this.applicationTypes.push(...resp);
+      }
+    );
+
+
     this.columnDefs = [
       {
         headerName: '',
@@ -54,7 +65,12 @@ export class ApplicationComponent implements OnInit {
       },
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name' },
-      { headerName: this.utils.getTranslate('applicationEntity.type'), field: 'type' },
+      { headerName: this.utils.getTranslate('applicationEntity.type'), 
+        valueGetter: (params) => { 
+          var alias=this.applicationTypes.filter((type) => type.value == params.data.type)[0];
+          return alias!=undefined? alias.description: params.data.type
+        } 
+      },
       { headerName: this.utils.getTranslate('applicationEntity.serviceURL'), field: 'theme' },
       { headerName: this.utils.getTranslate('applicationEntity.supportedSRS'), field: 'srs' },
       { headerName: this.utils.getTranslate('applicationEntity.createdDate'), field: 'createdDate' } // type: 'dateColumn'
@@ -62,10 +78,7 @@ export class ApplicationComponent implements OnInit {
 
   }
 
-
-
   getAllApplications = () => {
-
     return this.applicationService.getAll();
   }
 
@@ -76,7 +89,7 @@ export class ApplicationComponent implements OnInit {
   applyChanges(data: Application[]) {
     const promises: Promise<any>[] = [];
     data.forEach(application => {
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.applicationService.update(application).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+      promises.push(new Promise((resolve, reject) => { this.applicationService.update(application).toPromise().then((resp) => { resolve() }) }));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);
       });
@@ -87,7 +100,7 @@ export class ApplicationComponent implements OnInit {
     const promises: Promise<any>[] = [];
     data.forEach(application => {
       application.id = null;
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.applicationService.create(application).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+      promises.push(new Promise((resolve, reject) => { this.applicationService.create(application).toPromise().then((resp) => { resolve() }) }));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);
       });
@@ -98,13 +111,11 @@ export class ApplicationComponent implements OnInit {
   removeData(data: Application[]) {
     const promises: Promise<any>[] = [];
     data.forEach(application => {
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.applicationService.delete(application).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+      promises.push(new Promise((resolve, reject) => { this.applicationService.delete(application).toPromise().then((resp) => { resolve() }) }));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);
       });
     });
 
   }
-
-
 }

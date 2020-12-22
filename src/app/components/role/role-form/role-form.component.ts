@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { RoleService, UserService, User } from 'dist/sitmun-frontend-core/';
+import { RoleService, UserService, UserConfigurationService, HalOptions, HalParam } from 'dist/sitmun-frontend-core/';
 import { Connection } from 'dist/sitmun-frontend-core/connection/connection.model';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
@@ -39,6 +39,7 @@ export class RoleFormComponent implements OnInit {
     private userService: UserService,
     private http: HttpClient,
     private utils: UtilsService,
+    private userConfigurationService: UserConfigurationService,
   ) {
     this.initializeRoleForm();
   }
@@ -85,7 +86,7 @@ export class RoleFormComponent implements OnInit {
         lockPosition: true,
       },
       { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('roleEntity.username'), field: 'username' },
+      { headerName: this.utils.getTranslate('roleEntity.username'), field: 'user' },
       { headerName: this.utils.getTranslate('roleEntity.territory'), field: 'territory' },
     ];
 
@@ -167,11 +168,13 @@ export class RoleFormComponent implements OnInit {
 
   // ******** Users ******** //
   getAllUsers = (): Observable<any> => {
-    //TODO Change the link when available
-    //  return (this.http.get(`${this.formRole.value._links.members.href}`))
-    //  .pipe( map( data =>  data[`_embedded`][`territories`]) );
-    const aux: Array<any> = [];
-    return of(aux);
+
+    let params2:HalParam[]=[];
+    let param:HalParam={key:'user.id', value:this.roleID}
+    params2.push(param);
+    let query:HalOptions={ params:params2};
+
+    return this.userConfigurationService.getAll(query);
 
   }
   removeUsers(data: any[]) {

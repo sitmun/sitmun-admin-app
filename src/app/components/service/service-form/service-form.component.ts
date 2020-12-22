@@ -12,6 +12,7 @@ import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { environment } from 'src/environments/environment';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-service-form',
@@ -23,6 +24,7 @@ export class ServiceFormComponent implements OnInit {
   themeGrid: any = environment.agGridTheme;
   columnDefsLayers: any[];
   columnDefsParameters: any[];
+
   public frameworkComponents = {
     btnEditRendererComponent: BtnEditRenderedComponent
   };
@@ -38,7 +40,7 @@ export class ServiceFormComponent implements OnInit {
   addOnBlur = true;
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
   projections: Array<string>;
-
+  serviceTypes: Array<any> = [];
 
 
   constructor(
@@ -47,6 +49,7 @@ export class ServiceFormComponent implements OnInit {
     private serviceService: ServiceService,
     private http: HttpClient,
     private utils: UtilsService,
+    public dialog: MatDialog
   ) {
     this.initializeServiceForm();
     this.projections = [];
@@ -95,6 +98,17 @@ export class ServiceFormComponent implements OnInit {
   ngOnInit(): void {
 
 
+    let serviceTypeByDefault = {
+      value: null,
+      description: '-------'
+    }
+    this.serviceTypes.push(serviceTypeByDefault);
+
+    this.utils.getCodeListValues('service.type').subscribe(
+      resp => {
+        this.serviceTypes.push(...resp);
+      }
+    );
 
     this.columnDefsParameters = [
 
@@ -249,4 +263,17 @@ export class ServiceFormComponent implements OnInit {
     // this.router.navigate(['territory', id, 'territoryForm']);
     console.log('screen in progress');
   }
+
+  // DIALOG-GRID
+
+  openDialog() {
+    // const dialogRef = this.dialog.open();
+
+    // dialogRef.afterClosed().subscribe(result => {
+    //   console.log(`Dialog result: ${result}`);
+    // });
+  }
+
+
+
 }
