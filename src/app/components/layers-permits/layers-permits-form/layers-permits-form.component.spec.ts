@@ -9,6 +9,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { MaterialModule } from '../../../material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { CodeListService } from 'dist/sitmun-frontend-core';
 
 describe('LayersPermitsFormComponent', () => {
   let component: LayersPermitsFormComponent;
@@ -19,7 +20,7 @@ describe('LayersPermitsFormComponent', () => {
       declarations: [ LayersPermitsFormComponent ],
       imports: [ RouterModule.forRoot([]), HttpClientTestingModule, SitmunFrontendGuiModule,
       RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
-      providers: [CartographyGroupService, RoleService,
+      providers: [CartographyGroupService, RoleService,CodeListService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

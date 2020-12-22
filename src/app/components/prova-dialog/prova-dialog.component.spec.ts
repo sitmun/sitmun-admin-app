@@ -9,6 +9,8 @@ import { MaterialModule } from '../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { CodeListService } from 'dist/sitmun-frontend-core';
+
 describe('ProvaDialogComponent', () => {
   let component: ProvaDialogComponent;
   let fixture: ComponentFixture<ProvaDialogComponent>;
@@ -17,7 +19,7 @@ describe('ProvaDialogComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ ProvaDialogComponent ],
       imports : [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
-      providers: [ApplicationService,
+      providers: [ApplicationService,CodeListService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

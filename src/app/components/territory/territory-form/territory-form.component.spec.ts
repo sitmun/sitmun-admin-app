@@ -8,7 +8,7 @@ import { ExternalConfigurationService } from 'src/app/ExternalConfigurationServi
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { RouterTestingModule } from '@angular/router/testing';
-
+import { CodeListService } from 'dist/sitmun-frontend-core';
 
 describe('TerritoryFormComponent', () => {
   let component: TerritoryFormComponent;
@@ -19,7 +19,7 @@ describe('TerritoryFormComponent', () => {
       declarations: [ TerritoryFormComponent ],
       imports: [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,
         RouterModule.forRoot([]), MaterialModule, MatIconTestingModule],
-     providers: [TerritoryService, TerritoryGroupTypeService,
+     providers: [TerritoryService, TerritoryGroupTypeService, CodeListService
        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
    })
    .compileComponents();

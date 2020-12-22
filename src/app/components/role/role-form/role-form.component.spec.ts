@@ -10,6 +10,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { MaterialModule } from '../../../material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { CodeListService } from 'dist/sitmun-frontend-core';
 
 describe('RoleFormComponent', () => {
   let component: RoleFormComponent;
@@ -20,7 +21,7 @@ describe('RoleFormComponent', () => {
       declarations: [ RoleFormComponent ],
       imports: [HttpClientTestingModule, RouterModule.forRoot([]),HttpClientModule,
       SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
-      providers: [RoleService, UserService,
+      providers: [RoleService, UserService,CodeListService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

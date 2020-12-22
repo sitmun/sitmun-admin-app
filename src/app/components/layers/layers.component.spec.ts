@@ -12,6 +12,7 @@ import { MaterialModule } from '../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { CodeListService } from 'dist/sitmun-frontend-core';
 
 describe('LayersComponent', () => {
   let component: LayersComponent;
@@ -31,7 +32,7 @@ describe('LayersComponent', () => {
             deps: [HttpClient]
             }
         })],
-      providers: [CartographyService,
+      providers: [CartographyService, CodeListService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

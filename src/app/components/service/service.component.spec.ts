@@ -9,6 +9,7 @@ import { MaterialModule } from '../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { CodeListService } from 'dist/sitmun-frontend-core';
 
 describe('ServiceComponent', () => {
   let component: ServiceComponent;
@@ -18,7 +19,7 @@ describe('ServiceComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ ServiceComponent ],
       imports : [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, MatIconTestingModule, RouterModule],
-      providers: [ServiceService,
+      providers: [ServiceService,CodeListService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

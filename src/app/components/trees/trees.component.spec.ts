@@ -9,7 +9,7 @@ import { MaterialModule } from '../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-
+import { CodeListService } from 'dist/sitmun-frontend-core';
 describe('TreesComponent', () => {
   let component: TreesComponent;
   let fixture: ComponentFixture<TreesComponent>;
@@ -18,7 +18,7 @@ describe('TreesComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ TreesComponent ],
       imports : [HttpClientTestingModule, MatIconTestingModule, SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule],
-      providers: [TreeService,
+      providers: [TreeService,CodeListService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

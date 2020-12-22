@@ -12,7 +12,7 @@ import { MaterialModule } from '../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-
+import { CodeListService } from 'dist/sitmun-frontend-core';
 
 describe('LayersPermitsComponent', () => {
   let component: LayersPermitsComponent;
@@ -32,7 +32,7 @@ describe('LayersPermitsComponent', () => {
             deps: [HttpClient]
             }
         })],
-      providers: [CartographyGroupService,
+      providers: [CartographyGroupService, CodeListService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

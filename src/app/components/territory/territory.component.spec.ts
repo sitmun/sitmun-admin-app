@@ -9,6 +9,7 @@ import { MaterialModule } from '../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { CodeListService } from 'dist/sitmun-frontend-core';
 
 describe('TerritoryComponent', () => {
   let component: TerritoryComponent;
@@ -19,7 +20,7 @@ describe('TerritoryComponent', () => {
       declarations: [ TerritoryComponent ],
       imports : [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule, MatIconTestingModule,
          MaterialModule, RouterModule, MatIconTestingModule],
-      providers: [TerritoryService,
+      providers: [TerritoryService, CodeListService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

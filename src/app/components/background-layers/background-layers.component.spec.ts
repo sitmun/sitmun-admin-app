@@ -8,6 +8,7 @@ import { MaterialModule } from '../../material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterModule } from '@angular/router';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { CodeListService } from 'dist/sitmun-frontend-core';
 
 describe('BackgroundLayersComponent', () => {
   let component: BackgroundLayersComponent;
@@ -17,7 +18,7 @@ describe('BackgroundLayersComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ BackgroundLayersComponent ],
       imports : [HttpClientTestingModule, SitmunFrontendGuiModule, MatIconTestingModule, RouterTestingModule, MaterialModule, RouterModule],
-      providers: [BackgroundService,
+      providers: [BackgroundService,CodeListService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

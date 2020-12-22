@@ -9,6 +9,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BackgroundLayersFormComponent } from './background-layers-form.component';
+import { CodeListService } from 'dist/sitmun-frontend-core';
 
 describe('BackgroundLayersFormComponent', () => {
   let component: BackgroundLayersFormComponent;
@@ -19,7 +20,7 @@ describe('BackgroundLayersFormComponent', () => {
       declarations: [ BackgroundLayersFormComponent ],
       imports: [HttpClientTestingModule, RouterModule.forRoot([]), HttpClientModule,
       SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
-      providers: [BackgroundService,
+      providers: [BackgroundService,CodeListService
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

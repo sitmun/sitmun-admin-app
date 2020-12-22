@@ -9,6 +9,8 @@ import { ExternalConfigurationService } from 'src/app/ExternalConfigurationServi
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { RouterTestingModule } from '@angular/router/testing';
+import { CodeListService } from 'dist/sitmun-frontend-core';
+
 describe('UserFormComponent', () => {
   let component: UserFormComponent;
   let fixture: ComponentFixture<UserFormComponent>;
@@ -18,7 +20,7 @@ describe('UserFormComponent', () => {
       declarations: [ UserFormComponent ],
       imports: [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,
          RouterModule.forRoot([]), MaterialModule, MatIconTestingModule],
-      providers: [UserService,
+      providers: [UserService,CodeListService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();
