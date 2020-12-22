@@ -24,7 +24,7 @@ export class LayersPermitsComponent implements OnInit {
 
   constructor(public cartographyGroupService: CartographyGroupService,
     private utils: UtilsService,
-    private router: Router,
+    private router: Router
   ) {
 
   }
