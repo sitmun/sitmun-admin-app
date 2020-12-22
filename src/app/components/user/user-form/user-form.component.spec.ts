@@ -20,7 +20,7 @@ describe('UserFormComponent', () => {
       declarations: [ UserFormComponent ],
       imports: [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,
          RouterModule.forRoot([]), MaterialModule, MatIconTestingModule],
-      providers: [UserService,CodeListService,UserConfigurationService
+      providers: [UserService,CodeListService,UserConfigurationService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();
