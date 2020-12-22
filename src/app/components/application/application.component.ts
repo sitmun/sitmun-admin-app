@@ -34,7 +34,7 @@ export class ApplicationComponent implements OnInit {
   ngOnInit() {
 
 
-    this.utils.getCodeListValues('applicationParameter.type').subscribe(
+    this.utils.getCodeListValues('application.type').subscribe(
       resp => {
         this.applicationTypes.push(...resp);
       }

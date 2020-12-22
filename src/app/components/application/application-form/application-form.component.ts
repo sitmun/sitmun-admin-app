@@ -54,7 +54,7 @@ export class ApplicationFormComponent implements OnInit {
     }
     this.applicationTypes.push(applicationTypeByDefault);
 
-    this.utils.getCodeListValues('applicationParameter.type').subscribe(
+    this.utils.getCodeListValues('application.type').subscribe(
       resp => {
         this.applicationTypes.push(...resp);
       }
