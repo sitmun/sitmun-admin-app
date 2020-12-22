@@ -20,7 +20,7 @@ describe('BackgroundLayersFormComponent', () => {
       declarations: [ BackgroundLayersFormComponent ],
       imports: [HttpClientTestingModule, RouterModule.forRoot([]), HttpClientModule,
       SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
-      providers: [BackgroundService,CodeListService
+      providers: [BackgroundService,CodeListService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();
