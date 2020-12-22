@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { UserComponent } from './user.component';
-import { UserService } from 'dist/sitmun-frontend-core/';
+import { UserService,UserConfigurationService } from 'dist/sitmun-frontend-core/';
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
@@ -20,7 +20,7 @@ describe('UserComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ UserComponent ],
       imports : [HttpClientTestingModule, MatIconTestingModule, SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule],
-      providers: [UserService,CodeListService,
+      providers: [UserService,CodeListService,UserConfigurationService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

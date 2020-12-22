@@ -8,7 +8,7 @@ import { MaterialModule } from '../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-
+import { CodeListService } from 'dist/sitmun-frontend-core';
 
 describe('ApplicationComponent', () => {
   let component: ApplicationComponent;
@@ -18,7 +18,7 @@ describe('ApplicationComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ ApplicationComponent ],
       imports : [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,MaterialModule, MatIconTestingModule, RouterModule],
-      providers: [ApplicationService,
+      providers: [ApplicationService,CodeListService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TerritoryComponent } from './territory.component';
-import { TerritoryService } from 'dist/sitmun-frontend-core/';
+import { TerritoryService,UserConfigurationService } from 'dist/sitmun-frontend-core/';
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
@@ -20,7 +20,7 @@ describe('TerritoryComponent', () => {
       declarations: [ TerritoryComponent ],
       imports : [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule, MatIconTestingModule,
          MaterialModule, RouterModule, MatIconTestingModule],
-      providers: [TerritoryService, CodeListService,
+      providers: [TerritoryService, CodeListService,UserConfigurationService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

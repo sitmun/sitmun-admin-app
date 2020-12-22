@@ -10,6 +10,7 @@ import { ExternalConfigurationService } from 'src/app/ExternalConfigurationServi
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { RouterTestingModule } from '@angular/router/testing';
+import { CodeListService } from 'dist/sitmun-frontend-core';
 
 describe('TaskGroupFormComponent', () => {
   let component: TaskGroupFormComponent;
@@ -20,7 +21,7 @@ describe('TaskGroupFormComponent', () => {
       declarations: [ TaskGroupFormComponent ],
       imports: [HttpClientTestingModule, RouterModule.forRoot([]), HttpClientModule,
       SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
-      providers: [TaskGroupService,
+      providers: [TaskGroupService,CodeListService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();
