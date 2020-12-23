@@ -71,7 +71,9 @@ export class ApplicationFormComponent implements OnInit {
             console.log(resp);
             this.applicationToEdit = resp;
             let situationMapValue = ' ';
-            if (this.applicationToEdit.situationMap !== null) { situationMapValue = this.applicationToEdit.situationMap.name }
+            if (this.applicationToEdit.situationMap !== null && this.applicationToEdit.situationMap!==undefined) { 
+              situationMapValue = this.applicationToEdit.situationMap.name
+            }
             this.applicationForm.setValue({
               id: this.applicationID,
               name: this.applicationToEdit.name,
