@@ -5,7 +5,7 @@
 
   <div class="formDiv">
     <div class="formHeader">
-      <h5> Dades generals  </h5>
+      <h5> {{'backgroundEntity.generalData' | translate}} </h5>
       <button   mat-flat-button class="saveButton" >
         <mat-icon fontSet="material-icons-round"  > save </mat-icon>
         {{ "backgroundEntity.save" | translate }}
@@ -15,11 +15,11 @@
     <form [formGroup]='backgroundForm' #f="ngForm"> 
         <div class="rowFormDiv">     
           <div class="colFormDiv" >
-              <label class="formLabel">
+              <label class="formLabel requiredInput">
                 {{'backgroundEntity.name' | translate}}
               </label>
               <mat-form-field appearance="outline">
-                <input matInput type="text" formControlName="name">
+                <input matInput type="text" formControlName="name" required>
               </mat-form-field>
             </div>
 

@@ -7,7 +7,9 @@ import { MaterialModule } from '../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { CodeListService } from 'dist/sitmun-frontend-core';
+import { CodeListService, TaskService } from 'dist/sitmun-frontend-core';
+import { HttpClientModule } from '@angular/common/http';
+
 
 describe('TasksDownloadComponent', () => {
   let component: TasksDownloadComponent;
@@ -16,8 +18,8 @@ describe('TasksDownloadComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ TasksDownloadComponent ],
-      imports : [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
-      providers: [CodeListService,
+      imports : [HttpClientTestingModule, HttpClientModule, SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
+      providers: [CodeListService, TaskService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

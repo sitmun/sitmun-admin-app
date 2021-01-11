@@ -5,7 +5,7 @@
 
 <div class="formDiv">
   <div class="formHeader">
-    <h5> Dades generals  </h5>
+    <h5> {{'layersEntity.generalData' | translate}} </h5>
     <button   mat-flat-button class="saveButton"  >
       <mat-icon fontSet="material-icons-round"  > save </mat-icon>
       {{ "layersEntity.save" | translate }}
@@ -16,11 +16,11 @@
 
       <div class="rowFormDiv">
           <div class="colFormDiv">
-            <label class="formLabel">
+            <label class="formLabel requiredInput">
               {{'layersEntity.name' | translate}}
             </label>
             <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="name">
+              <input matInput type="text" formControlName="name" required>
             </mat-form-field>
           </div>
   
@@ -32,39 +32,36 @@
               <input matInput type="text" formControlName="source">
             </mat-form-field>
           </div>
-  
           <div class="colFormDiv">
-              <label class="formLabel">
-                {{'layersEntity.minimumScale' | translate}}
-              </label>
-              <mat-form-field appearance="outline">
-                <input matInput type="text" formControlName="minimumScale">
-              </mat-form-field>
-            </div>
-  
-            <div class="colFormDiv" id="right-column">
-              <label class="formLabel">
-                {{'layersEntity.maximumScale' | translate}}
-              </label>
-              <mat-form-field appearance="outline">
-                <input matInput type="text" formControlName="maximumScale">
-              </mat-form-field>
-            </div>
+            <label class="formLabel requiredInput">
+              {{'layersEntity.layers' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="layers" required>
+            </mat-form-field>
+          </div>
+          
       </div>
 
       <div class="rowFormDiv">
         <div class="colFormDiv">
           <label class="formLabel">
-            {{'layersEntity.geometryType' | translate}}
+            {{'layersEntity.minimumScale' | translate}}
           </label>
           <mat-form-field appearance="outline">
-            <mat-select matInput formControlName="geometryType" class="form-control">
-              <mat-option [value]="geometryType.value" *ngFor="let geometryType of geometryTypes">
-                {{ geometryType.description}}
-              </mat-option>
-            </mat-select>
-          </mat-form-field> 
+            <input matInput type="text" formControlName="minimumScale">
+          </mat-form-field>
         </div>
+
+        <div class="colFormDiv" >
+          <label class="formLabel">
+            {{'layersEntity.maximumScale' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="text" formControlName="maximumScale">
+          </mat-form-field>
+        </div>
+
 
         <div class="colFormDiv" >
           <label class="formLabel">
@@ -133,6 +130,88 @@
     </div>
   </form>
 </div>
+
+
+<div class="formDiv">
+  <div class="formHeader">
+    <h5> {{'layersEntity.municipalFilter' | translate}} </h5>
+  </div>
+  <span class="divider"></span>
+  <form [formGroup]='municipalForm' #f="ngForm"> 
+
+      <div class="rowFormDiv">
+          <div class="colFormDiv">
+            <label class="formLabel requiredInput">
+              {{'layersEntity.municipalFilterFields' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="municipalFilterFields" required>
+            </mat-form-field>
+          </div>
+  
+          <div class="colFormDiv" >
+            <label class="formLabel">
+              {{'layersEntity.filterInfoByMunicipality' | translate}}
+            </label>
+            <mat-checkbox formControlName="filterInfoByMunicipality"> </mat-checkbox>
+          </div>
+
+          <div class="colFormDiv">
+            <label class="formLabel">
+              {{'layersEntity.filterSpatialSeleciontByMunicipality' | translate}}
+            </label>
+            <mat-checkbox formControlName="filterSpatialSeleciontByMunicipality"> </mat-checkbox>
+          </div>
+          
+      </div>
+
+  </form>
+</div>
+
+<div class="formDiv">
+  <div class="formHeader">
+    <h5> Informació  </h5>
+  </div>
+  <span class="divider"></span>
+  <form [formGroup]='informationForm' #f="ngForm"> 
+
+      <div class="rowFormDiv">
+        
+          <div class="colFormDivInformation" >
+            <label class="formLabel">
+              {{'layersEntity.information' | translate}}
+            </label>
+            <mat-checkbox formControlName="information"> </mat-checkbox>
+          </div>
+
+          <div class="colFormDivDefaultInformation" >
+            <label class="formLabel">
+              {{'layersEntity.defaultInformation' | translate}}
+            </label>
+            <mat-checkbox formControlName="defaultInformation"> </mat-checkbox>
+          </div>
+
+          <div class="colFormDiv">
+            <label class="formLabel requiredInput">
+              {{'layersEntity.informationLayer' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="informationLayer" required>
+            </mat-form-field>
+          </div>
+
+          
+          <div class="colFormDiv">
+            <label class="formLabel">
+              {{'layersEntity.thematic' | translate}}
+            </label>
+            <mat-checkbox formControlName="defaultInformation"> </mat-checkbox>
+          </div>
+          
+      </div>
+
+  </form>
+</div>
   
 <div class="tableDiv" *ngIf="dataLoaded">
   <mat-accordion *ngIf="layerID!=-1" multi>
@@ -147,9 +226,9 @@
   
     <ng-template matExpansionPanelContent>  
       <div class="appDataGridEditDiv">
-          <app-data-grid  [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'  [frameworkComponents]="frameworkComponents"
+          <app-data-grid  [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'  
           [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
-          [actionButton]=true (remove)="removeDataParameters($event)" (new)='newDataParameters($event)'  > </app-data-grid>
+          [actionButton]=true (remove)="removeDataParameters($event)" (new)='openParametersDialog($event)'  > </app-data-grid>
       </div>
     </ng-template>
     </mat-expansion-panel>
@@ -165,9 +244,9 @@
   
     <ng-template matExpansionPanelContent>  
       <div class="appDataGridEditDiv">
-          <app-data-grid  [columnDefs]="columnDefsSpatialConfigurations" [themeGrid]='themeGrid' [getAll]='getAllSpatialConfigurations'  [frameworkComponents]="frameworkComponents"
-          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true   
-          [actionButton]=true (remove)="removeDataSpatialConfigurations($event)" (new)='newDataSpatialConfigurations($event)'  > </app-data-grid>
+          <app-data-grid  [columnDefs]="columnDefsSpatialConfigurations" [themeGrid]='themeGrid' [getAll]='getAllSpatialConfigurations'  
+          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true  
+          [actionButton]=true (add)="openSpatialSelectionDialog($event)" (remove)="removeDataSpatialConfigurations($event)" (new)='newDataSpatialConfigurations($event)'  > </app-data-grid>
       </div>
     </ng-template>
     </mat-expansion-panel>
@@ -183,9 +262,9 @@
   
     <ng-template matExpansionPanelContent>  
       <div class="appDataGridEditDiv">
-          <app-data-grid [columnDefs]="columnDefsTerritories" [themeGrid]='themeGrid' [getAll]='getAllTerritories'  [frameworkComponents]="frameworkComponents"
-          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true   
-          [actionButton]=true (remove)="removeDataTerritories($event)" (new)='newDataTerritories($event)'  > </app-data-grid>
+          <app-data-grid [columnDefs]="columnDefsTerritories" [themeGrid]='themeGrid' [getAll]='getAllTerritories'  
+          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true  
+          [actionButton]=true (add)="openTerritoriesDialog($event)"  (remove)="removeDataTerritories($event)" (new)='newDataTerritories($event)'  > </app-data-grid>
       </div>
     </ng-template>
     </mat-expansion-panel>
@@ -195,15 +274,15 @@
     <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
       <mat-expansion-panel-header class="agGridExpansionPanelTitle">
         <mat-panel-title  >
-          {{ "layersEntity.groupCartographyLayersConfiguration" | translate }}
+          {{ "layersEntity.permissiongroupLayersConfiguration" | translate }}
         </mat-panel-title>
       </mat-expansion-panel-header>
   
     <ng-template matExpansionPanelContent>  
       <div class="appDataGridEditDiv">
-          <app-data-grid [columnDefs]="columnDefsLayersConfiguration" [themeGrid]='themeGrid' [getAll]='getAllLayersConfiguration'  [frameworkComponents]="frameworkComponents"
-          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true   
-          [actionButton]=true (remove)="removeDataLayersConfiguration($event)" (new)='newDataLayersConfiguration($event)'  > </app-data-grid>
+          <app-data-grid [columnDefs]="columnDefsLayersConfiguration" [themeGrid]='themeGrid' [getAll]='getAllLayersConfiguration'  
+          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true  
+          [actionButton]=true (add)="openCartographyGroupsDialog($event)" (remove)="removeDataLayersConfiguration($event)" (new)='newDataLayersConfiguration($event)'  > </app-data-grid>
       </div>
     </ng-template>
     </mat-expansion-panel>
@@ -219,9 +298,9 @@
   
     <ng-template matExpansionPanelContent>  
       <div class="appDataGridEditDiv">
-          <app-data-grid [columnDefs]="columnDefsNodes" [themeGrid]='themeGrid' [getAll]='getAllNodes'  [frameworkComponents]="frameworkComponents"
-          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true  
-          [actionButton]=true (remove)="removeDataNodes($event)" (new)='newDataNodes($event)'  > </app-data-grid>
+          <app-data-grid [columnDefs]="columnDefsNodes" [themeGrid]='themeGrid' [getAll]='getAllNodes' 
+          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
+          [actionButton]=true (add)="openNodesDialog($event)" (remove)="removeDataNodes($event)" (new)='newDataNodes($event)'  > </app-data-grid>
       </div>
     </ng-template>
     </mat-expansion-panel>

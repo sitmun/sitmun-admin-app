@@ -30,10 +30,15 @@
          </div>
       <span class="toolbar-spacer"></span>
       
-
-      <button mat-icon-button  >
+      
+      <button mat-icon-button [matMenuTriggerFor]="menu"   >
           <mat-icon class="keyboard_arrow_down" aria-hidden="false" aria-label="keyboard_arrow_down icon">keyboard_arrow_down</mat-icon>
       </button>
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item>
+          <span (click)="logout()">{{'loginEntity.closeSession' |translate}}</span>
+        </button>
+      </mat-menu>
     </mat-toolbar-row> 
   </mat-toolbar>
   

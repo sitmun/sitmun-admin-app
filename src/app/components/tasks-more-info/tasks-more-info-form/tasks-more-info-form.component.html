@@ -1,0 +1,149 @@
+<div class="titleDiv" >
+    <h4><mat-icon aria-hidden="false"  svgIcon="menu_connexio"></mat-icon> {{ "tasksMoreInfoEntity.tasksMoreInfo" | translate }}-{{"tasksMoreInfoEntity."+(taskMoreInfoID==-1?"new":"edit") | translate}}</h4>
+    <span class="divider"></span>
+  </div>
+  
+  <div class="formDiv">
+    <div class="formHeader">
+      <h5> {{'tasksMoreInfoEntity.generalData' | translate}} </h5>
+      <button   mat-flat-button class="saveButton"  >
+        <mat-icon fontSet="material-icons-round"  > save </mat-icon>
+        {{ "tasksMoreInfoEntity.save" | translate }}
+      </button>
+    </div>
+    <span class="divider"></span>
+    <form [formGroup]='formTasksMoreInfo' #f="ngForm"> 
+  
+        <div class="rowFormDiv">
+            <div class="colFormDiv">
+              <label class="formLabel requiredInput">
+                {{'tasksMoreInfoEntity.task' | translate}}
+              </label>
+              <mat-form-field appearance="outline">
+                <input matInput type="text" formControlName="task" required>
+              </mat-form-field>
+            </div>
+  
+            <div class="colFormDiv" > 
+              <label class="formLabel requiredInput">
+                {{'tasksMoreInfoEntity.groupTask' | translate}}
+              </label>
+              <mat-form-field appearance="outline" >
+                <mat-select matInput formControlName="groupTask" class="form-control" >
+                  <!-- <mat-option [value]="serviceType.value" *ngFor="let serviceType of serviceTypes">
+                    {{ serviceType.description}}
+                  </mat-option> -->
+                </mat-select>
+              </mat-form-field>
+            </div>
+  
+
+            <div class="colFormDiv">
+                <label class="formLabel">
+                  {{'tasksMoreInfoEntity.accessType' | translate}}
+                </label>
+                <mat-form-field appearance="outline">
+                  <input matInput type="text" formControlName="accessType">
+                </mat-form-field>
+              </div>
+
+            <div class="colFormDiv">
+                <label class="formLabel">
+                  {{'tasksMoreInfoEntity.command' | translate}}
+                </label>
+                <mat-form-field appearance="outline">
+                  <input matInput type="text" formControlName="command">
+                </mat-form-field>
+            </div>
+        </div>
+  
+
+        <div class="rowFormDiv">
+            <div class="colFormTwoColumnsDiv" >
+                <label class="formLabel requiredInput">
+                    {{'tasksMoreInfoEntity.connection' | translate}}
+                  </label>
+                  <mat-form-field appearance="outline" >
+                    <mat-select matInput formControlName="connection" class="form-control" >
+                      <!-- <mat-option [value]="serviceType.value" *ngFor="let serviceType of serviceTypes">
+                        {{ serviceType.description}}
+                      </mat-option> -->
+                    </mat-select>
+                  </mat-form-field>
+            </div>
+            <div class="colFormTwoColumnsDiv" id="right-column">
+                <label class="formLabel">
+                  {{'tasksMoreInfoEntity.associatedLayer' | translate}}
+                </label>
+                <mat-form-field appearance="outline">
+                  <input matInput type="text" formControlName="associatedLayer">
+                </mat-form-field>
+            </div>
+        </div>
+
+
+    </form>
+
+</div>
+
+
+<div class="tableDiv" *ngIf="dataLoaded">
+  <mat-accordion *ngIf="taskMoreInfoID!=-1" multi>
+
+
+        <!-- Configuration parameters table -->
+        <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+            <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+              <mat-panel-title  >
+                {{ "tasksMoreInfoEntity.configurationParameters" | translate }}
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+        
+          <ng-template matExpansionPanelContent>  
+              <div class="appDataGridEditDiv">
+                  <app-data-grid  [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'
+                  [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
+                  [actionButton]=true (remove)="removeParameters($event)" (new)='openParametersDialog($event)'  > </app-data-grid>
+              </div>
+          </ng-template>
+        
+          </mat-expansion-panel>
+
+      <!-- Roles table -->
+    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+        <mat-panel-title  >
+          {{ "tasksMoreInfoEntity.roles" | translate }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <ng-template matExpansionPanelContent>  
+        <div class="appDataGridEditDiv">
+            <app-data-grid  [columnDefs]="columnDefsRoles" [themeGrid]='themeGrid' [getAll]='getAllRoles' 
+            [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
+            [actionButton]=true (add)="openRolesDialog($event)" (remove)="removeDataRoles($event)" (new)='newDataRoles($event)' (sendChanges)='applyChangesRoles($event)' > </app-data-grid>
+        </div>
+      </ng-template>
+    </mat-expansion-panel>
+
+       <!-- Territory table -->     
+       <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+        <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+          <mat-panel-title  >
+            {{ "tasksMoreInfoEntity.territories" | translate }}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+    
+      <ng-template matExpansionPanelContent>  
+        <div class="appDataGridEditDiv">
+            <app-data-grid [columnDefs]="columnDefsTerritories" [themeGrid]='themeGrid' [getAll]='getAllTerritories'  
+            [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
+            [actionButton]=true (add)="openTerritoriesDialog($event)" (remove)="removeDataTerritories($event)" (new)='newDataTerritories($event)'  > </app-data-grid>
+        </div>
+      </ng-template>
+
+    </mat-expansion-panel>
+
+
+  </mat-accordion>
+  

@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BackgroundService, Background } from 'dist/sitmun-frontend-core/';
 import { UtilsService } from '../../services/utils.service';
-import { BtnEditRenderedComponent } from 'dist/sitmun-frontend-gui/';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { Subject } from 'rxjs';
@@ -17,10 +16,6 @@ export class BackgroundLayersComponent implements OnInit {
   themeGrid: any = environment.agGridTheme;
   columnDefs: any[];
 
-
-  public frameworkComponents = {
-    btnEditRendererComponent: BtnEditRenderedComponent
-  };
 
   constructor(public backgroundService: BackgroundService,
     private utils: UtilsService,
@@ -86,10 +81,17 @@ export class BackgroundLayersComponent implements OnInit {
     });
   }
 
-  add(data: Background[]) {
+  add(data: any[]) {
+    console.log(data);
     const promises: Promise<any>[] = [];
     data.forEach(background => {
       background.id = null;
+      let newCartographyGroup = {
+        id: background[`cartographyGroup.id`],
+        name: background.cartographyGroupName
+      }
+      background.cartographyGroup = newCartographyGroup;
+      console.log(background);
       promises.push(new Promise((resolve, reject) => {​​​​​​​ this.backgroundService.create(background).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);

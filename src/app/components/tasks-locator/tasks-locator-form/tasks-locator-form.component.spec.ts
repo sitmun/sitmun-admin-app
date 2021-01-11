@@ -1,31 +1,31 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ProvaDialogComponent } from './prova-dialog.component';
-import { ApplicationService } from 'dist/sitmun-frontend-core/';
-import { HttpClientModule } from '@angular/common/http';
+import { TasksLocatorFormComponent } from './tasks-locator-form.component';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { RouterTestingModule } from '@angular/router/testing';
-import { MaterialModule } from '../../material-module';
+import { TaskService, TerritoryService, RoleService } from 'dist/sitmun-frontend-core/';
+import { MaterialModule } from '../../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { CodeListService } from 'dist/sitmun-frontend-core';
 
-describe('ProvaDialogComponent', () => {
-  let component: ProvaDialogComponent;
-  let fixture: ComponentFixture<ProvaDialogComponent>;
+describe('TasksLocatorFormComponent', () => {
+  let component: TasksLocatorFormComponent;
+  let fixture: ComponentFixture<TasksLocatorFormComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ProvaDialogComponent ],
-      imports : [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
-      providers: [ApplicationService,CodeListService,
+      declarations: [ TasksLocatorFormComponent ],
+      imports : [HttpClientTestingModule, SitmunFrontendGuiModule, MatIconTestingModule, RouterTestingModule, MaterialModule, RouterModule],
+      providers: [TaskService, TerritoryService, RoleService, CodeListService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();
   });
+
   beforeEach(() => {
-    fixture = TestBed.createComponent(ProvaDialogComponent);
+    fixture = TestBed.createComponent(TasksLocatorFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

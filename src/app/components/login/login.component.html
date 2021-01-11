@@ -1,0 +1,33 @@
+<mat-card class="mat-card-login">
+    <form [formGroup]="form" (ngSubmit)="login()">
+
+        
+         <h3>{{'loginEntity.login' | translate}}</h3>
+   
+         <mat-card-content>
+    
+          <div class="container">
+               <mat-form-field>
+            <input matInput type="input" placeholder="{{ 'loginEntity.username'| translate}}" formControlName="username"
+                   name="username">
+          </mat-form-field>
+           <mat-form-field>
+                <input matInput type="password" placeholder="{{ 'loginEntity.password'| translate}}" formControlName="password">
+          </mat-form-field>
+          
+        </div>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-raised-button color="primary" type="submit"
+                  [disabled]="!form.valid">{{'loginEntity.login' | translate}}</button>
+          
+        </mat-card-actions>
+    </form>
+    <div class="alert alert-danger" *ngIf="badCredentials">                  
+      {{'loginEntity.bad-credentials' | translate}}
+    </div>
+</mat-card>
+      
+    
+    
+    

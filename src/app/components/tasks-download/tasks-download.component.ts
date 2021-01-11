@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { UtilsService } from '../../services/utils.service';
-import { BtnEditRenderedComponent } from 'dist/sitmun-frontend-gui/';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { TaskService } from 'dist/sitmun-frontend-core/';
 
 @Component({
   selector: 'app-tasks-download',
@@ -14,12 +14,9 @@ export class TasksDownloadComponent implements OnInit {
 
   themeGrid:any=environment.agGridTheme;
   columnDefs: any[];
-  public frameworkComponents = {
-    btnEditRendererComponent: BtnEditRenderedComponent
-  };
 
-
-  constructor(private utils: UtilsService,
+  constructor(public tasksService: TaskService,
+    private utils: UtilsService,
               private router: Router,
               )
               { }
@@ -61,6 +58,7 @@ export class TasksDownloadComponent implements OnInit {
   getAllTasksDownload = () => {
     const aux:Array<any> = [];
     return of(aux);
+    // this.tasksService.getAll().pipe(map(data => data[`_embedded`][`download-tasks`]));
   }
 
   removeData( data: any[])
@@ -70,7 +68,7 @@ export class TasksDownloadComponent implements OnInit {
   
   newData(id: any)
   {
-    // this.router.navigate(['territory', id, 'territoryForm']);
+    this.router.navigate(['tasksDownload', id, 'tasksDownloadForm']);
   }
   
   applyChanges( data: any[])

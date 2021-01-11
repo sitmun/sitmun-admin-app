@@ -6,8 +6,6 @@ import { RestService } from '../angular-hal/src/lib/rest.service';
 /** Role manager service */
 export declare class RoleService extends RestService<Role> {
     private http;
-    /** API base path */
-    API: string;
     /** API resource path */
     ROLE_API: string;
     /** constructor */

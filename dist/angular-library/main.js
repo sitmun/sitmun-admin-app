@@ -90,7 +90,7 @@ module.exports = "label,\r\ninput {\r\n  display: inline-block;\r\n  margin-righ
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "    <div id=grup1 class=\"editDivBtns\">\r\n        <span *ngIf=\"title\"  [translate]=\"title\"> </span>\r\n        <button  mat-mini-fab class=\"editBtn\"  *ngIf=\"discardChangesButton\"  id=\"deleteChangesButton\" type=\"button\"  (click)=\"deleteChanges()\" [disabled]=\"changeCounter <= 0\">\r\n            <mat-icon  fontSet=\"material-icons-round\" > close </mat-icon>\r\n        </button>\r\n        <button mat-mini-fab class=\"editBtn\" *ngIf=\"undoButton\"  id=\"undo\"  (click)=\"undo()\" [disabled]=\"changeCounter <= 0\" >\r\n            <mat-icon fontSet=\"material-icons-round\" > undo </mat-icon>\r\n        </button>\r\n        <button mat-mini-fab class=\"editBtn\" *ngIf=\"redoButton\"  id=\"redo\"  (click)=\"redo()\" [disabled]=\"redoCounter <= 0\">\r\n            <mat-icon fontSet=\"material-icons-round\" > redo </mat-icon>\r\n        </button>\r\n        <button mat-mini-fab class=\"editBtn\" *ngIf=\"applyChangesButton\"  id=\"applyChangesButton\"  (click)=\"applyChanges()\" [disabled]=\"changeCounter <= 0\" >\r\n            <mat-icon fontSet=\"material-icons-round\" > check </mat-icon>\r\n        </button>\r\n    </div>\r\n\r\n    <div id=grup2 class=\"actionsDivBtns\" >\r\n        <label *ngIf=\"globalSearch\" [translate]=\"'Search'\"> </label>\r\n        <input *ngIf=\"globalSearch\"type=\"text\" class=\"searchGenericInput\" placeholder=\"\" (keyup)=\"quickSearch()\" [(ngModel)]=\"searchValue\" ml-2 >\r\n        <button *ngIf=\"deleteButton\"  mat-stroked-button id=\"deleteButton\"  (click)=\"removeData()\">\r\n            <mat-icon fontSet=\"material-icons-round\" > delete </mat-icon>\r\n            <span  [translate]=\"'Remove'\"> </span>\r\n            \r\n        </button>\r\n\r\n        \r\n        <button *ngIf=\"actionButton\"  mat-stroked-button [matMenuTriggerFor]=\"menu\" id=\"actionButton\">\r\n            <span  [translate]=\"'Actions'\"> </span>    \r\n            <mat-icon fontSet=\"material-icons-round\" > keyboard_arrow_down </mat-icon>     \r\n        </button>\r\n        <mat-menu #menu=\"matMenu\">\r\n            <button mat-menu-item (click)=\"exportData()\" > {{\"Export\" | translate}} </button>\r\n            <button mat-menu-item (click)=\"emitSelectedRows()\"> {{\"Duplicate\" | translate}}</button>\r\n            <button mat-menu-item> {{\"Search/Replace\" | translate}}</button>\r\n        </mat-menu>  \r\n            \r\n\r\n        <button  *ngIf=\"newButton\" mat-stroked-button id=\"newButton\"  (click)=\"newData()\">\r\n            <mat-icon fontSet=\"material-icons-round\"> add_circle_outline </mat-icon>      \r\n            <span  [translate]=\"'New'\"> </span>           \r\n        </button>\r\n\r\n        <button  *ngIf=\"addButton\" mat-stroked-button id=\"newButton\"  (click)=\"newData()\">\r\n            <mat-icon fontSet=\"material-icons-round\"> add_circle_outline </mat-icon>      \r\n            <span  [translate]=\"'Add'\"> </span>           \r\n        </button>\r\n        \r\n\r\n        \r\n    </div>\r\n\r\n\r\n\r\n    <div class=\"row\" style=\" height: 100%\">\r\n        <div id=\"myGrid\" style=\" width:100%; height: 100%\" >\r\n            <ag-grid-angular\r\n            style=\" width: 100%; height: 100%;\"\r\n            [class]=\"themeGrid\"\r\n            [floatingFilter]=\"true\"\r\n            [rowData]=\"rowData\"\r\n            [columnDefs]=\"columnDefs\"\r\n            [gridOptions]=\"gridOptions\"\r\n            [animateRows]=\"true\"\r\n            [pagination]=\"false\"\r\n            [modules]=\"modules\"     \r\n            [undoRedoCellEditing]=\"true\"    \r\n            [undoRedoCellEditingLimit]= 200\r\n            [suppressRowClickSelection]=true\r\n            [enableCellChangeFlash]=true\r\n            [frameworkComponents]=\"frameworkComponents\"\r\n            rowSelection=\"multiple\"\r\n            (filterModified)=\"onFilterModified()\"\r\n            (cellEditingStopped) =\"onCellEditingStopped($event)\"\r\n            (cellValueChanged)=\"onCellValueChanged($event)\"\r\n            (gridReady)=\"onGridReady($event)\">\r\n            \r\n            </ag-grid-angular>\r\n        </div>\r\n    </div>\r\n\r\n\r\n"
+module.exports = "    <div id=grup1 class=\"editDivBtns\">\r\n        <span *ngIf=\"title\"  [translate]=\"title\"> </span>\r\n        <button  mat-mini-fab class=\"editBtn\"  *ngIf=\"discardChangesButton\"  id=\"deleteChangesButton\" type=\"button\"  (click)=\"deleteChanges()\" [disabled]=\"changeCounter <= 0\">\r\n            <mat-icon  fontSet=\"material-icons-round\" > close </mat-icon>\r\n        </button>\r\n        <button mat-mini-fab class=\"editBtn\" *ngIf=\"undoButton\"  id=\"undo\"  (click)=\"undo()\" [disabled]=\"changeCounter <= 0\" >\r\n            <mat-icon fontSet=\"material-icons-round\" > undo </mat-icon>\r\n        </button>\r\n        <button mat-mini-fab class=\"editBtn\" *ngIf=\"redoButton\"  id=\"redo\"  (click)=\"redo()\" [disabled]=\"redoCounter <= 0\">\r\n            <mat-icon fontSet=\"material-icons-round\" > redo </mat-icon>\r\n        </button>\r\n        <button mat-mini-fab class=\"editBtn\" *ngIf=\"applyChangesButton\"  id=\"applyChangesButton\"  (click)=\"applyChanges()\" [disabled]=\"changeCounter <= 0\" >\r\n            <mat-icon fontSet=\"material-icons-round\" > check </mat-icon>\r\n        </button>\r\n    </div>\r\n\r\n    <div id=grup2 class=\"actionsDivBtns\" >\r\n        <label *ngIf=\"globalSearch\" [translate]=\"'Search'\"> </label>\r\n        <input *ngIf=\"globalSearch\"type=\"text\" class=\"searchGenericInput\" placeholder=\"\" (keyup)=\"quickSearch()\" [(ngModel)]=\"searchValue\" ml-2 >\r\n        <button *ngIf=\"deleteButton\"  mat-stroked-button id=\"deleteButton\"  (click)=\"removeData()\">\r\n            <mat-icon fontSet=\"material-icons-round\" > delete </mat-icon>\r\n            <span  [translate]=\"'Remove'\"> </span>\r\n            \r\n        </button>\r\n\r\n        \r\n        <button *ngIf=\"actionButton\"  mat-stroked-button [matMenuTriggerFor]=\"menu\" id=\"actionButton\">\r\n            <span  [translate]=\"'Actions'\"> </span>    \r\n            <mat-icon fontSet=\"material-icons-round\" > keyboard_arrow_down </mat-icon>     \r\n        </button>\r\n        <mat-menu #menu=\"matMenu\">\r\n            <button mat-menu-item *ngIf=\"!hideExportButton\" (click)=\"exportData()\" > {{\"Export\" | translate}} </button>\r\n            <button mat-menu-item *ngIf=\"!hideDuplicateButton\" (click)=\"onDuplicateButtonClicked()\"> {{\"Duplicate\" | translate}}</button>\r\n            <button mat-menu-item *ngIf=\"!hideSearchReplaceButton\"> {{\"Search/Replace\" | translate}}</button>\r\n        </mat-menu>  \r\n            \r\n\r\n        <button  *ngIf=\"newButton\" mat-stroked-button id=\"newButton\"  (click)=\"newData()\">\r\n            <mat-icon fontSet=\"material-icons-round\"> add_circle_outline </mat-icon>      \r\n            <span  [translate]=\"'New'\"> </span>           \r\n        </button>\r\n\r\n        <button  *ngIf=\"addButton\" mat-stroked-button id=\"newButton\"  (click)=\"onAddButtonClicked()\">\r\n            <mat-icon fontSet=\"material-icons-round\"> add_circle_outline </mat-icon>      \r\n            <span  [translate]=\"'Add'\"> </span>           \r\n        </button>\r\n        \r\n\r\n        \r\n    </div>\r\n\r\n\r\n\r\n    <div class=\"row\" style=\" height: 100%\">\r\n        <div id=\"myGrid\" style=\" width:100%; height: 100%\" >\r\n            <ag-grid-angular\r\n            style=\" width: 100%; height: 100%;\"\r\n            [class]=\"themeGrid\"\r\n            [floatingFilter]=\"true\"\r\n            [rowData]=\"rowData\"\r\n            [columnDefs]=\"columnDefs\"\r\n            [gridOptions]=\"gridOptions\"\r\n            [animateRows]=\"true\"\r\n            [pagination]=\"false\"\r\n            [modules]=\"modules\"     \r\n            [undoRedoCellEditing]=\"true\"    \r\n            [undoRedoCellEditingLimit]= 200\r\n            [suppressRowClickSelection]=true\r\n            [enableCellChangeFlash]=true\r\n            [frameworkComponents]=\"frameworkComponents\"\r\n            rowSelection=\"multiple\"\r\n            (filterModified)=\"onFilterModified()\"\r\n            (cellEditingStopped) =\"onCellEditingStopped($event)\"\r\n            (cellValueChanged)=\"onCellValueChanged($event)\"\r\n            (gridReady)=\"onGridReady($event)\">\r\n            \r\n            </ag-grid-angular>\r\n        </div>\r\n    </div>\r\n\r\n\r\n"
 
 /***/ }),
 
@@ -108,6 +108,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! rxjs */ "./node_modules/rxjs/_esm5/index.js");
 /* harmony import */ var _ag_grid_community_all_modules__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @ag-grid-community/all-modules */ "./node_modules/@ag-grid-community/all-modules/dist/es6/main.js");
 /* harmony import */ var _ngx_translate_core__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @ngx-translate/core */ "./node_modules/@ngx-translate/core/fesm5/ngx-translate-core.js");
+/* harmony import */ var _btn_edit_rendered_btn_edit_rendered_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../btn-edit-rendered/btn-edit-rendered.component */ "./src/main/angular-library/projects/sitmun-frontend-gui/src/lib/btn-edit-rendered/btn-edit-rendered.component.ts");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -131,6 +132,7 @@ var __values = (undefined && undefined.__values) || function (o) {
 
 
 
+
 var DataGridComponent = /** @class */ (function () {
     function DataGridComponent(translate) {
         var _this = this;
@@ -141,10 +143,16 @@ var DataGridComponent = /** @class */ (function () {
         this.modificationChange = false;
         this.undoNoChanges = false; // Boolean that indicates if an undo hasn't modifications
         this.translate = translate;
+        this.frameworkComponents = {
+            btnEditRendererComponent: _btn_edit_rendered_btn_edit_rendered_component__WEBPACK_IMPORTED_MODULE_4__["BtnEditRenderedComponent"]
+        };
         this.remove = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
         this.new = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
+        this.add = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
         this.sendChanges = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
         this.getSelectedRows = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
+        this.duplicate = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
+        this.getAllRows = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
         this.changeCounter = 0;
         this.previousChangeCounter = 0;
         this.redoCounter = 0;
@@ -153,7 +161,7 @@ var DataGridComponent = /** @class */ (function () {
                 sortable: true,
                 flex: 1,
                 filter: true,
-                editable: true,
+                editable: !this.nonEditable,
                 cellStyle: { backgroundColor: '#FFFFFF' },
             },
             columnTypes: {
@@ -198,14 +206,22 @@ var DataGridComponent = /** @class */ (function () {
                 _this.emitSelectedRows();
             });
         }
+        if (this.eventGetAllRowsSubscription) {
+            this._eventGetAllRowsSubscription = this.eventGetAllRowsSubscription.subscribe(function () {
+                _this.emitAllRows();
+            });
+        }
+        if (this.eventAddItemsSubscription) {
+            this.eventAddItemsSubscription.subscribe(function (items) {
+                _this.addItems(items);
+            });
+        }
     };
     DataGridComponent.prototype.onGridReady = function (params) {
         if (this.singleSelection) {
             this.gridOptions.rowSelection = 'single';
         }
-        if (this.nonEditable) {
-            this.gridOptions.editable = 'false';
-        }
+        // if (this.nonEditable) {this.gridOptions.defaultColDef.editable = false}
         this.params = params;
         this.gridApi = params.api;
         this.gridColumnApi = params.columnApi;
@@ -233,6 +249,11 @@ var DataGridComponent = /** @class */ (function () {
         var selectedData = selectedNodes.map(function (node) { return node.data; });
         this.getSelectedRows.emit(selectedData);
     };
+    DataGridComponent.prototype.emitAllRows = function () {
+        var rowData = [];
+        this.gridApi.forEachNode(function (node) { return rowData.push(node.data); });
+        this.getSelectedRows.emit(rowData);
+    };
     DataGridComponent.prototype.getColumnKeysAndHeaders = function (columnkeys) {
         var header = [];
         if (this.columnDefs.length == 0) {
@@ -240,7 +261,7 @@ var DataGridComponent = /** @class */ (function () {
         }
         ;
         var allColumnKeys = this.gridOptions.columnApi.getAllDisplayedColumns();
-        console.log(allColumnKeys);
+        // console.log(allColumnKeys);
         allColumnKeys.forEach(function (element) {
             if (element.userProvidedColDef.headerName !== '') {
                 columnkeys.push(element.userProvidedColDef.field);
@@ -253,7 +274,6 @@ var DataGridComponent = /** @class */ (function () {
         var columnkeys = [];
         var customHeader = '';
         customHeader = this.getColumnKeysAndHeaders(columnkeys);
-        console.log(this.gridApi);
         var params = {
             onlySelected: true,
             columnKeys: columnkeys,
@@ -274,6 +294,11 @@ var DataGridComponent = /** @class */ (function () {
             _this.gridApi.setRowData(_this.rowData);
             console.log(_this.rowData);
         });
+    };
+    DataGridComponent.prototype.addItems = function (newItems) {
+        console.log(newItems);
+        this.gridApi.updateRowData({ add: newItems });
+        console.log(this.columnDefs);
     };
     DataGridComponent.prototype.removeData = function () {
         this.gridApi.stopEditing(false);
@@ -303,6 +328,16 @@ var DataGridComponent = /** @class */ (function () {
     DataGridComponent.prototype.newData = function () {
         this.gridApi.stopEditing(false);
         this.new.emit(-1);
+    };
+    DataGridComponent.prototype.onAddButtonClicked = function () {
+        this.gridApi.stopEditing(false);
+        this.add.emit(-1);
+    };
+    DataGridComponent.prototype.onDuplicateButtonClicked = function () {
+        this.gridApi.stopEditing(false);
+        var selectedNodes = this.gridApi.getSelectedNodes();
+        var selectedData = selectedNodes.map(function (node) { return node.data; });
+        this.duplicate.emit(selectedData);
     };
     DataGridComponent.prototype.applyChanges = function () {
         var itemsChanged = [];
@@ -412,30 +447,55 @@ var DataGridComponent = /** @class */ (function () {
             this.previousChangeCounter--; //We decrement previousChangeCounter because we have done undo
         }
         else {
-            if (params.oldValue !== params.value && !(params.oldValue == null && params.value === '')) {
-                this.modificationChange = true;
-            }
-            else {
-                if (this.changesMap.has(params.node.id)) {
-                    if (!this.undoNoChanges) {
-                        this.gridApi.undoCellEditing(); // Undo to delete the change without changes internally 
-                        this.undoNoChanges = true;
-                        this.paintCells(params, this.changesMap); //The cell has modifications yet -> green background 
-                    }
-                    else {
-                        this.undoNoChanges = false;
-                    }
+            if (!(params.oldValue == null && params.value === '')) {
+                var newValue = void 0;
+                if (params.value == null) {
+                    newValue = '';
                 }
                 else {
-                    //With the internally undo will enter at this function, so we have to control when done the undo or not 
-                    if (!this.undoNoChanges) {
-                        this.gridApi.undoCellEditing(); // Undo to delete the change internally
-                        this.undoNoChanges = true;
+                    newValue = params.value.toString();
+                }
+                if (params.oldValue != null) {
+                    if (params.oldValue.toString() !== newValue.toString()) {
+                        this.modificationChange = true;
                     }
                     else {
-                        this.undoNoChanges = false;
+                        this.modificationWithoutChanges(params);
                     }
                 }
+                if (params.oldValue == null) {
+                    if (params.oldValue !== newValue.toString()) {
+                        this.modificationChange = true;
+                    }
+                    else {
+                        this.modificationWithoutChanges(params);
+                    }
+                }
+            }
+            else {
+                this.modificationWithoutChanges(params);
+            }
+        }
+    };
+    DataGridComponent.prototype.modificationWithoutChanges = function (params) {
+        if (this.changesMap.has(params.node.id)) {
+            if (!this.undoNoChanges) {
+                this.gridApi.undoCellEditing(); // Undo to delete the change without changes internally 
+                this.undoNoChanges = true;
+                this.paintCells(params, this.changesMap); //The cell has modifications yet -> green background 
+            }
+            else {
+                this.undoNoChanges = false;
+            }
+        }
+        else {
+            //With the internally undo will enter at this function, so we have to control when done the undo or not 
+            if (!this.undoNoChanges) {
+                this.gridApi.undoCellEditing(); // Undo to delete the change internally
+                this.undoNoChanges = true;
+            }
+            else {
+                this.undoNoChanges = false;
             }
         }
     };
@@ -474,6 +534,14 @@ var DataGridComponent = /** @class */ (function () {
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
         __metadata("design:type", rxjs__WEBPACK_IMPORTED_MODULE_1__["Observable"])
     ], DataGridComponent.prototype, "eventGetSelectedRowsSubscription", void 0);
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
+        __metadata("design:type", rxjs__WEBPACK_IMPORTED_MODULE_1__["Observable"])
+    ], DataGridComponent.prototype, "eventGetAllRowsSubscription", void 0);
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
+        __metadata("design:type", rxjs__WEBPACK_IMPORTED_MODULE_1__["Observable"])
+    ], DataGridComponent.prototype, "eventAddItemsSubscription", void 0);
     __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
         __metadata("design:type", Object)
@@ -539,6 +607,18 @@ var DataGridComponent = /** @class */ (function () {
         __metadata("design:type", String)
     ], DataGridComponent.prototype, "title", void 0);
     __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
+        __metadata("design:type", Boolean)
+    ], DataGridComponent.prototype, "hideExportButton", void 0);
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
+        __metadata("design:type", Boolean)
+    ], DataGridComponent.prototype, "hideDuplicateButton", void 0);
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
+        __metadata("design:type", Boolean)
+    ], DataGridComponent.prototype, "hideSearchReplaceButton", void 0);
+    __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Output"])(),
         __metadata("design:type", _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"])
     ], DataGridComponent.prototype, "remove", void 0);
@@ -549,11 +629,23 @@ var DataGridComponent = /** @class */ (function () {
     __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Output"])(),
         __metadata("design:type", _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"])
+    ], DataGridComponent.prototype, "add", void 0);
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Output"])(),
+        __metadata("design:type", _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"])
     ], DataGridComponent.prototype, "sendChanges", void 0);
     __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Output"])(),
         __metadata("design:type", _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"])
+    ], DataGridComponent.prototype, "duplicate", void 0);
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Output"])(),
+        __metadata("design:type", _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"])
     ], DataGridComponent.prototype, "getSelectedRows", void 0);
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Output"])(),
+        __metadata("design:type", _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"])
+    ], DataGridComponent.prototype, "getAllRows", void 0);
     DataGridComponent = __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"])({
             selector: 'app-data-grid',
@@ -576,7 +668,7 @@ var DataGridComponent = /** @class */ (function () {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = ""
+module.exports = "\r\n\r\n.dialogConent{\r\n    margin:inherit !important;\r\n    padding: inherit !important;\r\n    max-height: 60vh !important;\r\n    height: 100%;\r\n    width: 100%;\r\n    overflow: auto;\r\n}"
 
 /***/ }),
 
@@ -587,7 +679,7 @@ module.exports = ""
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<h2 mat-dialog-title>{{title}}</h2>\r\n<mat-dialog-content >\r\n  <div *ngFor=\"let getAll of getAllsTable; let i = index\" style=\"width: 450px; height: 300px;  margin: 50px;\">\r\n    <app-data-grid \r\n    [columnDefs]=\"columnDefsTable[i]\" [themeGrid]='themeGrid'  [getAll]='getAll' [globalSearch]=true [singleSelection]=\"singleSelectionTable[i]\"\r\n    [title]=\"titlesTable[i]\" [nonEditable]=\"nonEditable\" [eventGetSelectedRowsSubscription]=\"getAllRows.asObservable()\" (getSelectedRows)='joinRowsReceived($event)' >\r\n    </app-data-grid>\r\n  </div>\r\n</mat-dialog-content>\r\n<div mat-dialog-actions align=\"end\">\r\n  <button mat-button  (click)=\"closeDialog()\">{{\"Cancel\" | translate}}</button>\r\n  <button mat-button  (click)=\"getAllSelectedRows()\" cdkFocusInitial>{{\"Add\" | translate}}</button>\r\n</div>\r\n"
+module.exports = "<h3 mat-dialog-title>{{title}}</h3>\r\n<mat-dialog-content class=\"dialogConent\">\r\n  <div *ngFor=\"let getAll of getAllsTable; let i = index\" class=\"appDialogDataGridDiv\">\r\n    <app-data-grid \r\n    [columnDefs]=\"columnDefsTable[i]\" [themeGrid]='themeGrid'  [getAll]='getAll' [globalSearch]=true [singleSelection]=\"singleSelectionTable[i]\"\r\n    [title]=\"titlesTable[i]\" [nonEditable]='nonEditable' [eventGetSelectedRowsSubscription]=\"getAllRows.asObservable()\" (getSelectedRows)='joinRowsReceived($event)' >\r\n    </app-data-grid>\r\n  </div>\r\n</mat-dialog-content>\r\n<div mat-dialog-actions align=\"end\">\r\n  <button mat-button  (click)=\"closeDialog()\">{{\"Cancel\" | translate}}</button>\r\n  <button mat-button  (click)=\"getAllSelectedRows()\" cdkFocusInitial>{{\"Add\" | translate}}</button>\r\n</div>\r\n"
 
 /***/ }),
 
@@ -622,7 +714,7 @@ var DialogGridComponent = /** @class */ (function () {
         this.getAllRows = new rxjs__WEBPACK_IMPORTED_MODULE_1__["Subject"]();
         this.allRowsReceived = [];
         this.joinTables = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
-        this.nonEditable = true;
+        // this.nonEditable = true;
         this.tablesReceivedCounter = 0;
     }
     DialogGridComponent.prototype.ngOnInit = function () {

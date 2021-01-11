@@ -6,8 +6,6 @@ import { RestService } from '../angular-hal/src/lib/rest.service';
 /** Task UI manager service */
 export declare class TaskUIService extends RestService<TaskUI> {
     private http;
-    /** API base path */
-    API: string;
     /** API resource path */
     CONNECTION_API: string;
     /** constructor */

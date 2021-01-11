@@ -6,8 +6,6 @@ import { RestService } from '../angular-hal/src/lib/rest.service';
 /** Application background manager service */
 export declare class ApplicationBackgroundService extends RestService<ApplicationBackground> {
     private http;
-    /** API base path */
-    API: string;
     /** API resource path */
     APPLICATION_BACKGROUND_API: string;
     /** constructor */

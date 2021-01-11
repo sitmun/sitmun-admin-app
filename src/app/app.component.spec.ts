@@ -10,6 +10,9 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MaterialModule } from './material-module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { Principal, LoginService, AccountService, AuthService } from 'dist/sitmun-frontend-core/';
+import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
+import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
@@ -20,6 +23,7 @@ describe('AppComponent', () => {
         RouterTestingModule,
         MatIconTestingModule,
         MaterialModule,
+        SitmunFrontendGuiModule, 
         BrowserAnimationsModule,
         TranslateModule.forRoot({ 
           loader: {
@@ -36,6 +40,8 @@ describe('AppComponent', () => {
         SideMenuComponent,
         ToolbarComponent
       ],
+      providers: [Principal,LoginService,AccountService,AuthService,
+        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     }).compileComponents();
   });
 
@@ -51,10 +57,5 @@ describe('AppComponent', () => {
     expect(app.title).toEqual('admin-app');
   });
 
-  it('AppComponent should render title in a h1 tag', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('h1').textContent).toContain('Welcome to app!!');
-  });
+
 });

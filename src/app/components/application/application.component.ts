@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Application } from 'dist/sitmun-frontend-core/';
 import { ApplicationService } from 'dist/sitmun-frontend-core/';
 import { UtilsService } from '../../services/utils.service';
-import { BtnEditRenderedComponent } from 'dist/sitmun-frontend-gui/';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { Subject } from 'rxjs';
@@ -19,10 +18,6 @@ export class ApplicationComponent implements OnInit {
   columnDefs: any[];
 
   applicationTypes: Array<any> = [];
-
-  public frameworkComponents = {
-    btnEditRendererComponent: BtnEditRenderedComponent
-  };
 
   constructor(public applicationService: ApplicationService,
     private utils: UtilsService,

@@ -6,8 +6,6 @@ import { RestService } from '../angular-hal/src/lib/rest.service';
 /** Account manager service */
 export declare class AccountService extends RestService<User> {
     private http;
-    /** API base path */
-    API: string;
     /** API resource path */
     ACCOUNT_API: string;
     /** constructor */

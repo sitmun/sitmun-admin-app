@@ -6,8 +6,6 @@ import { RestService } from '../angular-hal/src/lib/rest.service';
 /** Connection manager service */
 export declare class CodeListService extends RestService<CodeList> {
     private http;
-    /** API base path */
-    API: string;
     /** API resource path */
     CODELIST_API: string;
     /** constructor */

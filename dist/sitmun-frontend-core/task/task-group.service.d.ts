@@ -6,8 +6,6 @@ import { RestService } from '../angular-hal/src/lib/rest.service';
 /** Task group manager service */
 export declare class TaskGroupService extends RestService<TaskGroup> {
     private http;
-    /** API base path */
-    API: string;
     /** API resource path */
     CONNECTION_API: string;
     /** constructor */

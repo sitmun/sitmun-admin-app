@@ -78,7 +78,7 @@ export class IconsService {
             },
 
             {
-              id: 'tasksConsultation',
+              id: 'tasksQuery',
             },
 
             {

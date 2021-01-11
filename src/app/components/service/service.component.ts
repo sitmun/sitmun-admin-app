@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ServiceService, Service } from 'dist/sitmun-frontend-core/';
 import { UtilsService } from '../../services/utils.service';
-import { BtnEditRenderedComponent } from 'dist/sitmun-frontend-gui/';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { Subject } from 'rxjs';
@@ -16,9 +15,6 @@ export class ServiceComponent implements OnInit {
   dataUpdatedEvent: Subject<boolean> = new Subject <boolean>();
   themeGrid: any = environment.agGridTheme;
   columnDefs: any[];
-  public frameworkComponents = {
-    btnEditRendererComponent: BtnEditRenderedComponent
-  };
 
   constructor(public serviceService: ServiceService,
     private utils: UtilsService,

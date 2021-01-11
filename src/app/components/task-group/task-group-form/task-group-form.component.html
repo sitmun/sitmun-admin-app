@@ -6,7 +6,7 @@
 
 <div class="formDiv">  
   <div class="formHeader">
-    <h5> Dades generals  </h5>
+    <h5> {{'taskGroupEntity.generalData' | translate}} </h5>
     <button   mat-flat-button class="saveButton"  >
       <mat-icon fontSet="material-icons-round"  > save </mat-icon>
       {{ "taskGroupEntity.save" | translate }}
@@ -17,11 +17,11 @@
   
       <div class="rowFormDiv">
           <div class="MidLargeColFormDiv">
-            <label class="formLabel">
+            <label class="formLabel requiredInput">
               {{'taskGroupEntity.name' | translate}}
             </label>
             <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="name">
+              <input matInput type="text" formControlName="name" required>
             </mat-form-field>
           </div>
 

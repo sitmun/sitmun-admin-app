@@ -6,8 +6,6 @@ import { Observable } from 'rxjs';
 /** User position manager service */
 export declare class UserPositionService extends RestService<UserPosition> {
     private http;
-    /** API base path */
-    API: string;
     /** API resource path */
     USER_POSITION_API: string;
     /** constructor */

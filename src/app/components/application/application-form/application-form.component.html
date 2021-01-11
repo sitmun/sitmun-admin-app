@@ -4,7 +4,7 @@
   </div>
 <div class="formDiv">
   <div class="formHeader">
-    <h5> Dades generals  </h5>
+    <h5> {{'applicationEntity.generalData' | translate}} </h5>
     <button   mat-flat-button class="saveButton" (click)="updateApplication()" >
       <mat-icon fontSet="material-icons-round"  > save </mat-icon>
       {{ "applicationEntity.save" | translate }}
@@ -18,29 +18,20 @@
       
           
         <div class="colFormDiv" >
-            <label class="formLabel">
+            <label class="formLabel requiredInput">
               {{'applicationEntity.name' | translate}}
             </label>
             <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="name">
+              <input matInput type="text" formControlName="name" required>
             </mat-form-field>
           </div>
-
-          <div class="colFormDiv" >
-            <label class="formLabel">
-              {{'applicationEntity.user' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="user">
-            </mat-form-field>
-          </div>
-
+         
           <div class="colFormDiv" >
             <label class="formLabel">
               {{'applicationEntity.type' | translate}}
             </label>
             <mat-form-field appearance="outline">
-              <mat-select matInput formControlName="type" class="form-control">
+              <mat-select matInput formControlName="type" class="form-control" (selectionChange)="onSelectionTypeAppChanged($event)">
                 <mat-option [value]="appType.value" *ngFor="let appType of applicationTypes">
                   {{ appType.description}}
                 </mat-option>
@@ -60,19 +51,11 @@
     </div>
       <div class="rowFormDiv">
       
-          
-        <div class="colFormDiv" >
-            <label class="formLabel">
-              {{'applicationEntity.tree' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="tree">
-            </mat-form-field>
-          </div>
+
 
           <div class="colFormDiv" >
             <label class="formLabel">
-              {{'applicationEntity.desktopUrl' | translate}}
+              {{'applicationEntity.url' | translate}}
             </label>
             <mat-form-field appearance="outline">
               <input matInput type="text" formControlName="desktopUrl">
@@ -81,7 +64,7 @@
 
           <div class="colFormDiv" >
             <label class="formLabel">
-              {{'applicationEntity.desktopCSS' | translate}}
+              {{'applicationEntity.CSS' | translate}}
             </label>
             <mat-form-field appearance="outline">
               <input matInput type="text" formControlName="desktopCSS">
@@ -90,52 +73,18 @@
 
           <div class="colFormDiv" >
             <label class="formLabel">
-              {{'applicationEntity.mobileUrl' | translate}}
+              {{'applicationEntity.tree' | translate}}
             </label>
             <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="mobileUrl">
+              <input matInput type="text" formControlName="tree">
             </mat-form-field>
           </div>
-
-    </div>
-      <div class="rowFormDiv">
-      
-          
-        <div class="colFormDiv" >
-            <label class="formLabel">
-              {{'applicationEntity.mobileCSS' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="mobileCSS">
-            </mat-form-field>
-          </div>
-
           <div class="colFormDiv" >
             <label class="formLabel">
-              {{'applicationEntity.defaultTool' | translate}}
+              {{'applicationEntity.treeAutoRefresh' | translate}}
             </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="defaultTool">
-            </mat-form-field>
+            <mat-checkbox formControlName="treeAutoRefresh"> </mat-checkbox>
           </div>
-
-          
-          <div class="colFormDiv" >
-            <label class="formLabel">
-              {{'applicationEntity.desplacamentSupramunicipal' | translate}}
-            </label>
-            <mat-checkbox formControlName="desplacamentSupramunicipal"> </mat-checkbox>
-          </div>
-
-          <div class="colFormDiv" >
-            <label class="formLabel">
-              {{'applicationEntity.situationMap' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="situationMap">
-            </mat-form-field>
-          </div>
-
 
     </div>
       <div class="rowFormDiv">
@@ -158,13 +107,19 @@
               <input matInput type="text" formControlName="srs">
             </mat-form-field>
           </div>
-
-          <div class="lastColFormDiv" >
+          <div class="colFormDiv" >
             <label class="formLabel">
-              {{'applicationEntity.treeAutoRefresh' | translate}}
+              {{'applicationEntity.situationMap' | translate}}
             </label>
-            <mat-checkbox formControlName="treeAutoRefresh"> </mat-checkbox>
+            <mat-form-field appearance="outline">
+              <mat-select matInput formControlName="situationMap" class="form-control">
+                <mat-option [value]="situationMapObj.id" *ngFor="let situationMapObj of situationMapList">
+                  {{situationMapObj.name}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
           </div>
+         
 
       </div>
     </form>
@@ -182,9 +137,9 @@
 
       <ng-template matExpansionPanelContent>  
           <div class="appDataGridEditDiv">
-              <app-data-grid  [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'  [frameworkComponents]="frameworkComponents"
+              <app-data-grid  [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'  
               [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
-              (remove)="removeParameters($event)" (new)='newDataParameters($event)'  > </app-data-grid>
+              (remove)="removeParameters($event)" (new)='openParametersDialog()'  > </app-data-grid>
           </div>
       </ng-template>
         </mat-expansion-panel>
@@ -199,9 +154,9 @@
       
           <ng-template matExpansionPanelContent>    
               <div class="appDataGridEditDiv">
-                  <app-data-grid [columnDefs]="columnDefsTemplates" [themeGrid]='themeGrid' [getAll]='getAllTemplates'  [frameworkComponents]="frameworkComponents"
-                  [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true 
-                  [actionButton]=true (remove)="removeTemplates($event)" (new)='newDataTemplates($event)'  > </app-data-grid>
+                  <app-data-grid [columnDefs]="columnDefsTemplates" [themeGrid]='themeGrid' [getAll]='getAllTemplates'  
+                  [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
+                  [actionButton]=true (add)="openTemplateConfigurationDialog($event)" (remove)="removeTemplates($event)" (new)='newDataTemplates($event)'  > </app-data-grid>
               </div>
           </ng-template>
           </mat-expansion-panel>
@@ -216,9 +171,9 @@
       
           <ng-template matExpansionPanelContent>    
               <div class="appDataGridEditDiv">
-                  <app-data-grid [columnDefs]="columnDefsRoles" [themeGrid]='themeGrid' [getAll]='getAllRoles'  [frameworkComponents]="frameworkComponents"
-                  [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true  
-                  [actionButton]=true (remove)="removeRoles($event)" (new)='newDataRoles($event)'  > </app-data-grid>
+                  <app-data-grid [columnDefs]="columnDefsRoles" [themeGrid]='themeGrid' [getAll]='getAllRoles'  
+                  [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
+                  [actionButton]=true (add)="openRolesDialog($event)" (remove)="removeRoles($event)" (new)='newDataRoles($event)'  > </app-data-grid>
               </div>
           </ng-template>
           </mat-expansion-panel>
@@ -233,9 +188,9 @@
       
           <ng-template matExpansionPanelContent>    
               <div class="appDataGridEditDiv">
-                  <app-data-grid [columnDefs]="columnDefsBackgrounds" [themeGrid]='themeGrid' [getAll]='getAllBackgrounds'  [frameworkComponents]="frameworkComponents"
-                  [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true  
-                  [actionButton]=true (remove)="removeBackgrounds($event)" (new)='newDataBackgrounds($event)'  > </app-data-grid>
+                  <app-data-grid [columnDefs]="columnDefsBackgrounds" [themeGrid]='themeGrid' [getAll]='getAllBackgrounds' 
+                  [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
+                  [actionButton]=true (add)="openBackgroundDialog($event)" (remove)="removeBackgrounds($event)" (new)='newDataBackgrounds($event)'  > </app-data-grid>
               </div>
           </ng-template>
           </mat-expansion-panel>

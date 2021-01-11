@@ -12,6 +12,7 @@ import { MaterialModule } from './material-module';
 import { APP_ROUTING } from './app-routes';
 
 import { MessagesInterceptor } from './interceptors/messages.interceptor';
+import { AuthInterceptor } from 'dist/sitmun-frontend-core/';
 //i18n
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -41,7 +42,7 @@ import { ToolbarComponent } from './components/shared/toolbar/toolbar.component'
 import { SideMenuComponent } from './components/shared/side-menu/side-menu.component';
 import { TasksDownloadComponent } from './components/tasks-download/tasks-download.component';
 import { TasksDocumentComponent } from './components/tasks-document/tasks-document.component';
-import { TasksConsultationComponent } from './components/tasks-consultation/tasks-consultation.component';
+import { TasksQueryComponent } from './components/tasks-query/tasks-query.component';
 import { TasksMoreInfoComponent } from './components/tasks-more-info/tasks-more-info.component';
 import { TasksLocatorComponent } from './components/tasks-locator/tasks-locator.component';
 import { TasksReportComponent } from './components/tasks-report/tasks-report.component';
@@ -55,6 +56,10 @@ import { RoleService } from 'dist/sitmun-frontend-core/';
 import { UserService } from 'dist/sitmun-frontend-core/';
 import { TreeService } from 'dist/sitmun-frontend-core/';
 import { CodeListService } from 'dist/sitmun-frontend-core/';
+import { LoginService } from 'dist/sitmun-frontend-core/';
+import { AuthService } from 'dist/sitmun-frontend-core/';
+import { AccountService } from 'dist/sitmun-frontend-core/';
+import { Principal } from 'dist/sitmun-frontend-core/';
 import { UtilsService } from './services/utils.service';
 import { ServiceService } from 'dist/sitmun-frontend-core/';
 import { ApplicationService } from 'dist/sitmun-frontend-core/';
@@ -71,7 +76,16 @@ import { LayersFormComponent } from './components/layers/layers-form/layers-form
 import { TaskGroupComponent } from './components/task-group/task-group.component';
 import { TaskGroupFormComponent } from './components/task-group/task-group-form/task-group-form.component';
 import { TasksComponent } from './components/tasks/tasks.component';
-import { ProvaDialogComponent } from './components/prova-dialog/prova-dialog.component';
+import { TasksDocumentsFormComponent } from './components/tasks-document/tasks-documents-form/tasks-documents-form.component';
+import { TasksDownloadFormComponent } from './components/tasks-download/tasks-download-form/tasks-download-form.component';
+import { TasksEditionFormComponent } from './components/tasks-edition/tasks-edition-form/tasks-edition-form.component';
+import { TasksExtractionFmeFormComponent } from './components/tasks-extraction-fme/tasks-extraction-fme-form/tasks-extraction-fme-form.component';
+import { TasksMoreInfoFormComponent } from './components/tasks-more-info/tasks-more-info-form/tasks-more-info-form.component';
+import { TasksLocatorFormComponent } from './components/tasks-locator/tasks-locator-form/tasks-locator-form.component';
+import { TasksQueryFormComponent } from './components/tasks-query/tasks-query-form/tasks-query-form.component';
+import { TasksReportFormComponent } from './components/tasks-report/tasks-report-form/tasks-report-form.component';
+import { TasksThematicFormComponent } from './components/tasks-thematic/tasks-thematic-form/tasks-thematic-form.component';
+import { LoginComponent } from './components/login/login.component';
 
 @NgModule({
   declarations: [
@@ -91,7 +105,7 @@ import { ProvaDialogComponent } from './components/prova-dialog/prova-dialog.com
     ToolbarComponent,
     TasksDownloadComponent,
     TasksDocumentComponent,
-    TasksConsultationComponent,
+    TasksQueryComponent,
     TasksMoreInfoComponent,
     TasksLocatorComponent,
     TasksReportComponent,
@@ -111,7 +125,16 @@ import { ProvaDialogComponent } from './components/prova-dialog/prova-dialog.com
     TaskGroupComponent,
     TaskGroupFormComponent,
     TasksComponent,
-    ProvaDialogComponent
+    TasksDocumentsFormComponent,
+    TasksDownloadFormComponent,
+    TasksEditionFormComponent,
+    TasksExtractionFmeFormComponent,
+    TasksMoreInfoFormComponent,
+    TasksLocatorFormComponent,
+    TasksQueryFormComponent,
+    TasksReportFormComponent,
+    TasksThematicFormComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,
@@ -136,9 +159,12 @@ import { ProvaDialogComponent } from './components/prova-dialog/prova-dialog.com
   providers: [SidenavService, UtilsService,
      { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
      { provide: LOCALE_ID, useValue: 'es-ES' },
-    RoleService, ConnectionService, UserService, TerritoryService, ServiceService, ApplicationService, TreeService,
-    BackgroundService, CartographyService, CartographyGroupService, TaskGroupService, TaskService,UserConfigurationService,CodeListService,
-    { provide: HTTP_INTERCEPTORS, useClass: MessagesInterceptor, multi: true }],
+    RoleService, ConnectionService, UserService, TerritoryService, ServiceService, 
+    ApplicationService, TreeService, BackgroundService, CartographyService, CartographyGroupService,
+     TaskGroupService, TaskService,UserConfigurationService,CodeListService,LoginService,AuthService,
+     Principal,AccountService,
+     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+     { provide: HTTP_INTERCEPTORS, useClass: MessagesInterceptor, multi: true }],
   bootstrap: [AppComponent]
 })
 export class AppModule {

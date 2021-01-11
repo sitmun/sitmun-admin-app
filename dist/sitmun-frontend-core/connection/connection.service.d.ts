@@ -6,8 +6,6 @@ import { RestService } from '../angular-hal/src/lib/rest.service';
 /** Connection manager service */
 export declare class ConnectionService extends RestService<Connection> {
     private http;
-    /** API base path */
-    API: string;
     /** API resource path */
     CONNECTION_API: string;
     /** constructor */

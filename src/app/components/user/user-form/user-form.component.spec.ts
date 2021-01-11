@@ -4,7 +4,7 @@ import { UserFormComponent } from './user-form.component';
 import { RouterModule } from '@angular/router';
 import { MaterialModule } from '../../../material-module';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { UserService,UserConfigurationService } from 'dist/sitmun-frontend-core/';
+import { UserService, RoleService, TerritoryService, UserConfigurationService } from 'dist/sitmun-frontend-core/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
@@ -20,7 +20,7 @@ describe('UserFormComponent', () => {
       declarations: [ UserFormComponent ],
       imports: [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,
          RouterModule.forRoot([]), MaterialModule, MatIconTestingModule],
-      providers: [UserService,CodeListService,UserConfigurationService,
+      providers: [UserService,RoleService, TerritoryService, CodeListService,UserConfigurationService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

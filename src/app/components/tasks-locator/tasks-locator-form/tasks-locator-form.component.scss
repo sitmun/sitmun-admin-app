@@ -1,0 +1,24 @@
+.rowFormDiv{
+    width: 100%;
+  }
+  .colFormDiv{
+    display: inline-block;
+    width: 47.5%;
+    margin-right: 5%;
+  }
+
+  .colFormTwoColumnsDiv{
+    display: inline-block;
+    width: 20%;
+    margin-right: 5%;
+  }
+
+
+  mat-form-field {
+    width: 100%;
+}
+#right-column {
+  margin-right: 0%;
+}
+
+ 

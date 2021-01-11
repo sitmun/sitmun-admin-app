@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Territory } from 'dist/sitmun-frontend-core/territory/territory.model';
 import { TerritoryService } from 'dist/sitmun-frontend-core/';
 import { UtilsService } from '../../services/utils.service';
-import { BtnEditRenderedComponent } from 'dist/sitmun-frontend-gui/';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { Subject } from 'rxjs';
@@ -20,9 +19,6 @@ export class TerritoryComponent implements OnInit {
   columnDefs: any[];
   scopeTypes: Array<any> = [];
 
-  public frameworkComponents = {
-    btnEditRendererComponent: BtnEditRenderedComponent
-  };
 
 
   constructor(public territoryService: TerritoryService,

@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CartographyService, Cartography } from 'dist/sitmun-frontend-core/';
 import { UtilsService } from '../../services/utils.service';
-import { BtnEditRenderedComponent } from 'dist/sitmun-frontend-gui/';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { Subject } from 'rxjs';
@@ -16,9 +15,6 @@ export class LayersComponent implements OnInit {
   dataUpdatedEvent: Subject<boolean> = new Subject <boolean>();
   themeGrid: any = environment.agGridTheme;
   columnDefs: any[];
-  public frameworkComponents = {
-    btnEditRendererComponent: BtnEditRenderedComponent
-  };
 
   constructor(public cartographyService: CartographyService,
     private utils: UtilsService,
@@ -31,7 +27,6 @@ export class LayersComponent implements OnInit {
     this.columnDefs = [
       {
         headerName: '',
-        field: 'id',
         checkboxSelection: true,
         headerCheckboxSelection: true,
         editable: false,
@@ -65,7 +60,6 @@ export class LayersComponent implements OnInit {
   }
 
   getAllLayers = () => {
-
     return this.cartographyService.getAll();
   }
 

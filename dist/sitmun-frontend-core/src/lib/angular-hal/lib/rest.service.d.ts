@@ -1,6 +1,7 @@
 import { Resource } from './resource';
 import { ResourceArray } from './resource-array';
 import { Sort } from './sort';
+import { ResourceService } from './resource.service';
 import { SubTypeBuilder } from './subtype-builder';
 import { Observable } from 'rxjs/internal/Observable';
 import { Injector } from "@angular/core";
@@ -26,7 +27,7 @@ export declare class RestService<T extends Resource> {
     /** resource array */
     resourceArray: ResourceArray<T>;
     /** resource service */
-    private resourceService;
+    resourceService: ResourceService;
     /** _embedded field name */
     private _embedded;
     /** constructor */

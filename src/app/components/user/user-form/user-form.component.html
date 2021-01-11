@@ -6,8 +6,8 @@
 
 <div class="formDiv">
   <div class="formHeader">
-    <h5> Dades generals  </h5>
-    <button   mat-flat-button class="saveButton"  >
+    <h5> {{'userEntity.generalData' | translate}} </h5>
+    <button (click)="onSaveButtonClicked()"  mat-flat-button class="saveButton"  >
       <mat-icon fontSet="material-icons-round"  > save </mat-icon>
       {{ "userEntity.save" | translate }}
     </button>
@@ -94,13 +94,13 @@
         </mat-panel-title>
       </mat-expansion-panel-header>
   
-    <ng-template matExpansionPanelContent>  
+    <div matExpansionPanelContent>  
       <div class="appDataGridEditDiv">
-          <app-data-grid [columnDefs]="columnDefsPermissions" [themeGrid]='themeGrid' [getAll]='getAllPermissions'  [frameworkComponents]="frameworkComponents"
-          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
-          [actionButton]=true (remove)="removeDataPermissions($event)" (new)='newDataPermissions($event)'  > </app-data-grid>
+          <app-data-grid [columnDefs]="columnDefsPermissions" [themeGrid]='themeGrid' [getAll]='getAllPermissions'  
+          [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
+          [actionButton]=true (remove)="removeDataPermissions($event)" (new)="openPermitsDialog($event)"  > </app-data-grid>
       </div>
-    </ng-template>
+    </div>
   
   
     </mat-expansion-panel>
@@ -116,9 +116,9 @@
   
     <ng-template matExpansionPanelContent>  
       <div class="appDataGridEditDiv">
-          <app-data-grid [columnDefs]="columnDefsData" [themeGrid]='themeGrid' [getAll]='getAllData'  [frameworkComponents]="frameworkComponents"
-          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true  
-          [actionButton]=true (remove)="removeDataData($event)" (new)='newDataData($event)'  > </app-data-grid>
+          <app-data-grid [columnDefs]="columnDefsData" [themeGrid]='themeGrid' [getAll]='getAllDataTerritory'  
+          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
+          [actionButton]=true (add)="openTerritoryDataDialog($event)" (remove)="removeDataData($event)" (new)='newDataData($event)'> </app-data-grid>
       </div>
     </ng-template>
   

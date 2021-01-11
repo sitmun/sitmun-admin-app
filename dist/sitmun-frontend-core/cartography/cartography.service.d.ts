@@ -6,8 +6,6 @@ import { RestService } from '../angular-hal/src/lib/rest.service';
 /** Cartography manager service */
 export declare class CartographyService extends RestService<Cartography> {
     private http;
-    /** API base path */
-    API: string;
     /** API resource path */
     CARTOGRAPHY_API: string;
     /** constructor */

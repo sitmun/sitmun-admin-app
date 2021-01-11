@@ -1,0 +1,47 @@
+.rowFormDiv{
+    width: 100%;
+  }
+  .colFormDiv{
+    display: inline-block;
+    width: 47.5%;
+    margin-right: 5%;
+  }
+
+  .singleFormDiv{
+    display: inline-block;
+    width: 23.5%;
+    margin-right: 5%;
+  }
+
+  .checkTwoFormDiv{
+    display: inline-block;
+    width: 16.5%;
+    margin-right: 5%;
+  }
+
+  .threeFormDiv{
+    display: inline-block;
+    width: 37%;
+    margin-right: 5%;
+  }
+
+  .matRadioFormDiv{
+    display: inline-block;
+    width: 65.5%;
+    margin-right: 5%;
+    margin-left: -2%;
+  }
+
+  mat-form-field {
+    width: 100%;
+}
+#right-column {
+  margin-right: 0%;
+}
+
+.mat-radio-button  {
+  margin-left: 16px;
+}
+
+
+ 

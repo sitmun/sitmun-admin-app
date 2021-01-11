@@ -6,7 +6,7 @@
 
 <div class="formDiv">
   <div class="formHeader">
-    <h5> Dades generals  </h5>
+    <h5> {{'serviceEntity.generalData' | translate}} </h5>
     <button   mat-flat-button class="saveButton"  >
       <mat-icon fontSet="material-icons-round"  > save </mat-icon>
       {{ "serviceEntity.save" | translate }}
@@ -19,52 +19,28 @@
       <div class="rowFormDiv">
       
           <div class="thirdColumnColFormDiv" >
-            <label class="formLabel">
+            <label class="formLabel requiredInput">
               {{'serviceEntity.name' | translate}}
             </label>
             <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="name">
+              <input matInput type="text" formControlName="name" required>
             </mat-form-field>
           </div>
   
           <div class="thirdColumnColFormDiv" >
-            <label class="formLabel">
+            <label class="formLabel requiredInput">
               {{'serviceEntity.type' | translate}}
             </label>
-            <mat-form-field appearance="outline">
-              <mat-select matInput formControlName="type" class="form-control">
+            <mat-form-field appearance="outline" >
+              <mat-select matInput formControlName="type" class="form-control" >
                 <mat-option [value]="serviceType.value" *ngFor="let serviceType of serviceTypes">
                   {{ serviceType.description}}
                 </mat-option>
               </mat-select>
             </mat-form-field>
           </div>
-  
+    
           <div class="thirdColumnColFormDiv" >
-            <label class="formLabel">
-              {{'serviceEntity.url' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="serviceURL">
-            </mat-form-field>
-          </div>
-          
-            <button *ngIf="serviceID==-1" (click)="addNewLayer()" mat-flat-button class="validateButton" >{{ "serviceEntity.getData" | translate }}</button>
-            <button *ngIf="serviceID!=-1" (click)="updateLayer()" mat-flat-button class="validateButton" >{{ "serviceEntity.update" | translate }}</button>
-     </div>
-
-      <div class="rowFormDiv">
-      
-          <div class="colFormDiv" >
-            <label class="formLabel">
-              {{'serviceEntity.connection' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="connection">
-            </mat-form-field>
-          </div>
-  
-          <div class="colFormDiv" >
             <label class="formLabel">
               {{'serviceEntity.projections' | translate}}
             </label>
@@ -91,7 +67,31 @@
 
             </mat-form-field>
           </div>
-  
+      
+          
+            <button *ngIf="serviceID==-1" (click)="addNewLayer()" mat-flat-button class="validateButton" >{{ "serviceEntity.getData" | translate }}</button>
+            <button *ngIf="serviceID!=-1" (click)="updateLayer()" mat-flat-button class="validateButton" >{{ "serviceEntity.update" | translate }}</button>
+     </div>
+
+      <div class="rowFormDiv">
+      
+         <!-- <div class="colFormDiv" >
+            <label class="formLabel">
+              {{'serviceEntity.connection' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="connection">
+            </mat-form-field>
+          </div>-->
+
+          <div class="colFormDiv" >
+            <label class="formLabel requiredInput">
+              {{'serviceEntity.url' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="serviceURL" required>
+            </mat-form-field>
+          </div>
           <div class="colFormDiv" >
             <label class="formLabel">
               {{'serviceEntity.metadataURL' | translate}}
@@ -119,7 +119,7 @@
   
     <ng-template matExpansionPanelContent>  
         <div class="appDataGridEditDiv">
-            <app-data-grid  [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'  [frameworkComponents]="frameworkComponents"
+            <app-data-grid  [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'
             [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
             [actionButton]=true (remove)="removeParameters($event)" (new)='newDataParameters($event)'  > </app-data-grid>
         </div>
@@ -137,9 +137,9 @@
   
     <ng-template matExpansionPanelContent>  
         <div class="appDataGridEditDiv">
-            <app-data-grid  [columnDefs]="columnDefsLayers" [themeGrid]='themeGrid' [getAll]='getAllLayers'  [frameworkComponents]="frameworkComponents"
-            [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true  
-            [actionButton]=true (remove)="removeLayers($event)" (new)='newDataLayers($event)'  > </app-data-grid>
+            <app-data-grid  [columnDefs]="columnDefsLayers" [themeGrid]='themeGrid' [getAll]='getAllLayers' 
+            [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true  [hideDuplicateButton]=true
+            [actionButton]=true (add)="openCartographyDialog($event)" (remove)="removeLayers($event)" (new)='newDataLayers($event)'  > </app-data-grid>
         </div>
     </ng-template>
   

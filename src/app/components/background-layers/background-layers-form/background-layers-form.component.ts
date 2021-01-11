@@ -3,12 +3,8 @@ import { tick } from '@angular/core/testing';
 import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BackgroundService, HalOptions, HalParam, CartographyGroupService } from 'dist/sitmun-frontend-core/';
-import { Connection } from 'dist/sitmun-frontend-core/connection/connection.model';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
-import { BtnEditRenderedComponent } from 'dist/sitmun-frontend-gui/';
-import { map } from 'rxjs/operators';
-import { Observable } from 'rxjs';
 
 
 @Component({
@@ -31,13 +27,9 @@ export class BackgroundLayersFormComponent implements OnInit {
     this.initializeBackgroundForm();
   }
 
-
   backgroundForm: FormGroup;
   backgroundToEdit;
   backgroundID = -1;
-
-
-
 
   ngOnInit(): void {
 
@@ -52,8 +44,6 @@ export class BackgroundLayersFormComponent implements OnInit {
         this.permissionGroups.push(...resp);
       }
     );
-
-
 
     this.activatedRoute.params.subscribe(params => {
       this.backgroundID = +params.id;
@@ -72,8 +62,6 @@ export class BackgroundLayersFormComponent implements OnInit {
               active: this.backgroundToEdit.active,
               _links: this.backgroundToEdit._links
             });
-
-
           },
           error => {
  
@@ -138,11 +126,9 @@ export class BackgroundLayersFormComponent implements OnInit {
   updateBackground() {
 
     console.log(this.backgroundForm.value);
-
     this.backgroundService.update(this.backgroundForm.value)
       .subscribe(resp => {
         console.log(resp);
-
       });
 
   }

@@ -1,7 +1,8 @@
-<h1>Welcome to app!!</h1>
-<div class="mat-app-background basic-container">
-
+<div *ngIf="!isLoggedIn()" class="mat-app-background login-container">
+  <app-login></app-login>
+</div>
+<div *ngIf="isLoggedIn()" class="mat-app-background basic-container">
   <app-toolbar (open)="navOpen($event)" ></app-toolbar>
   <app-side-menu  [openNav]="isOpen"  ></app-side-menu>
-
 </div>
+ 

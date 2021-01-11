@@ -6,8 +6,6 @@ import { TerritoryType } from './territory-type.model';
 /** TerritoryType manager service */
 export declare class TerritoryTypeService extends RestService<TerritoryType> {
     private http;
-    /** API base path */
-    API: string;
     /** API resource path */
     TERRITORYTYPE_API: string;
     /** constructor */

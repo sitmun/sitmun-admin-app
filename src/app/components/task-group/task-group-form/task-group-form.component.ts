@@ -6,7 +6,6 @@ import { TaskGroupService, UserService, } from 'dist/sitmun-frontend-core/';
 import { Connection } from 'dist/sitmun-frontend-core/connection/connection.model';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
-import { BtnEditRenderedComponent } from 'dist/sitmun-frontend-gui/';
 
 @Component({
   selector: 'app-task-group-form',
@@ -15,11 +14,10 @@ import { BtnEditRenderedComponent } from 'dist/sitmun-frontend-gui/';
 })
 export class TaskGroupFormComponent implements OnInit {
 
-
-
   formtaskGroup: FormGroup;
   taskGroupToEdit;
   taskGroupID: number = -1;
+  
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,

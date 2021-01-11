@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Connection } from 'dist/sitmun-frontend-core/connection/connection.model';
 import { ConnectionService } from 'dist/sitmun-frontend-core/';
 import { UtilsService } from '../../services/utils.service';
-import { BtnEditRenderedComponent } from 'dist/sitmun-frontend-gui/';
+
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { Subject } from 'rxjs';
@@ -17,9 +17,6 @@ export class ConnectionComponent implements OnInit {
   dataUpdatedEvent: Subject<boolean> = new Subject <boolean>();
   themeGrid: any = environment.agGridTheme;
   columnDefs: any[];
-  public frameworkComponents = {
-    btnEditRendererComponent: BtnEditRenderedComponent
-  };
 
   constructor(public connectionService: ConnectionService,
     private utils: UtilsService,
@@ -78,6 +75,7 @@ export class ConnectionComponent implements OnInit {
   }
 
   add(data: Connection[]) {
+    console.log(data);
     const promises: Promise<any>[] = [];
     data.forEach(connection => {
       connection.id = null;

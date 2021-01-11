@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { RouterTestingModule } from '@angular/router/testing';
-import { ConnectionService } from 'dist/sitmun-frontend-core/';
+import { ConnectionService, CartographyService, TaskService } from 'dist/sitmun-frontend-core/';
 import { ConnectionFormComponent } from '../connection-form/connection-form.component';
 import { MaterialModule } from '../../../material-module';
 import { RouterModule } from '@angular/router';
@@ -17,7 +17,7 @@ describe('ConnectionFormComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ ConnectionFormComponent ],
       imports : [HttpClientTestingModule, SitmunFrontendGuiModule, MatIconTestingModule, RouterTestingModule, MaterialModule, RouterModule],
-      providers: [ConnectionService,CodeListService,
+      providers: [ConnectionService, CartographyService, TaskService, CodeListService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { UtilsService } from '../../services/utils.service';
-import { BtnEditRenderedComponent } from 'dist/sitmun-frontend-gui/';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -15,9 +14,6 @@ export class TasksReportComponent implements OnInit {
 
   themeGrid:any=environment.agGridTheme;
   columnDefs: any[];
-  public frameworkComponents = {
-    btnEditRendererComponent: BtnEditRenderedComponent
-  };
 
 
   constructor(private utils: UtilsService,
@@ -71,7 +67,7 @@ export class TasksReportComponent implements OnInit {
   
   newData(id: any)
   {
-    // this.router.navigate(['territory', id, 'territoryForm']);
+    this.router.navigate(['tasksReport', id, 'tasksReportForm']);  
   }
   
   applyChanges( data: any[])

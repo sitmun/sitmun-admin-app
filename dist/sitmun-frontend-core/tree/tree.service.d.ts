@@ -6,8 +6,6 @@ import { RestService } from '../angular-hal/src/lib/rest.service';
 /** Tree manager service */
 export declare class TreeService extends RestService<Tree> {
     private http;
-    /** API base path */
-    API: string;
     /** API resource path */
     TREE_API: string;
     /** constructor */

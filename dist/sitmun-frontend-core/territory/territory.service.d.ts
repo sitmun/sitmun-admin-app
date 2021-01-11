@@ -6,8 +6,6 @@ import { RestService } from '../angular-hal/src/lib/rest.service';
 /** Territory manager service */
 export declare class TerritoryService extends RestService<Territory> {
     private http;
-    /** API base path */
-    API: string;
     /** API resource path */
     TERRITORY_API: string;
     /** constructor */

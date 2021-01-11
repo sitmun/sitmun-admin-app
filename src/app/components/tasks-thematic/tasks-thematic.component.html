@@ -3,7 +3,7 @@
     <span class="divider"></span>
 </div>
 <div class="appDataGridDiv">
-    <app-data-grid [columnDefs]="columnDefs" [themeGrid]='themeGrid' [getAll]='getAllTasksThematic' [globalSearch]=true [frameworkComponents]="frameworkComponents"
+    <app-data-grid [columnDefs]="columnDefs" [themeGrid]='themeGrid' [getAll]='getAllTasksThematic' [globalSearch]=true 
     [discardChangesButton]=true [redoButton]=true [undoButton]=true [applyChangesButton]=true  [deleteButton]=true [newButton]=true 
     [actionButton]=true (remove)="removeData($event)" (new)='newData($event)' (sendChanges)='applyChanges($event)' > </app-data-grid>
 </div>

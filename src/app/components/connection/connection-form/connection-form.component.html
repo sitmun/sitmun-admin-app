@@ -5,8 +5,8 @@
 
 <div class="formDiv">
   <div class="formHeader">
-    <h5> Dades generals  </h5>
-    <button   mat-flat-button class="saveButton"  >
+    <h5> {{'connectionEntity.generalData' | translate}} </h5>
+    <button (click)="onSaveButtonClicked()"  mat-flat-button class="saveButton"  >
       <mat-icon fontSet="material-icons-round"  > save </mat-icon>
       {{ "connectionEntity.save" | translate }}
     </button>
@@ -16,20 +16,20 @@
 
       <div class="rowFormDiv">
           <div class="colFormDiv">
-            <label class="formLabel">
+            <label class="formLabel requiredInput">
               {{'connectionEntity.name' | translate}}
             </label>
             <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="name">
+              <input matInput type="text" formControlName="name" required>
             </mat-form-field>
           </div>
 
-          <div class="colFormDiv" >
-            <label class="formLabel">
+          <div class="colFormDiv" > 
+            <label class="formLabel requiredInput">
               {{'connectionEntity.driver' | translate}}
             </label>
             <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="driver">
+              <input matInput type="text" formControlName="driver" required>
             </mat-form-field>
           </div>
 
@@ -64,7 +64,7 @@
           </div>
 
           <button *ngIf="connectionID==-1" (click)="addNewConnection()" mat-flat-button class="validateButton" >{{ "connectionEntity.validate" | translate }}</button>
-          <button *ngIf="connectionID!=-1" (click)="updateConnection()" mat-flat-button class="validateButton" >{{ "connectionEntity.update" | translate }}</button>
+          <button *ngIf="connectionID!=-1" (click)="updateConnection()" mat-flat-button class="validateButton" >{{ "connectionEntity.validate" | translate }}</button>
     </div>
 
 
@@ -87,12 +87,13 @@
       <ng-template matExpansionPanelContent>  
         <div class="appDataGridEditDiv">
             <app-data-grid  [columnDefs]="columnDefsCartographies" [themeGrid]='themeGrid' [getAll]='getAllCartographies' 
-            [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true  
-            [actionButton]=true (remove)="removeDataCartographies($event)" (new)='newDataCartographies($event)' (sendChanges)='applyChangesCartographies($event)' > </app-data-grid>
+            [eventAddItemsSubscription]='addElementsEventCartographies.asObservable()' [eventGetAllRowsSubscription]='getAllRowsEvent.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true  [hideDuplicateButton]=true
+            [actionButton]=true (add)="openCartographyDialog($event)" (remove)="removeDataCartographies($event)" (new)='newDataCartographies($event)' (sendChanges)='applyChangesCartographies($event)' 
+            (getAllRows)="getAllRowsCartographies($event)"> </app-data-grid>
         </div>
       </ng-template>
     </mat-expansion-panel>
-
+ 
       <!-- Tasks table -->
     <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
       <mat-expansion-panel-header class="agGridExpansionPanelTitle">
@@ -104,8 +105,8 @@
       <ng-template matExpansionPanelContent>  
         <div class="appDataGridEditDiv">
             <app-data-grid [columnDefs]="columnDefsTasks" [themeGrid]='themeGrid' [getAll]='getAllTasks'
-            [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true  
-            [actionButton]=true (remove)="removeDataTasks($event)" (new)='newDataTasks($event)' (sendChanges)='applyChangesTasks($event)' > </app-data-grid>
+            [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
+            [actionButton]=true (add)="openTasksDialog($event)" (remove)="removeDataTasks($event)" (new)='newDataTasks($event)' (sendChanges)='applyChangesTasks($event)' > </app-data-grid>
         </div>
     </ng-template>
 

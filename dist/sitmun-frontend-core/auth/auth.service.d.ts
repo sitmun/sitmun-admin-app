@@ -1,12 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs-compat';
+import { ResourceService } from '../angular-hal/src/lib/resource.service';
 /** Authentication service*/
 export declare class AuthService {
     private http;
-    /** API base URL */
-    SERVER_API_URL: string;
+    private resourceService;
+    /** API resource path */
+    AUTH_API: string;
     /** constructor*/
-    constructor(http: HttpClient);
+    constructor(http: HttpClient, resourceService: ResourceService);
     /** get current user jwt token from session storage*/
     getToken(): string;
     /** login operation */

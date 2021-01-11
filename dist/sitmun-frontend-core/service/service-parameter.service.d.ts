@@ -6,8 +6,6 @@ import { RestService } from '../angular-hal/src/lib/rest.service';
 /** Service parameter manager service */
 export declare class ServiceParameterService extends RestService<ServiceParameter> {
     private http;
-    /** API base path */
-    API: string;
     /** API resource path */
     SERVICE_PARAMETER_API: string;
     /** constructor */

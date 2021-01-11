@@ -1,9 +1,9 @@
 <div class="titleDiv">
-    <h4><mat-icon aria-hidden="false"  svgIcon="menu_tasques"></mat-icon> {{ "tasksConsultationEntity.tasksConsultation" | translate }}</h4>
+    <h4><mat-icon aria-hidden="false"  svgIcon="menu_tasques"></mat-icon> {{ "tasksQueryEntity.tasksQuery" | translate }}</h4>
     <span class="divider"></span>
 </div>
 <div class="appDataGridDiv">
-    <app-data-grid [columnDefs]="columnDefs" [themeGrid]='themeGrid' [getAll]='getAllTasksQuery' [globalSearch]=true [frameworkComponents]="frameworkComponents"
+    <app-data-grid [columnDefs]="columnDefs" [themeGrid]='themeGrid' [getAll]='getAllTasksQuery' [globalSearch]=true 
     [discardChangesButton]=true [redoButton]=true [undoButton]=true [applyChangesButton]=true  [deleteButton]=true [newButton]=true 
     [actionButton]=true (remove)="removeData($event)" (new)='newData($event)' (sendChanges)='applyChanges($event)' > </app-data-grid>
 </div>

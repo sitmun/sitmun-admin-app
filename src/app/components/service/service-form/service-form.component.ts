@@ -2,16 +2,16 @@ import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ServiceService } from 'dist/sitmun-frontend-core/';
+import { ServiceService, CartographyService } from 'dist/sitmun-frontend-core/';
 import { Connection } from 'dist/sitmun-frontend-core/connection/connection.model';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
-import { BtnEditRenderedComponent } from 'dist/sitmun-frontend-gui/';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { map } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { environment } from 'src/environments/environment';
+import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
 
 @Component({
@@ -21,16 +21,9 @@ import { MatDialog } from '@angular/material/dialog';
 })
 export class ServiceFormComponent implements OnInit {
 
-  themeGrid: any = environment.agGridTheme;
-  columnDefsLayers: any[];
-  columnDefsParameters: any[];
-
-  public frameworkComponents = {
-    btnEditRendererComponent: BtnEditRenderedComponent
-  };
+  //form
   dataLoaded: Boolean = false;
   private parametersUrl: string;
-
   serviceForm: FormGroup;
   serviceToEdit;
   serviceID = -1;
@@ -42,14 +35,27 @@ export class ServiceFormComponent implements OnInit {
   projections: Array<string>;
   serviceTypes: Array<any> = [];
 
+  //Grids
+  themeGrid: any = environment.agGridTheme;
+  columnDefsLayers: any[];
+  columnDefsParameters: any[];
+
+  //Dialogs
+  columnDefsParametersDialog: any[];
+  columnDefsLayersDialog: any[];
+
+
+
 
   constructor(
+    
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private serviceService: ServiceService,
     private http: HttpClient,
     private utils: UtilsService,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    public cartographyService: CartographyService,
   ) {
     this.initializeServiceForm();
     this.projections = [];
@@ -143,6 +149,35 @@ export class ServiceFormComponent implements OnInit {
       { headerName: this.utils.getTranslate('serviceEntity.description'), field: 'description', },
       { headerName: this.utils.getTranslate('serviceEntity.status'), field: 'status' },
 
+    ];
+
+    this.columnDefsLayersDialog = [
+      {
+        headerName: '',
+        checkboxSelection: true,
+        headerCheckboxSelection: true,
+        editable: false,
+        filter: false,
+        width: 50,
+        lockPosition:true,
+      },
+      { headerName: 'ID', field: 'id', editable: false },
+      { headerName: this.utils.getTranslate('connectionEntity.name'), field: 'name', editable: false },
+    ];
+
+    this.columnDefsParametersDialog = [
+      {
+        headerName: '',
+        checkboxSelection: true,
+        headerCheckboxSelection: true,
+        editable: false,
+        filter: false,
+        width: 50,
+        lockPosition:true,
+      },
+      { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name',  editable: false  },
+      { headerName: this.utils.getTranslate('applicationEntity.value'), field: 'value',  editable: false  },
+      { headerName: this.utils.getTranslate('applicationEntity.type'), field: 'type',  editable: false  },
     ];
 
   }
@@ -251,8 +286,8 @@ export class ServiceFormComponent implements OnInit {
 
   // ******** Layers ******** //
   getAllLayers = (): Observable<any> => {
-    return (this.http.get(`${this.serviceForm.value._links.parameters.href}`))
-      .pipe(map(data => data[`_embedded`][`service-parameters`]));
+    return (this.http.get(`${this.serviceForm.value._links.layers.href}`))
+      .pipe(map(data => data[`_embedded`][`cartographies`]));
   }
 
   removeLayers(data: any[]) {
@@ -264,14 +299,67 @@ export class ServiceFormComponent implements OnInit {
     console.log('screen in progress');
   }
 
-  // DIALOG-GRID
+  // ******** Parameters Dialog  ******** //
 
-  openDialog() {
-    // const dialogRef = this.dialog.open();
+  getAllParametersDialog = () => {
+    const aux: Array<any> = [];
+    return of(aux);
+    // return this.cartographyService.getAll();
+  }
 
-    // dialogRef.afterClosed().subscribe(result => {
-    //   console.log(`Dialog result: ${result}`);
-    // });
+  openParametersDialog(data: any) {
+  
+    const dialogRef = this.dialog.open(DialogGridComponent);
+    dialogRef.componentInstance.getAllsTable=[this.getAllParametersDialog];
+    dialogRef.componentInstance.singleSelectionTable=[false];
+    dialogRef.componentInstance.columnDefsTable=[this.columnDefsParametersDialog];
+    dialogRef.componentInstance.themeGrid=this.themeGrid;
+    dialogRef.componentInstance.title='Parameters';
+    dialogRef.componentInstance.titlesTable=['Parameters'];
+    dialogRef.componentInstance.nonEditable=false;
+    
+
+
+    dialogRef.afterClosed().subscribe(result => {
+      if(result){
+        if( result.event==='Add') {console.log(result.data); }
+      }
+
+    });
+
+  }
+
+        
+
+  // ******** Layers Dialog  ******** //
+
+  getAllLayersDialog = () => {
+    return this.cartographyService.getAll();
+  }
+
+  openCartographyDialog(data: any) {
+    // const getAlls: Array<() => Observable<any>> = [this.getAllCartographiesDialog];
+    // const colDefsTable: Array<any[]> = [this.columnDefsCartographiesDialog];
+    // const singleSelectionTable: Array<boolean> = [false];
+    // const titlesTable: Array<string> = ['Cartographies'];
+    const dialogRef = this.dialog.open(DialogGridComponent);
+    dialogRef.componentInstance.getAllsTable=[this.getAllLayersDialog];
+    dialogRef.componentInstance.singleSelectionTable=[false];
+    dialogRef.componentInstance.columnDefsTable=[this.columnDefsLayersDialog];
+    dialogRef.componentInstance.themeGrid=this.themeGrid;
+    dialogRef.componentInstance.title='Layers';
+    dialogRef.componentInstance.titlesTable=['Layers'];
+    dialogRef.componentInstance.nonEditable=false;
+    
+
+
+    dialogRef.afterClosed().subscribe(result => {
+      if(result){
+        if( result.event==='Add') {console.log(result.data); }
+      }
+
+    });
+
   }
 
 

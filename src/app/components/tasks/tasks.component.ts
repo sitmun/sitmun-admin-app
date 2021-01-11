@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { TaskService, Task } from 'dist/sitmun-frontend-core/';
 import { UtilsService } from '../../services/utils.service';
-import { BtnEditRenderedComponent } from 'dist/sitmun-frontend-gui/';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { Subject } from 'rxjs';
@@ -16,10 +15,6 @@ export class TasksComponent implements OnInit {
   dataUpdatedEvent: Subject<boolean> = new Subject <boolean>();
   themeGrid: any = environment.agGridTheme;
   columnDefs: any[];
-  public frameworkComponents = {
-    btnEditRendererComponent: BtnEditRenderedComponent
-  };
-
 
   constructor(public tasksService: TaskService,
     private utils: UtilsService,
@@ -53,7 +48,7 @@ export class TasksComponent implements OnInit {
       },
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('tasksEntity.task'), field: 'name' },
-      { headerName: this.utils.getTranslate('tasksEntity.informationType'), field: 'groupName', editable: false },
+      { headerName: this.utils.getTranslate('tasksEntity.groupTask'), field: 'groupName', editable: false },
     ];
   }
 

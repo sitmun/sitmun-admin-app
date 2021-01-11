@@ -6,8 +6,6 @@ import { Observable } from 'rxjs';
 /** User configuration manager service */
 export declare class UserConfigurationService extends RestService<UserConfiguration> {
     private http;
-    /** API base path */
-    API: string;
     /** API resource path */
     USER_CONFIGURATION_API: string;
     /** constructor */

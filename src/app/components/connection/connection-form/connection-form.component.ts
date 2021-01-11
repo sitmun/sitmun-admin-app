@@ -2,13 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ConnectionService } from 'dist/sitmun-frontend-core/';
+import { ConnectionService, CartographyService, TaskService, Cartography, Task } from 'dist/sitmun-frontend-core/';
 import { Connection } from 'dist/sitmun-frontend-core/connection/connection.model';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
-import { of } from 'rxjs';
+import { Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { map } from 'rxjs/operators';
+import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
+import { MatDialog } from '@angular/material/dialog';
 
 
 @Component({
@@ -18,18 +20,39 @@ import { map } from 'rxjs/operators';
 })
 export class ConnectionFormComponent implements OnInit {
 
-  themeGrid: any = environment.agGridTheme;
-  columnDefsCartographies: any[];
-  columnDefsTasks: any[];
+  
+  //Form
   formConnection: FormGroup;
   connectionToEdit;
   connectionID = -1;
-  dataLoaded: Boolean = false;s
+  dataLoaded: Boolean = false;
+  
+  //Grids
+  themeGrid: any = environment.agGridTheme;
+  columnDefsCartographies: any[];
+  columnDefsTasks: any[];
+
+  //Dialog
+  columnDefsCartographiesDialog: any[];
+  columnDefsTasksDialog: any[];
+
+  //Save Button
+  dataUpdatedEvent: Subject<boolean> = new Subject <boolean>();
+  getAllRowsEvent: Subject<boolean> = new Subject <boolean>();
+  newCartographies: Cartography[] = [];
+  newtasks: Task[] = [];
+  addElementsEventCartographies: Subject<any[]> = new Subject <any[]>();
+
+
+
 
   constructor(
+    public dialog: MatDialog,
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private connectionService: ConnectionService,
+    public cartographyService: CartographyService,
+    public tasksService: TaskService,
     private http: HttpClient,
     private utils: UtilsService
   ) {
@@ -98,9 +121,39 @@ export class ConnectionFormComponent implements OnInit {
         },
         { headerName: 'Id', field: 'id', editable: false },
         { headerName: this.utils.getTranslate('connectionEntity.code'), field: 'name' },
-        { headerName: this.utils.getTranslate('connectionEntity.taskGroup'), field: 'taskGroup' },
+        { headerName: this.utils.getTranslate('connectionEntity.taskGroup'), field: 'groupName' },
   
       ];
+
+      this.columnDefsCartographiesDialog = [
+        {
+          headerName: '',
+          checkboxSelection: true,
+          headerCheckboxSelection: true,
+          editable: false,
+          filter: false,
+          width: 50,
+          lockPosition:true,
+        },
+        { headerName: 'ID', field: 'id', editable: false },
+        { headerName: this.utils.getTranslate('connectionEntity.name'), field: 'name', editable: false },
+      ];
+
+      this.columnDefsTasksDialog = [
+        {
+          headerName: '',
+          checkboxSelection: true,
+          headerCheckboxSelection: true,
+          editable: false,
+          filter: false,
+          width: 50,
+          lockPosition:true,
+        },
+        { headerName: 'ID', field: 'id', editable: false },
+        { headerName: this.utils.getTranslate('connectionEntity.name'), field: 'name',  editable: false  },
+      ];
+
+
 
   }
 
@@ -143,7 +196,7 @@ export class ConnectionFormComponent implements OnInit {
   // ******** Cartographies ******** //
   getAllCartographies = () => {
     
-    return (this.http.get(`${this.formConnection.value._links.cartographies.href}`))
+    return (this.http.get(`${this.connectionToEdit._links.cartographies.href}`))
     .pipe( map( data =>  data['_embedded']['cartographies']) );
 
   }
@@ -163,23 +216,23 @@ export class ConnectionFormComponent implements OnInit {
 
   // ******** Tasks  ******** //
   getAllTasks = () => {
-    var urlReq=`${this.formConnection.value._links.tasks.href}`
-    if(this.formConnection.value._links.tasks.templated){
+    var urlReq=`${this.connectionToEdit._links.tasks.href}`
+    if(this.connectionToEdit._links.tasks.templated){
       var url=new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projecction","view")
+      url.searchParams.append("projection","view")
       urlReq=url.toString();
     }
 
     return (this.http.get(urlReq))
     .pipe( map( data =>  data['_embedded']['tasks']) );
-
-
+    
+    
   }
 
   removeDataTasks(data: any[]) {
     console.log(data);
   }
-
+  
   newDataTasks(id: any) {
     // this.router.navigate(['role', id, 'roleForm']);
   }
@@ -187,5 +240,101 @@ export class ConnectionFormComponent implements OnInit {
   applyChangesTasks(data: any[]) {
     console.log(data);
   }
+  
+  // ******** Cartography Dialog  ******** //
+
+  getAllCartographiesDialog = () => {
+    return this.cartographyService.getAll();
+  }
+  
+
+  openCartographyDialog(data: any) {
+    // const getAlls: Array<() => Observable<any>> = [this.getAllCartographiesDialog];
+    // const colDefsTable: Array<any[]> = [this.columnDefsCartographiesDialog];
+    // const singleSelectionTable: Array<boolean> = [false];
+    // const titlesTable: Array<string> = ['Cartographies'];
+    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass: 'gridDialogs'});
+    dialogRef.componentInstance.getAllsTable=[this.getAllCartographiesDialog];
+    dialogRef.componentInstance.singleSelectionTable=[false];
+    dialogRef.componentInstance.columnDefsTable=[this.columnDefsCartographiesDialog];
+    dialogRef.componentInstance.themeGrid=this.themeGrid;
+    dialogRef.componentInstance.title='Cartographies';
+    dialogRef.componentInstance.titlesTable=['Cartographies'];
+    dialogRef.componentInstance.nonEditable=false;
+    
+
+
+    dialogRef.afterClosed().subscribe(result => {
+      if(result){
+        if(result.event==='Add') {
+          console.log(result.data);
+          this.newCartographies.push(...result.data[0]) 
+          this.addElementsEventCartographies.next(result.data[0])
+          this.getAllRowsEvent.next(true);
+        }
+      }
+
+    });
+
+
+  }
+
+  getAllRowsCartographies(data: any[] )
+  {
+    console.log("hey");
+    console.log(data);
+  }
+
+    // ******** Tasks Dialog  ******** //
+
+    getAllTasksDialog = () => {
+      return this.tasksService.getAll();
+    }
+
+    openTasksDialog(data: any) {
+      // const getAlls: Array<() => Observable<any>> = [this.getAllCartographiesDialog];
+      // const colDefsTable: Array<any[]> = [this.columnDefsCartographiesDialog];
+      // const singleSelectionTable: Array<boolean> = [false];
+      // const titlesTable: Array<string> = ['Cartographies'];
+      const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'dialogsGrid'});
+      dialogRef.componentInstance.getAllsTable=[this.getAllTasksDialog];
+      dialogRef.componentInstance.singleSelectionTable=[false];
+      dialogRef.componentInstance.columnDefsTable=[this.columnDefsTasksDialog];
+      dialogRef.componentInstance.themeGrid=this.themeGrid;
+      dialogRef.componentInstance.title='Tasks';
+      dialogRef.componentInstance.titlesTable=['Tasks'];
+      dialogRef.componentInstance.nonEditable=false;
+      
+  
+  
+      dialogRef.afterClosed().subscribe(result => {
+        console.log(result);
+        if(result){
+          if( result.event==='Add') {      console.log(result.data); }
+        }
+      });
+  
+    }
+
+    updateCartographies(cartographies: Cartography[])
+    {
+      const promises: Promise<any>[] = [];
+      cartographies.forEach(cartography => {
+        
+        promises.push(new Promise((resolve, reject) => {​​​​​​​ this.http.put(`${this.connectionToEdit._links.cartographies.href}`,cartography).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+        Promise.all(promises).then(() => {
+          this.dataUpdatedEvent.next(true);
+        });
+       
+      });
+    }
+
+
+    onSaveButtonClicked(){
+
+      this.updateCartographies(this.newCartographies);
+      this.dataUpdatedEvent.next(true);
+  
+      }
 
 }

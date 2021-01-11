@@ -6,8 +6,6 @@ import { RestService } from '../angular-hal/src/lib/rest.service';
 /** Task availability manager service */
 export declare class TaskAvailabilityService extends RestService<TaskAvailability> {
     private http;
-    /** API base path */
-    API: string;
     /** API resource path */
     TASK_AVAILABILITY_API: string;
     /** constructor */

@@ -91,7 +91,7 @@ export declare class ResourceService {
         new (): T;
     }, size: number): Observable<ResourceArray<T>>;
     /** get resource URL from a given path*/
-    private getResourceUrl(resource?);
+    getResourceUrl(resource?: string): string;
     /** set proxy and root urls of given resource array */
     private setUrls<T>(result);
     /** set proxy and root urls of given resource */

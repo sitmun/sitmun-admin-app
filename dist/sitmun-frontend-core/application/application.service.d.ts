@@ -6,8 +6,6 @@ import { RestService } from '../angular-hal/src/lib/rest.service';
 /** Application manager service */
 export declare class ApplicationService extends RestService<Application> {
     private http;
-    /** API base path */
-    API: string;
     /** API resource path */
     APPLICATION_API: string;
     /** constructor */

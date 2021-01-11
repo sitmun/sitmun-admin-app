@@ -2,13 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CartographyGroupService, RoleService, Role } from 'dist/sitmun-frontend-core/';
-import { Connection } from 'dist/sitmun-frontend-core/connection/connection.model';
+import { CartographyGroupService, RoleService, Role, CartographyService } from 'dist/sitmun-frontend-core/';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { map } from 'rxjs/operators';
-import { of } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-layers-permits-form',
@@ -17,21 +17,28 @@ import { environment } from 'src/environments/environment';
 })
 export class LayersPermitsFormComponent implements OnInit {
 
-  themeGrid: any = environment.agGridTheme;
-  columnDefsCartographies: any[];
-  columnDefsRoles: any[];
-  dataLoaded: Boolean = false;
-
-  permissionGroupTypes: Array<any> = [];
-
+  //Form
   formLayersPermits: FormGroup;
   layersPermitsToEdit;
   layersPermitsID = -1;
+  themeGrid: any = environment.agGridTheme;
+  permissionGroupTypes: Array<any> = [];
+  dataLoaded: Boolean = false;
+
+  //Grids
+  columnDefsCartographies: any[];
+  columnDefsRoles: any[];
+
+  //Dialog
+  columnDefsRolesDialog: any[];
+  columnDefsCartographiesDialog: any[];
 
   constructor(
+    public dialog: MatDialog,
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private cartographyGroupService: CartographyGroupService,
+    private cartographyService: CartographyService,
     private roleService: RoleService,
     private http: HttpClient,
     private utils: UtilsService,
@@ -98,6 +105,34 @@ export class LayersPermitsFormComponent implements OnInit {
 
 
     this.columnDefsRoles = [
+      {
+        headerName: '',
+        checkboxSelection: true,
+        headerCheckboxSelection: true,
+        editable: false,
+        filter: false,
+        width: 20,
+        lockPosition: true,
+      },
+      { headerName: 'Id', field: 'id', editable: false },
+      { headerName: this.utils.getTranslate('layersPermitsEntity.name'), field: 'name' },
+    ];
+
+    this.columnDefsCartographiesDialog = [
+      {
+        headerName: '',
+        checkboxSelection: true,
+        headerCheckboxSelection: true,
+        editable: false,
+        filter: false,
+        width: 50,
+        lockPosition:true,
+      },
+      { headerName: 'ID', field: 'id', editable: false },
+      { headerName: this.utils.getTranslate('connectionEntity.name'), field: 'name', editable: false },
+    ];
+
+    this.columnDefsRolesDialog = [
       {
         headerName: '',
         checkboxSelection: true,
@@ -195,6 +230,70 @@ export class LayersPermitsFormComponent implements OnInit {
   applyChangesRole(data: Role[]) {
     console.log(data);
   }
+
+  // ******** Cartography Dialog  ******** //
+
+  getAllCartographiesDialog = () => {
+    return this.cartographyService.getAll();
+  }
+
+  openCartographyDialog(data: any) {
+    // const getAlls: Array<() => Observable<any>> = [this.getAllCartographiesDialog];
+    // const colDefsTable: Array<any[]> = [this.columnDefsCartographiesDialog];
+    // const singleSelectionTable: Array<boolean> = [false];
+    // const titlesTable: Array<string> = ['Cartographies'];
+    const dialogRef = this.dialog.open(DialogGridComponent);
+    dialogRef.componentInstance.getAllsTable=[this.getAllCartographiesDialog];
+    dialogRef.componentInstance.singleSelectionTable=[false];
+    dialogRef.componentInstance.columnDefsTable=[this.columnDefsCartographiesDialog];
+    dialogRef.componentInstance.themeGrid=this.themeGrid;
+    dialogRef.componentInstance.title='Cartographies';
+    dialogRef.componentInstance.titlesTable=['Cartographies'];
+    dialogRef.componentInstance.nonEditable=false;
+    
+
+
+    dialogRef.afterClosed().subscribe(result => {
+      if(result){
+        if( result.event==='Add') {console.log(result.data); }
+      }
+
+    });
+
+  }
+
+   // ******** Roles Dialog  ******** //
+
+   getAllRolesDialog = () => {
+    return this.roleService.getAll();
+  }
+
+  openRolesDialog(data: any) {
+    // const getAlls: Array<() => Observable<any>> = [this.getAllCartographiesDialog];
+    // const colDefsTable: Array<any[]> = [this.columnDefsCartographiesDialog];
+    // const singleSelectionTable: Array<boolean> = [false];
+    // const titlesTable: Array<string> = ['Cartographies'];
+    const dialogRef = this.dialog.open(DialogGridComponent);
+    dialogRef.componentInstance.getAllsTable=[this.getAllRolesDialog];
+    dialogRef.componentInstance.singleSelectionTable=[false];
+    dialogRef.componentInstance.columnDefsTable=[this.columnDefsRolesDialog];
+    dialogRef.componentInstance.themeGrid=this.themeGrid;
+    dialogRef.componentInstance.title='Roles';
+    dialogRef.componentInstance.titlesTable=['Roles'];
+    dialogRef.componentInstance.nonEditable=false;
+    
+
+
+    dialogRef.afterClosed().subscribe(result => {
+      if(result){
+        if( result.event==='Add') {console.log(result.data); }
+      }
+
+    });
+
+  }
+
+  
 
 }
 

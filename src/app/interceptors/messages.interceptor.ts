@@ -10,7 +10,9 @@ export class MessagesInterceptor implements HttpInterceptor {
     constructor(private utilsService: UtilsService) { }
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-        var intercept = true
+
+        const intercept: boolean = request.url.indexOf("/api/login") == -1 
+        && request.url.indexOf("/api/account") == -1 &&  request.url.indexOf("/api/authenticate")==-1;
         //tractem request
         if (intercept) {
             this.utilsService.enableLoading();

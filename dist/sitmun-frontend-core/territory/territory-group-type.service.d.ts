@@ -5,8 +5,6 @@ import { Observable } from 'rxjs/Observable';
 import { RestService } from '../angular-hal/src/lib/rest.service';
 export declare class TerritoryGroupTypeService extends RestService<TerritoryGroupType> {
     private http;
-    /** API base path */
-    API: string;
     /** API resource path */
     TERRITORYGROUPTYPE_API: string;
     /** constructor */
