@@ -1,16 +1,20 @@
-import { AppPage } from './app.po';
-import { browser, logging } from 'protractor';
+import {browser, by, element, ExpectedConditions, logging} from 'protractor';
 
 describe('workspace-project App', () => {
-  let page: AppPage;
 
   beforeEach(() => {
-    page = new AppPage();
+    browser.get(browser.baseUrl);
   });
 
-  it('should display welcome message', () => {
-    page.navigateTo();
-    expect(page.getTitleText()).toEqual('admin-app app is running!');
+  it('should display a login page with a header', () => {
+    const loginHeader = element(by.binding('loginEntity.login'));
+    expect(element(loginHeader).isPresent);
+  });
+
+  it('should display proper title of the page', () => {
+    // Fragile: the title of the webpage should be i18n and it is not trivial to
+    // recover the proper i18n expected value here
+    expect(browser.getTitle()).toEqual('Administrador Sitmun3');
   });
 
   afterEach(async () => {

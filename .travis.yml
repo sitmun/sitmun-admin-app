@@ -27,6 +27,7 @@ script:
   - npm run sonar
 
 before_deploy:
+  - ./build-scripts/conditional-e2e.sh
   - ng build --configuration=testdeployment --baseHref="https://sitmun.github.io/admin-app/"
 
 deploy:
