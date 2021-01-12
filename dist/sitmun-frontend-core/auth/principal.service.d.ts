@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { AccountService } from '../account/account.service';
 /** Principal service*/
 export declare class Principal {
