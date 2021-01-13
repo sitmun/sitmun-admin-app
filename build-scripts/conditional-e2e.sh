@@ -3,11 +3,13 @@
 # Must be called from the root of the project, i.e.: ./build-scripts/conditional-conditional-e2e.sh
 
 # Take the base URL of the backend API from the testdeployment environment
-# This is a little fragile as some changes to that file can break this
+# This is fragile as some changes to environment.testdeployment.ts can break this
+# But if it gets the wrong API URL at least it won't break the build. It will just skip the e2e tests.
 API_URL_LINE_IN_ENV_FILE=$(grep apiBaseURL src/environments/environment.testdeployment.ts)
 # Keep the part in quotes
-API_URL=${API_URL_LINE_IN_ENV_FILE#*\`}
-API_URL=${API_URL%\`}
+API_URL=${API_URL_LINE_IN_ENV_FILE#*\'}
+API_URL=${API_URL%\',}
+echo $API_URL
 
 # Try connecting to the test deployment API. As it may need to "wake up"
 # we allow for up to 10 retries with 10 seconds between them

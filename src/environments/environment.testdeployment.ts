@@ -2,9 +2,9 @@ export const environment = {
   production: false,
   agGridTheme: "ag-theme-balham",
   scopeTypes : ['selectType','Municipal', 'Supramunicipal', 'Total'],
-  apiBaseURL: `https://sitmun-backend-core.herokuapp.com`,
+  apiBaseURL: 'https://sitmun-backend-core.herokuapp.com',
   tasksTypes : {
-    'basic':1, 
+    'basic':1,
     'download':2,
     'document':3,
     'locator':4,
