@@ -6,7 +6,7 @@ export const environment = {
   production: false,
   agGridTheme: "ag-theme-balham",
   scopeTypes: ['selectType', 'Municipal', 'Supramunicipal', 'Total'],
-  apiBaseURL: `http://localhost:8080`,
+  apiBaseURL: 'http://localhost:8080',
   tasksTypes: {
     'basic': 1,
     'download': 2,
