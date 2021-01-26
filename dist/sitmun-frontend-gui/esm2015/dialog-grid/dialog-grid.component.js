@@ -1,24 +1,29 @@
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,extraRequire,uselessCode} checked by tsc
- */
 import { Component, Output, EventEmitter } from '@angular/core';
 import { Subject } from 'rxjs';
 import { MatDialogRef } from '@angular/material/dialog';
-/**
- * @record
- */
-export function DialogData() { }
-/** @type {?} */
-DialogData.prototype._GetAllsTable;
-/** @type {?} */
-DialogData.prototype._columnDefsTable;
-/** @type {?} */
-DialogData.prototype._singleSelectionTable;
+import * as i0 from "@angular/core";
+import * as i1 from "@angular/material/dialog";
+import * as i2 from "@angular/common";
+import * as i3 from "@angular/material/button";
+import * as i4 from "../data-grid/data-grid.component";
+import * as i5 from "@ngx-translate/core";
+const _c0 = function (a0) { return { "margin-top": a0 }; };
+function DialogGridComponent_div_3_Template(rf, ctx) { if (rf & 1) {
+    const _r4 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "div", 6);
+    i0.ɵɵelementStart(1, "app-data-grid", 7);
+    i0.ɵɵlistener("getSelectedRows", function DialogGridComponent_div_3_Template_app_data_grid_getSelectedRows_1_listener($event) { i0.ɵɵrestoreView(_r4); const ctx_r3 = i0.ɵɵnextContext(); return ctx_r3.joinRowsReceived($event); });
+    i0.ɵɵelementEnd();
+    i0.ɵɵelementEnd();
+} if (rf & 2) {
+    const getAll_r1 = ctx.$implicit;
+    const i_r2 = ctx.index;
+    const ctx_r0 = i0.ɵɵnextContext();
+    i0.ɵɵproperty("ngStyle", i0.ɵɵpureFunction1(9, _c0, i_r2 > 0 ? "100px" : "0px"));
+    i0.ɵɵadvance(1);
+    i0.ɵɵproperty("columnDefs", ctx_r0.columnDefsTable[i_r2])("themeGrid", ctx_r0.themeGrid)("getAll", getAll_r1)("globalSearch", true)("singleSelection", ctx_r0.singleSelectionTable[i_r2])("title", ctx_r0.titlesTable[i_r2])("nonEditable", ctx_r0.nonEditable)("eventGetSelectedRowsSubscription", ctx_r0.getAllRows.asObservable());
+} }
 export class DialogGridComponent {
-    /**
-     * @param {?} dialogRef
-     */
     constructor(dialogRef) {
         this.dialogRef = dialogRef;
         this.getAllRows = new Subject();
@@ -27,9 +32,6 @@ export class DialogGridComponent {
         // this.nonEditable = true;
         this.tablesReceivedCounter = 0;
     }
-    /**
-     * @return {?}
-     */
     ngOnInit() {
         if (this.addButtonClickedSubscription) {
             this._addButtonClickedSubscription = this.addButtonClickedSubscription.subscribe(() => {
@@ -37,16 +39,9 @@ export class DialogGridComponent {
             });
         }
     }
-    /**
-     * @return {?}
-     */
     getAllSelectedRows() {
         this.getAllRows.next(true);
     }
-    /**
-     * @param {?} data
-     * @return {?}
-     */
     joinRowsReceived(data) {
         this.allRowsReceived.push(data);
         this.tablesReceivedCounter++;
@@ -55,76 +50,51 @@ export class DialogGridComponent {
             console.log(this.allRowsReceived);
         }
     }
-    /**
-     * @param {?} rowsToAdd
-     * @return {?}
-     */
     doAdd(rowsToAdd) {
         this.dialogRef.close({ event: 'Add', data: rowsToAdd });
     }
-    /**
-     * @return {?}
-     */
     closeDialog() {
         this.dialogRef.close({ event: 'Cancel' });
     }
 }
-DialogGridComponent.decorators = [
-    { type: Component, args: [{
+/** @nocollapse */ DialogGridComponent.ɵfac = function DialogGridComponent_Factory(t) { return new (t || DialogGridComponent)(i0.ɵɵdirectiveInject(i1.MatDialogRef)); };
+/** @nocollapse */ DialogGridComponent.ɵcmp = i0.ɵɵdefineComponent({ type: DialogGridComponent, selectors: [["app-dialog-grid"]], outputs: { joinTables: "joinTables" }, decls: 11, vars: 8, consts: [["mat-dialog-title", ""], [1, "dialogConent"], ["class", "appDialogDataGridDiv", 3, "ngStyle", 4, "ngFor", "ngForOf"], ["mat-dialog-actions", "", "align", "end"], ["mat-button", "", 3, "click"], ["mat-button", "", "cdkFocusInitial", "", 3, "click"], [1, "appDialogDataGridDiv", 3, "ngStyle"], [3, "columnDefs", "themeGrid", "getAll", "globalSearch", "singleSelection", "title", "nonEditable", "eventGetSelectedRowsSubscription", "getSelectedRows"]], template: function DialogGridComponent_Template(rf, ctx) { if (rf & 1) {
+        i0.ɵɵelementStart(0, "h4", 0);
+        i0.ɵɵtext(1);
+        i0.ɵɵelementEnd();
+        i0.ɵɵelementStart(2, "mat-dialog-content", 1);
+        i0.ɵɵtemplate(3, DialogGridComponent_div_3_Template, 2, 11, "div", 2);
+        i0.ɵɵelementEnd();
+        i0.ɵɵelementStart(4, "div", 3);
+        i0.ɵɵelementStart(5, "button", 4);
+        i0.ɵɵlistener("click", function DialogGridComponent_Template_button_click_5_listener() { return ctx.closeDialog(); });
+        i0.ɵɵtext(6);
+        i0.ɵɵpipe(7, "translate");
+        i0.ɵɵelementEnd();
+        i0.ɵɵelementStart(8, "button", 5);
+        i0.ɵɵlistener("click", function DialogGridComponent_Template_button_click_8_listener() { return ctx.getAllSelectedRows(); });
+        i0.ɵɵtext(9);
+        i0.ɵɵpipe(10, "translate");
+        i0.ɵɵelementEnd();
+        i0.ɵɵelementEnd();
+    } if (rf & 2) {
+        i0.ɵɵadvance(1);
+        i0.ɵɵtextInterpolate(ctx.title);
+        i0.ɵɵadvance(2);
+        i0.ɵɵproperty("ngForOf", ctx.getAllsTable);
+        i0.ɵɵadvance(3);
+        i0.ɵɵtextInterpolate(i0.ɵɵpipeBind1(7, 4, "cancel"));
+        i0.ɵɵadvance(3);
+        i0.ɵɵtextInterpolate(i0.ɵɵpipeBind1(10, 6, "add"));
+    } }, directives: [i1.MatDialogTitle, i1.MatDialogContent, i2.NgForOf, i1.MatDialogActions, i3.MatButton, i2.NgStyle, i4.DataGridComponent], pipes: [i5.TranslatePipe], styles: [".dialogConent[_ngcontent-%COMP%]{height:100%;margin:inherit!important;max-height:60vh!important;overflow:auto;padding:inherit!important;width:100%}"] });
+/*@__PURE__*/ (function () { i0.ɵsetClassMetadata(DialogGridComponent, [{
+        type: Component,
+        args: [{
                 selector: 'app-dialog-grid',
-                template: `<h3 mat-dialog-title>{{title}}</h3>
-<mat-dialog-content class="dialogConent">
-  <div *ngFor="let getAll of getAllsTable; let i = index" class="appDialogDataGridDiv">
-    <app-data-grid 
-    [columnDefs]="columnDefsTable[i]" [themeGrid]='themeGrid'  [getAll]='getAll' [globalSearch]=true [singleSelection]="singleSelectionTable[i]"
-    [title]="titlesTable[i]" [nonEditable]='nonEditable' [eventGetSelectedRowsSubscription]="getAllRows.asObservable()" (getSelectedRows)='joinRowsReceived($event)' >
-    </app-data-grid>
-  </div>
-</mat-dialog-content>
-<div mat-dialog-actions align="end">
-  <button mat-button  (click)="closeDialog()">{{"Cancel" | translate}}</button>
-  <button mat-button  (click)="getAllSelectedRows()" cdkFocusInitial>{{"Add" | translate}}</button>
-</div>
-`,
-                styles: [`.dialogConent{margin:inherit!important;padding:inherit!important;max-height:60vh!important;height:100%;width:100%;overflow:auto}`]
-            },] },
-];
-/** @nocollapse */
-DialogGridComponent.ctorParameters = () => [
-    { type: MatDialogRef }
-];
-DialogGridComponent.propDecorators = {
-    joinTables: [{ type: Output }]
-};
-if (false) {
-    /** @type {?} */
-    DialogGridComponent.prototype.title;
-    /** @type {?} */
-    DialogGridComponent.prototype.getAllRows;
-    /** @type {?} */
-    DialogGridComponent.prototype._addButtonClickedSubscription;
-    /** @type {?} */
-    DialogGridComponent.prototype.tablesReceivedCounter;
-    /** @type {?} */
-    DialogGridComponent.prototype.allRowsReceived;
-    /** @type {?} */
-    DialogGridComponent.prototype.themeGrid;
-    /** @type {?} */
-    DialogGridComponent.prototype.getAllsTable;
-    /** @type {?} */
-    DialogGridComponent.prototype.columnDefsTable;
-    /** @type {?} */
-    DialogGridComponent.prototype.singleSelectionTable;
-    /** @type {?} */
-    DialogGridComponent.prototype.titlesTable;
-    /** @type {?} */
-    DialogGridComponent.prototype.addButtonClickedSubscription;
-    /** @type {?} */
-    DialogGridComponent.prototype.nonEditable;
-    /** @type {?} */
-    DialogGridComponent.prototype.joinTables;
-    /** @type {?} */
-    DialogGridComponent.prototype.dialogRef;
-}
-
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiZGlhbG9nLWdyaWQuY29tcG9uZW50LmpzIiwic291cmNlUm9vdCI6Im5nOi8vQHNpdG11bi9mcm9udGVuZC1ndWkvIiwic291cmNlcyI6WyJkaWFsb2ctZ3JpZC9kaWFsb2ctZ3JpZC5jb21wb25lbnQudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7OztBQUFBLE9BQU8sRUFBRSxTQUFTLEVBQWlCLE1BQU0sRUFBRSxZQUFZLEVBQVUsTUFBTSxlQUFlLENBQUM7QUFDdkYsT0FBTyxFQUFjLE9BQU8sRUFBRSxNQUFNLE1BQU0sQ0FBQztBQUMzQyxPQUFPLEVBQUUsWUFBWSxFQUFFLE1BQU0sMEJBQTBCLENBQUM7Ozs7Ozs7Ozs7O0FBMkJ4RCxNQUFNOzs7O0lBdUJKLFlBQW9CLFNBQTRDO1FBQTVDLGNBQVMsR0FBVCxTQUFTLENBQW1DOzBCQXBCakMsSUFBSSxPQUFPLEVBQVk7K0JBR3RCLEVBQUU7UUFtQmhDLElBQUksQ0FBQyxVQUFVLEdBQUcsSUFBSSxZQUFZLEVBQUUsQ0FBQzs7UUFFckMsSUFBSSxDQUFDLHFCQUFxQixHQUFHLENBQUMsQ0FBQztLQUMvQjs7OztJQUVGLFFBQVE7UUFFTixFQUFFLENBQUMsQ0FBQyxJQUFJLENBQUMsNEJBQTRCLENBQUMsQ0FBQyxDQUFDO1lBQ3RDLElBQUksQ0FBQyw2QkFBNkIsR0FBRyxJQUFJLENBQUMsNEJBQTRCLENBQUMsU0FBUyxDQUFDLEdBQUcsRUFBRTtnQkFDcEYsSUFBSSxDQUFDLGtCQUFrQixFQUFFLENBQUM7YUFDM0IsQ0FBQyxDQUFDO1NBQ0o7S0FFRjs7OztJQUVELGtCQUFrQjtRQUNoQixJQUFJLENBQUMsVUFBVSxDQUFDLElBQUksQ0FBQyxJQUFJLENBQUMsQ0FBQztLQUM1Qjs7Ozs7SUFFRCxnQkFBZ0IsQ0FBQyxJQUFXO1FBRXhCLElBQUksQ0FBQyxlQUFlLENBQUMsSUFBSSxDQUFDLElBQUksQ0FBQyxDQUFDO1FBQ2hDLElBQUksQ0FBQyxxQkFBcUIsRUFBRSxDQUFDO1FBQzdCLEVBQUUsQ0FBQSxDQUFDLElBQUksQ0FBQyxxQkFBcUIsS0FBSyxJQUFJLENBQUMsWUFBWSxDQUFDLE1BQU0sQ0FBQyxDQUMzRCxDQUFDO1lBQ0MsSUFBSSxDQUFDLEtBQUssQ0FBQyxJQUFJLENBQUMsZUFBZSxDQUFDLENBQUM7WUFDakMsT0FBTyxDQUFDLEdBQUcsQ0FBQyxJQUFJLENBQUMsZUFBZSxDQUFDLENBQUM7U0FDbkM7S0FDSjs7Ozs7SUFFRCxLQUFLLENBQUMsU0FBUztRQUNiLElBQUksQ0FBQyxTQUFTLENBQUMsS0FBSyxDQUFDLEVBQUMsS0FBSyxFQUFDLEtBQUssRUFBQyxJQUFJLEVBQUUsU0FBUyxFQUFDLENBQUMsQ0FBQztLQUNyRDs7OztJQUVELFdBQVc7UUFDVCxJQUFJLENBQUMsU0FBUyxDQUFDLEtBQUssQ0FBQyxFQUFDLEtBQUssRUFBQyxRQUFRLEVBQUMsQ0FBQyxDQUFDO0tBQ3hDOzs7WUEvRUYsU0FBUyxTQUFDO2dCQUNULFFBQVEsRUFBRSxpQkFBaUI7Z0JBQzNCLFFBQVEsRUFBRTs7Ozs7Ozs7Ozs7OztDQWFYO2dCQUNDLE1BQU0sRUFBRSxDQUFDLGtJQUFrSSxDQUFDO2FBQzdJOzs7O1lBMUJRLFlBQVk7Ozt5QkE2Q2xCLE1BQU0iLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyBDb21wb25lbnQsIE9uSW5pdCwgSW5wdXQsIE91dHB1dCwgRXZlbnRFbWl0dGVyLCBJbmplY3QgfSBmcm9tICdAYW5ndWxhci9jb3JlJztcclxuaW1wb3J0IHsgT2JzZXJ2YWJsZSwgU3ViamVjdCB9IGZyb20gJ3J4anMnO1xyXG5pbXBvcnQgeyBNYXREaWFsb2dSZWYgfSBmcm9tICdAYW5ndWxhci9tYXRlcmlhbC9kaWFsb2cnO1xyXG5cclxuZXhwb3J0IGludGVyZmFjZSBEaWFsb2dEYXRhIHtcclxuICBfR2V0QWxsc1RhYmxlOiAgQXJyYXk8KCkgPT4gT2JzZXJ2YWJsZTxhbnk+PjtcclxuICBfY29sdW1uRGVmc1RhYmxlOiBBcnJheTxhbnlbXT47XHJcbiAgX3NpbmdsZVNlbGVjdGlvblRhYmxlOiBBcnJheTxib29sZWFuPjtcclxufVxyXG5cclxuXHJcbkBDb21wb25lbnQoe1xyXG4gIHNlbGVjdG9yOiAnYXBwLWRpYWxvZy1ncmlkJyxcclxuICB0ZW1wbGF0ZTogYDxoMyBtYXQtZGlhbG9nLXRpdGxlPnt7dGl0bGV9fTwvaDM+XHJcbjxtYXQtZGlhbG9nLWNvbnRlbnQgY2xhc3M9XCJkaWFsb2dDb25lbnRcIj5cclxuICA8ZGl2ICpuZ0Zvcj1cImxldCBnZXRBbGwgb2YgZ2V0QWxsc1RhYmxlOyBsZXQgaSA9IGluZGV4XCIgY2xhc3M9XCJhcHBEaWFsb2dEYXRhR3JpZERpdlwiPlxyXG4gICAgPGFwcC1kYXRhLWdyaWQgXHJcbiAgICBbY29sdW1uRGVmc109XCJjb2x1bW5EZWZzVGFibGVbaV1cIiBbdGhlbWVHcmlkXT0ndGhlbWVHcmlkJyAgW2dldEFsbF09J2dldEFsbCcgW2dsb2JhbFNlYXJjaF09dHJ1ZSBbc2luZ2xlU2VsZWN0aW9uXT1cInNpbmdsZVNlbGVjdGlvblRhYmxlW2ldXCJcclxuICAgIFt0aXRsZV09XCJ0aXRsZXNUYWJsZVtpXVwiIFtub25FZGl0YWJsZV09J25vbkVkaXRhYmxlJyBbZXZlbnRHZXRTZWxlY3RlZFJvd3NTdWJzY3JpcHRpb25dPVwiZ2V0QWxsUm93cy5hc09ic2VydmFibGUoKVwiIChnZXRTZWxlY3RlZFJvd3MpPSdqb2luUm93c1JlY2VpdmVkKCRldmVudCknID5cclxuICAgIDwvYXBwLWRhdGEtZ3JpZD5cclxuICA8L2Rpdj5cclxuPC9tYXQtZGlhbG9nLWNvbnRlbnQ+XHJcbjxkaXYgbWF0LWRpYWxvZy1hY3Rpb25zIGFsaWduPVwiZW5kXCI+XHJcbiAgPGJ1dHRvbiBtYXQtYnV0dG9uICAoY2xpY2spPVwiY2xvc2VEaWFsb2coKVwiPnt7XCJDYW5jZWxcIiB8IHRyYW5zbGF0ZX19PC9idXR0b24+XHJcbiAgPGJ1dHRvbiBtYXQtYnV0dG9uICAoY2xpY2spPVwiZ2V0QWxsU2VsZWN0ZWRSb3dzKClcIiBjZGtGb2N1c0luaXRpYWw+e3tcIkFkZFwiIHwgdHJhbnNsYXRlfX08L2J1dHRvbj5cclxuPC9kaXY+XHJcbmAsXHJcbiAgc3R5bGVzOiBbYC5kaWFsb2dDb25lbnR7bWFyZ2luOmluaGVyaXQhaW1wb3J0YW50O3BhZGRpbmc6aW5oZXJpdCFpbXBvcnRhbnQ7bWF4LWhlaWdodDo2MHZoIWltcG9ydGFudDtoZWlnaHQ6MTAwJTt3aWR0aDoxMDAlO292ZXJmbG93OmF1dG99YF1cclxufSlcclxuZXhwb3J0IGNsYXNzIERpYWxvZ0dyaWRDb21wb25lbnQgaW1wbGVtZW50cyBPbkluaXQge1xyXG5cclxuICB0aXRsZTogc3RyaW5nO1xyXG4gIGdldEFsbFJvd3M6IFN1YmplY3Q8Ym9vbGVhbj4gPSBuZXcgU3ViamVjdCA8Ym9vbGVhbj4oKTtcclxuICBwcml2YXRlIF9hZGRCdXR0b25DbGlja2VkU3Vic2NyaXB0aW9uOiBhbnk7XHJcbiAgdGFibGVzUmVjZWl2ZWRDb3VudGVyOiBudW1iZXI7XHJcbiAgYWxsUm93c1JlY2VpdmVkOiBBcnJheTxhbnlbXT4gPSBbXTtcclxuXHJcbiAgLy9JbnB1dHNcclxuICB0aGVtZUdyaWQ6IGFueTtcclxuICBnZXRBbGxzVGFibGU6IEFycmF5PCgpID0+IE9ic2VydmFibGU8YW55Pj47XHJcbiAgY29sdW1uRGVmc1RhYmxlOiBBcnJheTxhbnlbXT47XHJcbiAgc2luZ2xlU2VsZWN0aW9uVGFibGU6IEFycmF5PGJvb2xlYW4+O1xyXG4gIHRpdGxlc1RhYmxlOiBBcnJheTxzdHJpbmc+O1xyXG4gIGFkZEJ1dHRvbkNsaWNrZWRTdWJzY3JpcHRpb246IE9ic2VydmFibGUgPGJvb2xlYW4+IDtcclxuICBub25FZGl0YWJsZTogYm9vbGVhbjtcclxuXHJcbiAgLy9PdXRwdXRzXHJcbiAgQE91dHB1dCgpIGpvaW5UYWJsZXMgOiBFdmVudEVtaXR0ZXI8QXJyYXk8YW55W10+PjtcclxuXHJcbiAgXHJcblxyXG5cclxuICBjb25zdHJ1Y3Rvcihwcml2YXRlIGRpYWxvZ1JlZjogTWF0RGlhbG9nUmVmPERpYWxvZ0dyaWRDb21wb25lbnQ+KSB7XHJcbiAgICBcclxuICAgIHRoaXMuam9pblRhYmxlcyA9IG5ldyBFdmVudEVtaXR0ZXIoKTtcclxuICAgIC8vIHRoaXMubm9uRWRpdGFibGUgPSB0cnVlO1xyXG4gICAgdGhpcy50YWJsZXNSZWNlaXZlZENvdW50ZXIgPSAwO1xyXG4gICB9XHJcblxyXG4gIG5nT25Jbml0KCkge1xyXG5cclxuICAgIGlmICh0aGlzLmFkZEJ1dHRvbkNsaWNrZWRTdWJzY3JpcHRpb24pIHtcclxuICAgICAgdGhpcy5fYWRkQnV0dG9uQ2xpY2tlZFN1YnNjcmlwdGlvbiA9IHRoaXMuYWRkQnV0dG9uQ2xpY2tlZFN1YnNjcmlwdGlvbi5zdWJzY3JpYmUoKCkgPT4ge1xyXG4gICAgICAgIHRoaXMuZ2V0QWxsU2VsZWN0ZWRSb3dzKCk7XHJcbiAgICAgIH0pO1xyXG4gICAgfVxyXG5cclxuICB9XHJcblxyXG4gIGdldEFsbFNlbGVjdGVkUm93cygpIHtcclxuICAgIHRoaXMuZ2V0QWxsUm93cy5uZXh0KHRydWUpO1xyXG4gIH1cclxuXHJcbiAgam9pblJvd3NSZWNlaXZlZChkYXRhOiBhbnlbXSlcclxuICB7XHJcbiAgICAgIHRoaXMuYWxsUm93c1JlY2VpdmVkLnB1c2goZGF0YSk7XHJcbiAgICAgIHRoaXMudGFibGVzUmVjZWl2ZWRDb3VudGVyKys7XHJcbiAgICAgIGlmKHRoaXMudGFibGVzUmVjZWl2ZWRDb3VudGVyID09PSB0aGlzLmdldEFsbHNUYWJsZS5sZW5ndGgpXHJcbiAgICAgIHtcclxuICAgICAgICB0aGlzLmRvQWRkKHRoaXMuYWxsUm93c1JlY2VpdmVkKTtcclxuICAgICAgICBjb25zb2xlLmxvZyh0aGlzLmFsbFJvd3NSZWNlaXZlZCk7XHJcbiAgICAgIH1cclxuICB9XHJcblxyXG4gIGRvQWRkKHJvd3NUb0FkZCl7XHJcbiAgICB0aGlzLmRpYWxvZ1JlZi5jbG9zZSh7ZXZlbnQ6J0FkZCcsZGF0YTogcm93c1RvQWRkfSk7XHJcbiAgfVxyXG5cclxuICBjbG9zZURpYWxvZygpe1xyXG4gICAgdGhpcy5kaWFsb2dSZWYuY2xvc2Uoe2V2ZW50OidDYW5jZWwnfSk7XHJcbiAgfVxyXG5cclxufVxyXG4iXX0=
+                templateUrl: './dialog-grid.component.html',
+                styleUrls: ['./dialog-grid.component.css']
+            }]
+    }], function () { return [{ type: i1.MatDialogRef }]; }, { joinTables: [{
+            type: Output
+        }] }); })();
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiZGlhbG9nLWdyaWQuY29tcG9uZW50LmpzIiwic291cmNlUm9vdCI6Ii4uLy4uLy4uL3NyYy9tYWluL2FuZ3VsYXItbGlicmFyeS9wcm9qZWN0cy9zaXRtdW4tZnJvbnRlbmQtZ3VpL3NyYy9saWIvIiwic291cmNlcyI6WyJkaWFsb2ctZ3JpZC9kaWFsb2ctZ3JpZC5jb21wb25lbnQudHMiLCJkaWFsb2ctZ3JpZC9kaWFsb2ctZ3JpZC5jb21wb25lbnQuaHRtbCJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQSxPQUFPLEVBQUUsU0FBUyxFQUFpQixNQUFNLEVBQUUsWUFBWSxFQUFVLE1BQU0sZUFBZSxDQUFDO0FBQ3ZGLE9BQU8sRUFBYyxPQUFPLEVBQUUsTUFBTSxNQUFNLENBQUM7QUFDM0MsT0FBTyxFQUFFLFlBQVksRUFBRSxNQUFNLDBCQUEwQixDQUFDOzs7Ozs7Ozs7O0lDQXRELDhCQUNFO0lBQUEsd0NBR2dCO0lBRG9HLG9PQUE0QztJQUNoSyxpQkFBZ0I7SUFDbEIsaUJBQU07Ozs7O0lBTGdGLGdGQUE2QztJQUVqSSxlQUFpQztJQUFqQyx5REFBaUMsK0JBQUEscUJBQUEsc0JBQUEsc0RBQUEsbUNBQUEsbUNBQUEsc0VBQUE7O0FEWXJDLE1BQU0sT0FBTyxtQkFBbUI7SUF1QjlCLFlBQW9CLFNBQTRDO1FBQTVDLGNBQVMsR0FBVCxTQUFTLENBQW1DO1FBcEJoRSxlQUFVLEdBQXFCLElBQUksT0FBTyxFQUFZLENBQUM7UUFHdkQsb0JBQWUsR0FBaUIsRUFBRSxDQUFDO1FBbUJqQyxJQUFJLENBQUMsVUFBVSxHQUFHLElBQUksWUFBWSxFQUFFLENBQUM7UUFDckMsMkJBQTJCO1FBQzNCLElBQUksQ0FBQyxxQkFBcUIsR0FBRyxDQUFDLENBQUM7SUFDaEMsQ0FBQztJQUVGLFFBQVE7UUFFTixJQUFJLElBQUksQ0FBQyw0QkFBNEIsRUFBRTtZQUNyQyxJQUFJLENBQUMsNkJBQTZCLEdBQUcsSUFBSSxDQUFDLDRCQUE0QixDQUFDLFNBQVMsQ0FBQyxHQUFHLEVBQUU7Z0JBQ3BGLElBQUksQ0FBQyxrQkFBa0IsRUFBRSxDQUFDO1lBQzVCLENBQUMsQ0FBQyxDQUFDO1NBQ0o7SUFFSCxDQUFDO0lBRUQsa0JBQWtCO1FBQ2hCLElBQUksQ0FBQyxVQUFVLENBQUMsSUFBSSxDQUFDLElBQUksQ0FBQyxDQUFDO0lBQzdCLENBQUM7SUFFRCxnQkFBZ0IsQ0FBQyxJQUFXO1FBRXhCLElBQUksQ0FBQyxlQUFlLENBQUMsSUFBSSxDQUFDLElBQUksQ0FBQyxDQUFDO1FBQ2hDLElBQUksQ0FBQyxxQkFBcUIsRUFBRSxDQUFDO1FBQzdCLElBQUcsSUFBSSxDQUFDLHFCQUFxQixLQUFLLElBQUksQ0FBQyxZQUFZLENBQUMsTUFBTSxFQUMxRDtZQUNFLElBQUksQ0FBQyxLQUFLLENBQUMsSUFBSSxDQUFDLGVBQWUsQ0FBQyxDQUFDO1lBQ2pDLE9BQU8sQ0FBQyxHQUFHLENBQUMsSUFBSSxDQUFDLGVBQWUsQ0FBQyxDQUFDO1NBQ25DO0lBQ0wsQ0FBQztJQUVELEtBQUssQ0FBQyxTQUFTO1FBQ2IsSUFBSSxDQUFDLFNBQVMsQ0FBQyxLQUFLLENBQUMsRUFBQyxLQUFLLEVBQUMsS0FBSyxFQUFDLElBQUksRUFBRSxTQUFTLEVBQUMsQ0FBQyxDQUFDO0lBQ3RELENBQUM7SUFFRCxXQUFXO1FBQ1QsSUFBSSxDQUFDLFNBQVMsQ0FBQyxLQUFLLENBQUMsRUFBQyxLQUFLLEVBQUMsUUFBUSxFQUFDLENBQUMsQ0FBQztJQUN6QyxDQUFDOzt5R0E3RFUsbUJBQW1COzJFQUFuQixtQkFBbUI7UUNoQmhDLDZCQUFxQjtRQUFBLFlBQVM7UUFBQSxpQkFBSztRQUNuQyw2Q0FDRTtRQUFBLHFFQUNFO1FBS0osaUJBQXFCO1FBQ3JCLDhCQUNFO1FBQUEsaUNBQTRDO1FBQXhCLGdHQUFTLGlCQUFhLElBQUM7UUFBQyxZQUF3Qjs7UUFBQSxpQkFBUztRQUM3RSxpQ0FBbUU7UUFBL0MsZ0dBQVMsd0JBQW9CLElBQUM7UUFBaUIsWUFBcUI7O1FBQUEsaUJBQVM7UUFDbkcsaUJBQU07O1FBWmUsZUFBUztRQUFULCtCQUFTO1FBRXZCLGVBQWtEO1FBQWxELDBDQUFrRDtRQVFYLGVBQXdCO1FBQXhCLG9EQUF3QjtRQUNELGVBQXFCO1FBQXJCLGtEQUFxQjs7a0RESzdFLG1CQUFtQjtjQUwvQixTQUFTO2VBQUM7Z0JBQ1QsUUFBUSxFQUFFLGlCQUFpQjtnQkFDM0IsV0FBVyxFQUFFLDhCQUE4QjtnQkFDM0MsU0FBUyxFQUFFLENBQUMsNkJBQTZCLENBQUM7YUFDM0M7K0RBbUJXLFVBQVU7a0JBQW5CLE1BQU0iLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyBDb21wb25lbnQsIE9uSW5pdCwgSW5wdXQsIE91dHB1dCwgRXZlbnRFbWl0dGVyLCBJbmplY3QgfSBmcm9tICdAYW5ndWxhci9jb3JlJztcclxuaW1wb3J0IHsgT2JzZXJ2YWJsZSwgU3ViamVjdCB9IGZyb20gJ3J4anMnO1xyXG5pbXBvcnQgeyBNYXREaWFsb2dSZWYgfSBmcm9tICdAYW5ndWxhci9tYXRlcmlhbC9kaWFsb2cnO1xyXG5cclxuZXhwb3J0IGludGVyZmFjZSBEaWFsb2dEYXRhIHtcclxuICBfR2V0QWxsc1RhYmxlOiAgQXJyYXk8KCkgPT4gT2JzZXJ2YWJsZTxhbnk+PjtcclxuICBfY29sdW1uRGVmc1RhYmxlOiBBcnJheTxhbnlbXT47XHJcbiAgX3NpbmdsZVNlbGVjdGlvblRhYmxlOiBBcnJheTxib29sZWFuPjtcclxufVxyXG5cclxuXHJcbkBDb21wb25lbnQoe1xyXG4gIHNlbGVjdG9yOiAnYXBwLWRpYWxvZy1ncmlkJyxcclxuICB0ZW1wbGF0ZVVybDogJy4vZGlhbG9nLWdyaWQuY29tcG9uZW50Lmh0bWwnLFxyXG4gIHN0eWxlVXJsczogWycuL2RpYWxvZy1ncmlkLmNvbXBvbmVudC5jc3MnXVxyXG59KVxyXG5leHBvcnQgY2xhc3MgRGlhbG9nR3JpZENvbXBvbmVudCBpbXBsZW1lbnRzIE9uSW5pdCB7XHJcblxyXG4gIHRpdGxlOiBzdHJpbmc7XHJcbiAgZ2V0QWxsUm93czogU3ViamVjdDxib29sZWFuPiA9IG5ldyBTdWJqZWN0IDxib29sZWFuPigpO1xyXG4gIHByaXZhdGUgX2FkZEJ1dHRvbkNsaWNrZWRTdWJzY3JpcHRpb246IGFueTtcclxuICB0YWJsZXNSZWNlaXZlZENvdW50ZXI6IG51bWJlcjtcclxuICBhbGxSb3dzUmVjZWl2ZWQ6IEFycmF5PGFueVtdPiA9IFtdO1xyXG5cclxuICAvL0lucHV0c1xyXG4gIHRoZW1lR3JpZDogYW55O1xyXG4gIGdldEFsbHNUYWJsZTogQXJyYXk8KCkgPT4gT2JzZXJ2YWJsZTxhbnk+PjtcclxuICBjb2x1bW5EZWZzVGFibGU6IEFycmF5PGFueVtdPjtcclxuICBzaW5nbGVTZWxlY3Rpb25UYWJsZTogQXJyYXk8Ym9vbGVhbj47XHJcbiAgdGl0bGVzVGFibGU6IEFycmF5PHN0cmluZz47XHJcbiAgYWRkQnV0dG9uQ2xpY2tlZFN1YnNjcmlwdGlvbjogT2JzZXJ2YWJsZSA8Ym9vbGVhbj4gO1xyXG4gIG5vbkVkaXRhYmxlOiBib29sZWFuO1xyXG5cclxuICAvL091dHB1dHNcclxuICBAT3V0cHV0KCkgam9pblRhYmxlcyA6IEV2ZW50RW1pdHRlcjxBcnJheTxhbnlbXT4+O1xyXG5cclxuICBcclxuXHJcblxyXG4gIGNvbnN0cnVjdG9yKHByaXZhdGUgZGlhbG9nUmVmOiBNYXREaWFsb2dSZWY8RGlhbG9nR3JpZENvbXBvbmVudD4pIHtcclxuICAgIFxyXG4gICAgdGhpcy5qb2luVGFibGVzID0gbmV3IEV2ZW50RW1pdHRlcigpO1xyXG4gICAgLy8gdGhpcy5ub25FZGl0YWJsZSA9IHRydWU7XHJcbiAgICB0aGlzLnRhYmxlc1JlY2VpdmVkQ291bnRlciA9IDA7XHJcbiAgIH1cclxuXHJcbiAgbmdPbkluaXQoKSB7XHJcblxyXG4gICAgaWYgKHRoaXMuYWRkQnV0dG9uQ2xpY2tlZFN1YnNjcmlwdGlvbikge1xyXG4gICAgICB0aGlzLl9hZGRCdXR0b25DbGlja2VkU3Vic2NyaXB0aW9uID0gdGhpcy5hZGRCdXR0b25DbGlja2VkU3Vic2NyaXB0aW9uLnN1YnNjcmliZSgoKSA9PiB7XHJcbiAgICAgICAgdGhpcy5nZXRBbGxTZWxlY3RlZFJvd3MoKTtcclxuICAgICAgfSk7XHJcbiAgICB9XHJcblxyXG4gIH1cclxuXHJcbiAgZ2V0QWxsU2VsZWN0ZWRSb3dzKCkge1xyXG4gICAgdGhpcy5nZXRBbGxSb3dzLm5leHQodHJ1ZSk7XHJcbiAgfVxyXG5cclxuICBqb2luUm93c1JlY2VpdmVkKGRhdGE6IGFueVtdKVxyXG4gIHtcclxuICAgICAgdGhpcy5hbGxSb3dzUmVjZWl2ZWQucHVzaChkYXRhKTtcclxuICAgICAgdGhpcy50YWJsZXNSZWNlaXZlZENvdW50ZXIrKztcclxuICAgICAgaWYodGhpcy50YWJsZXNSZWNlaXZlZENvdW50ZXIgPT09IHRoaXMuZ2V0QWxsc1RhYmxlLmxlbmd0aClcclxuICAgICAge1xyXG4gICAgICAgIHRoaXMuZG9BZGQodGhpcy5hbGxSb3dzUmVjZWl2ZWQpO1xyXG4gICAgICAgIGNvbnNvbGUubG9nKHRoaXMuYWxsUm93c1JlY2VpdmVkKTtcclxuICAgICAgfVxyXG4gIH1cclxuXHJcbiAgZG9BZGQocm93c1RvQWRkKXtcclxuICAgIHRoaXMuZGlhbG9nUmVmLmNsb3NlKHtldmVudDonQWRkJyxkYXRhOiByb3dzVG9BZGR9KTtcclxuICB9XHJcblxyXG4gIGNsb3NlRGlhbG9nKCl7XHJcbiAgICB0aGlzLmRpYWxvZ1JlZi5jbG9zZSh7ZXZlbnQ6J0NhbmNlbCd9KTtcclxuICB9XHJcblxyXG59XHJcbiIsIjxoNCBtYXQtZGlhbG9nLXRpdGxlPnt7dGl0bGV9fTwvaDQ+XHJcbjxtYXQtZGlhbG9nLWNvbnRlbnQgY2xhc3M9XCJkaWFsb2dDb25lbnRcIj5cclxuICA8ZGl2ICpuZ0Zvcj1cImxldCBnZXRBbGwgb2YgZ2V0QWxsc1RhYmxlOyBsZXQgaSA9IGluZGV4XCIgY2xhc3M9XCJhcHBEaWFsb2dEYXRhR3JpZERpdlwiICBbbmdTdHlsZV09XCJ7J21hcmdpbi10b3AnOiBpPjA/JzEwMHB4JzonMHB4J31cIj5cclxuICAgIDxhcHAtZGF0YS1ncmlkIFxyXG4gICAgW2NvbHVtbkRlZnNdPVwiY29sdW1uRGVmc1RhYmxlW2ldXCIgW3RoZW1lR3JpZF09J3RoZW1lR3JpZCcgIFtnZXRBbGxdPSdnZXRBbGwnIFtnbG9iYWxTZWFyY2hdPXRydWUgW3NpbmdsZVNlbGVjdGlvbl09XCJzaW5nbGVTZWxlY3Rpb25UYWJsZVtpXVwiXHJcbiAgICBbdGl0bGVdPVwidGl0bGVzVGFibGVbaV1cIiBbbm9uRWRpdGFibGVdPSdub25FZGl0YWJsZScgW2V2ZW50R2V0U2VsZWN0ZWRSb3dzU3Vic2NyaXB0aW9uXT1cImdldEFsbFJvd3MuYXNPYnNlcnZhYmxlKClcIiAoZ2V0U2VsZWN0ZWRSb3dzKT0nam9pblJvd3NSZWNlaXZlZCgkZXZlbnQpJyA+XHJcbiAgICA8L2FwcC1kYXRhLWdyaWQ+XHJcbiAgPC9kaXY+XHJcbjwvbWF0LWRpYWxvZy1jb250ZW50PlxyXG48ZGl2IG1hdC1kaWFsb2ctYWN0aW9ucyBhbGlnbj1cImVuZFwiPlxyXG4gIDxidXR0b24gbWF0LWJ1dHRvbiAgKGNsaWNrKT1cImNsb3NlRGlhbG9nKClcIj57e1wiY2FuY2VsXCIgfCB0cmFuc2xhdGV9fTwvYnV0dG9uPlxyXG4gIDxidXR0b24gbWF0LWJ1dHRvbiAgKGNsaWNrKT1cImdldEFsbFNlbGVjdGVkUm93cygpXCIgY2RrRm9jdXNJbml0aWFsPnt7XCJhZGRcIiB8IHRyYW5zbGF0ZX19PC9idXR0b24+XHJcbjwvZGl2PlxyXG4iXX0=

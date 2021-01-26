@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LayersPermitsComponent } from './layers-permits.component';
-import { CartographyGroupService } from 'dist/sitmun-frontend-core/';
+import { CartographyGroupService , CodeListService} from '@sitmun/frontend-core';
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
@@ -12,7 +12,6 @@ import { MaterialModule } from '../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { CodeListService } from 'dist/sitmun-frontend-core';
 
 describe('LayersPermitsComponent', () => {
   let component: LayersPermitsComponent;

@@ -1,41 +1,33 @@
 {
   "name": "@sitmun/frontend-gui",
-  "version": "0.7.1",
+  "version": "0.7.5",
   "repository": "git://github.com/sitmun/sitmun-frontend-gui.git",
   "peerDependencies": {
-    "@angular/common": "^6.0.0-rc.0 || ^6.0.0",
-    "@angular/core": "^6.0.0-rc.0 || ^6.0.0",
-    "@angular/animations": "^6.0.2",
-    "@angular/cdk": "^6.1.0",
-    "@angular/forms": "^6.0.2",
-    "@angular/http": "^6.0.2",
-    "@angular/material": "^6.1.0",
-    "@angular/platform-browser": "^6.0.2",
-    "@angular/platform-browser-dynamic": "^6.0.2",
-    "@angular/router": "^6.0.2",
-    "@sitmun/frontend-core": "0.7.3",
-    "core-js": "^2.5.4",
-    "rxjs": "^6.1.0",
-    "rxjs-compat": "^6.1.0",
-    "zone.js": "^0.8.26"
+    "@angular/common": "~10.1.6",
+    "@angular/core": "~10.1.6",
+    "@angular/animations": "~10.1.6",
+    "@angular/cdk": "^10.2.7",
+    "@angular/forms": "~10.1.6",
+    "@angular/material": "^10.2.7",
+    "@angular/platform-browser": "^10.1.6",
+    "@angular/platform-browser-dynamic": "~10.1.6",
+    "@angular/router": "~10.1.6",
+    "@sitmun/frontend-core": "0.8.0",
+    "core-js": "^3.8.2",
+    "rxjs": "~6.6.0",
+    "zone.js": "~0.10.2"
   },
   "dependencies": {
-    "@types/openlayers": "^4.6.9",
-    "ol": "^4.6.5",
-    "openlayers": "^4.6.5",
-    "proj4": "^2.4.4",
-    "@types/moment": "^2.13.0",
-    "moment": "^2.22.2",
-    "tslib": "^1.9.0"
+    "tslib": "^2.0.0"
   },
   "main": "bundles/sitmun-frontend-gui.umd.js",
-  "module": "fesm5/sitmun-frontend-gui.js",
+  "module": "fesm2015/sitmun-frontend-gui.js",
   "es2015": "fesm2015/sitmun-frontend-gui.js",
-  "esm5": "esm5/sitmun-frontend-gui.js",
   "esm2015": "esm2015/sitmun-frontend-gui.js",
-  "fesm5": "fesm5/sitmun-frontend-gui.js",
   "fesm2015": "fesm2015/sitmun-frontend-gui.js",
   "typings": "sitmun-frontend-gui.d.ts",
-  "metadata": "sitmun-frontend-gui.metadata.json",
-  "sideEffects": false
+  "sideEffects": false,
+  "scripts": {
+    "prepublishOnly": "node --eval \"console.error('ERROR: Trying to publish a package that has been compiled by Ivy. This is not allowed.\\nPlease delete and rebuild the package, without compiling with Ivy, before attempting to publish.\\n')\" && exit 1"
+  }
 }

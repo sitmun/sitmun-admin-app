@@ -1,5 +1,10 @@
+
+
+
+
+
 <div class="titleDiv" >
-  <h4><mat-icon aria-hidden="false"  svgIcon="menu_servei"></mat-icon> {{ "serviceEntity.service" | translate }}-{{"serviceEntity."+(serviceID==-1?"new":"edit") | translate}}</h4>
+  <h4><mat-icon aria-hidden="false"  svgIcon="menu_servei"></mat-icon> {{ "serviceEntity.service" | translate }}-{{(serviceID==-1?"new":"edit") | translate}}</h4>
   <span class="divider"></span>
 </div>
 
@@ -7,9 +12,9 @@
 <div class="formDiv">
   <div class="formHeader">
     <h5> {{'serviceEntity.generalData' | translate}} </h5>
-    <button   mat-flat-button class="saveButton"  >
+    <button   mat-flat-button class="saveButton" (click)="onSaveButtonClicked()" >
       <mat-icon fontSet="material-icons-round"  > save </mat-icon>
-      {{ "serviceEntity.save" | translate }}
+      {{ "save" | translate }}
     </button>
   </div>
   <span class="divider"></span>
@@ -39,51 +44,19 @@
               </mat-select>
             </mat-form-field>
           </div>
-    
-          <div class="thirdColumnColFormDiv" >
+          <div class="thirdColumnColFormDiv">
             <label class="formLabel">
-              {{'serviceEntity.projections' | translate}}
+              {{'serviceEntity.available' | translate}}
             </label>
-            <mat-form-field appearance="outline">
-                <mat-chip-list #chipList aria-label="Selecció de projecció">
-                  <mat-chip
-                    *ngFor="let projection of projections"
-                    [selectable]="selectable"
-                    [removable]="removable"
-                    (removed)="removeProjection(projection)"
-                  >
-                    {{ projection }}
-                    <mat-icon matChipRemove>cancel</mat-icon>
-                  </mat-chip>
-                  <input
-                    [matChipInputFor]="chipList"
-                    [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                    [matChipInputAddOnBlur]="addOnBlur"
-                    (matChipInputTokenEnd)="addProjection($event)"
-                  />
-                </mat-chip-list>
-  
-
-
-            </mat-form-field>
+            <mat-checkbox formControlName="blocked"> </mat-checkbox>
           </div>
-      
           
-            <button *ngIf="serviceID==-1" (click)="addNewLayer()" mat-flat-button class="validateButton" >{{ "serviceEntity.getData" | translate }}</button>
-            <button *ngIf="serviceID!=-1" (click)="updateLayer()" mat-flat-button class="validateButton" >{{ "serviceEntity.update" | translate }}</button>
+          
+            <button *ngIf="serviceID==-1" (click)="getCapabilitiesService()" mat-flat-button class="validateButton" >{{ "serviceEntity.getData" | translate }}</button>
+            <button *ngIf="serviceID!=-1" (click)="getCapabilitiesService()" mat-flat-button class="validateButton" >{{ "serviceEntity.updateData" | translate }}</button>
      </div>
 
       <div class="rowFormDiv">
-      
-         <!-- <div class="colFormDiv" >
-            <label class="formLabel">
-              {{'serviceEntity.connection' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="connection">
-            </mat-form-field>
-          </div>-->
-
           <div class="colFormDiv" >
             <label class="formLabel requiredInput">
               {{'serviceEntity.url' | translate}}
@@ -97,11 +70,38 @@
               {{'serviceEntity.metadataURL' | translate}}
             </label>
             <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="metadataURL">
+              <input matInput type="text" formControlName="getInformationURL">
             </mat-form-field>
-
         </div>
-  
+
+        <div class="colFormDiv" >
+          <label class="formLabel">
+            {{'serviceEntity.projections' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+              <mat-chip-list #chipList aria-label="Selecció de projecció">
+                <mat-chip
+                  *ngFor="let projection of projections"
+                  [selectable]="selectable"
+                  [removable]="removable"
+                  (removed)="removeProjection(projection)"
+                >
+                  {{ projection }}
+                  <mat-icon matChipRemove>cancel</mat-icon>
+                </mat-chip>
+                <input
+                  [matChipInputFor]="chipList"
+                  [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                  [matChipInputAddOnBlur]="addOnBlur"
+                  (matChipInputTokenEnd)="addProjection($event)"
+                />
+              </mat-chip-list>
+
+
+
+          </mat-form-field>
+        </div>
+    
     </div>
   </form>
 </div>
@@ -120,8 +120,9 @@
     <ng-template matExpansionPanelContent>  
         <div class="appDataGridEditDiv">
             <app-data-grid  [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'
+            [eventAddItemsSubscription]='addElementsEventParameters.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventParameters.asObservable()' 
             [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
-            [actionButton]=true (remove)="removeParameters($event)" (new)='newDataParameters($event)'  > </app-data-grid>
+            (getAllRows)="getAllRowsParameters($event)" [actionButton]=true (new)="openParametersDialog($event)"> </app-data-grid>
         </div>
     </ng-template>
   
@@ -138,11 +139,66 @@
     <ng-template matExpansionPanelContent>  
         <div class="appDataGridEditDiv">
             <app-data-grid  [columnDefs]="columnDefsLayers" [themeGrid]='themeGrid' [getAll]='getAllLayers' 
+            [eventAddItemsSubscription]='addElementsEventLayers.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventLayers.asObservable()' 
             [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true  [hideDuplicateButton]=true
-            [actionButton]=true (add)="openCartographyDialog($event)" (remove)="removeLayers($event)" (new)='newDataLayers($event)'  > </app-data-grid>
+            (getAllRows)="getAllRowsLayers($event)" [actionButton]=true (add)="openCartographyDialog($event)" > </app-data-grid>
         </div>
     </ng-template>
   
     </mat-expansion-panel>
   </mat-accordion>
 </div>
+
+<ng-template #newParameterDialog>
+
+<div class="formDiv">
+  <form [formGroup]='parameterForm' #f="ngForm"> 
+
+
+    <div class="rowFormDiv">
+
+
+      <div class="colFormDiv" >
+        <label class="formLabel requiredInput">
+          {{'serviceEntity.request' | translate}}
+        </label>
+        <mat-form-field appearance="outline" >
+          <mat-select matInput formControlName="type" class="form-control" >
+            <mat-option [value]="requestType.value" *ngFor="let requestType of requestTypes">
+              {{ requestType.value}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+        <div class="colFormDiv" >
+          <label class="formLabel requiredInput">
+            {{'serviceEntity.parameter' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="text" formControlName="name" required>
+          </mat-form-field>
+        </div>
+
+
+   </div>
+
+   <div class="rowFormDiv">
+    
+    <div class="colFormDiv" >
+      <label class="formLabel requiredInput">
+        {{'serviceEntity.value' | translate}}
+      </label>
+      <mat-form-field appearance="outline">
+        <input matInput type="text" formControlName="value" required>
+      </mat-form-field>
+    </div>
+
+
+  </div>
+
+</form>
+</div>
+
+
+</ng-template>

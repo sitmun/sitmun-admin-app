@@ -1,33 +1,41 @@
 <mat-card class="mat-card-login">
-    <form [formGroup]="form" (ngSubmit)="login()">
+  <form [formGroup]="form" (ngSubmit)="login()">
+    
+    <mat-card-content>
 
-        
-         <h3>{{'loginEntity.login' | translate}}</h3>
-   
-         <mat-card-content>
-    
-          <div class="container">
-               <mat-form-field>
-            <input matInput type="input" placeholder="{{ 'loginEntity.username'| translate}}" formControlName="username"
-                   name="username">
-          </mat-form-field>
-           <mat-form-field>
-                <input matInput type="password" placeholder="{{ 'loginEntity.password'| translate}}" formControlName="password">
-          </mat-form-field>
-          
-        </div>
-        </mat-card-content>
-        <mat-card-actions>
-          <button mat-raised-button color="primary" type="submit"
-                  [disabled]="!form.valid">{{'loginEntity.login' | translate}}</button>
-          
-        </mat-card-actions>
-    </form>
-    <div class="alert alert-danger" *ngIf="badCredentials">                  
-      {{'loginEntity.bad-credentials' | translate}}
-    </div>
+      <div class="container">
+        <label class="formLabel requiredInput">
+          {{'loginEntity.username' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="input" formControlName="username">
+        </mat-form-field>
+        <label class="formLabel requiredInput" >
+          {{'loginEntity.password' | translate}}
+        </label>
+        <mat-form-field appearance="outline" >
+          <input matInput type="password" formControlName="password"> 
+        </mat-form-field>
+        <label class="formLabel">
+          {{'loginEntity.language' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <mat-select matInput formControlName="lang" class="form-control">
+            <mat-option [value]="lang.id" *ngFor="let lang of langs">
+              {{'lang.'+lang.name | translate}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button class="loginButton" type="submit" [disabled]="!form.valid">
+        {{'loginEntity.login' | translate}}
+      </button>
+
+    </mat-card-actions>
+  </form>
+  <div class="alert alert-danger" *ngIf="badCredentials">
+    {{'loginEntity.bad-credentials' | translate}}
+  </div>
 </mat-card>
-      
-    
-    
-    

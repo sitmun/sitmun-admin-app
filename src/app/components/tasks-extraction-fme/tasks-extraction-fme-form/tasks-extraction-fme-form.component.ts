@@ -2,13 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TaskService, TerritoryService, RoleService } from 'dist/sitmun-frontend-core/';
+import { TaskService, TerritoryService, RoleService } from '@sitmun/frontend-core';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
+import { map } from 'rxjs/operators';
 
 
 @Component({
@@ -28,11 +29,15 @@ export class TasksExtractionFmeFormComponent implements OnInit {
    //Grids
    themeGrid: any = environment.agGridTheme;
    columnDefsRoles: any[];
+   getAllElementsEventRoles: Subject<any[]> = new Subject <any[]>();
    columnDefsTerritories: any[];
+   getAllElementsEventTerritories: Subject<any[]> = new Subject <any[]>();
  
    //Dialog
    columnDefsRolesDialog: any[];
+   addElementsEventRoles: Subject<any[]> = new Subject <any[]>();
    columnDefsTerritoriesDialog: any[];
+   addElementsEventTerritories: Subject<any[]> = new Subject <any[]>();
  
  
  
@@ -62,10 +67,10 @@ export class TasksExtractionFmeFormComponent implements OnInit {
              this.taskExtractionFMEToEdit = resp;
              this.formTasksExtractionFME.setValue({
                id: this.taskExtractionFMEID,
-               cartography: this.taskExtractionFMEToEdit.name,
-               taskGroup: this.taskExtractionFMEToEdit.description,
-               service: this.taskExtractionFMEToEdit.description,
-               layer: this.taskExtractionFMEToEdit.description,
+               cartography: '',
+               taskGroup: this.taskExtractionFMEToEdit.groupName,
+               service: '',
+               layer: '',
                _links: this.taskExtractionFMEToEdit._links
              });
  
@@ -83,59 +88,29 @@ export class TasksExtractionFmeFormComponent implements OnInit {
        });
 
        this.columnDefsRoles = [
-         {
-           headerName: '',
-           checkboxSelection: true,
-           headerCheckboxSelection: true,
-           editable: false,
-           filter: false,
-           width: 25,
-           lockPosition: true,
-         },
+        environment.selCheckboxColumnDef,
          { headerName: 'Id', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksExtractionFMEEntity.name'), field: 'name' },  
+         { headerName: this.utils.getTranslate('tasksExtractionFMEEntity.status'), field: 'status' },
        ];
    
        this.columnDefsTerritories = [
-         {
-           headerName: '',
-           checkboxSelection: true,
-           headerCheckboxSelection: true,
-           editable: false,
-           filter: false,
-           width: 25,
-           lockPosition: true,
-         },
+        environment.selCheckboxColumnDef,
          { headerName: 'Id', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksExtractionFMEEntity.name'), field: 'name' },
+         { headerName: this.utils.getTranslate('tasksExtractionFMEEntity.status'), field: 'status' },
    
        ];
 
        this.columnDefsRolesDialog = [
-         {
-           headerName: '',
-           checkboxSelection: true,
-           headerCheckboxSelection: true,
-           editable: false,
-           filter: false,
-           width: 50,
-           lockPosition:true,
-         },
+        environment.selCheckboxColumnDef,
          { headerName: 'ID', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksExtractionFMEEntity.name'), field: 'name', editable: false },
          { headerName: this.utils.getTranslate('tasksExtractionFMEEntity.description'), field: 'description' },
        ];
  
        this.columnDefsTerritoriesDialog = [
-         {
-           headerName: '',
-           checkboxSelection: true,
-           headerCheckboxSelection: true,
-           editable: false,
-           filter: false,
-           width: 50,
-           lockPosition:true,
-         },
+        environment.selCheckboxColumnDef,
          { headerName: 'ID', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksExtractionFMEEntity.name'), field: 'name',  editable: false  },
          { headerName: this.utils.getTranslate('tasksExtractionFMEEntity.code'), field: 'code',  editable: false  },
@@ -179,52 +154,33 @@ export class TasksExtractionFmeFormComponent implements OnInit {
    // ******** Roles ******** //
    getAllRoles = () => {
      
-     // return (this.http.get(`${this.formTasksExtractionFME.value._links.cartographies.href}`))
-     // .pipe( map( data =>  data['_embedded']['cartographies']) );
-     const aux: Array<any> = [];
-     return of(aux);
+    return (this.http.get(`${this.taskExtractionFMEToEdit._links.roles.href}`))
+    .pipe( map( data =>  data['_embedded']['roles']) );
  
    }
- 
-   removeDataRoles(data: any[]) {
-     console.log(data);
-   }
- 
-   newDataRoles(id: any) {
-     // this.router.navigate(['role', id, 'roleForm']);
-   }
- 
-   applyChangesRoles(data: any[]) {
+
+
+   getAllRowsRoles(data: any[] )
+   {
      console.log(data);
    }
  
  
    // ******** Territories  ******** //
    getAllTerritories = () => {
-     // var urlReq=`${this.formTasksExtractionFME.value._links.tasks.href}`
-     // if(this.formTasksExtractionFME.value._links.tasks.templated){
-     //   var url=new URL(urlReq.split("{")[0]);
-     //   url.searchParams.append("projection","view")
-     //   urlReq=url.toString();
-     // }
- 
-     // return (this.http.get(urlReq))
-     // .pipe( map( data =>  data['_embedded']['tasks']) );
-     
-     const aux: Array<any> = [];
-     return of(aux);
-     
+    var urlReq=`${this.taskExtractionFMEToEdit._links.availabilities.href}`
+    if(this.taskExtractionFMEToEdit._links.availabilities.templated){
+      var url=new URL(urlReq.split("{")[0]);
+      url.searchParams.append("projection","view")
+      urlReq=url.toString();
+    }
+    return (this.http.get(urlReq))
+    .pipe( map( data =>  data['_embedded']['task-availabilities']) );
+
    }
- 
-   removeDataTerritories(data: any[]) {
-     console.log(data);
-   }
-   
-   newDataTerritories(id: any) {
-     // this.router.navigate(['role', id, 'roleForm']);
-   }
- 
-   applyChangesTerritories(data: any[]) {
+
+   getAllRowsTerritories(data: any[] )
+   {
      console.log(data);
    }
 
@@ -237,7 +193,7 @@ export class TasksExtractionFmeFormComponent implements OnInit {
  
    openRolesDialog(data: any) {
  
-     const dialogRef = this.dialog.open(DialogGridComponent);
+     const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
      dialogRef.componentInstance.getAllsTable=[this.getAllRolesDialog];
      dialogRef.componentInstance.singleSelectionTable=[false];
      dialogRef.componentInstance.columnDefsTable=[this.columnDefsRolesDialog];
@@ -250,7 +206,9 @@ export class TasksExtractionFmeFormComponent implements OnInit {
  
      dialogRef.afterClosed().subscribe(result => {
       if(result){
-        if( result.event==='Add') {console.log(result.data); }
+        if(result.event==='Add') {
+          this.addElementsEventRoles.next(result.data[0])
+        }
       }
  
      });
@@ -265,7 +223,7 @@ export class TasksExtractionFmeFormComponent implements OnInit {
  
      openTerritoriesDialog(data: any) {
  
-       const dialogRef = this.dialog.open(DialogGridComponent);
+       const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
        dialogRef.componentInstance.getAllsTable=[this.getAllTerritoriesDialog];
        dialogRef.componentInstance.singleSelectionTable=[false];
        dialogRef.componentInstance.columnDefsTable=[this.columnDefsTerritoriesDialog];
@@ -278,7 +236,9 @@ export class TasksExtractionFmeFormComponent implements OnInit {
    
        dialogRef.afterClosed().subscribe(result => {
         if(result){
-          if( result.event==='Add') {console.log(result.data); }
+          if(result.event==='Add') {
+            this.addElementsEventTerritories.next(result.data[0])
+          }
         }
    
        });

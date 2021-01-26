@@ -4,15 +4,16 @@ import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { RouterModule } from '@angular/router';
 import { ExternalConfigurationService } from './ExternalConfigurationService';
-import { AngularHalModule, BackgroundService, CartographyGroupService, CartographyService,
-   ConnectionService, TaskGroupService, TaskService, TerritoryService, UserConfigurationService } from 'dist/sitmun-frontend-core/';
+
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from './material-module';
 import { APP_ROUTING } from './app-routes';
 
+//interceptors
 import { MessagesInterceptor } from './interceptors/messages.interceptor';
-import { AuthInterceptor } from 'dist/sitmun-frontend-core/';
+import { AuthInterceptor, AuthExpiredInterceptor } from '@sitmun/frontend-core';
+
 //i18n
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -49,20 +50,6 @@ import { TasksReportComponent } from './components/tasks-report/tasks-report.com
 import { TasksEditionComponent } from './components/tasks-edition/tasks-edition.component';
 import { TasksThematicComponent } from './components/tasks-thematic/tasks-thematic.component';
 import { TasksExtractionFmeComponent } from './components/tasks-extraction-fme/tasks-extraction-fme.component';
-
-//Services 
-import { SidenavService } from './services/sidenav.service';
-import { RoleService } from 'dist/sitmun-frontend-core/';
-import { UserService } from 'dist/sitmun-frontend-core/';
-import { TreeService } from 'dist/sitmun-frontend-core/';
-import { CodeListService } from 'dist/sitmun-frontend-core/';
-import { LoginService } from 'dist/sitmun-frontend-core/';
-import { AuthService } from 'dist/sitmun-frontend-core/';
-import { AccountService } from 'dist/sitmun-frontend-core/';
-import { Principal } from 'dist/sitmun-frontend-core/';
-import { UtilsService } from './services/utils.service';
-import { ServiceService } from 'dist/sitmun-frontend-core/';
-import { ApplicationService } from 'dist/sitmun-frontend-core/';
 import { ConnectionFormComponent } from './components/connection/connection-form/connection-form.component';
 import { RoleFormComponent } from './components/role/role-form/role-form.component';
 import { UserFormComponent } from './components/user/user-form/user-form.component';
@@ -86,6 +73,39 @@ import { TasksQueryFormComponent } from './components/tasks-query/tasks-query-fo
 import { TasksReportFormComponent } from './components/tasks-report/tasks-report-form/tasks-report-form.component';
 import { TasksThematicFormComponent } from './components/tasks-thematic/tasks-thematic-form/tasks-thematic-form.component';
 import { LoginComponent } from './components/login/login.component';
+
+//Services 
+import {
+  AngularHalModule,
+  BackgroundService,
+  CartographyGroupService,
+  CartographyService,
+  ConnectionService,
+  TaskGroupService,
+  TaskService,
+  TerritoryService,
+  UserConfigurationService,
+  RoleService,
+  UserService,
+  TreeService,
+  LoginService,
+  CodeListService,
+  AuthService,
+  AccountService,
+  Principal,
+  ServiceService,
+  ApplicationService,
+  CartographyAvailabilityService,
+  ServiceParameterService,
+  ApplicationParameterService,
+  CartographyParameterService,
+  UserPositionService,
+  TreeNodeService,
+} from '@sitmun/frontend-core';
+import { UtilsService } from './services/utils.service';
+import { SidenavService } from './services/sidenav.service';
+
+
 
 @NgModule({
   declarations: [
@@ -157,14 +177,17 @@ import { LoginComponent } from './components/login/login.component';
     BrowserAnimationsModule
   ],
   providers: [SidenavService, UtilsService,
-     { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
-     { provide: LOCALE_ID, useValue: 'es-ES' },
-    RoleService, ConnectionService, UserService, TerritoryService, ServiceService, 
+    { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
+    { provide: LOCALE_ID, useValue: 'es-ES' },
+    RoleService, ConnectionService, UserService, TerritoryService, ServiceService,
     ApplicationService, TreeService, BackgroundService, CartographyService, CartographyGroupService,
-     TaskGroupService, TaskService,UserConfigurationService,CodeListService,LoginService,AuthService,
-     Principal,AccountService,
-     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
-     { provide: HTTP_INTERCEPTORS, useClass: MessagesInterceptor, multi: true }],
+    TaskGroupService, TaskService, UserConfigurationService, CodeListService, LoginService, AuthService,
+    Principal, UserPositionService,  AccountService,CartographyAvailabilityService,ServiceParameterService,ApplicationParameterService,
+    CartographyParameterService, TreeNodeService,
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: MessagesInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: AuthExpiredInterceptor, multi: true }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {

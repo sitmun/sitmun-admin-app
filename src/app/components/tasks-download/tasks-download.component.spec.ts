@@ -7,7 +7,7 @@ import { MaterialModule } from '../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { CodeListService, TaskService } from 'dist/sitmun-frontend-core';
+import { CodeListService, TaskService } from '@sitmun/frontend-core';
 import { HttpClientModule } from '@angular/common/http';
 
 

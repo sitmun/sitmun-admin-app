@@ -2,9 +2,9 @@ export const environment = {
   production: false,
   agGridTheme: "ag-theme-balham",
   scopeTypes : ['selectType','Municipal', 'Supramunicipal', 'Total'],
-  apiBaseURL: 'https://sitmun-backend-core.herokuapp.com',
+  apiBaseURL: `https://sitmun-backend-core.herokuapp.com`,
   tasksTypes : {
-    'basic':1,
+    'basic':1, 
     'download':2,
     'document':3,
     'locator':4,
@@ -24,5 +24,25 @@ export const environment = {
     {id:"es", name:"spanish"},
     {id:"en", name:"english"},
   ],
-  defaultLang:"ca"
+  defaultLang:"ca",
+  selCheckboxColumnDef: {
+    headerName: '',
+    checkboxSelection: true,
+    headerCheckboxSelection: true,
+    editable: false,
+    filter: false,
+    minWidth: 45,
+    maxWidth: 45,
+    lockPosition: true
+  },
+  editBtnColumnDef:{
+    headerName: '',
+    field: 'id',
+    editable: false,
+    filter: false,
+    minWidth: 48,
+    maxWidth: 48,
+    lockPosition: true,
+    cellRenderer: 'btnEditRendererComponent',
+  }
 };

@@ -1,5 +1,5 @@
 <div class="titleDiv" >
-  <h4><mat-icon aria-hidden="false"  svgIcon="menu_usuari"></mat-icon> {{ "userEntity.user" | translate }}-{{"userEntity."+(userID==-1?"new":"edit") | translate}}</h4>
+  <h4><mat-icon aria-hidden="false"  svgIcon="menu_usuari"></mat-icon> {{ "userEntity.user" | translate }}-{{(userID==-1?"new":"edit") | translate}}</h4>
   <span class="divider"></span>
 </div>
 
@@ -9,7 +9,7 @@
     <h5> {{'userEntity.generalData' | translate}} </h5>
     <button (click)="onSaveButtonClicked()"  mat-flat-button class="saveButton"  >
       <mat-icon fontSet="material-icons-round"  > save </mat-icon>
-      {{ "userEntity.save" | translate }}
+      {{ "save" | translate }}
     </button>
   </div>
   <span class="divider"></span>
@@ -83,8 +83,8 @@
   </form>
 </div>
 
-<div class="tableDiv" *ngIf="dataLoaded">
-  <mat-accordion *ngIf="userID!=-1" multi>
+<div class="tableDiv" *ngIf="userID==-1 || dataLoaded">
+  <mat-accordion multi>
 
     <!-- Permits table -->
     <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
@@ -96,9 +96,11 @@
   
     <div matExpansionPanelContent>  
       <div class="appDataGridEditDiv">
-          <app-data-grid [columnDefs]="columnDefsPermissions" [themeGrid]='themeGrid' [getAll]='getAllPermissions'  
-          [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
-          [actionButton]=true (remove)="removeDataPermissions($event)" (new)="openPermitsDialog($event)"  > </app-data-grid>
+          <app-data-grid [columnDefs]="columnDefsPermits" [themeGrid]='themeGrid' [getAll]='getAllPermits'  
+          [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventPermits.asObservable()' 
+          [eventAddItemsSubscription]='addElementsEventPermits.asObservable()'
+           [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true 
+          (getAllRows)="getAllRowsPermits($event)" [actionButton]=true  (add)="openPermitsDialog($event)"  > </app-data-grid>
       </div>
     </div>
   
@@ -117,8 +119,10 @@
     <ng-template matExpansionPanelContent>  
       <div class="appDataGridEditDiv">
           <app-data-grid [columnDefs]="columnDefsData" [themeGrid]='themeGrid' [getAll]='getAllDataTerritory'  
-          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
-          [actionButton]=true (add)="openTerritoryDataDialog($event)" (remove)="removeDataData($event)" (new)='newDataData($event)'> </app-data-grid>
+          [eventAddItemsSubscription]='addElementsEventTerritoryData.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventTerritoryData.asObservable()' 
+          [discardChangesButton]=true [redoButton]=true
+          [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
+          (getAllRows)="getAllRowsDataTerritories($event)" [actionButton]=true (add)="openTerritoryDataDialog($event)"> </app-data-grid>
       </div>
     </ng-template>
   

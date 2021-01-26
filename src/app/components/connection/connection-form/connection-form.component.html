@@ -1,5 +1,5 @@
 <div class="titleDiv" >
-  <h4><mat-icon aria-hidden="false"  svgIcon="menu_connexio"></mat-icon> {{ "connectionEntity.connection" | translate }}-{{"connectionEntity."+(connectionID==-1?"new":"edit") | translate}}</h4>
+  <h4><mat-icon aria-hidden="false"  svgIcon="menu_connexio"></mat-icon> {{ "connectionEntity.connection" | translate }}-{{(connectionID==-1?"new":"edit") | translate}}</h4>
   <span class="divider"></span>
 </div>
 
@@ -8,7 +8,7 @@
     <h5> {{'connectionEntity.generalData' | translate}} </h5>
     <button (click)="onSaveButtonClicked()"  mat-flat-button class="saveButton"  >
       <mat-icon fontSet="material-icons-round"  > save </mat-icon>
-      {{ "connectionEntity.save" | translate }}
+      {{ "save" | translate }}
     </button>
   </div>
   <span class="divider"></span>
@@ -63,8 +63,7 @@
             </mat-form-field>
           </div>
 
-          <button *ngIf="connectionID==-1" (click)="addNewConnection()" mat-flat-button class="validateButton" >{{ "connectionEntity.validate" | translate }}</button>
-          <button *ngIf="connectionID!=-1" (click)="updateConnection()" mat-flat-button class="validateButton" >{{ "connectionEntity.validate" | translate }}</button>
+          <button *ngIf="connectionID!=-1" (click)="updateConnection()" mat-flat-button class="validateButton" >{{ "validate" | translate }}</button>
     </div>
 
 
@@ -73,10 +72,10 @@
 </div>
 
 
-<div class="tableDiv" *ngIf="dataLoaded">
-  <mat-accordion *ngIf="connectionID!=-1" multi>
+<div class="tableDiv" *ngIf="connectionID == -1 || dataLoaded">
+  <mat-accordion  multi>
 
-      <!-- Cartography table -->
+      <!-- Cartography table
     <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
       <mat-expansion-panel-header class="agGridExpansionPanelTitle">
         <mat-panel-title  >
@@ -87,12 +86,13 @@
       <ng-template matExpansionPanelContent>  
         <div class="appDataGridEditDiv">
             <app-data-grid  [columnDefs]="columnDefsCartographies" [themeGrid]='themeGrid' [getAll]='getAllCartographies' 
-            [eventAddItemsSubscription]='addElementsEventCartographies.asObservable()' [eventGetAllRowsSubscription]='getAllRowsEvent.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true  [hideDuplicateButton]=true
-            [actionButton]=true (add)="openCartographyDialog($event)" (remove)="removeDataCartographies($event)" (new)='newDataCartographies($event)' (sendChanges)='applyChangesCartographies($event)' 
+            [eventAddItemsSubscription]='addElementsEventCartographies.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventCartographies.asObservable()' 
+             [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true  [hideDuplicateButton]=true
+            [actionButton]=true (add)="openCartographyDialog($event)"
             (getAllRows)="getAllRowsCartographies($event)"> </app-data-grid>
         </div>
       </ng-template>
-    </mat-expansion-panel>
+    </mat-expansion-panel> -->
  
       <!-- Tasks table -->
     <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
@@ -105,8 +105,10 @@
       <ng-template matExpansionPanelContent>  
         <div class="appDataGridEditDiv">
             <app-data-grid [columnDefs]="columnDefsTasks" [themeGrid]='themeGrid' [getAll]='getAllTasks'
-            [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
-            [actionButton]=true (add)="openTasksDialog($event)" (remove)="removeDataTasks($event)" (new)='newDataTasks($event)' (sendChanges)='applyChangesTasks($event)' > </app-data-grid>
+            [eventAddItemsSubscription]='addElementsEventTasks.asObservable()' [eventRefreshSubscription]='dataUpdatedEvent.asObservable()'
+            [eventGetAllRowsSubscription]='getAllElementsEventTasks.asObservable()' [discardChangesButton]=true [redoButton]=true 
+            [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
+            [actionButton]=true (add)="openTasksDialog($event)"  (getAllRows)="getAllRowsTasks($event)"> </app-data-grid>
         </div>
     </ng-template>
 

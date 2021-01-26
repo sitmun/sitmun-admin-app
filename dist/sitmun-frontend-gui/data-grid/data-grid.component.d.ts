@@ -2,12 +2,16 @@ import { OnInit, EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ColumnApi, Module } from '@ag-grid-community/all-modules';
 import { TranslateService } from '@ngx-translate/core';
+import { MatDialog } from '@angular/material/dialog';
+import * as i0 from "@angular/core";
 export declare class DataGridComponent implements OnInit {
+    dialog: MatDialog;
     translate: TranslateService;
     private _eventRefreshSubscription;
     private _eventGetSelectedRowsSubscription;
     private _eventGetAllRowsSubscription;
     modules: Module[];
+    UndeRedoActions: any;
     searchValue: string;
     private gridApi;
     private gridColumnApi;
@@ -51,7 +55,7 @@ export declare class DataGridComponent implements OnInit {
     duplicate: EventEmitter<any[]>;
     getSelectedRows: EventEmitter<any[]>;
     getAllRows: EventEmitter<any[]>;
-    constructor(translate: TranslateService);
+    constructor(dialog: MatDialog, translate: TranslateService);
     ngOnInit(): void;
     onGridReady(params: any): void;
     emitSelectedRows(): void;
@@ -76,4 +80,6 @@ export declare class DataGridComponent implements OnInit {
     getColumnIndexByColId(api: ColumnApi, colId: string): number;
     paintCells(params: any, changesMap: Map<number, Map<string, number>>): void;
     changeCellStyleColumns(params: any, changesMap: Map<number, Map<string, number>>, color: string): void;
+    static ɵfac: i0.ɵɵFactoryDef<DataGridComponent, never>;
+    static ɵcmp: i0.ɵɵComponentDefWithMeta<DataGridComponent, "app-data-grid", never, { "eventRefreshSubscription": "eventRefreshSubscription"; "eventGetSelectedRowsSubscription": "eventGetSelectedRowsSubscription"; "eventGetAllRowsSubscription": "eventGetAllRowsSubscription"; "eventAddItemsSubscription": "eventAddItemsSubscription"; "frameworkComponents": "frameworkComponents"; "columnDefs": "columnDefs"; "getAll": "getAll"; "discardChangesButton": "discardChangesButton"; "undoButton": "undoButton"; "redoButton": "redoButton"; "applyChangesButton": "applyChangesButton"; "deleteButton": "deleteButton"; "newButton": "newButton"; "actionButton": "actionButton"; "addButton": "addButton"; "globalSearch": "globalSearch"; "themeGrid": "themeGrid"; "singleSelection": "singleSelection"; "nonEditable": "nonEditable"; "title": "title"; "hideExportButton": "hideExportButton"; "hideDuplicateButton": "hideDuplicateButton"; "hideSearchReplaceButton": "hideSearchReplaceButton"; }, { "remove": "remove"; "new": "new"; "add": "add"; "sendChanges": "sendChanges"; "duplicate": "duplicate"; "getSelectedRows": "getSelectedRows"; "getAllRows": "getAllRows"; }, never, never>;
 }

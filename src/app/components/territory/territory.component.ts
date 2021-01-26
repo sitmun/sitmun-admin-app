@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { Territory } from 'dist/sitmun-frontend-core/territory/territory.model';
-import { TerritoryService } from 'dist/sitmun-frontend-core/';
+import { TerritoryService,Territory } from '@sitmun/frontend-core';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { Subject } from 'rxjs';
-
+import { MatDialog } from '@angular/material/dialog';
+import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 
 @Component({
   selector: 'app-territory',
@@ -21,7 +21,8 @@ export class TerritoryComponent implements OnInit {
 
 
 
-  constructor(public territoryService: TerritoryService,
+  constructor(public dialog: MatDialog,
+    public territoryService: TerritoryService,
     private utils: UtilsService,
     private router: Router,
   ) { }
@@ -35,28 +36,15 @@ export class TerritoryComponent implements OnInit {
       }
     );
 
+    var columnEditBtn=environment.editBtnColumnDef;
+    columnEditBtn['cellRendererParams']= {
+      clicked: this.newData.bind(this)
+    }
+
+
     this.columnDefs = [
-      {
-        headerName: '',
-        checkboxSelection: true,
-        headerCheckboxSelection: true,
-        editable: false,
-        filter: false,
-        width: 70,
-        lockPosition: true,
-      },
-      {
-        headerName: '',
-        field: 'id',
-        editable: false,
-        filter: false,
-        width: 75,
-        lockPosition: true,
-        cellRenderer: 'btnEditRendererComponent',
-        cellRendererParams: {
-          clicked: this.newData.bind(this)
-        },
-      },
+      environment.selCheckboxColumnDef,
+      columnEditBtn,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('territoryEntity.code'), field: 'code' },
       { headerName: this.utils.getTranslate('territoryEntity.name'), field: 'name' },
@@ -67,13 +55,19 @@ export class TerritoryComponent implements OnInit {
           return alias != undefined ? alias.description : params.data.scope
         }
       },
-      { headerName: this.utils.getTranslate('territoryEntity.createdDate'), field: 'createdDate', }, // type: 'dateColumn'
+      {
+        headerName: this.utils.getTranslate('territoryEntity.createdDate'), field: 'createdDate',
+        filter: 'agDateColumnFilter', filterParams: this.utils.getDateFilterParams(),
+        editable: false, cellRenderer: (data) => { return this.utils.getDateFormated(data) }
+      }, // type: 'dateColumn'
       { headerName: this.utils.getTranslate('territoryEntity.administrator'), field: 'territorialAuthorityName' },
       { headerName: this.utils.getTranslate('territoryEntity.email'), field: 'territorialAuthorityEmail' },
       { headerName: this.utils.getTranslate('territoryEntity.address'), field: 'territorialAuthorityAddress' },
       { headerName: this.utils.getTranslate('territoryEntity.extent'), field: 'extent' },
       { headerName: this.utils.getTranslate('territoryEntity.note'), field: 'note' },
-      { headerName: this.utils.getTranslate('territoryEntity.blocked'), field: 'blocked' },
+      { headerName: this.utils.getTranslate('territoryEntity.blocked'), field: 'blocked', editable: false,
+      cellRenderer: 'btnCheckboxRendererComponent', floatingFilterComponent: 'btnCheckboxFilterComponent',
+      floatingFilterComponentParams: { suppressFilterButton: true }, },
     ];
   }
 
@@ -108,13 +102,25 @@ export class TerritoryComponent implements OnInit {
   }
 
   removeData(data: Territory[]) {
-    const promises: Promise<any>[] = [];
-    data.forEach(territory => {
-      promises.push(new Promise((resolve, reject) => { this.territoryService.delete(territory).toPromise().then((resp) => { resolve() }) }));
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
-      });
+
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title=this.utils.getTranslate("caution");
+    dialogRef.componentInstance.message=this.utils.getTranslate("removeMessage");
+    dialogRef.afterClosed().subscribe(result => {
+      if(result){
+        if(result.event==='Accept') {  
+          const promises: Promise<any>[] = [];
+          data.forEach(territory => {
+            promises.push(new Promise((resolve, reject) => { this.territoryService.delete(territory).toPromise().then((resp) => { resolve() }) }));
+            Promise.all(promises).then(() => {
+              this.dataUpdatedEvent.next(true);
+            });
+          });
+       }
+      }
     });
+
+
 
   }
 

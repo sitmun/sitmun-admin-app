@@ -2,11 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ConnectionService, CartographyService, TaskService, Cartography, Task } from 'dist/sitmun-frontend-core/';
-import { Connection } from 'dist/sitmun-frontend-core/connection/connection.model';
-import { HttpClient } from '@angular/common/http';
+import { ConnectionService, CartographyService, TaskService, Cartography, Task, Connection } from '@sitmun/frontend-core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
-import { Subject } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { map } from 'rxjs/operators';
 import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
@@ -29,19 +28,25 @@ export class ConnectionFormComponent implements OnInit {
   
   //Grids
   themeGrid: any = environment.agGridTheme;
+
   columnDefsCartographies: any[];
+  getAllElementsEventCartographies: Subject<boolean> = new Subject <boolean>();
+
   columnDefsTasks: any[];
+  getAllElementsEventTasks: Subject<boolean> = new Subject <boolean>();
 
   //Dialog
   columnDefsCartographiesDialog: any[];
+  addElementsEventCartographies: Subject<any[]> = new Subject <any[]>();
   columnDefsTasksDialog: any[];
+  addElementsEventTasks: Subject<any[]> = new Subject <any[]>();
 
   //Save Button
   dataUpdatedEvent: Subject<boolean> = new Subject <boolean>();
-  getAllRowsEvent: Subject<boolean> = new Subject <boolean>();
+
   newCartographies: Cartography[] = [];
   newtasks: Task[] = [];
-  addElementsEventCartographies: Subject<any[]> = new Subject <any[]>();
+
 
 
 
@@ -94,61 +99,33 @@ export class ConnectionFormComponent implements OnInit {
 
 
       this.columnDefsCartographies = [
-        {
-          headerName: '',
-          checkboxSelection: true,
-          headerCheckboxSelection: true,
-          editable: false,
-          filter: false,
-          width: 25,
-          lockPosition: true,
-        },
+        environment.selCheckboxColumnDef,
         { headerName: 'Id', field: 'id', editable: false },
         { headerName: this.utils.getTranslate('connectionEntity.name'), field: 'name' },
-        { headerName: this.utils.getTranslate('connectionEntity.layers'), field: 'layers' },
+        { headerName: this.utils.getTranslate('connectionEntity.layers'), field: 'layers', editable:false },
+        { headerName: this.utils.getTranslate('connectionEntity.status'), field: 'status' },
+
   
       ];
   
       this.columnDefsTasks = [
-        {
-          headerName: '',
-          checkboxSelection: true,
-          headerCheckboxSelection: true,
-          editable: false,
-          filter: false,
-          width: 25,
-          lockPosition: true,
-        },
+        environment.selCheckboxColumnDef,
         { headerName: 'Id', field: 'id', editable: false },
         { headerName: this.utils.getTranslate('connectionEntity.code'), field: 'name' },
         { headerName: this.utils.getTranslate('connectionEntity.taskGroup'), field: 'groupName' },
+        { headerName: this.utils.getTranslate('connectionEntity.status'), field: 'status' },
+
   
       ];
 
       this.columnDefsCartographiesDialog = [
-        {
-          headerName: '',
-          checkboxSelection: true,
-          headerCheckboxSelection: true,
-          editable: false,
-          filter: false,
-          width: 50,
-          lockPosition:true,
-        },
+        environment.selCheckboxColumnDef,
         { headerName: 'ID', field: 'id', editable: false },
         { headerName: this.utils.getTranslate('connectionEntity.name'), field: 'name', editable: false },
       ];
 
       this.columnDefsTasksDialog = [
-        {
-          headerName: '',
-          checkboxSelection: true,
-          headerCheckboxSelection: true,
-          editable: false,
-          filter: false,
-          width: 50,
-          lockPosition:true,
-        },
+        environment.selCheckboxColumnDef,
         { headerName: 'ID', field: 'id', editable: false },
         { headerName: this.utils.getTranslate('connectionEntity.name'), field: 'name',  editable: false  },
       ];
@@ -175,70 +152,98 @@ export class ConnectionFormComponent implements OnInit {
     })
   }
 
-  addNewConnection() {
-    console.log(this.formConnection.value);
-    this.connectionService.create(this.formConnection.value)
-      .subscribe(resp => {
-        console.log(resp);
-        // this.router.navigate(["/company", resp.id, "formConnection"]);
-      });
-  }
-
-  updateConnection() {
-    console.log(this.formConnection.value);
-
-    this.connectionService.update(this.formConnection.value)
-      .subscribe(resp => {
-        console.log(resp);
-      });
-  }
   
   // ******** Cartographies ******** //
   getAllCartographies = () => {
-    
-    return (this.http.get(`${this.connectionToEdit._links.cartographies.href}`))
+
+    if(this.connectionID == -1)
+    {
+      const aux: Array<any> = [];
+      return of(aux);
+    }  
+
+    var urlReq = `${this.connectionToEdit._links.cartographies.href}`
+    if (this.connectionToEdit._links.cartographies.templated) {
+      var url = new URL(urlReq.split("{")[0]);
+      url.searchParams.append("projection", "view")
+      urlReq = url.toString();
+    }
+    return (this.http.get(urlReq))
     .pipe( map( data =>  data['_embedded']['cartographies']) );
-
   }
 
-  removeDataCartographies(data: any[]) {
-    console.log(data);
-  }
+  /*getAllRowsCartographies(data: any[] )
+  {
+    let cartographiesModified = [];
+    let cartographiesToPut = [];
+    data.forEach(cartography => {
+      cartography.connection=this.connectionToEdit;
+      if (cartography.status === 'Modified') {cartographiesModified.push(cartography) }
+      if(cartography.status!== 'Deleted') {cartographiesToPut.push(cartography._links.self.href) }
+    });
 
-  newDataCartographies(id: any) {
-    // this.router.navigate(['role', id, 'roleForm']);
-  }
+    this.updateCartographies(cartographiesModified, cartographiesToPut );
+  }*/
 
-  applyChangesCartographies(data: any[]) {
-    console.log(data);
-  }
+ /* updateCartographies(cartographiesModified: Cartography[], cartographiesToPut: Cartography[])
+  {
+    const promises: Promise<any>[] = [];
+    cartographiesModified.forEach(cartography => {
+      promises.push(new Promise((resolve, reject) => { this.cartographyService.save(cartography).toPromise().then((resp) => { resolve() }) }));
+    });
+    Promise.all(promises).then(() => {
+      let url=this.connectionToEdit._links.cartographies.href.split('{', 1)[0];
+      this.utils.updateUriList(url,cartographiesToPut)
+     // this.connectionToEdit.cartographies=this.utils.createUriList(cartographiesToPut);
+
+    });
+  }*/
+
 
 
   // ******** Tasks  ******** //
   getAllTasks = () => {
+
+    if(this.connectionID == -1)
+    {
+      const aux: Array<any> = [];
+      return of(aux);
+    }
+
     var urlReq=`${this.connectionToEdit._links.tasks.href}`
     if(this.connectionToEdit._links.tasks.templated){
       var url=new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection","view")
       urlReq=url.toString();
     }
-
     return (this.http.get(urlReq))
     .pipe( map( data =>  data['_embedded']['tasks']) );
     
-    
   }
 
-  removeDataTasks(data: any[]) {
-    console.log(data);
-  }
-  
-  newDataTasks(id: any) {
-    // this.router.navigate(['role', id, 'roleForm']);
+
+  getAllRowsTasks(data: any[] )
+  {
+    let tasksModified = [];
+    let tasksToPut = [];
+    data.forEach(task => {
+      if (task.status === 'Modified') {tasksModified.push(task) }
+      if(task.status!== 'Deleted') {tasksToPut.push(task._links.self.href) }
+    });
+    this.updateTasks(tasksModified, tasksToPut);
+
   }
 
-  applyChangesTasks(data: any[]) {
-    console.log(data);
+  updateTasks(tasksModified: Task[], tasksToPut: Task[])
+  {
+    const promises: Promise<any>[] = [];
+    tasksModified.forEach(task => {
+      promises.push(new Promise((resolve, reject) => { this.tasksService.update(task).toPromise().then((resp) => { resolve() }) }));
+    });
+    Promise.all(promises).then(() => {
+      let url=this.connectionToEdit._links.tasks.href.split('{', 1)[0];
+      this.utils.updateUriList(url,tasksToPut)
+    });
   }
   
   // ******** Cartography Dialog  ******** //
@@ -258,8 +263,8 @@ export class ConnectionFormComponent implements OnInit {
     dialogRef.componentInstance.singleSelectionTable=[false];
     dialogRef.componentInstance.columnDefsTable=[this.columnDefsCartographiesDialog];
     dialogRef.componentInstance.themeGrid=this.themeGrid;
-    dialogRef.componentInstance.title='Cartographies';
-    dialogRef.componentInstance.titlesTable=['Cartographies'];
+    dialogRef.componentInstance.title=this.utils.getTranslate("connectionEntity.cartography");
+    dialogRef.componentInstance.titlesTable=[""];
     dialogRef.componentInstance.nonEditable=false;
     
 
@@ -267,10 +272,7 @@ export class ConnectionFormComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if(result){
         if(result.event==='Add') {
-          console.log(result.data);
-          this.newCartographies.push(...result.data[0]) 
           this.addElementsEventCartographies.next(result.data[0])
-          this.getAllRowsEvent.next(true);
         }
       }
 
@@ -279,11 +281,7 @@ export class ConnectionFormComponent implements OnInit {
 
   }
 
-  getAllRowsCartographies(data: any[] )
-  {
-    console.log("hey");
-    console.log(data);
-  }
+
 
     // ******** Tasks Dialog  ******** //
 
@@ -296,45 +294,45 @@ export class ConnectionFormComponent implements OnInit {
       // const colDefsTable: Array<any[]> = [this.columnDefsCartographiesDialog];
       // const singleSelectionTable: Array<boolean> = [false];
       // const titlesTable: Array<string> = ['Cartographies'];
-      const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'dialogsGrid'});
+      const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
       dialogRef.componentInstance.getAllsTable=[this.getAllTasksDialog];
       dialogRef.componentInstance.singleSelectionTable=[false];
       dialogRef.componentInstance.columnDefsTable=[this.columnDefsTasksDialog];
       dialogRef.componentInstance.themeGrid=this.themeGrid;
-      dialogRef.componentInstance.title='Tasks';
-      dialogRef.componentInstance.titlesTable=['Tasks'];
+      dialogRef.componentInstance.title=this.utils.getTranslate("connectionEntity.tasks");
+      dialogRef.componentInstance.titlesTable=[""];
       dialogRef.componentInstance.nonEditable=false;
       
   
   
       dialogRef.afterClosed().subscribe(result => {
-        console.log(result);
         if(result){
-          if( result.event==='Add') {      console.log(result.data); }
+          if( result.event==='Add') { 
+            this.addElementsEventTasks.next(result.data[0])
+          }
         }
       });
   
     }
 
-    updateCartographies(cartographies: Cartography[])
-    {
-      const promises: Promise<any>[] = [];
-      cartographies.forEach(cartography => {
-        
-        promises.push(new Promise((resolve, reject) => {​​​​​​​ this.http.put(`${this.connectionToEdit._links.cartographies.href}`,cartography).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
-        Promise.all(promises).then(() => {
-          this.dataUpdatedEvent.next(true);
-        });
-       
-      });
-    }
+ 
 
-
+    //Save Button
+    
     onSaveButtonClicked(){
 
-      this.updateCartographies(this.newCartographies);
-      this.dataUpdatedEvent.next(true);
-  
-      }
+      this.connectionService.save(this.formConnection.value).subscribe(
+        result => {
+          console.log(result);
+          this.connectionToEdit=result;
+          //this.getAllElementsEventCartographies.next(true);
+          this.getAllElementsEventTasks.next(true);
+        },
+        error=>{
+          console.log(error);
+        });
+      
+      
 
+    }
 }

@@ -247,10 +247,8 @@ h2 {
 
 .login-container {
   padding: 0px;
-  position: absolute;
-  left: 50px;
+  margin: 50px auto;
   width: 500px;
-  top: 50px;
 }
 
 
@@ -851,6 +849,8 @@ h2 {
 
 ::-webkit-scrollbar {
   width: 10px;
+  height: 10px;
+
 }
 
 ::-webkit-scrollbar-thumb {

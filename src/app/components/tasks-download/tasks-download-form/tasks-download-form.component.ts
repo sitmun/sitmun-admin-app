@@ -2,13 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TaskService, TerritoryService, RoleService } from 'dist/sitmun-frontend-core/';
+import { TaskService, TerritoryService, RoleService } from '@sitmun/frontend-core';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { environment } from 'src/environments/environment';
 import { map } from 'rxjs/operators';
 import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
+import { of, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-tasks-download-form',
@@ -26,11 +27,15 @@ export class TasksDownloadFormComponent implements OnInit {
   //Grids
   themeGrid: any = environment.agGridTheme;
   columnDefsRoles: any[];
+  getAllElementsEventRoles: Subject<any[]> = new Subject <any[]>();
   columnDefsTerritories: any[];
+  getAllElementsEventTerritories: Subject<any[]> = new Subject <any[]>();
 
   //Dialog
   columnDefsRolesDialog: any[];
+  addElementsEventRoles: Subject<any[]> = new Subject <any[]>();
   columnDefsTerritoriesDialog: any[];
+  addElementsEventTerritories: Subject<any[]> = new Subject <any[]>();
 
 
 
@@ -60,10 +65,10 @@ export class TasksDownloadFormComponent implements OnInit {
             this.taskDownloadToEdit = resp;
             this.formTasksDownload.setValue({
               id: this.taskDownloadID,
-              task: this.taskDownloadToEdit.task,
-              groupTask: this.taskDownloadToEdit.groupTask,
-              path: this.taskDownloadToEdit.path,
-              extent: this.taskDownloadToEdit.extent,
+              task: this.taskDownloadToEdit.name,
+              groupTask: this.taskDownloadToEdit.groupName,
+              path: ' ',
+              extent: '',
               _links: this.taskDownloadToEdit._links
             });
 
@@ -82,59 +87,30 @@ export class TasksDownloadFormComponent implements OnInit {
 
 
       this.columnDefsRoles = [
-        {
-          headerName: '',
-          checkboxSelection: true,
-          headerCheckboxSelection: true,
-          editable: false,
-          filter: false,
-          width: 25,
-          lockPosition: true,
-        },
+      environment.selCheckboxColumnDef,
         { headerName: 'Id', field: 'id', editable: false },
         { headerName: this.utils.getTranslate('tasksDownloadEntity.name'), field: 'name' },  
+        { headerName: this.utils.getTranslate('tasksDownloadEntity.status'), field: 'status' },  
       ];
   
       this.columnDefsTerritories = [
-        {
-          headerName: '',
-          checkboxSelection: true,
-          headerCheckboxSelection: true,
-          editable: false,
-          filter: false,
-          width: 25,
-          lockPosition: true,
-        },
+        environment.selCheckboxColumnDef,
         { headerName: 'Id', field: 'id', editable: false },
         { headerName: this.utils.getTranslate('tasksDownloadEntity.code'), field: 'name' },
+        { headerName: this.utils.getTranslate('tasksDownloadEntity.status'), field: 'status' },  
+
   
       ];
 
       this.columnDefsRolesDialog = [
-        {
-          headerName: '',
-          checkboxSelection: true,
-          headerCheckboxSelection: true,
-          editable: false,
-          filter: false,
-          width: 50,
-          lockPosition:true,
-        },
+        environment.selCheckboxColumnDef,
         { headerName: 'ID', field: 'id', editable: false },
         { headerName: this.utils.getTranslate('tasksDownloadEntity.name'), field: 'name', editable: false },
-        { headerName: this.utils.getTranslate('tasksDownloadEntity.note'), field: 'description' },
+        { headerName: this.utils.getTranslate('tasksDownloadEntity.note'), field: 'description', editable: false, },
       ];
 
       this.columnDefsTerritoriesDialog = [
-        {
-          headerName: '',
-          checkboxSelection: true,
-          headerCheckboxSelection: true,
-          editable: false,
-          filter: false,
-          width: 50,
-          lockPosition:true,
-        },
+        environment.selCheckboxColumnDef,
         { headerName: 'ID', field: 'id', editable: false },
         { headerName: this.utils.getTranslate('tasksDownloadEntity.name'), field: 'name',  editable: false  },
         { headerName: this.utils.getTranslate('tasksDownloadEntity.code'), field: 'code',  editable: false  },
@@ -178,48 +154,37 @@ export class TasksDownloadFormComponent implements OnInit {
   // ******** Roles ******** //
   getAllRoles = () => {
     
-    return (this.http.get(`${this.formTasksDownload.value._links.cartographies.href}`))
-    .pipe( map( data =>  data['_embedded']['cartographies']) );
+    return (this.http.get(`${this.taskDownloadToEdit._links.roles.href}`))
+    .pipe( map( data =>  data['_embedded']['roles']) );
 
   }
 
-  removeDataRoles(data: any[]) {
-    console.log(data);
-  }
 
-  newDataRoles(id: any) {
-    // this.router.navigate(['role', id, 'roleForm']);
-  }
-
-  applyChangesRoles(data: any[]) {
+  getAllRowsRoles(data: any[] )
+  {
     console.log(data);
   }
 
 
   // ******** Territories  ******** //
   getAllTerritories = () => {
-    var urlReq=`${this.formTasksDownload.value._links.tasks.href}`
-    if(this.formTasksDownload.value._links.tasks.templated){
+    var urlReq=`${this.taskDownloadToEdit._links.availabilities.href}`
+    if(this.taskDownloadToEdit._links.availabilities.templated){
       var url=new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection","view")
       urlReq=url.toString();
     }
 
     return (this.http.get(urlReq))
-    .pipe( map( data =>  data['_embedded']['tasks']) );
+    .pipe( map( data =>  data['_embedded']['task-availabilities']) );
+
     
     
   }
 
-  removeDataTerritories(data: any[]) {
-    console.log(data);
-  }
-  
-  newDataTerritories(id: any) {
-    // this.router.navigate(['role', id, 'roleForm']);
-  }
 
-  applyChangesTerritories(data: any[]) {
+  getAllRowsTerritories(data: any[] )
+  {
     console.log(data);
   }
   
@@ -231,7 +196,7 @@ export class TasksDownloadFormComponent implements OnInit {
 
   openRolesDialog(data: any) {
 
-    const dialogRef = this.dialog.open(DialogGridComponent);
+    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
     dialogRef.componentInstance.getAllsTable=[this.getAllRolesDialog];
     dialogRef.componentInstance.singleSelectionTable=[false];
     dialogRef.componentInstance.columnDefsTable=[this.columnDefsRolesDialog];
@@ -244,7 +209,9 @@ export class TasksDownloadFormComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if(result){
-        if( result.event==='Add') {console.log(result.data); }
+        if(result.event==='Add') {
+          this.addElementsEventRoles.next(result.data[0])
+        }
       }
 
     });
@@ -259,7 +226,7 @@ export class TasksDownloadFormComponent implements OnInit {
 
     openTerritoriesDialog(data: any) {
 
-      const dialogRef = this.dialog.open(DialogGridComponent);
+      const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
       dialogRef.componentInstance.getAllsTable=[this.getAllTerritoriesDialog];
       dialogRef.componentInstance.singleSelectionTable=[false];
       dialogRef.componentInstance.columnDefsTable=[this.columnDefsTerritoriesDialog];
@@ -272,7 +239,9 @@ export class TasksDownloadFormComponent implements OnInit {
   
       dialogRef.afterClosed().subscribe(result => {
         if(result){
-          if( result.event==='Add') {console.log(result.data); }
+          if(result.event==='Add') {
+            this.addElementsEventTerritories.next(result.data[0])
+          }
         }
   
       });

@@ -1,14 +1,14 @@
 <div class="titleDiv" >
-    <h4><mat-icon aria-hidden="false"  svgIcon="menu_capes_fons"></mat-icon> {{ "backgroundEntity.backgroundLayers" | translate }}-{{"backgroundEntity."+(backgroundID==-1?"new":"edit") | translate}}</h4>
+    <h4><mat-icon aria-hidden="false"  svgIcon="menu_capes_fons"></mat-icon> {{ "backgroundEntity.backgroundLayers" | translate }}-{{(backgroundID==-1?"new":"edit") | translate}}</h4>
     <span class="divider"></span>
 </div>
 
   <div class="formDiv">
     <div class="formHeader">
       <h5> {{'backgroundEntity.generalData' | translate}} </h5>
-      <button   mat-flat-button class="saveButton" >
+      <button   mat-flat-button (click)='onSaveButtonClicked()' class="saveButton" >
         <mat-icon fontSet="material-icons-round"  > save </mat-icon>
-        {{ "backgroundEntity.save" | translate }}
+        {{ "save" | translate }}
       </button>
     </div>
     <span class="divider"></span>

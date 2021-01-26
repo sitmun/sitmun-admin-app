@@ -2,13 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TaskService, TerritoryService, RoleService } from 'dist/sitmun-frontend-core/';
+import { TaskService, TerritoryService, RoleService } from '@sitmun/frontend-core';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-tasks-edition-form',
@@ -28,13 +29,19 @@ export class TasksEditionFormComponent implements OnInit {
    //Grids
    themeGrid: any = environment.agGridTheme;
    columnDefsColumns: any[];
+   getAllElementsEventColumns: Subject<any[]> = new Subject <any[]>();
    columnDefsRoles: any[];
+   getAllElementsEventRoles: Subject<any[]> = new Subject <any[]>();
    columnDefsTerritories: any[];
+   getAllElementsEventTerritories: Subject<any[]> = new Subject <any[]>();
  
    //Dialog
    columnDefsColumnsDialog: any[];
+   addElementsEventColumns: Subject<any[]> = new Subject <any[]>();
    columnDefsRolesDialog: any[];
+   addElementsEventRoles: Subject<any[]> = new Subject <any[]>();
    columnDefsTerritoriesDialog: any[];
+   addElementsEventTerritories: Subject<any[]> = new Subject <any[]>();
  
  
  
@@ -66,11 +73,11 @@ export class TasksEditionFormComponent implements OnInit {
              this.formTasksEdition.setValue({
                id: this.taskEditionID,
                name: this.taskEditionToEdit.name,
-               editionType: this.taskEditionToEdit.editionType,
-               taskGroup: this.taskEditionToEdit.taskGrop,
-               service: this.taskEditionToEdit.service,
-               layerName: this.taskEditionToEdit.layerName,
-               emptyGeometryParameter: this.taskEditionToEdit.emptyGeometryParameter,
+               editionType: '',
+               taskGroup: this.taskEditionToEdit.groupName,
+               service: '',
+               layerName: '',
+               emptyGeometryParameter: '',
                _links: this.taskEditionToEdit._links
              });
 
@@ -88,15 +95,7 @@ export class TasksEditionFormComponent implements OnInit {
        });
 
        this.columnDefsColumns = [
-         {
-           headerName: '',
-           checkboxSelection: true,
-           headerCheckboxSelection: true,
-           editable: false,
-           filter: false,
-           width: 25,
-           lockPosition: true,
-         },
+        environment.selCheckboxColumnDef,
          { headerName: 'Id', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksEditionEntity.selectable'), field: 'selectable' },  
          { headerName: this.utils.getTranslate('tasksEditionEntity.editable'), field: 'editable' },  
@@ -107,35 +106,22 @@ export class TasksEditionFormComponent implements OnInit {
          { headerName: this.utils.getTranslate('tasksEditionEntity.obligatory'), field: 'obligatory' },  
          { headerName: this.utils.getTranslate('tasksEditionEntity.help'), field: 'help' },  
          { headerName: this.utils.getTranslate('tasksEditionEntity.selectPath'), field: 'selectPath' },  
+         { headerName: this.utils.getTranslate('tasksEditionEntity.status'), field: 'status' },  
        ];
 
 
        this.columnDefsRoles = [
-         {
-           headerName: '',
-           checkboxSelection: true,
-           headerCheckboxSelection: true,
-           editable: false,
-           filter: false,
-           width: 25,
-           lockPosition: true,
-         },
+        environment.selCheckboxColumnDef,
          { headerName: 'Id', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksEditionEntity.name'), field: 'name' },  
+         { headerName: this.utils.getTranslate('tasksEditionEntity.status'), field: 'status' },
        ];
    
        this.columnDefsTerritories = [
-         {
-           headerName: '',
-           checkboxSelection: true,
-           headerCheckboxSelection: true,
-           editable: false,
-           filter: false,
-           width: 25,
-           lockPosition: true,
-         },
+        environment.selCheckboxColumnDef,
          { headerName: 'Id', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksEditionEntity.name'), field: 'name' },
+         { headerName: this.utils.getTranslate('tasksEditionEntity.status'), field: 'status' },
    
        ];
 
@@ -157,29 +143,13 @@ export class TasksEditionFormComponent implements OnInit {
 
 
        this.columnDefsRolesDialog = [
-         {
-           headerName: '',
-           checkboxSelection: true,
-           headerCheckboxSelection: true,
-           editable: false,
-           filter: false,
-           width: 50,
-           lockPosition:true,
-         },
+        environment.selCheckboxColumnDef,
          { headerName: 'ID', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksEditionEntity.name'), field: 'name', editable: false },
        ];
  
        this.columnDefsTerritoriesDialog = [
-         {
-           headerName: '',
-           checkboxSelection: true,
-           headerCheckboxSelection: true,
-           editable: false,
-           filter: false,
-           width: 50,
-           lockPosition:true,
-         },
+        environment.selCheckboxColumnDef,
          { headerName: 'ID', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksEditionEntity.name'), field: 'name',  editable: false  },
        ];
@@ -199,6 +169,7 @@ export class TasksEditionFormComponent implements OnInit {
        service: new FormControl(null, []),
        layerName: new FormControl(null, []),
        emptyGeometryParameter: new FormControl(null, []),
+       _links: new FormControl(null, []),
      })
    }
  
@@ -239,54 +210,40 @@ export class TasksEditionFormComponent implements OnInit {
      return of(aux);
  
    }
- 
-   removeDataColumns(data: any[]) {
-     console.log(data);
-   }
- 
-   newDataColumns(id: any) {
-     // this.router.navigate(['role', id, 'roleForm']);
-   }
- 
-   applyChangesColumns(data: any[]) {
+
+
+   getAllRowsColumns(data: any[] )
+   {
      console.log(data);
    }
    
    
    // ******** Roles ******** //
    getAllRoles = () => {
-     
-     // return (this.http.get(`${this.formTasksEdition.value._links.cartographies.href}`))
-     // .pipe( map( data =>  data['_embedded']['cartographies']) );
-     const aux: Array<any> = [];
-     return of(aux);
+     console.log(this.taskEditionToEdit);
+     return (this.http.get(`${this.taskEditionToEdit._links.roles.href}`))
+     .pipe( map( data =>  data['_embedded']['roles']) );
+
  
    }
+
  
-   removeDataRoles(data: any[]) {
+   getAllRowsRoles(data: any[] )
+   {
      console.log(data);
    }
- 
-   newDataRoles(id: any) {
-     // this.router.navigate(['role', id, 'roleForm']);
-   }
- 
-   applyChangesRoles(data: any[]) {
-     console.log(data);
-   }
- 
  
    // ******** Territories  ******** //
    getAllTerritories = () => {
-     // var urlReq=`${this.formTasksEdition.value._links.tasks.href}`
-     // if(this.formTasksEdition.value._links.tasks.templated){
-     //   var url=new URL(urlReq.split("{")[0]);
-     //   url.searchParams.append("projection","view")
-     //   urlReq=url.toString();
-     // }
- 
-     // return (this.http.get(urlReq))
-     // .pipe( map( data =>  data['_embedded']['tasks']) );
+    var urlReq=`${this.taskEditionToEdit._links.availabilities.href}`
+    if(this.taskEditionToEdit._links.availabilities.templated){
+      var url=new URL(urlReq.split("{")[0]);
+      url.searchParams.append("projection","view")
+      urlReq=url.toString();
+    }
+    return (this.http.get(urlReq))
+    .pipe( map( data =>  data['_embedded']['task-availabilities']) );
+    
      
      const aux: Array<any> = [];
      return of(aux);
@@ -305,6 +262,11 @@ export class TasksEditionFormComponent implements OnInit {
      console.log(data);
    }
 
+   getAllRowsTerritories(data: any[] )
+   {
+     console.log(data);
+   }
+
    // ******** Columns Dialog  ******** //
  
    getAllColumnsDialog = () => {
@@ -315,7 +277,7 @@ export class TasksEditionFormComponent implements OnInit {
  
    openColumnsDialog(data: any) {
  
-     const dialogRef = this.dialog.open(DialogGridComponent);
+     const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
      dialogRef.componentInstance.getAllsTable=[this.getAllColumnsDialog];
      dialogRef.componentInstance.singleSelectionTable=[false];
      dialogRef.componentInstance.columnDefsTable=[this.columnDefsColumnsDialog];
@@ -344,7 +306,7 @@ export class TasksEditionFormComponent implements OnInit {
  
    openRolesDialog(data: any) {
  
-     const dialogRef = this.dialog.open(DialogGridComponent);
+     const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
      dialogRef.componentInstance.getAllsTable=[this.getAllRolesDialog];
      dialogRef.componentInstance.singleSelectionTable=[false];
      dialogRef.componentInstance.columnDefsTable=[this.columnDefsRolesDialog];
@@ -357,7 +319,11 @@ export class TasksEditionFormComponent implements OnInit {
  
      dialogRef.afterClosed().subscribe(result => {
       if(result){
-        if( result.event==='Add') {console.log(result.data); }
+        if(result.event==='Add') {
+          if(result.event==='Add') {
+            this.addElementsEventRoles.next(result.data[0])
+          }
+        }
       }
  
      });
@@ -372,7 +338,7 @@ export class TasksEditionFormComponent implements OnInit {
  
      openTerritoriesDialog(data: any) {
  
-       const dialogRef = this.dialog.open(DialogGridComponent);
+       const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
        dialogRef.componentInstance.getAllsTable=[this.getAllTerritoriesDialog];
        dialogRef.componentInstance.singleSelectionTable=[false];
        dialogRef.componentInstance.columnDefsTable=[this.columnDefsTerritoriesDialog];
@@ -385,7 +351,9 @@ export class TasksEditionFormComponent implements OnInit {
    
        dialogRef.afterClosed().subscribe(result => {
         if(result){
-          if( result.event==='Add') {console.log(result.data); }
+          if(result.event==='Add') {
+            this.addElementsEventTerritories.next(result.data[0])
+          }
         }
    
        });

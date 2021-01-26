@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BackgroundService, HalOptions, HalParam, CartographyGroupService } from 'dist/sitmun-frontend-core/';
+import { BackgroundService, HalOptions, HalParam, CartographyGroupService, Background } from '@sitmun/frontend-core';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 
@@ -58,7 +58,7 @@ export class BackgroundLayersFormComponent implements OnInit {
               id: this.backgroundID,
               name: this.backgroundToEdit.name,
               description: this.backgroundToEdit.description,
-              cartographyGroup: this.backgroundToEdit['cartographyGroup.id'],
+              cartographyGroup: this.backgroundToEdit.cartographyGroupId,
               active: this.backgroundToEdit.active,
               _links: this.backgroundToEdit._links
             });
@@ -114,22 +114,27 @@ export class BackgroundLayersFormComponent implements OnInit {
 
   }
 
-  addNewBackground() {
-    console.log(this.backgroundForm.value);
-    this.backgroundService.create(this.backgroundForm.value)
+  onSaveButtonClicked(){
+    let cartographyGroup= this.permissionGroups.find(x => x.id===this.backgroundForm.value.cartographyGroup )
+    if(cartographyGroup==undefined){
+      cartographyGroup=""
+    }
+
+    var backgroundObj: Background=new Background();
+    backgroundObj.name= this.backgroundForm.value.name;
+    backgroundObj.description= this.backgroundForm.value.description;
+    backgroundObj.cartographyGroup=cartographyGroup
+    backgroundObj.active= this.backgroundForm.value.active;
+    backgroundObj._links= this.backgroundForm.value._links;
+
+    this.backgroundService.save(backgroundObj)
       .subscribe(resp => {
         console.log(resp);
-        // this.router.navigate(["/company", resp.id, "formConnection"]);
+        this.backgroundToEdit=resp;
+      },
+      error=>{
+        console.log("error")
       });
-  }
+    }
 
-  updateBackground() {
-
-    console.log(this.backgroundForm.value);
-    this.backgroundService.update(this.backgroundForm.value)
-      .subscribe(resp => {
-        console.log(resp);
-      });
-
-  }
 }

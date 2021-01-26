@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { ServiceService, Service } from 'dist/sitmun-frontend-core/';
+import { ServiceService, Service } from '@sitmun/frontend-core';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { Subject } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 
 @Component({
   selector: 'app-service',
@@ -16,7 +18,8 @@ export class ServiceComponent implements OnInit {
   themeGrid: any = environment.agGridTheme;
   columnDefs: any[];
 
-  constructor(public serviceService: ServiceService,
+  constructor(public dialog: MatDialog,
+    public serviceService: ServiceService,
     private utils: UtilsService,
     private router: Router,
   ) {
@@ -24,34 +27,25 @@ export class ServiceComponent implements OnInit {
   }
 
   ngOnInit() {
+
+    var columnEditBtn=environment.editBtnColumnDef;
+    columnEditBtn['cellRendererParams']= {
+      clicked: this.newData.bind(this)
+    }
+
     this.columnDefs = [
-      {
-        headerName: '',
-        checkboxSelection: true,
-        headerCheckboxSelection: true,
-        editable: false,
-        filter: false,
-        width: 40,
-        lockPosition: true,
-      },
-      {
-        headerName: '',
-        field: 'id',
-        editable: false,
-        filter: false,
-        width: 55,
-        lockPosition: true,
-        cellRenderer: 'btnEditRendererComponent',
-        cellRendererParams: {
-          clicked: this.newData.bind(this)
-        },
-      },
+      environment.selCheckboxColumnDef,
+      columnEditBtn,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('serviceEntity.name'), field: 'name' },
-      { headerName: this.utils.getTranslate('serviceEntity.type'), field: 'type' },
+      { headerName: this.utils.getTranslate('serviceEntity.type'), field: 'type', editable: false },
       { headerName: this.utils.getTranslate('serviceEntity.serviceURL'), field: 'serviceURL' },
       { headerName: this.utils.getTranslate('serviceEntity.supportedSRS'), field: 'supportedSRS' },
-      { headerName: this.utils.getTranslate('serviceEntity.createdDate'), field: 'createdDate' } // type: 'dateColumn'
+      {
+        headerName: this.utils.getTranslate('serviceEntity.createdDate'), field: 'createdDate',
+        filter: 'agDateColumnFilter', filterParams: this.utils.getDateFilterParams(),
+        editable: false, cellRenderer: (data) => { return this.utils.getDateFormated(data) }
+      }// type: 'dateColumn'
     ];
   }
 
@@ -87,13 +81,26 @@ export class ServiceComponent implements OnInit {
   }
 
   removeData(data: Service[]) {
-    const promises: Promise<any>[] = [];
-    data.forEach(service => {
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.serviceService.delete(service).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
-      });
+
+    
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title=this.utils.getTranslate("caution");
+    dialogRef.componentInstance.message=this.utils.getTranslate("removeMessage");
+    dialogRef.afterClosed().subscribe(result => {
+      if(result){
+        if(result.event==='Accept') {  
+          const promises: Promise<any>[] = [];
+          data.forEach(service => {
+            promises.push(new Promise((resolve, reject) => {​​​​​​​ this.serviceService.delete(service).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+            Promise.all(promises).then(() => {
+              this.dataUpdatedEvent.next(true);
+            });
+          });
+       }
+      }
     });
+
+
 
   }
 

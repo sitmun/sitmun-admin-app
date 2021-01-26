@@ -1,5 +1,5 @@
 <div class="titleDiv" >
-  <h4><mat-icon aria-hidden="false"  svgIcon="ic_gruptasca"></mat-icon> {{ "taskGroupEntity.taskGroup" | translate }}-{{"taskGroupEntity."+(taskGroupID==-1?"new":"edit") | translate}}</h4>
+  <h4><mat-icon aria-hidden="false"  svgIcon="ic_gruptasca"></mat-icon> {{ "taskGroupEntity.taskGroup" | translate }}-{{(taskGroupID==-1?"new":"edit") | translate}}</h4>
   <span class="divider"></span>
 </div>
 
@@ -7,9 +7,9 @@
 <div class="formDiv">  
   <div class="formHeader">
     <h5> {{'taskGroupEntity.generalData' | translate}} </h5>
-    <button   mat-flat-button class="saveButton"  >
+    <button   mat-flat-button (click)="onSaveButtonClicked()" class="saveButton"  >
       <mat-icon fontSet="material-icons-round"  > save </mat-icon>
-      {{ "taskGroupEntity.save" | translate }}
+      {{ "save" | translate }}
     </button>
   </div>
   <span class="divider"></span>

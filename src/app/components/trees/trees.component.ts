@@ -1,10 +1,12 @@
 
 import { Component, OnInit } from '@angular/core';
-import { TreeService, Tree } from 'dist/sitmun-frontend-core/';
+import { TreeService, Tree } from '@sitmun/frontend-core';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { Subject } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
  
 @Component({
   selector: 'app-trees',
@@ -18,7 +20,7 @@ export class TreesComponent implements OnInit {
   columnDefs: any[];
 
 
-  constructor(
+  constructor(public dialog: MatDialog,
     public treeService: TreeService,
     private utils: UtilsService,
     private router: Router,
@@ -27,28 +29,16 @@ export class TreesComponent implements OnInit {
   }
 
   ngOnInit() {
+
+    var columnEditBtn=environment.editBtnColumnDef;
+    columnEditBtn['cellRendererParams']= {
+      clicked: this.newData.bind(this)
+    }
+
+
     this.columnDefs = [
-      {
-        headerName: '',
-        checkboxSelection: true,
-        headerCheckboxSelection: true,
-        editable: false,
-        filter: false,
-        width: 15,
-        lockPosition: true,
-      },
-      {
-        headerName: '',
-        field: 'id',
-        editable: false,
-        filter: false,
-        width: 14,
-        lockPosition: true,
-        cellRenderer: 'btnEditRendererComponent',
-        cellRendererParams: {
-          clicked: this.newData.bind(this)
-        },
-      },
+      environment.selCheckboxColumnDef,
+      columnEditBtn,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('treesEntity.name'), field: 'name' },
     ];
@@ -61,7 +51,7 @@ export class TreesComponent implements OnInit {
   }
 
   newData(id: any) {
-    // this.router.navigate(['trees', id, 'treesForm']);
+    this.router.navigate(['trees', id, 'treesForm']);
   }
 
   applyChanges(data: Tree[]) {
@@ -87,13 +77,25 @@ export class TreesComponent implements OnInit {
   }
 
   removeData(data: Tree[]) {
-    const promises: Promise<any>[] = [];
-    data.forEach(tree => {
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.treeService.delete(tree).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
-      });
+
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title=this.utils.getTranslate("caution");
+    dialogRef.componentInstance.message=this.utils.getTranslate("removeMessage");
+    dialogRef.afterClosed().subscribe(result => {
+      if(result){
+        if(result.event==='Accept') {  
+          const promises: Promise<any>[] = [];
+          data.forEach(tree => {
+            promises.push(new Promise((resolve, reject) => {​​​​​​​ this.treeService.delete(tree).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+            Promise.all(promises).then(() => {
+              this.dataUpdatedEvent.next(true);
+            });
+          });
+       }
+      }
     });
+
+
 
   }
 

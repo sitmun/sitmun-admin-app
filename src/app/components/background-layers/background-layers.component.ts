@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { BackgroundService, Background } from 'dist/sitmun-frontend-core/';
+import { BackgroundService, Background } from '@sitmun/frontend-core';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { Subject } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 
 @Component({
   selector: 'app-background-layers',
@@ -17,7 +19,8 @@ export class BackgroundLayersComponent implements OnInit {
   columnDefs: any[];
 
 
-  constructor(public backgroundService: BackgroundService,
+  constructor(public dialog: MatDialog,
+    public backgroundService: BackgroundService,
     private utils: UtilsService,
     private router: Router,
 
@@ -27,35 +30,22 @@ export class BackgroundLayersComponent implements OnInit {
 
   ngOnInit() {
 
+    var columnEditBtn=environment.editBtnColumnDef;
+    columnEditBtn['cellRendererParams']= {
+      clicked: this.newData.bind(this)
+    }
 
 
     this.columnDefs = [
-      {
-        headerName: '',
-        checkboxSelection: true,
-        headerCheckboxSelection: true,
-        editable: false,
-        filter: false,
-        width: 30,
-        lockPosition: true,
-      },
-      {
-        headerName: '',
-        field: 'id',
-        editable: false,
-        filter: false,
-        width: 35,
-        lockPosition: true,
-        cellRenderer: 'btnEditRendererComponent',
-        cellRendererParams: {
-          clicked: this.newData.bind(this)
-        },
-      },
+      environment.selCheckboxColumnDef,
+      columnEditBtn,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('backgroundEntity.name'), field: 'name' },
       { headerName: this.utils.getTranslate('backgroundEntity.description'), field: 'description' },
-      { headerName: this.utils.getTranslate('backgroundEntity.active'), field: 'active' },
-      { headerName: this.utils.getTranslate('backgroundEntity.cartographyGroup'), field: 'cartographyGroupName' }
+      { headerName: this.utils.getTranslate('backgroundEntity.active'), field: 'active', editable: false,
+      cellRenderer: 'btnCheckboxRendererComponent', floatingFilterComponent: 'btnCheckboxFilterComponent',
+      floatingFilterComponentParams: { suppressFilterButton: true }, },
+      { headerName: this.utils.getTranslate('backgroundEntity.cartographyGroup'), editable: false, field: 'cartographyGroupName' }
     ];
 
   }
@@ -87,7 +77,7 @@ export class BackgroundLayersComponent implements OnInit {
     data.forEach(background => {
       background.id = null;
       let newCartographyGroup = {
-        id: background[`cartographyGroup.id`],
+        id: background.cartographyGroupId,
         name: background.cartographyGroupName
       }
       background.cartographyGroup = newCartographyGroup;
@@ -101,13 +91,25 @@ export class BackgroundLayersComponent implements OnInit {
   }
 
   removeData(data: Background[]) {
-    const promises: Promise<any>[] = [];
-    data.forEach(background => {
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.backgroundService.delete(background).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
-      });
+
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title=this.utils.getTranslate("caution");
+    dialogRef.componentInstance.message=this.utils.getTranslate("removeMessage");
+    dialogRef.afterClosed().subscribe(result => {
+      if(result){
+        if(result.event==='Accept') {  
+          const promises: Promise<any>[] = [];
+          data.forEach(background => {
+            promises.push(new Promise((resolve, reject) => {​​​​​​​ this.backgroundService.delete(background).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+            Promise.all(promises).then(() => {
+              this.dataUpdatedEvent.next(true);
+            });
+          });
+       }
+      }
     });
+
+
 
   }
 

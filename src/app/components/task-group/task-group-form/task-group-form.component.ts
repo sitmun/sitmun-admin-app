@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TaskGroupService, UserService, } from 'dist/sitmun-frontend-core/';
-import { Connection } from 'dist/sitmun-frontend-core/connection/connection.model';
+import { TaskGroupService, UserService,Connection } from '@sitmun/frontend-core';
+
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 
@@ -74,27 +74,21 @@ export class TaskGroupFormComponent implements OnInit {
 
   }
 
-  // addNewTaskGroup() {
-  //   console.log(this.formRole.value);
-  //   this.taskGroupService.create(this.formRole.value)
-  //     .subscribe(resp => {
-  //       console.log(resp);
-  //      
-  //     });
 
 
-  // }
+  onSaveButtonClicked(){
 
-  // updateTaskGroup() {
+    this.taskGroupService.create(this.formtaskGroup.value)
+      .subscribe(resp => {
+        console.log(resp); 
+        this.taskGroupToEdit=resp;
+      },
+      error => {
+        console.log(error);
+      });
 
-  //   console.log(this.formRole.value);
 
-  //   this.taskGroupService.update(this.formRole.value)
-  //     .subscribe(resp => {
-  //       console.log(resp);
+  }
 
-  //     });
-
-  // }
 
 }

@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { CartographyGroupService, CartographyGroup } from 'dist/sitmun-frontend-core/';
+import { CartographyGroupService, CartographyGroup } from '@sitmun/frontend-core';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { Subject } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 
 @Component({
   selector: 'app-layers-permits',
@@ -18,7 +20,8 @@ export class LayersPermitsComponent implements OnInit {
 
   permissionGroupTypes: Array<any> = [];
 
-  constructor(public cartographyGroupService: CartographyGroupService,
+  constructor(public dialog: MatDialog,
+    public cartographyGroupService: CartographyGroupService,
     private utils: UtilsService,
     private router: Router
   ) {
@@ -32,33 +35,18 @@ export class LayersPermitsComponent implements OnInit {
         this.permissionGroupTypes.push(...resp);
       }
     );
+    var columnEditBtn=environment.editBtnColumnDef;
+    columnEditBtn['cellRendererParams']= {
+      clicked: this.newData.bind(this)
+    }
 
     this.columnDefs = [
-      {
-        headerName: '',
-        checkboxSelection: true,
-        headerCheckboxSelection: true,
-        editable: false,
-        filter: false,
-        width: 20,
-        lockPosition: true,
-      },
-      {
-        headerName: '',
-        field: 'id',
-        editable: false,
-        filter: false,
-        width: 27.5,
-        lockPosition: true,
-        cellRenderer: 'btnEditRendererComponent',
-        cellRendererParams: {
-          clicked: this.newData.bind(this)
-        },
-      },
+      environment.selCheckboxColumnDef,
+      columnEditBtn,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('layersPermitsEntity.name'), field: 'name' },
       {
-        headerName: this.utils.getTranslate('layersPermitsEntity.type'),
+        headerName: this.utils.getTranslate('layersPermitsEntity.type'),editable: false,
         valueGetter: (params) => { 
           var alias=this.permissionGroupTypes.filter((type) => type.value == params.data.type)[0];
           return alias!=undefined? alias.description: params.data.type
@@ -100,12 +88,22 @@ export class LayersPermitsComponent implements OnInit {
   }
 
   removeData(data: CartographyGroup[]) {
-    const promises: Promise<any>[] = [];
-    data.forEach(cartographyGroup => {
-      promises.push(new Promise((resolve, reject) => { this.cartographyGroupService.delete(cartographyGroup).toPromise().then((resp) => { resolve() }) }));
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
-      });
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title=this.utils.getTranslate("caution");
+    dialogRef.componentInstance.message=this.utils.getTranslate("removeMessage");
+    dialogRef.afterClosed().subscribe(result => {
+      if(result){
+        if(result.event==='Accept') {  
+          const promises: Promise<any>[] = [];
+          data.forEach(cartographyGroup => {
+            promises.push(new Promise((resolve, reject) => { this.cartographyGroupService.delete(cartographyGroup).toPromise().then((resp) => { resolve() }) }));
+            Promise.all(promises).then(() => {
+              this.dataUpdatedEvent.next(true);
+            });
+          });
+      
+       }
+      }
     });
 
   }

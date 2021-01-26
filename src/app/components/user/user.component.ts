@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { User } from 'dist/sitmun-frontend-core/user/user.model';
-import { UserService } from 'dist/sitmun-frontend-core/';
+import { UserService,User } from '@sitmun/frontend-core';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { Subject } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
  
 
 @Component({
@@ -14,11 +15,12 @@ import { Subject } from 'rxjs';
 })
 export class UserComponent implements OnInit {
 
-  dataUpdatedEvent: Subject<boolean> = new Subject <boolean>();
+  dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
   themeGrid: any = environment.agGridTheme;
   columnDefs: any[];
 
-  constructor(public userService: UserService,
+  constructor(public dialog: MatDialog,
+    public userService: UserService,
     private utils: UtilsService,
     private router: Router
   ) {
@@ -32,34 +34,28 @@ export class UserComponent implements OnInit {
     // this.headerNameColumnLastName = await this.translate.get('lastname').toPromise();
     // this.headerNameColumnStatus = await this.translate.get('status').toPromise();
 
+    var columnEditBtn=environment.editBtnColumnDef;
+    columnEditBtn['cellRendererParams']= {
+      clicked: this.newData.bind(this)
+    }
+
     this.columnDefs = [
-      {
-        headerName: '',
-        checkboxSelection: true,
-        headerCheckboxSelection: true,
-        editable: false,
-        filter: false,
-        width:  40,
-        lockPosition: true,
-      },
-      {
-        headerName: '',
-        field: 'id',
-        editable: false,
-        filter: false,
-        width: 55,
-        lockPosition: true,
-        cellRenderer: 'btnEditRendererComponent',
-        cellRendererParams: {
-          clicked: this.newData.bind(this)
-        },
-      },
+      environment.selCheckboxColumnDef,
+      columnEditBtn,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('userEntity.user'), field: 'username' },
       { headerName: this.utils.getTranslate('userEntity.firstname'), field: 'firstName' },
       { headerName: this.utils.getTranslate('userEntity.lastname'), field: 'lastName' },
-      { headerName: this.utils.getTranslate('userEntity.administrator'), field: 'administrator' },
-      { headerName: this.utils.getTranslate('userEntity.blocked'), field: 'blocked' },
+      {
+        headerName: this.utils.getTranslate('userEntity.administrator'), field: 'administrator', editable: false,
+        cellRenderer: 'btnCheckboxRendererComponent', floatingFilterComponent: 'btnCheckboxFilterComponent',
+        floatingFilterComponentParams: { suppressFilterButton: true },
+      },
+      {
+       headerName: this.utils.getTranslate('userEntity.blocked'), field: 'blocked', editable: false,
+        cellRenderer: 'btnCheckboxRendererComponent', floatingFilterComponent: 'btnCheckboxFilterComponent',
+        floatingFilterComponentParams: { suppressFilterButton: true },
+      },
       // { headerName: this.utils.getTranslate('status'), field: 'estat'},
     ];
   }
@@ -76,7 +72,7 @@ export class UserComponent implements OnInit {
   applyChanges(data: User[]) {
     const promises: Promise<any>[] = [];
     data.forEach(user => {
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.userService.update(user).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+      promises.push(new Promise((resolve, reject) => { this.userService.update(user).toPromise().then((resp) => { resolve() }) }));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);
       });
@@ -86,7 +82,7 @@ export class UserComponent implements OnInit {
     const promises: Promise<any>[] = [];
     data.forEach(user => {
       user.id = null;
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.userService.create(user).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+      promises.push(new Promise((resolve, reject) => { this.userService.create(user).toPromise().then((resp) => { resolve() }) }));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);
       });
@@ -95,13 +91,25 @@ export class UserComponent implements OnInit {
   }
 
   removeData(data: User[]) {
-    const promises: Promise<any>[] = [];
-    data.forEach(user => {
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.userService.delete(user).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
-      });
+
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title=this.utils.getTranslate("caution");
+    dialogRef.componentInstance.message=this.utils.getTranslate("removeMessage");
+    dialogRef.afterClosed().subscribe(result => {
+      if(result){
+        if(result.event==='Accept') {  
+          const promises: Promise<any>[] = [];
+          data.forEach(user => {
+            promises.push(new Promise((resolve, reject) => {​​​​​​​ this.userService.delete(user).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+            Promise.all(promises).then(() => {
+              this.dataUpdatedEvent.next(true);
+            });
+          });
+       }
+      }
     });
+
+
 
   }
 

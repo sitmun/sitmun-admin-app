@@ -1,13 +1,13 @@
 <div class="titleDiv" >
-    <h4><mat-icon aria-hidden="false"  svgIcon="menu_aplicacio"></mat-icon> {{ "applicationEntity.application" | translate }}-{{"applicationEntity."+(applicationID==-1?"new":"edit") | translate}}</h4>
+    <h4><mat-icon aria-hidden="false"  svgIcon="menu_aplicacio"></mat-icon> {{ "applicationEntity.application" | translate }}-{{(applicationID==-1?"new":"edit") | translate}}</h4>
     <span class="divider"></span>
   </div>
 <div class="formDiv">
   <div class="formHeader">
     <h5> {{'applicationEntity.generalData' | translate}} </h5>
-    <button   mat-flat-button class="saveButton" (click)="updateApplication()" >
+    <button   mat-flat-button class="saveButton" (click)="onSaveButtonClicked()" >
       <mat-icon fontSet="material-icons-round"  > save </mat-icon>
-      {{ "applicationEntity.save" | translate }}
+      {{ "save" | translate }}
     </button>
   </div>
   <span class="divider"></span>
@@ -58,7 +58,7 @@
               {{'applicationEntity.url' | translate}}
             </label>
             <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="desktopUrl">
+              <input matInput type="text" formControlName="jspTemplate">
             </mat-form-field>
           </div>
 
@@ -67,18 +67,18 @@
               {{'applicationEntity.CSS' | translate}}
             </label>
             <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="desktopCSS">
+              <input matInput type="text" formControlName="theme">
             </mat-form-field>
           </div>
 
-          <div class="colFormDiv" >
+          <!--<div class="colFormDiv" >
             <label class="formLabel">
               {{'applicationEntity.tree' | translate}}
             </label>
             <mat-form-field appearance="outline">
               <input matInput type="text" formControlName="tree">
             </mat-form-field>
-          </div>
+          </div>-->
           <div class="colFormDiv" >
             <label class="formLabel">
               {{'applicationEntity.treeAutoRefresh' | translate}}
@@ -125,8 +125,8 @@
     </form>
 </div>
 
-<div class="tableDiv" *ngIf="dataLoaded">
-  <mat-accordion *ngIf="applicationID != -1" multi>
+<div class="tableDiv" *ngIf="applicationID == -1 || dataLoaded">
+  <mat-accordion  multi>
     <!-- Parameters configuration table -->
     <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
       <mat-expansion-panel-header class="agGridExpansionPanelTitle">
@@ -138,8 +138,9 @@
       <ng-template matExpansionPanelContent>  
           <div class="appDataGridEditDiv">
               <app-data-grid  [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'  
+              [eventAddItemsSubscription]='addElementsEventParameters.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventParameters.asObservable()'  
               [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
-              (remove)="removeParameters($event)" (new)='openParametersDialog()'  > </app-data-grid>
+              (getAllRows)="getAllRowsParameters($event)" (new)="openParametersDialog($event)"   > </app-data-grid>
           </div>
       </ng-template>
         </mat-expansion-panel>
@@ -155,13 +156,14 @@
           <ng-template matExpansionPanelContent>    
               <div class="appDataGridEditDiv">
                   <app-data-grid [columnDefs]="columnDefsTemplates" [themeGrid]='themeGrid' [getAll]='getAllTemplates'  
+                  [eventAddItemsSubscription]='addElementsEventTemplateConfiguration.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventTemplateConfiguration.asObservable()' 
                   [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
-                  [actionButton]=true (add)="openTemplateConfigurationDialog($event)" (remove)="removeTemplates($event)" (new)='newDataTemplates($event)'  > </app-data-grid>
+                  (getAllRows)="getAllRowsTemplates($event)" [actionButton]=true (add)="openTemplateConfigurationDialog($event)"  > </app-data-grid>
               </div>
           </ng-template>
           </mat-expansion-panel>
 
-    <!-- Rols table -->
+    <!-- Roles table -->
         <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
           <mat-expansion-panel-header class="agGridExpansionPanelTitle">
             <mat-panel-title  >
@@ -172,8 +174,9 @@
           <ng-template matExpansionPanelContent>    
               <div class="appDataGridEditDiv">
                   <app-data-grid [columnDefs]="columnDefsRoles" [themeGrid]='themeGrid' [getAll]='getAllRoles'  
-                  [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
-                  [actionButton]=true (add)="openRolesDialog($event)" (remove)="removeRoles($event)" (new)='newDataRoles($event)'  > </app-data-grid>
+                  [eventAddItemsSubscription]='addElementsEventRoles.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventRoles.asObservable()' 
+                   [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
+                   (getAllRows)="getAllRowsRoles($event)" [actionButton]=true (add)="openRolesDialog($event)"   > </app-data-grid>
               </div>
           </ng-template>
           </mat-expansion-panel>
@@ -189,12 +192,85 @@
           <ng-template matExpansionPanelContent>    
               <div class="appDataGridEditDiv">
                   <app-data-grid [columnDefs]="columnDefsBackgrounds" [themeGrid]='themeGrid' [getAll]='getAllBackgrounds' 
+                  [eventAddItemsSubscription]='addElementsEventBackground.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventBackground.asObservable()' 
                   [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
-                  [actionButton]=true (add)="openBackgroundDialog($event)" (remove)="removeBackgrounds($event)" (new)='newDataBackgrounds($event)'  > </app-data-grid>
+                  (getAllRows)="getAllRowsBackgrounds($event)" [actionButton]=true (add)="openBackgroundDialog($event)"  > </app-data-grid>
               </div>
           </ng-template>
           </mat-expansion-panel>
 
+    <!-- Trees table -->
+    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+        <mat-panel-title  >
+          {{ "applicationEntity.tree" | translate }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+  
+      <ng-template matExpansionPanelContent>    
+          <div class="appDataGridEditDiv">
+              <app-data-grid [columnDefs]="columnDefsTrees" [themeGrid]='themeGrid' [getAll]='getAllTrees' 
+              [eventAddItemsSubscription]='addElementsEventTree.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventTree.asObservable()' 
+              [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
+              (getAllRows)="getAllRowsTrees($event)" [actionButton]=true (add)="openTreeDialog($event)"   > </app-data-grid>
+          </div>
+      </ng-template>
+      </mat-expansion-panel>
+
         
   </mat-accordion>
 </div>
+
+
+<ng-template #newParameterDialog>
+
+  <div class="formDiv">
+    <form [formGroup]='parameterForm' #f="ngForm"> 
+  
+  
+      <div class="rowFormDiv">
+      
+          <div class="colFormDiv" >
+            <label class="formLabel requiredInput">
+              {{'applicationEntity.name' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="name" required>
+            </mat-form-field>
+          </div>
+
+   
+   <div class="colFormDiv" >
+    <label class="formLabel requiredInput">
+      {{'applicationEntity.type' | translate}}
+    </label>
+    <mat-form-field appearance="outline" >
+      <mat-select matInput formControlName="type" class="form-control" >
+        <mat-option [value]="parameterType.value" *ngFor="let parameterType of parametersTypes">
+          {{ parameterType.value}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  
+     </div>
+  
+     <div class="rowFormDiv">
+      
+      <div class="colFormDiv" >
+        <label class="formLabel requiredInput">
+          {{'serviceEntity.value' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="value" required>
+        </mat-form-field>
+      </div>
+  
+  
+    </div>
+  
+  </form>
+  </div>
+  
+  
+  </ng-template>

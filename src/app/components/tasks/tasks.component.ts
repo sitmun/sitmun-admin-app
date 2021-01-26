@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { TaskService, Task } from 'dist/sitmun-frontend-core/';
+import { TaskService, Task } from '@sitmun/frontend-core';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { Subject } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 
 @Component({
   selector: 'app-tasks',
@@ -16,7 +18,8 @@ export class TasksComponent implements OnInit {
   themeGrid: any = environment.agGridTheme;
   columnDefs: any[];
 
-  constructor(public tasksService: TaskService,
+  constructor(public dialog: MatDialog,
+    public tasksService: TaskService,
     private utils: UtilsService,
     private router: Router,
   ) { }
@@ -24,28 +27,15 @@ export class TasksComponent implements OnInit {
 
   ngOnInit() {
 
+    var columnEditBtn=environment.editBtnColumnDef;
+    columnEditBtn['cellRendererParams']= {
+      clicked: this.newData.bind(this)
+    }
+
+
     this.columnDefs = [
-      {
-        headerName: '',
-        checkboxSelection: true,
-        headerCheckboxSelection: true,
-        editable: false,
-        filter: false,
-        width: 35,
-        lockPosition: true,
-      },
-      {
-        headerName: '',
-        field: 'id',
-        editable: false,
-        filter: false,
-        width: 40,
-        lockPosition: true,
-        cellRenderer: 'btnEditRendererComponent',
-        cellRendererParams: {
-          clicked: this.newData.bind(this)
-        },
-      },
+      environment.selCheckboxColumnDef,
+      columnEditBtn,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('tasksEntity.task'), field: 'name' },
       { headerName: this.utils.getTranslate('tasksEntity.groupTask'), field: 'groupName', editable: false },
@@ -83,12 +73,22 @@ export class TasksComponent implements OnInit {
   }
 
   removeData(data: Task[]) {
-    const promises: Promise<any>[] = [];
-    data.forEach(task => {
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.tasksService.delete(task).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
-      });
+
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title=this.utils.getTranslate("caution");
+    dialogRef.componentInstance.message=this.utils.getTranslate("removeMessage");
+    dialogRef.afterClosed().subscribe(result => {
+      if(result){
+        if(result.event==='Accept') {  
+          const promises: Promise<any>[] = [];
+          data.forEach(task => {
+            promises.push(new Promise((resolve, reject) => {​​​​​​​ this.tasksService.delete(task).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+            Promise.all(promises).then(() => {
+              this.dataUpdatedEvent.next(true);
+            });
+          });
+       }
+      }
     });
 
   }

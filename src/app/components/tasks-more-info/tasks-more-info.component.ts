@@ -3,6 +3,7 @@ import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { HalOptions, HalParam, TaskService } from '@sitmun/frontend-core';
 
 
 @Component({
@@ -18,40 +19,27 @@ export class TasksMoreInfoComponent implements OnInit {
 
   constructor(private utils: UtilsService,
               private router: Router,
+              public taskService: TaskService
               )
               { }
 
 
   ngOnInit()  {
 
+    var columnEditBtn=environment.editBtnColumnDef;
+    columnEditBtn['cellRendererParams']= {
+      clicked: this.newData.bind(this)
+    }
+    
     this.columnDefs = [
-      {
-        headerName: '',
-        checkboxSelection: true,
-        headerCheckboxSelection: true,
-        editable: false,
-        filter: false,
-        width: 60,
-        lockPosition:true,
-      },
-      {
-        headerName: '',
-        field: 'id',
-        editable: false,
-        filter: false,
-        width: 60,
-        lockPosition:true,
-        cellRenderer: 'btnEditRendererComponent',
-        cellRendererParams: {
-          clicked: this.newData.bind(this)
-        },
-      },
+      environment.selCheckboxColumnDef,
+      columnEditBtn,
       { headerName: 'ID',  field: 'id', editable: false},
-      { headerName: this.utils.getTranslate('tasksMoreInfoEntity.task'),  field: 'task'},
-      { headerName: this.utils.getTranslate('tasksMoreInfoEntity.informationType'),  field: 'informationType'},
+      { headerName: this.utils.getTranslate('tasksMoreInfoEntity.task'),  field: 'name'},
+      { headerName: this.utils.getTranslate('tasksMoreInfoEntity.informationType'),  field: 'groupName',editable: false},
       { headerName: this.utils.getTranslate('tasksMoreInfoEntity.accesType'),  field: 'accesType'},
-      { headerName: this.utils.getTranslate('tasksMoreInfoEntity.command'),  field: 'command'},
-      { headerName: this.utils.getTranslate('tasksMoreInfoEntity.connection'),  field: 'connection'},
+      { headerName: this.utils.getTranslate('tasksMoreInfoEntity.command'),  field: 'order'},
+      { headerName: this.utils.getTranslate('tasksMoreInfoEntity.connection'),  field: 'connection',editable: false},
       { headerName: this.utils.getTranslate('tasksMoreInfoEntity.associatedLayer'),  field: 'associatedLayer' }
     ];
   }
@@ -59,8 +47,12 @@ export class TasksMoreInfoComponent implements OnInit {
 
 
   getAllTasksMoreInfo = () => {
-    const aux:Array<any> = [];
-    return of(aux);
+    let taskTypeID=environment.tasksTypes['moreInfo'];
+    let params2:HalParam[]=[];
+    let param:HalParam={key:'type.id', value:taskTypeID}
+    params2.push(param);
+    let query:HalOptions={ params:params2};
+    return this.taskService.getAll(query,undefined,"tasks");
   }
 
   removeData( data: any[])

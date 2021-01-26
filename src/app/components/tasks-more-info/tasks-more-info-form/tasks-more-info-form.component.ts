@@ -2,13 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TaskService, TerritoryService, RoleService } from 'dist/sitmun-frontend-core/';
+import { TaskService, TerritoryService, RoleService } from '@sitmun/frontend-core';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-tasks-more-info-form',
@@ -27,13 +28,20 @@ export class TasksMoreInfoFormComponent implements OnInit {
    //Grids
    themeGrid: any = environment.agGridTheme;
    columnDefsRoles: any[];
+   getAllElementsEventRoles: Subject<any[]> = new Subject <any[]>();
    columnDefsTerritories: any[];
+   getAllElementsEventTerritories: Subject<any[]> = new Subject <any[]>();
    columnDefsParameters: any[];
+   getAllElementsEventParameters: Subject<any[]> = new Subject <any[]>();
  
    //Dialog
    columnDefsRolesDialog: any[];
+   addElementsEventRoles: Subject<any[]> = new Subject <any[]>();
    columnDefsTerritoriesDialog: any[];
-   columnDefsParametersDialog: any[];
+   addElementsEventTerritories: Subject<any[]> = new Subject <any[]>();
+   columnDefsParametersDialog: any[];   
+   addElementsEventParameters: Subject<any[]> = new Subject <any[]>();
+
  
 
  
@@ -63,12 +71,12 @@ export class TasksMoreInfoFormComponent implements OnInit {
              this.taskMoreInfoToEdit = resp;
              this.formTasksMoreInfo.setValue({
                id: this.taskMoreInfoID,
-               task: this.taskMoreInfoToEdit.task,
-               groupTask: this.taskMoreInfoToEdit.groupTask,
-               accessType: this.taskMoreInfoToEdit.documentType,
-               command: this.taskMoreInfoToEdit.path,
-               connection: this.taskMoreInfoToEdit.extent,
-               associatedLayer: this.taskMoreInfoToEdit.extent,
+               task: this.taskMoreInfoToEdit.name,
+               groupTask: this.taskMoreInfoToEdit.groupName,
+               accessType: '',
+               command: this.taskMoreInfoToEdit.order,
+               connection: '',
+               associatedLayer: '',
                _links: this.taskMoreInfoToEdit._links
              });
  
@@ -87,91 +95,46 @@ export class TasksMoreInfoFormComponent implements OnInit {
 
        this.columnDefsParameters = [
 
-        {
-          headerName: '',
-          checkboxSelection: true,
-          headerCheckboxSelection: true,
-          editable: false,
-          filter: false,
-          width: 40,
-          lockPosition: true,
-        },
+        environment.selCheckboxColumnDef,
         { headerName: this.utils.getTranslate('tasksMoreInfoEntity.key'), field: 'key' },
         { headerName: this.utils.getTranslate('tasksMoreInfoEntity.value'), field: 'value', },
         { headerName: this.utils.getTranslate('tasksMoreInfoEntity.order'), field: 'order' },
+        { headerName: this.utils.getTranslate('tasksMoreInfoEntity.status'), field: 'status' },
   
       ];
  
  
        this.columnDefsRoles = [
-         {
-           headerName: '',
-           checkboxSelection: true,
-           headerCheckboxSelection: true,
-           editable: false,
-           filter: false,
-           width: 25,
-           lockPosition: true,
-         },
+        environment.selCheckboxColumnDef,
          { headerName: 'Id', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksMoreInfoEntity.name'), field: 'name' },  
+         { headerName: this.utils.getTranslate('tasksMoreInfoEntity.status'), field: 'status' },
        ];
    
        this.columnDefsTerritories = [
-         {
-           headerName: '',
-           checkboxSelection: true,
-           headerCheckboxSelection: true,
-           editable: false,
-           filter: false,
-           width: 25,
-           lockPosition: true,
-         },
+        environment.selCheckboxColumnDef,
          { headerName: 'Id', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksMoreInfoEntity.name'), field: 'name' },
+         { headerName: this.utils.getTranslate('tasksMoreInfoEntity.status'), field: 'status' },
    
        ];
 
        this.columnDefsParametersDialog = [
-        {
-          headerName: '',
-          checkboxSelection: true,
-          headerCheckboxSelection: true,
-          editable: false,
-          filter: false,
-          width: 50,
-          lockPosition:true,
-        },
+        environment.selCheckboxColumnDef,
         { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name',  editable: false  },
         { headerName: this.utils.getTranslate('applicationEntity.value'), field: 'value',  editable: false  },
         { headerName: this.utils.getTranslate('applicationEntity.type'), field: 'type',  editable: false  },
       ];
  
        this.columnDefsRolesDialog = [
-         {
-           headerName: '',
-           checkboxSelection: true,
-           headerCheckboxSelection: true,
-           editable: false,
-           filter: false,
-           width: 50,
-           lockPosition:true,
-         },
+        environment.selCheckboxColumnDef,
          { headerName: 'ID', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksMoreInfoEntity.name'), field: 'name', editable: false },
          { headerName: this.utils.getTranslate('tasksMoreInfoEntity.description'), field: 'description' },
        ];
  
        this.columnDefsTerritoriesDialog = [
-         {
-           headerName: '',
-           checkboxSelection: true,
-           headerCheckboxSelection: true,
-           editable: false,
-           filter: false,
-           width: 50,
-           lockPosition:true,
-         },
+        environment.selCheckboxColumnDef,
          { headerName: 'ID', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksMoreInfoEntity.name'), field: 'name',  editable: false  },
          { headerName: this.utils.getTranslate('tasksMoreInfoEntity.code'), field: 'code',  editable: false  },
@@ -216,10 +179,9 @@ export class TasksMoreInfoFormComponent implements OnInit {
 
      // ******** Parameters configuration ******** //
   getAllParameters = (): Observable<any> => {
-    // return (this.http.get(`${this.formTasksMoreInfo.value._links.parameters.href}`))
-    //   .pipe(map(data => data[`_embedded`][`service-parameters`]));
-    const aux: Array<any> = [];
-    return of(aux);
+    return (this.http.get(`${this.taskMoreInfoToEdit._links.parameters.href}`))
+      .pipe(map(data => data[`_embedded`][`task-parameters`]));
+
   }
 
   removeParameters(data: any[]) {
@@ -230,56 +192,42 @@ export class TasksMoreInfoFormComponent implements OnInit {
     // this.router.navigate(['territory', id, 'territoryForm']);
     console.log('screen in progress');
   }
+
+  getAllRowsParameters(data: any[] )
+  {
+    console.log(data);
+  }
    
    // ******** Roles ******** //
    getAllRoles = () => {
      
-     // return (this.http.get(`${this.formTasksMoreInfo.value._links.cartographies.href}`))
-     // .pipe( map( data =>  data['_embedded']['cartographies']) );
-     const aux: Array<any> = [];
-     return of(aux);
+    return (this.http.get(`${this.taskMoreInfoToEdit._links.roles.href}`))
+      .pipe(map(data => data[`_embedded`][`roles`]));
  
    }
  
-   removeDataRoles(data: any[]) {
-     console.log(data);
-   }
- 
-   newDataRoles(id: any) {
-     // this.router.navigate(['role', id, 'roleForm']);
-   }
- 
-   applyChangesRoles(data: any[]) {
+   getAllRowsRoles(data: any[] )
+   {
      console.log(data);
    }
  
  
    // ******** Territories  ******** //
    getAllTerritories = () => {
-     // var urlReq=`${this.formTasksMoreInfo.value._links.tasks.href}`
-     // if(this.formTasksMoreInfo.value._links.tasks.templated){
-     //   var url=new URL(urlReq.split("{")[0]);
-     //   url.searchParams.append("projection","view")
-     //   urlReq=url.toString();
-     // }
- 
-     // return (this.http.get(urlReq))
-     // .pipe( map( data =>  data['_embedded']['tasks']) );
-     
-     const aux: Array<any> = [];
-     return of(aux);
+    var urlReq=`${this.taskMoreInfoToEdit._links.availabilities.href}`
+    if(this.taskMoreInfoToEdit._links.availabilities.templated){
+      var url=new URL(urlReq.split("{")[0]);
+      url.searchParams.append("projection","view")
+      urlReq=url.toString();
+    }
+    return (this.http.get(urlReq))
+    .pipe( map( data =>  data['_embedded']['task-availabilities']) );
+    
      
    }
- 
-   removeDataTerritories(data: any[]) {
-     console.log(data);
-   }
-   
-   newDataTerritories(id: any) {
-     // this.router.navigate(['role', id, 'roleForm']);
-   }
- 
-   applyChangesTerritories(data: any[]) {
+
+   getAllRowsTerritories(data: any[] )
+   {
      console.log(data);
    }
 
@@ -293,7 +241,7 @@ export class TasksMoreInfoFormComponent implements OnInit {
 
   openParametersDialog(data: any) {
   
-    const dialogRef = this.dialog.open(DialogGridComponent);
+    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
     dialogRef.componentInstance.getAllsTable=[this.getAllParametersDialog];
     dialogRef.componentInstance.singleSelectionTable=[false];
     dialogRef.componentInstance.columnDefsTable=[this.columnDefsParametersDialog];
@@ -306,7 +254,9 @@ export class TasksMoreInfoFormComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if(result){
-        if( result.event==='Add') {console.log(result.data); }
+        if(result.event==='Add') {
+          this.addElementsEventParameters.next(result.data[0])
+        }
       }
 
     });
@@ -321,7 +271,7 @@ export class TasksMoreInfoFormComponent implements OnInit {
  
    openRolesDialog(data: any) {
  
-     const dialogRef = this.dialog.open(DialogGridComponent);
+     const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
      dialogRef.componentInstance.getAllsTable=[this.getAllRolesDialog];
      dialogRef.componentInstance.singleSelectionTable=[false];
      dialogRef.componentInstance.columnDefsTable=[this.columnDefsRolesDialog];
@@ -334,7 +284,9 @@ export class TasksMoreInfoFormComponent implements OnInit {
  
      dialogRef.afterClosed().subscribe(result => {
       if(result){
-        if( result.event==='Add') {console.log(result.data); }
+        if(result.event==='Add') {
+          this.addElementsEventRoles.next(result.data[0])
+        }
       }
  
      });
@@ -349,7 +301,7 @@ export class TasksMoreInfoFormComponent implements OnInit {
  
      openTerritoriesDialog(data: any) {
  
-       const dialogRef = this.dialog.open(DialogGridComponent);
+       const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
        dialogRef.componentInstance.getAllsTable=[this.getAllTerritoriesDialog];
        dialogRef.componentInstance.singleSelectionTable=[false];
        dialogRef.componentInstance.columnDefsTable=[this.columnDefsTerritoriesDialog];
@@ -362,7 +314,9 @@ export class TasksMoreInfoFormComponent implements OnInit {
    
        dialogRef.afterClosed().subscribe(result => {
         if(result){
-          if( result.event==='Add') {console.log(result.data); }
+          if(result.event==='Add') {
+            this.addElementsEventTerritories.next(result.data[0])
+          }
         }
    
        });

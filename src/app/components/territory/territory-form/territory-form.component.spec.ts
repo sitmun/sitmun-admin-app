@@ -3,12 +3,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterModule } from '@angular/router';
 import { MaterialModule } from '../../../material-module';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { TerritoryService, TerritoryGroupTypeService, CartographyService, UserService, RoleService, TaskService,UserConfigurationService } from 'dist/sitmun-frontend-core/';
+import { TerritoryService, TerritoryGroupTypeService, CartographyAvailabilityService, CartographyService, UserService, RoleService, TaskService,UserConfigurationService, CodeListService } from '@sitmun/frontend-core';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { RouterTestingModule } from '@angular/router/testing';
-import { CodeListService } from 'dist/sitmun-frontend-core';
 
 describe('TerritoryFormComponent', () => {
   let component: TerritoryFormComponent;
@@ -19,7 +18,7 @@ describe('TerritoryFormComponent', () => {
       declarations: [ TerritoryFormComponent ],
       imports: [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,
         RouterModule.forRoot([]), MaterialModule, MatIconTestingModule],
-     providers: [TerritoryService, UserService, RoleService,  TerritoryGroupTypeService, CartographyService, TaskService, CodeListService,UserConfigurationService,
+     providers: [TerritoryService, UserService, RoleService,  TerritoryGroupTypeService, CartographyService, TaskService, CartographyAvailabilityService, CodeListService,UserConfigurationService,
        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
    })
    .compileComponents();

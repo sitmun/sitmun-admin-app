@@ -1,101 +1,131 @@
-<div class="titleDiv" >
-  <h4><mat-icon aria-hidden="false"  svgIcon="menu_rol"></mat-icon> {{ "roleEntity.role" | translate }}-{{"roleEntity."+(roleID==-1?"new":"edit") | translate}}</h4>
+<div class="titleDiv">
+  <h4>
+    <mat-icon aria-hidden="false" svgIcon="menu_rol"></mat-icon> {{ "roleEntity.role" | translate
+    }}-{{(roleID==-1?"new":"edit") | translate}}
+  </h4>
   <span class="divider"></span>
 </div>
 
-<div class="formDiv"> 
+<div class="formDiv">
   <div class="formHeader">
     <h5> {{'roleEntity.generalData' | translate}} </h5>
-    <button   mat-flat-button (click)="onSaveButtonClicked()" class="saveButton"  >
-      <mat-icon fontSet="material-icons-round"  > save </mat-icon>
-      {{ "roleEntity.save" | translate }}
+    <button mat-flat-button (click)="onSaveButtonClicked()" class="saveButton">
+      <mat-icon fontSet="material-icons-round"> save </mat-icon>
+      {{ "save" | translate }}
     </button>
   </div>
   <span class="divider"></span>
-  <form [formGroup]='formRole' #f="ngForm"> 
-  
-      <div class="rowFormDiv">
-          <div class="MidColFormDiv">
-            <label class="formLabel requiredInput">
-              {{'roleEntity.name' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="name" required>
-            </mat-form-field>
-          </div>
- 
-            <div class="MidColFormDiv" >
-              <label class="formLabel">
-                {{'roleEntity.note' | translate}}
-              </label>
-              <mat-form-field appearance="outline">
-                <input matInput type="text" formControlName="description">
-              </mat-form-field>
-            </div>
+  <form [formGroup]='formRole' #f="ngForm">
 
+    <div class="rowFormDiv">
+      <div class="MidColFormDiv">
+        <label class="formLabel requiredInput">
+          {{'roleEntity.name' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="name" required>
+        </mat-form-field>
       </div>
 
-  
+      <div class="MidColFormDiv">
+        <label class="formLabel">
+          {{'roleEntity.note' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="description">
+        </mat-form-field>
+      </div>
+
+    </div>
+
+
   </form>
 
 </div>
 
-<div class="tableDiv" *ngIf="dataLoaded">
-  <mat-accordion *ngIf="roleID!=-1" multi>
- 
-    <!-- Users table -->
+<div class="tableDiv" *ngIf=" roleID==-1 || dataLoaded">
+  <mat-accordion  multi>
+
+    <!-- Users table 
     <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
       <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-        <mat-panel-title  >
+        <mat-panel-title>
           {{ "roleEntity.users" | translate }}
         </mat-panel-title>
       </mat-expansion-panel-header>
-  
-    <ng-template matExpansionPanelContent>  
+
+      <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
             <app-data-grid [columnDefs]="columnDefsUsers" [themeGrid]='themeGrid' [getAll]='getAllUsers'  
-            [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' [eventAddItemsSubscription]='addElementsEventUsers.asObservable()' 
-            [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
-            [actionButton]=true (add)="openUsersDialog($event)" (remove)="removeUsers($event)" (new)='newDataUsers($event)'  > </app-data-grid>
+            [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' 
+            [eventAddItemsSubscription]='addElementsEventUsers.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventUsers.asObservable()' 
+            [discardChangesButton]=true [redoButton]=true [undoButton]=true  
+            [deleteButton]=true [addButton]=true [hideDuplicateButton]=true [actionButton]=true (add)="openUsersDialog($event)"
+            (getAllRows)="getAllRowsUsers($event)"    > </app-data-grid>
         </div>
-        
-    </ng-template>
-    </mat-expansion-panel>
 
-    <!-- Cartography table -->
+      </ng-template>
+    </mat-expansion-panel>-->
+
+    <!-- Cartography Groups table -->
     <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
       <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-        <mat-panel-title  >
-          {{ "roleEntity.cartography" | translate }}
+        <mat-panel-title>
+          {{ "roleEntity.permissiongroupLayersConfiguration" | translate }}
         </mat-panel-title>
       </mat-expansion-panel-header>
-  
-    <ng-template matExpansionPanelContent>  
+
+      <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-            <app-data-grid [columnDefs]="columnDefsCartography" [themeGrid]='themeGrid' [getAll]='getAllCartographies' 
-            [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true  
-            [actionButton]=true (add)="openCartographyDialog($event)"  (remove)="removeCartographies($event)" (new)='newDataCartographies($event)'  > </app-data-grid>
+          <app-data-grid [columnDefs]="columnDefsCartography" [themeGrid]='themeGrid' [getAll]='getAllCartographiesGroups'
+          [eventAddItemsSubscription]='addElementsEventCartographies.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventCartographies.asObservable()' 
+           [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true
+            [hideDuplicateButton]=true [actionButton]=true (add)="openCartographyDialog($event)"
+            (getAllRows)="getAllRowsCartographies($event)"> </app-data-grid>
         </div>
-        
-    </ng-template>
+
+      </ng-template>
     </mat-expansion-panel>
 
-     <!-- Tasks table -->
+    <!-- Tasks table -->
     <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
       <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-        <mat-panel-title  >
+        <mat-panel-title>
           {{ "roleEntity.tasks" | translate }}
         </mat-panel-title>
       </mat-expansion-panel-header>
-  
-    <ng-template matExpansionPanelContent>  
+
+      <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-            <app-data-grid [columnDefs]="columnDefsTasks" [themeGrid]='themeGrid' [getAll]='getAllTasks' 
-            [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
-            [actionButton]=true (add)="openTasksDialog($event)" (remove)="removeTasks($event)" (new)='newDataTasks($event)'  > </app-data-grid>
+          <app-data-grid [columnDefs]="columnDefsTasks" [themeGrid]='themeGrid' [getAll]='getAllTasks'
+          [eventAddItemsSubscription]='addElementsEventTasks.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventTasks.asObservable()' 
+           [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true
+            [hideDuplicateButton]=true [actionButton]=true (add)="openTasksDialog($event)"
+            (getAllRows)="getAllRowsTasks($event)" > </app-data-grid>
         </div>
-        
-    </ng-template>
+
+      </ng-template>
+    </mat-expansion-panel>
+
+
+    <!-- Aplication table -->
+    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+        <mat-panel-title>
+          {{ "roleEntity.applications" | translate }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      
+      <ng-template matExpansionPanelContent>
+        <div class="appDataGridEditDiv">
+          <app-data-grid [columnDefs]="columnDefsApplications" [themeGrid]='themeGrid' [getAll]='getAllApplications'
+          [eventAddItemsSubscription]='addElementsEventApplications.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventApplications.asObservable()' 
+           [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true
+            [hideDuplicateButton]=true [actionButton]=true (add)="openApplicationsDialog($event)"
+            (getAllRows)="getAllRowsApplications($event)" > </app-data-grid>
+        </div>
+
+      </ng-template>
     </mat-expansion-panel>
 
   </mat-accordion>

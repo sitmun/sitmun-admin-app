@@ -10,7 +10,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MaterialModule } from './material-module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { Principal, LoginService, AccountService, AuthService } from 'dist/sitmun-frontend-core/';
+import { Principal, LoginService, AccountService, AuthService } from '@sitmun/frontend-core';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 

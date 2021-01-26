@@ -1,7 +1,7 @@
 <div class="titleDiv">
   <h4>
     <mat-icon aria-hidden="false" svgIcon="menu_permisos"></mat-icon> {{ "layersPermitsEntity.layersPermits" | translate
-    }}-{{"layersPermitsEntity."+(layersPermitsID==-1?"new":"edit") | translate}}
+    }}-{{(layersPermitsID==-1?"new":"edit") | translate}}
   </h4>
   <span class="divider"></span>
 </div>
@@ -9,9 +9,9 @@
 <div class="formDiv">
   <div class="formHeader">
     <h5> {{'layersPermitsEntity.generalData' | translate}} </h5>
-    <button mat-flat-button class="saveButton">
+    <button mat-flat-button (click)="onSaveButtonClicked()" class="saveButton">
       <mat-icon fontSet="material-icons-round"> save </mat-icon>
-      {{ "layersPermitsEntity.save" | translate }}
+      {{ "save" | translate }}
     </button>
   </div>
   <span class="divider"></span>
@@ -39,9 +39,7 @@
           </mat-select>
         </mat-form-field>
       </div>
-      <!-- 
-            <button *ngIf="layersPermitsID==-1" (click)="addNewConnection()" mat-flat-button class="validateButton" >{{ "layersPermitsEntity.validate" | translate }}</button>
-            <button *ngIf="layersPermitsID!=-1" (click)="updateConnection()" mat-flat-button class="validateButton" >{{ "layersPermitsEntity.update" | translate }}</button> -->
+
 
     </div>
 
@@ -50,8 +48,8 @@
 
 </div>
 
-<div class="tableDiv" *ngIf="dataLoaded">
-  <mat-accordion *ngIf="layersPermitsID!=-1" multi>
+<div class="tableDiv" *ngIf=" layersPermitsID==-1 || dataLoaded">
+  <mat-accordion multi>
 
     <!-- Cartography configuration table -->
     <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
@@ -65,8 +63,8 @@
         <div class="appDataGridEditDiv">
           <app-data-grid [columnDefs]="columnDefsCartographies" [themeGrid]='themeGrid' [getAll]='getAllCartographies'
             [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
-            [actionButton]=true (remove)="removeDataCartographies($event)" (new)='newDataCartographies($event)'
-            (add)="openCartographyDialog($event)" (sendChanges)='applyChangesCartographies($event)'> </app-data-grid>
+            [eventAddItemsSubscription]='addElementsEventCartographies.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventCartographies.asObservable()' 
+            [actionButton]=true (getAllRows)="getAllRowsCartographies($event)" (add)="openCartographyDialog($event)" > </app-data-grid>
         </div>
       </ng-template>
     </mat-expansion-panel>
@@ -83,8 +81,8 @@
         <div class="appDataGridEditDiv">
           <app-data-grid [columnDefs]="columnDefsRoles" [themeGrid]='themeGrid' [getAll]='getAllRoles'
             [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
-            [actionButton]=true (remove)="removeDataRole($event)" (new)='newDataRole($event)'
-            (add)="openRolesDialog($event)" (sendChanges)='applyChangesRole($event)'> </app-data-grid>
+            [eventAddItemsSubscription]='addElementsEventRoles.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventRoles.asObservable()' 
+            [actionButton]=true (getAllRows)="getAllRowsRoles($event)" (add)="openRolesDialog($event)" > </app-data-grid>
         </div>
       </ng-template>
 

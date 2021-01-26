@@ -3,12 +3,12 @@ import { TasksDocumentsFormComponent } from './tasks-documents-form.component';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { RouterTestingModule } from '@angular/router/testing';
-import { TaskService, TerritoryService, CartographyService } from 'dist/sitmun-frontend-core/';
+import { TaskService, TerritoryService, CartographyService, CodeListService } from '@sitmun/frontend-core';
 import { MaterialModule } from '../../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { CodeListService } from 'dist/sitmun-frontend-core';
+
 
 describe('TasksDocumentsFormComponent', () => {
   let component: TasksDocumentsFormComponent;

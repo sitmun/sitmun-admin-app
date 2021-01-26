@@ -1,6 +1,7 @@
 import { OnInit, EventEmitter } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { MatDialogRef } from '@angular/material/dialog';
+import * as i0 from "@angular/core";
 export interface DialogData {
     _GetAllsTable: Array<() => Observable<any>>;
     _columnDefsTable: Array<any[]>;
@@ -27,4 +28,6 @@ export declare class DialogGridComponent implements OnInit {
     joinRowsReceived(data: any[]): void;
     doAdd(rowsToAdd: any): void;
     closeDialog(): void;
+    static ɵfac: i0.ɵɵFactoryDef<DialogGridComponent, never>;
+    static ɵcmp: i0.ɵɵComponentDefWithMeta<DialogGridComponent, "app-dialog-grid", never, {}, { "joinTables": "joinTables"; }, never, never>;
 }

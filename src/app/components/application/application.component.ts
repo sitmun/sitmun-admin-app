@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { Application } from 'dist/sitmun-frontend-core/';
-import { ApplicationService } from 'dist/sitmun-frontend-core/';
+import { ApplicationService, Application } from '@sitmun/frontend-core';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { Subject } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 
 @Component({
   selector: 'app-application',
@@ -19,7 +20,8 @@ export class ApplicationComponent implements OnInit {
 
   applicationTypes: Array<any> = [];
 
-  constructor(public applicationService: ApplicationService,
+  constructor(public dialog: MatDialog,
+    public applicationService: ApplicationService,
     private utils: UtilsService,
     private router: Router,
   ) {
@@ -35,40 +37,30 @@ export class ApplicationComponent implements OnInit {
       }
     );
 
+    var columnEditBtn = environment.editBtnColumnDef;
+    columnEditBtn['cellRendererParams'] = {
+      clicked: this.newData.bind(this)
+    }
 
     this.columnDefs = [
-      {
-        headerName: '',
-        checkboxSelection: true,
-        headerCheckboxSelection: true,
-        editable: false,
-        filter: false,
-        width: 40,
-        lockPosition: true,
-      },
-      {
-        headerName: '',
-        field: 'id',
-        editable: false,
-        filter: false,
-        width: 41,
-        lockPosition: true,
-        cellRenderer: 'btnEditRendererComponent',
-        cellRendererParams: {
-          clicked: this.newData.bind(this)
-        },
-      },
+      environment.selCheckboxColumnDef,
+      columnEditBtn,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name' },
-      { headerName: this.utils.getTranslate('applicationEntity.type'), 
-        valueGetter: (params) => { 
-          var alias=this.applicationTypes.filter((type) => type.value == params.data.type)[0];
-          return alias!=undefined? alias.description: params.data.type
-        } 
+      {
+        headerName: this.utils.getTranslate('applicationEntity.type'),  editable: false,
+        valueGetter: (params) => {
+          var alias = this.applicationTypes.filter((type) => type.value == params.data.type)[0];
+          return alias != undefined ? alias.description : params.data.type
+        }
       },
-      { headerName: this.utils.getTranslate('applicationEntity.serviceURL'), field: 'theme' },
-      { headerName: this.utils.getTranslate('applicationEntity.supportedSRS'), field: 'srs' },
-      { headerName: this.utils.getTranslate('applicationEntity.createdDate'), field: 'createdDate' } // type: 'dateColumn'
+      { headerName: this.utils.getTranslate('applicationEntity.theme'), field: 'theme' },
+      { headerName: this.utils.getTranslate('applicationEntity.srs'), field: 'srs' },
+      {
+        headerName: this.utils.getTranslate('applicationEntity.createdDate'), field: 'createdDate',
+        filter: 'agDateColumnFilter', filterParams: this.utils.getDateFilterParams(),
+        editable: false, cellRenderer: (data) => { return this.utils.getDateFormated(data) }
+      } // type: 'dateColumn'
     ];
 
   }
@@ -95,6 +87,7 @@ export class ApplicationComponent implements OnInit {
     const promises: Promise<any>[] = [];
     data.forEach(application => {
       application.id = null;
+      application.createdDate=new Date()
       promises.push(new Promise((resolve, reject) => { this.applicationService.create(application).toPromise().then((resp) => { resolve() }) }));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);
@@ -104,13 +97,25 @@ export class ApplicationComponent implements OnInit {
   }
 
   removeData(data: Application[]) {
-    const promises: Promise<any>[] = [];
-    data.forEach(application => {
-      promises.push(new Promise((resolve, reject) => { this.applicationService.delete(application).toPromise().then((resp) => { resolve() }) }));
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
-      });
+
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title = this.utils.getTranslate("caution");
+    dialogRef.componentInstance.message = this.utils.getTranslate("removeMessage");
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (result.event === 'Accept') {
+          const promises: Promise<any>[] = [];
+          data.forEach(application => {
+            promises.push(new Promise((resolve, reject) => { this.applicationService.delete(application).toPromise().then((resp) => { resolve() }) }));
+            Promise.all(promises).then(() => {
+              this.dataUpdatedEvent.next(true);
+            });
+          });
+        }
+      }
     });
+
+
 
   }
 }

@@ -1,18 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { tick } from '@angular/core/testing';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ServiceService, CartographyService } from 'dist/sitmun-frontend-core/';
-import { Connection } from 'dist/sitmun-frontend-core/connection/connection.model';
+import { ServiceService, CartographyService,Connection, Cartography, ServiceParameterService } from '@sitmun/frontend-core';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { map } from 'rxjs/operators';
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { environment } from 'src/environments/environment';
-import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
+import { DialogGridComponent, DialogFormComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
+import { Xml2js } from "xml2js";
 
 @Component({
   selector: 'app-service-form',
@@ -34,15 +34,27 @@ export class ServiceFormComponent implements OnInit {
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
   projections: Array<string>;
   serviceTypes: Array<any> = [];
+  requestTypes: Array<any> = [];
 
   //Grids
   themeGrid: any = environment.agGridTheme;
-  columnDefsLayers: any[];
   columnDefsParameters: any[];
+  getAllElementsEventParameters: Subject<boolean> = new Subject <boolean>();
+
+  columnDefsLayers: any[];
+  getAllElementsEventLayers: Subject<boolean> = new Subject <boolean>();
 
   //Dialogs
   columnDefsParametersDialog: any[];
+  public parameterForm: FormGroup;
+  addElementsEventParameters: Subject<any[]> = new Subject <any[]>();
+  @ViewChild('newParameterDialog',{
+    static: true
+  }) private newParameterDialog: TemplateRef <any>;
+
+
   columnDefsLayersDialog: any[];
+  addElementsEventLayers: Subject<any[]> = new Subject <any[]>();
 
 
 
@@ -56,8 +68,11 @@ export class ServiceFormComponent implements OnInit {
     private utils: UtilsService,
     public dialog: MatDialog,
     public cartographyService: CartographyService,
+    public serviceParameterService: ServiceParameterService,
+
   ) {
     this.initializeServiceForm();
+    this.initializeParameterForm();
     this.projections = [];
     this.activatedRoute.params.subscribe(params => {
       this.serviceID = +params.id;
@@ -79,9 +94,10 @@ export class ServiceFormComponent implements OnInit {
               name: this.serviceToEdit.name,
               type: this.serviceToEdit.type,
               serviceURL: this.serviceToEdit.serviceURL,
-              connection: ' ',
-              supportedSRS: ' ',
-              metadataURL: this.serviceToEdit.getInformationURL,
+              proxyUrl: this.serviceToEdit.proxyUrl,
+              supportedSRS: this.serviceToEdit.supportedSRS,
+              getInformationURL: this.serviceToEdit.getInformationURL,
+              blocked: this.serviceToEdit.blocked,
               _links: this.serviceToEdit._links
             });
 
@@ -91,6 +107,11 @@ export class ServiceFormComponent implements OnInit {
 
           }
         );
+      }
+      else{
+        this.serviceForm.patchValue({
+          blocked: false,
+        })
       }
 
     },
@@ -116,34 +137,27 @@ export class ServiceFormComponent implements OnInit {
       }
     );
 
+
+    this.utils.getCodeListValues('serviceParameter.type').subscribe(
+      resp => {
+        this.requestTypes.push(...resp);
+      }
+    );
+
     this.columnDefsParameters = [
 
-      {
-        headerName: '',
-        checkboxSelection: true,
-        headerCheckboxSelection: true,
-        editable: false,
-        filter: false,
-        width: 25,
-        lockPosition: true,
-      },
-      { headerName: this.utils.getTranslate('serviceEntity.name'), field: 'name' },
-      { headerName: this.utils.getTranslate('serviceEntity.parameter'), field: 'type', },
+      environment.selCheckboxColumnDef,
+      { headerName: this.utils.getTranslate('serviceEntity.request'), field: 'type', editable:false },
+      { headerName: this.utils.getTranslate('serviceEntity.parameter'), field: 'name', },
       { headerName: this.utils.getTranslate('serviceEntity.value'), field: 'value' },
+      { headerName: this.utils.getTranslate('serviceEntity.status'), field: 'status' },
+
 
     ];
 
     this.columnDefsLayers = [
 
-      {
-        headerName: '',
-        checkboxSelection: true,
-        headerCheckboxSelection: true,
-        editable: false,
-        filter: false,
-        width: 35,
-        lockPosition: true,
-      },
+      environment.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id' },
       { headerName: this.utils.getTranslate('serviceEntity.name'), field: 'name' },
       { headerName: this.utils.getTranslate('serviceEntity.description'), field: 'description', },
@@ -152,29 +166,13 @@ export class ServiceFormComponent implements OnInit {
     ];
 
     this.columnDefsLayersDialog = [
-      {
-        headerName: '',
-        checkboxSelection: true,
-        headerCheckboxSelection: true,
-        editable: false,
-        filter: false,
-        width: 50,
-        lockPosition:true,
-      },
+      environment.selCheckboxColumnDef,
       { headerName: 'ID', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('connectionEntity.name'), field: 'name', editable: false },
     ];
 
     this.columnDefsParametersDialog = [
-      {
-        headerName: '',
-        checkboxSelection: true,
-        headerCheckboxSelection: true,
-        editable: false,
-        filter: false,
-        width: 50,
-        lockPosition:true,
-      },
+      environment.selCheckboxColumnDef,
       { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name',  editable: false  },
       { headerName: this.utils.getTranslate('applicationEntity.value'), field: 'value',  editable: false  },
       { headerName: this.utils.getTranslate('applicationEntity.type'), field: 'type',  editable: false  },
@@ -195,18 +193,28 @@ export class ServiceFormComponent implements OnInit {
       serviceURL: new FormControl(null, [
         Validators.required,
       ]),
-      connection: new FormControl(null, [
+      proxyUrl: new FormControl(null, [
         Validators.required,
       ]),
       supportedSRS: new FormControl(null, [
         Validators.required,
       ]),
-      metadataURL: new FormControl(null, [
+      getInformationURL: new FormControl(null, [
         Validators.required,
       ]),
       _links: new FormControl(null, []),
+      blocked: new FormControl(null, []), 
     });
 
+  }
+
+  initializeParameterForm(): void {
+    this.parameterForm = new FormGroup({
+      name: new FormControl(null, []),
+      type: new FormControl(null, []),
+      value: new FormControl(null, []),
+
+    })
   }
 
   addProjection(event: MatChipInputEvent): void {
@@ -231,98 +239,134 @@ export class ServiceFormComponent implements OnInit {
       this.projections.splice(index, 1);
     }
   }
-
-
-
-  addNewLayer() {
-    // this.serviceForm.patchValue({
-    //   supportedSRS: this.projections.join(';')
-    // })
-    this.serviceForm.patchValue({
-      supportedSRS: this.projections
+  getCapabilitiesService(){
+    this.http.get(`${this.serviceForm.value.serviceURL}?request=GetCapabilities`).subscribe(resp => {
+      debugger;
+      console.log(resp);
+      // this.router.navigate(["/company", resp.id, "formConnection"]);
     });
-    console.log(this.serviceForm.value);
-    this.serviceService.create(this.serviceForm.value)
-      .subscribe(resp => {
-        console.log(resp);
-        // this.router.navigate(["/company", resp.id, "formConnection"]);
-      });
-
-
   }
 
-  updateLayer() {
-    // this.serviceForm.patchValue({
-    //   supportedSRS: this.projections.join(';')
-    // })
-    this.serviceForm.patchValue({
-      supportedSRS: this.projections
-    });
-    console.log(this.serviceForm.value);
-    this.serviceService.update(this.serviceForm.value)
-      .subscribe(resp => {
-        console.log(resp);
-
-      });
-
-  }
 
   // AG-GRID
 
   // ******** Parameters configuration ******** //
   getAllParameters = (): Observable<any> => {
+    
+    if(this.serviceID == -1)
+    {
+      const aux: Array<any> = [];
+      return of(aux);
+    }
     return (this.http.get(`${this.serviceForm.value._links.parameters.href}`))
       .pipe(map(data => data[`_embedded`][`service-parameters`]));
   }
 
-  removeParameters(data: any[]) {
-    console.log(data);
-  }
 
-  newDataParameters(id: any) {
-    // this.router.navigate(['territory', id, 'territoryForm']);
-    console.log('screen in progress');
+
+  getAllRowsParameters(data: any[] )
+  {
+    let parameterToSave = [];
+    let parameterToDelete = [];
+    data.forEach(parameter => {
+      if (parameter.status === 'Pending creation' || parameter.status === 'Modified') {
+        if(! parameter._links) {
+          parameter.service=this.serviceToEdit} //If is new, you need the service link
+          parameterToSave.push(parameter)
+      }
+      if(parameter.status === 'Deleted') {parameterToDelete.push(parameter) }
+    });
+
+    parameterToSave.forEach(saveElement => {
+
+      this.serviceParameterService.save(saveElement).subscribe(
+        result => {
+          console.log(result)
+        }
+      )
+
+    });
+
+    parameterToDelete.forEach(deletedElement => {
+
+      this.serviceParameterService.remove(deletedElement).subscribe(
+        result => {
+          console.log(result)
+        }
+      )
+      
+    });
   }
 
   // ******** Layers ******** //
   getAllLayers = (): Observable<any> => {
-    return (this.http.get(`${this.serviceForm.value._links.layers.href}`))
-      .pipe(map(data => data[`_embedded`][`cartographies`]));
+
+    if(this.serviceID == -1)
+    {
+      const aux: Array<any> = [];
+      return of(aux);
+    }
+
+    var urlReq = `${this.serviceToEdit._links.layers.href}`
+    if (this.serviceToEdit._links.layers.templated) {
+      var url = new URL(urlReq.split("{")[0]);
+      url.searchParams.append("projection", "view")
+      urlReq = url.toString();
+    }
+    return (this.http.get(urlReq))
+    .pipe(map(data => data['_embedded']['cartographies']));
+    
+
   }
 
-  removeLayers(data: any[]) {
-    console.log(data);
+
+
+
+  getAllRowsLayers(data: any[] )
+  {
+    let layersModified = [];
+    let layersToPut = [];
+    data.forEach(cartography => {
+      if (cartography.status === 'Modified') {layersModified.push(cartography) }
+      if(cartography.status!== 'Deleted') {layersToPut.push(cartography._links.self.href) }
+    });
+
+    this.updateLayers(layersModified, layersToPut );
   }
 
-  newDataLayers(id: any) {
-    // this.router.navigate(['territory', id, 'territoryForm']);
-    console.log('screen in progress');
+  updateLayers(layersModified: Cartography[], layersToPut: Cartography[])
+  {
+    const promises: Promise<any>[] = [];
+    layersModified.forEach(cartography => {
+      promises.push(new Promise((resolve, reject) => { this.cartographyService.update(cartography).toPromise().then((resp) => { resolve() }) }));
+    });
+    Promise.all(promises).then(() => {
+      let url=this.serviceToEdit._links.layers.href.split('{', 1)[0];
+      this.utils.updateUriList(url,layersToPut)
+    });
   }
 
   // ******** Parameters Dialog  ******** //
 
-  getAllParametersDialog = () => {
-    const aux: Array<any> = [];
-    return of(aux);
-    // return this.cartographyService.getAll();
-  }
 
   openParametersDialog(data: any) {
   
-    const dialogRef = this.dialog.open(DialogGridComponent);
-    dialogRef.componentInstance.getAllsTable=[this.getAllParametersDialog];
-    dialogRef.componentInstance.singleSelectionTable=[false];
-    dialogRef.componentInstance.columnDefsTable=[this.columnDefsParametersDialog];
-    dialogRef.componentInstance.themeGrid=this.themeGrid;
-    dialogRef.componentInstance.title='Parameters';
-    dialogRef.componentInstance.titlesTable=['Parameters'];
-    dialogRef.componentInstance.nonEditable=false;
+    const dialogRef = this.dialog.open(DialogFormComponent);
+    dialogRef.componentInstance.HTMLReceived=this.newParameterDialog;
+    dialogRef.componentInstance.title=this.utils.getTranslate('serviceEntity.configurationParameters');
+
     
 
 
     dialogRef.afterClosed().subscribe(result => {
       if(result){
-        if( result.event==='Add') {console.log(result.data); }
+        if(result.event==='Add') {
+          let item= this.parameterForm.value;
+          this.addElementsEventParameters.next([item])
+          console.log(this.parameterForm.value)
+          this.parameterForm.reset();
+          
+        }
       }
 
     });
@@ -338,29 +382,52 @@ export class ServiceFormComponent implements OnInit {
   }
 
   openCartographyDialog(data: any) {
-    // const getAlls: Array<() => Observable<any>> = [this.getAllCartographiesDialog];
-    // const colDefsTable: Array<any[]> = [this.columnDefsCartographiesDialog];
-    // const singleSelectionTable: Array<boolean> = [false];
-    // const titlesTable: Array<string> = ['Cartographies'];
-    const dialogRef = this.dialog.open(DialogGridComponent);
+
+    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
     dialogRef.componentInstance.getAllsTable=[this.getAllLayersDialog];
     dialogRef.componentInstance.singleSelectionTable=[false];
     dialogRef.componentInstance.columnDefsTable=[this.columnDefsLayersDialog];
     dialogRef.componentInstance.themeGrid=this.themeGrid;
-    dialogRef.componentInstance.title='Layers';
-    dialogRef.componentInstance.titlesTable=['Layers'];
+    dialogRef.componentInstance.title=this.utils.getTranslate('serviceEntity.layersToRegister');
+    dialogRef.componentInstance.titlesTable=[''];
     dialogRef.componentInstance.nonEditable=false;
     
 
 
     dialogRef.afterClosed().subscribe(result => {
       if(result){
-        if( result.event==='Add') {console.log(result.data); }
+        if(result.event==='Add') {
+          this.addElementsEventLayers.next(result.data[0])
+        }
       }
 
     });
 
   }
+
+  onSaveButtonClicked(){
+    // this.serviceForm.patchValue({
+    //   supportedSRS: this.projections.join(';')
+    // })
+    this.serviceForm.patchValue({
+      supportedSRS: this.projections
+    })
+  console.log(this.serviceForm.value);
+    this.serviceService.save(this.serviceForm.value)
+    .subscribe(resp => {
+      console.log(resp);
+      this.serviceToEdit=resp;
+      this.getAllElementsEventParameters.next(true);
+      // this.getAllElementsEventLayers.next(true);
+    },
+    error=> {
+      console.log(error);
+    });
+
+
+
+
+}
 
 
 

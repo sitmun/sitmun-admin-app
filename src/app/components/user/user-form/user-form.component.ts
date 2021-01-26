@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
-import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators  } from '@angular/forms';
-import {  ActivatedRoute,  Router} from '@angular/router';
-import { UserService, UserConfigurationService, TerritoryService, RoleService, HalOptions, HalParam, Territory, User, UserConfiguration } from 'dist/sitmun-frontend-core/';
+import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { UserService, UserPositionService, UserConfigurationService, TerritoryService, RoleService, HalOptions, HalParam, Territory, User, UserConfiguration,Role } from '@sitmun/frontend-core';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { map } from 'rxjs/operators';
@@ -10,8 +10,6 @@ import { Observable, of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
-import { Role } from 'dist/sitmun-frontend-core/role/role.model';
-
 
 
 
@@ -20,35 +18,40 @@ import { Role } from 'dist/sitmun-frontend-core/role/role.model';
   selector: 'app-user-form',
   templateUrl: './user-form.component.html',
   styleUrls: ['./user-form.component.scss']
-}) 
+})
 export class UserFormComponent implements OnInit {
 
-  
- 
+
+
   //Form
   userForm: FormGroup;
   userToEdit: User;
   userID = -1;
   dataLoaded: Boolean = false;
-  
+
   //Grids
-  themeGrid:any=environment.agGridTheme;
-  columnDefsPermissions: any[];
+  themeGrid: any = environment.agGridTheme;
+  columnDefsPermits: any[];
+  addElementsEventPermits: Subject<any[]> = new Subject<any[]>();
   columnDefsData: any[];
+  addElementsEventTerritoryData: Subject<any[]> = new Subject<any[]>();
 
   //Dialog
 
   columnDefsTerritoryDialog: any[];
   columnDefsRolesDialog: any[];
+  getAllElementsEventPermits: Subject<boolean> = new Subject <boolean>();
   columnDefsTerritoryDataDialog: any[];
+  getAllElementsEventTerritoryData: Subject<boolean> = new Subject <boolean>();
 
   //Save button
   territorisToUpdate: Territory[] = [];
   rolesToUpdate: Role[] = [];
-  dataUpdatedEvent: Subject<boolean> = new Subject <boolean>();
+  dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
 
 
-  
+
+
   constructor(
     public dialog: MatDialog,
     private activatedRoute: ActivatedRoute,
@@ -58,32 +61,33 @@ export class UserFormComponent implements OnInit {
     private utils: UtilsService,
     private userConfigurationService: UserConfigurationService,
     private roleService: RoleService,
+    private userPositionService: UserPositionService,
     private territoryService: TerritoryService,
-    ) {
-        this.initializeUserForm();
-    }
+  ) {
+    this.initializeUserForm();
+  }
 
   ngOnInit(): void {
     this.activatedRoute.params.subscribe(params => {
       this.userID = +params.id;
-      if (this.userID !== -1){
+      if (this.userID !== -1) {
         console.log(this.userID);
 
         this.userService.get(this.userID).subscribe(
           resp => {
             console.log(resp);
-            this.userToEdit=resp;
+            this.userToEdit = resp;
             this.userForm.setValue({
-                id:            this.userID,
-                username:          this.userToEdit.username,
-                firstName:     this.userToEdit.firstName,
-                lastName:     this.userToEdit.firstName,
-                password:      this.userToEdit.password,
-                confirmPassword:      "",
-                administrator: this.userToEdit.administrator,
-                blocked:           this.userToEdit.blocked,
-                _links:        this.userToEdit._links
-              });
+              id: this.userID,
+              username: this.userToEdit.username,
+              firstName: this.userToEdit.firstName,
+              lastName: this.userToEdit.firstName,
+              password: this.userToEdit.password,
+              confirmPassword: "",
+              administrator: this.userToEdit.administrator,
+              blocked: this.userToEdit.blocked,
+              _links: this.userToEdit._links
+            });
 
             this.dataLoaded = true;
           },
@@ -100,96 +104,67 @@ export class UserFormComponent implements OnInit {
       }
 
     },
-    error => {
+      error => {
 
-    });
+      });
 
 
-    this.columnDefsPermissions = [
+    this.columnDefsPermits = [
 
-      {
-        headerName: '',
-        checkboxSelection: true,
-        headerCheckboxSelection: true,
-        editable: false,
-        filter: false,
-        width: 25,
-        lockPosition:true,
-      },
+      environment.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('userEntity.territory'),  field: 'territory'},
-      { headerName: this.utils.getTranslate('userEntity.role'),  field: 'role', },
+      { headerName: this.utils.getTranslate('userEntity.territory'), field: 'territory', editable:false },
+      { headerName: this.utils.getTranslate('userEntity.role'), field: 'role', editable:false },
+      { headerName: this.utils.getTranslate('territoryEntity.status'), field: 'status', editable:false },
 
     ];
 
     this.columnDefsData = [
 
+      environment.selCheckboxColumnDef,
+      { headerName: this.utils.getTranslate('userEntity.territory'), field: 'territoryName' },
+      { headerName: this.utils.getTranslate('userEntity.position'), field: 'name' },
+      { headerName: this.utils.getTranslate('userEntity.organization'), field: 'organization' },
+      { headerName: this.utils.getTranslate('userEntity.mail'), field: 'email' },
+      { headerName: this.utils.getTranslate('userEntity.expirationDate'), field: 'expirationDate' },
+      { headerName: this.utils.getTranslate('territoryEntity.status'), field: 'status', editable:false },
       {
-        headerName: '',
-        checkboxSelection: true,
-        headerCheckboxSelection: true,
-        editable: false,
-        filter: false,
-        width: 50,
-        lockPosition:true,
+        headerName: this.utils.getTranslate('userEntity.dataCreated'), field: 'createdDate',  /*filter: 'agDateColumnFilter',*/cellRenderer: (data) => {
+          return data.value ? (new Date(data.value)).toLocaleDateString() : '';
+        }
       },
-      { headerName: this.utils.getTranslate('userEntity.territory'),  field: 'territoryName'},
-      { headerName: this.utils.getTranslate('userEntity.position'),  field: 'name' },
-      { headerName: this.utils.getTranslate('userEntity.organization'),  field: 'organization'},
-      { headerName: this.utils.getTranslate('userEntity.mail'),  field: 'email' },
-      { headerName: this.utils.getTranslate('userEntity.expirationDate'),  field: 'expirationDate'},
-      { headerName: this.utils.getTranslate('userEntity.dataCreated'),  field: 'createdDate',  /*filter: 'agDateColumnFilter',*/cellRenderer: (data) => {
-        return data.value ? (new Date(data.value)).toLocaleDateString() : '';
-      }  
-    },
 
     ];
 
     this.columnDefsTerritoryDialog = [
-      {
-        headerName: '',
-        checkboxSelection: true,
-        headerCheckboxSelection: true,
-        editable: false,
-        filter: false,
-        width: 50,
-        lockPosition:true,
-      },
+      environment.selCheckboxColumnDef,
       { headerName: 'ID', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('userEntity.code'), field: 'code', editable: false },
       { headerName: this.utils.getTranslate('userEntity.name'), field: 'name', editable: false },
     ];
 
     this.columnDefsRolesDialog = [
-      {
-        headerName: '',
-        checkboxSelection: true,
-        headerCheckboxSelection: true,
-        editable: false,
-        filter: false,
-        width: 50,
-        lockPosition:true,
-      },
+      environment.selCheckboxColumnDef,
       { headerName: this.utils.getTranslate('userEntity.code'), field: 'code', editable: false },
       { headerName: this.utils.getTranslate('userEntity.name'), field: 'name', editable: false },
     ];
 
     this.columnDefsTerritoryDataDialog = [
+      environment.selCheckboxColumnDef,
+      { headerName: this.utils.getTranslate('userEntity.territory'), field: 'territory' },
+      { headerName: this.utils.getTranslate('userEntity.position'), field: 'type' },
+      { headerName: this.utils.getTranslate('userEntity.organization'), field: 'organization' },
+      { headerName: this.utils.getTranslate('userEntity.mail'), field: 'email' },
       {
-        headerName: '',
-        checkboxSelection: true,
-        headerCheckboxSelection: true,
-        editable: false,
-        filter: false,
-        width: 50,
-        lockPosition:true,
+        headerName: this.utils.getTranslate('userEntity.expirationDate'), field: 'expirationDate',
+        filter: 'agDateColumnFilter', filterParams: this.utils.getDateFilterParams(),
+        editable: false, cellRenderer: (data) => { return this.utils.getDateFormated(data) }
       },
-      { headerName: this.utils.getTranslate('userEntity.territory'),  field: 'territory'},
-      { headerName: this.utils.getTranslate('userEntity.position'),  field: 'type' },
-      { headerName: this.utils.getTranslate('userEntity.organization'),  field: 'organization'},
-      { headerName: this.utils.getTranslate('userEntity.mail'),  field: 'email' },
-      { headerName: this.utils.getTranslate('userEntity.expirationDate'),  field: 'expirationDate'},
-      { headerName: this.utils.getTranslate('userEntity.dataCreated'),  field: 'createdDate'},
+      {
+        headerName: this.utils.getTranslate('userEntity.createdDate'), field: 'createdDate',
+        filter: 'agDateColumnFilter', filterParams: this.utils.getDateFilterParams(),
+        editable: false, cellRenderer: (data) => { return this.utils.getDateFormated(data) }
+      }
     ];
 
 
@@ -212,7 +187,7 @@ export class UserFormComponent implements OnInit {
       password: new FormControl(null, [
         Validators.required,
       ]),
-      confirmPassword: new FormControl(null,[
+      confirmPassword: new FormControl(null, [
         Validators.required, this.matchValues('password'),
       ]),
       administrator: new FormControl(null, []),
@@ -223,7 +198,7 @@ export class UserFormComponent implements OnInit {
 
   }
 
-  public  matchValues(
+  public matchValues(
     matchTo: string // name of the control to match to
   ): (AbstractControl) => ValidationErrors | null {
     return (control: AbstractControl): ValidationErrors | null => {
@@ -233,138 +208,168 @@ export class UserFormComponent implements OnInit {
         ? null
         : { isMatching: false };
     };
-}
-
-  addNewUser() {
-  
-    if(this.userForm.get('password').value === this.userForm.get('confirmPassword').value)
-    {
-      // if(this.userForm.get('administrator')==null) {
-      //   this.userForm.patchValue({
-      //       administrator: false
-      //   })
-      // }
-      // if(this.userForm.get('blocked')==null) {
-      //   this.userForm.patchValue({
-      //       blocked: false
-      //   })
-      // }
-      console.log(this.userForm.value);
-      this.userService.create(this.userForm.value)
-        .subscribe(resp => {
-          console.log(resp);
-          // this.router.navigate(["/company", resp.id, "formConnection"]);
-        });
-    }
-    else{
-      console.error("Password doesn't match with confirm password");
-    }
-  }
-
-  updateUser() {
-
-    console.log(this.userForm.value);
-
-    this.userService.update(this.userForm.value)
-      .subscribe(resp => {
-        console.log(resp);
-
-      });
-
   }
 
   // AG-GRID
 
   // ******** Permits ******** //
-   getAllPermissions = (): Observable<any> => {
+  getAllPermits = (): Observable<any> => {
 
-    let params2:HalParam[]=[];
-    let param:HalParam={key:'user.id', value:this.userID}
+    if(this.userID == -1)
+    {
+      const aux: Array<any> = [];
+      return of(aux);
+    }
+
+    let params2: HalParam[] = [];
+    let param: HalParam = { key: 'user.id', value: this.userID }
     params2.push(param);
-    let query:HalOptions={ params:params2};
+    let query: HalOptions = { params: params2 };
 
     return this.userConfigurationService.getAll(query);
   }
 
-  removeDataPermissions( data)
-  {
 
-    const promises: Promise<any>[] = [];
-    data.forEach(userConfiguration => {
-        this.userConfigurationService.get(userConfiguration.id).subscribe((userConfigurationToDelete) => {
-          promises.push(new Promise((resolve, reject) => {​​​​​​​ this.userConfigurationService.remove(userConfigurationToDelete).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
-          Promise.all(promises).then(() => {
-            this.dataUpdatedEvent.next(true);
-          });
-        });
+
+
+  getAllRowsPermits(data: any[]) {
+    
+    let usersConfToCreate = [];
+    let usersConfDelete = [];
+    data.forEach(userConf => {
+      let item = {
+        role:  userConf.roleComplete,
+        territory: userConf.territoryComplete,
+        user:  this.userToEdit,
+      }
+      if (userConf.status === 'Pending creation') {usersConfToCreate.push(item) }
+      if(userConf.status === 'Deleted') {usersConfDelete.push(userConf) }
     });
 
+    usersConfToCreate.forEach(newElement => {
+
+      this.userConfigurationService.save(newElement).subscribe(
+        result => {
+          console.log(result)
+        })
+
+      
+    });
+
+    usersConfDelete.forEach(deletedElement => {
     
-  }
-  
-  newDataPermissions(id: any)
-  {
-    // this.router.navigate(['territory', id, 'territoryForm']);
-    console.log('screen in progress');
+      if(deletedElement._links)
+      {
+        this.userConfigurationService.remove(deletedElement).subscribe(
+          result => {
+            console.log(result)
+          })
+      }
+      
+    });
+
   }
 
   // ******** Data of Territory ******** //
-   getAllDataTerritory = (): Observable<any> => {
-    var urlReq=`${this.userForm.value._links.positions.href}`
-    if(this.userForm.value._links.positions.templated){
-      var url=new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection","view")
-      urlReq=url.toString();
+  getAllDataTerritory = (): Observable<any> => {
+
+    if(this.userID == -1)
+    {
+      const aux: Array<any> = [];
+      return of(aux);
+    }
+
+    var urlReq = `${this.userForm.value._links.positions.href}`
+    if (this.userForm.value._links.positions.templated) {
+      var url = new URL(urlReq.split("{")[0]);
+      url.searchParams.append("projection", "view")
+      urlReq = url.toString();
     }
     return (this.http.get(urlReq))
-    .pipe( map( data =>  data['_embedded']['user-positions']) );
+      .pipe(map(data => data['_embedded']['user-positions']));
 
   }
 
-  removeDataData( data)
-  {
-    console.log(data);
-  }
-  
-  newDataData(id: any)
-  {
+
+  newDataData(id: any) {
     // this.router.navigate(['territory', id, 'territoryForm']);
     console.log('screen in progress');
   }
 
-   // ******** Permits Dialog  ******** //
-   
-   getAllTerritoriesDialog = () => {
-     return this.territoryService.getAll();
+ 
+  getAllRowsDataTerritories(data: any[] ){
+    // let territoriesToCreate = [];
+    // let territoriesToDelete = [];
+    // data.forEach(territory => {
+    //   if (territory.status === 'Pending creation') {territoriesToCreate.push(territory) }
+    //   if(territory.status === 'Deleted') {territoriesToDelete.push(territory._links.self.href) }
+    // });
+
+    // territoriesToCreate.forEach(newElement => {
+
+    //   this.userPositionService.save(newElement).subscribe(
+    //     result => {
+    //       console.log(result)
+    //     }
+    //   )
+
+    // });
+
+    // territoriesToDelete.forEach(deletedElement => {
+
+    //   this.userPositionService.remove(deletedElement).subscribe(
+    //     result => {
+    //       console.log(result)
+    //     }
+    //   )
+      
+    // });
+	
   }
 
-   getAllRolesDialog = () => {
-     return this.roleService.getAll();
+  updateTerritories(territoriesModified: Territory[], territoriesToPut: Territory[])
+  {
+    const promises: Promise<any>[] = [];
+    territoriesModified.forEach(territory => {
+      //TODO Table STM_POST
+      // promises.push(new Promise((resolve, reject) => { this.territoryService.update(territory).toPromise().then((resp) => { resolve() }) }));
+    });
+    Promise.all(promises).then(() => {
+      let url=this.userToEdit._links.positions.href.split('{', 1)[0];
+      this.utils.updateUriList(url,territoriesToPut)
+    });
+  }
+  
+  // ******** Permits Dialog  ******** //
+
+  getAllTerritoriesDialog = () => {
+    return this.territoryService.getAll();
+  }
+
+  getAllRolesDialog = () => {
+    return this.roleService.getAll();
   }
 
   openPermitsDialog(data: any) {
- 
-    const dialogRef = this.dialog.open(DialogGridComponent);
-    dialogRef.componentInstance.getAllsTable=[this.getAllTerritoriesDialog, this.getAllRolesDialog];
-    dialogRef.componentInstance.singleSelectionTable=[false,false];
-    dialogRef.componentInstance.columnDefsTable=[this.columnDefsTerritoryDialog, this.columnDefsRolesDialog];
-    dialogRef.componentInstance.themeGrid=this.themeGrid;
-    dialogRef.componentInstance.title='Permits';
-    dialogRef.componentInstance.titlesTable=['Territories', 'Roles'];
-    dialogRef.componentInstance.nonEditable=false;
-    
+
+    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
+    dialogRef.componentInstance.getAllsTable = [this.getAllTerritoriesDialog, this.getAllRolesDialog];
+    dialogRef.componentInstance.singleSelectionTable = [false, false];
+    dialogRef.componentInstance.columnDefsTable = [this.columnDefsTerritoryDialog, this.columnDefsRolesDialog];
+    dialogRef.componentInstance.themeGrid = this.themeGrid;
+    dialogRef.componentInstance.title = this.utils.getTranslate('userEntity.permissions');
+    dialogRef.componentInstance.titlesTable = [this.utils.getTranslate('userEntity.territories'), this.utils.getTranslate('userEntity.roles')];
+    dialogRef.componentInstance.nonEditable = false;
+
 
 
     dialogRef.afterClosed().subscribe(result => {
-      if(result)
-      {
-        if(result.event==='Add') { 
-          console.log(result.data); 
-          this.territorisToUpdate.push(...result.data[0]) 
-          this.rolesToUpdate.push(...result.data[1]) 
-          console.log(this.territorisToUpdate);
-          console.log(this.rolesToUpdate);
-          
+      if (result) {
+        if (result.event === 'Add') {
+          console.log(result.data);
+          let rowsToAdd = this.getRowsToAddPermits(this.userToEdit, result.data[0], result.data[1])
+          console.log(rowsToAdd);
+          this.addElementsEventPermits.next(rowsToAdd);
         }
       }
 
@@ -373,71 +378,124 @@ export class UserFormComponent implements OnInit {
 
   }
 
-    // ******** Territory Data Dialog  ******** //
+  // ******** Territory Data Dialog  ******** //
 
-    getAllTerritoryDataDialog = () => {
-      const aux: Array<any> = [];
-      return of(aux);
-      // return this.tasksService.getAll();
-    }
+  getAllTerritoryDataDialog = () => {
+    const aux: Array<any> = [];
+    return of(aux);
+    // return this.tasksService.getAll();
+  }
 
-    openTerritoryDataDialog(data: any) {
-      // const getAlls: Array<() => Observable<any>> = [this.getAllCartographiesDialog];
-      // const colDefsTable: Array<any[]> = [this.columnDefsCartographiesDialog];
-      // const singleSelectionTable: Array<boolean> = [false];
-      // const titlesTable: Array<string> = ['Cartographies'];
-      const dialogRef = this.dialog.open(DialogGridComponent);
-      dialogRef.componentInstance.getAllsTable=[this.getAllTerritoryDataDialog];
-      dialogRef.componentInstance.singleSelectionTable=[false];
-      dialogRef.componentInstance.columnDefsTable=[this.columnDefsTerritoryDataDialog];
-      dialogRef.componentInstance.themeGrid=this.themeGrid;
-      dialogRef.componentInstance.title='Territory Data';
-      dialogRef.componentInstance.titlesTable=['Territory Data'];
-      dialogRef.componentInstance.nonEditable=false;
-      
-  
-  
-      dialogRef.afterClosed().subscribe(result => {
-        if(result){
-          if( result.event==='Add') {console.log(result.data); }
+  openTerritoryDataDialog(data: any) {
+
+    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
+    dialogRef.componentInstance.getAllsTable = [this.getAllTerritoryDataDialog];
+    dialogRef.componentInstance.singleSelectionTable = [false];
+    dialogRef.componentInstance.columnDefsTable = [this.columnDefsTerritoryDataDialog];
+    dialogRef.componentInstance.themeGrid = this.themeGrid;
+    dialogRef.componentInstance.title = this.utils.getTranslate('userEntity.dataOfTerritory');
+    dialogRef.componentInstance.titlesTable = [''];
+    dialogRef.componentInstance.nonEditable = false;
+
+
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (result.event === 'Add') {
+          this.addElementsEventTerritoryData.next(this.adaptFormatTerritory(result.data[0]))
         }
+      }
 
-      });
-  
-    }
+    });
+
+  }
+
+  adaptFormatTerritory(dataToAdapt: Territory[])
+  {
+    let newData: any[] = [];
+    
+    dataToAdapt.forEach(element => {
+      let item = {
+        //TODO Put fields when backend return them
+        id: null,
+        territory: element,
+        user: this.userToEdit,
+
+      }
+      newData.push(item);
+      
+    });
+
+    return newData;
+  }
 
 
-    updateUserConfiguration(user:User, territories: Territory[], roles: Role[] )
+  // updateUserConfiguration(user:User, territories: Territory[], roles: Role[] )
+  // {
+  //   const promises: Promise<any>[] = [];
+  //   territories.forEach(territory => {
+
+  //     roles.forEach(role => {
+
+  //       let item = {
+  //         user: user,
+  //         role: role,
+  //         territory: territory,
+  //         _links: null
+  //       }
+  //       promises.push(new Promise((resolve, reject) => {​​​​​​​ this.userConfigurationService.save(item).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+  //       Promise.all(promises).then(() => {
+  //         this.dataUpdatedEvent.next(true);
+  //       });
+
+  //     });
+
+  //   });
+
+  // }
+
+  getRowsToAddPermits(user: User, territories: Territory[], roles: Role[]) {
+    let itemsToAdd: any[] = [];
+    territories.forEach(territory => {
+
+      roles.forEach(role => {
+        let item = {
+          role: role.name,
+          roleComplete: role,
+          territory: territory.name,
+          territoryComplete: territory,
+        }
+        itemsToAdd.push(item);
+      })
+    })
+    return itemsToAdd;
+  }
+
+
+
+  onSaveButtonClicked(){
+
+    if(this.userForm.value.password === this.userForm.value.confirmPassword)
     {
-      const promises: Promise<any>[] = [];
-      territories.forEach(territory => {
-
-        roles.forEach(role => {
-
-          let item = {
-            user: user,
-            role: role,
-            territory: territory,
-            _links: null
-          }
-          promises.push(new Promise((resolve, reject) => {​​​​​​​ this.userConfigurationService.save(item).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
-          Promise.all(promises).then(() => {
-            this.dataUpdatedEvent.next(true);
-          });
-         
-        });
-        
-      });
-
-    }
-
-
-    onSaveButtonClicked(){
-
-    this.updateUserConfiguration(this.userToEdit,this.territorisToUpdate,this.rolesToUpdate)
-    this.dataUpdatedEvent.next(true);
-
-    }
+      this.userService.save(this.userForm.value)
+      .subscribe(resp => {
+        console.log(resp);
+        this.userToEdit=resp;
+        this.getAllElementsEventTerritoryData.next(true);
+        this.getAllElementsEventPermits.next(true);
   
+      },
+      error => {
+        console.log(error)
+      });     
+    }
+
+
+
+
+
+
+  }
+
 
 }

@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ToolbarComponent } from './toolbar.component';
 import { MaterialModule } from '../../../material-module';
-import { LoginService, AuthService, Principal, AccountService } from 'dist/sitmun-frontend-core/';
+import { LoginService, AuthService, Principal, AccountService } from '@sitmun/frontend-core';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';

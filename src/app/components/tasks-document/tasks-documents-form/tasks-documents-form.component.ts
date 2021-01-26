@@ -2,13 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TaskService, TerritoryService, CartographyService, Cartography } from 'dist/sitmun-frontend-core/';
+import { TaskService, TerritoryService, CartographyService, Cartography } from '@sitmun/frontend-core';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-tasks-documents-form',
@@ -26,11 +27,16 @@ export class TasksDocumentsFormComponent implements OnInit {
   //Grids
   themeGrid: any = environment.agGridTheme;
   columnDefsCartography: any[];
+  getAllElementsEventCartographies: Subject<any[]> = new Subject <any[]>();
   columnDefsTerritories: any[];
+  getAllElementsEventTerritories: Subject<any[]> = new Subject <any[]>();
 
   //Dialog
   columnDefsCartographyDialog: any[];
-  columnDefsTerritoriesDialog: any[];
+  addElementsEventCartographies: Subject<any[]> = new Subject <any[]>();
+  columnDefsTerritoriesDialog: any[];  
+  addElementsEventTerritories: Subject<any[]> = new Subject <any[]>();
+
 
 
 
@@ -60,11 +66,11 @@ export class TasksDocumentsFormComponent implements OnInit {
             this.taskDocumentToEdit = resp;
             this.formTasksDocument.setValue({
               id: this.taskDocumentID,
-              task: this.taskDocumentToEdit.task,
-              documentType: this.taskDocumentToEdit.documentType,
-              groupTask: this.taskDocumentToEdit.groupTask,
-              path: this.taskDocumentToEdit.path,
-              extent: this.taskDocumentToEdit.extent,
+              task: this.taskDocumentToEdit.name,
+              documentType: '',
+              groupTask: this.taskDocumentToEdit.groupName,
+              path:  '',
+              extent: '',
               _links: this.taskDocumentToEdit._links
             });
 
@@ -83,59 +89,30 @@ export class TasksDocumentsFormComponent implements OnInit {
 
 
       this.columnDefsCartography = [
-        {
-          headerName: '',
-          checkboxSelection: true,
-          headerCheckboxSelection: true,
-          editable: false,
-          filter: false,
-          width: 25,
-          lockPosition: true,
-        },
+        environment.selCheckboxColumnDef,
         { headerName: 'Id', field: 'id', editable: false },
         { headerName: this.utils.getTranslate('tasksDocumentEntity.name'), field: 'name' },  
+        { headerName: this.utils.getTranslate('tasksDocumentEntity.status'), field: 'status' },  
+
       ];
   
       this.columnDefsTerritories = [
-        {
-          headerName: '',
-          checkboxSelection: true,
-          headerCheckboxSelection: true,
-          editable: false,
-          filter: false,
-          width: 25,
-          lockPosition: true,
-        },
+        environment.selCheckboxColumnDef,
         { headerName: 'Id', field: 'id', editable: false },
         { headerName: this.utils.getTranslate('tasksDocumentEntity.name'), field: 'name' },
+        { headerName: this.utils.getTranslate('tasksDocumentEntity.status'), field: 'status' },  
   
       ];
 
       this.columnDefsCartographyDialog = [
-        {
-          headerName: '',
-          checkboxSelection: true,
-          headerCheckboxSelection: true,
-          editable: false,
-          filter: false,
-          width: 50,
-          lockPosition:true,
-        },
+        environment.selCheckboxColumnDef,
         { headerName: 'ID', field: 'id', editable: false },
         { headerName: this.utils.getTranslate('tasksDocumentEntity.name'), field: 'name', editable: false },
         { headerName: this.utils.getTranslate('tasksDocumentEntity.note'), field: 'description' },
       ];
 
       this.columnDefsTerritoriesDialog = [
-        {
-          headerName: '',
-          checkboxSelection: true,
-          headerCheckboxSelection: true,
-          editable: false,
-          filter: false,
-          width: 50,
-          lockPosition:true,
-        },
+        environment.selCheckboxColumnDef,
         { headerName: 'ID', field: 'id', editable: false },
         { headerName: this.utils.getTranslate('tasksDocumentEntity.name'), field: 'name',  editable: false  },
         { headerName: this.utils.getTranslate('tasksDocumentEntity.code'), field: 'code',  editable: false  },
@@ -180,52 +157,43 @@ export class TasksDocumentsFormComponent implements OnInit {
   // ******** Cartography ******** //
   getAllCartography = () => {
     
-    // return (this.http.get(`${this.formTasksDocument.value._links.cartographies.href}`))
-    // .pipe( map( data =>  data['_embedded']['cartographies']) );
+    // var urlReq = `${this.taskDocumentToEdit._links.cartography.href}`
+    // if (this.taskDocumentToEdit._links.cartography.templated) {
+    //   var url = new URL(urlReq.split("{")[0]);
+    //   url.searchParams.append("projection", "view")
+    //   urlReq = url.toString();
+    // }
+    // return (this.http.get(urlReq))
+    // .pipe(map(data => data['_embedded']['cartographies']));
+
     const aux: Array<any> = [];
     return of(aux);
 
   }
 
-  removeDataCartography(data: any[]) {
-    console.log(data);
-  }
 
-  newDataCartography(id: any) {
-    // this.router.navigate(['role', id, 'roleForm']);
-  }
-
-  applyChangesCartography(data: any[]) {
+  getAllRowsCartographies(data: any[] )
+  {
     console.log(data);
   }
 
 
   // ******** Territories  ******** //
   getAllTerritories = () => {
-    // var urlReq=`${this.formTasksDocument.value._links.tasks.href}`
-    // if(this.formTasksDocument.value._links.tasks.templated){
-    //   var url=new URL(urlReq.split("{")[0]);
-    //   url.searchParams.append("projection","view")
-    //   urlReq=url.toString();
-    // }
-
-    // return (this.http.get(urlReq))
-    // .pipe( map( data =>  data['_embedded']['tasks']) );
+    var urlReq=`${this.taskDocumentToEdit._links.availabilities.href}`
+    if(this.taskDocumentToEdit._links.availabilities.templated){
+      var url=new URL(urlReq.split("{")[0]);
+      url.searchParams.append("projection","view")
+      urlReq=url.toString();
+    }
+    return (this.http.get(urlReq))
+    .pipe( map( data =>  data['_embedded']['task-availabilities']) );
     
-    const aux: Array<any> = [];
-    return of(aux);
     
   }
 
-  removeDataTerritories(data: any[]) {
-    console.log(data);
-  }
-  
-  newDataTerritories(id: any) {
-    // this.router.navigate(['role', id, 'roleForm']);
-  }
-
-  applyChangesTerritories(data: any[]) {
+  getAllRowsTerritories(data: any[] )
+  {
     console.log(data);
   }
   
@@ -237,7 +205,7 @@ export class TasksDocumentsFormComponent implements OnInit {
 
   openCartographyDialog(data: any) {
 
-    const dialogRef = this.dialog.open(DialogGridComponent);
+    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
     dialogRef.componentInstance.getAllsTable=[this.getAllCartographyDialog];
     dialogRef.componentInstance.singleSelectionTable=[false];
     dialogRef.componentInstance.columnDefsTable=[this.columnDefsCartographyDialog];
@@ -250,7 +218,9 @@ export class TasksDocumentsFormComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if(result){
-        if( result.event==='Add') {console.log(result.data); }
+        if(result.event==='Add') {
+          this.addElementsEventCartographies.next(result.data[0])
+        }
       }
 
     });
@@ -265,7 +235,7 @@ export class TasksDocumentsFormComponent implements OnInit {
 
     openTerritoriesDialog(data: any) {
 
-      const dialogRef = this.dialog.open(DialogGridComponent);
+      const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
       dialogRef.componentInstance.getAllsTable=[this.getAllTerritoriesDialog];
       dialogRef.componentInstance.singleSelectionTable=[false];
       dialogRef.componentInstance.columnDefsTable=[this.columnDefsTerritoriesDialog];
@@ -278,7 +248,9 @@ export class TasksDocumentsFormComponent implements OnInit {
   
       dialogRef.afterClosed().subscribe(result => {
         if(result){
-          if( result.event==='Add') {console.log(result.data); }
+          if(result.event==='Add') {
+            this.addElementsEventTerritories.next(result.data[0])
+          }
         }
   
       });

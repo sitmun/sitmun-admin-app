@@ -3,7 +3,7 @@ import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { TaskService } from 'dist/sitmun-frontend-core/';
+import { HalOptions, HalParam, TaskService } from '@sitmun/frontend-core';
 
 @Component({
   selector: 'app-tasks-download',
@@ -15,7 +15,7 @@ export class TasksDownloadComponent implements OnInit {
   themeGrid:any=environment.agGridTheme;
   columnDefs: any[];
 
-  constructor(public tasksService: TaskService,
+  constructor(public taskService: TaskService,
     private utils: UtilsService,
               private router: Router,
               )
@@ -24,41 +24,30 @@ export class TasksDownloadComponent implements OnInit {
 
   ngOnInit()  {
 
+    var columnEditBtn=environment.editBtnColumnDef;
+    columnEditBtn['cellRendererParams']= {
+      clicked: this.newData.bind(this)
+    }
+
     this.columnDefs = [
-      {
-        headerName: '',
-        checkboxSelection: true,
-        headerCheckboxSelection: true,
-        editable: false,
-        filter: false,
-        width: 40,
-        lockPosition:true,
-      },
-      {
-        headerName: '',
-        field: 'id',
-        editable: false,
-        filter: false,
-        width: 40,
-        lockPosition:true,
-        cellRenderer: 'btnEditRendererComponent',
-        cellRendererParams: {
-          clicked: this.newData.bind(this)
-        },
-      },
+      environment.selCheckboxColumnDef,
+      columnEditBtn,
       { headerName: 'ID',  field: 'id', editable: false},
       { headerName: this.utils.getTranslate('tasksDownloadEntity.name'),  field: 'name'},
       { headerName: this.utils.getTranslate('tasksDownloadEntity.observations'),  field: 'observations'},
-      { headerName: this.utils.getTranslate('tasksDownloadEntity.application'),  field: 'application' }
+      { headerName: this.utils.getTranslate('tasksDownloadEntity.application'),  field: 'application',editable: false }
     ];
   }
 
 
 
   getAllTasksDownload = () => {
-    const aux:Array<any> = [];
-    return of(aux);
-    // this.tasksService.getAll().pipe(map(data => data[`_embedded`][`download-tasks`]));
+    let taskTypeID=environment.tasksTypes['download'];
+    let params2:HalParam[]=[];
+    let param:HalParam={key:'type.id', value:taskTypeID}
+    params2.push(param);
+    let query:HalOptions={ params:params2};
+    return this.taskService.getAll(query,undefined,"tasks");
   }
 
   removeData( data: any[])
