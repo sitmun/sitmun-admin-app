@@ -10,6 +10,7 @@ import { environment } from 'src/environments/environment';
 import { map } from 'rxjs/operators';
 import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
+import { Location } from '@angular/common'
 
 
 @Component({
@@ -34,7 +35,7 @@ export class ConnectionFormComponent implements OnInit {
 
   columnDefsTasks: any[];
   getAllElementsEventTasks: Subject<boolean> = new Subject <boolean>();
-
+  dataUpdatedEventTasks: Subject<boolean> = new Subject<boolean>();
   //Dialog
   columnDefsCartographiesDialog: any[];
   addElementsEventCartographies: Subject<any[]> = new Subject <any[]>();
@@ -59,7 +60,7 @@ export class ConnectionFormComponent implements OnInit {
     public cartographyService: CartographyService,
     public tasksService: TaskService,
     private http: HttpClient,
-    private utils: UtilsService
+    public utils: UtilsService
   ) {
     this.initializeConnectionForm();
   }
@@ -103,7 +104,7 @@ export class ConnectionFormComponent implements OnInit {
         { headerName: 'Id', field: 'id', editable: false },
         { headerName: this.utils.getTranslate('connectionEntity.name'), field: 'name' },
         { headerName: this.utils.getTranslate('connectionEntity.layers'), field: 'layers', editable:false },
-        { headerName: this.utils.getTranslate('connectionEntity.status'), field: 'status' },
+        { headerName: this.utils.getTranslate('connectionEntity.status'), field: 'status', editable:false },
 
   
       ];
@@ -112,8 +113,8 @@ export class ConnectionFormComponent implements OnInit {
         environment.selCheckboxColumnDef,
         { headerName: 'Id', field: 'id', editable: false },
         { headerName: this.utils.getTranslate('connectionEntity.code'), field: 'name' },
-        { headerName: this.utils.getTranslate('connectionEntity.taskGroup'), field: 'groupName' },
-        { headerName: this.utils.getTranslate('connectionEntity.status'), field: 'status' },
+        { headerName: this.utils.getTranslate('connectionEntity.taskGroup'), field: 'groupName', editable:false },
+        { headerName: this.utils.getTranslate('connectionEntity.status'), field: 'status', editable:false },
 
   
       ];
@@ -242,7 +243,7 @@ export class ConnectionFormComponent implements OnInit {
     });
     Promise.all(promises).then(() => {
       let url=this.connectionToEdit._links.tasks.href.split('{', 1)[0];
-      this.utils.updateUriList(url,tasksToPut)
+      this.utils.updateUriList(url,tasksToPut,this.dataUpdatedEventTasks)
     });
   }
   
@@ -331,8 +332,6 @@ export class ConnectionFormComponent implements OnInit {
         error=>{
           console.log(error);
         });
-      
-      
-
     }
+
 }

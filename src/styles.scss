@@ -168,17 +168,21 @@ body {
   margin-top: 34px !important;
   justify-self: right !important;
 }
+.returnButton {
+  
+  color: #ff9300;
+  border: #ff9300 solid 1px !important;
+  min-width: 85px !important;
+  height: 40px;
+  float: right;
+}
+
 .saveButton {
   background-color: #68a225;
   color: white;
-  width: 85px;
+  min-width: 85px !important;
   height: 40px;
-
-  top: 100px;
-  /* float: right; */
-  position: absolute !important;
-  right: 10px;
-  bottom: 40px;
+  float: right;
 }
 
 h4 {

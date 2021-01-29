@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
-import { of } from 'rxjs';
+import { of,Subject} from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { HalOptions, HalParam, TaskService } from '@sitmun/frontend-core';
 
@@ -11,7 +11,7 @@ import { HalOptions, HalParam, TaskService } from '@sitmun/frontend-core';
   styleUrls: ['./tasks-download.component.scss']
 })
 export class TasksDownloadComponent implements OnInit {
-
+  saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
   themeGrid:any=environment.agGridTheme;
   columnDefs: any[];
 
@@ -57,6 +57,7 @@ export class TasksDownloadComponent implements OnInit {
   
   newData(id: any)
   {
+    this.saveAgGridStateEvent.next(true);
     this.router.navigate(['tasksDownload', id, 'tasksDownloadForm']);
   }
   

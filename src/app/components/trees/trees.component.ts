@@ -14,7 +14,7 @@ import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
   styleUrls: ['./trees.component.scss']
 })
 export class TreesComponent implements OnInit {
-
+  saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
   dataUpdatedEvent: Subject<boolean> = new Subject <boolean>();
   themeGrid: any = environment.agGridTheme;
   columnDefs: any[];
@@ -51,6 +51,7 @@ export class TreesComponent implements OnInit {
   }
 
   newData(id: any) {
+    this.saveAgGridStateEvent.next(true);
     this.router.navigate(['trees', id, 'treesForm']);
   }
 
@@ -68,6 +69,7 @@ export class TreesComponent implements OnInit {
     const promises: Promise<any>[] = [];
     data.forEach(tree => {
       tree.id = null;
+      tree.name = 'copia_'.concat(tree.name)
       promises.push(new Promise((resolve, reject) => {​​​​​​​ this.treeService.create(tree).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);

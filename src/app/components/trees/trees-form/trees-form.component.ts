@@ -37,7 +37,7 @@ export class TreesFormComponent implements OnInit {
     private treeNodeService: TreeNodeService,
     private cartographyService: CartographyService,
     private http: HttpClient,
-    private utils: UtilsService,
+    public utils: UtilsService,
     public dialog: MatDialog,
   ) {
    
@@ -214,13 +214,24 @@ export class TreesFormComponent implements OnInit {
 
   updateAllTrees(treesToUpdate: any[])
   {
+    console.log(treesToUpdate);
     treesToUpdate.forEach(tree => {
 
       if(tree.status)
       {
+        var treeNodeObj: TreeNode=new TreeNode();
+     
+        treeNodeObj.name= tree.name;
+        treeNodeObj.tooltip= tree.tooltip;
+        treeNodeObj.order= tree.order;
+        treeNodeObj.active= tree.active;
+        treeNodeObj.cartography= tree.cartography;
+        treeNodeObj.tree= this.treeToEdit;
+        treeNodeObj._links= tree._links;
 
-        if(status !== "Deleted")
+        if(tree.status !== "Deleted")
         {
+
           let currentParent;
           if(tree.parent !== null) {
             currentParent= treesToUpdate.find(element => element.id === tree.parent ); 
@@ -230,17 +241,10 @@ export class TreesFormComponent implements OnInit {
           
           if (currentParent !== undefined)
           {
-            var treeNodeObj: TreeNode=new TreeNode();
-     
-            treeNodeObj.name= tree.name;
-            treeNodeObj.tooltip= tree.tooltip;
-            treeNodeObj.order= tree.order;
+
             treeNodeObj.parent= currentParent;
-            treeNodeObj.active= tree.active;
-            treeNodeObj.cartography= tree.cartography;
-            treeNodeObj.tree= this.treeToEdit;
-            treeNodeObj._links= tree._links;
             console.log(treeNodeObj)
+
             if(treeNodeObj._links)
             {
               treeNodeObj._links.cartography.href=treeNodeObj._links.cartography.href.split("{")[0];
@@ -264,6 +268,14 @@ export class TreesFormComponent implements OnInit {
         }
         else {
           console.log(tree);
+          this.treeNodeService.remove(treeNodeObj).subscribe(
+            result => {
+              console.log(result);
+            },
+            error => {
+              console.log(error);
+            }
+          )
         }
 
       }

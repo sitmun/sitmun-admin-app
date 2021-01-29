@@ -15,6 +15,7 @@
   "close": "Close",
   "redo": "Redo",
   "undo": "Undo",
+  "return": "Return",
   "search/replace": "Search/Replace",
   "selectType": "Select type",
   "ok-created": "Items created successfully",
@@ -25,6 +26,8 @@
   "error-deleted": "Error deleting items",
   "removeMessage": "If you delete the selected data there will be no going back, are you sure you want to continue?",
   "cartographyNonSelectedMessage": "If you want to edit a node you must select a cartography!",
+  "projectionMessage": "Introduce EPSG:Code",
+  "projectionsMessage": "Introduce all projections like EPSG:Code separated by intro",
   "caution": "Danger",
   "lang": {
     "catalan": "Catalan",

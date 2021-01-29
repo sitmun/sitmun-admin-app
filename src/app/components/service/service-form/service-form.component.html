@@ -16,6 +16,10 @@
       <mat-icon fontSet="material-icons-round"  > save </mat-icon>
       {{ "save" | translate }}
     </button>
+    <button (click)="utils.navigateBack()"  mat-flat-button class="returnButton"  >
+      <mat-icon fontSet="material-icons-round"> arrow_back </mat-icon>
+      {{ "return" | translate }}
+    </button>
   </div>
   <span class="divider"></span>
   <form [formGroup]='serviceForm' #f="ngForm"> 
@@ -89,7 +93,7 @@
                   {{ projection }}
                   <mat-icon matChipRemove>cancel</mat-icon>
                 </mat-chip>
-                <input
+                <input title="{{ 'projectionsMessage' | translate }}"
                   [matChipInputFor]="chipList"
                   [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                   [matChipInputAddOnBlur]="addOnBlur"
@@ -121,8 +125,8 @@
         <div class="appDataGridEditDiv">
             <app-data-grid  [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'
             [eventAddItemsSubscription]='addElementsEventParameters.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventParameters.asObservable()' 
-            [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
-            (getAllRows)="getAllRowsParameters($event)" [actionButton]=true (new)="openParametersDialog($event)"> </app-data-grid>
+            [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
+            (getAllRows)="getAllRowsParameters($event)" [actionButton]=true (duplicate)='duplicateParameters($event)'  (new)="openParametersDialog($event)"> </app-data-grid>
         </div>
     </ng-template>
   
@@ -140,7 +144,7 @@
         <div class="appDataGridEditDiv">
             <app-data-grid  [columnDefs]="columnDefsLayers" [themeGrid]='themeGrid' [getAll]='getAllLayers' 
             [eventAddItemsSubscription]='addElementsEventLayers.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventLayers.asObservable()' 
-            [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true  [hideDuplicateButton]=true
+            [eventRefreshSubscription]='dataUpdatedEventLayers.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true  [hideDuplicateButton]=true
             (getAllRows)="getAllRowsLayers($event)" [actionButton]=true (add)="openCartographyDialog($event)" > </app-data-grid>
         </div>
     </ng-template>

@@ -57,7 +57,7 @@ export class TasksReportFormComponent implements OnInit {
      public roleService: RoleService,
      public territoryService: TerritoryService,
      private http: HttpClient,
-     private utils: UtilsService
+     public utils: UtilsService
    ) {
      this.initializeTasksReportForm();
    }
@@ -99,7 +99,7 @@ export class TasksReportFormComponent implements OnInit {
          { headerName: 'Id', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksReportEntity.name'), field: 'name' },  
          { headerName: this.utils.getTranslate('tasksReportEntity.reportID'), field: 'reportID' },
-         { headerName: this.utils.getTranslate('tasksReportEntity.status'), field: 'status' },
+         { headerName: this.utils.getTranslate('tasksReportEntity.status'), field: 'status', editable:false },
            
        ];
 
@@ -108,21 +108,21 @@ export class TasksReportFormComponent implements OnInit {
          { headerName: 'Id', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksReportEntity.name'), field: 'name' },  
          { headerName: this.utils.getTranslate('tasksReportEntity.reportID'), field: 'reportID' },  
-         { headerName: this.utils.getTranslate('tasksReportEntity.status'), field: 'status' },
+         { headerName: this.utils.getTranslate('tasksReportEntity.status'), field: 'status', editable:false },
        ];
 
        this.columnDefsRoles = [
         environment.selCheckboxColumnDef,
          { headerName: 'Id', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksReportEntity.name'), field: 'name' },  
-         { headerName: this.utils.getTranslate('tasksReportEntity.status'), field: 'status' },
+         { headerName: this.utils.getTranslate('tasksReportEntity.status'), field: 'status', editable:false },
        ];
    
        this.columnDefsTerritories = [
         environment.selCheckboxColumnDef,
          { headerName: 'Id', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksReportEntity.name'), field: 'name' },
-         { headerName: this.utils.getTranslate('tasksReportEntity.status'), field: 'status' },
+         { headerName: this.utils.getTranslate('tasksReportEntity.status'), field: 'status', editable:false },
    
        ];
 

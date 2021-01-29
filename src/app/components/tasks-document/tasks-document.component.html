@@ -3,8 +3,8 @@
     <span class="divider"></span>
 </div>
 <div class="appDataGridDiv">
-    <app-data-grid [columnDefs]="columnDefs" [themeGrid]='themeGrid' [getAll]='getAllTasksDocument' [globalSearch]=true 
-    [discardChangesButton]=true [redoButton]=true [undoButton]=true [applyChangesButton]=true  [deleteButton]=true [newButton]=true 
+    <app-data-grid id="taskDocument" [columnDefs]="columnDefs" [themeGrid]='themeGrid' [getAll]='getAllTasksDocument' [globalSearch]=true 
+    [discardChangesButton]=true [redoButton]=true [undoButton]=true [applyChangesButton]=true  [deleteButton]=true [newButton]=true [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
     [actionButton]=true (remove)="removeData($event)" (new)='newData($event)' (sendChanges)='applyChanges($event)' > </app-data-grid>
 </div>
 

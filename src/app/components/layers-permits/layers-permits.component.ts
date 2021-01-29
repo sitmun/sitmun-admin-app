@@ -13,7 +13,7 @@ import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
   styleUrls: ['./layers-permits.component.scss']
 })
 export class LayersPermitsComponent implements OnInit {
-
+  saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
   dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
   themeGrid: any = environment.agGridTheme;
   columnDefs: any[];
@@ -62,6 +62,7 @@ export class LayersPermitsComponent implements OnInit {
   }
 
   newData(id: any) {
+    this.saveAgGridStateEvent.next(true);
     this.router.navigate(['layersPermits', id, 'layersPermitsForm']);
   }
 
@@ -79,6 +80,7 @@ export class LayersPermitsComponent implements OnInit {
     const promises: Promise<any>[] = [];
     data.forEach(cartographyGroup => {
       cartographyGroup.id = null;
+      cartographyGroup.name = 'copia_'.concat(cartographyGroup.name)
       promises.push(new Promise((resolve, reject) => { this.cartographyGroupService.create(cartographyGroup).toPromise().then((resp) => { resolve() }) }));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);

@@ -16,6 +16,7 @@ import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 export class ConnectionComponent implements OnInit {
 
   dataUpdatedEvent: Subject<boolean> = new Subject <boolean>();
+  saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
   themeGrid: any = environment.agGridTheme;
   columnDefs: any[];
 
@@ -50,7 +51,11 @@ export class ConnectionComponent implements OnInit {
     return this.connectionService.getAll();
   }
 
+
+
   newData(id: any) {
+   // this.saveAgGridState()
+    this.saveAgGridStateEvent.next(true);
     this.router.navigate(['connection', id, 'connectionForm']);
   }
 
@@ -69,6 +74,7 @@ export class ConnectionComponent implements OnInit {
     const promises: Promise<any>[] = [];
     data.forEach(connection => {
       connection.id = null;
+      connection.name = 'copia_'.concat(connection.name)
       promises.push(new Promise((resolve, reject) => {​​​​​​​ this.connectionService.create(connection).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);
@@ -87,7 +93,7 @@ export class ConnectionComponent implements OnInit {
         if(result.event==='Accept') {  
           const promises: Promise<any>[] = [];
           data.forEach(connection => {
-            promises.push(new Promise((resolve, reject) => {​​​​​​​ this.connectionService.delete(connection).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+            promises.push(new Promise((resolve, reject) => {​​​​​​​ this.connectionService.remove(connection).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
             Promise.all(promises).then(() => {
               this.dataUpdatedEvent.next(true);
             });

@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { CartographyService, Cartography } from '@sitmun/frontend-core';
+import { CartographyService, Cartography, Service } from '@sitmun/frontend-core';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-layers',
@@ -13,7 +14,7 @@ import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
   styleUrls: ['./layers.component.scss']
 })
 export class LayersComponent implements OnInit {
-
+  saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
   dataUpdatedEvent: Subject<boolean> = new Subject <boolean>();
   themeGrid: any = environment.agGridTheme;
   columnDefs: any[];
@@ -22,6 +23,7 @@ export class LayersComponent implements OnInit {
     public cartographyService: CartographyService,
     private utils: UtilsService,
     private router: Router,
+    private http: HttpClient,
   ) {
 
   }
@@ -54,6 +56,7 @@ export class LayersComponent implements OnInit {
   }
 
   newData(id: any) {
+    this.saveAgGridStateEvent.next(true);
     this.router.navigate(['layers', id, 'layersForm']);
   }
 
@@ -70,12 +73,21 @@ export class LayersComponent implements OnInit {
   add(data: Cartography[]) {
     const promises: Promise<any>[] = [];
     data.forEach(cartography => {
-      cartography.id = null;
-      console.log(cartography);
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.cartographyService.create(cartography).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
-      });
+      let newCartography: Cartography = cartography;
+      this.http.get(cartography._links.service.href).subscribe( (result:Service) => {
+        newCartography.id = null;
+        newCartography.service=result;
+        newCartography._links = null;
+        newCartography.name = 'copia_'.concat(newCartography.name)
+        console.log(newCartography);
+        promises.push(new Promise((resolve, reject) => {​​​​​​​ this.cartographyService.save(newCartography).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+        Promise.all(promises).then(() => {
+          this.dataUpdatedEvent.next(true);
+        });
+      }, error => {
+        console.log(error);
+      })
+
     });
 
   }

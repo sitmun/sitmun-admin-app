@@ -9,6 +9,10 @@
       <mat-icon fontSet="material-icons-round"  > save </mat-icon>
       {{ "save" | translate }}
     </button>
+    <button (click)="utils.navigateBack()"  mat-flat-button class="returnButton"  >
+      <mat-icon fontSet="material-icons-round"> arrow_back </mat-icon>
+      {{ "return" | translate }}
+    </button>
   </div>
   <span class="divider"></span>
   <form [formGroup]='applicationForm'> 
@@ -95,7 +99,7 @@
               {{'applicationEntity.scales' | translate}}
             </label>
             <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="scales">
+              <input matInput type="text"  formControlName="scales">
             </mat-form-field>
           </div>
 
@@ -104,7 +108,7 @@
               {{'applicationEntity.srs' | translate}}
             </label>
             <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="srs">
+              <input matInput type="text" title="{{ 'projectionMessage' | translate }}" formControlName="srs">
             </mat-form-field>
           </div>
           <div class="colFormDiv" >
@@ -139,8 +143,9 @@
           <div class="appDataGridEditDiv">
               <app-data-grid  [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'  
               [eventAddItemsSubscription]='addElementsEventParameters.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventParameters.asObservable()'  
-              [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
-              (getAllRows)="getAllRowsParameters($event)" (new)="openParametersDialog($event)"   > </app-data-grid>
+              [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()' [discardChangesButton]=true [actionButton]=true  
+              [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true  (getAllRows)="getAllRowsParameters($event)"
+              (new)="openParametersDialog($event)" (duplicate)='duplicateParameters($event)'   > </app-data-grid>
           </div>
       </ng-template>
         </mat-expansion-panel>
@@ -157,8 +162,8 @@
               <div class="appDataGridEditDiv">
                   <app-data-grid [columnDefs]="columnDefsTemplates" [themeGrid]='themeGrid' [getAll]='getAllTemplates'  
                   [eventAddItemsSubscription]='addElementsEventTemplateConfiguration.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventTemplateConfiguration.asObservable()' 
-                  [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
-                  (getAllRows)="getAllRowsTemplates($event)" [actionButton]=true (add)="openTemplateConfigurationDialog($event)"  > </app-data-grid>
+                  [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
+                  (duplicate)='duplicateTemplates($event)'(getAllRows)="getAllRowsParameters($event)" [actionButton]=true  (new)="openTemplateConfigurationDialog($event)"  > </app-data-grid>
               </div>
           </ng-template>
           </mat-expansion-panel>
@@ -175,8 +180,8 @@
               <div class="appDataGridEditDiv">
                   <app-data-grid [columnDefs]="columnDefsRoles" [themeGrid]='themeGrid' [getAll]='getAllRoles'  
                   [eventAddItemsSubscription]='addElementsEventRoles.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventRoles.asObservable()' 
-                   [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
-                   (getAllRows)="getAllRowsRoles($event)" [actionButton]=true (add)="openRolesDialog($event)"   > </app-data-grid>
+                  [eventRefreshSubscription]='dataUpdatedEventRoles.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  
+                  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true (getAllRows)="getAllRowsRoles($event)" [actionButton]=true (add)="openRolesDialog($event)"   > </app-data-grid>
               </div>
           </ng-template>
           </mat-expansion-panel>
@@ -193,8 +198,8 @@
               <div class="appDataGridEditDiv">
                   <app-data-grid [columnDefs]="columnDefsBackgrounds" [themeGrid]='themeGrid' [getAll]='getAllBackgrounds' 
                   [eventAddItemsSubscription]='addElementsEventBackground.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventBackground.asObservable()' 
-                  [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
-                  (getAllRows)="getAllRowsBackgrounds($event)" [actionButton]=true (add)="openBackgroundDialog($event)"  > </app-data-grid>
+                  [eventRefreshSubscription]='dataUpdatedEventBackground.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true
+                   [hideDuplicateButton]=true (getAllRows)="getAllRowsBackgrounds($event)" [actionButton]=true (add)="openBackgroundDialog($event)"  > </app-data-grid>
               </div>
           </ng-template>
           </mat-expansion-panel>
@@ -211,8 +216,8 @@
           <div class="appDataGridEditDiv">
               <app-data-grid [columnDefs]="columnDefsTrees" [themeGrid]='themeGrid' [getAll]='getAllTrees' 
               [eventAddItemsSubscription]='addElementsEventTree.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventTree.asObservable()' 
-              [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
-              (getAllRows)="getAllRowsTrees($event)" [actionButton]=true (add)="openTreeDialog($event)"   > </app-data-grid>
+              [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true 
+              [hideDuplicateButton]=true  (getAllRows)="getAllRowsTrees($event)" [actionButton]=true (add)="openTreeDialog($event)"   > </app-data-grid>
           </div>
       </ng-template>
       </mat-expansion-panel>
@@ -274,3 +279,39 @@
   
   
   </ng-template>
+
+  <ng-template #newTemplateDialog>
+
+    <div class="formDiv">
+      <form [formGroup]='parameterForm' #f="ngForm"> 
+    
+    
+        <div class="rowFormDiv">
+        
+            <div class="colFormDiv" >
+              <label class="formLabel requiredInput">
+                {{'applicationEntity.name' | translate}}
+              </label>
+              <mat-form-field appearance="outline">
+                <input matInput type="text" formControlName="name" required>
+              </mat-form-field>
+            </div>
+  
+    
+          <div class="colFormDiv" >
+            <label class="formLabel requiredInput">
+              {{'serviceEntity.value' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="value" required>
+            </mat-form-field>
+          </div>
+    
+       </div>
+  
+    
+    </form>
+    </div>
+    
+    
+</ng-template>

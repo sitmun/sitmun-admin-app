@@ -1,8 +1,7 @@
 import { FlatTreeControl } from '@angular/cdk/tree';
-import { EventEmitter } from '@angular/core';
+import { EventEmitter, ElementRef } from '@angular/core';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { SelectionModel } from '@angular/cdk/collections';
 import * as i0 from "@angular/core";
 /**
@@ -14,6 +13,22 @@ export declare class FileNode {
     children: FileNode[];
     name: string;
     type: any;
+    active: any;
+    cartographyId: any;
+    cartographyName: any;
+    datasetURL: any;
+    description: any;
+    filterGetFeatureInfo: any;
+    filterGetMap: any;
+    filterSelectable: any;
+    isFolder: any;
+    metadataURL: any;
+    order: any;
+    parent: any;
+    queryableActive: any;
+    radio: any;
+    tooltip: any;
+    _links: any;
 }
 /** Flat node with expandable and level information */
 export declare class FileFlatNode {
@@ -33,14 +48,25 @@ export declare class FileFlatNode {
  */
 export declare class FileDatabase {
     dataChange: BehaviorSubject<FileNode[]>;
-    get data(): FileNode[];
+    get data(): any;
     constructor();
     initialize(dataObj: any): void;
     /**
      * Build the file structure tree. The `value` is the Json object, or a sub-tree of a Json object.
      * The return value is the list of `FileNode`.
      */
-    buildFileTree(arrayTreeNodes: any[], level: number, parentId?: string): FileNode[];
+    buildFileTree(arrayTreeNodes: any[], level: number, parentId?: string): any;
+    deleteItem(node: FileNode): void;
+    deleteNode(nodes: FileNode[], nodeToDelete: FileNode): void;
+    copyPasteItem(from: FileNode, to: FileNode): FileNode;
+    copyPasteItemAbove(from: FileNode, to: FileNode): FileNode;
+    copyPasteItemBelow(from: FileNode, to: FileNode): FileNode;
+    /** Add an item to to-do list */
+    insertItem(parent: FileNode, node: FileNode): FileNode;
+    insertItemAbove(node: FileNode, nodeDrag: FileNode): FileNode;
+    insertItemBelow(node: FileNode, nodeDrag: FileNode): FileNode;
+    getParentFromNodes(node: FileNode): FileNode;
+    getParent(currentRoot: FileNode, node: FileNode): FileNode;
     static ɵfac: i0.ɵɵFactoryDef<FileDatabase, never>;
     static ɵprov: i0.ɵɵInjectableDef<FileDatabase>;
 }
@@ -69,6 +95,16 @@ export declare class DataTreeComponent {
     validateDrop: boolean;
     treeData: any;
     getAll: () => Observable<any>;
+    dragNode: any;
+    dragNodeExpandOverWaitTimeMs: number;
+    dragNodeExpandOverNode: any;
+    dragNodeExpandOverTime: number;
+    dragNodeExpandOverArea: string;
+    emptyItem: ElementRef;
+    /** Map from flat node to nested node. This helps us finding the nested node to be modified */
+    flatNodeMap: Map<FileFlatNode, FileNode>;
+    /** Map from nested node to flattened node. This helps us to keep the same object for selection */
+    nestedNodeMap: Map<FileNode, FileFlatNode>;
     constructor(database: FileDatabase);
     ngOnInit(): void;
     transformer: (node: FileNode, level: number) => FileFlatNode;
@@ -81,18 +117,10 @@ export declare class DataTreeComponent {
      */
     visibleNodes(): FileNode[];
     findNodeSiblings(arr: Array<any>, id: string): Array<any>;
-    /**
-     * Handle the drop - here we rearrange the data based on the drop event,
-     * then rebuild the tree.
-     * */
-    drop(event: CdkDragDrop<string[]>): void;
-    /**
-     * Experimental - opening tree nodes as you drag over them
-     */
-    dragStart(): void;
-    dragEnd(): void;
-    dragHover(node: FileFlatNode): void;
-    dragHoverEnd(): void;
+    handleDragStart(event: any, node: any): void;
+    handleDragOver(event: any, node: any): void;
+    handleDrop(event: any, node: any): void;
+    handleDragEnd(event: any): void;
     /**
      * The following methods are for persisting the tree expand state
      * after being rebuilt
@@ -109,7 +137,7 @@ export declare class DataTreeComponent {
     createNewNode(newNode: any): void;
     onButtonClicked(id: any, button: string): void;
     emitAllRows(): void;
-    getChildren(arr: any): any[];
+    getAllChildren(arr: any): any[];
     static ɵfac: i0.ɵɵFactoryDef<DataTreeComponent, never>;
     static ɵcmp: i0.ɵɵComponentDefWithMeta<DataTreeComponent, "app-data-tree", never, { "eventNodeUpdatedSubscription": "eventNodeUpdatedSubscription"; "eventCreateNodeSubscription": "eventCreateNodeSubscription"; "eventGetAllRowsSubscription": "eventGetAllRowsSubscription"; "getAll": "getAll"; }, { "createNode": "createNode"; "createFolder": "createFolder"; "emitNode": "emitNode"; "emitAllNodes": "emitAllNodes"; }, never, never>;
 }

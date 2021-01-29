@@ -21,7 +21,7 @@ export class BackgroundLayersFormComponent implements OnInit {
     private router: Router,
     private backgroundService: BackgroundService,
     private http: HttpClient,
-    private utils: UtilsService,
+    public utils: UtilsService,
     private cartographyGroupService:CartographyGroupService,
   ) {
     this.initializeBackgroundForm();

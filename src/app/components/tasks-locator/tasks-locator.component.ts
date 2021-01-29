@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
-import { of } from 'rxjs';
+import { of,Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { TaskService, HalOptions, HalParam } from '@sitmun/frontend-core';
 
@@ -11,7 +11,7 @@ import { TaskService, HalOptions, HalParam } from '@sitmun/frontend-core';
   styleUrls: ['./tasks-locator.component.scss']
 })
 export class TasksLocatorComponent implements OnInit {
-
+  saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
   themeGrid:any=environment.agGridTheme;
   columnDefs: any[];
 
@@ -61,6 +61,7 @@ export class TasksLocatorComponent implements OnInit {
   
   newData(id: any)
   {
+    this.saveAgGridStateEvent.next(true);
     this.router.navigate(['tasksLocator', id, 'tasksLocatorForm']);
 
   }

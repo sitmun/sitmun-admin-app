@@ -15,6 +15,7 @@
   "close": "Cerrar",
   "redo": "Rehacer",
   "undo": "Deshacer",
+  "return": "Volver",
   "search/replace": "Buscar/Reemplazar",
   "selectType": "Selecciona el tipo",
   "ok-created": "Los elementos se han creado correctamente",
@@ -25,6 +26,8 @@
   "error-deleted": "Se ha producido un error al borrar los elementos",
   "removeMessage": "Si borras los datos seleccionados no habrá vuelta atrás, seguro que quieres continuar?",
   "cartographyNonSelectedMessage": "Para editar un nodo tienes que seleccionar una cartografia!",
+  "projectionMessage": "Introdueix EPSG:Código",
+  "projectionsMessage": "Introduce todas las proyecciones EPSG:Código separadas por intros",
   "caution": "Peligro",
   "lang": {
     "catalan": "Catalán",

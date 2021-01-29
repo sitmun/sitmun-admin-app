@@ -23,7 +23,7 @@ export class TaskGroupFormComponent implements OnInit {
     private router: Router,
     private taskGroupService: TaskGroupService,
     private http: HttpClient,
-    private utils: UtilsService,
+    public utils: UtilsService,
   ) {
     this.initializeTaskGroupForm();
   }

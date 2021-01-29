@@ -10,6 +10,10 @@
       <mat-icon fontSet="material-icons-round"  > save </mat-icon>
       {{ "save" | translate }}
     </button>
+    <button (click)="utils.navigateBack()"  mat-flat-button class="returnButton"  >
+      <mat-icon fontSet="material-icons-round"> arrow_back </mat-icon>
+      {{ "return" | translate }}
+    </button>
   </div>
   <span class="divider"></span>
   <form [formGroup]='layerForm' #f="ngForm"> 
@@ -224,8 +228,8 @@
       <div class="appDataGridEditDiv">
           <app-data-grid  [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'  
           [eventAddItemsSubscription]='addElementsEventParameters.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventParameters.asObservable()' 
-          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
-          (getAllRows)="getAllRowsParameters($event)" [actionButton]=true (new)="openParametersDialog($event)"  > </app-data-grid>
+          [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
+          (getAllRows)="getAllRowsParameters($event)" [actionButton]=true (duplicate)='duplicateParameters($event)'  (new)="openParametersDialog($event)"  > </app-data-grid>
       </div>
     </ng-template>
     </mat-expansion-panel>
@@ -243,7 +247,7 @@
       <div class="appDataGridEditDiv">
           <app-data-grid  [columnDefs]="columnDefsSpatialConfigurations" [themeGrid]='themeGrid' [getAll]='getAllSpatialConfigurations'  
           [eventAddItemsSubscription]='addElementsEventSpatialConfigurations.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventSpatialConfigurations.asObservable()' 
-          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true  
+          [eventRefreshSubscription]='dataUpdatedEventSpatialConfigurations.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true  
           (getAllRows)="getAllRowsSpatialConfiguration($event)" [actionButton]=true (add)="openSpatialSelectionDialog($event)"  > </app-data-grid>
       </div>
     </ng-template>
@@ -262,7 +266,7 @@
       <div class="appDataGridEditDiv">
           <app-data-grid [columnDefs]="columnDefsTerritories" [themeGrid]='themeGrid' [getAll]='getAllTerritories'  
           [eventAddItemsSubscription]='addElementsEventTerritories.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventTerritories.asObservable()' 
-          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true  
+          [eventRefreshSubscription]='dataUpdatedEventTerritories.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true  
           (getAllRows)="getAllRowsTerritories($event)"  [actionButton]=true (add)="openTerritoriesDialog($event)"   > </app-data-grid>
       </div>
     </ng-template>
@@ -281,7 +285,7 @@
       <div class="appDataGridEditDiv">
           <app-data-grid [columnDefs]="columnDefsLayersConfiguration" [themeGrid]='themeGrid' [getAll]='getAllLayersConfiguration'  
           [eventAddItemsSubscription]='addElementsEventCartographyGroups.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventLayersConfigurations.asObservable()' 
-          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true  
+          [eventRefreshSubscription]='dataUpdatedEventLayersConfiguration.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true  
           (getAllRows)="getAllRowsLayersConfiguration($event)" [actionButton]=true (add)="openCartographyGroupsDialog($event)" > </app-data-grid>
       </div>
     </ng-template>
@@ -300,7 +304,7 @@
       <div class="appDataGridEditDiv">
           <app-data-grid [columnDefs]="columnDefsNodes" [themeGrid]='themeGrid' [getAll]='getAllNodes' 
           [eventAddItemsSubscription]='addElementsEventNodes.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventNodes.asObservable()' 
-          [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
+          [eventRefreshSubscription]='dataUpdatedEventNodes.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
           (getAllRows)="getAllRowsNodes($event)" [actionButton]=true (add)="openNodesDialog($event)" > </app-data-grid>
       </div>
     </ng-template>
@@ -380,7 +384,7 @@
           {{'layersEntity.order' | translate}}
         </label>
         <mat-form-field appearance="outline">
-          <input matInput type="text" formControlName="order" required>
+          <input matInput type="number" formControlName="order" required>
         </mat-form-field>
       </div>
   

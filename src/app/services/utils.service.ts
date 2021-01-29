@@ -118,12 +118,16 @@ export class UtilsService {
 
   //Update grids
 
-  updateUriList(requestURI: string, data: any[] ) {
+  updateUriList(requestURI: string, data: any[], eventRefresh? ) {
 
-    return this.http
+     this.http
           .put(requestURI
               , this.createUriList(data), {headers: new HttpHeaders({'Content-Type': 'text/uri-list', 'Charset': 'UTF-8'})}).subscribe(
-                result => console.log(result)
+                result => {
+                  this.success= true
+                  if(eventRefresh) {eventRefresh.next(true); }
+                },
+                error => {this.success= false}
               ) 
 
   }

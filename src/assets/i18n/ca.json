@@ -15,6 +15,7 @@
   "close": "Tancar",
   "redo": "Refer",
   "undo": "Desfer",
+  "return": "Tornar",
   "search/replace": "Buscar/Reemplaçar",
   "selectType": "Selecciona el tipus",
   "ok-created": "Els elements s'han creat correctament",
@@ -25,6 +26,8 @@
   "error-deleted": "S'ha produït un error en esborrar els elements",
   "removeMessage": "Si esborres les dades seleccionades no hi haurà volta enrere, segur que vols continuar?",
   "cartographyNonSelectedMessage": "Per editar un node has de seleccionar una cartografia!",
+  "projectionMessage": "Introdueix EPSG:Codi",
+  "projectionsMessage": "Introdueix totes les projeccions EPSG:Codi separades per intro",
   "caution": "Perill",
   "lang": {
     "catalan": "Català",

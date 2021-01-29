@@ -54,7 +54,7 @@ export class TasksEditionFormComponent implements OnInit {
      public roleService: RoleService,
      public territoryService: TerritoryService,
      private http: HttpClient,
-     private utils: UtilsService
+     public utils: UtilsService
    ) {
      this.initializeTasksEditionForm();
      this.initializeFilterForm();
@@ -106,7 +106,7 @@ export class TasksEditionFormComponent implements OnInit {
          { headerName: this.utils.getTranslate('tasksEditionEntity.obligatory'), field: 'obligatory' },  
          { headerName: this.utils.getTranslate('tasksEditionEntity.help'), field: 'help' },  
          { headerName: this.utils.getTranslate('tasksEditionEntity.selectPath'), field: 'selectPath' },  
-         { headerName: this.utils.getTranslate('tasksEditionEntity.status'), field: 'status' },  
+         { headerName: this.utils.getTranslate('tasksEditionEntity.status'), field: 'status', editable:false },  
        ];
 
 
@@ -114,14 +114,14 @@ export class TasksEditionFormComponent implements OnInit {
         environment.selCheckboxColumnDef,
          { headerName: 'Id', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksEditionEntity.name'), field: 'name' },  
-         { headerName: this.utils.getTranslate('tasksEditionEntity.status'), field: 'status' },
+         { headerName: this.utils.getTranslate('tasksEditionEntity.status'), field: 'status', editable:false },
        ];
    
        this.columnDefsTerritories = [
         environment.selCheckboxColumnDef,
          { headerName: 'Id', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksEditionEntity.name'), field: 'name' },
-         { headerName: this.utils.getTranslate('tasksEditionEntity.status'), field: 'status' },
+         { headerName: this.utils.getTranslate('tasksEditionEntity.status'), field: 'status', editable:false },
    
        ];
 

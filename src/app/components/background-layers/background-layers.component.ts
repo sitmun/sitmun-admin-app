@@ -6,6 +6,7 @@ import { environment } from 'src/environments/environment';
 import { Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-background-layers',
@@ -13,7 +14,7 @@ import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
   styleUrls: ['./background-layers.component.scss']
 })
 export class BackgroundLayersComponent implements OnInit {
-
+  saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
   dataUpdatedEvent: Subject<boolean> = new Subject <boolean>();
   themeGrid: any = environment.agGridTheme;
   columnDefs: any[];
@@ -23,6 +24,7 @@ export class BackgroundLayersComponent implements OnInit {
     public backgroundService: BackgroundService,
     private utils: UtilsService,
     private router: Router,
+    private http: HttpClient,
 
   ) {
 
@@ -58,6 +60,7 @@ export class BackgroundLayersComponent implements OnInit {
   }
 
   newData(id: any) {
+    this.saveAgGridStateEvent.next(true);
     this.router.navigate(['backgroundLayers', id, 'backgroundLayersForm']);
   }
 
@@ -76,16 +79,19 @@ export class BackgroundLayersComponent implements OnInit {
     const promises: Promise<any>[] = [];
     data.forEach(background => {
       background.id = null;
-      let newCartographyGroup = {
-        id: background.cartographyGroupId,
-        name: background.cartographyGroupName
-      }
-      background.cartographyGroup = newCartographyGroup;
-      console.log(background);
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.backgroundService.create(background).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
+      this.http.get(background._links.cartographyGroup.href).subscribe( (cartographyGroup) => {
+
+        background.cartographyGroup = cartographyGroup;
+        background.name = 'copia_'.concat(background.name)
+        background._links=null;
+        console.log(background);
+        promises.push(new Promise((resolve, reject) => {​​​​​​​ this.backgroundService.save(background).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+        Promise.all(promises).then(() => {
+          this.dataUpdatedEvent.next(true);
+        });
+
       });
+
     });
 
   }

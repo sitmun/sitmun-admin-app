@@ -52,7 +52,7 @@ export class TasksLocatorFormComponent implements OnInit {
      public roleService: RoleService,
      public territoryService: TerritoryService,
      private http: HttpClient,
-     private utils: UtilsService
+     public utils: UtilsService
    ) {
      this.initializeTasksLocatorForm();
    }
@@ -98,7 +98,7 @@ export class TasksLocatorFormComponent implements OnInit {
         { headerName: this.utils.getTranslate('tasksLocatorEntity.tag'), field: 'tag' },
         { headerName: this.utils.getTranslate('tasksLocatorEntity.select'), field: 'select' },
         { headerName: this.utils.getTranslate('tasksLocatorEntity.order'), field: 'order' },
-        { headerName: this.utils.getTranslate('tasksLocatorEntity.status'), field: 'status' },
+        { headerName: this.utils.getTranslate('tasksLocatorEntity.status'), field: 'status', editable:false },
   
       ];
  
@@ -107,14 +107,14 @@ export class TasksLocatorFormComponent implements OnInit {
         environment.selCheckboxColumnDef,
          { headerName: 'Id', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksLocatorEntity.name'), field: 'name' },  
-         { headerName: this.utils.getTranslate('tasksLocatorEntity.status'), field: 'status' },
+         { headerName: this.utils.getTranslate('tasksLocatorEntity.status'), field: 'status', editable:false },
        ];
    
        this.columnDefsTerritories = [
         environment.selCheckboxColumnDef,
          { headerName: 'Id', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksLocatorEntity.name'), field: 'name' },
-         { headerName: this.utils.getTranslate('tasksLocatorEntity.status'), field: 'status' },
+         { headerName: this.utils.getTranslate('tasksLocatorEntity.status'), field: 'status', editable:false },
    
        ];
 

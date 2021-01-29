@@ -2,7 +2,7 @@
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/core'), require('@ag-grid-community/all-modules'), require('@angular/material/button'), require('@angular/material/icon'), require('@angular/material/checkbox'), require('@angular/forms'), require('@ngx-translate/core'), require('@angular/material/dialog'), require('@angular/common'), require('@angular/material/menu'), require('@ag-grid-community/angular'), require('@angular/common/http'), require('@angular/platform-browser/animations'), require('@angular/router'), require('@sitmun/frontend-core'), require('@angular/common/locales/ca'), require('@angular/common/locales/es'), require('@angular/cdk/a11y'), require('@angular/cdk/drag-drop'), require('@angular/cdk/portal'), require('@angular/cdk/scrolling'), require('@angular/cdk/stepper'), require('@angular/cdk/table'), require('@angular/cdk/tree'), require('@angular/material/autocomplete'), require('@angular/material/badge'), require('@angular/material/bottom-sheet'), require('@angular/material/button-toggle'), require('@angular/material/card'), require('@angular/material/chips'), require('@angular/material/stepper'), require('@angular/material/datepicker'), require('@angular/material/divider'), require('@angular/material/expansion'), require('@angular/material/grid-list'), require('@angular/material/input'), require('@angular/material/list'), require('@angular/material/core'), require('@angular/material/paginator'), require('@angular/material/progress-bar'), require('@angular/material/progress-spinner'), require('@angular/material/radio'), require('@angular/material/select'), require('@angular/material/sidenav'), require('@angular/material/slider'), require('@angular/material/slide-toggle'), require('@angular/material/snack-bar'), require('@angular/material/sort'), require('@angular/material/table'), require('@angular/material/tabs'), require('@angular/material/toolbar'), require('@angular/material/tooltip'), require('@angular/material/tree'), require('@angular/material/form-field'), require('@ngx-translate/http-loader'), require('rxjs'), require('@angular/cdk/collections')) :
     typeof define === 'function' && define.amd ? define('@sitmun/frontend-gui', ['exports', '@angular/core', '@ag-grid-community/all-modules', '@angular/material/button', '@angular/material/icon', '@angular/material/checkbox', '@angular/forms', '@ngx-translate/core', '@angular/material/dialog', '@angular/common', '@angular/material/menu', '@ag-grid-community/angular', '@angular/common/http', '@angular/platform-browser/animations', '@angular/router', '@sitmun/frontend-core', '@angular/common/locales/ca', '@angular/common/locales/es', '@angular/cdk/a11y', '@angular/cdk/drag-drop', '@angular/cdk/portal', '@angular/cdk/scrolling', '@angular/cdk/stepper', '@angular/cdk/table', '@angular/cdk/tree', '@angular/material/autocomplete', '@angular/material/badge', '@angular/material/bottom-sheet', '@angular/material/button-toggle', '@angular/material/card', '@angular/material/chips', '@angular/material/stepper', '@angular/material/datepicker', '@angular/material/divider', '@angular/material/expansion', '@angular/material/grid-list', '@angular/material/input', '@angular/material/list', '@angular/material/core', '@angular/material/paginator', '@angular/material/progress-bar', '@angular/material/progress-spinner', '@angular/material/radio', '@angular/material/select', '@angular/material/sidenav', '@angular/material/slider', '@angular/material/slide-toggle', '@angular/material/snack-bar', '@angular/material/sort', '@angular/material/table', '@angular/material/tabs', '@angular/material/toolbar', '@angular/material/tooltip', '@angular/material/tree', '@angular/material/form-field', '@ngx-translate/http-loader', 'rxjs', '@angular/cdk/collections'], factory) :
     (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory((global.sitmun = global.sitmun || {}, global.sitmun['frontend-gui'] = {}), global.ng.core, global.allModules, global.ng.material.button, global.ng.material.icon, global.ng.material.checkbox, global.ng.forms, global.i2$1, global.ng.material.dialog, global.ng.common, global.ng.material.menu, global.i5, global.ng.common.http, global.ng.platformBrowser.animations, global.ng.router, global.frontendCore, global.ng.common.locales.ca, global.ng.common.locales.es, global.ng.cdk.a11y, global.ng.cdk.dragDrop, global.ng.cdk.portal, global.ng.cdk.scrolling, global.ng.cdk.stepper, global.ng.cdk.table, global.ng.cdk.tree, global.ng.material.autocomplete, global.ng.material.badge, global.ng.material.bottomSheet, global.ng.material.buttonToggle, global.ng.material.card, global.ng.material.chips, global.ng.material.stepper, global.ng.material.datepicker, global.ng.material.divider, global.ng.material.expansion, global.ng.material.gridList, global.ng.material.input, global.ng.material.list, global.ng.material.core, global.ng.material.paginator, global.ng.material.progressBar, global.ng.material.progressSpinner, global.ng.material.radio, global.ng.material.select, global.ng.material.sidenav, global.ng.material.slider, global.ng.material.slideToggle, global.ng.material.snackBar, global.ng.material.sort, global.ng.material.table, global.ng.material.tabs, global.ng.material.toolbar, global.ng.material.tooltip, global.ng.material.tree, global.ng.material.formField, global.httpLoader, global.rxjs, global.ng.cdk.collections));
-}(this, (function (exports, i0, allModules, i3, i2, i1, i8, i2$1, i1$1, i2$2, i4, i5, http, animations, router, frontendCore, localeCa, localeEs, a11y, i2$3, portal, scrolling, stepper, table, tree, autocomplete, badge, bottomSheet, buttonToggle, card, chips, stepper$1, datepicker, divider, expansion, gridList, input, list, core, paginator, progressBar, progressSpinner, radio, select, sidenav, slider, slideToggle, snackBar, sort, table$1, tabs, toolbar, tooltip, i1$2, formField, httpLoader, rxjs, collections) { 'use strict';
+}(this, (function (exports, i0, allModules, i3, i2, i1, i8, i2$1, i1$1, i2$2, i4, i5, http, animations, router, frontendCore, localeCa, localeEs, a11y, dragDrop, portal, scrolling, stepper, table, tree, autocomplete, badge, bottomSheet, buttonToggle, card, chips, stepper$1, datepicker, divider, expansion, gridList, input, list, core, paginator, progressBar, progressSpinner, radio, select, sidenav, slider, slideToggle, snackBar, sort, table$1, tabs, toolbar, tooltip, i1$2, formField, httpLoader, rxjs, collections) { 'use strict';
 
     function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
@@ -525,7 +525,7 @@
     /** @nocollapse */ DialogMessageComponent.ɵfac = function DialogMessageComponent_Factory(t) { return new (t || DialogMessageComponent)(i0.ɵɵdirectiveInject(i1$1.MatDialogRef)); };
     /** @nocollapse */ DialogMessageComponent.ɵcmp = i0.ɵɵdefineComponent({ type: DialogMessageComponent, selectors: [["app-dialog-message"]], decls: 12, vars: 8, consts: [["mat-dialog-title", ""], [1, "mat-typography"], ["align", "end"], ["mat-button", "", 3, "click"], ["mat-button", "", "cdkFocusInitial", "", 3, "click"]], template: function DialogMessageComponent_Template(rf, ctx) {
             if (rf & 1) {
-                i0.ɵɵelementStart(0, "h2", 0);
+                i0.ɵɵelementStart(0, "h5", 0);
                 i0.ɵɵtext(1);
                 i0.ɵɵelementEnd();
                 i0.ɵɵelementStart(2, "mat-dialog-content", 1);
@@ -840,6 +840,10 @@
             var _this = this;
             if (this.eventRefreshSubscription) {
                 this._eventRefreshSubscription = this.eventRefreshSubscription.subscribe(function () {
+                    _this.changesMap.clear();
+                    _this.changeCounter = 0;
+                    _this.previousChangeCounter = 0;
+                    _this.redoCounter = 0;
                     _this.getElements();
                 });
             }
@@ -853,10 +857,31 @@
                     _this.emitAllRows();
                 });
             }
+            if (this.eventSaveAgGridStateSubscription) {
+                this._eventSaveAgGridStateSubscription = this.eventSaveAgGridStateSubscription.subscribe(function () {
+                    _this.saveAgGridState();
+                });
+            }
             if (this.eventAddItemsSubscription) {
                 this.eventAddItemsSubscription.subscribe(function (items) {
                     _this.addItems(items);
                 });
+            }
+        };
+        DataGridComponent.prototype.firstDataRendered = function () {
+            if (localStorage.agGridState != undefined) {
+                var agGridState = JSON.parse(localStorage.agGridState);
+                if (agGridState.idAgGrid != undefined && agGridState.idAgGrid == this.id) {
+                    this.gridApi.setFilterModel(agGridState.filterState);
+                    this.gridColumnApi.setColumnState(agGridState.colState);
+                    this.gridApi.setSortModel(agGridState.sortState);
+                    this.searchValue = agGridState.valueSearchGeneric;
+                    this.quickSearch();
+                    this.removeAgGridState();
+                }
+                else if (this.id != undefined) {
+                    this.removeAgGridState();
+                }
             }
         };
         DataGridComponent.prototype.onGridReady = function (params) {
@@ -869,7 +894,6 @@
             this.gridApi = params.api;
             this.gridColumnApi = params.columnApi;
             this.getElements();
-            this.gridApi.sizeColumnsToFit();
             console.log(this.columnDefs);
             try {
                 for (var _b = __values(this.columnDefs), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -897,6 +921,19 @@
             var rowData = [];
             this.gridApi.forEachNode(function (node) { return rowData.push(node.data); });
             this.getAllRows.emit(rowData);
+        };
+        DataGridComponent.prototype.saveAgGridState = function () {
+            var agGridState = {
+                idAgGrid: this.id,
+                colState: this.gridColumnApi.getColumnState(),
+                filterState: this.gridApi.getFilterModel(),
+                sortState: this.gridApi.getSortModel(),
+                valueSearchGeneric: this.searchValue
+            };
+            localStorage.setItem("agGridState", JSON.stringify(agGridState));
+        };
+        DataGridComponent.prototype.removeAgGridState = function () {
+            localStorage.removeItem("agGridState");
         };
         DataGridComponent.prototype.getColumnKeysAndHeaders = function (columnkeys) {
             var header = [];
@@ -934,8 +971,8 @@
             this.getAll()
                 .subscribe(function (items) {
                 _this.rowData = items;
-                setTimeout(function () { _this.gridApi.sizeColumnsToFit(); }, 30);
                 _this.gridApi.setRowData(_this.rowData);
+                _this.gridApi.sizeColumnsToFit();
                 console.log(_this.rowData);
             });
         };
@@ -966,7 +1003,7 @@
             var selectedData = selectedNodes.map(function (node) { return node.data; });
             this.remove.emit(selectedData);
             if (this.statusColumn) {
-                var selectedRows = selectedNodes.map(function (node) { return node.rowIndex; });
+                var selectedRows = selectedNodes.map(function (node) { return node.id; });
                 try {
                     for (var selectedRows_1 = __values(selectedRows), selectedRows_1_1 = selectedRows_1.next(); !selectedRows_1_1.done; selectedRows_1_1 = selectedRows_1.next()) {
                         var id = selectedRows_1_1.value;
@@ -1088,9 +1125,10 @@
                         addMap.set(params.colDef.field, 1);
                         this.changesMap.set(params.node.id, addMap);
                         if (this.statusColumn) {
-                            this.gridApi.getRowNode(params.node.id).data.status = 'Modified';
+                            if (this.gridApi.getRowNode(params.node.id).data.status !== 'Pending creation') {
+                                this.gridApi.getRowNode(params.node.id).data.status = 'Modified';
+                            }
                         }
-                        ;
                     }
                     else {
                         if (!this.changesMap.get(params.node.id).has(params.colDef.field)) {
@@ -1117,7 +1155,9 @@
                         this.changesMap.delete(params.node.id);
                         var row = this.gridApi.getDisplayedRowAtIndex(params.rowIndex);
                         if (this.statusColumn) {
-                            this.gridApi.getRowNode(params.node.id).data.status = '';
+                            if (this.gridApi.getRowNode(params.node.id).data.status !== 'Pending creation') {
+                                this.gridApi.getRowNode(params.node.id).data.status = '';
+                            }
                         }
                         ;
                         // We paint it white
@@ -1217,7 +1257,7 @@
         return DataGridComponent;
     }());
     /** @nocollapse */ DataGridComponent.ɵfac = function DataGridComponent_Factory(t) { return new (t || DataGridComponent)(i0.ɵɵdirectiveInject(i1$1.MatDialog), i0.ɵɵdirectiveInject(i2$1.TranslateService)); };
-    /** @nocollapse */ DataGridComponent.ɵcmp = i0.ɵɵdefineComponent({ type: DataGridComponent, selectors: [["app-data-grid"]], inputs: { eventRefreshSubscription: "eventRefreshSubscription", eventGetSelectedRowsSubscription: "eventGetSelectedRowsSubscription", eventGetAllRowsSubscription: "eventGetAllRowsSubscription", eventAddItemsSubscription: "eventAddItemsSubscription", frameworkComponents: "frameworkComponents", columnDefs: "columnDefs", getAll: "getAll", discardChangesButton: "discardChangesButton", undoButton: "undoButton", redoButton: "redoButton", applyChangesButton: "applyChangesButton", deleteButton: "deleteButton", newButton: "newButton", actionButton: "actionButton", addButton: "addButton", globalSearch: "globalSearch", themeGrid: "themeGrid", singleSelection: "singleSelection", nonEditable: "nonEditable", title: "title", hideExportButton: "hideExportButton", hideDuplicateButton: "hideDuplicateButton", hideSearchReplaceButton: "hideSearchReplaceButton" }, outputs: { remove: "remove", new: "new", add: "add", sendChanges: "sendChanges", duplicate: "duplicate", getSelectedRows: "getSelectedRows", getAllRows: "getAllRows" }, decls: 21, vars: 27, consts: [["id", "grup1", 1, "editDivBtns"], [3, "translate", 4, "ngIf"], ["mat-mini-fab", "", "class", "editBtn", "id", "deleteChangesButton", "type", "button", 3, "title", "disabled", "click", 4, "ngIf"], ["mat-mini-fab", "", "class", "editBtn", "id", "undo", 3, "title", "disabled", "click", 4, "ngIf"], ["mat-mini-fab", "", "class", "editBtn", "id", "redo", 3, "title", "disabled", "click", 4, "ngIf"], ["mat-mini-fab", "", "class", "editBtn", "id", "applyChangesButton", 3, "title", "disabled", "click", 4, "ngIf"], ["id", "grup2", 1, "actionsDivBtns"], ["type", "text", "class", "searchGenericInput", "placeholder", "", "ml-2", "", 3, "ngModel", "keyup", "ngModelChange", 4, "ngIf"], ["mat-stroked-button", "", "id", "deleteButton", 3, "click", 4, "ngIf"], ["mat-stroked-button", "", "id", "actionButton", 3, "matMenuTriggerFor", 4, "ngIf"], ["menu", "matMenu"], ["mat-menu-item", "", 3, "click", 4, "ngIf"], ["mat-menu-item", "", 4, "ngIf"], ["mat-stroked-button", "", "id", "newButton", 3, "click", 4, "ngIf"], [1, "row", 2, "height", "100%"], ["id", "myGrid", 2, "width", "100%", "height", "100%"], ["rowSelection", "multiple", "multiSortKey", "key", 2, "width", "100%", "height", "100%", 3, "floatingFilter", "rowData", "columnDefs", "gridOptions", "animateRows", "pagination", "modules", "undoRedoCellEditing", "undoRedoCellEditingLimit", "suppressRowClickSelection", "frameworkComponents", "filterModified", "cellEditingStopped", "cellValueChanged", "gridReady"], [3, "translate"], ["mat-mini-fab", "", "id", "deleteChangesButton", "type", "button", 1, "editBtn", 3, "title", "disabled", "click"], ["fontSet", "material-icons-round"], ["mat-mini-fab", "", "id", "undo", 1, "editBtn", 3, "title", "disabled", "click"], ["mat-mini-fab", "", "id", "redo", 1, "editBtn", 3, "title", "disabled", "click"], ["mat-mini-fab", "", "id", "applyChangesButton", 1, "editBtn", 3, "title", "disabled", "click"], ["type", "text", "placeholder", "", "ml-2", "", 1, "searchGenericInput", 3, "ngModel", "keyup", "ngModelChange"], ["mat-stroked-button", "", "id", "deleteButton", 3, "click"], ["mat-stroked-button", "", "id", "actionButton", 3, "matMenuTriggerFor"], ["mat-menu-item", "", 3, "click"], ["mat-menu-item", ""], ["mat-stroked-button", "", "id", "newButton", 3, "click"]], template: function DataGridComponent_Template(rf, ctx) {
+    /** @nocollapse */ DataGridComponent.ɵcmp = i0.ɵɵdefineComponent({ type: DataGridComponent, selectors: [["app-data-grid"]], inputs: { eventRefreshSubscription: "eventRefreshSubscription", eventGetSelectedRowsSubscription: "eventGetSelectedRowsSubscription", eventGetAllRowsSubscription: "eventGetAllRowsSubscription", eventSaveAgGridStateSubscription: "eventSaveAgGridStateSubscription", eventAddItemsSubscription: "eventAddItemsSubscription", frameworkComponents: "frameworkComponents", columnDefs: "columnDefs", getAll: "getAll", discardChangesButton: "discardChangesButton", id: "id", undoButton: "undoButton", redoButton: "redoButton", applyChangesButton: "applyChangesButton", deleteButton: "deleteButton", newButton: "newButton", actionButton: "actionButton", addButton: "addButton", globalSearch: "globalSearch", themeGrid: "themeGrid", singleSelection: "singleSelection", nonEditable: "nonEditable", title: "title", hideExportButton: "hideExportButton", hideDuplicateButton: "hideDuplicateButton", hideSearchReplaceButton: "hideSearchReplaceButton" }, outputs: { remove: "remove", new: "new", add: "add", sendChanges: "sendChanges", duplicate: "duplicate", getSelectedRows: "getSelectedRows", getAllRows: "getAllRows", getAgGridState: "getAgGridState" }, decls: 21, vars: 27, consts: [["id", "grup1", 1, "editDivBtns"], [3, "translate", 4, "ngIf"], ["mat-mini-fab", "", "class", "editBtn", "id", "deleteChangesButton", "type", "button", 3, "title", "disabled", "click", 4, "ngIf"], ["mat-mini-fab", "", "class", "editBtn", "id", "undo", 3, "title", "disabled", "click", 4, "ngIf"], ["mat-mini-fab", "", "class", "editBtn", "id", "redo", 3, "title", "disabled", "click", 4, "ngIf"], ["mat-mini-fab", "", "class", "editBtn", "id", "applyChangesButton", 3, "title", "disabled", "click", 4, "ngIf"], ["id", "grup2", 1, "actionsDivBtns"], ["type", "text", "class", "searchGenericInput", "placeholder", "", "ml-2", "", 3, "ngModel", "keyup", "ngModelChange", 4, "ngIf"], ["mat-stroked-button", "", "id", "deleteButton", 3, "click", 4, "ngIf"], ["mat-stroked-button", "", "id", "actionButton", 3, "matMenuTriggerFor", 4, "ngIf"], ["menu", "matMenu"], ["mat-menu-item", "", 3, "click", 4, "ngIf"], ["mat-menu-item", "", 4, "ngIf"], ["mat-stroked-button", "", "id", "newButton", 3, "click", 4, "ngIf"], [1, "row", 2, "height", "100%"], ["id", "myGrid", 2, "width", "100%", "height", "100%"], ["rowSelection", "multiple", "multiSortKey", "key", 2, "width", "100%", "height", "100%", 3, "floatingFilter", "rowData", "columnDefs", "gridOptions", "animateRows", "pagination", "modules", "undoRedoCellEditing", "undoRedoCellEditingLimit", "suppressRowClickSelection", "frameworkComponents", "filterModified", "cellEditingStopped", "cellValueChanged", "gridReady", "firstDataRendered"], [3, "translate"], ["mat-mini-fab", "", "id", "deleteChangesButton", "type", "button", 1, "editBtn", 3, "title", "disabled", "click"], ["fontSet", "material-icons-round"], ["mat-mini-fab", "", "id", "undo", 1, "editBtn", 3, "title", "disabled", "click"], ["mat-mini-fab", "", "id", "redo", 1, "editBtn", 3, "title", "disabled", "click"], ["mat-mini-fab", "", "id", "applyChangesButton", 1, "editBtn", 3, "title", "disabled", "click"], ["type", "text", "placeholder", "", "ml-2", "", 1, "searchGenericInput", 3, "ngModel", "keyup", "ngModelChange"], ["mat-stroked-button", "", "id", "deleteButton", 3, "click"], ["mat-stroked-button", "", "id", "actionButton", 3, "matMenuTriggerFor"], ["mat-menu-item", "", 3, "click"], ["mat-menu-item", ""], ["mat-stroked-button", "", "id", "newButton", 3, "click"]], template: function DataGridComponent_Template(rf, ctx) {
             if (rf & 1) {
                 i0.ɵɵelementStart(0, "div", 0);
                 i0.ɵɵtemplate(1, DataGridComponent_span_1_Template, 1, 1, "span", 1);
@@ -1242,7 +1282,7 @@
                 i0.ɵɵelementStart(18, "div", 14);
                 i0.ɵɵelementStart(19, "div", 15);
                 i0.ɵɵelementStart(20, "ag-grid-angular", 16);
-                i0.ɵɵlistener("filterModified", function DataGridComponent_Template_ag_grid_angular_filterModified_20_listener() { return ctx.onFilterModified(); })("cellEditingStopped", function DataGridComponent_Template_ag_grid_angular_cellEditingStopped_20_listener($event) { return ctx.onCellEditingStopped($event); })("cellValueChanged", function DataGridComponent_Template_ag_grid_angular_cellValueChanged_20_listener($event) { return ctx.onCellValueChanged($event); })("gridReady", function DataGridComponent_Template_ag_grid_angular_gridReady_20_listener($event) { return ctx.onGridReady($event); });
+                i0.ɵɵlistener("filterModified", function DataGridComponent_Template_ag_grid_angular_filterModified_20_listener() { return ctx.onFilterModified(); })("cellEditingStopped", function DataGridComponent_Template_ag_grid_angular_cellEditingStopped_20_listener($event) { return ctx.onCellEditingStopped($event); })("cellValueChanged", function DataGridComponent_Template_ag_grid_angular_cellValueChanged_20_listener($event) { return ctx.onCellValueChanged($event); })("gridReady", function DataGridComponent_Template_ag_grid_angular_gridReady_20_listener($event) { return ctx.onGridReady($event); })("firstDataRendered", function DataGridComponent_Template_ag_grid_angular_firstDataRendered_20_listener() { return ctx.firstDataRendered(); });
                 i0.ɵɵelementEnd();
                 i0.ɵɵelementEnd();
                 i0.ɵɵelementEnd();
@@ -1295,6 +1335,8 @@
                     type: i0.Input
                 }], eventGetAllRowsSubscription: [{
                     type: i0.Input
+                }], eventSaveAgGridStateSubscription: [{
+                    type: i0.Input
                 }], eventAddItemsSubscription: [{
                     type: i0.Input
                 }], frameworkComponents: [{
@@ -1304,6 +1346,8 @@
                 }], getAll: [{
                     type: i0.Input
                 }], discardChangesButton: [{
+                    type: i0.Input
+                }], id: [{
                     type: i0.Input
                 }], undoButton: [{
                     type: i0.Input
@@ -1349,6 +1393,8 @@
                     type: i0.Output
                 }], getAllRows: [{
                     type: i0.Output
+                }], getAgGridState: [{
+                    type: i0.Output
                 }] });
     })();
 
@@ -1362,7 +1408,7 @@
             stepper.CdkStepperModule,
             table.CdkTableModule,
             tree.CdkTreeModule,
-            i2$3.DragDropModule,
+            dragDrop.DragDropModule,
             autocomplete.MatAutocompleteModule,
             badge.MatBadgeModule,
             bottomSheet.MatBottomSheetModule,
@@ -1406,7 +1452,7 @@
                 stepper.CdkStepperModule,
                 table.CdkTableModule,
                 tree.CdkTreeModule,
-                i2$3.DragDropModule,
+                dragDrop.DragDropModule,
                 autocomplete.MatAutocompleteModule,
                 badge.MatBadgeModule,
                 bottomSheet.MatBottomSheetModule,
@@ -1455,7 +1501,7 @@
                             stepper.CdkStepperModule,
                             table.CdkTableModule,
                             tree.CdkTreeModule,
-                            i2$3.DragDropModule,
+                            dragDrop.DragDropModule,
                             autocomplete.MatAutocompleteModule,
                             badge.MatBadgeModule,
                             bottomSheet.MatBottomSheetModule,
@@ -1557,7 +1603,7 @@
     /** @nocollapse */ DialogGridComponent.ɵfac = function DialogGridComponent_Factory(t) { return new (t || DialogGridComponent)(i0.ɵɵdirectiveInject(i1$1.MatDialogRef)); };
     /** @nocollapse */ DialogGridComponent.ɵcmp = i0.ɵɵdefineComponent({ type: DialogGridComponent, selectors: [["app-dialog-grid"]], outputs: { joinTables: "joinTables" }, decls: 11, vars: 8, consts: [["mat-dialog-title", ""], [1, "dialogConent"], ["class", "appDialogDataGridDiv", 3, "ngStyle", 4, "ngFor", "ngForOf"], ["mat-dialog-actions", "", "align", "end"], ["mat-button", "", 3, "click"], ["mat-button", "", "cdkFocusInitial", "", 3, "click"], [1, "appDialogDataGridDiv", 3, "ngStyle"], [3, "columnDefs", "themeGrid", "getAll", "globalSearch", "singleSelection", "title", "nonEditable", "eventGetSelectedRowsSubscription", "getSelectedRows"]], template: function DialogGridComponent_Template(rf, ctx) {
             if (rf & 1) {
-                i0.ɵɵelementStart(0, "h4", 0);
+                i0.ɵɵelementStart(0, "h5", 0);
                 i0.ɵɵtext(1);
                 i0.ɵɵelementEnd();
                 i0.ɵɵelementStart(2, "mat-dialog-content", 1);
@@ -1622,7 +1668,7 @@
     /** @nocollapse */ DialogFormComponent.ɵfac = function DialogFormComponent_Factory(t) { return new (t || DialogFormComponent)(i0.ɵɵdirectiveInject(i1$1.MatDialogRef)); };
     /** @nocollapse */ DialogFormComponent.ɵcmp = i0.ɵɵdefineComponent({ type: DialogFormComponent, selectors: [["app-dialog-form"]], decls: 11, vars: 8, consts: [["mat-dialog-title", ""], [1, "mat-typography"], [4, "ngTemplateOutlet"], ["align", "end"], ["mat-button", "", 3, "click"], ["mat-button", "", "cdkFocusInitial", "", 3, "click"]], template: function DialogFormComponent_Template(rf, ctx) {
             if (rf & 1) {
-                i0.ɵɵelementStart(0, "h2", 0);
+                i0.ɵɵelementStart(0, "h5", 0);
                 i0.ɵɵtext(1);
                 i0.ɵɵelementEnd();
                 i0.ɵɵelementStart(2, "mat-dialog-content", 1);
@@ -1663,22 +1709,23 @@
             }], function () { return [{ type: i1$1.MatDialogRef }]; }, null);
     })();
 
+    var _c0$2 = ["emptyItem"];
     function DataTreeComponent_mat_tree_node_1_mat_icon_2_Template(rf, ctx) {
         if (rf & 1) {
-            i0.ɵɵelementStart(0, "mat-icon", 8);
+            i0.ɵɵelementStart(0, "mat-icon", 9);
             i0.ɵɵtext(1, " folder ");
             i0.ɵɵelementEnd();
         }
         if (rf & 2) {
-            var node_r2 = i0.ɵɵnextContext().$implicit;
-            i0.ɵɵattribute("aria-label", node_r2.type + "icon");
+            var node_r3 = i0.ɵɵnextContext().$implicit;
+            i0.ɵɵattribute("aria-label", node_r3.type + "icon");
         }
     }
     function DataTreeComponent_mat_tree_node_1_button_4_Template(rf, ctx) {
         if (rf & 1) {
-            var _r9_1 = i0.ɵɵgetCurrentView();
-            i0.ɵɵelementStart(0, "button", 7);
-            i0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_1_button_4_Template_button_click_0_listener() { i0.ɵɵrestoreView(_r9_1); var node_r2 = i0.ɵɵnextContext().$implicit; var ctx_r7 = i0.ɵɵnextContext(); return ctx_r7.onButtonClicked(node_r2.id, "newFolder"); });
+            var _r10_1 = i0.ɵɵgetCurrentView();
+            i0.ɵɵelementStart(0, "button", 8);
+            i0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_1_button_4_Template_button_click_0_listener() { i0.ɵɵrestoreView(_r10_1); var node_r3 = i0.ɵɵnextContext().$implicit; var ctx_r8 = i0.ɵɵnextContext(); return ctx_r8.onButtonClicked(node_r3.id, "newFolder"); });
             i0.ɵɵelementStart(1, "mat-icon");
             i0.ɵɵtext(2, "create_new_folder");
             i0.ɵɵelementEnd();
@@ -1687,51 +1734,59 @@
     }
     function DataTreeComponent_mat_tree_node_1_button_5_Template(rf, ctx) {
         if (rf & 1) {
-            var _r12_1 = i0.ɵɵgetCurrentView();
-            i0.ɵɵelementStart(0, "button", 7);
-            i0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_1_button_5_Template_button_click_0_listener() { i0.ɵɵrestoreView(_r12_1); var node_r2 = i0.ɵɵnextContext().$implicit; var ctx_r10 = i0.ɵɵnextContext(); return ctx_r10.onButtonClicked(node_r2.id, "newNode"); });
+            var _r13_1 = i0.ɵɵgetCurrentView();
+            i0.ɵɵelementStart(0, "button", 8);
+            i0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_1_button_5_Template_button_click_0_listener() { i0.ɵɵrestoreView(_r13_1); var node_r3 = i0.ɵɵnextContext().$implicit; var ctx_r11 = i0.ɵɵnextContext(); return ctx_r11.onButtonClicked(node_r3.id, "newNode"); });
             i0.ɵɵelementStart(1, "mat-icon");
             i0.ɵɵtext(2, "playlist_add");
             i0.ɵɵelementEnd();
             i0.ɵɵelementEnd();
         }
     }
+    var _c1 = function (a0, a1, a2) { return { "drop-above": a0, "drop-below": a1, "drop-center": a2 }; };
     function DataTreeComponent_mat_tree_node_1_Template(rf, ctx) {
         if (rf & 1) {
-            var _r14_1 = i0.ɵɵgetCurrentView();
-            i0.ɵɵelementStart(0, "mat-tree-node", 3);
-            i0.ɵɵlistener("mouseenter", function DataTreeComponent_mat_tree_node_1_Template_mat_tree_node_mouseenter_0_listener() { i0.ɵɵrestoreView(_r14_1); var node_r2 = ctx.$implicit; var ctx_r13 = i0.ɵɵnextContext(); return ctx_r13.dragHover(node_r2); })("mouseleave", function DataTreeComponent_mat_tree_node_1_Template_mat_tree_node_mouseleave_0_listener() { i0.ɵɵrestoreView(_r14_1); var ctx_r15 = i0.ɵɵnextContext(); return ctx_r15.dragHoverEnd(); })("cdkDragStarted", function DataTreeComponent_mat_tree_node_1_Template_mat_tree_node_cdkDragStarted_0_listener() { i0.ɵɵrestoreView(_r14_1); var ctx_r16 = i0.ɵɵnextContext(); return ctx_r16.dragStart(); })("cdkDragReleased", function DataTreeComponent_mat_tree_node_1_Template_mat_tree_node_cdkDragReleased_0_listener() { i0.ɵɵrestoreView(_r14_1); var ctx_r17 = i0.ɵɵnextContext(); return ctx_r17.dragEnd(); });
-            i0.ɵɵelement(1, "button", 4);
-            i0.ɵɵtemplate(2, DataTreeComponent_mat_tree_node_1_mat_icon_2_Template, 2, 1, "mat-icon", 5);
+            var _r15_1 = i0.ɵɵgetCurrentView();
+            i0.ɵɵelementStart(0, "mat-tree-node", 4);
+            i0.ɵɵlistener("dragstart", function DataTreeComponent_mat_tree_node_1_Template_mat_tree_node_dragstart_0_listener($event) { i0.ɵɵrestoreView(_r15_1); var node_r3 = ctx.$implicit; var ctx_r14 = i0.ɵɵnextContext(); return ctx_r14.handleDragStart($event, node_r3); })("dragover", function DataTreeComponent_mat_tree_node_1_Template_mat_tree_node_dragover_0_listener($event) { i0.ɵɵrestoreView(_r15_1); var node_r3 = ctx.$implicit; var ctx_r16 = i0.ɵɵnextContext(); return ctx_r16.handleDragOver($event, node_r3); })("drop", function DataTreeComponent_mat_tree_node_1_Template_mat_tree_node_drop_0_listener($event) { i0.ɵɵrestoreView(_r15_1); var node_r3 = ctx.$implicit; var ctx_r17 = i0.ɵɵnextContext(); return ctx_r17.handleDrop($event, node_r3); })("dragend", function DataTreeComponent_mat_tree_node_1_Template_mat_tree_node_dragend_0_listener($event) { i0.ɵɵrestoreView(_r15_1); var ctx_r18 = i0.ɵɵnextContext(); return ctx_r18.handleDragEnd($event); });
+            i0.ɵɵelement(1, "button", 5);
+            i0.ɵɵtemplate(2, DataTreeComponent_mat_tree_node_1_mat_icon_2_Template, 2, 1, "mat-icon", 6);
             i0.ɵɵtext(3);
-            i0.ɵɵtemplate(4, DataTreeComponent_mat_tree_node_1_button_4_Template, 3, 0, "button", 6);
-            i0.ɵɵtemplate(5, DataTreeComponent_mat_tree_node_1_button_5_Template, 3, 0, "button", 6);
-            i0.ɵɵelementStart(6, "button", 7);
-            i0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_1_Template_button_click_6_listener() { i0.ɵɵrestoreView(_r14_1); var node_r2 = ctx.$implicit; var ctx_r18 = i0.ɵɵnextContext(); return ctx_r18.onButtonClicked(node_r2.id, "edit"); });
+            i0.ɵɵtemplate(4, DataTreeComponent_mat_tree_node_1_button_4_Template, 3, 0, "button", 7);
+            i0.ɵɵtemplate(5, DataTreeComponent_mat_tree_node_1_button_5_Template, 3, 0, "button", 7);
+            i0.ɵɵelementStart(6, "button", 8);
+            i0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_1_Template_button_click_6_listener() { i0.ɵɵrestoreView(_r15_1); var node_r3 = ctx.$implicit; var ctx_r19 = i0.ɵɵnextContext(); return ctx_r19.onButtonClicked(node_r3.id, "delete"); });
             i0.ɵɵelementStart(7, "mat-icon");
-            i0.ɵɵtext(8, "edit");
+            i0.ɵɵtext(8, "delete");
+            i0.ɵɵelementEnd();
+            i0.ɵɵelementEnd();
+            i0.ɵɵelementStart(9, "button", 8);
+            i0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_1_Template_button_click_9_listener() { i0.ɵɵrestoreView(_r15_1); var node_r3 = ctx.$implicit; var ctx_r20 = i0.ɵɵnextContext(); return ctx_r20.onButtonClicked(node_r3.id, "edit"); });
+            i0.ɵɵelementStart(10, "mat-icon");
+            i0.ɵɵtext(11, "edit");
             i0.ɵɵelementEnd();
             i0.ɵɵelementEnd();
             i0.ɵɵelementEnd();
         }
         if (rf & 2) {
-            var node_r2 = ctx.$implicit;
-            i0.ɵɵproperty("cdkDragData", node_r2);
+            var node_r3 = ctx.$implicit;
+            var ctx_r0 = i0.ɵɵnextContext();
+            i0.ɵɵproperty("ngClass", i0.ɵɵpureFunction3(5, _c1, ctx_r0.dragNodeExpandOverArea === "above" && ctx_r0.dragNodeExpandOverNode === node_r3, ctx_r0.dragNodeExpandOverArea === "below" && ctx_r0.dragNodeExpandOverNode === node_r3, ctx_r0.dragNodeExpandOverArea === "center" && ctx_r0.dragNodeExpandOverNode === node_r3));
             i0.ɵɵadvance(2);
-            i0.ɵɵproperty("ngIf", node_r2.type === "folder");
+            i0.ɵɵproperty("ngIf", node_r3.type === "folder");
             i0.ɵɵadvance(1);
-            i0.ɵɵtextInterpolate1(" ", node_r2.name, " ");
+            i0.ɵɵtextInterpolate1(" ", node_r3.name, " ");
             i0.ɵɵadvance(1);
-            i0.ɵɵproperty("ngIf", node_r2.type === "folder");
+            i0.ɵɵproperty("ngIf", node_r3.type === "folder");
             i0.ɵɵadvance(1);
-            i0.ɵɵproperty("ngIf", node_r2.type === "folder");
+            i0.ɵɵproperty("ngIf", node_r3.type === "folder");
         }
     }
     function DataTreeComponent_mat_tree_node_2_button_7_Template(rf, ctx) {
         if (rf & 1) {
-            var _r24_1 = i0.ɵɵgetCurrentView();
-            i0.ɵɵelementStart(0, "button", 7);
-            i0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_button_7_Template_button_click_0_listener() { i0.ɵɵrestoreView(_r24_1); var node_r19 = i0.ɵɵnextContext().$implicit; var ctx_r22 = i0.ɵɵnextContext(); return ctx_r22.onButtonClicked(node_r19.id, "newFolder"); });
+            var _r26_1 = i0.ɵɵgetCurrentView();
+            i0.ɵɵelementStart(0, "button", 8);
+            i0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_button_7_Template_button_click_0_listener() { i0.ɵɵrestoreView(_r26_1); var node_r21 = i0.ɵɵnextContext().$implicit; var ctx_r24 = i0.ɵɵnextContext(); return ctx_r24.onButtonClicked(node_r21.id, "newFolder"); });
             i0.ɵɵelementStart(1, "mat-icon");
             i0.ɵɵtext(2, "create_new_folder");
             i0.ɵɵelementEnd();
@@ -1740,9 +1795,9 @@
     }
     function DataTreeComponent_mat_tree_node_2_button_8_Template(rf, ctx) {
         if (rf & 1) {
-            var _r27_1 = i0.ɵɵgetCurrentView();
-            i0.ɵɵelementStart(0, "button", 7);
-            i0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_button_8_Template_button_click_0_listener() { i0.ɵɵrestoreView(_r27_1); var node_r19 = i0.ɵɵnextContext().$implicit; var ctx_r25 = i0.ɵɵnextContext(); return ctx_r25.onButtonClicked(node_r19.id, "newNode"); });
+            var _r29_1 = i0.ɵɵgetCurrentView();
+            i0.ɵɵelementStart(0, "button", 8);
+            i0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_button_8_Template_button_click_0_listener() { i0.ɵɵrestoreView(_r29_1); var node_r21 = i0.ɵɵnextContext().$implicit; var ctx_r27 = i0.ɵɵnextContext(); return ctx_r27.onButtonClicked(node_r21.id, "newNode"); });
             i0.ɵɵelementStart(1, "mat-icon");
             i0.ɵɵtext(2, "playlist_add");
             i0.ɵɵelementEnd();
@@ -1751,45 +1806,51 @@
     }
     function DataTreeComponent_mat_tree_node_2_Template(rf, ctx) {
         if (rf & 1) {
-            var _r29_1 = i0.ɵɵgetCurrentView();
-            i0.ɵɵelementStart(0, "mat-tree-node", 9);
-            i0.ɵɵlistener("mouseenter", function DataTreeComponent_mat_tree_node_2_Template_mat_tree_node_mouseenter_0_listener() { i0.ɵɵrestoreView(_r29_1); var node_r19 = ctx.$implicit; var ctx_r28 = i0.ɵɵnextContext(); return ctx_r28.dragHover(node_r19); })("mouseleave", function DataTreeComponent_mat_tree_node_2_Template_mat_tree_node_mouseleave_0_listener() { i0.ɵɵrestoreView(_r29_1); var ctx_r30 = i0.ɵɵnextContext(); return ctx_r30.dragHoverEnd(); })("cdkDragStarted", function DataTreeComponent_mat_tree_node_2_Template_mat_tree_node_cdkDragStarted_0_listener() { i0.ɵɵrestoreView(_r29_1); var ctx_r31 = i0.ɵɵnextContext(); return ctx_r31.dragStart(); })("cdkDragReleased", function DataTreeComponent_mat_tree_node_2_Template_mat_tree_node_cdkDragReleased_0_listener() { i0.ɵɵrestoreView(_r29_1); var ctx_r32 = i0.ɵɵnextContext(); return ctx_r32.dragEnd(); });
-            i0.ɵɵelementStart(1, "button", 10);
-            i0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_Template_button_click_1_listener() { i0.ɵɵrestoreView(_r29_1); var node_r19 = ctx.$implicit; var ctx_r33 = i0.ɵɵnextContext(); return ctx_r33.expansionModel.toggle(node_r19.id); });
-            i0.ɵɵelementStart(2, "mat-icon", 11);
+            var _r31_1 = i0.ɵɵgetCurrentView();
+            i0.ɵɵelementStart(0, "mat-tree-node", 10);
+            i0.ɵɵlistener("dragstart", function DataTreeComponent_mat_tree_node_2_Template_mat_tree_node_dragstart_0_listener($event) { i0.ɵɵrestoreView(_r31_1); var node_r21 = ctx.$implicit; var ctx_r30 = i0.ɵɵnextContext(); return ctx_r30.handleDragStart($event, node_r21); })("dragover", function DataTreeComponent_mat_tree_node_2_Template_mat_tree_node_dragover_0_listener($event) { i0.ɵɵrestoreView(_r31_1); var node_r21 = ctx.$implicit; var ctx_r32 = i0.ɵɵnextContext(); return ctx_r32.handleDragOver($event, node_r21); })("drop", function DataTreeComponent_mat_tree_node_2_Template_mat_tree_node_drop_0_listener($event) { i0.ɵɵrestoreView(_r31_1); var node_r21 = ctx.$implicit; var ctx_r33 = i0.ɵɵnextContext(); return ctx_r33.handleDrop($event, node_r21); })("dragend", function DataTreeComponent_mat_tree_node_2_Template_mat_tree_node_dragend_0_listener($event) { i0.ɵɵrestoreView(_r31_1); var ctx_r34 = i0.ɵɵnextContext(); return ctx_r34.handleDragEnd($event); });
+            i0.ɵɵelementStart(1, "button", 11);
+            i0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_Template_button_click_1_listener() { i0.ɵɵrestoreView(_r31_1); var node_r21 = ctx.$implicit; var ctx_r35 = i0.ɵɵnextContext(); return ctx_r35.expansionModel.toggle(node_r21.id); });
+            i0.ɵɵelementStart(2, "mat-icon", 12);
             i0.ɵɵtext(3);
             i0.ɵɵelementEnd();
             i0.ɵɵelementEnd();
-            i0.ɵɵelementStart(4, "mat-icon", 8);
+            i0.ɵɵelementStart(4, "mat-icon", 9);
             i0.ɵɵtext(5, " folder ");
             i0.ɵɵelementEnd();
             i0.ɵɵtext(6);
-            i0.ɵɵtemplate(7, DataTreeComponent_mat_tree_node_2_button_7_Template, 3, 0, "button", 6);
-            i0.ɵɵtemplate(8, DataTreeComponent_mat_tree_node_2_button_8_Template, 3, 0, "button", 6);
-            i0.ɵɵelementStart(9, "button", 7);
-            i0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_Template_button_click_9_listener() { i0.ɵɵrestoreView(_r29_1); var node_r19 = ctx.$implicit; var ctx_r34 = i0.ɵɵnextContext(); return ctx_r34.onButtonClicked(node_r19.id, "edit"); });
+            i0.ɵɵtemplate(7, DataTreeComponent_mat_tree_node_2_button_7_Template, 3, 0, "button", 7);
+            i0.ɵɵtemplate(8, DataTreeComponent_mat_tree_node_2_button_8_Template, 3, 0, "button", 7);
+            i0.ɵɵelementStart(9, "button", 8);
+            i0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_Template_button_click_9_listener() { i0.ɵɵrestoreView(_r31_1); var node_r21 = ctx.$implicit; var ctx_r36 = i0.ɵɵnextContext(); return ctx_r36.onButtonClicked(node_r21.id, "delete"); });
             i0.ɵɵelementStart(10, "mat-icon");
-            i0.ɵɵtext(11, "edit");
+            i0.ɵɵtext(11, "delete");
+            i0.ɵɵelementEnd();
+            i0.ɵɵelementEnd();
+            i0.ɵɵelementStart(12, "button", 8);
+            i0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_Template_button_click_12_listener() { i0.ɵɵrestoreView(_r31_1); var node_r21 = ctx.$implicit; var ctx_r37 = i0.ɵɵnextContext(); return ctx_r37.onButtonClicked(node_r21.id, "edit"); });
+            i0.ɵɵelementStart(13, "mat-icon");
+            i0.ɵɵtext(14, "edit");
             i0.ɵɵelementEnd();
             i0.ɵɵelementEnd();
             i0.ɵɵelementEnd();
         }
         if (rf & 2) {
-            var node_r19 = ctx.$implicit;
+            var node_r21 = ctx.$implicit;
             var ctx_r1 = i0.ɵɵnextContext();
-            i0.ɵɵproperty("cdkDragData", node_r19);
+            i0.ɵɵproperty("ngClass", i0.ɵɵpureFunction3(7, _c1, ctx_r1.dragNodeExpandOverArea === "above" && ctx_r1.dragNodeExpandOverNode === node_r21, ctx_r1.dragNodeExpandOverArea === "below" && ctx_r1.dragNodeExpandOverNode === node_r21, ctx_r1.dragNodeExpandOverArea === "center" && ctx_r1.dragNodeExpandOverNode === node_r21));
             i0.ɵɵadvance(1);
-            i0.ɵɵattribute("aria-label", "toggle " + node_r19.name);
+            i0.ɵɵattribute("aria-label", "toggle " + node_r21.name);
             i0.ɵɵadvance(2);
-            i0.ɵɵtextInterpolate1(" ", ctx_r1.treeControl.isExpanded(node_r19) ? "expand_more" : "chevron_right", " ");
+            i0.ɵɵtextInterpolate1(" ", ctx_r1.treeControl.isExpanded(node_r21) ? "expand_more" : "chevron_right", " ");
             i0.ɵɵadvance(1);
-            i0.ɵɵattribute("aria-label", node_r19.type + "icon");
+            i0.ɵɵattribute("aria-label", node_r21.type + "icon");
             i0.ɵɵadvance(2);
-            i0.ɵɵtextInterpolate1(" ", node_r19.name, " ");
+            i0.ɵɵtextInterpolate1(" ", node_r21.name, " ");
             i0.ɵɵadvance(1);
-            i0.ɵɵproperty("ngIf", node_r19.type === "folder");
+            i0.ɵɵproperty("ngIf", node_r21.type === "folder");
             i0.ɵɵadvance(1);
-            i0.ɵɵproperty("ngIf", node_r19.type === "folder");
+            i0.ɵɵproperty("ngIf", node_r21.type === "folder");
         }
     }
     /**
@@ -1867,6 +1928,160 @@
             map['root'].isFolder = true;
             return map['root'];
         };
+        FileDatabase.prototype.deleteItem = function (node) {
+            this.deleteNode(this.data.children, node);
+            this.dataChange.next(this.data);
+        };
+        FileDatabase.prototype.deleteNode = function (nodes, nodeToDelete) {
+            var _this = this;
+            var index = nodes.indexOf(nodeToDelete, 0);
+            if (index > -1) {
+                nodes.splice(index, 1);
+            }
+            else {
+                nodes.forEach(function (node) {
+                    if (node.children && node.children.length > 0) {
+                        _this.deleteNode(node.children, nodeToDelete);
+                    }
+                });
+            }
+        };
+        FileDatabase.prototype.copyPasteItem = function (from, to) {
+            var newItem = this.insertItem(to, from);
+            return newItem;
+        };
+        FileDatabase.prototype.copyPasteItemAbove = function (from, to) {
+            var newItem = this.insertItemAbove(to, from);
+            return newItem;
+        };
+        FileDatabase.prototype.copyPasteItemBelow = function (from, to) {
+            var newItem = this.insertItemBelow(to, from);
+            return newItem;
+        };
+        /** Add an item to to-do list */
+        FileDatabase.prototype.insertItem = function (parent, node) {
+            if (!parent.children) {
+                parent.children = [];
+            }
+            var newItem = {
+                name: node.name,
+                children: node.children,
+                type: node.type,
+                id: node.id,
+                active: node.active,
+                cartographyId: node.cartographyId,
+                cartographyName: node.cartographyName,
+                datasetURL: node.datasetURL,
+                description: node.description,
+                filterGetFeatureInfo: node.filterGetFeatureInfo,
+                filterGetMap: node.filterGetMap,
+                filterSelectable: node.filterSelectable,
+                isFolder: node.isFolder,
+                metadataURL: node.metadataURL,
+                order: node.order,
+                parent: parent.id == undefined ? null : parent.id,
+                queryableActive: node.queryableActive,
+                radio: node.radio,
+                tooltip: node.tooltip,
+                _links: node._links
+            };
+            parent.children.push(newItem);
+            this.dataChange.next(this.data);
+            return newItem;
+        };
+        FileDatabase.prototype.insertItemAbove = function (node, nodeDrag) {
+            var parentNode = this.getParentFromNodes(node);
+            var newItem = {
+                name: nodeDrag.name,
+                children: nodeDrag.children,
+                type: nodeDrag.type,
+                id: nodeDrag.id,
+                active: nodeDrag.active,
+                cartographyId: nodeDrag.cartographyId,
+                cartographyName: nodeDrag.cartographyName,
+                datasetURL: nodeDrag.datasetURL,
+                description: nodeDrag.description,
+                filterGetFeatureInfo: nodeDrag.filterGetFeatureInfo,
+                filterGetMap: nodeDrag.filterGetMap,
+                filterSelectable: nodeDrag.filterSelectable,
+                isFolder: nodeDrag.isFolder,
+                metadataURL: nodeDrag.metadataURL,
+                order: nodeDrag.order,
+                parent: parentNode.id == undefined ? null : parentNode.id,
+                queryableActive: nodeDrag.queryableActive,
+                radio: nodeDrag.radio,
+                tooltip: nodeDrag.tooltip,
+                _links: nodeDrag._links
+            };
+            if (parentNode != null) {
+                parentNode.children.splice(parentNode.children.indexOf(node), 0, newItem);
+            }
+            else {
+                this.data.children.splice(this.data.children.indexOf(node), 0, newItem);
+            }
+            this.dataChange.next(this.data);
+            return newItem;
+        };
+        FileDatabase.prototype.insertItemBelow = function (node, nodeDrag) {
+            var parentNode = this.getParentFromNodes(node);
+            var newItem = {
+                name: nodeDrag.name,
+                children: nodeDrag.children,
+                type: nodeDrag.type,
+                id: nodeDrag.id,
+                active: nodeDrag.active,
+                cartographyId: nodeDrag.cartographyId,
+                cartographyName: nodeDrag.cartographyName,
+                datasetURL: nodeDrag.datasetURL,
+                description: nodeDrag.description,
+                filterGetFeatureInfo: nodeDrag.filterGetFeatureInfo,
+                filterGetMap: nodeDrag.filterGetMap,
+                filterSelectable: nodeDrag.filterSelectable,
+                isFolder: nodeDrag.isFolder,
+                metadataURL: nodeDrag.metadataURL,
+                order: nodeDrag.order,
+                parent: parentNode.id == undefined ? null : parentNode.id,
+                queryableActive: nodeDrag.queryableActive,
+                radio: nodeDrag.radio,
+                tooltip: nodeDrag.tooltip,
+                _links: nodeDrag._links
+            };
+            if (parentNode != null) {
+                parentNode.children.splice(parentNode.children.indexOf(node) + 1, 0, newItem);
+            }
+            else {
+                this.data.children.splice(this.data.children.indexOf(node) + 1, 0, newItem);
+            }
+            this.dataChange.next(this.data);
+            return newItem;
+        };
+        FileDatabase.prototype.getParentFromNodes = function (node) {
+            for (var i = 0; i < this.data.children.length; ++i) {
+                var currentRoot = this.data.children[i];
+                var parent = this.getParent(currentRoot, node);
+                if (parent != null) {
+                    return parent;
+                }
+            }
+            return null;
+        };
+        FileDatabase.prototype.getParent = function (currentRoot, node) {
+            if (currentRoot.children && currentRoot.children.length > 0) {
+                for (var i = 0; i < currentRoot.children.length; ++i) {
+                    var child = currentRoot.children[i];
+                    if (child === node) {
+                        return currentRoot;
+                    }
+                    else if (child.children && child.children.length > 0) {
+                        var parent = this.getParent(child, node);
+                        if (parent != null) {
+                            return parent;
+                        }
+                    }
+                }
+            }
+            return null;
+        };
         return FileDatabase;
     }());
     /** @nocollapse */ FileDatabase.ɵfac = function FileDatabase_Factory(t) { return new (t || FileDatabase)(); };
@@ -1881,19 +2096,26 @@
      */
     var DataTreeComponent = /** @class */ (function () {
         function DataTreeComponent(database) {
+            var _this = this;
             this.database = database;
             // expansion model tracks expansion state
             this.expansionModel = new collections.SelectionModel(true);
             this.dragging = false;
             this.expandDelay = 1000;
             this.validateDrop = false;
+            this.dragNodeExpandOverWaitTimeMs = 1500;
+            /** Map from flat node to nested node. This helps us finding the nested node to be modified */
+            this.flatNodeMap = new Map();
+            /** Map from nested node to flattened node. This helps us to keep the same object for selection */
+            this.nestedNodeMap = new Map();
             this.transformer = function (node, level) {
-                if (node.children.length != 0) {
-                    return new FileFlatNode(!!node.children, node.name, level, node.type, node.id);
-                }
-                else {
-                    return new FileFlatNode(!!undefined, node.name, level, node.type, node.id);
-                }
+                var existingNode = _this.nestedNodeMap.get(node);
+                var flatNode = existingNode && existingNode.name === node.name
+                    ? existingNode
+                    : new FileFlatNode((node.children && node.children.length > 0), node.name, level, node.type, node.id);
+                _this.flatNodeMap.set(flatNode, node);
+                _this.nestedNodeMap.set(node, flatNode);
+                return flatNode;
             };
             this._getLevel = function (node) { return node.level; };
             this._isExpandable = function (node) { return node.expandable; };
@@ -1966,70 +2188,64 @@
             });
             return result;
         };
-        /**
-         * Handle the drop - here we rearrange the data based on the drop event,
-         * then rebuild the tree.
-         * */
-        DataTreeComponent.prototype.drop = function (event) {
-            // console.log('origin/destination', event.previousIndex, event.currentIndex);
-            // ignore drops outside of the tree
-            if (!event.isPointerOverContainer)
-                return;
-            // construct a list of visible nodes, this will match the DOM.
-            // the cdkDragDrop event.currentIndex jives with visible nodes.
-            // it calls rememberExpandedTreeNodes to persist expand state
-            var visibleNodes = this.visibleNodes();
-            // deep clone the data source so we can mutate it
-            var changedData = JSON.parse(JSON.stringify(this.dataSource.data));
-            // recursive find function to find siblings of node
-            // determine where to insert the node
-            var nodeAtDest = visibleNodes[event.currentIndex];
-            var newSiblings = this.findNodeSiblings(changedData[0].children, nodeAtDest.id);
-            if (!newSiblings)
-                return;
-            var insertIndex = newSiblings.findIndex(function (s) { return s.id === nodeAtDest.id; }) - 1;
-            // remove the node from its old place
-            var node = event.item.data;
-            var siblings = this.findNodeSiblings(changedData[0].children, node.id);
-            var siblingIndex = siblings.findIndex(function (n) { return n.id === node.id; }) - 1;
-            var nodeToInsertObj = siblings.splice(siblingIndex, 1)[0];
-            nodeToInsertObj.status = "Modified";
-            var nodeToInsert = siblings.splice(siblingIndex, 1)[0];
-            if (nodeAtDest.id === nodeToInsert.id)
-                return;
-            // ensure validity of drop - must be same level
-            var nodeAtDestFlatNode = this.treeControl.dataNodes.find(function (n) { return nodeAtDest.id === n.id; });
-            if (this.validateDrop && nodeAtDestFlatNode.level !== node.level) {
-                alert('Items can only be moved within the same level.');
-                return;
+        DataTreeComponent.prototype.handleDragStart = function (event, node) {
+            // Required by Firefox (https://stackoverflow.com/questions/19055264/why-doesnt-html5-drag-and-drop-work-in-firefox)
+            event.dataTransfer.setData('foo', 'bar');
+            event.dataTransfer.setDragImage(this.emptyItem.nativeElement, 0, 0);
+            this.dragNode = node;
+            this.treeControl.collapse(node);
+        };
+        DataTreeComponent.prototype.handleDragOver = function (event, node) {
+            event.preventDefault();
+            // Handle node expand
+            if (node === this.dragNodeExpandOverNode) {
+                if (this.dragNode !== node && !this.treeControl.isExpanded(node)) {
+                    if ((new Date().getTime() - this.dragNodeExpandOverTime) > this.dragNodeExpandOverWaitTimeMs) {
+                        this.treeControl.expand(node);
+                    }
+                }
             }
-            // insert node 
-            newSiblings.splice(insertIndex, 0, nodeToInsert);
-            // rebuild tree with mutated data
-            this.rebuildTreeForData(changedData);
-        };
-        /**
-         * Experimental - opening tree nodes as you drag over them
-         */
-        DataTreeComponent.prototype.dragStart = function () {
-            this.dragging = true;
-        };
-        DataTreeComponent.prototype.dragEnd = function () {
-            this.dragging = false;
-        };
-        DataTreeComponent.prototype.dragHover = function (node) {
-            var _this = this;
-            if (this.dragging) {
-                clearTimeout(this.expandTimeout);
-                this.expandTimeout = setTimeout(function () {
-                    _this.treeControl.expand(node);
-                }, this.expandDelay);
+            else {
+                this.dragNodeExpandOverNode = node;
+                this.dragNodeExpandOverTime = new Date().getTime();
+            }
+            // Handle drag area
+            var percentageX = event.offsetX / event.target.clientWidth;
+            var percentageY = event.offsetY / event.target.clientHeight;
+            if (percentageY < 0.25) {
+                this.dragNodeExpandOverArea = 'above';
+            }
+            else if (percentageY > 0.75) {
+                this.dragNodeExpandOverArea = 'below';
+            }
+            else {
+                this.dragNodeExpandOverArea = 'center';
             }
         };
-        DataTreeComponent.prototype.dragHoverEnd = function () {
-            if (this.dragging) {
-                clearTimeout(this.expandTimeout);
+        DataTreeComponent.prototype.handleDrop = function (event, node) {
+            event.preventDefault();
+            if (node !== this.dragNode) {
+                var newItem = void 0;
+                if (this.dragNodeExpandOverArea === 'above') {
+                    newItem = this.database.copyPasteItemAbove(this.flatNodeMap.get(this.dragNode), this.flatNodeMap.get(node));
+                }
+                else if (this.dragNodeExpandOverArea === 'below') {
+                    newItem = this.database.copyPasteItemBelow(this.flatNodeMap.get(this.dragNode), this.flatNodeMap.get(node));
+                }
+                else {
+                    newItem = this.database.copyPasteItem(this.flatNodeMap.get(this.dragNode), this.flatNodeMap.get(node));
+                }
+                this.database.deleteItem(this.flatNodeMap.get(this.dragNode));
+                this.treeControl.expandDescendants(this.nestedNodeMap.get(newItem));
             }
+            this.dragNode = null;
+            this.dragNodeExpandOverNode = null;
+            this.dragNodeExpandOverTime = 0;
+        };
+        DataTreeComponent.prototype.handleDragEnd = function (event) {
+            this.dragNode = null;
+            this.dragNodeExpandOverNode = null;
+            this.dragNodeExpandOverTime = 0;
         };
         /**
          * The following methods are for persisting the tree expand state
@@ -2108,28 +2324,38 @@
         DataTreeComponent.prototype.onButtonClicked = function (id, button) {
             var changedData = JSON.parse(JSON.stringify(this.dataSource.data));
             var siblings = this.findNodeSiblings(changedData, id);
+            var nodeClicked = siblings.find(function (node) { return node.id === id; });
             if (button === 'edit') {
-                this.emitNode.emit(siblings.find(function (node) { return node.id === id; }));
+                this.emitNode.emit(nodeClicked);
             }
             else if (button === 'newFolder') {
-                this.createFolder.emit(siblings.find(function (node) { return node.id === id; }));
+                this.createFolder.emit(nodeClicked);
             }
             else if (button === 'newNode') {
-                this.createNode.emit(siblings.find(function (node) { return node.id === id; }));
+                this.createNode.emit(nodeClicked);
+            }
+            else if (button === 'delete') {
+                var children = this.getAllChildren(nodeClicked.children);
+                children.forEach(function (children) {
+                    children.status = 'Deleted';
+                });
+                nodeClicked.children = children;
+                nodeClicked.status = 'Deleted';
+                this.rebuildTreeForData(changedData);
             }
         };
         DataTreeComponent.prototype.emitAllRows = function () {
             var dataToEmit = JSON.parse(JSON.stringify(this.dataSource.data));
-            var allRows = this.getChildren(dataToEmit);
+            var allRows = this.getAllChildren(dataToEmit);
             this.emitAllNodes.emit(allRows);
         };
-        DataTreeComponent.prototype.getChildren = function (arr) {
+        DataTreeComponent.prototype.getAllChildren = function (arr) {
             var _this = this;
             var result = [];
             var subResult;
             arr.forEach(function (item, i) {
                 if (item.children.length > 0) {
-                    subResult = _this.getChildren(item.children);
+                    subResult = _this.getAllChildren(item.children);
                     if (subResult)
                         result.push.apply(result, __spread(subResult));
                 }
@@ -2140,20 +2366,28 @@
         return DataTreeComponent;
     }());
     /** @nocollapse */ DataTreeComponent.ɵfac = function DataTreeComponent_Factory(t) { return new (t || DataTreeComponent)(i0.ɵɵdirectiveInject(FileDatabase)); };
-    /** @nocollapse */ DataTreeComponent.ɵcmp = i0.ɵɵdefineComponent({ type: DataTreeComponent, selectors: [["app-data-tree"]], inputs: { eventNodeUpdatedSubscription: "eventNodeUpdatedSubscription", eventCreateNodeSubscription: "eventCreateNodeSubscription", eventGetAllRowsSubscription: "eventGetAllRowsSubscription", getAll: "getAll" }, outputs: { createNode: "createNode", createFolder: "createFolder", emitNode: "emitNode", emitAllNodes: "emitAllNodes" }, features: [i0.ɵɵProvidersFeature([FileDatabase])], decls: 3, vars: 3, consts: [["cdkDropList", "", 3, "dataSource", "treeControl", "cdkDropListDropped"], ["matTreeNodeToggle", "", "matTreeNodePadding", "", "cdkDrag", "", 3, "cdkDragData", "mouseenter", "mouseleave", "cdkDragStarted", "cdkDragReleased", 4, "matTreeNodeDef"], ["matTreeNodePadding", "", "cdkDrag", "", 3, "cdkDragData", "mouseenter", "mouseleave", "cdkDragStarted", "cdkDragReleased", 4, "matTreeNodeDef", "matTreeNodeDefWhen"], ["matTreeNodeToggle", "", "matTreeNodePadding", "", "cdkDrag", "", 3, "cdkDragData", "mouseenter", "mouseleave", "cdkDragStarted", "cdkDragReleased"], ["mat-icon-button", "", "disabled", ""], ["class", "type-icon", 4, "ngIf"], ["mat-icon-button", "", 3, "click", 4, "ngIf"], ["mat-icon-button", "", 3, "click"], [1, "type-icon"], ["matTreeNodePadding", "", "cdkDrag", "", 3, "cdkDragData", "mouseenter", "mouseleave", "cdkDragStarted", "cdkDragReleased"], ["mat-icon-button", "", "matTreeNodeToggle", "", 3, "click"], [1, "mat-icon-rtl-mirror"]], template: function DataTreeComponent_Template(rf, ctx) {
+    /** @nocollapse */ DataTreeComponent.ɵcmp = i0.ɵɵdefineComponent({ type: DataTreeComponent, selectors: [["app-data-tree"]], viewQuery: function DataTreeComponent_Query(rf, ctx) {
+            if (rf & 1) {
+                i0.ɵɵviewQuery(_c0$2, true);
+            }
+            if (rf & 2) {
+                var _t;
+                i0.ɵɵqueryRefresh(_t = i0.ɵɵloadQuery()) && (ctx.emptyItem = _t.first);
+            }
+        }, inputs: { eventNodeUpdatedSubscription: "eventNodeUpdatedSubscription", eventCreateNodeSubscription: "eventCreateNodeSubscription", eventGetAllRowsSubscription: "eventGetAllRowsSubscription", getAll: "getAll" }, outputs: { createNode: "createNode", createFolder: "createFolder", emitNode: "emitNode", emitAllNodes: "emitAllNodes" }, features: [i0.ɵɵProvidersFeature([FileDatabase])], decls: 5, vars: 3, consts: [[3, "dataSource", "treeControl"], ["matTreeNodeToggle", "", "matTreeNodePadding", "", "draggable", "true", 3, "ngClass", "dragstart", "dragover", "drop", "dragend", 4, "matTreeNodeDef"], ["matTreeNodePadding", "", "draggable", "true", 3, "ngClass", "dragstart", "dragover", "drop", "dragend", 4, "matTreeNodeDef", "matTreeNodeDefWhen"], ["emptyItem", ""], ["matTreeNodeToggle", "", "matTreeNodePadding", "", "draggable", "true", 3, "ngClass", "dragstart", "dragover", "drop", "dragend"], ["mat-icon-button", "", "disabled", ""], ["class", "type-icon", 4, "ngIf"], ["mat-icon-button", "", 3, "click", 4, "ngIf"], ["mat-icon-button", "", 3, "click"], [1, "type-icon"], ["matTreeNodePadding", "", "draggable", "true", 3, "ngClass", "dragstart", "dragover", "drop", "dragend"], ["mat-icon-button", "", "matTreeNodeToggle", "", 3, "click"], [1, "mat-icon-rtl-mirror"]], template: function DataTreeComponent_Template(rf, ctx) {
             if (rf & 1) {
                 i0.ɵɵelementStart(0, "mat-tree", 0);
-                i0.ɵɵlistener("cdkDropListDropped", function DataTreeComponent_Template_mat_tree_cdkDropListDropped_0_listener($event) { return ctx.drop($event); });
-                i0.ɵɵtemplate(1, DataTreeComponent_mat_tree_node_1_Template, 9, 5, "mat-tree-node", 1);
-                i0.ɵɵtemplate(2, DataTreeComponent_mat_tree_node_2_Template, 12, 7, "mat-tree-node", 2);
+                i0.ɵɵtemplate(1, DataTreeComponent_mat_tree_node_1_Template, 12, 9, "mat-tree-node", 1);
+                i0.ɵɵtemplate(2, DataTreeComponent_mat_tree_node_2_Template, 15, 11, "mat-tree-node", 2);
                 i0.ɵɵelementEnd();
+                i0.ɵɵelement(3, "span", null, 3);
             }
             if (rf & 2) {
                 i0.ɵɵproperty("dataSource", ctx.dataSource)("treeControl", ctx.treeControl);
                 i0.ɵɵadvance(2);
                 i0.ɵɵproperty("matTreeNodeDefWhen", ctx.hasChild);
             }
-        }, directives: [i1$2.MatTree, i2$3.CdkDropList, i1$2.MatTreeNodeDef, i1$2.MatTreeNode, i1$2.MatTreeNodeToggle, i1$2.MatTreeNodePadding, i2$3.CdkDrag, i3.MatButton, i2$2.NgIf, i2.MatIcon], styles: [".mat-tree-node[_ngcontent-%COMP%]{-moz-user-select:none;-ms-user-select:none;-webkit-user-select:none;cursor:move;user-select:none}.mat-tree-node.cdk-drag-preview[_ngcontent-%COMP%]{box-shadow:0 7px 8px -4px rgba(0,0,0,.2),0 12px 17px 2px rgba(0,0,0,.14),0 5px 22px 4px rgba(0,0,0,.12)}.mat-tree-node.cdk-drag-placeholder[_ngcontent-%COMP%]{opacity:0}.cdk-drop-list-dragging[_ngcontent-%COMP%]   .mat-tree-node[_ngcontent-%COMP%]:not(.cdk-drag-placeholder){transition:transform .25s cubic-bezier(0,0,.2,1)}.cdk-drag-animating[_ngcontent-%COMP%]{transition:transform .2s cubic-bezier(0,0,.2,1)}"] });
+        }, directives: [i1$2.MatTree, i1$2.MatTreeNodeDef, i1$2.MatTreeNode, i1$2.MatTreeNodeToggle, i1$2.MatTreeNodePadding, i2$2.NgClass, i3.MatButton, i2$2.NgIf, i2.MatIcon], styles: [".mat-tree-node[_ngcontent-%COMP%]{-moz-user-select:none;-ms-user-select:none;-webkit-user-select:none;cursor:move;user-select:none}.mat-tree-node.cdk-drag-preview[_ngcontent-%COMP%]{box-shadow:0 7px 8px -4px rgba(0,0,0,.2),0 12px 17px 2px rgba(0,0,0,.14),0 5px 22px 4px rgba(0,0,0,.12)}.mat-tree-node.cdk-drag-placeholder[_ngcontent-%COMP%]{opacity:0}.cdk-drop-list-dragging[_ngcontent-%COMP%]   .mat-tree-node[_ngcontent-%COMP%]:not(.cdk-drag-placeholder){transition:transform .25s cubic-bezier(0,0,.2,1)}.cdk-drag-animating[_ngcontent-%COMP%]{transition:transform .2s cubic-bezier(0,0,.2,1)}.drop-above[_ngcontent-%COMP%]{border-top:10px solid #ddd;margin-top:-10px}.drop-below[_ngcontent-%COMP%]{border-bottom:10px solid #ddd;margin-bottom:-10px}.drop-center[_ngcontent-%COMP%]{background-color:#ddd}"] });
     /*@__PURE__*/ (function () {
         i0.ɵsetClassMetadata(DataTreeComponent, [{
                 type: i0.Component,
@@ -2179,6 +2413,9 @@
                     type: i0.Input
                 }], getAll: [{
                     type: i0.Input
+                }], emptyItem: [{
+                    type: i0.ViewChild,
+                    args: ['emptyItem']
                 }] });
     })();
 

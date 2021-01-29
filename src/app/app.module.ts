@@ -99,7 +99,9 @@ import {
   ServiceParameterService,
   ApplicationParameterService,
   CartographyParameterService,
+  TaskAvailabilityService,
   UserPositionService,
+  ApplicationBackgroundService,
   TreeNodeService,
 } from '@sitmun/frontend-core';
 import { UtilsService } from './services/utils.service';
@@ -180,10 +182,10 @@ import { SidenavService } from './services/sidenav.service';
     { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
     { provide: LOCALE_ID, useValue: 'es-ES' },
     RoleService, ConnectionService, UserService, TerritoryService, ServiceService,
-    ApplicationService, TreeService, BackgroundService, CartographyService, CartographyGroupService,
+    ApplicationService, TreeService, TaskAvailabilityService, BackgroundService, CartographyService, CartographyGroupService,
     TaskGroupService, TaskService, UserConfigurationService, CodeListService, LoginService, AuthService,
-    Principal, UserPositionService,  AccountService,CartographyAvailabilityService,ServiceParameterService,ApplicationParameterService,
-    CartographyParameterService, TreeNodeService,
+    Principal, UserPositionService, AccountService,CartographyAvailabilityService,ServiceParameterService,ApplicationParameterService,
+    CartographyParameterService, ApplicationBackgroundService, TreeNodeService,
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: MessagesInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: AuthExpiredInterceptor, multi: true }

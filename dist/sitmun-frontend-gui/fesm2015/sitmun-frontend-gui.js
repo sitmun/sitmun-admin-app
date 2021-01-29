@@ -1,4 +1,4 @@
-import { ɵɵdefineComponent, ɵɵelementStart, ɵɵlistener, ɵɵtext, ɵɵelementEnd, ɵsetClassMetadata, Component, ɵɵproperty, ɵɵviewQuery, ViewContainerRef, ɵɵqueryRefresh, ɵɵloadQuery, ɵɵgetCurrentView, ɵɵrestoreView, ɵɵreference, ɵɵpipe, ɵɵadvance, ɵɵtextInterpolate, ɵɵpipeBind1, ViewChild, ɵɵdirectiveInject, ɵɵtextInterpolate1, ɵɵelement, ɵɵnextContext, ɵɵpropertyInterpolate, EventEmitter, ɵɵtemplate, ɵɵclassMap, Input, Output, ɵɵdefineNgModule, ɵɵdefineInjector, ɵɵsetNgModuleScope, NgModule, ɵɵpureFunction1, ɵɵelementContainer, ɵɵattribute, ɵɵdefineInjectable, Injectable, ɵɵProvidersFeature } from '@angular/core';
+import { ɵɵdefineComponent, ɵɵelementStart, ɵɵlistener, ɵɵtext, ɵɵelementEnd, ɵsetClassMetadata, Component, ɵɵproperty, ɵɵviewQuery, ViewContainerRef, ɵɵqueryRefresh, ɵɵloadQuery, ɵɵgetCurrentView, ɵɵrestoreView, ɵɵreference, ɵɵpipe, ɵɵadvance, ɵɵtextInterpolate, ɵɵpipeBind1, ViewChild, ɵɵdirectiveInject, ɵɵtextInterpolate1, ɵɵelement, ɵɵnextContext, ɵɵpropertyInterpolate, EventEmitter, ɵɵtemplate, ɵɵclassMap, Input, Output, ɵɵdefineNgModule, ɵɵdefineInjector, ɵɵsetNgModuleScope, NgModule, ɵɵpureFunction1, ɵɵelementContainer, ɵɵattribute, ɵɵpureFunction3, ɵɵdefineInjectable, Injectable, ɵɵProvidersFeature } from '@angular/core';
 import { Subject, BehaviorSubject, of } from 'rxjs';
 import { AllCommunityModules } from '@ag-grid-community/all-modules';
 import { TranslatePipe, TranslateService, TranslateDirective, TranslateModule, TranslateLoader } from '@ngx-translate/core';
@@ -7,7 +7,7 @@ import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatCheckbox, MatCheckboxModule } from '@angular/material/checkbox';
 import { NgSelectOption, ɵangular_packages_forms_forms_x, DefaultValueAccessor, NgControlStatus, NgModel, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { NgIf, NgForOf, NgStyle, NgTemplateOutlet, registerLocaleData, CommonModule } from '@angular/common';
+import { NgIf, NgForOf, NgStyle, NgTemplateOutlet, NgClass, registerLocaleData, CommonModule } from '@angular/common';
 import { _MatMenu, MatMenuTrigger, MatMenuItem, MatMenuModule } from '@angular/material/menu';
 import { AgGridAngular, AgGridModule } from '@ag-grid-community/angular';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
@@ -17,7 +17,7 @@ import { AngularHalModule, SitmunFrontendCoreModule } from '@sitmun/frontend-cor
 import localeCa from '@angular/common/locales/ca';
 import localeEs from '@angular/common/locales/es';
 import { A11yModule } from '@angular/cdk/a11y';
-import { DragDropModule, CdkDropList, CdkDrag } from '@angular/cdk/drag-drop';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { PortalModule } from '@angular/cdk/portal';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CdkStepperModule } from '@angular/cdk/stepper';
@@ -236,7 +236,7 @@ class DialogMessageComponent {
 }
 /** @nocollapse */ DialogMessageComponent.ɵfac = function DialogMessageComponent_Factory(t) { return new (t || DialogMessageComponent)(ɵɵdirectiveInject(MatDialogRef)); };
 /** @nocollapse */ DialogMessageComponent.ɵcmp = ɵɵdefineComponent({ type: DialogMessageComponent, selectors: [["app-dialog-message"]], decls: 12, vars: 8, consts: [["mat-dialog-title", ""], [1, "mat-typography"], ["align", "end"], ["mat-button", "", 3, "click"], ["mat-button", "", "cdkFocusInitial", "", 3, "click"]], template: function DialogMessageComponent_Template(rf, ctx) { if (rf & 1) {
-        ɵɵelementStart(0, "h2", 0);
+        ɵɵelementStart(0, "h5", 0);
         ɵɵtext(1);
         ɵɵelementEnd();
         ɵɵelementStart(2, "mat-dialog-content", 1);
@@ -503,6 +503,10 @@ class DataGridComponent {
     ngOnInit() {
         if (this.eventRefreshSubscription) {
             this._eventRefreshSubscription = this.eventRefreshSubscription.subscribe(() => {
+                this.changesMap.clear();
+                this.changeCounter = 0;
+                this.previousChangeCounter = 0;
+                this.redoCounter = 0;
                 this.getElements();
             });
         }
@@ -516,10 +520,31 @@ class DataGridComponent {
                 this.emitAllRows();
             });
         }
+        if (this.eventSaveAgGridStateSubscription) {
+            this._eventSaveAgGridStateSubscription = this.eventSaveAgGridStateSubscription.subscribe(() => {
+                this.saveAgGridState();
+            });
+        }
         if (this.eventAddItemsSubscription) {
             this.eventAddItemsSubscription.subscribe((items) => {
                 this.addItems(items);
             });
+        }
+    }
+    firstDataRendered() {
+        if (localStorage.agGridState != undefined) {
+            let agGridState = JSON.parse(localStorage.agGridState);
+            if (agGridState.idAgGrid != undefined && agGridState.idAgGrid == this.id) {
+                this.gridApi.setFilterModel(agGridState.filterState);
+                this.gridColumnApi.setColumnState(agGridState.colState);
+                this.gridApi.setSortModel(agGridState.sortState);
+                this.searchValue = agGridState.valueSearchGeneric;
+                this.quickSearch();
+                this.removeAgGridState();
+            }
+            else if (this.id != undefined) {
+                this.removeAgGridState();
+            }
         }
     }
     onGridReady(params) {
@@ -531,7 +556,6 @@ class DataGridComponent {
         this.gridApi = params.api;
         this.gridColumnApi = params.columnApi;
         this.getElements();
-        this.gridApi.sizeColumnsToFit();
         console.log(this.columnDefs);
         for (const col of this.columnDefs) {
             if (col.field === 'status') {
@@ -549,6 +573,19 @@ class DataGridComponent {
         let rowData = [];
         this.gridApi.forEachNode(node => rowData.push(node.data));
         this.getAllRows.emit(rowData);
+    }
+    saveAgGridState() {
+        let agGridState = {
+            idAgGrid: this.id,
+            colState: this.gridColumnApi.getColumnState(),
+            filterState: this.gridApi.getFilterModel(),
+            sortState: this.gridApi.getSortModel(),
+            valueSearchGeneric: this.searchValue
+        };
+        localStorage.setItem("agGridState", JSON.stringify(agGridState));
+    }
+    removeAgGridState() {
+        localStorage.removeItem("agGridState");
     }
     getColumnKeysAndHeaders(columnkeys) {
         let header = [];
@@ -585,8 +622,8 @@ class DataGridComponent {
         this.getAll()
             .subscribe((items) => {
             this.rowData = items;
-            setTimeout(() => { this.gridApi.sizeColumnsToFit(); }, 30);
             this.gridApi.setRowData(this.rowData);
+            this.gridApi.sizeColumnsToFit();
             console.log(this.rowData);
         });
     }
@@ -615,7 +652,7 @@ class DataGridComponent {
         const selectedData = selectedNodes.map(node => node.data);
         this.remove.emit(selectedData);
         if (this.statusColumn) {
-            const selectedRows = selectedNodes.map(node => node.rowIndex);
+            const selectedRows = selectedNodes.map(node => node.id);
             for (const id of selectedRows) {
                 this.gridApi.getRowNode(id).data.status = 'Deleted';
             }
@@ -715,9 +752,10 @@ class DataGridComponent {
                     addMap.set(params.colDef.field, 1);
                     this.changesMap.set(params.node.id, addMap);
                     if (this.statusColumn) {
-                        this.gridApi.getRowNode(params.node.id).data.status = 'Modified';
+                        if (this.gridApi.getRowNode(params.node.id).data.status !== 'Pending creation') {
+                            this.gridApi.getRowNode(params.node.id).data.status = 'Modified';
+                        }
                     }
-                    ;
                 }
                 else {
                     if (!this.changesMap.get(params.node.id).has(params.colDef.field)) {
@@ -744,7 +782,9 @@ class DataGridComponent {
                     this.changesMap.delete(params.node.id);
                     const row = this.gridApi.getDisplayedRowAtIndex(params.rowIndex);
                     if (this.statusColumn) {
-                        this.gridApi.getRowNode(params.node.id).data.status = '';
+                        if (this.gridApi.getRowNode(params.node.id).data.status !== 'Pending creation') {
+                            this.gridApi.getRowNode(params.node.id).data.status = '';
+                        }
                     }
                     ;
                     // We paint it white
@@ -832,7 +872,7 @@ class DataGridComponent {
     }
 }
 /** @nocollapse */ DataGridComponent.ɵfac = function DataGridComponent_Factory(t) { return new (t || DataGridComponent)(ɵɵdirectiveInject(MatDialog), ɵɵdirectiveInject(TranslateService)); };
-/** @nocollapse */ DataGridComponent.ɵcmp = ɵɵdefineComponent({ type: DataGridComponent, selectors: [["app-data-grid"]], inputs: { eventRefreshSubscription: "eventRefreshSubscription", eventGetSelectedRowsSubscription: "eventGetSelectedRowsSubscription", eventGetAllRowsSubscription: "eventGetAllRowsSubscription", eventAddItemsSubscription: "eventAddItemsSubscription", frameworkComponents: "frameworkComponents", columnDefs: "columnDefs", getAll: "getAll", discardChangesButton: "discardChangesButton", undoButton: "undoButton", redoButton: "redoButton", applyChangesButton: "applyChangesButton", deleteButton: "deleteButton", newButton: "newButton", actionButton: "actionButton", addButton: "addButton", globalSearch: "globalSearch", themeGrid: "themeGrid", singleSelection: "singleSelection", nonEditable: "nonEditable", title: "title", hideExportButton: "hideExportButton", hideDuplicateButton: "hideDuplicateButton", hideSearchReplaceButton: "hideSearchReplaceButton" }, outputs: { remove: "remove", new: "new", add: "add", sendChanges: "sendChanges", duplicate: "duplicate", getSelectedRows: "getSelectedRows", getAllRows: "getAllRows" }, decls: 21, vars: 27, consts: [["id", "grup1", 1, "editDivBtns"], [3, "translate", 4, "ngIf"], ["mat-mini-fab", "", "class", "editBtn", "id", "deleteChangesButton", "type", "button", 3, "title", "disabled", "click", 4, "ngIf"], ["mat-mini-fab", "", "class", "editBtn", "id", "undo", 3, "title", "disabled", "click", 4, "ngIf"], ["mat-mini-fab", "", "class", "editBtn", "id", "redo", 3, "title", "disabled", "click", 4, "ngIf"], ["mat-mini-fab", "", "class", "editBtn", "id", "applyChangesButton", 3, "title", "disabled", "click", 4, "ngIf"], ["id", "grup2", 1, "actionsDivBtns"], ["type", "text", "class", "searchGenericInput", "placeholder", "", "ml-2", "", 3, "ngModel", "keyup", "ngModelChange", 4, "ngIf"], ["mat-stroked-button", "", "id", "deleteButton", 3, "click", 4, "ngIf"], ["mat-stroked-button", "", "id", "actionButton", 3, "matMenuTriggerFor", 4, "ngIf"], ["menu", "matMenu"], ["mat-menu-item", "", 3, "click", 4, "ngIf"], ["mat-menu-item", "", 4, "ngIf"], ["mat-stroked-button", "", "id", "newButton", 3, "click", 4, "ngIf"], [1, "row", 2, "height", "100%"], ["id", "myGrid", 2, "width", "100%", "height", "100%"], ["rowSelection", "multiple", "multiSortKey", "key", 2, "width", "100%", "height", "100%", 3, "floatingFilter", "rowData", "columnDefs", "gridOptions", "animateRows", "pagination", "modules", "undoRedoCellEditing", "undoRedoCellEditingLimit", "suppressRowClickSelection", "frameworkComponents", "filterModified", "cellEditingStopped", "cellValueChanged", "gridReady"], [3, "translate"], ["mat-mini-fab", "", "id", "deleteChangesButton", "type", "button", 1, "editBtn", 3, "title", "disabled", "click"], ["fontSet", "material-icons-round"], ["mat-mini-fab", "", "id", "undo", 1, "editBtn", 3, "title", "disabled", "click"], ["mat-mini-fab", "", "id", "redo", 1, "editBtn", 3, "title", "disabled", "click"], ["mat-mini-fab", "", "id", "applyChangesButton", 1, "editBtn", 3, "title", "disabled", "click"], ["type", "text", "placeholder", "", "ml-2", "", 1, "searchGenericInput", 3, "ngModel", "keyup", "ngModelChange"], ["mat-stroked-button", "", "id", "deleteButton", 3, "click"], ["mat-stroked-button", "", "id", "actionButton", 3, "matMenuTriggerFor"], ["mat-menu-item", "", 3, "click"], ["mat-menu-item", ""], ["mat-stroked-button", "", "id", "newButton", 3, "click"]], template: function DataGridComponent_Template(rf, ctx) { if (rf & 1) {
+/** @nocollapse */ DataGridComponent.ɵcmp = ɵɵdefineComponent({ type: DataGridComponent, selectors: [["app-data-grid"]], inputs: { eventRefreshSubscription: "eventRefreshSubscription", eventGetSelectedRowsSubscription: "eventGetSelectedRowsSubscription", eventGetAllRowsSubscription: "eventGetAllRowsSubscription", eventSaveAgGridStateSubscription: "eventSaveAgGridStateSubscription", eventAddItemsSubscription: "eventAddItemsSubscription", frameworkComponents: "frameworkComponents", columnDefs: "columnDefs", getAll: "getAll", discardChangesButton: "discardChangesButton", id: "id", undoButton: "undoButton", redoButton: "redoButton", applyChangesButton: "applyChangesButton", deleteButton: "deleteButton", newButton: "newButton", actionButton: "actionButton", addButton: "addButton", globalSearch: "globalSearch", themeGrid: "themeGrid", singleSelection: "singleSelection", nonEditable: "nonEditable", title: "title", hideExportButton: "hideExportButton", hideDuplicateButton: "hideDuplicateButton", hideSearchReplaceButton: "hideSearchReplaceButton" }, outputs: { remove: "remove", new: "new", add: "add", sendChanges: "sendChanges", duplicate: "duplicate", getSelectedRows: "getSelectedRows", getAllRows: "getAllRows", getAgGridState: "getAgGridState" }, decls: 21, vars: 27, consts: [["id", "grup1", 1, "editDivBtns"], [3, "translate", 4, "ngIf"], ["mat-mini-fab", "", "class", "editBtn", "id", "deleteChangesButton", "type", "button", 3, "title", "disabled", "click", 4, "ngIf"], ["mat-mini-fab", "", "class", "editBtn", "id", "undo", 3, "title", "disabled", "click", 4, "ngIf"], ["mat-mini-fab", "", "class", "editBtn", "id", "redo", 3, "title", "disabled", "click", 4, "ngIf"], ["mat-mini-fab", "", "class", "editBtn", "id", "applyChangesButton", 3, "title", "disabled", "click", 4, "ngIf"], ["id", "grup2", 1, "actionsDivBtns"], ["type", "text", "class", "searchGenericInput", "placeholder", "", "ml-2", "", 3, "ngModel", "keyup", "ngModelChange", 4, "ngIf"], ["mat-stroked-button", "", "id", "deleteButton", 3, "click", 4, "ngIf"], ["mat-stroked-button", "", "id", "actionButton", 3, "matMenuTriggerFor", 4, "ngIf"], ["menu", "matMenu"], ["mat-menu-item", "", 3, "click", 4, "ngIf"], ["mat-menu-item", "", 4, "ngIf"], ["mat-stroked-button", "", "id", "newButton", 3, "click", 4, "ngIf"], [1, "row", 2, "height", "100%"], ["id", "myGrid", 2, "width", "100%", "height", "100%"], ["rowSelection", "multiple", "multiSortKey", "key", 2, "width", "100%", "height", "100%", 3, "floatingFilter", "rowData", "columnDefs", "gridOptions", "animateRows", "pagination", "modules", "undoRedoCellEditing", "undoRedoCellEditingLimit", "suppressRowClickSelection", "frameworkComponents", "filterModified", "cellEditingStopped", "cellValueChanged", "gridReady", "firstDataRendered"], [3, "translate"], ["mat-mini-fab", "", "id", "deleteChangesButton", "type", "button", 1, "editBtn", 3, "title", "disabled", "click"], ["fontSet", "material-icons-round"], ["mat-mini-fab", "", "id", "undo", 1, "editBtn", 3, "title", "disabled", "click"], ["mat-mini-fab", "", "id", "redo", 1, "editBtn", 3, "title", "disabled", "click"], ["mat-mini-fab", "", "id", "applyChangesButton", 1, "editBtn", 3, "title", "disabled", "click"], ["type", "text", "placeholder", "", "ml-2", "", 1, "searchGenericInput", 3, "ngModel", "keyup", "ngModelChange"], ["mat-stroked-button", "", "id", "deleteButton", 3, "click"], ["mat-stroked-button", "", "id", "actionButton", 3, "matMenuTriggerFor"], ["mat-menu-item", "", 3, "click"], ["mat-menu-item", ""], ["mat-stroked-button", "", "id", "newButton", 3, "click"]], template: function DataGridComponent_Template(rf, ctx) { if (rf & 1) {
         ɵɵelementStart(0, "div", 0);
         ɵɵtemplate(1, DataGridComponent_span_1_Template, 1, 1, "span", 1);
         ɵɵtemplate(2, DataGridComponent_button_2_Template, 4, 4, "button", 2);
@@ -856,7 +896,7 @@ class DataGridComponent {
         ɵɵelementStart(18, "div", 14);
         ɵɵelementStart(19, "div", 15);
         ɵɵelementStart(20, "ag-grid-angular", 16);
-        ɵɵlistener("filterModified", function DataGridComponent_Template_ag_grid_angular_filterModified_20_listener() { return ctx.onFilterModified(); })("cellEditingStopped", function DataGridComponent_Template_ag_grid_angular_cellEditingStopped_20_listener($event) { return ctx.onCellEditingStopped($event); })("cellValueChanged", function DataGridComponent_Template_ag_grid_angular_cellValueChanged_20_listener($event) { return ctx.onCellValueChanged($event); })("gridReady", function DataGridComponent_Template_ag_grid_angular_gridReady_20_listener($event) { return ctx.onGridReady($event); });
+        ɵɵlistener("filterModified", function DataGridComponent_Template_ag_grid_angular_filterModified_20_listener() { return ctx.onFilterModified(); })("cellEditingStopped", function DataGridComponent_Template_ag_grid_angular_cellEditingStopped_20_listener($event) { return ctx.onCellEditingStopped($event); })("cellValueChanged", function DataGridComponent_Template_ag_grid_angular_cellValueChanged_20_listener($event) { return ctx.onCellValueChanged($event); })("gridReady", function DataGridComponent_Template_ag_grid_angular_gridReady_20_listener($event) { return ctx.onGridReady($event); })("firstDataRendered", function DataGridComponent_Template_ag_grid_angular_firstDataRendered_20_listener() { return ctx.firstDataRendered(); });
         ɵɵelementEnd();
         ɵɵelementEnd();
         ɵɵelementEnd();
@@ -906,6 +946,8 @@ class DataGridComponent {
             type: Input
         }], eventGetAllRowsSubscription: [{
             type: Input
+        }], eventSaveAgGridStateSubscription: [{
+            type: Input
         }], eventAddItemsSubscription: [{
             type: Input
         }], frameworkComponents: [{
@@ -915,6 +957,8 @@ class DataGridComponent {
         }], getAll: [{
             type: Input
         }], discardChangesButton: [{
+            type: Input
+        }], id: [{
             type: Input
         }], undoButton: [{
             type: Input
@@ -959,6 +1003,8 @@ class DataGridComponent {
         }], getSelectedRows: [{
             type: Output
         }], getAllRows: [{
+            type: Output
+        }], getAgGridState: [{
             type: Output
         }] }); })();
 
@@ -1154,7 +1200,7 @@ class DialogGridComponent {
 }
 /** @nocollapse */ DialogGridComponent.ɵfac = function DialogGridComponent_Factory(t) { return new (t || DialogGridComponent)(ɵɵdirectiveInject(MatDialogRef)); };
 /** @nocollapse */ DialogGridComponent.ɵcmp = ɵɵdefineComponent({ type: DialogGridComponent, selectors: [["app-dialog-grid"]], outputs: { joinTables: "joinTables" }, decls: 11, vars: 8, consts: [["mat-dialog-title", ""], [1, "dialogConent"], ["class", "appDialogDataGridDiv", 3, "ngStyle", 4, "ngFor", "ngForOf"], ["mat-dialog-actions", "", "align", "end"], ["mat-button", "", 3, "click"], ["mat-button", "", "cdkFocusInitial", "", 3, "click"], [1, "appDialogDataGridDiv", 3, "ngStyle"], [3, "columnDefs", "themeGrid", "getAll", "globalSearch", "singleSelection", "title", "nonEditable", "eventGetSelectedRowsSubscription", "getSelectedRows"]], template: function DialogGridComponent_Template(rf, ctx) { if (rf & 1) {
-        ɵɵelementStart(0, "h4", 0);
+        ɵɵelementStart(0, "h5", 0);
         ɵɵtext(1);
         ɵɵelementEnd();
         ɵɵelementStart(2, "mat-dialog-content", 1);
@@ -1211,7 +1257,7 @@ class DialogFormComponent {
 }
 /** @nocollapse */ DialogFormComponent.ɵfac = function DialogFormComponent_Factory(t) { return new (t || DialogFormComponent)(ɵɵdirectiveInject(MatDialogRef)); };
 /** @nocollapse */ DialogFormComponent.ɵcmp = ɵɵdefineComponent({ type: DialogFormComponent, selectors: [["app-dialog-form"]], decls: 11, vars: 8, consts: [["mat-dialog-title", ""], [1, "mat-typography"], [4, "ngTemplateOutlet"], ["align", "end"], ["mat-button", "", 3, "click"], ["mat-button", "", "cdkFocusInitial", "", 3, "click"]], template: function DialogFormComponent_Template(rf, ctx) { if (rf & 1) {
-        ɵɵelementStart(0, "h2", 0);
+        ɵɵelementStart(0, "h5", 0);
         ɵɵtext(1);
         ɵɵelementEnd();
         ɵɵelementStart(2, "mat-dialog-content", 1);
@@ -1248,117 +1294,132 @@ class DialogFormComponent {
             }]
     }], function () { return [{ type: MatDialogRef }]; }, null); })();
 
+const _c0$2 = ["emptyItem"];
 function DataTreeComponent_mat_tree_node_1_mat_icon_2_Template(rf, ctx) { if (rf & 1) {
-    ɵɵelementStart(0, "mat-icon", 8);
+    ɵɵelementStart(0, "mat-icon", 9);
     ɵɵtext(1, " folder ");
     ɵɵelementEnd();
 } if (rf & 2) {
-    const node_r2 = ɵɵnextContext().$implicit;
-    ɵɵattribute("aria-label", node_r2.type + "icon");
+    const node_r3 = ɵɵnextContext().$implicit;
+    ɵɵattribute("aria-label", node_r3.type + "icon");
 } }
 function DataTreeComponent_mat_tree_node_1_button_4_Template(rf, ctx) { if (rf & 1) {
-    const _r9 = ɵɵgetCurrentView();
-    ɵɵelementStart(0, "button", 7);
-    ɵɵlistener("click", function DataTreeComponent_mat_tree_node_1_button_4_Template_button_click_0_listener() { ɵɵrestoreView(_r9); const node_r2 = ɵɵnextContext().$implicit; const ctx_r7 = ɵɵnextContext(); return ctx_r7.onButtonClicked(node_r2.id, "newFolder"); });
+    const _r10 = ɵɵgetCurrentView();
+    ɵɵelementStart(0, "button", 8);
+    ɵɵlistener("click", function DataTreeComponent_mat_tree_node_1_button_4_Template_button_click_0_listener() { ɵɵrestoreView(_r10); const node_r3 = ɵɵnextContext().$implicit; const ctx_r8 = ɵɵnextContext(); return ctx_r8.onButtonClicked(node_r3.id, "newFolder"); });
     ɵɵelementStart(1, "mat-icon");
     ɵɵtext(2, "create_new_folder");
     ɵɵelementEnd();
     ɵɵelementEnd();
 } }
 function DataTreeComponent_mat_tree_node_1_button_5_Template(rf, ctx) { if (rf & 1) {
-    const _r12 = ɵɵgetCurrentView();
-    ɵɵelementStart(0, "button", 7);
-    ɵɵlistener("click", function DataTreeComponent_mat_tree_node_1_button_5_Template_button_click_0_listener() { ɵɵrestoreView(_r12); const node_r2 = ɵɵnextContext().$implicit; const ctx_r10 = ɵɵnextContext(); return ctx_r10.onButtonClicked(node_r2.id, "newNode"); });
+    const _r13 = ɵɵgetCurrentView();
+    ɵɵelementStart(0, "button", 8);
+    ɵɵlistener("click", function DataTreeComponent_mat_tree_node_1_button_5_Template_button_click_0_listener() { ɵɵrestoreView(_r13); const node_r3 = ɵɵnextContext().$implicit; const ctx_r11 = ɵɵnextContext(); return ctx_r11.onButtonClicked(node_r3.id, "newNode"); });
     ɵɵelementStart(1, "mat-icon");
     ɵɵtext(2, "playlist_add");
     ɵɵelementEnd();
     ɵɵelementEnd();
 } }
+const _c1 = function (a0, a1, a2) { return { "drop-above": a0, "drop-below": a1, "drop-center": a2 }; };
 function DataTreeComponent_mat_tree_node_1_Template(rf, ctx) { if (rf & 1) {
-    const _r14 = ɵɵgetCurrentView();
-    ɵɵelementStart(0, "mat-tree-node", 3);
-    ɵɵlistener("mouseenter", function DataTreeComponent_mat_tree_node_1_Template_mat_tree_node_mouseenter_0_listener() { ɵɵrestoreView(_r14); const node_r2 = ctx.$implicit; const ctx_r13 = ɵɵnextContext(); return ctx_r13.dragHover(node_r2); })("mouseleave", function DataTreeComponent_mat_tree_node_1_Template_mat_tree_node_mouseleave_0_listener() { ɵɵrestoreView(_r14); const ctx_r15 = ɵɵnextContext(); return ctx_r15.dragHoverEnd(); })("cdkDragStarted", function DataTreeComponent_mat_tree_node_1_Template_mat_tree_node_cdkDragStarted_0_listener() { ɵɵrestoreView(_r14); const ctx_r16 = ɵɵnextContext(); return ctx_r16.dragStart(); })("cdkDragReleased", function DataTreeComponent_mat_tree_node_1_Template_mat_tree_node_cdkDragReleased_0_listener() { ɵɵrestoreView(_r14); const ctx_r17 = ɵɵnextContext(); return ctx_r17.dragEnd(); });
-    ɵɵelement(1, "button", 4);
-    ɵɵtemplate(2, DataTreeComponent_mat_tree_node_1_mat_icon_2_Template, 2, 1, "mat-icon", 5);
+    const _r15 = ɵɵgetCurrentView();
+    ɵɵelementStart(0, "mat-tree-node", 4);
+    ɵɵlistener("dragstart", function DataTreeComponent_mat_tree_node_1_Template_mat_tree_node_dragstart_0_listener($event) { ɵɵrestoreView(_r15); const node_r3 = ctx.$implicit; const ctx_r14 = ɵɵnextContext(); return ctx_r14.handleDragStart($event, node_r3); })("dragover", function DataTreeComponent_mat_tree_node_1_Template_mat_tree_node_dragover_0_listener($event) { ɵɵrestoreView(_r15); const node_r3 = ctx.$implicit; const ctx_r16 = ɵɵnextContext(); return ctx_r16.handleDragOver($event, node_r3); })("drop", function DataTreeComponent_mat_tree_node_1_Template_mat_tree_node_drop_0_listener($event) { ɵɵrestoreView(_r15); const node_r3 = ctx.$implicit; const ctx_r17 = ɵɵnextContext(); return ctx_r17.handleDrop($event, node_r3); })("dragend", function DataTreeComponent_mat_tree_node_1_Template_mat_tree_node_dragend_0_listener($event) { ɵɵrestoreView(_r15); const ctx_r18 = ɵɵnextContext(); return ctx_r18.handleDragEnd($event); });
+    ɵɵelement(1, "button", 5);
+    ɵɵtemplate(2, DataTreeComponent_mat_tree_node_1_mat_icon_2_Template, 2, 1, "mat-icon", 6);
     ɵɵtext(3);
-    ɵɵtemplate(4, DataTreeComponent_mat_tree_node_1_button_4_Template, 3, 0, "button", 6);
-    ɵɵtemplate(5, DataTreeComponent_mat_tree_node_1_button_5_Template, 3, 0, "button", 6);
-    ɵɵelementStart(6, "button", 7);
-    ɵɵlistener("click", function DataTreeComponent_mat_tree_node_1_Template_button_click_6_listener() { ɵɵrestoreView(_r14); const node_r2 = ctx.$implicit; const ctx_r18 = ɵɵnextContext(); return ctx_r18.onButtonClicked(node_r2.id, "edit"); });
+    ɵɵtemplate(4, DataTreeComponent_mat_tree_node_1_button_4_Template, 3, 0, "button", 7);
+    ɵɵtemplate(5, DataTreeComponent_mat_tree_node_1_button_5_Template, 3, 0, "button", 7);
+    ɵɵelementStart(6, "button", 8);
+    ɵɵlistener("click", function DataTreeComponent_mat_tree_node_1_Template_button_click_6_listener() { ɵɵrestoreView(_r15); const node_r3 = ctx.$implicit; const ctx_r19 = ɵɵnextContext(); return ctx_r19.onButtonClicked(node_r3.id, "delete"); });
     ɵɵelementStart(7, "mat-icon");
-    ɵɵtext(8, "edit");
+    ɵɵtext(8, "delete");
     ɵɵelementEnd();
     ɵɵelementEnd();
-    ɵɵelementEnd();
-} if (rf & 2) {
-    const node_r2 = ctx.$implicit;
-    ɵɵproperty("cdkDragData", node_r2);
-    ɵɵadvance(2);
-    ɵɵproperty("ngIf", node_r2.type === "folder");
-    ɵɵadvance(1);
-    ɵɵtextInterpolate1(" ", node_r2.name, " ");
-    ɵɵadvance(1);
-    ɵɵproperty("ngIf", node_r2.type === "folder");
-    ɵɵadvance(1);
-    ɵɵproperty("ngIf", node_r2.type === "folder");
-} }
-function DataTreeComponent_mat_tree_node_2_button_7_Template(rf, ctx) { if (rf & 1) {
-    const _r24 = ɵɵgetCurrentView();
-    ɵɵelementStart(0, "button", 7);
-    ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_button_7_Template_button_click_0_listener() { ɵɵrestoreView(_r24); const node_r19 = ɵɵnextContext().$implicit; const ctx_r22 = ɵɵnextContext(); return ctx_r22.onButtonClicked(node_r19.id, "newFolder"); });
-    ɵɵelementStart(1, "mat-icon");
-    ɵɵtext(2, "create_new_folder");
-    ɵɵelementEnd();
-    ɵɵelementEnd();
-} }
-function DataTreeComponent_mat_tree_node_2_button_8_Template(rf, ctx) { if (rf & 1) {
-    const _r27 = ɵɵgetCurrentView();
-    ɵɵelementStart(0, "button", 7);
-    ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_button_8_Template_button_click_0_listener() { ɵɵrestoreView(_r27); const node_r19 = ɵɵnextContext().$implicit; const ctx_r25 = ɵɵnextContext(); return ctx_r25.onButtonClicked(node_r19.id, "newNode"); });
-    ɵɵelementStart(1, "mat-icon");
-    ɵɵtext(2, "playlist_add");
-    ɵɵelementEnd();
-    ɵɵelementEnd();
-} }
-function DataTreeComponent_mat_tree_node_2_Template(rf, ctx) { if (rf & 1) {
-    const _r29 = ɵɵgetCurrentView();
-    ɵɵelementStart(0, "mat-tree-node", 9);
-    ɵɵlistener("mouseenter", function DataTreeComponent_mat_tree_node_2_Template_mat_tree_node_mouseenter_0_listener() { ɵɵrestoreView(_r29); const node_r19 = ctx.$implicit; const ctx_r28 = ɵɵnextContext(); return ctx_r28.dragHover(node_r19); })("mouseleave", function DataTreeComponent_mat_tree_node_2_Template_mat_tree_node_mouseleave_0_listener() { ɵɵrestoreView(_r29); const ctx_r30 = ɵɵnextContext(); return ctx_r30.dragHoverEnd(); })("cdkDragStarted", function DataTreeComponent_mat_tree_node_2_Template_mat_tree_node_cdkDragStarted_0_listener() { ɵɵrestoreView(_r29); const ctx_r31 = ɵɵnextContext(); return ctx_r31.dragStart(); })("cdkDragReleased", function DataTreeComponent_mat_tree_node_2_Template_mat_tree_node_cdkDragReleased_0_listener() { ɵɵrestoreView(_r29); const ctx_r32 = ɵɵnextContext(); return ctx_r32.dragEnd(); });
-    ɵɵelementStart(1, "button", 10);
-    ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_Template_button_click_1_listener() { ɵɵrestoreView(_r29); const node_r19 = ctx.$implicit; const ctx_r33 = ɵɵnextContext(); return ctx_r33.expansionModel.toggle(node_r19.id); });
-    ɵɵelementStart(2, "mat-icon", 11);
-    ɵɵtext(3);
-    ɵɵelementEnd();
-    ɵɵelementEnd();
-    ɵɵelementStart(4, "mat-icon", 8);
-    ɵɵtext(5, " folder ");
-    ɵɵelementEnd();
-    ɵɵtext(6);
-    ɵɵtemplate(7, DataTreeComponent_mat_tree_node_2_button_7_Template, 3, 0, "button", 6);
-    ɵɵtemplate(8, DataTreeComponent_mat_tree_node_2_button_8_Template, 3, 0, "button", 6);
-    ɵɵelementStart(9, "button", 7);
-    ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_Template_button_click_9_listener() { ɵɵrestoreView(_r29); const node_r19 = ctx.$implicit; const ctx_r34 = ɵɵnextContext(); return ctx_r34.onButtonClicked(node_r19.id, "edit"); });
+    ɵɵelementStart(9, "button", 8);
+    ɵɵlistener("click", function DataTreeComponent_mat_tree_node_1_Template_button_click_9_listener() { ɵɵrestoreView(_r15); const node_r3 = ctx.$implicit; const ctx_r20 = ɵɵnextContext(); return ctx_r20.onButtonClicked(node_r3.id, "edit"); });
     ɵɵelementStart(10, "mat-icon");
     ɵɵtext(11, "edit");
     ɵɵelementEnd();
     ɵɵelementEnd();
     ɵɵelementEnd();
 } if (rf & 2) {
-    const node_r19 = ctx.$implicit;
+    const node_r3 = ctx.$implicit;
+    const ctx_r0 = ɵɵnextContext();
+    ɵɵproperty("ngClass", ɵɵpureFunction3(5, _c1, ctx_r0.dragNodeExpandOverArea === "above" && ctx_r0.dragNodeExpandOverNode === node_r3, ctx_r0.dragNodeExpandOverArea === "below" && ctx_r0.dragNodeExpandOverNode === node_r3, ctx_r0.dragNodeExpandOverArea === "center" && ctx_r0.dragNodeExpandOverNode === node_r3));
+    ɵɵadvance(2);
+    ɵɵproperty("ngIf", node_r3.type === "folder");
+    ɵɵadvance(1);
+    ɵɵtextInterpolate1(" ", node_r3.name, " ");
+    ɵɵadvance(1);
+    ɵɵproperty("ngIf", node_r3.type === "folder");
+    ɵɵadvance(1);
+    ɵɵproperty("ngIf", node_r3.type === "folder");
+} }
+function DataTreeComponent_mat_tree_node_2_button_7_Template(rf, ctx) { if (rf & 1) {
+    const _r26 = ɵɵgetCurrentView();
+    ɵɵelementStart(0, "button", 8);
+    ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_button_7_Template_button_click_0_listener() { ɵɵrestoreView(_r26); const node_r21 = ɵɵnextContext().$implicit; const ctx_r24 = ɵɵnextContext(); return ctx_r24.onButtonClicked(node_r21.id, "newFolder"); });
+    ɵɵelementStart(1, "mat-icon");
+    ɵɵtext(2, "create_new_folder");
+    ɵɵelementEnd();
+    ɵɵelementEnd();
+} }
+function DataTreeComponent_mat_tree_node_2_button_8_Template(rf, ctx) { if (rf & 1) {
+    const _r29 = ɵɵgetCurrentView();
+    ɵɵelementStart(0, "button", 8);
+    ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_button_8_Template_button_click_0_listener() { ɵɵrestoreView(_r29); const node_r21 = ɵɵnextContext().$implicit; const ctx_r27 = ɵɵnextContext(); return ctx_r27.onButtonClicked(node_r21.id, "newNode"); });
+    ɵɵelementStart(1, "mat-icon");
+    ɵɵtext(2, "playlist_add");
+    ɵɵelementEnd();
+    ɵɵelementEnd();
+} }
+function DataTreeComponent_mat_tree_node_2_Template(rf, ctx) { if (rf & 1) {
+    const _r31 = ɵɵgetCurrentView();
+    ɵɵelementStart(0, "mat-tree-node", 10);
+    ɵɵlistener("dragstart", function DataTreeComponent_mat_tree_node_2_Template_mat_tree_node_dragstart_0_listener($event) { ɵɵrestoreView(_r31); const node_r21 = ctx.$implicit; const ctx_r30 = ɵɵnextContext(); return ctx_r30.handleDragStart($event, node_r21); })("dragover", function DataTreeComponent_mat_tree_node_2_Template_mat_tree_node_dragover_0_listener($event) { ɵɵrestoreView(_r31); const node_r21 = ctx.$implicit; const ctx_r32 = ɵɵnextContext(); return ctx_r32.handleDragOver($event, node_r21); })("drop", function DataTreeComponent_mat_tree_node_2_Template_mat_tree_node_drop_0_listener($event) { ɵɵrestoreView(_r31); const node_r21 = ctx.$implicit; const ctx_r33 = ɵɵnextContext(); return ctx_r33.handleDrop($event, node_r21); })("dragend", function DataTreeComponent_mat_tree_node_2_Template_mat_tree_node_dragend_0_listener($event) { ɵɵrestoreView(_r31); const ctx_r34 = ɵɵnextContext(); return ctx_r34.handleDragEnd($event); });
+    ɵɵelementStart(1, "button", 11);
+    ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_Template_button_click_1_listener() { ɵɵrestoreView(_r31); const node_r21 = ctx.$implicit; const ctx_r35 = ɵɵnextContext(); return ctx_r35.expansionModel.toggle(node_r21.id); });
+    ɵɵelementStart(2, "mat-icon", 12);
+    ɵɵtext(3);
+    ɵɵelementEnd();
+    ɵɵelementEnd();
+    ɵɵelementStart(4, "mat-icon", 9);
+    ɵɵtext(5, " folder ");
+    ɵɵelementEnd();
+    ɵɵtext(6);
+    ɵɵtemplate(7, DataTreeComponent_mat_tree_node_2_button_7_Template, 3, 0, "button", 7);
+    ɵɵtemplate(8, DataTreeComponent_mat_tree_node_2_button_8_Template, 3, 0, "button", 7);
+    ɵɵelementStart(9, "button", 8);
+    ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_Template_button_click_9_listener() { ɵɵrestoreView(_r31); const node_r21 = ctx.$implicit; const ctx_r36 = ɵɵnextContext(); return ctx_r36.onButtonClicked(node_r21.id, "delete"); });
+    ɵɵelementStart(10, "mat-icon");
+    ɵɵtext(11, "delete");
+    ɵɵelementEnd();
+    ɵɵelementEnd();
+    ɵɵelementStart(12, "button", 8);
+    ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_Template_button_click_12_listener() { ɵɵrestoreView(_r31); const node_r21 = ctx.$implicit; const ctx_r37 = ɵɵnextContext(); return ctx_r37.onButtonClicked(node_r21.id, "edit"); });
+    ɵɵelementStart(13, "mat-icon");
+    ɵɵtext(14, "edit");
+    ɵɵelementEnd();
+    ɵɵelementEnd();
+    ɵɵelementEnd();
+} if (rf & 2) {
+    const node_r21 = ctx.$implicit;
     const ctx_r1 = ɵɵnextContext();
-    ɵɵproperty("cdkDragData", node_r19);
+    ɵɵproperty("ngClass", ɵɵpureFunction3(7, _c1, ctx_r1.dragNodeExpandOverArea === "above" && ctx_r1.dragNodeExpandOverNode === node_r21, ctx_r1.dragNodeExpandOverArea === "below" && ctx_r1.dragNodeExpandOverNode === node_r21, ctx_r1.dragNodeExpandOverArea === "center" && ctx_r1.dragNodeExpandOverNode === node_r21));
     ɵɵadvance(1);
-    ɵɵattribute("aria-label", "toggle " + node_r19.name);
+    ɵɵattribute("aria-label", "toggle " + node_r21.name);
     ɵɵadvance(2);
-    ɵɵtextInterpolate1(" ", ctx_r1.treeControl.isExpanded(node_r19) ? "expand_more" : "chevron_right", " ");
+    ɵɵtextInterpolate1(" ", ctx_r1.treeControl.isExpanded(node_r21) ? "expand_more" : "chevron_right", " ");
     ɵɵadvance(1);
-    ɵɵattribute("aria-label", node_r19.type + "icon");
+    ɵɵattribute("aria-label", node_r21.type + "icon");
     ɵɵadvance(2);
-    ɵɵtextInterpolate1(" ", node_r19.name, " ");
+    ɵɵtextInterpolate1(" ", node_r21.name, " ");
     ɵɵadvance(1);
-    ɵɵproperty("ngIf", node_r19.type === "folder");
+    ɵɵproperty("ngIf", node_r21.type === "folder");
     ɵɵadvance(1);
-    ɵɵproperty("ngIf", node_r19.type === "folder");
+    ɵɵproperty("ngIf", node_r21.type === "folder");
 } }
 /**
  * File node data with nested structure.
@@ -1426,6 +1487,159 @@ class FileDatabase {
         map['root'].isFolder = true;
         return map['root'];
     }
+    deleteItem(node) {
+        this.deleteNode(this.data.children, node);
+        this.dataChange.next(this.data);
+    }
+    deleteNode(nodes, nodeToDelete) {
+        const index = nodes.indexOf(nodeToDelete, 0);
+        if (index > -1) {
+            nodes.splice(index, 1);
+        }
+        else {
+            nodes.forEach(node => {
+                if (node.children && node.children.length > 0) {
+                    this.deleteNode(node.children, nodeToDelete);
+                }
+            });
+        }
+    }
+    copyPasteItem(from, to) {
+        const newItem = this.insertItem(to, from);
+        return newItem;
+    }
+    copyPasteItemAbove(from, to) {
+        const newItem = this.insertItemAbove(to, from);
+        return newItem;
+    }
+    copyPasteItemBelow(from, to) {
+        const newItem = this.insertItemBelow(to, from);
+        return newItem;
+    }
+    /** Add an item to to-do list */
+    insertItem(parent, node) {
+        if (!parent.children) {
+            parent.children = [];
+        }
+        const newItem = {
+            name: node.name,
+            children: node.children,
+            type: node.type,
+            id: node.id,
+            active: node.active,
+            cartographyId: node.cartographyId,
+            cartographyName: node.cartographyName,
+            datasetURL: node.datasetURL,
+            description: node.description,
+            filterGetFeatureInfo: node.filterGetFeatureInfo,
+            filterGetMap: node.filterGetMap,
+            filterSelectable: node.filterSelectable,
+            isFolder: node.isFolder,
+            metadataURL: node.metadataURL,
+            order: node.order,
+            parent: parent.id == undefined ? null : parent.id,
+            queryableActive: node.queryableActive,
+            radio: node.radio,
+            tooltip: node.tooltip,
+            _links: node._links
+        };
+        parent.children.push(newItem);
+        this.dataChange.next(this.data);
+        return newItem;
+    }
+    insertItemAbove(node, nodeDrag) {
+        const parentNode = this.getParentFromNodes(node);
+        const newItem = {
+            name: nodeDrag.name,
+            children: nodeDrag.children,
+            type: nodeDrag.type,
+            id: nodeDrag.id,
+            active: nodeDrag.active,
+            cartographyId: nodeDrag.cartographyId,
+            cartographyName: nodeDrag.cartographyName,
+            datasetURL: nodeDrag.datasetURL,
+            description: nodeDrag.description,
+            filterGetFeatureInfo: nodeDrag.filterGetFeatureInfo,
+            filterGetMap: nodeDrag.filterGetMap,
+            filterSelectable: nodeDrag.filterSelectable,
+            isFolder: nodeDrag.isFolder,
+            metadataURL: nodeDrag.metadataURL,
+            order: nodeDrag.order,
+            parent: parentNode.id == undefined ? null : parentNode.id,
+            queryableActive: nodeDrag.queryableActive,
+            radio: nodeDrag.radio,
+            tooltip: nodeDrag.tooltip,
+            _links: nodeDrag._links
+        };
+        if (parentNode != null) {
+            parentNode.children.splice(parentNode.children.indexOf(node), 0, newItem);
+        }
+        else {
+            this.data.children.splice(this.data.children.indexOf(node), 0, newItem);
+        }
+        this.dataChange.next(this.data);
+        return newItem;
+    }
+    insertItemBelow(node, nodeDrag) {
+        const parentNode = this.getParentFromNodes(node);
+        const newItem = {
+            name: nodeDrag.name,
+            children: nodeDrag.children,
+            type: nodeDrag.type,
+            id: nodeDrag.id,
+            active: nodeDrag.active,
+            cartographyId: nodeDrag.cartographyId,
+            cartographyName: nodeDrag.cartographyName,
+            datasetURL: nodeDrag.datasetURL,
+            description: nodeDrag.description,
+            filterGetFeatureInfo: nodeDrag.filterGetFeatureInfo,
+            filterGetMap: nodeDrag.filterGetMap,
+            filterSelectable: nodeDrag.filterSelectable,
+            isFolder: nodeDrag.isFolder,
+            metadataURL: nodeDrag.metadataURL,
+            order: nodeDrag.order,
+            parent: parentNode.id == undefined ? null : parentNode.id,
+            queryableActive: nodeDrag.queryableActive,
+            radio: nodeDrag.radio,
+            tooltip: nodeDrag.tooltip,
+            _links: nodeDrag._links
+        };
+        if (parentNode != null) {
+            parentNode.children.splice(parentNode.children.indexOf(node) + 1, 0, newItem);
+        }
+        else {
+            this.data.children.splice(this.data.children.indexOf(node) + 1, 0, newItem);
+        }
+        this.dataChange.next(this.data);
+        return newItem;
+    }
+    getParentFromNodes(node) {
+        for (let i = 0; i < this.data.children.length; ++i) {
+            const currentRoot = this.data.children[i];
+            const parent = this.getParent(currentRoot, node);
+            if (parent != null) {
+                return parent;
+            }
+        }
+        return null;
+    }
+    getParent(currentRoot, node) {
+        if (currentRoot.children && currentRoot.children.length > 0) {
+            for (let i = 0; i < currentRoot.children.length; ++i) {
+                const child = currentRoot.children[i];
+                if (child === node) {
+                    return currentRoot;
+                }
+                else if (child.children && child.children.length > 0) {
+                    const parent = this.getParent(child, node);
+                    if (parent != null) {
+                        return parent;
+                    }
+                }
+            }
+        }
+        return null;
+    }
 }
 /** @nocollapse */ FileDatabase.ɵfac = function FileDatabase_Factory(t) { return new (t || FileDatabase)(); };
 /** @nocollapse */ FileDatabase.ɵprov = ɵɵdefineInjectable({ token: FileDatabase, factory: FileDatabase.ɵfac });
@@ -1443,13 +1657,19 @@ class DataTreeComponent {
         this.dragging = false;
         this.expandDelay = 1000;
         this.validateDrop = false;
+        this.dragNodeExpandOverWaitTimeMs = 1500;
+        /** Map from flat node to nested node. This helps us finding the nested node to be modified */
+        this.flatNodeMap = new Map();
+        /** Map from nested node to flattened node. This helps us to keep the same object for selection */
+        this.nestedNodeMap = new Map();
         this.transformer = (node, level) => {
-            if (node.children.length != 0) {
-                return new FileFlatNode(!!node.children, node.name, level, node.type, node.id);
-            }
-            else {
-                return new FileFlatNode(!!undefined, node.name, level, node.type, node.id);
-            }
+            const existingNode = this.nestedNodeMap.get(node);
+            const flatNode = existingNode && existingNode.name === node.name
+                ? existingNode
+                : new FileFlatNode((node.children && node.children.length > 0), node.name, level, node.type, node.id);
+            this.flatNodeMap.set(flatNode, node);
+            this.nestedNodeMap.set(node, flatNode);
+            return flatNode;
         };
         this._getLevel = (node) => node.level;
         this._isExpandable = (node) => node.expandable;
@@ -1519,69 +1739,64 @@ class DataTreeComponent {
         });
         return result;
     }
-    /**
-     * Handle the drop - here we rearrange the data based on the drop event,
-     * then rebuild the tree.
-     * */
-    drop(event) {
-        // console.log('origin/destination', event.previousIndex, event.currentIndex);
-        // ignore drops outside of the tree
-        if (!event.isPointerOverContainer)
-            return;
-        // construct a list of visible nodes, this will match the DOM.
-        // the cdkDragDrop event.currentIndex jives with visible nodes.
-        // it calls rememberExpandedTreeNodes to persist expand state
-        const visibleNodes = this.visibleNodes();
-        // deep clone the data source so we can mutate it
-        const changedData = JSON.parse(JSON.stringify(this.dataSource.data));
-        // recursive find function to find siblings of node
-        // determine where to insert the node
-        const nodeAtDest = visibleNodes[event.currentIndex];
-        const newSiblings = this.findNodeSiblings(changedData[0].children, nodeAtDest.id);
-        if (!newSiblings)
-            return;
-        const insertIndex = newSiblings.findIndex(s => s.id === nodeAtDest.id) - 1;
-        // remove the node from its old place
-        const node = event.item.data;
-        const siblings = this.findNodeSiblings(changedData[0].children, node.id);
-        const siblingIndex = siblings.findIndex(n => n.id === node.id) - 1;
-        const nodeToInsertObj = siblings.splice(siblingIndex, 1)[0];
-        nodeToInsertObj.status = "Modified";
-        const nodeToInsert = siblings.splice(siblingIndex, 1)[0];
-        if (nodeAtDest.id === nodeToInsert.id)
-            return;
-        // ensure validity of drop - must be same level
-        const nodeAtDestFlatNode = this.treeControl.dataNodes.find((n) => nodeAtDest.id === n.id);
-        if (this.validateDrop && nodeAtDestFlatNode.level !== node.level) {
-            alert('Items can only be moved within the same level.');
-            return;
+    handleDragStart(event, node) {
+        // Required by Firefox (https://stackoverflow.com/questions/19055264/why-doesnt-html5-drag-and-drop-work-in-firefox)
+        event.dataTransfer.setData('foo', 'bar');
+        event.dataTransfer.setDragImage(this.emptyItem.nativeElement, 0, 0);
+        this.dragNode = node;
+        this.treeControl.collapse(node);
+    }
+    handleDragOver(event, node) {
+        event.preventDefault();
+        // Handle node expand
+        if (node === this.dragNodeExpandOverNode) {
+            if (this.dragNode !== node && !this.treeControl.isExpanded(node)) {
+                if ((new Date().getTime() - this.dragNodeExpandOverTime) > this.dragNodeExpandOverWaitTimeMs) {
+                    this.treeControl.expand(node);
+                }
+            }
         }
-        // insert node 
-        newSiblings.splice(insertIndex, 0, nodeToInsert);
-        // rebuild tree with mutated data
-        this.rebuildTreeForData(changedData);
-    }
-    /**
-     * Experimental - opening tree nodes as you drag over them
-     */
-    dragStart() {
-        this.dragging = true;
-    }
-    dragEnd() {
-        this.dragging = false;
-    }
-    dragHover(node) {
-        if (this.dragging) {
-            clearTimeout(this.expandTimeout);
-            this.expandTimeout = setTimeout(() => {
-                this.treeControl.expand(node);
-            }, this.expandDelay);
+        else {
+            this.dragNodeExpandOverNode = node;
+            this.dragNodeExpandOverTime = new Date().getTime();
+        }
+        // Handle drag area
+        const percentageX = event.offsetX / event.target.clientWidth;
+        const percentageY = event.offsetY / event.target.clientHeight;
+        if (percentageY < 0.25) {
+            this.dragNodeExpandOverArea = 'above';
+        }
+        else if (percentageY > 0.75) {
+            this.dragNodeExpandOverArea = 'below';
+        }
+        else {
+            this.dragNodeExpandOverArea = 'center';
         }
     }
-    dragHoverEnd() {
-        if (this.dragging) {
-            clearTimeout(this.expandTimeout);
+    handleDrop(event, node) {
+        event.preventDefault();
+        if (node !== this.dragNode) {
+            let newItem;
+            if (this.dragNodeExpandOverArea === 'above') {
+                newItem = this.database.copyPasteItemAbove(this.flatNodeMap.get(this.dragNode), this.flatNodeMap.get(node));
+            }
+            else if (this.dragNodeExpandOverArea === 'below') {
+                newItem = this.database.copyPasteItemBelow(this.flatNodeMap.get(this.dragNode), this.flatNodeMap.get(node));
+            }
+            else {
+                newItem = this.database.copyPasteItem(this.flatNodeMap.get(this.dragNode), this.flatNodeMap.get(node));
+            }
+            this.database.deleteItem(this.flatNodeMap.get(this.dragNode));
+            this.treeControl.expandDescendants(this.nestedNodeMap.get(newItem));
         }
+        this.dragNode = null;
+        this.dragNodeExpandOverNode = null;
+        this.dragNodeExpandOverTime = 0;
+    }
+    handleDragEnd(event) {
+        this.dragNode = null;
+        this.dragNodeExpandOverNode = null;
+        this.dragNodeExpandOverTime = 0;
     }
     /**
      * The following methods are for persisting the tree expand state
@@ -1658,27 +1873,37 @@ class DataTreeComponent {
     onButtonClicked(id, button) {
         const changedData = JSON.parse(JSON.stringify(this.dataSource.data));
         const siblings = this.findNodeSiblings(changedData, id);
+        let nodeClicked = siblings.find(node => node.id === id);
         if (button === 'edit') {
-            this.emitNode.emit(siblings.find(node => node.id === id));
+            this.emitNode.emit(nodeClicked);
         }
         else if (button === 'newFolder') {
-            this.createFolder.emit(siblings.find(node => node.id === id));
+            this.createFolder.emit(nodeClicked);
         }
         else if (button === 'newNode') {
-            this.createNode.emit(siblings.find(node => node.id === id));
+            this.createNode.emit(nodeClicked);
+        }
+        else if (button === 'delete') {
+            let children = this.getAllChildren(nodeClicked.children);
+            children.forEach(children => {
+                children.status = 'Deleted';
+            });
+            nodeClicked.children = children;
+            nodeClicked.status = 'Deleted';
+            this.rebuildTreeForData(changedData);
         }
     }
     emitAllRows() {
         const dataToEmit = JSON.parse(JSON.stringify(this.dataSource.data));
-        let allRows = this.getChildren(dataToEmit);
+        let allRows = this.getAllChildren(dataToEmit);
         this.emitAllNodes.emit(allRows);
     }
-    getChildren(arr) {
+    getAllChildren(arr) {
         let result = [];
         let subResult;
         arr.forEach((item, i) => {
             if (item.children.length > 0) {
-                subResult = this.getChildren(item.children);
+                subResult = this.getAllChildren(item.children);
                 if (subResult)
                     result.push(...subResult);
             }
@@ -1688,17 +1913,22 @@ class DataTreeComponent {
     }
 }
 /** @nocollapse */ DataTreeComponent.ɵfac = function DataTreeComponent_Factory(t) { return new (t || DataTreeComponent)(ɵɵdirectiveInject(FileDatabase)); };
-/** @nocollapse */ DataTreeComponent.ɵcmp = ɵɵdefineComponent({ type: DataTreeComponent, selectors: [["app-data-tree"]], inputs: { eventNodeUpdatedSubscription: "eventNodeUpdatedSubscription", eventCreateNodeSubscription: "eventCreateNodeSubscription", eventGetAllRowsSubscription: "eventGetAllRowsSubscription", getAll: "getAll" }, outputs: { createNode: "createNode", createFolder: "createFolder", emitNode: "emitNode", emitAllNodes: "emitAllNodes" }, features: [ɵɵProvidersFeature([FileDatabase])], decls: 3, vars: 3, consts: [["cdkDropList", "", 3, "dataSource", "treeControl", "cdkDropListDropped"], ["matTreeNodeToggle", "", "matTreeNodePadding", "", "cdkDrag", "", 3, "cdkDragData", "mouseenter", "mouseleave", "cdkDragStarted", "cdkDragReleased", 4, "matTreeNodeDef"], ["matTreeNodePadding", "", "cdkDrag", "", 3, "cdkDragData", "mouseenter", "mouseleave", "cdkDragStarted", "cdkDragReleased", 4, "matTreeNodeDef", "matTreeNodeDefWhen"], ["matTreeNodeToggle", "", "matTreeNodePadding", "", "cdkDrag", "", 3, "cdkDragData", "mouseenter", "mouseleave", "cdkDragStarted", "cdkDragReleased"], ["mat-icon-button", "", "disabled", ""], ["class", "type-icon", 4, "ngIf"], ["mat-icon-button", "", 3, "click", 4, "ngIf"], ["mat-icon-button", "", 3, "click"], [1, "type-icon"], ["matTreeNodePadding", "", "cdkDrag", "", 3, "cdkDragData", "mouseenter", "mouseleave", "cdkDragStarted", "cdkDragReleased"], ["mat-icon-button", "", "matTreeNodeToggle", "", 3, "click"], [1, "mat-icon-rtl-mirror"]], template: function DataTreeComponent_Template(rf, ctx) { if (rf & 1) {
+/** @nocollapse */ DataTreeComponent.ɵcmp = ɵɵdefineComponent({ type: DataTreeComponent, selectors: [["app-data-tree"]], viewQuery: function DataTreeComponent_Query(rf, ctx) { if (rf & 1) {
+        ɵɵviewQuery(_c0$2, true);
+    } if (rf & 2) {
+        var _t;
+        ɵɵqueryRefresh(_t = ɵɵloadQuery()) && (ctx.emptyItem = _t.first);
+    } }, inputs: { eventNodeUpdatedSubscription: "eventNodeUpdatedSubscription", eventCreateNodeSubscription: "eventCreateNodeSubscription", eventGetAllRowsSubscription: "eventGetAllRowsSubscription", getAll: "getAll" }, outputs: { createNode: "createNode", createFolder: "createFolder", emitNode: "emitNode", emitAllNodes: "emitAllNodes" }, features: [ɵɵProvidersFeature([FileDatabase])], decls: 5, vars: 3, consts: [[3, "dataSource", "treeControl"], ["matTreeNodeToggle", "", "matTreeNodePadding", "", "draggable", "true", 3, "ngClass", "dragstart", "dragover", "drop", "dragend", 4, "matTreeNodeDef"], ["matTreeNodePadding", "", "draggable", "true", 3, "ngClass", "dragstart", "dragover", "drop", "dragend", 4, "matTreeNodeDef", "matTreeNodeDefWhen"], ["emptyItem", ""], ["matTreeNodeToggle", "", "matTreeNodePadding", "", "draggable", "true", 3, "ngClass", "dragstart", "dragover", "drop", "dragend"], ["mat-icon-button", "", "disabled", ""], ["class", "type-icon", 4, "ngIf"], ["mat-icon-button", "", 3, "click", 4, "ngIf"], ["mat-icon-button", "", 3, "click"], [1, "type-icon"], ["matTreeNodePadding", "", "draggable", "true", 3, "ngClass", "dragstart", "dragover", "drop", "dragend"], ["mat-icon-button", "", "matTreeNodeToggle", "", 3, "click"], [1, "mat-icon-rtl-mirror"]], template: function DataTreeComponent_Template(rf, ctx) { if (rf & 1) {
         ɵɵelementStart(0, "mat-tree", 0);
-        ɵɵlistener("cdkDropListDropped", function DataTreeComponent_Template_mat_tree_cdkDropListDropped_0_listener($event) { return ctx.drop($event); });
-        ɵɵtemplate(1, DataTreeComponent_mat_tree_node_1_Template, 9, 5, "mat-tree-node", 1);
-        ɵɵtemplate(2, DataTreeComponent_mat_tree_node_2_Template, 12, 7, "mat-tree-node", 2);
+        ɵɵtemplate(1, DataTreeComponent_mat_tree_node_1_Template, 12, 9, "mat-tree-node", 1);
+        ɵɵtemplate(2, DataTreeComponent_mat_tree_node_2_Template, 15, 11, "mat-tree-node", 2);
         ɵɵelementEnd();
+        ɵɵelement(3, "span", null, 3);
     } if (rf & 2) {
         ɵɵproperty("dataSource", ctx.dataSource)("treeControl", ctx.treeControl);
         ɵɵadvance(2);
         ɵɵproperty("matTreeNodeDefWhen", ctx.hasChild);
-    } }, directives: [MatTree, CdkDropList, MatTreeNodeDef, MatTreeNode, MatTreeNodeToggle, MatTreeNodePadding, CdkDrag, MatButton, NgIf, MatIcon], styles: [".mat-tree-node[_ngcontent-%COMP%]{-moz-user-select:none;-ms-user-select:none;-webkit-user-select:none;cursor:move;user-select:none}.mat-tree-node.cdk-drag-preview[_ngcontent-%COMP%]{box-shadow:0 7px 8px -4px rgba(0,0,0,.2),0 12px 17px 2px rgba(0,0,0,.14),0 5px 22px 4px rgba(0,0,0,.12)}.mat-tree-node.cdk-drag-placeholder[_ngcontent-%COMP%]{opacity:0}.cdk-drop-list-dragging[_ngcontent-%COMP%]   .mat-tree-node[_ngcontent-%COMP%]:not(.cdk-drag-placeholder){transition:transform .25s cubic-bezier(0,0,.2,1)}.cdk-drag-animating[_ngcontent-%COMP%]{transition:transform .2s cubic-bezier(0,0,.2,1)}"] });
+    } }, directives: [MatTree, MatTreeNodeDef, MatTreeNode, MatTreeNodeToggle, MatTreeNodePadding, NgClass, MatButton, NgIf, MatIcon], styles: [".mat-tree-node[_ngcontent-%COMP%]{-moz-user-select:none;-ms-user-select:none;-webkit-user-select:none;cursor:move;user-select:none}.mat-tree-node.cdk-drag-preview[_ngcontent-%COMP%]{box-shadow:0 7px 8px -4px rgba(0,0,0,.2),0 12px 17px 2px rgba(0,0,0,.14),0 5px 22px 4px rgba(0,0,0,.12)}.mat-tree-node.cdk-drag-placeholder[_ngcontent-%COMP%]{opacity:0}.cdk-drop-list-dragging[_ngcontent-%COMP%]   .mat-tree-node[_ngcontent-%COMP%]:not(.cdk-drag-placeholder){transition:transform .25s cubic-bezier(0,0,.2,1)}.cdk-drag-animating[_ngcontent-%COMP%]{transition:transform .2s cubic-bezier(0,0,.2,1)}.drop-above[_ngcontent-%COMP%]{border-top:10px solid #ddd;margin-top:-10px}.drop-below[_ngcontent-%COMP%]{border-bottom:10px solid #ddd;margin-bottom:-10px}.drop-center[_ngcontent-%COMP%]{background-color:#ddd}"] });
 /*@__PURE__*/ (function () { ɵsetClassMetadata(DataTreeComponent, [{
         type: Component,
         args: [{
@@ -1723,6 +1953,9 @@ class DataTreeComponent {
             type: Input
         }], getAll: [{
             type: Input
+        }], emptyItem: [{
+            type: ViewChild,
+            args: ['emptyItem']
         }] }); })();
 
 registerLocaleData(localeCa, 'ca');

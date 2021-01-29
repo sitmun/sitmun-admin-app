@@ -10,6 +10,10 @@
       <mat-icon fontSet="material-icons-round"  > save </mat-icon>
       {{ "save" | translate }}
     </button>
+    <button (click)="utils.navigateBack()"  mat-flat-button class="returnButton"  >
+      <mat-icon fontSet="material-icons-round"> arrow_back </mat-icon>
+      {{ "return" | translate }}
+    </button>
   </div>
   <span class="divider"></span>
   <form [formGroup]='formConnection' #f="ngForm"> 
@@ -107,7 +111,7 @@
             <app-data-grid [columnDefs]="columnDefsTasks" [themeGrid]='themeGrid' [getAll]='getAllTasks'
             [eventAddItemsSubscription]='addElementsEventTasks.asObservable()' [eventRefreshSubscription]='dataUpdatedEvent.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventTasks.asObservable()' [discardChangesButton]=true [redoButton]=true 
-            [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
+            [eventRefreshSubscription]='dataUpdatedEventTasks.asObservable()' [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
             [actionButton]=true (add)="openTasksDialog($event)"  (getAllRows)="getAllRowsTasks($event)"> </app-data-grid>
         </div>
     </ng-template>

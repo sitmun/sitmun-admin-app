@@ -13,7 +13,7 @@ import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
   styleUrls: ['./territory.component.scss']
 })
 export class TerritoryComponent implements OnInit {
-
+  saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
   dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
   themeGrid: any = environment.agGridTheme;
   columnDefs: any[];
@@ -76,6 +76,7 @@ export class TerritoryComponent implements OnInit {
   }
 
   newData(id: any) {
+    this.saveAgGridStateEvent.next(true);
     this.router.navigate(['territory', id, 'territoryForm']);
   }
 
@@ -93,6 +94,7 @@ export class TerritoryComponent implements OnInit {
     const promises: Promise<any>[] = [];
     data.forEach(territory => {
       territory.id = null;
+      territory.name = 'copia_'.concat(territory.name)
       promises.push(new Promise((resolve, reject) => { this.territoryService.create(territory).toPromise().then((resp) => { resolve() }) }));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);

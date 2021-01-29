@@ -13,7 +13,7 @@ import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
   styleUrls: ['./application.component.scss']
 })
 export class ApplicationComponent implements OnInit {
-
+  saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
   dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
   themeGrid: any = environment.agGridTheme;
   columnDefs: any[];
@@ -70,6 +70,7 @@ export class ApplicationComponent implements OnInit {
   }
 
   newData(id: any) {
+    this.saveAgGridStateEvent.next(true);
     this.router.navigate(['application', id, 'applicationForm']);
   }
 
@@ -87,7 +88,8 @@ export class ApplicationComponent implements OnInit {
     const promises: Promise<any>[] = [];
     data.forEach(application => {
       application.id = null;
-      application.createdDate=new Date()
+      application.createdDate=new Date();
+      application.name = 'copia_'.concat(application.name)
       promises.push(new Promise((resolve, reject) => { this.applicationService.create(application).toPromise().then((resp) => { resolve() }) }));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);

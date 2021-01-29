@@ -11,6 +11,10 @@
       <mat-icon fontSet="material-icons-round"  > save </mat-icon>
       {{ "save" | translate }}
     </button>
+    <button (click)="utils.navigateBack()"  mat-flat-button class="returnButton"  >
+      <mat-icon fontSet="material-icons-round"> arrow_back </mat-icon>
+      {{ "return" | translate }}
+    </button>
   </div>
   <span class="divider"></span>
   <form [formGroup]='userForm' #f="ngForm"> 
@@ -98,7 +102,7 @@
       <div class="appDataGridEditDiv">
           <app-data-grid [columnDefs]="columnDefsPermits" [themeGrid]='themeGrid' [getAll]='getAllPermits'  
           [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventPermits.asObservable()' 
-          [eventAddItemsSubscription]='addElementsEventPermits.asObservable()'
+          [eventRefreshSubscription]='dataUpdatedEventPermits.asObservable()' [eventAddItemsSubscription]='addElementsEventPermits.asObservable()'
            [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true 
           (getAllRows)="getAllRowsPermits($event)" [actionButton]=true  (add)="openPermitsDialog($event)"  > </app-data-grid>
       </div>
@@ -120,7 +124,7 @@
       <div class="appDataGridEditDiv">
           <app-data-grid [columnDefs]="columnDefsData" [themeGrid]='themeGrid' [getAll]='getAllDataTerritory'  
           [eventAddItemsSubscription]='addElementsEventTerritoryData.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventTerritoryData.asObservable()' 
-          [discardChangesButton]=true [redoButton]=true
+          [eventRefreshSubscription]='dataUpdatedEventTerritoryData.asObservable()' [discardChangesButton]=true [redoButton]=true
           [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
           (getAllRows)="getAllRowsDataTerritories($event)" [actionButton]=true (add)="openTerritoryDataDialog($event)"> </app-data-grid>
       </div>

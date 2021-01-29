@@ -40,9 +40,11 @@ export class ServiceFormComponent implements OnInit {
   themeGrid: any = environment.agGridTheme;
   columnDefsParameters: any[];
   getAllElementsEventParameters: Subject<boolean> = new Subject <boolean>();
+  dataUpdatedEventParameters: Subject<boolean> = new Subject<boolean>();
 
   columnDefsLayers: any[];
   getAllElementsEventLayers: Subject<boolean> = new Subject <boolean>();
+  dataUpdatedEventLayers: Subject<boolean> = new Subject<boolean>();
 
   //Dialogs
   columnDefsParametersDialog: any[];
@@ -65,7 +67,7 @@ export class ServiceFormComponent implements OnInit {
     private router: Router,
     private serviceService: ServiceService,
     private http: HttpClient,
-    private utils: UtilsService,
+    public utils: UtilsService,
     public dialog: MatDialog,
     public cartographyService: CartographyService,
     public serviceParameterService: ServiceParameterService,
@@ -150,7 +152,7 @@ export class ServiceFormComponent implements OnInit {
       { headerName: this.utils.getTranslate('serviceEntity.request'), field: 'type', editable:false },
       { headerName: this.utils.getTranslate('serviceEntity.parameter'), field: 'name', },
       { headerName: this.utils.getTranslate('serviceEntity.value'), field: 'value' },
-      { headerName: this.utils.getTranslate('serviceEntity.status'), field: 'status' },
+      { headerName: this.utils.getTranslate('serviceEntity.status'), field: 'status', editable:false },
 
 
     ];
@@ -161,7 +163,7 @@ export class ServiceFormComponent implements OnInit {
       { headerName: 'Id', field: 'id' },
       { headerName: this.utils.getTranslate('serviceEntity.name'), field: 'name' },
       { headerName: this.utils.getTranslate('serviceEntity.description'), field: 'description', },
-      { headerName: this.utils.getTranslate('serviceEntity.status'), field: 'status' },
+      { headerName: this.utils.getTranslate('serviceEntity.status'), field: 'status', editable:false },
 
     ];
 
@@ -274,28 +276,37 @@ export class ServiceFormComponent implements OnInit {
           parameter.service=this.serviceToEdit} //If is new, you need the service link
           parameterToSave.push(parameter)
       }
-      if(parameter.status === 'Deleted') {parameterToDelete.push(parameter) }
+      if(parameter.status === 'Deleted' && parameter._links) {parameterToDelete.push(parameter) }
     });
-
+    const promises: Promise<any>[] = [];
     parameterToSave.forEach(saveElement => {
-
-      this.serviceParameterService.save(saveElement).subscribe(
-        result => {
-          console.log(result)
-        }
-      )
-
+      promises.push(new Promise((resolve, reject) => {  this.serviceParameterService.save(saveElement).toPromise().then((resp) => { resolve() }) }));
     });
 
     parameterToDelete.forEach(deletedElement => {
-
-      this.serviceParameterService.remove(deletedElement).subscribe(
-        result => {
-          console.log(result)
-        }
-      )
-      
+      promises.push(new Promise((resolve, reject) => {  this.serviceParameterService.remove(deletedElement).toPromise().then((resp) => { resolve() }) }));    
     });
+
+    Promise.all(promises).then(() => {
+      this.dataUpdatedEventParameters.next(true);
+    });
+	
+  }
+
+  duplicateParameters(data)
+  {
+    let parametersToDuplicate= []
+    data.forEach(parameter => {
+      let newParameter={
+        name: 'copia_'.concat(parameter.name),
+        type: parameter.type,
+        value: parameter.value
+      }
+      
+      
+      parametersToDuplicate.push(newParameter);
+    });
+    this.addElementsEventParameters.next(parametersToDuplicate);
   }
 
   // ******** Layers ******** //
@@ -342,7 +353,7 @@ export class ServiceFormComponent implements OnInit {
     });
     Promise.all(promises).then(() => {
       let url=this.serviceToEdit._links.layers.href.split('{', 1)[0];
-      this.utils.updateUriList(url,layersToPut)
+      this.utils.updateUriList(url,layersToPut, this.dataUpdatedEventLayers)
     });
   }
 
@@ -418,7 +429,7 @@ export class ServiceFormComponent implements OnInit {
       console.log(resp);
       this.serviceToEdit=resp;
       this.getAllElementsEventParameters.next(true);
-      // this.getAllElementsEventLayers.next(true);
+      this.getAllElementsEventLayers.next(true);
     },
     error=> {
       console.log(error);

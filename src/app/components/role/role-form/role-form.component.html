@@ -13,6 +13,10 @@
       <mat-icon fontSet="material-icons-round"> save </mat-icon>
       {{ "save" | translate }}
     </button>
+    <button (click)="utils.navigateBack()"  mat-flat-button class="returnButton"  >
+      <mat-icon fontSet="material-icons-round"> arrow_back </mat-icon>
+      {{ "return" | translate }}
+    </button>
   </div>
   <span class="divider"></span>
   <form [formGroup]='formRole' #f="ngForm">
@@ -59,7 +63,7 @@
             <app-data-grid [columnDefs]="columnDefsUsers" [themeGrid]='themeGrid' [getAll]='getAllUsers'  
             [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' 
             [eventAddItemsSubscription]='addElementsEventUsers.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventUsers.asObservable()' 
-            [discardChangesButton]=true [redoButton]=true [undoButton]=true  
+            [eventRefreshSubscription]='dataUpdatedEventUsers.asObservable()'[discardChangesButton]=true [redoButton]=true [undoButton]=true  
             [deleteButton]=true [addButton]=true [hideDuplicateButton]=true [actionButton]=true (add)="openUsersDialog($event)"
             (getAllRows)="getAllRowsUsers($event)"    > </app-data-grid>
         </div>
@@ -80,8 +84,8 @@
           <app-data-grid [columnDefs]="columnDefsCartography" [themeGrid]='themeGrid' [getAll]='getAllCartographiesGroups'
           [eventAddItemsSubscription]='addElementsEventCartographies.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventCartographies.asObservable()' 
            [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true
-            [hideDuplicateButton]=true [actionButton]=true (add)="openCartographyDialog($event)"
-            (getAllRows)="getAllRowsCartographies($event)"> </app-data-grid>
+           [eventRefreshSubscription]='dataUpdatedEventCartographies.asObservable()' [hideDuplicateButton]=true [actionButton]=true (add)="openCartographyDialog($event)"
+            (getAllRows)="getAllRowsCartographiesGroups($event)"> </app-data-grid>
         </div>
 
       </ng-template>
@@ -100,7 +104,7 @@
           <app-data-grid [columnDefs]="columnDefsTasks" [themeGrid]='themeGrid' [getAll]='getAllTasks'
           [eventAddItemsSubscription]='addElementsEventTasks.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventTasks.asObservable()' 
            [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true
-            [hideDuplicateButton]=true [actionButton]=true (add)="openTasksDialog($event)"
+           [eventRefreshSubscription]='dataUpdatedEventTasks.asObservable()' [hideDuplicateButton]=true [actionButton]=true (add)="openTasksDialog($event)"
             (getAllRows)="getAllRowsTasks($event)" > </app-data-grid>
         </div>
 
@@ -121,7 +125,7 @@
           <app-data-grid [columnDefs]="columnDefsApplications" [themeGrid]='themeGrid' [getAll]='getAllApplications'
           [eventAddItemsSubscription]='addElementsEventApplications.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventApplications.asObservable()' 
            [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true
-            [hideDuplicateButton]=true [actionButton]=true (add)="openApplicationsDialog($event)"
+           [eventRefreshSubscription]='dataUpdatedEventApplications.asObservable()' [hideDuplicateButton]=true [actionButton]=true (add)="openApplicationsDialog($event)"
             (getAllRows)="getAllRowsApplications($event)" > </app-data-grid>
         </div>
 

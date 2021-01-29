@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { TaskService, Task } from '@sitmun/frontend-core';
+import { TaskService, Task, TaskGroupService } from '@sitmun/frontend-core';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
@@ -13,13 +13,14 @@ import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
   styleUrls: ['./tasks.component.scss']
 })
 export class TasksComponent implements OnInit {
-
+  saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
   dataUpdatedEvent: Subject<boolean> = new Subject <boolean>();
   themeGrid: any = environment.agGridTheme;
   columnDefs: any[];
 
   constructor(public dialog: MatDialog,
     public tasksService: TaskService,
+    public taskGroupService: TaskGroupService,
     private utils: UtilsService,
     private router: Router,
   ) { }
@@ -47,6 +48,7 @@ export class TasksComponent implements OnInit {
   };
 
   newData(id: any) {
+    this.saveAgGridStateEvent.next(true);
     // this.router.navigate(['tasks', id, 'tasksForm']);
   }
 
@@ -63,11 +65,24 @@ export class TasksComponent implements OnInit {
   add(data: Task[]) {
     const promises: Promise<any>[] = [];
     data.forEach(task => {
-      task.id = null;
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.tasksService.create(task).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
-      });
+      let newTask: any = task;
+      newTask.id = null;
+      newTask.name = 'copia_'.concat(newTask.name)
+      this.taskGroupService.get(newTask.groupId).subscribe(
+        result => {
+          newTask.group=result;
+          newTask._links= null;
+          console.log(newTask)
+          promises.push(new Promise((resolve, reject) => {​​​​​​​ this.tasksService.create(newTask).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+          Promise.all(promises).then(() => {
+            this.dataUpdatedEvent.next(true);
+          });
+        },
+        error => {
+          console.log(error)
+        }
+      )
+
     });
 
   }
