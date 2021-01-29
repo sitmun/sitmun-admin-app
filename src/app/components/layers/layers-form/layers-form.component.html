@@ -216,6 +216,27 @@
 <div class="tableDiv" *ngIf="layerID==-1 || dataLoaded">
   <mat-accordion  multi>
 
+    
+
+    <!-- Spatial selection table -->
+    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+        <mat-panel-title  >
+          {{ "layersEntity.spatialSelection" | translate }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+  
+    <ng-template matExpansionPanelContent>  
+      <div class="appDataGridEditDiv">
+          <app-data-grid  [columnDefs]="columnDefsSpatialConfigurations" [themeGrid]='themeGrid' [getAll]='getAllSpatialConfigurations'  
+          [eventAddItemsSubscription]='addElementsEventSpatialConfigurations.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventSpatialConfigurations.asObservable()' 
+          [eventRefreshSubscription]='dataUpdatedEventSpatialConfigurations.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true [hideDuplicateButton]=true  
+          (getAllRows)="getAllRowsParameters($event)" [actionButton]=true (new)="openSpatialSelectionDialog($event)"  > </app-data-grid>
+      </div>
+    </ng-template>
+    </mat-expansion-panel>
+
+
     <!-- Parameters configuration table -->
     <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
       <mat-expansion-panel-header class="agGridExpansionPanelTitle">
@@ -230,25 +251,6 @@
           [eventAddItemsSubscription]='addElementsEventParameters.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventParameters.asObservable()' 
           [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
           (getAllRows)="getAllRowsParameters($event)" [actionButton]=true (duplicate)='duplicateParameters($event)'  (new)="openParametersDialog($event)"  > </app-data-grid>
-      </div>
-    </ng-template>
-    </mat-expansion-panel>
-
-
-    <!-- Spatial selection table -->
-    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
-      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-        <mat-panel-title  >
-          {{ "layersEntity.spatialSelection" | translate }}
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-  
-    <ng-template matExpansionPanelContent>  
-      <div class="appDataGridEditDiv">
-          <app-data-grid  [columnDefs]="columnDefsSpatialConfigurations" [themeGrid]='themeGrid' [getAll]='getAllSpatialConfigurations'  
-          [eventAddItemsSubscription]='addElementsEventSpatialConfigurations.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventSpatialConfigurations.asObservable()' 
-          [eventRefreshSubscription]='dataUpdatedEventSpatialConfigurations.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true  
-          (getAllRows)="getAllRowsSpatialConfiguration($event)" [actionButton]=true (add)="openSpatialSelectionDialog($event)"  > </app-data-grid>
       </div>
     </ng-template>
     </mat-expansion-panel>
@@ -358,27 +360,7 @@
           </mat-select>
         </mat-form-field>
       </div>
-      
 
-
-      <div class="colFormDiv" >
-        <label class="formLabel requiredInput">
-          {{'layersEntity.type' | translate}}
-        </label>
-        <mat-form-field appearance="outline" >
-          <mat-select matInput formControlName="type" class="form-control" >
-            <mat-option [value]="parameterType.value" *ngFor="let parameterType of parameterTypes">
-              {{ parameterType.value}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-      
-
- </div>
-  
-     <div class="rowFormDiv">
-      
       <div class="colFormDiv" >
         <label class="formLabel requiredInput">
           {{'layersEntity.order' | translate}}
@@ -387,12 +369,68 @@
           <input matInput type="number" formControlName="order" required>
         </mat-form-field>
       </div>
+      
+
+ </div>
   
-  
-    </div>
+
   
   </form>
   </div>
   
   
   </ng-template>
+
+
+  <ng-template #newSpatialConfigurationDialog>
+
+    <div class="formDiv">
+      <form [formGroup]='parameterForm' #f="ngForm"> 
+    
+    
+        <div class="rowFormDiv">
+        
+            <div class="colFormDiv" >
+              <label class="formLabel requiredInput">
+                {{'layersEntity.field' | translate}}
+              </label>
+              <mat-form-field appearance="outline">
+                <input matInput type="text" formControlName="value" required>
+              </mat-form-field>
+            </div>
+    
+            <div class="colFormDiv" >
+              <label class="formLabel requiredInput">
+                {{'layersEntity.alias' | translate}}
+              </label>
+              <mat-form-field appearance="outline">
+                <input matInput type="text" formControlName="name" required>
+              </mat-form-field>
+            </div>
+    
+    
+       </div>
+  
+       <div class="rowFormDiv">
+  
+        <div class="colFormDiv" >
+          <label class="formLabel requiredInput">
+            {{'layersEntity.format' | translate}}
+          </label>
+          <mat-form-field appearance="outline" >
+            <mat-select matInput formControlName="format" class="form-control" >
+              <mat-option [value]="formatType.value" *ngFor="let formatType of parameterFormatTypes">
+                {{ formatType.value}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        
+  
+   </div>
+    
+    </form>
+    </div>
+    
+    
+    </ng-template>

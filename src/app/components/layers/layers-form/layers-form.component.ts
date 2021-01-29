@@ -10,6 +10,7 @@ import { Observable, of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { DialogFormComponent, DialogGridComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
+import { iterateExtend } from '@syncfusion/ej2-angular-grids';
 
 @Component({
   selector: 'app-layers-form',
@@ -60,6 +61,10 @@ export class LayersFormComponent implements OnInit {
   @ViewChild('newParameterDialog',{
     static: true
   }) private newParameterDialog: TemplateRef <any>;
+
+  @ViewChild('newSpatialConfigurationDialog',{
+    static: true
+  }) private newSpatialConfigurationDialog: TemplateRef <any>;
 
   columnDefsCartographyGroupsDialog: any[];
   addElementsEventCartographyGroups: Subject<any[]> = new Subject <any[]>();
@@ -115,11 +120,11 @@ export class LayersFormComponent implements OnInit {
               datasetURL: this.layerToEdit.datasetURL, //here
               municipalFilterFields: "",
               filterInfoByMunicipality: false,
-              filterSpatialSeleciontByMunicipality: false,
-              information: false,
-              defaultInformation: false,
-              informationLayer: "",
-              thematic: false,
+              filterSpatialSeleciontByMunicipality: this.layerToEdit.applyFilterToSpatialSelection,
+              information: this.layerToEdit.queryableFeatureEnabled,
+              defaultInformation: this.layerToEdit.queryableFeatureAvailable,
+              informationLayer: this.layerToEdit.selectableLayers,
+              thematic: this.layerToEdit.thematic,
               blocked: this.layerToEdit.blocked,
               //force to false
               queryableFeatureEnabled: false,
@@ -209,7 +214,7 @@ export class LayersFormComponent implements OnInit {
       environment.selCheckboxColumnDef,
       { headerName: this.utils.getTranslate('layersEntity.column'), field: 'name' },
       { headerName: this.utils.getTranslate('layersEntity.label'), field: 'value' },
-      { headerName: this.utils.getTranslate('layersEntity.type'), field: 'format', },
+      { headerName: this.utils.getTranslate('layersEntity.format'), field: 'format', },
       { headerName: this.utils.getTranslate('layersEntity.help'), field: 'help' },
       { headerName: this.utils.getTranslate('layersEntity.selectPath'), field: 'selectPath' },
       { headerName: this.utils.getTranslate('layersEntity.status'), field: 'status', editable:false },
@@ -328,7 +333,6 @@ export class LayersFormComponent implements OnInit {
       value: new FormControl(null, []),
       name: new FormControl(null, []),
       format: new FormControl(null, []),
-      type: new FormControl(null, []),
       order: new FormControl(null, []),
     })
   }
@@ -601,11 +605,13 @@ export class LayersFormComponent implements OnInit {
       if(result){
         if( result.event==='Add') { 
           let item= this.parameterForm.value;
+          item.type="INFO"
           this.addElementsEventParameters.next([item])
           console.log(this.parameterForm.value)
           this.parameterForm.reset();
         }
       }
+      this.parameterForm.reset();
     });
 
   }
@@ -620,25 +626,23 @@ export class LayersFormComponent implements OnInit {
 
   openSpatialSelectionDialog(data: any) {
 
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
-    dialogRef.componentInstance.getAllsTable = [this.getAllSpatialSelectionDialog];
-    dialogRef.componentInstance.singleSelectionTable = [false];
-    dialogRef.componentInstance.columnDefsTable = [this.columnDefsSpatialSelectionDialog];
-    dialogRef.componentInstance.themeGrid = this.themeGrid;
+    const dialogRef = this.dialog.open(DialogFormComponent);
+    dialogRef.componentInstance.HTMLReceived=this.newSpatialConfigurationDialog;
     dialogRef.componentInstance.title = this.utils.getTranslate('layersEntity.spatialSelection');
-    dialogRef.componentInstance.titlesTable = [''];
-    dialogRef.componentInstance.nonEditable = false;
 
-
-
-  dialogRef.afterClosed().subscribe(result => {
-    if(result){
-      if( result.event==='Add') { 
-        this.addElementsEventSpatialConfigurations.next(result.data[0])
+    dialogRef.afterClosed().subscribe(result => {
+      if(result){
+        if( result.event==='Add') { 
+          let item= this.parameterForm.value;
+          item.type="EDIT"
+          this.addElementsEventSpatialConfigurations.next([item])
+          console.log(this.parameterForm.value)
+          this.parameterForm.reset();
+        }
       }
-    }
-
+      this.parameterForm.reset();
     });
+
 
   }
 

@@ -112,6 +112,8 @@ export class TreesFormComponent implements OnInit {
       isFolder: new FormControl(null, []),
       type: new FormControl(null, []),
       status: new FormControl(null, []),
+      cartographyName: new FormControl(null, []),
+      
 
 
     })
@@ -154,6 +156,7 @@ export class TreesFormComponent implements OnInit {
       id: node.id,
       name: node.name,
       tooltip: node.tooltip,
+      cartography: node.cartographyName,
       radio: node.radio,
       active: node.active,
       _links: node._links,
@@ -303,7 +306,7 @@ export class TreesFormComponent implements OnInit {
 
   getSelectedRowsCartographies(data: any[] )
   {
-    if(data.length<=0 && !this.currentNodeIsFolder)
+    if( (data.length<=0 && this.treeNodeForm.value.cartography == null) && !this.currentNodeIsFolder)
      {
       const dialogRef = this.dialog.open(DialogMessageComponent);
       dialogRef.componentInstance.title=this.utils.getTranslate("Error");
@@ -311,7 +314,12 @@ export class TreesFormComponent implements OnInit {
        dialogRef.afterClosed().subscribe();
      }
     else {
-      this.updateTreeLeft(data[0])
+      if(this.treeNodeForm.value.cartography !== null && data.length<=0) {
+        this.updateTreeLeft(null)
+       }
+      else {
+        this.updateTreeLeft(data[0])
+      }
     }
 
   }
@@ -321,6 +329,12 @@ export class TreesFormComponent implements OnInit {
     this.treeNodeForm.patchValue({
       cartography: cartography
     })
+    if(cartography != null)
+    {
+      this.treeNodeForm.patchValue({
+        cartographyName: cartography.name
+      })
+    }
   
     if(this.newElement) {
       this.treeNodeForm.patchValue({

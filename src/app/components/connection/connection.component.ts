@@ -54,7 +54,6 @@ export class ConnectionComponent implements OnInit {
 
 
   newData(id: any) {
-   // this.saveAgGridState()
     this.saveAgGridStateEvent.next(true);
     this.router.navigate(['connection', id, 'connectionForm']);
   }
