@@ -28,7 +28,7 @@
   "cartographyNonSelectedMessage": "Per editar un node has de seleccionar una cartografia!",
   "projectionMessage": "Introdueix EPSG:Codi",
   "projectionsMessage": "Introdueix totes les projeccions EPSG:Codi separades per intro",
-  "caution": "Perill",
+  "caution": "Important",
   "lang": {
     "catalan": "Català",
     "spanish": "Castellà",
@@ -159,7 +159,11 @@
     "municipalFilter": "Filtre Municipal",
     "alias": "Àlies",
     "status": "Estat",
-    "available": "Disponible"
+    "available": "Disponible",
+    "selectable": "Seleccionable",
+    "service": "Servei",
+    "layer": "Capa",
+    "connection":"Connexió"
   },
   "layersPermitsEntity": {
     "generalData": "Dades Generals",
@@ -488,7 +492,8 @@
     "login": "Iniciar sessió",
     "bad-credentials": "Usuari i/o contrasenya incorrecte",
     "closeSession": "Tancar sessió",
-    "language": "Idioma"
+    "language": "Idioma",
+    "privateAccess": "Accés privat"
   },
   "selectAll": "Seleccionar tot",
   "selectAllSearchResults": "Seleccionar tots els resultats de cerca",

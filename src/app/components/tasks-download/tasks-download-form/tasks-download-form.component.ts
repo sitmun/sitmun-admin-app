@@ -7,7 +7,7 @@ import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { environment } from 'src/environments/environment';
 import { map } from 'rxjs/operators';
-import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
+import { DialogGridComponent } from '@sitmun/frontend-gui';
 import { MatDialog } from '@angular/material/dialog';
 import { of, Subject } from 'rxjs';
 

@@ -150,7 +150,7 @@
                 {{'layersEntity.municipalFilterFields' | translate}}
               </label>
               <mat-form-field appearance="outline">
-                <input matInput type="text" formControlName="municipalFilterFields" required>
+                <input matInput type="text" formControlName="applyFilterToGetMap" required>
               </mat-form-field>
             </div>
     
@@ -181,14 +181,14 @@
               <label class="formLabel">
                 {{'layersEntity.information' | translate}}
               </label>
-              <mat-checkbox formControlName="information"> </mat-checkbox>
+              <mat-checkbox formControlName="queryableFeatureEnabled"> </mat-checkbox>
             </div>
   
             <div class="colFormDivDefaultInformation" >
               <label class="formLabel">
                 {{'layersEntity.defaultInformation' | translate}}
               </label>
-              <mat-checkbox formControlName="defaultInformation"> </mat-checkbox>
+              <mat-checkbox formControlName="queryableFeatureAvailable"> </mat-checkbox>
             </div>
   
             <div class="colFormDiv">
@@ -196,16 +196,31 @@
                 {{'layersEntity.informationLayer' | translate}}
               </label>
               <mat-form-field appearance="outline">
-                <input matInput type="text" formControlName="informationLayer" required>
+                <input matInput type="text" formControlName="queryableLayers" required>
               </mat-form-field>
             </div>
   
-            
-            <div class="colFormDiv">
+          </div>
+          <div class="rowFormDiv">
+            <div class="colFormDivDefaultInformation">
               <label class="formLabel">
                 {{'layersEntity.thematic' | translate}}
               </label>
-              <mat-checkbox formControlName="defaultInformation"> </mat-checkbox>
+              <mat-checkbox formControlName="thematic" (change)="onSelectionThematicChanged($event)" > </mat-checkbox>
+            </div>
+
+            <div class="colFormDiv" >
+              <label class="formLabel">
+                {{'layersEntity.geometryType' | translate}}
+              </label>
+  
+              <mat-form-field appearance="outline">
+                <mat-select matInput formControlName="geometryType"  class="form-control">
+                  <mat-option [value]="geometryType.value" *ngFor="let geometryType of geometryTypes">
+                    {{ geometryType.value}}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field> 
             </div>
             
         </div>
@@ -213,7 +228,7 @@
   </form>
 </div>
 
-<div class="tableDiv" *ngIf="layerID==-1 || dataLoaded">
+<div class="tableDiv" *ngIf=" dataLoaded">
   <mat-accordion  multi>
 
     
@@ -226,7 +241,67 @@
         </mat-panel-title>
       </mat-expansion-panel-header>
   
+
     <ng-template matExpansionPanelContent>  
+      <div class="formDiv">
+        <form [formGroup]='layerForm' #f="ngForm"> 
+      
+      
+          <div class="rowFormDiv">         
+            <div class="colFormDiv">
+              <label class="formLabel">
+                {{'layersEntity.selectable' | translate}}
+              </label>
+              <mat-checkbox formControlName="selectable"> </mat-checkbox>
+            </div>
+         </div>
+
+         <div class="rowFormDiv">         
+          <div class="colFormDiv" >
+          <label class="formLabel">
+            {{'layersEntity.service' | translate}}
+          </label>
+
+          <mat-form-field appearance="outline">
+            <mat-select matInput formControlName="spatialSelectionService" class="form-control">
+              <mat-option [value]="service.name" *ngFor="let service of spatialConfigurationServices">
+                {{ service.name}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field> 
+          </div>
+         </div>
+
+         <div class="rowFormDiv">         
+          <div class="colFormDiv" >
+            <label class="formLabel requiredInput">
+              {{'layersEntity.layer' | translate}}
+            </label>
+            <mat-form-field appearance="outline">
+              <input matInput type="text" formControlName="layer" required>
+            </mat-form-field>
+          </div>
+        </div>
+
+
+        <div class="rowFormDiv">     
+          <div class="colFormDiv" >    
+          <label class="formLabel">
+            {{'layersEntity.connection' | translate}}
+          </label>
+
+          <mat-form-field appearance="outline">
+            <mat-select matInput formControlName="spatialSelectionConnection" class="form-control">
+              <mat-option [value]="connection.name" *ngFor="let connection of spatialConfigurationConnections">
+                {{ connection.name}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field> 
+          </div>
+         </div>
+       
+      </form>
+      </div>
       <div class="appDataGridEditDiv">
           <app-data-grid  [columnDefs]="columnDefsSpatialConfigurations" [themeGrid]='themeGrid' [getAll]='getAllSpatialConfigurations'  
           [eventAddItemsSubscription]='addElementsEventSpatialConfigurations.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventSpatialConfigurations.asObservable()' 

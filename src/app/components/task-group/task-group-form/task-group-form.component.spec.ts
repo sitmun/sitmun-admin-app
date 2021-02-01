@@ -8,7 +8,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { TaskGroupService, CodeListService } from '@sitmun/frontend-core';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { HttpClientModule } from '@angular/common/http';
-import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
+import { SitmunFrontendGuiModule } from '@sitmun/frontend-gui';
 import { RouterTestingModule } from '@angular/router/testing';
 
 describe('TaskGroupFormComponent', () => {

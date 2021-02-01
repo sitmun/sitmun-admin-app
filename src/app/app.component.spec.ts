@@ -12,7 +12,7 @@ import { MaterialModule } from './material-module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Principal, LoginService, AccountService, AuthService } from '@sitmun/frontend-core';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
-import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
+import { SitmunFrontendGuiModule } from '@sitmun/frontend-gui';
 
 describe('AppComponent', () => {
   beforeEach(async () => {

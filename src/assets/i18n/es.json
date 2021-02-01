@@ -28,7 +28,7 @@
   "cartographyNonSelectedMessage": "Para editar un nodo tienes que seleccionar una cartografia!",
   "projectionMessage": "Introdueix EPSG:Código",
   "projectionsMessage": "Introduce todas las proyecciones EPSG:Código separadas por intros",
-  "caution": "Peligro",
+  "caution": "Importante",
   "lang": {
     "catalan": "Catalán",
     "spanish": "Castellano",
@@ -158,7 +158,11 @@
     "municipalFilter": "Filtro Municipal",
     "alias": "alias",
     "status": "Estado",
-    "available": "Disponible"
+    "available": "Disponible",
+    "selectable": "Seleccionable",
+    "service": "Servicio",
+    "layer": "Capa",
+    "connection":"Conexión"
   },
   "layersPermitsEntity": {
     "generalData": "Datos Generales",
@@ -480,7 +484,8 @@
     "login": "Iniciar sesión",
     "bad-credentials": "Usuario y/o contraseña incorrecto",
     "closeSession": "Cerrar sesión",
-    "language": "Idioma"
+    "language": "Idioma",
+    "privateAcces":"Acceso privado"
   },
   "selectAll": "Seleccionar todo",
   "selectAllSearchResults": "Seleccionar todos los resultados de busca",

@@ -15,8 +15,13 @@
 
   .colFormDivDefaultInformation{
     display: inline-block;
-    width: 30.5%;
-    margin-right: 5%;
+    width: 15.5%;
+    margin-right: 3%;
+  }
+  .colFormDivInformationLayer{
+    display: inline-block;
+    width: 47.5%;
+    margin-right: 2%;
   }
 
   mat-form-field {

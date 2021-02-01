@@ -131,6 +131,11 @@ export class BackgroundLayersFormComponent implements OnInit {
       .subscribe(resp => {
         console.log(resp);
         this.backgroundToEdit=resp;
+        this.backgroundID=resp.id;
+        this.backgroundForm.patchValue({
+          id: resp.id,
+          _links: resp._links
+        })
       },
       error=>{
         console.log("error")

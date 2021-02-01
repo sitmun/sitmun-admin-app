@@ -21,3 +21,32 @@ container {
     bottom: 20px;
     right: 15px;
   }
+
+  .top-toolbar-row {
+    background-color: #FF9300;
+    color: white;
+  }
+  
+  .toolbar-spacer {
+    flex: 1 1 auto;
+  }
+  
+  
+  
+  .sitmun-logo-container {
+    height: 100%;
+  }
+  
+  .sitmun-logo {
+    line-height: 100px;
+    display: table-cell;
+      vertical-align: middle;
+      margin: auto 0 auto 0;
+      margin-bottom: 8px;
+  }
+
+  .outline {
+    border-style: solid;
+    border-width: medium;
+}
+  

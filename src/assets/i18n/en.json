@@ -28,7 +28,7 @@
   "cartographyNonSelectedMessage": "If you want to edit a node you must select a cartography!",
   "projectionMessage": "Introduce EPSG:Code",
   "projectionsMessage": "Introduce all projections like EPSG:Code separated by intro",
-  "caution": "Danger",
+  "caution": "Important",
   "lang": {
     "catalan": "Catalan",
     "spanish": "Spanish",
@@ -160,7 +160,11 @@
     "municipalFilter": "Municipal Filter",
     "alias": "alias",
     "status": "Status",
-    "available": "Available"
+    "available": "Available",
+    "selectable": "Selectable",
+    "service": "Service",
+    "layer": "Layer",
+    "connection":"Connection"
   },
   "layersPermitsEntity": {
     "generalData": "General Data",
@@ -481,7 +485,8 @@
     "login": "Login",
     "bad-credentials": "Incorrect username and/or password",
     "closeSession": "Log out",
-    "language": "Language"
+    "language": "Language",
+    "privateAccess": "Private acces"
   },
   "selectAll": "Select All",
   "selectAllSearchResults": "Select all search results",

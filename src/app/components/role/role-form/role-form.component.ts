@@ -8,7 +8,7 @@ import { UtilsService } from '../../../services/utils.service';
 import { Observable, of, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
+import { DialogGridComponent } from '@sitmun/frontend-gui';
 import { MatDialog } from '@angular/material/dialog';
 
 
@@ -103,6 +103,7 @@ export class RoleFormComponent implements OnInit {
           }
         );
       }
+      else { this.dataLoaded = true; }
     },
       error => {
       });
@@ -250,8 +251,8 @@ export class RoleFormComponent implements OnInit {
 
     if (this.roleID!== -1)
     {
-      var urlReq = `${this.formRole.value._links.tasks.href}`
-      if (this.formRole.value._links.tasks.templated) {
+      var urlReq = `${this.roleToEdit._links.tasks.href}`
+      if (this.roleToEdit._links.tasks.templated) {
         var url = new URL(urlReq.split("{")[0]);
         url.searchParams.append("projection", "view")
         urlReq = url.toString();
@@ -296,8 +297,8 @@ export class RoleFormComponent implements OnInit {
   getAllCartographiesGroups = (): Observable<any> => {
     if (this.roleID!== -1)
     {
-      var urlReq = `${this.formRole.value._links.permissions.href}`
-      if (this.formRole.value._links.permissions.templated) {
+      var urlReq = `${this.roleToEdit._links.permissions.href}`
+      if (this.roleToEdit._links.permissions.templated) {
         var url = new URL(urlReq.split("{")[0]);
         url.searchParams.append("projection", "view")
         urlReq = url.toString();
@@ -341,8 +342,8 @@ export class RoleFormComponent implements OnInit {
       // //TODO Change the link when available
       if (this.roleID!== -1)
       {
-        var urlReq = `${this.formRole.value._links.applications.href}`
-        if (this.formRole.value._links.applications.templated) {
+        var urlReq = `${this.roleToEdit._links.applications.href}`
+        if (this.roleToEdit._links.applications.templated) {
           var url = new URL(urlReq.split("{")[0]);
           url.searchParams.append("projection", "view")
           urlReq = url.toString();
@@ -542,6 +543,11 @@ export class RoleFormComponent implements OnInit {
     this.roleService.save( this.formRole.value)
     .subscribe(resp => {
       this.roleToEdit=resp;
+      this.roleID=resp.id
+      this.formRole.patchValue({
+        id: resp.id,
+        _links: resp._links
+      })
       // this.getAllElementsEventUsers.next(true);
       this.getAllElementsEventApplications.next(true);
       this.getAllElementsEventCartographies.next(true);

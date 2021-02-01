@@ -149,7 +149,7 @@
 
   </form>
 </div>
-<div class="tableDiv" *ngIf="territoryID==-1 || dataLoaded">
+<div class="tableDiv" *ngIf=" dataLoaded">
   <mat-accordion  multi>
 
     <!-- Permits table -->
@@ -253,7 +253,7 @@
           <app-data-grid [columnDefs]="columnDefsTasks" [themeGrid]='themeGrid' [getAll]='getAllTasks'
              [discardChangesButton]=true [redoButton]=true [undoButton]=true [hideDuplicateButton]=true
              [eventAddItemsSubscription]='addElementsEventTasks.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventTasks.asObservable()' 
-            [deleteButton]=true [addButton]=true [actionButton]=true 
+             [eventRefreshSubscription]='dataUpdatedEventTasks.asObservable()' [deleteButton]=true [addButton]=true [actionButton]=true 
             (getAllRows)="getAllRowsTasks($event)"  (add)="openTasksDialog($event)" >
           </app-data-grid>
         </div>

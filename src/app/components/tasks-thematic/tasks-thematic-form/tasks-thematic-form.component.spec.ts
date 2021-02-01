@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TasksThematicFormComponent } from './tasks-thematic-form.component';
-import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
+import { SitmunFrontendGuiModule } from '@sitmun/frontend-gui';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { RouterTestingModule } from '@angular/router/testing';
 import { TaskService, TerritoryService, RoleService, CodeListService } from '@sitmun/frontend-core';

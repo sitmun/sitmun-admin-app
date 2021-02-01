@@ -8,7 +8,7 @@ import { UtilsService } from '../../../services/utils.service';
 import { Observable, of, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
+import { DialogGridComponent } from '@sitmun/frontend-gui';
 import { MatDialog } from '@angular/material/dialog';
 
 
@@ -180,6 +180,7 @@ export class TerritoryFormComponent implements OnInit {
           blocked: false,
           groupType: this.groupTypeOfThisTerritory[`id`],
         });
+        this.dataLoaded = true;
       }
 
     },
@@ -482,7 +483,7 @@ export class TerritoryFormComponent implements OnInit {
       return of(aux);
     }
 
-    return (this.http.get(`${this.territoryForm.value._links.memberOf.href}`))
+    return (this.http.get(`${this.territoryToEdit._links.memberOf.href}`))
       .pipe(map(data => data[`_embedded`][`territories`]));
   }
 
@@ -523,7 +524,7 @@ export class TerritoryFormComponent implements OnInit {
       return of(aux);
     }
 
-    return (this.http.get(`${this.territoryForm.value._links.members.href}`))
+    return (this.http.get(`${this.territoryToEdit._links.members.href}`))
       .pipe(map(data => data[`_embedded`][`territories`]));
 
   }
@@ -930,6 +931,11 @@ export class TerritoryFormComponent implements OnInit {
       .subscribe(resp => {
         console.log(resp);
         this.territoryToEdit=resp;
+        this.territoryID = resp.id;
+        this.territoryForm.patchValue({
+          id:resp.id,
+          _links: resp._links
+        })
         this.getAllElementsEventPermits.next(true);
         this.getAllElementsEventCartographies.next(true);
         this.getAllElementsEventTasks.next(true);

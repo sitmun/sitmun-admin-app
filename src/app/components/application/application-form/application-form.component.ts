@@ -12,7 +12,7 @@ import { UtilsService } from '../../../services/utils.service';
 import { map } from 'rxjs/operators';
 import { Observable, of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { DialogFormComponent, DialogGridComponent } from 'dist/sitmun-frontend-gui/';
+import { DialogFormComponent, DialogGridComponent } from '@sitmun/frontend-gui';
 import { MatDialog } from '@angular/material/dialog';
 
 
@@ -169,6 +169,7 @@ export class ApplicationFormComponent implements OnInit {
         );
       }
       else {
+        this.dataLoaded = true;
         this.applicationForm.patchValue({
           moveSupramunicipal: false,
           treeAutorefresh: false,
@@ -285,7 +286,6 @@ export class ApplicationFormComponent implements OnInit {
 
 
   onSelectionTypeAppChanged({ value }) {
-    debugger;
     if (value === 'E') {
       this.applicationForm.get('title').disable();
       this.applicationForm.get('tree').disable();
@@ -381,7 +381,7 @@ export class ApplicationFormComponent implements OnInit {
       return of(aux);
     }
 
-    return (this.http.get(`${this.applicationForm.value._links.parameters.href}`))
+    return (this.http.get(`${this.applicationToEdit._links.parameters.href}`))
       .pipe(map(data =>  data[`_embedded`][`application-parameters`].filter(elem=> elem.type!="PRINT_TEMPLATE")
       ));
   } 
@@ -439,7 +439,7 @@ export class ApplicationFormComponent implements OnInit {
       return of(aux);
     }
 
-    return (this.http.get(`${this.applicationForm.value._links.parameters.href}`))
+    return (this.http.get(`${this.applicationToEdit._links.parameters.href}`))
     .pipe(map(data =>  data[`_embedded`][`application-parameters`].filter(elem=> elem.type=="PRINT_TEMPLATE")
       ));
   }
@@ -474,7 +474,7 @@ export class ApplicationFormComponent implements OnInit {
       const aux: Array<any> = [];
       return of(aux);
     }
-    return (this.http.get(`${this.applicationForm.value._links.availableRoles.href}`))
+    return (this.http.get(`${this.applicationToEdit._links.availableRoles.href}`))
       .pipe(map(data => data[`_embedded`][`roles`]));
   }
 
@@ -516,8 +516,8 @@ export class ApplicationFormComponent implements OnInit {
       return of(aux);
     }
 
-    var urlReq = `${this.applicationForm.value._links.backgrounds.href}`
-    if (this.applicationForm.value._links.backgrounds.templated) {
+    var urlReq = `${this.applicationToEdit._links.backgrounds.href}`
+    if (this.applicationToEdit._links.backgrounds.templated) {
       var url = new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection", "view")
       urlReq = url.toString();
@@ -585,8 +585,8 @@ export class ApplicationFormComponent implements OnInit {
       return of(aux);
     }
 
-    var urlReq = `${this.applicationForm.value._links.trees.href}`
-    if (this.applicationForm.value._links.trees.templated) {
+    var urlReq = `${this.applicationToEdit._links.trees.href}`
+    if (this.applicationToEdit._links.trees.templated) {
       var url = new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection", "view")
       urlReq = url.toString();
@@ -787,7 +787,7 @@ export class ApplicationFormComponent implements OnInit {
       appObj.title= this.applicationForm.value.title;
       appObj.jspTemplate= this.applicationForm.value.jspTemplate;
       appObj.theme= this.applicationForm.value.theme;
-      appObj.scales= this.applicationForm.value.scales;
+      appObj.scales= (this.applicationForm.value.scales.toString()).split(",");
       appObj.srs= this.applicationForm.value.srs;
       appObj.treeAutoRefresh= this.applicationForm.value.treeAutoRefresh;
       appObj._links= this.applicationForm.value._links;
@@ -802,7 +802,13 @@ export class ApplicationFormComponent implements OnInit {
  
       this.applicationService.save(appObj)
       .subscribe(resp => {
+        console.log(resp);
         this.applicationToEdit = resp;
+        this.applicationID = this.applicationToEdit.id;
+        this.applicationForm.patchValue({
+          id: resp.id,
+          _links: resp._links
+        })
         this.getAllElementsEventParameters.next(true);
         this.getAllElementsEventTemplateConfiguration.next(true);
         this.getAllElementsEventRoles.next(true);

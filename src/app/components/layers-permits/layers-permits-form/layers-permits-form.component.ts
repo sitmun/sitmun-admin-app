@@ -7,7 +7,7 @@ import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
+import { DialogGridComponent } from '@sitmun/frontend-gui';
 import { MatDialog } from '@angular/material/dialog';
 import { of, Subject } from 'rxjs';
 
@@ -89,6 +89,7 @@ export class LayersPermitsFormComponent implements OnInit {
           }
         );
       }
+      else { this.dataLoaded = true;}
 
     },
       error => {
@@ -201,7 +202,7 @@ export class LayersPermitsFormComponent implements OnInit {
       return of(aux);
     }
    
-    return (this.http.get(`${this.formLayersPermits.value._links.roles.href}`))
+    return (this.http.get(`${this.layersPermitsToEdit._links.roles.href}`))
        .pipe(map(data => data['_embedded']['roles']));
 
   }
@@ -299,6 +300,11 @@ export class LayersPermitsFormComponent implements OnInit {
     .subscribe(resp => {
       console.log(resp);
       this.layersPermitsToEdit=resp;
+      this.layersPermitsID=resp.id
+      this.formLayersPermits.patchValue({
+        id: resp.id,
+        _links: resp._links
+      })
       this.getAllElementsEventCartographies.next(true);
       this.getAllElementsEventRoles.next(true);
     },

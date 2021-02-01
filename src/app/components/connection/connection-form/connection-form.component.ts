@@ -8,7 +8,7 @@ import { UtilsService } from '../../../services/utils.service';
 import { of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { map } from 'rxjs/operators';
-import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
+import { DialogGridComponent } from '@sitmun/frontend-gui';
 import { MatDialog } from '@angular/material/dialog';
 import { Location } from '@angular/common'
 
@@ -92,6 +92,7 @@ export class ConnectionFormComponent implements OnInit {
           }
         );
       }
+      else {this.dataLoaded=true;}
 
     },
       error => {
@@ -326,6 +327,11 @@ export class ConnectionFormComponent implements OnInit {
         result => {
           console.log(result);
           this.connectionToEdit=result;
+          this.connectionID=result.id
+          this.formConnection.patchValue({
+            id: result.id,
+            _links: result._links
+          })
           //this.getAllElementsEventCartographies.next(true);
           this.getAllElementsEventTasks.next(true);
         },

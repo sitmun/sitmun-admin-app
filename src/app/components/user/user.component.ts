@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
-import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
+import { DialogMessageComponent } from '@sitmun/frontend-gui';
  
 
 @Component({

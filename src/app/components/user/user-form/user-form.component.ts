@@ -8,7 +8,7 @@ import { UtilsService } from '../../../services/utils.service';
 import { map } from 'rxjs/operators';
 import { Observable, of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
+import { DialogGridComponent } from '@sitmun/frontend-gui';
 import { MatDialog } from '@angular/material/dialog';
 
 
@@ -104,6 +104,7 @@ export class UserFormComponent implements OnInit {
           administrator: false,
           blocked: false
         });
+        this.dataLoaded = true;
       }
 
     },
@@ -278,8 +279,8 @@ export class UserFormComponent implements OnInit {
       return of(aux);
     }
 
-    var urlReq = `${this.userForm.value._links.positions.href}`
-    if (this.userForm.value._links.positions.templated) {
+    var urlReq = `${this.userToEdit._links.positions.href}`
+    if (this.userToEdit._links.positions.templated) {
       var url = new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection", "view")
       urlReq = url.toString();
@@ -490,7 +491,12 @@ export class UserFormComponent implements OnInit {
           this.userService.create(userObj)
           .subscribe( (resp:User) => {
             console.log(resp)
-                this.userToEdit=resp
+                this.userToEdit=resp;
+                this.userID=resp.id;
+                this.userForm.patchValue({
+                  id: resp.id,
+                  _links: resp._links
+                })
                 // console.log(this.userToEdit);
                 // this.getAllElementsEventTerritoryData.next(true);
                 // this.getAllElementsEventPermits.next(true);

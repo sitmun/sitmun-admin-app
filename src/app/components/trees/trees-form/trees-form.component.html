@@ -14,7 +14,7 @@
       <mat-icon fontSet="material-icons-round"> save </mat-icon>
       {{ "save" | translate }}
     </button>
-    <button (click)="utils.navigateBack()"  mat-flat-button class="returnButton"  >
+    <button (click)="utils.navigateBack()" mat-flat-button class="returnButton">
       <mat-icon fontSet="material-icons-round"> arrow_back </mat-icon>
       {{ "return" | translate }}
     </button>
@@ -33,75 +33,76 @@
     </div>
   </form>
 </div>
-<div class="formDiv" >
+<div class="formDiv">
   <div class="formHeader">
     <h5> {{'treesEntity.configuration' | translate}} </h5>
   </div>
   <span class="divider"></span>
-<div class="formDivTreeLeft" *ngIf="dataLoaded">
-  <app-data-tree [getAll]='getAllTreeNodes' (emitNode)="nodeReceived($event)" (createNode)="createNode($event)" (createFolder)="createFolder($event)" 
-  [eventNodeUpdatedSubscription]='sendNodeUpdated.asObservable()' [eventGetAllRowsSubscription]='getAllElementsNodes.asObservable()'
-  [eventCreateNodeSubscription]='createNodeEvent.asObservable()' (emitAllNodes)="getAllNodes($event)" >
-    loading</app-data-tree>
-</div>
-<div class="formDivTreeRight">
-  <form [formGroup]='treeNodeForm' #f="ngForm">
-    <div class="rowFormDiv">
-      <div class="colFormDiv" *ngIf="currentNodeIsFolder != undefined">
-        <label class="formLabel requiredInput">
-          {{'treesEntity.name' | translate}}
-        </label>
-        <mat-form-field appearance="outline">
-          <input matInput type="text" formControlName="name" required>
-        </mat-form-field>
+  <div class="formDivTreeLeft" *ngIf="dataLoaded">
+    <app-data-tree [getAll]='getAllTreeNodes' (emitNode)="nodeReceived($event)" (createNode)="createNode($event)"
+      (createFolder)="createFolder($event)" [eventNodeUpdatedSubscription]='sendNodeUpdated.asObservable()'
+      [eventGetAllRowsSubscription]='getAllElementsNodes.asObservable()'
+      [eventCreateNodeSubscription]='createNodeEvent.asObservable()' (emitAllNodes)="getAllNodes($event)">
+      loading</app-data-tree>
+  </div>
+  <div class="formDivTreeRight">
+    <form [formGroup]='treeNodeForm' #f="ngForm">
+      <div class="rowFormDiv">
+        <div class="colFormDiv" *ngIf="currentNodeIsFolder != undefined">
+          <label class="formLabel requiredInput">
+            {{'treesEntity.name' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="text" formControlName="name" required>
+          </mat-form-field>
+        </div>
+        <div class="colFormDiv" *ngIf="currentNodeIsFolder != undefined">
+          <label class="formLabel">
+            {{'treesEntity.tooltip' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="text" formControlName="tooltip">
+          </mat-form-field>
+        </div>
       </div>
-      <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
-        <label class="formLabel">
-          {{'treesEntity.visible' | translate}}
-        </label>
-        <mat-checkbox formControlName="active"> </mat-checkbox>
+      <div class="rowFormDiv">
+        <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined &&   (!currentNodeIsFolder)">
+          <label class="formLabel">
+            {{'treesEntity.cartography' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="text" [readonly]="true" formControlName="cartography">
+          </mat-form-field>
+        </div>
+        <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
+          <label class="formLabel">
+            {{'treesEntity.visible' | translate}}
+          </label>
+          <mat-checkbox formControlName="active"> </mat-checkbox>
+        </div>
       </div>
-    </div>
-    <div class="rowFormDiv">
-      <div class="colFormDiv" *ngIf="currentNodeIsFolder != undefined">
-        <label class="formLabel">
-          {{'treesEntity.tooltip' | translate}}
-        </label>
-        <mat-form-field appearance="outline">
-          <input matInput type="text" formControlName="tooltip">
-        </mat-form-field>
+      <div class="rowFormDiv">
+        <div class="colFormDiv" *ngIf=" (currentNodeIsFolder)">
+          <label class="formLabel">
+            {{'treesEntity.radio' | translate}}
+          </label>
+          <mat-checkbox formControlName="radio"> </mat-checkbox>
+        </div>
+
       </div>
 
-    </div>
-    <div class="rowFormDiv">
-      <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined &&   (!currentNodeIsFolder)">
-        <label class="formLabel">
-          {{'treesEntity.cartography' | translate}}
-        </label>
-        <mat-form-field appearance="outline">
-          <input matInput type="text" [readonly]="true" formControlName="cartography">
-        </mat-form-field>
-      </div>
-    </div>
-    <div class="rowFormDiv" >
-      <div class="colFormDiv" *ngIf=" (currentNodeIsFolder)">
-        <label class="formLabel">
-          {{'treesEntity.radio' | translate}}
-        </label>
-        <mat-checkbox formControlName="radio"> </mat-checkbox>
-      </div>
 
-    </div>
-    <button (click)="onSaveFormButtonClicked()" mat-flat-button class="updateButton" *ngIf=" !newElement && currentNodeIsFolder != undefined " >{{ "update" | translate }}</button>
-    <button (click)="onSaveFormButtonClicked()" mat-flat-button class="updateButton" *ngIf="newElement && currentNodeIsFolder != undefined " >{{ "save" | translate }}</button>
- 
-  </form>
-      <div class="appDataGridEditDiv"  *ngIf="(currentNodeIsFolder === false)" >
+      <div class="appDataGridEditDiv" *ngIf="(currentNodeIsFolder === false)">
         <app-data-grid [columnDefs]="columnDefsCartographies" [themeGrid]='themeGrid' [getAll]='getAllCartographies'
-        [eventGetSelectedRowsSubscription]='getAllElementsEventCartographies.asObservable()' (getSelectedRows)="getSelectedRowsCartographies($event)"
-        [singleSelection]=true [globalSearch]=true > </app-data-grid>
+          [eventGetSelectedRowsSubscription]='getAllElementsEventCartographies.asObservable()'
+          (getSelectedRows)="getSelectedRowsCartographies($event)" [singleSelection]=true [globalSearch]=true>
+        </app-data-grid>
       </div>
+      <button (click)="onSaveFormButtonClicked()" mat-flat-button class="updateButton"
+        *ngIf=" !newElement && currentNodeIsFolder != undefined ">{{ "update" | translate }}</button>
+      <button (click)="onSaveFormButtonClicked()" mat-flat-button class="updateButton"
+        *ngIf="newElement && currentNodeIsFolder != undefined ">{{ "save" | translate }}</button>
+    </form>
 
-
-</div>
+  </div>
 </div>

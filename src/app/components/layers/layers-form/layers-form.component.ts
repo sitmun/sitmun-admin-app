@@ -2,13 +2,13 @@ import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CartographyService, TreeNodeService, CartographyGroupService, TerritoryService, Territory,Connection,ApplicationService, CartographyGroup, CartographyAvailabilityService,CartographyParameterService } from '@sitmun/frontend-core';
+import { CartographyService, ServiceService, ConnectionService, TreeNodeService, CartographyGroupService, TerritoryService, Territory,Connection,ApplicationService, CartographyGroup, CartographyAvailabilityService,CartographyParameterService } from '@sitmun/frontend-core';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { map } from 'rxjs/operators';
 import { Observable, of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { DialogFormComponent, DialogGridComponent } from 'dist/sitmun-frontend-gui/';
+import { DialogFormComponent, DialogGridComponent } from '@sitmun/frontend-gui';
 import { MatDialog } from '@angular/material/dialog';
 import { iterateExtend } from '@syncfusion/ej2-angular-grids';
 
@@ -27,9 +27,13 @@ export class LayersFormComponent implements OnInit {
   dataLoaded: Boolean = false;
   geometryTypes: Array<any> = [];
   legendTypes: Array<any> = [];
+  spatialConfigurationServices: Array<any> = [];
+  spatialConfigurationConnections: Array<any> = [];
 
   parameterFormatTypes: Array<any> = [];
   parameterTypes: Array<any> = [];
+
+
 
   //Grids
   themeGrid: any = environment.agGridTheme;
@@ -40,6 +44,7 @@ export class LayersFormComponent implements OnInit {
   columnDefsSpatialConfigurations: any[];
   getAllElementsEventSpatialConfigurations: Subject<boolean> = new Subject <boolean>();
   dataUpdatedEventSpatialConfigurations: Subject<boolean> = new Subject<boolean>();
+
 
   columnDefsTerritories: any[];
   getAllElementsEventTerritories: Subject<boolean> = new Subject <boolean>();
@@ -83,6 +88,8 @@ export class LayersFormComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private cartographyService: CartographyService,
+    private connectionService: ConnectionService,
+    private serviceService: ServiceService,
     private cartographyGroupService: CartographyGroupService,
     private cartograhyAvailabilityService: CartographyAvailabilityService,
     private cartographyParameterService: CartographyParameterService,
@@ -94,6 +101,7 @@ export class LayersFormComponent implements OnInit {
     this.initializeLayersForm();
     this.initializeParameterForm();
 
+
     this.activatedRoute.params.subscribe(params => {
       this.layerID = +params.id;
       if (this.layerID !== -1) {
@@ -104,6 +112,7 @@ export class LayersFormComponent implements OnInit {
             console.log(resp);
             this.layerToEdit = resp;
             this.parametersUrl = this.layerToEdit._links.parameters.href;
+
             this.layerForm.setValue({
               id: this.layerID,
               name: this.layerToEdit.name,
@@ -118,19 +127,56 @@ export class LayersFormComponent implements OnInit {
               legendType: this.layerToEdit.legendType,
               description: this.layerToEdit.description,
               datasetURL: this.layerToEdit.datasetURL, //here
-              municipalFilterFields: "",
+              applyFilterToGetMap: "",
               filterInfoByMunicipality: false,
-              filterSpatialSeleciontByMunicipality: this.layerToEdit.applyFilterToSpatialSelection,
-              information: this.layerToEdit.queryableFeatureEnabled,
-              defaultInformation: this.layerToEdit.queryableFeatureAvailable,
-              informationLayer: this.layerToEdit.selectableLayers,
+              filterSpatialSeleciontByMunicipality: false,
+              queryableFeatureEnabled: this.layerToEdit.queryableFeatureEnabled,
+              queryableFeatureAvailable: this.layerToEdit.queryableFeatureAvailable,
+              queryableLayers: this.layerToEdit.queryableLayers,
               thematic: this.layerToEdit.thematic,
               blocked: this.layerToEdit.blocked,
-              //force to false
-              queryableFeatureEnabled: false,
-              queryableFeatureAvailable: false,
+              selectable: this.layerToEdit.selectableFeatureEnabled,
+              spatialSelectionService: "",
+              layer: this.layerToEdit.selectableLayers,
+              spatialSelectionConnection:"",
               _links: this.layerToEdit._links
             });
+
+            var urlReq=`${this.layerToEdit._links.parameters.href}`
+            if(this.layerToEdit._links.parameters.templated){
+              var url=new URL(urlReq.split("{")[0]);
+              url.searchParams.append("projection","view")
+              urlReq=url.toString();
+            }
+
+        
+            this.http.get(urlReq).pipe(
+               map( data =>  data['_embedded']['cartography-parameters'].filter(elem=> elem.type=="FILTRO" || elem.type=="FILTRO_INFO" || elem.type=="FILTRO_ESPACIAL")
+              ))
+            .subscribe(result => {
+              console.log(result)
+              result.forEach(element => {
+              
+                if(element.type==='FILTRO'){
+                  this.layerForm.patchValue({
+                    applyFilterToGetMap: element.value
+                  })
+                }
+                else if(element.type==='FILTRO_INFO'){
+                  this.layerForm.patchValue({
+                    filterInfoByMunicipality: element.value
+                  })
+                }
+                else if(element.type==='FILTRO_ESPACIAl'){
+                  this.layerForm.patchValue({
+                    filterSpatialSeleciontByMunicipality: element.value
+                  })
+                }
+                
+              });
+            });
+
+            if(! this.layerToEdit.thematic) {this.layerForm.get('geometryType').disable();}
 
 
             this.dataLoaded = true;
@@ -147,7 +193,10 @@ export class LayersFormComponent implements OnInit {
       else{
         this.layerForm.patchValue({
           blocked: false,
+          thematic: false,
         })
+        this.layerForm.get('geometryType').disable();
+        this.dataLoaded=true;
       }
 
     },
@@ -161,7 +210,7 @@ export class LayersFormComponent implements OnInit {
   ngOnInit(): void {
 
     let geometryTypeByDefault = {
-      value: null,
+      value: '-------',
       description: '-------'
     }
     this.geometryTypes.push(geometryTypeByDefault);
@@ -196,27 +245,71 @@ export class LayersFormComponent implements OnInit {
       }
     );
 
+    let connectionByDefault = {
+      value: null,
+      name: '-------'
+    }
+
+    this.spatialConfigurationConnections.push(connectionByDefault);
+
+    this.connectionService.getAll().subscribe(
+      resp => {
+        this.spatialConfigurationConnections.push(...resp)
+      }
+    )
+
+    let serviceByDefault = {
+      value: null,
+      name: '-------'
+    }
+
+    this.spatialConfigurationServices.push(serviceByDefault);
+    
+    this.serviceService.getAll().map((resp) => {
+      let wfsServices = [];
+      resp.forEach(service => {
+        if(service.type==='WFS') {wfsServices.push(service)}
+      });  
+      return wfsServices;
+
+    }).subscribe(
+      resp =>  this.spatialConfigurationServices.push(...resp)
+    )
+    console.log(this.spatialConfigurationServices)
+    // .subscribe(
+    //   resp => {
+    //     this.spatialConfigurationConnections.push(...resp)
+    //   }
+    // )
+
 
     this.columnDefsParameters = [
 
       environment.selCheckboxColumnDef,
       { headerName: this.utils.getTranslate('layersEntity.field'), field: 'value' },
       { headerName: this.utils.getTranslate('layersEntity.name'), field: 'name' },
-      { headerName: this.utils.getTranslate('layersEntity.format'), field: 'format', },
+      { headerName: this.utils.getTranslate('layersEntity.format'), editable: false,
+      valueGetter: (params) => {
+        var alias = this.parameterFormatTypes.filter((format) => format.value == params.data.format)[0];
+        return alias != undefined ? alias.description : params.data.format
+      }},
       { headerName: this.utils.getTranslate('layersEntity.order'), field: 'order' },
       { headerName: this.utils.getTranslate('layersEntity.type'), field: 'type' },
       { headerName: this.utils.getTranslate('layersEntity.status'), field: 'status', editable:false },
 
     ];
+    
 
     this.columnDefsSpatialConfigurations = [
 
       environment.selCheckboxColumnDef,
       { headerName: this.utils.getTranslate('layersEntity.column'), field: 'name' },
       { headerName: this.utils.getTranslate('layersEntity.label'), field: 'value' },
-      { headerName: this.utils.getTranslate('layersEntity.format'), field: 'format', },
-      { headerName: this.utils.getTranslate('layersEntity.help'), field: 'help' },
-      { headerName: this.utils.getTranslate('layersEntity.selectPath'), field: 'selectPath' },
+      { headerName: this.utils.getTranslate('layersEntity.format'), editable: false,
+      valueGetter: (params) => {
+        var alias = this.parameterFormatTypes.filter((format) => format.value == params.data.format)[0];
+        return alias != undefined ? alias.description : params.data.format
+      }}, 
       { headerName: this.utils.getTranslate('layersEntity.status'), field: 'status', editable:false },
 
     ];
@@ -289,8 +382,12 @@ export class LayersFormComponent implements OnInit {
   }
 
 
-  getGeometryTypes() {
-
+  onSelectionThematicChanged(value){
+    if (value.checked) {
+      this.layerForm.get('geometryType').enable();
+    } else {
+      this.layerForm.get('geometryType').disable();
+    }
   }
 
 
@@ -313,16 +410,18 @@ export class LayersFormComponent implements OnInit {
       legendType: new FormControl(null, []),
       description: new FormControl(null, []),
       datasetURL: new FormControl(null, []),//here
-      municipalFilterFields: new FormControl(null, []),
+      applyFilterToGetMap: new FormControl(null, []),
       filterInfoByMunicipality: new FormControl(null, []),
       filterSpatialSeleciontByMunicipality: new FormControl(null, []),
-      information: new FormControl(null, []),
-      defaultInformation: new FormControl(null, []),
-      informationLayer: new FormControl(null, []),
-      thematic: new FormControl(null, []),
-      blocked: new FormControl(null, []),
       queryableFeatureEnabled: new FormControl(null, []),
       queryableFeatureAvailable: new FormControl(null, []),
+      queryableLayers: new FormControl(null, []),
+      thematic: new FormControl(null, []),
+      blocked: new FormControl(null, []),
+      selectable: new FormControl(null, []),
+      spatialSelectionService: new FormControl(null, []),
+      layer: new FormControl(null, []),
+      spatialSelectionConnection: new FormControl(null, []),
       _links: new FormControl(null, []),
     });
   }
@@ -340,6 +439,7 @@ export class LayersFormComponent implements OnInit {
 
 
 
+
   // AG-GRID
 
 
@@ -351,8 +451,8 @@ export class LayersFormComponent implements OnInit {
       const aux: Array<any> = [];
       return of(aux);
     }
-    var urlReq=`${this.layerForm.value._links.parameters.href}`
-    if(this.layerForm.value._links.parameters.templated){
+    var urlReq=`${this.layerToEdit._links.parameters.href}`
+    if(this.layerToEdit._links.parameters.templated){
       var url=new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection","view")
       urlReq=url.toString();
@@ -421,15 +521,15 @@ export class LayersFormComponent implements OnInit {
       const aux: Array<any> = [];
       return of(aux);
     }
-    var urlReq=`${this.layerForm.value._links.parameters.href}`
-    if(this.layerForm.value._links.parameters.templated){
+    var urlReq=`${this.layerToEdit._links.parameters.href}`
+    if(this.layerToEdit._links.parameters.templated){
       var url=new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection","view")
       urlReq=url.toString();
     }
 
     return (this.http.get(urlReq))
-    .pipe( map( data =>  data['_embedded']['cartography-parameters'].filter(elem=> elem.type=="EDIT")
+    .pipe( map( data =>  data['_embedded']['cartography-parameters'].filter(elem=> elem.type=="INFOSELECT")
       ));
 
   }
@@ -465,8 +565,8 @@ export class LayersFormComponent implements OnInit {
       return of(aux);
     }
 
-    var urlReq = `${this.layerForm.value._links.availabilities.href}`
-    if (this.layerForm.value._links.availabilities.templated) {
+    var urlReq = `${this.layerToEdit._links.availabilities.href}`
+    if (this.layerToEdit._links.availabilities.templated) {
       var url = new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection", "view")
       urlReq = url.toString();
@@ -512,8 +612,8 @@ export class LayersFormComponent implements OnInit {
     const aux: Array<any> = [];
     return of(aux);
 
-  //   var urlReq = `${this.layerForm.value._links.availabilities.href}`
-  //   if (this.layerForm.value._links.availabilities.templated) {
+  //   var urlReq = `${this.layerToEdit._links.availabilities.href}`
+  //   if (this.layerToEdit._links.availabilities.templated) {
   //     var url = new URL(urlReq.split("{")[0]);
   //     url.searchParams.append("projection", "view")
   //     urlReq = url.toString();
@@ -556,8 +656,8 @@ export class LayersFormComponent implements OnInit {
       return of(aux);
     }
 
-    var urlReq = `${this.layerForm.value._links.treeNodes.href}`
-    if (this.layerForm.value._links.treeNodes.templated) {
+    var urlReq = `${this.layerToEdit._links.treeNodes.href}`
+    if (this.layerToEdit._links.treeNodes.templated) {
       var url = new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection", "view")
       urlReq = url.toString();
@@ -634,7 +734,7 @@ export class LayersFormComponent implements OnInit {
       if(result){
         if( result.event==='Add') { 
           let item= this.parameterForm.value;
-          item.type="EDIT"
+          item.type="INFOSELECT"
           this.addElementsEventSpatialConfigurations.next([item])
           console.log(this.parameterForm.value)
           this.parameterForm.reset();
@@ -765,6 +865,11 @@ export class LayersFormComponent implements OnInit {
       .subscribe(resp => {
         console.log(resp);
         this.layerToEdit=resp;
+        this.layerID=resp.id;
+        this.layerForm.patchValue({
+          id: resp.id,
+          _links: resp._links
+        })
         this.getAllElementsEventParameters.next(true);
         // this.getAllElementsEventSpatialConfigurations.next(true);
         this.getAllElementsEventTerritories.next(true);

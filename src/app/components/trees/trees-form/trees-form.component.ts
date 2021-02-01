@@ -7,7 +7,7 @@ import { UtilsService } from '../../../services/utils.service';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Observable, of, Subject } from 'rxjs';
-import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
+import { DialogMessageComponent } from '@sitmun/frontend-gui';
 import { MatDialog } from '@angular/material/dialog';
 @Component({
   selector: 'app-trees-form',
