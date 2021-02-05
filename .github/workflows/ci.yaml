@@ -1,0 +1,24 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [ $default-branch ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js 12
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12'
+    - name: Install dependencies
+      run: npm set //npm.pkg.github.com/:_authToken ${{secrets.TOKEN_FOR_WORKFLOWS}}
+      run: npm ci
+    - name: Build for deployment
+      run: npm run build -- --configuration=testdeployment --baseHref="https://sitmun.github.io/admin-app/"
+    - name: Deploy to GitHub pages
+      run: ./build-scripts/deploy.sh
+      shell: bash
