@@ -8,7 +8,7 @@ if [ -n "$GITHUB_API_KEY" ]; then
      cd tmp
      git clone https://github.com/sitmun/sitmun.github.io.git
      cd sitmun.github.io
-     cp -r "$TRAVIS_BUILD_DIR"/dist/admin-app .
+     cp -r "$GITHUB_WORKSPACE"/dist/admin-app .
      git add admin-app/*
      git commit -m "Deployment of the sitmun-admin-app client"
 #    # Make sure to make the output quiet, or else the API token will leak!

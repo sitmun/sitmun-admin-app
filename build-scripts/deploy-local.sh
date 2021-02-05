@@ -1,8 +1,8 @@
 #!/bin/bash
 # For local builds
 
-# These variables are declared by travis automatically or
-# in the .travis.yml. I have not found a way to make travis-ci
+# These variables are declared by the CI server automatically
+# or in ther config files. I have not found a way to make travis-ci
 # share environment variables declared in one shell script with
 # other shell scripts in the same build, so for local builds
 # they need to be declared also here.
@@ -12,6 +12,7 @@
 # A SET OF COMMON VARIABLES COULD BE USEFUL.
 
 export TRAVIS_BUILD_DIR=${PWD}
+export GITHUB_WORKSPACE=${PWD}
 
 ################################################
 
