@@ -14,8 +14,8 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: '12'
+    - run: npm set //npm.pkg.github.com/:_authToken ${{secrets.TOKEN_FOR_WORKFLOWS}}
     - name: Install dependencies
-      run: npm set //npm.pkg.github.com/:_authToken ${{secrets.TOKEN_FOR_WORKFLOWS}}
       run: npm ci
     - name: Build for deployment
       run: npm run build -- --configuration=testdeployment --baseHref="https://sitmun.github.io/admin-app/"
