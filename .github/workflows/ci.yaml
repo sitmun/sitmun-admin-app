@@ -1,11 +1,11 @@
-name: Node.js CI
+name: CI
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,5 +20,7 @@ jobs:
     - name: Build for deployment
       run: npm run build -- --configuration=testdeployment --baseHref="https://sitmun.github.io/admin-app/"
     - name: Deploy to GitHub pages
+      env: USERNAME: ${{secrets.USERNAME_FOR_WORKFLOWS}}
+      env: GITHUB_API_KEY: ${{secrets.TOKEN_FOR_WORKFLOWS}}
       run: ./build-scripts/deploy.sh
       shell: bash
