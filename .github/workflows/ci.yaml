@@ -23,8 +23,5 @@ jobs:
       env:
         USERNAME: ${{secrets.USERNAME_FOR_WORKFLOWS}}
         GITHUB_API_KEY: ${{secrets.TOKEN_FOR_WORKFLOWS}}
-      run: |
-        git config user.name "GitHub Actions Bot"
-        git config user.email "<>"
-        ./build-scripts/deploy.sh
+      run: ./build-scripts/deploy.sh
       shell: bash
