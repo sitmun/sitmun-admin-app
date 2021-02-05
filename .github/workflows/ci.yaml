@@ -30,10 +30,13 @@ jobs:
     - name: Sonar Cloud Scan
       uses: sonarsource/sonarcloud-github-action@master
       env:
-        GITHUB_TOKEN = ${{secrets.TOKEN_FOR_WORKFLOWS}}
-        SONAR_TOKEN = ${{secrets.SONAR_TOKEN}}
+        GITHUB_TOKEN: ${{secrets.TOKEN_FOR_WORKFLOWS}}
+        SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
     - name: Build for deployment
       run: npm run build -- --configuration=testdeployment --baseHref="https://sitmun.github.io/admin-app/"
+    - name: E2E tests
+      run: ./build-scripts/conditional-e2e.sh
+      shell: bash
     - name: Deploy to GitHub pages
       env:
         USERNAME: ${{secrets.USERNAME_FOR_WORKFLOWS}}
