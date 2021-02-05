@@ -16,7 +16,7 @@ echo $API_URL
 CURL_VALUE="$(curl -Is --retry 10 --retry-delay 10 $API_URL/api/ | head -1)"
 if [[ "$CURL_VALUE" == *"204"* ]] ;
 then
-  # It uses the headless configuration, so it can run in Travis
+  # It uses the headless configuration, so it can run in CI server
   npm run e2e -- --protractor-config=e2e/protractor.conf.headless.js --configuration=testdeployment
 else
   echo "I am unable to connect to the test deployment API. I won't run the E2E tests."

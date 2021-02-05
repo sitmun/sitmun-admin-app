@@ -27,8 +27,11 @@ jobs:
       run: npm ci
     - name: Unit tests
       run: npm run test -- --watch=false --no-progress --browsers=ChromeHeadless --code-coverage
-    - name: Analysis in Sonar Cloud
-      run: npm run sonar
+    - name: Sonar Cloud Scan
+      uses: sonarsource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN = ${{secrets.TOKEN_FOR_WORKFLOWS}}
+        SONAR_TOKEN = ${{secrets.SONAR_TOKEN}}
     - name: Build for deployment
       run: npm run build -- --configuration=testdeployment --baseHref="https://sitmun.github.io/admin-app/"
     - name: Deploy to GitHub pages
