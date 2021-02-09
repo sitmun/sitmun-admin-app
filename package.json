@@ -34,6 +34,7 @@
     "rxjs": "~6.6.0",
     "rxjs-compat": "^6.6.3",
     "schematics-scss-migrate": "^1.3.13",
+    "stream": "0.0.2",
     "timers": "^0.1.1",
     "tslib": "^2.0.0",
     "web-animations-js": "^2.3.2",
