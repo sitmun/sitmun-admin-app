@@ -190,6 +190,12 @@ export class ApplicationFormComponent implements OnInit {
             type: this.applicationTypes[0].value,
             situationMap: this.situationMapList[0].id
           });
+          this.applicationForm.get('title').disable();
+          this.applicationForm.get('scales').disable();
+          this.applicationForm.get('srs').disable();
+          this.applicationForm.get('situationMap').disable();
+          this.applicationForm.get('treeAutoRefresh').disable();
+          this.applicationForm.get('theme').disable();
         }
   
       },
@@ -301,9 +307,9 @@ export class ApplicationFormComponent implements OnInit {
 
 
   onSelectionTypeAppChanged({ value }) {
+    
     if (value === 'E') {
       this.applicationForm.get('title').disable();
-      this.applicationForm.get('tree').disable();
       this.applicationForm.get('scales').disable();
       this.applicationForm.get('srs').disable();
       this.applicationForm.get('situationMap').disable();
@@ -311,7 +317,6 @@ export class ApplicationFormComponent implements OnInit {
       this.applicationForm.get('theme').disable();
     } else {
       this.applicationForm.get('title').enable();
-      this.applicationForm.get('tree').enable();
       this.applicationForm.get('scales').enable();
       this.applicationForm.get('srs').enable();
       this.applicationForm.get('situationMap').enable();
@@ -824,7 +829,7 @@ export class ApplicationFormComponent implements OnInit {
         appObj.title= this.applicationForm.value.title;
         appObj.jspTemplate= this.applicationForm.value.jspTemplate;
         appObj.theme= this.applicationForm.value.theme;
-        appObj.scales= (this.applicationForm.value.scales.toString()).split(",");
+        appObj.scales= this.applicationForm.value.scales!=null ?this.applicationForm.value.scales.toString().split(","):"";
         appObj.srs= this.applicationForm.value.srs;
         appObj.treeAutoRefresh= this.applicationForm.value.treeAutoRefresh;
         appObj._links= this.applicationForm.value._links;
