@@ -18,7 +18,7 @@ describe('TasksDocumentsFormComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ TasksDocumentsFormComponent ],
       imports : [HttpClientTestingModule, SitmunFrontendGuiModule, MatIconTestingModule, RouterTestingModule, MaterialModule, RouterModule],
-      providers: [TaskService, TerritoryService, RoleService, CodeListService,, TaskAvailabilityService, TaskGroupService,
+      providers: [TaskService, TerritoryService, RoleService, CodeListService, TaskAvailabilityService, TaskGroupService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();
