@@ -1,112 +1,115 @@
-
-
-
-
-
-<div class="titleDiv" >
-  <h4><mat-icon aria-hidden="false"  svgIcon="menu_servei"></mat-icon> {{ "serviceEntity.service" | translate }}-{{(serviceID==-1?"new":"edit") | translate}}</h4>
+<div class="titleDiv">
+  <h4>
+    <mat-icon aria-hidden="false" svgIcon="menu_servei"></mat-icon> {{ "serviceEntity.service" | translate
+    }}-{{(serviceID==-1?"new":"edit") | translate}}
+  </h4>
   <span class="divider"></span>
 </div>
 
 
 <div class="formDiv">
-  <div class="formHeader">
-    <h5> {{'serviceEntity.generalData' | translate}} </h5>
-    <button   mat-flat-button class="saveButton" (click)="onSaveButtonClicked()" >
-      <mat-icon fontSet="material-icons-round"  > save </mat-icon>
-      {{ "save" | translate }}
-    </button>
-    <button (click)="utils.navigateBack()"  mat-flat-button class="returnButton"  >
-      <mat-icon fontSet="material-icons-round"> arrow_back </mat-icon>
-      {{ "return" | translate }}
-    </button>
-  </div>
-  <span class="divider"></span>
-  <form [formGroup]='serviceForm' #f="ngForm"> 
-
-
-      <div class="rowFormDiv">
-      
-          <div class="thirdColumnColFormDiv" >
-            <label class="formLabel requiredInput">
-              {{'serviceEntity.name' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="name" required>
-            </mat-form-field>
-          </div>
-  
-          <div class="thirdColumnColFormDiv" >
-            <label class="formLabel requiredInput">
-              {{'serviceEntity.type' | translate}}
-            </label>
-            <mat-form-field appearance="outline" >
-              <mat-select matInput formControlName="type" class="form-control" >
-                <mat-option [value]="serviceType.value" *ngFor="let serviceType of serviceTypes">
-                  {{ serviceType.description}}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-          <div class="thirdColumnColFormDiv">
-            <label class="formLabel">
-              {{'serviceEntity.available' | translate}}
-            </label>
-            <mat-checkbox formControlName="blocked"> </mat-checkbox>
-          </div>
-          
-          
-            <button *ngIf="serviceID==-1" (click)="getCapabilitiesService()" mat-flat-button class="validateButton" >{{ "serviceEntity.getData" | translate }}</button>
-            <button *ngIf="serviceID!=-1" (click)="getCapabilitiesService()" mat-flat-button class="validateButton" >{{ "serviceEntity.updateData" | translate }}</button>
-     </div>
-
-      <div class="rowFormDiv">
-          <div class="colFormDiv" >
-            <label class="formLabel requiredInput">
-              {{'serviceEntity.url' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="serviceURL" required>
-            </mat-form-field>
-          </div>
-          <div class="colFormDiv" >
-            <label class="formLabel">
-              {{'serviceEntity.metadataURL' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="getInformationURL">
-            </mat-form-field>
-        </div>
-
-        <div class="colFormDiv" >
-          <label class="formLabel">
-            {{'serviceEntity.projections' | translate}}
-          </label>
-          <mat-form-field appearance="outline">
-              <mat-chip-list #chipList aria-label="Selecció de projecció">
-                <mat-chip
-                  *ngFor="let projection of projections"
-                  [selectable]="selectable"
-                  [removable]="removable"
-                  (removed)="removeProjection(projection)"
-                >
-                  {{ projection }}
-                  <mat-icon matChipRemove>cancel</mat-icon>
-                </mat-chip>
-                <input title="{{ 'projectionsMessage' | translate }}"
-                  [matChipInputFor]="chipList"
-                  [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                  [matChipInputAddOnBlur]="addOnBlur"
-                  (matChipInputTokenEnd)="addProjection($event)"
-                />
-              </mat-chip-list>
+  <form [formGroup]='serviceForm' #f="ngForm">
+    <div class="formHeader">
+      <h5> {{'serviceEntity.generalData' | translate}} </h5>
+      <button type="submit" mat-flat-button class="saveButton" (click)="onSaveButtonClicked()">
+        <mat-icon fontSet="material-icons-round"> save </mat-icon>
+        {{ "save" | translate }}
+      </button>
+      <button type="button" (click)="utils.navigateBack()" mat-flat-button class="returnButton">
+        <mat-icon fontSet="material-icons-round"> arrow_back </mat-icon>
+        {{ "return" | translate }}
+      </button>
+    </div>
+    <span class="divider"></span>
 
 
 
-          </mat-form-field>
-        </div>
+    <div class="rowFormDiv">
+
+      <div class="MidColFormDiv">
+        <label class="formLabel requiredInput">
+          {{'serviceEntity.name' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="name" required>
+        </mat-form-field>
+      </div>
+
+      <div class="MidLargeColFormDiv">
+        <label class="formLabel requiredInput">
+          {{'serviceEntity.description' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="description" required>
+        </mat-form-field>
+      </div>
+
+
+      <div class="ShortColFormDiv " id="right-column">
+        <label class="formLabel">
+          {{'serviceEntity.available' | translate}}
+        </label>
+        <mat-checkbox formControlName="blocked"> </mat-checkbox>
+      </div>
+
+    </div>
+
+    <div class="rowFormDiv">
+      <div class="MidLargeColFormDiv">
+        <label class="formLabel requiredInput">
+          {{'serviceEntity.url' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="serviceURL" required>
+        </mat-form-field>
+      </div>
+      <div class="MidLargeColFormDiv">
+        <label class="formLabel">
+          {{'serviceEntity.metadataURL' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="getInformationURL">
+        </mat-form-field>
+      </div>
+
     
     </div>
+    <div class="rowFormDiv">
+      <div class="MidColFormDiv">
+        <label class="formLabel requiredInput">
+          {{'serviceEntity.type' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <mat-select matInput formControlName="type" class="form-control" required>
+            <mat-option [value]="serviceType.value" *ngFor="let serviceType of serviceTypes">
+              {{ serviceType.description}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="MidLargeColFormDiv">
+        <label class="formLabel">
+          {{'serviceEntity.projections' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <mat-chip-list #chipList aria-label="Selecció de projecció">
+            <mat-chip *ngFor="let projection of projections" [selectable]="selectable" [removable]="removable"
+              (removed)="removeProjection(projection)">
+              {{ projection }}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+            <input title="{{ 'projectionsMessage' | translate }}" [matChipInputFor]="chipList"
+              [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="addOnBlur"
+              (matChipInputTokenEnd)="addProjection($event)" />
+          </mat-chip-list>
+        </mat-form-field>
+      </div>
+      <button type="button" *ngIf="serviceID==-1" (click)="getCapabilitiesService()" mat-flat-button
+      class="validateButton">{{ "serviceEntity.getData" | translate }}</button>
+    <button type="button" *ngIf="serviceID!=-1" (click)="getCapabilitiesService()" mat-flat-button
+      class="validateButton">{{ "serviceEntity.updateData" | translate }}</button>
+    </div>
+
   </form>
 </div>
 
@@ -116,66 +119,72 @@
     <!-- Configuration parameters table -->
     <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
       <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-        <mat-panel-title  >
+        <mat-panel-title>
           {{ "serviceEntity.configurationParameters" | translate }}
         </mat-panel-title>
       </mat-expansion-panel-header>
-  
-    <ng-template matExpansionPanelContent>  
+
+      <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-            <app-data-grid  [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'
-            [eventAddItemsSubscription]='addElementsEventParameters.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventParameters.asObservable()' 
-            [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
-            (getAllRows)="getAllRowsParameters($event)" [actionButton]=true (duplicate)='duplicateParameters($event)'  (new)="openParametersDialog($event)"> </app-data-grid>
+          <app-data-grid [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'
+            [eventAddItemsSubscription]='addElementsEventParameters.asObservable()'
+            [eventGetAllRowsSubscription]='getAllElementsEventParameters.asObservable()'
+            [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()' [discardChangesButton]=true
+            [redoButton]=true [undoButton]=true [deleteButton]=true [newButton]=true
+            (getAllRows)="getAllRowsParameters($event)" [actionButton]=true (duplicate)='duplicateParameters($event)'
+            (new)="openParametersDialog($event)"> </app-data-grid>
         </div>
-    </ng-template>
-  
+      </ng-template>
+
     </mat-expansion-panel>
 
     <!-- Layers -->
     <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
       <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-        <mat-panel-title  >
+        <mat-panel-title>
           {{ "serviceEntity.layersToRegister" | translate }}
         </mat-panel-title>
       </mat-expansion-panel-header>
-  
-    <ng-template matExpansionPanelContent>  
+
+      <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-            <app-data-grid  [columnDefs]="columnDefsLayers" [themeGrid]='themeGrid' [getAll]='getAllLayers' 
-            [eventAddItemsSubscription]='addElementsEventLayers.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventLayers.asObservable()' 
-            [eventRefreshSubscription]='dataUpdatedEventLayers.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true  [hideDuplicateButton]=true
-            (getAllRows)="getAllRowsLayers($event)" [actionButton]=true (add)="openCartographyDialog($event)" > </app-data-grid>
+          <app-data-grid [columnDefs]="columnDefsLayers" [themeGrid]='themeGrid' [getAll]='getAllLayers'
+            [eventAddItemsSubscription]='addElementsEventLayers.asObservable()'
+            [eventGetAllRowsSubscription]='getAllElementsEventLayers.asObservable()'
+            [eventRefreshSubscription]='dataUpdatedEventLayers.asObservable()' [discardChangesButton]=true
+            [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
+            (getAllRows)="getAllRowsLayers($event)" [actionButton]=true (add)="openCartographyDialog($event)">
+          </app-data-grid>
         </div>
-    </ng-template>
-  
+      </ng-template>
+
     </mat-expansion-panel>
   </mat-accordion>
 </div>
 
 <ng-template #newParameterDialog>
 
-<div class="formDiv">
-  <form [formGroup]='parameterForm' #f="ngForm"> 
+  <div class="formDiv">
+    <form [formGroup]='parameterForm' #f="ngForm">
 
 
-    <div class="rowFormDiv">
+      <div class="rowFormDiv">
 
 
-      <div class="colFormDiv" >
-        <label class="formLabel requiredInput">
-          {{'serviceEntity.request' | translate}}
-        </label>
-        <mat-form-field appearance="outline" >
-          <mat-select matInput formControlName="type" class="form-control" >
-            <mat-option [value]="requestType.value" *ngFor="let requestType of requestTypes">
-              {{ requestType.value}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
+        <div class="colFormDiv">
+          <label class="formLabel requiredInput">
+            {{'serviceEntity.request' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <mat-select matInput formControlName="type" class="form-control">
+              <mat-option [value]="requestType.value" *ngFor="let requestType of requestTypes">
+                {{ requestType.value}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
 
-        <div class="colFormDiv" >
+        <div class="colFormDiv">
           <label class="formLabel requiredInput">
             {{'serviceEntity.parameter' | translate}}
           </label>
@@ -185,24 +194,24 @@
         </div>
 
 
-   </div>
+      </div>
 
-   <div class="rowFormDiv">
-    
-    <div class="colFormDiv" >
-      <label class="formLabel requiredInput">
-        {{'serviceEntity.value' | translate}}
-      </label>
-      <mat-form-field appearance="outline">
-        <input matInput type="text" formControlName="value" required>
-      </mat-form-field>
-    </div>
+      <div class="rowFormDiv">
+
+        <div class="colFormDiv">
+          <label class="formLabel ">
+            {{'serviceEntity.value' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="text" formControlName="value">
+          </mat-form-field>
+        </div>
 
 
+      </div>
+
+    </form>
   </div>
-
-</form>
-</div>
 
 
 </ng-template>

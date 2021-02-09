@@ -3,7 +3,7 @@ import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { of,Subject} from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { HalOptions, HalParam, TaskService } from '@sitmun/frontend-core';
+import { HalOptions, HalParam, TaskService } from 'dist/sitmun-frontend-core/';
 
 @Component({
   selector: 'app-tasks-download',
@@ -33,9 +33,9 @@ export class TasksDownloadComponent implements OnInit {
       environment.selCheckboxColumnDef,
       columnEditBtn,
       { headerName: 'ID',  field: 'id', editable: false},
-      { headerName: this.utils.getTranslate('tasksDownloadEntity.name'),  field: 'name'},
-      { headerName: this.utils.getTranslate('tasksDownloadEntity.observations'),  field: 'observations'},
-      { headerName: this.utils.getTranslate('tasksDownloadEntity.application'),  field: 'application',editable: false }
+      { headerName: this.utils.getTranslate('tasksDownloadEntity.task'),  field: 'name'},
+      { headerName: this.utils.getTranslate('tasksDownloadEntity.informationType'),  field: 'groupName', editable: false},
+      { headerName: this.utils.getTranslate('tasksDownloadEntity.extent'),  field: 'format' }
     ];
   }
 

@@ -3,19 +3,19 @@
     <span class="divider"></span>
   </div>
 <div class="formDiv">
-  <div class="formHeader">
-    <h5> {{'applicationEntity.generalData' | translate}} </h5>
-    <button   mat-flat-button class="saveButton" (click)="onSaveButtonClicked()" >
-      <mat-icon fontSet="material-icons-round"  > save </mat-icon>
-      {{ "save" | translate }}
-    </button>
-    <button (click)="utils.navigateBack()"  mat-flat-button class="returnButton"  >
-      <mat-icon fontSet="material-icons-round"> arrow_back </mat-icon>
-      {{ "return" | translate }}
-    </button>
-  </div>
-  <span class="divider"></span>
-  <form [formGroup]='applicationForm'> 
+  <form [formGroup]='applicationForm' 	(ngSubmit)="onSaveButtonClicked()"> 
+      <div class="formHeader">
+        <h5> {{'applicationEntity.generalData' | translate}} </h5>
+        <button   mat-flat-button class="saveButton" >
+          <mat-icon fontSet="material-icons-round"  > save </mat-icon>
+          {{ "save" | translate }}
+        </button>
+        <button type="button" (click)="utils.navigateBack()"  mat-flat-button class="returnButton"  >
+          <mat-icon  fontSet="material-icons-round"> arrow_back </mat-icon>
+          {{ "return" | translate }}
+        </button>
+      </div>
+      <span class="divider"></span>
   
  
       <div class="rowFormDiv">
@@ -31,7 +31,7 @@
           </div>
          
           <div class="colFormDiv" >
-            <label class="formLabel">
+            <label class="formLabel requiredInput">
               {{'applicationEntity.type' | translate}}
             </label>
             <mat-form-field appearance="outline">
@@ -94,7 +94,7 @@
       <div class="rowFormDiv">
       
           
-        <div class="lastColFormDiv" >
+        <div class="colFormDiv" >
             <label class="formLabel">
               {{'applicationEntity.scales' | translate}}
             </label>
@@ -103,7 +103,7 @@
             </mat-form-field>
           </div>
 
-          <div class="lastColFormDiv" >
+          <div class="colFormDiv" >
             <label class="formLabel">
               {{'applicationEntity.srs' | translate}}
             </label>

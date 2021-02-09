@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { ApplicationService, Application } from '@sitmun/frontend-core';
+import { ApplicationService, Application } from 'dist/sitmun-frontend-core/';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
-import { DialogMessageComponent } from '@sitmun/frontend-gui';
+import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 
 @Component({
   selector: 'app-application',
@@ -77,7 +77,7 @@ export class ApplicationComponent implements OnInit {
   applyChanges(data: Application[]) {
     const promises: Promise<any>[] = [];
     data.forEach(application => {
-      promises.push(new Promise((resolve, reject) => { this.applicationService.update(application).toPromise().then((resp) => { resolve() }) }));
+      promises.push(new Promise((resolve, reject) => { this.applicationService.update(application).subscribe((resp) => { resolve(true) }) }));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);
       });
@@ -90,7 +90,7 @@ export class ApplicationComponent implements OnInit {
       application.id = null;
       application.createdDate=new Date();
       application.name = 'copia_'.concat(application.name)
-      promises.push(new Promise((resolve, reject) => { this.applicationService.create(application).toPromise().then((resp) => { resolve() }) }));
+      promises.push(new Promise((resolve, reject) => { this.applicationService.create(application).subscribe((resp) => { resolve(true) }) }));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);
       });
@@ -108,7 +108,7 @@ export class ApplicationComponent implements OnInit {
         if (result.event === 'Accept') {
           const promises: Promise<any>[] = [];
           data.forEach(application => {
-            promises.push(new Promise((resolve, reject) => { this.applicationService.delete(application).toPromise().then((resp) => { resolve() }) }));
+            promises.push(new Promise((resolve, reject) => { this.applicationService.delete(application).subscribe((resp) => { resolve(true) }) }));
             Promise.all(promises).then(() => {
               this.dataUpdatedEvent.next(true);
             });

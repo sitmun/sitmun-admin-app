@@ -1,12 +1,12 @@
 
 import { Component, OnInit } from '@angular/core';
-import { TaskGroupService, TaskGroup } from '@sitmun/frontend-core';
+import { TaskGroupService, TaskGroup } from 'dist/sitmun-frontend-core/';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
-import { DialogMessageComponent } from '@sitmun/frontend-gui';
+import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
  
 @Component({
   selector: 'app-task-group',
@@ -62,7 +62,7 @@ export class TaskGroupComponent implements OnInit {
   applyChanges(data: TaskGroup[]) {
     const promises: Promise<any>[] = [];
     data.forEach(taskGroup => {
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.taskGroupService.update(taskGroup).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.taskGroupService.update(taskGroup).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);
       });
@@ -74,7 +74,7 @@ export class TaskGroupComponent implements OnInit {
     data.forEach(taskGroup => {
       taskGroup.id = null;
       taskGroup.name = 'copia_'.concat(taskGroup.name)
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.taskGroupService.create(taskGroup).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.taskGroupService.create(taskGroup).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);
       });
@@ -92,7 +92,7 @@ export class TaskGroupComponent implements OnInit {
         if(result.event==='Accept') {  
           const promises: Promise<any>[] = [];
           data.forEach(taskGroup => {
-            promises.push(new Promise((resolve, reject) => {​​​​​​​ this.taskGroupService.delete(taskGroup).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+            promises.push(new Promise((resolve, reject) => {​​​​​​​ this.taskGroupService.delete(taskGroup).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
             Promise.all(promises).then(() => {
               this.dataUpdatedEvent.next(true);
             });

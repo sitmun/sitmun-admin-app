@@ -2,12 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TaskService, TerritoryService, CartographyService, Cartography } from '@sitmun/frontend-core';
+import { TaskService, TerritoryService, RoleService, Cartography, TaskAvailabilityService, TaskGroupService, Task, Territory, Role } from 'dist/sitmun-frontend-core/';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { DialogGridComponent } from '@sitmun/frontend-gui';
+import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
 import { map } from 'rxjs/operators';
 
@@ -19,6 +19,8 @@ import { map } from 'rxjs/operators';
 export class TasksDocumentsFormComponent implements OnInit {
 
   //Form
+  taskGroups: Array<any> = [];
+  documentTypes: Array<any> = [];
   formTasksDocument: FormGroup;
   taskDocumentToEdit;
   taskDocumentID = -1;
@@ -26,15 +28,19 @@ export class TasksDocumentsFormComponent implements OnInit {
   
   //Grids
   themeGrid: any = environment.agGridTheme;
-  columnDefsCartography: any[];
-  getAllElementsEventCartographies: Subject<any[]> = new Subject <any[]>();
+  columnDefsRoles: any[];
+  getAllElementsEventRoles: Subject<boolean> = new Subject <boolean>();
+  dataUpdatedEventRoles: Subject<boolean> = new Subject<boolean>();
+
   columnDefsTerritories: any[];
-  getAllElementsEventTerritories: Subject<any[]> = new Subject <any[]>();
+  getAllElementsEventTerritories: Subject<boolean> = new Subject <boolean>();
+  dataUpdatedEventTerritories: Subject<boolean> = new Subject<boolean>();
+
 
   //Dialog
-  columnDefsCartographyDialog: any[];
-  addElementsEventCartographies: Subject<any[]> = new Subject <any[]>();
-  columnDefsTerritoriesDialog: any[];  
+  columnDefsRolesDialog: any[];
+  addElementsEventRoles: Subject<any[]> = new Subject <any[]>();
+   columnDefsTerritoriesDialog: any[];  
   addElementsEventTerritories: Subject<any[]> = new Subject <any[]>();
 
 
@@ -46,8 +52,10 @@ export class TasksDocumentsFormComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     public taskService: TaskService,
-    public cartographyService: CartographyService,
+    public roleService: RoleService,
     public territoryService: TerritoryService,
+    private taskGroupService: TaskGroupService,
+    private taskAvailabilityService: TaskAvailabilityService,
     private http: HttpClient,
     public utils: UtilsService
   ) {
@@ -55,62 +63,85 @@ export class TasksDocumentsFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.activatedRoute.params.subscribe(params => {
-      this.taskDocumentID = +params.id;
-      if (this.taskDocumentID !== -1) {
-        console.log(this.taskDocumentID);
 
-        this.taskService.get(this.taskDocumentID).subscribe(
-          resp => {
-            console.log(resp);
-            this.taskDocumentToEdit = resp;
-            this.formTasksDocument.setValue({
-              id: this.taskDocumentID,
-              task: this.taskDocumentToEdit.name,
-              documentType: '',
-              groupTask: this.taskDocumentToEdit.groupName,
-              path:  '',
-              extent: '',
-              _links: this.taskDocumentToEdit._links
-            });
+    const promises: Promise<any>[] = [];
 
-            this.dataLoaded=true;
-          },
-          error => {
+    promises.push(new Promise((resolve, reject) => {
+      this.taskGroupService.getAll().subscribe(
+        resp => {
+          this.taskGroups.push(...resp);
+          resolve(true);
+        }
+      );
+    }));
 
-          }
-        );
-      }
-
-    },
-      error => {
-
-      });
+    promises.push(new Promise((resolve, reject) => {
+      this.utils.getCodeListValues('downloadTask.scope').subscribe(
+        resp => {
+          this.documentTypes.push(...resp);
+          resolve(true);
+        }
+      );
+    }));
 
 
-      this.columnDefsCartography = [
-        environment.selCheckboxColumnDef,
+    Promise.all(promises).then(() => {
+      this.activatedRoute.params.subscribe(params => {
+        this.taskDocumentID = +params.id;
+        if (this.taskDocumentID !== -1) {
+          console.log(this.taskDocumentID);
+  
+          this.taskService.get(this.taskDocumentID).subscribe(
+            resp => {
+              console.log(resp);
+              this.taskDocumentToEdit = resp;
+              this.formTasksDocument.setValue({
+                id: this.taskDocumentID,
+                name: this.taskDocumentToEdit.name,
+                documentType: this.documentTypes[0].id,
+                taskGroup: this.taskDocumentToEdit.groupId,
+                path:  '',
+                extent: '',
+                _links: this.taskDocumentToEdit._links
+              });
+  
+              this.dataLoaded=true;
+            },
+            error => {
+  
+            }
+          );
+        }
+  
+      },
+        error => {
+  
+        });
+    });
+
+
+    this.columnDefsRoles = [
+      environment.selCheckboxColumnDef,
         { headerName: 'Id', field: 'id', editable: false },
-        { headerName: this.utils.getTranslate('tasksDocumentEntity.name'), field: 'name' },  
-        { headerName: this.utils.getTranslate('tasksDocumentEntity.status'), field: 'status', editable:false },  
-
+        { headerName: this.utils.getTranslate('tasksDownloadEntity.name'), field: 'name' },  
+        { headerName: this.utils.getTranslate('tasksDownloadEntity.status'), field: 'status', editable:false },  
       ];
+  
   
       this.columnDefsTerritories = [
         environment.selCheckboxColumnDef,
-        { headerName: 'Id', field: 'id', editable: false },
-        { headerName: this.utils.getTranslate('tasksDocumentEntity.name'), field: 'name' },
+        { headerName: 'Id', field: 'territoryId', editable: false },
+        { headerName: this.utils.getTranslate('tasksDocumentEntity.name'), field: 'territoryName' },
         { headerName: this.utils.getTranslate('tasksDocumentEntity.status'), field: 'status', editable:false },  
   
       ];
 
-      this.columnDefsCartographyDialog = [
+      this.columnDefsRolesDialog = [
         environment.selCheckboxColumnDef,
         { headerName: 'ID', field: 'id', editable: false },
-        { headerName: this.utils.getTranslate('tasksDocumentEntity.name'), field: 'name', editable: false },
-        { headerName: this.utils.getTranslate('tasksDocumentEntity.note'), field: 'description' },
+        { headerName: this.utils.getTranslate('tasksDownloadEntity.name'), field: 'name', editable: false },
+        { headerName: this.utils.getTranslate('tasksDownloadEntity.note'), field: 'description', editable: false, },
       ];
-
       this.columnDefsTerritoriesDialog = [
         environment.selCheckboxColumnDef,
         { headerName: 'ID', field: 'id', editable: false },
@@ -127,8 +158,8 @@ export class TasksDocumentsFormComponent implements OnInit {
 
     this.formTasksDocument = new FormGroup({
       id: new FormControl(null, []),
-      task: new FormControl(null, []),
-      groupTask: new FormControl(null, []),
+      name: new FormControl(null, []),
+      taskGroup: new FormControl(null, []),
       documentType: new FormControl(null, []),
       path: new FormControl(null, []),
       extent: new FormControl(null, []),
@@ -136,50 +167,59 @@ export class TasksDocumentsFormComponent implements OnInit {
     })
   }
 
-  addNewTasksDocument() {
-    console.log(this.formTasksDocument.value);
-    this.taskService.create(this.formTasksDocument.value)
-      .subscribe(resp => {
-        console.log(resp);
-        // this.router.navigate(["/company", resp.id, "formConnection"]);
-      });
-  }
-
-  updateConnection() {
-    console.log(this.formTasksDocument.value);
-
-    this.taskService.update(this.formTasksDocument.value)
-      .subscribe(resp => {
-        console.log(resp);
-      });
-  }
   
-  // ******** Cartography ******** //
-  getAllCartography = () => {
-    
-    // var urlReq = `${this.taskDocumentToEdit._links.cartography.href}`
-    // if (this.taskDocumentToEdit._links.cartography.templated) {
-    //   var url = new URL(urlReq.split("{")[0]);
-    //   url.searchParams.append("projection", "view")
-    //   urlReq = url.toString();
-    // }
-    // return (this.http.get(urlReq))
-    // .pipe(map(data => data['_embedded']['cartographies']));
+ 
+  
+  // ******** Roles ******** //
+  getAllRoles = () => {
 
-    const aux: Array<any> = [];
-    return of(aux);
+    if(this.taskDocumentID == -1)
+    {
+      const aux: Array<any> = [];
+      return of(aux);
+    }
+    
+    return (this.http.get(`${this.taskDocumentToEdit._links.roles.href}`))
+    .pipe( map( data =>  data['_embedded']['roles']) );
 
   }
 
 
-  getAllRowsCartographies(data: any[] )
+  getAllRowsRoles(data: any[] )
   {
-    console.log(data);
+    let rolesModified = [];
+    let rolesToPut = [];
+    data.forEach(role => {
+      if (role.status === 'Modified') {rolesModified.push(role) }
+      if(role.status!== 'Deleted') {rolesToPut.push(role._links.self.href) }
+    });
+    console.log(rolesModified);
+    this.updateRoles(rolesModified, rolesToPut);
+  }
+
+  updateRoles(rolesModified: Role[], rolesToPut: Role[])
+  {
+    const promises: Promise<any>[] = [];
+    rolesModified.forEach(role => {
+      promises.push(new Promise((resolve, reject) => { this.taskDocumentToEdit.update(role).subscribe((resp) => { resolve(true) }) }));
+    });
+    Promise.all(promises).then(() => {
+      let url=this.taskDocumentToEdit._links.roles.href.split('{', 1)[0];
+      this.utils.updateUriList(url,rolesToPut, this.dataUpdatedEventRoles)
+    });
   }
 
 
   // ******** Territories  ******** //
   getAllTerritories = () => {
+
+
+    if(this.taskDocumentID == -1)
+    {
+      const aux: Array<any> = [];
+      return of(aux);
+    }
+
     var urlReq=`${this.taskDocumentToEdit._links.availabilities.href}`
     if(this.taskDocumentToEdit._links.availabilities.templated){
       var url=new URL(urlReq.split("{")[0]);
@@ -197,21 +237,21 @@ export class TasksDocumentsFormComponent implements OnInit {
     console.log(data);
   }
   
-  // ******** Cartography Dialog  ******** //
+  // ******** Roles Dialog  ******** //
 
-  getAllCartographyDialog = () => {
-    return this.cartographyService.getAll();
+  getAllRolesDialog = () => {
+    return this.roleService.getAll();
   }
 
-  openCartographyDialog(data: any) {
+  openRolesDialog(data: any) {
 
     const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
-    dialogRef.componentInstance.getAllsTable=[this.getAllCartographyDialog];
+    dialogRef.componentInstance.getAllsTable=[this.getAllRolesDialog];
     dialogRef.componentInstance.singleSelectionTable=[false];
-    dialogRef.componentInstance.columnDefsTable=[this.columnDefsCartographyDialog];
+    dialogRef.componentInstance.columnDefsTable=[this.columnDefsRolesDialog];
     dialogRef.componentInstance.themeGrid=this.themeGrid;
-    dialogRef.componentInstance.title='Cartography';
-    dialogRef.componentInstance.titlesTable=['Cartography'];
+    dialogRef.componentInstance.title='Roles';
+    dialogRef.componentInstance.titlesTable=['Roles'];
     dialogRef.componentInstance.nonEditable=false;
     
 
@@ -219,7 +259,7 @@ export class TasksDocumentsFormComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if(result){
         if(result.event==='Add') {
-          this.addElementsEventCartographies.next(result.data[0])
+          this.addElementsEventRoles.next(result.data[0])
         }
       }
 
@@ -245,15 +285,78 @@ export class TasksDocumentsFormComponent implements OnInit {
       dialogRef.componentInstance.nonEditable=false;
       
   
-  
       dialogRef.afterClosed().subscribe(result => {
         if(result){
           if(result.event==='Add') {
-            this.addElementsEventTerritories.next(result.data[0])
+            this.addElementsEventTerritories.next(this.adaptFormatTerritories(result.data[0]))
           }
         }
   
       });
+  
+    }
+
+    adaptFormatTerritories(dataToAdapt: Territory[])
+    {
+      let newData: any[] = [];
+      
+      dataToAdapt.forEach(element => {
+        let item = {
+          id: null,
+          territoryCode: element.code,
+          territoryName: element.name,
+          territoryId: element.id,
+          createdDate: element.createdDate,
+          owner: null,
+          territory: element,
+          new: true
+        }
+        newData.push(item);
+        
+      });
+
+      return newData;
+    }
+
+    onSaveButtonClicked(): void {
+
+      if(this.formTasksDocument.valid)
+      {
+    
+        //TODO Update cartography when save works
+        console.log(this.formTasksDocument.value)
+        let taskGroup= this.taskGroups.find(x => x.id===this.formTasksDocument.value.taskGroup )
+        let documentType= this.documentTypes.find(x => x.id===this.formTasksDocument.value.documentType )
+        // this.updateCartography(this.currentCartography)
+        var taskObj: Task= new Task();
+        taskObj.name= this.formTasksDocument.value.name;
+        taskObj.id= this.formTasksDocument.value.id;
+        taskObj.group= taskGroup;
+        // taskObj.documentType= documentType;
+        // taskObj.path= taskGroup;
+        // taskObj.extent= taskGroup;
+        taskObj._links= this.formTasksDocument.value._links;
+    
+        this.taskService.save(this.formTasksDocument.value)
+        .subscribe(resp => {
+          this.taskDocumentToEdit= resp;
+          this.taskDocumentID=this.taskDocumentToEdit.id;
+          this.formTasksDocument.patchValue({
+            id: resp.id,
+            _links: resp._links
+          })
+          this.getAllElementsEventRoles.next(true);
+          this.getAllElementsEventTerritories.next(true);
+      
+        },
+        error => {
+          console.log(error);
+        })
+      }
+  
+      else {
+        this.utils.showRequiredFieldsError();
+      }
   
     }
 

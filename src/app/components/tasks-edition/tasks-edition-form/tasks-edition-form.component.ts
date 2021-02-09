@@ -2,12 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TaskService, TerritoryService, RoleService } from '@sitmun/frontend-core';
+import { TaskService, ServiceService, TerritoryService, RoleService, Role, TaskAvailability, TaskAvailabilityService, Task, TaskGroupService, Territory } from 'dist/sitmun-frontend-core/';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
-import { of, Subject } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { DialogGridComponent } from '@sitmun/frontend-gui';
+import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
 import { map } from 'rxjs/operators';
 
@@ -18,6 +18,8 @@ import { map } from 'rxjs/operators';
 })
 export class TasksEditionFormComponent implements OnInit {
 
+  taskGroups: Array<any> = [];
+  services: Array<any> = [];
 
    //Form
    formTasksEdition: FormGroup;
@@ -30,10 +32,15 @@ export class TasksEditionFormComponent implements OnInit {
    themeGrid: any = environment.agGridTheme;
    columnDefsColumns: any[];
    getAllElementsEventColumns: Subject<any[]> = new Subject <any[]>();
-   columnDefsRoles: any[];
-   getAllElementsEventRoles: Subject<any[]> = new Subject <any[]>();
+
    columnDefsTerritories: any[];
-   getAllElementsEventTerritories: Subject<any[]> = new Subject <any[]>();
+   getAllElementsEventTerritories: Subject<boolean> = new Subject <boolean>();
+   dataUpdatedEventTerritories: Subject<boolean> = new Subject<boolean>();
+ 
+   columnDefsRoles: any[];
+   getAllElementsEventRoles: Subject<boolean> = new Subject <boolean>();
+   dataUpdatedEventRoles: Subject<boolean> = new Subject<boolean>();
+ 
  
    //Dialog
    columnDefsColumnsDialog: any[];
@@ -53,6 +60,9 @@ export class TasksEditionFormComponent implements OnInit {
      public taskService: TaskService,
      public roleService: RoleService,
      public territoryService: TerritoryService,
+     public taskAvailabilityService: TaskAvailabilityService,
+     public taskGroupService: TaskGroupService,
+     public serviceService: ServiceService,
      private http: HttpClient,
      public utils: UtilsService
    ) {
@@ -61,6 +71,31 @@ export class TasksEditionFormComponent implements OnInit {
    }
  
    ngOnInit(): void {
+
+    const promises: Promise<any>[] = [];
+
+    promises.push(new Promise((resolve, reject) => {
+      this.taskGroupService.getAll().subscribe(
+        resp => {
+          this.taskGroups.push(...resp);
+          resolve(true);
+        }
+      );
+    }));
+
+    promises.push(new Promise((resolve, reject) => {
+      this.serviceService.getAll().map((resp) => {
+        let wfsServices = [];
+        resp.forEach(service => {
+          if(service.type==='WFS') {wfsServices.push(service)}
+        });  
+        console.log(this.services);
+        this.services.push(...wfsServices)
+        resolve(true);
+      }).subscribe()
+      }));
+
+    Promise.all(promises).then(() => {
      this.activatedRoute.params.subscribe(params => {
        this.taskEditionID = +params.id;
        if (this.taskEditionID !== -1) {
@@ -74,7 +109,7 @@ export class TasksEditionFormComponent implements OnInit {
                id: this.taskEditionID,
                name: this.taskEditionToEdit.name,
                editionType: '',
-               taskGroup: this.taskEditionToEdit.groupName,
+               taskGroup: this.taskEditionToEdit.groupId,
                service: '',
                layerName: '',
                emptyGeometryParameter: '',
@@ -88,11 +123,19 @@ export class TasksEditionFormComponent implements OnInit {
            }
          );
        }
+       else{
+        this.dataLoaded = true;
+        this.formTasksEdition.patchValue({
+          taskGroup: this.taskGroups[0].id,
+          service: this.services[0].id,
+        });
+       }
  
      },
        error => {
  
        });
+      });
 
        this.columnDefsColumns = [
         environment.selCheckboxColumnDef,
@@ -119,8 +162,8 @@ export class TasksEditionFormComponent implements OnInit {
    
        this.columnDefsTerritories = [
         environment.selCheckboxColumnDef,
-         { headerName: 'Id', field: 'id', editable: false },
-         { headerName: this.utils.getTranslate('tasksEditionEntity.name'), field: 'name' },
+         { headerName: 'Id', field: 'territoryId', editable: false },
+         { headerName: this.utils.getTranslate('tasksEditionEntity.name'), field: 'territoryName' },
          { headerName: this.utils.getTranslate('tasksEditionEntity.status'), field: 'status', editable:false },
    
        ];
@@ -203,6 +246,12 @@ export class TasksEditionFormComponent implements OnInit {
    
    // ******** Columns ******** //
    getAllColumns = () => {
+
+    if(this.taskEditionID == -1)
+    {
+      const aux: Array<any> = [];
+      return of(aux);
+    }
      
      // return (this.http.get(`${this.formTasksEdition.value._links.cartographies.href}`))
      // .pipe( map( data =>  data['_embedded']['cartographies']) );
@@ -218,54 +267,106 @@ export class TasksEditionFormComponent implements OnInit {
    }
    
    
-   // ******** Roles ******** //
-   getAllRoles = () => {
-     console.log(this.taskEditionToEdit);
-     return (this.http.get(`${this.taskEditionToEdit._links.roles.href}`))
-     .pipe( map( data =>  data['_embedded']['roles']) );
-
- 
-   }
-
- 
-   getAllRowsRoles(data: any[] )
-   {
-     console.log(data);
-   }
- 
-   // ******** Territories  ******** //
-   getAllTerritories = () => {
-    var urlReq=`${this.taskEditionToEdit._links.availabilities.href}`
-    if(this.taskEditionToEdit._links.availabilities.templated){
-      var url=new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection","view")
-      urlReq=url.toString();
+   // ******** Territories ******** //
+  getAllTerritories = (): Observable<any> => {
+    if(this.taskEditionID == -1)
+    {
+      const aux: Array<any> = [];
+      return of(aux);
     }
-    return (this.http.get(urlReq))
-    .pipe( map( data =>  data['_embedded']['task-availabilities']) );
-    
-     
-     const aux: Array<any> = [];
-     return of(aux);
-     
-   }
- 
-   removeDataTerritories(data: any[]) {
-     console.log(data);
-   }
-   
-   newDataTerritories(id: any) {
-     // this.router.navigate(['role', id, 'roleForm']);
-   }
- 
-   applyChangesTerritories(data: any[]) {
-     console.log(data);
-   }
 
-   getAllRowsTerritories(data: any[] )
-   {
-     console.log(data);
-   }
+    var urlReq = `${this.taskEditionToEdit._links.availabilities.href}`
+    if (this.taskEditionToEdit._links.availabilities.templated) {
+      var url = new URL(urlReq.split("{")[0]);
+      url.searchParams.append("projection", "view")
+      urlReq = url.toString();
+    }
+
+    return (this.http.get(urlReq))
+      .pipe(map(data => data['_embedded']['task-availabilities']));
+
+
+  }
+
+  getAllRowsTerritories(data: any[] )
+  {
+    let territoriesToCreate = [];
+    let territoriesToDelete = [];
+    data.forEach(territory => {
+      territory.task= this.taskEditionToEdit;
+      if (territory.status === 'Pending creation') {
+        let index= data.findIndex(element => element.territoryId === territory.territoryId && !element.new)
+        if(index === -1)
+        {
+          territoriesToCreate.push(territory)
+          territory.new=false;
+        }
+       }
+      if(territory.status === 'Deleted' && territory._links) {territoriesToDelete.push(territory) }
+    });
+    const promises: Promise<any>[] = [];
+    territoriesToCreate.forEach(newElement => {
+      promises.push(new Promise((resolve, reject) => { this.taskAvailabilityService.save(newElement).subscribe((resp) => { resolve(true) }) }));
+    });
+
+    territoriesToDelete.forEach(deletedElement => {
+      promises.push(new Promise((resolve, reject) => {this.taskAvailabilityService.remove(deletedElement).subscribe((resp) => { resolve(true) }) }));
+      
+    });
+
+    Promise.all(promises).then(() => {
+      this.dataUpdatedEventTerritories.next(true);
+    });
+	
+
+  }
+
+  
+  // ******** Roles  ******** //
+  getAllRoles = () => {
+
+    if(this.taskEditionID == -1)
+    {
+      const aux: Array<any> = [];
+      return of(aux);
+    }
+
+    var urlReq = `${this.taskEditionToEdit._links.roles.href}`
+    if (this.taskEditionToEdit._links.roles.templated) {
+      var url = new URL(urlReq.split("{")[0]);
+      url.searchParams.append("projection", "view")
+      urlReq = url.toString();
+    }
+   
+    return (this.http.get(urlReq))
+       .pipe(map(data => data['_embedded']['roles']));
+
+  }
+
+  getAllRowsRoles(data: any[] )
+  {
+    let rolesModified = [];
+    let rolesToPut = [];
+    data.forEach(role => {
+      if (role.status === 'Modified') {rolesModified.push(role) }
+      if(role.status!== 'Deleted') {rolesToPut.push(role._links.self.href) }
+    });
+    console.log(rolesModified);
+    this.updateRoles(rolesModified, rolesToPut);
+  }
+
+  updateRoles(rolesModified: Role[], rolesToPut: Role[])
+  {
+    const promises: Promise<any>[] = [];
+    rolesModified.forEach(role => {
+      promises.push(new Promise((resolve, reject) => { this.roleService.update(role).subscribe((resp) => { resolve(true) }) }));
+    });
+    Promise.all(promises).then(() => {
+      let url=this.taskEditionToEdit._links.roles.href.split('{', 1)[0];
+      this.utils.updateUriList(url,rolesToPut, this.dataUpdatedEventRoles)
+    });
+  }
+
 
    // ******** Columns Dialog  ******** //
  
@@ -352,13 +453,75 @@ export class TasksEditionFormComponent implements OnInit {
        dialogRef.afterClosed().subscribe(result => {
         if(result){
           if(result.event==='Add') {
-            this.addElementsEventTerritories.next(result.data[0])
+            this.addElementsEventTerritories.next(this.adaptFormatTerritories(result.data[0]))
           }
         }
-   
-       });
-   
-     }
+  
+      });
+  
+    }
+  
+    
+    adaptFormatTerritories(dataToAdapt: Territory[])
+    {
+      let newData: any[] = [];
+      
+      dataToAdapt.forEach(element => {
+        let item = {
+          id: null,
+          territoryCode: element.code,
+          territoryName: element.name,
+          territoryId: element.id,
+          createdDate: element.createdDate,
+          owner: null,
+          territory: element,
+          new: true
+        }
+        newData.push(item);
+        
+      });
+  
+      return newData;
+    }
+
+     onSaveButtonClicked(): void {
+
+      if(this.formTasksEdition.valid)
+      {
+  
+        //TODO Update cartography when save works
+        console.log(this.formTasksEdition.value)
+        let taskGroup= this.taskGroups.find(x => x.id===this.formTasksEdition.value.taskGroup )
+        // this.updateCartography(this.currentCartography)
+        var taskObj: Task= new Task();
+        taskObj.name= this.formTasksEdition.value.name;
+        taskObj.id= this.formTasksEdition.value.id;
+        taskObj.group= taskGroup;
+        taskObj._links= this.formTasksEdition.value._links;
+    
+        this.taskService.save(this.formTasksEdition.value)
+        .subscribe(resp => {
+          this.taskEditionToEdit= resp;
+          this.taskEditionID=this.taskEditionToEdit.id;
+          this.formTasksEdition.patchValue({
+            id: resp.id,
+            _links: resp._links
+          })
+
+          this.getAllElementsEventTerritories.next(true);
+          this.getAllElementsEventRoles.next(true);
+      
+        },
+        error => {
+          console.log(error);
+        })
+      }
+  
+      else {
+        this.utils.showRequiredFieldsError();
+      }
+  
+    }
  
  }
  

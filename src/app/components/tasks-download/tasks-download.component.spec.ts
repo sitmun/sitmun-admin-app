@@ -1,13 +1,13 @@
 import { TasksDownloadComponent } from './tasks-download.component';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { SitmunFrontendGuiModule } from '@sitmun/frontend-gui';
+import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MaterialModule } from '../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { CodeListService, TaskService } from '@sitmun/frontend-core';
+import { CodeListService, TaskService } from 'dist/sitmun-frontend-core/';
 import { HttpClientModule } from '@angular/common/http';
 
 

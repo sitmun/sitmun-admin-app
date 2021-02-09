@@ -2,13 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { RoleService, UserService, CartographyGroupService, TaskService, UserConfigurationService, TerritoryService, HalOptions, HalParam, User, Territory, Role, ApplicationService, Task, CartographyGroup, Application } from '@sitmun/frontend-core';
+import { RoleService, UserService, CartographyGroupService, TaskService, UserConfigurationService, TerritoryService, HalOptions, HalParam, User, Territory, Role, ApplicationService, Task, CartographyGroup, Application } from 'dist/sitmun-frontend-core/';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { Observable, of, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { DialogGridComponent } from '@sitmun/frontend-gui';
+import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
 
 
@@ -285,7 +285,7 @@ export class RoleFormComponent implements OnInit {
   {
     const promises: Promise<any>[] = [];
     tasksModified.forEach(task => {
-      promises.push(new Promise((resolve, reject) => { this.tasksService.update(task).toPromise().then((resp) => { resolve() }) }));
+      promises.push(new Promise((resolve, reject) => { this.tasksService.update(task).subscribe((resp) => { resolve(true) }) }));
     });
     Promise.all(promises).then(() => {
       let url=this.roleToEdit._links.tasks.href.split('{', 1)[0];
@@ -330,7 +330,7 @@ export class RoleFormComponent implements OnInit {
   {
     const promises: Promise<any>[] = [];
     cartographiesGroupsModified.forEach(cartographyGroup => {
-      promises.push(new Promise((resolve, reject) => { this.cartographyGroupService.update(cartographyGroup).toPromise().then((resp) => { resolve() }) }));
+      promises.push(new Promise((resolve, reject) => { this.cartographyGroupService.update(cartographyGroup).subscribe((resp) => { resolve(true) }) }));
     });
     Promise.all(promises).then(() => {
       let url=this.roleToEdit._links.permissions.href.split('{', 1)[0];
@@ -377,7 +377,7 @@ export class RoleFormComponent implements OnInit {
     {
       const promises: Promise<any>[] = [];
       applicationsModified.forEach(application => {
-        promises.push(new Promise((resolve, reject) => { this.applicationService.update(application).toPromise().then((resp) => { resolve() }) }));
+        promises.push(new Promise((resolve, reject) => { this.applicationService.update(application).subscribe((resp) => { resolve(true) }) }));
       });
       Promise.all(promises).then(() => {
         let url=this.roleToEdit._links.applications.href.split('{', 1)[0];

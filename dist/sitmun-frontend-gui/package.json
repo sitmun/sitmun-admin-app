@@ -1,0 +1,31 @@
+{
+  "name": "@sitmun/frontend-gui",
+  "version": "0.7.8",
+  "repository": "git://github.com/sitmun/sitmun-frontend-gui.git",
+  "peerDependencies": {
+    "@angular/common": "~10.1.6",
+    "@angular/core": "~10.1.6",
+    "@angular/animations": "~10.1.6",
+    "@angular/cdk": "^10.2.7",
+    "@angular/forms": "~10.1.6",
+    "@angular/material": "^10.2.7",
+    "@angular/platform-browser": "^10.1.6",
+    "@angular/platform-browser-dynamic": "~10.1.6",
+    "@angular/router": "~10.1.6",
+    "@sitmun/frontend-core": "0.8.0",
+    "core-js": "^3.8.2",
+    "rxjs": "~6.6.0",
+    "zone.js": "~0.10.2"
+  },
+  "dependencies": {
+    "tslib": "^2.0.0"
+  },
+  "main": "bundles/sitmun-frontend-gui.umd.js",
+  "module": "fesm2015/sitmun-frontend-gui.js",
+  "es2015": "fesm2015/sitmun-frontend-gui.js",
+  "esm2015": "esm2015/sitmun-frontend-gui.js",
+  "fesm2015": "fesm2015/sitmun-frontend-gui.js",
+  "typings": "sitmun-frontend-gui.d.ts",
+  "metadata": "sitmun-frontend-gui.metadata.json",
+  "sideEffects": false
+}

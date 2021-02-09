@@ -43,6 +43,7 @@ import { TasksReportFormComponent } from './components/tasks-report/tasks-report
 import { TasksEditionFormComponent } from './components/tasks-edition/tasks-edition-form/tasks-edition-form.component';
 import { TasksThematicFormComponent } from './components/tasks-thematic/tasks-thematic-form/tasks-thematic-form.component';
 import { TasksExtractionFmeFormComponent } from './components/tasks-extraction-fme/tasks-extraction-fme-form/tasks-extraction-fme-form.component';
+import { TasksFormComponent } from './components/tasks/tasks-form/tasks-form.component';
 
 export const APP_ROUTES: Routes = [
     {path: 'index', component: IndexComponent},
@@ -59,6 +60,7 @@ export const APP_ROUTES: Routes = [
     {path: 'layersPermits', component: LayersPermitsComponent},
     {path: 'layersPermits/:id/layersPermitsForm', component: LayersPermitsFormComponent},
     {path: 'tasks', component: TasksComponent},
+    {path: 'tasks/:id/tasksForm', component: TasksFormComponent},
     {path: 'taskGroup', component: TaskGroupComponent},
     {path: 'taskGroup/:id/taskGroupForm', component: TaskGroupFormComponent},
     {path: 'tasksDownload', component: TasksDownloadComponent},

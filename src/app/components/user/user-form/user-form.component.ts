@@ -2,13 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { UserService, UserPositionService, UserConfigurationService, TerritoryService, RoleService, HalOptions, HalParam, Territory, User, UserConfiguration,Role } from '@sitmun/frontend-core';
+import { UserService, UserPositionService, UserConfigurationService, TerritoryService, RoleService, HalOptions, HalParam, Territory, User, UserConfiguration, Role } from 'dist/sitmun-frontend-core/';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { map } from 'rxjs/operators';
 import { Observable, of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { DialogGridComponent } from '@sitmun/frontend-gui';
+import { DialogGridComponent, DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
 
 
@@ -21,7 +21,8 @@ import { MatDialog } from '@angular/material/dialog';
 })
 export class UserFormComponent implements OnInit {
 
-
+  hidePassword = true;
+  hideConfirmPassword = true;
 
   //Form
   userForm: FormGroup;
@@ -43,9 +44,9 @@ export class UserFormComponent implements OnInit {
 
   columnDefsTerritoryDialog: any[];
   columnDefsRolesDialog: any[];
-  getAllElementsEventPermits: Subject<boolean> = new Subject <boolean>();
+  getAllElementsEventPermits: Subject<boolean> = new Subject<boolean>();
   columnDefsTerritoryDataDialog: any[];
-  getAllElementsEventTerritoryData: Subject<boolean> = new Subject <boolean>();
+  getAllElementsEventTerritoryData: Subject<boolean> = new Subject<boolean>();
 
   //Save button
   territorisToUpdate: Territory[] = [];
@@ -86,7 +87,7 @@ export class UserFormComponent implements OnInit {
               firstName: this.userToEdit.firstName,
               lastName: this.userToEdit.firstName,
               password: this.userToEdit.password,
-              confirmPassword: "",
+              confirmPassword: this.userToEdit.password,
               administrator: this.userToEdit.administrator,
               blocked: this.userToEdit.blocked,
               _links: this.userToEdit._links
@@ -117,9 +118,9 @@ export class UserFormComponent implements OnInit {
 
       environment.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('userEntity.territory'), field: 'territory', editable:false },
-      { headerName: this.utils.getTranslate('userEntity.role'), field: 'role', editable:false },
-      { headerName: this.utils.getTranslate('territoryEntity.status'), field: 'status', editable:false },
+      { headerName: this.utils.getTranslate('userEntity.territory'), field: 'territory', editable: false },
+      { headerName: this.utils.getTranslate('userEntity.role'), field: 'role', editable: false },
+      { headerName: this.utils.getTranslate('territoryEntity.status'), field: 'status', editable: false },
 
     ];
 
@@ -131,7 +132,7 @@ export class UserFormComponent implements OnInit {
       { headerName: this.utils.getTranslate('userEntity.organization'), field: 'organization' },
       { headerName: this.utils.getTranslate('userEntity.mail'), field: 'email' },
       { headerName: this.utils.getTranslate('userEntity.expirationDate'), field: 'expirationDate' },
-      { headerName: this.utils.getTranslate('territoryEntity.status'), field: 'status', editable:false },
+      { headerName: this.utils.getTranslate('territoryEntity.status'), field: 'status', editable: false },
       {
         headerName: this.utils.getTranslate('userEntity.dataCreated'), field: 'createdDate',  /*filter: 'agDateColumnFilter',*/cellRenderer: (data) => {
           return data.value ? (new Date(data.value)).toLocaleDateString() : '';
@@ -185,15 +186,9 @@ export class UserFormComponent implements OnInit {
       firstName: new FormControl(null, [
         Validators.required,
       ]),
-      lastName: new FormControl(null, [
-        Validators.required,
-      ]),
-      password: new FormControl(null, [
-        Validators.required,
-      ]),
-      confirmPassword: new FormControl(null, [
-        Validators.required, this.matchValues('password'),
-      ]),
+      lastName: new FormControl(null),
+      password: new FormControl(null),
+      confirmPassword: new FormControl(null,), // [this.matchValues('password'),]
       administrator: new FormControl(null, []),
       blocked: new FormControl(null, []),
       _links: new FormControl(null, []),
@@ -219,8 +214,7 @@ export class UserFormComponent implements OnInit {
   // ******** Permits ******** //
   getAllPermits = (): Observable<any> => {
 
-    if(this.userID == -1)
-    {
+    if (this.userID == -1) {
       const aux: Array<any> = [];
       return of(aux);
     }
@@ -237,31 +231,36 @@ export class UserFormComponent implements OnInit {
 
 
   getAllRowsPermits(data: any[]) {
-    
+
     let usersConfToCreate = [];
     let usersConfDelete = [];
     data.forEach(userConf => {
       let item = {
-        role:  userConf.roleComplete,
+        role: userConf.roleComplete,
         territory: userConf.territoryComplete,
-        user:  this.userToEdit,
+        user: this.userToEdit
       }
-      if (userConf.status === 'Pending creation') {usersConfToCreate.push(item) }
-      if(userConf.status === 'Deleted' && userConf._links) {usersConfDelete.push(userConf) }
+      if (userConf.status === 'Pending creation') {
+        let index = data.findIndex(element => element.roleId === item.role.id && element.territoryId === item.territory.id && element.userId === item.user.id && !element.new)
+        if (index === -1) {
+          userConf.new = false;
+          usersConfToCreate.push(item)
+        }
+      }
+      if (userConf.status === 'Deleted' && userConf._links) { usersConfDelete.push(userConf) }
     });
     const promises: Promise<any>[] = [];
     usersConfToCreate.forEach(newElement => {
-      promises.push(new Promise((resolve, reject) => {this.userConfigurationService.save(newElement).toPromise().then((resp) => { resolve() }) }));     
+      promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(newElement).subscribe((resp) => { resolve(true) }) }));
     });
 
     usersConfDelete.forEach(deletedElement => {
-    
-      if(deletedElement._links)
-      {
-        promises.push(new Promise((resolve, reject) => {  this.userConfigurationService.remove(deletedElement).toPromise().then((resp) => { resolve() }) }));
+
+      if (deletedElement._links) {
+        promises.push(new Promise((resolve, reject) => { this.userConfigurationService.remove(deletedElement).subscribe((resp) => { resolve(true) }) }));
 
       }
-      
+
     });
 
     Promise.all(promises).then(() => {
@@ -273,8 +272,7 @@ export class UserFormComponent implements OnInit {
   // ******** Data of Territory ******** //
   getAllDataTerritory = (): Observable<any> => {
 
-    if(this.userID == -1)
-    {
+    if (this.userID == -1) {
       const aux: Array<any> = [];
       return of(aux);
     }
@@ -296,8 +294,8 @@ export class UserFormComponent implements OnInit {
     console.log('screen in progress');
   }
 
- 
-  getAllRowsDataTerritories(data: any[] ){
+
+  getAllRowsDataTerritories(data: any[]) {
     // let territoriesToCreate = [];
     // let territoriesToDelete = [];
     // data.forEach(territory => {
@@ -322,24 +320,23 @@ export class UserFormComponent implements OnInit {
     //       console.log(result)
     //     }
     //   )
-      
+
     // });
-	
+
   }
 
-  updateTerritories(territoriesModified: Territory[], territoriesToPut: Territory[])
-  {
+  updateTerritories(territoriesModified: Territory[], territoriesToPut: Territory[]) {
     const promises: Promise<any>[] = [];
     territoriesModified.forEach(territory => {
       //TODO Table STM_POST
-      // promises.push(new Promise((resolve, reject) => { this.territoryService.update(territory).toPromise().then((resp) => { resolve() }) }));
+      // promises.push(new Promise((resolve, reject) => { this.territoryService.update(territory).subscribe((resp) => { resolve(true) }) }));
     });
     Promise.all(promises).then(() => {
-      let url=this.userToEdit._links.positions.href.split('{', 1)[0];
-      this.utils.updateUriList(url,territoriesToPut)
+      let url = this.userToEdit._links.positions.href.split('{', 1)[0];
+      this.utils.updateUriList(url, territoriesToPut)
     });
   }
-  
+
   // ******** Permits Dialog  ******** //
 
   getAllTerritoriesDialog = () => {
@@ -351,10 +348,9 @@ export class UserFormComponent implements OnInit {
   }
 
   openPermitsDialog(data: any) {
-
     const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
     dialogRef.componentInstance.getAllsTable = [this.getAllTerritoriesDialog, this.getAllRolesDialog];
-    dialogRef.componentInstance.singleSelectionTable = [false, false];
+    dialogRef.componentInstance.singleSelectionTable = [true, false];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsTerritoryDialog, this.columnDefsRolesDialog];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
     dialogRef.componentInstance.title = this.utils.getTranslate('userEntity.permissions');
@@ -410,10 +406,9 @@ export class UserFormComponent implements OnInit {
 
   }
 
-  adaptFormatTerritory(dataToAdapt: Territory[])
-  {
+  adaptFormatTerritory(dataToAdapt: Territory[]) {
     let newData: any[] = [];
-    
+
     dataToAdapt.forEach(element => {
       let item = {
         //TODO Put fields when backend return them
@@ -423,7 +418,7 @@ export class UserFormComponent implements OnInit {
 
       }
       newData.push(item);
-      
+
     });
 
     return newData;
@@ -443,7 +438,7 @@ export class UserFormComponent implements OnInit {
   //         territory: territory,
   //         _links: null
   //       }
-  //       promises.push(new Promise((resolve, reject) => {​​​​​​​ this.userConfigurationService.save(item).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+  //       promises.push(new Promise((resolve, reject) => {​​​​​​​ this.userConfigurationService.save(item).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
   //       Promise.all(promises).then(() => {
   //         this.dataUpdatedEvent.next(true);
   //       });
@@ -462,9 +457,15 @@ export class UserFormComponent implements OnInit {
         let item = {
           role: role.name,
           roleComplete: role,
+          roleId: role.id,
           territory: territory.name,
           territoryComplete: territory,
+          territoryId: territory.id,
+          userId: null,
+          new: true
+
         }
+        if (this.userToEdit) { item.userId = this.userToEdit.id }
         itemsToAdd.push(item);
       })
     })
@@ -473,60 +474,52 @@ export class UserFormComponent implements OnInit {
 
 
 
-  onSaveButtonClicked(){
+  onSaveButtonClicked() {
 
-    if(this.userForm.value.password === this.userForm.value.confirmPassword)
-    {
+    if (this.userForm.valid) {
+
+      if (this.userForm.value.password === this.userForm.value.confirmPassword) {
         let userObj: User = new User();
-        userObj.username=this.userForm.value.username;
-        userObj.password=this.userForm.value.password;
-        userObj.firstName=this.userForm.value.firstName;
-        userObj.lastName=this.userForm.value.lastName;
-        userObj.blocked=this.userForm.value.blocked;
-        userObj.administrator=this.userForm.value.administrator;
-        userObj._links=this.userForm.value._links;
+        userObj.username = this.userForm.value.username;
+        userObj.password = this.userForm.value.password;
+        userObj.firstName = this.userForm.value.firstName;
+        userObj.lastName = this.userForm.value.lastName;
+        userObj.blocked = this.userForm.value.blocked;
+        userObj.administrator = this.userForm.value.administrator;
+        userObj._links = this.userForm.value._links;
 
-        if(this.userID === -1){
-          console.log(userObj)
-          this.userService.create(userObj)
-          .subscribe( (resp:User) => {
+        this.userService.save(userObj)
+          .subscribe(resp => {
             console.log(resp)
-                this.userToEdit=resp;
-                this.userID=resp.id;
-                this.userForm.patchValue({
-                  id: resp.id,
-                  _links: resp._links
-                })
-                // console.log(this.userToEdit);
-                // this.getAllElementsEventTerritoryData.next(true);
-                // this.getAllElementsEventPermits.next(true);
-              }, error => {
-                console.log(error)
-              });   
-        
-        }
-        else 
-        {
-          userObj.id=this.userID;
-          this.userService.update(userObj)
-          .subscribe( (resp:User) => {
-            console.log(resp)
-                this.userToEdit=resp
-                console.log(this.userToEdit);
-                this.getAllElementsEventTerritoryData.next(true);
-                this.getAllElementsEventPermits.next(true);
-              }, error => {
-                console.log(error)
-              });   
-        
-        }
+            this.userToEdit = resp
+            this.userID = resp.id;
+            this.userForm.patchValue({
+              id: resp.id,
+              _links: resp._links
+            })
+            console.log(this.userToEdit);
+            this.getAllElementsEventTerritoryData.next(true);
+            this.getAllElementsEventPermits.next(true);
+          }, error => {
+            console.log(error)
+          });
 
-  
+      }
+      else {
+
+        const dialogRef = this.dialog.open(DialogMessageComponent);
+        dialogRef.componentInstance.title = "Error";
+        dialogRef.componentInstance.message = this.utils.getTranslate("passwordMessage");
+        dialogRef.componentInstance.hideCancelButton = true;
+        dialogRef.afterClosed().subscribe();
+
+      }
+
+
     }
-
-
-
-
+    else {
+      this.utils.showRequiredFieldsError();
+    }
 
 
   }

@@ -5,14 +5,15 @@ import { AppComponent } from './app.component';
 import { RouterModule } from '@angular/router';
 import { ExternalConfigurationService } from './ExternalConfigurationService';
 
-import { SitmunFrontendGuiModule } from '@sitmun/frontend-gui';
+import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from './material-module';
 import { APP_ROUTING } from './app-routes';
 
+
 //interceptors
 import { MessagesInterceptor } from './interceptors/messages.interceptor';
-import { AuthInterceptor, AuthExpiredInterceptor } from '@sitmun/frontend-core';
+import { AuthInterceptor, AuthExpiredInterceptor } from 'dist/sitmun-frontend-core/';
 
 //i18n
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
@@ -97,15 +98,20 @@ import {
   ApplicationService,
   CartographyAvailabilityService,
   ServiceParameterService,
+  TaskUIService,
   ApplicationParameterService,
   CartographyParameterService,
   TaskAvailabilityService,
   UserPositionService,
   ApplicationBackgroundService,
+  TaskParameterService,
+  TerritoryTypeService,
+  CartographyFilterService,
   TreeNodeService,
-} from '@sitmun/frontend-core';
+} from 'dist/sitmun-frontend-core/';
 import { UtilsService } from './services/utils.service';
 import { SidenavService } from './services/sidenav.service';
+import { TasksFormComponent } from './components/tasks/tasks-form/tasks-form.component';
 
 
 
@@ -156,7 +162,8 @@ import { SidenavService } from './services/sidenav.service';
     TasksQueryFormComponent,
     TasksReportFormComponent,
     TasksThematicFormComponent,
-    LoginComponent
+    LoginComponent,
+    TasksFormComponent
   ],
   imports: [
     BrowserModule,
@@ -182,10 +189,10 @@ import { SidenavService } from './services/sidenav.service';
     { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
     { provide: LOCALE_ID, useValue: 'es-ES' },
     RoleService, ConnectionService, UserService, TerritoryService, ServiceService,
-    ApplicationService, TreeService, TaskAvailabilityService, BackgroundService, CartographyService, CartographyGroupService,
+    ApplicationService, TreeService, TerritoryTypeService, TaskAvailabilityService, BackgroundService, CartographyService, CartographyGroupService,
     TaskGroupService, TaskService, UserConfigurationService, CodeListService, LoginService, AuthService,
     Principal, UserPositionService, AccountService,CartographyAvailabilityService,ServiceParameterService,ApplicationParameterService,
-    CartographyParameterService, ApplicationBackgroundService, TreeNodeService,
+    CartographyParameterService, CartographyFilterService,  TaskUIService, TaskParameterService, ApplicationBackgroundService, TreeNodeService,
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: MessagesInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: AuthExpiredInterceptor, multi: true }

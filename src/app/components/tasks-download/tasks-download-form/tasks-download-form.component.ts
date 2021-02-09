@@ -2,12 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TaskService, TerritoryService, RoleService } from '@sitmun/frontend-core';
+import { TaskService, TerritoryService, RoleService, TaskGroupService, TaskAvailabilityService, Role, Task, Territory } from 'dist/sitmun-frontend-core/';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { environment } from 'src/environments/environment';
 import { map } from 'rxjs/operators';
-import { DialogGridComponent } from '@sitmun/frontend-gui';
+import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
 import { of, Subject } from 'rxjs';
 
@@ -17,8 +17,11 @@ import { of, Subject } from 'rxjs';
   styleUrls: ['./tasks-download-form.component.scss']
 })
 export class TasksDownloadFormComponent implements OnInit {
+
+
  
   //Form
+  taskGroups: Array<any> = [];
   formTasksDownload: FormGroup;
   taskDownloadToEdit;
   taskDownloadID = -1;
@@ -26,10 +29,14 @@ export class TasksDownloadFormComponent implements OnInit {
   
   //Grids
   themeGrid: any = environment.agGridTheme;
+
   columnDefsRoles: any[];
-  getAllElementsEventRoles: Subject<any[]> = new Subject <any[]>();
+  getAllElementsEventRoles: Subject<boolean> = new Subject <boolean>();
+  dataUpdatedEventRoles: Subject<boolean> = new Subject<boolean>();
+
   columnDefsTerritories: any[];
-  getAllElementsEventTerritories: Subject<any[]> = new Subject <any[]>();
+  getAllElementsEventTerritories: Subject<boolean> = new Subject <boolean>();
+  dataUpdatedEventTerritories: Subject<boolean> = new Subject<boolean>();
 
   //Dialog
   columnDefsRolesDialog: any[];
@@ -47,6 +54,8 @@ export class TasksDownloadFormComponent implements OnInit {
     public taskService: TaskService,
     public roleService: RoleService,
     public territoryService: TerritoryService,
+    public taskGroupService: TaskGroupService,
+    private taskAvailabilityService: TaskAvailabilityService,
     private http: HttpClient,
     public utils: UtilsService
   ) {
@@ -54,10 +63,23 @@ export class TasksDownloadFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
+    const promises: Promise<any>[] = [];
+
+    promises.push(new Promise((resolve, reject) => {
+      this.taskGroupService.getAll().subscribe(
+        resp => {
+          this.taskGroups.push(...resp);
+          resolve(true);
+        }
+      );
+    }));
+
+    Promise.all(promises).then(() => {
     this.activatedRoute.params.subscribe(params => {
       this.taskDownloadID = +params.id;
       if (this.taskDownloadID !== -1) {
-        console.log(this.taskDownloadID);
+        console.log(this.taskGroups);
 
         this.taskService.get(this.taskDownloadID).subscribe(
           resp => {
@@ -65,8 +87,8 @@ export class TasksDownloadFormComponent implements OnInit {
             this.taskDownloadToEdit = resp;
             this.formTasksDownload.setValue({
               id: this.taskDownloadID,
-              task: this.taskDownloadToEdit.name,
-              groupTask: this.taskDownloadToEdit.groupName,
+              name: this.taskDownloadToEdit.name,
+              taskGroup: this.taskDownloadToEdit.groupId,
               path: ' ',
               extent: '',
               _links: this.taskDownloadToEdit._links
@@ -79,11 +101,18 @@ export class TasksDownloadFormComponent implements OnInit {
           }
         );
       }
+      else {
+        this.dataLoaded = true;
+        this.formTasksDownload.patchValue({
+          taskGroup: this.taskGroups[0].id,
+        });
+      }
 
     },
       error => {
 
       });
+    });
 
 
       this.columnDefsRoles = [
@@ -95,8 +124,8 @@ export class TasksDownloadFormComponent implements OnInit {
   
       this.columnDefsTerritories = [
         environment.selCheckboxColumnDef,
-        { headerName: 'Id', field: 'id', editable: false },
-        { headerName: this.utils.getTranslate('tasksDownloadEntity.code'), field: 'name' },
+        { headerName: 'Id', field: 'territoryId', editable: false },
+        { headerName: this.utils.getTranslate('tasksDownloadEntity.name'), field: 'territoryName' },
         { headerName: this.utils.getTranslate('tasksDownloadEntity.status'), field: 'status', editable:false },  
 
   
@@ -125,34 +154,24 @@ export class TasksDownloadFormComponent implements OnInit {
 
     this.formTasksDownload = new FormGroup({
       id: new FormControl(null, []),
-      task: new FormControl(null, []),
-      groupTask: new FormControl(null, []),
+      name: new FormControl(null, []),
+      taskGroup: new FormControl(null, []),
       path: new FormControl(null, []),
       extent: new FormControl(null, []),
       _links: new FormControl(null, []),
     })
   }
 
-  addNewTasksDownload() {
-    console.log(this.formTasksDownload.value);
-    this.taskService.create(this.formTasksDownload.value)
-      .subscribe(resp => {
-        console.log(resp);
-        // this.router.navigate(["/company", resp.id, "formConnection"]);
-      });
-  }
 
-  updateConnection() {
-    console.log(this.formTasksDownload.value);
-
-    this.taskService.update(this.formTasksDownload.value)
-      .subscribe(resp => {
-        console.log(resp);
-      });
-  }
   
   // ******** Roles ******** //
   getAllRoles = () => {
+
+    if(this.taskDownloadID == -1)
+    {
+      const aux: Array<any> = [];
+      return of(aux);
+    }
     
     return (this.http.get(`${this.taskDownloadToEdit._links.roles.href}`))
     .pipe( map( data =>  data['_embedded']['roles']) );
@@ -162,12 +181,38 @@ export class TasksDownloadFormComponent implements OnInit {
 
   getAllRowsRoles(data: any[] )
   {
-    console.log(data);
+    let rolesModified = [];
+    let rolesToPut = [];
+    data.forEach(role => {
+      if (role.status === 'Modified') {rolesModified.push(role) }
+      if(role.status!== 'Deleted') {rolesToPut.push(role._links.self.href) }
+    });
+    console.log(rolesModified);
+    this.updateRoles(rolesModified, rolesToPut);
+  }
+
+  updateRoles(rolesModified: Role[], rolesToPut: Role[])
+  {
+    const promises: Promise<any>[] = [];
+    rolesModified.forEach(role => {
+      promises.push(new Promise((resolve, reject) => { this.roleService.update(role).subscribe((resp) => { resolve(true) }) }));
+    });
+    Promise.all(promises).then(() => {
+      let url=this.taskDownloadToEdit._links.roles.href.split('{', 1)[0];
+      this.utils.updateUriList(url,rolesToPut, this.dataUpdatedEventRoles)
+    });
   }
 
 
   // ******** Territories  ******** //
   getAllTerritories = () => {
+
+    if(this.taskDownloadID == -1)
+    {
+      const aux: Array<any> = [];
+      return of(aux);
+    }
+
     var urlReq=`${this.taskDownloadToEdit._links.availabilities.href}`
     if(this.taskDownloadToEdit._links.availabilities.templated){
       var url=new URL(urlReq.split("{")[0]);
@@ -185,7 +230,34 @@ export class TasksDownloadFormComponent implements OnInit {
 
   getAllRowsTerritories(data: any[] )
   {
-    console.log(data);
+    let territoriesToCreate = [];
+    let territoriesToDelete = [];
+    data.forEach(territory => {
+      territory.task= this.taskDownloadToEdit;
+      if (territory.status === 'Pending creation') {
+        let index= data.findIndex(element => element.territoryId === territory.territoryId && !element.new)
+        if(index === -1)
+        {
+          territoriesToCreate.push(territory)
+          territory.new=false;
+        }
+       }
+      if(territory.status === 'Deleted' && territory._links) {territoriesToDelete.push(territory) }
+    });
+    const promises: Promise<any>[] = [];
+    territoriesToCreate.forEach(newElement => {
+      promises.push(new Promise((resolve, reject) => { this.taskAvailabilityService.save(newElement).subscribe((resp) => { resolve(true) }) }));
+    });
+
+    territoriesToDelete.forEach(deletedElement => {
+      promises.push(new Promise((resolve, reject) => {this.taskAvailabilityService.remove(deletedElement).subscribe((resp) => { resolve(true) }) }));
+      
+    });
+
+    Promise.all(promises).then(() => {
+      this.dataUpdatedEventTerritories.next(true);
+    });
+	
   }
   
   // ******** Roles Dialog  ******** //
@@ -240,12 +312,76 @@ export class TasksDownloadFormComponent implements OnInit {
       dialogRef.afterClosed().subscribe(result => {
         if(result){
           if(result.event==='Add') {
-            this.addElementsEventTerritories.next(result.data[0])
+            this.addElementsEventTerritories.next(this.adaptFormatTerritories(result.data[0]))
           }
         }
   
       });
   
     }
+
+    adaptFormatTerritories(dataToAdapt: Territory[])
+    {
+      let newData: any[] = [];
+      
+      dataToAdapt.forEach(element => {
+        let item = {
+          id: null,
+          territoryCode: element.code,
+          territoryName: element.name,
+          territoryId: element.id,
+          createdDate: element.createdDate,
+          owner: null,
+          territory: element,
+          new: true
+        }
+        newData.push(item);
+        
+      });
+
+      return newData;
+    }
+
+  onSaveButtonClicked(): void {
+
+    if(this.formTasksDownload.valid)
+    {
+  
+      //TODO Update cartography when save works
+      console.log(this.formTasksDownload.value)
+      let taskGroup= this.taskGroups.find(x => x.id===this.formTasksDownload.value.taskGroup )
+      // this.updateCartography(this.currentCartography)
+      var taskObj: Task= new Task();
+      taskObj.name= this.formTasksDownload.value.name;
+      taskObj.id= this.formTasksDownload.value.id;
+      taskObj.group= taskGroup;
+      // taskObj.path= taskGroup;
+      // taskObj.extent= taskGroup;
+      taskObj._links= this.formTasksDownload.value._links;
+  
+      this.taskService.save(this.formTasksDownload.value)
+      .subscribe(resp => {
+        this.taskDownloadToEdit= resp;
+        this.taskDownloadID=this.taskDownloadToEdit.id;
+        this.formTasksDownload.patchValue({
+          id: resp.id,
+          _links: resp._links
+        })
+        this.getAllElementsEventTerritories.next(true);
+        this.getAllElementsEventRoles.next(true);
+    
+      },
+      error => {
+        console.log(error);
+      })
+    }
+
+    else {
+      this.utils.showRequiredFieldsError();
+    }
+
+  }
+
+
 
 }

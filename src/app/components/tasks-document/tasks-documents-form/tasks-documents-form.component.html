@@ -4,48 +4,52 @@
   </div>
   
   <div class="formDiv">
-    <div class="formHeader">
-      <h5> {{'tasksDocumentEntity.generalData' | translate}} </h5>
-      <button   mat-flat-button class="saveButton"  >
-        <mat-icon fontSet="material-icons-round"  > save </mat-icon>
-        {{ "save" | translate }}
-      </button>
-    </div>
-    <span class="divider"></span>
-    <form [formGroup]='formTasksDocument' #f="ngForm"> 
+    <form [formGroup]='formTasksDocument' #f="ngForm" (ngSubmit)="onSaveButtonClicked()"> 
+      <div class="formHeader">
+        <h5> {{'tasksDocumentEntity.generalData' | translate}} </h5>
+        <button   mat-flat-button class="saveButton"  >
+          <mat-icon fontSet="material-icons-round"  > save </mat-icon>
+          {{ "save" | translate }}
+        </button>
+        <button (click)="utils.navigateBack()"  mat-flat-button class="returnButton"  >
+          <mat-icon type="button" fontSet="material-icons-round"> arrow_back </mat-icon>
+          {{ "return" | translate }}
+        </button>
+      </div>
+      <span class="divider"></span>
   
         <div class="rowFormDiv">
             <div class="colFormDiv">
               <label class="formLabel requiredInput">
-                {{'tasksDocumentEntity.task' | translate}}
+                {{'tasksDocumentEntity.taskName' | translate}}
               </label>
               <mat-form-field appearance="outline">
-                <input matInput type="text" formControlName="task" required>
+                <input matInput type="text" formControlName="name" required>
               </mat-form-field>
             </div>
   
             <div class="colFormDiv" > 
-              <label class="formLabel requiredInput">
+              <label class="formLabel ">
                 {{'tasksDocumentEntity.groupTask' | translate}}
               </label>
-              <mat-form-field appearance="outline" >
-                <mat-select matInput formControlName="groupTask" class="form-control" >
-                  <!-- <mat-option [value]="serviceType.value" *ngFor="let serviceType of serviceTypes">
-                    {{ serviceType.description}}
-                  </mat-option> -->
+              <mat-form-field appearance="outline">
+                <mat-select matInput formControlName="taskGroup" class="form-control">
+                  <mat-option [value]="taskGroup.id" *ngFor="let taskGroup of taskGroups">
+                    {{taskGroup.name}}
+                  </mat-option>
                 </mat-select>
               </mat-form-field>
             </div>
   
             <div class="colFormDiv" > 
-                <label class="formLabel requiredInput">
+                <label class="formLabel ">
                   {{'tasksDocumentEntity.documentType' | translate}}
                 </label>
                 <mat-form-field appearance="outline" >
                   <mat-select matInput formControlName="documentType" class="form-control" >
-                    <!-- <mat-option [value]="serviceType.value" *ngFor="let serviceType of serviceTypes">
-                      {{ serviceType.description}}
-                    </mat-option> -->
+                    <mat-option [value]="documentType.id" *ngFor="let documentType of documentTypes">
+                      {{documentType.description}}
+                    </mat-option>
                   </mat-select>
                 </mat-form-field>
               </div>
@@ -63,7 +67,7 @@
 
         <div class="rowFormDiv">
             <div class="singleFormDiv" id="right-column">
-                <label class="formLabel">
+                <label class="formLabel requiredInput" >
                   {{'tasksDocumentEntity.extent' | translate}}
                 </label>
                 <mat-form-field appearance="outline">
@@ -79,25 +83,28 @@
 
 
 <div class="tableDiv" *ngIf="dataLoaded">
-  <mat-accordion *ngIf="taskDocumentID!=-1" multi>
+  <mat-accordion  multi>
 
-      <!-- Cartography table -->
-    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
-      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-        <mat-panel-title  >
-          {{ "tasksDocumentEntity.cartography" | translate }}
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <ng-template matExpansionPanelContent>  
-        <div class="appDataGridEditDiv">
-            <app-data-grid  [columnDefs]="columnDefsCartography" [themeGrid]='themeGrid' [getAll]='getAllCartography' 
-            [eventAddItemsSubscription]='addElementsEventCartographies.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventCartographies.asObservable()' 
-             [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
-             (getAllRows)="getAllRowsCartographies($event)" [actionButton]=true (add)="openCartographyDialog($event)"  > </app-data-grid>
-        </div>
-      </ng-template>
-    </mat-expansion-panel>
+       <!-- Roles table -->
+       <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+        <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+          <mat-panel-title>
+            {{ "tasksDocumentEntity.roles" | translate }}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+  
+        <ng-template matExpansionPanelContent>
+          <div class="appDataGridEditDiv">
+            <app-data-grid [columnDefs]="columnDefsRoles" [themeGrid]='themeGrid' [getAll]='getAllRoles'
+              [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true
+              [hideDuplicateButton]=true [eventAddItemsSubscription]='addElementsEventRoles.asObservable()'
+              [eventGetAllRowsSubscription]='getAllElementsEventRoles.asObservable()'
+              [eventRefreshSubscription]='dataUpdatedEventRoles.asObservable()' [actionButton]=true
+              (getAllRows)="getAllRowsRoles($event)" (add)="openRolesDialog($event)"> </app-data-grid>
+          </div>
+        </ng-template>
+  
+      </mat-expansion-panel>
 
        <!-- Territory table -->     
        <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
@@ -109,11 +116,14 @@
     
       <ng-template matExpansionPanelContent>  
         <div class="appDataGridEditDiv">
-            <app-data-grid [columnDefs]="columnDefsTerritories" [themeGrid]='themeGrid' [getAll]='getAllTerritories'  
-            [eventAddItemsSubscription]='addElementsEventTerritories.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventTerritories.asObservable()' 
-             [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
-             (getAllRows)="getAllRowsTerritories($event)" [actionButton]=true (add)="openTerritoriesDialog($event)" > </app-data-grid>
-        </div>
+          <app-data-grid [columnDefs]="columnDefsTerritories" [themeGrid]='themeGrid' [getAll]='getAllTerritories'
+          [eventAddItemsSubscription]='addElementsEventTerritories.asObservable()'
+          [eventGetAllRowsSubscription]='getAllElementsEventTerritories.asObservable()'
+          [eventRefreshSubscription]='dataUpdatedEventTerritories.asObservable()' [discardChangesButton]=true
+          [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
+          (getAllRows)="getAllRowsTerritories($event)" [actionButton]=true (add)="openTerritoriesDialog($event)">
+        </app-data-grid>
+      </div>
       </ng-template>
 
     </mat-expansion-panel>

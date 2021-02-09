@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { TaskService, Task, TaskGroupService } from '@sitmun/frontend-core';
+import { TaskService, Task, TaskGroupService } from 'dist/sitmun-frontend-core/';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
-import { DialogMessageComponent } from '@sitmun/frontend-gui';
+import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 
 @Component({
   selector: 'app-tasks',
@@ -44,18 +44,19 @@ export class TasksComponent implements OnInit {
   }
 
   getAllTasks = () => {
-    return this.tasksService.getAll();
+    return this.tasksService.getAll(undefined,undefined,"tasks");
+
   };
 
   newData(id: any) {
     this.saveAgGridStateEvent.next(true);
-    // this.router.navigate(['tasks', id, 'tasksForm']);
+    this.router.navigate(['tasks', id, 'tasksForm']);
   }
 
   applyChanges(data: Task[]) {
     const promises: Promise<any>[] = [];
     data.forEach(task => {
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.tasksService.update(task).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.tasksService.update(task).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);
       });
@@ -73,7 +74,7 @@ export class TasksComponent implements OnInit {
           newTask.group=result;
           newTask._links= null;
           console.log(newTask)
-          promises.push(new Promise((resolve, reject) => {​​​​​​​ this.tasksService.create(newTask).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+          promises.push(new Promise((resolve, reject) => {​​​​​​​ this.tasksService.create(newTask).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
           Promise.all(promises).then(() => {
             this.dataUpdatedEvent.next(true);
           });
@@ -97,7 +98,7 @@ export class TasksComponent implements OnInit {
         if(result.event==='Accept') {  
           const promises: Promise<any>[] = [];
           data.forEach(task => {
-            promises.push(new Promise((resolve, reject) => {​​​​​​​ this.tasksService.delete(task).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+            promises.push(new Promise((resolve, reject) => {​​​​​​​ this.tasksService.delete(task).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
             Promise.all(promises).then(() => {
               this.dataUpdatedEvent.next(true);
             });

@@ -4,8 +4,10 @@ import { TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { Subject } from 'rxjs';
-import { HalOptions, HalParam, CodeListService  } from '@sitmun/frontend-core';
+import { HalOptions, HalParam, CodeListService  } from 'dist/sitmun-frontend-core/';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
+import { MatDialog } from '@angular/material/dialog';
 @Injectable({
   providedIn: 'root'
 })
@@ -15,6 +17,7 @@ export class UtilsService {
   private subjectLoading: Subject<boolean> = new Subject();
 
   constructor(private translate: TranslateService,
+    public dialog: MatDialog,
     private snackBar: MatSnackBar,
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -139,6 +142,14 @@ export class UtilsService {
     });
     console.log(putRequestLine);
     return putRequestLine;
+  }
+
+  showRequiredFieldsError(){
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title = this.getTranslate("atention");
+    dialogRef.componentInstance.message = this.getTranslate("requiredFieldMessage")
+    dialogRef.componentInstance.hideCancelButton = true;
+    dialogRef.afterClosed().subscribe();
   }
 
 }

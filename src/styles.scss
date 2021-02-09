@@ -160,16 +160,32 @@ body {
   //display: inline-block;
 }
 
+
+mat-form-field {
+  width: 100%;
+}
+#right-column {
+margin-right: 0%;
+}
+
 .validateButton {
   background-color: #ff9300;
   color: white;
-  width: 85px;
+  min-width: 85px !important;
   height: 40px;
   margin-top: 34px !important;
   justify-self: right !important;
 }
-.returnButton {
-  
+
+ .deleteButton {
+  color: #BF0000;
+  border: #BF0000 solid 1px !important;
+  min-width: 85px !important;
+  height: 40px;
+  float: right;
+}
+ 
+.returnButton, .actionButton {
   color: #ff9300;
   border: #ff9300 solid 1px !important;
   min-width: 85px !important;
@@ -177,7 +193,7 @@ body {
   float: right;
 }
 
-.saveButton {
+.saveButton, .newButton {
   background-color: #68a225;
   color: white;
   min-width: 85px !important;
@@ -211,7 +227,7 @@ h2 {
 }
 
 .appDataGridDiv {
-  height: calc(100% - 230px);
+  height: calc(100% - 190px);
   margin: 50px;
 }
 
@@ -289,7 +305,7 @@ h2 {
   margin-left: auto;
 }
 
-//Per fer el input del formulari no tant alt
+
 .mat-form-field-appearance-outline .mat-form-field-infix {
   padding: 0.4em 0 0.4em 0 !important;
   top: -0.25em;
@@ -361,123 +377,14 @@ h2 {
   width: 100%;
 }
 
-.rowFormDiv {
-  width: 100%;
-  margin: 10px 0px;
-  display: flex;
-}
-
-.rowFormDiv.actionBtns {
-  width: 100% !important;
-  padding-top: 10px;
-}
-
-.tabForm .actionBtns {
-  margin: 0 !important;
-  padding: 20px 0 !important;
-}
-
-.rowFormDiv.actionBtns button:first-child,
-.tabForm .actionBtns button:first-child {
-  margin-left: auto;
-}
-
-.tabForm .actionBtns button:last-child {
-  margin-right: 20px !important;
-}
-
-.bgColor {
-  background: #f5f5f5;
-  padding: 20px;
-  margin-bottom: 20px;
-  margin-right: 20px;
-}
-
-.bgColor.Twolines {
-  display: flex;
-  align-items: center;
-}
-
-.listActions {
-  display: flex;
-  align-items: center;
-}
-
-.paginator {
-  display: flex;
-  align-items: center;
-  margin-left: auto;
-  margin-right: 25px;
-}
-
-.bgColor .mat-form-field {
-  display: block;
-}
-
-.bgColor .mat-form-field-outline,
-.bgColor .mat-list {
-  background: white !important;
-}
-
-.bgColor .mat-form-field-appearance-outline .mat-form-field-outline,
-.bgColor .mat-list {
-  color: #888 !important;
-  border-color: #888 !important;
-}
-
-.bgColor .mat-list {
-  border: solid 1px;
-  border-radius: 5px;
-}
-
-.bgColor .mat-form-field-wrapper {
-  padding-bottom: 0 !important;
-}
-
-.mat-paginator {
-  background: transparent !important;
-}
-
-.mat-paginator-container .mat-form-field-wrapper {
-  padding-bottom: 1.25em !important;
-}
-
-.bgColor .colMainFormDiv {
-  width: 80%;
+.colFormDiv{
   display: inline-block;
+  width: 47.5%;
+  margin-right: 5%;
 }
 
-.bgColor.Twolines .colMainFormDiv {
-  border-right: 1px solid #ccc;
-}
-
-@media screen and (max-width: 1440px) {
-  .bgColor.Twolines .colMainFormDiv {
-    border-right: 0px;
-  }
-}
-
-@media screen and (max-width: 1060px) {
-  .mat-paginator-page-size {
-    display: none !important;
-  }
-}
-
-.bgColor .colButtons {
-  display: flex;
-  width: 22%;
-  border-left: 1px solid #ccc;
-  box-sizing: border-box;
-  padding-left: 3%;
-  max-height: 36px;
-  align-self: flex-end;
-  margin-bottom: 5px;
-}
-
-.bgColor.Twolines .colButton {
-  display: flex;
-  width: 20%;
-  justify-content: center;
+.colFormDivBtn {
+  margin-left: -40px;
 }
 
 .ShortColFormDiv {
@@ -510,38 +417,16 @@ h2 {
   margin-right: 3%;
 }
 
-.bgColor.Twolines .ShortColFormDiv {
+.oneLargeColFormDiv{
   display: inline-block;
-  width: 22%;
-  margin-right: 3%;
-}
+  width: 100%;
+  margin-right: 5%;
 
-.bgColor.Twolines .MidColFormDiv {
-  display: inline-block;
-  width: 47%;
-  margin-right: 3%;
-}
-
-.bgColor.Twolines .MidLargeColFormDiv {
-  display: inline-block;
-  width: 72%;
-  margin-right: 3%;
-}
-
-.bgColor.Twolines .LargeColFormDiv {
-  display: inline-block;
-  width: 97%;
-  margin-right: 3%;
 }
 
 .longCol {
   display: inline-block;
   width: 75%;
-}
-
-.bgColor.Twolines .longCol {
-  width: 96%;
-  display: block;
 }
 
 .shortCol {
@@ -555,7 +440,13 @@ h2 {
   width: 50%;
 }
 
-//Estils etiquetes
+.rowFormDiv {
+    width: 100%;
+    margin: 10px 0px;
+    display: flex;
+  }
+
+
 .mat-chip-list-wrapper .mat-standard-chip {
   margin: 2px !important;
   font-size: 13px;
@@ -602,20 +493,10 @@ h2 {
   text-transform: capitalize;
 }
 
-.mat-paginator-icon {
-  width: 30px !important;
-  height: 30px !important;
-  background-color: #f5f5f5 !important;
-  margin: 1px !important;
-  border-radius: 10% !important;
-  border: 1px solid gray !important;
-  border-color: lightgray !important;
-}
-
 .tabForm .bgColor {
   padding: 0;
 }
-//transicio entre tabs
+
 .mat-tab-body.mat-tab-body-active {
   animation: fade 0.5s;
 }
@@ -656,25 +537,11 @@ h2 {
   font-size: 16px !important;
 }
 
-//botons dels DatePickers
+
 .mat-datepicker-toggle {
   color: #bf0000 !important;
 }
-//Modifica estadistiques amb Color primari
-.mat-table a {
-  color: #bf0000;
-}
 
-//per fer les 2 primeres columnes de les taules més primes
-/*.mat-cell:nth-child(1),
-.mat-header-cell:nth-child(1) {
-    flex: 0 0 30px;
-}
-
-.mat-cell:nth-child(2),
-.mat-header-cell:nth-child(2) {
-    flex: 0 0 60px;
-}*/
 
 .sample-wrapper {
   width: inherit;
@@ -869,7 +736,7 @@ h2 {
 }
 .requiredInput::after{
   content: "*";
-  color: red;
+  color: #BF0000;
   font-weight: bold;
 }
 

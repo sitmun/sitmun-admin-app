@@ -2,7 +2,7 @@ import { Output } from '@angular/core';
 import { EventEmitter } from '@angular/core';
 import { Component } from '@angular/core';
 import { SidenavService } from '../../../services/sidenav.service';
-import { LoginService} from '@sitmun/frontend-core';
+import { LoginService} from 'dist/sitmun-frontend-core/';
 @Component({
   selector: 'app-toolbar',
   templateUrl: './toolbar.component.html',

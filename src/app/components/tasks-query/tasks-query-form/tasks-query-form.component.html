@@ -4,20 +4,24 @@
   </div>
   
   <div class="formDiv">
-    <div class="formHeader">
-      <h5> {{'tasksQueryEntity.generalData' | translate}} </h5>
-      <button   mat-flat-button class="saveButton"  >
-        <mat-icon fontSet="material-icons-round"  > save </mat-icon>
-        {{ "save" | translate }}
-      </button>
-    </div>
+    <form [formGroup]='formTasksQuery' #f="ngForm" (ngSubmit)="onSaveButtonClicked()"> 
+      <div class="formHeader">
+        <h5> {{'tasksQueryEntity.generalData' | translate}} </h5>
+        <button   mat-flat-button class="saveButton"  >
+          <mat-icon fontSet="material-icons-round"  > save </mat-icon>
+          {{ "save" | translate }}
+        </button>
+        <button type="button" (click)="utils.navigateBack()"  mat-flat-button class="returnButton"  >
+          <mat-icon fontSet="material-icons-round"> arrow_back </mat-icon>
+          {{ "return" | translate }}
+        </button>
+      </div>
     <span class="divider"></span>
-    <form [formGroup]='formTasksQuery' #f="ngForm"> 
   
         <div class="rowFormDiv">
             <div class="colFormDiv">
               <label class="formLabel requiredInput">
-                {{'tasksQueryEntity.task' | translate}}
+                {{'tasksQueryEntity.taskName' | translate}}
               </label>
               <mat-form-field appearance="outline">
                 <input matInput type="text" formControlName="task" required>
@@ -25,14 +29,14 @@
             </div>
   
             <div class="colFormDiv" > 
-              <label class="formLabel requiredInput">
+              <label class="formLabel ">
                 {{'tasksQueryEntity.groupTask' | translate}}
               </label>
               <mat-form-field appearance="outline" >
-                <mat-select matInput formControlName="groupTask" class="form-control" >
-                  <!-- <mat-option [value]="serviceType.value" *ngFor="let serviceType of serviceTypes">
-                    {{ serviceType.description}}
-                  </mat-option> -->
+                <mat-select matInput formControlName="taskGroup" class="form-control" >
+                  <mat-option [value]="taskGroup.id" *ngFor="let taskGroup of taskGroups">
+                    {{taskGroup.name}}
+                  </mat-option>
                 </mat-select>
               </mat-form-field>
             </div>
@@ -43,7 +47,11 @@
                   {{'tasksQueryEntity.accessType' | translate}}
                 </label>
                 <mat-form-field appearance="outline">
-                  <input matInput type="text" formControlName="accessType">
+                  <mat-select matInput formControlName="accessType" class="form-control">
+                    <mat-option [value]="accessType.id" *ngFor="let accessType of accessTypes">
+                      {{accessType.description}}
+                    </mat-option>
+                </mat-select>
                 </mat-form-field>
               </div>
 
@@ -59,19 +67,19 @@
   
 
         <div class="rowFormDiv">
-            <div class="colFormTwoColumnsDiv" >
-                <label class="formLabel requiredInput">
+            <div class="colFormDiv" >
+                <label class="formLabel ">
                     {{'tasksQueryEntity.connection' | translate}}
                   </label>
                   <mat-form-field appearance="outline" >
                     <mat-select matInput formControlName="connection" class="form-control" >
-                      <!-- <mat-option [value]="serviceType.value" *ngFor="let serviceType of serviceTypes">
-                        {{ serviceType.description}}
-                      </mat-option> -->
+                      <mat-option [value]="connection.id" *ngFor="let connection of connections">
+                        {{connection.name}}
+                      </mat-option>
                     </mat-select>
                   </mat-form-field>
             </div>
-            <div class="colFormTwoColumnsDiv" id="right-column">
+            <div class="colFormDiv" >
                 <label class="formLabel">
                   {{'tasksQueryEntity.associatedLayer' | translate}}
                 </label>
@@ -88,7 +96,7 @@
 
 
 <div class="tableDiv" *ngIf="dataLoaded">
-  <mat-accordion *ngIf="taskQueryID!=-1" multi>
+  <mat-accordion multi>
 
 
         <!-- Configuration parameters table -->
@@ -120,10 +128,12 @@
 
       <ng-template matExpansionPanelContent>  
         <div class="appDataGridEditDiv">
-            <app-data-grid  [columnDefs]="columnDefsRoles" [themeGrid]='themeGrid' [getAll]='getAllRoles' 
-            [eventAddItemsSubscription]='addElementsEventRoles.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventRoles.asObservable()' 
-             [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
-            (getAllRows)="getAllRowsRoles($event)" [actionButton]=true (add)="openRolesDialog($event)" > </app-data-grid>
+          <app-data-grid [columnDefs]="columnDefsRoles" [themeGrid]='themeGrid' [getAll]='getAllRoles'
+            [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true
+            [hideDuplicateButton]=true [eventAddItemsSubscription]='addElementsEventRoles.asObservable()'
+            [eventGetAllRowsSubscription]='getAllElementsEventRoles.asObservable()'
+            [eventRefreshSubscription]='dataUpdatedEventRoles.asObservable()' [actionButton]=true
+            (getAllRows)="getAllRowsRoles($event)" (add)="openRolesDialog($event)"> </app-data-grid>
         </div>
       </ng-template>
     </mat-expansion-panel>
@@ -138,10 +148,13 @@
     
       <ng-template matExpansionPanelContent>  
         <div class="appDataGridEditDiv">
-            <app-data-grid [columnDefs]="columnDefsTerritories" [themeGrid]='themeGrid' [getAll]='getAllTerritories'  
-            [eventAddItemsSubscription]='addElementsEventTerritories.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventTerritories.asObservable()' 
-             [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
-            (getAllRows)="getAllRowsTerritories($event)" [actionButton]=true (add)="openTerritoriesDialog($event)" > </app-data-grid>
+          <app-data-grid [columnDefs]="columnDefsTerritories" [themeGrid]='themeGrid' [getAll]='getAllTerritories'
+            [eventAddItemsSubscription]='addElementsEventTerritories.asObservable()'
+            [eventGetAllRowsSubscription]='getAllElementsEventTerritories.asObservable()'
+            [eventRefreshSubscription]='dataUpdatedEventTerritories.asObservable()' [discardChangesButton]=true
+            [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
+            (getAllRows)="getAllRowsTerritories($event)" [actionButton]=true (add)="openTerritoriesDialog($event)">
+          </app-data-grid>
         </div>
       </ng-template>
 

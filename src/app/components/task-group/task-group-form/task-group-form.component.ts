@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TaskGroupService, UserService,Connection } from '@sitmun/frontend-core';
+import { TaskGroupService, UserService,Connection } from 'dist/sitmun-frontend-core/';
 
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
@@ -78,19 +78,24 @@ export class TaskGroupFormComponent implements OnInit {
 
   onSaveButtonClicked(){
 
-    this.taskGroupService.save(this.formtaskGroup.value)
-      .subscribe(resp => {
-        console.log(resp); 
-        this.taskGroupToEdit=resp;
-        this.formtaskGroup.patchValue({
-          id: resp.id,
-          _links: resp._links
-        })
-      },
-      error => {
-        console.log(error);
-      });
-
+    if(this.formtaskGroup.valid)
+    {
+        this.taskGroupService.save(this.formtaskGroup.value)
+          .subscribe(resp => {
+            console.log(resp); 
+            this.taskGroupToEdit=resp;
+            this.formtaskGroup.patchValue({
+              id: resp.id,
+              _links: resp._links
+            })
+          },
+          error => {
+            console.log(error);
+          });
+    }
+    else{
+      this.utils.showRequiredFieldsError();
+    }
 
   }
 

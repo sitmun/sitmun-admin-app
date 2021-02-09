@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { CartographyGroupService, CartographyGroup } from '@sitmun/frontend-core';
+import { CartographyGroupService, CartographyGroup } from 'dist/sitmun-frontend-core/';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
-import { DialogMessageComponent } from '@sitmun/frontend-gui';
+import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 
 @Component({
   selector: 'app-layers-permits',
@@ -69,7 +69,7 @@ export class LayersPermitsComponent implements OnInit {
   applyChanges(data: CartographyGroup[]) {
     const promises: Promise<any>[] = [];
     data.forEach(cartographyGroup => {
-      promises.push(new Promise((resolve, reject) => { this.cartographyGroupService.update(cartographyGroup).toPromise().then((resp) => { resolve() }) }));
+      promises.push(new Promise((resolve, reject) => { this.cartographyGroupService.update(cartographyGroup).subscribe((resp) => { resolve(true) }) }));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);
       });
@@ -81,7 +81,7 @@ export class LayersPermitsComponent implements OnInit {
     data.forEach(cartographyGroup => {
       cartographyGroup.id = null;
       cartographyGroup.name = 'copia_'.concat(cartographyGroup.name)
-      promises.push(new Promise((resolve, reject) => { this.cartographyGroupService.create(cartographyGroup).toPromise().then((resp) => { resolve() }) }));
+      promises.push(new Promise((resolve, reject) => { this.cartographyGroupService.create(cartographyGroup).subscribe((resp) => { resolve(true) }) }));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);
       });
@@ -98,7 +98,7 @@ export class LayersPermitsComponent implements OnInit {
         if(result.event==='Accept') {  
           const promises: Promise<any>[] = [];
           data.forEach(cartographyGroup => {
-            promises.push(new Promise((resolve, reject) => { this.cartographyGroupService.delete(cartographyGroup).toPromise().then((resp) => { resolve() }) }));
+            promises.push(new Promise((resolve, reject) => { this.cartographyGroupService.delete(cartographyGroup).subscribe((resp) => { resolve(true) }) }));
             Promise.all(promises).then(() => {
               this.dataUpdatedEvent.next(true);
             });

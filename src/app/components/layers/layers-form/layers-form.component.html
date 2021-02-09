@@ -1,142 +1,167 @@
-<div class="titleDiv" >
-  <h4><mat-icon aria-hidden="false"  svgIcon="menu_capes"></mat-icon> {{ "layersEntity.layers" | translate }}-{{(layerID==-1?"new":"edit") | translate}}</h4>
+<div class="titleDiv">
+  <h4>
+    <mat-icon aria-hidden="false" svgIcon="menu_capes"></mat-icon> {{ "layersEntity.layers" | translate
+    }}-{{(layerID==-1?"new":"edit") | translate}}
+  </h4>
   <span class="divider"></span>
 </div>
 
+<form [formGroup]='layerForm' #f="ngForm"	(ngSubmit)="onSaveButtonClicked()">
 <div class="formDiv">
-  <div class="formHeader">
-    <h5> {{'layersEntity.generalData' | translate}} </h5>
-    <button   mat-flat-button (click)="onSaveButtonClicked()" class="saveButton"  >
-      <mat-icon fontSet="material-icons-round"  > save </mat-icon>
-      {{ "save" | translate }}
-    </button>
-    <button (click)="utils.navigateBack()"  mat-flat-button class="returnButton"  >
-      <mat-icon fontSet="material-icons-round"> arrow_back </mat-icon>
-      {{ "return" | translate }}
-    </button>
-  </div>
-  <span class="divider"></span>
-  <form [formGroup]='layerForm' #f="ngForm"> 
+    <div class="formHeader">
+      <h5> {{'layersEntity.generalData' | translate}} </h5>
+      <button type="submit" mat-flat-button  class="saveButton">
+        <mat-icon fontSet="material-icons-round"> save </mat-icon>
+        {{ "save" | translate }}
+      </button>
+      <button type="button" (click)="utils.navigateBack()" mat-flat-button class="returnButton">
+        <mat-icon fontSet="material-icons-round"> arrow_back </mat-icon>
+        {{ "return" | translate }}
+      </button>
+    </div>
+    <span class="divider"></span>
 
-      <div class="rowFormDiv">
-          <div class="colFormDiv">
-            <label class="formLabel requiredInput">
-              {{'layersEntity.name' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="name" required>
-            </mat-form-field>
-          </div>
-  
-          <div class="colFormDiv" >
-            <label class="formLabel">
-              {{'layersEntity.serviceName' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="serviceName">
-            </mat-form-field>
-          </div>
-          <div class="colFormDiv">
-            <label class="formLabel requiredInput">
-              {{'layersEntity.layers' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="layers" required>
-            </mat-form-field>
-          </div>
-          
+
+    <div class="rowFormDiv">
+      <div class="colFormDiv">
+        <label class="formLabel requiredInput">
+          {{'layersEntity.name' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="name" required>
+        </mat-form-field>
       </div>
 
-      <div class="rowFormDiv">
-        <div class="colFormDiv">
-          <label class="formLabel">
-            {{'layersEntity.minimumScale' | translate}}
-          </label>
-          <mat-form-field appearance="outline">
-            <input matInput type="text" formControlName="minimumScale">
-          </mat-form-field>
-        </div>
+      <div class="colFormDiv">
+        <label class="formLabel requiredInput">
+          {{'layersEntity.serviceName' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <mat-select matInput formControlName="service" class="form-control">
+            <mat-option [value]="service.id" *ngFor="let service of services">
+              {{ service.name}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
 
-        <div class="colFormDiv" >
-          <label class="formLabel">
-            {{'layersEntity.maximumScale' | translate}}
-          </label>
-          <mat-form-field appearance="outline">
-            <input matInput type="text" formControlName="maximumScale">
-          </mat-form-field>
-        </div>
-
-
-        <div class="colFormDiv" >
-          <label class="formLabel">
-            {{'layersEntity.order' | translate}}
-          </label>
-          <mat-form-field appearance="outline">
-            <input matInput type="text" formControlName="order">
-          </mat-form-field>
-        </div>
-
-        <div class="colFormDiv">
-            <label class="formLabel">
-              {{'layersEntity.transparency' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="transparency">
-            </mat-form-field>
-          </div>
-
-          <div class="colFormDiv" id="right-column">
-            <label class="formLabel">
-              {{'layersEntity.metadataURL' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="metadataURL">
-            </mat-form-field>
-          </div>
+      </div>
+      <div class="colFormDiv">
+        <label class="formLabel requiredInput">
+          {{'layersEntity.layers' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="layers" required>
+        </mat-form-field>
       </div>
 
-      <div class="rowFormDiv">
-      
-          <div class="thirdColumnColFormDiv" >
-            <label class="formLabel">
-              {{'layersEntity.legendType' | translate}}
-            </label>
+      <div class="colFormDiv">
+        <label class="formLabel">
+          {{'layersEntity.available' | translate}}
+        </label>
+        <mat-checkbox formControlName="blocked"> </mat-checkbox>
+      </div>
 
-            <mat-form-field appearance="outline">
-              <mat-select matInput formControlName="legendType" class="form-control">
-                <mat-option [value]="legendType.value" *ngFor="let legendType of legendTypes">
-                  {{ legendType.description}}
-                </mat-option>
-              </mat-select>
-            </mat-form-field> 
-          </div>
-  
-          <div class="thirdColumnColFormDiv" >
-            <label class="formLabel">
-              {{'layersEntity.description' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="description">
-            </mat-form-field>
-          </div>
-  
-          <div class="thirdColumnColFormDiv" >
-            <label class="formLabel">
-              {{'layersEntity.datasetURL' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="datasetURL">
-            </mat-form-field>
-          </div>
+    </div>
 
-          
-          <div class="colFormDiv">
-            <label class="formLabel">
-              {{'layersEntity.available' | translate}}
-            </label>
-            <mat-checkbox formControlName="blocked"> </mat-checkbox>
-          </div>
-  
+    <div class="rowFormDiv">
+      <div class="colFormDiv">
+        <label class="formLabel">
+          {{'layersEntity.minimumScale' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="minimumScale">
+        </mat-form-field>
+      </div>
+
+      <div class="colFormDiv">
+        <label class="formLabel">
+          {{'layersEntity.maximumScale' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="maximumScale">
+        </mat-form-field>
+      </div>
+
+
+      <div class="colFormDiv">
+        <label class="formLabel">
+          {{'layersEntity.order' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="number" formControlName="order">
+        </mat-form-field>
+      </div>
+
+      <div class="colFormDiv">
+        <label class="formLabel">
+          {{'layersEntity.transparency' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="number" formControlName="transparency">
+        </mat-form-field>
+      </div>
+
+    </div>
+    <div class="rowFormDiv">
+      <div class="colFormDiv">
+        <label class="formLabel">
+          {{'layersEntity.legendType' | translate}}
+        </label>
+
+        <mat-form-field appearance="outline">
+          <mat-select matInput formControlName="legendType" class="form-control">
+            <mat-option [value]="legendType.id" *ngFor="let legendType of legendTypes">
+              {{ legendType.description}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="colFormDiv">
+        <label class="formLabel">
+          {{'layersEntity.legendUrl' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="legendUrl">
+        </mat-form-field>
+      </div>
+
+    </div>
+
+    <div class="rowFormDiv">
+
+
+      <div class="colFormDiv">
+        <label class="formLabel">
+          {{'layersEntity.description' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="description">
+        </mat-form-field>
+      </div>
+
+      <div class="colFormDiv">
+        <label class="formLabel">
+          {{'layersEntity.datasetURL' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="datasetURL">
+        </mat-form-field>
+      </div>
+
+
+      <div class="colFormDiv">
+        <label class="formLabel">
+          {{'layersEntity.metadataURL' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="metadataURL">
+        </mat-form-field>
+      </div>
+
+
+
+
     </div>
 
     <div class="formHeader">
@@ -144,147 +169,147 @@
     </div>
     <span class="divider"></span>
 
-        <div class="rowFormDiv">
-            <div class="colFormDiv">
-              <label class="formLabel requiredInput">
-                {{'layersEntity.municipalFilterFields' | translate}}
-              </label>
-              <mat-form-field appearance="outline">
-                <input matInput type="text" formControlName="applyFilterToGetMap" required>
-              </mat-form-field>
-            </div>
-    
-            <div class="colFormDiv" >
-              <label class="formLabel">
-                {{'layersEntity.filterInfoByMunicipality' | translate}}
-              </label>
-              <mat-checkbox formControlName="filterInfoByMunicipality"> </mat-checkbox>
-            </div>
-  
-            <div class="colFormDiv">
-              <label class="formLabel">
-                {{'layersEntity.filterSpatialSeleciontByMunicipality' | translate}}
-              </label>
-              <mat-checkbox formControlName="filterSpatialSeleciontByMunicipality"> </mat-checkbox>
-            </div>
-            
-        </div>
+    <div class="rowFormDiv">
+      <div class="colFormDiv">
+        <label class="formLabel requiredInput">
+          {{'layersEntity.municipalFilterFields' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="applyFilterToGetMap" >
+        </mat-form-field>
+      </div>
 
-          <div class="formHeader">
-            <h5> Informació  </h5>
-          </div>
-          <span class="divider"></span>
+      <div class="colFormDiv">
+        <label class="formLabel">
+          {{'layersEntity.filterInfoByMunicipality' | translate}}
+        </label>
+        <mat-checkbox (change)="onMunicipalityFilterChange($event)" formControlName="applyFilterToGetFeatureInfo">
+        </mat-checkbox>
+      </div>
 
-          <div class="rowFormDiv">
-        
-            <div class="colFormDivInformation" >
-              <label class="formLabel">
-                {{'layersEntity.information' | translate}}
-              </label>
-              <mat-checkbox formControlName="queryableFeatureEnabled"> </mat-checkbox>
-            </div>
-  
-            <div class="colFormDivDefaultInformation" >
-              <label class="formLabel">
-                {{'layersEntity.defaultInformation' | translate}}
-              </label>
-              <mat-checkbox formControlName="queryableFeatureAvailable"> </mat-checkbox>
-            </div>
-  
-            <div class="colFormDiv">
-              <label class="formLabel requiredInput">
-                {{'layersEntity.informationLayer' | translate}}
-              </label>
-              <mat-form-field appearance="outline">
-                <input matInput type="text" formControlName="queryableLayers" required>
-              </mat-form-field>
-            </div>
-  
-          </div>
-          <div class="rowFormDiv">
-            <div class="colFormDivDefaultInformation">
-              <label class="formLabel">
-                {{'layersEntity.thematic' | translate}}
-              </label>
-              <mat-checkbox formControlName="thematic" (change)="onSelectionThematicChanged($event)" > </mat-checkbox>
-            </div>
+      <div class="colFormDiv">
+        <label class="formLabel" >
+          {{'layersEntity.filterSpatialSeleciontByMunicipality' | translate}}
+        </label>
+        <mat-checkbox (change)="onMunicipalityFilterChange($event)" formControlName="applyFilterToSpatialSelection">
+        </mat-checkbox>
+      </div>
 
-            <div class="colFormDiv" >
-              <label class="formLabel">
-                {{'layersEntity.geometryType' | translate}}
-              </label>
-  
-              <mat-form-field appearance="outline">
-                <mat-select matInput formControlName="geometryType"  class="form-control">
-                  <mat-option [value]="geometryType.value" *ngFor="let geometryType of geometryTypes">
-                    {{ geometryType.value}}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field> 
-            </div>
-            
-        </div>
+    </div>
 
-  </form>
+    <div class="formHeader">
+      <h5> Informació </h5>
+    </div>
+    <span class="divider"></span>
+
+    <div class="rowFormDiv">
+
+      <div class="colFormDiv">
+        <label class="formLabel">
+          {{'layersEntity.information' | translate}}
+        </label>
+        <mat-checkbox formControlName="queryableFeatureEnabled"> </mat-checkbox>
+      </div>
+
+      <div class="colFormDiv">
+        <label class="formLabel">
+          {{'layersEntity.defaultInformation' | translate}}
+        </label>
+        <mat-checkbox formControlName="queryableFeatureAvailable"> </mat-checkbox>
+      </div>
+
+      <div class="colFormDiv"  >
+        <label class="formLabel requiredInput">
+          {{'layersEntity.informationLayer' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="queryableLayers" required>
+        </mat-form-field>
+      </div>
+
+    </div>
+    <div class="rowFormDiv">
+      <div class="ShortColFormDiv">
+        <label class="formLabel">
+          {{'layersEntity.thematic' | translate}}
+        </label>
+        <mat-checkbox formControlName="thematic" (change)="onSelectionThematicChanged($event)"> </mat-checkbox>
+      </div>
+
+      <div class="colFormDiv">
+        <label class="formLabel">
+          {{'layersEntity.geometryType' | translate}}
+        </label>
+
+        <mat-form-field appearance="outline">
+          <mat-select matInput formControlName="geometryType" class="form-control">
+            <mat-option [value]="geometryType.value" *ngFor="let geometryType of geometryTypes">
+              {{ geometryType.value}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+    </div>
+
+
 </div>
 
 <div class="tableDiv" *ngIf=" dataLoaded">
-  <mat-accordion  multi>
+  <mat-accordion multi>
 
-    
+
 
     <!-- Spatial selection table -->
     <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
       <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-        <mat-panel-title  >
+        <mat-panel-title>
           {{ "layersEntity.spatialSelection" | translate }}
         </mat-panel-title>
       </mat-expansion-panel-header>
-  
 
-    <ng-template matExpansionPanelContent>  
-      <div class="formDiv">
-        <form [formGroup]='layerForm' #f="ngForm"> 
-      
-      
-          <div class="rowFormDiv">         
-            <div class="colFormDiv">
-              <label class="formLabel">
-                {{'layersEntity.selectable' | translate}}
-              </label>
-              <mat-checkbox formControlName="selectable"> </mat-checkbox>
+
+      <ng-template matExpansionPanelContent>
+        <div class="formDiv">
+
+
+            <div class="rowFormDiv">
+              <div class="ShortColFormDiv">
+                <label class="formLabel">
+                  {{'layersEntity.selectable' | translate}}
+                </label>
+                <mat-checkbox formControlName="selectableFeatureEnabled" (change)="onSelectableFeatureEnabledChange($event)"> </mat-checkbox>
+              </div>
+
+              <div class="colFormDiv">
+                <label class="formLabel requiredInput">
+                  {{'layersEntity.service' | translate}}
+                </label>
+
+                <mat-form-field appearance="outline">
+                  <mat-select matInput formControlName="spatialSelectionService" class="form-control">
+                    <mat-option [value]="service.id" *ngFor="let service of spatialConfigurationServices">
+                      {{ service.name}}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+
+              <div class="colFormDiv">
+                <label class="formLabel requiredInput">
+                  {{'layersEntity.layer' | translate}}
+                </label>
+                <mat-form-field appearance="outline">
+                  <input matInput type="text" formControlName="selectableLayers" required>
+                </mat-form-field>
+              </div>
+
+
             </div>
-         </div>
-
-         <div class="rowFormDiv">         
-          <div class="colFormDiv" >
-          <label class="formLabel">
-            {{'layersEntity.service' | translate}}
-          </label>
-
-          <mat-form-field appearance="outline">
-            <mat-select matInput formControlName="spatialSelectionService" class="form-control">
-              <mat-option [value]="service.name" *ngFor="let service of spatialConfigurationServices">
-                {{ service.name}}
-              </mat-option>
-            </mat-select>
-          </mat-form-field> 
-          </div>
-         </div>
-
-         <div class="rowFormDiv">         
-          <div class="colFormDiv" >
-            <label class="formLabel requiredInput">
-              {{'layersEntity.layer' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="layer" required>
-            </mat-form-field>
-          </div>
-        </div>
 
 
-        <div class="rowFormDiv">     
+            <!-- <div class="rowFormDiv">     
           <div class="colFormDiv" >    
           <label class="formLabel">
             {{'layersEntity.connection' | translate}}
@@ -298,214 +323,353 @@
             </mat-select>
           </mat-form-field> 
           </div>
-         </div>
-       
-      </form>
-      </div>
-      <div class="appDataGridEditDiv">
-          <app-data-grid  [columnDefs]="columnDefsSpatialConfigurations" [themeGrid]='themeGrid' [getAll]='getAllSpatialConfigurations'  
-          [eventAddItemsSubscription]='addElementsEventSpatialConfigurations.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventSpatialConfigurations.asObservable()' 
-          [eventRefreshSubscription]='dataUpdatedEventSpatialConfigurations.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true [hideDuplicateButton]=true  
-          (getAllRows)="getAllRowsParameters($event)" [actionButton]=true (new)="openSpatialSelectionDialog($event)"  > </app-data-grid>
-      </div>
-    </ng-template>
+         </div> -->
+
+        </div>
+        <div class="appDataGridEditDiv">
+          <app-data-grid [columnDefs]="columnDefsSpatialConfigurations" [themeGrid]='themeGrid'
+            [getAll]='getAllSpatialConfigurations'
+            [eventAddItemsSubscription]='addElementsEventSpatialConfigurations.asObservable()'
+            [eventGetAllRowsSubscription]='getAllElementsEventSpatialConfigurations.asObservable()'
+            [eventRefreshSubscription]='dataUpdatedEventSpatialConfigurations.asObservable()'
+            [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [newButton]=true
+            (getAllRows)="getAllRowsParameters($event)" [actionButton]=true
+            (duplicate)='duplicateSpatialSelections($event)' (new)="openSpatialSelectionDialog($event)">
+          </app-data-grid>
+        </div>
+      </ng-template>
     </mat-expansion-panel>
 
 
     <!-- Parameters configuration table -->
     <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
       <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-        <mat-panel-title  >
+        <mat-panel-title>
           {{ "layersEntity.parametersConfiguration" | translate }}
         </mat-panel-title>
       </mat-expansion-panel-header>
-  
-    <ng-template matExpansionPanelContent>  
-      <div class="appDataGridEditDiv">
-          <app-data-grid  [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'  
-          [eventAddItemsSubscription]='addElementsEventParameters.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventParameters.asObservable()' 
-          [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
-          (getAllRows)="getAllRowsParameters($event)" [actionButton]=true (duplicate)='duplicateParameters($event)'  (new)="openParametersDialog($event)"  > </app-data-grid>
-      </div>
-    </ng-template>
+
+      <ng-template matExpansionPanelContent>
+        <div class="appDataGridEditDiv">
+          <app-data-grid [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'
+            [eventAddItemsSubscription]='addElementsEventParameters.asObservable()'
+            [eventGetAllRowsSubscription]='getAllElementsEventParameters.asObservable()'
+            [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()' [discardChangesButton]=true
+            [redoButton]=true [undoButton]=true [deleteButton]=true [newButton]=true
+            (getAllRows)="getAllRowsParameters($event)" defaultColumnSorting="order" [actionButton]=true
+            (duplicate)='duplicateParameters($event)' (new)="openParametersDialog($event)"> </app-data-grid>
+        </div>
+      </ng-template>
+    </mat-expansion-panel>
+
+    <!-- Territorial Filter table -->
+    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+        <mat-panel-title>
+          {{ "layersEntity.territorialFilter" | translate }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <ng-template matExpansionPanelContent>
+        <div class="appDataGridEditDiv">
+          <app-data-grid [columnDefs]="columnDefsTerritorialFilter" [themeGrid]='themeGrid' [getAll]='getAllTerritorialFilters'
+            [eventAddItemsSubscription]='addElementsTerritorialFilter.asObservable()'
+            [eventGetAllRowsSubscription]='getAllElementsTerritorialFilter.asObservable()'
+            [eventRefreshSubscription]='dataUpdatedEventTerritorialFilter.asObservable()' [discardChangesButton]=true
+            [redoButton]=true [undoButton]=true [deleteButton]=true [newButton]=true
+            (getAllRows)="getAllRowsTerritorialFilters($event)" defaultColumnSorting="order" [actionButton]=true
+            (duplicate)='duplicateTerritorialFilters($event)' (new)="openTerritorialFilterDialog($event)"> </app-data-grid>
+        </div>
+      </ng-template>
     </mat-expansion-panel>
 
 
     <!-- Territory configuration table -->
     <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
       <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-        <mat-panel-title  >
+        <mat-panel-title>
           {{ "layersEntity.territory" | translate }}
         </mat-panel-title>
       </mat-expansion-panel-header>
-  
-    <ng-template matExpansionPanelContent>  
-      <div class="appDataGridEditDiv">
-          <app-data-grid [columnDefs]="columnDefsTerritories" [themeGrid]='themeGrid' [getAll]='getAllTerritories'  
-          [eventAddItemsSubscription]='addElementsEventTerritories.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventTerritories.asObservable()' 
-          [eventRefreshSubscription]='dataUpdatedEventTerritories.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true  
-          (getAllRows)="getAllRowsTerritories($event)"  [actionButton]=true (add)="openTerritoriesDialog($event)"   > </app-data-grid>
-      </div>
-    </ng-template>
+
+      <ng-template matExpansionPanelContent>
+        <div class="appDataGridEditDiv">
+          <app-data-grid [columnDefs]="columnDefsTerritories" [themeGrid]='themeGrid' [getAll]='getAllTerritories'
+            [eventAddItemsSubscription]='addElementsEventTerritories.asObservable()'
+            [eventGetAllRowsSubscription]='getAllElementsEventTerritories.asObservable()'
+            [eventRefreshSubscription]='dataUpdatedEventTerritories.asObservable()' [discardChangesButton]=true
+            [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
+            (getAllRows)="getAllRowsTerritories($event)" [actionButton]=true (add)="openTerritoriesDialog($event)">
+          </app-data-grid>
+        </div>
+      </ng-template>
     </mat-expansion-panel>
 
 
     <!-- Layers configuration by cartoghaphy group table -->
     <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
       <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-        <mat-panel-title  >
+        <mat-panel-title>
           {{ "layersEntity.permissiongroupLayersConfiguration" | translate }}
         </mat-panel-title>
       </mat-expansion-panel-header>
-  
-    <ng-template matExpansionPanelContent>  
-      <div class="appDataGridEditDiv">
-          <app-data-grid [columnDefs]="columnDefsLayersConfiguration" [themeGrid]='themeGrid' [getAll]='getAllLayersConfiguration'  
-          [eventAddItemsSubscription]='addElementsEventCartographyGroups.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventLayersConfigurations.asObservable()' 
-          [eventRefreshSubscription]='dataUpdatedEventLayersConfiguration.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true  
-          (getAllRows)="getAllRowsLayersConfiguration($event)" [actionButton]=true (add)="openCartographyGroupsDialog($event)" > </app-data-grid>
-      </div>
-    </ng-template>
+
+      <ng-template matExpansionPanelContent>
+        <div class="appDataGridEditDiv">
+          <app-data-grid [columnDefs]="columnDefsLayersConfiguration" [themeGrid]='themeGrid'
+            [getAll]='getAllLayersConfiguration'
+            [eventAddItemsSubscription]='addElementsEventCartographyGroups.asObservable()'
+            [eventGetAllRowsSubscription]='getAllElementsEventLayersConfigurations.asObservable()'
+            [eventRefreshSubscription]='dataUpdatedEventLayersConfiguration.asObservable()' [discardChangesButton]=true
+            [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
+            (getAllRows)="getAllRowsLayersConfiguration($event)" [actionButton]=true
+            (add)="openCartographyGroupsDialog($event)"> </app-data-grid>
+        </div>
+      </ng-template>
     </mat-expansion-panel>
 
 
     <!-- Nodes table -->
     <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
       <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-        <mat-panel-title  >
+        <mat-panel-title>
           {{ "layersEntity.nodes" | translate }}
         </mat-panel-title>
       </mat-expansion-panel-header>
-  
-    <ng-template matExpansionPanelContent>  
-      <div class="appDataGridEditDiv">
-          <app-data-grid [columnDefs]="columnDefsNodes" [themeGrid]='themeGrid' [getAll]='getAllNodes' 
-          [eventAddItemsSubscription]='addElementsEventNodes.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventNodes.asObservable()' 
-          [eventRefreshSubscription]='dataUpdatedEventNodes.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
-          (getAllRows)="getAllRowsNodes($event)" [actionButton]=true (add)="openNodesDialog($event)" > </app-data-grid>
-      </div>
-    </ng-template>
+
+      <ng-template matExpansionPanelContent>
+        <div class="appDataGridEditDiv">
+          <app-data-grid [columnDefs]="columnDefsNodes" [themeGrid]='themeGrid' [getAll]='getAllNodes'
+            [eventAddItemsSubscription]='addElementsEventNodes.asObservable()'
+            [eventGetAllRowsSubscription]='getAllElementsEventNodes.asObservable()'
+            [eventRefreshSubscription]='dataUpdatedEventNodes.asObservable()' [discardChangesButton]=true
+            [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
+            (getAllRows)="getAllRowsNodes($event)" [actionButton]=true (add)="openNodesDialog($event)"> </app-data-grid>
+        </div>
+      </ng-template>
     </mat-expansion-panel>
 
 
 
   </mat-accordion>
 </div>
+</form>
 
 <ng-template #newParameterDialog>
 
   <div class="formDiv">
-    <form [formGroup]='parameterForm' #f="ngForm"> 
-  
-  
+    <form [formGroup]='parameterForm' #f="ngForm">
+
+
       <div class="rowFormDiv">
-      
-          <div class="colFormDiv" >
-            <label class="formLabel requiredInput">
-              {{'layersEntity.field' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="value" required>
-            </mat-form-field>
-          </div>
-  
-          <div class="colFormDiv" >
-            <label class="formLabel requiredInput">
-              {{'layersEntity.alias' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="name" required>
-            </mat-form-field>
-          </div>
-  
-  
-     </div>
 
-     <div class="rowFormDiv">
-
-      <div class="colFormDiv" >
-        <label class="formLabel requiredInput">
-          {{'layersEntity.format' | translate}}
-        </label>
-        <mat-form-field appearance="outline" >
-          <mat-select matInput formControlName="format" class="form-control" >
-            <mat-option [value]="formatType.value" *ngFor="let formatType of parameterFormatTypes">
-              {{ formatType.value}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-
-      <div class="colFormDiv" >
-        <label class="formLabel requiredInput">
-          {{'layersEntity.order' | translate}}
-        </label>
-        <mat-form-field appearance="outline">
-          <input matInput type="number" formControlName="order" required>
-        </mat-form-field>
-      </div>
-      
-
- </div>
-  
-
-  
-  </form>
-  </div>
-  
-  
-  </ng-template>
-
-
-  <ng-template #newSpatialConfigurationDialog>
-
-    <div class="formDiv">
-      <form [formGroup]='parameterForm' #f="ngForm"> 
-    
-    
-        <div class="rowFormDiv">
-        
-            <div class="colFormDiv" >
-              <label class="formLabel requiredInput">
-                {{'layersEntity.field' | translate}}
-              </label>
-              <mat-form-field appearance="outline">
-                <input matInput type="text" formControlName="value" required>
-              </mat-form-field>
-            </div>
-    
-            <div class="colFormDiv" >
-              <label class="formLabel requiredInput">
-                {{'layersEntity.alias' | translate}}
-              </label>
-              <mat-form-field appearance="outline">
-                <input matInput type="text" formControlName="name" required>
-              </mat-form-field>
-            </div>
-    
-    
-       </div>
-  
-       <div class="rowFormDiv">
-  
-        <div class="colFormDiv" >
+        <div class="colFormDiv">
           <label class="formLabel requiredInput">
+            {{'layersEntity.field' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="text" formControlName="value" required>
+          </mat-form-field>
+        </div>
+
+        <div class="colFormDiv">
+          <label class="formLabel requiredInput">
+            {{'layersEntity.alias' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="text" formControlName="name" required>
+          </mat-form-field>
+        </div>
+
+
+      </div>
+
+      <div class="rowFormDiv">
+
+        <div class="colFormDiv">
+          <label class="formLabel ">
             {{'layersEntity.format' | translate}}
           </label>
-          <mat-form-field appearance="outline" >
-            <mat-select matInput formControlName="format" class="form-control" >
+          <mat-form-field appearance="outline">
+            <mat-select matInput formControlName="format" class="form-control">
               <mat-option [value]="formatType.value" *ngFor="let formatType of parameterFormatTypes">
                 {{ formatType.value}}
               </mat-option>
             </mat-select>
           </mat-form-field>
         </div>
-        
-  
-   </div>
-    
+
+        <div class="colFormDiv">
+          <label class="formLabel">
+            {{'layersEntity.order' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="number" formControlName="order" >
+          </mat-form-field>
+        </div>
+
+
+      </div>
+
+
+
     </form>
-    </div>
-    
-    
-    </ng-template>
+  </div>
+
+
+</ng-template>
+
+
+<ng-template #newSpatialConfigurationDialog>
+
+  <div class="formDiv">
+    <form [formGroup]='parameterForm' #f="ngForm">
+
+
+      <div class="rowFormDiv">
+
+        <div class="colFormDiv">
+          <label class="formLabel requiredInput">
+            {{'layersEntity.field' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="text" formControlName="value" required>
+          </mat-form-field>
+        </div>
+
+        <div class="colFormDiv">
+          <label class="formLabel requiredInput">
+            {{'layersEntity.alias' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="text" formControlName="name" required>
+          </mat-form-field>
+        </div>
+
+
+      </div>
+
+      <div class="rowFormDiv">
+
+        <div class="colFormDiv">
+          <label class="formLabel ">
+            {{'layersEntity.format' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <mat-select matInput formControlName="format" class="form-control">
+              <mat-option [value]="formatType.value" *ngFor="let formatType of parameterFormatTypes">
+                {{ formatType.value}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+
+      </div>
+
+    </form>
+  </div>
+
+
+</ng-template>
+
+
+<ng-template #newTerritorialFilterDialog>
+
+  <div class="formDiv">
+    <form [formGroup]='territorialFilterForm' #f="ngForm">
+
+
+      <div class="rowFormDiv">
+
+        <div class="MidLargeColFormDiv">
+          <label class="formLabel requiredInput">
+            {{'layersEntity.name' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="text" formControlName="name" >
+          </mat-form-field>
+        </div>
+
+        <div class="MidLargeColFormDiv">
+          <label class="formLabel">
+            {{'layersEntity.column' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="text" formControlName="column" >
+          </mat-form-field>
+        </div>
+
+        
+        <div class="MidLargeColFormDiv">
+          <label class="formLabel">
+            {{'layersEntity.value' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="text" formControlName="value" >
+          </mat-form-field>
+        </div>
+
+      </div>
+
+      <div class="rowFormDiv">
+
+        <div class="MidLargeColFormDiv">
+          <label class="formLabel ">
+            {{'layersEntity.type' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <mat-select matInput formControlName="type" class="form-control">
+              <mat-option [value]="filterType.value" *ngFor="let filterType of filterTypes">
+                {{ filterType.description}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        
+        <div class="MidLargeColFormDiv">
+          <label class="formLabel ">
+            {{'layersEntity.valueType' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <mat-select matInput formControlName="valueType" class="form-control">
+              <mat-option [value]="valueType.value" *ngFor="let valueType of filterValueTypes">
+                {{ valueType.description}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        
+        <div class="MidLargeColFormDiv">
+          <label class="formLabel ">
+            {{'layersEntity.typeId' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <mat-select matInput formControlName="typeId" class="form-control">
+              <mat-option [value]="typeId.id" *ngFor="let typeId of filterTypeIds">
+                {{ typeId.name}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+
+      </div>
+
+      
+      <div class="rowFormDiv">
+        <div class="colFormDiv">
+          <label class="formLabel requiredInput">
+            {{'layersEntity.required' | translate}}
+          </label>
+          <mat-checkbox formControlName="required"> </mat-checkbox>
+        </div>
+      </div>
+
+
+    </form>
+  </div>
+
+
+</ng-template>

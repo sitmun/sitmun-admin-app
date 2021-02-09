@@ -8,22 +8,23 @@
 
 
 <div class="formDiv">
-  <div class="formHeader">
-    <h5> {{'treesEntity.generalData' | translate}} </h5>
-    <button (click)="onSaveButtonClicked()" mat-flat-button class="saveButton">
-      <mat-icon fontSet="material-icons-round"> save </mat-icon>
-      {{ "save" | translate }}
-    </button>
-    <button (click)="utils.navigateBack()" mat-flat-button class="returnButton">
-      <mat-icon fontSet="material-icons-round"> arrow_back </mat-icon>
-      {{ "return" | translate }}
-    </button>
-  </div>
-  <span class="divider"></span>
-  <form [formGroup]='treeForm' #f="ngForm">
+  <form [formGroup]='treeForm' (ngSubmit)="onSaveButtonClicked()" #f="ngForm">
+    <div class="formHeader">
+      <h5> {{'treesEntity.generalData' | translate}} </h5>
+      <button mat-flat-button class="saveButton">
+        <mat-icon fontSet="material-icons-round"> save </mat-icon>
+        {{ "save" | translate }}
+      </button>
+      <button type="button" (click)="utils.navigateBack()" mat-flat-button class="returnButton">
+        <mat-icon fontSet="material-icons-round"> arrow_back </mat-icon>
+        {{ "return" | translate }}
+      </button>
+    </div>
+    <span class="divider"></span>
+
     <div class="rowFormDiv">
       <div class="colFormDiv">
-        <label class="formLabel">
+        <label class="formLabel requiredInput">
           {{'treesEntity.name' | translate}}
         </label>
         <mat-form-field appearance="outline">
@@ -46,7 +47,7 @@
       loading</app-data-tree>
   </div>
   <div class="formDivTreeRight">
-    <form [formGroup]='treeNodeForm' #f="ngForm">
+    <form [formGroup]='treeNodeForm' #f="ngForm" (ngSubmit)="onSaveFormButtonClicked()">
       <div class="rowFormDiv">
         <div class="colFormDiv" *ngIf="currentNodeIsFolder != undefined">
           <label class="formLabel requiredInput">
@@ -98,9 +99,9 @@
           (getSelectedRows)="getSelectedRowsCartographies($event)" [singleSelection]=true [globalSearch]=true>
         </app-data-grid>
       </div>
-      <button (click)="onSaveFormButtonClicked()" mat-flat-button class="updateButton"
+      <button  mat-flat-button class="validateButton"
         *ngIf=" !newElement && currentNodeIsFolder != undefined ">{{ "update" | translate }}</button>
-      <button (click)="onSaveFormButtonClicked()" mat-flat-button class="updateButton"
+      <button mat-flat-button class="validateButton"
         *ngIf="newElement && currentNodeIsFolder != undefined ">{{ "save" | translate }}</button>
     </form>
 

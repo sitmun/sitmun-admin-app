@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { TerritoryService,Territory } from '@sitmun/frontend-core';
+import { TerritoryService,Territory } from 'dist/sitmun-frontend-core/';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
-import { DialogMessageComponent } from '@sitmun/frontend-gui';
+import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 
 @Component({
   selector: 'app-territory',
@@ -83,7 +83,7 @@ export class TerritoryComponent implements OnInit {
   applyChanges(data: Territory[]) {
     const promises: Promise<any>[] = [];
     data.forEach(territory => {
-      promises.push(new Promise((resolve, reject) => { this.territoryService.update(territory).toPromise().then((resp) => { resolve() }) }));
+      promises.push(new Promise((resolve, reject) => { this.territoryService.update(territory).subscribe((resp) => { resolve(true) }) }));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);
       });
@@ -94,8 +94,9 @@ export class TerritoryComponent implements OnInit {
     const promises: Promise<any>[] = [];
     data.forEach(territory => {
       territory.id = null;
+      territory.createdDate = new Date();
       territory.name = 'copia_'.concat(territory.name)
-      promises.push(new Promise((resolve, reject) => { this.territoryService.create(territory).toPromise().then((resp) => { resolve() }) }));
+      promises.push(new Promise((resolve, reject) => { this.territoryService.create(territory).subscribe((resp) => { resolve(true) }) }));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);
       });
@@ -113,7 +114,7 @@ export class TerritoryComponent implements OnInit {
         if(result.event==='Accept') {  
           const promises: Promise<any>[] = [];
           data.forEach(territory => {
-            promises.push(new Promise((resolve, reject) => { this.territoryService.delete(territory).toPromise().then((resp) => { resolve() }) }));
+            promises.push(new Promise((resolve, reject) => { this.territoryService.delete(territory).subscribe((resp) => { resolve(true) }) }));
             Promise.all(promises).then(() => {
               this.dataUpdatedEvent.next(true);
             });

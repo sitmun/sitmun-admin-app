@@ -1,6 +1,6 @@
 import { Component} from '@angular/core';
-import { AuthService } from '@sitmun/frontend-core';
-import { LoginService } from '@sitmun/frontend-core';
+import { AuthService } from 'dist/sitmun-frontend-core/';
+import { LoginService } from 'dist/sitmun-frontend-core/';
 import { environment } from 'src/environments/environment';
 import { TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';

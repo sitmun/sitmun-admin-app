@@ -4,15 +4,20 @@
 </div>
 
   <div class="formDiv">
-    <div class="formHeader">
-      <h5> {{'backgroundEntity.generalData' | translate}} </h5>
-      <button   mat-flat-button (click)='onSaveButtonClicked()' class="saveButton" >
-        <mat-icon fontSet="material-icons-round"  > save </mat-icon>
-        {{ "save" | translate }}
-      </button>
-    </div>
-    <span class="divider"></span>
-    <form [formGroup]='backgroundForm' #f="ngForm"> 
+    <form [formGroup]='backgroundForm' #f="ngForm" 	(ngSubmit)="onSaveButtonClicked()"> 
+        <div class="formHeader">
+          <h5> {{'backgroundEntity.generalData' | translate}} </h5>
+          <button   mat-flat-button  class="saveButton" >
+            <mat-icon fontSet="material-icons-round"  > save </mat-icon>
+            {{ "save" | translate }}
+          </button>
+          <button type="button" (click)="utils.navigateBack()"  mat-flat-button class="returnButton"  >
+            <mat-icon fontSet="material-icons-round"> arrow_back </mat-icon>
+            {{ "return" | translate }}
+          </button>
+        </div>
+        <span class="divider"></span>
+
         <div class="rowFormDiv">     
           <div class="colFormDiv" >
               <label class="formLabel requiredInput">

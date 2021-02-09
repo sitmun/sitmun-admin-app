@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { TreeService, TreeNodeService, CartographyService, Tree, TreeNode, Cartography } from '@sitmun/frontend-core';
+import { TreeService, TreeNodeService, CartographyService, Tree, TreeNode, Cartography } from 'dist/sitmun-frontend-core/';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Observable, of, Subject } from 'rxjs';
-import { DialogMessageComponent } from '@sitmun/frontend-gui';
+import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
 @Component({
   selector: 'app-trees-form',
@@ -201,7 +201,13 @@ export class TreesFormComponent implements OnInit {
 
   
   onSaveButtonClicked(){ 
-    this.getAllElementsNodes.next(true);
+    if(this.treeForm.valid)
+    {    
+      this.getAllElementsNodes.next(true);
+    }
+    else {
+      this.utils.showRequiredFieldsError();
+    }
   }
 
   updateNode(){
@@ -210,8 +216,14 @@ export class TreesFormComponent implements OnInit {
   }
 
   onSaveFormButtonClicked(){
-    if(!this.currentNodeIsFolder) {this.getAllElementsEventCartographies.next(this.treeNodeForm.value)}
-    else { this.updateTreeLeft(null) }
+    if(this.treeNodeForm.valid)
+    {
+      if(!this.currentNodeIsFolder) {this.getAllElementsEventCartographies.next(this.treeNodeForm.value)}
+      else { this.updateTreeLeft(null) }
+    }
+    else {
+      this.utils.showRequiredFieldsError();
+    }
     
   }
 
@@ -310,6 +322,7 @@ export class TreesFormComponent implements OnInit {
      {
       const dialogRef = this.dialog.open(DialogMessageComponent);
       dialogRef.componentInstance.title=this.utils.getTranslate("Error");
+      dialogRef.componentInstance.hideCancelButton = true;
       dialogRef.componentInstance.message=this.utils.getTranslate("cartographyNonSelectedMessage");
        dialogRef.afterClosed().subscribe();
      }

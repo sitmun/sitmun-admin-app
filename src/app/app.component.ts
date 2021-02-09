@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 import { TranslateService } from '@ngx-translate/core';
 import { SidenavService } from './services/sidenav.service';
-import { Principal, LoginService, AuthService } from '@sitmun/frontend-core';
+import { Principal, LoginService, AuthService } from 'dist/sitmun-frontend-core/';
 import { environment } from 'src/environments/environment';
 
 @Component({

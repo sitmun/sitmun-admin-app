@@ -4,10 +4,10 @@ import { RouterModule } from '@angular/router';
 import { MaterialModule } from '../../../material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { CodeListService, ApplicationBackgroundService, ApplicationService,ApplicationParameterService, RoleService, CartographyGroupService, TreeService,BackgroundService } from '@sitmun/frontend-core';
+import { CodeListService, ApplicationBackgroundService, ApplicationService,ApplicationParameterService, RoleService, CartographyGroupService, TreeService,BackgroundService } from 'dist/sitmun-frontend-core/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { HttpClientModule } from '@angular/common/http';
-import { SitmunFrontendGuiModule } from '@sitmun/frontend-gui';
+import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { RouterTestingModule } from '@angular/router/testing';
 
 describe('ApplicationFormComponent', () => {

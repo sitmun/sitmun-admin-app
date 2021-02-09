@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LayersPermitsComponent } from './layers-permits.component';
-import { CartographyGroupService , CodeListService} from '@sitmun/frontend-core';
+import { CartographyGroupService , CodeListService} from 'dist/sitmun-frontend-core/';
 import { HttpClientModule } from '@angular/common/http';
-import { SitmunFrontendGuiModule } from '@sitmun/frontend-gui';
+import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { RouterTestingModule } from '@angular/router/testing';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';

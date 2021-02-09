@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { CartographyService, Cartography, Service } from '@sitmun/frontend-core';
+import { CartographyService, Cartography, Service } from 'dist/sitmun-frontend-core/';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
-import { DialogMessageComponent } from '@sitmun/frontend-gui';
+import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
@@ -41,9 +41,11 @@ export class LayersComponent implements OnInit {
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('layersEntity.name'), field: 'name' },
       { headerName: this.utils.getTranslate('layersEntity.serviceName'), field: 'serviceName',editable: false }, //service
-      { headerName: this.utils.getTranslate('layersEntity.order'), field: 'order' },
+      { headerName: this.utils.getTranslate('layersEntity.order'), field: 'order', },
       { headerName: this.utils.getTranslate('layersEntity.layers'), field: 'layers' },
-      { headerName: this.utils.getTranslate('layersEntity.createdDate'), field: 'createdDate' }, // type: 'dateColumn'
+      { headerName: this.utils.getTranslate('layersEntity.createdDate'), field: 'createdDate',
+        filter: 'agDateColumnFilter', filterParams: this.utils.getDateFilterParams(),
+        editable: false, cellRenderer: (data) => { return this.utils.getDateFormated(data) } }, // type: 'dateColumn'
       { headerName: this.utils.getTranslate('layersEntity.minimumScale'), field: 'minimumScale' },
       { headerName: this.utils.getTranslate('layersEntity.maximumScale'), field: 'maximumScale' },
       { headerName: this.utils.getTranslate('layersEntity.metadataURL'), field: 'metadataURL' },
@@ -63,7 +65,7 @@ export class LayersComponent implements OnInit {
   applyChanges(data: Cartography[]) {
     const promises: Promise<any>[] = [];
     data.forEach(cartography => {
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.cartographyService.update(cartography).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.cartographyService.update(cartography).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);
       });
@@ -77,10 +79,11 @@ export class LayersComponent implements OnInit {
       this.http.get(cartography._links.service.href).subscribe( (result:Service) => {
         newCartography.id = null;
         newCartography.service=result;
+        newCartography.createdDate = new Date();
         newCartography._links = null;
         newCartography.name = 'copia_'.concat(newCartography.name)
         console.log(newCartography);
-        promises.push(new Promise((resolve, reject) => {​​​​​​​ this.cartographyService.save(newCartography).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+        promises.push(new Promise((resolve, reject) => {​​​​​​​ this.cartographyService.save(newCartography).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
         Promise.all(promises).then(() => {
           this.dataUpdatedEvent.next(true);
         });
@@ -102,7 +105,7 @@ export class LayersComponent implements OnInit {
         if(result.event==='Accept') {  
           const promises: Promise<any>[] = [];
           data.forEach(cartography => {
-            promises.push(new Promise((resolve, reject) => {​​​​​​​ this.cartographyService.delete(cartography).toPromise().then((resp) =>{​​​​​​​resolve()}​​​​​​​)}​​​​​​​));
+            promises.push(new Promise((resolve, reject) => {​​​​​​​ this.cartographyService.delete(cartography).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
             Promise.all(promises).then(() => {
               this.dataUpdatedEvent.next(true);
             });
