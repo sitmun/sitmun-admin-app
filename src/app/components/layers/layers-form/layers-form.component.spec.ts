@@ -23,7 +23,7 @@ describe('LayersFormComponent', () => {
       RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
       providers: [CartographyService, ServiceService, ConnectionService, TerritoryTypeService, 
         TreeNodeService, TerritoryService, CartographyGroupService, CartographyAvailabilityService, 
-        CartographyParameterService, CodeListService, CartographyFilterService
+        CartographyParameterService, CodeListService, CartographyFilterService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();
