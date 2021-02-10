@@ -266,10 +266,8 @@ export class TerritoryFormComponent implements OnInit {
 
     this.territoryForm = new FormGroup({
       id: new FormControl(null, []),
-      code: new FormControl(null, [
-        Validators.required,
-      ]),
-      name: new FormControl(null),
+      code: new FormControl(null, [Validators.required,]),
+      name: new FormControl(null, [Validators.required,]),
       territorialAuthorityAddress: new FormControl(null),
       territorialAuthorityLogo: new FormControl(null),
       scope: new FormControl(null),
