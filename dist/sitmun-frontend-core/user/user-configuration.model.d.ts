@@ -8,6 +8,8 @@ import { User } from './user.model';
 export declare class UserConfiguration extends Resource {
     /** role */
     role: Role;
+    /** role Children */
+    roleChildren: Role;
     /** territory */
     territory: Territory;
     /** user */
