@@ -125,7 +125,7 @@ export class BackgroundLayersFormComponent implements OnInit {
     if(this.backgroundForm.valid)
     {
       let cartographyGroup= this.permissionGroups.find(x => x.id===this.backgroundForm.value.cartographyGroup )
-      if(cartographyGroup==undefined){
+      if(cartographyGroup==undefined || cartographyGroup.id === -1){
         cartographyGroup=null
       }
   

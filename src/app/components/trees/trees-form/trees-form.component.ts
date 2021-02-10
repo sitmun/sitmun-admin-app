@@ -203,7 +203,19 @@ export class TreesFormComponent implements OnInit {
   onSaveButtonClicked(){ 
     if(this.treeForm.valid)
     {    
-      this.getAllElementsNodes.next(true);
+      if(this.treeID === -1)
+      {
+        this.treeService.save( this.treeForm.value)
+        .subscribe(resp => {
+          this.treeToEdit=resp;
+        },
+        error=>{
+          console.log(error);
+        });
+      }
+      else {
+        this.getAllElementsNodes.next(true);
+      }
     }
     else {
       this.utils.showRequiredFieldsError();

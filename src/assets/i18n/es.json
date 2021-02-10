@@ -31,6 +31,8 @@
   "passwordMessage" : "Los campos contraseña y confirmar contraseña no coinciden!",
   "requiredFieldMessage": "Rellene todos los campos obligatorios",
   "duplicateMessage": "Si dupliques los datos sin guardar los cambios, las modificacions se sobreescribiran, quieres continuar?",
+  "addChildRoles": "Quieres añadir roles hijo al territorio seleccionado?",
+  "extentError" : "La extensión introducida no es válida",
   "caution": "Peligro",
   "atention": "Atención",
   "lang": {

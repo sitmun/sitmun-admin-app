@@ -31,6 +31,8 @@
   "passwordMessage" : "Els camps contrasenya i confirmar contrasenya no coincideixen!",
   "requiredFieldMessage": "Empleni tots els camps obligatoris ",
   "duplicateMessage": "Si dupliques les dades sense guardar els canvis, les modificacions seran sobreescrites, vols continuar?",
+  "addChildRoles": "Vols afegir rols fills al territori seleccionat?",
+  "extentError" : "L'extensió introduida no és vàlida",
   "caution": "Perill",
   "atention": "Atenció",
   "lang": {
@@ -84,7 +86,8 @@
     "expirationDate": "Caducitat",
     "dataCreated": "Alta",
     "code": "Codi",
-    "status": "Estat"
+    "status": "Estat",
+    "childRole": "Rol fill"
   },
   "connectionEntity": {
     "generalData": "Dades Generals",

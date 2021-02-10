@@ -8,7 +8,7 @@ import { UtilsService } from '../../../services/utils.service';
 import { Observable, of, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
+import { DialogGridComponent, DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
 import { UserConfiguration } from '@sitmun/frontend-core';
 
@@ -128,6 +128,7 @@ export class TerritoryFormComponent implements OnInit {
         if (this.territoryID !== -1) {
           this.territoryService.get(this.territoryID).subscribe(
             resp => {
+              console.log(resp);
               this.territoryToEdit = resp;
 
               this.extensions = this.territoryToEdit.extent.split(' ');
@@ -149,7 +150,11 @@ export class TerritoryFormComponent implements OnInit {
                 blocked: this.territoryToEdit.blocked,
                 _links: this.territoryToEdit._links
               });
-
+              if( !this.territoryToEdit.groupTypeId) {
+                this.territoryForm.patchValue({
+                  groupType: this.territoryGroups[0].id,
+                })
+              }
               this.dataLoaded = true;
             },
             error => {
@@ -809,53 +814,84 @@ export class TerritoryFormComponent implements OnInit {
 
     if (this.territoryForm.valid) {
       console.log(this.territoryForm.value)
-      this.updateExtent();
 
-      let groupType = this.territoryGroups.find(element => element.id == this.territoryForm.value.groupType)
-      if (groupType == undefined) {
-        groupType = "";
-      }
+      if(this.validateExtent(this.territoryForm.value.extensionX0, this.territoryForm.value.extensionX1,this.territoryForm.value.extensionY0,
+         this.territoryForm.value.extensionY1)) 
+         {
+          this.updateExtent();
+          let groupType = this.territoryGroups.find(element => element.id == this.territoryForm.value.groupType)
+          if (groupType == undefined || groupType.id=== -1) {
+            groupType = null;
+          }
+    
+          this.terrritoryObj = new Territory();
+          this.terrritoryObj.id = this.territoryID,
+          this.terrritoryObj.code = this.territoryForm.value.code,
+          this.terrritoryObj.name = this.territoryForm.value.name,
+          this.terrritoryObj.territorialAuthorityAddress = this.territoryForm.value.territorialAuthorityAddress,
+          this.terrritoryObj.territorialAuthorityLogo = this.territoryForm.value.territorialAuthorityLogo,
+          this.terrritoryObj.scope = this.territoryForm.value.scope,
+          this.terrritoryObj.groupType = groupType,
+          this.terrritoryObj.extent = this.territoryForm.value.extent,
+          this.terrritoryObj.note = this.territoryForm.value.note,
+          this.terrritoryObj.blocked = this.territoryForm.value.blocked,
+          this.terrritoryObj._links = this.territoryForm.value._links
+    
+          if (this.territoryID == -1) {
+            this.terrritoryObj.createdDate = new Date();
+          } else {
+            this.terrritoryObj.id = this.territoryForm.value.id;
+            this.terrritoryObj.createdDate = this.territoryToEdit.createdDate
+          }
+          this.territoryService.save(this.terrritoryObj)
+            .subscribe(resp => {
+              console.log(resp);
+              this.territoryToEdit = resp;
+              this.territoryID = resp.id;
+              this.territoryForm.patchValue({
+                id: resp.id,
+                _links: resp._links
+              })
+              this.getAllElementsEventPermits.next(true);
+              this.getAllElementsEventCartographies.next(true);
+              this.getAllElementsEventTasks.next(true);
+              this.getAllElementsEventTerritoriesMemberOf.next(true);
+              this.getAllElementsEventTerritoriesMembers.next(true);
+            },
+              error => {
+                console.log(error);
+              });
 
-      this.terrritoryObj = new Territory();
-      this.terrritoryObj.id = this.territoryID,
-      this.terrritoryObj.code = this.territoryForm.value.code,
-      this.terrritoryObj.name = this.territoryForm.value.name,
-      this.terrritoryObj.territorialAuthorityAddress = this.territoryForm.value.territorialAuthorityAddress,
-      this.terrritoryObj.territorialAuthorityLogo = this.territoryForm.value.territorialAuthorityLogo,
-      this.terrritoryObj.scope = this.territoryForm.value.scope,
-      this.terrritoryObj.groupType = groupType,
-      this.terrritoryObj.extent = this.territoryForm.value.extent,
-      this.terrritoryObj.note = this.territoryForm.value.note,
-      this.terrritoryObj.blocked = this.territoryForm.value.blocked,
-      this.terrritoryObj._links = this.territoryForm.value._links
 
-      if (this.territoryID == -1) {
-        this.terrritoryObj.createdDate = new Date();
-      } else {
-        this.terrritoryObj.id = this.territoryForm.value.id;
-        this.terrritoryObj.createdDate = this.territoryToEdit.createdDate
-      }
-      this.territoryService.save(this.terrritoryObj)
-        .subscribe(resp => {
-          console.log(resp);
-          this.territoryToEdit = resp;
-          this.territoryID = resp.id;
-          this.territoryForm.patchValue({
-            id: resp.id,
-            _links: resp._links
-          })
-          this.getAllElementsEventPermits.next(true);
-          this.getAllElementsEventCartographies.next(true);
-          this.getAllElementsEventTasks.next(true);
-          this.getAllElementsEventTerritoriesMemberOf.next(true);
-          this.getAllElementsEventTerritoriesMembers.next(true);
-        },
-          error => {
-            console.log(error);
-          });
+         }
+         else{
+           this.showExtentError();
+         }
+
     }
     else {
       this.utils.showRequiredFieldsError();
     }
+  }
+
+
+  validateExtent(x0, x1, y0, y1) {
+
+    let nullCounter = 0;
+    if (x0 == null || x0.length<1 || x0=== "null") {nullCounter++};
+    if (x1 == null || x1.length<1 || x1=== "null") {nullCounter++};
+    if (y0 == null || y0.length<1 || y0=== "null") {nullCounter++};
+    if (y1 == null || y1.length<1 || y1=== "null") {nullCounter++};
+
+    return (nullCounter === 0 || nullCounter === 4) ? true : false;
+
+  }
+
+  showExtentError(){
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title = "Error"
+    dialogRef.componentInstance.message = this.utils.getTranslate("extentError")
+    dialogRef.componentInstance.hideCancelButton = true;
+    dialogRef.afterClosed().subscribe();
   }
 }

@@ -31,6 +31,8 @@
   "passwordMessage" : "Password/confirm passwords fields don't match!",
   "requiredFieldMessage": "  You must fill all required fields ",
   "duplicateMessage": "If you duplicate rows without apply changes your modifications will be overwritted, do you want to continue?",
+  "addChildRoles": "Do you want to add child roles to the selected territory?",
+  "extentError" : "The entered extent is not valid",
   "caution": "Caution",
   "atention": "Atention",
   "lang": {

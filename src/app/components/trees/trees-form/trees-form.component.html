@@ -93,7 +93,7 @@
       </div>
 
 
-      <div class="appDataGridEditDiv" *ngIf="(currentNodeIsFolder === false)">
+      <div class="appDataGridEditDiv" *ngIf="( currentNodeIsFolder != undefined && !currentNodeIsFolder)">
         <app-data-grid [columnDefs]="columnDefsCartographies" [themeGrid]='themeGrid' [getAll]='getAllCartographies'
           [eventGetSelectedRowsSubscription]='getAllElementsEventCartographies.asObservable()'
           (getSelectedRows)="getSelectedRowsCartographies($event)" [singleSelection]=true [globalSearch]=true>

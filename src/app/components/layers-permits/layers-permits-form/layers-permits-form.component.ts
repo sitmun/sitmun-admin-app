@@ -56,11 +56,6 @@ export class LayersPermitsFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    let permissionGroupTypesByDefault = {
-      value: -1,
-      description: '------'
-    }
-    this.permissionGroupTypes.push(permissionGroupTypesByDefault);
 
     const promises: Promise<any>[] = [];
 	
@@ -316,6 +311,8 @@ export class LayersPermitsFormComponent implements OnInit {
   // Save Button
 
   onSaveButtonClicked(){
+
+    if(this.formLayersPermits.value.type)
 
     if(this.formLayersPermits.valid)
     {

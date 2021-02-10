@@ -104,9 +104,9 @@
           </mat-chip-list>
         </mat-form-field>
       </div>
-      <button type="button" *ngIf="serviceID==-1" (click)="getCapabilitiesService()" mat-flat-button
+      <button type="button" *ngIf="serviceID==-1" (click)="getCapabilitiesDataService()" mat-flat-button
       class="validateButton">{{ "serviceEntity.getData" | translate }}</button>
-    <button type="button" *ngIf="serviceID!=-1" (click)="getCapabilitiesService()" mat-flat-button
+    <button type="button" *ngIf="serviceID!=-1" (click)="getCapabilitiesDataService()" mat-flat-button
       class="validateButton">{{ "serviceEntity.updateData" | translate }}</button>
     </div>
 

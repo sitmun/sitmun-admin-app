@@ -120,6 +120,7 @@ export class UserFormComponent implements OnInit {
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('userEntity.territory'), field: 'territory', editable: false },
       { headerName: this.utils.getTranslate('userEntity.role'), field: 'role', editable: false },
+      { headerName: this.utils.getTranslate('userEntity.childRole'), field: 'roleChildName', editable: false },
       { headerName: this.utils.getTranslate('territoryEntity.status'), field: 'status', editable: false },
 
     ];
@@ -150,7 +151,7 @@ export class UserFormComponent implements OnInit {
 
     this.columnDefsRolesDialog = [
       environment.selCheckboxColumnDef,
-      { headerName: this.utils.getTranslate('userEntity.code'), field: 'code', editable: false },
+      { headerName: this.utils.getTranslate('userEntity.id'), field: 'id', editable: false },
       { headerName: this.utils.getTranslate('userEntity.name'), field: 'name', editable: false },
     ];
 
@@ -363,9 +364,44 @@ export class UserFormComponent implements OnInit {
       if (result) {
         if (result.event === 'Add') {
           console.log(result.data);
-          let rowsToAdd = this.getRowsToAddPermits(this.userToEdit, result.data[0], result.data[1])
+          let territorySelected=result.data[0][0];
+          console.log(territorySelected);
+          let tableUserConfWithoutRoleM =  this.getRowsToAddPermits(this.userToEdit, territorySelected, result.data[1], false)
+          let rowsToAdd = [];
+          rowsToAdd.push(...tableUserConfWithoutRoleM);
+           if(territorySelected.scope==="R") {
+            const dialogChildRolesWantedMessageRef = this.dialog.open(DialogMessageComponent);
+            dialogChildRolesWantedMessageRef.componentInstance.title=this.utils.getTranslate("atention");
+            dialogChildRolesWantedMessageRef.componentInstance.message=this.utils.getTranslate("addChildRoles");
+            dialogChildRolesWantedMessageRef.afterClosed().subscribe(messageResult => {
+              if(messageResult){
+                if(messageResult.event==='Accept') {  
+                  const dialogRefChildRoles = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
+                  dialogRefChildRoles.componentInstance.getAllsTable = [this.getAllRolesDialog];
+                  dialogRefChildRoles.componentInstance.singleSelectionTable = [false];
+                  dialogRefChildRoles.componentInstance.columnDefsTable = [this.columnDefsRolesDialog];
+                  dialogRefChildRoles.componentInstance.themeGrid = this.themeGrid;
+                  dialogRefChildRoles.componentInstance.title = this.utils.getTranslate('userEntity.permissions');
+                  dialogRefChildRoles.componentInstance.titlesTable = [this.utils.getTranslate('userEntity.roles')];
+                  dialogRefChildRoles.componentInstance.nonEditable = false;
+                  dialogRefChildRoles.afterClosed().subscribe(childsResult => {
+                    if (childsResult) {
+                      if (childsResult.event === 'Add') {
+                        rowsToAdd.push(...this.getRowsToAddPermits(this.userToEdit, territorySelected, childsResult.data[0], true));
+                      }
+                    }
+              
+                  });
+                }          
+               }
+            });
+
+          }
           console.log(rowsToAdd);
           this.addElementsEventPermits.next(rowsToAdd);
+         
+
+
         }
       }
 
@@ -373,6 +409,44 @@ export class UserFormComponent implements OnInit {
     });
 
   }
+
+  getRowsToAddPermits(user: User, territory: Territory, roles: Role[], rolesAreChildren: Boolean) {
+    let itemsToAdd: any[] = [];
+      roles.forEach(role => {
+        let item;
+        if(!rolesAreChildren) {
+          item = {
+            role: role.name,
+            roleComplete: role,
+            roleId: role.id,
+            roleMId: null,
+            territory: territory.name,
+            territoryComplete: territory,
+            territoryId: territory.id,
+            userId: null,
+            new: true
+          }
+        }
+        else {
+          item = {
+            roleChildName: role.name,
+            roleChildComplete: role,
+            roleMId: role.id,
+            territory: territory.name,
+            territoryComplete: territory,
+            territoryId: territory.id,
+            userId: null,
+            new: true
+          }
+        }
+        if (this.userToEdit) { item.userId = this.userToEdit.id }
+        itemsToAdd.push(item);
+      })
+
+    return itemsToAdd;
+  }
+
+
 
   // ******** Territory Data Dialog  ******** //
 
@@ -424,53 +498,6 @@ export class UserFormComponent implements OnInit {
     return newData;
   }
 
-
-  // updateUserConfiguration(user:User, territories: Territory[], roles: Role[] )
-  // {
-  //   const promises: Promise<any>[] = [];
-  //   territories.forEach(territory => {
-
-  //     roles.forEach(role => {
-
-  //       let item = {
-  //         user: user,
-  //         role: role,
-  //         territory: territory,
-  //         _links: null
-  //       }
-  //       promises.push(new Promise((resolve, reject) => {​​​​​​​ this.userConfigurationService.save(item).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
-  //       Promise.all(promises).then(() => {
-  //         this.dataUpdatedEvent.next(true);
-  //       });
-
-  //     });
-
-  //   });
-
-  // }
-
-  getRowsToAddPermits(user: User, territories: Territory[], roles: Role[]) {
-    let itemsToAdd: any[] = [];
-    territories.forEach(territory => {
-
-      roles.forEach(role => {
-        let item = {
-          role: role.name,
-          roleComplete: role,
-          roleId: role.id,
-          territory: territory.name,
-          territoryComplete: territory,
-          territoryId: territory.id,
-          userId: null,
-          new: true
-
-        }
-        if (this.userToEdit) { item.userId = this.userToEdit.id }
-        itemsToAdd.push(item);
-      })
-    })
-    return itemsToAdd;
-  }
 
 
 
