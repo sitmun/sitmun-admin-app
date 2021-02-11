@@ -69,6 +69,8 @@ export class TreesFormComponent implements OnInit {
 
           }
         );
+      }else{
+        this.dataLoaded = true;
       }
     });
 
@@ -126,6 +128,7 @@ export class TreesFormComponent implements OnInit {
   }
 
   getAllTreeNodes= (): Observable<any> => {
+    if(this.treeID!=-1){
       var urlReq = `${this.treeForm.value._links.allNodes.href}`
       if (this.treeForm.value._links.allNodes.templated) {
         var url = new URL(urlReq.split("{")[0]);
@@ -134,7 +137,10 @@ export class TreesFormComponent implements OnInit {
       }
       return (this.http.get(urlReq))
         .pipe(map(data => data['_embedded']['tree-nodes']));
-
+    }else{
+      const aux: Array<any> = [];
+      return of(aux);
+    }
   }
 
   nodeReceived(node)

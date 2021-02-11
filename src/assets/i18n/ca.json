@@ -68,6 +68,7 @@
     "generalData": "Dades Generals",
     "user": "Usuari",
     "firstname": "Nom",
+    "name": "Nom",
     "lastname": "Cognom",
     "administrator": "Administrador",
     "blocked": "Bloquejat",
@@ -281,6 +282,7 @@
     "roles": "Rols",
     "taskGroup": "Grup tasca",
     "layers": "Capes",
+    "permits": "Permisos",
     "status": "Estat"
   },
   "roleEntity": {

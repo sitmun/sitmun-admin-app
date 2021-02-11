@@ -168,7 +168,7 @@
             [eventRefreshSubscription]='dataUpdatedEvent.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventPermits.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventPermits.asObservable()'
-            [eventAddItemsSubscription]='addElementsEventPermits.asObservable()' (add)="openPermitsDialog($event)"
+            [eventAddItemsSubscription]='addElementsEventPermits.asObservable()' (add)="openPermitsDialog($event, false)"
             [deleteButton]=true [addButton]=true [actionButton]=true (getAllRows)="getAllRowsPermits($event)">
           </app-data-grid>
         </div>
@@ -191,7 +191,7 @@
               [eventRefreshSubscription]='dataUpdatedEvent.asObservable()'
               [eventGetAllRowsSubscription]='getAllElementsEventPermits.asObservable()'
               [eventRefreshSubscription]='dataUpdatedEventPermits.asObservable()'
-              [eventAddItemsSubscription]='addElementsEventPermits.asObservable()' (add)="openPermitsDialog($event)"
+              [eventAddItemsSubscription]='addElementsEventChildrenPermits.asObservable()' (add)="openPermitsDialog($event, true)"
               [deleteButton]=true [addButton]=true [actionButton]=true (getAllRows)="getAllRowsPermits($event)">
             </app-data-grid>
           </div>

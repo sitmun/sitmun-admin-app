@@ -4,7 +4,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RestService } from '../angular-hal/src/lib/rest.service';
 /** Application background manager service */
-import * as ɵngcc0 from '@angular/core';
 export declare class ApplicationBackgroundService extends RestService<ApplicationBackground> {
     private http;
     /** API resource path */
@@ -15,8 +14,4 @@ export declare class ApplicationBackgroundService extends RestService<Applicatio
     remove(item: ApplicationBackground): Observable<Object>;
     /** save application background*/
     save(item: ApplicationBackground): Observable<any>;
-    static ɵfac: ɵngcc0.ɵɵFactoryDef<ApplicationBackgroundService, never>;
-    static ɵprov: ɵngcc0.ɵɵInjectableDef<ApplicationBackgroundService>;
 }
-
-//# sourceMappingURL=application-background.service.d.ts.map

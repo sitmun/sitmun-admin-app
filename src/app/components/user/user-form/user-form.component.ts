@@ -120,7 +120,7 @@ export class UserFormComponent implements OnInit {
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('userEntity.territory'), field: 'territory', editable: false },
       { headerName: this.utils.getTranslate('userEntity.role'), field: 'role', editable: false },
-      { headerName: this.utils.getTranslate('userEntity.childRole'), field: 'roleChildName', editable: false },
+      { headerName: this.utils.getTranslate('userEntity.childRole'), field: 'roleChildren', editable: false },
       { headerName: this.utils.getTranslate('territoryEntity.status'), field: 'status', editable: false },
 
     ];
@@ -151,7 +151,7 @@ export class UserFormComponent implements OnInit {
 
     this.columnDefsRolesDialog = [
       environment.selCheckboxColumnDef,
-      { headerName: this.utils.getTranslate('userEntity.id'), field: 'id', editable: false },
+      { headerName: 'ID', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('userEntity.name'), field: 'name', editable: false },
     ];
 
@@ -236,13 +236,23 @@ export class UserFormComponent implements OnInit {
     let usersConfToCreate = [];
     let usersConfDelete = [];
     data.forEach(userConf => {
-      let item = {
-        role: userConf.roleComplete,
-        territory: userConf.territoryComplete,
-        user: this.userToEdit
-      }
+
       if (userConf.status === 'Pending creation') {
-        let index = data.findIndex(element => element.roleId === item.role.id && element.territoryId === item.territory.id && element.userId === item.user.id && !element.new)
+        let item = {
+          role: null,
+          roleChildren: null,
+          territory: userConf.territoryComplete,
+          user: this.userToEdit
+        }
+        let index;
+        if(userConf.roleChildrenId == null){
+          item.role= userConf.roleComplete,
+          index = data.findIndex(element => element.roleId === item.role.id && element.territoryId === item.territory.id && element.userId === item.user.id && !element.new)
+        }
+        else{
+          item.roleChildren= userConf.roleChildrenComplete,
+          index = data.findIndex(element => element.roleChildrenId === item.roleChildren.id && element.territoryId === item.territory.id && element.userId === item.user.id && !element.new)
+        }
         if (index === -1) {
           userConf.new = false;
           usersConfToCreate.push(item)
@@ -366,9 +376,8 @@ export class UserFormComponent implements OnInit {
           console.log(result.data);
           let territorySelected=result.data[0][0];
           console.log(territorySelected);
-          let tableUserConfWithoutRoleM =  this.getRowsToAddPermits(this.userToEdit, territorySelected, result.data[1], false)
-          let rowsToAdd = [];
-          rowsToAdd.push(...tableUserConfWithoutRoleM);
+          this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, result.data[1], false));
+          // rowsToAdd.push(...tableUserConfWithoutRoleM);
            if(territorySelected.scope==="R") {
             const dialogChildRolesWantedMessageRef = this.dialog.open(DialogMessageComponent);
             dialogChildRolesWantedMessageRef.componentInstance.title=this.utils.getTranslate("atention");
@@ -387,7 +396,7 @@ export class UserFormComponent implements OnInit {
                   dialogRefChildRoles.afterClosed().subscribe(childsResult => {
                     if (childsResult) {
                       if (childsResult.event === 'Add') {
-                        rowsToAdd.push(...this.getRowsToAddPermits(this.userToEdit, territorySelected, childsResult.data[0], true));
+                        this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, childsResult.data[0], true));
                       }
                     }
               
@@ -397,8 +406,8 @@ export class UserFormComponent implements OnInit {
             });
 
           }
-          console.log(rowsToAdd);
-          this.addElementsEventPermits.next(rowsToAdd);
+          // console.log(rowsToAdd);
+          // this.addElementsEventPermits.next(rowsToAdd);
          
 
 
@@ -419,23 +428,24 @@ export class UserFormComponent implements OnInit {
             role: role.name,
             roleComplete: role,
             roleId: role.id,
-            roleMId: null,
             territory: territory.name,
             territoryComplete: territory,
             territoryId: territory.id,
-            userId: null,
+            userId: this.userID,
             new: true
           }
         }
         else {
           item = {
-            roleChildName: role.name,
-            roleChildComplete: role,
+            roleChildren: role.name,
+            roleChildrenComplete: role,
+            roleChildrenId: role.id,
+            roleId: null,
             roleMId: role.id,
             territory: territory.name,
             territoryComplete: territory,
             territoryId: territory.id,
-            userId: null,
+            userId: this.userID,
             new: true
           }
         }

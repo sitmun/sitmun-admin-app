@@ -69,6 +69,7 @@
     "generalData": "General Data",
     "user": "User",
     "firstname": "First name",
+    "name": "Name",
     "lastname": "Last name",
     "administrator": "Administrator",
     "blocked": "Blocked",
@@ -269,6 +270,7 @@
     "roles": "Roles",
     "taskGroup": "Task group",
     "layers": "Layers",
+    "permits": "Permits",
     "status": "Status"
   },
   "roleEntity": {

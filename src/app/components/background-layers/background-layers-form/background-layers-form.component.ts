@@ -63,6 +63,7 @@ export class BackgroundLayersFormComponent implements OnInit {
             resp => {
               console.log(resp);
               this.backgroundToEdit = resp;
+              
               this.backgroundForm.setValue({
                 id: this.backgroundID,
                 name: this.backgroundToEdit.name,
@@ -71,6 +72,13 @@ export class BackgroundLayersFormComponent implements OnInit {
                 active: this.backgroundToEdit.active,
                 _links: this.backgroundToEdit._links
               });
+
+              if(this.backgroundToEdit.cartographyGroupId == null)
+              {
+                this.backgroundForm.patchValue({
+                  cartographyGroup: this.permissionGroups[0].id
+                })
+              }
             },
             error => {
    

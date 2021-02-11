@@ -69,6 +69,7 @@ export class TerritoryFormComponent implements OnInit {
   columnDefsUsersDialog: any[];
   columnDefsRolesDialog: any[];
   addElementsEventPermits: Subject<any[]> = new Subject<any[]>();
+  addElementsEventChildrenPermits: Subject<any[]> = new Subject<any[]>();
 
   //Save button
   rolesToUpdate: Role[] = [];
@@ -325,7 +326,7 @@ export class TerritoryFormComponent implements OnInit {
       ));;
   }
 
-  // ******** Permitsn Children ******** //
+  // ******** Permits Children ******** //
   getAllPermitsChild = (): Observable<any> => {
 
     if (this.territoryID == -1) {
@@ -349,14 +350,21 @@ export class TerritoryFormComponent implements OnInit {
     let usersConfDelete = [];
     console.log(data);
     data.forEach(userConf => {
-      let item = {
-        role: userConf.roleComplete,
-        territory: this.territoryToEdit,
-        user: userConf.userComplete,
-      }
       if (userConf.status === 'Pending creation') {
+        let item = {
+          role: userConf.roleComplete,
+          roleChildren: userConf.roleChildrenComplete,
+          territory: this.territoryToEdit,
+          user: userConf.userComplete,
+        }
         console.log(item);
-        let index = data.findIndex(element => element.roleId === item.role.id && element.userId === item.user.id && !element.new)
+        let index;
+        if(userConf.roleChildren == null){
+          index = data.findIndex(element => element.roleId === item.role.id && element.userId === item.user.id && !element.new)
+        }
+        else{
+          index = data.findIndex(element => element.roleChildrenId === item.roleChildren.id && element.userId === item.user.id && !element.new)
+        }
         if (index === -1) {
           userConf.new = false;
           usersConfToCreate.push(item)
@@ -595,7 +603,7 @@ export class TerritoryFormComponent implements OnInit {
   }
 
 
-  // ******** Users Dialog  ******** //
+  // ******** Permits Dialog  ******** //
 
   getAllUsersDialog = () => {
     return this.userService.getAll();
@@ -605,14 +613,19 @@ export class TerritoryFormComponent implements OnInit {
     return this.roleService.getAll();
   }
 
-  openPermitsDialog(data: any) {
+  openPermitsDialog(data: any, childrenTable: boolean) {
 
     const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
     dialogRef.componentInstance.getAllsTable = [this.getAllUsersDialog, this.getAllRolesDialog];
     dialogRef.componentInstance.singleSelectionTable = [false, false];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsUsersDialog, this.columnDefsRolesDialog];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate('territoryEntity.permits');
+    if(childrenTable){
+      dialogRef.componentInstance.title = this.utils.getTranslate('territoryEntity.permissionsChildren');
+    }
+    else {
+      dialogRef.componentInstance.title = this.utils.getTranslate('territoryEntity.permits');
+    }
     dialogRef.componentInstance.titlesTable = [this.utils.getTranslate('territoryEntity.users'), this.utils.getTranslate('territoryEntity.roles')];
     dialogRef.componentInstance.nonEditable = false;
 
@@ -620,15 +633,21 @@ export class TerritoryFormComponent implements OnInit {
       if (result) {
         if (result.event === 'Add') {
           console.log(result.data);
-          let rowsToAdd = this.getRowsToAddPermits(this.territoryToEdit, result.data[1], result.data[0])
+          let rowsToAdd = this.getRowsToAddPermits(this.territoryToEdit, result.data[1], result.data[0], childrenTable)
           console.log(rowsToAdd);
-          this.addElementsEventPermits.next(rowsToAdd);
+          if(!childrenTable) {this.addElementsEventPermits.next(rowsToAdd) }
+          else { this.addElementsEventChildrenPermits.next(rowsToAdd)}
+
         }
       }
 
     });
 
   }
+
+  // ******** Permits Children Dialog  ******** //
+
+  
 
   // ******** Territory Member Of Dialog  ******** //
   getAllTerritoriesMemberOfDialog = () => {
@@ -788,20 +807,38 @@ export class TerritoryFormComponent implements OnInit {
     return newData;
   }
 
-  getRowsToAddPermits(territory: Territory, roles: Role[], users: any[]) {
+  getRowsToAddPermits(territory: Territory, roles: Role[], users: any[], childrenTable: boolean) {
     let itemsToAdd: any[] = [];
     roles.forEach(role => {
-
+      let item;
       users.forEach(user => {
-        let item = {
-          user: user.username,
-          userId: user.id,
-          userComplete: user,
-          role: role.name,
-          roleId: role.id,
-          roleComplete: role,
-          territoryId: this.territoryID,
-          new: true
+        if(!childrenTable)
+        {
+          item = {
+            user: user.username,
+            userId: user.id,
+            userComplete: user,
+            role: role.name,
+            roleId: role.id,
+            roleComplete: role,
+            roleChildrenComplete: null,
+            territoryId: this.territoryID,
+            new: true
+          }
+        }
+        else {
+          item = {
+            user: user.username,
+            userId: user.id,
+            userComplete: user,
+            roleId: null,
+            roleChildren: role.name,
+            roleMId: role.id,
+            roleComplete: null,
+            roleChildrenComplete: role,
+            territoryId: this.territoryID,
+            new: true
+          }
         }
         itemsToAdd.push(item);
       })

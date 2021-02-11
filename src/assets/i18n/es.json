@@ -68,6 +68,7 @@
     "generalData": "Datos Generales",
     "user": "Usuario",
     "firstname": "Nombre",
+    "name": "Nombre",
     "lastname": "Apellido",
     "administrator": "Administrador",
     "blocked": "Bloqueado",
