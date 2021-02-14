@@ -8,6 +8,7 @@ import { UtilsService } from '../../../services/utils.service';
 import { map } from 'rxjs/operators';
 import { Observable, of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { config } from 'src/config';
 import { DialogGridComponent, DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -31,7 +32,7 @@ export class UserFormComponent implements OnInit {
   dataLoaded: Boolean = false;
 
   //Grids
-  themeGrid: any = environment.agGridTheme;
+  themeGrid: any = config.agGridTheme;
   columnDefsPermits: any[];
   addElementsEventPermits: Subject<any[]> = new Subject<any[]>();
   dataUpdatedEventPermits: Subject<boolean> = new Subject<boolean>();
@@ -116,18 +117,22 @@ export class UserFormComponent implements OnInit {
 
     this.columnDefsPermits = [
 
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('userEntity.territory'), field: 'territory', editable: false },
       { headerName: this.utils.getTranslate('userEntity.role'), field: 'role', editable: false },
-      { headerName: this.utils.getTranslate('userEntity.childRole'), field: 'roleChildren', editable: false },
+      {
+        headerName: this.utils.getTranslate('userEntity.appliesToChildrenTerritories'), field: 'appliesToChildrenTerritories', editable: false,
+        cellRenderer: 'btnCheckboxRendererComponent', floatingFilterComponent: 'btnCheckboxFilterComponent',
+        floatingFilterComponentParams: { suppressFilterButton: true },
+      },
       { headerName: this.utils.getTranslate('territoryEntity.status'), field: 'status', editable: false },
 
     ];
 
     this.columnDefsData = [
 
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: this.utils.getTranslate('userEntity.territory'), field: 'territoryName' },
       { headerName: this.utils.getTranslate('userEntity.position'), field: 'name' },
       { headerName: this.utils.getTranslate('userEntity.organization'), field: 'organization' },
@@ -143,20 +148,20 @@ export class UserFormComponent implements OnInit {
     ];
 
     this.columnDefsTerritoryDialog = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'ID', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('userEntity.code'), field: 'code', editable: false },
       { headerName: this.utils.getTranslate('userEntity.name'), field: 'name', editable: false },
     ];
 
     this.columnDefsRolesDialog = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'ID', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('userEntity.name'), field: 'name', editable: false },
     ];
 
     this.columnDefsTerritoryDataDialog = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: this.utils.getTranslate('userEntity.territory'), field: 'territory' },
       { headerName: this.utils.getTranslate('userEntity.position'), field: 'type' },
       { headerName: this.utils.getTranslate('userEntity.organization'), field: 'organization' },
@@ -239,20 +244,16 @@ export class UserFormComponent implements OnInit {
 
       if (userConf.status === 'Pending creation') {
         let item = {
-          role: null,
-          roleChildren: null,
+          role: userConf.roleComplete,
+          appliesToChildrenTerritories: userConf.appliesToChildrenTerritories,
           territory: userConf.territoryComplete,
           user: this.userToEdit
         }
         let index;
-        if(userConf.roleChildrenId == null){
-          item.role= userConf.roleComplete,
-          index = data.findIndex(element => element.roleId === item.role.id && element.territoryId === item.territory.id && element.userId === item.user.id && !element.new)
-        }
-        else{
-          item.roleChildren= userConf.roleChildrenComplete,
-          index = data.findIndex(element => element.roleChildrenId === item.roleChildren.id && element.territoryId === item.territory.id && element.userId === item.user.id && !element.new)
-        }
+        item.role= userConf.roleComplete,
+        index = data.findIndex(element => element.roleId === item.role.id && element.territoryId === item.territory.id && 
+          element.appliesToChildrenTerritories === item.appliesToChildrenTerritories && !element.new)
+
         if (index === -1) {
           userConf.new = false;
           usersConfToCreate.push(item)
@@ -423,7 +424,6 @@ export class UserFormComponent implements OnInit {
     let itemsToAdd: any[] = [];
       roles.forEach(role => {
         let item;
-        if(!rolesAreChildren) {
           item = {
             role: role.name,
             roleComplete: role,
@@ -432,23 +432,11 @@ export class UserFormComponent implements OnInit {
             territoryComplete: territory,
             territoryId: territory.id,
             userId: this.userID,
-            new: true
+            new: true,
+            appliesToChildrenTerritories: rolesAreChildren
           }
-        }
-        else {
-          item = {
-            roleChildren: role.name,
-            roleChildrenComplete: role,
-            roleChildrenId: role.id,
-            roleId: null,
-            roleMId: role.id,
-            territory: territory.name,
-            territoryComplete: territory,
-            territoryId: territory.id,
-            userId: this.userID,
-            new: true
-          }
-        }
+
+        
         if (this.userToEdit) { item.userId = this.userToEdit.id }
         itemsToAdd.push(item);
       })
@@ -528,12 +516,12 @@ export class UserFormComponent implements OnInit {
         this.userService.save(userObj)
           .subscribe(resp => {
             console.log(resp)
-            this.userToEdit = resp
-            this.userID = resp.id;
-            this.userForm.patchValue({
-              id: resp.id,
-              _links: resp._links
-            })
+            // this.userToEdit = resp
+            // this.userID = resp.id;
+            // this.userForm.patchValue({
+              // id: resp.id,
+              // _links: resp._links
+            // })
             console.log(this.userToEdit);
             this.getAllElementsEventTerritoryData.next(true);
             this.getAllElementsEventPermits.next(true);

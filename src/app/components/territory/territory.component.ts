@@ -3,6 +3,7 @@ import { TerritoryService,Territory } from 'dist/sitmun-frontend-core/';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
+import { config } from 'src/config';
 import { Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
@@ -15,7 +16,7 @@ import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 export class TerritoryComponent implements OnInit {
   saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
   dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
-  themeGrid: any = environment.agGridTheme;
+  themeGrid: any = config.agGridTheme;
   columnDefs: any[];
   scopeTypes: Array<any> = [];
 
@@ -36,14 +37,14 @@ export class TerritoryComponent implements OnInit {
       }
     );
 
-    var columnEditBtn=environment.editBtnColumnDef;
+    var columnEditBtn=config.editBtnColumnDef;
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
 
 
     this.columnDefs = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       columnEditBtn,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('territoryEntity.code'), field: 'code' },
@@ -60,14 +61,14 @@ export class TerritoryComponent implements OnInit {
         filter: 'agDateColumnFilter', filterParams: this.utils.getDateFilterParams(),
         editable: false, cellRenderer: (data) => { return this.utils.getDateFormated(data) }
       }, // type: 'dateColumn'
-      { headerName: this.utils.getTranslate('territoryEntity.administrator'), field: 'territorialAuthorityName' },
-      { headerName: this.utils.getTranslate('territoryEntity.email'), field: 'territorialAuthorityEmail' },
-      { headerName: this.utils.getTranslate('territoryEntity.address'), field: 'territorialAuthorityAddress' },
-      { headerName: this.utils.getTranslate('territoryEntity.extent'), field: 'extent' },
-      { headerName: this.utils.getTranslate('territoryEntity.note'), field: 'note' },
-      { headerName: this.utils.getTranslate('territoryEntity.blocked'), field: 'blocked', editable: false,
+      //{ headerName: this.utils.getTranslate('territoryEntity.administrator'), field: 'territorialAuthorityName' },
+      //{ headerName: this.utils.getTranslate('territoryEntity.email'), field: 'territorialAuthorityEmail' },
+      //{ headerName: this.utils.getTranslate('territoryEntity.address'), field: 'territorialAuthorityAddress' },
+      //{ headerName: this.utils.getTranslate('territoryEntity.extent'), field: 'extent' },
+      //{ headerName: this.utils.getTranslate('territoryEntity.note'), field: 'note' },
+      /*{ headerName: this.utils.getTranslate('territoryEntity.blocked'), field: 'blocked', editable: false,
       cellRenderer: 'btnCheckboxRendererComponent', floatingFilterComponent: 'btnCheckboxFilterComponent',
-      floatingFilterComponentParams: { suppressFilterButton: true }, },
+      floatingFilterComponentParams: { suppressFilterButton: true }, },*/
     ];
   }
 

@@ -1687,6 +1687,8 @@
         FileNode.prototype.tooltip;
         /** @type {?} */
         FileNode.prototype._links;
+        /** @type {?} */
+        FileNode.prototype.status;
     }
     /**
      * Flat node with expandable and level information
@@ -1698,13 +1700,15 @@
          * @param {?} level
          * @param {?} type
          * @param {?} id
+         * @param {?} status
          */
-        function FileFlatNode(expandable, name, level, type, id) {
+        function FileFlatNode(expandable, name, level, type, id, status) {
             this.expandable = expandable;
             this.name = name;
             this.level = level;
             this.type = type;
             this.id = id;
+            this.status = status;
         }
         return FileFlatNode;
     }());
@@ -1719,6 +1723,8 @@
         FileFlatNode.prototype.type;
         /** @type {?} */
         FileFlatNode.prototype.id;
+        /** @type {?} */
+        FileFlatNode.prototype.status;
     }
     /**
      * File database, it can build a tree structured Json object from string.
@@ -1765,6 +1771,7 @@
                     isFolder: true,
                     name: 'Root',
                     type: 'folder',
+                    isRoot: true,
                     children: []
                 };
                 map['root'] = root;
@@ -1796,6 +1803,7 @@
                 map['root'].type = 'folder';
                 map['root'].name = 'Root';
                 map['root'].isFolder = true;
+                map['root'].isRoot = true;
             }
             return map['root'];
         };
@@ -2024,7 +2032,7 @@
                 /** @type {?} */
                 var flatNode = existingNode && existingNode.name === node.name
                     ? existingNode
-                    : new FileFlatNode((node.children && node.children.length > 0), node.name, level, node.type, node.id);
+                    : new FileFlatNode((node.children && node.children.length > 0), node.name, level, node.type, node.id, node.status);
                 _this.flatNodeMap.set(flatNode, node);
                 _this.nestedNodeMap.set(node, flatNode);
                 return flatNode;
@@ -2064,6 +2072,18 @@
                     _this.emitAllRows();
                 });
             }
+            if (this.eventRefreshSubscription) {
+                this._eventRefreshSubscription = this.eventRefreshSubscription.subscribe(function () {
+                    _this.getElements();
+                });
+            }
+            this.getElements();
+        };
+        /**
+         * @return {?}
+         */
+        DataTreeComponent.prototype.getElements = function () {
+            var _this = this;
             this.getAll()
                 .subscribe(function (items) {
                 _this.treeData = items;
@@ -2215,13 +2235,15 @@
          * @return {?}
          */
         DataTreeComponent.prototype.rebuildTreeForData = function (data) {
-            /*this.dataSource.data = data;
-                this.expansionModel.selected.forEach((id) => {
-                  const node = this.treeControl.dataNodes.find((n) => n.id === id);
-                  this.treeControl.expand(node);
-                });*/
+            var _this = this;
+            //this.dataSource.data = data;
             this.dataSource.data = [];
             this.dataSource.data = data;
+            this.treeControl.expansionModel.selected.forEach(function (nodeAct) {
+                /** @type {?} */
+                var node = _this.treeControl.dataNodes.find(function (n) { return n.id === nodeAct.id; });
+                _this.treeControl.expand(node);
+            });
         };
         /**
          * @param {?} node
@@ -2267,7 +2289,7 @@
             /** @type {?} */
             var dataToChange = JSON.parse(JSON.stringify(this.dataSource.data));
             if (newFolder.parent === null) {
-                dataToChange.push(newFolder);
+                dataToChange[0].children.push(newFolder);
             }
             else {
                 /** @type {?} */
@@ -2286,11 +2308,16 @@
             newNode.type = "node";
             /** @type {?} */
             var dataToChange = JSON.parse(JSON.stringify(this.dataSource.data));
-            /** @type {?} */
-            var siblings = this.findNodeSiblings(dataToChange, newNode.parent);
-            /** @type {?} */
-            var index = siblings.findIndex(function (node) { return node.id === newNode.parent; });
-            siblings[index].children.push(newNode);
+            if (newNode.parent === null) {
+                dataToChange[0].children.push(newNode);
+            }
+            else {
+                /** @type {?} */
+                var siblings = this.findNodeSiblings(dataToChange, newNode.parent);
+                /** @type {?} */
+                var index = siblings.findIndex(function (node) { return node.id === newNode.parent; });
+                siblings[index].children.push(newNode);
+            }
             this.rebuildTreeForData(dataToChange);
         };
         /**
@@ -2315,12 +2342,12 @@
                 this.createNode.emit(nodeClicked);
             }
             else if (button === 'delete') {
-                /** @type {?} */
-                var children = this.getAllChildren(nodeClicked.children);
-                children.forEach(function (children) {
-                    children.status = 'Deleted';
-                });
-                nodeClicked.children = children;
+                // let children= this.getAllChildren(nodeClicked.children)
+                // children.forEach(children => {
+                //   children.status='Deleted';
+                // });
+                this.deleteChildren(nodeClicked.children);
+                // nodeClicked.children=children
                 nodeClicked.status = 'Deleted';
                 this.rebuildTreeForData(changedData);
             }
@@ -2355,14 +2382,27 @@
             });
             return result;
         };
+        /**
+         * @param {?} arr
+         * @return {?}
+         */
+        DataTreeComponent.prototype.deleteChildren = function (arr) {
+            var _this = this;
+            arr.forEach(function (item, i) {
+                if (item.children.length > 0) {
+                    _this.deleteChildren(item.children);
+                }
+                item.status = 'Deleted';
+            });
+        };
         return DataTreeComponent;
     }());
     DataTreeComponent.decorators = [
         { type: core.Component, args: [{
                     selector: 'app-data-tree',
-                    template: "<mat-tree [dataSource]=\"dataSource\" [treeControl]=\"treeControl\" >\r\n\t<mat-tree-node *matTreeNodeDef=\"let node\" matTreeNodeToggle matTreeNodePadding  draggable=\"true\"\r\n\t(dragstart)=\"handleDragStart($event, node);\" \t(dragover)=\"handleDragOver($event, node);\"\r\n\t(drop)=\"handleDrop($event, node);\" \t(dragend)=\"handleDragEnd($event);\"                  \r\n\t  [ngClass]=\"{'drop-above': dragNodeExpandOverArea === 'above' && dragNodeExpandOverNode === node,\r\n\t'drop-below': dragNodeExpandOverArea === 'below' && dragNodeExpandOverNode === node,\r\n\t'drop-center': dragNodeExpandOverArea === 'center' && dragNodeExpandOverNode === node}\">\r\n\t\t<button mat-icon-button disabled></button>\r\n\t\t<mat-icon *ngIf=\"node.type ==='folder'\" class=\"type-icon\" [attr.aria-label]=\"node.type + 'icon'\">\r\n\t\t\tfolder\r\n\t\t</mat-icon>\r\n\t\t{{node.name}}\r\n\t\t<button *ngIf=\"node.type ==='folder'\" (click)=\"onButtonClicked(node.id, 'newFolder')\" mat-icon-button>\r\n\t\t\t<mat-icon>create_new_folder</mat-icon>\r\n\t\t</button>\r\n\t\t<button *ngIf=\"node.type ==='folder'\" (click)=\"onButtonClicked(node.id, 'newNode')\" mat-icon-button>\r\n\t\t\t<mat-icon>playlist_add</mat-icon>\r\n\t\t</button>\r\n\t\t<button mat-icon-button (click)=\"onButtonClicked(node.id, 'delete')\">\r\n\t\t\t<mat-icon>delete</mat-icon>\r\n\t\t</button>\r\n\t\t<button mat-icon-button (click)=\"onButtonClicked(node.id, 'edit')\">\r\n\t\t\t<mat-icon>edit</mat-icon>\r\n\t\t</button>\r\n\r\n\t</mat-tree-node>\r\n\r\n\t<mat-tree-node *matTreeNodeDef=\"let node;when: hasChild\" matTreeNodePadding  draggable=\"true\"\r\n\t(dragstart)=\"handleDragStart($event, node);\" \t(dragover)=\"handleDragOver($event, node);\"\r\n\t(drop)=\"handleDrop($event, node);\" \t(dragend)=\"handleDragEnd($event);\"                  \r\n\t [ngClass]=\"{'drop-above': dragNodeExpandOverArea === 'above' && dragNodeExpandOverNode === node,\r\n\t'drop-below': dragNodeExpandOverArea === 'below' && dragNodeExpandOverNode === node,\r\n\t'drop-center': dragNodeExpandOverArea === 'center' && dragNodeExpandOverNode === node}\">\r\n\t\t<button mat-icon-button matTreeNodeToggle (click)=\"expansionModel.toggle(node.id)\"\r\n\t\t\t[attr.aria-label]=\"'toggle ' + node.name\">\r\n\t\t\t<mat-icon class=\"mat-icon-rtl-mirror\">\r\n\t\t\t\t{{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}\r\n\t\t\t</mat-icon>\r\n\t\t</button>\r\n\t\t<mat-icon class=\"type-icon\" [attr.aria-label]=\"node.type + 'icon'\">\r\n\t\t\tfolder\r\n\t\t</mat-icon>\r\n\t\t{{node.name}}\r\n\t\t<button *ngIf=\"node.type ==='folder'\" (click)=\"onButtonClicked(node.id, 'newFolder')\" mat-icon-button>\r\n\t\t\t<mat-icon>create_new_folder</mat-icon>\r\n\t\t</button>\r\n\t\t<button *ngIf=\"node.type ==='folder'\" (click)=\"onButtonClicked(node.id, 'newNode')\" mat-icon-button>\r\n\t\t\t<mat-icon>playlist_add</mat-icon>\r\n\t\t</button>\r\n\t\t<button mat-icon-button (click)=\"onButtonClicked(node.id, 'delete')\">\r\n\t\t\t<mat-icon>delete</mat-icon>\r\n\t\t</button>\r\n\t\t<button mat-icon-button (click)=\"onButtonClicked(node.id, 'edit')\">\r\n\t\t\t<mat-icon>edit</mat-icon>\r\n\t\t</button>\r\n\t\t\r\n\t</mat-tree-node>\r\n</mat-tree>\r\n\r\n<span #emptyItem></span>\r\n",
+                    template: "<mat-tree [dataSource]=\"dataSource\" [treeControl]=\"treeControl\" >\r\n\t<mat-tree-node *matTreeNodeDef=\"let node\" matTreeNodeToggle matTreeNodePadding  draggable=\"true\"\r\n\t(dragstart)=\"handleDragStart($event, node);\" \t(dragover)=\"handleDragOver($event, node);\"\r\n\t(drop)=\"handleDrop($event, node);\" \t(dragend)=\"handleDragEnd($event);\"                  \r\n\t  [ngClass]=\"{'drop-above': dragNodeExpandOverArea === 'above' && dragNodeExpandOverNode === node,\r\n\t'drop-below': dragNodeExpandOverArea === 'below' && dragNodeExpandOverNode === node,\r\n\t'drop-center': dragNodeExpandOverArea === 'center' && dragNodeExpandOverNode === node,\r\n\t'deletedNode': node.status=='Deleted'}\">\r\n\t\t<button mat-icon-button disabled></button>\r\n\t\t<mat-icon *ngIf=\"node.type ==='folder'&& node.status!='Deleted'\" class=\"type-icon\" [attr.aria-label]=\"node.type + 'icon'\">\r\n\t\t\tfolder\r\n\t\t</mat-icon>\r\n\t\t<span *ngIf=\"node.status=='Deleted'\">({{\"pendingDelete\" | translate}})-</span>\r\n\t\t{{node.name}}\r\n\t\r\n\t\t<button *ngIf=\"node.type ==='folder '&& node.status!='Deleted'\" (click)=\"onButtonClicked(node.id, 'newFolder')\" mat-icon-button>\r\n\t\t\t<mat-icon>create_new_folder</mat-icon>\r\n\t\t</button>\r\n\t\t<button *ngIf=\"node.type ==='folder' && node.status!='Deleted'\" (click)=\"onButtonClicked(node.id, 'newNode')\" mat-icon-button>\r\n\t\t\t<mat-icon>playlist_add</mat-icon>\r\n\t\t</button>\r\n\t\t<button *ngIf=\"node.id !== undefined && node.status!='Deleted'\" mat-icon-button (click)=\"onButtonClicked(node.id, 'delete')\">\r\n\t\t\t<mat-icon>delete</mat-icon>\r\n\t\t</button>\r\n\t\t<button *ngIf=\"node.id !== undefined && node.status!='Deleted'\" mat-icon-button (click)=\"onButtonClicked(node.id, 'edit')\">\r\n\t\t\t<mat-icon>edit</mat-icon>\r\n\t\t</button>\r\n\r\n\t</mat-tree-node>\r\n\r\n\t<mat-tree-node *matTreeNodeDef=\"let node;when: hasChild\" matTreeNodePadding  draggable=\"true\"\r\n\t(dragstart)=\"handleDragStart($event, node);\" \t(dragover)=\"handleDragOver($event, node);\"\r\n\t(drop)=\"handleDrop($event, node);\" \t(dragend)=\"handleDragEnd($event);\"                  \r\n\t [ngClass]=\"{'drop-above': dragNodeExpandOverArea === 'above' && dragNodeExpandOverNode === node,\r\n\t'drop-below': dragNodeExpandOverArea === 'below' && dragNodeExpandOverNode === node,\r\n\t'drop-center': dragNodeExpandOverArea === 'center' && dragNodeExpandOverNode === node,\r\n\t'deletedNode': node.status=='Deleted'}\">\r\n\t\t<button mat-icon-button matTreeNodeToggle (click)=\"expansionModel.toggle(node.id)\"\r\n\t\t\t[attr.aria-label]=\"'toggle ' + node.name\">\r\n\t\t\t<mat-icon class=\"mat-icon-rtl-mirror\">\r\n\t\t\t\t{{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}\r\n\t\t\t</mat-icon>\r\n\t\t</button>\r\n\t\t<mat-icon class=\"type-icon\" [attr.aria-label]=\"node.type + 'icon'\">\r\n\t\t\tfolder\r\n\t\t</mat-icon>\r\n\t\t<span *ngIf=\"node.status=='Deleted'\">({{\"pendingDelete\" | translate}})-</span>\r\n\t\t{{node.name}}\r\n\t\t<button *ngIf=\"node.type ==='folder' && node.status!='Deleted'\" (click)=\"onButtonClicked(node.id, 'newFolder')\" mat-icon-button>\r\n\t\t\t<mat-icon>create_new_folder</mat-icon>\r\n\t\t</button>\r\n\t\t<button *ngIf=\"node.type ==='folder' && node.status!='Deleted'\" (click)=\"onButtonClicked(node.id, 'newNode')\" mat-icon-button>\r\n\t\t\t<mat-icon>playlist_add</mat-icon>\r\n\t\t</button>\r\n\t\t<button *ngIf=\"node.id !== undefined && node.status!='Deleted'\" mat-icon-button (click)=\"onButtonClicked(node.id, 'delete')\">\r\n\t\t\t<mat-icon>delete</mat-icon>\r\n\t\t</button>\r\n\t\t<button *ngIf=\"node.id !== undefined && node.status!='Deleted'\"  mat-icon-button (click)=\"onButtonClicked(node.id, 'edit')\">\r\n\t\t\t<mat-icon>edit</mat-icon>\r\n\t\t</button>\r\n\t\t\r\n\t</mat-tree-node>\r\n</mat-tree>\r\n\r\n<span #emptyItem></span>\r\n",
                     providers: [FileDatabase],
-                    styles: [".mat-tree-node{-moz-user-select:none;-ms-user-select:none;-webkit-user-select:none;cursor:move;user-select:none}.mat-tree-node.cdk-drag-preview{box-shadow:0 7px 8px -4px rgba(0,0,0,.2),0 12px 17px 2px rgba(0,0,0,.14),0 5px 22px 4px rgba(0,0,0,.12)}.mat-tree-node.cdk-drag-placeholder{opacity:0}.cdk-drop-list-dragging .mat-tree-node:not(.cdk-drag-placeholder){transition:transform .25s cubic-bezier(0,0,.2,1)}.cdk-drag-animating{transition:transform .2s cubic-bezier(0,0,.2,1)}.drop-above{border-top:10px solid #ddd;margin-top:-10px}.drop-below{border-bottom:10px solid #ddd;margin-bottom:-10px}.drop-center{background-color:#ddd}"]
+                    styles: [".mat-tree-node{-moz-user-select:none;-ms-user-select:none;-webkit-user-select:none;cursor:move;user-select:none}.mat-tree-node.cdk-drag-preview{box-shadow:0 7px 8px -4px rgba(0,0,0,.2),0 12px 17px 2px rgba(0,0,0,.14),0 5px 22px 4px rgba(0,0,0,.12)}.mat-tree-node.cdk-drag-placeholder{opacity:0}.cdk-drop-list-dragging .mat-tree-node:not(.cdk-drag-placeholder){transition:transform .25s cubic-bezier(0,0,.2,1)}.cdk-drag-animating{transition:transform .2s cubic-bezier(0,0,.2,1)}.drop-above{border-top:10px solid #ddd;margin-top:-10px}.drop-below{border-bottom:10px solid #ddd;margin-bottom:-10px}.drop-center{background-color:#ddd}.deletedNode{color:red;font-style:italic}"]
                 }] }
     ];
     /** @nocollapse */
@@ -2377,6 +2417,7 @@
         eventNodeUpdatedSubscription: [{ type: core.Input }],
         eventCreateNodeSubscription: [{ type: core.Input }],
         eventGetAllRowsSubscription: [{ type: core.Input }],
+        eventRefreshSubscription: [{ type: core.Input }],
         getAll: [{ type: core.Input }],
         emptyItem: [{ type: core.ViewChild, args: ['emptyItem',] }]
     };
@@ -2396,11 +2437,15 @@
         /** @type {?} */
         DataTreeComponent.prototype.eventGetAllRowsSubscription;
         /** @type {?} */
+        DataTreeComponent.prototype.eventRefreshSubscription;
+        /** @type {?} */
         DataTreeComponent.prototype._eventNodeUpdatedSubscription;
         /** @type {?} */
         DataTreeComponent.prototype._eventCreateNodeSubscription;
         /** @type {?} */
         DataTreeComponent.prototype._eventGetAllRowsSubscription;
+        /** @type {?} */
+        DataTreeComponent.prototype._eventRefreshSubscription;
         /** @type {?} */
         DataTreeComponent.prototype.treeControl;
         /** @type {?} */

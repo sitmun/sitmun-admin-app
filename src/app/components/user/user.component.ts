@@ -3,6 +3,7 @@ import { UserService,User } from 'dist/sitmun-frontend-core/';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
+import { config } from 'src/config';
 import { Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
@@ -16,7 +17,7 @@ import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 export class UserComponent implements OnInit {
   saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
   dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
-  themeGrid: any = environment.agGridTheme;
+  themeGrid: any = config.agGridTheme;
   columnDefs: any[];
 
   constructor(public dialog: MatDialog,
@@ -29,33 +30,29 @@ export class UserComponent implements OnInit {
 
 
   ngOnInit() {
-    // this.headerNameColumnUser = await this.translate.get('user').toPromise();
-    // this.headerNameColumnFirstName = await this.translate.get('firstname').toPromise();
-    // this.headerNameColumnLastName = await this.translate.get('lastname').toPromise();
-    // this.headerNameColumnStatus = await this.translate.get('status').toPromise();
 
-    var columnEditBtn=environment.editBtnColumnDef;
+    var columnEditBtn=config.editBtnColumnDef;
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
 
     this.columnDefs = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       columnEditBtn,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('userEntity.user'), field: 'username' },
       { headerName: this.utils.getTranslate('userEntity.firstname'), field: 'firstName' },
       { headerName: this.utils.getTranslate('userEntity.lastname'), field: 'lastName' },
-      {
+      /*{
         headerName: this.utils.getTranslate('userEntity.administrator'), field: 'administrator', editable: false,
         cellRenderer: 'btnCheckboxRendererComponent', floatingFilterComponent: 'btnCheckboxFilterComponent',
         floatingFilterComponentParams: { suppressFilterButton: true },
-      },
-      {
+      },*/
+     /* {
        headerName: this.utils.getTranslate('userEntity.blocked'), field: 'blocked', editable: false,
         cellRenderer: 'btnCheckboxRendererComponent', floatingFilterComponent: 'btnCheckboxFilterComponent',
         floatingFilterComponentParams: { suppressFilterButton: true },
-      },
+      },*/
       // { headerName: this.utils.getTranslate('status'), field: 'estat'},
     ];
   }

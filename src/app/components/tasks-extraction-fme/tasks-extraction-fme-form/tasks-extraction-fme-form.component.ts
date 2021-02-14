@@ -7,6 +7,7 @@ import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { Observable, of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { config } from 'src/config';
 import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
 import { map } from 'rxjs/operators';
@@ -31,7 +32,7 @@ export class TasksExtractionFmeFormComponent implements OnInit {
    dataLoaded: Boolean = false;
    
    //Grids
-   themeGrid: any = environment.agGridTheme;
+   themeGrid: any = config.agGridTheme;
 
    columnDefsTerritories: any[];
    getAllElementsEventTerritories: Subject<boolean> = new Subject <boolean>();
@@ -145,14 +146,14 @@ export class TasksExtractionFmeFormComponent implements OnInit {
       });
 
        this.columnDefsRoles = [
-        environment.selCheckboxColumnDef,
+        config.selCheckboxColumnDef,
          { headerName: 'Id', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksExtractionFMEEntity.name'), field: 'name' },  
          { headerName: this.utils.getTranslate('tasksExtractionFMEEntity.status'), field: 'status', editable:false },
        ];
    
        this.columnDefsTerritories = [
-        environment.selCheckboxColumnDef,
+        config.selCheckboxColumnDef,
          { headerName: 'Id', field: 'territoryId', editable: false },
          { headerName: this.utils.getTranslate('tasksExtractionFMEEntity.name'), field: 'territoryName' },
          { headerName: this.utils.getTranslate('tasksExtractionFMEEntity.status'), field: 'status', editable:false },
@@ -160,14 +161,14 @@ export class TasksExtractionFmeFormComponent implements OnInit {
        ];
 
        this.columnDefsRolesDialog = [
-        environment.selCheckboxColumnDef,
+        config.selCheckboxColumnDef,
          { headerName: 'ID', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksExtractionFMEEntity.name'), field: 'name', editable: false },
          { headerName: this.utils.getTranslate('tasksExtractionFMEEntity.description'), field: 'description' },
        ];
  
        this.columnDefsTerritoriesDialog = [
-        environment.selCheckboxColumnDef,
+        config.selCheckboxColumnDef,
          { headerName: 'ID', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksExtractionFMEEntity.name'), field: 'name',  editable: false  },
          { headerName: this.utils.getTranslate('tasksExtractionFMEEntity.code'), field: 'code',  editable: false  },

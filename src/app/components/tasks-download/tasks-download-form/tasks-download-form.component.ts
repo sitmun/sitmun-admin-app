@@ -6,6 +6,7 @@ import { TaskService, TerritoryService, RoleService, TaskGroupService, TaskAvail
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { environment } from 'src/environments/environment';
+import { config } from 'src/config';
 import { map } from 'rxjs/operators';
 import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
@@ -28,7 +29,7 @@ export class TasksDownloadFormComponent implements OnInit {
   dataLoaded: Boolean = false;
   
   //Grids
-  themeGrid: any = environment.agGridTheme;
+  themeGrid: any = config.agGridTheme;
 
   columnDefsRoles: any[];
   getAllElementsEventRoles: Subject<boolean> = new Subject <boolean>();
@@ -116,14 +117,14 @@ export class TasksDownloadFormComponent implements OnInit {
 
 
       this.columnDefsRoles = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
         { headerName: 'Id', field: 'id', editable: false },
         { headerName: this.utils.getTranslate('tasksDownloadEntity.name'), field: 'name' },  
         { headerName: this.utils.getTranslate('tasksDownloadEntity.status'), field: 'status', editable:false },  
       ];
   
       this.columnDefsTerritories = [
-        environment.selCheckboxColumnDef,
+        config.selCheckboxColumnDef,
         { headerName: 'Id', field: 'territoryId', editable: false },
         { headerName: this.utils.getTranslate('tasksDownloadEntity.name'), field: 'territoryName' },
         { headerName: this.utils.getTranslate('tasksDownloadEntity.status'), field: 'status', editable:false },  
@@ -132,14 +133,14 @@ export class TasksDownloadFormComponent implements OnInit {
       ];
 
       this.columnDefsRolesDialog = [
-        environment.selCheckboxColumnDef,
+        config.selCheckboxColumnDef,
         { headerName: 'ID', field: 'id', editable: false },
         { headerName: this.utils.getTranslate('tasksDownloadEntity.name'), field: 'name', editable: false },
         { headerName: this.utils.getTranslate('tasksDownloadEntity.note'), field: 'description', editable: false, },
       ];
 
       this.columnDefsTerritoriesDialog = [
-        environment.selCheckboxColumnDef,
+        config.selCheckboxColumnDef,
         { headerName: 'ID', field: 'id', editable: false },
         { headerName: this.utils.getTranslate('tasksDownloadEntity.name'), field: 'name',  editable: false  },
         { headerName: this.utils.getTranslate('tasksDownloadEntity.code'), field: 'code',  editable: false  },

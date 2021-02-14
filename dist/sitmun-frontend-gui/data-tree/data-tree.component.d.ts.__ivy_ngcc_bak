@@ -28,6 +28,7 @@ export declare class FileNode {
     radio: any;
     tooltip: any;
     _links: any;
+    status: any;
 }
 /** Flat node with expandable and level information */
 export declare class FileFlatNode {
@@ -36,7 +37,8 @@ export declare class FileFlatNode {
     level: number;
     type: any;
     id: string;
-    constructor(expandable: boolean, name: string, level: number, type: any, id: string);
+    status: string;
+    constructor(expandable: boolean, name: string, level: number, type: any, id: string, status: string);
 }
 /**
  * File database, it can build a tree structured Json object from string.
@@ -80,9 +82,11 @@ export declare class DataTreeComponent {
     eventNodeUpdatedSubscription: Observable<any>;
     eventCreateNodeSubscription: Observable<any>;
     eventGetAllRowsSubscription: Observable<any>;
+    eventRefreshSubscription: Observable<any>;
     private _eventNodeUpdatedSubscription;
     private _eventCreateNodeSubscription;
     private _eventGetAllRowsSubscription;
+    private _eventRefreshSubscription;
     treeControl: FlatTreeControl<FileFlatNode>;
     treeFlattener: MatTreeFlattener<FileNode, FileFlatNode>;
     dataSource: MatTreeFlatDataSource<FileNode, FileFlatNode>;
@@ -105,6 +109,7 @@ export declare class DataTreeComponent {
     nestedNodeMap: Map<FileNode, FileFlatNode>;
     constructor(database: FileDatabase);
     ngOnInit(): void;
+    getElements(): void;
     transformer: (node: FileNode, level: number) => FileFlatNode;
     private _getLevel;
     private _isExpandable;
@@ -131,4 +136,5 @@ export declare class DataTreeComponent {
     onButtonClicked(id: any, button: string): void;
     emitAllRows(): void;
     getAllChildren(arr: any): any[];
+    deleteChildren(arr: any): void;
 }

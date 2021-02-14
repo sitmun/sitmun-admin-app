@@ -9,6 +9,7 @@ import { UtilsService } from '../../../services/utils.service';
 import { map } from 'rxjs/operators';
 import { Observable, of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { config } from 'src/config';
 import { DialogFormComponent, DialogGridComponent, DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
 @Component({
@@ -29,7 +30,7 @@ export class TasksFormComponent implements OnInit {
   taskToEdit;
   taskID = -1;
   dataLoaded: Boolean = false;
-  themeGrid: any = environment.agGridTheme;
+  themeGrid: any = config.agGridTheme;
   columnDefsCartographiesDialog: any[];
 
   //Grids
@@ -165,7 +166,7 @@ export class TasksFormComponent implements OnInit {
     ];
 
     this.columnDefsParameters = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: this.utils.getTranslate('tasksEntity.type'), field: 'type' },
       { headerName: this.utils.getTranslate('tasksEntity.parameter'), field: 'name', },
       { headerName: this.utils.getTranslate('tasksEntity.value'), field: 'value' },
@@ -176,7 +177,7 @@ export class TasksFormComponent implements OnInit {
 
     this.columnDefsTerritories = [
 
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'territoryId', editable: false },
       { headerName: this.utils.getTranslate('tasksEntity.name'), field: 'territoryName', editable: false },
       { headerName: this.utils.getTranslate('tasksEntity.status'), field: 'status', editable: false },
@@ -184,7 +185,7 @@ export class TasksFormComponent implements OnInit {
     ];
 
     this.columnDefsRoles = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('tasksEntity.name'), field: 'name' },
       { headerName: this.utils.getTranslate('tasksEntity.status'), field: 'status', editable:false },
@@ -192,14 +193,14 @@ export class TasksFormComponent implements OnInit {
 
 
     this.columnDefsTerritoriesDialog = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'ID', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('tasksEntity.code'), field: 'code', editable: false },
       { headerName: this.utils.getTranslate('tasksEntity.name'), field: 'name', editable: false },
     ];
 
     this.columnDefsRolesDialog = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('tasksEntity.name'), field: 'name' },
       { headerName: this.utils.getTranslate('tasksEntity.description'), field: 'description' },

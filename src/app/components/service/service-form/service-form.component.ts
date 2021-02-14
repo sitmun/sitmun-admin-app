@@ -10,6 +10,7 @@ import { map } from 'rxjs/operators';
 import { Observable, of, Subject } from 'rxjs';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { environment } from 'src/environments/environment';
+import { config } from 'src/config';
 import { DialogGridComponent, DialogFormComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
 import * as xml2js from 'xml2js';
@@ -37,7 +38,7 @@ export class ServiceFormComponent implements OnInit {
   serviceCapabilitiesData:any={};
 
   //Grids
-  themeGrid: any = environment.agGridTheme;
+  themeGrid: any = config.agGridTheme;
   columnDefsParameters: any[];
   getAllElementsEventParameters: Subject<boolean> = new Subject <boolean>();
   dataUpdatedEventParameters: Subject<boolean> = new Subject<boolean>();
@@ -162,7 +163,7 @@ export class ServiceFormComponent implements OnInit {
 
     this.columnDefsParameters = [
 
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: this.utils.getTranslate('serviceEntity.request'), field: 'type', editable:false },
       { headerName: this.utils.getTranslate('serviceEntity.parameter'), field: 'name', },
       { headerName: this.utils.getTranslate('serviceEntity.value'), field: 'value' },
@@ -173,7 +174,7 @@ export class ServiceFormComponent implements OnInit {
 
     this.columnDefsLayers = [
 
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id' },
       { headerName: this.utils.getTranslate('serviceEntity.name'), field: 'name' },
       { headerName: this.utils.getTranslate('serviceEntity.description'), field: 'description', },
@@ -182,13 +183,13 @@ export class ServiceFormComponent implements OnInit {
     ];
 
     this.columnDefsLayersDialog = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'ID', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('connectionEntity.name'), field: 'name', editable: false },
     ];
 
     this.columnDefsParametersDialog = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name',  editable: false  },
       { headerName: this.utils.getTranslate('applicationEntity.value'), field: 'value',  editable: false  },
       { headerName: this.utils.getTranslate('applicationEntity.type'), field: 'type',  editable: false  },

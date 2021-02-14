@@ -7,6 +7,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { config } from 'src/config';
 import { map } from 'rxjs/operators';
 import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
@@ -28,7 +29,7 @@ export class ConnectionFormComponent implements OnInit {
   dataLoaded: Boolean = false;
 
   //Grids
-  themeGrid: any = environment.agGridTheme;
+  themeGrid: any = config.agGridTheme;
 
   columnDefsCartographies: any[];
   getAllElementsEventCartographies: Subject<boolean> = new Subject<boolean>();
@@ -101,7 +102,7 @@ export class ConnectionFormComponent implements OnInit {
 
 
     this.columnDefsCartographies = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('connectionEntity.name'), field: 'name' },
       { headerName: this.utils.getTranslate('connectionEntity.layers'), field: 'layers', editable: false },
@@ -111,7 +112,7 @@ export class ConnectionFormComponent implements OnInit {
     ];
 
     this.columnDefsTasks = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('connectionEntity.code'), field: 'name' },
       { headerName: this.utils.getTranslate('connectionEntity.taskGroup'), field: 'groupName', editable: false },
@@ -121,13 +122,13 @@ export class ConnectionFormComponent implements OnInit {
     ];
 
     this.columnDefsCartographiesDialog = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'ID', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('connectionEntity.name'), field: 'name', editable: false },
     ];
 
     this.columnDefsTasksDialog = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'ID', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('connectionEntity.name'), field: 'name', editable: false },
     ];

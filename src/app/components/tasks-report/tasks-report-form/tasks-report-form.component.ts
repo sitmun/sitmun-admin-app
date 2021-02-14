@@ -7,6 +7,7 @@ import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { Observable, of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { config } from 'src/config';
 import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
 import { map } from 'rxjs/operators';
@@ -29,7 +30,7 @@ export class TasksReportFormComponent implements OnInit {
    dataLoaded: Boolean = false;
    
    //Grids
-   themeGrid: any = environment.agGridTheme;
+   themeGrid: any = config.agGridTheme;
    columnDefsMaps: any[];
    getAllElementsEventMaps: Subject<any[]> = new Subject <any[]>();
    columnDefsQueries: any[];
@@ -87,7 +88,7 @@ export class TasksReportFormComponent implements OnInit {
         }));
     
         promises.push(new Promise((resolve, reject) => {
-          let taskTypeID=environment.tasksTypes['report'];
+          let taskTypeID=config.tasksTypes['report'];
           let params2:HalParam[]=[];
           let param:HalParam={key:'type.id', value:taskTypeID}
           params2.push(param);
@@ -141,7 +142,7 @@ export class TasksReportFormComponent implements OnInit {
     });
 
        this.columnDefsMaps = [
-        environment.selCheckboxColumnDef,
+        config.selCheckboxColumnDef,
          { headerName: 'Id', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksReportEntity.name'), field: 'name' },  
          { headerName: this.utils.getTranslate('tasksReportEntity.reportID'), field: 'reportID' },
@@ -150,7 +151,7 @@ export class TasksReportFormComponent implements OnInit {
        ];
 
        this.columnDefsQueries = [
-        environment.selCheckboxColumnDef,
+        config.selCheckboxColumnDef,
          { headerName: 'Id', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksReportEntity.name'), field: 'name' },  
          { headerName: this.utils.getTranslate('tasksReportEntity.reportID'), field: 'reportID' },  
@@ -158,14 +159,14 @@ export class TasksReportFormComponent implements OnInit {
        ];
 
        this.columnDefsRoles = [
-        environment.selCheckboxColumnDef,
+        config.selCheckboxColumnDef,
          { headerName: 'Id', field: 'territoryId', editable: false },
          { headerName: this.utils.getTranslate('tasksReportEntity.name'), field: 'territoryName' },  
          { headerName: this.utils.getTranslate('tasksReportEntity.status'), field: 'status', editable:false },
        ];
    
        this.columnDefsTerritories = [
-        environment.selCheckboxColumnDef,
+        config.selCheckboxColumnDef,
          { headerName: 'Id', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksReportEntity.name'), field: 'name' },
          { headerName: this.utils.getTranslate('tasksReportEntity.status'), field: 'status', editable:false },
@@ -173,7 +174,7 @@ export class TasksReportFormComponent implements OnInit {
        ];
 
        this.columnDefsMapsDialog = [
-        environment.selCheckboxColumnDef,
+        config.selCheckboxColumnDef,
          { headerName: 'ID', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksReportEntity.name'), field: 'name', editable: false },
          { headerName: this.utils.getTranslate('tasksReportEntity.reportID'), field: 'reportID' },  
@@ -181,20 +182,20 @@ export class TasksReportFormComponent implements OnInit {
        ];
 
        this.columnDefsQueriesDialog = [
-        environment.selCheckboxColumnDef,
+        config.selCheckboxColumnDef,
          { headerName: 'ID', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksReportEntity.name'), field: 'name', editable: false },
          { headerName: this.utils.getTranslate('tasksReportEntity.reportID'), field: 'reportID' },  
        ];
 
        this.columnDefsRolesDialog = [
-        environment.selCheckboxColumnDef,
+        config.selCheckboxColumnDef,
          { headerName: 'ID', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksReportEntity.name'), field: 'name', editable: false },
        ];
  
        this.columnDefsTerritoriesDialog = [
-        environment.selCheckboxColumnDef,
+        config.selCheckboxColumnDef,
          { headerName: 'ID', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksReportEntity.name'), field: 'name',  editable: false  },
        ];

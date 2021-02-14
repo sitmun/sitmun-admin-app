@@ -3,6 +3,7 @@ import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { of,Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { config } from 'src/config';
 import { HalOptions, HalParam, TaskService } from 'dist/sitmun-frontend-core/';
 
 @Component({
@@ -12,7 +13,7 @@ import { HalOptions, HalParam, TaskService } from 'dist/sitmun-frontend-core/';
 })
 export class TasksExtractionFmeComponent implements OnInit {
   saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
-  themeGrid:any=environment.agGridTheme;
+  themeGrid:any=config.agGridTheme;
   columnDefs: any[];
 
 
@@ -25,13 +26,13 @@ export class TasksExtractionFmeComponent implements OnInit {
 
   ngOnInit()  {
 
-    var columnEditBtn=environment.editBtnColumnDef;
+    var columnEditBtn=config.editBtnColumnDef;
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
 
     this.columnDefs = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       columnEditBtn,
       { headerName: 'ID',  field: 'id', editable: false},
       { headerName: this.utils.getTranslate('tasksExtractionFMEEntity.cartography'),  field: 'cartography',editable: false},
@@ -48,7 +49,7 @@ export class TasksExtractionFmeComponent implements OnInit {
 
 
   getAllTasksExtractionFME = () => {
-    let taskTypeID=environment.tasksTypes['extraction'];
+    let taskTypeID=config.tasksTypes['extraction'];
     let params2:HalParam[]=[];
     let param:HalParam={key:'type.id', value:taskTypeID}
     params2.push(param);

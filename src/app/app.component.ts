@@ -5,6 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { SidenavService } from './services/sidenav.service';
 import { Principal, LoginService, AuthService } from 'dist/sitmun-frontend-core/';
 import { environment } from 'src/environments/environment';
+import { config } from 'src/config';
 
 @Component({
   selector: 'app-root',
@@ -30,8 +31,8 @@ export class AppComponent {
     this.translate = trans;
 
     this.translate.addLangs(['es', 'ca', 'es']);
-    let navigatorLang = environment.languages.find(element => element.id === window.navigator.language);
-    let defaultLang = environment.defaultLang;
+    let navigatorLang = config.languages.find(element => element.id === window.navigator.language);
+    let defaultLang = config.defaultLang;
     if (navigatorLang != undefined) {
       defaultLang = window.navigator.language
     }

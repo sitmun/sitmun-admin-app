@@ -3,6 +3,7 @@ import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { of,Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { config } from 'src/config';
 import { HalOptions, HalParam, TaskService } from 'dist/sitmun-frontend-core/';
 
 
@@ -13,7 +14,7 @@ import { HalOptions, HalParam, TaskService } from 'dist/sitmun-frontend-core/';
 })
 export class TasksMoreInfoComponent implements OnInit {
   saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
-  themeGrid:any=environment.agGridTheme;
+  themeGrid:any=config.agGridTheme;
   columnDefs: any[];
 
 
@@ -26,13 +27,13 @@ export class TasksMoreInfoComponent implements OnInit {
 
   ngOnInit()  {
 
-    var columnEditBtn=environment.editBtnColumnDef;
+    var columnEditBtn=config.editBtnColumnDef;
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
     
     this.columnDefs = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       columnEditBtn,
       { headerName: 'ID',  field: 'id', editable: false},
       { headerName: this.utils.getTranslate('tasksMoreInfoEntity.task'),  field: 'name'},
@@ -47,7 +48,7 @@ export class TasksMoreInfoComponent implements OnInit {
 
 
   getAllTasksMoreInfo = () => {
-    let taskTypeID=environment.tasksTypes['moreInfo'];
+    let taskTypeID=config.tasksTypes['moreInfo'];
     let params2:HalParam[]=[];
     let param:HalParam={key:'type.id', value:taskTypeID}
     params2.push(param);

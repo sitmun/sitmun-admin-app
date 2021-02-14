@@ -29,6 +29,7 @@ export declare class FileNode {
     radio: any;
     tooltip: any;
     _links: any;
+    status: any;
 }
 /** Flat node with expandable and level information */
 export declare class FileFlatNode {
@@ -37,7 +38,8 @@ export declare class FileFlatNode {
     level: number;
     type: any;
     id: string;
-    constructor(expandable: boolean, name: string, level: number, type: any, id: string);
+    status: string;
+    constructor(expandable: boolean, name: string, level: number, type: any, id: string, status: string);
 }
 /**
  * File database, it can build a tree structured Json object from string.
@@ -83,9 +85,11 @@ export declare class DataTreeComponent {
     eventNodeUpdatedSubscription: Observable<any>;
     eventCreateNodeSubscription: Observable<any>;
     eventGetAllRowsSubscription: Observable<any>;
+    eventRefreshSubscription: Observable<any>;
     private _eventNodeUpdatedSubscription;
     private _eventCreateNodeSubscription;
     private _eventGetAllRowsSubscription;
+    private _eventRefreshSubscription;
     treeControl: FlatTreeControl<FileFlatNode>;
     treeFlattener: MatTreeFlattener<FileNode, FileFlatNode>;
     dataSource: MatTreeFlatDataSource<FileNode, FileFlatNode>;
@@ -108,6 +112,7 @@ export declare class DataTreeComponent {
     nestedNodeMap: Map<FileNode, FileFlatNode>;
     constructor(database: FileDatabase);
     ngOnInit(): void;
+    getElements(): void;
     transformer: (node: FileNode, level: number) => FileFlatNode;
     private _getLevel;
     private _isExpandable;
@@ -134,8 +139,9 @@ export declare class DataTreeComponent {
     onButtonClicked(id: any, button: string): void;
     emitAllRows(): void;
     getAllChildren(arr: any): any[];
+    deleteChildren(arr: any): void;
     static ɵfac: ɵngcc0.ɵɵFactoryDef<DataTreeComponent, never>;
-    static ɵcmp: ɵngcc0.ɵɵComponentDefWithMeta<DataTreeComponent, "app-data-tree", never, { "eventNodeUpdatedSubscription": "eventNodeUpdatedSubscription"; "eventCreateNodeSubscription": "eventCreateNodeSubscription"; "eventGetAllRowsSubscription": "eventGetAllRowsSubscription"; "getAll": "getAll"; }, { "emitNode": "emitNode"; "createNode": "createNode"; "createFolder": "createFolder"; "emitAllNodes": "emitAllNodes"; }, never, never>;
+    static ɵcmp: ɵngcc0.ɵɵComponentDefWithMeta<DataTreeComponent, "app-data-tree", never, { "eventNodeUpdatedSubscription": "eventNodeUpdatedSubscription"; "eventCreateNodeSubscription": "eventCreateNodeSubscription"; "eventGetAllRowsSubscription": "eventGetAllRowsSubscription"; "eventRefreshSubscription": "eventRefreshSubscription"; "getAll": "getAll"; }, { "emitNode": "emitNode"; "createNode": "createNode"; "createFolder": "createFolder"; "emitAllNodes": "emitAllNodes"; }, never, never>;
 }
 
 //# sourceMappingURL=data-tree.component.d.ts.map

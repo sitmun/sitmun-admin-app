@@ -7,6 +7,7 @@ import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
+import { config } from 'src/config';
 import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
 import { of, Subject } from 'rxjs';
@@ -22,7 +23,7 @@ export class LayersPermitsFormComponent implements OnInit {
   formLayersPermits: FormGroup;
   layersPermitsToEdit;
   layersPermitsID = -1;
-  themeGrid: any = environment.agGridTheme;
+  themeGrid: any = config.agGridTheme;
   permissionGroupTypes: Array<any> = [];
   dataLoaded: Boolean = false;
 
@@ -108,7 +109,7 @@ export class LayersPermitsFormComponent implements OnInit {
 
 
     this.columnDefsCartographies = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('layersPermitsEntity.name'), field: 'name' },
       { headerName: this.utils.getTranslate('layersPermitsEntity.status'), field: 'status', editable:false },
@@ -116,20 +117,20 @@ export class LayersPermitsFormComponent implements OnInit {
 
 
     this.columnDefsRoles = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('layersPermitsEntity.name'), field: 'name' },
       { headerName: this.utils.getTranslate('layersPermitsEntity.status'), field: 'status', editable:false },
     ];
 
     this.columnDefsCartographiesDialog = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'ID', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('connectionEntity.name'), field: 'name', editable: false },
     ];
 
     this.columnDefsRolesDialog = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('layersPermitsEntity.name'), field: 'name' },
     ];

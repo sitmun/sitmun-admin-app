@@ -16,6 +16,7 @@
   "redo": "Rehacer",
   "undo": "Deshacer",
   "return": "Volver",
+  "pendingDelete":"Pendiente eliminar",
   "search/replace": "Buscar/Reemplazar",
   "selectType": "Selecciona el tipo",
   "ok-created": "Los elementos se han creado correctamente",
@@ -88,6 +89,7 @@
     "expirationDate": "Caducidad",
     "dataCreated": "Alta",
     "code": "Código",
+    "appliesToChildrenTerritories" : "Aplicado a los hijos",
     "status": "Estado"
   },
   "connectionEntity": {
@@ -205,7 +207,8 @@
     "description": "Descripción",
     "activo": "Activo",
     "cartographyGroup": "Grupo cartografía",
-    "status": "Estado"
+    "status": "Estado",
+    "createdDate": "Alta"
   },
   "applicationEntity": {
     "generalData": "Datos Generales",
@@ -269,6 +272,7 @@
     "roles": "Roles",
     "taskGroup": "Grupo tarea",
     "layers": "Capas",
+    "inheritPermissionsOfParents": "Permisos heredadados de los padres",
     "status": "Estado"
   },
   "roleEntity": {

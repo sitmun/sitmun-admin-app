@@ -8,6 +8,7 @@ import { UtilsService } from '../../../services/utils.service';
 import { map } from 'rxjs/operators';
 import { Observable, of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { config } from 'src/config';
 import { DialogFormComponent, DialogGridComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
 import { iterateExtend } from '@syncfusion/ej2-angular-grids';
@@ -41,7 +42,7 @@ export class LayersFormComponent implements OnInit {
 
 
   //Grids
-  themeGrid: any = environment.agGridTheme;
+  themeGrid: any = config.agGridTheme;
   columnDefsParameters: any[];
   getAllElementsEventParameters: Subject<boolean> = new Subject<boolean>();
   dataUpdatedEventParameters: Subject<boolean> = new Subject<boolean>();
@@ -124,7 +125,7 @@ export class LayersFormComponent implements OnInit {
   ngOnInit(): void {
 
     let geometryTypeByDefault = {
-      value: '-------',
+      value: -1,
       description: '-------'
     }
     this.geometryTypes.push(geometryTypeByDefault);
@@ -299,7 +300,12 @@ export class LayersFormComponent implements OnInit {
               }
               if (this.layerToEdit.legendType == null) {
                 this.layerForm.patchValue({
-                  legendType: this.legendTypes[0].id
+                  legendType: this.legendTypes[0].value
+                })
+              }
+              if (this.layerToEdit.geometryType == null) {
+                this.layerForm.patchValue({
+                  geometryType: this.geometryTypes[0].value
                 })
               }
 
@@ -366,6 +372,7 @@ export class LayersFormComponent implements OnInit {
             thematic: false,
             service: this.services[0].id,
             spatialSelectionService: this.spatialConfigurationServices[0].id,
+            geometryType: this.geometryTypes[0].value,
             legendType: this.legendTypes[0].value,
           })
           this.layerForm.get('geometryType').disable();
@@ -386,7 +393,7 @@ export class LayersFormComponent implements OnInit {
 
     this.columnDefsParameters = [
 
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: this.utils.getTranslate('layersEntity.field'), field: 'value' },
       { headerName: this.utils.getTranslate('layersEntity.name'), field: 'name' },
       {
@@ -405,7 +412,7 @@ export class LayersFormComponent implements OnInit {
 
     this.columnDefsSpatialConfigurations = [
 
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: this.utils.getTranslate('layersEntity.column'), field: 'name' },
       { headerName: this.utils.getTranslate('layersEntity.label'), field: 'value' },
       {
@@ -421,7 +428,7 @@ export class LayersFormComponent implements OnInit {
 
     this.columnDefsTerritorialFilter = [
 
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('layersEntity.name'), field: 'name' },
       { headerName: this.utils.getTranslate('layersEntity.type'), field: 'type' },
@@ -433,7 +440,7 @@ export class LayersFormComponent implements OnInit {
 
     this.columnDefsTerritories = [
 
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'territoryId', editable: false },
       { headerName: this.utils.getTranslate('layersEntity.code'), field: 'territoryCode', editable: false },
       { headerName: this.utils.getTranslate('layersEntity.name'), field: 'territoryName', editable: false },
@@ -443,7 +450,7 @@ export class LayersFormComponent implements OnInit {
 
     this.columnDefsLayersConfiguration = [
 
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('layersEntity.name'), field: 'name' },
       { headerName: this.utils.getTranslate('layersEntity.status'), field: 'status', editable: false },
@@ -452,7 +459,7 @@ export class LayersFormComponent implements OnInit {
 
     this.columnDefsNodes = [
 
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('layersEntity.code'), field: 'nodeName' },
       { headerName: this.utils.getTranslate('layersEntity.name'), field: 'name' },
@@ -461,7 +468,7 @@ export class LayersFormComponent implements OnInit {
     ];
 
     this.columnDefsParametersDialog = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: this.utils.getTranslate('layersEntity.field'), field: 'field', editable: false },
       { headerName: this.utils.getTranslate('layersEntity.alias'), field: 'alias', editable: false },
       { headerName: this.utils.getTranslate('layersEntity.format'), field: 'format', editable: false },
@@ -471,7 +478,7 @@ export class LayersFormComponent implements OnInit {
 
 
     this.columnDefsTerritoriesDialog = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'ID', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('layersEntity.code'), field: 'code', editable: false },
       { headerName: this.utils.getTranslate('layersEntity.name'), field: 'name', editable: false },
@@ -479,13 +486,13 @@ export class LayersFormComponent implements OnInit {
 
 
     this.columnDefsCartographyGroupsDialog = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'ID', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('layersEntity.name'), field: 'name', editable: false },
     ];
 
     this.columnDefsNodesDialog = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'ID', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('layersEntity.name'), field: 'name', editable: false },
     ];
@@ -1124,22 +1131,31 @@ export class LayersFormComponent implements OnInit {
         selectService = null
       }
 
-      let legendType = this.legendTypes.find(x => x.id === this.layerForm.value.legendType)
-      if (legendType == undefined) {
-        legendType = null
+      // let legendType = this.legendTypes.find(x => x.id === this.layerForm.value.legendType)
+      let geometryType = null;
+      if(this.layerForm.value.geometryType !== -1)
+      {
+        geometryType=this.layerForm.value.geometryType
       }
 
+      let legendType = null;
+      if(this.layerForm.value.legendType !== -1)
+      {
+        legendType=this.layerForm.value.legendType
+      }
+  
+  debugger;
       let cartography = new Cartography();
       cartography.name = this.layerForm.value.name,
         cartography.service = service,
         cartography.layers = this.layerForm.value.layers,
         cartography.minimumScale = this.layerForm.value.minimumScale,
         cartography.maximumScale = this.layerForm.value.maximumScale,
-        cartography.geometryType = this.layerForm.value.geometryType,
+        cartography.geometryType = geometryType
         cartography.order = this.layerForm.value.order,
         cartography.transparency = this.layerForm.value.transparency,
         cartography.metadataURL = this.layerForm.value.metadataURL,
-        // cartography.legendType= legendType
+        cartography.legendType= legendType
         cartography.legendURL = this.layerForm.value.legendUrl,
         cartography.description = this.layerForm.value.description,
         // cartography.datasetURL= this.layerForm.value.datasetURL, 

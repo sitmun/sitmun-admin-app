@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
+import { config } from 'src/config';
 import { Observable, of, Subject } from 'rxjs';
 import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
@@ -16,7 +17,7 @@ import { MatDialog } from '@angular/material/dialog';
 })
 export class TreesFormComponent implements OnInit {
 
-  themeGrid: any = environment.agGridTheme;
+  themeGrid: any = config.agGridTheme;
   treeID: number = -1;
   treeForm: FormGroup;
   treeNodeForm: FormGroup;
@@ -27,6 +28,7 @@ export class TreesFormComponent implements OnInit {
   newElement: Boolean = false;
   sendNodeUpdated: Subject<any> = new Subject <any>();
   getAllElementsNodes: Subject<boolean> = new Subject <boolean>();
+  refreshTreeEvent: Subject<boolean> = new Subject <boolean>();
   createNodeEvent: Subject<boolean> = new Subject <boolean>();
   getAllElementsEventCartographies: Subject<boolean> = new Subject <boolean>();
   columnDefsCartographies: any[];
@@ -116,8 +118,6 @@ export class TreesFormComponent implements OnInit {
       status: new FormControl(null, []),
       cartographyName: new FormControl(null, []),
       
-
-
     })
   }
 
@@ -158,6 +158,8 @@ export class TreesFormComponent implements OnInit {
       currentType='node'
     }
     console.log(node);
+    let status="Modified"
+    if(node.id < 0) { status = "Pending creation"}
     this.treeNodeForm.patchValue({
       id: node.id,
       name: node.name,
@@ -169,7 +171,7 @@ export class TreesFormComponent implements OnInit {
       children: node.children,
       parent: node.parent,
       isFolder: node.isFolder,
-      status: "Modified",
+      status: status,
       type:currentType
     })
   }
@@ -180,8 +182,10 @@ export class TreesFormComponent implements OnInit {
     this.newElement=true;
     this.currentNodeIsFolder=false
     console.log(parent);
+    let parentId = parent.id;
+    if(parent.name === "Root") {parentId=null}
     this.treeNodeForm.patchValue({
-      parent: parent.id,
+      parent: parentId ,
       isFolder: false,
       children: [],
       status: "Pending creation"
@@ -194,8 +198,10 @@ export class TreesFormComponent implements OnInit {
     this.treeNodeForm.reset();
     this.newElement=true;
     this.currentNodeIsFolder=true
+    let parentId = parent.id;
+    if(parent.name === "Root") {parentId=null}
     this.treeNodeForm.patchValue({
-      parent: parent.id,
+      parent: parentId,
       isFolder: true,
       children: [],
       status: "Pending creation"
@@ -209,19 +215,19 @@ export class TreesFormComponent implements OnInit {
   onSaveButtonClicked(){ 
     if(this.treeForm.valid)
     {    
-      if(this.treeID === -1)
-      {
-        this.treeService.save( this.treeForm.value)
-        .subscribe(resp => {
-          this.treeToEdit=resp;
-        },
-        error=>{
-          console.log(error);
-        });
-      }
-      else {
+      // if(this.treeID === -1)
+      // {
+      //   this.treeService.save( this.treeForm.value)
+      //   .subscribe(resp => {
+      //     this.treeToEdit=resp;
+      //   },
+      //   error=>{
+      //     console.log(error);
+      //   });
+      // }
+      // else {
         this.getAllElementsNodes.next(true);
-      }
+      // }
     }
     else {
       this.utils.showRequiredFieldsError();
@@ -245,11 +251,31 @@ export class TreesFormComponent implements OnInit {
     
   }
 
-  updateAllTrees(treesToUpdate: any[])
+    
+
+  getAllNodes(data: TreeNode[])
+  {
+    console.log(data);
+    this.treeService.save( this.treeForm.value)
+    .subscribe(resp => {
+      this.treeToEdit=resp;
+      this.treeID=resp.id;
+      let mapNewIdentificators: Map <number, any[]> = new Map<number, any[]>();
+      const promises: Promise<any>[] = [];
+      this.updateAllTrees(data,0,mapNewIdentificators, promises,  null, null);
+    },
+    error=>{
+      console.log(error);
+    });
+
+  }
+
+  async updateAllTrees(treesToUpdate: any[], depth:number,mapNewIdentificators: Map <number, any[]>, promises: Promise<any>[], newId, newParent)
   {
     console.log(treesToUpdate);
-    treesToUpdate.forEach(tree => {
-
+      for(let i = 0; i<treesToUpdate.length; i++){
+        let tree= treesToUpdate[i];
+	
       if(tree.status)
       {
         var treeNodeObj: TreeNode=new TreeNode();
@@ -267,72 +293,93 @@ export class TreesFormComponent implements OnInit {
 
           let currentParent;
           if(tree.parent !== null) {
-            currentParent= treesToUpdate.find(element => element.id === tree.parent ); 
-            currentParent.tree=this.treeToEdit;
+            if(tree.parent >= 0)
+            {
+              currentParent= treesToUpdate.find(element => element.id === tree.parent ) 
+              currentParent.tree=this.treeToEdit;
+            }
+            else{
+              if(newId == null)
+              {
+                if(mapNewIdentificators.has(tree.parent)) { mapNewIdentificators[tree.parent].push(tree)  }
+                else{
+                  mapNewIdentificators.set(tree.parent,[tree])
+                }
+                currentParent=undefined;
+              }
+              else{
+                currentParent= newParent;
+              }
+            }
+
           }
           else { currentParent=null;}
           
           if (currentParent !== undefined)
           {
 
-            treeNodeObj.parent= currentParent;
-            console.log(treeNodeObj)
-
-            if(treeNodeObj._links)
-            {
-              treeNodeObj._links.cartography.href=treeNodeObj._links.cartography.href.split("{")[0];
-              treeNodeObj._links.parent.href=treeNodeObj._links.parent.href.split("{")[0];
-              treeNodeObj._links.treeNode.href=treeNodeObj._links.treeNode.href.split("{")[0];
-              treeNodeObj.tree._links.allNodes.href=treeNodeObj.tree._links.allNodes.href.split("{")[0];
-            }
-      
-            console.log(treeNodeObj)
-            this.treeNodeService.save(treeNodeObj).subscribe(
-              result => {
-                console.log(result);
-              },
-              error => {
-                console.log(error);
+              if(tree.status === "Pending creation" && currentParent!=null){
+                treeNodeObj.parent= currentParent._links.self.href;
               }
-            )
+              else if ( tree.status === "Modified" && currentParent!=null){
+                treeNodeObj.parent= currentParent;
+              }
+              console.log(treeNodeObj)
+  
+              if(treeNodeObj._links)
+              {
+                treeNodeObj._links.cartography.href=treeNodeObj._links.cartography.href.split("{")[0];
+                treeNodeObj._links.parent.href=treeNodeObj._links.parent.href.split("{")[0];
+                treeNodeObj._links.treeNode.href=treeNodeObj._links.treeNode.href.split("{")[0];
+                treeNodeObj.tree._links.allNodes.href=treeNodeObj.tree._links.allNodes.href.split("{")[0];
+              }
+        
+              console.log(treeNodeObj)
+              promises.push(new Promise((resolve, reject) => {
+              this.treeNodeService.save(treeNodeObj).subscribe(
+                result => {
+                  let oldId=tree.id;
+                  treesToUpdate.splice(i,1);
+                  treesToUpdate.splice(0,0,result)
+                  if(mapNewIdentificators.has(oldId))
+                  {
+                    this.updateAllTrees(mapNewIdentificators.get(oldId),depth++, mapNewIdentificators, promises, result.id,result)
+                  }
+
+                  resolve(true);
+                },
+                error => {
+                  console.log(error);
+                }
+              )
+            }));
+            
+
+		
           }
 
 
         }
         else {
-          console.log(tree);
-          this.treeNodeService.remove(treeNodeObj).subscribe(
-            result => {
-              console.log(result);
-            },
-            error => {
-              console.log(error);
-            }
-          )
+          if(tree.id >= 0)
+          {
+              let idDeletedElement=tree.id;
+              await this.treeNodeService.remove(treeNodeObj).toPromise();
+
+          }
         }
+
 
       }
 
 
+    };
+    Promise.all(promises).then(() => {
+      if(depth === 0) {this.refreshTreeEvent.next(true)}
     });
+      
   }
 
-  
-
-  getAllNodes(data: TreeNode[])
-  {
-    console.log(data);
-    this.treeService.save( this.treeForm.value)
-    .subscribe(resp => {
-      this.treeToEdit=resp;
-      this.updateAllTrees(data);
-    },
-    error=>{
-      console.log(error);
-    });
-
-    
-  }
 
   getSelectedRowsCartographies(data: any[] )
   {

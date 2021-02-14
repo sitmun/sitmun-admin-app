@@ -16,6 +16,7 @@
   "redo": "Refer",
   "undo": "Desfer",
   "return": "Tornar",
+  "pendingDelete":"Pendent eliminar",
   "search/replace": "Buscar/Reemplaçar",
   "selectType": "Selecciona el tipus",
   "ok-created": "Els elements s'han creat correctament",
@@ -88,6 +89,7 @@
     "dataCreated": "Alta",
     "code": "Codi",
     "status": "Estat",
+    "appliesToChildrenTerritories" : "Aplicat als fills",
     "childRole": "Rol fill"
   },
   "connectionEntity": {
@@ -217,7 +219,8 @@
     "description": "Descripció",
     "active": "Actiu",
     "cartographyGroup": "Grup cartografia",
-    "status": "Estat"
+    "status": "Estat",
+    "createdDate": "Alta"
   },
   "applicationEntity": {
     "generalData": "Dades Generals",
@@ -283,6 +286,7 @@
     "taskGroup": "Grup tasca",
     "layers": "Capes",
     "permits": "Permisos",
+    "inheritPermissionsOfParents": "Permisos heredats dels pares",
     "status": "Estat"
   },
   "roleEntity": {

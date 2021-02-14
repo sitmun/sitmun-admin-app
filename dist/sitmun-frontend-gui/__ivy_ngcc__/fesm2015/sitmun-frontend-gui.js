@@ -274,123 +274,171 @@ function DataTreeComponent_mat_tree_node_1_mat_icon_2_Template(rf, ctx) { if (rf
     const node_r3 = ɵngcc0.ɵɵnextContext().$implicit;
     ɵngcc0.ɵɵattribute("aria-label", node_r3.type + "icon");
 } }
-function DataTreeComponent_mat_tree_node_1_button_4_Template(rf, ctx) { if (rf & 1) {
-    const _r10 = ɵngcc0.ɵɵgetCurrentView();
-    ɵngcc0.ɵɵelementStart(0, "button", 8);
-    ɵngcc0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_1_button_4_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r10); const node_r3 = ɵngcc0.ɵɵnextContext().$implicit; const ctx_r8 = ɵngcc0.ɵɵnextContext(); return ctx_r8.onButtonClicked(node_r3.id, "newFolder"); });
+function DataTreeComponent_mat_tree_node_1_span_3_Template(rf, ctx) { if (rf & 1) {
+    ɵngcc0.ɵɵelementStart(0, "span");
+    ɵngcc0.ɵɵtext(1);
+    ɵngcc0.ɵɵpipe(2, "translate");
+    ɵngcc0.ɵɵelementEnd();
+} if (rf & 2) {
+    ɵngcc0.ɵɵadvance(1);
+    ɵngcc0.ɵɵtextInterpolate1("(", ɵngcc0.ɵɵpipeBind1(2, 1, "pendingDelete"), ")-");
+} }
+function DataTreeComponent_mat_tree_node_1_button_5_Template(rf, ctx) { if (rf & 1) {
+    const _r13 = ɵngcc0.ɵɵgetCurrentView();
+    ɵngcc0.ɵɵelementStart(0, "button", 10);
+    ɵngcc0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_1_button_5_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r13); const node_r3 = ɵngcc0.ɵɵnextContext().$implicit; const ctx_r11 = ɵngcc0.ɵɵnextContext(); return ctx_r11.onButtonClicked(node_r3.id, "newFolder"); });
     ɵngcc0.ɵɵelementStart(1, "mat-icon");
     ɵngcc0.ɵɵtext(2, "create_new_folder");
     ɵngcc0.ɵɵelementEnd();
     ɵngcc0.ɵɵelementEnd();
 } }
-function DataTreeComponent_mat_tree_node_1_button_5_Template(rf, ctx) { if (rf & 1) {
-    const _r13 = ɵngcc0.ɵɵgetCurrentView();
-    ɵngcc0.ɵɵelementStart(0, "button", 8);
-    ɵngcc0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_1_button_5_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r13); const node_r3 = ɵngcc0.ɵɵnextContext().$implicit; const ctx_r11 = ɵngcc0.ɵɵnextContext(); return ctx_r11.onButtonClicked(node_r3.id, "newNode"); });
+function DataTreeComponent_mat_tree_node_1_button_6_Template(rf, ctx) { if (rf & 1) {
+    const _r16 = ɵngcc0.ɵɵgetCurrentView();
+    ɵngcc0.ɵɵelementStart(0, "button", 10);
+    ɵngcc0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_1_button_6_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r16); const node_r3 = ɵngcc0.ɵɵnextContext().$implicit; const ctx_r14 = ɵngcc0.ɵɵnextContext(); return ctx_r14.onButtonClicked(node_r3.id, "newNode"); });
     ɵngcc0.ɵɵelementStart(1, "mat-icon");
     ɵngcc0.ɵɵtext(2, "playlist_add");
     ɵngcc0.ɵɵelementEnd();
     ɵngcc0.ɵɵelementEnd();
 } }
-const _c3 = function (a0, a1, a2) { return { "drop-above": a0, "drop-below": a1, "drop-center": a2 }; };
+function DataTreeComponent_mat_tree_node_1_button_7_Template(rf, ctx) { if (rf & 1) {
+    const _r19 = ɵngcc0.ɵɵgetCurrentView();
+    ɵngcc0.ɵɵelementStart(0, "button", 10);
+    ɵngcc0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_1_button_7_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r19); const node_r3 = ɵngcc0.ɵɵnextContext().$implicit; const ctx_r17 = ɵngcc0.ɵɵnextContext(); return ctx_r17.onButtonClicked(node_r3.id, "delete"); });
+    ɵngcc0.ɵɵelementStart(1, "mat-icon");
+    ɵngcc0.ɵɵtext(2, "delete");
+    ɵngcc0.ɵɵelementEnd();
+    ɵngcc0.ɵɵelementEnd();
+} }
+function DataTreeComponent_mat_tree_node_1_button_8_Template(rf, ctx) { if (rf & 1) {
+    const _r22 = ɵngcc0.ɵɵgetCurrentView();
+    ɵngcc0.ɵɵelementStart(0, "button", 10);
+    ɵngcc0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_1_button_8_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r22); const node_r3 = ɵngcc0.ɵɵnextContext().$implicit; const ctx_r20 = ɵngcc0.ɵɵnextContext(); return ctx_r20.onButtonClicked(node_r3.id, "edit"); });
+    ɵngcc0.ɵɵelementStart(1, "mat-icon");
+    ɵngcc0.ɵɵtext(2, "edit");
+    ɵngcc0.ɵɵelementEnd();
+    ɵngcc0.ɵɵelementEnd();
+} }
+const _c3 = function (a0, a1, a2, a3) { return { "drop-above": a0, "drop-below": a1, "drop-center": a2, "deletedNode": a3 }; };
 function DataTreeComponent_mat_tree_node_1_Template(rf, ctx) { if (rf & 1) {
-    const _r15 = ɵngcc0.ɵɵgetCurrentView();
+    const _r24 = ɵngcc0.ɵɵgetCurrentView();
     ɵngcc0.ɵɵelementStart(0, "mat-tree-node", 4);
-    ɵngcc0.ɵɵlistener("dragstart", function DataTreeComponent_mat_tree_node_1_Template_mat_tree_node_dragstart_0_listener($event) { ɵngcc0.ɵɵrestoreView(_r15); const node_r3 = ctx.$implicit; const ctx_r14 = ɵngcc0.ɵɵnextContext(); return ctx_r14.handleDragStart($event, node_r3); })("dragover", function DataTreeComponent_mat_tree_node_1_Template_mat_tree_node_dragover_0_listener($event) { ɵngcc0.ɵɵrestoreView(_r15); const node_r3 = ctx.$implicit; const ctx_r16 = ɵngcc0.ɵɵnextContext(); return ctx_r16.handleDragOver($event, node_r3); })("drop", function DataTreeComponent_mat_tree_node_1_Template_mat_tree_node_drop_0_listener($event) { ɵngcc0.ɵɵrestoreView(_r15); const node_r3 = ctx.$implicit; const ctx_r17 = ɵngcc0.ɵɵnextContext(); return ctx_r17.handleDrop($event, node_r3); })("dragend", function DataTreeComponent_mat_tree_node_1_Template_mat_tree_node_dragend_0_listener($event) { ɵngcc0.ɵɵrestoreView(_r15); const ctx_r18 = ɵngcc0.ɵɵnextContext(); return ctx_r18.handleDragEnd($event); });
+    ɵngcc0.ɵɵlistener("dragstart", function DataTreeComponent_mat_tree_node_1_Template_mat_tree_node_dragstart_0_listener($event) { ɵngcc0.ɵɵrestoreView(_r24); const node_r3 = ctx.$implicit; const ctx_r23 = ɵngcc0.ɵɵnextContext(); return ctx_r23.handleDragStart($event, node_r3); })("dragover", function DataTreeComponent_mat_tree_node_1_Template_mat_tree_node_dragover_0_listener($event) { ɵngcc0.ɵɵrestoreView(_r24); const node_r3 = ctx.$implicit; const ctx_r25 = ɵngcc0.ɵɵnextContext(); return ctx_r25.handleDragOver($event, node_r3); })("drop", function DataTreeComponent_mat_tree_node_1_Template_mat_tree_node_drop_0_listener($event) { ɵngcc0.ɵɵrestoreView(_r24); const node_r3 = ctx.$implicit; const ctx_r26 = ɵngcc0.ɵɵnextContext(); return ctx_r26.handleDrop($event, node_r3); })("dragend", function DataTreeComponent_mat_tree_node_1_Template_mat_tree_node_dragend_0_listener($event) { ɵngcc0.ɵɵrestoreView(_r24); const ctx_r27 = ɵngcc0.ɵɵnextContext(); return ctx_r27.handleDragEnd($event); });
     ɵngcc0.ɵɵelement(1, "button", 5);
     ɵngcc0.ɵɵtemplate(2, DataTreeComponent_mat_tree_node_1_mat_icon_2_Template, 2, 1, "mat-icon", 6);
-    ɵngcc0.ɵɵtext(3);
-    ɵngcc0.ɵɵtemplate(4, DataTreeComponent_mat_tree_node_1_button_4_Template, 3, 0, "button", 7);
-    ɵngcc0.ɵɵtemplate(5, DataTreeComponent_mat_tree_node_1_button_5_Template, 3, 0, "button", 7);
-    ɵngcc0.ɵɵelementStart(6, "button", 8);
-    ɵngcc0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_1_Template_button_click_6_listener() { ɵngcc0.ɵɵrestoreView(_r15); const node_r3 = ctx.$implicit; const ctx_r19 = ɵngcc0.ɵɵnextContext(); return ctx_r19.onButtonClicked(node_r3.id, "delete"); });
-    ɵngcc0.ɵɵelementStart(7, "mat-icon");
-    ɵngcc0.ɵɵtext(8, "delete");
-    ɵngcc0.ɵɵelementEnd();
-    ɵngcc0.ɵɵelementEnd();
-    ɵngcc0.ɵɵelementStart(9, "button", 8);
-    ɵngcc0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_1_Template_button_click_9_listener() { ɵngcc0.ɵɵrestoreView(_r15); const node_r3 = ctx.$implicit; const ctx_r20 = ɵngcc0.ɵɵnextContext(); return ctx_r20.onButtonClicked(node_r3.id, "edit"); });
-    ɵngcc0.ɵɵelementStart(10, "mat-icon");
-    ɵngcc0.ɵɵtext(11, "edit");
-    ɵngcc0.ɵɵelementEnd();
-    ɵngcc0.ɵɵelementEnd();
+    ɵngcc0.ɵɵtemplate(3, DataTreeComponent_mat_tree_node_1_span_3_Template, 3, 3, "span", 7);
+    ɵngcc0.ɵɵtext(4);
+    ɵngcc0.ɵɵtemplate(5, DataTreeComponent_mat_tree_node_1_button_5_Template, 3, 0, "button", 8);
+    ɵngcc0.ɵɵtemplate(6, DataTreeComponent_mat_tree_node_1_button_6_Template, 3, 0, "button", 8);
+    ɵngcc0.ɵɵtemplate(7, DataTreeComponent_mat_tree_node_1_button_7_Template, 3, 0, "button", 8);
+    ɵngcc0.ɵɵtemplate(8, DataTreeComponent_mat_tree_node_1_button_8_Template, 3, 0, "button", 8);
     ɵngcc0.ɵɵelementEnd();
 } if (rf & 2) {
     const node_r3 = ctx.$implicit;
     const ctx_r0 = ɵngcc0.ɵɵnextContext();
-    ɵngcc0.ɵɵproperty("ngClass", ɵngcc0.ɵɵpureFunction3(5, _c3, ctx_r0.dragNodeExpandOverArea === "above" && ctx_r0.dragNodeExpandOverNode === node_r3, ctx_r0.dragNodeExpandOverArea === "below" && ctx_r0.dragNodeExpandOverNode === node_r3, ctx_r0.dragNodeExpandOverArea === "center" && ctx_r0.dragNodeExpandOverNode === node_r3));
+    ɵngcc0.ɵɵproperty("ngClass", ɵngcc0.ɵɵpureFunction4(8, _c3, ctx_r0.dragNodeExpandOverArea === "above" && ctx_r0.dragNodeExpandOverNode === node_r3, ctx_r0.dragNodeExpandOverArea === "below" && ctx_r0.dragNodeExpandOverNode === node_r3, ctx_r0.dragNodeExpandOverArea === "center" && ctx_r0.dragNodeExpandOverNode === node_r3, node_r3.status == "Deleted"));
     ɵngcc0.ɵɵadvance(2);
-    ɵngcc0.ɵɵproperty("ngIf", node_r3.type === "folder");
+    ɵngcc0.ɵɵproperty("ngIf", node_r3.type === "folder" && node_r3.status != "Deleted");
+    ɵngcc0.ɵɵadvance(1);
+    ɵngcc0.ɵɵproperty("ngIf", node_r3.status == "Deleted");
     ɵngcc0.ɵɵadvance(1);
     ɵngcc0.ɵɵtextInterpolate1(" ", node_r3.name, " ");
     ɵngcc0.ɵɵadvance(1);
-    ɵngcc0.ɵɵproperty("ngIf", node_r3.type === "folder");
+    ɵngcc0.ɵɵproperty("ngIf", node_r3.type === "folder " && node_r3.status != "Deleted");
     ɵngcc0.ɵɵadvance(1);
-    ɵngcc0.ɵɵproperty("ngIf", node_r3.type === "folder");
+    ɵngcc0.ɵɵproperty("ngIf", node_r3.type === "folder" && node_r3.status != "Deleted");
+    ɵngcc0.ɵɵadvance(1);
+    ɵngcc0.ɵɵproperty("ngIf", node_r3.id !== undefined && node_r3.status != "Deleted");
+    ɵngcc0.ɵɵadvance(1);
+    ɵngcc0.ɵɵproperty("ngIf", node_r3.id !== undefined && node_r3.status != "Deleted");
 } }
-function DataTreeComponent_mat_tree_node_2_button_7_Template(rf, ctx) { if (rf & 1) {
-    const _r26 = ɵngcc0.ɵɵgetCurrentView();
-    ɵngcc0.ɵɵelementStart(0, "button", 8);
-    ɵngcc0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_button_7_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r26); const node_r21 = ɵngcc0.ɵɵnextContext().$implicit; const ctx_r24 = ɵngcc0.ɵɵnextContext(); return ctx_r24.onButtonClicked(node_r21.id, "newFolder"); });
+function DataTreeComponent_mat_tree_node_2_span_6_Template(rf, ctx) { if (rf & 1) {
+    ɵngcc0.ɵɵelementStart(0, "span");
+    ɵngcc0.ɵɵtext(1);
+    ɵngcc0.ɵɵpipe(2, "translate");
+    ɵngcc0.ɵɵelementEnd();
+} if (rf & 2) {
+    ɵngcc0.ɵɵadvance(1);
+    ɵngcc0.ɵɵtextInterpolate1("(", ɵngcc0.ɵɵpipeBind1(2, 1, "pendingDelete"), ")-");
+} }
+function DataTreeComponent_mat_tree_node_2_button_8_Template(rf, ctx) { if (rf & 1) {
+    const _r36 = ɵngcc0.ɵɵgetCurrentView();
+    ɵngcc0.ɵɵelementStart(0, "button", 10);
+    ɵngcc0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_button_8_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r36); const node_r28 = ɵngcc0.ɵɵnextContext().$implicit; const ctx_r34 = ɵngcc0.ɵɵnextContext(); return ctx_r34.onButtonClicked(node_r28.id, "newFolder"); });
     ɵngcc0.ɵɵelementStart(1, "mat-icon");
     ɵngcc0.ɵɵtext(2, "create_new_folder");
     ɵngcc0.ɵɵelementEnd();
     ɵngcc0.ɵɵelementEnd();
 } }
-function DataTreeComponent_mat_tree_node_2_button_8_Template(rf, ctx) { if (rf & 1) {
-    const _r29 = ɵngcc0.ɵɵgetCurrentView();
-    ɵngcc0.ɵɵelementStart(0, "button", 8);
-    ɵngcc0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_button_8_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r29); const node_r21 = ɵngcc0.ɵɵnextContext().$implicit; const ctx_r27 = ɵngcc0.ɵɵnextContext(); return ctx_r27.onButtonClicked(node_r21.id, "newNode"); });
+function DataTreeComponent_mat_tree_node_2_button_9_Template(rf, ctx) { if (rf & 1) {
+    const _r39 = ɵngcc0.ɵɵgetCurrentView();
+    ɵngcc0.ɵɵelementStart(0, "button", 10);
+    ɵngcc0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_button_9_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r39); const node_r28 = ɵngcc0.ɵɵnextContext().$implicit; const ctx_r37 = ɵngcc0.ɵɵnextContext(); return ctx_r37.onButtonClicked(node_r28.id, "newNode"); });
     ɵngcc0.ɵɵelementStart(1, "mat-icon");
     ɵngcc0.ɵɵtext(2, "playlist_add");
     ɵngcc0.ɵɵelementEnd();
     ɵngcc0.ɵɵelementEnd();
 } }
+function DataTreeComponent_mat_tree_node_2_button_10_Template(rf, ctx) { if (rf & 1) {
+    const _r42 = ɵngcc0.ɵɵgetCurrentView();
+    ɵngcc0.ɵɵelementStart(0, "button", 10);
+    ɵngcc0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_button_10_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r42); const node_r28 = ɵngcc0.ɵɵnextContext().$implicit; const ctx_r40 = ɵngcc0.ɵɵnextContext(); return ctx_r40.onButtonClicked(node_r28.id, "delete"); });
+    ɵngcc0.ɵɵelementStart(1, "mat-icon");
+    ɵngcc0.ɵɵtext(2, "delete");
+    ɵngcc0.ɵɵelementEnd();
+    ɵngcc0.ɵɵelementEnd();
+} }
+function DataTreeComponent_mat_tree_node_2_button_11_Template(rf, ctx) { if (rf & 1) {
+    const _r45 = ɵngcc0.ɵɵgetCurrentView();
+    ɵngcc0.ɵɵelementStart(0, "button", 10);
+    ɵngcc0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_button_11_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r45); const node_r28 = ɵngcc0.ɵɵnextContext().$implicit; const ctx_r43 = ɵngcc0.ɵɵnextContext(); return ctx_r43.onButtonClicked(node_r28.id, "edit"); });
+    ɵngcc0.ɵɵelementStart(1, "mat-icon");
+    ɵngcc0.ɵɵtext(2, "edit");
+    ɵngcc0.ɵɵelementEnd();
+    ɵngcc0.ɵɵelementEnd();
+} }
 function DataTreeComponent_mat_tree_node_2_Template(rf, ctx) { if (rf & 1) {
-    const _r31 = ɵngcc0.ɵɵgetCurrentView();
-    ɵngcc0.ɵɵelementStart(0, "mat-tree-node", 10);
-    ɵngcc0.ɵɵlistener("dragstart", function DataTreeComponent_mat_tree_node_2_Template_mat_tree_node_dragstart_0_listener($event) { ɵngcc0.ɵɵrestoreView(_r31); const node_r21 = ctx.$implicit; const ctx_r30 = ɵngcc0.ɵɵnextContext(); return ctx_r30.handleDragStart($event, node_r21); })("dragover", function DataTreeComponent_mat_tree_node_2_Template_mat_tree_node_dragover_0_listener($event) { ɵngcc0.ɵɵrestoreView(_r31); const node_r21 = ctx.$implicit; const ctx_r32 = ɵngcc0.ɵɵnextContext(); return ctx_r32.handleDragOver($event, node_r21); })("drop", function DataTreeComponent_mat_tree_node_2_Template_mat_tree_node_drop_0_listener($event) { ɵngcc0.ɵɵrestoreView(_r31); const node_r21 = ctx.$implicit; const ctx_r33 = ɵngcc0.ɵɵnextContext(); return ctx_r33.handleDrop($event, node_r21); })("dragend", function DataTreeComponent_mat_tree_node_2_Template_mat_tree_node_dragend_0_listener($event) { ɵngcc0.ɵɵrestoreView(_r31); const ctx_r34 = ɵngcc0.ɵɵnextContext(); return ctx_r34.handleDragEnd($event); });
-    ɵngcc0.ɵɵelementStart(1, "button", 11);
-    ɵngcc0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_Template_button_click_1_listener() { ɵngcc0.ɵɵrestoreView(_r31); const node_r21 = ctx.$implicit; const ctx_r35 = ɵngcc0.ɵɵnextContext(); return ctx_r35.expansionModel.toggle(node_r21.id); });
-    ɵngcc0.ɵɵelementStart(2, "mat-icon", 12);
+    const _r47 = ɵngcc0.ɵɵgetCurrentView();
+    ɵngcc0.ɵɵelementStart(0, "mat-tree-node", 11);
+    ɵngcc0.ɵɵlistener("dragstart", function DataTreeComponent_mat_tree_node_2_Template_mat_tree_node_dragstart_0_listener($event) { ɵngcc0.ɵɵrestoreView(_r47); const node_r28 = ctx.$implicit; const ctx_r46 = ɵngcc0.ɵɵnextContext(); return ctx_r46.handleDragStart($event, node_r28); })("dragover", function DataTreeComponent_mat_tree_node_2_Template_mat_tree_node_dragover_0_listener($event) { ɵngcc0.ɵɵrestoreView(_r47); const node_r28 = ctx.$implicit; const ctx_r48 = ɵngcc0.ɵɵnextContext(); return ctx_r48.handleDragOver($event, node_r28); })("drop", function DataTreeComponent_mat_tree_node_2_Template_mat_tree_node_drop_0_listener($event) { ɵngcc0.ɵɵrestoreView(_r47); const node_r28 = ctx.$implicit; const ctx_r49 = ɵngcc0.ɵɵnextContext(); return ctx_r49.handleDrop($event, node_r28); })("dragend", function DataTreeComponent_mat_tree_node_2_Template_mat_tree_node_dragend_0_listener($event) { ɵngcc0.ɵɵrestoreView(_r47); const ctx_r50 = ɵngcc0.ɵɵnextContext(); return ctx_r50.handleDragEnd($event); });
+    ɵngcc0.ɵɵelementStart(1, "button", 12);
+    ɵngcc0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_Template_button_click_1_listener() { ɵngcc0.ɵɵrestoreView(_r47); const node_r28 = ctx.$implicit; const ctx_r51 = ɵngcc0.ɵɵnextContext(); return ctx_r51.expansionModel.toggle(node_r28.id); });
+    ɵngcc0.ɵɵelementStart(2, "mat-icon", 13);
     ɵngcc0.ɵɵtext(3);
     ɵngcc0.ɵɵelementEnd();
     ɵngcc0.ɵɵelementEnd();
     ɵngcc0.ɵɵelementStart(4, "mat-icon", 9);
     ɵngcc0.ɵɵtext(5, " folder ");
     ɵngcc0.ɵɵelementEnd();
-    ɵngcc0.ɵɵtext(6);
-    ɵngcc0.ɵɵtemplate(7, DataTreeComponent_mat_tree_node_2_button_7_Template, 3, 0, "button", 7);
-    ɵngcc0.ɵɵtemplate(8, DataTreeComponent_mat_tree_node_2_button_8_Template, 3, 0, "button", 7);
-    ɵngcc0.ɵɵelementStart(9, "button", 8);
-    ɵngcc0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_Template_button_click_9_listener() { ɵngcc0.ɵɵrestoreView(_r31); const node_r21 = ctx.$implicit; const ctx_r36 = ɵngcc0.ɵɵnextContext(); return ctx_r36.onButtonClicked(node_r21.id, "delete"); });
-    ɵngcc0.ɵɵelementStart(10, "mat-icon");
-    ɵngcc0.ɵɵtext(11, "delete");
-    ɵngcc0.ɵɵelementEnd();
-    ɵngcc0.ɵɵelementEnd();
-    ɵngcc0.ɵɵelementStart(12, "button", 8);
-    ɵngcc0.ɵɵlistener("click", function DataTreeComponent_mat_tree_node_2_Template_button_click_12_listener() { ɵngcc0.ɵɵrestoreView(_r31); const node_r21 = ctx.$implicit; const ctx_r37 = ɵngcc0.ɵɵnextContext(); return ctx_r37.onButtonClicked(node_r21.id, "edit"); });
-    ɵngcc0.ɵɵelementStart(13, "mat-icon");
-    ɵngcc0.ɵɵtext(14, "edit");
-    ɵngcc0.ɵɵelementEnd();
-    ɵngcc0.ɵɵelementEnd();
+    ɵngcc0.ɵɵtemplate(6, DataTreeComponent_mat_tree_node_2_span_6_Template, 3, 3, "span", 7);
+    ɵngcc0.ɵɵtext(7);
+    ɵngcc0.ɵɵtemplate(8, DataTreeComponent_mat_tree_node_2_button_8_Template, 3, 0, "button", 8);
+    ɵngcc0.ɵɵtemplate(9, DataTreeComponent_mat_tree_node_2_button_9_Template, 3, 0, "button", 8);
+    ɵngcc0.ɵɵtemplate(10, DataTreeComponent_mat_tree_node_2_button_10_Template, 3, 0, "button", 8);
+    ɵngcc0.ɵɵtemplate(11, DataTreeComponent_mat_tree_node_2_button_11_Template, 3, 0, "button", 8);
     ɵngcc0.ɵɵelementEnd();
 } if (rf & 2) {
-    const node_r21 = ctx.$implicit;
+    const node_r28 = ctx.$implicit;
     const ctx_r1 = ɵngcc0.ɵɵnextContext();
-    ɵngcc0.ɵɵproperty("ngClass", ɵngcc0.ɵɵpureFunction3(7, _c3, ctx_r1.dragNodeExpandOverArea === "above" && ctx_r1.dragNodeExpandOverNode === node_r21, ctx_r1.dragNodeExpandOverArea === "below" && ctx_r1.dragNodeExpandOverNode === node_r21, ctx_r1.dragNodeExpandOverArea === "center" && ctx_r1.dragNodeExpandOverNode === node_r21));
+    ɵngcc0.ɵɵproperty("ngClass", ɵngcc0.ɵɵpureFunction4(10, _c3, ctx_r1.dragNodeExpandOverArea === "above" && ctx_r1.dragNodeExpandOverNode === node_r28, ctx_r1.dragNodeExpandOverArea === "below" && ctx_r1.dragNodeExpandOverNode === node_r28, ctx_r1.dragNodeExpandOverArea === "center" && ctx_r1.dragNodeExpandOverNode === node_r28, node_r28.status == "Deleted"));
     ɵngcc0.ɵɵadvance(1);
-    ɵngcc0.ɵɵattribute("aria-label", "toggle " + node_r21.name);
+    ɵngcc0.ɵɵattribute("aria-label", "toggle " + node_r28.name);
     ɵngcc0.ɵɵadvance(2);
-    ɵngcc0.ɵɵtextInterpolate1(" ", ctx_r1.treeControl.isExpanded(node_r21) ? "expand_more" : "chevron_right", " ");
+    ɵngcc0.ɵɵtextInterpolate1(" ", ctx_r1.treeControl.isExpanded(node_r28) ? "expand_more" : "chevron_right", " ");
     ɵngcc0.ɵɵadvance(1);
-    ɵngcc0.ɵɵattribute("aria-label", node_r21.type + "icon");
+    ɵngcc0.ɵɵattribute("aria-label", node_r28.type + "icon");
     ɵngcc0.ɵɵadvance(2);
-    ɵngcc0.ɵɵtextInterpolate1(" ", node_r21.name, " ");
+    ɵngcc0.ɵɵproperty("ngIf", node_r28.status == "Deleted");
     ɵngcc0.ɵɵadvance(1);
-    ɵngcc0.ɵɵproperty("ngIf", node_r21.type === "folder");
+    ɵngcc0.ɵɵtextInterpolate1(" ", node_r28.name, " ");
     ɵngcc0.ɵɵadvance(1);
-    ɵngcc0.ɵɵproperty("ngIf", node_r21.type === "folder");
+    ɵngcc0.ɵɵproperty("ngIf", node_r28.type === "folder" && node_r28.status != "Deleted");
+    ɵngcc0.ɵɵadvance(1);
+    ɵngcc0.ɵɵproperty("ngIf", node_r28.type === "folder" && node_r28.status != "Deleted");
+    ɵngcc0.ɵɵadvance(1);
+    ɵngcc0.ɵɵproperty("ngIf", node_r28.id !== undefined && node_r28.status != "Deleted");
+    ɵngcc0.ɵɵadvance(1);
+    ɵngcc0.ɵɵproperty("ngIf", node_r28.id !== undefined && node_r28.status != "Deleted");
 } }
 class BtnEditRenderedComponent {
     /**
@@ -2063,6 +2111,8 @@ if (false) {
     FileNode.prototype.tooltip;
     /** @type {?} */
     FileNode.prototype._links;
+    /** @type {?} */
+    FileNode.prototype.status;
 }
 /**
  * Flat node with expandable and level information
@@ -2074,13 +2124,15 @@ class FileFlatNode {
      * @param {?} level
      * @param {?} type
      * @param {?} id
+     * @param {?} status
      */
-    constructor(expandable, name, level, type, id) {
+    constructor(expandable, name, level, type, id, status) {
         this.expandable = expandable;
         this.name = name;
         this.level = level;
         this.type = type;
         this.id = id;
+        this.status = status;
     }
 }
 if (false) {
@@ -2094,6 +2146,8 @@ if (false) {
     FileFlatNode.prototype.type;
     /** @type {?} */
     FileFlatNode.prototype.id;
+    /** @type {?} */
+    FileFlatNode.prototype.status;
 }
 /**
  * File database, it can build a tree structured Json object from string.
@@ -2136,6 +2190,7 @@ class FileDatabase {
                 isFolder: true,
                 name: 'Root',
                 type: 'folder',
+                isRoot: true,
                 children: []
             };
             map['root'] = root;
@@ -2167,6 +2222,7 @@ class FileDatabase {
             map['root'].type = 'folder';
             map['root'].name = 'Root';
             map['root'].isFolder = true;
+            map['root'].isRoot = true;
         }
         return map['root'];
     }
@@ -2394,7 +2450,7 @@ class DataTreeComponent {
             /** @type {?} */
             const flatNode = existingNode && existingNode.name === node.name
                 ? existingNode
-                : new FileFlatNode((node.children && node.children.length > 0), node.name, level, node.type, node.id);
+                : new FileFlatNode((node.children && node.children.length > 0), node.name, level, node.type, node.id, node.status);
             this.flatNodeMap.set(flatNode, node);
             this.nestedNodeMap.set(node, flatNode);
             return flatNode;
@@ -2433,6 +2489,17 @@ class DataTreeComponent {
                 this.emitAllRows();
             });
         }
+        if (this.eventRefreshSubscription) {
+            this._eventRefreshSubscription = this.eventRefreshSubscription.subscribe(() => {
+                this.getElements();
+            });
+        }
+        this.getElements();
+    }
+    /**
+     * @return {?}
+     */
+    getElements() {
         this.getAll()
             .subscribe((items) => {
             this.treeData = items;
@@ -2581,13 +2648,14 @@ class DataTreeComponent {
      * @return {?}
      */
     rebuildTreeForData(data) {
-        /*this.dataSource.data = data;
-            this.expansionModel.selected.forEach((id) => {
-              const node = this.treeControl.dataNodes.find((n) => n.id === id);
-              this.treeControl.expand(node);
-            });*/
+        //this.dataSource.data = data;
         this.dataSource.data = [];
         this.dataSource.data = data;
+        this.treeControl.expansionModel.selected.forEach((nodeAct) => {
+            /** @type {?} */
+            const node = this.treeControl.dataNodes.find((n) => n.id === nodeAct.id);
+            this.treeControl.expand(node);
+        });
     }
     /**
      * @param {?} node
@@ -2633,7 +2701,7 @@ class DataTreeComponent {
         /** @type {?} */
         const dataToChange = JSON.parse(JSON.stringify(this.dataSource.data));
         if (newFolder.parent === null) {
-            dataToChange.push(newFolder);
+            dataToChange[0].children.push(newFolder);
         }
         else {
             /** @type {?} */
@@ -2652,11 +2720,16 @@ class DataTreeComponent {
         newNode.type = "node";
         /** @type {?} */
         const dataToChange = JSON.parse(JSON.stringify(this.dataSource.data));
-        /** @type {?} */
-        const siblings = this.findNodeSiblings(dataToChange, newNode.parent);
-        /** @type {?} */
-        let index = siblings.findIndex(node => node.id === newNode.parent);
-        siblings[index].children.push(newNode);
+        if (newNode.parent === null) {
+            dataToChange[0].children.push(newNode);
+        }
+        else {
+            /** @type {?} */
+            const siblings = this.findNodeSiblings(dataToChange, newNode.parent);
+            /** @type {?} */
+            let index = siblings.findIndex(node => node.id === newNode.parent);
+            siblings[index].children.push(newNode);
+        }
         this.rebuildTreeForData(dataToChange);
     }
     /**
@@ -2681,12 +2754,12 @@ class DataTreeComponent {
             this.createNode.emit(nodeClicked);
         }
         else if (button === 'delete') {
-            /** @type {?} */
-            let children = this.getAllChildren(nodeClicked.children);
-            children.forEach(children => {
-                children.status = 'Deleted';
-            });
-            nodeClicked.children = children;
+            // let children= this.getAllChildren(nodeClicked.children)
+            // children.forEach(children => {
+            //   children.status='Deleted';
+            // });
+            this.deleteChildren(nodeClicked.children);
+            // nodeClicked.children=children
             nodeClicked.status = 'Deleted';
             this.rebuildTreeForData(changedData);
         }
@@ -2720,6 +2793,18 @@ class DataTreeComponent {
         });
         return result;
     }
+    /**
+     * @param {?} arr
+     * @return {?}
+     */
+    deleteChildren(arr) {
+        arr.forEach((item, i) => {
+            if (item.children.length > 0) {
+                this.deleteChildren(item.children);
+            }
+            item.status = 'Deleted';
+        });
+    }
 }
 DataTreeComponent.ɵfac = function DataTreeComponent_Factory(t) { return new (t || DataTreeComponent)(ɵngcc0.ɵɵdirectiveInject(FileDatabase)); };
 DataTreeComponent.ɵcmp = ɵngcc0.ɵɵdefineComponent({ type: DataTreeComponent, selectors: [["app-data-tree"]], viewQuery: function DataTreeComponent_Query(rf, ctx) { if (rf & 1) {
@@ -2727,17 +2812,17 @@ DataTreeComponent.ɵcmp = ɵngcc0.ɵɵdefineComponent({ type: DataTreeComponent,
     } if (rf & 2) {
         var _t;
         ɵngcc0.ɵɵqueryRefresh(_t = ɵngcc0.ɵɵloadQuery()) && (ctx.emptyItem = _t.first);
-    } }, inputs: { eventNodeUpdatedSubscription: "eventNodeUpdatedSubscription", eventCreateNodeSubscription: "eventCreateNodeSubscription", eventGetAllRowsSubscription: "eventGetAllRowsSubscription", getAll: "getAll" }, outputs: { emitNode: "emitNode", createNode: "createNode", createFolder: "createFolder", emitAllNodes: "emitAllNodes" }, features: [ɵngcc0.ɵɵProvidersFeature([FileDatabase])], decls: 5, vars: 3, consts: [[3, "dataSource", "treeControl"], ["matTreeNodeToggle", "", "matTreeNodePadding", "", "draggable", "true", 3, "ngClass", "dragstart", "dragover", "drop", "dragend", 4, "matTreeNodeDef"], ["matTreeNodePadding", "", "draggable", "true", 3, "ngClass", "dragstart", "dragover", "drop", "dragend", 4, "matTreeNodeDef", "matTreeNodeDefWhen"], ["emptyItem", ""], ["matTreeNodeToggle", "", "matTreeNodePadding", "", "draggable", "true", 3, "ngClass", "dragstart", "dragover", "drop", "dragend"], ["mat-icon-button", "", "disabled", ""], ["class", "type-icon", 4, "ngIf"], ["mat-icon-button", "", 3, "click", 4, "ngIf"], ["mat-icon-button", "", 3, "click"], [1, "type-icon"], ["matTreeNodePadding", "", "draggable", "true", 3, "ngClass", "dragstart", "dragover", "drop", "dragend"], ["mat-icon-button", "", "matTreeNodeToggle", "", 3, "click"], [1, "mat-icon-rtl-mirror"]], template: function DataTreeComponent_Template(rf, ctx) { if (rf & 1) {
+    } }, inputs: { eventNodeUpdatedSubscription: "eventNodeUpdatedSubscription", eventCreateNodeSubscription: "eventCreateNodeSubscription", eventGetAllRowsSubscription: "eventGetAllRowsSubscription", eventRefreshSubscription: "eventRefreshSubscription", getAll: "getAll" }, outputs: { emitNode: "emitNode", createNode: "createNode", createFolder: "createFolder", emitAllNodes: "emitAllNodes" }, features: [ɵngcc0.ɵɵProvidersFeature([FileDatabase])], decls: 5, vars: 3, consts: [[3, "dataSource", "treeControl"], ["matTreeNodeToggle", "", "matTreeNodePadding", "", "draggable", "true", 3, "ngClass", "dragstart", "dragover", "drop", "dragend", 4, "matTreeNodeDef"], ["matTreeNodePadding", "", "draggable", "true", 3, "ngClass", "dragstart", "dragover", "drop", "dragend", 4, "matTreeNodeDef", "matTreeNodeDefWhen"], ["emptyItem", ""], ["matTreeNodeToggle", "", "matTreeNodePadding", "", "draggable", "true", 3, "ngClass", "dragstart", "dragover", "drop", "dragend"], ["mat-icon-button", "", "disabled", ""], ["class", "type-icon", 4, "ngIf"], [4, "ngIf"], ["mat-icon-button", "", 3, "click", 4, "ngIf"], [1, "type-icon"], ["mat-icon-button", "", 3, "click"], ["matTreeNodePadding", "", "draggable", "true", 3, "ngClass", "dragstart", "dragover", "drop", "dragend"], ["mat-icon-button", "", "matTreeNodeToggle", "", 3, "click"], [1, "mat-icon-rtl-mirror"]], template: function DataTreeComponent_Template(rf, ctx) { if (rf & 1) {
         ɵngcc0.ɵɵelementStart(0, "mat-tree", 0);
-        ɵngcc0.ɵɵtemplate(1, DataTreeComponent_mat_tree_node_1_Template, 12, 9, "mat-tree-node", 1);
-        ɵngcc0.ɵɵtemplate(2, DataTreeComponent_mat_tree_node_2_Template, 15, 11, "mat-tree-node", 2);
+        ɵngcc0.ɵɵtemplate(1, DataTreeComponent_mat_tree_node_1_Template, 9, 13, "mat-tree-node", 1);
+        ɵngcc0.ɵɵtemplate(2, DataTreeComponent_mat_tree_node_2_Template, 12, 15, "mat-tree-node", 2);
         ɵngcc0.ɵɵelementEnd();
         ɵngcc0.ɵɵelement(3, "span", null, 3);
     } if (rf & 2) {
         ɵngcc0.ɵɵproperty("dataSource", ctx.dataSource)("treeControl", ctx.treeControl);
         ɵngcc0.ɵɵadvance(2);
         ɵngcc0.ɵɵproperty("matTreeNodeDefWhen", ctx.hasChild);
-    } }, directives: [ɵngcc10.MatTree, ɵngcc10.MatTreeNodeDef, ɵngcc10.MatTreeNode, ɵngcc10.MatTreeNodeToggle, ɵngcc10.MatTreeNodePadding, ɵngcc7.NgClass, ɵngcc1.MatButton, ɵngcc7.NgIf, ɵngcc2.MatIcon], styles: [".mat-tree-node[_ngcontent-%COMP%]{-moz-user-select:none;-ms-user-select:none;-webkit-user-select:none;cursor:move;user-select:none}.mat-tree-node.cdk-drag-preview[_ngcontent-%COMP%]{box-shadow:0 7px 8px -4px rgba(0,0,0,.2),0 12px 17px 2px rgba(0,0,0,.14),0 5px 22px 4px rgba(0,0,0,.12)}.mat-tree-node.cdk-drag-placeholder[_ngcontent-%COMP%]{opacity:0}.cdk-drop-list-dragging[_ngcontent-%COMP%]   .mat-tree-node[_ngcontent-%COMP%]:not(.cdk-drag-placeholder){transition:transform .25s cubic-bezier(0,0,.2,1)}.cdk-drag-animating[_ngcontent-%COMP%]{transition:transform .2s cubic-bezier(0,0,.2,1)}.drop-above[_ngcontent-%COMP%]{border-top:10px solid #ddd;margin-top:-10px}.drop-below[_ngcontent-%COMP%]{border-bottom:10px solid #ddd;margin-bottom:-10px}.drop-center[_ngcontent-%COMP%]{background-color:#ddd}"] });
+    } }, directives: [ɵngcc10.MatTree, ɵngcc10.MatTreeNodeDef, ɵngcc10.MatTreeNode, ɵngcc10.MatTreeNodeToggle, ɵngcc10.MatTreeNodePadding, ɵngcc7.NgClass, ɵngcc1.MatButton, ɵngcc7.NgIf, ɵngcc2.MatIcon], pipes: [ɵngcc5.TranslatePipe], styles: [".mat-tree-node[_ngcontent-%COMP%]{-moz-user-select:none;-ms-user-select:none;-webkit-user-select:none;cursor:move;user-select:none}.mat-tree-node.cdk-drag-preview[_ngcontent-%COMP%]{box-shadow:0 7px 8px -4px rgba(0,0,0,.2),0 12px 17px 2px rgba(0,0,0,.14),0 5px 22px 4px rgba(0,0,0,.12)}.mat-tree-node.cdk-drag-placeholder[_ngcontent-%COMP%]{opacity:0}.cdk-drop-list-dragging[_ngcontent-%COMP%]   .mat-tree-node[_ngcontent-%COMP%]:not(.cdk-drag-placeholder){transition:transform .25s cubic-bezier(0,0,.2,1)}.cdk-drag-animating[_ngcontent-%COMP%]{transition:transform .2s cubic-bezier(0,0,.2,1)}.drop-above[_ngcontent-%COMP%]{border-top:10px solid #ddd;margin-top:-10px}.drop-below[_ngcontent-%COMP%]{border-bottom:10px solid #ddd;margin-bottom:-10px}.drop-center[_ngcontent-%COMP%]{background-color:#ddd}.deletedNode[_ngcontent-%COMP%]{color:red;font-style:italic}"] });
 /** @nocollapse */
 DataTreeComponent.ctorParameters = () => [
     { type: FileDatabase }
@@ -2750,6 +2835,7 @@ DataTreeComponent.propDecorators = {
     eventNodeUpdatedSubscription: [{ type: Input }],
     eventCreateNodeSubscription: [{ type: Input }],
     eventGetAllRowsSubscription: [{ type: Input }],
+    eventRefreshSubscription: [{ type: Input }],
     getAll: [{ type: Input }],
     emptyItem: [{ type: ViewChild, args: ['emptyItem',] }]
 };
@@ -2757,9 +2843,9 @@ DataTreeComponent.propDecorators = {
         type: Component,
         args: [{
                 selector: 'app-data-tree',
-                template: "<mat-tree [dataSource]=\"dataSource\" [treeControl]=\"treeControl\" >\r\n\t<mat-tree-node *matTreeNodeDef=\"let node\" matTreeNodeToggle matTreeNodePadding  draggable=\"true\"\r\n\t(dragstart)=\"handleDragStart($event, node);\" \t(dragover)=\"handleDragOver($event, node);\"\r\n\t(drop)=\"handleDrop($event, node);\" \t(dragend)=\"handleDragEnd($event);\"                  \r\n\t  [ngClass]=\"{'drop-above': dragNodeExpandOverArea === 'above' && dragNodeExpandOverNode === node,\r\n\t'drop-below': dragNodeExpandOverArea === 'below' && dragNodeExpandOverNode === node,\r\n\t'drop-center': dragNodeExpandOverArea === 'center' && dragNodeExpandOverNode === node}\">\r\n\t\t<button mat-icon-button disabled></button>\r\n\t\t<mat-icon *ngIf=\"node.type ==='folder'\" class=\"type-icon\" [attr.aria-label]=\"node.type + 'icon'\">\r\n\t\t\tfolder\r\n\t\t</mat-icon>\r\n\t\t{{node.name}}\r\n\t\t<button *ngIf=\"node.type ==='folder'\" (click)=\"onButtonClicked(node.id, 'newFolder')\" mat-icon-button>\r\n\t\t\t<mat-icon>create_new_folder</mat-icon>\r\n\t\t</button>\r\n\t\t<button *ngIf=\"node.type ==='folder'\" (click)=\"onButtonClicked(node.id, 'newNode')\" mat-icon-button>\r\n\t\t\t<mat-icon>playlist_add</mat-icon>\r\n\t\t</button>\r\n\t\t<button mat-icon-button (click)=\"onButtonClicked(node.id, 'delete')\">\r\n\t\t\t<mat-icon>delete</mat-icon>\r\n\t\t</button>\r\n\t\t<button mat-icon-button (click)=\"onButtonClicked(node.id, 'edit')\">\r\n\t\t\t<mat-icon>edit</mat-icon>\r\n\t\t</button>\r\n\r\n\t</mat-tree-node>\r\n\r\n\t<mat-tree-node *matTreeNodeDef=\"let node;when: hasChild\" matTreeNodePadding  draggable=\"true\"\r\n\t(dragstart)=\"handleDragStart($event, node);\" \t(dragover)=\"handleDragOver($event, node);\"\r\n\t(drop)=\"handleDrop($event, node);\" \t(dragend)=\"handleDragEnd($event);\"                  \r\n\t [ngClass]=\"{'drop-above': dragNodeExpandOverArea === 'above' && dragNodeExpandOverNode === node,\r\n\t'drop-below': dragNodeExpandOverArea === 'below' && dragNodeExpandOverNode === node,\r\n\t'drop-center': dragNodeExpandOverArea === 'center' && dragNodeExpandOverNode === node}\">\r\n\t\t<button mat-icon-button matTreeNodeToggle (click)=\"expansionModel.toggle(node.id)\"\r\n\t\t\t[attr.aria-label]=\"'toggle ' + node.name\">\r\n\t\t\t<mat-icon class=\"mat-icon-rtl-mirror\">\r\n\t\t\t\t{{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}\r\n\t\t\t</mat-icon>\r\n\t\t</button>\r\n\t\t<mat-icon class=\"type-icon\" [attr.aria-label]=\"node.type + 'icon'\">\r\n\t\t\tfolder\r\n\t\t</mat-icon>\r\n\t\t{{node.name}}\r\n\t\t<button *ngIf=\"node.type ==='folder'\" (click)=\"onButtonClicked(node.id, 'newFolder')\" mat-icon-button>\r\n\t\t\t<mat-icon>create_new_folder</mat-icon>\r\n\t\t</button>\r\n\t\t<button *ngIf=\"node.type ==='folder'\" (click)=\"onButtonClicked(node.id, 'newNode')\" mat-icon-button>\r\n\t\t\t<mat-icon>playlist_add</mat-icon>\r\n\t\t</button>\r\n\t\t<button mat-icon-button (click)=\"onButtonClicked(node.id, 'delete')\">\r\n\t\t\t<mat-icon>delete</mat-icon>\r\n\t\t</button>\r\n\t\t<button mat-icon-button (click)=\"onButtonClicked(node.id, 'edit')\">\r\n\t\t\t<mat-icon>edit</mat-icon>\r\n\t\t</button>\r\n\t\t\r\n\t</mat-tree-node>\r\n</mat-tree>\r\n\r\n<span #emptyItem></span>\r\n",
+                template: "<mat-tree [dataSource]=\"dataSource\" [treeControl]=\"treeControl\" >\r\n\t<mat-tree-node *matTreeNodeDef=\"let node\" matTreeNodeToggle matTreeNodePadding  draggable=\"true\"\r\n\t(dragstart)=\"handleDragStart($event, node);\" \t(dragover)=\"handleDragOver($event, node);\"\r\n\t(drop)=\"handleDrop($event, node);\" \t(dragend)=\"handleDragEnd($event);\"                  \r\n\t  [ngClass]=\"{'drop-above': dragNodeExpandOverArea === 'above' && dragNodeExpandOverNode === node,\r\n\t'drop-below': dragNodeExpandOverArea === 'below' && dragNodeExpandOverNode === node,\r\n\t'drop-center': dragNodeExpandOverArea === 'center' && dragNodeExpandOverNode === node,\r\n\t'deletedNode': node.status=='Deleted'}\">\r\n\t\t<button mat-icon-button disabled></button>\r\n\t\t<mat-icon *ngIf=\"node.type ==='folder'&& node.status!='Deleted'\" class=\"type-icon\" [attr.aria-label]=\"node.type + 'icon'\">\r\n\t\t\tfolder\r\n\t\t</mat-icon>\r\n\t\t<span *ngIf=\"node.status=='Deleted'\">({{\"pendingDelete\" | translate}})-</span>\r\n\t\t{{node.name}}\r\n\t\r\n\t\t<button *ngIf=\"node.type ==='folder '&& node.status!='Deleted'\" (click)=\"onButtonClicked(node.id, 'newFolder')\" mat-icon-button>\r\n\t\t\t<mat-icon>create_new_folder</mat-icon>\r\n\t\t</button>\r\n\t\t<button *ngIf=\"node.type ==='folder' && node.status!='Deleted'\" (click)=\"onButtonClicked(node.id, 'newNode')\" mat-icon-button>\r\n\t\t\t<mat-icon>playlist_add</mat-icon>\r\n\t\t</button>\r\n\t\t<button *ngIf=\"node.id !== undefined && node.status!='Deleted'\" mat-icon-button (click)=\"onButtonClicked(node.id, 'delete')\">\r\n\t\t\t<mat-icon>delete</mat-icon>\r\n\t\t</button>\r\n\t\t<button *ngIf=\"node.id !== undefined && node.status!='Deleted'\" mat-icon-button (click)=\"onButtonClicked(node.id, 'edit')\">\r\n\t\t\t<mat-icon>edit</mat-icon>\r\n\t\t</button>\r\n\r\n\t</mat-tree-node>\r\n\r\n\t<mat-tree-node *matTreeNodeDef=\"let node;when: hasChild\" matTreeNodePadding  draggable=\"true\"\r\n\t(dragstart)=\"handleDragStart($event, node);\" \t(dragover)=\"handleDragOver($event, node);\"\r\n\t(drop)=\"handleDrop($event, node);\" \t(dragend)=\"handleDragEnd($event);\"                  \r\n\t [ngClass]=\"{'drop-above': dragNodeExpandOverArea === 'above' && dragNodeExpandOverNode === node,\r\n\t'drop-below': dragNodeExpandOverArea === 'below' && dragNodeExpandOverNode === node,\r\n\t'drop-center': dragNodeExpandOverArea === 'center' && dragNodeExpandOverNode === node,\r\n\t'deletedNode': node.status=='Deleted'}\">\r\n\t\t<button mat-icon-button matTreeNodeToggle (click)=\"expansionModel.toggle(node.id)\"\r\n\t\t\t[attr.aria-label]=\"'toggle ' + node.name\">\r\n\t\t\t<mat-icon class=\"mat-icon-rtl-mirror\">\r\n\t\t\t\t{{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}\r\n\t\t\t</mat-icon>\r\n\t\t</button>\r\n\t\t<mat-icon class=\"type-icon\" [attr.aria-label]=\"node.type + 'icon'\">\r\n\t\t\tfolder\r\n\t\t</mat-icon>\r\n\t\t<span *ngIf=\"node.status=='Deleted'\">({{\"pendingDelete\" | translate}})-</span>\r\n\t\t{{node.name}}\r\n\t\t<button *ngIf=\"node.type ==='folder' && node.status!='Deleted'\" (click)=\"onButtonClicked(node.id, 'newFolder')\" mat-icon-button>\r\n\t\t\t<mat-icon>create_new_folder</mat-icon>\r\n\t\t</button>\r\n\t\t<button *ngIf=\"node.type ==='folder' && node.status!='Deleted'\" (click)=\"onButtonClicked(node.id, 'newNode')\" mat-icon-button>\r\n\t\t\t<mat-icon>playlist_add</mat-icon>\r\n\t\t</button>\r\n\t\t<button *ngIf=\"node.id !== undefined && node.status!='Deleted'\" mat-icon-button (click)=\"onButtonClicked(node.id, 'delete')\">\r\n\t\t\t<mat-icon>delete</mat-icon>\r\n\t\t</button>\r\n\t\t<button *ngIf=\"node.id !== undefined && node.status!='Deleted'\"  mat-icon-button (click)=\"onButtonClicked(node.id, 'edit')\">\r\n\t\t\t<mat-icon>edit</mat-icon>\r\n\t\t</button>\r\n\t\t\r\n\t</mat-tree-node>\r\n</mat-tree>\r\n\r\n<span #emptyItem></span>\r\n",
                 providers: [FileDatabase],
-                styles: [".mat-tree-node{-moz-user-select:none;-ms-user-select:none;-webkit-user-select:none;cursor:move;user-select:none}.mat-tree-node.cdk-drag-preview{box-shadow:0 7px 8px -4px rgba(0,0,0,.2),0 12px 17px 2px rgba(0,0,0,.14),0 5px 22px 4px rgba(0,0,0,.12)}.mat-tree-node.cdk-drag-placeholder{opacity:0}.cdk-drop-list-dragging .mat-tree-node:not(.cdk-drag-placeholder){transition:transform .25s cubic-bezier(0,0,.2,1)}.cdk-drag-animating{transition:transform .2s cubic-bezier(0,0,.2,1)}.drop-above{border-top:10px solid #ddd;margin-top:-10px}.drop-below{border-bottom:10px solid #ddd;margin-bottom:-10px}.drop-center{background-color:#ddd}"]
+                styles: [".mat-tree-node{-moz-user-select:none;-ms-user-select:none;-webkit-user-select:none;cursor:move;user-select:none}.mat-tree-node.cdk-drag-preview{box-shadow:0 7px 8px -4px rgba(0,0,0,.2),0 12px 17px 2px rgba(0,0,0,.14),0 5px 22px 4px rgba(0,0,0,.12)}.mat-tree-node.cdk-drag-placeholder{opacity:0}.cdk-drop-list-dragging .mat-tree-node:not(.cdk-drag-placeholder){transition:transform .25s cubic-bezier(0,0,.2,1)}.cdk-drag-animating{transition:transform .2s cubic-bezier(0,0,.2,1)}.drop-above{border-top:10px solid #ddd;margin-top:-10px}.drop-below{border-bottom:10px solid #ddd;margin-bottom:-10px}.drop-center{background-color:#ddd}.deletedNode{color:red;font-style:italic}"]
             }]
     }], function () { return [{ type: FileDatabase }]; }, { emitNode: [{
             type: Output
@@ -2774,6 +2860,8 @@ DataTreeComponent.propDecorators = {
         }], eventCreateNodeSubscription: [{
             type: Input
         }], eventGetAllRowsSubscription: [{
+            type: Input
+        }], eventRefreshSubscription: [{
             type: Input
         }], getAll: [{
             type: Input
@@ -2797,11 +2885,15 @@ if (false) {
     /** @type {?} */
     DataTreeComponent.prototype.eventGetAllRowsSubscription;
     /** @type {?} */
+    DataTreeComponent.prototype.eventRefreshSubscription;
+    /** @type {?} */
     DataTreeComponent.prototype._eventNodeUpdatedSubscription;
     /** @type {?} */
     DataTreeComponent.prototype._eventCreateNodeSubscription;
     /** @type {?} */
     DataTreeComponent.prototype._eventGetAllRowsSubscription;
+    /** @type {?} */
+    DataTreeComponent.prototype._eventRefreshSubscription;
     /** @type {?} */
     DataTreeComponent.prototype.treeControl;
     /** @type {?} */

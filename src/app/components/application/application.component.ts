@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ApplicationService, Application } from 'dist/sitmun-frontend-core/';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
-import { environment } from '../../../environments/environment';
+import { environment } from 'src/environments/environment';
+import { config } from 'src/config';
 import { Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
@@ -15,7 +16,7 @@ import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 export class ApplicationComponent implements OnInit {
   saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
   dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
-  themeGrid: any = environment.agGridTheme;
+  themeGrid: any = config.agGridTheme;
   columnDefs: any[];
 
   applicationTypes: Array<any> = [];
@@ -37,13 +38,13 @@ export class ApplicationComponent implements OnInit {
       }
     );
 
-    var columnEditBtn = environment.editBtnColumnDef;
+    var columnEditBtn = config.editBtnColumnDef;
     columnEditBtn['cellRendererParams'] = {
       clicked: this.newData.bind(this)
     }
 
     this.columnDefs = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       columnEditBtn,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name' },

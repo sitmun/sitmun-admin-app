@@ -3,6 +3,7 @@ import { CartographyService, Cartography, Service } from 'dist/sitmun-frontend-c
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
+import { config } from 'src/config';
 import { Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
@@ -16,7 +17,7 @@ import { HttpClient } from '@angular/common/http';
 export class LayersComponent implements OnInit {
   saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
   dataUpdatedEvent: Subject<boolean> = new Subject <boolean>();
-  themeGrid: any = environment.agGridTheme;
+  themeGrid: any = config.agGridTheme;
   columnDefs: any[];
 
   constructor(public dialog: MatDialog,
@@ -30,25 +31,25 @@ export class LayersComponent implements OnInit {
 
   ngOnInit() {
 
-    var columnEditBtn=environment.editBtnColumnDef;
+    var columnEditBtn=config.editBtnColumnDef;
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
 
     this.columnDefs = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       columnEditBtn,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('layersEntity.name'), field: 'name' },
-      { headerName: this.utils.getTranslate('layersEntity.serviceName'), field: 'serviceName',editable: false }, //service
+      //{ headerName: this.utils.getTranslate('layersEntity.serviceName'), field: 'serviceName',editable: false }, //service
       { headerName: this.utils.getTranslate('layersEntity.order'), field: 'order', },
       { headerName: this.utils.getTranslate('layersEntity.layers'), field: 'layers' },
       { headerName: this.utils.getTranslate('layersEntity.createdDate'), field: 'createdDate',
         filter: 'agDateColumnFilter', filterParams: this.utils.getDateFilterParams(),
         editable: false, cellRenderer: (data) => { return this.utils.getDateFormated(data) } }, // type: 'dateColumn'
-      { headerName: this.utils.getTranslate('layersEntity.minimumScale'), field: 'minimumScale' },
-      { headerName: this.utils.getTranslate('layersEntity.maximumScale'), field: 'maximumScale' },
-      { headerName: this.utils.getTranslate('layersEntity.metadataURL'), field: 'metadataURL' },
+      //{ headerName: this.utils.getTranslate('layersEntity.minimumScale'), field: 'minimumScale' },
+      //{ headerName: this.utils.getTranslate('layersEntity.maximumScale'), field: 'maximumScale' },
+      //{ headerName: this.utils.getTranslate('layersEntity.metadataURL'), field: 'metadataURL' },
     ];
 
   }

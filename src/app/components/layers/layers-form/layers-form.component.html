@@ -110,7 +110,7 @@
 
         <mat-form-field appearance="outline">
           <mat-select matInput formControlName="legendType" class="form-control">
-            <mat-option [value]="legendType.id" *ngFor="let legendType of legendTypes">
+            <mat-option [value]="legendType.value" *ngFor="let legendType of legendTypes">
               {{ legendType.description}}
             </mat-option>
           </mat-select>
@@ -244,7 +244,7 @@
         <mat-form-field appearance="outline">
           <mat-select matInput formControlName="geometryType" class="form-control">
             <mat-option [value]="geometryType.value" *ngFor="let geometryType of geometryTypes">
-              {{ geometryType.value}}
+              {{ geometryType.description}}
             </mat-option>
           </mat-select>
         </mat-form-field>

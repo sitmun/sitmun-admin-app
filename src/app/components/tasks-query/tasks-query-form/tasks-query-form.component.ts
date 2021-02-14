@@ -7,6 +7,7 @@ import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { Observable, of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { config } from 'src/config';
 import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
 import { map } from 'rxjs/operators';
@@ -29,7 +30,7 @@ export class TasksQueryFormComponent implements OnInit {
    dataLoaded: Boolean = false;
    
    //Grids
-   themeGrid: any = environment.agGridTheme;
+   themeGrid: any = config.agGridTheme;
 
    columnDefsTerritories: any[];
    getAllElementsEventTerritories: Subject<boolean> = new Subject <boolean>();
@@ -153,7 +154,7 @@ export class TasksQueryFormComponent implements OnInit {
 
        this.columnDefsParameters = [
 
-        environment.selCheckboxColumnDef,
+        config.selCheckboxColumnDef,
         { headerName: this.utils.getTranslate('tasksQueryEntity.key'), field: 'key' },
         { headerName: this.utils.getTranslate('tasksQueryEntity.type'), field: 'type', },
         { headerName: this.utils.getTranslate('tasksQueryEntity.tag'), field: 'tag' },
@@ -165,14 +166,14 @@ export class TasksQueryFormComponent implements OnInit {
  
  
        this.columnDefsRoles = [
-        environment.selCheckboxColumnDef,
+        config.selCheckboxColumnDef,
          { headerName: 'Id', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksQueryEntity.name'), field: 'name' },  
          { headerName: this.utils.getTranslate('tasksQueryEntity.status'), field: 'status', editable:false },
        ];
    
        this.columnDefsTerritories = [
-        environment.selCheckboxColumnDef,
+        config.selCheckboxColumnDef,
          { headerName: 'Id', field: 'territoryId', editable: false },
          { headerName: this.utils.getTranslate('tasksQueryEntity.name'), field: 'territoryName' },
          { headerName: this.utils.getTranslate('tasksQueryEntity.status'), field: 'status', editable:false },
@@ -180,21 +181,21 @@ export class TasksQueryFormComponent implements OnInit {
        ];
 
        this.columnDefsParametersDialog = [
-        environment.selCheckboxColumnDef,
+        config.selCheckboxColumnDef,
         { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name',  editable: false  },
         { headerName: this.utils.getTranslate('applicationEntity.value'), field: 'value',  editable: false  },
         { headerName: this.utils.getTranslate('applicationEntity.type'), field: 'type',  editable: false  },
       ];
  
        this.columnDefsRolesDialog = [
-        environment.selCheckboxColumnDef,
+        config.selCheckboxColumnDef,
          { headerName: 'ID', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksQueryEntity.name'), field: 'name', editable: false },
          { headerName: this.utils.getTranslate('tasksQueryEntity.description'), field: 'description' },
        ];
  
        this.columnDefsTerritoriesDialog = [
-        environment.selCheckboxColumnDef,
+        config.selCheckboxColumnDef,
          { headerName: 'ID', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksQueryEntity.name'), field: 'name',  editable: false  },
          { headerName: this.utils.getTranslate('tasksQueryEntity.code'), field: 'code',  editable: false  },

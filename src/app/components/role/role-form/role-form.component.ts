@@ -8,6 +8,7 @@ import { UtilsService } from '../../../services/utils.service';
 import { Observable, of, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
+import { config } from 'src/config';
 import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -43,7 +44,7 @@ export class RoleFormComponent implements OnInit {
   getAllElementsEventApplications: Subject<boolean> = new Subject <boolean>();
   dataUpdatedEventApplications: Subject<boolean> = new Subject<boolean>();
 
-  themeGrid: any = environment.agGridTheme;
+  themeGrid: any = config.agGridTheme;
   
   //Dialogs
   columnDefsUsersDialog: any[];
@@ -110,7 +111,7 @@ export class RoleFormComponent implements OnInit {
 
 
     this.columnDefsUsers = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('roleEntity.username'), field: 'user' },
       { headerName: this.utils.getTranslate('roleEntity.territory'), field: 'territory' },
@@ -118,52 +119,52 @@ export class RoleFormComponent implements OnInit {
     ];
 
     this.columnDefsTasks = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('roleEntity.groupTask'), field: 'groupName', editable:false },
       { headerName: this.utils.getTranslate('roleEntity.status'), field: 'status', editable:false },
     ];
 
     this.columnDefsCartography = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('roleEntity.name'), field: 'name' },
       { headerName: this.utils.getTranslate('roleEntity.status'), field: 'status', editable:false },
     ];
 
     this.columnDefsApplications = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('roleEntity.name'), field: 'name' },
       { headerName: this.utils.getTranslate('roleEntity.status'), field: 'status', editable:false },
     ];
 
     this.columnDefsUsersDialog = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('roleEntity.username'), field: 'username', editable: false },
     ];
 
     this.columnDefsTerritoriesDialog = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('roleEntity.code'), field: 'code', editable: false },
       { headerName: this.utils.getTranslate('roleEntity.name'), field: 'name', editable: false },
     ];
     this.columnDefsCartographiesDialog = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('roleEntity.name'), field: 'name', editable: false },
     ];
 
     this.columnDefsTasksDialog = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('roleEntity.name'), field: 'name', editable: false },
     ];
 
     this.columnDefsApplicationsDialog = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('roleEntity.name'), field: 'name' },
     ];

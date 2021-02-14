@@ -8,6 +8,7 @@ import { UtilsService } from '../../../services/utils.service';
 import { Observable, of, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
+import { config } from 'src/config';
 import { DialogGridComponent, DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
 import { UserConfiguration } from '@sitmun/frontend-core';
@@ -21,17 +22,17 @@ import { UserConfiguration } from '@sitmun/frontend-core';
 export class TerritoryFormComponent implements OnInit {
 
   //Form
-  themeGrid: any = environment.agGridTheme;
+  themeGrid: any = config.agGridTheme;
   scopeTypes: Array<any> = [];
-  groupTypeOfThisTerritory:any;
+  groupTypeOfThisTerritory: any;
   territoryForm: FormGroup;
-  territoryToEdit:any;
+  territoryToEdit: any;
   territoryID = -1;
   territoryGroups: Array<any> = [];
   extensions: Array<string>;
   dataLoaded: Boolean = false;
-  idGroupType:any;
-  terrritoryObj:any;
+  idGroupType: any;
+  terrritoryObj: any;
 
   //Grids
   columnDefsPermits: any[];
@@ -41,6 +42,9 @@ export class TerritoryFormComponent implements OnInit {
   columnDefsPermitsChild: any[];
   getAllElementsEventPermitsChild: Subject<boolean> = new Subject<boolean>();
   dataUpdatedEventPermitsChild: Subject<boolean> = new Subject<boolean>();
+
+  columnDefsPermitsInherit: any[];
+  dataUpdatedEventInheritPermissions: Subject<boolean> = new Subject<boolean>();
 
   columnDefsMemberOf: any[];
   getAllElementsEventTerritoriesMemberOf: Subject<boolean> = new Subject<boolean>();
@@ -151,7 +155,7 @@ export class TerritoryFormComponent implements OnInit {
                 blocked: this.territoryToEdit.blocked,
                 _links: this.territoryToEdit._links
               });
-              if( !this.territoryToEdit.groupTypeId) {
+              if (!this.territoryToEdit.groupTypeId) {
                 this.territoryForm.patchValue({
                   groupType: this.territoryGroups[0].id,
                 })
@@ -180,7 +184,7 @@ export class TerritoryFormComponent implements OnInit {
 
 
     this.columnDefsPermits = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('territoryEntity.user'), field: 'user', editable: false },
       { headerName: this.utils.getTranslate('territoryEntity.role'), field: 'role', editable: false },
@@ -188,15 +192,25 @@ export class TerritoryFormComponent implements OnInit {
     ];
 
     this.columnDefsPermitsChild = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('territoryEntity.user'), field: 'user', editable: false },
-      { headerName: this.utils.getTranslate('territoryEntity.role'), field: 'roleChildren', editable: false },
+      { headerName: this.utils.getTranslate('territoryEntity.role'), field: 'role', editable: false },
       { headerName: this.utils.getTranslate('territoryEntity.status'), field: 'status', editable: false },
     ];
 
+
+    this.columnDefsPermitsInherit = [
+     // config.selCheckboxColumnDef,
+      { headerName: 'Id', field: 'id', editable: false },
+      { headerName: this.utils.getTranslate('territoryEntity.user'), field: 'user', editable: false },
+      { headerName: this.utils.getTranslate('territoryEntity.territory'), field: 'territory', editable: false },
+      { headerName: this.utils.getTranslate('territoryEntity.role'), field: 'role', editable: false },
+     // { headerName: this.utils.getTranslate('territoryEntity.status'), field: 'status', editable: false },
+    ];
+
     this.columnDefsMemberOf = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('territoryEntity.code'), field: 'code', editable: false },
       { headerName: this.utils.getTranslate('territoryEntity.name'), field: 'name' },
@@ -204,7 +218,7 @@ export class TerritoryFormComponent implements OnInit {
     ];
 
     this.columnDefsMembers = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('territoryEntity.code'), field: 'code', editable: false },
       { headerName: this.utils.getTranslate('territoryEntity.name'), field: 'name' },
@@ -212,7 +226,7 @@ export class TerritoryFormComponent implements OnInit {
     ];
 
     this.columnDefsCartographies = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'cartographyId', editable: false },
       { headerName: this.utils.getTranslate('territoryEntity.name'), field: 'cartographyName', editable: false },
       { headerName: this.utils.getTranslate('territoryEntity.layers'), field: 'cartographyLayers', editable: false },
@@ -220,45 +234,45 @@ export class TerritoryFormComponent implements OnInit {
     ];
 
     this.columnDefsTasks = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'taskId', editable: false },
       { headerName: this.utils.getTranslate('territoryEntity.taskGroup'), field: 'taskGroupName', editable: false },
       { headerName: this.utils.getTranslate('territoryEntity.status'), field: 'status', editable: false },
     ];
 
     this.columnDefsTerritoriesDialog = [
-      environment.selCheckboxColumnDef,
-      { headerName: 'ID', field: 'id', editable: false },
+      config.selCheckboxColumnDef,
+      { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('territoryEntity.name'), field: 'name', editable: false },
     ];
 
     this.columnDefsCartographiesDialog = [
-      environment.selCheckboxColumnDef,
-      { headerName: 'ID', field: 'id', editable: false },
+      config.selCheckboxColumnDef,
+      { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('territoryEntity.name'), field: 'name', editable: false },
     ];
 
     this.columnDefsTasksDialog = [
-      environment.selCheckboxColumnDef,
-      { headerName: 'ID', field: 'id', editable: false },
+      config.selCheckboxColumnDef,
+      { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('territoryEntity.name'), field: 'name', editable: false },
     ];
 
     this.columnDefsUsersDialog = [
-      environment.selCheckboxColumnDef,
-      { headerName: 'ID', field: 'id', editable: false },
+      config.selCheckboxColumnDef,
+      { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('roleEntity.username'), field: 'username', editable: false },
     ];
 
     this.columnDefsRolesDialog = [
-      environment.selCheckboxColumnDef,
-      { headerName: this.utils.getTranslate('territoryEntity.id'), field: 'id', editable: false },
+      config.selCheckboxColumnDef,
+      { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('territoryEntity.name'), field: 'name', editable: false },
     ];
 
     this.columnDefsTerritoriesDialog = [
-      environment.selCheckboxColumnDef,
-      { headerName: 'ID', field: 'id', editable: false },
+      config.selCheckboxColumnDef,
+      { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('territoryEntity.code'), field: 'code', editable: false },
       { headerName: this.utils.getTranslate('territoryEntity.name'), field: 'name', editable: false },
     ];
@@ -322,11 +336,10 @@ export class TerritoryFormComponent implements OnInit {
     let query: HalOptions = { params: params2 };
 
     return this.userConfigurationService.getAll(query)
-      .pipe(map((data: any[]) => data.filter(elem => elem.roleChildren == null)
+      .pipe(map((data: any[]) => data.filter(elem => elem.appliesToChildrenTerritories == false)
       ));;
   }
 
-  // ******** Permits Children ******** //
   getAllPermitsChild = (): Observable<any> => {
 
     if (this.territoryID == -1) {
@@ -340,7 +353,7 @@ export class TerritoryFormComponent implements OnInit {
     let query: HalOptions = { params: params2 };
 
     return this.userConfigurationService.getAll(query)
-      .pipe(map((data: any[]) => data.filter(elem => elem.roleChildren != null)
+      .pipe(map((data: any[]) => data.filter(elem => elem.appliesToChildrenTerritories == true)
       ));;
   }
 
@@ -353,17 +366,17 @@ export class TerritoryFormComponent implements OnInit {
       if (userConf.status === 'Pending creation') {
         let item = {
           role: userConf.roleComplete,
-          roleChildren: userConf.roleChildrenComplete,
+          appliesToChildrenTerritories: userConf.appliesToChildrenTerritories,
           territory: this.territoryToEdit,
           user: userConf.userComplete,
         }
         console.log(item);
         let index;
-        if(userConf.roleChildren == null){
-          index = data.findIndex(element => element.roleId === item.role.id && element.userId === item.user.id && !element.new)
+        if (userConf.roleChildren == null) {
+          index = data.findIndex(element => element.roleId === item.role.id && element.userId === item.user.id && !element.appliesToChildrenTerritories && !element.new)
         }
-        else{
-          index = data.findIndex(element => element.roleChildrenId === item.roleChildren.id && element.userId === item.user.id && !element.new)
+        else {
+          index = data.findIndex(element => element.roleId === item.role.id && element.userId === item.user.id && element.appliesToChildrenTerritories && !element.new)
         }
         if (index === -1) {
           userConf.new = false;
@@ -389,6 +402,57 @@ export class TerritoryFormComponent implements OnInit {
     });
 
   }
+
+
+  // ******** InheritPermissionsOfParents ******** //
+
+  getAllInheritPermissions = (): Observable<any> => {
+
+    if (this.territoryID == -1) {
+      const aux: Array<any> = [];
+      return of(aux);
+    }
+
+    var urlReq = `${this.territoryToEdit._links.memberOf.href}`
+    if (this.territoryToEdit._links.memberOf.templated) {
+      var url = new URL(urlReq.split("{")[0]);
+      url.searchParams.append("projection", "view")
+      urlReq = url.toString();
+    }
+
+
+    return  this.http.get(urlReq).pipe(map(async (data:any[]) => {
+      const promises: Promise<any>[] = []; 
+        let rowsToShow = []
+        let territoriesMemberOf = data['_embedded']['territories'];
+        if (territoriesMemberOf.length > 0) {
+          territoriesMemberOf.forEach(territoryMemberOf => {
+            let params2: HalParam[] = [];
+            let param: HalParam = { key: 'territory.id', value: territoryMemberOf.id }
+            params2.push(param);
+            let query: HalOptions = { params: params2 };
+            promises.push(new Promise((resolve, reject) => {   
+              this.userConfigurationService.getAll(query).subscribe((resp:any[]) => {
+                rowsToShow=rowsToShow.concat(resp);
+                resolve(true);
+              }); 
+            }));
+          });
+        
+          await Promise.all(promises).then(() => {
+          });   
+          return  rowsToShow.filter(elem => elem.appliesToChildrenTerritories == true)    
+        }else{
+          const aux: Array<any> = [];
+          return of(aux);
+
+        }
+      }));
+
+ 
+
+  }
+
 
   // ******** MembersOf ******** //
   getAllMembersOf = (): Observable<any> => {
@@ -620,7 +684,7 @@ export class TerritoryFormComponent implements OnInit {
     dialogRef.componentInstance.singleSelectionTable = [false, false];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsUsersDialog, this.columnDefsRolesDialog];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
-    if(childrenTable){
+    if (childrenTable) {
       dialogRef.componentInstance.title = this.utils.getTranslate('territoryEntity.permissionsChildren');
     }
     else {
@@ -632,11 +696,10 @@ export class TerritoryFormComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
-          console.log(result.data);
           let rowsToAdd = this.getRowsToAddPermits(this.territoryToEdit, result.data[1], result.data[0], childrenTable)
           console.log(rowsToAdd);
-          if(!childrenTable) {this.addElementsEventPermits.next(rowsToAdd) }
-          else { this.addElementsEventChildrenPermits.next(rowsToAdd)}
+          if (!childrenTable) { this.addElementsEventPermits.next(rowsToAdd) }
+          else { this.addElementsEventChildrenPermits.next(rowsToAdd) }
 
         }
       }
@@ -647,7 +710,7 @@ export class TerritoryFormComponent implements OnInit {
 
   // ******** Permits Children Dialog  ******** //
 
-  
+
 
   // ******** Territory Member Of Dialog  ******** //
   getAllTerritoriesMemberOfDialog = () => {
@@ -809,37 +872,23 @@ export class TerritoryFormComponent implements OnInit {
 
   getRowsToAddPermits(territory: Territory, roles: Role[], users: any[], childrenTable: boolean) {
     let itemsToAdd: any[] = [];
+
     roles.forEach(role => {
       let item;
+
       users.forEach(user => {
-        if(!childrenTable)
-        {
-          item = {
-            user: user.username,
-            userId: user.id,
-            userComplete: user,
-            role: role.name,
-            roleId: role.id,
-            roleComplete: role,
-            roleChildrenComplete: null,
-            territoryId: this.territoryID,
-            new: true
-          }
+
+        item = {
+          user: user.username,
+          userId: user.id,
+          userComplete: user,
+          role: role.name,
+          roleComplete: role,
+          territoryId: this.territoryID,
+          appliesToChildrenTerritories: childrenTable,
+          new: true
         }
-        else {
-          item = {
-            user: user.username,
-            userId: user.id,
-            userComplete: user,
-            roleId: null,
-            roleChildren: role.name,
-            roleMId: role.id,
-            roleComplete: null,
-            roleChildrenComplete: role,
-            territoryId: this.territoryID,
-            new: true
-          }
-        }
+
         itemsToAdd.push(item);
       })
     })
@@ -852,17 +901,16 @@ export class TerritoryFormComponent implements OnInit {
     if (this.territoryForm.valid) {
       console.log(this.territoryForm.value)
 
-      if(this.validateExtent(this.territoryForm.value.extensionX0, this.territoryForm.value.extensionX1,this.territoryForm.value.extensionY0,
-         this.territoryForm.value.extensionY1)) 
-         {
-          this.updateExtent();
-          let groupType = this.territoryGroups.find(element => element.id == this.territoryForm.value.groupType)
-          if (groupType == undefined || groupType.id=== -1) {
-            groupType = null;
-          }
-    
-          this.terrritoryObj = new Territory();
-          this.terrritoryObj.id = this.territoryID,
+      if (this.validateExtent(this.territoryForm.value.extensionX0, this.territoryForm.value.extensionX1, this.territoryForm.value.extensionY0,
+        this.territoryForm.value.extensionY1)) {
+        this.updateExtent();
+        let groupType = this.territoryGroups.find(element => element.id == this.territoryForm.value.groupType)
+        if (groupType == undefined || groupType.id === -1) {
+          groupType = null;
+        }
+
+        this.terrritoryObj = new Territory();
+        this.terrritoryObj.id = this.territoryID,
           this.terrritoryObj.code = this.territoryForm.value.code,
           this.terrritoryObj.name = this.territoryForm.value.name,
           this.terrritoryObj.territorialAuthorityAddress = this.territoryForm.value.territorialAuthorityAddress,
@@ -873,37 +921,37 @@ export class TerritoryFormComponent implements OnInit {
           this.terrritoryObj.note = this.territoryForm.value.note,
           this.terrritoryObj.blocked = this.territoryForm.value.blocked,
           this.terrritoryObj._links = this.territoryForm.value._links
-    
-          if (this.territoryID == -1) {
-            this.terrritoryObj.createdDate = new Date();
-          } else {
-            this.terrritoryObj.id = this.territoryForm.value.id;
-            this.terrritoryObj.createdDate = this.territoryToEdit.createdDate
-          }
-          this.territoryService.save(this.terrritoryObj)
-            .subscribe(resp => {
-              console.log(resp);
-              this.territoryToEdit = resp;
-              this.territoryID = resp.id;
-              this.territoryForm.patchValue({
-                id: resp.id,
-                _links: resp._links
-              })
-              this.getAllElementsEventPermits.next(true);
-              this.getAllElementsEventCartographies.next(true);
-              this.getAllElementsEventTasks.next(true);
-              this.getAllElementsEventTerritoriesMemberOf.next(true);
-              this.getAllElementsEventTerritoriesMembers.next(true);
-            },
-              error => {
-                console.log(error);
-              });
+
+        if (this.territoryID == -1) {
+          this.terrritoryObj.createdDate = new Date();
+        } else {
+          this.terrritoryObj.id = this.territoryForm.value.id;
+          this.terrritoryObj.createdDate = this.territoryToEdit.createdDate
+        }
+        this.territoryService.save(this.terrritoryObj)
+          .subscribe(resp => {
+            console.log(resp);
+            this.territoryToEdit = resp;
+            this.territoryID = resp.id;
+            this.territoryForm.patchValue({
+              id: resp.id,
+              _links: resp._links
+            })
+            this.getAllElementsEventPermits.next(true);
+            this.getAllElementsEventCartographies.next(true);
+            this.getAllElementsEventTasks.next(true);
+            this.getAllElementsEventTerritoriesMemberOf.next(true);
+            this.getAllElementsEventTerritoriesMembers.next(true);
+          },
+            error => {
+              console.log(error);
+            });
 
 
-         }
-         else{
-           this.showExtentError();
-         }
+      }
+      else {
+        this.showExtentError();
+      }
 
     }
     else {
@@ -915,16 +963,16 @@ export class TerritoryFormComponent implements OnInit {
   validateExtent(x0, x1, y0, y1) {
 
     let nullCounter = 0;
-    if (x0 == null || x0.length<1 || x0=== "null") {nullCounter++};
-    if (x1 == null || x1.length<1 || x1=== "null") {nullCounter++};
-    if (y0 == null || y0.length<1 || y0=== "null") {nullCounter++};
-    if (y1 == null || y1.length<1 || y1=== "null") {nullCounter++};
+    if (x0 == null || x0.length < 1 || x0 === "null") { nullCounter++ };
+    if (x1 == null || x1.length < 1 || x1 === "null") { nullCounter++ };
+    if (y0 == null || y0.length < 1 || y0 === "null") { nullCounter++ };
+    if (y1 == null || y1.length < 1 || y1 === "null") { nullCounter++ };
 
     return (nullCounter === 0 || nullCounter === 4) ? true : false;
 
   }
 
-  showExtentError(){
+  showExtentError() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
     dialogRef.componentInstance.title = "Error"
     dialogRef.componentInstance.message = this.utils.getTranslate("extentError")

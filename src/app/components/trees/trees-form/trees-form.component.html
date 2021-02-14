@@ -42,7 +42,7 @@
   <div class="formDivTreeLeft" *ngIf="dataLoaded">
     <app-data-tree [getAll]='getAllTreeNodes' (emitNode)="nodeReceived($event)" (createNode)="createNode($event)"
       (createFolder)="createFolder($event)" [eventNodeUpdatedSubscription]='sendNodeUpdated.asObservable()'
-      [eventGetAllRowsSubscription]='getAllElementsNodes.asObservable()'
+      [eventGetAllRowsSubscription]='getAllElementsNodes.asObservable()'  [eventRefreshSubscription]='refreshTreeEvent.asObservable()'
       [eventCreateNodeSubscription]='createNodeEvent.asObservable()' (emitAllNodes)="getAllNodes($event)">
       loading</app-data-tree>
   </div>

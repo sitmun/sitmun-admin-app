@@ -16,6 +16,7 @@
   "redo": "Redo",
   "undo": "Undo",
   "return": "Return",
+  "pendingDelete":"Pending delete",
   "search/replace": "Search/Replace",
   "selectType": "Select type",
   "ok-created": "Items created successfully",
@@ -88,6 +89,7 @@
     "expirationDate": "Expiration",
     "dataCreated": "Created date",
     "code": "Code",
+    "appliesToChildrenTerritories" : "Applied to children",
     "status": "Status"
   },
   "connectionEntity": {
@@ -205,7 +207,8 @@
     "description": "Description",
     "active": "Active",
     "cartographyGroup": "Cartography group",
-    "status": "Status"
+    "status": "Status",
+    "createdDate": "Created date"
   },
   "applicationEntity": {
     "generalData": "General Data",
@@ -271,6 +274,7 @@
     "taskGroup": "Task group",
     "layers": "Layers",
     "permits": "Permits",
+    "inheritPermissionsOfParents": "Inherit permissions from parents",
     "status": "Status"
   },
   "roleEntity": {

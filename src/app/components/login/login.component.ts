@@ -2,6 +2,7 @@ import { Component} from '@angular/core';
 import { AuthService } from 'dist/sitmun-frontend-core/';
 import { LoginService } from 'dist/sitmun-frontend-core/';
 import { environment } from 'src/environments/environment';
+import { config } from 'src/config';
 import { TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
@@ -31,8 +32,8 @@ export class LoginComponent {
         private trans: TranslateService ) {
         
         this.translate = trans;
-        let navigatorLang=environment.languages.find(element => element.id===window.navigator.language);
-        let defaultLang=environment.defaultLang;
+        let navigatorLang=config.languages.find(element => element.id===window.navigator.language);
+        let defaultLang=config.defaultLang;
         if( navigatorLang!=undefined){
             defaultLang=window.navigator.language
         }
@@ -41,7 +42,7 @@ export class LoginComponent {
             password: ['', Validators.required],
             lang:[defaultLang, Validators.required],
         } );
-        this.langs=environment.languages
+        this.langs=config.languages
     }
 
     /** login action */

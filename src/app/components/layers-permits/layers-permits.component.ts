@@ -3,6 +3,7 @@ import { CartographyGroupService, CartographyGroup } from 'dist/sitmun-frontend-
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
+import { config } from 'src/config';
 import { Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
@@ -15,7 +16,7 @@ import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 export class LayersPermitsComponent implements OnInit {
   saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
   dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
-  themeGrid: any = environment.agGridTheme;
+  themeGrid: any = config.agGridTheme;
   columnDefs: any[];
 
   permissionGroupTypes: Array<any> = [];
@@ -35,13 +36,13 @@ export class LayersPermitsComponent implements OnInit {
         this.permissionGroupTypes.push(...resp);
       }
     );
-    var columnEditBtn=environment.editBtnColumnDef;
+    var columnEditBtn=config.editBtnColumnDef;
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
 
     this.columnDefs = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       columnEditBtn,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('layersPermitsEntity.name'), field: 'name' },

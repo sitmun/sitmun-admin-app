@@ -12,6 +12,7 @@ import { UtilsService } from '../../../services/utils.service';
 import { map } from 'rxjs/operators';
 import { Observable, of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { config } from 'src/config';
 import { DialogFormComponent, DialogGridComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -31,7 +32,7 @@ export class ApplicationFormComponent implements OnInit {
   applicationToEdit;
   applicationID = -1;
   dataLoaded: Boolean = false;
-  themeGrid: any = environment.agGridTheme;
+  themeGrid: any = config.agGridTheme;
 
   //Grids
   columnDefsParameters: any[];
@@ -53,7 +54,6 @@ export class ApplicationFormComponent implements OnInit {
   columnDefsTrees: any[];
   addElementsEventTree: Subject<any[]> = new Subject <any[]>();
   dataUpdatedEventTree: Subject<boolean> = new Subject<boolean>();
-
 
   applicationTypes: Array<any> = [];
 
@@ -98,8 +98,6 @@ export class ApplicationFormComponent implements OnInit {
     this.initializeParameterForm();
   }
 
-
-
   ngOnInit(): void {
 
     const promises: Promise<any>[] = [];
@@ -112,8 +110,6 @@ export class ApplicationFormComponent implements OnInit {
         }
       );
     }));
-
-
 	
     promises.push(new Promise((resolve, reject) => {
     this.utils.getCodeListValues('applicationParameter.type').
@@ -147,7 +143,6 @@ export class ApplicationFormComponent implements OnInit {
         }
       );
     }));
-		
 
     Promise.all(promises).then(() => {
       this.activatedRoute.params.subscribe(params => {
@@ -159,7 +154,6 @@ export class ApplicationFormComponent implements OnInit {
             resp => {
               console.log(resp);
               this.applicationToEdit = resp;
-  
   
               this.applicationForm.setValue({
                 id: this.applicationID,
@@ -205,58 +199,44 @@ export class ApplicationFormComponent implements OnInit {
     });
 
     this.columnDefsParameters = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name' },
       { headerName: this.utils.getTranslate('applicationEntity.value'), field: 'value', },
       { headerName: this.utils.getTranslate('applicationEntity.type'), field: 'type' },
       { headerName: this.utils.getTranslate('applicationEntity.status'), field: 'status', editable:false },
-
-
     ];
 
     this.columnDefsTemplates = [
-
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name' },
       { headerName: this.utils.getTranslate('applicationEntity.value'), field: 'value', },
       { headerName: this.utils.getTranslate('applicationEntity.status'), field: 'status', editable:false },
-
     ];
 
     this.columnDefsRoles = [
-
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: "ID", field: 'id' },
       { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name' },
       { headerName: this.utils.getTranslate('applicationEntity.status'), field: 'status', editable:false },
-
-
     ];
 
     this.columnDefsBackgrounds = [
-
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: "ID", field: 'id' },
       { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'backgroundName', description:false,editable:false},
       { headerName: this.utils.getTranslate('applicationEntity.description'), field: 'backgroundDescription', editable:false },
       { headerName: this.utils.getTranslate('applicationEntity.status'), field: 'status', editable:false },
-
-
     ];
 
     this.columnDefsTrees = [
-
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: "Id", field: 'id' },
       { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name' },
       { headerName: this.utils.getTranslate('applicationEntity.status'), field: 'status', editable:false },
-
-
     ];
 
     this.columnDefsParametersDialog = [
-
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name', editable: false },
       { headerName: this.utils.getTranslate('applicationEntity.value'), field: 'value', editable: false },
       { headerName: this.utils.getTranslate('applicationEntity.type'), field: 'type', editable: false },
@@ -264,35 +244,30 @@ export class ApplicationFormComponent implements OnInit {
 
     this.columnDefsTemplateConfigurationDialog = [
 
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name', editable: false },
       { headerName: this.utils.getTranslate('applicationEntity.value'), field: 'value', editable: false },
     ];
 
     this.columnDefsRolesDialog = [
-
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name', editable: false },
       { headerName: this.utils.getTranslate('applicationEntity.note'), field: 'description' },
-      { headerName: this.utils.getTranslate('applicationEntity.application'), field: 'application' },
-
+      { headerName: this.utils.getTranslate('applicationEntity.application'), field: 'application' }
     ];
 
     this.columnDefsBackgroundDialog = [
-
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: 'Id', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name', editable: false },
     ];
 
     
     this.columnDefsTreeDialog = [
-
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       { headerName: "Id", field: 'id' },
       { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name' },
-
     ];
 
   }

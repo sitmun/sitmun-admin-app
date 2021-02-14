@@ -3,6 +3,7 @@ import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { of,Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { config } from 'src/config';
 import { TaskService, HalOptions, HalParam } from 'dist/sitmun-frontend-core/';
 
 @Component({
@@ -12,7 +13,7 @@ import { TaskService, HalOptions, HalParam } from 'dist/sitmun-frontend-core/';
 })
 export class TasksLocatorComponent implements OnInit {
   saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
-  themeGrid:any=environment.agGridTheme;
+  themeGrid:any=config.agGridTheme;
   columnDefs: any[];
 
   constructor(private utils: UtilsService,
@@ -24,14 +25,14 @@ export class TasksLocatorComponent implements OnInit {
 
   ngOnInit()  {
 
-    var columnEditBtn=environment.editBtnColumnDef;
+    var columnEditBtn=config.editBtnColumnDef;
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
 
 
     this.columnDefs = [
-      environment.selCheckboxColumnDef,
+      config.selCheckboxColumnDef,
       columnEditBtn,
       { headerName: 'ID',  field: 'id', editable: false},
       { headerName: this.utils.getTranslate('tasksLocatorEntity.task'),  field: 'name'},
@@ -46,7 +47,7 @@ export class TasksLocatorComponent implements OnInit {
 
 
   getAllTasksLocator = () => {
-    let taskTypeID=environment.tasksTypes['locator'];
+    let taskTypeID=config.tasksTypes['locator'];
     let params2:HalParam[]=[];
     let param:HalParam={key:'type.id', value:taskTypeID}
     params2.push(param);
