@@ -739,7 +739,22 @@ h2 {
   color: #BF0000;
   font-weight: bold;
 }
+.stable::before{
+  font-family: 'Material Icons';
+  content: 'fiber_manual_record';
+  color: #68A225;
+}
+.pendingModify::before,.pendingCreation::before{
+  font-family: 'Material Icons';
+  content: 'fiber_manual_record';
+  color: #ff9300;
+}
 
+.pendingDelete:before{
+  font-family: 'Material Icons';
+  content: 'fiber_manual_record';
+  color: #bf0000;
+}
 
 @media print {
   app-toolbar,

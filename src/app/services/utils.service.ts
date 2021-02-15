@@ -208,10 +208,19 @@ export class UtilsService {
     {
       headerName: this.getTranslate('status'),
       field: 'status',
+      editable: false,
       valueFormatter: (params) => {
-        if (params.value != undefined) {
+        if (params.value != undefined && params.value !== '') {
           return this.getTranslate(params.value)
+        }else{
+          return this.getTranslate('statusOK')
         }
+      },
+      cellClassRules: {
+        'pendingModify': function (params) { return params.value === 'pendingModify' },
+        'pendingDelete': function (params) { return params.value === 'pendingDelete' },
+        'pendingCreation': function (params) { return params.value === 'pendingCreation' },
+        'stable': function (params) { return params.value === undefined || params.value === '' }
       }
     }
     return columnDef;

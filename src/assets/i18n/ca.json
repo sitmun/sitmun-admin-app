@@ -20,6 +20,7 @@
   "pendingCreation":"Pendent crear",
   "pendingModify":"Pendent modificar",
   "status":"Estat",
+  "statusOK": "Sense canvis",
   "search/replace": "Buscar/Reemplaçar",
   "selectType": "Selecciona el tipus",
   "ok-created": "Els elements s'han creat correctament",

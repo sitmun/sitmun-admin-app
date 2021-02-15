@@ -20,6 +20,7 @@
   "pendingCreation":"Pendiente crear",
   "pendingModify":"Pendiente modificar",
   "status":"Estado",
+  "statusOK": "Without changes",
   "search/replace": "Buscar/Reemplazar",
   "selectType": "Selecciona el tipo",
   "ok-created": "Los elementos se han creado correctamente",
