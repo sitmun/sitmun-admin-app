@@ -565,5 +565,6 @@
   "loadingOoo": "Cargando...",
   "noRowsToShow": "No hay filas para mostrar",
   "enabled": "Activado",
-  "disabled": "Desactivado"
+  "disabled": "Desactivado",
+  "rowsToShow": "Registros a mostrar"
 }

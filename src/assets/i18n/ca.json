@@ -575,5 +575,6 @@
   "loadingOoo": "Carregant...",
   "noRowsToShow": "No hi ha files per a mostrar",
   "enabled": "Activat",
-  "disabled": "Desactivat"
+  "disabled": "Desactivat",
+  "rowsToShow": "Registres a mostrar"
 }

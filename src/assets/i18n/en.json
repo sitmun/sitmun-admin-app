@@ -567,5 +567,6 @@
   "loadingOoo": "Loading ...",
   "noRowsToShow": "No rows to display",
   "enabled": "Enabled",
-  "disabled": "Disabled"
+  "disabled": "Disabled",
+  "rowsToShow": "Rows to show"
 }

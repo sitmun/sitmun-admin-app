@@ -2,7 +2,7 @@ import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CartographyService, ServiceService, CartographyFilterService, TerritoryTypeService, ConnectionService, TreeNodeService, CartographyGroupService, TerritoryService, Territory, Connection, ApplicationService, CartographyGroup, CartographyAvailabilityService, CartographyParameterService, HalParam, HalOptions, Cartography } from 'dist/sitmun-frontend-core/';
+import { CartographyService, ServiceService, CartographyFilterService, TerritoryTypeService, ConnectionService, TreeNodeService, CartographyGroupService, TerritoryService, Territory, Connection, ApplicationService, CartographyGroup, CartographyAvailabilityService, CartographyParameterService, HalParam, HalOptions, Cartography, TreeNode } from 'dist/sitmun-frontend-core/';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { map } from 'rxjs/operators';
@@ -657,31 +657,6 @@ export class LayersFormComponent implements OnInit {
       ));
 
   }
-  // We use getAllRowsParameters To update spatial configrurations
-
-
-  // getAllRowsSpatialConfiguration(data: any[] )
-  // {
-  //   let spatialSelectionsModified = [];
-  //   let spatialSelectionsToPut = [];
-  //   data.forEach(spatialSelection => {
-  //     if (spatialSelection.status === 'pendingModify') {spatialSelectionsModified.push(spatialSelection) }
-  //     if(spatialSelection.status!== 'pendingDelete') {spatialSelectionsToPut.push(spatialSelection._links.self.href) }
-  //   });
-  //   this.updateSpatialConfiguration(spatialSelectionsModified, spatialSelectionsToPut);
-  // }
-
-  // updateSpatialConfiguration(spatialConfigurationsModified: any[], spatialSelectionsToPut: any[] )
-  // {
-  // const promises: Promise<any>[] = [];
-  // spatialConfigurationsModified.forEach(spatialSelection => {
-  //   promises.push(new Promise((resolve, reject) => { this.tasksService.update(spatialSelection).subscribe((resp) => { resolve(true) }) }));
-  // });
-  // Promise.all(promises).then(() => {
-  // let url=this.layerToEdit._links.spatialSelectionConnection.href.split('{', 1)[0];
-  // this.utils.updateUriList(url,spatialSelectionsToPut, this.dataUpdatedEventSpatialConfigurations)
-  // });
-  // }
 
 
   // ******** Territorial Filters  ******** //
@@ -863,24 +838,34 @@ export class LayersFormComponent implements OnInit {
   }
 
   getAllRowsNodes(data: any[]) {
-    let nodesModified = [];
+
     let nodesToPut = [];
     data.forEach(node => {
-      if (node.status === 'pendingModify') { nodesModified.push(node) }
-      if (node.status !== 'pendingDelete') { nodesToPut.push(node._links.self.href) }
+     
+      let nodeAct= new TreeNode();
+      var urlReq = `${node._links.cartography.href}`
+      if (node._links.cartography.templated) {
+        var url = new URL(urlReq.split("{")[0]);
+        url.searchParams.append("projection", "view")
+        urlReq = url.toString();
+      }
+      nodeAct.name=node.name
+      node._links.cartography.href=urlReq
+      nodeAct._links=node._links
+      nodeAct.cartography=this.layerForm.value
+      if (node.status !== 'pendingDelete') { nodesToPut.push(nodeAct) }
     });
-    console.log(nodesModified);
-    this.updateNodes(nodesModified, nodesToPut);
+
+    this.updateNodes(nodesToPut);
   }
 
-  updateNodes(nodesModified: any[], nodesToPut: any[]) {
+  updateNodes(nodesToPut: any[]) {
     const promises: Promise<any>[] = [];
-    nodesModified.forEach(node => {
-      promises.push(new Promise((resolve, reject) => { this.treeNodeService.update(node).subscribe((resp) => { resolve(true) }) }));
+    nodesToPut.forEach(node => {
+      promises.push(new Promise((resolve, reject) => { this.treeNodeService.save(node).subscribe((resp) => { resolve(true) }) }));
     });
     Promise.all(promises).then(() => {
-      let url = this.layerToEdit._links.treeNodes.href.split('{', 1)[0];
-      this.utils.updateUriList(url, nodesToPut, this.dataUpdatedEventNodes)
+    //
     });
   }
 
@@ -1117,7 +1102,6 @@ export class LayersFormComponent implements OnInit {
         legendType = this.layerForm.value.legendType
       }
 
-      debugger;
       let cartography = new Cartography();
       cartography.name = this.layerForm.value.name,
         cartography.service = service,

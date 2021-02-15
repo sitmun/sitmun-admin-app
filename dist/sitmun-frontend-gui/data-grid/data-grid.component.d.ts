@@ -1,4 +1,4 @@
-import { OnInit, EventEmitter } from '@angular/core';
+import { OnInit, EventEmitter, ElementRef } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ColumnApi, Module } from '@ag-grid-community/all-modules';
 import { TranslateService } from '@ngx-translate/core';
@@ -7,6 +7,7 @@ import * as ɵngcc0 from '@angular/core';
 export declare class DataGridComponent implements OnInit {
     dialog: MatDialog;
     translate: TranslateService;
+    private elRef;
     _eventRefreshSubscription: any;
     _eventGetSelectedRowsSubscription: any;
     _eventGetAllRowsSubscription: any;
@@ -60,7 +61,7 @@ export declare class DataGridComponent implements OnInit {
     getSelectedRows: EventEmitter<any[]>;
     getAllRows: EventEmitter<any[]>;
     getAgGridState: EventEmitter<any[]>;
-    constructor(dialog: MatDialog, translate: TranslateService);
+    constructor(dialog: MatDialog, translate: TranslateService, elRef: ElementRef);
     ngOnInit(): void;
     firstDataRendered(): void;
     onGridReady(params: any): void;
@@ -75,6 +76,7 @@ export declare class DataGridComponent implements OnInit {
     getElements(): void;
     setSize(): void;
     addItems(newItems: any[]): void;
+    changeHeight(value: any): void;
     removeData(): void;
     newData(): void;
     onAddButtonClicked(): void;

@@ -1,4 +1,4 @@
-import { Component, ViewChild, ViewContainerRef, EventEmitter, Input, Output, NgModule, Injectable } from '@angular/core';
+import { Component, ViewChild, ViewContainerRef, EventEmitter, ElementRef, Input, Output, NgModule, Injectable } from '@angular/core';
 import { Subject, BehaviorSubject, of } from 'rxjs';
 import { AllCommunityModules } from '@ag-grid-community/all-modules';
 import { TranslateService, TranslateModule, TranslateLoader } from '@ngx-translate/core';
@@ -70,7 +70,8 @@ import * as ɵngcc6 from '@angular/material/dialog';
 import * as ɵngcc7 from '@angular/common';
 import * as ɵngcc8 from '@angular/material/menu';
 import * as ɵngcc9 from '@ag-grid-community/angular';
-import * as ɵngcc10 from '@angular/material/tree';
+import * as ɵngcc10 from '@angular/material/button-toggle';
+import * as ɵngcc11 from '@angular/material/tree';
 
 const _c0 = ["input"];
 function DialogMessageComponent_button_6_Template(rf, ctx) { if (rf & 1) {
@@ -85,17 +86,17 @@ function DialogMessageComponent_button_6_Template(rf, ctx) { if (rf & 1) {
     ɵngcc0.ɵɵtextInterpolate(ɵngcc0.ɵɵpipeBind1(2, 1, "cancel"));
 } }
 function DataGridComponent_span_1_Template(rf, ctx) { if (rf & 1) {
-    ɵngcc0.ɵɵelement(0, "span", 17);
+    ɵngcc0.ɵɵelement(0, "span", 18);
 } if (rf & 2) {
     const ctx_r0 = ɵngcc0.ɵɵnextContext();
     ɵngcc0.ɵɵproperty("translate", ctx_r0.title);
 } }
 function DataGridComponent_button_2_Template(rf, ctx) { if (rf & 1) {
-    const _r16 = ɵngcc0.ɵɵgetCurrentView();
-    ɵngcc0.ɵɵelementStart(0, "button", 18);
-    ɵngcc0.ɵɵlistener("click", function DataGridComponent_button_2_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r16); const ctx_r15 = ɵngcc0.ɵɵnextContext(); return ctx_r15.deleteChanges(); });
+    const _r18 = ɵngcc0.ɵɵgetCurrentView();
+    ɵngcc0.ɵɵelementStart(0, "button", 19);
+    ɵngcc0.ɵɵlistener("click", function DataGridComponent_button_2_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r18); const ctx_r17 = ɵngcc0.ɵɵnextContext(); return ctx_r17.deleteChanges(); });
     ɵngcc0.ɵɵpipe(1, "translate");
-    ɵngcc0.ɵɵelementStart(2, "mat-icon", 19);
+    ɵngcc0.ɵɵelementStart(2, "mat-icon", 20);
     ɵngcc0.ɵɵtext(3, " close ");
     ɵngcc0.ɵɵelementEnd();
     ɵngcc0.ɵɵelementEnd();
@@ -105,11 +106,11 @@ function DataGridComponent_button_2_Template(rf, ctx) { if (rf & 1) {
     ɵngcc0.ɵɵproperty("disabled", ctx_r1.changeCounter <= 0);
 } }
 function DataGridComponent_button_3_Template(rf, ctx) { if (rf & 1) {
-    const _r18 = ɵngcc0.ɵɵgetCurrentView();
-    ɵngcc0.ɵɵelementStart(0, "button", 20);
-    ɵngcc0.ɵɵlistener("click", function DataGridComponent_button_3_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r18); const ctx_r17 = ɵngcc0.ɵɵnextContext(); return ctx_r17.undo(); });
+    const _r20 = ɵngcc0.ɵɵgetCurrentView();
+    ɵngcc0.ɵɵelementStart(0, "button", 21);
+    ɵngcc0.ɵɵlistener("click", function DataGridComponent_button_3_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r20); const ctx_r19 = ɵngcc0.ɵɵnextContext(); return ctx_r19.undo(); });
     ɵngcc0.ɵɵpipe(1, "translate");
-    ɵngcc0.ɵɵelementStart(2, "mat-icon", 19);
+    ɵngcc0.ɵɵelementStart(2, "mat-icon", 20);
     ɵngcc0.ɵɵtext(3, " undo ");
     ɵngcc0.ɵɵelementEnd();
     ɵngcc0.ɵɵelementEnd();
@@ -119,11 +120,11 @@ function DataGridComponent_button_3_Template(rf, ctx) { if (rf & 1) {
     ɵngcc0.ɵɵproperty("disabled", ctx_r2.changeCounter <= 0);
 } }
 function DataGridComponent_button_4_Template(rf, ctx) { if (rf & 1) {
-    const _r20 = ɵngcc0.ɵɵgetCurrentView();
-    ɵngcc0.ɵɵelementStart(0, "button", 21);
-    ɵngcc0.ɵɵlistener("click", function DataGridComponent_button_4_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r20); const ctx_r19 = ɵngcc0.ɵɵnextContext(); return ctx_r19.redo(); });
+    const _r22 = ɵngcc0.ɵɵgetCurrentView();
+    ɵngcc0.ɵɵelementStart(0, "button", 22);
+    ɵngcc0.ɵɵlistener("click", function DataGridComponent_button_4_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r22); const ctx_r21 = ɵngcc0.ɵɵnextContext(); return ctx_r21.redo(); });
     ɵngcc0.ɵɵpipe(1, "translate");
-    ɵngcc0.ɵɵelementStart(2, "mat-icon", 19);
+    ɵngcc0.ɵɵelementStart(2, "mat-icon", 20);
     ɵngcc0.ɵɵtext(3, " redo ");
     ɵngcc0.ɵɵelementEnd();
     ɵngcc0.ɵɵelementEnd();
@@ -133,11 +134,11 @@ function DataGridComponent_button_4_Template(rf, ctx) { if (rf & 1) {
     ɵngcc0.ɵɵproperty("disabled", ctx_r3.redoCounter <= 0);
 } }
 function DataGridComponent_button_5_Template(rf, ctx) { if (rf & 1) {
-    const _r22 = ɵngcc0.ɵɵgetCurrentView();
-    ɵngcc0.ɵɵelementStart(0, "button", 22);
-    ɵngcc0.ɵɵlistener("click", function DataGridComponent_button_5_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r22); const ctx_r21 = ɵngcc0.ɵɵnextContext(); return ctx_r21.applyChanges(); });
+    const _r24 = ɵngcc0.ɵɵgetCurrentView();
+    ɵngcc0.ɵɵelementStart(0, "button", 23);
+    ɵngcc0.ɵɵlistener("click", function DataGridComponent_button_5_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r24); const ctx_r23 = ɵngcc0.ɵɵnextContext(); return ctx_r23.applyChanges(); });
     ɵngcc0.ɵɵpipe(1, "translate");
-    ɵngcc0.ɵɵelementStart(2, "mat-icon", 19);
+    ɵngcc0.ɵɵelementStart(2, "mat-icon", 20);
     ɵngcc0.ɵɵtext(3, " check ");
     ɵngcc0.ɵɵelementEnd();
     ɵngcc0.ɵɵelementEnd();
@@ -147,52 +148,74 @@ function DataGridComponent_button_5_Template(rf, ctx) { if (rf & 1) {
     ɵngcc0.ɵɵproperty("disabled", ctx_r4.changeCounter <= 0);
 } }
 function DataGridComponent_label_7_Template(rf, ctx) { if (rf & 1) {
-    ɵngcc0.ɵɵelement(0, "label", 17);
+    ɵngcc0.ɵɵelement(0, "label", 18);
 } if (rf & 2) {
     ɵngcc0.ɵɵproperty("translate", "search");
 } }
 function DataGridComponent_input_8_Template(rf, ctx) { if (rf & 1) {
-    const _r24 = ɵngcc0.ɵɵgetCurrentView();
-    ɵngcc0.ɵɵelementStart(0, "input", 23);
-    ɵngcc0.ɵɵlistener("keyup", function DataGridComponent_input_8_Template_input_keyup_0_listener() { ɵngcc0.ɵɵrestoreView(_r24); const ctx_r23 = ɵngcc0.ɵɵnextContext(); return ctx_r23.quickSearch(); })("ngModelChange", function DataGridComponent_input_8_Template_input_ngModelChange_0_listener($event) { ɵngcc0.ɵɵrestoreView(_r24); const ctx_r25 = ɵngcc0.ɵɵnextContext(); return ctx_r25.searchValue = $event; });
+    const _r26 = ɵngcc0.ɵɵgetCurrentView();
+    ɵngcc0.ɵɵelementStart(0, "input", 24);
+    ɵngcc0.ɵɵlistener("keyup", function DataGridComponent_input_8_Template_input_keyup_0_listener() { ɵngcc0.ɵɵrestoreView(_r26); const ctx_r25 = ɵngcc0.ɵɵnextContext(); return ctx_r25.quickSearch(); })("ngModelChange", function DataGridComponent_input_8_Template_input_ngModelChange_0_listener($event) { ɵngcc0.ɵɵrestoreView(_r26); const ctx_r27 = ɵngcc0.ɵɵnextContext(); return ctx_r27.searchValue = $event; });
     ɵngcc0.ɵɵelementEnd();
 } if (rf & 2) {
     const ctx_r6 = ɵngcc0.ɵɵnextContext();
     ɵngcc0.ɵɵproperty("ngModel", ctx_r6.searchValue);
 } }
-function DataGridComponent_button_9_Template(rf, ctx) { if (rf & 1) {
-    const _r27 = ɵngcc0.ɵɵgetCurrentView();
-    ɵngcc0.ɵɵelementStart(0, "button", 24);
-    ɵngcc0.ɵɵlistener("click", function DataGridComponent_button_9_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r27); const ctx_r26 = ɵngcc0.ɵɵnextContext(); return ctx_r26.removeData(); });
-    ɵngcc0.ɵɵelementStart(1, "mat-icon", 19);
+function DataGridComponent_label_9_Template(rf, ctx) { if (rf & 1) {
+    ɵngcc0.ɵɵelement(0, "label", 18);
+} if (rf & 2) {
+    ɵngcc0.ɵɵproperty("translate", "rowsToShow");
+} }
+function DataGridComponent_mat_button_toggle_group_10_Template(rf, ctx) { if (rf & 1) {
+    const _r29 = ɵngcc0.ɵɵgetCurrentView();
+    ɵngcc0.ɵɵelementStart(0, "mat-button-toggle-group", 25);
+    ɵngcc0.ɵɵelementStart(1, "mat-button-toggle", 26);
+    ɵngcc0.ɵɵlistener("change", function DataGridComponent_mat_button_toggle_group_10_Template_mat_button_toggle_change_1_listener($event) { ɵngcc0.ɵɵrestoreView(_r29); const ctx_r28 = ɵngcc0.ɵɵnextContext(); return ctx_r28.changeHeight($event.value); });
+    ɵngcc0.ɵɵtext(2, "5");
+    ɵngcc0.ɵɵelementEnd();
+    ɵngcc0.ɵɵelementStart(3, "mat-button-toggle", 27);
+    ɵngcc0.ɵɵlistener("change", function DataGridComponent_mat_button_toggle_group_10_Template_mat_button_toggle_change_3_listener($event) { ɵngcc0.ɵɵrestoreView(_r29); const ctx_r30 = ɵngcc0.ɵɵnextContext(); return ctx_r30.changeHeight($event.value); });
+    ɵngcc0.ɵɵtext(4, "20");
+    ɵngcc0.ɵɵelementEnd();
+    ɵngcc0.ɵɵelementStart(5, "mat-button-toggle", 28);
+    ɵngcc0.ɵɵlistener("change", function DataGridComponent_mat_button_toggle_group_10_Template_mat_button_toggle_change_5_listener($event) { ɵngcc0.ɵɵrestoreView(_r29); const ctx_r31 = ɵngcc0.ɵɵnextContext(); return ctx_r31.changeHeight($event.value); });
+    ɵngcc0.ɵɵtext(6, "50");
+    ɵngcc0.ɵɵelementEnd();
+    ɵngcc0.ɵɵelementEnd();
+} }
+function DataGridComponent_button_11_Template(rf, ctx) { if (rf & 1) {
+    const _r33 = ɵngcc0.ɵɵgetCurrentView();
+    ɵngcc0.ɵɵelementStart(0, "button", 29);
+    ɵngcc0.ɵɵlistener("click", function DataGridComponent_button_11_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r33); const ctx_r32 = ɵngcc0.ɵɵnextContext(); return ctx_r32.removeData(); });
+    ɵngcc0.ɵɵelementStart(1, "mat-icon", 20);
     ɵngcc0.ɵɵtext(2, " delete ");
     ɵngcc0.ɵɵelementEnd();
-    ɵngcc0.ɵɵelement(3, "span", 17);
+    ɵngcc0.ɵɵelement(3, "span", 18);
     ɵngcc0.ɵɵelementEnd();
 } if (rf & 2) {
-    const ctx_r7 = ɵngcc0.ɵɵnextContext();
-    ɵngcc0.ɵɵproperty("disabled", !ctx_r7.areRowsSelected());
+    const ctx_r9 = ɵngcc0.ɵɵnextContext();
+    ɵngcc0.ɵɵproperty("disabled", !ctx_r9.areRowsSelected());
     ɵngcc0.ɵɵadvance(3);
     ɵngcc0.ɵɵproperty("translate", "remove");
 } }
-function DataGridComponent_button_10_Template(rf, ctx) { if (rf & 1) {
-    ɵngcc0.ɵɵelementStart(0, "button", 25);
-    ɵngcc0.ɵɵelement(1, "span", 17);
-    ɵngcc0.ɵɵelementStart(2, "mat-icon", 19);
+function DataGridComponent_button_12_Template(rf, ctx) { if (rf & 1) {
+    ɵngcc0.ɵɵelementStart(0, "button", 30);
+    ɵngcc0.ɵɵelement(1, "span", 18);
+    ɵngcc0.ɵɵelementStart(2, "mat-icon", 20);
     ɵngcc0.ɵɵtext(3, " keyboard_arrow_down ");
     ɵngcc0.ɵɵelementEnd();
     ɵngcc0.ɵɵelementEnd();
 } if (rf & 2) {
     ɵngcc0.ɵɵnextContext();
-    const _r9 = ɵngcc0.ɵɵreference(12);
-    ɵngcc0.ɵɵproperty("matMenuTriggerFor", _r9);
+    const _r11 = ɵngcc0.ɵɵreference(14);
+    ɵngcc0.ɵɵproperty("matMenuTriggerFor", _r11);
     ɵngcc0.ɵɵadvance(1);
     ɵngcc0.ɵɵproperty("translate", "actions");
 } }
-function DataGridComponent_button_13_Template(rf, ctx) { if (rf & 1) {
-    const _r29 = ɵngcc0.ɵɵgetCurrentView();
-    ɵngcc0.ɵɵelementStart(0, "button", 26);
-    ɵngcc0.ɵɵlistener("click", function DataGridComponent_button_13_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r29); const ctx_r28 = ɵngcc0.ɵɵnextContext(); return ctx_r28.exportData(); });
+function DataGridComponent_button_15_Template(rf, ctx) { if (rf & 1) {
+    const _r35 = ɵngcc0.ɵɵgetCurrentView();
+    ɵngcc0.ɵɵelementStart(0, "button", 31);
+    ɵngcc0.ɵɵlistener("click", function DataGridComponent_button_15_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r35); const ctx_r34 = ɵngcc0.ɵɵnextContext(); return ctx_r34.exportData(); });
     ɵngcc0.ɵɵtext(1);
     ɵngcc0.ɵɵpipe(2, "translate");
     ɵngcc0.ɵɵelementEnd();
@@ -200,10 +223,10 @@ function DataGridComponent_button_13_Template(rf, ctx) { if (rf & 1) {
     ɵngcc0.ɵɵadvance(1);
     ɵngcc0.ɵɵtextInterpolate1(" ", ɵngcc0.ɵɵpipeBind1(2, 1, "export"), " ");
 } }
-function DataGridComponent_button_14_Template(rf, ctx) { if (rf & 1) {
-    const _r31 = ɵngcc0.ɵɵgetCurrentView();
-    ɵngcc0.ɵɵelementStart(0, "button", 26);
-    ɵngcc0.ɵɵlistener("click", function DataGridComponent_button_14_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r31); const ctx_r30 = ɵngcc0.ɵɵnextContext(); return ctx_r30.onDuplicateButtonClicked(); });
+function DataGridComponent_button_16_Template(rf, ctx) { if (rf & 1) {
+    const _r37 = ɵngcc0.ɵɵgetCurrentView();
+    ɵngcc0.ɵɵelementStart(0, "button", 31);
+    ɵngcc0.ɵɵlistener("click", function DataGridComponent_button_16_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r37); const ctx_r36 = ɵngcc0.ɵɵnextContext(); return ctx_r36.onDuplicateButtonClicked(); });
     ɵngcc0.ɵɵtext(1);
     ɵngcc0.ɵɵpipe(2, "translate");
     ɵngcc0.ɵɵelementEnd();
@@ -211,8 +234,8 @@ function DataGridComponent_button_14_Template(rf, ctx) { if (rf & 1) {
     ɵngcc0.ɵɵadvance(1);
     ɵngcc0.ɵɵtextInterpolate1(" ", ɵngcc0.ɵɵpipeBind1(2, 1, "duplicate"), "");
 } }
-function DataGridComponent_button_15_Template(rf, ctx) { if (rf & 1) {
-    ɵngcc0.ɵɵelementStart(0, "button", 27);
+function DataGridComponent_button_17_Template(rf, ctx) { if (rf & 1) {
+    ɵngcc0.ɵɵelementStart(0, "button", 32);
     ɵngcc0.ɵɵtext(1);
     ɵngcc0.ɵɵpipe(2, "translate");
     ɵngcc0.ɵɵelementEnd();
@@ -220,27 +243,27 @@ function DataGridComponent_button_15_Template(rf, ctx) { if (rf & 1) {
     ɵngcc0.ɵɵadvance(1);
     ɵngcc0.ɵɵtextInterpolate1(" ", ɵngcc0.ɵɵpipeBind1(2, 1, "search/replace"), "");
 } }
-function DataGridComponent_button_16_Template(rf, ctx) { if (rf & 1) {
-    const _r33 = ɵngcc0.ɵɵgetCurrentView();
-    ɵngcc0.ɵɵelementStart(0, "button", 28);
-    ɵngcc0.ɵɵlistener("click", function DataGridComponent_button_16_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r33); const ctx_r32 = ɵngcc0.ɵɵnextContext(); return ctx_r32.newData(); });
-    ɵngcc0.ɵɵelementStart(1, "mat-icon", 19);
+function DataGridComponent_button_18_Template(rf, ctx) { if (rf & 1) {
+    const _r39 = ɵngcc0.ɵɵgetCurrentView();
+    ɵngcc0.ɵɵelementStart(0, "button", 33);
+    ɵngcc0.ɵɵlistener("click", function DataGridComponent_button_18_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r39); const ctx_r38 = ɵngcc0.ɵɵnextContext(); return ctx_r38.newData(); });
+    ɵngcc0.ɵɵelementStart(1, "mat-icon", 20);
     ɵngcc0.ɵɵtext(2, " add_circle_outline ");
     ɵngcc0.ɵɵelementEnd();
-    ɵngcc0.ɵɵelement(3, "span", 17);
+    ɵngcc0.ɵɵelement(3, "span", 18);
     ɵngcc0.ɵɵelementEnd();
 } if (rf & 2) {
     ɵngcc0.ɵɵadvance(3);
     ɵngcc0.ɵɵproperty("translate", "new");
 } }
-function DataGridComponent_button_17_Template(rf, ctx) { if (rf & 1) {
-    const _r35 = ɵngcc0.ɵɵgetCurrentView();
-    ɵngcc0.ɵɵelementStart(0, "button", 28);
-    ɵngcc0.ɵɵlistener("click", function DataGridComponent_button_17_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r35); const ctx_r34 = ɵngcc0.ɵɵnextContext(); return ctx_r34.onAddButtonClicked(); });
-    ɵngcc0.ɵɵelementStart(1, "mat-icon", 19);
+function DataGridComponent_button_19_Template(rf, ctx) { if (rf & 1) {
+    const _r41 = ɵngcc0.ɵɵgetCurrentView();
+    ɵngcc0.ɵɵelementStart(0, "button", 33);
+    ɵngcc0.ɵɵlistener("click", function DataGridComponent_button_19_Template_button_click_0_listener() { ɵngcc0.ɵɵrestoreView(_r41); const ctx_r40 = ɵngcc0.ɵɵnextContext(); return ctx_r40.onAddButtonClicked(); });
+    ɵngcc0.ɵɵelementStart(1, "mat-icon", 20);
     ɵngcc0.ɵɵtext(2, " add_circle_outline ");
     ɵngcc0.ɵɵelementEnd();
-    ɵngcc0.ɵɵelement(3, "span", 17);
+    ɵngcc0.ɵɵelement(3, "span", 18);
     ɵngcc0.ɵɵelementEnd();
 } if (rf & 2) {
     ɵngcc0.ɵɵadvance(3);
@@ -733,7 +756,7 @@ class DialogMessageComponent {
     }
 }
 DialogMessageComponent.ɵfac = function DialogMessageComponent_Factory(t) { return new (t || DialogMessageComponent)(ɵngcc0.ɵɵdirectiveInject(ɵngcc6.MatDialogRef)); };
-DialogMessageComponent.ɵcmp = ɵngcc0.ɵɵdefineComponent({ type: DialogMessageComponent, selectors: [["app-dialog-message"]], decls: 10, vars: 6, consts: [["mat-dialog-title", ""], [1, "mat-typography"], ["align", "end"], ["mat-flat-button", "", "class", "returnButton", 3, "click", 4, "ngIf"], ["mat-flat-button", "", "cdkFocusInitial", "", 1, "saveButton", 3, "click"], ["mat-flat-button", "", 1, "returnButton", 3, "click"]], template: function DialogMessageComponent_Template(rf, ctx) { if (rf & 1) {
+DialogMessageComponent.ɵcmp = ɵngcc0.ɵɵdefineComponent({ type: DialogMessageComponent, selectors: [["app-dialog-message"]], decls: 10, vars: 6, consts: [["mat-dialog-title", "", 1, "titleDialog"], [1, "mat-typography"], ["align", "end"], ["mat-flat-button", "", "class", "returnButton", 3, "click", 4, "ngIf"], ["mat-flat-button", "", "cdkFocusInitial", "", 1, "saveButton", 3, "click"], ["mat-flat-button", "", 1, "returnButton", 3, "click"]], template: function DialogMessageComponent_Template(rf, ctx) { if (rf & 1) {
         ɵngcc0.ɵɵelementStart(0, "h5", 0);
         ɵngcc0.ɵɵtext(1);
         ɵngcc0.ɵɵelementEnd();
@@ -759,7 +782,7 @@ DialogMessageComponent.ɵcmp = ɵngcc0.ɵɵdefineComponent({ type: DialogMessage
         ɵngcc0.ɵɵproperty("ngIf", !ctx.hideCancelButton);
         ɵngcc0.ɵɵadvance(2);
         ɵngcc0.ɵɵtextInterpolate(ɵngcc0.ɵɵpipeBind1(9, 4, "accept"));
-    } }, directives: [ɵngcc6.MatDialogTitle, ɵngcc6.MatDialogContent, ɵngcc6.MatDialogActions, ɵngcc7.NgIf, ɵngcc1.MatButton], pipes: [ɵngcc5.TranslatePipe], styles: [""] });
+    } }, directives: [ɵngcc6.MatDialogTitle, ɵngcc6.MatDialogContent, ɵngcc6.MatDialogActions, ɵngcc7.NgIf, ɵngcc1.MatButton], pipes: [ɵngcc5.TranslatePipe], styles: [".titleDialog[_ngcontent-%COMP%]{margin-bottom:15px!important;margin-top:inherit!important}"] });
 /** @nocollapse */
 DialogMessageComponent.ctorParameters = () => [
     { type: MatDialogRef }
@@ -768,8 +791,8 @@ DialogMessageComponent.ctorParameters = () => [
         type: Component,
         args: [{
                 selector: 'app-dialog-message',
-                template: "<h5 mat-dialog-title>{{title}}</h5>\r\n<mat-dialog-content class=\"mat-typography\">\r\n  <p>\r\n    {{message}}\r\n  </p>\r\n</mat-dialog-content>\r\n<mat-dialog-actions align=\"end\">\r\n  <button mat-flat-button class=\"returnButton\"  *ngIf=\"!hideCancelButton\" (click)=\"closeDialog()\">{{\"cancel\" | translate}}</button>\r\n  <button mat-flat-button class=\"saveButton\"  (click)=\"doAccept()\" cdkFocusInitial>{{\"accept\" | translate}}</button>\r\n</mat-dialog-actions>",
-                styles: [""]
+                template: "<h5 mat-dialog-title class=\"titleDialog\">{{title}}</h5>\r\n<mat-dialog-content class=\"mat-typography\">\r\n  <p>\r\n    {{message}}\r\n  </p>\r\n</mat-dialog-content>\r\n<mat-dialog-actions align=\"end\">\r\n  <button mat-flat-button class=\"returnButton\"  *ngIf=\"!hideCancelButton\" (click)=\"closeDialog()\">{{\"cancel\" | translate}}</button>\r\n  <button mat-flat-button class=\"saveButton\"  (click)=\"doAccept()\" cdkFocusInitial>{{\"accept\" | translate}}</button>\r\n</mat-dialog-actions>",
+                styles: [".titleDialog{margin-bottom:15px!important;margin-top:inherit!important}"]
             }]
     }], function () { return [{ type: ɵngcc6.MatDialogRef }]; }, null); })();
 if (false) {
@@ -791,10 +814,12 @@ class DataGridComponent {
     /**
      * @param {?} dialog
      * @param {?} translate
+     * @param {?} elRef
      */
-    constructor(dialog, translate) {
+    constructor(dialog, translate, elRef) {
         this.dialog = dialog;
         this.translate = translate;
+        this.elRef = elRef;
         this.modules = AllCommunityModules;
         this.statusColumn = false;
         this.changesMap = new Map();
@@ -1102,6 +1127,27 @@ class DataGridComponent {
         // params.oldValue!=undefined
     }
     /**
+     * @param {?} value
+     * @return {?}
+     */
+    changeHeight(value) {
+        /** @type {?} */
+        let pixels = "";
+        if (value === '5') {
+            pixels = "200px";
+        }
+        else if (value === '10') {
+            pixels = "315px";
+        }
+        else if (value === '20') {
+            pixels = "630px";
+        }
+        else {
+            pixels = "1550px";
+        }
+        this.elRef.nativeElement.parentElement.style.height = pixels;
+    }
+    /**
      * @return {?}
      */
     removeData() {
@@ -1399,8 +1445,8 @@ class DataGridComponent {
         }
     }
 }
-DataGridComponent.ɵfac = function DataGridComponent_Factory(t) { return new (t || DataGridComponent)(ɵngcc0.ɵɵdirectiveInject(ɵngcc6.MatDialog), ɵngcc0.ɵɵdirectiveInject(ɵngcc5.TranslateService)); };
-DataGridComponent.ɵcmp = ɵngcc0.ɵɵdefineComponent({ type: DataGridComponent, selectors: [["app-data-grid"]], inputs: { frameworkComponents: "frameworkComponents", eventRefreshSubscription: "eventRefreshSubscription", eventGetSelectedRowsSubscription: "eventGetSelectedRowsSubscription", eventGetAllRowsSubscription: "eventGetAllRowsSubscription", eventSaveAgGridStateSubscription: "eventSaveAgGridStateSubscription", eventAddItemsSubscription: "eventAddItemsSubscription", columnDefs: "columnDefs", getAll: "getAll", discardChangesButton: "discardChangesButton", id: "id", undoButton: "undoButton", defaultColumnSorting: "defaultColumnSorting", redoButton: "redoButton", applyChangesButton: "applyChangesButton", deleteButton: "deleteButton", newButton: "newButton", actionButton: "actionButton", addButton: "addButton", globalSearch: "globalSearch", themeGrid: "themeGrid", singleSelection: "singleSelection", nonEditable: "nonEditable", title: "title", hideExportButton: "hideExportButton", hideDuplicateButton: "hideDuplicateButton", hideSearchReplaceButton: "hideSearchReplaceButton" }, outputs: { remove: "remove", new: "new", add: "add", sendChanges: "sendChanges", getSelectedRows: "getSelectedRows", duplicate: "duplicate", getAllRows: "getAllRows", getAgGridState: "getAgGridState" }, decls: 21, vars: 27, consts: [["id", "grup1", 1, "editDivBtns"], [3, "translate", 4, "ngIf"], ["type", "button", "mat-mini-fab", "", "class", "mini-fab mat-red", "id", "deleteChangesButton", "type", "button", 3, "title", "disabled", "click", 4, "ngIf"], ["type", "button", "mat-mini-fab", "", "class", "mini-fab mat-orange", "id", "undo", 3, "title", "disabled", "click", 4, "ngIf"], ["type", "button", "mat-mini-fab", "", "class", "mini-fab mat-orange", "id", "redo", 3, "title", "disabled", "click", 4, "ngIf"], ["type", "button", "mat-mini-fab", "", "class", "mini-fab mat-green", "id", "applyChangesButton", 3, "title", "disabled", "click", 4, "ngIf"], ["id", "grup2", 1, "actionsDivBtns"], ["type", "text", "class", "searchGenericInput", "placeholder", "", "ml-2", "", 3, "ngModel", "keyup", "ngModelChange", 4, "ngIf"], ["type", "button", "mat-flat-button", "", "id", "deleteButton", "class", "deleteButton", 3, "disabled", "click", 4, "ngIf"], ["type", "button", "mat-flat-button", "", "id", "actionButton", "class", "actionButton", 3, "matMenuTriggerFor", 4, "ngIf"], ["menu", "matMenu"], ["type", "button", "mat-menu-item", "", 3, "click", 4, "ngIf"], ["type", "button", "mat-menu-item", "", 4, "ngIf"], ["type", "button", "mat-flat-button", "", "class", "newButton", 3, "click", 4, "ngIf"], [1, "row", 2, "height", "100%"], ["id", "myGrid", 2, "width", "100%", "height", "100%"], ["rowSelection", "multiple", "multiSortKey", "key", 2, "width", "100%", "height", "100%", "min-height", "200px", 3, "floatingFilter", "rowData", "columnDefs", "gridOptions", "animateRows", "pagination", "modules", "undoRedoCellEditing", "undoRedoCellEditingLimit", "suppressRowClickSelection", "frameworkComponents", "filterModified", "cellEditingStopped", "cellValueChanged", "gridReady", "firstDataRendered"], [3, "translate"], ["type", "button", "mat-mini-fab", "", "id", "deleteChangesButton", "type", "button", 1, "mini-fab", "mat-red", 3, "title", "disabled", "click"], ["fontSet", "material-icons-round"], ["type", "button", "mat-mini-fab", "", "id", "undo", 1, "mini-fab", "mat-orange", 3, "title", "disabled", "click"], ["type", "button", "mat-mini-fab", "", "id", "redo", 1, "mini-fab", "mat-orange", 3, "title", "disabled", "click"], ["type", "button", "mat-mini-fab", "", "id", "applyChangesButton", 1, "mini-fab", "mat-green", 3, "title", "disabled", "click"], ["type", "text", "placeholder", "", "ml-2", "", 1, "searchGenericInput", 3, "ngModel", "keyup", "ngModelChange"], ["type", "button", "mat-flat-button", "", "id", "deleteButton", 1, "deleteButton", 3, "disabled", "click"], ["type", "button", "mat-flat-button", "", "id", "actionButton", 1, "actionButton", 3, "matMenuTriggerFor"], ["type", "button", "mat-menu-item", "", 3, "click"], ["type", "button", "mat-menu-item", ""], ["type", "button", "mat-flat-button", "", 1, "newButton", 3, "click"]], template: function DataGridComponent_Template(rf, ctx) { if (rf & 1) {
+DataGridComponent.ɵfac = function DataGridComponent_Factory(t) { return new (t || DataGridComponent)(ɵngcc0.ɵɵdirectiveInject(ɵngcc6.MatDialog), ɵngcc0.ɵɵdirectiveInject(ɵngcc5.TranslateService), ɵngcc0.ɵɵdirectiveInject(ɵngcc0.ElementRef)); };
+DataGridComponent.ɵcmp = ɵngcc0.ɵɵdefineComponent({ type: DataGridComponent, selectors: [["app-data-grid"]], inputs: { frameworkComponents: "frameworkComponents", eventRefreshSubscription: "eventRefreshSubscription", eventGetSelectedRowsSubscription: "eventGetSelectedRowsSubscription", eventGetAllRowsSubscription: "eventGetAllRowsSubscription", eventSaveAgGridStateSubscription: "eventSaveAgGridStateSubscription", eventAddItemsSubscription: "eventAddItemsSubscription", columnDefs: "columnDefs", getAll: "getAll", discardChangesButton: "discardChangesButton", id: "id", undoButton: "undoButton", defaultColumnSorting: "defaultColumnSorting", redoButton: "redoButton", applyChangesButton: "applyChangesButton", deleteButton: "deleteButton", newButton: "newButton", actionButton: "actionButton", addButton: "addButton", globalSearch: "globalSearch", themeGrid: "themeGrid", singleSelection: "singleSelection", nonEditable: "nonEditable", title: "title", hideExportButton: "hideExportButton", hideDuplicateButton: "hideDuplicateButton", hideSearchReplaceButton: "hideSearchReplaceButton" }, outputs: { remove: "remove", new: "new", add: "add", sendChanges: "sendChanges", getSelectedRows: "getSelectedRows", duplicate: "duplicate", getAllRows: "getAllRows", getAgGridState: "getAgGridState" }, decls: 23, vars: 29, consts: [["id", "grup1", 1, "editDivBtns"], [3, "translate", 4, "ngIf"], ["type", "button", "mat-mini-fab", "", "class", "mini-fab mat-red", "id", "deleteChangesButton", "type", "button", 3, "title", "disabled", "click", 4, "ngIf"], ["type", "button", "mat-mini-fab", "", "class", "mini-fab mat-orange", "id", "undo", 3, "title", "disabled", "click", 4, "ngIf"], ["type", "button", "mat-mini-fab", "", "class", "mini-fab mat-orange", "id", "redo", 3, "title", "disabled", "click", 4, "ngIf"], ["type", "button", "mat-mini-fab", "", "class", "mini-fab mat-green", "id", "applyChangesButton", 3, "title", "disabled", "click", 4, "ngIf"], ["id", "grup2", 1, "actionsDivBtns"], ["type", "text", "class", "searchGenericInput", "placeholder", "", "ml-2", "", 3, "ngModel", "keyup", "ngModelChange", 4, "ngIf"], ["class", "toogleButton", "name", "fontStyle", "aria-label", "Font Style", "value", "5", 4, "ngIf"], ["type", "button", "mat-flat-button", "", "id", "deleteButton", "class", "deleteButton", 3, "disabled", "click", 4, "ngIf"], ["type", "button", "mat-flat-button", "", "id", "actionButton", "class", "actionButton", 3, "matMenuTriggerFor", 4, "ngIf"], ["menu", "matMenu"], ["type", "button", "mat-menu-item", "", 3, "click", 4, "ngIf"], ["type", "button", "mat-menu-item", "", 4, "ngIf"], ["type", "button", "mat-flat-button", "", "class", "newButton", 3, "click", 4, "ngIf"], [1, "row", 2, "height", "100%"], ["id", "myGrid", 2, "width", "100%", "height", "100%"], ["rowSelection", "multiple", "multiSortKey", "key", 2, "width", "100%", "height", "100%", "min-height", "200px", 3, "floatingFilter", "rowData", "columnDefs", "gridOptions", "animateRows", "pagination", "modules", "undoRedoCellEditing", "undoRedoCellEditingLimit", "suppressRowClickSelection", "frameworkComponents", "filterModified", "cellEditingStopped", "cellValueChanged", "gridReady", "firstDataRendered"], [3, "translate"], ["type", "button", "mat-mini-fab", "", "id", "deleteChangesButton", "type", "button", 1, "mini-fab", "mat-red", 3, "title", "disabled", "click"], ["fontSet", "material-icons-round"], ["type", "button", "mat-mini-fab", "", "id", "undo", 1, "mini-fab", "mat-orange", 3, "title", "disabled", "click"], ["type", "button", "mat-mini-fab", "", "id", "redo", 1, "mini-fab", "mat-orange", 3, "title", "disabled", "click"], ["type", "button", "mat-mini-fab", "", "id", "applyChangesButton", 1, "mini-fab", "mat-green", 3, "title", "disabled", "click"], ["type", "text", "placeholder", "", "ml-2", "", 1, "searchGenericInput", 3, "ngModel", "keyup", "ngModelChange"], ["name", "fontStyle", "aria-label", "Font Style", "value", "5", 1, "toogleButton"], ["value", "5", 3, "change"], ["value", "20", 3, "change"], ["value", "50", 3, "change"], ["type", "button", "mat-flat-button", "", "id", "deleteButton", 1, "deleteButton", 3, "disabled", "click"], ["type", "button", "mat-flat-button", "", "id", "actionButton", 1, "actionButton", 3, "matMenuTriggerFor"], ["type", "button", "mat-menu-item", "", 3, "click"], ["type", "button", "mat-menu-item", ""], ["type", "button", "mat-flat-button", "", 1, "newButton", 3, "click"]], template: function DataGridComponent_Template(rf, ctx) { if (rf & 1) {
         ɵngcc0.ɵɵelementStart(0, "div", 0);
         ɵngcc0.ɵɵtemplate(1, DataGridComponent_span_1_Template, 1, 1, "span", 1);
         ɵngcc0.ɵɵtemplate(2, DataGridComponent_button_2_Template, 4, 4, "button", 2);
@@ -1411,20 +1457,22 @@ DataGridComponent.ɵcmp = ɵngcc0.ɵɵdefineComponent({ type: DataGridComponent,
         ɵngcc0.ɵɵelementStart(6, "div", 6);
         ɵngcc0.ɵɵtemplate(7, DataGridComponent_label_7_Template, 1, 1, "label", 1);
         ɵngcc0.ɵɵtemplate(8, DataGridComponent_input_8_Template, 1, 1, "input", 7);
-        ɵngcc0.ɵɵtemplate(9, DataGridComponent_button_9_Template, 4, 2, "button", 8);
-        ɵngcc0.ɵɵtemplate(10, DataGridComponent_button_10_Template, 4, 2, "button", 9);
-        ɵngcc0.ɵɵelementStart(11, "mat-menu", null, 10);
-        ɵngcc0.ɵɵtemplate(13, DataGridComponent_button_13_Template, 3, 3, "button", 11);
-        ɵngcc0.ɵɵtemplate(14, DataGridComponent_button_14_Template, 3, 3, "button", 11);
+        ɵngcc0.ɵɵtemplate(9, DataGridComponent_label_9_Template, 1, 1, "label", 1);
+        ɵngcc0.ɵɵtemplate(10, DataGridComponent_mat_button_toggle_group_10_Template, 7, 0, "mat-button-toggle-group", 8);
+        ɵngcc0.ɵɵtemplate(11, DataGridComponent_button_11_Template, 4, 2, "button", 9);
+        ɵngcc0.ɵɵtemplate(12, DataGridComponent_button_12_Template, 4, 2, "button", 10);
+        ɵngcc0.ɵɵelementStart(13, "mat-menu", null, 11);
         ɵngcc0.ɵɵtemplate(15, DataGridComponent_button_15_Template, 3, 3, "button", 12);
+        ɵngcc0.ɵɵtemplate(16, DataGridComponent_button_16_Template, 3, 3, "button", 12);
+        ɵngcc0.ɵɵtemplate(17, DataGridComponent_button_17_Template, 3, 3, "button", 13);
         ɵngcc0.ɵɵelementEnd();
-        ɵngcc0.ɵɵtemplate(16, DataGridComponent_button_16_Template, 4, 1, "button", 13);
-        ɵngcc0.ɵɵtemplate(17, DataGridComponent_button_17_Template, 4, 1, "button", 13);
+        ɵngcc0.ɵɵtemplate(18, DataGridComponent_button_18_Template, 4, 1, "button", 14);
+        ɵngcc0.ɵɵtemplate(19, DataGridComponent_button_19_Template, 4, 1, "button", 14);
         ɵngcc0.ɵɵelementEnd();
-        ɵngcc0.ɵɵelementStart(18, "div", 14);
-        ɵngcc0.ɵɵelementStart(19, "div", 15);
-        ɵngcc0.ɵɵelementStart(20, "ag-grid-angular", 16);
-        ɵngcc0.ɵɵlistener("filterModified", function DataGridComponent_Template_ag_grid_angular_filterModified_20_listener() { return ctx.onFilterModified(); })("cellEditingStopped", function DataGridComponent_Template_ag_grid_angular_cellEditingStopped_20_listener($event) { return ctx.onCellEditingStopped($event); })("cellValueChanged", function DataGridComponent_Template_ag_grid_angular_cellValueChanged_20_listener($event) { return ctx.onCellValueChanged($event); })("gridReady", function DataGridComponent_Template_ag_grid_angular_gridReady_20_listener($event) { return ctx.onGridReady($event); })("firstDataRendered", function DataGridComponent_Template_ag_grid_angular_firstDataRendered_20_listener() { return ctx.firstDataRendered(); });
+        ɵngcc0.ɵɵelementStart(20, "div", 15);
+        ɵngcc0.ɵɵelementStart(21, "div", 16);
+        ɵngcc0.ɵɵelementStart(22, "ag-grid-angular", 17);
+        ɵngcc0.ɵɵlistener("filterModified", function DataGridComponent_Template_ag_grid_angular_filterModified_22_listener() { return ctx.onFilterModified(); })("cellEditingStopped", function DataGridComponent_Template_ag_grid_angular_cellEditingStopped_22_listener($event) { return ctx.onCellEditingStopped($event); })("cellValueChanged", function DataGridComponent_Template_ag_grid_angular_cellValueChanged_22_listener($event) { return ctx.onCellValueChanged($event); })("gridReady", function DataGridComponent_Template_ag_grid_angular_gridReady_22_listener($event) { return ctx.onGridReady($event); })("firstDataRendered", function DataGridComponent_Template_ag_grid_angular_firstDataRendered_22_listener() { return ctx.firstDataRendered(); });
         ɵngcc0.ɵɵelementEnd();
         ɵngcc0.ɵɵelementEnd();
         ɵngcc0.ɵɵelementEnd();
@@ -1444,6 +1492,10 @@ DataGridComponent.ɵcmp = ɵngcc0.ɵɵdefineComponent({ type: DataGridComponent,
         ɵngcc0.ɵɵadvance(1);
         ɵngcc0.ɵɵproperty("ngIf", ctx.globalSearch);
         ɵngcc0.ɵɵadvance(1);
+        ɵngcc0.ɵɵproperty("ngIf", !ctx.globalSearch);
+        ɵngcc0.ɵɵadvance(1);
+        ɵngcc0.ɵɵproperty("ngIf", !ctx.globalSearch);
+        ɵngcc0.ɵɵadvance(1);
         ɵngcc0.ɵɵproperty("ngIf", ctx.deleteButton);
         ɵngcc0.ɵɵadvance(1);
         ɵngcc0.ɵɵproperty("ngIf", ctx.actionButton);
@@ -1460,11 +1512,12 @@ DataGridComponent.ɵcmp = ɵngcc0.ɵɵdefineComponent({ type: DataGridComponent,
         ɵngcc0.ɵɵadvance(3);
         ɵngcc0.ɵɵclassMap(ctx.themeGrid);
         ɵngcc0.ɵɵproperty("floatingFilter", true)("rowData", ctx.rowData)("columnDefs", ctx.columnDefs)("gridOptions", ctx.gridOptions)("animateRows", true)("pagination", false)("modules", ctx.modules)("undoRedoCellEditing", true)("undoRedoCellEditingLimit", 200)("suppressRowClickSelection", true)("frameworkComponents", ctx.frameworkComponents);
-    } }, directives: [ɵngcc7.NgIf, ɵngcc8._MatMenu, ɵngcc9.AgGridAngular, ɵngcc5.TranslateDirective, ɵngcc1.MatButton, ɵngcc2.MatIcon, ɵngcc4.DefaultValueAccessor, ɵngcc4.NgControlStatus, ɵngcc4.NgModel, ɵngcc8.MatMenuTrigger, ɵngcc8.MatMenuItem], pipes: [ɵngcc5.TranslatePipe], styles: ["@charset \"UTF-8\";input[_ngcontent-%COMP%], label[_ngcontent-%COMP%]{display:inline-block;margin:5px 5px 5px 10px}.mat-flat-button.mat-orange[_ngcontent-%COMP%], .mat-icon.mat-orange[_ngcontent-%COMP%], .mat-mini-fab.mat-orange[_ngcontent-%COMP%], .mat-raised-button.mat-orange[_ngcontent-%COMP%]{background-color:#ff9300!important;color:#fff!important}.mat-flat-button.mat-orange[_ngcontent-%COMP%]:disabled, .mat-icon.mat-orange[_ngcontent-%COMP%]:disabled, .mat-mini-fab.mat-orange[_ngcontent-%COMP%]:disabled, .mat-raised-button.mat-orange[_ngcontent-%COMP%]:disabled{background:#ffc97f!important;color:#fff!important}.mat-flat-button.mat-green[_ngcontent-%COMP%], .mat-icon.mat-green[_ngcontent-%COMP%], .mat-mini-fab.mat-green[_ngcontent-%COMP%], .mat-raised-button.mat-green[_ngcontent-%COMP%]{background-color:#68a225!important;color:#fff!important}.mat-flat-button.mat-green[_ngcontent-%COMP%]:disabled, .mat-icon.mat-green[_ngcontent-%COMP%]:disabled, .mat-mini-fab.mat-green[_ngcontent-%COMP%]:disabled, .mat-raised-button.mat-green[_ngcontent-%COMP%]:disabled{background-color:#83976c!important;color:#fff!important}.mat-flat-button.mat-red[_ngcontent-%COMP%], .mat-icon.mat-red[_ngcontent-%COMP%], .mat-mini-fab.mat-red[_ngcontent-%COMP%], .mat-raised-button.mat-red[_ngcontent-%COMP%]{background-color:#bf0000!important;color:#fff!important}.mat-flat-button.mat-red[_ngcontent-%COMP%]:disabled, .mat-icon.mat-red[_ngcontent-%COMP%]:disabled, .mat-mini-fab.mat-red[_ngcontent-%COMP%]:disabled, .mat-raised-button.mat-red[_ngcontent-%COMP%]:disabled{background-color:#da8c8e!important;color:#fff!important}.validateButton[_ngcontent-%COMP%]{background-color:#ff9300;color:#fff;margin-top:34px!important;min-width:85px}.deleteButton[_ngcontent-%COMP%], .validateButton[_ngcontent-%COMP%]{-ms-grid-column-align:right!important;height:40px;justify-self:right!important}.deleteButton[_ngcontent-%COMP%]{border:1px solid #bf0000!important;color:#bf0000;float:inherit!important;min-width:85px!important}.deleteButton[_ngcontent-%COMP%]:disabled{background-color:inherit!important;border:1px solid rgba(0,0,0,.26)!important;color:rgba(0,0,0,.26) solid 1px!important}.actionButton[_ngcontent-%COMP%], .returnButton[_ngcontent-%COMP%]{border:1px solid #ff9300!important;color:#ff9300}.actionButton[_ngcontent-%COMP%], .newButton[_ngcontent-%COMP%], .returnButton[_ngcontent-%COMP%], .saveButton[_ngcontent-%COMP%]{-ms-grid-column-align:right!important;float:inherit!important;height:40px;justify-self:right!important;min-width:85px!important}.newButton[_ngcontent-%COMP%], .saveButton[_ngcontent-%COMP%]{background-color:#68a225;color:#fff}.editDivBtns[_ngcontent-%COMP%]{height:30px!important;line-height:30px!important;margin-left:10px;text-align:start;width:130px}.actionsDivBtns[_ngcontent-%COMP%]{height:50px;text-align:end;width:calc(100% - 140px)}.actionsDivBtns[_ngcontent-%COMP%], .editDivBtns[_ngcontent-%COMP%]{display:inline-block!important}.actionsDivBtns[_ngcontent-%COMP%]   .searchGenericInput[_ngcontent-%COMP%]{display:inline-block!important;height:41px!important;margin:0 5px 5px 10px!important;width:45%!important}.ag-body-viewport.ag-layout-normal[_ngcontent-%COMP%]   [_ngcontent-%COMP%]::-webkit-scrollbar-thumb{background:#eee}\u200B[_ngcontent-%COMP%]   .ag-body-viewport.ag-layout-normal[_ngcontent-%COMP%]   [_ngcontent-%COMP%]::-webkit-scrollbar{height:2em;width:2em}.ag-body-viewport.ag-layout-normal[_ngcontent-%COMP%]   [_ngcontent-%COMP%]::-webkit-scrollbar-button{background:#ccc}.ag-body-viewport.ag-layout-normal[_ngcontent-%COMP%]::-webkit-scrollbar-track-piece{background:#888}.mini-fab[_ngcontent-%COMP%]{height:28px!important;line-height:22px!important;margin-right:3px!important;margin-top:7px!important;width:28px!important}.mini-fab[_ngcontent-%COMP%]   .mat-button-wrapper[_ngcontent-%COMP%]{height:24px!important;line-height:22px!important;padding:1px 0!important;width:24px!important}.mini-fab[_ngcontent-%COMP%]   .mat-button-wrapper[_ngcontent-%COMP%]   .mat-icon[_ngcontent-%COMP%]{font-size:20px;line-height:22px;padding-right:0}"] });
+    } }, directives: [ɵngcc7.NgIf, ɵngcc8._MatMenu, ɵngcc9.AgGridAngular, ɵngcc5.TranslateDirective, ɵngcc1.MatButton, ɵngcc2.MatIcon, ɵngcc4.DefaultValueAccessor, ɵngcc4.NgControlStatus, ɵngcc4.NgModel, ɵngcc10.MatButtonToggleGroup, ɵngcc10.MatButtonToggle, ɵngcc8.MatMenuTrigger, ɵngcc8.MatMenuItem], pipes: [ɵngcc5.TranslatePipe], styles: ["@charset \"UTF-8\";input[_ngcontent-%COMP%], label[_ngcontent-%COMP%]{display:inline-block;margin:5px 5px 5px 10px}.mat-flat-button.mat-orange[_ngcontent-%COMP%], .mat-icon.mat-orange[_ngcontent-%COMP%], .mat-mini-fab.mat-orange[_ngcontent-%COMP%], .mat-raised-button.mat-orange[_ngcontent-%COMP%]{background-color:#ff9300!important;color:#fff!important}.mat-flat-button.mat-orange[_ngcontent-%COMP%]:disabled, .mat-icon.mat-orange[_ngcontent-%COMP%]:disabled, .mat-mini-fab.mat-orange[_ngcontent-%COMP%]:disabled, .mat-raised-button.mat-orange[_ngcontent-%COMP%]:disabled{background:#ffc97f!important;color:#fff!important}.mat-flat-button.mat-green[_ngcontent-%COMP%], .mat-icon.mat-green[_ngcontent-%COMP%], .mat-mini-fab.mat-green[_ngcontent-%COMP%], .mat-raised-button.mat-green[_ngcontent-%COMP%]{background-color:#68a225!important;color:#fff!important}.mat-flat-button.mat-green[_ngcontent-%COMP%]:disabled, .mat-icon.mat-green[_ngcontent-%COMP%]:disabled, .mat-mini-fab.mat-green[_ngcontent-%COMP%]:disabled, .mat-raised-button.mat-green[_ngcontent-%COMP%]:disabled{background-color:#83976c!important;color:#fff!important}.mat-flat-button.mat-red[_ngcontent-%COMP%], .mat-icon.mat-red[_ngcontent-%COMP%], .mat-mini-fab.mat-red[_ngcontent-%COMP%], .mat-raised-button.mat-red[_ngcontent-%COMP%]{background-color:#bf0000!important;color:#fff!important}.mat-flat-button.mat-red[_ngcontent-%COMP%]:disabled, .mat-icon.mat-red[_ngcontent-%COMP%]:disabled, .mat-mini-fab.mat-red[_ngcontent-%COMP%]:disabled, .mat-raised-button.mat-red[_ngcontent-%COMP%]:disabled{background-color:#da8c8e!important;color:#fff!important}.validateButton[_ngcontent-%COMP%]{background-color:#ff9300;color:#fff;margin-top:34px!important;min-width:85px}.deleteButton[_ngcontent-%COMP%], .validateButton[_ngcontent-%COMP%]{-ms-grid-column-align:right!important;height:40px;justify-self:right!important}.deleteButton[_ngcontent-%COMP%]{border:1px solid #bf0000!important;color:#bf0000;float:inherit!important;min-width:85px!important}.deleteButton[_ngcontent-%COMP%]:disabled{background-color:inherit!important;border:1px solid rgba(0,0,0,.26)!important;color:rgba(0,0,0,.26) solid 1px!important}.actionButton[_ngcontent-%COMP%], .returnButton[_ngcontent-%COMP%]{border:1px solid #ff9300!important;color:#ff9300}.actionButton[_ngcontent-%COMP%], .newButton[_ngcontent-%COMP%], .returnButton[_ngcontent-%COMP%], .saveButton[_ngcontent-%COMP%]{-ms-grid-column-align:right!important;float:inherit!important;height:40px;justify-self:right!important;min-width:85px!important}.newButton[_ngcontent-%COMP%], .saveButton[_ngcontent-%COMP%]{background-color:#68a225;color:#fff}.editDivBtns[_ngcontent-%COMP%]{height:30px!important;line-height:30px!important;margin-left:10px;text-align:start;width:130px}.actionsDivBtns[_ngcontent-%COMP%]{height:50px;text-align:end;width:calc(100% - 140px)}.actionsDivBtns[_ngcontent-%COMP%], .editDivBtns[_ngcontent-%COMP%]{display:inline-block!important}.actionsDivBtns[_ngcontent-%COMP%]   .searchGenericInput[_ngcontent-%COMP%]{display:inline-block!important;height:41px!important;margin:0 5px 5px 10px!important;width:45%!important}.ag-body-viewport.ag-layout-normal[_ngcontent-%COMP%]   [_ngcontent-%COMP%]::-webkit-scrollbar-thumb{background:#eee}\u200B[_ngcontent-%COMP%]   .ag-body-viewport.ag-layout-normal[_ngcontent-%COMP%]   [_ngcontent-%COMP%]::-webkit-scrollbar{height:2em;width:2em}.ag-body-viewport.ag-layout-normal[_ngcontent-%COMP%]   [_ngcontent-%COMP%]::-webkit-scrollbar-button{background:#ccc}.ag-body-viewport.ag-layout-normal[_ngcontent-%COMP%]::-webkit-scrollbar-track-piece{background:#888}.mini-fab[_ngcontent-%COMP%]{height:28px!important;line-height:22px!important;margin-right:3px!important;margin-top:7px!important;width:28px!important}.mini-fab[_ngcontent-%COMP%]   .mat-button-wrapper[_ngcontent-%COMP%]{height:24px!important;line-height:22px!important;padding:1px 0!important;width:24px!important}.mini-fab[_ngcontent-%COMP%]   .mat-button-wrapper[_ngcontent-%COMP%]   .mat-icon[_ngcontent-%COMP%]{font-size:20px;line-height:22px;padding-right:0}.toogleButton[_ngcontent-%COMP%]{align-items:center;height:40px;margin-right:10px;vertical-align:bottom}"] });
 /** @nocollapse */
 DataGridComponent.ctorParameters = () => [
     { type: MatDialog },
-    { type: TranslateService }
+    { type: TranslateService },
+    { type: ElementRef }
 ];
 DataGridComponent.propDecorators = {
     eventRefreshSubscription: [{ type: Input }],
@@ -1506,10 +1559,10 @@ DataGridComponent.propDecorators = {
         type: Component,
         args: [{
                 selector: 'app-data-grid',
-                template: "<div id=grup1 class=\"editDivBtns\">\r\n    <span *ngIf=\"title\" [translate]=\"title\"> </span>\r\n    <button type=\"button\" title=\"{{ 'cancel' | translate }}\" mat-mini-fab class=\"mini-fab mat-red\" *ngIf=\"discardChangesButton\"\r\n        id=\"deleteChangesButton\" type=\"button\" (click)=\"deleteChanges()\" [disabled]=\"changeCounter <= 0\">\r\n        <mat-icon fontSet=\"material-icons-round\"> close </mat-icon>\r\n    </button>\r\n    <button type=\"button\" title=\"{{ 'undo' | translate }}\" mat-mini-fab class=\"mini-fab mat-orange\" *ngIf=\"undoButton\" id=\"undo\"\r\n        (click)=\"undo()\" [disabled]=\"changeCounter <= 0\">\r\n        <mat-icon fontSet=\"material-icons-round\"> undo </mat-icon>\r\n    </button>\r\n    <button type=\"button\" title=\"{{ 'redo' | translate }}\" mat-mini-fab class=\"mini-fab mat-orange\" *ngIf=\"redoButton\" id=\"redo\"\r\n        (click)=\"redo()\" [disabled]=\"redoCounter <= 0\">\r\n        <mat-icon fontSet=\"material-icons-round\"> redo </mat-icon>\r\n    </button>\r\n    <button type=\"button\" title=\"{{ 'accept' | translate }}\" mat-mini-fab class=\"mini-fab mat-green\" *ngIf=\"applyChangesButton\"\r\n        id=\"applyChangesButton\" (click)=\"applyChanges()\" [disabled]=\"changeCounter <= 0\">\r\n        <mat-icon fontSet=\"material-icons-round\"> check </mat-icon>\r\n    </button>\r\n</div>\r\n\r\n<div id=grup2 class=\"actionsDivBtns\">\r\n    <label *ngIf=\"globalSearch\" [translate]=\"'search'\"> </label>\r\n    <input *ngIf=\"globalSearch\" type=\"text\" class=\"searchGenericInput\" placeholder=\"\" (keyup)=\"quickSearch()\"\r\n        [(ngModel)]=\"searchValue\" ml-2>\r\n    <button type=\"button\" *ngIf=\"deleteButton\" mat-flat-button id=\"deleteButton\" class=\"deleteButton\" (click)=\"removeData()\" [disabled]=\"!areRowsSelected()\">\r\n        <mat-icon fontSet=\"material-icons-round\"> delete </mat-icon>\r\n        <span [translate]=\"'remove'\"> </span>\r\n\r\n    </button>\r\n    <button type=\"button\" *ngIf=\"actionButton\" mat-flat-button [matMenuTriggerFor]=\"menu\" id=\"actionButton\" class=\"actionButton\">\r\n        <span [translate]=\"'actions'\"> </span>\r\n        <mat-icon fontSet=\"material-icons-round\"> keyboard_arrow_down </mat-icon>\r\n    </button>\r\n    <mat-menu #menu=\"matMenu\">\r\n        <button type=\"button\" mat-menu-item *ngIf=\"!hideExportButton\" (click)=\"exportData()\"> {{\"export\" | translate}} </button>\r\n        <button type=\"button\" mat-menu-item *ngIf=\"!hideDuplicateButton\" (click)=\"onDuplicateButtonClicked()\"> {{\"duplicate\" |\r\n            translate}}</button>\r\n        <button type=\"button\" mat-menu-item *ngIf=\"!hideSearchReplaceButton\"> {{\"search/replace\" | translate}}</button>\r\n    </mat-menu>\r\n\r\n    <button type=\"button\" *ngIf=\"newButton\" mat-flat-button class=\"newButton\" (click)=\"newData()\">\r\n        <mat-icon fontSet=\"material-icons-round\"> add_circle_outline </mat-icon>\r\n        <span [translate]=\"'new'\"> </span>\r\n    </button>\r\n    <button type=\"button\" *ngIf=\"addButton\" mat-flat-button class=\"newButton\" (click)=\"onAddButtonClicked()\">\r\n        <mat-icon fontSet=\"material-icons-round\"> add_circle_outline </mat-icon>\r\n        <span [translate]=\"'add'\"> </span>\r\n    </button>\r\n\r\n</div>\r\n\r\n\r\n\r\n<div class=\"row\" style=\" height: 100%\">\r\n    <div id=\"myGrid\" style=\" width:100%; height: 100%\">\r\n        <ag-grid-angular style=\"width: 100%; height: 100%;min-height: 200px;\" [class]=\"themeGrid\"\r\n            [floatingFilter]=\"true\" [rowData]=\"rowData\" [columnDefs]=\"columnDefs\" [gridOptions]=\"gridOptions\"\r\n            [animateRows]=\"true\" [pagination]=\"false\" [modules]=\"modules\" [undoRedoCellEditing]=\"true\"\r\n            [undoRedoCellEditingLimit]=200 [suppressRowClickSelection]=true [frameworkComponents]=\"frameworkComponents\"\r\n            rowSelection=\"multiple\" multiSortKey=\"key\" (filterModified)=\"onFilterModified()\"\r\n            (cellEditingStopped)=\"onCellEditingStopped($event)\" (cellValueChanged)=\"onCellValueChanged($event)\"\r\n            (gridReady)=\"onGridReady($event)\" (firstDataRendered)=\"firstDataRendered()\">\r\n        </ag-grid-angular>\r\n    </div>\r\n</div>",
-                styles: ["@charset \"UTF-8\";input,label{display:inline-block;margin:5px 5px 5px 10px}.mat-flat-button.mat-orange,.mat-icon.mat-orange,.mat-mini-fab.mat-orange,.mat-raised-button.mat-orange{background-color:#ff9300!important;color:#fff!important}.mat-flat-button.mat-orange:disabled,.mat-icon.mat-orange:disabled,.mat-mini-fab.mat-orange:disabled,.mat-raised-button.mat-orange:disabled{background:#ffc97f!important;color:#fff!important}.mat-flat-button.mat-green,.mat-icon.mat-green,.mat-mini-fab.mat-green,.mat-raised-button.mat-green{background-color:#68a225!important;color:#fff!important}.mat-flat-button.mat-green:disabled,.mat-icon.mat-green:disabled,.mat-mini-fab.mat-green:disabled,.mat-raised-button.mat-green:disabled{background-color:#83976c!important;color:#fff!important}.mat-flat-button.mat-red,.mat-icon.mat-red,.mat-mini-fab.mat-red,.mat-raised-button.mat-red{background-color:#bf0000!important;color:#fff!important}.mat-flat-button.mat-red:disabled,.mat-icon.mat-red:disabled,.mat-mini-fab.mat-red:disabled,.mat-raised-button.mat-red:disabled{background-color:#da8c8e!important;color:#fff!important}.validateButton{background-color:#ff9300;color:#fff;margin-top:34px!important;min-width:85px}.deleteButton,.validateButton{-ms-grid-column-align:right!important;height:40px;justify-self:right!important}.deleteButton{border:1px solid #bf0000!important;color:#bf0000;float:inherit!important;min-width:85px!important}.deleteButton:disabled{background-color:inherit!important;border:1px solid rgba(0,0,0,.26)!important;color:rgba(0,0,0,.26) solid 1px!important}.actionButton,.returnButton{border:1px solid #ff9300!important;color:#ff9300}.actionButton,.newButton,.returnButton,.saveButton{-ms-grid-column-align:right!important;float:inherit!important;height:40px;justify-self:right!important;min-width:85px!important}.newButton,.saveButton{background-color:#68a225;color:#fff}.editDivBtns{height:30px!important;line-height:30px!important;margin-left:10px;text-align:start;width:130px}.actionsDivBtns{height:50px;text-align:end;width:calc(100% - 140px)}.actionsDivBtns,.editDivBtns{display:inline-block!important}.actionsDivBtns .searchGenericInput{display:inline-block!important;height:41px!important;margin:0 5px 5px 10px!important;width:45%!important}.ag-body-viewport.ag-layout-normal ::-webkit-scrollbar-thumb{background:#eee}\u200B .ag-body-viewport.ag-layout-normal ::-webkit-scrollbar{height:2em;width:2em}.ag-body-viewport.ag-layout-normal ::-webkit-scrollbar-button{background:#ccc}.ag-body-viewport.ag-layout-normal::-webkit-scrollbar-track-piece{background:#888}.mini-fab{height:28px!important;line-height:22px!important;margin-right:3px!important;margin-top:7px!important;width:28px!important}.mini-fab .mat-button-wrapper{height:24px!important;line-height:22px!important;padding:1px 0!important;width:24px!important}.mini-fab .mat-button-wrapper .mat-icon{font-size:20px;line-height:22px;padding-right:0}"]
+                template: "<div id=grup1 class=\"editDivBtns\">\r\n    <span *ngIf=\"title\" [translate]=\"title\"> </span>\r\n    <button type=\"button\" title=\"{{ 'cancel' | translate }}\" mat-mini-fab class=\"mini-fab mat-red\"\r\n        *ngIf=\"discardChangesButton\" id=\"deleteChangesButton\" type=\"button\" (click)=\"deleteChanges()\"\r\n        [disabled]=\"changeCounter <= 0\">\r\n        <mat-icon fontSet=\"material-icons-round\"> close </mat-icon>\r\n    </button>\r\n    <button type=\"button\" title=\"{{ 'undo' | translate }}\" mat-mini-fab class=\"mini-fab mat-orange\" *ngIf=\"undoButton\"\r\n        id=\"undo\" (click)=\"undo()\" [disabled]=\"changeCounter <= 0\">\r\n        <mat-icon fontSet=\"material-icons-round\"> undo </mat-icon>\r\n    </button>\r\n    <button type=\"button\" title=\"{{ 'redo' | translate }}\" mat-mini-fab class=\"mini-fab mat-orange\" *ngIf=\"redoButton\"\r\n        id=\"redo\" (click)=\"redo()\" [disabled]=\"redoCounter <= 0\">\r\n        <mat-icon fontSet=\"material-icons-round\"> redo </mat-icon>\r\n    </button>\r\n    <button type=\"button\" title=\"{{ 'accept' | translate }}\" mat-mini-fab class=\"mini-fab mat-green\"\r\n        *ngIf=\"applyChangesButton\" id=\"applyChangesButton\" (click)=\"applyChanges()\" [disabled]=\"changeCounter <= 0\">\r\n        <mat-icon fontSet=\"material-icons-round\"> check </mat-icon>\r\n    </button>\r\n</div>\r\n\r\n<div id=grup2 class=\"actionsDivBtns\">\r\n    <label *ngIf=\"globalSearch\" [translate]=\"'search'\"> </label>\r\n    <input *ngIf=\"globalSearch\" type=\"text\" class=\"searchGenericInput\" placeholder=\"\" (keyup)=\"quickSearch()\"\r\n        [(ngModel)]=\"searchValue\" ml-2>\r\n    <label *ngIf=\"!globalSearch\" [translate]=\"'rowsToShow'\"> </label>\r\n    <mat-button-toggle-group *ngIf=\"!globalSearch\" class=\"toogleButton\" name=\"fontStyle\" aria-label=\"Font Style\"  value=\"5\">\r\n        <mat-button-toggle value=\"5\" (change)=\"changeHeight($event.value)\">5</mat-button-toggle>\r\n        <mat-button-toggle value=\"20\" (change)=\"changeHeight($event.value)\">20</mat-button-toggle>\r\n        <mat-button-toggle value=\"50\" (change)=\"changeHeight($event.value)\">50</mat-button-toggle>\r\n    </mat-button-toggle-group>\r\n\r\n    <button type=\"button\" *ngIf=\"deleteButton\" mat-flat-button id=\"deleteButton\" class=\"deleteButton\"\r\n        (click)=\"removeData()\" [disabled]=\"!areRowsSelected()\">\r\n        <mat-icon fontSet=\"material-icons-round\"> delete </mat-icon>\r\n        <span [translate]=\"'remove'\"> </span>\r\n\r\n    </button>\r\n    <button type=\"button\" *ngIf=\"actionButton\" mat-flat-button [matMenuTriggerFor]=\"menu\" id=\"actionButton\"\r\n        class=\"actionButton\">\r\n        <span [translate]=\"'actions'\"> </span>\r\n        <mat-icon fontSet=\"material-icons-round\"> keyboard_arrow_down </mat-icon>\r\n    </button>\r\n    <mat-menu #menu=\"matMenu\">\r\n        <button type=\"button\" mat-menu-item *ngIf=\"!hideExportButton\" (click)=\"exportData()\"> {{\"export\" | translate}}\r\n        </button>\r\n        <button type=\"button\" mat-menu-item *ngIf=\"!hideDuplicateButton\" (click)=\"onDuplicateButtonClicked()\">\r\n            {{\"duplicate\" |\r\n            translate}}</button>\r\n        <button type=\"button\" mat-menu-item *ngIf=\"!hideSearchReplaceButton\"> {{\"search/replace\" | translate}}</button>\r\n    </mat-menu>\r\n\r\n    <button type=\"button\" *ngIf=\"newButton\" mat-flat-button class=\"newButton\" (click)=\"newData()\">\r\n        <mat-icon fontSet=\"material-icons-round\"> add_circle_outline </mat-icon>\r\n        <span [translate]=\"'new'\"> </span>\r\n    </button>\r\n    <button type=\"button\" *ngIf=\"addButton\" mat-flat-button class=\"newButton\" (click)=\"onAddButtonClicked()\">\r\n        <mat-icon fontSet=\"material-icons-round\"> add_circle_outline </mat-icon>\r\n        <span [translate]=\"'add'\"> </span>\r\n    </button>\r\n\r\n</div>\r\n\r\n<div class=\"row\" style=\" height: 100%\">\r\n    <div id=\"myGrid\" style=\" width:100%; height: 100%\">\r\n        <ag-grid-angular style=\"width: 100%; height: 100%;min-height: 200px;\" [class]=\"themeGrid\"\r\n            [floatingFilter]=\"true\" [rowData]=\"rowData\" [columnDefs]=\"columnDefs\" [gridOptions]=\"gridOptions\"\r\n            [animateRows]=\"true\" [pagination]=\"false\" [modules]=\"modules\" [undoRedoCellEditing]=\"true\"\r\n            [undoRedoCellEditingLimit]=200 [suppressRowClickSelection]=true [frameworkComponents]=\"frameworkComponents\"\r\n            rowSelection=\"multiple\" multiSortKey=\"key\" (filterModified)=\"onFilterModified()\"\r\n            (cellEditingStopped)=\"onCellEditingStopped($event)\" (cellValueChanged)=\"onCellValueChanged($event)\"\r\n            (gridReady)=\"onGridReady($event)\" (firstDataRendered)=\"firstDataRendered()\">\r\n        </ag-grid-angular>\r\n    </div>\r\n</div>",
+                styles: ["@charset \"UTF-8\";input,label{display:inline-block;margin:5px 5px 5px 10px}.mat-flat-button.mat-orange,.mat-icon.mat-orange,.mat-mini-fab.mat-orange,.mat-raised-button.mat-orange{background-color:#ff9300!important;color:#fff!important}.mat-flat-button.mat-orange:disabled,.mat-icon.mat-orange:disabled,.mat-mini-fab.mat-orange:disabled,.mat-raised-button.mat-orange:disabled{background:#ffc97f!important;color:#fff!important}.mat-flat-button.mat-green,.mat-icon.mat-green,.mat-mini-fab.mat-green,.mat-raised-button.mat-green{background-color:#68a225!important;color:#fff!important}.mat-flat-button.mat-green:disabled,.mat-icon.mat-green:disabled,.mat-mini-fab.mat-green:disabled,.mat-raised-button.mat-green:disabled{background-color:#83976c!important;color:#fff!important}.mat-flat-button.mat-red,.mat-icon.mat-red,.mat-mini-fab.mat-red,.mat-raised-button.mat-red{background-color:#bf0000!important;color:#fff!important}.mat-flat-button.mat-red:disabled,.mat-icon.mat-red:disabled,.mat-mini-fab.mat-red:disabled,.mat-raised-button.mat-red:disabled{background-color:#da8c8e!important;color:#fff!important}.validateButton{background-color:#ff9300;color:#fff;margin-top:34px!important;min-width:85px}.deleteButton,.validateButton{-ms-grid-column-align:right!important;height:40px;justify-self:right!important}.deleteButton{border:1px solid #bf0000!important;color:#bf0000;float:inherit!important;min-width:85px!important}.deleteButton:disabled{background-color:inherit!important;border:1px solid rgba(0,0,0,.26)!important;color:rgba(0,0,0,.26) solid 1px!important}.actionButton,.returnButton{border:1px solid #ff9300!important;color:#ff9300}.actionButton,.newButton,.returnButton,.saveButton{-ms-grid-column-align:right!important;float:inherit!important;height:40px;justify-self:right!important;min-width:85px!important}.newButton,.saveButton{background-color:#68a225;color:#fff}.editDivBtns{height:30px!important;line-height:30px!important;margin-left:10px;text-align:start;width:130px}.actionsDivBtns{height:50px;text-align:end;width:calc(100% - 140px)}.actionsDivBtns,.editDivBtns{display:inline-block!important}.actionsDivBtns .searchGenericInput{display:inline-block!important;height:41px!important;margin:0 5px 5px 10px!important;width:45%!important}.ag-body-viewport.ag-layout-normal ::-webkit-scrollbar-thumb{background:#eee}\u200B .ag-body-viewport.ag-layout-normal ::-webkit-scrollbar{height:2em;width:2em}.ag-body-viewport.ag-layout-normal ::-webkit-scrollbar-button{background:#ccc}.ag-body-viewport.ag-layout-normal::-webkit-scrollbar-track-piece{background:#888}.mini-fab{height:28px!important;line-height:22px!important;margin-right:3px!important;margin-top:7px!important;width:28px!important}.mini-fab .mat-button-wrapper{height:24px!important;line-height:22px!important;padding:1px 0!important;width:24px!important}.mini-fab .mat-button-wrapper .mat-icon{font-size:20px;line-height:22px;padding-right:0}.toogleButton{align-items:center;height:40px;margin-right:10px;vertical-align:bottom}"]
             }]
-    }], function () { return [{ type: ɵngcc6.MatDialog }, { type: ɵngcc5.TranslateService }]; }, { frameworkComponents: [{
+    }], function () { return [{ type: ɵngcc6.MatDialog }, { type: ɵngcc5.TranslateService }, { type: ɵngcc0.ElementRef }]; }, { frameworkComponents: [{
             type: Input
         }], remove: [{
             type: Output
@@ -1689,6 +1742,8 @@ if (false) {
     DataGridComponent.prototype.dialog;
     /** @type {?} */
     DataGridComponent.prototype.translate;
+    /** @type {?} */
+    DataGridComponent.prototype.elRef;
 }
 
 /**
@@ -1904,7 +1959,7 @@ class DialogGridComponent {
     }
 }
 DialogGridComponent.ɵfac = function DialogGridComponent_Factory(t) { return new (t || DialogGridComponent)(ɵngcc0.ɵɵdirectiveInject(ɵngcc6.MatDialogRef)); };
-DialogGridComponent.ɵcmp = ɵngcc0.ɵɵdefineComponent({ type: DialogGridComponent, selectors: [["app-dialog-grid"]], outputs: { joinTables: "joinTables" }, decls: 11, vars: 8, consts: [["mat-dialog-title", ""], [1, "dialogConent"], ["class", "appDialogDataGridDiv", 3, "ngStyle", 4, "ngFor", "ngForOf"], ["mat-dialog-actions", "", "align", "end"], ["mat-flat-button", "", 1, "returnButton", 3, "click"], ["mat-flat-button", "", "cdkFocusInitial", "", 1, "saveButton", 3, "click"], [1, "appDialogDataGridDiv", 3, "ngStyle"], [3, "columnDefs", "themeGrid", "getAll", "globalSearch", "singleSelection", "title", "nonEditable", "eventGetSelectedRowsSubscription", "getSelectedRows"]], template: function DialogGridComponent_Template(rf, ctx) { if (rf & 1) {
+DialogGridComponent.ɵcmp = ɵngcc0.ɵɵdefineComponent({ type: DialogGridComponent, selectors: [["app-dialog-grid"]], outputs: { joinTables: "joinTables" }, decls: 11, vars: 8, consts: [["mat-dialog-title", "", 1, "titleDialog"], [1, "dialogConent"], ["class", "appDialogDataGridDiv", 3, "ngStyle", 4, "ngFor", "ngForOf"], ["mat-dialog-actions", "", "align", "end"], ["mat-flat-button", "", 1, "returnButton", 3, "click"], ["mat-flat-button", "", "cdkFocusInitial", "", 1, "saveButton", 3, "click"], [1, "appDialogDataGridDiv", 3, "ngStyle"], [3, "columnDefs", "themeGrid", "getAll", "globalSearch", "singleSelection", "title", "nonEditable", "eventGetSelectedRowsSubscription", "getSelectedRows"]], template: function DialogGridComponent_Template(rf, ctx) { if (rf & 1) {
         ɵngcc0.ɵɵelementStart(0, "h5", 0);
         ɵngcc0.ɵɵtext(1);
         ɵngcc0.ɵɵelementEnd();
@@ -1932,7 +1987,7 @@ DialogGridComponent.ɵcmp = ɵngcc0.ɵɵdefineComponent({ type: DialogGridCompon
         ɵngcc0.ɵɵtextInterpolate(ɵngcc0.ɵɵpipeBind1(7, 4, "cancel"));
         ɵngcc0.ɵɵadvance(3);
         ɵngcc0.ɵɵtextInterpolate(ɵngcc0.ɵɵpipeBind1(10, 6, "add"));
-    } }, directives: [ɵngcc6.MatDialogTitle, ɵngcc6.MatDialogContent, ɵngcc7.NgForOf, ɵngcc6.MatDialogActions, ɵngcc1.MatButton, ɵngcc7.NgStyle, DataGridComponent], pipes: [ɵngcc5.TranslatePipe], styles: [".dialogConent[_ngcontent-%COMP%]{height:100%;margin:inherit!important;max-height:60vh!important;overflow:auto;padding:inherit!important;width:100%}"] });
+    } }, directives: [ɵngcc6.MatDialogTitle, ɵngcc6.MatDialogContent, ɵngcc7.NgForOf, ɵngcc6.MatDialogActions, ɵngcc1.MatButton, ɵngcc7.NgStyle, DataGridComponent], pipes: [ɵngcc5.TranslatePipe], styles: [".dialogConent[_ngcontent-%COMP%]{height:100%;margin:inherit!important;max-height:60vh!important;overflow:auto;padding:inherit!important;width:100%}.titleDialog[_ngcontent-%COMP%]{margin-bottom:15px!important;margin-top:inherit!important}"] });
 /** @nocollapse */
 DialogGridComponent.ctorParameters = () => [
     { type: MatDialogRef }
@@ -1944,8 +1999,8 @@ DialogGridComponent.propDecorators = {
         type: Component,
         args: [{
                 selector: 'app-dialog-grid',
-                template: "<h5 mat-dialog-title>{{title}}</h5>\r\n<mat-dialog-content class=\"dialogConent\">\r\n  <div *ngFor=\"let getAll of getAllsTable; let i = index\" class=\"appDialogDataGridDiv\"  [ngStyle]=\"{'margin-top': i>0?'100px':'0px'}\">\r\n    <app-data-grid \r\n    [columnDefs]=\"columnDefsTable[i]\" [themeGrid]='themeGrid'  [getAll]='getAll' [globalSearch]=true [singleSelection]=\"singleSelectionTable[i]\"\r\n    [title]=\"titlesTable[i]\" [nonEditable]='nonEditable' [eventGetSelectedRowsSubscription]=\"getAllRows.asObservable()\" (getSelectedRows)='joinRowsReceived($event)' >\r\n    </app-data-grid>\r\n  </div>\r\n</mat-dialog-content>\r\n<div mat-dialog-actions align=\"end\">\r\n  <button mat-flat-button class=\"returnButton\" (click)=\"closeDialog()\">{{\"cancel\" | translate}}</button>\r\n  <button mat-flat-button class=\"saveButton\" (click)=\"getAllSelectedRows()\" cdkFocusInitial>{{\"add\" | translate}}</button>\r\n</div>\r\n\r\n",
-                styles: [".dialogConent{height:100%;margin:inherit!important;max-height:60vh!important;overflow:auto;padding:inherit!important;width:100%}"]
+                template: "<h5 mat-dialog-title class=\"titleDialog\">{{title}}</h5>\r\n<mat-dialog-content class=\"dialogConent\">\r\n  <div *ngFor=\"let getAll of getAllsTable; let i = index\" class=\"appDialogDataGridDiv\"  [ngStyle]=\"{'margin-top': i>0?'100px':'0px'}\">\r\n    <app-data-grid \r\n    [columnDefs]=\"columnDefsTable[i]\" [themeGrid]='themeGrid'  [getAll]='getAll' [globalSearch]=true [singleSelection]=\"singleSelectionTable[i]\"\r\n    [title]=\"titlesTable[i]\" [nonEditable]='nonEditable' [eventGetSelectedRowsSubscription]=\"getAllRows.asObservable()\" (getSelectedRows)='joinRowsReceived($event)' >\r\n    </app-data-grid>\r\n  </div>\r\n</mat-dialog-content>\r\n<div mat-dialog-actions align=\"end\">\r\n  <button mat-flat-button class=\"returnButton\" (click)=\"closeDialog()\">{{\"cancel\" | translate}}</button>\r\n  <button mat-flat-button class=\"saveButton\" (click)=\"getAllSelectedRows()\" cdkFocusInitial>{{\"add\" | translate}}</button>\r\n</div>\r\n\r\n",
+                styles: [".dialogConent{height:100%;margin:inherit!important;max-height:60vh!important;overflow:auto;padding:inherit!important;width:100%}.titleDialog{margin-bottom:15px!important;margin-top:inherit!important}"]
             }]
     }], function () { return [{ type: ɵngcc6.MatDialogRef }]; }, { joinTables: [{
             type: Output
@@ -2845,7 +2900,7 @@ DataTreeComponent.ɵcmp = ɵngcc0.ɵɵdefineComponent({ type: DataTreeComponent,
         ɵngcc0.ɵɵproperty("dataSource", ctx.dataSource)("treeControl", ctx.treeControl);
         ɵngcc0.ɵɵadvance(2);
         ɵngcc0.ɵɵproperty("matTreeNodeDefWhen", ctx.hasChild);
-    } }, directives: [ɵngcc10.MatTree, ɵngcc10.MatTreeNodeDef, ɵngcc10.MatTreeNode, ɵngcc10.MatTreeNodeToggle, ɵngcc10.MatTreeNodePadding, ɵngcc7.NgClass, ɵngcc1.MatButton, ɵngcc7.NgIf, ɵngcc2.MatIcon], pipes: [ɵngcc5.TranslatePipe], styles: [".mat-tree-node[_ngcontent-%COMP%]{-moz-user-select:none;-ms-user-select:none;-webkit-user-select:none;cursor:move;user-select:none}.mat-tree-node.cdk-drag-preview[_ngcontent-%COMP%]{box-shadow:0 7px 8px -4px rgba(0,0,0,.2),0 12px 17px 2px rgba(0,0,0,.14),0 5px 22px 4px rgba(0,0,0,.12)}.mat-tree-node.cdk-drag-placeholder[_ngcontent-%COMP%]{opacity:0}.cdk-drop-list-dragging[_ngcontent-%COMP%]   .mat-tree-node[_ngcontent-%COMP%]:not(.cdk-drag-placeholder){transition:transform .25s cubic-bezier(0,0,.2,1)}.cdk-drag-animating[_ngcontent-%COMP%]{transition:transform .2s cubic-bezier(0,0,.2,1)}.drop-above[_ngcontent-%COMP%]{border-top:10px solid #ddd;margin-top:-10px}.drop-below[_ngcontent-%COMP%]{border-bottom:10px solid #ddd;margin-bottom:-10px}.drop-center[_ngcontent-%COMP%]{background-color:#ddd}.deletedNode[_ngcontent-%COMP%]{color:red;font-style:italic}"] });
+    } }, directives: [ɵngcc11.MatTree, ɵngcc11.MatTreeNodeDef, ɵngcc11.MatTreeNode, ɵngcc11.MatTreeNodeToggle, ɵngcc11.MatTreeNodePadding, ɵngcc7.NgClass, ɵngcc1.MatButton, ɵngcc7.NgIf, ɵngcc2.MatIcon], pipes: [ɵngcc5.TranslatePipe], styles: [".mat-tree-node[_ngcontent-%COMP%]{-moz-user-select:none;-ms-user-select:none;-webkit-user-select:none;cursor:move;user-select:none}.mat-tree-node.cdk-drag-preview[_ngcontent-%COMP%]{box-shadow:0 7px 8px -4px rgba(0,0,0,.2),0 12px 17px 2px rgba(0,0,0,.14),0 5px 22px 4px rgba(0,0,0,.12)}.mat-tree-node.cdk-drag-placeholder[_ngcontent-%COMP%]{opacity:0}.cdk-drop-list-dragging[_ngcontent-%COMP%]   .mat-tree-node[_ngcontent-%COMP%]:not(.cdk-drag-placeholder){transition:transform .25s cubic-bezier(0,0,.2,1)}.cdk-drag-animating[_ngcontent-%COMP%]{transition:transform .2s cubic-bezier(0,0,.2,1)}.drop-above[_ngcontent-%COMP%]{border-top:10px solid #ddd;margin-top:-10px}.drop-below[_ngcontent-%COMP%]{border-bottom:10px solid #ddd;margin-bottom:-10px}.drop-center[_ngcontent-%COMP%]{background-color:#ddd}.deletedNode[_ngcontent-%COMP%]{color:red;font-style:italic}"] });
 /** @nocollapse */
 DataTreeComponent.ctorParameters = () => [
     { type: FileDatabase }
