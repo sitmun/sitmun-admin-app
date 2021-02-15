@@ -27,13 +27,13 @@ export class TasksMoreInfoComponent implements OnInit {
 
   ngOnInit()  {
 
-    var columnEditBtn=config.editBtnColumnDef;
+    var columnEditBtn=this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
     
     this.columnDefs = [
-      config.selCheckboxColumnDef,
+      this.utils.getSelCheckboxColumnDef(),
       columnEditBtn,
       { headerName: 'ID',  field: 'id', editable: false},
       { headerName: this.utils.getTranslate('tasksMoreInfoEntity.task'),  field: 'name'},

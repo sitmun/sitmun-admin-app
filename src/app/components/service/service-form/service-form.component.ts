@@ -48,7 +48,7 @@ export class ServiceFormComponent implements OnInit {
   dataUpdatedEventLayers: Subject<boolean> = new Subject<boolean>();
 
   //Dialogs
-  columnDefsParametersDialog: any[];
+
   public parameterForm: FormGroup;
   addElementsEventParameters: Subject<any[]> = new Subject <any[]>();
   @ViewChild('newParameterDialog',{
@@ -163,36 +163,27 @@ export class ServiceFormComponent implements OnInit {
 
     this.columnDefsParameters = [
 
-      config.selCheckboxColumnDef,
-      { headerName: this.utils.getTranslate('serviceEntity.request'), field: 'type', editable:false },
-      { headerName: this.utils.getTranslate('serviceEntity.parameter'), field: 'name', },
-      { headerName: this.utils.getTranslate('serviceEntity.value'), field: 'value' },
-      { headerName: this.utils.getTranslate('serviceEntity.status'), field: 'status', editable:false },
-
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('serviceEntity.request', 'type'),
+      this.utils.getEditableColumnDef('serviceEntity.parameter', 'name'),
+      this.utils.getEditableColumnDef('serviceEntity.value', 'value'),
+      this.utils.getStatusColumnDef()
 
     ];
 
     this.columnDefsLayers = [
-
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id' },
-      { headerName: this.utils.getTranslate('serviceEntity.name'), field: 'name' },
-      { headerName: this.utils.getTranslate('serviceEntity.description'), field: 'description', },
-      { headerName: this.utils.getTranslate('serviceEntity.status'), field: 'status', editable:false },
-
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('serviceEntity.name', 'name'),
+      this.utils.getEditableColumnDef('serviceEntity.description', 'description'),
+      this.utils.getStatusColumnDef()
     ];
 
     this.columnDefsLayersDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: 'ID', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('connectionEntity.name'), field: 'name', editable: false },
-    ];
-
-    this.columnDefsParametersDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name',  editable: false  },
-      { headerName: this.utils.getTranslate('applicationEntity.value'), field: 'value',  editable: false  },
-      { headerName: this.utils.getTranslate('applicationEntity.type'), field: 'type',  editable: false  },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('serviceEntity.name', 'name'),
     ];
 
   }
@@ -307,12 +298,12 @@ export class ServiceFormComponent implements OnInit {
     let parameterToSave = [];
     let parameterToDelete = [];
     data.forEach(parameter => {
-      if (parameter.status === 'Pending creation' || parameter.status === 'Modified') {
+      if (parameter.status === 'pendingCreation' || parameter.status === 'pendingModify') {
         if(! parameter._links) {
           parameter.service=this.serviceToEdit} //If is new, you need the service link
           parameterToSave.push(parameter)
       }
-      if(parameter.status === 'Deleted' && parameter._links) {parameterToDelete.push(parameter) }
+      if(parameter.status === 'pendingDelete' && parameter._links) {parameterToDelete.push(parameter) }
     });
     const promises: Promise<any>[] = [];
     parameterToSave.forEach(saveElement => {
@@ -374,8 +365,8 @@ export class ServiceFormComponent implements OnInit {
     let layersModified = [];
     let layersToPut = [];
     data.forEach(cartography => {
-      if (cartography.status === 'Modified') {layersModified.push(cartography) }
-      if(cartography.status!== 'Deleted') {layersToPut.push(cartography._links.self.href) }
+      if (cartography.status === 'pendingModify') {layersModified.push(cartography) }
+      if(cartography.status!== 'pendingDelete') {layersToPut.push(cartography._links.self.href) }
     });
 
     this.updateLayers(layersModified, layersToPut );

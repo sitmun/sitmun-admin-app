@@ -116,66 +116,47 @@ export class UserFormComponent implements OnInit {
 
 
     this.columnDefsPermits = [
-
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('userEntity.territory'), field: 'territory', editable: false },
-      { headerName: this.utils.getTranslate('userEntity.role'), field: 'role', editable: false },
-      {
-        headerName: this.utils.getTranslate('userEntity.appliesToChildrenTerritories'), field: 'appliesToChildrenTerritories', editable: false,
-        cellRenderer: 'btnCheckboxRendererComponent', floatingFilterComponent: 'btnCheckboxFilterComponent',
-        floatingFilterComponentParams: { suppressFilterButton: true },
-      },
-      { headerName: this.utils.getTranslate('territoryEntity.status'), field: 'status', editable: false },
-
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('userEntity.territory', 'territory'),
+      this.utils.getNonEditableColumnDef('userEntity.role', 'role'),
+      this.utils.getBooleanColumnDef('userEntity.appliesToChildrenTerritories', 'appliesToChildrenTerritories'),
+      this.utils.getStatusColumnDef()
     ];
 
     this.columnDefsData = [
-
-      config.selCheckboxColumnDef,
-      { headerName: this.utils.getTranslate('userEntity.territory'), field: 'territoryName' },
-      { headerName: this.utils.getTranslate('userEntity.position'), field: 'name' },
-      { headerName: this.utils.getTranslate('userEntity.organization'), field: 'organization' },
-      { headerName: this.utils.getTranslate('userEntity.mail'), field: 'email' },
-      { headerName: this.utils.getTranslate('userEntity.expirationDate'), field: 'expirationDate' },
-      { headerName: this.utils.getTranslate('territoryEntity.status'), field: 'status', editable: false },
-      {
-        headerName: this.utils.getTranslate('userEntity.dataCreated'), field: 'createdDate',  /*filter: 'agDateColumnFilter',*/cellRenderer: (data) => {
-          return data.value ? (new Date(data.value)).toLocaleDateString() : '';
-        }
-      },
-
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getEditableColumnDef('userEntity.territory', 'territoryName'),
+      this.utils.getEditableColumnDef('userEntity.position', 'name'),
+      this.utils.getEditableColumnDef('userEntity.organization', 'organization'),
+      this.utils.getEditableColumnDef('userEntity.mail', 'email'),
+      this.utils.getDateColumnDef('userEntity.expirationDate', 'expirationDate'),
+      this.utils.getDateColumnDef('userEntity.dataCreated', 'createdDate'),
+      this.utils.getStatusColumnDef()
     ];
 
     this.columnDefsTerritoryDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: 'ID', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('userEntity.code'), field: 'code', editable: false },
-      { headerName: this.utils.getTranslate('userEntity.name'), field: 'name', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('userEntity.code', 'code'),
+      this.utils.getNonEditableColumnDef('userEntity.name', 'name'),
+
     ];
 
     this.columnDefsRolesDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: 'ID', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('userEntity.name'), field: 'name', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('userEntity.name', 'name'),
     ];
 
     this.columnDefsTerritoryDataDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: this.utils.getTranslate('userEntity.territory'), field: 'territory' },
-      { headerName: this.utils.getTranslate('userEntity.position'), field: 'type' },
-      { headerName: this.utils.getTranslate('userEntity.organization'), field: 'organization' },
-      { headerName: this.utils.getTranslate('userEntity.mail'), field: 'email' },
-      {
-        headerName: this.utils.getTranslate('userEntity.expirationDate'), field: 'expirationDate',
-        filter: 'agDateColumnFilter', filterParams: this.utils.getDateFilterParams(),
-        editable: false, cellRenderer: (data) => { return this.utils.getDateFormated(data) }
-      },
-      {
-        headerName: this.utils.getTranslate('userEntity.createdDate'), field: 'createdDate',
-        filter: 'agDateColumnFilter', filterParams: this.utils.getDateFilterParams(),
-        editable: false, cellRenderer: (data) => { return this.utils.getDateFormated(data) }
-      }
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getNonEditableColumnDef('userEntity.territory', 'territoryName'),
+      this.utils.getNonEditableColumnDef('userEntity.position', 'name'),
+      this.utils.getNonEditableColumnDef('userEntity.organization', 'organization'),
+      this.utils.getNonEditableColumnDef('userEntity.mail', 'email'),
+      this.utils.getDateColumnDef('userEntity.expirationDate', 'expirationDate'),
+      this.utils.getDateColumnDef('userEntity.dataCreated', 'createdDate'),
     ];
 
 
@@ -242,7 +223,7 @@ export class UserFormComponent implements OnInit {
     let usersConfDelete = [];
     data.forEach(userConf => {
 
-      if (userConf.status === 'Pending creation') {
+      if (userConf.status === 'pendingCreation') {
         let item = {
           role: userConf.roleComplete,
           appliesToChildrenTerritories: userConf.appliesToChildrenTerritories,
@@ -250,16 +231,16 @@ export class UserFormComponent implements OnInit {
           user: this.userToEdit
         }
         let index;
-        item.role= userConf.roleComplete,
-        index = data.findIndex(element => element.roleId === item.role.id && element.territoryId === item.territory.id && 
-          element.appliesToChildrenTerritories === item.appliesToChildrenTerritories && !element.new)
+        item.role = userConf.roleComplete,
+          index = data.findIndex(element => element.roleId === item.role.id && element.territoryId === item.territory.id &&
+            element.appliesToChildrenTerritories === item.appliesToChildrenTerritories && !element.new)
 
         if (index === -1) {
           userConf.new = false;
           usersConfToCreate.push(item)
         }
       }
-      if (userConf.status === 'Deleted' && userConf._links) { usersConfDelete.push(userConf) }
+      if (userConf.status === 'pendingDelete' && userConf._links) { usersConfDelete.push(userConf) }
     });
     const promises: Promise<any>[] = [];
     usersConfToCreate.forEach(newElement => {
@@ -311,8 +292,8 @@ export class UserFormComponent implements OnInit {
     // let territoriesToCreate = [];
     // let territoriesToDelete = [];
     // data.forEach(territory => {
-    //   if (territory.status === 'Pending creation') {territoriesToCreate.push(territory) }
-    //   if(territory.status === 'Deleted' && territory._links) {territoriesToDelete.push(territory._links.self.href) }
+    //   if (territory.status === 'pendingCreation') {territoriesToCreate.push(territory) }
+    //   if(territory.status === 'pendingDelete' && territory._links) {territoriesToDelete.push(territory._links.self.href) }
     // });
 
     // territoriesToCreate.forEach(newElement => {
@@ -375,17 +356,17 @@ export class UserFormComponent implements OnInit {
       if (result) {
         if (result.event === 'Add') {
           console.log(result.data);
-          let territorySelected=result.data[0][0];
+          let territorySelected = result.data[0][0];
           console.log(territorySelected);
           this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, result.data[1], false));
           // rowsToAdd.push(...tableUserConfWithoutRoleM);
-           if(territorySelected.scope==="R") {
+           if(territorySelected.scope==="R" && result.data[1].length>0) {
             const dialogChildRolesWantedMessageRef = this.dialog.open(DialogMessageComponent);
-            dialogChildRolesWantedMessageRef.componentInstance.title=this.utils.getTranslate("atention");
-            dialogChildRolesWantedMessageRef.componentInstance.message=this.utils.getTranslate("addChildRoles");
+            dialogChildRolesWantedMessageRef.componentInstance.title = this.utils.getTranslate("atention");
+            dialogChildRolesWantedMessageRef.componentInstance.message = this.utils.getTranslate("addChildRoles");
             dialogChildRolesWantedMessageRef.afterClosed().subscribe(messageResult => {
-              if(messageResult){
-                if(messageResult.event==='Accept') {  
+              if (messageResult) {
+                if (messageResult.event === 'Accept') {
                   const dialogRefChildRoles = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
                   dialogRefChildRoles.componentInstance.getAllsTable = [this.getAllRolesDialog];
                   dialogRefChildRoles.componentInstance.singleSelectionTable = [false];
@@ -400,16 +381,16 @@ export class UserFormComponent implements OnInit {
                         this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, childsResult.data[0], true));
                       }
                     }
-              
+
                   });
-                }          
-               }
+                }
+              }
             });
 
           }
           // console.log(rowsToAdd);
           // this.addElementsEventPermits.next(rowsToAdd);
-         
+
 
 
         }
@@ -422,24 +403,24 @@ export class UserFormComponent implements OnInit {
 
   getRowsToAddPermits(user: User, territory: Territory, roles: Role[], rolesAreChildren: Boolean) {
     let itemsToAdd: any[] = [];
-      roles.forEach(role => {
-        let item;
-          item = {
-            role: role.name,
-            roleComplete: role,
-            roleId: role.id,
-            territory: territory.name,
-            territoryComplete: territory,
-            territoryId: territory.id,
-            userId: this.userID,
-            new: true,
-            appliesToChildrenTerritories: rolesAreChildren
-          }
+    roles.forEach(role => {
+      let item;
+      item = {
+        role: role.name,
+        roleComplete: role,
+        roleId: role.id,
+        territory: territory.name,
+        territoryComplete: territory,
+        territoryId: territory.id,
+        userId: this.userID,
+        new: true,
+        appliesToChildrenTerritories: rolesAreChildren
+      }
 
-        
-        if (this.userToEdit) { item.userId = this.userToEdit.id }
-        itemsToAdd.push(item);
-      })
+
+      if (this.userToEdit) { item.userId = this.userToEdit.id }
+      itemsToAdd.push(item);
+    })
 
     return itemsToAdd;
   }
@@ -519,8 +500,8 @@ export class UserFormComponent implements OnInit {
             // this.userToEdit = resp
             // this.userID = resp.id;
             // this.userForm.patchValue({
-              // id: resp.id,
-              // _links: resp._links
+            // id: resp.id,
+            // _links: resp._links
             // })
             console.log(this.userToEdit);
             this.getAllElementsEventTerritoryData.next(true);

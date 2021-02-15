@@ -33,22 +33,21 @@ export class BackgroundLayersComponent implements OnInit {
 
   ngOnInit() {
 
-    var columnEditBtn=config.editBtnColumnDef;
+    var columnEditBtn=this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
 
 
     this.columnDefs = [
-      config.selCheckboxColumnDef,
+      this.utils.getSelCheckboxColumnDef(),
       columnEditBtn,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('backgroundEntity.name'), field: 'name' },
-      { headerName: this.utils.getTranslate('backgroundEntity.description'), field: 'description' },
-      { headerName: this.utils.getTranslate('backgroundEntity.active'), field: 'active', editable: false,
-      cellRenderer: 'btnCheckboxRendererComponent', floatingFilterComponent: 'btnCheckboxFilterComponent',
-      floatingFilterComponentParams: { suppressFilterButton: true }, },
-      { headerName: this.utils.getTranslate('backgroundEntity.cartographyGroup'), editable: false, field: 'cartographyGroupName' }
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('backgroundEntity.name','name'),
+      this.utils.getEditableColumnDef('backgroundEntity.description','description'),
+      this.utils.getBooleanColumnDef('backgroundEntity.active', 'active'),
+      this.utils.getNonEditableColumnDef('backgroundEntity.cartographyGroup','cartographyGroupName'),
+      this.utils.getDateColumnDef('backgroundEntity.createdDate','createdDates')
     ];
 
   }

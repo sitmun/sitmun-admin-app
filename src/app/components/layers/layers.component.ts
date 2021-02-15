@@ -31,22 +31,20 @@ export class LayersComponent implements OnInit {
 
   ngOnInit() {
 
-    var columnEditBtn=config.editBtnColumnDef;
+    var columnEditBtn=this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
 
     this.columnDefs = [
-      config.selCheckboxColumnDef,
+      this.utils.getSelCheckboxColumnDef(),
       columnEditBtn,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('layersEntity.name'), field: 'name' },
-      //{ headerName: this.utils.getTranslate('layersEntity.serviceName'), field: 'serviceName',editable: false }, //service
-      { headerName: this.utils.getTranslate('layersEntity.order'), field: 'order', },
-      { headerName: this.utils.getTranslate('layersEntity.layers'), field: 'layers' },
-      { headerName: this.utils.getTranslate('layersEntity.createdDate'), field: 'createdDate',
-        filter: 'agDateColumnFilter', filterParams: this.utils.getDateFilterParams(),
-        editable: false, cellRenderer: (data) => { return this.utils.getDateFormated(data) } }, // type: 'dateColumn'
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('layersEntity.name', 'name'),
+     //{ headerName: this.utils.getTranslate('layersEntity.serviceName'), field: 'serviceName',editable: false }, //service
+      this.utils.getEditableColumnDef('layersEntity.order', 'order'),
+      this.utils.getEditableColumnDef('layersEntity.layers', 'layers'),
+      this.utils.getDateColumnDef('layersEntity.createdDate', 'createdDate'),
       //{ headerName: this.utils.getTranslate('layersEntity.minimumScale'), field: 'minimumScale' },
       //{ headerName: this.utils.getTranslate('layersEntity.maximumScale'), field: 'maximumScale' },
       //{ headerName: this.utils.getTranslate('layersEntity.metadataURL'), field: 'metadataURL' },

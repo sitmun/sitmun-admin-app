@@ -73,6 +73,7 @@ export declare class DataGridComponent implements OnInit {
     exportData(): void;
     quickSearch(): void;
     getElements(): void;
+    setSize(): void;
     addItems(newItems: any[]): void;
     removeData(): void;
     newData(): void;

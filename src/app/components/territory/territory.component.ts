@@ -37,30 +37,20 @@ export class TerritoryComponent implements OnInit {
       }
     );
 
-    var columnEditBtn=config.editBtnColumnDef;
+    var columnEditBtn=this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
 
 
     this.columnDefs = [
-      config.selCheckboxColumnDef,
+      this.utils.getSelCheckboxColumnDef(),
       columnEditBtn,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('territoryEntity.code'), field: 'code' },
-      { headerName: this.utils.getTranslate('territoryEntity.name'), field: 'name' },
-      {
-        headerName: this.utils.getTranslate('territoryEntity.scope'),
-        valueGetter: (params) => {
-          var alias = this.scopeTypes.filter((type) => type.value == params.data.scope)[0];
-          return alias != undefined ? alias.description : params.data.scope
-        }
-      },
-      {
-        headerName: this.utils.getTranslate('territoryEntity.createdDate'), field: 'createdDate',
-        filter: 'agDateColumnFilter', filterParams: this.utils.getDateFilterParams(),
-        editable: false, cellRenderer: (data) => { return this.utils.getDateFormated(data) }
-      }, // type: 'dateColumn'
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('territoryEntity.code', 'code'),
+      this.utils.getEditableColumnDef('territoryEntity.name', 'name'),
+      this.utils.getFormattedColumnDef('territoryEntity.scope',this.scopeTypes,'scope'),
+      this.utils.getDateColumnDef('territoryEntity.createdDate','createdDate')
       //{ headerName: this.utils.getTranslate('territoryEntity.administrator'), field: 'territorialAuthorityName' },
       //{ headerName: this.utils.getTranslate('territoryEntity.email'), field: 'territorialAuthorityEmail' },
       //{ headerName: this.utils.getTranslate('territoryEntity.address'), field: 'territorialAuthorityAddress' },

@@ -166,7 +166,7 @@ export class TasksFormComponent implements OnInit {
     ];
 
     this.columnDefsParameters = [
-      config.selCheckboxColumnDef,
+      this.utils.getSelCheckboxColumnDef(),
       { headerName: this.utils.getTranslate('tasksEntity.type'), field: 'type' },
       { headerName: this.utils.getTranslate('tasksEntity.parameter'), field: 'name', },
       { headerName: this.utils.getTranslate('tasksEntity.value'), field: 'value' },
@@ -177,7 +177,7 @@ export class TasksFormComponent implements OnInit {
 
     this.columnDefsTerritories = [
 
-      config.selCheckboxColumnDef,
+      this.utils.getSelCheckboxColumnDef(),
       { headerName: 'Id', field: 'territoryId', editable: false },
       { headerName: this.utils.getTranslate('tasksEntity.name'), field: 'territoryName', editable: false },
       { headerName: this.utils.getTranslate('tasksEntity.status'), field: 'status', editable: false },
@@ -185,23 +185,23 @@ export class TasksFormComponent implements OnInit {
     ];
 
     this.columnDefsRoles = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
       { headerName: this.utils.getTranslate('tasksEntity.name'), field: 'name' },
       { headerName: this.utils.getTranslate('tasksEntity.status'), field: 'status', editable:false },
     ];
 
 
     this.columnDefsTerritoriesDialog = [
-      config.selCheckboxColumnDef,
+      this.utils.getSelCheckboxColumnDef(),
       { headerName: 'ID', field: 'id', editable: false },
       { headerName: this.utils.getTranslate('tasksEntity.code'), field: 'code', editable: false },
       { headerName: this.utils.getTranslate('tasksEntity.name'), field: 'name', editable: false },
     ];
 
     this.columnDefsRolesDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
       { headerName: this.utils.getTranslate('tasksEntity.name'), field: 'name' },
       { headerName: this.utils.getTranslate('tasksEntity.description'), field: 'description' },
       { headerName: this.utils.getTranslate('tasksEntity.status'), field: 'status', editable:false },
@@ -310,12 +310,12 @@ export class TasksFormComponent implements OnInit {
     let parameterToSave = [];
     let parameterToDelete = [];
     data.forEach(parameter => {
-      if (parameter.status === 'Pending creation' || parameter.status === 'Modified') {
+      if (parameter.status === 'pendingCreation' || parameter.status === 'pendingModify') {
         if(! parameter._links) {
           parameter.task=this.taskToEdit} //If is new, you need the application link
           parameterToSave.push(parameter)
       }
-      if(parameter.status === 'Deleted' && parameter._links) {parameterToDelete.push(parameter) }
+      if(parameter.status === 'pendingDelete' && parameter._links) {parameterToDelete.push(parameter) }
     });
     const promises: Promise<any>[] = [];
     parameterToSave.forEach(saveElement => {
@@ -372,7 +372,7 @@ export class TasksFormComponent implements OnInit {
     let territoriesToDelete = [];
     data.forEach(territory => {
       territory.task= this.taskToEdit;
-      if (territory.status === 'Pending creation') {
+      if (territory.status === 'pendingCreation') {
         let index= data.findIndex(element => element.territoryId === territory.territoryId && !element.new)
         if(index === -1)
         {
@@ -380,7 +380,7 @@ export class TasksFormComponent implements OnInit {
           territory.new=false;
         }
        }
-      if(territory.status === 'Deleted' && territory._links) {territoriesToDelete.push(territory) }
+      if(territory.status === 'pendingDelete' && territory._links) {territoriesToDelete.push(territory) }
     });
     const promises: Promise<any>[] = [];
     territoriesToCreate.forEach(newElement => {
@@ -426,8 +426,8 @@ export class TasksFormComponent implements OnInit {
     let rolesModified = [];
     let rolesToPut = [];
     data.forEach(role => {
-      if (role.status === 'Modified') {rolesModified.push(role) }
-      if(role.status!== 'Deleted') {rolesToPut.push(role._links.self.href) }
+      if (role.status === 'pendingModify') {rolesModified.push(role) }
+      if(role.status!== 'pendingDelete') {rolesToPut.push(role._links.self.href) }
     });
     console.log(rolesModified);
     this.updateRoles(rolesModified, rolesToPut);

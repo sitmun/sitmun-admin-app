@@ -38,16 +38,16 @@ export class ApplicationComponent implements OnInit {
       }
     );
 
-    var columnEditBtn = config.editBtnColumnDef;
+    var columnEditBtn = this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams'] = {
       clicked: this.newData.bind(this)
     }
 
     this.columnDefs = [
-      config.selCheckboxColumnDef,
+      this.utils.getSelCheckboxColumnDef(),
       columnEditBtn,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name' },
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('applicationEntity.name','name'),
       {
         headerName: this.utils.getTranslate('applicationEntity.type'),  editable: false,
         valueGetter: (params) => {
@@ -55,13 +55,9 @@ export class ApplicationComponent implements OnInit {
           return alias != undefined ? alias.description : params.data.type
         }
       },
-      { headerName: this.utils.getTranslate('applicationEntity.theme'), field: 'theme' },
-      { headerName: this.utils.getTranslate('applicationEntity.srs'), field: 'srs' },
-      {
-        headerName: this.utils.getTranslate('applicationEntity.createdDate'), field: 'createdDate',
-        filter: 'agDateColumnFilter', filterParams: this.utils.getDateFilterParams(),
-        editable: false, cellRenderer: (data) => { return this.utils.getDateFormated(data) }
-      } // type: 'dateColumn'
+      this.utils.getEditableColumnDef('applicationEntity.theme','theme'),
+      this.utils.getEditableColumnDef('applicationEntity.srs','srs'),
+      this.utils.getDateColumnDef('applicationEntity.createdDate','createdDate')
     ];
 
   }

@@ -29,24 +29,21 @@ export class ServiceComponent implements OnInit {
 
   ngOnInit() {
 
-    var columnEditBtn=config.editBtnColumnDef;
+    var columnEditBtn=this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
 
     this.columnDefs = [
-      config.selCheckboxColumnDef,
+      this.utils.getSelCheckboxColumnDef(),
       columnEditBtn,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('serviceEntity.name'), field: 'name' },
-      { headerName: this.utils.getTranslate('serviceEntity.type'), field: 'type', editable: false },
-      { headerName: this.utils.getTranslate('serviceEntity.serviceURL'), field: 'serviceURL' },
-      { headerName: this.utils.getTranslate('serviceEntity.supportedSRS'), field: 'supportedSRS' },
-      {
-        headerName: this.utils.getTranslate('serviceEntity.createdDate'), field: 'createdDate',
-        filter: 'agDateColumnFilter', filterParams: this.utils.getDateFilterParams(),
-        editable: false, cellRenderer: (data) => { return this.utils.getDateFormated(data) }
-      }// type: 'dateColumn'
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('serviceEntity.name', 'name'),
+      this.utils.getNonEditableColumnDef('serviceEntity.type', 'type'),
+      this.utils.getEditableColumnDef('serviceEntity.serviceURL', 'serviceURL'),
+      this.utils.getEditableColumnDef('serviceEntity.supportedSRS', 'supportedSRS'),
+      this.utils.getDateColumnDef('serviceEntity.createdDate','createdDate')
+
     ];
   }
 

@@ -17,6 +17,9 @@
   "undo": "Deshacer",
   "return": "Volver",
   "pendingDelete":"Pendiente eliminar",
+  "pendingCreation":"Pendiente crear",
+  "pendingModify":"Pendiente modificar",
+  "status":"Estado",
   "search/replace": "Buscar/Reemplazar",
   "selectType": "Selecciona el tipo",
   "ok-created": "Los elementos se han creado correctamente",
@@ -157,7 +160,7 @@
     "help": "Ayuda",
     "selectPath": "Select/Path",
     "field": "Camp",
-    "formado": "Formato",
+    "format": "Formato",
     "municipalFilterFields": "Camps por filtro municipal",
     "filterInfoByMunicipality": "Filtrar por municipio a la info",
     "filterSpatialSeleciontByMunicipality": "Filtrar por municipio a la selección espacial",
@@ -173,7 +176,12 @@
     "selectable": "Seleccionable",
     "service": "Servicio",
     "layer": "Capa",
-    "connection":"Conexión"
+    "connection":"Conexión",
+    "territorialFilter": "Filtro territorial",
+    "value": "Valor",
+    "valueType": "Tipo valor",
+    "typeId": "Tipo Id",
+    "required": "Obligatorio"
   },
   "layersPermitsEntity": {
     "generalData": "Datos Generales",
@@ -205,7 +213,7 @@
     "backgroundLayers": "Capas de fondos",
     "name": "Nombre",
     "description": "Descripción",
-    "activo": "Activo",
+    "active": "Activo",
     "cartographyGroup": "Grupo cartografía",
     "status": "Estado",
     "createdDate": "Alta"

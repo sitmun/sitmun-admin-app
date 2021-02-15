@@ -184,97 +184,99 @@ export class TerritoryFormComponent implements OnInit {
 
 
     this.columnDefsPermits = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('territoryEntity.user'), field: 'user', editable: false },
-      { headerName: this.utils.getTranslate('territoryEntity.role'), field: 'role', editable: false },
-      { headerName: this.utils.getTranslate('territoryEntity.status'), field: 'status', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('territoryEntity.user', 'user'),
+      this.utils.getNonEditableColumnDef('territoryEntity.role', 'role'),
+      this.utils.getStatusColumnDef()
+
     ];
 
     this.columnDefsPermitsChild = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('territoryEntity.user'), field: 'user', editable: false },
-      { headerName: this.utils.getTranslate('territoryEntity.role'), field: 'role', editable: false },
-      { headerName: this.utils.getTranslate('territoryEntity.status'), field: 'status', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('territoryEntity.user', 'user'),
+      this.utils.getNonEditableColumnDef('territoryEntity.role', 'role'),
+      this.utils.getStatusColumnDef()
     ];
 
 
     this.columnDefsPermitsInherit = [
-     // config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('territoryEntity.user'), field: 'user', editable: false },
-      { headerName: this.utils.getTranslate('territoryEntity.territory'), field: 'territory', editable: false },
-      { headerName: this.utils.getTranslate('territoryEntity.role'), field: 'role', editable: false },
+     // this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('territoryEntity.user', 'user'),
+      this.utils.getNonEditableColumnDef('territoryEntity.territory', 'territory'),
+      this.utils.getNonEditableColumnDef('territoryEntity.role', 'role'),
+
      // { headerName: this.utils.getTranslate('territoryEntity.status'), field: 'status', editable: false },
     ];
 
     this.columnDefsMemberOf = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('territoryEntity.code'), field: 'code', editable: false },
-      { headerName: this.utils.getTranslate('territoryEntity.name'), field: 'name' },
-      { headerName: this.utils.getTranslate('territoryEntity.status'), field: 'status', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('territoryEntity.code', 'code'),
+      this.utils.getEditableColumnDef('taskGroupEntity.name', 'name'),
+      this.utils.getStatusColumnDef()
     ];
 
     this.columnDefsMembers = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('territoryEntity.code'), field: 'code', editable: false },
-      { headerName: this.utils.getTranslate('territoryEntity.name'), field: 'name' },
-      { headerName: this.utils.getTranslate('territoryEntity.status'), field: 'status', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('territoryEntity.code', 'code'),
+      this.utils.getEditableColumnDef('taskGroupEntity.name', 'name'),
+      this.utils.getStatusColumnDef()
     ];
 
     this.columnDefsCartographies = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'cartographyId', editable: false },
-      { headerName: this.utils.getTranslate('territoryEntity.name'), field: 'cartographyName', editable: false },
-      { headerName: this.utils.getTranslate('territoryEntity.layers'), field: 'cartographyLayers', editable: false },
-      { headerName: this.utils.getTranslate('territoryEntity.status'), field: 'status', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef('cartographyId'),
+      this.utils.getNonEditableColumnDef('territoryEntity.name', 'cartographyName'),
+      this.utils.getNonEditableColumnDef('territoryEntity.layers', 'cartographyLayers'),
+      this.utils.getStatusColumnDef()
     ];
 
     this.columnDefsTasks = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'taskId', editable: false },
-      { headerName: this.utils.getTranslate('territoryEntity.taskGroup'), field: 'taskGroupName', editable: false },
-      { headerName: this.utils.getTranslate('territoryEntity.status'), field: 'status', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef('taskId'),
+      this.utils.getNonEditableColumnDef('territoryEntity.taskGroup', 'taskGroupName'),
+      this.utils.getStatusColumnDef()
     ];
 
     this.columnDefsTerritoriesDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('territoryEntity.name'), field: 'name', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('territoryEntity.name', 'name'),
     ];
 
     this.columnDefsCartographiesDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('territoryEntity.name'), field: 'name', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('territoryEntity.name', 'name'),
     ];
 
     this.columnDefsTasksDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('territoryEntity.name'), field: 'name', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('territoryEntity.name', 'name'),
     ];
 
     this.columnDefsUsersDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('roleEntity.username'), field: 'username', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('territoryEntity.username', 'username'),
     ];
 
     this.columnDefsRolesDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('territoryEntity.name'), field: 'name', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('territoryEntity.name', 'name'),
     ];
 
     this.columnDefsTerritoriesDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('territoryEntity.code'), field: 'code', editable: false },
-      { headerName: this.utils.getTranslate('territoryEntity.name'), field: 'name', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('territoryEntity.code', 'code'),
+      this.utils.getNonEditableColumnDef('territoryEntity.name', 'name'),
     ];
 
 
@@ -357,33 +359,34 @@ export class TerritoryFormComponent implements OnInit {
       ));;
   }
 
-  getAllRowsPermits(data: any[]) {
+  getAllRowsPermits(data: any[], permitsChildren: boolean) {
 
     let usersConfToCreate = [];
     let usersConfDelete = [];
     console.log(data);
     data.forEach(userConf => {
-      if (userConf.status === 'Pending creation') {
+      if (userConf.status === 'pendingCreation') {
         let item = {
           role: userConf.roleComplete,
-          appliesToChildrenTerritories: userConf.appliesToChildrenTerritories,
+          appliesToChildrenTerritories: permitsChildren,
           territory: this.territoryToEdit,
           user: userConf.userComplete,
         }
         console.log(item);
         let index;
-        if (userConf.roleChildren == null) {
-          index = data.findIndex(element => element.roleId === item.role.id && element.userId === item.user.id && !element.appliesToChildrenTerritories && !element.new)
-        }
-        else {
-          index = data.findIndex(element => element.roleId === item.role.id && element.userId === item.user.id && element.appliesToChildrenTerritories && !element.new)
-        }
+        // if (userConf.roleChildren == null) {
+        index = data.findIndex(element => element.roleId === item.role.id && element.userId === item.user.id &&
+           element.appliesToChildrenTerritories === item.appliesToChildrenTerritories && !element.new)
+        // }
+        // else {
+        //   index = data.findIndex(element => element.roleId === item.role.id && element.userId === item.user.id && element.appliesToChildrenTerritories && !element.new)
+        // }
         if (index === -1) {
           userConf.new = false;
           usersConfToCreate.push(item)
         }
       }
-      if (userConf.status === 'Deleted' && userConf._links) { usersConfDelete.push(userConf) }
+      if (userConf.status === 'pendingDelete' && userConf._links) { usersConfDelete.push(userConf) }
     });
     const promises: Promise<any>[] = [];
     usersConfToCreate.forEach(newElement => {
@@ -479,8 +482,8 @@ export class TerritoryFormComponent implements OnInit {
     let territoriesModified = [];
     let territoriesToPut = [];
     data.forEach(territory => {
-      if (territory.status === 'Modified') { territoriesModified.push(territory) }
-      if (territory.status !== 'Deleted') { territoriesToPut.push(territory._links.self.href) }
+      if (territory.status === 'pendingModify') { territoriesModified.push(territory) }
+      if (territory.status !== 'pendingDelete') { territoriesToPut.push(territory._links.self.href) }
     });
 
     console.log(territoriesModified);
@@ -529,8 +532,8 @@ export class TerritoryFormComponent implements OnInit {
     let territoriesModified = [];
     let territoriesToPut = [];
     data.forEach(territory => {
-      if (territory.status === 'Modified') { territoriesModified.push(territory) }
-      if (territory.status !== 'Deleted') { territoriesToPut.push(territory._links.self.href) }
+      if (territory.status === 'pendingModify') { territoriesModified.push(territory) }
+      if (territory.status !== 'pendingDelete') { territoriesToPut.push(territory._links.self.href) }
     });
     console.log(territoriesModified);
     this.updateTerritoriesMembers(territoriesModified, territoriesToPut);
@@ -573,7 +576,7 @@ export class TerritoryFormComponent implements OnInit {
     let cartographiesToDelete = [];
     data.forEach(cartography => {
       cartography.territory = this.territoryToEdit;
-      if (cartography.status === 'Pending creation') {
+      if (cartography.status === 'pendingCreation') {
         let index = data.findIndex(element => element.cartographyId === cartography.cartographyId && !element.new)
         if (index === -1) {
           cartographiesToCreate.push(cartography)
@@ -581,7 +584,7 @@ export class TerritoryFormComponent implements OnInit {
         }
 
       }
-      if (cartography.status === 'Deleted' && cartography._links) { cartographiesToDelete.push(cartography) }
+      if (cartography.status === 'pendingDelete' && cartography._links) { cartographiesToDelete.push(cartography) }
     });
     const promises: Promise<any>[] = [];
     cartographiesToCreate.forEach(newElement => {
@@ -620,8 +623,8 @@ export class TerritoryFormComponent implements OnInit {
     let tasksToDelete = [];
     let tasksToCreate = [];
     data.forEach(task => {
-      if (task.status === 'Deleted' && task._links) { tasksToDelete.push(task) }
-      if (task.status === 'Pending creation') {
+      if (task.status === 'pendingDelete' && task._links) { tasksToDelete.push(task) }
+      if (task.status === 'pendingCreation') {
 
         let index = data.findIndex(element => element.taskId === task.taskId && !element.new)
         if (index === -1) {

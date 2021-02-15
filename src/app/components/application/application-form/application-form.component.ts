@@ -199,75 +199,75 @@ export class ApplicationFormComponent implements OnInit {
     });
 
     this.columnDefsParameters = [
-      config.selCheckboxColumnDef,
-      { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name' },
-      { headerName: this.utils.getTranslate('applicationEntity.value'), field: 'value', },
-      { headerName: this.utils.getTranslate('applicationEntity.type'), field: 'type' },
-      { headerName: this.utils.getTranslate('applicationEntity.status'), field: 'status', editable:false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getEditableColumnDef('applicationEntity.name','name'),
+      this.utils.getEditableColumnDef('applicationEntity.value','value'),
+      this.utils.getNonEditableColumnDef('applicationEntity.type','type'),
+      this.utils.getStatusColumnDef(),
+
     ];
 
     this.columnDefsTemplates = [
-      config.selCheckboxColumnDef,
-      { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name' },
-      { headerName: this.utils.getTranslate('applicationEntity.value'), field: 'value', },
-      { headerName: this.utils.getTranslate('applicationEntity.status'), field: 'status', editable:false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getEditableColumnDef('applicationEntity.name','name'),
+      this.utils.getEditableColumnDef('applicationEntity.value','value'),
+      this.utils.getStatusColumnDef(),
     ];
 
     this.columnDefsRoles = [
-      config.selCheckboxColumnDef,
-      { headerName: "ID", field: 'id' },
-      { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name' },
-      { headerName: this.utils.getTranslate('applicationEntity.status'), field: 'status', editable:false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('applicationEntity.name','name'),
+      this.utils.getStatusColumnDef(),
     ];
 
     this.columnDefsBackgrounds = [
-      config.selCheckboxColumnDef,
-      { headerName: "ID", field: 'id' },
-      { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'backgroundName', description:false,editable:false},
-      { headerName: this.utils.getTranslate('applicationEntity.description'), field: 'backgroundDescription', editable:false },
-      { headerName: this.utils.getTranslate('applicationEntity.status'), field: 'status', editable:false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('applicationEntity.name','backgroundName'),
+      this.utils.getNonEditableColumnDef('applicationEntity.description','backgroundName'),
+      this.utils.getStatusColumnDef()
     ];
 
     this.columnDefsTrees = [
-      config.selCheckboxColumnDef,
-      { headerName: "Id", field: 'id' },
-      { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name' },
-      { headerName: this.utils.getTranslate('applicationEntity.status'), field: 'status', editable:false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('applicationEntity.name','name'),
+      this.utils.getStatusColumnDef(),
     ];
 
     this.columnDefsParametersDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name', editable: false },
-      { headerName: this.utils.getTranslate('applicationEntity.value'), field: 'value', editable: false },
-      { headerName: this.utils.getTranslate('applicationEntity.type'), field: 'type', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getNonEditableColumnDef('applicationEntity.name','name'),
+      this.utils.getNonEditableColumnDef('applicationEntity.value','value'),
+      this.utils.getNonEditableColumnDef('applicationEntity.type','type'),
     ];
 
     this.columnDefsTemplateConfigurationDialog = [
-
-      config.selCheckboxColumnDef,
-      { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name', editable: false },
-      { headerName: this.utils.getTranslate('applicationEntity.value'), field: 'value', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getNonEditableColumnDef('applicationEntity.name','name'),
+      this.utils.getNonEditableColumnDef('applicationEntity.value','value'),
     ];
 
     this.columnDefsRolesDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name', editable: false },
-      { headerName: this.utils.getTranslate('applicationEntity.note'), field: 'description' },
-      { headerName: this.utils.getTranslate('applicationEntity.application'), field: 'application' }
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('applicationEntity.name','name'),
+      this.utils.getEditableColumnDef('applicationEntity.note','description'),
+      this.utils.getEditableColumnDef('applicationEntity.application','application'),
     ];
 
     this.columnDefsBackgroundDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('applicationEntity.name','name'),
     ];
 
     
     this.columnDefsTreeDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: "Id", field: 'id' },
-      { headerName: this.utils.getTranslate('applicationEntity.name'), field: 'name' },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('applicationEntity.name','name'),
     ];
 
   }
@@ -326,9 +326,9 @@ export class ApplicationFormComponent implements OnInit {
 
   initializeParameterForm(): void {
     this.parameterForm = new FormGroup({
-      name: new FormControl(null, [Validators.required]),
-      type: new FormControl(null, [Validators.required]),
-      value: new FormControl(null, [Validators.required]),
+      name: new FormControl(null),
+      type: new FormControl(null),
+      value: new FormControl(null),
 
     })
   }
@@ -366,12 +366,12 @@ export class ApplicationFormComponent implements OnInit {
     let parameterToSave = [];
     let parameterToDelete = [];
     data.forEach(parameter => {
-      if (parameter.status === 'Pending creation' || parameter.status === 'Modified') {
+      if (parameter.status === 'pendingCreation' || parameter.status === 'pendingModify') {
         if(! parameter._links) {
           parameter.application=this.applicationToEdit} //If is new, you need the application link
           parameterToSave.push(parameter)
       }
-      if(parameter.status === 'Deleted' && parameter._links) {parameterToDelete.push(parameter) }
+      if(parameter.status === 'pendingDelete' && parameter._links) {parameterToDelete.push(parameter) }
     });
     const promises: Promise<any>[] = [];
     parameterToSave.forEach(saveElement => {
@@ -472,8 +472,8 @@ export class ApplicationFormComponent implements OnInit {
     let rolesModified = [];
     let rolesToPut = [];
     data.forEach(role => {
-      if (role.status === 'Modified') {rolesModified.push(role) }
-      if(role.status!== 'Deleted') {rolesToPut.push(role._links.self.href) }
+      if (role.status === 'pendingModify') {rolesModified.push(role) }
+      if(role.status!== 'pendingDelete') {rolesToPut.push(role._links.self.href) }
     });
 
     console.log(rolesModified);
@@ -526,7 +526,7 @@ export class ApplicationFormComponent implements OnInit {
     const promises: Promise<any>[] = [];
     data.forEach(background => {
 
-      if (background.status === 'Pending creation') {
+      if (background.status === 'pendingCreation') {
         let index= data.findIndex(element => element.backgroundDescription === background.backgroundDescription && element.backgroundName === background.backgroundName && !element.new )
         if (index === -1)
         {
@@ -534,7 +534,7 @@ export class ApplicationFormComponent implements OnInit {
           backgroundsToCreate.push(background) 
         }
       }
-      if(background.status === 'Deleted' ) {backgroundsToDelete.push(background) }
+      if(background.status === 'pendingDelete' ) {backgroundsToDelete.push(background) }
     });
 
     backgroundsToCreate.forEach(newElement => {
@@ -583,8 +583,8 @@ export class ApplicationFormComponent implements OnInit {
     let treesModified = [];
     let treesToPut = [];
     data.forEach(tree => {
-      if (tree.status === 'Modified') {treesModified.push(tree) }
-      if(tree.status!== 'Deleted') {treesToPut.push(tree._links.self.href) }
+      if (tree.status === 'pendingModify') {treesModified.push(tree) }
+      if(tree.status!== 'pendingDelete') {treesToPut.push(tree._links.self.href) }
     });
 
     console.log(treesModified);

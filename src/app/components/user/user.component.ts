@@ -31,18 +31,18 @@ export class UserComponent implements OnInit {
 
   ngOnInit() {
 
-    var columnEditBtn=config.editBtnColumnDef;
+    var columnEditBtn=this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
 
     this.columnDefs = [
-      config.selCheckboxColumnDef,
+      this.utils.getSelCheckboxColumnDef(),
       columnEditBtn,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('userEntity.user'), field: 'username' },
-      { headerName: this.utils.getTranslate('userEntity.firstname'), field: 'firstName' },
-      { headerName: this.utils.getTranslate('userEntity.lastname'), field: 'lastName' },
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('userEntity.user', 'username'),
+      this.utils.getEditableColumnDef('userEntity.firstname', 'firstName'),
+      this.utils.getEditableColumnDef('userEntity.lastname', 'lastName'),
       /*{
         headerName: this.utils.getTranslate('userEntity.administrator'), field: 'administrator', editable: false,
         cellRenderer: 'btnCheckboxRendererComponent', floatingFilterComponent: 'btnCheckboxFilterComponent',

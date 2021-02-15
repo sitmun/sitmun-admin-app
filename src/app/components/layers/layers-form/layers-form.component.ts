@@ -392,109 +392,84 @@ export class LayersFormComponent implements OnInit {
 
 
     this.columnDefsParameters = [
-
-      config.selCheckboxColumnDef,
-      { headerName: this.utils.getTranslate('layersEntity.field'), field: 'value' },
-      { headerName: this.utils.getTranslate('layersEntity.name'), field: 'name' },
-      {
-        headerName: this.utils.getTranslate('layersEntity.format'), editable: false,
-        valueGetter: (params) => {
-          var alias = this.parameterFormatTypes.filter((format) => format.value == params.data.format)[0];
-          return alias != undefined ? alias.description : params.data.format
-        }
-      },
-      { headerName: this.utils.getTranslate('layersEntity.order'), field: 'order' },
-      { headerName: this.utils.getTranslate('layersEntity.type'), field: 'type' },
-      { headerName: this.utils.getTranslate('layersEntity.status'), field: 'status', editable: false },
-
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getEditableColumnDef('layersEntity.field', 'field'),
+      this.utils.getEditableColumnDef('layersEntity.name', 'name'),
+      this.utils.getFormattedColumnDef('layersEntity.format', this.parameterFormatTypes, 'format'),
+      this.utils.getEditableColumnDef('layersEntity.order', 'order'),
+      this.utils.getEditableColumnDef('layersEntity.type', 'type'),
+      this.utils.getStatusColumnDef()
     ];
 
 
     this.columnDefsSpatialConfigurations = [
-
-      config.selCheckboxColumnDef,
-      { headerName: this.utils.getTranslate('layersEntity.column'), field: 'name' },
-      { headerName: this.utils.getTranslate('layersEntity.label'), field: 'value' },
-      {
-        headerName: this.utils.getTranslate('layersEntity.format'), editable: false,
-        valueGetter: (params) => {
-          var alias = this.parameterFormatTypes.filter((format) => format.value == params.data.format)[0];
-          return alias != undefined ? alias.description : params.data.format
-        }
-      },
-      { headerName: this.utils.getTranslate('layersEntity.status'), field: 'status', editable: false },
-
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getEditableColumnDef('layersEntity.column', 'name'),
+      this.utils.getEditableColumnDef('layersEntity.label', 'value'),
+      this.utils.getFormattedColumnDef('layersEntity.format', this.parameterFormatTypes, 'format'),
+      this.utils.getStatusColumnDef()
     ];
 
     this.columnDefsTerritorialFilter = [
-
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('layersEntity.name'), field: 'name' },
-      { headerName: this.utils.getTranslate('layersEntity.type'), field: 'type' },
-      { headerName: this.utils.getTranslate('layersEntity.valueType'), field: 'valueType' },
-      { headerName: this.utils.getTranslate('layersEntity.column'), field: 'column' },
-      { headerName: this.utils.getTranslate('layersEntity.status'), field: 'status', editable: false },
-
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('layersEntity.name', 'name'),
+      this.utils.getEditableColumnDef('layersEntity.type', 'type'),
+      this.utils.getEditableColumnDef('layersEntity.valueType', 'valueType'),
+      this.utils.getEditableColumnDef('layersEntity.column', 'column'),
+      this.utils.getStatusColumnDef()
     ];
 
     this.columnDefsTerritories = [
-
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'territoryId', editable: false },
-      { headerName: this.utils.getTranslate('layersEntity.code'), field: 'territoryCode', editable: false },
-      { headerName: this.utils.getTranslate('layersEntity.name'), field: 'territoryName', editable: false },
-      { headerName: this.utils.getTranslate('layersEntity.status'), field: 'status', editable: false },
-
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef('territoryId'),
+      this.utils.getNonEditableColumnDef('layersEntity.code', 'territoryCode'),
+      this.utils.getNonEditableColumnDef('layersEntity.name', 'territoryName'),
+      this.utils.getStatusColumnDef()
     ];
 
     this.columnDefsLayersConfiguration = [
-
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('layersEntity.name'), field: 'name' },
-      { headerName: this.utils.getTranslate('layersEntity.status'), field: 'status', editable: false },
-
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('layersEntity.name', 'name'),
+      this.utils.getStatusColumnDef()
     ];
 
     this.columnDefsNodes = [
-
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('layersEntity.code'), field: 'nodeName' },
-      { headerName: this.utils.getTranslate('layersEntity.name'), field: 'name' },
-      { headerName: this.utils.getTranslate('layersEntity.createdDate'), field: 'tree', },
-      { headerName: this.utils.getTranslate('layersEntity.status'), field: 'status', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('layersEntity.name', 'name'),
+      //this.utils.getEditableColumnDef('layersEntity.createdDate', 'tree'),
+      this.utils.getStatusColumnDef()
     ];
 
     this.columnDefsParametersDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: this.utils.getTranslate('layersEntity.field'), field: 'field', editable: false },
-      { headerName: this.utils.getTranslate('layersEntity.alias'), field: 'alias', editable: false },
-      { headerName: this.utils.getTranslate('layersEntity.format'), field: 'format', editable: false },
-      { headerName: this.utils.getTranslate('layersEntity.type'), field: 'type', editable: false },
-      { headerName: this.utils.getTranslate('layersEntity.order'), field: 'order', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getNonEditableColumnDef('layersEntity.field', 'field'),
+      this.utils.getNonEditableColumnDef('layersEntity.alias', 'alias'),
+      this.utils.getNonEditableColumnDef('layersEntity.format', 'format'),
+      this.utils.getNonEditableColumnDef('layersEntity.type', 'type'),
+      this.utils.getNonEditableColumnDef('layersEntity.order', 'order'),
     ];
 
-
     this.columnDefsTerritoriesDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: 'ID', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('layersEntity.code'), field: 'code', editable: false },
-      { headerName: this.utils.getTranslate('layersEntity.name'), field: 'name', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('layersEntity.code', 'code'),
+      this.utils.getNonEditableColumnDef('layersEntity.name', 'name'),
     ];
 
 
     this.columnDefsCartographyGroupsDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: 'ID', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('layersEntity.name'), field: 'name', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('layersEntity.name', 'name'),
     ];
 
     this.columnDefsNodesDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: 'ID', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('layersEntity.name'), field: 'name', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('layersEntity.name', 'name'),
     ];
 
 
@@ -612,14 +587,14 @@ export class LayersFormComponent implements OnInit {
     let parameterToDelete = [];
     const promises: Promise<any>[] = [];
     data.forEach(parameter => {
-      if (parameter.status === 'Pending creation' || parameter.status === 'Modified') {
+      if (parameter.status === 'pendingCreation' || parameter.status === 'pendingModify') {
         if (!parameter._links) {
           console.log(this.layerToEdit);
           parameter.cartography = this.layerToEdit;
         } //If is new, you need the service link
         parameterToSave.push(parameter)
       }
-      if (parameter.status === 'Deleted' && parameter._links) { parameterToDelete.push(parameter) }
+      if (parameter.status === 'pendingDelete' && parameter._links) { parameterToDelete.push(parameter) }
     });
 
     parameterToSave.forEach(saveElement => {
@@ -690,8 +665,8 @@ export class LayersFormComponent implements OnInit {
   //   let spatialSelectionsModified = [];
   //   let spatialSelectionsToPut = [];
   //   data.forEach(spatialSelection => {
-  //     if (spatialSelection.status === 'Modified') {spatialSelectionsModified.push(spatialSelection) }
-  //     if(spatialSelection.status!== 'Deleted') {spatialSelectionsToPut.push(spatialSelection._links.self.href) }
+  //     if (spatialSelection.status === 'pendingModify') {spatialSelectionsModified.push(spatialSelection) }
+  //     if(spatialSelection.status!== 'pendingDelete') {spatialSelectionsToPut.push(spatialSelection._links.self.href) }
   //   });
   //   this.updateSpatialConfiguration(spatialSelectionsModified, spatialSelectionsToPut);
   // }
@@ -733,13 +708,13 @@ export class LayersFormComponent implements OnInit {
     let territorialFilterToDelete = [];
     const promises: Promise<any>[] = [];
     data.forEach(territoryFilter => {
-      if (territoryFilter.status === 'Pending creation' || territoryFilter.status === 'Modified') {
+      if (territoryFilter.status === 'pendingCreation' || territoryFilter.status === 'pendingModify') {
         if (!territoryFilter._links) {
           territoryFilter.cartography = this.layerToEdit;
         } //If is new, you need the service link
         territorialFilterToSave.push(territoryFilter)
       }
-      if (territoryFilter.status === 'Deleted' && territoryFilter._links) { territorialFilterToDelete.push(territoryFilter) }
+      if (territoryFilter.status === 'pendingDelete' && territoryFilter._links) { territorialFilterToDelete.push(territoryFilter) }
     });
 
     territorialFilterToSave.forEach(saveElement => {
@@ -795,14 +770,14 @@ export class LayersFormComponent implements OnInit {
     let territoriesToDelete = [];
     data.forEach(territory => {
       territory.cartography = this.layerToEdit;
-      if (territory.status === 'Pending creation') {
+      if (territory.status === 'pendingCreation') {
         let index = data.findIndex(element => element.territoryCode === territory.territoryCode && !element.new)
         if (index === -1) {
           territoriesToCreate.push(territory)
           territory.new = false;
         }
       }
-      if (territory.status === 'Deleted' && territory._links) { territoriesToDelete.push(territory) }
+      if (territory.status === 'pendingDelete' && territory._links) { territoriesToDelete.push(territory) }
     });
     const promises: Promise<any>[] = [];
     territoriesToCreate.forEach(newElement => {
@@ -850,8 +825,8 @@ export class LayersFormComponent implements OnInit {
     let layersConfigurationModified = [];
     let layersConfigurationToPut = [];
     data.forEach(layer => {
-      if (layer.status === 'Modified') { layersConfigurationModified.push(layer) }
-      if (layer.status !== 'Deleted') { layersConfigurationToPut.push(layer._links.self.href) }
+      if (layer.status === 'pendingModify') { layersConfigurationModified.push(layer) }
+      if (layer.status !== 'pendingDelete') { layersConfigurationToPut.push(layer._links.self.href) }
     });
     console.log(layersConfigurationModified);
     this.updateLayersConfigurations(layersConfigurationModified, layersConfigurationToPut);
@@ -891,8 +866,8 @@ export class LayersFormComponent implements OnInit {
     let nodesModified = [];
     let nodesToPut = [];
     data.forEach(node => {
-      if (node.status === 'Modified') { nodesModified.push(node) }
-      if (node.status !== 'Deleted') { nodesToPut.push(node._links.self.href) }
+      if (node.status === 'pendingModify') { nodesModified.push(node) }
+      if (node.status !== 'pendingDelete') { nodesToPut.push(node._links.self.href) }
     });
     console.log(nodesModified);
     this.updateNodes(nodesModified, nodesToPut);
@@ -1133,18 +1108,16 @@ export class LayersFormComponent implements OnInit {
 
       // let legendType = this.legendTypes.find(x => x.id === this.layerForm.value.legendType)
       let geometryType = null;
-      if(this.layerForm.value.geometryType !== -1)
-      {
-        geometryType=this.layerForm.value.geometryType
+      if (this.layerForm.value.geometryType !== -1) {
+        geometryType = this.layerForm.value.geometryType
       }
 
       let legendType = null;
-      if(this.layerForm.value.legendType !== -1)
-      {
-        legendType=this.layerForm.value.legendType
+      if (this.layerForm.value.legendType !== -1) {
+        legendType = this.layerForm.value.legendType
       }
-  
-  debugger;
+
+      debugger;
       let cartography = new Cartography();
       cartography.name = this.layerForm.value.name,
         cartography.service = service,
@@ -1152,11 +1125,11 @@ export class LayersFormComponent implements OnInit {
         cartography.minimumScale = this.layerForm.value.minimumScale,
         cartography.maximumScale = this.layerForm.value.maximumScale,
         cartography.geometryType = geometryType
-        cartography.order = this.layerForm.value.order,
+      cartography.order = this.layerForm.value.order,
         cartography.transparency = this.layerForm.value.transparency,
         cartography.metadataURL = this.layerForm.value.metadataURL,
-        cartography.legendType= legendType
-        cartography.legendURL = this.layerForm.value.legendUrl,
+        cartography.legendType = legendType
+      cartography.legendURL = this.layerForm.value.legendUrl,
         cartography.description = this.layerForm.value.description,
         // cartography.datasetURL= this.layerForm.value.datasetURL, 
         // cartography.applyFilterToGetMap= this.layerForm.value.applyFilterToGetMap,

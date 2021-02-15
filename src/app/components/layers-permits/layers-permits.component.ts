@@ -36,23 +36,17 @@ export class LayersPermitsComponent implements OnInit {
         this.permissionGroupTypes.push(...resp);
       }
     );
-    var columnEditBtn=config.editBtnColumnDef;
+    var columnEditBtn=this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
 
     this.columnDefs = [
-      config.selCheckboxColumnDef,
+      this.utils.getSelCheckboxColumnDef(),
       columnEditBtn,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('layersPermitsEntity.name'), field: 'name' },
-      {
-        headerName: this.utils.getTranslate('layersPermitsEntity.type'),editable: false,
-        valueGetter: (params) => { 
-          var alias=this.permissionGroupTypes.filter((type) => type.value == params.data.type)[0];
-          return alias!=undefined? alias.description: params.data.type
-        }
-      },
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('layersPermitsEntity.name', 'name'),
+      this.utils.getFormattedColumnDef('layersPermitsEntity.type',this.permissionGroupTypes,'type')
     ];
 
   }

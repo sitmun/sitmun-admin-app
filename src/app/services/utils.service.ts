@@ -41,9 +41,9 @@ export class UtilsService {
     let missatge = "";
     try {
       if (error.error && error.error.errors) {
-        
+
         error.error.errors.forEach(element => {
-          missatge += this.translate.instant("Property: "+ element.property + " " + element.message + ";")
+          missatge += this.translate.instant("Property: " + element.property + " " + element.message + ";")
         });
 
       } else {
@@ -160,4 +160,127 @@ export class UtilsService {
     dialogRef.afterClosed().subscribe();
   }
 
+  getSelCheckboxColumnDef() {
+    let columnDef =
+    {
+      headerName: '',
+      checkboxSelection: true,
+      headerCheckboxSelection: true,
+      editable: false,
+      filter: false,
+      minWidth: 45,
+      maxWidth: 45,
+      lockPosition: true
+    }
+
+    return columnDef;
+  }
+
+  getEditBtnColumnDef() {
+    let columnDef =
+    {
+      headerName: '',
+      field: 'id',
+      editable: false,
+      filter: false,
+      minWidth: 50,
+      maxWidth: 50,
+      lockPosition: true,
+      cellRenderer: 'btnEditRendererComponent',
+    }
+    return columnDef;
+  }
+
+  getIdColumnDef(customId?) {
+    let columnDef =
+    {
+      headerName: 'Id',
+      field: customId ? customId : 'id',
+      editable: false,
+      minWidth: 80,
+    }
+
+    return columnDef;
+  }
+
+  getStatusColumnDef() {
+    let columnDef =
+    {
+      headerName: this.getTranslate('status'),
+      field: 'status',
+      valueFormatter: (params) => {
+        if (params.value != undefined) {
+          return this.getTranslate(params.value)
+        }
+      }
+    }
+    return columnDef;
+  }
+
+  getDateColumnDef(alias, field) {
+    let columnDef =
+    {
+      headerName: this.getTranslate(alias),
+      field: field,
+      filter: 'agDateColumnFilter',
+      filterParams: this.getDateFilterParams(),
+      editable: false,
+      cellRenderer: (data) => {
+        return this.getDateFormated(data)
+      },
+      minWidth: 140,
+    }
+
+    return columnDef;
+  }
+
+  getEditableColumnDef(alias, field) {
+    let columnDef =
+    {
+      headerName: this.getTranslate(alias),
+      field: field,
+    }
+
+    return columnDef;
+  }
+
+  getNonEditableColumnDef(alias, field) {
+    let columnDef =
+    {
+      headerName: this.getTranslate(alias),
+      field: field,
+      editable: false,
+
+    }
+
+    return columnDef;
+  }
+
+  getBooleanColumnDef(alias, field) {
+    let columnDef =
+    {
+      headerName: this.getTranslate(alias),
+      field: field,
+      editable: false,
+      cellRenderer: 'btnCheckboxRendererComponent',
+      floatingFilterComponent: 'btnCheckboxFilterComponent',
+      floatingFilterComponentParams: { suppressFilterButton: true },
+      minWidth: 110,
+    }
+
+    return columnDef;
+  }
+
+  getFormattedColumnDef(alias, filterList, field) {
+    let columnDef =
+    {
+      headerName: this.getTranslate(alias),
+      editable: false,
+      valueGetter: (params) => {
+        var alias = filterList.filter((format) => format.value == params.data[field])[0];
+        return alias != undefined ? alias.description : params.data[field]
+      }
+    }
+    return columnDef;
+  }
 }

@@ -102,35 +102,31 @@ export class ConnectionFormComponent implements OnInit {
 
 
     this.columnDefsCartographies = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('connectionEntity.name'), field: 'name' },
-      { headerName: this.utils.getTranslate('connectionEntity.layers'), field: 'layers', editable: false },
-      { headerName: this.utils.getTranslate('connectionEntity.status'), field: 'status', editable: false },
-
-
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('connectionEntity.name', 'name'),
+      this.utils.getEditableColumnDef('connectionEntity.layers', 'layers'),
+      this.utils.getStatusColumnDef(),
     ];
 
     this.columnDefsTasks = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('connectionEntity.code'), field: 'name' },
-      { headerName: this.utils.getTranslate('connectionEntity.taskGroup'), field: 'groupName', editable: false },
-      { headerName: this.utils.getTranslate('connectionEntity.status'), field: 'status', editable: false },
-
-
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('connectionEntity.name', 'name'),
+      this.utils.getNonEditableColumnDef('connectionEntity.taskGroup', 'groupName'),
+      this.utils.getStatusColumnDef(),
     ];
 
     this.columnDefsCartographiesDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: 'ID', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('connectionEntity.name'), field: 'name', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('connectionEntity.name', 'name'),
     ];
 
     this.columnDefsTasksDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: 'ID', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('connectionEntity.name'), field: 'name', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('connectionEntity.name', 'name'),
     ];
 
 
@@ -180,8 +176,8 @@ export class ConnectionFormComponent implements OnInit {
     let cartographiesToPut = [];
     data.forEach(cartography => {
       cartography.connection=this.connectionToEdit;
-      if (cartography.status === 'Modified') {cartographiesModified.push(cartography) }
-      if(cartography.status!== 'Deleted') {cartographiesToPut.push(cartography._links.self.href) }
+      if (cartography.status === 'pendingModify') {cartographiesModified.push(cartography) }
+      if(cartography.status!== 'pendingDelete') {cartographiesToPut.push(cartography._links.self.href) }
     });
 
     this.updateCartographies(cartographiesModified, cartographiesToPut );
@@ -227,8 +223,8 @@ export class ConnectionFormComponent implements OnInit {
     let tasksModified = [];
     let tasksToPut = [];
     data.forEach(task => {
-      if (task.status === 'Modified') { tasksModified.push(task) }
-      if (task.status !== 'Deleted') { tasksToPut.push(task._links.self.href) }
+      if (task.status === 'pendingModify') { tasksModified.push(task) }
+      if (task.status !== 'pendingDelete') { tasksToPut.push(task._links.self.href) }
     });
     this.updateTasks(tasksModified, tasksToPut);
 
@@ -320,8 +316,7 @@ export class ConnectionFormComponent implements OnInit {
 
   onSaveButtonClicked() {
 
-    if(this.formConnection.valid)
-    {
+    if (this.formConnection.valid) {
       this.connectionService.save(this.formConnection.value).subscribe(
         result => {
           console.log(result);
@@ -352,7 +347,7 @@ export class ConnectionFormComponent implements OnInit {
     }
     this.connectionService.testConnection(connection).subscribe(
       result => {
-        
+
       },
       error => {
         console.log(error);

@@ -30,17 +30,17 @@ export class TaskGroupComponent implements OnInit {
 
   ngOnInit() {
 
-    var columnEditBtn=config.editBtnColumnDef;
+    var columnEditBtn=this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
 
 
     this.columnDefs = [
-      config.selCheckboxColumnDef,
+      this.utils.getSelCheckboxColumnDef(),
       columnEditBtn,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('taskGroupEntity.name'), field: 'name' },
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('taskGroupEntity.name', 'name'),
       // { headerName: this.utils.getTranslate('serviceEntity.type'), field: 'type'},
       // { headerName: this.utils.getTranslate('serviceEntity.serviceURL'), field: 'theme'},
       // { headerName: this.utils.getTranslate('serviceEntity.supportedSRS'), field: 'srs'},

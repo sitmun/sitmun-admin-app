@@ -111,62 +111,63 @@ export class RoleFormComponent implements OnInit {
 
 
     this.columnDefsUsers = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('roleEntity.username'), field: 'user' },
-      { headerName: this.utils.getTranslate('roleEntity.territory'), field: 'territory' },
-      { headerName: this.utils.getTranslate('roleEntity.status'), field: 'status', editable:false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('roleEntity.username', 'username'),
+      this.utils.getEditableColumnDef('roleEntity.territory', 'territory'),
+      this.utils.getStatusColumnDef()
     ];
 
     this.columnDefsTasks = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('roleEntity.groupTask'), field: 'groupName', editable:false },
-      { headerName: this.utils.getTranslate('roleEntity.status'), field: 'status', editable:false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('roleEntity.groupTask', 'groupName'),
+      this.utils.getStatusColumnDef()
     ];
 
     this.columnDefsCartography = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('roleEntity.name'), field: 'name' },
-      { headerName: this.utils.getTranslate('roleEntity.status'), field: 'status', editable:false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('roleEntity.name', 'name'),
+      this.utils.getStatusColumnDef()
     ];
 
     this.columnDefsApplications = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('roleEntity.name'), field: 'name' },
-      { headerName: this.utils.getTranslate('roleEntity.status'), field: 'status', editable:false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('roleEntity.name', 'name'),
+      this.utils.getStatusColumnDef()
     ];
 
     this.columnDefsUsersDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('roleEntity.username'), field: 'username', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('roleEntity.username', 'username'),
     ];
 
     this.columnDefsTerritoriesDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('roleEntity.code'), field: 'code', editable: false },
-      { headerName: this.utils.getTranslate('roleEntity.name'), field: 'name', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('roleEntity.code', 'code'),
+      this.utils.getNonEditableColumnDef('roleEntity.name', 'name'),
+
     ];
     this.columnDefsCartographiesDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('roleEntity.name'), field: 'name', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('roleEntity.name', 'name'),
     ];
 
     this.columnDefsTasksDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('roleEntity.name'), field: 'name', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('roleEntity.name', 'name'),
     ];
 
     this.columnDefsApplicationsDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('roleEntity.name'), field: 'name' },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('roleEntity.name', 'name'),
     ];
 
   }
@@ -220,8 +221,8 @@ export class RoleFormComponent implements OnInit {
         territory: userConf.territoryComplete,
         user:  userConf.userComplete,
       }
-      if (userConf.status === 'Pending creation') {usersConfToCreate.push(item) }
-      if(userConf.status === 'Deleted' && userConf._links) {usersConfDelete.push(userConf) }
+      if (userConf.status === 'pendingCreation') {usersConfToCreate.push(item) }
+      if(userConf.status === 'pendingDelete' && userConf._links) {usersConfDelete.push(userConf) }
     });
 
     usersConfToCreate.forEach(newElement => {
@@ -275,8 +276,8 @@ export class RoleFormComponent implements OnInit {
     let tasksModified = [];
     let tasksToPut = [];
     data.forEach(task => {
-      if (task.status === 'Modified') {tasksModified.push(task) }
-      if(task.status!== 'Deleted') {tasksToPut.push(task._links.self.href) }
+      if (task.status === 'pendingModify') {tasksModified.push(task) }
+      if(task.status!== 'pendingDelete') {tasksToPut.push(task._links.self.href) }
     });
     this.updateTasks(tasksModified, tasksToPut);
 
@@ -320,8 +321,8 @@ export class RoleFormComponent implements OnInit {
     let cartographiesGroupModified = [];
     let cartographiesGroupToPut = [];
     data.forEach(cartographyGroup => {
-      if (cartographyGroup.status === 'Modified') {cartographiesGroupModified.push(cartographyGroup) }
-      if(cartographyGroup.status!== 'Deleted') {cartographiesGroupToPut.push(cartographyGroup._links.self.href) }
+      if (cartographyGroup.status === 'pendingModify') {cartographiesGroupModified.push(cartographyGroup) }
+      if(cartographyGroup.status!== 'pendingDelete') {cartographiesGroupToPut.push(cartographyGroup._links.self.href) }
     });
 
     this.updateCartographiesGroups(cartographiesGroupModified, cartographiesGroupToPut );
@@ -365,8 +366,8 @@ export class RoleFormComponent implements OnInit {
       let applicationsModified = [];
       let applicationsToPut = [];
       data.forEach(application => {
-        if (application.status === 'Modified') {applicationsModified.push(application) }
-        if(application.status!== 'Deleted') {applicationsToPut.push(application._links.self.href) }
+        if (application.status === 'pendingModify') {applicationsModified.push(application) }
+        if(application.status!== 'pendingDelete') {applicationsToPut.push(application._links.self.href) }
       });
 
       console.log(applicationsModified);

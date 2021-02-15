@@ -29,16 +29,16 @@ export class TasksComponent implements OnInit {
 
   ngOnInit() {
 
-    var columnEditBtn=config.editBtnColumnDef;
+    var columnEditBtn=this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
 
 
     this.columnDefs = [
-      config.selCheckboxColumnDef,
+      this.utils.getSelCheckboxColumnDef(),
       columnEditBtn,
-      { headerName: 'Id', field: 'id', editable: false },
+      this.utils.getIdColumnDef(),
       { headerName: this.utils.getTranslate('tasksEntity.task'), field: 'name' },
       { headerName: this.utils.getTranslate('tasksEntity.groupTask'), field: 'groupName', editable: false },
     ];

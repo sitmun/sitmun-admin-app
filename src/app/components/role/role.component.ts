@@ -28,17 +28,17 @@ export class RoleComponent implements OnInit {
 
   ngOnInit() {
 
-    var columnEditBtn=config.editBtnColumnDef;
+    var columnEditBtn=this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
 
     this.columnDefs = [
-      config.selCheckboxColumnDef,
+      this.utils.getSelCheckboxColumnDef(),
       columnEditBtn,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('roleEntity.name'), field: 'name' },
-      { headerName: this.utils.getTranslate('roleEntity.note'), field: 'description' },
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('roleEntity.name', 'name'),
+      this.utils.getEditableColumnDef('roleEntity.note', 'description'),
       // { headerName: this.utils.getTranslate('application'),  field: 'application' },
     ];
   }

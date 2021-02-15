@@ -17,6 +17,9 @@
   "undo": "Undo",
   "return": "Return",
   "pendingDelete":"Pending delete",
+  "pendingCreation":"Pendent Creation",
+  "pendingModify":"Pendent modify",
+  "status":"Status",
   "search/replace": "Search/Replace",
   "selectType": "Select type",
   "ok-created": "Items created successfully",
@@ -174,7 +177,12 @@
     "selectable": "Selectable",
     "service": "Service",
     "layer": "Layer",
-    "connection":"Connection"
+    "connection":"Connection",
+    "territorialFilter": "Territorial filter",
+    "value": "Value",
+    "valueType": "Value type",
+    "typeId": "Id type",
+    "required": "Required"
   },
   "layersPermitsEntity": {
     "generalData": "General Data",

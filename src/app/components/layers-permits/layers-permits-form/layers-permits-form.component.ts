@@ -109,30 +109,30 @@ export class LayersPermitsFormComponent implements OnInit {
 
 
     this.columnDefsCartographies = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('layersPermitsEntity.name'), field: 'name' },
-      { headerName: this.utils.getTranslate('layersPermitsEntity.status'), field: 'status', editable:false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('layersPermitsEntity.name', 'name'),
+      this.utils.getStatusColumnDef()
     ];
 
 
     this.columnDefsRoles = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('layersPermitsEntity.name'), field: 'name' },
-      { headerName: this.utils.getTranslate('layersPermitsEntity.status'), field: 'status', editable:false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('layersPermitsEntity.name', 'name'),
+      this.utils.getStatusColumnDef()
     ];
 
     this.columnDefsCartographiesDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: 'ID', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('connectionEntity.name'), field: 'name', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('layersPermitsEntity.name', 'name'),
     ];
 
     this.columnDefsRolesDialog = [
-      config.selCheckboxColumnDef,
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('layersPermitsEntity.name'), field: 'name' },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('layersPermitsEntity.name', 'name'),
     ];
   }
 
@@ -181,8 +181,8 @@ export class LayersPermitsFormComponent implements OnInit {
     let cartographiesModified = [];
     let cartographiesToPut = [];
     data.forEach(cartography => {
-      if (cartography.status === 'Modified') {cartographiesModified.push(cartography) }
-      if(cartography.status!== 'Deleted') {cartographiesToPut.push(cartography._links.self.href) }
+      if (cartography.status === 'pendingModify') {cartographiesModified.push(cartography) }
+      if(cartography.status!== 'pendingDelete') {cartographiesToPut.push(cartography._links.self.href) }
     });
     console.log(cartographiesModified);
     this.updateCartographies(cartographiesModified, cartographiesToPut);
@@ -229,8 +229,8 @@ export class LayersPermitsFormComponent implements OnInit {
     let rolesModified = [];
     let rolesToPut = [];
     data.forEach(role => {
-      if (role.status === 'Modified') {rolesModified.push(role) }
-      if(role.status!== 'Deleted') {rolesToPut.push(role._links.self.href) }
+      if (role.status === 'pendingModify') {rolesModified.push(role) }
+      if(role.status!== 'pendingDelete') {rolesToPut.push(role._links.self.href) }
     });
     console.log(rolesModified);
     this.updateRoles(rolesModified, rolesToPut);

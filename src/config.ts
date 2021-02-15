@@ -23,26 +23,6 @@ export const config = {
     { id: "en", name: "english" },
   ],
   defaultLang: "ca",
-  selCheckboxColumnDef: {
-    headerName: '',
-    checkboxSelection: true,
-    headerCheckboxSelection: true,
-    editable: false,
-    filter: false,
-    minWidth: 45,
-    maxWidth: 45,
-    lockPosition: true
-  },
-  editBtnColumnDef: {
-    headerName: '',
-    field: 'id',
-    editable: false,
-    filter: false,
-    minWidth: 50,
-    maxWidth: 50,
-    lockPosition: true,
-    cellRenderer: 'btnEditRendererComponent'
-  },
   _embedded: {
     applications: 'applications',
     applicationParameters: 'application-parameters',

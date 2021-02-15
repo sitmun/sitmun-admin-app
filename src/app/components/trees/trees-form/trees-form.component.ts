@@ -78,18 +78,9 @@ export class TreesFormComponent implements OnInit {
 
 
     this.columnDefsCartographies = [
-      {
-        headerName: '',
-        checkboxSelection: true,
-        headerCheckboxSelection: false,
-        editable: false,
-        filter: false,
-        minWidth: 45,
-        maxWidth: 45,
-        lockPosition: true
-      },
-      { headerName: 'Id', field: 'id', editable: false },
-      { headerName: this.utils.getTranslate('treesEntity.name'), field: 'name', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('treesEntity.name','name')
     ];
 
   }
@@ -159,7 +150,7 @@ export class TreesFormComponent implements OnInit {
     }
     console.log(node);
     let status="Modified"
-    if(node.id < 0) { status = "Pending creation"}
+    if(node.id < 0) { status = "pendingCreation"}
     this.treeNodeForm.patchValue({
       id: node.id,
       name: node.name,
@@ -188,7 +179,7 @@ export class TreesFormComponent implements OnInit {
       parent: parentId ,
       isFolder: false,
       children: [],
-      status: "Pending creation"
+      status: "pendingCreation"
     })
 
   }
@@ -204,7 +195,7 @@ export class TreesFormComponent implements OnInit {
       parent: parentId,
       isFolder: true,
       children: [],
-      status: "Pending creation"
+      status: "pendingCreation"
     })
 
   }
@@ -318,7 +309,7 @@ export class TreesFormComponent implements OnInit {
           if (currentParent !== undefined)
           {
 
-              if(tree.status === "Pending creation" && currentParent!=null){
+              if(tree.status === "pendingCreation" && currentParent!=null){
                 treeNodeObj.parent= currentParent._links.self.href;
               }
               else if ( tree.status === "Modified" && currentParent!=null){

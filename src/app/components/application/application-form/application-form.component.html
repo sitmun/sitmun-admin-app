@@ -251,7 +251,7 @@
     </label>
     <mat-form-field appearance="outline" >
       <mat-select matInput formControlName="type" class="form-control" >
-        <mat-option [value]="parameterType.value" *ngFor="let parameterType of parametersTypes">
+        <mat-option [value]="parameterType.value" *ngFor="let parameterType of parametersTypes" required>
           {{ parameterType.value}}
         </mat-option>
       </mat-select>

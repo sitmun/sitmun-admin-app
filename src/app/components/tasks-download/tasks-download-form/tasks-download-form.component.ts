@@ -117,14 +117,14 @@ export class TasksDownloadFormComponent implements OnInit {
 
 
       this.columnDefsRoles = [
-      config.selCheckboxColumnDef,
-        { headerName: 'Id', field: 'id', editable: false },
+      this.utils.getSelCheckboxColumnDef(),
+        this.utils.getIdColumnDef(),
         { headerName: this.utils.getTranslate('tasksDownloadEntity.name'), field: 'name' },  
         { headerName: this.utils.getTranslate('tasksDownloadEntity.status'), field: 'status', editable:false },  
       ];
   
       this.columnDefsTerritories = [
-        config.selCheckboxColumnDef,
+        this.utils.getSelCheckboxColumnDef(),
         { headerName: 'Id', field: 'territoryId', editable: false },
         { headerName: this.utils.getTranslate('tasksDownloadEntity.name'), field: 'territoryName' },
         { headerName: this.utils.getTranslate('tasksDownloadEntity.status'), field: 'status', editable:false },  
@@ -133,14 +133,14 @@ export class TasksDownloadFormComponent implements OnInit {
       ];
 
       this.columnDefsRolesDialog = [
-        config.selCheckboxColumnDef,
+        this.utils.getSelCheckboxColumnDef(),
         { headerName: 'ID', field: 'id', editable: false },
         { headerName: this.utils.getTranslate('tasksDownloadEntity.name'), field: 'name', editable: false },
         { headerName: this.utils.getTranslate('tasksDownloadEntity.note'), field: 'description', editable: false, },
       ];
 
       this.columnDefsTerritoriesDialog = [
-        config.selCheckboxColumnDef,
+        this.utils.getSelCheckboxColumnDef(),
         { headerName: 'ID', field: 'id', editable: false },
         { headerName: this.utils.getTranslate('tasksDownloadEntity.name'), field: 'name',  editable: false  },
         { headerName: this.utils.getTranslate('tasksDownloadEntity.code'), field: 'code',  editable: false  },
@@ -185,8 +185,8 @@ export class TasksDownloadFormComponent implements OnInit {
     let rolesModified = [];
     let rolesToPut = [];
     data.forEach(role => {
-      if (role.status === 'Modified') {rolesModified.push(role) }
-      if(role.status!== 'Deleted') {rolesToPut.push(role._links.self.href) }
+      if (role.status === 'pendingModify') {rolesModified.push(role) }
+      if(role.status!== 'pendingDelete') {rolesToPut.push(role._links.self.href) }
     });
     console.log(rolesModified);
     this.updateRoles(rolesModified, rolesToPut);
@@ -235,7 +235,7 @@ export class TasksDownloadFormComponent implements OnInit {
     let territoriesToDelete = [];
     data.forEach(territory => {
       territory.task= this.taskDownloadToEdit;
-      if (territory.status === 'Pending creation') {
+      if (territory.status === 'pendingCreation') {
         let index= data.findIndex(element => element.territoryId === territory.territoryId && !element.new)
         if(index === -1)
         {
@@ -243,7 +243,7 @@ export class TasksDownloadFormComponent implements OnInit {
           territory.new=false;
         }
        }
-      if(territory.status === 'Deleted' && territory._links) {territoriesToDelete.push(territory) }
+      if(territory.status === 'pendingDelete' && territory._links) {territoriesToDelete.push(territory) }
     });
     const promises: Promise<any>[] = [];
     territoriesToCreate.forEach(newElement => {

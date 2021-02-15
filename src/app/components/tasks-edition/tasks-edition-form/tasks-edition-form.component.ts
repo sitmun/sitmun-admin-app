@@ -139,8 +139,8 @@ export class TasksEditionFormComponent implements OnInit {
       });
 
        this.columnDefsColumns = [
-        config.selCheckboxColumnDef,
-         { headerName: 'Id', field: 'id', editable: false },
+        this.utils.getSelCheckboxColumnDef(),
+         this.utils.getIdColumnDef(),
          { headerName: this.utils.getTranslate('tasksEditionEntity.selectable'), field: 'selectable' },  
          { headerName: this.utils.getTranslate('tasksEditionEntity.editable'), field: 'editable' },  
          { headerName: this.utils.getTranslate('tasksEditionEntity.tag'), field: 'tag' },  
@@ -155,14 +155,14 @@ export class TasksEditionFormComponent implements OnInit {
 
 
        this.columnDefsRoles = [
-        config.selCheckboxColumnDef,
-         { headerName: 'Id', field: 'id', editable: false },
+        this.utils.getSelCheckboxColumnDef(),
+         this.utils.getIdColumnDef(),
          { headerName: this.utils.getTranslate('tasksEditionEntity.name'), field: 'name' },  
          { headerName: this.utils.getTranslate('tasksEditionEntity.status'), field: 'status', editable:false },
        ];
    
        this.columnDefsTerritories = [
-        config.selCheckboxColumnDef,
+        this.utils.getSelCheckboxColumnDef(),
          { headerName: 'Id', field: 'territoryId', editable: false },
          { headerName: this.utils.getTranslate('tasksEditionEntity.name'), field: 'territoryName' },
          { headerName: this.utils.getTranslate('tasksEditionEntity.status'), field: 'status', editable:false },
@@ -187,13 +187,13 @@ export class TasksEditionFormComponent implements OnInit {
 
 
        this.columnDefsRolesDialog = [
-        config.selCheckboxColumnDef,
+        this.utils.getSelCheckboxColumnDef(),
          { headerName: 'ID', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksEditionEntity.name'), field: 'name', editable: false },
        ];
  
        this.columnDefsTerritoriesDialog = [
-        config.selCheckboxColumnDef,
+        this.utils.getSelCheckboxColumnDef(),
          { headerName: 'ID', field: 'id', editable: false },
          { headerName: this.utils.getTranslate('tasksEditionEntity.name'), field: 'name',  editable: false  },
        ];
@@ -295,7 +295,7 @@ export class TasksEditionFormComponent implements OnInit {
     let territoriesToDelete = [];
     data.forEach(territory => {
       territory.task= this.taskEditionToEdit;
-      if (territory.status === 'Pending creation') {
+      if (territory.status === 'pendingCreation') {
         let index= data.findIndex(element => element.territoryId === territory.territoryId && !element.new)
         if(index === -1)
         {
@@ -303,7 +303,7 @@ export class TasksEditionFormComponent implements OnInit {
           territory.new=false;
         }
        }
-      if(territory.status === 'Deleted' && territory._links) {territoriesToDelete.push(territory) }
+      if(territory.status === 'pendingDelete' && territory._links) {territoriesToDelete.push(territory) }
     });
     const promises: Promise<any>[] = [];
     territoriesToCreate.forEach(newElement => {
@@ -349,8 +349,8 @@ export class TasksEditionFormComponent implements OnInit {
     let rolesModified = [];
     let rolesToPut = [];
     data.forEach(role => {
-      if (role.status === 'Modified') {rolesModified.push(role) }
-      if(role.status!== 'Deleted') {rolesToPut.push(role._links.self.href) }
+      if (role.status === 'pendingModify') {rolesModified.push(role) }
+      if(role.status!== 'pendingDelete') {rolesToPut.push(role._links.self.href) }
     });
     console.log(rolesModified);
     this.updateRoles(rolesModified, rolesToPut);

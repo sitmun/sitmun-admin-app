@@ -169,7 +169,7 @@
             [eventGetAllRowsSubscription]='getAllElementsEventPermits.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventPermits.asObservable()'
             [eventAddItemsSubscription]='addElementsEventPermits.asObservable()' (add)="openPermitsDialog($event, false)"
-            [deleteButton]=true [addButton]=true [actionButton]=true (getAllRows)="getAllRowsPermits($event)">
+            [deleteButton]=true [addButton]=true [actionButton]=true (getAllRows)="getAllRowsPermits($event,false)">
           </app-data-grid>
         </div>
       </ng-template>
@@ -192,7 +192,7 @@
               [eventGetAllRowsSubscription]='getAllElementsEventPermits.asObservable()'
               [eventRefreshSubscription]='dataUpdatedEventPermits.asObservable()'
               [eventAddItemsSubscription]='addElementsEventChildrenPermits.asObservable()' (add)="openPermitsDialog($event, true)"
-              [deleteButton]=true [addButton]=true [actionButton]=true (getAllRows)="getAllRowsPermits($event)">
+              [deleteButton]=true [addButton]=true [actionButton]=true (getAllRows)="getAllRowsPermits($event, true)">
             </app-data-grid>
           </div>
         </ng-template>
@@ -200,7 +200,7 @@
     </div>
 
     <!-- InheritPermissionsOfParents -->
-    <div  *ngIf=" territoryForm.value.scope =='M' ">
+    <!-- <div  *ngIf=" territoryForm.value.scope =='M' ">
       <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
         <mat-expansion-panel-header class="agGridExpansionPanelTitle">
           <mat-panel-title>
@@ -217,7 +217,7 @@
           </div>
         </ng-template>
       </mat-expansion-panel>
-    </div>
+    </div> -->
 
     <!-- MemberOf table -->
     <div *ngIf="territoryForm.value.scope =='M' ">
