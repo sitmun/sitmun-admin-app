@@ -80,7 +80,7 @@ export class LayersComponent implements OnInit {
         newCartography.service=result;
         newCartography.createdDate = new Date();
         newCartography._links = null;
-        newCartography.name = 'copia_'.concat(newCartography.name)
+        newCartography.name = this.utils.getTranslate('copy_').concat(newCartography.name)
         console.log(newCartography);
         promises.push(new Promise((resolve, reject) => {​​​​​​​ this.cartographyService.save(newCartography).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
         Promise.all(promises).then(() => {

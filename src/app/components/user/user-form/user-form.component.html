@@ -102,7 +102,7 @@
   
     <div matExpansionPanelContent>  
       <div class="appDataGridEditDiv">
-          <app-data-grid [columnDefs]="columnDefsPermits" [themeGrid]='themeGrid' [getAll]='getAllPermits'  
+          <app-data-grid [changeHeightButton]="true"  [columnDefs]="columnDefsPermits" [themeGrid]='themeGrid' [getAll]='getAllPermits'  
           [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventPermits.asObservable()' 
           [eventRefreshSubscription]='dataUpdatedEventPermits.asObservable()' [eventAddItemsSubscription]='addElementsEventPermits.asObservable()'
            [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true 
@@ -124,11 +124,10 @@
   
     <ng-template matExpansionPanelContent>  
       <div class="appDataGridEditDiv">
-          <app-data-grid [columnDefs]="columnDefsData" [themeGrid]='themeGrid' [getAll]='getAllDataTerritory'  
+          <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsData" [themeGrid]='themeGrid' [getAll]='getAllDataTerritory'  
           [eventAddItemsSubscription]='addElementsEventTerritoryData.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventTerritoryData.asObservable()' 
           [eventRefreshSubscription]='dataUpdatedEventTerritoryData.asObservable()' [discardChangesButton]=true [redoButton]=true
-          [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
-          (getAllRows)="getAllRowsDataTerritories($event)" [actionButton]=true (add)="openTerritoryDataDialog($event)"> </app-data-grid>
+          [undoButton]=true  [hideDuplicateButton]=true (getAllRows)="getAllRowsDataTerritories($event)" [actionButton]=true > </app-data-grid>
       </div>
     </ng-template>
   

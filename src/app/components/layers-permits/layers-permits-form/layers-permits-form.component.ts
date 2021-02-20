@@ -178,25 +178,39 @@ export class LayersPermitsFormComponent implements OnInit {
 
   getAllRowsCartographies(data: any[] )
   {
+    let dataChanged = false;
     let cartographiesModified = [];
     let cartographiesToPut = [];
     data.forEach(cartography => {
-      if (cartography.status === 'pendingModify') {cartographiesModified.push(cartography) }
-      if(cartography.status!== 'pendingDelete') {cartographiesToPut.push(cartography._links.self.href) }
+      if(cartography.status!== 'pendingDelete') {
+        if (cartography.status === 'pendingModify') {
+          cartographiesModified.push(cartography) 
+        }
+        else if (cartography.status === 'pendingCreation') {
+          dataChanged = true;
+        }
+        cartographiesToPut.push(cartography._links.self.href) 
+      }
+      else {
+        dataChanged = true;
+      }
     });
     console.log(cartographiesModified);
-    this.updateCartographies(cartographiesModified, cartographiesToPut);
+    this.updateCartographies(cartographiesModified, cartographiesToPut, dataChanged);
   }
 
-  updateCartographies(cartographiesModified: Cartography[], cartographiesToPut: Cartography[])
+  updateCartographies(cartographiesModified: Cartography[], cartographiesToPut: Cartography[], dataChanged: boolean)
   {
     const promises: Promise<any>[] = [];
     cartographiesModified.forEach(cartography => {
       promises.push(new Promise((resolve, reject) => { this.cartographyService.update(cartography).subscribe((resp) => { resolve(true) }) }));
     });
     Promise.all(promises).then(() => {
-      let url=this.layersPermitsToEdit._links.members.href.split('{', 1)[0];
-      this.utils.updateUriList(url,cartographiesToPut, this.dataUpdatedEventCartographies)
+      if(dataChanged){
+        let url=this.layersPermitsToEdit._links.members.href.split('{', 1)[0];
+        this.utils.updateUriList(url,cartographiesToPut, this.dataUpdatedEventCartographies)
+      }
+      else { this.dataUpdatedEventCartographies.next(true) }
     });
   }
 
@@ -226,25 +240,40 @@ export class LayersPermitsFormComponent implements OnInit {
 
   getAllRowsRoles(data: any[] )
   {
+    let dataChanged = false;
     let rolesModified = [];
     let rolesToPut = [];
     data.forEach(role => {
-      if (role.status === 'pendingModify') {rolesModified.push(role) }
-      if(role.status!== 'pendingDelete') {rolesToPut.push(role._links.self.href) }
+      if(role.status!== 'pendingDelete') {
+        if (role.status === 'pendingModify') {
+          rolesModified.push(role) 
+        }
+        else if(role.status === 'pendingCreation'){
+          dataChanged = true;
+        }
+        rolesToPut.push(role._links.self.href)
+      }
+      else{
+        dataChanged = true;
+      }
     });
     console.log(rolesModified);
-    this.updateRoles(rolesModified, rolesToPut);
+    this.updateRoles(rolesModified, rolesToPut, dataChanged);
   }
 
-  updateRoles(rolesModified: Role[], rolesToPut: Role[])
+  updateRoles(rolesModified: Role[], rolesToPut: Role[], dataChanged: boolean)
   {
     const promises: Promise<any>[] = [];
     rolesModified.forEach(role => {
       promises.push(new Promise((resolve, reject) => { this.roleService.update(role).subscribe((resp) => { resolve(true) }) }));
     });
     Promise.all(promises).then(() => {
-      let url=this.layersPermitsToEdit._links.roles.href.split('{', 1)[0];
-      this.utils.updateUriList(url,rolesToPut, this.dataUpdatedEventRoles)
+      if(dataChanged)
+      {
+        let url=this.layersPermitsToEdit._links.roles.href.split('{', 1)[0];
+        this.utils.updateUriList(url,rolesToPut, this.dataUpdatedEventRoles)
+      }
+      else { this.dataUpdatedEventRoles.next(true) }
     });
   }
 

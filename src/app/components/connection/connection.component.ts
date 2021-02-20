@@ -74,7 +74,7 @@ export class ConnectionComponent implements OnInit {
     const promises: Promise<any>[] = [];
     data.forEach(connection => {
       connection.id = null;
-      connection.name = 'copia_'.concat(connection.name)
+      connection.name = this.utils.getTranslate('copy_').concat(connection.name)
       promises.push(new Promise((resolve, reject) => { this.connectionService.create(connection).subscribe((resp) => { resolve(true) }) }));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);

@@ -22,6 +22,7 @@ export class LayersFormComponent implements OnInit {
 
   //Form
   private parametersUrl: string;
+  parameteApplyFilterToGetMap;
   layerForm: FormGroup;
   layerToEdit;
   layerID = -1;
@@ -175,11 +176,7 @@ export class LayersFormComponent implements OnInit {
       )
     }));
 
-    let valueTypeByDefault = {
-      value: null,
-      description: '-------'
-    }
-    this.filterValueTypes.push(valueTypeByDefault);
+
 
     promises.push(new Promise((resolve, reject) => {
       this.utils.getCodeListValues('cartographyFilter.valueType').subscribe(
@@ -262,12 +259,17 @@ export class LayersFormComponent implements OnInit {
             resp => {
               console.log(resp);
               this.layerToEdit = resp;
+              let layers= this.layerToEdit.layers.join(',');
+              let queryableLayers= null
+              if(this.layerToEdit.queryableLayers != null ) {queryableLayers = this.layerToEdit.queryableLayers.join(',')};
+              let selectableLayers= null;
+              if(this.layerToEdit.selectableLayers != null ) {selectableLayers = this.layerToEdit.selectableLayers.join(',')};
               this.parametersUrl = this.layerToEdit._links.parameters.href;
               this.layerForm.setValue({
                 id: this.layerID,
                 name: this.layerToEdit.name,
                 service: this.layerToEdit.serviceId,
-                layers: this.layerToEdit.layers,
+                layers: layers,
                 minimumScale: this.layerToEdit.minimumScale,
                 maximumScale: this.layerToEdit.maximumScale,
                 geometryType: this.layerToEdit.geometryType,
@@ -278,17 +280,17 @@ export class LayersFormComponent implements OnInit {
                 legendUrl: this.layerToEdit.legendURL,
                 description: this.layerToEdit.description,
                 datasetURL: this.layerToEdit.datasetURL, //here
-                applyFilterToGetMap: this.layerToEdit.applyFilterToGetMap,
+                applyFilterToGetMap: null,
                 applyFilterToGetFeatureInfo: this.layerToEdit.applyFilterToGetFeatureInfo,
                 applyFilterToSpatialSelection: this.layerToEdit.applyFilterToSpatialSelection,
                 queryableFeatureEnabled: this.layerToEdit.queryableFeatureEnabled,
                 queryableFeatureAvailable: this.layerToEdit.queryableFeatureAvailable,
-                queryableLayers: this.layerToEdit.queryableLayers,
+                queryableLayers: queryableLayers,
                 thematic: this.layerToEdit.thematic,
                 blocked: this.layerToEdit.blocked,
                 selectableFeatureEnabled: this.layerToEdit.selectableFeatureEnabled,
                 spatialSelectionService: this.layerToEdit.spatialSelectionServiceId,
-                selectableLayers: this.layerToEdit.selectableLayers,
+                selectableLayers: selectableLayers,
                 spatialSelectionConnection: "",
                 _links: this.layerToEdit._links
               });
@@ -317,38 +319,45 @@ export class LayersFormComponent implements OnInit {
                 urlReq = url.toString();
               }
 
-
-              this.http.get(urlReq).pipe(
-                map(data => data['_embedded']['cartography-parameters'].filter(elem => elem.type == "FILTRO" || elem.type == "FILTRO_INFO" || elem.type == "FILTRO_ESPACIAL")
-                ))
-                .subscribe(result => {
-                  console.log(result)
-                  result.forEach(element => {
-
-                    if (element.type === 'FILTRO') {
-                      this.layerForm.patchValue({
-                        applyFilterToGetMap: element.value
-                      })
-                    }
-                    else if (element.type === 'FILTRO_INFO') {
-                      this.layerForm.patchValue({
-                        applyFilterToGetFeatureInfo: element.value
-                      })
-                    }
-                    else if (element.type === 'FILTRO_ESPACIAl') {
-                      this.layerForm.patchValue({
-                        applyFilterToSpatialSelection: element.value
-                      })
+              if(this.layerToEdit.applyFilterToGetMap == null || this.layerToEdit.applyFilterToGetFeatureInfo == null || this.layerToEdit.applyFilterToSpatialSelection == null)
+              {
+                this.http.get(urlReq).pipe(
+                  map(data => data['_embedded']['cartography-parameters'].filter(elem => elem.type == "FILTRO" || elem.type == "FILTRO_INFO" || elem.type == "FILTRO_ESPACIAL")
+                  ))
+                  .subscribe(result => {
+                    console.log(result)
+                    result.forEach(element => {
+  
+                      if (element.type === 'FILTRO' && this.layerToEdit.applyFilterToGetMap == null ) {
+                        this.parameteApplyFilterToGetMap=element;
+                        this.layerForm.patchValue({
+                          applyFilterToGetMap: element.value
+                        })
+                      }
+                      else if (element.type === 'FILTRO_INFO' && this.layerToEdit.applyFilterToGetFeatureInfo == null) {
+                        this.layerForm.patchValue({
+                          applyFilterToGetFeatureInfo: element.value
+                        })
+                      }
+                      else if (element.type === 'FILTRO_ESPACIAL' && this.layerToEdit.applyFilterToSpatialSelection == null) {
+                        this.layerForm.patchValue({
+                          applyFilterToSpatialSelection: element.value
+                        })
+                      }
+                    });
+  
+  
+                    if ((!this.layerForm.value.applyFilterToGetFeatureInfo && !this.layerForm.value.applyFilterToSpatialSelection)) {
+                      { this.layerForm.get('applyFilterToGetMap').disable(); }
                     }
                   });
-
-
-                  if ((!this.layerForm.value.applyFilterToGetFeatureInfo && !this.layerForm.value.applyFilterToSpatialSelection)) {
-                    { this.layerForm.get('applyFilterToGetMap').disable(); }
-                  }
-                });
+              }
 
               if (!this.layerToEdit.thematic) { this.layerForm.get('geometryType').disable(); }
+              if (!this.layerToEdit.queryableFeatureEnabled){
+                this.layerForm.get('queryableFeatureAvailable').disable();
+                this.layerForm.get('queryableLayers').disable();
+              }
 
               if (!this.layerToEdit.selectableFeatureEnabled) {
                 this.layerForm.get('spatialSelectionService').disable();
@@ -379,6 +388,8 @@ export class LayersFormComponent implements OnInit {
           this.layerForm.get('applyFilterToGetMap').disable();
           this.layerForm.get('spatialSelectionService').disable();
           this.layerForm.get('selectableLayers').disable();
+          this.layerForm.get('queryableFeatureAvailable').disable();
+          this.layerForm.get('queryableLayers').disable();
           this.dataLoaded = true;
         }
 
@@ -393,7 +404,7 @@ export class LayersFormComponent implements OnInit {
 
     this.columnDefsParameters = [
       this.utils.getSelCheckboxColumnDef(),
-      this.utils.getEditableColumnDef('layersEntity.field', 'field'),
+      this.utils.getEditableColumnDef('layersEntity.field', 'value'),
       this.utils.getEditableColumnDef('layersEntity.name', 'name'),
       this.utils.getFormattedColumnDef('layersEntity.format', this.parameterFormatTypes, 'format'),
       this.utils.getEditableColumnDef('layersEntity.order', 'order'),
@@ -502,6 +513,17 @@ export class LayersFormComponent implements OnInit {
     }
   }
 
+  onQueryableFeatureEnabledChange(value)
+  {
+    if (value.checked) {
+      this.layerForm.get('queryableFeatureAvailable').enable();
+      this.layerForm.get('queryableLayers').enable();
+    } else {
+      this.layerForm.get('queryableFeatureAvailable').disable();
+      this.layerForm.get('queryableLayers').disable();
+    }
+  }
+
   initializeLayersForm(): void {
 
     this.layerForm = new FormGroup({
@@ -552,7 +574,7 @@ export class LayersFormComponent implements OnInit {
       name: new FormControl(null, [Validators.required]),
       required: new FormControl(null, [Validators.required]),
       type: new FormControl(null, [Validators.required]),
-      typeId: new FormControl(null),
+      territorialLevel: new FormControl(null),
       column: new FormControl(null),
       value: new FormControl(null, []),
       valueType: new FormControl(null, []),
@@ -581,7 +603,7 @@ export class LayersFormComponent implements OnInit {
       ));
 
   }
-  getAllRowsParameters(data: any[]) {
+  getAllRowsParameters(data: any[], parameterApplyFilterToGetMap: boolean) {
     console.log(data);
     let parameterToSave = [];
     let parameterToDelete = [];
@@ -606,7 +628,11 @@ export class LayersFormComponent implements OnInit {
     });
 
     Promise.all(promises).then(() => {
-      this.dataUpdatedEventParameters.next(true);
+      if(!parameterApplyFilterToGetMap)
+      {
+        this.dataUpdatedEventParameters.next(true);
+        this.dataUpdatedEventSpatialConfigurations.next(true);
+      }
     });
 
 
@@ -616,9 +642,10 @@ export class LayersFormComponent implements OnInit {
     let parametersToDuplicate = []
     data.forEach(parameter => {
       let newParameter = { ...parameter };
-      newParameter.name = 'copia_'.concat(newParameter.name),
-        newParameter.id = null,
-        parametersToDuplicate.push(newParameter);
+      newParameter.name = this.utils.getTranslate('copy_').concat(newParameter.name),
+      newParameter.id = null;
+      newParameter._links = null;
+      parametersToDuplicate.push(newParameter);
     });
 
     this.addElementsEventParameters.next(parametersToDuplicate);
@@ -629,8 +656,9 @@ export class LayersFormComponent implements OnInit {
     let spatialSelectionsToDuplicate = []
     data.forEach(spatialSelection => {
       let newSpatialSelection = { ...spatialSelection };
-      newSpatialSelection.name = 'copia_'.concat(newSpatialSelection.name),
-        newSpatialSelection.id = null,
+      newSpatialSelection.name = this.utils.getTranslate('copy_').concat(newSpatialSelection.name),
+        newSpatialSelection.id = null;
+        newSpatialSelection._links = null;
         spatialSelectionsToDuplicate.push(newSpatialSelection);
     });
 
@@ -711,11 +739,12 @@ export class LayersFormComponent implements OnInit {
     let territorialFiltersToDuplicate = []
     data.forEach(territorialFilter => {
       let newTerritorialFilter = { ...territorialFilter };
-      newTerritorialFilter.name = 'copia_'.concat(newTerritorialFilter.name),
-        newTerritorialFilter.id = null,
+      newTerritorialFilter.name = this.utils.getTranslate('copy_').concat(newTerritorialFilter.name),
+        newTerritorialFilter.id = null;
+        // newTerritorialFilter._links = null;
         territorialFiltersToDuplicate.push(newTerritorialFilter);
     });
-
+    if(this)
     this.addElementsEventParameters.next(territorialFiltersToDuplicate);
 
   }
@@ -797,24 +826,39 @@ export class LayersFormComponent implements OnInit {
 
 
   getAllRowsLayersConfiguration(data: any[]) {
+    let dataChanged = false;
     let layersConfigurationModified = [];
     let layersConfigurationToPut = [];
     data.forEach(layer => {
-      if (layer.status === 'pendingModify') { layersConfigurationModified.push(layer) }
-      if (layer.status !== 'pendingDelete') { layersConfigurationToPut.push(layer._links.self.href) }
+
+      if (layer.status !== 'pendingDelete') {
+        if (layer.status === 'pendingModify') {
+          layersConfigurationModified.push(layer) 
+        }
+        else if (layer.status === 'pendingCreation') {
+           dataChanged = true;
+        }
+        layersConfigurationToPut.push(layer._links.self.href) 
+      }
+      else {dataChanged = true}
     });
     console.log(layersConfigurationModified);
-    this.updateLayersConfigurations(layersConfigurationModified, layersConfigurationToPut);
+    this.updateLayersConfigurations(layersConfigurationModified, layersConfigurationToPut, dataChanged);
   }
 
-  updateLayersConfigurations(layersConfigurationModified: CartographyGroup[], layersConfigurationToPut: CartographyGroup[]) {
+  updateLayersConfigurations(layersConfigurationModified: CartographyGroup[], layersConfigurationToPut: CartographyGroup[], dataChanged: boolean) {
     const promises: Promise<any>[] = [];
     layersConfigurationModified.forEach(cartography => {
       promises.push(new Promise((resolve, reject) => { this.cartographyGroupService.update(cartography).subscribe((resp) => { resolve(true) }) }));
     });
     Promise.all(promises).then(() => {
-      let url = this.layerToEdit._links.permissions.href.split('{', 1)[0];
-      this.utils.updateUriList(url, layersConfigurationToPut, this.dataUpdatedEventLayersConfiguration)
+      if(dataChanged){
+        let url = this.layerToEdit._links.permissions.href.split('{', 1)[0];
+        this.utils.updateUriList(url, layersConfigurationToPut, this.dataUpdatedEventLayersConfiguration)
+      }
+      else{
+        this.dataUpdatedEventLayersConfiguration.next(true);
+      }
     });
   }
 
@@ -840,6 +884,7 @@ export class LayersFormComponent implements OnInit {
   getAllRowsNodes(data: any[]) {
 
     let nodesToPut = [];
+    let nodesToDelete = [];
     data.forEach(node => {
      
       let nodeAct= new TreeNode();
@@ -853,19 +898,23 @@ export class LayersFormComponent implements OnInit {
       node._links.cartography.href=urlReq
       nodeAct._links=node._links
       nodeAct.cartography=this.layerForm.value
-      if (node.status !== 'pendingDelete') { nodesToPut.push(nodeAct) }
+      if (node.status === 'pendingModify' || node.status === 'pendingCreation') { nodesToPut.push(nodeAct) }
+      else if (node.status === 'pendingDelete') { nodesToDelete.push(nodeAct) }
     });
 
-    this.updateNodes(nodesToPut);
+    this.updateNodes(nodesToPut, nodesToDelete);
   }
 
-  updateNodes(nodesToPut: any[]) {
+  updateNodes(nodesToPut: any[], nodesToDelete: any[]) {
     const promises: Promise<any>[] = [];
     nodesToPut.forEach(node => {
       promises.push(new Promise((resolve, reject) => { this.treeNodeService.save(node).subscribe((resp) => { resolve(true) }) }));
     });
+    nodesToDelete.forEach(node => {
+      promises.push(new Promise((resolve, reject) => { this.treeNodeService.remove(node).subscribe((resp) => { resolve(true) }) }));
+    });
     Promise.all(promises).then(() => {
-    //
+      this.dataUpdatedEventNodes.next(true);
     });
   }
 
@@ -934,7 +983,7 @@ export class LayersFormComponent implements OnInit {
     this.territorialFilterForm.patchValue({
       type: this.filterTypes[0].value,
       valueType: this.filterValueTypes[0].value,
-      typeId: this.filterTypeIds[0].id,
+      territorialLevel: this.filterTypeIds[0].id,
       required: false
     })
 
@@ -943,11 +992,25 @@ export class LayersFormComponent implements OnInit {
     dialogRef.componentInstance.title = this.utils.getTranslate('layersEntity.territorialFilter');
     dialogRef.componentInstance.form = this.territorialFilterForm;
 
+
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
+          let territorialLevel= this.filterTypeIds.find(x => x.id===this.layerForm.value.territorialLevel )
+          if(territorialLevel==undefined || territorialLevel.id==-1 ){
+            territorialLevel=null
+          }
+          this.territorialFilterForm.patchValue({
+            territorialLevel : territorialLevel
+          })
           let item = this.territorialFilterForm.value;
           item.giid = this.layerToEdit.id
+          if(this.territorialFilterForm.value.typeId === -1)
+          {
+            this.territorialFilterForm.patchValue({
+              typeId: null
+            })
+          }
           this.addElementsTerritorialFilter.next([item])
           console.log(this.territorialFilterForm.value)
         }
@@ -1086,9 +1149,9 @@ export class LayersFormComponent implements OnInit {
         service = null
       }
 
-      let selectService = this.spatialConfigurationServices.find(x => x.id === this.layerForm.value.spatialSelectionService)
-      if (selectService == undefined || selectService.id == -1) {
-        selectService = null
+      let spatialService= this.spatialConfigurationServices.find(x => x.id===this.layerForm.value.spatialSelectionService )
+      if(spatialService==undefined || spatialService.id==-1 ){
+        spatialService=null
       }
 
       // let legendType = this.legendTypes.find(x => x.id === this.layerForm.value.legendType)
@@ -1103,35 +1166,75 @@ export class LayersFormComponent implements OnInit {
       }
 
       let cartography = new Cartography();
-      cartography.name = this.layerForm.value.name,
-        cartography.service = service,
-        cartography.layers = this.layerForm.value.layers,
-        cartography.minimumScale = this.layerForm.value.minimumScale,
-        cartography.maximumScale = this.layerForm.value.maximumScale,
-        cartography.geometryType = geometryType
-      cartography.order = this.layerForm.value.order,
-        cartography.transparency = this.layerForm.value.transparency,
-        cartography.metadataURL = this.layerForm.value.metadataURL,
-        cartography.legendType = legendType
-      cartography.legendURL = this.layerForm.value.legendUrl,
-        cartography.description = this.layerForm.value.description,
-        // cartography.datasetURL= this.layerForm.value.datasetURL, 
-        // cartography.applyFilterToGetMap= this.layerForm.value.applyFilterToGetMap,
-        // cartography.applyFilterToGetFeatureInfo= this.layerForm.value.applyFilterToGetFeatureInfo,
-        // cartography.applyFilterToSpatialSelection= this.layerForm.value.applyFilterToSpatialSelection
-        cartography.queryableFeatureEnabled = this.layerForm.value.queryableFeatureEnabled,
-        cartography.queryableFeatureAvailable = this.layerForm.value.queryableFeatureAvailable,
-        cartography.queryableLayers = this.layerForm.value.queryableLayers,
-        cartography.thematic = this.layerForm.value.thematic,
-        cartography.blocked = this.layerForm.value.blocked,
-        cartography.selectableFeatureEnabled = this.layerForm.value.selectableFeatureEnabled,
-        cartography.selectionService = selectService,
-        // cartography.selectionLayer= this.layerForm.value.selectableLayers,
-        cartography.connection = null,
-        cartography._links = this.layerForm.value._links
+      cartography.name = this.layerForm.value.name;
+      cartography.service = service;
+      cartography.layers = this.layerForm.value.layers.split(",");
+      cartography.minimumScale = this.layerForm.value.minimumScale;
+      cartography.maximumScale = this.layerForm.value.maximumScale;
+      cartography.geometryType = geometryType;
+      cartography.order = this.layerForm.value.order;
+      cartography.transparency = this.layerForm.value.transparency;
+      cartography.metadataURL = this.layerForm.value.metadataURL;
+      cartography.legendType = legendType
+      cartography.legendURL = this.layerForm.value.legendUrl;
+      cartography.description = this.layerForm.value.description;
+      cartography.datasetURL= this.layerForm.value.datasetURL; //
+      // cartography.applyFilterToGetMap= this.layerForm.value.applyFilterToGetMap;
+      cartography.applyFilterToGetFeatureInfo= this.layerForm.value.applyFilterToGetFeatureInfo;
+      cartography.applyFilterToSpatialSelection= this.layerForm.value.applyFilterToSpatialSelection;
+      cartography.queryableFeatureEnabled = this.layerForm.value.queryableFeatureEnabled;
+
+      if(cartography.queryableFeatureAvailable == null) { cartography.queryableFeatureAvailable = false }
+      else {cartography.queryableFeatureAvailable = this.layerForm.value.queryableFeatureAvailable };//
+
+
+      cartography.selectionService= spatialService
+      if(this.layerForm.value.queryableLayers != null) {cartography.queryableLayers= this.layerForm.value.queryableLayers.split(",") };
+      cartography.thematic = this.layerForm.value.thematic,
+      cartography.blocked = this.layerForm.value.blocked;
+      cartography.selectableFeatureEnabled = this.layerForm.value.selectableFeatureEnabled;
+      if(this.layerForm.value.selectableLayers != null) {cartography.selectableLayers= this.layerForm.value.selectableLayers.split(",") };
+      //
+      cartography.connection = null;
+      cartography._links = this.layerForm.value._links
 
       this.cartographyService.save(cartography)
         .subscribe(resp => {
+
+          if(!this.layerForm.value.applyFilterToGetFeatureInfo && !this.layerForm.value.applyFilterToSpatialSelection){
+            if(this.parameteApplyFilterToGetMap != null)
+            {
+              this.parameteApplyFilterToGetMap.status="pendingDelete"       
+              this.getAllRowsParameters([this.parameteApplyFilterToGetMap],true)   
+              this.layerForm.patchValue({
+                applyFilterToGetMap: null
+              })
+              this.parameteApplyFilterToGetMap = null;
+            }
+          }
+          else{
+            if(this.parameteApplyFilterToGetMap != null)
+            {
+              this.parameteApplyFilterToGetMap.value=this.layerForm.value.applyFilterToGetMap
+              this.parameteApplyFilterToGetMap.status="pendingModify"           
+              this.getAllRowsParameters([this.parameteApplyFilterToGetMap],true)  
+            }
+            else{
+              let item = {
+                id: null,
+                name: "FILTRO",
+                type: "FILTRO",
+                order: 0,
+                format: null,
+                status: "pendingCreation",
+                value: this.layerForm.value.applyFilterToGetMap
+              }
+              this.getAllRowsParameters([item],true)   
+            }
+          }
+
+          
+
           console.log(resp);
           this.layerToEdit = resp;
           this.layerID = resp.id;
@@ -1146,7 +1249,8 @@ export class LayersFormComponent implements OnInit {
           this.getAllElementsEventLayersConfigurations.next(true);
           this.getAllElementsEventNodes.next(true);
 
-        });
+        },
+        error => {console.log(error)});
     }
     else {
       this.utils.showRequiredFieldsError();

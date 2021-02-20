@@ -220,24 +220,39 @@ export class ConnectionFormComponent implements OnInit {
 
 
   getAllRowsTasks(data: any[]) {
+    let dataChanged = false;
     let tasksModified = [];
     let tasksToPut = [];
     data.forEach(task => {
-      if (task.status === 'pendingModify') { tasksModified.push(task) }
-      if (task.status !== 'pendingDelete') { tasksToPut.push(task._links.self.href) }
+
+      if (task.status !== 'pendingDelete') { 
+        if (task.status === 'pendingModify') {
+          tasksModified.push(task);
+        }
+        else if (task.status === 'pendingCreation'){
+          dataChanged = true;
+        }
+        tasksToPut.push(task._links.self.href)
+      }
+      else {
+        dataChanged = true;
+      }
     });
-    this.updateTasks(tasksModified, tasksToPut);
+    this.updateTasks(tasksModified, tasksToPut, dataChanged);
 
   }
 
-  updateTasks(tasksModified: Task[], tasksToPut: Task[]) {
+  updateTasks(tasksModified: Task[], tasksToPut: Task[], dataChanged:boolean) {
     const promises: Promise<any>[] = [];
     tasksModified.forEach(task => {
       promises.push(new Promise((resolve, reject) => { this.tasksService.update(task).subscribe((resp) => { resolve(true) }) }));
     });
     Promise.all(promises).then(() => {
-      let url = this.connectionToEdit._links.tasks.href.split('{', 1)[0];
-      this.utils.updateUriList(url, tasksToPut, this.dataUpdatedEventTasks)
+      if(dataChanged){
+        let url = this.connectionToEdit._links.tasks.href.split('{', 1)[0];
+        this.utils.updateUriList(url, tasksToPut, this.dataUpdatedEventTasks)
+      }
+      else{ this.dataUpdatedEventTasks.next(true) }
     });
   }
 

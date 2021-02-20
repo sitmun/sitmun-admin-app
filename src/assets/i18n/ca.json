@@ -16,6 +16,7 @@
   "redo": "Refer",
   "undo": "Desfer",
   "return": "Tornar",
+  "copy_": "copia_",
   "pendingDelete":"Pendent eliminar",
   "pendingCreation":"Pendent crear",
   "pendingModify":"Pendent modificar",
@@ -36,6 +37,7 @@
   "passwordMessage" : "Els camps contrasenya i confirmar contrasenya no coincideixen!",
   "requiredFieldMessage": "Empleni tots els camps obligatoris ",
   "duplicateMessage": "Si dupliques les dades sense guardar els canvis, les modificacions seran sobreescrites, vols continuar?",
+  "doubleSelectionMessage": "Has de seleccionar 1 element de cada taula com a mínim",
   "addChildRoles": "Vols afegir rols fills al territori seleccionat?",
   "extentError" : "L'extensió introduida no és vàlida",
   "caution": "Perill",
@@ -67,7 +69,8 @@
     "tasksThematic": "Temàtica",
     "tasksExtractionFME": "Extracció FME",
     "application": "Aplicació",
-    "taskGroup": "Grup tasca"
+    "taskGroup": "Grup tasca",
+    "status": "Estat"
   },
   "userEntity": {
     "generalData": "Dades Generals",
@@ -80,6 +83,7 @@
     "password": "Contrasenya",
     "confirmPassword": "Confirmació contrasenya",
     "permissions": "Permisos",
+    "permissionsChildren": "Permisos fills",
     "role": "Rol",
     "roles": "Rols",
     "territories": "Territories",
@@ -163,7 +167,7 @@
     "selectPath": "Select/Path",
     "field": "Camp",
     "format": "Format",
-    "municipalFilterFields": "Camps per filtre municipal",
+    "municipalFilterFields": "Camp per filtre municipal",
     "filterInfoByMunicipality": "Filtrar per municipi a la info",
     "filterSpatialSeleciontByMunicipality": "Filtrar per municipi a la selecció espacial",
     "information": "Informació",
@@ -208,7 +212,6 @@
     "visible": "Visible",
     "cartography":"Cartografia",
     "configuration" : "Configuració"
-
   },
   "taskGroupEntity": {
     "generalData": "Dades Generals",
@@ -241,7 +244,7 @@
     "tree": "Arbre",
     "desktopUrl": "Url per desktop",
     "desktopCSS": "CSS desktop",
-    "url": "Url ",
+    "url": "Url",
     "CSS": "CSS",
     "mobileUrl": "Url mòbil",
     "mobileCSS": "CSS mòbil",
@@ -263,7 +266,7 @@
   "territoryEntity": {
     "generalData": "Dades Generals",
     "territory": "Territori",
-    "territories": "Territories",
+    "territories": "Territoris",
     "code": "Codi",
     "name": "Nom",
     "scope": "Àmbit",
@@ -291,7 +294,8 @@
     "layers": "Capes",
     "permits": "Permisos",
     "inheritPermissionsOfParents": "Permisos heredats dels pares",
-    "status": "Estat"
+    "status": "Estat",
+    "username": "Nom d'usuari"
   },
   "roleEntity": {
     "generalData": "Dades Generals",
@@ -396,7 +400,8 @@
     "territories": "Territoris",
     "name": "Nom",
     "status": "Estat",
-    "taskName": "Nom tasca"
+    "taskName": "Nom tasca",
+    "roles": "Rols"
   },
   "tasksEditionEntity": {
     "generalData": "Dades Generals",

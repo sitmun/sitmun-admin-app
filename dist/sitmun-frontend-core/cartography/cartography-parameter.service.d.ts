@@ -4,7 +4,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RestService } from '../angular-hal/src/lib/rest.service';
 /** Service parameter manager service */
-import * as ɵngcc0 from '@angular/core';
 export declare class CartographyParameterService extends RestService<CartographyParameter> {
     private http;
     /** API resource path */
@@ -15,8 +14,4 @@ export declare class CartographyParameterService extends RestService<Cartography
     remove(item: CartographyParameter): Observable<Object>;
     /** save service parameter*/
     save(item: CartographyParameter): Observable<any>;
-    static ɵfac: ɵngcc0.ɵɵFactoryDef<CartographyParameterService, never>;
-    static ɵprov: ɵngcc0.ɵɵInjectableDef<CartographyParameterService>;
 }
-
-//# sourceMappingURL=cartography-parameter.service.d.ts.map

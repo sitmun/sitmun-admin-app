@@ -82,7 +82,7 @@ export class BackgroundLayersComponent implements OnInit {
       this.http.get(background._links.cartographyGroup.href).subscribe( (cartographyGroup) => {
 
         background.cartographyGroup = cartographyGroup;
-        background.name = 'copia_'.concat(background.name)
+        background.name = this.utils.getTranslate('copy_').concat(background.name)
         background._links=null;
         console.log(background);
         promises.push(new Promise((resolve, reject) => {​​​​​​​ this.backgroundService.save(background).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));

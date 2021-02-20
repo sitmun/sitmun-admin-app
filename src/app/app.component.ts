@@ -36,8 +36,15 @@ export class AppComponent {
     if (navigatorLang != undefined) {
       defaultLang = window.navigator.language
     }
-    this.translate.setDefaultLang(defaultLang);
-    this.translate.use(defaultLang);
+    if(localStorage.lang != undefined)
+    {
+      this.translate.setDefaultLang(localStorage.lang);
+      this.translate.use(localStorage.lang);
+    }
+    else{
+      this.translate.setDefaultLang(defaultLang);
+      this.translate.use(defaultLang);
+    }
   }
 
   /** Change app language*/

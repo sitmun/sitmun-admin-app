@@ -109,7 +109,7 @@
 
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-          <app-data-grid [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'
+          <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'
             [eventAddItemsSubscription]='addElementsEventParameters.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventParameters.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()' [discardChangesButton]=true
@@ -130,7 +130,7 @@
 
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-          <app-data-grid [columnDefs]="columnDefsTerritories" [themeGrid]='themeGrid' [getAll]='getAllTerritories'
+          <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsTerritories" [themeGrid]='themeGrid' [getAll]='getAllTerritories'
             [eventAddItemsSubscription]='addElementsEventTerritories.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventTerritories.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventTerritories.asObservable()' [discardChangesButton]=true
@@ -151,7 +151,7 @@
 
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-          <app-data-grid [columnDefs]="columnDefsRoles" [themeGrid]='themeGrid' [getAll]='getAllRoles'
+          <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsRoles" [themeGrid]='themeGrid' [getAll]='getAllRoles'
             [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true
             [hideDuplicateButton]=true [eventAddItemsSubscription]='addElementsEventRoles.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventRoles.asObservable()'
@@ -178,8 +178,7 @@
         <div class="oneLargeColFormDiv">
           <mat-radio-group formControlName="type">
             <mat-radio-button class="radioButtonForm" value="VALOR">{{'tasksEntity.fix' | translate}}</mat-radio-button>
-            <mat-radio-button class="radioButtonForm" value="CAMPO">{{'tasksEntity.user' | translate}}
-            </mat-radio-button>
+            <mat-radio-button class="radioButtonForm" value="CAMPO">{{'tasksEntity.user' | translate}} </mat-radio-button>
             <mat-radio-button id="right-column" value="DATAINPUT">{{'tasksEntity.formatWPS' | translate}}</mat-radio-button>
           </mat-radio-group>
         </div>

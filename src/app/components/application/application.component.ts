@@ -86,7 +86,7 @@ export class ApplicationComponent implements OnInit {
     data.forEach(application => {
       application.id = null;
       application.createdDate=new Date();
-      application.name = 'copia_'.concat(application.name)
+      application.name = this.utils.getTranslate('copy_').concat(application.name)
       promises.push(new Promise((resolve, reject) => { this.applicationService.create(application).subscribe((resp) => { resolve(true) }) }));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);

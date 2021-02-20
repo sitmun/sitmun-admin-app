@@ -87,8 +87,8 @@ export class UserFormComponent implements OnInit {
               username: this.userToEdit.username,
               firstName: this.userToEdit.firstName,
               lastName: this.userToEdit.firstName,
-              password: this.userToEdit.password,
-              confirmPassword: this.userToEdit.password,
+              password: null,
+              confirmPassword: null,
               administrator: this.userToEdit.administrator,
               blocked: this.userToEdit.blocked,
               _links: this.userToEdit._links
@@ -221,15 +221,36 @@ export class UserFormComponent implements OnInit {
 
     let usersConfToCreate = [];
     let usersConfDelete = [];
-    data.forEach(userConf => {
+    let territoriesToAdd= [];
+    let territoriesToDelete= [];
+    const promisesCheckTerritories: Promise<any>[] = [];
+    // data.forEach(userConf => {
+    for(let i = 0; i<data.length; i++){
+      let userConf= data[i];
 
       if (userConf.status === 'pendingCreation') {
+
+        
         let item = {
           role: userConf.roleComplete,
           appliesToChildrenTerritories: userConf.appliesToChildrenTerritories,
           territory: userConf.territoryComplete,
           user: this.userToEdit
         }
+
+    
+
+
+        let indexTerritory = data.findIndex(element => element.territoryId === item.territory.id && !element.new )
+        if(indexTerritory === -1)
+        {
+          let itemTerritory = {
+            territory: userConf.territoryComplete,
+            user: this.userToEdit
+          }
+          territoriesToAdd.push(itemTerritory)
+        }
+
         let index;
         item.role = userConf.roleComplete,
           index = data.findIndex(element => element.roleId === item.role.id && element.territoryId === item.territory.id &&
@@ -240,27 +261,75 @@ export class UserFormComponent implements OnInit {
           usersConfToCreate.push(item)
         }
       }
-      if (userConf.status === 'pendingDelete' && userConf._links) { usersConfDelete.push(userConf) }
-    });
-    const promises: Promise<any>[] = [];
+      if (userConf.status === 'pendingDelete' && userConf._links) {
+
+        
+        let indexTerritory = data.findIndex(element =>  element.territoryId === userConf.territoryId && element.status !== 'pendingDelete' )
+        if(indexTerritory === -1)
+        {
+          promisesCheckTerritories.push(new Promise((resolve, reject) => {
+            this.userPositionService.getAll()
+            .pipe(map((data: any[]) => data.filter(elem => elem.territoryName === userConf.territory && elem.userId === this.userID )
+            )).subscribe(data => {
+              console.log(data);
+              if (data.length >0 && territoriesToDelete.findIndex(element => element.territoryName === userConf.territory) === -1) {
+                territoriesToDelete.push(data[0])
+              }
+              resolve(true);
+            })
+          }));
+
+        }
+
+        usersConfDelete.push(userConf)
+        }
+    };
+
+    const promises: Promise<any>[] = [];  
     usersConfToCreate.forEach(newElement => {
       promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(newElement).subscribe((resp) => { resolve(true) }) }));
     });
 
     usersConfDelete.forEach(deletedElement => {
-
       if (deletedElement._links) {
         promises.push(new Promise((resolve, reject) => { this.userConfigurationService.remove(deletedElement).subscribe((resp) => { resolve(true) }) }));
 
       }
-
     });
 
+          
     Promise.all(promises).then(() => {
       this.dataUpdatedEventPermits.next(true);
     });
+    
 
+    Promise.all(promisesCheckTerritories).then(() => {
+
+
+      const promisesTerritories: Promise<any>[] = [];
+
+      territoriesToAdd.forEach(newElement => {
+        promisesTerritories.push(new Promise((resolve, reject) => { this.userPositionService.save(newElement).subscribe((resp) => { resolve(true) }) }));
+      });
+  
+      territoriesToDelete.forEach(deletedElement => {
+        promisesTerritories.push(new Promise((resolve, reject) => { this.userPositionService.remove(deletedElement).subscribe((resp) => { resolve(true) }) }));
+      });
+      
+  
+
+      
+      Promise.all(promisesTerritories).then(() => {
+        this.dataUpdatedEventTerritoryData.next(true);
+      });
+
+
+    });
+
+
+    
   }
+
 
   // ******** Data of Territory ******** //
   getAllDataTerritory = (): Observable<any> => {
@@ -289,46 +358,22 @@ export class UserFormComponent implements OnInit {
 
 
   getAllRowsDataTerritories(data: any[]) {
-    // let territoriesToCreate = [];
-    // let territoriesToDelete = [];
-    // data.forEach(territory => {
-    //   if (territory.status === 'pendingCreation') {territoriesToCreate.push(territory) }
-    //   if(territory.status === 'pendingDelete' && territory._links) {territoriesToDelete.push(territory._links.self.href) }
-    // });
+    let territoriesToEdit = [];
+    data.forEach(territory => {
+      if (territory.status === 'pendingModify') {territoriesToEdit.push(territory) }
+    });
 
-    // territoriesToCreate.forEach(newElement => {
-
-    //   this.userPositionService.save(newElement).subscribe(
-    //     result => {
-    //       console.log(result)
-    //     }
-    //   )
-
-    // });
-
-    // territoriesToDelete.forEach(deletedElement => {
-
-    //   this.userPositionService.remove(deletedElement).subscribe(
-    //     result => {
-    //       console.log(result)
-    //     }
-    //   )
-
-    // });
-
-  }
-
-  updateTerritories(territoriesModified: Territory[], territoriesToPut: Territory[]) {
     const promises: Promise<any>[] = [];
-    territoriesModified.forEach(territory => {
-      //TODO Table STM_POST
-      // promises.push(new Promise((resolve, reject) => { this.territoryService.update(territory).subscribe((resp) => { resolve(true) }) }));
+    territoriesToEdit.forEach(editedElement => {
+      promises.push(new Promise((resolve, reject) => { this.userPositionService.save(editedElement).subscribe((resp) => { resolve(true) }) }));
     });
+
     Promise.all(promises).then(() => {
-      let url = this.userToEdit._links.positions.href.split('{', 1)[0];
-      this.utils.updateUriList(url, territoriesToPut)
+      this.dataUpdatedEventTerritoryData.next(true);
     });
+
   }
+
 
   // ******** Permits Dialog  ******** //
 
@@ -355,43 +400,52 @@ export class UserFormComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
-          console.log(result.data);
-          let territorySelected = result.data[0][0];
-          console.log(territorySelected);
-          this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, result.data[1], false));
-          // rowsToAdd.push(...tableUserConfWithoutRoleM);
-           if(territorySelected.scope==="R" && result.data[1].length>0) {
-            const dialogChildRolesWantedMessageRef = this.dialog.open(DialogMessageComponent);
-            dialogChildRolesWantedMessageRef.componentInstance.title = this.utils.getTranslate("atention");
-            dialogChildRolesWantedMessageRef.componentInstance.message = this.utils.getTranslate("addChildRoles");
-            dialogChildRolesWantedMessageRef.afterClosed().subscribe(messageResult => {
-              if (messageResult) {
-                if (messageResult.event === 'Accept') {
-                  const dialogRefChildRoles = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
-                  dialogRefChildRoles.componentInstance.getAllsTable = [this.getAllRolesDialog];
-                  dialogRefChildRoles.componentInstance.singleSelectionTable = [false];
-                  dialogRefChildRoles.componentInstance.columnDefsTable = [this.columnDefsRolesDialog];
-                  dialogRefChildRoles.componentInstance.themeGrid = this.themeGrid;
-                  dialogRefChildRoles.componentInstance.title = this.utils.getTranslate('userEntity.permissions');
-                  dialogRefChildRoles.componentInstance.titlesTable = [this.utils.getTranslate('userEntity.roles')];
-                  dialogRefChildRoles.componentInstance.nonEditable = false;
-                  dialogRefChildRoles.afterClosed().subscribe(childsResult => {
-                    if (childsResult) {
-                      if (childsResult.event === 'Add') {
-                        this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, childsResult.data[0], true));
-                      }
-                    }
+          if(result.data[0].length>0 && result.data[1].length>0){
 
-                  });
+            console.log(result.data);
+            let territorySelected = result.data[0][0];
+            console.log(territorySelected);
+            this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, result.data[1], false));
+            // rowsToAdd.push(...tableUserConfWithoutRoleM);
+             if(territorySelected.scope==="R" ) {
+              const dialogChildRolesWantedMessageRef = this.dialog.open(DialogMessageComponent);
+              dialogChildRolesWantedMessageRef.componentInstance.title = this.utils.getTranslate("atention");
+              dialogChildRolesWantedMessageRef.componentInstance.message = this.utils.getTranslate("addChildRoles");
+              dialogChildRolesWantedMessageRef.afterClosed().subscribe(messageResult => {
+                if (messageResult) {
+                  if (messageResult.event === 'Accept') {
+                    const dialogRefChildRoles = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
+                    dialogRefChildRoles.componentInstance.getAllsTable = [this.getAllRolesDialog];
+                    dialogRefChildRoles.componentInstance.singleSelectionTable = [false];
+                    dialogRefChildRoles.componentInstance.columnDefsTable = [this.columnDefsRolesDialog];
+                    dialogRefChildRoles.componentInstance.themeGrid = this.themeGrid;
+                    dialogRefChildRoles.componentInstance.title = this.utils.getTranslate('userEntity.permissions');
+                    dialogRefChildRoles.componentInstance.titlesTable = [this.utils.getTranslate('userEntity.roles')];
+                    dialogRefChildRoles.componentInstance.nonEditable = false;
+                    dialogRefChildRoles.afterClosed().subscribe(childsResult => {
+                      if (childsResult) {
+                        if (childsResult.event === 'Add') {
+                          this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, childsResult.data[0], true));
+                        }
+                      }
+  
+                    });
+                  }
                 }
-              }
-            });
+              });
+  
+            }
+            // console.log(rowsToAdd);
+            // this.addElementsEventPermits.next(rowsToAdd);
 
           }
-          // console.log(rowsToAdd);
-          // this.addElementsEventPermits.next(rowsToAdd);
-
-
+          else{
+            const dialogRef = this.dialog.open(DialogMessageComponent);
+            dialogRef.componentInstance.title = this.utils.getTranslate("atention");
+            dialogRef.componentInstance.message = this.utils.getTranslate("doubleSelectionMessage");
+            dialogRef.componentInstance.hideCancelButton = true;
+            dialogRef.afterClosed().subscribe();
+          }
 
         }
       }
@@ -497,12 +551,12 @@ export class UserFormComponent implements OnInit {
         this.userService.save(userObj)
           .subscribe(resp => {
             console.log(resp)
-            // this.userToEdit = resp
-            // this.userID = resp.id;
-            // this.userForm.patchValue({
-            // id: resp.id,
-            // _links: resp._links
-            // })
+            this.userToEdit = resp
+            this.userID = resp.id;
+            this.userForm.patchValue({
+            id: resp.id,
+            _links: resp._links
+            })
             console.log(this.userToEdit);
             this.getAllElementsEventTerritoryData.next(true);
             this.getAllElementsEventPermits.next(true);

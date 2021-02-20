@@ -84,7 +84,7 @@
 
       <ng-template matExpansionPanelContent>  
         <div class="appDataGridEditDiv">
-            <app-data-grid  [columnDefs]="columnDefsMaps" [themeGrid]='themeGrid' [getAll]='getAllMaps' 
+            <app-data-grid  [changeHeightButton]="true" [columnDefs]="columnDefsMaps" [themeGrid]='themeGrid' [getAll]='getAllMaps' 
             [eventAddItemsSubscription]='addElementsEventMaps.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventMaps.asObservable()' 
              [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
             (getAllRows)="getAllRowsMaps($event)" [actionButton]=true (add)="openMapsDialog($event)"  > </app-data-grid>
@@ -102,7 +102,7 @@
 
       <ng-template matExpansionPanelContent>  
         <div class="appDataGridEditDiv">
-            <app-data-grid  [columnDefs]="columnDefsQueries" [themeGrid]='themeGrid' [getAll]='getAllQueries' 
+            <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsQueries" [themeGrid]='themeGrid' [getAll]='getAllQueries' 
             [eventAddItemsSubscription]='addElementsEventQueries.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventQueries.asObservable()' 
              [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true 
             (getAllRows)="getAllRowsQueries($event)" [actionButton]=true (add)="openQueriesDialog($event)"  > </app-data-grid>
@@ -120,7 +120,7 @@
 
       <ng-template matExpansionPanelContent>  
         <div class="appDataGridEditDiv">
-          <app-data-grid [columnDefs]="columnDefsRoles" [themeGrid]='themeGrid' [getAll]='getAllRoles'
+          <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsRoles" [themeGrid]='themeGrid' [getAll]='getAllRoles'
             [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true
             [hideDuplicateButton]=true [eventAddItemsSubscription]='addElementsEventRoles.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventRoles.asObservable()'
@@ -140,7 +140,7 @@
     
       <ng-template matExpansionPanelContent>  
         <div class="appDataGridEditDiv">
-          <app-data-grid [columnDefs]="columnDefsTerritories" [themeGrid]='themeGrid' [getAll]='getAllTerritories'
+          <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsTerritories" [themeGrid]='themeGrid' [getAll]='getAllTerritories'
             [eventAddItemsSubscription]='addElementsEventTerritories.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventTerritories.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventTerritories.asObservable()' [discardChangesButton]=true

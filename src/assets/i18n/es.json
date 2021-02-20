@@ -16,11 +16,12 @@
   "redo": "Rehacer",
   "undo": "Deshacer",
   "return": "Volver",
+  "copy_": "copia_",
   "pendingDelete":"Pendiente eliminar",
   "pendingCreation":"Pendiente crear",
   "pendingModify":"Pendiente modificar",
   "status":"Estado",
-  "statusOK": "Without changes",
+  "statusOK": "Sin cambios",
   "search/replace": "Buscar/Reemplazar",
   "selectType": "Selecciona el tipo",
   "ok-created": "Los elementos se han creado correctamente",
@@ -36,6 +37,7 @@
   "passwordMessage" : "Los campos contraseña y confirmar contraseña no coinciden!",
   "requiredFieldMessage": "Rellene todos los campos obligatorios",
   "duplicateMessage": "Si dupliques los datos sin guardar los cambios, las modificacions se sobreescribiran, quieres continuar?",
+  "doubleSelectionMessage": "Tienes que seleccionar un elemento de cada tabla como mínimo",
   "addChildRoles": "Quieres añadir roles hijo al territorio seleccionado?",
   "extentError" : "La extensión introducida no es válida",
   "caution": "Peligro",
@@ -67,7 +69,8 @@
     "tasksThematic": "Temática",
     "tasksExtractionFME": "Extracción FME",
     "application": "Aplicación",
-    "taskGroup": "Grupo tarea"
+    "taskGroup": "Grupo tarea",
+    "status": "Estado"
   },
   "userEntity": {
     "generalData": "Datos Generales",
@@ -93,8 +96,9 @@
     "expirationDate": "Caducidad",
     "dataCreated": "Alta",
     "code": "Código",
+    "status": "Estado",
     "appliesToChildrenTerritories" : "Aplicado a los hijos",
-    "status": "Estado"
+    "childRole": "Rol hijo"
   },
   "connectionEntity": {
     "generalData": "Datos Generales",
@@ -130,7 +134,8 @@
     "layersToRegister": "Selecciona las capas que quieres dar de alta",
     "description": "Descripción",
     "status": "Estado",
-    "request":"Petición"
+    "request":"Petición",
+    "available": "Disponible"
   },
   "layersEntity": {
     "layers": "Capas",
@@ -162,9 +167,9 @@
     "selectPath": "Select/Path",
     "field": "Camp",
     "format": "Formato",
-    "municipalFilterFields": "Camps por filtro municipal",
-    "filterInfoByMunicipality": "Filtrar por municipio a la info",
-    "filterSpatialSeleciontByMunicipality": "Filtrar por municipio a la selección espacial",
+    "municipalFilterFields": "Campo para filtro municipal",
+    "filterInfoByMunicipality": "Filtrar por municipio la info",
+    "filterSpatialSeleciontByMunicipality": "Filtrar por municipio la selección espacial",
     "information": "Información",
     "defaultInformation": "Información por defecto",
     "informationLayer": "Capa información",
@@ -195,13 +200,18 @@
     "update": "Actualiza",
     "roles": "Roles",
     "cartographiesConfiguration": "Configuración de cartografías",
-    "status": "Estado",
-    "available": "Disponible"
+    "status": "Estado"
   },
   "treesEntity": {
+    "generalData": "Datos Generales",
     "trees": "Árboles",
     "name": "Nombre",
-    "status": "Estado"
+    "status": "Estado",
+    "tooltip": "Tooltip",
+    "radio": "Radio",
+    "visible": "Visible",
+    "cartography":"Cartografía",
+    "configuration" : "Configuracióm"
   },
   "taskGroupEntity": {
     "generalData": "Datos Generales",
@@ -234,7 +244,7 @@
     "tree": "Árbol",
     "desktopUrl": "Url por desktop",
     "desktopCSS": "CSS desktop",
-    "url": "Url ",
+    "url": "Url",
     "CSS": "CSS",
     "mobileUrl": "Url móvil",
     "mobileCSS": "CSS móvil",
@@ -271,7 +281,8 @@
     "blocked": "Bloqueado",
     "memberOfTerritories": "Territorios pares",
     "members": "Territorios hijos",
-    "permits": "Permisos",
+    "permissions": "Permisos",
+    "permissionsChildren": "Permisos hijos",
     "cartography": "Cartografía",
     "task": "Tarea",
     "tasks": "Tareas",
@@ -281,8 +292,10 @@
     "roles": "Roles",
     "taskGroup": "Grupo tarea",
     "layers": "Capas",
+    "permits": "Permisos",
     "inheritPermissionsOfParents": "Permisos heredadados de los padres",
-    "status": "Estado"
+    "status": "Estado",
+    "username": "Nombre de usuario"
   },
   "roleEntity": {
     "generalData": "Datos Generales",
@@ -292,6 +305,7 @@
     "applications": "Aplicaciones",
     "users": "Usuarios",
     "cartography": "Cartografía",
+    "permissiongroupLayersConfiguration": "Configuración de permisos sobre capas",
     "tasks": "Tareas",
     "username": "Nombre de usuario",
     "territory": "Territorio",
@@ -386,7 +400,8 @@
     "territories": "Territorios",
     "name": "Nombre",
     "status": "Estado",
-    "taskName": "Nombre tarea"
+    "taskName": "Nombre tarea",
+    "roles": "Roles"
   },
   "tasksEditionEntity": {
     "generalData": "Datos Generales",

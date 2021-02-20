@@ -22,6 +22,14 @@ export declare class Cartography extends Resource {
     source: String;
     /** whether cartography is blocked*/
     blocked: boolean;
+    /** apply filter to get map*/
+    applyFilterToGetMap: String;
+    /** apply filter to get feature information*/
+    applyFilterToGetFeatureInfo: boolean;
+    /** apply filter to spatial selection*/
+    applyFilterToSpatialSelection: boolean;
+    /** selectable layers*/
+    selectableLayers: string[];
     /** transparency*/
     transparency: Number;
     /** whether layer is queryable*/
@@ -62,6 +70,8 @@ export declare class Cartography extends Resource {
     editable: Boolean;
     /** metadata URL*/
     metadataURL: string;
+    /** metadata URL*/
+    datasetURL: string;
     /** whether layer is themable*/
     thematic: Boolean;
     /** geometry type*/

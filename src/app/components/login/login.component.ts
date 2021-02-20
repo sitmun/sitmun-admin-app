@@ -53,6 +53,7 @@ export class LoginComponent {
             this.loginService.login( val ).then(() => {
                 this.translate.use(this.form.value.lang)
                 this.translate.setDefaultLang(this.form.value.lang);
+                localStorage.setItem('lang',this.form.value.lang );
                 console.log( 'User is logged in' );
                 this.router.navigateByUrl( '/' );
             }, ( err ) => {

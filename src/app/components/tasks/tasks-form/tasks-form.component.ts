@@ -171,7 +171,7 @@ export class TasksFormComponent implements OnInit {
       { headerName: this.utils.getTranslate('tasksEntity.parameter'), field: 'name', },
       { headerName: this.utils.getTranslate('tasksEntity.value'), field: 'value' },
       { headerName: this.utils.getTranslate('tasksEntity.order'), field: 'order', editable:false },
-      { headerName: this.utils.getTranslate('tasksEntity.status'), field: 'status', editable: false },
+      this.utils.getStatusColumnDef(),
 
     ];
 
@@ -180,7 +180,7 @@ export class TasksFormComponent implements OnInit {
       this.utils.getSelCheckboxColumnDef(),
       { headerName: 'Id', field: 'territoryId', editable: false },
       { headerName: this.utils.getTranslate('tasksEntity.name'), field: 'territoryName', editable: false },
-      { headerName: this.utils.getTranslate('tasksEntity.status'), field: 'status', editable: false },
+      this.utils.getStatusColumnDef(),
 
     ];
 
@@ -188,7 +188,7 @@ export class TasksFormComponent implements OnInit {
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
       { headerName: this.utils.getTranslate('tasksEntity.name'), field: 'name' },
-      { headerName: this.utils.getTranslate('tasksEntity.status'), field: 'status', editable:false },
+      this.utils.getStatusColumnDef(),
     ];
 
 
@@ -204,7 +204,6 @@ export class TasksFormComponent implements OnInit {
       this.utils.getIdColumnDef(),
       { headerName: this.utils.getTranslate('tasksEntity.name'), field: 'name' },
       { headerName: this.utils.getTranslate('tasksEntity.description'), field: 'description' },
-      { headerName: this.utils.getTranslate('tasksEntity.status'), field: 'status', editable:false },
     ];
 
   }
@@ -337,9 +336,9 @@ export class TasksFormComponent implements OnInit {
     let parametersToDuplicate= []
     data.forEach(parameter => {
       let newParameter={...parameter}
-      newParameter.name= 'copia_'.concat(newParameter.name),
-      
-      
+      newParameter.name= this.utils.getTranslate('copy_').concat(newParameter.name);
+      newParameter.id= null;
+      newParameter._links= null;
       parametersToDuplicate.push(newParameter);
     });
     this.addElementsEventParameters.next(parametersToDuplicate);
@@ -423,25 +422,36 @@ export class TasksFormComponent implements OnInit {
 
   getAllRowsRoles(data: any[] )
   {
+    let dataChanged = false;
     let rolesModified = [];
     let rolesToPut = [];
     data.forEach(role => {
-      if (role.status === 'pendingModify') {rolesModified.push(role) }
-      if(role.status!== 'pendingDelete') {rolesToPut.push(role._links.self.href) }
+      if(role.status!== 'pendingDelete') {
+        if (role.status === 'pendingModify') {rolesModified.push(role) }
+        else if (role.status === 'pendingCreation') {dataChanged = true }
+        rolesToPut.push(role._links.self.href) 
+      }
+      else {dataChanged = false}
     });
     console.log(rolesModified);
-    this.updateRoles(rolesModified, rolesToPut);
+    this.updateRoles(rolesModified, rolesToPut, dataChanged);
   }
 
-  updateRoles(rolesModified: Role[], rolesToPut: Role[])
+  updateRoles(rolesModified: Role[], rolesToPut: Role[], dataChanged: boolean)
   {
     const promises: Promise<any>[] = [];
     rolesModified.forEach(role => {
       promises.push(new Promise((resolve, reject) => { this.roleService.update(role).subscribe((resp) => { resolve(true) }) }));
     });
     Promise.all(promises).then(() => {
-      let url=this.taskToEdit._links.roles.href.split('{', 1)[0];
-      this.utils.updateUriList(url,rolesToPut, this.dataUpdatedEventRoles)
+      if(dataChanged)
+      {
+        let url=this.taskToEdit._links.roles.href.split('{', 1)[0];
+        this.utils.updateUriList(url,rolesToPut, this.dataUpdatedEventRoles)
+      }
+      else{
+        this.dataUpdatedEventRoles.next(true)
+      }
     });
   }
 
@@ -454,6 +464,9 @@ export class TasksFormComponent implements OnInit {
 
 
     const dialogRef = this.dialog.open(DialogFormComponent);
+    this.parameterForm.patchValue({
+      type: "VALOR"
+    })
     dialogRef.componentInstance.HTMLReceived=this.newParameterDialog;
     dialogRef.componentInstance.title=this.utils.getTranslate('tasksEntity.parameters');
     dialogRef.componentInstance.form=this.parameterForm;

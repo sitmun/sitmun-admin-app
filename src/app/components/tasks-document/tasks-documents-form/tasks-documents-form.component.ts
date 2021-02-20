@@ -113,6 +113,9 @@ export class TasksDocumentsFormComponent implements OnInit {
             }
           );
         }
+        else{
+          this.dataLoaded=true;
+        }
   
       },
         error => {

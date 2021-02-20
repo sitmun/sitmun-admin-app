@@ -86,7 +86,7 @@ export class TerritoryComponent implements OnInit {
     data.forEach(territory => {
       territory.id = null;
       territory.createdDate = new Date();
-      territory.name = 'copia_'.concat(territory.name)
+      territory.name = this.utils.getTranslate('copy_').concat(territory.name)
       promises.push(new Promise((resolve, reject) => { this.territoryService.create(territory).subscribe((resp) => { resolve(true) }) }));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);

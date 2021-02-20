@@ -325,7 +325,7 @@ export class ServiceFormComponent implements OnInit {
     let parametersToDuplicate= []
     data.forEach(parameter => {
       let newParameter={
-        name: 'copia_'.concat(parameter.name),
+        name: this.utils.getTranslate('copy_').concat(parameter.name),
         type: parameter.type,
         value: parameter.value
       }
@@ -362,25 +362,33 @@ export class ServiceFormComponent implements OnInit {
 
   getAllRowsLayers(data: any[] )
   {
+    let dataChanged = false;
     let layersModified = [];
     let layersToPut = [];
     data.forEach(cartography => {
-      if (cartography.status === 'pendingModify') {layersModified.push(cartography) }
-      if(cartography.status!== 'pendingDelete') {layersToPut.push(cartography._links.self.href) }
+      if(cartography.status!== 'pendingDelete') {
+        if (cartography.status === 'pendingModify') {layersModified.push(cartography) }
+        else if (cartography.status === 'pendingCreation') {dataChanged = true }
+        layersToPut.push(cartography._links.self.href)
+      }
+      else {dataChanged = true}
     });
 
-    this.updateLayers(layersModified, layersToPut );
+    this.updateLayers(layersModified, layersToPut, dataChanged );
   }
 
-  updateLayers(layersModified: Cartography[], layersToPut: Cartography[])
+  updateLayers(layersModified: Cartography[], layersToPut: Cartography[], dataChanged: boolean)
   {
     const promises: Promise<any>[] = [];
     layersModified.forEach(cartography => {
       promises.push(new Promise((resolve, reject) => { this.cartographyService.update(cartography).subscribe((resp) => { resolve(true) }) }));
     });
     Promise.all(promises).then(() => {
-      let url=this.serviceToEdit._links.layers.href.split('{', 1)[0];
-      this.utils.updateUriList(url,layersToPut, this.dataUpdatedEventLayers)
+      if(dataChanged){
+        let url=this.serviceToEdit._links.layers.href.split('{', 1)[0];
+        this.utils.updateUriList(url,layersToPut, this.dataUpdatedEventLayers)
+      }
+      else { this.dataUpdatedEventLayers.next(true)}
     });
   }
 

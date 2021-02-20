@@ -273,26 +273,41 @@ export class RoleFormComponent implements OnInit {
 
   getAllRowsTasks(data: any[] )
   {
+    let dataChanged = false;
     let tasksModified = [];
     let tasksToPut = [];
     data.forEach(task => {
-      if (task.status === 'pendingModify') {tasksModified.push(task) }
-      if(task.status!== 'pendingDelete') {tasksToPut.push(task._links.self.href) }
+      if(task.status!== 'pendingDelete') {
+        if (task.status === 'pendingModify') {
+          tasksModified.push(task) 
+        }
+        else if(task.status === 'pendingCreation'){
+          dataChanged = true;
+        }
+        tasksToPut.push(task._links.self.href) 
+      }
+      else {
+        dataChanged = true;
+      }
     });
-    this.updateTasks(tasksModified, tasksToPut);
+    this.updateTasks(tasksModified, tasksToPut, dataChanged);
 
   }
 
-  updateTasks(tasksModified: Task[], tasksToPut: Task[])
+  updateTasks(tasksModified: Task[], tasksToPut: Task[], dataChanged: boolean)
   {
     const promises: Promise<any>[] = [];
-    tasksModified.forEach(task => {
-      promises.push(new Promise((resolve, reject) => { this.tasksService.update(task).subscribe((resp) => { resolve(true) }) }));
-    });
+      tasksModified.forEach(task => {
+        promises.push(new Promise((resolve, reject) => { this.tasksService.update(task).subscribe((resp) => { resolve(true) }) }));
+      });
     Promise.all(promises).then(() => {
-      let url=this.roleToEdit._links.tasks.href.split('{', 1)[0];
-      this.utils.updateUriList(url,tasksToPut, this.dataUpdatedEventTasks)
-    });
+      if(dataChanged)
+      {
+        let url=this.roleToEdit._links.tasks.href.split('{', 1)[0];
+        this.utils.updateUriList(url,tasksToPut, this.dataUpdatedEventTasks)
+      }
+      else { this.dataUpdatedEventTasks.next(true) }
+      });
   }
 
   // ******** Cartography Groups ******** //
@@ -318,25 +333,33 @@ export class RoleFormComponent implements OnInit {
 
   getAllRowsCartographiesGroups(data: any[] )
   {
+    let dataChanged = false;
     let cartographiesGroupModified = [];
     let cartographiesGroupToPut = [];
     data.forEach(cartographyGroup => {
-      if (cartographyGroup.status === 'pendingModify') {cartographiesGroupModified.push(cartographyGroup) }
-      if(cartographyGroup.status!== 'pendingDelete') {cartographiesGroupToPut.push(cartographyGroup._links.self.href) }
+      if(cartographyGroup.status!== 'pendingDelete') {
+        if (cartographyGroup.status === 'pendingModify') { cartographiesGroupModified.push(cartographyGroup) }
+        else if (cartographyGroup.status === 'pendingCreation') { dataChanged = true };
+        cartographiesGroupToPut.push(cartographyGroup._links.self.href) 
+      }
+      else { dataChanged = true }
     });
 
-    this.updateCartographiesGroups(cartographiesGroupModified, cartographiesGroupToPut );
+    this.updateCartographiesGroups(cartographiesGroupModified, cartographiesGroupToPut, dataChanged );
   }
 
-  updateCartographiesGroups(cartographiesGroupsModified: CartographyGroup[], cartographiesGroupsToPut: CartographyGroup[])
+  updateCartographiesGroups(cartographiesGroupsModified: CartographyGroup[], cartographiesGroupsToPut: CartographyGroup[], dataChanged:boolean)
   {
     const promises: Promise<any>[] = [];
     cartographiesGroupsModified.forEach(cartographyGroup => {
       promises.push(new Promise((resolve, reject) => { this.cartographyGroupService.update(cartographyGroup).subscribe((resp) => { resolve(true) }) }));
     });
     Promise.all(promises).then(() => {
-      let url=this.roleToEdit._links.permissions.href.split('{', 1)[0];
-      this.utils.updateUriList(url,cartographiesGroupsToPut, this.dataUpdatedEventCartographies)
+      if(dataChanged){
+        let url=this.roleToEdit._links.permissions.href.split('{', 1)[0];
+        this.utils.updateUriList(url,cartographiesGroupsToPut, this.dataUpdatedEventCartographies)
+      }
+      else { this.dataUpdatedEventCartographies.next(true) }
     });
   }
     // ******** Applications ******** //
@@ -362,28 +385,35 @@ export class RoleFormComponent implements OnInit {
   
     getAllRowsApplications(data: any[] )
     {
-  
+      let dataChanged = false;
       let applicationsModified = [];
       let applicationsToPut = [];
       data.forEach(application => {
-        if (application.status === 'pendingModify') {applicationsModified.push(application) }
-        if(application.status!== 'pendingDelete') {applicationsToPut.push(application._links.self.href) }
+        if(application.status!== 'pendingDelete') {
+          if (application.status === 'pendingModify') {applicationsModified.push(application) }
+          else if( application.status === 'pendingCreation') {dataChanged = true}
+          applicationsToPut.push(application._links.self.href) 
+        }
+        else {dataChanged = true}
       });
 
       console.log(applicationsModified);
-      this.updateApplications(applicationsModified, applicationsToPut);
+      this.updateApplications(applicationsModified, applicationsToPut, dataChanged);
     
     }
 
-    updateApplications(applicationsModified: Application[], applicationsToPut: Application[])
+    updateApplications(applicationsModified: Application[], applicationsToPut: Application[], dataChanged: boolean)
     {
       const promises: Promise<any>[] = [];
       applicationsModified.forEach(application => {
         promises.push(new Promise((resolve, reject) => { this.applicationService.update(application).subscribe((resp) => { resolve(true) }) }));
       });
       Promise.all(promises).then(() => {
-        let url=this.roleToEdit._links.applications.href.split('{', 1)[0];
-        this.utils.updateUriList(url,applicationsToPut, this.dataUpdatedEventApplications)
+        if(dataChanged){
+          let url=this.roleToEdit._links.applications.href.split('{', 1)[0];
+          this.utils.updateUriList(url,applicationsToPut, this.dataUpdatedEventApplications)
+        }
+        else {this.dataUpdatedEventApplications.next(true)}
       });
     }
   

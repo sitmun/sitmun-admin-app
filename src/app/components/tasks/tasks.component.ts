@@ -69,7 +69,7 @@ export class TasksComponent implements OnInit {
     data.forEach(task => {
       let newTask: any = task;
       newTask.id = null;
-      newTask.name = 'copia_'.concat(newTask.name)
+      newTask.name = this.utils.getTranslate('copy_').concat(newTask.name)
       this.taskGroupService.get(newTask.groupId).subscribe(
         result => {
           newTask.group=result;

@@ -136,6 +136,9 @@ export class TasksLocatorFormComponent implements OnInit {
            }
          );
        }
+       else{
+         this.dataLoaded=true;
+       }
     });
  
      },

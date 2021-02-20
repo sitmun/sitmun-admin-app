@@ -109,7 +109,7 @@
         
           <ng-template matExpansionPanelContent>  
               <div class="appDataGridEditDiv">
-                  <app-data-grid  [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'
+                  <app-data-grid  [changeHeightButton]="true" [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'
                   [eventAddItemsSubscription]='addElementsEventParameters.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventParameters.asObservable()' 
                    [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
                   (getAllRows)="getAllRowsParameters($event)" [actionButton]=true (remove)="removeParameters($event)" (new)='openParametersDialog($event)'  > </app-data-grid>
@@ -128,7 +128,7 @@
 
       <ng-template matExpansionPanelContent>  
         <div class="appDataGridEditDiv">
-          <app-data-grid [columnDefs]="columnDefsRoles" [themeGrid]='themeGrid' [getAll]='getAllRoles'
+          <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsRoles" [themeGrid]='themeGrid' [getAll]='getAllRoles'
             [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true
             [hideDuplicateButton]=true [eventAddItemsSubscription]='addElementsEventRoles.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventRoles.asObservable()'
@@ -148,7 +148,7 @@
     
       <ng-template matExpansionPanelContent>  
         <div class="appDataGridEditDiv">
-          <app-data-grid [columnDefs]="columnDefsTerritories" [themeGrid]='themeGrid' [getAll]='getAllTerritories'
+          <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsTerritories" [themeGrid]='themeGrid' [getAll]='getAllTerritories'
             [eventAddItemsSubscription]='addElementsEventTerritories.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventTerritories.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventTerritories.asObservable()' [discardChangesButton]=true

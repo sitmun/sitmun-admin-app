@@ -163,7 +163,7 @@
 
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-          <app-data-grid [columnDefs]="columnDefsPermits" [themeGrid]='themeGrid' [getAll]='getAllPermits'
+          <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsPermits" [themeGrid]='themeGrid' [getAll]='getAllPermits'
             [discardChangesButton]=true [redoButton]=true [undoButton]=true [hideDuplicateButton]=true
             [eventRefreshSubscription]='dataUpdatedEvent.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventPermits.asObservable()'
@@ -186,7 +186,7 @@
 
         <ng-template matExpansionPanelContent>
           <div class="appDataGridEditDiv">
-            <app-data-grid [columnDefs]="columnDefsPermitsChild" [themeGrid]='themeGrid' [getAll]='getAllPermitsChild'
+            <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsPermitsChild" [themeGrid]='themeGrid' [getAll]='getAllPermitsChild'
               [discardChangesButton]=true [redoButton]=true [undoButton]=true [hideDuplicateButton]=true
               [eventRefreshSubscription]='dataUpdatedEvent.asObservable()'
               [eventGetAllRowsSubscription]='getAllElementsEventPermits.asObservable()'
@@ -210,7 +210,7 @@
 
         <ng-template matExpansionPanelContent>
           <div class="appDataGridEditDiv">
-            <app-data-grid [columnDefs]="columnDefsPermitsInherit" [themeGrid]='themeGrid' [getAll]='getAllInheritPermissions'
+            <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsPermitsInherit" [themeGrid]='themeGrid' [getAll]='getAllInheritPermissions'
                [hideDuplicateButton]=true
               [eventRefreshSubscription]='dataUpdatedEventInheritPermissions.asObservable()'>
             </app-data-grid>
@@ -230,7 +230,7 @@
 
         <ng-template matExpansionPanelContent>
           <div class="appDataGridEditDiv">
-            <app-data-grid [columnDefs]="columnDefsMemberOf" [themeGrid]='themeGrid' [getAll]='getAllMembersOf'
+            <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsMemberOf" [themeGrid]='themeGrid' [getAll]='getAllMembersOf'
               [discardChangesButton]=true [redoButton]=true [hideDuplicateButton]=true
               [eventAddItemsSubscription]='addElementsEventTerritoriesMemberOf.asObservable()'
               [eventGetAllRowsSubscription]='getAllElementsEventTerritoriesMemberOf.asObservable()'
@@ -256,7 +256,7 @@
 
         <ng-template matExpansionPanelContent>
           <div class="appDataGridEditDiv">
-            <app-data-grid [columnDefs]="columnDefsMembers" [themeGrid]='themeGrid' [getAll]='getAllMembers'
+            <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsMembers" [themeGrid]='themeGrid' [getAll]='getAllMembers'
               [discardChangesButton]=true [redoButton]=true [hideDuplicateButton]=true
               [eventAddItemsSubscription]='addElementsEventTerritoriesMembers.asObservable()'
               [eventGetAllRowsSubscription]='getAllElementsEventTerritoriesMembers.asObservable()'
@@ -280,7 +280,7 @@
 
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-          <app-data-grid [columnDefs]="columnDefsCartographies" [themeGrid]='themeGrid' [getAll]='getAllCartographies'
+          <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsCartographies" [themeGrid]='themeGrid' [getAll]='getAllCartographies'
             [discardChangesButton]=true [redoButton]=true [undoButton]=true [hideDuplicateButton]=true
             [eventAddItemsSubscription]='addElementsEventCartographies.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventCartographies.asObservable()'
@@ -302,7 +302,7 @@
 
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-          <app-data-grid [columnDefs]="columnDefsTasks" [themeGrid]='themeGrid' [getAll]='getAllTasks'
+          <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsTasks" [themeGrid]='themeGrid' [getAll]='getAllTasks'
             [discardChangesButton]=true [redoButton]=true [undoButton]=true [hideDuplicateButton]=true
             [eventAddItemsSubscription]='addElementsEventTasks.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventTasks.asObservable()'
