@@ -1879,11 +1879,12 @@
         };
         /**
          * @param {?} node
+         * @param {?} changedData
          * @return {?}
          */
-        FileDatabase.prototype.deleteItem = function (node) {
-            this.deleteNode(this.data.children, node);
-            this.dataChange.next(this.data);
+        FileDatabase.prototype.deleteItem = function (node, changedData) {
+            this.deleteNode(changedData.children, node);
+            this.dataChange.next(changedData);
         };
         /**
          * @param {?} nodes
@@ -1908,31 +1909,34 @@
         /**
          * @param {?} from
          * @param {?} to
+         * @param {?} changedData
          * @return {?}
          */
-        FileDatabase.prototype.copyPasteItem = function (from, to) {
+        FileDatabase.prototype.copyPasteItem = function (from, to, changedData) {
             /** @type {?} */
-            var newItem = this.insertItem(to, from);
+            var newItem = this.insertItem(to, from, changedData);
             return newItem;
         };
         /**
          * @param {?} from
          * @param {?} to
+         * @param {?} changedData
          * @return {?}
          */
-        FileDatabase.prototype.copyPasteItemAbove = function (from, to) {
+        FileDatabase.prototype.copyPasteItemAbove = function (from, to, changedData) {
             /** @type {?} */
-            var newItem = this.insertItemAbove(to, from);
+            var newItem = this.insertItemAbove(to, from, changedData);
             return newItem;
         };
         /**
          * @param {?} from
          * @param {?} to
+         * @param {?} changedData
          * @return {?}
          */
-        FileDatabase.prototype.copyPasteItemBelow = function (from, to) {
+        FileDatabase.prototype.copyPasteItemBelow = function (from, to, changedData) {
             /** @type {?} */
-            var newItem = this.insertItemBelow(to, from);
+            var newItem = this.insertItemBelow(to, from, changedData);
             return newItem;
         };
         /**
@@ -1968,9 +1972,10 @@
         /**
          * @param {?} parent
          * @param {?} node
+         * @param {?} changedData
          * @return {?}
          */
-        FileDatabase.prototype.insertItem = function (parent, node) {
+        FileDatabase.prototype.insertItem = function (parent, node, changedData) {
             if (!parent.children) {
                 parent.children = [];
             }
@@ -1978,17 +1983,18 @@
             var newItem = this.getNewItem(node);
             newItem.parent = parent == null || parent.id == undefined ? null : parent.id;
             parent.children.push(newItem);
-            this.dataChange.next(this.data);
+            this.dataChange.next(changedData);
             return newItem;
         };
         /**
          * @param {?} node
          * @param {?} nodeDrag
+         * @param {?} changedData
          * @return {?}
          */
-        FileDatabase.prototype.insertItemAbove = function (node, nodeDrag) {
+        FileDatabase.prototype.insertItemAbove = function (node, nodeDrag, changedData) {
             /** @type {?} */
-            var parentNode = this.getParentFromNodes(node);
+            var parentNode = this.getParentFromNodes(node, changedData);
             /** @type {?} */
             var newItem = this.getNewItem(nodeDrag);
             newItem.parent = parentNode == null || parentNode.id == undefined ? null : parentNode.id;
@@ -1996,19 +2002,20 @@
                 parentNode.children.splice(parentNode.children.indexOf(node), 0, newItem);
             }
             else {
-                this.data.children.splice(this.data.children.indexOf(node), 0, newItem);
+                changedData.children.splice(changedData.children.indexOf(node), 0, newItem);
             }
-            this.dataChange.next(this.data);
+            this.dataChange.next(changedData);
             return newItem;
         };
         /**
          * @param {?} node
          * @param {?} nodeDrag
+         * @param {?} changedData
          * @return {?}
          */
-        FileDatabase.prototype.insertItemBelow = function (node, nodeDrag) {
+        FileDatabase.prototype.insertItemBelow = function (node, nodeDrag, changedData) {
             /** @type {?} */
-            var parentNode = this.getParentFromNodes(node);
+            var parentNode = this.getParentFromNodes(node, changedData);
             /** @type {?} */
             var newItem = this.getNewItem(nodeDrag);
             newItem.parent = parentNode == null || parentNode.id == undefined ? null : parentNode.id;
@@ -2016,19 +2023,20 @@
                 parentNode.children.splice(parentNode.children.indexOf(node) + 1, 0, newItem);
             }
             else {
-                this.data.children.splice(this.data.children.indexOf(node) + 1, 0, newItem);
+                changedData.children.splice(changedData.children.indexOf(node) + 1, 0, newItem);
             }
-            this.dataChange.next(this.data);
+            this.dataChange.next(changedData);
             return newItem;
         };
         /**
          * @param {?} node
+         * @param {?} changedData
          * @return {?}
          */
-        FileDatabase.prototype.getParentFromNodes = function (node) {
-            for (var i = 0; i < this.data.children.length; ++i) {
+        FileDatabase.prototype.getParentFromNodes = function (node, changedData) {
+            for (var i = 0; i < changedData.children.length; ++i) {
                 /** @type {?} */
-                var currentRoot = this.data.children[i];
+                var currentRoot = changedData.children[i];
                 /** @type {?} */
                 var parent = this.getParent(currentRoot, node);
                 if (parent != null) {
@@ -2262,27 +2270,31 @@
             var _this = this;
             event.preventDefault();
             /** @type {?} */
-            var toFlatNode = this.flatNodeMap.get(node);
+            var changedData = JSON.parse(JSON.stringify(this.dataSource.data));
             /** @type {?} */
-            var fromFlatNode = this.flatNodeMap.get(this.dragNode);
-            if (node !== this.dragNode && (this.dragNodeExpandOverArea !== 'center' || (this.dragNodeExpandOverArea === 'center' && toFlatNode.isFolder))) {
+            var siblings = this.findNodeSiblings(changedData, node.id);
+            /** @type {?} */
+            var toFlatNode = siblings.find(function (nodeAct) { return nodeAct.id === node.id; });
+            /** @type {?} */
+            var fromFlatNode = siblings.find(function (nodeAct) { return nodeAct.id === _this.dragNode.id; });
+            if (this.dragNode.status != "pendingDelete" && node !== this.dragNode && (this.dragNodeExpandOverArea !== 'center' || (this.dragNodeExpandOverArea === 'center' && toFlatNode.isFolder))) {
                 /** @type {?} */
                 var newItem = void 0;
                 if (this.dragNodeExpandOverArea === 'above') {
-                    newItem = this.database.copyPasteItemAbove(fromFlatNode, toFlatNode);
+                    newItem = this.database.copyPasteItemAbove(fromFlatNode, toFlatNode, changedData[0]);
                 }
                 else if (this.dragNodeExpandOverArea === 'below') {
-                    newItem = this.database.copyPasteItemBelow(fromFlatNode, toFlatNode);
+                    newItem = this.database.copyPasteItemBelow(fromFlatNode, toFlatNode, changedData[0]);
                 }
                 else {
-                    newItem = this.database.copyPasteItem(fromFlatNode, toFlatNode);
+                    newItem = this.database.copyPasteItem(fromFlatNode, toFlatNode, changedData[0]);
                 }
                 /** @type {?} */
                 var parentLvl_1 = this.treeControl.dataNodes.find(function (n) { return n.id === fromFlatNode.id; }).level;
                 fromFlatNode.children.forEach(function (child) {
                     _this.treeControl.dataNodes.find(function (n) { return n.id === child.id; }).level = parentLvl_1 + 1;
                 });
-                this.database.deleteItem(this.flatNodeMap.get(this.dragNode));
+                this.database.deleteItem(fromFlatNode, changedData[0]);
                 this.treeControl.expandDescendants(this.nestedNodeMap.get(newItem));
             }
             this.dragNode = null;

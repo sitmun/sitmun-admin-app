@@ -1552,11 +1552,12 @@ class FileDatabase {
     }
     /**
      * @param {?} node
+     * @param {?} changedData
      * @return {?}
      */
-    deleteItem(node) {
-        this.deleteNode(this.data.children, node);
-        this.dataChange.next(this.data);
+    deleteItem(node, changedData) {
+        this.deleteNode(changedData.children, node);
+        this.dataChange.next(changedData);
     }
     /**
      * @param {?} nodes
@@ -1580,31 +1581,34 @@ class FileDatabase {
     /**
      * @param {?} from
      * @param {?} to
+     * @param {?} changedData
      * @return {?}
      */
-    copyPasteItem(from, to) {
+    copyPasteItem(from, to, changedData) {
         /** @type {?} */
-        const newItem = this.insertItem(to, from);
+        const newItem = this.insertItem(to, from, changedData);
         return newItem;
     }
     /**
      * @param {?} from
      * @param {?} to
+     * @param {?} changedData
      * @return {?}
      */
-    copyPasteItemAbove(from, to) {
+    copyPasteItemAbove(from, to, changedData) {
         /** @type {?} */
-        const newItem = this.insertItemAbove(to, from);
+        const newItem = this.insertItemAbove(to, from, changedData);
         return newItem;
     }
     /**
      * @param {?} from
      * @param {?} to
+     * @param {?} changedData
      * @return {?}
      */
-    copyPasteItemBelow(from, to) {
+    copyPasteItemBelow(from, to, changedData) {
         /** @type {?} */
-        const newItem = this.insertItemBelow(to, from);
+        const newItem = this.insertItemBelow(to, from, changedData);
         return newItem;
     }
     /**
@@ -1640,9 +1644,10 @@ class FileDatabase {
     /**
      * @param {?} parent
      * @param {?} node
+     * @param {?} changedData
      * @return {?}
      */
-    insertItem(parent, node) {
+    insertItem(parent, node, changedData) {
         if (!parent.children) {
             parent.children = [];
         }
@@ -1650,17 +1655,18 @@ class FileDatabase {
         const newItem = this.getNewItem(node);
         newItem.parent = parent == null || parent.id == undefined ? null : parent.id;
         parent.children.push(newItem);
-        this.dataChange.next(this.data);
+        this.dataChange.next(changedData);
         return newItem;
     }
     /**
      * @param {?} node
      * @param {?} nodeDrag
+     * @param {?} changedData
      * @return {?}
      */
-    insertItemAbove(node, nodeDrag) {
+    insertItemAbove(node, nodeDrag, changedData) {
         /** @type {?} */
-        const parentNode = this.getParentFromNodes(node);
+        const parentNode = this.getParentFromNodes(node, changedData);
         /** @type {?} */
         const newItem = this.getNewItem(nodeDrag);
         newItem.parent = parentNode == null || parentNode.id == undefined ? null : parentNode.id;
@@ -1668,19 +1674,20 @@ class FileDatabase {
             parentNode.children.splice(parentNode.children.indexOf(node), 0, newItem);
         }
         else {
-            this.data.children.splice(this.data.children.indexOf(node), 0, newItem);
+            changedData.children.splice(changedData.children.indexOf(node), 0, newItem);
         }
-        this.dataChange.next(this.data);
+        this.dataChange.next(changedData);
         return newItem;
     }
     /**
      * @param {?} node
      * @param {?} nodeDrag
+     * @param {?} changedData
      * @return {?}
      */
-    insertItemBelow(node, nodeDrag) {
+    insertItemBelow(node, nodeDrag, changedData) {
         /** @type {?} */
-        const parentNode = this.getParentFromNodes(node);
+        const parentNode = this.getParentFromNodes(node, changedData);
         /** @type {?} */
         const newItem = this.getNewItem(nodeDrag);
         newItem.parent = parentNode == null || parentNode.id == undefined ? null : parentNode.id;
@@ -1688,19 +1695,20 @@ class FileDatabase {
             parentNode.children.splice(parentNode.children.indexOf(node) + 1, 0, newItem);
         }
         else {
-            this.data.children.splice(this.data.children.indexOf(node) + 1, 0, newItem);
+            changedData.children.splice(changedData.children.indexOf(node) + 1, 0, newItem);
         }
-        this.dataChange.next(this.data);
+        this.dataChange.next(changedData);
         return newItem;
     }
     /**
      * @param {?} node
+     * @param {?} changedData
      * @return {?}
      */
-    getParentFromNodes(node) {
-        for (let i = 0; i < this.data.children.length; ++i) {
+    getParentFromNodes(node, changedData) {
+        for (let i = 0; i < changedData.children.length; ++i) {
             /** @type {?} */
-            const currentRoot = this.data.children[i];
+            const currentRoot = changedData.children[i];
             /** @type {?} */
             const parent = this.getParent(currentRoot, node);
             if (parent != null) {
@@ -1927,27 +1935,31 @@ class DataTreeComponent {
     handleDrop(event, node) {
         event.preventDefault();
         /** @type {?} */
-        let toFlatNode = this.flatNodeMap.get(node);
+        const changedData = JSON.parse(JSON.stringify(this.dataSource.data));
         /** @type {?} */
-        let fromFlatNode = this.flatNodeMap.get(this.dragNode);
-        if (node !== this.dragNode && (this.dragNodeExpandOverArea !== 'center' || (this.dragNodeExpandOverArea === 'center' && toFlatNode.isFolder))) {
+        const siblings = this.findNodeSiblings(changedData, node.id);
+        /** @type {?} */
+        let toFlatNode = siblings.find(nodeAct => nodeAct.id === node.id);
+        /** @type {?} */
+        let fromFlatNode = siblings.find(nodeAct => nodeAct.id === this.dragNode.id);
+        if (this.dragNode.status != "pendingDelete" && node !== this.dragNode && (this.dragNodeExpandOverArea !== 'center' || (this.dragNodeExpandOverArea === 'center' && toFlatNode.isFolder))) {
             /** @type {?} */
             let newItem;
             if (this.dragNodeExpandOverArea === 'above') {
-                newItem = this.database.copyPasteItemAbove(fromFlatNode, toFlatNode);
+                newItem = this.database.copyPasteItemAbove(fromFlatNode, toFlatNode, changedData[0]);
             }
             else if (this.dragNodeExpandOverArea === 'below') {
-                newItem = this.database.copyPasteItemBelow(fromFlatNode, toFlatNode);
+                newItem = this.database.copyPasteItemBelow(fromFlatNode, toFlatNode, changedData[0]);
             }
             else {
-                newItem = this.database.copyPasteItem(fromFlatNode, toFlatNode);
+                newItem = this.database.copyPasteItem(fromFlatNode, toFlatNode, changedData[0]);
             }
             /** @type {?} */
             let parentLvl = this.treeControl.dataNodes.find((n) => n.id === fromFlatNode.id).level;
             fromFlatNode.children.forEach(child => {
                 this.treeControl.dataNodes.find((n) => n.id === child.id).level = parentLvl + 1;
             });
-            this.database.deleteItem(this.flatNodeMap.get(this.dragNode));
+            this.database.deleteItem(fromFlatNode, changedData[0]);
             this.treeControl.expandDescendants(this.nestedNodeMap.get(newItem));
         }
         this.dragNode = null;
