@@ -187,12 +187,6 @@ export class LayersFormComponent implements OnInit {
       )
     }));
 
-    let typeIdByDefault = {
-      id: -1,
-      name: '-------'
-    }
-    this.filterTypeIds.push(typeIdByDefault);
-
     promises.push(new Promise((resolve, reject) => {
       this.territoryTypeService.getAll().subscribe(
         resp => {
@@ -996,7 +990,7 @@ export class LayersFormComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
-          let territorialLevel= this.filterTypeIds.find(x => x.id===this.layerForm.value.territorialLevel )
+          let territorialLevel= this.filterTypeIds.find(x => x.id===this.territorialFilterForm.value.territorialLevel )
           if(territorialLevel==undefined || territorialLevel.id==-1 ){
             territorialLevel=null
           }
@@ -1005,12 +999,12 @@ export class LayersFormComponent implements OnInit {
           })
           let item = this.territorialFilterForm.value;
           item.giid = this.layerToEdit.id
-          if(this.territorialFilterForm.value.typeId === -1)
-          {
-            this.territorialFilterForm.patchValue({
-              typeId: null
-            })
-          }
+          // if(this.territorialFilterForm.value.typeId === -1)
+          // {
+          //   this.territorialFilterForm.patchValue({
+          //     typeId: null
+          //   })
+          // }
           this.addElementsTerritorialFilter.next([item])
           console.log(this.territorialFilterForm.value)
         }

@@ -285,6 +285,9 @@ h2 {
 }
 
 
+
+
+
 .mat-stroked-button,
 .mat-flat-button {
   padding: 0 10px !important;
@@ -357,6 +360,20 @@ h2 {
   margin-bottom: 5px;
   padding-left: 5px;
   width: 100%;
+}
+
+.translateDialogs{
+  width: calc(100vw - 45%) !important;
+  height: calc(100vh - 50%) !important;
+}
+
+.formLabelDialog {
+  display: flex;
+  font-weight: 500;
+  margin-right: 5px;
+  margin-top: 7px;
+  padding-left: 5px;
+  width: 20%;
 }
 
 .formLabel1Line {

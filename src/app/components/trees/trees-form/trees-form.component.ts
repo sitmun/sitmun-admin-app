@@ -106,6 +106,7 @@ export class TreesFormComponent implements OnInit {
       parent: new FormControl(null, []),
       isFolder: new FormControl(null, []),
       type: new FormControl(null, []),
+      order: new FormControl(null, []),
       status: new FormControl(null, []),
       cartographyName: new FormControl(null, []),
       
@@ -155,6 +156,7 @@ export class TreesFormComponent implements OnInit {
       id: node.id,
       name: node.name,
       tooltip: node.tooltip,
+      order: node.order,
       cartography: node.cartographyName,
       radio: node.radio,
       active: node.active,
@@ -178,6 +180,7 @@ export class TreesFormComponent implements OnInit {
     this.treeNodeForm.patchValue({
       parent: parentId ,
       isFolder: false,
+      order: null,
       children: [],
       status: "pendingCreation"
     })
@@ -194,6 +197,7 @@ export class TreesFormComponent implements OnInit {
     this.treeNodeForm.patchValue({
       parent: parentId,
       isFolder: true,
+      order: null,
       children: [],
       status: "pendingCreation"
     })
@@ -279,7 +283,7 @@ export class TreesFormComponent implements OnInit {
         treeNodeObj.tree= this.treeToEdit;
         treeNodeObj._links= tree._links;
 
-        if(tree.status !== "Deleted")
+        if(tree.status !== "pendingDelete")
         {
 
           let currentParent;

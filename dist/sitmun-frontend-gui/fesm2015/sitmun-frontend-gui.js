@@ -3,7 +3,7 @@ import { Subject, BehaviorSubject, of } from 'rxjs';
 import { AllCommunityModules } from '@ag-grid-community/all-modules';
 import { TranslateService, TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { MatDialogRef, MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormGroup, FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { registerLocaleData, CommonModule } from '@angular/common';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { NoopAnimationsModule, BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -1515,6 +1515,7 @@ class FileDatabase {
                 name: 'Root',
                 type: 'folder',
                 isRoot: true,
+                order: 0,
                 children: []
             };
             map['root'] = root;
@@ -1545,6 +1546,7 @@ class FileDatabase {
             });
             map['root'].type = 'folder';
             map['root'].name = 'Root';
+            map['root'].order = 0;
             map['root'].isFolder = true;
             map['root'].isRoot = true;
         }
@@ -1981,8 +1983,21 @@ class DataTreeComponent {
      * @param {?} data
      * @return {?}
      */
+    sortByOrder(data) {
+        data.sort((a, b) => a.order.toString().localeCompare(b.order.toString()));
+        data.forEach((item) => {
+            if (item.children.length > 0) {
+                this.sortByOrder(item.children);
+            }
+        });
+    }
+    /**
+     * @param {?} data
+     * @return {?}
+     */
     rebuildTreeForData(data) {
         //this.dataSource.data = data;
+        this.sortByOrder(data);
         this.dataSource.data = [];
         this.dataSource.data = data;
         this.treeControl.expansionModel.selected.forEach((nodeAct) => {
@@ -2035,6 +2050,7 @@ class DataTreeComponent {
         /** @type {?} */
         const dataToChange = JSON.parse(JSON.stringify(this.dataSource.data));
         if (newFolder.parent === null) {
+            newFolder.order = dataToChange[0].children.length;
             dataToChange[0].children.push(newFolder);
         }
         else {
@@ -2042,6 +2058,7 @@ class DataTreeComponent {
             const siblings = this.findNodeSiblings(dataToChange, newFolder.parent);
             /** @type {?} */
             let index = siblings.findIndex(node => node.id === newFolder.parent);
+            newFolder.order = siblings[index].children.length;
             siblings[index].children.push(newFolder);
         }
         this.rebuildTreeForData(dataToChange);
@@ -2055,6 +2072,7 @@ class DataTreeComponent {
         /** @type {?} */
         const dataToChange = JSON.parse(JSON.stringify(this.dataSource.data));
         if (newNode.parent === null) {
+            newNode.order = dataToChange[0].children.length;
             dataToChange[0].children.push(newNode);
         }
         else {
@@ -2062,6 +2080,7 @@ class DataTreeComponent {
             const siblings = this.findNodeSiblings(dataToChange, newNode.parent);
             /** @type {?} */
             let index = siblings.findIndex(node => node.id === newNode.parent);
+            newNode.order = siblings[index].children.length;
             siblings[index].children.push(newNode);
         }
         this.rebuildTreeForData(dataToChange);
@@ -2249,6 +2268,88 @@ if (false) {
  * @fileoverview added by tsickle
  * @suppress {checkTypes,extraRequire,uselessCode} checked by tsc
  */
+class DialogTranslationComponent {
+    /**
+     * @param {?} dialogRef
+     */
+    constructor(dialogRef) {
+        this.dialogRef = dialogRef;
+        this.initializeTranslationForm();
+    }
+    /**
+     * @return {?}
+     */
+    ngOnInit() {
+    }
+    /**
+     * @return {?}
+     */
+    initializeTranslationForm() {
+        this.translationForm = new FormGroup({
+            catalanValue: new FormControl(null, []),
+            spanishValue: new FormControl(null, []),
+            englishValue: new FormControl(null, []),
+        });
+    }
+    /**
+     * @return {?}
+     */
+    doAccept() {
+        /** @type {?} */
+        let data = {
+            catalanValue: this.translationForm.value.catalanValue,
+            spanishValue: this.translationForm.value.spanishValue,
+            englishValue: this.translationForm.value.englishValue,
+        };
+        this.dialogRef.close({ event: 'Accept', data: data });
+    }
+    /**
+     * @return {?}
+     */
+    doDelete() {
+        this.dialogRef.close({ event: 'Delete' });
+    }
+    /**
+     * @return {?}
+     */
+    closeDialog() {
+        this.dialogRef.close({ event: 'Cancel' });
+    }
+}
+DialogTranslationComponent.decorators = [
+    { type: Component, args: [{
+                selector: 'app-dialog-translation',
+                template: "\r\n\r\n<form [formGroup]='translationForm' #f=\"ngForm\">\r\n\r\n\r\n        <div class=\"displayInline\">\r\n            <label class=\"formLabelDialog\">\r\n                {{'value' | translate}}\r\n            </label>\r\n            <mat-form-field appearance=\"outline\">\r\n            <input matInput type=\"text\" formControlName=\"catalanValue\" required>\r\n            </mat-form-field>\r\n        </div>\r\n\r\n        <div class=\"displayInline\">\r\n            <label class=\"formLabelDialog\">\r\n                {{'value' | translate}}\r\n            </label>\r\n            <mat-form-field appearance=\"outline\">\r\n            <input matInput type=\"text\" formControlName=\"spanishValue\">\r\n            </mat-form-field>\r\n        </div>\r\n\r\n\r\n\r\n        <div class=\"displayInline\">\r\n            <label class=\"formLabelDialog\">\r\n                {{'value' | translate}}\r\n            </label>\r\n            <mat-form-field appearance=\"outline\">\r\n            <input matInput type=\"text\" formControlName=\"englishValue\">\r\n            </mat-form-field>\r\n        </div>\r\n\r\n\r\n  </form>\r\n\r\n<div>\r\n    <div mat-dialog-actions >\r\n        <button  mat-flat-button class=\"returnButton\" (click)=\"closeDialog()\">{{\"cancel\" | translate}}</button>\r\n        <button  mat-flat-button class=\"saveButton\"  (click)=\"doAccept()\" cdkFocusInitial>{{\"accept\" | translate}}</button>\r\n    </div>\r\n</div>",
+                styles: [".displayInline{display:flex!important}.mat-dialog-actions{justify-content:flex-end}"]
+            }] }
+];
+/** @nocollapse */
+DialogTranslationComponent.ctorParameters = () => [
+    { type: MatDialogRef }
+];
+if (false) {
+    /** @type {?} */
+    DialogTranslationComponent.prototype.translationForm;
+    /** @type {?} */
+    DialogTranslationComponent.prototype.column;
+    /** @type {?} */
+    DialogTranslationComponent.prototype.elementId;
+    /** @type {?} */
+    DialogTranslationComponent.prototype.languageId;
+    /** @type {?} */
+    DialogTranslationComponent.prototype.catalanValue;
+    /** @type {?} */
+    DialogTranslationComponent.prototype.spanishValue;
+    /** @type {?} */
+    DialogTranslationComponent.prototype.englishValue;
+    /** @type {?} */
+    DialogTranslationComponent.prototype.dialogRef;
+}
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes,extraRequire,uselessCode} checked by tsc
+ */
 registerLocaleData(localeCa, 'ca');
 registerLocaleData(localeEs, 'es');
 /**
@@ -2296,6 +2397,7 @@ SitmunFrontendGuiModule.decorators = [
                     DialogGridComponent,
                     DialogFormComponent,
                     DialogMessageComponent,
+                    DialogTranslationComponent
                 ],
                 entryComponents: [],
                 providers: [],
@@ -2312,6 +2414,7 @@ SitmunFrontendGuiModule.decorators = [
                     DialogGridComponent,
                     DialogFormComponent,
                     DialogMessageComponent,
+                    DialogTranslationComponent,
                     SitmunFrontendCoreModule
                 ]
             },] }
@@ -2327,5 +2430,5 @@ SitmunFrontendGuiModule.decorators = [
  * @suppress {checkTypes,extraRequire,uselessCode} checked by tsc
  */
 
-export { BtnCheckboxFilterComponent, BtnCheckboxRenderedComponent, BtnEditRenderedComponent, DataGridComponent, DataTreeComponent, DialogFormComponent, DialogGridComponent, DialogMessageComponent, FileDatabase, FileFlatNode, FileNode, SitmunFrontendGuiModule, createTranslateLoader, MaterialModule as ɵa };
+export { BtnCheckboxFilterComponent, BtnCheckboxRenderedComponent, BtnEditRenderedComponent, DataGridComponent, DataTreeComponent, DialogFormComponent, DialogGridComponent, DialogMessageComponent, DialogTranslationComponent, FileDatabase, FileFlatNode, FileNode, SitmunFrontendGuiModule, createTranslateLoader, MaterialModule as ɵa };
 //# sourceMappingURL=sitmun-frontend-gui.js.map
