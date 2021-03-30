@@ -3,7 +3,7 @@ import { TasksQueryFormComponent } from './tasks-query-form.component';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { RouterTestingModule } from '@angular/router/testing';
-import { TaskService, TerritoryService,  RoleService, TaskGroupService, ConnectionService,  TaskAvailabilityService, CodeListService } from 'dist/sitmun-frontend-core/';
+import { TaskService, TerritoryService,  RoleService, TaskGroupService, ConnectionService,  TaskAvailabilityService, CodeListService,TranslationService } from 'dist/sitmun-frontend-core/';
 import { MaterialModule } from '../../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
@@ -17,7 +17,7 @@ describe('TasksQueryFormComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ TasksQueryFormComponent ],
       imports : [HttpClientTestingModule, SitmunFrontendGuiModule, MatIconTestingModule, RouterTestingModule, MaterialModule, RouterModule],
-      providers: [TaskService, TerritoryService, RoleService, CodeListService, TaskGroupService, ConnectionService,  TaskAvailabilityService,
+      providers: [TaskService, TerritoryService, RoleService, CodeListService, TaskGroupService, ConnectionService,  TaskAvailabilityService,TranslationService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

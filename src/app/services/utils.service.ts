@@ -3,12 +3,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
-import { Observable, of, Subject } from 'rxjs';
-import { HalOptions, HalParam, CodeListService, Translation, Language, LanguageService, TranslationService } from 'dist/sitmun-frontend-core/';
+import { Subject } from 'rxjs';
+import { HalOptions, HalParam, CodeListService, Translation,  TranslationService } from 'dist/sitmun-frontend-core/';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { DialogMessageComponent, DialogTranslationComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
-import { map } from 'rxjs/operators';
 import { config } from 'src/config';
 
 @Injectable({
@@ -22,11 +21,8 @@ export class UtilsService {
   constructor(private translate: TranslateService,
     public dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private activatedRoute: ActivatedRoute,
-    private router: Router,
     private http: HttpClient,
     private location: Location,
-    private languageService: LanguageService,
     private translationService: TranslationService,
     private codeListService: CodeListService) { }
 

@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { LayersPermitsFormComponent } from './layers-permits-form.component';
 import { RouterModule } from '@angular/router';
-import { CartographyGroupService, RoleService, CartographyService, CodeListService } from 'dist/sitmun-frontend-core/';
+import { CartographyGroupService, RoleService, CartographyService, CodeListService,TranslationService } from 'dist/sitmun-frontend-core/';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -20,7 +20,7 @@ describe('LayersPermitsFormComponent', () => {
       declarations: [ LayersPermitsFormComponent ],
       imports: [ RouterModule.forRoot([]), HttpClientTestingModule, SitmunFrontendGuiModule,
       RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
-      providers: [CartographyGroupService, RoleService, CartographyService, CodeListService,
+      providers: [CartographyGroupService, RoleService, CartographyService, CodeListService,TranslationService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

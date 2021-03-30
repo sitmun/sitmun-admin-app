@@ -10,7 +10,7 @@ import { MaterialModule } from '../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { DashboardService } from 'dist/sitmun-frontend-core/';
+import { DashboardService,TranslationService,CodeListService } from 'dist/sitmun-frontend-core/';
 describe('DashboardComponent', () => {
   
   let component: DashboardComponent;
@@ -37,7 +37,7 @@ describe('DashboardComponent', () => {
             deps: [HttpClient]
             }
         })],
-      providers: [DashboardService,
+      providers: [DashboardService,TranslationService,CodeListService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

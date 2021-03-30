@@ -3,7 +3,7 @@ import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BackgroundLayersComponent } from './background-layers.component';
-import { BackgroundService,CartographyGroupService, CodeListService } from 'dist/sitmun-frontend-core/';
+import { BackgroundService,CartographyGroupService, CodeListService,TranslationService } from 'dist/sitmun-frontend-core/';
 import { MaterialModule } from '../../material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterModule } from '@angular/router';
@@ -17,7 +17,7 @@ describe('BackgroundLayersComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ BackgroundLayersComponent ],
       imports : [HttpClientTestingModule, SitmunFrontendGuiModule, MatIconTestingModule, RouterTestingModule, MaterialModule, RouterModule],
-      providers: [BackgroundService,CodeListService,CartographyGroupService,
+      providers: [BackgroundService,CodeListService,CartographyGroupService,TranslationService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

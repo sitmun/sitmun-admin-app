@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TreesComponent } from './trees.component';
-import { TreeService, CodeListService } from 'dist/sitmun-frontend-core/';
+import { TreeService, CodeListService,TranslationService } from 'dist/sitmun-frontend-core/';
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
@@ -17,7 +17,7 @@ describe('TreesComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ TreesComponent ],
       imports : [HttpClientTestingModule, MatIconTestingModule, SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule],
-      providers: [TreeService,CodeListService,
+      providers: [TreeService,CodeListService,TranslationService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();
