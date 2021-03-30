@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LayersPermitsComponent } from './layers-permits.component';
-import { CartographyGroupService , CodeListService,TranslationService,ResourceService} from 'dist/sitmun-frontend-core/';
+import { CartographyGroupService , CodeListService,TranslationService,ResourceService,ExternalService} from 'dist/sitmun-frontend-core/';
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
@@ -31,7 +31,7 @@ describe('LayersPermitsComponent', () => {
             deps: [HttpClient]
             }
         })],
-      providers: [CartographyGroupService, CodeListService,TranslationService,ResourceService,
+      providers: [CartographyGroupService, CodeListService,TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

@@ -5,7 +5,7 @@ import { MaterialModule } from '../../../material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { CodeListService, ApplicationBackgroundService, ApplicationService,ApplicationParameterService,
-   RoleService, CartographyGroupService, TreeService,BackgroundService,TranslationService, ResourceService } from 'dist/sitmun-frontend-core/';
+   RoleService, CartographyGroupService, TreeService,BackgroundService,TranslationService, ResourceService,ExternalService } from 'dist/sitmun-frontend-core/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
@@ -21,7 +21,7 @@ describe('ApplicationFormComponent', () => {
       imports: [HttpClientTestingModule, RouterModule.forRoot([]), HttpClientModule,
       SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
       providers: [ApplicationService, ApplicationBackgroundService, RoleService, ApplicationParameterService, TreeService, 
-        BackgroundService, CodeListService, CartographyGroupService,TranslationService,ResourceService,
+        BackgroundService, CodeListService, CartographyGroupService,TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

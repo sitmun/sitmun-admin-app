@@ -5,7 +5,7 @@ import { MaterialModule } from '../../../material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { TaskService, TaskGroupService, CartographyService, TaskParameterService, 
-  TaskAvailabilityService, TaskUIService, RoleService, TerritoryService, CodeListService,TranslationService,ResourceService } from 'dist/sitmun-frontend-core/';
+  TaskAvailabilityService, TaskUIService, RoleService, TerritoryService, CodeListService,TranslationService,ResourceService,ExternalService } from 'dist/sitmun-frontend-core/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
@@ -21,7 +21,7 @@ describe('TasksFormComponent', () => {
       imports: [HttpClientTestingModule, RouterModule.forRoot([]), HttpClientModule,
       SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
       providers: [TaskService, TaskGroupService, CartographyService, TaskParameterService, TaskAvailabilityService,
-         TaskUIService, RoleService, TerritoryService,CodeListService,TranslationService,ResourceService,
+         TaskUIService, RoleService, TerritoryService,CodeListService,TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

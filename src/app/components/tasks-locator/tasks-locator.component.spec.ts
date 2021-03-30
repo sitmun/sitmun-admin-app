@@ -7,7 +7,7 @@ import { MaterialModule } from '../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { CodeListService, TaskService,TranslationService,ResourceService } from 'dist/sitmun-frontend-core/';
+import { CodeListService, TaskService,TranslationService,ResourceService,ExternalService } from 'dist/sitmun-frontend-core/';
 
 describe('TasksLocatorComponent', () => {
   let component: TasksLocatorComponent;
@@ -17,7 +17,7 @@ describe('TasksLocatorComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ TasksLocatorComponent ],
       imports : [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
-      providers: [CodeListService,TaskService,TranslationService,ResourceService,
+      providers: [CodeListService,TaskService,TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ConnectionComponent } from './connection.component';
-import { ConnectionService, CodeListService,TranslationService,ResourceService } from 'dist/sitmun-frontend-core/';
+import { ConnectionService, CodeListService,TranslationService,ResourceService,ExternalService } from 'dist/sitmun-frontend-core/';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -18,7 +18,7 @@ describe('ConnectionComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ ConnectionComponent ],
       imports : [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, MatIconTestingModule, RouterModule],
-      providers: [ConnectionService,CodeListService,TranslationService,ResourceService,
+      providers: [ConnectionService,CodeListService,TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

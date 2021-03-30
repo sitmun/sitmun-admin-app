@@ -4,7 +4,7 @@ import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { RouterTestingModule } from '@angular/router/testing';
 import { TaskService, TerritoryService, RoleService, TaskGroupService, 
-  TaskAvailabilityService, ConnectionService, CodeListService,TranslationService, ResourceService } from 'dist/sitmun-frontend-core/';
+  TaskAvailabilityService, ConnectionService, CodeListService,TranslationService, ResourceService,ExternalService } from 'dist/sitmun-frontend-core/';
 import { MaterialModule } from '../../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
@@ -20,7 +20,8 @@ describe('TasksMoreInfoFormComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ TasksMoreInfoFormComponent ],
       imports : [HttpClientTestingModule, SitmunFrontendGuiModule, MatIconTestingModule,  RouterTestingModule, MaterialModule, RouterModule],
-      providers: [TaskService, TerritoryService, RoleService, CodeListService,TaskGroupService, TaskAvailabilityService, ConnectionService,TranslationService,ResourceService,
+      providers: [TaskService, TerritoryService, RoleService, CodeListService,TaskGroupService, TaskAvailabilityService, 
+        ConnectionService,TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();
