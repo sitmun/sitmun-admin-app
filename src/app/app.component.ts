@@ -1,10 +1,6 @@
-import { ViewChild } from '@angular/core';
 import { Component } from '@angular/core';
-import { MatSidenav } from '@angular/material/sidenav';
 import { TranslateService } from '@ngx-translate/core';
-import { SidenavService } from './services/sidenav.service';
-import { Principal, LoginService, AuthService, LanguageService, Language } from 'dist/sitmun-frontend-core/';
-import { environment } from 'src/environments/environment';
+import { Principal, LoginService, AuthService, LanguageService } from 'dist/sitmun-frontend-core/';
 import { config } from 'src/config';
 
 @Component({
