@@ -4,7 +4,7 @@ import { TreesFormComponent } from './trees-form.component';
 import { RouterModule } from '@angular/router';
 import { MaterialModule } from '../../../material-module';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { TreeService, TreeNodeService, CartographyService, CodeListService } from 'dist/sitmun-frontend-core/';
+import { TreeService, TreeNodeService, CartographyService, CodeListService,TranslationService } from 'dist/sitmun-frontend-core/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
@@ -19,7 +19,7 @@ describe('TreesFormComponent', () => {
       declarations: [ TreesFormComponent ],
       imports: [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,
          RouterModule.forRoot([]), MaterialModule, MatIconTestingModule],
-      providers: [TreeService,TreeNodeService, CartographyService, CodeListService,
+      providers: [TreeService,TreeNodeService, CartographyService, CodeListService,TranslationService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LayersFormComponent } from './layers-form.component';
 import { RouterModule } from '@angular/router';
 import {  CartographyService, ServiceService, TerritoryTypeService, ConnectionService, TreeNodeService,
-   TerritoryService, CartographyGroupService, CartographyAvailabilityService,CartographyParameterService,
+   TerritoryService, CartographyGroupService, CartographyAvailabilityService,CartographyParameterService,TranslationService,
    CodeListService,CartographyFilterService  } from  'dist/sitmun-frontend-core/';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
@@ -23,7 +23,7 @@ describe('LayersFormComponent', () => {
       RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
       providers: [CartographyService, ServiceService, ConnectionService, TerritoryTypeService, 
         TreeNodeService, TerritoryService, CartographyGroupService, CartographyAvailabilityService, 
-        CartographyParameterService, CodeListService, CartographyFilterService,
+        CartographyParameterService, CodeListService, CartographyFilterService, TranslationService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();
