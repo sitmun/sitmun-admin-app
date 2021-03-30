@@ -3,7 +3,8 @@ import { TasksExtractionFmeFormComponent } from './tasks-extraction-fme-form.com
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { RouterTestingModule } from '@angular/router/testing';
-import { TaskService, TerritoryService, RoleService, CartographyService, ServiceService, TaskAvailabilityService, TaskGroupService, CodeListService,TranslationService } from 'dist/sitmun-frontend-core/';
+import { TaskService, TerritoryService, RoleService, CartographyService, ServiceService,
+   TaskAvailabilityService, TaskGroupService, CodeListService,TranslationService,ResourceService } from 'dist/sitmun-frontend-core/';
 import { MaterialModule } from '../../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
@@ -17,7 +18,8 @@ describe('TasksExtractionFmeFormComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ TasksExtractionFmeFormComponent ],
       imports : [HttpClientTestingModule, SitmunFrontendGuiModule, MatIconTestingModule, RouterTestingModule, MaterialModule, RouterModule],
-      providers: [TaskService, TerritoryService, RoleService, CodeListService, CartographyService, ServiceService, TaskAvailabilityService, TaskGroupService,TranslationService,
+      providers: [TaskService, TerritoryService, RoleService, CodeListService, CartographyService, ServiceService, 
+        TaskAvailabilityService, TaskGroupService,TranslationService,ResourceService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

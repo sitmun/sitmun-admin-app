@@ -7,7 +7,7 @@ import { MaterialModule } from '../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { CodeListService, TaskService,TranslationService } from 'dist/sitmun-frontend-core/';
+import { CodeListService, TaskService,TranslationService,ResourceService } from 'dist/sitmun-frontend-core/';
 import { HttpClientModule } from '@angular/common/http';
 
 
@@ -19,7 +19,7 @@ describe('TasksDownloadComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ TasksDownloadComponent ],
       imports : [HttpClientTestingModule, HttpClientModule, SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
-      providers: [CodeListService, TaskService,TranslationService,
+      providers: [CodeListService, TaskService,TranslationService,ResourceService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();
