@@ -10,6 +10,8 @@ export declare class Background extends Resource {
     name: string;
     /** description*/
     description: string;
+    /** image */
+    image: string;
     /** whether background is active*/
     active: Boolean;
     /** system created date*/

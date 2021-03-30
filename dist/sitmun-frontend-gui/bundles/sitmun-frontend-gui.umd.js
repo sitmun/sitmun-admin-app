@@ -1,8 +1,8 @@
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/core'), require('@ag-grid-community/all-modules'), require('@ngx-translate/core'), require('@angular/material/dialog'), require('@angular/forms'), require('@angular/common'), require('@angular/common/http'), require('@angular/platform-browser/animations'), require('@angular/router'), require('@sitmun/frontend-core'), require('@angular/common/locales/ca'), require('@angular/common/locales/es'), require('@ag-grid-community/angular'), require('@angular/cdk/a11y'), require('@angular/cdk/drag-drop'), require('@angular/cdk/portal'), require('@angular/cdk/scrolling'), require('@angular/cdk/stepper'), require('@angular/cdk/table'), require('@angular/cdk/tree'), require('@angular/material/autocomplete'), require('@angular/material/badge'), require('@angular/material/bottom-sheet'), require('@angular/material/button'), require('@angular/material/button-toggle'), require('@angular/material/card'), require('@angular/material/checkbox'), require('@angular/material/chips'), require('@angular/material/stepper'), require('@angular/material/datepicker'), require('@angular/material/divider'), require('@angular/material/expansion'), require('@angular/material/grid-list'), require('@angular/material/icon'), require('@angular/material/input'), require('@angular/material/list'), require('@angular/material/menu'), require('@angular/material/core'), require('@angular/material/paginator'), require('@angular/material/progress-bar'), require('@angular/material/progress-spinner'), require('@angular/material/radio'), require('@angular/material/select'), require('@angular/material/sidenav'), require('@angular/material/slider'), require('@angular/material/slide-toggle'), require('@angular/material/snack-bar'), require('@angular/material/sort'), require('@angular/material/table'), require('@angular/material/tabs'), require('@angular/material/toolbar'), require('@angular/material/tooltip'), require('@angular/material/tree'), require('@angular/material/form-field'), require('@ngx-translate/http-loader'), require('rxjs'), require('@angular/cdk/collections')) :
-    typeof define === 'function' && define.amd ? define('@sitmun/frontend-gui', ['exports', '@angular/core', '@ag-grid-community/all-modules', '@ngx-translate/core', '@angular/material/dialog', '@angular/forms', '@angular/common', '@angular/common/http', '@angular/platform-browser/animations', '@angular/router', '@sitmun/frontend-core', '@angular/common/locales/ca', '@angular/common/locales/es', '@ag-grid-community/angular', '@angular/cdk/a11y', '@angular/cdk/drag-drop', '@angular/cdk/portal', '@angular/cdk/scrolling', '@angular/cdk/stepper', '@angular/cdk/table', '@angular/cdk/tree', '@angular/material/autocomplete', '@angular/material/badge', '@angular/material/bottom-sheet', '@angular/material/button', '@angular/material/button-toggle', '@angular/material/card', '@angular/material/checkbox', '@angular/material/chips', '@angular/material/stepper', '@angular/material/datepicker', '@angular/material/divider', '@angular/material/expansion', '@angular/material/grid-list', '@angular/material/icon', '@angular/material/input', '@angular/material/list', '@angular/material/menu', '@angular/material/core', '@angular/material/paginator', '@angular/material/progress-bar', '@angular/material/progress-spinner', '@angular/material/radio', '@angular/material/select', '@angular/material/sidenav', '@angular/material/slider', '@angular/material/slide-toggle', '@angular/material/snack-bar', '@angular/material/sort', '@angular/material/table', '@angular/material/tabs', '@angular/material/toolbar', '@angular/material/tooltip', '@angular/material/tree', '@angular/material/form-field', '@ngx-translate/http-loader', 'rxjs', '@angular/cdk/collections'], factory) :
-    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory((global.sitmun = global.sitmun || {}, global.sitmun['frontend-gui'] = {}), global.ng.core, global.allModules, global.core$1, global.ng.material.dialog, global.ng.forms, global.ng.common, global.ng.common.http, global.ng.platformBrowser.animations, global.ng.router, global.frontendCore, global.ng.common.locales.ca, global.ng.common.locales.es, global.angular, global.ng.cdk.a11y, global.ng.cdk.dragDrop, global.ng.cdk.portal, global.ng.cdk.scrolling, global.ng.cdk.stepper, global.ng.cdk.table, global.ng.cdk.tree, global.ng.material.autocomplete, global.ng.material.badge, global.ng.material.bottomSheet, global.ng.material.button, global.ng.material.buttonToggle, global.ng.material.card, global.ng.material.checkbox, global.ng.material.chips, global.ng.material.stepper, global.ng.material.datepicker, global.ng.material.divider, global.ng.material.expansion, global.ng.material.gridList, global.ng.material.icon, global.ng.material.input, global.ng.material.list, global.ng.material.menu, global.ng.material.core, global.ng.material.paginator, global.ng.material.progressBar, global.ng.material.progressSpinner, global.ng.material.radio, global.ng.material.select, global.ng.material.sidenav, global.ng.material.slider, global.ng.material.slideToggle, global.ng.material.snackBar, global.ng.material.sort, global.ng.material.table, global.ng.material.tabs, global.ng.material.toolbar, global.ng.material.tooltip, global.ng.material.tree, global.ng.material.formField, global.httpLoader, global.rxjs, global.ng.cdk.collections));
-}(this, (function (exports, core, allModules, core$1, dialog, forms, common, http, animations, router, frontendCore, localeCa, localeEs, angular, a11y, dragDrop, portal, scrolling, stepper, table, tree, autocomplete, badge, bottomSheet, button, buttonToggle, card, checkbox, chips, stepper$1, datepicker, divider, expansion, gridList, icon, input, list, menu, core$2, paginator, progressBar, progressSpinner, radio, select, sidenav, slider, slideToggle, snackBar, sort, table$1, tabs, toolbar, tooltip, tree$1, formField, httpLoader, rxjs, collections) { 'use strict';
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/core'), require('@ag-grid-community/all-modules'), require('@ngx-translate/core'), require('@angular/material/dialog'), require('@angular/forms'), require('@angular/common'), require('@angular/common/http'), require('@angular/platform-browser/animations'), require('@angular/router'), require('@sitmun/frontend-core'), require('@angular/common/locales/ca'), require('@angular/common/locales/es'), require('@ag-grid-community/angular'), require('@angular/cdk/a11y'), require('@angular/cdk/drag-drop'), require('@angular/cdk/portal'), require('@angular/cdk/scrolling'), require('@angular/cdk/stepper'), require('@angular/cdk/table'), require('@angular/cdk/tree'), require('@angular/material/autocomplete'), require('@angular/material/badge'), require('@angular/material/bottom-sheet'), require('@angular/material/button'), require('@angular/material/button-toggle'), require('@angular/material/card'), require('@angular/material/checkbox'), require('@angular/material/chips'), require('@angular/material/stepper'), require('@angular/material/datepicker'), require('@angular/material/divider'), require('@angular/material/expansion'), require('@angular/material/grid-list'), require('@angular/material/icon'), require('@angular/material/input'), require('@angular/material/list'), require('@angular/material/menu'), require('@angular/material/core'), require('@angular/material/paginator'), require('@angular/material/progress-bar'), require('@angular/material/progress-spinner'), require('@angular/material/radio'), require('@angular/material/select'), require('@angular/material/sidenav'), require('@angular/material/slider'), require('@angular/material/slide-toggle'), require('@angular/material/snack-bar'), require('@angular/material/sort'), require('@angular/material/table'), require('@angular/material/tabs'), require('@angular/material/toolbar'), require('@angular/material/tooltip'), require('@angular/material/tree'), require('@angular/material/form-field'), require('@ngx-translate/http-loader'), require('rxjs'), require('@angular/cdk/collections'), require('@angular/platform-browser'), require('d3')) :
+    typeof define === 'function' && define.amd ? define('@sitmun/frontend-gui', ['exports', '@angular/core', '@ag-grid-community/all-modules', '@ngx-translate/core', '@angular/material/dialog', '@angular/forms', '@angular/common', '@angular/common/http', '@angular/platform-browser/animations', '@angular/router', '@sitmun/frontend-core', '@angular/common/locales/ca', '@angular/common/locales/es', '@ag-grid-community/angular', '@angular/cdk/a11y', '@angular/cdk/drag-drop', '@angular/cdk/portal', '@angular/cdk/scrolling', '@angular/cdk/stepper', '@angular/cdk/table', '@angular/cdk/tree', '@angular/material/autocomplete', '@angular/material/badge', '@angular/material/bottom-sheet', '@angular/material/button', '@angular/material/button-toggle', '@angular/material/card', '@angular/material/checkbox', '@angular/material/chips', '@angular/material/stepper', '@angular/material/datepicker', '@angular/material/divider', '@angular/material/expansion', '@angular/material/grid-list', '@angular/material/icon', '@angular/material/input', '@angular/material/list', '@angular/material/menu', '@angular/material/core', '@angular/material/paginator', '@angular/material/progress-bar', '@angular/material/progress-spinner', '@angular/material/radio', '@angular/material/select', '@angular/material/sidenav', '@angular/material/slider', '@angular/material/slide-toggle', '@angular/material/snack-bar', '@angular/material/sort', '@angular/material/table', '@angular/material/tabs', '@angular/material/toolbar', '@angular/material/tooltip', '@angular/material/tree', '@angular/material/form-field', '@ngx-translate/http-loader', 'rxjs', '@angular/cdk/collections', '@angular/platform-browser', 'd3'], factory) :
+    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory((global.sitmun = global.sitmun || {}, global.sitmun['frontend-gui'] = {}), global.ng.core, global.allModules, global.core$1, global.ng.material.dialog, global.ng.forms, global.ng.common, global.ng.common.http, global.ng.platformBrowser.animations, global.ng.router, global.frontendCore, global.ng.common.locales.ca, global.ng.common.locales.es, global.angular, global.ng.cdk.a11y, global.ng.cdk.dragDrop, global.ng.cdk.portal, global.ng.cdk.scrolling, global.ng.cdk.stepper, global.ng.cdk.table, global.ng.cdk.tree, global.ng.material.autocomplete, global.ng.material.badge, global.ng.material.bottomSheet, global.ng.material.button, global.ng.material.buttonToggle, global.ng.material.card, global.ng.material.checkbox, global.ng.material.chips, global.ng.material.stepper, global.ng.material.datepicker, global.ng.material.divider, global.ng.material.expansion, global.ng.material.gridList, global.ng.material.icon, global.ng.material.input, global.ng.material.list, global.ng.material.menu, global.ng.material.core, global.ng.material.paginator, global.ng.material.progressBar, global.ng.material.progressSpinner, global.ng.material.radio, global.ng.material.select, global.ng.material.sidenav, global.ng.material.slider, global.ng.material.slideToggle, global.ng.material.snackBar, global.ng.material.sort, global.ng.material.table, global.ng.material.tabs, global.ng.material.toolbar, global.ng.material.tooltip, global.ng.material.tree, global.ng.material.formField, global.httpLoader, global.rxjs, global.ng.cdk.collections, global.ng.platformBrowser, global.d3));
+}(this, (function (exports, core, allModules, core$1, dialog, forms, common, http, animations, router, frontendCore, localeCa, localeEs, angular, a11y, dragDrop, portal, scrolling, stepper, table, tree, autocomplete, badge, bottomSheet, button, buttonToggle, card, checkbox, chips, stepper$1, datepicker, divider, expansion, gridList, icon, input, list, menu, core$2, paginator, progressBar, progressSpinner, radio, select, sidenav, slider, slideToggle, snackBar, sort, table$1, tabs, toolbar, tooltip, tree$1, formField, httpLoader, rxjs, collections, platformBrowser, d3) { 'use strict';
 
     function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
@@ -630,37 +630,22 @@
                     flex: 1,
                     filter: true,
                     editable: !this.nonEditable,
-                    cellStyle: { backgroundColor: '#FFFFFF' },
                     suppressMenu: true,
-                    resizable: true
-                },
-                columnTypes: {
-                    dateColumn: {
-                        filter: 'agDateColumnFilter',
-                        filterParams: {
-                            /**
-                             * @param {?} filterLocalDateAtMidnight
-                             * @param {?} cellValue
-                             * @return {?}
-                             */
-                            comparator: function (filterLocalDateAtMidnight, cellValue) {
-                                /** @type {?} */
-                                var dateCellValue = new Date(cellValue);
-                                /** @type {?} */
-                                var dateFilter = new Date(filterLocalDateAtMidnight);
-                                if (dateCellValue.getTime() < dateFilter.getTime()) {
-                                    return -1;
-                                }
-                                else if (dateCellValue.getTime() > dateFilter.getTime()) {
-                                    return 1;
-                                }
-                                else {
-                                    return 0;
-                                }
-                            },
-                        },
-                        suppressMenu: true
-                    }
+                    resizable: true,
+                    cellStyle: function (params) {
+                        if (params.value && params.colDef.editable) {
+                            console.log(params);
+                            if (_this.changesMap.has(params.node.id) && _this.changesMap.get(params.node.id).has(params.colDef.field)) {
+                                return { 'background-color': '#E8F1DE' };
+                            }
+                            else {
+                                return { 'background-color': 'white' };
+                            }
+                        }
+                        else {
+                            return { 'background-color': 'white' };
+                        }
+                    },
                 },
                 rowSelection: 'multiple',
                 singleClickEdit: true,
@@ -741,8 +726,6 @@
             this.params = params;
             this.gridApi = params.api;
             this.gridColumnApi = params.columnApi;
-            this.getElements();
-            console.log(this.columnDefs);
             try {
                 for (var _b = __values(this.columnDefs), _c = _b.next(); !_c.done; _c = _b.next()) {
                     var col = _c.value;
@@ -759,12 +742,17 @@
                 }
                 finally { if (e_1) throw e_1.error; }
             }
+            this.getElements();
+            console.log(this.columnDefs);
             if (this.defaultColumnSorting) {
                 /** @type {?} */
                 var sortModel = [
                     { colId: this.defaultColumnSorting, sort: 'asc' }
                 ];
                 this.gridApi.setSortModel(sortModel);
+            }
+            if (this.defaultHeight != null && this.defaultHeight != undefined) {
+                this.changeHeight(this.defaultHeight);
             }
         };
         /**
@@ -870,6 +858,11 @@
             var _this = this;
             this.getAll()
                 .subscribe(function (items) {
+                if (_this.statusColumn) {
+                    items.forEach(function (element) {
+                        element.status = 'statusOK';
+                    });
+                }
                 _this.rowData = items;
                 _this.gridApi.setRowData(_this.rowData);
                 _this.setSize();
@@ -1069,13 +1062,13 @@
             if (this.statusColumn) {
                 this.gridApi.forEachNode(function (node) {
                     if (node.data.status === 'pendingModify' || node.data.status === 'pendingDelete') {
-                        node.data.status = '';
+                        node.data.status = 'statusOK';
                     }
                     console.log(node);
                 });
-                this.gridApi.refreshCells();
                 this.someStatusHasChangedToDelete = false;
             }
+            this.gridApi.redrawRows();
             //this.params.colDef.cellStyle =  {backgroundColor: '#FFFFFF'};
             //this.gridApi.redrawRows();
         };
@@ -1166,7 +1159,7 @@
                         var row = this.gridApi.getDisplayedRowAtIndex(params.rowIndex);
                         if (this.statusColumn) {
                             if (this.gridApi.getRowNode(params.node.id).data.status !== 'pendingCreation') {
-                                this.gridApi.getRowNode(params.node.id).data.status = '';
+                                this.gridApi.getRowNode(params.node.id).data.status = 'statusOK';
                             }
                         }
                         ;
@@ -1261,34 +1254,10 @@
         DataGridComponent.prototype.paintCells = function (params, changesMap) {
             /** @type {?} */
             var row = this.gridApi.getDisplayedRowAtIndex(params.rowIndex);
-            this.changeCellStyleColumns(params, changesMap, '#E8F1DE');
+            // this.changeCellStyleColumns(params, changesMap, '#E8F1DE');
             this.gridApi.redrawRows({ rowNodes: [row] });
-            this.changeCellStyleColumns(params, changesMap, '#FFFFFF');
+            // this.changeCellStyleColumns(params, changesMap, '#FFFFFF');
             // We will define cellStyle white to future modifications (like filter)
-        };
-        /**
-         * @param {?} params
-         * @param {?} changesMap
-         * @param {?} color
-         * @return {?}
-         */
-        DataGridComponent.prototype.changeCellStyleColumns = function (params, changesMap, color) {
-            var e_4, _a;
-            try {
-                for (var _b = __values(changesMap.get(params.node.id).keys()), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var key = _c.value;
-                    /** @type {?} */
-                    var columnNumber = this.getColumnIndexByColId(this.gridColumnApi, key);
-                    this.gridColumnApi.columnController.gridColumns[columnNumber].colDef.cellStyle = { backgroundColor: color };
-                }
-            }
-            catch (e_4_1) { e_4 = { error: e_4_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_4) throw e_4.error; }
-            }
         };
         return DataGridComponent;
     }());
@@ -1326,6 +1295,7 @@
         addButton: [{ type: core.Input }],
         globalSearch: [{ type: core.Input }],
         changeHeightButton: [{ type: core.Input }],
+        defaultHeight: [{ type: core.Input }],
         themeGrid: [{ type: core.Input }],
         singleSelection: [{ type: core.Input }],
         nonEditable: [{ type: core.Input }],
@@ -1423,6 +1393,8 @@
         DataGridComponent.prototype.globalSearch;
         /** @type {?} */
         DataGridComponent.prototype.changeHeightButton;
+        /** @type {?} */
+        DataGridComponent.prototype.defaultHeight;
         /** @type {?} */
         DataGridComponent.prototype.themeGrid;
         /** @type {?} */
@@ -1593,7 +1565,7 @@
     DialogGridComponent.decorators = [
         { type: core.Component, args: [{
                     selector: 'app-dialog-grid',
-                    template: "<h5 mat-dialog-title class=\"titleDialog\">{{title}}</h5>\r\n<mat-dialog-content class=\"dialogConent\">\r\n  <div *ngFor=\"let getAll of getAllsTable; let i = index\" class=\"appDialogDataGridDiv\"  [ngStyle]=\"{'margin-top': i>0?'100px':'0px'}\">\r\n    <app-data-grid \r\n    [columnDefs]=\"columnDefsTable[i]\" [themeGrid]='themeGrid'  [getAll]='getAll' [globalSearch]=true [singleSelection]=\"singleSelectionTable[i]\"\r\n    [title]=\"titlesTable[i]\" [nonEditable]='nonEditable' [eventGetSelectedRowsSubscription]=\"getAllRows.asObservable()\" (getSelectedRows)='joinRowsReceived($event)' >\r\n    </app-data-grid>\r\n  </div>\r\n</mat-dialog-content>\r\n<div mat-dialog-actions align=\"end\">\r\n  <button mat-flat-button class=\"returnButton\" (click)=\"closeDialog()\">{{\"cancel\" | translate}}</button>\r\n  <button mat-flat-button class=\"saveButton\" (click)=\"getAllSelectedRows()\" cdkFocusInitial>{{\"add\" | translate}}</button>\r\n</div>\r\n\r\n",
+                    template: "<h5 mat-dialog-title class=\"titleDialog\">{{title}}</h5>\r\n<mat-dialog-content class=\"dialogConent\">\r\n  <div *ngFor=\"let getAll of getAllsTable; let i = index\" class=\"appDialogDataGridDiv\"  [ngStyle]=\"{'margin-top': i>0?'100px':'0px'}\">\r\n    <app-data-grid \r\n    [columnDefs]=\"columnDefsTable[i]\" [themeGrid]='themeGrid' [changeHeightButton]='changeHeightButton' [defaultHeight]='heightByDefault'  [getAll]='getAll' [globalSearch]=true [singleSelection]=\"singleSelectionTable[i]\"\r\n    [title]=\"titlesTable[i]\" [nonEditable]='nonEditable' [eventGetSelectedRowsSubscription]=\"getAllRows.asObservable()\" (getSelectedRows)='joinRowsReceived($event)' >\r\n    </app-data-grid>\r\n  </div>\r\n</mat-dialog-content>\r\n<div mat-dialog-actions align=\"end\">\r\n  <button mat-flat-button class=\"returnButton\" (click)=\"closeDialog()\">{{\"cancel\" | translate}}</button>\r\n  <button mat-flat-button class=\"saveButton\" (click)=\"getAllSelectedRows()\" cdkFocusInitial>{{\"add\" | translate}}</button>\r\n</div>\r\n\r\n",
                     styles: [".dialogConent{height:100%;margin:inherit!important;max-height:60vh!important;overflow:auto;padding:inherit!important;width:100%}.titleDialog{margin-bottom:15px!important;margin-top:inherit!important}"]
                 }] }
     ];
@@ -1615,6 +1587,10 @@
         DialogGridComponent.prototype.tablesReceivedCounter;
         /** @type {?} */
         DialogGridComponent.prototype.allRowsReceived;
+        /** @type {?} */
+        DialogGridComponent.prototype.changeHeightButton;
+        /** @type {?} */
+        DialogGridComponent.prototype.heightByDefault;
         /** @type {?} */
         DialogGridComponent.prototype.themeGrid;
         /** @type {?} */
@@ -1843,7 +1819,8 @@
                     type: 'folder',
                     isRoot: true,
                     order: 0,
-                    children: []
+                    children: [],
+                    id: 0
                 };
                 map['root'] = root;
             }
@@ -2274,11 +2251,9 @@
             /** @type {?} */
             var changedData = JSON.parse(JSON.stringify(this.dataSource.data));
             /** @type {?} */
-            var siblings = this.findNodeSiblings(changedData, node.id);
+            var toFlatNode = this.findNodeSiblings(changedData[0].children, node.id).find(function (nodeAct) { return nodeAct.id === node.id; });
             /** @type {?} */
-            var toFlatNode = siblings.find(function (nodeAct) { return nodeAct.id === node.id; });
-            /** @type {?} */
-            var fromFlatNode = siblings.find(function (nodeAct) { return nodeAct.id === _this.dragNode.id; });
+            var fromFlatNode = this.findNodeSiblings(changedData[0].children, this.dragNode.id).find(function (nodeAct) { return nodeAct.id === _this.dragNode.id; });
             if (this.dragNode.status != "pendingDelete" && node !== this.dragNode && (this.dragNodeExpandOverArea !== 'center' || (this.dragNodeExpandOverArea === 'center' && toFlatNode.isFolder))) {
                 /** @type {?} */
                 var newItem = void 0;
@@ -2611,15 +2586,43 @@
     var DialogTranslationComponent = /** @class */ (function () {
         /**
          * @param {?} dialogRef
+         * @param {?} matIconRegistry
+         * @param {?} domSanitizer
          */
-        function DialogTranslationComponent(dialogRef) {
+        function DialogTranslationComponent(dialogRef, matIconRegistry, domSanitizer) {
             this.dialogRef = dialogRef;
+            this.matIconRegistry = matIconRegistry;
+            this.domSanitizer = domSanitizer;
             this.initializeTranslationForm();
+            this.matIconRegistry.addSvgIcon("icon_lang_ca", this.domSanitizer.bypassSecurityTrustResourceUrl('../../assets/img/flag_ca.svg'));
+            this.matIconRegistry.addSvgIcon("icon_lang_es", this.domSanitizer.bypassSecurityTrustResourceUrl('../../assets/img/flag_es.svg'));
+            this.matIconRegistry.addSvgIcon("icon_lang_en", this.domSanitizer.bypassSecurityTrustResourceUrl('../../assets/img/flag_en.svg'));
+            this.matIconRegistry.addSvgIcon("icon_lang_oc", this.domSanitizer.bypassSecurityTrustResourceUrl('../../assets/img/flag_oc.svg'));
         }
         /**
          * @return {?}
          */
         DialogTranslationComponent.prototype.ngOnInit = function () {
+            if (this.catalanValue != null) {
+                this.translationForm.patchValue({
+                    catalanValue: this.catalanValue
+                });
+            }
+            if (this.spanishValue != null) {
+                this.translationForm.patchValue({
+                    spanishValue: this.spanishValue
+                });
+            }
+            if (this.englishValue != null) {
+                this.translationForm.patchValue({
+                    englishValue: this.englishValue
+                });
+            }
+            if (this.araneseValue != null) {
+                this.translationForm.patchValue({
+                    araneseValue: this.araneseValue
+                });
+            }
         };
         /**
          * @return {?}
@@ -2629,6 +2632,7 @@
                 catalanValue: new forms.FormControl(null, []),
                 spanishValue: new forms.FormControl(null, []),
                 englishValue: new forms.FormControl(null, []),
+                araneseValue: new forms.FormControl(null, []),
             });
         };
         /**
@@ -2640,14 +2644,9 @@
                 catalanValue: this.translationForm.value.catalanValue,
                 spanishValue: this.translationForm.value.spanishValue,
                 englishValue: this.translationForm.value.englishValue,
+                araneseValue: this.translationForm.value.araneseValue,
             };
             this.dialogRef.close({ event: 'Accept', data: data });
-        };
-        /**
-         * @return {?}
-         */
-        DialogTranslationComponent.prototype.doDelete = function () {
-            this.dialogRef.close({ event: 'Delete' });
         };
         /**
          * @return {?}
@@ -2660,23 +2659,19 @@
     DialogTranslationComponent.decorators = [
         { type: core.Component, args: [{
                     selector: 'app-dialog-translation',
-                    template: "\r\n\r\n<form [formGroup]='translationForm' #f=\"ngForm\">\r\n\r\n\r\n        <div class=\"displayInline\">\r\n            <label class=\"formLabelDialog\">\r\n                {{'value' | translate}}\r\n            </label>\r\n            <mat-form-field appearance=\"outline\">\r\n            <input matInput type=\"text\" formControlName=\"catalanValue\" required>\r\n            </mat-form-field>\r\n        </div>\r\n\r\n        <div class=\"displayInline\">\r\n            <label class=\"formLabelDialog\">\r\n                {{'value' | translate}}\r\n            </label>\r\n            <mat-form-field appearance=\"outline\">\r\n            <input matInput type=\"text\" formControlName=\"spanishValue\">\r\n            </mat-form-field>\r\n        </div>\r\n\r\n\r\n\r\n        <div class=\"displayInline\">\r\n            <label class=\"formLabelDialog\">\r\n                {{'value' | translate}}\r\n            </label>\r\n            <mat-form-field appearance=\"outline\">\r\n            <input matInput type=\"text\" formControlName=\"englishValue\">\r\n            </mat-form-field>\r\n        </div>\r\n\r\n\r\n  </form>\r\n\r\n<div>\r\n    <div mat-dialog-actions >\r\n        <button  mat-flat-button class=\"returnButton\" (click)=\"closeDialog()\">{{\"cancel\" | translate}}</button>\r\n        <button  mat-flat-button class=\"saveButton\"  (click)=\"doAccept()\" cdkFocusInitial>{{\"accept\" | translate}}</button>\r\n    </div>\r\n</div>",
-                    styles: [".displayInline{display:flex!important}.mat-dialog-actions{justify-content:flex-end}"]
+                    template: "\r\n\r\n<form [formGroup]='translationForm' #f=\"ngForm\">\r\n\r\n\r\n        <div class=\"displayInline\">\r\n            <label class=\"formLabelDialog\">\r\n                {{'value' | translate}}\r\n            </label>\r\n            <mat-form-field appearance=\"outline\">\r\n            <input matInput type=\"text\" formControlName=\"catalanValue\" required>\r\n            </mat-form-field>\r\n            <mat-icon class=\"icon\" svgIcon=\"icon_lang_ca\"></mat-icon>\r\n        </div>\r\n\r\n        <div class=\"displayInline\">\r\n            <label class=\"formLabelDialog\">\r\n                {{'value' | translate}}\r\n            </label>\r\n\r\n            <mat-form-field appearance=\"outline\">\r\n            <input matInput type=\"text\" formControlName=\"spanishValue\">\r\n            </mat-form-field>\r\n            <mat-icon class=\"icon\" svgIcon=\"icon_lang_es\"></mat-icon>\r\n        </div>\r\n\r\n        <div class=\"displayInline\">\r\n            <label class=\"formLabelDialog\">\r\n                {{'value' | translate}}\r\n            </label>\r\n            <mat-form-field appearance=\"outline\">\r\n            <input matInput type=\"text\" formControlName=\"englishValue\">\r\n            </mat-form-field>\r\n            <mat-icon class=\"icon\" svgIcon=\"icon_lang_en\"></mat-icon>\r\n        </div>\r\n\r\n        <div class=\"displayInline\">\r\n            <label class=\"formLabelDialog\">\r\n                {{'value' | translate}}\r\n            </label>\r\n            <mat-form-field appearance=\"outline\">\r\n            <input matInput type=\"text\" formControlName=\"araneseValue\">\r\n            </mat-form-field>\r\n            <mat-icon class=\"icon\" svgIcon=\"icon_lang_oc\"></mat-icon>\r\n        </div>\r\n\r\n\r\n  </form>\r\n\r\n<div>\r\n    <div mat-dialog-actions >\r\n        <button  mat-flat-button class=\"returnButton\" (click)=\"closeDialog()\">{{\"cancel\" | translate}}</button>\r\n        <button  mat-flat-button class=\"saveButton\"  (click)=\"doAccept()\" cdkFocusInitial>{{\"accept\" | translate}}</button>\r\n    </div>\r\n</div>",
+                    styles: [".displayInline{display:flex!important}.mat-dialog-actions{justify-content:flex-end}.icon{height:50px!important;margin-left:30px;width:40px!important}.formLabelDialog{width:10%!important}.mat-dialog-container{height:-webkit-max-content!important;height:-moz-max-content!important;height:max-content!important}"]
                 }] }
     ];
     /** @nocollapse */
     DialogTranslationComponent.ctorParameters = function () { return [
-        { type: dialog.MatDialogRef }
+        { type: dialog.MatDialogRef },
+        { type: icon.MatIconRegistry },
+        { type: platformBrowser.DomSanitizer }
     ]; };
     if (false) {
         /** @type {?} */
         DialogTranslationComponent.prototype.translationForm;
-        /** @type {?} */
-        DialogTranslationComponent.prototype.column;
-        /** @type {?} */
-        DialogTranslationComponent.prototype.elementId;
-        /** @type {?} */
-        DialogTranslationComponent.prototype.languageId;
         /** @type {?} */
         DialogTranslationComponent.prototype.catalanValue;
         /** @type {?} */
@@ -2684,7 +2679,181 @@
         /** @type {?} */
         DialogTranslationComponent.prototype.englishValue;
         /** @type {?} */
+        DialogTranslationComponent.prototype.araneseValue;
+        /** @type {?} */
         DialogTranslationComponent.prototype.dialogRef;
+        /** @type {?} */
+        DialogTranslationComponent.prototype.matIconRegistry;
+        /** @type {?} */
+        DialogTranslationComponent.prototype.domSanitizer;
+    }
+
+    /**
+     * @fileoverview added by tsickle
+     * @suppress {checkTypes,extraRequire,uselessCode} checked by tsc
+     */
+    var DatagraphComponent = /** @class */ (function () {
+        function DatagraphComponent() {
+            this.margin = { top: 20, bottom: 60, left: 40, right: 40 };
+            this.margin2 = 80;
+        }
+        /**
+         * @return {?}
+         */
+        DatagraphComponent.prototype.ngOnInit = function () {
+            if (this.type == "bar") {
+                this.createBarChart();
+                if (this.data) {
+                    this.updateBarChart();
+                }
+            }
+        };
+        /**
+         * @return {?}
+         */
+        DatagraphComponent.prototype.ngOnChanges = function () {
+            if (this.type == "bar") {
+                if (this.chart) {
+                    this.updateBarChart();
+                }
+            }
+        };
+        /**
+         * @return {?}
+         */
+        DatagraphComponent.prototype.createBarChart = function () {
+            var _this = this;
+            /** @type {?} */
+            var element = this.chartContainer.nativeElement;
+            this.width = element.offsetWidth - this.margin.left - this.margin.right;
+            this.height = element.offsetHeight - this.margin.top - this.margin.bottom;
+            /** @type {?} */
+            var svg = d3.select(element).append('svg')
+                .attr('width', '100%')
+                .attr("height", '100%');
+            // chart plot area
+            this.chart = svg.append('g')
+                .attr('class', 'bars')
+                .attr('transform', "translate(" + this.margin.left + ", " + this.margin.top + ")");
+            /** @type {?} */
+            var barGroups = this.chart.selectAll()
+                .data(this.data)
+                .enter()
+                .append('g');
+            /** @type {?} */
+            var xDomain = this.data.map(function (d) { return d.index; });
+            /** @type {?} */
+            var yDomain = [0, (d3.max(this.data, function (d) { return d.value; }))];
+            // create scales
+            this.xScale = d3.scaleBand().padding(0.3).domain(xDomain).rangeRound([0, this.width]);
+            this.yScale = d3.scaleLinear().domain(yDomain).range([this.height, 0]);
+            // bar colors
+            // this.colors = d3.scaleLinear().domain([0, this.data.length]).range(<any[]>['red', 'blue']);
+            barGroups
+                .append('text')
+                .attr('class', 'value')
+                .attr('x', function (a) { return _this.xScale(a.index) + _this.xScale.bandwidth() / 2; })
+                .attr('y', function (a) { return _this.yScale(a.value) - 5; })
+                .attr('text-anchor', 'middle')
+                .style("font-size", 9)
+                .style("fill", "black")
+                .text(function (a) { return "" + a.value; });
+            // x & y axis
+            this.xAxis = svg.append('g')
+                .attr('class', 'axis axis-x')
+                .attr('transform', "translate(" + this.margin.left + ", " + (this.margin.top + this.height) + ")")
+                .call(d3.axisBottom(this.xScale))
+                .selectAll("text")
+                .attr("transform", "translate(-10,0)rotate(-45)")
+                .style("text-anchor", "end")
+                .style("font-size", 9)
+                .style("fill", "black");
+            this.yAxis = svg.append('g')
+                .attr('class', 'axis axis-y')
+                .attr('transform', "translate(" + this.margin.left + ", " + this.margin.top + ")")
+                .call(d3.axisLeft(this.yScale))
+                .selectAll("text")
+                .style("font-size", 9)
+                .style("fill", "black");
+        };
+        /**
+         * @return {?}
+         */
+        DatagraphComponent.prototype.updateBarChart = function () {
+            var _this = this;
+            // update scales & axis
+            this.xScale.domain(this.data.map(function (d) { return d.index; }));
+            this.yScale.domain([0, (d3.max(this.data, function (d) { return d.value; }))]);
+            this.xAxis.transition().call(d3.axisBottom(this.xScale));
+            this.yAxis.transition().call(d3.axisLeft(this.yScale));
+            /** @type {?} */
+            var update = this.chart.selectAll('.bar')
+                .data(this.data);
+            // remove exiting bars
+            update.exit().remove();
+            // update existing bars
+            this.chart.selectAll('.bar').transition()
+                .attr('x', function (d) { return _this.xScale(d.index); })
+                .attr('y', function (d) { return _this.yScale(d.value); })
+                .attr('width', function (d) { return _this.xScale.bandwidth(); })
+                .attr('height', function (d) { return _this.height - _this.yScale(d[1]); })
+                .style('fill', '#be7d27');
+            // add new bars
+            update
+                .enter()
+                .append('rect')
+                .attr('class', 'bar')
+                .attr('x', function (d) { return _this.xScale(d.index); })
+                .attr('y', function (d) { return _this.yScale(d.value); })
+                .attr('height', function (d) { return _this.height - _this.yScale(d.value); })
+                .attr('width', this.xScale.bandwidth())
+                .style('fill', '#be7d27')
+                .transition()
+                .delay(function (d, i) { return i * 10; });
+        };
+        return DatagraphComponent;
+    }());
+    DatagraphComponent.decorators = [
+        { type: core.Component, args: [{
+                    selector: 'app-datagraph',
+                    template: "<div class=\"d3-chart\" #chart></div>",
+                    styles: [".d3-chart{background-color:rgba(189,185,181,.615686274509804);height:400px;margin:auto;width:100%}.d3-chart .axis line,.d3-chart .axis path{stroke:#999}.d3-chart .axis text{fill:#999}body{font-family:Open Sans,sans-serif}div#layout{text-align:center}svg{height:100%;width:100%}.bar{fill:#be7d27}text{fill:#fff;font-size:8px!important}line,path{stroke:grey}line#limit{stroke:#fed966;stroke-dasharray:3 6;stroke-width:3}.grid path{stroke-width:0}.grid .tick line{stroke:#9faaae;stroke-opacity:.3}text.divergence{fill:#2f4a6d;font-size:12px}.bars.value{font-size:8px!important;z-index:132132132}text.title{font-size:22px;font-weight:600}text.label{font-weight:400}text.label,text.source{font-size:8px!important}"]
+                }] }
+    ];
+    /** @nocollapse */
+    DatagraphComponent.ctorParameters = function () { return []; };
+    DatagraphComponent.propDecorators = {
+        chartContainer: [{ type: core.ViewChild, args: ['chart', { static: true },] }],
+        data: [{ type: core.Input }],
+        type: [{ type: core.Input }]
+    };
+    if (false) {
+        /** @type {?} */
+        DatagraphComponent.prototype.chartContainer;
+        /** @type {?} */
+        DatagraphComponent.prototype.data;
+        /** @type {?} */
+        DatagraphComponent.prototype.type;
+        /** @type {?} */
+        DatagraphComponent.prototype.margin;
+        /** @type {?} */
+        DatagraphComponent.prototype.margin2;
+        /** @type {?} */
+        DatagraphComponent.prototype.chart;
+        /** @type {?} */
+        DatagraphComponent.prototype.width;
+        /** @type {?} */
+        DatagraphComponent.prototype.height;
+        /** @type {?} */
+        DatagraphComponent.prototype.xScale;
+        /** @type {?} */
+        DatagraphComponent.prototype.yScale;
+        /** @type {?} */
+        DatagraphComponent.prototype.colors;
+        /** @type {?} */
+        DatagraphComponent.prototype.xAxis;
+        /** @type {?} */
+        DatagraphComponent.prototype.yAxis;
     }
 
     /**
@@ -2741,7 +2910,8 @@
                         DialogGridComponent,
                         DialogFormComponent,
                         DialogMessageComponent,
-                        DialogTranslationComponent
+                        DialogTranslationComponent,
+                        DatagraphComponent
                     ],
                     entryComponents: [],
                     providers: [],
@@ -2759,6 +2929,7 @@
                         DialogFormComponent,
                         DialogMessageComponent,
                         DialogTranslationComponent,
+                        DatagraphComponent,
                         frontendCore.SitmunFrontendCoreModule
                     ]
                 },] }
@@ -2779,6 +2950,7 @@
     exports.BtnEditRenderedComponent = BtnEditRenderedComponent;
     exports.DataGridComponent = DataGridComponent;
     exports.DataTreeComponent = DataTreeComponent;
+    exports.DatagraphComponent = DatagraphComponent;
     exports.DialogFormComponent = DialogFormComponent;
     exports.DialogGridComponent = DialogGridComponent;
     exports.DialogMessageComponent = DialogMessageComponent;

@@ -28,6 +28,7 @@
             <mat-form-field appearance="outline">
               <input matInput type="text" formControlName="name" required>
             </mat-form-field>
+            <!-- <button type=button class="translationButton" (click)="onNameTranslationButtonClicked()" mat-button><mat-icon svgIcon="ic_translate"></mat-icon></button> -->
           </div>
          
           <div class="colFormDiv" >
@@ -50,6 +51,7 @@
             <mat-form-field appearance="outline">
               <input matInput type="text" formControlName="title">
             </mat-form-field>
+            <!-- <button type=button class="translationButton" (click)="onTitleTranslationButtonClicked()" mat-button><mat-icon svgIcon="ic_translate"></mat-icon></button> -->
           </div>
 
     </div>
@@ -58,11 +60,11 @@
 
 
           <div class="colFormDiv" >
-            <label class="formLabel">
+            <label class="formLabel requiredInput">
               {{'applicationEntity.url' | translate}}
             </label>
             <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="jspTemplate">
+              <input matInput type="text" formControlName="jspTemplate" required>
             </mat-form-field>
           </div>
 

@@ -32,7 +32,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { MatIconModule } from '@angular/material/icon';
+import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
@@ -55,6 +55,8 @@ import { MatTreeModule, MatTreeFlattener, MatTreeFlatDataSource } from '@angular
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { SelectionModel } from '@angular/cdk/collections';
+import { DomSanitizer } from '@angular/platform-browser';
+import { select, max, scaleBand, scaleLinear, axisBottom, axisLeft } from 'd3';
 
 /**
  * @fileoverview added by tsickle
@@ -362,37 +364,22 @@ class DataGridComponent {
                 flex: 1,
                 filter: true,
                 editable: !this.nonEditable,
-                cellStyle: { backgroundColor: '#FFFFFF' },
                 suppressMenu: true,
-                resizable: true
-            },
-            columnTypes: {
-                dateColumn: {
-                    filter: 'agDateColumnFilter',
-                    filterParams: {
-                        /**
-                         * @param {?} filterLocalDateAtMidnight
-                         * @param {?} cellValue
-                         * @return {?}
-                         */
-                        comparator(filterLocalDateAtMidnight, cellValue) {
-                            /** @type {?} */
-                            const dateCellValue = new Date(cellValue);
-                            /** @type {?} */
-                            const dateFilter = new Date(filterLocalDateAtMidnight);
-                            if (dateCellValue.getTime() < dateFilter.getTime()) {
-                                return -1;
-                            }
-                            else if (dateCellValue.getTime() > dateFilter.getTime()) {
-                                return 1;
-                            }
-                            else {
-                                return 0;
-                            }
-                        },
-                    },
-                    suppressMenu: true
-                }
+                resizable: true,
+                cellStyle: (params) => {
+                    if (params.value && params.colDef.editable) {
+                        console.log(params);
+                        if (this.changesMap.has(params.node.id) && this.changesMap.get(params.node.id).has(params.colDef.field)) {
+                            return { 'background-color': '#E8F1DE' };
+                        }
+                        else {
+                            return { 'background-color': 'white' };
+                        }
+                    }
+                    else {
+                        return { 'background-color': 'white' };
+                    }
+                },
             },
             rowSelection: 'multiple',
             singleClickEdit: true,
@@ -471,20 +458,23 @@ class DataGridComponent {
         this.params = params;
         this.gridApi = params.api;
         this.gridColumnApi = params.columnApi;
-        this.getElements();
-        console.log(this.columnDefs);
         for (const col of this.columnDefs) {
             if (col.field === 'status') {
                 console.log("status column true");
                 this.statusColumn = true;
             }
         }
+        this.getElements();
+        console.log(this.columnDefs);
         if (this.defaultColumnSorting) {
             /** @type {?} */
             const sortModel = [
                 { colId: this.defaultColumnSorting, sort: 'asc' }
             ];
             this.gridApi.setSortModel(sortModel);
+        }
+        if (this.defaultHeight != null && this.defaultHeight != undefined) {
+            this.changeHeight(this.defaultHeight);
         }
     }
     /**
@@ -589,6 +579,11 @@ class DataGridComponent {
     getElements() {
         this.getAll()
             .subscribe((items) => {
+            if (this.statusColumn) {
+                items.forEach(element => {
+                    element.status = 'statusOK';
+                });
+            }
             this.rowData = items;
             this.gridApi.setRowData(this.rowData);
             this.setSize();
@@ -764,13 +759,13 @@ class DataGridComponent {
         if (this.statusColumn) {
             this.gridApi.forEachNode(function (node) {
                 if (node.data.status === 'pendingModify' || node.data.status === 'pendingDelete') {
-                    node.data.status = '';
+                    node.data.status = 'statusOK';
                 }
                 console.log(node);
             });
-            this.gridApi.refreshCells();
             this.someStatusHasChangedToDelete = false;
         }
+        this.gridApi.redrawRows();
         //this.params.colDef.cellStyle =  {backgroundColor: '#FFFFFF'};
         //this.gridApi.redrawRows();
     }
@@ -861,7 +856,7 @@ class DataGridComponent {
                     const row = this.gridApi.getDisplayedRowAtIndex(params.rowIndex);
                     if (this.statusColumn) {
                         if (this.gridApi.getRowNode(params.node.id).data.status !== 'pendingCreation') {
-                            this.gridApi.getRowNode(params.node.id).data.status = '';
+                            this.gridApi.getRowNode(params.node.id).data.status = 'statusOK';
                         }
                     }
                     ;
@@ -956,23 +951,10 @@ class DataGridComponent {
     paintCells(params, changesMap) {
         /** @type {?} */
         const row = this.gridApi.getDisplayedRowAtIndex(params.rowIndex);
-        this.changeCellStyleColumns(params, changesMap, '#E8F1DE');
+        // this.changeCellStyleColumns(params, changesMap, '#E8F1DE');
         this.gridApi.redrawRows({ rowNodes: [row] });
-        this.changeCellStyleColumns(params, changesMap, '#FFFFFF');
+        // this.changeCellStyleColumns(params, changesMap, '#FFFFFF');
         // We will define cellStyle white to future modifications (like filter)
-    }
-    /**
-     * @param {?} params
-     * @param {?} changesMap
-     * @param {?} color
-     * @return {?}
-     */
-    changeCellStyleColumns(params, changesMap, color) {
-        for (const key of changesMap.get(params.node.id).keys()) {
-            /** @type {?} */
-            const columnNumber = this.getColumnIndexByColId(this.gridColumnApi, key);
-            this.gridColumnApi.columnController.gridColumns[columnNumber].colDef.cellStyle = { backgroundColor: color };
-        }
     }
 }
 DataGridComponent.decorators = [
@@ -1009,6 +991,7 @@ DataGridComponent.propDecorators = {
     addButton: [{ type: Input }],
     globalSearch: [{ type: Input }],
     changeHeightButton: [{ type: Input }],
+    defaultHeight: [{ type: Input }],
     themeGrid: [{ type: Input }],
     singleSelection: [{ type: Input }],
     nonEditable: [{ type: Input }],
@@ -1106,6 +1089,8 @@ if (false) {
     DataGridComponent.prototype.globalSearch;
     /** @type {?} */
     DataGridComponent.prototype.changeHeightButton;
+    /** @type {?} */
+    DataGridComponent.prototype.defaultHeight;
     /** @type {?} */
     DataGridComponent.prototype.themeGrid;
     /** @type {?} */
@@ -1271,7 +1256,7 @@ class DialogGridComponent {
 DialogGridComponent.decorators = [
     { type: Component, args: [{
                 selector: 'app-dialog-grid',
-                template: "<h5 mat-dialog-title class=\"titleDialog\">{{title}}</h5>\r\n<mat-dialog-content class=\"dialogConent\">\r\n  <div *ngFor=\"let getAll of getAllsTable; let i = index\" class=\"appDialogDataGridDiv\"  [ngStyle]=\"{'margin-top': i>0?'100px':'0px'}\">\r\n    <app-data-grid \r\n    [columnDefs]=\"columnDefsTable[i]\" [themeGrid]='themeGrid'  [getAll]='getAll' [globalSearch]=true [singleSelection]=\"singleSelectionTable[i]\"\r\n    [title]=\"titlesTable[i]\" [nonEditable]='nonEditable' [eventGetSelectedRowsSubscription]=\"getAllRows.asObservable()\" (getSelectedRows)='joinRowsReceived($event)' >\r\n    </app-data-grid>\r\n  </div>\r\n</mat-dialog-content>\r\n<div mat-dialog-actions align=\"end\">\r\n  <button mat-flat-button class=\"returnButton\" (click)=\"closeDialog()\">{{\"cancel\" | translate}}</button>\r\n  <button mat-flat-button class=\"saveButton\" (click)=\"getAllSelectedRows()\" cdkFocusInitial>{{\"add\" | translate}}</button>\r\n</div>\r\n\r\n",
+                template: "<h5 mat-dialog-title class=\"titleDialog\">{{title}}</h5>\r\n<mat-dialog-content class=\"dialogConent\">\r\n  <div *ngFor=\"let getAll of getAllsTable; let i = index\" class=\"appDialogDataGridDiv\"  [ngStyle]=\"{'margin-top': i>0?'100px':'0px'}\">\r\n    <app-data-grid \r\n    [columnDefs]=\"columnDefsTable[i]\" [themeGrid]='themeGrid' [changeHeightButton]='changeHeightButton' [defaultHeight]='heightByDefault'  [getAll]='getAll' [globalSearch]=true [singleSelection]=\"singleSelectionTable[i]\"\r\n    [title]=\"titlesTable[i]\" [nonEditable]='nonEditable' [eventGetSelectedRowsSubscription]=\"getAllRows.asObservable()\" (getSelectedRows)='joinRowsReceived($event)' >\r\n    </app-data-grid>\r\n  </div>\r\n</mat-dialog-content>\r\n<div mat-dialog-actions align=\"end\">\r\n  <button mat-flat-button class=\"returnButton\" (click)=\"closeDialog()\">{{\"cancel\" | translate}}</button>\r\n  <button mat-flat-button class=\"saveButton\" (click)=\"getAllSelectedRows()\" cdkFocusInitial>{{\"add\" | translate}}</button>\r\n</div>\r\n\r\n",
                 styles: [".dialogConent{height:100%;margin:inherit!important;max-height:60vh!important;overflow:auto;padding:inherit!important;width:100%}.titleDialog{margin-bottom:15px!important;margin-top:inherit!important}"]
             }] }
 ];
@@ -1293,6 +1278,10 @@ if (false) {
     DialogGridComponent.prototype.tablesReceivedCounter;
     /** @type {?} */
     DialogGridComponent.prototype.allRowsReceived;
+    /** @type {?} */
+    DialogGridComponent.prototype.changeHeightButton;
+    /** @type {?} */
+    DialogGridComponent.prototype.heightByDefault;
     /** @type {?} */
     DialogGridComponent.prototype.themeGrid;
     /** @type {?} */
@@ -1516,7 +1505,8 @@ class FileDatabase {
                 type: 'folder',
                 isRoot: true,
                 order: 0,
-                children: []
+                children: [],
+                id: 0
             };
             map['root'] = root;
         }
@@ -1939,11 +1929,9 @@ class DataTreeComponent {
         /** @type {?} */
         const changedData = JSON.parse(JSON.stringify(this.dataSource.data));
         /** @type {?} */
-        const siblings = this.findNodeSiblings(changedData, node.id);
+        let toFlatNode = this.findNodeSiblings(changedData[0].children, node.id).find(nodeAct => nodeAct.id === node.id);
         /** @type {?} */
-        let toFlatNode = siblings.find(nodeAct => nodeAct.id === node.id);
-        /** @type {?} */
-        let fromFlatNode = siblings.find(nodeAct => nodeAct.id === this.dragNode.id);
+        let fromFlatNode = this.findNodeSiblings(changedData[0].children, this.dragNode.id).find(nodeAct => nodeAct.id === this.dragNode.id);
         if (this.dragNode.status != "pendingDelete" && node !== this.dragNode && (this.dragNodeExpandOverArea !== 'center' || (this.dragNodeExpandOverArea === 'center' && toFlatNode.isFolder))) {
             /** @type {?} */
             let newItem;
@@ -2271,15 +2259,43 @@ if (false) {
 class DialogTranslationComponent {
     /**
      * @param {?} dialogRef
+     * @param {?} matIconRegistry
+     * @param {?} domSanitizer
      */
-    constructor(dialogRef) {
+    constructor(dialogRef, matIconRegistry, domSanitizer) {
         this.dialogRef = dialogRef;
+        this.matIconRegistry = matIconRegistry;
+        this.domSanitizer = domSanitizer;
         this.initializeTranslationForm();
+        this.matIconRegistry.addSvgIcon(`icon_lang_ca`, this.domSanitizer.bypassSecurityTrustResourceUrl('../../assets/img/flag_ca.svg'));
+        this.matIconRegistry.addSvgIcon(`icon_lang_es`, this.domSanitizer.bypassSecurityTrustResourceUrl('../../assets/img/flag_es.svg'));
+        this.matIconRegistry.addSvgIcon(`icon_lang_en`, this.domSanitizer.bypassSecurityTrustResourceUrl('../../assets/img/flag_en.svg'));
+        this.matIconRegistry.addSvgIcon(`icon_lang_oc`, this.domSanitizer.bypassSecurityTrustResourceUrl('../../assets/img/flag_oc.svg'));
     }
     /**
      * @return {?}
      */
     ngOnInit() {
+        if (this.catalanValue != null) {
+            this.translationForm.patchValue({
+                catalanValue: this.catalanValue
+            });
+        }
+        if (this.spanishValue != null) {
+            this.translationForm.patchValue({
+                spanishValue: this.spanishValue
+            });
+        }
+        if (this.englishValue != null) {
+            this.translationForm.patchValue({
+                englishValue: this.englishValue
+            });
+        }
+        if (this.araneseValue != null) {
+            this.translationForm.patchValue({
+                araneseValue: this.araneseValue
+            });
+        }
     }
     /**
      * @return {?}
@@ -2289,6 +2305,7 @@ class DialogTranslationComponent {
             catalanValue: new FormControl(null, []),
             spanishValue: new FormControl(null, []),
             englishValue: new FormControl(null, []),
+            araneseValue: new FormControl(null, []),
         });
     }
     /**
@@ -2300,14 +2317,9 @@ class DialogTranslationComponent {
             catalanValue: this.translationForm.value.catalanValue,
             spanishValue: this.translationForm.value.spanishValue,
             englishValue: this.translationForm.value.englishValue,
+            araneseValue: this.translationForm.value.araneseValue,
         };
         this.dialogRef.close({ event: 'Accept', data: data });
-    }
-    /**
-     * @return {?}
-     */
-    doDelete() {
-        this.dialogRef.close({ event: 'Delete' });
     }
     /**
      * @return {?}
@@ -2319,23 +2331,19 @@ class DialogTranslationComponent {
 DialogTranslationComponent.decorators = [
     { type: Component, args: [{
                 selector: 'app-dialog-translation',
-                template: "\r\n\r\n<form [formGroup]='translationForm' #f=\"ngForm\">\r\n\r\n\r\n        <div class=\"displayInline\">\r\n            <label class=\"formLabelDialog\">\r\n                {{'value' | translate}}\r\n            </label>\r\n            <mat-form-field appearance=\"outline\">\r\n            <input matInput type=\"text\" formControlName=\"catalanValue\" required>\r\n            </mat-form-field>\r\n        </div>\r\n\r\n        <div class=\"displayInline\">\r\n            <label class=\"formLabelDialog\">\r\n                {{'value' | translate}}\r\n            </label>\r\n            <mat-form-field appearance=\"outline\">\r\n            <input matInput type=\"text\" formControlName=\"spanishValue\">\r\n            </mat-form-field>\r\n        </div>\r\n\r\n\r\n\r\n        <div class=\"displayInline\">\r\n            <label class=\"formLabelDialog\">\r\n                {{'value' | translate}}\r\n            </label>\r\n            <mat-form-field appearance=\"outline\">\r\n            <input matInput type=\"text\" formControlName=\"englishValue\">\r\n            </mat-form-field>\r\n        </div>\r\n\r\n\r\n  </form>\r\n\r\n<div>\r\n    <div mat-dialog-actions >\r\n        <button  mat-flat-button class=\"returnButton\" (click)=\"closeDialog()\">{{\"cancel\" | translate}}</button>\r\n        <button  mat-flat-button class=\"saveButton\"  (click)=\"doAccept()\" cdkFocusInitial>{{\"accept\" | translate}}</button>\r\n    </div>\r\n</div>",
-                styles: [".displayInline{display:flex!important}.mat-dialog-actions{justify-content:flex-end}"]
+                template: "\r\n\r\n<form [formGroup]='translationForm' #f=\"ngForm\">\r\n\r\n\r\n        <div class=\"displayInline\">\r\n            <label class=\"formLabelDialog\">\r\n                {{'value' | translate}}\r\n            </label>\r\n            <mat-form-field appearance=\"outline\">\r\n            <input matInput type=\"text\" formControlName=\"catalanValue\" required>\r\n            </mat-form-field>\r\n            <mat-icon class=\"icon\" svgIcon=\"icon_lang_ca\"></mat-icon>\r\n        </div>\r\n\r\n        <div class=\"displayInline\">\r\n            <label class=\"formLabelDialog\">\r\n                {{'value' | translate}}\r\n            </label>\r\n\r\n            <mat-form-field appearance=\"outline\">\r\n            <input matInput type=\"text\" formControlName=\"spanishValue\">\r\n            </mat-form-field>\r\n            <mat-icon class=\"icon\" svgIcon=\"icon_lang_es\"></mat-icon>\r\n        </div>\r\n\r\n        <div class=\"displayInline\">\r\n            <label class=\"formLabelDialog\">\r\n                {{'value' | translate}}\r\n            </label>\r\n            <mat-form-field appearance=\"outline\">\r\n            <input matInput type=\"text\" formControlName=\"englishValue\">\r\n            </mat-form-field>\r\n            <mat-icon class=\"icon\" svgIcon=\"icon_lang_en\"></mat-icon>\r\n        </div>\r\n\r\n        <div class=\"displayInline\">\r\n            <label class=\"formLabelDialog\">\r\n                {{'value' | translate}}\r\n            </label>\r\n            <mat-form-field appearance=\"outline\">\r\n            <input matInput type=\"text\" formControlName=\"araneseValue\">\r\n            </mat-form-field>\r\n            <mat-icon class=\"icon\" svgIcon=\"icon_lang_oc\"></mat-icon>\r\n        </div>\r\n\r\n\r\n  </form>\r\n\r\n<div>\r\n    <div mat-dialog-actions >\r\n        <button  mat-flat-button class=\"returnButton\" (click)=\"closeDialog()\">{{\"cancel\" | translate}}</button>\r\n        <button  mat-flat-button class=\"saveButton\"  (click)=\"doAccept()\" cdkFocusInitial>{{\"accept\" | translate}}</button>\r\n    </div>\r\n</div>",
+                styles: [".displayInline{display:flex!important}.mat-dialog-actions{justify-content:flex-end}.icon{height:50px!important;margin-left:30px;width:40px!important}.formLabelDialog{width:10%!important}.mat-dialog-container{height:-webkit-max-content!important;height:-moz-max-content!important;height:max-content!important}"]
             }] }
 ];
 /** @nocollapse */
 DialogTranslationComponent.ctorParameters = () => [
-    { type: MatDialogRef }
+    { type: MatDialogRef },
+    { type: MatIconRegistry },
+    { type: DomSanitizer }
 ];
 if (false) {
     /** @type {?} */
     DialogTranslationComponent.prototype.translationForm;
-    /** @type {?} */
-    DialogTranslationComponent.prototype.column;
-    /** @type {?} */
-    DialogTranslationComponent.prototype.elementId;
-    /** @type {?} */
-    DialogTranslationComponent.prototype.languageId;
     /** @type {?} */
     DialogTranslationComponent.prototype.catalanValue;
     /** @type {?} */
@@ -2343,7 +2351,178 @@ if (false) {
     /** @type {?} */
     DialogTranslationComponent.prototype.englishValue;
     /** @type {?} */
+    DialogTranslationComponent.prototype.araneseValue;
+    /** @type {?} */
     DialogTranslationComponent.prototype.dialogRef;
+    /** @type {?} */
+    DialogTranslationComponent.prototype.matIconRegistry;
+    /** @type {?} */
+    DialogTranslationComponent.prototype.domSanitizer;
+}
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes,extraRequire,uselessCode} checked by tsc
+ */
+class DatagraphComponent {
+    constructor() {
+        this.margin = { top: 20, bottom: 60, left: 40, right: 40 };
+        this.margin2 = 80;
+    }
+    /**
+     * @return {?}
+     */
+    ngOnInit() {
+        if (this.type == "bar") {
+            this.createBarChart();
+            if (this.data) {
+                this.updateBarChart();
+            }
+        }
+    }
+    /**
+     * @return {?}
+     */
+    ngOnChanges() {
+        if (this.type == "bar") {
+            if (this.chart) {
+                this.updateBarChart();
+            }
+        }
+    }
+    /**
+     * @return {?}
+     */
+    createBarChart() {
+        /** @type {?} */
+        let element = this.chartContainer.nativeElement;
+        this.width = element.offsetWidth - this.margin.left - this.margin.right;
+        this.height = element.offsetHeight - this.margin.top - this.margin.bottom;
+        /** @type {?} */
+        let svg = select(element).append('svg')
+            .attr('width', '100%')
+            .attr("height", '100%');
+        // chart plot area
+        this.chart = svg.append('g')
+            .attr('class', 'bars')
+            .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`);
+        /** @type {?} */
+        const barGroups = this.chart.selectAll()
+            .data(this.data)
+            .enter()
+            .append('g');
+        /** @type {?} */
+        let xDomain = this.data.map(d => d.index);
+        /** @type {?} */
+        let yDomain = [0, (max(this.data, d => d.value))];
+        // create scales
+        this.xScale = scaleBand().padding(0.3).domain(xDomain).rangeRound([0, this.width]);
+        this.yScale = scaleLinear().domain(yDomain).range([this.height, 0]);
+        // bar colors
+        // this.colors = d3.scaleLinear().domain([0, this.data.length]).range(<any[]>['red', 'blue']);
+        barGroups
+            .append('text')
+            .attr('class', 'value')
+            .attr('x', (a) => this.xScale(a.index) + this.xScale.bandwidth() / 2)
+            .attr('y', (a) => this.yScale(a.value) - 5)
+            .attr('text-anchor', 'middle')
+            .style("font-size", 9)
+            .style("fill", "black")
+            .text((a) => `${a.value}`);
+        // x & y axis
+        this.xAxis = svg.append('g')
+            .attr('class', 'axis axis-x')
+            .attr('transform', `translate(${this.margin.left}, ${this.margin.top + this.height})`)
+            .call(axisBottom(this.xScale))
+            .selectAll("text")
+            .attr("transform", "translate(-10,0)rotate(-45)")
+            .style("text-anchor", "end")
+            .style("font-size", 9)
+            .style("fill", "black");
+        this.yAxis = svg.append('g')
+            .attr('class', 'axis axis-y')
+            .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`)
+            .call(axisLeft(this.yScale))
+            .selectAll("text")
+            .style("font-size", 9)
+            .style("fill", "black");
+    }
+    /**
+     * @return {?}
+     */
+    updateBarChart() {
+        // update scales & axis
+        this.xScale.domain(this.data.map(d => d.index));
+        this.yScale.domain([0, (max(this.data, d => d.value))]);
+        this.xAxis.transition().call(axisBottom(this.xScale));
+        this.yAxis.transition().call(axisLeft(this.yScale));
+        /** @type {?} */
+        let update = this.chart.selectAll('.bar')
+            .data(this.data);
+        // remove exiting bars
+        update.exit().remove();
+        // update existing bars
+        this.chart.selectAll('.bar').transition()
+            .attr('x', d => this.xScale(d.index))
+            .attr('y', d => this.yScale(d.value))
+            .attr('width', d => this.xScale.bandwidth())
+            .attr('height', d => this.height - this.yScale(d[1]))
+            .style('fill', '#be7d27');
+        // add new bars
+        update
+            .enter()
+            .append('rect')
+            .attr('class', 'bar')
+            .attr('x', d => this.xScale(d.index))
+            .attr('y', d => this.yScale(d.value))
+            .attr('height', d => this.height - this.yScale(d.value))
+            .attr('width', this.xScale.bandwidth())
+            .style('fill', '#be7d27')
+            .transition()
+            .delay((d, i) => i * 10);
+    }
+}
+DatagraphComponent.decorators = [
+    { type: Component, args: [{
+                selector: 'app-datagraph',
+                template: "<div class=\"d3-chart\" #chart></div>",
+                styles: [".d3-chart{background-color:rgba(189,185,181,.615686274509804);height:400px;margin:auto;width:100%}.d3-chart .axis line,.d3-chart .axis path{stroke:#999}.d3-chart .axis text{fill:#999}body{font-family:Open Sans,sans-serif}div#layout{text-align:center}svg{height:100%;width:100%}.bar{fill:#be7d27}text{fill:#fff;font-size:8px!important}line,path{stroke:grey}line#limit{stroke:#fed966;stroke-dasharray:3 6;stroke-width:3}.grid path{stroke-width:0}.grid .tick line{stroke:#9faaae;stroke-opacity:.3}text.divergence{fill:#2f4a6d;font-size:12px}.bars.value{font-size:8px!important;z-index:132132132}text.title{font-size:22px;font-weight:600}text.label{font-weight:400}text.label,text.source{font-size:8px!important}"]
+            }] }
+];
+/** @nocollapse */
+DatagraphComponent.ctorParameters = () => [];
+DatagraphComponent.propDecorators = {
+    chartContainer: [{ type: ViewChild, args: ['chart', { static: true },] }],
+    data: [{ type: Input }],
+    type: [{ type: Input }]
+};
+if (false) {
+    /** @type {?} */
+    DatagraphComponent.prototype.chartContainer;
+    /** @type {?} */
+    DatagraphComponent.prototype.data;
+    /** @type {?} */
+    DatagraphComponent.prototype.type;
+    /** @type {?} */
+    DatagraphComponent.prototype.margin;
+    /** @type {?} */
+    DatagraphComponent.prototype.margin2;
+    /** @type {?} */
+    DatagraphComponent.prototype.chart;
+    /** @type {?} */
+    DatagraphComponent.prototype.width;
+    /** @type {?} */
+    DatagraphComponent.prototype.height;
+    /** @type {?} */
+    DatagraphComponent.prototype.xScale;
+    /** @type {?} */
+    DatagraphComponent.prototype.yScale;
+    /** @type {?} */
+    DatagraphComponent.prototype.colors;
+    /** @type {?} */
+    DatagraphComponent.prototype.xAxis;
+    /** @type {?} */
+    DatagraphComponent.prototype.yAxis;
 }
 
 /**
@@ -2397,7 +2576,8 @@ SitmunFrontendGuiModule.decorators = [
                     DialogGridComponent,
                     DialogFormComponent,
                     DialogMessageComponent,
-                    DialogTranslationComponent
+                    DialogTranslationComponent,
+                    DatagraphComponent
                 ],
                 entryComponents: [],
                 providers: [],
@@ -2415,6 +2595,7 @@ SitmunFrontendGuiModule.decorators = [
                     DialogFormComponent,
                     DialogMessageComponent,
                     DialogTranslationComponent,
+                    DatagraphComponent,
                     SitmunFrontendCoreModule
                 ]
             },] }
@@ -2430,5 +2611,5 @@ SitmunFrontendGuiModule.decorators = [
  * @suppress {checkTypes,extraRequire,uselessCode} checked by tsc
  */
 
-export { BtnCheckboxFilterComponent, BtnCheckboxRenderedComponent, BtnEditRenderedComponent, DataGridComponent, DataTreeComponent, DialogFormComponent, DialogGridComponent, DialogMessageComponent, DialogTranslationComponent, FileDatabase, FileFlatNode, FileNode, SitmunFrontendGuiModule, createTranslateLoader, MaterialModule as ɵa };
+export { BtnCheckboxFilterComponent, BtnCheckboxRenderedComponent, BtnEditRenderedComponent, DataGridComponent, DataTreeComponent, DatagraphComponent, DialogFormComponent, DialogGridComponent, DialogMessageComponent, DialogTranslationComponent, FileDatabase, FileFlatNode, FileNode, SitmunFrontendGuiModule, createTranslateLoader, MaterialModule as ɵa };
 //# sourceMappingURL=sitmun-frontend-gui.js.map

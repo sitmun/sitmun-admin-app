@@ -1,0 +1,40 @@
+.mat-drawer-container {
+    width: 300px;
+    height: 100px;
+    margin: 10px;
+    border: 1px solid #555;
+  }
+
+  .d3-chart {
+    width: 100%;
+    height: 400px;
+  }
+  
+  .d3-chart .axis path,
+  .d3-chart .axis line {
+    stroke: #999;
+  }
+  
+  .d3-chart .axis text {
+    fill: #999;
+  }
+  .gridGraph{
+    width: calc((100vw - 300px) / 2) !important;
+    display: inline-block;
+    margin-left: 20px;
+    text-align: center;
+  }
+
+  .totalkpi{
+    text-align: center;
+    width: 220px;
+    align-items: start;
+    height: 65px;
+    border: solid 5px #FF9300;
+    border-radius: 10px;
+  }
+
+  .numKpi{
+    font-weight: bold;
+    font-size: 24px;
+  }

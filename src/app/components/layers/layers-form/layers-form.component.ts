@@ -2,7 +2,7 @@ import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CartographyService, ServiceService, CartographyFilterService, TerritoryTypeService, ConnectionService, TreeNodeService, CartographyGroupService, TerritoryService, Territory, Connection, ApplicationService, CartographyGroup, CartographyAvailabilityService, CartographyParameterService, HalParam, HalOptions, Cartography, TreeNode } from 'dist/sitmun-frontend-core/';
+import { CartographyService, ServiceService, CartographyFilterService, TerritoryTypeService, ConnectionService, TreeNodeService, CartographyGroupService, TerritoryService, Territory, Connection, ApplicationService, CartographyGroup, CartographyAvailabilityService, CartographyParameterService, HalParam, HalOptions, Cartography, TreeNode, TranslationService, Translation } from 'dist/sitmun-frontend-core/';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { map } from 'rxjs/operators';
@@ -19,6 +19,13 @@ import { iterateExtend } from '@syncfusion/ej2-angular-grids';
   styleUrls: ['./layers-form.component.scss']
 })
 export class LayersFormComponent implements OnInit {
+
+  //Translations
+  translationsModified: boolean = false;
+  catalanTranslation: Translation = null;
+  spanishTranslation: Translation = null;
+  englishTranslation: Translation = null;
+  araneseTranslation: Translation = null;
 
   //Form
   private parametersUrl: string;
@@ -106,6 +113,7 @@ export class LayersFormComponent implements OnInit {
     private router: Router,
     private cartographyService: CartographyService,
     private connectionService: ConnectionService,
+    private translationService: TranslationService,
     private serviceService: ServiceService,
     private cartographyGroupService: CartographyGroupService,
     private cartograhyAvailabilityService: CartographyAvailabilityService,
@@ -305,6 +313,32 @@ export class LayersFormComponent implements OnInit {
                 })
               }
 
+              
+              
+                this.translationService.getAll()
+                .pipe(map((data: any[]) => data.filter(elem => elem.element == this.layerID && elem.column == config.translationColumns.cartographyDescription)
+                )).subscribe( result => {
+                  console.log(result);
+                  result.forEach(translation => {
+                    if(translation.languageName == config.languagesObjects.catalan.name){
+                      this.catalanTranslation=translation
+                    }
+                    if(translation.languageName == config.languagesObjects.spanish.name){
+                      this.spanishTranslation=translation
+                    }
+                    if(translation.languageName == config.languagesObjects.english.name){
+                      this.englishTranslation=translation
+                    }
+                    if(translation.languageName == config.languagesObjects.aranese.name){
+                      this.araneseTranslation=translation
+                    }
+                  });
+                  console.log(this.catalanTranslation);
+                }
+          
+                );;
+              
+
 
               var urlReq = `${this.layerToEdit._links.parameters.href}`
               if (this.layerToEdit._links.parameters.templated) {
@@ -346,7 +380,7 @@ export class LayersFormComponent implements OnInit {
                     }
                   });
               }
-
+              
               if (!this.layerToEdit.thematic) { this.layerForm.get('geometryType').disable(); }
               if (!this.layerToEdit.queryableFeatureEnabled){
                 this.layerForm.get('queryableFeatureAvailable').disable();
@@ -377,6 +411,7 @@ export class LayersFormComponent implements OnInit {
             spatialSelectionService: this.spatialConfigurationServices[0].id,
             geometryType: this.geometryTypes[0].value,
             legendType: this.legendTypes[0].value,
+            queryableFeatureEnabled: false,
           })
           this.layerForm.get('geometryType').disable();
           this.layerForm.get('applyFilterToGetMap').disable();
@@ -518,6 +553,20 @@ export class LayersFormComponent implements OnInit {
     }
   }
 
+  async onTranslationButtonClicked()
+  {
+    let dialogResult = null
+    dialogResult = await this.utils.openTranslationDialog(this.catalanTranslation, this.spanishTranslation, this.englishTranslation, this.araneseTranslation, config.translationColumns.cartographyDescription);
+    if(dialogResult!=null){
+      this.translationsModified=true;
+      this.catalanTranslation=dialogResult[0];
+      this.spanishTranslation=dialogResult[1];
+      this.englishTranslation=dialogResult[2];
+      this.araneseTranslation=dialogResult[3];
+    }
+  }
+
+
   initializeLayersForm(): void {
 
     this.layerForm = new FormGroup({
@@ -570,7 +619,7 @@ export class LayersFormComponent implements OnInit {
       type: new FormControl(null, [Validators.required]),
       territorialLevel: new FormControl(null),
       column: new FormControl(null),
-      value: new FormControl(null, []),
+      values: new FormControl(null, []),
       valueType: new FormControl(null, []),
       _links: new FormControl(null, []),
     })
@@ -998,6 +1047,7 @@ export class LayersFormComponent implements OnInit {
             territorialLevel : territorialLevel
           })
           let item = this.territorialFilterForm.value;
+          if(item.values!= null) { item.values = item.values.split(",") }
           item.giid = this.layerToEdit.id
           // if(this.territorialFilterForm.value.typeId === -1)
           // {
@@ -1193,7 +1243,7 @@ export class LayersFormComponent implements OnInit {
       cartography._links = this.layerForm.value._links
 
       this.cartographyService.save(cartography)
-        .subscribe(resp => {
+        .subscribe(async resp => {
 
           if(!this.layerForm.value.applyFilterToGetFeatureInfo && !this.layerForm.value.applyFilterToSpatialSelection){
             if(this.parameteApplyFilterToGetMap != null)
@@ -1236,6 +1286,15 @@ export class LayersFormComponent implements OnInit {
             id: resp.id,
             _links: resp._links
           })
+
+          if(this.translationsModified){
+            this.catalanTranslation = await this.utils.saveTranslation(resp.id,this.catalanTranslation);
+            this.spanishTranslation = await this.utils.saveTranslation(resp.id,this.spanishTranslation);
+            this.englishTranslation = await this.utils.saveTranslation(resp.id,this.englishTranslation);
+            this.araneseTranslation = await this.utils.saveTranslation(resp.id,this.araneseTranslation);
+            this.translationsModified = false;
+          }
+
           this.getAllElementsEventParameters.next(true);
           this.getAllElementsEventSpatialConfigurations.next(true);
           this.getAllElementsTerritorialFilter.next(true);

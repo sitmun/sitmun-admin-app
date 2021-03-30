@@ -38,6 +38,7 @@ export class ApplicationComponent implements OnInit {
       }
     );
 
+
     var columnEditBtn = this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams'] = {
       clicked: this.newData.bind(this)

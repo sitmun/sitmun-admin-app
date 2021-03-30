@@ -13,6 +13,7 @@ export class IconsService {
   menuOptions4: any = [];
   menus: any = [[]];
   extraImg: any = [];
+  flagImg: any = [];
 
   constructor(private matIconRegistry: MatIconRegistry,
               private domSanitizer: DomSanitizer) { }
@@ -120,8 +121,14 @@ export class IconsService {
         {
           id: 'ic_arrow_down_black',
           icon: 'ic_arrow_down_black',
-        }
-      ];
+        },
+        {
+          id: 'ic_translate',
+          icon: 'ic_translate',
+        },
+
+    ];
+
 
     this.menus[0] = this.menuOptions1;
     this.menus[1] = this.menuOptions2;

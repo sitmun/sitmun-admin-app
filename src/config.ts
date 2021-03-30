@@ -21,6 +21,7 @@ export const config = {
     { id: "ca", name: "catalan" },
     { id: "es", name: "spanish" },
     { id: "en", name: "english" },
+    { id: "oc-aranese", name: "aranese" },
   ],
   defaultLang: "ca",
   _embedded: {
@@ -42,5 +43,24 @@ export const config = {
     trees: 'trees',
     users: 'users',
     userPosition:'user-positions'
+  },
+  languagesObjects: {
+    catalan: null,
+    spanish: null,
+    english: null,
+    aranese: null,
+  },
+  translationColumns: {
+    cartographyDescription : 'GEO_ABSTRACT',
+    territoryName : 'TER_NAME',
+    serviceDescription: 'SER_ABSTRACT',
+    applicationName: 'APP_NAME',
+    applicationTitle: 'APP_TITLE',
+    backgroundName: 'BAC_NAME',
+    backgroundDescription: 'BAC_DESC',
+    treeName: 'TRE_NAME',
+    treeDescription: 'TRE_ABSTRACT',
+    treeNodeName: 'TNO_NAME',
+    treeNodeDescription: 'TNO_ABSTRACT'
   }
 };

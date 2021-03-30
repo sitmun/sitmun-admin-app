@@ -46,7 +46,8 @@
   "lang": {
     "catalan": "Catalán",
     "spanish": "Castellano",
-    "english": "Inglés"
+    "english": "Inglés",
+    "aranese": "Aranés"
   },
   "sideMenu": {
     "generalData": "Datos Generales",
@@ -72,6 +73,15 @@
     "application": "Aplicación",
     "taskGroup": "Grupo tarea",
     "status": "Estado"
+  },
+  "dashboard": {
+    "newUsers": "Nuevos usuarios",
+    "services": "Servicios",
+    "tasks": "Tareas",
+    "territories": "Territorios",
+    "cartographies": "Cartografías",
+    "applications": "Aplicaciones",
+    "applicationsTerritories": "Aplicaciones de territorios"
   },
   "userEntity": {
     "generalData": "Datos Generales",
@@ -212,7 +222,11 @@
     "radio": "Radio",
     "visible": "Visible",
     "cartography":"Cartografía",
-    "configuration" : "Configuración"
+    "metadataURL":"URL metadatos",
+    "datasetURL": "URL dataset",
+    "description":"Descripción",
+    "configuration" : "Configuración",
+    "image": "Imagen"
   },
   "taskGroupEntity": {
     "generalData": "Datos Generales",
@@ -228,7 +242,8 @@
     "active": "Activo",
     "cartographyGroup": "Grupo cartografía",
     "status": "Estado",
-    "createdDate": "Alta"
+    "createdDate": "Alta",
+    "image": "Imagen"
   },
   "applicationEntity": {
     "generalData": "Datos Generales",

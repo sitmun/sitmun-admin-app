@@ -4,7 +4,7 @@ import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators }
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApplicationService, ApplicationParameterService, RoleService,
    HalOptions, HalParam, CartographyGroupService, TreeService, BackgroundService,
-   ApplicationBackgroundService, Role, Background, Tree, Application, CodeList } from 'dist/sitmun-frontend-core/';
+   ApplicationBackgroundService, TranslationService, Translation, Role, Background, Tree, Application, CodeList } from 'dist/sitmun-frontend-core/';
 
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
@@ -24,6 +24,20 @@ import { MatDialog } from '@angular/material/dialog';
   styleUrls: ['./application-form.component.scss']
 })
 export class ApplicationFormComponent implements OnInit {
+
+  //Translations
+  nameTranslationsModified: boolean = false;
+  titleTranslationsModified: boolean = false;
+  
+  catalanNameTranslation: Translation = null;
+  spanishNameTranslation: Translation = null;
+  englishNameTranslation: Translation = null;
+  araneseNameTranslation: Translation = null;
+
+  catalanTitleTranslation: Translation = null;
+  spanishTitleTranslation: Translation = null;
+  englishTitleTranslation: Translation = null;
+  araneseTitleTranslation: Translation = null;
 
   situationMapList: Array<any> = [];
   parametersTypes: Array<any> = [];
@@ -85,6 +99,7 @@ export class ApplicationFormComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private applicationService: ApplicationService,
+    private translationService: TranslationService,
     private backgroundService: BackgroundService,
     private applicationParameterService:ApplicationParameterService,
     private applicationBackgroundService:ApplicationBackgroundService,
@@ -168,6 +183,48 @@ export class ApplicationFormComponent implements OnInit {
                 treeAutoRefresh: this.applicationToEdit.treeAutoRefresh,
                 _links: this.applicationToEdit._links
               });
+
+              this.translationService.getAll()
+              .pipe(map((data: any[]) => data.filter(elem => elem.element == this.applicationID)
+              )).subscribe( result => {
+                console.log(result);
+                result.forEach(translation => {
+                  if(translation.languageName == config.languagesObjects.catalan.name){
+                    if(translation.column == config.translationColumns.applicationName){
+                      this.catalanNameTranslation=translation
+                    }
+                    else if(translation.column == config.translationColumns.applicationTitle){
+                      this.catalanTitleTranslation=translation
+                    }
+                  }
+                  if(translation.languageName == config.languagesObjects.spanish.name){
+                    if(translation.column == config.translationColumns.applicationName){
+                      this.spanishNameTranslation=translation
+                    }
+                    else if(translation.column == config.translationColumns.applicationTitle){
+                      this.spanishTitleTranslation=translation
+                    }
+                  }
+                  if(translation.languageName == config.languagesObjects.english.name){
+                    if(translation.column == config.translationColumns.applicationName){
+                      this.englishNameTranslation=translation
+                    }
+                    else if(translation.column == config.translationColumns.applicationTitle){
+                      this.englishTitleTranslation=translation
+                    }
+                  }
+                  if(translation.languageName == config.languagesObjects.aranese.name){
+                    if(translation.column == config.translationColumns.applicationName){
+                      this.araneseNameTranslation=translation
+                    }
+                    else if(translation.column == config.translationColumns.applicationTitle){
+                      this.araneseTitleTranslation=translation
+                    }
+                  }
+                });
+              }
+        
+              );;
   
               this.dataLoaded = true;
             },
@@ -330,6 +387,32 @@ export class ApplicationFormComponent implements OnInit {
       value: new FormControl(null),
 
     })
+  }
+
+  async onNameTranslationButtonClicked()
+  {
+    let dialogResult = null
+    dialogResult = await this.utils.openTranslationDialog(this.catalanNameTranslation, this.spanishNameTranslation, this.englishNameTranslation, this.araneseNameTranslation, config.translationColumns.applicationName);
+    if(dialogResult!=null){
+      this.nameTranslationsModified=true;
+      this.catalanNameTranslation=dialogResult[0];
+      this.spanishNameTranslation=dialogResult[1];
+      this.englishNameTranslation=dialogResult[2];
+      this.araneseNameTranslation=dialogResult[3];
+    }
+  }
+
+  async onTitleTranslationButtonClicked()
+  {
+    let dialogResult = null
+    dialogResult = await this.utils.openTranslationDialog(this.catalanTitleTranslation, this.spanishTitleTranslation, this.englishTitleTranslation, this.araneseTitleTranslation, config.translationColumns.applicationTitle);
+    if(dialogResult!=null){
+      this.titleTranslationsModified=true;
+      this.catalanTitleTranslation=dialogResult[0];
+      this.spanishTitleTranslation=dialogResult[1];
+      this.englishTitleTranslation=dialogResult[2];
+      this.araneseNameTranslation=dialogResult[3];
+    }
   }
 
 
@@ -822,7 +905,7 @@ export class ApplicationFormComponent implements OnInit {
         appObj.title= this.applicationForm.value.title;
         appObj.jspTemplate= this.applicationForm.value.jspTemplate;
         appObj.theme= this.applicationForm.value.theme;
-        appObj.scales= this.applicationForm.value.scales!=null ?this.applicationForm.value.scales.toString().split(","):"";
+        appObj.scales= this.applicationForm.value.scales!=null ?this.applicationForm.value.scales.toString().split(","):null;
         appObj.srs= this.applicationForm.value.srs;
         appObj.treeAutoRefresh= this.applicationForm.value.treeAutoRefresh;
         appObj._links= this.applicationForm.value._links;
@@ -837,7 +920,7 @@ export class ApplicationFormComponent implements OnInit {
     
     
         this.applicationService.save(appObj)
-        .subscribe(resp => {
+        .subscribe(async resp => {
           console.log(resp);
           this.applicationToEdit = resp;
           this.applicationID = this.applicationToEdit.id;
@@ -845,6 +928,24 @@ export class ApplicationFormComponent implements OnInit {
             id: resp.id,
             _links: resp._links
           })
+
+          if(this.nameTranslationsModified)
+          {
+            this.catalanNameTranslation = await this.utils.saveTranslation(resp.id,this.catalanNameTranslation);
+            this.spanishNameTranslation = await this.utils.saveTranslation(resp.id,this.spanishNameTranslation);
+            this.englishNameTranslation = await this.utils.saveTranslation(resp.id,this.englishNameTranslation);
+            this.araneseNameTranslation = await this.utils.saveTranslation(resp.id,this.araneseNameTranslation);
+            this.nameTranslationsModified = false;
+          }
+          if(this.titleTranslationsModified){
+            this.catalanTitleTranslation = await this.utils.saveTranslation(resp.id,this.catalanTitleTranslation);
+            this.spanishTitleTranslation = await this.utils.saveTranslation(resp.id,this.spanishTitleTranslation);
+            this.englishTitleTranslation = await this.utils.saveTranslation(resp.id,this.englishTitleTranslation);
+            this.araneseTitleTranslation = await this.utils.saveTranslation(resp.id,this.araneseTitleTranslation);
+
+            this.titleTranslationsModified = false;
+          }
+
           this.getAllElementsEventParameters.next(true);
           this.getAllElementsEventTemplateConfiguration.next(true);
           this.getAllElementsEventRoles.next(true);

@@ -4,7 +4,7 @@ export declare class Language extends Resource {
     /** id */
     id: number;
     /** name */
-    shortName: string;
+    shortname: string;
     /** name */
     name: string;
 }

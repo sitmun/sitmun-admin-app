@@ -5,7 +5,7 @@ export declare class Translation extends Resource {
     /** id */
     id: number;
     /** id */
-    elementId: number;
+    element: number;
     /** name */
     translation: string;
     /** column */

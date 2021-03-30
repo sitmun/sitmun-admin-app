@@ -1,5 +1,5 @@
 import { Component} from '@angular/core';
-import { AuthService } from 'dist/sitmun-frontend-core/';
+import { AuthService, LanguageService, Language } from 'dist/sitmun-frontend-core/';
 import { LoginService } from 'dist/sitmun-frontend-core/';
 import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
@@ -28,6 +28,7 @@ export class LoginComponent {
     constructor( private fb: FormBuilder,
         private authService: AuthService,
         private loginService: LoginService,
+        private languageService: LanguageService,
         private router: Router,
         private trans: TranslateService ) {
         
@@ -54,6 +55,7 @@ export class LoginComponent {
                 this.translate.use(this.form.value.lang)
                 this.translate.setDefaultLang(this.form.value.lang);
                 localStorage.setItem('lang',this.form.value.lang );
+                // this.loadLanguages();
                 console.log( 'User is logged in' );
                 this.router.navigateByUrl( '/' );
             }, ( err ) => {
@@ -63,4 +65,6 @@ export class LoginComponent {
 
         }
     }
+
+ 
 }

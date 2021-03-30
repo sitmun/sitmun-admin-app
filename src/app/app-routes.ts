@@ -44,9 +44,11 @@ import { TasksEditionFormComponent } from './components/tasks-edition/tasks-edit
 import { TasksThematicFormComponent } from './components/tasks-thematic/tasks-thematic-form/tasks-thematic-form.component';
 import { TasksExtractionFmeFormComponent } from './components/tasks-extraction-fme/tasks-extraction-fme-form/tasks-extraction-fme-form.component';
 import { TasksFormComponent } from './components/tasks/tasks-form/tasks-form.component';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
 
 export const APP_ROUTES: Routes = [
     {path: 'index', component: IndexComponent},
+    {path: 'dashboard', component: DashboardComponent},
     {path: 'connection', component: ConnectionComponent},
     {path: 'connection/:id/connectionForm', component: ConnectionFormComponent},
     {path: 'service', component: ServiceComponent},

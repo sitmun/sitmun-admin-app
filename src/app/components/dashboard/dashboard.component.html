@@ -1,0 +1,25 @@
+<div class="titleDiv" >
+  <h4><mat-icon aria-hidden="false"  svgIcon="menu_connexio"></mat-icon> {{ "Dashboard" | translate}}</h4>
+  <span class="divider"></span>
+</div>
+<mat-grid-list cols="1" rowHeight="3:1" *ngIf="dataLoaded">
+  <mat-grid-tile>
+    <mat-grid-list style="width: 100%" cols="4" rowHeight="2:1">
+        <mat-grid-tile *ngFor="let kpi of KPIsTable; let i = index">
+            <div class="totalkpi">
+              <span class="numKpi">{{kpi.number}}</span>
+              <br>
+              {{kpi.text}}
+            </div>
+        </mat-grid-tile>
+    </mat-grid-list>
+  </mat-grid-tile>
+</mat-grid-list>
+<div style="width:100%" *ngIf="dataLoaded">
+  <div class="gridGraph">
+    <h4>{{ "Cartografies (falta tradruir)" | translate}}</h4>
+    <app-datagraph *ngIf="dataLoaded" [data]="this.cartographyChartData" type="bar"> </app-datagraph>
+  </div>
+  <div  class="gridGraph">
+  </div>
+</div>

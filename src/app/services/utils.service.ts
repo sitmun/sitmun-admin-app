@@ -3,11 +3,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
-import { Subject } from 'rxjs';
-import { HalOptions, HalParam, CodeListService } from 'dist/sitmun-frontend-core/';
+import { Observable, of, Subject } from 'rxjs';
+import { HalOptions, HalParam, CodeListService, Translation, Language, LanguageService, TranslationService } from 'dist/sitmun-frontend-core/';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
+import { DialogMessageComponent, DialogTranslationComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
+import { map } from 'rxjs/operators';
+import { config } from 'src/config';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -23,6 +26,8 @@ export class UtilsService {
     private router: Router,
     private http: HttpClient,
     private location: Location,
+    private languageService: LanguageService,
+    private translationService: TranslationService,
     private codeListService: CodeListService) { }
 
 
@@ -127,6 +132,7 @@ export class UtilsService {
     return filterParams;
   }
 
+
   //Update grids
 
   updateUriList(requestURI: string, data: any[], eventRefresh?) {
@@ -208,6 +214,8 @@ export class UtilsService {
     {
       headerName: this.getTranslate('status'),
       field: 'status',
+      filter: 'agTextColumnFilter',
+      filterParams: { textFormatter: (filterValue) => this.getTranslate(filterValue) },
       editable: false,
       valueFormatter: (params) => {
         if (params.value != undefined && params.value !== '') {
@@ -220,20 +228,20 @@ export class UtilsService {
         'pendingModify': function (params) { return params.value === 'pendingModify' },
         'pendingDelete': function (params) { return params.value === 'pendingDelete' },
         'pendingCreation': function (params) { return params.value === 'pendingCreation' },
-        'stable': function (params) { return params.value === undefined || params.value === '' }
+        'stable': function (params) { return params.value === undefined || params.value === 'statusOK'}
       }
     }
     return columnDef;
   }
 
-  getDateColumnDef(alias, field) {
+  getDateColumnDef(alias, field,editable?:boolean) {
     let columnDef =
     {
       headerName: this.getTranslate(alias),
       field: field,
       filter: 'agDateColumnFilter',
       filterParams: this.getDateFilterParams(),
-      editable: false,
+      editable: editable?editable:false,
       cellRenderer: (data) => {
         return this.getDateFormated(data)
       },
@@ -292,4 +300,85 @@ export class UtilsService {
     }
     return columnDef;
   }
+
+  //Translation
+
+  async openTranslationDialog(catalanTranslation, spanishTranslation, englishTranslation, araneseTranslation, column): Promise<any[]>{
+
+  
+
+    const dialogRef = this.dialog.open(DialogTranslationComponent, { panelClass: 'translateDialogs' });
+    if(catalanTranslation!= null) { dialogRef.componentInstance.catalanValue=catalanTranslation.translation };
+    if(spanishTranslation!= null) { dialogRef.componentInstance.spanishValue=spanishTranslation.translation };
+    if(englishTranslation!= null) { dialogRef.componentInstance.englishValue=englishTranslation.translation };
+    if(araneseTranslation!= null) { dialogRef.componentInstance.araneseValue=araneseTranslation.translation };
+
+    let translationsResult = null;
+
+    let result = null;
+      result= await dialogRef.afterClosed().toPromise();
+        if (result) {
+          if( result.event==='Accept') { 
+  
+            if(catalanTranslation != null){
+              catalanTranslation.translation= result.data.catalanValue 
+            }
+            else{
+              catalanTranslation= new Translation();
+              catalanTranslation.translation= result.data.catalanValue;
+              catalanTranslation.column=column;
+              catalanTranslation.language=config.languagesObjects.catalan;
+            }
+  
+            if(spanishTranslation != null){
+              spanishTranslation.translation= result.data.spanishValue 
+            }
+            else{
+              spanishTranslation= new Translation();
+              spanishTranslation.translation= result.data.spanishValue;
+              spanishTranslation.column=column;
+              spanishTranslation.language=config.languagesObjects.spanish;
+            }
+
+            if(englishTranslation != null){
+              englishTranslation.translation= result.data.englishValue 
+            }
+            else{
+              englishTranslation= new Translation();
+              englishTranslation.translation= result.data.englishValue;
+              englishTranslation.column=column;
+              englishTranslation.language=config.languagesObjects.english;
+            }
+  
+            if(araneseTranslation != null){
+              araneseTranslation.translation= result.data.araneseValue 
+            }
+            else{
+              araneseTranslation= new Translation();
+              araneseTranslation.translation= result.data.araneseValue;
+              araneseTranslation.column=column;
+              araneseTranslation.language=config.languagesObjects.aranese;
+            }
+            console.log(result.data);
+  
+            translationsResult=[catalanTranslation,spanishTranslation,englishTranslation,araneseTranslation]
+
+          }
+        }
+
+      return translationsResult;
+
+  }
+
+  async saveTranslation(id, translation){
+    if(translation && translation.translation){
+      translation.element=id;
+      return await this.translationService.save(translation).toPromise();
+    }
+    else {
+      return null;
+    }
+  }
+
+
 }

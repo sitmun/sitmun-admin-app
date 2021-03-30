@@ -4,6 +4,7 @@ export * from './auth/auth.interceptor';
 export * from './auth/auth-expired.interceptor';
 export * from './auth/login.service';
 export * from './auth/principal.service';
+export * from './dashboard/dashboard.service';
 export * from './user/user.model';
 export * from './user/user.service';
 export * from './user/user-position.model';

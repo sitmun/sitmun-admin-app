@@ -1,6 +1,6 @@
 <div class="titleDiv">
   <h4>
-    <mat-icon aria-hidden="false" svgIcon="menu_territori"></mat-icon> {{ "sideMenu.trees" | translate
+    <mat-icon aria-hidden="false" svgIcon="menu_arbres"></mat-icon> {{ "sideMenu.trees" | translate
     }}-{{(treeID==-1?"new":"edit") | translate}}
   </h4>
   <span class="divider"></span>
@@ -30,6 +30,25 @@
         <mat-form-field appearance="outline">
           <input matInput type="text" formControlName="name">
         </mat-form-field>
+        <!-- <button type=button class="translationButton" (click)="onNameTranslationButtonClicked()" mat-button><mat-icon svgIcon="ic_translate"></mat-icon></button> -->
+      </div>
+      <div class="colFormDiv">
+        <label class="formLabel ">
+          {{'treesEntity.description' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="description">
+        </mat-form-field>
+        <!-- <button type=button class="translationButton" (click)="onDescriptionTranslationButtonClicked()" mat-button><mat-icon svgIcon="ic_translate"></mat-icon></button> -->
+
+      </div>
+      <div class="colFormDiv">
+        <label class="formLabel ">
+          {{'treesEntity.image' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="image">
+        </mat-form-field>
       </div>
     </div>
   </form>
@@ -56,6 +75,7 @@
           <mat-form-field appearance="outline">
             <input matInput type="text" formControlName="name" required>
           </mat-form-field>
+          <!-- <button type=button class="translationButton" (click)="onTreeNodeNameTranslationButtonClicked()" mat-button><mat-icon svgIcon="ic_translate"></mat-icon></button> -->
         </div>
         <div class="colFormDiv" *ngIf="currentNodeIsFolder != undefined">
           <label class="formLabel">
@@ -66,6 +86,26 @@
           </mat-form-field>
         </div>
       </div>
+
+      <div class="rowFormDiv"  *ngIf=" (currentNodeIsFolder)">
+        <div class="colFormDiv">
+          <label class="formLabel">
+            {{'treesEntity.metadataURL' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="text" formControlName="metadataURL">
+          </mat-form-field>
+        </div>
+        <div class="colFormDiv" >
+          <label class="formLabel">
+            {{'treesEntity.datasetURL' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="text" formControlName="datasetURL">
+          </mat-form-field>
+        </div>
+      </div>
+
       <div class="rowFormDiv">
         <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined &&   (!currentNodeIsFolder)">
           <label class="formLabel">
@@ -83,6 +123,15 @@
         </div>
       </div>
       <div class="rowFormDiv">
+        <div class="colFormDiv" *ngIf="(currentNodeIsFolder)">
+          <label class="formLabel">
+            {{'treesEntity.description' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="text" formControlName="description">
+          </mat-form-field>
+          <!-- <button type=button class="translationButton" (click)="onTreeNodeDescriptionTranslationButtonClicked()" mat-button><mat-icon svgIcon="ic_translate"></mat-icon></button> -->
+        </div>
         <div class="colFormDiv" *ngIf=" (currentNodeIsFolder)">
           <label class="formLabel">
             {{'treesEntity.radio' | translate}}

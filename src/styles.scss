@@ -364,7 +364,7 @@ h2 {
 
 .translateDialogs{
   width: calc(100vw - 45%) !important;
-  height: calc(100vh - 50%) !important;
+  height: calc(100vh - 40%) !important;
 }
 
 .formLabelDialog {
@@ -406,6 +406,7 @@ h2 {
   width: 47.5%;
   margin-right: 5%;
 }
+
 
 .colFormDivBtn {
   margin-left: -40px;
@@ -807,4 +808,12 @@ h2 {
     padding-left: unset !important;
     margin-left: unset !important;
   }
+}
+
+.iconTranslate{
+  cursor: pointer;
+}
+
+.mat-dialog-container{
+  height: max-content !important;
 }

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CartographyGroupService, CartographyGroup } from 'dist/sitmun-frontend-core/';
+import { CartographyGroupService, CartographyGroup, HalParam, HalOptions } from 'dist/sitmun-frontend-core/';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
@@ -52,7 +52,10 @@ export class LayersPermitsComponent implements OnInit {
   }
 
   getAllLayersPermits = () => {
-
+    let params2: HalParam[] = [];
+    let param: HalParam = { key: 'type', value: 'F' }
+    params2.push(param);
+    let query: HalOptions = { params: params2 };
     return this.cartographyGroupService.getAll();
   }
 

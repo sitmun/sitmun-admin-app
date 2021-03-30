@@ -8,3 +8,4 @@ export * from './dialog-message/dialog-message.component';
 export * from './data-tree/data-tree.component';
 export * from './dialog-form/dialog-form.component';
 export * from './dialog-translation/dialog-translation.component';
+export * from './data-graph/datagraph.component';

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Territory, TerritoryService, TaskAvailabilityService, TerritoryGroupTypeService, CartographyAvailabilityService, UserService, RoleService, CartographyService, TaskService, UserConfigurationService, HalOptions, HalParam, User, Role, Cartography, Task, TaskAvailability } from 'dist/sitmun-frontend-core/';
+import { Territory, TerritoryService, TranslationService, Translation, TaskAvailabilityService, TerritoryGroupTypeService, CartographyAvailabilityService, UserService, RoleService, CartographyService, TaskService, UserConfigurationService, HalOptions, HalParam, User, Role, Cartography, Task, TaskAvailability } from 'dist/sitmun-frontend-core/';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { Observable, of, Subject } from 'rxjs';
@@ -20,6 +20,13 @@ import { UserConfiguration } from '@sitmun/frontend-core';
   styleUrls: ['./territory-form.component.scss']
 })
 export class TerritoryFormComponent implements OnInit {
+
+  //Translations
+  translationsModified: boolean = false;
+  catalanTranslation: Translation = null;
+  spanishTranslation: Translation = null;
+  englishTranslation: Translation = null;
+  araneseTranslation: Translation = null;
 
   //Form
   themeGrid: any = config.agGridTheme;
@@ -86,6 +93,7 @@ export class TerritoryFormComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private territoryService: TerritoryService,
+    private translationService: TranslationService,
     private userService: UserService,
     private roleService: RoleService,
     private territoryGroupTypeService: TerritoryGroupTypeService,
@@ -155,6 +163,30 @@ export class TerritoryFormComponent implements OnInit {
                 blocked: this.territoryToEdit.blocked,
                 _links: this.territoryToEdit._links
               });
+
+              this.translationService.getAll()
+              .pipe(map((data: any[]) => data.filter(elem => elem.element == this.territoryID && elem.column == config.translationColumns.territoryName)
+              )).subscribe( result => {
+                console.log(result);
+                result.forEach(translation => {
+                  if(translation.languageName == config.languagesObjects.catalan.name){
+                    this.catalanTranslation=translation
+                  }
+                  if(translation.languageName == config.languagesObjects.spanish.name){
+                    this.spanishTranslation=translation
+                  }
+                  if(translation.languageName == config.languagesObjects.english.name){
+                    this.englishTranslation=translation
+                  }
+                  if(translation.languageName == config.languagesObjects.aranese.name){
+                    this.araneseTranslation=translation
+                  }
+                });
+                console.log(this.catalanTranslation);
+              }
+        
+              );;
+
               if (!this.territoryToEdit.groupTypeId) {
                 this.territoryForm.patchValue({
                   groupType: this.territoryGroups[0].id,
@@ -320,6 +352,19 @@ export class TerritoryFormComponent implements OnInit {
     this.territoryForm.patchValue({
       extent: extensionToUpdate
     });
+  }
+
+  async onTranslationButtonClicked()
+  {
+    let dialogResult = null
+    dialogResult = await this.utils.openTranslationDialog(this.catalanTranslation, this.spanishTranslation, this.englishTranslation, this.araneseTranslation, config.translationColumns.territoryName);
+    if(dialogResult!=null){
+      this.translationsModified=true;
+      this.catalanTranslation=dialogResult[0];
+      this.spanishTranslation=dialogResult[1];
+      this.englishTranslation=dialogResult[2];
+      this.araneseTranslation=dialogResult[3];
+    }
   }
 
 
@@ -699,6 +744,8 @@ export class TerritoryFormComponent implements OnInit {
     dialogRef.componentInstance.singleSelectionTable = [false, false];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsUsersDialog, this.columnDefsRolesDialog];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
+    dialogRef.componentInstance.changeHeightButton = true;
+    dialogRef.componentInstance.heightByDefault = '5';
     if (childrenTable) {
       dialogRef.componentInstance.title = this.utils.getTranslate('territoryEntity.permissionsChildren');
     }
@@ -952,7 +999,7 @@ export class TerritoryFormComponent implements OnInit {
           this.terrritoryObj.createdDate = this.territoryToEdit.createdDate
         }
         this.territoryService.save(this.terrritoryObj)
-          .subscribe(resp => {
+          .subscribe(async resp => {
             console.log(resp);
             this.territoryToEdit = resp;
             this.territoryID = resp.id;
@@ -960,6 +1007,16 @@ export class TerritoryFormComponent implements OnInit {
               id: resp.id,
               _links: resp._links
             })
+
+
+            if(this.translationsModified){
+              this.catalanTranslation = await this.utils.saveTranslation(resp.id,this.catalanTranslation);
+              this.spanishTranslation = await this.utils.saveTranslation(resp.id,this.spanishTranslation);
+              this.englishTranslation = await this.utils.saveTranslation(resp.id,this.englishTranslation);
+              this.araneseTranslation = await this.utils.saveTranslation(resp.id,this.araneseTranslation);
+              this.translationsModified = false;
+            }
+
             this.getAllElementsEventPermits.next(true);
             this.getAllElementsEventCartographies.next(true);
             this.getAllElementsEventTasks.next(true);

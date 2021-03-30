@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 import { TranslateService } from '@ngx-translate/core';
 import { SidenavService } from './services/sidenav.service';
-import { Principal, LoginService, AuthService } from 'dist/sitmun-frontend-core/';
+import { Principal, LoginService, AuthService, LanguageService, Language } from 'dist/sitmun-frontend-core/';
 import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
 
@@ -26,7 +26,8 @@ export class AppComponent {
     /** Translate service */public trans: TranslateService, 
     /** Identity service */public principal: Principal,
     /** Login service */public loginService: LoginService,
-    /** Auth service */public authService: AuthService
+    /** Auth service */public authService: AuthService,
+    /** Language service */public languageService: LanguageService
     ) {
     this.translate = trans;
 
@@ -45,6 +46,7 @@ export class AppComponent {
       this.translate.setDefaultLang(defaultLang);
       this.translate.use(defaultLang);
     }
+    
   }
 
   /** Change app language*/
@@ -71,7 +73,27 @@ export class AppComponent {
         this.currentAccount = account;
       });
     }
+    this.loadLanguages();
   }
+
+     //Load from server all languages that we will use
+     async loadLanguages(){
+      let catalanLanguage = null;
+      let spanishLanguage = null;
+      let englishLanguage = null;
+      this.languageService.getAll().subscribe(
+        async result => {
+          console.log(result);
+          result.forEach(language => {
+            if(language.shortname == 'ca')  { config.languagesObjects.catalan=language; }
+            if(language.shortname == 'es') { config.languagesObjects.spanish= language }
+            if(language.shortname == 'en') { config.languagesObjects.english= language }
+            if(language.shortname == 'oc-aranese') { config.languagesObjects.aranese= language }
+          });
+  
+        }
+      )
+    }
 
 }
 

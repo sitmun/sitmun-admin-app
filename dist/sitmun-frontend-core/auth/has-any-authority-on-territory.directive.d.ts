@@ -11,6 +11,7 @@ import { Principal } from './principal.service';
  *     <some-element *sitmunHasAnyAuthority="['ROLE_ADMIN', 'ROLE_USER']">...</some-element>
  * ```
  */
+import * as ɵngcc0 from '@angular/core';
 export declare class HasAnyAuthorityOnTerritoryDirective {
     private principal;
     private templateRef;
@@ -25,4 +26,8 @@ export declare class HasAnyAuthorityOnTerritoryDirective {
     sitmunHasAnyAuthorityOnTerritory: any;
     /** update view */
     private updateView();
+    static ɵfac: ɵngcc0.ɵɵFactoryDef<HasAnyAuthorityOnTerritoryDirective, never>;
+    static ɵdir: ɵngcc0.ɵɵDirectiveDefWithMeta<HasAnyAuthorityOnTerritoryDirective, "[sitmunHasAnyAuthorityOnTerritory]", never, { "sitmunHasAnyAuthorityOnTerritory": "sitmunHasAnyAuthorityOnTerritory"; }, {}, never>;
 }
+
+//# sourceMappingURL=has-any-authority-on-territory.directive.d.ts.map

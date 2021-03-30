@@ -109,11 +109,13 @@ import {
   TaskParameterService,
   TerritoryTypeService,
   CartographyFilterService,
+  DashboardService,
   TreeNodeService,
 } from 'dist/sitmun-frontend-core/';
 import { UtilsService } from './services/utils.service';
 import { SidenavService } from './services/sidenav.service';
 import { TasksFormComponent } from './components/tasks/tasks-form/tasks-form.component';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
 
 
 
@@ -165,7 +167,8 @@ import { TasksFormComponent } from './components/tasks/tasks-form/tasks-form.com
     TasksReportFormComponent,
     TasksThematicFormComponent,
     LoginComponent,
-    TasksFormComponent
+    TasksFormComponent,
+    DashboardComponent
   ],
   imports: [
     BrowserModule,
@@ -192,7 +195,7 @@ import { TasksFormComponent } from './components/tasks/tasks-form/tasks-form.com
     { provide: LOCALE_ID, useValue: 'es-ES' },
     RoleService, ConnectionService, UserService, TerritoryService, ServiceService,
     ApplicationService, TreeService, TranslationService, TerritoryTypeService, TaskAvailabilityService, BackgroundService, CartographyService, CartographyGroupService,
-    TaskGroupService, TaskService, UserConfigurationService, CodeListService, LoginService, AuthService,
+    TaskGroupService, DashboardService, TaskService, UserConfigurationService, CodeListService, LoginService, AuthService,
     Principal, UserPositionService, AccountService,CartographyAvailabilityService,ServiceParameterService,ApplicationParameterService,
     CartographyParameterService, LanguageService, CartographyFilterService,  TaskUIService, TaskParameterService, ApplicationBackgroundService, TreeNodeService,
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },

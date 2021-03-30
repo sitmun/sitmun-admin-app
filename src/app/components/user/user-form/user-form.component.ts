@@ -11,6 +11,7 @@ import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
 import { DialogGridComponent, DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
+import { DatePipe } from '@angular/common';
 
 
 
@@ -130,7 +131,7 @@ export class UserFormComponent implements OnInit {
       this.utils.getEditableColumnDef('userEntity.position', 'name'),
       this.utils.getEditableColumnDef('userEntity.organization', 'organization'),
       this.utils.getEditableColumnDef('userEntity.mail', 'email'),
-      this.utils.getDateColumnDef('userEntity.expirationDate', 'expirationDate'),
+      this.utils.getDateColumnDef('userEntity.expirationDate', 'expirationDate',true),
       this.utils.getDateColumnDef('userEntity.dataCreated', 'createdDate'),
       this.utils.getStatusColumnDef()
     ];
@@ -246,7 +247,8 @@ export class UserFormComponent implements OnInit {
         {
           let itemTerritory = {
             territory: userConf.territoryComplete,
-            user: this.userToEdit
+            user: this.userToEdit,
+            createdDate: new Date()
           }
           territoriesToAdd.push(itemTerritory)
         }
@@ -360,7 +362,16 @@ export class UserFormComponent implements OnInit {
   getAllRowsDataTerritories(data: any[]) {
     let territoriesToEdit = [];
     data.forEach(territory => {
-      if (territory.status === 'pendingModify') {territoriesToEdit.push(territory) }
+      if (territory.status === 'pendingModify') {
+        if(territory.expirationDate != null)
+        {
+          let date = new Date(territory.expirationDate)
+          territory.expirationDate=date.toISOString();
+          console.log(territory.expirationDate)
+        }
+        territoriesToEdit.push(territory)   
+
+       }
     });
 
     const promises: Promise<any>[] = [];
@@ -391,6 +402,8 @@ export class UserFormComponent implements OnInit {
     dialogRef.componentInstance.singleSelectionTable = [true, false];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsTerritoryDialog, this.columnDefsRolesDialog];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
+    dialogRef.componentInstance.changeHeightButton = true;
+    dialogRef.componentInstance.heightByDefault = '5';
     dialogRef.componentInstance.title = this.utils.getTranslate('userEntity.permissions');
     dialogRef.componentInstance.titlesTable = [this.utils.getTranslate('userEntity.territories'), this.utils.getTranslate('userEntity.roles')];
     dialogRef.componentInstance.nonEditable = false;
