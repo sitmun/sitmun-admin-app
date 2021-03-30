@@ -4,6 +4,7 @@ export { ExternalService } from './external.service';
 export { RestService } from './rest.service';
 export { Resource } from './resource';
 export { ResourceArray } from './resource-array';
+export { ResourceService } from './resource.service';
 export { Sort } from './sort';
 export { ResourceHelper } from './resource-helper';
 export { ExternalConfiguration } from './ExternalConfiguration';
