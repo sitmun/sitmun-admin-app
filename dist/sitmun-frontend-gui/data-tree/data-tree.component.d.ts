@@ -7,7 +7,6 @@ import { SelectionModel } from '@angular/cdk/collections';
  * File node data with nested structure.
  * Each node has a name, and a type or a list of children.
  */
-import * as ɵngcc0 from '@angular/core';
 export declare class FileNode {
     id: string;
     children: FileNode[];
@@ -70,8 +69,6 @@ export declare class FileDatabase {
     insertItemBelow(node: FileNode, nodeDrag: FileNode, changedData: any): FileNode;
     getParentFromNodes(node: FileNode, changedData: any): FileNode;
     getParent(currentRoot: FileNode, node: FileNode): FileNode;
-    static ɵfac: ɵngcc0.ɵɵFactoryDef<FileDatabase, never>;
-    static ɵprov: ɵngcc0.ɵɵInjectableDef<FileDatabase>;
 }
 /**
  * @title Tree with flat nodes
@@ -141,8 +138,4 @@ export declare class DataTreeComponent {
     emitAllRows(): void;
     getAllChildren(arr: any): any[];
     deleteChildren(arr: any): void;
-    static ɵfac: ɵngcc0.ɵɵFactoryDef<DataTreeComponent, never>;
-    static ɵcmp: ɵngcc0.ɵɵComponentDefWithMeta<DataTreeComponent, "app-data-tree", never, { "eventNodeUpdatedSubscription": "eventNodeUpdatedSubscription"; "eventCreateNodeSubscription": "eventCreateNodeSubscription"; "eventGetAllRowsSubscription": "eventGetAllRowsSubscription"; "eventRefreshSubscription": "eventRefreshSubscription"; "getAll": "getAll"; }, { "emitNode": "emitNode"; "createNode": "createNode"; "createFolder": "createFolder"; "emitAllNodes": "emitAllNodes"; }, never, never>;
 }
-
-//# sourceMappingURL=data-tree.component.d.ts.map
