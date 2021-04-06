@@ -29,8 +29,8 @@
         </label>
         <mat-form-field appearance="outline">
           <input matInput type="text" formControlName="name">
+          <mat-icon matSuffix class="iconTranslate" (click)="onNameTranslationButtonClicked()" svgIcon="ic_translate"></mat-icon>
         </mat-form-field>
-        <!-- <button type=button class="translationButton" (click)="onNameTranslationButtonClicked()" mat-button><mat-icon svgIcon="ic_translate"></mat-icon></button> -->
       </div>
       <div class="colFormDiv">
         <label class="formLabel ">
@@ -38,9 +38,8 @@
         </label>
         <mat-form-field appearance="outline">
           <input matInput type="text" formControlName="description">
+          <mat-icon matSuffix class="iconTranslate" (click)="onDescriptionTranslationButtonClicked()" svgIcon="ic_translate"></mat-icon>
         </mat-form-field>
-        <!-- <button type=button class="translationButton" (click)="onDescriptionTranslationButtonClicked()" mat-button><mat-icon svgIcon="ic_translate"></mat-icon></button> -->
-
       </div>
       <div class="colFormDiv">
         <label class="formLabel ">
@@ -74,8 +73,8 @@
           </label>
           <mat-form-field appearance="outline">
             <input matInput type="text" formControlName="name" required>
+            <mat-icon matSuffix class="iconTranslate" (click)="onTreeNodeNameTranslationButtonClicked()" svgIcon="ic_translate"></mat-icon>
           </mat-form-field>
-          <!-- <button type=button class="translationButton" (click)="onTreeNodeNameTranslationButtonClicked()" mat-button><mat-icon svgIcon="ic_translate"></mat-icon></button> -->
         </div>
         <div class="colFormDiv" *ngIf="currentNodeIsFolder != undefined">
           <label class="formLabel">
@@ -129,8 +128,8 @@
           </label>
           <mat-form-field appearance="outline">
             <input matInput type="text" formControlName="description">
+            <mat-icon matSuffix class="iconTranslate" (click)="onTreeNodeDescriptionTranslationButtonClicked()" svgIcon="ic_translate"></mat-icon>
           </mat-form-field>
-          <!-- <button type=button class="translationButton" (click)="onTreeNodeDescriptionTranslationButtonClicked()" mat-button><mat-icon svgIcon="ic_translate"></mat-icon></button> -->
         </div>
         <div class="colFormDiv" *ngIf=" (currentNodeIsFolder)">
           <label class="formLabel">

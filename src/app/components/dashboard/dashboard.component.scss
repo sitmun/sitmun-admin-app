@@ -19,21 +19,36 @@
     fill: #999;
   }
   .gridGraph{
+    margin-top: 20px;
     width: calc((100vw - 300px) / 2) !important;
     display: inline-block;
     margin-left: 20px;
     text-align: center;
+    border: solid 3px #FF9300;
+    border-radius: 10px;
+  }
+  .titleGraph{
+    font-weight: bold;
+    font-size: 28px;
+    padding: 0px;
+    margin: 10px;
   }
 
   .totalkpi{
     text-align: center;
-    width: 220px;
+    width: 100%;
     align-items: start;
-    height: 65px;
-    border: solid 5px #FF9300;
+    height: 100%;
+    border: solid 3px #FF9300;
     border-radius: 10px;
+    padding: 10px;
+    background-color: #ff95000e;
+  }
+  .matgridlist{
+    padding: 0px 20px;
   }
 
+  
   .numKpi{
     font-weight: bold;
     font-size: 24px;

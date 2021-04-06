@@ -355,7 +355,11 @@
     "cartography": "Cartografia",
     "modificate": "Modificar",
     "textFilter": "Texto filtro",
-    "deleteCartography": "Eliminar cartografia"
+    "deleteCartography": "Eliminar cartografia",
+    "id": "ID",
+    "roles": "Roles",
+    "group": "Grupo tarea",
+    "ui": "UI"
   },
   "tasksQueryEntity": {
     "generalData": "Datos Generales",

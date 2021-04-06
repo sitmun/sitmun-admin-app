@@ -35,10 +35,9 @@ export class DashboardComponent implements OnInit {
           this.totalKPIs=result.total;
           this.sumKPIs=result.sum;
           this.cartographiesOnDate=result['cartographies-created-on-date']
-          let keys= Object.keys(this.cartographiesOnDate);
-          let values= Object.values(this.cartographiesOnDate);
-          for(let i=0; i< keys.length; i++){
-            this.cartographyChartData.push({index:keys[i], value:values[i]})
+          let keys= Object.keys(this.cartographiesOnDate).sort();
+          for(let i=0; i<keys.length; i++){
+            this.cartographyChartData.push({index:keys[i], value:this.cartographiesOnDate[keys[i]]})
           }
           console.log(this.cartographyChartData)
           resolve(true);
@@ -59,10 +58,10 @@ export class DashboardComponent implements OnInit {
   saveKPI(result){
     this.KPIsTable.push({text: this.utils.getTranslate("dashboard.newUsers"), number: result.total.users})
     this.KPIsTable.push({text: this.utils.getTranslate("dashboard.services"), number: result.total.services})
-    this.KPIsTable.push({text: this.utils.getTranslate("dashboard.tasks"), number: result.total.users})
-    this.KPIsTable.push({text: this.utils.getTranslate("dashboard.territories"), number: result.total.users})
-    this.KPIsTable.push({text: this.utils.getTranslate("dashboard.cartographies"), number: result.total.users})
-    this.KPIsTable.push({text: this.utils.getTranslate("dashboard.applications"), number: result.total.users})
+    this.KPIsTable.push({text: this.utils.getTranslate("dashboard.tasks"), number: result.total.tasks})
+    this.KPIsTable.push({text: this.utils.getTranslate("dashboard.territories"), number: result.total.territories})
+    this.KPIsTable.push({text: this.utils.getTranslate("dashboard.cartographies"), number: result.total.cartographies})
+    this.KPIsTable.push({text: this.utils.getTranslate("dashboard.applications"), number: result.total.applications})
     this.KPIsTable.push({text: this.utils.getTranslate("dashboard.applicationsTerritories"), number: result.sum['applications-territories']})
     console.log(this.KPIsTable)
   }

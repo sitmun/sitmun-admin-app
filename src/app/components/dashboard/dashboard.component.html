@@ -2,24 +2,39 @@
   <h4><mat-icon aria-hidden="false"  svgIcon="menu_connexio"></mat-icon> {{ "Dashboard" | translate}}</h4>
   <span class="divider"></span>
 </div>
-<mat-grid-list cols="1" rowHeight="3:1" *ngIf="dataLoaded">
-  <mat-grid-tile>
-    <mat-grid-list style="width: 100%" cols="4" rowHeight="2:1">
-        <mat-grid-tile *ngFor="let kpi of KPIsTable; let i = index">
-            <div class="totalkpi">
-              <span class="numKpi">{{kpi.number}}</span>
-              <br>
-              {{kpi.text}}
-            </div>
-        </mat-grid-tile>
-    </mat-grid-list>
-  </mat-grid-tile>
-</mat-grid-list>
+<div class="matgridlist">
+  <mat-grid-list cols="1" rowHeight="3:1" cols="4" *ngIf="dataLoaded"> 
+    <mat-grid-tile *ngFor="let kpi of KPIsTable; let i = index" class="matgridtitle"> 
+        <div class="totalkpi">
+          <div><span class="numKpi">{{kpi.text}}</span></div>
+          <div><h4>{{kpi.number}}</h4></div>
+        </div>
+    </mat-grid-tile> 
+  </mat-grid-list>
+</div>
 <div style="width:100%" *ngIf="dataLoaded">
   <div class="gridGraph">
-    <h4>{{ "Cartografies (falta tradruir)" | translate}}</h4>
+    <p class="titleGraph">{{ "Cartografies" | translate}}</p> 
     <app-datagraph *ngIf="dataLoaded" [data]="this.cartographyChartData" type="bar"> </app-datagraph>
   </div>
-  <div  class="gridGraph">
+  <div class="gridGraph">
+    <p class="titleGraph">{{ "Cartografies 2" | translate}}</p> 
+    <app-datagraph *ngIf="dataLoaded" [data]="this.cartographyChartData" type="bar"> </app-datagraph>
+  </div>
+  <div class="gridGraph">
+    <p class="titleGraph">{{ "Cartografies 3" | translate}}</p> 
+    <app-datagraph *ngIf="dataLoaded" [data]="this.cartographyChartData" type="bar"> </app-datagraph>
+  </div>
+  <div class="gridGraph">
+    <p class="titleGraph">{{ "Cartografies 4" | translate}}</p> 
+    <app-datagraph *ngIf="dataLoaded" [data]="this.cartographyChartData" type="bar"> </app-datagraph>
+  </div>
+  <div class="gridGraph">
+    <p class="titleGraph">{{ "Cartografies 5" | translate}}</p> 
+    <app-datagraph *ngIf="dataLoaded" [data]="this.cartographyChartData" type="bar"> </app-datagraph>
+  </div>
+  <div class="gridGraph">
+    <p class="titleGraph">{{ "Cartografies 6" | translate}}</p> 
+    <app-datagraph *ngIf="dataLoaded" [data]="this.cartographyChartData" type="bar"> </app-datagraph>
   </div>
 </div>

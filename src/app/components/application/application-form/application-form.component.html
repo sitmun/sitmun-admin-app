@@ -27,8 +27,8 @@
             </label>
             <mat-form-field appearance="outline">
               <input matInput type="text" formControlName="name" required>
+              <mat-icon matSuffix class="iconTranslate" (click)="onNameTranslationButtonClicked()" svgIcon="ic_translate"></mat-icon>
             </mat-form-field>
-            <!-- <button type=button class="translationButton" (click)="onNameTranslationButtonClicked()" mat-button><mat-icon svgIcon="ic_translate"></mat-icon></button> -->
           </div>
          
           <div class="colFormDiv" >
@@ -50,8 +50,8 @@
             </label>
             <mat-form-field appearance="outline">
               <input matInput type="text" formControlName="title">
+              <mat-icon matSuffix class="iconTranslate" (click)="onTitleTranslationButtonClicked()" svgIcon="ic_translate"></mat-icon>
             </mat-form-field>
-            <!-- <button type=button class="translationButton" (click)="onTitleTranslationButtonClicked()" mat-button><mat-icon svgIcon="ic_translate"></mat-icon></button> -->
           </div>
 
     </div>

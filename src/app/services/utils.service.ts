@@ -211,7 +211,7 @@ export class UtilsService {
       headerName: this.getTranslate('status'),
       field: 'status',
       filter: 'agTextColumnFilter',
-      filterParams: { textFormatter: (filterValue) => this.getTranslate(filterValue) },
+      filterParams: { textFormatter: (filterValue) => this.getTranslate(filterValue).toLowerCase() },
       editable: false,
       valueFormatter: (params) => {
         if (params.value != undefined && params.value !== '') {

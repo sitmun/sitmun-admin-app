@@ -45,6 +45,7 @@ import { TasksThematicFormComponent } from './components/tasks-thematic/tasks-th
 import { TasksExtractionFmeFormComponent } from './components/tasks-extraction-fme/tasks-extraction-fme-form/tasks-extraction-fme-form.component';
 import { TasksFormComponent } from './components/tasks/tasks-form/tasks-form.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { TaskFormComponent } from './components/task-form/task-form.component';
 
 export const APP_ROUTES: Routes = [
     {path: 'index', component: IndexComponent},
@@ -62,6 +63,7 @@ export const APP_ROUTES: Routes = [
     {path: 'layersPermits', component: LayersPermitsComponent},
     {path: 'layersPermits/:id/layersPermitsForm', component: LayersPermitsFormComponent},
     {path: 'tasks', component: TasksComponent},
+    {path: 'taskForm', component: TaskFormComponent},
     {path: 'tasks/:id/tasksForm', component: TasksFormComponent},
     {path: 'taskGroup', component: TaskGroupComponent},
     {path: 'taskGroup/:id/taskGroupForm', component: TaskGroupFormComponent},
@@ -92,8 +94,8 @@ export const APP_ROUTES: Routes = [
     {path: 'application', component: ApplicationComponent},
     {path: 'application/:id/applicationForm', component: ApplicationFormComponent},
     {path: 'login', component: LoginComponent},
-    {path: '', pathMatch: 'full', redirectTo: 'connection' },
-    {path: '**', pathMatch: 'full', redirectTo: 'connection' }
+    {path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+    {path: '**', pathMatch: 'full', redirectTo: 'dashboard' }
 
 ];
 
