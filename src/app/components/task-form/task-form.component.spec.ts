@@ -1,6 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { TaskFormComponent } from './task-form.component';
+import { ServiceService, CartographyService, ConnectionService,CodeListService,ResourceService,ExternalService,TaskUIService,RoleService,TaskGroupService,TaskGroupService } from 'dist/sitmun-frontend-core/';
+import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
+import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
+import { RouterTestingModule } from '@angular/router/testing';
+import { MaterialModule } from '../../material-module';
+import { RouterModule } from '@angular/router';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+
 
 describe('TaskFormComponent', () => {
   let component: TaskFormComponent;
@@ -8,9 +17,13 @@ describe('TaskFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TaskFormComponent ]
+      declarations: [ TaskFormComponent ],
+      imports : [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,MaterialModule, MatIconTestingModule, RouterModule],
+      providers: [ServiceService,CodeListService,CartographyService,ResourceService,ExternalService,ConnectionService,TaskUIService,RoleService,,TaskGroupService,TaskGroupService,
+        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();
+
   });
 
   beforeEach(() => {
