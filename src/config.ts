@@ -31,13 +31,13 @@ export const config = {
     'NUMEdition': "Data table",
     'RELEdition': "Relation table",
     'VISEdition': "Location view",
-    'HIDDENEdition': "edicionHIDDEN",
+    'HIDDENEdition': "edicionHIDDEN"
   },
   languages: [
     { id: "ca", name: "catalan" },
     { id: "es", name: "spanish" },
     { id: "en", name: "english" },
-    { id: "oc-aranese", name: "aranese" },
+    { id: "oc-aranese", name: "aranese" }
   ],
   defaultLang: "ca",
   _embedded: {
@@ -64,7 +64,7 @@ export const config = {
     catalan: null,
     spanish: null,
     english: null,
-    aranese: null,
+    aranese: null
   },
   translationColumns: {
     cartographyDescription : 'GEO_ABSTRACT',
