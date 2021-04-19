@@ -63,7 +63,7 @@ export class TasksLocatorComponent implements OnInit {
   newData(id: any)
   {
     this.saveAgGridStateEvent.next(true);
-    this.router.navigate(['tasksLocator', id, 'tasksLocatorForm']);
+    this.router.navigate(["taskForm", id, config.tasksTypesNames.locator]);
 
   }
   

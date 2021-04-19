@@ -65,7 +65,7 @@ export class TasksExtractionFmeComponent implements OnInit {
   newData(id: any)
   {
     this.saveAgGridStateEvent.next(true);
-    this.router.navigate(['tasksExtractionFME', id, 'tasksExtractionFMEForm']);
+    this.router.navigate(["taskForm", id, config.tasksTypesNames.extraction]);
   }
   
   applyChanges( data: any[])

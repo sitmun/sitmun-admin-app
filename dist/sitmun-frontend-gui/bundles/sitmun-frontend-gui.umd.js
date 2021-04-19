@@ -634,7 +634,6 @@
                     resizable: true,
                     cellStyle: function (params) {
                         if (params.value && params.colDef.editable) {
-                            console.log(params);
                             if (_this.changesMap.has(params.node.id) && _this.changesMap.get(params.node.id).has(params.colDef.field)) {
                                 return { 'background-color': '#E8F1DE' };
                             }
@@ -730,7 +729,6 @@
                 for (var _b = __values(this.columnDefs), _c = _b.next(); !_c.done; _c = _b.next()) {
                     var col = _c.value;
                     if (col.field === 'status') {
-                        console.log("status column true");
                         this.statusColumn = true;
                     }
                 }
@@ -992,7 +990,6 @@
         DataGridComponent.prototype.onDuplicateButtonClicked = function () {
             var _this = this;
             this.gridApi.stopEditing(false);
-            console.log(this.changeCounter);
             if (this.changeCounter > 0) {
                 /** @type {?} */
                 var dialogRef = this.dialog.open(DialogMessageComponent);
@@ -1113,7 +1110,6 @@
          * @return {?}
          */
         DataGridComponent.prototype.onCellValueChanged = function (params) {
-            console.log("value Change");
             this.params = params;
             if (this.changeCounter > this.previousChangeCounter) {
                 if (params.oldValue !== params.value && !(params.oldValue == null && params.value === '')) {

@@ -65,7 +65,7 @@ export class TasksThematicComponent implements OnInit {
   newData(id: any)
   {
     this.saveAgGridStateEvent.next(true);
-    this.router.navigate(['tasksThematic', id, 'tasksThematicForm']);
+    this.router.navigate(["taskForm", id, config.tasksTypesNames.thematic]);
 
   }
   

@@ -64,7 +64,7 @@ export class TasksMoreInfoComponent implements OnInit {
   newData(id: any)
   {
     this.saveAgGridStateEvent.next(true);
-    this.router.navigate(['tasksMoreInformation', id, 'tasksMoreInformationForm']);
+    this.router.navigate(["taskForm", id, config.tasksTypesNames.moreInfo]);
 
   }
   

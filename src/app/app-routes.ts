@@ -63,7 +63,7 @@ export const APP_ROUTES: Routes = [
     {path: 'layersPermits', component: LayersPermitsComponent},
     {path: 'layersPermits/:id/layersPermitsForm', component: LayersPermitsFormComponent},
     {path: 'tasks', component: TasksComponent},
-    {path: 'taskForm', component: TaskFormComponent},
+    {path: 'taskForm/:id/:type', component: TaskFormComponent},
     {path: 'tasks/:id/tasksForm', component: TasksFormComponent},
     {path: 'taskGroup', component: TaskGroupComponent},
     {path: 'taskGroup/:id/taskGroupForm', component: TaskGroupFormComponent},

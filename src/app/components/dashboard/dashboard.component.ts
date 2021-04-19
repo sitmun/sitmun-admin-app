@@ -62,7 +62,7 @@ export class DashboardComponent implements OnInit {
     this.KPIsTable.push({text: this.utils.getTranslate("dashboard.territories"), number: result.total.territories})
     this.KPIsTable.push({text: this.utils.getTranslate("dashboard.cartographies"), number: result.total.cartographies})
     this.KPIsTable.push({text: this.utils.getTranslate("dashboard.applications"), number: result.total.applications})
-    this.KPIsTable.push({text: this.utils.getTranslate("dashboard.applicationsTerritories"), number: result.sum['applications-territories']})
+    this.KPIsTable.push({text: this.utils.getTranslate("dashboard.applicationsTerritories"), number: result.total['applications-territories']})
     console.log(this.KPIsTable)
   }
 

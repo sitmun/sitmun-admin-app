@@ -368,7 +368,6 @@ class DataGridComponent {
                 resizable: true,
                 cellStyle: (params) => {
                     if (params.value && params.colDef.editable) {
-                        console.log(params);
                         if (this.changesMap.has(params.node.id) && this.changesMap.get(params.node.id).has(params.colDef.field)) {
                             return { 'background-color': '#E8F1DE' };
                         }
@@ -460,7 +459,6 @@ class DataGridComponent {
         this.gridColumnApi = params.columnApi;
         for (const col of this.columnDefs) {
             if (col.field === 'status') {
-                console.log("status column true");
                 this.statusColumn = true;
             }
         }
@@ -700,7 +698,6 @@ class DataGridComponent {
      */
     onDuplicateButtonClicked() {
         this.gridApi.stopEditing(false);
-        console.log(this.changeCounter);
         if (this.changeCounter > 0) {
             /** @type {?} */
             const dialogRef = this.dialog.open(DialogMessageComponent);
@@ -810,7 +807,6 @@ class DataGridComponent {
      * @return {?}
      */
     onCellValueChanged(params) {
-        console.log("value Change");
         this.params = params;
         if (this.changeCounter > this.previousChangeCounter) {
             if (params.oldValue !== params.value && !(params.oldValue == null && params.value === '')) {

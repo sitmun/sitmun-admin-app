@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { UtilsService } from '../../services/utils.service';
-import { Router } from '@angular/router';
+import {  Router } from '@angular/router';
 import { of,Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
 import { HalOptions, HalParam, TaskService } from 'dist/sitmun-frontend-core/';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-tasks-document',
@@ -15,15 +16,25 @@ export class TasksDocumentComponent implements OnInit {
   saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
   themeGrid:any=config.agGridTheme;
   columnDefs: any[];
+  properties;
 
   constructor(private utils: UtilsService,
               private router: Router,
-              public taskService: TaskService
+              public taskService: TaskService,
               )
-              { }
+              {}
 
 
   ngOnInit()  {
+
+    // this.taskTypeService.getAll().pipe(map((data: any[]) => data.filter(elem => elem.title=="Download"))).subscribe(
+    //   result => {
+    //     this.properties = result[0].specification;
+    //     console.log(this.properties);
+
+       
+    //   }
+    // )
 
     var columnEditBtn=this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams']= {
@@ -62,7 +73,8 @@ export class TasksDocumentComponent implements OnInit {
   newData(id: any)
   {
     this.saveAgGridStateEvent.next(true);
-    this.router.navigate(['tasksDocument', id, 'tasksDocumentForm']);
+    // this.router.navigate(['tasksDocument', id, 'tasksDocumentForm']);
+    this.router.navigate(["taskForm", id, config.tasksTypesNames.document]);
   }
   
   applyChanges( data: any[])

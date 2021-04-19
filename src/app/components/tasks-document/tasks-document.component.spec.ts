@@ -17,7 +17,7 @@ describe('TasksDocumentComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ TasksDocumentComponent ],
       imports : [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
-      providers: [CodeListService,TaskService,TranslationService,ResourceService,ExternalService,
+      providers: [CodeListService,TaskService, TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();
