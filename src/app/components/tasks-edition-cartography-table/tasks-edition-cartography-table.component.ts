@@ -32,17 +32,15 @@ export class TasksEditionCartographyTableComponent implements OnInit {
     }
 
     this.columnDefs = [
+
       this.utils.getSelCheckboxColumnDef(),
       columnEditBtn,
-      { headerName: 'ID',  field: 'id', editable: false},
-      { headerName: this.utils.getTranslate('tasksEditionEntity.name'),  field: 'name'},
-      { headerName: this.utils.getTranslate('tasksEditionEntity.associatedLayer'),  field: 'associatedLayer'},
-      { headerName: this.utils.getTranslate('tasksEditionEntity.informationType'),  field: 'groupName',editable: false},
-      {
-        headerName: this.utils.getTranslate('tasksEditionEntity.dataCreated'), field: 'createdDate',
-        filter: 'agDateColumnFilter', filterParams: this.utils.getDateFilterParams(),
-        editable: false, cellRenderer: (data) => { return this.utils.getDateFormated(data) }
-      }
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('tasksEditionEntity.name', 'name'),
+      this.utils.getEditableColumnDef('tasksEditionEntity.associatedLayer', 'associatedLayer'),
+      this.utils.getNonEditableColumnDef('tasksEditionEntity.informationType', 'groupName'),
+      this.utils.getDateColumnDef('tasksEditionEntity.dataCreated', 'createdDate'),
+
     ];
   }
 

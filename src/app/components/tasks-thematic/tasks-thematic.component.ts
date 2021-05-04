@@ -32,17 +32,15 @@ export class TasksThematicComponent implements OnInit {
     }
 
     this.columnDefs = [
+
+
       this.utils.getSelCheckboxColumnDef(),
       columnEditBtn,
-      { headerName: 'ID',  field: 'id', editable: false},
-      { headerName: this.utils.getTranslate('tasksThematicEntity.name'),  field: 'name'},
-      { headerName: this.utils.getTranslate('tasksThematicEntity.origin'),  field: 'origin'},
-      { headerName: this.utils.getTranslate('tasksThematicEntity.creator'),  field: 'creator'},
-      {
-        headerName: this.utils.getTranslate('tasksThematicEntity.dataCreated'), field: 'createdDate',
-        filter: 'agDateColumnFilter', filterParams: this.utils.getDateFilterParams(),
-        editable: false, cellRenderer: (data) => { return this.utils.getDateFormated(data) }
-      }
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('tasksThematicEntity.name', 'name'),
+      this.utils.getEditableColumnDef('tasksThematicEntity.origin', 'origin'),
+      this.utils.getEditableColumnDef('tasksThematicEntity.creator', 'creator'),
+      this.utils.getDateColumnDef('tasksThematicEntity.dataCreated', 'createdDate'),
     ];
   }
 

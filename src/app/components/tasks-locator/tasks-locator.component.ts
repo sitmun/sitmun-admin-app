@@ -32,15 +32,17 @@ export class TasksLocatorComponent implements OnInit {
 
 
     this.columnDefs = [
+
       this.utils.getSelCheckboxColumnDef(),
       columnEditBtn,
-      { headerName: 'ID',  field: 'id', editable: false},
-      { headerName: this.utils.getTranslate('tasksLocatorEntity.task'),  field: 'name'},
-      { headerName: this.utils.getTranslate('tasksLocatorEntity.informationType'),  field: 'groupName',editable: false},
-      { headerName: this.utils.getTranslate('tasksLocatorEntity.accesType'),  field: 'accesType'},
-      { headerName: this.utils.getTranslate('tasksLocatorEntity.command'),  field: 'order'},
-      { headerName: this.utils.getTranslate('tasksLocatorEntity.connection'),  field: 'connection',editable: false},
-      { headerName: this.utils.getTranslate('tasksLocatorEntity.associatedLayer'),  field: 'associatedLayer' }
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('tasksLocatorEntity.task', 'name'),
+      this.utils.getNonEditableColumnDef('tasksLocatorEntity.informationType', 'groupName'),
+      this.utils.getEditableColumnDef('tasksLocatorEntity.accesType', 'accesType'),
+      this.utils.getEditableColumnDef('tasksLocatorEntity.command', 'order'),
+      this.utils.getNonEditableColumnDef('tasksLocatorEntity.connection', 'connection'),
+      this.utils.getEditableColumnDef('tasksLocatorEntity.associatedLayer', 'associatedLayer'),
+
     ];
   }
 

@@ -32,17 +32,14 @@ export class TasksExtractionFmeComponent implements OnInit {
     }
 
     this.columnDefs = [
+
       this.utils.getSelCheckboxColumnDef(),
       columnEditBtn,
-      { headerName: 'ID',  field: 'id', editable: false},
-      { headerName: this.utils.getTranslate('tasksExtractionFMEEntity.cartography'),  field: 'cartography',editable: false},
-      { headerName: this.utils.getTranslate('tasksExtractionFMEEntity.service'),  field: 'service',editable: false,},
-      { headerName: this.utils.getTranslate('tasksExtractionFMEEntity.layer'),  field: 'layer'},
-      {
-        headerName: this.utils.getTranslate('tasksExtractionFMEEntity.dataCreated'), field: 'createdDate',
-        filter: 'agDateColumnFilter', filterParams: this.utils.getDateFilterParams(),
-        editable: false, cellRenderer: (data) => { return this.utils.getDateFormated(data) }
-      }
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('tasksExtractionFMEEntity.cartography', 'cartography'),
+      this.utils.getNonEditableColumnDef('tasksExtractionFMEEntity.service', 'service'),
+      this.utils.getEditableColumnDef('tasksExtractionFMEEntity.layer', 'layer'),
+      this.utils.getDateColumnDef('tasksExtractionFMEEntity.dataCreated', 'createdDate'),
     ];
   }
 

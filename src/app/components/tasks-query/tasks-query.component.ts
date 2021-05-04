@@ -31,12 +31,15 @@ export class TasksQueryComponent implements OnInit {
     }
 
     this.columnDefs = [
+
       this.utils.getSelCheckboxColumnDef(),
       columnEditBtn,
-      { headerName: 'Id',  field: 'id', editable: false},
-      { headerName: this.utils.getTranslate('tasksQueryEntity.task'),  field: 'name'},
-      { headerName: this.utils.getTranslate('tasksQueryEntity.informationType'),  field: 'groupName',editable: false},
-      { headerName: this.utils.getTranslate('tasksQueryEntity.accessType'),  field: 'accesType' },
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('tasksQueryEntity.task', 'name'),
+      this.utils.getNonEditableColumnDef('tasksQueryEntity.informationType', 'groupName'),
+      this.utils.getEditableColumnDef('tasksQueryEntity.accessType', 'accesType'),
+
+
     ];
   }
 

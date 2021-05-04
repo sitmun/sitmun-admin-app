@@ -33,15 +33,17 @@ export class TasksMoreInfoComponent implements OnInit {
     }
     
     this.columnDefs = [
+
+
       this.utils.getSelCheckboxColumnDef(),
       columnEditBtn,
-      { headerName: 'ID',  field: 'id', editable: false},
-      { headerName: this.utils.getTranslate('tasksMoreInfoEntity.task'),  field: 'name'},
-      { headerName: this.utils.getTranslate('tasksMoreInfoEntity.informationType'),  field: 'groupName',editable: false},
-      { headerName: this.utils.getTranslate('tasksMoreInfoEntity.accesType'),  field: 'accesType'},
-      { headerName: this.utils.getTranslate('tasksMoreInfoEntity.command'),  field: 'order'},
-      { headerName: this.utils.getTranslate('tasksMoreInfoEntity.connection'),  field: 'connection',editable: false},
-      { headerName: this.utils.getTranslate('tasksMoreInfoEntity.associatedLayer'),  field: 'associatedLayer' }
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('tasksMoreInfoEntity.task', 'name'),
+      this.utils.getNonEditableColumnDef('tasksMoreInfoEntity.informationType', 'groupName'),
+      this.utils.getEditableColumnDef('tasksMoreInfoEntity.accesType', 'accesType'),
+      this.utils.getEditableColumnDef('tasksMoreInfoEntity.command', 'order'),
+      this.utils.getNonEditableColumnDef('tasksMoreInfoEntity.connection', 'connection'),
+      this.utils.getEditableColumnDef('tasksMoreInfoEntity.associatedLayer', 'associatedLayer'),
     ];
   }
 

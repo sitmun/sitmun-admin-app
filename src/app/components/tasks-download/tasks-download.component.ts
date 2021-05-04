@@ -31,12 +31,13 @@ export class TasksDownloadComponent implements OnInit {
     }
 
     this.columnDefs = [
+
       this.utils.getSelCheckboxColumnDef(),
       columnEditBtn,
-      { headerName: 'ID',  field: 'id', editable: false},
-      { headerName: this.utils.getTranslate('tasksDownloadEntity.task'),  field: 'name'},
-      { headerName: this.utils.getTranslate('tasksDownloadEntity.informationType'),  field: 'groupName', editable: false},
-      { headerName: this.utils.getTranslate('tasksDownloadEntity.extent'),  field: 'format' }
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('tasksDownloadEntity.task', 'name'),
+      this.utils.getNonEditableColumnDef('tasksDownloadEntity.informationType', 'groupName'),
+      this.utils.getEditableColumnDef('tasksDownloadEntity.extent', 'format'),
     ];
   }
 

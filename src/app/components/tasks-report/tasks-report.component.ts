@@ -35,10 +35,10 @@ export class TasksReportComponent implements OnInit {
     this.columnDefs = [
       this.utils.getSelCheckboxColumnDef(),
       columnEditBtn,
-      { headerName: 'ID',  field: 'id', editable: false},
-      { headerName: this.utils.getTranslate('tasksReportEntity.task'),  field: 'task'},
-      { headerName: this.utils.getTranslate('tasksReportEntity.informationType'),  field: 'informationType'},
-      { headerName: this.utils.getTranslate('tasksReportEntity.template'),  field: 'template' }
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('tasksReportEntity.task', 'name'),
+      this.utils.getNonEditableColumnDef('tasksReportEntity.informationType', 'groupName'),
+      this.utils.getEditableColumnDef('tasksReportEntity.template', 'template'),
     ];
   }
 

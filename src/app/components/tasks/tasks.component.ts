@@ -39,8 +39,9 @@ export class TasksComponent implements OnInit {
       this.utils.getSelCheckboxColumnDef(),
       columnEditBtn,
       this.utils.getIdColumnDef(),
-      { headerName: this.utils.getTranslate('tasksEntity.task'), field: 'name' },
-      { headerName: this.utils.getTranslate('tasksEntity.groupTask'), field: 'groupName', editable: false },
+      this.utils.getEditableColumnDef('tasksEntity.task', 'name'),
+      this.utils.getEditableColumnDef('tasksEntity.groupTask', 'groupName'),
+
     ];
   }
 
