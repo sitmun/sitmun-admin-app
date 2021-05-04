@@ -617,6 +617,7 @@
             this.remove = new core.EventEmitter();
             this.new = new core.EventEmitter();
             this.add = new core.EventEmitter();
+            this.discardChanges = new core.EventEmitter();
             this.sendChanges = new core.EventEmitter();
             this.getSelectedRows = new core.EventEmitter();
             this.duplicate = new core.EventEmitter();
@@ -903,6 +904,7 @@
                 if (item.id == undefined || (_this.rowData.find(function (element) { return element.id === item.id; })) == undefined) {
                     if (_this.statusColumn) {
                         item.status = 'pendingCreation';
+                        item.newItem = true;
                     }
                     itemsToAdd.push(item);
                     _this.rowData.push(item);
@@ -1056,14 +1058,25 @@
             this.changesMap.clear();
             //this.previousChangeCounter = 0;
             this.redoCounter = 0;
-            if (this.statusColumn) {
+            if (this.statusColumn && !this.discardNonReverseStatus) {
+                /** @type {?} */
+                var rowsWithStatusModified_1 = [];
                 this.gridApi.forEachNode(function (node) {
                     if (node.data.status === 'pendingModify' || node.data.status === 'pendingDelete') {
-                        node.data.status = 'statusOK';
+                        if (node.data.status === 'pendingDelete') {
+                            rowsWithStatusModified_1.push(node.data);
+                        }
+                        if (node.data.newItem) {
+                            node.data.status = 'pendingCreation';
+                        }
+                        else {
+                            node.data.status = 'statusOK';
+                        }
                     }
                     console.log(node);
                 });
                 this.someStatusHasChangedToDelete = false;
+                this.discardChanges.emit(rowsWithStatusModified_1);
             }
             this.gridApi.redrawRows();
             //this.params.colDef.cellStyle =  {backgroundColor: '#FFFFFF'};
@@ -1260,7 +1273,7 @@
     DataGridComponent.decorators = [
         { type: core.Component, args: [{
                     selector: 'app-data-grid',
-                    template: "<div id=grup1 class=\"editDivBtns\">\r\n    <span *ngIf=\"title\" [translate]=\"title\"> </span>\r\n    <button type=\"button\" title=\"{{ 'cancel' | translate }}\" mat-mini-fab class=\"mini-fab mat-red\" *ngIf=\"discardChangesButton\"\r\n        id=\"deleteChangesButton\" type=\"button\" (click)=\"deleteChanges()\" [disabled]=\"changeCounter <= 0 && !someStatusHasChangedToDelete\">\r\n        <mat-icon fontSet=\"material-icons-round\"> close </mat-icon>\r\n    </button>\r\n    <button type=\"button\" title=\"{{ 'undo' | translate }}\" mat-mini-fab class=\"mini-fab mat-orange\" *ngIf=\"undoButton\"\r\n        id=\"undo\" (click)=\"undo()\" [disabled]=\"changeCounter <= 0\">\r\n        <mat-icon fontSet=\"material-icons-round\"> undo </mat-icon>\r\n    </button>\r\n    <button type=\"button\" title=\"{{ 'redo' | translate }}\" mat-mini-fab class=\"mini-fab mat-orange\" *ngIf=\"redoButton\"\r\n        id=\"redo\" (click)=\"redo()\" [disabled]=\"redoCounter <= 0\">\r\n        <mat-icon fontSet=\"material-icons-round\"> redo </mat-icon>\r\n    </button>\r\n    <button type=\"button\" title=\"{{ 'accept' | translate }}\" mat-mini-fab class=\"mini-fab mat-green\"\r\n        *ngIf=\"applyChangesButton\" id=\"applyChangesButton\" (click)=\"applyChanges()\" [disabled]=\"changeCounter <= 0\">\r\n        <mat-icon fontSet=\"material-icons-round\"> check </mat-icon>\r\n    </button>\r\n</div>\r\n\r\n<div id=grup2 class=\"actionsDivBtns\">\r\n    <label *ngIf=\"globalSearch\" [translate]=\"'search'\"> </label>\r\n    <input *ngIf=\"globalSearch\" type=\"text\" class=\"searchGenericInput\" placeholder=\"\" (keyup)=\"quickSearch()\"\r\n        [(ngModel)]=\"searchValue\" ml-2>\r\n    <label *ngIf=\"changeHeightButton\" [translate]=\"'rowsToShow'\"> </label>\r\n    <mat-button-toggle-group *ngIf=\"changeHeightButton\" class=\"toogleButton\" name=\"fontStyle\" aria-label=\"Font Style\"  value=\"5\">\r\n        <mat-button-toggle value=\"5\" (change)=\"changeHeight($event.value)\">5</mat-button-toggle>\r\n        <mat-button-toggle value=\"20\" (change)=\"changeHeight($event.value)\">20</mat-button-toggle>\r\n        <mat-button-toggle value=\"50\" (change)=\"changeHeight($event.value)\">50</mat-button-toggle>\r\n    </mat-button-toggle-group>\r\n\r\n    <button type=\"button\" *ngIf=\"deleteButton\" mat-flat-button id=\"deleteButton\" class=\"deleteButton\"\r\n        (click)=\"removeData()\" [disabled]=\"!areRowsSelected()\">\r\n        <mat-icon fontSet=\"material-icons-round\"> delete </mat-icon>\r\n        <span [translate]=\"'remove'\"> </span>\r\n\r\n    </button>\r\n    <button type=\"button\" *ngIf=\"actionButton\" mat-flat-button [matMenuTriggerFor]=\"menu\" id=\"actionButton\"\r\n        class=\"actionButton\">\r\n        <span [translate]=\"'actions'\"> </span>\r\n        <mat-icon fontSet=\"material-icons-round\"> keyboard_arrow_down </mat-icon>\r\n    </button>\r\n    <mat-menu #menu=\"matMenu\">\r\n        <button type=\"button\" mat-menu-item *ngIf=\"!hideExportButton\" (click)=\"exportData()\"> {{\"export\" | translate}}\r\n        </button>\r\n        <button type=\"button\" mat-menu-item *ngIf=\"!hideDuplicateButton\" (click)=\"onDuplicateButtonClicked()\">\r\n            {{\"duplicate\" |\r\n            translate}}</button>\r\n        <button type=\"button\" mat-menu-item *ngIf=\"!hideSearchReplaceButton && false\"> {{\"search/replace\" | translate}}</button>\r\n    </mat-menu>\r\n\r\n    <button type=\"button\" *ngIf=\"newButton\" mat-flat-button class=\"newButton\" (click)=\"newData()\">\r\n        <mat-icon fontSet=\"material-icons-round\"> add_circle_outline </mat-icon>\r\n        <span [translate]=\"'new'\"> </span>\r\n    </button>\r\n    <button type=\"button\" *ngIf=\"addButton\" mat-flat-button class=\"newButton\" (click)=\"onAddButtonClicked()\">\r\n        <mat-icon fontSet=\"material-icons-round\"> add_circle_outline </mat-icon>\r\n        <span [translate]=\"'add'\"> </span>\r\n    </button>\r\n\r\n</div>\r\n\r\n<div class=\"row\" style=\" height: 100%\">\r\n    <div id=\"myGrid\" style=\" width:100%; height: 100%\">\r\n        <ag-grid-angular style=\"width: 100%; height: 100%;min-height: 200px;\" [class]=\"themeGrid\"\r\n            [floatingFilter]=\"true\" [rowData]=\"rowData\" [columnDefs]=\"columnDefs\" [gridOptions]=\"gridOptions\"\r\n            [animateRows]=\"true\" [pagination]=\"false\" [modules]=\"modules\" [undoRedoCellEditing]=\"true\"\r\n            [undoRedoCellEditingLimit]=200 [suppressRowClickSelection]=true [frameworkComponents]=\"frameworkComponents\"\r\n            rowSelection=\"multiple\" multiSortKey=\"key\" (filterModified)=\"onFilterModified()\"\r\n            (cellEditingStopped)=\"onCellEditingStopped($event)\" (cellValueChanged)=\"onCellValueChanged($event)\"\r\n            (gridReady)=\"onGridReady($event)\" (firstDataRendered)=\"firstDataRendered()\">\r\n        </ag-grid-angular>\r\n    </div>\r\n</div>",
+                    template: "<div id=grup1 class=\"editDivBtns\">\r\n    <span *ngIf=\"title\" [translate]=\"title\"> </span>\r\n    <button type=\"button\" title=\"{{ 'cancel' | translate }}\" mat-mini-fab class=\"mini-fab mat-red\" *ngIf=\"discardChangesButton\"\r\n        id=\"deleteChangesButton\" type=\"button\" (click)=\"deleteChanges()\" [disabled]=\"changeCounter <= 0 && (!someStatusHasChangedToDelete || discardNonReverseStatus  )\">\r\n        <mat-icon fontSet=\"material-icons-round\"> close </mat-icon>\r\n    </button>\r\n    <button type=\"button\" title=\"{{ 'undo' | translate }}\" mat-mini-fab class=\"mini-fab mat-orange\" *ngIf=\"undoButton\"\r\n        id=\"undo\" (click)=\"undo()\" [disabled]=\"changeCounter <= 0\">\r\n        <mat-icon fontSet=\"material-icons-round\"> undo </mat-icon>\r\n    </button>\r\n    <button type=\"button\" title=\"{{ 'redo' | translate }}\" mat-mini-fab class=\"mini-fab mat-orange\" *ngIf=\"redoButton\"\r\n        id=\"redo\" (click)=\"redo()\" [disabled]=\"redoCounter <= 0\">\r\n        <mat-icon fontSet=\"material-icons-round\"> redo </mat-icon>\r\n    </button>\r\n    <button type=\"button\" title=\"{{ 'accept' | translate }}\" mat-mini-fab class=\"mini-fab mat-green\"\r\n        *ngIf=\"applyChangesButton\" id=\"applyChangesButton\" (click)=\"applyChanges()\" [disabled]=\"changeCounter <= 0\">\r\n        <mat-icon fontSet=\"material-icons-round\"> check </mat-icon>\r\n    </button>\r\n</div>\r\n\r\n<div id=grup2 class=\"actionsDivBtns\">\r\n    <label *ngIf=\"globalSearch\" [translate]=\"'search'\"> </label>\r\n    <input *ngIf=\"globalSearch\" type=\"text\" class=\"searchGenericInput\" placeholder=\"\" (keyup)=\"quickSearch()\"\r\n        [(ngModel)]=\"searchValue\" ml-2>\r\n    <label *ngIf=\"changeHeightButton\" [translate]=\"'rowsToShow'\"> </label>\r\n    <mat-button-toggle-group *ngIf=\"changeHeightButton\" class=\"toogleButton\" name=\"fontStyle\" aria-label=\"Font Style\"  value=\"5\">\r\n        <mat-button-toggle value=\"5\" (change)=\"changeHeight($event.value)\">5</mat-button-toggle>\r\n        <mat-button-toggle value=\"20\" (change)=\"changeHeight($event.value)\">20</mat-button-toggle>\r\n        <mat-button-toggle value=\"50\" (change)=\"changeHeight($event.value)\">50</mat-button-toggle>\r\n    </mat-button-toggle-group>\r\n\r\n    <button type=\"button\" *ngIf=\"deleteButton\" mat-flat-button id=\"deleteButton\" class=\"deleteButton\"\r\n        (click)=\"removeData()\" [disabled]=\"!areRowsSelected()\">\r\n        <mat-icon fontSet=\"material-icons-round\"> delete </mat-icon>\r\n        <span [translate]=\"'remove'\"> </span>\r\n\r\n    </button>\r\n    <button type=\"button\" *ngIf=\"actionButton\" mat-flat-button [matMenuTriggerFor]=\"menu\" id=\"actionButton\"\r\n        class=\"actionButton\">\r\n        <span [translate]=\"'actions'\"> </span>\r\n        <mat-icon fontSet=\"material-icons-round\"> keyboard_arrow_down </mat-icon>\r\n    </button>\r\n    <mat-menu #menu=\"matMenu\">\r\n        <button type=\"button\" mat-menu-item *ngIf=\"!hideExportButton\" (click)=\"exportData()\"> {{\"export\" | translate}}\r\n        </button>\r\n        <button type=\"button\" mat-menu-item *ngIf=\"!hideDuplicateButton\" (click)=\"onDuplicateButtonClicked()\">\r\n            {{\"duplicate\" |\r\n            translate}}</button>\r\n        <button type=\"button\" mat-menu-item *ngIf=\"!hideSearchReplaceButton && false\"> {{\"search/replace\" | translate}}</button>\r\n    </mat-menu>\r\n\r\n    <button type=\"button\" *ngIf=\"newButton\" mat-flat-button class=\"newButton\" (click)=\"newData()\">\r\n        <mat-icon fontSet=\"material-icons-round\"> add_circle_outline </mat-icon>\r\n        <span [translate]=\"'new'\"> </span>\r\n    </button>\r\n    <button type=\"button\" *ngIf=\"addButton\" mat-flat-button class=\"newButton\" (click)=\"onAddButtonClicked()\">\r\n        <mat-icon fontSet=\"material-icons-round\"> add_circle_outline </mat-icon>\r\n        <span [translate]=\"'add'\"> </span>\r\n    </button>\r\n\r\n</div>\r\n\r\n<div class=\"row\" style=\" height: 100%\">\r\n    <div id=\"myGrid\" style=\" width:100%; height: 100%\">\r\n        <ag-grid-angular style=\"width: 100%; height: 100%;min-height: 200px;\" [class]=\"themeGrid\"\r\n            [floatingFilter]=\"true\" [rowData]=\"rowData\" [columnDefs]=\"columnDefs\" [gridOptions]=\"gridOptions\"\r\n            [animateRows]=\"true\" [pagination]=\"false\" [modules]=\"modules\" [undoRedoCellEditing]=\"true\"\r\n            [undoRedoCellEditingLimit]=200 [suppressRowClickSelection]=true [frameworkComponents]=\"frameworkComponents\"\r\n            rowSelection=\"multiple\" multiSortKey=\"key\" (filterModified)=\"onFilterModified()\"\r\n            (cellEditingStopped)=\"onCellEditingStopped($event)\" (cellValueChanged)=\"onCellValueChanged($event)\"\r\n            (gridReady)=\"onGridReady($event)\" (firstDataRendered)=\"firstDataRendered()\">\r\n        </ag-grid-angular>\r\n    </div>\r\n</div>",
                     styles: ["@charset \"UTF-8\";input,label{display:inline-block;margin:5px 5px 5px 10px}.mat-flat-button.mat-orange,.mat-icon.mat-orange,.mat-mini-fab.mat-orange,.mat-raised-button.mat-orange{background-color:#ff9300!important;color:#fff!important}.mat-flat-button.mat-orange:disabled,.mat-icon.mat-orange:disabled,.mat-mini-fab.mat-orange:disabled,.mat-raised-button.mat-orange:disabled{background:#ffc97f!important;color:#fff!important}.mat-flat-button.mat-green,.mat-icon.mat-green,.mat-mini-fab.mat-green,.mat-raised-button.mat-green{background-color:#68a225!important;color:#fff!important}.mat-flat-button.mat-green:disabled,.mat-icon.mat-green:disabled,.mat-mini-fab.mat-green:disabled,.mat-raised-button.mat-green:disabled{background-color:#83976c!important;color:#fff!important}.mat-flat-button.mat-red,.mat-icon.mat-red,.mat-mini-fab.mat-red,.mat-raised-button.mat-red{background-color:#bf0000!important;color:#fff!important}.mat-flat-button.mat-red:disabled,.mat-icon.mat-red:disabled,.mat-mini-fab.mat-red:disabled,.mat-raised-button.mat-red:disabled{background-color:#da8c8e!important;color:#fff!important}.validateButton{background-color:#ff9300;color:#fff;margin-top:34px!important;min-width:85px}.deleteButton,.validateButton{-ms-grid-column-align:right!important;height:40px;justify-self:right!important}.deleteButton{border:1px solid #bf0000!important;color:#bf0000;float:inherit!important;min-width:85px!important}.deleteButton:disabled{background-color:inherit!important;border:1px solid rgba(0,0,0,.26)!important;color:rgba(0,0,0,.26) solid 1px!important}.actionButton,.returnButton{border:1px solid #ff9300!important;color:#ff9300}.actionButton,.newButton,.returnButton,.saveButton{-ms-grid-column-align:right!important;float:inherit!important;height:40px;justify-self:right!important;min-width:85px!important}.newButton,.saveButton{background-color:#68a225;color:#fff}.editDivBtns{height:30px!important;line-height:30px!important;margin-left:10px;text-align:start;width:130px}.actionsDivBtns{height:50px;text-align:end;width:calc(100% - 140px)}.actionsDivBtns,.editDivBtns{display:inline-block!important}.actionsDivBtns .searchGenericInput{display:inline-block!important;height:41px!important;margin:0 5px 5px 10px!important;width:45%!important}.ag-body-viewport.ag-layout-normal ::-webkit-scrollbar-thumb{background:#eee}\u200B .ag-body-viewport.ag-layout-normal ::-webkit-scrollbar{height:2em;width:2em}.ag-body-viewport.ag-layout-normal ::-webkit-scrollbar-button{background:#ccc}.ag-body-viewport.ag-layout-normal::-webkit-scrollbar-track-piece{background:#888}.mini-fab{height:28px!important;line-height:22px!important;margin-right:3px!important;margin-top:7px!important;width:28px!important}.mini-fab .mat-button-wrapper{height:24px!important;line-height:22px!important;padding:1px 0!important;width:24px!important}.mini-fab .mat-button-wrapper .mat-icon{font-size:20px;line-height:22px;padding-right:0}.toogleButton{align-items:center;height:40px;margin-right:10px;vertical-align:bottom}"]
                 }] }
     ];
@@ -1280,6 +1293,7 @@
         columnDefs: [{ type: core.Input }],
         getAll: [{ type: core.Input }],
         discardChangesButton: [{ type: core.Input }],
+        discardNonReverseStatus: [{ type: core.Input }],
         id: [{ type: core.Input }],
         undoButton: [{ type: core.Input }],
         defaultColumnSorting: [{ type: core.Input }],
@@ -1302,6 +1316,7 @@
         remove: [{ type: core.Output }],
         new: [{ type: core.Output }],
         add: [{ type: core.Output }],
+        discardChanges: [{ type: core.Output }],
         sendChanges: [{ type: core.Output }],
         duplicate: [{ type: core.Output }],
         getSelectedRows: [{ type: core.Output }],
@@ -1368,6 +1383,8 @@
         /** @type {?} */
         DataGridComponent.prototype.discardChangesButton;
         /** @type {?} */
+        DataGridComponent.prototype.discardNonReverseStatus;
+        /** @type {?} */
         DataGridComponent.prototype.id;
         /** @type {?} */
         DataGridComponent.prototype.undoButton;
@@ -1411,6 +1428,8 @@
         DataGridComponent.prototype.new;
         /** @type {?} */
         DataGridComponent.prototype.add;
+        /** @type {?} */
+        DataGridComponent.prototype.discardChanges;
         /** @type {?} */
         DataGridComponent.prototype.sendChanges;
         /** @type {?} */
@@ -1882,6 +1901,19 @@
             }
         };
         /**
+         * @param {?} data
+         * @return {?}
+         */
+        FileDatabase.prototype.setOrder = function (data) {
+            for (var i = 0; i < data.length; i++) {
+                data[i].order = i;
+                if (!data[i].status) {
+                    data[i].status = "Modified";
+                }
+            }
+            return data;
+        };
+        /**
          * @param {?} from
          * @param {?} to
          * @param {?} changedData
@@ -1958,6 +1990,7 @@
             var newItem = this.getNewItem(node);
             newItem.parent = parent == null || parent.id == undefined ? null : parent.id;
             parent.children.push(newItem);
+            this.setOrder(parent.children);
             this.dataChange.next(changedData);
             return newItem;
         };
@@ -1975,9 +2008,11 @@
             newItem.parent = parentNode == null || parentNode.id == undefined ? null : parentNode.id;
             if (parentNode != null) {
                 parentNode.children.splice(parentNode.children.indexOf(node), 0, newItem);
+                this.setOrder(parentNode.children);
             }
             else {
                 changedData.children.splice(changedData.children.indexOf(node), 0, newItem);
+                this.setOrder(changedData.children);
             }
             this.dataChange.next(changedData);
             return newItem;
@@ -1996,9 +2031,11 @@
             newItem.parent = parentNode == null || parentNode.id == undefined ? null : parentNode.id;
             if (parentNode != null) {
                 parentNode.children.splice(parentNode.children.indexOf(node) + 1, 0, newItem);
+                this.setOrder(parentNode.children);
             }
             else {
                 changedData.children.splice(changedData.children.indexOf(node) + 1, 0, newItem);
+                this.setOrder(changedData.children);
             }
             this.dataChange.next(changedData);
             return newItem;
@@ -2247,9 +2284,21 @@
             /** @type {?} */
             var changedData = JSON.parse(JSON.stringify(this.dataSource.data));
             /** @type {?} */
-            var toFlatNode = this.findNodeSiblings(changedData[0].children, node.id).find(function (nodeAct) { return nodeAct.id === node.id; });
+            var toFlatNode;
+            if (node.id === undefined) {
+                toFlatNode = changedData[0];
+            }
+            else {
+                toFlatNode = this.findNodeSiblings(changedData[0].children, node.id).find(function (nodeAct) { return nodeAct.id === node.id; });
+            }
             /** @type {?} */
-            var fromFlatNode = this.findNodeSiblings(changedData[0].children, this.dragNode.id).find(function (nodeAct) { return nodeAct.id === _this.dragNode.id; });
+            var fromFlatNode;
+            if (this.dragNode.id === undefined) {
+                fromFlatNode = changedData[0];
+            }
+            else {
+                fromFlatNode = this.findNodeSiblings(changedData[0].children, this.dragNode.id).find(function (nodeAct) { return nodeAct.id === _this.dragNode.id; });
+            }
             if (this.dragNode.status != "pendingDelete" && node !== this.dragNode && (this.dragNodeExpandOverArea !== 'center' || (this.dragNodeExpandOverArea === 'center' && toFlatNode.isFolder))) {
                 /** @type {?} */
                 var newItem = void 0;
@@ -2291,12 +2340,26 @@
          */
         DataTreeComponent.prototype.sortByOrder = function (data) {
             var _this = this;
-            data.sort(function (a, b) { return a.order.toString().localeCompare(b.order.toString()); });
+            // data.sort((a,b) => a.order.toString().localeCompare( b.order.toString()));
+            data.sort(function (a, b) { return (a.order > b.order) ? 1 : ((b.order > a.order) ? -1 : 0); });
             data.forEach(function (item) {
                 if (item.children.length > 0) {
                     _this.sortByOrder(item.children);
                 }
             });
+        };
+        /**
+         * @param {?} data
+         * @return {?}
+         */
+        DataTreeComponent.prototype.setOrder = function (data) {
+            for (var i = 0; i < data.length; i++) {
+                data[i].order = i;
+                if (!data[i].status) {
+                    data[i].status = "Modified";
+                }
+            }
+            return data;
         };
         /**
          * @param {?} data

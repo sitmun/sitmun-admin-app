@@ -20,7 +20,8 @@ import { Location } from '@angular/common'
   styleUrls: ['./connection-form.component.scss']
 })
 export class ConnectionFormComponent implements OnInit {
-
+  
+  hidePassword = true;
 
   //Form
   formConnection: FormGroup;

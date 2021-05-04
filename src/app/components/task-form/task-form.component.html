@@ -1,6 +1,6 @@
 <div class="titleDiv">
     <h4>
-        <mat-icon aria-hidden="false" svgIcon="menu_tasques"></mat-icon>  {{ "tasksEntity.tasks" | translate }}-{{taskTypeNameTranslated}} 
+        <mat-icon aria-hidden="false" svgIcon="menu_tasques"></mat-icon>  {{ "tasksEntity.tasks" | translate }}-{{taskTypeNameTranslated}}-{{(taskID==-1?"new":"edit") | translate}}
     </h4>
     <span class="divider"></span>
 </div>
@@ -132,7 +132,7 @@
     </form>
 
 </div>
-
+<!-- not this.sqlElementModification[i].element  -->
 <div class="tableDiv" *ngIf="dataLoaded">
     <mat-accordion *ngFor="let table of properties.tables; let i = index" multi>
         <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
@@ -147,14 +147,17 @@
                 <div class="appDataGridEditDiv">
                     <app-data-grid [changeHeightButton]="true" [columnDefs]='columnDefsTables[i]'
                         [themeGrid]='themeGrid' [getAll]='getAlls[i]' [discardChangesButton]=true [actionButton]=true
-                        [redoButton]=true [undoButton]=true [deleteButton]=true
+                        [redoButton]="!formHasSqlElementSelector[i]" [undoButton]="!formHasSqlElementSelector[i]" [deleteButton]=true [discardNonReverseStatus]="formHasSqlElementSelector[i]"
                         [newButton]="table.controlAdd.control==='formPopup'"
                         [addButton]="table.controlAdd.control!=='formPopup'"
                         [hideDuplicateButton]="table.controlAdd.control!=='formPopup'"
                         [eventAddItemsSubscription]='addelements[i].asObservable()'
+                        [eventGetAllRowsSubscription]='getAllElementsEvent[i].asObservable()'
                         defaultColumnSorting="order"
                         (add)="openPopupDialog(null, table.controlAdd.data, table.controlAdd.columns, table.label, true, false, false, i)"
-                        (new)="openPopupFormDialog(i, table.label)" (getAllRows)="getAllRowsTable($event, i)">
+                        (new)="openPopupFormDialog(i, table.label)" (getAllRows)="getAllRowsTable($event, i)"
+                        (remove)="restoreElementsSqlSelector($event, i)" (discardChanges)="removeElementsSqlSelector($event, i)"                       
+                        >
                         
                     </app-data-grid>
                 </div>
@@ -229,7 +232,7 @@
                         <mat-select  matInput [formControlName]=element.fieldName
                         [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )" class="form-control">
                             <mat-option [value]="dataElement"
-                                *ngFor="let dataElement of getDataSQLElement(element.values.element, element.values.patternToSearch)">
+                                *ngFor="let dataElement of getDataSQLElement(element.values.element, element.values.patternToSearch, i)">
                                 {{ dataElement}}
                             </mat-option>
                         </mat-select>

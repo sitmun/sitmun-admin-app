@@ -1,0 +1,10 @@
+<div class="titleDiv">
+    <h4><mat-icon aria-hidden="false"  svgIcon="menu_tasques"></mat-icon> {{ "tasksEditionEntity.dataTable" | translate }}</h4>
+    <span class="divider"></span>
+</div>
+<div class="appDataGridDiv">
+    <app-data-grid id="taskEdition" [columnDefs]="columnDefs" [themeGrid]='themeGrid' [getAll]='getAllTasksEdit' [globalSearch]=true [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
+    [discardChangesButton]=true [redoButton]=true [undoButton]=true [applyChangesButton]=true  [deleteButton]=true [newButton]=true 
+    [actionButton]=true (remove)="removeData($event)" (new)='newData($event)' (sendChanges)='applyChanges($event)' > </app-data-grid>
+</div>
+

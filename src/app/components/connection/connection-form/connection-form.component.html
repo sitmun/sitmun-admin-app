@@ -52,7 +52,8 @@
                 {{'connectionEntity.password' | translate}}
               </label>
               <mat-form-field appearance="outline">
-                <input matInput type="text" formControlName="password">
+                <mat-icon matSuffix (click)="hidePassword = !hidePassword">{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+                <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
               </mat-form-field>
             </div>
       </div>

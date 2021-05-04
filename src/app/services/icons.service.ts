@@ -71,6 +71,10 @@ export class IconsService {
           icon: 'menu_tasques',
           children: [
             {
+              id: 'tasks',
+              translation: 'basics',
+            },
+            {
               id: 'tasksDownload',
             },
 
@@ -96,6 +100,24 @@ export class IconsService {
 
             {
               id: 'tasksEdition',
+              children: [
+                {
+                  id: 'tasksEditionCartographyTable',
+                  translation: 'cartographyTableWFT'
+                },
+                {
+                  id: 'tasksEditionDataTable',
+                  translation: 'dataTable',
+                },
+                {
+                  id: 'tasksEditionRelationTable',
+                  translation: 'relationTable',
+                },
+                {
+                  id: 'tasksEditionSearchView',
+                  translation: 'searchView',
+                },
+              ]
             },
 
             {

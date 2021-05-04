@@ -17,6 +17,8 @@
   "undo": "Desfer",
   "return": "Tornar",
   "copy_": "copia_",
+  "expandAll": "Expandir",
+  "collapseAll": "Contreure",
   "pendingDelete":"Pendent eliminar",
   "pendingCreation":"Pendent crear",
   "pendingModify":"Pendent modificar",
@@ -50,6 +52,7 @@
     "aranese": "Aranès"
   },
   "sideMenu": {
+    "basics": "Basics",
     "generalData": "Dades Generals",
     "connection": "Connexió",
     "service": "Servei",
@@ -72,7 +75,11 @@
     "tasksExtractionFME": "Extracció FME",
     "application": "Aplicació",
     "taskGroup": "Grup tasca",
-    "status": "Estat"
+    "status": "Estat",
+    "cartographyTableWFT": "Taula de cartografia(WFS-T)",
+    "dataTable": "Taula de dades",
+    "relationTable": "Taula de relació",
+    "searchView": "Vista cerca"
   },
   "dashboard": {
     "newUsers": "Nous usuaris",
@@ -81,7 +88,11 @@
     "territories": "Territoris",
     "cartographies": "Cartografies",
     "applications": "Aplicacions",
-    "applicationsTerritories": "Aplicacions de territoris"
+    "applicationsTerritories": "Aplicacions de territoris",
+    "usersAppSitmunMun": "Usuaris aplicació SITMUN municipal",
+    "usersAppSitmunProv": "Usuaris aplicació SITMUN provincial",
+    "usersAppSitmunSupra": "Usuaris aplicació SITMUN supramunicipal",
+    "users": "Usuaris"
   },
   "userEntity": {
     "generalData": "Dades Generals",
@@ -434,7 +445,10 @@
     "More info": "Més informació",
     "Locator": "Localitzador",
     "Report": "Informe",
-    "Cartography table (WFS)": "Edició",
+    "Cartography table (WFS)": "Taula de cartografia(WFS-T)",
+    "Data table": "Taula de dades",
+    "Relation table": "Taula de relacions",
+    "Location view": "Vista de cerca",
     "Thematic": "Temàtic",
     "Extraction (FME)" :"Extracció FME",
     "Basic": "General"

@@ -17,6 +17,8 @@
   "undo": "Undo",
   "return": "Return",
   "copy_": "copy_",
+  "expandAll": "Expand",
+  "collapseAll": "Collapse",
   "pendingDelete":"Pending delete",
   "pendingCreation":"Pendent creation",
   "pendingModify":"Pendent modify",
@@ -50,6 +52,7 @@
     "aranese": "Aranese"
   },
   "sideMenu": {
+    "basics": "Basics",
     "generalData": "General Data",
     "connection": "Connection",
     "service": "Service",
@@ -72,7 +75,11 @@
     "tasksExtractionFME": "FME Extraction",
     "application": "Application",
     "taskGroup": "Task group",
-    "status": "Status"
+    "status": "Status",
+    "cartographyTableWFT": "Cartography table (WFS-T)",
+    "dataTable": "Data table",
+    "relationTable": "Relationship table",
+    "searchView": "Search view"
   },
   "dashboard": {
     "newUsers": "New users",
@@ -81,7 +88,11 @@
     "territories": "Territories",
     "cartographies": "Cartographies",
     "applications": "Applications",
-    "applicationsTerritories": "Applications territories"
+    "applicationsTerritories": "Applications territories",
+    "usersAppSitmunMun": "Users application SITMUN municipal",
+    "usersAppSitmunProv": "Users application SITMUN provincial",
+    "usersAppSitmunSupra": "Users application SITMUN supramunicipal",
+    "users": "Users"
   },
   "userEntity": {
     "generalData": "General Data",
@@ -434,7 +445,10 @@
     "More info": "More information",
     "Locator": "Locator",
     "Report": "Report",
-    "Cartography table (WFS)": "Edition",
+    "Cartography table (WFS)": "Tabla de cartografía(WFS-T)",
+    "Data table": "Tabla de datos",
+    "Relation table": "Tabla de relación",
+    "Location view": "Vista de búsqueda",
     "Thematic": "Thematic",
     "Extraction (FME)" :"Extraction FME",
     "Basic": "General"
@@ -443,7 +457,7 @@
     "generalData": "General Data",
     "tasksQuery": "Tasks-Queries",
     "name": "Name",
-    "task": "Tasca",
+    "task": "Task",
     "informationType": "Information Type",
     "accessType": "Access Type",
     "command": "Command",
@@ -472,7 +486,7 @@
     "application": "Application",
     "code": "Code",
     "note": "Observations",
-    "task": "Tasca",
+    "task": "Task",
     "groupTask": "Group task",
     "path": "Path",
     "extent": "Extension",
@@ -484,7 +498,7 @@
   "tasksDocumentEntity": {
     "generalData": "General Data",
     "tasksDocument": "Tasks-Document",
-    "task": "Tasca",
+    "task": "Task",
     "informationType": "Information type",
     "path": "Path",
     "extent": "Extension",
@@ -557,7 +571,7 @@
   "tasksLocatorEntity": {
     "generalData": "General Data",
     "tasksLocator": "Tasks-Locator",
-    "task": "Tasca",
+    "task": "Task",
     "informationType": "Information Type",
     "accesType": "Access Type",
     "command": "Command",
@@ -582,7 +596,7 @@
   "tasksMoreInfoEntity": {
     "generalData": "General Data",
     "tasksMoreInfo": "Tasks-More Information",
-    "task": "Tasca",
+    "task": "Task",
     "informationType": "Information type",
     "accesType": "Access type",
     "command": "Command",
@@ -608,7 +622,7 @@
   "tasksReportEntity": {
     "generalData": "General Data",
     "tasksReport": "Tasks-Report",
-    "task": "Tasca",
+    "task": "Task",
     "informationType": "Information type",
     "template": "Template",
     "taskGroup": "Task group",

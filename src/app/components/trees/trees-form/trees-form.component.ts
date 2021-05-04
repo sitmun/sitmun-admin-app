@@ -537,7 +537,10 @@ export class TreesFormComponent implements OnInit {
             }
 
           }
-          else { currentParent=null;}
+          else {
+             currentParent=null;
+             treeNodeObj.parent = null;
+            }
           
           if (currentParent !== undefined)
           {

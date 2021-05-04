@@ -119,6 +119,10 @@ import { TasksFormComponent } from './components/tasks/tasks-form/tasks-form.com
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { TaskFormComponent } from './components/task-form/task-form.component';
 import { NgTemplateNameDirective } from './components/task-form/ng-template-name.directive';
+import { TasksEditionCartographyTableComponent } from './components/tasks-edition-cartography-table/tasks-edition-cartography-table.component';
+import { TasksEditionDataTableComponent } from './components/tasks-edition-data-table/tasks-edition-data-table.component';
+import { TasksEditionRelationTableComponent } from './components/tasks-edition-relation-table/tasks-edition-relation-table.component';
+import { TasksEditionSearchViewComponent } from './components/tasks-edition-search-view/tasks-edition-search-view.component';
 
 
 
@@ -174,6 +178,10 @@ import { NgTemplateNameDirective } from './components/task-form/ng-template-name
     DashboardComponent,
     TaskFormComponent,
     NgTemplateNameDirective,
+    TasksEditionCartographyTableComponent,
+    TasksEditionDataTableComponent,
+    TasksEditionRelationTableComponent,
+    TasksEditionSearchViewComponent,
   ],
   imports: [
     BrowserModule,

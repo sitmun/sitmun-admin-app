@@ -33,6 +33,10 @@ export const config = {
     'VISEdition': "Location view",
     'HIDDENEdition': "edicionHIDDEN"
   },
+  taskSelectorFieldsForm:{
+    "groupId": "group",
+    "uiId": "ui"
+  },
   languages: [
     { id: "ca", name: "catalan" },
     { id: "es", name: "spanish" },

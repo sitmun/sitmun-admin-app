@@ -261,6 +261,7 @@ export class ServiceFormComponent implements OnInit {
 
   getCapabilitiesDataService(){
     this.http.get(`${this.serviceForm.value.serviceURL}?request=GetCapabilities`, { responseType: 'text' }).subscribe(resp => {
+      debugger;
 
       console.log(resp);
       // this.router.navigate(["/company", resp.id, "formConnection"]);
@@ -270,10 +271,15 @@ export class ServiceFormComponent implements OnInit {
         this.changeServiceDataByCapabilities();
    
       });
+    },
+    (err) => {
+      this.utils.showErrorMessage ("ERROR")
+
     });
   }
 
   changeServiceDataByCapabilities(){
+    debugger;
     if (this.serviceCapabilitiesData.WMT_MS_CAPABILITIES.CAPABILITY.LAYER.SRS !== null) {
       this.projections=[];
       this.serviceCapabilitiesData.WMT_MS_CAPABILITIES.CAPABILITY.LAYER.SRS.forEach((projection) => {

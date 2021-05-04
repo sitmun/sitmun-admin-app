@@ -40,7 +40,7 @@
           {{'serviceEntity.description' | translate}}
         </label>
         <mat-form-field appearance="outline">
-          <input matInput type="text" formControlName="description" required>
+          <textarea matInput type="text" formControlName="description" required> </textarea> 
           <mat-icon matSuffix class="iconTranslate" (click)="onTranslationButtonClicked()" svgIcon="ic_translate"></mat-icon>
         </mat-form-field>
       </div>
@@ -105,9 +105,9 @@
           </mat-chip-list>
         </mat-form-field>
       </div>
-      <button type="button" *ngIf="serviceID==-1" (click)="getCapabilitiesDataService()" mat-flat-button
+      <button type="button" *ngIf="serviceID==-1 && serviceForm.value.type=='WMS' " (click)="getCapabilitiesDataService()" mat-flat-button
       class="validateButton">{{ "serviceEntity.getData" | translate }}</button>
-    <button type="button" *ngIf="serviceID!=-1" (click)="getCapabilitiesDataService()" mat-flat-button
+    <button type="button" *ngIf="serviceID!=-1 && serviceForm.value.type=='WMS'" (click)="getCapabilitiesDataService()" mat-flat-button
       class="validateButton">{{ "serviceEntity.updateData" | translate }}</button>
     </div>
 
@@ -131,7 +131,7 @@
             [eventAddItemsSubscription]='addElementsEventParameters.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventParameters.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()' [discardChangesButton]=true
-            [redoButton]=true [undoButton]=true [deleteButton]=true [newButton]=true
+            [redoButton]=true [undoButton]=true [deleteButton]=true [newButton]=true addFieldRestriction="name"
             (getAllRows)="getAllRowsParameters($event)" [actionButton]=true (duplicate)='duplicateParameters($event)'
             (new)="openParametersDialog($event)"> </app-data-grid>
         </div>

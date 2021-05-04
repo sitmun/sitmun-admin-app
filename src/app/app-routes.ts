@@ -46,6 +46,10 @@ import { TasksExtractionFmeFormComponent } from './components/tasks-extraction-f
 import { TasksFormComponent } from './components/tasks/tasks-form/tasks-form.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { TaskFormComponent } from './components/task-form/task-form.component';
+import { TasksEditionCartographyTableComponent } from './components/tasks-edition-cartography-table/tasks-edition-cartography-table.component';
+import { TasksEditionDataTableComponent } from './components/tasks-edition-data-table/tasks-edition-data-table.component';
+import { TasksEditionRelationTableComponent } from './components/tasks-edition-relation-table/tasks-edition-relation-table.component';
+import { TasksEditionSearchViewComponent } from './components/tasks-edition-search-view/tasks-edition-search-view.component';
 
 export const APP_ROUTES: Routes = [
     {path: 'index', component: IndexComponent},
@@ -80,6 +84,10 @@ export const APP_ROUTES: Routes = [
     {path: 'tasksReport', component: TasksReportComponent},
     {path: 'tasksReport/:id/tasksReportForm', component: TasksReportFormComponent},
     {path: 'tasksEdition', component: TasksEditionComponent },
+    {path: 'tasksEditionCartographyTable', component: TasksEditionCartographyTableComponent },
+    {path: 'tasksEditionDataTable', component: TasksEditionDataTableComponent },
+    {path: 'tasksEditionRelationTable', component: TasksEditionRelationTableComponent },
+    {path: 'tasksEditionSearchView', component: TasksEditionSearchViewComponent },
     {path: 'tasksEdition/:id/tasksEditionForm', component: TasksEditionFormComponent},
     {path: 'tasksThematic', component: TasksThematicComponent },
     {path: 'tasksThematic/:id/tasksThematicForm', component: TasksThematicFormComponent},

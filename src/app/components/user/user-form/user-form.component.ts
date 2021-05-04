@@ -127,7 +127,7 @@ export class UserFormComponent implements OnInit {
 
     this.columnDefsData = [
       this.utils.getSelCheckboxColumnDef(),
-      this.utils.getEditableColumnDef('userEntity.territory', 'territoryName'),
+      this.utils.getNonEditableColumnDef('userEntity.territory', 'territoryName'),
       this.utils.getEditableColumnDef('userEntity.position', 'name'),
       this.utils.getEditableColumnDef('userEntity.organization', 'organization'),
       this.utils.getEditableColumnDef('userEntity.mail', 'email'),
@@ -149,17 +149,6 @@ export class UserFormComponent implements OnInit {
       this.utils.getIdColumnDef(),
       this.utils.getNonEditableColumnDef('userEntity.name', 'name'),
     ];
-
-    this.columnDefsTerritoryDataDialog = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getNonEditableColumnDef('userEntity.territory', 'territoryName'),
-      this.utils.getNonEditableColumnDef('userEntity.position', 'name'),
-      this.utils.getNonEditableColumnDef('userEntity.organization', 'organization'),
-      this.utils.getNonEditableColumnDef('userEntity.mail', 'email'),
-      this.utils.getDateColumnDef('userEntity.expirationDate', 'expirationDate'),
-      this.utils.getDateColumnDef('userEntity.dataCreated', 'createdDate'),
-    ];
-
 
   }
 

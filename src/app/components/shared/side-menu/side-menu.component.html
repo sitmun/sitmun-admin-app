@@ -15,17 +15,40 @@
 
                         <mat-expansion-panel-header id="header"> 
                            <mat-panel-title>
-                            <a  [routerLink]="[option.id]" routerLinkActive="active" class="side-nav-option"> 
+                            <a class="side-nav-option"> 
                                 <mat-icon aria-hidden="false" aria-label="Example home icon" svgIcon="{{ option.icon }}"></mat-icon>
-                                <span>{{ "sideMenu."+option.id | translate }} </span>
+                                <!-- <span>{{ "sideMenu."+option.id | translate }} </span> -->
+                                <span>{{option.translation?"sideMenu."+option.translation:"sideMenu."+option.id | translate}}</span>
                             </a>
                             </mat-panel-title>
                         </mat-expansion-panel-header>
-                        <li *ngFor="let expandOption of option.children">
-                            <a  [routerLink]="[expandOption.id]"  routerLinkActive="active" > 
-                                <span> {{ "sideMenu."+expandOption.id | translate }}</span>
-                                
+                        <li *ngFor="let expandOption of option.children"  class="side-nav-option">
+                            <a *ngIf="expandOption.children == null"  [routerLink]="[expandOption.id]"  routerLinkActive="active" > 
+                                <span>{{(expandOption.translation?"sideMenu."+expandOption.translation:"sideMenu."+expandOption.id) | translate}}</span>                                
                             </a>
+
+<!-- class="expandOptionChildren" -->
+                            <mat-expansion-panel class="mat-elevation-z0" *ngIf="expandOption.children != null" >
+
+                                <mat-expansion-panel-header id="header"> 
+                                   <mat-panel-title>
+                                    <a class="side-nav-option"> 
+                                        <mat-icon aria-hidden="false" aria-label="Example home icon" svgIcon="{{ expandOption.icon }}"></mat-icon>
+                                        <a class="childrenOption"  > 
+                                            <span class="expandOptionChildren" >{{(expandOption.translation?"sideMenu."+expandOption.translation:"sideMenu."+expandOption.id) | translate}}</span>                                
+                                        </a>
+                                        <!-- <mat-icon aria-hidden="false" aria-label="Example home icon" svgIcon="{{ expandOption.icon }}"></mat-icon> -->
+                                        <!-- <span>{{ "sideMenu."+expandOption.id | translate }} </span> -->
+                                        <!-- <span>{{expandOption.translation?"sideMenu."+expandOption.translation:"sideMenu."+expandOption.id | translate}}</span> -->
+                                    </a>
+                                    </mat-panel-title>
+                                </mat-expansion-panel-header>
+                                <li *ngFor="let expandOptionOfChildren of expandOption.children" class="side-nav-option">
+                                    <a  *ngIf="expandOptionOfChildren.children == null"  [routerLink]="[expandOptionOfChildren.id]"  routerLinkActive="active" > 
+                                        <span >{{(expandOptionOfChildren.translation?"sideMenu."+expandOptionOfChildren.translation:"sideMenu."+expandOptionOfChildren.id) | translate}}</span>                                
+                                    </a>
+                                </li>
+                            </mat-expansion-panel>  
                          </li>
                         
                     </mat-expansion-panel>  

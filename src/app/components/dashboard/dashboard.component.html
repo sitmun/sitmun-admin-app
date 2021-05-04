@@ -7,19 +7,19 @@
     <mat-grid-tile *ngFor="let kpi of KPIsTable; let i = index" class="matgridtitle"> 
         <div class="totalkpi">
           <div><span class="numKpi">{{kpi.text}}</span></div>
-          <div><h4>{{kpi.number}}</h4></div>
+          <div class="numDiv"><h5>{{kpi.number}}</h5></div>
         </div>
     </mat-grid-tile> 
   </mat-grid-list>
 </div>
 <div style="width:100%" *ngIf="dataLoaded">
   <div class="gridGraph">
-    <p class="titleGraph">{{ "Cartografies" | translate}}</p> 
+    <p class="titleGraph">{{ "dashboard.cartographies" | translate}}</p> 
     <app-datagraph *ngIf="dataLoaded" [data]="this.cartographyChartData" type="bar"> </app-datagraph>
   </div>
   <div class="gridGraph">
-    <p class="titleGraph">{{ "Cartografies 2" | translate}}</p> 
-    <app-datagraph *ngIf="dataLoaded" [data]="this.cartographyChartData" type="bar"> </app-datagraph>
+    <p class="titleGraph">{{ "dashboard.users" | translate}}</p> 
+    <app-datagraph *ngIf="dataLoaded" [data]="this.usersToShow" type="bar"> </app-datagraph>
   </div>
   <div class="gridGraph">
     <p class="titleGraph">{{ "Cartografies 3" | translate}}</p> 

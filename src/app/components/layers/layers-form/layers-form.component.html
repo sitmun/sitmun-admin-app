@@ -32,22 +32,6 @@
         </mat-form-field>
       </div>
       
-
-
-
-      <div class="colFormDiv">
-        <label class="formLabel requiredInput">
-          {{'layersEntity.serviceName' | translate}}
-        </label>
-        <mat-form-field appearance="outline">
-          <mat-select matInput formControlName="service" class="form-control">
-            <mat-option [value]="service.id" *ngFor="let service of services">
-              {{ service.name}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-
-      </div>
       <div class="colFormDiv">
         <label class="formLabel requiredInput">
           {{'layersEntity.layers' | translate}}
@@ -57,12 +41,6 @@
         </mat-form-field>
       </div>
 
-      <div class="colFormDiv">
-        <label class="formLabel">
-          {{'layersEntity.available' | translate}}
-        </label>
-        <mat-checkbox formControlName="blocked"> </mat-checkbox>
-      </div>
 
     </div>
 
@@ -106,7 +84,7 @@
 
     </div>
     <div class="rowFormDiv">
-      <div class="colFormDiv">
+      <div class="MidShortColFormDiv">
         <label class="formLabel">
           {{'layersEntity.legendType' | translate}}
         </label>
@@ -115,6 +93,19 @@
           <mat-select matInput formControlName="legendType" class="form-control">
             <mat-option [value]="legendType.value" *ngFor="let legendType of legendTypes">
               {{ legendType.description}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="MidShortColFormDiv">
+        <label class="formLabel requiredInput">
+          {{'layersEntity.serviceName' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <mat-select matInput formControlName="service" class="form-control">
+            <mat-option [value]="service.id" *ngFor="let service of services">
+              {{ service.name}}
             </mat-option>
           </mat-select>
         </mat-form-field>
@@ -132,17 +123,6 @@
     </div>
     
     <div class="rowFormDiv">
-      
-
-      <div class="colFormDiv">
-        <label class="formLabel">
-          {{'layersEntity.description' | translate}}
-        </label>
-        <mat-form-field appearance="outline">
-          <input matInput type="text" formControlName="description">
-          <mat-icon matSuffix class="iconTranslate" (click)="onTranslationButtonClicked()" svgIcon="ic_translate"></mat-icon>
-        </mat-form-field>
-      </div>
 
       <div class="colFormDiv">
         <label class="formLabel">
@@ -162,10 +142,25 @@
           <input matInput type="text" formControlName="metadataURL">
         </mat-form-field>
       </div>
+    </div>
 
+    <div class="rowFormDiv">
+      <div class="colFormDiv">
+        <label class="formLabel">
+          {{'layersEntity.description' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <textarea matInput type="text" formControlName="description"> </textarea>
+          <mat-icon matSuffix class="iconTranslate" (click)="onTranslationButtonClicked()" svgIcon="ic_translate"></mat-icon>
+        </mat-form-field>
+      </div>
 
-
-
+      <div class="colFormDiv">
+        <label class="formLabel">
+          {{'layersEntity.available' | translate}}
+        </label>
+        <mat-checkbox formControlName="blocked"> </mat-checkbox>
+      </div>
     </div>
 
     <div class="formHeader">
@@ -337,7 +332,7 @@
             [eventGetAllRowsSubscription]='getAllElementsEventSpatialConfigurations.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventSpatialConfigurations.asObservable()'
             [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [newButton]=true
-            (getAllRows)="getAllRowsParameters($event, false)" [actionButton]=true
+            (getAllRows)="getAllRowsParameters($event, false)" [actionButton]=true addFieldRestriction="name"
             (duplicate)='duplicateSpatialSelections($event)' (new)="openSpatialSelectionDialog($event)">
           </app-data-grid>
         </div>
@@ -359,7 +354,7 @@
             [eventAddItemsSubscription]='addElementsEventParameters.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventParameters.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()' [discardChangesButton]=true
-            [redoButton]=true [undoButton]=true [deleteButton]=true [newButton]=true
+            [redoButton]=true [undoButton]=true [deleteButton]=true [newButton]=true addFieldRestriction="name"
             (getAllRows)="getAllRowsParameters($event, false)" defaultColumnSorting="order" [actionButton]=true
             (duplicate)='duplicateParameters($event)' (new)="openParametersDialog($event)"> </app-data-grid>
         </div>
@@ -400,7 +395,7 @@
         <div class="appDataGridEditDiv">
           <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsTerritories" [themeGrid]='themeGrid' [getAll]='getAllTerritories'
             [eventAddItemsSubscription]='addElementsEventTerritories.asObservable()'
-            [eventGetAllRowsSubscription]='getAllElementsEventTerritories.asObservable()'
+            [eventGetAllRowsSubscription]='getAllElementsEventTerritories.asObservable()' addFieldRestriction='territoryId'
             [eventRefreshSubscription]='dataUpdatedEventTerritories.asObservable()' [discardChangesButton]=true
             [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
             (getAllRows)="getAllRowsTerritories($event)" [actionButton]=true (add)="openTerritoriesDialog($event)">

@@ -147,7 +147,7 @@
               [eventAddItemsSubscription]='addElementsEventParameters.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventParameters.asObservable()'  
               [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()' [discardChangesButton]=true [actionButton]=true  
               [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true  (getAllRows)="getAllRowsParameters($event)"
-              (new)="openParametersDialog($event)" (duplicate)='duplicateParameters($event)'   > </app-data-grid>
+              addFieldRestriction="name" (new)="openParametersDialog($event)" (duplicate)='duplicateParameters($event)'   > </app-data-grid>
           </div>
       </ng-template>
         </mat-expansion-panel>
@@ -165,7 +165,7 @@
                   <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsTemplates" [themeGrid]='themeGrid' [getAll]='getAllTemplates'  
                   [eventAddItemsSubscription]='addElementsEventTemplateConfiguration.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventTemplateConfiguration.asObservable()' 
                   [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [newButton]=true 
-                  (duplicate)='duplicateTemplates($event)'(getAllRows)="getAllRowsParameters($event)" [actionButton]=true  (new)="openTemplateConfigurationDialog($event)"  > </app-data-grid>
+                  addFieldRestriction="name" (duplicate)='duplicateTemplates($event)'(getAllRows)="getAllRowsParameters($event)" [actionButton]=true  (new)="openTemplateConfigurationDialog($event)"  > </app-data-grid>
               </div>
           </ng-template>
           </mat-expansion-panel>

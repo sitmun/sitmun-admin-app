@@ -66,6 +66,13 @@
 	padding-left: default;
 }
 
+.childrenOption{
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px 10px 10px 15px;
+}
+
 .sidenav-margin-div{
 	background-color: white;
 	height: 30px;
@@ -84,8 +91,14 @@
   color: $black !important;
 }
 
+.expandOptionChildren {
+  margin-left: -39px !important;
+}
+
 .altresMenus{
   border-top: 1px solid #DDDDDD;
+  font-size: normal;
+  text-align: left;
 }
 
 .span{

@@ -23,7 +23,7 @@
     <span class="divider"></span>
 
     <div class="rowFormDiv">
-      <div class="HalfMidLargeColFormDiv">
+      <div class="FirstColFormDiv">
         <label class="formLabel requiredInput">
           {{'territoryEntity.code' | translate}}
         </label>
@@ -32,7 +32,7 @@
         </mat-form-field>
       </div>
 
-      <div class="HalfMidLargeColFormDiv">
+      <div class="LargeColFormDiv">
         <label class="formLabel requiredInput">
           {{'territoryEntity.name' | translate}}
         </label>
@@ -42,7 +42,7 @@
         </mat-form-field>
       </div>
 
-      <div class="colFormDiv">
+      <div class="LargeColFormDiv">
         <label class="formLabel">
           {{'territoryEntity.address' | translate}}
         </label>
@@ -135,7 +135,7 @@
           {{'territoryEntity.note' | translate}}
         </label>
         <mat-form-field appearance="outline">
-          <input matInput type="text" formControlName="note">
+          <textarea matInput type="text" formControlName="note"> </textarea>
         </mat-form-field>
       </div>
 
@@ -286,7 +286,7 @@
             [eventAddItemsSubscription]='addElementsEventCartographies.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventCartographies.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventCartographies.asObservable()' [deleteButton]=true
-            [addButton]=true [actionButton]=true (getAllRows)="getAllRowsCartographies($event)"
+            [addButton]=true [actionButton]=true addFieldRestriction="cartographyId" (getAllRows)="getAllRowsCartographies($event)"
             (add)="openCartographyDialog($event)"> </app-data-grid>
         </div>
 
@@ -308,7 +308,7 @@
             [eventAddItemsSubscription]='addElementsEventTasks.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventTasks.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventTasks.asObservable()' [deleteButton]=true [addButton]=true
-            [actionButton]=true (getAllRows)="getAllRowsTasks($event)" (add)="openTasksDialog($event)">
+            [actionButton]=true addFieldRestriction="taskId" (getAllRows)="getAllRowsTasks($event)" (add)="openTasksDialog($event)">
           </app-data-grid>
         </div>
 
