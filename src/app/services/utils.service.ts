@@ -92,8 +92,10 @@ export class UtilsService {
 
   getCodeListValues(valueList) {
     let params2: HalParam[] = [];
+    let codelistLangValue = config.defaultLang;
+    if(localStorage.lang) { codelistLangValue=localStorage.lang }
     let param: HalParam = { key: 'codeListName', value: valueList }
-    let param2: HalParam = { key: 'lang', value: localStorage.lang }
+    let param2: HalParam = { key: 'lang', value: codelistLangValue }
     params2.push(param);
     params2.push(param2);
     let query: HalOptions = { params: params2 };

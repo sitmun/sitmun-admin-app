@@ -1224,8 +1224,8 @@ export class LayersFormComponent implements OnInit {
       cartography.description = this.layerForm.value.description;
       cartography.datasetURL= this.layerForm.value.datasetURL; //
       // cartography.applyFilterToGetMap= this.layerForm.value.applyFilterToGetMap;
-      cartography.applyFilterToGetFeatureInfo= this.layerForm.value.applyFilterToGetFeatureInfo;
-      cartography.applyFilterToSpatialSelection= this.layerForm.value.applyFilterToSpatialSelection;
+      cartography.applyFilterToGetFeatureInfo= (this.layerForm.value.applyFilterToGetFeatureInfo == null)? false:this.layerForm.value.applyFilterToGetFeatureInfo ;
+      cartography.applyFilterToSpatialSelection= (this.layerForm.value.applyFilterToSpatialSelection == null)? false:this.layerForm.value.applyFilterToSpatialSelection ;
       cartography.queryableFeatureEnabled = this.layerForm.value.queryableFeatureEnabled;
 
       if(cartography.queryableFeatureAvailable == null) { cartography.queryableFeatureAvailable = false }

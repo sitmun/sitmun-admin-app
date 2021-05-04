@@ -84,7 +84,7 @@ export class AppComponent {
             if(language.shortname == 'ca')  { config.languagesObjects.catalan=language; }
             if(language.shortname == 'es') { config.languagesObjects.spanish= language }
             if(language.shortname == 'en') { config.languagesObjects.english= language }
-            if(language.shortname == 'oc-aranese') { config.languagesObjects.aranese= language }
+            if(language.shortname == 'oc-aranes') { config.languagesObjects.aranese= language }
           });
   
         }
