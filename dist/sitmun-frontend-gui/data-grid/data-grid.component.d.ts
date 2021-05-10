@@ -3,7 +3,6 @@ import { Observable } from 'rxjs';
 import { ColumnApi, Module } from '@ag-grid-community/all-modules';
 import { TranslateService } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
-import * as ɵngcc0 from '@angular/core';
 export declare class DataGridComponent implements OnInit {
     dialog: MatDialog;
     translate: TranslateService;
@@ -18,6 +17,7 @@ export declare class DataGridComponent implements OnInit {
     gridApi: any;
     gridColumnApi: any;
     statusColumn: boolean;
+    someColumnIsEditable: boolean;
     changesMap: Map<number, Map<string, number>>;
     params: any;
     rowData: any[];
@@ -57,6 +57,7 @@ export declare class DataGridComponent implements OnInit {
     hideExportButton: boolean;
     hideDuplicateButton: boolean;
     hideSearchReplaceButton: boolean;
+    addFieldRestriction: any;
     remove: EventEmitter<any[]>;
     new: EventEmitter<number>;
     add: EventEmitter<number>;
@@ -66,6 +67,7 @@ export declare class DataGridComponent implements OnInit {
     getSelectedRows: EventEmitter<any[]>;
     getAllRows: EventEmitter<any[]>;
     getAgGridState: EventEmitter<any[]>;
+    gridModified: EventEmitter<boolean>;
     constructor(dialog: MatDialog, translate: TranslateService, elRef: ElementRef);
     ngOnInit(): void;
     firstDataRendered(): void;
@@ -96,8 +98,4 @@ export declare class DataGridComponent implements OnInit {
     modificationWithoutChanges(params: any): void;
     getColumnIndexByColId(api: ColumnApi, colId: string): number;
     paintCells(params: any, changesMap: Map<number, Map<string, number>>): void;
-    static ɵfac: ɵngcc0.ɵɵFactoryDef<DataGridComponent, never>;
-    static ɵcmp: ɵngcc0.ɵɵComponentDefWithMeta<DataGridComponent, "app-data-grid", never, { "frameworkComponents": "frameworkComponents"; "eventRefreshSubscription": "eventRefreshSubscription"; "eventGetSelectedRowsSubscription": "eventGetSelectedRowsSubscription"; "eventGetAllRowsSubscription": "eventGetAllRowsSubscription"; "eventSaveAgGridStateSubscription": "eventSaveAgGridStateSubscription"; "eventAddItemsSubscription": "eventAddItemsSubscription"; "columnDefs": "columnDefs"; "getAll": "getAll"; "discardChangesButton": "discardChangesButton"; "discardNonReverseStatus": "discardNonReverseStatus"; "id": "id"; "undoButton": "undoButton"; "defaultColumnSorting": "defaultColumnSorting"; "redoButton": "redoButton"; "applyChangesButton": "applyChangesButton"; "deleteButton": "deleteButton"; "newButton": "newButton"; "actionButton": "actionButton"; "addButton": "addButton"; "globalSearch": "globalSearch"; "changeHeightButton": "changeHeightButton"; "defaultHeight": "defaultHeight"; "themeGrid": "themeGrid"; "singleSelection": "singleSelection"; "nonEditable": "nonEditable"; "title": "title"; "hideExportButton": "hideExportButton"; "hideDuplicateButton": "hideDuplicateButton"; "hideSearchReplaceButton": "hideSearchReplaceButton"; }, { "remove": "remove"; "new": "new"; "add": "add"; "discardChanges": "discardChanges"; "sendChanges": "sendChanges"; "getSelectedRows": "getSelectedRows"; "duplicate": "duplicate"; "getAllRows": "getAllRows"; "getAgGridState": "getAgGridState"; }, never, never>;
 }
-
-//# sourceMappingURL=data-grid.component.d.ts.map

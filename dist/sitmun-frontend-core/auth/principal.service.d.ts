@@ -1,7 +1,6 @@
 import { Observable } from 'rxjs';
 import { AccountService } from '../account/account.service';
 /** Principal service*/
-import * as ɵngcc0 from '@angular/core';
 export declare class Principal {
     private account;
     private userIdentity;
@@ -31,8 +30,4 @@ export declare class Principal {
     isIdentityResolved(): boolean;
     /** get current user authentication state */
     getAuthenticationState(): Observable<any>;
-    static ɵfac: ɵngcc0.ɵɵFactoryDef<Principal, never>;
-    static ɵprov: ɵngcc0.ɵɵInjectableDef<Principal>;
 }
-
-//# sourceMappingURL=principal.service.d.ts.map

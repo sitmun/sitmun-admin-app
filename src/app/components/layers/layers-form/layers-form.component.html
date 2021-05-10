@@ -397,7 +397,7 @@
             [eventAddItemsSubscription]='addElementsEventTerritories.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventTerritories.asObservable()' addFieldRestriction='territoryId'
             [eventRefreshSubscription]='dataUpdatedEventTerritories.asObservable()' [discardChangesButton]=true
-            [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
+            [redoButton]=true [undoButton]=true defaultColumnSorting="territoryName" [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
             (getAllRows)="getAllRowsTerritories($event)" [actionButton]=true (add)="openTerritoriesDialog($event)">
           </app-data-grid>
         </div>

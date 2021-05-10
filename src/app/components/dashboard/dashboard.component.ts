@@ -20,6 +20,9 @@ export class DashboardComponent implements OnInit {
   usersChartData= [];
   usersToShow = [];
 
+  usersPerApplicationChartData=[];
+  usersPerApplicationToShow = [];
+
   constructor(    
     private http: HttpClient,
     public utils: UtilsService,
@@ -48,6 +51,10 @@ export class DashboardComponent implements OnInit {
             this.usersChartData.push({index:keysUsersChartData[i], value:this.usersOnDate[keysUsersChartData[i]]})
           }
           this.usersToShow=this.usersChartData.slice(this.usersChartData.length -30,this.usersChartData.length);
+          let keysUsersPerApplication= Object.keys(result[`users-per-application`]);
+          for(let i=0; i<keysUsersPerApplication.length; i++){
+            this.usersPerApplicationChartData.push({index:keysUsersPerApplication[i], value:result[`users-per-application`][keysUsersPerApplication[i]]})
+          }   
           console.log(this.usersToShow);
           console.log(this.usersChartData)
 
@@ -75,10 +82,6 @@ export class DashboardComponent implements OnInit {
     this.KPIsTable.push({text: this.utils.getTranslate("dashboard.cartographies"), number: result.total.cartographies})
     this.KPIsTable.push({text: this.utils.getTranslate("dashboard.applications"), number: result.total.applications})
     this.KPIsTable.push({text: this.utils.getTranslate("dashboard.applicationsTerritories"), number: result.total['applications-territories']})
-    this.KPIsTable.push({text: this.utils.getTranslate("dashboard.usersAppSitmunMun"), number: result['users-per-application']['SITMUN - Consulta/gestió municipal']})
-    this.KPIsTable.push({text: this.utils.getTranslate("dashboard.usersAppSitmunProv"), number: result['users-per-application']['SITMUN - Consulta/gestió provincial']})
-    this.KPIsTable.push({text: this.utils.getTranslate("dashboard.usersAppSitmunSupra"), number: result['users-per-application']['SITMUN - Consulta/gestió supramunicipal']})
-    console.log(this.KPIsTable)
   }
 
 }

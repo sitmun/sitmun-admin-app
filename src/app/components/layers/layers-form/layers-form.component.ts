@@ -355,21 +355,25 @@ export class LayersFormComponent implements OnInit {
                   .subscribe(result => {
                     console.log(result)
                     result.forEach(element => {
+                      let value;
   
                       if (element.type === 'FILTRO' && this.layerToEdit.applyFilterToGetMap == null ) {
+                        value = (true == element.value)
                         this.parameteApplyFilterToGetMap=element;
                         this.layerForm.patchValue({
-                          applyFilterToGetMap: element.value
+                          applyFilterToGetMap: value
                         })
                       }
                       else if (element.type === 'FILTRO_INFO' && this.layerToEdit.applyFilterToGetFeatureInfo == null) {
+                        value = (true == element.value)
                         this.layerForm.patchValue({
-                          applyFilterToGetFeatureInfo: element.value
+                          applyFilterToGetFeatureInfo: value
                         })
                       }
                       else if (element.type === 'FILTRO_ESPACIAL' && this.layerToEdit.applyFilterToSpatialSelection == null) {
+                        value = (true == element.value)
                         this.layerForm.patchValue({
-                          applyFilterToSpatialSelection: element.value
+                          applyFilterToSpatialSelection: value
                         })
                       }
                     });
