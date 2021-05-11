@@ -245,6 +245,7 @@ export class UtilsService {
       cellRenderer: (data) => {
         return this.getDateFormated(data)
       },
+      cellEditor:'datePicker',
       minWidth: 140,
     }
 
