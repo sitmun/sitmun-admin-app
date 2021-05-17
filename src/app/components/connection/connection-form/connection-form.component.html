@@ -70,6 +70,13 @@
           </div>
 
           <button type="button"  (click)="validateConnection()" mat-flat-button class="validateButton" >{{ "validate" | translate }}</button>
+
+          <div class="PasswordCheckboxDiv" >
+            <label class="formLabel">
+              {{'userEntity.passwordSet' | translate}}
+            </label>
+            <mat-checkbox (click)="$event.preventDefault()" formControlName="passwordSet" > </mat-checkbox>
+          </div>
     </div>
 
 
@@ -110,7 +117,7 @@
 
       <ng-template matExpansionPanelContent>  
         <div class="appDataGridEditDiv">
-            <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsTasks" [themeGrid]='themeGrid' [getAll]='getAllTasks'
+            <app-data-grid [changeHeightButton]="true" defaultColumnSorting="name" [columnDefs]="columnDefsTasks" [themeGrid]='themeGrid' [getAll]='getAllTasks'
             [eventAddItemsSubscription]='addElementsEventTasks.asObservable()' [eventRefreshSubscription]='dataUpdatedEvent.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventTasks.asObservable()' [discardChangesButton]=true [redoButton]=true 
             [eventRefreshSubscription]='dataUpdatedEventTasks.asObservable()' [undoButton]=true  [deleteButton]=true [addButton]=true [hideDuplicateButton]=true

@@ -77,13 +77,14 @@ export class ConnectionFormComponent implements OnInit {
           resp => {
             console.log(resp);
             this.connectionToEdit = resp;
-            this.formConnection.setValue({
+            this.formConnection.patchValue({
               id: this.connectionID,
               name: this.connectionToEdit.name,
               driver: this.connectionToEdit.driver,
               user: this.connectionToEdit.user,
               password: this.connectionToEdit.password,
               url: this.connectionToEdit.url,
+              passwordSet: this.connectionToEdit.passwordSet,
               _links: this.connectionToEdit._links
             });
 
@@ -147,6 +148,7 @@ export class ConnectionFormComponent implements OnInit {
       ]),
       user: new FormControl(null, []),
       password: new FormControl(null, []),
+      passwordSet: new FormControl(null, []),
       url: new FormControl(null, []),
       _links: new FormControl(null, []),
     })
@@ -272,6 +274,7 @@ export class ConnectionFormComponent implements OnInit {
     const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
     dialogRef.componentInstance.getAllsTable = [this.getAllCartographiesDialog];
     dialogRef.componentInstance.singleSelectionTable = [false];
+    dialogRef.componentInstance.orderTable = ['name'];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsCartographiesDialog];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
     dialogRef.componentInstance.title = this.utils.getTranslate("connectionEntity.cartography");
@@ -307,6 +310,7 @@ export class ConnectionFormComponent implements OnInit {
     // const titlesTable: Array<string> = ['Cartographies'];
     const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
     dialogRef.componentInstance.getAllsTable = [this.getAllTasksDialog];
+    dialogRef.componentInstance.orderTable = ['name'];
     dialogRef.componentInstance.singleSelectionTable = [false];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsTasksDialog];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
@@ -340,6 +344,7 @@ export class ConnectionFormComponent implements OnInit {
           this.connectionID = result.id
           this.formConnection.patchValue({
             id: result.id,
+            passwordSet: result.passwordSet,
             _links: result._links
           })
           //this.getAllElementsEventCartographies.next(true);

@@ -81,7 +81,7 @@
 
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsCartography" [themeGrid]='themeGrid' [getAll]='getAllCartographiesGroups'
+          <app-data-grid [changeHeightButton]="true" defaultColumnSorting="name" [columnDefs]="columnDefsCartography" [themeGrid]='themeGrid' [getAll]='getAllCartographiesGroups'
           [eventAddItemsSubscription]='addElementsEventCartographies.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventCartographies.asObservable()' 
            [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true
            [eventRefreshSubscription]='dataUpdatedEventCartographies.asObservable()' [hideDuplicateButton]=true [actionButton]=true (add)="openCartographyDialog($event)"
@@ -92,7 +92,7 @@
     </mat-expansion-panel>
 
     <!-- Tasks table -->
-    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+    <mat-expansion-panel [expanded]="true"  class="agGridExpansionPanel">
       <mat-expansion-panel-header class="agGridExpansionPanelTitle">
         <mat-panel-title>
           {{ "roleEntity.tasks" | translate }}
@@ -101,7 +101,7 @@
 
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsTasks" [themeGrid]='themeGrid' [getAll]='getAllTasks'
+          <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsTasks" defaultColumnSorting="groupName" [themeGrid]='themeGrid' [getAll]='getAllTasks'
           [eventAddItemsSubscription]='addElementsEventTasks.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventTasks.asObservable()' 
            [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true
            [eventRefreshSubscription]='dataUpdatedEventTasks.asObservable()' [hideDuplicateButton]=true [actionButton]=true (add)="openTasksDialog($event)"
@@ -122,7 +122,7 @@
       
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsApplications" [themeGrid]='themeGrid' [getAll]='getAllApplications'
+          <app-data-grid [changeHeightButton]="true" defaultColumnSorting="name" [columnDefs]="columnDefsApplications" [themeGrid]='themeGrid' [getAll]='getAllApplications'
           [eventAddItemsSubscription]='addElementsEventApplications.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventApplications.asObservable()' 
            [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true
            [eventRefreshSubscription]='dataUpdatedEventApplications.asObservable()' [hideDuplicateButton]=true [actionButton]=true (add)="openApplicationsDialog($event)"

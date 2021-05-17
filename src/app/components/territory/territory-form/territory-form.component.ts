@@ -741,6 +741,7 @@ export class TerritoryFormComponent implements OnInit {
 
     const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
     dialogRef.componentInstance.getAllsTable = [this.getAllUsersDialog, this.getAllRolesDialog];
+    dialogRef.componentInstance.orderTable = ['username', 'name'];
     dialogRef.componentInstance.singleSelectionTable = [false, false];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsUsersDialog, this.columnDefsRolesDialog];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
@@ -798,6 +799,7 @@ export class TerritoryFormComponent implements OnInit {
 
   openTerritoryMemberOfDialog(data: any) {
     const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
+    dialogRef.componentInstance.orderTable = ['name'];
     dialogRef.componentInstance.getAllsTable = [this.getAllTerritoriesMemberOfDialog];
     dialogRef.componentInstance.singleSelectionTable = [false];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsTerritoriesDialog];
@@ -835,6 +837,7 @@ export class TerritoryFormComponent implements OnInit {
 
   openTerritoryMembersDialog(data: any) {
     const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
+    dialogRef.componentInstance.orderTable = ['name'];
     dialogRef.componentInstance.getAllsTable = [this.getAllTerritoriesMembersDialog];
     dialogRef.componentInstance.singleSelectionTable = [false];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsTerritoriesDialog];
@@ -861,6 +864,7 @@ export class TerritoryFormComponent implements OnInit {
 
   openCartographyDialog(data: any) {
     const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
+    dialogRef.componentInstance.orderTable = ['name'];
     dialogRef.componentInstance.getAllsTable = [this.getAllCartographiesDialog];
     dialogRef.componentInstance.singleSelectionTable = [false];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsCartographiesDialog];
@@ -908,6 +912,7 @@ export class TerritoryFormComponent implements OnInit {
   openTasksDialog(data: any) {
 
     const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
+    dialogRef.componentInstance.orderTable = ['name'];
     dialogRef.componentInstance.getAllsTable = [this.getAllTasksDialog];
     dialogRef.componentInstance.singleSelectionTable = [false];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsTasksDialog];

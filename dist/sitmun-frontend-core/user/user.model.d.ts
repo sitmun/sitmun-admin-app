@@ -19,6 +19,8 @@ export declare class User extends Resource {
     blocked: boolean;
     /** whether user is administrator */
     administrator: boolean;
+    /** Is passwordSet */
+    passwordSet: boolean;
     /** user positions */
     positions: UserPosition[];
     /** user permissions */

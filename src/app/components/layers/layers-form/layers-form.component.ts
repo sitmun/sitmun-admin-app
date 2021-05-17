@@ -483,7 +483,7 @@ export class LayersFormComponent implements OnInit {
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
       this.utils.getEditableColumnDef('layersEntity.name', 'name'),
-      //this.utils.getEditableColumnDef('layersEntity.createdDate', 'tree'),
+      this.utils.getNonEditableColumnDef('layersEntity.treeName', 'treeName'),
       this.utils.getStatusColumnDef()
     ];
 
@@ -514,6 +514,7 @@ export class LayersFormComponent implements OnInit {
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
       this.utils.getNonEditableColumnDef('layersEntity.name', 'name'),
+      this.utils.getNonEditableColumnDef('layersEntity.treeName', 'treeName'),
     ];
 
 
@@ -1081,6 +1082,7 @@ export class LayersFormComponent implements OnInit {
     const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
     dialogRef.componentInstance.getAllsTable = [this.getAllTerritoriesDialog];
     dialogRef.componentInstance.singleSelectionTable = [false];
+    dialogRef.componentInstance.orderTable = ['name'];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsTerritoriesDialog];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
     dialogRef.componentInstance.title = this.utils.getTranslate('layersEntity.territory');
@@ -1138,6 +1140,7 @@ export class LayersFormComponent implements OnInit {
     dialogRef.componentInstance.singleSelectionTable = [false];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsCartographyGroupsDialog];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
+    dialogRef.componentInstance.orderTable = ['name'];
     dialogRef.componentInstance.title = this.utils.getTranslate('layersEntity.permissiongroupLayersConfiguration');
     dialogRef.componentInstance.titlesTable = [''];
     dialogRef.componentInstance.nonEditable = false;
@@ -1167,6 +1170,7 @@ export class LayersFormComponent implements OnInit {
     const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
     dialogRef.componentInstance.getAllsTable = [this.getAllNodesDialog];
     dialogRef.componentInstance.singleSelectionTable = [false];
+    dialogRef.componentInstance.orderTable = ['name'];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsNodesDialog];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
     dialogRef.componentInstance.title = this.utils.getTranslate('layersEntity.nodes');

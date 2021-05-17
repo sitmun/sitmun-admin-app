@@ -7,6 +7,6 @@
     <app-data-grid id="connection" [columnDefs]="columnDefs" [themeGrid]='themeGrid' [getAll]='getAllConnections' [globalSearch]=true 
     [eventRefreshSubscription]='dataUpdatedEvent.asObservable()'  [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
     [discardChangesButton]=true [redoButton]=true [undoButton]=true [applyChangesButton]=true  [deleteButton]=true [newButton]=true 
-    [actionButton]=true (remove)="removeData($event)" (new)='newData($event)' 
+    [actionButton]=true (remove)="removeData($event)" (new)='newData($event)' defaultColumnSorting="name"
     (sendChanges)='applyChanges($event)' (duplicate)='add($event)'  > </app-data-grid>
 </div>

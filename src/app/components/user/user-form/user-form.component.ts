@@ -90,6 +90,7 @@ export class UserFormComponent implements OnInit {
               lastName: this.userToEdit.firstName,
               password: null,
               confirmPassword: null,
+              passwordSet: this.userToEdit.passwordSet,
               administrator: this.userToEdit.administrator,
               blocked: this.userToEdit.blocked,
               _links: this.userToEdit._links
@@ -105,7 +106,8 @@ export class UserFormComponent implements OnInit {
       else {
         this.userForm.patchValue({
           administrator: false,
-          blocked: false
+          blocked: false,
+          passwordSet: false
         });
         this.dataLoaded = true;
       }
@@ -164,6 +166,7 @@ export class UserFormComponent implements OnInit {
         Validators.required,
       ]),
       lastName: new FormControl(null),
+      passwordSet: new FormControl(null),
       password: new FormControl(null),
       confirmPassword: new FormControl(null,), // [this.matchValues('password'),]
       administrator: new FormControl(null, []),
@@ -387,6 +390,7 @@ export class UserFormComponent implements OnInit {
 
   openPermitsDialog(data: any) {
     const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
+    dialogRef.componentInstance.orderTable = ['name', 'name'];
     dialogRef.componentInstance.getAllsTable = [this.getAllTerritoriesDialog, this.getAllRolesDialog];
     dialogRef.componentInstance.singleSelectionTable = [true, false];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsTerritoryDialog, this.columnDefsRolesDialog];
@@ -418,6 +422,7 @@ export class UserFormComponent implements OnInit {
                   if (messageResult.event === 'Accept') {
                     const dialogRefChildRoles = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
                     dialogRefChildRoles.componentInstance.getAllsTable = [this.getAllRolesDialog];
+                    dialogRef.componentInstance.orderTable = ['name'];
                     dialogRefChildRoles.componentInstance.singleSelectionTable = [false];
                     dialogRefChildRoles.componentInstance.columnDefsTable = [this.columnDefsRolesDialog];
                     dialogRefChildRoles.componentInstance.themeGrid = this.themeGrid;
@@ -556,7 +561,8 @@ export class UserFormComponent implements OnInit {
             this.userToEdit = resp
             this.userID = resp.id;
             this.userForm.patchValue({
-            id: resp.id,
+             id: resp.id,
+             passwordSet: resp.passwordSet,
             _links: resp._links
             })
             console.log(this.userToEdit);

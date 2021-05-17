@@ -473,6 +473,7 @@ export class ServiceFormComponent implements OnInit {
     const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
     dialogRef.componentInstance.getAllsTable=[this.getAllLayersDialog];
     dialogRef.componentInstance.singleSelectionTable=[false];
+    dialogRef.componentInstance.orderTable = ['name'];
     dialogRef.componentInstance.columnDefsTable=[this.columnDefsLayersDialog];
     dialogRef.componentInstance.themeGrid=this.themeGrid;
     dialogRef.componentInstance.title=this.utils.getTranslate('serviceEntity.layersToRegister');

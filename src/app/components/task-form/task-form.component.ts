@@ -34,12 +34,14 @@ export class TaskFormComponent implements OnInit {
   //codeLists
   codeListsMap: Map<string, Array<any>> = new Map<string, Array<any>>();
   tasksMap: Map<string, Array<any>> = new Map<string, Array<any>>();
+  servicesMap: Map<string, Array<any>> = new Map<string, Array<any>>();
 
   //Events data grid
   addelements= [];
   getAllElementsEvent = [];
   //Table's arrays
   sqlElementModification = [];
+  defaultColumnsSorting = [];
 
 
   //Form tables
@@ -126,6 +128,10 @@ export class TaskFormComponent implements OnInit {
     else if(data=="tasks"){
       result = await this.taskService.getAll(query).toPromise();
       this.tasksMap.set(mapKey, result);
+    }
+    else if (data="service"){
+      result = await this.serviceService.getAll(query).toPromise();
+      this.servicesMap.set(mapKey, result);
     }
 
   }
@@ -236,7 +242,7 @@ export class TaskFormComponent implements OnInit {
         this.addelements.push(addElementsEvent);
         this.getAllElementsEvent.push(getAllElements)
         this.sqlElementModification.push({modifications: false, toSave: false, element: null, mainFormElement:null, tableElements: []});
-        let columnDefs= this.generateColumnDefs(table.columns,true,true);
+        let columnDefs= this.generateColumnDefs(table.columns,true,true, true);
         this.columnDefsTables.push(columnDefs);
 
         if(table.controlAdd.control =="formPopup")
@@ -640,6 +646,9 @@ export class TaskFormComponent implements OnInit {
     if(data=='tasks'){
       return this.tasksMap.get(field);
     }
+    if(data=='service'){
+      return this.servicesMap.get(field)
+    }
   }
 
   onPopupDeleteButtonClicked(field){
@@ -655,6 +664,7 @@ export class TaskFormComponent implements OnInit {
     const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
     dialogRef.componentInstance.getAllsTable = [() => getAllfunction];
     dialogRef.componentInstance.singleSelectionTable = [singleSelection];
+    dialogRef.componentInstance.orderTable = [this.defaultColumnsSorting[index]];
     dialogRef.componentInstance.columnDefsTable = [this.generateColumnDefs(columns,checkbox, status)];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
     dialogRef.componentInstance.title = this.utils.getTranslate(label);
@@ -743,14 +753,20 @@ export class TaskFormComponent implements OnInit {
 
 
 
-  generateColumnDefs(columns, checkbox, status){
+  generateColumnDefs(columns, checkbox, status, notDialog?){
 
     let columnResults = [];
     if(checkbox) {columnResults.push(this.utils.getSelCheckboxColumnDef())}
 
     let keys= Object.keys(columns);
     let values= Object.values(columns);
+    let hasOrderField = false;
+    let hasNameField = false;
     for(let i=0; i< keys.length; i++){
+      
+      if(keys[i]=='order' && notDialog) { hasOrderField = true }
+      if(keys[i]=='name' && notDialog) { hasNameField = true }
+
       if(values[i]['editable'] === "true"){
         columnResults.push(this.utils.getEditableColumnDef(values[i]['label'], keys[i]))
       }
@@ -760,6 +776,12 @@ export class TaskFormComponent implements OnInit {
       // columnResults.push({headerName: this.utils.getTranslate(values[i]['label']), field: keys[i], editable: values[i]['editable'] })
     }
     if(status) {columnResults.push(this.utils.getStatusColumnDef())}
+
+    if(notDialog){
+      if(hasOrderField) { this.defaultColumnsSorting.push('order') }
+      else if(hasNameField) { this.defaultColumnsSorting.push('name') }
+      else { this.defaultColumnsSorting.push(null) }
+    }
 
     return columnResults;
 

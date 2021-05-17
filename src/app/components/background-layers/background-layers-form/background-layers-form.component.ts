@@ -413,6 +413,7 @@ export class BackgroundLayersFormComponent implements OnInit {
 
   openCartographyDialog(data: any) {
     const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
+    dialogRef.componentInstance.orderTable = ['name'];
     dialogRef.componentInstance.getAllsTable=[this.getAllCartographiesDialog];
     dialogRef.componentInstance.singleSelectionTable=[false];
     dialogRef.componentInstance.columnDefsTable=[this.columnDefsCartographiesDialog];
@@ -443,6 +444,7 @@ export class BackgroundLayersFormComponent implements OnInit {
   openRolesDialog(data: any) {
 
     const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
+    dialogRef.componentInstance.orderTable = ['name'];
     dialogRef.componentInstance.getAllsTable=[this.getAllRolesDialog];
     dialogRef.componentInstance.singleSelectionTable=[false];
     dialogRef.componentInstance.columnDefsTable=[this.columnDefsRolesDialog];

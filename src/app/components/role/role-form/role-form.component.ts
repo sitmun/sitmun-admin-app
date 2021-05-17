@@ -468,6 +468,7 @@ export class RoleFormComponent implements OnInit {
   openCartographyDialog(data: any) {
 
     const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
+    dialogRef.componentInstance.orderTable = ['name'];
     dialogRef.componentInstance.getAllsTable=[this.getAllCartographiesGroupsDialog];
     dialogRef.componentInstance.singleSelectionTable=[false];
     dialogRef.componentInstance.columnDefsTable=[this.columnDefsCartographiesDialog];
@@ -498,6 +499,7 @@ export class RoleFormComponent implements OnInit {
     openTasksDialog(data: any) {
 
       const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
+      dialogRef.componentInstance.orderTable = ['name'];
       dialogRef.componentInstance.getAllsTable=[this.getAllTasksDialog];
       dialogRef.componentInstance.singleSelectionTable=[false];
       dialogRef.componentInstance.columnDefsTable=[this.columnDefsTasksDialog];
@@ -547,6 +549,7 @@ export class RoleFormComponent implements OnInit {
     openApplicationsDialog(data: any) {
 
       const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
+      dialogRef.componentInstance.orderTable = ['name'];
       dialogRef.componentInstance.getAllsTable=[this.getAllApplicationsDialog];
       dialogRef.componentInstance.singleSelectionTable=[false];
       dialogRef.componentInstance.columnDefsTable=[this.columnDefsApplicationsDialog];

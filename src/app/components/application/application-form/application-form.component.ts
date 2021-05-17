@@ -783,6 +783,7 @@ export class ApplicationFormComponent implements OnInit {
     openRolesDialog(data: any) {
 
       const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
+      dialogRef.componentInstance.orderTable = ['name'];
       dialogRef.componentInstance.getAllsTable=[this.getAllRolesDialog];
       dialogRef.componentInstance.singleSelectionTable=[false];
       dialogRef.componentInstance.columnDefsTable=[this.columnDefsRolesDialog];
@@ -812,6 +813,7 @@ export class ApplicationFormComponent implements OnInit {
   
   openBackgroundDialog(data: any) {
     const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
+    dialogRef.componentInstance.orderTable = ['name'];
     dialogRef.componentInstance.getAllsTable=[this.getAllBackgroundDialog];
     dialogRef.componentInstance.singleSelectionTable=[false];
     dialogRef.componentInstance.columnDefsTable=[this.columnDefsBackgroundDialog];
@@ -865,6 +867,7 @@ export class ApplicationFormComponent implements OnInit {
   
     openTreeDialog(data: any) {
       const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
+      dialogRef.componentInstance.orderTable = ['name'];
       dialogRef.componentInstance.getAllsTable=[this.getAllTreeDialog];
       dialogRef.componentInstance.singleSelectionTable=[false];
       dialogRef.componentInstance.columnDefsTable=[this.columnDefsTreeDialog];

@@ -76,6 +76,7 @@
     "application": "Aplicación",
     "taskGroup": "Grupo tarea",
     "status": "Estado",
+    "editionType": "Tipo de edición",
     "cartographyTableWFT": "Tabla de cartografía(WFS-T)",
     "dataTable": "Tabla de datos",
     "relationTable": "Tabla de relación",
@@ -120,7 +121,8 @@
     "code": "Código",
     "status": "Estado",
     "appliesToChildrenTerritories" : "Aplicado a los hijos",
-    "childRole": "Rol hijo"
+    "childRole": "Rol hijo",
+    "passwordSet": "Contraseña introducida"
   },
   "connectionEntity": {
     "generalData": "Datos Generales",
@@ -209,7 +211,8 @@
     "value": "Valor",
     "valueType": "Tipo valor",
     "typeId": "Tipo Id",
-    "required": "Obligatorio"
+    "required": "Obligatorio",
+    "treeName": "Nombre árbol"
   },
   "layersPermitsEntity": {
     "generalData": "Datos Generales",

@@ -142,7 +142,7 @@
 
 
       <div class="appDataGridEditDiv" *ngIf="( currentNodeIsFolder != undefined && !currentNodeIsFolder)">
-        <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsCartographies" [themeGrid]='themeGrid' [getAll]='getAllCartographies'
+        <app-data-grid [changeHeightButton]="true" defaultColumnSorting='name' [columnDefs]="columnDefsCartographies" [themeGrid]='themeGrid' [getAll]='getAllCartographies'
           [eventGetSelectedRowsSubscription]='getAllElementsEventCartographies.asObservable()'
           (getSelectedRows)="getSelectedRowsCartographies($event)" [singleSelection]=true [globalSearch]=true>
         </app-data-grid>

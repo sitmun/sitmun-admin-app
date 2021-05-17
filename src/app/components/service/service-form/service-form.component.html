@@ -132,7 +132,7 @@
             [eventGetAllRowsSubscription]='getAllElementsEventParameters.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()' [discardChangesButton]=true
             [redoButton]=true [undoButton]=true [deleteButton]=true [newButton]=true addFieldRestriction="name"
-            (getAllRows)="getAllRowsParameters($event)" [actionButton]=true (duplicate)='duplicateParameters($event)'
+            (getAllRows)="getAllRowsParameters($event)" defaultColumnSorting="name" [actionButton]=true (duplicate)='duplicateParameters($event)'
             (new)="openParametersDialog($event)"> </app-data-grid>
         </div>
       </ng-template>
@@ -154,7 +154,7 @@
             [eventGetAllRowsSubscription]='getAllElementsEventLayers.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventLayers.asObservable()' [discardChangesButton]=true
             [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
-            (getAllRows)="getAllRowsLayers($event)" [actionButton]=true (add)="openCartographyDialog($event)">
+            (getAllRows)="getAllRowsLayers($event)" defaultColumnSorting="name" [actionButton]=true (add)="openCartographyDialog($event)">
           </app-data-grid>
         </div>
       </ng-template>

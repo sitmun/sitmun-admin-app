@@ -327,7 +327,7 @@
         </div>
         <div class="appDataGridEditDiv">
           <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsSpatialConfigurations" [themeGrid]='themeGrid'
-            [getAll]='getAllSpatialConfigurations'
+            [getAll]='getAllSpatialConfigurations' defaultColumnSorting="name"
             [eventAddItemsSubscription]='addElementsEventSpatialConfigurations.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventSpatialConfigurations.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventSpatialConfigurations.asObservable()'
@@ -351,7 +351,7 @@
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
           <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'
-            [eventAddItemsSubscription]='addElementsEventParameters.asObservable()'
+            [eventAddItemsSubscription]='addElementsEventParameters.asObservable()' defaultColumnSorting="name"
             [eventGetAllRowsSubscription]='getAllElementsEventParameters.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()' [discardChangesButton]=true
             [redoButton]=true [undoButton]=true [deleteButton]=true [newButton]=true addFieldRestriction="name"
@@ -372,11 +372,11 @@
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
           <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsTerritorialFilter" [themeGrid]='themeGrid' [getAll]='getAllTerritorialFilters'
-            [eventAddItemsSubscription]='addElementsTerritorialFilter.asObservable()'
+            [eventAddItemsSubscription]='addElementsTerritorialFilter.asObservable()' defaultColumnSorting="name"
             [eventGetAllRowsSubscription]='getAllElementsTerritorialFilter.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventTerritorialFilter.asObservable()' [discardChangesButton]=true
-            [redoButton]=true [undoButton]=true [deleteButton]=true [newButton]=true
-            (getAllRows)="getAllRowsTerritorialFilters($event)" defaultColumnSorting="order" [actionButton]=true
+            [redoButton]=true [undoButton]=true [deleteButton]=true [newButton]=true 
+            (getAllRows)="getAllRowsTerritorialFilters($event)"  [actionButton]=true
             (duplicate)='duplicateTerritorialFilters($event)' (new)="openTerritorialFilterDialog($event)"> </app-data-grid>
         </div>
       </ng-template>
@@ -416,7 +416,7 @@
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
           <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsLayersConfiguration" [themeGrid]='themeGrid'
-            [getAll]='getAllLayersConfiguration'
+            [getAll]='getAllLayersConfiguration' defaultColumnSorting="name"
             [eventAddItemsSubscription]='addElementsEventCartographyGroups.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventLayersConfigurations.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventLayersConfiguration.asObservable()' [discardChangesButton]=true
@@ -439,7 +439,7 @@
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
           <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsNodes" [themeGrid]='themeGrid' [getAll]='getAllNodes'
-            [eventAddItemsSubscription]='addElementsEventNodes.asObservable()'
+            [eventAddItemsSubscription]='addElementsEventNodes.asObservable()' defaultColumnSorting="name"
             [eventGetAllRowsSubscription]='getAllElementsEventNodes.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventNodes.asObservable()' [discardChangesButton]=true
             [redoButton]=true [undoButton]=true  [addButton]=true [hideDuplicateButton]=true
@@ -492,7 +492,7 @@
           <mat-form-field appearance="outline">
             <mat-select matInput formControlName="format" class="form-control">
               <mat-option [value]="formatType.value" *ngFor="let formatType of parameterFormatTypes">
-                {{ formatType.value}}
+                {{ formatType.description}}
               </mat-option>
             </mat-select>
           </mat-form-field>
@@ -557,7 +557,7 @@
           <mat-form-field appearance="outline">
             <mat-select matInput formControlName="format" class="form-control">
               <mat-option [value]="formatType.value" *ngFor="let formatType of parameterFormatTypes">
-                {{ formatType.value}}
+                {{ formatType.description}}
               </mat-option>
             </mat-select>
           </mat-form-field>

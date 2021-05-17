@@ -76,6 +76,7 @@
     "application": "Aplicació",
     "taskGroup": "Grup tasca",
     "status": "Estat",
+    "editionType": "Tipus d'edició",
     "cartographyTableWFT": "Taula de cartografia(WFS-T)",
     "dataTable": "Taula de dades",
     "relationTable": "Taula de relació",
@@ -120,7 +121,8 @@
     "code": "Codi",
     "status": "Estat",
     "appliesToChildrenTerritories" : "Aplicat als fills",
-    "childRole": "Rol fill"
+    "childRole": "Rol fill",
+    "passwordSet": "Contrasenya introduida"
   },
   "connectionEntity": {
     "generalData": "Dades Generals",
@@ -209,7 +211,8 @@
     "value": "Valor",
     "valueType": "Tipus valor",
     "typeId": "Tipus Id",
-    "required": "Obligatori"
+    "required": "Obligatori",
+    "treeName": "Nom arbre"
   },
   "layersPermitsEntity": {
     "generalData": "Dades Generals",
