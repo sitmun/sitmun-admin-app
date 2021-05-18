@@ -43,7 +43,7 @@ export class ServiceFormComponent implements OnInit {
   serviceTypes: Array<any> = [];
   requestTypes: Array<any> = [];
   serviceCapabilitiesData:any={};
-
+  getCapabilitiesLayers:Cartography[]=[];
   //Grids
   themeGrid: any = config.agGridTheme;
   columnDefsParameters: any[];
@@ -261,9 +261,7 @@ export class ServiceFormComponent implements OnInit {
 
   getCapabilitiesDataService(){
     this.http.get(`${this.serviceForm.value.serviceURL}?request=GetCapabilities`, { responseType: 'text' }).subscribe(resp => {
-      debugger;
-
-      console.log(resp);
+     
       // this.router.navigate(["/company", resp.id, "formConnection"]);
       const parser = new xml2js.Parser({ explicitArray:false,strict: false, trim: true });
       parser.parseString(resp, (err, result) => {
@@ -279,13 +277,32 @@ export class ServiceFormComponent implements OnInit {
   }
 
   changeServiceDataByCapabilities(){
-    debugger;
-    if (this.serviceCapabilitiesData.WMT_MS_CAPABILITIES.CAPABILITY.LAYER.SRS !== null) {
-      this.projections=[];
-      this.serviceCapabilitiesData.WMT_MS_CAPABILITIES.CAPABILITY.LAYER.SRS.forEach((projection) => {
-        this.projections.push(projection);
-      });
+  
+    let data=this.serviceCapabilitiesData.WMT_MS_CAPABILITIES!=undefined?this.serviceCapabilitiesData.WMT_MS_CAPABILITIES:this.serviceCapabilitiesData.WMT_CAPABILITIES
+    if (data!=undefined ){
+      if(data.CAPABILITY.LAYER.SRS !== null) {
+        this.projections=[];
+        this.serviceCapabilitiesData.WMT_MS_CAPABILITIES.CAPABILITY.LAYER.SRS.forEach((projection) => {
+          this.projections.push(projection);
+        });
+      }
+      if(data.CAPABILITY.LAYER.LAYER.length>0){
+        data.CAPABILITY.LAYER.LAYER.forEach(lyr => {
+          let cartography= new Cartography();
+          cartography.name= lyr.NAME,
+          cartography.description=lyr.ABSTRACT
+          if(lyr.MetadataURL!=undefined){
+            cartography.metadataURL=lyr.MetadataURL.OnlineResource.$['xlink:href']
+          }
+
+          if(lyr.STYLE[0].LEGENDURL!=undefined){
+            cartography.legendURL=lyr.STYLE[0].LEGENDURL.ONLINERESOURCE.$['XLINK:HREF']
+          }
+          this.getCapabilitiesLayers.push(cartography);
+        });
+      }
     }
+
     this.serviceForm.patchValue({
       description: this.serviceCapabilitiesData.WMT_MS_CAPABILITIES.SERVICE.ABSTRACT,
     })
