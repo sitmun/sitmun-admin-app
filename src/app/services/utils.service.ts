@@ -228,6 +228,8 @@ export class UtilsService {
         'pendingModify': function (params) { return params.value === 'pendingModify' },
         'pendingDelete': function (params) { return params.value === 'pendingDelete' },
         'pendingCreation': function (params) { return params.value === 'pendingCreation' },
+        'notAvailable': function (params) { return params.value === 'notAvailable' },
+        'pendingRegistration': function (params) { return params.value === 'pendingRegistration' },
         'stable': function (params) { return params.value === undefined || params.value === 'statusOK'}
       }
     }

@@ -770,17 +770,23 @@ h2 {
   color: #68A225;
 }
 
-.pendingModify::before,.pendingCreation::before{
+.pendingModify::before,.pendingCreation::before,.pendingRegistration:before{
   font-family: 'Material Icons';
   content: 'fiber_manual_record';
   color: #ff9300;
 }
 
-.pendingDelete:before{
+.pendingDelete:before,.notAvailable::before{
   font-family: 'Material Icons';
   content: 'fiber_manual_record';
   color: #bf0000;
 }
+
+// .notAvailable::before,.pendingRegistration:before{
+//   font-family: 'Material Icons';
+//   content: 'fiber_manual_record';
+//   color: #0165f1;
+// }
 
 @media print {
   app-toolbar,

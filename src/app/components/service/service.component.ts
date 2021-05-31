@@ -68,16 +68,17 @@ export class ServiceComponent implements OnInit {
   }
   
   add(data: Service[]) {
-    const promises: Promise<any>[] = [];
-    data.forEach(service => {
-      service.id = null;
-      service.createdDate = new Date();
-      service.name = this.utils.getTranslate('copy_').concat(service.name)
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.serviceService.create(service).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
-      });
-    });
+    this.router.navigate(['service', -1, 'serviceForm', data[0].id]);
+    // const promises: Promise<any>[] = [];
+    // data.forEach(service => {
+    //   service.id = null;
+    //   service.createdDate = new Date();
+    //   service.name = this.utils.getTranslate('copy_').concat(service.name)
+    //   promises.push(new Promise((resolve, reject) => {​​​​​​​ this.serviceService.create(service).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
+    //   Promise.all(promises).then(() => {
+    //     this.dataUpdatedEvent.next(true);
+    //   });
+    // });
 
   }
 

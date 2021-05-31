@@ -25,6 +25,8 @@
   "status":"Estado",
   "value": "Valor",
   "statusOK": "Sin cambios",
+  "notAvailable": "No disponible",
+  "pendingRegistration": "Pendiente registrar",
   "search/replace": "Buscar/Reemplazar",
   "selectType": "Selecciona el tipo",
   "ok-created": "Los elementos se han creado correctamente",

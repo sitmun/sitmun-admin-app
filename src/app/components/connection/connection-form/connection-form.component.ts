@@ -27,6 +27,7 @@ export class ConnectionFormComponent implements OnInit {
   formConnection: FormGroup;
   connectionToEdit;
   connectionID = -1;
+  duplicateID = -1;
   dataLoaded: Boolean = false;
 
   //Grids
@@ -70,23 +71,37 @@ export class ConnectionFormComponent implements OnInit {
   ngOnInit(): void {
     this.activatedRoute.params.subscribe(params => {
       this.connectionID = +params.id;
-      if (this.connectionID !== -1) {
+      if(params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
+      
+      if (this.connectionID !== -1 || this.duplicateID != -1) {
+        let idToGet = this.connectionID !== -1? this.connectionID: this.duplicateID
         console.log(this.connectionID);
+        console.log(this.duplicateID);
 
-        this.connectionService.get(this.connectionID).subscribe(
+        this.connectionService.get(idToGet).subscribe(
           resp => {
             console.log(resp);
             this.connectionToEdit = resp;
             this.formConnection.patchValue({
-              id: this.connectionID,
-              name: this.connectionToEdit.name,
               driver: this.connectionToEdit.driver,
               user: this.connectionToEdit.user,
               password: this.connectionToEdit.password,
               url: this.connectionToEdit.url,
-              passwordSet: this.connectionToEdit.passwordSet,
               _links: this.connectionToEdit._links
             });
+
+            if(this.connectionID !== -1){
+              this.formConnection.patchValue({
+                id: this.connectionID,
+                name: this.connectionToEdit.name,
+                passwordSet: this.connectionToEdit.passwordSet,
+              });
+            }
+            else{
+              this.formConnection.patchValue({
+                name: this.utils.getTranslate('copy_').concat(this.connectionToEdit.name),
+              });
+            }
 
             this.dataLoaded = true;
           },
@@ -114,7 +129,7 @@ export class ConnectionFormComponent implements OnInit {
     this.columnDefsTasks = [
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('connectionEntity.name', 'name'),
+      this.utils.getNonEditableColumnDef('connectionEntity.name', 'name'),
       this.utils.getNonEditableColumnDef('connectionEntity.taskGroup', 'groupName'),
       this.utils.getStatusColumnDef(),
     ];
@@ -158,7 +173,7 @@ export class ConnectionFormComponent implements OnInit {
   // ******** Cartographies ******** //
   getAllCartographies = () => {
 
-    if (this.connectionID == -1) {
+    if (this.connectionID == -1 && this.duplicateID == -1) {
       const aux: Array<any> = [];
       return of(aux);
     }
@@ -205,7 +220,7 @@ export class ConnectionFormComponent implements OnInit {
   // ******** Tasks  ******** //
   getAllTasks = () => {
 
-    if (this.connectionID == -1) {
+    if (this.connectionID == -1 ) {
       const aux: Array<any> = [];
       return of(aux);
     }
@@ -224,13 +239,14 @@ export class ConnectionFormComponent implements OnInit {
 
   getAllRowsTasks(data: any[]) {
     let dataChanged = false;
-    let tasksModified = [];
     let tasksToPut = [];
+    const promises: Promise<any>[] = [];
     data.forEach(task => {
 
       if (task.status !== 'pendingDelete') { 
         if (task.status === 'pendingModify') {
-          tasksModified.push(task);
+          if(task.new){ dataChanged = true; }
+          promises.push(new Promise((resolve, reject) => { this.tasksService.update(task).subscribe((resp) => { resolve(true) }) }));
         }
         else if (task.status === 'pendingCreation'){
           dataChanged = true;
@@ -241,15 +257,6 @@ export class ConnectionFormComponent implements OnInit {
         dataChanged = true;
       }
     });
-    this.updateTasks(tasksModified, tasksToPut, dataChanged);
-
-  }
-
-  updateTasks(tasksModified: Task[], tasksToPut: Task[], dataChanged:boolean) {
-    const promises: Promise<any>[] = [];
-    tasksModified.forEach(task => {
-      promises.push(new Promise((resolve, reject) => { this.tasksService.update(task).subscribe((resp) => { resolve(true) }) }));
-    });
     Promise.all(promises).then(() => {
       if(dataChanged){
         let url = this.connectionToEdit._links.tasks.href.split('{', 1)[0];
@@ -257,6 +264,7 @@ export class ConnectionFormComponent implements OnInit {
       }
       else{ this.dataUpdatedEventTasks.next(true) }
     });
+
   }
 
   // ******** Cartography Dialog  ******** //
@@ -337,6 +345,13 @@ export class ConnectionFormComponent implements OnInit {
   onSaveButtonClicked() {
 
     if (this.formConnection.valid) {
+
+      if (this.connectionID == -1 && this.duplicateID != -1) {
+        this.formConnection.patchValue({
+          _links: null
+        })
+      }
+
       this.connectionService.save(this.formConnection.value).subscribe(
         result => {
           console.log(result);

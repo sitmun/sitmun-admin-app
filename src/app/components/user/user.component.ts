@@ -77,15 +77,16 @@ export class UserComponent implements OnInit {
     });
   }
   add(data: User[]) {
-    const promises: Promise<any>[] = [];
-    data.forEach(user => {
-      user.id = null;
-      user.username = this.utils.getTranslate('copy_').concat(user.username)
-      promises.push(new Promise((resolve, reject) => { this.userService.create(user).subscribe((resp) => { resolve(true) }) }));
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
-      });
-    });
+    this.router.navigate(['user', -1, 'userForm', data[0].id]);
+    // const promises: Promise<any>[] = [];
+    // data.forEach(user => {
+    //   user.id = null;
+    //   user.username = this.utils.getTranslate('copy_').concat(user.username)
+    //   promises.push(new Promise((resolve, reject) => { this.userService.create(user).subscribe((resp) => { resolve(true) }) }));
+    //   Promise.all(promises).then(() => {
+    //     this.dataUpdatedEvent.next(true);
+    //   });
+    // });
 
   }
 

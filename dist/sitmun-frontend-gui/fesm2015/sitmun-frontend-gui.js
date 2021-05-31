@@ -474,11 +474,21 @@ class DataGridComponent {
         this.getElements();
         console.log(this.columnDefs);
         if (this.defaultColumnSorting) {
-            /** @type {?} */
-            const sortModel = [
-                { colId: this.defaultColumnSorting, sort: 'asc' }
-            ];
-            this.gridApi.setSortModel(sortModel);
+            if (!Array.isArray(this.defaultColumnSorting)) {
+                /** @type {?} */
+                const sortModel = [
+                    { colId: this.defaultColumnSorting, sort: 'asc' }
+                ];
+                this.gridApi.setSortModel(sortModel);
+            }
+            else {
+                /** @type {?} */
+                let sortModel = [];
+                this.defaultColumnSorting.forEach(element => {
+                    sortModel.push({ colId: this.defaultColumnSorting, sort: 'asc' });
+                });
+                this.gridApi.setSortModel(sortModel);
+            }
         }
         if (this.defaultHeight != null && this.defaultHeight != undefined) {
             this.changeHeight(this.defaultHeight);
@@ -618,8 +628,15 @@ class DataGridComponent {
         this.getAll()
             .subscribe((items) => {
             if (this.statusColumn) {
+                /** @type {?} */
+                let status = this.allNewElements ? 'pendingCreation' : 'statusOK';
                 items.forEach(element => {
-                    element.status = 'statusOK';
+                    if (element.status != "notAvailable" && element.status != "pendingCreation" && element.status != "pendingRegistration") {
+                        element.status = status;
+                    }
+                    if (this.allNewElements) {
+                        element.new = true;
+                    }
                 });
             }
             this.rowData = items;
@@ -791,6 +808,8 @@ class DataGridComponent {
      */
     deleteChanges() {
         this.gridApi.stopEditing(false);
+        /** @type {?} */
+        let newElementsActived = this.allNewElements;
         while (this.changeCounter > 0) {
             this.undo();
         }
@@ -805,7 +824,7 @@ class DataGridComponent {
                     if (node.data.status === 'pendingDelete') {
                         rowsWithStatusModified.push(node.data);
                     }
-                    if (node.data.newItem) {
+                    if (node.data.newItem || newElementsActived) {
                         node.data.status = 'pendingCreation';
                     }
                     else {
@@ -879,9 +898,9 @@ class DataGridComponent {
                     addMap.set(params.colDef.field, 1);
                     this.changesMap.set(params.node.id, addMap);
                     if (this.statusColumn) {
-                        if (this.gridApi.getRowNode(params.node.id).data.status !== 'pendingCreation') {
-                            this.gridApi.getRowNode(params.node.id).data.status = 'pendingModify';
-                        }
+                        // if (this.gridApi.getRowNode(params.node.id).data.status !== 'pendingCreation') {
+                        this.gridApi.getRowNode(params.node.id).data.status = 'pendingModify';
+                        // }
                     }
                 }
                 else {
@@ -1060,6 +1079,7 @@ DataGridComponent.propDecorators = {
     hideDuplicateButton: [{ type: Input }],
     hideSearchReplaceButton: [{ type: Input }],
     addFieldRestriction: [{ type: Input }],
+    allNewElements: [{ type: Input }],
     remove: [{ type: Output }],
     new: [{ type: Output }],
     add: [{ type: Output }],
@@ -1176,6 +1196,8 @@ if (false) {
     DataGridComponent.prototype.hideSearchReplaceButton;
     /** @type {?} */
     DataGridComponent.prototype.addFieldRestriction;
+    /** @type {?} */
+    DataGridComponent.prototype.allNewElements;
     /** @type {?} */
     DataGridComponent.prototype.remove;
     /** @type {?} */
@@ -1557,11 +1579,12 @@ class FileDatabase {
     get data() { return this.dataChange.value; }
     /**
      * @param {?} dataObj
+     * @param {?} allNewElements
      * @return {?}
      */
-    initialize(dataObj) {
+    initialize(dataObj, allNewElements) {
         /** @type {?} */
-        const data = this.buildFileTree(dataObj, 0);
+        const data = this.buildFileTree(dataObj, 0, allNewElements);
         // Notify the change.
         this.dataChange.next(data);
     }
@@ -1570,9 +1593,10 @@ class FileDatabase {
      * The return value is the list of `FileNode`.
      * @param {?} arrayTreeNodes
      * @param {?} level
+     * @param {?} allNewElements
      * @return {?}
      */
-    buildFileTree(arrayTreeNodes, level) {
+    buildFileTree(arrayTreeNodes, level, allNewElements) {
         /** @type {?} */
         var map = {};
         if (arrayTreeNodes.length === 0) {
@@ -1594,6 +1618,15 @@ class FileDatabase {
                 var obj = treeNode;
                 obj.children = [];
                 obj.type = (treeNode.isFolder) ? "folder" : "node";
+                if (allNewElements) {
+                    obj.status = 'pendingCreation';
+                    if (obj.id) {
+                        obj.id = obj.id * -1;
+                    }
+                    if (obj.parent) {
+                        obj.parent = obj.parent * -1;
+                    }
+                }
                 if (!map[obj.id]) {
                     map[obj.id] = obj;
                 }
@@ -1921,7 +1954,7 @@ class DataTreeComponent {
         this.getAll()
             .subscribe((items) => {
             this.treeData = items;
-            this.database.initialize(this.treeData);
+            this.database.initialize(this.treeData, this.allNewElements);
             this.database.dataChange.subscribe(data => this.rebuildTreeForData([data]));
         });
     }
@@ -2111,9 +2144,11 @@ class DataTreeComponent {
         this.dataSource.data = [];
         this.dataSource.data = data;
         this.treeControl.expansionModel.selected.forEach((nodeAct) => {
-            /** @type {?} */
-            const node = this.treeControl.dataNodes.find((n) => n.id === nodeAct.id);
-            this.treeControl.expand(node);
+            if (nodeAct) {
+                /** @type {?} */
+                const node = this.treeControl.dataNodes.find((n) => n.id === nodeAct.id);
+                this.treeControl.expand(node);
+            }
         });
     }
     /**
@@ -2291,6 +2326,7 @@ DataTreeComponent.propDecorators = {
     eventGetAllRowsSubscription: [{ type: Input }],
     eventRefreshSubscription: [{ type: Input }],
     getAll: [{ type: Input }],
+    allNewElements: [{ type: Input }],
     emptyItem: [{ type: ViewChild, args: ['emptyItem',] }]
 };
 if (false) {
@@ -2338,6 +2374,8 @@ if (false) {
     DataTreeComponent.prototype.treeData;
     /** @type {?} */
     DataTreeComponent.prototype.getAll;
+    /** @type {?} */
+    DataTreeComponent.prototype.allNewElements;
     /** @type {?} */
     DataTreeComponent.prototype.dragNode;
     /** @type {?} */

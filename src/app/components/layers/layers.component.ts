@@ -72,25 +72,27 @@ export class LayersComponent implements OnInit {
   }
 
   add(data: Cartography[]) {
-    const promises: Promise<any>[] = [];
-    data.forEach(cartography => {
-      let newCartography: Cartography = cartography;
-      this.http.get(cartography._links.service.href).subscribe( (result:Service) => {
-        newCartography.id = null;
-        newCartography.service=result;
-        newCartography.createdDate = new Date();
-        newCartography._links = null;
-        newCartography.name = this.utils.getTranslate('copy_').concat(newCartography.name)
-        console.log(newCartography);
-        promises.push(new Promise((resolve, reject) => {​​​​​​​ this.cartographyService.save(newCartography).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
-        Promise.all(promises).then(() => {
-          this.dataUpdatedEvent.next(true);
-        });
-      }, error => {
-        console.log(error);
-      })
+    this.router.navigate(['layers', -1, 'layersForm', data[0].id]);
 
-    });
+    // const promises: Promise<any>[] = [];
+    // data.forEach(cartography => {
+    //   let newCartography: Cartography = cartography;
+    //   this.http.get(cartography._links.service.href).subscribe( (result:Service) => {
+    //     newCartography.id = null;
+    //     newCartography.service=result;
+    //     newCartography.createdDate = new Date();
+    //     newCartography._links = null;
+    //     newCartography.name = this.utils.getTranslate('copy_').concat(newCartography.name)
+    //     console.log(newCartography);
+    //     promises.push(new Promise((resolve, reject) => {​​​​​​​ this.cartographyService.save(newCartography).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
+    //     Promise.all(promises).then(() => {
+    //       this.dataUpdatedEvent.next(true);
+    //     });
+    //   }, error => {
+    //     console.log(error);
+    //   })
+
+    // });
 
   }
 

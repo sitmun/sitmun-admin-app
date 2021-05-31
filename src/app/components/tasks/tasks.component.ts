@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { TaskService, Task, TaskGroupService } from 'dist/sitmun-frontend-core/';
+import { TaskService, Task, TaskGroupService, HalParam, HalOptions } from 'dist/sitmun-frontend-core/';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
@@ -46,7 +46,12 @@ export class TasksComponent implements OnInit {
   }
 
   getAllTasks = () => {
-    return this.tasksService.getAll(undefined,undefined,"tasks");
+    let taskTypeID=config.tasksTypes['basic'];
+    let params2:HalParam[]=[];
+    let param:HalParam={key:'type.id', value:taskTypeID}
+    params2.push(param);
+    let query:HalOptions={ params:params2};
+    return this.tasksService.getAll(query,undefined,"tasks");
 
   };
 

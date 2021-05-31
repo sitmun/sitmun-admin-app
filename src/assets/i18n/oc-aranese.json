@@ -25,6 +25,8 @@
   "status":"Estat",
   "value": "Valor",
   "statusOK": "Sense canvis",
+  "notAvailable": "No disponible",
+  "pendingRegistration": "Pendent registrar",
   "search/replace": "Buscar/Reemplaçar",
   "selectType": "Selecciona el tipus",
   "ok-created": "Els elements s'han creat correctament",

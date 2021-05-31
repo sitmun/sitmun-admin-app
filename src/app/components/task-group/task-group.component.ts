@@ -71,15 +71,17 @@ export class TaskGroupComponent implements OnInit {
   }
 
   add(data: TaskGroup[]) {
-    const promises: Promise<any>[] = [];
-    data.forEach(taskGroup => {
-      taskGroup.id = null;
-      taskGroup.name = this.utils.getTranslate('copy_').concat(taskGroup.name)
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.taskGroupService.create(taskGroup).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
-      });
-    });
+    this.router.navigate(['taskGroup', -1, 'taskGroupForm', data[0].id]);
+
+    // const promises: Promise<any>[] = [];
+    // data.forEach(taskGroup => {
+    //   taskGroup.id = null;
+    //   taskGroup.name = this.utils.getTranslate('copy_').concat(taskGroup.name)
+    //   promises.push(new Promise((resolve, reject) => {​​​​​​​ this.taskGroupService.create(taskGroup).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
+    //   Promise.all(promises).then(() => {
+    //     this.dataUpdatedEvent.next(true);
+    //   });
+    // });
 
   }
 

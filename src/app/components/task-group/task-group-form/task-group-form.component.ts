@@ -17,6 +17,7 @@ export class TaskGroupFormComponent implements OnInit {
   formtaskGroup: FormGroup;
   taskGroupToEdit;
   taskGroupID: number = -1;
+  duplicateID = -1;
   
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -32,10 +33,13 @@ export class TaskGroupFormComponent implements OnInit {
 
     this.activatedRoute.params.subscribe(params => {
       this.taskGroupID = +params.id;
-      if (this.taskGroupID !== -1) {
+      if(params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
+      
+      if (this.taskGroupID !== -1 || this.duplicateID != -1) {
+        let idToGet = this.taskGroupID !== -1? this.taskGroupID: this.duplicateID  
         console.log(this.taskGroupID);
 
-        this.taskGroupService.get(this.taskGroupID).subscribe(
+        this.taskGroupService.get(idToGet).subscribe(
           resp => {
             console.log(resp);
             this.taskGroupToEdit = resp;
@@ -44,6 +48,18 @@ export class TaskGroupFormComponent implements OnInit {
               name: this.taskGroupToEdit.name,
               _links: this.taskGroupToEdit._links
             });
+
+            if(this.taskGroupID !== -1){
+              this.formtaskGroup.patchValue({
+                id: this.taskGroupID,
+                name: this.taskGroupToEdit.name,
+              });
+            }
+            else{
+              this.formtaskGroup.patchValue({
+                name: this.utils.getTranslate('copy_').concat(this.taskGroupToEdit.name),
+              });
+            }
 
 
           },
@@ -80,6 +96,13 @@ export class TaskGroupFormComponent implements OnInit {
 
     if(this.formtaskGroup.valid)
     {
+
+      if (this.taskGroupID == -1 && this.duplicateID != -1) {
+        this.formtaskGroup.patchValue({
+          _links: null
+        })
+      }
+
         this.taskGroupService.save(this.formtaskGroup.value)
           .subscribe(resp => {
             console.log(resp); 

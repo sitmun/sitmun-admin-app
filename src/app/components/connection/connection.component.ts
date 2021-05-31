@@ -70,16 +70,17 @@ export class ConnectionComponent implements OnInit {
   }
 
   add(data: Connection[]) {
-    console.log(data);
-    const promises: Promise<any>[] = [];
-    data.forEach(connection => {
-      connection.id = null;
-      connection.name = this.utils.getTranslate('copy_').concat(connection.name)
-      promises.push(new Promise((resolve, reject) => { this.connectionService.create(connection).subscribe((resp) => { resolve(true) }) }));
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
-      });
-    });
+    this.router.navigate(['connection', -1, 'connectionForm', data[0].id]);
+    // console.log(data);
+    // const promises: Promise<any>[] = [];
+    // data.forEach(connection => {
+    //   connection.id = null;
+    //   connection.name = this.utils.getTranslate('copy_').concat(connection.name)
+    //   promises.push(new Promise((resolve, reject) => { this.connectionService.create(connection).subscribe((resp) => { resolve(true) }) }));
+    //   Promise.all(promises).then(() => {
+    //     this.dataUpdatedEvent.next(true);
+    //   });
+    // });
 
   }
 

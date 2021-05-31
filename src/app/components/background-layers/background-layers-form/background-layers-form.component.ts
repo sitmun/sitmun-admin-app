@@ -75,6 +75,7 @@ export class BackgroundLayersFormComponent implements OnInit {
   backgroundForm: FormGroup;
   backgroundToEdit;
   backgroundID = -1;
+  duplicateID = -1;
 
   ngOnInit(): void {
 
@@ -100,17 +101,18 @@ export class BackgroundLayersFormComponent implements OnInit {
     Promise.all(promises).then(() => {
       this.activatedRoute.params.subscribe(params => {
         this.backgroundID = +params.id;
-        if (this.backgroundID !== -1) {
+        if(params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
+      
+        if (this.backgroundID !== -1 || this.duplicateID != -1) {
+          let idToGet = this.backgroundID !== -1? this.backgroundID: this.duplicateID  
           console.log(this.backgroundID);
   
-          this.backgroundService.get(this.backgroundID).subscribe(
+          this.backgroundService.get(idToGet).subscribe(
             resp => {
               console.log(resp);
               this.backgroundToEdit = resp;
               
-              this.backgroundForm.setValue({
-                id: this.backgroundID,
-                name: this.backgroundToEdit.name,
+              this.backgroundForm.patchValue({
                 description: this.backgroundToEdit.description,
                 image: this.backgroundToEdit.image,
                 cartographyGroup: this.permissionGroups[0].value,
@@ -118,48 +120,66 @@ export class BackgroundLayersFormComponent implements OnInit {
                 _links: this.backgroundToEdit._links
               });
 
-              this.translationService.getAll()
-              .pipe(map((data: any[]) => data.filter(elem => elem.element == this.backgroundID)
-              )).subscribe( result => {
-                console.log(result);
-                result.forEach(translation => {
-                  if(translation.languageName == config.languagesObjects.catalan.name){
-                    if(translation.column == config.translationColumns.backgroundName){
-                      this.catalanNameTranslation=translation
-                    }
-                    else if(translation.column == config.translationColumns.backgroundDescription){
-                      this.catalanDescriptionTranslation=translation
-                    }
-                  }
-                  if(translation.languageName == config.languagesObjects.spanish.name){
-                    if(translation.column == config.translationColumns.backgroundName){
-                      this.spanishNameTranslation=translation
-                    }
-                    else if(translation.column == config.translationColumns.backgroundDescription){
-                      this.spanishDescriptionTranslation=translation
-                    }
-                  }
-                  if(translation.languageName == config.languagesObjects.english.name){
-                    if(translation.column == config.translationColumns.backgroundName){
-                      this.englishNameTranslation=translation
-                    }
-                    else if(translation.column == config.translationColumns.backgroundDescription){
-                      this.englishDescriptionTranslation=translation
-                    }
-                  }
-                  if(translation.languageName == config.languagesObjects.aranese.name){
-                    if(translation.column == config.translationColumns.backgroundName){
-                      this.araneseNameTranslation=translation
-                    }
-                    else if(translation.column == config.translationColumns.backgroundDescription){
-                      this.araneseDescriptionTranslation=translation
-                    }
-                  }
+              if(this.backgroundID !== -1){
+                this.backgroundForm.patchValue({
+                id: this.backgroundID,
+                name: this.backgroundToEdit.name,
                 });
               }
-        
-              );;
+              else{
+                this.backgroundForm.patchValue({
+                name: this.utils.getTranslate('copy_').concat(this.backgroundToEdit.name),
+              });
+            }
+              
 
+
+              if(this.backgroundID != -1)
+              {
+                this.translationService.getAll()
+                .pipe(map((data: any[]) => data.filter(elem => elem.element == this.backgroundID)
+                )).subscribe( result => {
+                  console.log(result);
+                  result.forEach(translation => {
+                    if(translation.languageName == config.languagesObjects.catalan.name){
+                      if(translation.column == config.translationColumns.backgroundName){
+                        this.catalanNameTranslation=translation
+                      }
+                      else if(translation.column == config.translationColumns.backgroundDescription){
+                        this.catalanDescriptionTranslation=translation
+                      }
+                    }
+                    if(translation.languageName == config.languagesObjects.spanish.name){
+                      if(translation.column == config.translationColumns.backgroundName){
+                        this.spanishNameTranslation=translation
+                      }
+                      else if(translation.column == config.translationColumns.backgroundDescription){
+                        this.spanishDescriptionTranslation=translation
+                      }
+                    }
+                    if(translation.languageName == config.languagesObjects.english.name){
+                      if(translation.column == config.translationColumns.backgroundName){
+                        this.englishNameTranslation=translation
+                      }
+                      else if(translation.column == config.translationColumns.backgroundDescription){
+                        this.englishDescriptionTranslation=translation
+                      }
+                    }
+                    if(translation.languageName == config.languagesObjects.aranese.name){
+                      if(translation.column == config.translationColumns.backgroundName){
+                        this.araneseNameTranslation=translation
+                      }
+                      else if(translation.column == config.translationColumns.backgroundDescription){
+                        this.araneseDescriptionTranslation=translation
+                      }
+                    }
+                  });
+                }
+          
+                );;
+
+
+              }
               var urlReq = `${this.backgroundToEdit._links.cartographyGroup.href}`
               this.http.get(urlReq)
               .pipe(map(data =>{
@@ -167,6 +187,9 @@ export class BackgroundLayersFormComponent implements OnInit {
                 this.cartographyGroupOfThisLayer= data;
                 this.dataLoaded = true;
               } )).subscribe();
+             
+
+
 
               // if(this.backgroundToEdit.cartographyGroupId == null)
               // {
@@ -285,7 +308,7 @@ export class BackgroundLayersFormComponent implements OnInit {
   // ******** Cartographies configuration ******** //
   getAllCartographies = () => {
 
-    if(this.cartographyGroupOfThisLayer == null)
+    if(this.cartographyGroupOfThisLayer == null && this.backgroundID == -1 && this.duplicateID == -1)
     {
       const aux: Array<any> = [];
       return of(aux);
@@ -305,13 +328,15 @@ export class BackgroundLayersFormComponent implements OnInit {
 
   getAllRowsCartographies(data: any[] )
   {
+    const promises: Promise<any>[] = [];
     let dataChanged = false;
     let cartographiesModified = [];
     let cartographiesToPut = [];
     data.forEach(cartography => {
       if(cartography.status!== 'pendingDelete') {
         if (cartography.status === 'pendingModify') {
-          cartographiesModified.push(cartography) 
+          if(cartography.new){ dataChanged = true; }
+          promises.push(new Promise((resolve, reject) => { this.cartographyService.update(cartography).subscribe((resp) => { resolve(true) }) }));
         }
         else if (cartography.status === 'pendingCreation') {
           dataChanged = true;
@@ -323,15 +348,6 @@ export class BackgroundLayersFormComponent implements OnInit {
       }
     });
     console.log(cartographiesModified);
-    this.updateCartographies(cartographiesModified, cartographiesToPut, dataChanged);
-  }
-
-  updateCartographies(cartographiesModified: Cartography[], cartographiesToPut: Cartography[], dataChanged: boolean)
-  {
-    const promises: Promise<any>[] = [];
-    cartographiesModified.forEach(cartography => {
-      promises.push(new Promise((resolve, reject) => { this.cartographyService.update(cartography).subscribe((resp) => { resolve(true) }) }));
-    });
     Promise.all(promises).then(() => {
       if(dataChanged){
         let url=this.cartographyGroupOfThisLayer._links.members.href.split('{', 1)[0];
@@ -341,13 +357,10 @@ export class BackgroundLayersFormComponent implements OnInit {
     });
   }
 
-
-
-
   // ******** Roles  ******** //
   getAllRoles = () => {
 
-    if(this.cartographyGroupOfThisLayer == null)
+    if(this.cartographyGroupOfThisLayer == null && this.backgroundID == -1 && this.duplicateID == -1)
     {
       const aux: Array<any> = [];
       return of(aux);
@@ -367,13 +380,15 @@ export class BackgroundLayersFormComponent implements OnInit {
 
   getAllRowsRoles(data: any[] )
   {
+    const promises: Promise<any>[] = [];
     let dataChanged = false;
     let rolesModified = [];
     let rolesToPut = [];
     data.forEach(role => {
       if(role.status!== 'pendingDelete') {
         if (role.status === 'pendingModify') {
-          rolesModified.push(role) 
+          if(role.new){ dataChanged = true; }
+          promises.push(new Promise((resolve, reject) => { this.roleService.update(role).subscribe((resp) => { resolve(true) }) }));
         }
         else if(role.status === 'pendingCreation'){
           dataChanged = true;
@@ -385,15 +400,6 @@ export class BackgroundLayersFormComponent implements OnInit {
       }
     });
     console.log(rolesModified);
-    this.updateRoles(rolesModified, rolesToPut, dataChanged);
-  }
-
-  updateRoles(rolesModified: Role[], rolesToPut: Role[], dataChanged: boolean)
-  {
-    const promises: Promise<any>[] = [];
-    rolesModified.forEach(role => {
-      promises.push(new Promise((resolve, reject) => { this.roleService.update(role).subscribe((resp) => { resolve(true) }) }));
-    });
     Promise.all(promises).then(() => {
       if(dataChanged)
       {
@@ -403,7 +409,6 @@ export class BackgroundLayersFormComponent implements OnInit {
       else { this.dataUpdatedEventRoles.next(true) }
     });
   }
-
 
   // ******** Cartography Dialog  ******** //
 
@@ -471,15 +476,16 @@ export class BackgroundLayersFormComponent implements OnInit {
     
     if(this.backgroundForm.valid)
     {
-      // let cartographyGroup= this.permissionGroups.find(x => x.id===this.backgroundForm.value.cartographyGroup )
-      // if(cartographyGroup==undefined || cartographyGroup.id === -1){
-      //   cartographyGroup=null
-      // }
-
       let cartographyGroupObj = new CartographyGroup();
       cartographyGroupObj.name = this.backgroundForm.value.name;
       cartographyGroupObj.type = this.backgroundForm.value.cartographyGroup;
       cartographyGroupObj._links = null;
+
+      if (this.backgroundID == -1 && this.duplicateID != -1) {
+        this.cartographyGroupOfThisLayer = null;
+      }
+
+
       if(this.cartographyGroupOfThisLayer == null)
       {
         this.cartographyGroupService.save(cartographyGroupObj)
@@ -506,6 +512,13 @@ export class BackgroundLayersFormComponent implements OnInit {
     }
 
     updateBackground(cartographyGroup: any){
+
+      if (this.backgroundID == -1 && this.duplicateID != -1) {
+        this.backgroundForm.patchValue({
+          _links: null
+        })
+      }
+
       var backgroundObj: Background=new Background();
 
       backgroundObj.id= this.backgroundForm.value.id;

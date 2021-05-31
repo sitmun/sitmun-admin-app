@@ -30,10 +30,12 @@ export class ServiceFormComponent implements OnInit {
 
   //form
   dataLoaded: Boolean = false;
+  capabilitiesLoaded: Boolean = true;
   private parametersUrl: string;
   serviceForm: FormGroup;
   serviceToEdit;
   serviceID = -1;
+  duplicateID = -1;
   visible = true;
   selectable = true;
   removable = true;
@@ -43,7 +45,7 @@ export class ServiceFormComponent implements OnInit {
   serviceTypes: Array<any> = [];
   requestTypes: Array<any> = [];
   serviceCapabilitiesData:any={};
-  getCapabilitiesLayers:Cartography[]=[];
+  getCapabilitiesLayers=[];
   //Grids
   themeGrid: any = config.agGridTheme;
   columnDefsParameters: any[];
@@ -90,7 +92,6 @@ export class ServiceFormComponent implements OnInit {
 
   ngOnInit(): void {
 
-
     let serviceTypeByDefault = {
       value: -1,
       description: '-------'
@@ -122,8 +123,11 @@ export class ServiceFormComponent implements OnInit {
 
       this.activatedRoute.params.subscribe(params => {
         this.serviceID = +params.id;
-        if (this.serviceID !== -1) {
-          this.serviceService.get(this.serviceID).subscribe(
+        if(params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
+      
+        if (this.serviceID !== -1 || this.duplicateID != -1) {
+          let idToGet = this.serviceID !== -1? this.serviceID: this.duplicateID  
+          this.serviceService.get(idToGet).subscribe(
             resp => {
               console.log(resp);
               this.serviceToEdit = resp;
@@ -134,26 +138,43 @@ export class ServiceFormComponent implements OnInit {
               }
               // this.projections = this.serviceToEdit.supportedSRS.split(';');
               this.parametersUrl = this.serviceToEdit._links.parameters.href;
-              this.serviceForm.setValue({
-                id: this.serviceID,
-                name: this.serviceToEdit.name,
+              this.serviceForm.patchValue({
                 type: this.serviceToEdit.type,
                 description: this.serviceToEdit.description,
-                serviceURL: this.serviceToEdit.serviceURL,
                 proxyUrl: this.serviceToEdit.proxyUrl,
                 supportedSRS: this.serviceToEdit.supportedSRS,
-                getInformationURL: this.serviceToEdit.getInformationURL,
                 blocked: this.serviceToEdit.blocked,
                 _links: this.serviceToEdit._links
               });
 
-                            
-              this.translationService.getAll()
-              .pipe(map((data: any[]) => data.filter(elem => elem.element == this.serviceID && elem.column == config.translationColumns.serviceDescription)
-              )).subscribe( result => {
-                console.log(result);
-                this.saveTranslations(result);
-              });;
+
+
+              if(this.serviceID != -1){
+                this.serviceForm.patchValue({
+                  id: this.serviceID,
+                  name: this.serviceToEdit.name,
+                  serviceURL: this.serviceToEdit.serviceURL,
+                  getInformationURL: this.serviceToEdit.getInformationURL,
+                  });
+                if(this.serviceForm.value.serviceURL){
+                  this.capabilitiesLoaded=false;
+                  this.getCapabilitiesDataService();
+                }
+                this.translationService.getAll()
+                .pipe(map((data: any[]) => data.filter(elem => elem.element == this.serviceID && elem.column == config.translationColumns.serviceDescription)
+                )).subscribe( result => {
+                  console.log(result);
+                  this.saveTranslations(result);
+                });;
+              } 
+              else{
+                this.serviceForm.patchValue({
+                  name: this.utils.getTranslate('copy_').concat(this.serviceToEdit.name),
+                  });
+              }   
+
+
+
   
               this.dataLoaded = true;
             },
@@ -191,8 +212,8 @@ export class ServiceFormComponent implements OnInit {
     this.columnDefsLayers = [
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('serviceEntity.name', 'name'),
-      this.utils.getEditableColumnDef('serviceEntity.description', 'description'),
+      this.utils.getNonEditableColumnDef('serviceEntity.name', 'name'),
+      this.utils.getNonEditableColumnDef('serviceEntity.description', 'description'),
       this.utils.getStatusColumnDef()
     ];
 
@@ -259,28 +280,34 @@ export class ServiceFormComponent implements OnInit {
     }
   }
 
-  getCapabilitiesDataService(){
+  getCapabilitiesDataService(refresh?){
+    try{
+    this.getCapabilitiesLayers=[];
     this.http.get(`${this.serviceForm.value.serviceURL}?request=GetCapabilities`, { responseType: 'text' }).subscribe(resp => {
      
       // this.router.navigate(["/company", resp.id, "formConnection"]);
       const parser = new xml2js.Parser({ explicitArray:false,strict: false, trim: true });
       parser.parseString(resp, (err, result) => {
         this.serviceCapabilitiesData=result;
-        this.changeServiceDataByCapabilities();
+        this.changeServiceDataByCapabilities(refresh);
    
       });
-    },
-    (err) => {
+    }, error =>{
+      this.capabilitiesLoaded=true;
+    })
+    }
+    catch(err) {
       this.utils.showErrorMessage ("ERROR")
+      this.capabilitiesLoaded=true;
 
-    });
+    };
   }
 
-  changeServiceDataByCapabilities(){
+  changeServiceDataByCapabilities(refresh?){
   
-    let data=this.serviceCapabilitiesData.WMT_MS_CAPABILITIES!=undefined?this.serviceCapabilitiesData.WMT_MS_CAPABILITIES:this.serviceCapabilitiesData.WMT_CAPABILITIES
+    let data=this.serviceCapabilitiesData.WMT_MS_CAPABILITIES!=undefined?this.serviceCapabilitiesData.WMT_MS_CAPABILITIES:this.serviceCapabilitiesData.WMS_CAPABILITIES
     if (data!=undefined ){
-      if(data.CAPABILITY.LAYER.SRS !== null) {
+      if(data.CAPABILITY.LAYER.SRS !== null && data.CAPABILITY.LAYER.SRS !== undefined) {
         this.projections=[];
         this.serviceCapabilitiesData.WMT_MS_CAPABILITIES.CAPABILITY.LAYER.SRS.forEach((projection) => {
           this.projections.push(projection);
@@ -291,21 +318,30 @@ export class ServiceFormComponent implements OnInit {
           let cartography= new Cartography();
           cartography.name= lyr.NAME,
           cartography.description=lyr.ABSTRACT
-          if(lyr.MetadataURL!=undefined){
-            cartography.metadataURL=lyr.MetadataURL.OnlineResource.$['xlink:href']
+          if(lyr){
+            if(lyr.MetadataURL!=undefined){
+              cartography.metadataURL=lyr.MetadataURL.OnlineResource.$['xlink:href']
+            }
+  
+            if(lyr.STYLE && lyr.STYLE[0] && lyr.STYLE[0].LEGENDURL!=undefined){
+              cartography.legendURL=lyr.STYLE[0].LEGENDURL.ONLINERESOURCE.$['XLINK:HREF']
+            }
           }
 
-          if(lyr.STYLE[0].LEGENDURL!=undefined){
-            cartography.legendURL=lyr.STYLE[0].LEGENDURL.ONLINERESOURCE.$['XLINK:HREF']
-          }
           this.getCapabilitiesLayers.push(cartography);
         });
       }
-    }
+      if(data.SERVICE && data.SERVICE.ABSTRACT && data.SERVICE.ABSTRACT.length>0){
+        this.serviceForm.patchValue({
+          description: data.SERVICE.ABSTRACT,
+        })
+      }
 
-    this.serviceForm.patchValue({
-      description: this.serviceCapabilitiesData.WMT_MS_CAPABILITIES.SERVICE.ABSTRACT,
-    })
+    }
+    
+
+    this.capabilitiesLoaded=true;
+    if(refresh){this.dataUpdatedEventLayers.next(true) }
   }
 
   async onTranslationButtonClicked()
@@ -326,7 +362,7 @@ export class ServiceFormComponent implements OnInit {
   // ******** Parameters configuration ******** //
   getAllParameters = (): Observable<any> => {
     
-    if(this.serviceID == -1)
+    if (this.serviceID == -1 && this.duplicateID == -1) 
     {
       const aux: Array<any> = [];
       return of(aux);
@@ -350,22 +386,29 @@ export class ServiceFormComponent implements OnInit {
   {
     let parameterToSave = [];
     let parameterToDelete = [];
+    const promises: Promise<any>[] = [];
     data.forEach(parameter => {
       if (parameter.status === 'pendingCreation' || parameter.status === 'pendingModify') {
-        if(! parameter._links) {
-          parameter.service=this.serviceToEdit} //If is new, you need the service link
-          parameterToSave.push(parameter)
+        if(parameter.status === 'pendingCreation'  || parameter.new){
+            parameter.id = null;
+            parameter._links=null;
+            parameter.service=this.serviceToEdit
+          } //If is new, you need the service link
+          promises.push(new Promise((resolve, reject) => {  this.serviceParameterService.save(parameter).subscribe((resp) => { resolve(true) }) }));
+        }
+      if(parameter.status === 'pendingDelete' && parameter._links  && !parameter.new ) {
+        promises.push(new Promise((resolve, reject) => {  this.serviceParameterService.remove(parameter).subscribe((resp) => { resolve(true) }) }));    
+        // parameterToDelete.push(parameter) 
       }
-      if(parameter.status === 'pendingDelete' && parameter._links) {parameterToDelete.push(parameter) }
-    });
-    const promises: Promise<any>[] = [];
-    parameterToSave.forEach(saveElement => {
-      promises.push(new Promise((resolve, reject) => {  this.serviceParameterService.save(saveElement).subscribe((resp) => { resolve(true) }) }));
     });
 
-    parameterToDelete.forEach(deletedElement => {
-      promises.push(new Promise((resolve, reject) => {  this.serviceParameterService.remove(deletedElement).subscribe((resp) => { resolve(true) }) }));    
-    });
+    // parameterToSave.forEach(saveElement => {
+    //   promises.push(new Promise((resolve, reject) => {  this.serviceParameterService.save(saveElement).subscribe((resp) => { resolve(true) }) }));
+    // });
+
+    // parameterToDelete.forEach(deletedElement => {
+    //   promises.push(new Promise((resolve, reject) => {  this.serviceParameterService.remove(deletedElement).subscribe((resp) => { resolve(true) }) }));    
+    // });
 
     Promise.all(promises).then(() => {
       this.dataUpdatedEventParameters.next(true);
@@ -392,21 +435,63 @@ export class ServiceFormComponent implements OnInit {
   // ******** Layers ******** //
   getAllLayers = (): Observable<any> => {
 
-    if(this.serviceID == -1)
-    {
-      const aux: Array<any> = [];
-      return of(aux);
+    if(this.getCapabilitiesLayers.length <= 0){
+      return of([])
     }
 
-    var urlReq = `${this.serviceToEdit._links.layers.href}`
-    if (this.serviceToEdit._links.layers.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
-      urlReq = url.toString();
-    }
-    return (this.http.get(urlReq))
-    .pipe(map(data => data['_embedded']['cartographies']));
+    if (this.serviceID != -1){
+
+      var urlReq = `${this.serviceToEdit._links.layers.href}`
+      if (this.serviceToEdit._links.layers.templated) {
+        var url = new URL(urlReq.split("{")[0]);
+        url.searchParams.append("projection", "view")
+        urlReq = url.toString();
+      }
+      return (this.http.get(urlReq))
+      .pipe(map(data => {
+        let finalCartographies = [];
+        let cartographies= data['_embedded']['cartographies'];
+        this.getCapabilitiesLayers.forEach(capabilityLayer => {
+          let index = cartographies.findIndex(element => element.name == capabilityLayer.name);
+          if( index != -1){
+            if(cartographies[index].blocked){
+              cartographies[index].status="notAvailable";
+            }
+            cartographies[index].alreadySearched = true;
+            finalCartographies.push(cartographies[index])
+          }
+          else{
+            capabilityLayer.status="pendingRegistration"
+            finalCartographies.push(capabilityLayer);
+          }
+        });
+  
+        cartographies.forEach(cartography => {
+  
+          if(!cartography.alreadySearched){
+            cartography.status="notAvailable";
+            finalCartographies.push(cartography);
+          }
+          
+        });
+  
+        return finalCartographies;
+  
+      } ));
     
+    }
+    else{
+      let finalCartographies = [];
+      this.getCapabilitiesLayers.forEach(capabilityLayer => {
+          capabilityLayer.status="pendingRegistration"
+          finalCartographies.push(capabilityLayer);
+      })
+
+
+
+      return of(finalCartographies);
+
+    }
 
   }
 
@@ -415,33 +500,30 @@ export class ServiceFormComponent implements OnInit {
 
   getAllRowsLayers(data: any[] )
   {
-    let dataChanged = false;
-    let layersModified = [];
-    let layersToPut = [];
-    data.forEach(cartography => {
-      if(cartography.status!== 'pendingDelete') {
-        if (cartography.status === 'pendingModify') {layersModified.push(cartography) }
-        else if (cartography.status === 'pendingCreation') {dataChanged = true }
-        layersToPut.push(cartography._links.self.href)
-      }
-      else {dataChanged = true}
-    });
-
-    this.updateLayers(layersModified, layersToPut, dataChanged );
-  }
-
-  updateLayers(layersModified: Cartography[], layersToPut: Cartography[], dataChanged: boolean)
-  {
     const promises: Promise<any>[] = [];
-    layersModified.forEach(cartography => {
-      promises.push(new Promise((resolve, reject) => { this.cartographyService.update(cartography).subscribe((resp) => { resolve(true) }) }));
+    data.forEach(cartography => {
+        if (cartography.status === 'notAvailable' && !cartography.blocked) {
+          cartography.blocked=true;
+          promises.push(new Promise((resolve, reject) => { this.cartographyService.update(cartography).subscribe((resp) => { resolve(true) }) }));
+        }
+        else if (cartography.status === 'pendingRegistration') {
+          cartography.service= this.serviceToEdit;
+          cartography.blocked= false;
+          cartography.queryableFeatureAvailable= false;
+          cartography.queryableFeatureEnabled= false;
+          cartography.layers= [];
+          promises.push(new Promise((resolve, reject) => { this.cartographyService.save(cartography).subscribe((resp) => { resolve(true) }) }));
+        }
+        
+        // layersToPut.push(cartography._links.self.href)
+    
     });
+
     Promise.all(promises).then(() => {
-      if(dataChanged){
-        let url=this.serviceToEdit._links.layers.href.split('{', 1)[0];
-        this.utils.updateUriList(url,layersToPut, this.dataUpdatedEventLayers)
-      }
-      else { this.dataUpdatedEventLayers.next(true)}
+        this.dataUpdatedEventLayers.next(true)
+        // let url=this.serviceToEdit._links.layers.href.split('{', 1)[0];
+        // this.utils.updateUriList(url,layersToPut, this.dataUpdatedEventLayers)
+
     });
   }
 
@@ -516,6 +598,13 @@ export class ServiceFormComponent implements OnInit {
     // })
     if(this.serviceForm.valid)
     {
+
+      if (this.serviceID == -1 && this.duplicateID != -1) {
+        this.serviceForm.patchValue({
+          _links: null
+        })
+      }
+
       this.serviceForm.patchValue({
         supportedSRS: this.projections
       })

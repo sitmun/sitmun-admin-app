@@ -12,6 +12,7 @@ import { config } from 'src/config';
 import { DialogGridComponent, DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
 import { DatePipe } from '@angular/common';
+import { resolve } from 'dns';
 
 
 
@@ -30,6 +31,7 @@ export class UserFormComponent implements OnInit {
   userForm: FormGroup;
   userToEdit: User;
   userID = -1;
+  duplicateID = -1;
   dataLoaded: Boolean = false;
 
   //Grids
@@ -76,25 +78,39 @@ export class UserFormComponent implements OnInit {
   ngOnInit(): void {
     this.activatedRoute.params.subscribe(params => {
       this.userID = +params.id;
-      if (this.userID !== -1) {
+      if(params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
+      
+      if (this.userID !== -1 || this.duplicateID != -1) {
+        let idToGet = this.userID !== -1? this.userID: this.duplicateID  
         console.log(this.userID);
 
-        this.userService.get(this.userID).subscribe(
+        this.userService.get(idToGet).subscribe(
           resp => {
             console.log(resp);
             this.userToEdit = resp;
-            this.userForm.setValue({
-              id: this.userID,
-              username: this.userToEdit.username,
+            this.userForm.patchValue({
               firstName: this.userToEdit.firstName,
               lastName: this.userToEdit.firstName,
               password: null,
               confirmPassword: null,
-              passwordSet: this.userToEdit.passwordSet,
               administrator: this.userToEdit.administrator,
               blocked: this.userToEdit.blocked,
               _links: this.userToEdit._links
             });
+
+            if(this.userID !== -1){
+                this.userForm.patchValue({
+                id: this.userID,
+                username: this.userToEdit.username,
+                passwordSet: this.userToEdit.passwordSet,
+              });
+            }
+            else{
+              this.userForm.patchValue({
+              username: this.utils.getTranslate('copy_').concat(this.userToEdit.username),
+              passwordSet: false,
+              });
+            }
 
             this.dataLoaded = true;
           },
@@ -194,13 +210,13 @@ export class UserFormComponent implements OnInit {
   // ******** Permits ******** //
   getAllPermits = (): Observable<any> => {
 
-    if (this.userID == -1) {
+    if (this.userID == -1 && this.duplicateID == -1)  {
       const aux: Array<any> = [];
       return of(aux);
     }
 
     let params2: HalParam[] = [];
-    let param: HalParam = { key: 'user.id', value: this.userID }
+    let param: HalParam = { key: 'user.id', value: this.userID!=-1?this.userID:this.duplicateID }
     params2.push(param);
     let query: HalOptions = { params: params2 };
 
@@ -210,125 +226,202 @@ export class UserFormComponent implements OnInit {
 
 
 
-  getAllRowsPermits(data: any[]) {
+  async getAllRowsPermits(data: any[]) {
 
-    let usersConfToCreate = [];
-    let usersConfDelete = [];
-    let territoriesToAdd= [];
+
     let territoriesToDelete= [];
+    let territoriesToAdd= [];
+    const promises: Promise<any>[] = [];  
+    const promisesDuplicate: Promise<any>[] = [];
+    const promisesCurrentUserConf: Promise<any>[] = [];
     const promisesCheckTerritories: Promise<any>[] = [];
+    const promisesTerritories: Promise<any>[] = [];
     // data.forEach(userConf => {
     for(let i = 0; i<data.length; i++){
       let userConf= data[i];
 
       if (userConf.status === 'pendingCreation') {
 
+        let item;
         
-        let item = {
-          role: userConf.roleComplete,
-          appliesToChildrenTerritories: userConf.appliesToChildrenTerritories,
-          territory: userConf.territoryComplete,
-          user: this.userToEdit
-        }
 
-    
+        let itemTerritory;
 
+        if(userConf._links){
 
-        let indexTerritory = data.findIndex(element => element.territoryId === item.territory.id && !element.new )
-        if(indexTerritory === -1)
-        {
-          let itemTerritory = {
-            territory: userConf.territoryComplete,
-            user: this.userToEdit,
-            createdDate: new Date()
+          let index = data.findIndex(element =>  (element.roleId === userConf.roleId && element.territoryId === userConf.territoryId &&
+                element.appliesToChildrenTerritories === userConf.appliesToChildrenTerritories && !element.new))
+          if (index === -1) {
+
+            let indexTerritory = data.findIndex(element => element.territoryId === userConf.territoryId && !element.new  )
+            userConf.new = false;
+
+            let roleComplete;
+            let territoryComplete;
+  
+            let urlReqRole = `${userConf._links.role.href}`
+            if (userConf._links.role.href) {
+              let url = new URL(urlReqRole.split("{")[0]);
+              url.searchParams.append("projection", "view")
+              urlReqRole = url.toString();
+            }
+  
+            
+            let urlReqTerritory = `${userConf._links.territory.href}`
+            if (userConf._links.territory.href) {
+              let url = new URL(urlReqTerritory.split("{")[0]);
+              url.searchParams.append("projection", "view")
+              urlReqTerritory = url.toString();
+            }
+  
+  
+            promisesDuplicate.push(new Promise((resolve, reject) => {
+  
+              promisesCurrentUserConf.push(new Promise((resolve, reject) => {
+                this.http.get(urlReqRole).subscribe(result => {
+                  roleComplete = result;
+                  resolve(true);
+                })
+              
+              }))
+  
+              promisesCurrentUserConf.push(new Promise((resolve, reject) => {
+                this.http.get(urlReqTerritory).subscribe(result => {
+                  territoryComplete = result;
+                  resolve(true);
+                })
+              
+              }))
+  
+  
+              Promise.all(promisesCurrentUserConf).then( () =>{
+                item = {
+                  role: roleComplete,
+                  appliesToChildrenTerritories: userConf.appliesToChildrenTerritories,
+                  territory: territoryComplete,
+                   user: this.userToEdit
+                 }
+                 promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
+  
+                 if(indexTerritory === -1 && !territoriesToAdd.includes(userConf.territoryId))
+                 {
+                     territoriesToAdd.push(userConf.territoryId);
+                     itemTerritory = {
+                       territory: territoryComplete,
+                       user: this.userToEdit,
+                       createdDate: new Date(),
+                       id: null,
+                       _links: null,
+                     }
+                    //  territoriesToAdd.push(itemTerritory)
+                    promisesTerritories.push(new Promise((resolve, reject) => { this.userPositionService.save(itemTerritory).subscribe((resp) => { resolve(true) }) }));
+
+        
+                 }
+                resolve(true);
+              })
+  
+            }))
+  
+
           }
-          territoriesToAdd.push(itemTerritory)
-        }
 
-        let index;
-        item.role = userConf.roleComplete,
+
+
+        }
+        else{
+          item = {
+            role: userConf.roleComplete,
+            appliesToChildrenTerritories: userConf.appliesToChildrenTerritories,
+            territory: userConf.territoryComplete,
+            user: this.userToEdit
+          }
+
+          let index;
           index = data.findIndex(element => element.roleId === item.role.id && element.territoryId === item.territory.id &&
             element.appliesToChildrenTerritories === item.appliesToChildrenTerritories && !element.new)
 
-        if (index === -1) {
-          userConf.new = false;
-          usersConfToCreate.push(item)
+          if(index === -1) {
+            userConf.new = false;
+            promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
+          }
+
+          let indexTerritory = data.findIndex(element => element.territoryId === item.territory.id && !element.new )
+
+          if(indexTerritory === -1 && !territoriesToAdd.includes(item.territory.id))
+          {
+            territoriesToAdd.push(item.territory.id)
+            itemTerritory = {
+              territory: userConf.territoryComplete,
+              user: this.userToEdit,
+              createdDate: new Date()
+            }
+               
+            // territoriesToAdd.push(itemTerritory)
+            promisesTerritories.push(new Promise((resolve, reject) => { this.userPositionService.save(itemTerritory).subscribe((resp) => { resolve(true) }) }));
+
+          }
+
         }
+
+
+
       }
-      if (userConf.status === 'pendingDelete' && userConf._links) {
+      if (userConf.status === 'pendingDelete' && userConf._links && !userConf.new ) {
 
         
         let indexTerritory = data.findIndex(element =>  element.territoryId === userConf.territoryId && element.status !== 'pendingDelete' )
-        if(indexTerritory === -1)
+        if(indexTerritory === -1 && !territoriesToDelete.includes(userConf.territoryId))
         {
+          territoriesToDelete.push(userConf.territoryId)
           promisesCheckTerritories.push(new Promise((resolve, reject) => {
             this.userPositionService.getAll()
             .pipe(map((data: any[]) => data.filter(elem => elem.territoryName === userConf.territory && elem.userId === this.userID )
             )).subscribe(data => {
               console.log(data);
-              if (data.length >0 && territoriesToDelete.findIndex(element => element.territoryName === userConf.territory) === -1) {
-                territoriesToDelete.push(data[0])
-              }
+                promisesTerritories.push(new Promise((resolve, reject) => { this.userPositionService.remove(data[0]).subscribe((resp) => { resolve(true) }) }));
               resolve(true);
             })
           }));
 
         }
 
-        usersConfDelete.push(userConf)
+        promises.push(new Promise((resolve, reject) => { this.userConfigurationService.remove(userConf).subscribe((resp) => { resolve(true) }) }));
         }
     };
 
-    const promises: Promise<any>[] = [];  
-    usersConfToCreate.forEach(newElement => {
-      promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(newElement).subscribe((resp) => { resolve(true) }) }));
-    });
 
-    usersConfDelete.forEach(deletedElement => {
-      if (deletedElement._links) {
-        promises.push(new Promise((resolve, reject) => { this.userConfigurationService.remove(deletedElement).subscribe((resp) => { resolve(true) }) }));
+    // usersConfToCreate.forEach(newElement => {
+    //   promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(newElement).subscribe((resp) => { resolve(true) }) }));
+    // });
 
-      }
-    });
+    // usersConfDelete.forEach(deletedElement => {
+    //   if (deletedElement._links) {
+    //     promises.push(new Promise((resolve, reject) => { this.userConfigurationService.remove(deletedElement).subscribe((resp) => { resolve(true) }) }));
+
+    //   }
+    // });
 
           
-    Promise.all(promises).then(() => {
-      this.dataUpdatedEventPermits.next(true);
+    Promise.all([...promises,...promisesDuplicate]).then(() => {
+      Promise.all(promises).then(() => {
+        this.dataUpdatedEventPermits.next(true);
+      })
     });
     
-
-    Promise.all(promisesCheckTerritories).then(() => {
-
-
-      const promisesTerritories: Promise<any>[] = [];
-
-      territoriesToAdd.forEach(newElement => {
-        promisesTerritories.push(new Promise((resolve, reject) => { this.userPositionService.save(newElement).subscribe((resp) => { resolve(true) }) }));
-      });
-  
-      territoriesToDelete.forEach(deletedElement => {
-        promisesTerritories.push(new Promise((resolve, reject) => { this.userPositionService.remove(deletedElement).subscribe((resp) => { resolve(true) }) }));
-      });
-      
-  
-
-      
+    Promise.all([...promisesTerritories,...promisesDuplicate,...promisesCheckTerritories]).then(() => {
       Promise.all(promisesTerritories).then(() => {
         this.dataUpdatedEventTerritoryData.next(true);
       });
-
-
     });
 
-
-    
   }
 
 
   // ******** Data of Territory ******** //
   getAllDataTerritory = (): Observable<any> => {
 
-    if (this.userID == -1) {
+    if (this.userID == -1 && this.duplicateID == -1)  {
       const aux: Array<any> = [];
       return of(aux);
     }
@@ -354,14 +447,24 @@ export class UserFormComponent implements OnInit {
   getAllRowsDataTerritories(data: any[]) {
     let territoriesToEdit = [];
     data.forEach(territory => {
-      if (territory.status === 'pendingModify') {
+      if (territory.status === 'pendingModify' || territory.status === 'pendingCreation') {
         if(territory.expirationDate != null)
         {
           let date = new Date(territory.expirationDate)
           territory.expirationDate=date.toISOString();
           console.log(territory.expirationDate)
         }
-        territoriesToEdit.push(territory)   
+        // if(territory.status == 'pendingCreation'){
+        //   let item ={
+        //     createdDate: new Date(),
+        //     territory:{ _links:{self:{href:territory._links.territory.href.split("{")[0]}} },
+        //     user: this.userToEdit
+        //   }
+        //   territoriesToEdit.push(item)  
+        //   //      item.territory = item.territory._links.self.href;
+        // }
+          territoriesToEdit.push(territory)   
+        
 
        }
     });
@@ -422,7 +525,7 @@ export class UserFormComponent implements OnInit {
                   if (messageResult.event === 'Accept') {
                     const dialogRefChildRoles = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
                     dialogRefChildRoles.componentInstance.getAllsTable = [this.getAllRolesDialog];
-                    dialogRef.componentInstance.orderTable = ['name'];
+                    dialogRefChildRoles.componentInstance.orderTable = ['name'];
                     dialogRefChildRoles.componentInstance.singleSelectionTable = [false];
                     dialogRefChildRoles.componentInstance.columnDefsTable = [this.columnDefsRolesDialog];
                     dialogRefChildRoles.componentInstance.themeGrid = this.themeGrid;
@@ -546,6 +649,13 @@ export class UserFormComponent implements OnInit {
     if (this.userForm.valid) {
 
       if (this.userForm.value.password === this.userForm.value.confirmPassword) {
+
+        if (this.userID == -1 && this.duplicateID != -1) {
+          this.userForm.patchValue({
+            _links: null
+          })
+        }
+
         let userObj: User = new User();
         userObj.username = this.userForm.value.username;
         userObj.password = this.userForm.value.password;

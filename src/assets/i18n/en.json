@@ -25,6 +25,8 @@
   "status":"Status",
   "value": "Value",
   "statusOK": "Without changes",
+  "notAvailable": "Not available",
+  "pendingRegistration": "Pendent registration",
   "search/replace": "Search/Replace",
   "selectType": "Select type",
   "ok-created": "Items created successfully",

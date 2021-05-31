@@ -84,15 +84,17 @@ export class ApplicationComponent implements OnInit {
 
   add(data: Application[]) {
     const promises: Promise<any>[] = [];
-    data.forEach(application => {
-      application.id = null;
-      application.createdDate=new Date();
-      application.name = this.utils.getTranslate('copy_').concat(application.name)
-      promises.push(new Promise((resolve, reject) => { this.applicationService.create(application).subscribe((resp) => { resolve(true) }) }));
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
-      });
-    });
+    this.saveAgGridStateEvent.next(true);
+    this.router.navigate(['application', -1, 'applicationForm', data[0].id]);
+    // data.forEach(application => {
+    //   application.id = null;
+    //   application.createdDate=new Date();
+    //   application.name = this.utils.getTranslate('copy_').concat(application.name)
+    //   promises.push(new Promise((resolve, reject) => { this.applicationService.create(application).subscribe((resp) => { resolve(true) }) }));
+    //   Promise.all(promises).then(() => {
+    //     this.dataUpdatedEvent.next(true);
+    //   });
+    // });
 
   }
 

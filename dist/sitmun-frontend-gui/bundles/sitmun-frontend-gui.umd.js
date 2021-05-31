@@ -724,6 +724,7 @@
          */
         DataGridComponent.prototype.onGridReady = function (params) {
             var e_1, _a;
+            var _this = this;
             if (this.singleSelection) {
                 this.gridOptions.rowSelection = 'single';
             }
@@ -752,11 +753,21 @@
             this.getElements();
             console.log(this.columnDefs);
             if (this.defaultColumnSorting) {
-                /** @type {?} */
-                var sortModel = [
-                    { colId: this.defaultColumnSorting, sort: 'asc' }
-                ];
-                this.gridApi.setSortModel(sortModel);
+                if (!Array.isArray(this.defaultColumnSorting)) {
+                    /** @type {?} */
+                    var sortModel = [
+                        { colId: this.defaultColumnSorting, sort: 'asc' }
+                    ];
+                    this.gridApi.setSortModel(sortModel);
+                }
+                else {
+                    /** @type {?} */
+                    var sortModel_1 = [];
+                    this.defaultColumnSorting.forEach(function (element) {
+                        sortModel_1.push({ colId: _this.defaultColumnSorting, sort: 'asc' });
+                    });
+                    this.gridApi.setSortModel(sortModel_1);
+                }
             }
             if (this.defaultHeight != null && this.defaultHeight != undefined) {
                 this.changeHeight(this.defaultHeight);
@@ -897,8 +908,15 @@
             this.getAll()
                 .subscribe(function (items) {
                 if (_this.statusColumn) {
+                    /** @type {?} */
+                    var status_1 = _this.allNewElements ? 'pendingCreation' : 'statusOK';
                     items.forEach(function (element) {
-                        element.status = 'statusOK';
+                        if (element.status != "notAvailable" && element.status != "pendingCreation" && element.status != "pendingRegistration") {
+                            element.status = status_1;
+                        }
+                        if (_this.allNewElements) {
+                            element.new = true;
+                        }
                     });
                 }
                 _this.rowData = items;
@@ -1094,6 +1112,8 @@
          */
         DataGridComponent.prototype.deleteChanges = function () {
             this.gridApi.stopEditing(false);
+            /** @type {?} */
+            var newElementsActived = this.allNewElements;
             while (this.changeCounter > 0) {
                 this.undo();
             }
@@ -1108,7 +1128,7 @@
                         if (node.data.status === 'pendingDelete') {
                             rowsWithStatusModified_1.push(node.data);
                         }
-                        if (node.data.newItem) {
+                        if (node.data.newItem || newElementsActived) {
                             node.data.status = 'pendingCreation';
                         }
                         else {
@@ -1182,9 +1202,9 @@
                         addMap.set(params.colDef.field, 1);
                         this.changesMap.set(params.node.id, addMap);
                         if (this.statusColumn) {
-                            if (this.gridApi.getRowNode(params.node.id).data.status !== 'pendingCreation') {
-                                this.gridApi.getRowNode(params.node.id).data.status = 'pendingModify';
-                            }
+                            // if (this.gridApi.getRowNode(params.node.id).data.status !== 'pendingCreation') {
+                            this.gridApi.getRowNode(params.node.id).data.status = 'pendingModify';
+                            // }
                         }
                     }
                     else {
@@ -1364,6 +1384,7 @@
         hideDuplicateButton: [{ type: core.Input }],
         hideSearchReplaceButton: [{ type: core.Input }],
         addFieldRestriction: [{ type: core.Input }],
+        allNewElements: [{ type: core.Input }],
         remove: [{ type: core.Output }],
         new: [{ type: core.Output }],
         add: [{ type: core.Output }],
@@ -1480,6 +1501,8 @@
         DataGridComponent.prototype.hideSearchReplaceButton;
         /** @type {?} */
         DataGridComponent.prototype.addFieldRestriction;
+        /** @type {?} */
+        DataGridComponent.prototype.allNewElements;
         /** @type {?} */
         DataGridComponent.prototype.remove;
         /** @type {?} */
@@ -1871,11 +1894,12 @@
         });
         /**
          * @param {?} dataObj
+         * @param {?} allNewElements
          * @return {?}
          */
-        FileDatabase.prototype.initialize = function (dataObj) {
+        FileDatabase.prototype.initialize = function (dataObj, allNewElements) {
             /** @type {?} */
-            var data = this.buildFileTree(dataObj, 0);
+            var data = this.buildFileTree(dataObj, 0, allNewElements);
             // Notify the change.
             this.dataChange.next(data);
         };
@@ -1884,9 +1908,10 @@
          * The return value is the list of `FileNode`.
          * @param {?} arrayTreeNodes
          * @param {?} level
+         * @param {?} allNewElements
          * @return {?}
          */
-        FileDatabase.prototype.buildFileTree = function (arrayTreeNodes, level) {
+        FileDatabase.prototype.buildFileTree = function (arrayTreeNodes, level, allNewElements) {
             /** @type {?} */
             var map = {};
             if (arrayTreeNodes.length === 0) {
@@ -1908,6 +1933,15 @@
                     var obj = treeNode;
                     obj.children = [];
                     obj.type = (treeNode.isFolder) ? "folder" : "node";
+                    if (allNewElements) {
+                        obj.status = 'pendingCreation';
+                        if (obj.id) {
+                            obj.id = obj.id * -1;
+                        }
+                        if (obj.parent) {
+                            obj.parent = obj.parent * -1;
+                        }
+                    }
                     if (!map[obj.id]) {
                         map[obj.id] = obj;
                     }
@@ -2240,7 +2274,7 @@
             this.getAll()
                 .subscribe(function (items) {
                 _this.treeData = items;
-                _this.database.initialize(_this.treeData);
+                _this.database.initialize(_this.treeData, _this.allNewElements);
                 _this.database.dataChange.subscribe(function (data) { return _this.rebuildTreeForData([data]); });
             });
         };
@@ -2435,9 +2469,11 @@
             this.dataSource.data = [];
             this.dataSource.data = data;
             this.treeControl.expansionModel.selected.forEach(function (nodeAct) {
-                /** @type {?} */
-                var node = _this.treeControl.dataNodes.find(function (n) { return n.id === nodeAct.id; });
-                _this.treeControl.expand(node);
+                if (nodeAct) {
+                    /** @type {?} */
+                    var node = _this.treeControl.dataNodes.find(function (n) { return n.id === nodeAct.id; });
+                    _this.treeControl.expand(node);
+                }
             });
         };
         /**
@@ -2618,6 +2654,7 @@
         eventGetAllRowsSubscription: [{ type: core.Input }],
         eventRefreshSubscription: [{ type: core.Input }],
         getAll: [{ type: core.Input }],
+        allNewElements: [{ type: core.Input }],
         emptyItem: [{ type: core.ViewChild, args: ['emptyItem',] }]
     };
     if (false) {
@@ -2665,6 +2702,8 @@
         DataTreeComponent.prototype.treeData;
         /** @type {?} */
         DataTreeComponent.prototype.getAll;
+        /** @type {?} */
+        DataTreeComponent.prototype.allNewElements;
         /** @type {?} */
         DataTreeComponent.prototype.dragNode;
         /** @type {?} */

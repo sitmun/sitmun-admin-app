@@ -59,6 +59,7 @@ export declare class DataGridComponent implements OnInit {
     hideDuplicateButton: boolean;
     hideSearchReplaceButton: boolean;
     addFieldRestriction: any;
+    allNewElements: any;
     remove: EventEmitter<any[]>;
     new: EventEmitter<number>;
     add: EventEmitter<number>;

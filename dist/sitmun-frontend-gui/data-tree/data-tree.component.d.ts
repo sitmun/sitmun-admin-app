@@ -51,12 +51,12 @@ export declare class FileDatabase {
     dataChange: BehaviorSubject<FileNode[]>;
     get data(): any;
     constructor();
-    initialize(dataObj: any): void;
+    initialize(dataObj: any, allNewElements: any): void;
     /**
      * Build the file structure tree. The `value` is the Json object, or a sub-tree of a Json object.
      * The return value is the list of `FileNode`.
      */
-    buildFileTree(arrayTreeNodes: any[], level: number): any;
+    buildFileTree(arrayTreeNodes: any[], level: number, allNewElements: any): any;
     deleteItem(node: FileNode, changedData: any): void;
     deleteNode(nodes: FileNode[], nodeToDelete: FileNode): void;
     setOrder(data: any[]): any[];
@@ -98,6 +98,7 @@ export declare class DataTreeComponent {
     validateDrop: boolean;
     treeData: any;
     getAll: () => Observable<any>;
+    allNewElements: any;
     dragNode: any;
     dragNodeExpandOverWaitTimeMs: number;
     dragNodeExpandOverNode: any;

@@ -105,16 +105,16 @@
           </mat-chip-list>
         </mat-form-field>
       </div>
-      <button type="button" *ngIf="serviceID==-1 && serviceForm.value.type=='WMS' " (click)="getCapabilitiesDataService()" mat-flat-button
+      <button type="button" *ngIf="serviceID==-1 && serviceForm.value.type=='WMS' " (click)="getCapabilitiesDataService(true)" mat-flat-button
       class="validateButton">{{ "serviceEntity.getData" | translate }}</button>
-    <button type="button" *ngIf="serviceID!=-1 && serviceForm.value.type=='WMS'" (click)="getCapabilitiesDataService()" mat-flat-button
+    <button type="button" *ngIf="serviceID!=-1 && serviceForm.value.type=='WMS'" (click)="getCapabilitiesDataService(true)" mat-flat-button
       class="validateButton">{{ "serviceEntity.updateData" | translate }}</button>
     </div>
 
   </form>
 </div>
 
-<div class="tableDiv" *ngIf="dataLoaded">
+<div class="tableDiv" *ngIf="dataLoaded && capabilitiesLoaded">
   <mat-accordion multi>
 
     <!-- Configuration parameters table -->
@@ -127,7 +127,7 @@
 
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'
+          <app-data-grid [changeHeightButton]="true" [allNewElements]="serviceID == -1" [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'
             [eventAddItemsSubscription]='addElementsEventParameters.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventParameters.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()' [discardChangesButton]=true
@@ -149,11 +149,11 @@
 
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsLayers" [themeGrid]='themeGrid' [getAll]='getAllLayers'
+          <app-data-grid [changeHeightButton]="true" [allNewElements]="serviceID == -1" [columnDefs]="columnDefsLayers" [themeGrid]='themeGrid' [getAll]='getAllLayers'
             [eventAddItemsSubscription]='addElementsEventLayers.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventLayers.asObservable()'
-            [eventRefreshSubscription]='dataUpdatedEventLayers.asObservable()' [discardChangesButton]=true
-            [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
+            [eventRefreshSubscription]='dataUpdatedEventLayers.asObservable()' [discardChangesButton]=false
+            [redoButton]=true [undoButton]=true [deleteButton]=false [addButton]=false [hideDuplicateButton]=true
             (getAllRows)="getAllRowsLayers($event)" defaultColumnSorting="name" [actionButton]=true (add)="openCartographyDialog($event)">
           </app-data-grid>
         </div>

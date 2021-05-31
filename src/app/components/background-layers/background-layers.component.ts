@@ -75,24 +75,27 @@ export class BackgroundLayersComponent implements OnInit {
   }
 
   add(data: any[]) {
-    console.log(data);
-    const promises: Promise<any>[] = [];
-    data.forEach(background => {
-      background.id = null;
-      this.http.get(background._links.cartographyGroup.href).subscribe( (cartographyGroup) => {
+    // console.log(data);
+    // const promises: Promise<any>[] = [];
+    // data.forEach(background => {
+    //   background.id = null;
+    //   this.http.get(background._links.cartographyGroup.href).subscribe( (cartographyGroup) => {
 
-        background.cartographyGroup = cartographyGroup;
-        background.name = this.utils.getTranslate('copy_').concat(background.name)
-        background._links=null;
-        console.log(background);
-        promises.push(new Promise((resolve, reject) => {​​​​​​​ this.backgroundService.save(background).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
-        Promise.all(promises).then(() => {
-          this.dataUpdatedEvent.next(true);
-        });
+    //     background.cartographyGroup = cartographyGroup;
+    //     background.name = this.utils.getTranslate('copy_').concat(background.name)
+    //     background._links=null;
+    //     console.log(background);
+    //     promises.push(new Promise((resolve, reject) => {​​​​​​​ this.backgroundService.save(background).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
+    //     Promise.all(promises).then(() => {
+    //       this.dataUpdatedEvent.next(true);
+    //     });
 
-      });
+    //   });
 
-    });
+    // });
+
+    this.saveAgGridStateEvent.next(true);
+    this.router.navigate(['backgroundLayers', -1, 'backgroundLayersForm', data[0].id]);
 
   }
 
