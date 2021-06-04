@@ -405,13 +405,18 @@
          * @return {?}
          */
         BtnCheckboxRenderedComponent.prototype.btnCheckedHandler = function (event) {
-            /** @type {?} */
-            var checked = !event.target.firstElementChild.checked;
-            /** @type {?} */
-            var colId = this.params.column.colId;
-            this.params.value = checked;
-            this.params.api.undoRedoService.isFilling = true;
-            this.params.node.setDataValue(colId, checked);
+            if (this.params.colDef.editable) {
+                /** @type {?} */
+                var checked = !event.target.firstElementChild.checked;
+                /** @type {?} */
+                var colId = this.params.column.colId;
+                this.params.value = checked;
+                this.params.api.undoRedoService.isFilling = true;
+                this.params.node.setDataValue(colId, checked);
+            }
+            else {
+                event.preventDefault();
+            }
         };
         /**
          * @return {?}

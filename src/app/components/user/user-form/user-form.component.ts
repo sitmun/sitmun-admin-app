@@ -90,7 +90,7 @@ export class UserFormComponent implements OnInit {
             this.userToEdit = resp;
             this.userForm.patchValue({
               firstName: this.userToEdit.firstName,
-              lastName: this.userToEdit.firstName,
+              lastName: this.userToEdit.lastName,
               password: null,
               confirmPassword: null,
               administrator: this.userToEdit.administrator,
@@ -139,7 +139,7 @@ export class UserFormComponent implements OnInit {
       this.utils.getIdColumnDef(),
       this.utils.getNonEditableColumnDef('userEntity.territory', 'territory'),
       this.utils.getNonEditableColumnDef('userEntity.role', 'role'),
-      this.utils.getBooleanColumnDef('userEntity.appliesToChildrenTerritories', 'appliesToChildrenTerritories'),
+      this.utils.getBooleanColumnDef('userEntity.appliesToChildrenTerritories', 'appliesToChildrenTerritories', false),
       this.utils.getStatusColumnDef()
     ];
 

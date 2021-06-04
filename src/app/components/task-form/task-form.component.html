@@ -153,9 +153,10 @@
                         [hideDuplicateButton]="table.controlAdd.control!=='formPopup'"
                         [eventAddItemsSubscription]='addelements[i].asObservable()'
                         [eventGetAllRowsSubscription]='getAllElementsEvent[i].asObservable()'
+                        [eventRefreshSubscription]='refreshElements[i].asObservable()'
                         [defaultColumnSorting]=defaultColumnsSorting[i]
                         (add)="openPopupDialog(null, table.controlAdd.data, table.controlAdd.columns, table.label, true, false, false, i)"
-                        (new)="openPopupFormDialog(i, table.label)" (getAllRows)="getAllRowsTable($event, i)"
+                        (new)="openPopupFormDialog(i, table.label)" (getAllRows)="getAllRowsTable($event, i, table.link)"
                         (remove)="restoreElementsSqlSelector($event, i)" (discardChanges)="removeElementsSqlSelector($event, i)"                       
                         >
                         

@@ -1,7 +1,7 @@
 import { Component, ElementRef, OnInit, QueryList, TemplateRef, ViewChild, ViewChildren, ViewEncapsulation } from '@angular/core';
 import { UtilsService } from 'src/app/services/utils.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ServiceService, TaskService, TaskTypeService, TaskGroupService, CartographyService, ConnectionService, HalOptions, HalParam, TaskUIService, RoleService, CodeListService, TerritoryService } from 'dist/sitmun-frontend-core/';
+import { ServiceService, TaskService, TaskTypeService, TaskGroupService, CartographyService, ConnectionService, HalOptions, HalParam, TaskUIService, RoleService, CodeListService, TerritoryService, Task } from 'dist/sitmun-frontend-core/';
 import { config } from 'src/config';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogFormComponent, DialogGridComponent } from 'dist/sitmun-frontend-gui/';
@@ -39,9 +39,12 @@ export class TaskFormComponent implements OnInit {
   //Events data grid
   addelements= [];
   getAllElementsEvent = [];
+  refreshElements = [];
   //Table's arrays
   sqlElementModification = [];
   defaultColumnsSorting = [];
+
+  parametersTable = [];
 
 
   //Form tables
@@ -52,12 +55,14 @@ export class TaskFormComponent implements OnInit {
   valuesForms = [];
   templateRefs = [];
   formSQLElement = [];
+  tableCounter= 0;
+  currentTablesSaved= 0;
   @ViewChildren(NgTemplateNameDirective) templates!: QueryList<NgTemplateNameDirective>;
 
 
   //Save
   saveButtonClicked = false;
-  savedTask;
+  savedTask: Task = new Task;
  
 
   //Selector tables
@@ -234,13 +239,21 @@ export class TaskFormComponent implements OnInit {
       let getAll;
       let index= -1;
       for(const table of this.properties.tables){
+        this.tableCounter++;
         index++;
-        getAll= () => this.getDataTableByLink(table.link)
+        if(table.link== 'parameters'){
+          getAll= () =>  of(this.parametersTable);
+        }
+        else{
+          getAll= () => this.getDataTableByLink(table.link)
+        }
         this.getAlls.push(getAll)  
         let addElementsEvent: Subject<any[]> = new Subject<any[]>();
         let getAllElements: Subject<boolean> = new Subject <boolean>();
+        let refreshElements: Subject<boolean> = new Subject <boolean>();
         this.addelements.push(addElementsEvent);
         this.getAllElementsEvent.push(getAllElements)
+        this.refreshElements.push(refreshElements)
         this.sqlElementModification.push({modifications: false, toSave: false, element: null, mainFormElement:null, tableElements: []});
         let columnDefs= this.generateColumnDefs(table.columns,true,true, true);
         this.columnDefsTables.push(columnDefs);
@@ -313,7 +326,7 @@ export class TaskFormComponent implements OnInit {
     }
   }
 
-  getAllRowsTable(data: any[], index )
+  getAllRowsTable(data: any[], index, linkName )
   {
     let sqlElement = this.sqlElementModification[index];
     sqlElement.tableElements=[];
@@ -332,12 +345,56 @@ export class TaskFormComponent implements OnInit {
       sqlElement.modifications=false;
       sqlElement.toSave=false;
       if(toSave){
-        this.saveTask();
+        // this.saveTask();
+        this.getAllElementsEvent.forEach(element => {
+          element.next(true);
+        });
       }
-      console.log(this.savedTask);
+      
 
     }
     else{
+    //We are saving
+    if(linkName=='parameters'){
+      if(data.length>0){
+        let newData = [];
+        data.forEach(element => {
+          if(element.status!= 'pendingDelete'){
+            delete element.status;
+            delete element.newItem;
+            if(element.order){ element.order=parseInt(element.order) }
+            newData.push((element));
+  
+          }
+        });
+        if(!this.savedTask.properties){
+          this.savedTask.properties={
+            parameters:newData
+          }      
+        }
+        else{
+          this.savedTask.properties.parameters=newData;
+        }
+        this.parametersTable = [];
+        this.parametersTable.push(...newData);
+      }
+      this.currentTablesSaved++;
+      this.saveTask();
+    }
+    else{
+      let uriList = [];
+      data.forEach(element => {
+        if(element.status!= 'pendingDelete'){
+          uriList.push(element._links.self.href)
+        }
+      });
+      // this.savedTask[linkName]=this.utils.createUriList(uriList)
+      this.savedTask[linkName]=uriList;
+      this.currentTablesSaved++;
+      this.saveTask();
+    }
+
+
 
     }
   }
@@ -409,7 +466,6 @@ export class TaskFormComponent implements OnInit {
           url.searchParams.append("projection", "view")
           urlReq = url.toString();
         }
-        urlReq="http://localhost:8080/api/cartographies/1228?projection=view"
         let value= await (this.http.get(urlReq)).toPromise();
         // let value= await (this.http.get(urlReq)).pipe(map(data => data['_embedded'][key])).toPromise();
         this.taskForm.get(key).setValue(value)
@@ -441,18 +497,35 @@ export class TaskFormComponent implements OnInit {
       }
     };
 
+    if(this.taskToEdit.properties){
+      this.loadProperties(this.taskToEdit.properties);
+    }
+
   }
 
-  // setSelectorValueWithProjection(key, keySpecification){
-  //   let data = null;
-  //   let formField = config.taskSelectorFieldsData[key];
-  //   data= this.getDataSelector(formField, keySpecification.selector.queryParams, keySpecification.label)
-  //   let value=data.find(element => element[keySpecification.selector.value] === this.taskToEdit[key])
-  //   this.taskForm.get(config.taskSelectorFieldsForm[key]).setValue(value[keySpecification.selector.value]) 
-    
-    
-  //   // this.taskForm.get(key).setValue(this.taskToEdit[key])
-  // }
+  private async loadProperties(properties){
+    let keys= Object.keys(properties);
+
+    keys.forEach(key => {
+
+      if(key=='parameters'){
+        this.parametersTable.push(...properties[key]);
+      }
+
+      if(!this.taskForm.get(key)){
+        this.taskForm.addControl(key,new FormControl( properties[key],[]));
+      }
+      else{
+        this.taskForm.get(key).setValue(properties[key])
+      }
+    });
+
+  }
+
+
+
+
+
 
 
   setSelectorToNeeded(selector){
@@ -481,18 +554,33 @@ export class TaskFormComponent implements OnInit {
     else{
       if(fieldResult == "hidden" || fieldResult == "required" ) { findResult = false }
     }
-    
+    if(findResult === "INPUT") { findResult="input" }
     return findResult;
   }
 
-
+  parseLinksSavedTask(){
+    let linksKeys = Object.keys(this.savedTask._links);
+    linksKeys.forEach(link => {
+      if(this.savedTask._links[link].templated){
+        this.savedTask._links[link].href=this.savedTask._links[link].href.split("{")[0]
+      }
+    });
+  }
  
 
   onSaveButtonClicked(){
     if(this.taskForm.valid)
     {
-      this.savedTask = {...this.taskForm.value}
+      // this.savedTask = {...this.taskForm.value}
+      let formkeys= Object.keys(this.taskForm.value);
+      formkeys.forEach(key => {
+        this.savedTask[key] = this.taskForm.get(key).value;
+      });
       this.savedTaskTreatment(this.savedTask)
+      this.savedTask.type= this.taskType;
+      if(this.savedTask._links){
+        this.parseLinksSavedTask();
+      }
       let keysTextAreaNotNull = this.getControlsModified("textArea");
       if(keysTextAreaNotNull.length>0){
         let markResult = this.markIndexSqlElementToBeSaved(this.properties.tables, keysTextAreaNotNull)
@@ -502,7 +590,10 @@ export class TaskFormComponent implements OnInit {
         });
       }
       else{
-        this.saveTask();
+        // this.saveTask();
+        this.getAllElementsEvent.forEach(element => {
+          element.next(true);
+        });
       }
       console.log(this.savedTask);
     }
@@ -555,23 +646,33 @@ export class TaskFormComponent implements OnInit {
   }
 
   saveTask(){
-    let allChangesSaved = true;
-    //Verify that all SqlElements are saved
-    this.sqlElementModification.forEach(element => {
-      if(element.toSave || element.modifications) { allChangesSaved = false }
-    });
-    if(allChangesSaved){
-      this.taskService.save(this.savedTask).subscribe( result =>{
-        console.log(result);
-        if(this.taskForm.get("id")) { this.taskForm.get("id").setValue(result.id); }
-        else { this.taskForm.addControl("id",new FormControl(result.id,[])); }
+    if(this.tableCounter== this.currentTablesSaved){
+      let allChangesSaved = true;
+      //Verify that all SqlElements are saved
+      this.sqlElementModification.forEach(element => {
+        if(element.toSave || element.modifications) { allChangesSaved = false }
+      });
+      if(allChangesSaved){
+        this.currentTablesSaved=0;
+        console.log(this.savedTask);
+        this.taskService.save(this.savedTask).subscribe( result =>{
+          console.log(result);
+          if(this.taskForm.get("id")) { this.taskForm.get("id").setValue(result.id); }
+          else { this.taskForm.addControl("id",new FormControl(result.id,[])); }
+  
+          if(this.taskForm.get("_links")) { this.taskForm.get("_links").setValue(result._links); }
+          else { this.taskForm.addControl("_links",new FormControl(result._links,[])); }
 
-        if(this.taskForm.get("_links")) { this.taskForm.get("_links").setValue(result.id); }
-        else { this.taskForm.addControl("_links",new FormControl(result._links,[])); }
-        
-        
-      })
+
+          this.refreshElements.forEach(element => {
+            element.next(true);
+          });
+          
+          
+        })
+      }
     }
+
   }
 
   savedTaskTreatment(taskSaved){
@@ -583,12 +684,39 @@ export class TaskFormComponent implements OnInit {
 
         if(keySpecification.control == "selector"){
           let data=this.getDataSelector(keySpecification.selector.data, keySpecification.selector.queryParams, keySpecification.label)
-          taskSaved[key]=data.find(element => element[keySpecification.selector.value] === taskSaved[key])
+          taskSaved[key]=data.find(element => element[keySpecification.selector.value] == taskSaved[key])
         }
 
       }
       
     });
+
+    this.savePropertiesTreatment();
+
+  }
+
+  savePropertiesTreatment(){
+    
+    if(this.taskTypeName == 'Document' || this.taskTypeName == 'Download' ){
+      this.savedTask.properties={
+        format: this.savedTask['format'],
+        scope: this.taskTypeName == 'Document'?this.savedTask['scope'].value:this.taskForm.get('scope').value,
+        path: this.savedTask['path'],
+      }
+      delete this.savedTask['format'];
+      delete this.savedTask['scope'];
+      delete this.savedTask['path'];
+    }
+    else if(this.taskTypeName == 'Query' || this.taskTypeName== 'More info' ){
+      this.savedTask.properties={
+        command: this.savedTask['value'],
+        scope: this.savedTask['scope'].value,
+      }
+      delete this.savedTask['command'];
+      delete this.savedTask['scope'];
+    
+    }
+
   }
 
 

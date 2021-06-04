@@ -45,7 +45,7 @@ export class BackgroundLayersComponent implements OnInit {
       this.utils.getIdColumnDef(),
       this.utils.getEditableColumnDef('backgroundEntity.name','name'),
       this.utils.getEditableColumnDef('backgroundEntity.description','description'),
-      this.utils.getBooleanColumnDef('backgroundEntity.active', 'active'),
+      this.utils.getBooleanColumnDef('backgroundEntity.active', 'active', true),
       this.utils.getNonEditableColumnDef('backgroundEntity.cartographyGroup','cartographyGroupName'),
       this.utils.getDateColumnDef('backgroundEntity.createdDate','createdDates')
     ];

@@ -8,28 +8,33 @@ import { TaskParameter } from './task-parameter.model';
 /** GEOADMIN_task id */
 export declare const GEOADMIN_TREE_TASK_ID: string;
 import { TaskUI } from './task-ui.model';
+import { Cartography } from '../cartography/cartography.model';
+import { Service } from '../service/service.model';
 /** Task model */
 export declare class Task extends Resource {
     /** id */
-    id: number;
+    id?: number;
     /** name */
-    name: string;
+    name?: string;
     /** order*/
-    order: Number;
+    order?: Number;
     /** system created date*/
-    createdDate: any;
+    createdDate?: any;
     /** task group*/
-    group: TaskGroup;
+    group?: TaskGroup;
     /** task type*/
-    type: TaskType;
+    type?: TaskType;
     /** task UI*/
-    ui: TaskUI;
+    ui?: TaskUI;
     /** parameters*/
-    parameters: TaskParameter[];
+    parameters?: TaskParameter[];
     /** connection*/
-    connection: Connection;
+    connection?: Connection;
     /** roles*/
-    roles: Role[];
+    roles?: Role[];
     /** availabilities*/
-    availabilities: TaskAvailability[];
+    availabilities?: TaskAvailability[];
+    cartography?: Cartography;
+    service?: Service;
+    properties?: any;
 }

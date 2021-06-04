@@ -140,13 +140,18 @@ class BtnCheckboxRenderedComponent {
      * @return {?}
      */
     btnCheckedHandler(event) {
-        /** @type {?} */
-        let checked = !event.target.firstElementChild.checked;
-        /** @type {?} */
-        let colId = this.params.column.colId;
-        this.params.value = checked;
-        this.params.api.undoRedoService.isFilling = true;
-        this.params.node.setDataValue(colId, checked);
+        if (this.params.colDef.editable) {
+            /** @type {?} */
+            let checked = !event.target.firstElementChild.checked;
+            /** @type {?} */
+            let colId = this.params.column.colId;
+            this.params.value = checked;
+            this.params.api.undoRedoService.isFilling = true;
+            this.params.node.setDataValue(colId, checked);
+        }
+        else {
+            event.preventDefault();
+        }
     }
     /**
      * @return {?}
