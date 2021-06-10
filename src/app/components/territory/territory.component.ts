@@ -49,6 +49,7 @@ export class TerritoryComponent implements OnInit {
       this.utils.getIdColumnDef(),
       this.utils.getEditableColumnDef('territoryEntity.code', 'code'),
       this.utils.getEditableColumnDef('territoryEntity.name', 'name'),
+      this.utils.getNonEditableColumnDef('territoryEntity.groupType', 'groupTypeId'),
       this.utils.getFormattedColumnDef('territoryEntity.scope',this.scopeTypes,'scope'),
       this.utils.getDateColumnDef('territoryEntity.createdDate','createdDate')
       //{ headerName: this.utils.getTranslate('territoryEntity.administrator'), field: 'territorialAuthorityName' },

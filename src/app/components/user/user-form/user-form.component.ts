@@ -346,7 +346,7 @@ export class UserFormComponent implements OnInit {
             promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
           }
 
-          let indexTerritory = data.findIndex(element => element.territoryId === item.territory.id && !element.new )
+          let indexTerritory = data.findIndex(element => element.territoryId === userConf.territoryComplete.id && !element.new )
 
           if(indexTerritory === -1 && !territoriesToAdd.includes(item.territory.id))
           {

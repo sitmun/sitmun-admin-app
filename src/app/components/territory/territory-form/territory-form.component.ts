@@ -115,14 +115,13 @@ export class TerritoryFormComponent implements OnInit {
       id: -1,
       name: '-------'
     }
-    this.territoryGroups.push(territoryByDefault);
-    this.groupTypeOfThisTerritory = territoryByDefault;
 
     const promises: Promise<any>[] = [];
     promises.push(new Promise((resolve, reject) => {
       this.getTerritoryGroups().subscribe(
         resp => {
           this.territoryGroups.push(...resp);
+          this.territoryGroups.push(territoryByDefault);
           resolve(true);
         }
       )
@@ -147,9 +146,6 @@ export class TerritoryFormComponent implements OnInit {
             resp => {
               console.log(resp);
               this.territoryToEdit = resp;
-
-              this.extensions = this.territoryToEdit.extent.split(' ');
-
               this.territoryForm.patchValue({
                 code: this.territoryToEdit.code,
                 territorialAuthorityAddress: this.territoryToEdit.territorialAuthorityAddress,
@@ -157,10 +153,10 @@ export class TerritoryFormComponent implements OnInit {
                 scope: this.territoryToEdit.scope,
                 groupType: this.territoryToEdit.groupTypeId,
                 extent: this.territoryToEdit.extent,
-                extensionX0: this.extensions[0],
-                extensionX1: this.extensions[1],
-                extensionY0: this.extensions[2],
-                extensionY1: this.extensions[3],
+                extensionX0: this.territoryToEdit.extent.minX,
+                extensionX1: this.territoryToEdit.extent.maxX,
+                extensionY0: this.territoryToEdit.extent.minY,
+                extensionY1: this.territoryToEdit.extent.maxY,
                 note: this.territoryToEdit.note,
                 blocked: this.territoryToEdit.blocked,
                 _links: this.territoryToEdit._links
@@ -223,7 +219,7 @@ export class TerritoryFormComponent implements OnInit {
         else {
           this.territoryForm.patchValue({
             blocked: false,
-            groupType: this.territoryGroups[0].id,
+            groupType: this.territoryGroups[this.territoryGroups.length -1].id,
             scope: this.scopeTypes[0].value
           });
           this.dataLoaded = true;
@@ -369,9 +365,15 @@ export class TerritoryFormComponent implements OnInit {
   }
 
   updateExtent() {
-    let extensionToUpdate = `${this.territoryForm.get('extensionX0').value} ${this.territoryForm.get('extensionX1').value} ${this.territoryForm.get('extensionY0').value} ${this.territoryForm.get('extensionY1').value}`;
+    let extent  = {
+      minX: this.territoryForm.get('extensionX0').value,
+      maxX: this.territoryForm.get('extensionX1').value,
+      minY: this.territoryForm.get('extensionY0').value,
+      maxY: this.territoryForm.get('extensionY1').value,
+    }
+    // let extent = `${this.territoryForm.get('extensionX0').value} ${this.territoryForm.get('extensionX1').value} ${this.territoryForm.get('extensionY0').value} ${this.territoryForm.get('extensionY1').value}`;
     this.territoryForm.patchValue({
-      extent: extensionToUpdate
+      extent: extent
     });
   }
 

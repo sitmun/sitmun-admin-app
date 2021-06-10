@@ -132,7 +132,7 @@
             [eventGetAllRowsSubscription]='getAllElementsEventParameters.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()' [discardChangesButton]=true
             [redoButton]=true [undoButton]=true [deleteButton]=true [newButton]=true addFieldRestriction="name"
-            (getAllRows)="getAllRowsParameters($event)" defaultColumnSorting="name" [actionButton]=true (duplicate)='duplicateParameters($event)'
+            (getAllRows)="getAllRowsParameters($event)" [defaultColumnSorting]="['type','name']" [actionButton]=true (duplicate)='duplicateParameters($event)'
             (new)="openParametersDialog($event)"> </app-data-grid>
         </div>
       </ng-template>

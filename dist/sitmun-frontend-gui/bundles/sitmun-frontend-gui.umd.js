@@ -729,7 +729,6 @@
          */
         DataGridComponent.prototype.onGridReady = function (params) {
             var e_1, _a;
-            var _this = this;
             if (this.singleSelection) {
                 this.gridOptions.rowSelection = 'single';
             }
@@ -769,7 +768,7 @@
                     /** @type {?} */
                     var sortModel_1 = [];
                     this.defaultColumnSorting.forEach(function (element) {
-                        sortModel_1.push({ colId: _this.defaultColumnSorting, sort: 'asc' });
+                        sortModel_1.push({ colId: element, sort: 'asc' });
                     });
                     this.gridApi.setSortModel(sortModel_1);
                 }

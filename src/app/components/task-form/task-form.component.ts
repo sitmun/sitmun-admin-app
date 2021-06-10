@@ -1,7 +1,7 @@
 import { Component, ElementRef, OnInit, QueryList, TemplateRef, ViewChild, ViewChildren, ViewEncapsulation } from '@angular/core';
 import { UtilsService } from 'src/app/services/utils.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ServiceService, TaskService, TaskTypeService, TaskGroupService, CartographyService, ConnectionService, HalOptions, HalParam, TaskUIService, RoleService, CodeListService, TerritoryService, Task } from 'dist/sitmun-frontend-core/';
+import { ServiceService, TaskService, TaskTypeService, TaskGroupService, CartographyService, ConnectionService, HalOptions, HalParam, TaskUIService, RoleService, CodeListService, TerritoryService, Task, TaskAvailabilityService, TaskAvailability } from 'dist/sitmun-frontend-core/';
 import { config } from 'src/config';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogFormComponent, DialogGridComponent } from 'dist/sitmun-frontend-gui/';
@@ -46,6 +46,8 @@ export class TaskFormComponent implements OnInit {
 
   parametersTable = [];
 
+
+  indexParameter = -1;
 
   //Form tables
   forms = [];
@@ -95,6 +97,7 @@ export class TaskFormComponent implements OnInit {
         private http: HttpClient,
         private codeListService: CodeListService,
         private territoryService: TerritoryService,
+        private taskAvailabilityService: TaskAvailabilityService,
         private taskTypeService: TaskTypeService,
         public activatedRoute:ActivatedRoute,
         public router: Router,
@@ -242,6 +245,7 @@ export class TaskFormComponent implements OnInit {
         this.tableCounter++;
         index++;
         if(table.link== 'parameters'){
+          this.indexParameter=index;
           getAll= () =>  of(this.parametersTable);
         }
         else{
@@ -345,10 +349,10 @@ export class TaskFormComponent implements OnInit {
       sqlElement.modifications=false;
       sqlElement.toSave=false;
       if(toSave){
-        // this.saveTask();
-        this.getAllElementsEvent.forEach(element => {
-          element.next(true);
-        });
+        this.saveTask();
+        // this.getAllElementsEvent.forEach(element => {
+        //   element.next(true);
+        // });
       }
       
 
@@ -382,21 +386,52 @@ export class TaskFormComponent implements OnInit {
       this.saveTask();
     }
     else{
-      let uriList = [];
-      data.forEach(element => {
-        if(element.status!= 'pendingDelete'){
-          uriList.push(element._links.self.href)
+      if(linkName=='roles'){
+        this.saveWithUri(data, index, linkName )
+      }
+      else if(linkName='availabilities'){
+        this.saveAvailabilities(data,index);
+      }
+    }
+
+
+
+    }
+  }
+
+  saveWithUri(data: any[], index, linkName ){
+    let dataToSave = [];
+    data.forEach(element => {
+      if(element.status != 'pendingDelete'){
+        dataToSave.push(element._links.self.href);
+      }
+    });
+    let url = this.taskForm.get('_links').value[linkName].href.split('{', 1)[0];
+    this.utils.updateUriList(url,dataToSave, this.refreshElements[index])
+  }
+
+  saveAvailabilities(data: any[], index){
+    const promises: Promise<any>[] = [];
+    data.forEach(territory => {
+      if (territory.status === 'pendingDelete' && territory._links  && !territory.new ) {
+        promises.push(new Promise((resolve, reject) => { this.taskAvailabilityService.remove(territory).subscribe((resp) => { resolve(true) }) }));
+        //  tasksToDelete.push(task) 
         }
-      });
-      // this.savedTask[linkName]=this.utils.createUriList(uriList)
-      this.savedTask[linkName]=uriList;
-      this.currentTablesSaved++;
-      this.saveTask();
-    }
-
-
-
-    }
+      if (territory.status === 'pendingCreation') {
+        territory.task=this.taskToEdit;
+        let index = data.findIndex(element => element.territoryId === territory.id && !element.new)
+        if (index === -1) {
+          territory.new = false;
+          let taskToCreate: TaskAvailability = new TaskAvailability();
+          taskToCreate.task = this.taskToEdit;
+          taskToCreate.territory = territory;
+          promises.push(new Promise((resolve, reject) => { this.taskAvailabilityService.save(taskToCreate).subscribe((resp) => { resolve(true) }) }));
+        }
+      }
+    });
+    Promise.all(promises).then(() => {
+      this.refreshElements[index].next(true);
+    });
   }
 
   restoreElementsSqlSelector(data:any[], index){
@@ -571,7 +606,6 @@ export class TaskFormComponent implements OnInit {
   onSaveButtonClicked(){
     if(this.taskForm.valid)
     {
-      // this.savedTask = {...this.taskForm.value}
       let formkeys= Object.keys(this.taskForm.value);
       formkeys.forEach(key => {
         this.savedTask[key] = this.taskForm.get(key).value;
@@ -590,10 +624,12 @@ export class TaskFormComponent implements OnInit {
         });
       }
       else{
-        // this.saveTask();
-        this.getAllElementsEvent.forEach(element => {
-          element.next(true);
-        });
+        if(this.indexParameter < 0){
+          this.saveTask()
+        }
+        else{
+          this.getAllElementsEvent[this.indexParameter].next(true);
+        }
       }
       console.log(this.savedTask);
     }
@@ -646,7 +682,6 @@ export class TaskFormComponent implements OnInit {
   }
 
   saveTask(){
-    if(this.tableCounter== this.currentTablesSaved){
       let allChangesSaved = true;
       //Verify that all SqlElements are saved
       this.sqlElementModification.forEach(element => {
@@ -663,15 +698,18 @@ export class TaskFormComponent implements OnInit {
           if(this.taskForm.get("_links")) { this.taskForm.get("_links").setValue(result._links); }
           else { this.taskForm.addControl("_links",new FormControl(result._links,[])); }
 
+          this.taskToEdit=result;
+          if(this.indexParameter > 0){
+            this.refreshElements[this.indexParameter].next(true);
+          }
 
-          this.refreshElements.forEach(element => {
-            element.next(true);
+          this.getAllElementsEvent.forEach((element, index) => {
+            if(index != this.indexParameter)element.next(true);
           });
           
           
         })
       }
-    }
 
   }
 
@@ -712,7 +750,7 @@ export class TaskFormComponent implements OnInit {
         command: this.savedTask['value'],
         scope: this.savedTask['scope'].value,
       }
-      delete this.savedTask['command'];
+      delete this.savedTask['value'];
       delete this.savedTask['scope'];
     
     }

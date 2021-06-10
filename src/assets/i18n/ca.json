@@ -102,7 +102,7 @@
     "user": "Usuari",
     "firstname": "Nom",
     "name": "Nom",
-    "lastname": "Cognom",
+    "lastname": "Cognoms",
     "administrator": "Administrador",
     "blocked": "Bloquejat",
     "password": "Contrasenya",
@@ -124,7 +124,7 @@
     "status": "Estat",
     "appliesToChildrenTerritories" : "Aplicat als fills",
     "childRole": "Rol fill",
-    "passwordSet": "Contrasenya introduida"
+    "passwordSet": "Contrasenya introduïda"
   },
   "connectionEntity": {
     "generalData": "Dades Generals",

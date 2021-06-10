@@ -456,8 +456,8 @@ export class LayersFormComponent implements OnInit {
 
     this.columnDefsParameters = [
       this.utils.getSelCheckboxColumnDef(),
-      this.utils.getEditableColumnDef('layersEntity.field', 'name'),
-      this.utils.getEditableColumnDef('layersEntity.name', 'value'),
+      this.utils.getEditableColumnDef('layersEntity.column', 'name'),
+      this.utils.getEditableColumnDef('layersEntity.label', 'value'),
       this.utils.getFormattedColumnDef('layersEntity.format', this.parameterFormatTypes, 'format'),
       this.utils.getEditableColumnDef('layersEntity.order', 'order'),
       this.utils.getEditableColumnDef('layersEntity.type', 'type'),
@@ -503,7 +503,6 @@ export class LayersFormComponent implements OnInit {
       this.utils.getIdColumnDef(),
       this.utils.getNonEditableColumnDef('layersEntity.name', 'name'),
       this.utils.getNonEditableColumnDef('layersEntity.treeName', 'treeName'),
-      this.utils.getStatusColumnDef()
     ];
 
     this.columnDefsParametersDialog = [
@@ -1368,7 +1367,8 @@ export class LayersFormComponent implements OnInit {
           this.getAllElementsTerritorialFilter.next(true);
           this.getAllElementsEventTerritories.next(true);
           this.getAllElementsEventLayersConfigurations.next(true);
-          this.getAllElementsEventNodes.next(true);
+          // this.getAllElementsEventNodes.next(true);
+          this.dataUpdatedEventNodes.next(true);
 
         },
         error => {console.log(error)});

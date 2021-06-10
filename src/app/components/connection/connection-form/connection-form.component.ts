@@ -131,7 +131,7 @@ export class ConnectionFormComponent implements OnInit {
       this.utils.getIdColumnDef(),
       this.utils.getNonEditableColumnDef('connectionEntity.name', 'name'),
       this.utils.getNonEditableColumnDef('connectionEntity.taskGroup', 'groupName'),
-      this.utils.getStatusColumnDef(),
+      // this.utils.getStatusColumnDef(),
     ];
 
     this.columnDefsCartographiesDialog = [
