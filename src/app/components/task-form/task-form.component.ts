@@ -531,7 +531,6 @@ export class TaskFormComponent implements OnInit {
         this.taskForm.get(key).setValue(value)
       }
     };
-
     if(this.taskToEdit.properties){
       this.loadProperties(this.taskToEdit.properties);
     }
@@ -549,6 +548,11 @@ export class TaskFormComponent implements OnInit {
 
       if(!this.taskForm.get(key)){
         this.taskForm.addControl(key,new FormControl( properties[key],[]));
+        if(key == 'layers'){
+           this.taskForm.patchValue({
+             layout: properties[key]
+           });
+        }
       }
       else{
         this.taskForm.get(key).setValue(properties[key])
@@ -753,6 +757,11 @@ export class TaskFormComponent implements OnInit {
       delete this.savedTask['value'];
       delete this.savedTask['scope'];
     
+    }
+    else if(this.taskTypeName == 'Extraction (FME)' ){
+      this.savedTask.properties={
+        layers: this.savedTask['layout']
+      }
     }
 
   }

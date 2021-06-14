@@ -35,7 +35,8 @@ export const config = {
   },
   taskSelectorFieldsForm:{
     "groupId": "group",
-    "uiId": "ui"
+    "uiId": "ui",
+    "serviceId": "service"
   },
   languages: [
     { id: "ca", name: "catalan" },
