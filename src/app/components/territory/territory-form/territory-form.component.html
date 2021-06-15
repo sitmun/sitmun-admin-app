@@ -165,7 +165,7 @@
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
           <app-data-grid [changeHeightButton]="true" [allNewElements]="territoryID == -1" [columnDefs]="columnDefsPermits" [themeGrid]='themeGrid' [getAll]='getAllPermits'
-            [discardChangesButton]=true [redoButton]=true [undoButton]=true [hideDuplicateButton]=true
+            [discardChangesButton]=true [redoButton]=true [undoButton]=true [hideDuplicateButton]=true [addFieldRestriction]="['territoryId', 'roleId', 'userId']"
             [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' defaultColumnSorting="user"
             [eventGetAllRowsSubscription]='getAllElementsEventPermits.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventPermits.asObservable()'
@@ -188,7 +188,7 @@
         <ng-template matExpansionPanelContent>
           <div class="appDataGridEditDiv">
             <app-data-grid [changeHeightButton]="true" [allNewElements]="territoryID == -1" defaultColumnSorting="user" [columnDefs]="columnDefsPermitsChild" [themeGrid]='themeGrid' [getAll]='getAllPermitsChild'
-              [discardChangesButton]=true [redoButton]=true [undoButton]=true [hideDuplicateButton]=true
+              [discardChangesButton]=true [redoButton]=true [undoButton]=true [hideDuplicateButton]=true [addFieldRestriction]="['territoryId', 'roleId', 'userId']"
               [eventRefreshSubscription]='dataUpdatedEvent.asObservable()'
               [eventGetAllRowsSubscription]='getAllElementsEventPermits.asObservable()'
               [eventRefreshSubscription]='dataUpdatedEventPermits.asObservable()'

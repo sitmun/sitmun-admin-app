@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
-import { of,Subject } from 'rxjs';
+import { Observable, of,Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
 import { HalOptions, HalParam, TaskService } from 'dist/sitmun-frontend-core/';
@@ -15,7 +15,8 @@ export class TasksThematicComponent implements OnInit {
   saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
   themeGrid:any=config.agGridTheme;
   columnDefs: any[];
-
+  gridModified = false;
+  
 
   constructor(private utils: UtilsService,
               private router: Router,
@@ -44,7 +45,25 @@ export class TasksThematicComponent implements OnInit {
     ];
   }
 
+  async canDeactivate(): Promise<boolean | Observable<boolean>> {
 
+    if (this.gridModified) {
+
+
+      let result = await this.utils.showNavigationOutDialog().toPromise();
+      if(!result || result.event!=='Accept') { return false }
+      else if(result.event ==='Accept') {return true;}
+      else{
+        return true;
+      }
+    }
+    else return true
+  }	
+
+  setGridModifiedValue(value){
+    this.gridModified=value;
+  }
+  
 
   getAllTasksThematic = () => {
     let taskTypeID=config.tasksTypes['thematic'];

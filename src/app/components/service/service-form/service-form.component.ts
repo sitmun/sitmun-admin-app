@@ -92,12 +92,6 @@ export class ServiceFormComponent implements OnInit {
 
   ngOnInit(): void {
 
-    let serviceTypeByDefault = {
-      value: -1,
-      description: '-------'
-    }
-    this.serviceTypes.push(serviceTypeByDefault);
-
     const promises: Promise<any>[] = [];
 
     promises.push(new Promise((resolve, reject) => {
@@ -156,7 +150,7 @@ export class ServiceFormComponent implements OnInit {
                   serviceURL: this.serviceToEdit.serviceURL,
                   getInformationURL: this.serviceToEdit.getInformationURL,
                   });
-                if(this.serviceForm.value.serviceURL){
+                if(this.serviceForm.value.serviceURL && this.serviceForm.value.type=='WMS'){
                   this.capabilitiesLoaded=false;
                   this.getCapabilitiesDataService();
                 }

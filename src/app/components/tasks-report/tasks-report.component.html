@@ -5,6 +5,6 @@
 <div class="appDataGridDiv">
     <app-data-grid id="taskReport" defaultColumnSorting="name" [columnDefs]="columnDefs" [themeGrid]='themeGrid' [getAll]='getAllTasksReport' [globalSearch]=true [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
     [discardChangesButton]=true [redoButton]=true [undoButton]=true [applyChangesButton]=true  [deleteButton]=true [newButton]=true 
-    [actionButton]=true (remove)="removeData($event)" (new)='newData($event)' (sendChanges)='applyChanges($event)' > </app-data-grid>
+    [actionButton]=true (remove)="removeData($event)" (new)='newData($event)' (sendChanges)='applyChanges($event)'  (gridModified)='setGridModifiedValue($event)'> </app-data-grid>
 </div>
 

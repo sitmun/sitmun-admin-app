@@ -6,14 +6,5 @@
 <div class="appDataGridDiv">
     <app-data-grid id="applicaction" [columnDefs]="columnDefs" [themeGrid]='themeGrid'  [getAll]='getAllApplications' [globalSearch]=true [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
     [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true [applyChangesButton]=true  [deleteButton]=true [newButton]=true 
-    [actionButton]=true (remove)="removeData($event)" (new)='newData($event)' defaultColumnSorting="name" (sendChanges)='applyChanges($event)' (duplicate)='add($event)'> </app-data-grid>
+    [actionButton]=true (remove)="removeData($event)" (new)='newData($event)' defaultColumnSorting="name" (sendChanges)='applyChanges($event)' (duplicate)='add($event)' (gridModified)='setGridModifiedValue($event)'> </app-data-grid>
 </div>
-
-<!--
-ag-theme-balham
-ag-theme-balham-dark
-ag-theme-dark
-ag-theme-blue
-ag-theme-bootstrap
-ag-theme-fresh
-ag-theme-material -->

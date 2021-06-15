@@ -964,7 +964,7 @@
             /** @type {?} */
             var condition = (this.addFieldRestriction) ? this.addFieldRestriction : 'id';
             newItems.forEach(function (item) {
-                if (item[condition] == undefined || (_this.rowData.find(function (element) { return element[condition] == item[condition]; })) == undefined) {
+                if (_this.checkElementAllowedToAdd(condition, item)) {
                     if (_this.statusColumn) {
                         item.status = 'pendingCreation';
                         item.newItem = true;
@@ -973,12 +973,62 @@
                     _this.rowData.push(item);
                 }
                 else {
-                    console.log("Item with the " + condition + " " + item[condition] + " already exists");
+                    console.log("Item already exists");
                 }
             });
             this.gridApi.updateRowData({ add: itemsToAdd });
             console.log(this.columnDefs);
             // params.oldValue!=undefined
+        };
+        /**
+         * @param {?} condition
+         * @param {?} item
+         * @return {?}
+         */
+        DataGridComponent.prototype.checkElementAllowedToAdd = function (condition, item) {
+            var e_2, _a, e_3, _b;
+            /** @type {?} */
+            var finalAddition = true;
+            if (Array.isArray(condition)) {
+                try {
+                    for (var _c = __values(this.rowData), _d = _c.next(); !_d.done; _d = _c.next()) {
+                        var element = _d.value;
+                        /** @type {?} */
+                        var canAdd = false;
+                        try {
+                            for (var condition_1 = (e_3 = void 0, __values(condition)), condition_1_1 = condition_1.next(); !condition_1_1.done; condition_1_1 = condition_1.next()) {
+                                var currentCondition = condition_1_1.value;
+                                if (element[currentCondition] != item[currentCondition]) {
+                                    canAdd = true;
+                                    break;
+                                }
+                            }
+                        }
+                        catch (e_3_1) { e_3 = { error: e_3_1 }; }
+                        finally {
+                            try {
+                                if (condition_1_1 && !condition_1_1.done && (_b = condition_1.return)) _b.call(condition_1);
+                            }
+                            finally { if (e_3) throw e_3.error; }
+                        }
+                        if (!canAdd) {
+                            finalAddition = false;
+                            break;
+                        }
+                    }
+                }
+                catch (e_2_1) { e_2 = { error: e_2_1 }; }
+                finally {
+                    try {
+                        if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+                    }
+                    finally { if (e_2) throw e_2.error; }
+                }
+                return finalAddition;
+            }
+            else {
+                return (item[condition] == undefined || (this.rowData.find(function (element) { return element[condition] == item[condition]; })) == undefined);
+            }
         };
         /**
          * @param {?} value
@@ -1005,7 +1055,7 @@
          * @return {?}
          */
         DataGridComponent.prototype.removeData = function () {
-            var e_2, _a;
+            var e_4, _a;
             this.gridApi.stopEditing(false);
             /** @type {?} */
             var selectedNodes = this.gridApi.getSelectedNodes();
@@ -1024,12 +1074,12 @@
                         this.gridApi.getRowNode(id).data.status = 'pendingDelete';
                     }
                 }
-                catch (e_2_1) { e_2 = { error: e_2_1 }; }
+                catch (e_4_1) { e_4 = { error: e_4_1 }; }
                 finally {
                     try {
                         if (selectedRows_1_1 && !selectedRows_1_1.done && (_a = selectedRows_1.return)) _a.call(selectedRows_1);
                     }
-                    finally { if (e_2) throw e_2.error; }
+                    finally { if (e_4) throw e_4.error; }
                 }
                 this.gridOptions.api.refreshCells();
             }
@@ -1084,7 +1134,7 @@
          * @return {?}
          */
         DataGridComponent.prototype.applyChanges = function () {
-            var e_3, _a;
+            var e_5, _a;
             /** @type {?} */
             var itemsChanged = [];
             this.gridApi.stopEditing(false);
@@ -1094,12 +1144,12 @@
                     itemsChanged.push(this.gridApi.getRowNode(key).data);
                 }
             }
-            catch (e_3_1) { e_3 = { error: e_3_1 }; }
+            catch (e_5_1) { e_5 = { error: e_5_1 }; }
             finally {
                 try {
                     if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                 }
-                finally { if (e_3) throw e_3.error; }
+                finally { if (e_5) throw e_5.error; }
             }
             this.sendChanges.emit(itemsChanged);
             this.gridModified.emit(false);
@@ -1139,7 +1189,6 @@
                             node.data.status = 'statusOK';
                         }
                     }
-                    console.log(node);
                 });
                 this.someStatusHasChangedToDelete = false;
                 this.discardChanges.emit(rowsWithStatusModified_1);

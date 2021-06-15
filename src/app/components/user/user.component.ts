@@ -4,7 +4,7 @@ import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
  
@@ -19,7 +19,8 @@ export class UserComponent implements OnInit {
   dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
   themeGrid: any = config.agGridTheme;
   columnDefs: any[];
-
+  gridModified = false;
+  
   constructor(public dialog: MatDialog,
     public userService: UserService,
     private utils: UtilsService,
@@ -60,6 +61,25 @@ export class UserComponent implements OnInit {
   getAllUsers = () => {
 
     return this.userService.getAll();
+  }
+
+  async canDeactivate(): Promise<boolean | Observable<boolean>> {
+
+    if (this.gridModified) {
+
+
+      let result = await this.utils.showNavigationOutDialog().toPromise();
+      if(!result || result.event!=='Accept') { return false }
+      else if(result.event ==='Accept') {return true;}
+      else{
+        return true;
+      }
+    }
+    else return true
+  }	
+
+  setGridModifiedValue(value){
+    this.gridModified=value;
   }
 
   newData(id: any) {

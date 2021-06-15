@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Territory, TerritoryService, TranslationService, Translation, TaskAvailabilityService, TerritoryGroupTypeService, CartographyAvailabilityService, UserService, RoleService, CartographyService, TaskService, UserConfigurationService, HalOptions, HalParam, User, Role, Cartography, Task, TaskAvailability } from 'dist/sitmun-frontend-core/';
+import { Territory, TerritoryService,UserPositionService, TranslationService, Translation, TaskAvailabilityService, TerritoryGroupTypeService, CartographyAvailabilityService, UserService, RoleService, CartographyService, TaskService, UserConfigurationService, HalOptions, HalParam, User, Role, Cartography, Task, TaskAvailability } from 'dist/sitmun-frontend-core/';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { Observable, of, Subject } from 'rxjs';
@@ -103,6 +103,8 @@ export class TerritoryFormComponent implements OnInit {
     private taskAvailabilityService: TaskAvailabilityService,
     private taskService: TaskService,
     private userConfigurationService: UserConfigurationService,
+    private userPositionService: UserPositionService,
+    
     private http: HttpClient,
     public utils: UtilsService,
   ) {
@@ -430,8 +432,8 @@ export class TerritoryFormComponent implements OnInit {
 
   async getAllRowsPermits(data: any[], permitsChildren: boolean) {
 
-    let usersConfToCreate = [];
-    let usersConfDelete = [];
+    let usersPositionToDelete = [];
+    let usersPositionToAdd = [];
     const promisesDuplicate: Promise<any>[] = [];
     const promisesCurrentUserConf: Promise<any>[] = [];
     const promises: Promise<any>[] = [];
@@ -526,28 +528,36 @@ export class TerritoryFormComponent implements OnInit {
           }
           if (index === -1) {
             userConf.new = false;
-            usersConfToCreate.push(item)
+            promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
+
           }
         }
 
       }
-      if (userConf.status === 'pendingDelete' && userConf._links  && !userConf.new ) { usersConfDelete.push(userConf) }
+      if (userConf.status === 'pendingDelete' && userConf._links  && !userConf.new ) {
+        promises.push(new Promise((resolve, reject) => { this.userConfigurationService.remove(userConf).subscribe((resp) => { resolve(true) }) }));
+
+        let indexUserPosition = data.findIndex(element =>  element.userId === userConf.userId && element.status !== 'pendingDelete' );
+
+        if(indexUserPosition == -1 && !usersPositionToDelete.includes(userConf.userId)){
+          usersPositionToDelete.push(userConf.userId);
+            promises.push(new Promise((resolve, reject) => {
+            this.userPositionService.getAll()
+            .pipe(map((data: any[]) => data.filter(elem => elem.territoryName === userConf.territory && elem.userId === userConf.userId )
+            )).subscribe(data => {
+              console.log(data);
+              promises.push(new Promise((resolve, reject) => { this.userPositionService.remove(data[0]).subscribe((resp) => { resolve(true) }) }));
+              resolve(true);
+            })
+          }));
+
+        }
+
+
+      }
     };
 
 
-
-
-      usersConfToCreate.forEach(newElement => {
-        promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(newElement).subscribe((resp) => { resolve(true) }) }));
-      });
-  
-      usersConfDelete.forEach(deletedElement => {
-        if (deletedElement._links) {
-          promises.push(new Promise((resolve, reject) => { this.userConfigurationService.remove(deletedElement).subscribe((resp) => { resolve(true) }) }));
-        }
-  
-      });
-  
       Promise.all([...promises,...promisesDuplicate]).then(() => {
         this.dataUpdatedEventPermits.next(true);
       });
@@ -1104,7 +1114,9 @@ export class TerritoryFormComponent implements OnInit {
           userComplete: user,
           role: role.name,
           roleComplete: role,
+          roleId: role.id,
           territoryId: this.territoryID,
+          territoryName: territory.name,
           appliesToChildrenTerritories: childrenTable,
           new: true
         }
@@ -1150,7 +1162,7 @@ export class TerritoryFormComponent implements OnInit {
           this.terrritoryObj._links = this.territoryForm.value._links
 
         if (this.territoryID == -1) {
-          this.terrritoryObj.createdDate = new Date();
+          this.terrritoryObj.id = null;
         } else {
           this.terrritoryObj.id = this.territoryForm.value.id;
           this.terrritoryObj.createdDate = this.territoryToEdit.createdDate
@@ -1205,7 +1217,7 @@ export class TerritoryFormComponent implements OnInit {
     if (y0 == null || y0.length < 1 || y0 === "null") { nullCounter++ };
     if (y1 == null || y1.length < 1 || y1 === "null") { nullCounter++ };
 
-    return (nullCounter === 0 || nullCounter === 4) ? true : false;
+    return (nullCounter === 0 || nullCounter === 4)  ? true : false;
 
   }
 

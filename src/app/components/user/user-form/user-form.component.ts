@@ -149,6 +149,7 @@ export class UserFormComponent implements OnInit {
       this.utils.getEditableColumnDef('userEntity.position', 'name'),
       this.utils.getEditableColumnDef('userEntity.organization', 'organization'),
       this.utils.getEditableColumnDef('userEntity.mail', 'email'),
+      this.utils.getEditableColumnDef('userEntity.type', 'type'),
       this.utils.getDateColumnDef('userEntity.expirationDate', 'expirationDate',true),
       this.utils.getDateColumnDef('userEntity.dataCreated', 'createdDate'),
       this.utils.getStatusColumnDef()
@@ -309,7 +310,6 @@ export class UserFormComponent implements OnInit {
                      itemTerritory = {
                        territory: territoryComplete,
                        user: this.userToEdit,
-                       createdDate: new Date(),
                        id: null,
                        _links: null,
                      }
@@ -341,12 +341,12 @@ export class UserFormComponent implements OnInit {
           index = data.findIndex(element => element.roleId === item.role.id && element.territoryId === item.territory.id &&
             element.appliesToChildrenTerritories === item.appliesToChildrenTerritories && !element.new)
 
+          let indexTerritory = data.findIndex(element => element.territoryId === userConf.territoryComplete.id && !element.new )
+
           if(index === -1) {
             userConf.new = false;
             promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
           }
-
-          let indexTerritory = data.findIndex(element => element.territoryId === userConf.territoryComplete.id && !element.new )
 
           if(indexTerritory === -1 && !territoriesToAdd.includes(item.territory.id))
           {
@@ -354,7 +354,6 @@ export class UserFormComponent implements OnInit {
             itemTerritory = {
               territory: userConf.territoryComplete,
               user: this.userToEdit,
-              createdDate: new Date()
             }
                
             // territoriesToAdd.push(itemTerritory)
@@ -575,6 +574,7 @@ export class UserFormComponent implements OnInit {
         roleId: role.id,
         territory: territory.name,
         territoryComplete: territory,
+        territoryName: territory.name,
         territoryId: territory.id,
         userId: this.userID,
         new: true,

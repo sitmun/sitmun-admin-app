@@ -970,7 +970,6 @@ export class ApplicationFormComponent implements OnInit {
         appObj._links= this.applicationForm.value._links;
         appObj.situationMap=situationMap;
         if(this.applicationID==-1){
-          appObj.createdDate=new Date();
           appObj.id=null;
         }else{
           appObj.id=this.applicationForm.value.id;

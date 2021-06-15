@@ -123,6 +123,7 @@ import { TasksEditionCartographyTableComponent } from './components/tasks-editio
 import { TasksEditionDataTableComponent } from './components/tasks-edition-data-table/tasks-edition-data-table.component';
 import { TasksEditionRelationTableComponent } from './components/tasks-edition-relation-table/tasks-edition-relation-table.component';
 import { TasksEditionSearchViewComponent } from './components/tasks-edition-search-view/tasks-edition-search-view.component';
+import { CanDeactivateGuard } from './services/can-deactivate-guard.service';
 
 
 
@@ -203,7 +204,7 @@ import { TasksEditionSearchViewComponent } from './components/tasks-edition-sear
     APP_ROUTING,
     BrowserAnimationsModule
   ],
-  providers: [SidenavService, UtilsService,
+  providers: [SidenavService, UtilsService, CanDeactivateGuard,
     { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
     { provide: LOCALE_ID, useValue: 'es-ES' },
     RoleService, ConnectionService, UserService, TerritoryService, ServiceService,

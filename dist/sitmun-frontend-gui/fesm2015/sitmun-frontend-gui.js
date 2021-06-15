@@ -684,7 +684,7 @@ class DataGridComponent {
         /** @type {?} */
         let condition = (this.addFieldRestriction) ? this.addFieldRestriction : 'id';
         newItems.forEach(item => {
-            if (item[condition] == undefined || (this.rowData.find(element => element[condition] == item[condition])) == undefined) {
+            if (this.checkElementAllowedToAdd(condition, item)) {
                 if (this.statusColumn) {
                     item.status = 'pendingCreation';
                     item.newItem = true;
@@ -693,12 +693,41 @@ class DataGridComponent {
                 this.rowData.push(item);
             }
             else {
-                console.log(`Item with the ${condition} ${item[condition]} already exists`);
+                console.log(`Item already exists`);
             }
         });
         this.gridApi.updateRowData({ add: itemsToAdd });
         console.log(this.columnDefs);
         // params.oldValue!=undefined
+    }
+    /**
+     * @param {?} condition
+     * @param {?} item
+     * @return {?}
+     */
+    checkElementAllowedToAdd(condition, item) {
+        /** @type {?} */
+        let finalAddition = true;
+        if (Array.isArray(condition)) {
+            for (let element of this.rowData) {
+                /** @type {?} */
+                let canAdd = false;
+                for (let currentCondition of condition) {
+                    if (element[currentCondition] != item[currentCondition]) {
+                        canAdd = true;
+                        break;
+                    }
+                }
+                if (!canAdd) {
+                    finalAddition = false;
+                    break;
+                }
+            }
+            return finalAddition;
+        }
+        else {
+            return (item[condition] == undefined || (this.rowData.find(element => element[condition] == item[condition])) == undefined);
+        }
     }
     /**
      * @param {?} value
@@ -836,7 +865,6 @@ class DataGridComponent {
                         node.data.status = 'statusOK';
                     }
                 }
-                console.log(node);
             });
             this.someStatusHasChangedToDelete = false;
             this.discardChanges.emit(rowsWithStatusModified);

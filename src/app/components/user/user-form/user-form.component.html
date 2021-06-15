@@ -113,7 +113,7 @@
           <app-data-grid [changeHeightButton]="true" [allNewElements]="userID == -1"  [columnDefs]="columnDefsPermits" defaultColumnSorting="territory" [themeGrid]='themeGrid' [getAll]='getAllPermits'  
           [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventPermits.asObservable()' 
           [eventRefreshSubscription]='dataUpdatedEventPermits.asObservable()' [eventAddItemsSubscription]='addElementsEventPermits.asObservable()'
-           [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true 
+           [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [addFieldRestriction]="['territoryId', 'roleId', 'userId', 'appliesToChildrenTerritories']" 
           (getAllRows)="getAllRowsPermits($event)" [actionButton]=true  (add)="openPermitsDialog($event)"  > </app-data-grid>
       </div>
     </div>

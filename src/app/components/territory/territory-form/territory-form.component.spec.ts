@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { MaterialModule } from '../../../material-module';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { TerritoryService, TerritoryGroupTypeService, CartographyAvailabilityService, TaskAvailabilityService , CartographyService, UserService,
-   RoleService, TaskService,UserConfigurationService, CodeListService, TranslationService, ResourceService, ExternalService  } from 'dist/sitmun-frontend-core/';
+   RoleService, TaskService,UserConfigurationService, CodeListService, TranslationService, ResourceService, ExternalService, UserPositionService  } from 'dist/sitmun-frontend-core/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
@@ -20,7 +20,7 @@ describe('TerritoryFormComponent', () => {
       imports: [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,
         RouterModule.forRoot([]), MaterialModule, MatIconTestingModule],
      providers: [TerritoryService, UserService, RoleService,  TerritoryGroupTypeService, CartographyService, TaskAvailabilityService,
-       TaskService, CartographyAvailabilityService, CodeListService,UserConfigurationService,TranslationService, ResourceService, ExternalService,
+       TaskService, UserPositionService, CartographyAvailabilityService, CodeListService,UserConfigurationService,TranslationService, ResourceService, ExternalService,
        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
    })
    .compileComponents();

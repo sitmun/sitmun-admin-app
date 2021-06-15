@@ -166,6 +166,13 @@ export class UtilsService {
     dialogRef.afterClosed().subscribe();
   }
 
+  showNavigationOutDialog() {
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title = this.getTranslate('caution')
+    dialogRef.componentInstance.message = this.getTranslate('navigateOutMessage')
+    return dialogRef.afterClosed();
+  }
+
   getSelCheckboxColumnDef() {
     let columnDef =
     {

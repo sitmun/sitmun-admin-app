@@ -7,6 +7,7 @@ import { config } from 'src/config';
 import { Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-layers-permits',
@@ -18,6 +19,7 @@ export class LayersPermitsComponent implements OnInit {
   dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
   themeGrid: any = config.agGridTheme;
   columnDefs: any[];
+  gridModified = false;
 
   permissionGroupTypes: Array<any> = [];
 
@@ -49,6 +51,25 @@ export class LayersPermitsComponent implements OnInit {
       this.utils.getFormattedColumnDef('layersPermitsEntity.type',this.permissionGroupTypes,'type')
     ];
 
+  }
+
+  async canDeactivate(): Promise<boolean | Observable<boolean>> {
+
+    if (this.gridModified) {
+
+
+      let result = await this.utils.showNavigationOutDialog().toPromise();
+      if(!result || result.event!=='Accept') { return false }
+      else if(result.event ==='Accept') {return true;}
+      else{
+        return true;
+      }
+    }
+    else return true
+  }	
+
+  setGridModifiedValue(value){
+    this.gridModified=value;
   }
 
   getAllLayersPermits = () => {
