@@ -140,6 +140,7 @@
     "layers": "Capas",
     "code": "Código",
     "taskGroup": "Grupo tarea",
+    "typeName": "Tipo de tarea",
     "status": "Estado"
   },
   "serviceEntity": {
@@ -349,7 +350,11 @@
     "layers": "Capas",
     "code": "Código",
     "groupTask": "Grupo tarea",
+    "typeName": "Tipo de tarea",
     "status": "Estado"
+  },
+  "taskEntity":{
+    "value": "Valor"
   },
   "tasksEntity": {
     "generalData": "Datos Generales",

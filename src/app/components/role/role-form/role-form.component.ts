@@ -137,6 +137,7 @@ export class RoleFormComponent implements OnInit {
       this.utils.getIdColumnDef(),
       this.utils.getNonEditableColumnDef('roleEntity.name', 'name'),
       this.utils.getNonEditableColumnDef('roleEntity.groupTask', 'groupName'),
+      this.utils.getNonEditableColumnDef('roleEntity.typeName', 'typeName'),
       this.utils.getStatusColumnDef()
     ];
 
@@ -178,6 +179,7 @@ export class RoleFormComponent implements OnInit {
       this.utils.getIdColumnDef(),
       this.utils.getNonEditableColumnDef('roleEntity.name', 'name'),
       this.utils.getNonEditableColumnDef('roleEntity.groupTask', 'groupName'),
+      this.utils.getNonEditableColumnDef('roleEntity.typeName', 'typeName'),
     ];
 
     this.columnDefsApplicationsDialog = [

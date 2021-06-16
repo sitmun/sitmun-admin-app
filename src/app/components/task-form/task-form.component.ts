@@ -548,9 +548,9 @@ export class TaskFormComponent implements OnInit {
 
       if(!this.taskForm.get(key)){
         this.taskForm.addControl(key,new FormControl( properties[key],[]));
-        if(key == 'layers'){
+        if(key == 'layers' && properties[key]){
            this.taskForm.patchValue({
-             layout: properties[key]
+             layers: properties[key].join()
            });
         }
       }
@@ -759,8 +759,9 @@ export class TaskFormComponent implements OnInit {
     
     }
     else if(this.taskTypeName == 'Extraction (FME)' ){
+      let layers = this.savedTask['layers']?this.savedTask['layers'].split(','):null;
       this.savedTask.properties={
-        layers: this.savedTask['layout']
+        layers: layers
       }
     }
 

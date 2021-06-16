@@ -140,6 +140,7 @@
     "layers": "Layers",
     "code": "Code",
     "taskGroup": "Task group",
+    "typeName": "Type name",
     "status": "Status"
   },
   "serviceEntity": {
@@ -348,8 +349,12 @@
     "territories": "Territories",
     "layers": "Layers",
     "code": "Code",
-    "groupTask": "GroupTask",
+    "groupTask": "Group task",
+    "typeName": "Task type",
     "status": "Status"
+  },
+  "taskEntity":{
+    "value": "Value"
   },
   "tasksEntity": {
     "generalData": "General Data",

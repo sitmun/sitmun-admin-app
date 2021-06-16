@@ -140,6 +140,7 @@
     "layers": "Capes",
     "code": "Codi",
     "taskGroup": "Grup tasca",
+    "typeName": "Tipus tasca",
     "status": "Estat"
   },
   "serviceEntity": {
@@ -349,7 +350,11 @@
     "layers": "Capes",
     "code": "Codi",
     "groupTask": "Grup tasca",
+    "typeName": "Tipus tasca",
     "status": "Estat"
+  },
+  "taskEntity":{
+    "value": "Valor"
   },
   "tasksEntity": {
     "generalData": "Dades Generals",
