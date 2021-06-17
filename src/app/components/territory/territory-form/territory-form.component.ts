@@ -122,8 +122,8 @@ export class TerritoryFormComponent implements OnInit {
     promises.push(new Promise((resolve, reject) => {
       this.getTerritoryGroups().subscribe(
         resp => {
-          this.territoryGroups.push(...resp);
           this.territoryGroups.push(territoryByDefault);
+          this.territoryGroups.push(...resp);
           resolve(true);
         }
       )
@@ -148,12 +148,19 @@ export class TerritoryFormComponent implements OnInit {
             resp => {
               console.log(resp);
               this.territoryToEdit = resp;
+              let currentTerritoryGroup;
+              if(this.territoryToEdit.groupTypeId != null || !this.territoryToEdit.groupTypeId != undefined){
+                currentTerritoryGroup = this.territoryGroups.find(element => element.id == this.territoryToEdit.groupTypeId)
+              }
+              if(!currentTerritoryGroup){
+                currentTerritoryGroup = this.territoryGroups[0];
+              }
               this.territoryForm.patchValue({
                 code: this.territoryToEdit.code,
                 territorialAuthorityAddress: this.territoryToEdit.territorialAuthorityAddress,
                 territorialAuthorityLogo: this.territoryToEdit.territorialAuthorityLogo,
                 scope: this.territoryToEdit.scope,
-                groupType: this.territoryToEdit.groupTypeId,
+                groupType: currentTerritoryGroup.id,
                 extent: this.territoryToEdit.extent,
                 extensionX0: this.territoryToEdit.extent.minX,
                 extensionX1: this.territoryToEdit.extent.maxX,
@@ -206,11 +213,11 @@ export class TerritoryFormComponent implements OnInit {
               }
 
 
-              if (!this.territoryToEdit.groupTypeId) {
-                this.territoryForm.patchValue({
-                  groupType: this.territoryGroups[0].id,
-                })
-              }
+              // if (!this.territoryToEdit.groupTypeId) {
+              //   this.territoryForm.patchValue({
+              //     groupType: this.territoryGroups[0].id,
+              //   })
+              // }
               this.dataLoaded = true;
             },
             error => {
