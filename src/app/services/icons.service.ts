@@ -153,19 +153,19 @@ export class IconsService {
           icon: 'ic_translate',
         },
         {
-          id: 'flag_ca',
+          id: 'icon_lang_ca',
           icon: 'flag_ca',
         },
         {
-          id: 'flag_en',
+          id: 'icon_lang_en',
           icon: 'flag_en',
         },
         {
-          id: 'flag_es',
+          id: 'icon_lang_es',
           icon: 'flag_es',
         },
         {
-          id: 'flag_oc',
+          id: 'icon_lang_oc',
           icon: 'flag_oc',
         },
 
