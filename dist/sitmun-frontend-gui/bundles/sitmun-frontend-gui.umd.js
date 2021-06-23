@@ -2808,10 +2808,10 @@
             this.matIconRegistry = matIconRegistry;
             this.domSanitizer = domSanitizer;
             this.initializeTranslationForm();
-            this.matIconRegistry.addSvgIcon("icon_lang_ca", this.domSanitizer.bypassSecurityTrustResourceUrl('../../assets/img/flag_ca.svg'));
-            this.matIconRegistry.addSvgIcon("icon_lang_es", this.domSanitizer.bypassSecurityTrustResourceUrl('../../assets/img/flag_es.svg'));
-            this.matIconRegistry.addSvgIcon("icon_lang_en", this.domSanitizer.bypassSecurityTrustResourceUrl('../../assets/img/flag_en.svg'));
-            this.matIconRegistry.addSvgIcon("icon_lang_oc", this.domSanitizer.bypassSecurityTrustResourceUrl('../../assets/img/flag_oc.svg'));
+            this.matIconRegistry.addSvgIcon("icon_lang_ca", this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/flag_ca.svg'));
+            this.matIconRegistry.addSvgIcon("icon_lang_es", this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/flag_es.svg'));
+            this.matIconRegistry.addSvgIcon("icon_lang_en", this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/flag_en.svg'));
+            this.matIconRegistry.addSvgIcon("icon_lang_oc", this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/flag_oc.svg'));
         }
         /**
          * @return {?}
