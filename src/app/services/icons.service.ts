@@ -148,6 +148,26 @@ export class IconsService {
           id: 'ic_translate',
           icon: 'ic_translate',
         },
+        {
+          id: 'ic_translate',
+          icon: 'ic_translate',
+        },
+        {
+          id: 'flag_ca',
+          icon: 'flag_ca',
+        },
+        {
+          id: 'flag_en',
+          icon: 'flag_en',
+        },
+        {
+          id: 'flag_es',
+          icon: 'flag_es',
+        },
+        {
+          id: 'flag_oc',
+          icon: 'flag_oc',
+        },
 
     ];
 

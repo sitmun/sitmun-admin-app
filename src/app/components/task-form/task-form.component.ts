@@ -775,7 +775,7 @@ export class TaskFormComponent implements OnInit {
     let coincidences=sentence.match(regex)
     let coincidencesNotUsed= [];
     let tableWithUsedElements= [...this.sqlElementModification[index].tableElements]
-    if(coincidences.length>0){
+    if(coincidences && coincidences.length>0){
       for (const coincidence of coincidences) {
         let indexElement= tableWithUsedElements.findIndex(element => element === coincidence)
         if(indexElement < 0) { coincidencesNotUsed.push(coincidence)  }

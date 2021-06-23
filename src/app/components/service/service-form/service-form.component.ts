@@ -14,6 +14,7 @@ import { config } from 'src/config';
 import { DialogGridComponent, DialogFormComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
 import * as xml2js from 'xml2js';
+import { HttpHeaders } from '@angular/common/http';
 @Component({
   selector: 'app-service-form',
   templateUrl: './service-form.component.html',
@@ -277,7 +278,15 @@ export class ServiceFormComponent implements OnInit {
   getCapabilitiesDataService(refresh?){
     try{
     this.getCapabilitiesLayers=[];
-    this.http.get(`${this.serviceForm.value.serviceURL}?request=GetCapabilities`, { responseType: 'text' }).subscribe(resp => {
+
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type':  'application/xml',
+        'Access-Control-Allow-Origin':'*',
+      })
+    };
+
+    this.http.get(`${this.serviceForm.value.serviceURL}?request=GetCapabilities`, httpOptions).subscribe(resp => {
      
       // this.router.navigate(["/company", resp.id, "formConnection"]);
       const parser = new xml2js.Parser({ explicitArray:false,strict: false, trim: true });
