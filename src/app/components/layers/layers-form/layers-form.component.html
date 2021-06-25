@@ -520,6 +520,23 @@
 
       </div>
 
+      <div class="rowFormDiv">
+
+        <div class="colFormDiv">
+          <label class="formLabel requiredInput">
+            {{'layersEntity.type' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <mat-select matInput formControlName="type" class="form-control">
+              <mat-option [value]="type.value" *ngFor="let type of parameterTypes">
+                {{ type.description}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+      </div>
+
 
 
     </form>

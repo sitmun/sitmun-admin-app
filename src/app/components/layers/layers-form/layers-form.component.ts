@@ -167,7 +167,6 @@ export class LayersFormComponent implements OnInit {
       )
     }));
 
-
     promises.push(new Promise((resolve, reject) => {
       this.utils.getCodeListValues('cartographyParameter.type').subscribe(
         resp => {
@@ -630,6 +629,7 @@ export class LayersFormComponent implements OnInit {
       name: new FormControl(null, [Validators.required]),
       format: new FormControl(null, []),
       order: new FormControl(null, []),
+      type: new FormControl(null, []),
     })
   }
 

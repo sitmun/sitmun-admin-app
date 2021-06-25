@@ -12,6 +12,7 @@ export declare class DialogTranslationComponent implements OnInit {
     spanishValue: string;
     englishValue: string;
     araneseValue: string;
+    frenchValue: string;
     constructor(dialogRef: MatDialogRef<DialogTranslationComponent>, matIconRegistry: MatIconRegistry, domSanitizer: DomSanitizer);
     ngOnInit(): void;
     initializeTranslationForm(): void;
