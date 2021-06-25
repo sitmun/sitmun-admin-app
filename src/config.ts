@@ -43,7 +43,7 @@ export const config = {
     { id: "es", name: "spanish" },
     { id: "en", name: "english" },
     { id: "oc-aranes", name: "aranese" },
-    { id: "fr", name: "français" }
+    { id: "fr", name: "french" }
   ],
   defaultLang: "ca",
   _embedded: {
