@@ -238,6 +238,7 @@ export class UtilsService {
         'pendingCreation': function (params) { return params.value === 'pendingCreation' },
         'notAvailable': function (params) { return params.value === 'notAvailable' },
         'pendingRegistration': function (params) { return params.value === 'pendingRegistration' },
+        'unregisteredLayer': function (params) { return params.value === 'unregisteredLayer' },
         'stable': function (params) { return params.value === undefined || params.value === 'statusOK'}
       }
     }

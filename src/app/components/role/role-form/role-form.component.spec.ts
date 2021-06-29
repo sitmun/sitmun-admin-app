@@ -11,6 +11,8 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { MaterialModule } from '../../../material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { Role } from '@sitmun/frontend-core';
+import { Observable } from 'rxjs';
 
 
 describe('RoleFormComponent', () => {
@@ -39,3 +41,20 @@ describe('RoleFormComponent', () => {
     expect(component).toBeTruthy();
   });
 });
+
+// describe('RoleService', () => {
+//   let service: RoleService;
+
+//   let role: Role =  new Role();;
+//   role.id=1;
+//   role.name="Name";
+//   role.description="Description"; 
+
+//   it('#getObservableValue should return value from observable',
+//   (done: DoneFn) => {
+//   service.save(role).subscribe(value => {
+//     expect(value).toBe(role);
+//     done();
+//   });
+// });
+// })

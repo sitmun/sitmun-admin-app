@@ -10,6 +10,7 @@ import { MaterialModule } from '../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { Role } from '@sitmun/frontend-core';
 
 describe('RoleComponent', () => {
   let component: RoleComponent;
@@ -34,4 +35,15 @@ describe('RoleComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  // let role:Role = new Application();
+  // let spy: any;
+  // role.name="Nom";
+  // role.id = 1;
+  // role.description = "Description"
+  
+
+  // it('should update', () => {
+  //   spy=component.applyChanges([role])
+  // })
 });

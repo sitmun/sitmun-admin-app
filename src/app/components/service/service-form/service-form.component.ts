@@ -151,10 +151,10 @@ export class ServiceFormComponent implements OnInit {
                   serviceURL: this.serviceToEdit.serviceURL,
                   getInformationURL: this.serviceToEdit.getInformationURL,
                   });
-                if(this.serviceForm.value.serviceURL && this.serviceForm.value.type=='WMS'){
-                  this.capabilitiesLoaded=false;
-                  this.getCapabilitiesDataService();
-                }
+                // if(this.serviceForm.value.serviceURL && this.serviceForm.value.type=='WMS'){
+                //   this.capabilitiesLoaded=false;
+                //   this.getCapabilitiesDataService();
+                // }
                 this.translationService.getAll()
                 .pipe(map((data: any[]) => data.filter(elem => elem.element == this.serviceID && elem.column == config.translationColumns.serviceDescription)
                 )).subscribe( result => {
@@ -277,24 +277,22 @@ export class ServiceFormComponent implements OnInit {
 
   getCapabilitiesDataService(refresh?){
     try{
-
-      // this.capabilitiesService.getInfo(this.serviceForm.value.serviceURL).subscribe(result => {
-      //   debugger;
-      // })
-
-    this.getCapabilitiesLayers=[];
-    this.http.get(`${this.serviceForm.value.serviceURL}?request=GetCapabilities`, { responseType: 'text' }).subscribe(resp => {
-     
-      // this.router.navigate(["/company", resp.id, "formConnection"]);
-      const parser = new xml2js.Parser({ explicitArray:false,strict: false, trim: true });
-      parser.parseString(resp, (err, result) => {
-        this.serviceCapabilitiesData=result;
-        this.changeServiceDataByCapabilities(refresh);
-   
-      });
-    }, error =>{
-      this.capabilitiesLoaded=true;
-    })
+      let url: string = this.serviceForm.value.serviceURL;
+      if(! url.includes('request=GetCapabilities')){
+        if(url[url.length-1] == '?') { url = url.concat('request=GetCapabilities') }
+        else { url = url.concat('?request=GetCapabilities') }
+      }
+      this.capabilitiesService.getInfo(url).subscribe(result => {
+        console.log(result)
+        if(result.success){
+          this.getCapabilitiesLayers=[];
+          this.serviceCapabilitiesData=result.asJson;
+          this.changeServiceDataByCapabilities(refresh);
+        }
+      },error => {
+        console.log(error)
+        this.capabilitiesLoaded=true;
+      })
     }
     catch(err) {
       this.utils.showErrorMessage ("ERROR")
@@ -305,35 +303,36 @@ export class ServiceFormComponent implements OnInit {
 
   changeServiceDataByCapabilities(refresh?){
   
-    let data=this.serviceCapabilitiesData.WMT_MS_CAPABILITIES!=undefined?this.serviceCapabilitiesData.WMT_MS_CAPABILITIES:this.serviceCapabilitiesData.WMS_CAPABILITIES
+    let data=this.serviceCapabilitiesData.WMT_MS_Capabilities!=undefined?this.serviceCapabilitiesData.WMT_MS_Capabilities:this.serviceCapabilitiesData.WMS_Capabilities
     if (data!=undefined ){
-      if(data.CAPABILITY.LAYER.SRS !== null && data.CAPABILITY.LAYER.SRS !== undefined) {
+      if(data.Capability && data.Capability.Layer.SRS !== null && data.Capability.Layer.SRS !== undefined) {
         this.projections=[];
-        this.serviceCapabilitiesData.WMT_MS_CAPABILITIES.CAPABILITY.LAYER.SRS.forEach((projection) => {
+        this.serviceCapabilitiesData.WMT_MS_Capabilities.Capability.Layer.SRS.forEach((projection) => {
           this.projections.push(projection);
         });
       }
-      if(data.CAPABILITY.LAYER.LAYER.length>0){
-        data.CAPABILITY.LAYER.LAYER.forEach(lyr => {
+      if(data.Capability.Layer.Layer.length>0){
+        data.Capability.Layer.Layer.forEach(lyr => {
           let cartography= new Cartography();
-          cartography.name= lyr.NAME,
-          cartography.description=lyr.ABSTRACT
+          cartography.name= lyr.Name,
+          cartography.description=lyr.Abstract
           if(lyr){
             if(lyr.MetadataURL!=undefined){
-              cartography.metadataURL=lyr.MetadataURL.OnlineResource.$['xlink:href']
+              cartography.metadataURL=lyr.MetadataURL[0].OnlineResource['xlink:href']
             }
   
-            if(lyr.STYLE && lyr.STYLE[0] && lyr.STYLE[0].LEGENDURL!=undefined){
-              cartography.legendURL=lyr.STYLE[0].LEGENDURL.ONLINERESOURCE.$['XLINK:HREF']
+            if(lyr.Style && lyr.Style[0] && lyr.Style[0].LEGENDURL!=undefined){
+              cartography.legendURL=lyr.STYLE[0].legendURL.OnlineResource['xlink:href']
             }
           }
 
           this.getCapabilitiesLayers.push(cartography);
         });
       }
-      if(data.SERVICE && data.SERVICE.ABSTRACT && data.SERVICE.ABSTRACT.length>0){
+      if(data.Service && data.Service.Abstract && data.Service.Abstract.length>0){
+        let newDescription = data.Service.Abstract.length >250? data.Service.Abstract.substring(0,250): data.Service.Abstract
         this.serviceForm.patchValue({
-          description: data.SERVICE.ABSTRACT,
+          description: newDescription,
         })
       }
 
@@ -461,7 +460,7 @@ export class ServiceFormComponent implements OnInit {
             finalCartographies.push(cartographies[index])
           }
           else{
-            capabilityLayer.status="pendingRegistration"
+            capabilityLayer.status="unregisteredLayer"
             finalCartographies.push(capabilityLayer);
           }
         });
@@ -483,7 +482,7 @@ export class ServiceFormComponent implements OnInit {
     else{
       let finalCartographies = [];
       this.getCapabilitiesLayers.forEach(capabilityLayer => {
-          capabilityLayer.status="pendingRegistration"
+          capabilityLayer.status="unregisteredLayer"
           finalCartographies.push(capabilityLayer);
       })
 

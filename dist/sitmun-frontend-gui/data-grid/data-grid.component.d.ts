@@ -11,6 +11,7 @@ export declare class DataGridComponent implements OnInit {
     _eventGetSelectedRowsSubscription: any;
     _eventGetAllRowsSubscription: any;
     _eventSaveAgGridStateSubscription: any;
+    _eventModifyStatusOfSelectedCells: any;
     modules: Module[];
     UndeRedoActions: any;
     searchValue: string;
@@ -32,6 +33,7 @@ export declare class DataGridComponent implements OnInit {
     eventGetSelectedRowsSubscription: Observable<boolean>;
     eventGetAllRowsSubscription: Observable<boolean>;
     eventSaveAgGridStateSubscription: Observable<boolean>;
+    eventModifyStatusOfSelectedCells: Observable<string>;
     eventAddItemsSubscription: Observable<boolean>;
     frameworkComponents: any;
     components: any;
@@ -48,6 +50,8 @@ export declare class DataGridComponent implements OnInit {
     newButton: boolean;
     actionButton: boolean;
     addButton: boolean;
+    registerButton: boolean;
+    newStatusRegister: string;
     globalSearch: boolean;
     changeHeightButton: boolean;
     defaultHeight: any;
@@ -78,6 +82,7 @@ export declare class DataGridComponent implements OnInit {
     areRowsSelected(): Boolean;
     emitSelectedRows(): void;
     emitAllRows(): void;
+    modifyStatusSelected(status?: string): void;
     saveAgGridState(): void;
     removeAgGridState(): void;
     getColumnKeysAndHeaders(columnkeys: Array<any>): String;

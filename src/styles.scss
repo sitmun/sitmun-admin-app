@@ -776,6 +776,12 @@ h2 {
   color: #ff9300;
 }
 
+.unregisteredLayer:before{
+  font-family: 'Material Icons';
+  content: 'fiber_manual_record';
+  color: #ffe100;
+}
+
 .pendingDelete:before,.notAvailable::before{
   font-family: 'Material Icons';
   content: 'fiber_manual_record';
