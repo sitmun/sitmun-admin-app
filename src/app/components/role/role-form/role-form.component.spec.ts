@@ -1,28 +1,44 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, getTestBed } from '@angular/core/testing';
 
 import { RoleFormComponent } from './role-form.component';
 import { RouterModule } from '@angular/router';
 import { RoleService, UserService, CodeListService, CartographyGroupService, TerritoryService, 
   CartographyService, TaskService, UserConfigurationService, ApplicationService,ResourceService,ExternalService } from 'dist/sitmun-frontend-core/';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MaterialModule } from '../../../material-module';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { Role } from '@sitmun/frontend-core';
 import { Observable } from 'rxjs';
+import { Injector } from '@angular/core';
 
 
 describe('RoleFormComponent', () => {
   let component: RoleFormComponent;
   let fixture: ComponentFixture<RoleFormComponent>;
+  let roleService: RoleService;
+  let userService: UserService;
+  let applicationService: ApplicationService;
+  let codeListService: CodeListService;
+  let cartographyGroupService: CartographyGroupService;
+  let userConfigurationService: UserConfigurationService;
+  let cartographyService: CartographyService;
+  let taskService: TaskService;
+  let resourceService: ResourceService;
+  let externalService: ExternalService;
+
+  let injector: TestBed;
+  let service: RoleService;
+  let httpMock: HttpClient;
+
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ RoleFormComponent ],
-      imports: [HttpClientTestingModule, RouterModule.forRoot([]),HttpClientModule,
+      imports: [HttpClientTestingModule, RouterModule.forRoot([]), HttpClientModule,
       SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
       providers: [RoleService, UserService, TerritoryService, ApplicationService, CodeListService, 
         CartographyGroupService,UserConfigurationService, CartographyService, TaskService,ResourceService,ExternalService,
@@ -34,27 +50,128 @@ describe('RoleFormComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(RoleFormComponent);
     component = fixture.componentInstance;
+    roleService= TestBed.inject(RoleService);
+    userService= TestBed.inject(UserService);
+    applicationService= TestBed.inject(ApplicationService);
+    codeListService= TestBed.inject(CodeListService);
+    cartographyGroupService= TestBed.inject(CartographyGroupService);
+    userConfigurationService= TestBed.inject(UserConfigurationService);
+    cartographyService= TestBed.inject(CartographyService);
+    taskService= TestBed.inject(TaskService);
+    resourceService= TestBed.inject(ResourceService);
+    externalService= TestBed.inject(ExternalService);
+
+    injector = getTestBed();
+    // service= TestBed.inject(RoleService);
+    // service= injector.get(RoleService);
+    httpMock= TestBed.inject(HttpClient);
+    service = new RoleService(injector,httpMock)
     fixture.detectChanges();
+    
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should instantiate roleService', () => {
+    expect(roleService).toBeTruthy();
+  });
+
+  it('should instantiate userService', () => {
+    expect(userService).toBeTruthy();
+  });
+
+  it('should instantiate applicationService', () => {
+    expect(applicationService).toBeTruthy();
+  });
+
+  it('should instantiate codeListService', () => {
+    expect(codeListService).toBeTruthy();
+  });
+
+  it('should instantiate cartographyGroupService', () => {
+    expect(cartographyGroupService).toBeTruthy();
+  });
+
+  it('should instantiate userConfigurationService', () => {
+    expect(userConfigurationService).toBeTruthy();
+  });
+
+  it('should instantiate cartographyService', () => {
+    expect(cartographyService).toBeTruthy();
+  });
+
+  it('should instantiate taskService', () => {
+    expect(taskService).toBeTruthy();
+  });
+
+  it('should instantiate resourceService', () => {
+    expect(resourceService).toBeTruthy();
+  });
+
+  it('should instantiate externalService', () => {
+    expect(externalService).toBeTruthy();
+  });
+
+  // it('#getObservableValue should return value from observable',
+  // (done: DoneFn) => {
+  //   let role: Role =  new Role();;
+  //   role.id=1;
+  //   role.name="Name";
+  //   role.description="Description"; 
+  //   // let httpClientSpy: { get: jasmine.Spy };
+  //   // httpClientSpy = jasmine.createSpyObj('HttpClient', ['get']);
+  //   // let httpMock = getTestBed().get(HttpClientModule)
+  //   // let service: RoleService = new RoleService(TestBed.get(Injector), httpMock);
+
+  // service.save(role).subscribe(value => {
+  //   expect(value).toBe(role);
+  //   done();
+  // });
+
+  //   // });
+  // })
+
+  // describe('RoleService', () => {
+
+  //   let injector: TestBed;
+  //   let service: RoleService;
+  //   let httpMock: HttpClient;
+  //   let role: Role =  new Role();;
+  //   role.id=1;
+  //   role.name="Name";
+  //   role.description="Description"; 
+
+  //   beforeEach(() => {
+  //     injector = getTestBed();
+  //     // service= TestBed.inject(RoleService);
+  //     // service= injector.get(RoleService);
+  //     httpMock= TestBed.inject(HttpClient);
+  //     // httpMock= injector.get(HttpTestingController);
+  //     service = new RoleService(injector,httpMock)
+  //     // jasmine.DEFAULT_TIMEOUT_INTERVAL = 100000;
+
+  //   });
+    
+  
+  //   it('#getObservableValue should return value from observable',
+  //   (done: DoneFn) => {
+  //     // let httpClientSpy: { get: jasmine.Spy };
+  //     // httpClientSpy = jasmine.createSpyObj('HttpClient', ['get']);
+  //     // let httpMock = getTestBed().get(HttpClientModule)
+  //     // let service: RoleService = new RoleService(TestBed.get(Injector), httpMock);
+
+  //   service.save(role).subscribe(value => {
+  //     expect(value).toBe(role);
+  //     done();
+  //   });
+
+  //   // service.save(role).toPromise().then(value => {
+  //   //   expect(value).toBe(role);
+  //   //   done();
+  //   // });
+
+
 });
 
-// describe('RoleService', () => {
-//   let service: RoleService;
-
-//   let role: Role =  new Role();;
-//   role.id=1;
-//   role.name="Name";
-//   role.description="Description"; 
-
-//   it('#getObservableValue should return value from observable',
-//   (done: DoneFn) => {
-//   service.save(role).subscribe(value => {
-//     expect(value).toBe(role);
-//     done();
-//   });
-// });
-// })

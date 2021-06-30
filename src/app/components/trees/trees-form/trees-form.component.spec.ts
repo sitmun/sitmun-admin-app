@@ -13,6 +13,13 @@ import { RouterTestingModule } from '@angular/router/testing';
 describe('TreesFormComponent', () => {
   let component: TreesFormComponent;
   let fixture: ComponentFixture<TreesFormComponent>;
+  let treeService: TreeService;
+  let treeNodeService: TreeNodeService;
+  let cartographyService: CartographyService;
+  let codeListService: CodeListService;
+  let translationService: TranslationService;
+  let resourceService: ResourceService;
+  let externalService: ExternalService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -28,10 +35,39 @@ describe('TreesFormComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(TreesFormComponent);
     component = fixture.componentInstance;
+    treeService= TestBed.inject(TreeService);
+    treeNodeService= TestBed.inject(TreeNodeService);
+    cartographyService= TestBed.inject(CartographyService);
+    codeListService= TestBed.inject(CodeListService);
+    translationService= TestBed.inject(TranslationService);
+    resourceService= TestBed.inject(ResourceService);
+    externalService= TestBed.inject(ExternalService);
     fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+  
+  it('should instantiate treeService', () => {
+    expect(treeService).toBeTruthy();
+  });
+
+  it('should instantiate codeListService', () => {
+    expect(codeListService).toBeTruthy();
+  });
+
+  it('should instantiate translationService', () => {
+    expect(translationService).toBeTruthy();
+  });
+ 
+  it('should instantiate resourceService', () => {
+    expect(resourceService).toBeTruthy();
+  });
+
+  it('should instantiate externalService', () => {
+    expect(externalService).toBeTruthy();
+  });
+
+  
 });

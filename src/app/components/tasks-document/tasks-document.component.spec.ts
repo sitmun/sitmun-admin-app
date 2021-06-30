@@ -12,6 +12,11 @@ import { CodeListService, TaskService,TranslationService,ResourceService,Externa
 describe('TasksDocumentComponent', () => {
   let component: TasksDocumentComponent;
   let fixture: ComponentFixture<TasksDocumentComponent>;
+  let taskService: TaskService;
+  let codeListService: CodeListService;
+  let translationService: TranslationService;
+  let resourceService: ResourceService;
+  let externalService: ExternalService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -26,10 +31,35 @@ describe('TasksDocumentComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(TasksDocumentComponent);
     component = fixture.componentInstance;
+    taskService= TestBed.inject(TaskService);
+    codeListService= TestBed.inject(CodeListService);
+    translationService= TestBed.inject(TranslationService);
+    resourceService= TestBed.inject(ResourceService);
+    externalService= TestBed.inject(ExternalService);
     fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+  
+  it('should instantiate taskService', () => {
+    expect(taskService).toBeTruthy();
+  });
+
+  it('should instantiate codeListService', () => {
+    expect(codeListService).toBeTruthy();
+  });
+
+  it('should instantiate translationService', () => {
+    expect(translationService).toBeTruthy();
+  });
+ 
+  it('should instantiate resourceService', () => {
+    expect(resourceService).toBeTruthy();
+  });
+
+  it('should instantiate externalService', () => {
+    expect(externalService).toBeTruthy();
   });
 });

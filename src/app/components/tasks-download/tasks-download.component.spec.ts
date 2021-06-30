@@ -14,6 +14,11 @@ import { HttpClientModule } from '@angular/common/http';
 describe('TasksDownloadComponent', () => {
   let component: TasksDownloadComponent;
   let fixture: ComponentFixture<TasksDownloadComponent>;
+  let taskService: TaskService;
+  let codeListService: CodeListService;
+  let translationService: TranslationService;
+  let resourceService: ResourceService;
+  let externalService: ExternalService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -28,10 +33,35 @@ describe('TasksDownloadComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(TasksDownloadComponent);
     component = fixture.componentInstance;
+    taskService= TestBed.inject(TaskService);
+    codeListService= TestBed.inject(CodeListService);
+    translationService= TestBed.inject(TranslationService);
+    resourceService= TestBed.inject(ResourceService);
+    externalService= TestBed.inject(ExternalService);
     fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+  
+  it('should instantiate taskService', () => {
+    expect(taskService).toBeTruthy();
+  });
+
+  it('should instantiate codeListService', () => {
+    expect(codeListService).toBeTruthy();
+  });
+
+  it('should instantiate translationService', () => {
+    expect(translationService).toBeTruthy();
+  });
+ 
+  it('should instantiate resourceService', () => {
+    expect(resourceService).toBeTruthy();
+  });
+
+  it('should instantiate externalService', () => {
+    expect(externalService).toBeTruthy();
   });
 });

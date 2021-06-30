@@ -11,6 +11,12 @@ import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 describe('ToolbarComponent', () => {
   let component: ToolbarComponent;
   let fixture: ComponentFixture<ToolbarComponent>;
+  let loginService: LoginService;
+  let authService: AuthService;
+  let accountService: AccountService;
+  let principal: Principal;
+  let resourceService: ResourceService;
+  let externalService: ExternalService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -25,10 +31,41 @@ describe('ToolbarComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(ToolbarComponent);
     component = fixture.componentInstance;
+    loginService= TestBed.inject(LoginService);
+    authService= TestBed.inject(AuthService);
+    accountService= TestBed.inject(AccountService);
+    principal= TestBed.inject(Principal);
+    resourceService= TestBed.inject(ResourceService);
+    externalService= TestBed.inject(ExternalService);
     fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  
+  it('should instantiate loginService', () => {
+    expect(loginService).toBeTruthy();
+  });
+
+  it('should instantiate authService', () => {
+    expect(authService).toBeTruthy();
+  });
+
+  it('should instantiate accountService', () => {
+    expect(accountService).toBeTruthy();
+  });
+
+  it('should instantiate principal', () => {
+    expect(principal).toBeTruthy();
+  });
+
+  it('should instantiate resourceService', () => {
+    expect(resourceService).toBeTruthy();
+  });
+
+  it('should instantiate externalService', () => {
+    expect(externalService).toBeTruthy();
   });
 });

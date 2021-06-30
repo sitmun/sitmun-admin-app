@@ -12,6 +12,11 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 describe('TreesComponent', () => {
   let component: TreesComponent;
   let fixture: ComponentFixture<TreesComponent>;
+  let treeService: TreeService;
+  let codeListService: CodeListService;
+  let translationService: TranslationService;
+  let resourceService: ResourceService;
+  let externalService: ExternalService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -26,10 +31,37 @@ describe('TreesComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(TreesComponent);
     component = fixture.componentInstance;
+    treeService= TestBed.inject(TreeService);
+    codeListService= TestBed.inject(CodeListService);
+    translationService= TestBed.inject(TranslationService);
+    resourceService= TestBed.inject(ResourceService);
+    externalService= TestBed.inject(ExternalService);
     fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+  
+  it('should instantiate treeService', () => {
+    expect(treeService).toBeTruthy();
+  });
+
+  it('should instantiate codeListService', () => {
+    expect(codeListService).toBeTruthy();
+  });
+
+  it('should instantiate translationService', () => {
+    expect(translationService).toBeTruthy();
+  });
+ 
+  it('should instantiate resourceService', () => {
+    expect(resourceService).toBeTruthy();
+  });
+
+  it('should instantiate externalService', () => {
+    expect(externalService).toBeTruthy();
+  });
+
+  
 });

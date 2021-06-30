@@ -12,6 +12,13 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 describe('ConnectionFormComponent', () => {
   let component: ConnectionFormComponent;
   let fixture: ComponentFixture<ConnectionFormComponent>;
+  let connectionService: ConnectionService;
+  let cartographyService: CartographyService;
+  let taskService: TaskService;
+  let codeListService: CodeListService;
+  let translationService: TranslationService;
+  let resourceService: ResourceService;
+  let externalService: ExternalService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -26,10 +33,46 @@ describe('ConnectionFormComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(ConnectionFormComponent);
     component = fixture.componentInstance;
+    connectionService= TestBed.inject(ConnectionService);
+    cartographyService= TestBed.inject(CartographyService);
+    taskService= TestBed.inject(TaskService);
+    codeListService= TestBed.inject(CodeListService);
+    translationService= TestBed.inject(TranslationService);
+    resourceService= TestBed.inject(ResourceService);
+    externalService= TestBed.inject(ExternalService);
     fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  
+  it('should instantiate connectionService', () => {
+    expect(connectionService).toBeTruthy();
+  });
+
+  it('should instantiate cartographyService', () => {
+    expect(cartographyService).toBeTruthy();
+  });
+
+  it('should instantiate taskService', () => {
+    expect(taskService).toBeTruthy();
+  });
+
+  it('should instantiate codeListService', () => {
+    expect(codeListService).toBeTruthy();
+  });
+
+  it('should instantiate translationService', () => {
+    expect(translationService).toBeTruthy();
+  });
+
+  it('should instantiate resourceService', () => {
+    expect(resourceService).toBeTruthy();
+  });
+
+  it('should instantiate externalService', () => {
+    expect(externalService).toBeTruthy();
   });
 });

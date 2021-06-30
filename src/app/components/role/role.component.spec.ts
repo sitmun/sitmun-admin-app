@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { RoleComponent } from './role.component';
-import { RoleService, UserConfigurationService, CodeListService,TranslationService,ResourceService,ExternalService } from 'dist/sitmun-frontend-core/';
+import { RoleService, CodeListService,ResourceService,ExternalService } from 'dist/sitmun-frontend-core/';
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
@@ -15,12 +15,16 @@ import { Role } from '@sitmun/frontend-core';
 describe('RoleComponent', () => {
   let component: RoleComponent;
   let fixture: ComponentFixture<RoleComponent>;
+  let roleService: RoleService;
+  let codeListService: CodeListService;
+  let resourceService: ResourceService;
+  let externalService: ExternalService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ RoleComponent ],
       imports : [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
-      providers: [RoleService,CodeListService,UserConfigurationService,TranslationService,ResourceService,ExternalService,
+      providers: [RoleService,CodeListService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();
@@ -29,21 +33,32 @@ describe('RoleComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(RoleComponent);
     component = fixture.componentInstance;
+    roleService= TestBed.inject(RoleService);
+    codeListService= TestBed.inject(CodeListService);
+    resourceService= TestBed.inject(ResourceService);
+    externalService= TestBed.inject(ExternalService);
     fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-
-  // let role:Role = new Application();
-  // let spy: any;
-  // role.name="Nom";
-  // role.id = 1;
-  // role.description = "Description"
   
+  it('should instantiate roleService', () => {
+    expect(roleService).toBeTruthy();
+  });
 
-  // it('should update', () => {
-  //   spy=component.applyChanges([role])
-  // })
+  it('should instantiate codeListService', () => {
+    expect(codeListService).toBeTruthy();
+  });
+
+  
+  it('should instantiate resourceService', () => {
+    expect(resourceService).toBeTruthy();
+  });
+
+  it('should instantiate externalService', () => {
+    expect(externalService).toBeTruthy();
+  });
+
 });

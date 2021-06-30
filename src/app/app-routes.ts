@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { LoginComponent } from './components/login/login.component';
-import { IndexComponent } from './components/index/index.component';
 import { ConnectionComponent } from './components/connection/connection.component';
 import { ServiceComponent } from './components/service/service.component';
 import { LayersComponent } from './components/layers/layers.component';
@@ -34,16 +33,6 @@ import { TaskGroupComponent } from './components/task-group/task-group.component
 import { TaskGroupFormComponent } from './components/task-group/task-group-form/task-group-form.component';
 import { LayersFormComponent } from './components/layers/layers-form/layers-form.component';
 import { TasksComponent } from './components/tasks/tasks.component';
-import { TasksDownloadFormComponent } from './components/tasks-download/tasks-download-form/tasks-download-form.component';
-import { TasksQueryFormComponent } from './components/tasks-query/tasks-query-form/tasks-query-form.component';
-import { TasksDocumentsFormComponent } from './components/tasks-document/tasks-documents-form/tasks-documents-form.component';
-import { TasksMoreInfoFormComponent } from './components/tasks-more-info/tasks-more-info-form/tasks-more-info-form.component';
-import { TasksLocatorFormComponent } from './components/tasks-locator/tasks-locator-form/tasks-locator-form.component';
-import { TasksReportFormComponent } from './components/tasks-report/tasks-report-form/tasks-report-form.component';
-import { TasksEditionFormComponent } from './components/tasks-edition/tasks-edition-form/tasks-edition-form.component';
-import { TasksThematicFormComponent } from './components/tasks-thematic/tasks-thematic-form/tasks-thematic-form.component';
-import { TasksExtractionFmeFormComponent } from './components/tasks-extraction-fme/tasks-extraction-fme-form/tasks-extraction-fme-form.component';
-import { TasksFormComponent } from './components/tasks/tasks-form/tasks-form.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { TaskFormComponent } from './components/task-form/task-form.component';
 import { TasksEditionCartographyTableComponent } from './components/tasks-edition-cartography-table/tasks-edition-cartography-table.component';
@@ -53,7 +42,6 @@ import { TasksEditionSearchViewComponent } from './components/tasks-edition-sear
 import { CanDeactivateGuard } from './services/can-deactivate-guard.service';
 
 export const APP_ROUTES: Routes = [
-    {path: 'index', component: IndexComponent},
     {path: 'dashboard', component: DashboardComponent},
     {path: 'connection', component: ConnectionComponent, canDeactivate: [CanDeactivateGuard]},
     {path: 'connection/:id/connectionForm', component: ConnectionFormComponent},
@@ -76,33 +64,22 @@ export const APP_ROUTES: Routes = [
     {path: 'tasks', component: TasksComponent, canDeactivate: [CanDeactivateGuard]},
     {path: 'taskForm/:id/:type', component: TaskFormComponent},
     {path: 'taskForm/:id/:type/:idDuplicate', component: TaskFormComponent},
-    {path: 'tasks/:id/tasksForm', component: TasksFormComponent},
-    {path: 'tasks/:id/tasksForm/:idDuplicate', component: TasksFormComponent},
     {path: 'taskGroup', component: TaskGroupComponent, canDeactivate: [CanDeactivateGuard]},
     {path: 'taskGroup/:id/taskGroupForm', component: TaskGroupFormComponent},
     {path: 'taskGroup/:id/taskGroupForm/:idDuplicate', component: TaskGroupFormComponent},
     {path: 'tasksDownload', component: TasksDownloadComponent, canDeactivate: [CanDeactivateGuard]},
-    {path: 'tasksDownload/:id/tasksDownloadForm', component: TasksDownloadFormComponent},
     {path: 'tasksDocument', component: TasksDocumentComponent, canDeactivate: [CanDeactivateGuard]},
-    {path: 'tasksDocument/:id/tasksDocumentForm', component: TasksDocumentsFormComponent},
     {path: 'tasksQuery', component: TasksQueryComponent, canDeactivate: [CanDeactivateGuard]},
-    {path: 'tasksQuery/:id/tasksQueryForm', component: TasksQueryFormComponent},
     {path: 'tasksMoreInformation', component: TasksMoreInfoComponent, canDeactivate: [CanDeactivateGuard]},
-    {path: 'tasksMoreInformation/:id/tasksMoreInformationForm', component: TasksMoreInfoFormComponent},
     {path: 'tasksLocator', component: TasksLocatorComponent, canDeactivate: [CanDeactivateGuard]},
-    {path: 'tasksLocator/:id/tasksLocatorForm', component: TasksLocatorFormComponent},
     {path: 'tasksReport', component: TasksReportComponent, canDeactivate: [CanDeactivateGuard]},
-    {path: 'tasksReport/:id/tasksReportForm', component: TasksReportFormComponent},
     {path: 'tasksEdition', component: TasksEditionComponent , canDeactivate: [CanDeactivateGuard]},
     {path: 'tasksEditionCartographyTable', component: TasksEditionCartographyTableComponent, canDeactivate: [CanDeactivateGuard] },
     {path: 'tasksEditionDataTable', component: TasksEditionDataTableComponent , canDeactivate: [CanDeactivateGuard]},
     {path: 'tasksEditionRelationTable', component: TasksEditionRelationTableComponent, canDeactivate: [CanDeactivateGuard] },
     {path: 'tasksEditionSearchView', component: TasksEditionSearchViewComponent , canDeactivate: [CanDeactivateGuard]},
-    {path: 'tasksEdition/:id/tasksEditionForm', component: TasksEditionFormComponent},
     {path: 'tasksThematic', component: TasksThematicComponent , canDeactivate: [CanDeactivateGuard]},
-    {path: 'tasksThematic/:id/tasksThematicForm', component: TasksThematicFormComponent},
     {path: 'tasksExtractionFME', component: TasksExtractionFmeComponent , canDeactivate: [CanDeactivateGuard]},
-    {path: 'tasksExtractionFME/:id/tasksExtractionFMEForm', component: TasksExtractionFmeFormComponent},
     {path: 'territory', component: TerritoryComponent, canDeactivate: [CanDeactivateGuard]},
     {path: 'territory/:id/territoryForm', component: TerritoryFormComponent},
     {path: 'territory/:id/territoryForm/:idDuplicate', component: TerritoryFormComponent},

@@ -14,6 +14,15 @@ import { RouterTestingModule } from '@angular/router/testing';
 describe('UserFormComponent', () => {
   let component: UserFormComponent;
   let fixture: ComponentFixture<UserFormComponent>;
+  let roleService: RoleService;
+  let userService: UserService;
+  let territoryService: TerritoryService;
+  let codeListService: CodeListService;
+  let userPositionService: UserPositionService;
+  let userConfigurationService: UserConfigurationService;
+  let translationService: TranslationService;
+  let resourceService: ResourceService;
+  let externalService: ExternalService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -30,11 +39,55 @@ describe('UserFormComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(UserFormComponent);
     component = fixture.componentInstance;
+    roleService= TestBed.inject(RoleService);
+    userService= TestBed.inject(UserService);
+    territoryService= TestBed.inject(TerritoryService);
+    codeListService= TestBed.inject(CodeListService);
+    userPositionService= TestBed.inject(UserPositionService);
+    userConfigurationService= TestBed.inject(UserConfigurationService);
+    translationService= TestBed.inject(TranslationService);
+    resourceService= TestBed.inject(ResourceService);
+    externalService= TestBed.inject(ExternalService);
     fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should instantiate roleService', () => {
+    expect(roleService).toBeTruthy();
+  });
+
+  it('should instantiate userService', () => {
+    expect(userService).toBeTruthy();
+  });
+
+  it('should instantiate territoryService', () => {
+    expect(territoryService).toBeTruthy();
+  });
+
+  it('should instantiate codeListService', () => {
+    expect(codeListService).toBeTruthy();
+  });
+
+  it('should instantiate userPositionService', () => {
+    expect(userPositionService).toBeTruthy();
+  });
+
+  it('should instantiate userConfigurationService', () => {
+    expect(userConfigurationService).toBeTruthy();
+  });
+
+  it('should instantiate translationService', () => {
+    expect(translationService).toBeTruthy();
+  });
+
+  it('should instantiate resourceService', () => {
+    expect(resourceService).toBeTruthy();
+  });
+
+  it('should instantiate externalService', () => {
+    expect(externalService).toBeTruthy();
+  });
 });
- 

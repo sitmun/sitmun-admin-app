@@ -15,6 +15,20 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 describe('LayersFormComponent', () => {
   let component: LayersFormComponent;
   let fixture: ComponentFixture<LayersFormComponent>;
+  let cartographyService: CartographyService;
+  let serviceService: ServiceService;
+  let connectionService: ConnectionService;
+  let codeListService: CodeListService;
+  let cartographyGroupService: CartographyGroupService;
+  let territoryTypeService: TerritoryTypeService;
+  let treeNodeService: TreeNodeService;
+  let territoryService: TerritoryService;
+  let cartographyAvailabilityService: CartographyAvailabilityService;
+  let cartographyParameterService: CartographyParameterService;
+  let cartographyFilterService: CartographyFilterService;
+  let translationService: TranslationService;
+  let resourceService: ResourceService;
+  let externalService: ExternalService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -32,10 +46,81 @@ describe('LayersFormComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(LayersFormComponent);
     component = fixture.componentInstance;
+    cartographyService= TestBed.inject(CartographyService);
+    serviceService= TestBed.inject(ServiceService);
+    connectionService= TestBed.inject(ConnectionService);
+    codeListService= TestBed.inject(CodeListService);
+    cartographyGroupService= TestBed.inject(CartographyGroupService);
+    territoryTypeService= TestBed.inject(TerritoryTypeService);
+    treeNodeService= TestBed.inject(TreeNodeService);
+    territoryService= TestBed.inject(TerritoryService);
+    cartographyAvailabilityService= TestBed.inject(CartographyAvailabilityService);
+    cartographyParameterService= TestBed.inject(CartographyParameterService);
+    cartographyFilterService= TestBed.inject(CartographyFilterService);
+    translationService= TestBed.inject(TranslationService);
+    resourceService= TestBed.inject(ResourceService);
+    externalService= TestBed.inject(ExternalService);
     fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  
+  it('should instantiate cartographyService', () => {
+    expect(cartographyService).toBeTruthy();
+  });
+
+  it('should instantiate serviceService', () => {
+    expect(serviceService).toBeTruthy();
+  });
+
+  it('should instantiate connectionService', () => {
+    expect(connectionService).toBeTruthy();
+  });
+
+  it('should instantiate codeListService', () => {
+    expect(codeListService).toBeTruthy();
+  });
+
+  it('should instantiate cartographyGroupService', () => {
+    expect(cartographyGroupService).toBeTruthy();
+  });
+
+  it('should instantiate territoryTypeService', () => {
+    expect(territoryTypeService).toBeTruthy();
+  });
+
+  it('should instantiate treeNodeService', () => {
+    expect(treeNodeService).toBeTruthy();
+  });
+
+  it('should instantiate territoryService', () => {
+    expect(territoryService).toBeTruthy();
+  });
+
+  it('should instantiate cartographyAvailabilityService', () => {
+    expect(cartographyAvailabilityService).toBeTruthy();
+  });
+
+  it('should instantiate cartographyParameterService', () => {
+    expect(cartographyParameterService).toBeTruthy();
+  });
+
+  it('should instantiate cartographyFilterService', () => {
+    expect(cartographyFilterService).toBeTruthy();
+  });
+
+  it('should instantiate translationService', () => {
+    expect(translationService).toBeTruthy();
+  });
+
+  it('should instantiate resourceService', () => {
+    expect(resourceService).toBeTruthy();
+  });
+
+  it('should instantiate externalService', () => {
+    expect(externalService).toBeTruthy();
   });
 });

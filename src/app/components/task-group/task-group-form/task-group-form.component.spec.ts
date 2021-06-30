@@ -14,6 +14,11 @@ import { RouterTestingModule } from '@angular/router/testing';
 describe('TaskGroupFormComponent', () => {
   let component: TaskGroupFormComponent;
   let fixture: ComponentFixture<TaskGroupFormComponent>;
+  let taskGroupService: TaskGroupService;
+  let codeListService: CodeListService;
+  let translationService: TranslationService;
+  let resourceService: ResourceService;
+  let externalService: ExternalService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -29,10 +34,35 @@ describe('TaskGroupFormComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(TaskGroupFormComponent);
     component = fixture.componentInstance;
+    taskGroupService= TestBed.inject(TaskGroupService);
+    codeListService= TestBed.inject(CodeListService);
+    translationService= TestBed.inject(TranslationService);
+    resourceService= TestBed.inject(ResourceService);
+    externalService= TestBed.inject(ExternalService);
     fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+  
+  it('should instantiate taskGroupService', () => {
+    expect(taskGroupService).toBeTruthy();
+  });
+
+  it('should instantiate codeListService', () => {
+    expect(codeListService).toBeTruthy();
+  });
+
+  it('should instantiate translationService', () => {
+    expect(translationService).toBeTruthy();
+  });
+ 
+  it('should instantiate resourceService', () => {
+    expect(resourceService).toBeTruthy();
+  });
+
+  it('should instantiate externalService', () => {
+    expect(externalService).toBeTruthy();
   });
 });

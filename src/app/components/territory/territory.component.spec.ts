@@ -14,6 +14,11 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 describe('TerritoryComponent', () => {
   let component: TerritoryComponent;
   let fixture: ComponentFixture<TerritoryComponent>;
+  let territoryService: TerritoryService;
+  let codeListService: CodeListService;
+  let translationService: TranslationService;
+  let resourceService: ResourceService;
+  let externalService: ExternalService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -29,10 +34,35 @@ describe('TerritoryComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(TerritoryComponent);
     component = fixture.componentInstance;
+    territoryService= TestBed.inject(TerritoryService);
+    codeListService= TestBed.inject(CodeListService);
+    translationService= TestBed.inject(TranslationService);
+    resourceService= TestBed.inject(ResourceService);
+    externalService= TestBed.inject(ExternalService);
     fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should instantiate territoryService', () => {
+    expect(territoryService).toBeTruthy();
+  });
+
+  it('should instantiate codeListService', () => {
+    expect(codeListService).toBeTruthy();
+  });
+
+  it('should instantiate translationService', () => {
+    expect(translationService).toBeTruthy();
+  });
+ 
+  it('should instantiate resourceService', () => {
+    expect(resourceService).toBeTruthy();
+  });
+
+  it('should instantiate externalService', () => {
+    expect(externalService).toBeTruthy();
   });
 });

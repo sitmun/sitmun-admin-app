@@ -13,12 +13,16 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 describe('ConnectionComponent', () => {
   let component: ConnectionComponent;
   let fixture: ComponentFixture<ConnectionComponent>;
+  let connectionService: ConnectionService;
+  let codeListService: CodeListService;
+  let resourceService: ResourceService;
+  let externalService: ExternalService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ ConnectionComponent ],
       imports : [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, MatIconTestingModule, RouterModule],
-      providers: [ConnectionService,CodeListService,TranslationService,ResourceService,ExternalService,
+      providers: [ConnectionService,CodeListService, TranslationService, ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();
@@ -27,10 +31,33 @@ describe('ConnectionComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(ConnectionComponent);
     component = fixture.componentInstance;
+    connectionService= TestBed.inject(ConnectionService);
+    codeListService= TestBed.inject(CodeListService);
+    resourceService= TestBed.inject(ResourceService);
+    externalService= TestBed.inject(ExternalService);
     fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  
+  
+  it('should instantiate connectionService', () => {
+    expect(connectionService).toBeTruthy();
+  });
+
+  it('should instantiate codeListService', () => {
+    expect(codeListService).toBeTruthy();
+  });
+
+  
+  it('should instantiate resourceService', () => {
+    expect(resourceService).toBeTruthy();
+  });
+
+  it('should instantiate externalService', () => {
+    expect(externalService).toBeTruthy();
   });
 });
