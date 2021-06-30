@@ -282,6 +282,7 @@ export class LayersFormComponent implements OnInit {
                 metadataURL: this.layerToEdit.metadataURL,
                 legendType: this.layerToEdit.legendType,
                 legendUrl: this.layerToEdit.legendURL,
+                source: this.layerToEdit.source,
                 description: this.layerToEdit.description,
                 datasetURL: this.layerToEdit.datasetURL, //here
                 applyFilterToGetMap: this.layerToEdit.applyFilterToGetMap,
@@ -604,6 +605,7 @@ export class LayersFormComponent implements OnInit {
       metadataURL: new FormControl(null, []),
       legendType: new FormControl(null, []),
       legendUrl: new FormControl(null, []),
+      source: new FormControl(null, []),
       description: new FormControl(null, []),
       datasetURL: new FormControl(null, []),//here
       applyFilterToGetMap: new FormControl(null, []),
@@ -1285,6 +1287,7 @@ export class LayersFormComponent implements OnInit {
       cartography.transparency = this.layerForm.value.transparency;
       cartography.metadataURL = this.layerForm.value.metadataURL;
       cartography.legendType = legendType
+      cartography.source = this.layerForm.value.source
       cartography.legendURL = this.layerForm.value.legendUrl;
       cartography.description = this.layerForm.value.description;
       cartography.datasetURL= this.layerForm.value.datasetURL; //

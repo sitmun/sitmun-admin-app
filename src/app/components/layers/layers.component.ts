@@ -45,6 +45,7 @@ export class LayersComponent implements OnInit {
      //{ headerName: this.utils.getTranslate('layersEntity.serviceName'), field: 'serviceName',editable: false }, //service
       this.utils.getEditableColumnDef('layersEntity.order', 'order'),
       this.utils.getEditableColumnDef('layersEntity.layers', 'layers'),
+      this.utils.getEditableColumnDef('layersEntity.source', 'source'),
       this.utils.getDateColumnDef('layersEntity.createdDate', 'createdDate'),
       //{ headerName: this.utils.getTranslate('layersEntity.minimumScale'), field: 'minimumScale' },
       //{ headerName: this.utils.getTranslate('layersEntity.maximumScale'), field: 'maximumScale' },

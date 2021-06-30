@@ -84,7 +84,7 @@
 
     </div>
     <div class="rowFormDiv">
-      <div class="MidShortColFormDiv">
+      <div class="colFormDiv">
         <label class="formLabel">
           {{'layersEntity.legendType' | translate}}
         </label>
@@ -98,7 +98,7 @@
         </mat-form-field>
       </div>
 
-      <div class="MidShortColFormDiv">
+      <div class="colFormDiv">
         <label class="formLabel requiredInput">
           {{'layersEntity.serviceName' | translate}}
         </label>
@@ -111,6 +111,14 @@
         </mat-form-field>
       </div>
       
+      <div class="colFormDiv">
+        <label class="formLabel">
+          {{'layersEntity.source' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="source">
+        </mat-form-field>
+      </div>
       <div class="colFormDiv">
         <label class="formLabel">
           {{'layersEntity.legendUrl' | translate}}
