@@ -39,6 +39,8 @@ export * from './translation/language.model';
 export * from './translation/language.service';
 export * from './service/service.model';
 export * from './service/service.service';
+export * from './configuration/configuration-parameters.service';
+export * from './configuration/configuration-parameters.model';
 export * from './service/service-parameter.model';
 export * from './service/service-parameter.service';
 export * from './capabilities/capabilitie.model';

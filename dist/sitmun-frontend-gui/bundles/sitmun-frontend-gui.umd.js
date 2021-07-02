@@ -2838,6 +2838,11 @@
             this.dialogRef = dialogRef;
             this.matIconRegistry = matIconRegistry;
             this.domSanitizer = domSanitizer;
+            this.catalanAvailable = false;
+            this.spanishAvailable = false;
+            this.englishAvailable = false;
+            this.araneseAvailable = false;
+            this.frenchAvailable = false;
             this.initializeTranslationForm();
             this.matIconRegistry.addSvgIcon("icon_lang_ca", this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/flag_ca.svg'));
             this.matIconRegistry.addSvgIcon("icon_lang_es", this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/flag_es.svg'));
@@ -2849,31 +2854,79 @@
          * @return {?}
          */
         DialogTranslationComponent.prototype.ngOnInit = function () {
-            if (this.catalanValue != null) {
-                this.translationForm.patchValue({
-                    catalanValue: this.catalanValue
-                });
-            }
-            if (this.spanishValue != null) {
-                this.translationForm.patchValue({
-                    spanishValue: this.spanishValue
-                });
-            }
-            if (this.englishValue != null) {
-                this.translationForm.patchValue({
-                    englishValue: this.englishValue
-                });
-            }
-            if (this.araneseValue != null) {
-                this.translationForm.patchValue({
-                    araneseValue: this.araneseValue
-                });
-            }
-            if (this.frenchValue != null) {
-                this.translationForm.patchValue({
-                    frenchValue: this.frenchValue
-                });
-            }
+            this.checkLanguagesAvailables();
+            this.checkTranslationsAlreadyDone();
+            // if(this.catalanValue != null){
+            //   this.translationForm.patchValue({
+            //     catalanValue: this.catalanValue
+            //   })
+            // }
+            // if(this.spanishValue != null){
+            //   this.translationForm.patchValue({
+            //     spanishValue: this.spanishValue
+            //   })
+            // }
+            // if(this.englishValue != null){
+            //   this.translationForm.patchValue({
+            //     englishValue: this.englishValue
+            //   })
+            // }
+            // if(this.araneseValue != null){
+            //   this.translationForm.patchValue({
+            //     araneseValue: this.araneseValue
+            //   })
+            // }
+            // if(this.frenchValue != null){
+            //   this.translationForm.patchValue({
+            //     frenchValue: this.frenchValue
+            //   })
+            // }
+        };
+        /**
+         * @return {?}
+         */
+        DialogTranslationComponent.prototype.checkLanguagesAvailables = function () {
+            var _this = this;
+            this.languagesAvailables.forEach(function (element) {
+                if (element.shortname == 'ca' && _this.languageByDefault != 'ca') {
+                    _this.catalanAvailable = true;
+                }
+                if (element.shortname == 'es' && _this.languageByDefault != 'es') {
+                    _this.spanishAvailable = true;
+                }
+                if (element.shortname == 'en' && _this.languageByDefault != 'en') {
+                    _this.englishAvailable = true;
+                }
+                if (element.shortname == 'oc-aranes' && _this.languageByDefault != 'oc-aranes') {
+                    _this.araneseAvailable = true;
+                }
+                if (element.shortname == 'fr' && _this.languageByDefault != 'fr') {
+                    _this.frenchAvailable = true;
+                }
+            });
+        };
+        /**
+         * @return {?}
+         */
+        DialogTranslationComponent.prototype.checkTranslationsAlreadyDone = function () {
+            var _this = this;
+            this.translationsMap.forEach(function (value, key) {
+                if (key == 'ca' && value && value.translation) {
+                    _this.translationForm.patchValue({ catalanValue: value.translation });
+                }
+                if (key == 'es' && value && value.translation) {
+                    _this.translationForm.patchValue({ spanishValue: value.translation });
+                }
+                if (key == 'en' && value && value.translation) {
+                    _this.translationForm.patchValue({ englishValue: value.translation });
+                }
+                if (key == 'oc-aranes' && value && value.translation) {
+                    _this.translationForm.patchValue({ araneseValue: value.translation });
+                }
+                if (key == 'fr' && value && value.translation) {
+                    _this.translationForm.patchValue({ frenchValue: value.translation });
+                }
+            });
         };
         /**
          * @return {?}
@@ -2891,15 +2944,22 @@
          * @return {?}
          */
         DialogTranslationComponent.prototype.doAccept = function () {
-            /** @type {?} */
-            var data = {
-                catalanValue: this.translationForm.value.catalanValue,
-                spanishValue: this.translationForm.value.spanishValue,
-                englishValue: this.translationForm.value.englishValue,
-                araneseValue: this.translationForm.value.araneseValue,
-                frenchValue: this.translationForm.value.frenchValue,
-            };
-            this.dialogRef.close({ event: 'Accept', data: data });
+            if (this.translationsMap.has("ca") && this.translationForm.value.catalanValue) {
+                this.translationsMap.get('ca').translation = this.translationForm.value.catalanValue;
+            }
+            if (this.translationsMap.has("es") && this.translationForm.value.spanishValue) {
+                this.translationsMap.get('es').translation = this.translationForm.value.spanishValue;
+            }
+            if (this.translationsMap.has("en") && this.translationForm.value.englishValue) {
+                this.translationsMap.get('en').translation = this.translationForm.value.englishValue;
+            }
+            if (this.translationsMap.has("oc-aranes") && this.translationForm.value.araneseValue) {
+                this.translationsMap.get('oc-aranes').translation = this.translationForm.value.araneseValue;
+            }
+            if (this.translationsMap.has("fr") && this.translationForm.value.frenchValue) {
+                this.translationsMap.get('fr').translation = this.translationForm.value.frenchValue;
+            }
+            this.dialogRef.close({ event: 'Accept', data: this.translationsMap });
         };
         /**
          * @return {?}
@@ -2912,7 +2972,7 @@
     DialogTranslationComponent.decorators = [
         { type: core.Component, args: [{
                     selector: 'app-dialog-translation',
-                    template: "\r\n\r\n<form [formGroup]='translationForm' #f=\"ngForm\">\r\n\r\n\r\n        <div class=\"displayInline\">\r\n            <label class=\"formLabelDialog\">\r\n                {{'Valor'}}\r\n            </label>\r\n            <mat-form-field appearance=\"outline\">\r\n            <input matInput type=\"text\" formControlName=\"catalanValue\" required>\r\n            </mat-form-field>\r\n            <mat-icon class=\"icon\" svgIcon=\"icon_lang_ca\"></mat-icon>\r\n        </div>\r\n\r\n        <div class=\"displayInline\">\r\n            <label class=\"formLabelDialog\">\r\n                {{'Valor'}}\r\n            </label>\r\n\r\n            <mat-form-field appearance=\"outline\">\r\n            <input matInput type=\"text\" formControlName=\"spanishValue\">\r\n            </mat-form-field>\r\n            <mat-icon class=\"icon\" svgIcon=\"icon_lang_es\"></mat-icon>\r\n        </div>\r\n\r\n        <div class=\"displayInline\">\r\n            <label class=\"formLabelDialog\">\r\n                {{'Value'}}\r\n            </label>\r\n            <mat-form-field appearance=\"outline\">\r\n            <input matInput type=\"text\" formControlName=\"englishValue\">\r\n            </mat-form-field>\r\n            <mat-icon class=\"icon\" svgIcon=\"icon_lang_en\"></mat-icon>\r\n        </div>\r\n\r\n        <div class=\"displayInline\">\r\n            <label class=\"formLabelDialog\">\r\n                {{'Valor'}}\r\n            </label>\r\n            <mat-form-field appearance=\"outline\">\r\n            <input matInput type=\"text\" formControlName=\"araneseValue\">\r\n            </mat-form-field>\r\n            <mat-icon class=\"icon\" svgIcon=\"icon_lang_oc\"></mat-icon>\r\n        </div>\r\n        <div class=\"displayInline\">\r\n            <label class=\"formLabelDialog\">\r\n                {{'Valeur'}}\r\n            </label>\r\n            <mat-form-field appearance=\"outline\">\r\n            <input matInput type=\"text\" formControlName=\"frenchValue\">\r\n            </mat-form-field>\r\n            <mat-icon class=\"icon\" svgIcon=\"icon_lang_fr\"></mat-icon>\r\n        </div>\r\n\r\n  </form>\r\n\r\n<div>\r\n    <div mat-dialog-actions >\r\n        <button  mat-flat-button class=\"returnButton\" (click)=\"closeDialog()\">{{\"cancel\" | translate}}</button>\r\n        <button  mat-flat-button class=\"saveButton\"  (click)=\"doAccept()\" cdkFocusInitial>{{\"accept\" | translate}}</button>\r\n    </div>\r\n</div>",
+                    template: "\r\n\r\n<form [formGroup]='translationForm' #f=\"ngForm\">\r\n\r\n\r\n        <div class=\"displayInline\" *ngIf=\"catalanAvailable\">\r\n            <label class=\"formLabelDialog\">\r\n                {{'Valor'}}\r\n            </label>\r\n            <mat-form-field appearance=\"outline\">\r\n            <input matInput type=\"text\" formControlName=\"catalanValue\" required>\r\n            </mat-form-field>\r\n            <mat-icon class=\"icon\" svgIcon=\"icon_lang_ca\"></mat-icon>\r\n        </div>\r\n\r\n        <div class=\"displayInline\"  *ngIf=\"spanishAvailable\">\r\n            <label class=\"formLabelDialog\">\r\n                {{'Valor'}}\r\n            </label>\r\n\r\n            <mat-form-field appearance=\"outline\">\r\n            <input matInput type=\"text\" formControlName=\"spanishValue\">\r\n            </mat-form-field>\r\n            <mat-icon class=\"icon\" svgIcon=\"icon_lang_es\"></mat-icon>\r\n        </div>\r\n\r\n        <div class=\"displayInline\" *ngIf=\"englishAvailable\" >\r\n            <label class=\"formLabelDialog\">\r\n                {{'Value'}}\r\n            </label>\r\n            <mat-form-field appearance=\"outline\">\r\n            <input matInput type=\"text\" formControlName=\"englishValue\">\r\n            </mat-form-field>\r\n            <mat-icon class=\"icon\" svgIcon=\"icon_lang_en\"></mat-icon>\r\n        </div>\r\n\r\n        <div class=\"displayInline\" *ngIf=\"araneseAvailable\" >\r\n            <label class=\"formLabelDialog\">\r\n                {{'Valor'}}\r\n            </label>\r\n            <mat-form-field appearance=\"outline\">\r\n            <input matInput type=\"text\" formControlName=\"araneseValue\">\r\n            </mat-form-field>\r\n            <mat-icon class=\"icon\" svgIcon=\"icon_lang_oc\"></mat-icon>\r\n        </div>\r\n        <div class=\"displayInline\">\r\n            <label class=\"formLabelDialog\" *ngIf=\"frenchAvailable\">\r\n                {{'Valeur'}}\r\n            </label>\r\n            <mat-form-field appearance=\"outline\">\r\n            <input matInput type=\"text\" formControlName=\"frenchValue\">\r\n            </mat-form-field>\r\n            <mat-icon class=\"icon\" svgIcon=\"icon_lang_fr\"></mat-icon>\r\n        </div>\r\n\r\n  </form>\r\n\r\n<div>\r\n    <div mat-dialog-actions >\r\n        <button  mat-flat-button class=\"returnButton\" (click)=\"closeDialog()\">{{\"cancel\" | translate}}</button>\r\n        <button  mat-flat-button class=\"saveButton\"  (click)=\"doAccept()\" cdkFocusInitial>{{\"accept\" | translate}}</button>\r\n    </div>\r\n</div>",
                     styles: [".displayInline{display:flex!important}.mat-dialog-actions{justify-content:flex-end}.icon{height:50px!important;margin-left:30px;width:40px!important}.formLabelDialog{width:10%!important}.mat-dialog-container{height:-webkit-max-content!important;height:-moz-max-content!important;height:max-content!important}"]
                 }] }
     ];
@@ -2926,13 +2986,29 @@
         /** @type {?} */
         DialogTranslationComponent.prototype.translationForm;
         /** @type {?} */
+        DialogTranslationComponent.prototype.translationsMap;
+        /** @type {?} */
+        DialogTranslationComponent.prototype.languageByDefault;
+        /** @type {?} */
+        DialogTranslationComponent.prototype.languagesAvailables;
+        /** @type {?} */
+        DialogTranslationComponent.prototype.catalanAvailable;
+        /** @type {?} */
         DialogTranslationComponent.prototype.catalanValue;
+        /** @type {?} */
+        DialogTranslationComponent.prototype.spanishAvailable;
         /** @type {?} */
         DialogTranslationComponent.prototype.spanishValue;
         /** @type {?} */
+        DialogTranslationComponent.prototype.englishAvailable;
+        /** @type {?} */
         DialogTranslationComponent.prototype.englishValue;
         /** @type {?} */
+        DialogTranslationComponent.prototype.araneseAvailable;
+        /** @type {?} */
         DialogTranslationComponent.prototype.araneseValue;
+        /** @type {?} */
+        DialogTranslationComponent.prototype.frenchAvailable;
         /** @type {?} */
         DialogTranslationComponent.prototype.frenchValue;
         /** @type {?} */

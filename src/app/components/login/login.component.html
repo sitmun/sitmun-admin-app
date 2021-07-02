@@ -1,4 +1,4 @@
-<mat-toolbar color="primary">
+<mat-toolbar color="primary" *ngIf="languagesLoaded">
   <mat-toolbar-row class="top-toolbar-row">
     <div class="sitmun-logo-container">
       <div class="sitmun-logo">
@@ -8,7 +8,7 @@
     <span class="toolbar-spacer"></span>
   </mat-toolbar-row>
 </mat-toolbar>
-<div class="login-container">
+<div class="login-container" *ngIf="languagesLoaded">
   <h5>  {{'loginEntity.privateAccess' | translate}}</h5>
   <mat-card class="mat-card-logi mat-elevation-z0 outline">
     <form [formGroup]="form" (ngSubmit)="login()">
@@ -33,7 +33,7 @@
           </label>
           <mat-form-field appearance="outline">
             <mat-select matInput formControlName="lang" class="form-control">
-              <mat-option [value]="lang.id" *ngFor="let lang of langs">
+              <mat-option [value]="lang.shortname" *ngFor="let lang of langs">
                 {{'lang.'+lang.name | translate}}
               </mat-option>
             </mat-select>

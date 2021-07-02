@@ -51,11 +51,11 @@
   "caution": "Perill",
   "atention": "Atenció",
   "lang": {
-    "catalan": "Català",
-    "spanish": "Castellà",
-    "english": "Anglès",
-    "aranese": "Aranès",
-    "french": "Francès"
+    "Catalan": "Català",
+    "Spanish": "Castellà",
+    "English": "Anglès",
+    "Aranese": "Aranès",
+    "French": "Francès"
   },
   "sideMenu": {
     "basics": "Bàsiques",
@@ -170,6 +170,7 @@
     "available": "Disponible"
   },
   "layersEntity": {
+    "source": "Source",
     "layers": "Capes",
     "name": "Nom",
     "serviceName": "Servei",

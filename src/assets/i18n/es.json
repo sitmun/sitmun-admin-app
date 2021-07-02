@@ -51,11 +51,11 @@
   "caution": "Peligro",
   "atention": "Atención",
   "lang": {
-    "catalan": "Catalán",
-    "spanish": "Castellano",
-    "english": "Inglés",
-    "aranese": "Aranés",
-    "french":"Francés"
+    "Catalan": "Catalán",
+    "Spanish": "Castellano",
+    "English": "Inglés",
+    "Aranese": "Aranés",
+    "French":"Francés"
   },
   "sideMenu": {
     "basics": "Básicas",
@@ -170,6 +170,7 @@
     "available": "Disponible"
   },
   "layersEntity": {
+    "source": "Source",
     "layers": "Capas",
     "name": "Nombre",
     "serviceName": "Servicio",

@@ -49,11 +49,11 @@
   "caution": "Attention",
   "atention": "Attention",
   "lang": {
-    "catalan": "Catalan",
-    "spanish": "Espagnol",
-    "english": "Anglais",
-    "aranese": "Aranais",
-    "french":"Français"
+    "Catalan": "Catalan",
+    "Spanish": "Espagnol",
+    "English": "Anglais",
+    "Aranese": "Aranais",
+    "French":"Français"
   },
   "sideMenu": {
     "basics": "Bases",
@@ -168,6 +168,7 @@
     "available": "Disponible"
   },
   "layersEntity": {
+    "source": "Source",
     "layers": "Calques",
     "name": "Nom",
     "serviceName": "Service",

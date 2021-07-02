@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Principal, LoginService, AuthService, LanguageService } from 'dist/sitmun-frontend-core/';
+import { Principal, LoginService, AuthService, LanguageService, ConfigurationParametersService } from 'dist/sitmun-frontend-core/';
 import { config } from 'src/config';
 
 @Component({
@@ -23,25 +23,24 @@ export class AppComponent {
     /** Identity service */public principal: Principal,
     /** Login service */public loginService: LoginService,
     /** Auth service */public authService: AuthService,
-    /** Language service */public languageService: LanguageService
+    /** Language service */public languageService: LanguageService,
+    /** Configuration parameters service */public configurationParametersService: ConfigurationParametersService
     ) {
     this.translate = trans;
 
-    this.translate.addLangs(['es', 'ca', 'es']);
-    let navigatorLang = config.languages.find(element => element.id === window.navigator.language);
-    let defaultLang = config.defaultLang;
-    if (navigatorLang != undefined) {
-      defaultLang = window.navigator.language
-    }
-    if(localStorage.lang != undefined)
+    this.translate.addLangs(['es', 'ca', 'es', 'fr']);
+    // let navigatorLang = config.languages.find(element => element.id === window.navigator.language);
+    // let defaultLang = config.defaultLang;
+    // if (navigatorLang != undefined) {
+    //   defaultLang = window.navigator.language
+    // }
+
+    if(localStorage.getItem('lang') != undefined)
     {
-      this.translate.setDefaultLang(localStorage.lang);
-      this.translate.use(localStorage.lang);
+      this.translate.setDefaultLang(localStorage.getItem('lang'));
+      this.translate.use(localStorage.getItem('lang'));
     }
-    else{
-      this.translate.setDefaultLang(defaultLang);
-      this.translate.use(defaultLang);
-    }
+
     
   }
 
@@ -64,20 +63,19 @@ export class AppComponent {
 
   /** On component init, get logged user account*/
   ngOnInit() {
+
     if(this.authService.getToken()){
       this.principal.identity().then((account) => {
         this.currentAccount = account;
       });
     }
+    this.loadConfiguration();
     this.loadLanguages();
   }
 
      //Load from server all languages that we will use
      async loadLanguages(){
-      let catalanLanguage = null;
-      let spanishLanguage = null;
-      let englishLanguage = null;
-      this.languageService.getAll().subscribe(
+      await this.languageService.getAll().subscribe(
         async result => {
           console.log(result);
           result.forEach(language => {
@@ -85,10 +83,37 @@ export class AppComponent {
             if(language.shortname == 'es') { config.languagesObjects.spanish= language }
             if(language.shortname == 'en') { config.languagesObjects.english= language }
             if(language.shortname == 'oc-aranes') { config.languagesObjects.aranese= language }
+            if(language.shortname == 'fr') { config.languagesObjects.french= language }
           });
-  
+          if(! localStorage.getItem(('languages'))){
+            localStorage.setItem('languages', JSON.stringify(result));
+          }
+
+          config.languagesToUse = result;
         }
       )
+    }
+
+    async loadConfiguration(){
+
+        this.configurationParametersService.getAll().subscribe(
+          async result => {
+            console.log(result);
+
+              let defaultLang = result.find(element => element.name == 'language.default' )
+              if(defaultLang){
+                config.defaultLang = defaultLang.value;
+
+                if(!localStorage.getItem('lang')){
+                  this.translate.setDefaultLang(defaultLang.value);
+                  this.translate.use(defaultLang.value);
+                }
+
+              }
+
+            
+          }
+        )
     }
 
 }

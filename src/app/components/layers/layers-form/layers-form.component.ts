@@ -21,11 +21,9 @@ import { iterateExtend } from '@syncfusion/ej2-angular-grids';
 export class LayersFormComponent implements OnInit {
 
   //Translations
+  translationMap: Map<string, Translation>;
   translationsModified: boolean = false;
-  catalanTranslation: Translation = null;
-  spanishTranslation: Translation = null;
-  englishTranslation: Translation = null;
-  araneseTranslation: Translation = null;
+
 
   //Form
   private parametersUrl: string;
@@ -134,6 +132,8 @@ export class LayersFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
+    this.translationMap= this.utils.createTranslationsList(config.translationColumns.cartographyDescription);
 
     let geometryTypeByDefault = {
       value: -1,
@@ -334,21 +334,7 @@ export class LayersFormComponent implements OnInit {
                   .pipe(map((data: any[]) => data.filter(elem => elem.element == this.layerID && elem.column == config.translationColumns.cartographyDescription)
                   )).subscribe( result => {
                     console.log(result);
-                    result.forEach(translation => {
-                      if(translation.languageName == config.languagesObjects.catalan.name){
-                        this.catalanTranslation=translation
-                      }
-                      if(translation.languageName == config.languagesObjects.spanish.name){
-                        this.spanishTranslation=translation
-                      }
-                      if(translation.languageName == config.languagesObjects.english.name){
-                        this.englishTranslation=translation
-                      }
-                      if(translation.languageName == config.languagesObjects.aranese.name){
-                        this.araneseTranslation=translation
-                      }
-                    });
-                    console.log(this.catalanTranslation);
+                    this.utils.updateTranslations(this.translationMap, result)
                   }
             
                   );;
@@ -579,13 +565,9 @@ export class LayersFormComponent implements OnInit {
   async onTranslationButtonClicked()
   {
     let dialogResult = null
-    dialogResult = await this.utils.openTranslationDialog(this.catalanTranslation, this.spanishTranslation, this.englishTranslation, this.araneseTranslation, config.translationColumns.cartographyDescription);
-    if(dialogResult!=null){
+    dialogResult = await this.utils.openTranslationDialog2(this.translationMap);
+    if(dialogResult && dialogResult.event == "Accept"){
       this.translationsModified=true;
-      this.catalanTranslation=dialogResult[0];
-      this.spanishTranslation=dialogResult[1];
-      this.englishTranslation=dialogResult[2];
-      this.araneseTranslation=dialogResult[3];
     }
   }
 
@@ -1354,16 +1336,8 @@ export class LayersFormComponent implements OnInit {
           // }
 
           this.firstSaveDone=true;
-
-
-
-          if(this.translationsModified){
-            this.catalanTranslation = await this.utils.saveTranslation(resp.id,this.catalanTranslation);
-            this.spanishTranslation = await this.utils.saveTranslation(resp.id,this.spanishTranslation);
-            this.englishTranslation = await this.utils.saveTranslation(resp.id,this.englishTranslation);
-            this.araneseTranslation = await this.utils.saveTranslation(resp.id,this.araneseTranslation);
-            this.translationsModified = false;
-          }
+          this.utils.saveTranslation2(resp.id, this.translationMap, this.layerToEdit.description, this.translationsModified);
+          this.translationsModified = false;
 
           this.getAllElementsEventParameters.next(true);
           this.getAllElementsEventSpatialConfigurations.next(true);

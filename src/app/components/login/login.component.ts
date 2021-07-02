@@ -21,6 +21,8 @@ export class LoginComponent {
     /** translate service*/
     translate;
 
+    languagesLoaded = false;
+
     /** form */
     form: FormGroup;
 
@@ -43,8 +45,14 @@ export class LoginComponent {
             password: ['', Validators.required],
             lang:[defaultLang, Validators.required],
         } );
-        this.langs=config.languages
+
+        this.loadLanguages();
+
+
+        // this.langs=config.languages
+       
     }
+    
 
     /** login action */
     login() {
@@ -64,6 +72,10 @@ export class LoginComponent {
             } );
 
         }
+    }
+    async loadLanguages(){
+        this.langs = await this.languageService.getAll().toPromise()
+        this.languagesLoaded = true;
     }
 
  
