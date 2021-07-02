@@ -9,6 +9,7 @@ import { MaterialModule } from '../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { UtilsService } from 'src/app/services/utils.service';
 
 describe('ServiceComponent', () => {
   let component: ServiceComponent;
@@ -23,7 +24,7 @@ describe('ServiceComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ ServiceComponent ],
       imports : [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, MatIconTestingModule, RouterModule],
-      providers: [ServiceService,CodeListService,TranslationService,ResourceService,ExternalService,
+      providers: [ServiceService,CodeListService,TranslationService,ResourceService,ExternalService,UtilsService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

@@ -9,6 +9,7 @@ import { MaterialModule } from '../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { UtilsService } from 'src/app/services/utils.service';
 
 describe('ConnectionComponent', () => {
   let component: ConnectionComponent;
@@ -22,7 +23,7 @@ describe('ConnectionComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ ConnectionComponent ],
       imports : [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, MatIconTestingModule, RouterModule],
-      providers: [ConnectionService,CodeListService, TranslationService, ResourceService,ExternalService,
+      providers: [ConnectionService,CodeListService, TranslationService, ResourceService,ExternalService, UtilsService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

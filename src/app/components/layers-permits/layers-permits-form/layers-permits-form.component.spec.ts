@@ -9,6 +9,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { MaterialModule } from '../../../material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { UtilsService } from 'src/app/services/utils.service';
 
 
 describe('LayersPermitsFormComponent', () => {
@@ -27,7 +28,7 @@ describe('LayersPermitsFormComponent', () => {
       declarations: [ LayersPermitsFormComponent ],
       imports: [ RouterModule.forRoot([]), HttpClientTestingModule, SitmunFrontendGuiModule,
       RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
-      providers: [CartographyGroupService, RoleService, CartographyService, CodeListService,TranslationService,ResourceService,ExternalService,
+      providers: [CartographyGroupService, RoleService, CartographyService, CodeListService,TranslationService,ResourceService,ExternalService,UtilsService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

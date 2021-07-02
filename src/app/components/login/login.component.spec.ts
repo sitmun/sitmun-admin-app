@@ -13,6 +13,7 @@ import { MaterialModule } from '../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { UtilsService } from 'src/app/services/utils.service';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -40,7 +41,7 @@ describe('LoginComponent', () => {
            deps: [HttpClient]
            }
        })],
-     providers: [LoginService, AuthService, CodeListService,Principal, AccountService,TranslationService,ResourceService,ExternalService,
+     providers: [LoginService, AuthService, CodeListService,Principal, AccountService,TranslationService,ResourceService,ExternalService,UtilsService,
        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
    }).compileComponents();
   });

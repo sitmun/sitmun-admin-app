@@ -11,6 +11,7 @@ import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { DashboardService,TranslationService,CodeListService,ResourceService,ExternalService } from 'dist/sitmun-frontend-core/';
+import { UtilsService } from 'src/app/services/utils.service';
 describe('DashboardComponent', () => {
   
   let component: DashboardComponent;
@@ -42,7 +43,7 @@ describe('DashboardComponent', () => {
             deps: [HttpClient]
             }
         })],
-      providers: [DashboardService,TranslationService,CodeListService,ResourceService,ExternalService,
+      providers: [DashboardService,TranslationService,CodeListService,ResourceService,ExternalService,UtilsService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

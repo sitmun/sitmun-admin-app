@@ -14,6 +14,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { Role } from '@sitmun/frontend-core';
 import { Observable } from 'rxjs';
 import { Injector } from '@angular/core';
+import { UtilsService } from 'src/app/services/utils.service';
 
 
 describe('RoleFormComponent', () => {
@@ -41,7 +42,7 @@ describe('RoleFormComponent', () => {
       imports: [HttpClientTestingModule, RouterModule.forRoot([]), HttpClientModule,
       SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
       providers: [RoleService, UserService, TerritoryService, ApplicationService, CodeListService, 
-        CartographyGroupService,UserConfigurationService, CartographyService, TaskService,ResourceService,ExternalService,
+        CartographyGroupService,UserConfigurationService, CartographyService, TaskService,ResourceService,ExternalService, UtilsService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

@@ -21,7 +21,7 @@ describe('BackgroundLayersComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ BackgroundLayersComponent ],
       imports : [HttpClientTestingModule, SitmunFrontendGuiModule, MatIconTestingModule, RouterTestingModule, MaterialModule, RouterModule],
-      providers: [BackgroundService,CodeListService,ResourceService,ExternalService,
+      providers: [BackgroundService,CodeListService,ResourceService,ExternalService,UtilsService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

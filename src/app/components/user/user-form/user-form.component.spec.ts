@@ -10,6 +10,7 @@ import { ExternalConfigurationService } from 'src/app/ExternalConfigurationServi
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { RouterTestingModule } from '@angular/router/testing';
+import { UtilsService } from 'src/app/services/utils.service';
 
 describe('UserFormComponent', () => {
   let component: UserFormComponent;
@@ -30,7 +31,7 @@ describe('UserFormComponent', () => {
       imports: [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,
          RouterModule.forRoot([]), MaterialModule, MatIconTestingModule],
       providers: [UserService,RoleService, TerritoryService, UserPositionService, 
-        CodeListService,UserConfigurationService,TranslationService,ResourceService,ExternalService,
+        CodeListService,UserConfigurationService,TranslationService,ResourceService,ExternalService, UtilsService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

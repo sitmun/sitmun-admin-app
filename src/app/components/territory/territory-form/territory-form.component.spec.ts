@@ -9,6 +9,7 @@ import { ExternalConfigurationService } from 'src/app/ExternalConfigurationServi
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { RouterTestingModule } from '@angular/router/testing';
+import { UtilsService } from 'src/app/services/utils.service';
 
 describe('TerritoryFormComponent', () => {
   let component: TerritoryFormComponent;
@@ -34,7 +35,7 @@ describe('TerritoryFormComponent', () => {
       imports: [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,
         RouterModule.forRoot([]), MaterialModule, MatIconTestingModule],
      providers: [TerritoryService, UserService, RoleService,  TerritoryGroupTypeService, CartographyService, TaskAvailabilityService,
-       TaskService, UserPositionService, CartographyAvailabilityService, CodeListService,UserConfigurationService,TranslationService, ResourceService, ExternalService,
+       TaskService, UserPositionService, CartographyAvailabilityService, CodeListService,UserConfigurationService,TranslationService, ResourceService, ExternalService, UtilsService,
        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
    })
    .compileComponents();

@@ -8,6 +8,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
+import { UtilsService } from 'src/app/services/utils.service';
 describe('ToolbarComponent', () => {
   let component: ToolbarComponent;
   let fixture: ComponentFixture<ToolbarComponent>;
@@ -22,7 +23,7 @@ describe('ToolbarComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ ToolbarComponent ],
       imports: [MaterialModule, HttpClientTestingModule,HttpClientModule, RouterTestingModule, SitmunFrontendGuiModule, MatIconTestingModule,],      
-      providers: [  LoginService, AuthService, Principal, AccountService, ResourceService,ExternalService,
+      providers: [  LoginService, AuthService, Principal, AccountService, ResourceService,ExternalService, UtilsService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

@@ -9,6 +9,7 @@ import { ExternalConfigurationService } from 'src/app/ExternalConfigurationServi
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { RouterTestingModule } from '@angular/router/testing';
+import { UtilsService } from 'src/app/services/utils.service';
 
 describe('ServiceFormComponent', () => {
   let component: ServiceFormComponent;
@@ -27,7 +28,7 @@ describe('ServiceFormComponent', () => {
       declarations: [ ServiceFormComponent ],
       imports: [HttpClientTestingModule, RouterModule.forRoot([]), HttpClientModule,
       SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
-      providers: [ServiceService, CapabilitiesService, ServiceParameterService, CartographyService, CodeListService,TranslationService,ResourceService,ExternalService,
+      providers: [ServiceService, CapabilitiesService, ServiceParameterService, CartographyService, CodeListService,TranslationService,ResourceService,ExternalService,UtilsService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

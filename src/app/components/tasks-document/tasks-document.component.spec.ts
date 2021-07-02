@@ -8,6 +8,7 @@ import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { CodeListService, TaskService,TranslationService,ResourceService,ExternalService } from 'dist/sitmun-frontend-core/';
+import { UtilsService } from 'src/app/services/utils.service';
 
 describe('TasksDocumentComponent', () => {
   let component: TasksDocumentComponent;
@@ -22,7 +23,7 @@ describe('TasksDocumentComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ TasksDocumentComponent ],
       imports : [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
-      providers: [CodeListService,TaskService, TranslationService,ResourceService,ExternalService,
+      providers: [CodeListService,TaskService, TranslationService,ResourceService,ExternalService, UtilsService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();
