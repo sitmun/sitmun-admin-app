@@ -168,6 +168,10 @@ export class IconsService {
           id: 'icon_lang_oc',
           icon: 'flag_oc',
         },
+        {
+          id: 'icon_lang_fr',
+          icon: 'flag_oc',
+        },
 
     ];
 
