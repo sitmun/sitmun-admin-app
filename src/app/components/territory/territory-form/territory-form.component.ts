@@ -232,6 +232,7 @@ export class TerritoryFormComponent implements OnInit {
       this.utils.getIdColumnDef(),
       this.utils.getNonEditableColumnDef('territoryEntity.user', 'user'),
       this.utils.getNonEditableColumnDef('territoryEntity.role', 'role'),
+      this.utils.getBooleanColumnDef('userEntity.appliesToChildrenTerritories', 'appliesToChildrenTerritories', true),
       this.utils.getStatusColumnDef()
 
     ];
@@ -314,6 +315,7 @@ export class TerritoryFormComponent implements OnInit {
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
       this.utils.getNonEditableColumnDef('territoryEntity.name', 'name'),
+      this.utils.getBooleanColumnDef('userEntity.appliesToChildrenTerritories', 'appliesToChildrenTerritories', true),
     ];
 
     this.columnDefsTerritoriesDialog = [
@@ -397,9 +399,10 @@ export class TerritoryFormComponent implements OnInit {
     params2.push(param);
     let query: HalOptions = { params: params2 };
 
-    return this.userConfigurationService.getAll(query)
-      .pipe(map((data: any[]) => data.filter(elem => elem.appliesToChildrenTerritories == false)
-      ));;
+    return this.userConfigurationService.getAll(query);
+      // .pipe(map((data: any[]) => data.filter(elem => elem.appliesToChildrenTerritories == false)
+      // ));;
+
   }
 
   getAllPermitsChild = (): Observable<any> => {
@@ -522,6 +525,60 @@ export class TerritoryFormComponent implements OnInit {
           }
         }
 
+      }
+      if(userConf.status === 'pendingModify' && userConf._links)
+      {
+        
+        let urlReqRole = `${userConf._links.role.href}`
+        if (userConf._links.role.href) {
+          let url = new URL(urlReqRole.split("{")[0]);
+          url.searchParams.append("projection", "view")
+          urlReqRole = url.toString();
+        }
+
+        let urlReqUser = `${userConf._links.user.href}`
+        if (userConf._links.user.href) {
+          let url = new URL(urlReqUser.split("{")[0]);
+          url.searchParams.append("projection", "view")
+          urlReqUser = url.toString();
+        }
+        let roleComplete; 
+        let userComplete;
+
+        promisesDuplicate.push(new Promise((resolve, reject) => {
+
+          promisesCurrentUserConf.push(new Promise((resolve, reject) => {
+            this.http.get(urlReqRole).subscribe(result => {
+              roleComplete = result;
+              resolve(true);
+            })
+          
+          }))
+
+          promisesCurrentUserConf.push(new Promise((resolve, reject) => {
+            this.http.get(urlReqUser).subscribe(result => {
+              userComplete = result;
+              resolve(true);
+            })
+          
+          }))
+
+
+          Promise.all(promisesCurrentUserConf).then( () =>{
+            
+            let item = {
+              id: userConf.id,
+              role: roleComplete,
+              appliesToChildrenTerritories: userConf.appliesToChildrenTerritories,
+              territory: this.territoryToEdit,
+              user: userComplete,
+              _links: userConf._links
+            }
+            promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
+            resolve(true);
+          })
+
+        }))
       }
       if (userConf.status === 'pendingDelete' && userConf._links  && !userConf.new ) {
         promises.push(new Promise((resolve, reject) => { this.userConfigurationService.remove(userConf).subscribe((resp) => { resolve(true) }) }));
@@ -1091,7 +1148,7 @@ export class TerritoryFormComponent implements OnInit {
 
   getRowsToAddPermits(territory: Territory, roles: Role[], users: any[], childrenTable: boolean) {
     let itemsToAdd: any[] = [];
-
+    console.log(roles)
     roles.forEach(role => {
       let item;
 
@@ -1106,12 +1163,14 @@ export class TerritoryFormComponent implements OnInit {
           roleId: role.id,
           territoryId: this.territoryID,
           territoryName: territory.name,
-          appliesToChildrenTerritories: childrenTable,
+          appliesToChildrenTerritories: role['appliesToChildrenTerritories']?true:false,
           new: true
         }
 
+
         itemsToAdd.push(item);
       })
+      if(role['appliesToChildrenTerritories']) { delete role['appliesToChildrenTerritories'] }
     })
     return itemsToAdd;
   }
