@@ -9,7 +9,6 @@ import { MaterialModule } from '../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { UtilsService } from 'src/app/services/utils.service';
 
 
 describe('TaskFormComponent', () => {
@@ -33,7 +32,7 @@ describe('TaskFormComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ TaskFormComponent ],
       imports : [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,MaterialModule, MatIconTestingModule, RouterModule],
-      providers: [ServiceService, TerritoryService, CodeListService,TaskTypeService,TaskAvailabilityService ,CartographyService,ResourceService,ExternalService,ConnectionService,TaskService,TaskUIService,RoleService,TaskGroupService,UtilsService,
+      providers: [ServiceService, TerritoryService, CodeListService,TaskTypeService,TaskAvailabilityService ,CartographyService,ResourceService,ExternalService,ConnectionService,TaskService,TaskUIService,RoleService,TaskGroupService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

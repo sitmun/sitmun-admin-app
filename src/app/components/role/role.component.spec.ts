@@ -11,7 +11,6 @@ import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { Role } from '@sitmun/frontend-core';
-import { UtilsService } from 'src/app/services/utils.service';
 
 describe('RoleComponent', () => {
   let component: RoleComponent;
@@ -25,7 +24,7 @@ describe('RoleComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ RoleComponent ],
       imports : [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
-      providers: [RoleService,CodeListService,ResourceService,ExternalService, UtilsService,
+      providers: [RoleService,CodeListService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

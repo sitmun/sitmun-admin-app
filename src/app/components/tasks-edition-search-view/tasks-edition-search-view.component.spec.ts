@@ -9,7 +9,6 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { CodeListService, TaskService, ServiceService,TranslationService,ResourceService,ExternalService } from 'dist/sitmun-frontend-core/';
 import { HttpClientModule } from '@angular/common/http';
-import { UtilsService } from 'src/app/services/utils.service';
 
 describe('TasksEditionSearchViewComponent', () => {
   let component: TasksEditionSearchViewComponent;
@@ -24,7 +23,7 @@ describe('TasksEditionSearchViewComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ TasksEditionSearchViewComponent ],
       imports : [HttpClientTestingModule, HttpClientModule, SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
-      providers: [CodeListService, TaskService,TranslationService,ResourceService,ExternalService,UtilsService,
+      providers: [CodeListService, TaskService,TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

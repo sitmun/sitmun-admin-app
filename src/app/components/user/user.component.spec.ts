@@ -10,7 +10,6 @@ import { MaterialModule } from '../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { UtilsService } from 'src/app/services/utils.service';
 
 describe('UserComponent', () => {
   let component: UserComponent;
@@ -25,7 +24,7 @@ describe('UserComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ UserComponent ],
       imports : [HttpClientTestingModule, MatIconTestingModule, SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule],
-      providers: [UserService,CodeListService,TranslationService,ResourceService,ExternalService, UtilsService,
+      providers: [UserService,CodeListService,TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

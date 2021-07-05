@@ -322,13 +322,15 @@ export class UtilsService {
     let translationsList: Map<string, Translation> = new Map<string, Translation>();
 
     let languagesToUse = config.languagesToUse?config.languagesToUse:JSON.parse(localStorage.getItem('languages'));
-    languagesToUse.forEach(language => {
-      let currentTranslation: Translation = new Translation();
-      currentTranslation.translation = null;
-      currentTranslation.column = columnName;
-      currentTranslation.language = language;
-      translationsList.set(language.shortname, currentTranslation);
-    });
+    if(languagesToUse){
+      languagesToUse.forEach(language => {
+        let currentTranslation: Translation = new Translation();
+        currentTranslation.translation = null;
+        currentTranslation.column = columnName;
+        currentTranslation.language = language;
+        translationsList.set(language.shortname, currentTranslation);
+      });
+    }
     return translationsList;
   }
 
@@ -458,31 +460,31 @@ export class UtilsService {
   async saveTranslation2(id, translationMap: Map<string, Translation>, internationalValue, modifications: boolean){
     let defaultLanguage = config.defaultLang;
     const promises: Promise<any>[] = [];
-    translationMap.forEach(async (value: Translation, key: string) => {
-      if(key == defaultLanguage && internationalValue) {
-          value.element = id;
-          value.translation = internationalValue;
-          promises.push(new Promise((resolve, reject) => {
-            this.translationService.save(value).subscribe(result => {
-               translationMap.set(key,result)
-               resolve(true) 
-              })
-          }));
-      }
-      else if(modifications){
-        if(value && value.translation) {
-           value.element = id 
-           promises.push(new Promise((resolve, reject) => {
-            this.translationService.save(value).subscribe(result => {
-              translationMap.set(key,result)
-              resolve(true) 
-              })
-          }));
-          }
-      }
-
-
-    });
+    if(translationMap){
+      translationMap.forEach(async (value: Translation, key: string) => {
+        if(key == defaultLanguage && internationalValue) {
+            value.element = id;
+            value.translation = internationalValue;
+            promises.push(new Promise((resolve, reject) => {
+              this.translationService.save(value).subscribe(result => {
+                 translationMap.set(key,result)
+                 resolve(true) 
+                })
+            }));
+        }
+        else if(modifications){
+          if(value && value.translation) {
+             value.element = id 
+             promises.push(new Promise((resolve, reject) => {
+              this.translationService.save(value).subscribe(result => {
+                translationMap.set(key,result)
+                resolve(true) 
+                })
+            }));
+            }
+        }
+      });
+    }
 
     Promise.all(promises).then(() => {
       return translationMap;

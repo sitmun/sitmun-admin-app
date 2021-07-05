@@ -8,7 +8,6 @@ import { MaterialModule } from '../../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { UtilsService } from 'src/app/services/utils.service';
 
 describe('ConnectionFormComponent', () => {
   let component: ConnectionFormComponent;
@@ -25,7 +24,7 @@ describe('ConnectionFormComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ ConnectionFormComponent ],
       imports : [HttpClientTestingModule, SitmunFrontendGuiModule, MatIconTestingModule, RouterTestingModule, MaterialModule, RouterModule],
-      providers: [ConnectionService, CartographyService, TaskService, CodeListService,TranslationService,ResourceService,ExternalService, UtilsService,
+      providers: [ConnectionService, CartographyService, TaskService, CodeListService,TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

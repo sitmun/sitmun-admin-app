@@ -9,7 +9,6 @@ import { MaterialModule } from '../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { UtilsService } from 'src/app/services/utils.service';
 
 
 describe('TerritoryComponent', () => {
@@ -26,7 +25,7 @@ describe('TerritoryComponent', () => {
       declarations: [ TerritoryComponent ],
       imports : [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule, MatIconTestingModule,
          MaterialModule, RouterModule, MatIconTestingModule],
-      providers: [TerritoryService, UserService, RoleService, CodeListService,UserConfigurationService,TranslationService,ResourceService,ExternalService, UtilsService,
+      providers: [TerritoryService, UserService, RoleService, CodeListService,UserConfigurationService,TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

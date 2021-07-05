@@ -11,7 +11,6 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { MaterialModule } from '../../../material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { UtilsService } from 'src/app/services/utils.service';
 
 describe('LayersFormComponent', () => {
   let component: LayersFormComponent;
@@ -38,7 +37,7 @@ describe('LayersFormComponent', () => {
       RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
       providers: [CartographyService, ServiceService, ConnectionService, TerritoryTypeService, 
         TreeNodeService, TerritoryService, CartographyGroupService, CartographyAvailabilityService, 
-        CartographyParameterService, CodeListService, CartographyFilterService, TranslationService,ResourceService,ExternalService,UtilsService,
+        CartographyParameterService, CodeListService, CartographyFilterService, TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();

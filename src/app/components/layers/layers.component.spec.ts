@@ -12,7 +12,6 @@ import { MaterialModule } from '../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { UtilsService } from 'src/app/services/utils.service';
 
 describe('LayersComponent', () => {
   let component: LayersComponent;
@@ -38,7 +37,7 @@ describe('LayersComponent', () => {
             deps: [HttpClient]
             }
         })],
-      providers: [CartographyService, CodeListService,TranslationService,ResourceService,ExternalService,UtilsService,
+      providers: [CartographyService, CodeListService,TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();
