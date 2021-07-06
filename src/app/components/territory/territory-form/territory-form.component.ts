@@ -432,7 +432,7 @@ export class TerritoryFormComponent implements OnInit {
     console.log(data);
     for(let i = 0; i<data.length; i++){
       let userConf= data[i];
-      if (userConf.status === 'pendingCreation') {
+      if (userConf.status === 'pendingCreation' || (userConf.status === 'pendingModify' && !userConf._links)) {
         let item;
         if(userConf._links){
 
@@ -475,7 +475,7 @@ export class TerritoryFormComponent implements OnInit {
               
               item = {
                 role: roleComplete,
-                appliesToChildrenTerritories: permitsChildren,
+                appliesToChildrenTerritories: userConf.appliesToChildrenTerritories,
                 territory: this.territoryToEdit,
                 user: userComplete,
               }
@@ -504,7 +504,7 @@ export class TerritoryFormComponent implements OnInit {
         else{
           item = {
             role: userConf.roleComplete,
-            appliesToChildrenTerritories: permitsChildren,
+            appliesToChildrenTerritories: userConf.appliesToChildrenTerritories,
             territory: this.territoryToEdit,
             user: userConf.userComplete,
           }
@@ -565,13 +565,13 @@ export class TerritoryFormComponent implements OnInit {
 
 
           Promise.all(promisesCurrentUserConf).then( () =>{
-            
+
             let item = {
               id: userConf.id,
-              role: roleComplete,
+              role: roleComplete._links.self.href.split("{")[0],
               appliesToChildrenTerritories: userConf.appliesToChildrenTerritories,
-              territory: this.territoryToEdit,
-              user: userComplete,
+              territory: this.territoryToEdit._links.self.href.split("{")[0],
+              user: userComplete._links.self.href.split("{")[0],
               _links: userConf._links
             }
             promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
