@@ -386,7 +386,7 @@ export class ApplicationFormComponent implements OnInit {
   async onNameTranslationButtonClicked()
   {
     let dialogResult = null
-    dialogResult = await this.utils.openTranslationDialog2(this.nameTranslationMap);
+    dialogResult = await this.utils.openTranslationDialog(this.nameTranslationMap);
     if(dialogResult && dialogResult.event == "Accept"){
       this.nameTranslationsModified=true;
     }
@@ -395,7 +395,7 @@ export class ApplicationFormComponent implements OnInit {
   async onTitleTranslationButtonClicked()
   {
     let dialogResult = null
-    dialogResult = await this.utils.openTranslationDialog2(this.titleTranslationMap);
+    dialogResult = await this.utils.openTranslationDialog(this.titleTranslationMap);
     if(dialogResult && dialogResult.event == "Accept"){
       this.titleTranslationsModified=true;
     }
@@ -953,9 +953,9 @@ export class ApplicationFormComponent implements OnInit {
             _links: resp._links
           })
 
-          this.utils.saveTranslation2(resp.id, this.nameTranslationMap, this.applicationToEdit.name, this.nameTranslationsModified);
+          this.utils.saveTranslation(resp.id, this.nameTranslationMap, this.applicationToEdit.name, this.nameTranslationsModified);
           this.nameTranslationsModified=false;
-          this.utils.saveTranslation2(resp.id, this.titleTranslationMap, this.applicationToEdit.title, this.titleTranslationsModified);
+          this.utils.saveTranslation(resp.id, this.titleTranslationMap, this.applicationToEdit.title, this.titleTranslationsModified);
           this.titleTranslationsModified=false;
 
           this.getAllElementsEventParameters.next(true);

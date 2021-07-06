@@ -334,7 +334,7 @@ export class UtilsService {
     return translationsList;
   }
 
-  async openTranslationDialog2(translationsMap: Map<string, Translation>){
+  async openTranslationDialog(translationsMap: Map<string, Translation>){
     const dialogRef = this.dialog.open(DialogTranslationComponent, { panelClass: 'translateDialogs' });
     dialogRef.componentInstance.translationsMap=translationsMap;
     dialogRef.componentInstance.languageByDefault=config.defaultLang;
@@ -349,115 +349,12 @@ export class UtilsService {
 
   updateTranslations(translationsMap: Map<string,Translation>, translations:Array<Translation> ){
     translations.forEach(translation => {
-      if(translation.languageName == config.languagesObjects.catalan.name){
-        translationsMap.set('ca',translation) 
-      }
-      else if(translation.languageName == config.languagesObjects.spanish.name){
-        translationsMap.set('es',translation) 
-      }
-      else if(translation.languageName == config.languagesObjects.english.name){
-        translationsMap.set('en',translation) 
-      }
-      else if(translation.languageName == config.languagesObjects.aranese.name){
-        translationsMap.set('oc-aranes',translation) 
-      }
-      else if(translation.languageName == config.languagesObjects.french.name){
-        translationsMap.set('fr',translation) 
-      }
+      translationsMap.set(translation.languageShortname,translation) 
     });
     return translationsMap;
   }
 
-  async openTranslationDialog(catalanTranslation, spanishTranslation, englishTranslation, araneseTranslation, frenchTranslation, column): Promise<any[]>{
-
-
-  
-
-    const dialogRef = this.dialog.open(DialogTranslationComponent, { panelClass: 'translateDialogs' });
-    if(catalanTranslation!= null) { dialogRef.componentInstance.catalanValue=catalanTranslation.translation };
-    if(spanishTranslation!= null) { dialogRef.componentInstance.spanishValue=spanishTranslation.translation };
-    if(englishTranslation!= null) { dialogRef.componentInstance.englishValue=englishTranslation.translation };
-    if(araneseTranslation!= null) { dialogRef.componentInstance.araneseValue=araneseTranslation.translation };
-    if(frenchTranslation!= null) { dialogRef.componentInstance.frenchValue=frenchTranslation.translation };
-
-    let translationsResult = null;
-
-    let result = null;
-      result= await dialogRef.afterClosed().toPromise();
-        if (result) {
-          if( result.event==='Accept') { 
-  
-            if(catalanTranslation != null){
-              catalanTranslation.translation= result.data.catalanValue 
-            }
-            else{
-              catalanTranslation= new Translation();
-              catalanTranslation.translation= result.data.catalanValue;
-              catalanTranslation.column=column;
-              catalanTranslation.language=config.languagesObjects.catalan;
-            }
-  
-            if(spanishTranslation != null){
-              spanishTranslation.translation= result.data.spanishValue 
-            }
-            else{
-              spanishTranslation= new Translation();
-              spanishTranslation.translation= result.data.spanishValue;
-              spanishTranslation.column=column;
-              spanishTranslation.language=config.languagesObjects.spanish;
-            }
-
-            if(englishTranslation != null){
-              englishTranslation.translation= result.data.englishValue 
-            }
-            else{
-              englishTranslation= new Translation();
-              englishTranslation.translation= result.data.englishValue;
-              englishTranslation.column=column;
-              englishTranslation.language=config.languagesObjects.english;
-            }
-  
-            if(araneseTranslation != null){
-              araneseTranslation.translation= result.data.araneseValue 
-            }
-            else{
-              araneseTranslation= new Translation();
-              araneseTranslation.translation= result.data.araneseValue;
-              araneseTranslation.column=column;
-              araneseTranslation.language=config.languagesObjects.aranese;
-            }
-  
-            if(frenchTranslation != null){
-              frenchTranslation.translation= result.data.frenchValue 
-            }
-            else{
-              frenchTranslation= new Translation();
-              frenchTranslation.translation= result.data.frenchValue;
-              frenchTranslation.column=column;
-              frenchTranslation.language=config.languagesObjects.french;
-            }
-            console.log(result.data);
-  
-            translationsResult=[catalanTranslation,spanishTranslation,englishTranslation,araneseTranslation, frenchTranslation]
-
-          }
-        }
-
-      return translationsResult;
-
-  }
-
-  async saveTranslation(id, translation){
-    if(translation && translation.translation){
-      translation.element=id;
-      return await this.translationService.save(translation).toPromise();
-    }
-    else {
-      return null;
-    }
-  }
-
-  async saveTranslation2(id, translationMap: Map<string, Translation>, internationalValue, modifications: boolean){
+  async saveTranslation(id, translationMap: Map<string, Translation>, internationalValue, modifications: boolean){
     let defaultLanguage = config.defaultLang;
     const promises: Promise<any>[] = [];
     if(translationMap){

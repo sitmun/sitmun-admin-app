@@ -25,12 +25,6 @@ export class ServiceFormComponent implements OnInit {
   translationMap: Map<string, Translation>;
 
   translationsModified: boolean = false;
-  catalanTranslation: Translation = null;
-  spanishTranslation: Translation = null;
-  englishTranslation: Translation = null;
-  araneseTranslation: Translation = null;
-  frenchTranslation: Translation = null;
-
   //form
   dataLoaded: Boolean = false;
   capabilitiesLoaded: Boolean = true;
@@ -344,7 +338,7 @@ export class ServiceFormComponent implements OnInit {
   async onTranslationButtonClicked()
   {
     let dialogResult = null
-    dialogResult = await this.utils.openTranslationDialog2(this.translationMap);
+    dialogResult = await this.utils.openTranslationDialog(this.translationMap);
     if(dialogResult && dialogResult.event == "Accept"){
       this.translationsModified=true;
     }
@@ -612,7 +606,7 @@ export class ServiceFormComponent implements OnInit {
           _links: resp._links
         })
 
-        this.utils.saveTranslation2(resp.id, this.translationMap, this.serviceToEdit.description, this.translationsModified);
+        this.utils.saveTranslation(resp.id, this.translationMap, this.serviceToEdit.description, this.translationsModified);
         this.translationsModified = false;
         this.getAllElementsEventParameters.next(true);
         this.getAllElementsEventLayers.next(true);

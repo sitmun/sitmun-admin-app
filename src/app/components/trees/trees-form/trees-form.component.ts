@@ -11,13 +11,7 @@ import { Observable, of, Subject } from 'rxjs';
 import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
 
-interface NodeTranslation {
-  catalan?: String,
-  spanish?: String,
-  english?: String,
-  aranese?: String,
-  french?: String,
-}
+
 
 @Component({
   selector: 'app-trees-form',
@@ -220,7 +214,7 @@ export class TreesFormComponent implements OnInit {
   async onNameTranslationButtonClicked()
   {
     let dialogResult = null
-    dialogResult = await this.utils.openTranslationDialog2(this.treeNameTranslationMap);
+    dialogResult = await this.utils.openTranslationDialog(this.treeNameTranslationMap);
     if(dialogResult && dialogResult.event == "Accept"){
       this.nameTranslationsModified=true;
     }
@@ -230,7 +224,7 @@ export class TreesFormComponent implements OnInit {
   {
 
     let dialogResult = null
-    dialogResult = await this.utils.openTranslationDialog2(this.treeNodeForm.value.nameTranslations);
+    dialogResult = await this.utils.openTranslationDialog(this.treeNodeForm.value.nameTranslations);
     if(dialogResult && dialogResult.event == "Accept"){
       this.treeNodeForm.patchValue({nameTranslationsModified : true})
     }
@@ -240,7 +234,7 @@ export class TreesFormComponent implements OnInit {
   async onDescriptionTranslationButtonClicked()
   {
     let dialogResult = null
-    dialogResult = await this.utils.openTranslationDialog2(this.treeDescriptionTranslationMap);
+    dialogResult = await this.utils.openTranslationDialog(this.treeDescriptionTranslationMap);
     if(dialogResult && dialogResult.event == "Accept"){
       this.descriptionTranslationsModified=true;
     }
@@ -251,7 +245,7 @@ export class TreesFormComponent implements OnInit {
   {
     
     let dialogResult = null
-    dialogResult = await this.utils.openTranslationDialog2(this.treeNodeForm.value.descriptionTranslations);
+    dialogResult = await this.utils.openTranslationDialog(this.treeNodeForm.value.descriptionTranslations);
     if(dialogResult && dialogResult.event == "Accept"){
       this.treeNodeForm.patchValue({descriptionTranslationsModified : true})
     }
@@ -431,9 +425,9 @@ export class TreesFormComponent implements OnInit {
         id: resp.id
       })
 
-      this.utils.saveTranslation2(resp.id, this.treeNameTranslationMap, this.treeToEdit.name, this.nameTranslationsModified);
+      this.utils.saveTranslation(resp.id, this.treeNameTranslationMap, this.treeToEdit.name, this.nameTranslationsModified);
       this.nameTranslationsModified=false;
-      this.utils.saveTranslation2(resp.id, this.treeDescriptionTranslationMap, this.treeToEdit.description, this.descriptionTranslationsModified);
+      this.utils.saveTranslation(resp.id, this.treeDescriptionTranslationMap, this.treeToEdit.description, this.descriptionTranslationsModified);
       this.descriptionTranslationsModified=false;
 
       let mapNewIdentificators: Map <number, any[]> = new Map<number, any[]>();
@@ -541,22 +535,22 @@ export class TreesFormComponent implements OnInit {
                 async result => {
                   let nameTranslationMap = this.nameTranslations.get(tree.id);
                   if(nameTranslationMap){
-                    this.utils.saveTranslation2(result.id, nameTranslationMap, result.name, tree.nameTranslationsModified);
+                    this.utils.saveTranslation(result.id, nameTranslationMap, result.name, tree.nameTranslationsModified);
                     tree.nameTranslationModified = false;
                   }
                   else if(tree.nameFormModified){
                     let map = this.utils.createTranslationsList(config.translationColumns.treeNodeName);
-                    this.utils.saveTranslation2(result.id, map, tree.name, false);
+                    this.utils.saveTranslation(result.id, map, tree.name, false);
                     this.nameTranslations.set(result.id,map);
                   }
                   let descriptionTranslationMap = this.descriptionTranslations.get(tree.id);
                   if(descriptionTranslationMap){
-                    this.utils.saveTranslation2(result.id, descriptionTranslationMap, result.description, tree.nameTranslationsModified);
+                    this.utils.saveTranslation(result.id, descriptionTranslationMap, result.description, tree.nameTranslationsModified);
                     tree.descriptionTranslationsModified = false;
                   }
                   else if(tree.descriptionFormModified){
                     let map = this.utils.createTranslationsList(config.translationColumns.treeNodeDescription);
-                    this.utils.saveTranslation2(result.id, map, tree.description, false);
+                    this.utils.saveTranslation(result.id, map, tree.description, false);
                     this.descriptionTranslations.set(result.id,map);
                   }
                   let oldId=tree.id;

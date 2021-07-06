@@ -565,7 +565,7 @@ export class LayersFormComponent implements OnInit {
   async onTranslationButtonClicked()
   {
     let dialogResult = null
-    dialogResult = await this.utils.openTranslationDialog2(this.translationMap);
+    dialogResult = await this.utils.openTranslationDialog(this.translationMap);
     if(dialogResult && dialogResult.event == "Accept"){
       this.translationsModified=true;
     }
@@ -1336,7 +1336,7 @@ export class LayersFormComponent implements OnInit {
           // }
 
           this.firstSaveDone=true;
-          this.utils.saveTranslation2(resp.id, this.translationMap, this.layerToEdit.description, this.translationsModified);
+          this.utils.saveTranslation(resp.id, this.translationMap, this.layerToEdit.description, this.translationsModified);
           this.translationsModified = false;
 
           this.getAllElementsEventParameters.next(true);

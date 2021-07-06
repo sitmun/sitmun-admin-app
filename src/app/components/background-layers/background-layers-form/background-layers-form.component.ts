@@ -255,7 +255,7 @@ export class BackgroundLayersFormComponent implements OnInit {
   async onNameTranslationButtonClicked()
   {
     let dialogResult = null
-    dialogResult = await this.utils.openTranslationDialog2(this.nameTranslationMap);
+    dialogResult = await this.utils.openTranslationDialog(this.nameTranslationMap);
     if(dialogResult && dialogResult.event == "Accept"){
       this.nameTranslationsModified=true;
     }
@@ -264,7 +264,7 @@ export class BackgroundLayersFormComponent implements OnInit {
   async onDescriptionTranslationButtonClicked()
   {
     let dialogResult = null
-    dialogResult = await this.utils.openTranslationDialog2(this.descriptionTranslationMap);
+    dialogResult = await this.utils.openTranslationDialog(this.descriptionTranslationMap);
     if(dialogResult && dialogResult.event == "Accept"){
       this.descriptionTranslationsModified=true;
     }
@@ -505,9 +505,9 @@ export class BackgroundLayersFormComponent implements OnInit {
             id: resp.id,
             _links: resp._links
           })
-          this.utils.saveTranslation2(resp.id, this.nameTranslationMap, this.backgroundToEdit.name, this.nameTranslationsModified);
+          this.utils.saveTranslation(resp.id, this.nameTranslationMap, this.backgroundToEdit.name, this.nameTranslationsModified);
           this.nameTranslationsModified=false;
-          this.utils.saveTranslation2(resp.id, this.descriptionTranslationMap, this.backgroundToEdit.description, this.descriptionTranslationsModified);
+          this.utils.saveTranslation(resp.id, this.descriptionTranslationMap, this.backgroundToEdit.description, this.descriptionTranslationsModified);
           this.descriptionTranslationsModified=false;
 
           this.getAllElementsEventCartographies.next(true);

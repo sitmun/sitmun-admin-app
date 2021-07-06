@@ -377,7 +377,7 @@ export class TerritoryFormComponent implements OnInit {
   async onTranslationButtonClicked()
   {
     let dialogResult = null
-    dialogResult = await this.utils.openTranslationDialog2(this.translationMap);
+    dialogResult = await this.utils.openTranslationDialog(this.translationMap);
     if(dialogResult && dialogResult.event == "Accept"){
       this.translationsModified=true;
     }
@@ -1226,7 +1226,7 @@ export class TerritoryFormComponent implements OnInit {
             })
 
 
-            this.utils.saveTranslation2(resp.id, this.translationMap, this.territoryToEdit.name, this.translationsModified);
+            this.utils.saveTranslation(resp.id, this.translationMap, this.territoryToEdit.name, this.translationsModified);
             this.translationsModified = false;
             this.getAllElementsEventCartographies.next(true);
             this.getAllElementsEventTasks.next(true);
