@@ -271,8 +271,9 @@ export class ServiceFormComponent implements OnInit {
     try{
       let url: string = this.serviceForm.value.serviceURL;
       if(! url.includes('request=GetCapabilities')){
-        if(url[url.length-1] == '?') { url = url.concat('request=GetCapabilities') }
-        else { url = url.concat('?request=GetCapabilities') }
+        if(url[url.length-1] != '?') { url += "?" }
+      
+        url += 'request=GetCapabilities&service=WMS'
       }
       this.capabilitiesService.getInfo(url).subscribe(result => {
         console.log(result)
