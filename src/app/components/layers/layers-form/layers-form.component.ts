@@ -45,7 +45,9 @@ export class LayersFormComponent implements OnInit {
   currentService;
 
   parameterFormatTypes: Array<any> = [];
+  parameterFormatTypesDescription: Array<any> = [];
   parameterTypes: Array<any> = [];
+  parameterTypesDescription: Array<any> = [];
 
 
 
@@ -170,7 +172,10 @@ export class LayersFormComponent implements OnInit {
     promises.push(new Promise((resolve, reject) => {
       this.utils.getCodeListValues('cartographyParameter.type').subscribe(
         resp => {
-          this.parameterTypes.push(...resp);
+          resp.forEach(element => {
+            this.parameterTypes.push(element);
+            this.parameterTypesDescription.push(element.description)
+          });          
           resolve(true);
         }
       )
@@ -209,7 +214,10 @@ export class LayersFormComponent implements OnInit {
     promises.push(new Promise((resolve, reject) => {
       this.utils.getCodeListValues('cartographyParameter.format').subscribe(
         resp => {
-          this.parameterFormatTypes.push(...resp);
+          resp.forEach(element => {
+            this.parameterFormatTypes.push(element);
+            this.parameterFormatTypesDescription.push(element.description);
+          });
           resolve(true);
         }
       )
@@ -444,9 +452,11 @@ export class LayersFormComponent implements OnInit {
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getEditableColumnDef('layersEntity.column', 'name'),
       this.utils.getEditableColumnDef('layersEntity.label', 'value'),
-      this.utils.getFormattedColumnDef('layersEntity.format', this.parameterFormatTypes, 'format'),
+      // this.utils.getFormattedColumnDef('layersEntity.format', this.parameterFormatTypes, 'format'),
+      
+      this.utils.getSelectColumnDef('layersEntity.format', 'format',true,this.parameterFormatTypesDescription, true, this.parameterFormatTypes),
       this.utils.getEditableColumnDef('layersEntity.order', 'order'),
-      this.utils.getEditableColumnDef('layersEntity.type', 'type'),
+      this.utils.getSelectColumnDef('layersEntity.type', 'type',true,this.parameterTypesDescription),
       this.utils.getStatusColumnDef()
     ];
 
@@ -455,7 +465,8 @@ export class LayersFormComponent implements OnInit {
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getEditableColumnDef('layersEntity.column', 'name'),
       this.utils.getEditableColumnDef('layersEntity.label', 'value'),
-      this.utils.getFormattedColumnDef('layersEntity.format', this.parameterFormatTypes, 'format'),
+      // this.utils.getFormattedColumnDef('layersEntity.format', this.parameterFormatTypes, 'format'),
+      this.utils.getSelectColumnDef('layersEntity.format', 'format',true,this.parameterFormatTypesDescription, true, this.parameterFormatTypes),
       this.utils.getStatusColumnDef()
     ];
 
@@ -664,6 +675,20 @@ export class LayersFormComponent implements OnInit {
            parameter.cartography = this.layerToEdit; 
            parameter._links = null;
            parameter.id = null;
+        }
+        if(parameter.status === 'pendingModify'){
+
+          if(parameter.format)
+          {
+            let currentFormat = this.parameterFormatTypes.find(element => element.description == parameter.format);
+            if(currentFormat) { parameter.format= currentFormat.value }
+          }
+  
+          if(parameter.type){
+            let currentType = this.parameterTypes.find(element => element.description == parameter.type);
+            if(currentType) { parameter.type= currentType.value }
+          }
+
         }
         promises.push(new Promise((resolve, reject) => { this.cartographyParameterService.save(parameter).subscribe((resp) => { resolve(true) }) }));
         parameterToSave.push(parameter)
@@ -1018,8 +1043,9 @@ export class LayersFormComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
+          
           let item = this.parameterForm.value;
-          item.type = "INFO"
+          // item.type = "INFO"
           this.addElementsEventParameters.next([item])
           console.log(this.parameterForm.value)
           this.parameterForm.reset();

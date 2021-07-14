@@ -48,6 +48,7 @@
   "doubleSelectionMessage": "Has de seleccionar 1 element de cada taula com a mínim",
   "addChildRoles": "Vols afegir rols fills al territori seleccionat?",
   "extentError" : "L'extensió introduida no és vàlida",
+  "permissionsNoRelationship": "L'usuari ja no té cap relació amb aquest territori a través dels permisos",
   "caution": "Perill",
   "atention": "Atenció",
   "lang": {
@@ -316,6 +317,7 @@
     "email": "Correu",
     "address": "Direcció",
     "groupType": "Grup tipus",
+    "territoryType": "Tipus",
     "extent": "Extensió",
     "note": "Observacions",
     "logo": "Logo",

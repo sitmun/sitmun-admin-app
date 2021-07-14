@@ -62,7 +62,7 @@
         </mat-form-field>
       </div>
 
-      <div class="HalfMidLargeColFormDiv">
+      <!-- <div class="HalfMidLargeColFormDiv">
         <label class="formLabel">
           {{'territoryEntity.scope' | translate}}
         </label>
@@ -74,20 +74,29 @@
           </mat-select>
         </mat-form-field>
 
-      </div>
+      </div> -->
 
       <div class="HalfMidLargeColFormDiv">
         <label class="formLabel">
-          {{'territoryEntity.groupType' | translate}}
+          {{'territoryEntity.territoryType' | translate}}
         </label>
         <mat-form-field appearance="outline">
-          <mat-select matInput formControlName="groupType" class="form-control">
-            <mat-option [value]="territoryGroup.id" *ngFor="let territoryGroup of territoryGroups">
-              {{territoryGroup.name}}
+          <mat-select matInput formControlName="type" class="form-control" (selectionChange)="onTerritoryTypeChanged($event)">
+            <mat-option [value]="territoryType.id" *ngFor="let territoryType of territoryTypes">
+              {{territoryType.name}}
             </mat-option>
           </mat-select>
         </mat-form-field>
       </div>
+
+      
+      <div class="MidColFormDiv">
+        <label class="formLabel" id="right-column">
+          {{'territoryEntity.blocked' | translate}}
+        </label>
+        <mat-checkbox formControlName="blocked"> </mat-checkbox>
+      </div>
+
 
     </div>
     <div class="rowFormDiv">
@@ -139,13 +148,6 @@
         </mat-form-field>
       </div>
 
-      <div class="MidColFormDiv">
-        <label class="formLabel" id="right-column">
-          {{'territoryEntity.blocked' | translate}}
-        </label>
-        <mat-checkbox formControlName="blocked"> </mat-checkbox>
-      </div>
-
     </div>
 
 
@@ -155,7 +157,7 @@
   <mat-accordion multi>
 
     <!-- Permits table -->
-    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel" >
       <mat-expansion-panel-header class="agGridExpansionPanelTitle">
         <mat-panel-title>
           {{ "territoryEntity.permissions" | translate }}
@@ -221,7 +223,7 @@
     </div> -->
 
     <!-- MemberOf table -->
-    <div *ngIf="territoryForm.value.scope =='M' ">
+    <div *ngIf="!currentTypeTop">
       <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
         <mat-expansion-panel-header class="agGridExpansionPanelTitle">
           <mat-panel-title>
@@ -246,7 +248,7 @@
     </div>
 
     <!-- Members table -->
-    <div *ngIf="territoryForm.value.scope =='R' ">
+    <div *ngIf="!currentTypeBottom">
 
       <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
         <mat-expansion-panel-header class="agGridExpansionPanelTitle">

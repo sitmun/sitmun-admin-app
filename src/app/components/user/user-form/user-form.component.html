@@ -134,7 +134,7 @@
       <div class="appDataGridEditDiv">
           <app-data-grid [changeHeightButton]="true" [allNewElements]="userID == -1" [columnDefs]="columnDefsData" defaultColumnSorting="territoryName" [themeGrid]='themeGrid' [getAll]='getAllDataTerritory'  
           [eventAddItemsSubscription]='addElementsEventTerritoryData.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventTerritoryData.asObservable()' 
-          [eventRefreshSubscription]='dataUpdatedEventTerritoryData.asObservable()' [discardChangesButton]=true [redoButton]=true
+          [eventRefreshSubscription]='dataUpdatedEventTerritoryData.asObservable()' [deleteButton]=true [discardChangesButton]=true [redoButton]=true
           [undoButton]=true  [hideDuplicateButton]=true (getAllRows)="getAllRowsDataTerritories($event)" [actionButton]=true > </app-data-grid>
       </div>
     </ng-template>

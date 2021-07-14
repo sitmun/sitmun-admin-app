@@ -265,6 +265,43 @@ export class UtilsService {
     return columnDef;
   }
 
+  getSelectColumnDef(alias, field,editable, elements, formatted?, formattedList?) {
+
+    let columnDef;
+    
+    if(formatted && formattedList){
+      columnDef= this.getFormattedColumnDef(alias,formattedList,field)
+      columnDef.filter='agTextColumnFilter';
+      columnDef.editable = editable;
+      columnDef.field = field;
+      columnDef.cellEditorParams = {
+        values: elements
+      };
+      columnDef.cellEditor ='agSelectCellEditor';
+      columnDef.minWidth = 140;
+    }
+    else{
+      columnDef =
+      {
+        headerName: this.getTranslate(alias),
+        field: field,
+        filter: 'agTextColumnFilter',
+        editable: editable,
+        cellEditorParams: {
+          values: elements,
+      },
+        cellEditor:'agSelectCellEditor',
+        minWidth: 140,
+      }
+  
+    }
+
+    console.log(columnDef)
+
+   
+    return columnDef;
+  }
+
   getEditableColumnDef(alias, field) {
     let columnDef =
     {

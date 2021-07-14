@@ -273,7 +273,7 @@ export class ServiceFormComponent implements OnInit {
       if(! url.includes('request=GetCapabilities')){
         if(url[url.length-1] != '?') { url += "?" }
       
-        url += 'request=GetCapabilities&service=WMS'
+        url += 'request=GetCapabilities%26service=WMS'
       }
       this.capabilitiesService.getInfo(url).subscribe(result => {
         console.log(result)

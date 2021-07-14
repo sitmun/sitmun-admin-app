@@ -9,6 +9,7 @@ import { ExternalConfigurationService } from 'src/app/ExternalConfigurationServi
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { RouterTestingModule } from '@angular/router/testing';
+import { TerritoryTypeService } from 'dist/sitmun-frontend-core/';
 
 describe('TerritoryFormComponent', () => {
   let component: TerritoryFormComponent;
@@ -20,6 +21,7 @@ describe('TerritoryFormComponent', () => {
   let territoryGroupTypeService: TerritoryGroupTypeService;
   let cartographyService: CartographyService;
   let taskAvailabilityService: TaskAvailabilityService;
+  let territoryTypeService: TerritoryTypeService;
   let taskService: TaskService;
   let userPositionService: UserPositionService;
   let cartographyAvailabilityService: CartographyAvailabilityService;
@@ -34,7 +36,7 @@ describe('TerritoryFormComponent', () => {
       imports: [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,
         RouterModule.forRoot([]), MaterialModule, MatIconTestingModule],
      providers: [TerritoryService, UserService, RoleService,  TerritoryGroupTypeService, CartographyService, TaskAvailabilityService,
-       TaskService, UserPositionService, CartographyAvailabilityService, CodeListService,UserConfigurationService,TranslationService, ResourceService, ExternalService,
+       TaskService, UserPositionService, TerritoryTypeService, CartographyAvailabilityService, CodeListService,UserConfigurationService,TranslationService, ResourceService, ExternalService,
        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
    })
    .compileComponents();
@@ -50,6 +52,7 @@ describe('TerritoryFormComponent', () => {
     territoryGroupTypeService= TestBed.inject(TerritoryGroupTypeService);
     cartographyService= TestBed.inject(CartographyService);
     taskAvailabilityService= TestBed.inject(TaskAvailabilityService);
+    territoryTypeService= TestBed.inject(TerritoryTypeService);
     taskService= TestBed.inject(TaskService);
     userPositionService= TestBed.inject(UserPositionService);
     cartographyAvailabilityService= TestBed.inject(CartographyAvailabilityService);
@@ -90,6 +93,10 @@ describe('TerritoryFormComponent', () => {
 
   it('should instantiate taskAvailabilityService', () => {
     expect(taskAvailabilityService).toBeTruthy();
+  });
+
+  it('should instantiate territoryTypeService', () => {
+    expect(territoryTypeService).toBeTruthy();
   });
 
   it('should instantiate taskService', () => {

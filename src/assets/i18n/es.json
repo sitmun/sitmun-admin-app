@@ -48,6 +48,7 @@
   "doubleSelectionMessage": "Tienes que seleccionar un elemento de cada tabla como mínimo",
   "addChildRoles": "Quieres añadir roles hijo al territorio seleccionado?",
   "extentError" : "La extensión introducida no es válida",
+  "permissionsNoRelationship": " El usuario ya no tiene relacion con este territorio a través de los permisos",
   "caution": "Peligro",
   "atention": "Atención",
   "lang": {
@@ -316,6 +317,7 @@
     "email": "Correo",
     "address": "Dirección",
     "groupType": "Grupo tipo",
+    "territoryType": "Tipo",
     "extent": "Extensión",
     "noto": "Observaciones",
     "logo": "Logo",

@@ -48,6 +48,7 @@
   "extentError" : "L'étendue saisie n'est pas valide",
   "caution": "Attention",
   "atention": "Attention",
+  "permissionsNoRelationship": "L'utilisateur déjà n'a pas aucune relation avec ce territoire à travers les permissions",
   "lang": {
     "Catalan": "Catalan",
     "Spanish": "Espagnol",
@@ -314,6 +315,7 @@
     "email": "Courrier",
     "address": "Addresse",
     "groupType": "Type de groupe",
+    "territoryType": "Type",
     "extent": "Extension",
     "note": "Observations",
     "logo": "Logo",

@@ -48,6 +48,7 @@
   "doubleSelectionMessage": "You must select at least 1 element from each table",
   "addChildRoles": "Do you want to add child roles to the selected territory?",
   "extentError" : "The entered extent is not valid",
+  "permissionsNoRelationship" : "The user no longer has any relationship with that territory through the Permissions",
   "caution": "Caution",
   "atention": "Atention",
   "lang": {
@@ -316,6 +317,7 @@
     "email": "Mail",
     "address": "Address",
     "groupType": "Group Type",
+    "territoryType": "Type",
     "extent": "Extension",
     "note": "Observations",
     "logo": "Logo",
