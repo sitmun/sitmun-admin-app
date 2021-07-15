@@ -12,6 +12,7 @@ import { config } from 'src/config';
 import { DialogGridComponent, DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
 import { UserConfiguration } from '@sitmun/frontend-core';
+import { elementEventFullName } from '@angular/compiler/src/view_compiler/view_compiler';
 
 
 @Component({
@@ -1001,7 +1002,7 @@ export class TerritoryFormComponent implements OnInit {
           console.log(resp)
           let newTable: Territory[] = [];
           resp.forEach(element => {
-            if (element.scope == 'R') { newTable.push(element) }
+            if (!element.typeTopType) { newTable.push(element) }
           });
           return newTable;
         })
@@ -1039,7 +1040,7 @@ export class TerritoryFormComponent implements OnInit {
         map((resp: any) => {
           let newTable: Territory[] = [];
           resp.forEach(element => {
-            if (element.scope == 'M') { newTable.push(element) }
+            if (!element.typeBottomType) { newTable.push(element) }
           });
           return newTable;
         })
