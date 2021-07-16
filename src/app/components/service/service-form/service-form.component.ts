@@ -14,6 +14,7 @@ import { config } from 'src/config';
 import { DialogGridComponent, DialogFormComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
 import * as xml2js from 'xml2js';
+
 @Component({
   selector: 'app-service-form',
   templateUrl: './service-form.component.html',
@@ -306,9 +307,18 @@ export class ServiceFormComponent implements OnInit {
       }
       if(data.Capability.Layer.Layer.length>0){
         data.Capability.Layer.Layer.forEach(lyr => {
+          let layersLyr;
+          if(Array.isArray(lyr.Name)){
+            layersLyr=lyr.Name;
+          }
+          else{
+            layersLyr=lyr.Name.split(",");
+          }
+          if(!layersLyr) { layersLyr = [] }
           let cartography= new Cartography();
-          cartography.name= lyr.Name,
-          cartography.description=lyr.Abstract
+          cartography.name= lyr.Title;
+          cartography.description=lyr.Abstract;
+          cartography.layers=layersLyr;
           if(lyr){
             if(lyr.MetadataURL!=undefined){
               cartography.metadataURL=lyr.MetadataURL[0].OnlineResource['xlink:href']
@@ -323,7 +333,15 @@ export class ServiceFormComponent implements OnInit {
         });
       }
       if(data.Service && data.Service.Abstract && data.Service.Abstract.length>0){
-        let newDescription = data.Service.Abstract.length >250? data.Service.Abstract.substring(0,250): data.Service.Abstract
+        let auxDescription;
+        if(Array.isArray(data.Service.Abstract)){
+          auxDescription =data.Service.Abstract.find(element => element['xml:lang'].includes(config.defaultLang));
+          if(!auxDescription) { auxDescription=data.Service.Abstract[0].content }
+        }
+        else{
+          auxDescription=data.Service.Abstract;
+        }
+        let newDescription = auxDescription.length >250? auxDescription.substring(0,250): auxDescription
         this.serviceForm.patchValue({
           description: newDescription,
         })
@@ -499,7 +517,6 @@ export class ServiceFormComponent implements OnInit {
           cartography.blocked= false;
           cartography.queryableFeatureAvailable= false;
           cartography.queryableFeatureEnabled= false;
-          cartography.layers= [];
           promises.push(new Promise((resolve, reject) => { this.cartographyService.save(cartography).subscribe((resp) => { resolve(true) }) }));
         }
         
