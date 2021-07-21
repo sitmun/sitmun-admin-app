@@ -34,7 +34,11 @@
               {{'connectionEntity.driver' | translate}}
             </label>
             <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="driver" required>
+              <mat-select matInput formControlName="driver" class="form-control">
+                <mat-option [value]="driver.value" *ngFor="let driver of driversList">
+                  {{ driver.description}}
+                </mat-option>
+              </mat-select>
             </mat-form-field>
           </div>
 

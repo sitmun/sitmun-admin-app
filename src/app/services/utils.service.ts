@@ -331,6 +331,7 @@ export class UtilsService {
       headerName: this.getTranslate(alias),
       field: field,
       editable: editable,
+      singleSelection: true,
       cellRenderer: 'btnCheckboxRendererComponent',
       floatingFilterComponent: 'btnCheckboxFilterComponent',
       floatingFilterComponentParams: { suppressFilterButton: true },

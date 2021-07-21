@@ -48,6 +48,7 @@
   "doubleSelectionMessage": "Tienes que seleccionar un elemento de cada tabla como mínimo",
   "addChildRoles": "Quieres añadir roles hijo al territorio seleccionado?",
   "extentError" : "La extensión introducida no es válida",
+  "errorMoreThanOneStyleByDefault": "No puedes guardar los estils porque hay más de un estilo marcado como estilo por defecto",
   "permissionsNoRelationship": " El usuario ya no tiene relacion con este territorio a través de los permisos",
   "caution": "Peligro",
   "atention": "Atención",
@@ -224,7 +225,14 @@
     "valueType": "Tipo valor",
     "typeId": "Tipo Id",
     "required": "Obligatorio",
-    "treeName": "Nombre árbol"
+    "treeName": "Nombre árbol",
+    "styles": "Estilos",
+    "title": "Título",
+    "width": "Ancho",
+    "height": "Altura",
+    "url": "Url",
+    "useAllStyles": "Usar todos los estilos",
+    "defaultStyle": "Estilo por defecto"
   },
   "layersPermitsEntity": {
     "generalData": "Datos Generales",

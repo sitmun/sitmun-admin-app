@@ -23,6 +23,9 @@ export declare class DialogGridComponent implements OnInit {
     orderTable: Array<string>;
     addButtonClickedSubscription: Observable<boolean>;
     nonEditable: boolean;
+    addFieldRestriction: Array<any>;
+    fieldRestrictionWithDifferentName: Array<any>;
+    currentData: Array<any>;
     joinTables: EventEmitter<Array<any[]>>;
     constructor(dialogRef: MatDialogRef<DialogGridComponent>);
     ngOnInit(): void;

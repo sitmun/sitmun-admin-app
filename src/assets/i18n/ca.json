@@ -48,6 +48,7 @@
   "doubleSelectionMessage": "Has de seleccionar 1 element de cada taula com a mínim",
   "addChildRoles": "Vols afegir rols fills al territori seleccionat?",
   "extentError" : "L'extensió introduida no és vàlida",
+  "errorMoreThanOneStyleByDefault": "No pots guardar els estils perquè hi ha més d'un estil marcat com estil per defecte",
   "permissionsNoRelationship": "L'usuari ja no té cap relació amb aquest territori a través dels permisos",
   "caution": "Perill",
   "atention": "Atenció",
@@ -224,7 +225,14 @@
     "valueType": "Tipus valor",
     "typeId": "Tipus Id",
     "required": "Obligatori",
-    "treeName": "Nom arbre"
+    "treeName": "Nom arbre",
+    "styles": "Estils",
+    "title": "Títol",
+    "width": "Amplada",
+    "height": "Altura",
+    "url": "Url",
+    "useAllStyles": "Fer servir tots els estils",
+    "defaultStyle": "Estil per defecte"
   },
   "layersPermitsEntity": {
     "generalData": "Dades Generals",

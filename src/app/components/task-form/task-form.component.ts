@@ -330,7 +330,13 @@ export class TaskFormComponent implements OnInit {
     }
   }
 
-  getAllRowsTable(data: any[], index, linkName )
+  getAllRowsTable(event, index, linkName ){
+    if(event.event == "save"){
+      this.saveTable(event.data, index, linkName);
+    }
+  }
+
+  saveTable(data: any[], index, linkName )
   {
     let sqlElement = this.sqlElementModification[index];
     sqlElement.tableElements=[];
@@ -624,7 +630,7 @@ export class TaskFormComponent implements OnInit {
         let markResult = this.markIndexSqlElementToBeSaved(this.properties.tables, keysTextAreaNotNull)
         console.log(markResult)
         markResult.forEach(tableIndex => {
-          this.getAllElementsEvent[tableIndex].next(true)
+          this.getAllElementsEvent[tableIndex].next('save')
         });
       }
       else{
@@ -632,7 +638,7 @@ export class TaskFormComponent implements OnInit {
           this.saveTask()
         }
         else{
-          this.getAllElementsEvent[this.indexParameter].next(true);
+          this.getAllElementsEvent[this.indexParameter].next('save');
         }
       }
       console.log(this.savedTask);
@@ -708,7 +714,7 @@ export class TaskFormComponent implements OnInit {
           }
 
           this.getAllElementsEvent.forEach((element, index) => {
-            if(index != this.indexParameter)element.next(true);
+            if(index != this.indexParameter)element.next('save');
           });
           
           
@@ -833,7 +839,7 @@ export class TaskFormComponent implements OnInit {
 
   }
 
-  openPopupDialog(field, data, columns, label, checkbox, status, singleSelection, index ){
+  openPopupDialog(field, data, columns, label, checkbox, status, singleSelection, index, currentData ){
 
     let getAllfunction = this.getDataTable(data)
 
@@ -843,6 +849,7 @@ export class TaskFormComponent implements OnInit {
     dialogRef.componentInstance.orderTable = [this.defaultColumnsSorting[index]];
     dialogRef.componentInstance.columnDefsTable = [this.generateColumnDefs(columns,checkbox, status)];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
+    dialogRef.componentInstance.currentData = [currentData];
     dialogRef.componentInstance.title = this.utils.getTranslate(label);
     dialogRef.componentInstance.titlesTable = [""];
 
@@ -880,7 +887,7 @@ export class TaskFormComponent implements OnInit {
           if(this.formSQLElement[index] !== null ){
             this.sqlElementModification[index].modifications=true;
             // this.sqlElementModification[index].tableElements.splice(this.forms[index].get(this.sqlElementModification[index].element).value,1)
-            this.getAllElementsEvent[index].next(true)
+            this.getAllElementsEvent[index].next('save')
           }
           
         }

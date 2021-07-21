@@ -421,8 +421,8 @@ class DataGridComponent {
             });
         }
         if (this.eventGetAllRowsSubscription) {
-            this._eventGetAllRowsSubscription = this.eventGetAllRowsSubscription.subscribe(() => {
-                this.emitAllRows();
+            this._eventGetAllRowsSubscription = this.eventGetAllRowsSubscription.subscribe((event) => {
+                this.emitAllRows(event);
             });
         }
         if (this.eventSaveAgGridStateSubscription) {
@@ -557,13 +557,22 @@ class DataGridComponent {
         this.getSelectedRows.emit(selectedData);
     }
     /**
+     * @param {?} event
      * @return {?}
      */
-    emitAllRows() {
+    emitAllRows(event) {
+        // let rowData = [];
+        // this.gridApi.forEachNode(node => rowData.push(node.data));
+        this.getAllRows.emit({ data: this.getAllCurrentData(), event: event });
+    }
+    /**
+     * @return {?}
+     */
+    getAllCurrentData() {
         /** @type {?} */
         let rowData = [];
         this.gridApi.forEachNode(node => rowData.push(node.data));
-        this.getAllRows.emit(rowData);
+        return rowData;
     }
     /**
      * @param {?=} status
@@ -652,19 +661,37 @@ class DataGridComponent {
     getElements() {
         this.getAll()
             .subscribe((items) => {
-            if (this.statusColumn) {
-                /** @type {?} */
-                let status = this.allNewElements ? 'pendingCreation' : 'statusOK';
-                items.forEach(element => {
+            /** @type {?} */
+            let status = this.allNewElements ? 'pendingCreation' : 'statusOK';
+            /** @type {?} */
+            let newItems = [];
+            /** @type {?} */
+            let condition = (this.addFieldRestriction) ? this.addFieldRestriction : 'id';
+            items.forEach(element => {
+                if (this.statusColumn) {
                     if (element.status != "notAvailable" && element.status != "pendingCreation" && element.status != "pendingRegistration" && element.status != "unregisteredLayer") {
                         element.status = status;
                     }
                     if (this.allNewElements) {
                         element.new = true;
                     }
-                });
-            }
-            this.rowData = items;
+                }
+                if (this.currentData) {
+                    if (this.checkElementAllowedToAdd(condition, element, this.currentData)) {
+                        newItems.push(element);
+                    }
+                }
+            });
+            // if(this.statusColumn){
+            //   let status = this.allNewElements?'pendingCreation':'statusOK'
+            //   items.forEach(element => {
+            //     if(element.status != "notAvailable" && element.status != "pendingCreation" && element.status != "pendingRegistration" && element.status != "unregisteredLayer"){
+            //       element.status=status
+            //     }
+            //     if(this.allNewElements) { element.new = true; }
+            //   });
+            // }
+            this.rowData = this.currentData ? newItems : items;
             this.gridApi.setRowData(this.rowData);
             this.setSize();
             // this.gridApi.sizeColumnsToFit()
@@ -704,7 +731,7 @@ class DataGridComponent {
         /** @type {?} */
         let condition = (this.addFieldRestriction) ? this.addFieldRestriction : 'id';
         newItems.forEach(item => {
-            if (this.checkElementAllowedToAdd(condition, item)) {
+            if (this.checkElementAllowedToAdd(condition, item, this.rowData)) {
                 if (this.statusColumn) {
                     item.status = 'pendingCreation';
                     item.newItem = true;
@@ -723,13 +750,14 @@ class DataGridComponent {
     /**
      * @param {?} condition
      * @param {?} item
+     * @param {?} data
      * @return {?}
      */
-    checkElementAllowedToAdd(condition, item) {
+    checkElementAllowedToAdd(condition, item, data) {
         /** @type {?} */
         let finalAddition = true;
         if (Array.isArray(condition)) {
-            for (let element of this.rowData) {
+            for (let element of data) {
                 /** @type {?} */
                 let canAdd = false;
                 for (let currentCondition of condition) {
@@ -746,7 +774,10 @@ class DataGridComponent {
             return finalAddition;
         }
         else {
-            return (item[condition] == undefined || (this.rowData.find(element => element[condition] == item[condition])) == undefined);
+            if (this.fieldRestrictionWithDifferentName) {
+                return (item[condition] == undefined || (data.find(element => element[this.fieldRestrictionWithDifferentName] == item[condition])) == undefined);
+            }
+            return (item[condition] == undefined || (data.find(element => element[condition] == item[condition])) == undefined);
         }
     }
     /**
@@ -805,7 +836,7 @@ class DataGridComponent {
      */
     onAddButtonClicked() {
         this.gridApi.stopEditing(false);
-        this.add.emit(-1);
+        this.add.emit(this.getAllCurrentData());
     }
     /**
      * @return {?}
@@ -1136,6 +1167,8 @@ DataGridComponent.propDecorators = {
     hideSearchReplaceButton: [{ type: Input }],
     addFieldRestriction: [{ type: Input }],
     allNewElements: [{ type: Input }],
+    currentData: [{ type: Input }],
+    fieldRestrictionWithDifferentName: [{ type: Input }],
     remove: [{ type: Output }],
     new: [{ type: Output }],
     add: [{ type: Output }],
@@ -1263,6 +1296,10 @@ if (false) {
     /** @type {?} */
     DataGridComponent.prototype.allNewElements;
     /** @type {?} */
+    DataGridComponent.prototype.currentData;
+    /** @type {?} */
+    DataGridComponent.prototype.fieldRestrictionWithDifferentName;
+    /** @type {?} */
     DataGridComponent.prototype.remove;
     /** @type {?} */
     DataGridComponent.prototype.new;
@@ -1369,6 +1406,9 @@ class DialogGridComponent {
         this.getAllRows = new Subject();
         this.allRowsReceived = [];
         this.orderTable = [];
+        this.addFieldRestriction = [];
+        this.fieldRestrictionWithDifferentName = [];
+        this.currentData = [];
         this.joinTables = new EventEmitter();
         // this.nonEditable = true;
         this.tablesReceivedCounter = 0;
@@ -1418,7 +1458,7 @@ class DialogGridComponent {
 DialogGridComponent.decorators = [
     { type: Component, args: [{
                 selector: 'app-dialog-grid',
-                template: "<h5 mat-dialog-title class=\"titleDialog\">{{title}}</h5>\r\n<mat-dialog-content class=\"dialogConent\">\r\n  <div *ngFor=\"let getAll of getAllsTable; let i = index\" class=\"appDialogDataGridDiv\"  [ngStyle]=\"{'margin-top': i>0?'100px':'0px'}\">\r\n    <app-data-grid \r\n    [columnDefs]=\"columnDefsTable[i]\" [themeGrid]='themeGrid' [changeHeightButton]='changeHeightButton' [defaultHeight]='heightByDefault'  [getAll]='getAll' [globalSearch]=true [singleSelection]=\"singleSelectionTable[i]\"\r\n    [title]=\"titlesTable[i]\" [defaultColumnSorting]='orderTable.length>=i?orderTable[i]:null' [nonEditable]='nonEditable' [eventGetSelectedRowsSubscription]=\"getAllRows.asObservable()\" (getSelectedRows)='joinRowsReceived($event)' >\r\n    </app-data-grid>\r\n  </div>\r\n</mat-dialog-content>\r\n<div mat-dialog-actions align=\"end\">\r\n  <button mat-flat-button class=\"returnButton\" (click)=\"closeDialog()\">{{\"cancel\" | translate}}</button>\r\n  <button mat-flat-button class=\"saveButton\" (click)=\"getAllSelectedRows()\" cdkFocusInitial>{{\"add\" | translate}}</button>\r\n</div>\r\n\r\n",
+                template: "<h5 mat-dialog-title class=\"titleDialog\">{{title}}</h5>\r\n<mat-dialog-content class=\"dialogConent\">\r\n  <div *ngFor=\"let getAll of getAllsTable; let i = index\" class=\"appDialogDataGridDiv\"  [ngStyle]=\"{'margin-top': i>0?'100px':'0px'}\">\r\n    <app-data-grid \r\n    [columnDefs]=\"columnDefsTable[i]\" [themeGrid]='themeGrid' [changeHeightButton]='changeHeightButton' [defaultHeight]='heightByDefault'  [getAll]='getAll' [globalSearch]=true [singleSelection]=\"singleSelectionTable[i]\"\r\n    [title]=\"titlesTable[i]\" [defaultColumnSorting]='orderTable.length>=i?orderTable[i]:null' [nonEditable]='nonEditable'\r\n     [eventGetSelectedRowsSubscription]=\"getAllRows.asObservable()\" [addFieldRestriction]='addFieldRestriction.length>=i?addFieldRestriction[i]:null' \r\n     [currentData]='currentData.length>=i?currentData[i]:null' [fieldRestrictionWithDifferentName]='fieldRestrictionWithDifferentName.length>=i?fieldRestrictionWithDifferentName[i]:null' (getSelectedRows)='joinRowsReceived($event)' >\r\n    </app-data-grid>\r\n  </div>\r\n</mat-dialog-content>\r\n<div mat-dialog-actions align=\"end\">\r\n  <button mat-flat-button class=\"returnButton\" (click)=\"closeDialog()\">{{\"cancel\" | translate}}</button>\r\n  <button mat-flat-button class=\"saveButton\" (click)=\"getAllSelectedRows()\" cdkFocusInitial>{{\"add\" | translate}}</button>\r\n</div>\r\n\r\n",
                 styles: [".dialogConent{height:100%;margin:inherit!important;max-height:60vh!important;overflow:auto;padding:inherit!important;width:100%}.titleDialog{margin-bottom:15px!important;margin-top:inherit!important}"]
             }] }
 ];
@@ -1460,6 +1500,12 @@ if (false) {
     DialogGridComponent.prototype.addButtonClickedSubscription;
     /** @type {?} */
     DialogGridComponent.prototype.nonEditable;
+    /** @type {?} */
+    DialogGridComponent.prototype.addFieldRestriction;
+    /** @type {?} */
+    DialogGridComponent.prototype.fieldRestrictionWithDifferentName;
+    /** @type {?} */
+    DialogGridComponent.prototype.currentData;
     /** @type {?} */
     DialogGridComponent.prototype.joinTables;
     /** @type {?} */

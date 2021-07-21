@@ -48,9 +48,9 @@ export class UserFormComponent implements OnInit {
 
   columnDefsTerritoryDialog: any[];
   columnDefsRolesDialog: any[];
-  getAllElementsEventPermits: Subject<boolean> = new Subject<boolean>();
+  getAllElementsEventPermits: Subject<string> = new Subject<string>();
   columnDefsTerritoryDataDialog: any[];
-  getAllElementsEventTerritoryData: Subject<boolean> = new Subject<boolean>();
+  getAllElementsEventTerritoryData: Subject<string> = new Subject<string>();
 
   //Save button
   territorisToUpdate: Territory[] = [];
@@ -251,9 +251,14 @@ export class UserFormComponent implements OnInit {
   }
 
 
+  getAllRowsPermits(event){
+    if(event.event == "save"){
+      this.savePermits(event.data);
+    }
+  }
 
 
-  async getAllRowsPermits(data: any[]) {
+  async savePermits(data: any[]) {
 
 
     let territoriesToDelete= [];
@@ -542,8 +547,13 @@ export class UserFormComponent implements OnInit {
     console.log('screen in progress');
   }
 
+  getAllRowsDataTerritories(event){
+    if(event.event == "save"){
+      this.saveTerritories(event.data);
+    }
+  }
 
-  getAllRowsDataTerritories(data: any[]) {
+  saveTerritories(data: any[]) {
     let territoriesToEdit = [];
     const promises: Promise<any>[] = [];
     data.forEach(territory => {
@@ -800,8 +810,8 @@ export class UserFormComponent implements OnInit {
             _links: resp._links
             })
             console.log(this.userToEdit);
-            this.getAllElementsEventTerritoryData.next(true);
-            this.getAllElementsEventPermits.next(true);
+            this.getAllElementsEventTerritoryData.next('save');
+            this.getAllElementsEventPermits.next('save');
           }, error => {
             console.log(error)
           });

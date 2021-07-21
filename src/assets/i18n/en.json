@@ -48,6 +48,7 @@
   "doubleSelectionMessage": "You must select at least 1 element from each table",
   "addChildRoles": "Do you want to add child roles to the selected territory?",
   "extentError" : "The entered extent is not valid",
+  "errorMoreThanOneStyleByDefault": "You cannot save styles because there is more than one style marked as default style",
   "permissionsNoRelationship" : "The user no longer has any relationship with that territory through the Permissions",
   "caution": "Caution",
   "atention": "Atention",
@@ -224,7 +225,14 @@
     "valueType": "Value type",
     "typeId": "Id type",
     "required": "Required",
-    "treeName": "Tree name"
+    "treeName": "Tree name",
+    "styles": "Styles",
+    "title": "Title",
+    "width": "Width",
+    "height": "Height",
+    "url": "Url",
+    "useAllStyles": "Use all styles",
+    "defaultStyle": "Default style"
   },
   "layersPermitsEntity": {
     "generalData": "General Data",

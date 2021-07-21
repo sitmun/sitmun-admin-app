@@ -30,19 +30,19 @@ export class RoleFormComponent implements OnInit {
 
   //Grids
   columnDefsUsers: any[];
-  getAllElementsEventUsers: Subject<boolean> = new Subject<boolean>();
+  getAllElementsEventUsers: Subject<string> = new Subject<string>();
   dataUpdatedEventUsers: Subject<boolean> = new Subject<boolean>();
 
   columnDefsTasks: any[];
-  getAllElementsEventTasks: Subject<boolean> = new Subject <boolean>();
+  getAllElementsEventTasks: Subject<string> = new Subject <string>();
   dataUpdatedEventTasks: Subject<boolean> = new Subject<boolean>();
 
   columnDefsCartography: any[];
-  getAllElementsEventCartographies: Subject<boolean> = new Subject <boolean>();
+  getAllElementsEventCartographies: Subject<string> = new Subject <string>();
   dataUpdatedEventCartographies: Subject<boolean> = new Subject<boolean>();
 
   columnDefsApplications: any[];
-  getAllElementsEventApplications: Subject<boolean> = new Subject <boolean>();
+  getAllElementsEventApplications: Subject<string> = new Subject <string>();
   dataUpdatedEventApplications: Subject<boolean> = new Subject<boolean>();
 
   themeGrid: any = config.agGridTheme;
@@ -229,7 +229,13 @@ export class RoleFormComponent implements OnInit {
 
   }
 
-  getAllRowsUsers(data: any[] )
+  getAllRowsUsers(event){
+    if(event.event == "save"){
+      this.saveUsers(event.data);
+    }
+  }
+
+  saveUsers(data: any[] )
   {
     let usersConfToCreate = [];
     let usersConfDelete = [];
@@ -289,8 +295,13 @@ export class RoleFormComponent implements OnInit {
 
   }
 
+  getAllRowsTasks(event){
+    if(event.event == "save"){
+      this.saveTasks(event.data);
+    }
+  }
 
-  getAllRowsTasks(data: any[] )
+  saveTasks(data: any[] )
   {
     let dataChanged = false;
     const promises: Promise<any>[] = [];
@@ -343,7 +354,13 @@ export class RoleFormComponent implements OnInit {
 
   }
 
-  getAllRowsCartographiesGroups(data: any[] )
+  getAllRowsCartographiesGroups(event){
+    if(event.event == "save"){
+      this.saveCartographiesGroups(event.data);
+    }
+  }
+
+  saveCartographiesGroups(data: any[] )
   {
     let dataChanged = false;
     const promises: Promise<any>[] = [];
@@ -390,8 +407,15 @@ export class RoleFormComponent implements OnInit {
       }
 
     }
+
+    getAllRowsApplications(event){
+      if(event.event == "save"){
+        this.saveApplications(event.data);
+      }
+    }
   
-    getAllRowsApplications(data: any[] )
+  
+    saveApplications(data: any[] )
     {
       let dataChanged = false;
       const promises: Promise<any>[] = [];
@@ -474,6 +498,7 @@ export class RoleFormComponent implements OnInit {
     dialogRef.componentInstance.themeGrid=this.themeGrid;
     dialogRef.componentInstance.title=this.utils.getTranslate('roleEntity.permissiongroupLayersConfiguration');
     dialogRef.componentInstance.titlesTable=[''];
+    dialogRef.componentInstance.currentData=[data];
     dialogRef.componentInstance.nonEditable=false;
     
 
@@ -505,6 +530,7 @@ export class RoleFormComponent implements OnInit {
       dialogRef.componentInstance.themeGrid=this.themeGrid;
       dialogRef.componentInstance.title=this.utils.getTranslate('roleEntity.tasks');
       dialogRef.componentInstance.titlesTable=[''];
+      dialogRef.componentInstance.currentData=[data];
       dialogRef.componentInstance.nonEditable=false;
       
   
@@ -555,6 +581,7 @@ export class RoleFormComponent implements OnInit {
       dialogRef.componentInstance.themeGrid=this.themeGrid;
       dialogRef.componentInstance.title=this.utils.getTranslate('roleEntity.applications');
       dialogRef.componentInstance.titlesTable=[''];
+      dialogRef.componentInstance.currentData=[data];
       dialogRef.componentInstance.nonEditable=false;
       
   
@@ -590,9 +617,9 @@ export class RoleFormComponent implements OnInit {
         _links: resp._links
       })
       // this.getAllElementsEventUsers.next(true);
-      this.getAllElementsEventApplications.next(true);
-      this.getAllElementsEventCartographies.next(true);
-      this.getAllElementsEventTasks.next(true);
+      this.getAllElementsEventApplications.next('save');
+      this.getAllElementsEventCartographies.next('save');
+      this.getAllElementsEventTasks.next('save');
     },
     error=>{
       console.log(error);

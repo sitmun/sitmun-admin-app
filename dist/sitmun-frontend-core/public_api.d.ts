@@ -55,6 +55,8 @@ export * from './cartography/cartography-filter.model';
 export * from './cartography/cartography-filter.service';
 export * from './cartography/cartography-parameter.model';
 export * from './cartography/cartography-parameter.service';
+export * from './cartography/cartography-style.model';
+export * from './cartography/cartography-style.service';
 export * from './cartography/background.model';
 export * from './cartography/background.service';
 export * from './tree/tree.model';

@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { MaterialModule } from '../../../material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { ServiceService, ServiceParameterService, CartographyService, CodeListService,TranslationService,ResourceService,ExternalService, CapabilitiesService } from 'dist/sitmun-frontend-core/';
+import { ServiceService, ServiceParameterService, CartographyService, CodeListService,TranslationService,ResourceService,ExternalService, CapabilitiesService, CartographyStyleService } from 'dist/sitmun-frontend-core/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
@@ -21,13 +21,14 @@ describe('ServiceFormComponent', () => {
   let translationService: TranslationService;
   let resourceService: ResourceService;
   let externalService: ExternalService;
+  let cartographyStyleService: CartographyStyleService
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ ServiceFormComponent ],
       imports: [HttpClientTestingModule, RouterModule.forRoot([]), HttpClientModule,
       SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
-      providers: [ServiceService, CapabilitiesService, ServiceParameterService, CartographyService, CodeListService,TranslationService,ResourceService,ExternalService,
+      providers: [ServiceService, CapabilitiesService, CartographyStyleService, ServiceParameterService, CartographyService, CodeListService,TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();
@@ -41,6 +42,7 @@ describe('ServiceFormComponent', () => {
     serviceParameterService= TestBed.inject(ServiceParameterService);
     codeListService= TestBed.inject(CodeListService);
     cartographyService= TestBed.inject(CartographyService);
+    cartographyStyleService= TestBed.inject(CartographyStyleService);
     translationService= TestBed.inject(TranslationService);
     resourceService= TestBed.inject(ResourceService);
     externalService= TestBed.inject(ExternalService);
@@ -69,6 +71,10 @@ describe('ServiceFormComponent', () => {
 
   it('should instantiate cartographyService', () => {
     expect(cartographyService).toBeTruthy();
+  });
+
+  it('should instantiate cartographyStyleService', () => {
+    expect(cartographyStyleService).toBeTruthy();
   });
 
   it('should instantiate translationService', () => {

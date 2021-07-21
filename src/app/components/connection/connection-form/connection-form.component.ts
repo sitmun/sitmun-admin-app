@@ -37,7 +37,7 @@ export class ConnectionFormComponent implements OnInit {
   getAllElementsEventCartographies: Subject<boolean> = new Subject<boolean>();
 
   columnDefsTasks: any[];
-  getAllElementsEventTasks: Subject<boolean> = new Subject<boolean>();
+  getAllElementsEventTasks: Subject<string> = new Subject<string>();
   dataUpdatedEventTasks: Subject<boolean> = new Subject<boolean>();
   //Dialog
   columnDefsCartographiesDialog: any[];
@@ -51,7 +51,7 @@ export class ConnectionFormComponent implements OnInit {
   newCartographies: Cartography[] = [];
   newtasks: Task[] = [];
 
-
+  public driversList = [];
 
 
 
@@ -62,6 +62,7 @@ export class ConnectionFormComponent implements OnInit {
     private connectionService: ConnectionService,
     public cartographyService: CartographyService,
     public tasksService: TaskService,
+
     private http: HttpClient,
     public utils: UtilsService
   ) {
@@ -69,54 +70,75 @@ export class ConnectionFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.activatedRoute.params.subscribe(params => {
-      this.connectionID = +params.id;
-      if(params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
-      
-      if (this.connectionID !== -1 || this.duplicateID != -1) {
-        let idToGet = this.connectionID !== -1? this.connectionID: this.duplicateID
-        console.log(this.connectionID);
-        console.log(this.duplicateID);
 
-        this.connectionService.get(idToGet).subscribe(
-          resp => {
-            console.log(resp);
-            this.connectionToEdit = resp;
-            this.formConnection.patchValue({
-              driver: this.connectionToEdit.driver,
-              user: this.connectionToEdit.user,
-              password: this.connectionToEdit.password,
-              url: this.connectionToEdit.url,
-              _links: this.connectionToEdit._links
-            });
+    const promises: Promise<any>[] = [];
 
-            if(this.connectionID !== -1){
+    promises.push(new Promise((resolve, reject) => {
+      this.utils.getCodeListValues('databaseConnection.driver').subscribe(
+        resp => {
+          this.driversList.push(...resp);
+          resolve(true);
+        }
+      )
+    }));
+
+    Promise.all(promises).then(() => {  
+
+      this.activatedRoute.params.subscribe(params => {
+        this.connectionID = +params.id;
+        if(params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
+        
+        if (this.connectionID !== -1 || this.duplicateID != -1) {
+          let idToGet = this.connectionID !== -1? this.connectionID: this.duplicateID
+          console.log(this.connectionID);
+          console.log(this.duplicateID);
+  
+          this.connectionService.get(idToGet).subscribe(
+            resp => {
+              console.log(resp);
+              this.connectionToEdit = resp;
               this.formConnection.patchValue({
-                id: this.connectionID,
-                name: this.connectionToEdit.name,
-                passwordSet: this.connectionToEdit.passwordSet,
+                driver: this.connectionToEdit.driver,
+                user: this.connectionToEdit.user,
+                password: this.connectionToEdit.password,
+                url: this.connectionToEdit.url,
+                _links: this.connectionToEdit._links
               });
+  
+              if(this.connectionID !== -1){
+                this.formConnection.patchValue({
+                  id: this.connectionID,
+                  name: this.connectionToEdit.name,
+                  passwordSet: this.connectionToEdit.passwordSet,
+                });
+              }
+              else{
+                this.formConnection.patchValue({
+                  name: this.utils.getTranslate('copy_').concat(this.connectionToEdit.name),
+                });
+              }
+  
+              this.dataLoaded = true;
+            },
+            error => {
+  
             }
-            else{
-              this.formConnection.patchValue({
-                name: this.utils.getTranslate('copy_').concat(this.connectionToEdit.name),
-              });
-            }
+          );
+        }
 
-            this.dataLoaded = true;
-          },
-          error => {
-
-          }
-        );
-      }
-      else { this.dataLoaded = true; }
-
-    },
-      error => {
-
-      });
-
+        else { 
+          this.dataLoaded = true;
+          this.formConnection.patchValue({
+            driver: this.driversList[0].value
+          })
+         }
+  
+      },
+        error => {
+  
+        });
+  
+      })
 
     this.columnDefsCartographies = [
       this.utils.getSelCheckboxColumnDef(),
@@ -237,8 +259,14 @@ export class ConnectionFormComponent implements OnInit {
 
   }
 
+  getAllRowsTasks(event){
+    if(event.event == "save"){
+      this.saveTasks(event.data);
+    }
+  }
 
-  getAllRowsTasks(data: any[]) {
+
+  saveTasks(data: any[]) {
     let dataChanged = false;
     let tasksToPut = [];
     const promises: Promise<any>[] = [];
@@ -364,7 +392,7 @@ export class ConnectionFormComponent implements OnInit {
             _links: result._links
           })
           //this.getAllElementsEventCartographies.next(true);
-          this.getAllElementsEventTasks.next(true);
+          this.getAllElementsEventTasks.next('save');
         },
         error => {
           console.log(error);

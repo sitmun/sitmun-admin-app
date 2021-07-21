@@ -35,11 +35,11 @@ export class BackgroundLayersFormComponent implements OnInit {
 
   //Grids
   columnDefsCartographies: any[];
-  getAllElementsEventCartographies: Subject<boolean> = new Subject <boolean>();
+  getAllElementsEventCartographies: Subject<string> = new Subject <string>();
   dataUpdatedEventCartographies: Subject<boolean> = new Subject<boolean>();
 
   columnDefsRoles: any[];
-  getAllElementsEventRoles: Subject<boolean> = new Subject <boolean>();
+  getAllElementsEventRoles: Subject<string> = new Subject <string>();
   dataUpdatedEventRoles: Subject<boolean> = new Subject<boolean>();
 
   //Dialog
@@ -292,8 +292,13 @@ export class BackgroundLayersFormComponent implements OnInit {
 
   }
 
+  getAllRowsCartographies(event){
+    if(event.event == "save"){
+      this.saveCartographies(event.data);
+    }
+  }
 
-  getAllRowsCartographies(data: any[] )
+  saveCartographies(data: any[] )
   {
     const promises: Promise<any>[] = [];
     let dataChanged = false;
@@ -345,7 +350,13 @@ export class BackgroundLayersFormComponent implements OnInit {
 
   }
 
-  getAllRowsRoles(data: any[] )
+  getAllRowsRoles(event){
+    if(event.event == "save"){
+      this.saveRoles(event.data);
+    }
+  }
+
+  saveRoles(data: any[] )
   {
     const promises: Promise<any>[] = [];
     let dataChanged = false;
@@ -392,6 +403,7 @@ export class BackgroundLayersFormComponent implements OnInit {
     dialogRef.componentInstance.themeGrid=this.themeGrid;
     dialogRef.componentInstance.title=this.utils.getTranslate('layersPermitsEntity.cartographiesConfiguration');
     dialogRef.componentInstance.titlesTable=[''];
+    dialogRef.componentInstance.currentData=[data];
     dialogRef.componentInstance.nonEditable=false;
     
 
@@ -423,6 +435,7 @@ export class BackgroundLayersFormComponent implements OnInit {
     dialogRef.componentInstance.themeGrid=this.themeGrid;
     dialogRef.componentInstance.title=this.utils.getTranslate('layersPermitsEntity.roles');
     dialogRef.componentInstance.titlesTable=[''];
+    dialogRef.componentInstance.currentData=[data];
     dialogRef.componentInstance.nonEditable=false;
     
 
@@ -510,8 +523,8 @@ export class BackgroundLayersFormComponent implements OnInit {
           this.utils.saveTranslation(resp.id, this.descriptionTranslationMap, this.backgroundToEdit.description, this.descriptionTranslationsModified);
           this.descriptionTranslationsModified=false;
 
-          this.getAllElementsEventCartographies.next(true);
-          this.getAllElementsEventRoles.next(true);
+          this.getAllElementsEventCartographies.next('save');
+          this.getAllElementsEventRoles.next('save');
         },
         error=>{
           console.log("error")

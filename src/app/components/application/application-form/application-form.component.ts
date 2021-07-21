@@ -70,7 +70,7 @@ export class ApplicationFormComponent implements OnInit {
 
   columnDefsParametersDialog: any[];
   public parameterForm: FormGroup;
-  getAllElementsEventParameters: Subject<boolean> = new Subject <boolean>();
+  getAllElementsEventParameters: Subject<string> = new Subject <string>();
   @ViewChild('newParameterDialog',{
     static: true
   }) private newParameterDialog: TemplateRef <any>;
@@ -78,16 +78,16 @@ export class ApplicationFormComponent implements OnInit {
     static: true
   }) private newTemplateDialog: TemplateRef <any>;
   columnDefsTemplateConfigurationDialog: any[];
-  getAllElementsEventTemplateConfiguration: Subject<boolean> = new Subject <boolean>();
+  getAllElementsEventTemplateConfiguration: Subject<string> = new Subject <string>();
   
   columnDefsRolesDialog: any[];
-  getAllElementsEventRoles: Subject<boolean> = new Subject <boolean>();
+  getAllElementsEventRoles: Subject<string> = new Subject <string>();
  
   columnDefsBackgroundDialog: any[];
-  getAllElementsEventBackground: Subject<boolean> = new Subject <boolean>();
+  getAllElementsEventBackground: Subject<string> = new Subject <string>();
   
   columnDefsTreeDialog: any[];
-  getAllElementsEventTree: Subject<boolean> = new Subject <boolean>();
+  getAllElementsEventTree: Subject<string> = new Subject <string>();
 
   constructor(
     public dialog: MatDialog,
@@ -428,8 +428,14 @@ export class ApplicationFormComponent implements OnInit {
       ));
   } 
 
+  getAllRowsParameters(event){
+    if(event.event == "save"){
+      this.saveParameters(event.data);
+    }
+  }
 
-  getAllRowsParameters(data: any[] )
+
+  saveParameters(data: any[] )
   {
     let parameterToSave = [];
     let parameterToDelete = [];
@@ -545,7 +551,13 @@ export class ApplicationFormComponent implements OnInit {
       .pipe(map(data => data[`_embedded`][`roles`]));
   }
 
-  getAllRowsRoles(data: any[] )
+  getAllRowsRoles(event){
+    if(event.event == "save"){
+      this.saveRoles(event.data);
+    }
+  }
+
+  saveRoles(data: any[] )
   {
     const promises: Promise<any>[] = [];
 
@@ -602,8 +614,13 @@ export class ApplicationFormComponent implements OnInit {
 
   }
 
+  getAllRowsBackgrounds(event){
+    if(event.event == "save"){
+      this.saveBackgrounds(event.data);
+    }
+  }
 
-  getAllRowsBackgrounds(data: any[] )
+  saveBackgrounds(data: any[] )
   {
     let backgroundsToCreate = [];
     let backgroundsToDelete = [];
@@ -695,8 +712,13 @@ export class ApplicationFormComponent implements OnInit {
 
   }
 
+  getAllRowsTrees(event){
+    if(event.event == "save"){
+      this.saveTrees(event.data);
+    }
+  }
 
-  getAllRowsTrees(data: any[] )
+  saveTrees(data: any[] )
   {
     let dataChanged = false;
     let treesModified = [];
@@ -806,6 +828,7 @@ export class ApplicationFormComponent implements OnInit {
       dialogRef.componentInstance.themeGrid=this.themeGrid;
       dialogRef.componentInstance.title = this.utils.getTranslate("applicationEntity.roles");
       dialogRef.componentInstance.titlesTable=[''];
+      dialogRef.componentInstance.currentData=[data];
       dialogRef.componentInstance.nonEditable=false;
       
   
@@ -836,6 +859,9 @@ export class ApplicationFormComponent implements OnInit {
     dialogRef.componentInstance.themeGrid=this.themeGrid;
     dialogRef.componentInstance.title = this.utils.getTranslate("applicationEntity.background");
     dialogRef.componentInstance.titlesTable=[''];
+    dialogRef.componentInstance.currentData=[data];
+    dialogRef.componentInstance.fieldRestrictionWithDifferentName=['backgroundName'];
+    dialogRef.componentInstance.addFieldRestriction=['name'];
     dialogRef.componentInstance.nonEditable=false;
     
 
@@ -889,6 +915,7 @@ export class ApplicationFormComponent implements OnInit {
       dialogRef.componentInstance.themeGrid=this.themeGrid;
       dialogRef.componentInstance.title=this.utils.getTranslate("applicationEntity.tree");
       dialogRef.componentInstance.titlesTable=[''];
+      dialogRef.componentInstance.currentData=[data];
       dialogRef.componentInstance.nonEditable=false;
       
   
@@ -958,11 +985,11 @@ export class ApplicationFormComponent implements OnInit {
           this.utils.saveTranslation(resp.id, this.titleTranslationMap, this.applicationToEdit.title, this.titleTranslationsModified);
           this.titleTranslationsModified=false;
 
-          this.getAllElementsEventParameters.next(true);
-          this.getAllElementsEventTemplateConfiguration.next(true);
-          this.getAllElementsEventRoles.next(true);
-          this.getAllElementsEventBackground.next(true);
-          this.getAllElementsEventTree.next(true);
+          this.getAllElementsEventParameters.next("save");
+          this.getAllElementsEventTemplateConfiguration.next("save");
+          this.getAllElementsEventRoles.next("save");
+          this.getAllElementsEventBackground.next("save");
+          this.getAllElementsEventTree.next("save");
         },
         error => {
           console.log(error)

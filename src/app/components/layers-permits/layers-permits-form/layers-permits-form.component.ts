@@ -30,11 +30,11 @@ export class LayersPermitsFormComponent implements OnInit {
 
   //Grids
   columnDefsCartographies: any[];
-  getAllElementsEventCartographies: Subject<boolean> = new Subject <boolean>();
+  getAllElementsEventCartographies: Subject<string> = new Subject <string>();
   dataUpdatedEventCartographies: Subject<boolean> = new Subject<boolean>();
 
   columnDefsRoles: any[];
-  getAllElementsEventRoles: Subject<boolean> = new Subject <boolean>();
+  getAllElementsEventRoles: Subject<string> = new Subject <string>();
   dataUpdatedEventRoles: Subject<boolean> = new Subject<boolean>();
 
   //Dialog
@@ -190,8 +190,14 @@ export class LayersPermitsFormComponent implements OnInit {
 
   }
 
+  getAllRowsCartographies(event){
+    if(event.event == "save"){
+      this.saveCartographies(event.data);
+    }
+  }
 
-  getAllRowsCartographies(data: any[] )
+
+  saveCartographies(data: any[] )
   {
     let dataChanged = false;
     const promises: Promise<any>[] = [];
@@ -241,7 +247,13 @@ export class LayersPermitsFormComponent implements OnInit {
 
   }
 
-  getAllRowsRoles(data: any[] )
+  getAllRowsRoles(event){
+    if(event.event == "save"){
+      this.saveRoles(event.data);
+    }
+  }
+
+  saveRoles(data: any[] )
   {
     let dataChanged = false;
     const promises: Promise<any>[] = [];
@@ -286,6 +298,7 @@ export class LayersPermitsFormComponent implements OnInit {
     dialogRef.componentInstance.columnDefsTable=[this.columnDefsCartographiesDialog];
     dialogRef.componentInstance.themeGrid=this.themeGrid;
     dialogRef.componentInstance.title=this.utils.getTranslate('layersPermitsEntity.cartographiesConfiguration');
+    dialogRef.componentInstance.currentData=[data];
     dialogRef.componentInstance.titlesTable=[''];
     dialogRef.componentInstance.nonEditable=false;
     
@@ -317,6 +330,7 @@ export class LayersPermitsFormComponent implements OnInit {
     dialogRef.componentInstance.columnDefsTable=[this.columnDefsRolesDialog];
     dialogRef.componentInstance.themeGrid=this.themeGrid;
     dialogRef.componentInstance.title=this.utils.getTranslate('layersPermitsEntity.roles');
+    dialogRef.componentInstance.currentData=[data];
     dialogRef.componentInstance.titlesTable=[''];
     dialogRef.componentInstance.nonEditable=false;
     
@@ -358,8 +372,8 @@ export class LayersPermitsFormComponent implements OnInit {
             id: resp.id,
             _links: resp._links
           })
-          this.getAllElementsEventCartographies.next(true);
-          this.getAllElementsEventRoles.next(true);
+          this.getAllElementsEventCartographies.next('save');
+          this.getAllElementsEventRoles.next('save');
         },
         error => {
           console.log(error);

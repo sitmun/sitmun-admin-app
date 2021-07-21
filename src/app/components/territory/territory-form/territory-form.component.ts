@@ -46,30 +46,30 @@ export class TerritoryFormComponent implements OnInit {
 
   //Grids
   columnDefsPermits: any[];
-  getAllElementsEventPermits: Subject<boolean> = new Subject<boolean>();
+  getAllElementsEventPermits: Subject<string> = new Subject<string>();
   dataUpdatedEventPermits: Subject<boolean> = new Subject<boolean>();
 
   columnDefsPermitsChild: any[];
-  getAllElementsEventPermitsChild: Subject<boolean> = new Subject<boolean>();
+  getAllElementsEventPermitsChild: Subject<string> = new Subject<string>();
   dataUpdatedEventPermitsChild: Subject<boolean> = new Subject<boolean>();
 
   columnDefsPermitsInherit: any[];
   dataUpdatedEventInheritPermissions: Subject<boolean> = new Subject<boolean>();
 
   columnDefsMemberOf: any[];
-  getAllElementsEventTerritoriesMemberOf: Subject<boolean> = new Subject<boolean>();
+  getAllElementsEventTerritoriesMemberOf: Subject<string> = new Subject<string>();
   dataUpdatedEventMemberOf: Subject<boolean> = new Subject<boolean>();
 
   columnDefsMembers: any[];
-  getAllElementsEventTerritoriesMembers: Subject<boolean> = new Subject<boolean>();
+  getAllElementsEventTerritoriesMembers: Subject<string> = new Subject<string>();
   dataUpdatedEventMembers: Subject<boolean> = new Subject<boolean>();
 
   columnDefsCartographies: any[];
-  getAllElementsEventCartographies: Subject<boolean> = new Subject<boolean>();
+  getAllElementsEventCartographies: Subject<string> = new Subject<string>();
   dataUpdatedEventCartographies: Subject<boolean> = new Subject<boolean>();
 
   columnDefsTasks: any[];
-  getAllElementsEventTasks: Subject<boolean> = new Subject<boolean>();
+  getAllElementsEventTasks: Subject<string> = new Subject<string>();
   dataUpdatedEventTasks: Subject<boolean> = new Subject<boolean>();
 
   //Dialog
@@ -431,7 +431,13 @@ export class TerritoryFormComponent implements OnInit {
       ));;
   }
 
-  async getAllRowsPermits(data: any[], permitsChildren: boolean) {
+  getAllRowsPermits(event){
+    if(event.event == "save"){
+      this.savePermits(event.data);
+    }
+  }
+
+  async savePermits(data: any[]) {
 
     let usersPositionToDelete = [];
     let usersPositionToAdd = [];
@@ -693,9 +699,14 @@ export class TerritoryFormComponent implements OnInit {
 
   }
 
+  getAllRowsMembersOf(event){
+    if(event.event == "save"){
+      this.saveMembersOf(event.data);
+    }
+  }
 
 
-  getAllRowsMembersOf(data: any[]) {
+  saveMembersOf(data: any[]) {
     let dataChanged = false;
     let territoriesModified = [];
     let territoriesToPut = [];
@@ -747,7 +758,13 @@ export class TerritoryFormComponent implements OnInit {
 
   }
 
-  getAllRowsMembers(data: any[]) {
+  getAllRowsMembers(event){
+    if(event.event == "save"){
+      this.saveMembers(event.data);
+    }
+  }
+
+  saveMembers(data: any[]) {
     let dataChanged = false;
     let territoriesModified = [];
     let territoriesToPut = [];
@@ -800,7 +817,13 @@ export class TerritoryFormComponent implements OnInit {
 
   }
 
-  getAllRowsCartographies(data: any[]) {
+  getAllRowsCartographies(event){
+    if(event.event == "save"){
+      this.saveCartographies(event.data);
+    }
+  }
+
+  saveCartographies(data: any[]) {
     const promises: Promise<any>[] = [];
     const promisesDuplicate: Promise<any>[] = [];
     data.forEach(cartography => {
@@ -868,7 +891,13 @@ export class TerritoryFormComponent implements OnInit {
       .pipe(map(data => data['_embedded']['task-availabilities']));
   }
 
-  getAllRowsTasks(data: any[]) {
+  getAllRowsTasks(event){
+    if(event.event == "save"){
+      this.saveTasks(event.data);
+    }
+  }
+
+  saveTasks(data: any[]) {
     const promises: Promise<any>[] = [];
     data.forEach(task => {
       if (task.status === 'pendingDelete' && task._links  && !task.new ) {
@@ -1018,6 +1047,7 @@ export class TerritoryFormComponent implements OnInit {
     dialogRef.componentInstance.themeGrid = this.themeGrid;
     dialogRef.componentInstance.title = this.utils.getTranslate('territoryEntity.territories');
     dialogRef.componentInstance.titlesTable = [''];
+    dialogRef.componentInstance.currentData=[data];
     dialogRef.componentInstance.nonEditable = false;
 
 
@@ -1055,6 +1085,7 @@ export class TerritoryFormComponent implements OnInit {
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsTerritoriesDialog];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
     dialogRef.componentInstance.title = 'Territories';
+    dialogRef.componentInstance.currentData=[data];
     dialogRef.componentInstance.titlesTable = ['Territories'];
     dialogRef.componentInstance.nonEditable = false;
 
@@ -1083,6 +1114,8 @@ export class TerritoryFormComponent implements OnInit {
     dialogRef.componentInstance.themeGrid = this.themeGrid;
     dialogRef.componentInstance.title = this.utils.getTranslate('territoryEntity.layers');
     dialogRef.componentInstance.titlesTable = [''];
+    dialogRef.componentInstance.fieldRestrictionWithDifferentName = ['cartographyId'];
+    dialogRef.componentInstance.currentData=[data];
     dialogRef.componentInstance.nonEditable = false;
 
     dialogRef.afterClosed().subscribe(result => {
@@ -1131,6 +1164,8 @@ export class TerritoryFormComponent implements OnInit {
     dialogRef.componentInstance.themeGrid = this.themeGrid;
     dialogRef.componentInstance.title = this.utils.getTranslate('territoryEntity.tasks');
     dialogRef.componentInstance.titlesTable = [''];
+    dialogRef.componentInstance.fieldRestrictionWithDifferentName = ['taskId'];
+    dialogRef.componentInstance.currentData=[data];
     dialogRef.componentInstance.nonEditable = false;
 
     dialogRef.afterClosed().subscribe(result => {
@@ -1286,11 +1321,11 @@ export class TerritoryFormComponent implements OnInit {
 
             this.utils.saveTranslation(resp.id, this.translationMap, this.territoryToEdit.name, this.translationsModified);
             this.translationsModified = false;
-            this.getAllElementsEventCartographies.next(true);
-            this.getAllElementsEventTasks.next(true);
-            this.getAllElementsEventTerritoriesMemberOf.next(true);
-            this.getAllElementsEventTerritoriesMembers.next(true);
-            this.getAllElementsEventPermits.next(true);
+            this.getAllElementsEventCartographies.next('save');
+            this.getAllElementsEventTasks.next('save');
+            this.getAllElementsEventTerritoriesMemberOf.next('save');
+            this.getAllElementsEventTerritoriesMembers.next('save');
+            this.getAllElementsEventPermits.next('save');
           },
             error => {
               console.log(error);

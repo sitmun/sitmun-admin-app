@@ -112,12 +112,12 @@
                 <div class="btnsRightInput">
                     <button type="button" *ngIf="dataLoaded && !this.taskForm.value[element.fieldName]"
                         title="{{ 'add' | translate }}" mat-mini-fab class="mat-green mini-fab "
-                        (click)="openPopupDialog(element.fieldName, element.values.selectorPopup.data, element.values.selectorPopup.columns, element.values.label, true, false, true, -1)">
+                        (click)="openPopupDialog(element.fieldName, element.values.selectorPopup.data, element.values.selectorPopup.columns, element.values.label, true, false, true, -1, $event)">
                         <mat-icon> add </mat-icon>
                     </button>
                     <button type="button" *ngIf="dataLoaded && this.taskForm.value[element.fieldName]"
                         title="{{ 'tasksEntity.modificate' | translate }}" mat-mini-fab class="mat-orange mini-fab"
-                        (click)="openPopupDialog(element.fieldName, element.values.selectorPopup.data, element.values.selectorPopup.columns, element.values.label, true, false, true, -1)">
+                        (click)="openPopupDialog(element.fieldName, element.values.selectorPopup.data, element.values.selectorPopup.columns, element.values.label, true, false, true, -1, $event)">
                         <mat-icon> create </mat-icon>
                     </button>
                     <button type="button" *ngIf="dataLoaded && this.taskForm.value[element.fieldName]"
@@ -155,7 +155,7 @@
                         [eventGetAllRowsSubscription]='getAllElementsEvent[i].asObservable()'
                         [eventRefreshSubscription]='refreshElements[i].asObservable()'
                         [defaultColumnSorting]=defaultColumnsSorting[i]
-                        (add)="openPopupDialog(null, table.controlAdd.data, table.controlAdd.columns, table.label, true, false, false, i)"
+                        (add)="openPopupDialog(null, table.controlAdd.data, table.controlAdd.columns, table.label, true, false, false, i, $event)"
                         (new)="openPopupFormDialog(i, table.label)" (getAllRows)="getAllRowsTable($event, i, table.link)"
                         (remove)="restoreElementsSqlSelector($event, i)" (discardChanges)="removeElementsSqlSelector($event, i)"                       
                         >
@@ -281,12 +281,12 @@
                     <div class="btnsRightInput">
                         <button type="button" *ngIf="dataLoaded && !this.taskForm.value[element.fieldName]"
                             title="{{ 'add' | translate }}" mat-mini-fab class="mat-green mini-fab "
-                            (click)="openPopupDialog(element.fieldName, element.values.selectorPopup.data, element.values.selectorPopup.columns, element.values.label, true, false, true, -1)">
+                            (click)="openPopupDialog(element.fieldName, element.values.selectorPopup.data, element.values.selectorPopup.columns, element.values.label, true, false, true, -1, $event)">
                             <mat-icon> add </mat-icon>
                         </button>
                         <button type="button" *ngIf="dataLoaded && this.taskForm.value[element.fieldName]"
                             title="{{ 'tasksEntity.modificate' | translate }}" mat-mini-fab class="mat-orange mini-fab"
-                            (click)="openPopupDialog(element.fieldName, element.values.selectorPopup.data, element.values.selectorPopup.columns, element.values.label, true, false, true, -1)">
+                            (click)="openPopupDialog(element.fieldName, element.values.selectorPopup.data, element.values.selectorPopup.columns, element.values.label, true, false, true, -1, $event)">
                             <mat-icon> create </mat-icon>
                         </button>
                         <button type="button" *ngIf="dataLoaded && this.taskForm.value[element.fieldName]"

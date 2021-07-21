@@ -20,7 +20,10 @@ export class ConnectionComponent implements OnInit {
   saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
   themeGrid: any = config.agGridTheme;
   columnDefs: any[];
+  driversList = [];
+  driversListDescription = [];
   gridModified = false;
+  loaded=false;
 
   constructor(public dialog: MatDialog,
     public connectionService: ConnectionService,
@@ -30,13 +33,18 @@ export class ConnectionComponent implements OnInit {
 
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+
+    let drivers = await this.utils.getCodeListValues('databaseConnection.driver').toPromise();
+    drivers.forEach(element => {
+      this.driversList.push(element);
+      this.driversListDescription.push(element.description)
+    });
 
     var columnEditBtn = this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams'] = {
       clicked: this.newData.bind(this)
     }
-
 
     this.columnDefs = [
       this.utils.getSelCheckboxColumnDef(),
@@ -44,9 +52,12 @@ export class ConnectionComponent implements OnInit {
       this.utils.getIdColumnDef(),
       this.utils.getEditableColumnDef('connectionEntity.name', 'name'),
       //this.utils.getEditableColumnDef('connectionEntity.user','user'),
-      this.utils.getEditableColumnDef('connectionEntity.driver', 'driver'),
+      // this.utils.getEditableColumnDef('connectionEntity.driver', 'driver'),
+      this.utils.getSelectColumnDef('connectionEntity.driver', 'driver',true,this.driversListDescription, true, this.driversList),
       this.utils.getEditableColumnDef('connectionEntity.connection', 'url'),
     ];
+
+    this.loaded = true;
   }
 
   async canDeactivate(): Promise<boolean | Observable<boolean>> {

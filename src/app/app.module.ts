@@ -93,6 +93,7 @@ import {
   TaskUIService,
   ApplicationParameterService,
   CartographyParameterService,
+  CartographyStyleService,
   TaskAvailabilityService,
   UserPositionService,
   ApplicationBackgroundService,
@@ -190,7 +191,7 @@ import { CanDeactivateGuard } from './services/can-deactivate-guard.service';
     ApplicationService, TreeService, TranslationService, TerritoryTypeService, TaskAvailabilityService, BackgroundService, CartographyService, CartographyGroupService,
     TaskGroupService, DashboardService, TaskService, UserConfigurationService, CodeListService, LoginService, AuthService, ConfigurationParametersService,
     Principal, UserPositionService, AccountService,CartographyAvailabilityService,ServiceParameterService,ApplicationParameterService,
-    CartographyParameterService, CapabilitiesService, TaskTypeService, LanguageService, CartographyFilterService,  TaskUIService, TaskParameterService, ApplicationBackgroundService, TreeNodeService,
+    CartographyParameterService, CartographyStyleService, CapabilitiesService, TaskTypeService, LanguageService, CartographyFilterService,  TaskUIService, TaskParameterService, ApplicationBackgroundService, TreeNodeService,
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: MessagesInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: AuthExpiredInterceptor, multi: true }

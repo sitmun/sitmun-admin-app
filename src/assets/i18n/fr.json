@@ -46,6 +46,7 @@
   "doubleSelectionMessage": "Vous devez sélectionner au moins 1 élément de chaque table",
   "addChildRoles": "Voulez-vous ajouter des rôles enfants au territoire sélectionné?",
   "extentError" : "L'étendue saisie n'est pas valide",
+  "errorMoreThanOneStyleByDefault": "Ne peux pas garder les styles parce qu'il y a plus d'un style marqué comme style par défaut",
   "caution": "Attention",
   "atention": "Attention",
   "permissionsNoRelationship": "L'utilisateur déjà n'a pas aucune relation avec ce territoire à travers les permissions",
@@ -222,7 +223,14 @@
     "valueType": "Tapez de valeur",
     "typeId": "Tapez d'identifiant",
     "required": "Requis",
-    "treeName": "Nom de l'arbre"
+    "treeName": "Nom de l'arbre",
+    "styles": "Modes",
+    "title": "Titre ",
+    "width": "Largeur",
+    "height": "Hauteur",
+    "url": "Url",
+    "useAllStyles": "Utiliser tous les styles",
+    "defaultStyle": "Style par défaut"
   },
   "layersPermitsEntity": {
     "generalData": "Données générales",

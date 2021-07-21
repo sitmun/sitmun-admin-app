@@ -2,6 +2,7 @@ import { Resource } from '../angular-hal/src/lib/resource';
 import { Service } from '../service/service.model';
 import { Connection } from '../connection/connection.model';
 import { CartographyAvailability } from './cartography-availability.model';
+import { CartographyStyle } from './cartography-style.model';
 /**
  * Cartography
  */
@@ -76,4 +77,6 @@ export declare class Cartography extends Resource {
     thematic: Boolean;
     /** geometry type*/
     geometryType: string;
+    styles?: CartographyStyle[];
+    useAllStyles: boolean;
 }

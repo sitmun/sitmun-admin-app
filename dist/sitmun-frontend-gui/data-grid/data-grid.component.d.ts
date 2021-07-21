@@ -31,7 +31,7 @@ export declare class DataGridComponent implements OnInit {
     someStatusHasChangedToDelete: boolean;
     eventRefreshSubscription: Observable<boolean>;
     eventGetSelectedRowsSubscription: Observable<boolean>;
-    eventGetAllRowsSubscription: Observable<boolean>;
+    eventGetAllRowsSubscription: Observable<string>;
     eventSaveAgGridStateSubscription: Observable<boolean>;
     eventModifyStatusOfSelectedCells: Observable<string>;
     eventAddItemsSubscription: Observable<boolean>;
@@ -64,14 +64,19 @@ export declare class DataGridComponent implements OnInit {
     hideSearchReplaceButton: boolean;
     addFieldRestriction: any;
     allNewElements: any;
+    currentData: Array<any>;
+    fieldRestrictionWithDifferentName: string;
     remove: EventEmitter<any[]>;
     new: EventEmitter<number>;
-    add: EventEmitter<number>;
+    add: EventEmitter<any[]>;
     discardChanges: EventEmitter<any[]>;
     sendChanges: EventEmitter<any[]>;
     duplicate: EventEmitter<any[]>;
     getSelectedRows: EventEmitter<any[]>;
-    getAllRows: EventEmitter<any[]>;
+    getAllRows: EventEmitter<{
+        data: any[];
+        event: string;
+    }>;
     getAgGridState: EventEmitter<any[]>;
     gridModified: EventEmitter<boolean>;
     constructor(dialog: MatDialog, translate: TranslateService, elRef: ElementRef);
@@ -81,7 +86,8 @@ export declare class DataGridComponent implements OnInit {
     getDatePicker(): () => void;
     areRowsSelected(): Boolean;
     emitSelectedRows(): void;
-    emitAllRows(): void;
+    emitAllRows(event: string): void;
+    private getAllCurrentData;
     modifyStatusSelected(status?: string): void;
     saveAgGridState(): void;
     removeAgGridState(): void;

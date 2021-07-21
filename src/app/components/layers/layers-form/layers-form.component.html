@@ -153,7 +153,7 @@
     </div>
 
     <div class="rowFormDiv">
-      <div class="colFormDiv">
+      <div class="colFormDivTwoSelectors">
         <label class="formLabel">
           {{'layersEntity.description' | translate}}
         </label>
@@ -163,11 +163,18 @@
         </mat-form-field>
       </div>
 
-      <div class="colFormDiv">
+      <div class="HalfMidLargeColFormDiv">
         <label class="formLabel">
           {{'layersEntity.available' | translate}}
         </label>
         <mat-checkbox formControlName="blocked"> </mat-checkbox>
+      </div>
+
+      <div class="HalfMidLargeColFormDiv">
+        <label class="formLabel">
+          {{'layersEntity.useAllStyles' | translate}}
+        </label>
+        <mat-checkbox formControlName="useAllStyles"> </mat-checkbox>
       </div>
     </div>
 
@@ -396,6 +403,27 @@
             [redoButton]=true [undoButton]=true [deleteButton]=true [newButton]=true 
             (getAllRows)="getAllRowsTerritorialFilters($event)"  [actionButton]=true
             (duplicate)='duplicateTerritorialFilters($event)' (new)="openTerritorialFilterDialog($event)"> </app-data-grid>
+        </div>
+      </ng-template>
+    </mat-expansion-panel>
+
+    <!-- Styles configuration table -->
+    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+        <mat-panel-title>
+          {{ "layersEntity.styles" | translate }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <ng-template matExpansionPanelContent>
+        <div class="appDataGridEditDiv">
+          <app-data-grid [changeHeightButton]="true" [allNewElements]="layerID == -1" [columnDefs]="columnDefsStyles" [themeGrid]='themeGrid' [getAll]='getAllStyles'
+            [eventAddItemsSubscription]='addElementsEventStyles.asObservable()' defaultColumnSorting="name"
+            [eventGetAllRowsSubscription]='getAllElementsEventStyles.asObservable()'
+            [eventRefreshSubscription]='dataUpdatedEventStyles.asObservable()' [discardChangesButton]=true
+            [redoButton]=true [undoButton]=true [deleteButton]=true [newButton]=true addFieldRestriction="name"
+            (getAllRows)="getAllRowsStyles($event)" defaultColumnSorting="order" [actionButton]=true
+            (duplicate)='duplicateStyles($event)' (new)="openStylesDialog($event)"> </app-data-grid>
         </div>
       </ng-template>
     </mat-expansion-panel>
@@ -700,6 +728,127 @@
           <mat-checkbox formControlName="required"> </mat-checkbox>
         </div>
       </div>
+
+
+    </form>
+  </div>
+
+
+</ng-template>
+
+<ng-template #newStyleDialog>
+
+  <div class="formDiv">
+    <form [formGroup]='styleForm' #f="ngForm">
+
+
+      <div class="rowFormDiv">
+
+        <div class="colFormDiv">
+          <label class="formLabel requiredInput">
+            {{'layersEntity.name' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="text" formControlName="name" required>
+          </mat-form-field>
+        </div>
+
+        <div class="colFormDiv">
+          <label class="formLabel ">
+            {{'layersEntity.title' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="text" formControlName="title">
+          </mat-form-field>
+        </div>
+
+
+      </div>
+
+      <div class="rowFormDiv">
+
+
+        <div class="colFormDiv">
+          <label class="formLabel">
+            {{'layersEntity.description' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="text" formControlName="description">
+          </mat-form-field>
+        </div>
+
+
+        <div class="colFormDiv">
+          <label class="formLabel">
+            {{'layersEntity.format' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="text" formControlName="format">
+          </mat-form-field>
+        </div>
+
+        
+        <!-- <div class="colFormDiv">
+          <label class="formLabel ">
+            {{'layersEntity.format' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <mat-select matInput formControlName="format" class="form-control">
+              <mat-option [value]="formatType.value" *ngFor="let formatType of parameterFormatTypes">
+                {{ formatType.description}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div> -->
+
+
+      </div>
+
+      <div class="rowFormDiv">
+
+
+        <div class="colFormDiv">
+          <label class="formLabel">
+            {{'layersEntity.width' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="number" formControlName="width" >
+          </mat-form-field>
+        </div>
+
+        <div class="colFormDiv">
+          <label class="formLabel">
+            {{'layersEntity.height' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="number" formControlName="height" >
+          </mat-form-field>
+        </div>
+
+
+      </div>
+
+      <div class="rowFormDiv">
+
+        <div class="colFormDiv">
+          <label class="formLabel">
+            {{'layersEntity.url' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="text" formControlName="url">
+          </mat-form-field>
+        </div>
+
+      <div class="colFormDiv">
+        <label class="formLabel">
+          {{'layersEntity.defaultStyle' | translate}}
+        </label>
+        <mat-checkbox formControlName="defaultStyle"> </mat-checkbox>
+      </div>
+
+
+      </div>
+
 
 
     </form>

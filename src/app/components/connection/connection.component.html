@@ -3,7 +3,7 @@
     <h4><mat-icon aria-hidden="false"  svgIcon="menu_connexio"></mat-icon> {{ "connectionEntity.connection" | translate }}</h4>
     <span class="divider"></span>
 </div>
-<div class="appDataGridDiv">
+<div class="appDataGridDiv" *ngIf="loaded">
     <app-data-grid id="connection" [columnDefs]="columnDefs" [themeGrid]='themeGrid' [getAll]='getAllConnections' [globalSearch]=true 
     [eventRefreshSubscription]='dataUpdatedEvent.asObservable()'  [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
     [discardChangesButton]=true [redoButton]=true [undoButton]=true [applyChangesButton]=true  [deleteButton]=true [newButton]=true 
