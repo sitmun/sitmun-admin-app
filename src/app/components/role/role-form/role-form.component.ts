@@ -309,7 +309,7 @@ export class RoleFormComponent implements OnInit {
     data.forEach(task => {
       if(task.status!== 'pendingDelete') {
         if (task.status === 'pendingModify') {
-          if(task.new){ dataChanged = true; }
+          if(task.newItem){ dataChanged = true; }
           promises.push(new Promise((resolve, reject) => { this.tasksService.update(task).subscribe((resp) => { resolve(true) }) }));
         }
         else if(task.status === 'pendingCreation'){
@@ -368,7 +368,7 @@ export class RoleFormComponent implements OnInit {
     data.forEach(cartographyGroup => {
       if(cartographyGroup.status!== 'pendingDelete') {
         if (cartographyGroup.status === 'pendingModify') {
-          if(cartographyGroup.new){ dataChanged = true; }
+          if(cartographyGroup.newItem){ dataChanged = true; }
           promises.push(new Promise((resolve, reject) => { this.cartographyGroupService.update(cartographyGroup).subscribe((resp) => { resolve(true) }) }));
 
           }
@@ -423,7 +423,7 @@ export class RoleFormComponent implements OnInit {
       data.forEach(application => {
         if(application.status!== 'pendingDelete') {
           if (application.status === 'pendingModify') {
-            if(application.new){ dataChanged = true; }
+            if(application.newItem){ dataChanged = true; }
             promises.push(new Promise((resolve, reject) => { this.applicationService.update(application).subscribe((resp) => { resolve(true) }) }));
           }
           else if( application.status === 'pendingCreation') {dataChanged = true}

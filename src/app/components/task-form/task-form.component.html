@@ -155,6 +155,7 @@
                         [eventGetAllRowsSubscription]='getAllElementsEvent[i].asObservable()'
                         [eventRefreshSubscription]='refreshElements[i].asObservable()'
                         [defaultColumnSorting]=defaultColumnsSorting[i]
+                        (duplicate)="table.controlAdd.control==='formPopup'?duplicate($event,i):null"
                         (add)="openPopupDialog(null, table.controlAdd.data, table.controlAdd.columns, table.label, true, false, false, i, $event)"
                         (new)="openPopupFormDialog(i, table.label)" (getAllRows)="getAllRowsTable($event, i, table.link)"
                         (remove)="restoreElementsSqlSelector($event, i)" (discardChanges)="removeElementsSqlSelector($event, i)"                       

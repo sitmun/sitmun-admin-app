@@ -357,8 +357,8 @@
             [eventGetAllRowsSubscription]='getAllElementsEventSpatialConfigurations.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventSpatialConfigurations.asObservable()'
             [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [newButton]=true
-            (getAllRows)="getAllRowsParameters($event, false)" [actionButton]=true addFieldRestriction="name"
-            (duplicate)='duplicateSpatialSelections($event)' (new)="openSpatialSelectionDialog($event)">
+            (getAllRows)="getAllRowsParameters($event, true)" [actionButton]=true addFieldRestriction="name"
+            (duplicate)='duplicateParameters($event, true)' (new)="openSpatialSelectionDialog($event)">
           </app-data-grid>
         </div>
       </ng-template>
@@ -381,7 +381,7 @@
             [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()' [discardChangesButton]=true
             [redoButton]=true [undoButton]=true [deleteButton]=true [newButton]=true addFieldRestriction="name"
             (getAllRows)="getAllRowsParameters($event, false)" defaultColumnSorting="order" [actionButton]=true
-            (duplicate)='duplicateParameters($event)' (new)="openParametersDialog($event)"> </app-data-grid>
+            (duplicate)='duplicateParameters($event, false)' (new)="openParametersDialog($event)"> </app-data-grid>
         </div>
       </ng-template>
     </mat-expansion-panel>
@@ -619,8 +619,21 @@
           </label>
           <mat-form-field appearance="outline">
             <mat-select matInput formControlName="format" class="form-control">
-              <mat-option [value]="formatType.value" *ngFor="let formatType of parameterFormatTypes">
+              <mat-option [value]="formatType.value" *ngFor="let formatType of spatialSelectionParameterFormatTypes">
                 {{ formatType.description}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="colFormDiv">
+          <label class="formLabel requiredInput">
+            {{'layersEntity.type' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <mat-select matInput formControlName="type" class="form-control">
+              <mat-option [value]="type.value" *ngFor="let type of spatialSelectionParameterTypes">
+                {{ type.description}}
               </mat-option>
             </mat-select>
           </mat-form-field>

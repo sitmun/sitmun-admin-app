@@ -24,7 +24,7 @@ export declare class Cartography extends Resource {
     /** whether cartography is blocked*/
     blocked: boolean;
     /** apply filter to get map*/
-    applyFilterToGetMap: String;
+    applyFilterToGetMap: boolean;
     /** apply filter to get feature information*/
     applyFilterToGetFeatureInfo: boolean;
     /** apply filter to spatial selection*/

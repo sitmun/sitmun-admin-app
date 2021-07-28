@@ -1180,6 +1180,7 @@
                 /** @type {?} */
                 var selectedData = selectedNodes.map(function (node) { return node.data; });
                 this.duplicate.emit(selectedData);
+                this.gridOptions.api.deselectAll();
             }
         };
         /**

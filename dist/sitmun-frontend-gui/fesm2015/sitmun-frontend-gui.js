@@ -866,6 +866,7 @@ class DataGridComponent {
             /** @type {?} */
             const selectedData = selectedNodes.map(node => node.data);
             this.duplicate.emit(selectedData);
+            this.gridOptions.api.deselectAll();
         }
     }
     /**

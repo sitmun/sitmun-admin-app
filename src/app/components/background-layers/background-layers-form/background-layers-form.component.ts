@@ -307,7 +307,7 @@ export class BackgroundLayersFormComponent implements OnInit {
     data.forEach(cartography => {
       if(cartography.status!== 'pendingDelete') {
         if (cartography.status === 'pendingModify') {
-          if(cartography.new){ dataChanged = true; }
+          if(cartography.newItem){ dataChanged = true; }
           promises.push(new Promise((resolve, reject) => { this.cartographyService.update(cartography).subscribe((resp) => { resolve(true) }) }));
         }
         else if (cartography.status === 'pendingCreation') {
@@ -365,7 +365,7 @@ export class BackgroundLayersFormComponent implements OnInit {
     data.forEach(role => {
       if(role.status!== 'pendingDelete') {
         if (role.status === 'pendingModify') {
-          if(role.new){ dataChanged = true; }
+          if(role.newItem){ dataChanged = true; }
           promises.push(new Promise((resolve, reject) => { this.roleService.update(role).subscribe((resp) => { resolve(true) }) }));
         }
         else if(role.status === 'pendingCreation'){

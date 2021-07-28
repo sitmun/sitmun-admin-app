@@ -110,6 +110,23 @@ export class UtilsService {
     return data.value ? (new Date(data.value)).toLocaleDateString() : ''
   }
 
+  duplicateParameter(data, parameterToModify, ignoreId?, ignoreLinks?){
+    let elementsToDuplicate = []
+    data.forEach(element => {
+      let newElement = { ...element };
+      newElement[parameterToModify] = this.getTranslate('copy_').concat(newElement[parameterToModify]);
+      if(!ignoreId){
+        newElement.id = null;
+      }
+      if(!ignoreLinks){
+        newElement._links = null;
+      }
+      elementsToDuplicate.push(newElement);
+    });
+
+    return elementsToDuplicate;
+  }
+
 
   getDateFilterParams() {
     var filterParams = {

@@ -283,11 +283,11 @@ export class UserFormComponent implements OnInit {
         if(userConf._links){
 
           let index = data.findIndex(element =>  (element.roleId === userConf.roleId && element.territoryId === userConf.territoryId &&
-                element.appliesToChildrenTerritories === userConf.appliesToChildrenTerritories && !element.new))
+                element.appliesToChildrenTerritories === userConf.appliesToChildrenTerritories && !element.newItem))
           if (index === -1) {
 
-            let indexTerritory = data.findIndex(element => element.territoryId === userConf.territoryId && !element.new  )
-            userConf.new = false;
+            let indexTerritory = data.findIndex(element => element.territoryId === userConf.territoryId && !element.newItem  )
+            userConf.newItem = false;
 
             let roleComplete;
             let territoryComplete;
@@ -371,18 +371,18 @@ export class UserFormComponent implements OnInit {
 
           let index;
           index = data.findIndex(element => element.roleId === item.role.id && element.territoryId === item.territory.id &&
-            element.appliesToChildrenTerritories === item.appliesToChildrenTerritories && !element.new)
+            element.appliesToChildrenTerritories === item.appliesToChildrenTerritories && !element.newItem)
 
-          let indexTerritory = data.findIndex(element => element.territoryId === userConf.territoryComplete.id && !element.new && element.status == 'pendingCreation' && !element._links)
+          let indexTerritory = data.findIndex(element => element.territoryId === userConf.territoryComplete.id && !element.newItem && element.status == 'pendingCreation' && !element._links)
 
           if(index === -1) {
-            userConf.new = false;
+            userConf.newItem = false;
             promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
           }
 
           if(indexTerritory === -1 && !territoriesToAdd.includes(userConf.territoryId))
           {
-            userConf.new = false;
+            userConf.newItem = false;
             promisesCheckTerritories.push(new Promise((resolve, reject) => {
               this.userPositionService.getAll()
               .pipe(map((data: any[]) => data.filter(elem => elem.territoryName === userConf.territory && elem.userId === this.userID )
@@ -480,7 +480,7 @@ export class UserFormComponent implements OnInit {
 
         // promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
       }
-      if (userConf.status === 'pendingDelete' && userConf._links && !userConf.new ) {
+      if (userConf.status === 'pendingDelete' && userConf._links && !userConf.newItem ) {
 
         
         let indexTerritory = data.findIndex(element =>  element.territoryId === userConf.territoryId && element.status !== 'pendingDelete' )

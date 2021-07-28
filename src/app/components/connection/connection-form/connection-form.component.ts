@@ -274,7 +274,7 @@ export class ConnectionFormComponent implements OnInit {
 
       if (task.status !== 'pendingDelete') { 
         if (task.status === 'pendingModify') {
-          if(task.new){ dataChanged = true; }
+          if(task.newItem){ dataChanged = true; }
           promises.push(new Promise((resolve, reject) => { this.tasksService.update(task).subscribe((resp) => { resolve(true) }) }));
         }
         else if (task.status === 'pendingCreation'){
