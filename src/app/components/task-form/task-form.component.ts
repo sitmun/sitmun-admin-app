@@ -231,7 +231,6 @@ export class TaskFormComponent implements OnInit {
             await this.setDynamicSelectorValue(values[i][`selector`][`queryParams`], values[i][`selector`][`data`], values[i][`label`])
           }
           else{
-            console.log(values[i][`selector`][`data`])
             this.setSelectorToNeeded(values[i][`selector`][`data`])
           }
         }
@@ -336,63 +335,61 @@ export class TaskFormComponent implements OnInit {
   } 
 
   getAllRowsTable(event, index, linkName ){
-    if(event.event == "save"){
+    let saveParameters= event.event == "saveParameters";
+
+    if(event.event == "saveParameters" || event.event == "addParameter"){
+      this.manageParameters(event.data, index, linkName, saveParameters);
+    }
+
+
+    if(event.event == "save" ){
       this.saveTable(event.data, index, linkName);
     }
   }
 
-  saveTable(data: any[], index, linkName )
-  {
+  manageParameters(data: any[], index, linkName, saveParameters?){
     let sqlElement = this.sqlElementModification[index];
     sqlElement.tableElements=[];
     let toSave: boolean = sqlElement.toSave;
-    if(sqlElement.modifications || sqlElement.toSave){
+    if(sqlElement.modifications || sqlElement.toSave || saveParameters){
       let result = [];
       for (const element of data) {
         if(element.status!= "pendingDelete"){
           result.push(element[sqlElement.element])
           if(toSave){
-            this.savedTask[sqlElement.mainFormElement]= this.savedTask[sqlElement.mainFormElement].replace(element[sqlElement.element], element["value"]);
+            // this.savedTask[sqlElement.mainFormElement]= this.savedTask[sqlElement.mainFormElement].replace(element[sqlElement.element], element["value"]);
           }
         }
       }
+
+      if(!this.savedTask.properties){
+        this.savedTask.properties={};
+        this.savedTask.properties[sqlElement.mainFormElement]=this.savedTask[sqlElement.mainFormElement]; 
+      }
+      else{
+        this.savedTask.properties[sqlElement.mainFormElement]=this.savedTask[sqlElement.mainFormElement]; 
+      }
+
       sqlElement.tableElements=result;
       sqlElement.modifications=false;
       sqlElement.toSave=false;
-      if(toSave){
+      if(saveParameters){
+        this.putParametersOnProperties(data);
+      }
+      if(toSave || saveParameters){
         this.saveTask();
-        // this.getAllElementsEvent.forEach(element => {
-        //   element.next(true);
-        // });
       }
       
 
     }
-    else{
+  }
+
+  saveTable(data: any[], index, linkName )
+  {
+
     //We are saving
     if(linkName=='parameters'){
-      if(data.length>0){
-        let newData = [];
-        data.forEach(element => {
-          if(element.status!= 'pendingDelete'){
-            delete element.status;
-            delete element.newItem;
-            if(element.order){ element.order=parseInt(element.order) }
-            newData.push((element));
-  
-          }
-        });
-        if(!this.savedTask.properties){
-          this.savedTask.properties={
-            parameters:newData
-          }      
-        }
-        else{
-          this.savedTask.properties.parameters=newData;
-        }
-        this.parametersTable = [];
-        this.parametersTable.push(...newData);
-      }
+      this.putParametersOnProperties(data);
       this.currentTablesSaved++;
       this.saveTask();
     }
@@ -407,6 +404,31 @@ export class TaskFormComponent implements OnInit {
 
 
 
+    
+  }
+
+  putParametersOnProperties(data){
+    if(data.length>0){
+      let newData = [];
+      data.forEach(element => {
+        if(element.status!= 'pendingDelete'){
+          delete element.status;
+          delete element.newItem;
+          if(element.order){ element.order=parseInt(element.order) }
+          newData.push((element));
+
+        }
+      });
+      if(!this.savedTask.properties){
+        this.savedTask.properties={
+          parameters:newData
+        }      
+      }
+      else{
+        this.savedTask.properties.parameters=newData;
+      }
+      this.parametersTable = [];
+      this.parametersTable.push(...newData);
     }
   }
 
@@ -505,7 +527,7 @@ export class TaskFormComponent implements OnInit {
     let formKeys=Object.keys(this.properties.form.elements)
     for (const key of formKeys) {
       let keySpecification = this.properties.form.elements[key]
-      if(keySpecification.control==="selectorPopup"){
+      if(keySpecification.control==="selectorPopup" || (keySpecification.control==="selector" && this.taskToEdit._links[key])){
         var urlReq = `${this.taskToEdit._links[key].href}`
         if (this.taskToEdit._links[key].templated) {
           var url = new URL(urlReq.split("{")[0]);
@@ -514,7 +536,16 @@ export class TaskFormComponent implements OnInit {
         }
         let value= await (this.http.get(urlReq)).toPromise();
         // let value= await (this.http.get(urlReq)).pipe(map(data => data['_embedded'][key])).toPromise();
-        this.taskForm.get(key).setValue(value)
+        if(value){
+          if(keySpecification.control==="selectorPopup"){
+            this.taskForm.get(key).setValue(value)
+          }
+          else{
+            this.taskForm.get(key).setValue(value[keySpecification.selector.value]);
+          }
+        }
+
+
       }
 
 
@@ -634,8 +665,10 @@ export class TaskFormComponent implements OnInit {
       if(keysTextAreaNotNull.length>0){
         let markResult = this.markIndexSqlElementToBeSaved(this.properties.tables, keysTextAreaNotNull)
         console.log(markResult)
+
         markResult.forEach(tableIndex => {
-          this.getAllElementsEvent[tableIndex].next('save')
+          let event = tableIndex == this.indexParameter?'saveParameters':'save'
+          this.getAllElementsEvent[tableIndex].next(event)
         });
       }
       else{
@@ -643,7 +676,7 @@ export class TaskFormComponent implements OnInit {
           this.saveTask()
         }
         else{
-          this.getAllElementsEvent[this.indexParameter].next('save');
+          this.getAllElementsEvent[this.indexParameter].next('saveParameters');
         }
       }
       console.log(this.savedTask);
@@ -714,7 +747,8 @@ export class TaskFormComponent implements OnInit {
           else { this.taskForm.addControl("_links",new FormControl(result._links,[])); }
 
           this.taskToEdit=result;
-          if(this.indexParameter > 0){
+          this.taskID = result.id;
+          if(this.indexParameter >= 0){
             this.refreshElements[this.indexParameter].next(true);
           }
 
@@ -760,7 +794,7 @@ export class TaskFormComponent implements OnInit {
       delete this.savedTask['scope'];
       delete this.savedTask['path'];
     }
-    else if(this.taskTypeName == 'Query' || this.taskTypeName== 'More info' ){
+    else if(this.taskTypeName == 'Query' || this.taskTypeName== 'More info' || this.taskTypeName== 'Locator' ){
       this.savedTask.properties={
         command: this.savedTask['value'],
         scope: this.savedTask['scope'].value,
@@ -769,11 +803,14 @@ export class TaskFormComponent implements OnInit {
       delete this.savedTask['scope'];
     
     }
-    else if(this.taskTypeName == 'Extraction (FME)' ){
-      let layers = this.savedTask['layers']?this.savedTask['layers'].split(','):null;
-      this.savedTask.properties={
-        layers: layers
+    else if(this.taskTypeName == 'Extraction (FME)' || this.taskTypeName == 'Report' ){
+      let key =this.taskTypeName == 'Extraction (FME)'?'layers':'layer'
+      if(!Array.isArray(this.savedTask[key])){
+        let layers = this.savedTask[key]?this.savedTask[key].split(','):null;
+        this.savedTask.properties={};
+        this.savedTask.properties[key]=layers;
       }
+
     }
 
   }
@@ -844,7 +881,7 @@ export class TaskFormComponent implements OnInit {
 
   }
 
-  openPopupDialog(field, data, columns, label, checkbox, status, singleSelection, index, currentData ){
+  openPopupDialog(field, data, columns, label, checkbox, status, singleSelection, index, currentData, ignoreCurrentData? ){
 
     let getAllfunction = this.getDataTable(data)
 
@@ -854,7 +891,7 @@ export class TaskFormComponent implements OnInit {
     dialogRef.componentInstance.orderTable = [this.defaultColumnsSorting[index]];
     dialogRef.componentInstance.columnDefsTable = [this.generateColumnDefs(columns,checkbox, status)];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.currentData = [currentData];
+    dialogRef.componentInstance.currentData = ignoreCurrentData?[]:[currentData];
     dialogRef.componentInstance.title = this.utils.getTranslate(label);
     dialogRef.componentInstance.titlesTable = [""];
 
@@ -892,7 +929,7 @@ export class TaskFormComponent implements OnInit {
           if(this.formSQLElement[index] !== null ){
             this.sqlElementModification[index].modifications=true;
             // this.sqlElementModification[index].tableElements.splice(this.forms[index].get(this.sqlElementModification[index].element).value,1)
-            this.getAllElementsEvent[index].next('save')
+            this.getAllElementsEvent[index].next('addParameter')
           }
           
         }

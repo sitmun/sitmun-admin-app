@@ -348,6 +348,7 @@ class DataGridComponent {
         this.modificationChange = false;
         this.undoNoChanges = false; // Boolean that indicates if an undo hasn't modifications
         this.someStatusHasChangedToDelete = false;
+        this.currentData = null;
         this.translate = translate;
         this.frameworkComponents = {
             btnEditRendererComponent: BtnEditRenderedComponent,
