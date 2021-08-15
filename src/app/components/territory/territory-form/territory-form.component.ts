@@ -185,6 +185,9 @@ export class TerritoryFormComponent implements OnInit {
                 extensionX1: this.territoryToEdit.extent.maxX,
                 extensionY0: this.territoryToEdit.extent.minY,
                 extensionY1: this.territoryToEdit.extent.maxY,
+                defaultZoomLevel: this.territoryToEdit.defaultZoomLevel,
+                centerPointX:  this.territoryToEdit.center.x,
+                centerPointY:  this.territoryToEdit.center.y,
                 note: this.territoryToEdit.note,
                 blocked: this.territoryToEdit.blocked,
                 _links: this.territoryToEdit._links
@@ -356,6 +359,9 @@ export class TerritoryFormComponent implements OnInit {
       extent: new FormControl(null),
       note: new FormControl(null),
       blocked: new FormControl(null),
+      defaultZoomLevel: new FormControl(null),
+      centerPointX:  new FormControl(null),
+      centerPointY:  new FormControl(null),
       _links: new FormControl(null),
 
     })
@@ -1301,6 +1307,8 @@ export class TerritoryFormComponent implements OnInit {
           this.terrritoryObj.note = this.territoryForm.value.note,
           this.terrritoryObj.blocked = this.territoryForm.value.blocked,
           this.terrritoryObj._links = this.territoryForm.value._links
+          this.terrritoryObj.defaultZoomLevel = this.territoryForm.value.defaultZoomLevel;
+          this.terrritoryObj.center = { x: this.territoryForm.value.centerPointX, y: this.territoryForm.value.centerPointY};
 
         if (this.territoryID == -1) {
           this.terrritoryObj.id = null;

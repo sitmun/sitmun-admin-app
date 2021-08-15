@@ -62,20 +62,6 @@
         </mat-form-field>
       </div>
 
-      <!-- <div class="HalfMidLargeColFormDiv">
-        <label class="formLabel">
-          {{'territoryEntity.scope' | translate}}
-        </label>
-        <mat-form-field appearance="outline">
-          <mat-select matInput formControlName="scope" class="form-control">
-            <mat-option [value]="scope.value" *ngFor="let scope of scopeTypes">
-              {{scope.description}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-
-      </div> -->
-
       <div class="HalfMidLargeColFormDiv">
         <label class="formLabel">
           {{'territoryEntity.territoryType' | translate}}
@@ -99,6 +85,39 @@
 
 
     </div>
+
+    <div class="rowFormDiv">
+      <div class="HalfMidLargeColFormDiv">
+        <label class="formLabel">
+          {{'territoryEntity.defaultZoomLevel' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="number" formControlName="defaultZoomLevel">
+        </mat-form-field>
+      </div>
+
+      <div class="HalfMidLargeColFormDiv">
+        <label class="formLabel">
+          {{'territoryEntity.centerPointX' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="number" formControlName="centerPointX">
+        </mat-form-field>
+      </div>
+
+      
+      <div class="HalfMidLargeColFormDiv">
+        <label class="formLabel">
+          {{'territoryEntity.centerPointY' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="number" formControlName="centerPointY">
+        </mat-form-field>
+      </div>
+
+
+    </div>
+
     <div class="rowFormDiv">
       <div class="HalfMidLargeColFormDiv">
         <label class="formLabel">

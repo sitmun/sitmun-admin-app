@@ -344,7 +344,10 @@
     "permits": "Permis",
     "inheritPermissionsOfParents": "Hériter les autorisations des parents",
     "status": "Statut",
-    "username": "Nom d'utilisateur"
+    "username": "Nom d'utilisateur",
+    "defaultZoomLevel": "Niveau de zoom par défaut",
+    "centerPointX": "Centre (X)",
+    "centerPointY": "Centre (Y)"
   },
   "roleEntity": {
     "generalData": "Données générales",
