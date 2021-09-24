@@ -401,6 +401,11 @@ h2 {
   width: 100%;
 }
 
+.chipLimit{
+  max-height:70px;
+  overflow-y: scroll;
+}
+
 .colFormDiv{
   display: inline-block;
   width: 47.5%;

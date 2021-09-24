@@ -50,6 +50,7 @@
   "extentError" : "The entered extent is not valid",
   "errorMoreThanOneStyleByDefault": "You cannot save styles because there is more than one style marked as default style",
   "permissionsNoRelationship" : "The user no longer has any relationship with that territory through the Permissions",
+  "getCapabilitiesMessage": "If the data from the service is obtained, unsaved data from the table and some fields from the form will be modified, do you want to continue?",
   "caution": "Caution",
   "atention": "Atention",
   "lang": {
@@ -172,6 +173,7 @@
     "available": "Available"
   },
   "layersEntity": {
+    "roles":"Roles",
     "source": "Source",
     "layers": "Layers",
     "name": "Name",
@@ -284,6 +286,7 @@
     "application": "Application",
     "name": "Name",
     "description": "Description",
+    "order": "Order",
     "type": "Type",
     "theme": "Theme",
     "srs": "Projection",

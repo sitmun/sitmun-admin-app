@@ -38,6 +38,18 @@ export const config = {
     "uiId": "ui",
     "serviceId": "service"
   },
+  taskTablesSortField:{
+    'availabilities': 'territoryName',
+    'roles':'name',
+    'parameters': 'order'
+  },
+  taskTablesDialogsSortField:{
+    'availabilities': 'name',
+    'roles':'name',
+  },
+  taskSelectorSortField:{
+    'taskGroup': 'name'
+  },
   languages: [
     { id: "ca", name: "catalan" },
     { id: "es", name: "spanish" },

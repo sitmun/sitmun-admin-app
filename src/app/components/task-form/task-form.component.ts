@@ -258,7 +258,7 @@ export class TaskFormComponent implements OnInit {
         this.getAllElementsEvent.push(getAllElements)
         this.refreshElements.push(refreshElements)
         this.sqlElementModification.push({modifications: false, toSave: false, element: null, mainFormElement:null, tableElements: []});
-        let columnDefs= this.generateColumnDefs(table.columns,true,true, true);
+        let columnDefs= this.generateColumnDefs(table.columns,table.link,true,true, true);
         this.columnDefsTables.push(columnDefs);
 
         if(table.controlAdd.control =="formPopup")
@@ -843,12 +843,20 @@ export class TaskFormComponent implements OnInit {
 
 
   getDataSelector(data, queryParams, label){
+    let dataToReturn = []
     if(queryParams){
-        return this.getDataDynamicSelectors(data, label)
+      dataToReturn = this.getDataDynamicSelectors(data, label)
     }
     else{
-        return this.getDataFixedSelectors(data);
+      dataToReturn = this.getDataFixedSelectors(data);
     }
+
+    let fieldToSort = config.taskSelectorSortField[data];
+    if(fieldToSort){
+      dataToReturn.sort((a,b) => a[fieldToSort].localeCompare(b[fieldToSort]));
+    }
+
+    return dataToReturn;
         
 
   }
@@ -884,12 +892,12 @@ export class TaskFormComponent implements OnInit {
   openPopupDialog(field, data, columns, label, checkbox, status, singleSelection, index, currentData, ignoreCurrentData? ){
 
     let getAllfunction = this.getDataTable(data)
-
+    let orderField = this.getOrderField(columns,data,false);
     const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
     dialogRef.componentInstance.getAllsTable = [() => getAllfunction];
     dialogRef.componentInstance.singleSelectionTable = [singleSelection];
-    dialogRef.componentInstance.orderTable = [this.defaultColumnsSorting[index]];
-    dialogRef.componentInstance.columnDefsTable = [this.generateColumnDefs(columns,checkbox, status)];
+    dialogRef.componentInstance.orderTable = [orderField];
+    dialogRef.componentInstance.columnDefsTable = [this.generateColumnDefs(columns,data,checkbox, status)];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
     dialogRef.componentInstance.currentData = ignoreCurrentData?[]:[currentData];
     dialogRef.componentInstance.title = this.utils.getTranslate(label);
@@ -974,11 +982,39 @@ export class TaskFormComponent implements OnInit {
 
   }
 
+  private getOrderField(columns,link, notDialog, hasName?, hasOrder?){
+    let field = null;
+    field = (notDialog)?config.taskTablesSortField[link]:config.taskTablesDialogsSortField[link];
+    if(!field){
+      if(!notDialog){
+        let keys = Object.keys(columns);
+        for(let i=0; i< keys.length; i++){
+  
+          if(keys[i]== 'order'){
+            field = 'order';
+            break;
+          }
+          else if(keys[i]=='name'){
+            field = 'name';
+          }
+  
+        }
+      }
+      else{
+        if(hasOrder) { field = 'order' }
+        else if(hasName) { field = 'name' }
+      }
+
+    }
+
+    return field;
+  }
 
 
 
 
-  generateColumnDefs(columns, checkbox, status, notDialog?){
+
+  generateColumnDefs(columns,link, checkbox, status, notDialog?){
 
     let columnResults = [];
     if(checkbox) {columnResults.push(this.utils.getSelCheckboxColumnDef())}
@@ -1002,11 +1038,7 @@ export class TaskFormComponent implements OnInit {
     }
     if(status) {columnResults.push(this.utils.getStatusColumnDef())}
 
-    if(notDialog){
-      if(hasOrderField) { this.defaultColumnsSorting.push('order') }
-      else if(hasNameField) { this.defaultColumnsSorting.push('name') }
-      else { this.defaultColumnsSorting.push(null) }
-    }
+    this.defaultColumnsSorting.push(this.getOrderField(columns,link,true,hasNameField,hasOrderField));
 
     return columnResults;
 

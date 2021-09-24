@@ -11,7 +11,7 @@ import { Observable, of, Subject } from 'rxjs';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
-import { DialogGridComponent, DialogFormComponent } from 'dist/sitmun-frontend-gui/';
+import { DialogGridComponent, DialogFormComponent, DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 import { MatDialog } from '@angular/material/dialog';
 import * as xml2js from 'xml2js';
 
@@ -299,11 +299,21 @@ export class ServiceFormComponent implements OnInit {
   changeServiceDataByCapabilities(refresh?){
     let data=this.serviceCapabilitiesData.WMT_MS_Capabilities!=undefined?this.serviceCapabilitiesData.WMT_MS_Capabilities:this.serviceCapabilitiesData.WMS_Capabilities
     if (data!=undefined ){
-      if(data.Capability && data.Capability.Layer.SRS !== null && data.Capability.Layer.SRS !== undefined) {
+      if(data.Capability ) {
+        let capabilitiesList = null;
+        if(data.Capability.Layer.SRS !== null && data.Capability.Layer.SRS !== undefined){
+          capabilitiesList = data.Capability.Layer.SRS;
+        }
+        else if(data.Capability.Layer.CRS !== null && data.Capability.Layer.CRS !== undefined){
+          capabilitiesList = data.Capability.Layer.CRS;
+        }
         this.projections=[];
-        this.serviceCapabilitiesData.WMT_MS_Capabilities.Capability.Layer.SRS.forEach((projection) => {
-          this.projections.push(projection);
-        });
+        if(capabilitiesList){
+          this.projections.push(...capabilitiesList);
+        }
+        // this.serviceCapabilitiesData.WMT_MS_Capabilities.Capability.Layer.SRS.forEach((projection) => {
+        //   this.projections.push(projection);
+        // });
       }
       let capability = data.Capability.Layer;
       while(capability.Layer != null && capability.Layer != undefined){
@@ -325,7 +335,9 @@ export class ServiceFormComponent implements OnInit {
           if(!layersLyr) { layersLyr = [] }
           let cartography= new Cartography();
           cartography.name= lyr.Title;
+          if(cartography.name && cartography.name.length>250) { cartography.name= cartography.name.substring(0,249) }
           cartography.description=lyr.Abstract;
+          if(cartography.description && cartography.description.length>250) { cartography.description= cartography.description.substring(0,249) }
           cartography.layers=layersLyr;
           if(lyr.Style){
             if(Array.isArray(lyr.Style)) {
@@ -340,6 +352,11 @@ export class ServiceFormComponent implements OnInit {
             if(lyr.MetadataURL!=undefined){
               let metadataURL= Array.isArray(lyr.MetadataURL)?lyr.MetadataURL[0]:lyr.MetadataURL
               cartography.metadataURL=metadataURL.OnlineResource['xlink:href']
+            }
+
+            if(lyr.DataURL!=undefined){
+              let DataURL= Array.isArray(lyr.DataURL)?lyr.DataURL[0]:lyr.DataURL
+              cartography.datasetURL=DataURL.OnlineResource['xlink:href']
             }
   
             if(lyr.Style && lyr.Style[0] && lyr.Style[0].LEGENDURL!=undefined){
@@ -368,7 +385,7 @@ export class ServiceFormComponent implements OnInit {
               else{
                 if((this.translationMap.has(languageShortname))){
                   let currentTranslation =  this.translationMap.get(languageShortname);
-                  let translationReduced = translation.content.substring(0,250);
+                  let translationReduced = translation.content.substring(0,249);
                   if (currentTranslation.translation != translationReduced){
                     currentTranslation.translation = translationReduced; 
                     this.translationsModified = true;
@@ -385,7 +402,7 @@ export class ServiceFormComponent implements OnInit {
         else{
           auxDescription=data.Service.Abstract;
         }
-        let newDescription = auxDescription.length >250? auxDescription.substring(0,250): auxDescription
+        let newDescription = auxDescription.length >250? auxDescription.substring(0,249): auxDescription
         this.serviceForm.patchValue({
           description: newDescription,
         })
@@ -498,7 +515,19 @@ export class ServiceFormComponent implements OnInit {
   getAllLayers = (): Observable<any> => {
 
     if(this.getCapabilitiesLayers.length <= 0){
-      return of([])
+      if(this.serviceID!=-1){
+        var urlReq = `${this.serviceToEdit._links.layers.href}`
+        if (this.serviceToEdit._links.layers.templated) {
+          var url = new URL(urlReq.split("{")[0]);
+          url.searchParams.append("projection", "view")
+          urlReq = url.toString();
+        }
+        return (this.http.get(urlReq))
+          .pipe(map(data => data[`_embedded`][`cartographies`]));
+      }
+      else{
+        return of([])
+      }
     }
 
     if (this.serviceID != -1){
@@ -514,7 +543,7 @@ export class ServiceFormComponent implements OnInit {
         let finalCartographies = [];
         let cartographies= data['_embedded']['cartographies'];
         this.getCapabilitiesLayers.forEach(capabilityLayer => {
-          let index = cartographies.findIndex(element => element.name == capabilityLayer.name);
+          let index = cartographies.findIndex(element => element.name == capabilityLayer.name && !element.alreadySearched);
           if( index != -1){
             if(cartographies[index].blocked){
               cartographies[index].status="notAvailable";
@@ -553,6 +582,20 @@ export class ServiceFormComponent implements OnInit {
 
   }
 
+  private onDataCapabilitiesButtonClicked(){
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title = this.utils.getTranslate("caution");
+    dialogRef.componentInstance.message = this.utils.getTranslate("getCapabilitiesMessage");
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (result.event === 'Accept') {
+          this.getCapabilitiesDataService(true);
+        }
+      }
+    });
+
+  }
+
 
   getAllRowsLayers(event){
     if(event.event == "save"){
@@ -569,7 +612,7 @@ export class ServiceFormComponent implements OnInit {
           cartography.blocked=true;
           promises.push(new Promise((resolve, reject) => { this.cartographyService.update(cartography).subscribe((resp) => { resolve(true) }) }));
         }
-        else if (cartography.status === 'pendingRegistration') {
+        else if (cartography.status === 'pendingRegistration' && !cartography._links) {
           cartography.service= this.serviceToEdit;
           cartography.blocked= false;
           cartography.queryableFeatureAvailable= false;

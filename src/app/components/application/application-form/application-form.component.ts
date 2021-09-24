@@ -176,7 +176,7 @@ export class ApplicationFormComponent implements OnInit {
                 title: this.applicationToEdit.title,
                 jspTemplate: this.applicationToEdit.jspTemplate,
                 theme: this.applicationToEdit.theme,
-                situationMap: this.applicationToEdit.situationMapId,
+                situationMap: this.applicationToEdit.situationMapId?this.applicationToEdit.situationMapId:this.situationMapList[0].id,
                 scales: this.applicationToEdit.scales,
                 srs: this.applicationToEdit.srs,
                 treeAutoRefresh: this.applicationToEdit.treeAutoRefresh,
@@ -276,7 +276,8 @@ export class ApplicationFormComponent implements OnInit {
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
       this.utils.getNonEditableColumnDef('applicationEntity.name','backgroundName'),
-      this.utils.getNonEditableColumnDef('applicationEntity.description','backgroundName'),
+      this.utils.getNonEditableColumnDef('applicationEntity.description','description'),
+      this.utils.getEditableColumnDef('applicationEntity.order','order'),
       this.utils.getStatusColumnDef()
     ];
 
@@ -607,7 +608,7 @@ export class ApplicationFormComponent implements OnInit {
     const promises: Promise<any>[] = [];
     const promisesBackground: Promise<any>[] = [];
     data.forEach(background => {
-      if (background.status === 'pendingCreation') {
+      if (background.status === 'pendingCreation' || (background.status === 'pendingModify') && (background.new)) {
 
         let index= data.findIndex(element => element.backgroundDescription === background.backgroundDescription && element.backgroundName === background.backgroundName && !element.newItem )
         if (index === -1){
@@ -637,7 +638,10 @@ export class ApplicationFormComponent implements OnInit {
           }
         }
       }
-      if(background.status === 'pendingDelete' && !background.newItem ) {
+      else if(background.status === 'pendingModify'){
+        promises.push(new Promise((resolve, reject) => { this.applicationBackgroundService.save(background).subscribe((resp) => { resolve(true) }) }));
+      }
+      else if(background.status === 'pendingDelete' && !background.newItem ) {
         // backgroundsToDelete.push(background) 
         promises.push(new Promise((resolve, reject) => { this.applicationBackgroundService.remove(background).subscribe((resp) => { resolve(true) }) }));
 

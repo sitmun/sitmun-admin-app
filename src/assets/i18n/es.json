@@ -51,6 +51,7 @@
   "errorMoreThanOneStyleByDefault": "No puedes guardar los estils porque hay más de un estilo marcado como estilo por defecto",
   "permissionsNoRelationship": " El usuario ya no tiene relacion con este territorio a través de los permisos",
   "caution": "Peligro",
+  "getCapabilitiesMessage": "Si se obtienen los datos del servicio, se modificaran los datos no guardados de la tabla i algunos campos del formulario, ¿quieres continuar?",
   "atention": "Atención",
   "lang": {
     "Catalan": "Catalán",
@@ -172,6 +173,7 @@
     "available": "Disponible"
   },
   "layersEntity": {
+    "roles": "Roles",
     "source": "Origen",
     "layers": "Capas",
     "name": "Nombre",
@@ -284,6 +286,7 @@
     "application": "Aplicación",
     "name": "Nombre",
     "description": "Descripción",
+    "order": "Orden",
     "type": "Tipo",
     "theme": "Tema",
     "srs": "Projección",

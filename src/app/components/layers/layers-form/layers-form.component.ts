@@ -516,6 +516,7 @@ export class LayersFormComponent implements OnInit {
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
       this.utils.getEditableColumnDef('layersEntity.name', 'name'),
+      this.utils.getNonEditableColumnDef('layersEntity.roles', 'roleNames'),
       this.utils.getStatusColumnDef()
     ];
 
@@ -1297,7 +1298,7 @@ export class LayersFormComponent implements OnInit {
     // })
     const dialogRef = this.dialog.open(DialogFormComponent);
     dialogRef.componentInstance.HTMLReceived = this.newStyleDialog;
-    dialogRef.componentInstance.title = this.utils.getTranslate('layersEntity.style');
+    dialogRef.componentInstance.title = this.utils.getTranslate('layersEntity.styles');
     dialogRef.componentInstance.form = this.styleForm;
 
 

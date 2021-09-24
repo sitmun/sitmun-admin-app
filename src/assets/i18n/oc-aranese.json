@@ -50,6 +50,7 @@
   "extentError" : "L'extensió introduida no és vàlida",
   "errorMoreThanOneStyleByDefault": "No pots guardar els estils perquè hi ha més d'un estil marcat com estil per defecte",
   "permissionsNoRelationship": "L'usuari ja no té cap relació amb aquest territori a través dels permisos",
+  "getCapabilitiesMessage": "Si s'obtenen les dades del servei, es modificaran les dades no guardades de la taula i alguns camps del formulari, vols continuar?",
   "caution": "Perill",
   "atention": "Atenció",
   "lang": {
@@ -172,6 +173,7 @@
     "available": "Disponible"
   },
   "layersEntity": {
+    "roles":"Rols",
     "source": "Origen",
     "layers": "Capes",
     "name": "Nom",
@@ -285,6 +287,7 @@
     "name": "Nom",
     "description": "Descripció",
     "type": "Tipus",
+    "order": "Ordre",
     "theme": "Tema",
     "srs": "Projecció",
     "supportedSRS": "Projeccions",

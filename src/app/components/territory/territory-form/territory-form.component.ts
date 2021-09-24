@@ -157,7 +157,7 @@ export class TerritoryFormComponent implements OnInit {
       this.activatedRoute.params.subscribe(params => {
         this.territoryID = +params.id;
         if(params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
-      
+          
         if (this.territoryID !== -1 || this.duplicateID != -1) {
           let idToGet = this.territoryID !== -1? this.territoryID: this.duplicateID  
           this.territoryService.get(idToGet).subscribe(
@@ -175,6 +175,7 @@ export class TerritoryFormComponent implements OnInit {
                 this.currentTypeBottom=currentTerritoryType.bottomType;
                 this.currentTypeTop=currentTerritoryType.topType;
               }
+              this.defineAppliesToChildrenColumns(this.currentTypeTop ,this.currentTypeBottom);
               this.territoryForm.patchValue({
                 code: this.territoryToEdit.code,
                 territorialAuthorityAddress: this.territoryToEdit.territorialAuthorityAddress,
@@ -352,13 +353,13 @@ export class TerritoryFormComponent implements OnInit {
       territorialAuthorityLogo: new FormControl(null),
       groupType: new FormControl(null),
       type: new FormControl(null),
-      extensionX0: new FormControl(null),
-      extensionX1: new FormControl(null),
-      extensionY0: new FormControl(null),
-      extensionY1: new FormControl(null),
+      extensionX0: new FormControl(null, [Validators.required]),
+      extensionX1: new FormControl(null, [Validators.required]),
+      extensionY0: new FormControl(null, [Validators.required]),
+      extensionY1: new FormControl(null, [Validators.required]),
       extent: new FormControl(null),
       note: new FormControl(null),
-      blocked: new FormControl(null),
+      blocked: new FormControl(false),
       defaultZoomLevel: new FormControl(null),
       centerPointX:  new FormControl(null),
       centerPointY:  new FormControl(null),
@@ -1302,7 +1303,7 @@ export class TerritoryFormComponent implements OnInit {
           this.terrritoryObj.territorialAuthorityAddress = this.territoryForm.value.territorialAuthorityAddress,
           this.terrritoryObj.territorialAuthorityLogo = this.territoryForm.value.territorialAuthorityLogo,
           this.terrritoryObj.type = territoryType,
-          this.terrritoryObj.groupType= this.territoryGroups[0];
+          // this.terrritoryObj.groupType= this.territoryGroups[0];
           this.terrritoryObj.extent = this.territoryForm.value.extent,
           this.terrritoryObj.note = this.territoryForm.value.note,
           this.terrritoryObj.blocked = this.territoryForm.value.blocked,
