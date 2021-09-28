@@ -237,6 +237,7 @@
     "defaultStyle": "Estilo por defecto"
   },
   "layersPermitsEntity": {
+    "applications": "Aplicaciones",
     "generalData": "Datos Generales",
     "layersPermits": "Permisos sobre las capas",
     "name": "Nombre",
@@ -251,6 +252,7 @@
   },
   "treesEntity": {
     "generalData": "Datos Generales",
+    "serviceName":"Servicio",
     "trees": "Árboles",
     "name": "Nombre",
     "status": "Estado",
@@ -484,7 +486,8 @@
     "Cartography table (WFS)": "Edición",
     "Thematic": "Temático",
     "Extraction (FME)" :"Extracción FME",
-    "Basic": "General"
+    "Basic": "General",
+    "url": "Url"
   },
   "tasksQueryEntity": {
     "generalData": "Datos Generales",

@@ -543,7 +543,7 @@ export class ServiceFormComponent implements OnInit {
         let finalCartographies = [];
         let cartographies= data['_embedded']['cartographies'];
         this.getCapabilitiesLayers.forEach(capabilityLayer => {
-          let index = cartographies.findIndex(element => element.name == capabilityLayer.name && !element.alreadySearched);
+          let index = cartographies.findIndex(element => element.layers && capabilityLayer.layers && element.layers.join() == capabilityLayer.layers.join() && !element.alreadySearched);
           if( index != -1){
             if(cartographies[index].blocked){
               cartographies[index].status="notAvailable";

@@ -237,6 +237,7 @@
     "defaultStyle": "Estil per defecte"
   },
   "layersPermitsEntity": {
+    "applications":"Aplicacions",
     "generalData": "Dades Generals",
     "layersPermits": "Permisos sobre les capes",
     "name": "Nom",
@@ -251,6 +252,7 @@
   },
   "treesEntity": {
     "generalData": "Dades Generals",
+    "serviceName":"Servei",
     "trees": "Arbres",
     "name": "Nom",
     "status": "Estat",
@@ -487,7 +489,8 @@
     "Location view": "Vista de cerca",
     "Thematic": "Temàtic",
     "Extraction (FME)" :"Extracció FME",
-    "Basic": "General"
+    "Basic": "General",
+    "url": "Url"
   },
   "tasksQueryEntity": {
     "generalData": "Dades Generals",

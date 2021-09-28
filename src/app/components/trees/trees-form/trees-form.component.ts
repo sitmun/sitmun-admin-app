@@ -145,7 +145,8 @@ export class TreesFormComponent implements OnInit {
     this.columnDefsCartographies = [
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('treesEntity.name','name')
+      this.utils.getNonEditableColumnDef('treesEntity.name','name'),
+      this.utils.getNonEditableColumnDef('treesEntity.serviceName','serviceName')
     ];
 
   }

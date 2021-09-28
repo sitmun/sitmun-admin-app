@@ -201,7 +201,7 @@
                   <app-data-grid [changeHeightButton]="true" [allNewElements]="applicationID == -1"  [columnDefs]="columnDefsBackgrounds" [themeGrid]='themeGrid' [getAll]='getAllBackgrounds' 
                   [eventAddItemsSubscription]='addElementsEventBackground.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventBackground.asObservable()' 
                   [eventRefreshSubscription]='dataUpdatedEventBackground.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true
-                   [hideDuplicateButton]=true defaultColumnSorting="backgroundName" (getAllRows)="getAllRowsBackgrounds($event)" [actionButton]=true (add)="openBackgroundDialog($event)"  > </app-data-grid>
+                   [hideDuplicateButton]=true defaultColumnSorting="order" (getAllRows)="getAllRowsBackgrounds($event)" [actionButton]=true (add)="openBackgroundDialog($event)"  > </app-data-grid>
               </div>
           </ng-template>
           </mat-expansion-panel>

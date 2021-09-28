@@ -74,10 +74,10 @@ export class LayersPermitsComponent implements OnInit {
 
   getAllLayersPermits = () => {
     let params2: HalParam[] = [];
-    let param: HalParam = { key: 'type', value: 'F' }
-    params2.push(param);
+    let param: HalParam[]= [{ key: 'type', value: 'I' }, { key: 'type', value: 'C' }, { key: 'type', value: 'M' }]
+    params2.push(...param);
     let query: HalOptions = { params: params2 };
-    return this.cartographyGroupService.getAll();
+    return this.cartographyGroupService.getAll(query);
   }
 
   newData(id: any) {

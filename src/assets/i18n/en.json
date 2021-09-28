@@ -237,6 +237,7 @@
     "defaultStyle": "Default style"
   },
   "layersPermitsEntity": {
+    "applications":"Applications",
     "generalData": "General Data",
     "layersPermits": "Permissions on layers",
     "name": "Name",
@@ -251,6 +252,7 @@
   },
   "treesEntity": {
     "generalData": "General Data",
+    "serviceName":"Service",
     "trees": "Trees",
     "name": "Name",
     "status": "Status",
@@ -487,7 +489,8 @@
     "Location view": "Vista de búsqueda",
     "Thematic": "Thematic",
     "Extraction (FME)" :"Extraction FME",
-    "Basic": "General"
+    "Basic": "General",
+    "url": "Url"
   },
   "tasksQueryEntity": {
     "generalData": "General Data",

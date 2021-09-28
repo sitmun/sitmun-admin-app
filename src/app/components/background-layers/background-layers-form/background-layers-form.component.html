@@ -1,54 +1,59 @@
-<div class="titleDiv" >
-    <h4><mat-icon aria-hidden="false"  svgIcon="menu_capes_fons"></mat-icon> {{ "backgroundEntity.backgroundLayers" | translate }}-{{(backgroundID==-1?"new":"edit") | translate}}</h4>
-    <span class="divider"></span>
+<div class="titleDiv">
+  <h4>
+    <mat-icon aria-hidden="false" svgIcon="menu_capes_fons"></mat-icon> {{ "backgroundEntity.backgroundLayers" |
+    translate }}-{{(backgroundID==-1?"new":"edit") | translate}}
+  </h4>
+  <span class="divider"></span>
 </div>
 
-  <div class="formDiv">
-    <form [formGroup]='backgroundForm' #f="ngForm" 	(ngSubmit)="onSaveButtonClicked()"> 
-        <div class="formHeader">
-          <h5> {{'backgroundEntity.generalData' | translate}} </h5>
-          <button   mat-flat-button  class="saveButton" >
-            <mat-icon fontSet="material-icons-round"  > save </mat-icon>
-            {{ "save" | translate }}
-          </button>
-          <button type="button" (click)="utils.navigateBack()"  mat-flat-button class="returnButton"  >
-            <mat-icon fontSet="material-icons-round"> arrow_back </mat-icon>
-            {{ "return" | translate }}
-          </button>
-        </div>
-        <span class="divider"></span>
+<div class="formDiv">
+  <form [formGroup]='backgroundForm' #f="ngForm" (ngSubmit)="onSaveButtonClicked()">
+    <div class="formHeader">
+      <h5> {{'backgroundEntity.generalData' | translate}} </h5>
+      <button mat-flat-button class="saveButton">
+        <mat-icon fontSet="material-icons-round"> save </mat-icon>
+        {{ "save" | translate }}
+      </button>
+      <button type="button" (click)="utils.navigateBack()" mat-flat-button class="returnButton">
+        <mat-icon fontSet="material-icons-round"> arrow_back </mat-icon>
+        {{ "return" | translate }}
+      </button>
+    </div>
+    <span class="divider"></span>
 
-        <div class="rowFormDiv">     
-          <div class="colFormDiv" >
-              <label class="formLabel requiredInput">
-                {{'backgroundEntity.name' | translate}}
-              </label>
-              <mat-form-field appearance="outline">
-                <input matInput type="text" formControlName="name" required>
-                <mat-icon matSuffix class="iconTranslate" (click)="onNameTranslationButtonClicked()" svgIcon="ic_translate"></mat-icon>
-              </mat-form-field>
-            </div>
+    <div class="rowFormDiv">
+      <div class="colFormDiv">
+        <label class="formLabel requiredInput">
+          {{'backgroundEntity.name' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="name" required>
+          <mat-icon matSuffix class="iconTranslate" (click)="onNameTranslationButtonClicked()" svgIcon="ic_translate">
+          </mat-icon>
+        </mat-form-field>
+      </div>
 
-            <div class="colFormDiv" >
-              <label class="formLabel">
-                {{'backgroundEntity.description' | translate}}
-              </label>
-              <mat-form-field appearance="outline">
-                <textarea matInput type="text" formControlName="description"> </textarea>
-                <mat-icon matSuffix class="iconTranslate" (click)="onDescriptionTranslationButtonClicked()" svgIcon="ic_translate"></mat-icon>
-              </mat-form-field>
-            </div>
+      <div class="colFormDiv">
+        <label class="formLabel">
+          {{'backgroundEntity.description' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <textarea matInput type="text" formControlName="description"> </textarea>
+          <mat-icon matSuffix class="iconTranslate" (click)="onDescriptionTranslationButtonClicked()"
+            svgIcon="ic_translate"></mat-icon>
+        </mat-form-field>
+      </div>
 
-            <div class="colFormDiv" >
-              <label class="formLabel">
-                {{'backgroundEntity.image' | translate}}
-              </label>
-              <mat-form-field appearance="outline">
-                <input matInput type="text" formControlName="image">
-              </mat-form-field>
-            </div>
+      <div class="colFormDiv">
+        <label class="formLabel">
+          {{'backgroundEntity.image' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="image">
+        </mat-form-field>
+      </div>
 
-            <!-- <div class="colFormDiv" >
+      <!-- <div class="colFormDiv" >
               <label class="formLabel">
                 {{'backgroundEntity.cartographyGroup' | translate}}
               </label>
@@ -61,15 +66,15 @@
               </mat-form-field>
             </div> -->
 
-            <div class="colFormDiv" >
-              <label class="formLabel">
-                {{'backgroundEntity.active' | translate}}
-              </label>
-              <mat-checkbox formControlName="active"> </mat-checkbox>
-            </div>
-
+      <div class="colFormDiv">
+        <label class="formLabel">
+          {{'backgroundEntity.active' | translate}}
+        </label>
+        <mat-checkbox formControlName="active"> </mat-checkbox>
       </div>
-    </form>
+
+    </div>
+  </form>
 </div>
 
 <div class="tableDiv" *ngIf="dataLoaded">
@@ -85,11 +90,14 @@
 
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [allNewElements]="backgroundID == -1" [columnDefs]="columnDefsCartographies" [themeGrid]='themeGrid' [getAll]='getAllCartographies'
-            [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true [hideDuplicateButton]=true defaultColumnSorting="name"
-            [eventAddItemsSubscription]='addElementsEventCartographies.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventCartographies.asObservable()' 
-            [eventRefreshSubscription]='dataUpdatedEventCartographies.asObservable()' [actionButton]=true (getAllRows)="getAllRowsCartographies($event)" 
-            (add)="openCartographyDialog($event)" > </app-data-grid>
+          <app-data-grid [changeHeightButton]="true" [allNewElements]="backgroundID == -1"
+            [columnDefs]="columnDefsCartographies" [themeGrid]='themeGrid' [getAll]='getAllCartographies'
+            [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true
+            [hideDuplicateButton]=true defaultColumnSorting="name"
+            [eventAddItemsSubscription]='addElementsEventCartographies.asObservable()'
+            [eventGetAllRowsSubscription]='getAllElementsEventCartographies.asObservable()'
+            [eventRefreshSubscription]='dataUpdatedEventCartographies.asObservable()' [actionButton]=true
+            (getAllRows)="getAllRowsCartographies($event)" (add)="openCartographyDialog($event)"> </app-data-grid>
         </div>
       </ng-template>
     </mat-expansion-panel>
@@ -104,11 +112,37 @@
 
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [allNewElements]="backgroundID == -1" [columnDefs]="columnDefsRoles" [themeGrid]='themeGrid' [getAll]='getAllRoles' defaultColumnSorting="name"
-            [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
-            [eventAddItemsSubscription]='addElementsEventRoles.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventRoles.asObservable()' 
-            [eventRefreshSubscription]='dataUpdatedEventRoles.asObservable()' [actionButton]=true (getAllRows)="getAllRowsRoles($event)" 
-            (add)="openRolesDialog($event)" > </app-data-grid>
+          <app-data-grid [changeHeightButton]="true" [allNewElements]="backgroundID == -1"
+            [columnDefs]="columnDefsRoles" [themeGrid]='themeGrid' [getAll]='getAllRoles' defaultColumnSorting="name"
+            [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true
+            [hideDuplicateButton]=true [eventAddItemsSubscription]='addElementsEventRoles.asObservable()'
+            [eventGetAllRowsSubscription]='getAllElementsEventRoles.asObservable()'
+            [eventRefreshSubscription]='dataUpdatedEventRoles.asObservable()' [actionButton]=true
+            (getAllRows)="getAllRowsRoles($event)" (add)="openRolesDialog($event)"> </app-data-grid>
+        </div>
+      </ng-template>
+
+    </mat-expansion-panel>
+
+      <!-- Applications table -->
+
+      <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+        <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+          <mat-panel-title>
+            {{ "layersPermitsEntity.applications" | translate }}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+      <ng-template matExpansionPanelContent>
+        <div class="appDataGridEditDiv">
+          <app-data-grid [changeHeightButton]="true" [allNewElements]="applicationID == -1"
+            [columnDefs]="columnDefsApplications" [themeGrid]='themeGrid' [getAll]='getAllApplications'
+            [eventAddItemsSubscription]='addElementsEventApplications.asObservable()'
+            [eventGetAllRowsSubscription]='getAllElementsEventApplications.asObservable()'
+            [eventRefreshSubscription]='dataUpdatedEventApplications.asObservable()' [discardChangesButton]=true
+            [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
+            defaultColumnSorting="order" (getAllRows)="getAllRowsApplications($event)" [actionButton]=true
+            (add)="openApplicationsDialog($event)"> </app-data-grid>
         </div>
       </ng-template>
 

@@ -3,7 +3,7 @@ import { RouterModule } from '@angular/router';
 import { MaterialModule } from '../../../material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { BackgroundService,CartographyGroupService, CartographyService, CodeListService,RoleService,TranslationService,ResourceService,ExternalService } from 'dist/sitmun-frontend-core/';
+import { BackgroundService,CartographyGroupService, CartographyService, CodeListService,RoleService,TranslationService,ResourceService,ExternalService, ApplicationService, ApplicationBackgroundService } from 'dist/sitmun-frontend-core/';
 
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { HttpClientModule } from '@angular/common/http';
@@ -19,6 +19,8 @@ describe('BackgroundLayersFormComponent', () => {
   let codeListService: CodeListService;
   let cartographyGroupService: CartographyGroupService;
   let backgroundService: BackgroundService;
+  let applicationService: ApplicationService;
+  let applicationBackgroundService: ApplicationBackgroundService;
   let translationService: TranslationService;
   let resourceService: ResourceService;
   let externalService: ExternalService;
@@ -28,7 +30,7 @@ describe('BackgroundLayersFormComponent', () => {
       declarations: [ BackgroundLayersFormComponent ],
       imports: [HttpClientTestingModule, RouterModule.forRoot([]), HttpClientModule,
       SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
-      providers: [BackgroundService, RoleService, CartographyService, CodeListService,CartographyGroupService,TranslationService,ResourceService,ExternalService,
+      providers: [BackgroundService, RoleService, ApplicationBackgroundService, ApplicationService, CartographyService, CodeListService,CartographyGroupService,TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();
@@ -42,6 +44,8 @@ describe('BackgroundLayersFormComponent', () => {
     codeListService= TestBed.inject(CodeListService);
     cartographyGroupService= TestBed.inject(CartographyGroupService);
     backgroundService= TestBed.inject(BackgroundService);
+    applicationService= TestBed.inject(ApplicationService);
+    applicationBackgroundService= TestBed.inject(ApplicationBackgroundService);
     translationService= TestBed.inject(TranslationService);
     resourceService= TestBed.inject(ResourceService);
     externalService= TestBed.inject(ExternalService);
@@ -71,6 +75,14 @@ describe('BackgroundLayersFormComponent', () => {
 
   it('should instantiate backgroundService', () => {
     expect(backgroundService).toBeTruthy();
+  });
+
+  it('should instantiate applicationService', () => {
+    expect(applicationService).toBeTruthy();
+  });
+
+  it('should instantiate applicationBackgroundService', () => {
+    expect(applicationBackgroundService).toBeTruthy();
   });
 
   it('should instantiate translationService', () => {
