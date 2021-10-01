@@ -12,6 +12,11 @@
   "edit": "Edita",
   "validate": "Valida",
   "update": "Actualiza",
+  "ALL": "Todos",
+  "loadGroupLayers": "Cargar desde servicio",
+  "UNDEFINED":"Indefinido",
+  "YES": "Sí",
+  "NO": "No",
   "save": "Guarda",
   "close": "Cerrar",
   "redo": "Rehacer",
@@ -264,7 +269,8 @@
     "datasetURL": "URL dataset",
     "description":"Descripción",
     "configuration" : "Configuración",
-    "image": "Imagen"
+    "image": "Imagen",
+    "services":"Servicios"
   },
   "taskGroupEntity": {
     "generalData": "Datos Generales",

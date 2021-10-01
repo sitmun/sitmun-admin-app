@@ -52,16 +52,47 @@
     </div>
   </form>
 </div>
+<div class="tableDiv" *ngIf=" dataLoaded">
+<mat-accordion multi *ngIf="dataLoaded">
+
+  <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
+    <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+      <mat-panel-title>
+        {{ "layersPermitsEntity.applications" | translate }}
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+  <ng-template matExpansionPanelContent>
+    <div class="appDataGridEditDiv">
+      <app-data-grid [changeHeightButton]="true" [allNewElements]="treeID == -1"
+        [columnDefs]="columnDefsApplication" [themeGrid]='themeGrid' [getAll]='getAllApplications'
+        [eventAddItemsSubscription]='addElementsEventApplication.asObservable()'
+        [eventGetAllRowsSubscription]='getAllElementsEventApplication.asObservable()'
+        [eventRefreshSubscription]='dataUpdatedEventApplication.asObservable()' [discardChangesButton]=true
+        [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
+        defaultColumnSorting="order" (getAllRows)="getAllRowsApplication($event)" [actionButton]=true
+        (add)="openApplicationsDialog($event)"> </app-data-grid>
+    </div>
+  </ng-template>
+
+</mat-expansion-panel>
+
+
+</mat-accordion>
+
+</div>
+
+
 <div class="formDiv">
   <div class="formHeader">
     <h5> {{'treesEntity.configuration' | translate}} </h5>
   </div>
   <span class="divider"></span>
   <div class="formDivTreeLeft" *ngIf="dataLoaded">
-    <app-data-tree [getAll]='getAllTreeNodes' (emitNode)="nodeReceived($event)" (createNode)="createNode($event)"
-      (createFolder)="createFolder($event)" [eventNodeUpdatedSubscription]='sendNodeUpdated.asObservable()'
+    <app-data-tree [getAll]='getAllTreeNodes' (emitNode)="nodeReceived($event)" (createNode)="createNode($event)" (loadButtonClicked)="loadGroupLayersButtonClicked($event)"
+      (createFolder)="createFolder($event)" [eventNodeUpdatedSubscription]='sendNodeUpdated.asObservable()' [loadDataButton]="true"
       [eventGetAllRowsSubscription]='getAllElementsNodes.asObservable()'   [eventRefreshSubscription]='refreshTreeEvent.asObservable()'
-      [eventCreateNodeSubscription]='createNodeEvent.asObservable()' [allNewElements]='treeID == -1' (emitAllNodes)="getAllNodes($event)">
+      [eventCreateNodeSubscription]='createNodeEvent.asObservable()' [allNewElements]='treeID == -1' (emitAllNodes)="receiveAllNodes($event)">
       loading</app-data-tree> 
   </div>
   <div class="formDivTreeRight">
@@ -111,7 +142,7 @@
             {{'treesEntity.cartography' | translate}}
           </label>
           <mat-form-field appearance="outline">
-            <input matInput type="text" [readonly]="true" formControlName="cartography">
+            <input matInput type="text" [readonly]="true" formControlName="cartographyName">
           </mat-form-field>
         </div>
         <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
@@ -137,6 +168,53 @@
           </label>
           <mat-checkbox formControlName="radio"> </mat-checkbox>
         </div>
+
+      </div>
+      <div class="rowFormDiv">
+        <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
+          <label class="formLabel">
+            {{'layersEntity.applyFilterToGetMap' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <mat-select matInput formControlName="filterGetFeatureInfo" class="form-control">
+              <mat-option [value]="option.value" *ngFor="let option of filterOptions">
+                {{ option.description | translate}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field> 
+                    
+        </div>
+
+        <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
+          <label class="formLabel">
+            {{'layersEntity.filterInfoByMunicipality' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+              <mat-select matInput formControlName="filterGetMap" class="form-control">
+                <mat-option [value]="option.value" *ngFor="let option of filterOptions">
+                  {{ option.description | translate}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field> 
+                    
+        </div>
+
+      </div>
+
+      <div class="rowFormDiv">
+        <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
+          <label class="formLabel" >
+            {{'layersEntity.filterSpatialSeleciontByMunicipality' | translate}}
+          </label>
+            <mat-form-field appearance="outline">
+              <mat-select matInput formControlName="filterSelectable" class="form-control">
+                <mat-option [value]="option.value" *ngFor="let option of filterOptions">
+                  {{ option.description | translate}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field> 
+        </div>
+                    
 
       </div>
 

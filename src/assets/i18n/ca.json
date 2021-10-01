@@ -12,6 +12,11 @@
   "edit": "Edita",
   "validate": "Valida",
   "update": "Actualitza",
+  "ALL": "Tots",
+  "loadGroupLayers": "Carregar des de servei",
+  "UNDEFINED":"Indefinit",
+  "YES": "Sí",
+  "NO": "No",
   "save": "Desa",
   "close": "Tancar",
   "redo": "Refer",
@@ -264,7 +269,8 @@
     "datasetURL": "URL dataset",
     "description":"Descripció",
     "configuration" : "Configuració",
-    "image": "Imatge"
+    "image": "Imatge",
+    "services":"Serveis"
   },
   "taskGroupEntity": {
     "generalData": "Dades Generals",
@@ -368,7 +374,7 @@
     "tasks": "Tasques",
     "username": "Nom d'usuari",
     "territory": "Territori",
-    "territories": "Territories",
+    "territories": "Territoris",
     "layers": "Capes",
     "code": "Codi",
     "groupTask": "Grup tasca",

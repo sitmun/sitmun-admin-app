@@ -501,20 +501,20 @@ export class TerritoryFormComponent implements OnInit {
                 territory: this.territoryToEdit,
                 user: userComplete,
               }
-              let index;
-              if (userConf.roleChildren == null) {
-              index = data.findIndex(element => element.roleId === item.role.id && element.userId === item.user.id &&
-                 element.appliesToChildrenTerritories === item.appliesToChildrenTerritories && !element.new)
-              }
-              else {
-                index = data.findIndex(element => element.roleId === item.role.id && element.userId === item.user.id && element.appliesToChildrenTerritories && !element.new)
-              }
-              if (index === -1) {
+              // let index;
+              // if (userConf.roleChildren == null) {
+              // index = data.findIndex(element => element.roleId === item.role.id && element.userId === item.user.id &&
+              //    element.appliesToChildrenTerritories === item.appliesToChildrenTerritories && !element.new)
+              // }
+              // else {
+              //   index = data.findIndex(element => element.roleId === item.role.id && element.userId === item.user.id && element.appliesToChildrenTerritories && !element.new)
+              // }
+              // if (index === -1) {
                 userConf.new = false;
                 // usersConfToCreate.push(item)
                 promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
 
-              }
+              // }
               resolve(true);
             })
 
@@ -532,19 +532,19 @@ export class TerritoryFormComponent implements OnInit {
           }
 
           console.log(item);
-          let index;
-          if (userConf.roleChildren == null) {
-          index = data.findIndex(element => element.roleId === item.role.id && element.userId === item.user.id &&
-             element.appliesToChildrenTerritories === item.appliesToChildrenTerritories && !element.new)
-          }
-          else {
-            index = data.findIndex(element => element.roleId === item.role.id && element.userId === item.user.id && element.appliesToChildrenTerritories && !element.new)
-          }
-          if (index === -1) {
+          // let index;
+          // if (userConf.roleChildren == null) {
+          // index = data.findIndex(element => element.roleId === item.role.id && element.userId === item.user.id &&
+          //    element.appliesToChildrenTerritories === item.appliesToChildrenTerritories && !element.new)
+          // }
+          // else {
+          //   index = data.findIndex(element => element.roleId === item.role.id && element.userId === item.user.id && element.appliesToChildrenTerritories && !element.new)
+          // }
+          // if (index === -1) {
             userConf.new = false;
             promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
 
-          }
+          // }
         }
 
       }
@@ -626,9 +626,12 @@ export class TerritoryFormComponent implements OnInit {
     };
 
 
-      Promise.all([...promises,...promisesDuplicate]).then(() => {
+
+    Promise.all([...promises,...promisesDuplicate]).then(() => {
+      Promise.all(promises).then(() => {
         this.dataUpdatedEventPermits.next(true);
-      });
+      })
+    });
 
     
 

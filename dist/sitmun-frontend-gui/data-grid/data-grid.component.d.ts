@@ -29,6 +29,7 @@ export declare class DataGridComponent implements OnInit {
     undoNoChanges: boolean;
     gridOptions: any;
     someStatusHasChangedToDelete: boolean;
+    domLayout: any;
     eventRefreshSubscription: Observable<boolean>;
     eventGetSelectedRowsSubscription: Observable<boolean>;
     eventGetAllRowsSubscription: Observable<string>;

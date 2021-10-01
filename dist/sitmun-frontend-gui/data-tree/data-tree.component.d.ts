@@ -80,10 +80,12 @@ export declare class DataTreeComponent {
     createFolder: EventEmitter<any>;
     emitNode: EventEmitter<any>;
     emitAllNodes: EventEmitter<any>;
+    loadButtonClicked: EventEmitter<any>;
     eventNodeUpdatedSubscription: Observable<any>;
     eventCreateNodeSubscription: Observable<any>;
     eventGetAllRowsSubscription: Observable<any>;
     eventRefreshSubscription: Observable<any>;
+    loadDataButton: Observable<any>;
     private _eventNodeUpdatedSubscription;
     private _eventCreateNodeSubscription;
     private _eventGetAllRowsSubscription;
@@ -111,6 +113,7 @@ export declare class DataTreeComponent {
     nestedNodeMap: Map<FileNode, FileFlatNode>;
     constructor(database: FileDatabase);
     ngOnInit(): void;
+    loadDataButtonClicked(): void;
     getElements(): void;
     transformer: (node: FileNode, level: number) => FileFlatNode;
     private _getLevel;
@@ -138,7 +141,7 @@ export declare class DataTreeComponent {
     createNewFolder(newFolder: any): void;
     createNewNode(newNode: any): void;
     onButtonClicked(id: any, button: string): void;
-    emitAllRows(): void;
+    emitAllRows(event: any): void;
     getAllChildren(arr: any): any[];
     deleteChildren(arr: any): void;
 }
