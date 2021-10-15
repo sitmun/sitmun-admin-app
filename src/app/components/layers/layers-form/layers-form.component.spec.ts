@@ -4,7 +4,7 @@ import { LayersFormComponent } from './layers-form.component';
 import { RouterModule } from '@angular/router';
 import {  CartographyService, ServiceService, TerritoryTypeService, ConnectionService, TreeNodeService,
    TerritoryService, CartographyGroupService, CartographyAvailabilityService,CartographyParameterService,TranslationService,
-   CodeListService,CartographyFilterService,ResourceService,ExternalService, CartographyStyleService, CartographySpatialSelectionParameterService  } from  'dist/sitmun-frontend-core/';
+   CodeListService,CartographyFilterService, GetInfoService, ResourceService,ExternalService, CartographyStyleService, CartographySpatialSelectionParameterService  } from  'dist/sitmun-frontend-core/';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -23,6 +23,7 @@ describe('LayersFormComponent', () => {
   let territoryTypeService: TerritoryTypeService;
   let treeNodeService: TreeNodeService;
   let territoryService: TerritoryService;
+  let getInfoService: GetInfoService;
   let cartographyAvailabilityService: CartographyAvailabilityService;
   let cartographyParameterService: CartographyParameterService;
   let cartographySpatialSelectionParameterService: CartographySpatialSelectionParameterService;
@@ -38,7 +39,7 @@ describe('LayersFormComponent', () => {
       imports: [ RouterModule.forRoot([]), HttpClientTestingModule, SitmunFrontendGuiModule, 
       RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
       providers: [CartographyService, ServiceService, ConnectionService, TerritoryTypeService, 
-        TreeNodeService, CartographyStyleService, TerritoryService, CartographyGroupService, CartographyAvailabilityService, 
+        TreeNodeService, GetInfoService, CartographyStyleService, TerritoryService, CartographyGroupService, CartographyAvailabilityService, 
         CartographyParameterService, CartographySpatialSelectionParameterService, CodeListService, CartographyFilterService, TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
@@ -56,6 +57,7 @@ describe('LayersFormComponent', () => {
     territoryTypeService= TestBed.inject(TerritoryTypeService);
     treeNodeService= TestBed.inject(TreeNodeService);
     territoryService= TestBed.inject(TerritoryService);
+    getInfoService= TestBed.inject(GetInfoService);
     cartographyAvailabilityService= TestBed.inject(CartographyAvailabilityService);
     cartographyParameterService= TestBed.inject(CartographyParameterService);
     cartographySpatialSelectionParameterService= TestBed.inject(CartographySpatialSelectionParameterService);
@@ -102,6 +104,10 @@ describe('LayersFormComponent', () => {
 
   it('should instantiate territoryService', () => {
     expect(territoryService).toBeTruthy();
+  });
+
+  it('should instantiate getInfoService', () => {
+    expect(getInfoService).toBeTruthy();
   });
 
   it('should instantiate cartographyAvailabilityService', () => {

@@ -159,6 +159,9 @@ export class BackgroundLayersFormComponent implements OnInit {
 
               }
               var urlReq = `${this.backgroundToEdit._links.cartographyGroup.href}`
+              var url = new URL(urlReq.split("{")[0]);
+              url.searchParams.append("projection", "view")
+              urlReq = url.toString();
               this.http.get(urlReq)
                 .pipe(map(data => {
                   console.log(data);
@@ -215,7 +218,7 @@ export class BackgroundLayersFormComponent implements OnInit {
     this.columnDefsApplications = [
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('layersPermitsEntity.name', 'name'),
+      this.utils.getNonEditableColumnDef('layersPermitsEntity.name', 'applicationName'),
       this.utils.getEditableColumnDef('applicationEntity.order', 'order'),
       this.utils.getStatusColumnDef()
     ];
@@ -409,8 +412,8 @@ export class BackgroundLayersFormComponent implements OnInit {
       return of(aux);
     }
 
-    var urlReq = `${this.backgroundToEdit._links.backgrounds.href}`
-    if (this.backgroundToEdit._links.backgrounds.templated) {
+    var urlReq = `${this.backgroundToEdit._links.applications.href}`
+    if (this.backgroundToEdit._links.applications.templated) {
       var url = new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection", "view")
       urlReq = url.toString();
@@ -654,6 +657,9 @@ export class BackgroundLayersFormComponent implements OnInit {
     backgroundObj.cartographyGroup = cartographyGroup;
     backgroundObj.active = this.backgroundForm.value.active;
     backgroundObj._links = this.backgroundForm.value._links;
+    if(backgroundObj._links && backgroundObj._links.cartographyGroup && backgroundObj._links.cartographyGroup.href){
+      backgroundObj._links.cartographyGroup.href = backgroundObj._links.cartographyGroup.href.split("{")[0];
+    }
 
     this.backgroundService.save(backgroundObj)
       .subscribe(async resp => {

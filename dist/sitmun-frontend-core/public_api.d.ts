@@ -45,6 +45,8 @@ export * from './service/service-parameter.model';
 export * from './service/service-parameter.service';
 export * from './capabilities/capabilitie.model';
 export * from './capabilities/capabilities.service';
+export * from './getInfo/info.model';
+export * from './getInfo/getInfo.service';
 export * from './cartography/cartography.model';
 export * from './cartography/cartography.service';
 export * from './cartography/cartography-group.model';
