@@ -22,6 +22,8 @@ import * as xml2js from 'xml2js';
 })
 export class ServiceFormComponent implements OnInit {
 
+  hidePassword = true;
+
   //Translations
   translationMap: Map<string, Translation>;
 
@@ -42,6 +44,7 @@ export class ServiceFormComponent implements OnInit {
   projections: Array<string>;
   serviceTypes: Array<any> = [];
   requestTypes: Array<any> = [];
+  authenticationModes: Array<any> = [];
   serviceCapabilitiesData:any={};
   getCapabilitiesLayers=[];
   //Grids
@@ -103,6 +106,15 @@ export class ServiceFormComponent implements OnInit {
       );
     }));
 
+    promises.push(new Promise((resolve, reject) => {
+      this.utils.getCodeListValues('service.authenticationMode').subscribe(
+        resp => {
+          this.authenticationModes.push(...resp);
+          resolve(true);
+        }
+      );
+    }));
+
 
     promises.push(new Promise((resolve, reject) => {
       this.utils.getCodeListValues('serviceParameter.type').subscribe(
@@ -149,6 +161,10 @@ export class ServiceFormComponent implements OnInit {
                   name: this.serviceToEdit.name,
                   serviceURL: this.serviceToEdit.serviceURL,
                   getInformationURL: this.serviceToEdit.getInformationURL,
+                  user: this.serviceToEdit.user,
+                  password: this.serviceToEdit.password,
+                  passwordSet: this.serviceToEdit.passwordSet,
+                  authenticationMode: this.serviceToEdit.authenticationMode,
                   });
                 this.translationService.getAll()
                 .pipe(map((data: any[]) => data.filter(elem => elem.element == this.serviceID && elem.column == config.translationColumns.serviceDescription)
@@ -218,9 +234,12 @@ export class ServiceFormComponent implements OnInit {
 
     this.serviceForm = new FormGroup({
       id: new FormControl(null, []),
-      name: new FormControl(null, [
-        Validators.required,
-      ]),
+      name: new FormControl(null, [Validators.required,]),
+      user: new FormControl(null),
+      password: new FormControl(null),
+      passwordSet: new FormControl(null),
+      authenticationMode: new FormControl(null, [Validators.required,]),
+
       description: new FormControl(null,[]),
       type: new FormControl(null, [
         Validators.required,

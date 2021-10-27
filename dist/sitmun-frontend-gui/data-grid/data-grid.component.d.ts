@@ -36,6 +36,7 @@ export declare class DataGridComponent implements OnInit {
     eventSaveAgGridStateSubscription: Observable<boolean>;
     eventModifyStatusOfSelectedCells: Observable<string>;
     eventAddItemsSubscription: Observable<boolean>;
+    eventReplaceAllItemsSubscription: Observable<boolean>;
     frameworkComponents: any;
     components: any;
     columnDefs: any[];
@@ -97,6 +98,7 @@ export declare class DataGridComponent implements OnInit {
     quickSearch(): void;
     getElements(): void;
     setSize(): void;
+    replaceAllItems(newItems: any[]): void;
     addItems(newItems: any[]): void;
     private checkElementAllowedToAdd;
     changeHeight(value: any): void;

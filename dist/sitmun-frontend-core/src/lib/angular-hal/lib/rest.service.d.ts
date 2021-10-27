@@ -39,7 +39,7 @@ export declare class RestService<T extends Resource> {
     /** error handler */
     protected static handleError(error: any): Observable<never>;
     /** get all resources with optional options an subType params */
-    getAll(options?: HalOptions, subType?: SubTypeBuilder, embeddedName?: String): Observable<T[]>;
+    getAll(options?: HalOptions, subType?: SubTypeBuilder, embeddedName?: String, ignoreProjection?: boolean): Observable<T[]>;
     /** get resource from a given id */
     get(id: any): Observable<T>;
     /** get resource from self link */

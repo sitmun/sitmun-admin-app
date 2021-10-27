@@ -708,6 +708,11 @@
                     _this.addItems(items);
                 });
             }
+            if (this.eventReplaceAllItemsSubscription) {
+                this.eventReplaceAllItemsSubscription.subscribe(function (items) {
+                    _this.replaceAllItems(items);
+                });
+            }
         };
         /**
          * @return {?}
@@ -993,6 +998,14 @@
             if (usedWidth < availableWidth) {
                 grid.sizeColumnsToFit();
             }
+        };
+        /**
+         * @param {?} newItems
+         * @return {?}
+         */
+        DataGridComponent.prototype.replaceAllItems = function (newItems) {
+            this.rowData = [];
+            this.addItems(newItems);
         };
         /**
          * @param {?} newItems
@@ -1457,6 +1470,7 @@
         eventSaveAgGridStateSubscription: [{ type: core.Input }],
         eventModifyStatusOfSelectedCells: [{ type: core.Input }],
         eventAddItemsSubscription: [{ type: core.Input }],
+        eventReplaceAllItemsSubscription: [{ type: core.Input }],
         frameworkComponents: [{ type: core.Input }],
         components: [{ type: core.Input }],
         columnDefs: [{ type: core.Input }],
@@ -1558,6 +1572,8 @@
         DataGridComponent.prototype.eventModifyStatusOfSelectedCells;
         /** @type {?} */
         DataGridComponent.prototype.eventAddItemsSubscription;
+        /** @type {?} */
+        DataGridComponent.prototype.eventReplaceAllItemsSubscription;
         /** @type {?} */
         DataGridComponent.prototype.frameworkComponents;
         /** @type {?} */

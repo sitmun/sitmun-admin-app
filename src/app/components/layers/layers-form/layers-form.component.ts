@@ -24,6 +24,10 @@ export class LayersFormComponent implements OnInit {
   translationMap: Map<string, Translation>;
   translationsModified: boolean = false;
 
+  parametersPendingDelete = [];
+
+  disableLoadButton = true;
+
 
   //Form
   private parametersUrl: string;
@@ -113,7 +117,8 @@ export class LayersFormComponent implements OnInit {
   columnDefsCartographyGroupsDialog: any[];
   addElementsEventCartographyGroups: Subject<any[]> = new Subject<any[]>();
 
-  addElementsEventSpatialConfigurations: Subject<any[]> = new Subject<any[]>();
+  addElementsEventSpatialConfigurations: Subject<any> = new Subject<any>();
+  replaceAllElementsEventSpatialConfigurations: Subject<any> = new Subject<any>();
 
   public territorialFilterForm: FormGroup;
   addElementsTerritorialFilter: Subject<any[]> = new Subject<any[]>();
@@ -323,7 +328,7 @@ export class LayersFormComponent implements OnInit {
               let queryableLayers = null
               if (this.layerToEdit.queryableLayers != null) { queryableLayers = this.layerToEdit.queryableLayers.join(',') };
               let selectableLayers = null;
-              if (this.layerToEdit.selectableLayers != null) { selectableLayers = this.layerToEdit.selectableLayers.join(',') };
+              if (this.layerToEdit.selectableLayers != null && this.layerToEdit.selectableLayers != undefined) { selectableLayers = this.layerToEdit.selectableLayers.join(',') };
               this.parametersUrl = this.layerToEdit._links.parameters.href;
               this.layerForm.patchValue({
                 service: this.layerToEdit.serviceId,
@@ -417,6 +422,8 @@ export class LayersFormComponent implements OnInit {
                 this.layerForm.get('selectableLayers').disable();
               }
 
+              this.loadButtonDisabled();
+
               this.dataLoaded = true;
 
             },
@@ -424,7 +431,7 @@ export class LayersFormComponent implements OnInit {
 
             }
           );
-          //Get cartography parameters, we need to put on municipally filter for example
+
 
 
         }
@@ -570,21 +577,16 @@ export class LayersFormComponent implements OnInit {
     }
   }
 
-  // onMunicipalityFilterChange(value) {
-  //   if (value.checked) {
-  //     this.layerForm.get('applyFilterToGetMap').enable();
-  //   } else if ((!this.layerForm.value.applyFilterToGetFeatureInfo && !this.layerForm.value.applyFilterToSpatialSelection)) {
-  //     this.layerForm.get('applyFilterToGetMap').disable();
-  //   }
-  // }
 
   onSelectableFeatureEnabledChange(value) {
     if (value.checked) {
       this.layerForm.get('spatialSelectionService').enable();
       this.layerForm.get('selectableLayers').enable();
+      this.loadButtonDisabled();
     } else {
       this.layerForm.get('spatialSelectionService').disable();
       this.layerForm.get('selectableLayers').disable();
+      this.disableLoadButton = true;
     }
   }
 
@@ -681,6 +683,94 @@ export class LayersFormComponent implements OnInit {
       _links: new FormControl(null, []),
     })
   }
+
+  onLoadButtonClicked(): void {
+    try {
+
+      const dialogRef = this.dialog.open(DialogMessageComponent);
+      dialogRef.componentInstance.title = this.utils.getTranslate("caution");
+      dialogRef.componentInstance.message = this.utils.getTranslate("getInfoMessage");
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          let replaceAll = result.event === 'Accept';
+          let service = this.spatialConfigurationServices.find(element => element.id == this.layerForm.get('spatialSelectionService').value);
+          let layersName = this.layerForm.get('selectableLayers').value
+          if (service && service.serviceURL && layersName) {
+            let url: string = service.serviceURL;
+            if (!url.includes('request=DescribeFeatureType')) {
+              if (url[url.length - 1] != '?') { url += "?" }
+
+              url += `request=DescribeFeatureType%26service=WFS%26typeNames=${layersName}`
+            }
+            this.getInfoService.getInfo(url).subscribe(result => {
+              if (result.success) {
+                this.manageGetInfoResults(result.asJson, replaceAll);
+              }
+            }, error => {
+              console.log(error)
+            })
+          }
+
+
+        }
+      });
+
+
+
+    }
+    catch (err) {
+      this.utils.showErrorMessage(err)
+    };
+  }
+
+  manageGetInfoResults(results, replaceAll: boolean) {
+    let elementsToAdd = [];
+    let elements = []
+    let type = this.spatialSelectionParameterTypes.find(element => element.value == "SELECT")
+
+    if (results['xsd:schema']['xsd:element']) {
+      elements.push(results['xsd:schema']['xsd:element'])
+    }
+
+    if (results['xsd:schema'] && results['xsd:schema']['xsd:complexType'] && results['xsd:schema']['xsd:complexType']['xsd:complexContent']) {
+      let complexContent = results['xsd:schema']['xsd:complexType']['xsd:complexContent'];
+      if (complexContent['xsd:extension'] && complexContent['xsd:extension']['xsd:sequence'] && complexContent['xsd:extension']['xsd:sequence']['xsd:element']) {
+        elements.push(...complexContent['xsd:extension']['xsd:sequence']['xsd:element']);
+        if (elements) {
+          elements.forEach(element => {
+            let newParameter = {
+              name: element.name,
+              value: element.name,
+              type: type.value,
+              format: this.getFormatFromGetInfo(element.type),
+            }
+            elementsToAdd.push(newParameter);
+          });
+          if (elementsToAdd) {
+            if (replaceAll) {
+              this.getAllElementsEventSpatialConfigurations.next('pendingDelete');
+              this.replaceAllElementsEventSpatialConfigurations.next(elementsToAdd);
+            }
+            else {
+              this.addElementsEventSpatialConfigurations.next(elementsToAdd);
+            }
+
+          }
+        }
+      }
+    }
+  }
+
+  private getFormatFromGetInfo(format) {
+    if (format == 'xsd:int') { return 'N' }
+    else if (format == 'xsd:string') { return 'T' }
+    else if (format == 'xsd:img') { return 'I' }
+    else if (format == 'gml:PointPropertyType') { return 'N' }
+    else if (format == 'xsd:url') { return 'U' }
+    else if (format == 'xsd:date') { return 'F' }
+    else { return 'T' }
+  }
+
   // AG-GRID
 
 
@@ -707,6 +797,9 @@ export class LayersFormComponent implements OnInit {
   getAllRowsParameters(event, spatialSelection: boolean) {
     if (event.event == "save") {
       this.saveParameters(event.data, spatialSelection);
+    }
+    if (event.event == 'pendingDelete') {
+      this.parametersPendingDelete.push(...event.data)
     }
   }
 
@@ -750,9 +843,17 @@ export class LayersFormComponent implements OnInit {
       }
       if (parameter.status === 'pendingDelete' && parameter._links && !parameter.newItem) {
         promises.push(new Promise((resolve, reject) => { service.remove(parameter).subscribe((resp) => { resolve(true) }) }));
-
       }
     });
+
+    if (this.parametersPendingDelete.length > 0) {
+      this.parametersPendingDelete.forEach(parameter => {
+        if (parameter._links && !parameter.newItem) {
+          promises.push(new Promise((resolve, reject) => { service.remove(parameter).subscribe((resp) => { resolve(true) }) }));
+        }
+      });
+      this.parametersPendingDelete = [];
+    }
 
     Promise.all(promises).then(() => {
       event.next(true);
@@ -765,8 +866,16 @@ export class LayersFormComponent implements OnInit {
     let parametersToDuplicate = this.utils.duplicateParameter(data, 'name');
     if (spatialSelection) { this.addElementsEventSpatialConfigurations.next(parametersToDuplicate); }
     else { this.addElementsEventParameters.next(parametersToDuplicate); }
+  }
 
-
+  loadButtonDisabled() {
+    let formValues = this.layerForm.value;
+    if (formValues.selectableFeatureEnabled && formValues.spatialSelectionService && formValues.spatialSelectionService > 0 && formValues.selectableLayers) {
+      this.disableLoadButton = false;
+    }
+    else {
+      this.disableLoadButton = true;
+    }
 
   }
 

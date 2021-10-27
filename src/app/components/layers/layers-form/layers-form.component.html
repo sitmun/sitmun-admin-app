@@ -311,7 +311,7 @@
                 </label>
 
                 <mat-form-field appearance="outline">
-                  <mat-select matInput formControlName="spatialSelectionService" class="form-control">
+                  <mat-select matInput formControlName="spatialSelectionService" (selectionChange)="loadButtonDisabled()" class="form-control">
                     <mat-option [value]="service.id" *ngFor="let service of spatialConfigurationServices">
                       {{ service.name}}
                     </mat-option>
@@ -325,8 +325,15 @@
                   {{'layersEntity.layer' | translate}}
                 </label>
                 <mat-form-field appearance="outline">
-                  <input matInput type="text" formControlName="selectableLayers" required>
+                  <input matInput type="text" formControlName="selectableLayers" (keyup)="loadButtonDisabled()" required>
                 </mat-form-field>
+              </div>
+
+              <div class="ShortColFormDiv">
+                <button type="button" (click)="onLoadButtonClicked()" [disabled]="disableLoadButton"  mat-flat-button class="getInfoButton">
+                  <mat-icon fontSet="material-icons-round"> publish </mat-icon>
+                  {{ "layersEntity.load" | translate }}
+                </button>
               </div>
 
 
@@ -356,6 +363,7 @@
             [eventAddItemsSubscription]='addElementsEventSpatialConfigurations.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventSpatialConfigurations.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventSpatialConfigurations.asObservable()'
+            [eventReplaceAllItemsSubscription]='replaceAllElementsEventSpatialConfigurations.asObservable()'
             [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [newButton]=true
             (getAllRows)="getAllRowsParameters($event, true)" [actionButton]=true addFieldRestriction="name"
             (duplicate)='duplicateParameters($event, true)' (new)="openSpatialSelectionDialog($event)">

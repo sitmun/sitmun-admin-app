@@ -441,6 +441,11 @@ class DataGridComponent {
                 this.addItems(items);
             });
         }
+        if (this.eventReplaceAllItemsSubscription) {
+            this.eventReplaceAllItemsSubscription.subscribe((items) => {
+                this.replaceAllItems(items);
+            });
+        }
     }
     /**
      * @return {?}
@@ -714,6 +719,14 @@ class DataGridComponent {
         if (usedWidth < availableWidth) {
             grid.sizeColumnsToFit();
         }
+    }
+    /**
+     * @param {?} newItems
+     * @return {?}
+     */
+    replaceAllItems(newItems) {
+        this.rowData = [];
+        this.addItems(newItems);
     }
     /**
      * @param {?} newItems
@@ -1131,6 +1144,7 @@ DataGridComponent.propDecorators = {
     eventSaveAgGridStateSubscription: [{ type: Input }],
     eventModifyStatusOfSelectedCells: [{ type: Input }],
     eventAddItemsSubscription: [{ type: Input }],
+    eventReplaceAllItemsSubscription: [{ type: Input }],
     frameworkComponents: [{ type: Input }],
     components: [{ type: Input }],
     columnDefs: [{ type: Input }],
@@ -1232,6 +1246,8 @@ if (false) {
     DataGridComponent.prototype.eventModifyStatusOfSelectedCells;
     /** @type {?} */
     DataGridComponent.prototype.eventAddItemsSubscription;
+    /** @type {?} */
+    DataGridComponent.prototype.eventReplaceAllItemsSubscription;
     /** @type {?} */
     DataGridComponent.prototype.frameworkComponents;
     /** @type {?} */

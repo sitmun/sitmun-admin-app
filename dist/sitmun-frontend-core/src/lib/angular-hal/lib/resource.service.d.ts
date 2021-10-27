@@ -15,7 +15,7 @@ export declare class ResourceService {
     /** get all resources from a base URI of a given type */
     getAll<T extends Resource>(type: {
         new (): T;
-    }, resource: string, _embedded: string, options?: HalOptions, subType?: SubTypeBuilder, embeddedName?: String): Observable<ResourceArray<T>>;
+    }, resource: string, _embedded: string, options?: HalOptions, subType?: SubTypeBuilder, embeddedName?: String, ignoreProjection?: boolean): Observable<ResourceArray<T>>;
     /** get resource from a base URI and a given id */
     get<T extends Resource>(type: {
         new (): T;

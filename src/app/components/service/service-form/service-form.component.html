@@ -56,6 +56,51 @@
     </div>
 
     <div class="rowFormDiv">
+
+      <div class="MidColFormDiv">
+        <label class="formLabel">
+          {{'serviceEntity.user' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <input matInput type="text" formControlName="user"> 
+        </mat-form-field>
+      </div>
+  
+      <div class="MidColFormDiv">
+        <label class="formLabel">
+          {{'serviceEntity.password' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <mat-icon matSuffix (click)="hidePassword = !hidePassword">{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+          <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
+        </mat-form-field>
+      </div>
+
+      <div class="MidColFormDiv">
+        <label class="formLabel requiredInput">
+          {{'serviceEntity.authenticationMode' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <mat-select matInput formControlName="authenticationMode" class="form-control" required>
+            <mat-option [value]="mode.value" *ngFor="let mode of authenticationModes">
+              {{ mode.description}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+  
+  
+  
+      <div class="ShortColFormDiv" >
+        <label class="formLabel">
+          {{'serviceEntity.passwordSet' | translate}}
+        </label>
+        <mat-checkbox (click)="$event.preventDefault()" formControlName="passwordSet" > </mat-checkbox>
+      </div>
+      
+    </div>
+
+    <div class="rowFormDiv">
       <div class="MidLargeColFormDiv">
         <label class="formLabel requiredInput">
           {{'serviceEntity.url' | translate}}
@@ -75,6 +120,9 @@
 
     
     </div>
+
+
+
     <div class="rowFormDiv">
       <div class="MidColFormDiv">
         <label class="formLabel requiredInput">
