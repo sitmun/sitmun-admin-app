@@ -1000,7 +1000,7 @@ export class TerritoryFormComponent implements OnInit {
       dialogRef.componentInstance.title = this.utils.getTranslate('territoryEntity.permissionsChildren');
     }
     else {
-      dialogRef.componentInstance.title = this.utils.getTranslate('territoryEntity.permits');
+      dialogRef.componentInstance.title = this.utils.getTranslate('territoryEntity.permissions');
     }
     dialogRef.componentInstance.titlesTable = [this.utils.getTranslate('territoryEntity.users'), this.utils.getTranslate('territoryEntity.roles')];
     dialogRef.componentInstance.nonEditable = false;
@@ -1122,7 +1122,7 @@ export class TerritoryFormComponent implements OnInit {
     dialogRef.componentInstance.singleSelectionTable = [false];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsCartographiesDialog];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate('territoryEntity.layers');
+    dialogRef.componentInstance.title = this.utils.getTranslate('territoryEntity.cartography');
     dialogRef.componentInstance.titlesTable = [''];
     dialogRef.componentInstance.fieldRestrictionWithDifferentName = ['cartographyId'];
     dialogRef.componentInstance.currentData=[data];

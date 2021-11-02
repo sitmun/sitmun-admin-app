@@ -591,7 +591,7 @@ export class RoleFormComponent implements OnInit {
     dialogRef.componentInstance.singleSelectionTable = [false, false];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsUsersDialog, this.columnDefsTerritoriesDialog];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate('userEntity.permissions');
+    dialogRef.componentInstance.title = this.utils.getTranslate('roleEntity.permissions');
     dialogRef.componentInstance.titlesTable = [this.utils.getTranslate('roleEntity.users'), this.utils.getTranslate('roleEntity.territories')];
     dialogRef.componentInstance.nonEditable = false;
 

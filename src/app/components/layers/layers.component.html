@@ -4,7 +4,7 @@
     <span class="divider"></span>
 </div>
 <div class="appDataGridDiv">
-    <app-data-grid  id="layers" [columnDefs]="columnDefs" [themeGrid]='themeGrid' [getAll]='getAllLayers' [globalSearch]=true  [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
+    <app-data-grid  id="layers" defaultHeight="default" [columnDefs]="columnDefs" [themeGrid]='themeGrid' [getAll]='getAllLayers' [globalSearch]=true  [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
     [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true [applyChangesButton]=true  [deleteButton]=true [newButton]=true 
     [actionButton]=true defaultColumnSorting="order" (remove)="removeData($event)" (new)='newData($event)' (sendChanges)='applyChanges($event)' (duplicate)='add($event)' 	(gridModified)='setGridModifiedValue($event)' > </app-data-grid>
 </div>

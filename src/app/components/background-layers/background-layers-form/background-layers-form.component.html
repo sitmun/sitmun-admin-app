@@ -53,19 +53,6 @@
         </mat-form-field>
       </div>
 
-      <!-- <div class="colFormDiv" >
-              <label class="formLabel">
-                {{'backgroundEntity.cartographyGroup' | translate}}
-              </label>
-              <mat-form-field appearance="outline">
-                <mat-select matInput formControlName="cartographyGroup" class="form-control">
-                  <mat-option [value]="group.value" *ngFor="let group of permissionGroups">
-                    {{group.description}}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
-            </div> -->
-
       <div class="colFormDiv">
         <label class="formLabel">
           {{'backgroundEntity.active' | translate}}
@@ -84,7 +71,7 @@
     <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
       <mat-expansion-panel-header class="agGridExpansionPanelTitle">
         <mat-panel-title>
-          {{ "layersPermitsEntity.cartographiesConfiguration" | translate }}
+          {{ "backgroundEntity.cartographiesConfiguration" | translate }}
         </mat-panel-title>
       </mat-expansion-panel-header>
 
@@ -106,7 +93,7 @@
     <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
       <mat-expansion-panel-header class="agGridExpansionPanelTitle">
         <mat-panel-title>
-          {{ "layersPermitsEntity.roles" | translate }}
+          {{ "backgroundEntity.roles" | translate }}
         </mat-panel-title>
       </mat-expansion-panel-header>
 

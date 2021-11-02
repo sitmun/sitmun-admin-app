@@ -736,7 +736,7 @@ export class ApplicationFormComponent implements OnInit {
 
     const dialogRef = this.dialog.open(DialogFormComponent);
     dialogRef.componentInstance.HTMLReceived = this.newParameterDialog;
-    dialogRef.componentInstance.title = this.utils.getTranslate('serviceEntity.configurationParameters');
+    dialogRef.componentInstance.title = this.utils.getTranslate('applicationEntity.configurationParameters');
     dialogRef.componentInstance.form = this.parameterForm;
 
     dialogRef.afterClosed().subscribe(result => {
@@ -766,7 +766,7 @@ export class ApplicationFormComponent implements OnInit {
   openTemplateConfigurationDialog(data: any) {
     const dialogRef = this.dialog.open(DialogFormComponent);
     dialogRef.componentInstance.HTMLReceived = this.newTemplateDialog;
-    dialogRef.componentInstance.title = this.utils.getTranslate('serviceEntity.configurationParameters');
+    dialogRef.componentInstance.title = this.utils.getTranslate('applicationEntity.configurationParameters');
     dialogRef.componentInstance.form = this.parameterForm;
 
     dialogRef.afterClosed().subscribe(result => {

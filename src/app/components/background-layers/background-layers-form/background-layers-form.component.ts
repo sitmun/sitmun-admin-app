@@ -499,7 +499,7 @@ export class BackgroundLayersFormComponent implements OnInit {
     dialogRef.componentInstance.singleSelectionTable = [false];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsCartographiesDialog];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate('layersPermitsEntity.cartographiesConfiguration');
+    dialogRef.componentInstance.title = this.utils.getTranslate('backgroundEntity.cartographiesConfiguration');
     dialogRef.componentInstance.titlesTable = [''];
     dialogRef.componentInstance.currentData = [data];
     dialogRef.componentInstance.nonEditable = false;
@@ -531,7 +531,7 @@ export class BackgroundLayersFormComponent implements OnInit {
     dialogRef.componentInstance.singleSelectionTable = [false];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsRolesDialog];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate('layersPermitsEntity.roles');
+    dialogRef.componentInstance.title = this.utils.getTranslate('backgroundEntity.roles');
     dialogRef.componentInstance.titlesTable = [''];
     dialogRef.componentInstance.currentData = [data];
     dialogRef.componentInstance.nonEditable = false;
