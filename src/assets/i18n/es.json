@@ -18,6 +18,8 @@
   "YES": "Sí",
   "NO": "No",
   "save": "Guarda",
+  "load":"Cargar",
+  "update_layers": "Actualizar capas",
   "close": "Cerrar",
   "redo": "Rehacer",
   "undo": "Deshacer",
@@ -277,7 +279,11 @@
     "description":"Descripción",
     "configuration" : "Configuración",
     "image": "Imagen",
-    "services":"Servicios"
+    "services":"Servicios",
+    "style": "Estilo",
+    "styles": "Estilos",
+    "styleError": "El estilo del nodo tiene que coincidir con un estilo de la capa seleccionada, en caso de que la capa no tenga ningún estilo, este tendrá que estar vacío."
+
   },
   "taskGroupEntity": {
     "generalData": "Datos Generales",

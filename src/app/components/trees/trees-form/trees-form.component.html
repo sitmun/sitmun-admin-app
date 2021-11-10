@@ -145,11 +145,13 @@
             <input matInput type="text" [readonly]="true" formControlName="cartographyName">
           </mat-form-field>
         </div>
-        <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
+        <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined &&   (!currentNodeIsFolder)">
           <label class="formLabel">
-            {{'treesEntity.visible' | translate}}
+            {{'treesEntity.style' | translate}}
           </label>
-          <mat-checkbox formControlName="active"> </mat-checkbox>
+          <mat-form-field appearance="outline">
+            <input matInput type="text" formControlName="style">
+          </mat-form-field>
         </div>
       </div>
       <div class="rowFormDiv">
@@ -213,6 +215,12 @@
                 </mat-option>
               </mat-select>
             </mat-form-field> 
+        </div>
+        <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
+          <label class="formLabel">
+            {{'treesEntity.visible' | translate}}
+          </label>
+          <mat-checkbox formControlName="active"> </mat-checkbox>
         </div>
                     
 

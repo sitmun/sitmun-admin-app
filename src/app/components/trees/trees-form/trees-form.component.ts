@@ -187,7 +187,8 @@ export class TreesFormComponent implements OnInit {
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
       this.utils.getNonEditableColumnDef('treesEntity.name', 'name'),
-      this.utils.getNonEditableColumnDef('treesEntity.serviceName', 'serviceName')
+      this.utils.getNonEditableColumnDef('treesEntity.serviceName', 'serviceName'),
+      this.utils.getNonEditableColumnDef('treesEntity.styles', 'stylesNames')
     ];
 
   }
@@ -343,7 +344,7 @@ export class TreesFormComponent implements OnInit {
 
     newNode.cartography = cartography;
     newNode.cartographyName = cartography.name;
-    newNode.active = false;
+    newNode.active = true;
     newNode.isFolder = false;
     return newNode;
   }
@@ -385,7 +386,7 @@ export class TreesFormComponent implements OnInit {
       datasetURL: new FormControl(null, []),
       metadataURL: new FormControl(null, []),
       description: new FormControl(null, []),
-      active: new FormControl(null, []),
+      active: new FormControl(true, []),
       _links: new FormControl(null, []),
       children: new FormControl(null, []),
       parent: new FormControl(null, []),
@@ -403,7 +404,9 @@ export class TreesFormComponent implements OnInit {
       descriptionFormModified: new FormControl(null, []),
       status: new FormControl(null, []),
       cartographyName: new FormControl(null, []),
+      // cartographyStyles: new FormControl(null, []),
       oldCartography: new FormControl(null, []),
+      style: new FormControl(null, []),
       
 
     })
@@ -507,6 +510,7 @@ export class TreesFormComponent implements OnInit {
       order: node.order,
       cartography: node.cartographyName,
       cartographyName: node.cartographyName,
+      // cartographyStyles: node.cartographyStyles,
       oldCartography: node.cartography,
       radio: node.radio,
       description: node.description,
@@ -526,6 +530,7 @@ export class TreesFormComponent implements OnInit {
       filterGetFeatureInfo: (node.filterGetFeatureInfo == null || node.filterGetFeatureInfo == undefined)?"UNDEFINED":node.filterGetFeatureInfo,
       filterGetMap: (node.filterGetMap == null || node.filterGetMap == undefined)?"UNDEFINED":node.filterGetMap,
       filterSelectable: (node.filterSelectable == null || node.filterSelectable == undefined)?"UNDEFINED":node.filterSelectable,
+      style: node.style,
       status: status,
       type: currentType
     })
@@ -561,6 +566,7 @@ export class TreesFormComponent implements OnInit {
       filterGetFeatureInfo: "UNDEFINED",
       filterGetMap: "UNDEFINED",
       filterSelectable: "UNDEFINED",
+      active:true
     })
 
   }
@@ -668,6 +674,7 @@ export class TreesFormComponent implements OnInit {
         treeNodeObj.filterGetFeatureInfo = tree.filterGetFeatureInfo;
         treeNodeObj.filterGetMap = tree.filterGetMap;
         treeNodeObj.filterSelectable = tree.filterSelectable;
+        treeNodeObj.style = tree.style;
 
 
 
@@ -795,6 +802,25 @@ export class TreesFormComponent implements OnInit {
 
   }
 
+  private showStyleError(){
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title = this.utils.getTranslate("Error");
+    dialogRef.componentInstance.hideCancelButton = true;
+    dialogRef.componentInstance.message = this.utils.getTranslate("treesEntity.styleError");
+    dialogRef.afterClosed().subscribe();
+  }
+
+  private checkIfStyleIsInvalid(currentStyle:string, cartographyStyles: Array<string>):boolean{
+    //True if cartographyStyles is empty and currentStyle is not null, or if cartography styles is not empty but not includes currentStyle
+    if( ((!cartographyStyles || cartographyStyles.length == 0) && currentStyle) || 
+    (cartographyStyles && cartographyStyles.length > 0 && (currentStyle && !cartographyStyles.includes(currentStyle)))){
+      return true;
+    }
+    else{
+      return false;
+    }
+  }
+
 
   getSelectedRowsCartographies(data: any[]) {
     if ((data.length <= 0 && this.treeNodeForm.value.cartographyName == null) && !this.currentNodeIsFolder) {
@@ -804,6 +830,12 @@ export class TreesFormComponent implements OnInit {
       dialogRef.componentInstance.message = this.utils.getTranslate("cartographyNonSelectedMessage");
       dialogRef.afterClosed().subscribe();
     }
+    else if( !this.currentNodeIsFolder && data.length >0 && this.checkIfStyleIsInvalid(this.treeNodeForm.get('style').value, data[0].stylesNames)){
+      this.showStyleError();
+    }
+    // else if( !this.currentNodeIsFolder && (!data || data.length == 0) && this.checkIfStyleIsInvalid(this.treeNodeForm.get('style').value, this.treeNodeForm.get('cartographyStyles').value)){
+    //   this.showStyleError();
+    // }
     else {
       if (this.treeNodeForm.value.cartographyName !== null && data.length <= 0) {
         this.updateTreeLeft(null)

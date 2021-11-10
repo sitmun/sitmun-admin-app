@@ -315,6 +315,7 @@ export class TerritoryFormComponent implements OnInit {
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
       this.utils.getNonEditableColumnDef('territoryEntity.name', 'name'),
+      this.utils.getNonEditableColumnDef('treesEntity.serviceName', 'serviceName'),
     ];
 
     this.columnDefsTasksDialog = [

@@ -493,10 +493,12 @@ export class TaskFormComponent implements OnInit {
       let value = null;
       if(values[i].control==="selector" && (this.taskID== -1 || popupForm) ){
         if(values[i].selector.queryParams){
-            value=this.getDataDynamicSelectors(values[i].selector.data, values[i].label)[0][values[i].selector.value];        
+          let result = this.getDataDynamicSelectors(values[i].selector.data, values[i].label);
+          value = (result && result.length>0)?result[0][values[i].selector.value]:null;
         }
         else{
-          value=this.getDataFixedSelectors(values[i].selector.data)[0][values[i].selector.value]
+          let result = this.getDataFixedSelectors(values[i].selector.data);
+          value=(result && result.length>0)?result[0][values[i].selector.value]:null;
         } //[values[i].selector.value]
       }
       else if(values[i].hidden) { value=values[i].value }

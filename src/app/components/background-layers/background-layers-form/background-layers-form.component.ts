@@ -227,6 +227,7 @@ export class BackgroundLayersFormComponent implements OnInit {
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
       this.utils.getNonEditableColumnDef('layersPermitsEntity.name', 'name'),
+      this.utils.getNonEditableColumnDef('treesEntity.serviceName', 'serviceName'),
     ];
 
     this.columnDefsRolesDialog = [

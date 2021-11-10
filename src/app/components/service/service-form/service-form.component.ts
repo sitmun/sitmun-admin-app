@@ -30,6 +30,7 @@ export class ServiceFormComponent implements OnInit {
   translationsModified: boolean = false;
   //form
   dataLoaded: Boolean = false;
+  tableLoadButtonDisabled = true;
   capabilitiesLoaded: Boolean = true;
   private parametersUrl: string;
   serviceForm: FormGroup;
@@ -153,6 +154,11 @@ export class ServiceFormComponent implements OnInit {
                 _links: this.serviceToEdit._links
               });
 
+              let currentType = this.serviceTypes.find(element => element.value == this.serviceToEdit.type);
+              if(currentType){
+                this.tableLoadButtonDisabled=currentType.value == 'WMS'? false:true
+              }
+
 
 
               if(this.serviceID != -1){
@@ -265,6 +271,10 @@ export class ServiceFormComponent implements OnInit {
     })
   }
 
+  onTypeChange(event):void{
+    this.tableLoadButtonDisabled= event.value == 'WMS'?false:true;
+  }
+
   addProjection(event: MatChipInputEvent): void {
     const input = event.input;
     const value = event.value;
@@ -288,7 +298,11 @@ export class ServiceFormComponent implements OnInit {
     }
   }
 
-  getCapabilitiesDataService(refresh?){
+  onTableLoadButtonClicked(){
+    this.getCapabilitiesDataService(true,true);
+  }
+
+  getCapabilitiesDataService(refresh?, ignoreForm?){
     try{
       let url: string = this.serviceForm.value.serviceURL;
       if(! url.includes('request=GetCapabilities')){
@@ -301,7 +315,7 @@ export class ServiceFormComponent implements OnInit {
         if(result.success){
           this.getCapabilitiesLayers=[];
           this.serviceCapabilitiesData=result.asJson;
-          this.changeServiceDataByCapabilities(refresh);
+          this.changeServiceDataByCapabilities(refresh, ignoreForm);
         }
       },error => {
         console.log(error)
@@ -315,7 +329,7 @@ export class ServiceFormComponent implements OnInit {
     };
   }
 
-  changeServiceDataByCapabilities(refresh?){
+  changeServiceDataByCapabilities(refresh?, ignoreForm?){
     let data=this.serviceCapabilitiesData.WMT_MS_Capabilities!=undefined?this.serviceCapabilitiesData.WMT_MS_Capabilities:this.serviceCapabilitiesData.WMS_Capabilities
     if (data!=undefined ){
       if(data.Capability ) {
@@ -327,7 +341,7 @@ export class ServiceFormComponent implements OnInit {
           capabilitiesList = data.Capability.Layer.CRS;
         }
         this.projections=[];
-        if(capabilitiesList){
+        if(capabilitiesList && !ignoreForm){
           this.projections.push(...capabilitiesList);
         }
         // this.serviceCapabilitiesData.WMT_MS_Capabilities.Capability.Layer.SRS.forEach((projection) => {
@@ -421,10 +435,13 @@ export class ServiceFormComponent implements OnInit {
         else{
           auxDescription=data.Service.Abstract;
         }
-        let newDescription = auxDescription.length >250? auxDescription.substring(0,249): auxDescription
-        this.serviceForm.patchValue({
-          description: newDescription,
-        })
+        if(!ignoreForm){
+          let newDescription = auxDescription.length >250? auxDescription.substring(0,249): auxDescription
+          this.serviceForm.patchValue({
+            description: newDescription,
+          })
+        }
+
       }
 
     }
@@ -651,6 +668,9 @@ export class ServiceFormComponent implements OnInit {
                 resolve(true) 
               }) 
             }));
+        }
+        else if(cartography.status === 'pendingDelete' && cartography._links){
+          promisesStyles.push(new Promise((resolve, reject) => { this.cartographyStyleService.remove(cartography).subscribe((resp) => { resolve(true) }) }));
         }
         
         // layersToPut.push(cartography._links.self.href)

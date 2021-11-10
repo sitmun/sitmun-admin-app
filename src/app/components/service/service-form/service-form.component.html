@@ -129,7 +129,7 @@
           {{'serviceEntity.type' | translate}}
         </label>
         <mat-form-field appearance="outline">
-          <mat-select matInput formControlName="type" class="form-control" required>
+          <mat-select matInput formControlName="type" class="form-control" (selectionChange)="onTypeChange($event)" required>
             <mat-option [value]="serviceType.value" *ngFor="let serviceType of serviceTypes">
               {{ serviceType.description}}
             </mat-option>
@@ -201,8 +201,8 @@
             [eventAddItemsSubscription]='addElementsEventLayers.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventLayers.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventLayers.asObservable()' [discardChangesButton]=false
-            [redoButton]=true [undoButton]=true [deleteButton]=false [addButton]=false [hideDuplicateButton]=true
-            [registerButton]=true newStatusRegister="pendingRegistration"
+            [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=false [loadButton]=true [loadButtonDisabled]=tableLoadButtonDisabled  [hideDuplicateButton]=true
+            [registerButton]=true newStatusRegister="pendingRegistration" (load)="onTableLoadButtonClicked()"
             (getAllRows)="getAllRowsLayers($event)" defaultColumnSorting="name" [actionButton]=true (add)="openCartographyDialog($event)">
           </app-data-grid>
         </div>

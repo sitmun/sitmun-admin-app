@@ -49,6 +49,8 @@ export declare class DataGridComponent implements OnInit {
     redoButton: boolean;
     applyChangesButton: boolean;
     deleteButton: boolean;
+    loadButton: boolean;
+    loadButtonDisabled: boolean;
     newButton: boolean;
     actionButton: boolean;
     addButton: boolean;
@@ -69,6 +71,7 @@ export declare class DataGridComponent implements OnInit {
     currentData: Array<any>;
     fieldRestrictionWithDifferentName: string;
     remove: EventEmitter<any[]>;
+    load: EventEmitter<any[]>;
     new: EventEmitter<number>;
     add: EventEmitter<any[]>;
     discardChanges: EventEmitter<any[]>;
@@ -103,6 +106,7 @@ export declare class DataGridComponent implements OnInit {
     private checkElementAllowedToAdd;
     changeHeight(value: any): void;
     removeData(): void;
+    loadDataButton(): void;
     newData(): void;
     onAddButtonClicked(): void;
     onDuplicateButtonClicked(): void;

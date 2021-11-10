@@ -18,6 +18,8 @@
   "YES": "Yes",
   "NO": "No",
   "save": "Save",
+  "load":"Load",
+  "update_layers": "Update layers",
   "close": "Close",
   "redo": "Redo",
   "undo": "Undo",
@@ -277,7 +279,10 @@
     "description":"Description",
     "configuration" : "Configuration",
     "image": "Image",
-    "services":"Services"
+    "services":"Services",
+    "style": "Style",
+    "styles": "Styles",
+    "styleError": "The style of the node must match a style of the selected layer, if the layer has no style, it must be empty." 
   },
   "taskGroupEntity": {
     "generalData": "General Data",
