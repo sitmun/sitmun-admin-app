@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { TerritoryService,Territory } from 'dist/sitmun-frontend-core/';
+import { TerritoryService, Territory, TerritoryTypeService } from 'dist/sitmun-frontend-core/';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
@@ -19,11 +19,14 @@ export class TerritoryComponent implements OnInit {
   themeGrid: any = config.agGridTheme;
   columnDefs: any[];
   scopeTypes: Array<any> = [];
+  territoryTypes: Array<any> = [];
   gridModified = false;
+  dataLoaded = false;
 
 
   constructor(public dialog: MatDialog,
     public territoryService: TerritoryService,
+    public territoryTypeService: TerritoryTypeService,
     private utils: UtilsService,
     private router: Router,
   ) { }
@@ -31,11 +34,16 @@ export class TerritoryComponent implements OnInit {
 
   ngOnInit() {
 
-    this.utils.getCodeListValues('territory.scope').subscribe(
-      resp => {
-        this.scopeTypes.push(...resp);
-      }
-    );
+    const promises: Promise<any>[] = [];
+    promises.push(new Promise((resolve, reject) => {
+      this.territoryTypeService.getAll().subscribe(
+        resp => {
+          this.territoryTypes.push(...resp);
+          resolve(true);
+        }
+      )
+    }));
+
 
     var columnEditBtn=this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams']= {
@@ -49,18 +57,12 @@ export class TerritoryComponent implements OnInit {
       this.utils.getIdColumnDef(),
       this.utils.getEditableColumnDef('territoryEntity.code', 'code'),
       this.utils.getEditableColumnDef('territoryEntity.name', 'name'),
-      this.utils.getNonEditableColumnDef('territoryEntity.territoryType', 'typeId'),
-      // this.utils.getFormattedColumnDef('territoryEntity.scope',this.scopeTypes,'scope'),
+      this.utils.getFormattedColumnDef('layersPermitsEntity.type',this.territoryTypes,'typeId','id', 'name'),
       this.utils.getDateColumnDef('territoryEntity.createdDate','createdDate')
-      //{ headerName: this.utils.getTranslate('territoryEntity.administrator'), field: 'territorialAuthorityName' },
-      //{ headerName: this.utils.getTranslate('territoryEntity.email'), field: 'territorialAuthorityEmail' },
-      //{ headerName: this.utils.getTranslate('territoryEntity.address'), field: 'territorialAuthorityAddress' },
-      //{ headerName: this.utils.getTranslate('territoryEntity.extent'), field: 'extent' },
-      //{ headerName: this.utils.getTranslate('territoryEntity.note'), field: 'note' },
-      /*{ headerName: this.utils.getTranslate('territoryEntity.blocked'), field: 'blocked', editable: false,
-      cellRenderer: 'btnCheckboxRendererComponent', floatingFilterComponent: 'btnCheckboxFilterComponent',
-      floatingFilterComponentParams: { suppressFilterButton: true }, },*/
     ];
+    Promise.all(promises).then(()=>{
+      this.dataLoaded=true;
+    });
   }
 
   async canDeactivate(): Promise<boolean | Observable<boolean>> {

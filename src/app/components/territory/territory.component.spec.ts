@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TerritoryComponent } from './territory.component';
-import { TerritoryService, UserService, RoleService, UserConfigurationService, CodeListService,TranslationService,ResourceService,ExternalService } from 'dist/sitmun-frontend-core/';
+import { TerritoryService, UserService, RoleService, UserConfigurationService, CodeListService,TranslationService,ResourceService,ExternalService, TerritoryTypeService } from 'dist/sitmun-frontend-core/';
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
@@ -15,6 +15,7 @@ describe('TerritoryComponent', () => {
   let component: TerritoryComponent;
   let fixture: ComponentFixture<TerritoryComponent>;
   let territoryService: TerritoryService;
+  let territoryTypeService: TerritoryTypeService;
   let codeListService: CodeListService;
   let translationService: TranslationService;
   let resourceService: ResourceService;
@@ -25,7 +26,7 @@ describe('TerritoryComponent', () => {
       declarations: [ TerritoryComponent ],
       imports : [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule, MatIconTestingModule,
          MaterialModule, RouterModule, MatIconTestingModule],
-      providers: [TerritoryService, UserService, RoleService, CodeListService,UserConfigurationService,TranslationService,ResourceService,ExternalService,
+      providers: [TerritoryService, TerritoryTypeService, UserService, RoleService, CodeListService,UserConfigurationService,TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();
@@ -35,6 +36,7 @@ describe('TerritoryComponent', () => {
     fixture = TestBed.createComponent(TerritoryComponent);
     component = fixture.componentInstance;
     territoryService= TestBed.inject(TerritoryService);
+    territoryTypeService= TestBed.inject(TerritoryTypeService);
     codeListService= TestBed.inject(CodeListService);
     translationService= TestBed.inject(TranslationService);
     resourceService= TestBed.inject(ResourceService);
@@ -48,6 +50,10 @@ describe('TerritoryComponent', () => {
 
   it('should instantiate territoryService', () => {
     expect(territoryService).toBeTruthy();
+  });
+
+  it('should instantiate territoryTypeService', () => {
+    expect(territoryTypeService).toBeTruthy();
   });
 
   it('should instantiate codeListService', () => {

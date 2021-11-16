@@ -223,8 +223,8 @@ export class ServiceFormComponent implements OnInit {
     this.columnDefsLayers = [
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('serviceEntity.name', 'name'),
-      this.utils.getNonEditableColumnDef('serviceEntity.description', 'description'),
+      this.utils.getEditableColumnDef('serviceEntity.name', 'name'),
+      this.utils.getEditableColumnDef('serviceEntity.description', 'description'),
       this.utils.getStatusColumnDef()
     ];
 
@@ -588,7 +588,8 @@ export class ServiceFormComponent implements OnInit {
             finalCartographies.push(cartographies[index])
           }
           else{
-            capabilityLayer.status="unregisteredLayer"
+            capabilityLayer.status="unregisteredLayer";
+            capabilityLayer.newRegister = true;
             finalCartographies.push(capabilityLayer);
           }
         });
@@ -670,10 +671,13 @@ export class ServiceFormComponent implements OnInit {
             }));
         }
         else if(cartography.status === 'pendingDelete' && cartography._links){
-          promisesStyles.push(new Promise((resolve, reject) => { this.cartographyStyleService.remove(cartography).subscribe((resp) => { resolve(true) }) }));
+          promises.push(new Promise((resolve, reject) => { this.cartographyService.remove(cartography).subscribe((resp) => { resolve(true) }) }));
+        }
+        else if(cartography.status === 'pendingModify' && cartography._links){
+          promises.push(new Promise((resolve, reject) => { this.cartographyService.update(cartography).subscribe((resp) => { resolve(true) }) }));
+
         }
         
-        // layersToPut.push(cartography._links.self.href)
     
     });
 

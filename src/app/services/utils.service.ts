@@ -358,14 +358,18 @@ export class UtilsService {
     return columnDef;
   }
 
-  getFormattedColumnDef(alias, filterList, field) {
+  getFormattedColumnDef(alias, filterList, field, fieldToCompare?, fieldToShow?) {
+    let fieldReturned= fieldToShow? fieldToShow: 'description'
     let columnDef =
     {
       headerName: this.getTranslate(alias),
       editable: false,
       valueGetter: (params) => {
-        var alias = filterList.filter((format) => format.value == params.data[field])[0];
-        return alias != undefined ? alias.description : params.data[field]
+        
+        var alias = fieldToCompare
+        ?filterList.filter((format) => format[fieldToCompare] == params.data[field])[0]
+        :filterList.filter((format) => format.value == params.data[field])[0];
+        return alias != undefined ? alias[fieldReturned] : params.data[field]
       }
     }
     return columnDef;

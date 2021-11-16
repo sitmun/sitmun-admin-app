@@ -2,7 +2,7 @@
     <h4><mat-icon aria-hidden="false"  svgIcon="menu_territori"></mat-icon> {{ "territoryEntity.territory" | translate }}</h4>
     <span class="divider"></span>
 </div>
-<div class="appDataGridDiv">
+<div class="appDataGridDiv" *ngIf="dataLoaded">
     <app-data-grid id="territory" defaultHeight="default" [columnDefs]="columnDefs" [themeGrid]='themeGrid' [getAll]='getAllTerritories' [globalSearch]=true [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
     [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true [applyChangesButton]=true  [deleteButton]=true [newButton]=true 
     [actionButton]=true (remove)="removeData($event)" defaultColumnSorting="name" (new)='newData($event)' (sendChanges)='applyChanges($event)' (duplicate)='add($event)' (gridModified)='setGridModifiedValue($event)' > </app-data-grid>

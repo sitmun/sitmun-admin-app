@@ -404,7 +404,8 @@ export class TreesFormComponent implements OnInit {
       descriptionFormModified: new FormControl(null, []),
       status: new FormControl(null, []),
       cartographyName: new FormControl(null, []),
-      // cartographyStyles: new FormControl(null, []),
+      cartographyId: new FormControl(null, []),
+      cartographyStyles: new FormControl(null, []),
       oldCartography: new FormControl(null, []),
       style: new FormControl(null, []),
       
@@ -510,6 +511,7 @@ export class TreesFormComponent implements OnInit {
       order: node.order,
       cartography: node.cartographyName,
       cartographyName: node.cartographyName,
+      cartographyId: node.cartographyId,
       // cartographyStyles: node.cartographyStyles,
       oldCartography: node.cartography,
       radio: node.radio,
@@ -822,7 +824,11 @@ export class TreesFormComponent implements OnInit {
   }
 
 
-  getSelectedRowsCartographies(data: any[]) {
+  public async getSelectedRowsCartographies(data: any[]) {
+    let cartography = null;
+    if(!this.currentNodeIsFolder && (!data || data.length == 0)){
+      cartography = await this.cartographyService.get(this.treeNodeForm.get('cartographyId').value).toPromise()
+    }
     if ((data.length <= 0 && this.treeNodeForm.value.cartographyName == null) && !this.currentNodeIsFolder) {
       const dialogRef = this.dialog.open(DialogMessageComponent);
       dialogRef.componentInstance.title = this.utils.getTranslate("Error");
@@ -833,9 +839,9 @@ export class TreesFormComponent implements OnInit {
     else if( !this.currentNodeIsFolder && data.length >0 && this.checkIfStyleIsInvalid(this.treeNodeForm.get('style').value, data[0].stylesNames)){
       this.showStyleError();
     }
-    // else if( !this.currentNodeIsFolder && (!data || data.length == 0) && this.checkIfStyleIsInvalid(this.treeNodeForm.get('style').value, this.treeNodeForm.get('cartographyStyles').value)){
-    //   this.showStyleError();
-    // }
+    else if(cartography && this.checkIfStyleIsInvalid(this.treeNodeForm.get('style').value, cartography.stylesNames)){
+        this.showStyleError();
+    }
     else {
       if (this.treeNodeForm.value.cartographyName !== null && data.length <= 0) {
         this.updateTreeLeft(null)
@@ -854,7 +860,8 @@ export class TreesFormComponent implements OnInit {
     })
     if (cartography != null) {
       this.treeNodeForm.patchValue({
-        cartographyName: cartography.name
+        cartographyName: cartography.name,
+        cartographyId: cartography.id
       })
 
     }
@@ -864,7 +871,8 @@ export class TreesFormComponent implements OnInit {
         if(oldCartography){
           this.treeNodeForm.patchValue({
             cartography: oldCartography,
-            cartographyName: oldCartography.name
+            cartographyName: oldCartography.name,
+            cartographyId: oldCartography.id
           })
         }
       }

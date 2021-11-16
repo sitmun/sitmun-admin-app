@@ -785,25 +785,25 @@ h2 {
   font-weight: bold;
 }
 .stable::before{
-  font-family: 'Material Icons';
+  font-family: 'Material Icons', sans-serif;
   content: 'fiber_manual_record';
   color: #68A225;
 }
 
 .pendingModify::before,.pendingCreation::before,.pendingRegistration:before{
-  font-family: 'Material Icons';
+  font-family: 'Material Icons', sans-serif;
   content: 'fiber_manual_record';
   color: #ff9300;
 }
 
 .unregisteredLayer:before{
-  font-family: 'Material Icons';
+  font-family: 'Material Icons', sans-serif;
   content: 'fiber_manual_record';
   color: #ffe100;
 }
 
 .pendingDelete:before,.notAvailable::before{
-  font-family: 'Material Icons';
+  font-family: 'Material Icons', sans-serif;
   content: 'fiber_manual_record';
   color: #bf0000;
 }

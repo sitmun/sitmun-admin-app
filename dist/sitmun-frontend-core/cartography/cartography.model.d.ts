@@ -79,4 +79,5 @@ export declare class Cartography extends Resource {
     geometryType: string;
     styles?: CartographyStyle[];
     useAllStyles: boolean;
+    stylesNames?: string[];
 }
