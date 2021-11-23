@@ -1108,7 +1108,7 @@
             // }
             // else{
             // this.gridApi.setDomLayout(""); // Needed if we have set dom to autoHeight
-            if (value != 'default') {
+            if (value != undefined && value != 'default') {
                 /** @type {?} */
                 var pixels = "";
                 if (value === '10') {
@@ -1127,6 +1127,9 @@
                     pixels = ((this.gridApi.getDisplayedRowCount() * 28) + 100) + "px";
                 }
                 this.elRef.nativeElement.parentElement.style.height = pixels;
+            }
+            else {
+                this.elRef.nativeElement.parentElement.style.height = ((10 * 28) + 100) + "px";
             }
         };
         /**
