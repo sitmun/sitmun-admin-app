@@ -36,6 +36,7 @@ export class TasksExtractionFmeComponent implements OnInit {
       this.utils.getSelCheckboxColumnDef(),
       columnEditBtn,
       this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('tasksEntity.task', 'name'),
       this.utils.getNonEditableColumnDef('tasksExtractionFMEEntity.cartography', 'cartographyName'),
       this.utils.getNonEditableColumnDef('tasksExtractionFMEEntity.service', 'serviceName'),
       this.utils.getEditableColumnDef('tasksExtractionFMEEntity.layer', 'properties.layers'),
