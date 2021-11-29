@@ -4,7 +4,9 @@ import { Router } from '@angular/router';
 import { Observable, of,Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
-import { HalOptions, HalParam, TaskService } from 'dist/sitmun-frontend-core/';
+import { HalOptions, HalParam, Task, TaskService } from 'dist/sitmun-frontend-core/';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
 
 @Component({
   selector: 'app-tasks-edition-search-view',
@@ -12,6 +14,8 @@ import { HalOptions, HalParam, TaskService } from 'dist/sitmun-frontend-core/';
   styleUrls: ['./tasks-edition-search-view.component.scss']
 })
 export class TasksEditionSearchViewComponent implements OnInit {
+
+  dataUpdatedEvent: Subject<boolean> = new Subject <boolean>();
   saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
   themeGrid:any=config.agGridTheme;
   columnDefs: any[];
@@ -19,7 +23,8 @@ export class TasksEditionSearchViewComponent implements OnInit {
   
   constructor(private utils: UtilsService,
               private router: Router,
-              public taskService: TaskService
+              public taskService: TaskService,
+              public dialog: MatDialog,
               )
               { }
 
@@ -70,9 +75,25 @@ export class TasksEditionSearchViewComponent implements OnInit {
     return this.taskService.getAll(query,undefined,"tasks");
   }
 
-  removeData( data: any[])
-  {
-    console.log(data);
+  removeData(data: []) {
+
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title=this.utils.getTranslate("caution");
+    dialogRef.componentInstance.message=this.utils.getTranslate("removeMessage");
+    dialogRef.afterClosed().subscribe(result => {
+      if(result){
+        if(result.event==='Accept') {  
+          const promises: Promise<any>[] = [];
+          data.forEach(task => {
+            promises.push(new Promise((resolve, reject) => {​​​​​​​ this.taskService.delete(task).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
+            Promise.all(promises).then(() => {
+              this.dataUpdatedEvent.next(true);
+            });
+          });
+       }
+      }
+    });
+
   }
   
   newData(id: any)
@@ -81,9 +102,14 @@ export class TasksEditionSearchViewComponent implements OnInit {
     this.router.navigate(["taskForm", id, config.tasksTypesNames.VISEdition]);
   }
   
-  applyChanges( data: any[])
-  {
-        console.log(data);
+  applyChanges(data: Task[]) {
+    const promises: Promise<any>[] = [];
+    data.forEach(task => {
+      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.taskService.update(task).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
+      Promise.all(promises).then(() => {
+        this.dataUpdatedEvent.next(true);
+      });
+    });
   }
 
 }

@@ -59,6 +59,7 @@ export declare class DataGridComponent implements OnInit {
     newStatusRegister: string;
     globalSearch: boolean;
     changeHeightButton: boolean;
+    heightButtonValueDefault: string;
     defaultHeight: any;
     themeGrid: any;
     singleSelection: boolean;

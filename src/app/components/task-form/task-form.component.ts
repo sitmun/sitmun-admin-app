@@ -635,7 +635,7 @@ export class TaskFormComponent implements OnInit {
       findResult=findResult[fieldResult] 
     }
     else{
-      if(fieldResult == "hidden" || fieldResult == "required" ) { findResult = false }
+      if(fieldResult == "hidden" || fieldResult == "required" || fieldResult == "disabled" ) { findResult = false }
     }
     if(findResult === "INPUT") { findResult="input" }
     return findResult;

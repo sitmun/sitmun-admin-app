@@ -6,7 +6,7 @@
 <div class="appDataGridDiv" *ngIf="loaded">
     <app-data-grid id="connection" defaultHeight="default" [columnDefs]="columnDefs" [themeGrid]='themeGrid' [getAll]='getAllConnections' [globalSearch]=true 
     [eventRefreshSubscription]='dataUpdatedEvent.asObservable()'  [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
-    [discardChangesButton]=true [redoButton]=true [undoButton]=true [applyChangesButton]=true  [deleteButton]=true [newButton]=true 
+    [discardChangesButton]=true defaultHeight='20' [redoButton]=true [undoButton]=true [applyChangesButton]=true  [deleteButton]=true [newButton]=true 
     [actionButton]=true (remove)="removeData($event)" (new)='newData($event)' defaultColumnSorting="name" (gridModified)='setGridModifiedValue($event)'
     (sendChanges)='applyChanges($event)' (duplicate)='add($event)'  > </app-data-grid>
 </div>

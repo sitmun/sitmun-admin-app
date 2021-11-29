@@ -123,7 +123,7 @@
         <div class="appDataGridEditDiv">
             <app-data-grid [changeHeightButton]="true" [allNewElements]="connectionID == -1" defaultColumnSorting="name" [columnDefs]="columnDefsTasks" [themeGrid]='themeGrid' [getAll]='getAllTasks'
             [eventAddItemsSubscription]='addElementsEventTasks.asObservable()' [eventRefreshSubscription]='dataUpdatedEvent.asObservable()'
-            [eventGetAllRowsSubscription]='getAllElementsEventTasks.asObservable()' [discardChangesButton]=false [redoButton]=true 
+            [eventGetAllRowsSubscription]='getAllElementsEventTasks.asObservable()' [discardChangesButton]=false [redoButton]=true  
             [eventRefreshSubscription]='dataUpdatedEventTasks.asObservable()' [undoButton]=true  [deleteButton]=false [addButton]=false [hideDuplicateButton]=true
             [actionButton]=false (add)="openTasksDialog($event)"  (getAllRows)="getAllRowsTasks($event)"> </app-data-grid>
         </div>

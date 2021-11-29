@@ -48,7 +48,8 @@ export const config = {
     'roles':'name',
   },
   taskSelectorSortField:{
-    'taskGroup': 'name'
+    'taskGroup': 'name',
+    'service': 'name'
   },
   languages: [
     { id: "ca", name: "catalan" },

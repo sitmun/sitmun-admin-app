@@ -41,7 +41,7 @@ export class TasksComponent implements OnInit {
       columnEditBtn,
       this.utils.getIdColumnDef(),
       this.utils.getEditableColumnDef('tasksEntity.task', 'name'),
-      this.utils.getEditableColumnDef('tasksEntity.groupTask', 'groupName'),
+      this.utils.getNonEditableColumnDef('tasksEntity.groupTask', 'groupName'),
 
     ];
   }
@@ -77,7 +77,6 @@ export class TasksComponent implements OnInit {
 
   newData(id: any) {
     this.saveAgGridStateEvent.next(true);
-    // this.router.navigate(['tasks', id, 'tasksForm']);
     this.router.navigate(["taskForm", id, config.tasksTypesNames.basic]);
   }
 

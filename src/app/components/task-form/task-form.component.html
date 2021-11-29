@@ -183,12 +183,13 @@
             [hidden]="getFieldWithCondition(element.values.condition, element.values.hidden, 'hidden', form )" [ngSwitch]="getFieldWithCondition(element.values.condition, element.values.control, 'control', form )">
                 
                 <div *ngSwitchCase="'input'">
-                    <label [ngClass]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )?'formLabel requiredInput':'formLabel'">
+                    <label [ngClass]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )?'formLabel requiredInput':'formLabel'" >
                         {{element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', form ) | translate) : (element.values.label | translate) }}
                     </label>
     
                     <mat-form-field appearance="outline">
-                        <input matInput type="text" [formControlName]=element.fieldName [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )" > 
+                        <input matInput type="text" [formControlName]=element.fieldName [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )"
+                        [disabled]="getFieldWithCondition(element.values.condition, element.values.disabled, 'disabled', form )" > 
                     </mat-form-field>
                 </div>
                 
@@ -199,7 +200,8 @@
     
                     <mat-form-field appearance="outline">
                         <textarea 
-                            matInput type="text" [formControlName]=element.fieldName [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )" >
+                            matInput type="text" [formControlName]=element.fieldName [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )"
+                            [disabled]="getFieldWithCondition(element.values.condition, element.values.disabled, 'disabled', form )" >
                         </textarea> 
                     </mat-form-field>
                 </div>
@@ -213,7 +215,7 @@
                     <mat-form-field appearance="outline">
                         
                         <mat-select  matInput [formControlName]=element.fieldName
-                        [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )" class="form-control">
+                        [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )" class="form-control" [disabled]="getFieldWithCondition(element.values.condition, element.values.disabled, 'disabled', form )">
                             <mat-option [value]="dataElement[element.values.selector.value]"
                                 *ngFor="let dataElement of getDataSelector(element.values.selector.data, element.values.selector.queryParams, element.values.label)">
                                 {{ dataElement[element.values.selector.name]}}
@@ -233,7 +235,8 @@
                     <mat-form-field appearance="outline">
                         
                         <mat-select  matInput [formControlName]=element.fieldName
-                        [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )" class="form-control">
+                        [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )" class="form-control"
+                        [disabled]="getFieldWithCondition(element.values.condition, element.values.disabled, 'disabled', form )">
                             <mat-option [value]="dataElement"
                                 *ngFor="let dataElement of getDataSQLElement(element.values.element, element.values.patternToSearch, i)">
                                 {{ dataElement}}
@@ -248,7 +251,8 @@
                         {{element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', form ) | translate) : (element.values.label | translate) }}
                     </label>
     
-                    <mat-checkbox [formControlName]=element.fieldName [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )" > </mat-checkbox>
+                    <mat-checkbox [formControlName]=element.fieldName [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )" 
+                    [disabled]="getFieldWithCondition(element.values.condition, element.values.disabled, 'disabled', form )"> </mat-checkbox>
                 </div>
     
     
@@ -259,7 +263,8 @@
                     </label>
     
                     <mat-radio-group aria-label="Select an option" [formControlName]=element.fieldName
-                    [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )">
+                    [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )"
+                    [disabled]="getFieldWithCondition(element.values.condition, element.values.disabled, 'disabled', form )">
                         <mat-radio-button *ngFor="let enumElement of element.values.enum.elements;"
                             class="radioButtonForm" [value]=enumElement.value  > {{ enumElement.label | translate}}
                         </mat-radio-button>
