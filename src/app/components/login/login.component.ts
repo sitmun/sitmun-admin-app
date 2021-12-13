@@ -78,7 +78,16 @@ export class LoginComponent {
     }
     async loadLanguages(){
         this.langs = await this.languageService.getAll().toPromise()
-        this.languagesLoaded = true;
+        if(this.trans.currentLang){
+            
+            this.langs.sort((a,b) => this.trans.instant('lang.'+a.name).localeCompare(this.trans.instant('lang.'+b.name)));
+            this.languagesLoaded = true;
+        }
+        else{
+            this.langs.sort((a,b) => a.name.localeCompare(b.name));
+            this.languagesLoaded = true;
+        }
+
     }
 
  

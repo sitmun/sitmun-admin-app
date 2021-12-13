@@ -22,7 +22,7 @@
         </div>
         <span class="divider"></span>  
 
-        <div *ngFor="let element of formElements; let i = index" class="colFormDiv" [hidden]="getFieldWithCondition(element.values.condition, element.values.hidden, 'hidden', taskForm )" 
+        <div *ngFor="let element of formElements; let i = index" class="colFormDiv" [hidden]="getFieldWithCondition(element.values.condition, element.values.hidden, 'hidden', taskForm, element.fieldName  )" 
         [ngSwitch]="getFieldWithCondition(element.values.condition, element.values.control, 'control', taskForm )">
 
             <div *ngSwitchCase="'input'">
@@ -180,7 +180,7 @@
 
     
             <div *ngFor="let element of tableFormElements[index]; let i = index" class="colFormDiv" 
-            [hidden]="getFieldWithCondition(element.values.condition, element.values.hidden, 'hidden', form )" [ngSwitch]="getFieldWithCondition(element.values.condition, element.values.control, 'control', form )">
+            [hidden]="getFieldWithCondition(element.values.condition, element.values.hidden, 'hidden', form, element.fieldName )" [ngSwitch]="getFieldWithCondition(element.values.condition, element.values.control, 'control', form )">
                 
                 <div *ngSwitchCase="'input'">
                     <label [ngClass]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )?'formLabel requiredInput':'formLabel'" >

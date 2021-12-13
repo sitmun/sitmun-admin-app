@@ -622,7 +622,7 @@ export class TaskFormComponent implements OnInit {
   }
 
 
-  getFieldWithCondition(condition, table, fieldResult, form){
+  getFieldWithCondition(condition, table, fieldResult, form, fieldName?){
     if(table == undefined) { return false; }
 
     if(condition == undefined || !Array.isArray(table)) {
@@ -633,9 +633,19 @@ export class TaskFormComponent implements OnInit {
 
     if(findResult != undefined) { 
       findResult=findResult[fieldResult] 
+      if(fieldResult=="hidden" && table.length>0 && table[0].ignore){
+        form.get(fieldName).reset();
+        form.get(fieldName).disable();
+      }
     }
     else{
-      if(fieldResult == "hidden" || fieldResult == "required" || fieldResult == "disabled" ) { findResult = false }
+      if(fieldResult == "hidden"){
+        findResult = false;
+        if(table.length>0 && table[0].ignore){
+          form.get(fieldName).enable();
+        }
+      }
+      if(fieldResult == "required" || fieldResult == "disabled" ) { findResult = false }
     }
     if(findResult === "INPUT") { findResult="input" }
     return findResult;
