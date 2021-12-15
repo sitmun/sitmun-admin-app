@@ -206,18 +206,7 @@ export class TaskFormComponent implements OnInit {
 
     this.taskType= await this.taskTypeService.getAll().pipe(map((data: any[]) => data.filter(elem => elem.title==this.taskTypeName))).toPromise();
     this.properties=this.taskType[0].specification;
-    this.taskType=this.taskType[0];
-
-
-
-
-    // this.taskType= await this.taskTypeService.getAll().pipe(map((data: any[]) => data.filter(elem => elem.title==this.taskTypeName))).toPromise();
-    // console.log(this.taskType);
-    // this.properties=this.taskType[0].specification;
-
-
-    
-
+    this.taskType=this.taskType[0]; 
 
     if(this.properties){
 
@@ -1039,14 +1028,17 @@ export class TaskFormComponent implements OnInit {
       
       if(keys[i]=='order' && notDialog) { hasOrderField = true }
       if(keys[i]=='name' && notDialog) { hasNameField = true }
-
+      let currentColumnDef;
       if(values[i]['editable'] === "true"){
-        columnResults.push(this.utils.getEditableColumnDef(values[i]['label'], keys[i]))
+        currentColumnDef=this.utils.getEditableColumnDef(values[i]['label'], keys[i]);
       }
       else{
-        columnResults.push(this.utils.getNonEditableColumnDef(values[i]['label'], keys[i]))    
+        currentColumnDef=this.utils.getNonEditableColumnDef(values[i]['label'], keys[i]);
       }
-      // columnResults.push({headerName: this.utils.getTranslate(values[i]['label']), field: keys[i], editable: values[i]['editable'] })
+      if(values[i]['textAreaSelector']){
+        currentColumnDef.cellEditor='agLargeTextCellEditor';
+      }
+      columnResults.push(currentColumnDef);
     }
     if(status) {columnResults.push(this.utils.getStatusColumnDef())}
 
