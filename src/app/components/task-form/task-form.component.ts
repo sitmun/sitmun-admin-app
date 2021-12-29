@@ -1037,6 +1037,9 @@ export class TaskFormComponent implements OnInit {
       }
       if(values[i]['textAreaSelector']){
         currentColumnDef.cellEditor='agLargeTextCellEditor';
+        currentColumnDef.cellEditorParams= {
+          maxLength: 900000
+        }
       }
       columnResults.push(currentColumnDef);
     }
