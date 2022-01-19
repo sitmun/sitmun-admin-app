@@ -773,6 +773,10 @@ export class RoleFormComponent implements OnInit {
 
   onSaveButtonClicked() {
 
+    
+    if(this.formRole.valid)
+    {
+
     this.roleService.save(this.formRole.value)
       .subscribe(resp => {
 
@@ -796,6 +800,11 @@ export class RoleFormComponent implements OnInit {
         error => {
           console.log(error);
         });
+
+      }
+      else {
+        this.utils.showRequiredFieldsError();
+      }
 
 
   }

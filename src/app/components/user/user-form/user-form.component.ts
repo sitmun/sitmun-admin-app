@@ -211,7 +211,7 @@ export class UserFormComponent implements OnInit {
       lastName: new FormControl(null),
       passwordSet: new FormControl(null),
       password: new FormControl(null),
-      confirmPassword: new FormControl(null,), // [this.matchValues('password'),]
+      confirmPassword: new FormControl(null,),
       administrator: new FormControl(null, []),
       blocked: new FormControl(null, []),
       _links: new FormControl(null, []),

@@ -363,7 +363,7 @@ export class ApplicationFormComponent implements OnInit {
         Validators.required,
       ]),
       title: new FormControl(null),
-      jspTemplate: new FormControl(null),
+      jspTemplate: new FormControl(null,[Validators.required]),
       theme: new FormControl(null),
 
       situationMap: new FormControl(null, []),

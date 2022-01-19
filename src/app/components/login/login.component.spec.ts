@@ -13,6 +13,7 @@ import { MaterialModule } from '../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -29,7 +30,7 @@ describe('LoginComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ LoginComponent ],
-      imports : [HttpClientTestingModule, HttpClientModule,  SitmunFrontendGuiModule, RouterTestingModule, MatIconTestingModule,
+      imports : [FormsModule, ReactiveFormsModule, HttpClientTestingModule, HttpClientModule,  SitmunFrontendGuiModule, RouterTestingModule, MatIconTestingModule,
         MaterialModule, RouterModule,
        TranslateModule.forRoot({
          loader: {
@@ -94,4 +95,26 @@ describe('LoginComponent', () => {
   it('should instantiate externalService', () => {
     expect(externalService).toBeTruthy();
   });
+
+  it('form invalid when empty', () => {
+    expect(component.form.valid).toBeFalsy();
+  }); 
+
+  it('form invalid when mid-empty', () => {
+    component.form.patchValue({
+      password: 'password',
+      lang: 1,
+    })
+    //Miss username
+    expect(component.form.valid).toBeFalsy();
+  }); 
+
+  it('form valid', () => {
+    component.form.patchValue({
+      username: 'username',
+      password: 'password',
+      lang: 1,
+    })
+    expect(component.form.valid).toBeTruthy();
+  }); 
 });

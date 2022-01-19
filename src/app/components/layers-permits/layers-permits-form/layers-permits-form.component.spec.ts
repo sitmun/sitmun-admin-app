@@ -9,6 +9,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { MaterialModule } from '../../../material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 
 describe('LayersPermitsFormComponent', () => {
@@ -25,7 +26,7 @@ describe('LayersPermitsFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ LayersPermitsFormComponent ],
-      imports: [ RouterModule.forRoot([]), HttpClientTestingModule, SitmunFrontendGuiModule,
+      imports: [FormsModule, ReactiveFormsModule, RouterModule.forRoot([]), HttpClientTestingModule, SitmunFrontendGuiModule,
       RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
       providers: [CartographyGroupService, RoleService, CartographyService, CodeListService,TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
@@ -78,4 +79,24 @@ describe('LayersPermitsFormComponent', () => {
   it('should instantiate externalService', () => {
     expect(externalService).toBeTruthy();
   });
+
+  it('form invalid when empty', () => {
+    expect(component.formLayersPermits.valid).toBeFalsy();
+  }); 
+
+  it('form invalid when mid-empty', () => {
+    component.formLayersPermits.patchValue({
+      type: 1,
+    })
+    //Miss name
+    expect(component.formLayersPermits.valid).toBeFalsy();
+  }); 
+
+  it('form valid', () => {
+    component.formLayersPermits.patchValue({
+      name: 'name',
+      type: 1,
+    })
+    expect(component.formLayersPermits.valid).toBeTruthy();
+  }); 
 });

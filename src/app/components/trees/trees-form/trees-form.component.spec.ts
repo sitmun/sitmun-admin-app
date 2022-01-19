@@ -9,6 +9,7 @@ import { ExternalConfigurationService } from 'src/app/ExternalConfigurationServi
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { RouterTestingModule } from '@angular/router/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 describe('TreesFormComponent', () => {
   let component: TreesFormComponent;
@@ -27,7 +28,7 @@ describe('TreesFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ TreesFormComponent ],
-      imports: [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,
+      imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,
          RouterModule.forRoot([]), MaterialModule, MatIconTestingModule],
       providers: [TreeService,TreeNodeService, ApplicationService, ServiceService, CapabilitiesService, CartographyService, CodeListService,TranslationService, ResourceService, ExternalService ,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
@@ -86,6 +87,70 @@ describe('TreesFormComponent', () => {
   it('should instantiate externalService', () => {
     expect(externalService).toBeTruthy();
   });
+
+  it('form tree invalid when empty', () => {
+    expect(component.treeForm.valid).toBeFalsy();
+  }); 
+
+  it('form tree invalid when mid-empty', () => {
+    component.treeForm.patchValue({
+      description: 'description',
+      image: 'www.image.com'
+    })
+    //Miss name
+    expect(component.treeForm.valid).toBeFalsy();
+  }); 
+
+  it('form tree valid', () => {
+    component.treeForm.patchValue({
+      name: 'name',
+      description: 'description',
+      image: 'www.image.com'
+    })
+    expect(component.treeForm.valid).toBeTruthy();
+  }); 
+
+  it('form tree node invalid when empty', () => {
+    expect(component.treeNodeForm.valid).toBeFalsy();
+  }); 
+
+  it('form tree node invalid when mid-empty', () => {
+    component.treeNodeForm.patchValue({
+      tooltip: true,
+      cartography: null,
+      radio: true,
+      datasetURL: 'url',
+      metadataURL: 'url',
+      description: 'descript',
+      active: true,
+      order: 1,
+      filterGetFeatureInfo: null,
+      filterGetMap: null,
+      filterSelectable: null,
+      style: null,
+    })
+    //Miss name
+    expect(component.treeNodeForm.valid).toBeFalsy();
+  }); 
+
+  it('form tree node valid', () => {
+    component.treeNodeForm.patchValue({
+      name: 'name',
+      tooltip: true,
+      cartography: null,
+      radio: true,
+      datasetURL: 'url',
+      metadataURL: 'url',
+      description: 'descript',
+      active: true,
+      order: 1,
+      filterGetFeatureInfo: null,
+      filterGetMap: null,
+      filterSelectable: null,
+      style: null,
+    })
+    expect(component.treeNodeForm.valid).toBeTruthy();
+  }); 
 
   
 });

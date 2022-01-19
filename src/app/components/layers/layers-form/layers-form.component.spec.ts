@@ -11,6 +11,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { MaterialModule } from '../../../material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 describe('LayersFormComponent', () => {
   let component: LayersFormComponent;
@@ -36,7 +37,7 @@ describe('LayersFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ LayersFormComponent ],
-      imports: [ RouterModule.forRoot([]), HttpClientTestingModule, SitmunFrontendGuiModule, 
+      imports: [FormsModule, ReactiveFormsModule, RouterModule.forRoot([]), HttpClientTestingModule, SitmunFrontendGuiModule, 
       RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
       providers: [CartographyService, ServiceService, ConnectionService, TerritoryTypeService, 
         TreeNodeService, GetInfoService, CartographyStyleService, TerritoryService, CartographyGroupService, CartographyAvailabilityService, 
@@ -141,4 +142,74 @@ describe('LayersFormComponent', () => {
   it('should instantiate externalService', () => {
     expect(externalService).toBeTruthy();
   });
+
+  it('form invalid when empty', () => {
+    expect(component.layerForm.valid).toBeFalsy();
+  }); 
+
+  it('form invalid when mid-empty', () => {
+    component.layerForm.patchValue({
+      service: 1,
+      layers: ['layer'],
+      minimumScale: 10,
+      maximumScale: 20,
+      geometryType: 30,
+      order: 1,
+      transparency: '50',
+      metadataURL: 'url',
+      legendType: 1,
+      legendUrl: 'url',
+      source: 'source',
+      description: 'description',
+      datasetURL: 'dataset',
+      applyFilterToGetMap: true,
+      applyFilterToGetFeatureInfo: true,
+      applyFilterToSpatialSelection: true,
+      queryableFeatureEnabled: true,
+      queryableFeatureAvailable: true,
+      queryableLayers: true,
+      thematic: true,
+      blocked: true,
+      selectableFeatureEnabled: true,
+      spatialSelectionService: 1,
+      selectableLayers: 'layerSelected',
+      spatialSelectionConnection: 'connection',
+      useAllStyles: true,
+    })
+    //Miss name
+    expect(component.layerForm.valid).toBeFalsy();
+  }); 
+
+  it('form valid', () => {
+    component.layerForm.patchValue({
+      name: 'name',
+      service: 1,
+      layers: ['layer'],
+      minimumScale: 10,
+      maximumScale: 20,
+      geometryType: 30,
+      order: 1,
+      transparency: '50',
+      metadataURL: 'url',
+      legendType: 1,
+      legendUrl: 'url',
+      source: 'source',
+      description: 'description',
+      datasetURL: 'dataset',
+      applyFilterToGetMap: true,
+      applyFilterToGetFeatureInfo: true,
+      applyFilterToSpatialSelection: true,
+      queryableFeatureEnabled: true,
+      queryableFeatureAvailable: true,
+      queryableLayers: true,
+      thematic: true,
+      blocked: true,
+      selectableFeatureEnabled: true,
+      spatialSelectionService: 1,
+      selectableLayers: 'layerSelected',
+      spatialSelectionConnection: 'connection',
+      useAllStyles: true,
+    })
+    expect(component.layerForm.valid).toBeTruthy();
+  }); 
 });

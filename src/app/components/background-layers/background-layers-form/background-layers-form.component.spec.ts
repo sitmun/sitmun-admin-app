@@ -10,6 +10,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BackgroundLayersFormComponent } from './background-layers-form.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 describe('BackgroundLayersFormComponent', () => {
   let component: BackgroundLayersFormComponent;
@@ -28,7 +29,7 @@ describe('BackgroundLayersFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ BackgroundLayersFormComponent ],
-      imports: [HttpClientTestingModule, RouterModule.forRoot([]), HttpClientModule,
+      imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, RouterModule.forRoot([]), HttpClientModule,
       SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
       providers: [BackgroundService, RoleService, ApplicationBackgroundService, ApplicationService, CartographyService, CodeListService,CartographyGroupService,TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
@@ -96,4 +97,27 @@ describe('BackgroundLayersFormComponent', () => {
   it('should instantiate externalService', () => {
     expect(externalService).toBeTruthy();
   });
+  it('form invalid when empty', () => {
+    expect(component.backgroundForm.valid).toBeFalsy();
+  }); 
+
+  it('form invalid when mid-empty', () => {
+    component.backgroundForm.patchValue({
+      description: 'desc',
+      image: 'image',
+      active: true
+    })
+    //Miss name
+    expect(component.backgroundForm.valid).toBeFalsy();
+  }); 
+
+  it('form valid', () => {
+    component.backgroundForm.patchValue({
+      name: 'name',
+      description: 'desc',
+      image: 'image',
+      active: true
+    })
+    expect(component.backgroundForm.valid).toBeTruthy();
+  }); 
 });

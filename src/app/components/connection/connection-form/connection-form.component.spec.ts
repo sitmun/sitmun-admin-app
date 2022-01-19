@@ -8,6 +8,7 @@ import { MaterialModule } from '../../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 describe('ConnectionFormComponent', () => {
   let component: ConnectionFormComponent;
@@ -23,7 +24,7 @@ describe('ConnectionFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ ConnectionFormComponent ],
-      imports : [HttpClientTestingModule, SitmunFrontendGuiModule, MatIconTestingModule, RouterTestingModule, MaterialModule, RouterModule],
+      imports : [HttpClientTestingModule, FormsModule, ReactiveFormsModule, SitmunFrontendGuiModule, MatIconTestingModule, RouterTestingModule, MaterialModule, RouterModule],
       providers: [ConnectionService, CartographyService, TaskService, CodeListService,TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
@@ -75,4 +76,30 @@ describe('ConnectionFormComponent', () => {
   it('should instantiate externalService', () => {
     expect(externalService).toBeTruthy();
   });
+  
+  it('form invalid when empty', () => {
+    expect(component.formConnection.valid).toBeFalsy();
+  }); 
+
+  it('form invalid when mid-empty', () => {
+    component.formConnection.patchValue({
+      name:'testName',
+      user: 'user',
+      password: 'password',
+      url: 'url'
+    })
+    //Miss driver
+    expect(component.formConnection.valid).toBeFalsy();
+  }); 
+
+  it('form valid', () => {
+    component.formConnection.patchValue({
+      name:'testName',
+      user: 'user',
+      password: 'password',
+      url: 'url',
+      driver: 5
+    })
+    expect(component.formConnection.valid).toBeTruthy();
+  }); 
 });

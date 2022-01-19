@@ -10,6 +10,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { RouterTestingModule } from '@angular/router/testing';
 import { TerritoryTypeService } from 'dist/sitmun-frontend-core/';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 describe('TerritoryFormComponent', () => {
   let component: TerritoryFormComponent;
@@ -33,7 +34,7 @@ describe('TerritoryFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ TerritoryFormComponent ],
-      imports: [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,
+      imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,
         RouterModule.forRoot([]), MaterialModule, MatIconTestingModule],
      providers: [TerritoryService, UserService, RoleService,  TerritoryGroupTypeService, CartographyService, TaskAvailabilityService,
        TaskService, UserPositionService, TerritoryTypeService, CartographyAvailabilityService, CodeListService,UserConfigurationService,TranslationService, ResourceService, ExternalService,
@@ -126,4 +127,50 @@ describe('TerritoryFormComponent', () => {
   it('should instantiate externalService', () => {
     expect(externalService).toBeTruthy();
   });
+
+  it('form invalid when empty', () => {
+    expect(component.territoryForm.valid).toBeFalsy();
+  }); 
+
+  it('form invalid when mid-empty', () => {
+    component.territoryForm.patchValue({
+      code: 1,
+      territorialAuthorityAddress: 'address',
+      territorialAuthorityLogo: 'urlLogo',
+      type: 1,
+      extensionX0: 1,
+      extensionX1: 2,
+      extensionY0: 3,
+      extensionY1: 4,
+      extent: 12,
+      note: 'observations',
+      blocked: false,
+      defaultZoomLevel: 2,
+      centerPointX:  5,
+      centerPointY:  5,
+    })
+    //Miss name
+    expect(component.territoryForm.valid).toBeFalsy();
+  }); 
+
+  it('form valid', () => {
+    component.territoryForm.patchValue({
+      code: 1,
+      name: 'name',
+      territorialAuthorityAddress: 'address',
+      territorialAuthorityLogo: 'urlLogo',
+      type: 1,
+      extensionX0: 1,
+      extensionX1: 2,
+      extensionY0: 3,
+      extensionY1: 4,
+      extent: 12,
+      note: 'observations',
+      blocked: false,
+      defaultZoomLevel: 2,
+      centerPointX:  5,
+      centerPointY:  5,
+    })
+    expect(component.territoryForm.valid).toBeTruthy();
+  }); 
 });

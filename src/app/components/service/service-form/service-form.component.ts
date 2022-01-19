@@ -244,9 +244,9 @@ export class ServiceFormComponent implements OnInit {
       user: new FormControl(null),
       password: new FormControl(null),
       passwordSet: new FormControl(null),
-      authenticationMode: new FormControl(null, [Validators.required,]),
+      authenticationMode: new FormControl(null, [Validators.required]),
 
-      description: new FormControl(null,[]),
+      description: new FormControl(null,[Validators.required]),
       type: new FormControl(null, [
         Validators.required,
       ]),

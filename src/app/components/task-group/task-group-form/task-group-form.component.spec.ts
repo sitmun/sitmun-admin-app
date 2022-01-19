@@ -10,6 +10,7 @@ import { ExternalConfigurationService } from 'src/app/ExternalConfigurationServi
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { RouterTestingModule } from '@angular/router/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 describe('TaskGroupFormComponent', () => {
   let component: TaskGroupFormComponent;
@@ -23,7 +24,7 @@ describe('TaskGroupFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ TaskGroupFormComponent ],
-      imports: [HttpClientTestingModule, RouterModule.forRoot([]), HttpClientModule,
+      imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, RouterModule.forRoot([]), HttpClientModule,
       SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
       providers: [TaskGroupService,CodeListService,TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
@@ -65,4 +66,16 @@ describe('TaskGroupFormComponent', () => {
   it('should instantiate externalService', () => {
     expect(externalService).toBeTruthy();
   });
+
+  it('form invalid when empty', () => {
+    expect(component.formtaskGroup.valid).toBeFalsy();
+  }); 
+
+
+  it('form valid', () => {
+    component.formtaskGroup.patchValue({
+      name: 'name'
+    })
+    expect(component.formtaskGroup.valid).toBeTruthy();
+  }); 
 });

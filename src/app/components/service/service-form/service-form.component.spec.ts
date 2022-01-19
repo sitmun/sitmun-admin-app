@@ -9,6 +9,7 @@ import { ExternalConfigurationService } from 'src/app/ExternalConfigurationServi
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { RouterTestingModule } from '@angular/router/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 describe('ServiceFormComponent', () => {
   let component: ServiceFormComponent;
@@ -26,7 +27,7 @@ describe('ServiceFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ ServiceFormComponent ],
-      imports: [HttpClientTestingModule, RouterModule.forRoot([]), HttpClientModule,
+      imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, RouterModule.forRoot([]), HttpClientModule,
       SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
       providers: [ServiceService, CapabilitiesService, CartographyStyleService, ServiceParameterService, CartographyService, CodeListService,TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
@@ -88,4 +89,46 @@ describe('ServiceFormComponent', () => {
   it('should instantiate externalService', () => {
     expect(externalService).toBeTruthy();
   });
+
+  it('form invalid when empty', () => {
+    expect(component.serviceForm.valid).toBeFalsy();
+  }); 
+
+  it('form invalid when mid-empty', () => {
+    component.serviceForm.patchValue({
+      user: 'user',
+      password: 'password',
+      passwordSet: true,
+      authenticationMode: 1,
+
+      description: 'description',
+      type: 1,
+      serviceURL:  'urltest',
+      proxyUrl: 'urltest',
+      supportedSRS: ['EPSG:2831'],
+      getInformationURL: 'urltest',
+      blocked: true
+    })
+    //Miss name
+    expect(component.serviceForm.valid).toBeFalsy();
+  }); 
+
+  it('form valid', () => {
+    component.serviceForm.patchValue({
+      name: 'name',
+      user: 'user',
+      password: 'password',
+      passwordSet: true,
+      authenticationMode: 1,
+
+      description: 'description',
+      type: 1,
+      serviceURL:  'urltest',
+      proxyUrl: 'urltest',
+      supportedSRS: ['EPSG:2831'],
+      getInformationURL: 'urltest',
+      blocked: true
+    })
+    expect(component.serviceForm.valid).toBeTruthy();
+  }); 
 });

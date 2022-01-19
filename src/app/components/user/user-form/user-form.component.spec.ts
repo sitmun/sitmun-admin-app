@@ -10,6 +10,7 @@ import { ExternalConfigurationService } from 'src/app/ExternalConfigurationServi
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { RouterTestingModule } from '@angular/router/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 describe('UserFormComponent', () => {
   let component: UserFormComponent;
@@ -27,7 +28,7 @@ describe('UserFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ UserFormComponent ],
-      imports: [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,
+      imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,
          RouterModule.forRoot([]), MaterialModule, MatIconTestingModule],
       providers: [UserService,RoleService, TerritoryService, UserPositionService, 
         CodeListService,UserConfigurationService,TranslationService,ResourceService,ExternalService,
@@ -90,4 +91,36 @@ describe('UserFormComponent', () => {
   it('should instantiate externalService', () => {
     expect(externalService).toBeTruthy();
   });
+
+  it('form invalid when empty', () => {
+    expect(component.userForm.valid).toBeFalsy();
+  }); 
+
+  it('form invalid when mid-empty', () => {
+    component.userForm.patchValue({
+      firstName: 'Name',
+      lastName: 'lastname',
+      passwordSet: true,
+      password: false,
+      confirmPassword: false,
+      administrator: true,
+      blocked: true,
+    })
+    //Miss name
+    expect(component.userForm.valid).toBeFalsy();
+  }); 
+
+  it('form valid', () => {
+    component.userForm.patchValue({
+      username: 'username',
+      firstName: 'Name',
+      lastName: 'lastname',
+      passwordSet: true,
+      password: false,
+      confirmPassword: false,
+      administrator: true,
+      blocked: true,
+    })
+    expect(component.userForm.valid).toBeTruthy();
+  }); 
 });

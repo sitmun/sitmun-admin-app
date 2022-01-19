@@ -10,6 +10,7 @@ import { ExternalConfigurationService } from 'src/app/ExternalConfigurationServi
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
 import { RouterTestingModule } from '@angular/router/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 describe('ApplicationFormComponent', () => {
   let component: ApplicationFormComponent;
@@ -29,7 +30,7 @@ describe('ApplicationFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ ApplicationFormComponent ],
-      imports: [HttpClientTestingModule, RouterModule.forRoot([]), HttpClientModule,
+      imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, RouterModule.forRoot([]), HttpClientModule,
       SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
       providers: [ApplicationService, ApplicationBackgroundService, RoleService, ApplicationParameterService, TreeService, 
         BackgroundService, CodeListService, CartographyGroupService,TranslationService,ResourceService,ExternalService,
@@ -102,4 +103,32 @@ describe('ApplicationFormComponent', () => {
   it('should instantiate externalService', () => {
     expect(externalService).toBeTruthy();
   });
+
+  it('form invalid when empty', () => {
+    expect(component.applicationForm.valid).toBeFalsy();
+  }); 
+
+  it('form invalid when mid-empty', () => {
+    component.applicationForm.patchValue({
+      name: 'nameTest',
+      type: 1,
+    })
+    //Miss url
+    expect(component.applicationForm.valid).toBeFalsy();
+  }); 
+
+  it('form valid', () => {
+    component.applicationForm.patchValue({
+      name: 'name',
+      type: 1,
+      title: 'title',
+      jspTemplate: 'url',
+      theme: 'theme',
+      situationMap: 1,
+      scales: '1',
+      srs: 'EPSG:4326',
+      treeAutoRefresh: true
+    })
+    expect(component.applicationForm.valid).toBeTruthy();
+  }); 
 });

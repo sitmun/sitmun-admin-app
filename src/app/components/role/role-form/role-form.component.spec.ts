@@ -14,6 +14,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { Role } from '@sitmun/frontend-core';
 import { Observable } from 'rxjs';
 import { Injector } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 
 describe('RoleFormComponent', () => {
@@ -38,7 +39,7 @@ describe('RoleFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ RoleFormComponent ],
-      imports: [HttpClientTestingModule, RouterModule.forRoot([]), HttpClientModule,
+      imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, RouterModule.forRoot([]), HttpClientModule,
       SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
       providers: [RoleService, UserService, TerritoryService, ApplicationService, CodeListService, 
         CartographyGroupService,UserConfigurationService, CartographyService, TaskService,ResourceService,ExternalService,
@@ -114,63 +115,27 @@ describe('RoleFormComponent', () => {
     expect(externalService).toBeTruthy();
   });
 
-  // it('#getObservableValue should return value from observable',
-  // (done: DoneFn) => {
-  //   let role: Role =  new Role();;
-  //   role.id=1;
-  //   role.name="Name";
-  //   role.description="Description"; 
-  //   // let httpClientSpy: { get: jasmine.Spy };
-  //   // httpClientSpy = jasmine.createSpyObj('HttpClient', ['get']);
-  //   // let httpMock = getTestBed().get(HttpClientModule)
-  //   // let service: RoleService = new RoleService(TestBed.get(Injector), httpMock);
+  it('form invalid when empty', () => {
+    expect(component.formRole.valid).toBeFalsy();
+  }); 
 
-  // service.save(role).subscribe(value => {
-  //   expect(value).toBe(role);
-  //   done();
-  // });
+  it('form invalid when mid-empty', () => {
+    component.formRole.patchValue({
+      password: 'password',
+      lang: 1,
+    })
+    //Miss name
+    expect(component.formRole.valid).toBeFalsy();
+  }); 
 
-  //   // });
-  // })
+  it('form valid', () => {
+    component.formRole.patchValue({
+      name: 'name',
+      description: 'description'
+    })
+    expect(component.formRole.valid).toBeTruthy();
+  }); 
 
-  // describe('RoleService', () => {
-
-  //   let injector: TestBed;
-  //   let service: RoleService;
-  //   let httpMock: HttpClient;
-  //   let role: Role =  new Role();;
-  //   role.id=1;
-  //   role.name="Name";
-  //   role.description="Description"; 
-
-  //   beforeEach(() => {
-  //     injector = getTestBed();
-  //     // service= TestBed.inject(RoleService);
-  //     // service= injector.get(RoleService);
-  //     httpMock= TestBed.inject(HttpClient);
-  //     // httpMock= injector.get(HttpTestingController);
-  //     service = new RoleService(injector,httpMock)
-  //     // jasmine.DEFAULT_TIMEOUT_INTERVAL = 100000;
-
-  //   });
-    
-  
-  //   it('#getObservableValue should return value from observable',
-  //   (done: DoneFn) => {
-  //     // let httpClientSpy: { get: jasmine.Spy };
-  //     // httpClientSpy = jasmine.createSpyObj('HttpClient', ['get']);
-  //     // let httpMock = getTestBed().get(HttpClientModule)
-  //     // let service: RoleService = new RoleService(TestBed.get(Injector), httpMock);
-
-  //   service.save(role).subscribe(value => {
-  //     expect(value).toBe(role);
-  //     done();
-  //   });
-
-  //   // service.save(role).toPromise().then(value => {
-  //   //   expect(value).toBe(role);
-  //   //   done();
-  //   // });
 
 
 });
