@@ -40,7 +40,6 @@ export class RoleComponent implements OnInit {
       this.utils.getIdColumnDef(),
       this.utils.getEditableColumnDef('roleEntity.name', 'name'),
       this.utils.getEditableColumnDef('roleEntity.note', 'description'),
-      // { headerName: this.utils.getTranslate('application'),  field: 'application' },
     ];
   }
 
@@ -85,16 +84,6 @@ export class RoleComponent implements OnInit {
 
   add(data: Role[]) {
     this.router.navigate(['role', -1, 'roleForm', data[0].id]);
-    // const promises: Promise<any>[] = [];
-    // data.forEach(role => {
-    //   role.id = null;
-    //   role.name = this.utils.getTranslate('copy_').concat(role.name)
-    //   promises.push(new Promise((resolve, reject) => {​​​​​​​ this.roleService.create(role).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
-    //   Promise.all(promises).then(() => {
-    //     this.dataUpdatedEvent.next(true);
-    //   });
-    // });
-
   }
 
   removeData(data: Role[]) {

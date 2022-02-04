@@ -131,4 +131,18 @@ describe('ApplicationFormComponent', () => {
     })
     expect(component.applicationForm.valid).toBeTruthy();
   }); 
+
+  it('Application form fields', () => {
+    expect(component.applicationForm.get('name')).toBeTruthy();
+    expect(component.applicationForm.get('type')).toBeTruthy();
+    expect(component.applicationForm.get('title')).toBeTruthy();
+    expect(component.applicationForm.get('jspTemplate')).toBeTruthy();
+    expect(component.applicationForm.get('theme')).toBeTruthy();
+    expect(component.applicationForm.get('situationMap')).toBeTruthy();
+    expect(component.applicationForm.get('scales')).toBeTruthy();
+    expect(component.applicationForm.get('srs')).toBeTruthy();
+    expect(component.applicationForm.get('treeAutoRefresh')).toBeTruthy();
+  }); 
+
+
 });

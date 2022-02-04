@@ -152,5 +152,27 @@ describe('TreesFormComponent', () => {
     expect(component.treeNodeForm.valid).toBeTruthy();
   }); 
 
+  it('Tree form fields', () => {
+    expect(component.treeForm.get('name')).toBeTruthy();
+    expect(component.treeForm.get('description')).toBeTruthy();
+    expect(component.treeForm.get('image')).toBeTruthy();
+  }); 
+
+  it('Tree node form fields', () => {
+    expect(component.treeNodeForm.get('name')).toBeTruthy();
+    expect(component.treeNodeForm.get('tooltip')).toBeTruthy();
+    expect(component.treeNodeForm.get('cartography')).toBeTruthy();
+    expect(component.treeNodeForm.get('radio')).toBeTruthy();
+    expect(component.treeNodeForm.get('datasetURL')).toBeTruthy();
+    expect(component.treeNodeForm.get('metadataURL')).toBeTruthy();
+    expect(component.treeNodeForm.get('description')).toBeTruthy();
+    expect(component.treeNodeForm.get('active')).toBeTruthy();
+    expect(component.treeNodeForm.get('order')).toBeTruthy();
+    expect(component.treeNodeForm.get('filterGetFeatureInfo')).toBeTruthy();
+    expect(component.treeNodeForm.get('filterGetMap')).toBeTruthy();
+    expect(component.treeNodeForm.get('filterSelectable')).toBeTruthy();
+    expect(component.treeNodeForm.get('style')).toBeTruthy();
+  }); 
+
   
 });

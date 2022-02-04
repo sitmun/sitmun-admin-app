@@ -102,4 +102,13 @@ describe('ConnectionFormComponent', () => {
     })
     expect(component.formConnection.valid).toBeTruthy();
   }); 
+
+  it('Connection form fields', () => {
+    expect(component.formConnection.get('name')).toBeTruthy();
+    expect(component.formConnection.get('user')).toBeTruthy();
+    expect(component.formConnection.get('password')).toBeTruthy();
+    expect(component.formConnection.get('url')).toBeTruthy();
+    expect(component.formConnection.get('driver')).toBeTruthy();
+  }); 
+
 });

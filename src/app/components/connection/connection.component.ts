@@ -51,8 +51,6 @@ export class ConnectionComponent implements OnInit {
       columnEditBtn,
       this.utils.getIdColumnDef(),
       this.utils.getEditableColumnDef('connectionEntity.name', 'name'),
-      //this.utils.getEditableColumnDef('connectionEntity.user','user'),
-      // this.utils.getEditableColumnDef('connectionEntity.driver', 'driver'),
       this.utils.getSelectColumnDef('connectionEntity.driver', 'driver',true,this.driversListDescription, true, this.driversList),
       this.utils.getEditableColumnDef('connectionEntity.connection', 'url'),
     ];
@@ -102,17 +100,6 @@ export class ConnectionComponent implements OnInit {
 
   add(data: Connection[]) {
     this.router.navigate(['connection', -1, 'connectionForm', data[0].id]);
-    // console.log(data);
-    // const promises: Promise<any>[] = [];
-    // data.forEach(connection => {
-    //   connection.id = null;
-    //   connection.name = this.utils.getTranslate('copy_').concat(connection.name)
-    //   promises.push(new Promise((resolve, reject) => { this.connectionService.create(connection).subscribe((resp) => { resolve(true) }) }));
-    //   Promise.all(promises).then(() => {
-    //     this.dataUpdatedEvent.next(true);
-    //   });
-    // });
-
   }
 
   removeData(data: Connection[]) {

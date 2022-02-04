@@ -121,8 +121,7 @@ describe('RoleFormComponent', () => {
 
   it('form invalid when mid-empty', () => {
     component.formRole.patchValue({
-      password: 'password',
-      lang: 1,
+      name: 'missDescription',
     })
     //Miss name
     expect(component.formRole.valid).toBeFalsy();
@@ -134,6 +133,11 @@ describe('RoleFormComponent', () => {
       description: 'description'
     })
     expect(component.formRole.valid).toBeTruthy();
+  }); 
+
+  it('Role form fields', () => {
+    expect(component.formRole.get('description')).toBeTruthy();
+    expect(component.formRole.get('name')).toBeTruthy();
   }); 
 
 

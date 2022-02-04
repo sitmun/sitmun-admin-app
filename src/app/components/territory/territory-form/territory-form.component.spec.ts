@@ -173,4 +173,75 @@ describe('TerritoryFormComponent', () => {
     })
     expect(component.territoryForm.valid).toBeTruthy();
   }); 
+
+  it('Territory form fields', () => {
+    expect(component.territoryForm.get('code')).toBeTruthy();
+    expect(component.territoryForm.get('name')).toBeTruthy();
+    expect(component.territoryForm.get('territorialAuthorityAddress')).toBeTruthy();
+    expect(component.territoryForm.get('territorialAuthorityLogo')).toBeTruthy();
+    expect(component.territoryForm.get('type')).toBeTruthy();
+    expect(component.territoryForm.get('extensionX0')).toBeTruthy();
+    expect(component.territoryForm.get('extensionX1')).toBeTruthy();
+    expect(component.territoryForm.get('extensionY0')).toBeTruthy();
+    expect(component.territoryForm.get('extensionY1')).toBeTruthy();
+    expect(component.territoryForm.get('extent')).toBeTruthy();
+    expect(component.territoryForm.get('note')).toBeTruthy();
+    expect(component.territoryForm.get('blocked')).toBeTruthy();
+    expect(component.territoryForm.get('defaultZoomLevel')).toBeTruthy();
+    expect(component.territoryForm.get('centerPointX')).toBeTruthy();
+    expect(component.territoryForm.get('centerPointY')).toBeTruthy();
+  }); 
+
+  it('Validate extent all null', () => {
+    expect(component.validateExtent(null,null,null,null)).toBeTruthy();
+  }); 
+
+  it('Validate extent all with value', () => {
+    expect(component.validateExtent(1,2,3,4)).toBeTruthy();
+  }); 
+
+  it('Validate extent with invalid values', () => {
+    expect(component.validateExtent(1,null,3,4)).toBeFalsy();
+  }); 
+
+  it('Update extent', () => {
+
+    component.territoryForm.patchValue({
+      extensionX0: 1,
+      extensionX1: 2,
+      extensionY0: 3,
+      extensionY1: 4,
+    })
+
+    component.updateExtent();
+
+    expect(component.territoryForm.get('extent').value).toEqual({
+      minX: 1,
+      maxX: 2,
+      minY: 3,
+      maxY: 4,
+    });
+  }); 
+
+  it('defineAppliesToChildrenColumns bottom true', () => {
+
+    component.defineAppliesToChildrenColumns(false,true);
+    //If bottom true, columndefsPermits[4] -> appliesToChildren must not be editable
+    expect(component.columnDefsPermits[4].editable).toBeFalse();
+    //If bottom true, columndefsRolesDialog only has 3 columns
+    expect(component.columnDefsRolesDialog.length).toEqual(3);
+  }); 
+
+  it('defineAppliesToChildrenColumns bottom false', () => {
+
+    component.defineAppliesToChildrenColumns(false,false);
+    //If bottom false, columndefsPermits[4] -> appliesToChildren must not be editable
+    expect(component.columnDefsPermits[4].editable).toBeTrue();
+    //If bottom false, columndefsRolesDialog has 4 columns
+    expect(component.columnDefsRolesDialog.length).toEqual(4);
+  }); 
+
+
+
+
 });

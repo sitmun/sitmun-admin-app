@@ -99,4 +99,10 @@ describe('LayersPermitsFormComponent', () => {
     })
     expect(component.formLayersPermits.valid).toBeTruthy();
   }); 
+
+  
+  it('Layer permits form fields', () => {
+    expect(component.formLayersPermits.get('name')).toBeTruthy();
+    expect(component.formLayersPermits.get('type')).toBeTruthy();
+  }); 
 });

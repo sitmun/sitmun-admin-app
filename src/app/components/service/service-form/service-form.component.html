@@ -153,10 +153,8 @@
           </mat-chip-list>
         </mat-form-field>
       </div>
-      <button type="button" *ngIf="serviceID==-1 && serviceForm.value.type=='WMS' " (click)="onDataCapabilitiesButtonClicked()" mat-flat-button
-      class="validateButton">{{ "serviceEntity.getData" | translate }}</button>
-    <button type="button" *ngIf="serviceID!=-1 && serviceForm.value.type=='WMS'" (click)="onDataCapabilitiesButtonClicked()" mat-flat-button
-      class="validateButton">{{ "serviceEntity.updateData" | translate }}</button>
+      <button id="capabilitiesButton" type="button" *ngIf="serviceForm.value.type=='WMS' " (click)="onDataCapabilitiesButtonClicked()" mat-flat-button
+      class="validateButton">{{ (serviceID == -1? 'serviceEntity.getData': 'serviceEntity.updateData') | translate }}</button>
     </div>
 
   </form>

@@ -123,4 +123,14 @@ describe('UserFormComponent', () => {
     })
     expect(component.userForm.valid).toBeTruthy();
   }); 
+
+  it('User form fields', () => {
+    expect(component.userForm.get('username')).toBeTruthy();
+    expect(component.userForm.get('firstName')).toBeTruthy();
+    expect(component.userForm.get('lastName')).toBeTruthy();
+    expect(component.userForm.get('passwordSet')).toBeTruthy();
+    expect(component.userForm.get('confirmPassword')).toBeTruthy();
+    expect(component.userForm.get('administrator')).toBeTruthy();
+    expect(component.userForm.get('blocked')).toBeTruthy();
+  }); 
 });

@@ -97,16 +97,6 @@ export class LayersPermitsComponent implements OnInit {
 
   add(data: CartographyGroup[]) {
     this.router.navigate(['layersPermits', -1, 'layersPermitsForm', data[0].id]);
-    // const promises: Promise<any>[] = [];
-    // data.forEach(cartographyGroup => {
-    //   cartographyGroup.id = null;
-    //   cartographyGroup.name = this.utils.getTranslate('copy_').concat(cartographyGroup.name)
-    //   promises.push(new Promise((resolve, reject) => { this.cartographyGroupService.create(cartographyGroup).subscribe((resp) => { resolve(true) }) }));
-    //   Promise.all(promises).then(() => {
-    //     this.dataUpdatedEvent.next(true);
-    //   });
-    // });
-
   }
 
   removeData(data: CartographyGroup[]) {

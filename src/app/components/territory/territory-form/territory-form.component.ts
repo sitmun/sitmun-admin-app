@@ -220,13 +220,6 @@ export class TerritoryFormComponent implements OnInit {
                 name: this.utils.getTranslate('copy_').concat(this.territoryToEdit.name),
                 });
               }
-
-
-              // if (!this.territoryToEdit.groupTypeId) {
-              //   this.territoryForm.patchValue({
-              //     groupType: this.territoryGroups[0].id,
-              //   })
-              // }
               this.dataLoaded = true;
             },
             error => {
@@ -238,8 +231,6 @@ export class TerritoryFormComponent implements OnInit {
           this.territoryForm.patchValue({
             blocked: false,
             type : this.territoryTypes[0].id,
-            // groupType: this.territoryGroups[this.territoryGroups.length -1].id,
-            // scope: this.scopeTypes[0].value
           });
           this.currentTypeBottom=this.territoryTypes[0].bottomType;
           this.currentTypeTop=this.territoryTypes[0].topType;
@@ -265,13 +256,11 @@ export class TerritoryFormComponent implements OnInit {
 
 
     this.columnDefsPermitsInherit = [
-     // this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
       this.utils.getNonEditableColumnDef('territoryEntity.user', 'user'),
       this.utils.getNonEditableColumnDef('territoryEntity.territory', 'territory'),
       this.utils.getNonEditableColumnDef('territoryEntity.role', 'role'),
 
-     // { headerName: this.utils.getTranslate('territoryEntity.status'), field: 'status', editable: false },
     ];
 
     this.columnDefsMemberOf = [
@@ -385,7 +374,6 @@ export class TerritoryFormComponent implements OnInit {
       minY: this.territoryForm.get('extensionY0').value,
       maxY: this.territoryForm.get('extensionY1').value,
     }
-    // let extent = `${this.territoryForm.get('extensionX0').value} ${this.territoryForm.get('extensionX1').value} ${this.territoryForm.get('extensionY0').value} ${this.territoryForm.get('extensionY1').value}`;
     this.territoryForm.patchValue({
       extent: extent
     });
@@ -417,9 +405,6 @@ export class TerritoryFormComponent implements OnInit {
     let query: HalOptions = { params: params2 };
 
     return this.userConfigurationService.getAll(query);
-      // .pipe(map((data: any[]) => data.filter(elem => elem.appliesToChildrenTerritories == false)
-      // ));;
-
   }
 
   getAllPermitsChild = (): Observable<any> => {
@@ -502,20 +487,8 @@ export class TerritoryFormComponent implements OnInit {
                 territory: this.territoryToEdit,
                 user: userComplete,
               }
-              // let index;
-              // if (userConf.roleChildren == null) {
-              // index = data.findIndex(element => element.roleId === item.role.id && element.userId === item.user.id &&
-              //    element.appliesToChildrenTerritories === item.appliesToChildrenTerritories && !element.new)
-              // }
-              // else {
-              //   index = data.findIndex(element => element.roleId === item.role.id && element.userId === item.user.id && element.appliesToChildrenTerritories && !element.new)
-              // }
-              // if (index === -1) {
                 userConf.new = false;
-                // usersConfToCreate.push(item)
                 promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
-
-              // }
               resolve(true);
             })
 
@@ -533,15 +506,6 @@ export class TerritoryFormComponent implements OnInit {
           }
 
           console.log(item);
-          // let index;
-          // if (userConf.roleChildren == null) {
-          // index = data.findIndex(element => element.roleId === item.role.id && element.userId === item.user.id &&
-          //    element.appliesToChildrenTerritories === item.appliesToChildrenTerritories && !element.new)
-          // }
-          // else {
-          //   index = data.findIndex(element => element.roleId === item.role.id && element.userId === item.user.id && element.appliesToChildrenTerritories && !element.new)
-          // }
-          // if (index === -1) {
             userConf.new = false;
             promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
 

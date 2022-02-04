@@ -44,17 +44,6 @@ export class UserComponent implements OnInit {
       this.utils.getEditableColumnDef('userEntity.user', 'username'),
       this.utils.getEditableColumnDef('userEntity.firstname', 'firstName'),
       this.utils.getEditableColumnDef('userEntity.lastname', 'lastName'),
-      /*{
-        headerName: this.utils.getTranslate('userEntity.administrator'), field: 'administrator', editable: false,
-        cellRenderer: 'btnCheckboxRendererComponent', floatingFilterComponent: 'btnCheckboxFilterComponent',
-        floatingFilterComponentParams: { suppressFilterButton: true },
-      },*/
-     /* {
-       headerName: this.utils.getTranslate('userEntity.blocked'), field: 'blocked', editable: false,
-        cellRenderer: 'btnCheckboxRendererComponent', floatingFilterComponent: 'btnCheckboxFilterComponent',
-        floatingFilterComponentParams: { suppressFilterButton: true },
-      },*/
-      // { headerName: this.utils.getTranslate('status'), field: 'estat'},
     ];
   }
 
@@ -98,16 +87,6 @@ export class UserComponent implements OnInit {
   }
   add(data: User[]) {
     this.router.navigate(['user', -1, 'userForm', data[0].id]);
-    // const promises: Promise<any>[] = [];
-    // data.forEach(user => {
-    //   user.id = null;
-    //   user.username = this.utils.getTranslate('copy_').concat(user.username)
-    //   promises.push(new Promise((resolve, reject) => { this.userService.create(user).subscribe((resp) => { resolve(true) }) }));
-    //   Promise.all(promises).then(() => {
-    //     this.dataUpdatedEvent.next(true);
-    //   });
-    // });
-
   }
 
   removeData(data: User[]) {

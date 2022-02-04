@@ -87,16 +87,6 @@ export class TreesComponent implements OnInit {
 
   add(data: Tree[]) {
     this.router.navigate(['trees', -1, 'treesForm', data[0].id]);
-    // const promises: Promise<any>[] = [];
-    // data.forEach(tree => {
-    //   tree.id = null;
-    //   tree.name = this.utils.getTranslate('copy_').concat(tree.name)
-    //   promises.push(new Promise((resolve, reject) => {​​​​​​​ this.treeService.create(tree).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
-    //   Promise.all(promises).then(() => {
-    //     this.dataUpdatedEvent.next(true);
-    //   });
-    // });
-
   }
 
   removeData(data: Tree[]) {

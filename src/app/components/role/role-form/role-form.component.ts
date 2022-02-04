@@ -289,17 +289,7 @@ export class RoleFormComponent implements OnInit {
                 territory: territoryComplete,
                 user: userComplete,
               }
-              // let index;
-              // if (userConf.roleChildren == null) {
-              //   index = data.findIndex(element => element.territoryId === item.territory.id && element.userId === item.user.id &&
-              //     element.appliesToChildrenTerritories === item.appliesToChildrenTerritories && !element.new)
-              // }
-              // else {
-              //   index = data.findIndex(element => element.territoryId === item.territory.id && element.userId === item.user.id && element.appliesToChildrenTerritories && !element.new)
-              // }
-              // if (index === -1) {
                 userConf.new = false;
-                // usersConfToCreate.push(item)
                 promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
 
               // }

@@ -700,7 +700,7 @@ export class LayersFormComponent implements OnInit {
             if (!url.includes('request=DescribeFeatureType')) {
               if (url[url.length - 1] != '?') { url += "?" }
 
-              url += `request=DescribeFeatureType%26service=WFS%26typeNames=${layersName}`
+              url += `request=DescribeFeatureType%26service=WFS%26typeName=${layersName}`
             }
             this.getInfoService.getInfo(url).subscribe(result => {
               if (result.success) {
@@ -728,7 +728,7 @@ export class LayersFormComponent implements OnInit {
     let elements = []
     let type = this.spatialSelectionParameterTypes.find(element => element.value == "SELECT")
 
-    if (results['xsd:schema']['xsd:element']) {
+    if (results['xsd:schema'] && results['xsd:schema']['xsd:element']) {
       elements.push(results['xsd:schema']['xsd:element'])
     }
 
@@ -741,7 +741,7 @@ export class LayersFormComponent implements OnInit {
             let newParameter = {
               name: element.name,
               value: element.name,
-              type: type.value,
+              type: type?type.value:null,
               format: this.getFormatFromGetInfo(element.type),
             }
             elementsToAdd.push(newParameter);
@@ -759,6 +759,8 @@ export class LayersFormComponent implements OnInit {
         }
       }
     }
+
+    return elementsToAdd;
   }
 
   private getFormatFromGetInfo(format) {

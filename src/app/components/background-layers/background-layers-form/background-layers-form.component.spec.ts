@@ -120,4 +120,13 @@ describe('BackgroundLayersFormComponent', () => {
     })
     expect(component.backgroundForm.valid).toBeTruthy();
   }); 
+
+  it('Background layers form fields', () => {
+    expect(component.backgroundForm.get('name')).toBeTruthy();
+    expect(component.backgroundForm.get('description')).toBeTruthy();
+    expect(component.backgroundForm.get('image')).toBeTruthy();
+    expect(component.backgroundForm.get('active')).toBeTruthy();
+  }); 
+
+
 });

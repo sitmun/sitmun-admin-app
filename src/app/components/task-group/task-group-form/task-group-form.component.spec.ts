@@ -78,4 +78,8 @@ describe('TaskGroupFormComponent', () => {
     })
     expect(component.formtaskGroup.valid).toBeTruthy();
   }); 
+
+  it('Task group form fields', () => {
+    expect(component.formtaskGroup.get('name')).toBeTruthy();
+  }); 
 });
