@@ -28,8 +28,6 @@ export class AppComponent {
     ) {
     this.translate = trans;
 
-    // this.translate.addLangs(['es', 'ca', 'es', 'fr']);
-
     if(localStorage.getItem('lang') != undefined)
     {
       this.translate.setDefaultLang(localStorage.getItem('lang'));
@@ -72,13 +70,9 @@ export class AppComponent {
      async loadLanguages(){
       await this.languageService.getAll().subscribe(
         async result => {
-          console.log(result);
+          result.sort((a,b) => a.shortname.localeCompare(b.shortname));
           result.forEach(language => {
-            if(language.shortname == 'ca')  { config.languagesObjects.catalan=language; }
-            if(language.shortname == 'es') { config.languagesObjects.spanish= language }
-            if(language.shortname == 'en') { config.languagesObjects.english= language }
-            if(language.shortname == 'oc-aranes') { config.languagesObjects.aranese= language }
-            if(language.shortname == 'fr') { config.languagesObjects.french= language }
+            config.languagesObjects[language.shortname]=language;
           });
           if(! localStorage.getItem(('languages'))){
             localStorage.setItem('languages', JSON.stringify(result));

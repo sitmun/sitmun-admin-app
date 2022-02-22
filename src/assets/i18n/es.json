@@ -382,7 +382,7 @@
     "permissions": "Combinación de territorios y usuarios",
     "generalData": "Datos Generales",
     "role": "Rol",
-    "noto": "Observaciones",
+    "note": "Observaciones",
     "name": "Nombre",
     "applications": "Aplicaciones a las que tiene acceso este rol",
     "users": "Usuarios",

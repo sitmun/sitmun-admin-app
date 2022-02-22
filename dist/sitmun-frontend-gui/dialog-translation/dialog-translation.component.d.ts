@@ -11,21 +11,13 @@ export declare class DialogTranslationComponent implements OnInit {
     translationsMap: Map<string, any>;
     languageByDefault: string;
     languagesAvailables: Array<any>;
-    catalanAvailable: boolean;
-    catalanValue: string;
-    spanishAvailable: boolean;
-    spanishValue: string;
-    englishAvailable: boolean;
-    englishValue: string;
-    araneseAvailable: boolean;
-    araneseValue: string;
-    frenchAvailable: boolean;
-    frenchValue: string;
+    loading: boolean;
     constructor(dialogRef: MatDialogRef<DialogTranslationComponent>, matIconRegistry: MatIconRegistry, domSanitizer: DomSanitizer);
     ngOnInit(): void;
-    checkLanguagesAvailables(): void;
-    checkTranslationsAlreadyDone(): void;
-    initializeTranslationForm(): void;
+    initializeDialog(): void;
+    registerIcon(elementShortname: any): void;
+    initializeForm(elementShortname: any): void;
+    getIconName(elementShortname: any): string;
     doAccept(): void;
     closeDialog(): void;
 }

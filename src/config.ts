@@ -61,13 +61,6 @@ export const config = {
     'taskGroup': 'name',
     'service': 'name'
   },
-  languages: [
-    { id: "ca", name: "catalan" },
-    { id: "es", name: "spanish" },
-    { id: "en", name: "english" },
-    { id: "oc-aranes", name: "aranese" },
-    { id: "fr", name: "french" }
-  ],
   defaultLang: "ca",
   _embedded: {
     applications: 'applications',
@@ -90,11 +83,6 @@ export const config = {
     userPosition:'user-positions'
   },
   languagesObjects: {
-    catalan: null,
-    spanish: null,
-    english: null,
-    aranese: null,
-    french: null,
   },
   languagesToUse: null,
   translationColumns: {
