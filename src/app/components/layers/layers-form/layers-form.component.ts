@@ -302,7 +302,7 @@ export class LayersFormComponent implements OnInit {
         let wfsServices = [];
         this.services.push(...resp);
         resp.forEach(service => {
-          if (service.type === 'WFS') { wfsServices.push(service) }
+          if (service.type === config.capabilitiesRequest.WFSIdentificator) { wfsServices.push(service) }
         });
         console.log(this.services);
         this.spatialConfigurationServices.push(...wfsServices)

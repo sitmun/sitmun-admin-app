@@ -131,7 +131,7 @@ export class ApplicationFormComponent implements OnInit {
           map((resp: any) => {
             let newTable: CodeList[] = [];
             resp.forEach(element => {
-              if (element.value !== 'PRINT_TEMPLATE') { newTable.push(element) }
+              if (element.value !== config.applicationTemplateIdentificator) { newTable.push(element) }
             });
             return newTable;
           })
@@ -423,7 +423,7 @@ export class ApplicationFormComponent implements OnInit {
     }
 
     return (this.http.get(urlReq))
-      .pipe(map(data => data[`_embedded`][`application-parameters`].filter(elem => elem.type != "PRINT_TEMPLATE")
+      .pipe(map(data => data[`_embedded`][`application-parameters`].filter(elem => elem.type != config.applicationTemplateIdentificator)
       ));
   }
 
@@ -492,7 +492,7 @@ export class ApplicationFormComponent implements OnInit {
     }
 
     return (this.http.get(urlReq))
-      .pipe(map(data => data[`_embedded`][`application-parameters`].filter(elem => elem.type == "PRINT_TEMPLATE")
+      .pipe(map(data => data[`_embedded`][`application-parameters`].filter(elem => elem.type == config.applicationTemplateIdentificator)
       ));
   }
 
@@ -773,7 +773,7 @@ export class ApplicationFormComponent implements OnInit {
       if (result) {
         if (result.event === 'Add') {
           let item = this.parameterForm.value;
-          item.type = 'PRINT_TEMPLATE';
+          item.type = config.applicationTemplateIdentificator;
           this.addElementsEventTemplateConfiguration.next([item])
         }
 

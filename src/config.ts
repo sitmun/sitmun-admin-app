@@ -38,6 +38,16 @@ export const config = {
     "uiId": "ui",
     "serviceId": "service"
   },
+  tasksSelectorsIdentifiers:{
+    taskGroup: "taskGroup",
+    taskUI: "taskUi",
+    wfsServices: "wfsServices",
+    fmeServices: "fmeServices",
+    locators: "this.locators",
+    cartographies: "cartographies",
+    connection: "connection",
+
+  },
   taskTablesSortField:{
     'availabilities': 'territoryName',
     'roles':'name',
@@ -99,5 +109,13 @@ export const config = {
     treeDescription: 'TRE_ABSTRACT',
     treeNodeName: 'TNO_NAME',
     treeNodeDescription: 'TNO_ABSTRACT'
+  },
+  applicationTemplateIdentificator: "PRINT_TEMPLATE",
+  capabilitiesRequest: {
+    simpleRequest: 'request=GetCapabilities',
+    requestWithWMS: 'request=GetCapabilities%26service=WMS',
+    WFSIdentificator: 'WFS',
+    WMSIdentificator: 'WMS',
+
   }
 };

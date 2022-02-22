@@ -156,7 +156,7 @@ export class ServiceFormComponent implements OnInit {
 
               let currentType = this.serviceTypes.find(element => element.value == this.serviceToEdit.type);
               if(currentType){
-                this.tableLoadButtonDisabled=currentType.value == 'WMS'? false:true
+                this.tableLoadButtonDisabled=currentType.value == config.capabilitiesRequest.WMSIdentificator? false:true
               }
 
 
@@ -272,7 +272,7 @@ export class ServiceFormComponent implements OnInit {
   }
 
   onTypeChange(event):void{
-    this.tableLoadButtonDisabled= event.value == 'WMS'?false:true;
+    this.tableLoadButtonDisabled= event.value == config.capabilitiesRequest.WMSIdentificator?false:true;
   }
 
   addProjection(event: MatChipInputEvent): void {
@@ -305,10 +305,10 @@ export class ServiceFormComponent implements OnInit {
   getCapabilitiesDataService(refresh?, ignoreForm?){
     try{
       let url: string = this.serviceForm.value.serviceURL;
-      if(! url.includes('request=GetCapabilities')){
+      if(! url.includes(config.capabilitiesRequest.simpleRequest)){
         if(url[url.length-1] != '?') { url += "?" }
       
-        url += 'request=GetCapabilities%26service=WMS'
+        url += config.capabilitiesRequest.requestWithWMS;
       }
       this.capabilitiesService.getInfo(url).subscribe(result => {
         console.log(result)

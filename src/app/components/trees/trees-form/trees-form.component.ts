@@ -237,10 +237,10 @@ export class TreesFormComponent implements OnInit {
         service = dialogResult.data[0][0];
         url = service.serviceURL;
         if (url) {
-          if (!url.includes('request=GetCapabilities')) {
+          if (!url.includes(config.capabilitiesRequest.simpleRequest)) {
             if (url[url.length - 1] != '?') { url += "?" }
 
-            url += 'request=GetCapabilities%26service=WMS'
+            url += config.capabilitiesRequest.requestWithWMS
           }
 
           let capabilitiesResult = await this.capabilitiesService.getInfo(url).toPromise();

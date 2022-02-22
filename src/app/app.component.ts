@@ -28,12 +28,7 @@ export class AppComponent {
     ) {
     this.translate = trans;
 
-    this.translate.addLangs(['es', 'ca', 'es', 'fr']);
-    // let navigatorLang = config.languages.find(element => element.id === window.navigator.language);
-    // let defaultLang = config.defaultLang;
-    // if (navigatorLang != undefined) {
-    //   defaultLang = window.navigator.language
-    // }
+    // this.translate.addLangs(['es', 'ca', 'es', 'fr']);
 
     if(localStorage.getItem('lang') != undefined)
     {

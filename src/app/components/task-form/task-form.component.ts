@@ -601,13 +601,13 @@ export class TaskFormComponent implements OnInit {
 
 
   setSelectorToNeeded(selector){
-    if(selector=="taskGroup"){ this.taskGroupsNeeded = true}
-    else if(selector=="taskUi") { this.taskUIsNeeded = true }
-    else if(selector=="wfsServices") { this.wfsServicesNeeded = true }
-    else if(selector=="fmeServices") { this.fmeServicesNeeded = true }
-    else if(selector=="this.locators") { this.locatorsNeeded = true }
-    else if(selector=="cartographies") { this.cartographiesNeeded = true }
-    else if(selector=="connection") { this.connectionsNeeded = true }
+    if(selector==config.tasksSelectorsIdentifiers.taskGroup){ this.taskGroupsNeeded = true}
+    else if(selector==config.tasksSelectorsIdentifiers.taskUI) { this.taskUIsNeeded = true }
+    else if(selector==config.tasksSelectorsIdentifiers.wfsServices) { this.wfsServicesNeeded = true }
+    else if(config.tasksSelectorsIdentifiers.fmeServices) { this.fmeServicesNeeded = true }
+    else if(selector==config.tasksSelectorsIdentifiers.locators) { this.locatorsNeeded = true }
+    else if(selector==config.tasksSelectorsIdentifiers.cartographies) { this.cartographiesNeeded = true }
+    else if(selector==config.tasksSelectorsIdentifiers.connection) { this.connectionsNeeded = true }
   }
 
 
@@ -785,17 +785,17 @@ export class TaskFormComponent implements OnInit {
 
   savePropertiesTreatment(){
     
-    if(this.taskTypeName == 'Document' || this.taskTypeName == 'Download' ){
+    if(this.taskTypeName ==  config.tasksTypesNames.document || this.taskTypeName == config.tasksTypesNames.download ){
       this.savedTask.properties={
         format: this.savedTask['format'],
-        scope: this.taskTypeName == 'Document'?this.savedTask['scope'].value:this.taskForm.get('scope').value,
+        scope: this.taskTypeName == config.tasksTypesNames.document?this.savedTask['scope'].value:this.taskForm.get('scope').value,
         path: this.savedTask['path'],
       }
       delete this.savedTask['format'];
       delete this.savedTask['scope'];
       delete this.savedTask['path'];
     }
-    else if(this.taskTypeName == 'Query' || this.taskTypeName== 'More info' || this.taskTypeName== 'Locator' ){
+    else if(this.taskTypeName == config.tasksTypesNames.query || this.taskTypeName== config.tasksTypesNames.moreInfo || config.tasksTypesNames.locator ){
       this.savedTask.properties={
         command: this.savedTask['value'],
         scope: this.savedTask['scope'].value,
@@ -804,8 +804,8 @@ export class TaskFormComponent implements OnInit {
       delete this.savedTask['scope'];
     
     }
-    else if(this.taskTypeName == 'Extraction (FME)' || this.taskTypeName == 'Report' ){
-      let key =this.taskTypeName == 'Extraction (FME)'?'layers':'layer'
+    else if(this.taskTypeName == config.tasksTypesNames.extraction || this.taskTypeName == config.tasksTypesNames.report  ){
+      let key =this.taskTypeName == config.tasksTypesNames.extraction ?'layers':'layer'
       if(!Array.isArray(this.savedTask[key])){
         let layers = this.savedTask[key]?this.savedTask[key].split(','):null;
         this.savedTask.properties={};
@@ -863,13 +863,13 @@ export class TaskFormComponent implements OnInit {
   }
 
   getDataFixedSelectors(data){
-    if(data=="taskGroup"){ return this.taskGroups }
-    else if(data=="taskUi") { return this.taskUIs }
-    else if(data=="wfsServices") { return this.wfsServices }
-    else if(data=="fmeServices") { return this.fmeServices }
-    else if(data=="this.locators") { return this.locators }
-    else if(data=="cartographies") { return this.cartographies }
-    else if(data=="connection") { return this.connections }
+    if(data==config.tasksSelectorsIdentifiers.taskGroup){ return this.taskGroups }
+    else if(config.tasksSelectorsIdentifiers.fmeServices) { return this.taskUIs }
+    else if(data==config.tasksSelectorsIdentifiers.wfsServices) { return this.wfsServices }
+    else if(data==config.tasksSelectorsIdentifiers.fmeServices) { return this.fmeServices }
+    else if(data==config.tasksSelectorsIdentifiers.locators) { return this.locators }
+    else if(data==config.tasksSelectorsIdentifiers.cartographies) { return this.cartographies }
+    else if(data==config.tasksSelectorsIdentifiers.connection) { return this.connections }
   }
 
   getDataDynamicSelectors(data, field){
