@@ -720,7 +720,7 @@
     "bad-credentials": "Usuario y/o contraseña incorrecto",
     "closeSession": "Cerrar sesión",
     "language": "Idioma",
-    "privateAcces":"Acceso privado"
+    "privateAccess":"Acceso privado"
   },
   "selectAll": "Seleccionar todo",
   "selectAllSearchResults": "Seleccionar todos los resultados de busca",
