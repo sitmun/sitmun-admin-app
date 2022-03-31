@@ -795,7 +795,7 @@ export class TaskFormComponent implements OnInit {
       delete this.savedTask['scope'];
       delete this.savedTask['path'];
     }
-    else if(this.taskTypeName == config.tasksTypesNames.query || this.taskTypeName== config.tasksTypesNames.moreInfo || config.tasksTypesNames.locator ){
+    else if(this.taskTypeName == config.tasksTypesNames.query || this.taskTypeName== config.tasksTypesNames.moreInfo || this.taskTypeName==  config.tasksTypesNames.locator ){
       this.savedTask.properties={
         command: this.savedTask['value'],
         scope: this.savedTask['scope'].value,
