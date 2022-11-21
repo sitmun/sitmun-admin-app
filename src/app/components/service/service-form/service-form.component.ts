@@ -364,9 +364,10 @@ export class ServiceFormComponent implements OnInit {
           }
           else {
             if (!isNaN(lyr.Name)) { lyr.Name = lyr.Name.toString() }
-            layersLyr = lyr.Name ? lyr.Name.split(",") : []
+            if (!lyr.Name) { return; }
+            layersLyr = lyr.Name.split(",")
           }
-          if (!layersLyr) { layersLyr = [] }
+          // if (!layersLyr) { layersLyr = [] }
           let cartography = new Cartography();
           cartography.name = lyr.Title;
           if (cartography.name && cartography.name.length > 250) { cartography.name = cartography.name.substring(0, 249) }
