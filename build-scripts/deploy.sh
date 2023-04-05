@@ -8,7 +8,7 @@ if [ -n "$GITHUB_API_KEY" ]; then
      cd tmp
      git clone https://github.com/sitmun/sitmun.github.io.git
      cd sitmun.github.io
-     cp -r "$GITHUB_WORKSPACE"/dist/admin-app .
+     cp -r "$GITHUB_WORKSPACE"/dist/admin-app ./docs
      # In GitHub Actions, set user and email for git repo
      if [ -n "$CI" ]; then
         git config user.name "GitHub Actions Bot"
