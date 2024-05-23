@@ -33,6 +33,17 @@ docker build -t sitmun-admin-app --build-arg GITHUB_TOKEN=your_github_token --bu
 ```
 Replace `your_github_token` with your actual GitHub token. Adjust the `BASE_HREF` and `CONFIGURATION` as needed.
 
+### Starting the Application with Docker
+
+To start the application, run the following command in the terminal:
+
+```bash
+docker run -p 80:80 sitmun-admin-app 
+```
+
+This command will start the SITMUN Administration Application and map port 80 in the container to port 80 on the host machine.
+The application should now be accessible at http://localhost on your machine.
+
 ## Docker Compose Support
 
 To deploy the SITMUN Administration Application using Docker Compose, create a `docker-compose.yml file that defines the services for your application.
