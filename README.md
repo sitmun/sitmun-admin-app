@@ -4,6 +4,19 @@
 
 The SITMUN Administration Application is a web-based application built using TypeScript, JavaScript, npm, and Angular.
 
+## Common Build Arguments
+
+**Environments:**
+
+- Default (`src/environments/environment.ts`)
+- Development (`src/environments/environment.testdeployment.ts`) 
+- Production (`src/environments/environment.prod.ts`) 
+
+**Variables:**
+
+- `production`: Specifies if the environment is a production or a development enviroment. The default value is `false`.
+- `apiBaseURL`: Specifies the base URL for the SITMUN Backend used by the aplication. The default value is `http://localhost:8080`. In the development environment points at `https://sitmun-backend-core.herokuapp.com`.
+
 ## Docker Support
 
 The application is containerized using Docker, as defined in the Dockerfile. The Dockerfile is divided into two stages:
@@ -84,3 +97,39 @@ docker-compose up
 
 This command will start the SITMUN Administration Application and map port 80 in the container to port 80 on the host machine. 
 The application should now be accessible at http://localhost on your machine.
+
+## Development Container support
+
+A development container (or dev container for short) allows you to use a container as a full-featured development environment. 
+The provided devcontainer file uses `mcr.microsoft.com/devcontainers/universal:2` and installs **node 12.1.1**.
+
+```json
+{
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "features": {
+  },
+  "postCreateCommand": "bash -i -c 'nvm install 12.11.1'"
+}
+```
+
+### Development Build Arguments
+
+The development for the SITMUN Administration Application takes three arguments during the build stage:
+
+- `GITHUB_TOKEN`: A personal access token from GitHub used to authenticate with GitHub’s package registry when downloading dependencies.
+- `BASE_HREF`: Specifies the base URL for the application, used by Angular for routing.
+- `CONFIGURATION`: Specifies the build configuration for the Angular application (i.e. `testdeployment` and `prod`).
+
+### Building the application
+
+To build the application, run the following command in the terminal:
+
+```bash
+npm set //npm.pkg.github.com/:_authToken $our_github_token
+npm ci
+npm run build -- --configuration=testdeployment --baseHref=/
+```
+
+Replace `your_github_token` with your actual GitHub token. Adjust the `BASE_HREF` and `CONFIGURATION` as needed.
+
+These commands will build the application. The output will be available in `dist/admin-app`.
