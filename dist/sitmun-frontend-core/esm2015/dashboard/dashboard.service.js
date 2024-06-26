@@ -1,6 +1,6 @@
 /**
  * @fileoverview added by tsickle
- * @suppress {checkTypes,extraRequire,uselessCode} checked by tsc
+ * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -28,20 +28,24 @@ export class DashboardService {
      * @return {?}
      */
     getAll() {
-        return this.http.get(this.resourceService.getResourceUrl(this.DASHBOARD_API)).map(response => response[this.DASHBOARD_EMBEDDED]);
+        return this.http.get(this.resourceService.getResourceUrl(this.DASHBOARD_API)).map((/**
+         * @param {?} response
+         * @return {?}
+         */
+        response => response[this.DASHBOARD_EMBEDDED]));
     }
 }
 DashboardService.decorators = [
     { type: Injectable, args: [{
                 providedIn: 'root'
-            },] },
+            },] }
 ];
 /** @nocollapse */
 DashboardService.ctorParameters = () => [
     { type: HttpClient },
     { type: ResourceService }
 ];
-/** @nocollapse */ DashboardService.ngInjectableDef = i0.defineInjectable({ factory: function DashboardService_Factory() { return new DashboardService(i0.inject(i1.HttpClient), i0.inject(i2.ResourceService)); }, token: DashboardService, providedIn: "root" });
+/** @nocollapse */ DashboardService.ngInjectableDef = i0.ɵɵdefineInjectable({ factory: function DashboardService_Factory() { return new DashboardService(i0.ɵɵinject(i1.HttpClient), i0.ɵɵinject(i2.ResourceService)); }, token: DashboardService, providedIn: "root" });
 if (false) {
     /**
      * API resource path
@@ -50,10 +54,15 @@ if (false) {
     DashboardService.prototype.DASHBOARD_API;
     /** @type {?} */
     DashboardService.prototype.DASHBOARD_EMBEDDED;
-    /** @type {?} */
+    /**
+     * @type {?}
+     * @private
+     */
     DashboardService.prototype.http;
-    /** @type {?} */
+    /**
+     * @type {?}
+     * @private
+     */
     DashboardService.prototype.resourceService;
 }
-
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiZGFzaGJvYXJkLnNlcnZpY2UuanMiLCJzb3VyY2VSb290Ijoibmc6Ly9Ac2l0bXVuL2Zyb250ZW5kLWNvcmUvIiwic291cmNlcyI6WyJkYXNoYm9hcmQvZGFzaGJvYXJkLnNlcnZpY2UudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7OztBQUFBLE9BQU8sRUFBRSxVQUFVLEVBQVksTUFBTSxlQUFlLENBQUM7QUFDckQsT0FBTyxFQUFFLFVBQVUsRUFBRSxNQUFNLHNCQUFzQixDQUFDO0FBRWxELE9BQU8sRUFBQyxlQUFlLEVBQUMsTUFBTSx5Q0FBeUMsQ0FBQzs7OztBQUt4RSxNQUFNLE9BQU8sZ0JBQWdCOzs7Ozs7SUFNekIsWUFDVSxNQUNBO1FBREEsU0FBSSxHQUFKLElBQUk7UUFDSixvQkFBZSxHQUFmLGVBQWU7Ozs7NkJBTEYsZ0JBQWdCO2tDQUNaLFdBQVc7S0FLckM7Ozs7O0lBR0QsTUFBTTtRQUNKLE9BQU8sSUFBSSxDQUFDLElBQUksQ0FBQyxHQUFHLENBQUMsSUFBSSxDQUFDLGVBQWUsQ0FBQyxjQUFjLENBQUMsSUFBSSxDQUFDLGFBQWEsQ0FBQyxDQUFDLENBQUMsR0FBRyxDQUFDLFFBQVEsQ0FBQyxFQUFFLENBQUMsUUFBUSxDQUFDLElBQUksQ0FBQyxrQkFBa0IsQ0FBQyxDQUFDLENBQUM7S0FDbEk7OztZQWpCSixVQUFVLFNBQUM7Z0JBQ1YsVUFBVSxFQUFFLE1BQU07YUFDbkI7Ozs7WUFOUSxVQUFVO1lBRVgsZUFBZSIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IEluamVjdGFibGUsIEluamVjdG9yIH0gZnJvbSAnQGFuZ3VsYXIvY29yZSc7XHJcbmltcG9ydCB7IEh0dHBDbGllbnQgfSBmcm9tICdAYW5ndWxhci9jb21tb24vaHR0cCc7XHJcbmltcG9ydCB7IE9ic2VydmFibGUgfSBmcm9tICdyeGpzJztcclxuaW1wb3J0IHtSZXNvdXJjZVNlcnZpY2V9IGZyb20gJy4uL2FuZ3VsYXItaGFsL3NyYy9saWIvcmVzb3VyY2Uuc2VydmljZSc7XHJcblxyXG5ASW5qZWN0YWJsZSh7XHJcbiAgcHJvdmlkZWRJbjogJ3Jvb3QnXHJcbn0pXHJcbmV4cG9ydCBjbGFzcyBEYXNoYm9hcmRTZXJ2aWNle1xyXG5cclxuICAgIC8qKiBBUEkgcmVzb3VyY2UgcGF0aCAqL1xyXG4gICAgcHVibGljIERBU0hCT0FSRF9BUEkgPSAnZGFzaGJvYXJkL2luZm8nO1xyXG4gICAgcHVibGljIERBU0hCT0FSRF9FTUJFRERFRD0gJ2Rhc2hib2FyZCc7XHJcbiAgICAvKiogY29uc3RydWN0b3IgKi9cclxuICAgIGNvbnN0cnVjdG9yKCAgICAgICBcclxuICAgICAgcHJpdmF0ZSBodHRwOiBIdHRwQ2xpZW50LFxyXG4gICAgICBwcml2YXRlIHJlc291cmNlU2VydmljZTogUmVzb3VyY2VTZXJ2aWNlKSB7XHJcbiAgICB9XHJcbiAgXHJcbiAgICAvKiogZ2V0IGFsbCBrcGkgKi9cclxuICAgIGdldEFsbCgpOiBPYnNlcnZhYmxlPGFueT4ge1xyXG4gICAgICByZXR1cm4gdGhpcy5odHRwLmdldCh0aGlzLnJlc291cmNlU2VydmljZS5nZXRSZXNvdXJjZVVybCh0aGlzLkRBU0hCT0FSRF9BUEkpKS5tYXAocmVzcG9uc2UgPT4gcmVzcG9uc2VbdGhpcy5EQVNIQk9BUkRfRU1CRURERURdKTtcclxuICAgIH1cclxufVxyXG4iXX0=
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiZGFzaGJvYXJkLnNlcnZpY2UuanMiLCJzb3VyY2VSb290Ijoibmc6Ly9Ac2l0bXVuL2Zyb250ZW5kLWNvcmUvIiwic291cmNlcyI6WyJkYXNoYm9hcmQvZGFzaGJvYXJkLnNlcnZpY2UudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7OztBQUFBLE9BQU8sRUFBRSxVQUFVLEVBQVksTUFBTSxlQUFlLENBQUM7QUFDckQsT0FBTyxFQUFFLFVBQVUsRUFBRSxNQUFNLHNCQUFzQixDQUFDO0FBRWxELE9BQU8sRUFBQyxlQUFlLEVBQUMsTUFBTSx5Q0FBeUMsQ0FBQzs7OztBQUt4RSxNQUFNLE9BQU8sZ0JBQWdCOzs7Ozs7SUFNekIsWUFDVSxJQUFnQixFQUNoQixlQUFnQztRQURoQyxTQUFJLEdBQUosSUFBSSxDQUFZO1FBQ2hCLG9CQUFlLEdBQWYsZUFBZSxDQUFpQjs7OztRQUxuQyxrQkFBYSxHQUFHLGdCQUFnQixDQUFDO1FBQ2pDLHVCQUFrQixHQUFFLFdBQVcsQ0FBQztJQUt2QyxDQUFDOzs7OztJQUdELE1BQU07UUFDSixPQUFPLElBQUksQ0FBQyxJQUFJLENBQUMsR0FBRyxDQUFDLElBQUksQ0FBQyxlQUFlLENBQUMsY0FBYyxDQUFDLElBQUksQ0FBQyxhQUFhLENBQUMsQ0FBQyxDQUFDLEdBQUc7Ozs7UUFBQyxRQUFRLENBQUMsRUFBRSxDQUFDLFFBQVEsQ0FBQyxJQUFJLENBQUMsa0JBQWtCLENBQUMsRUFBQyxDQUFDO0lBQ25JLENBQUM7OztZQWpCSixVQUFVLFNBQUM7Z0JBQ1YsVUFBVSxFQUFFLE1BQU07YUFDbkI7Ozs7WUFOUSxVQUFVO1lBRVgsZUFBZTs7Ozs7Ozs7SUFRbkIseUNBQXdDOztJQUN4Qyw4Q0FBdUM7Ozs7O0lBR3JDLGdDQUF3Qjs7Ozs7SUFDeEIsMkNBQXdDIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgSW5qZWN0YWJsZSwgSW5qZWN0b3IgfSBmcm9tICdAYW5ndWxhci9jb3JlJztcclxuaW1wb3J0IHsgSHR0cENsaWVudCB9IGZyb20gJ0Bhbmd1bGFyL2NvbW1vbi9odHRwJztcclxuaW1wb3J0IHsgT2JzZXJ2YWJsZSB9IGZyb20gJ3J4anMnO1xyXG5pbXBvcnQge1Jlc291cmNlU2VydmljZX0gZnJvbSAnLi4vYW5ndWxhci1oYWwvc3JjL2xpYi9yZXNvdXJjZS5zZXJ2aWNlJztcclxuXHJcbkBJbmplY3RhYmxlKHtcclxuICBwcm92aWRlZEluOiAncm9vdCdcclxufSlcclxuZXhwb3J0IGNsYXNzIERhc2hib2FyZFNlcnZpY2V7XHJcblxyXG4gICAgLyoqIEFQSSByZXNvdXJjZSBwYXRoICovXHJcbiAgICBwdWJsaWMgREFTSEJPQVJEX0FQSSA9ICdkYXNoYm9hcmQvaW5mbyc7XHJcbiAgICBwdWJsaWMgREFTSEJPQVJEX0VNQkVEREVEPSAnZGFzaGJvYXJkJztcclxuICAgIC8qKiBjb25zdHJ1Y3RvciAqL1xyXG4gICAgY29uc3RydWN0b3IoICAgICAgIFxyXG4gICAgICBwcml2YXRlIGh0dHA6IEh0dHBDbGllbnQsXHJcbiAgICAgIHByaXZhdGUgcmVzb3VyY2VTZXJ2aWNlOiBSZXNvdXJjZVNlcnZpY2UpIHtcclxuICAgIH1cclxuICBcclxuICAgIC8qKiBnZXQgYWxsIGtwaSAqL1xyXG4gICAgZ2V0QWxsKCk6IE9ic2VydmFibGU8YW55PiB7XHJcbiAgICAgIHJldHVybiB0aGlzLmh0dHAuZ2V0KHRoaXMucmVzb3VyY2VTZXJ2aWNlLmdldFJlc291cmNlVXJsKHRoaXMuREFTSEJPQVJEX0FQSSkpLm1hcChyZXNwb25zZSA9PiByZXNwb25zZVt0aGlzLkRBU0hCT0FSRF9FTUJFRERFRF0pO1xyXG4gICAgfVxyXG59XHJcbiJdfQ==

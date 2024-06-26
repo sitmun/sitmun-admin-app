@@ -8,7 +8,7 @@ export declare class LoginService {
     /** constructor */
     constructor(authServerProvider: AuthService, principal: Principal);
     /**Login operation*/
-    login(credentials: any, callback?: any): Promise<{}>;
+    login(credentials: any, callback?: any): Promise<unknown>;
     /**login with jwt token */
     loginWithToken(jwt: any): Promise<any>;
     /** logout operation */
