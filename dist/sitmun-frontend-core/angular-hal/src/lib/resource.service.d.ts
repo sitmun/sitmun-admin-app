@@ -6,6 +6,7 @@ import { HalOptions } from './rest.service';
 import { SubTypeBuilder } from './subtype-builder';
 import { Observable } from 'rxjs';
 /** ResourceService */
+import * as ɵngcc0 from '@angular/core';
 export declare class ResourceService {
     private externalService;
     /** constructor */
@@ -98,4 +99,8 @@ export declare class ResourceService {
     private setUrls;
     /** set proxy and root urls of given resource */
     private setUrlsResource;
+    static ɵfac: ɵngcc0.ɵɵFactoryDef<ResourceService, never>;
+    static ɵprov: ɵngcc0.ɵɵInjectableDef<ResourceService>;
 }
+
+//# sourceMappingURL=resource.service.d.ts.map
