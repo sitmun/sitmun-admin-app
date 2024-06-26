@@ -11,7 +11,7 @@ export declare class ResourceService {
     /** constructor */
     constructor(externalService: ExternalService);
     /** get URL */
-    private static getURL();
+    private static getURL;
     /** get all resources from a base URI of a given type */
     getAll<T extends Resource>(type: {
         new (): T;
@@ -95,7 +95,7 @@ export declare class ResourceService {
     /** get resource URL from a given path*/
     getResourceUrl(resource?: string): string;
     /** set proxy and root urls of given resource array */
-    private setUrls<T>(result);
+    private setUrls;
     /** set proxy and root urls of given resource */
-    private setUrlsResource<T>(result);
+    private setUrlsResource;
 }

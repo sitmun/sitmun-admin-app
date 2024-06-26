@@ -24,5 +24,5 @@ export declare class HasAnyAuthorityOnTerritoryDirective {
     /** Set whether current user has any of the given authorities on territory */
     sitmunHasAnyAuthorityOnTerritory: any;
     /** update view */
-    private updateView();
+    private updateView;
 }

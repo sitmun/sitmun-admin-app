@@ -40,7 +40,7 @@ export declare class ResourceHelper {
     /** get proxy URL */
     static getURL(): string;
     /** add slash to URI */
-    private static addSlash(uri);
+    private static addSlash;
     /** get proxy from URL */
     static getProxy(url: string): string;
     /** set HttpClient*/

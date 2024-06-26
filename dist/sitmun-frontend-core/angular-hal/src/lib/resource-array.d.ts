@@ -53,7 +53,7 @@ export declare class ResourceArray<T extends Resource> implements ArrayInterface
     /** Load page with given size */
     size: (type: new () => T, size: number) => Observable<ResourceArray<T>>;
     /** Add sort info to given URI */
-    private addSortInfo(uri);
+    private addSortInfo;
     /** Add replace or add param value to query string */
-    private static replaceOrAdd(query, field, value);
+    private static replaceOrAdd;
 }

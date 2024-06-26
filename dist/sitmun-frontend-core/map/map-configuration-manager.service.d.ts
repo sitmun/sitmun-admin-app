@@ -114,7 +114,7 @@ export declare class MapConfigurationManagerService {
     getBaseLayerGroups(): Observable<LayerGroup[]>;
     /** set base layer groups*/
     setBaseLayerGroups(groups: Array<LayerGroup>): void;
-    private refreshBaseLayerGroups();
+    private refreshBaseLayerGroups;
     /** get layers*/
     getLayers(): Observable<Layer[]>;
     /** remove all layers from map*/
@@ -132,21 +132,21 @@ export declare class MapConfigurationManagerService {
     /** remove layer at given index from map */
     removeLayerIndex(index: number): void;
     /** refresh layers */
-    private refreshLayers();
+    private refreshLayers;
     /** Observable for layers added */
     getLayersAdded(): Observable<Layer[]>;
-    private refreshAddLayers(layer);
+    private refreshAddLayers;
     getLayersRemoved(): Observable<Layer[]>;
-    private refreshRemoveLayers(layer);
+    private refreshRemoveLayers;
     getLayerConfigurationListener(): Observable<LayerConfiguration[]>;
-    private getLayerIndexById(id);
+    private getLayerIndexById;
     /** move layer with given id to the given index*/
     moveLayer(id: any, index: any): void;
     /** change visibility of layer with given id to the given value*/
     changeLayerVisibility(id: any, visibility: any): void;
     /** change opacity of layer with given id to the given value*/
     changeLayerOpacity(id: any, opacity: any): void;
-    private refreshLayerConfiguration(id, opacity, visibility, position);
+    private refreshLayerConfiguration;
     getSituationMapConfigurationListener(): Observable<Layer[]>;
     /** configure the situation map of the map component by passing as a parameter an array of objects of type LayerGroup, each of them with the corresponding Layer objects defining the layers to load as situation map.*/
     loadSituationMapConfiguration(layers: Array<Layer>): void;

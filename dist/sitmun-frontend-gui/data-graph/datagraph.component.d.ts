@@ -1,4 +1,5 @@
 import { OnInit } from '@angular/core';
+import * as ɵngcc0 from '@angular/core';
 export declare class DatagraphComponent implements OnInit {
     private chartContainer;
     private data;
@@ -18,4 +19,8 @@ export declare class DatagraphComponent implements OnInit {
     ngOnChanges(): void;
     createBarChart(): void;
     updateBarChart(): void;
+    static ɵfac: ɵngcc0.ɵɵFactoryDef<DatagraphComponent, never>;
+    static ɵcmp: ɵngcc0.ɵɵComponentDefWithMeta<DatagraphComponent, "app-datagraph", never, { "data": "data"; "type": "type"; }, {}, never, never>;
 }
+
+//# sourceMappingURL=datagraph.component.d.ts.map

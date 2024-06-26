@@ -24,5 +24,5 @@ export declare class HasAnyAuthorityDirective {
     /** Set whether current user has any of the given authorities */
     sitmunHasAnyAuthority: string | string[];
     /** update view */
-    private updateView();
+    private updateView;
 }
