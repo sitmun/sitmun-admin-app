@@ -3,8 +3,8 @@ import { Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RestService } from '../angular-hal/src/lib/rest.service';
+import * as i0 from "@angular/core";
 /** Task group manager service */
-import * as ɵngcc0 from '@angular/core';
 export declare class TaskGroupService extends RestService<TaskGroup> {
     private http;
     /** API resource path */
@@ -15,8 +15,6 @@ export declare class TaskGroupService extends RestService<TaskGroup> {
     remove(item: TaskGroup): Observable<Object>;
     /** save task group*/
     save(item: TaskGroup): Observable<any>;
-    static ɵfac: ɵngcc0.ɵɵFactoryDef<TaskGroupService, never>;
-    static ɵprov: ɵngcc0.ɵɵInjectableDef<TaskGroupService>;
+    static ɵfac: i0.ɵɵFactoryDef<TaskGroupService, never>;
+    static ɵprov: i0.ɵɵInjectableDef<TaskGroupService>;
 }
-
-//# sourceMappingURL=task-group.service.d.ts.map

@@ -1,18 +1,7 @@
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 import { Resource } from '../angular-hal/src/lib/resource';
 /**
  * Info model
  */
 export class Info extends Resource {
 }
-if (false) {
-    /**
-     * url
-     * @type {?}
-     */
-    Info.prototype.url;
-}
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaW5mby5tb2RlbC5qcyIsInNvdXJjZVJvb3QiOiJuZzovL0BzaXRtdW4vZnJvbnRlbmQtY29yZS8iLCJzb3VyY2VzIjpbImdldEluZm8vaW5mby5tb2RlbC50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOzs7O0FBQUEsT0FBTyxFQUFDLFFBQVEsRUFBQyxNQUFNLGlDQUFpQyxDQUFDOzs7O0FBSXpELE1BQU0sT0FBTyxJQUFLLFNBQVEsUUFBUTtDQUdqQzs7Ozs7O0lBREMsbUJBQW1CIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHtSZXNvdXJjZX0gZnJvbSAnLi4vYW5ndWxhci1oYWwvc3JjL2xpYi9yZXNvdXJjZSc7XHJcbi8qKlxyXG4gKiBJbmZvIG1vZGVsXHJcbiAqL1xyXG5leHBvcnQgY2xhc3MgSW5mbyBleHRlbmRzIFJlc291cmNlIHtcclxuICAvKiogdXJsICovXHJcbiAgcHVibGljIHVybDogc3RyaW5nO1xyXG59Il19
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaW5mby5tb2RlbC5qcyIsInNvdXJjZVJvb3QiOiJDOi9Vc2Vycy9hY29yb21pbmFzL0Rlc2t0b3AvTmV4dXMvU2l0bXVuMy9zaXRtdW4tZnJvbnRlbmQtY29yZS9wcm9qZWN0cy9zaXRtdW4tZnJvbnRlbmQtY29yZS9zcmMvbGliLyIsInNvdXJjZXMiOlsiZ2V0SW5mby9pbmZvLm1vZGVsLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLE9BQU8sRUFBQyxRQUFRLEVBQUMsTUFBTSxpQ0FBaUMsQ0FBQztBQUN6RDs7R0FFRztBQUNILE1BQU0sT0FBTyxJQUFLLFNBQVEsUUFBUTtDQUdqQyIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7UmVzb3VyY2V9IGZyb20gJy4uL2FuZ3VsYXItaGFsL3NyYy9saWIvcmVzb3VyY2UnO1xyXG4vKipcclxuICogSW5mbyBtb2RlbFxyXG4gKi9cclxuZXhwb3J0IGNsYXNzIEluZm8gZXh0ZW5kcyBSZXNvdXJjZSB7XHJcbiAgLyoqIHVybCAqL1xyXG4gIHB1YmxpYyB1cmw6IHN0cmluZztcclxufSJdfQ==

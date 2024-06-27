@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RestService } from '../angular-hal/src/lib/rest.service';
 import { Info } from './info.model';
-import * as ɵngcc0 from '@angular/core';
+import * as i0 from "@angular/core";
 export declare class GetInfoService extends RestService<Info> {
     private http;
     /** API resource path */
@@ -12,8 +12,6 @@ export declare class GetInfoService extends RestService<Info> {
     constructor(injector: Injector, http: HttpClient);
     /** save service*/
     getInfo(url: string): Observable<any>;
-    static ɵfac: ɵngcc0.ɵɵFactoryDef<GetInfoService, never>;
-    static ɵprov: ɵngcc0.ɵɵInjectableDef<GetInfoService>;
+    static ɵfac: i0.ɵɵFactoryDef<GetInfoService, never>;
+    static ɵprov: i0.ɵɵInjectableDef<GetInfoService>;
 }
-
-//# sourceMappingURL=getInfo.service.d.ts.map

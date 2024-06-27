@@ -3,8 +3,8 @@ import { Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RestService } from '../angular-hal/src/lib/rest.service';
+import * as i0 from "@angular/core";
 /** CartographyAvailability manager service */
-import * as ɵngcc0 from '@angular/core';
 export declare class CartographyAvailabilityService extends RestService<CartographyAvailability> {
     private http;
     /** API resource path */
@@ -15,8 +15,6 @@ export declare class CartographyAvailabilityService extends RestService<Cartogra
     remove(item: CartographyAvailability): Observable<Object>;
     /** save cartography availability*/
     save(item: CartographyAvailability): Observable<any>;
-    static ɵfac: ɵngcc0.ɵɵFactoryDef<CartographyAvailabilityService, never>;
-    static ɵprov: ɵngcc0.ɵɵInjectableDef<CartographyAvailabilityService>;
+    static ɵfac: i0.ɵɵFactoryDef<CartographyAvailabilityService, never>;
+    static ɵprov: i0.ɵɵInjectableDef<CartographyAvailabilityService>;
 }
-
-//# sourceMappingURL=cartography-availability.service.d.ts.map

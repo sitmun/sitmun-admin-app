@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
+import * as i0 from "@angular/core";
 /** Layer model: configure Layer data and displaying configuration */
-import * as ɵngcc0 from '@angular/core';
 export declare class Layer {
     /** layer visibility*/
     visibility: boolean;
@@ -157,8 +157,6 @@ export declare class MapConfigurationManagerService {
     getMapComponentStatusListener(): Observable<MapComponentStatus[]>;
     /** set map component status */
     setMapComponentStatus(status: MapComponentStatus): void;
-    static ɵfac: ɵngcc0.ɵɵFactoryDef<MapConfigurationManagerService, never>;
-    static ɵprov: ɵngcc0.ɵɵInjectableDef<MapConfigurationManagerService>;
+    static ɵfac: i0.ɵɵFactoryDef<MapConfigurationManagerService, never>;
+    static ɵprov: i0.ɵɵInjectableDef<MapConfigurationManagerService>;
 }
-
-//# sourceMappingURL=map-configuration-manager.service.d.ts.map

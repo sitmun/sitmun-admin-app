@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RestService } from '../angular-hal/src/lib/rest.service';
 import { CartographyStyle } from './cartography-style.model';
-import * as ɵngcc0 from '@angular/core';
+import * as i0 from "@angular/core";
 export declare class CartographyStyleService extends RestService<CartographyStyle> {
     private http;
     /** API resource path */
@@ -14,8 +14,6 @@ export declare class CartographyStyleService extends RestService<CartographyStyl
     remove(item: CartographyStyle): Observable<Object>;
     /** save service parameter*/
     save(item: CartographyStyle): Observable<any>;
-    static ɵfac: ɵngcc0.ɵɵFactoryDef<CartographyStyleService, never>;
-    static ɵprov: ɵngcc0.ɵɵInjectableDef<CartographyStyleService>;
+    static ɵfac: i0.ɵɵFactoryDef<CartographyStyleService, never>;
+    static ɵprov: i0.ɵɵInjectableDef<CartographyStyleService>;
 }
-
-//# sourceMappingURL=cartography-style.service.d.ts.map

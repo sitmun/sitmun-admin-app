@@ -1,5 +1,6 @@
 import { TemplateRef, ViewContainerRef } from '@angular/core';
 import { Principal } from './principal.service';
+import * as i0 from "@angular/core";
 /**
  * @whatItDoes Conditionally includes an HTML element if current user has any
  * of the authorities passed as the `expression`.
@@ -11,7 +12,6 @@ import { Principal } from './principal.service';
  *     <some-element *sitmunHasAnyAuthority="['ROLE_ADMIN', 'ROLE_USER']">...</some-element>
  * ```
  */
-import * as ɵngcc0 from '@angular/core';
 export declare class HasAnyAuthorityOnTerritoryDirective {
     private principal;
     private templateRef;
@@ -23,11 +23,9 @@ export declare class HasAnyAuthorityOnTerritoryDirective {
     /** constructor */
     constructor(principal: Principal, templateRef: TemplateRef<any>, viewContainerRef: ViewContainerRef);
     /** Set whether current user has any of the given authorities on territory */
-    sitmunHasAnyAuthorityOnTerritory: any;
+    set sitmunHasAnyAuthorityOnTerritory(opts: any);
     /** update view */
     private updateView;
-    static ɵfac: ɵngcc0.ɵɵFactoryDef<HasAnyAuthorityOnTerritoryDirective, never>;
-    static ɵdir: ɵngcc0.ɵɵDirectiveDefWithMeta<HasAnyAuthorityOnTerritoryDirective, "[sitmunHasAnyAuthorityOnTerritory]", never, { "sitmunHasAnyAuthorityOnTerritory": "sitmunHasAnyAuthorityOnTerritory"; }, {}, never>;
+    static ɵfac: i0.ɵɵFactoryDef<HasAnyAuthorityOnTerritoryDirective, never>;
+    static ɵdir: i0.ɵɵDirectiveDefWithMeta<HasAnyAuthorityOnTerritoryDirective, "[sitmunHasAnyAuthorityOnTerritory]", never, { "sitmunHasAnyAuthorityOnTerritory": "sitmunHasAnyAuthorityOnTerritory"; }, {}, never>;
 }
-
-//# sourceMappingURL=has-any-authority-on-territory.directive.d.ts.map

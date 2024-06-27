@@ -3,240 +3,94 @@ import { map, catchError, mergeMap } from 'rxjs/operators';
 import { HttpHeaders, HttpParams, HttpClient, HttpErrorResponse, HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { parse } from 'url';
 import { isNullOrUndefined, isPrimitive } from 'util';
-import { Injectable, Inject, Injector, ɵɵdefineInjectable, ɵɵinject, INJECTOR, Directive, TemplateRef, ViewContainerRef, Input, NgModule } from '@angular/core';
+import { ɵɵdefineInjectable, ɵsetClassMetadata, Injectable, ɵɵinject, Inject, Injector, ɵɵdirectiveInject, TemplateRef, ViewContainerRef, ɵɵdefineDirective, Directive, Input, ɵɵdefineNgModule, ɵɵdefineInjector, ɵɵsetNgModuleScope, NgModule } from '@angular/core';
 import { Observable } from 'rxjs-compat';
 import { Router } from '@angular/router';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * REST array of resource implementation
- * @template T
- */
+/** REST array of resource implementation */
 class ResourceArray {
     constructor() {
-        /**
-         * total number of elements in this array
-         */
+        /** total number of elements in this array */
         this.totalElements = 0;
-        /**
-         * total number of pages in the response
-         */
+        /** total number of pages in the response */
         this.totalPages = 1;
-        /**
-         * page number in the response
-         */
+        /** page number in the response */
         this.pageNumber = 1;
-        /**
-         * array components
-         */
+        /** array components */
         this.result = [];
-        /**
-         * push a new resource to the array
-         */
-        this.push = (/**
-         * @param {?} el
-         * @return {?}
-         */
-        (el) => {
+        /** push a new resource to the array */
+        this.push = (el) => {
             this.result.push(el);
-        });
-        /**
-         * length of the array
-         */
-        this.length = (/**
-         * @return {?}
-         */
-        () => {
+        };
+        /** length of the array */
+        this.length = () => {
             return this.result.length;
-        });
-        /**
-         * load array data from REST request
-         */
-        this.init = (/**
-         * @param {?} type
-         * @param {?} response
-         * @param {?} sortInfo
-         * @return {?}
-         */
-        (type, response, sortInfo) => {
-            /** @type {?} */
+        };
+        /** load array data from REST request */
+        this.init = (type, response, sortInfo) => {
             const result = ResourceHelper.createEmptyResult(this._embedded);
             result.sortInfo = sortInfo;
             ResourceHelper.instantiateResourceCollection(type, response, result);
             return result;
-        });
-        /**
-         * Load next page
-         */
-        this.next = (/**
-         * @param {?} type
-         * @return {?}
-         */
-        (type) => {
+        };
+        /** Load next page */
+        this.next = (type) => {
             if (this.next_uri) {
-                return ResourceHelper.getHttp().get(ResourceHelper.getProxy(this.next_uri), { headers: ResourceHelper.headers }).pipe(map((/**
-                 * @param {?} response
-                 * @return {?}
-                 */
-                response => this.init(type, response, this.sortInfo))), catchError((/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => throwError(error))));
+                return ResourceHelper.getHttp().get(ResourceHelper.getProxy(this.next_uri), { headers: ResourceHelper.headers }).pipe(map(response => this.init(type, response, this.sortInfo)), catchError(error => throwError(error)));
             }
             return throwError('no next defined');
-        });
-        /**
-         * Load previous page
-         */
-        this.prev = (/**
-         * @param {?} type
-         * @return {?}
-         */
-        (type) => {
+        };
+        /** Load previous page */
+        this.prev = (type) => {
             if (this.prev_uri) {
-                return ResourceHelper.getHttp().get(ResourceHelper.getProxy(this.prev_uri), { headers: ResourceHelper.headers }).pipe(map((/**
-                 * @param {?} response
-                 * @return {?}
-                 */
-                response => this.init(type, response, this.sortInfo))), catchError((/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => throwError(error))));
+                return ResourceHelper.getHttp().get(ResourceHelper.getProxy(this.prev_uri), { headers: ResourceHelper.headers }).pipe(map(response => this.init(type, response, this.sortInfo)), catchError(error => throwError(error)));
             }
             return throwError('no prev defined');
-        });
-        /**
-         * Load first page
-         */
-        this.first = (/**
-         * @param {?} type
-         * @return {?}
-         */
-        (type) => {
+        };
+        /** Load first page */
+        this.first = (type) => {
             if (this.first_uri) {
-                return ResourceHelper.getHttp().get(ResourceHelper.getProxy(this.first_uri), { headers: ResourceHelper.headers }).pipe(map((/**
-                 * @param {?} response
-                 * @return {?}
-                 */
-                response => this.init(type, response, this.sortInfo))), catchError((/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => throwError(error))));
+                return ResourceHelper.getHttp().get(ResourceHelper.getProxy(this.first_uri), { headers: ResourceHelper.headers }).pipe(map(response => this.init(type, response, this.sortInfo)), catchError(error => throwError(error)));
             }
             return throwError('no first defined');
-        });
-        /**
-         * Load last page
-         */
-        this.last = (/**
-         * @param {?} type
-         * @return {?}
-         */
-        (type) => {
+        };
+        /** Load last page */
+        this.last = (type) => {
             if (this.last_uri) {
-                return ResourceHelper.getHttp().get(ResourceHelper.getProxy(this.last_uri), { headers: ResourceHelper.headers }).pipe(map((/**
-                 * @param {?} response
-                 * @return {?}
-                 */
-                response => this.init(type, response, this.sortInfo))), catchError((/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => throwError(error))));
+                return ResourceHelper.getHttp().get(ResourceHelper.getProxy(this.last_uri), { headers: ResourceHelper.headers }).pipe(map(response => this.init(type, response, this.sortInfo)), catchError(error => throwError(error)));
             }
             return throwError('no last defined');
-        });
-        /**
-         * Load page with given pageNumber
-         */
-        this.page = (/**
-         * @param {?} type
-         * @param {?} pageNumber
-         * @return {?}
-         */
-        (type, pageNumber) => {
+        };
+        /** Load page with given pageNumber*/
+        this.page = (type, pageNumber) => {
             this.self_uri = this.self_uri.replace('{?page,size,sort}', '');
             this.self_uri = this.self_uri.replace('{&sort}', '');
-            /** @type {?} */
             let urlParsed = parse(ResourceHelper.getProxy(this.self_uri));
-            /** @type {?} */
             let query = ResourceArray.replaceOrAdd(urlParsed.query, 'size', this.pageSize.toString());
             query = ResourceArray.replaceOrAdd(query, 'page', pageNumber.toString());
-            /** @type {?} */
             let uri = urlParsed.query ?
                 ResourceHelper.getProxy(this.self_uri).replace(urlParsed.query, query) : ResourceHelper.getProxy(this.self_uri).concat(query);
             uri = this.addSortInfo(uri);
-            return ResourceHelper.getHttp().get(uri, { headers: ResourceHelper.headers }).pipe(map((/**
-             * @param {?} response
-             * @return {?}
-             */
-            response => this.init(type, response, this.sortInfo))), catchError((/**
-             * @param {?} error
-             * @return {?}
-             */
-            error => throwError(error))));
-        });
-        /**
-         * Sort collection based on given sort attribute
-         */
-        this.sortElements = (/**
-         * @param {?} type
-         * @param {...?} sort
-         * @return {?}
-         */
-        (type, ...sort) => {
+            return ResourceHelper.getHttp().get(uri, { headers: ResourceHelper.headers }).pipe(map(response => this.init(type, response, this.sortInfo)), catchError(error => throwError(error)));
+        };
+        /** Sort collection based on given sort attribute */
+        this.sortElements = (type, ...sort) => {
             this.self_uri = this.self_uri.replace('{?page,size,sort}', '');
             this.self_uri = this.self_uri.replace('{&sort}', '');
-            /** @type {?} */
             let uri = ResourceHelper.getProxy(this.self_uri).concat('?', 'size=', this.pageSize.toString(), '&page=', this.pageNumber.toString());
             uri = this.addSortInfo(uri);
-            return ResourceHelper.getHttp().get(uri, { headers: ResourceHelper.headers }).pipe(map((/**
-             * @param {?} response
-             * @return {?}
-             */
-            response => this.init(type, response, sort))), catchError((/**
-             * @param {?} error
-             * @return {?}
-             */
-            error => throwError(error))));
-        });
-        /**
-         * Load page with given size
-         */
-        this.size = (/**
-         * @param {?} type
-         * @param {?} size
-         * @return {?}
-         */
-        (type, size) => {
-            /** @type {?} */
+            return ResourceHelper.getHttp().get(uri, { headers: ResourceHelper.headers }).pipe(map(response => this.init(type, response, sort)), catchError(error => throwError(error)));
+        };
+        /** Load page with given size */
+        this.size = (type, size) => {
             let uri = ResourceHelper.getProxy(this.self_uri).concat('?', 'size=', size.toString());
             uri = this.addSortInfo(uri);
-            return ResourceHelper.getHttp().get(uri, { headers: ResourceHelper.headers }).pipe(map((/**
-             * @param {?} response
-             * @return {?}
-             */
-            response => this.init(type, response, this.sortInfo))), catchError((/**
-             * @param {?} error
-             * @return {?}
-             */
-            error => throwError(error))));
-        });
+            return ResourceHelper.getHttp().get(uri, { headers: ResourceHelper.headers }).pipe(map(response => this.init(type, response, this.sortInfo)), catchError(error => throwError(error)));
+        };
     }
-    /**
-     * Add sort info to given URI
-     * @private
-     * @param {?} uri
-     * @return {?}
-     */
+    /** Add sort info to given URI */
     addSortInfo(uri) {
         if (this.sortInfo) {
             for (const item of this.sortInfo) {
@@ -245,22 +99,12 @@ class ResourceArray {
         }
         return uri;
     }
-    /**
-     * Add replace or add param value to query string
-     * @private
-     * @param {?} query
-     * @param {?} field
-     * @param {?} value
-     * @return {?}
-     */
+    /** Add replace or add param value to query string */
     static replaceOrAdd(query, field, value) {
         if (query) {
-            /** @type {?} */
             let idx = query.indexOf(field);
-            /** @type {?} */
             let idxNextAmp = query.indexOf('&', idx) == -1 ? query.indexOf('/', idx) : query.indexOf('&', idx);
             if (idx != -1) {
-                /** @type {?} */
                 let seachValue = query.substring(idx, idxNextAmp);
                 query = query.replace(seachValue, field + '=' + value);
             }
@@ -274,154 +118,20 @@ class ResourceArray {
         return query;
     }
 }
-if (false) {
-    /**
-     * sorting info
-     * @type {?}
-     */
-    ResourceArray.prototype.sortInfo;
-    /**
-     * proxy url
-     * @type {?}
-     */
-    ResourceArray.prototype.proxyUrl;
-    /**
-     * root url
-     * @type {?}
-     */
-    ResourceArray.prototype.rootUrl;
-    /**
-     * self url
-     * @type {?}
-     */
-    ResourceArray.prototype.self_uri;
-    /**
-     * next resource url
-     * @type {?}
-     */
-    ResourceArray.prototype.next_uri;
-    /**
-     * previous resource url
-     * @type {?}
-     */
-    ResourceArray.prototype.prev_uri;
-    /**
-     * first resource url
-     * @type {?}
-     */
-    ResourceArray.prototype.first_uri;
-    /**
-     * last resource url
-     * @type {?}
-     */
-    ResourceArray.prototype.last_uri;
-    /**
-     * embedded array list
-     * @type {?}
-     */
-    ResourceArray.prototype._embedded;
-    /**
-     * total number of elements in this array
-     * @type {?}
-     */
-    ResourceArray.prototype.totalElements;
-    /**
-     * total number of pages in the response
-     * @type {?}
-     */
-    ResourceArray.prototype.totalPages;
-    /**
-     * page number in the response
-     * @type {?}
-     */
-    ResourceArray.prototype.pageNumber;
-    /**
-     * page size
-     * @type {?}
-     */
-    ResourceArray.prototype.pageSize;
-    /**
-     * array components
-     * @type {?}
-     */
-    ResourceArray.prototype.result;
-    /**
-     * push a new resource to the array
-     * @type {?}
-     */
-    ResourceArray.prototype.push;
-    /**
-     * length of the array
-     * @type {?}
-     */
-    ResourceArray.prototype.length;
-    /**
-     * load array data from REST request
-     * @type {?}
-     * @private
-     */
-    ResourceArray.prototype.init;
-    /**
-     * Load next page
-     * @type {?}
-     */
-    ResourceArray.prototype.next;
-    /**
-     * Load previous page
-     * @type {?}
-     */
-    ResourceArray.prototype.prev;
-    /**
-     * Load first page
-     * @type {?}
-     */
-    ResourceArray.prototype.first;
-    /**
-     * Load last page
-     * @type {?}
-     */
-    ResourceArray.prototype.last;
-    /**
-     * Load page with given pageNumber
-     * @type {?}
-     */
-    ResourceArray.prototype.page;
-    /**
-     * Sort collection based on given sort attribute
-     * @type {?}
-     */
-    ResourceArray.prototype.sortElements;
-    /**
-     * Load page with given size
-     * @type {?}
-     */
-    ResourceArray.prototype.size;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * REST API access helper
- */
+/** REST API access helper */
 class ResourceHelper {
     /** get request headers */
     /*public static get headers(): HttpHeaders {
-            if (isNullOrUndefined(this._headers))
-              ResourceHelper._headers = new HttpHeaders();
-            return ResourceHelper._headers;
-        }*/
+        if (isNullOrUndefined(this._headers))
+          ResourceHelper._headers = new HttpHeaders();
+        return ResourceHelper._headers;
+    }*/
     /** set request headers */
     /*public static set headers(headers: HttpHeaders) {
-          ResourceHelper._headers = headers;
-        }*/
-    /**
-     * get request option params
-     * @param {?} params
-     * @param {?=} options
-     * @return {?}
-     */
+      ResourceHelper._headers = headers;
+    }*/
+    /** get request option params */
     static optionParams(params, options) {
         if (options) {
             if (options.params) {
@@ -434,7 +144,6 @@ class ResourceHelper {
             }
             if (options.sort) {
                 for (const s of options.sort) {
-                    /** @type {?} */
                     let sortString = '';
                     sortString = s.path ? sortString.concat(s.path) : sortString;
                     sortString = s.order ? sortString.concat(',').concat(s.order) : sortString;
@@ -444,42 +153,28 @@ class ResourceHelper {
         }
         return params;
     }
-    /**
-     * resolve resource relations
-     * @param {?} resource
-     * @return {?}
-     */
+    /** resolve resource relations */
     static resolveRelations(resource) {
-        /** @type {?} */
         const result = {};
         for (const key in resource) {
             if (!isNullOrUndefined(resource[key])) {
                 if (ResourceHelper.className(resource[key])
-                    .find((/**
-                 * @param {?} className
-                 * @return {?}
-                 */
-                (className) => className == 'Resource'))) {
+                    .find((className) => className == 'Resource')) {
                     if (resource[key]['_links'])
                         result[key] = resource[key]['_links']['self']['href'];
                 }
                 else if (Array.isArray(resource[key])) {
-                    /** @type {?} */
                     let array = resource[key];
                     if (array) {
                         result[key] = new Array();
-                        array.forEach((/**
-                         * @param {?} element
-                         * @return {?}
-                         */
-                        (element) => {
+                        array.forEach((element) => {
                             if (isPrimitive(element)) {
                                 result[key].push(element);
                             }
                             else {
                                 result[key].push(this.resolveRelations(element));
                             }
-                        }));
+                        });
                     }
                 }
                 else {
@@ -487,43 +182,24 @@ class ResourceHelper {
                 }
             }
         }
-        return (/** @type {?} */ (result));
+        return result;
     }
-    /**
-     * create an empty resource from embedded data
-     * @template T
-     * @param {?} _embedded
-     * @return {?}
-     */
+    /** create an empty resource from embedded data*/
     static createEmptyResult(_embedded) {
-        /** @type {?} */
         let resourceArray = new ResourceArray();
         resourceArray._embedded = _embedded;
         return resourceArray;
     }
-    /**
-     * get resource class name
-     * @param {?} obj
-     * @return {?}
-     */
+    /** get resource class name*/
     static getClassName(obj) {
-        /** @type {?} */
         var funcNameRegex = /function (.+?)\(/;
-        /** @type {?} */
         var results = (funcNameRegex).exec(obj.constructor.toString());
         return (results && results.length > 1) ? results[1] : '';
     }
-    /**
-     * get resource class name from a prototype object
-     * @param {?} objProto
-     * @return {?}
-     */
+    /** get resource class name from a prototype object*/
     static className(objProto) {
-        /** @type {?} */
         let classNames = [];
-        /** @type {?} */
         let obj = Object.getPrototypeOf(objProto);
-        /** @type {?} */
         let className;
         while ((className = ResourceHelper.getClassName(obj)) !== 'Object') {
             classNames.push(className);
@@ -531,25 +207,13 @@ class ResourceHelper {
         }
         return classNames;
     }
-    /**
-     * instantiate a ResourceCollection from response embedded data
-     * @template T
-     * @param {?} type
-     * @param {?} payload
-     * @param {?} result
-     * @param {?=} builder
-     * @param {?=} embeddedName
-     * @return {?}
-     */
+    /** instantiate a ResourceCollection from response embedded data*/
     static instantiateResourceCollection(type, payload, result, builder, embeddedName) {
         for (const embeddedClassName of Object.keys(payload[result._embedded])) {
             if (!embeddedName || (embeddedName && embeddedClassName == embeddedName)) {
-                /** @type {?} */
                 let embedded = payload[result._embedded];
-                /** @type {?} */
                 const items = embedded[embeddedClassName];
                 for (let item of items) {
-                    /** @type {?} */
                     let instance = new type();
                     instance = this.searchSubtypes(builder, embeddedClassName, instance);
                     this.instantiateResource(instance, item);
@@ -568,39 +232,20 @@ class ResourceHelper {
         result.last_uri = payload._links && payload._links.last ? payload._links.last.href : undefined;
         return result;
     }
-    /**
-     * search subtypes
-     * @template T
-     * @param {?} builder
-     * @param {?} embeddedClassName
-     * @param {?} instance
-     * @return {?}
-     */
+    /** search subtypes*/
     static searchSubtypes(builder, embeddedClassName, instance) {
         if (builder && builder.subtypes) {
-            /** @type {?} */
             let keys = builder.subtypes.keys();
-            Array.from(keys).forEach((/**
-             * @param {?} subtypeKey
-             * @return {?}
-             */
-            (subtypeKey) => {
+            Array.from(keys).forEach((subtypeKey) => {
                 if (embeddedClassName.toLowerCase().startsWith(subtypeKey.toLowerCase())) {
-                    /** @type {?} */
                     let subtype = builder.subtypes.get(subtypeKey);
                     instance = new subtype();
                 }
-            }));
+            });
         }
         return instance;
     }
-    /**
-     * instantiate a Resource from response
-     * @template T
-     * @param {?} entity
-     * @param {?} payload
-     * @return {?}
-     */
+    /** instantiate a Resource from response */
     static instantiateResource(entity, payload) {
         for (const p in payload) {
             //TODO array init
@@ -611,210 +256,94 @@ class ResourceHelper {
         }
         return entity;
     }
-    /**
-     * set proxy URL
-     * @param {?} proxy_uri
-     * @return {?}
-     */
+    /** set proxy URL */
     static setProxyUri(proxy_uri) {
         ResourceHelper.proxy_uri = proxy_uri;
     }
-    /**
-     * set Root URI
-     * @param {?} root_uri
-     * @return {?}
-     */
+    /** set Root URI */
     static setRootUri(root_uri) {
         ResourceHelper.root_uri = root_uri;
     }
-    /**
-     * get proxy URL
-     * @return {?}
-     */
+    /** get proxy URL */
     static getURL() {
         return ResourceHelper.proxy_uri && ResourceHelper.proxy_uri != '' ?
             ResourceHelper.addSlash(ResourceHelper.proxy_uri) :
             ResourceHelper.addSlash(ResourceHelper.root_uri);
     }
-    /**
-     * add slash to URI
-     * @private
-     * @param {?} uri
-     * @return {?}
-     */
+    /** add slash to URI */
     static addSlash(uri) {
-        /** @type {?} */
         let uriParsed = parse(uri);
         if (isNullOrUndefined(uriParsed.search) && uri && uri[uri.length - 1] != '/')
             return uri + '/';
         return uri;
     }
-    /**
-     * get proxy from URL
-     * @param {?} url
-     * @return {?}
-     */
+    /** get proxy from URL */
     static getProxy(url) {
         if (!ResourceHelper.proxy_uri || ResourceHelper.proxy_uri == '')
             return url;
         return ResourceHelper.addSlash(url.replace(ResourceHelper.root_uri, ResourceHelper.proxy_uri));
     }
-    /**
-     * set HttpClient
-     * @param {?} http
-     * @return {?}
-     */
+    /** set HttpClient*/
     static setHttp(http) {
         ResourceHelper.http = http;
     }
-    /**
-     * get HttpClient
-     * @return {?}
-     */
+    /** get HttpClient*/
     static getHttp() {
         return ResourceHelper.http;
     }
-    /**
-     * get root URI
-     * @return {?}
-     */
+    /** get root URI*/
     static getRootUri() {
         return ResourceHelper.root_uri;
     }
 }
-/**
- * HttpHeaders
- */
+/** HttpHeaders */
 ResourceHelper.headers = new HttpHeaders();
-/**
- * Proxy URL
- */
+/** Proxy URL */
 ResourceHelper.proxy_uri = null;
-/**
- * Root URL
- */
+/** Root URL */
 ResourceHelper.root_uri = null;
-/**
- * HttpClient
- */
+/** HttpClient */
 ResourceHelper.http = null;
-if (false) {
-    /**
-     * HttpHeaders
-     * @type {?}
-     */
-    ResourceHelper.headers;
-    /**
-     * Proxy URL
-     * @type {?}
-     * @private
-     */
-    ResourceHelper.proxy_uri;
-    /**
-     * Root URL
-     * @type {?}
-     * @private
-     */
-    ResourceHelper.root_uri;
-    /**
-     * HttpClient
-     * @type {?}
-     * @private
-     */
-    ResourceHelper.http;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Abstract resource class
- * @abstract
- */
+/** Abstract resource class*/
 class Resource {
-    /**
-     * constructor
-     */
+    /** constructor*/
     constructor() {
     }
-    /**
-     * get subtypes
-     * @return {?}
-     */
+    /** get subtypes */
     get subtypes() {
         return this._subtypes;
     }
-    /**
-     * set subtypes
-     * @param {?} _subtypes
-     * @return {?}
-     */
+    /** set subtypes */
     set subtypes(_subtypes) {
         this._subtypes = _subtypes;
     }
-    /**
-     * Get collection of related resources
-     * @template T
-     * @param {?} type
-     * @param {?} relation
-     * @param {?=} _embedded
-     * @param {?=} options
-     * @param {?=} builder
-     * @return {?}
-     */
+    /** Get collection of related resources */
     getRelationArray(type, relation, _embedded, options, builder) {
-        /** @type {?} */
         const params = ResourceHelper.optionParams(new HttpParams(), options);
-        /** @type {?} */
         const result = ResourceHelper.createEmptyResult(isNullOrUndefined(_embedded) ? "_embedded" : _embedded);
         if (!isNullOrUndefined(this._links) && !isNullOrUndefined(this._links[relation])) {
-            /** @type {?} */
             let observable = ResourceHelper.getHttp().get(ResourceHelper.getProxy(this._links[relation].href), {
                 headers: ResourceHelper.headers,
                 params: params
             });
-            return observable.pipe(map((/**
-             * @param {?} response
-             * @return {?}
-             */
-            response => ResourceHelper.instantiateResourceCollection(type, response, result, builder))), map((/**
-             * @param {?} array
-             * @return {?}
-             */
-            (array) => array.result)));
+            return observable.pipe(map(response => ResourceHelper.instantiateResourceCollection(type, response, result, builder)), map((array) => array.result));
         }
         else {
             return of([]);
         }
     }
-    /**
-     * Get related resource
-     * @template T
-     * @param {?} type
-     * @param {?} relation
-     * @param {?=} builder
-     * @return {?}
-     */
+    /** Get related resource */
     getRelation(type, relation, builder) {
-        /** @type {?} */
         let result = new type();
         if (!isNullOrUndefined(this._links) && !isNullOrUndefined(this._links[relation])) {
-            /** @type {?} */
             let observable = ResourceHelper.getHttp().get(ResourceHelper.getProxy(this._links[relation].href), { headers: ResourceHelper.headers });
-            return observable.pipe(map((/**
-             * @param {?} data
-             * @return {?}
-             */
-            (data) => {
+            return observable.pipe(map((data) => {
                 if (builder) {
                     for (const embeddedClassName of Object.keys(data['_links'])) {
                         if (embeddedClassName == 'self') {
-                            /** @type {?} */
                             let href = data._links[embeddedClassName].href;
-                            /** @type {?} */
                             let idx = href.lastIndexOf('/');
-                            /** @type {?} */
                             let realClassName = href.replace(ResourceHelper.getRootUri(), "").substring(0, idx);
                             result = ResourceHelper.searchSubtypes(builder, realClassName, result);
                             break;
@@ -822,22 +351,15 @@ class Resource {
                     }
                 }
                 return ResourceHelper.instantiateResource(result, data);
-            })));
+            }));
         }
         else {
             return of(null);
         }
     }
-    /**
-     * Adds the given resource to the bound collection by the relation
-     * @template T
-     * @param {?} relation
-     * @param {?} resource
-     * @return {?}
-     */
+    /** Adds the given resource to the bound collection by the relation */
     addRelation(relation, resource) {
         if (!isNullOrUndefined(this._links) && !isNullOrUndefined(this._links[relation])) {
-            /** @type {?} */
             let header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
             return ResourceHelper.getHttp().post(ResourceHelper.getProxy(this._links[relation].href), resource._links.self.href, { headers: header });
         }
@@ -845,16 +367,9 @@ class Resource {
             return throwError('no relation found');
         }
     }
-    /**
-     * Bind the given resource to this resource by the given relation
-     * @template T
-     * @param {?} relation
-     * @param {?} resource
-     * @return {?}
-     */
+    /** Bind the given resource to this resource by the given relation*/
     updateRelation(relation, resource) {
         if (!isNullOrUndefined(this._links) && !isNullOrUndefined(this._links[relation])) {
-            /** @type {?} */
             let header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
             return ResourceHelper.getHttp().patch(ResourceHelper.getProxy(this._links[relation].href), resource._links.self.href, { headers: header });
         }
@@ -862,16 +377,9 @@ class Resource {
             return throwError('no relation found');
         }
     }
-    /**
-     * Bind the given resource to this resource by the given relation
-     * @template T
-     * @param {?} relation
-     * @param {?} resource
-     * @return {?}
-     */
+    /** Bind the given resource to this resource by the given relation*/
     substituteRelation(relation, resource) {
         if (!isNullOrUndefined(this._links) && !isNullOrUndefined(this._links[relation])) {
-            /** @type {?} */
             let header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
             return ResourceHelper.getHttp().put(ResourceHelper.getProxy(this._links[relation].href), resource._links.self.href, { headers: header });
         }
@@ -879,43 +387,23 @@ class Resource {
             return throwError('no relation found');
         }
     }
-    /**
-     * Bind the given resource to this resource by the given relation
-     * @template T
-     * @param {?} relation
-     * @param {?} resources
-     * @return {?}
-     */
+    /** Bind the given resource to this resource by the given relation*/
     substituteAllRelation(relation, resources) {
         if (!isNullOrUndefined(this._links) && !isNullOrUndefined(this._links[relation])) {
-            /** @type {?} */
             let header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
-            return ResourceHelper.getHttp().put(ResourceHelper.getProxy(this._links[relation].href), resources.map((/**
-             * @param {?} resource
-             * @return {?}
-             */
-            (resource) => resource._links.self.href)), { headers: header });
+            return ResourceHelper.getHttp().put(ResourceHelper.getProxy(this._links[relation].href), resources.map((resource) => resource._links.self.href), { headers: header });
         }
         else {
             return throwError('no relation found');
         }
     }
-    /**
-     * Unbind the resource with the given relation from this resource
-     * @template T
-     * @param {?} relation
-     * @param {?} resource
-     * @return {?}
-     */
+    /** Unbind the resource with the given relation from this resource*/
     deleteRelation(relation, resource) {
         if (!isNullOrUndefined(this._links) && !isNullOrUndefined(resource._links)) {
-            /** @type {?} */
             let link = resource._links['self'].href;
-            /** @type {?} */
             let idx = link.lastIndexOf('/') + 1;
             if (idx == -1)
                 return throwError('no relation found');
-            /** @type {?} */
             let relationId = link.substring(idx);
             return ResourceHelper.getHttp().delete(ResourceHelper.getProxy(this._links[relation].href + '/' + relationId), { headers: ResourceHelper.headers });
         }
@@ -923,712 +411,266 @@ class Resource {
             return throwError('no relation found');
         }
     }
-    /**
-     * Unbind the resource with the given relation from this resource
-     * @template T
-     * @param {?} relation
-     * @return {?}
-     */
+    /** Unbind the resource with the given relation from this resource*/
     deleteAllRelation(relation) {
         return ResourceHelper.getHttp().delete(ResourceHelper.getProxy(this._links[relation].href), { headers: ResourceHelper.headers });
     }
 }
-Resource.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-Resource.ctorParameters = () => [];
-if (false) {
-    /**
-     * proxy URL
-     * @type {?}
-     */
-    Resource.prototype.proxyUrl;
-    /**
-     * root URL
-     * @type {?}
-     */
-    Resource.prototype.rootUrl;
-    /**
-     * links
-     * @type {?}
-     */
-    Resource.prototype._links;
-    /**
-     * subtypes
-     * @type {?}
-     */
-    Resource.prototype._subtypes;
-}
+Resource.ɵfac = function Resource_Factory(t) { return new (t || Resource)(); };
+Resource.ɵprov = ɵɵdefineInjectable({ token: Resource, factory: Resource.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(Resource, [{
+        type: Injectable
+    }], function () { return []; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * User model
  */
 class User extends Resource {
 }
-if (false) {
-    /**
-     * id
-     * @type {?}
-     */
-    User.prototype.id;
-    /**
-     * username
-     * @type {?}
-     */
-    User.prototype.username;
-    /**
-     * password
-     * @type {?}
-     */
-    User.prototype.password;
-    /**
-     * first name
-     * @type {?}
-     */
-    User.prototype.firstName;
-    /**
-     * last name
-     * @type {?}
-     */
-    User.prototype.lastName;
-    /**
-     * whether user is blocked
-     * @type {?}
-     */
-    User.prototype.blocked;
-    /**
-     * whether user is administrator
-     * @type {?}
-     */
-    User.prototype.administrator;
-    /**
-     * Is passwordSet
-     * @type {?}
-     */
-    User.prototype.passwordSet;
-    /**
-     * user positions
-     * @type {?}
-     */
-    User.prototype.positions;
-    /**
-     * user permissions
-     * @type {?}
-     */
-    User.prototype.permissions;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * ExternalService
- */
+/** ExternalService */
 class ExternalService {
-    /**
-     * constructor
-     * @param {?} externalConfigurationService
-     */
+    /** constructor */
     constructor(externalConfigurationService) {
         this.externalConfigurationService = externalConfigurationService;
         ResourceHelper.setProxyUri(externalConfigurationService.getProxyUri());
         ResourceHelper.setRootUri(externalConfigurationService.getRootUri());
         ResourceHelper.setHttp(externalConfigurationService.getHttp());
     }
-    /**
-     * update ExternalConfigurationHandler
-     * @param {?} externalConfigurationService
-     * @return {?}
-     */
+    /** update ExternalConfigurationHandler */
     updateExternalConfigurationHandlerInterface(externalConfigurationService) {
         this.externalConfigurationService = externalConfigurationService;
         ResourceHelper.setProxyUri(externalConfigurationService.getProxyUri());
         ResourceHelper.setRootUri(externalConfigurationService.getRootUri());
         ResourceHelper.setHttp(externalConfigurationService.getHttp());
     }
-    /**
-     * get ExternalConfiguration
-     * @return {?}
-     */
+    /** get ExternalConfiguration */
     getExternalConfiguration() {
         return this.externalConfigurationService.getExternalConfiguration();
     }
-    /**
-     * get proxy URL
-     * @return {?}
-     */
+    /** get proxy URL */
     getProxyUri() {
         return this.externalConfigurationService.getProxyUri();
     }
-    /**
-     * get Root URI
-     * @return {?}
-     */
+    /** get Root URI */
     getRootUri() {
         return this.externalConfigurationService.getRootUri();
     }
-    /**
-     * get URL
-     * @return {?}
-     */
+    /** get URL */
     getURL() {
         return ResourceHelper.getURL();
     }
-    /**
-     * get HttpClient
-     * @return {?}
-     */
+    /** get HttpClient */
     getHttp() {
         return ResourceHelper.getHttp();
     }
 }
-ExternalService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-ExternalService.ctorParameters = () => [
-    { type: undefined, decorators: [{ type: Inject, args: ['ExternalConfigurationService',] }] }
-];
-if (false) {
-    /**
-     * @type {?}
-     * @private
-     */
-    ExternalService.prototype.externalConfigurationService;
-}
+ExternalService.ɵfac = function ExternalService_Factory(t) { return new (t || ExternalService)(ɵɵinject('ExternalConfigurationService')); };
+ExternalService.ɵprov = ɵɵdefineInjectable({ token: ExternalService, factory: ExternalService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(ExternalService, [{
+        type: Injectable
+    }], function () { return [{ type: undefined, decorators: [{
+                type: Inject,
+                args: ['ExternalConfigurationService']
+            }] }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * ResourceService
- */
+/** ResourceService */
 class ResourceService {
-    /**
-     * constructor
-     * @param {?} externalService
-     */
+    /** constructor */
     constructor(externalService) {
         this.externalService = externalService;
     }
-    /**
-     * get URL
-     * @private
-     * @return {?}
-     */
+    /** get URL */
     static getURL() {
         return ResourceHelper.getURL();
     }
-    /**
-     * get all resources from a base URI of a given type
-     * @template T
-     * @param {?} type
-     * @param {?} resource
-     * @param {?} _embedded
-     * @param {?=} options
-     * @param {?=} subType
-     * @param {?=} embeddedName
-     * @param {?=} ignoreProjection
-     * @return {?}
-     */
+    /** get all resources from a base URI of a given type */
     getAll(type, resource, _embedded, options, subType, embeddedName, ignoreProjection) {
-        /** @type {?} */
         let uri = this.getResourceUrl(resource);
         if (!ignoreProjection) {
             uri = uri.concat('?projection=view');
         }
-        /** @type {?} */
         const params = ResourceHelper.optionParams(new HttpParams(), options);
-        /** @type {?} */
         const result = ResourceHelper.createEmptyResult(_embedded);
         this.setUrls(result);
         result.sortInfo = options ? options.sort : undefined;
-        /** @type {?} */
         let observable = ResourceHelper.getHttp().get(uri, { headers: ResourceHelper.headers, params: params });
-        return observable.pipe(map((/**
-         * @param {?} response
-         * @return {?}
-         */
-        response => ResourceHelper.instantiateResourceCollection(type, response, result, subType, embeddedName))), catchError((/**
-         * @param {?} error
-         * @return {?}
-         */
-        error => throwError(error))));
+        return observable.pipe(map(response => ResourceHelper.instantiateResourceCollection(type, response, result, subType, embeddedName)), catchError(error => throwError(error)));
     }
-    /**
-     * get resource from a base URI and a given id
-     * @template T
-     * @param {?} type
-     * @param {?} resource
-     * @param {?} id
-     * @return {?}
-     */
+    /** get resource from a base URI and a given id */
     get(type, resource, id) {
-        /** @type {?} */
         const uri = this.getResourceUrl(resource).concat('/', id, '?projection=view');
-        /** @type {?} */
         const result = new type();
         this.setUrlsResource(result);
-        /** @type {?} */
         let observable = ResourceHelper.getHttp().get(uri, { headers: ResourceHelper.headers });
-        return observable.pipe(map((/**
-         * @param {?} data
-         * @return {?}
-         */
-        data => ResourceHelper.instantiateResource(result, data))), catchError((/**
-         * @param {?} error
-         * @return {?}
-         */
-        error => throwError(error))));
+        return observable.pipe(map(data => ResourceHelper.instantiateResource(result, data)), catchError(error => throwError(error)));
     }
-    /**
-     * get resource from its selflink
-     * @template T
-     * @param {?} type
-     * @param {?} resourceLink
-     * @return {?}
-     */
+    /** get resource from its selflink */
     getBySelfLink(type, resourceLink) {
-        /** @type {?} */
         const result = new type();
         this.setUrlsResource(result);
-        /** @type {?} */
         let observable = ResourceHelper.getHttp().get(ResourceHelper.getProxy(resourceLink), { headers: ResourceHelper.headers });
-        return observable.pipe(map((/**
-         * @param {?} data
-         * @return {?}
-         */
-        data => ResourceHelper.instantiateResource(result, data))), catchError((/**
-         * @param {?} error
-         * @return {?}
-         */
-        error => throwError(error))));
+        return observable.pipe(map(data => ResourceHelper.instantiateResource(result, data)), catchError(error => throwError(error)));
     }
-    /**
-     * search resources from a given base path, query and options
-     * @template T
-     * @param {?} type
-     * @param {?} query
-     * @param {?} resource
-     * @param {?} _embedded
-     * @param {?=} options
-     * @return {?}
-     */
+    /** search resources from a given base path, query and options */
     search(type, query, resource, _embedded, options) {
-        /** @type {?} */
         const uri = this.getResourceUrl(resource).concat('/search/', query);
-        /** @type {?} */
         const params = ResourceHelper.optionParams(new HttpParams(), options);
-        /** @type {?} */
         const result = ResourceHelper.createEmptyResult(_embedded);
         this.setUrls(result);
-        /** @type {?} */
         let observable = ResourceHelper.getHttp().get(uri, { headers: ResourceHelper.headers, params: params });
-        return observable.pipe(map((/**
-         * @param {?} response
-         * @return {?}
-         */
-        response => ResourceHelper.instantiateResourceCollection(type, response, result))), catchError((/**
-         * @param {?} error
-         * @return {?}
-         */
-        error => throwError(error))));
+        return observable.pipe(map(response => ResourceHelper.instantiateResourceCollection(type, response, result)), catchError(error => throwError(error)));
     }
-    /**
-     * search a single resource from a given base path, query and options
-     * @template T
-     * @param {?} type
-     * @param {?} query
-     * @param {?} resource
-     * @param {?=} options
-     * @return {?}
-     */
+    /** search a single resource from a given base path, query and options */
     searchSingle(type, query, resource, options) {
-        /** @type {?} */
         const uri = this.getResourceUrl(resource).concat('/search/', query);
-        /** @type {?} */
         const params = ResourceHelper.optionParams(new HttpParams(), options);
-        /** @type {?} */
         const result = new type();
         this.setUrlsResource(result);
-        /** @type {?} */
         let observable = ResourceHelper.getHttp().get(uri, { headers: ResourceHelper.headers, params: params });
-        return observable.pipe(map((/**
-         * @param {?} response
-         * @return {?}
-         */
-        response => ResourceHelper.instantiateResource(result, response))), catchError((/**
-         * @param {?} error
-         * @return {?}
-         */
-        error => throwError(error))));
+        return observable.pipe(map(response => ResourceHelper.instantiateResource(result, response)), catchError(error => throwError(error)));
     }
-    /**
-     * search resources from a given base path, custom query and options
-     * @template T
-     * @param {?} type
-     * @param {?} query
-     * @param {?} resource
-     * @param {?} _embedded
-     * @param {?=} options
-     * @return {?}
-     */
+    /** search resources from a given base path, custom query and options */
     customQuery(type, query, resource, _embedded, options) {
-        /** @type {?} */
         const uri = this.getResourceUrl(resource + query);
-        /** @type {?} */
         const params = ResourceHelper.optionParams(new HttpParams(), options);
-        /** @type {?} */
         const result = ResourceHelper.createEmptyResult(_embedded);
         this.setUrls(result);
-        /** @type {?} */
         let observable = ResourceHelper.getHttp().get(uri, { headers: ResourceHelper.headers, params: params });
-        return observable.pipe(map((/**
-         * @param {?} response
-         * @return {?}
-         */
-        response => ResourceHelper.instantiateResourceCollection(type, response, result))), catchError((/**
-         * @param {?} error
-         * @return {?}
-         */
-        error => throwError(error))));
+        return observable.pipe(map(response => ResourceHelper.instantiateResourceCollection(type, response, result)), catchError(error => throwError(error)));
     }
-    /**
-     * get resource given a relation link
-     * @template T
-     * @param {?} type
-     * @param {?} resourceLink
-     * @return {?}
-     */
+    /** get resource given a relation link */
     getByRelation(type, resourceLink) {
-        /** @type {?} */
         let result = new type();
         this.setUrlsResource(result);
-        /** @type {?} */
         let observable = ResourceHelper.getHttp().get(resourceLink, { headers: ResourceHelper.headers });
-        return observable.pipe(map((/**
-         * @param {?} data
-         * @return {?}
-         */
-        data => ResourceHelper.instantiateResource(result, data))), catchError((/**
-         * @param {?} error
-         * @return {?}
-         */
-        error => throwError(error))));
+        return observable.pipe(map(data => ResourceHelper.instantiateResource(result, data)), catchError(error => throwError(error)));
     }
-    /**
-     * get resource array given a relation link
-     * @template T
-     * @param {?} type
-     * @param {?} resourceLink
-     * @param {?} _embedded
-     * @param {?=} builder
-     * @return {?}
-     */
+    /** get resource array given a relation link */
     getByRelationArray(type, resourceLink, _embedded, builder) {
-        /** @type {?} */
         const result = ResourceHelper.createEmptyResult(_embedded);
         this.setUrls(result);
-        /** @type {?} */
         let observable = ResourceHelper.getHttp().get(resourceLink, { headers: ResourceHelper.headers });
-        return observable.pipe(map((/**
-         * @param {?} response
-         * @return {?}
-         */
-        response => ResourceHelper.instantiateResourceCollection(type, response, result, builder))), catchError((/**
-         * @param {?} error
-         * @return {?}
-         */
-        error => throwError(error))));
+        return observable.pipe(map(response => ResourceHelper.instantiateResourceCollection(type, response, result, builder)), catchError(error => throwError(error)));
     }
-    /**
-     * count resources given a path
-     * @param {?} resource
-     * @return {?}
-     */
+    /** count resources given a path */
     count(resource) {
-        /** @type {?} */
         const uri = this.getResourceUrl(resource).concat('/search/countAll');
-        return ResourceHelper.getHttp().get(uri, { headers: ResourceHelper.headers, observe: 'body' }).pipe(map((/**
-         * @param {?} response
-         * @return {?}
-         */
-        (response) => Number(response.body))), catchError((/**
-         * @param {?} error
-         * @return {?}
-         */
-        error => throwError(error))));
+        return ResourceHelper.getHttp().get(uri, { headers: ResourceHelper.headers, observe: 'body' }).pipe(map((response) => Number(response.body)), catchError(error => throwError(error)));
     }
-    /**
-     * create resource from self link and entity data
-     * @template T
-     * @param {?} selfResource
-     * @param {?} entity
-     * @return {?}
-     */
+    /** create resource from self link and entity data*/
     create(selfResource, entity) {
-        /** @type {?} */
         const uri = ResourceHelper.getURL() + selfResource;
-        /** @type {?} */
         const payload = ResourceHelper.resolveRelations(entity);
         this.setUrlsResource(entity);
-        /** @type {?} */
         let observable = ResourceHelper.getHttp().post(uri, payload, { headers: ResourceHelper.headers, observe: 'response' });
-        return observable.pipe(map((/**
-         * @param {?} response
-         * @return {?}
-         */
-        (response) => {
+        return observable.pipe(map((response) => {
             if (response.status >= 200 && response.status <= 207)
                 return ResourceHelper.instantiateResource(entity, response.body);
             else if (response.status == 500) {
-                /** @type {?} */
                 let body = response.body;
                 return throwError(body.error);
             }
-        })), catchError((/**
-         * @param {?} error
-         * @return {?}
-         */
-        error => throwError(error))));
+        }), catchError(error => throwError(error)));
     }
-    /**
-     * update resource from a given entity data
-     * @template T
-     * @param {?} entity
-     * @return {?}
-     */
+    /** update resource from a given entity data*/
     update(entity) {
-        /** @type {?} */
         const uri = ResourceHelper.getProxy(entity._links.self.href);
-        /** @type {?} */
         const payload = ResourceHelper.resolveRelations(entity);
         this.setUrlsResource(entity);
-        /** @type {?} */
         let observable = ResourceHelper.getHttp().put(uri, payload, { headers: ResourceHelper.headers, observe: 'response' });
-        return observable.pipe(map((/**
-         * @param {?} response
-         * @return {?}
-         */
-        (response) => {
+        return observable.pipe(map((response) => {
             if (response.status >= 200 && response.status <= 207)
                 return ResourceHelper.instantiateResource(entity, response.body);
             else if (response.status == 500) {
-                /** @type {?} */
                 let body = response.body;
                 return throwError(body.error);
             }
-        })), catchError((/**
-         * @param {?} error
-         * @return {?}
-         */
-        error => throwError(error))));
+        }), catchError(error => throwError(error)));
     }
-    /**
-     * update resource from a given entity data
-     * @template T
-     * @param {?} resourceArray
-     * @param {?} resourceLink
-     * @return {?}
-     */
+    /** update resource from a given entity data*/
     updateCollection(resourceArray, resourceLink) {
-        /** @type {?} */
         const uri = ResourceHelper.getProxy(resourceLink);
         //const payload = ResourceHelper.resolveRelations(entity);
         //this.setUrlsResource(entity);
-        /** @type {?} */
         var headersReq = ResourceHelper.headers;
         headersReq.set("Content-Type", "text/uri-list");
-        /** @type {?} */
         let observable = ResourceHelper.getHttp().put(uri, resourceArray, { headers: headersReq, observe: 'response' });
-        return observable.pipe(map((/**
-         * @param {?} response
-         * @return {?}
-         */
-        (response) => {
+        return observable.pipe(map((response) => {
             if (response.status >= 200 && response.status <= 207)
                 return "";
             else if (response.status == 500) {
-                /** @type {?} */
                 let body = response.body;
                 return throwError(body.error);
             }
-        })), catchError((/**
-         * @param {?} error
-         * @return {?}
-         */
-        error => throwError(error))));
+        }), catchError(error => throwError(error)));
     }
-    /**
-     * patch resource from a given entity data
-     * @template T
-     * @param {?} entity
-     * @return {?}
-     */
+    /** patch resource from a given entity data*/
     patch(entity) {
-        /** @type {?} */
         const uri = ResourceHelper.getProxy(entity._links.self.href);
-        /** @type {?} */
         const payload = ResourceHelper.resolveRelations(entity);
         this.setUrlsResource(entity);
-        /** @type {?} */
         let observable = ResourceHelper.getHttp().patch(uri, payload, { headers: ResourceHelper.headers, observe: 'response' });
-        return observable.pipe(map((/**
-         * @param {?} response
-         * @return {?}
-         */
-        (response) => {
+        return observable.pipe(map((response) => {
             if (response.status >= 200 && response.status <= 207)
                 return ResourceHelper.instantiateResource(entity, response.body);
             else if (response.status == 500) {
-                /** @type {?} */
                 let body = response.body;
                 return throwError(body.error);
             }
-        })), catchError((/**
-         * @param {?} error
-         * @return {?}
-         */
-        error => throwError(error))));
+        }), catchError(error => throwError(error)));
     }
-    /**
-     * delete resource from a given entity data
-     * @template T
-     * @param {?} entity
-     * @return {?}
-     */
+    /** delete resource from a given entity data*/
     delete(entity) {
-        /** @type {?} */
         const uri = ResourceHelper.getProxy(entity._links.self.href);
-        return ResourceHelper.getHttp().delete(uri, { headers: ResourceHelper.headers }).pipe(catchError((/**
-         * @param {?} error
-         * @return {?}
-         */
-        error => throwError(error))));
+        return ResourceHelper.getHttp().delete(uri, { headers: ResourceHelper.headers }).pipe(catchError(error => throwError(error)));
     }
-    /**
-     * whether a resource array has next page of results
-     * @template T
-     * @param {?} resourceArray
-     * @return {?}
-     */
+    /** whether a resource array has next page of results*/
     hasNext(resourceArray) {
         return resourceArray.next_uri != undefined;
     }
-    /**
-     * whether a resource array has previous page of results
-     * @template T
-     * @param {?} resourceArray
-     * @return {?}
-     */
+    /** whether a resource array has previous page of results*/
     hasPrev(resourceArray) {
         return resourceArray.prev_uri != undefined;
     }
-    /**
-     * whether a resource array has first page of results
-     * @template T
-     * @param {?} resourceArray
-     * @return {?}
-     */
+    /** whether a resource array has first page of results*/
     hasFirst(resourceArray) {
         return resourceArray.first_uri != undefined;
     }
-    /**
-     * whether a resource array has last page of results
-     * @template T
-     * @param {?} resourceArray
-     * @return {?}
-     */
+    /** whether a resource array has last page of results*/
     hasLast(resourceArray) {
         return resourceArray.last_uri != undefined;
     }
-    /**
-     * get resource array next page of results
-     * @template T
-     * @param {?} resourceArray
-     * @param {?} type
-     * @return {?}
-     */
+    /** get resource array next page of results*/
     next(resourceArray, type) {
         return resourceArray.next(type);
     }
-    /**
-     * get resource array previous page of results
-     * @template T
-     * @param {?} resourceArray
-     * @param {?} type
-     * @return {?}
-     */
+    /** get resource array previous page of results*/
     prev(resourceArray, type) {
         return resourceArray.prev(type);
     }
-    /**
-     * get resource array first page of results
-     * @template T
-     * @param {?} resourceArray
-     * @param {?} type
-     * @return {?}
-     */
+    /** get resource array first page of results*/
     first(resourceArray, type) {
         return resourceArray.first(type);
     }
-    /**
-     * get resource array last page of results
-     * @template T
-     * @param {?} resourceArray
-     * @param {?} type
-     * @return {?}
-     */
+    /** get resource array last page of results*/
     last(resourceArray, type) {
         return resourceArray.last(type);
     }
-    /**
-     * get resource array page of results given a page number
-     * @template T
-     * @param {?} resourceArray
-     * @param {?} type
-     * @param {?} id
-     * @return {?}
-     */
+    /** get resource array page of results given a page number*/
     page(resourceArray, type, id) {
         return resourceArray.page(type, id);
     }
-    /**
-     * sort resource array with a given sorting params
-     * @template T
-     * @param {?} resourceArray
-     * @param {?} type
-     * @param {...?} sort
-     * @return {?}
-     */
+    /** sort resource array with a given sorting params */
     sortElements(resourceArray, type, ...sort) {
         return resourceArray.sortElements(type, ...sort);
     }
-    /**
-     * get resource array size
-     * @template T
-     * @param {?} resourceArray
-     * @param {?} type
-     * @param {?} size
-     * @return {?}
-     */
+    /** get resource array size*/
     size(resourceArray, type, size) {
         return resourceArray.size(type, size);
     }
-    /**
-     * get resource URL from a given path
-     * @param {?=} resource
-     * @return {?}
-     */
+    /** get resource URL from a given path*/
     getResourceUrl(resource) {
-        /** @type {?} */
         let url = ResourceService.getURL();
         if (!url.endsWith('/')) {
             url = url.concat('/');
@@ -1638,65 +680,29 @@ class ResourceService {
         }
         return url;
     }
-    /**
-     * set proxy and root urls of given resource array
-     * @private
-     * @template T
-     * @param {?} result
-     * @return {?}
-     */
+    /** set proxy and root urls of given resource array */
     setUrls(result) {
         result.proxyUrl = this.externalService.getProxyUri();
         result.rootUrl = this.externalService.getRootUri();
     }
-    /**
-     * set proxy and root urls of given resource
-     * @private
-     * @template T
-     * @param {?} result
-     * @return {?}
-     */
+    /** set proxy and root urls of given resource */
     setUrlsResource(result) {
         result.proxyUrl = this.externalService.getProxyUri();
         result.rootUrl = this.externalService.getRootUri();
     }
 }
-ResourceService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-ResourceService.ctorParameters = () => [
-    { type: ExternalService }
-];
-if (false) {
-    /**
-     * @type {?}
-     * @private
-     */
-    ResourceService.prototype.externalService;
-}
+ResourceService.ɵfac = function ResourceService_Factory(t) { return new (t || ResourceService)(ɵɵinject(ExternalService)); };
+ResourceService.ɵprov = ɵɵdefineInjectable({ token: ResourceService, factory: ResourceService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(ResourceService, [{
+        type: Injectable
+    }], function () { return [{ type: ExternalService }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * REST API access interface
- * @template T
- */
+/** REST API access interface */
 class RestService {
-    /**
-     * constructor
-     * @param {?} type
-     * @param {?} resource
-     * @param {?} injector
-     * @param {?=} _embedded
-     */
+    /** constructor */
     constructor(type, resource, injector, _embedded) {
         this.injector = injector;
-        /**
-         * _embedded field name
-         */
+        /** _embedded field name */
         this._embedded = '_embedded';
         this.type = type;
         this.resource = resource;
@@ -1704,38 +710,17 @@ class RestService {
         if (!isNullOrUndefined(_embedded))
             this._embedded = _embedded;
     }
-    /**
-     * error handler
-     * @protected
-     * @param {?} error
-     * @return {?}
-     */
+    /** error handler */
     handleError(error) {
         return RestService.handleError(error);
     }
-    /**
-     * error handler
-     * @protected
-     * @param {?} error
-     * @return {?}
-     */
+    /** error handler */
     static handleError(error) {
         return throwError(error);
     }
-    /**
-     * get all resources with optional options an subType params
-     * @param {?=} options
-     * @param {?=} subType
-     * @param {?=} embeddedName
-     * @param {?=} ignoreProjection
-     * @return {?}
-     */
+    /** get all resources with optional options an subType params */
     getAll(options, subType, embeddedName, ignoreProjection) {
-        return this.resourceService.getAll(this.type, this.resource, this._embedded, options, subType, embeddedName, ignoreProjection).pipe(mergeMap((/**
-         * @param {?} resourceArray
-         * @return {?}
-         */
-        (resourceArray) => {
+        return this.resourceService.getAll(this.type, this.resource, this._embedded, options, subType, embeddedName, ignoreProjection).pipe(mergeMap((resourceArray) => {
             if (options && options.notPaged && !isNullOrUndefined(resourceArray.first_uri)) {
                 options.notPaged = false;
                 options.size = resourceArray.totalElements;
@@ -1745,36 +730,19 @@ class RestService {
                 this.resourceArray = resourceArray;
                 return of(resourceArray.result);
             }
-        })));
+        }));
     }
-    /**
-     * get resource from a given id
-     * @param {?} id
-     * @return {?}
-     */
+    /** get resource from a given id */
     get(id) {
         return this.resourceService.get(this.type, this.resource, id);
     }
-    /**
-     * get resource from self link
-     * @param {?} selfLink
-     * @return {?}
-     */
+    /** get resource from self link */
     getBySelfLink(selfLink) {
         return this.resourceService.getBySelfLink(this.type, selfLink);
     }
-    /**
-     * search resources from a given query string and optional options params
-     * @param {?} query
-     * @param {?=} options
-     * @return {?}
-     */
+    /** search resources from a given query string and optional options params */
     search(query, options) {
-        return this.resourceService.search(this.type, query, this.resource, this._embedded, options).pipe(mergeMap((/**
-         * @param {?} resourceArray
-         * @return {?}
-         */
-        (resourceArray) => {
+        return this.resourceService.search(this.type, query, this.resource, this._embedded, options).pipe(mergeMap((resourceArray) => {
             if (options && options.notPaged && !isNullOrUndefined(resourceArray.first_uri)) {
                 options.notPaged = false;
                 options.size = resourceArray.totalElements;
@@ -1784,29 +752,15 @@ class RestService {
                 this.resourceArray = resourceArray;
                 return of(resourceArray.result);
             }
-        })));
+        }));
     }
-    /**
-     * search resource from a given query string and optional options params
-     * @param {?} query
-     * @param {?=} options
-     * @return {?}
-     */
+    /** search resource from a given query string and optional options params */
     searchSingle(query, options) {
         return this.resourceService.searchSingle(this.type, query, this.resource, options);
     }
-    /**
-     * search resources from a given custom query string and optional options params
-     * @param {?} query
-     * @param {?=} options
-     * @return {?}
-     */
+    /** search resources from a given custom query string and optional options params */
     customQuery(query, options) {
-        return this.resourceService.customQuery(this.type, query, this.resource, this._embedded, options).pipe(mergeMap((/**
-         * @param {?} resourceArray
-         * @return {?}
-         */
-        (resourceArray) => {
+        return this.resourceService.customQuery(this.type, query, this.resource, this._embedded, options).pipe(mergeMap((resourceArray) => {
             if (options && options.notPaged && !isNullOrUndefined(resourceArray.first_uri)) {
                 options.notPaged = false;
                 options.size = resourceArray.totalElements;
@@ -1816,364 +770,180 @@ class RestService {
                 this.resourceArray = resourceArray;
                 return of(resourceArray.result);
             }
-        })));
+        }));
     }
-    /**
-     * get resource array given a relation link
-     * @param {?} relation
-     * @param {?=} builder
-     * @return {?}
-     */
+    /** get resource array given a relation link */
     getByRelationArray(relation, builder) {
-        return this.resourceService.getByRelationArray(this.type, relation, this._embedded, builder).pipe(map((/**
-         * @param {?} resourceArray
-         * @return {?}
-         */
-        (resourceArray) => {
+        return this.resourceService.getByRelationArray(this.type, relation, this._embedded, builder).pipe(map((resourceArray) => {
             this.resourceArray = resourceArray;
             return resourceArray.result;
-        })));
+        }));
     }
-    /**
-     * get resource given a relation link
-     * @param {?} relation
-     * @return {?}
-     */
+    /** get resource given a relation link */
     getByRelation(relation) {
         return this.resourceService.getByRelation(this.type, relation);
     }
-    /**
-     * count resources given a path
-     * @return {?}
-     */
+    /** count resources given a path */
     count() {
         return this.resourceService.count(this.resource);
     }
-    /**
-     * create resource from self link and entity data
-     * @param {?} entity
-     * @return {?}
-     */
+    /** create resource from self link and entity data*/
     create(entity) {
         return this.resourceService.create(this.resource, entity);
     }
-    /**
-     * update resource from a given entity data
-     * @param {?} entity
-     * @return {?}
-     */
+    /** update resource from a given entity data*/
     update(entity) {
         return this.resourceService.update(entity);
     }
-    /**
-     * patch resource from a given entity data
-     * @param {?} entity
-     * @return {?}
-     */
+    /** patch resource from a given entity data*/
     patch(entity) {
         return this.resourceService.patch(entity);
     }
-    /**
-     * delete resource from a given entity data
-     * @param {?} entity
-     * @return {?}
-     */
+    /** delete resource from a given entity data*/
     delete(entity) {
         return this.resourceService.delete(entity);
     }
-    /**
-     * get total number of elements of resource array
-     * @return {?}
-     */
+    /** get total number of elements of resource array */
     totalElement() {
         if (this.resourceArray && this.resourceArray.totalElements)
             return this.resourceArray.totalElements;
         return 0;
     }
-    /**
-     * whether a resource array has first page of results
-     * @return {?}
-     */
+    /** whether a resource array has first page of results*/
     hasFirst() {
         if (this.resourceArray)
             return this.resourceService.hasFirst(this.resourceArray);
         return false;
     }
-    /**
-     * whether a resource array has next page of results
-     * @return {?}
-     */
+    /** whether a resource array has next page of results*/
     hasNext() {
         if (this.resourceArray)
             return this.resourceService.hasNext(this.resourceArray);
         return false;
     }
-    /**
-     * whether a resource array has previous page of results
-     * @return {?}
-     */
+    /** whether a resource array has previous page of results*/
     hasPrev() {
         if (this.resourceArray)
             return this.resourceService.hasPrev(this.resourceArray);
         return false;
     }
-    /**
-     * whether a resource array has last page of results
-     * @return {?}
-     */
+    /** whether a resource array has last page of results*/
     hasLast() {
         if (this.resourceArray)
             return this.resourceService.hasLast(this.resourceArray);
         return false;
     }
-    /**
-     * get resource array next page of results
-     * @return {?}
-     */
+    /** get resource array next page of results*/
     next() {
         if (this.resourceArray)
-            return this.resourceService.next(this.resourceArray, this.type).pipe(map((/**
-             * @param {?} resourceArray
-             * @return {?}
-             */
-            (resourceArray) => {
+            return this.resourceService.next(this.resourceArray, this.type).pipe(map((resourceArray) => {
                 this.resourceArray = resourceArray;
                 return resourceArray.result;
-            })));
+            }));
         else
             throwError('no resourceArray found');
     }
-    /**
-     * get resource array previous page of results
-     * @return {?}
-     */
+    /** get resource array previous page of results*/
     prev() {
         if (this.resourceArray)
-            return this.resourceService.prev(this.resourceArray, this.type).pipe(map((/**
-             * @param {?} resourceArray
-             * @return {?}
-             */
-            (resourceArray) => {
+            return this.resourceService.prev(this.resourceArray, this.type).pipe(map((resourceArray) => {
                 this.resourceArray = resourceArray;
                 return resourceArray.result;
-            })));
+            }));
         else
             throwError('no resourceArray found');
     }
-    /**
-     * get resource array first page of results
-     * @return {?}
-     */
+    /** get resource array first page of results*/
     first() {
         if (this.resourceArray)
             return this.resourceService.first(this.resourceArray, this.type)
-                .pipe(map((/**
-             * @param {?} resourceArray
-             * @return {?}
-             */
-            (resourceArray) => {
+                .pipe(map((resourceArray) => {
                 this.resourceArray = resourceArray;
                 return resourceArray.result;
-            })));
+            }));
         else
             throwError('no resourceArray found');
     }
-    /**
-     * get resource array last page of results
-     * @return {?}
-     */
+    /** get resource array last page of results*/
     last() {
         if (this.resourceArray)
             return this.resourceService.last(this.resourceArray, this.type)
-                .pipe(map((/**
-             * @param {?} resourceArray
-             * @return {?}
-             */
-            (resourceArray) => {
+                .pipe(map((resourceArray) => {
                 this.resourceArray = resourceArray;
                 return resourceArray.result;
-            })));
+            }));
         else
             throwError('no resourceArray found');
     }
-    /**
-     * get resource array page of results given a page number
-     * @param {?} pageNumber
-     * @return {?}
-     */
+    /** get resource array page of results given a page number*/
     page(pageNumber) {
         if (this.resourceArray)
-            return this.resourceService.page(this.resourceArray, this.type, pageNumber).pipe(map((/**
-             * @param {?} resourceArray
-             * @return {?}
-             */
-            (resourceArray) => {
+            return this.resourceService.page(this.resourceArray, this.type, pageNumber).pipe(map((resourceArray) => {
                 this.resourceArray = resourceArray;
                 return resourceArray.result;
-            })));
+            }));
         else
             throwError('no resourceArray found');
     }
 }
-if (false) {
-    /**
-     * resource type
-     * @type {?}
-     * @private
-     */
-    RestService.prototype.type;
-    /**
-     * resource path
-     * @type {?}
-     * @private
-     */
-    RestService.prototype.resource;
-    /**
-     * resource array
-     * @type {?}
-     */
-    RestService.prototype.resourceArray;
-    /**
-     * resource service
-     * @type {?}
-     */
-    RestService.prototype.resourceService;
-    /**
-     * _embedded field name
-     * @type {?}
-     * @private
-     */
-    RestService.prototype._embedded;
-    /**
-     * @type {?}
-     * @private
-     */
-    RestService.prototype.injector;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Account manager service
- */
+/** Account manager service */
 class AccountService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(User, "account", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.ACCOUNT_API = 'account';
     }
-    /**
-     * get logged in user account
-     * @return {?}
-     */
+    /** get logged in user account*/
     get() {
-        /** @type {?} */
         let result;
         result = this.http.get(this.resourceService.getResourceUrl(this.ACCOUNT_API));
         return result;
     }
-    /**
-     * save account
-     * @param {?} item
-     * @return {?}
-     */
+    /** save account*/
     save(item) {
-        /** @type {?} */
         let result;
         result = this.http.post(this.resourceService.getResourceUrl(this.ACCOUNT_API), item);
         return result;
     }
-    /**
-     * change logged in user account
-     * @param {?} item
-     * @return {?}
-     */
+    /** change logged in user account*/
     changePassword(item) {
-        /** @type {?} */
         let result;
         result = this.http.post(this.resourceService.getResourceUrl(this.ACCOUNT_API + "/change-password"), item);
         return result;
     }
 }
-AccountService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-AccountService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    AccountService.prototype.ACCOUNT_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    AccountService.prototype.http;
-}
+AccountService.ɵfac = function AccountService_Factory(t) { return new (t || AccountService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+AccountService.ɵprov = ɵɵdefineInjectable({ token: AccountService, factory: AccountService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(AccountService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 //import * as moment from 'moment';
-/**
- * Authentication service
- */
+/** Authentication service*/
 class AuthService {
-    /**
-     * constructor
-     * @param {?} http
-     * @param {?} resourceService
-     */
+    /** constructor*/
     constructor(http, resourceService) {
         this.http = http;
         this.resourceService = resourceService;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.AUTH_API = 'authenticate';
     }
-    /**
-     * get current user jwt token from session storage
-     * @return {?}
-     */
+    /** get current user jwt token from session storage*/
     getToken() {
         return sessionStorage.getItem('authenticationToken');
     }
-    /**
-     * login operation
-     * @param {?} credentials
-     * @return {?}
-     */
+    /** login operation */
     login(credentials) {
-        /** @type {?} */
         const data = {
             username: credentials.username,
             password: credentials.password
         };
         return this.http.post(this.resourceService.getResourceUrl(this.AUTH_API), data, { observe: 'response' }).map(authenticateSuccess.bind(this));
-        /**
-         * @param {?} resp
-         * @return {?}
-         */
         function authenticateSuccess(resp) {
             if (resp.ok) {
-                /** @type {?} */
                 const jwt = resp.body.id_token;
                 this.storeAuthenticationToken(jwt);
                 //const expiresAt = moment().add( resp.headers.get('Token-Validity'),'milisecond');
@@ -2182,11 +952,7 @@ class AuthService {
             }
         }
     }
-    /**
-     * login operation with jwt token
-     * @param {?} jwt
-     * @return {?}
-     */
+    /** login operation with jwt token */
     loginWithToken(jwt) {
         if (jwt) {
             this.storeAuthenticationToken(jwt);
@@ -2196,93 +962,42 @@ class AuthService {
             return Promise.reject('auth-jwt-service Promise reject'); // Put appropriate error message here
         }
     }
-    /**
-     * store jwt token in session storage
-     * @param {?} jwt
-     * @return {?}
-     */
+    /** store jwt token in session storage*/
     storeAuthenticationToken(jwt) {
         sessionStorage.setItem('authenticationToken', jwt);
     }
-    /**
-     * check whether current user is logged in
-     * @return {?}
-     */
+    /** check whether current user is logged in*/
     isLoggedIn() {
         //return moment().isBefore(this.getExpiration());
         return this.getToken();
     }
-    /**
-     * check whether current user is logged out
-     * @return {?}
-     */
+    /** check whether current user is logged out*/
     isLoggedOut() {
         return !this.isLoggedIn();
     }
-    /**
-     * logout operation
-     * @return {?}
-     */
+    /** logout operation */
     logout() {
-        return new Observable((/**
-         * @param {?} observer
-         * @return {?}
-         */
-        (observer) => {
+        return new Observable((observer) => {
             //localStorage.removeItem('authenticationToken');
             sessionStorage.removeItem('authenticationToken');
             //sessionStorage.removeItem('expires_at');
             observer.complete();
-        }));
+        });
     }
 }
-AuthService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-AuthService.ctorParameters = () => [
-    { type: HttpClient },
-    { type: ResourceService }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    AuthService.prototype.AUTH_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    AuthService.prototype.http;
-    /**
-     * @type {?}
-     * @private
-     */
-    AuthService.prototype.resourceService;
-}
+AuthService.ɵfac = function AuthService_Factory(t) { return new (t || AuthService)(ɵɵinject(HttpClient), ɵɵinject(ResourceService)); };
+AuthService.ɵprov = ɵɵdefineInjectable({ token: AuthService, factory: AuthService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(AuthService, [{
+        type: Injectable
+    }], function () { return [{ type: HttpClient }, { type: ResourceService }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Interceptor for authentication token in API requests
- */
+/** Interceptor for authentication token in API requests */
 class AuthInterceptor {
-    /**
-     * constructor
-     */
+    /** constructor*/
     constructor() {
     }
-    /**
-     * request handler
-     * @param {?} request
-     * @param {?} next
-     * @return {?}
-     */
+    /** request handler */
     intercept(request, next) {
-        /** @type {?} */
         const token = sessionStorage.getItem('authenticationToken');
         if (!!token) {
             request = request.clone({
@@ -2295,55 +1010,29 @@ class AuthInterceptor {
     }
 }
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Principal service
- */
+/** Principal service*/
 class Principal {
-    /**
-     * constructor
-     * @param {?} account
-     */
+    /** constructor */
     constructor(account) {
         this.account = account;
         this.authenticated = false;
         this.authenticationState = new Subject();
     }
-    /**
-     * authenticate with given identity
-     * @param {?} identity
-     * @return {?}
-     */
+    /** authenticate with given identity*/
     authenticate(identity) {
         this.userIdentity = identity;
         this.authenticated = identity !== null;
         this.authenticationState.next(this.userIdentity);
     }
-    /**
-     * check whether current user has any of the given authorities
-     * @param {?} authorities
-     * @return {?}
-     */
+    /** check whether current user has any of the given authorities */
     hasAnyAuthority(authorities) {
         return Promise.resolve(this.hasAnyAuthorityDirect(authorities));
     }
-    /**
-     * check whether current user has any of the given authorities on the given territory
-     * @param {?} authorities
-     * @param {?} territory
-     * @return {?}
-     */
+    /** check whether current user has any of the given authorities on the given territory */
     hasAnyAuthorityOnTerritory(authorities, territory) {
         return Promise.resolve(this.hasAnyAuthorityDirectOnTerritory(authorities, territory));
     }
-    /**
-     * check whether current user has any of the given authorities without resolving promises
-     * @param {?} authorities
-     * @return {?}
-     */
+    /** check whether current user has any of the given authorities without resolving promises*/
     hasAnyAuthorityDirect(authorities) {
         if (!this.authenticated || !this.userIdentity || !this.userIdentity.authorities) {
             return false;
@@ -2355,12 +1044,7 @@ class Principal {
         }
         return false;
     }
-    /**
-     * check whether current user has any of the given authorities on the given territory without resolving promises
-     * @param {?} authorities
-     * @param {?} territory
-     * @return {?}
-     */
+    /** check whether current user has any of the given authorities on the given territory without resolving promises */
     hasAnyAuthorityDirectOnTerritory(authorities, territory) {
         if (!this.authenticated || !this.userIdentity || !this.userIdentity.authorities) {
             return false;
@@ -2372,56 +1056,29 @@ class Principal {
         }
         return false;
     }
-    /**
-     * check whether current user has the given authority
-     * @param {?} authority
-     * @return {?}
-     */
+    /** check whether current user has the given authority */
     hasAuthority(authority) {
         if (!this.authenticated) {
             return Promise.resolve(false);
         }
-        return this.identity().then((/**
-         * @param {?} id
-         * @return {?}
-         */
-        (id) => {
+        return this.identity().then((id) => {
             return Promise.resolve(id.authorities && id.authorities.includes(authority));
-        }), (/**
-         * @return {?}
-         */
-        () => {
+        }, () => {
             return Promise.resolve(false);
-        }));
+        });
     }
-    /**
-     * check whether current user has the given authority on the given territory
-     * @param {?} authority
-     * @param {?} territory
-     * @return {?}
-     */
+    /** check whether current user has the given authority on the given territory*/
     hasAuthorityOnTerritory(authority, territory) {
         if (!this.authenticated) {
             return Promise.resolve(false);
         }
-        return this.identity().then((/**
-         * @param {?} id
-         * @return {?}
-         */
-        (id) => {
+        return this.identity().then((id) => {
             return Promise.resolve(id.authoritiesPerTerritory && id.authoritiesPerTerritory[territory] && id.authoritiesPerTerritory[territory].includes(authority));
-        }), (/**
-         * @return {?}
-         */
-        () => {
+        }, () => {
             return Promise.resolve(false);
-        }));
+        });
     }
-    /**
-     * check user identity
-     * @param {?=} force
-     * @return {?}
-     */
+    /** check user identity*/
     identity(force) {
         if (force === true) {
             this.userIdentity = undefined;
@@ -2432,12 +1089,7 @@ class Principal {
             return Promise.resolve(this.userIdentity);
         }
         // retrieve the userIdentity data from the server, update the identity object, and then resolve.
-        return this.account.get().toPromise().then((/**
-         * @param {?} response
-         * @return {?}
-         */
-        (response) => {
-            /** @type {?} */
+        return this.account.get().toPromise().then((response) => {
             const account = response;
             if (account) {
                 this.userIdentity = account;
@@ -2449,105 +1101,43 @@ class Principal {
             }
             this.authenticationState.next(this.userIdentity);
             return this.userIdentity;
-        })).catch((/**
-         * @param {?} err
-         * @return {?}
-         */
-        (err) => {
+        }).catch((err) => {
             this.userIdentity = null;
             this.authenticated = false;
             this.authenticationState.next(this.userIdentity);
             return null;
-        }));
+        });
     }
-    /**
-     * check whether current user is authenticated
-     * @return {?}
-     */
+    /** check whether current user is authenticated */
     isAuthenticated() {
         return this.authenticated;
     }
-    /**
-     * check whether current user identity is resolved
-     * @return {?}
-     */
+    /** check whether current user identity is resolved */
     isIdentityResolved() {
         return this.userIdentity !== undefined;
     }
-    /**
-     * get current user authentication state
-     * @return {?}
-     */
+    /** get current user authentication state */
     getAuthenticationState() {
         return this.authenticationState.asObservable();
     }
 }
-Principal.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-Principal.ctorParameters = () => [
-    { type: AccountService }
-];
-if (false) {
-    /**
-     * @type {?}
-     * @private
-     */
-    Principal.prototype.userIdentity;
-    /**
-     * @type {?}
-     * @private
-     */
-    Principal.prototype.authenticated;
-    /**
-     * @type {?}
-     * @private
-     */
-    Principal.prototype.authenticationState;
-    /**
-     * @type {?}
-     * @private
-     */
-    Principal.prototype.account;
-}
+Principal.ɵfac = function Principal_Factory(t) { return new (t || Principal)(ɵɵinject(AccountService)); };
+Principal.ɵprov = ɵɵdefineInjectable({ token: Principal, factory: Principal.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(Principal, [{
+        type: Injectable
+    }], function () { return [{ type: AccountService }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Interceptor for authentication expired response in API requests
- */
+/** Interceptor for authentication expired response in API requests */
 class AuthExpiredInterceptor {
-    /**
-     * constructor
-     * @param {?} router
-     * @param {?} authService
-     * @param {?} principal
-     */
+    /** constructor */
     constructor(router, authService, principal) {
         this.router = router;
         this.authService = authService;
         this.principal = principal;
     }
-    /**
-     * request handler
-     * @param {?} request
-     * @param {?} next
-     * @return {?}
-     */
+    /** request handler */
     intercept(request, next) {
-        return next.handle(request).do((/**
-         * @param {?} event
-         * @return {?}
-         */
-        (event) => { }), (/**
-         * @param {?} err
-         * @return {?}
-         */
-        (err) => {
-            /** @type {?} */
+        return next.handle(request).do((event) => { }, (err) => {
             const intercept = request.url.indexOf("/api/") != -1;
             //tractem request
             if (intercept) {
@@ -2559,233 +1149,94 @@ class AuthExpiredInterceptor {
                     }
                 }
             }
-        }));
+        });
     }
 }
-AuthExpiredInterceptor.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-AuthExpiredInterceptor.ctorParameters = () => [
-    { type: Router },
-    { type: AuthService },
-    { type: Principal }
-];
-if (false) {
-    /**
-     * @type {?}
-     * @private
-     */
-    AuthExpiredInterceptor.prototype.router;
-    /**
-     * @type {?}
-     * @private
-     */
-    AuthExpiredInterceptor.prototype.authService;
-    /**
-     * @type {?}
-     * @private
-     */
-    AuthExpiredInterceptor.prototype.principal;
-}
+AuthExpiredInterceptor.ɵfac = function AuthExpiredInterceptor_Factory(t) { return new (t || AuthExpiredInterceptor)(ɵɵinject(Router), ɵɵinject(AuthService), ɵɵinject(Principal)); };
+AuthExpiredInterceptor.ɵprov = ɵɵdefineInjectable({ token: AuthExpiredInterceptor, factory: AuthExpiredInterceptor.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(AuthExpiredInterceptor, [{
+        type: Injectable
+    }], function () { return [{ type: Router }, { type: AuthService }, { type: Principal }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Login service
- */
+/** Login service*/
 class LoginService {
-    /**
-     * constructor
-     * @param {?} authServerProvider
-     * @param {?} principal
-     */
+    /** constructor */
     constructor(authServerProvider, principal) {
         this.authServerProvider = authServerProvider;
         this.principal = principal;
     }
-    /**
-     * Login operation
-     * @param {?} credentials
-     * @param {?=} callback
-     * @return {?}
-     */
+    /**Login operation*/
     login(credentials, callback) {
-        /** @type {?} */
-        const cb = callback || (/**
-         * @return {?}
-         */
-        function () { });
-        return new Promise((/**
-         * @param {?} resolve
-         * @param {?} reject
-         * @return {?}
-         */
-        (resolve, reject) => {
-            this.authServerProvider.login(credentials).subscribe((/**
-             * @param {?} data
-             * @return {?}
-             */
-            (data) => {
-                this.principal.identity(true).then((/**
-                 * @param {?} account
-                 * @return {?}
-                 */
-                (account) => {
+        const cb = callback || function () { };
+        return new Promise((resolve, reject) => {
+            this.authServerProvider.login(credentials).subscribe((data) => {
+                this.principal.identity(true).then((account) => {
                     // After the login the language will be changed to
                     // the language selected by the user during his registration
                     resolve(data);
-                }));
+                });
                 return cb();
-            }), (/**
-             * @param {?} err
-             * @return {?}
-             */
-            (err) => {
+            }, (err) => {
                 this.logout();
                 reject(err);
                 return cb(err);
-            }));
-        }));
+            });
+        });
     }
-    /**
-     * login with jwt token
-     * @param {?} jwt
-     * @return {?}
-     */
+    /**login with jwt token */
     loginWithToken(jwt) {
         return this.authServerProvider.loginWithToken(jwt);
     }
-    /**
-     * logout operation
-     * @return {?}
-     */
+    /** logout operation */
     logout() {
         this.authServerProvider.logout().subscribe();
         this.principal.authenticate(null);
     }
 }
-LoginService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-LoginService.ctorParameters = () => [
-    { type: AuthService },
-    { type: Principal }
-];
-if (false) {
-    /**
-     * @type {?}
-     * @private
-     */
-    LoginService.prototype.authServerProvider;
-    /**
-     * @type {?}
-     * @private
-     */
-    LoginService.prototype.principal;
-}
+LoginService.ɵfac = function LoginService_Factory(t) { return new (t || LoginService)(ɵɵinject(AuthService), ɵɵinject(Principal)); };
+LoginService.ɵprov = ɵɵdefineInjectable({ token: LoginService, factory: LoginService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(LoginService, [{
+        type: Injectable
+    }], function () { return [{ type: AuthService }, { type: Principal }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 class DashboardService {
-    /**
-     * constructor
-     * @param {?} http
-     * @param {?} resourceService
-     */
+    /** constructor */
     constructor(http, resourceService) {
         this.http = http;
         this.resourceService = resourceService;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.DASHBOARD_API = 'dashboard/info';
         this.DASHBOARD_EMBEDDED = 'dashboard';
     }
-    /**
-     * get all kpi
-     * @return {?}
-     */
+    /** get all kpi */
     getAll() {
-        return this.http.get(this.resourceService.getResourceUrl(this.DASHBOARD_API)).map((/**
-         * @param {?} response
-         * @return {?}
-         */
-        response => response[this.DASHBOARD_EMBEDDED]));
+        return this.http.get(this.resourceService.getResourceUrl(this.DASHBOARD_API)).map(response => response[this.DASHBOARD_EMBEDDED]);
     }
 }
-DashboardService.decorators = [
-    { type: Injectable, args: [{
+DashboardService.ɵfac = function DashboardService_Factory(t) { return new (t || DashboardService)(ɵɵinject(HttpClient), ɵɵinject(ResourceService)); };
+DashboardService.ɵprov = ɵɵdefineInjectable({ token: DashboardService, factory: DashboardService.ɵfac, providedIn: 'root' });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(DashboardService, [{
+        type: Injectable,
+        args: [{
                 providedIn: 'root'
-            },] }
-];
-/** @nocollapse */
-DashboardService.ctorParameters = () => [
-    { type: HttpClient },
-    { type: ResourceService }
-];
-/** @nocollapse */ DashboardService.ngInjectableDef = ɵɵdefineInjectable({ factory: function DashboardService_Factory() { return new DashboardService(ɵɵinject(HttpClient), ɵɵinject(ResourceService)); }, token: DashboardService, providedIn: "root" });
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    DashboardService.prototype.DASHBOARD_API;
-    /** @type {?} */
-    DashboardService.prototype.DASHBOARD_EMBEDDED;
-    /**
-     * @type {?}
-     * @private
-     */
-    DashboardService.prototype.http;
-    /**
-     * @type {?}
-     * @private
-     */
-    DashboardService.prototype.resourceService;
-}
+            }]
+    }], function () { return [{ type: HttpClient }, { type: ResourceService }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * User manager service
- */
+/** User manager service */
 class UserService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(User, "users", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.USER_API = 'users';
     }
-    /**
-     * remove user
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove user*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save user
-     * @param {?} item
-     * @return {?}
-     */
+    /** save user*/
     save(item) {
-        /** @type {?} */
         let result;
         if (item._links != null) {
             result = this.http.put(item._links.self.href, item);
@@ -2795,149 +1246,50 @@ class UserService extends RestService {
         }
         return result;
     }
-    /**
-     * change password o given user id
-     * @param {?} id
-     * @param {?} item
-     * @return {?}
-     */
+    /** change password o given user id */
     changePassword(id, item) {
-        /** @type {?} */
         let result;
         result = this.http.post(this.resourceService.getResourceUrl(this.USER_API + "/" + id + "/change-password"), item);
         return result;
     }
 }
-UserService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-UserService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    UserService.prototype.USER_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    UserService.prototype.http;
-}
+UserService.ɵfac = function UserService_Factory(t) { return new (t || UserService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+UserService.ɵprov = ɵɵdefineInjectable({ token: UserService, factory: UserService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(UserService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * User position model
  */
 class UserPosition extends Resource {
 }
-if (false) {
-    /**
-     * name
-     * @type {?}
-     */
-    UserPosition.prototype.name;
-    /**
-     * email
-     * @type {?}
-     */
-    UserPosition.prototype.email;
-    /**
-     * organization name
-     * @type {?}
-     */
-    UserPosition.prototype.organization;
-    /**
-     * system created date
-     * @type {?}
-     */
-    UserPosition.prototype.createdDate;
-    /**
-     * system dated date
-     * @type {?}
-     */
-    UserPosition.prototype.datedDate;
-    /**
-     * position territory
-     * @type {?}
-     */
-    UserPosition.prototype.territory;
-    /**
-     * user
-     * @type {?}
-     */
-    UserPosition.prototype.user;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * User position manager service
- */
+/** User position manager service */
 class UserPositionService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(UserPosition, "user-positions", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.USER_POSITION_API = 'user-positions';
     }
-    /**
-     * remove user position
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove user position*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save user position
-     * @param {?} item
-     * @return {?}
-     */
+    /** save user position*/
     save(item) {
-        /** @type {?} */
         let result;
         if (item._links != null) {
             result = this.http.put(item._links.self.href, item);
             if (item.user != null) {
-                item.substituteRelation('user', item.user).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('user', item.user).subscribe(result => {
+                }, error => console.error(error));
             }
             if (item.territory != null) {
-                item.substituteRelation('territory', item.territory).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('territory', item.territory).subscribe(result => {
+                }, error => console.error(error));
             }
         }
         else {
@@ -2948,95 +1300,33 @@ class UserPositionService extends RestService {
         return result;
     }
 }
-UserPositionService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-UserPositionService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    UserPositionService.prototype.USER_POSITION_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    UserPositionService.prototype.http;
-}
+UserPositionService.ɵfac = function UserPositionService_Factory(t) { return new (t || UserPositionService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+UserPositionService.ɵprov = ɵɵdefineInjectable({ token: UserPositionService, factory: UserPositionService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(UserPositionService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * User permission model
  */
 class UserConfiguration extends Resource {
 }
-if (false) {
-    /**
-     * role
-     * @type {?}
-     */
-    UserConfiguration.prototype.role;
-    /**
-     * role Children
-     * @type {?}
-     */
-    UserConfiguration.prototype.roleChildren;
-    /**
-     * territory
-     * @type {?}
-     */
-    UserConfiguration.prototype.territory;
-    /**
-     * user
-     * @type {?}
-     */
-    UserConfiguration.prototype.user;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * User configuration manager service
- */
+/** User configuration manager service */
 class UserConfigurationService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(UserConfiguration, "user-configurations", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.USER_CONFIGURATION_API = 'user-configurations';
     }
-    /**
-     * remove user configuration
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove user configuration*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save user configuration
-     * @param {?} item
-     * @return {?}
-     */
+    /** save user configuration*/
     save(item) {
-        /** @type {?} */
         let result;
         if (item._links != null) {
             result = this.http.put(item._links.self.href, item);
@@ -3051,157 +1341,38 @@ class UserConfigurationService extends RestService {
         return result;
     }
 }
-UserConfigurationService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-UserConfigurationService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    UserConfigurationService.prototype.USER_CONFIGURATION_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    UserConfigurationService.prototype.http;
-}
+UserConfigurationService.ɵfac = function UserConfigurationService_Factory(t) { return new (t || UserConfigurationService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+UserConfigurationService.ɵprov = ɵɵdefineInjectable({ token: UserConfigurationService, factory: UserConfigurationService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(UserConfigurationService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * Territory model
  */
 class Territory extends Resource {
 }
-if (false) {
-    /**
-     * id
-     * @type {?}
-     */
-    Territory.prototype.id;
-    /**
-     * code
-     * @type {?}
-     */
-    Territory.prototype.code;
-    /**
-     * name
-     * @type {?}
-     */
-    Territory.prototype.name;
-    /**
-     * address
-     * @type {?}
-     */
-    Territory.prototype.territorialAuthorityAddress;
-    /**
-     * admin
-     * @type {?}
-     */
-    Territory.prototype.territorialAuthorityName;
-    /**
-     * whether territory is blocked
-     * @type {?}
-     */
-    Territory.prototype.blocked;
-    /**
-     * comments
-     * @type {?}
-     */
-    Territory.prototype.note;
-    /**
-     * system created date
-     * @type {?}
-     */
-    Territory.prototype.createdDate;
-    /**
-     * contact email
-     * @type {?}
-     */
-    Territory.prototype.territorialAuthorityEmail;
-    /**
-     * extension
-     * @type {?}
-     */
-    Territory.prototype.extent;
-    /**
-     * logo image URL
-     * @type {?}
-     */
-    Territory.prototype.territorialAuthorityLogo;
-    /**
-     * scope
-     * @type {?}
-     */
-    Territory.prototype.scope;
-    /**
-     * type
-     * @type {?}
-     */
-    Territory.prototype.type;
-    /**
-     * group type
-     * @type {?}
-     */
-    Territory.prototype.groupType;
-    /**
-     * territory members
-     * @type {?}
-     */
-    Territory.prototype.members;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Territory manager service
- */
+/** Territory manager service */
 class TerritoryService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(Territory, "territories", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.TERRITORY_API = 'territories';
     }
-    /**
-     * remove territory
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove territory*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save territory
-     * @param {?} item
-     * @return {?}
-     */
+    /** save territory*/
     save(item) {
-        /** @type {?} */
         let result;
-        /** @type {?} */
         let territoryGroupType = {};
         territoryGroupType._links = {};
         territoryGroupType._links.self = {};
         territoryGroupType._links.self.href = "";
-        /** @type {?} */
         let territoryType = {};
         territoryType._links = {};
         territoryType._links.self = {};
@@ -3223,28 +1394,12 @@ class TerritoryService extends RestService {
             //   }, error => console.error(error));
             // }
             if (territoryType._links.self.href == '') {
-                item.deleteRelation('type', territoryType).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.deleteRelation('type', territoryType).subscribe(result => {
+                }, error => console.error(error));
             }
             else {
-                item.substituteRelation('type', territoryType).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('type', territoryType).subscribe(result => {
+                }, error => console.error(error));
             }
             delete item.type;
             // if (item.type != null)
@@ -3257,85 +1412,33 @@ class TerritoryService extends RestService {
         return result;
     }
 }
-TerritoryService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-TerritoryService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    TerritoryService.prototype.TERRITORY_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    TerritoryService.prototype.http;
-}
+TerritoryService.ɵfac = function TerritoryService_Factory(t) { return new (t || TerritoryService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+TerritoryService.ɵprov = ɵɵdefineInjectable({ token: TerritoryService, factory: TerritoryService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(TerritoryService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * Territory type model
  */
 class TerritoryType extends Resource {
 }
-if (false) {
-    /**
-     * id
-     * @type {?}
-     */
-    TerritoryType.prototype.id;
-    /**
-     * name
-     * @type {?}
-     */
-    TerritoryType.prototype.name;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * TerritoryType manager service
- */
+/** TerritoryType manager service */
 class TerritoryTypeService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(TerritoryType, "territory-types", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.TERRITORYTYPE_API = 'territory-types';
     }
-    /**
-     * remove territory type
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove territory type*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save territory type
-     * @param {?} item
-     * @return {?}
-     */
+    /** save territory type*/
     save(item) {
-        /** @type {?} */
         let result;
         if (item._links != null) {
             result = this.http.put(item._links.self.href, item);
@@ -3346,82 +1449,32 @@ class TerritoryTypeService extends RestService {
         return result;
     }
 }
-TerritoryTypeService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-TerritoryTypeService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    TerritoryTypeService.prototype.TERRITORYTYPE_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    TerritoryTypeService.prototype.http;
-}
+TerritoryTypeService.ɵfac = function TerritoryTypeService_Factory(t) { return new (t || TerritoryTypeService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+TerritoryTypeService.ɵprov = ɵɵdefineInjectable({ token: TerritoryTypeService, factory: TerritoryTypeService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(TerritoryTypeService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * Territory type model
  */
 class TerritoryGroupType extends Resource {
 }
-if (false) {
-    /**
-     * id
-     * @type {?}
-     */
-    TerritoryGroupType.prototype.id;
-    /**
-     * name
-     * @type {?}
-     */
-    TerritoryGroupType.prototype.name;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 class TerritoryGroupTypeService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(TerritoryGroupType, "territory-group-types", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.TERRITORYGROUPTYPE_API = 'territory-group-types';
     }
-    /**
-     * remove territory
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove territory*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save territory
-     * @param {?} item
-     * @return {?}
-     */
+    /** save territory*/
     save(item) {
-        /** @type {?} */
         let result;
         if (item._links != null) {
             result = this.http.put(item._links.self.href, item);
@@ -3432,93 +1485,36 @@ class TerritoryGroupTypeService extends RestService {
         return result;
     }
 }
-TerritoryGroupTypeService.decorators = [
-    { type: Injectable, args: [{
+TerritoryGroupTypeService.ɵfac = function TerritoryGroupTypeService_Factory(t) { return new (t || TerritoryGroupTypeService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+TerritoryGroupTypeService.ɵprov = ɵɵdefineInjectable({ token: TerritoryGroupTypeService, factory: TerritoryGroupTypeService.ɵfac, providedIn: 'root' });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(TerritoryGroupTypeService, [{
+        type: Injectable,
+        args: [{
                 providedIn: 'root'
-            },] }
-];
-/** @nocollapse */
-TerritoryGroupTypeService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-/** @nocollapse */ TerritoryGroupTypeService.ngInjectableDef = ɵɵdefineInjectable({ factory: function TerritoryGroupTypeService_Factory() { return new TerritoryGroupTypeService(ɵɵinject(INJECTOR), ɵɵinject(HttpClient)); }, token: TerritoryGroupTypeService, providedIn: "root" });
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    TerritoryGroupTypeService.prototype.TERRITORYGROUPTYPE_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    TerritoryGroupTypeService.prototype.http;
-}
+            }]
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * Role model
  */
 class Role extends Resource {
 }
-if (false) {
-    /**
-     * id
-     * @type {?}
-     */
-    Role.prototype.id;
-    /**
-     * name
-     * @type {?}
-     */
-    Role.prototype.name;
-    /**
-     * comments
-     * @type {?}
-     */
-    Role.prototype.description;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Role manager service
- */
+/** Role manager service */
 class RoleService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(Role, "roles", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.ROLE_API = 'roles';
     }
-    /**
-     * remove role
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove role*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save role
-     * @param {?} item
-     * @return {?}
-     */
+    /** save role*/
     save(item) {
-        /** @type {?} */
         let result;
         if (item._links != null) {
             result = this.http.put(item._links.self.href, item);
@@ -3529,105 +1525,33 @@ class RoleService extends RestService {
         return result;
     }
 }
-RoleService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-RoleService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    RoleService.prototype.ROLE_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    RoleService.prototype.http;
-}
+RoleService.ɵfac = function RoleService_Factory(t) { return new (t || RoleService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+RoleService.ɵprov = ɵɵdefineInjectable({ token: RoleService, factory: RoleService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(RoleService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * Connection model
  */
 class Connection extends Resource {
 }
-if (false) {
-    /**
-     * id
-     * @type {?}
-     */
-    Connection.prototype.id;
-    /**
-     * name
-     * @type {?}
-     */
-    Connection.prototype.name;
-    /**
-     * type
-     * @type {?}
-     */
-    Connection.prototype.type;
-    /**
-     * user
-     * @type {?}
-     */
-    Connection.prototype.user;
-    /**
-     * password
-     * @type {?}
-     */
-    Connection.prototype.password;
-    /**
-     * connection string
-     * @type {?}
-     */
-    Connection.prototype.connectionString;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Connection manager service
- */
+/** Connection manager service */
 class ConnectionService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(Connection, "connections", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.CONNECTION_API = 'connections';
     }
-    /**
-     * remove connection
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove connection*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save connection
-     * @param {?} item
-     * @return {?}
-     */
+    /** save connection*/
     save(item) {
-        /** @type {?} */
         let result;
         if (item._links != null) {
             result = this.http.put(item._links.self.href, item);
@@ -3637,246 +1561,82 @@ class ConnectionService extends RestService {
         }
         return result;
     }
-    /**
-     * @param {?} item
-     * @return {?}
-     */
     testConnection(item) {
-        /** @type {?} */
         let result;
         result = this.http.post(this.resourceService.getResourceUrl(this.CONNECTION_API) + "/test", item);
         return result;
     }
 }
-ConnectionService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-ConnectionService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    ConnectionService.prototype.CONNECTION_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    ConnectionService.prototype.http;
-}
+ConnectionService.ɵfac = function ConnectionService_Factory(t) { return new (t || ConnectionService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+ConnectionService.ɵprov = ɵɵdefineInjectable({ token: ConnectionService, factory: ConnectionService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(ConnectionService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 //FIXME ensure task creation in admin app upon initialization (as it is done with Roles and default Users)
-/**
- * GEOADMIN_task id
- * @type {?}
- */
+/** GEOADMIN_task id */
 const GEOADMIN_TREE_TASK_ID = "geoadmin";
-/**
- * Task model
- */
+/** Task model */
 class Task extends Resource {
 }
-if (false) {
-    /**
-     * id
-     * @type {?}
-     */
-    Task.prototype.id;
-    /**
-     * name
-     * @type {?}
-     */
-    Task.prototype.name;
-    /**
-     * order
-     * @type {?}
-     */
-    Task.prototype.order;
-    /**
-     * system created date
-     * @type {?}
-     */
-    Task.prototype.createdDate;
-    /**
-     * task group
-     * @type {?}
-     */
-    Task.prototype.group;
-    /**
-     * task type
-     * @type {?}
-     */
-    Task.prototype.type;
-    /**
-     * task UI
-     * @type {?}
-     */
-    Task.prototype.ui;
-    /**
-     * parameters
-     * @type {?}
-     */
-    Task.prototype.parameters;
-    /**
-     * connection
-     * @type {?}
-     */
-    Task.prototype.connection;
-    /**
-     * roles
-     * @type {?}
-     */
-    Task.prototype.roles;
-    /**
-     * availabilities
-     * @type {?}
-     */
-    Task.prototype.availabilities;
-    /** @type {?} */
-    Task.prototype.cartography;
-    /** @type {?} */
-    Task.prototype.service;
-    /** @type {?} */
-    Task.prototype.properties;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Task manager service
- */
+/** Task manager service */
 class TaskService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(Task, "tasks", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.CONNECTION_API = 'tasks';
     }
-    /**
-     * remove task
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove task*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save task
-     * @param {?} item
-     * @return {?}
-     */
+    /** save task*/
     save(item) {
-        /** @type {?} */
         let result;
         if (item._links != null) {
             if (!item.service) {
-                /** @type {?} */
                 let service = {};
                 service._links = {};
                 service._links.self = {};
                 service._links.self.href = "";
-                item.deleteRelation('service', service).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.deleteRelation('service', service).subscribe(result => {
+                }, error => console.error(error));
             }
             else {
                 item.service._links.self.href = item.service._links.self.href.split("{")[0];
-                item.substituteRelation('service', item.service).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('service', item.service).subscribe(result => {
+                }, error => console.error(error));
                 item.service = item.service._links.self.href;
             }
             if (!item.cartography) {
-                /** @type {?} */
                 let cartography = {};
                 cartography._links = {};
                 cartography._links.self = {};
                 cartography._links.self.href = "";
-                item.deleteRelation('cartography', cartography).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.deleteRelation('cartography', cartography).subscribe(result => {
+                }, error => console.error(error));
             }
             else {
                 item.cartography._links.self.href = item.cartography._links.self.href.split("{")[0];
-                item.substituteRelation('cartography', item.cartography).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('cartography', item.cartography).subscribe(result => {
+                }, error => console.error(error));
                 item.cartography = item.cartography._links.self.href;
             }
             if (!item.connection) {
-                /** @type {?} */
                 let connection = {};
                 connection._links = {};
                 connection._links.self = {};
                 connection._links.self.href = "";
-                item.deleteRelation('connection', connection).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.deleteRelation('connection', connection).subscribe(result => {
+                }, error => console.error(error));
             }
             else {
                 item.connection._links.self.href = item.connection._links.self.href.split("{")[0];
-                item.substituteRelation('connection', item.connection).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('connection', item.connection).subscribe(result => {
+                }, error => console.error(error));
                 item.connection = item.connection._links.self.href;
             }
             if (!item.ui) {
@@ -3885,16 +1645,8 @@ class TaskService extends RestService {
             }
             else {
                 item.ui._links.self.href = item.ui._links.self.href.split("{")[0];
-                item.substituteRelation('ui', item.ui).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('ui', item.ui).subscribe(result => {
+                }, error => console.error(error));
                 item.ui = item.ui._links.self.href;
             }
             if (!item.group) {
@@ -3903,16 +1655,8 @@ class TaskService extends RestService {
             }
             else {
                 item.group._links.self.href = item.group._links.self.href.split("{")[0];
-                item.substituteRelation('group', item.group).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('group', item.group).subscribe(result => {
+                }, error => console.error(error));
                 item.group = item.group._links.self.href;
             }
             if (!item.type) {
@@ -3921,32 +1665,15 @@ class TaskService extends RestService {
             }
             else {
                 item.type._links.self.href = item.type._links.self.href.split("{")[0];
-                item.substituteRelation('type', item.type).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('type', item.type).subscribe(result => {
+                }, error => console.error(error));
                 item.type = item.type._links.self.href;
             }
             if (item.roles) {
-                /** @type {?} */
                 let roles = [...item.roles];
                 delete item.roles;
-                item.substituteAllRelation('roles', roles).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteAllRelation('roles', roles).subscribe(result => {
+                }, error => console.error(error));
             }
             result = this.http.put(item._links.self.href, item);
         }
@@ -3974,80 +1701,33 @@ class TaskService extends RestService {
         return result;
     }
 }
-TaskService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-TaskService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    TaskService.prototype.CONNECTION_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    TaskService.prototype.http;
-}
+TaskService.ɵfac = function TaskService_Factory(t) { return new (t || TaskService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+TaskService.ɵprov = ɵɵdefineInjectable({ token: TaskService, factory: TaskService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(TaskService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * Task type model
  */
 class TaskType extends Resource {
 }
-if (false) {
-    /**
-     * name
-     * @type {?}
-     */
-    TaskType.prototype.name;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * TaskType manager service
- */
+/** TaskType manager service */
 class TaskTypeService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(TaskType, "task-types", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.CONNECTION_API = 'task-types';
     }
-    /**
-     * remove task type
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove task type*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save task type
-     * @param {?} item
-     * @return {?}
-     */
+    /** save task type*/
     save(item) {
-        /** @type {?} */
         let result;
         if (item._links != null) {
             result = this.http.put(item._links.self.href, item);
@@ -4058,85 +1738,33 @@ class TaskTypeService extends RestService {
         return result;
     }
 }
-TaskTypeService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-TaskTypeService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    TaskTypeService.prototype.CONNECTION_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    TaskTypeService.prototype.http;
-}
+TaskTypeService.ɵfac = function TaskTypeService_Factory(t) { return new (t || TaskTypeService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+TaskTypeService.ɵprov = ɵɵdefineInjectable({ token: TaskTypeService, factory: TaskTypeService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(TaskTypeService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * Task group model
  */
 class TaskGroup extends Resource {
 }
-if (false) {
-    /**
-     * id
-     * @type {?}
-     */
-    TaskGroup.prototype.id;
-    /**
-     * name
-     * @type {?}
-     */
-    TaskGroup.prototype.name;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Task group manager service
- */
+/** Task group manager service */
 class TaskGroupService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(TaskGroup, "task-groups", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.CONNECTION_API = 'task-groups';
     }
-    /**
-     * remove task group
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove task group*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save task group
-     * @param {?} item
-     * @return {?}
-     */
+    /** save task group*/
     save(item) {
-        /** @type {?} */
         let result;
         if (item._links != null) {
             result = this.http.put(item._links.self.href, item);
@@ -4147,114 +1775,39 @@ class TaskGroupService extends RestService {
         return result;
     }
 }
-TaskGroupService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-TaskGroupService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    TaskGroupService.prototype.CONNECTION_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    TaskGroupService.prototype.http;
-}
+TaskGroupService.ɵfac = function TaskGroupService_Factory(t) { return new (t || TaskGroupService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+TaskGroupService.ɵprov = ɵɵdefineInjectable({ token: TaskGroupService, factory: TaskGroupService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(TaskGroupService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * Task parameter model
  */
 class TaskParameter extends Resource {
 }
-if (false) {
-    /**
-     * name
-     * @type {?}
-     */
-    TaskParameter.prototype.name;
-    /**
-     * type
-     * @type {?}
-     */
-    TaskParameter.prototype.type;
-    /**
-     * value
-     * @type {?}
-     */
-    TaskParameter.prototype.value;
-    /**
-     * order
-     * @type {?}
-     */
-    TaskParameter.prototype.order;
-    /**
-     * task
-     * @type {?}
-     */
-    TaskParameter.prototype.task;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Task parameter manager service
- */
+/** Task parameter manager service */
 class TaskParameterService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(TaskParameter, "task-parameters", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.TASK_PARAMETER_API = 'task-parameters';
     }
-    /**
-     * remove task parameter
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove task parameter*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save task parameter
-     * @param {?} item
-     * @return {?}
-     */
+    /** save task parameter*/
     save(item) {
-        /** @type {?} */
         let result;
         if (item._links != null) {
             result = this.http.put(item._links.self.href, item);
             if (item.task != null) {
-                item.substituteRelation('task', item.task).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('task', item.task).subscribe(result => {
+                }, error => console.error(error));
             }
         }
         else {
@@ -4264,111 +1817,43 @@ class TaskParameterService extends RestService {
         return result;
     }
 }
-TaskParameterService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-TaskParameterService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    TaskParameterService.prototype.TASK_PARAMETER_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    TaskParameterService.prototype.http;
-}
+TaskParameterService.ɵfac = function TaskParameterService_Factory(t) { return new (t || TaskParameterService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+TaskParameterService.ɵprov = ɵɵdefineInjectable({ token: TaskParameterService, factory: TaskParameterService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(TaskParameterService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * Task availability model
  */
 class TaskAvailability extends Resource {
 }
-if (false) {
-    /**
-     * territory
-     * @type {?}
-     */
-    TaskAvailability.prototype.territory;
-    /**
-     * task
-     * @type {?}
-     */
-    TaskAvailability.prototype.task;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Task availability manager service
- */
+/** Task availability manager service */
 class TaskAvailabilityService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(TaskAvailability, "task-availabilities", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.TASK_AVAILABILITY_API = 'task-availabilities';
     }
-    /**
-     * remove task availability
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove task availability*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save task availability
-     * @param {?} item
-     * @return {?}
-     */
+    /** save task availability*/
     save(item) {
-        /** @type {?} */
         let result;
         if (item._links != null) {
             result = this.http.put(item._links.self.href, item);
             if (item.task != null) {
-                item.substituteRelation('task', item.task).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('task', item.task).subscribe(result => {
+                }, error => console.error(error));
             }
             if (item.territory != null) {
-                item.substituteRelation('territory', item.territory).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('territory', item.territory).subscribe(result => {
+                }, error => console.error(error));
             }
         }
         else {
@@ -4379,90 +1864,33 @@ class TaskAvailabilityService extends RestService {
         return result;
     }
 }
-TaskAvailabilityService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-TaskAvailabilityService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    TaskAvailabilityService.prototype.TASK_AVAILABILITY_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    TaskAvailabilityService.prototype.http;
-}
+TaskAvailabilityService.ɵfac = function TaskAvailabilityService_Factory(t) { return new (t || TaskAvailabilityService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+TaskAvailabilityService.ɵprov = ɵɵdefineInjectable({ token: TaskAvailabilityService, factory: TaskAvailabilityService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(TaskAvailabilityService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * Task UI model
  */
 class TaskUI extends Resource {
 }
-if (false) {
-    /**
-     * name
-     * @type {?}
-     */
-    TaskUI.prototype.name;
-    /**
-     * tooltip
-     * @type {?}
-     */
-    TaskUI.prototype.tooltip;
-    /**
-     * order
-     * @type {?}
-     */
-    TaskUI.prototype.order;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Task UI manager service
- */
+/** Task UI manager service */
 class TaskUIService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(TaskUI, "task-uis", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.CONNECTION_API = 'task-uis';
     }
-    /**
-     * remove task UI
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove task UI*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save task UI
-     * @param {?} item
-     * @return {?}
-     */
+    /** save task UI*/
     save(item) {
-        /** @type {?} */
         let result;
         if (item._links != null) {
             result = this.http.put(item._links.self.href, item);
@@ -4473,109 +1901,31 @@ class TaskUIService extends RestService {
         return result;
     }
 }
-TaskUIService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-TaskUIService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    TaskUIService.prototype.CONNECTION_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    TaskUIService.prototype.http;
-}
+TaskUIService.ɵfac = function TaskUIService_Factory(t) { return new (t || TaskUIService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+TaskUIService.ɵprov = ɵɵdefineInjectable({ token: TaskUIService, factory: TaskUIService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(TaskUIService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Task model
- */
+/** Task model */
 class Translation extends Resource {
 }
-if (false) {
-    /**
-     * id
-     * @type {?}
-     */
-    Translation.prototype.id;
-    /**
-     * id
-     * @type {?}
-     */
-    Translation.prototype.element;
-    /**
-     * name
-     * @type {?}
-     */
-    Translation.prototype.translation;
-    /**
-     * column
-     * @type {?}
-     */
-    Translation.prototype.column;
-    /**
-     * name
-     * @type {?}
-     */
-    Translation.prototype.language;
-    /**
-     * name
-     * @type {?}
-     */
-    Translation.prototype.languageName;
-    /**
-     * name
-     * @type {?}
-     */
-    Translation.prototype.languageShortname;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 class TranslationService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(Translation, "translations", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.TRANSLATION_API = 'translations';
     }
-    /**
-     * remove translation
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove translation*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save translation
-     * @param {?} item
-     * @return {?}
-     */
+    /** save translation*/
     save(item) {
-        /** @type {?} */
         let result;
-        /** @type {?} */
         let language = {};
         language._links = {};
         language._links.self = {};
@@ -4603,90 +1953,33 @@ class TranslationService extends RestService {
         return result;
     }
 }
-TranslationService.decorators = [
-    { type: Injectable, args: [{
+TranslationService.ɵfac = function TranslationService_Factory(t) { return new (t || TranslationService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+TranslationService.ɵprov = ɵɵdefineInjectable({ token: TranslationService, factory: TranslationService.ɵfac, providedIn: 'root' });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(TranslationService, [{
+        type: Injectable,
+        args: [{
                 providedIn: 'root'
-            },] }
-];
-/** @nocollapse */
-TranslationService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-/** @nocollapse */ TranslationService.ngInjectableDef = ɵɵdefineInjectable({ factory: function TranslationService_Factory() { return new TranslationService(ɵɵinject(INJECTOR), ɵɵinject(HttpClient)); }, token: TranslationService, providedIn: "root" });
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    TranslationService.prototype.TRANSLATION_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    TranslationService.prototype.http;
-}
+            }]
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Task model
- */
+/** Task model */
 class Language extends Resource {
 }
-if (false) {
-    /**
-     * id
-     * @type {?}
-     */
-    Language.prototype.id;
-    /**
-     * name
-     * @type {?}
-     */
-    Language.prototype.shortname;
-    /**
-     * name
-     * @type {?}
-     */
-    Language.prototype.name;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 class LanguageService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(Language, "languages", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.LANGUAGES_API = 'languages';
     }
-    /**
-     * remove translation
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove translation*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save translation
-     * @param {?} item
-     * @return {?}
-     */
+    /** save translation*/
     save(item) {
-        /** @type {?} */
         let result;
         if (item._links != null) {
             result = this.http.put(item._links.self.href, item);
@@ -4697,135 +1990,37 @@ class LanguageService extends RestService {
         return result;
     }
 }
-LanguageService.decorators = [
-    { type: Injectable, args: [{
+LanguageService.ɵfac = function LanguageService_Factory(t) { return new (t || LanguageService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+LanguageService.ɵprov = ɵɵdefineInjectable({ token: LanguageService, factory: LanguageService.ɵfac, providedIn: 'root' });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(LanguageService, [{
+        type: Injectable,
+        args: [{
                 providedIn: 'root'
-            },] }
-];
-/** @nocollapse */
-LanguageService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-/** @nocollapse */ LanguageService.ngInjectableDef = ɵɵdefineInjectable({ factory: function LanguageService_Factory() { return new LanguageService(ɵɵinject(INJECTOR), ɵɵinject(HttpClient)); }, token: LanguageService, providedIn: "root" });
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    LanguageService.prototype.LANGUAGES_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    LanguageService.prototype.http;
-}
+            }]
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * Service model
  */
 class Service extends Resource {
 }
-if (false) {
-    /**
-     * id
-     * @type {?}
-     */
-    Service.prototype.id;
-    /**
-     * name
-     * @type {?}
-     */
-    Service.prototype.name;
-    /**
-     * type
-     * @type {?}
-     */
-    Service.prototype.type;
-    /**
-     * url
-     * @type {?}
-     */
-    Service.prototype.serviceURL;
-    /**
-     * projections
-     * @type {?}
-     */
-    Service.prototype.supportedSRS;
-    /**
-     * legend
-     * @type {?}
-     */
-    Service.prototype.legend;
-    /**
-     * infoUrl
-     * @type {?}
-     */
-    Service.prototype.infoUrl;
-    /**
-     * system created date
-     * @type {?}
-     */
-    Service.prototype.createdDate;
-    /**
-     * connection
-     * @type {?}
-     */
-    Service.prototype.connection;
-    /**
-     * parameters
-     * @type {?}
-     */
-    Service.prototype.parameters;
-    /**
-     * whether service is blocked
-     * @type {?}
-     */
-    Service.prototype.blocked;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Service manager service
- */
+/** Service manager service */
 class ServiceService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(Service, "services", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.SERVICE_API = 'services';
     }
-    /**
-     * remove service
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove service*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save service
-     * @param {?} item
-     * @return {?}
-     */
+    /** save service*/
     save(item) {
-        /** @type {?} */
         let result;
-        /** @type {?} */
         let serviceConnection = item.connection;
         if (item.connection != null) {
             if (typeof item.connection._links != 'undefined') {
@@ -4846,181 +2041,64 @@ class ServiceService extends RestService {
         return result;
     }
 }
-ServiceService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-ServiceService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    ServiceService.prototype.SERVICE_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    ServiceService.prototype.http;
-}
+ServiceService.ɵfac = function ServiceService_Factory(t) { return new (t || ServiceService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+ServiceService.ɵprov = ɵɵdefineInjectable({ token: ServiceService, factory: ServiceService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(ServiceService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * Service model
  */
 class ConfigurationParameter extends Resource {
 }
-if (false) {
-    /**
-     * id
-     * @type {?}
-     */
-    ConfigurationParameter.prototype.id;
-    /**
-     * name
-     * @type {?}
-     */
-    ConfigurationParameter.prototype.name;
-    /**
-     * value
-     * @type {?}
-     */
-    ConfigurationParameter.prototype.value;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 class ConfigurationParametersService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(ConfigurationParameter, "configuration-parameters", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.CONFIGURATION_PARAMETERS_API = 'configuration-parameters';
     }
 }
-ConfigurationParametersService.decorators = [
-    { type: Injectable, args: [{
+ConfigurationParametersService.ɵfac = function ConfigurationParametersService_Factory(t) { return new (t || ConfigurationParametersService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+ConfigurationParametersService.ɵprov = ɵɵdefineInjectable({ token: ConfigurationParametersService, factory: ConfigurationParametersService.ɵfac, providedIn: 'root' });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(ConfigurationParametersService, [{
+        type: Injectable,
+        args: [{
                 providedIn: 'root'
-            },] }
-];
-/** @nocollapse */
-ConfigurationParametersService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-/** @nocollapse */ ConfigurationParametersService.ngInjectableDef = ɵɵdefineInjectable({ factory: function ConfigurationParametersService_Factory() { return new ConfigurationParametersService(ɵɵinject(INJECTOR), ɵɵinject(HttpClient)); }, token: ConfigurationParametersService, providedIn: "root" });
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    ConfigurationParametersService.prototype.CONFIGURATION_PARAMETERS_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    ConfigurationParametersService.prototype.http;
-}
+            }]
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * Service parameter model
  */
 class ServiceParameter extends Resource {
 }
-if (false) {
-    /**
-     * name
-     * @type {?}
-     */
-    ServiceParameter.prototype.name;
-    /**
-     * type
-     * @type {?}
-     */
-    ServiceParameter.prototype.type;
-    /**
-     * value
-     * @type {?}
-     */
-    ServiceParameter.prototype.value;
-    /**
-     * service
-     * @type {?}
-     */
-    ServiceParameter.prototype.service;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Service parameter manager service
- */
+/** Service parameter manager service */
 class ServiceParameterService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(ServiceParameter, "service-parameters", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.SERVICE_PARAMETER_API = 'service-parameters';
     }
-    /**
-     * remove service parameter
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove service parameter*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save service parameter
-     * @param {?} item
-     * @return {?}
-     */
+    /** save service parameter*/
     save(item) {
-        /** @type {?} */
         let result;
         if (item._links != null) {
             if (item.service != null) {
-                /** @type {?} */
                 let service = item.service;
                 delete item.service;
-                item.substituteRelation('service', service).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('service', service).subscribe(result => {
+                }, error => console.error(error));
             }
             result = this.http.put(item._links.self.href, item);
         }
@@ -5031,80 +2109,36 @@ class ServiceParameterService extends RestService {
         return result;
     }
 }
-ServiceParameterService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-ServiceParameterService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    ServiceParameterService.prototype.SERVICE_PARAMETER_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    ServiceParameterService.prototype.http;
-}
+ServiceParameterService.ɵfac = function ServiceParameterService_Factory(t) { return new (t || ServiceParameterService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+ServiceParameterService.ɵprov = ɵɵdefineInjectable({ token: ServiceParameterService, factory: ServiceParameterService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(ServiceParameterService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * Capabilitie model
  */
 class Capabilitie extends Resource {
 }
-if (false) {
-    /**
-     * url
-     * @type {?}
-     */
-    Capabilitie.prototype.url;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 class CapabilitiesService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(Capabilitie, "helpers/capabilities?url=", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.CAPABILITIES_API = 'helpers/capabilities?url=';
     }
-    /**
-     * save service
-     * @param {?} url
-     * @return {?}
-     */
+    /** save service*/
     getInfo(url) {
-        /** @type {?} */
         let result;
         if (url) {
-            /** @type {?} */
             const headerDict = {
                 'Charset': 'UTF-8'
             };
-            /** @type {?} */
             const requestOptions = {
                 headers: new HttpHeaders(headerDict),
             };
-            /** @type {?} */
             let finalUrl = this.resourceService.getResourceUrl(this.CAPABILITIES_API);
             finalUrl = finalUrl.concat(url);
             console.log(finalUrl);
@@ -5113,83 +2147,39 @@ class CapabilitiesService extends RestService {
         return result;
     }
 }
-CapabilitiesService.decorators = [
-    { type: Injectable, args: [{
+CapabilitiesService.ɵfac = function CapabilitiesService_Factory(t) { return new (t || CapabilitiesService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+CapabilitiesService.ɵprov = ɵɵdefineInjectable({ token: CapabilitiesService, factory: CapabilitiesService.ɵfac, providedIn: 'root' });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(CapabilitiesService, [{
+        type: Injectable,
+        args: [{
                 providedIn: 'root'
-            },] }
-];
-/** @nocollapse */
-CapabilitiesService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-/** @nocollapse */ CapabilitiesService.ngInjectableDef = ɵɵdefineInjectable({ factory: function CapabilitiesService_Factory() { return new CapabilitiesService(ɵɵinject(INJECTOR), ɵɵinject(HttpClient)); }, token: CapabilitiesService, providedIn: "root" });
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    CapabilitiesService.prototype.CAPABILITIES_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    CapabilitiesService.prototype.http;
-}
+            }]
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * Info model
  */
 class Info extends Resource {
 }
-if (false) {
-    /**
-     * url
-     * @type {?}
-     */
-    Info.prototype.url;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 class GetInfoService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(Info, "helpers/feature-type?url=", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.INFO_API = 'helpers/feature-type?url=';
     }
-    /**
-     * save service
-     * @param {?} url
-     * @return {?}
-     */
+    /** save service*/
     getInfo(url) {
-        /** @type {?} */
         let result;
         if (url) {
-            /** @type {?} */
             const headerDict = {
                 'Charset': 'UTF-8'
             };
-            /** @type {?} */
             const requestOptions = {
                 headers: new HttpHeaders(headerDict),
             };
-            /** @type {?} */
             let finalUrl = this.resourceService.getResourceUrl(this.INFO_API);
             finalUrl = finalUrl.concat(url);
             console.log(finalUrl);
@@ -5198,269 +2188,45 @@ class GetInfoService extends RestService {
         return result;
     }
 }
-GetInfoService.decorators = [
-    { type: Injectable, args: [{
+GetInfoService.ɵfac = function GetInfoService_Factory(t) { return new (t || GetInfoService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+GetInfoService.ɵprov = ɵɵdefineInjectable({ token: GetInfoService, factory: GetInfoService.ɵfac, providedIn: 'root' });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(GetInfoService, [{
+        type: Injectable,
+        args: [{
                 providedIn: 'root'
-            },] }
-];
-/** @nocollapse */
-GetInfoService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-/** @nocollapse */ GetInfoService.ngInjectableDef = ɵɵdefineInjectable({ factory: function GetInfoService_Factory() { return new GetInfoService(ɵɵinject(INJECTOR), ɵɵinject(HttpClient)); }, token: GetInfoService, providedIn: "root" });
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    GetInfoService.prototype.INFO_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    GetInfoService.prototype.http;
-}
+            }]
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * Cartography
  */
 class Cartography extends Resource {
 }
-if (false) {
-    /**
-     * id
-     * @type {?}
-     */
-    Cartography.prototype.id;
-    /**
-     * name
-     * @type {?}
-     */
-    Cartography.prototype.name;
-    /**
-     * type
-     * @type {?}
-     */
-    Cartography.prototype.type;
-    /**
-     * service
-     * @type {?}
-     */
-    Cartography.prototype.service;
-    /**
-     * order
-     * @type {?}
-     */
-    Cartography.prototype.order;
-    /**
-     * description
-     * @type {?}
-     */
-    Cartography.prototype.description;
-    /**
-     * source
-     * @type {?}
-     */
-    Cartography.prototype.source;
-    /**
-     * whether cartography is blocked
-     * @type {?}
-     */
-    Cartography.prototype.blocked;
-    /**
-     * apply filter to get map
-     * @type {?}
-     */
-    Cartography.prototype.applyFilterToGetMap;
-    /**
-     * apply filter to get feature information
-     * @type {?}
-     */
-    Cartography.prototype.applyFilterToGetFeatureInfo;
-    /**
-     * apply filter to spatial selection
-     * @type {?}
-     */
-    Cartography.prototype.applyFilterToSpatialSelection;
-    /**
-     * selectable layers
-     * @type {?}
-     */
-    Cartography.prototype.selectableLayers;
-    /**
-     * transparency
-     * @type {?}
-     */
-    Cartography.prototype.transparency;
-    /**
-     * whether layer is queryable
-     * @type {?}
-     */
-    Cartography.prototype.queryable;
-    /**
-     * whether layer is queryable
-     * @type {?}
-     */
-    Cartography.prototype.queryAct;
-    /**
-     * query layer
-     * @type {?}
-     */
-    Cartography.prototype.queryLay;
-    /**
-     * system created date
-     * @type {?}
-     */
-    Cartography.prototype.createdDate;
-    /**
-     * minimum scale
-     * @type {?}
-     */
-    Cartography.prototype.minimumScale;
-    /**
-     * maximum scale
-     * @type {?}
-     */
-    Cartography.prototype.maximumScale;
-    /**
-     * layers
-     * @type {?}
-     */
-    Cartography.prototype.layers;
-    /**
-     * connection
-     * @type {?}
-     */
-    Cartography.prototype.connection;
-    /**
-     * queryableFeatureEnabled
-     * @type {?}
-     */
-    Cartography.prototype.queryableFeatureEnabled;
-    /**
-     * queryableLayers
-     * @type {?}
-     */
-    Cartography.prototype.queryableFeatureAvailable;
-    /**
-     * queryableLayers
-     * @type {?}
-     */
-    Cartography.prototype.queryableLayers;
-    /**
-     * availabilities
-     * @type {?}
-     */
-    Cartography.prototype.availabilities;
-    /**
-     * whether layer is queryable
-     * @type {?}
-     */
-    Cartography.prototype.selectableFeatureEnabled;
-    /**
-     * selection layer
-     * @type {?}
-     */
-    Cartography.prototype.selectionLayer;
-    /**
-     * selection service
-     * @type {?}
-     */
-    Cartography.prototype.selectionService;
-    /**
-     * legend tip
-     * @type {?}
-     */
-    Cartography.prototype.legendType;
-    /**
-     * legend url
-     * @type {?}
-     */
-    Cartography.prototype.legendURL;
-    /**
-     * whether layer is editable
-     * @type {?}
-     */
-    Cartography.prototype.editable;
-    /**
-     * metadata URL
-     * @type {?}
-     */
-    Cartography.prototype.metadataURL;
-    /**
-     * metadata URL
-     * @type {?}
-     */
-    Cartography.prototype.datasetURL;
-    /**
-     * whether layer is themable
-     * @type {?}
-     */
-    Cartography.prototype.thematic;
-    /**
-     * geometry type
-     * @type {?}
-     */
-    Cartography.prototype.geometryType;
-    /** @type {?} */
-    Cartography.prototype.styles;
-    /** @type {?} */
-    Cartography.prototype.useAllStyles;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Cartography manager service
- */
+/** Cartography manager service */
 class CartographyService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(Cartography, "cartographies", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.CARTOGRAPHY_API = 'cartographies';
     }
-    /**
-     * remove cartography
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove cartography*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save cartography
-     * @param {?} item
-     * @return {?}
-     */
+    /** save cartography*/
     save(item) {
-        /** @type {?} */
         let result;
-        /** @type {?} */
         let cartographyConnection = {};
         cartographyConnection._links = {};
         cartographyConnection._links.self = {};
         cartographyConnection._links.self.href = "";
-        /** @type {?} */
         let cartographyService = {};
         cartographyService._links = {};
         cartographyService._links.self = {};
         cartographyService._links.self.href = "";
-        /** @type {?} */
         let cartographySelectionService = {};
         cartographySelectionService._links = {};
         cartographySelectionService._links.self = {};
@@ -5496,52 +2262,20 @@ class CartographyService extends RestService {
             //   }, error => console.error(error));
             // }
             if (cartographyService._links.self.href == '') {
-                item.deleteRelation('service', cartographyService).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.deleteRelation('service', cartographyService).subscribe(result => {
+                }, error => console.error(error));
             }
             else {
-                item.substituteRelation('service', cartographyService).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('service', cartographyService).subscribe(result => {
+                }, error => console.error(error));
             }
             if (cartographySelectionService._links.self.href == '' && cartographySelectionService) {
-                item.deleteRelation('spatialSelectionService', cartographySelectionService).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.deleteRelation('spatialSelectionService', cartographySelectionService).subscribe(result => {
+                }, error => console.error(error));
             }
             else {
-                item.substituteRelation('spatialSelectionService', cartographySelectionService).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('spatialSelectionService', cartographySelectionService).subscribe(result => {
+                }, error => console.error(error));
             }
             result = this.http.put(item._links.self.href, item);
         }
@@ -5551,100 +2285,33 @@ class CartographyService extends RestService {
         return result;
     }
 }
-CartographyService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-CartographyService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    CartographyService.prototype.CARTOGRAPHY_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    CartographyService.prototype.http;
-}
+CartographyService.ɵfac = function CartographyService_Factory(t) { return new (t || CartographyService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+CartographyService.ɵprov = ɵɵdefineInjectable({ token: CartographyService, factory: CartographyService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(CartographyService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * Cartography group
  */
 class CartographyGroup extends Resource {
 }
-if (false) {
-    /**
-     * id
-     * @type {?}
-     */
-    CartographyGroup.prototype.id;
-    /**
-     * name
-     * @type {?}
-     */
-    CartographyGroup.prototype.name;
-    /**
-     * type
-     * @type {?}
-     */
-    CartographyGroup.prototype.type;
-    /**
-     * members
-     * @type {?}
-     */
-    CartographyGroup.prototype.members;
-    /**
-     * roles
-     * @type {?}
-     */
-    CartographyGroup.prototype.roles;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * CartographyGroup manager service
- */
+/** CartographyGroup manager service */
 class CartographyGroupService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(CartographyGroup, "cartography-groups", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.CARTOGRAPHY_GROUP_API = 'cartography-groups';
     }
-    /**
-     * remove cartography group
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove cartography group*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save cartography group
-     * @param {?} item
-     * @return {?}
-     */
+    /** save cartography group*/
     save(item) {
-        /** @type {?} */
         let result;
         if (item._links != null) {
             result = this.http.put(item._links.self.href, item);
@@ -5655,116 +2322,43 @@ class CartographyGroupService extends RestService {
         return result;
     }
 }
-CartographyGroupService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-CartographyGroupService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    CartographyGroupService.prototype.CARTOGRAPHY_GROUP_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    CartographyGroupService.prototype.http;
-}
+CartographyGroupService.ɵfac = function CartographyGroupService_Factory(t) { return new (t || CartographyGroupService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+CartographyGroupService.ɵprov = ɵɵdefineInjectable({ token: CartographyGroupService, factory: CartographyGroupService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(CartographyGroupService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * Cartography availability model
  */
 class CartographyAvailability extends Resource {
 }
-if (false) {
-    /**
-     * territory
-     * @type {?}
-     */
-    CartographyAvailability.prototype.territory;
-    /**
-     * system created date
-     * @type {?}
-     */
-    CartographyAvailability.prototype.createdDate;
-    /**
-     * cartography
-     * @type {?}
-     */
-    CartographyAvailability.prototype.cartography;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * CartographyAvailability manager service
- */
+/** CartographyAvailability manager service */
 class CartographyAvailabilityService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(CartographyAvailability, "cartography-availabilities", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.CARTOGRAPHY_AVAILABILITY_API = 'cartography-availabilities';
     }
-    /**
-     * remove cartography availability
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove cartography availability*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save cartography availability
-     * @param {?} item
-     * @return {?}
-     */
+    /** save cartography availability*/
     save(item) {
-        /** @type {?} */
         let result;
         if (item._links != null) {
             result = this.http.put(item._links.self.href, item);
             if (item.cartography != null) {
-                item.substituteRelation('cartography', item.cartography).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('cartography', item.cartography).subscribe(result => {
+                }, error => console.error(error));
             }
             if (item.territory != null) {
-                item.substituteRelation('territory', item.territory).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('territory', item.territory).subscribe(result => {
+                }, error => console.error(error));
             }
         }
         else {
@@ -5775,141 +2369,43 @@ class CartographyAvailabilityService extends RestService {
         return result;
     }
 }
-CartographyAvailabilityService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-CartographyAvailabilityService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    CartographyAvailabilityService.prototype.CARTOGRAPHY_AVAILABILITY_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    CartographyAvailabilityService.prototype.http;
-}
+CartographyAvailabilityService.ɵfac = function CartographyAvailabilityService_Factory(t) { return new (t || CartographyAvailabilityService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+CartographyAvailabilityService.ɵprov = ɵɵdefineInjectable({ token: CartographyAvailabilityService, factory: CartographyAvailabilityService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(CartographyAvailabilityService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * Cartography availability model
  */
 class CartographyFilter extends Resource {
 }
-if (false) {
-    /**
-     * name
-     * @type {?}
-     */
-    CartographyFilter.prototype.name;
-    /**
-     * required
-     * @type {?}
-     */
-    CartographyFilter.prototype.required;
-    /**
-     * type
-     * @type {?}
-     */
-    CartographyFilter.prototype.type;
-    /**
-     * Territorial level.
-     * @type {?}
-     */
-    CartographyFilter.prototype.territorialLevel;
-    /**
-     * column
-     * @type {?}
-     */
-    CartographyFilter.prototype.column;
-    /**
-     * values
-     * @type {?}
-     */
-    CartographyFilter.prototype.values;
-    /**
-     * value
-     * @type {?}
-     */
-    CartographyFilter.prototype.valueType;
-    /**
-     * cartography
-     * @type {?}
-     */
-    CartographyFilter.prototype.cartography;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * CartographyFilter manager service
- */
+/** CartographyFilter manager service */
 class CartographyFilterService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(CartographyFilter, "cartography-filters", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.CARTOGRAPHY_FILTER_API = 'cartography-filters';
     }
-    /**
-     * remove cartography filter
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove cartography filter*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save cartography availability
-     * @param {?} item
-     * @return {?}
-     */
+    /** save cartography availability*/
     save(item) {
-        /** @type {?} */
         let result;
         if (item._links != null) {
             result = this.http.put(item._links.self.href, item);
             if (item.cartography != null) {
-                item.substituteRelation('cartography', item.cartography).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('cartography', item.cartography).subscribe(result => {
+                }, error => console.error(error));
             }
             if (item.territorialLevel != null && item.territorialLevel != undefined) {
-                item.substituteRelation('territorialLevel', item.territorialLevel).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('territorialLevel', item.territorialLevel).subscribe(result => {
+                }, error => console.error(error));
             }
         }
         else {
@@ -5920,116 +2416,40 @@ class CartographyFilterService extends RestService {
         return result;
     }
 }
-CartographyFilterService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-CartographyFilterService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    CartographyFilterService.prototype.CARTOGRAPHY_FILTER_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    CartographyFilterService.prototype.http;
-}
+CartographyFilterService.ɵfac = function CartographyFilterService_Factory(t) { return new (t || CartographyFilterService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+CartographyFilterService.ɵprov = ɵɵdefineInjectable({ token: CartographyFilterService, factory: CartographyFilterService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(CartographyFilterService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * Service parameter model
  */
 class CartographyParameter extends Resource {
 }
-if (false) {
-    /**
-     * name
-     * @type {?}
-     */
-    CartographyParameter.prototype.name;
-    /**
-     * type
-     * @type {?}
-     */
-    CartographyParameter.prototype.type;
-    /**
-     * value
-     * @type {?}
-     */
-    CartographyParameter.prototype.value;
-    /**
-     * order
-     * @type {?}
-     */
-    CartographyParameter.prototype.order;
-    /**
-     * cartography
-     * @type {?}
-     */
-    CartographyParameter.prototype.cartography;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Service parameter manager service
- */
+/** Service parameter manager service */
 class CartographyParameterService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(CartographyParameter, "cartography-parameters", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.CARTOGRAPHY_PARAMETER_API = 'cartography-parameters';
     }
-    /**
-     * remove service parameter
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove service parameter*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save service parameter
-     * @param {?} item
-     * @return {?}
-     */
+    /** save service parameter*/
     save(item) {
-        /** @type {?} */
         let result;
         if (item._links != null) {
             if (item.cartography != null) {
-                /** @type {?} */
                 let cartography = item.cartography;
                 delete item.cartography;
-                item.substituteRelation('cartography', cartography).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('cartography', cartography).subscribe(result => {
+                }, error => console.error(error));
             }
             result = this.http.put(item._links.self.href, item);
         }
@@ -6040,79 +2460,34 @@ class CartographyParameterService extends RestService {
         return result;
     }
 }
-CartographyParameterService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-CartographyParameterService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    CartographyParameterService.prototype.CARTOGRAPHY_PARAMETER_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    CartographyParameterService.prototype.http;
-}
+CartographyParameterService.ɵfac = function CartographyParameterService_Factory(t) { return new (t || CartographyParameterService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+CartographyParameterService.ɵprov = ɵɵdefineInjectable({ token: CartographyParameterService, factory: CartographyParameterService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(CartographyParameterService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Service parameter manager service
- */
+/** Service parameter manager service */
 class CartographySpatialSelectionParameterService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(CartographyParameter, "cartography-spatial-selection-parameters", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_API = 'cartography-spatial-selection-parameters';
     }
-    /**
-     * remove service parameter
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove service parameter*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save service parameter
-     * @param {?} item
-     * @return {?}
-     */
+    /** save service parameter*/
     save(item) {
-        /** @type {?} */
         let result;
         if (item._links != null) {
             if (item.cartography != null) {
-                /** @type {?} */
                 let cartography = item.cartography;
                 delete item.cartography;
-                item.substituteRelation('cartography', cartography).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('cartography', cartography).subscribe(result => {
+                }, error => console.error(error));
             }
             result = this.http.put(item._links.self.href, item);
         }
@@ -6123,132 +2498,39 @@ class CartographySpatialSelectionParameterService extends RestService {
         return result;
     }
 }
-CartographySpatialSelectionParameterService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-CartographySpatialSelectionParameterService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    CartographySpatialSelectionParameterService.prototype.CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    CartographySpatialSelectionParameterService.prototype.http;
-}
+CartographySpatialSelectionParameterService.ɵfac = function CartographySpatialSelectionParameterService_Factory(t) { return new (t || CartographySpatialSelectionParameterService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+CartographySpatialSelectionParameterService.ɵprov = ɵɵdefineInjectable({ token: CartographySpatialSelectionParameterService, factory: CartographySpatialSelectionParameterService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(CartographySpatialSelectionParameterService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * Cartography style model
  */
 class CartographyStyle extends Resource {
 }
-if (false) {
-    /**
-     * name
-     * @type {?}
-     */
-    CartographyStyle.prototype.name;
-    /**
-     * title
-     * @type {?}
-     */
-    CartographyStyle.prototype.title;
-    /**
-     * description
-     * @type {?}
-     */
-    CartographyStyle.prototype.description;
-    /**
-     * format
-     * @type {?}
-     */
-    CartographyStyle.prototype.format;
-    /**
-     * width
-     * @type {?}
-     */
-    CartographyStyle.prototype.width;
-    /**
-     * height
-     * @type {?}
-     */
-    CartographyStyle.prototype.height;
-    /**
-     * url
-     * @type {?}
-     */
-    CartographyStyle.prototype.url;
-    /**
-     * cartography
-     * @type {?}
-     */
-    CartographyStyle.prototype.cartography;
-    /** @type {?} */
-    CartographyStyle.prototype.defaultStyle;
-    /** @type {?} */
-    CartographyStyle.prototype.legendURL;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 class CartographyStyleService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(CartographyStyle, "cartography-styles", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.CARTOGRAPHY_STYLES_API = 'cartography-styles';
     }
-    /**
-     * remove service parameter
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove service parameter*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save service parameter
-     * @param {?} item
-     * @return {?}
-     */
+    /** save service parameter*/
     save(item) {
-        /** @type {?} */
         let result;
         if (item._links != null) {
             if (item.cartography != null) {
-                /** @type {?} */
                 let cartography = item.cartography;
                 delete item.cartography;
-                item.substituteRelation('cartography', cartography).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('cartography', cartography).subscribe(result => {
+                }, error => console.error(error));
             }
             result = this.http.put(item._links.self.href, item);
         }
@@ -6259,115 +2541,37 @@ class CartographyStyleService extends RestService {
         return result;
     }
 }
-CartographyStyleService.decorators = [
-    { type: Injectable, args: [{
+CartographyStyleService.ɵfac = function CartographyStyleService_Factory(t) { return new (t || CartographyStyleService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+CartographyStyleService.ɵprov = ɵɵdefineInjectable({ token: CartographyStyleService, factory: CartographyStyleService.ɵfac, providedIn: 'root' });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(CartographyStyleService, [{
+        type: Injectable,
+        args: [{
                 providedIn: 'root'
-            },] }
-];
-/** @nocollapse */
-CartographyStyleService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-/** @nocollapse */ CartographyStyleService.ngInjectableDef = ɵɵdefineInjectable({ factory: function CartographyStyleService_Factory() { return new CartographyStyleService(ɵɵinject(INJECTOR), ɵɵinject(HttpClient)); }, token: CartographyStyleService, providedIn: "root" });
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    CartographyStyleService.prototype.CARTOGRAPHY_STYLES_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    CartographyStyleService.prototype.http;
-}
+            }]
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * Background model
  */
 class Background extends Resource {
 }
-if (false) {
-    /**
-     * id
-     * @type {?}
-     */
-    Background.prototype.id;
-    /**
-     * name
-     * @type {?}
-     */
-    Background.prototype.name;
-    /**
-     * description
-     * @type {?}
-     */
-    Background.prototype.description;
-    /**
-     * image
-     * @type {?}
-     */
-    Background.prototype.image;
-    /**
-     * whether background is active
-     * @type {?}
-     */
-    Background.prototype.active;
-    /**
-     * system created date
-     * @type {?}
-     */
-    Background.prototype.createdDate;
-    /**
-     * cartography group
-     * @type {?}
-     */
-    Background.prototype.cartographyGroup;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Background manager service
- */
+/** Background manager service */
 class BackgroundService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(Background, "backgrounds", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.BACKGROUND_API = 'backgrounds';
     }
-    /**
-     * remove background
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove background*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save background
-     * @param {?} item
-     * @return {?}
-     */
+    /** save background*/
     save(item) {
-        /** @type {?} */
         let result;
-        /** @type {?} */
         let backgroundCartographyGroup = {};
         backgroundCartographyGroup._links = {};
         backgroundCartographyGroup._links.self = {};
@@ -6383,28 +2587,12 @@ class BackgroundService extends RestService {
             //update relations
             delete item.cartographyGroup;
             if (backgroundCartographyGroup._links.self.href == '') {
-                item.deleteRelation('cartographyGroup', backgroundCartographyGroup).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.deleteRelation('cartographyGroup', backgroundCartographyGroup).subscribe(result => {
+                }, error => console.error(error));
             }
             else {
-                item.substituteRelation('cartographyGroup', backgroundCartographyGroup).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('cartographyGroup', backgroundCartographyGroup).subscribe(result => {
+                }, error => console.error(error));
             }
             result = this.http.put(item._links.self.href, item);
         }
@@ -6414,105 +2602,33 @@ class BackgroundService extends RestService {
         return result;
     }
 }
-BackgroundService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-BackgroundService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    BackgroundService.prototype.BACKGROUND_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    BackgroundService.prototype.http;
-}
+BackgroundService.ɵfac = function BackgroundService_Factory(t) { return new (t || BackgroundService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+BackgroundService.ɵprov = ɵɵdefineInjectable({ token: BackgroundService, factory: BackgroundService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(BackgroundService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * Tree model
  */
 class Tree extends Resource {
 }
-if (false) {
-    /**
-     * id
-     * @type {?}
-     */
-    Tree.prototype.id;
-    /**
-     * name
-     * @type {?}
-     */
-    Tree.prototype.name;
-    /**
-     * description
-     * @type {?}
-     */
-    Tree.prototype.description;
-    /**
-     * image
-     * @type {?}
-     */
-    Tree.prototype.image;
-    /**
-     * nodes
-     * @type {?}
-     */
-    Tree.prototype.nodes;
-    /**
-     * available roles
-     * @type {?}
-     */
-    Tree.prototype.availableRoles;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Tree manager service
- */
+/** Tree manager service */
 class TreeService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(Tree, "trees", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.TREE_API = 'trees';
     }
-    /**
-     * remove tree
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove tree*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save tree
-     * @param {?} item
-     * @return {?}
-     */
+    /** save tree*/
     save(item) {
-        /** @type {?} */
         let result;
         if (item._links != null) {
             result = this.http.put(item._links.self.href, item);
@@ -6523,214 +2639,61 @@ class TreeService extends RestService {
         return result;
     }
 }
-TreeService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-TreeService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    TreeService.prototype.TREE_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    TreeService.prototype.http;
-}
+TreeService.ɵfac = function TreeService_Factory(t) { return new (t || TreeService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+TreeService.ɵprov = ɵɵdefineInjectable({ token: TreeService, factory: TreeService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(TreeService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * Tree node model
  */
 class TreeNode extends Resource {
 }
-if (false) {
-    /**
-     * name
-     * @type {?}
-     */
-    TreeNode.prototype.name;
-    /**
-     * tooltip
-     * @type {?}
-     */
-    TreeNode.prototype.tooltip;
-    /**
-     * description
-     * @type {?}
-     */
-    TreeNode.prototype.description;
-    /**
-     * datasetURL
-     * @type {?}
-     */
-    TreeNode.prototype.datasetURL;
-    /**
-     * metadataURL
-     * @type {?}
-     */
-    TreeNode.prototype.metadataURL;
-    /**
-     * order
-     * @type {?}
-     */
-    TreeNode.prototype.order;
-    /**
-     * whether tree node is active
-     * @type {?}
-     */
-    TreeNode.prototype.active;
-    /**
-     * parent tree node
-     * @type {?}
-     */
-    TreeNode.prototype.radio;
-    /**
-     * parent tree node
-     * @type {?}
-     */
-    TreeNode.prototype.parent;
-    /**
-     * displayed cartography
-     * @type {?}
-     */
-    TreeNode.prototype.cartography;
-    /**
-     * tree
-     * @type {?}
-     */
-    TreeNode.prototype.tree;
-    /**
-     * filterGetFeatureInfo
-     * @type {?}
-     */
-    TreeNode.prototype.filterGetFeatureInfo;
-    /**
-     * filterGetMap
-     * @type {?}
-     */
-    TreeNode.prototype.filterGetMap;
-    /**
-     * filterSelectable
-     * @type {?}
-     */
-    TreeNode.prototype.filterSelectable;
-    /**
-     * style
-     * @type {?}
-     */
-    TreeNode.prototype.style;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Tree node manager service
- */
+/** Tree node manager service */
 class TreeNodeService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(TreeNode, "tree-nodes", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.TREE_NODE_API = 'tree-nodes';
     }
-    /**
-     * remove tree node
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove tree node*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save tree node
-     * @param {?} item
-     * @return {?}
-     */
+    /** save tree node*/
     save(item) {
-        /** @type {?} */
         let result;
         if (item._links != null) {
-            /** @type {?} */
             const itemTree = item.tree;
-            /** @type {?} */
             const itemCartography = item.cartography;
-            /** @type {?} */
             const itemParent = item.parent;
             delete item.tree;
             delete item.cartography;
             delete item.parent;
             result = this.http.put(item._links.self.href, item);
             if (itemTree != null) {
-                item.substituteRelation('tree', itemTree).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('tree', itemTree).subscribe(result => {
+                }, error => console.error(error));
             }
             if (itemCartography != null) {
-                item.substituteRelation('cartography', itemCartography).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('cartography', itemCartography).subscribe(result => {
+                }, error => console.error(error));
             }
             if (itemParent != null) {
-                item.substituteRelation('parent', itemParent).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('parent', itemParent).subscribe(result => {
+                }, error => console.error(error));
             }
             else {
-                /** @type {?} */
                 let treeNodeParent = {};
                 treeNodeParent._links = {};
                 treeNodeParent._links.self = {};
                 treeNodeParent._links.self.href = "";
-                item.deleteRelation('parent', treeNodeParent).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.deleteRelation('parent', treeNodeParent).subscribe(result => {
+                }, error => console.error(error));
             }
         }
         else {
@@ -6745,158 +2708,37 @@ class TreeNodeService extends RestService {
         return result;
     }
 }
-TreeNodeService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-TreeNodeService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    TreeNodeService.prototype.TREE_NODE_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    TreeNodeService.prototype.http;
-}
+TreeNodeService.ɵfac = function TreeNodeService_Factory(t) { return new (t || TreeNodeService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+TreeNodeService.ɵprov = ɵɵdefineInjectable({ token: TreeNodeService, factory: TreeNodeService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(TreeNodeService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 //FIXME ensure application creation in admin app upon initialization (as it is done with Roles and default Users)
-/**
- * Territorial appliction name
- * @type {?}
- */
+/** Territorial appliction name */
 const TERRITORIAL_APP_NAME = "Aplicación Territorial";
 /**
  * Application model
  */
 class Application extends Resource {
 }
-if (false) {
-    /**
-     * id
-     * @type {?}
-     */
-    Application.prototype.id;
-    /**
-     * name
-     * @type {?}
-     */
-    Application.prototype.name;
-    /**
-     * type
-     * @type {?}
-     */
-    Application.prototype.type;
-    /**
-     * title
-     * @type {?}
-     */
-    Application.prototype.title;
-    /**
-     * theme
-     * @type {?}
-     */
-    Application.prototype.theme;
-    /**
-     * urlTemplate
-     * @type {?}
-     */
-    Application.prototype.jspTemplate;
-    /**
-     * system created date
-     * @type {?}
-     */
-    Application.prototype.createdDate;
-    /**
-     * available roles
-     * @type {?}
-     */
-    Application.prototype.availableRoles;
-    /**
-     * trees
-     * @type {?}
-     */
-    Application.prototype.trees;
-    /**
-     * scales (comma-separated values)
-     * @type {?}
-     */
-    Application.prototype.scales;
-    /**
-     * projections(comma-separated EPSG codes)
-     * @type {?}
-     */
-    Application.prototype.srs;
-    /**
-     * whether application tree will auto refresh
-     * @type {?}
-     */
-    Application.prototype.treeAutoRefresh;
-    /**
-     * backgrounds
-     * @type {?}
-     */
-    Application.prototype.backgrounds;
-    /**
-     * situation map
-     * @type {?}
-     */
-    Application.prototype.situationMap;
-    /**
-     * parameters
-     * @type {?}
-     */
-    Application.prototype.parameters;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Application manager service
- */
+/** Application manager service */
 class ApplicationService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(Application, "applications", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.APPLICATION_API = 'applications';
     }
-    /**
-     * remove application
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove application*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save application
-     * @param {?} item
-     * @return {?}
-     */
+    /** save application*/
     save(item) {
-        /** @type {?} */
         let result;
-        /** @type {?} */
         let applicationSituationMap = {};
         applicationSituationMap._links = {};
         applicationSituationMap._links.self = {};
@@ -6911,28 +2753,12 @@ class ApplicationService extends RestService {
             //update relations
             delete item.situationMap;
             if (applicationSituationMap._links.self.href == '') {
-                item.deleteRelation('situationMap', applicationSituationMap).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.deleteRelation('situationMap', applicationSituationMap).subscribe(result => {
+                }, error => console.error(error));
             }
             else {
-                item.substituteRelation('situationMap', applicationSituationMap).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('situationMap', applicationSituationMap).subscribe(result => {
+                }, error => console.error(error));
             }
             result = this.http.put(item._links.self.href, item);
         }
@@ -6942,116 +2768,43 @@ class ApplicationService extends RestService {
         return result;
     }
 }
-ApplicationService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-ApplicationService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    ApplicationService.prototype.APPLICATION_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    ApplicationService.prototype.http;
-}
+ApplicationService.ɵfac = function ApplicationService_Factory(t) { return new (t || ApplicationService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+ApplicationService.ɵprov = ɵɵdefineInjectable({ token: ApplicationService, factory: ApplicationService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(ApplicationService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * Application background model
  */
 class ApplicationBackground extends Resource {
 }
-if (false) {
-    /**
-     * order
-     * @type {?}
-     */
-    ApplicationBackground.prototype.order;
-    /**
-     * background
-     * @type {?}
-     */
-    ApplicationBackground.prototype.background;
-    /**
-     * application
-     * @type {?}
-     */
-    ApplicationBackground.prototype.application;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Application background manager service
- */
+/** Application background manager service */
 class ApplicationBackgroundService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(ApplicationBackground, "application-backgrounds", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.APPLICATION_BACKGROUND_API = 'application-backgrounds';
     }
-    /**
-     * remove application background
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove application background*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save application background
-     * @param {?} item
-     * @return {?}
-     */
+    /** save application background*/
     save(item) {
-        /** @type {?} */
         let result;
         if (item._links != null) {
             result = this.http.put(item._links.self.href, item);
             if (item.application != null) {
-                item.substituteRelation('application', item.application).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('application', item.application).subscribe(result => {
+                }, error => console.error(error));
             }
             if (item.background != null) {
-                item.substituteRelation('background', item.background).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('background', item.background).subscribe(result => {
+                }, error => console.error(error));
             }
         }
         else {
@@ -7062,109 +2815,39 @@ class ApplicationBackgroundService extends RestService {
         return result;
     }
 }
-ApplicationBackgroundService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-ApplicationBackgroundService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    ApplicationBackgroundService.prototype.APPLICATION_BACKGROUND_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    ApplicationBackgroundService.prototype.http;
-}
+ApplicationBackgroundService.ɵfac = function ApplicationBackgroundService_Factory(t) { return new (t || ApplicationBackgroundService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+ApplicationBackgroundService.ɵprov = ɵɵdefineInjectable({ token: ApplicationBackgroundService, factory: ApplicationBackgroundService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(ApplicationBackgroundService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * Application parameter model
  */
 class ApplicationParameter extends Resource {
 }
-if (false) {
-    /**
-     * name
-     * @type {?}
-     */
-    ApplicationParameter.prototype.name;
-    /**
-     * type
-     * @type {?}
-     */
-    ApplicationParameter.prototype.type;
-    /**
-     * value
-     * @type {?}
-     */
-    ApplicationParameter.prototype.value;
-    /**
-     * application
-     * @type {?}
-     */
-    ApplicationParameter.prototype.application;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Application parameter manager service
- */
+/** Application parameter manager service */
 class ApplicationParameterService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(ApplicationParameter, "application-parameters", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.APPLICATION_PARAMETER_API = 'application-parameters';
     }
-    /**
-     * remove application
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove application*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save application
-     * @param {?} item
-     * @return {?}
-     */
+    /** save application*/
     save(item) {
-        /** @type {?} */
         let result;
         if (item._links != null) {
             result = this.http.put(item._links.self.href, item);
             if (item.application != null) {
-                item.substituteRelation('application', item.application).subscribe((/**
-                 * @param {?} result
-                 * @return {?}
-                 */
-                result => {
-                }), (/**
-                 * @param {?} error
-                 * @return {?}
-                 */
-                error => console.error(error)));
+                item.substituteRelation('application', item.application).subscribe(result => {
+                }, error => console.error(error));
             }
         }
         else {
@@ -7174,95 +2857,33 @@ class ApplicationParameterService extends RestService {
         return result;
     }
 }
-ApplicationParameterService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-ApplicationParameterService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    ApplicationParameterService.prototype.APPLICATION_PARAMETER_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    ApplicationParameterService.prototype.http;
-}
+ApplicationParameterService.ɵfac = function ApplicationParameterService_Factory(t) { return new (t || ApplicationParameterService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+ApplicationParameterService.ɵprov = ɵɵdefineInjectable({ token: ApplicationParameterService, factory: ApplicationParameterService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(ApplicationParameterService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 /**
  * Connection model
  */
 class CodeList extends Resource {
 }
-if (false) {
-    /**
-     * id
-     * @type {?}
-     */
-    CodeList.prototype.id;
-    /**
-     * name
-     * @type {?}
-     */
-    CodeList.prototype.codeListName;
-    /**
-     * type
-     * @type {?}
-     */
-    CodeList.prototype.value;
-    /**
-     * user
-     * @type {?}
-     */
-    CodeList.prototype.description;
-}
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Connection manager service
- */
+/** Connection manager service */
 class CodeListService extends RestService {
-    /**
-     * constructor
-     * @param {?} injector
-     * @param {?} http
-     */
+    /** constructor */
     constructor(injector, http) {
         super(CodeList, "codelist-values", injector);
         this.http = http;
-        /**
-         * API resource path
-         */
+        /** API resource path */
         this.CODELIST_API = 'codelist-values';
     }
-    /**
-     * remove connection
-     * @param {?} item
-     * @return {?}
-     */
+    /** remove connection*/
     remove(item) {
         return this.http.delete(item._links.self.href);
     }
-    /**
-     * save connection
-     * @param {?} item
-     * @return {?}
-     */
+    /** save connection*/
     save(item) {
-        /** @type {?} */
         let result;
         if (item._links != null) {
             result = this.http.put(item._links.self.href, item);
@@ -7273,353 +2894,55 @@ class CodeListService extends RestService {
         return result;
     }
 }
-CodeListService.decorators = [
-    { type: Injectable }
-];
-/** @nocollapse */
-CodeListService.ctorParameters = () => [
-    { type: Injector },
-    { type: HttpClient }
-];
-if (false) {
-    /**
-     * API resource path
-     * @type {?}
-     */
-    CodeListService.prototype.CODELIST_API;
-    /**
-     * @type {?}
-     * @private
-     */
-    CodeListService.prototype.http;
-}
+CodeListService.ɵfac = function CodeListService_Factory(t) { return new (t || CodeListService)(ɵɵinject(Injector), ɵɵinject(HttpClient)); };
+CodeListService.ɵprov = ɵɵdefineInjectable({ token: CodeListService, factory: CodeListService.ɵfac });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(CodeListService, [{
+        type: Injectable
+    }], function () { return [{ type: Injector }, { type: HttpClient }]; }, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Layer model: configure Layer data and displaying configuration
- */
+/** Layer model: configure Layer data and displaying configuration */
 class Layer {
     constructor() {
         // Display data
-        /**
-         * layer visibility
-         */
+        /** layer visibility*/
         this.visibility = false;
-        /**
-         * Transparency (Transparent) 0-1 (Opaque)
-         */
+        /** Transparency (Transparent) 0-1 (Opaque)*/
         this.opacity = 1.0;
-        /**
-         * Service attributions
-         */
+        /** Service attributions*/
         this.attributions = "";
-        /**
-         * Description
-         */
+        /** Description*/
         this.desc = "";
-        /**
-         * Transparent request parameter?
-         */
+        /**  Transparent request parameter?*/
         this.url_transparent = "true";
-        /**
-         * Request Background parameter color (Hexa)
-         */
+        /** Request Background parameter color (Hexa)*/
         this.url_bgcolor = "0x000000";
-        /**
-         * Extent for tiled services
-         */
+        /** Extent for tiled services*/
         this.extent = null;
-        /**
-         * Enabled for GetFeatureInfo requests (enabled to use the viewer features information tool)
-         */
+        /** Enabled for GetFeatureInfo requests (enabled to use the viewer features information tool)*/
         this.queryable = false;
     }
 }
-if (false) {
-    /**
-     * layer visibility
-     * @type {?}
-     */
-    Layer.prototype.visibility;
-    /**
-     * Transparency (Transparent) 0-1 (Opaque)
-     * @type {?}
-     */
-    Layer.prototype.opacity;
-    /**
-     * title
-     * @type {?}
-     */
-    Layer.prototype.title;
-    /**
-     * Id to index
-     * @type {?}
-     */
-    Layer.prototype.id;
-    /**
-     * Service Name
-     * @type {?}
-     */
-    Layer.prototype.serverName;
-    /**
-     * Service attributions
-     * @type {?}
-     */
-    Layer.prototype.attributions;
-    /**
-     * Request format (image/jpg, ...)
-     * @type {?}
-     */
-    Layer.prototype.format;
-    /**
-     * Request service version
-     * @type {?}
-     */
-    Layer.prototype.version;
-    /**
-     * Service url
-     * @type {?}
-     */
-    Layer.prototype.url;
-    /**
-     * Is base layer?
-     * @type {?}
-     */
-    Layer.prototype.isBaseLayer;
-    /**
-     * Request layer name
-     * @type {?}
-     */
-    Layer.prototype.name;
-    /**
-     * Is tiled?
-     * @type {?}
-     */
-    Layer.prototype.tiled;
-    /**
-     * Description
-     * @type {?}
-     */
-    Layer.prototype.desc;
-    /**
-     * Transparent request parameter?
-     * @type {?}
-     */
-    Layer.prototype.url_transparent;
-    /**
-     * Request Background parameter color (Hexa)
-     * @type {?}
-     */
-    Layer.prototype.url_bgcolor;
-    /**
-     * Request Exception URL
-     * @type {?}
-     */
-    Layer.prototype.url_exception;
-    /**
-     * Extent for tiled services
-     * @type {?}
-     */
-    Layer.prototype.extent;
-    /**
-     * Tile height (if not defined, the default map is taken)
-     * @type {?}
-     */
-    Layer.prototype.tileHeight;
-    /**
-     * Tile width (if not defined, the default map is taken)
-     * @type {?}
-     */
-    Layer.prototype.tileWidth;
-    /**
-     * Enabled for GetFeatureInfo requests (enabled to use the viewer features information tool)
-     * @type {?}
-     */
-    Layer.prototype.queryable;
-    /**
-     * Minimum scale
-     * @type {?}
-     */
-    Layer.prototype.minimumScale;
-    /**
-     * Maximum scale
-     * @type {?}
-     */
-    Layer.prototype.maximumScale;
-    /**
-     * List of available CRS
-     * @type {?}
-     */
-    Layer.prototype.projections;
-    /**
-     * Features information URL
-     * @type {?}
-     */
-    Layer.prototype.infoUrl;
-    /**
-     * Metadata information URL
-     * @type {?}
-     */
-    Layer.prototype.metadataUrl;
-    /**
-     * Legend URL
-     * @type {?}
-     */
-    Layer.prototype.legendUrl;
-    /**
-     * Array of OptionalParameter object that defines other optional parameter-value pairs for the request (TIME ...)
-     * @type {?}
-     */
-    Layer.prototype.optionalParameters;
-}
-/**
- * Optional parameter model: configure parameter-value pair to add to the request layer URL
- */
+/** Optional parameter model: configure parameter-value pair to add to the request layer URL */
 class OptionalParameter {
 }
-if (false) {
-    /**
-     * key
-     * @type {?}
-     */
-    OptionalParameter.prototype.key;
-    /**
-     * value
-     * @type {?}
-     */
-    OptionalParameter.prototype.value;
-}
-/**
- * Layer configuration model: modify the configuration of a layer when interacting with the map (make visible, move the layer ...)
- */
+/** Layer configuration model: modify the configuration of a layer when interacting with the map (make visible, move the layer ...) */
 class LayerConfiguration {
 }
-if (false) {
-    /**
-     * Identifier to index
-     * @type {?}
-     */
-    LayerConfiguration.prototype.id;
-    /**
-     * Layer visibility
-     * @type {?}
-     */
-    LayerConfiguration.prototype.visibility;
-    /**
-     * Layer transparency (Transparent) 0-1 (Opaque)
-     * @type {?}
-     */
-    LayerConfiguration.prototype.opacity;
-    /**
-     * Layer position
-     * @type {?}
-     */
-    LayerConfiguration.prototype.position;
-}
-/**
- * Layer group model
- */
+/** Layer group model*/
 class LayerGroup {
 }
-if (false) {
-    /**
-     * initially activated (all visible layers)
-     * @type {?}
-     */
-    LayerGroup.prototype.active;
-    /**
-     * group name
-     * @type {?}
-     */
-    LayerGroup.prototype.name;
-    /**
-     * group id
-     * @type {?}
-     */
-    LayerGroup.prototype.id;
-    /**
-     * array of child Layers
-     * @type {?}
-     */
-    LayerGroup.prototype.layers;
-}
-/**
- * Map options configuration model
- */
+/** Map options configuration model*/
 class MapOptionsConfiguration {
 }
-if (false) {
-    /**
-     * scales
-     * @type {?}
-     */
-    MapOptionsConfiguration.prototype.scales;
-    /**
-     * projections
-     * @type {?}
-     */
-    MapOptionsConfiguration.prototype.projections;
-    /**
-     * minimum scale
-     * @type {?}
-     */
-    MapOptionsConfiguration.prototype.minScale;
-    /**
-     * maximum scale
-     * @type {?}
-     */
-    MapOptionsConfiguration.prototype.maxScale;
-    /**
-     * extent
-     * @type {?}
-     */
-    MapOptionsConfiguration.prototype.extent;
-    /**
-     * maximum extent
-     * @type {?}
-     */
-    MapOptionsConfiguration.prototype.maxExtent;
-    /**
-     * tile width
-     * @type {?}
-     */
-    MapOptionsConfiguration.prototype.tileWidth;
-    /**
-     * tile height
-     * @type {?}
-     */
-    MapOptionsConfiguration.prototype.tileHeight;
-    /**
-     * parameters
-     * @type {?}
-     */
-    MapOptionsConfiguration.prototype.parameters;
-}
-/**
- * Map component status model
- */
+/** Map component status model*/
 class MapComponentStatus {
     constructor() {
-        /**
-         * loaded?
-         */ this.loaded = false;
+        /** loaded?*/ this.loaded = false;
     }
-}
-if (false) {
-    /**
-     * loaded?
-     * @type {?}
-     */
-    MapComponentStatus.prototype.loaded;
 }
 /** Map configuration manager service*/
 class MapConfigurationManagerService {
-    /**
-     * constructor
-     */
+    /** constructor*/
     constructor() {
         this.layersSubject = new BehaviorSubject([]);
         this.layers = null;
@@ -7631,67 +2954,39 @@ class MapConfigurationManagerService {
         this.situationMapConfigurationSubject = new BehaviorSubject([]);
         this.mapOptionsConfigurationSubject = new BehaviorSubject([]);
         this.mapComponentStatusSubject = new BehaviorSubject([]);
-        /**
-         * layer count
-         */
+        /** layer count */
         this.count = 0;
         //
     }
-    /**
-     * configure the overlay layers of the map, by passing as a parameter an array of objects of type Layer objects defining the layers to load.
-     * @param {?} configuration
-     * @return {?}
-     */
+    /** configure the overlay layers of the map, by passing as a parameter an array of objects of type Layer objects defining the layers to load.*/
     loadLayersConfiguration(configuration) {
         if (this.layers != null) {
             this.clearLayers(false);
         }
         this.setLayers(configuration);
     }
-    /**
-     * configure the base layers of the map by passing as a parameter an array of objects of type LayerGroup each of them with the corresponding Layer objects defining the layers to load.
-     * @param {?} configuration
-     * @return {?}
-     */
+    /**configure the base layers of the map by passing as a parameter an array of objects of type LayerGroup each of them with the corresponding Layer objects defining the layers to load.*/
     loadBaseLayersConfiguration(configuration) {
         this.setBaseLayerGroups(configuration);
     }
-    /**
-     * get base layer groups
-     * @return {?}
-     */
+    /** get base layer groups*/
     getBaseLayerGroups() {
         return this.baseLayerGroupsSubject.asObservable();
     }
-    /**
-     * set base layer groups
-     * @param {?} groups
-     * @return {?}
-     */
+    /** set base layer groups*/
     setBaseLayerGroups(groups) {
         this.baseLayerGroups = groups;
         this.refreshBaseLayerGroups();
     }
-    /**
-     * @private
-     * @return {?}
-     */
     refreshBaseLayerGroups() {
         // Send the new values so that all subscribers are updated
         this.baseLayerGroupsSubject.next(this.baseLayerGroups);
     }
-    /**
-     * get layers
-     * @return {?}
-     */
+    /** get layers*/
     getLayers() {
         return this.layersSubject.asObservable();
     }
-    /**
-     * remove all layers from map
-     * @param {?} refresh
-     * @return {?}
-     */
+    /** remove all layers from map*/
     clearLayers(refresh) {
         while (this.layers.length) {
             this.layers.pop();
@@ -7700,30 +2995,17 @@ class MapConfigurationManagerService {
             this.refreshLayers();
         }
     }
-    /**
-     * set layers
-     * @param {?} layers
-     * @return {?}
-     */
+    /** set layers*/
     setLayers(layers) {
         this.layers = layers;
         this.refreshLayers();
     }
-    /**
-     * add given layer to map
-     * @param {?} layer
-     * @return {?}
-     */
+    /** add given layer to map*/
     addLayer(layer) {
         this.layers.push(layer);
         this.refreshAddLayers(layer);
     }
-    /**
-     * add given layer to map at given index
-     * @param {?} layer
-     * @param {?} index
-     * @return {?}
-     */
+    /** add given layer to map at given index*/
     addLayerAt(layer, index) {
         if (index == 0) {
             this.layers = [layer].concat(this.layers);
@@ -7739,23 +3021,13 @@ class MapConfigurationManagerService {
         this.refreshAddLayers(layer);
         this.refreshLayerConfiguration(layer.id, null, null, index);
     }
-    /**
-     * remove given layer from map
-     * @param {?} layer
-     * @return {?}
-     */
+    /** remove given layer from map*/
     removeLayer(layer) {
-        /** @type {?} */
         var index = this.layers.indexOf(layer);
         this.removeLayerIndex(index);
     }
-    /**
-     * remove layer with given id from map
-     * @param {?} id
-     * @return {?}
-     */
+    /** remove layer with given id from map */
     removeLayerId(id) {
-        /** @type {?} */
         var index = -1;
         for (var i = 0, iLen = this.layers.length; i < iLen; i++) {
             if (this.layers[i].id == id) {
@@ -7765,70 +3037,36 @@ class MapConfigurationManagerService {
         }
         this.removeLayerIndex(index);
     }
-    /**
-     * remove layer at given index from map
-     * @param {?} index
-     * @return {?}
-     */
+    /** remove layer at given index from map */
     removeLayerIndex(index) {
-        /** @type {?} */
         var layer = this.layers[index];
         this.layers.splice(index, 1);
         this.refreshRemoveLayers(layer);
     }
-    /**
-     * refresh layers
-     * @private
-     * @return {?}
-     */
+    /** refresh layers */
     refreshLayers() {
         // Send the new values so that all subscribers are updated
         this.layersSubject.next(this.layers);
     }
-    /**
-     * Observable for layers added
-     * @return {?}
-     */
+    /** Observable for layers added */
     getLayersAdded() {
         return this.addLayersSubject.asObservable();
     }
-    /**
-     * @private
-     * @param {?} layer
-     * @return {?}
-     */
     refreshAddLayers(layer) {
         // Send the new values so that all subscribers are updated
         this.addLayersSubject.next([layer]);
     }
-    /**
-     * @return {?}
-     */
     getLayersRemoved() {
         return this.removeLayersSubject.asObservable();
     }
-    /**
-     * @private
-     * @param {?} layer
-     * @return {?}
-     */
     refreshRemoveLayers(layer) {
         // Send the new values so that all subscribers are updated
         this.removeLayersSubject.next([layer]);
     }
-    /**
-     * @return {?}
-     */
     getLayerConfigurationListener() {
         return this.layerConfigurationSubject.asObservable();
     }
-    /**
-     * @private
-     * @param {?} id
-     * @return {?}
-     */
     getLayerIndexById(id) {
-        /** @type {?} */
         var index = -1;
         for (var i = 0, iLen = this.layers.length; i < iLen; i++) {
             if (this.layers[i].id == id) {
@@ -7838,17 +3076,10 @@ class MapConfigurationManagerService {
         }
         return index;
     }
-    /**
-     * move layer with given id to the given index
-     * @param {?} id
-     * @param {?} index
-     * @return {?}
-     */
+    /** move layer with given id to the given index*/
     moveLayer(id, index) {
-        /** @type {?} */
         var layerIndex = this.getLayerIndexById(id);
         if (layerIndex != -1) {
-            /** @type {?} */
             var layer = this.layers.splice(layerIndex, 1);
             this.layers =
                 this.layers.slice(0, index)
@@ -7857,35 +3088,16 @@ class MapConfigurationManagerService {
         }
         this.refreshLayerConfiguration(id, null, null, index);
     }
-    /**
-     * change visibility of layer with given id to the given value
-     * @param {?} id
-     * @param {?} visibility
-     * @return {?}
-     */
+    /** change visibility of layer with given id to the given value*/
     changeLayerVisibility(id, visibility) {
         this.refreshLayerConfiguration(id, null, visibility, null);
     }
-    /**
-     * change opacity of layer with given id to the given value
-     * @param {?} id
-     * @param {?} opacity
-     * @return {?}
-     */
+    /** change opacity of layer with given id to the given value*/
     changeLayerOpacity(id, opacity) {
         this.refreshLayerConfiguration(id, opacity, null, null);
     }
-    /**
-     * @private
-     * @param {?} id
-     * @param {?} opacity
-     * @param {?} visibility
-     * @param {?} position
-     * @return {?}
-     */
     refreshLayerConfiguration(id, opacity, visibility, position) {
         // Send the new values so that all subscribers are updated
-        /** @type {?} */
         var layer = new LayerConfiguration();
         layer.id = id;
         layer.opacity = opacity;
@@ -7893,127 +3105,45 @@ class MapConfigurationManagerService {
         layer.position = position;
         this.layerConfigurationSubject.next([layer]);
     }
-    /**
-     * @return {?}
-     */
     getSituationMapConfigurationListener() {
         return this.situationMapConfigurationSubject.asObservable();
     }
-    /**
-     * configure the situation map of the map component by passing as a parameter an array of objects of type LayerGroup, each of them with the corresponding Layer objects defining the layers to load as situation map.
-     * @param {?} layers
-     * @return {?}
-     */
+    /** configure the situation map of the map component by passing as a parameter an array of objects of type LayerGroup, each of them with the corresponding Layer objects defining the layers to load as situation map.*/
     loadSituationMapConfiguration(layers) {
         // Send the new values so that all subscribers are updated
         this.situationMapConfigurationSubject.next(layers);
     }
-    /**
-     * @return {?}
-     */
     getMapOptionsConfigurationListener() {
         return this.mapOptionsConfigurationSubject.asObservable();
     }
-    /**
-     * load map options configuration
-     * @param {?} configuration
-     * @return {?}
-     */
+    /** load map options configuration */
     loadMapOptionsConfiguration(configuration) {
         // Send the new values so that all subscribers are updated
         this.mapOptionsConfigurationSubject.next([configuration]);
     }
-    /**
-     * @return {?}
-     */
     getMapComponentStatusListener() {
         return this.mapComponentStatusSubject.asObservable();
     }
-    /**
-     * set map component status
-     * @param {?} status
-     * @return {?}
-     */
+    /** set map component status */
     setMapComponentStatus(status) {
         //Notify the map component status
         this.mapComponentStatusSubject.next([status]);
     }
 }
-MapConfigurationManagerService.decorators = [
-    { type: Injectable, args: [{
+MapConfigurationManagerService.ɵfac = function MapConfigurationManagerService_Factory(t) { return new (t || MapConfigurationManagerService)(); };
+MapConfigurationManagerService.ɵprov = ɵɵdefineInjectable({ token: MapConfigurationManagerService, factory: MapConfigurationManagerService.ɵfac, providedIn: 'root' });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(MapConfigurationManagerService, [{
+        type: Injectable,
+        args: [{
                 providedIn: 'root'
-            },] }
-];
-/** @nocollapse */
-MapConfigurationManagerService.ctorParameters = () => [];
-/** @nocollapse */ MapConfigurationManagerService.ngInjectableDef = ɵɵdefineInjectable({ factory: function MapConfigurationManagerService_Factory() { return new MapConfigurationManagerService(); }, token: MapConfigurationManagerService, providedIn: "root" });
-if (false) {
-    /**
-     * @type {?}
-     * @private
-     */
-    MapConfigurationManagerService.prototype.layersSubject;
-    /**
-     * @type {?}
-     * @private
-     */
-    MapConfigurationManagerService.prototype.layers;
-    /**
-     * @type {?}
-     * @private
-     */
-    MapConfigurationManagerService.prototype.baseLayerGroupsSubject;
-    /**
-     * @type {?}
-     * @private
-     */
-    MapConfigurationManagerService.prototype.baseLayerGroups;
-    /**
-     * @type {?}
-     * @private
-     */
-    MapConfigurationManagerService.prototype.layerConfigurationSubject;
-    /**
-     * @type {?}
-     * @private
-     */
-    MapConfigurationManagerService.prototype.addLayersSubject;
-    /**
-     * @type {?}
-     * @private
-     */
-    MapConfigurationManagerService.prototype.removeLayersSubject;
-    /**
-     * @type {?}
-     * @private
-     */
-    MapConfigurationManagerService.prototype.situationMapConfigurationSubject;
-    /**
-     * @type {?}
-     * @private
-     */
-    MapConfigurationManagerService.prototype.mapOptionsConfigurationSubject;
-    /**
-     * @type {?}
-     * @private
-     */
-    MapConfigurationManagerService.prototype.mapComponentStatusSubject;
-    /**
-     * layer count
-     * @type {?}
-     */
-    MapConfigurationManagerService.prototype.count;
-}
+            }]
+    }], function () { return []; }, null); })();
 
 /**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * \@whatItDoes Conditionally includes an HTML element if current user has any
+ * @whatItDoes Conditionally includes an HTML element if current user has any
  * of the authorities passed as the `expression`.
  *
- * \@howToUse
+ * @howToUse
  * ```
  *     <some-element *sitmunHasAnyAuthority="'ROLE_ADMIN'">...</some-element>
  *
@@ -8021,116 +3151,57 @@ if (false) {
  * ```
  */
 class HasAnyAuthorityDirective {
-    /**
-     * constructor
-     * @param {?} principal
-     * @param {?} templateRef
-     * @param {?} viewContainerRef
-     */
+    /** constructor */
     constructor(principal, templateRef, viewContainerRef) {
         this.principal = principal;
         this.templateRef = templateRef;
         this.viewContainerRef = viewContainerRef;
     }
-    /**
-     * Set whether current user has any of the given authorities
-     * @param {?} value
-     * @return {?}
-     */
+    /** Set whether current user has any of the given authorities */
     set sitmunHasAnyAuthority(value) {
-        this.authorities = typeof value === 'string' ? [(/** @type {?} */ (value))] : (/** @type {?} */ (value));
+        this.authorities = typeof value === 'string' ? [value] : value;
         this.updateView();
         // Get notified each time authentication state changes.
-        this.principal.getAuthenticationState().subscribe((/**
-         * @param {?} identity
-         * @return {?}
-         */
-        (identity) => this.updateView()));
+        this.principal.getAuthenticationState().subscribe((identity) => this.updateView());
     }
-    /**
-     * update view
-     * @private
-     * @return {?}
-     */
+    /** update view */
     updateView() {
         if (this.territory) {
-            this.principal.hasAnyAuthorityOnTerritory(this.authorities, this.territory).then((/**
-             * @param {?} result
-             * @return {?}
-             */
-            (result) => {
+            this.principal.hasAnyAuthorityOnTerritory(this.authorities, this.territory).then((result) => {
                 this.viewContainerRef.clear();
                 if (result) {
                     this.viewContainerRef.createEmbeddedView(this.templateRef);
                 }
-            }));
+            });
         }
         else {
-            this.principal.hasAnyAuthority(this.authorities).then((/**
-             * @param {?} result
-             * @return {?}
-             */
-            (result) => {
+            this.principal.hasAnyAuthority(this.authorities).then((result) => {
                 this.viewContainerRef.clear();
                 if (result) {
                     this.viewContainerRef.createEmbeddedView(this.templateRef);
                 }
-            }));
+            });
         }
     }
 }
-HasAnyAuthorityDirective.decorators = [
-    { type: Directive, args: [{
+HasAnyAuthorityDirective.ɵfac = function HasAnyAuthorityDirective_Factory(t) { return new (t || HasAnyAuthorityDirective)(ɵɵdirectiveInject(Principal), ɵɵdirectiveInject(TemplateRef), ɵɵdirectiveInject(ViewContainerRef)); };
+HasAnyAuthorityDirective.ɵdir = ɵɵdefineDirective({ type: HasAnyAuthorityDirective, selectors: [["", "sitmunHasAnyAuthority", ""]], inputs: { territory: "territory", sitmunHasAnyAuthority: "sitmunHasAnyAuthority" } });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(HasAnyAuthorityDirective, [{
+        type: Directive,
+        args: [{
                 selector: '[sitmunHasAnyAuthority]'
-            },] }
-];
-/** @nocollapse */
-HasAnyAuthorityDirective.ctorParameters = () => [
-    { type: Principal },
-    { type: TemplateRef },
-    { type: ViewContainerRef }
-];
-HasAnyAuthorityDirective.propDecorators = {
-    territory: [{ type: Input }],
-    sitmunHasAnyAuthority: [{ type: Input }]
-};
-if (false) {
-    /**
-     * authorities to check
-     * @type {?}
-     */
-    HasAnyAuthorityDirective.prototype.authorities;
-    /**
-     * territory to check authorities
-     * @type {?}
-     */
-    HasAnyAuthorityDirective.prototype.territory;
-    /**
-     * @type {?}
-     * @private
-     */
-    HasAnyAuthorityDirective.prototype.principal;
-    /**
-     * @type {?}
-     * @private
-     */
-    HasAnyAuthorityDirective.prototype.templateRef;
-    /**
-     * @type {?}
-     * @private
-     */
-    HasAnyAuthorityDirective.prototype.viewContainerRef;
-}
+            }]
+    }], function () { return [{ type: Principal }, { type: TemplateRef }, { type: ViewContainerRef }]; }, { territory: [{
+            type: Input
+        }], sitmunHasAnyAuthority: [{
+            type: Input
+        }] }); })();
 
 /**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * \@whatItDoes Conditionally includes an HTML element if current user has any
+ * @whatItDoes Conditionally includes an HTML element if current user has any
  * of the authorities passed as the `expression`.
  *
- * \@howToUse
+ * @howToUse
  * ```
  *     <some-element *sitmunHasAnyAuthority="'ROLE_ADMIN'">...</some-element>
  *
@@ -8138,127 +3209,57 @@ if (false) {
  * ```
  */
 class HasAnyAuthorityOnTerritoryDirective {
-    /**
-     * constructor
-     * @param {?} principal
-     * @param {?} templateRef
-     * @param {?} viewContainerRef
-     */
+    /** constructor */
     constructor(principal, templateRef, viewContainerRef) {
         this.principal = principal;
         this.templateRef = templateRef;
         this.viewContainerRef = viewContainerRef;
     }
-    /**
-     * Set whether current user has any of the given authorities on territory
-     * @param {?} opts
-     * @return {?}
-     */
+    /** Set whether current user has any of the given authorities on territory */
     set sitmunHasAnyAuthorityOnTerritory(opts) {
-        this.authorities = typeof opts.authorities === 'string' ? [(/** @type {?} */ (opts.authorities))] : (/** @type {?} */ (opts.authorities));
+        this.authorities = typeof opts.authorities === 'string' ? [opts.authorities] : opts.authorities;
         this.territory = opts.territory;
         this.updateView();
         // Get notified each time authentication state changes.
-        this.principal.getAuthenticationState().subscribe((/**
-         * @param {?} identity
-         * @return {?}
-         */
-        (identity) => this.updateView()));
+        this.principal.getAuthenticationState().subscribe((identity) => this.updateView());
     }
-    /**
-     * update view
-     * @private
-     * @return {?}
-     */
+    /** update view */
     updateView() {
         if (this.territory) {
-            this.principal.hasAnyAuthorityOnTerritory(this.authorities, this.territory).then((/**
-             * @param {?} result
-             * @return {?}
-             */
-            (result) => {
+            this.principal.hasAnyAuthorityOnTerritory(this.authorities, this.territory).then((result) => {
                 this.viewContainerRef.clear();
                 if (result) {
                     this.viewContainerRef.createEmbeddedView(this.templateRef);
                 }
-            }));
+            });
         }
         else {
-            this.principal.hasAnyAuthority(this.authorities).then((/**
-             * @param {?} result
-             * @return {?}
-             */
-            (result) => {
+            this.principal.hasAnyAuthority(this.authorities).then((result) => {
                 this.viewContainerRef.clear();
                 if (result) {
                     this.viewContainerRef.createEmbeddedView(this.templateRef);
                 }
-            }));
+            });
         }
     }
 }
-HasAnyAuthorityOnTerritoryDirective.decorators = [
-    { type: Directive, args: [{
+HasAnyAuthorityOnTerritoryDirective.ɵfac = function HasAnyAuthorityOnTerritoryDirective_Factory(t) { return new (t || HasAnyAuthorityOnTerritoryDirective)(ɵɵdirectiveInject(Principal), ɵɵdirectiveInject(TemplateRef), ɵɵdirectiveInject(ViewContainerRef)); };
+HasAnyAuthorityOnTerritoryDirective.ɵdir = ɵɵdefineDirective({ type: HasAnyAuthorityOnTerritoryDirective, selectors: [["", "sitmunHasAnyAuthorityOnTerritory", ""]], inputs: { sitmunHasAnyAuthorityOnTerritory: "sitmunHasAnyAuthorityOnTerritory" } });
+/*@__PURE__*/ (function () { ɵsetClassMetadata(HasAnyAuthorityOnTerritoryDirective, [{
+        type: Directive,
+        args: [{
                 selector: '[sitmunHasAnyAuthorityOnTerritory]'
-            },] }
-];
-/** @nocollapse */
-HasAnyAuthorityOnTerritoryDirective.ctorParameters = () => [
-    { type: Principal },
-    { type: TemplateRef },
-    { type: ViewContainerRef }
-];
-HasAnyAuthorityOnTerritoryDirective.propDecorators = {
-    sitmunHasAnyAuthorityOnTerritory: [{ type: Input }]
-};
-if (false) {
-    /**
-     * authorities to check
-     * @type {?}
-     */
-    HasAnyAuthorityOnTerritoryDirective.prototype.authorities;
-    /**
-     * territory to check authorities
-     * @type {?}
-     */
-    HasAnyAuthorityOnTerritoryDirective.prototype.territory;
-    /**
-     * @type {?}
-     * @private
-     */
-    HasAnyAuthorityOnTerritoryDirective.prototype.principal;
-    /**
-     * @type {?}
-     * @private
-     */
-    HasAnyAuthorityOnTerritoryDirective.prototype.templateRef;
-    /**
-     * @type {?}
-     * @private
-     */
-    HasAnyAuthorityOnTerritoryDirective.prototype.viewContainerRef;
-}
+            }]
+    }], function () { return [{ type: Principal }, { type: TemplateRef }, { type: ViewContainerRef }]; }, { sitmunHasAnyAuthorityOnTerritory: [{
+            type: Input
+        }] }); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * load i18n assets
- * @param {?} http
- * @return {?}
- */
+/** load i18n assets*/
 function createTranslateLoader(http) {
     return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
-const ɵ0 = (createTranslateLoader);
-/**
- * SITMUN frontend core module
- */
+/** SITMUN frontend core module */
 class SitmunFrontendCoreModule {
-    /**
-     * @return {?}
-     */
     static forRoot() {
         return {
             ngModule: SitmunFrontendCoreModule,
@@ -8320,8 +3321,27 @@ class SitmunFrontendCoreModule {
         };
     }
 }
-SitmunFrontendCoreModule.decorators = [
-    { type: NgModule, args: [{
+SitmunFrontendCoreModule.ɵmod = ɵɵdefineNgModule({ type: SitmunFrontendCoreModule });
+SitmunFrontendCoreModule.ɵinj = ɵɵdefineInjector({ factory: function SitmunFrontendCoreModule_Factory(t) { return new (t || SitmunFrontendCoreModule)(); }, imports: [[
+            /*RouterModule,
+            HttpClientModule,
+            CommonModule,
+            AngularHalModule,*/
+            TranslateModule.forRoot({
+                loader: {
+                    provide: TranslateLoader,
+                    useFactory: (createTranslateLoader),
+                    deps: [HttpClient]
+                }
+            }),
+        ], TranslateModule] });
+(function () { (typeof ngJitMode === "undefined" || ngJitMode) && ɵɵsetNgModuleScope(SitmunFrontendCoreModule, { declarations: [HasAnyAuthorityDirective,
+        HasAnyAuthorityOnTerritoryDirective], imports: [TranslateModule], exports: [HasAnyAuthorityDirective,
+        HasAnyAuthorityOnTerritoryDirective,
+        TranslateModule] }); })();
+/*@__PURE__*/ (function () { ɵsetClassMetadata(SitmunFrontendCoreModule, [{
+        type: NgModule,
+        args: [{
                 imports: [
                     /*RouterModule,
                     HttpClientModule,
@@ -8330,7 +3350,7 @@ SitmunFrontendCoreModule.decorators = [
                     TranslateModule.forRoot({
                         loader: {
                             provide: TranslateLoader,
-                            useFactory: ɵ0,
+                            useFactory: (createTranslateLoader),
                             deps: [HttpClient]
                         }
                     }),
@@ -8344,20 +3364,11 @@ SitmunFrontendCoreModule.decorators = [
                     HasAnyAuthorityOnTerritoryDirective,
                     TranslateModule
                 ]
-            },] }
-];
+            }]
+    }], null, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * Angular HAL module
- */
+/** Angular HAL module */
 class AngularHalModule {
-    /**
-     * @return {?}
-     */
     static forRoot() {
         return {
             ngModule: AngularHalModule,
@@ -8373,8 +3384,20 @@ class AngularHalModule {
         };
     }
 }
-AngularHalModule.decorators = [
-    { type: NgModule, args: [{
+AngularHalModule.ɵmod = ɵɵdefineNgModule({ type: AngularHalModule });
+AngularHalModule.ɵinj = ɵɵdefineInjector({ factory: function AngularHalModule_Factory(t) { return new (t || AngularHalModule)(); }, providers: [
+        ExternalService,
+        HttpClient,
+        {
+            provide: ResourceService,
+            useClass: ResourceService,
+            deps: [ExternalService]
+        }
+    ], imports: [[HttpClientModule], HttpClientModule] });
+(function () { (typeof ngJitMode === "undefined" || ngJitMode) && ɵɵsetNgModuleScope(AngularHalModule, { imports: [HttpClientModule], exports: [HttpClientModule] }); })();
+/*@__PURE__*/ (function () { ɵsetClassMetadata(AngularHalModule, [{
+        type: NgModule,
+        args: [{
                 imports: [HttpClientModule],
                 declarations: [],
                 exports: [HttpClientModule],
@@ -8387,18 +3410,16 @@ AngularHalModule.decorators = [
                         deps: [ExternalService]
                     }
                 ]
-            },] }
-];
+            }]
+    }], null, null); })();
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
+/*
+ * Public API Surface of sitmun-plugin-core
  */
 
 /**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
+ * Generated bundle index. Do not edit.
  */
 
-export { AccountService, AngularHalModule, Application, ApplicationBackground, ApplicationBackgroundService, ApplicationParameter, ApplicationParameterService, ApplicationService, AuthExpiredInterceptor, AuthInterceptor, AuthService, Background, BackgroundService, Capabilitie, CapabilitiesService, Cartography, CartographyAvailability, CartographyAvailabilityService, CartographyFilter, CartographyFilterService, CartographyGroup, CartographyGroupService, CartographyParameter, CartographyParameterService, CartographyService, CartographySpatialSelectionParameterService, CartographyStyle, CartographyStyleService, CodeList, CodeListService, ConfigurationParameter, ConfigurationParametersService, Connection, ConnectionService, DashboardService, ExternalService, GEOADMIN_TREE_TASK_ID, GetInfoService, Info, Language, LanguageService, Layer, LayerConfiguration, LayerGroup, LoginService, MapComponentStatus, MapConfigurationManagerService, MapOptionsConfiguration, OptionalParameter, Principal, Resource, ResourceArray, ResourceHelper, ResourceService, RestService, Role, RoleService, Service, ServiceParameter, ServiceParameterService, ServiceService, SitmunFrontendCoreModule, TERRITORIAL_APP_NAME, Task, TaskAvailability, TaskAvailabilityService, TaskGroup, TaskGroupService, TaskParameter, TaskParameterService, TaskService, TaskType, TaskTypeService, TaskUI, TaskUIService, Territory, TerritoryGroupType, TerritoryGroupTypeService, TerritoryService, TerritoryType, TerritoryTypeService, Translation, TranslationService, Tree, TreeNode, TreeNodeService, TreeService, User, UserConfiguration, UserConfigurationService, UserPosition, UserPositionService, UserService, createTranslateLoader, HasAnyAuthorityDirective as ɵa, HasAnyAuthorityOnTerritoryDirective as ɵb };
+export { AccountService, AngularHalModule, Application, ApplicationBackground, ApplicationBackgroundService, ApplicationParameter, ApplicationParameterService, ApplicationService, AuthExpiredInterceptor, AuthInterceptor, AuthService, Background, BackgroundService, Capabilitie, CapabilitiesService, Cartography, CartographyAvailability, CartographyAvailabilityService, CartographyFilter, CartographyFilterService, CartographyGroup, CartographyGroupService, CartographyParameter, CartographyParameterService, CartographyService, CartographySpatialSelectionParameterService, CartographyStyle, CartographyStyleService, CodeList, CodeListService, ConfigurationParameter, ConfigurationParametersService, Connection, ConnectionService, DashboardService, ExternalService, GEOADMIN_TREE_TASK_ID, GetInfoService, HasAnyAuthorityDirective, HasAnyAuthorityOnTerritoryDirective, Info, Language, LanguageService, Layer, LayerConfiguration, LayerGroup, LoginService, MapComponentStatus, MapConfigurationManagerService, MapOptionsConfiguration, OptionalParameter, Principal, Resource, ResourceArray, ResourceHelper, ResourceService, RestService, Role, RoleService, Service, ServiceParameter, ServiceParameterService, ServiceService, SitmunFrontendCoreModule, TERRITORIAL_APP_NAME, Task, TaskAvailability, TaskAvailabilityService, TaskGroup, TaskGroupService, TaskParameter, TaskParameterService, TaskService, TaskType, TaskTypeService, TaskUI, TaskUIService, Territory, TerritoryGroupType, TerritoryGroupTypeService, TerritoryService, TerritoryType, TerritoryTypeService, Translation, TranslationService, Tree, TreeNode, TreeNodeService, TreeService, User, UserConfiguration, UserConfigurationService, UserPosition, UserPositionService, UserService, createTranslateLoader };
 //# sourceMappingURL=sitmun-frontend-core.js.map

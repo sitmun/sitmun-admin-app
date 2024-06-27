@@ -1,48 +1,5 @@
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
 import { Resource } from '../angular-hal/src/lib/resource';
-/**
- * Task model
- */
+/** Task model */
 export class Translation extends Resource {
 }
-if (false) {
-    /**
-     * id
-     * @type {?}
-     */
-    Translation.prototype.id;
-    /**
-     * id
-     * @type {?}
-     */
-    Translation.prototype.element;
-    /**
-     * name
-     * @type {?}
-     */
-    Translation.prototype.translation;
-    /**
-     * column
-     * @type {?}
-     */
-    Translation.prototype.column;
-    /**
-     * name
-     * @type {?}
-     */
-    Translation.prototype.language;
-    /**
-     * name
-     * @type {?}
-     */
-    Translation.prototype.languageName;
-    /**
-     * name
-     * @type {?}
-     */
-    Translation.prototype.languageShortname;
-}
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoidHJhbnNsYXRpb24ubW9kZWwuanMiLCJzb3VyY2VSb290Ijoibmc6Ly9Ac2l0bXVuL2Zyb250ZW5kLWNvcmUvIiwic291cmNlcyI6WyJ0cmFuc2xhdGlvbi90cmFuc2xhdGlvbi5tb2RlbC50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOzs7O0FBQUEsT0FBTyxFQUFDLFFBQVEsRUFBQyxNQUFNLGlDQUFpQyxDQUFDOzs7O0FBS3pELE1BQU0sT0FBTyxXQUFZLFNBQVEsUUFBUTtDQWtCeEM7Ozs7OztJQWhCQyx5QkFBa0I7Ozs7O0lBRWxCLDhCQUF1Qjs7Ozs7SUFFdkIsa0NBQTJCOzs7OztJQUUzQiw2QkFBc0I7Ozs7O0lBRXRCLCtCQUEwQjs7Ozs7SUFFMUIsbUNBQTZCOzs7OztJQUU3Qix3Q0FBa0MiLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQge1Jlc291cmNlfSBmcm9tICcuLi9hbmd1bGFyLWhhbC9zcmMvbGliL3Jlc291cmNlJztcclxuaW1wb3J0IHsgTGFuZ3VhZ2UgfSBmcm9tICcuL2xhbmd1YWdlLm1vZGVsJztcclxuXHJcblxyXG4vKiogVGFzayBtb2RlbCAqL1xyXG5leHBvcnQgY2xhc3MgVHJhbnNsYXRpb24gZXh0ZW5kcyBSZXNvdXJjZSB7XHJcbiAgLyoqIGlkICovXHJcbiAgcHVibGljIGlkOiBudW1iZXI7XHJcbiAgLyoqIGlkICovXHJcbiAgcHVibGljIGVsZW1lbnQ6IG51bWJlcjtcclxuICAvKiogbmFtZSAqL1xyXG4gIHB1YmxpYyB0cmFuc2xhdGlvbjogc3RyaW5nO1xyXG4gIC8qKiBjb2x1bW4gKi9cclxuICBwdWJsaWMgY29sdW1uOiBzdHJpbmc7XHJcbiAgLyoqIG5hbWUgKi9cclxuICBwdWJsaWMgbGFuZ3VhZ2U6IExhbmd1YWdlO1xyXG4gIC8qKiBuYW1lICovXHJcbiAgcHVibGljIGxhbmd1YWdlTmFtZT86IHN0cmluZztcclxuICAvKiogbmFtZSAqL1xyXG4gIHB1YmxpYyBsYW5ndWFnZVNob3J0bmFtZT86IHN0cmluZztcclxuXHJcblxyXG5cclxufVxyXG4iXX0=
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoidHJhbnNsYXRpb24ubW9kZWwuanMiLCJzb3VyY2VSb290IjoiQzovVXNlcnMvYWNvcm9taW5hcy9EZXNrdG9wL05leHVzL1NpdG11bjMvc2l0bXVuLWZyb250ZW5kLWNvcmUvcHJvamVjdHMvc2l0bXVuLWZyb250ZW5kLWNvcmUvc3JjL2xpYi8iLCJzb3VyY2VzIjpbInRyYW5zbGF0aW9uL3RyYW5zbGF0aW9uLm1vZGVsLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLE9BQU8sRUFBQyxRQUFRLEVBQUMsTUFBTSxpQ0FBaUMsQ0FBQztBQUl6RCxpQkFBaUI7QUFDakIsTUFBTSxPQUFPLFdBQVksU0FBUSxRQUFRO0NBa0J4QyIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7UmVzb3VyY2V9IGZyb20gJy4uL2FuZ3VsYXItaGFsL3NyYy9saWIvcmVzb3VyY2UnO1xyXG5pbXBvcnQgeyBMYW5ndWFnZSB9IGZyb20gJy4vbGFuZ3VhZ2UubW9kZWwnO1xyXG5cclxuXHJcbi8qKiBUYXNrIG1vZGVsICovXHJcbmV4cG9ydCBjbGFzcyBUcmFuc2xhdGlvbiBleHRlbmRzIFJlc291cmNlIHtcclxuICAvKiogaWQgKi9cclxuICBwdWJsaWMgaWQ6IG51bWJlcjtcclxuICAvKiogaWQgKi9cclxuICBwdWJsaWMgZWxlbWVudDogbnVtYmVyO1xyXG4gIC8qKiBuYW1lICovXHJcbiAgcHVibGljIHRyYW5zbGF0aW9uOiBzdHJpbmc7XHJcbiAgLyoqIGNvbHVtbiAqL1xyXG4gIHB1YmxpYyBjb2x1bW46IHN0cmluZztcclxuICAvKiogbmFtZSAqL1xyXG4gIHB1YmxpYyBsYW5ndWFnZTogTGFuZ3VhZ2U7XHJcbiAgLyoqIG5hbWUgKi9cclxuICBwdWJsaWMgbGFuZ3VhZ2VOYW1lPzogc3RyaW5nO1xyXG4gIC8qKiBuYW1lICovXHJcbiAgcHVibGljIGxhbmd1YWdlU2hvcnRuYW1lPzogc3RyaW5nO1xyXG5cclxuXHJcblxyXG59XHJcbiJdfQ==

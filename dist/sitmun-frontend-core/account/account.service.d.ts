@@ -3,8 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injector } from '@angular/core';
 import { Observable } from 'rxjs';
 import { RestService } from '../angular-hal/src/lib/rest.service';
+import * as i0 from "@angular/core";
 /** Account manager service */
-import * as ɵngcc0 from '@angular/core';
 export declare class AccountService extends RestService<User> {
     private http;
     /** API resource path */
@@ -17,8 +17,6 @@ export declare class AccountService extends RestService<User> {
     save(item: any): Observable<any>;
     /** change logged in user account*/
     changePassword(item: any): Observable<any>;
-    static ɵfac: ɵngcc0.ɵɵFactoryDef<AccountService, never>;
-    static ɵprov: ɵngcc0.ɵɵInjectableDef<AccountService>;
+    static ɵfac: i0.ɵɵFactoryDef<AccountService, never>;
+    static ɵprov: i0.ɵɵInjectableDef<AccountService>;
 }
-
-//# sourceMappingURL=account.service.d.ts.map
