@@ -8,7 +8,6 @@ import { registerLocaleData, CommonModule } from '@angular/common';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { NoopAnimationsModule, BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
-import { AngularHalModule, SitmunFrontendCoreModule } from '@sitmun/frontend-core';
 import localeCa from '@angular/common/locales/ca';
 import localeEs from '@angular/common/locales/es';
 import { AgGridModule } from '@ag-grid-community/angular';
@@ -2881,11 +2880,11 @@ SitmunFrontendGuiModule.ɵinj = ɵngcc0.ɵɵdefineInjector({ factory: function S
             CommonModule,
             FormsModule,
             NoopAnimationsModule,
-            AngularHalModule,
+            //AngularHalModule,
             ReactiveFormsModule,
             BrowserAnimationsModule,
             AgGridModule,
-            SitmunFrontendCoreModule,
+            // SitmunFrontendCoreModule,
             MaterialModule,
             TranslateModule.forRoot({
                 loader: {
@@ -2898,26 +2897,24 @@ SitmunFrontendGuiModule.ɵinj = ɵngcc0.ɵɵdefineInjector({ factory: function S
         CommonModule,
         FormsModule,
         NoopAnimationsModule,
-        AngularHalModule,
+        //AngularHalModule,
         TranslateModule,
-        ReactiveFormsModule,
-        SitmunFrontendCoreModule] });
+        ReactiveFormsModule] });
 (function () { (typeof ngJitMode === "undefined" || ngJitMode) && ɵngcc0.ɵɵsetNgModuleScope(SitmunFrontendGuiModule, { declarations: function () { return [DataGridComponent, DataTreeComponent, BtnEditRenderedComponent, BtnCheckboxRenderedComponent, BtnCheckboxFilterComponent, DialogGridComponent, DialogFormComponent, DialogMessageComponent, DialogTranslationComponent, DatagraphComponent]; }, imports: function () { return [RouterModule,
         HttpClientModule,
         CommonModule,
         FormsModule,
         NoopAnimationsModule,
-        AngularHalModule,
+        //AngularHalModule,
         ReactiveFormsModule,
         BrowserAnimationsModule,
-        AgGridModule,
-        SitmunFrontendCoreModule, MaterialModule, ɵngcc5.TranslateModule]; }, exports: function () { return [HttpClientModule,
+        AgGridModule, MaterialModule, ɵngcc5.TranslateModule]; }, exports: function () { return [HttpClientModule,
         CommonModule,
         FormsModule,
         NoopAnimationsModule,
-        AngularHalModule,
+        //AngularHalModule,
         TranslateModule,
-        ReactiveFormsModule, DataGridComponent, DataTreeComponent, DialogGridComponent, DialogFormComponent, DialogMessageComponent, DialogTranslationComponent, DatagraphComponent, SitmunFrontendCoreModule]; } }); })();
+        ReactiveFormsModule, DataGridComponent, DataTreeComponent, DialogGridComponent, DialogFormComponent, DialogMessageComponent, DialogTranslationComponent, DatagraphComponent]; } }); })();
 /*@__PURE__*/ (function () { ɵngcc0.ɵsetClassMetadata(SitmunFrontendGuiModule, [{
         type: NgModule,
         args: [{
@@ -2927,11 +2924,11 @@ SitmunFrontendGuiModule.ɵinj = ɵngcc0.ɵɵdefineInjector({ factory: function S
                     CommonModule,
                     FormsModule,
                     NoopAnimationsModule,
-                    AngularHalModule,
+                    //AngularHalModule,
                     ReactiveFormsModule,
                     BrowserAnimationsModule,
                     AgGridModule,
-                    SitmunFrontendCoreModule,
+                    // SitmunFrontendCoreModule,
                     MaterialModule,
                     TranslateModule.forRoot({
                         loader: {
@@ -2960,7 +2957,7 @@ SitmunFrontendGuiModule.ɵinj = ɵngcc0.ɵɵdefineInjector({ factory: function S
                     CommonModule,
                     FormsModule,
                     NoopAnimationsModule,
-                    AngularHalModule,
+                    //AngularHalModule,
                     TranslateModule,
                     ReactiveFormsModule,
                     DataGridComponent,
@@ -2970,7 +2967,6 @@ SitmunFrontendGuiModule.ɵinj = ɵngcc0.ɵɵdefineInjector({ factory: function S
                     DialogMessageComponent,
                     DialogTranslationComponent,
                     DatagraphComponent,
-                    SitmunFrontendCoreModule
                 ]
             }]
     }], null, null); })();

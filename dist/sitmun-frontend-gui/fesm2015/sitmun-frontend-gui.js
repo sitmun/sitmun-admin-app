@@ -8,7 +8,6 @@ import { registerLocaleData, CommonModule } from '@angular/common';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { NoopAnimationsModule, BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
-import { AngularHalModule, SitmunFrontendCoreModule } from '@sitmun/frontend-core';
 import localeCa from '@angular/common/locales/ca';
 import localeEs from '@angular/common/locales/es';
 import { AgGridModule } from '@ag-grid-community/angular';
@@ -1860,11 +1859,11 @@ SitmunFrontendGuiModule.decorators = [
                     CommonModule,
                     FormsModule,
                     NoopAnimationsModule,
-                    AngularHalModule,
+                    //AngularHalModule,
                     ReactiveFormsModule,
                     BrowserAnimationsModule,
                     AgGridModule,
-                    SitmunFrontendCoreModule,
+                    // SitmunFrontendCoreModule,
                     MaterialModule,
                     TranslateModule.forRoot({
                         loader: {
@@ -1893,7 +1892,7 @@ SitmunFrontendGuiModule.decorators = [
                     CommonModule,
                     FormsModule,
                     NoopAnimationsModule,
-                    AngularHalModule,
+                    //AngularHalModule,
                     TranslateModule,
                     ReactiveFormsModule,
                     DataGridComponent,
@@ -1903,7 +1902,6 @@ SitmunFrontendGuiModule.decorators = [
                     DialogMessageComponent,
                     DialogTranslationComponent,
                     DatagraphComponent,
-                    SitmunFrontendCoreModule
                 ]
             },] }
 ];

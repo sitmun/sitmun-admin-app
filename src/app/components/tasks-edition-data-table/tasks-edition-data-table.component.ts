@@ -7,7 +7,7 @@ import { config } from 'src/config';
 import { HalOptions, HalParam, TaskService } from 'dist/sitmun-frontend-core/';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
-import { Task } from '@sitmun/frontend-core';
+import { Task } from 'dist/sitmun-frontend-core/';
 
 @Component({
   selector: 'app-tasks-edition-data-table',

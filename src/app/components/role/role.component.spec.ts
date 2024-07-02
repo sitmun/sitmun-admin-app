@@ -10,7 +10,6 @@ import { MaterialModule } from '../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { Role } from '@sitmun/frontend-core';
 
 describe('RoleComponent', () => {
   let component: RoleComponent;
