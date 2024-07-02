@@ -1,5 +1,6 @@
 import { TemplateRef, ViewContainerRef } from '@angular/core';
 import { Principal } from './principal.service';
+import * as i0 from "@angular/core";
 /**
  * @whatItDoes Conditionally includes an HTML element if current user has any
  * of the authorities passed as the `expression`.
@@ -22,7 +23,9 @@ export declare class HasAnyAuthorityOnTerritoryDirective {
     /** constructor */
     constructor(principal: Principal, templateRef: TemplateRef<any>, viewContainerRef: ViewContainerRef);
     /** Set whether current user has any of the given authorities on territory */
-    sitmunHasAnyAuthorityOnTerritory: any;
+    set sitmunHasAnyAuthorityOnTerritory(opts: any);
     /** update view */
-    private updateView();
+    private updateView;
+    static ɵfac: i0.ɵɵFactoryDef<HasAnyAuthorityOnTerritoryDirective, never>;
+    static ɵdir: i0.ɵɵDirectiveDefWithMeta<HasAnyAuthorityOnTerritoryDirective, "[sitmunHasAnyAuthorityOnTerritory]", never, { "sitmunHasAnyAuthorityOnTerritory": "sitmunHasAnyAuthorityOnTerritory"; }, {}, never>;
 }

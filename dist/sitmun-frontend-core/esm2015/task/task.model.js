@@ -1,79 +1,8 @@
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,extraRequire,uselessCode} checked by tsc
- */
 import { Resource } from '../angular-hal/src/lib/resource';
-/** *
- * GEOADMIN_task id
-  @type {?} */
+//FIXME ensure task creation in admin app upon initialization (as it is done with Roles and default Users)
+/** GEOADMIN_task id */
 export const GEOADMIN_TREE_TASK_ID = "geoadmin";
-/**
- * Task model
- */
+/** Task model */
 export class Task extends Resource {
 }
-if (false) {
-    /**
-     * id
-     * @type {?}
-     */
-    Task.prototype.id;
-    /**
-     * name
-     * @type {?}
-     */
-    Task.prototype.name;
-    /**
-     * order
-     * @type {?}
-     */
-    Task.prototype.order;
-    /**
-     * system created date
-     * @type {?}
-     */
-    Task.prototype.createdDate;
-    /**
-     * task group
-     * @type {?}
-     */
-    Task.prototype.group;
-    /**
-     * task type
-     * @type {?}
-     */
-    Task.prototype.type;
-    /**
-     * task UI
-     * @type {?}
-     */
-    Task.prototype.ui;
-    /**
-     * parameters
-     * @type {?}
-     */
-    Task.prototype.parameters;
-    /**
-     * connection
-     * @type {?}
-     */
-    Task.prototype.connection;
-    /**
-     * roles
-     * @type {?}
-     */
-    Task.prototype.roles;
-    /**
-     * availabilities
-     * @type {?}
-     */
-    Task.prototype.availabilities;
-    /** @type {?} */
-    Task.prototype.cartography;
-    /** @type {?} */
-    Task.prototype.service;
-    /** @type {?} */
-    Task.prototype.properties;
-}
-
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoidGFzay5tb2RlbC5qcyIsInNvdXJjZVJvb3QiOiJuZzovL0BzaXRtdW4vZnJvbnRlbmQtY29yZS8iLCJzb3VyY2VzIjpbInRhc2svdGFzay5tb2RlbC50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOzs7O0FBQUEsT0FBTyxFQUFDLFFBQVEsRUFBQyxNQUFNLGlDQUFpQyxDQUFDOzs7O0FBV3pELGFBQWEscUJBQXFCLEdBQVcsVUFBVSxDQUFDOzs7O0FBTXhELE1BQU0sV0FBWSxTQUFRLFFBQVE7Q0E2QmpDIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHtSZXNvdXJjZX0gZnJvbSAnLi4vYW5ndWxhci1oYWwvc3JjL2xpYi9yZXNvdXJjZSc7XHJcblxyXG5pbXBvcnQgeyBDb25uZWN0aW9uIH0gZnJvbSAnLi4vY29ubmVjdGlvbi9jb25uZWN0aW9uLm1vZGVsJztcclxuaW1wb3J0IHsgUm9sZSB9IGZyb20gJy4uL3JvbGUvcm9sZS5tb2RlbCc7XHJcbmltcG9ydCB7IFRhc2tUeXBlIH0gZnJvbSAnLi90YXNrLXR5cGUubW9kZWwnO1xyXG5pbXBvcnQgeyBUYXNrR3JvdXAgfSBmcm9tICcuL3Rhc2stZ3JvdXAubW9kZWwnO1xyXG5pbXBvcnQgeyBUYXNrQXZhaWxhYmlsaXR5IH0gZnJvbSAnLi90YXNrLWF2YWlsYWJpbGl0eS5tb2RlbCc7XHJcbmltcG9ydCB7IFRhc2tQYXJhbWV0ZXIgfSBmcm9tICcuL3Rhc2stcGFyYW1ldGVyLm1vZGVsJztcclxuXHJcbi8vRklYTUUgZW5zdXJlIHRhc2sgY3JlYXRpb24gaW4gYWRtaW4gYXBwIHVwb24gaW5pdGlhbGl6YXRpb24gKGFzIGl0IGlzIGRvbmUgd2l0aCBSb2xlcyBhbmQgZGVmYXVsdCBVc2VycylcclxuLyoqIEdFT0FETUlOX3Rhc2sgaWQgKi9cclxuZXhwb3J0IGNvbnN0IEdFT0FETUlOX1RSRUVfVEFTS19JRDpzdHJpbmcgID0gXCJnZW9hZG1pblwiO1xyXG5cclxuaW1wb3J0IHsgVGFza1VJIH0gZnJvbSAnLi90YXNrLXVpLm1vZGVsJztcclxuaW1wb3J0IHsgQ2FydG9ncmFwaHkgfSBmcm9tICcuLi9jYXJ0b2dyYXBoeS9jYXJ0b2dyYXBoeS5tb2RlbCc7XHJcbmltcG9ydCB7IFNlcnZpY2UgfSBmcm9tICcuLi9zZXJ2aWNlL3NlcnZpY2UubW9kZWwnO1xyXG4vKiogVGFzayBtb2RlbCAqL1xyXG5leHBvcnQgY2xhc3MgVGFzayBleHRlbmRzIFJlc291cmNlIHtcclxuICAvKiogaWQgKi9cclxuICBwdWJsaWMgaWQ/OiBudW1iZXI7XHJcbiAgLyoqIG5hbWUgKi8gIFxyXG4gIHB1YmxpYyBuYW1lPzogc3RyaW5nO1xyXG4gIC8qKiBvcmRlciovXHJcbiAgcHVibGljIG9yZGVyPzogTnVtYmVyO1xyXG4gIC8qKiBzeXN0ZW0gY3JlYXRlZCBkYXRlKi9cclxuICBwdWJsaWMgY3JlYXRlZERhdGU/OiBhbnk7XHJcbiAgLyoqIHRhc2sgZ3JvdXAqL1xyXG4gIHB1YmxpYyBncm91cD86IFRhc2tHcm91cDtcclxuICAvKiogdGFzayB0eXBlKi9cclxuICBwdWJsaWMgdHlwZT86IFRhc2tUeXBlO1xyXG4gIC8qKiB0YXNrIFVJKi9cclxuICBwdWJsaWMgdWk/OiBUYXNrVUk7XHJcbiAgLyoqIHBhcmFtZXRlcnMqL1xyXG4gIHB1YmxpYyBwYXJhbWV0ZXJzPzogVGFza1BhcmFtZXRlcltdO1xyXG4gIC8qKiBjb25uZWN0aW9uKi9cclxuICBwdWJsaWMgY29ubmVjdGlvbj86IENvbm5lY3Rpb247XHJcbiAgLyoqIHJvbGVzKi9cclxuICBwdWJsaWMgcm9sZXM/OiBSb2xlW107XHJcbiAgLyoqIGF2YWlsYWJpbGl0aWVzKi9cclxuICBwdWJsaWMgYXZhaWxhYmlsaXRpZXM/OiBUYXNrQXZhaWxhYmlsaXR5W107XHJcblxyXG4gIHB1YmxpYyBjYXJ0b2dyYXBoeT86IENhcnRvZ3JhcGh5O1xyXG5cclxuICBwdWJsaWMgc2VydmljZT86IFNlcnZpY2U7XHJcblxyXG4gIHB1YmxpYyBwcm9wZXJ0aWVzPztcclxufVxyXG4iXX0=
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoidGFzay5tb2RlbC5qcyIsInNvdXJjZVJvb3QiOiJDOi9Vc2Vycy9hY29yb21pbmFzL0Rlc2t0b3AvTmV4dXMvU2l0bXVuMy9zaXRtdW4tZnJvbnRlbmQtY29yZS9wcm9qZWN0cy9zaXRtdW4tZnJvbnRlbmQtY29yZS9zcmMvbGliLyIsInNvdXJjZXMiOlsidGFzay90YXNrLm1vZGVsLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLE9BQU8sRUFBQyxRQUFRLEVBQUMsTUFBTSxpQ0FBaUMsQ0FBQztBQVN6RCwwR0FBMEc7QUFDMUcsdUJBQXVCO0FBQ3ZCLE1BQU0sQ0FBQyxNQUFNLHFCQUFxQixHQUFXLFVBQVUsQ0FBQztBQUt4RCxpQkFBaUI7QUFDakIsTUFBTSxPQUFPLElBQUssU0FBUSxRQUFRO0NBNkJqQyIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7UmVzb3VyY2V9IGZyb20gJy4uL2FuZ3VsYXItaGFsL3NyYy9saWIvcmVzb3VyY2UnO1xyXG5cclxuaW1wb3J0IHsgQ29ubmVjdGlvbiB9IGZyb20gJy4uL2Nvbm5lY3Rpb24vY29ubmVjdGlvbi5tb2RlbCc7XHJcbmltcG9ydCB7IFJvbGUgfSBmcm9tICcuLi9yb2xlL3JvbGUubW9kZWwnO1xyXG5pbXBvcnQgeyBUYXNrVHlwZSB9IGZyb20gJy4vdGFzay10eXBlLm1vZGVsJztcclxuaW1wb3J0IHsgVGFza0dyb3VwIH0gZnJvbSAnLi90YXNrLWdyb3VwLm1vZGVsJztcclxuaW1wb3J0IHsgVGFza0F2YWlsYWJpbGl0eSB9IGZyb20gJy4vdGFzay1hdmFpbGFiaWxpdHkubW9kZWwnO1xyXG5pbXBvcnQgeyBUYXNrUGFyYW1ldGVyIH0gZnJvbSAnLi90YXNrLXBhcmFtZXRlci5tb2RlbCc7XHJcblxyXG4vL0ZJWE1FIGVuc3VyZSB0YXNrIGNyZWF0aW9uIGluIGFkbWluIGFwcCB1cG9uIGluaXRpYWxpemF0aW9uIChhcyBpdCBpcyBkb25lIHdpdGggUm9sZXMgYW5kIGRlZmF1bHQgVXNlcnMpXHJcbi8qKiBHRU9BRE1JTl90YXNrIGlkICovXHJcbmV4cG9ydCBjb25zdCBHRU9BRE1JTl9UUkVFX1RBU0tfSUQ6c3RyaW5nICA9IFwiZ2VvYWRtaW5cIjtcclxuXHJcbmltcG9ydCB7IFRhc2tVSSB9IGZyb20gJy4vdGFzay11aS5tb2RlbCc7XHJcbmltcG9ydCB7IENhcnRvZ3JhcGh5IH0gZnJvbSAnLi4vY2FydG9ncmFwaHkvY2FydG9ncmFwaHkubW9kZWwnO1xyXG5pbXBvcnQgeyBTZXJ2aWNlIH0gZnJvbSAnLi4vc2VydmljZS9zZXJ2aWNlLm1vZGVsJztcclxuLyoqIFRhc2sgbW9kZWwgKi9cclxuZXhwb3J0IGNsYXNzIFRhc2sgZXh0ZW5kcyBSZXNvdXJjZSB7XHJcbiAgLyoqIGlkICovXHJcbiAgcHVibGljIGlkPzogbnVtYmVyO1xyXG4gIC8qKiBuYW1lICovICBcclxuICBwdWJsaWMgbmFtZT86IHN0cmluZztcclxuICAvKiogb3JkZXIqL1xyXG4gIHB1YmxpYyBvcmRlcj86IE51bWJlcjtcclxuICAvKiogc3lzdGVtIGNyZWF0ZWQgZGF0ZSovXHJcbiAgcHVibGljIGNyZWF0ZWREYXRlPzogYW55O1xyXG4gIC8qKiB0YXNrIGdyb3VwKi9cclxuICBwdWJsaWMgZ3JvdXA/OiBUYXNrR3JvdXA7XHJcbiAgLyoqIHRhc2sgdHlwZSovXHJcbiAgcHVibGljIHR5cGU/OiBUYXNrVHlwZTtcclxuICAvKiogdGFzayBVSSovXHJcbiAgcHVibGljIHVpPzogVGFza1VJO1xyXG4gIC8qKiBwYXJhbWV0ZXJzKi9cclxuICBwdWJsaWMgcGFyYW1ldGVycz86IFRhc2tQYXJhbWV0ZXJbXTtcclxuICAvKiogY29ubmVjdGlvbiovXHJcbiAgcHVibGljIGNvbm5lY3Rpb24/OiBDb25uZWN0aW9uO1xyXG4gIC8qKiByb2xlcyovXHJcbiAgcHVibGljIHJvbGVzPzogUm9sZVtdO1xyXG4gIC8qKiBhdmFpbGFiaWxpdGllcyovXHJcbiAgcHVibGljIGF2YWlsYWJpbGl0aWVzPzogVGFza0F2YWlsYWJpbGl0eVtdO1xyXG5cclxuICBwdWJsaWMgY2FydG9ncmFwaHk/OiBDYXJ0b2dyYXBoeTtcclxuXHJcbiAgcHVibGljIHNlcnZpY2U/OiBTZXJ2aWNlO1xyXG5cclxuICBwdWJsaWMgcHJvcGVydGllcz87XHJcbn1cclxuIl19

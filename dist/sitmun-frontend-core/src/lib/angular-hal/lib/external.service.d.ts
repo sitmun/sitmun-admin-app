@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { ExternalConfigurationHandlerInterface } from './external-configuration.handler';
 import { ExternalConfiguration } from './ExternalConfiguration';
+import * as i0 from "@angular/core";
 /** ExternalService */
 export declare class ExternalService {
     private externalConfigurationService;
@@ -18,4 +19,6 @@ export declare class ExternalService {
     getURL(): string;
     /** get HttpClient */
     getHttp(): HttpClient;
+    static ɵfac: i0.ɵɵFactoryDef<ExternalService, never>;
+    static ɵprov: i0.ɵɵInjectableDef<ExternalService>;
 }

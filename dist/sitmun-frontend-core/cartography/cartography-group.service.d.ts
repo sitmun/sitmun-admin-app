@@ -3,6 +3,7 @@ import { Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RestService } from '../angular-hal/src/lib/rest.service';
+import * as i0 from "@angular/core";
 /** CartographyGroup manager service */
 export declare class CartographyGroupService extends RestService<CartographyGroup> {
     private http;
@@ -14,4 +15,6 @@ export declare class CartographyGroupService extends RestService<CartographyGrou
     remove(item: CartographyGroup): Observable<Object>;
     /** save cartography group*/
     save(item: CartographyGroup): Observable<any>;
+    static ɵfac: i0.ɵɵFactoryDef<CartographyGroupService, never>;
+    static ɵprov: i0.ɵɵInjectableDef<CartographyGroupService>;
 }

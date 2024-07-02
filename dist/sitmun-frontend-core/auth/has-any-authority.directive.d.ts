@@ -1,5 +1,6 @@
 import { TemplateRef, ViewContainerRef } from '@angular/core';
 import { Principal } from './principal.service';
+import * as i0 from "@angular/core";
 /**
  * @whatItDoes Conditionally includes an HTML element if current user has any
  * of the authorities passed as the `expression`.
@@ -22,7 +23,9 @@ export declare class HasAnyAuthorityDirective {
     /** territory to check authorities*/
     territory: string;
     /** Set whether current user has any of the given authorities */
-    sitmunHasAnyAuthority: string | string[];
+    set sitmunHasAnyAuthority(value: string | string[]);
     /** update view */
-    private updateView();
+    private updateView;
+    static ɵfac: i0.ɵɵFactoryDef<HasAnyAuthorityDirective, never>;
+    static ɵdir: i0.ɵɵDirectiveDefWithMeta<HasAnyAuthorityDirective, "[sitmunHasAnyAuthority]", never, { "territory": "territory"; "sitmunHasAnyAuthority": "sitmunHasAnyAuthority"; }, {}, never>;
 }

@@ -3,6 +3,7 @@ import { Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RestService } from '../angular-hal/src/lib/rest.service';
+import * as i0 from "@angular/core";
 /** Tree manager service */
 export declare class TreeService extends RestService<Tree> {
     private http;
@@ -14,4 +15,6 @@ export declare class TreeService extends RestService<Tree> {
     remove(item: Tree): Observable<Object>;
     /** save tree*/
     save(item: Tree): Observable<any>;
+    static ɵfac: i0.ɵɵFactoryDef<TreeService, never>;
+    static ɵprov: i0.ɵɵInjectableDef<TreeService>;
 }

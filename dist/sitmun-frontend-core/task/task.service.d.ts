@@ -3,6 +3,7 @@ import { Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RestService } from '../angular-hal/src/lib/rest.service';
+import * as i0 from "@angular/core";
 /** Task manager service */
 export declare class TaskService extends RestService<Task> {
     private http;
@@ -14,4 +15,6 @@ export declare class TaskService extends RestService<Task> {
     remove(item: Task): Observable<Object>;
     /** save task*/
     save(item: Task): Observable<any>;
+    static ɵfac: i0.ɵɵFactoryDef<TaskService, never>;
+    static ɵprov: i0.ɵɵInjectableDef<TaskService>;
 }

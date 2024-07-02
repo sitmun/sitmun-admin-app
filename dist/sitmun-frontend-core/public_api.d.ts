@@ -77,3 +77,5 @@ export * from './codelist/codelist.service';
 export * from './map/map-configuration-manager.service';
 export * from './sitmun-frontend-core.module';
 export * from './angular-hal/src/lib/angular-hal.module';
+export * from './auth/has-any-authority.directive';
+export * from './auth/has-any-authority-on-territory.directive';

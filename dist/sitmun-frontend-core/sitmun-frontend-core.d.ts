@@ -1,6 +1,5 @@
 /**
  * Generated bundle index. Do not edit.
  */
+/// <amd-module name="@sitmun/frontend-core" />
 export * from './public_api';
-export { HasAnyAuthorityOnTerritoryDirective as ɵb } from './auth/has-any-authority-on-territory.directive';
-export { HasAnyAuthorityDirective as ɵa } from './auth/has-any-authority.directive';

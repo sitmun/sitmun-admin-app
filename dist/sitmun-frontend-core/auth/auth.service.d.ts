@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs-compat';
 import { ResourceService } from '../angular-hal/src/lib/resource.service';
+import * as i0 from "@angular/core";
 /** Authentication service*/
 export declare class AuthService {
     private http;
@@ -23,4 +24,6 @@ export declare class AuthService {
     isLoggedOut(): boolean;
     /** logout operation */
     logout(): Observable<any>;
+    static ɵfac: i0.ɵɵFactoryDef<AuthService, never>;
+    static ɵprov: i0.ɵɵInjectableDef<AuthService>;
 }

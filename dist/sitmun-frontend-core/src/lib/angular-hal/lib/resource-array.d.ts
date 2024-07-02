@@ -39,21 +39,35 @@ export declare class ResourceArray<T extends Resource> implements ArrayInterface
     /** load array data from REST request */
     private init;
     /** Load next page */
-    next: (type: new () => T) => Observable<ResourceArray<T>>;
+    next: (type: {
+        new (): T;
+    }) => Observable<ResourceArray<T>>;
     /** Load previous page */
-    prev: (type: new () => T) => Observable<ResourceArray<T>>;
+    prev: (type: {
+        new (): T;
+    }) => Observable<ResourceArray<T>>;
     /** Load first page */
-    first: (type: new () => T) => Observable<ResourceArray<T>>;
+    first: (type: {
+        new (): T;
+    }) => Observable<ResourceArray<T>>;
     /** Load last page */
-    last: (type: new () => T) => Observable<ResourceArray<T>>;
+    last: (type: {
+        new (): T;
+    }) => Observable<ResourceArray<T>>;
     /** Load page with given pageNumber*/
-    page: (type: new () => T, pageNumber: number) => Observable<ResourceArray<T>>;
+    page: (type: {
+        new (): T;
+    }, pageNumber: number) => Observable<ResourceArray<T>>;
     /** Sort collection based on given sort attribute */
-    sortElements: (type: new () => T, ...sort: Sort[]) => Observable<ResourceArray<T>>;
+    sortElements: (type: {
+        new (): T;
+    }, ...sort: Sort[]) => Observable<ResourceArray<T>>;
     /** Load page with given size */
-    size: (type: new () => T, size: number) => Observable<ResourceArray<T>>;
+    size: (type: {
+        new (): T;
+    }, size: number) => Observable<ResourceArray<T>>;
     /** Add sort info to given URI */
-    private addSortInfo(uri);
+    private addSortInfo;
     /** Add replace or add param value to query string */
-    private static replaceOrAdd(query, field, value);
+    private static replaceOrAdd;
 }

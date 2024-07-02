@@ -3,6 +3,7 @@ import { UserConfiguration } from './user-configuration.model';
 import { HttpClient } from '@angular/common/http';
 import { Injector } from '@angular/core';
 import { Observable } from 'rxjs';
+import * as i0 from "@angular/core";
 /** User configuration manager service */
 export declare class UserConfigurationService extends RestService<UserConfiguration> {
     private http;
@@ -14,4 +15,6 @@ export declare class UserConfigurationService extends RestService<UserConfigurat
     remove(item: UserConfiguration): Observable<Object>;
     /** save user configuration*/
     save(item: any): Observable<any>;
+    static ɵfac: i0.ɵɵFactoryDef<UserConfigurationService, never>;
+    static ɵprov: i0.ɵɵInjectableDef<UserConfigurationService>;
 }

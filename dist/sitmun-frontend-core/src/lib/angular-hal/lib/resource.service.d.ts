@@ -5,13 +5,14 @@ import { ExternalService } from './external.service';
 import { HalOptions } from './rest.service';
 import { SubTypeBuilder } from './subtype-builder';
 import { Observable } from 'rxjs';
+import * as i0 from "@angular/core";
 /** ResourceService */
 export declare class ResourceService {
     private externalService;
     /** constructor */
     constructor(externalService: ExternalService);
     /** get URL */
-    private static getURL();
+    private static getURL;
     /** get all resources from a base URI of a given type */
     getAll<T extends Resource>(type: {
         new (): T;
@@ -95,7 +96,9 @@ export declare class ResourceService {
     /** get resource URL from a given path*/
     getResourceUrl(resource?: string): string;
     /** set proxy and root urls of given resource array */
-    private setUrls<T>(result);
+    private setUrls;
     /** set proxy and root urls of given resource */
-    private setUrlsResource<T>(result);
+    private setUrlsResource;
+    static ɵfac: i0.ɵɵFactoryDef<ResourceService, never>;
+    static ɵprov: i0.ɵɵInjectableDef<ResourceService>;
 }

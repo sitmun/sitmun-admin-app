@@ -11,9 +11,6 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { MaterialModule } from '../../../material-module';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { Role } from '@sitmun/frontend-core';
-import { Observable } from 'rxjs';
-import { Injector } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 
