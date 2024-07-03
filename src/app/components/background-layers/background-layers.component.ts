@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { BackgroundService, Background } from 'dist/sitmun-frontend-core/';
+import { BackgroundService, Background } from '../../frontend-core/src/lib/public_api';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
 import { Subject, Observable } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
-import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
+import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
 import { HttpClient } from '@angular/common/http';
 
 @Component({

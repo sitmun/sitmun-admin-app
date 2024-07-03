@@ -1,4 +1,4 @@
-import { ExternalConfiguration , ExternalConfigurationHandlerInterface } from 'dist/sitmun-frontend-core/';
+import { ExternalConfiguration , ExternalConfigurationHandlerInterface } from './frontend-core/src/lib/public_api';
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {environment } from '../environments/environment';

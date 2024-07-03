@@ -2,8 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { LayersPermitsFormComponent } from './layers-permits-form.component';
 import { RouterModule } from '@angular/router';
-import { CartographyGroupService, RoleService, CartographyService, CodeListService,TranslationService,ResourceService,ExternalService } from 'dist/sitmun-frontend-core/';
-import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
+import { CartographyGroupService, RoleService, CartographyService, CodeListService,TranslationService,ResourceService,ExternalService } from '../../../frontend-core/src/lib/public_api';
+import { SitmunFrontendGuiModule } from '../../../frontend-gui/src/lib/public_api';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MaterialModule } from '../../../material-module';

@@ -10,9 +10,9 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MaterialModule } from './material-module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { Principal, LoginService, AccountService, AuthService, LanguageService, ResourceService, ExternalService } from 'dist/sitmun-frontend-core/';
+import { ExternalService,Principal,LoginService,AccountService,AuthService, LanguageService,ResourceService } from './frontend-core/src/lib/public_api';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
-import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
+import { SitmunFrontendGuiModule } from './frontend-gui/src/lib/sitmun-frontend-gui.module';
 
 describe('AppComponent', () => {
   beforeEach(async () => {

@@ -1,10 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { LoginComponent } from './login.component';
-import { LoginService } from 'dist/sitmun-frontend-core/';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
-import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
-import { AuthService, CodeListService,Principal, AccountService,TranslationService,ResourceService, ExternalService } from 'dist/sitmun-frontend-core/';
+import { SitmunFrontendGuiModule } from '../../frontend-gui/src/lib/public_api';
+import { LoginService, AuthService, CodeListService,Principal, AccountService,TranslationService,ResourceService, ExternalService } from '../../frontend-core/src/lib/public_api';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { RouterTestingModule } from '@angular/router/testing';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';

@@ -4,9 +4,9 @@ import { Router } from '@angular/router';
 import { Observable, of,Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
-import { TaskService, Task, HalOptions, HalParam } from 'dist/sitmun-frontend-core/';
+import { TaskService, Task, HalOptions, HalParam } from '../../frontend-core/src/lib/public_api';
 import { MatDialog } from '@angular/material/dialog';
-import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
+import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
 
 @Component({
   selector: 'app-tasks-locator',

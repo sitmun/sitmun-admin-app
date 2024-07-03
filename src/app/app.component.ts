@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Principal, LoginService, AuthService, LanguageService, ConfigurationParametersService } from 'dist/sitmun-frontend-core/';
+import { Principal, LoginService, AuthService, LanguageService, ConfigurationParametersService } from './frontend-core/src/lib/public_api';
 import { config } from 'src/config';
 
 @Component({

@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { TreeService, TreeNodeService, Translation, TranslationService, CartographyService, Tree, TreeNode, Cartography, ServiceService, CapabilitiesService, ApplicationService } from 'dist/sitmun-frontend-core/';
+import { TreeService, TreeNodeService, Translation, TranslationService, 
+  CartographyService, Tree, TreeNode, Cartography, ServiceService, CapabilitiesService, ApplicationService } from '../../../frontend-core/src/lib/public_api';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
 import { Observable, of, Subject } from 'rxjs';
-import { DialogGridComponent, DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
+import { DialogGridComponent, DialogMessageComponent } from '../../../frontend-gui/src/lib/public_api';
 import { MatDialog } from '@angular/material/dialog';
 import { isArray } from 'rxjs/internal-compatibility';
 

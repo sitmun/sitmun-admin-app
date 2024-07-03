@@ -4,10 +4,11 @@ import { TreesFormComponent } from './trees-form.component';
 import { RouterModule } from '@angular/router';
 import { MaterialModule } from '../../../material-module';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { TreeService, TreeNodeService, CartographyService, CodeListService,TranslationService, ResourceService, ExternalService, ServiceService, CapabilitiesService, ApplicationService  } from 'dist/sitmun-frontend-core/';
+import { TreeService, TreeNodeService, CartographyService, CodeListService,TranslationService, ResourceService, 
+  ExternalService, ServiceService, CapabilitiesService, ApplicationService  } from '../../../frontend-core/src/lib/public_api';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
+import { SitmunFrontendGuiModule } from '../../../frontend-gui/src/lib/public_api';
 import { RouterTestingModule } from '@angular/router/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 

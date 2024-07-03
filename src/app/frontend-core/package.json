@@ -1,0 +1,28 @@
+{
+  "repository": "git://github.com/sitmun/sitmun-frontend-core.git",
+  "dependencies": {
+    "tslib": "^2.0.0"
+  },
+  "peerDependencies": {
+    "@angular/common": "^6.0.0-rc.0 || ^6.0.0",
+    "@angular/core": "^6.0.0-rc.0 || ^6.0.0",
+    "@angular/animations": "~6.1.0",
+    "@angular/cdk": "~6.1.0",
+    "@angular/forms": "~6.1.0",
+    "@angular/http": "~6.1.0",
+    "@angular/material": "~6.1.0",
+    "@angular/platform-browser": "~6.1.0",
+    "@angular/platform-browser-dynamic": "~6.1.0",
+    "@angular/router": "~6.1.0",
+    "@ngx-translate/core": "~10.0.2",
+    "@ngx-translate/http-loader": "~3.0.1",
+    "ol": "~4.6.5",
+    "openlayers": "~4.6.5",
+    "proj4": "~2.4.4",
+    "@types/moment": "~2.13.0",
+    "@types/openlayers": "~4.6.9",
+    "core-js": "~2.5.4",
+    "moment": "~2.22.2",
+    "zone.js": "~0.8.26"
+  }
+}
