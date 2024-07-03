@@ -1,8 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { TaskFormComponent } from './task-form.component';
-import { ServiceService, TerritoryService, TaskTypeService, CartographyService, ConnectionService, CodeListService, ResourceService, ExternalService, TaskService, TaskUIService, RoleService, TaskGroupService, TaskAvailabilityService } from 'dist/sitmun-frontend-core/';
-import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
+import { ServiceService, TerritoryService, TaskTypeService, CartographyService, ConnectionService, CodeListService, ResourceService, 
+  ExternalService, TaskService, TaskUIService, RoleService, TaskGroupService, TaskAvailabilityService } from '../../frontend-core/src/lib/public_api';
+import { SitmunFrontendGuiModule } from '../../frontend-gui/src/lib/public_api';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MaterialModule } from '../../material-module';

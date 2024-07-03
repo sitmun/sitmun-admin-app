@@ -1,8 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TerritoryComponent } from './territory.component';
-import { TerritoryService, UserService, RoleService, UserConfigurationService, CodeListService,TranslationService,ResourceService,ExternalService, TerritoryTypeService } from 'dist/sitmun-frontend-core/';
+import { TerritoryService, UserService, RoleService, UserConfigurationService, 
+  CodeListService,TranslationService,ResourceService,ExternalService, TerritoryTypeService } from '../../frontend-core/src/lib/public_api';
 import { HttpClientModule } from '@angular/common/http';
-import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
+import { SitmunFrontendGuiModule } from '../../frontend-gui/src/lib/public_api';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MaterialModule } from '../../material-module';

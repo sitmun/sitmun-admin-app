@@ -4,12 +4,12 @@ import { RouterModule } from '@angular/router';
 import { MaterialModule } from '../../../material-module';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { TerritoryService, TerritoryGroupTypeService, CartographyAvailabilityService, TaskAvailabilityService , CartographyService, UserService,
-   RoleService, TaskService,UserConfigurationService, CodeListService, TranslationService, ResourceService, ExternalService, UserPositionService  } from 'dist/sitmun-frontend-core/';
+   RoleService, TaskService,UserConfigurationService, CodeListService, TranslationService, ResourceService, ExternalService, UserPositionService,
+   TerritoryTypeService  } from '../../../frontend-core/src/lib/public_api';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
+import { SitmunFrontendGuiModule } from '../../../frontend-gui/src/lib/public_api';
 import { RouterTestingModule } from '@angular/router/testing';
-import { TerritoryTypeService } from 'dist/sitmun-frontend-core/';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 describe('TerritoryFormComponent', () => {

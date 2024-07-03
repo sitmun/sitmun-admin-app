@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
-import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
+import { SitmunFrontendGuiModule } from '../../frontend-gui/src/lib/public_api';
 import { DashboardComponent } from './dashboard.component';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -10,7 +10,7 @@ import { MaterialModule } from '../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { DashboardService,TranslationService,CodeListService,ResourceService,ExternalService } from 'dist/sitmun-frontend-core/';
+import { DashboardService,TranslationService,CodeListService,ResourceService,ExternalService } from '../../frontend-core/src/lib/public_api';
 describe('DashboardComponent', () => {
   
   let component: DashboardComponent;

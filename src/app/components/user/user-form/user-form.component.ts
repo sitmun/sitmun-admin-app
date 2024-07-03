@@ -2,14 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { UserService, UserPositionService, UserConfigurationService, TerritoryService, RoleService, HalOptions, HalParam, Territory, User, UserConfiguration, Role } from 'dist/sitmun-frontend-core/';
+import { UserService, UserPositionService, UserConfigurationService, 
+  TerritoryService, RoleService, HalOptions, HalParam, Territory, User, UserConfiguration, Role } from '../../../frontend-core/src/lib/public_api';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { map } from 'rxjs/operators';
 import { Observable, of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
-import { DialogGridComponent, DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
+import { DialogGridComponent, DialogMessageComponent } from '../../../frontend-gui/src/lib/public_api';
 import { MatDialog } from '@angular/material/dialog';
 import { DatePipe } from '@angular/common';
 import { resolve } from 'dns';

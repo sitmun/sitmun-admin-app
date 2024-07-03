@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ApplicationComponent } from './application.component';
-import { ApplicationService, CodeListService, ResourceService, ExternalService, Role } from 'dist/sitmun-frontend-core/';
-import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
+import { ApplicationService, CodeListService, ResourceService, ExternalService, Role } from '../../frontend-core/src/lib/public_api';
+import { SitmunFrontendGuiModule } from '../../frontend-gui/src/lib/public_api';
 import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MaterialModule } from '../../material-module';

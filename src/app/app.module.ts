@@ -5,7 +5,7 @@ import { AppComponent } from './app.component';
 import { RouterModule } from '@angular/router';
 import { ExternalConfigurationService } from './ExternalConfigurationService';
 
-import { SitmunFrontendGuiModule } from 'dist/sitmun-frontend-gui/';
+import { SitmunFrontendGuiModule } from './frontend-gui/src/lib/public_api';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from './material-module';
 import { APP_ROUTING } from './app-routes';
@@ -13,7 +13,7 @@ import { APP_ROUTING } from './app-routes';
 
 //interceptors
 import { MessagesInterceptor } from './interceptors/messages.interceptor';
-import { AuthInterceptor, AuthExpiredInterceptor, CapabilitiesService } from 'dist/sitmun-frontend-core/';
+import { AuthInterceptor, AuthExpiredInterceptor, CapabilitiesService } from './frontend-core/src/lib/public_api';
 
 //i18n
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
@@ -105,7 +105,7 @@ import {
   DashboardService,
   TreeNodeService,
   TaskTypeService,
-} from 'dist/sitmun-frontend-core/';
+} from './frontend-core/src/lib/public_api';
 import { UtilsService } from './services/utils.service';
 import { SidenavService } from './services/sidenav.service';
 import { DashboardComponent } from './components/dashboard/dashboard.component';

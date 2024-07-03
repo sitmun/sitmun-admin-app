@@ -1,0 +1,73 @@
+<button mat-flat-button type="button" (click)="treeControl.expandAll()" title="{{ 'expandAll' | translate }}"  type="button" >
+	<mat-icon fontSet="material-icons-round"> expand_more </mat-icon>
+	{{ "expandAll" | translate }}
+</button>
+<button mat-flat-button type="button" (click)="treeControl.collapseAll()" title="{{ 'expandAll' | translate }}"  type="button" >
+	<mat-icon fontSet="material-icons-round"> expand_less </mat-icon>
+	{{ "collapseAll" | translate }}
+</button>
+<mat-tree [dataSource]="dataSource" [treeControl]="treeControl" >
+	<mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding  draggable="true"
+	(dragstart)="handleDragStart($event, node);" 	(dragover)="handleDragOver($event, node);"
+	(drop)="handleDrop($event, node);" 	(dragend)="handleDragEnd($event);"                  
+	  [ngClass]="{'drop-above': dragNodeExpandOverArea === 'above' && dragNodeExpandOverNode === node,
+	'drop-below': dragNodeExpandOverArea === 'below' && dragNodeExpandOverNode === node,
+	'drop-center': dragNodeExpandOverArea === 'center' && dragNodeExpandOverNode === node,
+	'deletedNode': node.status=='pendingDelete'}">
+		<button mat-icon-button disabled></button>
+		<mat-icon *ngIf="node.type ==='folder'&& node.status!='pendingDelete'" class="type-icon" [attr.aria-label]="node.type + 'icon'">
+			folder
+		</mat-icon>
+		<span *ngIf="node.status=='pendingDelete'">({{"pendingDelete" | translate}})-</span>
+		{{node.name}}
+	
+		<button *ngIf="node.type ==='folder' && node.status!='pendingDelete'" (click)="onButtonClicked(node.id, 'newFolder')" mat-icon-button>
+			<mat-icon>create_new_folder</mat-icon>
+		</button>
+		<button *ngIf="node.type ==='folder' && node.status!='pendingDelete'" (click)="onButtonClicked(node.id, 'newNode')" mat-icon-button>
+			<mat-icon>playlist_add</mat-icon>
+		</button>
+		<button *ngIf="node.id !== undefined && node.status!='pendingDelete'" mat-icon-button (click)="onButtonClicked(node.id, 'delete')">
+			<mat-icon>delete</mat-icon>
+		</button>
+		<button *ngIf="node.id !== undefined && node.status!='pendingDelete'" mat-icon-button (click)="onButtonClicked(node.id, 'edit')">
+			<mat-icon>edit</mat-icon>
+		</button>
+
+	</mat-tree-node>
+
+	<mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding  draggable="true"
+	(dragstart)="handleDragStart($event, node);" 	(dragover)="handleDragOver($event, node);"
+	(drop)="handleDrop($event, node);" 	(dragend)="handleDragEnd($event);"                  
+	 [ngClass]="{'drop-above': dragNodeExpandOverArea === 'above' && dragNodeExpandOverNode === node,
+	'drop-below': dragNodeExpandOverArea === 'below' && dragNodeExpandOverNode === node,
+	'drop-center': dragNodeExpandOverArea === 'center' && dragNodeExpandOverNode === node,
+	'deletedNode': node.status=='pendingDelete'}">
+		<button mat-icon-button matTreeNodeToggle (click)="expansionModel.toggle(node.id)"
+			[attr.aria-label]="'toggle ' + node.name">
+			<mat-icon class="mat-icon-rtl-mirror">
+				{{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+			</mat-icon>
+		</button>
+		<mat-icon class="type-icon" [attr.aria-label]="node.type + 'icon'">
+			folder
+		</mat-icon>
+		<span *ngIf="node.status=='pendingDelete'">({{"pendingDelete" | translate}})-</span>
+		{{node.name}}
+		<button *ngIf="node.type ==='folder' && node.status!='pendingDelete'" (click)="onButtonClicked(node.id, 'newFolder')" mat-icon-button>
+			<mat-icon>create_new_folder</mat-icon>
+		</button>
+		<button *ngIf="node.type ==='folder' && node.status!='pendingDelete'" (click)="onButtonClicked(node.id, 'newNode')" mat-icon-button>
+			<mat-icon>playlist_add</mat-icon>
+		</button>
+		<button *ngIf="node.id !== undefined && node.status!='pendingDelete'" mat-icon-button (click)="onButtonClicked(node.id, 'delete')">
+			<mat-icon>delete</mat-icon>
+		</button>
+		<button *ngIf="node.id !== undefined && node.status!='pendingDelete'"  mat-icon-button (click)="onButtonClicked(node.id, 'edit')">
+			<mat-icon>edit</mat-icon>
+		</button>
+		
+	</mat-tree-node>
+</mat-tree>
+
+<span #emptyItem></span>

@@ -1,0 +1,9 @@
+<h5 mat-dialog-title>{{title}}</h5>
+<mat-dialog-content class="mat-typography">
+  <ng-container *ngTemplateOutlet="HTMLReceived">
+  </ng-container> 
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-flat-button class="returnButton"  (click)="closeDialog()">{{"cancel" | translate}}</button>
+  <button mat-flat-button class="saveButton"  (click)="doAdd()" cdkFocusInitial>{{"accept" | translate}}</button>
+</mat-dialog-actions>

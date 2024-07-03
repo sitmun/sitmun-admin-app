@@ -4,9 +4,9 @@ import { TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { Subject } from 'rxjs';
-import { HalOptions, HalParam, CodeListService, Translation,  TranslationService } from 'dist/sitmun-frontend-core/';
+import { HalOptions, HalParam, CodeListService, Translation,  TranslationService } from '../frontend-core/src/lib/public_api';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { DialogMessageComponent, DialogTranslationComponent } from 'dist/sitmun-frontend-gui/';
+import { DialogMessageComponent, DialogTranslationComponent } from '../frontend-gui/src/lib/public_api';
 import { MatDialog } from '@angular/material/dialog';
 import { config } from 'src/config';
 

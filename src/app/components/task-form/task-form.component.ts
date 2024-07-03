@@ -1,10 +1,11 @@
 import { Component, ElementRef, OnInit, QueryList, TemplateRef, ViewChild, ViewChildren, ViewEncapsulation } from '@angular/core';
 import { UtilsService } from 'src/app/services/utils.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ServiceService, TaskService, TaskTypeService, TaskGroupService, CartographyService, ConnectionService, HalOptions, HalParam, TaskUIService, RoleService, CodeListService, TerritoryService, Task, TaskAvailabilityService, TaskAvailability } from 'dist/sitmun-frontend-core/';
+import { ServiceService, TaskService, TaskTypeService, TaskGroupService, CartographyService, ConnectionService, HalOptions, HalParam, 
+  TaskUIService, RoleService, CodeListService, TerritoryService, Task, TaskAvailabilityService, TaskAvailability } from '../../frontend-core/src/lib/public_api';
 import { config } from 'src/config';
 import { MatDialog } from '@angular/material/dialog';
-import { DialogFormComponent, DialogGridComponent } from 'dist/sitmun-frontend-gui/';
+import { DialogFormComponent, DialogGridComponent } from '../../frontend-gui/src/lib/public_api';
 import { Observable, of, pipe, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';

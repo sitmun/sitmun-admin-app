@@ -4,10 +4,9 @@ import { Router } from '@angular/router';
 import { Observable, of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
-import { HalOptions, HalParam, TaskService } from 'dist/sitmun-frontend-core/';
+import { HalOptions, HalParam, TaskService, Task } from '../../frontend-core/src/lib/public_api';
 import { MatDialog } from '@angular/material/dialog';
-import { DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
-import { Task } from 'dist/sitmun-frontend-core/';
+import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
 
 @Component({
   selector: 'app-tasks-edition-data-table',

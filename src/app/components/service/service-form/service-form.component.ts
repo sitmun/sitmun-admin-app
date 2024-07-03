@@ -2,7 +2,8 @@ import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ServiceService, CartographyService, Translation, TranslationService, Connection, Cartography, ServiceParameterService, CapabilitiesService, CartographyStyleService, CartographyFilterService } from 'dist/sitmun-frontend-core/';
+import { ServiceService, CartographyService, Translation, TranslationService, Connection, 
+  Cartography, ServiceParameterService, CapabilitiesService, CartographyStyleService, CartographyFilterService } from '../../../frontend-core/src/lib/public_api';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
@@ -11,7 +12,7 @@ import { Observable, of, Subject } from 'rxjs';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
-import { DialogGridComponent, DialogFormComponent, DialogMessageComponent } from 'dist/sitmun-frontend-gui/';
+import { DialogGridComponent, DialogFormComponent, DialogMessageComponent } from '../../../frontend-gui/src/lib/public_api';
 import { MatDialog } from '@angular/material/dialog';
 import * as xml2js from 'xml2js';
 

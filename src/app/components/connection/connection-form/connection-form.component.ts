@@ -2,14 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ConnectionService, CartographyService, TaskService, Cartography, Task, Connection } from 'dist/sitmun-frontend-core/';
+import { ConnectionService, CartographyService, TaskService, Cartography, Task, Connection } from '../../../frontend-core/src/lib/public_api';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
 import { map } from 'rxjs/operators';
-import { DialogGridComponent } from 'dist/sitmun-frontend-gui/';
+import { DialogGridComponent } from '../../../frontend-gui/src/lib/public_api';
 import { MatDialog } from '@angular/material/dialog';
 import { Location } from '@angular/common'
 
