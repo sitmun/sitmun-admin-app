@@ -18,7 +18,7 @@ describe('SideMenuComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ SideMenuComponent ],
-      imports: [HttpClientTestingModule, MatIconTestingModule, MaterialModule, RouterModule.forRoot(APP_ROUTES),
+      imports: [HttpClientTestingModule, MatIconTestingModule, MaterialModule, RouterModule.forRoot(APP_ROUTES, { relativeLinkResolution: 'legacy' }),
          BrowserAnimationsModule, MatIconTestingModule, TranslateModule.forRoot({
         loader: {
           provide: TranslateLoader,

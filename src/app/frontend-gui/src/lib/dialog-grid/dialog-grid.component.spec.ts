@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { DialogGridComponent } from './dialog-grid.component';
 
@@ -6,7 +6,7 @@ describe('DialogGridComponent', () => {
   let component: DialogGridComponent;
   let fixture: ComponentFixture<DialogGridComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ DialogGridComponent ]
     })

@@ -29,7 +29,7 @@ describe('ServiceFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ServiceFormComponent],
-      imports: [FormsModule, ReactiveFormsModule, HttpClientTestingModule, RouterModule.forRoot([]), HttpClientModule,
+      imports: [FormsModule, ReactiveFormsModule, HttpClientTestingModule, RouterModule.forRoot([], { relativeLinkResolution: 'legacy' }), HttpClientModule,
         SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
       providers: [ServiceService, CapabilitiesService, CartographyStyleService, ServiceParameterService, CartographyService, CodeListService, TranslationService, ResourceService, ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },]

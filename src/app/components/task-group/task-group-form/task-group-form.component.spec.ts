@@ -24,7 +24,7 @@ describe('TaskGroupFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ TaskGroupFormComponent ],
-      imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, RouterModule.forRoot([]), HttpClientModule,
+      imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, RouterModule.forRoot([], { relativeLinkResolution: 'legacy' }), HttpClientModule,
       SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
       providers: [TaskGroupService,CodeListService,TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]

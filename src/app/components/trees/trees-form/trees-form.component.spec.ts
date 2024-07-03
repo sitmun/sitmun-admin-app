@@ -30,7 +30,7 @@ describe('TreesFormComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ TreesFormComponent ],
       imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,
-         RouterModule.forRoot([]), MaterialModule, MatIconTestingModule],
+         RouterModule.forRoot([], { relativeLinkResolution: 'legacy' }), MaterialModule, MatIconTestingModule],
       providers: [TreeService,TreeNodeService, ApplicationService, ServiceService, CapabilitiesService, CartographyService, CodeListService,TranslationService, ResourceService, ExternalService ,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
