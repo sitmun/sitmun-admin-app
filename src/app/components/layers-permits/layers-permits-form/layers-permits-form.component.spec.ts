@@ -26,7 +26,7 @@ describe('LayersPermitsFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ LayersPermitsFormComponent ],
-      imports: [FormsModule, ReactiveFormsModule, RouterModule.forRoot([], { relativeLinkResolution: 'legacy' }), HttpClientTestingModule, SitmunFrontendGuiModule,
+      imports: [FormsModule, ReactiveFormsModule, RouterModule.forRoot([], { relativeLinkResolution: 'corrected' }), HttpClientTestingModule, SitmunFrontendGuiModule,
       RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
       providers: [CartographyGroupService, RoleService, CartographyService, CodeListService,TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
