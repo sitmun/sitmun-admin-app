@@ -29,7 +29,7 @@ describe('UserFormComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ UserFormComponent ],
       imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,
-         RouterModule.forRoot([]), MaterialModule, MatIconTestingModule],
+         RouterModule.forRoot([], { relativeLinkResolution: 'corrected' }), MaterialModule, MatIconTestingModule],
       providers: [UserService,RoleService, TerritoryService, UserPositionService, 
         CodeListService,UserConfigurationService,TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]

@@ -35,7 +35,7 @@ describe('TerritoryFormComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ TerritoryFormComponent ],
       imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,
-        RouterModule.forRoot([]), MaterialModule, MatIconTestingModule],
+        RouterModule.forRoot([], { relativeLinkResolution: 'corrected' }), MaterialModule, MatIconTestingModule],
      providers: [TerritoryService, UserService, RoleService,  TerritoryGroupTypeService, CartographyService, TaskAvailabilityService,
        TaskService, UserPositionService, TerritoryTypeService, CartographyAvailabilityService, CodeListService,UserConfigurationService,TranslationService, ResourceService, ExternalService,
        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
