@@ -61,7 +61,7 @@
 								}
 							]
 						},
-            "testdeployment": {
+            			"testdeployment": {
 							"fileReplacements": [
 								{
 									"replace": "src/environments/environment.ts",
@@ -87,22 +87,26 @@
 									"maximumError": "10kb"
 								}
 							]
-						}
-					}
+						},
+						"development": {}
+					},
+					"defaultConfiguration": "production"
 				},
 				"serve": {
 					"builder": "@angular-devkit/build-angular:dev-server",
-					"options": {
-						"browserTarget": "admin-app:build"
-					},
+					"options": {},
 					"configurations": {
 						"production": {
 							"browserTarget": "admin-app:build:production"
 						},
-            "testdeployment": {
-              "browserTarget": "admin-app:build:testdeployment"
-            }
-					}
+						"testdeployment": {
+							"browserTarget": "admin-app:build:testdeployment"
+						},
+						"development": {
+							"browserTarget": "admin-app:build:development"
+						}
+					},
+					"defaultConfiguration": "development"
 				},
 				"extract-i18n": {
 					"builder": "@angular-devkit/build-angular:extract-i18n",
@@ -144,17 +148,20 @@
 				"e2e": {
 					"builder": "@angular-devkit/build-angular:protractor",
 					"options": {
-						"protractorConfig": "e2e/protractor.conf.js",
-						"devServerTarget": "admin-app:serve"
+						"protractorConfig": "e2e/protractor.conf.js"
 					},
 					"configurations": {
 						"production": {
 							"devServerTarget": "admin-app:serve:production"
 						},
-            "testdeployment": {
-              "devServerTarget": "admin-app:serve:testdeployment"
-            }
-					}
+						"testdeployment": {
+							"devServerTarget": "admin-app:serve:testdeployment"
+						},
+						"development": {
+							"devServerTarget": "admin-app:serve:development"
+						}
+					},
+					"defaultConfiguration": "development"
 				}
 			}
 		}
