@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
-import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { AbstractControl, UntypedFormControl, UntypedFormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BackgroundService, HalOptions, HalParam, CartographyGroupService, TranslationService, Background, CartographyGroup, CartographyService, RoleService, Cartography, Role, Translation, ApplicationService, ApplicationBackgroundService } from '../../../frontend-core/src/lib/public_api';
 import { HttpClient } from '@angular/common/http';
@@ -74,7 +74,7 @@ export class BackgroundLayersFormComponent implements OnInit {
     this.initializeBackgroundForm();
   }
 
-  backgroundForm: FormGroup;
+  backgroundForm: UntypedFormGroup;
   backgroundToEdit;
   backgroundID = -1;
   duplicateID = -1;
@@ -259,16 +259,16 @@ export class BackgroundLayersFormComponent implements OnInit {
 
   initializeBackgroundForm(): void {
 
-    this.backgroundForm = new FormGroup({
-      id: new FormControl(null, []),
-      name: new FormControl(null, [
+    this.backgroundForm = new UntypedFormGroup({
+      id: new UntypedFormControl(null, []),
+      name: new UntypedFormControl(null, [
         Validators.required,
       ]),
-      description: new FormControl(null),
-      image: new FormControl(null),
-      cartographyGroup: new FormControl(null),
-      active: new FormControl(null),
-      _links: new FormControl(null),
+      description: new UntypedFormControl(null),
+      image: new UntypedFormControl(null),
+      cartographyGroup: new UntypedFormControl(null),
+      active: new UntypedFormControl(null),
+      _links: new UntypedFormControl(null),
 
     });
 

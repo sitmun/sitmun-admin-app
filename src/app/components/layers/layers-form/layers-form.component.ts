@@ -1,6 +1,6 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { tick } from '@angular/core/testing';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CartographyService, GetInfoService, ServiceService, CartographyFilterService, TerritoryTypeService, ConnectionService, TreeNodeService, 
   CartographyGroupService, TerritoryService, Territory, CartographyGroup, CartographyAvailabilityService, CartographyParameterService, HalParam, 
@@ -35,7 +35,7 @@ export class LayersFormComponent implements OnInit {
   //Form
   private parametersUrl: string;
   parameteApplyFilterToGetMap;
-  layerForm: FormGroup;
+  layerForm: UntypedFormGroup;
   layerToEdit;
   layerID = -1;
   duplicateID = -1;
@@ -98,8 +98,8 @@ export class LayersFormComponent implements OnInit {
 
   //Dialog
   columnDefsParametersDialog: any[];
-  public parameterForm: FormGroup;
-  public styleForm: FormGroup;
+  public parameterForm: UntypedFormGroup;
+  public styleForm: UntypedFormGroup;
   addElementsEventParameters: Subject<any[]> = new Subject<any[]>();
   @ViewChild('newParameterDialog', {
     static: true
@@ -123,10 +123,10 @@ export class LayersFormComponent implements OnInit {
   addElementsEventSpatialConfigurations: Subject<any> = new Subject<any>();
   replaceAllElementsEventSpatialConfigurations: Subject<any> = new Subject<any>();
 
-  public territorialFilterForm: FormGroup;
+  public territorialFilterForm: UntypedFormGroup;
   addElementsTerritorialFilter: Subject<any[]> = new Subject<any[]>();
 
-  public stylesForm: FormGroup;
+  public stylesForm: UntypedFormGroup;
   addElementsEventStyles: Subject<any[]> = new Subject<any[]>();
 
   columnDefsTerritoriesDialog: any[];
@@ -614,76 +614,76 @@ export class LayersFormComponent implements OnInit {
 
   initializeLayersForm(): void {
 
-    this.layerForm = new FormGroup({
-      id: new FormControl(null, []),
-      name: new FormControl(null, [Validators.required]),
-      service: new FormControl(null, [Validators.required]),
-      layers: new FormControl(null, [Validators.required]),
-      minimumScale: new FormControl(null, []),
-      maximumScale: new FormControl(null, []),
-      geometryType: new FormControl(null, []),
-      order: new FormControl(null, []),
-      transparency: new FormControl(null, []),
-      metadataURL: new FormControl(null, []),
-      legendType: new FormControl(null, []),
-      legendUrl: new FormControl(null, []),
-      source: new FormControl(null, []),
-      description: new FormControl(null, []),
-      datasetURL: new FormControl(null, []),//here
-      applyFilterToGetMap: new FormControl(null, []),
-      applyFilterToGetFeatureInfo: new FormControl(null, []),
-      applyFilterToSpatialSelection: new FormControl(null, []),
-      queryableFeatureEnabled: new FormControl(null, []),
-      queryableFeatureAvailable: new FormControl(null, []),
-      queryableLayers: new FormControl(null, [Validators.required]),
-      thematic: new FormControl(null, []),
-      blocked: new FormControl(null, []),
-      selectableFeatureEnabled: new FormControl(null, [],),
-      spatialSelectionService: new FormControl(null, [Validators.required]),
-      selectableLayers: new FormControl(null, [Validators.required]),
-      spatialSelectionConnection: new FormControl(null, []),
-      useAllStyles: new FormControl(null, []),
-      _links: new FormControl(null, []),
+    this.layerForm = new UntypedFormGroup({
+      id: new UntypedFormControl(null, []),
+      name: new UntypedFormControl(null, [Validators.required]),
+      service: new UntypedFormControl(null, [Validators.required]),
+      layers: new UntypedFormControl(null, [Validators.required]),
+      minimumScale: new UntypedFormControl(null, []),
+      maximumScale: new UntypedFormControl(null, []),
+      geometryType: new UntypedFormControl(null, []),
+      order: new UntypedFormControl(null, []),
+      transparency: new UntypedFormControl(null, []),
+      metadataURL: new UntypedFormControl(null, []),
+      legendType: new UntypedFormControl(null, []),
+      legendUrl: new UntypedFormControl(null, []),
+      source: new UntypedFormControl(null, []),
+      description: new UntypedFormControl(null, []),
+      datasetURL: new UntypedFormControl(null, []),//here
+      applyFilterToGetMap: new UntypedFormControl(null, []),
+      applyFilterToGetFeatureInfo: new UntypedFormControl(null, []),
+      applyFilterToSpatialSelection: new UntypedFormControl(null, []),
+      queryableFeatureEnabled: new UntypedFormControl(null, []),
+      queryableFeatureAvailable: new UntypedFormControl(null, []),
+      queryableLayers: new UntypedFormControl(null, [Validators.required]),
+      thematic: new UntypedFormControl(null, []),
+      blocked: new UntypedFormControl(null, []),
+      selectableFeatureEnabled: new UntypedFormControl(null, [],),
+      spatialSelectionService: new UntypedFormControl(null, [Validators.required]),
+      selectableLayers: new UntypedFormControl(null, [Validators.required]),
+      spatialSelectionConnection: new UntypedFormControl(null, []),
+      useAllStyles: new UntypedFormControl(null, []),
+      _links: new UntypedFormControl(null, []),
     });
   }
 
 
   initializeParameterForm(): void {
-    this.parameterForm = new FormGroup({
-      value: new FormControl(null, [Validators.required]),
-      name: new FormControl(null, [Validators.required]),
-      format: new FormControl(null, []),
-      order: new FormControl(null, []),
-      type: new FormControl(null, []),
+    this.parameterForm = new UntypedFormGroup({
+      value: new UntypedFormControl(null, [Validators.required]),
+      name: new UntypedFormControl(null, [Validators.required]),
+      format: new UntypedFormControl(null, []),
+      order: new UntypedFormControl(null, []),
+      type: new UntypedFormControl(null, []),
     })
   }
 
   initializeStyleForm(): void {
-    this.styleForm = new FormGroup({
-      name: new FormControl(null, [Validators.required]),
-      title: new FormControl(null, [Validators.required]),
-      description: new FormControl(null, []),
-      format: new FormControl(null, []),
-      width: new FormControl(null, []),
-      height: new FormControl(null, []),
-      url: new FormControl(null, []),
-      defaultStyle: new FormControl(null, []),
+    this.styleForm = new UntypedFormGroup({
+      name: new UntypedFormControl(null, [Validators.required]),
+      title: new UntypedFormControl(null, [Validators.required]),
+      description: new UntypedFormControl(null, []),
+      format: new UntypedFormControl(null, []),
+      width: new UntypedFormControl(null, []),
+      height: new UntypedFormControl(null, []),
+      url: new UntypedFormControl(null, []),
+      defaultStyle: new UntypedFormControl(null, []),
 
     })
   }
 
 
   initializeTerritorialFilterForm(): void {
-    this.territorialFilterForm = new FormGroup({
-      id: new FormControl(null,),
-      name: new FormControl(null, [Validators.required]),
-      required: new FormControl(null, [Validators.required]),
-      type: new FormControl(null, [Validators.required]),
-      territorialLevel: new FormControl(null),
-      column: new FormControl(null),
-      values: new FormControl(null, []),
-      valueType: new FormControl(null, []),
-      _links: new FormControl(null, []),
+    this.territorialFilterForm = new UntypedFormGroup({
+      id: new UntypedFormControl(null,),
+      name: new UntypedFormControl(null, [Validators.required]),
+      required: new UntypedFormControl(null, [Validators.required]),
+      type: new UntypedFormControl(null, [Validators.required]),
+      territorialLevel: new UntypedFormControl(null),
+      column: new UntypedFormControl(null),
+      values: new UntypedFormControl(null, []),
+      valueType: new UntypedFormControl(null, []),
+      _links: new UntypedFormControl(null, []),
     })
   }
 

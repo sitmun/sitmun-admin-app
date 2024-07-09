@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { FormGroup,FormControl,Validators } from '@angular/forms';
+import { UntypedFormGroup,FormControl,Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog'; 
 import { TranslateService } from '@ngx-translate/core';
 import { DialogMessageComponent } from '../dialog-message/dialog-message.component';
@@ -11,7 +11,7 @@ import { DialogMessageComponent } from '../dialog-message/dialog-message.compone
 })
 export class DialogFormComponent implements OnInit {
 
-  form: FormGroup;
+  form: UntypedFormGroup;
   title: string;
   HTMLReceived;
   constructor(

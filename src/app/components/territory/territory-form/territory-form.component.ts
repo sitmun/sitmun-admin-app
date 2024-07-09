@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Territory, TerritoryService, UserPositionService, TranslationService, Translation, TaskAvailabilityService, 
   TerritoryGroupTypeService, CartographyAvailabilityService, UserService, RoleService, CartographyService, TaskService, 
@@ -31,7 +31,7 @@ export class TerritoryFormComponent implements OnInit {
   themeGrid: any = config.agGridTheme;
   scopeTypes: Array<any> = [];
   groupTypeOfThisTerritory: any;
-  territoryForm: FormGroup;
+  territoryForm: UntypedFormGroup;
   territoryToEdit: any;
   territoryID = -1;
   duplicateID = -1;
@@ -336,25 +336,25 @@ export class TerritoryFormComponent implements OnInit {
 
   initializeTerritoryForm(): void {
 
-    this.territoryForm = new FormGroup({
-      id: new FormControl(null, []),
-      code: new FormControl(null, [Validators.required,]),
-      name: new FormControl(null, [Validators.required,]),
-      territorialAuthorityAddress: new FormControl(null),
-      territorialAuthorityLogo: new FormControl(null),
-      groupType: new FormControl(null),
-      type: new FormControl(null),
-      extensionX0: new FormControl(null, []),
-      extensionX1: new FormControl(null, []),
-      extensionY0: new FormControl(null, []),
-      extensionY1: new FormControl(null, []),
-      extent: new FormControl(null),
-      note: new FormControl(null),
-      blocked: new FormControl(false),
-      defaultZoomLevel: new FormControl(null),
-      centerPointX:  new FormControl(null),
-      centerPointY:  new FormControl(null),
-      _links: new FormControl(null),
+    this.territoryForm = new UntypedFormGroup({
+      id: new UntypedFormControl(null, []),
+      code: new UntypedFormControl(null, [Validators.required,]),
+      name: new UntypedFormControl(null, [Validators.required,]),
+      territorialAuthorityAddress: new UntypedFormControl(null),
+      territorialAuthorityLogo: new UntypedFormControl(null),
+      groupType: new UntypedFormControl(null),
+      type: new UntypedFormControl(null),
+      extensionX0: new UntypedFormControl(null, []),
+      extensionX1: new UntypedFormControl(null, []),
+      extensionY0: new UntypedFormControl(null, []),
+      extensionY1: new UntypedFormControl(null, []),
+      extent: new UntypedFormControl(null),
+      note: new UntypedFormControl(null),
+      blocked: new UntypedFormControl(false),
+      defaultZoomLevel: new UntypedFormControl(null),
+      centerPointX:  new UntypedFormControl(null),
+      centerPointY:  new UntypedFormControl(null),
+      _links: new UntypedFormControl(null),
 
     })
 

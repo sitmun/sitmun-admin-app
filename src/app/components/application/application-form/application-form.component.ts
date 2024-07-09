@@ -1,5 +1,5 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { AbstractControl, UntypedFormControl, UntypedFormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   ApplicationService, ApplicationParameterService, RoleService,
@@ -36,7 +36,7 @@ export class ApplicationFormComponent implements OnInit {
   situationMapList: Array<any> = [];
   parametersTypes: Array<any> = [];
   //Dialog
-  applicationForm: FormGroup;
+  applicationForm: UntypedFormGroup;
   applicationToEdit;
   applicationSaved: Application;
   applicationID = -1;
@@ -70,7 +70,7 @@ export class ApplicationFormComponent implements OnInit {
   //Dialogs
 
   columnDefsParametersDialog: any[];
-  public parameterForm: FormGroup;
+  public parameterForm: UntypedFormGroup;
   getAllElementsEventParameters: Subject<string> = new Subject<string>();
   @ViewChild('newParameterDialog', {
     static: true
@@ -353,33 +353,33 @@ export class ApplicationFormComponent implements OnInit {
 
   initializeApplicationForm(): void {
 
-    this.applicationForm = new FormGroup({
-      id: new FormControl(null, []),
-      name: new FormControl(null, [
+    this.applicationForm = new UntypedFormGroup({
+      id: new UntypedFormControl(null, []),
+      name: new UntypedFormControl(null, [
         Validators.required,
       ]),
-      type: new FormControl(null, [
+      type: new UntypedFormControl(null, [
         Validators.required,
       ]),
-      title: new FormControl(null),
-      jspTemplate: new FormControl(null,[Validators.required]),
-      theme: new FormControl(null),
+      title: new UntypedFormControl(null),
+      jspTemplate: new UntypedFormControl(null,[Validators.required]),
+      theme: new UntypedFormControl(null),
 
-      situationMap: new FormControl(null, []),
-      scales: new FormControl(null),
-      srs: new FormControl(null),
-      treeAutoRefresh: new FormControl(null),
-      _links: new FormControl(null, []),
+      situationMap: new UntypedFormControl(null, []),
+      scales: new UntypedFormControl(null),
+      srs: new UntypedFormControl(null),
+      treeAutoRefresh: new UntypedFormControl(null),
+      _links: new UntypedFormControl(null, []),
 
     });
 
   }
 
   initializeParameterForm(): void {
-    this.parameterForm = new FormGroup({
-      name: new FormControl(null),
-      type: new FormControl(null),
-      value: new FormControl(null),
+    this.parameterForm = new UntypedFormGroup({
+      name: new UntypedFormControl(null),
+      type: new UntypedFormControl(null),
+      value: new UntypedFormControl(null),
 
     })
   }

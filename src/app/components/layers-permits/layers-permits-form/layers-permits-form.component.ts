@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CartographyGroupService, RoleService, Role, CartographyService,Cartography } from '../../../frontend-core/src/lib/public_api';
 import { HttpClient } from '@angular/common/http';
@@ -20,7 +20,7 @@ import { of, Subject } from 'rxjs';
 export class LayersPermitsFormComponent implements OnInit {
  
   //Form
-  formLayersPermits: FormGroup;
+  formLayersPermits: UntypedFormGroup;
   layersPermitsToEdit;
   layersPermitsID = -1;
   duplicateID = -1;
@@ -155,15 +155,15 @@ export class LayersPermitsFormComponent implements OnInit {
 
   initializeLayersPermitsForm(): void {
 
-    this.formLayersPermits = new FormGroup({
-      id: new FormControl(null, []),
-      name: new FormControl(null, [
+    this.formLayersPermits = new UntypedFormGroup({
+      id: new UntypedFormControl(null, []),
+      name: new UntypedFormControl(null, [
         Validators.required,
       ]),
-      type: new FormControl(null, [
+      type: new UntypedFormControl(null, [
         Validators.required,
       ]),
-      _links: new FormControl(null, []),
+      _links: new UntypedFormControl(null, []),
 
     })
 

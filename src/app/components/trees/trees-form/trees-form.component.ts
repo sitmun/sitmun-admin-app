@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { TreeService, TreeNodeService, Translation, TranslationService, 
   CartographyService, Tree, TreeNode, Cartography, ServiceService, CapabilitiesService, ApplicationService } from '../../../frontend-core/src/lib/public_api';
 import { HttpClient } from '@angular/common/http';
@@ -42,8 +42,8 @@ export class TreesFormComponent implements OnInit {
   themeGrid: any = config.agGridTheme;
   treeID: number = -1;
   duplicateID = -1;
-  treeForm: FormGroup;
-  treeNodeForm: FormGroup;
+  treeForm: UntypedFormGroup;
+  treeNodeForm: UntypedFormGroup;
   idFictitiousCounter = -1;
   treeToEdit: Tree;
   dataLoaded: Boolean = false;
@@ -368,47 +368,47 @@ export class TreesFormComponent implements OnInit {
 
 
   initializeTreesForm(): void {
-    this.treeForm = new FormGroup({
-      id: new FormControl(null, []),
-      name: new FormControl(null, [Validators.required]),
-      description: new FormControl(null, []),
-      image: new FormControl(null, []),
-      _links: new FormControl(null, [])
+    this.treeForm = new UntypedFormGroup({
+      id: new UntypedFormControl(null, []),
+      name: new UntypedFormControl(null, [Validators.required]),
+      description: new UntypedFormControl(null, []),
+      image: new UntypedFormControl(null, []),
+      _links: new UntypedFormControl(null, [])
     })
   }
 
   initializeTreesNodeForm(): void {
-    this.treeNodeForm = new FormGroup({
-      id: new FormControl(null, []),
-      name: new FormControl(null, [Validators.required]),
-      tooltip: new FormControl(null, []),
-      cartography: new FormControl(null, []),
-      radio: new FormControl(null, []),
-      datasetURL: new FormControl(null, []),
-      metadataURL: new FormControl(null, []),
-      description: new FormControl(null, []),
-      active: new FormControl(true, []),
-      _links: new FormControl(null, []),
-      children: new FormControl(null, []),
-      parent: new FormControl(null, []),
-      isFolder: new FormControl(null, []),
-      type: new FormControl(null, []),
-      order: new FormControl(null, []),
-      filterGetFeatureInfo: new FormControl("UNDEFINED", []),
-      filterGetMap: new FormControl("UNDEFINED", []),
-      filterSelectable: new FormControl("UNDEFINED", []),
-      nameTranslations: new FormControl(null, []),
-      descriptionTranslations: new FormControl(null, []),
-      nameTranslationsModified: new FormControl(null, []),
-      descriptionTranslationsModified: new FormControl(null, []),
-      nameFormModified: new FormControl(null, []),
-      descriptionFormModified: new FormControl(null, []),
-      status: new FormControl(null, []),
-      cartographyName: new FormControl(null, []),
-      cartographyId: new FormControl(null, []),
-      cartographyStyles: new FormControl(null, []),
-      oldCartography: new FormControl(null, []),
-      style: new FormControl(null, []),
+    this.treeNodeForm = new UntypedFormGroup({
+      id: new UntypedFormControl(null, []),
+      name: new UntypedFormControl(null, [Validators.required]),
+      tooltip: new UntypedFormControl(null, []),
+      cartography: new UntypedFormControl(null, []),
+      radio: new UntypedFormControl(null, []),
+      datasetURL: new UntypedFormControl(null, []),
+      metadataURL: new UntypedFormControl(null, []),
+      description: new UntypedFormControl(null, []),
+      active: new UntypedFormControl(true, []),
+      _links: new UntypedFormControl(null, []),
+      children: new UntypedFormControl(null, []),
+      parent: new UntypedFormControl(null, []),
+      isFolder: new UntypedFormControl(null, []),
+      type: new UntypedFormControl(null, []),
+      order: new UntypedFormControl(null, []),
+      filterGetFeatureInfo: new UntypedFormControl("UNDEFINED", []),
+      filterGetMap: new UntypedFormControl("UNDEFINED", []),
+      filterSelectable: new UntypedFormControl("UNDEFINED", []),
+      nameTranslations: new UntypedFormControl(null, []),
+      descriptionTranslations: new UntypedFormControl(null, []),
+      nameTranslationsModified: new UntypedFormControl(null, []),
+      descriptionTranslationsModified: new UntypedFormControl(null, []),
+      nameFormModified: new UntypedFormControl(null, []),
+      descriptionFormModified: new UntypedFormControl(null, []),
+      status: new UntypedFormControl(null, []),
+      cartographyName: new UntypedFormControl(null, []),
+      cartographyId: new UntypedFormControl(null, []),
+      cartographyStyles: new UntypedFormControl(null, []),
+      oldCartography: new UntypedFormControl(null, []),
+      style: new UntypedFormControl(null, []),
       
 
     })

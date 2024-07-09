@@ -1,6 +1,6 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { tick } from '@angular/core/testing';
-import { FormControl, FormGroup, Validators, FormBuilder } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators, FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ServiceService, CartographyService, Translation, TranslationService, Connection, 
   Cartography, ServiceParameterService, CapabilitiesService, CartographyStyleService, CartographyFilterService } from '../../../frontend-core/src/lib/public_api';
@@ -34,7 +34,7 @@ export class ServiceFormComponent implements OnInit {
   tableLoadButtonDisabled = true;
   capabilitiesLoaded: Boolean = true;
   private parametersUrl: string;
-  serviceForm: FormGroup;
+  serviceForm: UntypedFormGroup;
   serviceToEdit;
   serviceID = -1;
   duplicateID = -1;
@@ -61,7 +61,7 @@ export class ServiceFormComponent implements OnInit {
 
   //Dialogs
 
-  public parameterForm: FormGroup;
+  public parameterForm: UntypedFormGroup;
   addElementsEventParameters: Subject<any[]> = new Subject<any[]>();
   @ViewChild('newParameterDialog', {
     static: true
@@ -239,35 +239,35 @@ export class ServiceFormComponent implements OnInit {
 
   initializeServiceForm(): void {
 
-    this.serviceForm = new FormGroup({
-      id: new FormControl(null, []),
-      name: new FormControl(null, [Validators.required,]),
-      user: new FormControl(null),
-      password: new FormControl(null),
-      passwordSet: new FormControl(null),
-      authenticationMode: new FormControl(null, [Validators.required]),
+    this.serviceForm = new UntypedFormGroup({
+      id: new UntypedFormControl(null, []),
+      name: new UntypedFormControl(null, [Validators.required,]),
+      user: new UntypedFormControl(null),
+      password: new UntypedFormControl(null),
+      passwordSet: new UntypedFormControl(null),
+      authenticationMode: new UntypedFormControl(null, [Validators.required]),
 
-      description: new FormControl(null, [Validators.required]),
-      type: new FormControl(null, [
+      description: new UntypedFormControl(null, [Validators.required]),
+      type: new UntypedFormControl(null, [
         Validators.required,
       ]),
-      serviceURL: new FormControl(null, [
+      serviceURL: new UntypedFormControl(null, [
         Validators.required,
       ]),
-      proxyUrl: new FormControl(null,),
-      supportedSRS: new FormControl(null),
-      getInformationURL: new FormControl(null,),
-      _links: new FormControl(null, []),
-      blocked: new FormControl(null, []),
+      proxyUrl: new UntypedFormControl(null,),
+      supportedSRS: new UntypedFormControl(null),
+      getInformationURL: new UntypedFormControl(null,),
+      _links: new UntypedFormControl(null, []),
+      blocked: new UntypedFormControl(null, []),
     });
 
   }
 
   initializeParameterForm(): void {
-    this.parameterForm = new FormGroup({
-      name: new FormControl(null, [Validators.required]),
-      type: new FormControl(null, [Validators.required]),
-      value: new FormControl(null, []),
+    this.parameterForm = new UntypedFormGroup({
+      name: new UntypedFormControl(null, [Validators.required]),
+      type: new UntypedFormControl(null, [Validators.required]),
+      value: new UntypedFormControl(null, []),
 
     })
   }
