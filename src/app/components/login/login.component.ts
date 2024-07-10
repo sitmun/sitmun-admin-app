@@ -4,7 +4,7 @@ import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
 import { TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormBuilder, Validators } from '@angular/forms';
 
 /** Login component*/
 @Component( {
@@ -23,10 +23,10 @@ export class LoginComponent {
     languagesLoaded = false;
 
     /** form */
-    form: FormGroup;
+    form: UntypedFormGroup;
 
     /** constructor */
-    constructor( private fb: FormBuilder,
+    constructor( private fb: UntypedFormBuilder,
         private authService: AuthService,
         private loginService: LoginService,
         private languageService: LanguageService,

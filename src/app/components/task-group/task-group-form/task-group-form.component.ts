@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TaskGroupService, UserService,Connection } from '../../../frontend-core/src/lib/public_api';
 
@@ -14,7 +14,7 @@ import { UtilsService } from '../../../services/utils.service';
 })
 export class TaskGroupFormComponent implements OnInit {
 
-  formtaskGroup: FormGroup;
+  formtaskGroup: UntypedFormGroup;
   taskGroupToEdit;
   taskGroupID: number = -1;
   duplicateID = -1;
@@ -79,12 +79,12 @@ export class TaskGroupFormComponent implements OnInit {
 
   initializeTaskGroupForm(): void {
 
-    this.formtaskGroup = new FormGroup({
-      id: new FormControl(null, []),
-      name: new FormControl(null, [
+    this.formtaskGroup = new UntypedFormGroup({
+      id: new UntypedFormControl(null, []),
+      name: new UntypedFormControl(null, [
         Validators.required,
       ]),
-      _links: new FormControl(null, []),
+      _links: new UntypedFormControl(null, []),
 
     })
 

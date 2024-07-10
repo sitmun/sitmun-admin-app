@@ -40,7 +40,7 @@ describe('LayersFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [LayersFormComponent],
-      imports: [FormsModule, ReactiveFormsModule, RouterModule.forRoot([], { relativeLinkResolution: 'corrected' }), HttpClientTestingModule, SitmunFrontendGuiModule,
+      imports: [FormsModule, ReactiveFormsModule, RouterModule.forRoot([], {}), HttpClientTestingModule, SitmunFrontendGuiModule,
         RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
       providers: [CartographyService, ServiceService, ConnectionService, TerritoryTypeService,
         TreeNodeService, GetInfoService, CartographyStyleService, TerritoryService, CartographyGroupService, CartographyAvailabilityService,

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
+import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import { MatIconRegistry } from "@angular/material/icon";
 import { DomSanitizer } from "@angular/platform-browser";
 
@@ -12,7 +12,7 @@ import { DomSanitizer } from "@angular/platform-browser";
 })
 export class DialogTranslationComponent implements OnInit {
 
-  translationForm: FormGroup;
+  translationForm: UntypedFormGroup;
   translationsMap:  Map<string, any>;
   languageByDefault:  string;
   languagesAvailables: Array<any>;
@@ -106,12 +106,12 @@ export class DialogTranslationComponent implements OnInit {
 
   initializeTranslationForm(): void {
 
-    this.translationForm = new FormGroup({
-      catalanValue: new FormControl(null, []),
-      spanishValue: new FormControl(null, []),
-      englishValue: new FormControl(null, []),
-      araneseValue: new FormControl(null, []),
-      frenchValue: new FormControl(null, []),
+    this.translationForm = new UntypedFormGroup({
+      catalanValue: new UntypedFormControl(null, []),
+      spanishValue: new UntypedFormControl(null, []),
+      englishValue: new UntypedFormControl(null, []),
+      araneseValue: new UntypedFormControl(null, []),
+      frenchValue: new UntypedFormControl(null, []),
     })
   }
 

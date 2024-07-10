@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ConnectionService, CartographyService, TaskService, Cartography, Task, Connection } from '../../../frontend-core/src/lib/public_api';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -10,7 +10,7 @@ import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
 import { map } from 'rxjs/operators';
 import { DialogGridComponent } from '../../../frontend-gui/src/lib/public_api';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { Location } from '@angular/common'
 
 
@@ -24,7 +24,7 @@ export class ConnectionFormComponent implements OnInit {
   hidePassword = true;
 
   //Form
-  formConnection: FormGroup;
+  formConnection: UntypedFormGroup;
   connectionToEdit;
   connectionID = -1;
   duplicateID = -1;
@@ -176,19 +176,19 @@ export class ConnectionFormComponent implements OnInit {
 
   initializeConnectionForm(): void {
 
-    this.formConnection = new FormGroup({
-      id: new FormControl(null, []),
-      name: new FormControl(null, [
+    this.formConnection = new UntypedFormGroup({
+      id: new UntypedFormControl(null, []),
+      name: new UntypedFormControl(null, [
         Validators.required,
       ]),
-      driver: new FormControl(null, [
+      driver: new UntypedFormControl(null, [
         Validators.required,
       ]),
-      user: new FormControl(null, []),
-      password: new FormControl(null, []),
-      passwordSet: new FormControl(null, []),
-      url: new FormControl(null, []),
-      _links: new FormControl(null, []),
+      user: new UntypedFormControl(null, []),
+      password: new UntypedFormControl(null, []),
+      passwordSet: new UntypedFormControl(null, []),
+      url: new UntypedFormControl(null, []),
+      _links: new UntypedFormControl(null, []),
     })
   }
 

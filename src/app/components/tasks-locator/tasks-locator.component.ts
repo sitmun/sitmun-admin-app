@@ -5,7 +5,7 @@ import { Observable, of,Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
 import { TaskService, Task, HalOptions, HalParam } from '../../frontend-core/src/lib/public_api';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
 
 @Component({

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
-import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { AbstractControl, UntypedFormControl, UntypedFormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserService, UserPositionService, UserConfigurationService, 
   TerritoryService, RoleService, HalOptions, HalParam, Territory, User, UserConfiguration, Role } from '../../../frontend-core/src/lib/public_api';
@@ -11,7 +11,7 @@ import { Observable, of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
 import { DialogGridComponent, DialogMessageComponent } from '../../../frontend-gui/src/lib/public_api';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { DatePipe } from '@angular/common';
 import { resolve } from 'dns';
 
@@ -29,7 +29,7 @@ export class UserFormComponent implements OnInit {
   hideConfirmPassword = true;
 
   //Form
-  userForm: FormGroup;
+  userForm: UntypedFormGroup;
   userToEdit: User;
   userID = -1;
   duplicateID = -1;
@@ -201,21 +201,21 @@ export class UserFormComponent implements OnInit {
 
   initializeUserForm(): void {
 
-    this.userForm = new FormGroup({
-      id: new FormControl(null, []),
-      username: new FormControl(null, [
+    this.userForm = new UntypedFormGroup({
+      id: new UntypedFormControl(null, []),
+      username: new UntypedFormControl(null, [
         Validators.required,
       ]),
-      firstName: new FormControl(null, [
+      firstName: new UntypedFormControl(null, [
         Validators.required,
       ]),
-      lastName: new FormControl(null),
-      passwordSet: new FormControl(null),
-      password: new FormControl(null),
-      confirmPassword: new FormControl(null,),
-      administrator: new FormControl(null, []),
-      blocked: new FormControl(null, []),
-      _links: new FormControl(null, []),
+      lastName: new UntypedFormControl(null),
+      passwordSet: new UntypedFormControl(null),
+      password: new UntypedFormControl(null),
+      confirmPassword: new UntypedFormControl(null,),
+      administrator: new UntypedFormControl(null, []),
+      blocked: new UntypedFormControl(null, []),
+      _links: new UntypedFormControl(null, []),
 
     });
 

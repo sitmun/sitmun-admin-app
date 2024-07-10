@@ -1,10 +1,10 @@
 import { Component, ElementRef, OnInit, QueryList, TemplateRef, ViewChild, ViewChildren, ViewEncapsulation } from '@angular/core';
 import { UtilsService } from 'src/app/services/utils.service';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { ServiceService, TaskService, TaskTypeService, TaskGroupService, CartographyService, ConnectionService, HalOptions, HalParam, 
   TaskUIService, RoleService, CodeListService, TerritoryService, Task, TaskAvailabilityService, TaskAvailability } from '../../frontend-core/src/lib/public_api';
 import { config } from 'src/config';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { DialogFormComponent, DialogGridComponent } from '../../frontend-gui/src/lib/public_api';
 import { Observable, of, pipe, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -19,7 +19,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class TaskFormComponent implements OnInit {
 
-  taskForm: FormGroup;
+  taskForm: UntypedFormGroup;
   taskToEdit;
 
   formElements = [];
@@ -476,7 +476,7 @@ export class TaskFormComponent implements OnInit {
 
 
   initializeForm(keys: Array<any>, values: Array<any>, popupForm?:boolean){
-    let form=new FormGroup({})
+    let form=new UntypedFormGroup({})
     let hasEnumBySQLElement = false;
     for(let i=0; i< keys.length; i++){
       const key= keys[i];
@@ -502,7 +502,7 @@ export class TaskFormComponent implements OnInit {
       // if(values[i].required){
       //   form.addControl(key,new FormControl(value,[Validators.required]));
       // }
-      form.addControl(key,new FormControl(value,[]));
+      form.addControl(key,new UntypedFormControl(value,[]));
 
 
   
@@ -551,7 +551,7 @@ export class TaskFormComponent implements OnInit {
       let keySpecification = this.properties.form.elements[key]
       if(!keySpecification){
         if(!config.taskSelectorFieldsForm[key] || !this.properties.form.elements[config.taskSelectorFieldsForm[key]] ){
-          this.taskForm.addControl(key,new FormControl( this.taskToEdit[key],[]));
+          this.taskForm.addControl(key,new UntypedFormControl( this.taskToEdit[key],[]));
         }
         else{
           keySpecification = this.properties.form.elements[config.taskSelectorFieldsForm[key]]
@@ -581,7 +581,7 @@ export class TaskFormComponent implements OnInit {
       }
 
       if(!this.taskForm.get(key)){
-        this.taskForm.addControl(key,new FormControl( properties[key],[]));
+        this.taskForm.addControl(key,new UntypedFormControl( properties[key],[]));
         if(key == 'layers' && properties[key]){
            this.taskForm.patchValue({
              layers: properties[key].join()
@@ -743,10 +743,10 @@ export class TaskFormComponent implements OnInit {
         this.taskService.save(this.savedTask).subscribe( result =>{
           console.log(result);
           if(this.taskForm.get("id")) { this.taskForm.get("id").setValue(result.id); }
-          else { this.taskForm.addControl("id",new FormControl(result.id,[])); }
+          else { this.taskForm.addControl("id",new UntypedFormControl(result.id,[])); }
   
           if(this.taskForm.get("_links")) { this.taskForm.get("_links").setValue(result._links); }
-          else { this.taskForm.addControl("_links",new FormControl(result._links,[])); }
+          else { this.taskForm.addControl("_links",new UntypedFormControl(result._links,[])); }
 
           this.taskToEdit=result;
           this.taskID = result.id;

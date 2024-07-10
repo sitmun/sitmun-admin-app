@@ -45,60 +45,56 @@ export function createTranslateLoader(http: HttpClient) {
 
 /** SITMUN plugin core module */
 @NgModule({
-  imports: [
-    RouterModule,
-    HttpClientModule,
-    CommonModule,
-    FormsModule,
-    NoopAnimationsModule,
-    //AngularHalModule,
-    ReactiveFormsModule,
-    BrowserAnimationsModule,
-    AgGridModule,
-    // SitmunFrontendCoreModule,
-    MaterialModule,
-    TranslateModule.forRoot({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: (createTranslateLoader),
-        deps: [HttpClient]
-      }
-    })
-
-  ],
-  declarations: [
-    DataGridComponent,
-    DataTreeComponent,
-    BtnEditRenderedComponent,
-    BtnCheckboxRenderedComponent,
-    BtnCheckboxFilterComponent,
-    DialogGridComponent,
-    DialogFormComponent,
-    DialogMessageComponent,
-    DialogTranslationComponent,
-    DatagraphComponent
-  ],
-  entryComponents: [
-  ],
-  providers: [
-  ],
-  exports: [
-    HttpClientModule,
-    CommonModule,
-    FormsModule,
-    NoopAnimationsModule,
-    //AngularHalModule,
-    TranslateModule,
-    ReactiveFormsModule,
-    DataGridComponent,
-    DataTreeComponent,
-    DialogGridComponent,
-    DialogFormComponent,
-    DialogMessageComponent,
-    DialogTranslationComponent,
-    DatagraphComponent,
-    // SitmunFrontendCoreModule
-  ]
+    imports: [
+        RouterModule,
+        HttpClientModule,
+        CommonModule,
+        FormsModule,
+        NoopAnimationsModule,
+        //AngularHalModule,
+        ReactiveFormsModule,
+        BrowserAnimationsModule,
+        AgGridModule,
+        // SitmunFrontendCoreModule,
+        MaterialModule,
+        TranslateModule.forRoot({
+            loader: {
+                provide: TranslateLoader,
+                useFactory: (createTranslateLoader),
+                deps: [HttpClient]
+            }
+        })
+    ],
+    declarations: [
+        DataGridComponent,
+        DataTreeComponent,
+        BtnEditRenderedComponent,
+        BtnCheckboxRenderedComponent,
+        BtnCheckboxFilterComponent,
+        DialogGridComponent,
+        DialogFormComponent,
+        DialogMessageComponent,
+        DialogTranslationComponent,
+        DatagraphComponent
+    ],
+    providers: [],
+    exports: [
+        HttpClientModule,
+        CommonModule,
+        FormsModule,
+        NoopAnimationsModule,
+        //AngularHalModule,
+        TranslateModule,
+        ReactiveFormsModule,
+        DataGridComponent,
+        DataTreeComponent,
+        DialogGridComponent,
+        DialogFormComponent,
+        DialogMessageComponent,
+        DialogTranslationComponent,
+        DatagraphComponent,
+        // SitmunFrontendCoreModule
+    ]
 })
 export class SitmunFrontendGuiModule {
 }

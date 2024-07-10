@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { tick } from '@angular/core/testing';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RoleService, UserService, CartographyGroupService, TaskService, UserConfigurationService, TerritoryService, HalOptions, HalParam, 
   User, Territory, Role, ApplicationService, Task, CartographyGroup, Application } from '../../../frontend-core/src/lib/public_api';
@@ -11,7 +11,7 @@ import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
 import { DialogGridComponent, DialogMessageComponent } from '../../../frontend-gui/src/lib/public_api';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 
 
 @Component({
@@ -22,7 +22,7 @@ import { MatDialog } from '@angular/material/dialog';
 export class RoleFormComponent implements OnInit {
 
   //Form
-  formRole: FormGroup;
+  formRole: UntypedFormGroup;
   roleToEdit;
   roleSaved: Role;
   roleID: number = -1;
@@ -195,15 +195,15 @@ export class RoleFormComponent implements OnInit {
 
   initializeRoleForm(): void {
 
-    this.formRole = new FormGroup({
-      id: new FormControl(null, []),
-      name: new FormControl(null, [
+    this.formRole = new UntypedFormGroup({
+      id: new UntypedFormControl(null, []),
+      name: new UntypedFormControl(null, [
         Validators.required,
       ]),
-      description: new FormControl(null, [
+      description: new UntypedFormControl(null, [
         Validators.required,
       ]),
-      _links: new FormControl(null, []),
+      _links: new UntypedFormControl(null, []),
 
     })
 
