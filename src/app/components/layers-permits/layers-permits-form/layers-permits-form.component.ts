@@ -9,7 +9,7 @@ import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
 import { DialogGridComponent } from '../../../frontend-gui/src/lib/public_api';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { of, Subject } from 'rxjs';
 
 @Component({

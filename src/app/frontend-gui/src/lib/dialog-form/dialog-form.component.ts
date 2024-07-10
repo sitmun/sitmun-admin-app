@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { UntypedFormGroup,FormControl,Validators } from '@angular/forms';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog'; 
+import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog'; 
 import { TranslateService } from '@ngx-translate/core';
 import { DialogMessageComponent } from '../dialog-message/dialog-message.component';
 

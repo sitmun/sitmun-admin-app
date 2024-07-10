@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
@@ -7,7 +7,7 @@ import { Subject } from 'rxjs';
 import { HalOptions, HalParam, CodeListService, Translation,  TranslationService } from '../frontend-core/src/lib/public_api';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { DialogMessageComponent, DialogTranslationComponent } from '../frontend-gui/src/lib/public_api';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { config } from 'src/config';
 
 @Injectable({

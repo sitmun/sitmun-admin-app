@@ -4,7 +4,7 @@ import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms
 import { ServiceService, TaskService, TaskTypeService, TaskGroupService, CartographyService, ConnectionService, HalOptions, HalParam, 
   TaskUIService, RoleService, CodeListService, TerritoryService, Task, TaskAvailabilityService, TaskAvailability } from '../../frontend-core/src/lib/public_api';
 import { config } from 'src/config';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { DialogFormComponent, DialogGridComponent } from '../../frontend-gui/src/lib/public_api';
 import { Observable, of, pipe, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
