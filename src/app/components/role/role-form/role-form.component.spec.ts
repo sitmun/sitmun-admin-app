@@ -36,7 +36,7 @@ describe('RoleFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ RoleFormComponent ],
-      imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, RouterModule.forRoot([], { relativeLinkResolution: 'corrected' }), HttpClientModule,
+      imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, RouterModule.forRoot([], {}), HttpClientModule,
       SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
       providers: [RoleService, UserService, TerritoryService, ApplicationService, CodeListService, 
         CartographyGroupService,UserConfigurationService, CartographyService, TaskService,ResourceService,ExternalService,
