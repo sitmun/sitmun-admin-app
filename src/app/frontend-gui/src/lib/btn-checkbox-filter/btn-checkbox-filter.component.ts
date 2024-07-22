@@ -1,17 +1,12 @@
 import { Component, ViewChild, ViewContainerRef } from '@angular/core';
-import {FormControl, Validators} from '@angular/forms';
 import {
-  IAfterGuiAttachedParams,
   IDoesFilterPassParams,
-  IFilterParams,
-  RowNode,
+  IRowNode,
   IFloatingFilter,
   NumberFilter,
-  NumberFilterModel,
   IFloatingFilterParams,
-} from '@ag-grid-community/all-modules';
+} from '@ag-grid-community/core';
 import { AgFrameworkComponent } from '@ag-grid-community/angular';
-import { IFilterAngularComp } from '@ag-grid-community/angular';
 
 @Component({
   selector: 'app-btn-checkbox-filter',
@@ -21,15 +16,23 @@ import { IFilterAngularComp } from '@ag-grid-community/angular';
 })
 export class BtnCheckboxFilterComponent implements IFloatingFilter, AgFrameworkComponent<IFloatingFilterParams>   {
   private params: IFloatingFilterParams;
-  private valueGetter: (rowNode: RowNode) => any;
+  private valueGetter: (rowNode: IRowNode<any>) => any;
   public text: string = '';
   public currentValue: number;
   @ViewChild('input', { read: ViewContainerRef }) public input;
 
   agInit(params: IFloatingFilterParams): void {
     this.params = params;
-    this.valueGetter = params.filterParams.valueGetter;
     this.params.suppressFilterButton=true;
+    this.valueGetter = (rowNode: IRowNode<any>) => params.filterParams.valueGetter({
+      data: rowNode.data,
+      node: rowNode,
+      getValue: (field: string) => rowNode.data[field],
+      column: params.column,
+      colDef: params.column.getColDef(),
+      api: params.api,
+      context: params.context
+    });
   }
 
   isFilterActive(): boolean {
@@ -57,8 +60,7 @@ export class BtnCheckboxFilterComponent implements IFloatingFilter, AgFrameworkC
     this.text = model ? model.value : '';
   }
 
-
- onChange(newValue): void {
+  onChange(newValue): void {
     this.params.parentFilterInstance(function (instance) {
       (<NumberFilter>instance).onFloatingFilterChanged(
         'contains',
@@ -71,8 +73,6 @@ export class BtnCheckboxFilterComponent implements IFloatingFilter, AgFrameworkC
     if (!parentModel) {
       this.currentValue = 0;
     } else {
-      // note that the filter could be anything here, but our purposes we're assuming a greater than filter only,
-      // so just read off the value and use that
       this.currentValue = parentModel.filter;
     }
   }

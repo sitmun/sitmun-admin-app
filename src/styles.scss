@@ -1,13 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 
-@import "~@ag-grid-community/all-modules/dist/styles/ag-grid.css";
-@import "~@ag-grid-community/all-modules/dist/styles/ag-theme-balham.css";
-@import "~@ag-grid-community/all-modules/dist/styles/ag-theme-balham-dark.css";
-@import "~@ag-grid-community/all-modules/dist/styles/ag-theme-dark.css";
-@import "~@ag-grid-community/all-modules/dist/styles/ag-theme-blue.css";
-@import "~@ag-grid-community/all-modules/dist/styles/ag-theme-bootstrap.css";
-@import "~@ag-grid-community/all-modules/dist/styles/ag-theme-fresh.css";
-@import "~@ag-grid-community/all-modules/dist/styles/ag-theme-material.css";
+@import "~@ag-grid-community/styles/ag-grid.css";
+@import "~@ag-grid-community/styles/ag-theme-balham.css";
+@import "~@ag-grid-community/styles/ag-theme-material.css";
 
 @import "../node_modules/@syncfusion/ej2-base/styles/material.css";
 @import "../node_modules/@syncfusion/ej2-buttons/styles/material.css";

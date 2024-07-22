@@ -3,7 +3,7 @@ import { Component, OnInit, NgModule, Input, Output, EventEmitter, ElementRef } 
 import { FormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { AllCommunityModules, ColumnApi, Module } from '@ag-grid-community/all-modules';
+import { Module } from '@ag-grid-community/core';
 import { TranslateService } from '@ngx-translate/core';
 import { BtnEditRenderedComponent } from '../btn-edit-rendered/btn-edit-rendered.component';
 import { BtnCheckboxRenderedComponent } from '../btn-checkbox-rendered/btn-checkbox-rendered.component';
@@ -27,7 +27,7 @@ export class DataGridComponent implements OnInit {
   _eventGetAllRowsSubscription: any;
   _eventSaveAgGridStateSubscription: any;
   _eventModifyStatusOfSelectedCells: any;
-  modules: Module[] = AllCommunityModules;
+  modules: Module[] = [];
 
 
   UndeRedoActions
@@ -136,6 +136,7 @@ export class DataGridComponent implements OnInit {
         editable: !this.nonEditable,
         suppressMenu: true,
         resizable: true,
+        floatingFilter: true,
         cellStyle: (params) => {
           if(params.value && params.colDef.editable){
             if(this.changesMap.has(params.node.id) && this.changesMap.get(params.node.id).has(params.colDef.field)){
@@ -778,9 +779,7 @@ export class DataGridComponent implements OnInit {
 
   }
 
-  getColumnIndexByColId(api: ColumnApi, colId: string): number {
-    return api.getAllColumns().findIndex(col => col.getColId() === colId);
-  }
+  
   paintCells(params: any, changesMap: Map<number, Map<string, number>>,) {
     const row = this.gridApi.getDisplayedRowAtIndex(params.rowIndex);
 
@@ -789,15 +788,5 @@ export class DataGridComponent implements OnInit {
     // this.changeCellStyleColumns(params, changesMap, '#FFFFFF');
     // We will define cellStyle white to future modifications (like filter)
   }
-
-  // changeCellStyleColumns(params: any, changesMap: Map<number, Map<string, number>>, color: string) {
-
-  //   for (const key of changesMap.get(params.node.id).keys()) {
-  //     const columnNumber = this.getColumnIndexByColId(this.gridColumnApi, key);
-  //     this.gridColumnApi.columnController.gridColumns[columnNumber].colDef.cellStyle = { backgroundColor: color };
-  //   }
-
-
-  // }
 
 }
