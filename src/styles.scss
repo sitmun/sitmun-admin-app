@@ -292,8 +292,8 @@ h2 {
 
 
 
-.mat-stroked-button,
-.mat-flat-button {
+.mat-mdc-outlined-button,
+.mat-mdc-unelevated-button {
   padding: 0 10px !important;
   margin-right: 10px !important;
 }
@@ -302,7 +302,7 @@ h2 {
 //     margin-right:5px;
 // }
 
-.mat-table {
+.mat-mdc-table {
   width: calc(100% - 20px);
   margin-top: 5px;
   border: 1px solid #ddd;
@@ -315,31 +315,36 @@ h2 {
   align-items: center;
 }
 
-.flexDiv .mat-form-field {
+.flexDiv .mat-mdc-form-field {
   margin-left: auto;
 }
 
 
+/* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version. */
 .mat-form-field-appearance-outline .mat-form-field-infix {
   padding: 0.4em 0 0.4em 0 !important;
   top: -0.25em;
 }
 
+/* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version. */
 .mat-form-field-appearance-outline .mat-select-arrow-wrapper {
   transform: translateY(0%) !important;
 }
 
-.mat-form-field .mat-form-field-suffix {
+/* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version. */
+.mat-mdc-form-field .mat-form-field-suffix {
   top: 2px !important;
   right: -5px;
 }
 
-.mat-form-field .mat-form-field-suffix .search {
+/* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version. */
+.mat-mdc-form-field .mat-form-field-suffix .search {
   top: -2px !important;
   right: 0px;
 }
 
-.mat-form-field .mat-form-field-suffix .edit {
+/* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version. */
+.mat-mdc-form-field .mat-form-field-suffix .edit {
   top: -3px !important;
   right: 0px;
 }
@@ -387,11 +392,12 @@ h2 {
   padding-left: 5px;
 }
 
-.mat-list-base .mat-list-item .mat-list-item-content {
+/* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version. */
+.mat-mdc-list-base .mat-mdc-list-item .mat-list-item-content {
   padding: 0 6px 0 15px !important;
 }
 
-.mat-list-item .list-text {
+.mat-mdc-list-item .list-text {
   margin-right: auto;
 }
 
@@ -487,19 +493,21 @@ h2 {
   }
 
 
-.mat-chip-list-wrapper .mat-standard-chip {
+/* TODO(mdc-migration): The following rule targets internal classes of chips that may no longer apply for the MDC version. */
+.mat-chip-list-wrapper .mat-mdc-standard-chip {
   margin: 2px !important;
   font-size: 13px;
 }
 
-.mat-standard-chip.mat-chip-with-trailing-icon {
+/* TODO(mdc-migration): The following rule targets internal classes of chips that may no longer apply for the MDC version. */
+.mat-mdc-standard-chip.mat-chip-with-trailing-icon {
   padding-top: 11px !important;
   padding-bottom: 11px !important;
   padding-right: 8px !important;
   padding-left: 12px !important;
 }
 
-.mat-standard-chip {
+.mat-mdc-standard-chip {
   min-height: unset !important;
 }
 
@@ -528,7 +536,7 @@ h2 {
   width: unset;
 }
 
-.mat-header-cell,
+.mat-mdc-header-cell,
 .mat-header-cell .mat-sort-header-button {
   text-transform: capitalize;
 }
@@ -537,14 +545,16 @@ h2 {
   padding: 0;
 }
 
-.mat-tab-body.mat-tab-body-active {
+/* TODO(mdc-migration): The following rule targets internal classes of tabs that may no longer apply for the MDC version. */
+.mat-mdc-tab-body.mat-tab-body-active {
   animation: fade 0.5s;
 }
 
-.mat-tab-body {
+.mat-mdc-tab-body {
   padding-top: 20px;
 }
 
+/* TODO(mdc-migration): The following rule targets internal classes of tabs that may no longer apply for the MDC version. */
 .mat-tab-body-content {
   display: flex;
   overflow: hidden !important;
@@ -560,11 +570,13 @@ h2 {
   }
 }
 
+/* TODO(mdc-migration): The following rule targets internal classes of tabs that may no longer apply for the MDC version. */
 .mat-tab-label-active {
   box-shadow: inset 0px -4px 0px 0px #bf0000;
   opacity: 1 !important;
 }
 
+/* TODO(mdc-migration): The following rule targets internal classes of tabs that may no longer apply for the MDC version. */
 .mat-tab-label-active .mat-tab-label-content {
   font-weight: 700;
 }
@@ -573,6 +585,7 @@ h2 {
   height: 0px !important;
 }
 
+/* TODO(mdc-migration): The following rule targets internal classes of tabs that may no longer apply for the MDC version. */
 .mat-tab-label {
   font-size: 16px !important;
 }
@@ -692,11 +705,13 @@ h2 {
 }
 
 //select styles
-.mat-form-field.mat-focused .mat-form-field-ripple {
+/* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version. */
+.mat-mdc-form-field.mat-focused .mat-form-field-ripple {
   background-color: #bf0000 !important;
 }
 
-.mat-form-field.mat-focused .mat-form-field-label {
+/* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version. */
+.mat-mdc-form-field.mat-focused .mat-form-field-label {
   color: #bf0000 !important;
 }
 
@@ -745,11 +760,11 @@ h2 {
   animation: rotating 1s linear infinite;
 }
 
-.dialog div.mat-dialog-actions {
+.dialog div.mat-mdc-dialog-actions {
   justify-content: flex-end;
 }
 
-.dialog div.mat-dialog-content {
+.dialog div.mat-mdc-dialog-content {
   padding: 24px;
   margin: 0;
 }
@@ -815,8 +830,8 @@ h2 {
   .mat-drawer-backdrop,
   app-loading,
   app-breadcrumbs,
-  .sidenav-container .mat-icon-button,
-  .sidenav-container .mat-flat-button,
+  .sidenav-container .mat-mdc-icon-button,
+  .sidenav-container .mat-mdc-unelevated-button,
   .sidenav-container .paginator,
   [no-print] {
     display: none !important;

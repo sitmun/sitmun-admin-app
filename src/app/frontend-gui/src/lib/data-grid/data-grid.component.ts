@@ -8,7 +8,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { BtnEditRenderedComponent } from '../btn-edit-rendered/btn-edit-rendered.component';
 import { BtnCheckboxRenderedComponent } from '../btn-checkbox-rendered/btn-checkbox-rendered.component';
 import { BtnCheckboxFilterComponent } from '../btn-checkbox-filter/btn-checkbox-filter.component';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { DialogMessageComponent } from '../dialog-message/dialog-message.component';
 import { forEach } from 'jszip';
 declare let $: any;

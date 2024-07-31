@@ -7,48 +7,48 @@ input {
   margin-bottom: 5px;
 }
 
-.mat-raised-button.mat-orange,
-.mat-flat-button.mat-orange,
-.mat-mini-fab.mat-orange,
+.mat-mdc-raised-button.mat-orange,
+.mat-mdc-unelevated-button.mat-orange,
+.mat-mdc-mini-fab.mat-orange,
 .mat-icon.mat-orange {
   background-color: #ff9300 !important;
   color: white !important;
 }
 
-.mat-raised-button.mat-orange:disabled,
-.mat-flat-button.mat-orange:disabled,
-.mat-mini-fab.mat-orange:disabled,
+.mat-mdc-raised-button.mat-orange:disabled,
+.mat-mdc-unelevated-button.mat-orange:disabled,
+.mat-mdc-mini-fab.mat-orange:disabled,
 .mat-icon.mat-orange:disabled {
   background: #ffc97f !important;
   color: white !important;
 }
 
-.mat-raised-button.mat-green,
-.mat-flat-button.mat-green,
-.mat-mini-fab.mat-green,
+.mat-mdc-raised-button.mat-green,
+.mat-mdc-unelevated-button.mat-green,
+.mat-mdc-mini-fab.mat-green,
 .mat-icon.mat-green {
   background-color: #68a225 !important;
   color: white !important;
 }
 
-.mat-raised-button.mat-green:disabled,
-.mat-flat-button.mat-green:disabled,
-.mat-mini-fab.mat-green:disabled,
+.mat-mdc-raised-button.mat-green:disabled,
+.mat-mdc-unelevated-button.mat-green:disabled,
+.mat-mdc-mini-fab.mat-green:disabled,
 .mat-icon.mat-green:disabled {
   background-color: #83976c !important;
   color: white !important;
 }
-.mat-raised-button.mat-red,
-.mat-flat-button.mat-red,
-.mat-mini-fab.mat-red,
+.mat-mdc-raised-button.mat-red,
+.mat-mdc-unelevated-button.mat-red,
+.mat-mdc-mini-fab.mat-red,
 .mat-icon.mat-red {
   background-color: #bf0000 !important;
   color: white !important;
 }
 
-.mat-raised-button.mat-red:disabled,
-.mat-flat-button.mat-red:disabled,
-.mat-mini-fab.mat-red:disabled,
+.mat-mdc-raised-button.mat-red:disabled,
+.mat-mdc-unelevated-button.mat-red:disabled,
+.mat-mdc-mini-fab.mat-red:disabled,
 .mat-icon.mat-red:disabled {
   background-color: #da8c8e !important;
   color: white !important;
@@ -140,6 +140,7 @@ input {
   line-height: 22px !important;
   margin-top: 7px !important;
   margin-right: 3px !important;
+  /* TODO(mdc-migration): The following rule targets internal classes of button that may no longer apply for the MDC version. */
   .mat-button-wrapper {
     padding: 1px 0 !important;
     line-height: 22px !important;

@@ -1,5 +1,6 @@
 // Plus imports for other components in your app.
-.mat-primary .mat-option.mat-selected:not(.mat-option-disabled) {
+/* TODO(mdc-migration): The following rule targets internal classes of option that may no longer apply for the MDC version.*/
+.mat-primary .mat-mdc-option.mat-selected:not(.mat-option-disabled) {
   color:#FF9300!important;
 }
 
@@ -7,108 +8,108 @@
   background: #FF9300 !important;
 }
 
-.mat-raised-button.mat-orange,
-.mat-flat-button.mat-orange,
-.mat-mini-fab.mat-orange,
+.mat-mdc-raised-button.mat-orange,
+.mat-mdc-unelevated-button.mat-orange,
+.mat-mdc-mini-fab.mat-orange,
 .mat-icon.mat-orange {
   background-color: #ff9300 !important;
   color: white !important;
 }
 
-.mat-raised-button.mat-orange:disabled,
-.mat-flat-button.mat-orange:disabled,
-.mat-mini-fab.mat-orange:disabled,
+.mat-mdc-raised-button.mat-orange:disabled,
+.mat-mdc-unelevated-button.mat-orange:disabled,
+.mat-mdc-mini-fab.mat-orange:disabled,
 .mat-icon.mat-orange:disabled {
   background: #ffc97f !important;
   color: white !important;
 }
 
-.mat-raised-button.mat-green,
-.mat-flat-button.mat-green,
-.mat-mini-fab.mat-green,
+.mat-mdc-raised-button.mat-green,
+.mat-mdc-unelevated-button.mat-green,
+.mat-mdc-mini-fab.mat-green,
 .mat-icon.mat-green {
   background-color: #68A225 !important;
   color: white !important;
 }
 
-.mat-raised-button.mat-green:disabled,
-.mat-flat-button.mat-green:disabled,
-.mat-mini-fab.mat-green:disabled,
+.mat-mdc-raised-button.mat-green:disabled,
+.mat-mdc-unelevated-button.mat-green:disabled,
+.mat-mdc-mini-fab.mat-green:disabled,
 .mat-icon.mat-green:disabled {
   background-color:#83976c !important;
   color: white !important;
 }
-.mat-raised-button.mat-red,
-.mat-flat-button.mat-red,
-.mat-mini-fab.mat-red,
+.mat-mdc-raised-button.mat-red,
+.mat-mdc-unelevated-button.mat-red,
+.mat-mdc-mini-fab.mat-red,
 .mat-icon.mat-red {
   background-color: #BF0000 !important;
   color: white !important
 }
 
-.mat-raised-button.mat-red:disabled,
-.mat-flat-button.mat-red:disabled,
-.mat-mini-fab.mat-red:disabled,
+.mat-mdc-raised-button.mat-red:disabled,
+.mat-mdc-unelevated-button.mat-red:disabled,
+.mat-mdc-mini-fab.mat-red:disabled,
 .mat-icon.mat-red:disabled {
   background-color: #da8c8e !important;
   color: white !important;
 }
 
-.mat-raised-button.mat-blue,
-.mat-flat-button.mat-blue,
-.mat-mini-fab.mat-blue,
+.mat-mdc-raised-button.mat-blue,
+.mat-mdc-unelevated-button.mat-blue,
+.mat-mdc-mini-fab.mat-blue,
 .mat-icon.mat-blue {
   background-color: #0494F7 !important;
   color: white !important
 }
 
-.mat-raised-button.mat-blue:disabled,
-.mat-flat-button.mat-blue:disabled,
-.mat-mini-fab.mat-blue:disabled,
+.mat-mdc-raised-button.mat-blue:disabled,
+.mat-mdc-unelevated-button.mat-blue:disabled,
+.mat-mdc-mini-fab.mat-blue:disabled,
 .mat-icon.mat-blue:disabled {
   background-color: rgb(112, 198, 255) !important;
 }
 
 
-.mat-raised-button.mat-grey,
-.mat-flat-button.mat-grey,
-.mat-mini-fab.mat-grey,
+.mat-mdc-raised-button.mat-grey,
+.mat-mdc-unelevated-button.mat-grey,
+.mat-mdc-mini-fab.mat-grey,
 .mat-icon.mat-grey {
   background-color: #888888 !important;
   color: white !important
 }
 
-.mat-raised-button.mat-yellow,
-.mat-flat-button.mat-yellow,
-.mat-mini-fab.mat-yellow,
+.mat-mdc-raised-button.mat-yellow,
+.mat-mdc-unelevated-button.mat-yellow,
+.mat-mdc-mini-fab.mat-yellow,
 .mat-icon.mat-yellow {
   background-color: #FAD40F !important;
   color: black !important;
 }
 
-.mat-raised-button.mat-white,
-.mat-flat-button.mat-white,
-.mat-mini-fab.mat-white,
+.mat-mdc-raised-button.mat-white,
+.mat-mdc-unelevated-button.mat-white,
+.mat-mdc-mini-fab.mat-white,
 .mat-icon.mat-white {
   background-color: white !important;
   color: black !important;
   border: 1px solid #DDDDDD;
 }
 
-.mat-raised-button.mat-white:disabled,
-.mat-flat-button.mat-white:disabled,
-.mat-mini-fab.mat-white:disabled,
+.mat-mdc-raised-button.mat-white:disabled,
+.mat-mdc-unelevated-button.mat-white:disabled,
+.mat-mdc-mini-fab.mat-white:disabled,
 .mat-icon.mat-white:disabled {
   color: #DDDDDD !important;
 }
 
-.mat-stroked-button.mat-red{
+.mat-mdc-outlined-button.mat-red{
   color: #333333 !important
 }
-.mat-stroked-button.mat-red .mat-icon, .redTitle,.mat-red.mat-datepicker-toggle{
+.mat-mdc-outlined-button.mat-red .mat-icon, .redTitle,.mat-red.mat-datepicker-toggle{
   color: #BF0000 !important
 }
-.mat-stroked-button.mat-red[disabled][disabled],
+.mat-mdc-outlined-button.mat-red[disabled][disabled],
 .mat-stroked-button.mat-red[disabled][disabled] .mat-icon {
   color: rgba(0, 0, 0, 0.26) !important;
 }
@@ -118,39 +119,46 @@
 }
 
 //Checkboxes
+/* TODO(mdc-migration): The following rule targets internal classes of checkbox that may no longer apply for the MDC version.*/
 .mat-checkbox-checked .mat-checkbox-background {
   background-color: #FF9300 !important;
 }
 
 //Mat form field outline
+/* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
 .mat-form-field-appearance-outline .mat-form-field-outline-thick.mat-form-field-outline-thick {
   color: #FF9300 !important;
 }
 
+/* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
 mat-form-field.ng-invalid .mat-form-field-outline-thick.mat-form-field-outline-thick{
   color: #BF0000 !important;
 }
 //Mat slide green
+/* TODO(mdc-migration): The following rule targets internal classes of slide-toggle that may no longer apply for the MDC version.*/
 mat-slide-toggle.mat-green.mat-checked .mat-slide-toggle-bar {
   background-color: rgba(104, 162, 37, 0.5);
 }
 
+/* TODO(mdc-migration): The following rule targets internal classes of slide-toggle that may no longer apply for the MDC version.*/
 mat-slide-toggle.mat-green.mat-checked .mat-slide-toggle-thumb {
   background-color: #0EA728;
 }
 
 //Radio buttons
-.mat-radio-button.mat-accent .mat-radio-inner-circle {
+/* TODO(mdc-migration): The following rule targets internal classes of radio that may no longer apply for the MDC version.*/
+.mat-mdc-radio-button.mat-accent .mat-radio-inner-circle {
   background-color: #FF9300 !important;
 }
 
-.mat-radio-button.mat-accent.mat-radio-checked .mat-radio-outer-circle {
+/* TODO(mdc-migration): The following rule targets internal classes of radio that may no longer apply for the MDC version.*/
+.mat-mdc-radio-button.mat-accent.mat-radio-checked .mat-radio-outer-circle {
   border-color: #FF9300 !important;
 }
 
 //Mat spinner
-.mat-progress-spinner.mat-primary circle,
-.mat-spinner.mat-primary circle {
+.mat-mdc-progress-spinner.mat-primary circle,
+.mat-mdc-progress-spinner.mat-primary circle {
   stroke:#FF9300 !important;
 }
 
@@ -160,6 +168,7 @@ mat-slide-toggle.mat-green.mat-checked .mat-slide-toggle-thumb {
   line-height: 22px !important;
   margin-top: 7px!important;
   margin-right: 3px!important;
+  /* TODO(mdc-migration): The following rule targets internal classes of button that may no longer apply for the MDC version.*/
   .mat-button-wrapper {
        padding: 1px 0 !important;
        line-height: 22px !important;
