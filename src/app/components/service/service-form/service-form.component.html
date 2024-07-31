@@ -141,16 +141,16 @@
           {{'serviceEntity.projections' | translate}}
         </label>
         <mat-form-field appearance="outline" class="chipLimit">
-          <mat-chip-list #chipList aria-label="Selecció de projecció">
-            <mat-chip *ngFor="let projection of projections" [selectable]="selectable" [removable]="removable"
+          <mat-chip-grid #chipList aria-label="Selecció de projecció">
+            <mat-chip-row *ngFor="let projection of projections" [selectable]="selectable" [removable]="removable"
               (removed)="removeProjection(projection)">
               {{ projection }}
               <mat-icon matChipRemove>cancel</mat-icon>
-            </mat-chip>
+            </mat-chip-row>
             <input title="{{ 'projectionsMessage' | translate }}" [matChipInputFor]="chipList"
               [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="addOnBlur"
               (matChipInputTokenEnd)="addProjection($event)" />
-          </mat-chip-list>
+          </mat-chip-grid>
         </mat-form-field>
       </div>
       <button id="capabilitiesButton" type="button" *ngIf="serviceForm.value.type=='WMS' " (click)="onDataCapabilitiesButtonClicked()" mat-flat-button

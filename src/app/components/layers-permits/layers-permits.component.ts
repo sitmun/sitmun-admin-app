@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
 import { Subject } from 'rxjs';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
 import { Observable } from 'rxjs';
 
