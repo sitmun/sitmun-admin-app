@@ -10,7 +10,7 @@
 </mat-toolbar>
 <div class="login-container" *ngIf="languagesLoaded">
   <h5>  {{'loginEntity.privateAccess' | translate}}</h5>
-  <mat-card appearance="outlined" class="mat-card-logi mat-elevation-z0 outline">
+  <mat-card appearance="outlined" class="mat-card-login mat-elevation-z0 outline">
     <form [formGroup]="form" (ngSubmit)="login()">
 
       <mat-card-content>
