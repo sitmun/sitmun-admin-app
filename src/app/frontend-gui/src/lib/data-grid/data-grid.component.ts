@@ -10,6 +10,7 @@ import { BtnCheckboxRenderedComponent } from '../btn-checkbox-rendered/btn-check
 import { BtnCheckboxFilterComponent } from '../btn-checkbox-filter/btn-checkbox-filter.component';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogMessageComponent } from '../dialog-message/dialog-message.component';
+import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import { forEach } from 'jszip';
 declare let $: any;
 
@@ -27,7 +28,7 @@ export class DataGridComponent implements OnInit {
   _eventGetAllRowsSubscription: any;
   _eventSaveAgGridStateSubscription: any;
   _eventModifyStatusOfSelectedCells: any;
-  modules: Module[] = [];
+  modules: Module[] = [ClientSideRowModelModule];
 
 
   UndeRedoActions

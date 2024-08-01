@@ -13,6 +13,7 @@
   "private": true,
   "dependencies": {
     "@ag-grid-community/styles": "^32.0.0",
+    "@ag-grid-community/client-side-row-model": "^32.0.0",
     "@angular-devkit/schematics": "^16.2.12",
     "@angular/animations": "^16.2.12",
     "@angular/cdk": "^16.2.12",
