@@ -1,3 +1,4 @@
+@use '@angular/material' as mat;
 /* You can add global styles to this file, and also import other style files */
 
 @import "@ag-grid-community/styles/ag-grid.css";
@@ -141,6 +142,7 @@ $sitmun-theme: mat-light-theme($sitmun-primary, $sitmun-accent, $sitmun-warn);
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
 @include angular-material-theme($sitmun-theme);
+@include mat.card-theme($sitmun-theme);
 
 /* You can add global styles to this file, and also import other style files */
 
@@ -855,3 +857,6 @@ h2 {
 .iconTranslate{
   cursor: pointer;
 }
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
