@@ -217,7 +217,10 @@ export class DataGridComponent implements OnInit {
       if (agGridState.idAgGrid != undefined && agGridState.idAgGrid == this.id) {
         this.gridApi.setFilterModel(agGridState.filterState);
         this.gridColumnApi.setColumnState(agGridState.colState);
-        this.gridApi.setSortModel(agGridState.sortState);
+        this.gridApi.applyColumnState({
+          state:agGridState.sortState,
+          applyOrder: true
+        });
         this.searchValue = agGridState.valueSearchGeneric;
         this.quickSearch();
         this.removeAgGridState();
@@ -247,14 +250,20 @@ export class DataGridComponent implements OnInit {
         const sortModel = [
           { colId: this.defaultColumnSorting, sort: 'asc' }
         ];
-        this.gridApi.setSortModel(sortModel);
+        this.gridApi.applyColumnState({
+          state: sortModel,
+          applyOrder: true
+        });
       }
       else{
         let sortModel = [];
         this.defaultColumnSorting.forEach(element => {
           sortModel.push({ colId: element, sort: 'asc' })
         });
-        this.gridApi.setSortModel(sortModel);
+        this.gridApi.applyColumnState({
+          state: sortModel,
+          applyOrder: true
+        });
       }
 
     }
@@ -411,7 +420,7 @@ export class DataGridComponent implements OnInit {
         //   });
         // }
         this.rowData = this.currentData?newItems: items;
-        this.gridApi.setRowData(this.rowData);
+        this.gridApi.applyTransaction(this.rowData);
         this.setSize()
         // this.gridApi.sizeColumnsToFit()
         console.log(this.rowData);
