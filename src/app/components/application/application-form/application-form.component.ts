@@ -1,10 +1,10 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { AbstractControl, UntypedFormControl, UntypedFormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   ApplicationService, ApplicationParameterService, RoleService,
   HalOptions, HalParam, CartographyGroupService, TreeService, BackgroundService,
-  ApplicationBackgroundService, TranslationService, Translation, Role, Background, Tree, Application, CodeList
+  ApplicationBackgroundService, TranslationService, Translation, Application, CodeList
 } from '../../../frontend-core/src/lib/public_api';
 
 import { HttpClient } from '@angular/common/http';
@@ -12,7 +12,6 @@ import { UtilsService } from '../../../services/utils.service';
 
 import { map } from 'rxjs/operators';
 import { Observable, of, Subject } from 'rxjs';
-import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
 import { DialogFormComponent, DialogGridComponent } from '../../../frontend-gui/src/lib/public_api';
 import { MatDialog } from '@angular/material/dialog';
@@ -169,7 +168,7 @@ export class ApplicationFormComponent implements OnInit {
 
           this.applicationService.get(idToGet).subscribe(
             resp => {
-              console.log(resp);
+
               this.applicationToEdit = resp;
 
               this.applicationForm.patchValue({
@@ -202,7 +201,7 @@ export class ApplicationFormComponent implements OnInit {
                 this.translationService.getAll()
                   .pipe(map((data: any[]) => data.filter(elem => elem.element == this.applicationID)
                   )).subscribe(result => {
-                    console.log(result);
+       
                     let nameTranslations = [];
                     let titleTranslations = [];
                     result.forEach(translation => {
@@ -711,7 +710,7 @@ export class ApplicationFormComponent implements OnInit {
       else { dataChanged = true }
     });
 
-    console.log(treesModified);
+
 
     Promise.all(promises).then(() => {
       if (dataChanged) {
@@ -743,7 +742,6 @@ export class ApplicationFormComponent implements OnInit {
         if (result.event === 'Add') {
           let item = this.parameterForm.value;
           this.addElementsEventParameters.next([item])
-          console.log(this.parameterForm.value)
 
 
         }
@@ -939,7 +937,7 @@ export class ApplicationFormComponent implements OnInit {
 
       this.applicationService.save(appObj)
         .subscribe(async resp => {
-          console.log(resp);
+
           this.applicationToEdit = resp;
           this.applicationSaved = resp;
           this.applicationID = this.applicationToEdit.id;

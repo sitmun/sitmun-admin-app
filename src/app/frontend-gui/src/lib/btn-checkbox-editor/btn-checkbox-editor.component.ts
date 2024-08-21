@@ -3,7 +3,9 @@ import {
   Component,
   ViewChild,
   ViewContainerRef,
+  NgModule, CUSTOM_ELEMENTS_SCHEMA
 } from '@angular/core';
+
 import { ICellEditorAngularComp } from '@ag-grid-community/angular';
 
 @Component({

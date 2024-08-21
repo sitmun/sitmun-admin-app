@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { RouterModule } from '@angular/router';
 import { ExternalConfigurationService } from './ExternalConfigurationService';
-
+import { SitmunFrontendCoreModule } from './frontend-core/src/lib/public_api';
 import { SitmunFrontendGuiModule } from './frontend-gui/src/lib/public_api';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from './material-module';
@@ -171,6 +171,7 @@ import { CanDeactivateGuard } from './services/can-deactivate-guard.service';
     FormsModule,
     AngularHalModule,
     SitmunFrontendGuiModule,
+    SitmunFrontendCoreModule,
     MaterialModule,
     RouterModule,
     TranslateModule.forRoot({

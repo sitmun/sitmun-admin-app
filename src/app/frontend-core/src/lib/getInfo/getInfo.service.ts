@@ -31,7 +31,7 @@ export class GetInfoService extends RestService<Info>  {
         };
         let finalUrl = this.resourceService.getResourceUrl(this.INFO_API);
         finalUrl = finalUrl.concat(url);
-        console.log(finalUrl);
+       
         result = this.http.get(finalUrl, requestOptions);
       }
       return result;

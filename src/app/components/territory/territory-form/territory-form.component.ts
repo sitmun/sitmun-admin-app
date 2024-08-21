@@ -163,7 +163,7 @@ export class TerritoryFormComponent implements OnInit {
           let idToGet = this.territoryID !== -1? this.territoryID: this.duplicateID  
           this.territoryService.get(idToGet).subscribe(
             resp => {
-              console.log(resp);
+        
               this.territoryToEdit = resp;
               let currentTerritoryType;
               if(this.territoryToEdit.typeId != null || !this.territoryToEdit.typeId != undefined){
@@ -210,7 +210,7 @@ export class TerritoryFormComponent implements OnInit {
                 this.translationService.getAll()
                 .pipe(map((data: any[]) => data.filter(elem => elem.element == this.territoryID && elem.column == config.translationColumns.territoryName)
                 )).subscribe( result => {
-                  console.log(result);
+      
                   this.utils.updateTranslations(this.translationMap, result)
                 }
           
@@ -438,7 +438,7 @@ export class TerritoryFormComponent implements OnInit {
     const promisesDuplicate: Promise<any>[] = [];
     const promisesCurrentUserConf: Promise<any>[] = [];
     const promises: Promise<any>[] = [];
-    console.log(data);
+    
     for(let i = 0; i<data.length; i++){
       let userConf= data[i];
       if (userConf.status === 'pendingCreation' || (userConf.status === 'pendingModify' && !userConf._links)) {
@@ -506,7 +506,7 @@ export class TerritoryFormComponent implements OnInit {
             user: userConf.userComplete,
           }
 
-          console.log(item);
+    
             userConf.new = false;
             promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
 
@@ -695,7 +695,7 @@ export class TerritoryFormComponent implements OnInit {
       else {dataChanged = true}
     });
 
-    console.log(territoriesModified);
+
     this.updateTerritoriesMembersOf(territoriesModified, territoriesToPut, dataChanged);
   }
 
@@ -752,7 +752,7 @@ export class TerritoryFormComponent implements OnInit {
       }
       else {dataChanged = true}
     });
-    console.log(territoriesModified);
+
     this.updateTerritoriesMembers(territoriesModified, territoriesToPut, dataChanged);
 
   }
@@ -976,7 +976,7 @@ export class TerritoryFormComponent implements OnInit {
         if (result.event === 'Add') {
           if(result.data[0].length>0 && result.data[1].length>0){
             let rowsToAdd = this.getRowsToAddPermits(this.territoryToEdit, result.data[1], result.data[0], childrenTable)
-            console.log(rowsToAdd);
+
             if (!childrenTable) { this.addElementsEventPermits.next(rowsToAdd) }
             else { this.addElementsEventChildrenPermits.next(rowsToAdd) }
           }
@@ -1003,8 +1003,7 @@ export class TerritoryFormComponent implements OnInit {
     return this.territoryService.getAll().
       pipe(
         map((resp: any) => {
-          console.log("AQUI")
-          console.log(resp)
+
           let newTable: Territory[] = [];
           resp.forEach(element => {
             if (!element.typeTopType) { newTable.push(element) }
@@ -1170,7 +1169,7 @@ export class TerritoryFormComponent implements OnInit {
 
   getRowsToAddPermits(territory: Territory, roles: Role[], users: any[], childrenTable: boolean) {
     let itemsToAdd: any[] = [];
-    console.log(roles)
+
     roles.forEach(role => {
       let item;
 
@@ -1237,7 +1236,7 @@ export class TerritoryFormComponent implements OnInit {
 
   onTerritoryTypeChanged(event){
     let territoryType = this.territoryTypes.find(element => element.id == event.value);
-    console.log(territoryType);
+  
     this.currentTypeBottom= territoryType.bottomType;
     this.currentTypeTop= territoryType.topType;
     this.defineAppliesToChildrenColumns(this.currentTypeTop ,this.currentTypeBottom)
@@ -1248,7 +1247,7 @@ export class TerritoryFormComponent implements OnInit {
   onSaveButtonClicked() {
 
     if (this.territoryForm.valid) {
-      console.log(this.territoryForm.value)
+     
 
       if (this.validateExtent(this.territoryForm.value.extensionX0, this.territoryForm.value.extensionX1, this.territoryForm.value.extensionY0,
         this.territoryForm.value.extensionY1)) {

@@ -1,14 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { tick } from '@angular/core/testing';
+
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RoleService, UserService, CartographyGroupService, TaskService, UserConfigurationService, TerritoryService, HalOptions, HalParam, 
-  User, Territory, Role, ApplicationService, Task, CartographyGroup, Application } from '../../../frontend-core/src/lib/public_api';
+  User, Territory, Role, ApplicationService } from '../../../frontend-core/src/lib/public_api';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { Observable, of, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
 import { DialogGridComponent, DialogMessageComponent } from '../../../frontend-gui/src/lib/public_api';
 import { MatDialog } from '@angular/material/dialog';
@@ -89,11 +88,11 @@ export class RoleFormComponent implements OnInit {
 
       if (this.roleID !== -1 || this.duplicateID != -1) {
         let idToGet = this.roleID !== -1 ? this.roleID : this.duplicateID
-        console.log(this.roleID);
+
 
         this.roleService.get(idToGet).subscribe(
           resp => {
-            console.log(resp);
+         
             this.roleToEdit = resp;
             this.formRole.patchValue({
               description: this.roleToEdit.description,
@@ -240,7 +239,7 @@ export class RoleFormComponent implements OnInit {
     const promisesDuplicate: Promise<any>[] = [];
     const promisesCurrentUserConf: Promise<any>[] = [];
     const promises: Promise<any>[] = [];
-    console.log(data);
+
     for (let i = 0; i < data.length; i++) {
       let userConf = data[i];
       if (userConf.status === 'pendingCreation' || (userConf.status === 'pendingModify' && !userConf._links)) {
@@ -310,7 +309,7 @@ export class RoleFormComponent implements OnInit {
             user: userConf.userComplete,
           }
 
-          console.log(item);
+
           let index;
           if (userConf.roleChildren == null) {
             index = data.findIndex(element => element.territoryId === item.territory.id && element.userId === item.user.id &&
@@ -594,7 +593,7 @@ export class RoleFormComponent implements OnInit {
           if (result.event === 'Add') {
             if(result.data[0].length>0 && result.data[1].length>0){
               let rowsToAdd = this.adaptRowsToAddPermits(this.roleToEdit, result.data[1], result.data[0])
-              console.log(rowsToAdd);
+
               this.addElementsEventUsers.next(rowsToAdd);
             }
             else{
@@ -614,7 +613,7 @@ export class RoleFormComponent implements OnInit {
 
   adaptRowsToAddPermits(role: Role, territories: Territory[], users: any[]) {
     let itemsToAdd: any[] = [];
-    console.log(territories)
+
     territories.forEach(territory => {
       let item;
 

@@ -45,7 +45,7 @@ export class AppComponent {
   navOpen($event): void {
     // toggle condition here
     this.isOpen = !this.isOpen;
-    console.log('$navOpen');
+ 
   }
 
 
@@ -87,8 +87,6 @@ export class AppComponent {
 
         this.configurationParametersService.getAll().subscribe(
           async result => {
-            console.log(result);
-
               let defaultLang = result.find(element => element.name == 'language.default' )
               if(defaultLang){
                 config.defaultLang = defaultLang.value;

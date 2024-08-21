@@ -37,11 +37,11 @@ export class TaskGroupFormComponent implements OnInit {
       
       if (this.taskGroupID !== -1 || this.duplicateID != -1) {
         let idToGet = this.taskGroupID !== -1? this.taskGroupID: this.duplicateID  
-        console.log(this.taskGroupID);
+        
 
         this.taskGroupService.get(idToGet).subscribe(
           resp => {
-            console.log(resp);
+           
             this.taskGroupToEdit = resp;
             this.formtaskGroup.setValue({
               id: this.taskGroupID,
@@ -105,7 +105,7 @@ export class TaskGroupFormComponent implements OnInit {
 
         this.taskGroupService.save(this.formtaskGroup.value)
           .subscribe(resp => {
-            console.log(resp); 
+      
             this.taskGroupToEdit=resp;
             this.formtaskGroup.patchValue({
               id: resp.id,

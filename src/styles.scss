@@ -1,9 +1,8 @@
-@use '@angular/material' as mat;
 /* You can add global styles to this file, and also import other style files */
 
-@import "@ag-grid-community/styles/ag-grid.css";
-@import "@ag-grid-community/styles/ag-theme-balham.css";
-@import "@ag-grid-community/styles/ag-theme-material.css";
+@import "~@ag-grid-community/styles/ag-grid.css";
+@import "~@ag-grid-community/styles/ag-theme-balham.css";
+@import "~@ag-grid-community/styles/ag-theme-material.css";
 
 @import "../node_modules/@syncfusion/ej2-base/styles/material.css";
 @import "../node_modules/@syncfusion/ej2-buttons/styles/material.css";
@@ -20,7 +19,7 @@
 // Custom Theming for Angular Material
 // For more information: https://material.angular.io/guide/theming
 @import "@angular/material/theming";
-
+@import '@material/typography/mdc-typography';
 // Plus imports for other components in your app.
 
 // Include the common styles for Angular Material. We include this here so that you only
@@ -142,7 +141,6 @@ $sitmun-theme: mat-light-theme($sitmun-primary, $sitmun-accent, $sitmun-warn);
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
 @include angular-material-theme($sitmun-theme);
-@include mat.card-theme($sitmun-theme);
 
 /* You can add global styles to this file, and also import other style files */
 
@@ -175,43 +173,70 @@ margin-right: 0%;
 }
 
 .validateButton {
-  background-color: #ff9300;
-  color: white;
+  background-color: #ff9300 !important;
+  color: white !important;
   min-width: 85px !important;
-  height: 40px;
+  height: 40px !important;
   margin-top: 34px !important;
   justify-self: right !important;
 }
 
  .deleteButton {
-  color: #BF0000;
+  color: #BF0000 !important;
   border: #BF0000 solid 1px !important;
   min-width: 85px !important;
-  height: 40px;
-  float: right;
+  height: 40px !important;
+  float: right !important;
 }
- 
+
+.deleteButton:disabled {
+  color: gray !important;
+}
 .returnButton, .actionButton {
-  color: #ff9300;
+  color: #ff9300 !important;
   border: #ff9300 solid 1px !important;
   min-width: 85px !important;
-  height: 40px;
-  float: right;
+  height: 40px !important;
+  float: right !important;
 }
 
 .saveButton, .newButton {
-  background-color: #68a225;
-  color: white;
+
+  background-color: #68a225 !important;
+  color: #fff !important;
   min-width: 85px !important;
-  height: 40px;
-  float: right;
+  height: 40px !important;
+  float: right !important;
 }
 
 h4 {
-  display: inline-block;
+  display: inline-block !important;
+  font-weight: 400 !important;
+  font-size: 2.125rem !important;
+  letter-spacing: .015625rem !important;
+  text-transform: none !important;
+  line-height: 2.5rem !important;
+  margin-top: 1.75rem !important;
+  margin-bottom: 0 !important;
 }
+
+h4 > .mat-icon {
+  background-repeat: no-repeat !important;
+  display: inline-block !important;
+  fill: currentColor !important;
+  height: 30px !important;
+  width: 24px !important;
+}
+
 h5 {
   display: inline-block;
+  font-weight: 400 !important;
+  font-size: 1.5rem !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  line-height: 1.75rem !important;
+  margin-top: 1.75rem !important;
+  margin-bottom: 0 !important;
 }
 h2 {
   width: calc(100% - 100px);
@@ -229,7 +254,7 @@ h2 {
 
 .agGridExpansionPanelTitle {
   background-color: #ffe9cc !important;
-  font-weight: bold;
+  font-weight: bold !important;
 }
 
 .appDataGridDiv {
@@ -291,7 +316,9 @@ h2 {
 }
 
 
-
+[hidden] {
+  display: none!important;
+}
 
 
 .mat-mdc-outlined-button,
@@ -321,34 +348,45 @@ h2 {
   margin-left: auto;
 }
 
-
 /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version. */
-.mat-form-field-appearance-outline .mat-form-field-infix {
+.mat-mdc-form-field-appearance-outline .mat-mdc-form-field-infix {
   padding: 0.4em 0 0.4em 0 !important;
   top: -0.25em;
 }
 
+.mat-mdc-form-field-infix {
+  min-height: inherit !important
+}
+
 /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version. */
-.mat-form-field-appearance-outline .mat-select-arrow-wrapper {
+.mat-mdc-form-field-appearance-outline .mat-mdc-select-arrow-wrapper {
   transform: translateY(0%) !important;
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version. */
-.mat-mdc-form-field .mat-form-field-suffix {
+.mat-mdc-form-field .mat-mdc-form-field-suffix {
   top: 2px !important;
   right: -5px;
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version. */
-.mat-mdc-form-field .mat-form-field-suffix .search {
+.mat-mdc-form-field .mat-mdc-form-field-suffix .search {
   top: -2px !important;
   right: 0px;
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version. */
-.mat-mdc-form-field .mat-form-field-suffix .edit {
+.mat-mdc-form-field .mat-mdc-form-field-suffix .edit {
   top: -3px !important;
   right: 0px;
+}
+
+.mdc-checkbox .mdc-checkbox__native-control:enabled:checked~.mdc-checkbox__background,
+ .mdc-checkbox .mdc-checkbox__native-control:enabled:indeterminate~.mdc-checkbox__background,
+  .mdc-checkbox .mdc-checkbox__native-control[data-indeterminate=true]:enabled~.mdc-checkbox__background
+{
+  border-color:   #ff9300 !important;
+  background-color:  #ff9300 !important;
 }
 
 .formDiv {
@@ -366,11 +404,11 @@ h2 {
 }
 
 .formLabel {
-  display: block;
-  font-weight: 500;
-  margin-bottom: 5px;
-  padding-left: 5px;
-  width: 100%;
+  display: block !important;
+  font-weight: 500 !important;
+  margin-bottom: 5px !important;
+  padding-left: 5px !important;
+  width: 100% !important;
 }
 
 .translateDialogs{
@@ -379,23 +417,23 @@ h2 {
 }
 
 .formLabelDialog {
-  display: flex;
-  font-weight: 500;
-  margin-right: 5px;
-  margin-top: 7px;
-  padding-left: 5px;
-  width: 20%;
+  display: flex !important;
+  font-weight: 500 !important;
+  margin-right: 5px !important; 
+  margin-top: 7px !important;
+  padding-left: 5px !important;
+  width: 20% !important;
 }
 
 .formLabel1Line {
-  display: inline-block;
-  font-weight: 500;
-  margin-right: 5px;
-  padding-left: 5px;
+  display: inline-block !important;
+  font-weight: 500 !important;
+  margin-right: 5px !important;
+  padding-left: 5px !important;
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version. */
-.mat-mdc-list-base .mat-mdc-list-item .mat-list-item-content {
+.mat-mdc-list-base .mat-mdc-list-item .mat-mdc-list-item-content {
   padding: 0 6px 0 15px !important;
 }
 
@@ -404,13 +442,13 @@ h2 {
 }
 
 .formLabel span {
-  color: gray;
-  font-weight: normal;
+  color: gray o !important  ;
+  font-weight: normal !important;
 }
 
 .singleColFormDiv {
-  display: inline-block;
-  width: 100%;
+  display: inline-block !important;
+  width: 100% !important;
 }
 
 .chipLimit{
@@ -496,9 +534,9 @@ h2 {
 
 
 /* TODO(mdc-migration): The following rule targets internal classes of chips that may no longer apply for the MDC version. */
-.mat-chip-list-wrapper .mat-mdc-standard-chip {
+.mat-chip-list-wrapper .mat-mdc-standard-chip, .mat-mdc-chip-action-label {
   margin: 2px !important;
-  font-size: 13px;
+  font-size: 13px !important;
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of chips that may no longer apply for the MDC version. */
@@ -728,13 +766,13 @@ h2 {
 
 //Dialogs
 .dialog h1 {
-  font-size: 18px;
-  display: flex;
-  width: 100%;
-  border-bottom: 2px solid #ddd;
-  font-weight: 700;
-  margin: 0 0 10px;
-  align-items: center;
+  font-size: 18px !important;
+  display: flex !important;
+  width: 100% !important;
+  border-bottom: 2px solid #ddd !important;
+  font-weight: 700 !important;
+  margin: 0 0 10px !important;
+  align-items: center !important;
 }
 
 @-webkit-keyframes rotating {
@@ -751,7 +789,7 @@ h2 {
 }
 
 .dialog h1 mat-icon {
-  margin-left: 20px;
+  margin-left: 20px !important;
 }
 
 .dialog h1 mat-icon.loading {
@@ -857,6 +895,3 @@ h2 {
 .iconTranslate{
   cursor: pointer;
 }
-
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

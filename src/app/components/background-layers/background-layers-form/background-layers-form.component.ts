@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { tick } from '@angular/core/testing';
-import { AbstractControl, UntypedFormControl, UntypedFormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BackgroundService, HalOptions, HalParam, CartographyGroupService, TranslationService, Background, CartographyGroup, CartographyService, RoleService, Cartography, Role, Translation, ApplicationService, ApplicationBackgroundService } from '../../../frontend-core/src/lib/public_api';
 import { HttpClient } from '@angular/common/http';
@@ -106,11 +105,10 @@ export class BackgroundLayersFormComponent implements OnInit {
 
         if (this.backgroundID !== -1 || this.duplicateID != -1) {
           let idToGet = this.backgroundID !== -1 ? this.backgroundID : this.duplicateID
-          console.log(this.backgroundID);
-
+   
           this.backgroundService.get(idToGet).subscribe(
             resp => {
-              console.log(resp);
+       
               this.backgroundToEdit = resp;
 
               this.backgroundForm.patchValue({
@@ -139,7 +137,7 @@ export class BackgroundLayersFormComponent implements OnInit {
                 this.translationService.getAll()
                   .pipe(map((data: any[]) => data.filter(elem => elem.element == this.backgroundID)
                   )).subscribe(result => {
-                    console.log(result);
+               
                     let nameTranslations = [];
                     let descriptionTranslations = [];
                     result.forEach(translation => {
@@ -164,7 +162,7 @@ export class BackgroundLayersFormComponent implements OnInit {
               urlReq = url.toString();
               this.http.get(urlReq)
                 .pipe(map(data => {
-                  console.log(data);
+    
                   this.cartographyGroupOfThisLayer = data;
                   this.dataLoaded = true;
                 })).subscribe();
@@ -337,7 +335,7 @@ export class BackgroundLayersFormComponent implements OnInit {
         dataChanged = true;
       }
     });
-    console.log(cartographiesModified);
+   
     Promise.all(promises).then(() => {
       if (dataChanged) {
         let url = this.cartographyGroupOfThisLayer._links.members.href.split('{', 1)[0];
@@ -393,7 +391,7 @@ export class BackgroundLayersFormComponent implements OnInit {
         dataChanged = true;
       }
     });
-    console.log(rolesModified);
+
     Promise.all(promises).then(() => {
       if (dataChanged) {
         let url = this.cartographyGroupOfThisLayer._links.roles.href.split('{', 1)[0];
@@ -621,8 +619,6 @@ export class BackgroundLayersFormComponent implements OnInit {
         this.cartographyGroupService.save(cartographyGroupObj)
           .subscribe(resp => {
             this.cartographyGroupOfThisLayer = resp;
-            console.log(resp);
-            console.log(this.cartographyGroupOfThisLayer);
             this.updateBackground(resp);
           },
             error => {
@@ -664,7 +660,6 @@ export class BackgroundLayersFormComponent implements OnInit {
 
     this.backgroundService.save(backgroundObj)
       .subscribe(async resp => {
-        console.log(resp);
         this.backgroundToEdit = resp;
         this.backgroundID = resp.id;
         this.backgroundForm.patchValue({

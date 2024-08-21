@@ -100,7 +100,7 @@ export class TasksComponent implements OnInit {
         result => {
           newTask.group=result;
           newTask._links= null;
-          console.log(newTask)
+       
           promises.push(new Promise((resolve, reject) => {​​​​​​​ this.tasksService.create(newTask).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
           Promise.all(promises).then(() => {
             this.dataUpdatedEvent.next(true);

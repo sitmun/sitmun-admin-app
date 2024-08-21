@@ -90,12 +90,9 @@ export class ConnectionFormComponent implements OnInit {
         
         if (this.connectionID !== -1 || this.duplicateID != -1) {
           let idToGet = this.connectionID !== -1? this.connectionID: this.duplicateID
-          console.log(this.connectionID);
-          console.log(this.duplicateID);
   
           this.connectionService.get(idToGet).subscribe(
             resp => {
-              console.log(resp);
               this.connectionToEdit = resp;
               this.formConnection.patchValue({
                 driver: this.connectionToEdit.driver,
@@ -383,7 +380,7 @@ export class ConnectionFormComponent implements OnInit {
 
       this.connectionService.save(this.formConnection.value).subscribe(
         result => {
-          console.log(result);
+
           this.connectionToEdit = result;
           this.connectionID = result.id
           this.formConnection.patchValue({

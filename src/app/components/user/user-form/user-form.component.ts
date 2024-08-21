@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { tick } from '@angular/core/testing';
+
 import { AbstractControl, UntypedFormControl, UntypedFormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserService, UserPositionService, UserConfigurationService, 
@@ -8,12 +8,11 @@ import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { map } from 'rxjs/operators';
 import { Observable, of, Subject } from 'rxjs';
-import { environment } from 'src/environments/environment';
+
 import { config } from 'src/config';
 import { DialogGridComponent, DialogMessageComponent } from '../../../frontend-gui/src/lib/public_api';
 import { MatDialog } from '@angular/material/dialog';
-import { DatePipe } from '@angular/common';
-import { resolve } from 'dns';
+
 
 
 
@@ -141,11 +140,10 @@ export class UserFormComponent implements OnInit {
       
       if (this.userID !== -1 || this.duplicateID != -1) {
         let idToGet = this.userID !== -1? this.userID: this.duplicateID  
-        console.log(this.userID);
 
         this.userService.get(idToGet).subscribe(
           resp => {
-            console.log(resp);
+        
             this.userToEdit = resp;
             this.userForm.patchValue({
               firstName: this.userToEdit.firstName,
@@ -545,7 +543,7 @@ export class UserFormComponent implements OnInit {
 
   newDataData(id: any) {
     // this.router.navigate(['territory', id, 'territoryForm']);
-    console.log('screen in progress');
+  
   }
 
   getAllRowsDataTerritories(event){
@@ -563,7 +561,7 @@ export class UserFormComponent implements OnInit {
         {
           let date = new Date(territory.expirationDate)
           territory.expirationDate=date.toISOString();
-          console.log(territory.expirationDate)
+          
         }
 
         if(territory.type)
@@ -629,9 +627,9 @@ export class UserFormComponent implements OnInit {
         if (result.event === 'Add') {
           if(result.data[0].length>0 && result.data[1].length>0){
 
-            console.log(result.data);
+          
             let territorySelected = result.data[0][0];
-            console.log(territorySelected);
+           
               this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, result.data[1], false));
             // this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, result.data[1], false));
             // rowsToAdd.push(...tableUserConfWithoutRoleM);
@@ -802,7 +800,7 @@ export class UserFormComponent implements OnInit {
 
         this.userService.save(userObj)
           .subscribe(resp => {
-            console.log(resp)
+            
             this.userToEdit = resp
             this.userID = resp.id;
             this.userForm.patchValue({
@@ -810,7 +808,7 @@ export class UserFormComponent implements OnInit {
              passwordSet: resp.passwordSet,
             _links: resp._links
             })
-            console.log(this.userToEdit);
+   
             this.getAllElementsEventTerritoryData.next('save');
             this.getAllElementsEventPermits.next('save');
           }, error => {
