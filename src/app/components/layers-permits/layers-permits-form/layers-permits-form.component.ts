@@ -1,12 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { tick } from '@angular/core/testing';
+
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CartographyGroupService, RoleService, Role, CartographyService,Cartography } from '../../../frontend-core/src/lib/public_api';
+import { CartographyGroupService, RoleService,  CartographyService } from '../../../frontend-core/src/lib/public_api';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { map } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
 import { DialogGridComponent } from '../../../frontend-gui/src/lib/public_api';
 import { MatDialog } from '@angular/material/dialog';
@@ -79,11 +78,9 @@ export class LayersPermitsFormComponent implements OnInit {
         if (this.layersPermitsID !== -1 || this.duplicateID != -1) {
           let idToGet = this.layersPermitsID !== -1? this.layersPermitsID: this.duplicateID  
       
-          console.log(this.layersPermitsID);
   
           this.cartographyGroupService.get(idToGet).subscribe(
             resp => {
-              console.log(resp);
               this.layersPermitsToEdit = resp;
               this.formLayersPermits.patchValue({
                 type: this.layersPermitsToEdit.type,
@@ -366,7 +363,6 @@ export class LayersPermitsFormComponent implements OnInit {
 
         this.cartographyGroupService.save(this.formLayersPermits.value)
         .subscribe(resp => {
-          console.log(resp);
           this.layersPermitsToEdit=resp;
           this.layersPermitsID=resp.id
           this.formLayersPermits.patchValue({

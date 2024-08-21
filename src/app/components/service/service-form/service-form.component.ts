@@ -137,7 +137,7 @@ export class ServiceFormComponent implements OnInit {
           let idToGet = this.serviceID !== -1 ? this.serviceID : this.duplicateID
           this.serviceService.get(idToGet).subscribe(
             resp => {
-              console.log(resp);
+
               this.serviceToEdit = resp;
               if (this.serviceToEdit.supportedSRS !== null) {
                 this.serviceToEdit.supportedSRS.forEach((projection) => {
@@ -312,7 +312,7 @@ export class ServiceFormComponent implements OnInit {
         url += config.capabilitiesRequest.requestWithWMS;
       }
       this.capabilitiesService.getInfo(url).subscribe(result => {
-        console.log(result)
+   
         if (result.success) {
           this.getCapabilitiesLayers = [];
           this.serviceCapabilitiesData = result.asJson;
@@ -407,7 +407,7 @@ export class ServiceFormComponent implements OnInit {
       if (data.Service && data.Service.Abstract && data.Service.Abstract.length > 0) {
         let auxDescription;
         if (Array.isArray(data.Service.Abstract)) {
-          console.log(data.Service.Abstract)
+
           // for(let i=0; i<data.Service.Abstract.length; i++){
           data.Service.Abstract.forEach(translation => {
             let languageShortname: string = translation['xml:lang']
@@ -659,7 +659,7 @@ export class ServiceFormComponent implements OnInit {
             if (styles && styles.length > 0) {
               this.setStyleByDefault(styles);
               styles.forEach(style => {
-                console.log(styles)
+               
                 style = this.styleTreactment(style, resp);
                 promisesStyles.push(new Promise((resolve, reject) => { this.cartographyStyleService.save(style).subscribe((resp) => { resolve(true) }) }));
               });
@@ -761,7 +761,7 @@ export class ServiceFormComponent implements OnInit {
         if (result.event === 'Add') {
           let item = this.parameterForm.value;
           this.addElementsEventParameters.next([item])
-          console.log(this.parameterForm.value)
+        
           this.parameterForm.reset();
 
         }
@@ -816,10 +816,10 @@ export class ServiceFormComponent implements OnInit {
       this.serviceForm.patchValue({
         supportedSRS: this.projections
       })
-      console.log(this.serviceForm.value);
+
       this.serviceService.save(this.serviceForm.value)
         .subscribe(async resp => {
-          console.log(resp);
+      
           this.serviceToEdit = resp;
           this.serviceID = resp.id;
           this.serviceForm.patchValue({

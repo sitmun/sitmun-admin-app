@@ -7,6 +7,10 @@ input {
   margin-bottom: 5px;
 }
 
+.mdc-checkbox .mdc-checkbox__background {
+  top: 4px !important;
+}
+
 .mat-mdc-raised-button.mat-orange,
 .mat-mdc-unelevated-button.mat-orange,
 .mat-mdc-mini-fab.mat-orange,
@@ -115,7 +119,7 @@ input {
 }
 
 .actionsDivBtns .searchGenericInput {
-  height: 41px !important;
+  height: 35px !important;
   width: 45% !important;
   display: inline-block !important;
   margin: 0px 5px 5px 10px !important;
@@ -140,19 +144,22 @@ input {
   line-height: 22px !important;
   margin-top: 7px !important;
   margin-right: 3px !important;
-  /* TODO(mdc-migration): The following rule targets internal classes of button that may no longer apply for the MDC version. */
-  .mat-button-wrapper {
+
+}
+
+
+.mini-fab.mat-button-wrapper {
     padding: 1px 0 !important;
     line-height: 22px !important;
     width: 24px !important;
     height: 24px !important;
+}
 
-    .mat-icon {
+
+.mini-fab.mat-icon {
       font-size: 20px;
       padding-right: 0px;
       line-height: 22px;
-    }
-  }
 }
 
 .toogleButton{

@@ -1,5 +1,5 @@
 import { ICellRendererAngularComp } from '@ag-grid-community/angular';
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy,NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 @Component({
   selector: 'app-btn-checkbox-rendered',
@@ -28,7 +28,9 @@ export class BtnCheckboxRenderedComponent implements ICellRendererAngularComp, O
 
   btnCheckedHandler(event) {
     if(this.params.colDef.editable){
-      let checked = !event.target.firstElementChild.checked;
+      //let checked = !event.target.firstElementChild.checked;
+      
+      let checked =event.target.checked;
       let colId = this.params.column.colId;
       this.params.value=checked;
       this.params.api.undoRedoService.isFilling=true;

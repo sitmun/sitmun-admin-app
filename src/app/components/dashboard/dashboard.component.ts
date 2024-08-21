@@ -19,7 +19,7 @@ export class DashboardComponent implements OnInit {
   usersOnDate;
   usersChartData= [];
   usersToShow = [];
-
+  usersPerApplication;
   usersPerApplicationChartData=[];
   usersPerApplicationToShow = [];
 
@@ -36,29 +36,33 @@ export class DashboardComponent implements OnInit {
     promises.push(new Promise((resolve, reject) => {
       this.dashboardService.getAll().subscribe(
         result => {
-          console.log(result);
           this.saveKPI(result);
           this.totalKPIs=result.total;
           this.sumKPIs=result.sum;
           this.cartographiesOnDate=result['cartographies-created-on-date']
           this.usersOnDate=result['users-created-on-date']
-          let keysCartographyChartData= Object.keys(this.cartographiesOnDate).sort();
-          for(let i=0; i<keysCartographyChartData.length; i++){
-            this.cartographyChartData.push({index:keysCartographyChartData[i], value:this.cartographiesOnDate[keysCartographyChartData[i]]})
+          this.usersPerApplication=result['users-per-application']
+          if(this.cartographiesOnDate){
+            let keysCartographyChartData= Object.keys(this.cartographiesOnDate).sort();
+            for(let i=0; i<keysCartographyChartData.length; i++){
+              this.cartographyChartData.push({index:keysCartographyChartData[i], value:this.cartographiesOnDate[keysCartographyChartData[i]]})
+            }
           }
-          let keysUsersChartData=Object.keys(this.usersOnDate).sort();
-          for(let i=0; i<keysUsersChartData.length; i++){
-            this.usersChartData.push({index:keysUsersChartData[i], value:this.usersOnDate[keysUsersChartData[i]]})
-          }
-          this.usersToShow=this.usersChartData.slice(this.usersChartData.length -30,this.usersChartData.length);
-          let keysUsersPerApplication= Object.keys(result[`users-per-application`]);
-          for(let i=0; i<keysUsersPerApplication.length; i++){
-            this.usersPerApplicationChartData.push({index:keysUsersPerApplication[i], value:result[`users-per-application`][keysUsersPerApplication[i]]})
-          }   
-          console.log(this.usersToShow);
-          console.log(this.usersChartData)
+          if(this.usersOnDate){
+            let keysUsersChartData=Object.keys(this.usersOnDate).sort();
+            for(let i=0; i<keysUsersChartData.length; i++){
+              this.usersChartData.push({index:keysUsersChartData[i], value:this.usersOnDate[keysUsersChartData[i]]})
+            }
 
-          console.log(this.cartographyChartData)
+            this.usersToShow=this.usersChartData.slice(this.usersChartData.length -30,this.usersChartData.length);
+          }
+          if(this.usersPerApplication){
+            let keysUsersPerApplication= Object.keys(this.usersPerApplication);
+            for(let i=0; i<keysUsersPerApplication.length; i++){
+              this.usersPerApplicationChartData.push({index:keysUsersPerApplication[i], value:this.usersPerApplication[keysUsersPerApplication[i]]})
+            }   
+          }
+
           resolve(true);
         }
       );
@@ -66,11 +70,6 @@ export class DashboardComponent implements OnInit {
 
     Promise.all(promises).then(() => {
       this.dataLoaded=true;
-      console.log(this.KPIsTable);
-      console.log(this.sumKPIs);
-      console.log(this.cartographiesOnDate);
-
-
     });
   }
 

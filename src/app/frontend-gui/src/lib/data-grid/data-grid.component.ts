@@ -1,16 +1,26 @@
 import { AgGridModule } from '@ag-grid-community/angular';
-import { Component, OnInit, NgModule, Input, Output, EventEmitter, ElementRef } from '@angular/core';
+import { Component, OnInit, NgModule, Input, Output, EventEmitter, ElementRef,CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA} from '@angular/core';
+
 import { FormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Module } from '@ag-grid-community/core';
+import { GridApi, Module,ModuleRegistry  } from '@ag-grid-community/core';
+import { ClientSideRowModelModule } from '@ag-grid-community/client-side-row-model';
+import {
+  IDoesFilterPassParams,
+  RowNode,
+  IFloatingFilter,
+  NumberFilter,
+  IFloatingFilterParams,
+} from '@ag-grid-community/core';
+import { AgFrameworkComponent} from '@ag-grid-community/angular';
+import { CsvExportModule } from '@ag-grid-community/csv-export';
 import { TranslateService } from '@ngx-translate/core';
 import { BtnEditRenderedComponent } from '../btn-edit-rendered/btn-edit-rendered.component';
 import { BtnCheckboxRenderedComponent } from '../btn-checkbox-rendered/btn-checkbox-rendered.component';
 import { BtnCheckboxFilterComponent } from '../btn-checkbox-filter/btn-checkbox-filter.component';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogMessageComponent } from '../dialog-message/dialog-message.component';
-import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import { forEach } from 'jszip';
 declare let $: any;
 
@@ -28,7 +38,7 @@ export class DataGridComponent implements OnInit {
   _eventGetAllRowsSubscription: any;
   _eventSaveAgGridStateSubscription: any;
   _eventModifyStatusOfSelectedCells: any;
-  modules: Module[] = [ClientSideRowModelModule];
+  
 
 
   UndeRedoActions
@@ -48,7 +58,8 @@ export class DataGridComponent implements OnInit {
   undoNoChanges = false; // Boolean that indicates if an undo hasn't modifications
   gridOptions;
   someStatusHasChangedToDelete = false;
-
+  modules: Module[] = [ClientSideRowModelModule,CsvExportModule];
+  moduleRegistry: ModuleRegistry;
 
   @Input() eventRefreshSubscription: Observable<boolean>;
   @Input() eventGetSelectedRowsSubscription: Observable<boolean>;
@@ -113,7 +124,10 @@ export class DataGridComponent implements OnInit {
     };
 
     this.components = {
-      datePicker: this.getDatePicker()
+      datePicker: this.getDatePicker(),
+      btnEditRendererComponent: BtnEditRenderedComponent,
+      btnCheckboxRendererComponent: BtnCheckboxRenderedComponent,
+      btnCheckboxFilterComponent: BtnCheckboxFilterComponent
     };
 
 
@@ -134,10 +148,10 @@ export class DataGridComponent implements OnInit {
         sortable: true,
         flex: 1,
         filter: true,
+        floatingFilter: true,
         editable: !this.nonEditable,
         suppressMenu: true,
         resizable: true,
-        floatingFilter: true,
         cellStyle: (params) => {
           if(params.value && params.colDef.editable){
             if(this.changesMap.has(params.node.id) && this.changesMap.get(params.node.id).has(params.colDef.field)){
@@ -216,9 +230,10 @@ export class DataGridComponent implements OnInit {
       let agGridState = JSON.parse(localStorage.agGridState)
       if (agGridState.idAgGrid != undefined && agGridState.idAgGrid == this.id) {
         this.gridApi.setFilterModel(agGridState.filterState);
-        this.gridColumnApi.setColumnState(agGridState.colState);
+        //this.gridApi.setColumnState(agGridState.colState);
+        //this.gridApi.setSortModel(agGridState.sortState);
         this.gridApi.applyColumnState({
-          state:agGridState.sortState,
+          state:agGridState.colState,
           applyOrder: true
         });
         this.searchValue = agGridState.valueSearchGeneric;
@@ -243,15 +258,16 @@ export class DataGridComponent implements OnInit {
       }
     }
     this.getElements();
-    console.log(this.columnDefs);
+   
     if (this.defaultColumnSorting) {
       if(!Array.isArray(this.defaultColumnSorting))
       {
         const sortModel = [
           { colId: this.defaultColumnSorting, sort: 'asc' }
         ];
+        //this.gridApi.setSortModel(sortModel);
         this.gridApi.applyColumnState({
-          state: sortModel,
+          state:sortModel,
           applyOrder: true
         });
       }
@@ -260,8 +276,9 @@ export class DataGridComponent implements OnInit {
         this.defaultColumnSorting.forEach(element => {
           sortModel.push({ colId: element, sort: 'asc' })
         });
+        //this.gridApi.setSortModel(sortModel);
         this.gridApi.applyColumnState({
-          state: sortModel,
+          state:sortModel,
           applyOrder: true
         });
       }
@@ -340,9 +357,9 @@ export class DataGridComponent implements OnInit {
   saveAgGridState(): void {
     let agGridState = {
       idAgGrid: this.id,
-      colState: this.gridColumnApi.getColumnState(),
+      colState: this.gridApi.getColumnState(),
       filterState: this.gridApi.getFilterModel(),
-      sortState: this.gridApi.getSortModel(),
+      //sortState: this.gridApi.getSortModel(),
       valueSearchGeneric: this.searchValue
     };
 
@@ -357,8 +374,9 @@ export class DataGridComponent implements OnInit {
     let header: Array<any> = [];
     if (this.columnDefs.length == 0) { return '' };
 
-    let allColumnKeys = this.gridOptions.columnApi.getAllDisplayedColumns();
-    // console.log(allColumnKeys);
+    //let allColumnKeys = this.gridOptions.columnApi.getAllDisplayedColumns();
+    let allColumnKeys = this.gridApi.getAllDisplayedColumns()
+
     allColumnKeys.forEach(element => {
       if (element.userProvidedColDef.headerName !== '') {
         columnkeys.push(element.userProvidedColDef.field);
@@ -420,10 +438,11 @@ export class DataGridComponent implements OnInit {
         //   });
         // }
         this.rowData = this.currentData?newItems: items;
+        //this.gridApi.setRowData(this.rowData);
         this.gridApi.applyTransaction(this.rowData);
         this.setSize()
         // this.gridApi.sizeColumnsToFit()
-        console.log(this.rowData);
+    
 
       });
   }
@@ -431,26 +450,29 @@ export class DataGridComponent implements OnInit {
   setSize() {
 
     var allColumnIds = [];
-    let columns = this.gridOptions.columnApi.getAllColumns();
+    
+    //let columns = this.gridOptions.columnApi.getAllColumns();
+    let columns = this.gridApi.getAllGridColumns()
     columns.forEach(function (column) {
       allColumnIds.push(column.colId);
     });
 
-    this.gridOptions.columnApi.autoSizeColumns(allColumnIds);
-
-    let grid = this.gridOptions.api
-    let availableWidth = grid.gridPanel.eBodyViewport.clientWidth;
+    //this.gridOptions.columnApi.autoSizeColumns(allColumnIds);
+    this.gridApi.autoSizeColumns(allColumnIds)
+    let grid = this.gridApi
+    /*let availableWidth = grid.gridPanel.eBodyViewport.clientWidth;
 
     let usedWidth = grid.gridPanel.columnController.getWidthOfColsInList(columns);
 
     if (usedWidth < availableWidth) {
       grid.sizeColumnsToFit();
-    }
+    }*/
+      this.gridApi.sizeColumnsToFit();
 
   }
 
   addItems(newItems: any[]): void {
-    console.log(newItems);
+
     let itemsToAdd: Array<any> = [];
     let condition = (this.addFieldRestriction)? this.addFieldRestriction: 'id';
     
@@ -469,9 +491,10 @@ export class DataGridComponent implements OnInit {
         console.log(`Item already exists`)
       }
     });
-    this.gridApi.updateRowData({ add: itemsToAdd });
+    this.gridApi.applyTransaction({ add: itemsToAdd });
+    //this.gridApi.updateRowData({ add: itemsToAdd });
 
-    console.log(this.columnDefs);
+
     // params.oldValue!=undefined
   }
 
@@ -534,9 +557,9 @@ export class DataGridComponent implements OnInit {
       for (const id of selectedRows) {
         this.gridApi.getRowNode(id).data.status = 'pendingDelete';
       }
-      this.gridOptions.api.refreshCells();
+      this.gridApi.refreshCells();
     }
-    this.gridOptions.api.deselectAll();
+    this.gridApi.deselectAll();
   }
 
   newData(): void {
@@ -570,8 +593,8 @@ export class DataGridComponent implements OnInit {
       const selectedNodes = this.gridApi.getSelectedNodes();
       const selectedData = selectedNodes.map(node => node.data);
       this.duplicate.emit(selectedData);
-      this.gridOptions.api.deselectAll();
-
+      //this.gridOptions.api.deselectAll();
+      this.gridApi.deselectAll()
     }
   }
 
@@ -789,7 +812,9 @@ export class DataGridComponent implements OnInit {
 
   }
 
-  
+  getColumnIndexByColId(api: GridApi, colId: string): number {
+    return api.getAllGridColumns().findIndex(col => col.getColId() === colId);
+  }
   paintCells(params: any, changesMap: Map<number, Map<string, number>>,) {
     const row = this.gridApi.getDisplayedRowAtIndex(params.rowIndex);
 
@@ -798,5 +823,15 @@ export class DataGridComponent implements OnInit {
     // this.changeCellStyleColumns(params, changesMap, '#FFFFFF');
     // We will define cellStyle white to future modifications (like filter)
   }
+
+  // changeCellStyleColumns(params: any, changesMap: Map<number, Map<string, number>>, color: string) {
+
+  //   for (const key of changesMap.get(params.node.id).keys()) {
+  //     const columnNumber = this.getColumnIndexByColId(this.gridColumnApi, key);
+  //     this.gridColumnApi.columnController.gridColumns[columnNumber].colDef.cellStyle = { backgroundColor: color };
+  //   }
+
+
+  // }
 
 }

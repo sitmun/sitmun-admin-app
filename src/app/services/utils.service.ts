@@ -173,7 +173,7 @@ export class UtilsService {
     data.forEach(item => {
       putRequestLine += `${item}` + '\n';
     });
-    console.log(putRequestLine);
+  
     return putRequestLine;
   }
 
@@ -313,7 +313,6 @@ export class UtilsService {
   
     }
 
-    console.log(columnDef)
 
    
     return columnDef;

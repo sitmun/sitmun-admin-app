@@ -293,10 +293,12 @@ export class DataTreeComponent {
   @Output() createFolder: EventEmitter<any>;
   @Output() emitNode: EventEmitter<any>;
   @Output() emitAllNodes: EventEmitter<any>;
+  @Output() loadButtonClicked: EventEmitter<any>;
   @Input() eventNodeUpdatedSubscription: Observable <any> ;
   @Input() eventCreateNodeSubscription: Observable <any> ;
   @Input() eventGetAllRowsSubscription: Observable <any> ;
   @Input() eventRefreshSubscription: Observable <any> ;
+  @Input() loadDataButton: Observable <any> ;
   private _eventNodeUpdatedSubscription: any;
   private _eventCreateNodeSubscription: any;
   private _eventGetAllRowsSubscription: any;
@@ -336,6 +338,7 @@ export class DataTreeComponent {
     this.createNode = new EventEmitter();
     this.createFolder = new EventEmitter();
     this.emitAllNodes = new EventEmitter();
+    this.loadButtonClicked = new EventEmitter();
     this.treeFlattener = new MatTreeFlattener(this.transformer, this._getLevel,
       this._isExpandable, this._getChildren);
     this.treeControl = new FlatTreeControl<FileFlatNode>(this._getLevel, this._isExpandable);
@@ -363,9 +366,10 @@ export class DataTreeComponent {
       )
     }
 
+
     if (this.eventGetAllRowsSubscription) {
-      this._eventGetAllRowsSubscription = this.eventGetAllRowsSubscription.subscribe(() => {
-        this.emitAllRows();
+      this._eventGetAllRowsSubscription = this.eventGetAllRowsSubscription.subscribe((event: string) => {
+        this.emitAllRows(event);
       });
     }
 
@@ -376,6 +380,12 @@ export class DataTreeComponent {
     }
     
     this.getElements();
+  }
+
+  loadDataButtonClicked(){
+    const dataToEmit = JSON.parse(JSON.stringify(this.dataSource.data))
+    let allRows = this.getAllChildren(dataToEmit); 
+    this.loadButtonClicked.emit(allRows)
   }
 
   getElements(): void {
@@ -527,7 +537,7 @@ export class DataTreeComponent {
     // data.sort((a,b) => a.order.toString().localeCompare( b.order.toString()));
     data.sort((a,b) => (a.order > b.order) ? 1 : ((b.order > a.order) ? -1 : 0));
     data.forEach((item) => {
-      if (item.children.length>0) {
+      if (item.children && item.children.length>0) {
         this.sortByOrder(item.children);
       }
 
@@ -641,11 +651,11 @@ export class DataTreeComponent {
 
   }
 
-  emitAllRows()
+  emitAllRows(event)
   {
     const dataToEmit = JSON.parse(JSON.stringify(this.dataSource.data))
     let allRows = this.getAllChildren(dataToEmit); 
-    this.emitAllNodes.emit(allRows);
+    this.emitAllNodes.emit({event:event, data: allRows});
   }
 
   getAllChildren(arr)
@@ -653,7 +663,7 @@ export class DataTreeComponent {
     let result = [];
     let subResult;
     arr.forEach((item, i) => {
-      if (item.children.length>0) {
+      if (item.children && item.children.length>0) {
         subResult = this.getAllChildren(item.children);
         if (subResult) result.push(...subResult);
       }
@@ -666,7 +676,7 @@ export class DataTreeComponent {
   deleteChildren(arr)
   {
     arr.forEach((item, i) => {
-      if (item.children.length>0) {
+      if (item.children && item.children.length>0) {
         this.deleteChildren(item.children);
       }
       item.status='pendingDelete'

@@ -307,14 +307,13 @@ export class LayersFormComponent implements OnInit {
         resp.forEach(service => {
           if (service.type === config.capabilitiesRequest.WFSIdentificator) { wfsServices.push(service) }
         });
-        console.log(this.services);
+
         this.spatialConfigurationServices.push(...wfsServices)
         resolve(true);
       }).subscribe()
     }));
 
     Promise.all(promises).then(() => {
-      console.log(this.spatialConfigurationServices);
       this.activatedRoute.params.subscribe(params => {
         this.layerID = +params.id;
         if (params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
@@ -325,7 +324,7 @@ export class LayersFormComponent implements OnInit {
           //getCartography Entity
           this.cartographyService.get(idToGet).subscribe(
             resp => {
-              console.log(resp);
+
               this.layerToEdit = resp;
               let layers = this.layerToEdit.layers.join(',');
               let queryableLayers = null
@@ -396,7 +395,7 @@ export class LayersFormComponent implements OnInit {
                 this.translationService.getAll()
                   .pipe(map((data: any[]) => data.filter(elem => elem.element == this.layerID && elem.column == config.translationColumns.cartographyDescription)
                   )).subscribe(result => {
-                    console.log(result);
+               
                     this.utils.updateTranslations(this.translationMap, result)
                   }
 
@@ -809,7 +808,7 @@ export class LayersFormComponent implements OnInit {
   }
 
   saveParameters(data: any[], spatialSelection: boolean) {
-    console.log(data);
+
     const promises: Promise<any>[] = [];
     let formatsList, typesList, service, event;
     if (spatialSelection) {
@@ -939,7 +938,7 @@ export class LayersFormComponent implements OnInit {
   }
 
   saveStyles(data: any[]) {
-    console.log(data);
+
     let index = data.findIndex(element => (element.status === 'pendingModify' ||
       element.status === 'pendingCreation') && element.defaultStyle);
     let styleToModifyTheLast = null;
@@ -1033,7 +1032,7 @@ export class LayersFormComponent implements OnInit {
   }
 
   saveTerritorialFilters(data: any[]) {
-    console.log(data);
+
     let territorialFilterToSave = [];
     let territorialFilterToDelete = [];
     const promises: Promise<any>[] = [];
@@ -1306,7 +1305,7 @@ export class LayersFormComponent implements OnInit {
 
           let item = this.parameterForm.value;
           this.addElementsEventParameters.next([item])
-          console.log(this.parameterForm.value)
+
           this.parameterForm.reset();
         }
       }
@@ -1334,7 +1333,7 @@ export class LayersFormComponent implements OnInit {
         if (result.event === 'Add') {
           let item = this.parameterForm.value;
           this.addElementsEventSpatialConfigurations.next([item])
-          console.log(this.parameterForm.value)
+
         }
       }
       this.parameterForm.reset();
@@ -1380,7 +1379,7 @@ export class LayersFormComponent implements OnInit {
           //   })
           // }
           this.addElementsTerritorialFilter.next([item])
-          console.log(this.territorialFilterForm.value)
+
         }
       }
       this.territorialFilterForm.reset();
@@ -1412,7 +1411,6 @@ export class LayersFormComponent implements OnInit {
 
           let item = this.styleForm.value;
           this.addElementsEventStyles.next([this.adaptCreatedStyle(item)])
-          console.log(this.parameterForm.value)
           this.styleForm.reset();
         }
       }

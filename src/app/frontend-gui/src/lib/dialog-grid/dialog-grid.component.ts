@@ -71,7 +71,7 @@ export class DialogGridComponent implements OnInit {
       if(this.tablesReceivedCounter === this.getAllsTable.length)
       {
         this.doAdd(this.allRowsReceived);
-        console.log(this.allRowsReceived);
+
       }
   }
 

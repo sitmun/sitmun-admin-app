@@ -1,6 +1,6 @@
 import { Component} from '@angular/core';
-import { AuthService, LanguageService, Language,LoginService } from '../../frontend-core/src/lib/public_api';
-import { environment } from 'src/environments/environment';
+import { AuthService, LanguageService, LoginService } from '../../frontend-core/src/lib/public_api';
+
 import { config } from 'src/config';
 import { TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
@@ -59,8 +59,7 @@ export class LoginComponent {
                 this.translate.use(this.form.value.lang)
                 this.translate.setDefaultLang(this.form.value.lang);
                 localStorage.setItem('lang',this.form.value.lang );
-                // this.loadLanguages();
-                console.log( 'User is logged in' );
+                // this.loadLanguages()
                 this.router.navigateByUrl( '/' );
             }, ( err ) => {
                 this.translate.use(this.form.value.lang)

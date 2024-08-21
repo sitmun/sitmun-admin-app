@@ -1,5 +1,7 @@
 import { ICellRendererAngularComp } from '@ag-grid-community/angular';
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy,NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'; 
+import { MatIconModule } from '@angular/material/icon'
+
 
 @Component({
   selector: 'app-btn-edit-rendered',

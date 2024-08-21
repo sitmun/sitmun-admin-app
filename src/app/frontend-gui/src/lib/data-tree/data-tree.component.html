@@ -6,6 +6,10 @@
 	<mat-icon fontSet="material-icons-round"> expand_less </mat-icon>
 	{{ "collapseAll" | translate }}
 </button>
+<button mat-flat-button type="button" *ngIf="loadDataButton" (click)="loadDataButtonClicked()" title="{{ 'loadGroupLayers' | translate }}"  type="button" >
+	<mat-icon fontSet="material-icons-round"> file_download </mat-icon>
+	{{ "loadGroupLayers" | translate }}
+</button>
 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" >
 	<mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding  draggable="true"
 	(dragstart)="handleDragStart($event, node);" 	(dragover)="handleDragOver($event, node);"

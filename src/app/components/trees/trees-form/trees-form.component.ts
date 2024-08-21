@@ -488,7 +488,7 @@ export class TreesFormComponent implements OnInit {
   }
 
   nodeReceived(node) {
-    console.log(node);
+
     this.newElement = false;
     let currentType;
     if (node.isFolder) {
@@ -968,7 +968,6 @@ export class TreesFormComponent implements OnInit {
         urlReq = url.toString();
       }
 
-      console.log(urlReq);
   
       return (this.http.get(urlReq))
         .pipe(map(data => data['_embedded']['applications']));

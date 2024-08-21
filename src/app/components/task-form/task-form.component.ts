@@ -115,7 +115,7 @@ export class TaskFormComponent implements OnInit {
 
   ngAfterViewInit() {
     setTimeout(() => { 
-      console.log(this.templates)
+   
       this.templateRefs = this.templates.toArray()
     });
   }
@@ -185,7 +185,7 @@ export class TaskFormComponent implements OnInit {
         resp.forEach(service => {
           if(service.type==='FME') {fmeServices.push(service)}
         });  
-        console.log(this.fmeServices);
+   
         this.fmeServices.push(...fmeServices)
       }).toPromise()
     }
@@ -285,7 +285,7 @@ export class TaskFormComponent implements OnInit {
           this.formSQLElement.push(currentlySqlElement)
           this.tableFormElements.push(currentFormElements)
           formPopup=this.initializeForm(keysFormPopup,valuesFormPopup, true);
-          console.log(formPopup);
+       
           this.forms.push(formPopup);
         }
         else {
@@ -303,7 +303,7 @@ export class TaskFormComponent implements OnInit {
 
       if(this.taskID!= -1){   
         this.taskService.get(this.taskID).subscribe(result => {
-          console.log(result)
+    
           this.taskToEdit=result;
           this.initializeSelectorsPopups();
           this.setTaskValues();    
@@ -666,7 +666,7 @@ export class TaskFormComponent implements OnInit {
       let keysTextAreaNotNull = this.getControlsModified("textArea");
       if(keysTextAreaNotNull.length>0){
         let markResult = this.markIndexSqlElementToBeSaved(this.properties.tables, keysTextAreaNotNull)
-        console.log(markResult)
+  
 
         markResult.forEach(tableIndex => {
           let event = tableIndex == this.indexParameter?'saveParameters':'save'
@@ -681,7 +681,7 @@ export class TaskFormComponent implements OnInit {
           this.getAllElementsEvent[this.indexParameter].next('saveParameters');
         }
       }
-      console.log(this.savedTask);
+  
     }
     else {
       this.utils.showRequiredFieldsError();
@@ -739,9 +739,9 @@ export class TaskFormComponent implements OnInit {
       });
       if(allChangesSaved){
         this.currentTablesSaved=0;
-        console.log(this.savedTask);
+      
         this.taskService.save(this.savedTask).subscribe( result =>{
-          console.log(result);
+
           if(this.taskForm.get("id")) { this.taskForm.get("id").setValue(result.id); }
           else { this.taskForm.addControl("id",new UntypedFormControl(result.id,[])); }
   
@@ -908,7 +908,7 @@ export class TaskFormComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
-          console.log(result.data)
+         
           if(index < 0){
             this.taskForm.get(field).setValue(result.data[0][0]);
           }
@@ -926,7 +926,7 @@ export class TaskFormComponent implements OnInit {
   }
 
   openPopupFormDialog(index, label){
-    console.log( this.templates.find(dir => dir.name === index))
+  
     const dialogRef = this.dialog.open(DialogFormComponent);
     dialogRef.componentInstance.HTMLReceived=this.templates.find(dir => dir.name === index).template;
     dialogRef.componentInstance.title=this.utils.getTranslate(label);

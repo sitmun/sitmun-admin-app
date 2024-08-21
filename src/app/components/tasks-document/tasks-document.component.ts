@@ -73,7 +73,7 @@ export class TasksDocumentComponent implements OnInit {
   getAllTasksDocument = () => {
     
     let taskTypeID=config.tasksTypes['document'];
-    console.log(config.tasksTypes);
+
     let params2:HalParam[]=[];
     let param:HalParam={key:'type.id', value:taskTypeID}
     params2.push(param);
