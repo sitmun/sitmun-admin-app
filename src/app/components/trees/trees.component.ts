@@ -3,7 +3,6 @@ import { Component, OnInit } from '@angular/core';
 import { TreeService, Tree } from '../../frontend-core/src/lib/public_api';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
-import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
 import { Observable, Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';

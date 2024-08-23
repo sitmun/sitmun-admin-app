@@ -12,7 +12,7 @@
 @import "../node_modules/@syncfusion/ej2-splitbuttons/styles/material.css";
 
 // CSS Reset, comment out if not required or using a different module
-// @import '~minireset.css/minireset';
+
 //@import "~igniteui-angular/lib/core/styles/themes/index";
 //@include igx-core();
 
@@ -381,10 +381,24 @@ h2 {
   right: 0px;
 }
 
+.mdc-checkbox .mdc-checkbox__background {
+  top: 4px !important;
+}
+
 .mdc-checkbox .mdc-checkbox__native-control:enabled:checked~.mdc-checkbox__background,
  .mdc-checkbox .mdc-checkbox__native-control:enabled:indeterminate~.mdc-checkbox__background,
   .mdc-checkbox .mdc-checkbox__native-control[data-indeterminate=true]:enabled~.mdc-checkbox__background
 {
+  top: 4px !important;
+  border-color:   #ff9300 !important;
+  background-color:  #ff9300 !important;
+}
+
+.mdc-checkbox .mdc-checkbox__native-control:enabled:checked~.mdc-checkbox__background,
+ .mdc-checkbox .mdc-checkbox__native-control:enabled:indeterminate~.mdc-checkbox__background,
+  .mdc-checkbox .mdc-checkbox__native-control[data-indeterminate=true]:enabled~.mdc-checkbox__background
+{
+  top: 4px !important;
   border-color:   #ff9300 !important;
   background-color:  #ff9300 !important;
 }

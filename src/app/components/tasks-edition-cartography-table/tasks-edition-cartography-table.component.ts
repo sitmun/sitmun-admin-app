@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { UtilsService } from '../../services/utils.service';
 import { Router } from '@angular/router';
 import { Observable, of,Subject } from 'rxjs';
-import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
 import { HalOptions, HalParam, Task, TaskService } from '../../frontend-core/src/lib/public_api';
 import { MatDialog } from '@angular/material/dialog';
