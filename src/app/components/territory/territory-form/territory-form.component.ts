@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { tick } from '@angular/core/testing';
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Territory, TerritoryService, UserPositionService, TranslationService, Translation, TaskAvailabilityService, 
@@ -10,7 +9,6 @@ import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { Observable, of, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
 import { DialogGridComponent, DialogMessageComponent } from '../../../frontend-gui/src/lib/public_api';
 import { MatDialog } from '@angular/material/dialog';

@@ -6,6 +6,7 @@ import {
   NumberFilter,
   IFloatingFilterParams,
 } from '@ag-grid-community/core';
+import { IFilterAngularComp,IFloatingFilterAngularComp } from '@ag-grid-community/angular';
 import { AgFrameworkComponent } from '@ag-grid-community/angular';
 
 
@@ -15,7 +16,7 @@ import { AgFrameworkComponent } from '@ag-grid-community/angular';
   styleUrls: ['./btn-checkbox-filter.component.scss'],
   host: {'class': 'hostClass'}
 })
-export class BtnCheckboxFilterComponent implements IFloatingFilter, AgFrameworkComponent<IFloatingFilterParams>   {
+export class BtnCheckboxFilterComponent implements IFloatingFilterAngularComp  {
   private params: IFloatingFilterParams;
   private valueGetter: (rowNode: RowNode) => any;
   public text: string = '';
@@ -27,6 +28,7 @@ export class BtnCheckboxFilterComponent implements IFloatingFilter, AgFrameworkC
     this.valueGetter = params.filterParams.getValue;
     this.params.suppressFilterButton=true;
   }
+
 
   isFilterActive(): boolean {
     return this.text != null && this.text !== '';
@@ -57,7 +59,7 @@ export class BtnCheckboxFilterComponent implements IFloatingFilter, AgFrameworkC
  onChange(newValue): void {
     this.params.parentFilterInstance(function (instance) {
       (<NumberFilter>instance).onFloatingFilterChanged(
-        'contains',
+        'equals',
         newValue
       );
     });

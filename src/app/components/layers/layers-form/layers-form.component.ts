@@ -1,5 +1,4 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { tick } from '@angular/core/testing';
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CartographyService, GetInfoService, ServiceService, CartographyFilterService, TerritoryTypeService, ConnectionService, TreeNodeService, 
@@ -14,7 +13,7 @@ import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
 import { DialogFormComponent, DialogGridComponent, DialogMessageComponent } from '../../../frontend-gui/src/lib/public_api';
 import { MatDialog } from '@angular/material/dialog';
-import { iterateExtend } from '@syncfusion/ej2-angular-grids';
+
 
 @Component({
   selector: 'app-layers-form',
