@@ -453,21 +453,13 @@ export class DataGridComponent implements OnInit {
     
     //let columns = this.gridOptions.columnApi.getAllColumns();
     let columns = this.gridApi.getAllGridColumns()
-    columns.forEach(function (column) {
-      allColumnIds.push(column.colId);
-    });
-
-    //this.gridOptions.columnApi.autoSizeColumns(allColumnIds);
-    this.gridApi.autoSizeColumns(allColumnIds)
-    let grid = this.gridApi
-    /*let availableWidth = grid.gridPanel.eBodyViewport.clientWidth;
-
-    let usedWidth = grid.gridPanel.columnController.getWidthOfColsInList(columns);
-
-    if (usedWidth < availableWidth) {
-      grid.sizeColumnsToFit();
-    }*/
+    if(columns) {
+      columns.forEach(function (column) {
+        allColumnIds.push(column.colId);
+      });
+      this.gridApi.autoSizeColumns(allColumnIds)
       this.gridApi.sizeColumnsToFit();
+    }
 
   }
 

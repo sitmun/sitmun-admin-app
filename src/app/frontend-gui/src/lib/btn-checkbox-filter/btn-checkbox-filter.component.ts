@@ -1,13 +1,8 @@
-import { Component, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component} from '@angular/core';
 import {
-  IDoesFilterPassParams,
-  RowNode,
-  IFloatingFilter,
-  NumberFilter,
   IFloatingFilterParams,
 } from '@ag-grid-community/core';
-import { IFilterAngularComp,IFloatingFilterAngularComp } from '@ag-grid-community/angular';
-import { AgFrameworkComponent } from '@ag-grid-community/angular';
+import { IFloatingFilterAngularComp } from '@ag-grid-community/angular';
 
 
 @Component({
@@ -18,60 +13,32 @@ import { AgFrameworkComponent } from '@ag-grid-community/angular';
 })
 export class BtnCheckboxFilterComponent implements IFloatingFilterAngularComp  {
   private params: IFloatingFilterParams;
-  private valueGetter: (rowNode: RowNode) => any;
-  public text: string = '';
-  public currentValue: number;
-  @ViewChild('input', { read: ViewContainerRef }) public input;
+  public currentValue: string = '';
 
   agInit(params: IFloatingFilterParams): void {
     this.params = params;
-    this.valueGetter = params.filterParams.getValue;
-    this.params.suppressFilterButton=true;
   }
 
+  onChange(newValue): void {
+    if (newValue === '') {
+      this.currentValue = null;
+      this.params.parentFilterInstance((instance) => {
+          instance.onFloatingFilterChanged(null, null);
+      });
+      return;
+    }
 
-  isFilterActive(): boolean {
-    return this.text != null && this.text !== '';
-  }
-
-  doesFilterPass(params: IDoesFilterPassParams): boolean {
-    return this.text
-      .toLowerCase()
-      .split(' ')
-      .every(
-        (filterWord) =>
-          this.valueGetter(params.data.node)
-            .toString()
-            .toLowerCase()
-            .indexOf(filterWord) >= 0
-      );
-  }
-
-  getModel(): any {
-    return { value: this.text };
-  }
-
-  setModel(model: any): void {
-    this.text = model ? model.value : '';
-  }
-
-
- onChange(newValue): void {
-    this.params.parentFilterInstance(function (instance) {
-      (<NumberFilter>instance).onFloatingFilterChanged(
-        'equals',
-        newValue
-      );
+    this.currentValue = this.currentValue;
+    this.params.parentFilterInstance((instance) => {
+        instance.onFloatingFilterChanged('equals',newValue);
     });
   }
 
-  onParentModelChanged(parentModel: any): void {
+  onParentModelChanged(parentModel: any) {
     if (!parentModel) {
-      this.currentValue = 0;
+        this.currentValue = null;
     } else {
-      // note that the filter could be anything here, but our purposes we're assuming a greater than filter only,
-      // so just read off the value and use that
-      this.currentValue = parentModel.filter;
+        this.currentValue = parentModel.filter;
     }
   }
 }
