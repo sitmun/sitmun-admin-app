@@ -169,7 +169,7 @@ export class DataGridComponent implements OnInit {
       rowSelection: 'multiple',
       singleClickEdit: true,
       // suppressHorizontalScroll: true,
-      localeTextFunc: (key: string, defaultValue: string) => {
+      getLocaleText: ({key, defaultValue}) => {
         const data = this.translate.instant(key);
         return data === key ? defaultValue : data;
       }
@@ -427,19 +427,10 @@ export class DataGridComponent implements OnInit {
           }
           
         });
-
-        // if(this.statusColumn){
-        //   let status = this.allNewElements?'pendingCreation':'statusOK'
-        //   items.forEach(element => {
-        //     if(element.status != "notAvailable" && element.status != "pendingCreation" && element.status != "pendingRegistration" && element.status != "unregisteredLayer"){
-        //       element.status=status
-        //     }
-        //     if(this.allNewElements) { element.new = true; }
-        //   });
-        // }
         this.rowData = this.currentData?newItems: items;
-        //this.gridApi.setRowData(this.rowData);
-        this.gridApi.applyTransaction(this.rowData);
+        if(!this.gridApi?.isDestroyed()) {
+          this.gridApi.applyTransaction(this.rowData);
+        }
         this.setSize()
         // this.gridApi.sizeColumnsToFit()
     
@@ -449,10 +440,12 @@ export class DataGridComponent implements OnInit {
 
   setSize() {
 
-    var allColumnIds = [];
+    let allColumnIds = [];
     
-    //let columns = this.gridOptions.columnApi.getAllColumns();
-    let columns = this.gridApi.getAllGridColumns()
+    let columns;
+    if(!this.gridApi?.isDestroyed()) {
+      columns = this.gridApi.getAllGridColumns()
+    }
     if(columns) {
       columns.forEach(function (column) {
         allColumnIds.push(column.colId);
@@ -483,11 +476,9 @@ export class DataGridComponent implements OnInit {
         console.log(`Item already exists`)
       }
     });
-    this.gridApi.applyTransaction({ add: itemsToAdd });
-    //this.gridApi.updateRowData({ add: itemsToAdd });
-
-
-    // params.oldValue!=undefined
+    if(!this.gridApi?.isDestroyed()) {
+      this.gridApi.applyTransaction({ add: itemsToAdd });
+    }
   }
 
   private checkElementAllowedToAdd(condition, item, data){

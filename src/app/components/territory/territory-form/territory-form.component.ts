@@ -282,7 +282,7 @@ export class TerritoryFormComponent implements OnInit {
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef('cartographyId'),
       this.utils.getNonEditableColumnDef('territoryEntity.name', 'cartographyName'),
-      this.utils.getNonEditableColumnDef('territoryEntity.layers', 'cartographyLayers'),
+      {...this.utils.getNonEditableColumnDef('territoryEntity.layers', 'cartographyLayers'), ...this.utils.getArrayValueParser() },
       this.utils.getStatusColumnDef()
     ];
 

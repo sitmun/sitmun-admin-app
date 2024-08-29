@@ -42,7 +42,7 @@ export class ServiceComponent implements OnInit {
       this.utils.getEditableColumnDef('serviceEntity.name', 'name'),
       this.utils.getNonEditableColumnDef('serviceEntity.type', 'type'),
       this.utils.getEditableColumnDef('serviceEntity.serviceURL', 'serviceURL'),
-      this.utils.getEditableColumnDef('serviceEntity.supportedSRS', 'supportedSRS'),
+      {...this.utils.getEditableColumnDef('serviceEntity.supportedSRS', 'supportedSRS'), ...this.utils.getArrayValueParser() },
       this.utils.getDateColumnDef('serviceEntity.createdDate','createdDate')
 
     ];
