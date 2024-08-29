@@ -404,7 +404,7 @@ export class DataGridComponent implements OnInit {
   }
 
   quickSearch(): void {
-    this.gridApi.setQuickFilter(this.searchValue);
+    this.gridApi.setGridOption('quickFilterText', this.searchValue);
   }
 
   getElements(): void {
