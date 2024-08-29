@@ -525,7 +525,7 @@ export class LayersFormComponent implements OnInit {
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
       this.utils.getEditableColumnDef('layersEntity.name', 'name'),
-      this.utils.getNonEditableColumnDef('layersEntity.roles', 'roleNames'),
+      {...this.utils.getNonEditableColumnDef('layersEntity.roles', 'roleNames'), ...this.utils.getArrayValueParser() },
       this.utils.getStatusColumnDef()
     ];
 

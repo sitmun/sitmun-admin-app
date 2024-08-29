@@ -209,6 +209,14 @@ export class UtilsService {
     return columnDef;
   }
 
+  getArrayValueParser() {
+    return {
+      valueParser: (params) => {
+        return params.newValue? params.newValue.split(',') : params.join(',');
+      }
+    }
+  }
+
   getEditBtnColumnDef() {
     let columnDef =
     {
@@ -347,7 +355,6 @@ export class UtilsService {
       headerName: this.getTranslate(alias),
       field: field,
       editable: editable,
-      singleSelection: true,
       cellRenderer: 'btnCheckboxRendererComponent',
       floatingFilterComponent: BtnCheckboxFilterComponent,
       valueGetter: (params) => params.data[field] ? 'true' : 'false',
