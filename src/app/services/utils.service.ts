@@ -54,10 +54,12 @@ export class UtilsService {
     catch (e) {
       missatge = error.toString();
     }
-
-    this.snackBar.open(missatge, '', {
-      duration: 5000,
+    console.error(missatge);
+    this.snackBar.open(missatge, 'Cerrar', {
+      duration: 0,
       panelClass: ['error-snackbar']
+    }).onAction().subscribe(() => {
+      this.snackBar.dismiss(); 
     });
   }
 
