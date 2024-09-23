@@ -54,14 +54,14 @@ export class DashboardComponent implements OnInit {
               this.cartographyChartData.push({index:keysCartographyChartData[i], value:this.cartographiesOnDate[keysCartographyChartData[i]]})
             }
           }
-          /*
           if(this.usersOnDate){
+            this.usersDataAvailable = true;
             let keysUsersChartData=Object.keys(this.usersOnDate).sort();
             for(let i=0; i<keysUsersChartData.length; i++){
               this.usersChartData.push({index:keysUsersChartData[i], value:this.usersOnDate[keysUsersChartData[i]]})
             }
             this.usersToShow=this.usersChartData.slice(this.usersChartData.length -30,this.usersChartData.length);
-          }*/
+          }
           if(this.usersPerApplication){
             this.usersPerApplicationDataAvailable = true;
             let keysUsersPerApplication= Object.keys(this.usersPerApplication);
