@@ -11,6 +11,11 @@ import { UtilsService } from '../../services/utils.service';
 export class DashboardComponent implements OnInit {
 
   dataLoaded: boolean;
+
+  cartographyDataAvailable: boolean = false;
+  usersDataAvailable: boolean = false;
+  usersPerApplicationDataAvailable: boolean = false;
+
   KPIsTable = [];
   totalKPIs;
   sumKPIs;
@@ -40,23 +45,25 @@ export class DashboardComponent implements OnInit {
           this.totalKPIs=result.total;
           this.sumKPIs=result.sum;
           this.cartographiesOnDate=result['cartographies-created-on-date']
-          this.usersOnDate=result['users-created-on-date']
+          //this.usersOnDate=result['users-created-on-date']
           this.usersPerApplication=result['users-per-application']
           if(this.cartographiesOnDate){
+            this.cartographyDataAvailable = true;
             let keysCartographyChartData= Object.keys(this.cartographiesOnDate).sort();
             for(let i=0; i<keysCartographyChartData.length; i++){
               this.cartographyChartData.push({index:keysCartographyChartData[i], value:this.cartographiesOnDate[keysCartographyChartData[i]]})
             }
           }
+          /*
           if(this.usersOnDate){
             let keysUsersChartData=Object.keys(this.usersOnDate).sort();
             for(let i=0; i<keysUsersChartData.length; i++){
               this.usersChartData.push({index:keysUsersChartData[i], value:this.usersOnDate[keysUsersChartData[i]]})
             }
-
             this.usersToShow=this.usersChartData.slice(this.usersChartData.length -30,this.usersChartData.length);
-          }
+          }*/
           if(this.usersPerApplication){
+            this.usersPerApplicationDataAvailable = true;
             let keysUsersPerApplication= Object.keys(this.usersPerApplication);
             for(let i=0; i<keysUsersPerApplication.length; i++){
               this.usersPerApplicationChartData.push({index:keysUsersPerApplication[i], value:this.usersPerApplication[keysUsersPerApplication[i]]})

@@ -14,7 +14,9 @@
 </div>
 <div style="width:100%; margin-top: 20px" *ngIf="dataLoaded">
   <div class="gridGraph">
-    <p class="titleGraph">{{ "dashboard.cartographies" | translate}}</p> 
+    <p class="titleGraph">{{ "dashboard.cartographies" | translate}} 
+      <span *ngIf="!cartographyDataAvailable">({{ "loadingOoo" | translate }})</span>
+    </p> 
     <app-datagraph *ngIf="dataLoaded" [data]="this.cartographyChartData" type="bar"> </app-datagraph>
   </div>
   <div class="gridGraph">
@@ -22,7 +24,9 @@
     <app-datagraph *ngIf="dataLoaded" [data]="this.usersToShow" type="bar"> </app-datagraph>
   </div>
   <div class="gridGraph">
-    <p class="titleGraph">{{ "Usuaris per aplicació" | translate}}</p> 
+    <p class="titleGraph">{{ "Usuaris per aplicació" | translate}}  
+      <span *ngIf="!usersPerApplicationDataAvailable">({{ "loadingOoo" | translate }})</span>
+    </p> 
     <app-datagraph *ngIf="dataLoaded" [data]="this.usersPerApplicationChartData" type="bar"> </app-datagraph>
   </div>
   <!--<div class="gridGraph">
