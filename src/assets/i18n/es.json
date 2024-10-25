@@ -182,7 +182,8 @@
     "description": "Descripción",
     "status": "Estado",
     "request":"Petición",
-    "available": "Disponible"
+    "available": "Disponible",
+    "proxied": "Utilitza proxy"
   },
   "layersEntity": {
     "informationTitle": "Información alfanumérica de la capa",

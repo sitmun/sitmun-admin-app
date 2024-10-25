@@ -180,7 +180,8 @@
     "description": "Description",
     "status": "Statut",
     "request":"Demande",
-    "available": "Disponible"
+    "available": "Disponible",
+    "proxied": "Utilitser un proxy"
   },
   "layersEntity": {
     "informationTitle": "Information alfanumérica de la couche",

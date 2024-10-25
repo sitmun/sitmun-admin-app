@@ -108,7 +108,8 @@ describe('ServiceFormComponent', () => {
       proxyUrl: 'urltest',
       supportedSRS: ['EPSG:2831'],
       getInformationURL: 'urltest',
-      blocked: true
+      blocked: true,
+      isProxied: false
     })
     //Miss name
     expect(component.serviceForm.valid).toBeFalsy();
@@ -127,7 +128,8 @@ describe('ServiceFormComponent', () => {
       proxyUrl: 'urltest',
       supportedSRS: ['EPSG:2831'],
       getInformationURL: 'urltest',
-      blocked: true
+      blocked: true,
+      proxied: false
     })
     expect(component.serviceForm.valid).toBeTruthy();
   });
