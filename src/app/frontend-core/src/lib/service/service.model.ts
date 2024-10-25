@@ -36,4 +36,7 @@ export class Service extends Resource {
 
   /** whether service is blocked*/
   public blocked: boolean;
+
+  /** whether service is proxied*/
+  public isProxied: boolean;
 }

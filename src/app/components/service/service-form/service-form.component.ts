@@ -152,6 +152,7 @@ export class ServiceFormComponent implements OnInit {
                 proxyUrl: this.serviceToEdit.proxyUrl,
                 supportedSRS: this.serviceToEdit.supportedSRS,
                 blocked: this.serviceToEdit.blocked,
+                isProxied: this.serviceToEdit.isProxied,
                 _links: this.serviceToEdit._links
               });
 
@@ -259,6 +260,7 @@ export class ServiceFormComponent implements OnInit {
       getInformationURL: new UntypedFormControl(null,),
       _links: new UntypedFormControl(null, []),
       blocked: new UntypedFormControl(null, []),
+      isProxied: new UntypedFormControl(null, []),
     });
 
   }
