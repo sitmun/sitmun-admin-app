@@ -129,7 +129,7 @@ describe('ServiceFormComponent', () => {
       supportedSRS: ['EPSG:2831'],
       getInformationURL: 'urltest',
       blocked: true,
-      proxied: false
+      isProxied: false
     })
     expect(component.serviceForm.valid).toBeTruthy();
   });
