@@ -182,7 +182,8 @@
     "description": "Description",
     "status": "Status",
     "request":"Request",
-    "available": "Available"
+    "available": "Available",
+    "proxied": "Uses proxy"
   },
   "layersEntity": {
     "informationTitle": "Layer Alphanumeric Information",
