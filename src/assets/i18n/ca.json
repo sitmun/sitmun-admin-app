@@ -513,7 +513,13 @@
     "Thematic": "Temàtic",
     "Extraction (FME)" :"Extracció FME",
     "Basic": "General",
-    "url": "Url"
+    "url": "Url",
+    "string": "Text",
+    "object": "Objecte",
+    "boolean": "Boleà",
+    "number": "Número",
+    "array": "Matriu",
+    "null": "Nul"
   },
   "tasksQueryEntity": {
     "generalData": "Dades Generals",
