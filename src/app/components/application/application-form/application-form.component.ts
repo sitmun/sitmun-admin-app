@@ -361,7 +361,7 @@ export class ApplicationFormComponent implements OnInit {
         Validators.required,
       ]),
       title: new UntypedFormControl(null),
-      jspTemplate: new UntypedFormControl(null,[Validators.required]),
+      jspTemplate: new UntypedFormControl(null,[]),
       theme: new UntypedFormControl(null),
 
       situationMap: new UntypedFormControl(null, []),
