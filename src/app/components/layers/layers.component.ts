@@ -44,6 +44,7 @@ export class LayersComponent implements OnInit {
       this.utils.getEditableColumnDef('layersEntity.name', 'name'),
       this.utils.getEditableColumnDef('layersEntity.order', 'order'),
       {...this.utils.getEditableColumnDef('layersEntity.layers', 'layers'), ...this.utils.getArrayValueParser() },
+      this.utils.getEditableColumnDef('layersEntity.serviceName', 'serviceName'),
       this.utils.getEditableColumnDef('layersEntity.source', 'source'),
       this.utils.getDateColumnDef('layersEntity.createdDate', 'createdDate'),
     ];
