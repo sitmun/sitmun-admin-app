@@ -186,8 +186,7 @@ export class ServiceFormComponent implements OnInit {
                 });
               }
 
-
-
+              
 
               this.dataLoaded = true;
             },
@@ -199,7 +198,8 @@ export class ServiceFormComponent implements OnInit {
         else {
           this.serviceForm.patchValue({
             blocked: false,
-            type: this.serviceTypes[0].value
+            type: null,
+            authenticationMode: this.authenticationModes[0].value,
           })
           this.dataLoaded = true;
         }
@@ -247,6 +247,7 @@ export class ServiceFormComponent implements OnInit {
       password: new UntypedFormControl(null),
       passwordSet: new UntypedFormControl(null),
       authenticationMode: new UntypedFormControl(null, [Validators.required]),
+      serviceType: new UntypedFormControl(null, [Validators.required]),
 
       description: new UntypedFormControl(null, [Validators.required]),
       type: new UntypedFormControl(null, [
