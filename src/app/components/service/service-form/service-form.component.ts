@@ -198,6 +198,7 @@ export class ServiceFormComponent implements OnInit {
         else {
           this.serviceForm.patchValue({
             blocked: false,
+            isProxied: false,
             type: null,
             authenticationMode: this.authenticationModes[0].value,
           })
