@@ -338,7 +338,8 @@
     "selectedBackground": "Hons seleccionat",
     "value": "Valor",
     "note": "Observacions",
-    "status": "Estat"
+    "status": "Estat",
+    "logo": "Lògo"
   },
   "territoryEntity": {
     "generalData": "Donades Generaus",

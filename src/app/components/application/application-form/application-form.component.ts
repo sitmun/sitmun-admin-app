@@ -180,6 +180,7 @@ export class ApplicationFormComponent implements OnInit {
                 scales: this.applicationToEdit.scales,
                 srs: this.applicationToEdit.srs,
                 treeAutoRefresh: this.applicationToEdit.treeAutoRefresh,
+                logo: this.applicationToEdit.logo,
                 _links: this.applicationToEdit._links
               });
 
@@ -230,6 +231,7 @@ export class ApplicationFormComponent implements OnInit {
           this.dataLoaded = true;
           this.applicationForm.patchValue({
             moveSupramunicipal: false,
+            logo: false,
             treeAutorefresh: false,
             type: this.applicationTypes[0].value,
             situationMap: this.situationMapList[0].id
@@ -369,6 +371,7 @@ export class ApplicationFormComponent implements OnInit {
       srs: new UntypedFormControl(null),
       treeAutoRefresh: new UntypedFormControl(null),
       _links: new UntypedFormControl(null, []),
+      logo: new UntypedFormControl(null,[]),
 
     });
 
@@ -921,6 +924,7 @@ export class ApplicationFormComponent implements OnInit {
       appObj.type = this.applicationForm.value.type;
       appObj.title = this.applicationForm.value.title;
       appObj.jspTemplate = this.applicationForm.value.jspTemplate;
+      appObj.logo = this.applicationForm.value.logo;
       appObj.theme = this.applicationForm.value.theme;
       appObj.scales = this.applicationForm.value.scales != null ? this.applicationForm.value.scales.toString().split(",") : null;
       appObj.srs = this.applicationForm.value.srs;

@@ -338,7 +338,8 @@
     "selectedBackground": "Fons seleccionat",
     "value": "Valor",
     "note": "Observacions",
-    "status": "Estat"
+    "status": "Estat",
+    "logo": "Logo"
   },
   "territoryEntity": {
     "generalData": "Dades Generals",
