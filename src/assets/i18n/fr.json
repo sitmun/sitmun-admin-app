@@ -337,7 +337,8 @@
     "selectedBackground": "Fond d'écran sélectionné",
     "value": "Valeur",
     "note": "Observations",
-    "status": "Statut"
+    "status": "Statut",
+    "logo": "Logo"
   },
   "territoryEntity": {
     "generalData": "Données générales",

@@ -338,7 +338,8 @@
     "selectedBackground": "Selected Wallpaper",
     "value": "Value",
     "note": "Observations",
-    "status": "Status"
+    "status": "Status",
+    "logo": "Logo"
   },
   "territoryEntity": {
     "generalData": "General Data",
