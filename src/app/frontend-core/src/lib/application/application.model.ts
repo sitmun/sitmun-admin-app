@@ -32,6 +32,9 @@ export class Application extends Resource {
   /** urlTemplate*/
   public jspTemplate: string;
   
+  /** urlTemplate*/
+  public logo: string;
+  
   
   /** system created date*/
   public createdDate: any;

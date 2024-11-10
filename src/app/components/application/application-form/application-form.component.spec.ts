@@ -111,6 +111,7 @@ describe('ApplicationFormComponent', () => {
   it('form invalid when mid-empty', () => {
     component.applicationForm.patchValue({
       name: 'nameTest',
+      logo: 'logo',
       type: 1,
     })
     //Miss url
@@ -120,6 +121,8 @@ describe('ApplicationFormComponent', () => {
   it('form valid', () => {
     component.applicationForm.patchValue({
       name: 'name',
+      // logo
+      logo: 'logo',
       type: 1,
       title: 'title',
       jspTemplate: 'url',

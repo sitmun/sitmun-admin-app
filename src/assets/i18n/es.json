@@ -339,7 +339,8 @@
     "selectedBackground": "Fondo seleccionado",
     "value": "Valor",
     "noto": "Observaciones",
-    "status": "Estado"
+    "status": "Estado",
+    "logo": "Logo"
   },
   "territoryEntity": {
     "generalData": "Datos Generales",

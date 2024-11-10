@@ -590,9 +590,6 @@ export class TreesFormComponent implements OnInit {
 
   }
 
-
-
-
   onSaveButtonClicked() {
     if (this.treeForm.valid) {
       this.getAllElementsNodes.next("save");
@@ -674,9 +671,9 @@ export class TreesFormComponent implements OnInit {
         treeNodeObj.metadataURL = tree.metadataURL;
         treeNodeObj.description = tree.description;
         treeNodeObj.tree = this.treeToEdit;
-        treeNodeObj.filterGetFeatureInfo = tree.filterGetFeatureInfo;
-        treeNodeObj.filterGetMap = tree.filterGetMap;
-        treeNodeObj.filterSelectable = tree.filterSelectable;
+        treeNodeObj.filterGetFeatureInfo = tree.filterGetFeatureInfo == "UNDEFINED" ? null : tree.filterGetFeatureInfo;
+        treeNodeObj.filterGetMap = tree.filterGetMap == "UNDEFINED" ? null : tree.filterGetMap;
+        treeNodeObj.filterSelectable = tree.filterSelectable == "UNDEFINED" ? null : tree.filterSelectable;
         treeNodeObj.style = tree.style;
 
 
