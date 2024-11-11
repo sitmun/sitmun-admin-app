@@ -232,7 +232,7 @@
           <mat-form-field appearance="outline">
             <mat-select matInput formControlName="type" class="form-control">
               <mat-option [value]="requestType.value" *ngFor="let requestType of requestTypes">
-                {{ requestType.value}}
+                {{ requestType.description}}
               </mat-option>
             </mat-select>
           </mat-form-field>
