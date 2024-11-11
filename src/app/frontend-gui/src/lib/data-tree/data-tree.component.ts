@@ -151,12 +151,7 @@ export class FileDatabase {
   setOrder(data: any[]){
     for(let i=0; i< data.length; i++){
       data[i].order=i;
-      if(data[i].id && Number(data[i].id) < 0){
-        data[i].status="pendingCreation";
-      }
-      if(!data[i].status && !data[i]['status']) { 
-        data[i].status="Modified"; 
-      } 
+      if(! data[i].status) { data[i].status="Modified"; } 
     }
     return data;
    }
@@ -201,8 +196,7 @@ export class FileDatabase {
       queryableActive: node.queryableActive,
       radio: node.radio,
       tooltip: node.tooltip,
-      _links: node._links,
-      status: null } as FileNode;
+      _links: node._links} as FileNode;
     return newItem;
   }
 
@@ -491,16 +485,16 @@ export class DataTreeComponent {
   handleDrop(event, node) {
     event.preventDefault();
     const changedData = JSON.parse(JSON.stringify(this.dataSource.data))
-
-    
     let toFlatNode;
-    if(node.id === undefined) { toFlatNode=changedData[0] }
-    else{
+    if(node.id === undefined) { 
+      toFlatNode=changedData[0] 
+    } else {
       toFlatNode= this.findNodeSiblings(changedData[0].children, node.id).find(nodeAct => nodeAct.id === node.id);
     }
     let fromFlatNode;
-    if( this.dragNode.id === undefined) { fromFlatNode=changedData[0] }
-    else{
+    if( this.dragNode.id === undefined) { 
+      fromFlatNode=changedData[0] 
+    } else {
       fromFlatNode = this.findNodeSiblings(changedData[0].children, this.dragNode.id).find(nodeAct => nodeAct.id === this.dragNode.id);
     }
     if (this.dragNode.status!="pendingDelete" && node !== this.dragNode && (this.dragNodeExpandOverArea !== 'center' || (this.dragNodeExpandOverArea === 'center' && toFlatNode.isFolder))) {
