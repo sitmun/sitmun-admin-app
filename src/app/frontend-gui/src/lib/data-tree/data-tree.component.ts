@@ -151,7 +151,12 @@ export class FileDatabase {
   setOrder(data: any[]){
     for(let i=0; i< data.length; i++){
       data[i].order=i;
-      if(! data[i].status) { data[i].status="Modified"; } 
+      if(data[i].id && Number(data[i].id) < 0){
+        data[i].status="pendingCreation";
+      }
+      if(!data[i].status && !data[i]['status']) { 
+        data[i].status="Modified"; 
+      } 
     }
     return data;
    }
@@ -196,8 +201,8 @@ export class FileDatabase {
       queryableActive: node.queryableActive,
       radio: node.radio,
       tooltip: node.tooltip,
-      _links: node._links } as FileNode;
-
+      _links: node._links,
+      status: null } as FileNode;
     return newItem;
   }
 
@@ -206,8 +211,7 @@ export class FileDatabase {
       parent.children = [];
     }
     const newItem = this.getNewItem(node)
-    newItem.parent = parent==null || parent.id==undefined?null:parent.id;
-
+    newItem.parent = parent==null || parent.id==undefined ? null : parent.id;
     parent.children.push(newItem);
     this.setOrder(parent.children)
     this.dataChange.next(changedData);
@@ -547,7 +551,9 @@ export class DataTreeComponent {
    setOrder(data: any[]){
     for(let i=0; i< data.length; i++){
       data[i].order=i;
-      if(! data[i].status) { data[i].status="Modified"; } 
+      if(! data[i].status) { 
+        data[i].status="Modified"; 
+      } 
     }
     return data;
    }
