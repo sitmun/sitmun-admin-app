@@ -182,7 +182,8 @@
     "description": "Descripció",
     "status": "Estat",
     "request":"Petició",
-    "available": "Disponible"
+    "available": "Disponible",
+    "proxied": "Utilitza proxy"
   },
   "layersEntity": {
     "informationTitle": "Informació alfanumèrica de la capa",
@@ -337,7 +338,8 @@
     "selectedBackground": "Fons seleccionat",
     "value": "Valor",
     "note": "Observacions",
-    "status": "Estat"
+    "status": "Estat",
+    "logo": "Logo"
   },
   "territoryEntity": {
     "generalData": "Dades Generals",
@@ -512,7 +514,13 @@
     "Thematic": "Temàtic",
     "Extraction (FME)" :"Extracció FME",
     "Basic": "General",
-    "url": "Url"
+    "url": "Url",
+    "string": "Text",
+    "object": "Objecte",
+    "boolean": "Boleà",
+    "number": "Número",
+    "array": "Matriu",
+    "null": "Nul"
   },
   "tasksQueryEntity": {
     "generalData": "Dades Generals",

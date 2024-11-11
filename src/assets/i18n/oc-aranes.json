@@ -182,7 +182,8 @@
     "description": "Descripcion",
     "status": "Estat",
     "request":"Peticion",
-    "available": "Disponible"
+    "available": "Disponible",
+    "proxied": "Utilitza proxy"
   },
   "layersEntity": {
     "informationTitle": "Informacion alfanumerica dera capa",
@@ -337,7 +338,8 @@
     "selectedBackground": "Hons seleccionat",
     "value": "Valor",
     "note": "Observacions",
-    "status": "Estat"
+    "status": "Estat",
+    "logo": "Lògo"
   },
   "territoryEntity": {
     "generalData": "Donades Generaus",

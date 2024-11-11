@@ -108,7 +108,11 @@ export abstract class Resource {
     public substituteRelation<T extends Resource>(relation: string, resource: T): Observable<any> {
         if (!isNullOrUndefined(this._links) && !isNullOrUndefined(this._links[relation])) {
             let header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
-            return ResourceHelper.getHttp().put(ResourceHelper.getProxy(this._links[relation].href), resource._links.self.href, {headers: header});
+            let targetUrl = this._links[relation].href;
+            if (targetUrl.endsWith('{?projection}')) {
+                targetUrl = targetUrl.substring(0, targetUrl.indexOf('{?projection}'))
+            }
+            return ResourceHelper.getHttp().put(ResourceHelper.getProxy(targetUrl), resource._links.self.href, {headers: header});
         } else {
             return observableThrowError('no relation found');
         }
@@ -137,7 +141,11 @@ export abstract class Resource {
                 return observableThrowError('no relation found');
 
             let relationId: string = link.substring(idx);
-            return ResourceHelper.getHttp().delete(ResourceHelper.getProxy(this._links[relation].href + '/' + relationId), {headers: ResourceHelper.headers});
+            let targetUrl = this._links[relation].href;
+            if (targetUrl.endsWith('{?projection}')) {
+                targetUrl = targetUrl.substring(0, targetUrl.indexOf('{?projection}'))
+            }
+            return ResourceHelper.getHttp().delete(ResourceHelper.getProxy(targetUrl + '/' + relationId), {headers: ResourceHelper.headers});
         } else {
             return observableThrowError('no relation found');
         }

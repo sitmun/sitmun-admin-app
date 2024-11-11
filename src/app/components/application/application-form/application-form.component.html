@@ -59,12 +59,12 @@
       
 
 
-          <div class="colFormDiv" >
-            <label class="formLabel requiredInput">
+          <div class="colFormDiv">
+            <label class="formLabel ">
               {{'applicationEntity.url' | translate}}
             </label>
             <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="jspTemplate" required>
+              <input matInput type="text" formControlName="jspTemplate"  >
             </mat-form-field>
           </div>
 
@@ -127,6 +127,16 @@
           </div>
          
 
+      </div>
+      <div class="rowFormDiv"> 
+        <div class="colFormDiv" >
+          <label class="formLabel">
+            {{'applicationEntity.logo' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="text"  formControlName="logo">
+          </mat-form-field>
+        </div>
       </div>
     </form>
 </div>

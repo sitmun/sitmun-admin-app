@@ -182,7 +182,8 @@
     "description": "Description",
     "status": "Status",
     "request":"Request",
-    "available": "Available"
+    "available": "Available",
+    "proxied": "Uses proxy"
   },
   "layersEntity": {
     "informationTitle": "Layer Alphanumeric Information",
@@ -337,7 +338,8 @@
     "selectedBackground": "Selected Wallpaper",
     "value": "Value",
     "note": "Observations",
-    "status": "Status"
+    "status": "Status",
+    "logo": "Logo"
   },
   "territoryEntity": {
     "generalData": "General Data",
@@ -512,7 +514,13 @@
     "Thematic": "Thematic",
     "Extraction (FME)" :"Extraction FME",
     "Basic": "General",
-    "url": "Url"
+    "url": "Url",
+    "string": "Text",
+    "object": "Object",
+    "boolean": "Boolean",
+    "number": "Number",
+    "array": "Array",
+    "null": "Null"
   },
   "tasksQueryEntity": {
     "generalData": "General Data",

@@ -50,3 +50,6 @@ testem.log
 .DS_Store
 Thumbs.db
 .directory
+
+# Angular
+.angular

@@ -152,6 +152,7 @@ export class ServiceFormComponent implements OnInit {
                 proxyUrl: this.serviceToEdit.proxyUrl,
                 supportedSRS: this.serviceToEdit.supportedSRS,
                 blocked: this.serviceToEdit.blocked,
+                isProxied: this.serviceToEdit.isProxied,
                 _links: this.serviceToEdit._links
               });
 
@@ -185,8 +186,7 @@ export class ServiceFormComponent implements OnInit {
                 });
               }
 
-
-
+              
 
               this.dataLoaded = true;
             },
@@ -198,7 +198,9 @@ export class ServiceFormComponent implements OnInit {
         else {
           this.serviceForm.patchValue({
             blocked: false,
-            type: this.serviceTypes[0].value
+            isProxied: false,
+            type: null,
+            authenticationMode: this.authenticationModes[0].value,
           })
           this.dataLoaded = true;
         }
@@ -246,7 +248,6 @@ export class ServiceFormComponent implements OnInit {
       password: new UntypedFormControl(null),
       passwordSet: new UntypedFormControl(null),
       authenticationMode: new UntypedFormControl(null, [Validators.required]),
-
       description: new UntypedFormControl(null, [Validators.required]),
       type: new UntypedFormControl(null, [
         Validators.required,
@@ -259,6 +260,7 @@ export class ServiceFormComponent implements OnInit {
       getInformationURL: new UntypedFormControl(null,),
       _links: new UntypedFormControl(null, []),
       blocked: new UntypedFormControl(null, []),
+      isProxied: new UntypedFormControl(null, []),
     });
 
   }
