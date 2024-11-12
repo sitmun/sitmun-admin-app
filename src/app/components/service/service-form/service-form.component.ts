@@ -745,8 +745,6 @@ export class ServiceFormComponent implements OnInit {
 
 
   openParametersDialog(data: any) {
-    console.log("Data",data)
-    console.log("this.requestTypes",this.requestTypes)
     this.parameterForm.patchValue({
       type: this.requestTypes[0].value,
       description: this.requestTypes[0].description
