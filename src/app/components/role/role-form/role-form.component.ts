@@ -199,9 +199,7 @@ export class RoleFormComponent implements OnInit {
       name: new UntypedFormControl(null, [
         Validators.required,
       ]),
-      description: new UntypedFormControl(null, [
-        Validators.required,
-      ]),
+      description: new UntypedFormControl(null, []),
       _links: new UntypedFormControl(null, []),
 
     })
@@ -381,22 +379,13 @@ export class RoleFormComponent implements OnInit {
       }
       if (userConf.status === 'pendingDelete' && userConf._links && !userConf.new) {
         promises.push(new Promise((resolve, reject) => { this.userConfigurationService.remove(userConf).subscribe((resp) => { resolve(true) }) }));
-
-
       }
     };
-
-
     Promise.all([...promises,...promisesDuplicate]).then(() => {
       Promise.all(promises).then(() => {
         this.dataUpdatedEventUsers.next(true);
       })
     });
-
-
-
-
-
   }
 
 
@@ -625,7 +614,7 @@ export class RoleFormComponent implements OnInit {
           userComplete: user,
           roleComplete: role,
           roleId: this.roleID,
-          role: this.roleToEdit.name,
+          role: this.roleToEdit ? this.roleToEdit.name : "",
           territoryId: territory.id,
           territory: territory.name,
           territoryComplete: territory,
