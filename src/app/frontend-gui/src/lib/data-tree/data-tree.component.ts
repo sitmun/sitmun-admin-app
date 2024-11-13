@@ -151,7 +151,12 @@ export class FileDatabase {
   setOrder(data: any[]){
     for(let i=0; i< data.length; i++){
       data[i].order=i;
-      if(! data[i].status) { data[i].status="Modified"; } 
+      if(data[i].id && Number(data[i].id) < 0){
+        data[i].status="pendingCreation";
+      }
+      if(!data[i].status && !data[i]['status']) { 
+        data[i].status="Modified"; 
+      } 
     }
     return data;
    }
