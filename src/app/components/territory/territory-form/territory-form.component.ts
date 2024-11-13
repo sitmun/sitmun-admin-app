@@ -190,6 +190,7 @@ export class TerritoryFormComponent implements OnInit {
                 centerPointY:  this.territoryToEdit.center.y,
                 note: this.territoryToEdit.note,
                 blocked: this.territoryToEdit.blocked,
+                srs: this.territoryToEdit.srs,
                 _links: this.territoryToEdit._links
               });
 
@@ -348,6 +349,7 @@ export class TerritoryFormComponent implements OnInit {
       extensionY1: new UntypedFormControl(null, []),
       extent: new UntypedFormControl(null),
       note: new UntypedFormControl(null),
+      srs: new UntypedFormControl(null),
       blocked: new UntypedFormControl(false),
       defaultZoomLevel: new UntypedFormControl(null),
       centerPointX:  new UntypedFormControl(null),
@@ -1269,6 +1271,7 @@ export class TerritoryFormComponent implements OnInit {
           this.terrritoryObj.territorialAuthorityAddress = this.territoryForm.value.territorialAuthorityAddress,
           this.terrritoryObj.territorialAuthorityLogo = this.territoryForm.value.territorialAuthorityLogo,
           this.terrritoryObj.type = territoryType,
+          this.terrritoryObj.srs = this.territoryForm.value.srs;
           // this.terrritoryObj.groupType= this.territoryGroups[0];
           this.terrritoryObj.extent = this.territoryForm.value.extent,
           this.terrritoryObj.note = this.territoryForm.value.note,

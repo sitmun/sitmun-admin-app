@@ -170,6 +170,7 @@ describe('TerritoryFormComponent', () => {
       defaultZoomLevel: 2,
       centerPointX:  5,
       centerPointY:  5,
+      srs: 'EPSG:4326',
     })
     expect(component.territoryForm.valid).toBeTruthy();
   }); 
@@ -190,6 +191,7 @@ describe('TerritoryFormComponent', () => {
     expect(component.territoryForm.get('defaultZoomLevel')).toBeTruthy();
     expect(component.territoryForm.get('centerPointX')).toBeTruthy();
     expect(component.territoryForm.get('centerPointY')).toBeTruthy();
+    expect(component.territoryForm.get('srs')).toBeTruthy();
   }); 
 
   it('Validate extent all null', () => {
