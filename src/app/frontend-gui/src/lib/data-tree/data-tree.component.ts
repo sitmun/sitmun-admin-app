@@ -15,7 +15,8 @@ export class FileNode {
   children: FileNode[];
   name: string;
   type: any;
-  active: any
+  active: any;
+  cartography: any;
   cartographyId: any
   cartographyName: any
   datasetURL: any
@@ -97,7 +98,7 @@ export class FileDatabase {
       arrayTreeNodes.forEach((treeNode) => {
         var obj = treeNode;
         obj.children = [];
-        obj.type= (treeNode.isFolder)? "folder" : "node";
+        obj.type= (treeNode.isFolder) ? "folder" : "node";
         if(allNewElements) {
           obj.status='pendingCreation';
           if(obj.id) { obj.id = obj.id * -1 }
@@ -125,7 +126,6 @@ export class FileDatabase {
       map['root'].isRoot=true;
     }
 
-
     return map['root'];
   }
   
@@ -151,7 +151,12 @@ export class FileDatabase {
   setOrder(data: any[]){
     for(let i=0; i< data.length; i++){
       data[i].order=i;
-      if(! data[i].status) { data[i].status="Modified"; } 
+      if(data[i].id && Number(data[i].id) < 0){
+        data[i].status="pendingCreation";
+      }
+      if(!data[i].status && !data[i]['status']) { 
+        data[i].status="Modified"; 
+      } 
     }
     return data;
    }
@@ -183,6 +188,7 @@ export class FileDatabase {
       type: node.type,
       id: node.id, 
       active: node.active,
+      cartography: node.cartography,
       cartographyId: node.cartographyId,
       cartographyName: node.cartographyName,
       datasetURL: node.datasetURL,
@@ -345,7 +351,6 @@ export class DataTreeComponent {
   }
 
   ngOnInit(){
-
     if(this.eventNodeUpdatedSubscription)
     {
       this.eventNodeUpdatedSubscription.subscribe(
