@@ -60,12 +60,12 @@
 
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-            <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsUsers" [themeGrid]='themeGrid' [getAll]='getAllUsers'  
-            [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' [addFieldRestriction]="['territoryId', 'roleId', 'userId']"
-            [eventAddItemsSubscription]='addElementsEventUsers.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventUsers.asObservable()' 
-            [eventRefreshSubscription]='dataUpdatedEventUsers.asObservable()'[discardChangesButton]=true [redoButton]=true [undoButton]=true  
-            [deleteButton]=true [addButton]=true [hideDuplicateButton]=true [actionButton]=true (add)="openUsersDialog($event)"
-            (getAllRows)="getAllRowsUsers($event)"    > </app-data-grid>
+          <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsUsers" [themeGrid]='themeGrid' [getAll]='getAllUsers'  
+          [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' [addFieldRestriction]="['territoryId', 'roleId', 'userId']"
+          [eventAddItemsSubscription]='addElementsEventUsers.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventUsers.asObservable()' 
+          [eventRefreshSubscription]='dataUpdatedEventUsers.asObservable()'[discardChangesButton]=true [redoButton]=true [undoButton]=true  
+          [deleteButton]=true [addButton]=true [hideDuplicateButton]=true [actionButton]=true (add)="openUsersDialog($event)"
+          (getAllRows)="getAllRowsUsers($event)"    > </app-data-grid>
         </div>
 
       </ng-template>

@@ -178,7 +178,6 @@ export class ApplicationFormComponent implements OnInit {
                 theme: this.applicationToEdit.theme,
                 situationMap: this.applicationToEdit.situationMapId ? this.applicationToEdit.situationMapId : this.situationMapList[0].id,
                 scales: this.applicationToEdit.scales,
-                srs: this.applicationToEdit.srs,
                 treeAutoRefresh: this.applicationToEdit.treeAutoRefresh,
                 logo: this.applicationToEdit.logo,
                 _links: this.applicationToEdit._links
@@ -238,7 +237,6 @@ export class ApplicationFormComponent implements OnInit {
           });
           this.applicationForm.get('title').disable();
           this.applicationForm.get('scales').disable();
-          this.applicationForm.get('srs').disable();
           this.applicationForm.get('situationMap').disable();
           this.applicationForm.get('treeAutoRefresh').disable();
           this.applicationForm.get('theme').disable();
@@ -338,14 +336,12 @@ export class ApplicationFormComponent implements OnInit {
     if (value === 'E') {
       this.applicationForm.get('title').disable();
       this.applicationForm.get('scales').disable();
-      this.applicationForm.get('srs').disable();
       this.applicationForm.get('situationMap').disable();
       this.applicationForm.get('treeAutoRefresh').disable();
       this.applicationForm.get('theme').disable();
     } else {
       this.applicationForm.get('title').enable();
       this.applicationForm.get('scales').enable();
-      this.applicationForm.get('srs').enable();
       this.applicationForm.get('situationMap').enable();
       this.applicationForm.get('treeAutoRefresh').enable();
       this.applicationForm.get('theme').enable();
@@ -368,7 +364,6 @@ export class ApplicationFormComponent implements OnInit {
 
       situationMap: new UntypedFormControl(null, []),
       scales: new UntypedFormControl(null),
-      srs: new UntypedFormControl(null),
       treeAutoRefresh: new UntypedFormControl(null),
       _links: new UntypedFormControl(null, []),
       logo: new UntypedFormControl(null,[]),
@@ -927,7 +922,6 @@ export class ApplicationFormComponent implements OnInit {
       appObj.logo = this.applicationForm.value.logo;
       appObj.theme = this.applicationForm.value.theme;
       appObj.scales = this.applicationForm.value.scales != null ? this.applicationForm.value.scales.toString().split(",") : null;
-      appObj.srs = this.applicationForm.value.srs;
       appObj.treeAutoRefresh = this.applicationForm.value.treeAutoRefresh;
       appObj._links = this.applicationForm.value._links;
       appObj.situationMap = situationMap;

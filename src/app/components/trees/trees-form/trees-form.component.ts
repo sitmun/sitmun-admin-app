@@ -474,7 +474,6 @@ export class TreesFormComponent implements OnInit {
     if (this.treeID == -1 && this.duplicateID == -1) {
       const aux: Array<any> = [];
       return of(aux);
-
     } else {
       var urlReq = `${this.treeForm.value._links.allNodes.href}`
       if (this.treeForm.value._links.allNodes.templated) {
@@ -482,8 +481,8 @@ export class TreesFormComponent implements OnInit {
         url.searchParams.append("projection", "view")
         urlReq = url.toString();
       }
-      return (this.http.get(urlReq))
-        .pipe(map(data => data['_embedded']['tree-nodes']));
+      let response = (this.http.get(urlReq)).pipe(map(data => data['_embedded']['tree-nodes']))
+      return response;
     }
   }
 
@@ -621,7 +620,6 @@ export class TreesFormComponent implements OnInit {
   }
 
   saveAll(data: TreeNode[]) {
-
     if (this.treeID == -1 && this.duplicateID != -1) {
       this.treeForm.patchValue({
         _links: null
@@ -694,7 +692,6 @@ export class TreesFormComponent implements OnInit {
 
         }
         treeNodeObj.cartography = tree.cartography;
-
 
         if (tree.status !== "pendingDelete") {
 
