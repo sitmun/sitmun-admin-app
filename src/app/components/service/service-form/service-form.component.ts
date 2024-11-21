@@ -521,10 +521,14 @@ export class ServiceFormComponent implements OnInit {
           parameter._links = null;
           parameter.service = this.serviceToEdit
         } //If is new, you need the service link
-        promises.push(new Promise((resolve, reject) => { this.serviceParameterService.save(parameter).subscribe((resp) => { resolve(true) }) }));
+        promises.push(new Promise((resolve, reject) => { 
+          this.serviceParameterService.save(parameter).subscribe((resp) => { resolve(true) }) 
+        }));
       }
       if (parameter.status === 'pendingDelete' && parameter._links && !parameter.newItem) {
-        promises.push(new Promise((resolve, reject) => { this.serviceParameterService.remove(parameter).subscribe((resp) => { resolve(true) }) }));
+        promises.push(new Promise((resolve, reject) => { 
+          this.serviceParameterService.remove(parameter).subscribe((resp) => { resolve(true) }) 
+        }));
         // parameterToDelete.push(parameter) 
       }
     });

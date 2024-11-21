@@ -214,7 +214,11 @@ export class UtilsService {
   getArrayValueParser() {
     return {
       valueParser: (params) => {
-        return params.newValue? params.newValue.split(',') : params.join(',');
+        if (params.newValue === '') {
+          return [];
+        } else {
+          return Array.isArray(params.newValue) ? params.newValue : params.newValue.split(',');
+        }
       }
     }
   }
