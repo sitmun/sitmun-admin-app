@@ -498,33 +498,9 @@ export class ServiceFormComponent implements OnInit {
       urlReq = url.toString();
     }
 
-    var results = this.http.get(urlReq).pipe(
-      map(data => data[`_embedded`][`service-parameters`]),
-      map(serviceParameters => 
-        serviceParameters.map(serviceParam => {
-          let newType;
-          
-          switch (serviceParam["type"].toUpperCase()) {
-            case 'INFO':
-              newType = 'GetFeatureInfo';
-              break;
-            case 'OLPARAM':
-              newType = 'OpenLayers';
-              break;
-            case 'WMS':
-              newType = 'GetMap';
-              break;
-          }
-          
-          return {
-            ...serviceParam,
-            type: newType
-          };
-        })
-      )
-    );
 
-    return results;
+    return (this.http.get(urlReq))
+      .pipe(map(data => data[`_embedded`][`service-parameters`]));
   }
 
   getAllRowsParameters(event) {
@@ -545,14 +521,10 @@ export class ServiceFormComponent implements OnInit {
           parameter._links = null;
           parameter.service = this.serviceToEdit
         } //If is new, you need the service link
-        promises.push(new Promise((resolve, reject) => { 
-          this.serviceParameterService.save(parameter).subscribe((resp) => { resolve(true) }) 
-        }));
+        promises.push(new Promise((resolve, reject) => { this.serviceParameterService.save(parameter).subscribe((resp) => { resolve(true) }) }));
       }
       if (parameter.status === 'pendingDelete' && parameter._links && !parameter.newItem) {
-        promises.push(new Promise((resolve, reject) => { 
-          this.serviceParameterService.remove(parameter).subscribe((resp) => { resolve(true) }) 
-        }));
+        promises.push(new Promise((resolve, reject) => { this.serviceParameterService.remove(parameter).subscribe((resp) => { resolve(true) }) }));
         // parameterToDelete.push(parameter) 
       }
     });
@@ -790,19 +762,6 @@ export class ServiceFormComponent implements OnInit {
       if (result) {
         if (result.event === 'Add') {
           let item = this.parameterForm.value;
-
-          //Convert type to despcrition for presentation purposes
-          switch (item["type"].toUpperCase()) {
-            case 'INFO':
-              item["type"] = 'GetFeatureInfo';
-              break;
-            case 'OLPARAM':
-              item["type"] = 'OpenLayers';
-              break;
-            case 'WMS':
-              item["type"] = 'GetMap';
-              break;
-          }
           this.addElementsEventParameters.next([item])
         
           this.parameterForm.reset();
@@ -875,10 +834,9 @@ export class ServiceFormComponent implements OnInit {
           this.getAllElementsEventParameters.next('save');
           this.getAllElementsEventLayers.next('save');
         },
-        error => {
-          console.log(error);
-        }
-      );
+          error => {
+            console.log(error);
+          });
     }
     else {
       this.utils.showRequiredFieldsError();
