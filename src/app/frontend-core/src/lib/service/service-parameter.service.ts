@@ -23,22 +23,13 @@ export class ServiceParameterService extends RestService<ServiceParameter> {
   }
   
   /** save service parameter*/
-  save(item: ServiceParameter): Observable<any> {
+  save(item: ServiceParameter, requestTypes: any[]): Observable<any> {
     let result: Observable<Object>;
 
-    //Convert type to despcrition for presentation purposes
-    switch (item.type) {
-      case 'GetFeatureInfo':
-        item.type = 'INFO';
-        break;
-      case 'OpenLayers':
-        item.type = 'OLPARAM';
-        break;
-      case 'GetMap':
-        item.type = 'WMS';
-        break;
-    }
-
+    item.type = requestTypes.find(
+      element => element.description == item.type
+    ).value;
+    
     if (item._links!=null) {
       
       

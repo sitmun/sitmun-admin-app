@@ -503,18 +503,10 @@ export class ServiceFormComponent implements OnInit {
       map(serviceParameters => 
         serviceParameters.map(serviceParam => {
           let newType;
-          
-          switch (serviceParam["type"].toUpperCase()) {
-            case 'INFO':
-              newType = 'GetFeatureInfo';
-              break;
-            case 'OLPARAM':
-              newType = 'OpenLayers';
-              break;
-            case 'WMS':
-              newType = 'GetMap';
-              break;
-          }
+
+          newType = this.requestTypes.find(
+            element => element.value == serviceParam["type"].toUpperCase()
+          ).description;
           
           return {
             ...serviceParam,
@@ -546,7 +538,7 @@ export class ServiceFormComponent implements OnInit {
           parameter.service = this.serviceToEdit
         } //If is new, you need the service link
         promises.push(new Promise((resolve, reject) => { 
-          this.serviceParameterService.save(parameter).subscribe((resp) => { resolve(true) }) 
+          this.serviceParameterService.save(parameter,this.requestTypes).subscribe((resp) => { resolve(true) }) 
         }));
       }
       if (parameter.status === 'pendingDelete' && parameter._links && !parameter.newItem) {
@@ -791,18 +783,10 @@ export class ServiceFormComponent implements OnInit {
         if (result.event === 'Add') {
           let item = this.parameterForm.value;
 
-          //Convert type to despcrition for presentation purposes
-          switch (item["type"].toUpperCase()) {
-            case 'INFO':
-              item["type"] = 'GetFeatureInfo';
-              break;
-            case 'OLPARAM':
-              item["type"] = 'OpenLayers';
-              break;
-            case 'WMS':
-              item["type"] = 'GetMap';
-              break;
-          }
+          item.type = this.requestTypes.find(
+            element => element.value == item.type.toUpperCase()
+          ).description;
+
           this.addElementsEventParameters.next([item])
         
           this.parameterForm.reset();
