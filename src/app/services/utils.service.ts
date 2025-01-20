@@ -179,10 +179,34 @@ export class UtilsService {
     return putRequestLine;
   }
 
+  showTreeStructureError() {
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title = this.getTranslate("atention");
+    dialogRef.componentInstance.message = this.getTranslate("treeStructureMessage")
+    dialogRef.componentInstance.hideCancelButton = true;
+    dialogRef.afterClosed().subscribe();
+  }
+
   showRequiredFieldsError() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
     dialogRef.componentInstance.title = this.getTranslate("atention");
     dialogRef.componentInstance.message = this.getTranslate("requiredFieldMessage")
+    dialogRef.componentInstance.hideCancelButton = true;
+    dialogRef.afterClosed().subscribe();
+  }
+
+  showTuristicAppTreeError() {
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title = this.getTranslate("atention");
+    dialogRef.componentInstance.message = this.getTranslate("turisticAppTreeMessage")
+    dialogRef.componentInstance.hideCancelButton = true;
+    dialogRef.afterClosed().subscribe();
+  }
+
+  showTuristicTreeAppError() {
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title = this.getTranslate("atention");
+    dialogRef.componentInstance.message = this.getTranslate("turisticTreeAppMessage")
     dialogRef.componentInstance.hideCancelButton = true;
     dialogRef.afterClosed().subscribe();
   }

@@ -1,15 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
-import { TreeService, TreeNodeService, Translation, TranslationService, 
-  CartographyService, Tree, TreeNode, Cartography, ServiceService, CapabilitiesService, ApplicationService } from '../../../frontend-core/src/lib/public_api';
+import { TreeService, TreeNodeService, Translation, TranslationService, TaskService,
+  CartographyService, Tree, TreeNode, Cartography, ServiceService, CapabilitiesService, ApplicationService, 
+} from '../../../frontend-core/src/lib/public_api';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { config } from 'src/config';
 import { Observable, of, Subject } from 'rxjs';
-import { DialogGridComponent, DialogMessageComponent } from '../../../frontend-gui/src/lib/public_api';
+import { DataTreeComponent, DialogGridComponent, DialogMessageComponent, DataGridComponent } from '../../../frontend-gui/src/lib/public_api';
 import { MatDialog } from '@angular/material/dialog';
 import { isArray } from 'rxjs/internal-compatibility';
 
@@ -50,6 +51,8 @@ export class TreesFormComponent implements OnInit {
   currentNodeIsFolder: Boolean;
   currentNodeName: string;
   currentNodeDescription: string;
+  currentNodeType: string;
+  currentTreeType: string;
   newElement: Boolean = false;
   duplicateToDo = false;
   sendNodeUpdated: Subject<any> = new Subject<any>();
@@ -57,14 +60,34 @@ export class TreesFormComponent implements OnInit {
   refreshTreeEvent: Subject<boolean> = new Subject<boolean>();
   createNodeEvent: Subject<boolean> = new Subject<boolean>();
   getAllElementsEventCartographies: Subject<boolean> = new Subject<boolean>();
+  getAllElementsEventTasks: Subject<boolean> = new Subject<boolean>();
   columnDefsCartographies: any[];
+  columnDefsTasks: any[];
   columnDefsServices: any[];
+  @ViewChild(DataTreeComponent) dataTree: DataTreeComponent;
+  @ViewChild('applicationsDataGrid') appDataGrid: DataGridComponent;
 
   filterOptions = [{value:'UNDEFINED', description: 'UNDEFINED'}, {value:true, description: 'YES'},{value:false, description: 'NO'}]
   
 
   servicesList = [];
   layersList = [];
+  treetypesList = [];
+  folderNodeTypesList = [];
+  finalNodeTypesList = [];
+  taskviewsList = [{
+    value: 'ld',
+    description: 'Lista detallada'
+  }, {
+    value: 'lep',
+    description: 'Lista elementos proximos'
+  }, {
+    value: 'it',
+    description: 'Itinerario'
+  }, {
+    value: 'map',
+    description: 'Mapa'
+  }];
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -73,6 +96,7 @@ export class TreesFormComponent implements OnInit {
     private treeNodeService: TreeNodeService,
     private translationService: TranslationService,
     private cartographyService: CartographyService,
+    private taskService: TaskService,
     private http: HttpClient,
     public utils: UtilsService,
     public dialog: MatDialog,
@@ -88,6 +112,18 @@ export class TreesFormComponent implements OnInit {
 
 
   async ngOnInit() {
+
+    this.getAllTreeTypes().then((resp) => {
+      this.treetypesList.push(...resp);
+    });
+
+    this.getFolderNodeTypes().then((resp) => {
+      this.folderNodeTypesList.push(...resp);
+    });
+
+    this.getFinalNodeTypes().then((resp) => {
+      this.finalNodeTypesList.push(...resp);
+    });
 
     this.layersList = await this.getAllCartographies().toPromise();
 
@@ -130,10 +166,12 @@ export class TreesFormComponent implements OnInit {
             this.treeToEdit = resp;
             this.treeForm.patchValue({
               description: this.treeToEdit.description,
+              type: this.treeToEdit.type,
               image: this.treeToEdit.image,
+              imageName: this.treeToEdit.imageName,
               _links: this.treeToEdit._links
             });
-
+            this.currentTreeType = this.treeToEdit.type;
             if (this.treeID !== -1) {
               this.treeForm.patchValue({
                 id: this.treeID,
@@ -192,6 +230,14 @@ export class TreesFormComponent implements OnInit {
       this.utils.getNonEditableColumnDef('treesEntity.styles', 'stylesNames')
     ];
 
+    this.columnDefsTasks = [
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('treesEntity.name', 'name'),
+      this.utils.getNonEditableColumnDef('treesEntity.groupTask', 'groupName'),
+      this.utils.getNonEditableColumnDef('treesEntity.typeName', 'typeName'),
+      this.utils.getStatusColumnDef()
+    ];
   }
 
   saveTreeNodeTranslation(translation, column) {
@@ -272,6 +318,7 @@ export class TreesFormComponent implements OnInit {
         if (newNode) {
           newNode.name = name;
           newNode.tooltip = name;
+          newNode.type = 'cartography';
           newNode.parent = parentId;
           newNode.id = this.idFictitiousCounter;
           newNode.children = [];
@@ -372,7 +419,9 @@ export class TreesFormComponent implements OnInit {
       id: new UntypedFormControl(null, []),
       name: new UntypedFormControl(null, [Validators.required]),
       description: new UntypedFormControl(null, []),
+      type: new UntypedFormControl(null, []),
       image: new UntypedFormControl(null, []),
+      imageName: new UntypedFormControl(null, []),
       _links: new UntypedFormControl(null, [])
     })
   }
@@ -382,11 +431,17 @@ export class TreesFormComponent implements OnInit {
       id: new UntypedFormControl(null, []),
       name: new UntypedFormControl(null, [Validators.required]),
       tooltip: new UntypedFormControl(null, []),
+      nodetype: new UntypedFormControl(null, []),
       cartography: new UntypedFormControl(null, []),
       radio: new UntypedFormControl(null, []),
       datasetURL: new UntypedFormControl(null, []),
       metadataURL: new UntypedFormControl(null, []),
       description: new UntypedFormControl(null, []),
+      image: new UntypedFormControl(null, []),
+      imageName: new UntypedFormControl(null, []),
+      taskName: new UntypedFormControl(null, []),
+      taskView: new UntypedFormControl(null, []),
+      filterTask: new UntypedFormControl(null, []),
       active: new UntypedFormControl(true, []),
       _links: new UntypedFormControl(null, []),
       children: new UntypedFormControl(null, []),
@@ -457,6 +512,48 @@ export class TreesFormComponent implements OnInit {
 
   }
 
+  getAllTasks = (): Observable<any> => {
+
+    return this.taskService.getAll();
+
+  }
+
+  getAllTreeTypes = (): Promise<any> => {
+
+    return new Promise((resolve, reject) => {
+      this.utils.getCodeListValues('tree.type').subscribe(
+        resp => {
+          resolve(resp);
+        }
+      )
+    })
+
+  }
+
+  getFolderNodeTypes = (): Promise<any> => {
+
+    return new Promise((resolve, reject) => {
+      this.utils.getCodeListValues('treenode.folder.type').subscribe(
+        resp => {
+          resolve(resp);
+        }
+      )
+    })
+
+  }
+
+  getFinalNodeTypes = (): Promise<any> => {
+
+    return new Promise((resolve, reject) => {
+      this.utils.getCodeListValues('treenode.final.type').subscribe(
+        resp => {
+          resolve(resp);
+        }
+      )
+    })
+
+  }
+
   getAllServices = (): Observable<any> => {
 
     return this.serviceService.getAll().map((resp) => {
@@ -468,7 +565,6 @@ export class TreesFormComponent implements OnInit {
     })
 
   }
-
 
   getAllTreeNodes = (): Observable<any> => {
     if (this.treeID == -1 && this.duplicateID == -1) {
@@ -498,6 +594,7 @@ export class TreesFormComponent implements OnInit {
       this.currentNodeIsFolder = false;
       currentType = 'node'
     }
+    this.currentNodeType = node.nodetype;
     let status = "Modified"
     let nameTranslationsModified = node.nameTranslationsModified ? true : false;
     let descriptionTranslationsModified = node.descriptionTranslationsModified ? true : false;
@@ -508,6 +605,12 @@ export class TreesFormComponent implements OnInit {
       id: node.id,
       name: node.name,
       tooltip: node.tooltip,
+      nodetype: node.nodetype,
+      image: node.image,
+      imageName: node.imageName,
+      taskName: node.taskName,
+      taskView: node.taskView,
+      filterTask: node.filterTask,
       order: node.order,
       cartography: node.cartographyName,
       cartographyName: node.cartographyName,
@@ -556,7 +659,8 @@ export class TreesFormComponent implements OnInit {
   createNode(parent) {
     this.treeNodeForm.reset();
     this.newElement = true;
-    this.currentNodeIsFolder = false
+    this.currentNodeIsFolder = false;
+    this.currentNodeType = 'cartography';
     let parentId = parent.id;
     if (parent.name === "Root") { parentId = null }
     this.treeNodeForm.patchValue({
@@ -576,7 +680,8 @@ export class TreesFormComponent implements OnInit {
   createFolder(parent) {
     this.treeNodeForm.reset();
     this.newElement = true;
-    this.currentNodeIsFolder = true
+    this.currentNodeIsFolder = true;
+    this.currentNodeType = 'cartography';
     let parentId = parent.id;
     if (parent.name === "Root") { parentId = null }
     this.treeNodeForm.patchValue({
@@ -589,12 +694,69 @@ export class TreesFormComponent implements OnInit {
 
   }
 
-  onSaveButtonClicked() {
-    if (this.treeForm.valid) {
-      this.getAllElementsNodes.next("save");
+  onTreeNodeTypeChange(type) {
+    this.currentNodeType = type;
+  }
+
+  onTreeTypeChange(type) {
+    /* if (type === 'cartography') {
+      this.treeNodeForm.patchValue({
+        nodetype: type
+      });
+      this.currentNodeType = type;
+    } */
+    this.currentTreeType = type;
+  }
+
+  onImageChange(formtype, event) {
+    const input = event.target;
+    let form = this.treeForm;
+    if (formtype === 'node') {
+      form = this.treeNodeForm;
     }
-    else {
+    form.patchValue({
+      image: input.value
+    });
+  }
+
+  onImageSelected(formtype, event) {
+    const fileInput = event.target;
+    if (fileInput.files.length > 0) {
+      const file = fileInput.files[0];
+      if (!file.type.startsWith('image/')) {
+        //mensaje de error
+        return;
+      }
+      let form = this.treeForm;
+      if (formtype === 'node') {
+        form = this.treeNodeForm;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        form.patchValue({
+          image: reader.result,
+          imageName: file.name
+        });
+      }
+      reader.readAsDataURL(file);
+    }
+  }
+
+  onSaveButtonClicked() {
+    let error = false;
+    if (!this.treeForm.valid) {
+      error = true;
       this.utils.showRequiredFieldsError();
+    } else if ( !this.validTreeStructure()) {
+      error = true;
+      this.utils.showTreeStructureError();
+    } else if (!this.validApplications()) {
+      error = true;
+      this.utils.showTuristicTreeAppError();
+    }
+    
+    if (!error) {
+      this.getAllElementsNodes.next("save");
     }
   }
 
@@ -604,13 +766,67 @@ export class TreesFormComponent implements OnInit {
 
   onSaveFormButtonClicked() {
     if (this.treeNodeForm.valid) {
-      if (!this.currentNodeIsFolder) { this.getAllElementsEventCartographies.next(this.treeNodeForm.value) }
-      else { this.updateTreeLeft(null) }
-    }
-    else {
+      if (!this.currentNodeIsFolder) {
+        if (this.currentNodeType === 'cartography') {
+          this.getAllElementsEventCartographies.next(this.treeNodeForm.value);
+        } else if (this.currentNodeType === 'task') {
+          this.getAllElementsEventTasks.next(this.treeNodeForm.value);
+        }
+      } else {
+        this.updateTreeLeft(null);
+      }
+    } else {
       this.utils.showRequiredFieldsError();
     }
 
+  }
+
+  validTreeStructure() {
+    let treeNodes = this.dataTree.dataSource.data;
+    let valid = this.validNodeTypes(treeNodes[0].children);
+    return valid;
+  }
+
+  validNodeTypes(nodes) {
+    let valid = true;
+    let baseType = 'cartography';
+    if (this.currentTreeType === 'cartography') {
+      for (let i = 0; i < nodes.length; i++) {
+        if (nodes[i].nodetype !== baseType || !this.validNodeTypes(nodes[i].children)) {
+          valid = false;
+          break;
+        }
+      }
+    } else {
+      if (nodes.length > 1) {
+        baseType = nodes[0].nodetype;
+        for (let i = 1; i < nodes.length; i++) {
+          if (nodes[i].nodetype !== baseType || !this.validNodeTypes(nodes[i].children)) {
+            valid = false;
+            break;
+          }
+        }
+      }
+    }
+    return valid;
+  }
+
+  validApplications() {
+    let valid = true;
+    const apps = this.appDataGrid.rowData;
+    valid = this.validApplicationType(apps);
+    return valid;
+  }
+
+  validApplicationType(apps) {
+    let valid = true;
+    const filterApps = apps.filter(a => a.status !== 'pendingDelete')
+    if (this.currentTreeType === 'app-turistica') {
+      valid = filterApps.length == 0 || (filterApps.length == 1 && filterApps[0].type === 'app-turistica');
+    } else {
+      valid = !filterApps.some(a => a.type === 'app-turistica');
+    }
+    return valid;
   }
 
   receiveAllNodes(event) {
@@ -620,6 +836,7 @@ export class TreesFormComponent implements OnInit {
   }
 
   saveAll(data: TreeNode[]) {
+
     if (this.treeID == -1 && this.duplicateID != -1) {
       this.treeForm.patchValue({
         _links: null
@@ -662,6 +879,7 @@ export class TreesFormComponent implements OnInit {
         var treeNodeObj: TreeNode = new TreeNode();
 
         treeNodeObj.name = tree.name;
+        treeNodeObj.type = tree.nodetype;
         treeNodeObj.tooltip = tree.tooltip;
         treeNodeObj.order = tree.order;
         treeNodeObj.active = tree.active;
@@ -673,6 +891,11 @@ export class TreesFormComponent implements OnInit {
         treeNodeObj.filterGetMap = tree.filterGetMap == "UNDEFINED" ? null : tree.filterGetMap;
         treeNodeObj.filterSelectable = tree.filterSelectable == "UNDEFINED" ? null : tree.filterSelectable;
         treeNodeObj.style = tree.style;
+        treeNodeObj.image = tree.image;
+        treeNodeObj.imageName = tree.imageName;
+        treeNodeObj.taskName = tree.taskName;
+        treeNodeObj.taskView = tree.taskView;
+        treeNodeObj.filterTask = tree.filterTask;
 
 
 
@@ -692,6 +915,7 @@ export class TreesFormComponent implements OnInit {
 
         }
         treeNodeObj.cartography = tree.cartography;
+
 
         if (tree.status !== "pendingDelete") {
 
@@ -848,6 +1072,127 @@ export class TreesFormComponent implements OnInit {
 
   }
 
+  public async getSelectedRowsTasks(data: any[]) {
+    let task = null;
+    if(!this.currentNodeIsFolder && (!data || data.length == 0)){
+      task = await this.taskService.get(this.treeNodeForm.get('taskId').value).toPromise()
+    }
+    if ((data.length <= 0 && this.treeNodeForm.value.taskName == null) && !this.currentNodeIsFolder) {
+      const dialogRef = this.dialog.open(DialogMessageComponent);
+      dialogRef.componentInstance.title = this.utils.getTranslate("Error");
+      dialogRef.componentInstance.hideCancelButton = true;
+      dialogRef.componentInstance.message = this.utils.getTranslate("taskNonSelectedMessage");
+      dialogRef.afterClosed().subscribe();
+    }
+    else {
+      if (this.treeNodeForm.value.taskName !== null && data.length <= 0) {
+        this.updateTreeLeft(null)
+      }
+      else {
+        this.updateTaskTreeLeft(data[0])
+      }
+    }
+
+  }
+
+  updateTaskTreeLeft(task) {
+
+    this.treeNodeForm.patchValue({
+      task: task
+    })
+    if (task != null) {
+      this.treeNodeForm.patchValue({
+        taskName: task.name,
+        taskId: task.id
+      })
+
+    }
+    else{
+      if(!this.treeNodeForm.get('isFolder').value){
+        let oldTask = this.treeNodeForm.get('oldTask').value;
+        if(oldTask){
+          this.treeNodeForm.patchValue({
+            task: oldTask,
+            taskName: oldTask.name,
+            taskId: oldTask.id
+          })
+        }
+      }
+    }
+
+    if(!this.treeNodeForm.get('isFolder').value){
+      if(this.treeNodeForm.get('filterGetFeatureInfo').value == "UNDEFINED"){
+        this.treeNodeForm.get('filterGetFeatureInfo').patchValue(null);
+      }
+      if(this.treeNodeForm.get('filterGetMap').value == "UNDEFINED"){
+        this.treeNodeForm.get('filterGetMap').patchValue(null);
+      }
+      if(this.treeNodeForm.get('filterSelectable').value == "UNDEFINED"){
+        this.treeNodeForm.get('filterSelectable').patchValue(null);
+      }
+    }
+
+
+    let newNameTranslation: Map<string, Translation> = null;
+    let newDescriptionTranslation: Map<string, Translation> = null;
+
+    if (this.treeNodeForm.value.nameTranslationsModified) {
+      newNameTranslation = this.treeNodeForm.value.nameTranslations
+    }
+
+    if (this.treeNodeForm.value.descriptionTranslationsModified) {
+      newDescriptionTranslation = this.treeNodeForm.value.descriptionTranslations
+    }
+
+    if (this.newElement) {
+      this.treeNodeForm.patchValue({
+        id: this.idFictitiousCounter
+      })
+      if (newNameTranslation) { this.nameTranslations.set(this.idFictitiousCounter, newNameTranslation) }
+      else {
+        if (this.treeNodeForm.value.description && this.treeNodeForm.value.description != this.currentNodeDescription) {
+          this.treeNodeForm.patchValue({
+            descriptionFormModified: true
+          })
+        }
+      }
+      if (newDescriptionTranslation) { this.descriptionTranslations.set(this.idFictitiousCounter, newDescriptionTranslation) }
+      else {
+        if (this.treeNodeForm.value.name && this.treeNodeForm.value.name != this.currentNodeName) {
+          this.treeNodeForm.patchValue({
+            nameFormModified: true
+          })
+        }
+      }
+
+      this.idFictitiousCounter--;
+      this.createNodeEvent.next(this.treeNodeForm.value);
+    }
+    else {
+      if (newNameTranslation) { this.nameTranslations.set(this.treeNodeForm.value.id, newNameTranslation) }
+      else {
+        if (this.treeNodeForm.value.description && this.treeNodeForm.value.description != this.currentNodeDescription) {
+          this.treeNodeForm.patchValue({
+            descriptionFormModified: true
+          })
+        }
+      }
+      if (newDescriptionTranslation) { this.descriptionTranslations.set(this.treeNodeForm.value.id, newDescriptionTranslation) }
+      else {
+        if (this.treeNodeForm.value.name && this.treeNodeForm.value.name != this.currentNodeName) {
+          this.treeNodeForm.patchValue({
+            nameFormModified: true
+          })
+        }
+      }
+      this.updateNode()
+    }
+
+    this.newElement = false;
+    this.currentNodeIsFolder = undefined;
+    this.treeNodeForm.reset();
+  }
+
   updateTreeLeft(cartography) {
 
     this.treeNodeForm.patchValue({
@@ -984,15 +1329,21 @@ export class TreesFormComponent implements OnInit {
     data.forEach(application => {
       if (application.status !== 'pendingDelete') {
         if (application.status === 'pendingModify') {
-          if (application.newItem) { dataChanged = true; }
-          promises.push(new Promise((resolve, reject) => { this.applicationService.update(application).subscribe((resp) => { resolve(true) }) }));
-        }
-        else if (application.status === 'pendingCreation') {
+          if (application.newItem) {
+            dataChanged = true;
+          }
+          promises.push(new Promise((resolve, reject) => {
+            this.applicationService.update(application).subscribe((resp) => {
+              resolve(true);
+            });
+          }));
+        } else if (application.status === 'pendingCreation') {
           dataChanged = true;
         }
         applicationsToPut.push(application._links.self.href)
+      } else {
+        dataChanged = true;
       }
-      else { dataChanged = true }
     });
 
 
@@ -1001,7 +1352,9 @@ export class TreesFormComponent implements OnInit {
         let url = this.treeToEdit._links.availableApplications.href.split('{', 1)[0];
         this.utils.updateUriList(url, applicationsToPut, this.dataUpdatedEventApplication)
       }
-      else { this.dataUpdatedEventApplication.next(true); }
+      else {
+        this.dataUpdatedEventApplication.next(true);
+      }
     });
 
   }

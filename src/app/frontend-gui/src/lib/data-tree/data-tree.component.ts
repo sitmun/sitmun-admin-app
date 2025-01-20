@@ -14,6 +14,7 @@ export class FileNode {
   id: string;
   children: FileNode[];
   name: string;
+  nodetype: string;
   type: any;
   active: any;
   cartography: any;
@@ -31,6 +32,10 @@ export class FileNode {
   queryableActive: any
   radio: any
   tooltip: any
+  image: any
+  taskName: any
+  taskView: any
+  filterTask: any
   _links: any
   status: any
 }
@@ -43,7 +48,8 @@ export class FileFlatNode {
     public level: number,
     public type: any,
     public id: string,
-    public status: string
+    public status: string,
+    public nodetype: string
   ) { }
 }
 
@@ -99,6 +105,7 @@ export class FileDatabase {
         var obj = treeNode;
         obj.children = [];
         obj.type= (treeNode.isFolder) ? "folder" : "node";
+        obj.nodetype = treeNode.nodetype;
         if(allNewElements) {
           obj.status='pendingCreation';
           if(obj.id) { obj.id = obj.id * -1 }
@@ -125,6 +132,7 @@ export class FileDatabase {
       map['root'].isFolder=true;
       map['root'].isRoot=true;
     }
+
 
     return map['root'];
   }
@@ -185,6 +193,7 @@ export class FileDatabase {
     const newItem = {
       name: node.name,
       children: node.children,
+      nodetype: node.nodetype,
       type: node.type,
       id: node.id, 
       active: node.active,
@@ -202,6 +211,10 @@ export class FileDatabase {
       queryableActive: node.queryableActive,
       radio: node.radio,
       tooltip: node.tooltip,
+      image: node.image,
+      taskName: node.taskName,
+      taskView: node.taskView,
+      filterTask: node.filterTask,
       _links: node._links} as FileNode;
     return newItem;
   }
@@ -405,7 +418,7 @@ export class DataTreeComponent {
     const existingNode = this.nestedNodeMap.get(node);
     const flatNode = existingNode && existingNode.name === node.name
       ? existingNode
-      : new FileFlatNode((node.children && node.children.length > 0),node.name,level,node.type,node.id,node.status);
+      : new FileFlatNode((node.children && node.children.length > 0),node.name,level,node.type,node.id,node.status, node.nodetype);
 
     this.flatNodeMap.set(flatNode, node);
     this.nestedNodeMap.set(node, flatNode);

@@ -13,7 +13,7 @@ import { UtilsService } from '../../../services/utils.service';
 import { map } from 'rxjs/operators';
 import { Observable, of, Subject } from 'rxjs';
 import { config } from 'src/config';
-import { DialogFormComponent, DialogGridComponent } from '../../../frontend-gui/src/lib/public_api';
+import { DataGridComponent, DialogFormComponent, DialogGridComponent } from '../../../frontend-gui/src/lib/public_api';
 import { MatDialog } from '@angular/material/dialog';
 
 
@@ -80,6 +80,8 @@ export class ApplicationFormComponent implements OnInit {
   columnDefsTemplateConfigurationDialog: any[];
   getAllElementsEventTemplateConfiguration: Subject<string> = new Subject<string>();
 
+  @ViewChild('treesDataGrid') treesDataGrid: DataGridComponent;
+
   columnDefsRolesDialog: any[];
   getAllElementsEventRoles: Subject<string> = new Subject<string>();
 
@@ -88,6 +90,8 @@ export class ApplicationFormComponent implements OnInit {
 
   columnDefsTreeDialog: any[];
   getAllElementsEventTree: Subject<string> = new Subject<string>();
+
+  currentAppType: string;
 
   constructor(
     public dialog: MatDialog,
@@ -170,7 +174,7 @@ export class ApplicationFormComponent implements OnInit {
             resp => {
 
               this.applicationToEdit = resp;
-
+              this.currentAppType = this.applicationToEdit.type;
               this.applicationForm.patchValue({
                 type: this.applicationToEdit.type,
                 title: this.applicationToEdit.title,
@@ -332,7 +336,7 @@ export class ApplicationFormComponent implements OnInit {
 
 
   onSelectionTypeAppChanged({ value }) {
-
+    this.currentAppType = value;
     if (value === 'E') {
       this.applicationForm.get('title').disable();
       this.applicationForm.get('scales').disable();
@@ -900,71 +904,95 @@ export class ApplicationFormComponent implements OnInit {
   // Save button
 
   onSaveButtonClicked() {
-
-    if (this.applicationForm.valid) {
-      let situationMap = this.situationMapList.find(x => x.id === this.applicationForm.value.situationMap)
-      if (situationMap == undefined || situationMap.id == -1) {
-        situationMap = null
-      }
-
-      if (this.applicationID == -1 && this.duplicateID != -1) {
-        this.applicationForm.patchValue({
-          _links: null
-        })
-      }
-
-      var appObj: Application = new Application();
-
-      appObj.name = this.applicationForm.value.name;
-      appObj.type = this.applicationForm.value.type;
-      appObj.title = this.applicationForm.value.title;
-      appObj.jspTemplate = this.applicationForm.value.jspTemplate;
-      appObj.logo = this.applicationForm.value.logo;
-      appObj.theme = this.applicationForm.value.theme;
-      appObj.scales = this.applicationForm.value.scales != null ? this.applicationForm.value.scales.toString().split(",") : null;
-      appObj.treeAutoRefresh = this.applicationForm.value.treeAutoRefresh;
-      appObj._links = this.applicationForm.value._links;
-      appObj.situationMap = situationMap;
-      if (this.applicationID == -1) {
-        appObj.id = null;
-      } else {
-        appObj.id = this.applicationForm.value.id;
-        appObj.createdDate = this.applicationToEdit.createdDate
-      }
-
-
-      this.applicationService.save(appObj)
-        .subscribe(async resp => {
-
-          this.applicationToEdit = resp;
-          this.applicationSaved = resp;
-          this.applicationID = this.applicationToEdit.id;
-          this.applicationForm.patchValue({
-            id: resp.id,
-            _links: resp._links
-          })
-
-          this.utils.saveTranslation(resp.id, this.nameTranslationMap, this.applicationToEdit.name, this.nameTranslationsModified);
-          this.nameTranslationsModified = false;
-          this.utils.saveTranslation(resp.id, this.titleTranslationMap, this.applicationToEdit.title, this.titleTranslationsModified);
-          this.titleTranslationsModified = false;
-
-          this.getAllElementsEventParameters.next("save");
-          this.getAllElementsEventTemplateConfiguration.next("save");
-          this.getAllElementsEventRoles.next("save");
-          this.getAllElementsEventBackground.next("save");
-          this.getAllElementsEventTree.next("save");
-        },
-          error => {
-            console.log(error)
-          });
-    }
-    else {
+    let error = false;
+    if (!this.applicationForm.valid) {
+      error = true;
       this.utils.showRequiredFieldsError();
+    } else if (!this.validTrees()) {
+      error = true;
+      this.utils.showTuristicAppTreeError();
     }
 
-
+    if (!error) {
+      this.saveApp();
+    }
   }
 
+  saveApp() {
+    let situationMap = this.situationMapList.find(x => x.id === this.applicationForm.value.situationMap)
+    if (situationMap == undefined || situationMap.id == -1) {
+      situationMap = null
+    }
+
+    if (this.applicationID == -1 && this.duplicateID != -1) {
+      this.applicationForm.patchValue({
+        _links: null
+      })
+    }
+
+    var appObj: Application = new Application();
+
+    appObj.name = this.applicationForm.value.name;
+    appObj.type = this.applicationForm.value.type;
+    appObj.title = this.applicationForm.value.title;
+    appObj.jspTemplate = this.applicationForm.value.jspTemplate;
+    appObj.logo = this.applicationForm.value.logo;
+    appObj.theme = this.applicationForm.value.theme;
+    appObj.scales = this.applicationForm.value.scales != null ? this.applicationForm.value.scales.toString().split(",") : null;
+    appObj.treeAutoRefresh = this.applicationForm.value.treeAutoRefresh;
+    appObj._links = this.applicationForm.value._links;
+    appObj.situationMap = situationMap;
+    if (this.applicationID == -1) {
+      appObj.id = null;
+    } else {
+      appObj.id = this.applicationForm.value.id;
+      appObj.createdDate = this.applicationToEdit.createdDate
+    }
+
+
+    this.applicationService.save(appObj)
+      .subscribe(async resp => {
+
+        this.applicationToEdit = resp;
+        this.applicationSaved = resp;
+        this.applicationID = this.applicationToEdit.id;
+        this.applicationForm.patchValue({
+          id: resp.id,
+          _links: resp._links
+        })
+
+        this.utils.saveTranslation(resp.id, this.nameTranslationMap, this.applicationToEdit.name, this.nameTranslationsModified);
+        this.nameTranslationsModified = false;
+        this.utils.saveTranslation(resp.id, this.titleTranslationMap, this.applicationToEdit.title, this.titleTranslationsModified);
+        this.titleTranslationsModified = false;
+
+        this.getAllElementsEventParameters.next("save");
+        this.getAllElementsEventTemplateConfiguration.next("save");
+        this.getAllElementsEventRoles.next("save");
+        this.getAllElementsEventBackground.next("save");
+        this.getAllElementsEventTree.next("save");
+      },
+        error => {
+          console.log(error)
+        });
+  }
+
+  validTrees() {
+    let valid = true;
+    const trees = this.treesDataGrid.rowData;
+    valid = this.validTreesType(trees);
+    return valid;
+  }
+
+  validTreesType(trees) {
+    let valid = true;
+    const filterTrees = trees.filter(a => a.status !== 'pendingDelete')
+    if (this.currentAppType === 'app-turistica') {
+      valid = filterTrees.length == 0 || (filterTrees.length == 1 && filterTrees[0].type === 'app-turistica');
+    } else {
+      valid = !filterTrees.some(a => a.type === 'app-turistica');
+    }
+    return valid;
+  }
 
 }

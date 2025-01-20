@@ -7,6 +7,8 @@ import {Tree} from './tree.model';
 export class TreeNode extends Resource {
   /** name */
   public name: string;
+  /** type */
+  public type: string;
   /** tooltip*/
   public tooltip: string;
   /** description*/
@@ -35,6 +37,11 @@ export class TreeNode extends Resource {
   public filterSelectable: boolean;
   /** style */  
   public style: string;
-  
+
+  public image: string;
+  public imageName: string;
+  public taskName: string;
+  public taskView: string;
+  public filterTask: boolean;  
 
 }

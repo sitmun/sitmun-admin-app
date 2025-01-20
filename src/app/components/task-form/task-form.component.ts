@@ -605,10 +605,10 @@ export class TaskFormComponent implements OnInit {
     if(selector==config.tasksSelectorsIdentifiers.taskGroup){ this.taskGroupsNeeded = true}
     else if(selector==config.tasksSelectorsIdentifiers.taskUI) { this.taskUIsNeeded = true }
     else if(selector==config.tasksSelectorsIdentifiers.wfsServices) { this.wfsServicesNeeded = true }
-    else if(config.tasksSelectorsIdentifiers.fmeServices) { this.fmeServicesNeeded = true }
     else if(selector==config.tasksSelectorsIdentifiers.locators) { this.locatorsNeeded = true }
     else if(selector==config.tasksSelectorsIdentifiers.cartographies) { this.cartographiesNeeded = true }
     else if(selector==config.tasksSelectorsIdentifiers.connection) { this.connectionsNeeded = true }
+    else if(config.tasksSelectorsIdentifiers.fmeServices) { this.fmeServicesNeeded = true }
   }
 
 
@@ -865,12 +865,12 @@ export class TaskFormComponent implements OnInit {
 
   getDataFixedSelectors(data){
     if(data==config.tasksSelectorsIdentifiers.taskGroup){ return this.taskGroups }
-    else if(config.tasksSelectorsIdentifiers.fmeServices) { return this.taskUIs }
     else if(data==config.tasksSelectorsIdentifiers.wfsServices) { return this.wfsServices }
     else if(data==config.tasksSelectorsIdentifiers.fmeServices) { return this.fmeServices }
     else if(data==config.tasksSelectorsIdentifiers.locators) { return this.locators }
     else if(data==config.tasksSelectorsIdentifiers.cartographies) { return this.cartographies }
     else if(data==config.tasksSelectorsIdentifiers.connection) { return this.connections }
+    else if(config.tasksSelectorsIdentifiers.fmeServices) { return this.taskUIs }
   }
 
   getDataDynamicSelectors(data, field){
