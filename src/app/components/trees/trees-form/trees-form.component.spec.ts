@@ -129,6 +129,12 @@ describe('TreesFormComponent', () => {
       filterGetMap: null,
       filterSelectable: null,
       style: null,
+      type: 'type',
+      image: null,
+      imageName: null,
+      task: null,
+      viewMode: null,
+      filterable: false,
     })
     //Miss name
     expect(component.treeNodeForm.valid).toBeFalsy();

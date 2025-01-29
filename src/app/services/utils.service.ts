@@ -198,7 +198,15 @@ export class UtilsService {
   showTuristicAppTreeError() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
     dialogRef.componentInstance.title = this.getTranslate("atention");
-    dialogRef.componentInstance.message = this.getTranslate("turisticAppTreeMessage")
+    dialogRef.componentInstance.message = this.getTranslate("turisticAppTreeMessage");
+    dialogRef.componentInstance.hideCancelButton = true;
+    dialogRef.afterClosed().subscribe();
+  }
+
+  showNoTuristicAppTreeError() {
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title = this.getTranslate("atention");
+    dialogRef.componentInstance.message = this.getTranslate("noTuristicAppTreeMessage");
     dialogRef.componentInstance.hideCancelButton = true;
     dialogRef.afterClosed().subscribe();
   }
@@ -206,7 +214,15 @@ export class UtilsService {
   showTuristicTreeAppError() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
     dialogRef.componentInstance.title = this.getTranslate("atention");
-    dialogRef.componentInstance.message = this.getTranslate("turisticTreeAppMessage")
+    dialogRef.componentInstance.message = this.getTranslate("turisticTreeAppMessage");
+    dialogRef.componentInstance.hideCancelButton = true;
+    dialogRef.afterClosed().subscribe();
+  }
+
+  showNoTuristicTreeAppError() {
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title = this.getTranslate("atention");
+    dialogRef.componentInstance.message = this.getTranslate("noTuristicTreeAppMessage");
     dialogRef.componentInstance.hideCancelButton = true;
     dialogRef.afterClosed().subscribe();
   }

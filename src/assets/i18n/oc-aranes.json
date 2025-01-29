@@ -52,7 +52,9 @@
   "requiredFieldMessage": "Completatz toti es camps obligatòris ",
   "treeStructureMessage": "Era estructura der arriu presente incoeréncies",
   "turisticAppTreeMessage": "Ua aplicacion de tipe App Turística sonque pòt auer associat un unic arriu, e sonque de tipe App Turística",
+  "noTuristicAppTreeMessage": "Ua aplicacion non toristica non pòt auer associat un arriu de tipe App Toristica",
   "turisticTreeAppMessage": "Un arriu de tipe App Turística sonque pòt auer associada ua aplicacion de tipe App Turística",
+  "noTuristicTreeAppMessage": "Un arriu non toristic non pòt auer associada ua aplicacion toristica",
   "duplicateMessage": "Se dobles es donades sense sauvar es cambis, es modificacions seràn sobrescrites, vòs seguir?",
   "navigateOutMessage": "Se gesses dera plana es cambis non se sauvaràn, vòs seguir?",
   "doubleSelectionMessage": "As de seleccionar, aumens, 1 element de cada taula",
@@ -291,7 +293,11 @@
     "styles": "Estils",
     "taskview": "Mòde de visualizacion",
     "filterable": "Filtrable",
-    "selectFile": "Seleccionar eth fichèr",
+    "selectFile": "Fichèr locau",
+    "webUrl": "URL web",
+    "delete": "Eliminar",
+    "imagePlaceHolder": "Hès clic en 'Fichèr locau' entà pujar ua imatge o en 'URL web' entà introduir ua URL",
+    "preview": "Previsualizacion",
     "styleError": "Er estil deth nòde a de coïncidir damb un estil dera capa seleccionada, en cas qu’era capa non age cap d’estil, aguest aurà d'èster vuet."
   },
   "taskGroupEntity": {

@@ -34,8 +34,8 @@ export class FileNode {
   tooltip: any
   image: any
   taskName: any
-  taskView: any
-  filterTask: any
+  viewMode: any
+  filterable: any
   _links: any
   status: any
 }
@@ -213,8 +213,8 @@ export class FileDatabase {
       tooltip: node.tooltip,
       image: node.image,
       taskName: node.taskName,
-      taskView: node.taskView,
-      filterTask: node.filterTask,
+      viewMode: node.viewMode,
+      filterable: node.filterable,
       _links: node._links} as FileNode;
     return newItem;
   }

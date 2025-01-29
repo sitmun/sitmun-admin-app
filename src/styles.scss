@@ -190,6 +190,8 @@ margin-right: 0%;
   border: none;
   border-radius: 4px;
   justify-self: right !important;
+  display: inline;
+  vertical-align: top;
 }
 
  .deleteButton {
@@ -434,6 +436,23 @@ h2 {
   margin-bottom: 5px !important;
   padding-left: 5px !important;
   width: 100% !important;
+}
+
+.preview {
+  display: block;
+  margin-top: 15px;
+}
+
+.previewLabel {
+  display: block !important;
+  font-weight: 500 !important;
+  padding-left: 5px !important;
+  margin-bottom: 10px;
+}
+
+.previewImage {
+  width: 90px;
+  height: 90px;
 }
 
 .translateDialogs{

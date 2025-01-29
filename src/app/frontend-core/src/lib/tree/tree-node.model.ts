@@ -1,5 +1,6 @@
 import {Resource} from '../angular-hal/src/lib/resource';
 import {Cartography} from '../cartography/cartography.model';
+import { Task } from '../task/task.model';
 import {Tree} from './tree.model';
 /**
  * Tree node model
@@ -40,8 +41,8 @@ export class TreeNode extends Resource {
 
   public image: string;
   public imageName: string;
-  public taskName: string;
-  public taskView: string;
-  public filterTask: boolean;  
+  public task: Task;
+  public viewMode: string;
+  public filterable: boolean;  
 
 }

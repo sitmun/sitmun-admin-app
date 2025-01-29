@@ -15,6 +15,7 @@ import { Observable, of, Subject } from 'rxjs';
 import { config } from 'src/config';
 import { DataGridComponent, DialogFormComponent, DialogGridComponent } from '../../../frontend-gui/src/lib/public_api';
 import { MatDialog } from '@angular/material/dialog';
+import { constants } from 'src/environments/constants';
 
 
 
@@ -904,16 +905,7 @@ export class ApplicationFormComponent implements OnInit {
   // Save button
 
   onSaveButtonClicked() {
-    let error = false;
-    if (!this.applicationForm.valid) {
-      error = true;
-      this.utils.showRequiredFieldsError();
-    } else if (!this.validTrees()) {
-      error = true;
-      this.utils.showTuristicAppTreeError();
-    }
-
-    if (!error) {
+    if (this.appValidations()) {
       this.saveApp();
     }
   }
@@ -977,20 +969,47 @@ export class ApplicationFormComponent implements OnInit {
         });
   }
 
-  validTrees() {
+  appValidations() {
     let valid = true;
     const trees = this.treesDataGrid.rowData;
-    valid = this.validTreesType(trees);
+    const filterTrees = trees.filter(a => a.status !== 'pendingDelete');
+    const validations = [{
+      fn: this.validForm,
+      param: null,
+      msg: this.utils.showRequiredFieldsError
+    }, {
+      fn: this.validTuristicAppTrees,
+      param: filterTrees,
+      msg: this.utils.showTuristicAppTreeError
+    }, {
+      fn: this.validNoTuristicAppTrees,
+      param: filterTrees,
+      msg: this.utils.showNoTuristicAppTreeError
+    }];
+    const error = validations.find(v => !v.fn.bind(this)(v.param));
+    if (error) {
+      valid = false;
+      error.msg.bind(this.utils)();
+    }
     return valid;
   }
 
-  validTreesType(trees) {
+  validForm() {
+    return this.applicationForm.valid;
+  }
+
+  validTuristicAppTrees(trees) {
     let valid = true;
-    const filterTrees = trees.filter(a => a.status !== 'pendingDelete')
-    if (this.currentAppType === 'app-turistica') {
-      valid = filterTrees.length == 0 || (filterTrees.length == 1 && filterTrees[0].type === 'app-turistica');
-    } else {
-      valid = !filterTrees.some(a => a.type === 'app-turistica');
+    if (this.currentAppType === constants.type.appTuristic) {
+      valid = trees.length == 0 || (trees.length == 1 && trees[0].type === constants.type.appTuristic);
+    }
+    return valid;
+  }
+
+  validNoTuristicAppTrees(trees) {
+    let valid = true;
+    if (this.currentAppType !== constants.type.appTuristic) {
+      valid = !trees.some(a => a.type === constants.type.appTuristic);
     }
     return valid;
   }
