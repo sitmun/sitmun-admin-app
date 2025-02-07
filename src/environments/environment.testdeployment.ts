@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiBaseURL: 'https://sitmun-backend-core.herokuapp.com',
+  apiBaseURL: 'http://localhost:9000/backend',
 };

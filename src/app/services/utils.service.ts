@@ -11,27 +11,27 @@ import { config } from 'src/config';
 import { BtnCheckboxFilterComponent } from '../frontend-gui/src/lib/btn-checkbox-filter/btn-checkbox-filter.component';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UtilsService {
   [x: string]: any;
 
   private subjectLoading: Subject<boolean> = new Subject();
 
-  constructor(private translate: TranslateService,
+  constructor(
+    private translate: TranslateService,
     public dialog: MatDialog,
     private snackBar: MatSnackBar,
     private http: HttpClient,
     private location: Location,
     private translationService: TranslationService,
-    private codeListService: CodeListService) { }
-
+    private codeListService: CodeListService
+  ) {}
 
   showMessage(message) {
     this.snackBar.open(this.translate.instant(message), '', {
-      duration: 5000
+      duration: 5000,
     });
-
   }
 
   getTranslate(msg) {
@@ -39,28 +39,34 @@ export class UtilsService {
   }
 
   showErrorMessage(error) {
-    let missatge = "";
+    let missatge = '';
     try {
       if (error.error && error.error.errors) {
-
-        error.error.errors.forEach(element => {
-          missatge += this.translate.instant("Property: " + element.property + " " + element.message + ";")
+        error.error.errors.forEach((element) => {
+          missatge += this.translate.instant(
+            'Property: ' + element.property + ' ' + element.message + ';'
+          );
         });
-
       } else {
-        missatge = this.translate.instant(error.error ? (error.error.error + ': ' + error.error.message) : error.message)
+        missatge = this.translate.instant(
+          error.error
+            ? error.error.error + ': ' + error.error.message
+            : error.message
+        );
       }
-    }
-    catch (e) {
+    } catch (e) {
       missatge = error.toString();
     }
     console.error(missatge);
-    this.snackBar.open(missatge, 'Cerrar', {
-      duration: 0,
-      panelClass: ['error-snackbar']
-    }).onAction().subscribe(() => {
-      this.snackBar.dismiss(); 
-    });
+    this.snackBar
+      .open(missatge, 'Cerrar', {
+        duration: 0,
+        panelClass: ['error-snackbar'],
+      })
+      .onAction()
+      .subscribe(() => {
+        this.snackBar.dismiss();
+      });
   }
 
   /**
@@ -95,11 +101,13 @@ export class UtilsService {
   getCodeListValues(valueList, notTraduction?) {
     let params2: HalParam[] = [];
     let codelistLangValue = config.defaultLang;
-    if(localStorage.lang) { codelistLangValue=localStorage.lang }
-    let param: HalParam = { key: 'codeListName', value: valueList }
+    if (localStorage.lang) {
+      codelistLangValue = localStorage.lang;
+    }
+    let param: HalParam = { key: 'codeListName', value: valueList };
     params2.push(param);
-    if(!notTraduction){
-      let param2: HalParam = { key: 'lang', value: codelistLangValue }
+    if (!notTraduction) {
+      let param2: HalParam = { key: 'lang', value: codelistLangValue };
       params2.push(param2);
     }
     let query: HalOptions = { params: params2 };
@@ -107,20 +115,21 @@ export class UtilsService {
     return this.codeListService.getAll(query);
   }
 
-
   getDateFormated(data) {
-    return data.value ? (new Date(data.value)).toLocaleDateString() : ''
+    return data.value ? new Date(data.value).toLocaleDateString() : '';
   }
 
-  duplicateParameter(data, parameterToModify, ignoreId?, ignoreLinks?){
-    let elementsToDuplicate = []
-    data.forEach(element => {
+  duplicateParameter(data, parameterToModify, ignoreId?, ignoreLinks?) {
+    let elementsToDuplicate = [];
+    data.forEach((element) => {
       let newElement = { ...element };
-      newElement[parameterToModify] = this.getTranslate('copy_').concat(newElement[parameterToModify]);
-      if(!ignoreId){
+      newElement[parameterToModify] = this.getTranslate('copy_').concat(
+        newElement[parameterToModify]
+      );
+      if (!ignoreId) {
         newElement.id = null;
       }
-      if(!ignoreLinks){
+      if (!ignoreLinks) {
         newElement._links = null;
       }
       elementsToDuplicate.push(newElement);
@@ -129,14 +138,16 @@ export class UtilsService {
     return elementsToDuplicate;
   }
 
-
   getDateFilterParams() {
     var filterParams = {
       comparator: function (filterLocalDateAtMidnight, cellValue) {
         var dateAsString = cellValue;
         if (dateAsString == null) return -1;
         var cellDate = new Date(cellValue);
-        if (filterLocalDateAtMidnight.toLocaleDateString() === cellDate.toLocaleDateString()) {
+        if (
+          filterLocalDateAtMidnight.toLocaleDateString() ===
+          cellDate.toLocaleDateString()
+        ) {
           return 0;
         }
         if (cellDate < filterLocalDateAtMidnight) {
@@ -153,50 +164,58 @@ export class UtilsService {
     return filterParams;
   }
 
-
   //Update grids
 
   updateUriList(requestURI: string, data: any[], eventRefresh?) {
-
     this.http
-      .put(requestURI
-        , this.createUriList(data), { headers: new HttpHeaders({ 'Content-Type': 'text/uri-list', 'Charset': 'UTF-8' }) }).subscribe(
-          result => {
-            this.success = true
-            if (eventRefresh) { eventRefresh.next(true); }
-          },
-          error => { this.success = false }
-        )
-
+      .put(requestURI, this.createUriList(data), {
+        headers: new HttpHeaders({
+          'Content-Type': 'text/uri-list',
+          Charset: 'UTF-8',
+        }),
+      })
+      .subscribe(
+        (result) => {
+          this.success = true;
+          if (eventRefresh) {
+            eventRefresh.next(true);
+          }
+        },
+        (error) => {
+          this.success = false;
+        }
+      );
   }
 
   createUriList(data: any[]) {
     let putRequestLine = '';
-    data.forEach(item => {
+    data.forEach((item) => {
       putRequestLine += `${item}` + '\n';
     });
-  
+
     return putRequestLine;
   }
 
   showRequiredFieldsError() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title = this.getTranslate("atention");
-    dialogRef.componentInstance.message = this.getTranslate("requiredFieldMessage")
+    dialogRef.componentInstance.title = this.getTranslate('atention');
+    dialogRef.componentInstance.message = this.getTranslate(
+      'requiredFieldMessage'
+    );
     dialogRef.componentInstance.hideCancelButton = true;
     dialogRef.afterClosed().subscribe();
   }
 
   showNavigationOutDialog() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title = this.getTranslate('caution')
-    dialogRef.componentInstance.message = this.getTranslate('navigateOutMessage')
+    dialogRef.componentInstance.title = this.getTranslate('caution');
+    dialogRef.componentInstance.message =
+      this.getTranslate('navigateOutMessage');
     return dialogRef.afterClosed();
   }
 
   getSelCheckboxColumnDef() {
-    let columnDef =
-    {
+    let columnDef = {
       headerName: '',
       checkboxSelection: true,
       headerCheckboxSelection: true,
@@ -205,8 +224,8 @@ export class UtilsService {
       filter: false,
       minWidth: 45,
       maxWidth: 45,
-      lockPosition: true
-    }
+      lockPosition: true,
+    };
 
     return columnDef;
   }
@@ -217,15 +236,16 @@ export class UtilsService {
         if (params.newValue === '') {
           return [];
         } else {
-          return Array.isArray(params.newValue) ? params.newValue : params.newValue.split(',');
+          return Array.isArray(params.newValue)
+            ? params.newValue
+            : params.newValue.split(',');
         }
-      }
-    }
+      },
+    };
   }
 
   getEditBtnColumnDef() {
-    let columnDef =
-    {
+    let columnDef = {
       headerName: '',
       field: 'id',
       editable: false,
@@ -234,168 +254,228 @@ export class UtilsService {
       maxWidth: 50,
       lockPosition: true,
       cellRenderer: 'btnEditRendererComponent',
-    }
+    };
     return columnDef;
   }
 
   getIdColumnDef(customId?) {
-    let columnDef =
-    {
+    let columnDef = {
       headerName: 'Id',
       field: customId ? customId : 'id',
       editable: false,
       minWidth: 80,
-    }
+    };
 
     return columnDef;
   }
 
   getStatusColumnDef() {
-    let columnDef =
-    {
+    let columnDef = {
       headerName: this.getTranslate('status'),
       field: 'status',
       filter: 'agTextColumnFilter',
-      filterParams: { textFormatter: (filterValue) => this.getTranslate(filterValue).toLowerCase() },
+      filterParams: {
+        textFormatter: (filterValue) =>
+          this.getTranslate(filterValue).toLowerCase(),
+      },
       editable: false,
       valueFormatter: (params) => {
         if (params.value != undefined && params.value !== '') {
-          return this.getTranslate(params.value)
-        }else{
-          return this.getTranslate('statusOK')
+          return this.getTranslate(params.value);
+        } else {
+          return this.getTranslate('statusOK');
         }
       },
       cellClassRules: {
-        'pendingModify': function (params) { return params.value === 'pendingModify' },
-        'pendingDelete': function (params) { return params.value === 'pendingDelete' },
-        'pendingCreation': function (params) { return params.value === 'pendingCreation' },
-        'notAvailable': function (params) { return params.value === 'notAvailable' },
-        'pendingRegistration': function (params) { return params.value === 'pendingRegistration' },
-        'unregisteredLayer': function (params) { return params.value === 'unregisteredLayer' },
-        'stable': function (params) { return params.value === undefined || params.value === 'statusOK'}
-      }
-    }
+        pendingModify: function (params) {
+          return params.value === 'pendingModify';
+        },
+        pendingDelete: function (params) {
+          return params.value === 'pendingDelete';
+        },
+        pendingCreation: function (params) {
+          return params.value === 'pendingCreation';
+        },
+        notAvailable: function (params) {
+          return params.value === 'notAvailable';
+        },
+        pendingRegistration: function (params) {
+          return params.value === 'pendingRegistration';
+        },
+        unregisteredLayer: function (params) {
+          return params.value === 'unregisteredLayer';
+        },
+        stable: function (params) {
+          return params.value === undefined || params.value === 'statusOK';
+        },
+      },
+    };
     return columnDef;
   }
 
-  getDateColumnDef(alias, field,editable?:boolean) {
-    let columnDef =
-    {
+  getDateColumnDef(alias, field, editable?: boolean) {
+    let columnDef = {
       headerName: this.getTranslate(alias),
       field: field,
       filter: 'agDateColumnFilter',
       filterParams: this.getDateFilterParams(),
-      editable: editable?editable:false,
+      editable: editable ? editable : false,
       cellRenderer: (data) => {
-        return this.getDateFormated(data)
+        return this.getDateFormated(data);
       },
-      cellEditor:'datePicker',
+      cellEditor: 'datePicker',
       minWidth: 140,
-    }
+    };
 
     return columnDef;
   }
 
-  getSelectColumnDef(alias, field,editable, elements, formatted?, formattedList?) {
-
+  getSelectColumnDef(
+    alias,
+    field,
+    editable,
+    elements,
+    formatted?,
+    formattedList?
+  ) {
     let columnDef;
-    
-    if(formatted && formattedList){
-      columnDef= this.getFormattedColumnDef(alias,formattedList,field)
-      columnDef.filter='agTextColumnFilter';
+
+    if (formatted && formattedList) {
+      columnDef = this.getFormattedColumnDef(alias, formattedList, field);
+      columnDef.filter = 'agTextColumnFilter';
       columnDef.editable = editable;
       columnDef.field = field;
       columnDef.cellEditorParams = {
-        values: elements
+        values: elements,
       };
-      columnDef.cellEditor ='agSelectCellEditor';
+      columnDef.cellEditor = 'agSelectCellEditor';
       columnDef.minWidth = 140;
-    }
-    else{
-      columnDef =
-      {
+    } else {
+      columnDef = {
         headerName: this.getTranslate(alias),
         field: field,
         filter: 'agTextColumnFilter',
         editable: editable,
         cellEditorParams: {
           values: elements,
-      },
-        cellEditor:'agSelectCellEditor',
+        },
+        cellEditor: 'agSelectCellEditor',
         minWidth: 140,
-      }
-  
+      };
     }
 
-
-   
     return columnDef;
   }
 
+  /**
+   * Generates a column definition object for an editable column in a data grid.
+   *
+   * @param alias - The alias used to get the translated header name.
+   * @param field - The field name in the data object that this column represents.
+   * @returns An object representing the column definition.
+   */
   getEditableColumnDef(alias, field) {
-    let columnDef =
-    {
+    let columnDef = {
       headerName: this.getTranslate(alias),
       field: field,
       editable: true,
-    }
+      valueGetter: (params) => {
+        const value = params.data[field];
+        return Array.isArray(value) ? value.join(',') : value;
+      },
+    };
+
+    return columnDef;
+  }
+
+  /**
+   * Generates a non-editable column definition with a code list for value formatting.
+   *
+   * @param alias - The alias used for translation of the header name.
+   * @param field - The field name for the column.
+   * @param codeList - The list of code-value pairs used to format the column values.
+   * @returns An object representing the column definition.
+   */
+  getNonEditableColumnWithCodeListDef(alias, field, codeList) {
+    const getDescription = (value: string) => {
+      const item = codeList.find((x) => x.value === value);
+      return item ? item.description : value;
+    };
+
+    let columnDef = {
+      headerName: this.getTranslate(alias),
+      field: field,
+      editable: false,
+      valueFormatter: (params) => getDescription(params.value),
+      cellClass: 'read-only-cell'
+    };
 
     return columnDef;
   }
 
   getNonEditableColumnDef(alias, field) {
-    let columnDef =
-    {
+    let columnDef = {
       headerName: this.getTranslate(alias),
       field: field,
       editable: false,
-
-    }
+    };
 
     return columnDef;
   }
 
   getBooleanColumnDef(alias, field, editable) {
-    let columnDef =
-    {
+    let columnDef = {
       headerName: this.getTranslate(alias),
       field: field,
       editable: editable,
       cellRenderer: 'btnCheckboxRendererComponent',
       floatingFilterComponent: BtnCheckboxFilterComponent,
-      valueGetter: (params) => params.data[field] ? 'true' : 'false',
+      valueGetter: (params) => (params.data[field] ? 'true' : 'false'),
       floatingFilterComponentParams: { suppressFilterButton: true },
       minWidth: 110,
-    }
+    };
 
     return columnDef;
   }
 
-  getFormattedColumnDef(alias, filterList, field, fieldToCompare?, fieldToShow?) {
-    let fieldReturned= fieldToShow? fieldToShow: 'description'
-    let columnDef =
-    {
+  getFormattedColumnDef(
+    alias,
+    filterList,
+    field,
+    fieldToCompare?,
+    fieldToShow?
+  ) {
+    let fieldReturned = fieldToShow ? fieldToShow : 'description';
+    let columnDef = {
       headerName: this.getTranslate(alias),
       editable: false,
       valueGetter: (params) => {
-        
         var alias = fieldToCompare
-        ?filterList.filter((format) => format[fieldToCompare] == params.data[field])[0]
-        :filterList.filter((format) => format.value == params.data[field])[0];
-        return alias != undefined ? alias[fieldReturned] : params.data[field]
-      }
-    }
+          ? filterList.filter(
+              (format) => format[fieldToCompare] == params.data[field]
+            )[0]
+          : filterList.filter(
+              (format) => format.value == params.data[field]
+            )[0];
+        return alias != undefined ? alias[fieldReturned] : params.data[field];
+      },
+    };
     return columnDef;
   }
 
   //Translation
 
-  createTranslationsList(columnName:string): Map<string, Translation> {
-    let translationsList: Map<string, Translation> = new Map<string, Translation>();
+  createTranslationsList(columnName: string): Map<string, Translation> {
+    let translationsList: Map<string, Translation> = new Map<
+      string,
+      Translation
+    >();
 
-    let languagesToUse = config.languagesToUse?config.languagesToUse:JSON.parse(localStorage.getItem('languages'));
-    if(languagesToUse){
-      languagesToUse.forEach(language => {
+    let languagesToUse = config.languagesToUse
+      ? config.languagesToUse
+      : JSON.parse(localStorage.getItem('languages'));
+    if (languagesToUse) {
+      languagesToUse.forEach((language) => {
         let currentTranslation: Translation = new Translation();
         currentTranslation.translation = null;
         currentTranslation.column = columnName;
@@ -406,51 +486,66 @@ export class UtilsService {
     return translationsList;
   }
 
-  async openTranslationDialog(translationsMap: Map<string, Translation>){
-    const dialogRef = this.dialog.open(DialogTranslationComponent, { panelClass: 'translateDialogs' });
-    dialogRef.componentInstance.translationsMap=translationsMap;
-    dialogRef.componentInstance.languageByDefault=config.defaultLang;
-    dialogRef.componentInstance.languagesAvailables=config.languagesToUse;
+  async openTranslationDialog(translationsMap: Map<string, Translation>) {
+    const dialogRef = this.dialog.open(DialogTranslationComponent, {
+      panelClass: 'translateDialogs',
+    });
+    dialogRef.componentInstance.translationsMap = translationsMap;
+    dialogRef.componentInstance.languageByDefault = config.defaultLang;
+    dialogRef.componentInstance.languagesAvailables = config.languagesToUse;
 
     let result = null;
-    result= await dialogRef.afterClosed().toPromise();
-    if(result) { return result }
-    else { return null } 
-
+    result = await dialogRef.afterClosed().toPromise();
+    if (result) {
+      return result;
+    } else {
+      return null;
+    }
   }
 
-  updateTranslations(translationsMap: Map<string,Translation>, translations:Array<Translation> ){
-    translations.forEach(translation => {
-      translationsMap.set(translation.languageShortname,translation) 
+  updateTranslations(
+    translationsMap: Map<string, Translation>,
+    translations: Array<Translation>
+  ) {
+    translations.forEach((translation) => {
+      translationsMap.set(translation.languageShortname, translation);
     });
     return translationsMap;
   }
 
-  async saveTranslation(id, translationMap: Map<string, Translation>, internationalValue, modifications: boolean){
+  async saveTranslation(
+    id,
+    translationMap: Map<string, Translation>,
+    internationalValue,
+    modifications: boolean
+  ) {
     let defaultLanguage = config.defaultLang;
     const promises: Promise<any>[] = [];
-    if(translationMap){
+    if (translationMap) {
       translationMap.forEach(async (value: Translation, key: string) => {
-        if(key == defaultLanguage && internationalValue) {
+        if (key == defaultLanguage && internationalValue) {
+          value.element = id;
+          value.translation = internationalValue;
+          promises.push(
+            new Promise((resolve, reject) => {
+              this.translationService.save(value).subscribe((result) => {
+                translationMap.set(key, result);
+                resolve(true);
+              });
+            })
+          );
+        } else if (modifications) {
+          if (value && value.translation) {
             value.element = id;
-            value.translation = internationalValue;
-            promises.push(new Promise((resolve, reject) => {
-              this.translationService.save(value).subscribe(result => {
-                 translationMap.set(key,result)
-                 resolve(true) 
-                })
-            }));
-        }
-        else if(modifications){
-          if(value && value.translation) {
-             value.element = id 
-             promises.push(new Promise((resolve, reject) => {
-              this.translationService.save(value).subscribe(result => {
-                translationMap.set(key,result)
-                resolve(true) 
-                })
-            }));
-            }
+            promises.push(
+              new Promise((resolve, reject) => {
+                this.translationService.save(value).subscribe((result) => {
+                  translationMap.set(key, result);
+                  resolve(true);
+                });
+              })
+            );
+          }
         }
       });
     }
@@ -458,8 +553,5 @@ export class UtilsService {
     Promise.all(promises).then(() => {
       return translationMap;
     });
-
   }
-
-
 }
