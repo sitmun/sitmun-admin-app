@@ -30,10 +30,10 @@ export class Cartography extends Resource {
   /** whether cartography is blocked*/
   public blocked: boolean;  
 
-  /** apply filter to get map*/
+  /** apply filter to GetMap*/
   public applyFilterToGetMap: boolean;  
 
-  /** apply filter to get feature information*/
+  /** apply filter to GetFeatureInfo*/
   public applyFilterToGetFeatureInfo: boolean;  
 
   /** apply filter to spatial selection*/

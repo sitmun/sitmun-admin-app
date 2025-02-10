@@ -220,7 +220,7 @@
     "municipalFilterFields": "Champ pour filtre municipal",
     "applyFilterToGetMap" : "Filtre à l'obtention de la carte",
     "filterInfoByMunicipality": "Filtrer les informations ",
-    "filterSpatialSeleciontByMunicipality": "Filtrer la sélection spatiale",
+    "filterSpatialSelectionByMunicipality": "Filtrer la sélection spatiale",
     "information": "Informations",
     "defaultInformation": "Informations par défaut",
     "informationLayer": "Couche d'informations",

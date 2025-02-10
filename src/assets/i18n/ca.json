@@ -222,7 +222,7 @@
     "municipalFilterFields": "Camp per filtre municipal",
     "applyFilterToGetMap" : "Filtrar al get map",
     "filterInfoByMunicipality": "Filtrar a la info",
-    "filterSpatialSeleciontByMunicipality": "Filtrar a la selecció espacial",
+    "filterSpatialSelectionByMunicipality": "Filtrar a la selecció espacial",
     "information": "Informació",
     "defaultInformation": "Informació per defecte",
     "informationLayer": "Capa informació",
