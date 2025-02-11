@@ -1,26 +1,50 @@
 import { Component, OnInit } from '@angular/core';
-import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import {
+  UntypedFormControl,
+  UntypedFormGroup,
+  Validators,
+} from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Territory, TerritoryService, UserPositionService, TranslationService, Translation, TaskAvailabilityService, 
-  TerritoryGroupTypeService, CartographyAvailabilityService, UserService, RoleService, CartographyService, TaskService, 
-  UserConfigurationService, HalOptions, HalParam, User, Role, Cartography, Task, TaskAvailability, TerritoryTypeService } 
-  from '../../../frontend-core/src/lib/public_api';
+import {
+  Territory,
+  TerritoryService,
+  UserPositionService,
+  TranslationService,
+  Translation,
+  TaskAvailabilityService,
+  TerritoryGroupTypeService,
+  CartographyAvailabilityService,
+  UserService,
+  RoleService,
+  CartographyService,
+  TaskService,
+  UserConfigurationService,
+  HalOptions,
+  HalParam,
+  User,
+  Role,
+  Cartography,
+  Task,
+  TaskAvailability,
+  TerritoryTypeService,
+} from '../../../frontend-core/src/lib/public_api';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { Observable, of, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { config } from 'src/config';
-import { DialogGridComponent, DialogMessageComponent } from '../../../frontend-gui/src/lib/public_api';
+import {
+  DialogGridComponent,
+  DialogMessageComponent,
+} from '../../../frontend-gui/src/lib/public_api';
 import { MatDialog } from '@angular/material/dialog';
-
 
 @Component({
   selector: 'app-territory-form',
   templateUrl: './territory-form.component.html',
-  styleUrls: ['./territory-form.component.scss']
+  styleUrls: ['./territory-form.component.scss'],
 })
 export class TerritoryFormComponent implements OnInit {
-
   //Translations
   translationsModified: boolean = false;
   translationMap: Map<string, Translation>;
@@ -56,11 +80,13 @@ export class TerritoryFormComponent implements OnInit {
   dataUpdatedEventInheritPermissions: Subject<boolean> = new Subject<boolean>();
 
   columnDefsMemberOf: any[];
-  getAllElementsEventTerritoriesMemberOf: Subject<string> = new Subject<string>();
+  getAllElementsEventTerritoriesMemberOf: Subject<string> =
+    new Subject<string>();
   dataUpdatedEventMemberOf: Subject<boolean> = new Subject<boolean>();
 
   columnDefsMembers: any[];
-  getAllElementsEventTerritoriesMembers: Subject<string> = new Subject<string>();
+  getAllElementsEventTerritoriesMembers: Subject<string> =
+    new Subject<string>();
   dataUpdatedEventMembers: Subject<boolean> = new Subject<boolean>();
 
   columnDefsCartographies: any[];
@@ -89,7 +115,6 @@ export class TerritoryFormComponent implements OnInit {
   usersToUpdate: User[] = [];
   dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
 
-
   constructor(
     public dialog: MatDialog,
     private activatedRoute: ActivatedRoute,
@@ -106,161 +131,180 @@ export class TerritoryFormComponent implements OnInit {
     private taskService: TaskService,
     private userConfigurationService: UserConfigurationService,
     private userPositionService: UserPositionService,
-    
+
     private http: HttpClient,
-    public utils: UtilsService,
+    public utils: UtilsService
   ) {
     this.initializeTerritoryForm();
   }
 
   ngOnInit(): void {
-
-    this.translationMap= this.utils.createTranslationsList(config.translationColumns.territoryName);
-
+    this.translationMap = this.utils.createTranslationsList(
+      config.translationColumns.territoryName
+    );
 
     let territoryByDefault = {
       id: -1,
-      name: '-------'
-    }
+      name: '-------',
+    };
 
     const promises: Promise<any>[] = [];
-    promises.push(new Promise((resolve, reject) => {
-      this.getTerritoryGroups().subscribe(
-        resp => {
+    promises.push(
+      new Promise((resolve, reject) => {
+        this.getTerritoryGroups().subscribe((resp) => {
           this.territoryGroups.push(territoryByDefault);
           this.territoryGroups.push(...resp);
           resolve(true);
-        }
-      )
-    }));
+        });
+      })
+    );
 
-    promises.push(new Promise((resolve, reject) => {
-      this.territoryTypeService.getAll().subscribe(
-        resp => {
+    promises.push(
+      new Promise((resolve, reject) => {
+        this.territoryTypeService.getAll().subscribe((resp) => {
           this.territoryTypes.push(...resp);
           resolve(true);
-        }
-      )
-    }));
+        });
+      })
+    );
 
-    promises.push(new Promise((resolve, reject) => {
-      this.utils.getCodeListValues('territory.scope').subscribe(
-        resp => {
+    promises.push(
+      new Promise((resolve, reject) => {
+        this.utils.getCodeListValues('territory.scope').subscribe((resp) => {
           this.scopeTypes.push(...resp);
           resolve(true);
-        }
-      )
-    }));
+        });
+      })
+    );
 
     Promise.all(promises).then(() => {
-      this.activatedRoute.params.subscribe(params => {
-        this.territoryID = +params.id;
-        if(params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
-          
-        if (this.territoryID !== -1 || this.duplicateID != -1) {
-          let idToGet = this.territoryID !== -1? this.territoryID: this.duplicateID  
-          this.territoryService.get(idToGet).subscribe(
-            resp => {
-        
-              this.territoryToEdit = resp;
-              let currentTerritoryType;
-              if(this.territoryToEdit.typeId != null || !this.territoryToEdit.typeId != undefined){
-                currentTerritoryType = this.territoryTypes.find(element => element.id == this.territoryToEdit.typeId)
-              }
-              if(currentTerritoryType ==  null || currentTerritoryType == undefined){
-                currentTerritoryType = this.territoryTypes[0];
-              }
-              else{
-                this.currentTypeBottom=currentTerritoryType.bottomType;
-                this.currentTypeTop=currentTerritoryType.topType;
-              }
-              this.defineAppliesToChildrenColumns(this.currentTypeTop ,this.currentTypeBottom);
-              this.territoryForm.patchValue({
-                code: this.territoryToEdit.code,
-                territorialAuthorityAddress: this.territoryToEdit.territorialAuthorityAddress,
-                territorialAuthorityLogo: this.territoryToEdit.territorialAuthorityLogo,
-                type: currentTerritoryType.id,
-                extent: this.territoryToEdit.extent,
-                extensionX0: this.territoryToEdit.extent.minX,
-                extensionX1: this.territoryToEdit.extent.maxX,
-                extensionY0: this.territoryToEdit.extent.minY,
-                extensionY1: this.territoryToEdit.extent.maxY,
-                defaultZoomLevel: this.territoryToEdit.defaultZoomLevel,
-                centerPointX:  this.territoryToEdit.center.x,
-                centerPointY:  this.territoryToEdit.center.y,
-                note: this.territoryToEdit.note,
-                blocked: this.territoryToEdit.blocked,
-                srs: this.territoryToEdit.srs,
-                _links: this.territoryToEdit._links
-              });
+      this.activatedRoute.params.subscribe(
+        (params) => {
+          this.territoryID = +params.id;
+          if (params.idDuplicate) {
+            this.duplicateID = +params.idDuplicate;
+          }
 
-
-              if(this.territoryID !=-1){
-
-
-
-                this.territoryForm.patchValue({
-                id: this.territoryID,
-                name: this.territoryToEdit.name,
-                });
-                    
-
-
-                this.translationService.getAll()
-                .pipe(map((data: any[]) => data.filter(elem => elem.element == this.territoryID && elem.column == config.translationColumns.territoryName)
-                )).subscribe( result => {
-      
-                  this.utils.updateTranslations(this.translationMap, result)
+          if (this.territoryID !== -1 || this.duplicateID != -1) {
+            let idToGet =
+              this.territoryID !== -1 ? this.territoryID : this.duplicateID;
+            this.territoryService.get(idToGet).subscribe(
+              (resp) => {
+                this.territoryToEdit = resp;
+                let currentTerritoryType;
+                if (
+                  this.territoryToEdit.typeId != null ||
+                  !this.territoryToEdit.typeId != undefined
+                ) {
+                  currentTerritoryType = this.territoryTypes.find(
+                    (element) => element.id == this.territoryToEdit.typeId
+                  );
                 }
-          
-                );;
-              } 
-              else{
+                if (
+                  currentTerritoryType == null ||
+                  currentTerritoryType == undefined
+                ) {
+                  currentTerritoryType = this.territoryTypes[0];
+                } else {
+                  this.currentTypeBottom = currentTerritoryType.bottomType;
+                  this.currentTypeTop = currentTerritoryType.topType;
+                }
+                this.defineAppliesToChildrenColumns(
+                  this.currentTypeTop,
+                  this.currentTypeBottom
+                );
                 this.territoryForm.patchValue({
-                name: this.utils.getTranslate('copy_').concat(this.territoryToEdit.name),
+                  code: this.territoryToEdit.code,
+                  territorialAuthorityAddress:
+                    this.territoryToEdit.territorialAuthorityAddress,
+                  territorialAuthorityLogo:
+                    this.territoryToEdit.territorialAuthorityLogo,
+                  type: currentTerritoryType.id,
+                  extent: this.territoryToEdit.extent,
+                  extentMinX: this.territoryToEdit.extent?.minX ?? null,
+                  extentMaxX: this.territoryToEdit.extent?.maxX ?? null,
+                  extentMinY: this.territoryToEdit.extent?.minY ?? null,
+                  extentMaxY: this.territoryToEdit.extent?.maxY ?? null,
+                  defaultZoomLevel: this.territoryToEdit.defaultZoomLevel,
+                  centerPointX: this.territoryToEdit.center?.x ?? null,
+                  centerPointY: this.territoryToEdit.center?.y ?? null,
+                  note: this.territoryToEdit.note,
+                  blocked: this.territoryToEdit.blocked,
+                  srs: this.territoryToEdit.srs,
+                  _links: this.territoryToEdit._links,
                 });
-              }
-              this.dataLoaded = true;
-            },
-            error => {
 
-            }
-          );
-        }
-        else {
-          this.territoryForm.patchValue({
-            blocked: false,
-            type : this.territoryTypes[0].id,
-          });
-          this.currentTypeBottom=this.territoryTypes[0].bottomType;
-          this.currentTypeTop=this.territoryTypes[0].topType;
+                if (this.territoryID != -1) {
+                  this.territoryForm.patchValue({
+                    id: this.territoryID,
+                    name: this.territoryToEdit.name,
+                  });
 
-          this.dataLoaded = true;
-        }
+                  this.translationService
+                    .getAll()
+                    .pipe(
+                      map((data: any[]) =>
+                        data.filter(
+                          (elem) =>
+                            elem.element == this.territoryID &&
+                            elem.column ==
+                              config.translationColumns.territoryName
+                        )
+                      )
+                    )
+                    .subscribe((result) => {
+                      this.utils.updateTranslations(
+                        this.translationMap,
+                        result
+                      );
+                    });
+                } else {
+                  this.territoryForm.patchValue({
+                    name: this.utils
+                      .getTranslate('copy_')
+                      .concat(this.territoryToEdit.name),
+                  });
+                }
+                this.dataLoaded = true;
+              },
+              (error) => {}
+            );
+          } else {
+            this.territoryForm.patchValue({
+              blocked: false,
+              type: this.territoryTypes[0].id,
+            });
+            this.currentTypeBottom = this.territoryTypes[0].bottomType;
+            this.currentTypeTop = this.territoryTypes[0].topType;
 
-      },
-        error => {
-
-        });
+            this.dataLoaded = true;
+          }
+        },
+        (error) => {}
+      );
     });
 
-    this.defineAppliesToChildrenColumns(this.currentTypeTop ,this.currentTypeBottom)
+    this.defineAppliesToChildrenColumns(
+      this.currentTypeTop,
+      this.currentTypeBottom
+    );
 
     this.columnDefsPermitsChild = [
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
       this.utils.getNonEditableColumnDef('territoryEntity.user', 'user'),
       this.utils.getNonEditableColumnDef('territoryEntity.role', 'role'),
-      this.utils.getStatusColumnDef()
+      this.utils.getStatusColumnDef(),
     ];
-
 
     this.columnDefsPermitsInherit = [
       this.utils.getIdColumnDef(),
       this.utils.getNonEditableColumnDef('territoryEntity.user', 'user'),
-      this.utils.getNonEditableColumnDef('territoryEntity.territory', 'territory'),
+      this.utils.getNonEditableColumnDef(
+        'territoryEntity.territory',
+        'territory'
+      ),
       this.utils.getNonEditableColumnDef('territoryEntity.role', 'role'),
-
     ];
 
     this.columnDefsMemberOf = [
@@ -268,7 +312,7 @@ export class TerritoryFormComponent implements OnInit {
       this.utils.getIdColumnDef(),
       this.utils.getNonEditableColumnDef('territoryEntity.code', 'code'),
       this.utils.getEditableColumnDef('taskGroupEntity.name', 'name'),
-      this.utils.getStatusColumnDef()
+      this.utils.getStatusColumnDef(),
     ];
 
     this.columnDefsMembers = [
@@ -276,22 +320,34 @@ export class TerritoryFormComponent implements OnInit {
       this.utils.getIdColumnDef(),
       this.utils.getNonEditableColumnDef('territoryEntity.code', 'code'),
       this.utils.getEditableColumnDef('taskGroupEntity.name', 'name'),
-      this.utils.getStatusColumnDef()
+      this.utils.getStatusColumnDef(),
     ];
 
     this.columnDefsCartographies = [
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef('cartographyId'),
-      this.utils.getNonEditableColumnDef('territoryEntity.name', 'cartographyName'),
-      {...this.utils.getNonEditableColumnDef('territoryEntity.layers', 'cartographyLayers'), ...this.utils.getArrayValueParser() },
-      this.utils.getStatusColumnDef()
+      this.utils.getNonEditableColumnDef(
+        'territoryEntity.name',
+        'cartographyName'
+      ),
+      {
+        ...this.utils.getNonEditableColumnDef(
+          'territoryEntity.layers',
+          'cartographyLayers'
+        ),
+        ...this.utils.getArrayValueParser(),
+      },
+      this.utils.getStatusColumnDef(),
     ];
 
     this.columnDefsTasks = [
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef('taskId'),
-      this.utils.getNonEditableColumnDef('territoryEntity.taskGroup', 'taskGroupName'),
-      this.utils.getStatusColumnDef()
+      this.utils.getNonEditableColumnDef(
+        'territoryEntity.taskGroup',
+        'taskGroupName'
+      ),
+      this.utils.getStatusColumnDef(),
     ];
 
     this.columnDefsTerritoriesDialog = [
@@ -304,7 +360,10 @@ export class TerritoryFormComponent implements OnInit {
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
       this.utils.getNonEditableColumnDef('territoryEntity.name', 'name'),
-      this.utils.getNonEditableColumnDef('treesEntity.serviceName', 'serviceName'),
+      this.utils.getNonEditableColumnDef(
+        'treesEntity.serviceName',
+        'serviceName'
+      ),
     ];
 
     this.columnDefsTasksDialog = [
@@ -316,10 +375,11 @@ export class TerritoryFormComponent implements OnInit {
     this.columnDefsUsersDialog = [
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('territoryEntity.username', 'username'),
+      this.utils.getNonEditableColumnDef(
+        'territoryEntity.username',
+        'username'
+      ),
     ];
-
-
 
     this.columnDefsTerritoriesDialog = [
       this.utils.getSelCheckboxColumnDef(),
@@ -327,37 +387,30 @@ export class TerritoryFormComponent implements OnInit {
       this.utils.getNonEditableColumnDef('territoryEntity.code', 'code'),
       this.utils.getNonEditableColumnDef('territoryEntity.name', 'name'),
     ];
-
-
-
   }
 
-
   initializeTerritoryForm(): void {
-
     this.territoryForm = new UntypedFormGroup({
       id: new UntypedFormControl(null, []),
-      code: new UntypedFormControl(null, [Validators.required,]),
-      name: new UntypedFormControl(null, [Validators.required,]),
+      code: new UntypedFormControl(null, [Validators.required]),
+      name: new UntypedFormControl(null, [Validators.required]),
       territorialAuthorityAddress: new UntypedFormControl(null),
       territorialAuthorityLogo: new UntypedFormControl(null),
       groupType: new UntypedFormControl(null),
       type: new UntypedFormControl(null),
-      extensionX0: new UntypedFormControl(null, []),
-      extensionX1: new UntypedFormControl(null, []),
-      extensionY0: new UntypedFormControl(null, []),
-      extensionY1: new UntypedFormControl(null, []),
+      extentMinX: new UntypedFormControl(null, []),
+      extentMaxX: new UntypedFormControl(null, []),
+      extentMinY: new UntypedFormControl(null, []),
+      extentMaxY: new UntypedFormControl(null, []),
       extent: new UntypedFormControl(null),
       note: new UntypedFormControl(null),
       srs: new UntypedFormControl(null),
       blocked: new UntypedFormControl(false),
       defaultZoomLevel: new UntypedFormControl(null),
-      centerPointX:  new UntypedFormControl(null),
-      centerPointY:  new UntypedFormControl(null),
+      centerPointX: new UntypedFormControl(null),
+      centerPointY: new UntypedFormControl(null),
       _links: new UntypedFormControl(null),
-
-    })
-
+    });
   }
 
   getTerritoryGroups() {
@@ -369,207 +422,232 @@ export class TerritoryFormComponent implements OnInit {
   }
 
   updateExtent() {
-    let extent  = {
-      minX: this.territoryForm.get('extensionX0').value,
-      maxX: this.territoryForm.get('extensionX1').value,
-      minY: this.territoryForm.get('extensionY0').value,
-      maxY: this.territoryForm.get('extensionY1').value,
-    }
+    let extent = {
+      minX: this.territoryForm.get('extentMinX').value,
+      maxX: this.territoryForm.get('extentMaxX').value,
+      minY: this.territoryForm.get('extentMinY').value,
+      maxY: this.territoryForm.get('extentMaxY').value,
+    };
     this.territoryForm.patchValue({
-      extent: extent
+      extent: extent,
     });
   }
 
-  async onTranslationButtonClicked()
-  {
-    let dialogResult = null
+  async onTranslationButtonClicked() {
+    let dialogResult = null;
     dialogResult = await this.utils.openTranslationDialog(this.translationMap);
-    if(dialogResult && dialogResult.event == "Accept"){
-      this.translationsModified=true;
+    if (dialogResult && dialogResult.event == 'Accept') {
+      this.translationsModified = true;
     }
   }
-
 
   // AG-GRID
   // ******** Permits ******** //
   getAllPermits = (): Observable<any> => {
-
     if (this.territoryID == -1 && this.duplicateID == -1) {
       const aux: Array<any> = [];
       return of(aux);
     }
-    let idToUse = this.territoryID == -1? this.duplicateID:this.territoryID
+    let idToUse = this.territoryID == -1 ? this.duplicateID : this.territoryID;
 
     let params2: HalParam[] = [];
-    let param: HalParam = { key: 'territory.id', value: idToUse }
+    let param: HalParam = { key: 'territory.id', value: idToUse };
     params2.push(param);
     let query: HalOptions = { params: params2 };
 
     return this.userConfigurationService.getAll(query);
-  }
+  };
 
   getAllPermitsChild = (): Observable<any> => {
-
     if (this.territoryID == -1 && this.duplicateID == -1) {
       const aux: Array<any> = [];
       return of(aux);
     }
-    let idToUse = this.territoryID == -1? this.duplicateID:this.territoryID
+    let idToUse = this.territoryID == -1 ? this.duplicateID : this.territoryID;
     let params2: HalParam[] = [];
-    let param: HalParam = { key: 'territory.id', value: idToUse }
+    let param: HalParam = { key: 'territory.id', value: idToUse };
     params2.push(param);
     let query: HalOptions = { params: params2 };
 
-    return this.userConfigurationService.getAll(query)
-      .pipe(map((data: any[]) => data.filter(elem => elem.appliesToChildrenTerritories == true)
-      ));;
-  }
+    return this.userConfigurationService
+      .getAll(query)
+      .pipe(
+        map((data: any[]) =>
+          data.filter((elem) => elem.appliesToChildrenTerritories == true)
+        )
+      );
+  };
 
-  getAllRowsPermits(event){
-    if(event.event == "save"){
+  getAllRowsPermits(event) {
+    if (event.event == 'save') {
       this.savePermits(event.data);
     }
   }
 
   async savePermits(data: any[]) {
-
     let usersPositionToDelete = [];
     let usersPositionToAdd = [];
     const promisesDuplicate: Promise<any>[] = [];
     const promisesCurrentUserConf: Promise<any>[] = [];
     const promises: Promise<any>[] = [];
-    
-    for(let i = 0; i<data.length; i++){
-      let userConf= data[i];
-      if (userConf.status === 'pendingCreation' || (userConf.status === 'pendingModify' && !userConf._links)) {
-        let item;
-        if(userConf._links){
 
-          let urlReqRole = `${userConf._links.role.href}`
+    for (let i = 0; i < data.length; i++) {
+      let userConf = data[i];
+      if (
+        userConf.status === 'pendingCreation' ||
+        (userConf.status === 'pendingModify' && !userConf._links)
+      ) {
+        let item;
+        if (userConf._links) {
+          let urlReqRole = `${userConf._links.role.href}`;
           if (userConf._links.role.href) {
-            let url = new URL(urlReqRole.split("{")[0]);
-            url.searchParams.append("projection", "view")
+            let url = new URL(urlReqRole.split('{')[0]);
+            url.searchParams.append('projection', 'view');
             urlReqRole = url.toString();
           }
 
-          let urlReqUser = `${userConf._links.user.href}`
+          let urlReqUser = `${userConf._links.user.href}`;
           if (userConf._links.user.href) {
-            let url = new URL(urlReqUser.split("{")[0]);
-            url.searchParams.append("projection", "view")
+            let url = new URL(urlReqUser.split('{')[0]);
+            url.searchParams.append('projection', 'view');
             urlReqUser = url.toString();
           }
-          let roleComplete; 
+          let roleComplete;
           let userComplete;
 
-          promisesDuplicate.push(new Promise((resolve, reject) => {
+          promisesDuplicate.push(
+            new Promise((resolve, reject) => {
+              promisesCurrentUserConf.push(
+                new Promise((resolve, reject) => {
+                  this.http.get(urlReqRole).subscribe((result) => {
+                    roleComplete = result;
+                    resolve(true);
+                  });
+                })
+              );
 
-            promisesCurrentUserConf.push(new Promise((resolve, reject) => {
-              this.http.get(urlReqRole).subscribe(result => {
-                roleComplete = result;
-                resolve(true);
-              })
-            
-            }))
+              promisesCurrentUserConf.push(
+                new Promise((resolve, reject) => {
+                  this.http.get(urlReqUser).subscribe((result) => {
+                    userComplete = result;
+                    resolve(true);
+                  });
+                })
+              );
 
-            promisesCurrentUserConf.push(new Promise((resolve, reject) => {
-              this.http.get(urlReqUser).subscribe(result => {
-                userComplete = result;
-                resolve(true);
-              })
-            
-            }))
-
-
-            Promise.all(promisesCurrentUserConf).then( () =>{
-              
-              item = {
-                role: roleComplete,
-                appliesToChildrenTerritories: userConf.appliesToChildrenTerritories,
-                territory: this.territoryToEdit,
-                user: userComplete,
-              }
+              Promise.all(promisesCurrentUserConf).then(() => {
+                item = {
+                  role: roleComplete,
+                  appliesToChildrenTerritories:
+                    userConf.appliesToChildrenTerritories,
+                  territory: this.territoryToEdit,
+                  user: userComplete,
+                };
                 userConf.new = false;
-                promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
-              resolve(true);
+                promises.push(
+                  new Promise((resolve, reject) => {
+                    this.userConfigurationService
+                      .save(item)
+                      .subscribe((resp) => {
+                        resolve(true);
+                      });
+                  })
+                );
+                resolve(true);
+              });
             })
-
-          }))
-
-
-
-        }
-        else{
+          );
+        } else {
           item = {
             role: userConf.roleComplete,
             appliesToChildrenTerritories: userConf.appliesToChildrenTerritories,
             territory: this.territoryToEdit,
             user: userConf.userComplete,
-          }
+          };
 
-    
-            userConf.new = false;
-            promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
+          userConf.new = false;
+          promises.push(
+            new Promise((resolve, reject) => {
+              this.userConfigurationService.save(item).subscribe((resp) => {
+                resolve(true);
+              });
+            })
+          );
 
           // }
         }
-
       }
-      if(userConf.status === 'pendingModify' && userConf._links)
-      {
-        
-        let urlReqRole = `${userConf._links.role.href}`
+      if (userConf.status === 'pendingModify' && userConf._links) {
+        let urlReqRole = `${userConf._links.role.href}`;
         if (userConf._links.role.href) {
-          let url = new URL(urlReqRole.split("{")[0]);
-          url.searchParams.append("projection", "view")
+          let url = new URL(urlReqRole.split('{')[0]);
+          url.searchParams.append('projection', 'view');
           urlReqRole = url.toString();
         }
 
-        let urlReqUser = `${userConf._links.user.href}`
+        let urlReqUser = `${userConf._links.user.href}`;
         if (userConf._links.user.href) {
-          let url = new URL(urlReqUser.split("{")[0]);
-          url.searchParams.append("projection", "view")
+          let url = new URL(urlReqUser.split('{')[0]);
+          url.searchParams.append('projection', 'view');
           urlReqUser = url.toString();
         }
-        let roleComplete; 
+        let roleComplete;
         let userComplete;
 
-        promisesDuplicate.push(new Promise((resolve, reject) => {
+        promisesDuplicate.push(
+          new Promise((resolve, reject) => {
+            promisesCurrentUserConf.push(
+              new Promise((resolve, reject) => {
+                this.http.get(urlReqRole).subscribe((result) => {
+                  roleComplete = result;
+                  resolve(true);
+                });
+              })
+            );
 
-          promisesCurrentUserConf.push(new Promise((resolve, reject) => {
-            this.http.get(urlReqRole).subscribe(result => {
-              roleComplete = result;
+            promisesCurrentUserConf.push(
+              new Promise((resolve, reject) => {
+                this.http.get(urlReqUser).subscribe((result) => {
+                  userComplete = result;
+                  resolve(true);
+                });
+              })
+            );
+
+            Promise.all(promisesCurrentUserConf).then(() => {
+              let item = {
+                id: userConf.id,
+                role: roleComplete._links.self.href.split('{')[0],
+                appliesToChildrenTerritories:
+                  userConf.appliesToChildrenTerritories,
+                territory: this.territoryToEdit._links.self.href.split('{')[0],
+                user: userComplete._links.self.href.split('{')[0],
+                _links: userConf._links,
+              };
+              promises.push(
+                new Promise((resolve, reject) => {
+                  this.userConfigurationService.save(item).subscribe((resp) => {
+                    resolve(true);
+                  });
+                })
+              );
               resolve(true);
-            })
-          
-          }))
-
-          promisesCurrentUserConf.push(new Promise((resolve, reject) => {
-            this.http.get(urlReqUser).subscribe(result => {
-              userComplete = result;
-              resolve(true);
-            })
-          
-          }))
-
-
-          Promise.all(promisesCurrentUserConf).then( () =>{
-
-            let item = {
-              id: userConf.id,
-              role: roleComplete._links.self.href.split("{")[0],
-              appliesToChildrenTerritories: userConf.appliesToChildrenTerritories,
-              territory: this.territoryToEdit._links.self.href.split("{")[0],
-              user: userComplete._links.self.href.split("{")[0],
-              _links: userConf._links
-            }
-            promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
-            resolve(true);
+            });
           })
-
-        }))
+        );
       }
-      if (userConf.status === 'pendingDelete' && userConf._links  && !userConf.new ) {
-        promises.push(new Promise((resolve, reject) => { this.userConfigurationService.remove(userConf).subscribe((resp) => { resolve(true) }) }));
+      if (
+        userConf.status === 'pendingDelete' &&
+        userConf._links &&
+        !userConf.new
+      ) {
+        promises.push(
+          new Promise((resolve, reject) => {
+            this.userConfigurationService.remove(userConf).subscribe((resp) => {
+              resolve(true);
+            });
+          })
+        );
 
         // let indexUserPosition = data.findIndex(element =>  element.userId === userConf.userId && element.status !== 'pendingDelete' );
 
@@ -586,75 +664,68 @@ export class TerritoryFormComponent implements OnInit {
         //   }));
 
         // }
-
-
       }
-    };
+    }
 
-
-
-    Promise.all([...promises,...promisesDuplicate]).then(() => {
+    Promise.all([...promises, ...promisesDuplicate]).then(() => {
       Promise.all(promises).then(() => {
         this.dataUpdatedEventPermits.next(true);
-      })
+      });
     });
-
-    
-
-
-
   }
-
 
   // ******** InheritPermissionsOfParents ******** //
 
   getAllInheritPermissions = (): Observable<any> => {
-
     if (this.territoryID == -1) {
       const aux: Array<any> = [];
       return of(aux);
     }
 
-    var urlReq = `${this.territoryToEdit._links.memberOf.href}`
+    var urlReq = `${this.territoryToEdit._links.memberOf.href}`;
     if (this.territoryToEdit._links.memberOf.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
+      var url = new URL(urlReq.split('{')[0]);
+      url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
 
-
-    return  this.http.get(urlReq).pipe(map(async (data:any[]) => {
-      const promises: Promise<any>[] = []; 
-        let rowsToShow = []
+    return this.http.get(urlReq).pipe(
+      map(async (data: any[]) => {
+        const promises: Promise<any>[] = [];
+        let rowsToShow = [];
         let territoriesMemberOf = data['_embedded']['territories'];
         if (territoriesMemberOf.length > 0) {
-          territoriesMemberOf.forEach(territoryMemberOf => {
+          territoriesMemberOf.forEach((territoryMemberOf) => {
             let params2: HalParam[] = [];
-            let param: HalParam = { key: 'territory.id', value: territoryMemberOf.id }
+            let param: HalParam = {
+              key: 'territory.id',
+              value: territoryMemberOf.id,
+            };
             params2.push(param);
             let query: HalOptions = { params: params2 };
-            promises.push(new Promise((resolve, reject) => {   
-              this.userConfigurationService.getAll(query).subscribe((resp:any[]) => {
-                rowsToShow=rowsToShow.concat(resp);
-                resolve(true);
-              }); 
-            }));
+            promises.push(
+              new Promise((resolve, reject) => {
+                this.userConfigurationService
+                  .getAll(query)
+                  .subscribe((resp: any[]) => {
+                    rowsToShow = rowsToShow.concat(resp);
+                    resolve(true);
+                  });
+              })
+            );
           });
-        
-          await Promise.all(promises).then(() => {
-          });   
-          return  rowsToShow.filter(elem => elem.appliesToChildrenTerritories == true)    
-        }else{
+
+          await Promise.all(promises).then(() => {});
+          return rowsToShow.filter(
+            (elem) => elem.appliesToChildrenTerritories == true
+          );
+        } else {
           const aux: Array<any> = [];
           return of(aux);
-
         }
-      }));
-
- 
-
-  }
-
+      })
+    );
+  };
 
   // ******** MembersOf ******** //
   getAllMembersOf = (): Observable<any> => {
@@ -663,79 +734,98 @@ export class TerritoryFormComponent implements OnInit {
       return of(aux);
     }
 
-    var urlReq = `${this.territoryToEdit._links.memberOf.href}`
+    var urlReq = `${this.territoryToEdit._links.memberOf.href}`;
     if (this.territoryToEdit._links.memberOf.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
+      var url = new URL(urlReq.split('{')[0]);
+      url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
 
-    return (this.http.get(urlReq))
-      .pipe(map(data => data['_embedded']['territories']));
+    return this.http
+      .get(urlReq)
+      .pipe(map((data) => data['_embedded']['territories']));
+  };
 
-  }
-
-  getAllRowsMembersOf(event){
-    if(event.event == "save"){
+  getAllRowsMembersOf(event) {
+    if (event.event == 'save') {
       this.saveMembersOf(event.data);
     }
   }
-
 
   saveMembersOf(data: any[]) {
     let dataChanged = false;
     let territoriesModified = [];
     let territoriesToPut = [];
-    data.forEach(territory => {
-      if (territory.status !== 'pendingDelete') { 
-        if (territory.status === 'pendingModify') { territoriesModified.push(territory) }
-        else if (territory.status === 'pendingCreation') { dataChanged = true }
-        territoriesToPut.push(territory._links.self.href)
+    data.forEach((territory) => {
+      if (territory.status !== 'pendingDelete') {
+        if (territory.status === 'pendingModify') {
+          territoriesModified.push(territory);
+        } else if (territory.status === 'pendingCreation') {
+          dataChanged = true;
+        }
+        territoriesToPut.push(territory._links.self.href);
+      } else {
+        dataChanged = true;
       }
-      else {dataChanged = true}
     });
 
-
-    this.updateTerritoriesMembersOf(territoriesModified, territoriesToPut, dataChanged);
+    this.updateTerritoriesMembersOf(
+      territoriesModified,
+      territoriesToPut,
+      dataChanged
+    );
   }
 
-  updateTerritoriesMembersOf(territoriesModified: Territory[], territoriesToPut: Territory[], dataChanged: boolean) {
+  updateTerritoriesMembersOf(
+    territoriesModified: Territory[],
+    territoriesToPut: Territory[],
+    dataChanged: boolean
+  ) {
     const promises: Promise<any>[] = [];
-    territoriesModified.forEach(territory => {
-      promises.push(new Promise((resolve, reject) => { this.territoryService.update(territory).subscribe((resp) => { resolve(true) }) }));
+    territoriesModified.forEach((territory) => {
+      promises.push(
+        new Promise((resolve, reject) => {
+          this.territoryService.update(territory).subscribe((resp) => {
+            resolve(true);
+          });
+        })
+      );
     });
     Promise.all(promises).then(() => {
-      if(dataChanged){
+      if (dataChanged) {
         let url = this.territoryToEdit._links.memberOf.href.split('{', 1)[0];
-        this.utils.updateUriList(url, territoriesToPut, this.dataUpdatedEventMemberOf)
+        this.utils.updateUriList(
+          url,
+          territoriesToPut,
+          this.dataUpdatedEventMemberOf
+        );
+      } else {
+        this.dataUpdatedEventMemberOf.next(true);
       }
-      else { this.dataUpdatedEventMemberOf.next(true) }
     });
   }
-
 
   // ******** Members ******** //
   getAllMembers = (): Observable<any> => {
-
     if (this.territoryID == -1 && this.duplicateID == -1) {
       const aux: Array<any> = [];
       return of(aux);
     }
 
-    var urlReq = `${this.territoryToEdit._links.members.href}`
+    var urlReq = `${this.territoryToEdit._links.members.href}`;
     if (this.territoryToEdit._links.members.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
+      var url = new URL(urlReq.split('{')[0]);
+      url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
 
-    return (this.http.get(urlReq))
-      .pipe(map(data => data['_embedded']['territories']));
+    return this.http
+      .get(urlReq)
+      .pipe(map((data) => data['_embedded']['territories']));
+  };
 
-  }
-
-  getAllRowsMembers(event){
-    if(event.event == "save"){
+  getAllRowsMembers(event) {
+    if (event.event == 'save') {
       this.saveMembers(event.data);
     }
   }
@@ -744,57 +834,76 @@ export class TerritoryFormComponent implements OnInit {
     let dataChanged = false;
     let territoriesModified = [];
     let territoriesToPut = [];
-    data.forEach(territory => {
+    data.forEach((territory) => {
       if (territory.status !== 'pendingDelete') {
-        if (territory.status === 'pendingModify') { territoriesModified.push(territory) }
-        else if (territory.status === 'pendingCreation') { dataChanged=true }
-        territoriesToPut.push(territory._links.self.href)
+        if (territory.status === 'pendingModify') {
+          territoriesModified.push(territory);
+        } else if (territory.status === 'pendingCreation') {
+          dataChanged = true;
+        }
+        territoriesToPut.push(territory._links.self.href);
+      } else {
+        dataChanged = true;
       }
-      else {dataChanged = true}
     });
 
-    this.updateTerritoriesMembers(territoriesModified, territoriesToPut, dataChanged);
-
+    this.updateTerritoriesMembers(
+      territoriesModified,
+      territoriesToPut,
+      dataChanged
+    );
   }
 
-  updateTerritoriesMembers(territoriesModified: Territory[], territoriesToPut: Territory[], dataChanged:boolean) {
+  updateTerritoriesMembers(
+    territoriesModified: Territory[],
+    territoriesToPut: Territory[],
+    dataChanged: boolean
+  ) {
     const promises: Promise<any>[] = [];
-    territoriesModified.forEach(territory => {
-      promises.push(new Promise((resolve, reject) => { this.territoryService.update(territory).subscribe((resp) => { resolve(true) }) }));
+    territoriesModified.forEach((territory) => {
+      promises.push(
+        new Promise((resolve, reject) => {
+          this.territoryService.update(territory).subscribe((resp) => {
+            resolve(true);
+          });
+        })
+      );
     });
     Promise.all(promises).then(() => {
-      if(dataChanged){
+      if (dataChanged) {
         let url = this.territoryToEdit._links.members.href.split('{', 1)[0];
-        this.utils.updateUriList(url, territoriesToPut, this.dataUpdatedEventMembers)
-      }
-      else{
-        this.dataUpdatedEventMembers.next(true)
+        this.utils.updateUriList(
+          url,
+          territoriesToPut,
+          this.dataUpdatedEventMembers
+        );
+      } else {
+        this.dataUpdatedEventMembers.next(true);
       }
     });
   }
 
   // ******** Cartography ******** //
   getAllCartographies = (): Observable<any> => {
-
     if (this.territoryID == -1 && this.duplicateID == -1) {
       const aux: Array<any> = [];
       return of(aux);
     }
 
-    var urlReq = `${this.territoryToEdit._links.cartographyAvailabilities.href}`
+    var urlReq = `${this.territoryToEdit._links.cartographyAvailabilities.href}`;
     if (this.territoryToEdit._links.cartographyAvailabilities.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
+      var url = new URL(urlReq.split('{')[0]);
+      url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
 
-    return (this.http.get(urlReq))
-      .pipe(map(data => data['_embedded']['cartography-availabilities']));
+    return this.http
+      .get(urlReq)
+      .pipe(map((data) => data['_embedded']['cartography-availabilities']));
+  };
 
-  }
-
-  getAllRowsCartographies(event){
-    if(event.event == "save"){
+  getAllRowsCartographies(event) {
+    if (event.event == 'save') {
       this.saveCartographies(event.data);
     }
   }
@@ -802,46 +911,68 @@ export class TerritoryFormComponent implements OnInit {
   saveCartographies(data: any[]) {
     const promises: Promise<any>[] = [];
     const promisesDuplicate: Promise<any>[] = [];
-    data.forEach(cartography => {
+    data.forEach((cartography) => {
       cartography.territory = this.territoryToEdit;
       if (cartography.status === 'pendingCreation') {
-
-        let index = data.findIndex(element => element.cartographyId === cartography.cartographyId && !element.new)
+        let index = data.findIndex(
+          (element) =>
+            element.cartographyId === cartography.cartographyId && !element.new
+        );
         if (index === -1) {
-          cartography.territory= this.territoryToEdit;
+          cartography.territory = this.territoryToEdit;
           cartography.new = false;
-          if(cartography._links){
-            cartography.id=null;
-            let urlReqCartography= `${cartography._links.cartography.href}`
-            let url = new URL(urlReqCartography.split("{")[0]);
-            url.searchParams.append("projection", "view")
+          if (cartography._links) {
+            cartography.id = null;
+            let urlReqCartography = `${cartography._links.cartography.href}`;
+            let url = new URL(urlReqCartography.split('{')[0]);
+            url.searchParams.append('projection', 'view');
             urlReqCartography = url.toString();
-  
-            cartography._links=null;
-            promises.push(new Promise((resolve, reject) => {
-                this.http.get(urlReqCartography).subscribe(result => {
-                  cartography.cartography=result;
-                  this.cartographyAvailabilityService.save(cartography).subscribe((resp) => { resolve(true) });
-                })
-            }))
-            
-  
-          }
-          else{
-            promises.push(new Promise((resolve, reject) => { this.cartographyAvailabilityService.save(cartography).subscribe((resp) => { resolve(true) }) }));
+
+            cartography._links = null;
+            promises.push(
+              new Promise((resolve, reject) => {
+                this.http.get(urlReqCartography).subscribe((result) => {
+                  cartography.cartography = result;
+                  this.cartographyAvailabilityService
+                    .save(cartography)
+                    .subscribe((resp) => {
+                      resolve(true);
+                    });
+                });
+              })
+            );
+          } else {
+            promises.push(
+              new Promise((resolve, reject) => {
+                this.cartographyAvailabilityService
+                  .save(cartography)
+                  .subscribe((resp) => {
+                    resolve(true);
+                  });
+              })
+            );
             // cartographiesToCreate.push(cartography)
           }
         }
-
-
       }
-      if (cartography.status === 'pendingDelete' && cartography._links && !cartography.new ) {
-        promises.push(new Promise((resolve, reject) => { this.cartographyAvailabilityService.remove(cartography).subscribe((resp) => { resolve(true) }) }));
+      if (
+        cartography.status === 'pendingDelete' &&
+        cartography._links &&
+        !cartography.new
+      ) {
+        promises.push(
+          new Promise((resolve, reject) => {
+            this.cartographyAvailabilityService
+              .remove(cartography)
+              .subscribe((resp) => {
+                resolve(true);
+              });
+          })
+        );
 
-        //  cartographiesToDelete.push(cartography) 
-        }
+        //  cartographiesToDelete.push(cartography)
+      }
     });
-
 
     Promise.all(promises).then(() => {
       this.dataUpdatedEventCartographies.next(true);
@@ -850,72 +981,84 @@ export class TerritoryFormComponent implements OnInit {
 
   // ******** Task ******** //
   getAllTasks = (): Observable<any> => {
-
     if (this.territoryID == -1 && this.duplicateID == -1) {
       const aux: Array<any> = [];
       return of(aux);
     }
 
-    var urlReq = `${this.territoryToEdit._links.taskAvailabilities.href}`
+    var urlReq = `${this.territoryToEdit._links.taskAvailabilities.href}`;
     if (this.territoryToEdit._links.taskAvailabilities.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
+      var url = new URL(urlReq.split('{')[0]);
+      url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
 
-    return (this.http.get(urlReq))
-      .pipe(map(data => data['_embedded']['task-availabilities']));
-  }
+    return this.http
+      .get(urlReq)
+      .pipe(map((data) => data['_embedded']['task-availabilities']));
+  };
 
-  getAllRowsTasks(event){
-    if(event.event == "save"){
+  getAllRowsTasks(event) {
+    if (event.event == 'save') {
       this.saveTasks(event.data);
     }
   }
 
   saveTasks(data: any[]) {
     const promises: Promise<any>[] = [];
-    data.forEach(task => {
-      if (task.status === 'pendingDelete' && task._links  && !task.new ) {
-        promises.push(new Promise((resolve, reject) => { this.taskAvailabilityService.remove(task).subscribe((resp) => { resolve(true) }) }));
-        //  tasksToDelete.push(task) 
-        }
+    data.forEach((task) => {
+      if (task.status === 'pendingDelete' && task._links && !task.new) {
+        promises.push(
+          new Promise((resolve, reject) => {
+            this.taskAvailabilityService.remove(task).subscribe((resp) => {
+              resolve(true);
+            });
+          })
+        );
+        //  tasksToDelete.push(task)
+      }
       if (task.status === 'pendingCreation') {
-        task.territory=this.territoryToEdit;
-        let index = data.findIndex(element => element.taskId === task.taskId && !element.new)
+        task.territory = this.territoryToEdit;
+        let index = data.findIndex(
+          (element) => element.taskId === task.taskId && !element.new
+        );
         if (index === -1) {
           task.new = false;
           let taskToCreate: TaskAvailability = new TaskAvailability();
           taskToCreate.territory = this.territoryToEdit;
-          if(task._links){
-            task.id=null;
-            let urlReqTask= `${task._links.task.href}`
-            let url = new URL(urlReqTask.split("{")[0]);
-            url.searchParams.append("projection", "view")
+          if (task._links) {
+            task.id = null;
+            let urlReqTask = `${task._links.task.href}`;
+            let url = new URL(urlReqTask.split('{')[0]);
+            url.searchParams.append('projection', 'view');
             urlReqTask = url.toString();
-  
-            task._links=null;
 
-            promises.push(new Promise((resolve, reject) => {
-                this.http.get(urlReqTask).subscribe(result => {
-                  
+            task._links = null;
 
-                  task.task=result;
+            promises.push(
+              new Promise((resolve, reject) => {
+                this.http.get(urlReqTask).subscribe((result) => {
+                  task.task = result;
                   taskToCreate.task = task.task;
-                  this.taskAvailabilityService.save(task).subscribe((resp) => { resolve(true) });
-                })
-            }))
-            
-  
-          }
-          else{
+                  this.taskAvailabilityService.save(task).subscribe((resp) => {
+                    resolve(true);
+                  });
+                });
+              })
+            );
+          } else {
             taskToCreate.task = task;
             // tasksToCreate.push(taskToCreate)
-            promises.push(new Promise((resolve, reject) => { this.taskAvailabilityService.save(taskToCreate).subscribe((resp) => { resolve(true) }) }));
-
+            promises.push(
+              new Promise((resolve, reject) => {
+                this.taskAvailabilityService
+                  .save(taskToCreate)
+                  .subscribe((resp) => {
+                    resolve(true);
+                  });
+              })
+            );
           }
-
-
         }
       }
     });
@@ -926,112 +1069,141 @@ export class TerritoryFormComponent implements OnInit {
 
   updateTasks(tasksModified: Task[], tasksToPut: TaskAvailability[]) {
     const promises: Promise<any>[] = [];
-    tasksModified.forEach(task => {
-      promises.push(new Promise((resolve, reject) => { this.taskService.update(task).subscribe((resp) => { resolve(true) }) }));
+    tasksModified.forEach((task) => {
+      promises.push(
+        new Promise((resolve, reject) => {
+          this.taskService.update(task).subscribe((resp) => {
+            resolve(true);
+          });
+        })
+      );
     });
     Promise.all(promises).then(() => {
       // let url=this.territoryToEdit._links.taskAvailabilities.href.split('{', 1)[0];
       // this.utils.updateUriList(url,tasksToPut)
-      tasksToPut.forEach(task => {
-        this.taskAvailabilityService.save(task).subscribe(result => {
-          console.log(result)
-        })
-      })
-
+      tasksToPut.forEach((task) => {
+        this.taskAvailabilityService.save(task).subscribe((result) => {
+          console.log(result);
+        });
+      });
     });
   }
-
 
   // ******** Permits Dialog  ******** //
 
   getAllUsersDialog = () => {
     return this.userService.getAll();
-  }
+  };
 
   getAllRolesDialog = () => {
     return this.roleService.getAll();
-  }
+  };
 
   openPermitsDialog(data: any, childrenTable: boolean) {
-
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
-    dialogRef.componentInstance.getAllsTable = [this.getAllUsersDialog, this.getAllRolesDialog];
+    const dialogRef = this.dialog.open(DialogGridComponent, {
+      panelClass: 'gridDialogs',
+    });
+    dialogRef.componentInstance.getAllsTable = [
+      this.getAllUsersDialog,
+      this.getAllRolesDialog,
+    ];
     dialogRef.componentInstance.orderTable = ['username', 'name'];
     dialogRef.componentInstance.singleSelectionTable = [false, false];
-    dialogRef.componentInstance.columnDefsTable = [this.columnDefsUsersDialog, this.columnDefsRolesDialog];
+    dialogRef.componentInstance.columnDefsTable = [
+      this.columnDefsUsersDialog,
+      this.columnDefsRolesDialog,
+    ];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
     dialogRef.componentInstance.changeHeightButton = true;
     dialogRef.componentInstance.heightByDefault = '10';
     if (childrenTable) {
-      dialogRef.componentInstance.title = this.utils.getTranslate('territoryEntity.permissionsChildren');
+      dialogRef.componentInstance.title = this.utils.getTranslate(
+        'territoryEntity.permissionsChildren'
+      );
+    } else {
+      dialogRef.componentInstance.title = this.utils.getTranslate(
+        'territoryEntity.permissions'
+      );
     }
-    else {
-      dialogRef.componentInstance.title = this.utils.getTranslate('territoryEntity.permissions');
-    }
-    dialogRef.componentInstance.titlesTable = [this.utils.getTranslate('territoryEntity.users'), this.utils.getTranslate('territoryEntity.roles')];
+    dialogRef.componentInstance.titlesTable = [
+      this.utils.getTranslate('territoryEntity.users'),
+      this.utils.getTranslate('territoryEntity.roles'),
+    ];
     dialogRef.componentInstance.nonEditable = false;
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         if (result.event === 'Add') {
-          if(result.data[0].length>0 && result.data[1].length>0){
-            let rowsToAdd = this.getRowsToAddPermits(this.territoryToEdit, result.data[1], result.data[0], childrenTable)
+          if (result.data[0].length > 0 && result.data[1].length > 0) {
+            let rowsToAdd = this.getRowsToAddPermits(
+              this.territoryToEdit,
+              result.data[1],
+              result.data[0],
+              childrenTable
+            );
 
-            if (!childrenTable) { this.addElementsEventPermits.next(rowsToAdd) }
-            else { this.addElementsEventChildrenPermits.next(rowsToAdd) }
-          }
-          else{
+            if (!childrenTable) {
+              this.addElementsEventPermits.next(rowsToAdd);
+            } else {
+              this.addElementsEventChildrenPermits.next(rowsToAdd);
+            }
+          } else {
             const dialogRef = this.dialog.open(DialogMessageComponent);
-            dialogRef.componentInstance.title = this.utils.getTranslate("atention");
-            dialogRef.componentInstance.message = this.utils.getTranslate("doubleSelectionMessage");
+            dialogRef.componentInstance.title =
+              this.utils.getTranslate('atention');
+            dialogRef.componentInstance.message = this.utils.getTranslate(
+              'doubleSelectionMessage'
+            );
             dialogRef.componentInstance.hideCancelButton = true;
             dialogRef.afterClosed().subscribe();
           }
         }
       }
-
     });
-
   }
 
   // ******** Permits Children Dialog  ******** //
 
-
-
   // ******** Territory Member Of Dialog  ******** //
   getAllTerritoriesMemberOfDialog = () => {
-    return this.territoryService.getAll().
-      pipe(
-        map((resp: any) => {
-
-          let newTable: Territory[] = [];
-          resp.forEach(element => {
-            if (!element.typeTopType) { newTable.push(element) }
-          });
-          return newTable;
-        })
-      );
-  }
+    return this.territoryService.getAll().pipe(
+      map((resp: any) => {
+        let newTable: Territory[] = [];
+        resp.forEach((element) => {
+          if (!element.typeTopType) {
+            newTable.push(element);
+          }
+        });
+        return newTable;
+      })
+    );
+  };
 
   openTerritoryMemberOfDialog(data: any) {
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
+    const dialogRef = this.dialog.open(DialogGridComponent, {
+      panelClass: 'gridDialogs',
+    });
     dialogRef.componentInstance.orderTable = ['name'];
-    dialogRef.componentInstance.getAllsTable = [this.getAllTerritoriesMemberOfDialog];
+    dialogRef.componentInstance.getAllsTable = [
+      this.getAllTerritoriesMemberOfDialog,
+    ];
     dialogRef.componentInstance.singleSelectionTable = [false];
-    dialogRef.componentInstance.columnDefsTable = [this.columnDefsTerritoriesDialog];
+    dialogRef.componentInstance.columnDefsTable = [
+      this.columnDefsTerritoriesDialog,
+    ];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate('territoryEntity.territories');
+    dialogRef.componentInstance.title = this.utils.getTranslate(
+      'territoryEntity.territories'
+    );
     dialogRef.componentInstance.titlesTable = [''];
-    dialogRef.componentInstance.currentData=[data];
+    dialogRef.componentInstance.currentData = [data];
     dialogRef.componentInstance.nonEditable = false;
 
-
-
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         if (result.event === 'Add') {
           if (result.event === 'Add') {
-            this.addElementsEventTerritoriesMemberOf.next(result.data[0])
+            this.addElementsEventTerritoriesMemberOf.next(result.data[0]);
           }
         }
       }
@@ -1040,36 +1212,41 @@ export class TerritoryFormComponent implements OnInit {
 
   // ******** Territory Members Dialog  ******** //
   getAllTerritoriesMembersDialog = () => {
-    return this.territoryService.getAll().
-      pipe(
-        map((resp: any) => {
-          let newTable: Territory[] = [];
-          resp.forEach(element => {
-            if (!element.typeBottomType) { newTable.push(element) }
-          });
-          return newTable;
-        })
-      );;
-  }
+    return this.territoryService.getAll().pipe(
+      map((resp: any) => {
+        let newTable: Territory[] = [];
+        resp.forEach((element) => {
+          if (!element.typeBottomType) {
+            newTable.push(element);
+          }
+        });
+        return newTable;
+      })
+    );
+  };
 
   openTerritoryMembersDialog(data: any) {
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
+    const dialogRef = this.dialog.open(DialogGridComponent, {
+      panelClass: 'gridDialogs',
+    });
     dialogRef.componentInstance.orderTable = ['name'];
-    dialogRef.componentInstance.getAllsTable = [this.getAllTerritoriesMembersDialog];
+    dialogRef.componentInstance.getAllsTable = [
+      this.getAllTerritoriesMembersDialog,
+    ];
     dialogRef.componentInstance.singleSelectionTable = [false];
-    dialogRef.componentInstance.columnDefsTable = [this.columnDefsTerritoriesDialog];
+    dialogRef.componentInstance.columnDefsTable = [
+      this.columnDefsTerritoriesDialog,
+    ];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
     dialogRef.componentInstance.title = 'Territories';
-    dialogRef.componentInstance.currentData=[data];
+    dialogRef.componentInstance.currentData = [data];
     dialogRef.componentInstance.titlesTable = ['Territories'];
     dialogRef.componentInstance.nonEditable = false;
 
-
-
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         if (result.event === 'Add') {
-          this.addElementsEventTerritoriesMembers.next(result.data[0])
+          this.addElementsEventTerritoriesMembers.next(result.data[0]);
         }
       }
     });
@@ -1078,36 +1255,44 @@ export class TerritoryFormComponent implements OnInit {
   // ******** Cartography Dialog  ******** //
   getAllCartographiesDialog = () => {
     return this.cartographyService.getAll();
-  }
+  };
 
   openCartographyDialog(data: any) {
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
+    const dialogRef = this.dialog.open(DialogGridComponent, {
+      panelClass: 'gridDialogs',
+    });
     dialogRef.componentInstance.orderTable = ['name'];
     dialogRef.componentInstance.getAllsTable = [this.getAllCartographiesDialog];
     dialogRef.componentInstance.singleSelectionTable = [false];
-    dialogRef.componentInstance.columnDefsTable = [this.columnDefsCartographiesDialog];
+    dialogRef.componentInstance.columnDefsTable = [
+      this.columnDefsCartographiesDialog,
+    ];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate('territoryEntity.cartography');
+    dialogRef.componentInstance.title = this.utils.getTranslate(
+      'territoryEntity.cartography'
+    );
     dialogRef.componentInstance.titlesTable = [''];
-    dialogRef.componentInstance.fieldRestrictionWithDifferentName = ['cartographyId'];
-    dialogRef.componentInstance.currentData=[data];
+    dialogRef.componentInstance.fieldRestrictionWithDifferentName = [
+      'cartographyId',
+    ];
+    dialogRef.componentInstance.currentData = [data];
     dialogRef.componentInstance.nonEditable = false;
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         if (result.event === 'Add') {
-          this.addElementsEventCartographies.next(this.adaptFormatCartography(result.data[0]))
+          this.addElementsEventCartographies.next(
+            this.adaptFormatCartography(result.data[0])
+          );
         }
       }
-
     });
-
   }
 
   adaptFormatCartography(dataToAdapt: Cartography[]) {
     let newData: any[] = [];
 
-    dataToAdapt.forEach(element => {
+    dataToAdapt.forEach((element) => {
       let item = {
         //TODO Put fields when backend return them
         id: null,
@@ -1116,9 +1301,8 @@ export class TerritoryFormComponent implements OnInit {
         cartographyLayers: element.layers,
         cartographyName: element.name,
         new: true,
-      }
+      };
       newData.push(item);
-
     });
 
     return newData;
@@ -1127,26 +1311,29 @@ export class TerritoryFormComponent implements OnInit {
   // ******** Tasks Dialog  ******** //
   getAllTasksDialog = () => {
     return this.taskService.getAll();
-  }
+  };
 
   openTasksDialog(data: any) {
-
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
+    const dialogRef = this.dialog.open(DialogGridComponent, {
+      panelClass: 'gridDialogs',
+    });
     dialogRef.componentInstance.orderTable = ['name'];
     dialogRef.componentInstance.getAllsTable = [this.getAllTasksDialog];
     dialogRef.componentInstance.singleSelectionTable = [false];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsTasksDialog];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate('territoryEntity.tasks');
+    dialogRef.componentInstance.title = this.utils.getTranslate(
+      'territoryEntity.tasks'
+    );
     dialogRef.componentInstance.titlesTable = [''];
     dialogRef.componentInstance.fieldRestrictionWithDifferentName = ['taskId'];
-    dialogRef.componentInstance.currentData=[data];
+    dialogRef.componentInstance.currentData = [data];
     dialogRef.componentInstance.nonEditable = false;
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         if (result.event === 'Add') {
-          this.addElementsEventTasks.next(this.adaptFormatTask(result.data[0]))
+          this.addElementsEventTasks.next(this.adaptFormatTask(result.data[0]));
         }
       }
     });
@@ -1155,26 +1342,30 @@ export class TerritoryFormComponent implements OnInit {
   adaptFormatTask(dataToAdapt: any[]) {
     let newData: any[] = [];
 
-    dataToAdapt.forEach(element => {
-      let item: any = { ...element }
+    dataToAdapt.forEach((element) => {
+      let item: any = { ...element };
       item.id = null;
-      item.taskGroupName = element.groupName
-      item.taskId = element.id
-      item.new = true
+      item.taskGroupName = element.groupName;
+      item.taskId = element.id;
+      item.new = true;
       newData.push(item);
     });
 
     return newData;
   }
 
-  getRowsToAddPermits(territory: Territory, roles: Role[], users: any[], childrenTable: boolean) {
+  getRowsToAddPermits(
+    territory: Territory,
+    roles: Role[],
+    users: any[],
+    childrenTable: boolean
+  ) {
     let itemsToAdd: any[] = [];
 
-    roles.forEach(role => {
+    roles.forEach((role) => {
       let item;
 
-      users.forEach(user => {
-
+      users.forEach((user) => {
         item = {
           user: user.username,
           userId: user.id,
@@ -1184,120 +1375,150 @@ export class TerritoryFormComponent implements OnInit {
           roleId: role.id,
           territoryId: this.territoryID,
           territoryName: territory.name,
-          appliesToChildrenTerritories: role['appliesToChildrenTerritories']?true:false,
-          new: true
-        }
-
+          appliesToChildrenTerritories: role['appliesToChildrenTerritories']
+            ? true
+            : false,
+          new: true,
+        };
 
         itemsToAdd.push(item);
-      })
-      if(role['appliesToChildrenTerritories']) { delete role['appliesToChildrenTerritories'] }
-    })
+      });
+      if (role['appliesToChildrenTerritories']) {
+        delete role['appliesToChildrenTerritories'];
+      }
+    });
     return itemsToAdd;
   }
 
-  defineAppliesToChildrenColumns(top, bottom){
-
-    if(bottom){
+  defineAppliesToChildrenColumns(top, bottom) {
+    if (bottom) {
       this.columnDefsPermits = [
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getIdColumnDef(),
         this.utils.getNonEditableColumnDef('territoryEntity.user', 'user'),
         this.utils.getNonEditableColumnDef('territoryEntity.role', 'role'),
-        this.utils.getBooleanColumnDef('userEntity.appliesToChildrenTerritories', 'appliesToChildrenTerritories', false),
-        this.utils.getStatusColumnDef()
+        this.utils.getBooleanColumnDef(
+          'userEntity.appliesToChildrenTerritories',
+          'appliesToChildrenTerritories',
+          false
+        ),
+        this.utils.getStatusColumnDef(),
       ];
-  
+
       this.columnDefsRolesDialog = [
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getIdColumnDef(),
         this.utils.getNonEditableColumnDef('territoryEntity.name', 'name'),
       ];
-    }
-    else{
+    } else {
       this.columnDefsPermits = [
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getIdColumnDef(),
         this.utils.getNonEditableColumnDef('territoryEntity.user', 'user'),
         this.utils.getNonEditableColumnDef('territoryEntity.role', 'role'),
-        this.utils.getBooleanColumnDef('userEntity.appliesToChildrenTerritories', 'appliesToChildrenTerritories', true),
-        this.utils.getStatusColumnDef()
+        this.utils.getBooleanColumnDef(
+          'userEntity.appliesToChildrenTerritories',
+          'appliesToChildrenTerritories',
+          true
+        ),
+        this.utils.getStatusColumnDef(),
       ];
-  
+
       this.columnDefsRolesDialog = [
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getIdColumnDef(),
         this.utils.getNonEditableColumnDef('territoryEntity.name', 'name'),
-        this.utils.getBooleanColumnDef('userEntity.appliesToChildrenTerritories', 'appliesToChildrenTerritories', true),
+        this.utils.getBooleanColumnDef(
+          'userEntity.appliesToChildrenTerritories',
+          'appliesToChildrenTerritories',
+          true
+        ),
       ];
     }
-
   }
 
-  onTerritoryTypeChanged(event){
-    let territoryType = this.territoryTypes.find(element => element.id == event.value);
-  
-    this.currentTypeBottom= territoryType.bottomType;
-    this.currentTypeTop= territoryType.topType;
-    this.defineAppliesToChildrenColumns(this.currentTypeTop ,this.currentTypeBottom)
+  onTerritoryTypeChanged(event) {
+    let territoryType = this.territoryTypes.find(
+      (element) => element.id == event.value
+    );
 
+    this.currentTypeBottom = territoryType.bottomType;
+    this.currentTypeTop = territoryType.topType;
+    this.defineAppliesToChildrenColumns(
+      this.currentTypeTop,
+      this.currentTypeBottom
+    );
   }
 
   //Save button
   onSaveButtonClicked() {
-
     if (this.territoryForm.valid) {
-     
-
-      if (this.validateExtent(this.territoryForm.value.extensionX0, this.territoryForm.value.extensionX1, this.territoryForm.value.extensionY0,
-        this.territoryForm.value.extensionY1)) {
+      if (
+        this.validateExtent(
+          this.territoryForm.value.extentMinX,
+          this.territoryForm.value.extentMaxX,
+          this.territoryForm.value.extentMinY,
+          this.territoryForm.value.extentMaxY
+        )
+      ) {
         this.updateExtent();
-        let territoryType = this.territoryTypes.find(element => element.id == this.territoryForm.value.type)
+        let territoryType = this.territoryTypes.find(
+          (element) => element.id == this.territoryForm.value.type
+        );
         if (territoryType == undefined || territoryType.id === -1) {
           territoryType = null;
         }
 
         if (this.territoryID == -1 && this.duplicateID != -1) {
           this.territoryForm.patchValue({
-            _links: null
-          })
+            _links: null,
+          });
         }
-      
 
         this.terrritoryObj = new Territory();
-        this.terrritoryObj.id = this.territoryID,
-          this.terrritoryObj.code = this.territoryForm.value.code,
-          this.terrritoryObj.name = this.territoryForm.value.name,
-          this.terrritoryObj.territorialAuthorityAddress = this.territoryForm.value.territorialAuthorityAddress,
-          this.terrritoryObj.territorialAuthorityLogo = this.territoryForm.value.territorialAuthorityLogo,
-          this.terrritoryObj.type = territoryType,
-          this.terrritoryObj.srs = this.territoryForm.value.srs;
-          // this.terrritoryObj.groupType= this.territoryGroups[0];
-          this.terrritoryObj.extent = this.territoryForm.value.extent,
-          this.terrritoryObj.note = this.territoryForm.value.note,
-          this.terrritoryObj.blocked = this.territoryForm.value.blocked,
-          this.terrritoryObj._links = this.territoryForm.value._links
-          this.terrritoryObj.defaultZoomLevel = this.territoryForm.value.defaultZoomLevel;
-          this.terrritoryObj.center = { x: this.territoryForm.value.centerPointX, y: this.territoryForm.value.centerPointY};
+        (this.terrritoryObj.id = this.territoryID),
+          (this.terrritoryObj.code = this.territoryForm.value.code),
+          (this.terrritoryObj.name = this.territoryForm.value.name),
+          (this.terrritoryObj.territorialAuthorityAddress =
+            this.territoryForm.value.territorialAuthorityAddress),
+          (this.terrritoryObj.territorialAuthorityLogo =
+            this.territoryForm.value.territorialAuthorityLogo),
+          (this.terrritoryObj.type = territoryType),
+          (this.terrritoryObj.srs = this.territoryForm.value.srs);
+        // this.terrritoryObj.groupType= this.territoryGroups[0];
+        (this.terrritoryObj.extent = this.territoryForm.value.extent),
+          (this.terrritoryObj.note = this.territoryForm.value.note),
+          (this.terrritoryObj.blocked = this.territoryForm.value.blocked),
+          (this.terrritoryObj._links = this.territoryForm.value._links);
+        this.terrritoryObj.defaultZoomLevel =
+          this.territoryForm.value.defaultZoomLevel;
+        this.terrritoryObj.center = {
+          x: this.territoryForm.value.centerPointX,
+          y: this.territoryForm.value.centerPointY,
+        };
 
         if (this.territoryID == -1) {
           this.terrritoryObj.id = null;
         } else {
           this.terrritoryObj.id = this.territoryForm.value.id;
-          this.terrritoryObj.createdDate = this.territoryToEdit.createdDate
+          this.terrritoryObj.createdDate = this.territoryToEdit.createdDate;
         }
-        this.territoryService.save(this.terrritoryObj)
-          .subscribe(async resp => {
+        this.territoryService.save(this.terrritoryObj).subscribe(
+          async (resp) => {
             console.log(resp);
             this.territoryToEdit = resp;
             this.territoryID = resp.id;
             this.territoryForm.patchValue({
               id: resp.id,
-              _links: resp._links
-            })
+              _links: resp._links,
+            });
 
-
-            this.utils.saveTranslation(resp.id, this.translationMap, this.territoryToEdit.name, this.translationsModified);
+            this.utils.saveTranslation(
+              resp.id,
+              this.translationMap,
+              this.territoryToEdit.name,
+              this.translationsModified
+            );
             this.translationsModified = false;
             this.getAllElementsEventCartographies.next('save');
             this.getAllElementsEventTasks.next('save');
@@ -1305,39 +1526,41 @@ export class TerritoryFormComponent implements OnInit {
             this.getAllElementsEventTerritoriesMembers.next('save');
             this.getAllElementsEventPermits.next('save');
           },
-            error => {
-              console.log(error);
-            });
-
-
-      }
-      else {
+          (error) => {
+            console.log(error);
+          }
+        );
+      } else {
         this.showExtentError();
       }
-
-    }
-    else {
+    } else {
       this.utils.showRequiredFieldsError();
     }
   }
 
-
   validateExtent(x0, x1, y0, y1) {
-
     let nullCounter = 0;
-    if (x0 == null || x0.length < 1 || x0 === "null") { nullCounter++ };
-    if (x1 == null || x1.length < 1 || x1 === "null") { nullCounter++ };
-    if (y0 == null || y0.length < 1 || y0 === "null") { nullCounter++ };
-    if (y1 == null || y1.length < 1 || y1 === "null") { nullCounter++ };
+    if (x0 == null || x0.length < 1 || x0 === 'null') {
+      nullCounter++;
+    }
+    if (x1 == null || x1.length < 1 || x1 === 'null') {
+      nullCounter++;
+    }
+    if (y0 == null || y0.length < 1 || y0 === 'null') {
+      nullCounter++;
+    }
+    if (y1 == null || y1.length < 1 || y1 === 'null') {
+      nullCounter++;
+    }
 
-    return (nullCounter === 0 || nullCounter === 4)  ? true : false;
-
+    return nullCounter === 0 || nullCounter === 4 ? true : false;
   }
 
   showExtentError() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title = "Error"
-    dialogRef.componentInstance.message = this.utils.getTranslate("extentError")
+    dialogRef.componentInstance.title = 'Error';
+    dialogRef.componentInstance.message =
+      this.utils.getTranslate('extentError');
     dialogRef.componentInstance.hideCancelButton = true;
     dialogRef.afterClosed().subscribe();
   }
