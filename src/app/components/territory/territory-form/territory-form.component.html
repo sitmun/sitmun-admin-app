@@ -265,7 +265,7 @@
 
         <ng-template matExpansionPanelContent>
           <div class="appDataGridEditDiv">
-            <app-data-grid [changeHeightButton]="true" [allNewElements]="territoryID == -1" defaultColumnSorting="name"
+            <app-data-grid [changeHeightButton]="true" [allNewElements]="territoryID == -1"
               [columnDefs]="columnDefsMemberOf" [themeGrid]='themeGrid' [getAll]='getAllMembersOf'
               [discardChangesButton]=true [redoButton]=true [hideDuplicateButton]=true
               [eventAddItemsSubscription]='addElementsEventTerritoriesMemberOf.asObservable()'
@@ -292,7 +292,7 @@
 
         <ng-template matExpansionPanelContent>
           <div class="appDataGridEditDiv">
-            <app-data-grid [changeHeightButton]="true" [allNewElements]="territoryID == -1" defaultColumnSorting="name"
+            <app-data-grid [changeHeightButton]="true" [allNewElements]="territoryID == -1"
               [columnDefs]="columnDefsMembers" [themeGrid]='themeGrid' [getAll]='getAllMembers'
               [discardChangesButton]=true [redoButton]=true [hideDuplicateButton]=true
               [eventAddItemsSubscription]='addElementsEventTerritoriesMembers.asObservable()'

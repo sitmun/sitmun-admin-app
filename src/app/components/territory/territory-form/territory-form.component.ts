@@ -62,10 +62,11 @@ export class TerritoryFormComponent implements OnInit {
   extensions: Array<string>;
   dataLoaded: Boolean = false;
   idGroupType: any;
-  terrritoryObj: any;
+  territoryObj: any;
 
-  currentTypeTop;
-  currentTypeBottom;
+  currentTypeTop: Boolean;
+  currentTypeBottom: Boolean;
+  currentTerritoryType;
 
   //Grids
   columnDefsPermits: any[];
@@ -191,23 +192,22 @@ export class TerritoryFormComponent implements OnInit {
             this.territoryService.get(idToGet).subscribe(
               (resp) => {
                 this.territoryToEdit = resp;
-                let currentTerritoryType;
                 if (
                   this.territoryToEdit.typeId != null ||
                   !this.territoryToEdit.typeId != undefined
                 ) {
-                  currentTerritoryType = this.territoryTypes.find(
+                  this.currentTerritoryType = this.territoryTypes.find(
                     (element) => element.id == this.territoryToEdit.typeId
                   );
                 }
                 if (
-                  currentTerritoryType == null ||
-                  currentTerritoryType == undefined
+                  this.currentTerritoryType == null ||
+                  this.currentTerritoryType == undefined
                 ) {
-                  currentTerritoryType = this.territoryTypes[0];
+                  this.currentTerritoryType = this.territoryTypes[0];
                 } else {
-                  this.currentTypeBottom = currentTerritoryType.bottomType;
-                  this.currentTypeTop = currentTerritoryType.topType;
+                  this.currentTypeBottom = this.currentTerritoryType.bottomType;
+                  this.currentTypeTop = this.currentTerritoryType.topType;
                 }
                 this.defineAppliesToChildrenColumns(
                   this.currentTypeTop,
@@ -219,7 +219,7 @@ export class TerritoryFormComponent implements OnInit {
                     this.territoryToEdit.territorialAuthorityAddress,
                   territorialAuthorityLogo:
                     this.territoryToEdit.territorialAuthorityLogo,
-                  type: currentTerritoryType.id,
+                  type: this.currentTerritoryType.id,
                   extent: this.territoryToEdit.extent,
                   extentMinX: this.territoryToEdit.extent?.minX ?? null,
                   extentMaxX: this.territoryToEdit.extent?.maxX ?? null,
@@ -309,17 +309,24 @@ export class TerritoryFormComponent implements OnInit {
 
     this.columnDefsMemberOf = [
       this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('territoryEntity.name', 'name'),
+      this.utils.getNonEditableColumnDef(
+        'territoryEntity.territoryType',
+        'typeName'
+      ),
       this.utils.getNonEditableColumnDef('territoryEntity.code', 'code'),
-      this.utils.getEditableColumnDef('taskGroupEntity.name', 'name'),
       this.utils.getStatusColumnDef(),
     ];
 
     this.columnDefsMembers = [
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('territoryEntity.name', 'name'),
+      this.utils.getNonEditableColumnDef(
+        'territoryEntity.territoryType',
+        'typeName'
+      ),
       this.utils.getNonEditableColumnDef('territoryEntity.code', 'code'),
-      this.utils.getEditableColumnDef('taskGroupEntity.name', 'name'),
       this.utils.getStatusColumnDef(),
     ];
 
@@ -350,12 +357,6 @@ export class TerritoryFormComponent implements OnInit {
       this.utils.getStatusColumnDef(),
     ];
 
-    this.columnDefsTerritoriesDialog = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('territoryEntity.name', 'name'),
-    ];
-
     this.columnDefsCartographiesDialog = [
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
@@ -384,8 +385,12 @@ export class TerritoryFormComponent implements OnInit {
     this.columnDefsTerritoriesDialog = [
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('territoryEntity.code', 'code'),
       this.utils.getNonEditableColumnDef('territoryEntity.name', 'name'),
+      this.utils.getNonEditableColumnDef(
+        'territoryEntity.territoryType',
+        'typeName'
+      ),
+      this.utils.getNonEditableColumnDef('territoryEntity.code', 'code'),
     ];
   }
 
@@ -1162,15 +1167,22 @@ export class TerritoryFormComponent implements OnInit {
     });
   }
 
-  // ******** Permits Children Dialog  ******** //
-
-  // ******** Territory Member Of Dialog  ******** //
+  /**
+   * Retrieves all territories that can be members of a territory.
+   *
+   * @returns An observable that emits an array of `Territory` objects that can be members of a territory.
+   */
   getAllTerritoriesMemberOfDialog = () => {
     return this.territoryService.getAll().pipe(
       map((resp: any) => {
         let newTable: Territory[] = [];
         resp.forEach((element) => {
-          if (!element.typeTopType) {
+          if (
+            element.typeBottomType === false &&
+            element.typeId !== this.currentTerritoryType.id
+          ) {
+            console.log(element);
+            console.log(this.currentTerritoryType);
             newTable.push(element);
           }
         });
@@ -1183,7 +1195,6 @@ export class TerritoryFormComponent implements OnInit {
     const dialogRef = this.dialog.open(DialogGridComponent, {
       panelClass: 'gridDialogs',
     });
-    dialogRef.componentInstance.orderTable = ['name'];
     dialogRef.componentInstance.getAllsTable = [
       this.getAllTerritoriesMemberOfDialog,
     ];
@@ -1210,13 +1221,20 @@ export class TerritoryFormComponent implements OnInit {
     });
   }
 
-  // ******** Territory Members Dialog  ******** //
+  /**
+   * Retrieves all territories that can be parents of a territory.
+   *
+   * @returns An observable that emits an array of `Territory` objects that can be parents of a territory.
+   */
   getAllTerritoriesMembersDialog = () => {
     return this.territoryService.getAll().pipe(
       map((resp: any) => {
         let newTable: Territory[] = [];
         resp.forEach((element) => {
-          if (!element.typeBottomType) {
+          if (
+            element.typeTopType === false &&
+            element.typeId !== this.currentTerritoryType.id
+          ) {
             newTable.push(element);
           }
         });
@@ -1229,7 +1247,6 @@ export class TerritoryFormComponent implements OnInit {
     const dialogRef = this.dialog.open(DialogGridComponent, {
       panelClass: 'gridDialogs',
     });
-    dialogRef.componentInstance.orderTable = ['name'];
     dialogRef.componentInstance.getAllsTable = [
       this.getAllTerritoriesMembersDialog,
     ];
@@ -1475,35 +1492,35 @@ export class TerritoryFormComponent implements OnInit {
           });
         }
 
-        this.terrritoryObj = new Territory();
-        (this.terrritoryObj.id = this.territoryID),
-          (this.terrritoryObj.code = this.territoryForm.value.code),
-          (this.terrritoryObj.name = this.territoryForm.value.name),
-          (this.terrritoryObj.territorialAuthorityAddress =
+        this.territoryObj = new Territory();
+        (this.territoryObj.id = this.territoryID),
+          (this.territoryObj.code = this.territoryForm.value.code),
+          (this.territoryObj.name = this.territoryForm.value.name),
+          (this.territoryObj.territorialAuthorityAddress =
             this.territoryForm.value.territorialAuthorityAddress),
-          (this.terrritoryObj.territorialAuthorityLogo =
+          (this.territoryObj.territorialAuthorityLogo =
             this.territoryForm.value.territorialAuthorityLogo),
-          (this.terrritoryObj.type = territoryType),
-          (this.terrritoryObj.srs = this.territoryForm.value.srs);
-        // this.terrritoryObj.groupType= this.territoryGroups[0];
-        (this.terrritoryObj.extent = this.territoryForm.value.extent),
-          (this.terrritoryObj.note = this.territoryForm.value.note),
-          (this.terrritoryObj.blocked = this.territoryForm.value.blocked),
-          (this.terrritoryObj._links = this.territoryForm.value._links);
-        this.terrritoryObj.defaultZoomLevel =
+          (this.territoryObj.type = territoryType),
+          (this.territoryObj.srs = this.territoryForm.value.srs);
+        // this.territoryObj.groupType= this.territoryGroups[0];
+        (this.territoryObj.extent = this.territoryForm.value.extent),
+          (this.territoryObj.note = this.territoryForm.value.note),
+          (this.territoryObj.blocked = this.territoryForm.value.blocked),
+          (this.territoryObj._links = this.territoryForm.value._links);
+        this.territoryObj.defaultZoomLevel =
           this.territoryForm.value.defaultZoomLevel;
-        this.terrritoryObj.center = {
+        this.territoryObj.center = {
           x: this.territoryForm.value.centerPointX,
           y: this.territoryForm.value.centerPointY,
         };
 
         if (this.territoryID == -1) {
-          this.terrritoryObj.id = null;
+          this.territoryObj.id = null;
         } else {
-          this.terrritoryObj.id = this.territoryForm.value.id;
-          this.terrritoryObj.createdDate = this.territoryToEdit.createdDate;
+          this.territoryObj.id = this.territoryForm.value.id;
+          this.territoryObj.createdDate = this.territoryToEdit.createdDate;
         }
-        this.territoryService.save(this.terrritoryObj).subscribe(
+        this.territoryService.save(this.territoryObj).subscribe(
           async (resp) => {
             console.log(resp);
             this.territoryToEdit = resp;

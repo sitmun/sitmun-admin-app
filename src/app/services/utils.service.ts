@@ -258,12 +258,18 @@ export class UtilsService {
     return columnDef;
   }
 
+  /**
+   * Generates a non-editable ID column definition.
+   *
+   * @param customId - An optional identifier.
+   * @returns An object representing the column definition.
+   */
   getIdColumnDef(customId?) {
     let columnDef = {
       headerName: 'Id',
       field: customId ? customId : 'id',
       editable: false,
-      minWidth: 80,
+      cellClass: 'read-only-cell'
     };
 
     return columnDef;
@@ -413,11 +419,19 @@ export class UtilsService {
     return columnDef;
   }
 
+  /**
+   * Generates a non-editable column definition.
+   *
+   * @param alias - The alias used for translation of the header name.
+   * @param field - The field name for the column.
+   * @returns An object representing the column definition.
+   */
   getNonEditableColumnDef(alias, field) {
     let columnDef = {
       headerName: this.getTranslate(alias),
       field: field,
       editable: false,
+      cellClass: 'read-only-cell'
     };
 
     return columnDef;
