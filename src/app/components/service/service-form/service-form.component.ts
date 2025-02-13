@@ -2,7 +2,7 @@ import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { UntypedFormControl, UntypedFormGroup, Validators, FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ServiceService, CartographyService, Translation, TranslationService, Connection, 
+import { ServiceService, CartographyService, Translation, TranslationService, Connection,
   Cartography, ServiceParameterService, CapabilitiesService, CartographyStyleService, CartographyFilterService } from '../../../frontend-core/src/lib/public_api';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
@@ -186,7 +186,7 @@ export class ServiceFormComponent implements OnInit {
                 });
               }
 
-              
+
 
               this.dataLoaded = true;
             },
@@ -314,7 +314,7 @@ export class ServiceFormComponent implements OnInit {
         url += config.capabilitiesRequest.requestWithWMS;
       }
       this.capabilitiesService.getInfo(url).subscribe(result => {
-   
+
         if (result.success) {
           this.getCapabilitiesLayers = [];
           this.serviceCapabilitiesData = result.asJson;
@@ -500,14 +500,14 @@ export class ServiceFormComponent implements OnInit {
 
     var results = this.http.get(urlReq).pipe(
       map(data => data[`_embedded`][`service-parameters`]),
-      map(serviceParameters => 
+      map(serviceParameters =>
         serviceParameters.map(serviceParam => {
           let newType;
 
           newType = this.requestTypes.find(
             element => element.value == serviceParam["type"].toUpperCase()
           ).description;
-          
+
           return {
             ...serviceParam,
             type: newType
@@ -537,15 +537,15 @@ export class ServiceFormComponent implements OnInit {
           parameter._links = null;
           parameter.service = this.serviceToEdit
         } //If is new, you need the service link
-        promises.push(new Promise((resolve, reject) => { 
-          this.serviceParameterService.save(parameter,this.requestTypes).subscribe((resp) => { resolve(true) }) 
+        promises.push(new Promise((resolve, reject) => {
+          this.serviceParameterService.save(parameter,this.requestTypes).subscribe((resp) => { resolve(true) })
         }));
       }
       if (parameter.status === 'pendingDelete' && parameter._links && !parameter.newItem) {
-        promises.push(new Promise((resolve, reject) => { 
-          this.serviceParameterService.remove(parameter).subscribe((resp) => { resolve(true) }) 
+        promises.push(new Promise((resolve, reject) => {
+          this.serviceParameterService.remove(parameter).subscribe((resp) => { resolve(true) })
         }));
-        // parameterToDelete.push(parameter) 
+        // parameterToDelete.push(parameter)
       }
     });
 
@@ -554,7 +554,7 @@ export class ServiceFormComponent implements OnInit {
     // });
 
     // parameterToDelete.forEach(deletedElement => {
-    //   promises.push(new Promise((resolve, reject) => {  this.serviceParameterService.remove(deletedElement).subscribe((resp) => { resolve(true) }) }));    
+    //   promises.push(new Promise((resolve, reject) => {  this.serviceParameterService.remove(deletedElement).subscribe((resp) => { resolve(true) }) }));
     // });
 
     Promise.all(promises).then(() => {
@@ -640,7 +640,7 @@ export class ServiceFormComponent implements OnInit {
 
   }
 
-  private onDataCapabilitiesButtonClicked() {
+  onDataCapabilitiesButtonClicked() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
     dialogRef.componentInstance.title = this.utils.getTranslate("caution");
     dialogRef.componentInstance.message = this.utils.getTranslate("getCapabilitiesMessage");
@@ -681,7 +681,7 @@ export class ServiceFormComponent implements OnInit {
             if (styles && styles.length > 0) {
               this.setStyleByDefault(styles);
               styles.forEach(style => {
-               
+
                 style = this.styleTreactment(style, resp);
                 promisesStyles.push(new Promise((resolve, reject) => { this.cartographyStyleService.save(style).subscribe((resp) => { resolve(true) }) }));
               });
@@ -788,7 +788,7 @@ export class ServiceFormComponent implements OnInit {
           ).description;
 
           this.addElementsEventParameters.next([item])
-        
+
           this.parameterForm.reset();
 
         }
@@ -846,7 +846,7 @@ export class ServiceFormComponent implements OnInit {
 
       this.serviceService.save(this.serviceForm.value)
         .subscribe(async resp => {
-      
+
           this.serviceToEdit = resp;
           this.serviceID = resp.id;
           this.serviceForm.patchValue({

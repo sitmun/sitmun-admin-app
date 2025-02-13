@@ -1,15 +1,19 @@
+@use '@angular/material' as mat;
+@include mat.core();
+
 /* You can add global styles to this file, and also import other style files */
 
-@import "~@ag-grid-community/styles/ag-grid.css";
-@import "~@ag-grid-community/styles/ag-theme-balham.css";
-@import "~@ag-grid-community/styles/ag-theme-material.css";
+@import "@ag-grid-community/styles/ag-grid.css";
+@import "@ag-grid-community/styles/ag-theme-balham.css";
+@import "@ag-grid-community/styles/ag-theme-material.css";
 
-@import "../node_modules/@syncfusion/ej2-base/styles/material.css";
-@import "../node_modules/@syncfusion/ej2-buttons/styles/material.css";
-@import "../node_modules/@syncfusion/ej2-inputs/styles/material.css";
-@import "../node_modules/@syncfusion/ej2-popups/styles/material.css";
-@import "../node_modules/@syncfusion/ej2-lists/styles/material.css";
-@import "../node_modules/@syncfusion/ej2-splitbuttons/styles/material.css";
+
+// @import "../node_modules/@syncfusion/ej2-base/styles/material.css";
+// @import "../node_modules/@syncfusion/ej2-buttons/styles/material.css";
+// @import "../node_modules/@syncfusion/ej2-inputs/styles/material.css";
+// @import "../node_modules/@syncfusion/ej2-popups/styles/material.css";
+// @import "../node_modules/@syncfusion/ej2-lists/styles/material.css";
+// @import "../node_modules/@syncfusion/ej2-splitbuttons/styles/material.css";
 
 // CSS Reset, comment out if not required or using a different module
 
@@ -25,7 +29,6 @@
 // Include the common styles for Angular Material. We include this here so that you only
 // have to load a single css file for Angular Material in your app.
 // Be sure that you only ever include this mixin once!
-@include mat-core();
 
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
@@ -130,12 +133,12 @@ $md-thirdcolor: (
   ),
 );
 
-$sitmun-primary: mat-palette($md-primarycolor);
-$sitmun-accent: mat-palette($md-secondcolor);
-$sitmun-warn: mat-palette($md-thirdcolor);
+$sitmun-primary: mat.define-palette($md-primarycolor);
+$sitmun-accent: mat.define-palette($md-secondcolor);
+$sitmun-warn: mat.define-palette($md-thirdcolor);
 
 // Create the theme object (a Sass map containing all of the palettes).
-$sitmun-theme: mat-light-theme($sitmun-primary, $sitmun-accent, $sitmun-warn);
+$sitmun-theme: mat.define-light-theme($sitmun-primary, $sitmun-accent, $sitmun-warn);
 
 // Include theme styles for core and each component used in your app.
 // Alternatively, you can import and @include the theme mixins for each component
@@ -326,11 +329,11 @@ h2 {
 }
 
 
-.mat-mdc-outlined-button,
-.mat-mdc-unelevated-button {
-  padding: 0 10px !important;
-  margin-right: 10px !important;
-}
+//.mat-mdc-outlined-button,
+//.mat-mdc-unelevated-button {
+//  padding: 0 10px !important;
+//  margin-right: 10px !important;
+//}
 
 // .mat-icon{
 //     margin-right:5px;
@@ -354,37 +357,37 @@ h2 {
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version. */
-.mat-mdc-form-field-appearance-outline .mat-mdc-form-field-infix {
-  padding: 0.4em 0 0.4em 0 !important;
-  top: -0.25em;
-}
+//.mat-mdc-form-field-appearance-outline .mat-mdc-form-field-infix {
+//  padding: 0.4em 0 0.4em 0 !important;
+//  top: -0.25em;
+//}
 
 .mat-mdc-form-field-infix {
   min-height: inherit !important
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version. */
-.mat-mdc-form-field-appearance-outline .mat-mdc-select-arrow-wrapper {
-  transform: translateY(0%) !important;
-}
+//.mat-mdc-form-field-appearance-outline .mat-mdc-select-arrow-wrapper {
+//  transform: translateY(0%) !important;
+//}
 
 /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version. */
-.mat-mdc-form-field .mat-mdc-form-field-suffix {
-  top: 2px !important;
-  right: -5px;
-}
+//.mat-mdc-form-field .mat-mdc-form-field-suffix {
+//  top: 2px !important;
+//  right: -5px;
+//}
 
 /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version. */
-.mat-mdc-form-field .mat-mdc-form-field-suffix .search {
-  top: -2px !important;
-  right: 0px;
-}
+//.mat-mdc-form-field .mat-mdc-form-field-suffix .search {
+//  top: -2px !important;
+//  right: 0px;
+//}
 
 /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version. */
-.mat-mdc-form-field .mat-mdc-form-field-suffix .edit {
-  top: -3px !important;
-  right: 0px;
-}
+//.mat-mdc-form-field .mat-mdc-form-field-suffix .edit {
+//  top: -3px !important;
+//  right: 0px;
+//}
 
 .mdc-checkbox .mdc-checkbox__native-control:enabled:checked~.mdc-checkbox__background,
  .mdc-checkbox .mdc-checkbox__native-control:enabled:indeterminate~.mdc-checkbox__background,
@@ -432,7 +435,7 @@ h2 {
 .formLabelDialog {
   display: flex !important;
   font-weight: 500 !important;
-  margin-right: 5px !important; 
+  margin-right: 5px !important;
   margin-top: 7px !important;
   padding-left: 5px !important;
   width: 20% !important;
@@ -446,16 +449,16 @@ h2 {
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version. */
-.mat-mdc-list-base .mat-mdc-list-item .mat-mdc-list-item-content {
-  padding: 0 6px 0 15px !important;
-}
+//.mat-mdc-list-base .mat-mdc-list-item .mat-mdc-list-item-content {
+//  padding: 0 6px 0 15px !important;
+//}
 
 .mat-mdc-list-item .list-text {
   margin-right: auto;
 }
 
 .formLabel span {
-  color: gray o !important  ;
+  color: gray !important  ;
   font-weight: normal !important;
 }
 
@@ -547,18 +550,18 @@ h2 {
 
 
 /* TODO(mdc-migration): The following rule targets internal classes of chips that may no longer apply for the MDC version. */
-.mat-chip-list-wrapper .mat-mdc-standard-chip, .mat-mdc-chip-action-label {
-  margin: 2px !important;
-  font-size: 13px !important;
-}
+//.mat-chip-list-wrapper .mat-mdc-standard-chip, .mat-mdc-chip-action-label {
+//  margin: 2px !important;
+//  font-size: 13px !important;
+//}
 
 /* TODO(mdc-migration): The following rule targets internal classes of chips that may no longer apply for the MDC version. */
-.mat-mdc-standard-chip.mat-chip-with-trailing-icon {
-  padding-top: 11px !important;
-  padding-bottom: 11px !important;
-  padding-right: 8px !important;
-  padding-left: 12px !important;
-}
+//.mat-mdc-standard-chip.mat-chip-with-trailing-icon {
+//  padding-top: 11px !important;
+//  padding-bottom: 11px !important;
+//  padding-right: 8px !important;
+//  padding-left: 12px !important;
+//}
 
 .mat-mdc-standard-chip {
   min-height: unset !important;
@@ -599,19 +602,19 @@ h2 {
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of tabs that may no longer apply for the MDC version. */
-.mat-mdc-tab-body.mat-tab-body-active {
-  animation: fade 0.5s;
-}
+//.mat-mdc-tab-body.mat-tab-body-active {
+//  animation: fade 0.5s;
+//}
 
 .mat-mdc-tab-body {
   padding-top: 20px;
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of tabs that may no longer apply for the MDC version. */
-.mat-tab-body-content {
-  display: flex;
-  overflow: hidden !important;
-}
+//.mat-tab-body-content {
+// display: flex;
+//  overflow: hidden !important;
+//}
 
 @keyframes fade {
   0% {
@@ -624,24 +627,24 @@ h2 {
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of tabs that may no longer apply for the MDC version. */
-.mat-tab-label-active {
-  box-shadow: inset 0px -4px 0px 0px #bf0000;
-  opacity: 1 !important;
-}
+//.mat-tab-label-active {
+//  box-shadow: inset 0px -4px 0px 0px #bf0000;
+//  opacity: 1 !important;
+//}
 
 /* TODO(mdc-migration): The following rule targets internal classes of tabs that may no longer apply for the MDC version. */
-.mat-tab-label-active .mat-tab-label-content {
-  font-weight: 700;
-}
+//.mat-tab-label-active .mat-tab-label-content {
+//  font-weight: 700;
+//}
 
 .mat-ink-bar {
   height: 0px !important;
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of tabs that may no longer apply for the MDC version. */
-.mat-tab-label {
-  font-size: 16px !important;
-}
+//.mat-tab-label {
+//  font-size: 16px !important;
+//}
 
 
 .mat-datepicker-toggle {
@@ -759,14 +762,14 @@ h2 {
 
 //select styles
 /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version. */
-.mat-mdc-form-field.mat-focused .mat-form-field-ripple {
-  background-color: #bf0000 !important;
-}
+//.mat-mdc-form-field.mat-focused .mat-form-field-ripple {
+//  background-color: #bf0000 !important;
+//}
 
 /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version. */
-.mat-mdc-form-field.mat-focused .mat-form-field-label {
-  color: #bf0000 !important;
-}
+//.mat-mdc-form-field.mat-focused .mat-form-field-label {
+//  color: #bf0000 !important;
+//}
 
 .btnActive {
   color: #bf0000 !important;
@@ -907,4 +910,17 @@ h2 {
 
 .iconTranslate{
   cursor: pointer;
+}
+
+.sitmun-mat-card-margin {
+  margin-bottom: 10px;
+}
+
+.sitmun-mat-button-margin {
+  margin-bottom: 16px;
+}
+
+.sitmun-action-button {
+  background-color: #ff9300 !important;
+  color: white !important;
 }
