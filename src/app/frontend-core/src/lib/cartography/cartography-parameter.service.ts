@@ -24,12 +24,12 @@ export class CartographyParameterService extends RestService<CartographyParamete
   
   /** save service parameter*/
   save(item: CartographyParameter): Observable<any> {
-    let result: Observable<Object>;
+    let result: Observable<object>;
     if (item._links!=null) {
       
       
       if (item.cartography !=null){
-          let cartography =  item.cartography;
+          const cartography =  item.cartography;
           delete item.cartography;
           item.substituteRelation('cartography',cartography).subscribe(result => {            
           

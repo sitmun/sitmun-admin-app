@@ -121,14 +121,14 @@ export class TaskFormComponent implements OnInit {
   }
 
   async setDynamicSelectorValue(queryParams, data, mapKey){
-    let params2: HalParam[] = [];
-    let keys= Object.keys(queryParams);
+    const params2: HalParam[] = [];
+    const keys= Object.keys(queryParams);
     keys.forEach(key => {
-      let param: HalParam = { key: key, value: queryParams[key] }
+      const param: HalParam = { key: key, value: queryParams[key] }
       params2.push(param);
     });
 
-    let query: HalOptions = { params: params2 };
+    const query: HalOptions = { params: params2 };
     let result;
     if(data=="codelist-values"){
       result = await this.codeListService.getAll(query).toPromise();
@@ -171,7 +171,7 @@ export class TaskFormComponent implements OnInit {
 
     if(this.wfsServicesNeeded && this.wfsServices.length < 1){
       await this.serviceService.getAll().map((resp) => {
-        let wfsServices = [];
+        const wfsServices = [];
         resp.forEach(service => {
           if(service.type==='WFS') {wfsServices.push(service)}
         });  
@@ -181,7 +181,7 @@ export class TaskFormComponent implements OnInit {
 
     if(this.fmeServicesNeeded  && this.fmeServices.length < 1){
       await this.serviceService.getAll().map((resp) => {
-        let fmeServices = [];
+        const fmeServices = [];
         resp.forEach(service => {
           if(service.type==='FME') {fmeServices.push(service)}
         });  
@@ -191,11 +191,11 @@ export class TaskFormComponent implements OnInit {
     }
 
     if(this.locatorsNeeded && this.locators.length < 1){
-      let taskTypeID=config.tasksTypes['report'];
-      let params2:HalParam[]=[];
-      let param:HalParam={key:'type.id', value:taskTypeID}
+      const taskTypeID=config.tasksTypes['report'];
+      const params2:HalParam[]=[];
+      const param:HalParam={key:'type.id', value:taskTypeID}
       params2.push(param);
-      let query:HalOptions={ params:params2};
+      const query:HalOptions={ params:params2};
       tmpTable = await this.taskService.getAll(query,undefined,"tasks").toPromise()
       this.locators.push(...tmpTable);
     }
@@ -211,8 +211,8 @@ export class TaskFormComponent implements OnInit {
 
     if(this.properties){
 
-      let keys= Object.keys(this.properties.form.elements);
-      let values= Object.values(this.properties.form.elements);
+      const keys= Object.keys(this.properties.form.elements);
+      const values= Object.values(this.properties.form.elements);
       for(let i=0; i< keys.length; i++){
         this.formElements.push({fieldName:keys[i], values:values[i]})
         if(values[i][`control`] === "selector"){
@@ -241,25 +241,25 @@ export class TaskFormComponent implements OnInit {
           getAll= () => this.getDataTableByLink(table.link)
         }
         this.getAlls.push(getAll)  
-        let addElementsEvent: Subject<any[]> = new Subject<any[]>();
-        let getAllElements: Subject<boolean> = new Subject <boolean>();
-        let refreshElements: Subject<boolean> = new Subject <boolean>();
+        const addElementsEvent: Subject<any[]> = new Subject<any[]>();
+        const getAllElements: Subject<boolean> = new Subject <boolean>();
+        const refreshElements: Subject<boolean> = new Subject <boolean>();
         this.addelements.push(addElementsEvent);
         this.getAllElementsEvent.push(getAllElements)
         this.refreshElements.push(refreshElements)
         this.sqlElementModification.push({modifications: false, toSave: false, element: null, mainFormElement:null, tableElements: []});
-        let columnDefs= this.generateColumnDefs(table.columns,table.link,true,true, true);
+        const columnDefs= this.generateColumnDefs(table.columns,table.link,true,true, true);
         this.columnDefsTables.push(columnDefs);
 
         if(table.controlAdd.control =="formPopup")
         {
           let formPopup;
-          let keysFormPopup= Object.keys(table.controlAdd.elements);
+          const keysFormPopup= Object.keys(table.controlAdd.elements);
           this.keysForms.push(keysFormPopup);
-          let valuesFormPopup= Object.values(table.controlAdd.elements);
+          const valuesFormPopup= Object.values(table.controlAdd.elements);
           this.valuesForms.push(valuesFormPopup);
 
-          let currentFormElements = [];
+          const currentFormElements = [];
           let currentlySqlElement = null;
           for(let i=0; i< keysFormPopup.length; i++){
             currentFormElements.push({fieldName:keysFormPopup[i], values:valuesFormPopup[i]})
@@ -320,12 +320,12 @@ export class TaskFormComponent implements OnInit {
   }
 
   duplicate(data, index){
-    let elementsToDuplicate= this.utils.duplicateParameter(data,'name', true, true);
+    const elementsToDuplicate= this.utils.duplicateParameter(data,'name', true, true);
     this.addelements[index].next(elementsToDuplicate)
   } 
 
   getAllRowsTable(event, index, linkName ){
-    let saveParameters= event.event == "saveParameters";
+    const saveParameters= event.event == "saveParameters";
 
     if(event.event == "saveParameters" || event.event == "addParameter"){
       this.manageParameters(event.data, index, linkName, saveParameters);
@@ -338,11 +338,11 @@ export class TaskFormComponent implements OnInit {
   }
 
   manageParameters(data: any[], index, linkName, saveParameters?){
-    let sqlElement = this.sqlElementModification[index];
+    const sqlElement = this.sqlElementModification[index];
     sqlElement.tableElements=[];
-    let toSave: boolean = sqlElement.toSave;
+    const toSave: boolean = sqlElement.toSave;
     if(sqlElement.modifications || sqlElement.toSave || saveParameters){
-      let result = [];
+      const result = [];
       for (const element of data) {
         if(element.status!= "pendingDelete"){
           result.push(element[sqlElement.element])
@@ -399,7 +399,7 @@ export class TaskFormComponent implements OnInit {
 
   putParametersOnProperties(data){
     if(data.length>0){
-      let newData = [];
+      const newData = [];
       data.forEach(element => {
         if(element.status!= 'pendingDelete'){
           delete element.status;
@@ -423,13 +423,13 @@ export class TaskFormComponent implements OnInit {
   }
 
   saveWithUri(data: any[], index, linkName ){
-    let dataToSave = [];
+    const dataToSave = [];
     data.forEach(element => {
       if(element.status != 'pendingDelete'){
         dataToSave.push(element._links.self.href);
       }
     });
-    let url = this.taskForm.get('_links').value[linkName].href.split('{', 1)[0];
+    const url = this.taskForm.get('_links').value[linkName].href.split('{', 1)[0];
     this.utils.updateUriList(url,dataToSave, this.refreshElements[index])
   }
 
@@ -442,10 +442,10 @@ export class TaskFormComponent implements OnInit {
         }
       if (territory.status === 'pendingCreation') {
         territory.task=this.taskToEdit;
-        let index = data.findIndex(element => element.territoryId === territory.id && !element.newItem)
+        const index = data.findIndex(element => element.territoryId === territory.id && !element.newItem)
         if (index === -1) {
           territory.newItem = false;
-          let taskToCreate: TaskAvailability = new TaskAvailability();
+          const taskToCreate: TaskAvailability = new TaskAvailability();
           taskToCreate.task = this.taskToEdit;
           taskToCreate.territory = territory;
           promises.push(new Promise((resolve, reject) => { this.taskAvailabilityService.save(taskToCreate).subscribe((resp) => { resolve(true) }) }));
@@ -458,9 +458,9 @@ export class TaskFormComponent implements OnInit {
   }
 
   restoreElementsSqlSelector(data:any[], index){
-    let sqlElement = this.sqlElementModification[index];
+    const sqlElement = this.sqlElementModification[index];
     data.forEach(element => {
-      let elementIndex=sqlElement.tableElements.findIndex(tableElement => tableElement === element[sqlElement.element])
+      const elementIndex=sqlElement.tableElements.findIndex(tableElement => tableElement === element[sqlElement.element])
       if(elementIndex != -1){
         sqlElement.tableElements.splice(elementIndex,1)
       }
@@ -468,7 +468,7 @@ export class TaskFormComponent implements OnInit {
   }
 
   removeElementsSqlSelector(data:any[], index){
-    let sqlElement = this.sqlElementModification[index];
+    const sqlElement = this.sqlElementModification[index];
     data.forEach(element => {
       sqlElement.tableElements.push(element[sqlElement.element])
     });
@@ -476,18 +476,18 @@ export class TaskFormComponent implements OnInit {
 
 
   initializeForm(keys: Array<any>, values: Array<any>, popupForm?:boolean){
-    let form=new UntypedFormGroup({})
+    const form=new UntypedFormGroup({})
     let hasEnumBySQLElement = false;
     for(let i=0; i< keys.length; i++){
       const key= keys[i];
       let value = null;
       if(values[i].control==="selector" && (this.taskID== -1 || popupForm) ){
         if(values[i].selector.queryParams){
-          let result = this.getDataDynamicSelectors(values[i].selector.data, values[i].label);
+          const result = this.getDataDynamicSelectors(values[i].selector.data, values[i].label);
           value = (result && result.length>0)?result[0][values[i].selector.value]:null;
         }
         else{
-          let result = this.getDataFixedSelectors(values[i].selector.data);
+          const result = this.getDataFixedSelectors(values[i].selector.data);
           value=(result && result.length>0)?result[0][values[i].selector.value]:null;
         } //[values[i].selector.value]
       }
@@ -516,17 +516,17 @@ export class TaskFormComponent implements OnInit {
   }
 
   async initializeSelectorsPopups(){
-    let formKeys=Object.keys(this.properties.form.elements)
+    const formKeys=Object.keys(this.properties.form.elements)
     for (const key of formKeys) {
-      let keySpecification = this.properties.form.elements[key]
+      const keySpecification = this.properties.form.elements[key]
       if(keySpecification.control==="selectorPopup" || (keySpecification.control==="selector" && this.taskToEdit._links[key])){
-        var urlReq = `${this.taskToEdit._links[key].href}`
+        let urlReq = `${this.taskToEdit._links[key].href}`
         if (this.taskToEdit._links[key].templated) {
-          var url = new URL(urlReq.split("{")[0]);
+          const url = new URL(urlReq.split("{")[0]);
           url.searchParams.append("projection", "view")
           urlReq = url.toString();
         }
-        let value= await (this.http.get(urlReq)).toPromise();
+        const value= await (this.http.get(urlReq)).toPromise();
         // let value= await (this.http.get(urlReq)).pipe(map(data => data['_embedded'][key])).toPromise();
         if(value){
           if(keySpecification.control==="selectorPopup"){
@@ -546,7 +546,7 @@ export class TaskFormComponent implements OnInit {
   }
 
   async setTaskValues(){
-    let taskKeys=Object.keys( this.taskToEdit);
+    const taskKeys=Object.keys( this.taskToEdit);
     for (const key of taskKeys) {
       let keySpecification = this.properties.form.elements[key]
       if(!keySpecification){
@@ -561,7 +561,7 @@ export class TaskFormComponent implements OnInit {
         }
       }
       else{
-        let value=this.taskToEdit[key]
+        const value=this.taskToEdit[key]
         this.taskForm.get(key).setValue(value)
       }
     };
@@ -572,7 +572,7 @@ export class TaskFormComponent implements OnInit {
   }
 
   private async loadProperties(properties){
-    let keys= Object.keys(properties);
+    const keys= Object.keys(properties);
 
     keys.forEach(key => {
 
@@ -642,7 +642,7 @@ export class TaskFormComponent implements OnInit {
   }
 
   parseLinksSavedTask(){
-    let linksKeys = Object.keys(this.savedTask._links);
+    const linksKeys = Object.keys(this.savedTask._links);
     linksKeys.forEach(link => {
       if(this.savedTask._links[link].templated){
         this.savedTask._links[link].href=this.savedTask._links[link].href.split("{")[0]
@@ -654,7 +654,7 @@ export class TaskFormComponent implements OnInit {
   onSaveButtonClicked(){
     if(this.taskForm.valid)
     {
-      let formkeys= Object.keys(this.taskForm.value);
+      const formkeys= Object.keys(this.taskForm.value);
       formkeys.forEach(key => {
         this.savedTask[key] = this.taskForm.get(key).value;
       });
@@ -663,13 +663,13 @@ export class TaskFormComponent implements OnInit {
       if(this.savedTask._links){
         this.parseLinksSavedTask();
       }
-      let keysTextAreaNotNull = this.getControlsModified("textArea");
+      const keysTextAreaNotNull = this.getControlsModified("textArea");
       if(keysTextAreaNotNull.length>0){
-        let markResult = this.markIndexSqlElementToBeSaved(this.properties.tables, keysTextAreaNotNull)
+        const markResult = this.markIndexSqlElementToBeSaved(this.properties.tables, keysTextAreaNotNull)
   
 
         markResult.forEach(tableIndex => {
-          let event = tableIndex == this.indexParameter?'saveParameters':'save'
+          const event = tableIndex == this.indexParameter?'saveParameters':'save'
           this.getAllElementsEvent[tableIndex].next(event)
         });
       }
@@ -689,9 +689,9 @@ export class TaskFormComponent implements OnInit {
   }
 
   getControlsModified(control){
-    let keys= Object.keys(this.properties.form.elements);
+    const keys= Object.keys(this.properties.form.elements);
     let i = -1;
-    let keysNotNull = [];
+    const keysNotNull = [];
     for (const key of keys) {
       i++;
       if( this.properties.form.elements[key].control  && Array.isArray(this.properties.form.elements[key].control)){
@@ -709,10 +709,10 @@ export class TaskFormComponent implements OnInit {
   }
 
   markIndexSqlElementToBeSaved(tables, keysNotNull){
-    let tablesMarked = [];
+    const tablesMarked = [];
     tables.forEach((table, index) => {
       if(table.controlAdd.control=="formPopup"){
-        let keys= Object.keys(table.controlAdd.elements)
+        const keys= Object.keys(table.controlAdd.elements)
         for(let i =0; i< keys.length; i++){
           if(table.controlAdd.elements[keys[i]].control=="enumBySQLElement"){
             if(keysNotNull.includes(table.controlAdd.elements[keys[i]].element))
@@ -765,14 +765,14 @@ export class TaskFormComponent implements OnInit {
   }
 
   savedTaskTreatment(taskSaved){
-    let keys= Object.keys(taskSaved)
+    const keys= Object.keys(taskSaved)
 
     keys.forEach(key => {
-      let keySpecification = this.properties.form.elements[key]
+      const keySpecification = this.properties.form.elements[key]
       if(keySpecification){
 
         if(keySpecification.control == "selector"){
-          let data=this.getDataSelector(keySpecification.selector.data, keySpecification.selector.queryParams, keySpecification.label)
+          const data=this.getDataSelector(keySpecification.selector.data, keySpecification.selector.queryParams, keySpecification.label)
           taskSaved[key]=data.find(element => element[keySpecification.selector.value] == taskSaved[key])
         }
 
@@ -806,9 +806,9 @@ export class TaskFormComponent implements OnInit {
     
     }
     else if(this.taskTypeName == config.tasksTypesNames.extraction || this.taskTypeName == config.tasksTypesNames.report  ){
-      let key =this.taskTypeName == config.tasksTypesNames.extraction ?'layers':'layer'
+      const key =this.taskTypeName == config.tasksTypesNames.extraction ?'layers':'layer'
       if(!Array.isArray(this.savedTask[key])){
-        let layers = this.savedTask[key]?this.savedTask[key].split(','):null;
+        const layers = this.savedTask[key]?this.savedTask[key].split(','):null;
         this.savedTask.properties={};
         this.savedTask.properties[key]=layers;
       }
@@ -820,14 +820,14 @@ export class TaskFormComponent implements OnInit {
 
   getDataSQLElement(value, pattern, index){
     if(!this.taskForm.get(value).value) { return [] };
-    let regex=new RegExp("[${]+[\\w\\d]+[}]", "g")
-    let sentence: string=this.taskForm.get(value).value;
-    let coincidences=sentence.match(regex)
-    let coincidencesNotUsed= [];
-    let tableWithUsedElements= [...this.sqlElementModification[index].tableElements]
+    const regex=new RegExp("[${]+[\\w\\d]+[}]", "g")
+    const sentence: string=this.taskForm.get(value).value;
+    const coincidences=sentence.match(regex)
+    const coincidencesNotUsed= [];
+    const tableWithUsedElements= [...this.sqlElementModification[index].tableElements]
     if(coincidences && coincidences.length>0){
       for (const coincidence of coincidences) {
-        let indexElement= tableWithUsedElements.findIndex(element => element === coincidence)
+        const indexElement= tableWithUsedElements.findIndex(element => element === coincidence)
         if(indexElement < 0) { coincidencesNotUsed.push(coincidence)  }
         else{
           tableWithUsedElements.splice(indexElement,1)
@@ -853,7 +853,7 @@ export class TaskFormComponent implements OnInit {
       dataToReturn = this.getDataFixedSelectors(data);
     }
 
-    let fieldToSort = config.taskSelectorSortField[data];
+    const fieldToSort = config.taskSelectorSortField[data];
     if(fieldToSort){
       dataToReturn.sort((a,b) => a[fieldToSort].localeCompare(b[fieldToSort]));
     }
@@ -893,8 +893,8 @@ export class TaskFormComponent implements OnInit {
 
   openPopupDialog(field, data, columns, label, checkbox, status, singleSelection, index, currentData, ignoreCurrentData? ){
 
-    let getAllfunction = this.getDataTable(data)
-    let orderField = this.getOrderField(columns,data,false);
+    const getAllfunction = this.getDataTable(data)
+    const orderField = this.getOrderField(columns,data,false);
     const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
     dialogRef.componentInstance.getAllsTable = [() => getAllfunction];
     dialogRef.componentInstance.singleSelectionTable = [singleSelection];
@@ -972,9 +972,9 @@ export class TaskFormComponent implements OnInit {
     }
 
 
-    var urlReq = `${this.taskToEdit._links[link].href}`
+    let urlReq = `${this.taskToEdit._links[link].href}`
     if (this.taskToEdit._links[link].templated) {
-      var url = new URL(urlReq.split("{")[0]);
+      const url = new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection", "view")
       urlReq = url.toString();
     }
@@ -989,7 +989,7 @@ export class TaskFormComponent implements OnInit {
     field = (notDialog)?config.taskTablesSortField[link]:config.taskTablesDialogsSortField[link];
     if(!field){
       if(!notDialog){
-        let keys = Object.keys(columns);
+        const keys = Object.keys(columns);
         for(let i=0; i< keys.length; i++){
   
           if(keys[i]== 'order'){
@@ -1018,11 +1018,11 @@ export class TaskFormComponent implements OnInit {
 
   generateColumnDefs(columns,link, checkbox, status, notDialog?){
 
-    let columnResults = [];
+    const columnResults = [];
     if(checkbox) {columnResults.push(this.utils.getSelCheckboxColumnDef())}
 
-    let keys= Object.keys(columns);
-    let values= Object.values(columns);
+    const keys= Object.keys(columns);
+    const values= Object.values(columns);
     let hasOrderField = false;
     let hasNameField = false;
     for(let i=0; i< keys.length; i++){

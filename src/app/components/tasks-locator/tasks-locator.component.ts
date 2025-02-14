@@ -30,7 +30,7 @@ export class TasksLocatorComponent implements OnInit {
 
   ngOnInit()  {
 
-    var columnEditBtn=this.utils.getEditBtnColumnDef();
+    const columnEditBtn=this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
@@ -56,7 +56,7 @@ export class TasksLocatorComponent implements OnInit {
     if (this.gridModified) {
 
 
-      let result = await this.utils.showNavigationOutDialog().toPromise();
+      const result = await this.utils.showNavigationOutDialog().toPromise();
       if(!result || result.event!=='Accept') { return false }
       else if(result.event ==='Accept') {return true;}
       else{
@@ -72,11 +72,11 @@ export class TasksLocatorComponent implements OnInit {
   
 
   getAllTasksLocator = () => {
-    let taskTypeID=config.tasksTypes['locator'];
-    let params2:HalParam[]=[];
-    let param:HalParam={key:'type.id', value:taskTypeID}
+    const taskTypeID=config.tasksTypes['locator'];
+    const params2:HalParam[]=[];
+    const param:HalParam={key:'type.id', value:taskTypeID}
     params2.push(param);
-    let query:HalOptions={ params:params2};
+    const query:HalOptions={ params:params2};
     return this.taskService.getAll(query,undefined,"tasks");
   }
 

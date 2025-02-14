@@ -20,14 +20,14 @@ export class AccountService extends RestService<User> {
 
   /** get logged in user account*/
   get(): Observable<any> {
-    let result: Observable<Object>;
+    let result: Observable<object>;
     result = this.http.get(this.resourceService.getResourceUrl(this.ACCOUNT_API));
     return result;
   }
   
   /** save account*/
   save(item: any): Observable<any> {
-    let result: Observable<Object>;
+    let result: Observable<object>;
     result = this.http.post(this.resourceService.getResourceUrl(this.ACCOUNT_API) , item);
 
     return result;
@@ -35,7 +35,7 @@ export class AccountService extends RestService<User> {
 
   /** change logged in user account*/  
   changePassword(item: any): Observable<any> {
-    let result: Observable<Object>;
+    let result: Observable<object>;
     result = this.http.post(this.resourceService.getResourceUrl(this.ACCOUNT_API+"/change-password") , item);
     return result;
   }

@@ -7,7 +7,7 @@ import { config } from 'src/config';
 import { Observable, Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
- 
+
 @Component({
   selector: 'app-trees',
   templateUrl: './trees.component.html',
@@ -30,7 +30,7 @@ export class TreesComponent implements OnInit {
 
   ngOnInit() {
 
-    var columnEditBtn=this.utils.getEditBtnColumnDef();
+    const columnEditBtn=this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
@@ -50,7 +50,7 @@ export class TreesComponent implements OnInit {
     if (this.gridModified) {
 
 
-      let result = await this.utils.showNavigationOutDialog().toPromise();
+      const result = await this.utils.showNavigationOutDialog().toPromise();
       if(!result || result.event!=='Accept') { return false }
       else if(result.event ==='Accept') {return true;}
       else{
@@ -58,7 +58,7 @@ export class TreesComponent implements OnInit {
       }
     }
     else return true
-  }	
+  }
 
   setGridModifiedValue(value){
     this.gridModified=value;
@@ -77,7 +77,7 @@ export class TreesComponent implements OnInit {
   applyChanges(data: Tree[]) {
     const promises: Promise<any>[] = [];
     data.forEach(tree => {
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.treeService.update(tree).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
+      promises.push(new Promise((resolve, reject) => { this.treeService.update(tree).subscribe((resp) =>{resolve(true)})}));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);
       });
@@ -95,7 +95,7 @@ export class TreesComponent implements OnInit {
     dialogRef.componentInstance.message=this.utils.getTranslate("removeMessage");
     dialogRef.afterClosed().subscribe(result => {
       if(result){
-        if(result.event==='Accept') {  
+        if(result.event==='Accept') {
           const promises: Promise<any>[] = [];
           data.forEach(tree => {
             promises.push(new Promise((resolve, reject) => {​​​​​​​ this.treeService.delete(tree).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));

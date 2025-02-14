@@ -25,7 +25,7 @@ export class ConnectionService extends RestService<Connection> {
   
   /** save connection*/
   save(item: Connection): Observable<any> {
-    let result: Observable<Object>;
+    let result: Observable<object>;
     if (item._links!=null) {
       
       result = this.http.put(item._links.self.href, item);
@@ -36,7 +36,7 @@ export class ConnectionService extends RestService<Connection> {
   }
 
   testConnection(item:any): Observable<any> {
-    let result: Observable<Object>;
+    let result: Observable<object>;
     result=this.http.post(this.resourceService.getResourceUrl(this.CONNECTION_API)+"/test" , item);
     return result;
   }

@@ -14,7 +14,7 @@ export class TaskParameter extends Resource {
   public value: string;
   
   /** order*/  
-  public order: Number;
+  public order: number;
   
   /** task*/  
   public task:Task;

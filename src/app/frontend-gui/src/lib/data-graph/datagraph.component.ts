@@ -49,10 +49,10 @@ export class DatagraphComponent implements OnInit {
   }
 
   createBarChart() {
-    let element = this.chartContainer.nativeElement;
+    const element = this.chartContainer.nativeElement;
     this.width = element.offsetWidth - this.margin.left - this.margin.right;
     this.height = element.offsetHeight - this.margin.top - this.margin.bottom;
-    let svg = d3.select(element).append('svg')
+    const svg = d3.select(element).append('svg')
       .attr('width', '100%')
       .attr("height", '100%')
 
@@ -69,8 +69,8 @@ export class DatagraphComponent implements OnInit {
   
 
     // define X & Y domains
-    let xDomain = this.data.map(d => d.index);
-    let yDomain = [0, (d3.max(this.data, d => d.value))];
+    const xDomain = this.data.map(d => d.index);
+    const yDomain = [0, (d3.max(this.data, d => d.value))];
 
     // create scales
     this.xScale = d3.scaleBand().padding(0.3).domain(xDomain).rangeRound([0, this.width]);
@@ -120,7 +120,7 @@ export class DatagraphComponent implements OnInit {
     this.xAxis.transition().call(d3.axisBottom(this.xScale));
     this.yAxis.transition().call(d3.axisLeft(this.yScale));
 
-    let update = this.chart.selectAll('.bar')
+    const update = this.chart.selectAll('.bar')
       .data(this.data);
 
     // remove exiting bars

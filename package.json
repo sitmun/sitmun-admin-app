@@ -6,7 +6,7 @@
     "start": "ng serve",
     "build": "ng build",
     "test": "ng test",
-    "lint": "ng lint",
+    "lint": "eslint",
     "e2e": "ng e2e",
     "sonar": "sonar-scanner"
   },
@@ -46,15 +46,18 @@
     "zone.js": "~0.13.3"
   },
   "devDependencies": {
-    "@ag-grid-community/styles": "31.0.0",
-    "@ag-grid-community/client-side-row-model": "31.0.0",
-    "@ag-grid-community/infinite-row-model": "31.0.0",
-    "@ag-grid-community/csv-export": "31.0.0",
     "@ag-grid-community/angular": "31.0.0",
+    "@ag-grid-community/client-side-row-model": "31.0.0",
     "@ag-grid-community/core": "31.0.0",
+    "@ag-grid-community/csv-export": "31.0.0",
+    "@ag-grid-community/infinite-row-model": "31.0.0",
+    "@ag-grid-community/styles": "31.0.0",
     "@angular-devkit/build-angular": "^16.2.14",
     "@angular/cli": "^16.2.14",
     "@angular/compiler-cli": "^16.2.12",
+    "@eslint/compat": "^1.2.6",
+    "@eslint/eslintrc": "^3.2.0",
+    "@eslint/js": "^9.20.0",
     "@igniteui/angular-schematics": "~10.2.620",
     "@types/hammerjs": "^2.0.36",
     "@types/jasmine": "~3.6.0",
@@ -62,6 +65,8 @@
     "@types/node": "^12.11.1",
     "@types/xml2js": "^0.4.8",
     "codelyzer": "^6.0.0",
+    "eslint": "^9.20.1",
+    "globals": "^15.15.0",
     "jasmine-core": "~3.8.0",
     "jasmine-spec-reporter": "~5.0.0",
     "karma": "~6.4.3",
@@ -73,7 +78,7 @@
     "protractor": "~7.0.0",
     "sonar-scanner": "^3.1.0",
     "ts-node": "~8.3.0",
-    "tslint": "~6.1.0",
-    "typescript": "5.1.6"
+    "typescript": "5.1.6",
+    "typescript-eslint": "^8.24.0"
   }
 }

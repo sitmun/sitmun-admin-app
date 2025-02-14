@@ -32,7 +32,7 @@ export class LayersComponent implements OnInit {
 
   ngOnInit() {
 
-    var columnEditBtn=this.utils.getEditBtnColumnDef();
+    const columnEditBtn=this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
@@ -56,7 +56,7 @@ export class LayersComponent implements OnInit {
     if (this.gridModified) {
 
 
-      let result = await this.utils.showNavigationOutDialog().toPromise();
+      const result = await this.utils.showNavigationOutDialog().toPromise();
       if(!result || result.event!=='Accept') { return false }
       else if(result.event ==='Accept') {return true;}
       else{
@@ -64,7 +64,7 @@ export class LayersComponent implements OnInit {
       }
     }
     else return true
-  }	
+  }
 
   setGridModifiedValue(value){
     this.gridModified=value;
@@ -82,7 +82,7 @@ export class LayersComponent implements OnInit {
   applyChanges(data: Cartography[]) {
     const promises: Promise<any>[] = [];
     data.forEach(cartography => {
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.cartographyService.update(cartography).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
+      promises.push(new Promise((resolve, reject) => { this.cartographyService.update(cartography).subscribe((resp) =>{resolve(true)})}));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);
       });
@@ -100,7 +100,7 @@ export class LayersComponent implements OnInit {
     dialogRef.componentInstance.message=this.utils.getTranslate("removeMessage");
     dialogRef.afterClosed().subscribe(result => {
       if(result){
-        if(result.event==='Accept') {  
+        if(result.event==='Accept') {
           const promises: Promise<any>[] = [];
           data.forEach(cartography => {
             promises.push(new Promise((resolve, reject) => {​​​​​​​ this.cartographyService.delete(cartography).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
@@ -108,7 +108,7 @@ export class LayersComponent implements OnInit {
               this.dataUpdatedEvent.next(true);
             });
           });
-      
+
        }
       }
     });

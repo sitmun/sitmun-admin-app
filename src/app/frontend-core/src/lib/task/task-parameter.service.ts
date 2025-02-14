@@ -25,7 +25,7 @@ export class TaskParameterService extends RestService<TaskParameter> {
   
   /** save task parameter*/
   save(item: TaskParameter): Observable<any> {
-    let result: Observable<Object>;
+    let result: Observable<object>;
     if (item._links!=null) {
       result = this.http.put(item._links.self.href, item);
       if (item.task !=null){

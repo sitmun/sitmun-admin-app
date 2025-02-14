@@ -24,7 +24,7 @@ export class ServiceParameterService extends RestService<ServiceParameter> {
   
   /** save service parameter*/
   save(item: ServiceParameter, requestTypes: any[]): Observable<any> {
-    let result: Observable<Object>;
+    let result: Observable<object>;
 
     item.type = requestTypes.find(
       element => element.description == item.type
@@ -34,7 +34,7 @@ export class ServiceParameterService extends RestService<ServiceParameter> {
       
       
       if (item.service !=null){
-          let service =  item.service;
+          const service =  item.service;
           delete item.service;
           item.substituteRelation('service',service).subscribe(result => {            
           

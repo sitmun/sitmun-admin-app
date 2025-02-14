@@ -25,7 +25,7 @@ export class TaskUIService extends RestService<TaskUI> {
   
   /** save task UI*/
   save(item: TaskUI): Observable<any> {
-    let result: Observable<Object>;
+    let result: Observable<object>;
     if (item._links!=null) {      
       result = this.http.put(item._links.self.href, item);
     } else {

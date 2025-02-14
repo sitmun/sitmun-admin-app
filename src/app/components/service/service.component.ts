@@ -30,7 +30,7 @@ export class ServiceComponent implements OnInit {
 
   ngOnInit() {
 
-    var columnEditBtn=this.utils.getEditBtnColumnDef();
+    const columnEditBtn=this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
@@ -54,7 +54,7 @@ export class ServiceComponent implements OnInit {
     if (this.gridModified) {
 
 
-      let result = await this.utils.showNavigationOutDialog().toPromise();
+      const result = await this.utils.showNavigationOutDialog().toPromise();
       if(!result || result.event!=='Accept') { return false }
       else if(result.event ==='Accept') {return true;}
       else{
@@ -62,7 +62,7 @@ export class ServiceComponent implements OnInit {
       }
     }
     else return true
-  }	
+  }
 
   setGridModifiedValue(value){
     this.gridModified=value;
@@ -81,26 +81,26 @@ export class ServiceComponent implements OnInit {
   applyChanges(data: Service[]) {
     const promises: Promise<any>[] = [];
     data.forEach(service => {
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.serviceService.update(service).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
+      promises.push(new Promise((resolve, reject) => { this.serviceService.update(service).subscribe((resp) =>{resolve(true)})}));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);
       });
     });
   }
-  
+
   add(data: Service[]) {
     this.router.navigate(['service', -1, 'serviceForm', data[0].id]);
   }
 
   removeData(data: Service[]) {
 
-    
+
     const dialogRef = this.dialog.open(DialogMessageComponent);
     dialogRef.componentInstance.title=this.utils.getTranslate("caution");
     dialogRef.componentInstance.message=this.utils.getTranslate("removeMessage");
     dialogRef.afterClosed().subscribe(result => {
       if(result){
-        if(result.event==='Accept') {  
+        if(result.event==='Accept') {
           const promises: Promise<any>[] = [];
           data.forEach(service => {
             promises.push(new Promise((resolve, reject) => {​​​​​​​ this.serviceService.delete(service).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));

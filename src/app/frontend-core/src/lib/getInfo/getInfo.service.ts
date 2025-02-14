@@ -20,7 +20,7 @@ export class GetInfoService extends RestService<Info>  {
 
     /** save service*/
     getInfo(url: string): Observable<any> {
-      let result: Observable<Object>;
+      let result: Observable<object>;
       if(url){
         const headerDict = {
           'Charset': 'UTF-8'

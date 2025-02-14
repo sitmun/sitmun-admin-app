@@ -26,7 +26,7 @@ export class CartographyService extends RestService<Cartography> {
 
   /** save cartography*/
   save(item: Cartography): Observable<any> {
-    let result: Observable<Object>;
+    let result: Observable<object>;
 
     let cartographyConnection:any={};
     cartographyConnection._links = {};

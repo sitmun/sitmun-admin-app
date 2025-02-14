@@ -17,7 +17,7 @@ export class Background extends Resource {
   public image: string;
 
   /** whether background is active*/
-  public active: Boolean;
+  public active: boolean;
   
   /** system created date*/
   public createdDate: any;

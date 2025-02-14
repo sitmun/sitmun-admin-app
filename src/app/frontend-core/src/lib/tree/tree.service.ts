@@ -24,7 +24,7 @@ export class TreeService extends RestService<Tree> {
   
   /** save tree*/
   save(item: Tree): Observable<any> {
-    let result: Observable<Object>;
+    let result: Observable<object>;
     if (item._links!=null) {
       
       result = this.http.put(item._links.self.href, item);

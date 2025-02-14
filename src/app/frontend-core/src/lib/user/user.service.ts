@@ -24,7 +24,7 @@ export class UserService extends RestService<User> {
   
   /** save user*/
   save(item: any): Observable<any> {
-    let result: Observable<Object>;
+    let result: Observable<object>;
     if (item._links!=null) {
       result = this.http.put(item._links.self.href, item);
     } else {
@@ -35,7 +35,7 @@ export class UserService extends RestService<User> {
     
   /** change password o given user id */
   changePassword(id,item: any): Observable<any> {
-    let result: Observable<Object>;
+    let result: Observable<object>;
     result = this.http.post(this.resourceService.getResourceUrl(this.USER_API+"/"+id+"/change-password") , item);
     return result;
   }

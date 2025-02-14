@@ -33,7 +33,7 @@ export class TasksDocumentComponent implements OnInit {
 
   ngOnInit()  {
 
-    var columnEditBtn=this.utils.getEditBtnColumnDef();
+    const columnEditBtn=this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
@@ -55,7 +55,7 @@ export class TasksDocumentComponent implements OnInit {
     if (this.gridModified) {
 
 
-      let result = await this.utils.showNavigationOutDialog().toPromise();
+      const result = await this.utils.showNavigationOutDialog().toPromise();
       if(!result || result.event!=='Accept') { return false }
       else if(result.event ==='Accept') {return true;}
       else{
@@ -72,12 +72,12 @@ export class TasksDocumentComponent implements OnInit {
 
   getAllTasksDocument = () => {
     
-    let taskTypeID=config.tasksTypes['document'];
+    const taskTypeID=config.tasksTypes['document'];
 
-    let params2:HalParam[]=[];
-    let param:HalParam={key:'type.id', value:taskTypeID}
+    const params2:HalParam[]=[];
+    const param:HalParam={key:'type.id', value:taskTypeID}
     params2.push(param);
-    let query:HalOptions={ params:params2};
+    const query:HalOptions={ params:params2};
     return this.taskService.getAll(query,undefined,"tasks");
   }
 

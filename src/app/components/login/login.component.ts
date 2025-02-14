@@ -34,8 +34,8 @@ export class LoginComponent {
         private trans: TranslateService ) {
         
         this.translate = trans;
-        let navigatorLang=window.navigator.language.split('-')[0];
-        let defaultLang=config.defaultLang;
+        const navigatorLang=window.navigator.language.split('-')[0];
+        const defaultLang=config.defaultLang;
         this.form = this.fb.group( {
             username: ['', Validators.required],
             password: ['', Validators.required],

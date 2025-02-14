@@ -49,14 +49,14 @@ export class DashboardComponent implements OnInit {
           this.usersPerApplication=result['users-per-application']
           if(this.cartographiesOnDate){
             this.cartographyDataAvailable = true;
-            let keysCartographyChartData= Object.keys(this.cartographiesOnDate).sort();
+            const keysCartographyChartData= Object.keys(this.cartographiesOnDate).sort();
             for(let i=0; i<keysCartographyChartData.length; i++){
               this.cartographyChartData.push({index:keysCartographyChartData[i], value:this.cartographiesOnDate[keysCartographyChartData[i]]})
             }
           }
           if(this.usersOnDate){
             this.usersDataAvailable = true;
-            let keysUsersChartData=Object.keys(this.usersOnDate).sort();
+            const keysUsersChartData=Object.keys(this.usersOnDate).sort();
             for(let i=0; i<keysUsersChartData.length; i++){
               this.usersChartData.push({index:keysUsersChartData[i], value:this.usersOnDate[keysUsersChartData[i]]})
             }
@@ -64,7 +64,7 @@ export class DashboardComponent implements OnInit {
           }
           if(this.usersPerApplication){
             this.usersPerApplicationDataAvailable = true;
-            let keysUsersPerApplication= Object.keys(this.usersPerApplication);
+            const keysUsersPerApplication= Object.keys(this.usersPerApplication);
             for(let i=0; i<keysUsersPerApplication.length; i++){
               this.usersPerApplicationChartData.push({index:keysUsersPerApplication[i], value:this.usersPerApplication[keysUsersPerApplication[i]]})
             }   

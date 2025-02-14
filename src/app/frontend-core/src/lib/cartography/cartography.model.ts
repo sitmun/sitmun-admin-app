@@ -19,13 +19,13 @@ export class Cartography extends Resource {
   public service : Service;
 
   /** order*/  
-  public order: Number; 
+  public order: number; 
 
   /** description*/  
-  public description: String;
+  public description: string;
 
   /** source*/  
-  public source: String;
+  public source: string;
 
   /** whether cartography is blocked*/
   public blocked: boolean;  
@@ -43,13 +43,13 @@ export class Cartography extends Resource {
   public selectableLayers: string[];
 
   /** transparency*/ 
-  public transparency: Number;
+  public transparency: number;
 
   /** whether layer is queryable*/  
-  public queryable: Boolean;
+  public queryable: boolean;
 
   /** whether layer is queryable*/ 
-  public queryAct: Boolean;
+  public queryAct: boolean;
 
   /** query layer*/
   public queryLay: string;
@@ -58,10 +58,10 @@ export class Cartography extends Resource {
   public createdDate: any;
 
   /** minimum scale*/
-  public minimumScale: Number;
+  public minimumScale: number;
 
   /** maximum scale*/
-  public maximumScale: Number;
+  public maximumScale: number;
 
   /** layers*/  
   public layers: string;
@@ -70,10 +70,10 @@ export class Cartography extends Resource {
   public connection: Connection;
 
   /** queryableFeatureEnabled */
-  public queryableFeatureEnabled: Boolean;
+  public queryableFeatureEnabled: boolean;
 
     /** queryableLayers */
-  public queryableFeatureAvailable: Boolean;
+  public queryableFeatureAvailable: boolean;
 
     /** queryableLayers */
   public queryableLayers: string[];
@@ -82,7 +82,7 @@ export class Cartography extends Resource {
   public availabilities : CartographyAvailability[];
 
   /** whether layer is queryable*/ 
-  public selectableFeatureEnabled: Boolean;
+  public selectableFeatureEnabled: boolean;
 
   /** selection layer*/
   public selectionLayer: string;
@@ -97,7 +97,7 @@ export class Cartography extends Resource {
   public legendURL: string;
 
   /** whether layer is editable*/
-  public editable: Boolean;
+  public editable: boolean;
 
   /** metadata URL*/
   public metadataURL: string;
@@ -106,7 +106,7 @@ export class Cartography extends Resource {
   public datasetURL: string;
 
   /** whether layer is themable*/
-  public thematic: Boolean;
+  public thematic: boolean;
   
   /** geometry type*/
   public geometryType: string;

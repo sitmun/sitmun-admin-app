@@ -80,10 +80,10 @@ export class FileDatabase {
    * The return value is the list of `FileNode`.
    */
   buildFileTree(arrayTreeNodes: any[], level: number, allNewElements: any) {
-    var map = {};
+    const map = {};
     if(arrayTreeNodes.length===0)
     {
-      let root = {
+      const root = {
         isFolder:true,
         name:'Root',
         type: 'folder',
@@ -96,7 +96,7 @@ export class FileDatabase {
     }
     else{
       arrayTreeNodes.forEach((treeNode) => {
-        var obj = treeNode;
+        const obj = treeNode;
         obj.children = [];
         obj.type= (treeNode.isFolder) ? "folder" : "node";
         if(allNewElements) {
@@ -107,11 +107,11 @@ export class FileDatabase {
   
         if(!map[obj.id]) {map[obj.id] = obj;}
         else{
-          let previousChildren= map[obj.id].children
+          const previousChildren= map[obj.id].children
           map[obj.id] = obj;
           map[obj.id].children=previousChildren
         }
-        var parent = obj.parent || 'root';
+        const parent = obj.parent || 'root';
         if (!map[parent]) {
           map[parent] = {
             children: []
@@ -387,7 +387,7 @@ export class DataTreeComponent {
 
   loadDataButtonClicked(){
     const dataToEmit = JSON.parse(JSON.stringify(this.dataSource.data))
-    let allRows = this.getAllChildren(dataToEmit); 
+    const allRows = this.getAllChildren(dataToEmit); 
     this.loadButtonClicked.emit(allRows)
   }
 
@@ -512,7 +512,7 @@ export class DataTreeComponent {
       } else {
         newItem = this.database.copyPasteItem(fromFlatNode, toFlatNode,changedData[0]);
       }    
-      let parentLvl=this.treeControl.dataNodes.find((n) => n.id === fromFlatNode.id).level;
+      const parentLvl=this.treeControl.dataNodes.find((n) => n.id === fromFlatNode.id).level;
       fromFlatNode.children.forEach(child=>{
         this.treeControl.dataNodes.find((n) => n.id === child.id).level=parentLvl+1
       });
@@ -589,7 +589,7 @@ export class DataTreeComponent {
   {
     const dataToChange = JSON.parse(JSON.stringify(this.dataSource.data))
     const siblings = this.findNodeSiblings(dataToChange, nodeUpdated.id);
-    let index= siblings.findIndex(node => node.id === nodeUpdated.id)
+    const index= siblings.findIndex(node => node.id === nodeUpdated.id)
     siblings[index]=nodeUpdated;
     this.rebuildTreeForData(dataToChange);
 
@@ -605,7 +605,7 @@ export class DataTreeComponent {
     }
     else{
       const siblings = this.findNodeSiblings(dataToChange, newFolder.parent);
-      let index= siblings.findIndex(node => node.id === newFolder.parent);
+      const index= siblings.findIndex(node => node.id === newFolder.parent);
       newFolder.order=siblings[index].children.length;
       siblings[index].children.push(newFolder)
     }
@@ -623,7 +623,7 @@ export class DataTreeComponent {
     }
     else{
     const siblings = this.findNodeSiblings(dataToChange, newNode.parent);
-    let index= siblings.findIndex(node => node.id === newNode.parent);
+    const index= siblings.findIndex(node => node.id === newNode.parent);
     newNode.order=siblings[index].children.length;
     siblings[index].children.push(newNode)
     }
@@ -638,7 +638,7 @@ export class DataTreeComponent {
   {
     const changedData = JSON.parse(JSON.stringify(this.dataSource.data))
     const siblings = this.findNodeSiblings(changedData, id);
-    let nodeClicked= siblings.find(node => node.id === id);
+    const nodeClicked= siblings.find(node => node.id === id);
     if(button ==='edit')  {this.emitNode.emit(nodeClicked)}
     else if(button === 'newFolder') {this.createFolder.emit(nodeClicked)}
     else if(button === 'newNode') {this.createNode.emit( nodeClicked)}
@@ -659,13 +659,13 @@ export class DataTreeComponent {
   emitAllRows(event)
   {
     const dataToEmit = JSON.parse(JSON.stringify(this.dataSource.data))
-    let allRows = this.getAllChildren(dataToEmit); 
+    const allRows = this.getAllChildren(dataToEmit); 
     this.emitAllNodes.emit({event:event, data: allRows});
   }
 
   getAllChildren(arr)
   {
-    let result = [];
+    const result = [];
     let subResult;
     arr.forEach((item, i) => {
       if (item.children && item.children.length>0) {

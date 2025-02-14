@@ -25,7 +25,7 @@ export class LayersPermitsFormComponent implements OnInit {
   duplicateID = -1;
   themeGrid: any = config.agGridTheme;
   permissionGroupTypes: Array<any> = [];
-  dataLoaded: Boolean = false;
+  dataLoaded: boolean = false;
 
   //Grids
   columnDefsCartographies: any[];
@@ -76,7 +76,7 @@ export class LayersPermitsFormComponent implements OnInit {
         if(params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
       
         if (this.layersPermitsID !== -1 || this.duplicateID != -1) {
-          let idToGet = this.layersPermitsID !== -1? this.layersPermitsID: this.duplicateID  
+          const idToGet = this.layersPermitsID !== -1? this.layersPermitsID: this.duplicateID  
       
   
           this.cartographyGroupService.get(idToGet).subscribe(
@@ -177,9 +177,9 @@ export class LayersPermitsFormComponent implements OnInit {
       return of(aux);
     }
 
-     var urlReq = `${this.layersPermitsToEdit._links.members.href}`
+     let urlReq = `${this.layersPermitsToEdit._links.members.href}`
      if (this.layersPermitsToEdit._links.members.templated) {
-       var url = new URL(urlReq.split("{")[0]);
+       const url = new URL(urlReq.split("{")[0]);
        url.searchParams.append("projection", "view")
        urlReq = url.toString();
      }
@@ -199,7 +199,7 @@ export class LayersPermitsFormComponent implements OnInit {
   {
     let dataChanged = false;
     const promises: Promise<any>[] = [];
-    let cartographiesToPut = [];
+    const cartographiesToPut = [];
     data.forEach(cartography => {
       if(cartography.status!== 'pendingDelete') {
         if (cartography.status === 'pendingModify') {
@@ -217,7 +217,7 @@ export class LayersPermitsFormComponent implements OnInit {
     });
     Promise.all(promises).then(() => {
       if(dataChanged){
-        let url=this.layersPermitsToEdit._links.members.href.split('{', 1)[0];
+        const url=this.layersPermitsToEdit._links.members.href.split('{', 1)[0];
         this.utils.updateUriList(url,cartographiesToPut, this.dataUpdatedEventCartographies)
       }
       else { this.dataUpdatedEventCartographies.next(true) }
@@ -233,9 +233,9 @@ export class LayersPermitsFormComponent implements OnInit {
       return of(aux);
     }
 
-    var urlReq = `${this.layersPermitsToEdit._links.roles.href}`
+    let urlReq = `${this.layersPermitsToEdit._links.roles.href}`
     if (this.layersPermitsToEdit._links.roles.templated) {
-      var url = new URL(urlReq.split("{")[0]);
+      const url = new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection", "view")
       urlReq = url.toString();
     }
@@ -255,7 +255,7 @@ export class LayersPermitsFormComponent implements OnInit {
   {
     let dataChanged = false;
     const promises: Promise<any>[] = [];
-    let rolesToPut = [];
+    const rolesToPut = [];
     data.forEach(role => {
       if(role.status!== 'pendingDelete') {
         if (role.status === 'pendingModify') {
@@ -275,7 +275,7 @@ export class LayersPermitsFormComponent implements OnInit {
     Promise.all(promises).then(() => {
       if(dataChanged)
       {
-        let url=this.layersPermitsToEdit._links.roles.href.split('{', 1)[0];
+        const url=this.layersPermitsToEdit._links.roles.href.split('{', 1)[0];
         this.utils.updateUriList(url,rolesToPut, this.dataUpdatedEventRoles)
       }
       else { this.dataUpdatedEventRoles.next(true) }

@@ -38,8 +38,8 @@ export class LayersFormComponent implements OnInit {
   layerToEdit;
   layerID = -1;
   duplicateID = -1;
-  firstSaveDone: Boolean = false;
-  dataLoaded: Boolean = false;
+  firstSaveDone: boolean = false;
+  dataLoaded: boolean = false;
   geometryTypes: Array<any> = [];
   legendTypes: Array<any> = [];
   services: Array<any> = [];
@@ -166,7 +166,7 @@ export class LayersFormComponent implements OnInit {
 
     this.translationMap = this.utils.createTranslationsList(config.translationColumns.cartographyDescription);
 
-    let geometryTypeByDefault = {
+    const geometryTypeByDefault = {
       value: -1,
       description: '-------'
     }
@@ -183,7 +183,7 @@ export class LayersFormComponent implements OnInit {
       )
     }));
 
-    let legendTypeByDefault = {
+    const legendTypeByDefault = {
       value: -1,
       description: '-------'
     }
@@ -276,7 +276,7 @@ export class LayersFormComponent implements OnInit {
       )
     }));
 
-    let connectionByDefault = {
+    const connectionByDefault = {
       value: null,
       name: '-------'
     }
@@ -292,7 +292,7 @@ export class LayersFormComponent implements OnInit {
       )
     }));
 
-    let serviceByDefault = {
+    const serviceByDefault = {
       id: -1,
       name: '-------'
     }
@@ -301,7 +301,7 @@ export class LayersFormComponent implements OnInit {
 
     promises.push(new Promise((resolve, reject) => {
       this.serviceService.getAll().map((resp) => {
-        let wfsServices = [];
+        const wfsServices = [];
         this.services.push(...resp);
         resp.forEach(service => {
           if (service.type === config.capabilitiesRequest.WFSIdentificator) { wfsServices.push(service) }
@@ -318,14 +318,14 @@ export class LayersFormComponent implements OnInit {
         if (params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
 
         if (this.layerID !== -1 || this.duplicateID != -1) {
-          let idToGet = this.layerID !== -1 ? this.layerID : this.duplicateID
+          const idToGet = this.layerID !== -1 ? this.layerID : this.duplicateID
 
           //getCartography Entity
           this.cartographyService.get(idToGet).subscribe(
             resp => {
 
               this.layerToEdit = resp;
-              let layers = this.layerToEdit.layers.join(',');
+              const layers = this.layerToEdit.layers.join(',');
               let queryableLayers = null
               if (this.layerToEdit.queryableLayers != null) { queryableLayers = this.layerToEdit.queryableLayers.join(',') };
               let selectableLayers = null;
@@ -405,9 +405,9 @@ export class LayersFormComponent implements OnInit {
 
 
 
-              var urlReq = `${this.layerToEdit._links.parameters.href}`
+              let urlReq = `${this.layerToEdit._links.parameters.href}`
               if (this.layerToEdit._links.parameters.templated) {
-                var url = new URL(urlReq.split("{")[0]);
+                const url = new URL(urlReq.split("{")[0]);
                 url.searchParams.append("projection", "view")
                 urlReq = url.toString();
               }
@@ -694,9 +694,9 @@ export class LayersFormComponent implements OnInit {
       dialogRef.componentInstance.message = this.utils.getTranslate("getInfoMessage");
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
-          let replaceAll = result.event === 'Accept';
-          let service = this.spatialConfigurationServices.find(element => element.id == this.layerForm.get('spatialSelectionService').value);
-          let layersName = this.layerForm.get('selectableLayers').value
+          const replaceAll = result.event === 'Accept';
+          const service = this.spatialConfigurationServices.find(element => element.id == this.layerForm.get('spatialSelectionService').value);
+          const layersName = this.layerForm.get('selectableLayers').value
           if (service && service.serviceURL && layersName) {
             let url: string = service.serviceURL;
             if (!url.includes('request=DescribeFeatureType')) {
@@ -726,21 +726,21 @@ export class LayersFormComponent implements OnInit {
   }
 
   manageGetInfoResults(results, replaceAll: boolean) {
-    let elementsToAdd = [];
-    let elements = []
-    let type = this.spatialSelectionParameterTypes.find(element => element.value == "SELECT")
+    const elementsToAdd = [];
+    const elements = []
+    const type = this.spatialSelectionParameterTypes.find(element => element.value == "SELECT")
 
     if (results['xsd:schema'] && results['xsd:schema']['xsd:element']) {
       elements.push(results['xsd:schema']['xsd:element'])
     }
 
     if (results['xsd:schema'] && results['xsd:schema']['xsd:complexType'] && results['xsd:schema']['xsd:complexType']['xsd:complexContent']) {
-      let complexContent = results['xsd:schema']['xsd:complexType']['xsd:complexContent'];
+      const complexContent = results['xsd:schema']['xsd:complexType']['xsd:complexContent'];
       if (complexContent['xsd:extension'] && complexContent['xsd:extension']['xsd:sequence'] && complexContent['xsd:extension']['xsd:sequence']['xsd:element']) {
         elements.push(...complexContent['xsd:extension']['xsd:sequence']['xsd:element']);
         if (elements) {
           elements.forEach(element => {
-            let newParameter = {
+            const newParameter = {
               name: element.name,
               value: element.name,
               type: type?type.value:null,
@@ -785,9 +785,9 @@ export class LayersFormComponent implements OnInit {
       const aux: Array<any> = [];
       return of(aux);
     }
-    var urlReq = `${this.layerToEdit._links.parameters.href}`
+    let urlReq = `${this.layerToEdit._links.parameters.href}`
     if (this.layerToEdit._links.parameters.templated) {
-      var url = new URL(urlReq.split("{")[0]);
+      const url = new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection", "view")
       urlReq = url.toString();
     }
@@ -833,12 +833,12 @@ export class LayersFormComponent implements OnInit {
         if (parameter.status === 'pendingModify') {
 
           if (parameter.format) {
-            let currentFormat = formatsList.find(element => element.description == parameter.format);
+            const currentFormat = formatsList.find(element => element.description == parameter.format);
             if (currentFormat) { parameter.format = currentFormat.value }
           }
 
           if (parameter.type) {
-            let currentType = typesList.find(element => element.description == parameter.type);
+            const currentType = typesList.find(element => element.description == parameter.type);
             if (currentType) { parameter.type = currentType.value }
           }
 
@@ -867,13 +867,13 @@ export class LayersFormComponent implements OnInit {
   }
 
   duplicateParameters(data, spatialSelection: boolean) {
-    let parametersToDuplicate = this.utils.duplicateParameter(data, 'name');
+    const parametersToDuplicate = this.utils.duplicateParameter(data, 'name');
     if (spatialSelection) { this.addElementsEventSpatialConfigurations.next(parametersToDuplicate); }
     else { this.addElementsEventParameters.next(parametersToDuplicate); }
   }
 
   loadButtonDisabled() {
-    let formValues = this.layerForm.value;
+    const formValues = this.layerForm.value;
     if (formValues.selectableFeatureEnabled && formValues.spatialSelectionService && formValues.spatialSelectionService > 0 && formValues.selectableLayers) {
       this.disableLoadButton = false;
     }
@@ -890,9 +890,9 @@ export class LayersFormComponent implements OnInit {
       const aux: Array<any> = [];
       return of(aux);
     }
-    var urlReq = `${this.layerToEdit._links.spatialSelectionParameters.href}`
+    let urlReq = `${this.layerToEdit._links.spatialSelectionParameters.href}`
     if (this.layerToEdit._links.spatialSelectionParameters.templated) {
-      var url = new URL(urlReq.split("{")[0]);
+      const url = new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection", "view")
       urlReq = url.toString();
     }
@@ -913,9 +913,9 @@ export class LayersFormComponent implements OnInit {
       return of(aux);
     }
 
-    var urlReq = `${this.layerToEdit._links.styles.href}`
+    let urlReq = `${this.layerToEdit._links.styles.href}`
     if (this.layerToEdit._links.styles.templated) {
-      var url = new URL(urlReq.split("{")[0]);
+      const url = new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection", "view")
       urlReq = url.toString();
     }
@@ -927,7 +927,7 @@ export class LayersFormComponent implements OnInit {
 
   getAllRowsStyles(event) {
     if (event.event == "save") {
-      let stylesByDefault = event.data.filter(d => d.defaultStyle).length;
+      const stylesByDefault = event.data.filter(d => d.defaultStyle).length;
       if (stylesByDefault > 1) {
         this.showStylesError();
       }
@@ -939,7 +939,7 @@ export class LayersFormComponent implements OnInit {
 
   saveStyles(data: any[]) {
 
-    let index = data.findIndex(element => (element.status === 'pendingModify' ||
+    const index = data.findIndex(element => (element.status === 'pendingModify' ||
       element.status === 'pendingCreation') && element.defaultStyle);
     let styleToModifyTheLast = null;
     if (index != -1) {
@@ -960,7 +960,7 @@ export class LayersFormComponent implements OnInit {
         if (style.status === 'pendingModify') {
 
           if (style.format) {
-            let currentFormat = this.parameterFormatTypes.find(element => element.description == style.format);
+            const currentFormat = this.parameterFormatTypes.find(element => element.description == style.format);
             if (currentFormat) { style.format = currentFormat.value }
           }
 
@@ -986,7 +986,7 @@ export class LayersFormComponent implements OnInit {
           styleToModifyTheLast._links = null;
           styleToModifyTheLast.id = null;
           if (styleToModifyTheLast.format) {
-            let currentFormat = this.parameterFormatTypes.find(element => element.description == styleToModifyTheLast.format);
+            const currentFormat = this.parameterFormatTypes.find(element => element.description == styleToModifyTheLast.format);
             if (currentFormat) { styleToModifyTheLast.format = currentFormat.value }
           }
         }
@@ -1000,7 +1000,7 @@ export class LayersFormComponent implements OnInit {
   }
 
   duplicateStyles(data) {
-    let stylesToDuplicate = this.utils.duplicateParameter(data, 'name');
+    const stylesToDuplicate = this.utils.duplicateParameter(data, 'name');
     this.addElementsEventStyles.next(stylesToDuplicate);
   }
 
@@ -1013,9 +1013,9 @@ export class LayersFormComponent implements OnInit {
       const aux: Array<any> = [];
       return of(aux);
     }
-    var urlReq = `${this.layerToEdit._links.filters.href}`
+    let urlReq = `${this.layerToEdit._links.filters.href}`
     if (this.layerToEdit._links.filters.templated) {
-      var url = new URL(urlReq.split("{")[0]);
+      const url = new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection", "view")
       urlReq = url.toString();
     }
@@ -1033,8 +1033,8 @@ export class LayersFormComponent implements OnInit {
 
   saveTerritorialFilters(data: any[]) {
 
-    let territorialFilterToSave = [];
-    let territorialFilterToDelete = [];
+    const territorialFilterToSave = [];
+    const territorialFilterToDelete = [];
     const promises: Promise<any>[] = [];
     data.forEach(territoryFilter => {
       if (territoryFilter.status === 'pendingCreation' || territoryFilter.status === 'pendingModify') {
@@ -1074,7 +1074,7 @@ export class LayersFormComponent implements OnInit {
   }
 
   duplicateTerritorialFilters(data) {
-    let territorialFiltersToDuplicate = this.utils.duplicateParameter(data, 'name')
+    const territorialFiltersToDuplicate = this.utils.duplicateParameter(data, 'name')
     this.addElementsTerritorialFilter.next(territorialFiltersToDuplicate);
 
   }
@@ -1086,9 +1086,9 @@ export class LayersFormComponent implements OnInit {
       return of(aux);
     }
 
-    var urlReq = `${this.layerToEdit._links.availabilities.href}`
+    let urlReq = `${this.layerToEdit._links.availabilities.href}`
     if (this.layerToEdit._links.availabilities.templated) {
-      var url = new URL(urlReq.split("{")[0]);
+      const url = new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection", "view")
       urlReq = url.toString();
     }
@@ -1110,7 +1110,7 @@ export class LayersFormComponent implements OnInit {
     data.forEach(territory => {
       territory.cartography = this.layerToEdit;
       if (territory.status === 'pendingCreation') {
-        let index = data.findIndex(element => element.territoryCode === territory.territoryCode && !element.newItem)
+        const index = data.findIndex(element => element.territoryCode === territory.territoryCode && !element.newItem)
         territory.newItem = false;
         if (index === -1) {
           if (territory._links) {
@@ -1118,7 +1118,7 @@ export class LayersFormComponent implements OnInit {
             territory.cartographyId = this.layerToEdit.id;
             territory.cartographyName = this.layerToEdit.name;
             let urlReqTerritory = `${territory._links.territory.href}`
-            let url = new URL(urlReqTerritory.split("{")[0]);
+            const url = new URL(urlReqTerritory.split("{")[0]);
             url.searchParams.append("projection", "view")
             urlReqTerritory = url.toString();
             territory._links = null
@@ -1172,9 +1172,9 @@ export class LayersFormComponent implements OnInit {
       return of(aux);
     }
 
-    var urlReq = `${this.layerToEdit._links.permissions.href}`
+    let urlReq = `${this.layerToEdit._links.permissions.href}`
     if (this.layerToEdit._links.permissions.templated) {
-      var url = new URL(urlReq.split("{")[0]);
+      const url = new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection", "view")
       urlReq = url.toString();
     }
@@ -1192,7 +1192,7 @@ export class LayersFormComponent implements OnInit {
   saveLayersConfiguration(data: any[]) {
     let dataChanged = false;
     const promises: Promise<any>[] = [];
-    let layersConfigurationToPut = [];
+    const layersConfigurationToPut = [];
     data.forEach(layer => {
 
       if (layer.status !== 'pendingDelete') {
@@ -1210,7 +1210,7 @@ export class LayersFormComponent implements OnInit {
     });
     Promise.all(promises).then(() => {
       if (dataChanged) {
-        let url = this.layerToEdit._links.permissions.href.split('{', 1)[0];
+        const url = this.layerToEdit._links.permissions.href.split('{', 1)[0];
         this.utils.updateUriList(url, layersConfigurationToPut, this.dataUpdatedEventLayersConfiguration)
       }
       else {
@@ -1228,9 +1228,9 @@ export class LayersFormComponent implements OnInit {
       return of(aux);
     }
 
-    var urlReq = `${this.layerToEdit._links.treeNodes.href}`
+    let urlReq = `${this.layerToEdit._links.treeNodes.href}`
     if (this.layerToEdit._links.treeNodes.templated) {
-      var url = new URL(urlReq.split("{")[0]);
+      const url = new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection", "view")
       urlReq = url.toString();
     }
@@ -1251,10 +1251,10 @@ export class LayersFormComponent implements OnInit {
     const promises: Promise<any>[] = [];
     data.forEach(node => {
 
-      let nodeAct = new TreeNode();
-      var urlReq = `${node._links.cartography.href}`
+      const nodeAct = new TreeNode();
+      let urlReq = `${node._links.cartography.href}`
       if (node._links.cartography.templated) {
-        var url = new URL(urlReq.split("{")[0]);
+        const url = new URL(urlReq.split("{")[0]);
         url.searchParams.append("projection", "view")
         urlReq = url.toString();
       }
@@ -1308,7 +1308,7 @@ export class LayersFormComponent implements OnInit {
       if (result) {
         if (result.event === 'Add') {
 
-          let item = this.parameterForm.value;
+          const item = this.parameterForm.value;
           this.addElementsEventParameters.next([item])
 
           this.parameterForm.reset();
@@ -1336,7 +1336,7 @@ export class LayersFormComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
-          let item = this.parameterForm.value;
+          const item = this.parameterForm.value;
           this.addElementsEventSpatialConfigurations.next([item])
 
         }
@@ -1375,7 +1375,7 @@ export class LayersFormComponent implements OnInit {
             territorialLevel: territorialLevel
           })
 
-          let item = this.territorialFilterForm.value;
+          const item = this.territorialFilterForm.value;
           item.giid = this.layerToEdit.id
 
           // if(this.territorialFilterForm.value.typeId === -1)
@@ -1415,7 +1415,7 @@ export class LayersFormComponent implements OnInit {
       if (result) {
         if (result.event === 'Add') {
 
-          let item = this.styleForm.value;
+          const item = this.styleForm.value;
           this.addElementsEventStyles.next([this.adaptCreatedStyle(item)])
           this.styleForm.reset();
         }
@@ -1476,10 +1476,10 @@ export class LayersFormComponent implements OnInit {
   }
 
   adaptFormatTerritories(dataToAdapt: Territory[]) {
-    let newData: any[] = [];
+    const newData: any[] = [];
 
     dataToAdapt.forEach(element => {
-      let item = {
+      const item = {
         id: null,
         territoryId: element.id,
         territoryCode: element.code,
@@ -1500,10 +1500,10 @@ export class LayersFormComponent implements OnInit {
   // ******** Cartography Groups Dialog  ******** //
 
   getAllCartographyGroupsDialog = () => {
-    let params2: HalParam[] = [];
-    let param: HalParam = { key: 'type', value: 'C' }
+    const params2: HalParam[] = [];
+    const param: HalParam = { key: 'type', value: 'C' }
     params2.push(param);
-    let query: HalOptions = { params: params2 };
+    const query: HalOptions = { params: params2 };
     return this.cartographyGroupService.getAll(query, undefined);
   }
 
@@ -1599,7 +1599,7 @@ export class LayersFormComponent implements OnInit {
         legendType = this.layerForm.value.legendType
       }
 
-      let cartography = new Cartography();
+      const cartography = new Cartography();
       cartography.name = this.layerForm.value.name;
       cartography.service = service;
       cartography.layers = this.layerForm.value.layers.split(",");

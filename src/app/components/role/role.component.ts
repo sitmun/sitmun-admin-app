@@ -29,7 +29,7 @@ export class RoleComponent implements OnInit {
 
   ngOnInit() {
 
-    var columnEditBtn=this.utils.getEditBtnColumnDef();
+    const columnEditBtn=this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
@@ -48,7 +48,7 @@ export class RoleComponent implements OnInit {
     if (this.gridModified) {
 
 
-      let result = await this.utils.showNavigationOutDialog().toPromise();
+      const result = await this.utils.showNavigationOutDialog().toPromise();
       if(!result || result.event!=='Accept') { return false }
       else if(result.event ==='Accept') {return true;}
       else{
@@ -56,12 +56,12 @@ export class RoleComponent implements OnInit {
       }
     }
     else return true
-  }	
+  }
 
   setGridModifiedValue(value){
     this.gridModified=value;
   }
-  
+
 
   getAllRoles = () => {
     return this.roleService.getAll();
@@ -75,7 +75,7 @@ export class RoleComponent implements OnInit {
   applyChanges(data: Role[]) {
     const promises: Promise<any>[] = [];
     data.forEach(role => {
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.roleService.update(role).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
+      promises.push(new Promise((resolve, reject) => { this.roleService.update(role).subscribe((resp) =>{resolve(true)})}));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);
       });
@@ -92,7 +92,7 @@ export class RoleComponent implements OnInit {
     dialogRef.componentInstance.message=this.utils.getTranslate("removeMessage");
     dialogRef.afterClosed().subscribe(result => {
       if(result){
-        if(result.event==='Accept') {  
+        if(result.event==='Accept') {
           const promises: Promise<any>[] = [];
           data.forEach(role => {
             promises.push(new Promise((resolve, reject) => {​​​​​​​ this.roleService.delete(role).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));

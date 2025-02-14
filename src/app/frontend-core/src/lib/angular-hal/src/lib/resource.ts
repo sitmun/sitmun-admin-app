@@ -49,7 +49,7 @@ export abstract class Resource {
         const params = ResourceHelper.optionParams(new HttpParams(), options);
         const result: ResourceArray<T> = ResourceHelper.createEmptyResult<T>(isNullOrUndefined(_embedded) ? "_embedded" : _embedded);
         if (!isNullOrUndefined(this._links) && !isNullOrUndefined(this._links[relation])) {
-            let observable = ResourceHelper.getHttp().get(ResourceHelper.getProxy(this._links[relation].href), {
+            const observable = ResourceHelper.getHttp().get(ResourceHelper.getProxy(this._links[relation].href), {
                 headers: ResourceHelper.headers,
                 params: params
             });
@@ -64,14 +64,14 @@ export abstract class Resource {
     public getRelation<T extends Resource>(type: { new(): T }, relation: string, builder?: SubTypeBuilder): Observable<T> {
         let result: T = new type();
         if (!isNullOrUndefined(this._links) && !isNullOrUndefined(this._links[relation])) {
-            let observable = ResourceHelper.getHttp().get(ResourceHelper.getProxy(this._links[relation].href), {headers: ResourceHelper.headers});
+            const observable = ResourceHelper.getHttp().get(ResourceHelper.getProxy(this._links[relation].href), {headers: ResourceHelper.headers});
             return observable.pipe(map((data: any) => {
                 if (builder) {
                     for (const embeddedClassName of Object.keys(data['_links'])) {
                         if (embeddedClassName == 'self') {
-                            let href: string = data._links[embeddedClassName].href;
-                            let idx: number = href.lastIndexOf('/');
-                            let realClassName = href.replace(ResourceHelper.getRootUri(), "").substring(0, idx);
+                            const href: string = data._links[embeddedClassName].href;
+                            const idx: number = href.lastIndexOf('/');
+                            const realClassName = href.replace(ResourceHelper.getRootUri(), "").substring(0, idx);
                             result = ResourceHelper.searchSubtypes(builder, realClassName, result);
                             break;
                         }
@@ -87,7 +87,7 @@ export abstract class Resource {
     /** Adds the given resource to the bound collection by the relation */
     public addRelation<T extends Resource>(relation: string, resource: T): Observable<any> {
         if (!isNullOrUndefined(this._links) && !isNullOrUndefined(this._links[relation])) {
-            let header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
+            const header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
             return ResourceHelper.getHttp().post(ResourceHelper.getProxy(this._links[relation].href), resource._links.self.href, {headers: header});
         } else {
             return observableThrowError('no relation found');
@@ -97,7 +97,7 @@ export abstract class Resource {
     /** Bind the given resource to this resource by the given relation*/
     public updateRelation<T extends Resource>(relation: string, resource: T): Observable<any> {
         if (!isNullOrUndefined(this._links) && !isNullOrUndefined(this._links[relation])) {
-            let header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
+            const header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
             return ResourceHelper.getHttp().patch(ResourceHelper.getProxy(this._links[relation].href), resource._links.self.href, {headers: header});
         } else {
             return observableThrowError('no relation found');
@@ -107,7 +107,7 @@ export abstract class Resource {
     /** Bind the given resource to this resource by the given relation*/
     public substituteRelation<T extends Resource>(relation: string, resource: T): Observable<any> {
         if (!isNullOrUndefined(this._links) && !isNullOrUndefined(this._links[relation])) {
-            let header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
+            const header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
             let targetUrl = this._links[relation].href;
             if (targetUrl.endsWith('{?projection}')) {
                 targetUrl = targetUrl.substring(0, targetUrl.indexOf('{?projection}'))
@@ -122,7 +122,7 @@ export abstract class Resource {
     /** Bind the given resource to this resource by the given relation*/
     public substituteAllRelation<T extends Resource>(relation: string, resources: Resource[]): Observable<any> {
         if (!isNullOrUndefined(this._links) && !isNullOrUndefined(this._links[relation])) {
-            let header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
+            const header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
             return ResourceHelper.getHttp().put(ResourceHelper.getProxy(this._links[relation].href), resources.map((resource) => resource._links.self.href), {headers: header});
         } else {
             return observableThrowError('no relation found');
@@ -134,13 +134,13 @@ export abstract class Resource {
     /** Unbind the resource with the given relation from this resource*/
     public deleteRelation<T extends Resource>(relation: string, resource: T): Observable<any> {
         if (!isNullOrUndefined(this._links) && !isNullOrUndefined(resource._links)) {
-            let link: string = resource._links['self'].href;
-            let idx: number = link.lastIndexOf('/') + 1;
+            const link: string = resource._links['self'].href;
+            const idx: number = link.lastIndexOf('/') + 1;
 
             if (idx == -1)
                 return observableThrowError('no relation found');
 
-            let relationId: string = link.substring(idx);
+            const relationId: string = link.substring(idx);
             let targetUrl = this._links[relation].href;
             if (targetUrl.endsWith('{?projection}')) {
                 targetUrl = targetUrl.substring(0, targetUrl.indexOf('{?projection}'))

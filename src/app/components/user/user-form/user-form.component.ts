@@ -32,7 +32,7 @@ export class UserFormComponent implements OnInit {
   userToEdit: User;
   userID = -1;
   duplicateID = -1;
-  dataLoaded: Boolean = false;
+  dataLoaded: boolean = false;
 
   //Grids
   themeGrid: any = config.agGridTheme;
@@ -139,7 +139,7 @@ export class UserFormComponent implements OnInit {
       if(params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
       
       if (this.userID !== -1 || this.duplicateID != -1) {
-        let idToGet = this.userID !== -1? this.userID: this.duplicateID  
+        const idToGet = this.userID !== -1? this.userID: this.duplicateID  
 
         this.userService.get(idToGet).subscribe(
           resp => {
@@ -241,10 +241,10 @@ export class UserFormComponent implements OnInit {
       return of(aux);
     }
 
-    let params2: HalParam[] = [];
-    let param: HalParam = { key: 'user.id', value: this.userID!=-1?this.userID:this.duplicateID }
+    const params2: HalParam[] = [];
+    const param: HalParam = { key: 'user.id', value: this.userID!=-1?this.userID:this.duplicateID }
     params2.push(param);
-    let query: HalOptions = { params: params2 };
+    const query: HalOptions = { params: params2 };
 
     return this.userConfigurationService.getAll(query);
   }
@@ -260,8 +260,8 @@ export class UserFormComponent implements OnInit {
   async savePermits(data: any[]) {
 
 
-    let territoriesToDelete= [];
-    let territoriesToAdd= [];
+    const territoriesToDelete= [];
+    const territoriesToAdd= [];
     const promises: Promise<any>[] = [];  
     const promisesDuplicate: Promise<any>[] = [];
     const promisesCurrentUserConf: Promise<any>[] = [];
@@ -270,7 +270,7 @@ export class UserFormComponent implements OnInit {
     let showDialog = false;
     // data.forEach(userConf => {
     for(let i = 0; i<data.length; i++){
-      let userConf= data[i];
+      const userConf= data[i];
 
       if (userConf.status === 'pendingCreation' || (userConf.status === 'pendingModify' && !userConf._links)) {
 
@@ -281,11 +281,11 @@ export class UserFormComponent implements OnInit {
 
         if(userConf._links){
 
-          let index = data.findIndex(element =>  (element.roleId === userConf.roleId && element.territoryId === userConf.territoryId &&
+          const index = data.findIndex(element =>  (element.roleId === userConf.roleId && element.territoryId === userConf.territoryId &&
                 element.appliesToChildrenTerritories === userConf.appliesToChildrenTerritories && !element.newItem))
           if (index === -1) {
 
-            let indexTerritory = data.findIndex(element => element.territoryId === userConf.territoryId && !element.newItem  )
+            const indexTerritory = data.findIndex(element => element.territoryId === userConf.territoryId && !element.newItem  )
             userConf.newItem = false;
 
             let roleComplete;
@@ -293,7 +293,7 @@ export class UserFormComponent implements OnInit {
   
             let urlReqRole = `${userConf._links.role.href}`
             if (userConf._links.role.href) {
-              let url = new URL(urlReqRole.split("{")[0]);
+              const url = new URL(urlReqRole.split("{")[0]);
               url.searchParams.append("projection", "view")
               urlReqRole = url.toString();
             }
@@ -301,7 +301,7 @@ export class UserFormComponent implements OnInit {
             
             let urlReqTerritory = `${userConf._links.territory.href}`
             if (userConf._links.territory.href) {
-              let url = new URL(urlReqTerritory.split("{")[0]);
+              const url = new URL(urlReqTerritory.split("{")[0]);
               url.searchParams.append("projection", "view")
               urlReqTerritory = url.toString();
             }
@@ -372,7 +372,7 @@ export class UserFormComponent implements OnInit {
           index = data.findIndex(element => element.roleId === item.role.id && element.territoryId === item.territory.id &&
             element.appliesToChildrenTerritories === item.appliesToChildrenTerritories && !element.newItem)
 
-          let indexTerritory = data.findIndex(element => element.territoryId === userConf.territoryComplete.id && !element.newItem && element.status == 'pendingCreation' && !element._links)
+          const indexTerritory = data.findIndex(element => element.territoryId === userConf.territoryComplete.id && !element.newItem && element.status == 'pendingCreation' && !element._links)
 
           if(index === -1) {
             userConf.newItem = false;
@@ -429,7 +429,7 @@ export class UserFormComponent implements OnInit {
 
         let urlReqRole = `${userConf._links.role.href}`
         if (userConf._links.role.href) {
-          let url = new URL(urlReqRole.split("{")[0]);
+          const url = new URL(urlReqRole.split("{")[0]);
           url.searchParams.append("projection", "view")
           urlReqRole = url.toString();
         }
@@ -437,7 +437,7 @@ export class UserFormComponent implements OnInit {
         
         let urlReqTerritory = `${userConf._links.territory.href}`
         if (userConf._links.territory.href) {
-          let url = new URL(urlReqTerritory.split("{")[0]);
+          const url = new URL(urlReqTerritory.split("{")[0]);
           url.searchParams.append("projection", "view")
           urlReqTerritory = url.toString();
         }
@@ -463,7 +463,7 @@ export class UserFormComponent implements OnInit {
 
 
           Promise.all(promisesCurrentUserConf).then( () =>{
-            let item = {
+            const item = {
               appliesToChildrenTerritories: userConf.appliesToChildrenTerritories,
               role: roleComplete,
               territory: territoryComplete,
@@ -482,7 +482,7 @@ export class UserFormComponent implements OnInit {
       if (userConf.status === 'pendingDelete' && userConf._links && !userConf.newItem ) {
 
         
-        let indexTerritory = data.findIndex(element =>  element.territoryId === userConf.territoryId && element.status !== 'pendingDelete' )
+        const indexTerritory = data.findIndex(element =>  element.territoryId === userConf.territoryId && element.status !== 'pendingDelete' )
         if(indexTerritory === -1 && !territoriesToDelete.includes(userConf.territoryId))
         {
           showDialog = true;
@@ -529,9 +529,9 @@ export class UserFormComponent implements OnInit {
       return of(aux);
     }
 
-    var urlReq = `${this.userToEdit._links.positions.href}`
+    let urlReq = `${this.userToEdit._links.positions.href}`
     if (this.userToEdit._links.positions.templated) {
-      var url = new URL(urlReq.split("{")[0]);
+      const url = new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection", "view")
       urlReq = url.toString();
     }
@@ -553,20 +553,20 @@ export class UserFormComponent implements OnInit {
   }
 
   saveTerritories(data: any[]) {
-    let territoriesToEdit = [];
+    const territoriesToEdit = [];
     const promises: Promise<any>[] = [];
     data.forEach(territory => {
       if (territory.status === 'pendingModify' || territory.status === 'pendingCreation') {
         if(territory.expirationDate != null)
         {
-          let date = new Date(territory.expirationDate)
+          const date = new Date(territory.expirationDate)
           territory.expirationDate=date.toISOString();
           
         }
 
         if(territory.type)
         {
-          let currentType = this.userPositionTypes.find(element => element.description == territory.type);
+          const currentType = this.userPositionTypes.find(element => element.description == territory.type);
           if(currentType) { territory.type= currentType.value }
         }
 
@@ -628,7 +628,7 @@ export class UserFormComponent implements OnInit {
           if(result.data[0].length>0 && result.data[1].length>0){
 
           
-            let territorySelected = result.data[0][0];
+            const territorySelected = result.data[0][0];
            
               this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, result.data[1], false));
             // this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, result.data[1], false));
@@ -698,8 +698,8 @@ export class UserFormComponent implements OnInit {
 
   }
 
-  getRowsToAddPermits(user: User, territory: Territory, roles: Role[], rolesAreChildren: Boolean) {
-    let itemsToAdd: any[] = [];
+  getRowsToAddPermits(user: User, territory: Territory, roles: Role[], rolesAreChildren: boolean) {
+    const itemsToAdd: any[] = [];
     roles.forEach(role => {
       let item;
       item = {
@@ -757,10 +757,10 @@ export class UserFormComponent implements OnInit {
   }
 
   adaptFormatTerritory(dataToAdapt: Territory[]) {
-    let newData: any[] = [];
+    const newData: any[] = [];
 
     dataToAdapt.forEach(element => {
-      let item = {
+      const item = {
         //TODO Put fields when backend return them
         id: null,
         territory: element,
@@ -789,7 +789,7 @@ export class UserFormComponent implements OnInit {
           })
         }
 
-        let userObj: User = new User();
+        const userObj: User = new User();
         userObj.username = this.userForm.value.username;
         userObj.password = this.userForm.value.password;
         userObj.firstName = this.userForm.value.firstName;

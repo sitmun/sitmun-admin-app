@@ -25,7 +25,7 @@ export class CartographyGroupService extends RestService<CartographyGroup> {
   
   /** save cartography group*/
   save(item: CartographyGroup): Observable<any> {
-    let result: Observable<Object>;
+    let result: Observable<object>;
     if (item._links!=null) {
       result = this.http.put(item._links.self.href, item);
     } else {

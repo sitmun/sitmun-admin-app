@@ -36,7 +36,7 @@ export class TaskGroupFormComponent implements OnInit {
       if(params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
       
       if (this.taskGroupID !== -1 || this.duplicateID != -1) {
-        let idToGet = this.taskGroupID !== -1? this.taskGroupID: this.duplicateID  
+        const idToGet = this.taskGroupID !== -1? this.taskGroupID: this.duplicateID  
         
 
         this.taskGroupService.get(idToGet).subscribe(

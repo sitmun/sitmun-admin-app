@@ -23,12 +23,12 @@ export class TaskService extends RestService<Task> {
     
     /** save task*/
     save(item: Task): Observable<any> {
-        let result: Observable<Object>;
+        let result: Observable<object>;
 
         if (item._links != null) {
 
             if (!item.service) {
-                let service:any = {}
+                const service:any = {}
                 service._links = {};
                 service._links.self = {};
                 service._links.self.href = "";
@@ -41,7 +41,7 @@ export class TaskService extends RestService<Task> {
                 item.service = item.service._links.self.href
             }
             if (!item.cartography) {
-                let cartography:any = {}
+                const cartography:any = {}
                 cartography._links = {};
                 cartography._links.self = {};
                 cartography._links.self.href = "";
@@ -55,7 +55,7 @@ export class TaskService extends RestService<Task> {
             }
 
             if (!item.connection) {
-                let connection:any = {}
+                const connection:any = {}
                 connection._links = {};
                 connection._links.self = {};
                 connection._links.self.href = "";
@@ -99,7 +99,7 @@ export class TaskService extends RestService<Task> {
             }
 
             if(item.roles){
-                let roles = [...item.roles];
+                const roles = [...item.roles];
                 delete item.roles;
                 item.substituteAllRelation('roles',roles).subscribe(result => {
                 }, error => console.error(error));

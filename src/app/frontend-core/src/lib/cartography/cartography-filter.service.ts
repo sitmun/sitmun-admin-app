@@ -25,7 +25,7 @@ export class CartographyFilterService extends RestService<CartographyFilter> {
   
   /** save cartography availability*/
   save(item: CartographyFilter): Observable<any> {
-    let result: Observable<Object>;
+    let result: Observable<object>;
     if (item._links!=null) {
       result = this.http.put(item._links.self.href, item);
       if (item.cartography !=null){
