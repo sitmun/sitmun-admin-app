@@ -30,7 +30,7 @@ export class TasksEditionSearchViewComponent implements OnInit {
 
   ngOnInit()  {
 
-    const columnEditBtn=this.utils.getEditBtnColumnDef();
+    var columnEditBtn=this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
@@ -51,7 +51,7 @@ export class TasksEditionSearchViewComponent implements OnInit {
     if (this.gridModified) {
 
 
-      const result = await this.utils.showNavigationOutDialog().toPromise();
+      let result = await this.utils.showNavigationOutDialog().toPromise();
       if(!result || result.event!=='Accept') { return false }
       else if(result.event ==='Accept') {return true;}
       else{
@@ -66,11 +66,11 @@ export class TasksEditionSearchViewComponent implements OnInit {
   }
 
   getAllTasksEdit = () => {
-    const taskTypeID=config.tasksTypes.VISEdition;
-    const params2:HalParam[]=[];
-    const param:HalParam={key:'type.id', value:taskTypeID}
+    let taskTypeID=config.tasksTypes.VISEdition;
+    let params2:HalParam[]=[];
+    let param:HalParam={key:'type.id', value:taskTypeID}
     params2.push(param);
-    const query:HalOptions={ params:params2};
+    let query:HalOptions={ params:params2};
     return this.taskService.getAll(query,undefined,"tasks");
   }
 

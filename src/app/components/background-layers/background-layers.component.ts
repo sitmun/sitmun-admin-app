@@ -32,7 +32,7 @@ export class BackgroundLayersComponent implements OnInit {
 
   ngOnInit() {
 
-    const columnEditBtn=this.utils.getEditBtnColumnDef();
+    var columnEditBtn=this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
@@ -56,7 +56,7 @@ export class BackgroundLayersComponent implements OnInit {
     if (this.gridModified) {
 
 
-      const result = await this.utils.showNavigationOutDialog().toPromise();
+      let result = await this.utils.showNavigationOutDialog().toPromise();
       if(!result || result.event!=='Accept') { return false }
       else if(result.event ==='Accept') {return true;}
       else{
@@ -64,12 +64,12 @@ export class BackgroundLayersComponent implements OnInit {
       }
     }
     else return true
-  }
+  }	
 
   setGridModifiedValue(value){
     this.gridModified=value;
   }
-
+ 
   getAllBackgroundLayers = () => {
 
     return this.backgroundService.getAll()
@@ -83,7 +83,7 @@ export class BackgroundLayersComponent implements OnInit {
   applyChanges(data: Background[]) {
     const promises: Promise<any>[] = [];
     data.forEach(background => {
-      promises.push(new Promise((resolve, reject) => { this.backgroundService.update(background).subscribe((resp) =>{resolve(true)})}​​​​​​​));
+      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.backgroundService.update(background).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);
       });
@@ -103,7 +103,7 @@ export class BackgroundLayersComponent implements OnInit {
     dialogRef.componentInstance.message=this.utils.getTranslate("removeMessage");
     dialogRef.afterClosed().subscribe(result => {
       if(result){
-        if(result.event==='Accept') {
+        if(result.event==='Accept') {  
           const promises: Promise<any>[] = [];
           data.forEach(background => {
             promises.push(new Promise((resolve, reject) => {​​​​​​​ this.backgroundService.delete(background).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));

@@ -7,7 +7,7 @@ import {Application} from './application.model';
  */
 export class ApplicationBackground extends Resource {
   /** order*/
-  public order: number;
+  public order: Number;
   
   /** background*/
   public background: Background;

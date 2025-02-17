@@ -99,18 +99,18 @@ export class UtilsService {
   }
 
   getCodeListValues(valueList, notTraduction?) {
-    const params2: HalParam[] = [];
+    let params2: HalParam[] = [];
     let codelistLangValue = config.defaultLang;
     if (localStorage.lang) {
       codelistLangValue = localStorage.lang;
     }
-    const param: HalParam = { key: 'codeListName', value: valueList };
+    let param: HalParam = { key: 'codeListName', value: valueList };
     params2.push(param);
     if (!notTraduction) {
-      const param2: HalParam = { key: 'lang', value: codelistLangValue };
+      let param2: HalParam = { key: 'lang', value: codelistLangValue };
       params2.push(param2);
     }
-    const query: HalOptions = { params: params2 };
+    let query: HalOptions = { params: params2 };
 
     return this.codeListService.getAll(query);
   }
@@ -120,9 +120,9 @@ export class UtilsService {
   }
 
   duplicateParameter(data, parameterToModify, ignoreId?, ignoreLinks?) {
-    const elementsToDuplicate = [];
+    let elementsToDuplicate = [];
     data.forEach((element) => {
-      const newElement = { ...element };
+      let newElement = { ...element };
       newElement[parameterToModify] = this.getTranslate('copy_').concat(
         newElement[parameterToModify]
       );
@@ -139,11 +139,11 @@ export class UtilsService {
   }
 
   getDateFilterParams() {
-    const filterParams = {
+    var filterParams = {
       comparator: function (filterLocalDateAtMidnight, cellValue) {
-        const dateAsString = cellValue;
+        var dateAsString = cellValue;
         if (dateAsString == null) return -1;
-        const cellDate = new Date(cellValue);
+        var cellDate = new Date(cellValue);
         if (
           filterLocalDateAtMidnight.toLocaleDateString() ===
           cellDate.toLocaleDateString()
@@ -215,7 +215,7 @@ export class UtilsService {
   }
 
   getSelCheckboxColumnDef() {
-    const columnDef = {
+    let columnDef = {
       headerName: '',
       checkboxSelection: true,
       headerCheckboxSelection: true,
@@ -245,7 +245,7 @@ export class UtilsService {
   }
 
   getEditBtnColumnDef() {
-    const columnDef = {
+    let columnDef = {
       headerName: '',
       field: 'id',
       editable: false,
@@ -265,7 +265,7 @@ export class UtilsService {
    * @returns An object representing the column definition.
    */
   getIdColumnDef(customId?) {
-    const columnDef = {
+    let columnDef = {
       headerName: 'Id',
       field: customId ? customId : 'id',
       editable: false,
@@ -276,7 +276,7 @@ export class UtilsService {
   }
 
   getStatusColumnDef() {
-    const columnDef = {
+    let columnDef = {
       headerName: this.getTranslate('status'),
       field: 'status',
       filter: 'agTextColumnFilter',
@@ -320,7 +320,7 @@ export class UtilsService {
   }
 
   getDateColumnDef(alias, field, editable?: boolean) {
-    const columnDef = {
+    let columnDef = {
       headerName: this.getTranslate(alias),
       field: field,
       filter: 'agDateColumnFilter',
@@ -381,7 +381,7 @@ export class UtilsService {
    * @returns An object representing the column definition.
    */
   getEditableColumnDef(alias, field) {
-    const columnDef = {
+    let columnDef = {
       headerName: this.getTranslate(alias),
       field: field,
       editable: true,
@@ -408,7 +408,7 @@ export class UtilsService {
       return item ? item.description : value;
     };
 
-    const columnDef = {
+    let columnDef = {
       headerName: this.getTranslate(alias),
       field: field,
       editable: false,
@@ -427,7 +427,7 @@ export class UtilsService {
    * @returns An object representing the column definition.
    */
   getNonEditableColumnDef(alias, field) {
-    const columnDef = {
+    let columnDef = {
       headerName: this.getTranslate(alias),
       field: field,
       editable: false,
@@ -438,7 +438,7 @@ export class UtilsService {
   }
 
   getBooleanColumnDef(alias, field, editable) {
-    const columnDef = {
+    let columnDef = {
       headerName: this.getTranslate(alias),
       field: field,
       editable: editable,
@@ -459,12 +459,12 @@ export class UtilsService {
     fieldToCompare?,
     fieldToShow?
   ) {
-    const fieldReturned = fieldToShow ? fieldToShow : 'description';
-    const columnDef = {
+    let fieldReturned = fieldToShow ? fieldToShow : 'description';
+    let columnDef = {
       headerName: this.getTranslate(alias),
       editable: false,
       valueGetter: (params) => {
-        const alias = fieldToCompare
+        var alias = fieldToCompare
           ? filterList.filter(
               (format) => format[fieldToCompare] == params.data[field]
             )[0]
@@ -480,17 +480,17 @@ export class UtilsService {
   //Translation
 
   createTranslationsList(columnName: string): Map<string, Translation> {
-    const translationsList: Map<string, Translation> = new Map<
+    let translationsList: Map<string, Translation> = new Map<
       string,
       Translation
     >();
 
-    const languagesToUse = config.languagesToUse
+    let languagesToUse = config.languagesToUse
       ? config.languagesToUse
       : JSON.parse(localStorage.getItem('languages'));
     if (languagesToUse) {
       languagesToUse.forEach((language) => {
-        const currentTranslation: Translation = new Translation();
+        let currentTranslation: Translation = new Translation();
         currentTranslation.translation = null;
         currentTranslation.column = columnName;
         currentTranslation.language = language;
@@ -533,7 +533,7 @@ export class UtilsService {
     internationalValue,
     modifications: boolean
   ) {
-    const defaultLanguage = config.defaultLang;
+    let defaultLanguage = config.defaultLang;
     const promises: Promise<any>[] = [];
     if (translationMap) {
       translationMap.forEach(async (value: Translation, key: string) => {

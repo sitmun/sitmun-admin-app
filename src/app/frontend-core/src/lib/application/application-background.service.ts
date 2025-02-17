@@ -25,7 +25,7 @@ export class ApplicationBackgroundService extends RestService<ApplicationBackgro
   
   /** save application background*/
   save(item: ApplicationBackground): Observable<any> {
-    let result: Observable<object>;
+    let result: Observable<Object>;
     if (item._links!=null) {
       result = this.http.put(item._links.self.href, item);
       if (item.application !=null){

@@ -276,7 +276,7 @@ describe('LayersFormComponent', () => {
   })
 
   it('getFeature valid', () => {
-    const requestResult =
+    let requestResult =
     {
       "xsd:schema": {
         "elementFormDefault": "qualified",
@@ -457,7 +457,7 @@ describe('LayersFormComponent', () => {
   })
 
   it('getFeature with non valid format', () => {
-    const requestResult =
+    let requestResult =
     {
       "INCORRECT_FORMAT": {
         "elementFormDefault": "qualified",

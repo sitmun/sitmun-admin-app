@@ -6,7 +6,7 @@ import { config } from 'src/config';
 import { Observable, Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
-
+ 
 
 @Component({
   selector: 'app-user',
@@ -19,7 +19,7 @@ export class UserComponent implements OnInit {
   themeGrid: any = config.agGridTheme;
   columnDefs: any[];
   gridModified = false;
-
+  
   constructor(public dialog: MatDialog,
     public userService: UserService,
     private utils: UtilsService,
@@ -31,7 +31,7 @@ export class UserComponent implements OnInit {
 
   ngOnInit() {
 
-    const columnEditBtn=this.utils.getEditBtnColumnDef();
+    var columnEditBtn=this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
@@ -56,7 +56,7 @@ export class UserComponent implements OnInit {
     if (this.gridModified) {
 
 
-      const result = await this.utils.showNavigationOutDialog().toPromise();
+      let result = await this.utils.showNavigationOutDialog().toPromise();
       if(!result || result.event!=='Accept') { return false }
       else if(result.event ==='Accept') {return true;}
       else{
@@ -64,7 +64,7 @@ export class UserComponent implements OnInit {
       }
     }
     else return true
-  }
+  }	
 
   setGridModifiedValue(value){
     this.gridModified=value;
@@ -95,10 +95,10 @@ export class UserComponent implements OnInit {
     dialogRef.componentInstance.message=this.utils.getTranslate("removeMessage");
     dialogRef.afterClosed().subscribe(result => {
       if(result){
-        if(result.event==='Accept') {
+        if(result.event==='Accept') {  
           const promises: Promise<any>[] = [];
           data.forEach(user => {
-            promises.push(new Promise((resolve, reject) => { this.userService.delete(user).subscribe((resp) =>{resolve(true)})}));
+            promises.push(new Promise((resolve, reject) => {​​​​​​​ this.userService.delete(user).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
             Promise.all(promises).then(() => {
               this.dataUpdatedEvent.next(true);
             });

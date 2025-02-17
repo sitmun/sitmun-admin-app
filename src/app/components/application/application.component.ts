@@ -39,7 +39,7 @@ export class ApplicationComponent implements OnInit {
     );
 
 
-    const columnEditBtn = this.utils.getEditBtnColumnDef();
+    var columnEditBtn = this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams'] = {
       clicked: this.newData.bind(this)
     }
@@ -52,7 +52,7 @@ export class ApplicationComponent implements OnInit {
       {
         headerName: this.utils.getTranslate('applicationEntity.type'),  editable: false,
         valueGetter: (params) => {
-          const alias = this.applicationTypes.filter((type) => type.value == params.data.type)[0];
+          var alias = this.applicationTypes.filter((type) => type.value == params.data.type)[0];
           return alias != undefined ? alias.description : params.data.type
         }
       },
@@ -68,7 +68,7 @@ export class ApplicationComponent implements OnInit {
     if (this.gridModified) {
 
 
-      const result = await this.utils.showNavigationOutDialog().toPromise();
+      let result = await this.utils.showNavigationOutDialog().toPromise();
       if(!result || result.event!=='Accept') { return false }
       else if(result.event ==='Accept') {return true;}
       else{

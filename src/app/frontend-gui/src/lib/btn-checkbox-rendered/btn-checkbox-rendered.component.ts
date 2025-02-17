@@ -30,8 +30,8 @@ export class BtnCheckboxRenderedComponent implements ICellRendererAngularComp, O
     if(this.params.colDef.editable){
       //let checked = !event.target.firstElementChild.checked;
       
-      const checked =event.target.checked;
-      const colId = this.params.column.colId;
+      let checked =event.target.checked;
+      let colId = this.params.column.colId;
       this.params.value=checked;
       this.params.api.undoRedoService.isFilling=true;
       this.params.node.setDataValue(colId, checked);

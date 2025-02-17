@@ -50,7 +50,7 @@ export class RestService<T extends Resource> {
     }
 
     /** get all resources with optional options an subType params */
-    public getAll(options?: HalOptions, subType?: SubTypeBuilder, embeddedName?:string, ignoreProjection?:boolean): Observable<T[]> {
+    public getAll(options?: HalOptions, subType?: SubTypeBuilder, embeddedName?:String, ignoreProjection?:boolean): Observable<T[]> {
         return this.resourceService.getAll(this.type, this.resource, this._embedded, options, subType,embeddedName, ignoreProjection).pipe(
             mergeMap((resourceArray: ResourceArray<T>) => {
                 if (options && options.notPaged && !isNullOrUndefined(resourceArray.first_uri)) {
@@ -145,7 +145,7 @@ export class RestService<T extends Resource> {
     }
 
     /** delete resource from a given entity data*/
-    public delete(entity: T): Observable<object> {
+    public delete(entity: T): Observable<Object> {
         return this.resourceService.delete(entity);
     }
 

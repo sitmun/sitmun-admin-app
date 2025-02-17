@@ -24,7 +24,7 @@ export class TreeNodeService extends RestService<TreeNode> {
   
   /** save tree node*/
   save(item: TreeNode): Observable<any> {
-    let result: Observable<object>;
+    let result: Observable<Object>;
     if (item._links!=null) {
       const itemTree = item.tree;
       const itemCartography = item.cartography;
@@ -51,7 +51,7 @@ export class TreeNodeService extends RestService<TreeNode> {
           }, error => console.error(error));
       }
       else{
-          const treeNodeParent:any = {};
+          let treeNodeParent:any = {};
           treeNodeParent._links= {};
           treeNodeParent._links.self = {};
           treeNodeParent._links.self.href="";

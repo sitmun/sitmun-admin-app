@@ -20,7 +20,7 @@ export class CapabilitiesService extends RestService<Capabilitie>  {
 
     /** save service*/
     getInfo(url: string): Observable<any> {
-      let result: Observable<object>;
+      let result: Observable<Object>;
       if(url){
         const headerDict = {
           'Charset': 'UTF-8'

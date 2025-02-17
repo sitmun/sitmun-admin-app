@@ -103,8 +103,8 @@ export class LayerConfiguration {
 /** Layer group model*/
 export class LayerGroup {
   /** initially activated (all visible layers)*/active?:boolean;
-  /** group name*/name?: string;
-  /** group id*/id: string;
+  /** group name*/name?: String;
+  /** group id*/id: String;
   /** array of child Layers*/layers: Array<Layer>;
 }
 
@@ -229,14 +229,14 @@ export class MapConfigurationManagerService {
 
   /** remove given layer from map*/
   removeLayer(layer:Layer) {
-    const index = this.layers.indexOf(layer);
+    var index = this.layers.indexOf(layer);
     this.removeLayerIndex(index);
   }
 
   /** remove layer with given id from map */
   removeLayerId(id) {
-    let index = -1;
-    for (let i = 0, iLen = this.layers.length; i < iLen; i++) {
+    var index = -1;
+    for (var i = 0, iLen = this.layers.length; i < iLen; i++) {
       if (this.layers[i].id == id) {
         index = i;
         break;
@@ -247,7 +247,7 @@ export class MapConfigurationManagerService {
 
   /** remove layer at given index from map */
   removeLayerIndex(index:number) {
-    const layer = this.layers[index];
+    var layer = this.layers[index];
     this.layers.splice(index, 1);
     this.refreshRemoveLayers(layer);
   }
@@ -282,8 +282,8 @@ export class MapConfigurationManagerService {
   }
 
   private getLayerIndexById(id:string):number{
-    let index = -1;
-    for (let i = 0, iLen = this.layers.length; i < iLen; i++) {
+    var index = -1;
+    for (var i = 0, iLen = this.layers.length; i < iLen; i++) {
       if (this.layers[i].id == id) {
         index = i;
         break;
@@ -294,9 +294,9 @@ export class MapConfigurationManagerService {
   
   /** move layer with given id to the given index*/
   moveLayer(id, index) {
-    const layerIndex = this.getLayerIndexById(id);
+    var layerIndex = this.getLayerIndexById(id);
     if (layerIndex != -1) {
-      const layer = this.layers.splice(layerIndex, 1);
+      var layer = this.layers.splice(layerIndex, 1);
       this.layers = 
         this.layers.slice(0, index)
         .concat(layer)
@@ -317,7 +317,7 @@ export class MapConfigurationManagerService {
 
   private refreshLayerConfiguration(id, opacity, visibility, position) {
     // Send the new values so that all subscribers are updated
-    const layer = new LayerConfiguration();
+    var layer = new LayerConfiguration();
     layer.id = id;
     layer.opacity = opacity;
     layer.visibility = visibility;

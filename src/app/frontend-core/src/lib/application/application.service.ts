@@ -26,7 +26,7 @@ export class ApplicationService extends RestService<Application> {
   
   /** save application*/
   save(item: Application): Observable<any> {
-    let result: Observable<object>;
+    let result: Observable<Object>;
 
     let applicationSituationMap:any = {};
     applicationSituationMap._links= {};

@@ -54,7 +54,7 @@ export class BtnCheckboxEditorComponent implements ICellEditorAngularComp, After
   }
 
   onKeyDown(event): void {
-    const key = event.which || event.keyCode;
+    let key = event.which || event.keyCode;
     if (
       key == 37 || // left
       key == 39

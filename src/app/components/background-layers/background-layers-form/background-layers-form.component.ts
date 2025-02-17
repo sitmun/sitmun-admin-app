@@ -28,7 +28,7 @@ export class BackgroundLayersFormComponent implements OnInit {
 
   permissionGroups: Array<any> = [];
   cartographyGroupOfThisLayer = null;
-  dataLoaded: boolean = false;
+  dataLoaded: Boolean = false;
   themeGrid: any = config.agGridTheme;
 
 
@@ -104,7 +104,7 @@ export class BackgroundLayersFormComponent implements OnInit {
         if (params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
 
         if (this.backgroundID !== -1 || this.duplicateID != -1) {
-          const idToGet = this.backgroundID !== -1 ? this.backgroundID : this.duplicateID
+          let idToGet = this.backgroundID !== -1 ? this.backgroundID : this.duplicateID
    
           this.backgroundService.get(idToGet).subscribe(
             resp => {
@@ -138,8 +138,8 @@ export class BackgroundLayersFormComponent implements OnInit {
                   .pipe(map((data: any[]) => data.filter(elem => elem.element == this.backgroundID)
                   )).subscribe(result => {
                
-                    const nameTranslations = [];
-                    const descriptionTranslations = [];
+                    let nameTranslations = [];
+                    let descriptionTranslations = [];
                     result.forEach(translation => {
                       if (translation.column == config.translationColumns.backgroundName) {
                         nameTranslations.push(translation)
@@ -156,8 +156,8 @@ export class BackgroundLayersFormComponent implements OnInit {
 
 
               }
-              let urlReq = `${this.backgroundToEdit._links.cartographyGroup.href}`
-              const url = new URL(urlReq.split("{")[0]);
+              var urlReq = `${this.backgroundToEdit._links.cartographyGroup.href}`
+              var url = new URL(urlReq.split("{")[0]);
               url.searchParams.append("projection", "view")
               urlReq = url.toString();
               this.http.get(urlReq)
@@ -244,10 +244,10 @@ export class BackgroundLayersFormComponent implements OnInit {
   }
 
   getPermissionGroups() {
-    const params2: HalParam[] = [];
-    const param: HalParam = { key: 'type', value: 'F' }
+    let params2: HalParam[] = [];
+    let param: HalParam = { key: 'type', value: 'F' }
     params2.push(param);
-    const query: HalOptions = { params: params2 };
+    let query: HalOptions = { params: params2 };
 
     return this.cartographyGroupService.getAll(query);
   }
@@ -298,9 +298,9 @@ export class BackgroundLayersFormComponent implements OnInit {
       return of(aux);
     }
 
-    let urlReq = `${this.cartographyGroupOfThisLayer._links.members.href}`
+    var urlReq = `${this.cartographyGroupOfThisLayer._links.members.href}`
     if (this.cartographyGroupOfThisLayer._links.members.templated) {
-      const url = new URL(urlReq.split("{")[0]);
+      var url = new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection", "view")
       urlReq = url.toString();
     }
@@ -318,8 +318,8 @@ export class BackgroundLayersFormComponent implements OnInit {
   saveCartographies(data: any[]) {
     const promises: Promise<any>[] = [];
     let dataChanged = false;
-    const cartographiesModified = [];
-    const cartographiesToPut = [];
+    let cartographiesModified = [];
+    let cartographiesToPut = [];
     data.forEach(cartography => {
       if (cartography.status !== 'pendingDelete') {
         if (cartography.status === 'pendingModify') {
@@ -338,7 +338,7 @@ export class BackgroundLayersFormComponent implements OnInit {
    
     Promise.all(promises).then(() => {
       if (dataChanged) {
-        const url = this.cartographyGroupOfThisLayer._links.members.href.split('{', 1)[0];
+        let url = this.cartographyGroupOfThisLayer._links.members.href.split('{', 1)[0];
         this.utils.updateUriList(url, cartographiesToPut, this.dataUpdatedEventCartographies)
       }
       else { this.dataUpdatedEventCartographies.next(true) }
@@ -353,9 +353,9 @@ export class BackgroundLayersFormComponent implements OnInit {
       return of(aux);
     }
 
-    let urlReq = `${this.cartographyGroupOfThisLayer._links.roles.href}`
+    var urlReq = `${this.cartographyGroupOfThisLayer._links.roles.href}`
     if (this.cartographyGroupOfThisLayer._links.roles.templated) {
-      const url = new URL(urlReq.split("{")[0]);
+      var url = new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection", "view")
       urlReq = url.toString();
     }
@@ -374,8 +374,8 @@ export class BackgroundLayersFormComponent implements OnInit {
   saveRoles(data: any[]) {
     const promises: Promise<any>[] = [];
     let dataChanged = false;
-    const rolesModified = [];
-    const rolesToPut = [];
+    let rolesModified = [];
+    let rolesToPut = [];
     data.forEach(role => {
       if (role.status !== 'pendingDelete') {
         if (role.status === 'pendingModify') {
@@ -394,7 +394,7 @@ export class BackgroundLayersFormComponent implements OnInit {
 
     Promise.all(promises).then(() => {
       if (dataChanged) {
-        const url = this.cartographyGroupOfThisLayer._links.roles.href.split('{', 1)[0];
+        let url = this.cartographyGroupOfThisLayer._links.roles.href.split('{', 1)[0];
         this.utils.updateUriList(url, rolesToPut, this.dataUpdatedEventRoles)
       }
       else { this.dataUpdatedEventRoles.next(true) }
@@ -411,9 +411,9 @@ export class BackgroundLayersFormComponent implements OnInit {
       return of(aux);
     }
 
-    let urlReq = `${this.backgroundToEdit._links.applications.href}`
+    var urlReq = `${this.backgroundToEdit._links.applications.href}`
     if (this.backgroundToEdit._links.applications.templated) {
-      const url = new URL(urlReq.split("{")[0]);
+      var url = new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection", "view")
       urlReq = url.toString();
     }
@@ -435,7 +435,7 @@ export class BackgroundLayersFormComponent implements OnInit {
     const promises: Promise<any>[] = [];
     data.forEach(application => {
       if (application.status === 'pendingCreation' || (application.status === 'pendingModify') && (application.new)) {
-        const index = data.findIndex(element => element.name === application.applicationName && !element.newItem)
+        let index = data.findIndex(element => element.name === application.applicationName && !element.newItem)
         if (index === -1) {
           application.newItem = false;
           application.background = this.backgroundToEdit;
@@ -443,7 +443,7 @@ export class BackgroundLayersFormComponent implements OnInit {
             let urlReqApplication = `${application._links.application.href}`
             application.id = null;
             if (application._links.application.href) {
-              const url = new URL(urlReqApplication.split("{")[0]);
+              let url = new URL(urlReqApplication.split("{")[0]);
               url.searchParams.append("projection", "view")
               urlReqApplication = url.toString();
             }
@@ -587,9 +587,9 @@ export class BackgroundLayersFormComponent implements OnInit {
 
 
   adaptNewApplications(data: any[]) {
-    const newApplications = [];
+    let newApplications = [];
     data.forEach(application => {
-      const newBackground = {
+      let newBackground = {
         application: application,
         applicationName: application.name,
         new: true
@@ -605,7 +605,7 @@ export class BackgroundLayersFormComponent implements OnInit {
   onSaveButtonClicked() {
 
     if (this.backgroundForm.valid) {
-      const cartographyGroupObj = new CartographyGroup();
+      let cartographyGroupObj = new CartographyGroup();
       cartographyGroupObj.name = this.backgroundForm.value.name;
       cartographyGroupObj.type = this.backgroundForm.value.cartographyGroup;
       cartographyGroupObj._links = null;
@@ -645,7 +645,7 @@ export class BackgroundLayersFormComponent implements OnInit {
       })
     }
 
-    const backgroundObj: Background = new Background();
+    var backgroundObj: Background = new Background();
 
     backgroundObj.id = this.backgroundForm.value.id;
     backgroundObj.name = this.backgroundForm.value.name;

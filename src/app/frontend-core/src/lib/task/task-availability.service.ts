@@ -25,7 +25,7 @@ export class TaskAvailabilityService extends RestService<TaskAvailability> {
   
   /** save task availability*/
   save(item: TaskAvailability): Observable<any> {
-    let result: Observable<object>;
+    let result: Observable<Object>;
     if (item._links!=null) {
       result = this.http.put(item._links.self.href, item);
       if (item.task !=null){

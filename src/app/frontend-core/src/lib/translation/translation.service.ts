@@ -26,7 +26,7 @@ export class TranslationService extends RestService<Translation> {
   
   /** save translation*/
   save(item: Translation): Observable<any> {
-    let result: Observable<object>;
+    let result: Observable<Object>;
 
     let language:any = {}
     language._links = {};

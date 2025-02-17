@@ -28,7 +28,7 @@ export class ConnectionFormComponent implements OnInit {
   connectionToEdit;
   connectionID = -1;
   duplicateID = -1;
-  dataLoaded: boolean = false;
+  dataLoaded: Boolean = false;
 
   //Grids
   themeGrid: any = config.agGridTheme;
@@ -89,7 +89,7 @@ export class ConnectionFormComponent implements OnInit {
         if(params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
         
         if (this.connectionID !== -1 || this.duplicateID != -1) {
-          const idToGet = this.connectionID !== -1? this.connectionID: this.duplicateID
+          let idToGet = this.connectionID !== -1? this.connectionID: this.duplicateID
   
           this.connectionService.get(idToGet).subscribe(
             resp => {
@@ -198,9 +198,9 @@ export class ConnectionFormComponent implements OnInit {
       return of(aux);
     }
 
-    let urlReq = `${this.connectionToEdit._links.cartographies.href}`
+    var urlReq = `${this.connectionToEdit._links.cartographies.href}`
     if (this.connectionToEdit._links.cartographies.templated) {
-      const url = new URL(urlReq.split("{")[0]);
+      var url = new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection", "view")
       urlReq = url.toString();
     }
@@ -245,9 +245,9 @@ export class ConnectionFormComponent implements OnInit {
       return of(aux);
     }
 
-    let urlReq = `${this.connectionToEdit._links.tasks.href}`
+    var urlReq = `${this.connectionToEdit._links.tasks.href}`
     if (this.connectionToEdit._links.tasks.templated) {
-      const url = new URL(urlReq.split("{")[0]);
+      var url = new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection", "view")
       urlReq = url.toString();
     }
@@ -265,7 +265,7 @@ export class ConnectionFormComponent implements OnInit {
 
   saveTasks(data: any[]) {
     let dataChanged = false;
-    const tasksToPut = [];
+    let tasksToPut = [];
     const promises: Promise<any>[] = [];
     data.forEach(task => {
 
@@ -285,7 +285,7 @@ export class ConnectionFormComponent implements OnInit {
     });
     Promise.all(promises).then(() => {
       if(dataChanged){
-        const url = this.connectionToEdit._links.tasks.href.split('{', 1)[0];
+        let url = this.connectionToEdit._links.tasks.href.split('{', 1)[0];
         this.utils.updateUriList(url, tasksToPut, this.dataUpdatedEventTasks)
       }
       else{ this.dataUpdatedEventTasks.next(true) }
@@ -401,7 +401,7 @@ export class ConnectionFormComponent implements OnInit {
   }
 
   validateConnection() {
-    const connection = {
+    let connection = {
       driver: this.formConnection.value.driver,
       url: this.formConnection.value.url,
       user: this.formConnection.value.user,

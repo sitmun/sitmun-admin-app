@@ -35,13 +35,13 @@ export class ConnectionComponent implements OnInit {
 
   async ngOnInit() {
 
-    const drivers = await this.utils.getCodeListValues('databaseConnection.driver').toPromise();
+    let drivers = await this.utils.getCodeListValues('databaseConnection.driver').toPromise();
     drivers.forEach(element => {
       this.driversList.push(element);
       this.driversListDescription.push(element.description)
     });
 
-    const columnEditBtn = this.utils.getEditBtnColumnDef();
+    var columnEditBtn = this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams'] = {
       clicked: this.newData.bind(this)
     }
@@ -63,7 +63,7 @@ export class ConnectionComponent implements OnInit {
     if (this.gridModified) {
 
 
-      const result = await this.utils.showNavigationOutDialog().toPromise();
+      let result = await this.utils.showNavigationOutDialog().toPromise();
       if(!result || result.event!=='Accept') { return false }
       else if(result.event ==='Accept') {return true;}
       else{

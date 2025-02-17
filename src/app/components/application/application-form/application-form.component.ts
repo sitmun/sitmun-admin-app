@@ -40,7 +40,7 @@ export class ApplicationFormComponent implements OnInit {
   applicationSaved: Application;
   applicationID = -1;
   duplicateID = -1;
-  dataLoaded: boolean = false;
+  dataLoaded: Boolean = false;
   themeGrid: any = config.agGridTheme;
 
   //Grids
@@ -127,7 +127,7 @@ export class ApplicationFormComponent implements OnInit {
       this.utils.getCodeListValues('applicationParameter.type').
         pipe(
           map((resp: any) => {
-            const newTable: CodeList[] = [];
+            let newTable: CodeList[] = [];
             resp.forEach(element => {
               if (element.value !== config.applicationTemplateIdentificator) { newTable.push(element) }
             });
@@ -141,7 +141,7 @@ export class ApplicationFormComponent implements OnInit {
         );
     }));
 
-    const situationMapByDefault = {
+    let situationMapByDefault = {
       id: -1,
       name: '-------'
     }
@@ -163,7 +163,7 @@ export class ApplicationFormComponent implements OnInit {
 
         if (this.applicationID !== -1 || this.duplicateID != -1) {
 
-          const idToGet = this.applicationID !== -1 ? this.applicationID : this.duplicateID
+          let idToGet = this.applicationID !== -1 ? this.applicationID : this.duplicateID
 
 
           this.applicationService.get(idToGet).subscribe(
@@ -202,8 +202,8 @@ export class ApplicationFormComponent implements OnInit {
                   .pipe(map((data: any[]) => data.filter(elem => elem.element == this.applicationID)
                   )).subscribe(result => {
        
-                    const nameTranslations = [];
-                    const titleTranslations = [];
+                    let nameTranslations = [];
+                    let titleTranslations = [];
                     result.forEach(translation => {
                       if (translation.column == config.translationColumns.applicationName) {
                         nameTranslations.push(translation)
@@ -322,10 +322,10 @@ export class ApplicationFormComponent implements OnInit {
 
   }
   getSituationMapList() {
-    const params2: HalParam[] = [];
-    const param: HalParam = { key: 'type', value: 'M' }
+    let params2: HalParam[] = [];
+    let param: HalParam = { key: 'type', value: 'M' }
     params2.push(param);
-    const query: HalOptions = { params: params2 };
+    let query: HalOptions = { params: params2 };
 
     return this.cartographyGroupService.getAll(query);
   }
@@ -411,9 +411,9 @@ export class ApplicationFormComponent implements OnInit {
       return of(aux);
     }
 
-    let urlReq = `${this.applicationToEdit._links.parameters.href}`
+    var urlReq = `${this.applicationToEdit._links.parameters.href}`
     if (this.applicationToEdit._links.parameters.templated) {
-      const url = new URL(urlReq.split("{")[0]);
+      var url = new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection", "view")
       urlReq = url.toString();
     }
@@ -431,8 +431,8 @@ export class ApplicationFormComponent implements OnInit {
 
 
   saveParameters(data: any[]) {
-    const parameterToSave = [];
-    const parameterToDelete = [];
+    let parameterToSave = [];
+    let parameterToDelete = [];
     const promises: Promise<any>[] = [];
     data.forEach(parameter => {
       if (parameter.status === 'pendingCreation' || parameter.status === 'pendingModify') {
@@ -468,7 +468,7 @@ export class ApplicationFormComponent implements OnInit {
   }
 
   duplicateParameters(data) {
-    const parametersToDuplicate = this.utils.duplicateParameter(data, 'name');
+    let parametersToDuplicate = this.utils.duplicateParameter(data, 'name');
     this.addElementsEventParameters.next(parametersToDuplicate);
   }
 
@@ -480,9 +480,9 @@ export class ApplicationFormComponent implements OnInit {
       return of(aux);
     }
 
-    let urlReq = `${this.applicationToEdit._links.parameters.href}`
+    var urlReq = `${this.applicationToEdit._links.parameters.href}`
     if (this.applicationToEdit._links.parameters.templated) {
-      const url = new URL(urlReq.split("{")[0]);
+      var url = new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection", "view")
       urlReq = url.toString();
     }
@@ -496,7 +496,7 @@ export class ApplicationFormComponent implements OnInit {
 
 
   duplicateTemplates(data) {
-    const templatesToDuplicate = this.utils.duplicateParameter(data, 'name');
+    let templatesToDuplicate = this.utils.duplicateParameter(data, 'name');
     this.addElementsEventTemplateConfiguration.next(templatesToDuplicate);
   }
 
@@ -511,9 +511,9 @@ export class ApplicationFormComponent implements OnInit {
       return of(aux);
     }
 
-    let urlReq = `${this.applicationToEdit._links.availableRoles.href}`
+    var urlReq = `${this.applicationToEdit._links.availableRoles.href}`
     if (this.applicationToEdit._links.availableRoles.templated) {
-      const url = new URL(urlReq.split("{")[0]);
+      var url = new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection", "view")
       urlReq = url.toString();
     }
@@ -532,8 +532,8 @@ export class ApplicationFormComponent implements OnInit {
     const promises: Promise<any>[] = [];
 
     let dataChanged = false;
-    const rolesModified = [];
-    const rolesToPut = [];
+    let rolesModified = [];
+    let rolesToPut = [];
     data.forEach(role => {
 
       if (role.status !== 'pendingDelete') {
@@ -552,7 +552,7 @@ export class ApplicationFormComponent implements OnInit {
 
     Promise.all(promises).then(() => {
       if (dataChanged) {
-        const url = this.applicationToEdit._links.availableRoles.href.split('{', 1)[0];
+        let url = this.applicationToEdit._links.availableRoles.href.split('{', 1)[0];
         this.utils.updateUriList(url, rolesToPut, this.dataUpdatedEventRoles);
       }
       else { this.dataUpdatedEventRoles.next(true) }
@@ -569,9 +569,9 @@ export class ApplicationFormComponent implements OnInit {
       return of(aux);
     }
 
-    let urlReq = `${this.applicationToEdit._links.backgrounds.href}`
+    var urlReq = `${this.applicationToEdit._links.backgrounds.href}`
     if (this.applicationToEdit._links.backgrounds.templated) {
-      const url = new URL(urlReq.split("{")[0]);
+      var url = new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection", "view")
       urlReq = url.toString();
     }
@@ -589,14 +589,14 @@ export class ApplicationFormComponent implements OnInit {
   }
 
   saveBackgrounds(data: any[]) {
-    const backgroundsToCreate = [];
-    const backgroundsToDelete = [];
+    let backgroundsToCreate = [];
+    let backgroundsToDelete = [];
     const promises: Promise<any>[] = [];
     const promisesBackground: Promise<any>[] = [];
     data.forEach(background => {
       if (background.status === 'pendingCreation' || (background.status === 'pendingModify') && (background.new)) {
 
-        const index = data.findIndex(element => element.backgroundDescription === background.backgroundDescription && element.backgroundName === background.backgroundName && !element.newItem)
+        let index = data.findIndex(element => element.backgroundDescription === background.backgroundDescription && element.backgroundName === background.backgroundName && !element.newItem)
         if (index === -1) {
           background.newItem = false;
           background.application = this.applicationToEdit;
@@ -604,7 +604,7 @@ export class ApplicationFormComponent implements OnInit {
             let urlReqBackground = `${background._links.background.href}`
             background.id = null;
             if (background._links.background.href) {
-              const url = new URL(urlReqBackground.split("{")[0]);
+              let url = new URL(urlReqBackground.split("{")[0]);
               url.searchParams.append("projection", "view")
               urlReqBackground = url.toString();
             }
@@ -668,9 +668,9 @@ export class ApplicationFormComponent implements OnInit {
       return of(aux);
     }
 
-    let urlReq = `${this.applicationToEdit._links.trees.href}`
+    var urlReq = `${this.applicationToEdit._links.trees.href}`
     if (this.applicationToEdit._links.trees.templated) {
-      const url = new URL(urlReq.split("{")[0]);
+      var url = new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection", "view")
       urlReq = url.toString();
     }
@@ -689,8 +689,8 @@ export class ApplicationFormComponent implements OnInit {
 
   saveTrees(data: any[]) {
     let dataChanged = false;
-    const treesModified = [];
-    const treesToPut = [];
+    let treesModified = [];
+    let treesToPut = [];
     const promises: Promise<any>[] = [];
 
     data.forEach(tree => {
@@ -712,7 +712,7 @@ export class ApplicationFormComponent implements OnInit {
 
     Promise.all(promises).then(() => {
       if (dataChanged) {
-        const url = this.applicationToEdit._links.trees.href.split('{', 1)[0];
+        let url = this.applicationToEdit._links.trees.href.split('{', 1)[0];
         this.utils.updateUriList(url, treesToPut, this.dataUpdatedEventTree)
       }
       else { this.dataUpdatedEventTree.next(true); }
@@ -738,7 +738,7 @@ export class ApplicationFormComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
-          const item = this.parameterForm.value;
+          let item = this.parameterForm.value;
           this.addElementsEventParameters.next([item])
 
 
@@ -767,7 +767,7 @@ export class ApplicationFormComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
-          const item = this.parameterForm.value;
+          let item = this.parameterForm.value;
           item.type = config.applicationTemplateIdentificator;
           this.addElementsEventTemplateConfiguration.next([item])
         }
@@ -849,9 +849,9 @@ export class ApplicationFormComponent implements OnInit {
 
 
   adaptNewBackgrounds(data: any[]) {
-    const newBackgrounds = [];
+    let newBackgrounds = [];
     data.forEach(background => {
-      const newBackground = {
+      let newBackground = {
         background: background,
         backgroundDescription: background.description,
         backgroundName: background.name,
@@ -913,7 +913,7 @@ export class ApplicationFormComponent implements OnInit {
         })
       }
 
-      const appObj: Application = new Application();
+      var appObj: Application = new Application();
 
       appObj.name = this.applicationForm.value.name;
       appObj.type = this.applicationForm.value.type;

@@ -52,7 +52,7 @@ export class Application extends Resource {
   public srs: string;
   
   /** whether application tree will auto refresh*/  
-  public treeAutoRefresh: boolean;
+  public treeAutoRefresh: Boolean;
 
   /** backgrounds*/
   public backgrounds: ApplicationBackground[];

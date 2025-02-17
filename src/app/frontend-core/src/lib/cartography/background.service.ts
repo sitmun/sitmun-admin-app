@@ -23,7 +23,7 @@ export class BackgroundService extends RestService<Background> {
   
   /** save background*/
   save(item: Background): Observable<any> {
-    let result: Observable<object>;
+    let result: Observable<Object>;
     let backgroundCartographyGroup:any = {}         
     
     backgroundCartographyGroup._links= {};

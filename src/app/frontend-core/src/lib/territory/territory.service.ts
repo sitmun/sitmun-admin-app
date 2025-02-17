@@ -24,9 +24,9 @@ export class TerritoryService extends RestService<Territory> {
 
   /** save territory*/
   save(item: Territory): Observable<any> {
-    let result: Observable<object>;
+    let result: Observable<Object>;
 
-    const territoryGroupType:any = {}
+    let territoryGroupType:any = {}
     territoryGroupType._links = {};
     territoryGroupType._links.self = {};
     territoryGroupType._links.self.href = "";

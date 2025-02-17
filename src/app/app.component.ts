@@ -87,7 +87,7 @@ export class AppComponent {
 
         this.configurationParametersService.getAll().subscribe(
           async result => {
-              const defaultLang = result.find(element => element.name == 'language.default' )
+              let defaultLang = result.find(element => element.name == 'language.default' )
               if(defaultLang){
                 config.defaultLang = defaultLang.value;
 

@@ -30,9 +30,9 @@ export class ServiceFormComponent implements OnInit {
 
   translationsModified: boolean = false;
   //form
-  dataLoaded: boolean = false;
+  dataLoaded: Boolean = false;
   tableLoadButtonDisabled = true;
-  capabilitiesLoaded: boolean = true;
+  capabilitiesLoaded: Boolean = true;
   private parametersUrl: string;
   serviceForm: UntypedFormGroup;
   serviceToEdit;
@@ -134,7 +134,7 @@ export class ServiceFormComponent implements OnInit {
         if (params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
 
         if (this.serviceID !== -1 || this.duplicateID != -1) {
-          const idToGet = this.serviceID !== -1 ? this.serviceID : this.duplicateID
+          let idToGet = this.serviceID !== -1 ? this.serviceID : this.duplicateID
           this.serviceService.get(idToGet).subscribe(
             resp => {
 
@@ -156,7 +156,7 @@ export class ServiceFormComponent implements OnInit {
                 _links: this.serviceToEdit._links
               });
 
-              const currentType = this.serviceTypes.find(element => element.value == this.serviceToEdit.type);
+              let currentType = this.serviceTypes.find(element => element.value == this.serviceToEdit.type);
               if (currentType) {
                 this.tableLoadButtonDisabled = currentType.value == config.capabilitiesRequest.WMSIdentificator ? false : true
               }
@@ -333,7 +333,7 @@ export class ServiceFormComponent implements OnInit {
   }
 
   changeServiceDataByCapabilities(refresh?, ignoreForm?) {
-    const data = this.serviceCapabilitiesData.WMT_MS_Capabilities != undefined ? this.serviceCapabilitiesData.WMT_MS_Capabilities : this.serviceCapabilitiesData.WMS_Capabilities
+    let data = this.serviceCapabilitiesData.WMT_MS_Capabilities != undefined ? this.serviceCapabilitiesData.WMT_MS_Capabilities : this.serviceCapabilitiesData.WMS_Capabilities
 
     if (data != undefined) {
       if (data.Capability) {
@@ -356,12 +356,12 @@ export class ServiceFormComponent implements OnInit {
       while (capability.Layer != null && capability.Layer != undefined) {
         capability = capability.Layer;
       }
-      const layersTable = [];
+      let layersTable = [];
       this.getLayersCapabilities(capability, layersTable);
       if (layersTable.length > 0) {
         layersTable.forEach(lyr => {
           let layersLyr;
-          const styles = [];
+          let styles = [];
           if (Array.isArray(lyr.Name)) {
             layersLyr = lyr.Name;
           }
@@ -371,7 +371,7 @@ export class ServiceFormComponent implements OnInit {
             layersLyr = lyr.Name.split(",")
           }
           // if (!layersLyr) { layersLyr = [] }
-          const cartography = new Cartography();
+          let cartography = new Cartography();
           cartography.name = lyr.Title;
           if (cartography.name && cartography.name.length > 250) { cartography.name = cartography.name.substring(0, 249) }
           cartography.description = lyr.Abstract;
@@ -388,17 +388,17 @@ export class ServiceFormComponent implements OnInit {
           }
           if (lyr) {
             if (lyr.MetadataURL != undefined) {
-              const metadataURL = Array.isArray(lyr.MetadataURL) ? lyr.MetadataURL[0] : lyr.MetadataURL
+              let metadataURL = Array.isArray(lyr.MetadataURL) ? lyr.MetadataURL[0] : lyr.MetadataURL
               cartography.metadataURL = metadataURL.OnlineResource['xlink:href']
             }
 
             if (lyr.DataURL != undefined) {
-              const DataURL = Array.isArray(lyr.DataURL) ? lyr.DataURL[0] : lyr.DataURL
+              let DataURL = Array.isArray(lyr.DataURL) ? lyr.DataURL[0] : lyr.DataURL
               cartography.datasetURL = DataURL.OnlineResource['xlink:href']
             }
 
             if (lyr.Style && lyr.Style[0] && lyr.Style[0].LEGENDURL != undefined) {
-              const style = Array.isArray(lyr.STYLE) ? lyr.STYLE[0] : lyr.STYLE
+              let style = Array.isArray(lyr.STYLE) ? lyr.STYLE[0] : lyr.STYLE
               cartography.legendURL = style.legendURL.OnlineResource['xlink:href']
             }
           }
@@ -413,7 +413,7 @@ export class ServiceFormComponent implements OnInit {
           // for(let i=0; i<data.Service.Abstract.length; i++){
           data.Service.Abstract.forEach(translation => {
             let languageShortname: string = translation['xml:lang']
-            const index = languageShortname.indexOf("-");
+            let index = languageShortname.indexOf("-");
             if (index != -1) {
               languageShortname = languageShortname.substring(0, index);
             }
@@ -422,8 +422,8 @@ export class ServiceFormComponent implements OnInit {
             }
             else {
               if ((this.translationMap.has(languageShortname))) {
-                const currentTranslation = this.translationMap.get(languageShortname);
-                const translationReduced = translation.content.substring(0, 249);
+                let currentTranslation = this.translationMap.get(languageShortname);
+                let translationReduced = translation.content.substring(0, 249);
                 if (currentTranslation.translation != translationReduced) {
                   currentTranslation.translation = translationReduced;
                   this.translationsModified = true;
@@ -441,7 +441,7 @@ export class ServiceFormComponent implements OnInit {
           auxDescription = data.Service.Abstract;
         }
         if (!ignoreForm) {
-          const newDescription = auxDescription.length > 250 ? auxDescription.substring(0, 249) : auxDescription
+          let newDescription = auxDescription.length > 250 ? auxDescription.substring(0, 249) : auxDescription
           this.serviceForm.patchValue({
             description: newDescription,
           })
@@ -491,14 +491,14 @@ export class ServiceFormComponent implements OnInit {
       return of(aux);
     }
 
-    let urlReq = `${this.serviceToEdit._links.parameters.href}`
+    var urlReq = `${this.serviceToEdit._links.parameters.href}`
     if (this.serviceToEdit._links.parameters.templated) {
-      const url = new URL(urlReq.split("{")[0]);
+      var url = new URL(urlReq.split("{")[0]);
       url.searchParams.append("projection", "view")
       urlReq = url.toString();
     }
 
-    const results = this.http.get(urlReq).pipe(
+    var results = this.http.get(urlReq).pipe(
       map(data => data[`_embedded`][`service-parameters`]),
       map(serviceParameters =>
         serviceParameters.map(serviceParam => {
@@ -527,8 +527,8 @@ export class ServiceFormComponent implements OnInit {
 
 
   saveParameters(data: any[]) {
-    const parameterToSave = [];
-    const parameterToDelete = [];
+    let parameterToSave = [];
+    let parameterToDelete = [];
     const promises: Promise<any>[] = [];
     data.forEach(parameter => {
       if (parameter.status === 'pendingCreation' || parameter.status === 'pendingModify') {
@@ -564,7 +564,7 @@ export class ServiceFormComponent implements OnInit {
   }
 
   duplicateParameters(data) {
-    const parametersToDuplicate = this.utils.duplicateParameter(data, 'name');
+    let parametersToDuplicate = this.utils.duplicateParameter(data, 'name');
     this.addElementsEventParameters.next(parametersToDuplicate);
   }
 
@@ -597,10 +597,10 @@ export class ServiceFormComponent implements OnInit {
       }
       return (this.http.get(urlReq))
         .pipe(map(data => {
-          const finalCartographies = [];
-          const cartographies = data['_embedded']['cartographies'];
+          let finalCartographies = [];
+          let cartographies = data['_embedded']['cartographies'];
           this.getCapabilitiesLayers.forEach(capabilityLayer => {
-            const index = cartographies.findIndex(element => element.layers && capabilityLayer.layers && element.layers.join() == capabilityLayer.layers.join() && !element.alreadySearched);
+            let index = cartographies.findIndex(element => element.layers && capabilityLayer.layers && element.layers.join() == capabilityLayer.layers.join() && !element.alreadySearched);
             if (index != -1) {
               if (cartographies[index].blocked) {
                 cartographies[index].status = "notAvailable";
@@ -630,7 +630,7 @@ export class ServiceFormComponent implements OnInit {
 
     }
     else {
-      const finalCartographies = [];
+      let finalCartographies = [];
       this.getCapabilitiesLayers.forEach(capabilityLayer => {
         capabilityLayer.status = "unregisteredLayer"
         finalCartographies.push(capabilityLayer);
@@ -674,7 +674,7 @@ export class ServiceFormComponent implements OnInit {
         cartography.blocked = false;
         cartography.queryableFeatureAvailable = false;
         cartography.queryableFeatureEnabled = false;
-        const styles = cartography.styles;
+        let styles = cartography.styles;
         delete cartography.styles;
         promises.push(new Promise((resolve, reject) => {
           this.cartographyService.save(cartography).subscribe((resp) => {
@@ -781,7 +781,7 @@ export class ServiceFormComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
-          const item = this.parameterForm.value;
+          let item = this.parameterForm.value;
 
           item.type = this.requestTypes.find(
             element => element.value == item.type.toUpperCase()

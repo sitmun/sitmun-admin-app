@@ -38,7 +38,7 @@ export class LayersPermitsComponent implements OnInit {
         this.permissionGroupTypes.push(...resp);
       }
     );
-    const columnEditBtn=this.utils.getEditBtnColumnDef();
+    var columnEditBtn=this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
@@ -58,7 +58,7 @@ export class LayersPermitsComponent implements OnInit {
     if (this.gridModified) {
 
 
-      const result = await this.utils.showNavigationOutDialog().toPromise();
+      let result = await this.utils.showNavigationOutDialog().toPromise();
       if(!result || result.event!=='Accept') { return false }
       else if(result.event ==='Accept') {return true;}
       else{
@@ -73,10 +73,10 @@ export class LayersPermitsComponent implements OnInit {
   }
 
   getAllLayersPermits = () => {
-    const params2: HalParam[] = [];
-    const param: HalParam[]= [{ key: 'type', value: 'I' }, { key: 'type', value: 'C' }, { key: 'type', value: 'M' }]
+    let params2: HalParam[] = [];
+    let param: HalParam[]= [{ key: 'type', value: 'I' }, { key: 'type', value: 'C' }, { key: 'type', value: 'M' }]
     params2.push(...param);
-    const query: HalOptions = { params: params2 };
+    let query: HalOptions = { params: params2 };
     return this.cartographyGroupService.getAll(query,null,null,true);
   }
 

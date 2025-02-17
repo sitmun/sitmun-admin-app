@@ -24,7 +24,7 @@ export class RoleService extends RestService<Role> {
   
   /** save role*/
   save(item: any): Observable<any> {
-    let result: Observable<object>;
+    let result: Observable<Object>;
     if (item._links!=null) {
       result = this.http.put(item._links.self.href, item);
     } else {

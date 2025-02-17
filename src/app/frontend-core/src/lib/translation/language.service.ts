@@ -26,7 +26,7 @@ export class LanguageService extends RestService<Language> {
   
   /** save translation*/
   save(item: Language): Observable<any> {
-    let result: Observable<object>;
+    let result: Observable<Object>;
     if (item._links!=null) {
       result = this.http.put(item._links.self.href, item);
     } else {

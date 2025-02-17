@@ -24,8 +24,8 @@ export class ServiceService extends RestService<Service> {
   
   /** save service*/
   save(item: Service): Observable<any> {
-    let result: Observable<object>;
-    const serviceConnection = item.connection;
+    let result: Observable<Object>;
+    let serviceConnection = item.connection;
 
     if (item.connection!=null){
         if (typeof item.connection._links!= 'undefined') { 

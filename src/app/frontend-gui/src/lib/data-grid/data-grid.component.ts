@@ -227,7 +227,7 @@ export class DataGridComponent implements OnInit {
 
   firstDataRendered(): void {
     if (localStorage.agGridState != undefined) {
-      const agGridState = JSON.parse(localStorage.agGridState)
+      let agGridState = JSON.parse(localStorage.agGridState)
       if (agGridState.idAgGrid != undefined && agGridState.idAgGrid == this.id) {
         this.gridApi.setFilterModel(agGridState.filterState);
         //this.gridApi.setColumnState(agGridState.colState);
@@ -272,7 +272,7 @@ export class DataGridComponent implements OnInit {
         });
       }
       else{
-        const sortModel = [];
+        let sortModel = [];
         this.defaultColumnSorting.forEach(element => {
           sortModel.push({ colId: element, sort: 'asc' })
         });
@@ -316,7 +316,7 @@ export class DataGridComponent implements OnInit {
     return Datepicker;
   }
 
-  areRowsSelected(): boolean {
+  areRowsSelected(): Boolean {
     return (this.gridApi != null && this.gridApi.getSelectedNodes().length > 0)? true: false;
     // if (this.gridApi != null && this.gridApi.getSelectedNodes().length > 0) {
     //   return true
@@ -339,13 +339,13 @@ export class DataGridComponent implements OnInit {
   }
 
   private getAllCurrentData(): Array<any>{
-    const rowData = [];
+    let rowData = [];
     this.gridApi.forEachNode(node => rowData.push(node.data));
     return rowData;
   }
 
   modifyStatusSelected(status?: string): void{
-    const newStatus=status?status:this.newStatusRegister;
+    let newStatus=status?status:this.newStatusRegister;
     const selectedNodes = this.gridApi.getSelectedNodes();
     selectedNodes.map(node => {
       node.data.status=newStatus;
@@ -355,7 +355,7 @@ export class DataGridComponent implements OnInit {
   }
 
   saveAgGridState(): void {
-    const agGridState = {
+    let agGridState = {
       idAgGrid: this.id,
       colState: this.gridApi.getColumnState(),
       filterState: this.gridApi.getFilterModel(),
@@ -370,12 +370,12 @@ export class DataGridComponent implements OnInit {
     localStorage.removeItem("agGridState")
   }
 
-  getColumnKeysAndHeaders(columnkeys: Array<any>): string {
-    const header: Array<any> = [];
+  getColumnKeysAndHeaders(columnkeys: Array<any>): String {
+    let header: Array<any> = [];
     if (this.columnDefs.length == 0) { return '' };
 
     //let allColumnKeys = this.gridOptions.columnApi.getAllDisplayedColumns();
-    const allColumnKeys = this.gridApi.getAllDisplayedColumns()
+    let allColumnKeys = this.gridApi.getAllDisplayedColumns()
 
     allColumnKeys.forEach(element => {
       if (element.userProvidedColDef.headerName !== '') {
@@ -391,10 +391,10 @@ export class DataGridComponent implements OnInit {
 
 
   exportData(): void {
-    const columnkeys: Array<any> = [];
-    let customHeader: string = '';
+    let columnkeys: Array<any> = [];
+    let customHeader: String = '';
     customHeader = this.getColumnKeysAndHeaders(columnkeys)
-    const params = {
+    let params = {
       onlySelected: true,
       columnKeys: columnkeys,
       customHeader: customHeader,
@@ -410,9 +410,9 @@ export class DataGridComponent implements OnInit {
   getElements(): void {
     this.getAll()
       .subscribe((items) => {
-        const status = this.allNewElements?'pendingCreation':'statusOK'
-        const newItems = [];
-        const condition = (this.addFieldRestriction)? this.addFieldRestriction: 'id';
+        let status = this.allNewElements?'pendingCreation':'statusOK'
+        let newItems = [];
+        let condition = (this.addFieldRestriction)? this.addFieldRestriction: 'id';
         items.forEach(element => {
           if(this.statusColumn){
             if(element.status != "notAvailable" && element.status != "pendingCreation" && element.status != "pendingRegistration" && element.status != "unregisteredLayer"){
@@ -440,7 +440,7 @@ export class DataGridComponent implements OnInit {
 
   setSize() {
 
-    const allColumnIds = [];
+    let allColumnIds = [];
     
     let columns;
     if(!this.gridApi?.isDestroyed()) {
@@ -458,8 +458,8 @@ export class DataGridComponent implements OnInit {
 
   addItems(newItems: any[]): void {
 
-    const itemsToAdd: Array<any> = [];
-    const condition = (this.addFieldRestriction)? this.addFieldRestriction: 'id';
+    let itemsToAdd: Array<any> = [];
+    let condition = (this.addFieldRestriction)? this.addFieldRestriction: 'id';
     
 
     newItems.forEach(item => {
@@ -487,10 +487,10 @@ export class DataGridComponent implements OnInit {
 
     if(Array.isArray(condition)){
 
-      for(const element of data){
+      for(let element of data){
         let canAdd = false;
 
-        for(const currentCondition of condition){
+        for(let currentCondition of condition){
           if(element[currentCondition] != item[currentCondition]){
             canAdd = true;
             break;
@@ -603,7 +603,7 @@ export class DataGridComponent implements OnInit {
 
   deleteChanges(): void {
     this.gridApi.stopEditing(false);
-    const newElementsActived= this.allNewElements;
+    let newElementsActived= this.allNewElements;
 
     while (this.changeCounter > 0) {
       this.undo();
@@ -615,7 +615,7 @@ export class DataGridComponent implements OnInit {
 
     if(this.statusColumn && !this.discardNonReverseStatus)
     {
-      const rowsWithStatusModified = [];
+      let rowsWithStatusModified = [];
       this.gridApi.forEachNode(function(node) { 
         if(node.data.status === 'pendingModify' || node.data.status === 'pendingDelete') {
           if(node.data.status === 'pendingDelete'){
@@ -756,7 +756,7 @@ export class DataGridComponent implements OnInit {
 
           this.modificationChange = true;
           if (params.colDef.cellRenderer == "btnCheckboxRendererComponent") {
-            const undoRedoActions = {
+            var undoRedoActions = {
               cellValueChanges: this.gridApi.undoRedoService.cellValueChanges
             };
             this.gridApi.undoRedoService.pushActionsToUndoStack(undoRedoActions);

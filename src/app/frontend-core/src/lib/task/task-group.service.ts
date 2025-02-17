@@ -25,7 +25,7 @@ export class TaskGroupService extends RestService<TaskGroup> {
   
   /** save task group*/
   save(item: TaskGroup): Observable<any> {
-    let result: Observable<object>;
+    let result: Observable<Object>;
     if (item._links!=null) {
       
       result = this.http.put(item._links.self.href, item);

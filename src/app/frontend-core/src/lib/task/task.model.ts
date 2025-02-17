@@ -21,7 +21,7 @@ export class Task extends Resource {
   /** name */  
   public name?: string;
   /** order*/
-  public order?: number;
+  public order?: Number;
   /** system created date*/
   public createdDate?: any;
   /** task group*/

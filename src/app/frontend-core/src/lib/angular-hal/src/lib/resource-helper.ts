@@ -58,7 +58,7 @@ export class ResourceHelper {
     }
 
     /** resolve resource relations */
-    static resolveRelations(resource: Resource): object {
+    static resolveRelations(resource: Resource): Object {
         const result: any = {};
         for (const key in resource) {
             if (!isNullOrUndefined(resource[key])) {
@@ -67,9 +67,9 @@ export class ResourceHelper {
                     if (resource[key]['_links'])
                         result[key] = resource[key]['_links']['self']['href'];
                 } else if (Array.isArray(resource[key])) {
-                    const array: any[] = resource[key];
+                    let array: any[] = resource[key];
                     if (array) {
-                        result[key] = [];
+                        result[key] = new Array();
                         array.forEach((element) => {
                             if (isPrimitive(element)) {
                                 result[key].push(element);
@@ -84,27 +84,27 @@ export class ResourceHelper {
                 }
             }
         }
-        return result as object;
+        return result as Object;
     }
 
     /** create an empty resource from embedded data*/
     static createEmptyResult<T extends Resource>(_embedded: string): ResourceArray<T> {
-        const resourceArray: ResourceArray<T> = new ResourceArray<T>();
+        let resourceArray: ResourceArray<T> = new ResourceArray<T>();
         resourceArray._embedded = _embedded;
         return resourceArray;
     }
 
     /** get resource class name*/
     static getClassName(obj: any): string {
-        const funcNameRegex = /function (.+?)\(/;
-        const results = (funcNameRegex).exec(obj.constructor.toString());
+        var funcNameRegex = /function (.+?)\(/;
+        var results = (funcNameRegex).exec(obj.constructor.toString());
         return (results && results.length > 1) ? results[1] : '';
     }
 
     
     /** get resource class name from a prototype object*/
     static className(objProto: any): string[] {
-        const classNames = [];
+        let classNames = [];
         let obj = Object.getPrototypeOf(objProto);
         let className: string;
 
@@ -118,12 +118,12 @@ export class ResourceHelper {
 
     /** instantiate a ResourceCollection from response embedded data*/
     static instantiateResourceCollection<T extends Resource>(type: { new(): T }, payload: any,
-                                                             result: ResourceArray<T>, builder?: SubTypeBuilder,embeddedName?:string): ResourceArray<T> {
+                                                             result: ResourceArray<T>, builder?: SubTypeBuilder,embeddedName?:String): ResourceArray<T> {
         for (const embeddedClassName of Object.keys(payload[result._embedded])) {
             if(!embeddedName || (embeddedName && embeddedClassName==embeddedName)){
-                const embedded: any = payload[result._embedded];
+                let embedded: any = payload[result._embedded];
                 const items = embedded[embeddedClassName];
-                for (const item of items) {
+                for (let item of items) {
                     let instance: T = new type();
                     instance = this.searchSubtypes(builder, embeddedClassName, instance);
 
@@ -149,10 +149,10 @@ export class ResourceHelper {
     /** search subtypes*/
     static searchSubtypes<T extends Resource>(builder: SubTypeBuilder, embeddedClassName: string, instance: T) {
         if (builder && builder.subtypes) {
-            const keys = builder.subtypes.keys();
+            let keys = builder.subtypes.keys();
             Array.from(keys).forEach((subtypeKey: string) => {
                 if (embeddedClassName.toLowerCase().startsWith(subtypeKey.toLowerCase())) {
-                    const subtype: { new(): any } = builder.subtypes.get(subtypeKey);
+                    let subtype: { new(): any } = builder.subtypes.get(subtypeKey);
                     instance = new subtype();
                 }
             });
@@ -161,7 +161,7 @@ export class ResourceHelper {
     }
 
     /** instantiate a Resource from response */
-    static instantiateResource<T extends Resource>(entity: T, payload: object): T {
+    static instantiateResource<T extends Resource>(entity: T, payload: Object): T {
         for (const p in payload) {
             //TODO array init
             /* if(entity[p].constructor === Array && isNullOrUndefined(payload[p]))
@@ -191,7 +191,7 @@ export class ResourceHelper {
 
     /** add slash to URI */
     private static addSlash(uri: string): string {
-        const uriParsed = url.parse(uri);
+        let uriParsed = url.parse(uri);
         if (isNullOrUndefined(uriParsed.search) && uri && uri[uri.length - 1] != '/')
             return uri + '/';
         return uri;
