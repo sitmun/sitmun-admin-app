@@ -11,7 +11,7 @@ import { config } from 'src/config';
 import { BtnCheckboxFilterComponent } from '../frontend-gui/src/lib/btn-checkbox-filter/btn-checkbox-filter.component';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UtilsService {
   [x: string]: any;
@@ -60,13 +60,14 @@ export class UtilsService {
     console.error(missatge);
     this.snackBar
       .open(missatge, 'Cerrar', {
-      duration: 0,
+        duration: 0,
+        duration: 0,
         panelClass: ['error-snackbar'],
       })
       .onAction()
       .subscribe(() => {
-      this.snackBar.dismiss(); 
-    });
+        this.snackBar.dismiss(); 
+      });
   }
 
   /**
@@ -180,7 +181,7 @@ export class UtilsService {
           if (eventRefresh) {
             eventRefresh.next(true);
           }
-          },
+        },
         (error) => {
           this.success = false;
         }
@@ -192,7 +193,7 @@ export class UtilsService {
     data.forEach((item) => {
       putRequestLine += `${item}` + '\n';
     });
-  
+
     return putRequestLine;
   }
 
@@ -382,7 +383,6 @@ export class UtilsService {
     formattedList?
   ) {
     let columnDef;
-    
     if (formatted && formattedList) {
       columnDef = this.getFormattedColumnDef(alias, formattedList, field);
       columnDef.filter = 'agTextColumnFilter';
@@ -401,12 +401,11 @@ export class UtilsService {
         editable: editable,
         cellEditorParams: {
           values: elements,
-      },
+        },
         cellEditor: 'agSelectCellEditor',
         minWidth: 140,
       };
     }
-   
     return columnDef;
   }
 
@@ -596,7 +595,7 @@ export class UtilsService {
                 });
               })
             );
-            }
+          }
         }
       });
     }

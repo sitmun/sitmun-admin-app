@@ -7,7 +7,6 @@
 export const environment = {
     production: false,
     // This is the external URL of the backend server in the SITMUN Application Stack in development mode
-    apiBaseURL: 'http://localhost:8080',
-    //apiBaseURL: 'http://localhost:9000/backend',
+    apiBaseURL: 'http://localhost:9000/backend',
 };
   
