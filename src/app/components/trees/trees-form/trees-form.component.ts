@@ -54,6 +54,7 @@ export class TreesFormComponent implements OnInit {
   currentNodeDescription: string;
   currentNodeType: string;
   currentTreeType: string;
+  currentNodeHasParent: Boolean;
   newElement: Boolean = false;
   duplicateToDo = false;
   sendNodeUpdated: Subject<any> = new Subject<any>();
@@ -587,8 +588,9 @@ export class TreesFormComponent implements OnInit {
     }
   }
 
-  nodeReceived(node) {
-
+  nodeReceived(emitedObj) {
+    const node = emitedObj.nodeClicked;
+    const nodeParent = emitedObj.nodeParent;
     this.newElement = false;
     let currentType;
     if (node.isFolder) {
@@ -599,7 +601,8 @@ export class TreesFormComponent implements OnInit {
       this.currentNodeIsFolder = false;
       currentType = 'node'
     }
-    this.currentNodeType = node.nodetype;
+    this.currentNodeType = nodeParent ? nodeParent.nodetype : node.nodetype;
+    this.currentNodeHasParent = nodeParent !== null;
     let status = "Modified"
     let nameTranslationsModified = node.nameTranslationsModified ? true : false;
     let descriptionTranslationsModified = node.descriptionTranslationsModified ? true : false;
@@ -670,9 +673,12 @@ export class TreesFormComponent implements OnInit {
     this.treeNodeForm.reset();
     this.newElement = true;
     this.currentNodeIsFolder = false;
-    this.currentNodeType = 'cartography';
+    this.currentNodeType = parent.nodetype || 'cartography';
+    this.currentNodeHasParent = parent.id !== null;
     let parentId = parent.id;
-    if (parent.name === "Root") { parentId = null }
+    if (parent.name === "") {
+      parentId = null;
+    }
     this.treeNodeForm.patchValue({
       parent: parentId,
       isFolder: false,
@@ -691,9 +697,12 @@ export class TreesFormComponent implements OnInit {
     this.treeNodeForm.reset();
     this.newElement = true;
     this.currentNodeIsFolder = true;
-    this.currentNodeType = 'cartography';
+    this.currentNodeType = parent.nodetype || 'cartography';
+    this.currentNodeHasParent = parent.id !== null;
     let parentId = parent.id;
-    if (parent.name === "Root") { parentId = null }
+    if (parent.name === "") {
+      parentId = null;
+    }
     this.treeNodeForm.patchValue({
       parent: parentId,
       isFolder: true,
@@ -705,7 +714,9 @@ export class TreesFormComponent implements OnInit {
   }
 
   onTreeNodeTypeChange(type) {
-    this.currentNodeType = type;
+    if (!this.currentNodeHasParent || !this.currentNodeIsFolder) {
+      this.currentNodeType = type;
+    }
   }
 
   onTreeTypeChange(type) {
@@ -852,31 +863,10 @@ export class TreesFormComponent implements OnInit {
   }
 
   validTreeStructure(treeNodes) {
-    return this.validNodeTypes(treeNodes[0].children);
-  }
-
-  validNodeTypes(nodes) {
     let valid = true;
-    let baseType = this.types.cartography;
-    if (this.currentTreeType === this.types.cartography) {
-      for (let i = 0; i < nodes.length; i++) {
-        if ((!nodes[i].status || nodes[i].status !== 'pendingDelete') &&
-          (nodes[i].nodetype !== baseType || !this.validNodeTypes(nodes[i].children))) {
-          valid = false;
-          break;
-        }
-      }
-    } else {
-      if (nodes.length > 1) {
-        baseType = nodes[0].nodetype;
-        for (let i = 0; i < nodes.length; i++) {
-          if ((!nodes[i].status || nodes[i].status !== 'pendingDelete') &&
-            (nodes[i].nodetype !== baseType || !this.validNodeTypes(nodes[i].children))) {
-            valid = false;
-            break;
-          }
-        }
-      }
+    if (this.currentTreeType === constants.type.appTuristic) {
+      const rootNodes = treeNodes[0].children.filter(n => n.status !== 'pendingDelete');
+      valid = rootNodes.length === 0 || (rootNodes.length === 1 && rootNodes[0].children.length > 0);
     }
     return valid;
   }

@@ -213,7 +213,7 @@
       <div class="rowFormDiv" *ngIf="currentNodeType === types.cartography">
         <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
           <label class="formLabel" >
-            {{'layersEntity.filterSpatialSeleciontByMunicipality' | translate}}
+            {{'layersEntity.filterSpatialSelectionByMunicipality' | translate}}
           </label>
             <mat-form-field appearance="outline">
               <mat-select matInput formControlName="filterSelectable" class="form-control">
@@ -275,6 +275,9 @@
             {{'treesEntity.filterable' | translate}}
           </label>
           <mat-checkbox formControlName="filterable"> </mat-checkbox>
+        </div>
+        <div class="colFormDiv">
+          <button  mat-flat-button class="validateButton">Configurar campos</button>
         </div>
       </div>
 

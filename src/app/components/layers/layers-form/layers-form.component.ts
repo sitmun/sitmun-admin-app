@@ -489,11 +489,12 @@ export class LayersFormComponent implements OnInit {
 
     this.columnDefsTerritorialFilter = [
       this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
       this.utils.getEditableColumnDef('layersEntity.name', 'name'),
-      this.utils.getEditableColumnDef('layersEntity.type', 'type'),
-      this.utils.getEditableColumnDef('layersEntity.valueType', 'valueType'),
       this.utils.getEditableColumnDef('layersEntity.column', 'column'),
+      this.utils.getNonEditableColumnWithCodeListDef('layersEntity.valueType', 'valueType', this.filterValueTypes),
+      this.utils.getNonEditableColumnWithCodeListDef('layersEntity.type', 'type', this.filterTypes),
+      this.utils.getEditableColumnDef('layersEntity.value', 'values'),
+      this.utils.getBooleanColumnDef('layersEntity.required', 'required', true),
       this.utils.getStatusColumnDef()
     ];
 
@@ -1049,7 +1050,12 @@ export class LayersFormComponent implements OnInit {
             territoryFilter._links = null;
           }
         }
-        // territorialFilterToSave.push(territoryFilter)
+
+        if (typeof territoryFilter.values === 'string') {
+          // Values must be an array of strings
+          territoryFilter.values = territoryFilter.values.split(',');
+        }
+
         promises.push(new Promise((resolve, reject) => { this.cartographyFilterService.save(territoryFilter).subscribe((resp) => { resolve(true) }) }));
 
       }
@@ -1368,17 +1374,18 @@ export class LayersFormComponent implements OnInit {
           this.territorialFilterForm.patchValue({
             territorialLevel: territorialLevel
           })
+
           let item = this.territorialFilterForm.value;
-          if (item.values != null) { item.values = item.values.split(",") }
           item.giid = this.layerToEdit.id
+
           // if(this.territorialFilterForm.value.typeId === -1)
           // {
           //   this.territorialFilterForm.patchValue({
           //     typeId: null
           //   })
           // }
-          this.addElementsTerritorialFilter.next([item])
 
+          this.addElementsTerritorialFilter.next([item])
         }
       }
       this.territorialFilterForm.reset();

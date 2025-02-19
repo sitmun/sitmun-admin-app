@@ -91,12 +91,12 @@ export class FileDatabase {
     {
       let root = {
         isFolder:true,
-        name:'Root',
+        name:'',
         type: 'folder',
         isRoot: true,
         order: 0,
         children: [],
-        id:0
+        id: null
       }
       map['root']=root;
     }
@@ -127,10 +127,11 @@ export class FileDatabase {
         map[parent].children.push(obj);
       });
       map['root'].type='folder';
-      map['root'].name='Root';
+      map['root'].name='';
       map['root'].order=0;
       map['root'].isFolder=true;
       map['root'].isRoot=true;
+      map['root'].id=null;
     }
 
 
@@ -652,10 +653,19 @@ export class DataTreeComponent {
     const changedData = JSON.parse(JSON.stringify(this.dataSource.data))
     const siblings = this.findNodeSiblings(changedData, id);
     let nodeClicked= siblings.find(node => node.id === id);
-    if(button ==='edit')  {this.emitNode.emit(nodeClicked)}
-    else if(button === 'newFolder') {this.createFolder.emit(nodeClicked)}
-    else if(button === 'newNode') {this.createNode.emit( nodeClicked)}
-    else if(button === 'delete') {
+    if(button ==='edit')  {
+      const nodeParent = nodeClicked.parent ?
+        this.findNodeSiblings(changedData, nodeClicked.parent).find(node => node.id === nodeClicked.parent) : null;
+      const emitedObj = {
+        nodeClicked,
+        nodeParent,
+      };
+      this.emitNode.emit(emitedObj);
+    } else if(button === 'newFolder') {
+      this.createFolder.emit(nodeClicked);
+    } else if(button === 'newNode') {
+      this.createNode.emit( nodeClicked);
+    } else if(button === 'delete') {
       // let children= this.getAllChildren(nodeClicked.children)
       // children.forEach(children => {
       //   children.status='pendingDelete';

@@ -179,49 +179,6 @@
     </div>
 
     <div class="formHeader">
-      <h5> {{'layersEntity.territorialFilter' | translate}} </h5>
-    </div>
-    <span class="divider"></span>
-
-    <div class="rowFormDiv">
-      <!-- <div class="colFormDiv">
-        <label class="formLabel requiredInput">
-          {{'layersEntity.municipalFilterFields' | translate}}
-        </label>
-        <mat-form-field appearance="outline">
-          <input matInput type="text" formControlName="applyFilterToGetMap" >
-        </mat-form-field>
-      </div> -->
-
-      <div class="colFormDiv">
-        <label class="formLabel">
-          {{'layersEntity.applyFilterToGetMap' | translate}}
-        </label>
-        <mat-checkbox  formControlName="applyFilterToGetMap">
-        </mat-checkbox> 
-      </div>
-
-      <div class="colFormDiv">
-        <label class="formLabel">
-          {{'layersEntity.filterInfoByMunicipality' | translate}}
-        </label>
-        <mat-checkbox  formControlName="applyFilterToGetFeatureInfo">
-        </mat-checkbox> 
-      </div>
-      <!-- (change)="onMunicipalityFilterChange($event)" -->
-
-      <div class="colFormDiv">
-        <label class="formLabel" >
-          {{'layersEntity.filterSpatialSeleciontByMunicipality' | translate}}
-        </label>
-        <mat-checkbox formControlName="applyFilterToSpatialSelection">
-        </mat-checkbox>
-      </div>
-      <!-- (change)="onMunicipalityFilterChange($event)" -->
-
-    </div>
-
-    <div class="formHeader">
       <h5> {{'layersEntity.informationTitle' | translate}} </h5>
     </div>
     <span class="divider"></span>
@@ -402,6 +359,26 @@
         </mat-panel-title>
       </mat-expansion-panel-header>
 
+      <div class="rowFormDiv">
+        <div class="colFormDiv">
+          <mat-checkbox  formControlName="applyFilterToGetMap">
+            {{'layersEntity.applyFilterToGetMap' | translate}}
+          </mat-checkbox> 
+        </div>
+  
+        <div class="colFormDiv">
+          <mat-checkbox  formControlName="applyFilterToGetFeatureInfo">
+            {{'layersEntity.filterInfoByMunicipality' | translate}}
+          </mat-checkbox> 
+        </div>
+  
+        <div class="colFormDiv">
+          <mat-checkbox formControlName="applyFilterToSpatialSelection">
+            {{'layersEntity.filterSpatialSelectionByMunicipality' | translate}}
+          </mat-checkbox>
+        </div>
+      </div>
+  
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
           <app-data-grid [changeHeightButton]="true" [allNewElements]="layerID == -1" [columnDefs]="columnDefsTerritorialFilter" [themeGrid]='themeGrid' [getAll]='getAllTerritorialFilters'

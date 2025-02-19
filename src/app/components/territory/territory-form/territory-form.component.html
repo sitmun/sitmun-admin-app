@@ -38,7 +38,8 @@
         </label>
         <mat-form-field appearance="outline">
           <input matInput type="text" formControlName="name">
-          <mat-icon matSuffix class="iconTranslate" (click)="onTranslationButtonClicked()" svgIcon="ic_translate"></mat-icon>
+          <mat-icon matSuffix class="iconTranslate" (click)="onTranslationButtonClicked()"
+            svgIcon="ic_translate"></mat-icon>
         </mat-form-field>
       </div>
 
@@ -67,7 +68,8 @@
           {{'territoryEntity.territoryType' | translate}}
         </label>
         <mat-form-field appearance="outline">
-          <mat-select matInput formControlName="type" class="form-control" (selectionChange)="onTerritoryTypeChanged($event)">
+          <mat-select matInput formControlName="type" class="form-control"
+            (selectionChange)="onTerritoryTypeChanged($event)">
             <mat-option [value]="territoryType.id" *ngFor="let territoryType of territoryTypes">
               {{territoryType.name}}
             </mat-option>
@@ -75,7 +77,7 @@
         </mat-form-field>
       </div>
 
-      
+
       <div class="MidColFormDiv">
         <label class="formLabel" id="right-column">
           {{'territoryEntity.blocked' | translate}}
@@ -105,7 +107,7 @@
         </mat-form-field>
       </div>
 
-      
+
       <div class="HalfMidLargeColFormDiv">
         <label class="formLabel">
           {{'territoryEntity.centerPointY' | translate}}
@@ -115,7 +117,7 @@
         </mat-form-field>
       </div>
 
-      <div class="HalfMidLargeColFormDiv" >
+      <div class="HalfMidLargeColFormDiv">
         <label class="formLabel">
           {{'applicationEntity.srs' | translate}}
         </label>
@@ -128,38 +130,38 @@
 
     <div class="rowFormDiv">
       <div class="HalfMidLargeColFormDiv">
-        <label class="formLabel">
-          {{'territoryEntity.extent' | translate}} X0
+        <label class="formLabel requiredInput">
+          {{'territoryEntity.extentMinX' | translate}}
         </label>
         <mat-form-field appearance="outline">
-          <input matInput type="number" formControlName="extensionX0">
+          <input matInput type="number" formControlName="extentMinX" required>
         </mat-form-field>
       </div>
 
       <div class="HalfMidLargeColFormDiv">
-        <label class="formLabel">
-          {{'territoryEntity.extent' | translate}} X1
+        <label class="formLabel requiredInput">
+          {{'territoryEntity.extentMaxX' | translate}}
         </label>
         <mat-form-field appearance="outline">
-          <input matInput type="number" formControlName="extensionX1">
+          <input matInput type="number" formControlName="extentMaxX" required>
         </mat-form-field>
       </div>
 
       <div class="HalfMidLargeColFormDiv">
-        <label class="formLabel">
-          {{'territoryEntity.extent' | translate}} Y0
+        <label class="formLabel requiredInput">
+          {{'territoryEntity.extentMinY' | translate}}
         </label>
         <mat-form-field appearance="outline">
-          <input matInput type="number" formControlName="extensionY0">
+          <input matInput type="number" formControlName="extentMinY" required>
         </mat-form-field>
       </div>
 
       <div class="HalfMidLargeColFormDiv" id="right-column">
-        <label class="formLabel">
-          {{'territoryEntity.extent' | translate}} Y1
+        <label class="formLabel requiredInput">
+          {{'territoryEntity.extentMaxY' | translate}}
         </label>
         <mat-form-field appearance="outline">
-          <input matInput type="number" formControlName="extensionY1">
+          <input matInput type="number" formControlName="extentMaxY" required>
         </mat-form-field>
       </div>
     </div>
@@ -184,7 +186,7 @@
   <mat-accordion multi>
 
     <!-- Permits table -->
-    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel" >
+    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
       <mat-expansion-panel-header class="agGridExpansionPanelTitle">
         <mat-panel-title>
           {{ "territoryEntity.permissions" | translate }}
@@ -193,13 +195,16 @@
 
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [allNewElements]="territoryID == -1" [columnDefs]="columnDefsPermits" [themeGrid]='themeGrid' [getAll]='getAllPermits'
-            [discardChangesButton]=true [redoButton]=true [undoButton]=true [hideDuplicateButton]=true [addFieldRestriction]="['territoryId', 'roleId', 'userId']"
+          <app-data-grid [changeHeightButton]="true" [allNewElements]="territoryID == -1"
+            [columnDefs]="columnDefsPermits" [themeGrid]='themeGrid' [getAll]='getAllPermits'
+            [discardChangesButton]=true [redoButton]=true [undoButton]=true [hideDuplicateButton]=true
+            [addFieldRestriction]="['territoryId', 'roleId', 'userId']"
             [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' defaultColumnSorting="user"
             [eventGetAllRowsSubscription]='getAllElementsEventPermits.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventPermits.asObservable()'
-            [eventAddItemsSubscription]='addElementsEventPermits.asObservable()' (add)="openPermitsDialog($event, false)"
-            [deleteButton]=true [addButton]=true [actionButton]=true (getAllRows)="getAllRowsPermits($event,false)">
+            [eventAddItemsSubscription]='addElementsEventPermits.asObservable()'
+            (add)="openPermitsDialog($event, false)" [deleteButton]=true [addButton]=true [actionButton]=true
+            (getAllRows)="getAllRowsPermits($event,false)">
           </app-data-grid>
         </div>
       </ng-template>
@@ -260,7 +265,8 @@
 
         <ng-template matExpansionPanelContent>
           <div class="appDataGridEditDiv">
-            <app-data-grid [changeHeightButton]="true" [allNewElements]="territoryID == -1" defaultColumnSorting="name" [columnDefs]="columnDefsMemberOf" [themeGrid]='themeGrid' [getAll]='getAllMembersOf'
+            <app-data-grid [changeHeightButton]="true" [allNewElements]="territoryID == -1"
+              [columnDefs]="columnDefsMemberOf" [themeGrid]='themeGrid' [getAll]='getAllMembersOf'
               [discardChangesButton]=true [redoButton]=true [hideDuplicateButton]=true
               [eventAddItemsSubscription]='addElementsEventTerritoriesMemberOf.asObservable()'
               [eventGetAllRowsSubscription]='getAllElementsEventTerritoriesMemberOf.asObservable()'
@@ -286,7 +292,8 @@
 
         <ng-template matExpansionPanelContent>
           <div class="appDataGridEditDiv">
-            <app-data-grid [changeHeightButton]="true" [allNewElements]="territoryID == -1" defaultColumnSorting="name" [columnDefs]="columnDefsMembers" [themeGrid]='themeGrid' [getAll]='getAllMembers'
+            <app-data-grid [changeHeightButton]="true" [allNewElements]="territoryID == -1"
+              [columnDefs]="columnDefsMembers" [themeGrid]='themeGrid' [getAll]='getAllMembers'
               [discardChangesButton]=true [redoButton]=true [hideDuplicateButton]=true
               [eventAddItemsSubscription]='addElementsEventTerritoriesMembers.asObservable()'
               [eventGetAllRowsSubscription]='getAllElementsEventTerritoriesMembers.asObservable()'
@@ -310,13 +317,14 @@
 
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [allNewElements]="territoryID == -1" defaultColumnSorting="cartographyName" [columnDefs]="columnDefsCartographies" [themeGrid]='themeGrid' [getAll]='getAllCartographies'
-            [discardChangesButton]=true [redoButton]=true [undoButton]=true [hideDuplicateButton]=true
-            [eventAddItemsSubscription]='addElementsEventCartographies.asObservable()'
+          <app-data-grid [changeHeightButton]="true" [allNewElements]="territoryID == -1"
+            defaultColumnSorting="cartographyName" [columnDefs]="columnDefsCartographies" [themeGrid]='themeGrid'
+            [getAll]='getAllCartographies' [discardChangesButton]=true [redoButton]=true [undoButton]=true
+            [hideDuplicateButton]=true [eventAddItemsSubscription]='addElementsEventCartographies.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventCartographies.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventCartographies.asObservable()' [deleteButton]=true
-            [addButton]=true [actionButton]=true addFieldRestriction="cartographyId" (getAllRows)="getAllRowsCartographies($event)"
-            (add)="openCartographyDialog($event)"> </app-data-grid>
+            [addButton]=true [actionButton]=true addFieldRestriction="cartographyId"
+            (getAllRows)="getAllRowsCartographies($event)" (add)="openCartographyDialog($event)"> </app-data-grid>
         </div>
 
       </ng-template>
@@ -332,12 +340,14 @@
 
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [allNewElements]="territoryID == -1" defaultColumnSorting="taskGroupName" [columnDefs]="columnDefsTasks" [themeGrid]='themeGrid' [getAll]='getAllTasks'
-            [discardChangesButton]=true [redoButton]=true [undoButton]=true [hideDuplicateButton]=true
-            [eventAddItemsSubscription]='addElementsEventTasks.asObservable()'
+          <app-data-grid [changeHeightButton]="true" [allNewElements]="territoryID == -1"
+            defaultColumnSorting="taskGroupName" [columnDefs]="columnDefsTasks" [themeGrid]='themeGrid'
+            [getAll]='getAllTasks' [discardChangesButton]=true [redoButton]=true [undoButton]=true
+            [hideDuplicateButton]=true [eventAddItemsSubscription]='addElementsEventTasks.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventTasks.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventTasks.asObservable()' [deleteButton]=true [addButton]=true
-            [actionButton]=true addFieldRestriction="taskId" (getAllRows)="getAllRowsTasks($event)" (add)="openTasksDialog($event)">
+            [actionButton]=true addFieldRestriction="taskId" (getAllRows)="getAllRowsTasks($event)"
+            (add)="openTasksDialog($event)">
           </app-data-grid>
         </div>
 
