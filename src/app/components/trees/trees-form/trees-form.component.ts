@@ -76,7 +76,7 @@ export class TreesFormComponent implements OnInit {
   layersList = [];
   treetypesList = [];
   folderNodeTypesList = [];
-  finalNodeTypesList = [];
+  leafNodeTypesList = [];
   taskviewsList = [{
     value: 'ld',
     description: 'Lista detallada'
@@ -123,8 +123,8 @@ export class TreesFormComponent implements OnInit {
       this.folderNodeTypesList.push(...resp);
     });
 
-    this.getFinalNodeTypes().then((resp) => {
-      this.finalNodeTypesList.push(...resp);
+    this.getLeafNodeTypes().then((resp) => {
+      this.leafNodeTypesList.push(...resp);
     });
 
     this.layersList = await this.getAllCartographies().toPromise();
@@ -548,10 +548,10 @@ export class TreesFormComponent implements OnInit {
 
   }
 
-  getFinalNodeTypes = (): Promise<any> => {
+  getLeafNodeTypes = (): Promise<any> => {
 
     return new Promise((resolve, reject) => {
-      this.utils.getCodeListValues('treenode.final.type').subscribe(
+      this.utils.getCodeListValues('treenode.leaf.type').subscribe(
         resp => {
           resolve(resp);
         }

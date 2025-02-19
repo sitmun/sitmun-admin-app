@@ -110,7 +110,7 @@
           </mat-form-field>
           <mat-form-field appearance="outline" *ngIf="currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
             <mat-select matInput formControlName="nodetype" class="form-control" (selectionChange)="onTreeNodeTypeChange($event.value)">
-              <mat-option [value]="type.value" *ngFor="let type of finalNodeTypesList">
+              <mat-option [value]="type.value" *ngFor="let type of leafNodeTypesList">
                 {{ type.description}}
               </mat-option>
             </mat-select>

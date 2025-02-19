@@ -61,12 +61,11 @@ export class UtilsService {
     this.snackBar
       .open(missatge, 'Cerrar', {
         duration: 0,
-        duration: 0,
         panelClass: ['error-snackbar'],
       })
       .onAction()
       .subscribe(() => {
-        this.snackBar.dismiss(); 
+        this.snackBar.dismiss();
       });
   }
 
