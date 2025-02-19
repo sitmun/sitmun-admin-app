@@ -184,6 +184,19 @@ margin-right: 0%;
   justify-self: right !important;
 }
 
+.fileButton {
+  background-color: #ff9300 !important;
+  color: white !important;
+  min-width: 85px !important;
+  height: 40px !important;
+  margin-right: 5px !important;
+  border: none;
+  border-radius: 4px;
+  justify-self: right !important;
+  display: inline;
+  vertical-align: top;
+}
+
  .deleteButton {
   color: #BF0000 !important;
   border: #BF0000 solid 1px !important;
@@ -425,6 +438,23 @@ h2 {
   margin-bottom: 5px !important;
   padding-left: 5px !important;
   width: 100% !important;
+}
+
+.preview {
+  display: block;
+  margin-top: 15px;
+}
+
+.previewLabel {
+  display: block !important;
+  font-weight: 500 !important;
+  padding-left: 5px !important;
+  margin-bottom: 10px;
+}
+
+.previewImage {
+  width: 90px;
+  height: 90px;
 }
 
 .translateDialogs{

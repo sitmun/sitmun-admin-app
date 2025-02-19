@@ -11,8 +11,12 @@ export class Tree extends Resource {
   public name: string;
   /** description */
   public description: string;
+  /** type */
+  public type: string;
   /** image */
   public image: string;
+  /** image name */
+  public imageName: string;
   /** nodes */
   public nodes: TreeNode[];
   /** available roles */

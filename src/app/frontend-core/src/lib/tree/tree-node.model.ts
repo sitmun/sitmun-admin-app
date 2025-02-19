@@ -1,5 +1,6 @@
 import {Resource} from '../angular-hal/src/lib/resource';
 import {Cartography} from '../cartography/cartography.model';
+import { Task } from '../task/task.model';
 import {Tree} from './tree.model';
 /**
  * Tree node model
@@ -7,6 +8,8 @@ import {Tree} from './tree.model';
 export class TreeNode extends Resource {
   /** name */
   public name: string;
+  /** type */
+  public type: string;
   /** tooltip*/
   public tooltip: string;
   /** description*/
@@ -35,6 +38,11 @@ export class TreeNode extends Resource {
   public filterSelectable: boolean;
   /** style */  
   public style: string;
-  
+
+  public image: string;
+  public imageName: string;
+  public task: Task;
+  public viewMode: string;
+  public filterable: boolean;  
 
 }

@@ -61,11 +61,12 @@ export class UtilsService {
     this.snackBar
       .open(missatge, 'Cerrar', {
         duration: 0,
+        duration: 0,
         panelClass: ['error-snackbar'],
       })
       .onAction()
       .subscribe(() => {
-        this.snackBar.dismiss();
+        this.snackBar.dismiss(); 
       });
   }
 
@@ -196,12 +197,50 @@ export class UtilsService {
     return putRequestLine;
   }
 
+  showTreeStructureError() {
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title = this.getTranslate('atention');
+    dialogRef.componentInstance.message = this.getTranslate('treeStructureMessage')
+    dialogRef.componentInstance.hideCancelButton = true;
+    dialogRef.afterClosed().subscribe();
+  }
+
   showRequiredFieldsError() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
     dialogRef.componentInstance.title = this.getTranslate('atention');
-    dialogRef.componentInstance.message = this.getTranslate(
-      'requiredFieldMessage'
-    );
+    dialogRef.componentInstance.message = this.getTranslate('requiredFieldMessage');
+    dialogRef.componentInstance.hideCancelButton = true;
+    dialogRef.afterClosed().subscribe();
+  }
+
+  showTuristicAppTreeError() {
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title = this.getTranslate("atention");
+    dialogRef.componentInstance.message = this.getTranslate("turisticAppTreeMessage");
+    dialogRef.componentInstance.hideCancelButton = true;
+    dialogRef.afterClosed().subscribe();
+  }
+
+  showNoTuristicAppTreeError() {
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title = this.getTranslate("atention");
+    dialogRef.componentInstance.message = this.getTranslate("noTuristicAppTreeMessage");
+    dialogRef.componentInstance.hideCancelButton = true;
+    dialogRef.afterClosed().subscribe();
+  }
+
+  showTuristicTreeAppError() {
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title = this.getTranslate("atention");
+    dialogRef.componentInstance.message = this.getTranslate("turisticTreeAppMessage");
+    dialogRef.componentInstance.hideCancelButton = true;
+    dialogRef.afterClosed().subscribe();
+  }
+
+  showNoTuristicTreeAppError() {
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title = this.getTranslate("atention");
+    dialogRef.componentInstance.message = this.getTranslate("noTuristicTreeAppMessage");
     dialogRef.componentInstance.hideCancelButton = true;
     dialogRef.afterClosed().subscribe();
   }
@@ -209,8 +248,7 @@ export class UtilsService {
   showNavigationOutDialog() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
     dialogRef.componentInstance.title = this.getTranslate('caution');
-    dialogRef.componentInstance.message =
-      this.getTranslate('navigateOutMessage');
+    dialogRef.componentInstance.message = this.getTranslate('navigateOutMessage');
     return dialogRef.afterClosed();
   }
 
@@ -345,7 +383,6 @@ export class UtilsService {
     formattedList?
   ) {
     let columnDef;
-
     if (formatted && formattedList) {
       columnDef = this.getFormattedColumnDef(alias, formattedList, field);
       columnDef.filter = 'agTextColumnFilter';
@@ -369,7 +406,6 @@ export class UtilsService {
         minWidth: 140,
       };
     }
-
     return columnDef;
   }
 

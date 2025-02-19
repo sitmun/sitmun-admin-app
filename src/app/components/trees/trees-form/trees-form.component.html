@@ -41,13 +41,40 @@
           <mat-icon matSuffix class="iconTranslate" (click)="onDescriptionTranslationButtonClicked()" svgIcon="ic_translate"></mat-icon>
         </mat-form-field>
       </div>
+    </div>
+    <div class="rowFormDiv">
+      <div class="colFormDiv">
+        <label class="formLabel ">
+          {{'treesEntity.type' | translate}}
+        </label>
+        <mat-form-field appearance="outline">
+          <mat-select matInput formControlName="type" class="form-control" (selectionChange)="onTreeTypeChange($event.value)">
+            <mat-option [value]="type.value" *ngFor="let type of treetypesList">
+              {{ type.description}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
       <div class="colFormDiv">
         <label class="formLabel ">
           {{'treesEntity.image' | translate}}
         </label>
         <mat-form-field appearance="outline">
-          <input matInput type="text" formControlName="image">
+          <input #treeImageNameInput matInput type="text" formControlName="imageName" (keyup)="onImageChange('tree', $event)" readonly [placeholder]="'treesEntity.imagePlaceHolder' | translate">
         </mat-form-field>
+        <textarea matInput type="text" hidden formControlName="image"> </textarea>
+        <input #treeFileInput type="file" accept="image/*" hidden (change)="onImageSelected('tree', $event)">
+        <div style="display: block">
+          <input type="button" mat-flat-button class="fileButton" (click)="treeFileInput.click()" [value]="'treesEntity.selectFile' | translate"/>
+          <input type="button" mat-flat-button class="fileButton" (click)="activeImageNameInput('tree', treeImageNameInput)" [value]="'treesEntity.webUrl' | translate"/>
+          <input type="button" mat-flat-button class="fileButton" (click)="removeImage('tree')" [value]="'treesEntity.delete' | translate"/>
+        </div>
+        <div class="preview" hidden>
+          <label class="previewLabel ">
+            {{'treesEntity.preview' | translate}}: 
+          </label>
+          <img id="treeImgPreview" class="previewImage">
+        </div>
       </div>
     </div>
   </form>
@@ -71,6 +98,25 @@
     <form [formGroup]='treeNodeForm' #f="ngForm" (ngSubmit)="onSaveFormButtonClicked()">
       <div class="rowFormDiv">
         <div class="colFormDiv" *ngIf="currentNodeIsFolder != undefined">
+          <label class="formLabel ">
+            {{'treesEntity.type' | translate}}
+          </label>
+          <mat-form-field appearance="outline" *ngIf="(currentNodeIsFolder)">
+            <mat-select matInput formControlName="nodetype" class="form-control" (selectionChange)="onTreeNodeTypeChange($event.value)">
+              <mat-option [value]="type.value" *ngFor="let type of folderNodeTypesList">
+                {{ type.description}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" *ngIf="currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
+            <mat-select matInput formControlName="nodetype" class="form-control" (selectionChange)="onTreeNodeTypeChange($event.value)">
+              <mat-option [value]="type.value" *ngFor="let type of finalNodeTypesList">
+                {{ type.description}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="colFormDiv" *ngIf="currentNodeIsFolder != undefined">
           <label class="formLabel requiredInput">
             {{'treesEntity.name' | translate}}
           </label>
@@ -79,6 +125,9 @@
             <mat-icon matSuffix class="iconTranslate" (click)="onTreeNodeNameTranslationButtonClicked()" svgIcon="ic_translate"></mat-icon>
           </mat-form-field>
         </div>
+      </div>
+
+      <div class="rowFormDiv"  *ngIf=" (currentNodeIsFolder) && currentNodeType === types.cartography">
         <div class="colFormDiv" *ngIf="currentNodeIsFolder != undefined">
           <label class="formLabel">
             {{'treesEntity.tooltip' | translate}}
@@ -87,9 +136,6 @@
             <input matInput type="text" formControlName="tooltip">
           </mat-form-field>
         </div>
-      </div>
-
-      <div class="rowFormDiv"  *ngIf=" (currentNodeIsFolder)">
         <div class="colFormDiv">
           <label class="formLabel">
             {{'treesEntity.metadataURL' | translate}}
@@ -98,7 +144,19 @@
             <input matInput type="text" formControlName="metadataURL">
           </mat-form-field>
         </div>
-        <div class="colFormDiv" >
+      </div>
+
+      <div class="rowFormDiv" *ngIf="(currentNodeIsFolder)">
+        <div class="colFormDiv" *ngIf="[types.cartography, types.list].includes(currentNodeType)">
+          <label class="formLabel">
+            {{'treesEntity.description' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <textarea matInput type="text" formControlName="description"> </textarea>
+            <mat-icon matSuffix class="iconTranslate" (click)="onTreeNodeDescriptionTranslationButtonClicked()" svgIcon="ic_translate"></mat-icon>
+          </mat-form-field>
+        </div>
+        <div class="colFormDiv" *ngIf="currentNodeType === types.cartography">
           <label class="formLabel">
             {{'treesEntity.datasetURL' | translate}}
           </label>
@@ -108,8 +166,8 @@
         </div>
       </div>
 
-      <div class="rowFormDiv">
-        <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined &&   (!currentNodeIsFolder)">
+      <div class="rowFormDiv" *ngIf="currentNodeIsFolder != undefined &&  (!currentNodeIsFolder) && currentNodeType === types.cartography">
+        <div class="colFormDiv">
           <label class="formLabel">
             {{'treesEntity.cartography' | translate}}
           </label>
@@ -117,7 +175,7 @@
             <input matInput type="text" [readonly]="true" formControlName="cartographyName">
           </mat-form-field>
         </div>
-        <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined &&   (!currentNodeIsFolder)">
+        <div class="colFormDiv">
           <label class="formLabel">
             {{'treesEntity.style' | translate}}
           </label>
@@ -126,25 +184,7 @@
           </mat-form-field>
         </div>
       </div>
-      <div class="rowFormDiv">
-        <div class="colFormDiv" *ngIf="(currentNodeIsFolder)">
-          <label class="formLabel">
-            {{'treesEntity.description' | translate}}
-          </label>
-          <mat-form-field appearance="outline">
-            <textarea matInput type="text" formControlName="description"> </textarea>
-            <mat-icon matSuffix class="iconTranslate" (click)="onTreeNodeDescriptionTranslationButtonClicked()" svgIcon="ic_translate"></mat-icon>
-          </mat-form-field>
-        </div>
-        <div class="colFormDiv" *ngIf=" (currentNodeIsFolder)">
-          <label class="formLabel">
-            {{'treesEntity.radio' | translate}}
-          </label>
-          <mat-checkbox formControlName="radio"> </mat-checkbox>
-        </div>
-
-      </div>
-      <div class="rowFormDiv">
+      <div class="rowFormDiv" *ngIf="currentNodeType === types.cartography">
         <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
           <label class="formLabel">
             {{'layersEntity.applyFilterToGetMap' | translate}}
@@ -155,10 +195,8 @@
                 {{ option.description | translate}}
               </mat-option>
             </mat-select>
-          </mat-form-field> 
-                    
+          </mat-form-field>
         </div>
-
         <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
           <label class="formLabel">
             {{'layersEntity.filterInfoByMunicipality' | translate}}
@@ -169,13 +207,10 @@
                   {{ option.description | translate}}
                 </mat-option>
               </mat-select>
-            </mat-form-field> 
-                    
+            </mat-form-field>
         </div>
-
       </div>
-
-      <div class="rowFormDiv">
+      <div class="rowFormDiv" *ngIf="currentNodeType === types.cartography">
         <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
           <label class="formLabel" >
             {{'layersEntity.filterSpatialSelectionByMunicipality' | translate}}
@@ -188,21 +223,86 @@
               </mat-select>
             </mat-form-field> 
         </div>
+      </div>
+      <div class="rowFormDiv" *ngIf="[types.menu, types.list].includes(currentNodeType)">
+        <div class="colFormDiv" *ngIf=" (currentNodeIsFolder)">
+          <label class="formLabel" *ngIf="currentNodeType === types.list">
+            {{'treesEntity.image' | translate}}
+          </label>
+          <label class="formLabel" *ngIf="currentNodeType === types.menu">
+            {{'treesEntity.icon' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input #treenodeImageNameInput matInput type="text" formControlName="imageName" (keyup)="onImageChange('node', $event)" readonly [placeholder]="'treesEntity.imagePlaceHolder' | translate">
+          </mat-form-field>
+          <textarea matInput type="text" hidden formControlName="image"> </textarea>
+          <input #nodeFileInput type="file" accept="image/*" hidden (change)="onImageSelected('node', $event)">
+          <div style="display: block">
+            <input type="button" mat-flat-button class="fileButton" (click)="nodeFileInput.click()" [value]="'treesEntity.selectFile' | translate"/>
+            <input type="button" mat-flat-button class="fileButton" (click)="activeImageNameInput('node', treenodeImageNameInput)" [value]="'treesEntity.webUrl' | translate"/>
+            <input type="button" mat-flat-button class="fileButton" (click)="removeImage('node')" [value]="'treesEntity.delete' | translate"/>
+          </div>
+        </div>
+        <div class="colFormDiv" *ngIf="(currentNodeIsFolder)">
+          <img id="treeNodeImgPreview" class="previewImage" hidden>
+        </div>
+      </div>
+      <div class="rowFormDiv" *ngIf="currentNodeType === types.task && currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
+        <div class="colFormDiv">
+          <label class="formLabel">
+            {{'treesEntity.task' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <input matInput type="text" [readonly]="true" formControlName="taskName">
+          </mat-form-field>
+        </div>
+        <div class="colFormDiv">
+          <label class="formLabel ">
+            {{'treesEntity.taskview' | translate}}
+          </label>
+          <mat-form-field appearance="outline">
+            <mat-select matInput formControlName="viewMode" class="form-control">
+              <mat-option [value]="taskview.value" *ngFor="let taskview of taskviewsList">
+                {{ taskview.description}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="rowFormDiv" *ngIf="currentNodeType === types.task && currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
+        <div class="colFormDiv">
+          <label class="formLabel">
+            {{'treesEntity.filterable' | translate}}
+          </label>
+          <mat-checkbox formControlName="filterable"> </mat-checkbox>
+        </div>
+        <div class="colFormDiv">
+          <button  mat-flat-button class="validateButton">Configurar campos</button>
+        </div>
+      </div>
+
+      <div class="rowFormDiv" *ngIf="currentNodeType === types.cartography">
         <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
           <label class="formLabel">
             {{'treesEntity.visible' | translate}}
           </label>
           <mat-checkbox formControlName="active"> </mat-checkbox>
         </div>
-                    
-
+        <div class="colFormDiv" *ngIf=" (currentNodeIsFolder)">
+          <label class="formLabel">
+            {{'treesEntity.radio' | translate}}
+          </label>
+          <mat-checkbox formControlName="radio"> </mat-checkbox>
+        </div>
       </div>
-
-
       <div class="appDataGridEditDiv" *ngIf="( currentNodeIsFolder != undefined && !currentNodeIsFolder)">
         <app-data-grid [changeHeightButton]="true" defaultColumnSorting='name' [columnDefs]="columnDefsCartographies" [themeGrid]='themeGrid' [getAll]='getAllCartographies'
-          [eventGetSelectedRowsSubscription]='getAllElementsEventCartographies.asObservable()'
+          [eventGetSelectedRowsSubscription]='getAllElementsEventCartographies.asObservable()' *ngIf="currentNodeType === types.cartography"
           (getSelectedRows)="getSelectedRowsCartographies($event)" [singleSelection]=true [globalSearch]=true>
+        </app-data-grid>
+        <app-data-grid [changeHeightButton]="true" defaultColumnSorting='name' [columnDefs]="columnDefsTasks" [themeGrid]='themeGrid' [getAll]='getAllTasks'
+          [eventGetSelectedRowsSubscription]='getAllElementsEventTasks.asObservable()' *ngIf="currentNodeType === types.task"
+          (getSelectedRows)="getSelectedRowsTasks($event)" [singleSelection]=true [globalSearch]=true>
         </app-data-grid>
       </div>
       <button  mat-flat-button class="validateButton"
@@ -226,7 +326,7 @@
   
     <ng-template matExpansionPanelContent>
       <div class="appDataGridEditDiv">
-        <app-data-grid [changeHeightButton]="true" [allNewElements]="treeID == -1"
+        <app-data-grid #applicationsDataGrid [changeHeightButton]="true" [allNewElements]="treeID == -1"
           [columnDefs]="columnDefsApplication" [themeGrid]='themeGrid' [getAll]='getAllApplications'
           [eventAddItemsSubscription]='addElementsEventApplication.asObservable()'
           [eventGetAllRowsSubscription]='getAllElementsEventApplication.asObservable()'

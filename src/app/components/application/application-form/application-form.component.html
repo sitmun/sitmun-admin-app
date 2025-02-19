@@ -217,7 +217,7 @@
   
       <ng-template matExpansionPanelContent>    
           <div class="appDataGridEditDiv">
-              <app-data-grid [changeHeightButton]="true" [allNewElements]="applicationID == -1"  [columnDefs]="columnDefsTrees" [themeGrid]='themeGrid' [getAll]='getAllTrees' 
+              <app-data-grid #treesDataGrid [changeHeightButton]="true" [allNewElements]="applicationID == -1"  [columnDefs]="columnDefsTrees" [themeGrid]='themeGrid' [getAll]='getAllTrees' 
               [eventAddItemsSubscription]='addElementsEventTree.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventTree.asObservable()' 
               [eventRefreshSubscription]='dataUpdatedEventTree.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true 
               [hideDuplicateButton]=true defaultColumnSorting="name"  (getAllRows)="getAllRowsTrees($event)" [actionButton]=true (add)="openTreeDialog($event)"   > </app-data-grid>

@@ -28,10 +28,12 @@ export class TreeNodeService extends RestService<TreeNode> {
     if (item._links!=null) {
       const itemTree = item.tree;
       const itemCartography = item.cartography;
+      const itemTask = item.task;
       const itemParent = item.parent;
         
       delete item.tree;
       delete item.cartography;
+      delete item.task;
       delete item.parent;
         
       result = this.http.put(item._links.self.href, item);
@@ -44,6 +46,11 @@ export class TreeNodeService extends RestService<TreeNode> {
           item.substituteRelation('cartography',itemCartography).subscribe(result => {
       
           }, error => console.error(error));
+      }
+      if (itemTask !=null){
+        item.substituteRelation('task',itemTask).subscribe(result => {
+    
+        }, error => console.error(error));
       }
       if (itemParent !=null){
           item.substituteRelation('parent',itemParent).subscribe(result => {
@@ -65,7 +72,10 @@ export class TreeNodeService extends RestService<TreeNode> {
       }
       if (item.cartography && item.cartography._links && item.cartography._links.self) {
         item.cartography = item.cartography._links.self.href;
-      }      
+      }
+      if (item.task && item.task._links && item.task._links.self) {
+        item.task = item.task._links.self.href;
+      }
       result = this.http.post(this.resourceService.getResourceUrl(this.TREE_NODE_API) , item);
     }
     return result;
