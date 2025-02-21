@@ -864,7 +864,7 @@ export class TreesFormComponent implements OnInit {
 
   validTreeStructure(treeNodes) {
     let valid = true;
-    if (this.currentTreeType === constants.type.appTuristic) {
+    if (this.currentTreeType === constants.type.turisticTree) {
       const rootNodes = treeNodes[0].children.filter(n => n.status !== 'pendingDelete');
       valid = rootNodes.length === 0 || (rootNodes.length === 1 && rootNodes[0].children.length > 0);
     }
@@ -873,16 +873,16 @@ export class TreesFormComponent implements OnInit {
 
   validTuristicTreeApp(apps) {
     let valid = true;
-    if (this.currentTreeType === constants.type.appTuristic) {
-      valid = apps.length == 0 || (apps.length == 1 && apps[0].type === constants.type.appTuristic);
+    if (this.currentTreeType === constants.type.turisticTree) {
+      valid = apps.length == 0 || (apps.length == 1 && apps[0].type === constants.type.turisticApp);
     }
     return valid;
   }
 
   validNoTuristicTreeApp(apps) {
     let valid = true;
-    if (this.currentTreeType !== constants.type.appTuristic) {
-      valid = !apps.some(a => a.type === constants.type.appTuristic);
+    if (this.currentTreeType !== constants.type.turisticTree) {
+      valid = !apps.some(a => a.type === constants.type.turisticApp);
     }
     return valid;
   }
