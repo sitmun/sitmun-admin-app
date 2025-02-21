@@ -1,6 +1,7 @@
 export const constants = {
     type: {
-        appTuristic: 'app-turistica',
+        turisticApp: 'T',
+        turisticTree: 'tourist',
         menu: 'menu',
         list: 'list',
         task: 'task',
