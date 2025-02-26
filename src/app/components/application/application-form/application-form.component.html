@@ -274,11 +274,11 @@
   <form [formGroup]='parameterForm'>
     <mat-card appearance="outlined">
       <mat-card-content>
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'applicationEntity.name' | translate }}</mat-label>
           <input matInput type="text" formControlName="name" required>
         </mat-form-field>
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'applicationEntity.type' | translate }}</mat-label>
           <mat-select formControlName="type" class="form-control" required>
             <mat-option [value]="parameterType.value" *ngFor="let parameterType of parametersTypes">
@@ -286,7 +286,7 @@
             </mat-option>
           </mat-select>
         </mat-form-field>
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'serviceEntity.value' | translate }}</mat-label>
           <input matInput type="text" formControlName="value" required>
         </mat-form-field>
@@ -299,11 +299,11 @@
   <form [formGroup]='parameterForm'>
     <mat-card appearance="outlined">
       <mat-card-content>
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'applicationEntity.name' | translate }}</mat-label>
           <input matInput type="text" formControlName="name" required>
         </mat-form-field>
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'serviceEntity.value' | translate }}</mat-label>
           <input matInput type="text" formControlName="value" required>
         </mat-form-field>
