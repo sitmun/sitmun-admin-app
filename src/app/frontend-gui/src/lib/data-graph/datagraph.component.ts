@@ -30,12 +30,12 @@ export class DatagraphComponent implements OnInit {
       if(this.type == "bar"){
         this.createBarChart();
         if (this.data) {
-          this.updateBarChart(); 
+          this.updateBarChart();
         }
       }
-      
+
   }
-  
+
 
   ngOnChanges() {
     if(this.type == "bar")
@@ -60,13 +60,13 @@ export class DatagraphComponent implements OnInit {
     this.chart = svg.append('g')
       .attr('class', 'bars')
       .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`);
-      
+
       const barGroups = this.chart.selectAll()
       .data(this.data)
       .enter()
       .append('g')
 
-  
+
 
     // define X & Y domains
     let xDomain = this.data.map(d => d.index);
@@ -78,8 +78,8 @@ export class DatagraphComponent implements OnInit {
 
     // bar colors
    // this.colors = d3.scaleLinear().domain([0, this.data.length]).range(<any[]>['red', 'blue']);
-    
-    barGroups 
+
+    barGroups
       .append('text')
       .attr('class', 'value')
       .attr('x', (a) => this.xScale(a.index) + this.xScale.bandwidth() / 2)
@@ -101,7 +101,7 @@ export class DatagraphComponent implements OnInit {
       .style("font-size", 9)
       .style("fill", "black")
 
-      
+
     this.yAxis = svg.append('g')
       .attr('class', 'axis axis-y')
       .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`)
@@ -110,7 +110,7 @@ export class DatagraphComponent implements OnInit {
       .style("font-size", 9)
       .style("fill", "black")
 
-      
+
   }
 
   updateBarChart() {
