@@ -300,7 +300,7 @@
     "delete": "Remove",
     "imagePlaceHolder": "Click on 'Local file' to upload an image or on 'Web URL' to enter a URL",
     "preview": "Preview",
-    "styleError": "The style of the node must match a style of the selected layer, if the layer has no style, it must be empty." 
+    "styleError": "The style of the node must match a style of the selected layer, if the layer has no style, it must be empty."
   },
   "taskGroupEntity": {
     "generalData": "General Data",
@@ -356,7 +356,9 @@
     "value": "Value",
     "note": "Observations",
     "status": "Status",
-    "logo": "Logo"
+    "logo": "Logo",
+    "accessParentTerritory": "Territorial roles apply to parent territories",
+    "accessChildrenTerritory": "Territorial roles apply to child territories"
   },
   "territoryEntity": {
     "generalData": "General Data",

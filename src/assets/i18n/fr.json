@@ -296,7 +296,7 @@
     "delete": "Supprimer",
     "imagePlaceHolder": "Cliquez sur 'Fichier local' pour télécharger une image ou sur 'URL web' pour entrer une URL",
     "preview": "Prévisualisation",
-    "styleError": "Le style de n.ud doit correspondre à un style de calque sélectionné, si le calque n'a pas de style, il doit être vide." 
+    "styleError": "Le style de n.ud doit correspondre à un style de calque sélectionné, si le calque n'a pas de style, il doit être vide."
   },
   "taskGroupEntity": {
     "generalData": "Données générales",
@@ -352,7 +352,9 @@
     "value": "Valeur",
     "note": "Observations",
     "status": "Statut",
-    "logo": "Logo"
+    "logo": "Logo",
+    "accessParentTerritory": "Les rôles territoriaux s'appliquent aux territoires parents",
+    "accessChildrenTerritory": "Les rôles territoriaux s'appliquent aux territoires descendants"
   },
   "territoryEntity": {
     "generalData": "Données générales",

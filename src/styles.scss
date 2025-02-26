@@ -17,6 +17,8 @@
 
 // CSS Reset, comment out if not required or using a different module
 
+
+
 //@import "~igniteui-angular/lib/core/styles/themes/index";
 //@include igx-core();
 
@@ -148,7 +150,6 @@ $sitmun-theme: mat.define-light-theme($sitmun-primary, $sitmun-accent, $sitmun-w
 /* You can add global styles to this file, and also import other style files */
 
 body {
-  margin: 0;
   font-family: "Open Sans", sans-serif;
 }
 
@@ -158,96 +159,10 @@ body {
   //display: inline-block;
 }
 
-
-mat-form-field {
-  width: 100%;
-}
 #right-column {
-margin-right: 0%;
+  margin-right: 0%;
 }
 
-.getInfoButton{
-  background-color: #ff9300;
-  color: white;
-  min-width: 85px !important;
-  height: 40px;
-  margin-top: 27px !important;
-  justify-self: right !important;
-}
-
-.validateButton {
-  background-color: #ff9300 !important;
-  color: white !important;
-  min-width: 85px !important;
-  height: 40px !important;
-  margin-top: 34px !important;
-  justify-self: right !important;
-}
-
-.fileButton {
-  background-color: #ff9300 !important;
-  color: white !important;
-  min-width: 85px !important;
-  height: 40px !important;
-  margin-right: 5px !important;
-  border: none;
-  border-radius: 4px;
-  justify-self: right !important;
-  display: inline;
-  vertical-align: top;
-}
-
- .deleteButton {
-  color: #BF0000 !important;
-  border: #BF0000 solid 1px !important;
-  min-width: 85px !important;
-  height: 40px !important;
-  float: right !important;
-}
-
-.deleteButton:disabled {
-  color: gray !important;
-}
-.returnButton, .actionButton {
-  color: #ff9300 !important;
-  border: #ff9300 solid 1px !important;
-  min-width: 85px !important;
-  height: 40px !important;
-  float: right !important;
-}
-
-.read-only-cell {
-  background-color: #f5f5f5; /* Light gray background */
-  color: #999999; /* Gray text color */
-}
-
-.saveButton, .newButton {
-
-  background-color: #68a225 !important;
-  color: #fff !important;
-  min-width: 85px !important;
-  height: 40px !important;
-  float: right !important;
-}
-
-h4 {
-  display: inline-block !important;
-  font-weight: 400 !important;
-  font-size: 2.125rem !important;
-  letter-spacing: .015625rem !important;
-  text-transform: none !important;
-  line-height: 2.5rem !important;
-  margin-top: 1.75rem !important;
-  margin-bottom: 0 !important;
-}
-
-h4 > .mat-icon {
-  background-repeat: no-repeat !important;
-  display: inline-block !important;
-  fill: currentColor !important;
-  height: 30px !important;
-  width: 24px !important;
-}
 
 h5 {
   display: inline-block;
@@ -268,16 +183,6 @@ h2 {
   margin-left: 10px;
 }
 
-.agGridExpansionPanel {
-  // box-sizing: inherit !important;
-  margin-bottom: 15px !important;
-}
-
-.agGridExpansionPanelTitle {
-  background-color: #ffe9cc !important;
-  font-weight: bold !important;
-}
-
 .appDataGridDiv {
   height: calc(100% - 190px);
   margin: 50px;
@@ -290,10 +195,6 @@ h2 {
 
 .appDialogDataGridDiv {
   height: calc(100% - 80px);
-}
-.appDataGridEditDiv {
-  height: 200px;
-  margin: 20px 0px 60px 0px;
 }
 
 .divider {
@@ -340,17 +241,6 @@ h2 {
 [hidden] {
   display: none!important;
 }
-
-
-//.mat-mdc-outlined-button,
-//.mat-mdc-unelevated-button {
-//  padding: 0 10px !important;
-//  margin-right: 10px !important;
-//}
-
-// .mat-icon{
-//     margin-right:5px;
-// }
 
 .mat-mdc-table {
   width: calc(100% - 20px);
@@ -403,16 +293,16 @@ h2 {
 //}
 
 .mdc-checkbox .mdc-checkbox__native-control:enabled:checked~.mdc-checkbox__background,
- .mdc-checkbox .mdc-checkbox__native-control:enabled:indeterminate~.mdc-checkbox__background,
-  .mdc-checkbox .mdc-checkbox__native-control[data-indeterminate=true]:enabled~.mdc-checkbox__background
+.mdc-checkbox .mdc-checkbox__native-control:enabled:indeterminate~.mdc-checkbox__background,
+.mdc-checkbox .mdc-checkbox__native-control[data-indeterminate=true]:enabled~.mdc-checkbox__background
 {
   border-color:   #ff9300 !important;
   background-color:  #ff9300 !important;
 }
 
 .mdc-checkbox .mdc-checkbox__native-control:enabled:checked~.mdc-checkbox__background,
- .mdc-checkbox .mdc-checkbox__native-control:enabled:indeterminate~.mdc-checkbox__background,
-  .mdc-checkbox .mdc-checkbox__native-control[data-indeterminate=true]:enabled~.mdc-checkbox__background
+.mdc-checkbox .mdc-checkbox__native-control:enabled:indeterminate~.mdc-checkbox__background,
+.mdc-checkbox .mdc-checkbox__native-control[data-indeterminate=true]:enabled~.mdc-checkbox__background
 {
   border-color:   #ff9300 !important;
   background-color:  #ff9300 !important;
@@ -440,23 +330,6 @@ h2 {
   width: 100% !important;
 }
 
-.preview {
-  display: block;
-  margin-top: 15px;
-}
-
-.previewLabel {
-  display: block !important;
-  font-weight: 500 !important;
-  padding-left: 5px !important;
-  margin-bottom: 10px;
-}
-
-.previewImage {
-  width: 90px;
-  height: 90px;
-}
-
 .translateDialogs{
   width: calc(100vw - 45%) !important;
   height: calc(100vh - 40%) !important;
@@ -477,11 +350,6 @@ h2 {
   margin-right: 5px !important;
   padding-left: 5px !important;
 }
-
-/* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version. */
-//.mat-mdc-list-base .mat-mdc-list-item .mat-mdc-list-item-content {
-//  padding: 0 6px 0 15px !important;
-//}
 
 .mat-mdc-list-item .list-text {
   margin-right: auto;
@@ -573,10 +441,10 @@ h2 {
 }
 
 .rowFormDiv {
-    width: 100%;
-    margin: 10px 0px;
-    display: flex;
-  }
+  width: 100%;
+  margin: 10px 0px;
+  display: flex;
+}
 
 
 /* TODO(mdc-migration): The following rule targets internal classes of chips that may no longer apply for the MDC version. */
@@ -790,17 +658,6 @@ h2 {
   text-align: right;
 }
 
-//select styles
-/* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version. */
-//.mat-mdc-form-field.mat-focused .mat-form-field-ripple {
-//  background-color: #bf0000 !important;
-//}
-
-/* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version. */
-//.mat-mdc-form-field.mat-focused .mat-form-field-label {
-//  color: #bf0000 !important;
-//}
-
 .btnActive {
   color: #bf0000 !important;
   font-weight: bold !important;
@@ -942,6 +799,33 @@ h2 {
   cursor: pointer;
 }
 
+//
+// Headers
+//
+
+h4 {
+  display: inline-block !important;
+  font-weight: 400 !important;
+  font-size: 2.125rem !important;
+  letter-spacing: .015625rem !important;
+  text-transform: none !important;
+  line-height: 2.5rem !important;
+  margin-top: 1.75rem !important;
+  margin-bottom: 0 !important;
+}
+
+h4 > .mat-icon {
+  background-repeat: no-repeat !important;
+  display: inline-block !important;
+  fill: currentColor !important;
+  height: 30px !important;
+  width: 24px !important;
+}
+
+//
+// SITMUN custom styles
+//
+
 .sitmun-mat-card-margin {
   margin-bottom: 10px;
 }
@@ -953,4 +837,118 @@ h2 {
 .sitmun-action-button {
   background-color: #ff9300 !important;
   color: white !important;
+  margin-right: 10px;
+}
+
+.sitmun-save-button, .sitmun-new-button, .saveButton {
+  background-color: #68a225 !important;
+  color: #fff !important;
+  margin-right: 10px;
+}
+
+.sitmun-return-button, .returnButton {
+  color: #ff9300 !important;
+  border: #ff9300 solid 1px !important;
+  margin-right: 10px;
+}
+
+.sitmun-get-info-button, .getInfoButton{
+  background-color: #ff9300;
+  color: white;
+  justify-self: right !important;
+  margin-right: 10px;
+}
+
+.sitmun-validate-button, .validateButton {
+  background-color: #ff9300 !important;
+  color: white !important;
+  justify-self: right !important;
+  margin-right: 10px;
+}
+
+.sitmun-delete-button, .deleteButton {
+  color: #BF0000 !important;
+  border: #BF0000 solid 1px !important;
+  float: right !important;
+  margin-right: 10px;
+}
+
+.sitmun-form-title {
+  font-weight: bold !important;
+}
+
+.sitmun-delete-button:disabled, .deleteButton:disabled {
+  color: gray !important;
+}
+
+.sitmun-ag-grid-expansion-panel, .agGridExpansionPanel {
+  margin-bottom: 15px !important;
+}
+
+.sitmun-ag-grid-expansion-panel-title, .agGridExpansionPanelTitle {
+  background-color: #ffe9cc !important;
+  font-weight: bold !important;
+}
+
+.sitmun-app-data-grid-edit, .appDataGridEditDiv {
+  height: 200px;
+  margin: 20px 0px 60px 0px;
+}
+
+.flex-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+//
+// Flexbox tricks
+//
+
+.full {
+  width: 100%;
+}
+
+.half {
+  width: calc(50% - 5px);
+}
+
+.third {
+  width: calc(33% - 4px);
+}
+
+.quarter {
+  width: calc(25% - 8px);
+}
+
+.spacer {
+  background: red;
+  height: 5px;
+  width: 5px;
+}
+
+.add-gap {
+  margin-right: 10px;
+}
+
+.break {
+  flex-basis: 100%;
+  height: 0;
+}
+
+// Ag-Grid
+
+.force-padding {
+  padding-left: 11px !important;
+}
+
+.read-only-cell {
+  background-color: #f5f5f5; /* Light gray background */
+  color: #999999; /* Gray text color */
+}
+
+// Fixes for mat-accordion-multi in dialogs
+
+.mat-accordion-multi div {
+  margin-top: 0 !important;
 }

@@ -1,22 +1,21 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
 import {
   ApplicationService, ApplicationParameterService, RoleService,
   HalOptions, HalParam, CartographyGroupService, TreeService, BackgroundService,
   ApplicationBackgroundService, TranslationService, Translation, Application, CodeList
 } from '../../../frontend-core/src/lib/public_api';
 
-import { HttpClient } from '@angular/common/http';
-import { UtilsService } from '../../../services/utils.service';
+import {HttpClient} from '@angular/common/http';
+import {UtilsService} from '../../../services/utils.service';
 
-import { map } from 'rxjs/operators';
-import { Observable, of, Subject } from 'rxjs';
-import { config } from 'src/config';
-import { DataGridComponent, DialogFormComponent, DialogGridComponent } from '../../../frontend-gui/src/lib/public_api';
-import { MatDialog } from '@angular/material/dialog';
-import { constants } from 'src/environments/constants';
-
+import {map} from 'rxjs/operators';
+import {Observable, of, Subject} from 'rxjs';
+import {config} from 'src/config';
+import {DataGridComponent, DialogFormComponent, DialogGridComponent} from '../../../frontend-gui/src/lib/public_api';
+import {MatDialog} from '@angular/material/dialog';
+import {constants} from 'src/environments/constants';
 
 
 @Component({
@@ -27,21 +26,21 @@ import { constants } from 'src/environments/constants';
 export class ApplicationFormComponent implements OnInit {
 
   //Translations
-  nameTranslationsModified: boolean = false;
-  titleTranslationsModified: boolean = false;
+  nameTranslationsModified = false;
+  titleTranslationsModified = false;
 
   nameTranslationMap: Map<string, Translation>;
   titleTranslationMap: Map<string, Translation>;
 
-  situationMapList: Array<any> = [];
-  parametersTypes: Array<any> = [];
+  situationMapList: any[] = [];
+  parametersTypes: any[] = [];
   //Dialog
   applicationForm: UntypedFormGroup;
   applicationToEdit;
   applicationSaved: Application;
   applicationID = -1;
   duplicateID = -1;
-  dataLoaded: Boolean = false;
+  dataLoaded = false;
   themeGrid: any = config.agGridTheme;
 
   //Grids
@@ -65,7 +64,7 @@ export class ApplicationFormComponent implements OnInit {
   addElementsEventTree: Subject<any[]> = new Subject<any[]>();
   dataUpdatedEventTree: Subject<boolean> = new Subject<boolean>();
 
-  applicationTypes: Array<any> = [];
+  applicationTypes: any[] = [];
 
   //Dialogs
 
@@ -129,27 +128,28 @@ export class ApplicationFormComponent implements OnInit {
     }));
 
     promises.push(new Promise((resolve, reject) => {
-      this.utils.getCodeListValues('applicationParameter.type').
-        pipe(
-          map((resp: any) => {
-            let newTable: CodeList[] = [];
-            resp.forEach(element => {
-              if (element.value !== config.applicationTemplateIdentificator) { newTable.push(element) }
-            });
-            return newTable;
-          })
-        ).subscribe(
-          resp => {
-            this.parametersTypes.push(...resp);
-            resolve(true);
-          }
-        );
+      this.utils.getCodeListValues('applicationParameter.type').pipe(
+        map((resp: any) => {
+          const newTable: CodeList[] = [];
+          resp.forEach(element => {
+            if (element.value !== config.applicationTemplateIdentificator) {
+              newTable.push(element);
+            }
+          });
+          return newTable;
+        })
+      ).subscribe(
+        resp => {
+          this.parametersTypes.push(...resp);
+          resolve(true);
+        }
+      );
     }));
 
-    let situationMapByDefault = {
+    const situationMapByDefault = {
       id: -1,
       name: '-------'
-    }
+    };
     this.situationMapList.push(situationMapByDefault);
 
     promises.push(new Promise((resolve, reject) => {
@@ -163,91 +163,95 @@ export class ApplicationFormComponent implements OnInit {
 
     Promise.all(promises).then(() => {
       this.activatedRoute.params.subscribe(params => {
-        this.applicationID = +params.id;
-        if (params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
+          this.applicationID = +params.id;
+          if (params.idDuplicate) {
+            this.duplicateID = +params.idDuplicate;
+          }
 
-        if (this.applicationID !== -1 || this.duplicateID != -1) {
+          if (this.applicationID !== -1 || this.duplicateID != -1) {
 
-          let idToGet = this.applicationID !== -1 ? this.applicationID : this.duplicateID
+            const idToGet = this.applicationID !== -1 ? this.applicationID : this.duplicateID;
 
 
-          this.applicationService.get(idToGet).subscribe(
-            resp => {
+            this.applicationService.get(idToGet).subscribe(
+              resp => {
 
-              this.applicationToEdit = resp;
-              this.currentAppType = this.applicationToEdit.type;
-              this.applicationForm.patchValue({
-                type: this.applicationToEdit.type,
-                title: this.applicationToEdit.title,
-                jspTemplate: this.applicationToEdit.jspTemplate,
-                theme: this.applicationToEdit.theme,
-                situationMap: this.applicationToEdit.situationMapId ? this.applicationToEdit.situationMapId : this.situationMapList[0].id,
-                scales: this.applicationToEdit.scales,
-                treeAutoRefresh: this.applicationToEdit.treeAutoRefresh,
-                logo: this.applicationToEdit.logo,
-                _links: this.applicationToEdit._links
-              });
-
-              if (this.applicationID !== -1) {
+                this.applicationToEdit = resp;
+                this.currentAppType = this.applicationToEdit.type;
                 this.applicationForm.patchValue({
-                  id: this.applicationID,
-                  name: this.applicationToEdit.name,
-                  passwordSet: this.applicationToEdit.passwordSet,
+                  type: this.applicationToEdit.type,
+                  title: this.applicationToEdit.title,
+                  jspTemplate: this.applicationToEdit.jspTemplate,
+                  accessParentTerritory: this.applicationToEdit.accessParentTerritory,
+                  accessChildrenTerritory: this.applicationToEdit.accessChildrenTerritory,
+                  theme: this.applicationToEdit.theme,
+                  situationMap: this.applicationToEdit.situationMapId ? this.applicationToEdit.situationMapId : this.situationMapList[0].id,
+                  scales: this.applicationToEdit.scales,
+                  treeAutoRefresh: this.applicationToEdit.treeAutoRefresh,
+                  logo: this.applicationToEdit.logo,
+                  _links: this.applicationToEdit._links
                 });
+
+                if (this.applicationID !== -1) {
+                  this.applicationForm.patchValue({
+                    id: this.applicationID,
+                    name: this.applicationToEdit.name,
+                    passwordSet: this.applicationToEdit.passwordSet,
+                  });
+                } else {
+                  this.applicationForm.patchValue({
+                    name: this.utils.getTranslate('copy_').concat(this.applicationToEdit.name),
+                  });
+                }
+
+
+                if (this.applicationID != -1) {
+                  this.translationService.getAll()
+                    .pipe(map((data: any[]) => data.filter(elem => elem.element == this.applicationID)
+                    )).subscribe(result => {
+
+                      const nameTranslations = [];
+                      const titleTranslations = [];
+                      result.forEach(translation => {
+                        if (translation.column == config.translationColumns.applicationName) {
+                          nameTranslations.push(translation);
+                        } else if (translation.column == config.translationColumns.applicationTitle) {
+                          titleTranslations.push(translation);
+                        }
+                      });
+                      this.utils.updateTranslations(this.nameTranslationMap, nameTranslations);
+                      this.utils.updateTranslations(this.titleTranslationMap, titleTranslations);
+                    }
+                  );
+
+                }
+                this.dataLoaded = true;
+              },
+              error => {
+
               }
-              else {
-                this.applicationForm.patchValue({
-                  name: this.utils.getTranslate('copy_').concat(this.applicationToEdit.name),
-                });
-              }
+            );
+          } else {
+            this.dataLoaded = true;
+            this.applicationForm.patchValue({
+              moveSupramunicipal: false,
+              logo: false,
+              treeAutorefresh: false,
+              accessParentTerritory: false,
+              accessChildrenTerritory: false,
+              type: this.applicationTypes[0].value,
+              situationMap: this.situationMapList[0].id
+            });
+            this.applicationForm.get('title').disable();
+            this.applicationForm.get('scales').disable();
+            this.applicationForm.get('situationMap').disable();
+            this.applicationForm.get('treeAutoRefresh').disable();
+            this.applicationForm.get('accessParentTerritory').disable();
+            this.applicationForm.get('accessChildrenTerritory').disable();
+            this.applicationForm.get('theme').disable();
+          }
 
-
-              if (this.applicationID != -1) {
-                this.translationService.getAll()
-                  .pipe(map((data: any[]) => data.filter(elem => elem.element == this.applicationID)
-                  )).subscribe(result => {
-       
-                    let nameTranslations = [];
-                    let titleTranslations = [];
-                    result.forEach(translation => {
-                      if (translation.column == config.translationColumns.applicationName) {
-                        nameTranslations.push(translation)
-                      }
-                      else if (translation.column == config.translationColumns.applicationTitle) {
-                        titleTranslations.push(translation)
-                      }
-                    });
-                    this.utils.updateTranslations(this.nameTranslationMap, nameTranslations)
-                    this.utils.updateTranslations(this.titleTranslationMap, titleTranslations)
-                  }
-
-                  );;
-
-              }
-              this.dataLoaded = true;
-            },
-            error => {
-
-            }
-          );
-        }
-        else {
-          this.dataLoaded = true;
-          this.applicationForm.patchValue({
-            moveSupramunicipal: false,
-            logo: false,
-            treeAutorefresh: false,
-            type: this.applicationTypes[0].value,
-            situationMap: this.situationMapList[0].id
-          });
-          this.applicationForm.get('title').disable();
-          this.applicationForm.get('scales').disable();
-          this.applicationForm.get('situationMap').disable();
-          this.applicationForm.get('treeAutoRefresh').disable();
-          this.applicationForm.get('theme').disable();
-        }
-
-      },
+        },
         error => {
 
         });
@@ -326,17 +330,18 @@ export class ApplicationFormComponent implements OnInit {
     ];
 
   }
+
   getSituationMapList() {
-    let params2: HalParam[] = [];
-    let param: HalParam = { key: 'type', value: 'M' }
+    const params2: HalParam[] = [];
+    const param: HalParam = {key: 'type', value: 'M'};
     params2.push(param);
-    let query: HalOptions = { params: params2 };
+    const query: HalOptions = {params: params2};
 
     return this.cartographyGroupService.getAll(query);
   }
 
 
-  onSelectionTypeAppChanged({ value }) {
+  onSelectionTypeAppChanged({value}) {
     this.currentAppType = value;
     if (value === 'E') {
       this.applicationForm.get('title').disable();
@@ -364,14 +369,17 @@ export class ApplicationFormComponent implements OnInit {
         Validators.required,
       ]),
       title: new UntypedFormControl(null),
-      jspTemplate: new UntypedFormControl(null,[]),
+      jspTemplate: new UntypedFormControl(null, []),
       theme: new UntypedFormControl(null),
 
       situationMap: new UntypedFormControl(null, []),
       scales: new UntypedFormControl(null),
       treeAutoRefresh: new UntypedFormControl(null),
+      app: new UntypedFormControl(null),
+      accessParentTerritory: new UntypedFormControl(null),
+      accessChildrenTerritory: new UntypedFormControl(null),
       _links: new UntypedFormControl(null, []),
-      logo: new UntypedFormControl(null,[]),
+      logo: new UntypedFormControl(null, []),
 
     });
 
@@ -383,25 +391,24 @@ export class ApplicationFormComponent implements OnInit {
       type: new UntypedFormControl(null),
       value: new UntypedFormControl(null),
 
-    })
+    });
   }
 
   async onNameTranslationButtonClicked() {
-    let dialogResult = null
+    let dialogResult = null;
     dialogResult = await this.utils.openTranslationDialog(this.nameTranslationMap);
-    if (dialogResult && dialogResult.event == "Accept") {
+    if (dialogResult && dialogResult.event == 'Accept') {
       this.nameTranslationsModified = true;
     }
   }
 
   async onTitleTranslationButtonClicked() {
-    let dialogResult = null
+    let dialogResult = null;
     dialogResult = await this.utils.openTranslationDialog(this.titleTranslationMap);
-    if (dialogResult && dialogResult.event == "Accept") {
+    if (dialogResult && dialogResult.event == 'Accept') {
       this.titleTranslationsModified = true;
     }
   }
-
 
 
   // AG-GRID
@@ -412,48 +419,56 @@ export class ApplicationFormComponent implements OnInit {
   getAllParameters = (): Observable<any> => {
 
     if (this.applicationID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
+      const aux: any[] = [];
       return of(aux);
     }
 
-    var urlReq = `${this.applicationToEdit._links.parameters.href}`
+    let urlReq = `${this.applicationToEdit._links.parameters.href}`;
     if (this.applicationToEdit._links.parameters.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
+      const url = new URL(urlReq.split('{')[0]);
+      url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
 
     return (this.http.get(urlReq))
       .pipe(map(data => data[`_embedded`][`application-parameters`].filter(elem => elem.type != config.applicationTemplateIdentificator)
       ));
-  }
+  };
 
   getAllRowsParameters(event) {
-    if (event.event == "save") {
+    if (event.event == 'save') {
       this.saveParameters(event.data);
     }
   }
 
 
   saveParameters(data: any[]) {
-    let parameterToSave = [];
-    let parameterToDelete = [];
+    const parameterToSave = [];
+    const parameterToDelete = [];
     const promises: Promise<any>[] = [];
     data.forEach(parameter => {
       if (parameter.status === 'pendingCreation' || parameter.status === 'pendingModify') {
-        parameter.application = this.applicationToEdit
+        parameter.application = this.applicationToEdit;
       } //If is new, you need the application link
       if (parameter.status === 'pendingCreation' || parameter.newItem) {
         parameter._links = null;
         parameter.id = null;
       }
       // parameterToSave.push(parameter)
-      promises.push(new Promise((resolve, reject) => { this.applicationParameterService.save(parameter).subscribe((resp) => { resolve(true) }) }));
+      promises.push(new Promise((resolve, reject) => {
+        this.applicationParameterService.save(parameter).subscribe((resp) => {
+          resolve(true);
+        });
+      }));
 
 
       if (parameter.status === 'pendingDelete' && parameter._links && !parameter.newItem) {
-        // parameterToDelete.push(parameter) 
-        promises.push(new Promise((resolve, reject) => { this.applicationParameterService.remove(parameter).subscribe((resp) => { resolve(true) }) }));
+        // parameterToDelete.push(parameter)
+        promises.push(new Promise((resolve, reject) => {
+          this.applicationParameterService.remove(parameter).subscribe((resp) => {
+            resolve(true);
+          });
+        }));
 
       }
     });
@@ -473,7 +488,7 @@ export class ApplicationFormComponent implements OnInit {
   }
 
   duplicateParameters(data) {
-    let parametersToDuplicate = this.utils.duplicateParameter(data, 'name');
+    const parametersToDuplicate = this.utils.duplicateParameter(data, 'name');
     this.addElementsEventParameters.next(parametersToDuplicate);
   }
 
@@ -481,54 +496,52 @@ export class ApplicationFormComponent implements OnInit {
 
   getAllTemplates = (): Observable<any> => {
     if (this.applicationID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
+      const aux: any[] = [];
       return of(aux);
     }
 
-    var urlReq = `${this.applicationToEdit._links.parameters.href}`
+    let urlReq = `${this.applicationToEdit._links.parameters.href}`;
     if (this.applicationToEdit._links.parameters.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
+      const url = new URL(urlReq.split('{')[0]);
+      url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
 
     return (this.http.get(urlReq))
       .pipe(map(data => data[`_embedded`][`application-parameters`].filter(elem => elem.type == config.applicationTemplateIdentificator)
       ));
-  }
+  };
 
   //To update templates we use getAllRowsParameters!
 
 
   duplicateTemplates(data) {
-    let templatesToDuplicate = this.utils.duplicateParameter(data, 'name');
+    const templatesToDuplicate = this.utils.duplicateParameter(data, 'name');
     this.addElementsEventTemplateConfiguration.next(templatesToDuplicate);
   }
-
-
 
 
   // ******** Roles ******** //
 
   getAllRoles = (): Observable<any> => {
     if (this.applicationID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
+      const aux: any[] = [];
       return of(aux);
     }
 
-    var urlReq = `${this.applicationToEdit._links.availableRoles.href}`
+    let urlReq = `${this.applicationToEdit._links.availableRoles.href}`;
     if (this.applicationToEdit._links.availableRoles.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
+      const url = new URL(urlReq.split('{')[0]);
+      url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
 
     return (this.http.get(urlReq))
       .pipe(map(data => data[`_embedded`][`roles`]));
-  }
+  };
 
   getAllRowsRoles(event) {
-    if (event.event == "save") {
+    if (event.event == 'save') {
       this.saveRoles(event.data);
     }
   }
@@ -537,30 +550,37 @@ export class ApplicationFormComponent implements OnInit {
     const promises: Promise<any>[] = [];
 
     let dataChanged = false;
-    let rolesModified = [];
-    let rolesToPut = [];
+    const rolesModified = [];
+    const rolesToPut = [];
     data.forEach(role => {
 
       if (role.status !== 'pendingDelete') {
         if (role.status === 'pendingModify') {
-          promises.push(new Promise((resolve, reject) => { this.roleService.update(role).subscribe((resp) => { resolve(true) }) }));
-          if (role.newItem) { dataChanged = true; }
-        }
-        else if (role.status === 'pendingCreation') {
+          promises.push(new Promise((resolve, reject) => {
+            this.roleService.update(role).subscribe((resp) => {
+              resolve(true);
+            });
+          }));
+          if (role.newItem) {
+            dataChanged = true;
+          }
+        } else if (role.status === 'pendingCreation') {
           dataChanged = true;
         }
-        rolesToPut.push(role._links.self.href)
+        rolesToPut.push(role._links.self.href);
+      } else {
+        dataChanged = true;
       }
-      else { dataChanged = true }
 
     });
 
     Promise.all(promises).then(() => {
       if (dataChanged) {
-        let url = this.applicationToEdit._links.availableRoles.href.split('{', 1)[0];
+        const url = this.applicationToEdit._links.availableRoles.href.split('{', 1)[0];
         this.utils.updateUriList(url, rolesToPut, this.dataUpdatedEventRoles);
+      } else {
+        this.dataUpdatedEventRoles.next(true);
       }
-      else { this.dataUpdatedEventRoles.next(true) }
     });
 
   }
@@ -570,14 +590,14 @@ export class ApplicationFormComponent implements OnInit {
   getAllBackgrounds = (): Observable<any> => {
 
     if (this.applicationID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
+      const aux: any[] = [];
       return of(aux);
     }
 
-    var urlReq = `${this.applicationToEdit._links.backgrounds.href}`
+    let urlReq = `${this.applicationToEdit._links.backgrounds.href}`;
     if (this.applicationToEdit._links.backgrounds.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
+      const url = new URL(urlReq.split('{')[0]);
+      url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
 
@@ -585,56 +605,67 @@ export class ApplicationFormComponent implements OnInit {
       .pipe(map(data => data['_embedded']['application-backgrounds']));
 
 
-  }
+  };
 
   getAllRowsBackgrounds(event) {
-    if (event.event == "save") {
+    if (event.event == 'save') {
       this.saveBackgrounds(event.data);
     }
   }
 
   saveBackgrounds(data: any[]) {
-    let backgroundsToCreate = [];
-    let backgroundsToDelete = [];
+    const backgroundsToCreate = [];
+    const backgroundsToDelete = [];
     const promises: Promise<any>[] = [];
     const promisesBackground: Promise<any>[] = [];
     data.forEach(background => {
       if (background.status === 'pendingCreation' || (background.status === 'pendingModify') && (background.new)) {
 
-        let index = data.findIndex(element => element.backgroundDescription === background.backgroundDescription && element.backgroundName === background.backgroundName && !element.newItem)
+        const index = data.findIndex(element => element.backgroundDescription === background.backgroundDescription && element.backgroundName === background.backgroundName && !element.newItem);
         if (index === -1) {
           background.newItem = false;
           background.application = this.applicationToEdit;
           if (background._links) { //Duplicate
-            let urlReqBackground = `${background._links.background.href}`
+            let urlReqBackground = `${background._links.background.href}`;
             background.id = null;
             if (background._links.background.href) {
-              let url = new URL(urlReqBackground.split("{")[0]);
-              url.searchParams.append("projection", "view")
+              const url = new URL(urlReqBackground.split('{')[0]);
+              url.searchParams.append('projection', 'view');
               urlReqBackground = url.toString();
             }
             background._links = null;
             promises.push(new Promise((resolve, reject) => {
               this.http.get(urlReqBackground).subscribe(result => {
                 background.background = result;
-                this.applicationBackgroundService.save(background).subscribe((resp) => { resolve(true) });
-                // backgroundsToCreate.push(background) 
+                this.applicationBackgroundService.save(background).subscribe((resp) => {
+                  resolve(true);
+                });
+                // backgroundsToCreate.push(background)
                 // resolve(true);
-              })
-            }))
-          }
-          else {
-            // backgroundsToCreate.push(background) 
-            promises.push(new Promise((resolve, reject) => { this.applicationBackgroundService.save(background).subscribe((resp) => { resolve(true) }) }));
+              });
+            }));
+          } else {
+            // backgroundsToCreate.push(background)
+            promises.push(new Promise((resolve, reject) => {
+              this.applicationBackgroundService.save(background).subscribe((resp) => {
+                resolve(true);
+              });
+            }));
           }
         }
-      }
-      else if (background.status === 'pendingModify') {
-        promises.push(new Promise((resolve, reject) => { this.applicationBackgroundService.save(background).subscribe((resp) => { resolve(true) }) }));
-      }
-      else if (background.status === 'pendingDelete' && !background.newItem) {
-        // backgroundsToDelete.push(background) 
-        promises.push(new Promise((resolve, reject) => { this.applicationBackgroundService.remove(background).subscribe((resp) => { resolve(true) }) }));
+      } else if (background.status === 'pendingModify') {
+        promises.push(new Promise((resolve, reject) => {
+          this.applicationBackgroundService.save(background).subscribe((resp) => {
+            resolve(true);
+          });
+        }));
+      } else if (background.status === 'pendingDelete' && !background.newItem) {
+        // backgroundsToDelete.push(background)
+        promises.push(new Promise((resolve, reject) => {
+          this.applicationBackgroundService.remove(background).subscribe((resp) => {
+            resolve(true);
+          });
+        }));
 
       }
     });
@@ -654,14 +685,7 @@ export class ApplicationFormComponent implements OnInit {
     });
 
 
-
-
-
-
-
   }
-
-
 
 
   // ******** Trees ******** //
@@ -669,14 +693,14 @@ export class ApplicationFormComponent implements OnInit {
   getAllTrees = (): Observable<any> => {
 
     if (this.applicationID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
+      const aux: any[] = [];
       return of(aux);
     }
 
-    var urlReq = `${this.applicationToEdit._links.trees.href}`
+    let urlReq = `${this.applicationToEdit._links.trees.href}`;
     if (this.applicationToEdit._links.trees.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
+      const url = new URL(urlReq.split('{')[0]);
+      url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
 
@@ -684,43 +708,49 @@ export class ApplicationFormComponent implements OnInit {
       .pipe(map(data => data['_embedded']['trees']));
 
 
-  }
+  };
 
   getAllRowsTrees(event) {
-    if (event.event == "save") {
+    if (event.event == 'save') {
       this.saveTrees(event.data);
     }
   }
 
   saveTrees(data: any[]) {
     let dataChanged = false;
-    let treesModified = [];
-    let treesToPut = [];
+    const treesModified = [];
+    const treesToPut = [];
     const promises: Promise<any>[] = [];
 
     data.forEach(tree => {
       if (tree.status !== 'pendingDelete') {
         if (tree.status === 'pendingModify') {
           // treesModified.push(tree);
-          if (tree.newItem) { dataChanged = true; }
-          promises.push(new Promise((resolve, reject) => { this.treeService.update(tree).subscribe((resp) => { resolve(true) }) }));
-        }
-        else if (tree.status === 'pendingCreation') {
+          if (tree.newItem) {
+            dataChanged = true;
+          }
+          promises.push(new Promise((resolve, reject) => {
+            this.treeService.update(tree).subscribe((resp) => {
+              resolve(true);
+            });
+          }));
+        } else if (tree.status === 'pendingCreation') {
           dataChanged = true;
         }
-        treesToPut.push(tree._links.self.href)
+        treesToPut.push(tree._links.self.href);
+      } else {
+        dataChanged = true;
       }
-      else { dataChanged = true }
     });
-
 
 
     Promise.all(promises).then(() => {
       if (dataChanged) {
-        let url = this.applicationToEdit._links.trees.href.split('{', 1)[0];
-        this.utils.updateUriList(url, treesToPut, this.dataUpdatedEventTree)
+        const url = this.applicationToEdit._links.trees.href.split('{', 1)[0];
+        this.utils.updateUriList(url, treesToPut, this.dataUpdatedEventTree);
+      } else {
+        this.dataUpdatedEventTree.next(true);
       }
-      else { this.dataUpdatedEventTree.next(true); }
     });
 
   }
@@ -733,7 +763,7 @@ export class ApplicationFormComponent implements OnInit {
 
     this.parameterForm.patchValue({
       type: this.parametersTypes[0].value
-    })
+    });
 
     const dialogRef = this.dialog.open(DialogFormComponent);
     dialogRef.componentInstance.HTMLReceived = this.newParameterDialog;
@@ -743,8 +773,8 @@ export class ApplicationFormComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
-          let item = this.parameterForm.value;
-          this.addElementsEventParameters.next([item])
+          const item = this.parameterForm.value;
+          this.addElementsEventParameters.next([item]);
 
 
         }
@@ -758,10 +788,10 @@ export class ApplicationFormComponent implements OnInit {
   // ******** TemplatesConfiguration Dialog  ******** //
 
   getAllTemplatesConfigurationDialog = () => {
-    const aux: Array<any> = [];
+    const aux: any[] = [];
     return of(aux);
     // return this.cartographyService.getAll();
-  }
+  };
 
   openTemplateConfigurationDialog(data: any) {
     const dialogRef = this.dialog.open(DialogFormComponent);
@@ -772,9 +802,9 @@ export class ApplicationFormComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
-          let item = this.parameterForm.value;
+          const item = this.parameterForm.value;
           item.type = config.applicationTemplateIdentificator;
-          this.addElementsEventTemplateConfiguration.next([item])
+          this.addElementsEventTemplateConfiguration.next([item]);
         }
 
       }
@@ -782,32 +812,32 @@ export class ApplicationFormComponent implements OnInit {
     });
 
   }
+
   // ******** Roles Dialog  ******** //
 
   getAllRolesDialog = () => {
     return this.roleService.getAll();
-  }
+  };
 
 
   openRolesDialog(data: any) {
 
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
+    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass: 'gridDialogs'});
     dialogRef.componentInstance.orderTable = ['name'];
     dialogRef.componentInstance.getAllsTable = [this.getAllRolesDialog];
     dialogRef.componentInstance.singleSelectionTable = [false];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsRolesDialog];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate("applicationEntity.roles");
+    dialogRef.componentInstance.title = this.utils.getTranslate('applicationEntity.roles');
     dialogRef.componentInstance.titlesTable = [''];
     dialogRef.componentInstance.currentData = [data];
     dialogRef.componentInstance.nonEditable = false;
 
 
-
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
-          this.addElementsEventRoles.next(result.data[0])
+          this.addElementsEventRoles.next(result.data[0]);
         }
       }
 
@@ -819,22 +849,21 @@ export class ApplicationFormComponent implements OnInit {
 
   getAllBackgroundDialog = () => {
     return this.backgroundService.getAll();
-  }
+  };
 
   openBackgroundDialog(data: any) {
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
+    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass: 'gridDialogs'});
     dialogRef.componentInstance.orderTable = ['name'];
     dialogRef.componentInstance.getAllsTable = [this.getAllBackgroundDialog];
     dialogRef.componentInstance.singleSelectionTable = [false];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsBackgroundDialog];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate("applicationEntity.background");
+    dialogRef.componentInstance.title = this.utils.getTranslate('applicationEntity.background');
     dialogRef.componentInstance.titlesTable = [''];
     dialogRef.componentInstance.currentData = [data];
     dialogRef.componentInstance.fieldRestrictionWithDifferentName = ['backgroundName'];
     dialogRef.componentInstance.addFieldRestriction = ['name'];
     dialogRef.componentInstance.nonEditable = false;
-
 
 
     dialogRef.afterClosed().subscribe(result => {
@@ -844,7 +873,7 @@ export class ApplicationFormComponent implements OnInit {
             element.id = null;
             element.newItem = true;
           });
-          this.addElementsEventBackground.next(this.adaptNewBackgrounds(result.data[0]))
+          this.addElementsEventBackground.next(this.adaptNewBackgrounds(result.data[0]));
         }
       }
 
@@ -854,14 +883,14 @@ export class ApplicationFormComponent implements OnInit {
 
 
   adaptNewBackgrounds(data: any[]) {
-    let newBackgrounds = [];
+    const newBackgrounds = [];
     data.forEach(background => {
-      let newBackground = {
+      const newBackground = {
         background: background,
         backgroundDescription: background.description,
         backgroundName: background.name,
         new: true
-      }
+      };
       newBackgrounds.push(newBackground);
     });
     return newBackgrounds;
@@ -874,26 +903,25 @@ export class ApplicationFormComponent implements OnInit {
   getAllTreeDialog = () => {
 
     return this.treeService.getAll();
-  }
+  };
 
   openTreeDialog(data: any) {
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
+    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass: 'gridDialogs'});
     dialogRef.componentInstance.orderTable = ['name'];
     dialogRef.componentInstance.getAllsTable = [this.getAllTreeDialog];
     dialogRef.componentInstance.singleSelectionTable = [false];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsTreeDialog];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate("applicationEntity.tree");
+    dialogRef.componentInstance.title = this.utils.getTranslate('applicationEntity.tree');
     dialogRef.componentInstance.titlesTable = [''];
     dialogRef.componentInstance.currentData = [data];
     dialogRef.componentInstance.nonEditable = false;
 
 
-
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
-          this.addElementsEventTree.next(result.data[0])
+          this.addElementsEventTree.next(result.data[0]);
         }
       }
 
@@ -911,26 +939,28 @@ export class ApplicationFormComponent implements OnInit {
   }
 
   saveApp() {
-    let situationMap = this.situationMapList.find(x => x.id === this.applicationForm.value.situationMap)
+    let situationMap = this.situationMapList.find(x => x.id === this.applicationForm.value.situationMap);
     if (situationMap == undefined || situationMap.id == -1) {
-      situationMap = null
+      situationMap = null;
     }
 
     if (this.applicationID == -1 && this.duplicateID != -1) {
       this.applicationForm.patchValue({
         _links: null
-      })
+      });
     }
 
-    var appObj: Application = new Application();
+    const appObj: Application = new Application();
 
     appObj.name = this.applicationForm.value.name;
     appObj.type = this.applicationForm.value.type;
     appObj.title = this.applicationForm.value.title;
     appObj.jspTemplate = this.applicationForm.value.jspTemplate;
+    appObj.accessParentTerritory = this.applicationForm.value.accessParentTerritory;
+    appObj.accessChildrenTerritory = this.applicationForm.value.accessChildrenTerritory;
     appObj.logo = this.applicationForm.value.logo;
     appObj.theme = this.applicationForm.value.theme;
-    appObj.scales = this.applicationForm.value.scales != null ? this.applicationForm.value.scales.toString().split(",") : null;
+    appObj.scales = this.applicationForm.value.scales != null ? this.applicationForm.value.scales.toString().split(',') : null;
     appObj.treeAutoRefresh = this.applicationForm.value.treeAutoRefresh;
     appObj._links = this.applicationForm.value._links;
     appObj.situationMap = situationMap;
@@ -938,41 +968,41 @@ export class ApplicationFormComponent implements OnInit {
       appObj.id = null;
     } else {
       appObj.id = this.applicationForm.value.id;
-      appObj.createdDate = this.applicationToEdit.createdDate
+      appObj.createdDate = this.applicationToEdit.createdDate;
     }
 
 
     this.applicationService.save(appObj)
       .subscribe(async resp => {
 
-        this.applicationToEdit = resp;
-        this.applicationSaved = resp;
-        this.applicationID = this.applicationToEdit.id;
-        this.applicationForm.patchValue({
-          id: resp.id,
-          _links: resp._links
-        })
+          this.applicationToEdit = resp;
+          this.applicationSaved = resp;
+          this.applicationID = this.applicationToEdit.id;
+          this.applicationForm.patchValue({
+            id: resp.id,
+            _links: resp._links
+          });
 
-        this.utils.saveTranslation(resp.id, this.nameTranslationMap, this.applicationToEdit.name, this.nameTranslationsModified);
-        this.nameTranslationsModified = false;
-        this.utils.saveTranslation(resp.id, this.titleTranslationMap, this.applicationToEdit.title, this.titleTranslationsModified);
-        this.titleTranslationsModified = false;
+          this.utils.saveTranslation(resp.id, this.nameTranslationMap, this.applicationToEdit.name, this.nameTranslationsModified);
+          this.nameTranslationsModified = false;
+          this.utils.saveTranslation(resp.id, this.titleTranslationMap, this.applicationToEdit.title, this.titleTranslationsModified);
+          this.titleTranslationsModified = false;
 
-        this.getAllElementsEventParameters.next("save");
-        this.getAllElementsEventTemplateConfiguration.next("save");
-        this.getAllElementsEventRoles.next("save");
-        this.getAllElementsEventBackground.next("save");
-        this.getAllElementsEventTree.next("save");
-      },
+          this.getAllElementsEventParameters.next('save');
+          this.getAllElementsEventTemplateConfiguration.next('save');
+          this.getAllElementsEventRoles.next('save');
+          this.getAllElementsEventBackground.next('save');
+          this.getAllElementsEventTree.next('save');
+        },
         error => {
-          console.log(error)
+          console.log(error);
         });
   }
 
   appValidations() {
     let valid = true;
-    const trees = this.treesDataGrid.rowData;
-    const filterTrees = trees.filter(a => a.status !== 'pendingDelete');
+    const trees = this.treesDataGrid?.rowData;
+    const filterTrees = trees?.filter(a => a.status !== 'pendingDelete') ?? [];
     const validations = [{
       fn: this.validForm,
       param: null,

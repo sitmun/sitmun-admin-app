@@ -120,9 +120,9 @@ export class UtilsService {
   }
 
   duplicateParameter(data, parameterToModify, ignoreId?, ignoreLinks?) {
-    let elementsToDuplicate = [];
+    const elementsToDuplicate = [];
     data.forEach((element) => {
-      let newElement = { ...element };
+      const newElement = { ...element };
       newElement[parameterToModify] = this.getTranslate('copy_').concat(
         newElement[parameterToModify]
       );

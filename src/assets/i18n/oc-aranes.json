@@ -354,7 +354,9 @@
     "value": "Valor",
     "note": "Observacions",
     "status": "Estat",
-    "logo": "Lògo"
+    "logo": "Lògo",
+    "accessParentTerritory": "Los ròtles territorials s'aplican als territòris parents",
+    "accessChildrenTerritory": "Los ròtles territorials s'aplican als territòris descendents"
   },
   "territoryEntity": {
     "generalData": "Donades Generaus",

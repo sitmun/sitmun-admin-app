@@ -356,7 +356,9 @@
     "value": "Valor",
     "note": "Observacions",
     "status": "Estat",
-    "logo": "Logo"
+    "logo": "Logo",
+    "accessParentTerritory": "Els rols territorials s'apliquen als territoris pares",
+    "accessChildrenTerritory": "Els rols territorials s'apliquen als territoris fills"
   },
   "territoryEntity": {
     "generalData": "Dades Generals",

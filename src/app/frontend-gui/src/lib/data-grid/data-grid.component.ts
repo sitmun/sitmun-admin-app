@@ -38,7 +38,7 @@ export class DataGridComponent implements OnInit {
   _eventGetAllRowsSubscription: any;
   _eventSaveAgGridStateSubscription: any;
   _eventModifyStatusOfSelectedCells: any;
-  
+
 
 
   UndeRedoActions
@@ -49,9 +49,9 @@ export class DataGridComponent implements OnInit {
   someColumnIsEditable = false;
   changesMap: Map<number, Map<string, number>> = new Map<number, Map<string, number>>();
   // We will save the id of edited cells and the number of editions done.
-  params: any; // Last parameters of the grid (in case we do apply changes we will need it) 
+  params: any; // Last parameters of the grid (in case we do apply changes we will need it)
   rowData: any[];
-  changeCounter: number; // Number of editions done above any cell 
+  changeCounter: number; // Number of editions done above any cell
   previousChangeCounter: number; // Number of ditions done after the last modification(changeCounter)
   redoCounter: number; // Number of redo we can do
   modificationChange = false;
@@ -66,7 +66,7 @@ export class DataGridComponent implements OnInit {
   @Input() eventGetAllRowsSubscription: Observable<string>;
   @Input() eventSaveAgGridStateSubscription: Observable<boolean>;
   @Input() eventModifyStatusOfSelectedCells: Observable<string>;
-  @Input() eventAddItemsSubscription: Observable<boolean>;
+  @Input() eventAddItemsSubscription: Observable<any[]>;
   @Input() frameworkComponents: any;
   @Input() components: any;
   @Input() columnDefs: any[];
@@ -217,7 +217,7 @@ export class DataGridComponent implements OnInit {
 
     if (this.eventAddItemsSubscription) {
       this.eventAddItemsSubscription.subscribe(
-        (items: any) => {
+        (items: any[]) => {
           this.addItems(items);
         }
       )
@@ -258,7 +258,7 @@ export class DataGridComponent implements OnInit {
       }
     }
     this.getElements();
-   
+
     if (this.defaultColumnSorting) {
       if(!Array.isArray(this.defaultColumnSorting))
       {
@@ -425,7 +425,7 @@ export class DataGridComponent implements OnInit {
                 newItems.push(element);
             }
           }
-          
+
         });
         this.rowData = this.currentData?newItems: items;
         if(!this.gridApi?.isDestroyed()) {
@@ -433,7 +433,7 @@ export class DataGridComponent implements OnInit {
         }
         this.setSize()
         // this.gridApi.sizeColumnsToFit()
-    
+
 
       });
   }
@@ -441,7 +441,7 @@ export class DataGridComponent implements OnInit {
   setSize() {
 
     let allColumnIds = [];
-    
+
     let columns;
     if(!this.gridApi?.isDestroyed()) {
       columns = this.gridApi.getAllGridColumns()
@@ -460,7 +460,7 @@ export class DataGridComponent implements OnInit {
 
     let itemsToAdd: Array<any> = [];
     let condition = (this.addFieldRestriction)? this.addFieldRestriction: 'id';
-    
+
 
     newItems.forEach(item => {
 
@@ -616,7 +616,7 @@ export class DataGridComponent implements OnInit {
     if(this.statusColumn && !this.discardNonReverseStatus)
     {
       let rowsWithStatusModified = [];
-      this.gridApi.forEachNode(function(node) { 
+      this.gridApi.forEachNode(function(node) {
         if(node.data.status === 'pendingModify' || node.data.status === 'pendingDelete') {
           if(node.data.status === 'pendingDelete'){
             rowsWithStatusModified.push(node.data);
@@ -628,7 +628,7 @@ export class DataGridComponent implements OnInit {
             node.data.status='statusOK'
           }
         }
-        
+
     });
     this.someStatusHasChangedToDelete=false;
     this.discardChanges.emit(rowsWithStatusModified);
@@ -678,7 +678,7 @@ export class DataGridComponent implements OnInit {
   onCellValueChanged(params): void {
     this.params = params;
     if (this.changeCounter > this.previousChangeCounter)
-    // True if we have edited some cell or we have done a redo 
+    // True if we have edited some cell or we have done a redo
     {
 
       if (params.oldValue !== params.value && !(params.oldValue == null && params.value === '')) {
@@ -701,13 +701,13 @@ export class DataGridComponent implements OnInit {
           }
 
           else {
-            // We already had edited this cell, so we only increment number of changes of it on the map 
+            // We already had edited this cell, so we only increment number of changes of it on the map
             const currentChanges = this.changesMap.get(params.node.id).get(params.colDef.field);
             this.changesMap.get(params.node.id).set(params.colDef.field, (currentChanges + 1));
           }
 
         }
-        this.paintCells(params, this.changesMap); //We paint the row of the edited cell 
+        this.paintCells(params, this.changesMap); //We paint the row of the edited cell
         this.previousChangeCounter++; //We match the current previousChangeCounter with changeCounter
       }
 
@@ -737,7 +737,7 @@ export class DataGridComponent implements OnInit {
 
       }
       else if (currentChanges > 1) // The cell isn't in his initial state yet
-      {                                 //We can't do else because we can be doing an undo without changes 
+      {                                 //We can't do else because we can be doing an undo without changes
         this.changesMap.get(params.node.id).set(params.colDef.field, (currentChanges - 1));
 
         this.paintCells(params, this.changesMap);//Not initial state -> green background
@@ -776,16 +776,16 @@ export class DataGridComponent implements OnInit {
     if (this.changesMap.has(params.node.id)) //Modification without changes in en edited cell
     {
       if (!this.undoNoChanges) {
-        this.gridApi.undoCellEditing(); // Undo to delete the change without changes internally 
+        this.gridApi.undoCellEditing(); // Undo to delete the change without changes internally
         this.undoNoChanges = true;
-        this.paintCells(params, this.changesMap);  //The cell has modifications yet -> green background 
+        this.paintCells(params, this.changesMap);  //The cell has modifications yet -> green background
       }
       else { this.undoNoChanges = false; }
 
 
     }
     else {
-      //With the internally undo will enter at this function, so we have to control when done the undo or not 
+      //With the internally undo will enter at this function, so we have to control when done the undo or not
       if (!this.undoNoChanges) {
         this.gridApi.undoCellEditing(); // Undo to delete the change internally
         this.undoNoChanges = true;
