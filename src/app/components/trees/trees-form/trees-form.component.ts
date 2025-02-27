@@ -2,7 +2,7 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { TreeService, TreeNodeService, Translation, TranslationService, TaskService,
-  CartographyService, Tree, TreeNode, Cartography, ServiceService, CapabilitiesService, ApplicationService, 
+  CartographyService, Tree, TreeNode, Cartography, ServiceService, CapabilitiesService, ApplicationService,
 } from '../../../frontend-core/src/lib/public_api';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
@@ -70,8 +70,8 @@ export class TreesFormComponent implements OnInit {
   @ViewChild('applicationsDataGrid') appDataGrid: DataGridComponent;
 
   filterOptions = [{value:'UNDEFINED', description: 'UNDEFINED'}, {value:true, description: 'YES'},{value:false, description: 'NO'}]
-  
-  types = constants.type;
+
+  codeValues = constants.codeValue;
   servicesList = [];
   layersList = [];
   treetypesList = [];
@@ -470,7 +470,7 @@ export class TreesFormComponent implements OnInit {
       taskId: new UntypedFormControl(null, []),
       oldTask: new UntypedFormControl(null, []),
       style: new UntypedFormControl(null, []),
-      
+
 
     })
   }
@@ -813,9 +813,9 @@ export class TreesFormComponent implements OnInit {
     let error = false;
     if (this.treeNodeForm.valid) {
       if (!this.currentNodeIsFolder) {
-        if (this.currentNodeType === this.types.cartography) {
+        if (this.currentNodeType === this.codeValues.treenodeLeafType.cartography) {
           this.getAllElementsEventCartographies.next(this.treeNodeForm.value);
-        } else if (this.currentNodeType === this.types.task) {
+        } else if (this.currentNodeType === this.codeValues.treenodeLeafType.task) {
           this.getAllElementsEventTasks.next(this.treeNodeForm.value);
         }
       } else {
@@ -864,7 +864,7 @@ export class TreesFormComponent implements OnInit {
 
   validTreeStructure(treeNodes) {
     let valid = true;
-    if (this.currentTreeType === constants.type.turisticTree) {
+    if (this.currentTreeType === constants.codeValue.treeType.turisticTree) {
       const rootNodes = treeNodes[0].children.filter(n => n.status !== 'pendingDelete');
       valid = rootNodes.length === 0 || (rootNodes.length === 1 && rootNodes[0].children.length > 0);
     }
@@ -873,16 +873,16 @@ export class TreesFormComponent implements OnInit {
 
   validTuristicTreeApp(apps) {
     let valid = true;
-    if (this.currentTreeType === constants.type.turisticTree) {
-      valid = apps.length == 0 || (apps.length == 1 && apps[0].type === constants.type.turisticApp);
+    if (this.currentTreeType === constants.codeValue.treeType.turisticTree) {
+      valid = apps.length == 0 || (apps.length == 1 && apps[0].type === constants.codeValue.applicationType.turisticApp);
     }
     return valid;
   }
 
   validNoTuristicTreeApp(apps) {
     let valid = true;
-    if (this.currentTreeType !== constants.type.turisticTree) {
-      valid = !apps.some(a => a.type === constants.type.turisticApp);
+    if (this.currentTreeType !== constants.codeValue.treeType.turisticTree) {
+      valid = !apps.some(a => a.type === constants.codeValue.applicationType.turisticApp);
     }
     return valid;
   }
@@ -1103,7 +1103,7 @@ export class TreesFormComponent implements OnInit {
 
   private checkIfStyleIsInvalid(currentStyle:string, cartographyStyles: Array<string>):boolean{
     //True if cartographyStyles is empty and currentStyle is not null, or if cartography styles is not empty but not includes currentStyle
-    if( ((!cartographyStyles || cartographyStyles.length == 0) && currentStyle) || 
+    if( ((!cartographyStyles || cartographyStyles.length == 0) && currentStyle) ||
     (cartographyStyles && cartographyStyles.length > 0 && (currentStyle && !cartographyStyles.includes(currentStyle)))){
       return true;
     }
@@ -1369,7 +1369,7 @@ export class TreesFormComponent implements OnInit {
         const aux: Array<any> = [];
         return of(aux);
       }
-  
+
       var urlReq = `${this.treeToEdit._links.availableApplications.href}`
       if (this.treeToEdit._links.availableApplications.templated) {
         var url = new URL(urlReq.split("{")[0]);
@@ -1377,13 +1377,13 @@ export class TreesFormComponent implements OnInit {
         urlReq = url.toString();
       }
 
-  
+
       return (this.http.get(urlReq))
         .pipe(map(data => data['_embedded']['applications']));
-  
-  
+
+
     }
-  
+
     getAllRowsApplication(event) {
       if (event.event == "save") {
         this.saveApplications(event.data);

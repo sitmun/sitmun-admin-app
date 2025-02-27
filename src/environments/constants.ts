@@ -1,10 +1,19 @@
 export const constants = {
-    type: {
-        turisticApp: 'T',
-        turisticTree: 'tourist',
-        menu: 'menu',
-        list: 'list',
-        task: 'task',
-        cartography: 'cartography',
+  codeValue: {
+    applicationType: {
+      turisticApp: 'T',
     },
-  };
+    treeType: {
+      turisticTree: 'tourist',
+    },
+    treenodeFolderType: {
+      menu: 'menu',
+      list: 'list',
+      cartography: 'cartography',
+    },
+    treenodeLeafType: {
+      task: 'task',
+      cartography: 'cartography',
+    },
+  },
+};

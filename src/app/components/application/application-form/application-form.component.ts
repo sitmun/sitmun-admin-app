@@ -1030,16 +1030,16 @@ export class ApplicationFormComponent implements OnInit {
 
   validTuristicAppTrees(trees) {
     let valid = true;
-    if (this.currentAppType === constants.type.turisticApp) {
-      valid = trees.length == 0 || (trees.length == 1 && trees[0].type === constants.type.turisticTree);
+    if (this.currentAppType === constants.codeValue.applicationType.turisticApp) {
+      valid = trees.length == 0 || (trees.length == 1 && trees[0].type === constants.codeValue.treeType.turisticTree);
     }
     return valid;
   }
 
   validNoTuristicAppTrees(trees) {
     let valid = true;
-    if (this.currentAppType !== constants.type.turisticApp) {
-      valid = !trees.some(a => a.type === constants.type.turisticTree);
+    if (this.currentAppType !== constants.codeValue.applicationType.turisticApp) {
+      valid = !trees.some(a => a.type === constants.codeValue.treeType.turisticTree);
     }
     return valid;
   }
