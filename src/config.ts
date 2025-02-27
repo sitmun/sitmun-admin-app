@@ -90,6 +90,7 @@ export const config = {
     territoryName : 'TER_NAME',
     serviceDescription: 'SER_ABSTRACT',
     applicationName: 'APP_NAME',
+    applicationDescription: 'APP_DESCRIPTION',
     applicationTitle: 'APP_TITLE',
     backgroundName: 'BAC_NAME',
     backgroundDescription: 'BAC_DESC',

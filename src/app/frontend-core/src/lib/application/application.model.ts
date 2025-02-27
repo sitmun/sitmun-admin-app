@@ -70,4 +70,6 @@ export class Application extends Resource {
   public situationMapId: number;
 
   public passwordSet: boolean;
+
+  public description: string;
 }

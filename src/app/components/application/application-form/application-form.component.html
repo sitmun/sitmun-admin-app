@@ -35,6 +35,14 @@
                       onKeyDown="onNameTranslationButtonClicked()"
                       svgIcon="ic_translate"></mat-icon>
           </mat-form-field>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'applicationEntity.description' | translate }}</mat-label>
+            <input matInput type="text" formControlName="description" required>
+            <mat-icon matSuffix class="iconTranslate"
+                      (click)="onDescriptionTranslationButtonClicked()"
+                      onKeyDown="onDescriptionTranslationButtonClicked()"
+                      svgIcon="ic_translate"></mat-icon>
+          </mat-form-field>
           <mat-form-field appearance="outline" class="quarter">
             <mat-label>{{ 'applicationEntity.type' | translate }}</mat-label>
             <mat-select formControlName="type" class="form-control"

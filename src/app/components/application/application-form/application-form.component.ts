@@ -27,9 +27,11 @@ export class ApplicationFormComponent implements OnInit {
 
   //Translations
   nameTranslationsModified = false;
+  descriptionTranslationsModified = false;
   titleTranslationsModified = false;
 
   nameTranslationMap: Map<string, Translation>;
+  descriptionTranslationMap: Map<string, Translation>;
   titleTranslationMap: Map<string, Translation>;
 
   situationMapList: any[] = [];
@@ -116,6 +118,7 @@ export class ApplicationFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.nameTranslationMap = this.utils.createTranslationsList(config.translationColumns.applicationName);
+    this.descriptionTranslationMap = this.utils.createTranslationsList(config.translationColumns.applicationDescription);
     this.titleTranslationMap = this.utils.createTranslationsList(config.translationColumns.applicationTitle);
 
     const promises: Promise<any>[] = [];
@@ -183,6 +186,7 @@ export class ApplicationFormComponent implements OnInit {
                 this.applicationForm.patchValue({
                   type: this.applicationToEdit.type,
                   title: this.applicationToEdit.title,
+                  description: this.applicationToEdit.description,
                   jspTemplate: this.applicationToEdit.jspTemplate,
                   accessParentTerritory: this.applicationToEdit.accessParentTerritory,
                   accessChildrenTerritory: this.applicationToEdit.accessChildrenTerritory,
@@ -214,15 +218,19 @@ export class ApplicationFormComponent implements OnInit {
                     )).subscribe(result => {
 
                       const nameTranslations = [];
+                      const descriptionTranslations = [];
                       const titleTranslations = [];
                       result.forEach(translation => {
                         if (translation.column == config.translationColumns.applicationName) {
                           nameTranslations.push(translation);
+                        } else if (translation.column == config.translationColumns.applicationDescription) {
+                          descriptionTranslations.push(translation);
                         } else if (translation.column == config.translationColumns.applicationTitle) {
                           titleTranslations.push(translation);
                         }
                       });
                       this.utils.updateTranslations(this.nameTranslationMap, nameTranslations);
+                      this.utils.updateTranslations(this.descriptionTranslationMap, descriptionTranslations);
                       this.utils.updateTranslations(this.titleTranslationMap, titleTranslations);
                     }
                   );
@@ -369,6 +377,7 @@ export class ApplicationFormComponent implements OnInit {
       name: new UntypedFormControl(null, [
         Validators.required,
       ]),
+      description: new UntypedFormControl(null),
       type: new UntypedFormControl(null, [
         Validators.required,
       ]),
@@ -403,6 +412,13 @@ export class ApplicationFormComponent implements OnInit {
     const dialogResult = await this.utils.openTranslationDialog(this.nameTranslationMap);
     if (dialogResult && dialogResult.event == 'Accept') {
       this.nameTranslationsModified = true;
+    }
+  }
+
+  async onDescriptionTranslationButtonClicked() {
+    const dialogResult = await this.utils.openTranslationDialog(this.descriptionTranslationMap);
+    if (dialogResult && dialogResult.event == 'Accept') {
+      this.descriptionTranslationsModified = true;
     }
   }
 
@@ -956,6 +972,7 @@ export class ApplicationFormComponent implements OnInit {
     const appObj: Application = new Application();
 
     appObj.name = this.applicationForm.value.name;
+    appObj.description = this.applicationForm.value.description;
     appObj.type = this.applicationForm.value.type;
     appObj.title = this.applicationForm.value.title;
     appObj.jspTemplate = this.applicationForm.value.jspTemplate;
@@ -989,6 +1006,8 @@ export class ApplicationFormComponent implements OnInit {
 
           await this.utils.saveTranslation(resp.id, this.nameTranslationMap, this.applicationToEdit.name, this.nameTranslationsModified);
           this.nameTranslationsModified = false;
+          await this.utils.saveTranslation(resp.id, this.descriptionTranslationMap, this.applicationToEdit.description, this.descriptionTranslationsModified);
+          this.descriptionTranslationsModified = false;
           await this.utils.saveTranslation(resp.id, this.titleTranslationMap, this.applicationToEdit.title, this.titleTranslationsModified);
           this.titleTranslationsModified = false;
 
