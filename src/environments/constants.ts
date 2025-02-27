@@ -2,6 +2,8 @@ export const constants = {
   codeValue: {
     applicationType: {
       turisticApp: 'T',
+      externalApp: 'E',
+      internalApp: 'I'
     },
     treeType: {
       turisticTree: 'tourist',
@@ -15,5 +17,8 @@ export const constants = {
       task: 'task',
       cartography: 'cartography',
     },
+    cartographyPermissionType: {
+      locationMap: 'M'
+    }
   },
 };

@@ -6,6 +6,7 @@
   </h4>
 </mat-toolbar>
 
+<div *ngIf="dataLoaded">
 <form [formGroup]='applicationForm'>
   <mat-card class="sitmun-mat-card-margin" appearance="outlined">
     <mat-card-header class="sitmun-form-title">
@@ -49,8 +50,7 @@
           </mat-form-field>
         </mat-card-content>
       </mat-card>
-      <!-- TODO: System codelist -->
-      <mat-card class="sitmun-mat-card-margin" appearance="outlined" *ngIf="applicationForm.value.type==='E'">
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined" *ngIf="applicationForm.value.type===codeValues.applicationType.externalApp">
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'applicationEntity.url' | translate }}</mat-label>
@@ -58,8 +58,7 @@
           </mat-form-field>
         </mat-card-content>
       </mat-card>
-      <!-- TODO: System codelist -->
-      <mat-card class="sitmun-mat-card-margin" appearance="outlined" *ngIf="applicationForm.value.type==='I'">
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined" *ngIf="applicationForm.value.type===codeValues.applicationType.internalApp">
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'applicationEntity.title' | translate }}</mat-label>
@@ -76,6 +75,10 @@
           <mat-form-field appearance="outline" class="half">
             <mat-label>{{ 'applicationEntity.scales' | translate }}</mat-label>
             <input matInput type="text" formControlName="scales">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="half add-gap">
+            <mat-label>{{ 'applicationEntity.srs' | translate }}</mat-label>
+            <input matInput type="text" formControlName="srs">
           </mat-form-field>
           <mat-form-field appearance="outline" class="half">
             <mat-label>{{ 'applicationEntity.situationMap' | translate }}</mat-label>
@@ -103,7 +106,6 @@
   </mat-card>
 </form>
 
-<div *ngIf="dataLoaded">
   <mat-accordion multi>
     <!-- Parameters configuration table -->
     <mat-expansion-panel [expanded]="true" class="sitmun-ag-grid-expansion-panel">
@@ -131,7 +133,7 @@
                          [newButton]=true
                          addFieldRestriction="name"
                          defaultColumnSorting="name"
-                         (new)="openParametersDialog($event)"
+                         (new)="openParametersDialog()"
                          (getAllRows)="getAllRowsParameters($event)"
                          (duplicate)='duplicateParameters($event)'
           ></app-data-grid>
@@ -167,7 +169,7 @@
                          defaultColumnSorting="name"
                          (duplicate)='duplicateTemplates($event)'
                          (getAllRows)="getAllRowsParameters($event)"
-                         (new)="openTemplateConfigurationDialog($event)"></app-data-grid>
+                         (new)="openTemplateConfigurationDialog()"></app-data-grid>
         </div>
       </ng-template>
     </mat-expansion-panel>

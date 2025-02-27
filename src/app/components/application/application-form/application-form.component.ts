@@ -36,7 +36,7 @@ export class ApplicationFormComponent implements OnInit {
   parametersTypes: any[] = [];
   //Dialog
   applicationForm: UntypedFormGroup;
-  applicationToEdit;
+  applicationToEdit: Application;
   applicationSaved: Application;
   applicationID = -1;
   duplicateID = -1;
@@ -50,7 +50,7 @@ export class ApplicationFormComponent implements OnInit {
 
   columnDefsTemplates: any[];
   addElementsEventTemplateConfiguration: Subject<any[]> = new Subject<any[]>();
-  dataUpdatedEventTemplateConfiguration: Subject<boolean> = new Subject<boolean>();
+  // dataUpdatedEventTemplateConfiguration: Subject<boolean> = new Subject<boolean>();
 
   columnDefsRoles: any[];
   addElementsEventRoles: Subject<any[]> = new Subject<any[]>();
@@ -93,6 +93,8 @@ export class ApplicationFormComponent implements OnInit {
 
   currentAppType: string;
 
+  codeValues = constants.codeValue;
+
   constructor(
     public dialog: MatDialog,
     private activatedRoute: ActivatedRoute,
@@ -118,7 +120,7 @@ export class ApplicationFormComponent implements OnInit {
 
     const promises: Promise<any>[] = [];
 
-    promises.push(new Promise((resolve, reject) => {
+    promises.push(new Promise((resolve, ) => {
       this.utils.getCodeListValues('application.type').subscribe(
         resp => {
           this.applicationTypes.push(...resp);
@@ -127,11 +129,11 @@ export class ApplicationFormComponent implements OnInit {
       );
     }));
 
-    promises.push(new Promise((resolve, reject) => {
+    promises.push(new Promise((resolve, ) => {
       this.utils.getCodeListValues('applicationParameter.type').pipe(
         map((resp: any) => {
           const newTable: CodeList[] = [];
-          resp.forEach(element => {
+          resp.forEach((element: CodeList) => {
             if (element.value !== config.applicationTemplateIdentificator) {
               newTable.push(element);
             }
@@ -152,7 +154,7 @@ export class ApplicationFormComponent implements OnInit {
     };
     this.situationMapList.push(situationMapByDefault);
 
-    promises.push(new Promise((resolve, reject) => {
+    promises.push(new Promise((resolve, ) => {
       this.getSituationMapList().subscribe(
         resp => {
           this.situationMapList.push(...resp);
@@ -186,6 +188,7 @@ export class ApplicationFormComponent implements OnInit {
                   accessChildrenTerritory: this.applicationToEdit.accessChildrenTerritory,
                   theme: this.applicationToEdit.theme,
                   situationMap: this.applicationToEdit.situationMapId ? this.applicationToEdit.situationMapId : this.situationMapList[0].id,
+                  srs: this.applicationToEdit.srs,
                   scales: this.applicationToEdit.scales,
                   treeAutoRefresh: this.applicationToEdit.treeAutoRefresh,
                   logo: this.applicationToEdit.logo,
@@ -227,15 +230,11 @@ export class ApplicationFormComponent implements OnInit {
                 }
                 this.dataLoaded = true;
               },
-              error => {
-
-              }
             );
           } else {
             this.dataLoaded = true;
             this.applicationForm.patchValue({
               moveSupramunicipal: false,
-              logo: false,
               treeAutorefresh: false,
               accessParentTerritory: false,
               accessChildrenTerritory: false,
@@ -249,12 +248,11 @@ export class ApplicationFormComponent implements OnInit {
             this.applicationForm.get('accessParentTerritory').disable();
             this.applicationForm.get('accessChildrenTerritory').disable();
             this.applicationForm.get('theme').disable();
+            this.applicationForm.get('srs').disable();
           }
 
         },
-        error => {
-
-        });
+        );
     });
 
     this.columnDefsParameters = [
@@ -333,7 +331,7 @@ export class ApplicationFormComponent implements OnInit {
 
   getSituationMapList() {
     const params2: HalParam[] = [];
-    const param: HalParam = {key: 'type', value: 'M'};
+    const param: HalParam = {key: 'type', value: this.codeValues.cartographyPermissionType.locationMap};
     params2.push(param);
     const query: HalOptions = {params: params2};
 
@@ -343,18 +341,24 @@ export class ApplicationFormComponent implements OnInit {
 
   onSelectionTypeAppChanged({value}) {
     this.currentAppType = value;
-    if (value === 'E') {
+    if (value === this.codeValues.applicationType.externalApp) {
       this.applicationForm.get('title').disable();
       this.applicationForm.get('scales').disable();
       this.applicationForm.get('situationMap').disable();
       this.applicationForm.get('treeAutoRefresh').disable();
       this.applicationForm.get('theme').disable();
+      this.applicationForm.get('accessParentTerritory').disable();
+      this.applicationForm.get('accessChildrenTerritory').disable();
+      this.applicationForm.get('srs').disable();
     } else {
       this.applicationForm.get('title').enable();
       this.applicationForm.get('scales').enable();
       this.applicationForm.get('situationMap').enable();
       this.applicationForm.get('treeAutoRefresh').enable();
       this.applicationForm.get('theme').enable();
+      this.applicationForm.get('accessParentTerritory').enable();
+      this.applicationForm.get('accessChildrenTerritory').enable();
+      this.applicationForm.get('srs').enable();
     }
   }
 
@@ -373,6 +377,7 @@ export class ApplicationFormComponent implements OnInit {
       theme: new UntypedFormControl(null),
 
       situationMap: new UntypedFormControl(null, []),
+      srs: new UntypedFormControl(null),
       scales: new UntypedFormControl(null),
       treeAutoRefresh: new UntypedFormControl(null),
       app: new UntypedFormControl(null),
@@ -395,16 +400,14 @@ export class ApplicationFormComponent implements OnInit {
   }
 
   async onNameTranslationButtonClicked() {
-    let dialogResult = null;
-    dialogResult = await this.utils.openTranslationDialog(this.nameTranslationMap);
+    const dialogResult = await this.utils.openTranslationDialog(this.nameTranslationMap);
     if (dialogResult && dialogResult.event == 'Accept') {
       this.nameTranslationsModified = true;
     }
   }
 
   async onTitleTranslationButtonClicked() {
-    let dialogResult = null;
-    dialogResult = await this.utils.openTranslationDialog(this.titleTranslationMap);
+    const dialogResult = await this.utils.openTranslationDialog(this.titleTranslationMap);
     if (dialogResult && dialogResult.event == 'Accept') {
       this.titleTranslationsModified = true;
     }
@@ -431,11 +434,11 @@ export class ApplicationFormComponent implements OnInit {
     }
 
     return (this.http.get(urlReq))
-      .pipe(map(data => data[`_embedded`][`application-parameters`].filter(elem => elem.type != config.applicationTemplateIdentificator)
+      .pipe(map(data => data[`_embedded`][`application-parameters`].filter((elem: { type: string; }) => elem.type != config.applicationTemplateIdentificator)
       ));
   };
 
-  getAllRowsParameters(event) {
+  getAllRowsParameters(event: { event: string; data: any[]; }) {
     if (event.event == 'save') {
       this.saveParameters(event.data);
     }
@@ -443,8 +446,8 @@ export class ApplicationFormComponent implements OnInit {
 
 
   saveParameters(data: any[]) {
-    const parameterToSave = [];
-    const parameterToDelete = [];
+    // const parameterToSave = [];
+    // const parameterToDelete = [];
     const promises: Promise<any>[] = [];
     data.forEach(parameter => {
       if (parameter.status === 'pendingCreation' || parameter.status === 'pendingModify') {
@@ -455,8 +458,8 @@ export class ApplicationFormComponent implements OnInit {
         parameter.id = null;
       }
       // parameterToSave.push(parameter)
-      promises.push(new Promise((resolve, reject) => {
-        this.applicationParameterService.save(parameter).subscribe((resp) => {
+      promises.push(new Promise((resolve, ) => {
+        this.applicationParameterService.save(parameter).subscribe(() => {
           resolve(true);
         });
       }));
@@ -464,8 +467,8 @@ export class ApplicationFormComponent implements OnInit {
 
       if (parameter.status === 'pendingDelete' && parameter._links && !parameter.newItem) {
         // parameterToDelete.push(parameter)
-        promises.push(new Promise((resolve, reject) => {
-          this.applicationParameterService.remove(parameter).subscribe((resp) => {
+        promises.push(new Promise((resolve, ) => {
+          this.applicationParameterService.remove(parameter).subscribe(() => {
             resolve(true);
           });
         }));
@@ -487,7 +490,7 @@ export class ApplicationFormComponent implements OnInit {
     });
   }
 
-  duplicateParameters(data) {
+  duplicateParameters(data: any) {
     const parametersToDuplicate = this.utils.duplicateParameter(data, 'name');
     this.addElementsEventParameters.next(parametersToDuplicate);
   }
@@ -508,14 +511,14 @@ export class ApplicationFormComponent implements OnInit {
     }
 
     return (this.http.get(urlReq))
-      .pipe(map(data => data[`_embedded`][`application-parameters`].filter(elem => elem.type == config.applicationTemplateIdentificator)
+      .pipe(map(data => data[`_embedded`][`application-parameters`].filter((elem: { type: string; }) => elem.type == config.applicationTemplateIdentificator)
       ));
   };
 
   //To update templates we use getAllRowsParameters!
 
 
-  duplicateTemplates(data) {
+  duplicateTemplates(data: any) {
     const templatesToDuplicate = this.utils.duplicateParameter(data, 'name');
     this.addElementsEventTemplateConfiguration.next(templatesToDuplicate);
   }
@@ -540,7 +543,7 @@ export class ApplicationFormComponent implements OnInit {
       .pipe(map(data => data[`_embedded`][`roles`]));
   };
 
-  getAllRowsRoles(event) {
+  getAllRowsRoles(event: { event: string; data: any[]; }) {
     if (event.event == 'save') {
       this.saveRoles(event.data);
     }
@@ -550,14 +553,14 @@ export class ApplicationFormComponent implements OnInit {
     const promises: Promise<any>[] = [];
 
     let dataChanged = false;
-    const rolesModified = [];
+    // const rolesModified = [];
     const rolesToPut = [];
     data.forEach(role => {
 
       if (role.status !== 'pendingDelete') {
         if (role.status === 'pendingModify') {
-          promises.push(new Promise((resolve, reject) => {
-            this.roleService.update(role).subscribe((resp) => {
+          promises.push(new Promise((resolve, ) => {
+            this.roleService.update(role).subscribe(() => {
               resolve(true);
             });
           }));
@@ -607,17 +610,17 @@ export class ApplicationFormComponent implements OnInit {
 
   };
 
-  getAllRowsBackgrounds(event) {
+  getAllRowsBackgrounds(event: { event: string; data: any[]; }) {
     if (event.event == 'save') {
       this.saveBackgrounds(event.data);
     }
   }
 
   saveBackgrounds(data: any[]) {
-    const backgroundsToCreate = [];
-    const backgroundsToDelete = [];
+    // const backgroundsToCreate = [];
+    // const backgroundsToDelete = [];
     const promises: Promise<any>[] = [];
-    const promisesBackground: Promise<any>[] = [];
+    // const promisesBackground: Promise<any>[] = [];
     data.forEach(background => {
       if (background.status === 'pendingCreation' || (background.status === 'pendingModify') && (background.new)) {
 
@@ -634,10 +637,10 @@ export class ApplicationFormComponent implements OnInit {
               urlReqBackground = url.toString();
             }
             background._links = null;
-            promises.push(new Promise((resolve, reject) => {
+            promises.push(new Promise((resolve, ) => {
               this.http.get(urlReqBackground).subscribe(result => {
                 background.background = result;
-                this.applicationBackgroundService.save(background).subscribe((resp) => {
+                this.applicationBackgroundService.save(background).subscribe(() => {
                   resolve(true);
                 });
                 // backgroundsToCreate.push(background)
@@ -646,23 +649,23 @@ export class ApplicationFormComponent implements OnInit {
             }));
           } else {
             // backgroundsToCreate.push(background)
-            promises.push(new Promise((resolve, reject) => {
-              this.applicationBackgroundService.save(background).subscribe((resp) => {
+            promises.push(new Promise((resolve, ) => {
+              this.applicationBackgroundService.save(background).subscribe(() => {
                 resolve(true);
               });
             }));
           }
         }
       } else if (background.status === 'pendingModify') {
-        promises.push(new Promise((resolve, reject) => {
-          this.applicationBackgroundService.save(background).subscribe((resp) => {
+        promises.push(new Promise((resolve, ) => {
+          this.applicationBackgroundService.save(background).subscribe(() => {
             resolve(true);
           });
         }));
       } else if (background.status === 'pendingDelete' && !background.newItem) {
         // backgroundsToDelete.push(background)
-        promises.push(new Promise((resolve, reject) => {
-          this.applicationBackgroundService.remove(background).subscribe((resp) => {
+        promises.push(new Promise((resolve, ) => {
+          this.applicationBackgroundService.remove(background).subscribe(() => {
             resolve(true);
           });
         }));
@@ -710,7 +713,7 @@ export class ApplicationFormComponent implements OnInit {
 
   };
 
-  getAllRowsTrees(event) {
+  getAllRowsTrees(event: { event: string; data: any[]; }) {
     if (event.event == 'save') {
       this.saveTrees(event.data);
     }
@@ -718,7 +721,7 @@ export class ApplicationFormComponent implements OnInit {
 
   saveTrees(data: any[]) {
     let dataChanged = false;
-    const treesModified = [];
+    // const treesModified = [];
     const treesToPut = [];
     const promises: Promise<any>[] = [];
 
@@ -729,8 +732,8 @@ export class ApplicationFormComponent implements OnInit {
           if (tree.newItem) {
             dataChanged = true;
           }
-          promises.push(new Promise((resolve, reject) => {
-            this.treeService.update(tree).subscribe((resp) => {
+          promises.push(new Promise((resolve, ) => {
+            this.treeService.update(tree).subscribe(() => {
               resolve(true);
             });
           }));
@@ -759,7 +762,7 @@ export class ApplicationFormComponent implements OnInit {
   // ******** Parameters Dialog  ******** //
 
 
-  openParametersDialog(data: any) {
+  openParametersDialog() {
 
     this.parameterForm.patchValue({
       type: this.parametersTypes[0].value
@@ -787,13 +790,13 @@ export class ApplicationFormComponent implements OnInit {
 
   // ******** TemplatesConfiguration Dialog  ******** //
 
-  getAllTemplatesConfigurationDialog = () => {
-    const aux: any[] = [];
-    return of(aux);
-    // return this.cartographyService.getAll();
-  };
+  // getAllTemplatesConfigurationDialog = () => {
+  //   const aux: any[] = [];
+  //  return of(aux);
+  //  // return this.cartographyService.getAll();
+  //};
 
-  openTemplateConfigurationDialog(data: any) {
+  openTemplateConfigurationDialog() {
     const dialogRef = this.dialog.open(DialogFormComponent);
     dialogRef.componentInstance.HTMLReceived = this.newTemplateDialog;
     dialogRef.componentInstance.title = this.utils.getTranslate('applicationEntity.configurationParameters');
@@ -869,7 +872,7 @@ export class ApplicationFormComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
-          result.data[0].forEach(element => {
+          result.data[0].forEach((element: { id: null; newItem: boolean; }) => {
             element.id = null;
             element.newItem = true;
           });
@@ -963,6 +966,7 @@ export class ApplicationFormComponent implements OnInit {
     appObj.scales = this.applicationForm.value.scales != null ? this.applicationForm.value.scales.toString().split(',') : null;
     appObj.treeAutoRefresh = this.applicationForm.value.treeAutoRefresh;
     appObj._links = this.applicationForm.value._links;
+    appObj.srs = this.applicationForm.value.srs;
     appObj.situationMap = situationMap;
     if (this.applicationID == -1) {
       appObj.id = null;
@@ -983,9 +987,9 @@ export class ApplicationFormComponent implements OnInit {
             _links: resp._links
           });
 
-          this.utils.saveTranslation(resp.id, this.nameTranslationMap, this.applicationToEdit.name, this.nameTranslationsModified);
+          await this.utils.saveTranslation(resp.id, this.nameTranslationMap, this.applicationToEdit.name, this.nameTranslationsModified);
           this.nameTranslationsModified = false;
-          this.utils.saveTranslation(resp.id, this.titleTranslationMap, this.applicationToEdit.title, this.titleTranslationsModified);
+          await this.utils.saveTranslation(resp.id, this.titleTranslationMap, this.applicationToEdit.title, this.titleTranslationsModified);
           this.titleTranslationsModified = false;
 
           this.getAllElementsEventParameters.next('save');
@@ -1028,7 +1032,7 @@ export class ApplicationFormComponent implements OnInit {
     return this.applicationForm.valid;
   }
 
-  validTuristicAppTrees(trees) {
+  validTuristicAppTrees(trees: string | any[]) {
     let valid = true;
     if (this.currentAppType === constants.codeValue.applicationType.turisticApp) {
       valid = trees.length == 0 || (trees.length == 1 && trees[0].type === constants.codeValue.treeType.turisticTree);
@@ -1036,7 +1040,7 @@ export class ApplicationFormComponent implements OnInit {
     return valid;
   }
 
-  validNoTuristicAppTrees(trees) {
+  validNoTuristicAppTrees(trees: any[]) {
     let valid = true;
     if (this.currentAppType !== constants.codeValue.applicationType.turisticApp) {
       valid = !trees.some(a => a.type === constants.codeValue.treeType.turisticTree);

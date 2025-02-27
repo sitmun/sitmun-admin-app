@@ -5,10 +5,6 @@ import {CartographyGroup} from '../cartography/cartography-group.model';
 import {ApplicationParameter} from './application-parameter.model';
 import {ApplicationBackground} from './application-background.model';
 
-//FIXME ensure application creation in admin app upon initialization (as it is done with Roles and default Users)
-/** Territorial appliction name */
-export const TERRITORIAL_APP_NAME:string  = "Aplicación Territorial";
-
 /**
  * Application model
  */
@@ -70,4 +66,8 @@ export class Application extends Resource {
 
   /** parameters*/
   public parameters: ApplicationParameter[];
+
+  public situationMapId: number;
+
+  public passwordSet: boolean;
 }
