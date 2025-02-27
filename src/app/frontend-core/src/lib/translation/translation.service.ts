@@ -17,16 +17,16 @@ export class TranslationService extends RestService<Translation> {
   constructor(injector: Injector,private http: HttpClient) {
     super(Translation, "translations", injector);
   }
-  
+
   /** remove translation*/
   remove(item: Translation) {
     return this.http.delete(item._links.self.href);
-   
+
   }
-  
+
   /** save translation*/
   save(item: Translation): Observable<any> {
-    let result: Observable<Object>;
+    let result: Observable<object>;
 
     let language:any = {}
     language._links = {};
@@ -37,7 +37,7 @@ export class TranslationService extends RestService<Translation> {
       language = item.language;
       if (typeof item.language._links != 'undefined') {
         item.language = item.language._links.self.href;
-      } 
+      }
     }
 
     if (item._links!=null) {
