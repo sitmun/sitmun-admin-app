@@ -196,7 +196,7 @@
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
           <app-data-grid [changeHeightButton]="true" [allNewElements]="territoryID == -1"
-            [columnDefs]="columnDefsPermits" [themeGrid]='themeGrid' [getAll]='getAllPermits'
+            [columnDefs]="columnDefsPermits" [getAll]='getAllPermits'
             [discardChangesButton]=true [redoButton]=true [undoButton]=true [hideDuplicateButton]=true
             [addFieldRestriction]="['territoryId', 'roleId', 'userId']"
             [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' defaultColumnSorting="user"
@@ -221,7 +221,7 @@
 
         <ng-template matExpansionPanelContent>
           <div class="appDataGridEditDiv">
-            <app-data-grid [changeHeightButton]="true" [allNewElements]="territoryID == -1" defaultColumnSorting="user" [columnDefs]="columnDefsPermitsChild" [themeGrid]='themeGrid' [getAll]='getAllPermitsChild'
+            <app-data-grid [changeHeightButton]="true" [allNewElements]="territoryID == -1" defaultColumnSorting="user" [columnDefs]="columnDefsPermitsChild" [getAll]='getAllPermitsChild'
               [discardChangesButton]=true [redoButton]=true [undoButton]=true [hideDuplicateButton]=true [addFieldRestriction]="['territoryId', 'roleId', 'userId']"
               [eventRefreshSubscription]='dataUpdatedEvent.asObservable()'
               [eventGetAllRowsSubscription]='getAllElementsEventPermits.asObservable()'
@@ -245,7 +245,7 @@
 
         <ng-template matExpansionPanelContent>
           <div class="appDataGridEditDiv">
-            <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsPermitsInherit" [themeGrid]='themeGrid' [getAll]='getAllInheritPermissions'
+            <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsPermitsInherit" [getAll]='getAllInheritPermissions'
                [hideDuplicateButton]=true
               [eventRefreshSubscription]='dataUpdatedEventInheritPermissions.asObservable()'>
             </app-data-grid>
@@ -266,7 +266,7 @@
         <ng-template matExpansionPanelContent>
           <div class="appDataGridEditDiv">
             <app-data-grid [changeHeightButton]="true" [allNewElements]="territoryID == -1"
-              [columnDefs]="columnDefsMemberOf" [themeGrid]='themeGrid' [getAll]='getAllMembersOf'
+              [columnDefs]="columnDefsMemberOf" [getAll]='getAllMembersOf'
               [discardChangesButton]=true [redoButton]=true [hideDuplicateButton]=true
               [eventAddItemsSubscription]='addElementsEventTerritoriesMemberOf.asObservable()'
               [eventGetAllRowsSubscription]='getAllElementsEventTerritoriesMemberOf.asObservable()'
@@ -293,7 +293,7 @@
         <ng-template matExpansionPanelContent>
           <div class="appDataGridEditDiv">
             <app-data-grid [changeHeightButton]="true" [allNewElements]="territoryID == -1"
-              [columnDefs]="columnDefsMembers" [themeGrid]='themeGrid' [getAll]='getAllMembers'
+              [columnDefs]="columnDefsMembers" [getAll]='getAllMembers'
               [discardChangesButton]=true [redoButton]=true [hideDuplicateButton]=true
               [eventAddItemsSubscription]='addElementsEventTerritoriesMembers.asObservable()'
               [eventGetAllRowsSubscription]='getAllElementsEventTerritoriesMembers.asObservable()'

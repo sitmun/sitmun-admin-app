@@ -20,9 +20,9 @@
                 {{ "return" | translate }}
             </button>
         </div>
-        <span class="divider"></span>  
+        <span class="divider"></span>
 
-        <div *ngFor="let element of formElements; let i = index" class="colFormDiv" [hidden]="getFieldWithCondition(element.values.condition, element.values.hidden, 'hidden', taskForm, element.fieldName  )" 
+        <div *ngFor="let element of formElements; let i = index" class="colFormDiv" [hidden]="getFieldWithCondition(element.values.condition, element.values.hidden, 'hidden', taskForm, element.fieldName  )"
         [ngSwitch]="getFieldWithCondition(element.values.condition, element.values.control, 'control', taskForm )">
 
             <div *ngSwitchCase="'input'">
@@ -58,13 +58,13 @@
 
                     <mat-select matInput  [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', taskForm )"
                      [formControlName]=element.fieldName class="form-control">
-                        <mat-option [value]="dataElement[element.values.selector.value]" 
+                        <mat-option [value]="dataElement[element.values.selector.value]"
                             *ngFor="let dataElement of getDataSelector(element.values.selector.data, element.values.selector.queryParams, element.values.label)">
                             {{ dataElement[element.values.selector.name]}}
                         </mat-option>
                     </mat-select>
-<!-- 
-                    <mat-select *ngIf="element.values.selector.data !== 'codelist-values'" matInput   [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', taskForm )"   
+<!--
+                    <mat-select *ngIf="element.values.selector.data !== 'codelist-values'" matInput   [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', taskForm )"
                     [formControlName]=element.fieldName class="form-control">
                         <mat-option [value]="dataElement[element.values.selector.value]"
                             *ngFor="let dataElement of getDataFixedSelectors(element.values.selector.data)">
@@ -128,7 +128,7 @@
                 </div>
             </div>
         </div>
-       
+
     </form>
 
 </div>
@@ -146,7 +146,7 @@
             <ng-template matExpansionPanelContent>
                 <div class="appDataGridEditDiv">
                     <app-data-grid [changeHeightButton]="true" [columnDefs]='columnDefsTables[i]'
-                        [themeGrid]='themeGrid' [getAll]='getAlls[i]' [discardChangesButton]=true [actionButton]=true
+                        [getAll]='getAlls[i]' [discardChangesButton]=true [actionButton]=true
                         [redoButton]="!formHasSqlElementSelector[i]" [undoButton]="!formHasSqlElementSelector[i]" [deleteButton]=true [discardNonReverseStatus]="formHasSqlElementSelector[i]"
                         [newButton]="table.controlAdd.control==='formPopup'"
                         [addButton]="table.controlAdd.control!=='formPopup'"
@@ -159,9 +159,9 @@
                         (duplicate)="table.controlAdd.control==='formPopup'?duplicate($event,i):null"
                         (add)="openPopupDialog(null, table.controlAdd.data, table.controlAdd.columns, table.label, true, false, false, i, $event)"
                         (new)="openPopupFormDialog(i, table.label)" (getAllRows)="getAllRowsTable($event, i, table.link)"
-                        (remove)="restoreElementsSqlSelector($event, i)" (discardChanges)="removeElementsSqlSelector($event, i)"                       
+                        (remove)="restoreElementsSqlSelector($event, i)" (discardChanges)="removeElementsSqlSelector($event, i)"
                         >
-                        
+
                     </app-data-grid>
                 </div>
             </ng-template>
@@ -178,42 +178,42 @@
     <div class="formDiv" >
         <form [formGroup]='form' #f="ngForm" (ngSubmit)="onSaveButtonClicked()">
 
-    
-            <div *ngFor="let element of tableFormElements[index]; let i = index" class="colFormDiv" 
+
+            <div *ngFor="let element of tableFormElements[index]; let i = index" class="colFormDiv"
             [hidden]="getFieldWithCondition(element.values.condition, element.values.hidden, 'hidden', form, element.fieldName )" [ngSwitch]="getFieldWithCondition(element.values.condition, element.values.control, 'control', form )">
-                
+
                 <div *ngSwitchCase="'input'">
                     <label [ngClass]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )?'formLabel requiredInput':'formLabel'" >
                         {{element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', form ) | translate) : (element.values.label | translate) }}
                     </label>
-    
+
                     <mat-form-field appearance="outline">
                         <input matInput type="text" [formControlName]=element.fieldName [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )"
-                        [disabled]="getFieldWithCondition(element.values.condition, element.values.disabled, 'disabled', form )" > 
+                        [disabled]="getFieldWithCondition(element.values.condition, element.values.disabled, 'disabled', form )" >
                     </mat-form-field>
                 </div>
-                
+
                 <div *ngSwitchCase="'textArea'">
                     <label [ngClass]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )?'formLabel requiredInput':'formLabel'">
                         {{element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', form ) | translate) : (element.values.label | translate) }}
                     </label>
-    
+
                     <mat-form-field appearance="outline">
-                        <textarea 
+                        <textarea
                             matInput type="text" [formControlName]=element.fieldName [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )"
                             [disabled]="getFieldWithCondition(element.values.condition, element.values.disabled, 'disabled', form )" >
-                        </textarea> 
+                        </textarea>
                     </mat-form-field>
                 </div>
-    
+
                 <div *ngSwitchCase="'selector'" >
-    
+
                     <label [ngClass]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )?'formLabel requiredInput':'formLabel'">
                         {{element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', form ) | translate) : (element.values.label | translate) }}
                     </label>
-    
+
                     <mat-form-field appearance="outline">
-                        
+
                         <mat-select  matInput [formControlName]=element.fieldName
                         [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )" class="form-control" [disabled]="getFieldWithCondition(element.values.condition, element.values.disabled, 'disabled', form )">
                             <mat-option [value]="dataElement[element.values.selector.value]"
@@ -225,15 +225,15 @@
                     </mat-form-field>
                 </div>
 
-                    
+
                 <div *ngSwitchCase="'enumBySQLElement'" >
-    
+
                     <label [ngClass]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )?'formLabel requiredInput':'formLabel'">
                         {{element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', form ) | translate) : (element.values.label | translate) }}
                     </label>
-    
+
                     <mat-form-field appearance="outline">
-                        
+
                         <mat-select  matInput [formControlName]=element.fieldName
                         [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )" class="form-control"
                         [disabled]="getFieldWithCondition(element.values.condition, element.values.disabled, 'disabled', form )">
@@ -245,23 +245,23 @@
 
                     </mat-form-field>
                 </div>
-    
+
                 <div *ngSwitchCase="'checkbox'" >
                     <label [ngClass]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )?'formLabel requiredInput':'formLabel'">
                         {{element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', form ) | translate) : (element.values.label | translate) }}
                     </label>
-    
-                    <mat-checkbox [formControlName]=element.fieldName [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )" 
+
+                    <mat-checkbox [formControlName]=element.fieldName [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )"
                     [disabled]="getFieldWithCondition(element.values.condition, element.values.disabled, 'disabled', form )"> </mat-checkbox>
                 </div>
-    
-    
+
+
                 <div *ngSwitchCase="'enum'">
-    
+
                     <label [ngClass]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )?'formLabel requiredInput':'formLabel'">
                         {{element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', form ) | translate) : (element.values.label | translate) }}
                     </label>
-    
+
                     <mat-radio-group aria-label="Select an option" [formControlName]=element.fieldName
                     [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )"
                     [disabled]="getFieldWithCondition(element.values.condition, element.values.disabled, 'disabled', form )">
@@ -269,14 +269,14 @@
                             class="radioButtonForm" [value]=enumElement.value  > {{ enumElement.label | translate}}
                         </mat-radio-button>
                     </mat-radio-group>
-    
+
                 </div>
                 <div *ngSwitchCase="'selectorPopup'" class="selectorPopup">
-    
+
                     <label [ngClass]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )?'formLabel requiredInput':'formLabel'">
                         {{element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', form ) | translate) : (element.values.label | translate) }}
                     </label>
-    
+
                     <mat-form-field appearance="outline">
                         <input matInput *ngIf="this.taskForm.value[element.fieldName]" [readonly]="true" type="text"
                             [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )"
@@ -304,9 +304,9 @@
                     </div>
                 </div>
             </div>
-            
+
         </form>
-    
+
     </div>
 
 </ng-template>

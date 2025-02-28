@@ -65,7 +65,7 @@ import { TaskGroupFormComponent } from './components/task-group/task-group-form/
 import { TasksComponent } from './components/tasks/tasks.component';
 import { LoginComponent } from './components/login/login.component';
 
-//Services 
+//Services
 import {
   AngularHalModule,
   BackgroundService,
@@ -116,6 +116,8 @@ import { TasksEditionDataTableComponent } from './components/tasks-edition-data-
 import { TasksEditionRelationTableComponent } from './components/tasks-edition-relation-table/tasks-edition-relation-table.component';
 import { TasksEditionSearchViewComponent } from './components/tasks-edition-search-view/tasks-edition-search-view.component';
 import { CanDeactivateGuard } from './services/can-deactivate-guard.service';
+import {MatTabsModule} from '@angular/material/tabs';
+import {MatTooltipModule} from '@angular/material/tooltip';
 
 
 
@@ -165,27 +167,29 @@ import { CanDeactivateGuard } from './services/can-deactivate-guard.service';
     TasksEditionRelationTableComponent,
     TasksEditionSearchViewComponent,
   ],
-  imports: [
-    BrowserModule,
-    HttpClientModule,
-    FormsModule,
-    AngularHalModule,
-    SitmunFrontendGuiModule,
-    SitmunFrontendCoreModule,
-    MaterialModule,
-    RouterModule,
-    TranslateModule.forRoot({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: (http: HttpClient) => {
-          return new TranslateHttpLoader(http, './assets/i18n/', '.json');
-        },
-        deps: [HttpClient]
-      }
-    }),
-    APP_ROUTING,
-    BrowserAnimationsModule
-  ],
+    imports: [
+        BrowserModule,
+        HttpClientModule,
+        FormsModule,
+        AngularHalModule,
+        SitmunFrontendGuiModule,
+        SitmunFrontendCoreModule,
+        MaterialModule,
+        RouterModule,
+        TranslateModule.forRoot({
+            loader: {
+                provide: TranslateLoader,
+                useFactory: (http: HttpClient) => {
+                    return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+                },
+                deps: [HttpClient]
+            }
+        }),
+        APP_ROUTING,
+        BrowserAnimationsModule,
+        MatTabsModule,
+        MatTooltipModule
+    ],
   providers: [SidenavService, UtilsService, CanDeactivateGuard,
     { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
     { provide: LOCALE_ID, useValue: 'es-ES' },

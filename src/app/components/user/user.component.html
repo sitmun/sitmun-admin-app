@@ -7,7 +7,6 @@
 </div>
 <div class="appDataGridDiv">
   <app-data-grid id="user" defaultHeight="default" [columnDefs]="columnDefs" defaultColumnSorting="username"
-                 [themeGrid]='themeGrid'
                  [getAll]='getAllUsers'
                  [globalSearch]=true
                  [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'

@@ -4,7 +4,6 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import "@ag-grid-community/styles/ag-grid.css";
-@import "@ag-grid-community/styles/ag-theme-balham.css";
 @import "@ag-grid-community/styles/ag-theme-material.css";
 
 
@@ -36,108 +35,15 @@
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue. Available color palettes: https://material.io/design/color/
 
-$md-primarycolor: (
-  50: #f7e0e0,
-  100: #ecb3b3,
-  200: #df8080,
-  300: #d24d4d,
-  400: #c92626,
-  500: #bf0000,
-  600: #b90000,
-  700: #b10000,
-  800: #a90000,
-  900: #9b0000,
-  A100: #ffc6c6,
-  A200: #ff9393,
-  A400: #ff6060,
-  A700: #ff4747,
-  contrast: (
-    50: #000000,
-    100: #000000,
-    200: #000000,
-    300: #ffffff,
-    400: #ffffff,
-    500: #ffffff,
-    600: #ffffff,
-    700: #ffffff,
-    800: #ffffff,
-    900: #ffffff,
-    A100: #000000,
-    A200: #000000,
-    A400: #000000,
-    A700: #ffffff,
-  ),
-);
+// Define the palettes for your theme using the Material Design palettes available in palette.scss
+// (imported above). For each palette, you can optionally specify a default, lighter, and darker
+// hue. Available color palettes: https://material.io/design/color/
+$sitmun-primary: mat.define-palette(mat.$indigo-palette);
+$sitmun-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
 
-$md-secondcolor: (
-  50: #f1f1f1,
-  100: #dbdbdb,
-  200: #c4c4c4,
-  300: #acacac,
-  400: #9a9a9a,
-  500: #888888,
-  600: #808080,
-  700: #757575,
-  800: #6b6b6b,
-  900: #585858,
-  A100: #f9cdcd,
-  A200: #f49f9f,
-  A400: #ff6161,
-  A700: #ff4747,
-  contrast: (
-    50: #000000,
-    100: #000000,
-    200: #000000,
-    300: #000000,
-    400: #000000,
-    500: #000000,
-    600: #000000,
-    700: #ffffff,
-    800: #ffffff,
-    900: #ffffff,
-    A100: #000000,
-    A200: #000000,
-    A400: #000000,
-    A700: #ffffff,
-  ),
-);
+// The warn palette is optional (defaults to red).
+$sitmun-warn: mat.define-palette(mat.$red-palette);
 
-$md-thirdcolor: (
-  50: #e1f2fe,
-  100: #b4dffd,
-  200: #82cafb,
-  300: #4fb4f9,
-  400: #2aa4f8,
-  500: #0494f7,
-  600: #038cf6,
-  700: #0381f5,
-  800: #0277f3,
-  900: #0165f1,
-  A100: #ffffff,
-  A200: #e5eeff,
-  A400: #b2cdff,
-  A700: #98bdff,
-  contrast: (
-    50: #000000,
-    100: #000000,
-    200: #000000,
-    300: #000000,
-    400: #000000,
-    500: #ffffff,
-    600: #ffffff,
-    700: #ffffff,
-    800: #ffffff,
-    900: #ffffff,
-    A100: #000000,
-    A200: #000000,
-    A400: #000000,
-    A700: #000000,
-  ),
-);
-
-$sitmun-primary: mat.define-palette($md-primarycolor);
-$sitmun-accent: mat.define-palette($md-secondcolor);
-$sitmun-warn: mat.define-palette($md-thirdcolor);
 
 // Create the theme object (a Sass map containing all of the palettes).
 $sitmun-theme: mat.define-light-theme($sitmun-primary, $sitmun-accent, $sitmun-warn);
@@ -146,6 +52,8 @@ $sitmun-theme: mat.define-light-theme($sitmun-primary, $sitmun-accent, $sitmun-w
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
 @include angular-material-theme($sitmun-theme);
+
+$background-color: #f5f5f5;
 
 /* You can add global styles to this file, and also import other style files */
 
@@ -183,10 +91,10 @@ h2 {
   margin-left: 10px;
 }
 
-.appDataGridDiv {
-  height: calc(100% - 190px);
-  margin: 50px;
-}
+//.appDataGridDiv {
+//  height: calc(100% - 190px);
+//  margin: 50px;
+//}
 
 // .re-size-vertically{
 //   resize: vertical;
@@ -211,7 +119,7 @@ h2 {
 
 .mat-app-background,
 .mat-drawer-container {
-  background: white !important;
+  background: $background-color !important;
 }
 
 
@@ -712,26 +620,22 @@ h2 {
   margin: 0;
 }
 //CUSTOM SCROLLBAR
-::-webkit-scrollbar-track {
-  padding: 2px 0;
-}
+//::-webkit-scrollbar-track {
+//  padding: 2px 0;
+//}
+//
+//::-webkit-scrollbar {
+//  width: 10px;
+//  height: 10px;
+//
+//}
+//
+//::-webkit-scrollbar-thumb {
+//  border-radius: 10px;
+//  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+//  background-color: #737272;
+//}
 
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-
-}
-
-::-webkit-scrollbar-thumb {
-  border-radius: 10px;
-  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-  background-color: #737272;
-}
-.ag-header {
-  background-color: #f5f5f5 !important;
-  font-weight: bold !important;
-  font-size: 14px !important;
-}
 .requiredInput::after{
   content: "*";
   color: #BF0000;
@@ -877,18 +781,18 @@ h4 > .mat-icon {
   font-weight: bold !important;
 }
 
-.sitmun-delete-button:disabled, .deleteButton:disabled {
-  color: gray !important;
-}
+//.sitmun-delete-button:disabled, .deleteButton:disabled {
+//  color: gray !important;
+//}
 
-.sitmun-ag-grid-expansion-panel, .agGridExpansionPanel {
-  margin-bottom: 15px !important;
-}
+//.sitmun-ag-grid-expansion-panel, .agGridExpansionPanel {
+//  margin-bottom: 15px !important;
+//}
 
-.sitmun-ag-grid-expansion-panel-title, .agGridExpansionPanelTitle {
-  background-color: #ffe9cc !important;
-  font-weight: bold !important;
-}
+//.sitmun-ag-grid-expansion-panel-title, .agGridExpansionPanelTitle {
+//  background-color: #ffe9cc !important;
+//  font-weight: bold !important;
+// }
 
 .sitmun-app-data-grid-edit, .appDataGridEditDiv {
   height: 200px;
@@ -921,19 +825,23 @@ h4 > .mat-icon {
   width: calc(25% - 8px);
 }
 
-.spacer {
-  background: red;
-  height: 5px;
-  width: 5px;
-}
-
 .add-gap {
   margin-right: 10px;
+}
+
+.add-half-gap {
+  margin-right: 5px;
 }
 
 .break {
   flex-basis: 100%;
   height: 0;
+}
+
+.grow {
+  flex-grow: 1;
+  flex-shrink: 0;
+  flex-basis: 0;
 }
 
 // Ag-Grid
@@ -943,12 +851,23 @@ h4 > .mat-icon {
 }
 
 .read-only-cell {
-  background-color: #f5f5f5; /* Light gray background */
+  background-color: $background-color; /* Light gray background */
   color: #999999; /* Gray text color */
 }
 
-// Fixes for mat-accordion-multi in dialogs
+.spacer {
+  flex: 1 1 auto;
+}
 
-.mat-accordion-multi div {
-  margin-top: 0 !important;
+.mat-tab-group{
+  height: 100%;
+}
+
+::ng-deep.mat-tab-body-wrapper {
+  flex-grow: 1;
+}
+
+.mat-tab-body {
+  display: flex !important;
+  flex-direction: column;
 }

@@ -66,10 +66,10 @@
 
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [allNewElements]="layersPermitsID == -1" defaultColumnSorting="name" [columnDefs]="columnDefsCartographies" [themeGrid]='themeGrid' [getAll]='getAllCartographies'
+          <app-data-grid [changeHeightButton]="true" [allNewElements]="layersPermitsID == -1" defaultColumnSorting="name" [columnDefs]="columnDefsCartographies" [getAll]='getAllCartographies'
             [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
-            [eventAddItemsSubscription]='addElementsEventCartographies.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventCartographies.asObservable()' 
-            [eventRefreshSubscription]='dataUpdatedEventCartographies.asObservable()' [actionButton]=true (getAllRows)="getAllRowsCartographies($event)" 
+            [eventAddItemsSubscription]='addElementsEventCartographies.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventCartographies.asObservable()'
+            [eventRefreshSubscription]='dataUpdatedEventCartographies.asObservable()' [actionButton]=true (getAllRows)="getAllRowsCartographies($event)"
             (add)="openCartographyDialog($event)" > </app-data-grid>
         </div>
       </ng-template>
@@ -85,10 +85,10 @@
 
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [allNewElements]="layersPermitsID == -1" defaultColumnSorting="name" [columnDefs]="columnDefsRoles" [themeGrid]='themeGrid' [getAll]='getAllRoles'
+          <app-data-grid [changeHeightButton]="true" [allNewElements]="layersPermitsID == -1" defaultColumnSorting="name" [columnDefs]="columnDefsRoles" [getAll]='getAllRoles'
             [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
-            [eventAddItemsSubscription]='addElementsEventRoles.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventRoles.asObservable()' 
-            [eventRefreshSubscription]='dataUpdatedEventRoles.asObservable()' [actionButton]=true (getAllRows)="getAllRowsRoles($event)" 
+            [eventAddItemsSubscription]='addElementsEventRoles.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventRoles.asObservable()'
+            [eventRefreshSubscription]='dataUpdatedEventRoles.asObservable()' [actionButton]=true (getAllRows)="getAllRowsRoles($event)"
             (add)="openRolesDialog($event)" > </app-data-grid>
         </div>
       </ng-template>

@@ -31,7 +31,7 @@
           <input matInput type="text" formControlName="name" required>
         </mat-form-field>
       </div>
-      
+
       <div class="colFormDiv">
         <label class="formLabel requiredInput">
           {{'layersEntity.layers' | translate}}
@@ -110,7 +110,7 @@
           </mat-select>
         </mat-form-field>
       </div>
-      
+
       <div class="colFormDiv">
         <label class="formLabel">
           {{'layersEntity.source' | translate}}
@@ -127,9 +127,9 @@
           <input matInput type="text" formControlName="legendUrl">
         </mat-form-field>
       </div>
-      
+
     </div>
-    
+
     <div class="rowFormDiv">
 
       <div class="colFormDiv">
@@ -297,8 +297,8 @@
             </div>
 
 
-            <!-- <div class="rowFormDiv">     
-          <div class="colFormDiv" >    
+            <!-- <div class="rowFormDiv">
+          <div class="colFormDiv" >
           <label class="formLabel">
             {{'layersEntity.connection' | translate}}
           </label>
@@ -309,7 +309,7 @@
                 {{ connection.name}}
               </mat-option>
             </mat-select>
-          </mat-form-field> 
+          </mat-form-field>
           </div>
          </div> -->
 
@@ -340,7 +340,7 @@
 
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [allNewElements]="layerID == -1" [columnDefs]="columnDefsParameters" [themeGrid]='themeGrid' [getAll]='getAllParameters'
+          <app-data-grid [changeHeightButton]="true" [allNewElements]="layerID == -1" [columnDefs]="columnDefsParameters" [getAll]='getAllParameters'
             [eventAddItemsSubscription]='addElementsEventParameters.asObservable()' defaultColumnSorting="name"
             [eventGetAllRowsSubscription]='getAllElementsEventParameters.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()' [discardChangesButton]=true
@@ -363,29 +363,29 @@
         <div class="colFormDiv">
           <mat-checkbox  formControlName="applyFilterToGetMap">
             {{'layersEntity.applyFilterToGetMap' | translate}}
-          </mat-checkbox> 
+          </mat-checkbox>
         </div>
-  
+
         <div class="colFormDiv">
           <mat-checkbox  formControlName="applyFilterToGetFeatureInfo">
             {{'layersEntity.filterInfoByMunicipality' | translate}}
-          </mat-checkbox> 
+          </mat-checkbox>
         </div>
-  
+
         <div class="colFormDiv">
           <mat-checkbox formControlName="applyFilterToSpatialSelection">
             {{'layersEntity.filterSpatialSelectionByMunicipality' | translate}}
           </mat-checkbox>
         </div>
       </div>
-  
+
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [allNewElements]="layerID == -1" [columnDefs]="columnDefsTerritorialFilter" [themeGrid]='themeGrid' [getAll]='getAllTerritorialFilters'
+          <app-data-grid [changeHeightButton]="true" [allNewElements]="layerID == -1" [columnDefs]="columnDefsTerritorialFilter" [getAll]='getAllTerritorialFilters'
             [eventAddItemsSubscription]='addElementsTerritorialFilter.asObservable()' defaultColumnSorting="name"
             [eventGetAllRowsSubscription]='getAllElementsTerritorialFilter.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventTerritorialFilter.asObservable()' [discardChangesButton]=true
-            [redoButton]=true [undoButton]=true [deleteButton]=true [newButton]=true 
+            [redoButton]=true [undoButton]=true [deleteButton]=true [newButton]=true
             (getAllRows)="getAllRowsTerritorialFilters($event)"  [actionButton]=true
             (duplicate)='duplicateTerritorialFilters($event)' (new)="openTerritorialFilterDialog($event)"> </app-data-grid>
         </div>
@@ -402,7 +402,7 @@
 
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [allNewElements]="layerID == -1" [columnDefs]="columnDefsStyles" [themeGrid]='themeGrid' [getAll]='getAllStyles'
+          <app-data-grid [changeHeightButton]="true" [allNewElements]="layerID == -1" [columnDefs]="columnDefsStyles" [getAll]='getAllStyles'
             [eventAddItemsSubscription]='addElementsEventStyles.asObservable()' defaultColumnSorting="name"
             [eventGetAllRowsSubscription]='getAllElementsEventStyles.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventStyles.asObservable()' [discardChangesButton]=true
@@ -424,7 +424,7 @@
 
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [allNewElements]="layerID == -1" [columnDefs]="columnDefsTerritories" [themeGrid]='themeGrid' [getAll]='getAllTerritories'
+          <app-data-grid [changeHeightButton]="true" [allNewElements]="layerID == -1" [columnDefs]="columnDefsTerritories" [getAll]='getAllTerritories'
             [eventAddItemsSubscription]='addElementsEventTerritories.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventTerritories.asObservable()' addFieldRestriction='territoryId'
             [eventRefreshSubscription]='dataUpdatedEventTerritories.asObservable()' [discardChangesButton]=true
@@ -469,7 +469,7 @@
 
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [allNewElements]="layerID == -1" [columnDefs]="columnDefsNodes" [themeGrid]='themeGrid' [getAll]='getAllNodes'
+          <app-data-grid [changeHeightButton]="true" [allNewElements]="layerID == -1" [columnDefs]="columnDefsNodes" [getAll]='getAllNodes'
             [eventAddItemsSubscription]='addElementsEventNodes.asObservable()' [defaultColumnSorting]="['name','treeName']"
             [eventGetAllRowsSubscription]='getAllElementsEventNodes.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventNodes.asObservable()' [discardChangesButton]=false
@@ -660,7 +660,7 @@
           </mat-form-field>
         </div>
 
-        
+
         <div class="MidLargeColFormDiv">
           <label class="formLabel">
             {{'layersEntity.value' | translate}}
@@ -687,7 +687,7 @@
           </mat-form-field>
         </div>
 
-        
+
         <div class="MidLargeColFormDiv">
           <label class="formLabel ">
             {{'layersEntity.valueType' | translate}}
@@ -700,7 +700,7 @@
             </mat-select>
           </mat-form-field>
         </div>
-        
+
         <div class="MidLargeColFormDiv">
           <label class="formLabel ">
             {{'layersEntity.typeId' | translate}}
@@ -717,7 +717,7 @@
 
       </div>
 
-      
+
       <div class="rowFormDiv">
         <div class="colFormDiv">
           <label class="formLabel">
@@ -785,7 +785,7 @@
           </mat-form-field>
         </div>
 
-        
+
         <!-- <div class="colFormDiv">
           <label class="formLabel ">
             {{'layersEntity.format' | translate}}

@@ -1,37 +1,61 @@
-import { AgGridModule } from '@ag-grid-community/angular';
-import { Component, OnInit, NgModule, Input, Output, EventEmitter, ElementRef,CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA} from '@angular/core';
+import {Component, OnInit, Input, Output, EventEmitter, ElementRef, OnDestroy, SimpleChanges, OnChanges} from '@angular/core';
 
-import { FormsModule } from '@angular/forms';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { GridApi, Module,ModuleRegistry  } from '@ag-grid-community/core';
-import { ClientSideRowModelModule } from '@ag-grid-community/client-side-row-model';
+import {Observable, Subscription} from 'rxjs';
 import {
-  IDoesFilterPassParams,
-  RowNode,
-  IFloatingFilter,
-  NumberFilter,
-  IFloatingFilterParams,
+  ColDef, ColGroupDef,
+  GridApi,
+  ModuleRegistry,
 } from '@ag-grid-community/core';
-import { AgFrameworkComponent} from '@ag-grid-community/angular';
+import { ClientSideRowModelModule } from '@ag-grid-community/client-side-row-model';
 import { CsvExportModule } from '@ag-grid-community/csv-export';
-import { TranslateService } from '@ngx-translate/core';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import { BtnEditRenderedComponent } from '../btn-edit-rendered/btn-edit-rendered.component';
 import { BtnCheckboxRenderedComponent } from '../btn-checkbox-rendered/btn-checkbox-rendered.component';
 import { BtnCheckboxFilterComponent } from '../btn-checkbox-filter/btn-checkbox-filter.component';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DialogMessageComponent } from '../dialog-message/dialog-message.component';
-import { forEach } from 'jszip';
+import { CommonModule } from '@angular/common';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import {AgGridModule} from '@ag-grid-community/angular';
+import {MatToolbarModule} from '@angular/material/toolbar';
+import {MatMenuModule} from '@angular/material/menu';
+import {MatIconModule} from '@angular/material/icon';
+import {MatButtonModule} from '@angular/material/button';
+import {MatInputModule} from '@angular/material/input';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
+
 declare let $: any;
 
-
+ModuleRegistry.registerModules([
+  ClientSideRowModelModule,
+  CsvExportModule
+]);
 
 @Component({
   selector: 'app-data-grid',
   templateUrl: './data-grid.component.html',
-  styleUrls: ['./data-grid.component.scss']
+  styleUrls: ['./data-grid.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatTooltipModule,
+    MatDialogModule,
+    MatToolbarModule,
+    MatMenuModule,
+    MatIconModule,
+    MatInputModule,
+    TranslateModule,
+    AgGridModule,
+    MatButtonToggleModule,
+  ]
 })
-export class DataGridComponent implements OnInit {
+export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
+
+  tableRows: any[] = [];
+  tableHeaders: (ColDef | ColGroupDef)[] = [];
+  isLoading = true;
+  dataSubscription!: Subscription;
 
   _eventRefreshSubscription: any;
   _eventGetSelectedRowsSubscription: any;
@@ -39,15 +63,13 @@ export class DataGridComponent implements OnInit {
   _eventSaveAgGridStateSubscription: any;
   _eventModifyStatusOfSelectedCells: any;
 
-
-
-  UndeRedoActions
   searchValue: string;
   gridApi: any;
   gridColumnApi: any;
   statusColumn = false;
   someColumnIsEditable = false;
   changesMap: Map<number, Map<string, number>> = new Map<number, Map<string, number>>();
+
   // We will save the id of edited cells and the number of editions done.
   params: any; // Last parameters of the grid (in case we do apply changes we will need it)
   rowData: any[];
@@ -58,8 +80,6 @@ export class DataGridComponent implements OnInit {
   undoNoChanges = false; // Boolean that indicates if an undo hasn't modifications
   gridOptions;
   someStatusHasChangedToDelete = false;
-  modules: Module[] = [ClientSideRowModelModule,CsvExportModule];
-  moduleRegistry: ModuleRegistry;
 
   @Input() eventRefreshSubscription: Observable<boolean>;
   @Input() eventGetSelectedRowsSubscription: Observable<boolean>;
@@ -87,7 +107,6 @@ export class DataGridComponent implements OnInit {
   @Input() globalSearch: boolean;
   @Input() changeHeightButton: boolean;
   @Input() defaultHeight: any;
-  @Input() themeGrid: any;
   @Input() singleSelection: boolean;
   @Input() nonEditable: boolean;
   @Input() title: string;
@@ -96,7 +115,7 @@ export class DataGridComponent implements OnInit {
   @Input() hideSearchReplaceButton: boolean;
   @Input() addFieldRestriction: any;
   @Input() allNewElements: any;
-  @Input() currentData: Array<any> = null;
+  @Input() currentData: any[] = null;
   @Input() fieldRestrictionWithDifferentName: string;
 
 
@@ -115,21 +134,6 @@ export class DataGridComponent implements OnInit {
   constructor(public dialog: MatDialog,
     public translate: TranslateService,
     private elRef: ElementRef) {
-    this.translate = translate;
-
-    this.frameworkComponents = {
-      btnEditRendererComponent: BtnEditRenderedComponent,
-      btnCheckboxRendererComponent: BtnCheckboxRenderedComponent,
-      btnCheckboxFilterComponent: BtnCheckboxFilterComponent
-    };
-
-    this.components = {
-      datePicker: this.getDatePicker(),
-      btnEditRendererComponent: BtnEditRenderedComponent,
-      btnCheckboxRendererComponent: BtnCheckboxRenderedComponent,
-      btnCheckboxFilterComponent: BtnCheckboxFilterComponent
-    };
-
 
     this.remove = new EventEmitter();
     this.new = new EventEmitter();
@@ -144,44 +148,56 @@ export class DataGridComponent implements OnInit {
     this.previousChangeCounter = 0;
     this.redoCounter = 0;
     this.gridOptions = {
+      onGridReady: this.onGridReady.bind(this),
+      autoSizeStrategy: {
+        type: 'fitCellContents',
+        defaultMinWidth: 100,
+      },
       defaultColDef: {
-        sortable: true,
-        flex: 1,
         filter: true,
-        floatingFilter: true,
+        // floatingFilter: true,
+        sortable: true,
         editable: !this.nonEditable,
-        suppressMenu: true,
         resizable: true,
         cellStyle: (params) => {
-          if(params.value && params.colDef.editable){
-            if(this.changesMap.has(params.node.id) && this.changesMap.get(params.node.id).has(params.colDef.field)){
+          if (params.value && params.colDef.editable) {
+            if (this.changesMap.has(params.node.id) && this.changesMap.get(params.node.id).has(params.colDef.field)) {
               return {'background-color': '#E8F1DE'};
-            }
-            else{
+            } else {
               return {'background-color': 'white'};
             }
-          }
-          else {
+          } else {
             return {'background-color': 'white'};
           }
-        } ,
+        },
       },
       rowSelection: 'multiple',
       singleClickEdit: true,
-      // suppressHorizontalScroll: true,
+      suppressHorizontalScroll: false,
       getLocaleText: ({key, defaultValue}) => {
         const data = this.translate.instant(key);
         return data === key ? defaultValue : data;
       }
-
     }
 
+    this.translate = translate;
 
+    this.frameworkComponents = {
+      btnEditRendererComponent: BtnEditRenderedComponent,
+      btnCheckboxRendererComponent: BtnCheckboxRenderedComponent,
+      btnCheckboxFilterComponent: BtnCheckboxFilterComponent
+    };
+
+    this.components = {
+      datePicker: this.getDatePicker(),
+      btnEditRendererComponent: BtnEditRenderedComponent,
+      btnCheckboxRendererComponent: BtnCheckboxRenderedComponent,
+      btnCheckboxFilterComponent: BtnCheckboxFilterComponent
+    };
   }
 
 
-  ngOnInit() {
-
+  ngOnInit() : void {
     if (this.eventRefreshSubscription) {
       this._eventRefreshSubscription = this.eventRefreshSubscription.subscribe(() => {
         this.changesMap.clear();
@@ -189,7 +205,7 @@ export class DataGridComponent implements OnInit {
         this.changeCounter = 0;
         this.previousChangeCounter = 0;
         this.redoCounter = 0;
-        this.getElements();
+        this.onGridReady([]);
       });
     }
     if (this.eventGetSelectedRowsSubscription) {
@@ -219,15 +235,48 @@ export class DataGridComponent implements OnInit {
       this.eventAddItemsSubscription.subscribe(
         (items: any[]) => {
           this.addItems(items);
+        });
+    }
+    this.loadData()
+  }
+
+  loadData(): void {
+    this.dataSubscription = this.getAll().subscribe((data: any[]) => {
+      const status = this.allNewElements?'pendingCreation':'statusOK'
+      const newItems = [];
+      const condition = (this.addFieldRestriction)? this.addFieldRestriction: 'id';
+      data.forEach(element => {
+        if(this.statusColumn){
+          if(element.status != "notAvailable" && element.status != "pendingCreation" && element.status != "pendingRegistration" && element.status != "unregisteredLayer"){
+            element.status=status
+          }
+          if(this.allNewElements) { element.new = true; }
         }
-      )
+        if(this.currentData){
+          if (this.checkElementAllowedToAdd(condition,element, this.currentData)) {
+            newItems.push(element);
+          }
+        }
+
+      });
+      this.rowData = this.currentData?newItems: data;
+      if(!this.gridApi?.isDestroyed()) {
+        this.gridApi?.applyTransaction({ add: this.rowData });
+      }
+      this.setSize()
+      this.isLoading = false;
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.dataSubscription) {
+      this.dataSubscription.unsubscribe();
     }
   }
 
-
   firstDataRendered(): void {
     if (localStorage.agGridState != undefined) {
-      let agGridState = JSON.parse(localStorage.agGridState)
+      const agGridState = JSON.parse(localStorage.agGridState)
       if (agGridState.idAgGrid != undefined && agGridState.idAgGrid == this.id) {
         this.gridApi.setFilterModel(agGridState.filterState);
         //this.gridApi.setColumnState(agGridState.colState);
@@ -237,7 +286,6 @@ export class DataGridComponent implements OnInit {
           applyOrder: true
         });
         this.searchValue = agGridState.valueSearchGeneric;
-        this.quickSearch();
         this.removeAgGridState();
       } else if (this.id != undefined) {
         this.removeAgGridState();
@@ -246,11 +294,17 @@ export class DataGridComponent implements OnInit {
   }
 
   onGridReady(params): void {
-    if (this.singleSelection) { this.gridOptions.rowSelection = 'single' }
-    // if (this.nonEditable) {this.gridOptions.defaultColDef.editable = false}
     this.params = params;
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
+
+    // Ensure sizeColumnsToFit is called after the grid is fully rendered
+    this.gridApi.addEventListener('firstDataRendered', () => {
+      this.gridApi.sizeColumnsToFit();
+    });
+
+    if (this.singleSelection) { this.gridOptions.rowSelection = 'single' }
+    // if (this.nonEditable) {this.gridOptions.defaultColDef.editable = false}
     for (const col of this.columnDefs) {
       if(!this.someColumnIsEditable && col.editable) { this.someColumnIsEditable = true}
       if (col.field === 'status') {
@@ -272,26 +326,27 @@ export class DataGridComponent implements OnInit {
         });
       }
       else{
-        let sortModel = [];
+        const sortModel = [];
         this.defaultColumnSorting.forEach(element => {
           sortModel.push({ colId: element, sort: 'asc' })
         });
         //this.gridApi.setSortModel(sortModel);
-        this.gridApi.applyColumnState({
+        this.gridApi?.applyColumnState({
           state:sortModel,
           applyOrder: true
         });
       }
 
     }
-    if(this.defaultHeight != null && this.defaultHeight != undefined){
+    if(this.defaultHeight != null){
       this.changeHeight(this.defaultHeight)
     }
   }
 
-
   getDatePicker() {
-    function Datepicker() {}
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    function Datepicker() {
+    }
     Datepicker.prototype.init = function (params) {
       this.eInput = document.createElement('input');
       this.eInput.value = params.value;
@@ -309,6 +364,7 @@ export class DataGridComponent implements OnInit {
     Datepicker.prototype.getValue = function () {
       return this.eInput.value;
     };
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     Datepicker.prototype.destroy = function () {};
     Datepicker.prototype.isPopup = function () {
       return false;
@@ -316,8 +372,8 @@ export class DataGridComponent implements OnInit {
     return Datepicker;
   }
 
-  areRowsSelected(): Boolean {
-    return (this.gridApi != null && this.gridApi.getSelectedNodes().length > 0)? true: false;
+  areRowsSelected(): boolean {
+    return (this.gridApi != null && this.gridApi.getSelectedNodes().length > 0);
     // if (this.gridApi != null && this.gridApi.getSelectedNodes().length > 0) {
     //   return true
     // } else {
@@ -338,14 +394,14 @@ export class DataGridComponent implements OnInit {
     this.getAllRows.emit({data: this.getAllCurrentData(), event: event});
   }
 
-  private getAllCurrentData(): Array<any>{
-    let rowData = [];
+  private getAllCurrentData(): any[]{
+    const rowData = [];
     this.gridApi.forEachNode(node => rowData.push(node.data));
     return rowData;
   }
 
   modifyStatusSelected(status?: string): void{
-    let newStatus=status?status:this.newStatusRegister;
+    const newStatus=status?status:this.newStatusRegister;
     const selectedNodes = this.gridApi.getSelectedNodes();
     selectedNodes.map(node => {
       node.data.status=newStatus;
@@ -355,7 +411,7 @@ export class DataGridComponent implements OnInit {
   }
 
   saveAgGridState(): void {
-    let agGridState = {
+    const agGridState = {
       idAgGrid: this.id,
       colState: this.gridApi.getColumnState(),
       filterState: this.gridApi.getFilterModel(),
@@ -370,12 +426,12 @@ export class DataGridComponent implements OnInit {
     localStorage.removeItem("agGridState")
   }
 
-  getColumnKeysAndHeaders(columnkeys: Array<any>): String {
-    let header: Array<any> = [];
+  getColumnKeysAndHeaders(columnkeys: any[]): string {
+    const header: any[] = [];
     if (this.columnDefs.length == 0) { return '' };
 
     //let allColumnKeys = this.gridOptions.columnApi.getAllDisplayedColumns();
-    let allColumnKeys = this.gridApi.getAllDisplayedColumns()
+    const allColumnKeys = this.gridApi.getAllDisplayedColumns()
 
     allColumnKeys.forEach(element => {
       if (element.userProvidedColDef.headerName !== '') {
@@ -391,10 +447,9 @@ export class DataGridComponent implements OnInit {
 
 
   exportData(): void {
-    let columnkeys: Array<any> = [];
-    let customHeader: String = '';
-    customHeader = this.getColumnKeysAndHeaders(columnkeys)
-    let params = {
+    const columnkeys: any[] = [];
+    const customHeader= this.getColumnKeysAndHeaders(columnkeys)
+    const params = {
       onlySelected: true,
       columnKeys: columnkeys,
       customHeader: customHeader,
@@ -403,16 +458,18 @@ export class DataGridComponent implements OnInit {
     this.gridApi.exportDataAsCsv(params);
   }
 
-  quickSearch(): void {
-    this.gridApi.setGridOption('quickFilterText', this.searchValue);
+  quickSearch(event: KeyboardEvent): void {
+    const input = event.target as HTMLInputElement;
+    const searchValue = input.value;
+    this.gridApi.setGridOption('quickFilterText', searchValue);
   }
 
   getElements(): void {
     this.getAll()
       .subscribe((items) => {
-        let status = this.allNewElements?'pendingCreation':'statusOK'
-        let newItems = [];
-        let condition = (this.addFieldRestriction)? this.addFieldRestriction: 'id';
+        const status = this.allNewElements?'pendingCreation':'statusOK'
+        const newItems = [];
+        const condition = (this.addFieldRestriction)? this.addFieldRestriction: 'id';
         items.forEach(element => {
           if(this.statusColumn){
             if(element.status != "notAvailable" && element.status != "pendingCreation" && element.status != "pendingRegistration" && element.status != "unregisteredLayer"){
@@ -433,33 +490,28 @@ export class DataGridComponent implements OnInit {
         }
         this.setSize()
         // this.gridApi.sizeColumnsToFit()
-
-
       });
   }
 
   setSize() {
-
-    let allColumnIds = [];
-
-    let columns;
+    const allColumnIds = [];
+    let columns: any[];
     if(!this.gridApi?.isDestroyed()) {
-      columns = this.gridApi.getAllGridColumns()
+      columns = this.gridApi?.getAllGridColumns()
     }
     if(columns) {
       columns.forEach(function (column) {
         allColumnIds.push(column.colId);
       });
-      this.gridApi.autoSizeColumns(allColumnIds)
+      this.gridApi.autoSizeAllColumns();
       this.gridApi.sizeColumnsToFit();
     }
-
   }
 
   addItems(newItems: any[]): void {
 
-    let itemsToAdd: Array<any> = [];
-    let condition = (this.addFieldRestriction)? this.addFieldRestriction: 'id';
+    const itemsToAdd: any[] = [];
+    const condition = (this.addFieldRestriction)? this.addFieldRestriction: 'id';
 
 
     newItems.forEach(item => {
@@ -487,10 +539,10 @@ export class DataGridComponent implements OnInit {
 
     if(Array.isArray(condition)){
 
-      for(let element of data){
+      for(const element of data){
         let canAdd = false;
 
-        for(let currentCondition of condition){
+        for(const currentCondition of condition){
           if(element[currentCondition] != item[currentCondition]){
             canAdd = true;
             break;
@@ -514,7 +566,7 @@ export class DataGridComponent implements OnInit {
   }
 
 
-  changeHeight(value) {
+  changeHeight(value: string) {
     let pixels = "";
     if (value === '5') {
       pixels = "200px"
@@ -603,7 +655,7 @@ export class DataGridComponent implements OnInit {
 
   deleteChanges(): void {
     this.gridApi.stopEditing(false);
-    let newElementsActived= this.allNewElements;
+    const newElementsActived= this.allNewElements;
 
     while (this.changeCounter > 0) {
       this.undo();
@@ -615,7 +667,7 @@ export class DataGridComponent implements OnInit {
 
     if(this.statusColumn && !this.discardNonReverseStatus)
     {
-      let rowsWithStatusModified = [];
+      const rowsWithStatusModified = [];
       this.gridApi.forEachNode(function(node) {
         if(node.data.status === 'pendingModify' || node.data.status === 'pendingDelete') {
           if(node.data.status === 'pendingDelete'){
@@ -751,12 +803,11 @@ export class DataGridComponent implements OnInit {
         if (params.value == null) { newValue = '' }
         else { newValue = params.value.toString() }
 
-        if ((params.oldValue != undefined && params.oldValue != null && params.oldValue.toString() !== newValue.toString())
-          || ((params.oldValue == undefined || params.oldValue == null) && newValue != null)) {
+        if ((params.oldValue != undefined && params.oldValue.toString() !== newValue.toString()) || ((params.oldValue == undefined) && newValue != null)) {
 
           this.modificationChange = true;
           if (params.colDef.cellRenderer == "btnCheckboxRendererComponent") {
-            var undoRedoActions = {
+            const undoRedoActions = {
               cellValueChanges: this.gridApi.undoRedoService.cellValueChanges
             };
             this.gridApi.undoRedoService.pushActionsToUndoStack(undoRedoActions);
@@ -799,6 +850,7 @@ export class DataGridComponent implements OnInit {
     return api.getAllGridColumns().findIndex(col => col.getColId() === colId);
   }
   paintCells(params: any, changesMap: Map<number, Map<string, number>>,) {
+    this.changesMap = changesMap;
     const row = this.gridApi.getDisplayedRowAtIndex(params.rowIndex);
 
     // this.changeCellStyleColumns(params, changesMap, '#E8F1DE');
@@ -817,4 +869,21 @@ export class DataGridComponent implements OnInit {
 
   // }
 
+  @Input() redraw!: boolean;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.rowData && !changes.rowData.firstChange) {
+      this.updateGridData(changes.rowData.currentValue);
+    }
+    if (changes.redraw?.currentValue && this.gridApi) {
+      this.gridApi.autoSizeAllColumns();
+      this.gridApi.sizeColumnsToFit();
+    }
+  }
+
+  updateGridData(newData: any[]): void {
+    if (this.gridApi) {
+      this.gridApi.setRowData(newData);
+    }
+  }
 }

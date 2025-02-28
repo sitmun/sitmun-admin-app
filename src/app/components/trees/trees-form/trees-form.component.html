@@ -296,11 +296,11 @@
           </div>
         </div>
         <div class="appDataGridEditDiv" *ngIf="( currentNodeIsFolder != undefined && !currentNodeIsFolder)">
-          <app-data-grid [changeHeightButton]="true" defaultColumnSorting='name' [columnDefs]="columnDefsCartographies" [themeGrid]='themeGrid' [getAll]='getAllCartographies'
+          <app-data-grid [changeHeightButton]="true" defaultColumnSorting='name' [columnDefs]="columnDefsCartographies" [getAll]='getAllCartographies'
                          [eventGetSelectedRowsSubscription]='getAllElementsEventCartographies.asObservable()' *ngIf="currentNodeType === codeValues.treenodeLeafType.cartography"
                          (getSelectedRows)="getSelectedRowsCartographies($event)" [singleSelection]=true [globalSearch]=true>
           </app-data-grid>
-          <app-data-grid [changeHeightButton]="true" defaultColumnSorting='name' [columnDefs]="columnDefsTasks" [themeGrid]='themeGrid' [getAll]='getAllTasks'
+          <app-data-grid [changeHeightButton]="true" defaultColumnSorting='name' [columnDefs]="columnDefsTasks" [getAll]='getAllTasks'
                          [eventGetSelectedRowsSubscription]='getAllElementsEventTasks.asObservable()' *ngIf="currentNodeType === codeValues.treenodeLeafType.task"
                          (getSelectedRows)="getSelectedRowsTasks($event)" [singleSelection]=true [globalSearch]=true>
           </app-data-grid>
@@ -327,7 +327,7 @@
         <ng-template matExpansionPanelContent>
           <div class="appDataGridEditDiv">
             <app-data-grid #applicationsDataGrid [changeHeightButton]="true" [allNewElements]="treeID == -1"
-                           [columnDefs]="columnDefsApplication" [themeGrid]='themeGrid' [getAll]='getAllApplications'
+                           [columnDefs]="columnDefsApplication" [getAll]='getAllApplications'
                            [eventAddItemsSubscription]='addElementsEventApplication.asObservable()'
                            [eventGetAllRowsSubscription]='getAllElementsEventApplication.asObservable()'
                            [eventRefreshSubscription]='dataUpdatedEventApplication.asObservable()' [discardChangesButton]=true

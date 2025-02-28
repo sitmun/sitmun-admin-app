@@ -22,6 +22,7 @@ import {config} from 'src/config';
 import {DialogFormComponent, DialogGridComponent, DialogMessageComponent} from '../../../frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
 import {constants} from '../../../../environments/constants';
+import { MatTabChangeEvent } from '@angular/material/tabs';
 
 @Component({
   selector: 'app-service-form',
@@ -218,7 +219,7 @@ export class ServiceFormComponent implements OnInit {
     this.columnDefsLayers = [
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('serviceEntity.name', 'name'),
+      this.utils.getEditableColumnDef('serviceEntity.name', 'name', 300),
       this.utils.getEditableColumnDef('serviceEntity.description', 'description'),
       this.utils.getStatusColumnDef()
     ];
@@ -494,7 +495,6 @@ export class ServiceFormComponent implements OnInit {
       url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
-
     return this.http.get(urlReq).pipe(
       map(data => data[`_embedded`][`service-parameters`]),
       map(serviceParameters =>
@@ -502,7 +502,6 @@ export class ServiceFormComponent implements OnInit {
           const newType = this.requestTypes.find(
             element => element.value == serviceParam['type'].toUpperCase()
           ).description;
-
           return {
             ...serviceParam,
             type: newType
@@ -885,5 +884,11 @@ export class ServiceFormComponent implements OnInit {
 
   isWMS() {
     return this.serviceForm.value.type === constants.codeValue.serviceType.wms
+  }
+
+  activeTabIndex = 0;
+
+  onTabChange(event: MatTabChangeEvent) {
+    this.activeTabIndex = event.index;
   }
 }

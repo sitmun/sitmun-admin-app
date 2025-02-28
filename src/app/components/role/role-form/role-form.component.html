@@ -60,10 +60,10 @@
 
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsUsers" [themeGrid]='themeGrid' [getAll]='getAllUsers'  
+          <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsUsers" [getAll]='getAllUsers'
           [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' [addFieldRestriction]="['territoryId', 'roleId', 'userId']"
-          [eventAddItemsSubscription]='addElementsEventUsers.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventUsers.asObservable()' 
-          [eventRefreshSubscription]='dataUpdatedEventUsers.asObservable()'[discardChangesButton]=true [redoButton]=true [undoButton]=true  
+          [eventAddItemsSubscription]='addElementsEventUsers.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventUsers.asObservable()'
+          [eventRefreshSubscription]='dataUpdatedEventUsers.asObservable()'[discardChangesButton]=true [redoButton]=true [undoButton]=true
           [deleteButton]=true [addButton]=true [hideDuplicateButton]=true [actionButton]=true (add)="openUsersDialog($event)"
           (getAllRows)="getAllRowsUsers($event)"    > </app-data-grid>
         </div>
@@ -81,8 +81,8 @@
 
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [allNewElements]="roleID == -1" defaultColumnSorting="name" [columnDefs]="columnDefsCartography" [themeGrid]='themeGrid' [getAll]='getAllCartographiesGroups'
-          [eventAddItemsSubscription]='addElementsEventCartographies.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventCartographies.asObservable()' 
+          <app-data-grid [changeHeightButton]="true" [allNewElements]="roleID == -1" defaultColumnSorting="name" [columnDefs]="columnDefsCartography" [getAll]='getAllCartographiesGroups'
+          [eventAddItemsSubscription]='addElementsEventCartographies.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventCartographies.asObservable()'
            [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true
            [eventRefreshSubscription]='dataUpdatedEventCartographies.asObservable()' [hideDuplicateButton]=true [actionButton]=true (add)="openCartographyDialog($event)"
             (getAllRows)="getAllRowsCartographiesGroups($event)"> </app-data-grid>
@@ -101,8 +101,8 @@
 
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [allNewElements]="roleID == -1" [columnDefs]="columnDefsTasks" defaultColumnSorting="groupName" [themeGrid]='themeGrid' [getAll]='getAllTasks'
-          [eventAddItemsSubscription]='addElementsEventTasks.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventTasks.asObservable()' 
+          <app-data-grid [changeHeightButton]="true" [allNewElements]="roleID == -1" [columnDefs]="columnDefsTasks" defaultColumnSorting="groupName" [getAll]='getAllTasks'
+          [eventAddItemsSubscription]='addElementsEventTasks.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventTasks.asObservable()'
            [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true
            [eventRefreshSubscription]='dataUpdatedEventTasks.asObservable()' [hideDuplicateButton]=true [actionButton]=true (add)="openTasksDialog($event)"
             (getAllRows)="getAllRowsTasks($event)" > </app-data-grid>
@@ -119,11 +119,11 @@
           {{ "roleEntity.applications" | translate }}
         </mat-panel-title>
       </mat-expansion-panel-header>
-      
+
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [allNewElements]="roleID == -1" defaultColumnSorting="name" [columnDefs]="columnDefsApplications" [themeGrid]='themeGrid' [getAll]='getAllApplications'
-          [eventAddItemsSubscription]='addElementsEventApplications.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventApplications.asObservable()' 
+          <app-data-grid [changeHeightButton]="true" [allNewElements]="roleID == -1" defaultColumnSorting="name" [columnDefs]="columnDefsApplications" [getAll]='getAllApplications'
+          [eventAddItemsSubscription]='addElementsEventApplications.asObservable()'[eventGetAllRowsSubscription]='getAllElementsEventApplications.asObservable()'
            [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true
            [eventRefreshSubscription]='dataUpdatedEventApplications.asObservable()' [hideDuplicateButton]=true [actionButton]=true (add)="openApplicationsDialog($event)"
             (getAllRows)="getAllRowsApplications($event)" > </app-data-grid>

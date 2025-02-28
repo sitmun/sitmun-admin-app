@@ -4,7 +4,7 @@
 </div>
 
 <div class="formDiv">
-  <form [formGroup]='formConnection' #f="ngForm" 	(ngSubmit)="onSaveButtonClicked()"> 
+  <form [formGroup]='formConnection' #f="ngForm" 	(ngSubmit)="onSaveButtonClicked()">
       <div class="formHeader">
         <h5> {{'connectionEntity.generalData' | translate}} </h5>
         <button type="submit"  mat-flat-button class="saveButton"  >
@@ -29,7 +29,7 @@
             </mat-form-field>
           </div>
 
-          <div class="colFormDiv" > 
+          <div class="colFormDiv" >
             <label class="formLabel requiredInput">
               {{'connectionEntity.driver' | translate}}
             </label>
@@ -63,7 +63,7 @@
       </div>
 
       <div class="rowFormDiv">
-      
+
           <div class="colFormDiv" >
             <label class="formLabel">
               {{'connectionEntity.connection' | translate}}
@@ -100,17 +100,17 @@
         </mat-panel-title>
       </mat-expansion-panel-header>
 
-      <ng-template matExpansionPanelContent>  
+      <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-            <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsCartographies" [themeGrid]='themeGrid' [getAll]='getAllCartographies' 
-            [eventAddItemsSubscription]='addElementsEventCartographies.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventCartographies.asObservable()' 
+            <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsCartographies" [getAll]='getAllCartographies'
+            [eventAddItemsSubscription]='addElementsEventCartographies.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventCartographies.asObservable()'
              [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true  [hideDuplicateButton]=true
             [actionButton]=true (add)="openCartographyDialog($event)"
             (getAllRows)="getAllRowsCartographies($event)"> </app-data-grid>
         </div>
       </ng-template>
     </mat-expansion-panel> -->
- 
+
       <!-- Tasks table -->
     <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
       <mat-expansion-panel-header class="agGridExpansionPanelTitle">
@@ -119,11 +119,11 @@
         </mat-panel-title>
       </mat-expansion-panel-header>
 
-      <ng-template matExpansionPanelContent>  
+      <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
-            <app-data-grid [changeHeightButton]="true" [allNewElements]="connectionID == -1" defaultColumnSorting="name" [columnDefs]="columnDefsTasks" [themeGrid]='themeGrid' [getAll]='getAllTasks'
+            <app-data-grid [changeHeightButton]="true" [allNewElements]="connectionID == -1" defaultColumnSorting="name" [columnDefs]="columnDefsTasks" [getAll]='getAllTasks'
             [eventAddItemsSubscription]='addElementsEventTasks.asObservable()' [eventRefreshSubscription]='dataUpdatedEvent.asObservable()'
-            [eventGetAllRowsSubscription]='getAllElementsEventTasks.asObservable()' [discardChangesButton]=false [redoButton]=true  
+            [eventGetAllRowsSubscription]='getAllElementsEventTasks.asObservable()' [discardChangesButton]=false [redoButton]=true
             [eventRefreshSubscription]='dataUpdatedEventTasks.asObservable()' [undoButton]=true  [deleteButton]=false [addButton]=false [hideDuplicateButton]=true
             [actionButton]=false (add)="openTasksDialog($event)"  (getAllRows)="getAllRowsTasks($event)"> </app-data-grid>
         </div>

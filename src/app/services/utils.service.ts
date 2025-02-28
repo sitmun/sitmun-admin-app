@@ -255,14 +255,15 @@ export class UtilsService {
   getSelCheckboxColumnDef() {
     return {
       headerName: '',
-      checkboxSelection: true,
       headerCheckboxSelection: true,
-      headerCheckboxSelectionFilteredOnly: true,
-      editable: false,
+      checkboxSelection: true,
       filter: false,
-      minWidth: 45,
-      maxWidth: 45,
+      floatingFilter: false,
+      editable: false,
       lockPosition: true,
+      suppressMovable: true,
+      resizable: false,
+      maxWidth: 80,
     };
   }
 
@@ -285,11 +286,14 @@ export class UtilsService {
       headerName: '',
       field: 'id',
       editable: false,
+      sortable: false,
       filter: false,
-      minWidth: 50,
-      maxWidth: 50,
+      floatingFilter: false,
       lockPosition: true,
+      suppressMove: true,
       cellRenderer: 'btnEditRendererComponent',
+      maxWidth: 90,
+      minWidth: 90,
     };
   }
 
@@ -304,7 +308,10 @@ export class UtilsService {
       headerName: 'Id',
       field: customId ? customId : 'id',
       editable: false,
-      cellClass: 'read-only-cell'
+      cellClass: 'read-only-cell',
+      lockPosition: true,
+      maxWidth: 90,
+      minWidth: 90,
     };
   }
 
@@ -362,7 +369,6 @@ export class UtilsService {
         return this.getDateFormated(data);
       },
       cellEditor: 'datePicker',
-      minWidth: 140,
     };
   }
 
@@ -384,7 +390,6 @@ export class UtilsService {
         values: elements,
       };
       columnDef.cellEditor = 'agSelectCellEditor';
-      columnDef.minWidth = 140;
     } else {
       columnDef = {
         headerName: this.getTranslate(alias),
@@ -395,7 +400,6 @@ export class UtilsService {
           values: elements,
         },
         cellEditor: 'agSelectCellEditor',
-        minWidth: 140,
       };
     }
     return columnDef;
@@ -408,8 +412,8 @@ export class UtilsService {
    * @param field - The field name in the data object that this column represents.
    * @returns An object representing the column definition.
    */
-  getEditableColumnDef(alias, field) {
-    return {
+  getEditableColumnDef(alias, field, width = null) {
+    const options = {
       headerName: this.getTranslate(alias),
       field: field,
       editable: true,
@@ -418,6 +422,11 @@ export class UtilsService {
         return Array.isArray(value) ? value.join(',') : value;
       },
     };
+    if (width) {
+      options['minWidth'] = width;
+    }
+    console.log(options);
+    return options
   }
 
   /**
@@ -450,13 +459,20 @@ export class UtilsService {
    * @param field - The field name for the column.
    * @returns An object representing the column definition.
    */
-  getNonEditableColumnDef(alias, field) {
-    return {
+  getNonEditableColumnDef(alias, field, maxWidth = null, minWidth = null) {
+    const options = {
       headerName: this.getTranslate(alias),
       field: field,
       editable: false,
       cellClass: 'read-only-cell'
     };
+    if (maxWidth) {
+      options['maxWidth'] = maxWidth;
+    }
+    if (minWidth) {
+      options['minWidth'] = minWidth;
+    }
+    return options;
   }
 
   getBooleanColumnDef(alias, field, editable) {
@@ -468,7 +484,6 @@ export class UtilsService {
       floatingFilterComponent: BtnCheckboxFilterComponent,
       valueGetter: (params) => (params.data[field] ? 'true' : 'false'),
       floatingFilterComponentParams: {suppressFilterButton: true},
-      minWidth: 110,
     };
   }
 

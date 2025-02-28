@@ -4,8 +4,8 @@
     <span class="divider"></span>
 </div>
 <div class="appDataGridDiv">
-    <app-data-grid id="taskGroup" defaultHeight="default" [columnDefs]="columnDefs" defaultColumnSorting="name" [themeGrid]='themeGrid' [getAll]='getAllTaskGroups' [globalSearch]=true [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
-    defaultHeight='20' [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true [applyChangesButton]=true  [deleteButton]=true [newButton]=true 
+    <app-data-grid id="taskGroup" defaultHeight="default" [columnDefs]="columnDefs" defaultColumnSorting="name" [getAll]='getAllTaskGroups' [globalSearch]=true [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
+    defaultHeight='20' [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true [applyChangesButton]=true  [deleteButton]=true [newButton]=true
     [actionButton]=true (remove)="removeData($event)" (new)='newData($event)' (sendChanges)='applyChanges($event)' (duplicate)='add($event)'  (gridModified)='setGridModifiedValue($event)'> </app-data-grid>
 </div>
 

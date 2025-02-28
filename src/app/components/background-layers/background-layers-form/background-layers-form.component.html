@@ -78,7 +78,7 @@
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
           <app-data-grid [changeHeightButton]="true" [allNewElements]="backgroundID == -1"
-            [columnDefs]="columnDefsCartographies" [themeGrid]='themeGrid' [getAll]='getAllCartographies'
+            [columnDefs]="columnDefsCartographies" [getAll]='getAllCartographies'
             [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true
             [hideDuplicateButton]=true defaultColumnSorting="name"
             [eventAddItemsSubscription]='addElementsEventCartographies.asObservable()'
@@ -100,7 +100,7 @@
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
           <app-data-grid [changeHeightButton]="true" [allNewElements]="backgroundID == -1"
-            [columnDefs]="columnDefsRoles" [themeGrid]='themeGrid' [getAll]='getAllRoles' defaultColumnSorting="name"
+            [columnDefs]="columnDefsRoles" [getAll]='getAllRoles' defaultColumnSorting="name"
             [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true
             [hideDuplicateButton]=true [eventAddItemsSubscription]='addElementsEventRoles.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventRoles.asObservable()'
@@ -123,7 +123,7 @@
       <ng-template matExpansionPanelContent>
         <div class="appDataGridEditDiv">
           <app-data-grid [changeHeightButton]="true" [allNewElements]="applicationID == -1"
-            [columnDefs]="columnDefsApplications" [themeGrid]='themeGrid' [getAll]='getAllApplications'
+            [columnDefs]="columnDefsApplications" [getAll]='getAllApplications'
             [eventAddItemsSubscription]='addElementsEventApplications.asObservable()'
             [eventGetAllRowsSubscription]='getAllElementsEventApplications.asObservable()'
             [eventRefreshSubscription]='dataUpdatedEventApplications.asObservable()' [discardChangesButton]=true

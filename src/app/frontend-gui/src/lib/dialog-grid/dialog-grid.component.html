@@ -1,22 +1,20 @@
 <h5 mat-dialog-title class="titleDialog">{{titlesTable[0]=="" || !titlesTable[0] ? "" : title}}</h5>
 <mat-accordion  multi>
   <div *ngFor="let getAll of getAllsTable; let i = index"  [ngStyle]="{'margin-top': i>0?'100px':'0px'}">
-    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
-      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
+    <mat-expansion-panel [expanded]="true">
+      <mat-expansion-panel-header >
         <mat-panel-title>
           {{ titlesTable[i]=="" || !titlesTable[i] ? title : titlesTable[i]}}
         </mat-panel-title>
       </mat-expansion-panel-header>
 
       <ng-template matExpansionPanelContent>
-        <div class="appDataGridEditDiv">
-          <app-data-grid 
-            [columnDefs]="columnDefsTable[i]" [themeGrid]='themeGrid' [changeHeightButton]='changeHeightButton' [defaultHeight]='heightByDefault'  [getAll]='getAll' [globalSearch]=true [singleSelection]="singleSelectionTable[i]"
+          <app-data-grid
+            [columnDefs]="columnDefsTable[i]" [changeHeightButton]='changeHeightButton' [defaultHeight]='heightByDefault'  [getAll]='getAll' [globalSearch]=true [singleSelection]="singleSelectionTable[i]"
             [title]="titlesTable[i]" [defaultColumnSorting]='orderTable.length>=i?orderTable[i]:null' [nonEditable]='nonEditable'
-            [eventGetSelectedRowsSubscription]="getAllRows.asObservable()" [addFieldRestriction]='addFieldRestriction.length>=i?addFieldRestriction[i]:null' 
+            [eventGetSelectedRowsSubscription]="getAllRows.asObservable()" [addFieldRestriction]='addFieldRestriction.length>=i?addFieldRestriction[i]:null'
             [currentData]='currentData.length>=i?currentData[i]:null' [fieldRestrictionWithDifferentName]='fieldRestrictionWithDifferentName.length>=i?fieldRestrictionWithDifferentName[i]:null' (getSelectedRows)='joinRowsReceived($event)' >
             </app-data-grid>
-        </div>
 
       </ng-template>
     </mat-expansion-panel>
