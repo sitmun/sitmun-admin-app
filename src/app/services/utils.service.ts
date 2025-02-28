@@ -40,6 +40,7 @@ export class UtilsService {
   }
 
   showErrorMessage(error: any) {
+    console.error(error);
     let missatge = '';
     try {
       if (error.error && error.error.errors) {

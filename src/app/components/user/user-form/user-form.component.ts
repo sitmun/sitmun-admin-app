@@ -1,20 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 
-import { AbstractControl, UntypedFormControl, UntypedFormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { UserService, UserPositionService, UserConfigurationService, 
-  TerritoryService, RoleService, HalOptions, HalParam, Territory, User, UserConfiguration, Role } from '../../../frontend-core/src/lib/public_api';
-import { HttpClient } from '@angular/common/http';
-import { UtilsService } from '../../../services/utils.service';
-import { map } from 'rxjs/operators';
-import { Observable, of, Subject } from 'rxjs';
+import {AbstractControl, UntypedFormControl, UntypedFormGroup, ValidationErrors, Validators} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
+import {
+  UserService, UserPositionService, UserConfigurationService,
+  TerritoryService, RoleService, HalOptions, HalParam, Territory, User, Role
+} from '../../../frontend-core/src/lib/public_api';
+import {HttpClient} from '@angular/common/http';
+import {UtilsService} from '../../../services/utils.service';
+import {map} from 'rxjs/operators';
+import {Observable, of, Subject} from 'rxjs';
 
-import { config } from 'src/config';
-import { DialogGridComponent, DialogMessageComponent } from '../../../frontend-gui/src/lib/public_api';
-import { MatDialog } from '@angular/material/dialog';
-
-
-
+import {config} from 'src/config';
+import {DialogGridComponent, DialogMessageComponent} from '../../../frontend-gui/src/lib/public_api';
+import {MatDialog} from '@angular/material/dialog';
 
 
 @Component({
@@ -32,7 +31,7 @@ export class UserFormComponent implements OnInit {
   userToEdit: User;
   userID = -1;
   duplicateID = -1;
-  dataLoaded: Boolean = false;
+  dataLoaded = false;
 
   //Grids
   themeGrid: any = config.agGridTheme;
@@ -57,10 +56,9 @@ export class UserFormComponent implements OnInit {
   rolesToUpdate: Role[] = [];
   dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
 
-  
-  userPositionTypes: Array<any> = [];
-  userPositionTypesDescription: Array<any> = [];
 
+  userPositionTypes: any[] = [];
+  userPositionTypesDescription: any[] = [];
 
 
   constructor(
@@ -82,7 +80,7 @@ export class UserFormComponent implements OnInit {
 
     const promises: Promise<any>[] = [];
 
-    promises.push(new Promise((resolve, reject) => {
+    promises.push(new Promise((resolve,) => {
       this.utils.getCodeListValues('userPosition.type').subscribe(
         resp => {
           resp.forEach(element => {
@@ -91,7 +89,7 @@ export class UserFormComponent implements OnInit {
           });
           resolve(true);
         }
-      )
+      );
     }));
 
     this.columnDefsPermits = [
@@ -110,8 +108,8 @@ export class UserFormComponent implements OnInit {
       this.utils.getEditableColumnDef('userEntity.organization', 'organization'),
       this.utils.getEditableColumnDef('userEntity.mail', 'email'),
       // this.utils.getEditableColumnDef('userEntity.type', 'type'),
-      this.utils.getSelectColumnDef('userEntity.type', 'type',true,this.userPositionTypesDescription, true, this.userPositionTypes),
-      this.utils.getDateColumnDef('userEntity.expirationDate', 'expirationDate',true),
+      this.utils.getSelectColumnDef('userEntity.type', 'type', true, this.userPositionTypesDescription, true, this.userPositionTypes),
+      this.utils.getDateColumnDef('userEntity.expirationDate', 'expirationDate', true),
       this.utils.getDateColumnDef('userEntity.dataCreated', 'createdDate'),
       this.utils.getStatusColumnDef()
     ];
@@ -132,68 +130,61 @@ export class UserFormComponent implements OnInit {
     ];
 
 
-    Promise.all(promises).then(() => { 
+    Promise.all(promises).then(() => {
 
-    this.activatedRoute.params.subscribe(params => {
-      this.userID = +params.id;
-      if(params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
-      
-      if (this.userID !== -1 || this.duplicateID != -1) {
-        let idToGet = this.userID !== -1? this.userID: this.duplicateID  
+      this.activatedRoute.params.subscribe(params => {
+        this.userID = +params.id;
+        if (params.idDuplicate) {
+          this.duplicateID = +params.idDuplicate;
+        }
 
-        this.userService.get(idToGet).subscribe(
-          resp => {
-        
-            this.userToEdit = resp;
-            this.userForm.patchValue({
-              firstName: this.userToEdit.firstName,
-              lastName: this.userToEdit.lastName,
-              password: null,
-              confirmPassword: null,
-              administrator: this.userToEdit.administrator,
-              blocked: this.userToEdit.blocked,
-              _links: this.userToEdit._links
-            });
+        if (this.userID !== -1 || this.duplicateID != -1) {
+          const idToGet = this.userID !== -1 ? this.userID : this.duplicateID;
 
-            if(this.userID !== -1){
-                this.userForm.patchValue({
-                id: this.userID,
-                username: this.userToEdit.username,
-                passwordSet: this.userToEdit.passwordSet,
-              });
-            }
-            else{
+          this.userService.get(idToGet).subscribe(
+            resp => {
+
+              this.userToEdit = resp;
               this.userForm.patchValue({
-              username: this.utils.getTranslate('copy_').concat(this.userToEdit.username),
-              passwordSet: false,
+                firstName: this.userToEdit.firstName,
+                lastName: this.userToEdit.lastName,
+                password: null,
+                confirmPassword: null,
+                administrator: this.userToEdit.administrator,
+                blocked: this.userToEdit.blocked,
+                _links: this.userToEdit._links
               });
-            }
 
-            this.dataLoaded = true;
-          },
-          error => {
+              if (this.userID !== -1) {
+                this.userForm.patchValue({
+                  id: this.userID,
+                  username: this.userToEdit.username,
+                  passwordSet: this.userToEdit.passwordSet,
+                });
+              } else {
+                this.userForm.patchValue({
+                  username: this.utils.getTranslate('copy_').concat(this.userToEdit.username),
+                  passwordSet: false,
+                });
+              }
 
-          }
-        );
-      }
-      else {
-        this.userForm.patchValue({
-          administrator: false,
-          blocked: false,
-          passwordSet: false
-        });
-        this.dataLoaded = true;
-      }
+              this.dataLoaded = true;
+            },
+          );
+        } else {
+          this.userForm.patchValue({
+            administrator: false,
+            blocked: false,
+            passwordSet: false,
+          });
+          this.dataLoaded = true;
+        }
 
-    },
-      error => {
+      },);
 
-      });
-
-    })
+    });
 
 
-  
   }
 
 
@@ -224,10 +215,10 @@ export class UserFormComponent implements OnInit {
   ): (AbstractControl) => ValidationErrors | null {
     return (control: AbstractControl): ValidationErrors | null => {
       return !!control.parent &&
-        !!control.parent.value &&
-        control.value === control.parent.controls[matchTo].value
+      !!control.parent.value &&
+      control.value === control.parent.controls[matchTo].value
         ? null
-        : { isMatching: false };
+        : {isMatching: false};
     };
   }
 
@@ -236,22 +227,22 @@ export class UserFormComponent implements OnInit {
   // ******** Permits ******** //
   getAllPermits = (): Observable<any> => {
 
-    if (this.userID == -1 && this.duplicateID == -1)  {
-      const aux: Array<any> = [];
+    if (this.userID == -1 && this.duplicateID == -1) {
+      const aux: any[] = [];
       return of(aux);
     }
 
-    let params2: HalParam[] = [];
-    let param: HalParam = { key: 'user.id', value: this.userID!=-1?this.userID:this.duplicateID }
+    const params2: HalParam[] = [];
+    const param: HalParam = {key: 'user.id', value: this.userID != -1 ? this.userID : this.duplicateID};
     params2.push(param);
-    let query: HalOptions = { params: params2 };
+    const query: HalOptions = {params: params2};
 
     return this.userConfigurationService.getAll(query);
-  }
+  };
 
 
-  getAllRowsPermits(event){
-    if(event.event == "save"){
+  getAllRowsPermits(event) {
+    if (event.event == 'save') {
       this.savePermits(event.data);
     }
   }
@@ -260,164 +251,174 @@ export class UserFormComponent implements OnInit {
   async savePermits(data: any[]) {
 
 
-    let territoriesToDelete= [];
-    let territoriesToAdd= [];
-    const promises: Promise<any>[] = [];  
+    const territoriesToDelete = [];
+    const territoriesToAdd = [];
+    const promises: Promise<any>[] = [];
     const promisesDuplicate: Promise<any>[] = [];
     const promisesCurrentUserConf: Promise<any>[] = [];
     const promisesCheckTerritories: Promise<any>[] = [];
     const promisesTerritories: Promise<any>[] = [];
     let showDialog = false;
     // data.forEach(userConf => {
-    for(let i = 0; i<data.length; i++){
-      let userConf= data[i];
-
+    for (const userConf of data) {
       if (userConf.status === 'pendingCreation' || (userConf.status === 'pendingModify' && !userConf._links)) {
-
         let item;
 
 
         let itemTerritory;
 
-        if(userConf._links){
+        if (userConf._links) {
 
-          let index = data.findIndex(element =>  (element.roleId === userConf.roleId && element.territoryId === userConf.territoryId &&
-                element.appliesToChildrenTerritories === userConf.appliesToChildrenTerritories && !element.newItem))
+          const index = data.findIndex(element => (element.roleId === userConf.roleId && element.territoryId === userConf.territoryId &&
+            element.appliesToChildrenTerritories === userConf.appliesToChildrenTerritories && !element.newItem));
           if (index === -1) {
 
-            let indexTerritory = data.findIndex(element => element.territoryId === userConf.territoryId && !element.newItem  )
+            const indexTerritory = data.findIndex(element => element.territoryId === userConf.territoryId && !element.newItem);
             userConf.newItem = false;
 
             let roleComplete;
             let territoryComplete;
-  
-            let urlReqRole = `${userConf._links.role.href}`
+
+            let urlReqRole = `${userConf._links.role.href}`;
             if (userConf._links.role.href) {
-              let url = new URL(urlReqRole.split("{")[0]);
-              url.searchParams.append("projection", "view")
+              const url = new URL(urlReqRole.split('{')[0]);
+              url.searchParams.append('projection', 'view');
               urlReqRole = url.toString();
             }
-  
-            
-            let urlReqTerritory = `${userConf._links.territory.href}`
+
+
+            let urlReqTerritory = `${userConf._links.territory.href}`;
             if (userConf._links.territory.href) {
-              let url = new URL(urlReqTerritory.split("{")[0]);
-              url.searchParams.append("projection", "view")
+              const url = new URL(urlReqTerritory.split('{')[0]);
+              url.searchParams.append('projection', 'view');
               urlReqTerritory = url.toString();
             }
-  
-  
-            promisesDuplicate.push(new Promise((resolve, reject) => {
-  
-              promisesCurrentUserConf.push(new Promise((resolve, reject) => {
+
+
+            promisesDuplicate.push(new Promise((resolve,) => {
+
+              promisesCurrentUserConf.push(new Promise((resolve,) => {
                 this.http.get(urlReqRole).subscribe(result => {
                   roleComplete = result;
                   resolve(true);
-                })
-              
-              }))
-  
-              promisesCurrentUserConf.push(new Promise((resolve, reject) => {
+                });
+
+              }));
+
+              promisesCurrentUserConf.push(new Promise((resolve,) => {
                 this.http.get(urlReqTerritory).subscribe(result => {
                   territoryComplete = result;
                   resolve(true);
-                })
-              
-              }))
-  
-  
-              Promise.all(promisesCurrentUserConf).then( () =>{
+                });
+
+              }));
+
+
+              Promise.all(promisesCurrentUserConf).then(() => {
                 item = {
                   role: roleComplete,
                   appliesToChildrenTerritories: userConf.appliesToChildrenTerritories,
                   territory: territoryComplete,
-                   user: this.userToEdit
-                 }
-                 promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
-  
-                 if(indexTerritory === -1 && !territoriesToAdd.includes(userConf.territoryId))
-                 {
-                     territoriesToAdd.push(userConf.territoryId);
-                     itemTerritory = {
-                       territory: territoryComplete,
-                       user: this.userToEdit,
-                       id: null,
-                       _links: null,
-                     }
-                    //  territoriesToAdd.push(itemTerritory)
-                    promisesTerritories.push(new Promise((resolve, reject) => { this.userPositionService.save(itemTerritory).subscribe((resp) => { resolve(true) }) }));
+                  user: this.userToEdit
+                };
+                promises.push(new Promise((resolve,) => {
+                  this.userConfigurationService.save(item).subscribe(() => {
+                    resolve(true);
+                  });
+                }));
 
-        
-                 }
+                if (indexTerritory === -1 && !territoriesToAdd.includes(userConf.territoryId)) {
+                  territoriesToAdd.push(userConf.territoryId);
+                  itemTerritory = {
+                    territory: territoryComplete,
+                    user: this.userToEdit,
+                    id: null,
+                    _links: null,
+                  };
+                  //  territoriesToAdd.push(itemTerritory)
+                  promisesTerritories.push(new Promise((resolve,) => {
+                    this.userPositionService.save(itemTerritory).subscribe(() => {
+                      resolve(true);
+                    });
+                  }));
+
+
+                }
                 resolve(true);
-              })
-  
-            }))
-  
+              });
+
+            }));
+
 
           }
 
 
-
-        }
-        else{
+        } else {
           item = {
             role: userConf.roleComplete,
             appliesToChildrenTerritories: userConf.appliesToChildrenTerritories,
             territory: userConf.territoryComplete,
             user: this.userToEdit
+          };
+
+          const index = data.findIndex(element => element.roleId === item.role.id && element.territoryId === item.territory.id &&
+            element.appliesToChildrenTerritories === item.appliesToChildrenTerritories && !element.newItem);
+
+          const indexTerritory = data.findIndex(element => element.territoryId === userConf.territoryComplete.id && !element.newItem && element.status == 'pendingCreation' && !element._links);
+
+          if (index === -1) {
+            userConf.newItem = false;
+            promises.push(new Promise((resolve,) => {
+              this.userConfigurationService.save(item).subscribe(() => {
+                resolve(true);
+              });
+            }));
           }
 
-          let index;
-          index = data.findIndex(element => element.roleId === item.role.id && element.territoryId === item.territory.id &&
-            element.appliesToChildrenTerritories === item.appliesToChildrenTerritories && !element.newItem)
-
-          let indexTerritory = data.findIndex(element => element.territoryId === userConf.territoryComplete.id && !element.newItem && element.status == 'pendingCreation' && !element._links)
-
-          if(index === -1) {
+          if (indexTerritory === -1 && !territoriesToAdd.includes(userConf.territoryId)) {
             userConf.newItem = false;
-            promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
-          }
-
-          if(indexTerritory === -1 && !territoriesToAdd.includes(userConf.territoryId))
-          {
-            userConf.newItem = false;
-            promisesCheckTerritories.push(new Promise((resolve, reject) => {
+            promisesCheckTerritories.push(new Promise((resolve,) => {
               this.userPositionService.getAll()
-              .pipe(map((data: any[]) => data.filter(elem => elem.territoryName === userConf.territory && elem.userId === this.userID )
-              )).subscribe(data => {
-                if(data.length == 0){
-                  if(!territoriesToAdd.includes(userConf.territoryId)){
+                .pipe(map((data: any[]) => data.filter(elem => elem.territoryName === userConf.territory && elem.userId === this.userID)
+                )).subscribe(data => {
+                if (data.length == 0) {
+                  if (!territoriesToAdd.includes(userConf.territoryId)) {
                     territoriesToAdd.push(userConf.territoryId);
                     itemTerritory = {
                       territory: userConf.territoryComplete,
                       user: this.userToEdit,
                       id: null,
                       _links: null,
-                    }
-                    promisesTerritories.push(new Promise((resolve, reject) => { this.userPositionService.save(itemTerritory).subscribe((resp) => { resolve(true) }) }));
+                    };
+                    promisesTerritories.push(new Promise((resolve,) => {
+                      this.userPositionService.save(itemTerritory).subscribe(() => {
+                        resolve(true);
+                      });
+                    }));
                   }
 
 
-
                 }
-                  // promisesTerritories.push(new Promise((resolve, reject) => { this.userPositionService.remove(data[0]).subscribe((resp) => { resolve(true) }) }));
+                // promisesTerritories.push(new Promise((resolve, reject) => { this.userPositionService.remove(data[0]).subscribe((resp) => { resolve(true) }) }));
                 resolve(true);
-              })
+              });
             }));
-            territoriesToAdd.push(userConf.territoryId)
+            territoriesToAdd.push(userConf.territoryId);
             itemTerritory = {
               territory: userConf.territoryComplete,
               user: this.userToEdit,
-            }
-               
+            };
+
             // territoriesToAdd.push(itemTerritory)
-            promisesTerritories.push(new Promise((resolve, reject) => { this.userPositionService.save(itemTerritory).subscribe((resp) => { resolve(true) }) }));
+            promisesTerritories.push(new Promise((resolve,) => {
+              this.userPositionService.save(itemTerritory).subscribe(() => {
+                resolve(true);
+              });
+            }));
 
           }
 
         }
-
 
 
       }
@@ -427,66 +428,69 @@ export class UserFormComponent implements OnInit {
         let roleComplete;
         let territoryComplete;
 
-        let urlReqRole = `${userConf._links.role.href}`
+        let urlReqRole = `${userConf._links.role.href}`;
         if (userConf._links.role.href) {
-          let url = new URL(urlReqRole.split("{")[0]);
-          url.searchParams.append("projection", "view")
+          const url = new URL(urlReqRole.split('{')[0]);
+          url.searchParams.append('projection', 'view');
           urlReqRole = url.toString();
         }
 
-        
-        let urlReqTerritory = `${userConf._links.territory.href}`
+
+        let urlReqTerritory = `${userConf._links.territory.href}`;
         if (userConf._links.territory.href) {
-          let url = new URL(urlReqTerritory.split("{")[0]);
-          url.searchParams.append("projection", "view")
+          const url = new URL(urlReqTerritory.split('{')[0]);
+          url.searchParams.append('projection', 'view');
           urlReqTerritory = url.toString();
         }
 
 
-        promisesDuplicate.push(new Promise((resolve, reject) => {
+        promisesDuplicate.push(new Promise((resolve,) => {
 
-          promisesCurrentUserConf.push(new Promise((resolve, reject) => {
+          promisesCurrentUserConf.push(new Promise((resolve,) => {
             this.http.get(urlReqRole).subscribe(result => {
               roleComplete = result;
               resolve(true);
-            })
-          
-          }))
+            });
 
-          promisesCurrentUserConf.push(new Promise((resolve, reject) => {
+          }));
+
+          promisesCurrentUserConf.push(new Promise((resolve,) => {
             this.http.get(urlReqTerritory).subscribe(result => {
               territoryComplete = result;
               resolve(true);
-            })
-          
-          }))
+            });
+
+          }));
 
 
-          Promise.all(promisesCurrentUserConf).then( () =>{
-            let item = {
+          Promise.all(promisesCurrentUserConf).then(() => {
+            const item = {
               appliesToChildrenTerritories: userConf.appliesToChildrenTerritories,
               role: roleComplete,
               territory: territoryComplete,
               user: userConf._links.user.href,
               _links: userConf._links
-            }
-             promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
+            };
+            promises.push(new Promise((resolve,) => {
+              this.userConfigurationService.save(item).subscribe(() => {
+                resolve(true);
+              });
+            }));
             resolve(true);
-          })
+          });
 
-        }))
+        }));
 
 
         // promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
       }
-      if (userConf.status === 'pendingDelete' && userConf._links && !userConf.newItem ) {
+      if (userConf.status === 'pendingDelete' && userConf._links && !userConf.newItem) {
 
-        
-        let indexTerritory = data.findIndex(element =>  element.territoryId === userConf.territoryId && element.status !== 'pendingDelete' )
-        if(indexTerritory === -1 && !territoriesToDelete.includes(userConf.territoryId))
-        {
+
+        const indexTerritory = data.findIndex(element => element.territoryId === userConf.territoryId && element.status !== 'pendingDelete');
+        if (indexTerritory === -1 && !territoriesToDelete.includes(userConf.territoryId)) {
           showDialog = true;
-          territoriesToDelete.push(userConf.territoryId)
+          territoriesToDelete.push(userConf.territoryId);
           // promisesCheckTerritories.push(new Promise((resolve, reject) => {
           //   this.userPositionService.getAll()
           //   .pipe(map((data: any[]) => data.filter(elem => elem.territoryName === userConf.territory && elem.userId === this.userID )
@@ -499,22 +503,28 @@ export class UserFormComponent implements OnInit {
 
         }
 
-        promises.push(new Promise((resolve, reject) => { this.userConfigurationService.remove(userConf).subscribe((resp) => { resolve(true) }) }));
-        }
-    };
+        promises.push(new Promise((resolve,) => {
+          this.userConfigurationService.remove(userConf).subscribe(() => {
+            resolve(true);
+          });
+        }));
+      }
+    }
+    ;
 
 
-          
-    Promise.all([...promises,...promisesDuplicate]).then(() => {
+    Promise.all([...promises, ...promisesDuplicate]).then(() => {
       Promise.all(promises).then(() => {
         this.dataUpdatedEventPermits.next(true);
-      })
+      });
     });
-    
-    Promise.all([...promisesTerritories,...promisesDuplicate,...promisesCheckTerritories]).then(() => {
+
+    Promise.all([...promisesTerritories, ...promisesDuplicate, ...promisesCheckTerritories]).then(() => {
       Promise.all(promisesTerritories).then(() => {
         this.dataUpdatedEventTerritoryData.next(true);
-        if(showDialog) {this.showNoRelationshipwithPermissions();}
+        if (showDialog) {
+          this.showNoRelationshipwithPermissions();
+        }
       });
     });
 
@@ -524,50 +534,50 @@ export class UserFormComponent implements OnInit {
   // ******** Data of Territory ******** //
   getAllDataTerritory = (): Observable<any> => {
 
-    if (this.userID == -1 && this.duplicateID == -1)  {
-      const aux: Array<any> = [];
+    if (this.userID == -1 && this.duplicateID == -1) {
+      const aux: any[] = [];
       return of(aux);
     }
 
-    var urlReq = `${this.userToEdit._links.positions.href}`
+    let urlReq = `${this.userToEdit._links.positions.href}`;
     if (this.userToEdit._links.positions.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
+      const url = new URL(urlReq.split('{')[0]);
+      url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
     return (this.http.get(urlReq))
       .pipe(map(data => data['_embedded']['user-positions']));
 
-  }
+  };
 
 
-  newDataData(id: any) {
+  newDataData() {
     // this.router.navigate(['territory', id, 'territoryForm']);
-  
+
   }
 
-  getAllRowsDataTerritories(event){
-    if(event.event == "save"){
+  getAllRowsDataTerritories(event) {
+    if (event.event == 'save') {
       this.saveTerritories(event.data);
     }
   }
 
   saveTerritories(data: any[]) {
-    let territoriesToEdit = [];
+    // const territoriesToEdit = [];
     const promises: Promise<any>[] = [];
     data.forEach(territory => {
       if (territory.status === 'pendingModify' || territory.status === 'pendingCreation') {
-        if(territory.expirationDate != null)
-        {
-          let date = new Date(territory.expirationDate)
-          territory.expirationDate=date.toISOString();
-          
+        if (territory.expirationDate != null) {
+          const date = new Date(territory.expirationDate);
+          territory.expirationDate = date.toISOString();
+
         }
 
-        if(territory.type)
-        {
-          let currentType = this.userPositionTypes.find(element => element.description == territory.type);
-          if(currentType) { territory.type= currentType.value }
+        if (territory.type) {
+          const currentType = this.userPositionTypes.find(element => element.description == territory.type);
+          if (currentType) {
+            territory.type = currentType.value;
+          }
         }
 
         // if(territory.status == 'pendingCreation'){
@@ -576,18 +586,24 @@ export class UserFormComponent implements OnInit {
         //     territory:{ _links:{self:{href:territory._links.territory.href.split("{")[0]}} },
         //     user: this.userToEdit
         //   }
-        //   territoriesToEdit.push(item)  
+        //   territoriesToEdit.push(item)
         //   //      item.territory = item.territory._links.self.href;
         // }
-        promises.push(new Promise((resolve, reject) => { this.userPositionService.save(territory).subscribe((resp) => { resolve(true) }) }));
+        promises.push(new Promise((resolve,) => {
+          this.userPositionService.save(territory).subscribe(() => {
+            resolve(true);
+          });
+        }));
 
-        
 
-       }
-       else if(territory.status === 'pendingDelete'){
-        promises.push(new Promise((resolve, reject) => { this.userPositionService.remove(territory).subscribe((resp) => { resolve(true) }) }));
+      } else if (territory.status === 'pendingDelete') {
+        promises.push(new Promise((resolve,) => {
+          this.userPositionService.remove(territory).subscribe(() => {
+            resolve(true);
+          });
+        }));
 
-       }
+      }
     });
 
     Promise.all(promises).then(() => {
@@ -601,14 +617,14 @@ export class UserFormComponent implements OnInit {
 
   getAllTerritoriesDialog = () => {
     return this.territoryService.getAll();
-  }
+  };
 
   getAllRolesDialog = () => {
     return this.roleService.getAll();
-  }
+  };
 
-  openPermitsDialog(data: any) {
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
+  openPermitsDialog() {
+    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass: 'gridDialogs'});
     dialogRef.componentInstance.orderTable = ['name', 'name'];
     dialogRef.componentInstance.getAllsTable = [this.getAllTerritoriesDialog, this.getAllRolesDialog];
     dialogRef.componentInstance.singleSelectionTable = [true, false];
@@ -621,16 +637,15 @@ export class UserFormComponent implements OnInit {
     dialogRef.componentInstance.nonEditable = false;
 
 
-
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
-          if(result.data[0].length>0 && result.data[1].length>0){
+          if (result.data[0].length > 0 && result.data[1].length > 0) {
 
-          
-            let territorySelected = result.data[0][0];
-           
-              this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, result.data[1], false));
+
+            const territorySelected = result.data[0][0];
+
+            this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, result.data[1], false));
             // this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, result.data[1], false));
             // rowsToAdd.push(...tableUserConfWithoutRoleM);
             //  if(territorySelected.scope==="R" ) {
@@ -662,7 +677,7 @@ export class UserFormComponent implements OnInit {
             //           else{
             //             this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, result.data[1], false));
             //           }
-  
+
             //         });
             //       }
             //       else{
@@ -673,7 +688,7 @@ export class UserFormComponent implements OnInit {
             //       this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, result.data[1], false));
             //     }
             //   });
-  
+
             // }
             // else{
             //   this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, result.data[1], false));
@@ -681,11 +696,10 @@ export class UserFormComponent implements OnInit {
             // console.log(rowsToAdd);
             // this.addElementsEventPermits.next(rowsToAdd);
 
-          }
-          else{
+          } else {
             const dialogRef = this.dialog.open(DialogMessageComponent);
-            dialogRef.componentInstance.title = this.utils.getTranslate("atention");
-            dialogRef.componentInstance.message = this.utils.getTranslate("doubleSelectionMessage");
+            dialogRef.componentInstance.title = this.utils.getTranslate('atention');
+            dialogRef.componentInstance.message = this.utils.getTranslate('doubleSelectionMessage');
             dialogRef.componentInstance.hideCancelButton = true;
             dialogRef.afterClosed().subscribe();
           }
@@ -698,11 +712,10 @@ export class UserFormComponent implements OnInit {
 
   }
 
-  getRowsToAddPermits(user: User, territory: Territory, roles: Role[], rolesAreChildren: Boolean) {
-    let itemsToAdd: any[] = [];
+  getRowsToAddPermits(user: User, territory: Territory, roles: Role[], rolesAreChildren: boolean) {
+    const itemsToAdd: any[] = [];
     roles.forEach(role => {
-      let item;
-      item = {
+      const item = {
         role: role.name,
         roleComplete: role,
         roleId: role.id,
@@ -711,30 +724,33 @@ export class UserFormComponent implements OnInit {
         territoryName: territory.name,
         territoryId: territory.id,
         userId: this.userID,
-        appliesToChildrenTerritories: role['appliesToChildrenTerritories']?true:false,
+        appliesToChildrenTerritories: !!role['appliesToChildrenTerritories'],
         new: true,
+      };
+      if (this.userToEdit) {
+        item.userId = this.userToEdit.id;
       }
-      if (this.userToEdit) { item.userId = this.userToEdit.id }
       itemsToAdd.push(item);
-      if(role['appliesToChildrenTerritories']) { delete role['appliesToChildrenTerritories'] }
-    })
+      if (role['appliesToChildrenTerritories']) {
+        delete role['appliesToChildrenTerritories'];
+      }
+    });
 
     return itemsToAdd;
   }
 
 
-
   // ******** Territory Data Dialog  ******** //
 
   getAllTerritoryDataDialog = () => {
-    const aux: Array<any> = [];
+    const aux: any[] = [];
     return of(aux);
     // return this.tasksService.getAll();
-  }
+  };
 
-  openTerritoryDataDialog(data: any) {
+  openTerritoryDataDialog() {
 
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
+    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass: 'gridDialogs'});
     dialogRef.componentInstance.getAllsTable = [this.getAllTerritoryDataDialog];
     dialogRef.componentInstance.singleSelectionTable = [false];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsTerritoryDataDialog];
@@ -744,11 +760,10 @@ export class UserFormComponent implements OnInit {
     dialogRef.componentInstance.nonEditable = false;
 
 
-
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
-          this.addElementsEventTerritoryData.next(this.adaptFormatTerritory(result.data[0]))
+          this.addElementsEventTerritoryData.next(this.adaptFormatTerritory(result.data[0]));
         }
       }
 
@@ -757,24 +772,22 @@ export class UserFormComponent implements OnInit {
   }
 
   adaptFormatTerritory(dataToAdapt: Territory[]) {
-    let newData: any[] = [];
+    const newData: any[] = [];
 
     dataToAdapt.forEach(element => {
-      let item = {
+      const item = {
         //TODO Put fields when backend return them
         id: null,
         territory: element,
         user: this.userToEdit,
 
-      }
+      };
       newData.push(item);
 
     });
 
     return newData;
   }
-
-
 
 
   onSaveButtonClicked() {
@@ -786,10 +799,10 @@ export class UserFormComponent implements OnInit {
         if (this.userID == -1 && this.duplicateID != -1) {
           this.userForm.patchValue({
             _links: null
-          })
+          });
         }
 
-        let userObj: User = new User();
+        const userObj: User = new User();
         userObj.username = this.userForm.value.username;
         userObj.password = this.userForm.value.password;
         userObj.firstName = this.userForm.value.firstName;
@@ -800,45 +813,42 @@ export class UserFormComponent implements OnInit {
 
         this.userService.save(userObj)
           .subscribe(resp => {
-            
-            this.userToEdit = resp
+            this.userToEdit = resp;
             this.userID = resp.id;
             this.userForm.patchValue({
-             id: resp.id,
-             passwordSet: resp.passwordSet,
-            _links: resp._links
-            })
-   
+              id: resp.id,
+              passwordSet: resp.passwordSet,
+              _links: resp._links
+            });
+
             this.getAllElementsEventTerritoryData.next('save');
             this.getAllElementsEventPermits.next('save');
           }, error => {
-            console.log(error)
+            console.log(error);
           });
 
-      }
-      else {
+      } else {
 
         const dialogRef = this.dialog.open(DialogMessageComponent);
-        dialogRef.componentInstance.title = "Error";
-        dialogRef.componentInstance.message = this.utils.getTranslate("passwordMessage");
+        dialogRef.componentInstance.title = 'Error';
+        dialogRef.componentInstance.message = this.utils.getTranslate('passwordMessage');
         dialogRef.componentInstance.hideCancelButton = true;
         dialogRef.afterClosed().subscribe();
 
       }
 
 
-    }
-    else {
+    } else {
       this.utils.showRequiredFieldsError();
     }
 
 
   }
 
-  showNoRelationshipwithPermissions(){
+  showNoRelationshipwithPermissions() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title = this.utils.getTranslate("atention")
-    dialogRef.componentInstance.message = this.utils.getTranslate("permissionsNoRelationship")
+    dialogRef.componentInstance.title = this.utils.getTranslate('atention');
+    dialogRef.componentInstance.message = this.utils.getTranslate('permissionsNoRelationship');
     dialogRef.componentInstance.hideCancelButton = true;
     dialogRef.afterClosed().subscribe();
   }

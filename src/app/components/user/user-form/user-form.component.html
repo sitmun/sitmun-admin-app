@@ -1,150 +1,147 @@
-<div class="titleDiv" >
-  <h4><mat-icon aria-hidden="false"  svgIcon="menu_usuari"></mat-icon> {{ "userEntity.user" | translate }}-{{(userID==-1?"new":"edit") | translate}}</h4>
-  <span class="divider"></span>
-</div>
+<mat-toolbar>
+  <h4>
+    <mat-icon aria-hidden="true" svgIcon="menu_usuari"></mat-icon>
+    <span> {{ "userEntity.user" | translate }}-{{ (userID === -1 ? "new" : "edit") | translate }}</span>
+  </h4>
+</mat-toolbar>
 
-
-<div class="formDiv">
-  <form [formGroup]='userForm' #f="ngForm" 	(ngSubmit)="onSaveButtonClicked()"> 
-    <div class="formHeader">
-      <h5> {{'userEntity.generalData' | translate}} </h5>
-      <button   mat-flat-button class="saveButton"  >
-        <mat-icon fontSet="material-icons-round"  > save </mat-icon>
-        {{ "save" | translate }}
-      </button>
-      <button type="button" (click)="utils.navigateBack()"  mat-flat-button class="returnButton"  >
-        <mat-icon fontSet="material-icons-round"> arrow_back </mat-icon>
-        {{ "return" | translate }}
-      </button>
-    </div>
-    <span class="divider"></span>
-  
-      <div class="rowFormDiv">
-          <div class="colFormDiv">
-            <label class="formLabel requiredInput">
-              {{'userEntity.user' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="username">
-            </mat-form-field>
-          </div>
-  
-          <div class="colFormDiv" >
-            <label class="formLabel requiredInput">
-              {{'userEntity.firstname' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="firstName">
-            </mat-form-field>
-          </div>
-  
-          <div class="LargeColFormDiv">
-              <label class="formLabel">
-                {{'userEntity.lastname' | translate}}
-              </label>
-              <mat-form-field appearance="outline">
-                <input matInput type="text" formControlName="lastName">
-              </mat-form-field>
-            </div>
-
-      </div>
-  
-      <div class="rowFormDiv">
-      
-          
-        <div class="MidColFormDiv" >
-            <label class="formLabel">
-              {{'userEntity.password' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <mat-icon matSuffix (click)="hidePassword = !hidePassword">{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
-              <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
-            </mat-form-field>
-          </div>
-
-          <div class="MidColFormDiv" >
-            <label class="formLabel">
-              {{'userEntity.confirmPassword' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <mat-icon matSuffix (click)="hideConfirmPassword = !hideConfirmPassword">{{hideConfirmPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
-              <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" formControlName="confirmPassword">
-            </mat-form-field>
-          </div>
-
-          <div class="ShortColFormDiv" >
-            <label class="formLabel">
-              {{'userEntity.passwordSet' | translate}}
-            </label>
-            <mat-checkbox (click)="$event.preventDefault()" formControlName="passwordSet" > </mat-checkbox>
-          </div>
-
-          <div class="ExtraShortColFormDiv" >
-            <label class="formLabel">
-              {{'userEntity.administrator' | translate}}
-            </label>
-            <mat-checkbox formControlName="administrator"> </mat-checkbox>
-          </div>
-
-
-          <div class="ExtraShortColFormDiv" >
-            <label class="formLabel" id="right-column">
-              {{'userEntity.blocked' | translate}}
-            </label>
-            <mat-checkbox formControlName="blocked"> </mat-checkbox>
-          </div>
-    </div>
+<div *ngIf="dataLoaded">
+  <form [formGroup]='userForm'>
+    <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+      <mat-card-header class="sitmun-form-title">
+        <mat-card-title>
+          {{ 'serviceEntity.generalData' | translate }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-actions align="end">
+        <button mat-flat-button type="submit" class="sitmun-save-button" (click)="onSaveButtonClicked()">
+          <mat-icon fontSet="material-icons-round">save</mat-icon>
+          {{ "save" | translate }}
+        </button>
+        <button mat-flat-button type="button" class="sitmun-return-button" (click)="utils.navigateBack()">
+          <mat-icon fontSet="material-icons-round">arrow_back</mat-icon>
+          {{ "return" | translate }}
+        </button>
+      </mat-card-actions>
+      <mat-card-content class="flex-container">
+        <!-- User name -->
+        <mat-form-field appearance="outline" class="quarter">
+          <mat-label>{{ 'userEntity.user' | translate }}</mat-label>
+          <input matInput type="text" formControlName="username">
+        </mat-form-field>
+        <div class="break"></div>
+        <!-- First name -->
+        <mat-form-field appearance="outline" class="half add-gap">
+          <mat-label>{{ 'userEntity.firstname' | translate }}</mat-label>
+          <input matInput type="text" formControlName="firstName">
+        </mat-form-field>
+        <!-- Last name -->
+        <mat-form-field appearance="outline" class="half">
+          <mat-label>{{ 'userEntity.lastname' | translate }}</mat-label>
+          <input matInput type="text" formControlName="lastName">
+        </mat-form-field>
+        <!-- Password -->
+        <mat-form-field appearance="outline" class="third add-gap">
+          <mat-label>{{ 'userEntity.password' | translate }}</mat-label>
+          <mat-icon matSuffix
+                    (click)="hidePassword = !hidePassword"
+                    onKeyPress="hidePassword = !hidePassword"
+          >{{ hidePassword ? 'visibility_off' : 'visibility' }}
+          </mat-icon>
+          <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
+        </mat-form-field>
+        <!-- Confirm password -->
+        <mat-form-field appearance="outline" class="third add-gap">
+          <mat-label>{{ 'userEntity.confirmPassword' | translate }}</mat-label>
+          <mat-icon matSuffix
+                    (click)="hideConfirmPassword = !hideConfirmPassword"
+                    onKeyPress="hideConfirmPassword = !hideConfirmPassword"
+          >{{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}
+          </mat-icon>
+          <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" formControlName="confirmPassword">
+        </mat-form-field>
+        <!-- Password set -->
+        <mat-checkbox (click)="$event.preventDefault()"
+                      onKeyPress="$event.preventDefault()"
+                      formControlName="passwordSet" class="third">
+          {{ 'userEntity.passwordSet' | translate }}
+        </mat-checkbox>
+        <!-- Administrator -->
+        <mat-checkbox formControlName="administrator">
+          {{ 'userEntity.administrator' | translate }}
+        </mat-checkbox>
+        <!-- Blocked -->
+        <mat-checkbox formControlName="blocked">
+          {{ 'userEntity.blocked' | translate }}
+        </mat-checkbox>
+      </mat-card-content>
+    </mat-card>
   </form>
-</div>
 
-<div class="tableDiv" *ngIf="dataLoaded">
   <mat-accordion multi>
 
     <!-- Permits table -->
-    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
-      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-        <mat-panel-title  >
+    <mat-expansion-panel [expanded]="true" class="sitmun-ag-grid-expansion-panel">
+      <mat-expansion-panel-header class="sitmun-ag-grid-expansion-panel-title">
+        <mat-panel-title>
           {{ "userEntity.permissions" | translate }}
         </mat-panel-title>
       </mat-expansion-panel-header>
-  
-    <div matExpansionPanelContent>  
-      <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [allNewElements]="userID == -1"  [columnDefs]="columnDefsPermits" defaultColumnSorting="territory" [themeGrid]='themeGrid' [getAll]='getAllPermits'  
-          [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventPermits.asObservable()' 
-          [eventRefreshSubscription]='dataUpdatedEventPermits.asObservable()' [eventAddItemsSubscription]='addElementsEventPermits.asObservable()'
-           [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [addFieldRestriction]="['territoryId', 'roleId', 'userId']" 
-          (getAllRows)="getAllRowsPermits($event)" [actionButton]=true  (add)="openPermitsDialog($event)"  > </app-data-grid>
-      </div>
-    </div>
-  
-  
+
+      <ng-template matExpansionPanelContent>
+        <div class="sitmun-app-data-grid-edit">
+          <app-data-grid [changeHeightButton]="true"
+                         [allNewElements]="userID === -1"
+                         [columnDefs]="columnDefsPermits"
+                         defaultColumnSorting="territory"
+                         [themeGrid]='themeGrid'
+                         [getAll]='getAllPermits'
+                         [eventAddItemsSubscription]='addElementsEventPermits.asObservable()'
+                         [eventGetAllRowsSubscription]='getAllElementsEventPermits.asObservable()'
+                         [eventRefreshSubscription]='dataUpdatedEventPermits.asObservable()'
+                         [discardChangesButton]=true
+                         [actionButton]=true
+                         [redoButton]=true
+                         [undoButton]=true
+                         [deleteButton]=true
+                         [addButton]=true
+                         [addFieldRestriction]="['territoryId', 'roleId', 'userId']"
+                         (getAllRows)="getAllRowsPermits($event)"
+                         (add)="openPermitsDialog()"
+          ></app-data-grid>
+        </div>
+      </ng-template>
     </mat-expansion-panel>
 
-
-      <!-- Territory data table -->     
-    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
-      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-        <mat-panel-title  >
+    <!-- Territory data table -->
+    <mat-expansion-panel [expanded]="true" class="sitmun-ag-grid-expansion-panel">
+      <mat-expansion-panel-header class="sitmun-ag-grid-expansion-panel-title">
+        <mat-panel-title>
           {{ "userEntity.dataOfTerritory" | translate }}
         </mat-panel-title>
       </mat-expansion-panel-header>
-  
-    <ng-template matExpansionPanelContent>  
-      <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [allNewElements]="userID == -1" [columnDefs]="columnDefsData" defaultColumnSorting="territoryName" [themeGrid]='themeGrid' [getAll]='getAllDataTerritory'  
-          [eventAddItemsSubscription]='addElementsEventTerritoryData.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventTerritoryData.asObservable()' 
-          [eventRefreshSubscription]='dataUpdatedEventTerritoryData.asObservable()' [deleteButton]=true [discardChangesButton]=true [redoButton]=true
-          [undoButton]=true  [hideDuplicateButton]=true (getAllRows)="getAllRowsDataTerritories($event)" [actionButton]=true > </app-data-grid>
-      </div>
-    </ng-template>
-  
-  
+
+      <ng-template matExpansionPanelContent>
+        <div class="sitmun-app-data-grid-edit">
+          <app-data-grid [changeHeightButton]="true"
+                         [allNewElements]="userID === -1"
+                         [columnDefs]="columnDefsData"
+                         [themeGrid]='themeGrid'
+                         [getAll]='getAllDataTerritory'
+                         [eventAddItemsSubscription]='addElementsEventTerritoryData.asObservable()'
+                         [eventGetAllRowsSubscription]='getAllElementsEventTerritoryData.asObservable()'
+                         [eventRefreshSubscription]='dataUpdatedEventTerritoryData.asObservable()'
+                         [discardChangesButton]=true
+                         [actionButton]=true
+                         [deleteButton]=true
+                         [redoButton]=true
+                         [undoButton]=true
+                         [hideDuplicateButton]=true
+                         defaultColumnSorting="territoryName"
+                         (getAllRows)="getAllRowsDataTerritories($event)"
+          ></app-data-grid>
+        </div>
+      </ng-template>
     </mat-expansion-panel>
-
   </mat-accordion>
-
 </div>
-  
-  
-  
