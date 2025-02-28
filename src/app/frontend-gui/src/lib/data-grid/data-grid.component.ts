@@ -75,7 +75,7 @@ export class DataGridComponent implements OnInit {
   @Input() discardNonReverseStatus: boolean;
   @Input() id: any;
   @Input() undoButton: boolean;
-  @Input() defaultColumnSorting: string;
+  @Input() defaultColumnSorting: string[];
   @Input() redoButton: boolean;
   @Input() applyChangesButton: boolean;
   @Input() deleteButton: boolean;

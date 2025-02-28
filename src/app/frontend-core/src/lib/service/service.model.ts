@@ -9,29 +9,29 @@ export class Service extends Resource {
   public id: number;
   /** name*/
   public name: string;
-    
+
   /** type*/
   public type: string;
 
-  /** url*/  
+  /** url*/
   public serviceURL: string;
 
-  /** projections*/  
-  public supportedSRS: string;
-  
+  /** projections*/
+  public supportedSRS: string[];
+
   /** legend*/
   public legend: string;
 
-  /** infoUrl*/  
+  /** infoUrl*/
   public infoUrl: string;
-  
+
   /** system created date*/
   public createdDate: any;
 
   /** connection*/
   public connection: Connection;
-  
-  /** parameters*/  
+
+  /** parameters*/
   public parameters: ServiceParameter[];
 
   /** whether service is blocked*/
@@ -39,4 +39,14 @@ export class Service extends Resource {
 
   /** whether service is proxied*/
   public isProxied: boolean;
+
+  description: string;
+
+  getInformationURL: string;
+
+  user: string;
+
+  password: string;
+
+  authenticationMode: string;
 }

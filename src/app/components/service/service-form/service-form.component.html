@@ -1,143 +1,135 @@
 <mat-toolbar>
   <h4>
     <mat-icon aria-hidden="true" svgIcon="menu_servei"></mat-icon>
-    <span> {{ "serviceEntity.service" | translate }} - {{ (serviceID == -1 ? "new" : "edit") | translate }}</span>
+    <span> {{ "serviceEntity.service" | translate }} - {{ (serviceID === -1 ? "new" : "edit") | translate }}</span>
   </h4>
 </mat-toolbar>
 
-<form [formGroup]='serviceForm' #f="ngForm">
-  <mat-card class="sitmun-mat-card-margin" appearance="outlined">
-    <mat-card-header class="sitmun-form-title">
-      <mat-card-title>
-        {{ 'serviceEntity.generalData' | translate }}
-      </mat-card-title>
-    </mat-card-header>
-    <mat-card-actions align="end">
-      <button mat-raised-button type="submit" class="sitmun-save-button" (click)="onSaveButtonClicked()">
-        <mat-icon fontSet="material-icons-round">save</mat-icon>
-        {{ "save" | translate }}
-      </button>
-      <button mat-raised-button type="button" class="sitmun-return-button" (click)="utils.navigateBack()">
-        <mat-icon fontSet="material-icons-round">arrow_back</mat-icon>
-        {{ "return" | translate }}
-      </button>
-    </mat-card-actions>
-    <mat-card-content>
-
-      <mat-card class="sitmun-mat-card-margin" appearance="outlined">
-        <mat-card-content>
-          <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'serviceEntity.name' | translate }}</mat-label>
-            <input matInput type="text" formControlName="name" required>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'serviceEntity.description' | translate }}</mat-label>
-            <textarea matInput type="text" formControlName="description" required> </textarea>
-            <mat-icon matSuffix class="iconTranslate" (click)="onTranslationButtonClicked()"
-                      svgIcon="ic_translate"></mat-icon>
-          </mat-form-field>
-          <mat-checkbox formControlName="blocked">
-            {{ 'serviceEntity.available' | translate }}
-          </mat-checkbox>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="sitmun-mat-card-margin" appearance="outlined">
-        <mat-card-content>
-          <mat-form-field appearance="outline" class="quarter">
-            <mat-label>{{ 'serviceEntity.type' | translate }}</mat-label>
-            <mat-select formControlName="type" class="form-control" (selectionChange)="onTypeChange($event)" required>
-              <mat-option [value]="serviceType.value" *ngFor="let serviceType of serviceTypes">
-                {{ serviceType.description }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'serviceEntity.url' | translate }}</mat-label>
-            <input matInput type="text" formControlName="serviceURL" required>
-          </mat-form-field>
-          <button
-            mat-raised-button
-            class="sitmun-mat-button-margin sitmun-action-button"
-            id="capabilitiesButton"
-            type="button"
-            *ngIf="serviceForm.value.type=='WMS'"
-            (click)="onDataCapabilitiesButtonClicked()"
-          >
-            {{ (serviceID == -1 ? 'serviceEntity.getData' : 'serviceEntity.updateData') | translate }}
-          </button>
-          <mat-checkbox formControlName="isProxied">
-            {{ 'serviceEntity.proxied' | translate }}
-          </mat-checkbox>
-          <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'serviceEntity.metadataURL' | translate }}</mat-label>
-            <input matInput type="text" formControlName="getInformationURL">
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'serviceEntity.projections' | translate }}</mat-label>
-            <mat-chip-grid #chipList aria-label="Selecció de projecció">
-              <mat-chip-row
-                *ngFor="let projection of projections"
-                [removable]="removable"
-                (removed)="removeProjection(projection)">
-                {{ projection }}
-                <button matChipRemove>
-                  <mat-icon>cancel</mat-icon>
-                </button>
-              </mat-chip-row>
-              <input
-                [matChipInputFor]="chipList"
-                [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                [matChipInputAddOnBlur]="addOnBlur"
-                (matChipInputTokenEnd)="addProjection($event)"/>
-            </mat-chip-grid>
-          </mat-form-field>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="sitmun-mat-card-margin" appearance="outlined">
-        <mat-card-content>
-          <mat-form-field appearance="outline" class="quarter">
-            <mat-label>{{ 'serviceEntity.authenticationMode' | translate }}</mat-label>
-            <mat-select formControlName="authenticationMode" class="form-control" required>
-              <mat-option [value]="mode.value" *ngFor="let mode of authenticationModes">
-                {{ mode.description }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-          <div class="break"></div>
-          <mat-form-field appearance="outline"
-                          *ngIf="serviceForm.value.authenticationMode!='None'"
-                          class="half add-gap"
-          >
-            <mat-label>{{ 'serviceEntity.user' | translate }}</mat-label>
-            <input matInput type="text" formControlName="user">
-          </mat-form-field>
-          <mat-form-field appearance="outline"
-                          *ngIf="serviceForm.value.authenticationMode!='None'"
-                          class="half"
-          >
-            <mat-label>{{ 'serviceEntity.password' | translate }}</mat-label>
-            <mat-icon matSuffix
-                      (click)="hidePassword = !hidePassword">{{ hidePassword ? 'visibility_off' : 'visibility' }}
-            </mat-icon>
-            <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
-          </mat-form-field>
-          <mat-checkbox
-            (click)="$event.preventDefault()"
-            formControlName="passwordSet"
-            *ngIf="serviceForm.value.authenticationMode!='None'"
-          >
-            {{ 'serviceEntity.passwordSet' | translate }}
-          </mat-checkbox>
-        </mat-card-content>
-      </mat-card>
-    </mat-card-content>
-
-  </mat-card>
-</form>
-
 <div *ngIf="dataLoaded">
+  <form [formGroup]='serviceForm'>
+    <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+      <mat-card-header class="sitmun-form-title">
+        <mat-card-title>
+          {{ 'serviceEntity.generalData' | translate }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-actions align="end">
+        <button mat-raised-button type="submit" class="sitmun-save-button" (click)="onSaveButtonClicked()">
+          <mat-icon fontSet="material-icons-round">save</mat-icon>
+          {{ "save" | translate }}
+        </button>
+        <button mat-raised-button type="button" class="sitmun-return-button" (click)="utils.navigateBack()">
+          <mat-icon fontSet="material-icons-round">arrow_back</mat-icon>
+          {{ "return" | translate }}
+        </button>
+      </mat-card-actions>
+      <mat-card-content>
+
+        <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+          <mat-card-content>
+            <mat-form-field appearance="outline" class="full">
+              <mat-label>{{ 'serviceEntity.name' | translate }}</mat-label>
+              <input matInput type="text" formControlName="name" required>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full">
+              <mat-label>{{ 'serviceEntity.description' | translate }}</mat-label>
+              <textarea matInput type="text" formControlName="description" required> </textarea>
+              <mat-icon matSuffix class="iconTranslate"
+                        (click)="onTranslationButtonClicked()"
+                        onKeyDown="onTranslationButtonClicked()"
+                        svgIcon="ic_translate"></mat-icon>
+            </mat-form-field>
+            <mat-checkbox formControlName="blocked">
+              {{ 'serviceEntity.available' | translate }}
+            </mat-checkbox>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+          <mat-card-content>
+            <mat-form-field appearance="outline" class="quarter">
+              <mat-label>{{ 'serviceEntity.type' | translate }}</mat-label>
+              <mat-select formControlName="type" class="form-control" (selectionChange)="onTypeChange($event)" required>
+                <mat-option [value]="serviceType.value" *ngFor="let serviceType of serviceTypes">
+                  {{ serviceType.description }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full">
+              <mat-label>{{ 'serviceEntity.url' | translate }}</mat-label>
+              <input matInput type="text" formControlName="serviceURL" required>
+            </mat-form-field>
+            <button
+              mat-raised-button
+              class="sitmun-mat-button-margin sitmun-action-button"
+              id="capabilitiesButton"
+              type="button"
+              *ngIf="isWMS()"
+              (click)="onDataCapabilitiesButtonClicked()"
+            >
+              {{ (serviceID === -1 ? 'serviceEntity.getData' : 'serviceEntity.updateData') | translate }}
+            </button>
+            <mat-checkbox formControlName="isProxied">
+              {{ 'serviceEntity.proxied' | translate }}
+            </mat-checkbox>
+            <mat-form-field appearance="outline" class="full">
+              <mat-label>{{ 'serviceEntity.metadataURL' | translate }}</mat-label>
+              <input matInput type="text" formControlName="getInformationURL">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full">
+              <mat-label>{{ 'serviceEntity.projections' | translate }}</mat-label>
+              <mat-chip-grid #chipList aria-label="Selecció de projecció">
+                <mat-chip-row
+                  *ngFor="let projection of projections"
+                  [removable]="removable"
+                  (removed)="removeProjection(projection)">
+                  {{ projection }}
+                  <button matChipRemove>
+                    <mat-icon>cancel</mat-icon>
+                  </button>
+                </mat-chip-row>
+                <input
+                  [matChipInputFor]="chipList"
+                  [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                  [matChipInputAddOnBlur]="addOnBlur"
+                  (matChipInputTokenEnd)="addProjection($event)"/>
+              </mat-chip-grid>
+            </mat-form-field>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+          <mat-card-content>
+            <mat-form-field appearance="outline" class="quarter">
+              <mat-label>{{ 'serviceEntity.authenticationMode' | translate }}</mat-label>
+              <mat-select formControlName="authenticationMode" class="form-control" required>
+                <mat-option [value]="mode.value" *ngFor="let mode of authenticationModes">
+                  {{ mode.description }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+            <div class="break"></div>
+            <mat-form-field appearance="outline"
+                            *ngIf=" isAuthenticationModeNode()"
+                            class="half add-gap"
+            >
+              <mat-label>{{ 'serviceEntity.user' | translate }}</mat-label>
+              <input matInput type="text" formControlName="user">
+            </mat-form-field>
+            <mat-form-field appearance="outline"
+                            *ngIf="isAuthenticationModeNode()"
+                            class="half"
+            >
+              <mat-label>{{ 'serviceEntity.password' | translate }}</mat-label>
+              <input matInput [type]="'text'" formControlName="password">
+            </mat-form-field>
+          </mat-card-content>
+        </mat-card>
+      </mat-card-content>
+
+    </mat-card>
+  </form>
+
   <mat-accordion multi>
 
     <mat-expansion-panel [expanded]="true" class="sitmun-ag-grid-expansion-panel">
@@ -150,7 +142,7 @@
       <ng-template matExpansionPanelContent>
         <div class="sitmun-app-data-grid-edit">
           <app-data-grid [changeHeightButton]="true"
-                         [allNewElements]="serviceID == -1"
+                         [allNewElements]="serviceID === -1"
                          [columnDefs]="columnDefsParameters"
                          [themeGrid]='themeGrid'
                          [getAll]='getAllParameters'
@@ -167,7 +159,7 @@
                          [defaultColumnSorting]="['type','name']"
                          [actionButton]=true
                          (duplicate)='duplicateParameters($event)'
-                         (new)="openParametersDialog($event)"></app-data-grid>
+                         (new)="openParametersDialog()"></app-data-grid>
         </div>
       </ng-template>
 
@@ -184,7 +176,7 @@
       <ng-template matExpansionPanelContent>
         <div class="sitmun-app-data-grid-edit">
           <app-data-grid [changeHeightButton]="true"
-                         [allNewElements]="serviceID == -1"
+                         [allNewElements]="serviceID === -1"
                          [columnDefs]="columnDefsLayers"
                          [themeGrid]='themeGrid'
                          [getAll]='getAllLayers'
@@ -196,16 +188,13 @@
                          [undoButton]=true
                          [deleteButton]=true
                          [addButton]=false
-                         [loadButton]=true
-                         [loadButtonDisabled]=tableLoadButtonDisabled
                          [hideDuplicateButton]=true
                          [registerButton]=true
                          newStatusRegister="pendingRegistration"
                          (load)="onTableLoadButtonClicked()"
                          (getAllRows)="getAllRowsLayers($event)"
-                         defaultColumnSorting="name"
                          [actionButton]=true
-                         (add)="openCartographyDialog($event)">
+                         (add)="openCartographyDialog()">
           </app-data-grid>
         </div>
       </ng-template>
@@ -215,10 +204,10 @@
 </div>
 
 <ng-template #newParameterDialog>
-  <form [formGroup]='parameterForm' #f="ngForm">
+  <form [formGroup]='parameterForm'>
     <mat-card appearance="outlined">
       <mat-card-content>
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'serviceEntity.request' | translate }}</mat-label>
           <mat-select formControlName="type" class="form-control" required>
             <mat-option [value]="requestType.value" *ngFor="let requestType of requestTypes">
@@ -226,11 +215,11 @@
             </mat-option>
           </mat-select>
         </mat-form-field>
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'serviceEntity.parameter' | translate }}</mat-label>
           <input matInput type="text" formControlName="name" required>
         </mat-form-field>
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'serviceEntity.value' | translate }}</mat-label>
           <input matInput type="text" formControlName="value">
         </mat-form-field>

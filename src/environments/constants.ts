@@ -22,6 +22,12 @@ export const constants = {
     },
     systemUser: {
       public: 'public',
+    },
+    serviceAuthenticationMode: {
+      none: 'None'
+    },
+    serviceType: {
+      wms: 'WMS'
     }
   },
 };
