@@ -19,6 +19,9 @@ export const constants = {
     },
     cartographyPermissionType: {
       locationMap: 'M'
+    },
+    systemUser: {
+      public: 'public',
     }
   },
 };

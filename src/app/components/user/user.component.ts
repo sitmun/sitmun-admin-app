@@ -1,12 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { UserService,User } from '../../frontend-core/src/lib/public_api';
-import { UtilsService } from '../../services/utils.service';
-import { Router } from '@angular/router';
-import { config } from 'src/config';
-import { Observable, Subject } from 'rxjs';
-import { MatDialog } from '@angular/material/dialog';
-import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
- 
+import {Component, OnInit} from '@angular/core';
+import {UserService, User} from '../../frontend-core/src/lib/public_api';
+import {UtilsService} from '../../services/utils.service';
+import {Router} from '@angular/router';
+import {config} from 'src/config';
+import {Observable, Subject} from 'rxjs';
+import {MatDialog} from '@angular/material/dialog';
+import {DialogMessageComponent} from '../../frontend-gui/src/lib/public_api';
+import {constants} from '../../../environments/constants';
+
 
 @Component({
   selector: 'app-user',
@@ -19,11 +20,11 @@ export class UserComponent implements OnInit {
   themeGrid: any = config.agGridTheme;
   columnDefs: any[];
   gridModified = false;
-  
+
   constructor(public dialog: MatDialog,
-    public userService: UserService,
-    private utils: UtilsService,
-    private router: Router
+              public userService: UserService,
+              private utils: UtilsService,
+              private router: Router
   ) {
 
   }
@@ -31,43 +32,46 @@ export class UserComponent implements OnInit {
 
   ngOnInit() {
 
-    var columnEditBtn=this.utils.getEditBtnColumnDef();
-    columnEditBtn['cellRendererParams']= {
+    const columnEditBtn = this.utils.getEditBtnColumnDef();
+    columnEditBtn['cellRendererParams'] = {
       clicked: this.newData.bind(this)
-    }
+    };
 
     this.columnDefs = [
       this.utils.getSelCheckboxColumnDef(),
       columnEditBtn,
       this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('userEntity.user', 'username'),
-      this.utils.getEditableColumnDef('userEntity.firstname', 'firstName'),
-      this.utils.getEditableColumnDef('userEntity.lastname', 'lastName'),
+      this.utils.getNonEditableColumnDef('userEntity.user', 'username'),
+      this.utils.getNonEditableColumnDef('userEntity.firstname', 'firstName'),
+      this.utils.getNonEditableColumnDef('userEntity.lastname', 'lastName'),
     ];
   }
 
   getAllUsers = () => {
 
     return this.userService.getAll();
-  }
+  };
 
   async canDeactivate(): Promise<boolean | Observable<boolean>> {
 
     if (this.gridModified) {
 
 
-      let result = await this.utils.showNavigationOutDialog().toPromise();
-      if(!result || result.event!=='Accept') { return false }
-      else if(result.event ==='Accept') {return true;}
-      else{
+      const result = await this.utils.showNavigationOutDialog().toPromise();
+      if (!result || result.event !== 'Accept') {
+        return false;
+      } else if (result.event === 'Accept') {
+        return true;
+      } else {
         return true;
       }
+    } else {
+      return true;
     }
-    else return true
-  }	
+  }
 
-  setGridModifiedValue(value){
-    this.gridModified=value;
+  setGridModifiedValue(value: boolean) {
+    this.gridModified = value;
   }
 
   newData(id: any) {
@@ -78,38 +82,55 @@ export class UserComponent implements OnInit {
   applyChanges(data: User[]) {
     const promises: Promise<any>[] = [];
     data.forEach(user => {
-      promises.push(new Promise((resolve, reject) => { this.userService.update(user).subscribe((resp) => { resolve(true) }) }));
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
-      });
+      if(!this.isPublic(user)) {
+        promises.push(new Promise((resolve,) => {
+          this.userService.update(user).subscribe(() => {
+            resolve(true);
+          });
+        }));
+      }
+    });
+    Promise.all(promises).then(() => {
+      this.dataUpdatedEvent.next(true);
     });
   }
+
   add(data: User[]) {
-    this.router.navigate(['user', -1, 'userForm', data[0].id]);
+    if (data.length > 0 && !this.isPublic(data[0])) {
+      this.router.navigate(['user', -1, 'userForm', data[0].id]);
+    }
   }
 
   removeData(data: User[]) {
 
     const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title=this.utils.getTranslate("caution");
-    dialogRef.componentInstance.message=this.utils.getTranslate("removeMessage");
+    dialogRef.componentInstance.title = this.utils.getTranslate('caution');
+    dialogRef.componentInstance.message = this.utils.getTranslate('removeMessage');
     dialogRef.afterClosed().subscribe(result => {
-      if(result){
-        if(result.event==='Accept') {  
+      if (result) {
+        if (result.event === 'Accept') {
           const promises: Promise<any>[] = [];
           data.forEach(user => {
-            promises.push(new Promise((resolve, reject) => {​​​​​​​ this.userService.delete(user).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
-            Promise.all(promises).then(() => {
-              this.dataUpdatedEvent.next(true);
-            });
+            if (!this.isPublic(user)) {
+              promises.push(new Promise((resolve, ) => {
+                this.userService.delete(user).subscribe(() => {
+                  resolve(true);
+                });
+              }));
+            }
           });
-       }
+          Promise.all(promises).then(() => {
+            this.dataUpdatedEvent.next(true);
+          });
+        }
       }
     });
-
 
 
   }
 
 
+  private isPublic(user: User) : boolean {
+    return user.username === constants.codeValue.systemUser.public
+  }
 }

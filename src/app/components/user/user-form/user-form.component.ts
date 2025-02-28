@@ -14,6 +14,7 @@ import {Observable, of, Subject} from 'rxjs';
 import {config} from 'src/config';
 import {DialogGridComponent, DialogMessageComponent} from '../../../frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
+import {constants} from '../../../../environments/constants';
 
 
 @Component({
@@ -22,9 +23,6 @@ import {MatDialog} from '@angular/material/dialog';
   styleUrls: ['./user-form.component.scss']
 })
 export class UserFormComponent implements OnInit {
-
-  hidePassword = true;
-  hideConfirmPassword = true;
 
   //Form
   userForm: UntypedFormGroup;
@@ -60,6 +58,10 @@ export class UserFormComponent implements OnInit {
   userPositionTypes: any[] = [];
   userPositionTypesDescription: any[] = [];
 
+  private passwordSet = false;
+  private passwordPlaceholder = '*'.repeat(50);
+  private passwordModified = false;
+  private actualPassword: null;
 
   constructor(
     public dialog: MatDialog,
@@ -144,12 +146,12 @@ export class UserFormComponent implements OnInit {
           this.userService.get(idToGet).subscribe(
             resp => {
 
+              this.passwordSet = resp.passwordSet;
               this.userToEdit = resp;
               this.userForm.patchValue({
                 firstName: this.userToEdit.firstName,
                 lastName: this.userToEdit.lastName,
-                password: null,
-                confirmPassword: null,
+                password: this.passwordSet ? this.passwordPlaceholder : '',
                 administrator: this.userToEdit.administrator,
                 blocked: this.userToEdit.blocked,
                 _links: this.userToEdit._links
@@ -159,12 +161,10 @@ export class UserFormComponent implements OnInit {
                 this.userForm.patchValue({
                   id: this.userID,
                   username: this.userToEdit.username,
-                  passwordSet: this.userToEdit.passwordSet,
                 });
               } else {
                 this.userForm.patchValue({
                   username: this.utils.getTranslate('copy_').concat(this.userToEdit.username),
-                  passwordSet: false,
                 });
               }
 
@@ -175,7 +175,6 @@ export class UserFormComponent implements OnInit {
           this.userForm.patchValue({
             administrator: false,
             blocked: false,
-            passwordSet: false,
           });
           this.dataLoaded = true;
         }
@@ -195,13 +194,9 @@ export class UserFormComponent implements OnInit {
       username: new UntypedFormControl(null, [
         Validators.required,
       ]),
-      firstName: new UntypedFormControl(null, [
-        Validators.required,
-      ]),
+      firstName: new UntypedFormControl(null, []),
       lastName: new UntypedFormControl(null),
-      passwordSet: new UntypedFormControl(null),
       password: new UntypedFormControl(null),
-      confirmPassword: new UntypedFormControl(null,),
       administrator: new UntypedFormControl(null, []),
       blocked: new UntypedFormControl(null, []),
       _links: new UntypedFormControl(null, []),
@@ -794,48 +789,37 @@ export class UserFormComponent implements OnInit {
 
     if (this.userForm.valid) {
 
-      if (this.userForm.value.password === this.userForm.value.confirmPassword) {
-
-        if (this.userID == -1 && this.duplicateID != -1) {
-          this.userForm.patchValue({
-            _links: null
-          });
-        }
-
-        const userObj: User = new User();
-        userObj.username = this.userForm.value.username;
-        userObj.password = this.userForm.value.password;
-        userObj.firstName = this.userForm.value.firstName;
-        userObj.lastName = this.userForm.value.lastName;
-        userObj.blocked = this.userForm.value.blocked;
-        userObj.administrator = this.userForm.value.administrator;
-        userObj._links = this.userForm.value._links;
-
-        this.userService.save(userObj)
-          .subscribe(resp => {
-            this.userToEdit = resp;
-            this.userID = resp.id;
-            this.userForm.patchValue({
-              id: resp.id,
-              passwordSet: resp.passwordSet,
-              _links: resp._links
-            });
-
-            this.getAllElementsEventTerritoryData.next('save');
-            this.getAllElementsEventPermits.next('save');
-          }, error => {
-            console.log(error);
-          });
-
-      } else {
-
-        const dialogRef = this.dialog.open(DialogMessageComponent);
-        dialogRef.componentInstance.title = 'Error';
-        dialogRef.componentInstance.message = this.utils.getTranslate('passwordMessage');
-        dialogRef.componentInstance.hideCancelButton = true;
-        dialogRef.afterClosed().subscribe();
-
+      if (this.userID == -1 && this.duplicateID != -1) {
+        this.userForm.patchValue({
+          _links: null
+        });
       }
+
+      const userObj: User = new User();
+      userObj.username = this.userForm.value.username;
+      if (this.passwordModified) {
+        userObj.password = this.actualPassword;
+      }
+      userObj.firstName = this.userForm.value.firstName;
+      userObj.lastName = this.userForm.value.lastName;
+      userObj.blocked = this.userForm.value.blocked;
+      userObj.administrator = this.userForm.value.administrator;
+      userObj._links = this.userForm.value._links;
+
+      this.userService.save(userObj)
+        .subscribe(resp => {
+          this.userToEdit = resp;
+          this.userID = resp.id;
+          this.userForm.patchValue({
+            id: resp.id,
+            _links: resp._links
+          });
+
+          this.getAllElementsEventTerritoryData.next('save');
+          this.getAllElementsEventPermits.next('save');
+        }, error => {
+          console.log(error);
+        });
 
 
     } else {
@@ -853,5 +837,24 @@ export class UserFormComponent implements OnInit {
     dialogRef.afterClosed().subscribe();
   }
 
+  onPasswordChange() {
+    const passwordValue = this.userForm.get('password')?.value;
+    if (passwordValue === '') {
+      this.passwordSet = false;
+      this.actualPassword = null
+      this.passwordModified = true;
+    } else if (passwordValue !== this.passwordPlaceholder) {
+      this.passwordSet = true;
+      this.actualPassword = passwordValue;
+      this.passwordModified = true;
+    }
+  }
 
+  resetPasswordField() {
+    this.userForm.get('password').setValue(this.passwordSet ? this.passwordPlaceholder : '');
+  }
+
+  isUsernamePublic(): boolean {
+    return this.userForm.get('username').value === constants.codeValue.systemUser.public;
+  }
 }

@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 /** User manager service */
 @Injectable()
 export class UserService extends RestService<User> {
-  
+
   /** API resource path */
   public USER_API ='users';
 
@@ -15,28 +15,21 @@ export class UserService extends RestService<User> {
   constructor(injector: Injector,private http: HttpClient) {
     super(User, "users", injector);
   }
-  
+
   /** remove user*/
   remove(item: User) {
     return this.http.delete(item._links.self.href);
-   
+
   }
-  
+
   /** save user*/
   save(item: any): Observable<any> {
-    let result: Observable<Object>;
+    let result: Observable<object>;
     if (item._links!=null) {
       result = this.http.put(item._links.self.href, item);
     } else {
       result = this.http.post(this.resourceService.getResourceUrl(this.USER_API) , item);
     }
-    return result;
-  }
-    
-  /** change password o given user id */
-  changePassword(id,item: any): Observable<any> {
-    let result: Observable<Object>;
-    result = this.http.post(this.resourceService.getResourceUrl(this.USER_API+"/"+id+"/change-password") , item);
     return result;
   }
 }

@@ -23,57 +23,48 @@
           {{ "return" | translate }}
         </button>
       </mat-card-actions>
-      <mat-card-content class="flex-container">
-        <!-- User name -->
-        <mat-form-field appearance="outline" class="quarter">
-          <mat-label>{{ 'userEntity.user' | translate }}</mat-label>
-          <input matInput type="text" formControlName="username">
-        </mat-form-field>
-        <div class="break"></div>
-        <!-- First name -->
-        <mat-form-field appearance="outline" class="half add-gap">
-          <mat-label>{{ 'userEntity.firstname' | translate }}</mat-label>
-          <input matInput type="text" formControlName="firstName">
-        </mat-form-field>
-        <!-- Last name -->
-        <mat-form-field appearance="outline" class="half">
-          <mat-label>{{ 'userEntity.lastname' | translate }}</mat-label>
-          <input matInput type="text" formControlName="lastName">
-        </mat-form-field>
-        <!-- Password -->
-        <mat-form-field appearance="outline" class="third add-gap">
-          <mat-label>{{ 'userEntity.password' | translate }}</mat-label>
-          <mat-icon matSuffix
-                    (click)="hidePassword = !hidePassword"
-                    onKeyPress="hidePassword = !hidePassword"
-          >{{ hidePassword ? 'visibility_off' : 'visibility' }}
-          </mat-icon>
-          <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
-        </mat-form-field>
-        <!-- Confirm password -->
-        <mat-form-field appearance="outline" class="third add-gap">
-          <mat-label>{{ 'userEntity.confirmPassword' | translate }}</mat-label>
-          <mat-icon matSuffix
-                    (click)="hideConfirmPassword = !hideConfirmPassword"
-                    onKeyPress="hideConfirmPassword = !hideConfirmPassword"
-          >{{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}
-          </mat-icon>
-          <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" formControlName="confirmPassword">
-        </mat-form-field>
-        <!-- Password set -->
-        <mat-checkbox (click)="$event.preventDefault()"
-                      onKeyPress="$event.preventDefault()"
-                      formControlName="passwordSet" class="third">
-          {{ 'userEntity.passwordSet' | translate }}
-        </mat-checkbox>
-        <!-- Administrator -->
-        <mat-checkbox formControlName="administrator">
-          {{ 'userEntity.administrator' | translate }}
-        </mat-checkbox>
-        <!-- Blocked -->
-        <mat-checkbox formControlName="blocked">
-          {{ 'userEntity.blocked' | translate }}
-        </mat-checkbox>
+      <mat-card-content>
+        <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+          <mat-card-content>
+            <!-- User name -->
+            <mat-form-field appearance="outline" class="quarter">
+              <mat-label>{{ 'userEntity.user' | translate }}</mat-label>
+              <input matInput type="text" formControlName="username" [readonly]="isUsernamePublic()">
+            </mat-form-field>
+            <div class="break"></div>
+            <!-- Blocked -->
+            <mat-checkbox formControlName="blocked">
+              {{ 'userEntity.blocked' | translate }}
+            </mat-checkbox>
+          </mat-card-content>
+        </mat-card>
+        <mat-card class="sitmun-mat-card-margin" appearance="outlined" *ngIf="!isUsernamePublic()">
+          <mat-card-content>
+            <!-- First name -->
+            <mat-form-field appearance="outline" class="half add-gap">
+              <mat-label>{{ 'userEntity.firstname' | translate }}</mat-label>
+              <input matInput type="text" formControlName="firstName">
+            </mat-form-field>
+            <!-- Last name -->
+            <mat-form-field appearance="outline" class="half">
+              <mat-label>{{ 'userEntity.lastname' | translate }}</mat-label>
+              <input matInput type="text" formControlName="lastName">
+            </mat-form-field>
+            <!-- Password -->
+            <mat-form-field appearance="outline" class="half add-gap">
+              <mat-label>{{ 'userEntity.password' | translate }}</mat-label>
+              <input matInput [type]="'password'"
+                     formControlName="password"
+                    (input)="onPasswordChange()"
+                    (focus)="resetPasswordField()">
+            </mat-form-field>
+            <div class="break"></div>
+            <!-- Administrator -->
+            <mat-checkbox formControlName="administrator">
+              {{ 'userEntity.administrator' | translate }}
+            </mat-checkbox>
+          </mat-card-content>
+        </mat-card>
       </mat-card-content>
     </mat-card>
   </form>
@@ -140,6 +131,7 @@
                          defaultColumnSorting="territoryName"
                          (getAllRows)="getAllRowsDataTerritories($event)"
           ></app-data-grid>
+          <!-- TODO Add position data dialog -->
         </div>
       </ng-template>
     </mat-expansion-panel>
