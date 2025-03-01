@@ -1,18 +1,20 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { CartographyService, GetInfoService, ServiceService, CartographyFilterService, TerritoryTypeService, ConnectionService, TreeNodeService, 
-  CartographyGroupService, TerritoryService, Territory, CartographyGroup, CartographyAvailabilityService, CartographyParameterService, HalParam, 
-  HalOptions, Cartography, TreeNode, TranslationService, Translation, CartographyStyleService, CartographySpatialSelectionParameterService } 
+import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
+import {
+  CartographyService, GetInfoService, ServiceService, CartographyFilterService, TerritoryTypeService, ConnectionService, TreeNodeService,
+  CartographyGroupService, TerritoryService, Territory, CartographyAvailabilityService, CartographyParameterService, HalParam,
+  HalOptions, Cartography, TreeNode, TranslationService, Translation, CartographyStyleService, CartographySpatialSelectionParameterService
+}
   from '../../../frontend-core/src/lib/public_api';
-import { HttpClient } from '@angular/common/http';
-import { UtilsService } from '../../../services/utils.service';
-import { map } from 'rxjs/operators';
-import { Observable, of, Subject } from 'rxjs';
-import { environment } from 'src/environments/environment';
-import { config } from 'src/config';
-import { DialogFormComponent, DialogGridComponent, DialogMessageComponent } from '../../../frontend-gui/src/lib/public_api';
-import { MatDialog } from '@angular/material/dialog';
+import {HttpClient} from '@angular/common/http';
+import {UtilsService} from '../../../services/utils.service';
+import {map} from 'rxjs/operators';
+import {Observable, of, Subject} from 'rxjs';
+import {config} from 'src/config';
+import {DialogFormComponent, DialogGridComponent, DialogMessageComponent} from '../../../frontend-gui/src/lib/public_api';
+import {MatDialog} from '@angular/material/dialog';
+import {MatTabChangeEvent} from '@angular/material/tabs';
 
 
 @Component({
@@ -24,7 +26,7 @@ export class LayersFormComponent implements OnInit {
 
   //Translations
   translationMap: Map<string, Translation>;
-  translationsModified: boolean = false;
+  translationsModified = false;
 
   parametersPendingDelete = [];
 
@@ -38,29 +40,27 @@ export class LayersFormComponent implements OnInit {
   layerToEdit;
   layerID = -1;
   duplicateID = -1;
-  firstSaveDone: Boolean = false;
-  dataLoaded: Boolean = false;
-  geometryTypes: Array<any> = [];
-  legendTypes: Array<any> = [];
-  services: Array<any> = [];
-  spatialConfigurationServices: Array<any> = [];
-  spatialConfigurationConnections: Array<any> = [];
-  filterTypes: Array<any> = [];
-  filterValueTypes: Array<any> = [];
-  filterTypeIds: Array<any> = [];
-  currentService;
+  firstSaveDone = false;
+  dataLoaded = false;
+  geometryTypes: any[] = [];
+  legendTypes: any[] = [];
+  services: any[] = [];
+  spatialConfigurationServices: any[] = [];
+  spatialConfigurationConnections: any[] = [];
+  filterTypes: any[] = [];
+  filterValueTypes: any[] = [];
+  filterTypeIds: any[] = [];
 
-  parameterFormatTypes: Array<any> = [];
-  parameterFormatTypesDescription: Array<any> = [];
+  parameterFormatTypes: any[] = [];
+  parameterFormatTypesDescription: any[] = [];
 
-  spatialSelectionParameterFormatTypes: Array<any> = [];
-  spatialSelectionParameterFormatTypesDescription: Array<any> = [];
+  spatialSelectionParameterFormatTypes: any[] = [];
+  spatialSelectionParameterFormatTypesDescription: any[] = [];
 
-  parameterTypes: Array<any> = [];
-  parameterTypesDescription: Array<any> = [];
-  spatialSelectionParameterTypes: Array<any> = [];
-  spatialSelectionParameterTypesDescription: Array<any> = [];
-
+  parameterTypes: any[] = [];
+  parameterTypesDescription: any[] = [];
+  spatialSelectionParameterTypes: any[] = [];
+  spatialSelectionParameterTypesDescription: any[] = [];
 
 
   //Grids
@@ -166,93 +166,92 @@ export class LayersFormComponent implements OnInit {
 
     this.translationMap = this.utils.createTranslationsList(config.translationColumns.cartographyDescription);
 
-    let geometryTypeByDefault = {
+    const geometryTypeByDefault = {
       value: -1,
       description: '-------'
-    }
+    };
     this.geometryTypes.push(geometryTypeByDefault);
 
     const promises: Promise<any>[] = [];
 
-    promises.push(new Promise((resolve, reject) => {
+    promises.push(new Promise((resolve,) => {
       this.utils.getCodeListValues('cartography.geometryType').subscribe(
         resp => {
           this.geometryTypes.push(...resp);
           resolve(true);
         }
-      )
+      );
     }));
 
-    let legendTypeByDefault = {
+    const legendTypeByDefault = {
       value: -1,
       description: '-------'
-    }
+    };
     this.legendTypes.push(legendTypeByDefault);
 
-    promises.push(new Promise((resolve, reject) => {
+    promises.push(new Promise((resolve,) => {
       this.utils.getCodeListValues('cartography.legendType').subscribe(
         resp => {
           this.legendTypes.push(...resp);
           resolve(true);
         }
-      )
+      );
     }));
 
-    promises.push(new Promise((resolve, reject) => {
+    promises.push(new Promise((resolve,) => {
       this.utils.getCodeListValues('cartographyParameter.type').subscribe(
         resp => {
           resp.forEach(element => {
             this.parameterTypes.push(element);
-            this.parameterTypesDescription.push(element.description)
+            this.parameterTypesDescription.push(element.description);
           });
           resolve(true);
         }
-      )
+      );
     }));
 
-    promises.push(new Promise((resolve, reject) => {
+    promises.push(new Promise((resolve,) => {
       this.utils.getCodeListValues('cartographySpatialSelectionParameter.type').subscribe(
         resp => {
           resp.forEach(element => {
             this.spatialSelectionParameterTypes.push(element);
-            this.spatialSelectionParameterTypesDescription.push(element.description)
+            this.spatialSelectionParameterTypesDescription.push(element.description);
           });
           resolve(true);
         }
-      )
+      );
     }));
 
-    promises.push(new Promise((resolve, reject) => {
+    promises.push(new Promise((resolve,) => {
       this.utils.getCodeListValues('cartographyFilter.type').subscribe(
         resp => {
           this.filterTypes.push(...resp);
           resolve(true);
         }
-      )
+      );
     }));
 
 
-
-    promises.push(new Promise((resolve, reject) => {
+    promises.push(new Promise((resolve,) => {
       this.utils.getCodeListValues('cartographyFilter.valueType').subscribe(
         resp => {
           this.filterValueTypes.push(...resp);
           resolve(true);
         }
-      )
+      );
     }));
 
-    promises.push(new Promise((resolve, reject) => {
+    promises.push(new Promise((resolve,) => {
       this.territoryTypeService.getAll().subscribe(
         resp => {
           this.filterTypeIds.push(...resp);
           resolve(true);
         }
-      )
+      );
     }));
 
 
-    promises.push(new Promise((resolve, reject) => {
+    promises.push(new Promise((resolve,) => {
       this.utils.getCodeListValues('cartographyParameter.format').subscribe(
         resp => {
           resp.forEach(element => {
@@ -261,10 +260,10 @@ export class LayersFormComponent implements OnInit {
           });
           resolve(true);
         }
-      )
+      );
     }));
 
-    promises.push(new Promise((resolve, reject) => {
+    promises.push(new Promise((resolve,) => {
       this.utils.getCodeListValues('cartographySpatialSelectionParameter.format').subscribe(
         resp => {
           resp.forEach(element => {
@@ -273,194 +272,196 @@ export class LayersFormComponent implements OnInit {
           });
           resolve(true);
         }
-      )
+      );
     }));
 
-    let connectionByDefault = {
+    const connectionByDefault = {
       value: null,
       name: '-------'
-    }
+    };
 
     this.spatialConfigurationConnections.push(connectionByDefault);
 
-    promises.push(new Promise((resolve, reject) => {
+    promises.push(new Promise((resolve,) => {
       this.connectionService.getAll().subscribe(
         resp => {
-          this.spatialConfigurationConnections.push(...resp)
+          this.spatialConfigurationConnections.push(...resp);
           resolve(true);
         }
-      )
+      );
     }));
 
-    let serviceByDefault = {
+    const serviceByDefault = {
       id: -1,
       name: '-------'
-    }
+    };
 
     this.spatialConfigurationServices.push(serviceByDefault);
 
-    promises.push(new Promise((resolve, reject) => {
+    promises.push(new Promise((resolve,) => {
       this.serviceService.getAll().map((resp) => {
-        let wfsServices = [];
+        const wfsServices = [];
         this.services.push(...resp);
         resp.forEach(service => {
-          if (service.type === config.capabilitiesRequest.WFSIdentificator) { wfsServices.push(service) }
+          if (service.type === config.capabilitiesRequest.WFSIdentificator) {
+            wfsServices.push(service);
+          }
         });
 
-        this.spatialConfigurationServices.push(...wfsServices)
+        this.spatialConfigurationServices.push(...wfsServices);
         resolve(true);
-      }).subscribe()
+      }).subscribe();
     }));
 
     Promise.all(promises).then(() => {
       this.activatedRoute.params.subscribe(params => {
-        this.layerID = +params.id;
-        if (params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
+          this.layerID = +params.id;
+          if (params.idDuplicate) {
+            this.duplicateID = +params.idDuplicate;
+          }
 
-        if (this.layerID !== -1 || this.duplicateID != -1) {
-          let idToGet = this.layerID !== -1 ? this.layerID : this.duplicateID
+          if (this.layerID !== -1 || this.duplicateID != -1) {
+            const idToGet = this.layerID !== -1 ? this.layerID : this.duplicateID;
 
-          //getCartography Entity
-          this.cartographyService.get(idToGet).subscribe(
-            resp => {
+            //getCartography Entity
+            this.cartographyService.get(idToGet).subscribe(
+              resp => {
 
-              this.layerToEdit = resp;
-              let layers = this.layerToEdit.layers.join(',');
-              let queryableLayers = null
-              if (this.layerToEdit.queryableLayers != null) { queryableLayers = this.layerToEdit.queryableLayers.join(',') };
-              let selectableLayers = null;
-              if (this.layerToEdit.selectableLayers != null && this.layerToEdit.selectableLayers != undefined) { selectableLayers = this.layerToEdit.selectableLayers.join(',') };
-              this.parametersUrl = this.layerToEdit._links.parameters.href;
-              this.layerForm.patchValue({
-                service: this.layerToEdit.serviceId,
-                layers: layers,
-                minimumScale: this.layerToEdit.minimumScale,
-                maximumScale: this.layerToEdit.maximumScale,
-                geometryType: this.layerToEdit.geometryType,
-                order: this.layerToEdit.order,
-                transparency: this.layerToEdit.transparency,
-                metadataURL: this.layerToEdit.metadataURL,
-                legendType: this.layerToEdit.legendType,
-                legendUrl: this.layerToEdit.legendURL,
-                source: this.layerToEdit.source,
-                description: this.layerToEdit.description,
-                datasetURL: this.layerToEdit.datasetURL, //here
-                applyFilterToGetMap: this.layerToEdit.applyFilterToGetMap,
-                applyFilterToGetFeatureInfo: this.layerToEdit.applyFilterToGetFeatureInfo,
-                applyFilterToSpatialSelection: this.layerToEdit.applyFilterToSpatialSelection,
-                queryableFeatureEnabled: this.layerToEdit.queryableFeatureEnabled,
-                queryableFeatureAvailable: this.layerToEdit.queryableFeatureAvailable,
-                queryableLayers: queryableLayers,
-                thematic: this.layerToEdit.thematic,
-                blocked: !this.layerToEdit.blocked,
-                selectableFeatureEnabled: this.layerToEdit.selectableFeatureEnabled,
-                spatialSelectionService: this.layerToEdit.spatialSelectionServiceId,
-                selectableLayers: selectableLayers,
-                spatialSelectionConnection: "",
-                useAllStyles: this.layerToEdit.useAllStyles,
-                _links: this.layerToEdit._links
-              });
+                this.layerToEdit = resp;
+                const layers = this.layerToEdit.layers.join(',');
+                let queryableLayers = null;
+                if (this.layerToEdit.queryableLayers != null) {
+                  queryableLayers = this.layerToEdit.queryableLayers.join(',');
+                }
 
-              if (this.layerID !== -1) {
+                let selectableLayers = null;
+                if (this.layerToEdit.selectableLayers != null) {
+                  selectableLayers = this.layerToEdit.selectableLayers.join(',');
+                }
+
+                this.parametersUrl = this.layerToEdit._links.parameters.href;
                 this.layerForm.patchValue({
-                  id: this.layerID,
-                  name: this.layerToEdit.name,
+                  service: this.layerToEdit.serviceId,
+                  layers: layers,
+                  minimumScale: this.layerToEdit.minimumScale,
+                  maximumScale: this.layerToEdit.maximumScale,
+                  geometryType: this.layerToEdit.geometryType,
+                  order: this.layerToEdit.order,
+                  transparency: this.layerToEdit.transparency,
+                  metadataURL: this.layerToEdit.metadataURL,
+                  legendType: this.layerToEdit.legendType,
+                  legendUrl: this.layerToEdit.legendURL,
+                  source: this.layerToEdit.source,
+                  description: this.layerToEdit.description,
+                  datasetURL: this.layerToEdit.datasetURL, //here
+                  applyFilterToGetMap: this.layerToEdit.applyFilterToGetMap,
+                  applyFilterToGetFeatureInfo: this.layerToEdit.applyFilterToGetFeatureInfo,
+                  applyFilterToSpatialSelection: this.layerToEdit.applyFilterToSpatialSelection,
+                  queryableFeatureEnabled: this.layerToEdit.queryableFeatureEnabled,
+                  queryableFeatureAvailable: this.layerToEdit.queryableFeatureAvailable,
+                  queryableLayers: queryableLayers,
+                  thematic: this.layerToEdit.thematic,
+                  blocked: !this.layerToEdit.blocked,
+                  selectableFeatureEnabled: this.layerToEdit.selectableFeatureEnabled,
+                  spatialSelectionService: this.layerToEdit.spatialSelectionServiceId,
+                  selectableLayers: selectableLayers,
+                  spatialSelectionConnection: '',
+                  useAllStyles: this.layerToEdit.useAllStyles,
+                  _links: this.layerToEdit._links
                 });
-              }
-              else {
-                this.layerForm.patchValue({
-                  name: this.utils.getTranslate('copy_').concat(this.layerToEdit.name),
-                });
-              }
 
-              if (this.layerToEdit.spatialSelectionServiceId == null) {
-                this.layerForm.patchValue({
-                  spatialSelectionService: this.spatialConfigurationServices[0].id
-                })
-              }
-              if (this.layerToEdit.legendType == null) {
-                this.layerForm.patchValue({
-                  legendType: this.legendTypes[0].value
-                })
-              }
-              if (this.layerToEdit.geometryType == null) {
-                this.layerForm.patchValue({
-                  geometryType: this.geometryTypes[0].value
-                })
-              }
+                if (this.layerID !== -1) {
+                  this.layerForm.patchValue({
+                    id: this.layerID,
+                    name: this.layerToEdit.name,
+                  });
+                } else {
+                  this.layerForm.patchValue({
+                    name: this.utils.getTranslate('copy_').concat(this.layerToEdit.name),
+                  });
+                }
 
-
-              if (this.layerID != -1) {
-                this.translationService.getAll()
-                  .pipe(map((data: any[]) => data.filter(elem => elem.element == this.layerID && elem.column == config.translationColumns.cartographyDescription)
-                  )).subscribe(result => {
-               
-                    this.utils.updateTranslations(this.translationMap, result)
-                  }
-
-                  );;
-
-              }
+                if (this.layerToEdit.spatialSelectionServiceId == null) {
+                  this.layerForm.patchValue({
+                    spatialSelectionService: this.spatialConfigurationServices[0].id
+                  });
+                }
+                if (this.layerToEdit.legendType == null) {
+                  this.layerForm.patchValue({
+                    legendType: this.legendTypes[0].value
+                  });
+                }
+                if (this.layerToEdit.geometryType == null) {
+                  this.layerForm.patchValue({
+                    geometryType: this.geometryTypes[0].value
+                  });
+                }
 
 
+                if (this.layerID != -1) {
+                  this.translationService.getAll()
+                    .pipe(map((data: any[]) => data.filter(elem => elem.element == this.layerID && elem.column == config.translationColumns.cartographyDescription)
+                    )).subscribe(result => {
+
+                      this.utils.updateTranslations(this.translationMap, result);
+                    }
+                  );
 
 
-              var urlReq = `${this.layerToEdit._links.parameters.href}`
-              if (this.layerToEdit._links.parameters.templated) {
-                var url = new URL(urlReq.split("{")[0]);
-                url.searchParams.append("projection", "view")
-                urlReq = url.toString();
-              }
-
-              if (!this.layerToEdit.thematic) { this.layerForm.get('geometryType').disable(); }
-              if (!this.layerToEdit.queryableFeatureEnabled) {
-                this.layerForm.get('queryableFeatureAvailable').disable();
-                this.layerForm.get('queryableLayers').disable();
-              }
-
-              if (!this.layerToEdit.selectableFeatureEnabled) {
-                this.layerForm.get('spatialSelectionService').disable();
-                this.layerForm.get('selectableLayers').disable();
-              }
-
-              this.loadButtonDisabled();
-
-              this.dataLoaded = true;
-
-            },
-            error => {
-
-            }
-          );
+                }
 
 
+                let urlReq = `${this.layerToEdit._links.parameters.href}`;
+                if (this.layerToEdit._links.parameters.templated) {
+                  const url = new URL(urlReq.split('{')[0]);
+                  url.searchParams.append('projection', 'view');
+                  urlReq = url.toString();
+                }
 
-        }
-        else {
-          this.layerForm.patchValue({
-            blocked: true,
-            thematic: false,
-            applyFilterToGetMap: false,
-            service: this.services[0].id,
-            spatialSelectionService: this.spatialConfigurationServices[0].id,
-            geometryType: this.geometryTypes[0].value,
-            legendType: this.legendTypes[0].value,
-            queryableFeatureEnabled: false,
-            useAllStyles: false,
-          })
-          this.layerForm.get('geometryType').disable();
-          // this.layerForm.get('applyFilterToGetMap').disable();
-          this.layerForm.get('spatialSelectionService').disable();
-          this.layerForm.get('selectableLayers').disable();
-          this.layerForm.get('queryableFeatureAvailable').disable();
-          this.layerForm.get('queryableLayers').disable();
-          this.dataLoaded = true;
-        }
+                if (!this.layerToEdit.thematic) {
+                  this.layerForm.get('geometryType').disable();
+                }
+                if (!this.layerToEdit.queryableFeatureEnabled) {
+                  this.layerForm.get('queryableFeatureAvailable').disable();
+                  this.layerForm.get('queryableLayers').disable();
+                }
 
-      },
-        error => {
+                if (!this.layerToEdit.selectableFeatureEnabled) {
+                  this.layerForm.get('spatialSelectionService').disable();
+                  this.layerForm.get('selectableLayers').disable();
+                }
 
-        });
+                this.loadButtonDisabled();
+
+                this.dataLoaded = true;
+
+              },
+            );
+
+
+          } else {
+            this.layerForm.patchValue({
+              blocked: true,
+              thematic: false,
+              applyFilterToGetMap: false,
+              service: this.services[0].id,
+              spatialSelectionService: this.spatialConfigurationServices[0].id,
+              geometryType: this.geometryTypes[0].value,
+              legendType: this.legendTypes[0].value,
+              queryableFeatureEnabled: false,
+              useAllStyles: false,
+            });
+            this.layerForm.get('geometryType').disable();
+            // this.layerForm.get('applyFilterToGetMap').disable();
+            this.layerForm.get('spatialSelectionService').disable();
+            this.layerForm.get('selectableLayers').disable();
+            this.layerForm.get('queryableFeatureAvailable').disable();
+            this.layerForm.get('queryableLayers').disable();
+            this.dataLoaded = true;
+          }
+
+        },
+);
 
 
     });
@@ -526,7 +527,7 @@ export class LayersFormComponent implements OnInit {
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
       this.utils.getEditableColumnDef('layersEntity.name', 'name'),
-      {...this.utils.getNonEditableColumnDef('layersEntity.roles', 'roleNames'), ...this.utils.getArrayValueParser() },
+      {...this.utils.getNonEditableColumnDef('layersEntity.roles', 'roleNames'), ...this.utils.getArrayValueParser()},
       this.utils.getStatusColumnDef()
     ];
 
@@ -603,9 +604,8 @@ export class LayersFormComponent implements OnInit {
   }
 
   async onTranslationButtonClicked() {
-    let dialogResult = null
-    dialogResult = await this.utils.openTranslationDialog(this.translationMap);
-    if (dialogResult && dialogResult.event == "Accept") {
+    let dialogResult  = await this.utils.openTranslationDialog(this.translationMap);
+    if (dialogResult && dialogResult.event == 'Accept') {
       this.translationsModified = true;
     }
   }
@@ -654,7 +654,7 @@ export class LayersFormComponent implements OnInit {
       format: new UntypedFormControl(null, []),
       order: new UntypedFormControl(null, []),
       type: new UntypedFormControl(null, []),
-    })
+    });
   }
 
   initializeStyleForm(): void {
@@ -668,7 +668,7 @@ export class LayersFormComponent implements OnInit {
       url: new UntypedFormControl(null, []),
       defaultStyle: new UntypedFormControl(null, []),
 
-    })
+    });
   }
 
 
@@ -683,34 +683,36 @@ export class LayersFormComponent implements OnInit {
       values: new UntypedFormControl(null, []),
       valueType: new UntypedFormControl(null, []),
       _links: new UntypedFormControl(null, []),
-    })
+    });
   }
 
   onLoadButtonClicked(): void {
     try {
 
       const dialogRef = this.dialog.open(DialogMessageComponent);
-      dialogRef.componentInstance.title = this.utils.getTranslate("caution");
-      dialogRef.componentInstance.message = this.utils.getTranslate("getInfoMessage");
+      dialogRef.componentInstance.title = this.utils.getTranslate('caution');
+      dialogRef.componentInstance.message = this.utils.getTranslate('getInfoMessage');
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
-          let replaceAll = result.event === 'Accept';
-          let service = this.spatialConfigurationServices.find(element => element.id == this.layerForm.get('spatialSelectionService').value);
-          let layersName = this.layerForm.get('selectableLayers').value
+          const replaceAll = result.event === 'Accept';
+          const service = this.spatialConfigurationServices.find(element => element.id == this.layerForm.get('spatialSelectionService').value);
+          const layersName = this.layerForm.get('selectableLayers').value;
           if (service && service.serviceURL && layersName) {
             let url: string = service.serviceURL;
             if (!url.includes('request=DescribeFeatureType')) {
-              if (url[url.length - 1] != '?') { url += "?" }
+              if (url[url.length - 1] != '?') {
+                url += '?';
+              }
 
-              url += `request=DescribeFeatureType%26service=WFS%26typeName=${layersName}`
+              url += `request=DescribeFeatureType%26service=WFS%26typeName=${layersName}`;
             }
             this.getInfoService.getInfo(url).subscribe(result => {
               if (result.success) {
                 this.manageGetInfoResults(result.asJson, replaceAll);
               }
             }, error => {
-              console.log(error)
-            })
+              console.log(error);
+            });
           }
 
 
@@ -718,42 +720,40 @@ export class LayersFormComponent implements OnInit {
       });
 
 
-
+    } catch (err) {
+      this.utils.showErrorMessage(err);
     }
-    catch (err) {
-      this.utils.showErrorMessage(err)
-    };
+
   }
 
   manageGetInfoResults(results, replaceAll: boolean) {
-    let elementsToAdd = [];
-    let elements = []
-    let type = this.spatialSelectionParameterTypes.find(element => element.value == "SELECT")
+    const elementsToAdd = [];
+    const elements = [];
+    const type = this.spatialSelectionParameterTypes.find(element => element.value == 'SELECT');
 
     if (results['xsd:schema'] && results['xsd:schema']['xsd:element']) {
-      elements.push(results['xsd:schema']['xsd:element'])
+      elements.push(results['xsd:schema']['xsd:element']);
     }
 
     if (results['xsd:schema'] && results['xsd:schema']['xsd:complexType'] && results['xsd:schema']['xsd:complexType']['xsd:complexContent']) {
-      let complexContent = results['xsd:schema']['xsd:complexType']['xsd:complexContent'];
+      const complexContent = results['xsd:schema']['xsd:complexType']['xsd:complexContent'];
       if (complexContent['xsd:extension'] && complexContent['xsd:extension']['xsd:sequence'] && complexContent['xsd:extension']['xsd:sequence']['xsd:element']) {
         elements.push(...complexContent['xsd:extension']['xsd:sequence']['xsd:element']);
         if (elements) {
           elements.forEach(element => {
-            let newParameter = {
+            const newParameter = {
               name: element.name,
               value: element.name,
-              type: type?type.value:null,
+              type: type ? type.value : null,
               format: this.getFormatFromGetInfo(element.type),
-            }
+            };
             elementsToAdd.push(newParameter);
           });
           if (elementsToAdd) {
             if (replaceAll) {
               this.getAllElementsEventSpatialConfigurations.next('pendingDelete');
               this.replaceAllElementsEventSpatialConfigurations.next(elementsToAdd);
-            }
-            else {
+            } else {
               this.addElementsEventSpatialConfigurations.next(elementsToAdd);
             }
 
@@ -766,13 +766,21 @@ export class LayersFormComponent implements OnInit {
   }
 
   private getFormatFromGetInfo(format) {
-    if (format == 'xsd:int') { return 'N' }
-    else if (format == 'xsd:string') { return 'T' }
-    else if (format == 'xsd:img') { return 'I' }
-    else if (format == 'gml:PointPropertyType') { return 'N' }
-    else if (format == 'xsd:url') { return 'U' }
-    else if (format == 'xsd:date') { return 'F' }
-    else { return 'T' }
+    if (format == 'xsd:int') {
+      return 'N';
+    } else if (format == 'xsd:string') {
+      return 'T';
+    } else if (format == 'xsd:img') {
+      return 'I';
+    } else if (format == 'gml:PointPropertyType') {
+      return 'N';
+    } else if (format == 'xsd:url') {
+      return 'U';
+    } else if (format == 'xsd:date') {
+      return 'F';
+    } else {
+      return 'T';
+    }
   }
 
   // AG-GRID
@@ -782,13 +790,13 @@ export class LayersFormComponent implements OnInit {
   getAllParameters = (): Observable<any> => {
 
     if (this.layerID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
+      const aux: any[] = [];
       return of(aux);
     }
-    var urlReq = `${this.layerToEdit._links.parameters.href}`
+    let urlReq = `${this.layerToEdit._links.parameters.href}`;
     if (this.layerToEdit._links.parameters.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
+      const url = new URL(urlReq.split('{')[0]);
+      url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
 
@@ -796,14 +804,14 @@ export class LayersFormComponent implements OnInit {
       .pipe(map(data => data['_embedded']['cartography-parameters'] //.filter(elem => elem.type == "INFO")
       ));
 
-  }
+  };
 
   getAllRowsParameters(event, spatialSelection: boolean) {
-    if (event.event == "save") {
+    if (event.event == 'save') {
       this.saveParameters(event.data, spatialSelection);
     }
     if (event.event == 'pendingDelete') {
-      this.parametersPendingDelete.push(...event.data)
+      this.parametersPendingDelete.push(...event.data);
     }
   }
 
@@ -813,13 +821,12 @@ export class LayersFormComponent implements OnInit {
     let formatsList, typesList, service, event;
     if (spatialSelection) {
       formatsList = this.spatialSelectionParameterFormatTypes;
-      typesList = this.spatialSelectionParameterTypes
+      typesList = this.spatialSelectionParameterTypes;
       service = this.cartographySpatialSelectionParameterService;
       event = this.dataUpdatedEventSpatialConfigurations;
-    }
-    else {
+    } else {
       formatsList = this.parameterFormatTypes;
-      typesList = this.parameterTypes
+      typesList = this.parameterTypes;
       service = this.cartographyParameterService;
       event = this.dataUpdatedEventParameters;
     }
@@ -833,27 +840,43 @@ export class LayersFormComponent implements OnInit {
         if (parameter.status === 'pendingModify') {
 
           if (parameter.format) {
-            let currentFormat = formatsList.find(element => element.description == parameter.format);
-            if (currentFormat) { parameter.format = currentFormat.value }
+            const currentFormat = formatsList.find(element => element.description == parameter.format);
+            if (currentFormat) {
+              parameter.format = currentFormat.value;
+            }
           }
 
           if (parameter.type) {
-            let currentType = typesList.find(element => element.description == parameter.type);
-            if (currentType) { parameter.type = currentType.value }
+            const currentType = typesList.find(element => element.description == parameter.type);
+            if (currentType) {
+              parameter.type = currentType.value;
+            }
           }
 
         }
-        promises.push(new Promise((resolve, reject) => { service.save(parameter).subscribe((resp) => { resolve(true) }) }));
+        promises.push(new Promise((resolve,) => {
+          service.save(parameter).subscribe(() => {
+            resolve(true);
+          });
+        }));
       }
       if (parameter.status === 'pendingDelete' && parameter._links && !parameter.newItem) {
-        promises.push(new Promise((resolve, reject) => { service.remove(parameter).subscribe((resp) => { resolve(true) }) }));
+        promises.push(new Promise((resolve,) => {
+          service.remove(parameter).subscribe(() => {
+            resolve(true);
+          });
+        }));
       }
     });
 
     if (this.parametersPendingDelete.length > 0) {
       this.parametersPendingDelete.forEach(parameter => {
         if (parameter._links && !parameter.newItem) {
-          promises.push(new Promise((resolve, reject) => { service.remove(parameter).subscribe((resp) => { resolve(true) }) }));
+          promises.push(new Promise((resolve,) => {
+            service.remove(parameter).subscribe(() => {
+              resolve(true);
+            });
+          }));
         }
       });
       this.parametersPendingDelete = [];
@@ -867,19 +890,20 @@ export class LayersFormComponent implements OnInit {
   }
 
   duplicateParameters(data, spatialSelection: boolean) {
-    let parametersToDuplicate = this.utils.duplicateParameter(data, 'name');
-    if (spatialSelection) { this.addElementsEventSpatialConfigurations.next(parametersToDuplicate); }
-    else { this.addElementsEventParameters.next(parametersToDuplicate); }
+    const parametersToDuplicate = this.utils.duplicateParameter(data, 'name');
+    if (spatialSelection) {
+      this.addElementsEventSpatialConfigurations.next(parametersToDuplicate);
+    } else {
+      this.addElementsEventParameters.next(parametersToDuplicate);
+    }
   }
 
   loadButtonDisabled() {
-    let formValues = this.layerForm.value;
-    if (formValues.selectableFeatureEnabled && formValues.spatialSelectionService && formValues.spatialSelectionService > 0 && formValues.selectableLayers) {
-      this.disableLoadButton = false;
-    }
-    else {
-      this.disableLoadButton = true;
-    }
+    const formValues = this.layerForm.value;
+    this.disableLoadButton = !(formValues.selectableFeatureEnabled &&
+      formValues.spatialSelectionService &&
+      formValues.spatialSelectionService > 0 &&
+      formValues.selectableLayers);
 
   }
 
@@ -887,13 +911,13 @@ export class LayersFormComponent implements OnInit {
   getAllSpatialConfigurations = (): Observable<any> => {
 
     if (this.layerID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
+      const aux: any[] = [];
       return of(aux);
     }
-    var urlReq = `${this.layerToEdit._links.spatialSelectionParameters.href}`
+    let urlReq = `${this.layerToEdit._links.spatialSelectionParameters.href}`;
     if (this.layerToEdit._links.spatialSelectionParameters.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
+      const url = new URL(urlReq.split('{')[0]);
+      url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
 
@@ -901,7 +925,7 @@ export class LayersFormComponent implements OnInit {
       .pipe(map(data => data['_embedded']['cartography-spatial-selection-parameters'] //.filter(elem => elem.type == "EDIT")
       ));
 
-  }
+  };
 
 
   // ******** Styles ******** //
@@ -909,42 +933,41 @@ export class LayersFormComponent implements OnInit {
   getAllStyles = () => {
 
     if (this.layerID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
+      const aux: any[] = [];
       return of(aux);
     }
 
-    var urlReq = `${this.layerToEdit._links.styles.href}`
+    let urlReq = `${this.layerToEdit._links.styles.href}`;
     if (this.layerToEdit._links.styles.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
+      const url = new URL(urlReq.split('{')[0]);
+      url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
 
     return (this.http.get(urlReq))
       .pipe(map(data => data['_embedded']['cartography-styles']));
 
-  }
+  };
 
   getAllRowsStyles(event) {
-    if (event.event == "save") {
-      let stylesByDefault = event.data.filter(d => d.defaultStyle).length;
+    if (event.event == 'save') {
+      const stylesByDefault = event.data.filter(d => d.defaultStyle).length;
       if (stylesByDefault > 1) {
         this.showStylesError();
-      }
-      else {
-        this.saveStyles(event.data)
+      } else {
+        this.saveStyles(event.data);
       }
     }
   }
 
   saveStyles(data: any[]) {
 
-    let index = data.findIndex(element => (element.status === 'pendingModify' ||
+    const index = data.findIndex(element => (element.status === 'pendingModify' ||
       element.status === 'pendingCreation') && element.defaultStyle);
     let styleToModifyTheLast = null;
     if (index != -1) {
       styleToModifyTheLast = data[index];
-      data.splice(index, 1)
+      data.splice(index, 1);
 
     }
     const promises: Promise<any>[] = [];
@@ -960,15 +983,25 @@ export class LayersFormComponent implements OnInit {
         if (style.status === 'pendingModify') {
 
           if (style.format) {
-            let currentFormat = this.parameterFormatTypes.find(element => element.description == style.format);
-            if (currentFormat) { style.format = currentFormat.value }
+            const currentFormat = this.parameterFormatTypes.find(element => element.description == style.format);
+            if (currentFormat) {
+              style.format = currentFormat.value;
+            }
           }
 
         }
-        promises.push(new Promise((resolve, reject) => { this.cartographyStyleService.save(style).subscribe((resp) => { resolve(true) }) }));
+        promises.push(new Promise((resolve,) => {
+          this.cartographyStyleService.save(style).subscribe(() => {
+            resolve(true);
+          });
+        }));
       }
       if (style.status === 'pendingDelete' && style._links && !style.newItem) {
-        promises.push(new Promise((resolve, reject) => { this.cartographyStyleService.remove(style).subscribe((resp) => { resolve(true) }) }));
+        promises.push(new Promise((resolve,) => {
+          this.cartographyStyleService.remove(style).subscribe(() => {
+            resolve(true);
+          });
+        }));
 
       }
     });
@@ -976,8 +1009,7 @@ export class LayersFormComponent implements OnInit {
     Promise.all(promises).then(() => {
       if (index == -1) {
         this.dataUpdatedEventStyles.next(true);
-      }
-      else {
+      } else {
         if (!styleToModifyTheLast._links) {
           styleToModifyTheLast.cartography = this.layerToEdit;
         }
@@ -986,13 +1018,15 @@ export class LayersFormComponent implements OnInit {
           styleToModifyTheLast._links = null;
           styleToModifyTheLast.id = null;
           if (styleToModifyTheLast.format) {
-            let currentFormat = this.parameterFormatTypes.find(element => element.description == styleToModifyTheLast.format);
-            if (currentFormat) { styleToModifyTheLast.format = currentFormat.value }
+            const currentFormat = this.parameterFormatTypes.find(element => element.description == styleToModifyTheLast.format);
+            if (currentFormat) {
+              styleToModifyTheLast.format = currentFormat.value;
+            }
           }
         }
-        this.cartographyStyleService.save(styleToModifyTheLast).subscribe((resp) => {
+        this.cartographyStyleService.save(styleToModifyTheLast).subscribe(() => {
           this.dataUpdatedEventStyles.next(true);
-        })
+        });
       }
     });
 
@@ -1000,52 +1034,51 @@ export class LayersFormComponent implements OnInit {
   }
 
   duplicateStyles(data) {
-    let stylesToDuplicate = this.utils.duplicateParameter(data, 'name');
+    const stylesToDuplicate = this.utils.duplicateParameter(data, 'name');
     this.addElementsEventStyles.next(stylesToDuplicate);
   }
-
 
 
   // ******** Territorial Filters  ******** //
   getAllTerritorialFilters = (): Observable<any> => {
 
     if (this.layerID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
+      const aux: any[] = [];
       return of(aux);
     }
-    var urlReq = `${this.layerToEdit._links.filters.href}`
+    let urlReq = `${this.layerToEdit._links.filters.href}`;
     if (this.layerToEdit._links.filters.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
+      const url = new URL(urlReq.split('{')[0]);
+      url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
 
     return (this.http.get(urlReq))
       .pipe(map(data => data['_embedded']['cartography-filters']));
 
-  }
+  };
 
   getAllRowsTerritorialFilters(event) {
-    if (event.event == "save") {
+    if (event.event == 'save') {
       this.saveTerritorialFilters(event.data);
     }
   }
 
   saveTerritorialFilters(data: any[]) {
 
-    let territorialFilterToSave = [];
-    let territorialFilterToDelete = [];
+    // let territorialFilterToSave = [];
+    // let territorialFilterToDelete = [];
     const promises: Promise<any>[] = [];
     data.forEach(territoryFilter => {
       if (territoryFilter.status === 'pendingCreation' || territoryFilter.status === 'pendingModify') {
         if (territoryFilter.status === 'pendingCreation' || territoryFilter.newItem) {
           territoryFilter.cartography = this.layerToEdit;
           if (!territoryFilter.territorialLevel) {
-            let territorialLevel = this.filterTypeIds.find(x => x.id === territoryFilter.terrorialLevelId)
+            let territorialLevel = this.filterTypeIds.find(x => x.id === territoryFilter.terrorialLevelId);
             if (territorialLevel == undefined || territorialLevel.id == -1) {
-              territorialLevel = null
+              territorialLevel = null;
             }
-            territoryFilter.territorialLevel = territorialLevel
+            territoryFilter.territorialLevel = territorialLevel;
             territoryFilter.id = null;
             territoryFilter._links = null;
           }
@@ -1056,12 +1089,20 @@ export class LayersFormComponent implements OnInit {
           territoryFilter.values = territoryFilter.values.split(',');
         }
 
-        promises.push(new Promise((resolve, reject) => { this.cartographyFilterService.save(territoryFilter).subscribe((resp) => { resolve(true) }) }));
+        promises.push(new Promise((resolve,) => {
+          this.cartographyFilterService.save(territoryFilter).subscribe(() => {
+            resolve(true);
+          });
+        }));
 
       }
       if (territoryFilter.status === 'pendingDelete' && territoryFilter._links && !territoryFilter.newItem) {
-        //  territorialFilterToDelete.push(territoryFilter) 
-        promises.push(new Promise((resolve, reject) => { this.cartographyFilterService.remove(territoryFilter).subscribe((resp) => { resolve(true) }) }));
+        //  territorialFilterToDelete.push(territoryFilter)
+        promises.push(new Promise((resolve,) => {
+          this.cartographyFilterService.remove(territoryFilter).subscribe(() => {
+            resolve(true);
+          });
+        }));
 
       }
     });
@@ -1074,7 +1115,7 @@ export class LayersFormComponent implements OnInit {
   }
 
   duplicateTerritorialFilters(data) {
-    let territorialFiltersToDuplicate = this.utils.duplicateParameter(data, 'name')
+    const territorialFiltersToDuplicate = this.utils.duplicateParameter(data, 'name');
     this.addElementsTerritorialFilter.next(territorialFiltersToDuplicate);
 
   }
@@ -1082,14 +1123,15 @@ export class LayersFormComponent implements OnInit {
   // ******** Territories ******** //
   getAllTerritories = (): Observable<any> => {
     if (this.layerID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
+      const aux: any[] = [];
       return of(aux);
     }
-
-    var urlReq = `${this.layerToEdit._links.availabilities.href}`
+    console.log("Layer to edit");
+    console.log(this.layerToEdit);
+    let urlReq = `${this.layerToEdit._links.availabilities.href}`;
     if (this.layerToEdit._links.availabilities.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
+      const url = new URL(urlReq.split('{')[0]);
+      url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
 
@@ -1097,10 +1139,10 @@ export class LayersFormComponent implements OnInit {
       .pipe(map(data => data['_embedded']['cartography-availabilities']));
 
 
-  }
+  };
 
   getAllRowsTerritories(event) {
-    if (event.event == "save") {
+    if (event.event == 'save') {
       this.saveTerritories(event.data);
     }
   }
@@ -1110,46 +1152,55 @@ export class LayersFormComponent implements OnInit {
     data.forEach(territory => {
       territory.cartography = this.layerToEdit;
       if (territory.status === 'pendingCreation') {
-        let index = data.findIndex(element => element.territoryCode === territory.territoryCode && !element.newItem)
+        const index = data.findIndex(element => element.territoryCode === territory.territoryCode && !element.newItem);
         territory.newItem = false;
         if (index === -1) {
           if (territory._links) {
             territory.id = null;
             territory.cartographyId = this.layerToEdit.id;
             territory.cartographyName = this.layerToEdit.name;
-            let urlReqTerritory = `${territory._links.territory.href}`
-            let url = new URL(urlReqTerritory.split("{")[0]);
-            url.searchParams.append("projection", "view")
+            let urlReqTerritory = `${territory._links.territory.href}`;
+            const url = new URL(urlReqTerritory.split('{')[0]);
+            url.searchParams.append('projection', 'view');
             urlReqTerritory = url.toString();
-            territory._links = null
-            promises.push(new Promise((resolve, reject) => {
+            territory._links = null;
+            promises.push(new Promise((resolve,) => {
               this.http.get(urlReqTerritory).subscribe(result => {
                 territory.territory = result;
-                this.cartograhyAvailabilityService.save(territory).subscribe((resp) => { resolve(true) });
-              })
-            }))
+                this.cartograhyAvailabilityService.save(territory).subscribe(() => {
+                  resolve(true);
+                });
+              });
+            }));
 
-          }
-          else {
-            promises.push(new Promise((resolve, reject) => { this.cartograhyAvailabilityService.save(territory).subscribe((resp) => { resolve(true) }) }));
+          } else {
+            promises.push(new Promise((resolve,) => {
+              this.cartograhyAvailabilityService.save(territory).subscribe(() => {
+                resolve(true);
+              });
+            }));
             // territoriesToCreate.push(territory)
           }
 
         }
       }
       if (territory.status === 'pendingDelete' && territory._links && !territory.newItem) {
-        promises.push(new Promise((resolve, reject) => { this.cartograhyAvailabilityService.remove(territory).subscribe((resp) => { resolve(true) }) }));
+        promises.push(new Promise((resolve,) => {
+          this.cartograhyAvailabilityService.remove(territory).subscribe(() => {
+            resolve(true);
+          });
+        }));
 
-        //  territoriesToDelete.push(territory) 
+        //  territoriesToDelete.push(territory)
       }
     });
 
     // territoriesToCreate.forEach(newElement => {
-    //   promises.push(new Promise((resolve, reject) => { this.cartograhyAvailabilityService.save(newElement).subscribe((resp) => { resolve(true) }) }));
+    //   promises.push(new Promise((resolve,) => { this.cartograhyAvailabilityService.save(newElement).subscribe(() => { resolve(true) }) }));
     // });
 
     // territoriesToDelete.forEach(deletedElement => {
-    //   promises.push(new Promise((resolve, reject) => { this.cartograhyAvailabilityService.remove(deletedElement).subscribe((resp) => { resolve(true) }) }));
+    //   promises.push(new Promise((resolve,) => { this.cartograhyAvailabilityService.remove(deletedElement).subscribe(() => { resolve(true) }) }));
 
     // });
 
@@ -1161,30 +1212,28 @@ export class LayersFormComponent implements OnInit {
   }
 
 
-
-
   // ******** Layers configuration ******** //
   getAllLayersConfiguration = (): Observable<any> => {
 
 
     if (this.layerID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
+      const aux: any[] = [];
       return of(aux);
     }
-
-    var urlReq = `${this.layerToEdit._links.permissions.href}`
+    console.log(this.layerToEdit);
+    let urlReq = `${this.layerToEdit._links.permissions.href}`;
     if (this.layerToEdit._links.permissions.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
+      const url = new URL(urlReq.split('{')[0]);
+      url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
 
     return (this.http.get(urlReq))
       .pipe(map(data => data['_embedded']['cartography-groups']));
-  }
+  };
 
   getAllRowsLayersConfiguration(event) {
-    if (event.event == "save") {
+    if (event.event == 'save') {
       this.saveLayersConfiguration(event.data);
     }
   }
@@ -1192,28 +1241,33 @@ export class LayersFormComponent implements OnInit {
   saveLayersConfiguration(data: any[]) {
     let dataChanged = false;
     const promises: Promise<any>[] = [];
-    let layersConfigurationToPut = [];
+    const layersConfigurationToPut = [];
     data.forEach(layer => {
 
       if (layer.status !== 'pendingDelete') {
         if (layer.status === 'pendingModify') {
-          if (layer.newItem) { dataChanged = true; }
-          promises.push(new Promise((resolve, reject) => { this.cartographyGroupService.update(layer).subscribe((resp) => { resolve(true) }) }));
+          if (layer.newItem) {
+            dataChanged = true;
+          }
+          promises.push(new Promise((resolve,) => {
+            this.cartographyGroupService.update(layer).subscribe(() => {
+              resolve(true);
+            });
+          }));
 
-        }
-        else if (layer.status === 'pendingCreation') {
+        } else if (layer.status === 'pendingCreation') {
           dataChanged = true;
         }
-        layersConfigurationToPut.push(layer._links.self.href)
+        layersConfigurationToPut.push(layer._links.self.href);
+      } else {
+        dataChanged = true;
       }
-      else { dataChanged = true }
     });
     Promise.all(promises).then(() => {
       if (dataChanged) {
-        let url = this.layerToEdit._links.permissions.href.split('{', 1)[0];
-        this.utils.updateUriList(url, layersConfigurationToPut, this.dataUpdatedEventLayersConfiguration)
-      }
-      else {
+        const url = this.layerToEdit._links.permissions.href.split('{', 1)[0];
+        this.utils.updateUriList(url, layersConfigurationToPut, this.dataUpdatedEventLayersConfiguration);
+      } else {
         this.dataUpdatedEventLayersConfiguration.next(true);
       }
     });
@@ -1224,23 +1278,23 @@ export class LayersFormComponent implements OnInit {
   getAllNodes = (): Observable<any> => {
 
     if (this.layerID == -1) {
-      const aux: Array<any> = [];
+      const aux: any[] = [];
       return of(aux);
     }
 
-    var urlReq = `${this.layerToEdit._links.treeNodes.href}`
+    let urlReq = `${this.layerToEdit._links.treeNodes.href}`;
     if (this.layerToEdit._links.treeNodes.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
+      const url = new URL(urlReq.split('{')[0]);
+      url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
 
     return (this.http.get(urlReq))
       .pipe(map(data => data['_embedded']['tree-nodes']));
-  }
+  };
 
   getAllRowsNodes(event) {
-    if (event.event == "save") {
+    if (event.event == 'save') {
       this.saveNodes(event.data);
     }
   }
@@ -1251,36 +1305,43 @@ export class LayersFormComponent implements OnInit {
     const promises: Promise<any>[] = [];
     data.forEach(node => {
 
-      let nodeAct = new TreeNode();
-      var urlReq = `${node._links.cartography.href}`
+      const nodeAct = new TreeNode();
+      let urlReq = `${node._links.cartography.href}`;
       if (node._links.cartography.templated) {
-        var url = new URL(urlReq.split("{")[0]);
-        url.searchParams.append("projection", "view")
+        const url = new URL(urlReq.split('{')[0]);
+        url.searchParams.append('projection', 'view');
         urlReq = url.toString();
       }
-      nodeAct.name = node.name
-      node._links.cartography.href = urlReq
-      nodeAct._links = node._links
+      nodeAct.name = node.name;
+      node._links.cartography.href = urlReq;
+      nodeAct._links = node._links;
       nodeAct.cartography = this.layerToEdit;
       if (node.status === 'pendingModify' || node.status === 'pendingCreation') {
         // if(node.status==='pendingCreation') { node._links=null; }
-        promises.push(new Promise((resolve, reject) => { this.treeNodeService.save(nodeAct).subscribe((resp) => { resolve(true) }) }));
+        promises.push(new Promise((resolve,) => {
+          this.treeNodeService.save(nodeAct).subscribe(() => {
+            resolve(true);
+          });
+        }));
 
-        //  nodesToPut.push(nodeAct) 
-      }
-      else if (node.status === 'pendingDelete' && !node.newItem) {
-        //  nodesToDelete.push(nodeAct) 
-        promises.push(new Promise((resolve, reject) => { this.treeNodeService.remove(node).subscribe((resp) => { resolve(true) }) }));
+        //  nodesToPut.push(nodeAct)
+      } else if (node.status === 'pendingDelete' && !node.newItem) {
+        //  nodesToDelete.push(nodeAct)
+        promises.push(new Promise((resolve,) => {
+          this.treeNodeService.remove(node).subscribe(() => {
+            resolve(true);
+          });
+        }));
 
       }
     });
 
 
     // nodesToPut.forEach(node => {
-    //   promises.push(new Promise((resolve, reject) => { this.treeNodeService.save(node).subscribe((resp) => { resolve(true) }) }));
+    //   promises.push(new Promise((resolve,) => { this.treeNodeService.save(node).subscribe(() => { resolve(true) }) }));
     // });
     // nodesToDelete.forEach(node => {
-    //   promises.push(new Promise((resolve, reject) => { this.treeNodeService.remove(node).subscribe((resp) => { resolve(true) }) }));
+    //   promises.push(new Promise((resolve,) => { this.treeNodeService.remove(node).subscribe(() => { resolve(true) }) }));
     // });
     Promise.all(promises).then(() => {
       this.dataUpdatedEventNodes.next(true);
@@ -1289,27 +1350,25 @@ export class LayersFormComponent implements OnInit {
   }
 
 
-
   // ******** Parameters Dialog  ******** //
 
   openParametersDialog(data: any) {
 
     this.parameterForm.patchValue({
       format: this.parameterFormatTypes[0].value
-    })
+    });
     const dialogRef = this.dialog.open(DialogFormComponent);
     dialogRef.componentInstance.HTMLReceived = this.newParameterDialog;
     dialogRef.componentInstance.title = this.utils.getTranslate('layersEntity.parametersConfiguration');
     dialogRef.componentInstance.form = this.parameterForm;
 
 
-
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
 
-          let item = this.parameterForm.value;
-          this.addElementsEventParameters.next([item])
+          const item = this.parameterForm.value;
+          this.addElementsEventParameters.next([item]);
 
           this.parameterForm.reset();
         }
@@ -1326,7 +1385,7 @@ export class LayersFormComponent implements OnInit {
 
     this.parameterForm.patchValue({
       format: this.parameterFormatTypes[0].value
-    })
+    });
 
     const dialogRef = this.dialog.open(DialogFormComponent);
     dialogRef.componentInstance.HTMLReceived = this.newSpatialConfigurationDialog;
@@ -1336,8 +1395,8 @@ export class LayersFormComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
-          let item = this.parameterForm.value;
-          this.addElementsEventSpatialConfigurations.next([item])
+          const item = this.parameterForm.value;
+          this.addElementsEventSpatialConfigurations.next([item]);
 
         }
       }
@@ -1356,7 +1415,7 @@ export class LayersFormComponent implements OnInit {
       valueType: this.filterValueTypes[0].value,
       territorialLevel: this.filterTypeIds[0].id,
       required: false
-    })
+    });
 
     const dialogRef = this.dialog.open(DialogFormComponent);
     dialogRef.componentInstance.HTMLReceived = this.newTerritorialFilterDialog;
@@ -1367,16 +1426,16 @@ export class LayersFormComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
-          let territorialLevel = this.filterTypeIds.find(x => x.id === this.territorialFilterForm.value.territorialLevel)
+          let territorialLevel = this.filterTypeIds.find(x => x.id === this.territorialFilterForm.value.territorialLevel);
           if (territorialLevel == undefined || territorialLevel.id == -1) {
-            territorialLevel = null
+            territorialLevel = null;
           }
           this.territorialFilterForm.patchValue({
             territorialLevel: territorialLevel
-          })
+          });
 
-          let item = this.territorialFilterForm.value;
-          item.giid = this.layerToEdit.id
+          const item = this.territorialFilterForm.value;
+          item.giid = this.layerToEdit.id;
 
           // if(this.territorialFilterForm.value.typeId === -1)
           // {
@@ -1385,7 +1444,7 @@ export class LayersFormComponent implements OnInit {
           //   })
           // }
 
-          this.addElementsTerritorialFilter.next([item])
+          this.addElementsTerritorialFilter.next([item]);
         }
       }
       this.territorialFilterForm.reset();
@@ -1400,7 +1459,6 @@ export class LayersFormComponent implements OnInit {
   openStylesDialog(data: any) {
 
 
-
     // this.styleForm.patchValue({
     //   format: this.parameterFormatTypes[0].value
     // })
@@ -1410,13 +1468,12 @@ export class LayersFormComponent implements OnInit {
     dialogRef.componentInstance.form = this.styleForm;
 
 
-
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
 
-          let item = this.styleForm.value;
-          this.addElementsEventStyles.next([this.adaptCreatedStyle(item)])
+          const item = this.styleForm.value;
+          this.addElementsEventStyles.next([this.adaptCreatedStyle(item)]);
           this.styleForm.reset();
         }
       }
@@ -1431,14 +1488,14 @@ export class LayersFormComponent implements OnInit {
       height: style.height,
       onlineResource: style.url,
       format: style.format
-    }
-    style.defaultStyle = style.defaultStyle ? true : false;
+    };
+    style.defaultStyle = !!style.defaultStyle;
     delete style.width;
     delete style.height;
     delete style.url;
     delete style.format;
 
-    return style
+    return style;
 
   }
 
@@ -1446,11 +1503,11 @@ export class LayersFormComponent implements OnInit {
 
   getAllTerritoriesDialog = () => {
     return this.territoryService.getAll();
-  }
+  };
 
   openTerritoriesDialog(data: any) {
 
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
+    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass: 'gridDialogs'});
     dialogRef.componentInstance.getAllsTable = [this.getAllTerritoriesDialog];
     dialogRef.componentInstance.singleSelectionTable = [false];
     dialogRef.componentInstance.orderTable = ['name'];
@@ -1463,11 +1520,10 @@ export class LayersFormComponent implements OnInit {
     dialogRef.componentInstance.nonEditable = false;
 
 
-
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
-          this.addElementsEventTerritories.next(this.adaptFormatTerritories(result.data[0]))
+          this.addElementsEventTerritories.next(this.adaptFormatTerritories(result.data[0]));
         }
       }
 
@@ -1476,10 +1532,10 @@ export class LayersFormComponent implements OnInit {
   }
 
   adaptFormatTerritories(dataToAdapt: Territory[]) {
-    let newData: any[] = [];
+    const newData: any[] = [];
 
     dataToAdapt.forEach(element => {
-      let item = {
+      const item = {
         id: null,
         territoryId: element.id,
         territoryCode: element.code,
@@ -1489,7 +1545,7 @@ export class LayersFormComponent implements OnInit {
         owner: null,
         territory: element,
         new: true
-      }
+      };
       newData.push(item);
 
     });
@@ -1500,16 +1556,16 @@ export class LayersFormComponent implements OnInit {
   // ******** Cartography Groups Dialog  ******** //
 
   getAllCartographyGroupsDialog = () => {
-    let params2: HalParam[] = [];
-    let param: HalParam = { key: 'type', value: 'C' }
+    const params2: HalParam[] = [];
+    const param: HalParam = {key: 'type', value: 'C'};
     params2.push(param);
-    let query: HalOptions = { params: params2 };
+    const query: HalOptions = {params: params2};
     return this.cartographyGroupService.getAll(query, undefined);
-  }
+  };
 
   openCartographyGroupsDialog(data: any) {
 
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
+    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass: 'gridDialogs'});
     dialogRef.componentInstance.getAllsTable = [this.getAllCartographyGroupsDialog];
     dialogRef.componentInstance.singleSelectionTable = [false];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsCartographyGroupsDialog];
@@ -1521,12 +1577,11 @@ export class LayersFormComponent implements OnInit {
     dialogRef.componentInstance.nonEditable = false;
 
 
-
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
           console.log('result.data[0]');
-          this.addElementsEventCartographyGroups.next(result.data[0])
+          this.addElementsEventCartographyGroups.next(result.data[0]);
         }
       }
 
@@ -1538,11 +1593,11 @@ export class LayersFormComponent implements OnInit {
 
   getAllNodesDialog = () => {
     return this.treeNodeService.getAll();
-  }
+  };
 
   openNodesDialog(data: any) {
 
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
+    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass: 'gridDialogs'});
     dialogRef.componentInstance.getAllsTable = [this.getAllNodesDialog];
     dialogRef.componentInstance.singleSelectionTable = [false];
     dialogRef.componentInstance.orderTable = ['name'];
@@ -1554,11 +1609,10 @@ export class LayersFormComponent implements OnInit {
     dialogRef.componentInstance.nonEditable = false;
 
 
-
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
-          this.addElementsEventNodes.next(result.data[0])
+          this.addElementsEventNodes.next(result.data[0]);
         }
       }
 
@@ -1575,91 +1629,99 @@ export class LayersFormComponent implements OnInit {
       if (this.layerID == -1 && this.duplicateID != -1) {
         this.layerForm.patchValue({
           _links: null
-        })
+        });
       }
 
-      let service = this.services.find(x => x.id === this.layerForm.value.service)
+      let service = this.services.find(x => x.id === this.layerForm.value.service);
       if (service == undefined) {
-        service = null
+        service = null;
       }
 
-      let spatialService = this.spatialConfigurationServices.find(x => x.id === this.layerForm.value.spatialSelectionService)
+      let spatialService = this.spatialConfigurationServices.find(x => x.id === this.layerForm.value.spatialSelectionService);
       if (spatialService == undefined || spatialService.id == -1) {
-        spatialService = null
+        spatialService = null;
       }
 
       // let legendType = this.legendTypes.find(x => x.id === this.layerForm.value.legendType)
       let geometryType = null;
       if (this.layerForm.value.geometryType !== -1) {
-        geometryType = this.layerForm.value.geometryType
+        geometryType = this.layerForm.value.geometryType;
       }
 
       let legendType = null;
       if (this.layerForm.value.legendType !== -1) {
-        legendType = this.layerForm.value.legendType
+        legendType = this.layerForm.value.legendType;
       }
 
-      let cartography = new Cartography();
+      const cartography = new Cartography();
       cartography.name = this.layerForm.value.name;
       cartography.service = service;
-      cartography.layers = this.layerForm.value.layers.split(",");
+      cartography.layers = this.layerForm.value.layers.split(',');
       cartography.minimumScale = this.layerForm.value.minimumScale;
       cartography.maximumScale = this.layerForm.value.maximumScale;
       cartography.geometryType = geometryType;
       cartography.order = this.layerForm.value.order;
       cartography.transparency = this.layerForm.value.transparency;
       cartography.metadataURL = this.layerForm.value.metadataURL;
-      cartography.legendType = legendType
-      cartography.source = this.layerForm.value.source
+      cartography.legendType = legendType;
+      cartography.source = this.layerForm.value.source;
       cartography.legendURL = this.layerForm.value.legendUrl;
       cartography.description = this.layerForm.value.description;
       cartography.datasetURL = this.layerForm.value.datasetURL; //
-      cartography.applyFilterToGetMap = (this.layerForm.value.applyFilterToGetMap) ? true : false;
-      cartography.applyFilterToGetFeatureInfo = (this.layerForm.value.applyFilterToGetFeatureInfo) ? true : false;
-      cartography.applyFilterToSpatialSelection = (this.layerForm.value.applyFilterToSpatialSelection) ? true : false;
+      cartography.applyFilterToGetMap = !!(this.layerForm.value.applyFilterToGetMap);
+      cartography.applyFilterToGetFeatureInfo = !!(this.layerForm.value.applyFilterToGetFeatureInfo);
+      cartography.applyFilterToSpatialSelection = !!(this.layerForm.value.applyFilterToSpatialSelection);
       cartography.queryableFeatureEnabled = this.layerForm.value.queryableFeatureEnabled;
       cartography.useAllStyles = this.layerForm.value.useAllStyles;
 
-      if (cartography.queryableFeatureAvailable == null) { cartography.queryableFeatureAvailable = false }
-      else { cartography.queryableFeatureAvailable = this.layerForm.value.queryableFeatureAvailable };//
+      if (cartography.queryableFeatureAvailable == null) {
+        cartography.queryableFeatureAvailable = false;
+      } else {
+        cartography.queryableFeatureAvailable = this.layerForm.value.queryableFeatureAvailable;
+      }
 
 
-      cartography.selectionService = spatialService
-      if (this.layerForm.value.queryableLayers != null) { cartography.queryableLayers = this.layerForm.value.queryableLayers.split(",") };
-      cartography.thematic = this.layerForm.value.thematic,
-        cartography.blocked = !this.layerForm.value.blocked;
+      cartography.selectionService = spatialService;
+      if (this.layerForm.value.queryableLayers != null) {
+        cartography.queryableLayers = this.layerForm.value.queryableLayers.split(',');
+      }
+
+      cartography.thematic = this.layerForm.value.thematic;
+      cartography.blocked = !this.layerForm.value.blocked;
       cartography.selectableFeatureEnabled = this.layerForm.value.selectableFeatureEnabled;
-      if (this.layerForm.value.selectableLayers != null) { cartography.selectableLayers = this.layerForm.value.selectableLayers.split(",") };
-      //
+      if (this.layerForm.value.selectableLayers != null) {
+        cartography.selectableLayers = this.layerForm.value.selectableLayers.split(',');
+      }
       cartography.connection = null;
-      cartography._links = this.layerForm.value._links
+      cartography._links = this.layerForm.value._links;
 
       this.cartographyService.save(cartography)
         .subscribe(async resp => {
 
-          this.layerToEdit = resp;
-          this.layerID = resp.id;
-          this.layerForm.patchValue({
-            id: resp.id,
-            _links: resp._links
-          })
-          this.firstSaveDone = true;
-          this.utils.saveTranslation(resp.id, this.translationMap, this.layerToEdit.description, this.translationsModified);
-          this.translationsModified = false;
+            this.layerToEdit = resp;
+            this.layerID = resp.id;
+            this.layerForm.patchValue({
+              id: resp.id,
+              _links: resp._links
+            });
+            this.firstSaveDone = true;
+            await this.utils.saveTranslation(resp.id, this.translationMap, this.layerToEdit.description, this.translationsModified);
+            this.translationsModified = false;
 
-          this.getAllElementsEventParameters.next('save');
-          this.getAllElementsEventSpatialConfigurations.next('save');
-          this.getAllElementsTerritorialFilter.next('save');
-          this.getAllElementsEventTerritories.next('save');
-          this.getAllElementsEventLayersConfigurations.next('save');
-          this.getAllElementsEventStyles.next('save');
-          // this.getAllElementsEventNodes.next(true);
-          this.dataUpdatedEventNodes.next(true);
+            this.getAllElementsEventParameters.next('save');
+            this.getAllElementsEventSpatialConfigurations.next('save');
+            this.getAllElementsTerritorialFilter.next('save');
+            this.getAllElementsEventTerritories.next('save');
+            this.getAllElementsEventLayersConfigurations.next('save');
+            this.getAllElementsEventStyles.next('save');
+            // this.getAllElementsEventNodes.next(true);
+            this.dataUpdatedEventNodes.next(true);
 
-        },
-          error => { console.log(error) });
-    }
-    else {
+          },
+          error => {
+            console.log(error);
+          });
+    } else {
       this.utils.showRequiredFieldsError();
     }
 
@@ -1668,10 +1730,15 @@ export class LayersFormComponent implements OnInit {
 
   showStylesError() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title = "Error"
-    dialogRef.componentInstance.message = this.utils.getTranslate("errorMoreThanOneStyleByDefault")
+    dialogRef.componentInstance.title = 'Error';
+    dialogRef.componentInstance.message = this.utils.getTranslate('errorMoreThanOneStyleByDefault');
     dialogRef.componentInstance.hideCancelButton = true;
     dialogRef.afterClosed().subscribe();
   }
 
+  activeTabIndex = 0;
+
+  onTabChange(event: MatTabChangeEvent) {
+    this.activeTabIndex = event.index;
+  }
 }

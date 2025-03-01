@@ -1,6 +1,6 @@
-import { Component, ElementRef, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { UntypedFormGroup,FormControl,Validators } from '@angular/forms';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog'; 
+import { Component, OnInit } from '@angular/core';
+import { UntypedFormGroup } from '@angular/forms';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 import { DialogMessageComponent } from '../dialog-message/dialog-message.component';
 
@@ -19,6 +19,7 @@ export class DialogFormComponent implements OnInit {
     public dialog: MatDialog,
     private translate: TranslateService) {}
 
+  // eslint-disable-next-line @angular-eslint/no-empty-lifecycle-method,@typescript-eslint/no-empty-function
   ngOnInit(): void {
 
   }

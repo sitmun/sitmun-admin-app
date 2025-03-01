@@ -1,7 +1,11 @@
 <h5 mat-dialog-title>{{title}}</h5>
 <mat-dialog-content class="mat-typography">
-  <ng-container *ngTemplateOutlet="HTMLReceived">
-  </ng-container>
+  <mat-card appearance="outlined">
+    <mat-card-content>
+      <ng-container *ngTemplateOutlet="HTMLReceived">
+      </ng-container>
+    </mat-card-content>
+  </mat-card>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button

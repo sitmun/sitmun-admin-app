@@ -103,18 +103,25 @@
 
 </mat-toolbar>
 
-<div *ngIf="!isLoading">
-  <ag-grid-angular class="ag-theme-material" style="width: 100%; height: 100%;"
-                   [rowData]="rowData"
-                   [columnDefs]="columnDefs"
-                   [gridOptions]="gridOptions"
-                   [animateRows]="true"
-                   [pagination]="false"
-                   [undoRedoCellEditing]="true"
-                   [undoRedoCellEditingLimit]=200 [suppressRowClickSelection]=true [components]="components"
-                   rowSelection="multiple" multiSortKey="key" (filterModified)="onFilterModified()"
-                   (cellEditingStopped)="onCellEditingStopped($event)" (cellValueChanged)="onCellValueChanged($event)"
-                   (firstDataRendered)="firstDataRendered()"
-                   [domLayout]="'autoHeight'">
-  </ag-grid-angular>
-</div>
+<mat-card appearance="outlined">
+  <mat-card-content>
+    <ag-grid-angular class="ag-theme-material" style="width: 100%; height: 100%;"
+                     [rowData]="rowData"
+                     [columnDefs]="columnDefs"
+                     [gridOptions]="gridOptions"
+                     [animateRows]="true"
+                     [pagination]="false"
+                     [undoRedoCellEditing]="true"
+                     [undoRedoCellEditingLimit]=200
+                     [suppressRowClickSelection]=true
+                     [components]="components"
+                     rowSelection="multiple"
+                     multiSortKey="key"
+                     (filterModified)="onFilterModified()"
+                     (cellEditingStopped)="onCellEditingStopped($event)"
+                     (cellValueChanged)="onCellValueChanged($event)"
+                     (firstDataRendered)="firstDataRendered()"
+                     [domLayout]="'autoHeight'">
+    </ag-grid-angular>
+  </mat-card-content>
+</mat-card>

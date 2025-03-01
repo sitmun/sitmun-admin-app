@@ -425,7 +425,6 @@ export class UtilsService {
     if (width) {
       options['minWidth'] = width;
     }
-    console.log(options);
     return options
   }
 

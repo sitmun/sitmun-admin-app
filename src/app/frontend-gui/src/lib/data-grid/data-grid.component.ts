@@ -23,6 +23,8 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatInputModule} from '@angular/material/input';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import {MatCardModule} from '@angular/material/card';
+import {UtilsService} from '../../../../services/utils.service';
 
 declare let $: any;
 
@@ -48,13 +50,14 @@ ModuleRegistry.registerModules([
     TranslateModule,
     AgGridModule,
     MatButtonToggleModule,
+    MatCardModule,
   ]
 })
 export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
   tableRows: any[] = [];
   tableHeaders: (ColDef | ColGroupDef)[] = [];
-  isLoading = true;
+  isFirstLoad = true;
   dataSubscription!: Subscription;
 
   _eventRefreshSubscription: any;
@@ -133,7 +136,8 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
   constructor(public dialog: MatDialog,
     public translate: TranslateService,
-    private elRef: ElementRef) {
+    public utils: UtilsService
+  ) {
 
     this.remove = new EventEmitter();
     this.new = new EventEmitter();
@@ -240,7 +244,12 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     this.loadData()
   }
 
+  setLoading(value: boolean) {
+    this.gridApi?.setGridOption("loading", value);
+  }
+
   loadData(): void {
+    this.setLoading(true);
     this.dataSubscription = this.getAll().subscribe((data: any[]) => {
       const status = this.allNewElements?'pendingCreation':'statusOK'
       const newItems = [];
@@ -264,7 +273,8 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         this.gridApi?.applyTransaction({ add: this.rowData });
       }
       this.setSize()
-      this.isLoading = false;
+      this.isFirstLoad = false;
+      this.setLoading(false);
     });
   }
 
@@ -311,7 +321,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         this.statusColumn = true;
       }
     }
-    this.getElements();
+    this.loadData();
 
     if (this.defaultColumnSorting) {
       if(!Array.isArray(this.defaultColumnSorting))
@@ -373,7 +383,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   areRowsSelected(): boolean {
-    return (this.gridApi != null && this.gridApi.getSelectedNodes().length > 0);
+    return (this.gridApi != null && this.gridApi?.getSelectedNodes().length > 0);
     // if (this.gridApi != null && this.gridApi.getSelectedNodes().length > 0) {
     //   return true
     // } else {
@@ -464,35 +474,6 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     this.gridApi.setGridOption('quickFilterText', searchValue);
   }
 
-  getElements(): void {
-    this.getAll()
-      .subscribe((items) => {
-        const status = this.allNewElements?'pendingCreation':'statusOK'
-        const newItems = [];
-        const condition = (this.addFieldRestriction)? this.addFieldRestriction: 'id';
-        items.forEach(element => {
-          if(this.statusColumn){
-            if(element.status != "notAvailable" && element.status != "pendingCreation" && element.status != "pendingRegistration" && element.status != "unregisteredLayer"){
-              element.status=status
-            }
-            if(this.allNewElements) { element.new = true; }
-          }
-          if(this.currentData){
-            if (this.checkElementAllowedToAdd(condition,element, this.currentData)) {
-                newItems.push(element);
-            }
-          }
-
-        });
-        this.rowData = this.currentData?newItems: items;
-        if(!this.gridApi?.isDestroyed()) {
-          this.gridApi.applyTransaction(this.rowData);
-        }
-        this.setSize()
-        // this.gridApi.sizeColumnsToFit()
-      });
-  }
-
   setSize() {
     const allColumnIds = [];
     let columns: any[];
@@ -525,7 +506,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         this.rowData.push(item);
       }
       else {
-        console.log(`Item already exists`)
+        this.utils.showErrorMessage({message: `Item already exists`})
       }
     });
     if(!this.gridApi?.isDestroyed()) {
@@ -577,7 +558,6 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     } else {
       pixels = "1550px"
     }
-    this.elRef.nativeElement.parentElement.style.height = pixels;
   }
 
   removeData(): void {
@@ -870,6 +850,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   // }
 
   @Input() redraw!: boolean;
+  @Input() eventReplaceAllItemsSubscription!: Observable<any>;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.rowData && !changes.rowData.firstChange) {

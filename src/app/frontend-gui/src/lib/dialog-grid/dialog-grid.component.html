@@ -1,28 +1,32 @@
 <h5 mat-dialog-title class="titleDialog">{{titlesTable[0]=="" || !titlesTable[0] ? "" : title}}</h5>
-<mat-accordion  multi>
+<mat-dialog-content class="mat-typography">
+<mat-tab-group>
   <div *ngFor="let getAll of getAllsTable; let i = index"  [ngStyle]="{'margin-top': i>0?'100px':'0px'}">
-    <mat-expansion-panel [expanded]="true">
-      <mat-expansion-panel-header >
-        <mat-panel-title>
-          {{ titlesTable[i]=="" || !titlesTable[i] ? title : titlesTable[i]}}
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <ng-template matExpansionPanelContent>
-          <app-data-grid
-            [columnDefs]="columnDefsTable[i]" [changeHeightButton]='changeHeightButton' [defaultHeight]='heightByDefault'  [getAll]='getAll' [globalSearch]=true [singleSelection]="singleSelectionTable[i]"
-            [title]="titlesTable[i]" [defaultColumnSorting]='orderTable.length>=i?orderTable[i]:null' [nonEditable]='nonEditable'
-            [eventGetSelectedRowsSubscription]="getAllRows.asObservable()" [addFieldRestriction]='addFieldRestriction.length>=i?addFieldRestriction[i]:null'
-            [currentData]='currentData.length>=i?currentData[i]:null' [fieldRestrictionWithDifferentName]='fieldRestrictionWithDifferentName.length>=i?fieldRestrictionWithDifferentName[i]:null' (getSelectedRows)='joinRowsReceived($event)' >
-            </app-data-grid>
-
-      </ng-template>
-    </mat-expansion-panel>
+    <mat-tab label="{{titlesTable[i]==='' || !titlesTable[i] ? title : titlesTable[i]}}">
+        <app-data-grid
+          [columnDefs]="columnDefsTable[i]" [changeHeightButton]='changeHeightButton' [defaultHeight]='heightByDefault'  [getAll]='getAll' [globalSearch]=true [singleSelection]="singleSelectionTable[i]"
+          [title]="titlesTable[i]" [defaultColumnSorting]='orderTable.length>=i?orderTable[i]:null' [nonEditable]='nonEditable'
+          [eventGetSelectedRowsSubscription]="getAllRows.asObservable()" [addFieldRestriction]='addFieldRestriction.length>=i?addFieldRestriction[i]:null'
+          [currentData]='currentData.length>=i?currentData[i]:null' [fieldRestrictionWithDifferentName]='fieldRestrictionWithDifferentName.length>=i?fieldRestrictionWithDifferentName[i]:null' (getSelectedRows)='joinRowsReceived($event)' >
+        </app-data-grid>
+      </mat-tab>
   </div>
-</mat-accordion>
-
-<div mat-dialog-actions align="end">
-  <button mat-flat-button class="returnButton" (click)="closeDialog()">{{"cancel" | translate}}</button>
-  <button mat-flat-button class="saveButton" (click)="getAllSelectedRows()" cdkFocusInitial>{{"add" | translate}}</button>
-</div>
+</mat-tab-group>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button
+    matTooltip="{{ 'add' | translate }}"
+    [mat-dialog-close]="true"
+    mat-mini-fab class="add-half-gap"
+    (click)="getAllSelectedRows()">
+    <mat-icon fontSet="material-icons-round">add</mat-icon>
+  </button>
+  <button
+    matTooltip="{{ 'cancel' | translate }}"
+    mat-dialog-close
+    mat-mini-fab
+    (click)="closeDialog()">
+    <mat-icon fontSet="material-icons-round">arrow_back</mat-icon>
+  </button>
+</mat-dialog-actions>
 
