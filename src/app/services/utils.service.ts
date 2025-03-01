@@ -290,7 +290,7 @@ export class UtilsService {
       filter: false,
       floatingFilter: false,
       lockPosition: true,
-      suppressMove: true,
+      suppressMovable: true,
       cellRenderer: 'btnEditRendererComponent',
       maxWidth: 90,
       minWidth: 90,

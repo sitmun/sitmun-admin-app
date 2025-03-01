@@ -1,14 +1,29 @@
-import { Component, OnInit } from '@angular/core';
-import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { BackgroundService, HalOptions, HalParam, CartographyGroupService, TranslationService, Background, CartographyGroup, CartographyService, RoleService, Cartography, Role, Translation, ApplicationService, ApplicationBackgroundService } from '../../../frontend-core/src/lib/public_api';
-import { HttpClient } from '@angular/common/http';
-import { UtilsService } from '../../../services/utils.service';
-import { Observable, of, Subject } from 'rxjs';
-import { DialogGridComponent } from '../../../frontend-gui/src/lib/public_api';
-import { map } from 'rxjs/operators';
-import { MatDialog } from '@angular/material/dialog';
-import { config } from 'src/config';
+import {Component, OnInit} from '@angular/core';
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
+import {
+  BackgroundService,
+  HalOptions,
+  HalParam,
+  CartographyGroupService,
+  TranslationService,
+  Background,
+  CartographyGroup,
+  CartographyService,
+  RoleService,
+  Translation,
+  ApplicationService,
+  ApplicationBackgroundService
+} from '../../../frontend-core/src/lib/public_api';
+import {HttpClient} from '@angular/common/http';
+import {UtilsService} from '../../../services/utils.service';
+import {Observable, of, Subject} from 'rxjs';
+import {DialogGridComponent} from '../../../frontend-gui/src/lib/public_api';
+import {map} from 'rxjs/operators';
+import {MatDialog} from '@angular/material/dialog';
+import {config} from 'src/config';
+import {MatTabChangeEvent} from '@angular/material/tabs';
+import {constants} from '../../../../environments/constants';
 
 
 @Component({
@@ -19,16 +34,16 @@ import { config } from 'src/config';
 export class BackgroundLayersFormComponent implements OnInit {
 
   //Translations
-  nameTranslationsModified: boolean = false;
-  descriptionTranslationsModified: boolean = false;
+  nameTranslationsModified = false;
+  descriptionTranslationsModified = false;
 
   nameTranslationMap: Map<string, Translation>;
   descriptionTranslationMap: Map<string, Translation>;
 
 
-  permissionGroups: Array<any> = [];
+  permissionGroups: any[] = [];
   cartographyGroupOfThisLayer = null;
-  dataLoaded: Boolean = false;
+  dataLoaded = false;
   themeGrid: any = config.agGridTheme;
 
 
@@ -84,116 +99,105 @@ export class BackgroundLayersFormComponent implements OnInit {
     this.descriptionTranslationMap = this.utils.createTranslationsList(config.translationColumns.backgroundDescription);
 
     const promises: Promise<any>[] = [];
-    promises.push(new Promise((resolve, reject) => {
+    promises.push(new Promise((resolve,) => {
       this.utils.getCodeListValues('cartographyPermission.type', true).map((resp) => {
         resp.forEach(cartographyGroup => {
-          if (cartographyGroup.value === 'F') {
-            this.permissionGroups.push(cartographyGroup)
+          if (cartographyGroup.value === constants.codeValue.cartographyPermissionType.backgroundMap) {
+            this.permissionGroups.push(cartographyGroup);
           }
         });
         resolve(true);
-      }).subscribe()
+      }).subscribe();
 
     }));
 
 
     Promise.all(promises).then(() => {
       this.activatedRoute.params.subscribe(params => {
-        this.backgroundID = +params.id;
+          this.backgroundID = +params.id;
 
-        if (params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
+          if (params.idDuplicate) {
+            this.duplicateID = +params.idDuplicate;
+          }
 
-        if (this.backgroundID !== -1 || this.duplicateID != -1) {
-          let idToGet = this.backgroundID !== -1 ? this.backgroundID : this.duplicateID
-   
-          this.backgroundService.get(idToGet).subscribe(
-            resp => {
-       
-              this.backgroundToEdit = resp;
+          if (this.backgroundID !== -1 || this.duplicateID !== -1) {
+            const idToGet = this.backgroundID !== -1 ? this.backgroundID : this.duplicateID;
 
-              this.backgroundForm.patchValue({
-                description: this.backgroundToEdit.description,
-                image: this.backgroundToEdit.image,
-                cartographyGroup: this.permissionGroups[0].value,
-                active: this.backgroundToEdit.active,
-                _links: this.backgroundToEdit._links
-              });
+            this.backgroundService.get(idToGet).subscribe(
+              resp => {
 
-              if (this.backgroundID !== -1) {
+                this.backgroundToEdit = resp;
+
                 this.backgroundForm.patchValue({
-                  id: this.backgroundID,
-                  name: this.backgroundToEdit.name,
+                  description: this.backgroundToEdit.description,
+                  image: this.backgroundToEdit.image,
+                  cartographyGroup: this.permissionGroups[0].value,
+                  active: this.backgroundToEdit.active,
+                  _links: this.backgroundToEdit._links
                 });
-              }
-              else {
-                this.backgroundForm.patchValue({
-                  name: this.utils.getTranslate('copy_').concat(this.backgroundToEdit.name),
-                });
-              }
+
+                if (this.backgroundID !== -1) {
+                  this.backgroundForm.patchValue({
+                    id: this.backgroundID,
+                    name: this.backgroundToEdit.name,
+                  });
+                } else {
+                  this.backgroundForm.patchValue({
+                    name: this.utils.getTranslate('copy_').concat(this.backgroundToEdit.name),
+                  });
+                }
+
+                if (this.backgroundID !== -1) {
+                  this.translationService.getAll()
+                    .pipe(map((data: any[]) => data.filter(elem => elem.element == this.backgroundID)
+                    )).subscribe(result => {
+
+                      const nameTranslations = [];
+                      const descriptionTranslations = [];
+                      result.forEach(translation => {
+                        if (translation.column == config.translationColumns.backgroundName) {
+                          nameTranslations.push(translation);
+                        } else if (translation.column == config.translationColumns.backgroundDescription) {
+                          descriptionTranslations.push(translation);
+                        }
+                      });
+                      this.utils.updateTranslations(this.nameTranslationMap, nameTranslations);
+                      this.utils.updateTranslations(this.descriptionTranslationMap, descriptionTranslations);
+                    }
+                  );
 
 
+                }
+                let urlReq = `${this.backgroundToEdit._links.cartographyGroup.href}`;
+                const url = new URL(urlReq.split('{')[0]);
+                url.searchParams.append('projection', 'view');
+                urlReq = url.toString();
 
-              if (this.backgroundID != -1) {
-                this.translationService.getAll()
-                  .pipe(map((data: any[]) => data.filter(elem => elem.element == this.backgroundID)
-                  )).subscribe(result => {
-               
-                    let nameTranslations = [];
-                    let descriptionTranslations = [];
-                    result.forEach(translation => {
-                      if (translation.column == config.translationColumns.backgroundName) {
-                        nameTranslations.push(translation)
-                      }
-                      else if (translation.column == config.translationColumns.backgroundDescription) {
-                        descriptionTranslations.push(translation)
-                      }
-                    });
-                    this.utils.updateTranslations(this.nameTranslationMap, nameTranslations)
-                    this.utils.updateTranslations(this.descriptionTranslationMap, descriptionTranslations)
-                  }
-
-                  );;
+                this.http.get(urlReq)
+                  .pipe(map(data => {
+                    this.cartographyGroupOfThisLayer = data;
+                    this.dataLoaded = true;
+                  })).subscribe();
 
 
-              }
-              var urlReq = `${this.backgroundToEdit._links.cartographyGroup.href}`
-              var url = new URL(urlReq.split("{")[0]);
-              url.searchParams.append("projection", "view")
-              urlReq = url.toString();
-              this.http.get(urlReq)
-                .pipe(map(data => {
-    
-                  this.cartographyGroupOfThisLayer = data;
-                  this.dataLoaded = true;
-                })).subscribe();
+                // if(this.backgroundToEdit.cartographyGroupId == null)
+                // {
+                //   this.backgroundForm.patchValue({
+                //     cartographyGroup: this.permissionGroups[0].id
+                //   })
+                // }
+              },
+            );
+          } else {
+            this.backgroundForm.patchValue({
+              active: false,
+              cartographyGroup: this.permissionGroups[0].value
+            });
+            this.dataLoaded = true;
+          }
 
-
-
-
-              // if(this.backgroundToEdit.cartographyGroupId == null)
-              // {
-              //   this.backgroundForm.patchValue({
-              //     cartographyGroup: this.permissionGroups[0].id
-              //   })
-              // }
-            },
-            error => {
-
-            }
-          );
-        }
-        else {
-          this.backgroundForm.patchValue({
-            active: false,
-            cartographyGroup: this.permissionGroups[0].value
-          });
-          this.dataLoaded = true;
-        }
-
-      },
-        error => {
-
-        });
+        },
+      );
 
     });
 
@@ -244,15 +248,13 @@ export class BackgroundLayersFormComponent implements OnInit {
   }
 
   getPermissionGroups() {
-    let params2: HalParam[] = [];
-    let param: HalParam = { key: 'type', value: 'F' }
+    const params2: HalParam[] = [];
+    const param: HalParam = {key: 'type', value: constants.codeValue.cartographyPermissionType.backgroundMap};
     params2.push(param);
-    let query: HalOptions = { params: params2 };
+    const query: HalOptions = {params: params2};
 
     return this.cartographyGroupService.getAll(query);
   }
-
-
 
 
   initializeBackgroundForm(): void {
@@ -273,17 +275,15 @@ export class BackgroundLayersFormComponent implements OnInit {
   }
 
   async onNameTranslationButtonClicked() {
-    let dialogResult = null
-    dialogResult = await this.utils.openTranslationDialog(this.nameTranslationMap);
-    if (dialogResult && dialogResult.event == "Accept") {
+    const dialogResult = await this.utils.openTranslationDialog(this.nameTranslationMap);
+    if (dialogResult && dialogResult.event == 'Accept') {
       this.nameTranslationsModified = true;
     }
   }
 
   async onDescriptionTranslationButtonClicked() {
-    let dialogResult = null
-    dialogResult = await this.utils.openTranslationDialog(this.descriptionTranslationMap);
-    if (dialogResult && dialogResult.event == "Accept") {
+    const dialogResult = await this.utils.openTranslationDialog(this.descriptionTranslationMap);
+    if (dialogResult && dialogResult.event == 'Accept') {
       this.descriptionTranslationsModified = true;
     }
   }
@@ -293,24 +293,25 @@ export class BackgroundLayersFormComponent implements OnInit {
   // ******** Cartographies configuration ******** //
   getAllCartographies = () => {
 
+
     if (this.cartographyGroupOfThisLayer == null && this.backgroundID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
+      const aux: any[] = [];
       return of(aux);
     }
 
-    var urlReq = `${this.cartographyGroupOfThisLayer._links.members.href}`
+    let urlReq = `${this.cartographyGroupOfThisLayer._links.members.href}`;
     if (this.cartographyGroupOfThisLayer._links.members.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
+      const url = new URL(urlReq.split('{')[0]);
+      url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
     return (this.http.get(urlReq))
       .pipe(map(data => data['_embedded']['cartographies']));
 
-  }
+  };
 
   getAllRowsCartographies(event) {
-    if (event.event == "save") {
+    if (event.event == 'save') {
       this.saveCartographies(event.data);
     }
   }
@@ -318,55 +319,61 @@ export class BackgroundLayersFormComponent implements OnInit {
   saveCartographies(data: any[]) {
     const promises: Promise<any>[] = [];
     let dataChanged = false;
-    let cartographiesModified = [];
-    let cartographiesToPut = [];
+    const cartographiesToPut = [];
     data.forEach(cartography => {
       if (cartography.status !== 'pendingDelete') {
         if (cartography.status === 'pendingModify') {
-          if (cartography.newItem) { dataChanged = true; }
-          promises.push(new Promise((resolve, reject) => { this.cartographyService.update(cartography).subscribe((resp) => { resolve(true) }) }));
-        }
-        else if (cartography.status === 'pendingCreation') {
+          if (cartography.newItem) {
+            dataChanged = true;
+          }
+          promises.push(new Promise((resolve,) => {
+            this.cartographyService.update(cartography).subscribe(() => {
+              resolve(true);
+            });
+          }));
+        } else if (cartography.status === 'pendingCreation') {
           dataChanged = true;
         }
-        cartographiesToPut.push(cartography._links.self.href)
-      }
-      else {
+        cartographiesToPut.push(cartography._links.self.href);
+      } else {
         dataChanged = true;
       }
     });
-   
+
     Promise.all(promises).then(() => {
       if (dataChanged) {
-        let url = this.cartographyGroupOfThisLayer._links.members.href.split('{', 1)[0];
-        this.utils.updateUriList(url, cartographiesToPut, this.dataUpdatedEventCartographies)
+        const url = this.cartographyGroupOfThisLayer._links.members.href.split('{', 1)[0];
+        this.utils.updateUriList(url, cartographiesToPut, this.dataUpdatedEventCartographies);
+      } else {
+        this.dataUpdatedEventCartographies.next(true);
       }
-      else { this.dataUpdatedEventCartographies.next(true) }
     });
   }
 
   // ******** Roles  ******** //
   getAllRoles = () => {
-
     if (this.cartographyGroupOfThisLayer == null && this.backgroundID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
+      const aux: any[] = [];
       return of(aux);
     }
 
-    var urlReq = `${this.cartographyGroupOfThisLayer._links.roles.href}`
+    let urlReq = `${this.cartographyGroupOfThisLayer._links.roles.href}`;
     if (this.cartographyGroupOfThisLayer._links.roles.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
+      const url = new URL(urlReq.split('{')[0]);
+      url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
 
     return (this.http.get(urlReq))
-      .pipe(map(data => data['_embedded']['roles']));
+      .pipe(map(data => {
+          return data['_embedded']['roles'];
+        }
+      ));
 
-  }
+  };
 
   getAllRowsRoles(event) {
-    if (event.event == "save") {
+    if (event.event == 'save') {
       this.saveRoles(event.data);
     }
   }
@@ -374,30 +381,34 @@ export class BackgroundLayersFormComponent implements OnInit {
   saveRoles(data: any[]) {
     const promises: Promise<any>[] = [];
     let dataChanged = false;
-    let rolesModified = [];
-    let rolesToPut = [];
+    const rolesToPut = [];
     data.forEach(role => {
       if (role.status !== 'pendingDelete') {
         if (role.status === 'pendingModify') {
-          if (role.newItem) { dataChanged = true; }
-          promises.push(new Promise((resolve, reject) => { this.roleService.update(role).subscribe((resp) => { resolve(true) }) }));
-        }
-        else if (role.status === 'pendingCreation') {
+          if (role.newItem) {
+            dataChanged = true;
+          }
+          promises.push(new Promise((resolve,) => {
+            this.roleService.update(role).subscribe(() => {
+              resolve(true);
+            });
+          }));
+        } else if (role.status === 'pendingCreation') {
           dataChanged = true;
         }
-        rolesToPut.push(role._links.self.href)
-      }
-      else {
+        rolesToPut.push(role._links.self.href);
+      } else {
         dataChanged = true;
       }
     });
 
     Promise.all(promises).then(() => {
       if (dataChanged) {
-        let url = this.cartographyGroupOfThisLayer._links.roles.href.split('{', 1)[0];
-        this.utils.updateUriList(url, rolesToPut, this.dataUpdatedEventRoles)
+        const url = this.cartographyGroupOfThisLayer._links.roles.href.split('{', 1)[0];
+        this.utils.updateUriList(url, rolesToPut, this.dataUpdatedEventRoles);
+      } else {
+        this.dataUpdatedEventRoles.next(true);
       }
-      else { this.dataUpdatedEventRoles.next(true) }
     });
   }
 
@@ -406,15 +417,15 @@ export class BackgroundLayersFormComponent implements OnInit {
 
   getAllApplications = (): Observable<any> => {
 
-    if (this.backgroundID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
+    if (this.backgroundToEdit == null && this.backgroundID == -1 && this.duplicateID == -1) {
+      const aux: any[] = [];
       return of(aux);
     }
 
-    var urlReq = `${this.backgroundToEdit._links.applications.href}`
+    let urlReq = `${this.backgroundToEdit._links.applications.href}`;
     if (this.backgroundToEdit._links.applications.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
+      const url = new URL(urlReq.split('{')[0]);
+      url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
 
@@ -422,10 +433,10 @@ export class BackgroundLayersFormComponent implements OnInit {
       .pipe(map(data => data['_embedded']['application-backgrounds']));
 
 
-  }
+  };
 
   getAllRowsApplications(event) {
-    if (event.event == "save") {
+    if (event.event == 'save') {
       this.saveApplications(event.data);
     }
   }
@@ -435,51 +446,56 @@ export class BackgroundLayersFormComponent implements OnInit {
     const promises: Promise<any>[] = [];
     data.forEach(application => {
       if (application.status === 'pendingCreation' || (application.status === 'pendingModify') && (application.new)) {
-        let index = data.findIndex(element => element.name === application.applicationName && !element.newItem)
+        const index = data.findIndex(element => element.name === application.applicationName && !element.newItem);
         if (index === -1) {
           application.newItem = false;
           application.background = this.backgroundToEdit;
           if (application._links) { //Duplicate
-            let urlReqApplication = `${application._links.application.href}`
+            let urlReqApplication = `${application._links.application.href}`;
             application.id = null;
             if (application._links.application.href) {
-              let url = new URL(urlReqApplication.split("{")[0]);
-              url.searchParams.append("projection", "view")
+              const url = new URL(urlReqApplication.split('{')[0]);
+              url.searchParams.append('projection', 'view');
               urlReqApplication = url.toString();
             }
             application._links = null;
-            promises.push(new Promise((resolve, reject) => {
+            promises.push(new Promise((resolve,) => {
               this.http.get(urlReqApplication).subscribe(result => {
                 application.application = result;
-                this.applicationBackgroundService.save(application).subscribe((resp) => { resolve(true) });
-              })
-            }))
-          }
-          else {
-            promises.push(new Promise((resolve, reject) => { this.applicationBackgroundService.save(application).subscribe((resp) => { resolve(true) }) }));
+                this.applicationBackgroundService.save(application).subscribe(() => {
+                  resolve(true);
+                });
+              });
+            }));
+          } else {
+            promises.push(new Promise((resolve,) => {
+              this.applicationBackgroundService.save(application).subscribe(() => {
+                resolve(true);
+              });
+            }));
           }
         }
-      }
-      else if (application.status === 'pendingModify') {
-        promises.push(new Promise((resolve, reject) => { this.applicationBackgroundService.save(application).subscribe((resp) => { resolve(true) }) }));
-      }
-      else if (application.status === 'pendingDelete' && !application.newItem) {
-        // backgroundsToDelete.push(background) 
-        promises.push(new Promise((resolve, reject) => { this.applicationBackgroundService.remove(application).subscribe((resp) => { resolve(true) }) }));
+      } else if (application.status === 'pendingModify') {
+        promises.push(new Promise((resolve,) => {
+          this.applicationBackgroundService.save(application).subscribe(() => {
+            resolve(true);
+          });
+        }));
+      } else if (application.status === 'pendingDelete' && !application.newItem) {
+        // backgroundsToDelete.push(background)
+        promises.push(new Promise((resolve,) => {
+          this.applicationBackgroundService.remove(application).subscribe(() => {
+            resolve(true);
+          });
+        }));
 
       }
     });
-
 
 
     Promise.all(promises).then(() => {
       this.dataUpdatedEventApplications.next(true);
     });
-
-
-
-
-
 
 
   }
@@ -489,10 +505,10 @@ export class BackgroundLayersFormComponent implements OnInit {
 
   getAllCartographiesDialog = () => {
     return this.cartographyService.getAll();
-  }
+  };
 
   openCartographyDialog(data: any) {
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
+    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass: 'gridDialogs'});
     dialogRef.componentInstance.orderTable = ['name'];
     dialogRef.componentInstance.getAllsTable = [this.getAllCartographiesDialog];
     dialogRef.componentInstance.singleSelectionTable = [false];
@@ -504,11 +520,10 @@ export class BackgroundLayersFormComponent implements OnInit {
     dialogRef.componentInstance.nonEditable = false;
 
 
-
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
-          this.addElementsEventCartographies.next(result.data[0])
+          this.addElementsEventCartographies.next(result.data[0]);
         }
       }
 
@@ -520,11 +535,11 @@ export class BackgroundLayersFormComponent implements OnInit {
 
   getAllRolesDialog = () => {
     return this.roleService.getAll();
-  }
+  };
 
   openRolesDialog(data: any) {
 
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
+    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass: 'gridDialogs'});
     dialogRef.componentInstance.orderTable = ['name'];
     dialogRef.componentInstance.getAllsTable = [this.getAllRolesDialog];
     dialogRef.componentInstance.singleSelectionTable = [false];
@@ -536,11 +551,10 @@ export class BackgroundLayersFormComponent implements OnInit {
     dialogRef.componentInstance.nonEditable = false;
 
 
-
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
-          this.addElementsEventRoles.next(result.data[0])
+          this.addElementsEventRoles.next(result.data[0]);
         }
       }
 
@@ -552,22 +566,21 @@ export class BackgroundLayersFormComponent implements OnInit {
 
   getAllApplicationsDialog = () => {
     return this.applicationService.getAll();
-  }
+  };
 
   openApplicationsDialog(data: any) {
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
+    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass: 'gridDialogs'});
     dialogRef.componentInstance.orderTable = ['name'];
     dialogRef.componentInstance.getAllsTable = [this.getAllApplicationsDialog];
     dialogRef.componentInstance.singleSelectionTable = [false];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsApplicationsDialog];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate("layersPermitsEntity.applications");
+    dialogRef.componentInstance.title = this.utils.getTranslate('layersPermitsEntity.applications');
     dialogRef.componentInstance.titlesTable = [''];
     dialogRef.componentInstance.currentData = [data];
     dialogRef.componentInstance.fieldRestrictionWithDifferentName = ['applicationName'];
     dialogRef.componentInstance.addFieldRestriction = ['name'];
     dialogRef.componentInstance.nonEditable = false;
-
 
 
     dialogRef.afterClosed().subscribe(result => {
@@ -577,7 +590,7 @@ export class BackgroundLayersFormComponent implements OnInit {
             element.id = null;
             element.newItem = true;
           });
-          this.addElementsEventApplications.next(this.adaptNewApplications(result.data[0]))
+          this.addElementsEventApplications.next(this.adaptNewApplications(result.data[0]));
         }
       }
 
@@ -587,13 +600,13 @@ export class BackgroundLayersFormComponent implements OnInit {
 
 
   adaptNewApplications(data: any[]) {
-    let newApplications = [];
+    const newApplications = [];
     data.forEach(application => {
-      let newBackground = {
+      const newBackground = {
         application: application,
         applicationName: application.name,
         new: true
-      }
+      };
       newApplications.push(newBackground);
     });
     return newApplications;
@@ -605,7 +618,7 @@ export class BackgroundLayersFormComponent implements OnInit {
   onSaveButtonClicked() {
 
     if (this.backgroundForm.valid) {
-      let cartographyGroupObj = new CartographyGroup();
+      const cartographyGroupObj = new CartographyGroup();
       cartographyGroupObj.name = this.backgroundForm.value.name;
       cartographyGroupObj.type = this.backgroundForm.value.cartographyGroup;
       cartographyGroupObj._links = null;
@@ -618,19 +631,16 @@ export class BackgroundLayersFormComponent implements OnInit {
       if (this.cartographyGroupOfThisLayer == null) {
         this.cartographyGroupService.save(cartographyGroupObj)
           .subscribe(resp => {
-            this.cartographyGroupOfThisLayer = resp;
-            this.updateBackground(resp);
-          },
+              this.cartographyGroupOfThisLayer = resp;
+              this.updateBackground(resp);
+            },
             error => {
               console.log(error);
             });
-      }
-      else {
+      } else {
         this.updateBackground(this.cartographyGroupOfThisLayer);
       }
-    }
-
-    else {
+    } else {
       this.utils.showRequiredFieldsError();
     }
 
@@ -642,10 +652,10 @@ export class BackgroundLayersFormComponent implements OnInit {
     if (this.backgroundID == -1 && this.duplicateID != -1) {
       this.backgroundForm.patchValue({
         _links: null
-      })
+      });
     }
 
-    var backgroundObj: Background = new Background();
+    const backgroundObj: Background = new Background();
 
     backgroundObj.id = this.backgroundForm.value.id;
     backgroundObj.name = this.backgroundForm.value.name;
@@ -654,30 +664,35 @@ export class BackgroundLayersFormComponent implements OnInit {
     backgroundObj.cartographyGroup = cartographyGroup;
     backgroundObj.active = this.backgroundForm.value.active;
     backgroundObj._links = this.backgroundForm.value._links;
-    if(backgroundObj._links && backgroundObj._links.cartographyGroup && backgroundObj._links.cartographyGroup.href){
-      backgroundObj._links.cartographyGroup.href = backgroundObj._links.cartographyGroup.href.split("{")[0];
+    if (backgroundObj._links && backgroundObj._links.cartographyGroup && backgroundObj._links.cartographyGroup.href) {
+      backgroundObj._links.cartographyGroup.href = backgroundObj._links.cartographyGroup.href.split('{')[0];
     }
 
     this.backgroundService.save(backgroundObj)
       .subscribe(async resp => {
-        this.backgroundToEdit = resp;
-        this.backgroundID = resp.id;
-        this.backgroundForm.patchValue({
-          id: resp.id,
-          _links: resp._links
-        })
-        this.utils.saveTranslation(resp.id, this.nameTranslationMap, this.backgroundToEdit.name, this.nameTranslationsModified);
-        this.nameTranslationsModified = false;
-        this.utils.saveTranslation(resp.id, this.descriptionTranslationMap, this.backgroundToEdit.description, this.descriptionTranslationsModified);
-        this.descriptionTranslationsModified = false;
+          this.backgroundToEdit = resp;
+          this.backgroundID = resp.id;
+          this.backgroundForm.patchValue({
+            id: resp.id,
+            _links: resp._links
+          });
+          await this.utils.saveTranslation(resp.id, this.nameTranslationMap, this.backgroundToEdit.name, this.nameTranslationsModified);
+          this.nameTranslationsModified = false;
+          await this.utils.saveTranslation(resp.id, this.descriptionTranslationMap, this.backgroundToEdit.description, this.descriptionTranslationsModified);
+          this.descriptionTranslationsModified = false;
 
-        this.getAllElementsEventCartographies.next('save');
-        this.getAllElementsEventRoles.next('save');
-        this.getAllElementsEventApplications.next('save');
-      },
+          this.getAllElementsEventCartographies.next('save');
+          this.getAllElementsEventRoles.next('save');
+          this.getAllElementsEventApplications.next('save');
+        },
         error => {
-          console.log("error")
+          console.log(error);
         });
   }
 
+  activeTabIndex = 0;
+
+  onTabChange(event: MatTabChangeEvent) {
+    this.activeTabIndex = event.index;
+  }
 }

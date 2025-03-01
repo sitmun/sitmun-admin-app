@@ -1126,8 +1126,6 @@ export class LayersFormComponent implements OnInit {
       const aux: any[] = [];
       return of(aux);
     }
-    console.log("Layer to edit");
-    console.log(this.layerToEdit);
     let urlReq = `${this.layerToEdit._links.availabilities.href}`;
     if (this.layerToEdit._links.availabilities.templated) {
       const url = new URL(urlReq.split('{')[0]);
@@ -1220,7 +1218,6 @@ export class LayersFormComponent implements OnInit {
       const aux: any[] = [];
       return of(aux);
     }
-    console.log(this.layerToEdit);
     let urlReq = `${this.layerToEdit._links.permissions.href}`;
     if (this.layerToEdit._links.permissions.templated) {
       const url = new URL(urlReq.split('{')[0]);
@@ -1580,7 +1577,6 @@ export class LayersFormComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
-          console.log('result.data[0]');
           this.addElementsEventCartographyGroups.next(result.data[0]);
         }
       }
@@ -1718,9 +1714,7 @@ export class LayersFormComponent implements OnInit {
             this.dataUpdatedEventNodes.next(true);
 
           },
-          error => {
-            console.log(error);
-          });
+          );
     } else {
       this.utils.showRequiredFieldsError();
     }

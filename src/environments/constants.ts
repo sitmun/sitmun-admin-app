@@ -18,6 +18,7 @@ export const constants = {
       cartography: 'cartography',
     },
     cartographyPermissionType: {
+      backgroundMap: 'F',
       locationMap: 'M'
     },
     systemUser: {

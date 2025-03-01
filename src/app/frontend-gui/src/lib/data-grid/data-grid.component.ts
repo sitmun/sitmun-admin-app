@@ -245,7 +245,11 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   setLoading(value: boolean) {
-    this.gridApi?.setGridOption("loading", value);
+    if (value) {
+      this.gridApi?.showLoadingOverlay();
+    } else {
+      this.gridApi?.hideOverlay();
+    }
   }
 
   loadData(): void {
@@ -307,11 +311,6 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     this.params = params;
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
-
-    // Ensure sizeColumnsToFit is called after the grid is fully rendered
-    this.gridApi.addEventListener('firstDataRendered', () => {
-      this.gridApi.sizeColumnsToFit();
-    });
 
     if (this.singleSelection) { this.gridOptions.rowSelection = 'single' }
     // if (this.nonEditable) {this.gridOptions.defaultColDef.editable = false}
@@ -485,7 +484,6 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         allColumnIds.push(column.colId);
       });
       this.gridApi.autoSizeAllColumns();
-      this.gridApi.sizeColumnsToFit();
     }
   }
 

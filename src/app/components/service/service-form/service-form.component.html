@@ -60,19 +60,6 @@
             <mat-label>{{ 'serviceEntity.url' | translate }}</mat-label>
             <input matInput type="text" formControlName="serviceURL" required>
           </mat-form-field>
-          <button
-            mat-raised-button
-            class="sitmun-mat-button-margin sitmun-action-button"
-            id="capabilitiesButton"
-            type="button"
-            *ngIf="isWMS()"
-            (click)="onDataCapabilitiesButtonClicked()"
-          >
-            {{ (serviceID === -1 ? 'serviceEntity.getData' : 'serviceEntity.updateData') | translate }}
-          </button>
-          <mat-checkbox formControlName="isProxied">
-            {{ 'serviceEntity.proxied' | translate }}
-          </mat-checkbox>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'serviceEntity.metadataURL' | translate }}</mat-label>
             <input matInput type="text" formControlName="getInformationURL">
@@ -96,6 +83,9 @@
                 (matChipInputTokenEnd)="addProjection($event)"/>
             </mat-chip-grid>
           </mat-form-field>
+          <mat-checkbox formControlName="isProxied">
+            {{ 'serviceEntity.proxied' | translate }}
+          </mat-checkbox>
         </mat-card-content>
       </mat-card>
 
@@ -129,6 +119,20 @@
     </form>
   </mat-tab>
   <mat-tab label="{{ 'serviceEntity.layersToRegister' | translate }}">
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        <button
+          mat-raised-button
+          class="sitmun-mat-button-margin sitmun-action-button"
+          id="capabilitiesButton"
+          type="button"
+          *ngIf="isWMS()"
+          (click)="onDataCapabilitiesButtonClicked()"
+        >
+          {{ (serviceID === -1 ? 'serviceEntity.getData' : 'serviceEntity.updateData') | translate }}
+        </button>
+      </mat-card-content>
+    </mat-card>
     <app-data-grid [allNewElements]="serviceID === -1"
                    [columnDefs]="columnDefsLayers"
                    [getAll]='getAllLayers'
