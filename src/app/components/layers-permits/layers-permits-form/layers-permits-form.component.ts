@@ -1,15 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 
-import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { CartographyGroupService, RoleService,  CartographyService } from '../../../frontend-core/src/lib/public_api';
-import { HttpClient } from '@angular/common/http';
-import { UtilsService } from '../../../services/utils.service';
-import { map } from 'rxjs/operators';
-import { config } from 'src/config';
-import { DialogGridComponent } from '../../../frontend-gui/src/lib/public_api';
-import { MatDialog } from '@angular/material/dialog';
-import { of, Subject } from 'rxjs';
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
+import {CartographyGroupService, RoleService, CartographyService} from '../../../frontend-core/src/lib/public_api';
+import {HttpClient} from '@angular/common/http';
+import {UtilsService} from '../../../services/utils.service';
+import {map} from 'rxjs/operators';
+import {config} from 'src/config';
+import {DialogGridComponent} from '../../../frontend-gui/src/lib/public_api';
+import {MatDialog} from '@angular/material/dialog';
+import {of, Subject} from 'rxjs';
+import {MatTabChangeEvent} from '@angular/material/tabs';
 
 @Component({
   selector: 'app-layers-permits-form',
@@ -17,31 +18,31 @@ import { of, Subject } from 'rxjs';
   styleUrls: ['./layers-permits-form.component.scss']
 })
 export class LayersPermitsFormComponent implements OnInit {
- 
+
   //Form
   formLayersPermits: UntypedFormGroup;
   layersPermitsToEdit;
   layersPermitsID = -1;
   duplicateID = -1;
   themeGrid: any = config.agGridTheme;
-  permissionGroupTypes: Array<any> = [];
-  dataLoaded: Boolean = false;
+  permissionGroupTypes: any[] = [];
+  dataLoaded = false;
 
   //Grids
   columnDefsCartographies: any[];
-  getAllElementsEventCartographies: Subject<string> = new Subject <string>();
+  getAllElementsEventCartographies: Subject<string> = new Subject<string>();
   dataUpdatedEventCartographies: Subject<boolean> = new Subject<boolean>();
 
   columnDefsRoles: any[];
-  getAllElementsEventRoles: Subject<string> = new Subject <string>();
+  getAllElementsEventRoles: Subject<string> = new Subject<string>();
   dataUpdatedEventRoles: Subject<boolean> = new Subject<boolean>();
 
   //Dialog
   columnDefsRolesDialog: any[];
-  addElementsEventRoles: Subject<any[]> = new Subject <any[]>();
-  
+  addElementsEventRoles: Subject<any[]> = new Subject<any[]>();
+
   columnDefsCartographiesDialog: any[];
-  addElementsEventCartographies: Subject<any[]> = new Subject <any[]>();
+  addElementsEventCartographies: Subject<any[]> = new Subject<any[]>();
 
   constructor(
     public dialog: MatDialog,
@@ -59,8 +60,8 @@ export class LayersPermitsFormComponent implements OnInit {
   ngOnInit(): void {
 
     const promises: Promise<any>[] = [];
-	
-    promises.push(new Promise((resolve, reject) => {
+
+    promises.push(new Promise((resolve,) => {
       this.utils.getCodeListValues('cartographyPermission.type').subscribe(
         resp => {
           this.permissionGroupTypes.push(...resp);
@@ -72,51 +73,46 @@ export class LayersPermitsFormComponent implements OnInit {
 
     Promise.all(promises).then(() => {
       this.activatedRoute.params.subscribe(params => {
-        this.layersPermitsID = +params.id;
-        if(params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
-      
-        if (this.layersPermitsID !== -1 || this.duplicateID != -1) {
-          let idToGet = this.layersPermitsID !== -1? this.layersPermitsID: this.duplicateID  
-      
-  
-          this.cartographyGroupService.get(idToGet).subscribe(
-            resp => {
-              this.layersPermitsToEdit = resp;
-              this.formLayersPermits.patchValue({
-                type: this.layersPermitsToEdit.type,
-                _links: this.layersPermitsToEdit._links
-              });
+          this.layersPermitsID = +params.id;
+          if (params.idDuplicate) {
+            this.duplicateID = +params.idDuplicate;
+          }
 
-              if(this.layersPermitsID !== -1){
+          if (this.layersPermitsID !== -1 || this.duplicateID != -1) {
+            const idToGet = this.layersPermitsID !== -1 ? this.layersPermitsID : this.duplicateID;
+
+
+            this.cartographyGroupService.get(idToGet).subscribe(
+              resp => {
+                this.layersPermitsToEdit = resp;
                 this.formLayersPermits.patchValue({
-                id: this.layersPermitsID,
-                name: this.layersPermitsToEdit.name,
+                  type: this.layersPermitsToEdit.type,
+                  _links: this.layersPermitsToEdit._links
                 });
-                  }
-              else{
-                this.formLayersPermits.patchValue({
-                name: this.utils.getTranslate('copy_').concat(this.layersPermitsToEdit.name),
-                });
-              }
-  
-              this.dataLoaded = true;
-            },
-            error => {
-  
-            }
-          );
-        }
-        else {
-          this.formLayersPermits.patchValue({
-            type: this.permissionGroupTypes[0].value
-          })
-          this.dataLoaded = true;
-        }
-  
-      },
-        error => {
-  
-        });
+
+                if (this.layersPermitsID !== -1) {
+                  this.formLayersPermits.patchValue({
+                    id: this.layersPermitsID,
+                    name: this.layersPermitsToEdit.name,
+                  });
+                } else {
+                  this.formLayersPermits.patchValue({
+                    name: this.utils.getTranslate('copy_').concat(this.layersPermitsToEdit.name),
+                  });
+                }
+
+                this.dataLoaded = true;
+              },
+            );
+          } else {
+            this.formLayersPermits.patchValue({
+              type: this.permissionGroupTypes[0].value
+            });
+            this.dataLoaded = true;
+          }
+
+        },
+      );
     });
 
 
@@ -162,7 +158,7 @@ export class LayersPermitsFormComponent implements OnInit {
       ]),
       _links: new UntypedFormControl(null, []),
 
-    })
+    });
 
   }
 
@@ -171,114 +167,119 @@ export class LayersPermitsFormComponent implements OnInit {
   // ******** Cartographies configuration ******** //
   getAllCartographies = () => {
 
-    if (this.layersPermitsID == -1 && this.duplicateID == -1) 
-    {
-      const aux: Array<any> = [];
+    if (this.layersPermitsID == -1 && this.duplicateID == -1) {
+      const aux: any[] = [];
       return of(aux);
     }
 
-     var urlReq = `${this.layersPermitsToEdit._links.members.href}`
-     if (this.layersPermitsToEdit._links.members.templated) {
-       var url = new URL(urlReq.split("{")[0]);
-       url.searchParams.append("projection", "view")
-       urlReq = url.toString();
-     }
-     return (this.http.get(urlReq))
-     .pipe(map(data => data['_embedded']['cartographies']));
+    let urlReq = `${this.layersPermitsToEdit._links.members.href}`;
+    if (this.layersPermitsToEdit._links.members.templated) {
+      const url = new URL(urlReq.split('{')[0]);
+      url.searchParams.append('projection', 'view');
+      urlReq = url.toString();
+    }
+    return (this.http.get(urlReq))
+      .pipe(map(data => data['_embedded']['cartographies']));
 
-  }
+  };
 
-  getAllRowsCartographies(event){
-    if(event.event == "save"){
+  getAllRowsCartographies(event) {
+    if (event.event == 'save') {
       this.saveCartographies(event.data);
     }
   }
 
 
-  saveCartographies(data: any[] )
-  {
+  saveCartographies(data: any[]) {
     let dataChanged = false;
     const promises: Promise<any>[] = [];
-    let cartographiesToPut = [];
+    const cartographiesToPut = [];
     data.forEach(cartography => {
-      if(cartography.status!== 'pendingDelete') {
+      if (cartography.status !== 'pendingDelete') {
         if (cartography.status === 'pendingModify') {
-          if(cartography.newItem){ dataChanged = true; }
-          promises.push(new Promise((resolve, reject) => { this.cartographyService.update(cartography).subscribe((resp) => { resolve(true) }) }));
-        }
-        else if (cartography.status === 'pendingCreation') {
+          if (cartography.newItem) {
+            dataChanged = true;
+          }
+          promises.push(new Promise((resolve, ) => {
+            this.cartographyService.update(cartography).subscribe(() => {
+              resolve(true);
+            });
+          }));
+        } else if (cartography.status === 'pendingCreation') {
           dataChanged = true;
         }
-        cartographiesToPut.push(cartography._links.self.href) 
-      }
-      else {
+        cartographiesToPut.push(cartography._links.self.href);
+      } else {
         dataChanged = true;
       }
     });
     Promise.all(promises).then(() => {
-      if(dataChanged){
-        let url=this.layersPermitsToEdit._links.members.href.split('{', 1)[0];
-        this.utils.updateUriList(url,cartographiesToPut, this.dataUpdatedEventCartographies)
+      if (dataChanged) {
+        const url = this.layersPermitsToEdit._links.members.href.split('{', 1)[0];
+        this.utils.updateUriList(url, cartographiesToPut, this.dataUpdatedEventCartographies);
+      } else {
+        this.dataUpdatedEventCartographies.next(true);
       }
-      else { this.dataUpdatedEventCartographies.next(true) }
     });
   }
 
   // ******** Roles  ******** //
   getAllRoles = () => {
 
-    if (this.layersPermitsID == -1 && this.duplicateID == -1) 
-    {
-      const aux: Array<any> = [];
+    if (this.layersPermitsID == -1 && this.duplicateID == -1) {
+      const aux: any[] = [];
       return of(aux);
     }
 
-    var urlReq = `${this.layersPermitsToEdit._links.roles.href}`
+    let urlReq = `${this.layersPermitsToEdit._links.roles.href}`;
     if (this.layersPermitsToEdit._links.roles.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
+      const url = new URL(urlReq.split('{')[0]);
+      url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
-   
+
     return (this.http.get(urlReq))
-       .pipe(map(data => data['_embedded']['roles']));
+      .pipe(map(data => data['_embedded']['roles']));
 
-  }
+  };
 
-  getAllRowsRoles(event){
-    if(event.event == "save"){
+  getAllRowsRoles(event) {
+    if (event.event == 'save') {
       this.saveRoles(event.data);
     }
   }
 
-  saveRoles(data: any[] )
-  {
+  saveRoles(data: any[]) {
     let dataChanged = false;
     const promises: Promise<any>[] = [];
-    let rolesToPut = [];
+    const rolesToPut = [];
     data.forEach(role => {
-      if(role.status!== 'pendingDelete') {
+      if (role.status !== 'pendingDelete') {
         if (role.status === 'pendingModify') {
-          if(role.newItem){ dataChanged = true; }
-          promises.push(new Promise((resolve, reject) => { this.roleService.update(role).subscribe((resp) => { resolve(true) }) }));
+          if (role.newItem) {
+            dataChanged = true;
+          }
+          promises.push(new Promise((resolve, ) => {
+            this.roleService.update(role).subscribe(() => {
+              resolve(true);
+            });
+          }));
 
-        }
-        else if(role.status === 'pendingCreation'){
+        } else if (role.status === 'pendingCreation') {
           dataChanged = true;
         }
-        rolesToPut.push(role._links.self.href)
-      }
-      else{
+        rolesToPut.push(role._links.self.href);
+      } else {
         dataChanged = true;
       }
     });
     Promise.all(promises).then(() => {
-      if(dataChanged)
-      {
-        let url=this.layersPermitsToEdit._links.roles.href.split('{', 1)[0];
-        this.utils.updateUriList(url,rolesToPut, this.dataUpdatedEventRoles)
+      if (dataChanged) {
+        const url = this.layersPermitsToEdit._links.roles.href.split('{', 1)[0];
+        this.utils.updateUriList(url, rolesToPut, this.dataUpdatedEventRoles);
+      } else {
+        this.dataUpdatedEventRoles.next(true);
       }
-      else { this.dataUpdatedEventRoles.next(true) }
     });
   }
 
@@ -286,26 +287,25 @@ export class LayersPermitsFormComponent implements OnInit {
 
   getAllCartographiesDialog = () => {
     return this.cartographyService.getAll();
-  }
+  };
 
   openCartographyDialog(data: any) {
-    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
+    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass: 'gridDialogs'});
     dialogRef.componentInstance.orderTable = ['name'];
-    dialogRef.componentInstance.getAllsTable=[this.getAllCartographiesDialog];
-    dialogRef.componentInstance.singleSelectionTable=[false];
-    dialogRef.componentInstance.columnDefsTable=[this.columnDefsCartographiesDialog];
-    dialogRef.componentInstance.themeGrid=this.themeGrid;
-    dialogRef.componentInstance.title=this.utils.getTranslate('layersPermitsEntity.cartographiesConfiguration');
-    dialogRef.componentInstance.currentData=[data];
-    dialogRef.componentInstance.titlesTable=[''];
-    dialogRef.componentInstance.nonEditable=false;
-    
+    dialogRef.componentInstance.getAllsTable = [this.getAllCartographiesDialog];
+    dialogRef.componentInstance.singleSelectionTable = [false];
+    dialogRef.componentInstance.columnDefsTable = [this.columnDefsCartographiesDialog];
+    dialogRef.componentInstance.themeGrid = this.themeGrid;
+    dialogRef.componentInstance.title = this.utils.getTranslate('layersPermitsEntity.cartographiesConfiguration');
+    dialogRef.componentInstance.currentData = [data];
+    dialogRef.componentInstance.titlesTable = [''];
+    dialogRef.componentInstance.nonEditable = false;
 
 
     dialogRef.afterClosed().subscribe(result => {
-      if(result){
-        if( result.event==='Add') { 
-          this.addElementsEventCartographies.next(result.data[0])
+      if (result) {
+        if (result.event === 'Add') {
+          this.addElementsEventCartographies.next(result.data[0]);
         }
       }
 
@@ -313,31 +313,30 @@ export class LayersPermitsFormComponent implements OnInit {
 
   }
 
-   // ******** Roles Dialog  ******** //
+  // ******** Roles Dialog  ******** //
 
-   getAllRolesDialog = () => {
+  getAllRolesDialog = () => {
     return this.roleService.getAll();
-  }
+  };
 
   openRolesDialog(data: any) {
 
-    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
+    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass: 'gridDialogs'});
     dialogRef.componentInstance.orderTable = ['name'];
-    dialogRef.componentInstance.getAllsTable=[this.getAllRolesDialog];
-    dialogRef.componentInstance.singleSelectionTable=[false];
-    dialogRef.componentInstance.columnDefsTable=[this.columnDefsRolesDialog];
-    dialogRef.componentInstance.themeGrid=this.themeGrid;
-    dialogRef.componentInstance.title=this.utils.getTranslate('layersPermitsEntity.roles');
-    dialogRef.componentInstance.currentData=[data];
-    dialogRef.componentInstance.titlesTable=[''];
-    dialogRef.componentInstance.nonEditable=false;
-    
+    dialogRef.componentInstance.getAllsTable = [this.getAllRolesDialog];
+    dialogRef.componentInstance.singleSelectionTable = [false];
+    dialogRef.componentInstance.columnDefsTable = [this.columnDefsRolesDialog];
+    dialogRef.componentInstance.themeGrid = this.themeGrid;
+    dialogRef.componentInstance.title = this.utils.getTranslate('layersPermitsEntity.roles');
+    dialogRef.componentInstance.currentData = [data];
+    dialogRef.componentInstance.titlesTable = [''];
+    dialogRef.componentInstance.nonEditable = false;
 
 
     dialogRef.afterClosed().subscribe(result => {
-      if(result){
-        if( result.event==='Add') { 
-          this.addElementsEventRoles.next(result.data[0])
+      if (result) {
+        if (result.event === 'Add') {
+          this.addElementsEventRoles.next(result.data[0]);
         }
       }
 
@@ -348,42 +347,43 @@ export class LayersPermitsFormComponent implements OnInit {
 
   // Save Button
 
-  onSaveButtonClicked(){
+  onSaveButtonClicked() {
 
-    if(this.formLayersPermits.value.type)
+    if (this.formLayersPermits.value.type) {
+      if (this.formLayersPermits.valid) {
 
-    if(this.formLayersPermits.valid)
-    {
-
-      if (this.layersPermitsID == -1 && this.duplicateID != -1) {
-        this.formLayersPermits.patchValue({
-          _links: null
-        })
-      }
+        if (this.layersPermitsID == -1 && this.duplicateID != -1) {
+          this.formLayersPermits.patchValue({
+            _links: null
+          });
+        }
 
         this.cartographyGroupService.save(this.formLayersPermits.value)
-        .subscribe(resp => {
-          this.layersPermitsToEdit=resp;
-          this.layersPermitsID=resp.id
-          this.formLayersPermits.patchValue({
-            id: resp.id,
-            _links: resp._links
-          })
-          this.getAllElementsEventCartographies.next('save');
-          this.getAllElementsEventRoles.next('save');
-        },
-        error => {
-          console.log(error);
-        });
-    }
-    else {
-      this.utils.showRequiredFieldsError();
+          .subscribe(resp => {
+              this.layersPermitsToEdit = resp;
+              this.layersPermitsID = resp.id;
+              this.formLayersPermits.patchValue({
+                id: resp.id,
+                _links: resp._links
+              });
+              this.getAllElementsEventCartographies.next('save');
+              this.getAllElementsEventRoles.next('save');
+            },
+            error => {
+              console.log(error);
+            });
+      } else {
+        this.utils.showRequiredFieldsError();
+      }
     }
 
   }
 
-  
+  activeTabIndex = 0;
 
+  onTabChange(event: MatTabChangeEvent) {
+    this.activeTabIndex = event.index;
+  }
 }
 
 

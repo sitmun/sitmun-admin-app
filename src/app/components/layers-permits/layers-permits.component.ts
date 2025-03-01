@@ -1,13 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { CartographyGroupService, CartographyGroup, HalParam, HalOptions } from '../../frontend-core/src/lib/public_api';
-import { UtilsService } from '../../services/utils.service';
-import { Router } from '@angular/router';
-import { environment } from 'src/environments/environment';
-import { config } from 'src/config';
-import { Subject } from 'rxjs';
-import { MatDialog } from '@angular/material/dialog';
-import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
-import { Observable } from 'rxjs';
+import {Component, OnInit} from '@angular/core';
+import {CartographyGroupService, CartographyGroup, HalParam, HalOptions} from '../../frontend-core/src/lib/public_api';
+import {UtilsService} from '../../services/utils.service';
+import {Router} from '@angular/router';
+import {config} from 'src/config';
+import {Subject} from 'rxjs';
+import {MatDialog} from '@angular/material/dialog';
+import {DialogMessageComponent} from '../../frontend-gui/src/lib/public_api';
+import {Observable} from 'rxjs';
+import {constants} from '../../../environments/constants';
 
 @Component({
   selector: 'app-layers-permits',
@@ -21,12 +21,12 @@ export class LayersPermitsComponent implements OnInit {
   columnDefs: any[];
   gridModified = false;
 
-  permissionGroupTypes: Array<any> = [];
+  permissionGroupTypes: any[] = [];
 
   constructor(public dialog: MatDialog,
-    public cartographyGroupService: CartographyGroupService,
-    private utils: UtilsService,
-    private router: Router
+              public cartographyGroupService: CartographyGroupService,
+              private utils: UtilsService,
+              private router: Router
   ) {
 
   }
@@ -38,17 +38,17 @@ export class LayersPermitsComponent implements OnInit {
         this.permissionGroupTypes.push(...resp);
       }
     );
-    var columnEditBtn=this.utils.getEditBtnColumnDef();
-    columnEditBtn['cellRendererParams']= {
+    const columnEditBtn = this.utils.getEditBtnColumnDef();
+    columnEditBtn['cellRendererParams'] = {
       clicked: this.newData.bind(this)
-    }
+    };
 
     this.columnDefs = [
-      this.utils.getSelCheckboxColumnDef(),
       columnEditBtn,
+      this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
       this.utils.getEditableColumnDef('layersPermitsEntity.name', 'name'),
-      this.utils.getFormattedColumnDef('layersPermitsEntity.type',this.permissionGroupTypes,'type')
+      this.utils.getFormattedColumnDef('layersPermitsEntity.type', this.permissionGroupTypes, 'type')
     ];
 
   }
@@ -58,27 +58,33 @@ export class LayersPermitsComponent implements OnInit {
     if (this.gridModified) {
 
 
-      let result = await this.utils.showNavigationOutDialog().toPromise();
-      if(!result || result.event!=='Accept') { return false }
-      else if(result.event ==='Accept') {return true;}
-      else{
+      const result = await this.utils.showNavigationOutDialog().toPromise();
+      if (!result || result.event !== 'Accept') {
+        return false;
+      } else if (result.event === 'Accept') {
+        return true;
+      } else {
         return true;
       }
+    } else {
+      return true;
     }
-    else return true
-  }	
+  }
 
-  setGridModifiedValue(value){
-    this.gridModified=value;
+  setGridModifiedValue(value) {
+    this.gridModified = value;
   }
 
   getAllLayersPermits = () => {
-    let params2: HalParam[] = [];
-    let param: HalParam[]= [{ key: 'type', value: 'I' }, { key: 'type', value: 'C' }, { key: 'type', value: 'M' }]
+    const params2: HalParam[] = [];
+    const param: HalParam[] = [
+      {key: 'type', value: constants.codeValue.cartographyPermissionType.report},
+      {key: 'type', value: constants.codeValue.cartographyPermissionType.cartographyGroup},
+      {key: 'type', value: constants.codeValue.cartographyPermissionType.locationMap}];
     params2.push(...param);
-    let query: HalOptions = { params: params2 };
-    return this.cartographyGroupService.getAll(query,null,null,true);
-  }
+    const query: HalOptions = {params: params2};
+    return this.cartographyGroupService.getAll(query, null, null, true);
+  };
 
   newData(id: any) {
     this.saveAgGridStateEvent.next(true);
@@ -88,7 +94,11 @@ export class LayersPermitsComponent implements OnInit {
   applyChanges(data: CartographyGroup[]) {
     const promises: Promise<any>[] = [];
     data.forEach(cartographyGroup => {
-      promises.push(new Promise((resolve, reject) => { this.cartographyGroupService.update(cartographyGroup).subscribe((resp) => { resolve(true) }) }));
+      promises.push(new Promise((resolve,) => {
+        this.cartographyGroupService.update(cartographyGroup).subscribe(() => {
+          resolve(true);
+        });
+      }));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);
       });
@@ -101,20 +111,24 @@ export class LayersPermitsComponent implements OnInit {
 
   removeData(data: CartographyGroup[]) {
     const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title=this.utils.getTranslate("caution");
-    dialogRef.componentInstance.message=this.utils.getTranslate("removeMessage");
+    dialogRef.componentInstance.title = this.utils.getTranslate('caution');
+    dialogRef.componentInstance.message = this.utils.getTranslate('removeMessage');
     dialogRef.afterClosed().subscribe(result => {
-      if(result){
-        if(result.event==='Accept') {  
+      if (result) {
+        if (result.event === 'Accept') {
           const promises: Promise<any>[] = [];
           data.forEach(cartographyGroup => {
-            promises.push(new Promise((resolve, reject) => { this.cartographyGroupService.delete(cartographyGroup).subscribe((resp) => { resolve(true) }) }));
+            promises.push(new Promise((resolve,) => {
+              this.cartographyGroupService.delete(cartographyGroup).subscribe(() => {
+                resolve(true);
+              });
+            }));
             Promise.all(promises).then(() => {
               this.dataUpdatedEvent.next(true);
             });
           });
-      
-       }
+
+        }
       }
     });
 

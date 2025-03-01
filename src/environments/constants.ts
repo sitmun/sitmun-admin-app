@@ -18,6 +18,8 @@ export const constants = {
       cartography: 'cartography',
     },
     cartographyPermissionType: {
+      cartographyGroup: 'C',
+      report: 'I',
       backgroundMap: 'F',
       locationMap: 'M'
     },
