@@ -13,7 +13,7 @@ import { IFloatingFilterAngularComp } from '@ag-grid-community/angular';
 })
 export class BtnCheckboxFilterComponent implements IFloatingFilterAngularComp  {
   private params: IFloatingFilterParams;
-  public currentValue: string = '';
+  public currentValue = '';
 
   agInit(params: IFloatingFilterParams): void {
     this.params = params;
@@ -28,7 +28,7 @@ export class BtnCheckboxFilterComponent implements IFloatingFilterAngularComp  {
       return;
     }
 
-    this.currentValue = this.currentValue;
+    this.currentValue = newValue;
     this.params.parentFilterInstance((instance) => {
         instance.onFloatingFilterChanged('equals',newValue);
     });

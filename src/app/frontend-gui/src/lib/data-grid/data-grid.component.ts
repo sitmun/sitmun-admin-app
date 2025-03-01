@@ -205,7 +205,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         this.changeCounter = 0;
         this.previousChangeCounter = 0;
         this.redoCounter = 0;
-        this.onGridReady([]);
+        this.onGridReady(this.params);
       });
     }
     if (this.eventGetSelectedRowsSubscription) {

@@ -1,12 +1,12 @@
 import { ICellRendererAngularComp } from '@ag-grid-community/angular';
-import { Component, OnDestroy,NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-btn-checkbox-rendered',
   templateUrl: './btn-checkbox-rendered.component.html',
   styleUrls: ['./btn-checkbox-rendered.component.scss']
 })
-export class BtnCheckboxRenderedComponent implements ICellRendererAngularComp, OnDestroy {
+export class BtnCheckboxRenderedComponent implements ICellRendererAngularComp {
 
   public params: any;
 
@@ -16,7 +16,7 @@ export class BtnCheckboxRenderedComponent implements ICellRendererAngularComp, O
 
   refresh(params: any): boolean {
     this.params = params;
-    
+
     return true;
   }
 
@@ -29,9 +29,9 @@ export class BtnCheckboxRenderedComponent implements ICellRendererAngularComp, O
   btnCheckedHandler(event) {
     if(this.params.colDef.editable){
       //let checked = !event.target.firstElementChild.checked;
-      
-      let checked =event.target.checked;
-      let colId = this.params.column.colId;
+
+      const checked =event.target.checked;
+      const colId = this.params.column.colId;
       this.params.value=checked;
       this.params.api.undoRedoService.isFilling=true;
       this.params.node.setDataValue(colId, checked);
@@ -40,15 +40,11 @@ export class BtnCheckboxRenderedComponent implements ICellRendererAngularComp, O
       event.preventDefault();
     }
 
-    
+
   }
 
   getParams(){
     return this.params;
-  }
-
-  ngOnDestroy() {
-    // no need to remove the button click handler 
   }
 
 }

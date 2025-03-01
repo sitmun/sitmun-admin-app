@@ -1,1 +1,6 @@
-<mat-checkbox (click)="btnCheckedHandler($event)" [value]="params.value" [checked]="params.value"> </mat-checkbox>
+<mat-checkbox
+  (click)="btnCheckedHandler($event)"
+  onKeyDown="btnCheckedHandler($event)"
+  [value]="params.value"
+  [checked]="params.value"
+> </mat-checkbox>
