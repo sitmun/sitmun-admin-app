@@ -1,28 +1,29 @@
-<div class="titleDiv">
+<mat-toolbar>
+  <span class="spacer"></span>
   <h4>
-    <mat-icon aria-hidden="false" svgIcon="menu_usuari"></mat-icon>
-    {{ "userEntity.user" | translate }}
+    <mat-icon aria-hidden="true" svgIcon="menu_usuari"></mat-icon>
+    <span> {{ "userEntity.user" | translate }}</span>
   </h4>
-  <span class="divider"></span>
-</div>
-<div class="appDataGridDiv">
-  <app-data-grid id="user" defaultHeight="default" [columnDefs]="columnDefs" defaultColumnSorting="username"
-                 [getAll]='getAllUsers'
-                 [globalSearch]=true
-                 [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
-                 defaultHeight='20'
-                 [eventRefreshSubscription]='dataUpdatedEvent.asObservable()'
-                 [discardChangesButton]=true
-                 [redoButton]=true
-                 [undoButton]=true
-                 [applyChangesButton]=true
-                 [deleteButton]=true
-                 [newButton]=true
-                 [actionButton]=true
-                 (remove)="removeData($event)"
-                 (new)='newData($event)'
-                 (sendChanges)='applyChanges($event)'
-                 (duplicate)='add($event)'
-                 (gridModified)='setGridModifiedValue($event)'
-  ></app-data-grid>
-</div>
+</mat-toolbar>
+
+<app-data-grid id="connection"
+               [columnDefs]="columnDefs"
+               [getAll]='getAllUsers'
+               [globalSearch]=true
+               [eventRefreshSubscription]='dataUpdatedEvent.asObservable()'
+               [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
+               [discardChangesButton]=true
+               [redoButton]=true
+               [undoButton]=true
+               [applyChangesButton]=true
+               [deleteButton]=true
+               [newButton]=true
+               [actionButton]=true
+               (remove)="removeData($event)"
+               (new)='newData($event)'
+               [defaultColumnSorting]="['name']"
+               (gridModified)='setGridModifiedValue($event)'
+               (sendChanges)='applyChanges($event)'
+               (duplicate)='add($event)'>
+</app-data-grid>
+

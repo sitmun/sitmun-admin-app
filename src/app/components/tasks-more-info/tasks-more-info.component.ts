@@ -13,7 +13,7 @@ import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
   styleUrls: ['./tasks-more-info.component.scss']
 })
 export class TasksMoreInfoComponent implements OnInit {
-  
+
   dataUpdatedEvent: Subject<boolean> = new Subject <boolean>();
   saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
   themeGrid:any=config.agGridTheme;
@@ -34,7 +34,7 @@ export class TasksMoreInfoComponent implements OnInit {
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
-    
+
     this.columnDefs = [
 
 
@@ -63,12 +63,12 @@ export class TasksMoreInfoComponent implements OnInit {
       }
     }
     else return true
-  }	
+  }
 
   setGridModifiedValue(value){
     this.gridModified=value;
   }
-  
+
 
 
   getAllTasksMoreInfo = () => {
@@ -87,7 +87,7 @@ export class TasksMoreInfoComponent implements OnInit {
     dialogRef.componentInstance.message=this.utils.getTranslate("removeMessage");
     dialogRef.afterClosed().subscribe(result => {
       if(result){
-        if(result.event==='Accept') {  
+        if(result.event==='Accept') {
           const promises: Promise<any>[] = [];
           data.forEach(task => {
             promises.push(new Promise((resolve, reject) => {​​​​​​​ this.taskService.delete(task).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
@@ -100,14 +100,14 @@ export class TasksMoreInfoComponent implements OnInit {
     });
 
   }
-  
+
   newData(id: any)
   {
     this.saveAgGridStateEvent.next(true);
     this.router.navigate(["taskForm", id, config.tasksTypesNames.moreInfo]);
 
   }
-  
+
   applyChanges(data: Task[]) {
     const promises: Promise<any>[] = [];
     data.forEach(task => {
@@ -118,4 +118,7 @@ export class TasksMoreInfoComponent implements OnInit {
     });
   }
 
+  add(event: any[]) {
+    // TODO: Implement add method
+  }
 }

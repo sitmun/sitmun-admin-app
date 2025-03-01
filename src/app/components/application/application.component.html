@@ -1,10 +1,28 @@
+<mat-toolbar>
+  <span class="spacer"></span>
+  <h4>
+    <mat-icon aria-hidden="true" svgIcon="menu_aplicacio"></mat-icon>
+    <span> {{ "applicationEntity.application" | translate }}</span>
+  </h4>
+</mat-toolbar>
 
-<div class="titleDiv">
-    <h4><mat-icon aria-hidden="false"  svgIcon="menu_aplicacio"></mat-icon> {{ "applicationEntity.application" | translate }}</h4>
-    <span class="divider"></span>
-</div>
-<div class="appDataGridDiv">
-    <app-data-grid id="applicaction" defaultHeight="default" [columnDefs]="columnDefs"  [getAll]='getAllApplications' [globalSearch]=true [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
-    [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true [applyChangesButton]=true  [deleteButton]=true [newButton]=true
-    defaultHeight='20' [actionButton]=true (remove)="removeData($event)" (new)='newData($event)' defaultColumnSorting="name" (sendChanges)='applyChanges($event)' (duplicate)='add($event)' (gridModified)='setGridModifiedValue($event)'> </app-data-grid>
-</div>
+<app-data-grid id="connection"
+               [columnDefs]="columnDefs"
+               [getAll]='getAllApplications'
+               [globalSearch]=true
+               [eventRefreshSubscription]='dataUpdatedEvent.asObservable()'
+               [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
+               [discardChangesButton]=true
+               [redoButton]=true
+               [undoButton]=true
+               [applyChangesButton]=true
+               [deleteButton]=true
+               [newButton]=true
+               [actionButton]=true
+               (remove)="removeData($event)"
+               (new)='newData($event)'
+               [defaultColumnSorting]="['name']"
+               (gridModified)='setGridModifiedValue($event)'
+               (sendChanges)='applyChanges($event)'
+               (duplicate)='add($event)'>
+</app-data-grid>

@@ -1,4 +1,4 @@
-<mat-toolbar class="spacer">
+<mat-toolbar>
   <span class="spacer"></span>
   <h4>
     <mat-icon aria-hidden="true" svgIcon="menu_servei"></mat-icon>
@@ -6,12 +6,12 @@
   </h4>
 </mat-toolbar>
 
-<app-data-grid id="service"
+<app-data-grid id="connection"
                [columnDefs]="columnDefs"
                [getAll]='getAllConnections'
                [globalSearch]=true
-               [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
                [eventRefreshSubscription]='dataUpdatedEvent.asObservable()'
+               [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
                [discardChangesButton]=true
                [redoButton]=true
                [undoButton]=true
@@ -19,10 +19,10 @@
                [deleteButton]=true
                [newButton]=true
                [actionButton]=true
-               [defaultColumnSorting]="['name']"
                (remove)="removeData($event)"
                (new)='newData($event)'
-               (sendChanges)='applyChanges($event)'
-               (duplicate)='add($event)'
+               [defaultColumnSorting]="['name']"
                (gridModified)='setGridModifiedValue($event)'
-></app-data-grid>
+               (sendChanges)='applyChanges($event)'
+               (duplicate)='add($event)'>
+</app-data-grid>

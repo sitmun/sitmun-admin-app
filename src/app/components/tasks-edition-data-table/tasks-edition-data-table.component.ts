@@ -110,5 +110,8 @@ export class TasksEditionDataTableComponent implements OnInit {
     });
   }
 
+  add(event: any[]) {
+    // TODO: Implement add method
+  }
 }
 

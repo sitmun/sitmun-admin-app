@@ -19,7 +19,7 @@ export class TasksThematicComponent implements OnInit {
   themeGrid:any=config.agGridTheme;
   columnDefs: any[];
   gridModified = false;
-  
+
 
   constructor(private utils: UtilsService,
               private router: Router,
@@ -60,12 +60,12 @@ export class TasksThematicComponent implements OnInit {
       }
     }
     else return true
-  }	
+  }
 
   setGridModifiedValue(value){
     this.gridModified=value;
   }
-  
+
 
   getAllTasksThematic = () => {
     let taskTypeID=config.tasksTypes['thematic'];
@@ -83,7 +83,7 @@ export class TasksThematicComponent implements OnInit {
     dialogRef.componentInstance.message=this.utils.getTranslate("removeMessage");
     dialogRef.afterClosed().subscribe(result => {
       if(result){
-        if(result.event==='Accept') {  
+        if(result.event==='Accept') {
           const promises: Promise<any>[] = [];
           data.forEach(task => {
             promises.push(new Promise((resolve, reject) => {​​​​​​​ this.taskService.delete(task).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
@@ -96,15 +96,15 @@ export class TasksThematicComponent implements OnInit {
     });
 
   }
-  
+
   newData(id: any)
   {
     this.saveAgGridStateEvent.next(true);
     this.router.navigate(["taskForm", id, config.tasksTypesNames.thematic]);
 
   }
-  
-  
+
+
   applyChanges(data: Task[]) {
     const promises: Promise<any>[] = [];
     data.forEach(task => {
@@ -115,4 +115,7 @@ export class TasksThematicComponent implements OnInit {
     });
   }
 
+  add($event: any[]) {
+    // TODO: Implement this method
+  }
 }

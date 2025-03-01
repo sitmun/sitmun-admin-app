@@ -61,12 +61,12 @@ export class TasksEditionCartographyTableComponent implements OnInit {
       }
     }
     else return true
-  }	
+  }
 
   setGridModifiedValue(value){
     this.gridModified=value;
   }
-  
+
 
   getAllTasksEdit = () => {
     let taskTypeID=config.tasksTypes.editionWFS;
@@ -84,7 +84,7 @@ export class TasksEditionCartographyTableComponent implements OnInit {
     dialogRef.componentInstance.message=this.utils.getTranslate("removeMessage");
     dialogRef.afterClosed().subscribe(result => {
       if(result){
-        if(result.event==='Accept') {  
+        if(result.event==='Accept') {
           const promises: Promise<any>[] = [];
           data.forEach(task => {
             promises.push(new Promise((resolve, reject) => {​​​​​​​ this.taskService.delete(task).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
@@ -97,14 +97,14 @@ export class TasksEditionCartographyTableComponent implements OnInit {
     });
 
   }
-  
-  
+
+
   newData(id: any)
   {
     this.saveAgGridStateEvent.next(true);
     this.router.navigate(["taskForm", id, config.tasksTypesNames.editionWFS]);
   }
-  
+
   applyChanges(data: Task[]) {
     const promises: Promise<any>[] = [];
     data.forEach(task => {
@@ -115,4 +115,7 @@ export class TasksEditionCartographyTableComponent implements OnInit {
     });
   }
 
+  add(event: any[]) {
+      // TODO: Implement this method
+  }
 }

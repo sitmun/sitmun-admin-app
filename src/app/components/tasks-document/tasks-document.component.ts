@@ -22,7 +22,7 @@ export class TasksDocumentComponent implements OnInit {
   gridModified = false;
   dataUpdatedEvent: Subject<boolean> = new Subject <boolean>();
 
-  
+
   constructor(public dialog: MatDialog,
               private utils: UtilsService,
               private router: Router,
@@ -49,7 +49,7 @@ export class TasksDocumentComponent implements OnInit {
     ];
   }
 
-  
+
   async canDeactivate(): Promise<boolean | Observable<boolean>> {
 
     if (this.gridModified) {
@@ -63,15 +63,15 @@ export class TasksDocumentComponent implements OnInit {
       }
     }
     else return true
-  }	
+  }
 
   setGridModifiedValue(value){
     this.gridModified=value;
   }
-  
+
 
   getAllTasksDocument = () => {
-    
+
     let taskTypeID=config.tasksTypes['document'];
 
     let params2:HalParam[]=[];
@@ -88,7 +88,7 @@ export class TasksDocumentComponent implements OnInit {
     dialogRef.componentInstance.message=this.utils.getTranslate("removeMessage");
     dialogRef.afterClosed().subscribe(result => {
       if(result){
-        if(result.event==='Accept') {  
+        if(result.event==='Accept') {
           const promises: Promise<any>[] = [];
           data.forEach(task => {
             promises.push(new Promise((resolve, reject) => {​​​​​​​ this.taskService.delete(task).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
@@ -106,7 +106,7 @@ export class TasksDocumentComponent implements OnInit {
     this.saveAgGridStateEvent.next(true);
     this.router.navigate(["taskForm", id, config.tasksTypesNames.document]);
   }
-  
+
   applyChanges(data: Task[]) {
     const promises: Promise<any>[] = [];
     data.forEach(task => {
@@ -117,4 +117,7 @@ export class TasksDocumentComponent implements OnInit {
     });
   }
 
+  add(event: any[]) {
+    // TODO Implement add method
+  }
 }

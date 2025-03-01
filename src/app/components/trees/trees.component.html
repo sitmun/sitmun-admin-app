@@ -1,10 +1,29 @@
+<mat-toolbar>
+  <span class="spacer"></span>
+  <h4>
+    <mat-icon aria-hidden="true" svgIcon="menu_arbres"></mat-icon>
+    <span> {{ "sideMenu.trees" | translate }}</span>
+  </h4>
+</mat-toolbar>
 
-<div class="titleDiv">
-    <h4><mat-icon aria-hidden="false"  svgIcon="menu_arbres"></mat-icon> {{ "sideMenu.trees" | translate }}</h4>
-    <span class="divider"></span>
-</div>
-<div class="appDataGridDiv">
-    <app-data-grid id="tree" defaultHeight="default" [columnDefs]="columnDefs" [getAll]='getAllTrees' [globalSearch]=true [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
-    defaultHeight='20' [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' [discardChangesButton]=true [redoButton]=true [undoButton]=true [applyChangesButton]=true  [deleteButton]=true [newButton]=true
-    [actionButton]=true (remove)="removeData($event)" (new)='newData($event)' (sendChanges)='applyChanges($event)' (duplicate)='add($event)' defaultColumnSorting="name" (gridModified)='setGridModifiedValue($event)' > </app-data-grid>
-</div>
+<app-data-grid id="connection"
+               [columnDefs]="columnDefs"
+               [getAll]='getAllTrees'
+               [globalSearch]=true
+               [eventRefreshSubscription]='dataUpdatedEvent.asObservable()'
+               [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
+               [discardChangesButton]=true
+               [redoButton]=true
+               [undoButton]=true
+               [applyChangesButton]=true
+               [deleteButton]=true
+               [newButton]=true
+               [actionButton]=true
+               (remove)="removeData($event)"
+               (new)='newData($event)'
+               [defaultColumnSorting]="['name']"
+               (gridModified)='setGridModifiedValue($event)'
+               (sendChanges)='applyChanges($event)'
+               (duplicate)='add($event)'>
+</app-data-grid>
+

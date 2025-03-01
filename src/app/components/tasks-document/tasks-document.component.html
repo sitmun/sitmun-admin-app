@@ -1,10 +1,28 @@
-<div class="titleDiv">
-    <h4><mat-icon aria-hidden="false"  svgIcon="menu_tasques"></mat-icon> {{ "tasksDocumentEntity.tasksDocument" | translate }}</h4>
-    <span class="divider"></span>
-</div>
-<div class="appDataGridDiv">
-    <app-data-grid id="taskDocument" defaultHeight="default" defaultColumnSorting="name" [columnDefs]="columnDefs" [getAll]='getAllTasksDocument' [globalSearch]=true
-    defaultHeight='20' [discardChangesButton]=true [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' [redoButton]=true [undoButton]=true [applyChangesButton]=true  [deleteButton]=true [newButton]=true [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
-    [actionButton]=true (remove)="removeData($event)" (new)='newData($event)' (sendChanges)='applyChanges($event)'  (gridModified)='setGridModifiedValue($event)'> </app-data-grid>
-</div>
+<mat-toolbar>
+  <span class="spacer"></span>
+  <h4>
+    <mat-icon aria-hidden="true" svgIcon="menu_tasques"></mat-icon>
+    <span> {{ "tasksDocumentEntity.tasksDocument" | translate }}</span>
+  </h4>
+</mat-toolbar>
 
+<app-data-grid id="connection"
+               [columnDefs]="columnDefs"
+               [getAll]='getAllTasksDocument'
+               [globalSearch]=true
+               [eventRefreshSubscription]='dataUpdatedEvent.asObservable()'
+               [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
+               [discardChangesButton]=true
+               [redoButton]=true
+               [undoButton]=true
+               [applyChangesButton]=true
+               [deleteButton]=true
+               [newButton]=true
+               [actionButton]=true
+               (remove)="removeData($event)"
+               (new)='newData($event)'
+               [defaultColumnSorting]="['name']"
+               (gridModified)='setGridModifiedValue($event)'
+               (sendChanges)='applyChanges($event)'
+               (duplicate)='add($event)'>
+</app-data-grid>

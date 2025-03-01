@@ -60,12 +60,12 @@ export class TasksQueryComponent implements OnInit {
       }
     }
     else return true
-  }	
+  }
 
   setGridModifiedValue(value){
     this.gridModified=value;
   }
-  
+
 
   getAllTasksQuery = () => {
     let taskTypeID=config.tasksTypes['query'];
@@ -83,7 +83,7 @@ export class TasksQueryComponent implements OnInit {
     dialogRef.componentInstance.message=this.utils.getTranslate("removeMessage");
     dialogRef.afterClosed().subscribe(result => {
       if(result){
-        if(result.event==='Accept') {  
+        if(result.event==='Accept') {
           const promises: Promise<any>[] = [];
           data.forEach(task => {
             promises.push(new Promise((resolve, reject) => {​​​​​​​ this.taskService.delete(task).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
@@ -96,7 +96,7 @@ export class TasksQueryComponent implements OnInit {
     });
 
   }
-  
+
   newData(id: any)
   {
     this.saveAgGridStateEvent.next(true);
@@ -104,7 +104,7 @@ export class TasksQueryComponent implements OnInit {
 
   }
 
-  
+
   applyChanges(data: Task[]) {
     const promises: Promise<any>[] = [];
     data.forEach(task => {
@@ -115,4 +115,7 @@ export class TasksQueryComponent implements OnInit {
     });
   }
 
+  add($event: any[]) {
+    // TODO: Implement this method
+  }
 }

@@ -1,4 +1,4 @@
-<mat-toolbar class="spacer">
+<mat-toolbar>
   <span class="spacer"></span>
   <h4>
     <mat-icon aria-hidden="true" svgIcon="menu_connexio"></mat-icon>
@@ -24,6 +24,6 @@
                [defaultColumnSorting]="['name']"
                (gridModified)='setGridModifiedValue($event)'
                (sendChanges)='applyChanges($event)'
-               (duplicate)='add($event)'  >
+               (duplicate)='add($event)'>
 </app-data-grid>
 

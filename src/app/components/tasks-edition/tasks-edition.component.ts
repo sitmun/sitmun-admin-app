@@ -114,4 +114,7 @@ export class TasksEditionComponent implements OnInit {
     });
   }
 
+  add(event: any[]) {
+    // TODO: Implement this method
+  }
 }
