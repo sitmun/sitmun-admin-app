@@ -1,17 +1,18 @@
-import { Component, OnInit } from '@angular/core';
-import { tick } from '@angular/core/testing';
-import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ConnectionService, CartographyService, TaskService, Cartography, Task, Connection } from '../../../frontend-core/src/lib/public_api';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { UtilsService } from '../../../services/utils.service';
-import { of, Subject } from 'rxjs';
-import { environment } from 'src/environments/environment';
-import { config } from 'src/config';
-import { map } from 'rxjs/operators';
-import { DialogGridComponent } from '../../../frontend-gui/src/lib/public_api';
-import { MatDialog } from '@angular/material/dialog';
-import { Location } from '@angular/common'
+import {Component, OnInit} from '@angular/core';
+import {tick} from '@angular/core/testing';
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
+import {ConnectionService, CartographyService, TaskService, Cartography, Task, Connection} from '../../../frontend-core/src/lib/public_api';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {UtilsService} from '../../../services/utils.service';
+import {of, Subject} from 'rxjs';
+import {environment} from 'src/environments/environment';
+import {config} from 'src/config';
+import {map} from 'rxjs/operators';
+import {DialogGridComponent} from '../../../frontend-gui/src/lib/public_api';
+import {MatDialog} from '@angular/material/dialog';
+import {Location} from '@angular/common';
+import {MatTabChangeEvent} from '@angular/material/tabs';
 
 
 @Component({
@@ -20,7 +21,7 @@ import { Location } from '@angular/common'
   styleUrls: ['./connection-form.component.scss']
 })
 export class ConnectionFormComponent implements OnInit {
-  
+
   hidePassword = true;
 
   //Form
@@ -54,7 +55,6 @@ export class ConnectionFormComponent implements OnInit {
   public driversList = [];
 
 
-
   constructor(
     public dialog: MatDialog,
     private activatedRoute: ActivatedRoute,
@@ -62,7 +62,6 @@ export class ConnectionFormComponent implements OnInit {
     private connectionService: ConnectionService,
     public cartographyService: CartographyService,
     public tasksService: TaskService,
-
     private http: HttpClient,
     public utils: UtilsService
   ) {
@@ -79,63 +78,62 @@ export class ConnectionFormComponent implements OnInit {
           this.driversList.push(...resp);
           resolve(true);
         }
-      )
+      );
     }));
 
-    Promise.all(promises).then(() => {  
+    Promise.all(promises).then(() => {
 
       this.activatedRoute.params.subscribe(params => {
-        this.connectionID = +params.id;
-        if(params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
-        
-        if (this.connectionID !== -1 || this.duplicateID != -1) {
-          let idToGet = this.connectionID !== -1? this.connectionID: this.duplicateID
-  
-          this.connectionService.get(idToGet).subscribe(
-            resp => {
-              this.connectionToEdit = resp;
-              this.formConnection.patchValue({
-                driver: this.connectionToEdit.driver,
-                user: this.connectionToEdit.user,
-                password: this.connectionToEdit.password,
-                url: this.connectionToEdit.url,
-                _links: this.connectionToEdit._links
-              });
-  
-              if(this.connectionID !== -1){
-                this.formConnection.patchValue({
-                  id: this.connectionID,
-                  name: this.connectionToEdit.name,
-                  passwordSet: this.connectionToEdit.passwordSet,
-                });
-              }
-              else{
-                this.formConnection.patchValue({
-                  name: this.utils.getTranslate('copy_').concat(this.connectionToEdit.name),
-                });
-              }
-  
-              this.dataLoaded = true;
-            },
-            error => {
-  
-            }
-          );
-        }
+          this.connectionID = +params.id;
+          if (params.idDuplicate) {
+            this.duplicateID = +params.idDuplicate;
+          }
 
-        else { 
-          this.dataLoaded = true;
-          this.formConnection.patchValue({
-            driver: this.driversList[0].value
-          })
-         }
-  
-      },
+          if (this.connectionID !== -1 || this.duplicateID != -1) {
+            let idToGet = this.connectionID !== -1 ? this.connectionID : this.duplicateID;
+
+            this.connectionService.get(idToGet).subscribe(
+              resp => {
+                this.connectionToEdit = resp;
+                this.formConnection.patchValue({
+                  driver: this.connectionToEdit.driver,
+                  user: this.connectionToEdit.user,
+                  password: this.connectionToEdit.password,
+                  url: this.connectionToEdit.url,
+                  _links: this.connectionToEdit._links
+                });
+
+                if (this.connectionID !== -1) {
+                  this.formConnection.patchValue({
+                    id: this.connectionID,
+                    name: this.connectionToEdit.name,
+                    passwordSet: this.connectionToEdit.passwordSet,
+                  });
+                } else {
+                  this.formConnection.patchValue({
+                    name: this.utils.getTranslate('copy_').concat(this.connectionToEdit.name),
+                  });
+                }
+
+                this.dataLoaded = true;
+              },
+              error => {
+
+              }
+            );
+          } else {
+            this.dataLoaded = true;
+            this.formConnection.patchValue({
+              driver: this.driversList[0].value
+            });
+          }
+
+        },
         error => {
-  
+
         });
-  
-      })
+
+    });
 
     this.columnDefsCartographies = [
       this.utils.getSelCheckboxColumnDef(),
@@ -167,7 +165,6 @@ export class ConnectionFormComponent implements OnInit {
     ];
 
 
-
   }
 
 
@@ -186,7 +183,7 @@ export class ConnectionFormComponent implements OnInit {
       passwordSet: new UntypedFormControl(null, []),
       url: new UntypedFormControl(null, []),
       _links: new UntypedFormControl(null, []),
-    })
+    });
   }
 
 
@@ -198,15 +195,15 @@ export class ConnectionFormComponent implements OnInit {
       return of(aux);
     }
 
-    var urlReq = `${this.connectionToEdit._links.cartographies.href}`
+    var urlReq = `${this.connectionToEdit._links.cartographies.href}`;
     if (this.connectionToEdit._links.cartographies.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
+      var url = new URL(urlReq.split('{')[0]);
+      url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
     return (this.http.get(urlReq))
       .pipe(map(data => data['_embedded']['cartographies']));
-  }
+  };
 
   /*getAllRowsCartographies(data: any[] )
   {
@@ -231,33 +228,32 @@ export class ConnectionFormComponent implements OnInit {
        let url=this.connectionToEdit._links.cartographies.href.split('{', 1)[0];
        this.utils.updateUriList(url,cartographiesToPut)
       // this.connectionToEdit.cartographies=this.utils.createUriList(cartographiesToPut);
- 
+
      });
    }*/
-
 
 
   // ******** Tasks  ******** //
   getAllTasks = () => {
 
-    if (this.connectionID == -1 ) {
+    if (this.connectionID == -1) {
       const aux: Array<any> = [];
       return of(aux);
     }
 
-    var urlReq = `${this.connectionToEdit._links.tasks.href}`
+    var urlReq = `${this.connectionToEdit._links.tasks.href}`;
     if (this.connectionToEdit._links.tasks.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
+      var url = new URL(urlReq.split('{')[0]);
+      url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
     return (this.http.get(urlReq))
       .pipe(map(data => data['_embedded']['tasks']));
 
-  }
+  };
 
-  getAllRowsTasks(event){
-    if(event.event == "save"){
+  getAllRowsTasks(event) {
+    if (event.event == 'save') {
       this.saveTasks(event.data);
     }
   }
@@ -269,26 +265,31 @@ export class ConnectionFormComponent implements OnInit {
     const promises: Promise<any>[] = [];
     data.forEach(task => {
 
-      if (task.status !== 'pendingDelete') { 
+      if (task.status !== 'pendingDelete') {
         if (task.status === 'pendingModify') {
-          if(task.newItem){ dataChanged = true; }
-          promises.push(new Promise((resolve, reject) => { this.tasksService.update(task).subscribe((resp) => { resolve(true) }) }));
-        }
-        else if (task.status === 'pendingCreation'){
+          if (task.newItem) {
+            dataChanged = true;
+          }
+          promises.push(new Promise((resolve, reject) => {
+            this.tasksService.update(task).subscribe((resp) => {
+              resolve(true);
+            });
+          }));
+        } else if (task.status === 'pendingCreation') {
           dataChanged = true;
         }
-        tasksToPut.push(task._links.self.href)
-      }
-      else {
+        tasksToPut.push(task._links.self.href);
+      } else {
         dataChanged = true;
       }
     });
     Promise.all(promises).then(() => {
-      if(dataChanged){
+      if (dataChanged) {
         let url = this.connectionToEdit._links.tasks.href.split('{', 1)[0];
-        this.utils.updateUriList(url, tasksToPut, this.dataUpdatedEventTasks)
+        this.utils.updateUriList(url, tasksToPut, this.dataUpdatedEventTasks);
+      } else {
+        this.dataUpdatedEventTasks.next(true);
       }
-      else{ this.dataUpdatedEventTasks.next(true) }
     });
 
   }
@@ -297,7 +298,7 @@ export class ConnectionFormComponent implements OnInit {
 
   getAllCartographiesDialog = () => {
     return this.cartographyService.getAll();
-  }
+  };
 
 
   openCartographyDialog(data: any) {
@@ -305,22 +306,21 @@ export class ConnectionFormComponent implements OnInit {
     // const colDefsTable: Array<any[]> = [this.columnDefsCartographiesDialog];
     // const singleSelectionTable: Array<boolean> = [false];
     // const titlesTable: Array<string> = ['Cartographies'];
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
+    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass: 'gridDialogs'});
     dialogRef.componentInstance.getAllsTable = [this.getAllCartographiesDialog];
     dialogRef.componentInstance.singleSelectionTable = [false];
     dialogRef.componentInstance.orderTable = ['name'];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsCartographiesDialog];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate("connectionEntity.cartography");
-    dialogRef.componentInstance.titlesTable = [""];
+    dialogRef.componentInstance.title = this.utils.getTranslate('connectionEntity.cartography');
+    dialogRef.componentInstance.titlesTable = [''];
     dialogRef.componentInstance.nonEditable = false;
-
 
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
-          this.addElementsEventCartographies.next(result.data[0])
+          this.addElementsEventCartographies.next(result.data[0]);
         }
       }
 
@@ -328,42 +328,39 @@ export class ConnectionFormComponent implements OnInit {
 
 
   }
-
 
 
   // ******** Tasks Dialog  ******** //
 
   getAllTasksDialog = () => {
     return this.tasksService.getAll();
-  }
+  };
 
   openTasksDialog(data: any) {
     // const getAlls: Array<() => Observable<any>> = [this.getAllCartographiesDialog];
     // const colDefsTable: Array<any[]> = [this.columnDefsCartographiesDialog];
     // const singleSelectionTable: Array<boolean> = [false];
     // const titlesTable: Array<string> = ['Cartographies'];
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
+    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass: 'gridDialogs'});
     dialogRef.componentInstance.getAllsTable = [this.getAllTasksDialog];
     dialogRef.componentInstance.orderTable = ['name'];
     dialogRef.componentInstance.singleSelectionTable = [false];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsTasksDialog];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate("connectionEntity.tasks");
-    dialogRef.componentInstance.titlesTable = [""];
+    dialogRef.componentInstance.title = this.utils.getTranslate('connectionEntity.tasks');
+    dialogRef.componentInstance.titlesTable = [''];
     dialogRef.componentInstance.nonEditable = false;
-
 
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
-          this.addElementsEventTasks.next(result.data[0])
+          this.addElementsEventTasks.next(result.data[0]);
         }
       }
     });
 
   }
-
 
 
   //Save Button
@@ -375,27 +372,26 @@ export class ConnectionFormComponent implements OnInit {
       if (this.connectionID == -1 && this.duplicateID != -1) {
         this.formConnection.patchValue({
           _links: null
-        })
+        });
       }
 
       this.connectionService.save(this.formConnection.value).subscribe(
         result => {
 
           this.connectionToEdit = result;
-          this.connectionID = result.id
+          this.connectionID = result.id;
           this.formConnection.patchValue({
             id: result.id,
             passwordSet: result.passwordSet,
             _links: result._links
-          })
+          });
           //this.getAllElementsEventCartographies.next(true);
           this.getAllElementsEventTasks.next('save');
         },
         error => {
           console.log(error);
         });
-    }
-    else {
+    } else {
       this.utils.showRequiredFieldsError();
     }
   }
@@ -406,7 +402,7 @@ export class ConnectionFormComponent implements OnInit {
       url: this.formConnection.value.url,
       user: this.formConnection.value.user,
       password: this.formConnection.value.password
-    }
+    };
     this.connectionService.testConnection(connection).subscribe(
       result => {
 
@@ -416,4 +412,9 @@ export class ConnectionFormComponent implements OnInit {
       });
   }
 
+  activeTabIndex = 0;
+
+  onTabChange(event: MatTabChangeEvent) {
+    this.activeTabIndex = event.index;
+  }
 }

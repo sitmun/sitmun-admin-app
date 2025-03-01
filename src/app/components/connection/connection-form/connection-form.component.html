@@ -1,135 +1,93 @@
-<div class="titleDiv" >
-  <h4><mat-icon aria-hidden="false"  svgIcon="menu_connexio"></mat-icon> {{ "connectionEntity.connection" | translate }}-{{(connectionID==-1?"new":"edit") | translate}}</h4>
-  <span class="divider"></span>
-</div>
-
-<div class="formDiv">
-  <form [formGroup]='formConnection' #f="ngForm" 	(ngSubmit)="onSaveButtonClicked()">
-      <div class="formHeader">
-        <h5> {{'connectionEntity.generalData' | translate}} </h5>
-        <button type="submit"  mat-flat-button class="saveButton"  >
-          <mat-icon fontSet="material-icons-round"  > save </mat-icon>
-          {{ "save" | translate }}
+<mat-toolbar>
+  <span class="spacer"></span>
+  <h4>
+    <mat-icon aria-hidden="true" svgIcon="menu_connexio"></mat-icon>
+    <span> {{ "connectionEntity.connection" | translate }}
+      - {{ (connectionID === -1 ? "new" : "edit") | translate }}</span>
+  </h4>
+</mat-toolbar>
+<mat-tab-group
+  mat-stretch-tabs="false"
+  mat-align-tabs="end"
+  [dynamicHeight]="true"
+  preserveContent="true"
+  (selectedTabChange)="onTabChange($event)">
+  >
+  <mat-tab label="{{ 'connectionEntity.generalData' | translate }}">
+    <form [formGroup]='formConnection' *ngIf="dataLoaded">
+      <mat-toolbar>
+        <span class="spacer"></span>
+        <button
+          matTooltip="{{ 'save' | translate }}"
+          mat-mini-fab class="add-half-gap"
+          (click)="onSaveButtonClicked()">
+          <mat-icon fontSet="material-icons-round">save</mat-icon>
         </button>
-        <button type="button" (click)="utils.navigateBack()"  mat-flat-button class="returnButton"  >
-          <mat-icon fontSet="material-icons-round"> arrow_back </mat-icon>
-          {{ "return" | translate }}
+        <button
+          matTooltip="{{ 'return' | translate }}"
+          mat-mini-fab class="add-half-gap"
+          (click)="utils.navigateBack()">
+          <mat-icon fontSet="material-icons-round">arrow_back</mat-icon>
         </button>
-      </div>
-      <span class="divider"></span>
+      </mat-toolbar>
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label> {{ 'connectionEntity.name' | translate }}</mat-label>
+            <input matInput type="text" formControlName="name" required>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="half">
+            <mat-select matInput formControlName="driver">
+              <mat-label>{{ 'connectionEntity.driver' | translate }}</mat-label>
+              <mat-option [value]="driver.value" *ngFor="let driver of driversList">
+                {{ driver.description }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <div class="break"></div>
 
+          <mat-form-field appearance="outline" class="half add-gap">
+            <mat-label> {{ 'connectionEntity.user' | translate }}</mat-label>
+            <input matInput type="text" formControlName="user">
+          </mat-form-field>
 
-      <div class="rowFormDiv">
-          <div class="colFormDiv">
-            <label class="formLabel requiredInput">
-              {{'connectionEntity.name' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="name" required>
-            </mat-form-field>
-          </div>
+          <mat-form-field appearance="outline" class="half">
+            <mat-label>{{ 'connectionEntity.password' | translate }}</mat-label>
+            <input matInput [type]="'text'" formControlName="password">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'connectionEntity.connection' | translate }}</mat-label>
+            <input matInput type="text" formControlName="url">
+          </mat-form-field>
 
-          <div class="colFormDiv" >
-            <label class="formLabel requiredInput">
-              {{'connectionEntity.driver' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <mat-select matInput formControlName="driver" class="form-control">
-                <mat-option [value]="driver.value" *ngFor="let driver of driversList">
-                  {{ driver.description}}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-
-          <div class="colFormDiv">
-              <label class="formLabel">
-                {{'connectionEntity.user' | translate}}
-              </label>
-              <mat-form-field appearance="outline">
-                <input matInput type="text" formControlName="user">
-              </mat-form-field>
-            </div>
-
-            <div class="colFormDiv" id="right-column">
-              <label class="formLabel">
-                {{'connectionEntity.password' | translate}}
-              </label>
-              <mat-form-field appearance="outline">
-                <mat-icon matSuffix (click)="hidePassword = !hidePassword">{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
-                <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
-              </mat-form-field>
-            </div>
-      </div>
-
-      <div class="rowFormDiv">
-
-          <div class="colFormDiv" >
-            <label class="formLabel">
-              {{'connectionEntity.connection' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="url">
-            </mat-form-field>
-          </div>
-
-          <button type="button"  (click)="validateConnection()" mat-flat-button class="validateButton" >{{ "validate" | translate }}</button>
-
-          <div class="PasswordCheckboxDiv" >
-            <label class="formLabel">
-              {{'userEntity.passwordSet' | translate}}
-            </label>
-            <mat-checkbox (click)="$event.preventDefault()" formControlName="passwordSet" > </mat-checkbox>
-          </div>
-    </div>
-
-
-  </form>
-
-</div>
-
-
-<div class="tableDiv" *ngIf=" dataLoaded">
-  <mat-accordion  multi>
-
-      <!-- Cartography table
-    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
-      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-        <mat-panel-title  >
-          {{ "connectionEntity.cartography" | translate }}
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <ng-template matExpansionPanelContent>
-        <div class="appDataGridEditDiv">
-            <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsCartographies" [getAll]='getAllCartographies'
-            [eventAddItemsSubscription]='addElementsEventCartographies.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventCartographies.asObservable()'
-             [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true  [hideDuplicateButton]=true
-            [actionButton]=true (add)="openCartographyDialog($event)"
-            (getAllRows)="getAllRowsCartographies($event)"> </app-data-grid>
-        </div>
-      </ng-template>
-    </mat-expansion-panel> -->
-
-      <!-- Tasks table -->
-    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
-      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-        <mat-panel-title  >
-          {{ "connectionEntity.tasks" | translate }}
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <ng-template matExpansionPanelContent>
-        <div class="appDataGridEditDiv">
-            <app-data-grid [changeHeightButton]="true" [allNewElements]="connectionID == -1" defaultColumnSorting="name" [columnDefs]="columnDefsTasks" [getAll]='getAllTasks'
-            [eventAddItemsSubscription]='addElementsEventTasks.asObservable()' [eventRefreshSubscription]='dataUpdatedEvent.asObservable()'
-            [eventGetAllRowsSubscription]='getAllElementsEventTasks.asObservable()' [discardChangesButton]=false [redoButton]=true
-            [eventRefreshSubscription]='dataUpdatedEventTasks.asObservable()' [undoButton]=true  [deleteButton]=false [addButton]=false [hideDuplicateButton]=true
-            [actionButton]=false (add)="openTasksDialog($event)"  (getAllRows)="getAllRowsTasks($event)"> </app-data-grid>
-        </div>
-    </ng-template>
-
-    </mat-expansion-panel>
-
-
-  </mat-accordion>
+          <button type="button" (click)="validateConnection()" mat-flat-button
+                  class="validateButton">{{ "validate" | translate }}
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </form>
+  </mat-tab>
+  <mat-tab label="{{ 'connectionEntity.tasks' | translate }}">
+    <app-data-grid [changeHeightButton]="true"
+                   [allNewElements]="connectionID == -1"
+                   defaultColumnSorting="name"
+                   [columnDefs]="columnDefsTasks"
+                   [getAll]='getAllTasks'
+                   [eventAddItemsSubscription]='addElementsEventTasks.asObservable()'
+                   [eventRefreshSubscription]='dataUpdatedEvent.asObservable()'
+                   [eventGetAllRowsSubscription]='getAllElementsEventTasks.asObservable()'
+                   [discardChangesButton]=false
+                   [redoButton]=true
+                   [eventRefreshSubscription]='dataUpdatedEventTasks.asObservable()'
+                   [undoButton]=true
+                   [deleteButton]=false
+                   [addButton]=false
+                   [hideDuplicateButton]=true
+                   [actionButton]=false
+                   (add)="openTasksDialog($event)"
+                   (getAllRows)="getAllRowsTasks($event)"
+                   [redraw]="activeTabIndex === 1"
+                   *ngIf="dataLoaded"
+    ></app-data-grid>
+  </mat-tab>
+</mat-tab-group>

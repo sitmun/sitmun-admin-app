@@ -1,12 +1,29 @@
+<mat-toolbar class="spacer">
+  <span class="spacer"></span>
+  <h4>
+    <mat-icon aria-hidden="true" svgIcon="menu_connexio"></mat-icon>
+    <span> {{ "connectionEntity.connection" | translate }}</span>
+  </h4>
+</mat-toolbar>
 
-<div class="titleDiv">
-    <h4><mat-icon aria-hidden="false"  svgIcon="menu_connexio"></mat-icon> {{ "connectionEntity.connection" | translate }}</h4>
-    <span class="divider"></span>
-</div>
-<div class="appDataGridDiv" *ngIf="loaded">
-    <app-data-grid id="connection" defaultHeight="default" [columnDefs]="columnDefs" [getAll]='getAllConnections' [globalSearch]=true
-    [eventRefreshSubscription]='dataUpdatedEvent.asObservable()'  [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
-    [discardChangesButton]=true defaultHeight='20' [redoButton]=true [undoButton]=true [applyChangesButton]=true  [deleteButton]=true [newButton]=true
-    [actionButton]=true (remove)="removeData($event)" (new)='newData($event)' defaultColumnSorting="name" (gridModified)='setGridModifiedValue($event)'
-    (sendChanges)='applyChanges($event)' (duplicate)='add($event)'  > </app-data-grid>
-</div>
+<app-data-grid id="connection"
+               [columnDefs]="columnDefs"
+               [getAll]='getAllConnections'
+               [globalSearch]=true
+               [eventRefreshSubscription]='dataUpdatedEvent.asObservable()'
+               [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
+               [discardChangesButton]=true
+               [redoButton]=true
+               [undoButton]=true
+               [applyChangesButton]=true
+               [deleteButton]=true
+               [newButton]=true
+               [actionButton]=true
+               (remove)="removeData($event)"
+               (new)='newData($event)'
+               [defaultColumnSorting]="['name']"
+               (gridModified)='setGridModifiedValue($event)'
+               (sendChanges)='applyChanges($event)'
+               (duplicate)='add($event)'  >
+</app-data-grid>
+
