@@ -1,9 +1,21 @@
 <mat-toolbar>
-  <span class="spacer"></span>
   <h4>
     <mat-icon aria-hidden="true" svgIcon="menu_servei"></mat-icon>
     <span> {{ "serviceEntity.service" | translate }} - {{ (serviceID === -1 ? "new" : "edit") | translate }}</span>
   </h4>
+  <span class="spacer"></span>
+  <button
+    matTooltip="{{ 'save' | translate }}"
+    mat-mini-fab class="add-half-gap"
+    (click)="onSaveButtonClicked()">
+    <mat-icon fontSet="material-icons-round">save</mat-icon>
+  </button>
+  <button
+    matTooltip="{{ 'return' | translate }}"
+    mat-mini-fab class="add-half-gap"
+    (click)="utils.navigateBack()">
+    <mat-icon fontSet="material-icons-round">arrow_back</mat-icon>
+  </button>
 </mat-toolbar>
 <mat-tab-group
   mat-stretch-tabs="false"
@@ -14,21 +26,6 @@
   >
   <mat-tab label="{{ 'serviceEntity.generalData' | translate }}">
     <form [formGroup]='serviceForm' *ngIf="dataLoaded">
-      <mat-toolbar>
-        <span class="spacer"></span>
-        <button
-          matTooltip="{{ 'save' | translate }}"
-          mat-mini-fab class="add-half-gap"
-          (click)="onSaveButtonClicked()">
-          <mat-icon fontSet="material-icons-round">save</mat-icon>
-        </button>
-        <button
-          matTooltip="{{ 'return' | translate }}"
-          mat-mini-fab class="add-half-gap"
-          (click)="utils.navigateBack()">
-          <mat-icon fontSet="material-icons-round">arrow_back</mat-icon>
-        </button>
-      </mat-toolbar>
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
