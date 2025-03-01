@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {
   UntypedFormControl,
   UntypedFormGroup,
   Validators,
 } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {
   Territory,
   TerritoryService,
@@ -28,16 +28,17 @@ import {
   TaskAvailability,
   TerritoryTypeService,
 } from '../../../frontend-core/src/lib/public_api';
-import { HttpClient } from '@angular/common/http';
-import { UtilsService } from '../../../services/utils.service';
-import { Observable, of, Subject } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { config } from 'src/config';
+import {HttpClient} from '@angular/common/http';
+import {UtilsService} from '../../../services/utils.service';
+import {Observable, of, Subject} from 'rxjs';
+import {map} from 'rxjs/operators';
+import {config} from 'src/config';
 import {
   DialogGridComponent,
   DialogMessageComponent,
 } from '../../../frontend-gui/src/lib/public_api';
-import { MatDialog } from '@angular/material/dialog';
+import {MatDialog} from '@angular/material/dialog';
+import {MatTabChangeEvent} from '@angular/material/tabs';
 
 @Component({
   selector: 'app-territory-form',
@@ -132,7 +133,6 @@ export class TerritoryFormComponent implements OnInit {
     private taskService: TaskService,
     private userConfigurationService: UserConfigurationService,
     private userPositionService: UserPositionService,
-
     private http: HttpClient,
     public utils: UtilsService
   ) {
@@ -216,9 +216,9 @@ export class TerritoryFormComponent implements OnInit {
                 this.territoryForm.patchValue({
                   code: this.territoryToEdit.code,
                   territorialAuthorityAddress:
-                    this.territoryToEdit.territorialAuthorityAddress,
+                  this.territoryToEdit.territorialAuthorityAddress,
                   territorialAuthorityLogo:
-                    this.territoryToEdit.territorialAuthorityLogo,
+                  this.territoryToEdit.territorialAuthorityLogo,
                   type: this.currentTerritoryType.id,
                   extent: this.territoryToEdit.extent,
                   extentMinX: this.territoryToEdit.extent?.minX ?? null,
@@ -248,7 +248,7 @@ export class TerritoryFormComponent implements OnInit {
                           (elem) =>
                             elem.element == this.territoryID &&
                             elem.column ==
-                              config.translationColumns.territoryName
+                            config.translationColumns.territoryName
                         )
                       )
                     )
@@ -267,7 +267,8 @@ export class TerritoryFormComponent implements OnInit {
                 }
                 this.dataLoaded = true;
               },
-              (error) => {}
+              (error) => {
+              }
             );
           } else {
             this.territoryForm.patchValue({
@@ -280,7 +281,8 @@ export class TerritoryFormComponent implements OnInit {
             this.dataLoaded = true;
           }
         },
-        (error) => {}
+        (error) => {
+        }
       );
     });
 
@@ -309,10 +311,10 @@ export class TerritoryFormComponent implements OnInit {
 
     this.columnDefsMemberOf = [
       this.utils.getSelCheckboxColumnDef(),
-      this.utils.getNonEditableColumnDef('territoryEntity.name', 'name'),
+      this.utils.getNonEditableColumnDef('territoryEntity.name', 'name', 600, 300),
       this.utils.getNonEditableColumnDef(
         'territoryEntity.territoryType',
-        'typeName'
+        'typeName', 100, 100
       ),
       this.utils.getNonEditableColumnDef('territoryEntity.code', 'code'),
       this.utils.getStatusColumnDef(),
@@ -321,10 +323,10 @@ export class TerritoryFormComponent implements OnInit {
     this.columnDefsMembers = [
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('territoryEntity.name', 'name'),
+      this.utils.getNonEditableColumnDef('territoryEntity.name', 'name', 600, 300),
       this.utils.getNonEditableColumnDef(
         'territoryEntity.territoryType',
-        'typeName'
+        'typeName', 100, 100
       ),
       this.utils.getNonEditableColumnDef('territoryEntity.code', 'code'),
       this.utils.getStatusColumnDef(),
@@ -352,7 +354,9 @@ export class TerritoryFormComponent implements OnInit {
       this.utils.getIdColumnDef('taskId'),
       this.utils.getNonEditableColumnDef(
         'territoryEntity.taskGroup',
-        'taskGroupName'
+        'taskGroupName',
+        300,
+        300
       ),
       this.utils.getStatusColumnDef(),
     ];
@@ -456,9 +460,9 @@ export class TerritoryFormComponent implements OnInit {
     let idToUse = this.territoryID == -1 ? this.duplicateID : this.territoryID;
 
     let params2: HalParam[] = [];
-    let param: HalParam = { key: 'territory.id', value: idToUse };
+    let param: HalParam = {key: 'territory.id', value: idToUse};
     params2.push(param);
-    let query: HalOptions = { params: params2 };
+    let query: HalOptions = {params: params2};
 
     return this.userConfigurationService.getAll(query);
   };
@@ -470,9 +474,9 @@ export class TerritoryFormComponent implements OnInit {
     }
     let idToUse = this.territoryID == -1 ? this.duplicateID : this.territoryID;
     let params2: HalParam[] = [];
-    let param: HalParam = { key: 'territory.id', value: idToUse };
+    let param: HalParam = {key: 'territory.id', value: idToUse};
     params2.push(param);
-    let query: HalOptions = { params: params2 };
+    let query: HalOptions = {params: params2};
 
     return this.userConfigurationService
       .getAll(query)
@@ -544,7 +548,7 @@ export class TerritoryFormComponent implements OnInit {
                 item = {
                   role: roleComplete,
                   appliesToChildrenTerritories:
-                    userConf.appliesToChildrenTerritories,
+                  userConf.appliesToChildrenTerritories,
                   territory: this.territoryToEdit,
                   user: userComplete,
                 };
@@ -624,7 +628,7 @@ export class TerritoryFormComponent implements OnInit {
                 id: userConf.id,
                 role: roleComplete._links.self.href.split('{')[0],
                 appliesToChildrenTerritories:
-                  userConf.appliesToChildrenTerritories,
+                userConf.appliesToChildrenTerritories,
                 territory: this.territoryToEdit._links.self.href.split('{')[0],
                 user: userComplete._links.self.href.split('{')[0],
                 _links: userConf._links,
@@ -707,7 +711,7 @@ export class TerritoryFormComponent implements OnInit {
               value: territoryMemberOf.id,
             };
             params2.push(param);
-            let query: HalOptions = { params: params2 };
+            let query: HalOptions = {params: params2};
             promises.push(
               new Promise((resolve, reject) => {
                 this.userConfigurationService
@@ -720,7 +724,8 @@ export class TerritoryFormComponent implements OnInit {
             );
           });
 
-          await Promise.all(promises).then(() => {});
+          await Promise.all(promises).then(() => {
+          });
           return rowsToShow.filter(
             (elem) => elem.appliesToChildrenTerritories == true
           );
@@ -1360,7 +1365,7 @@ export class TerritoryFormComponent implements OnInit {
     let newData: any[] = [];
 
     dataToAdapt.forEach((element) => {
-      let item: any = { ...element };
+      let item: any = {...element};
       item.id = null;
       item.taskGroupName = element.groupName;
       item.taskId = element.id;
@@ -1444,11 +1449,11 @@ export class TerritoryFormComponent implements OnInit {
       this.columnDefsRolesDialog = [
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getIdColumnDef(),
-        this.utils.getNonEditableColumnDef('territoryEntity.name', 'name'),
+        this.utils.getNonEditableColumnDef('territoryEntity.name', 'name', 300, 300),
         this.utils.getBooleanColumnDef(
           'userEntity.appliesToChildrenTerritories',
           'appliesToChildrenTerritories',
-          true
+          true, 200, 200
         ),
       ];
     }
@@ -1580,5 +1585,11 @@ export class TerritoryFormComponent implements OnInit {
       this.utils.getTranslate('extentError');
     dialogRef.componentInstance.hideCancelButton = true;
     dialogRef.afterClosed().subscribe();
+  }
+
+  activeTabIndex = 0;
+
+  onTabChange(event: MatTabChangeEvent) {
+    this.activeTabIndex = event.index;
   }
 }

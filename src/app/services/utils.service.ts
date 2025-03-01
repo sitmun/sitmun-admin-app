@@ -317,6 +317,8 @@ export class UtilsService {
 
   getStatusColumnDef() {
     return {
+      maxWidth: 180,
+      minWidth: 180,
       headerName: this.getTranslate('status'),
       field: 'status',
       filter: 'agTextColumnFilter',
@@ -474,8 +476,8 @@ export class UtilsService {
     return options;
   }
 
-  getBooleanColumnDef(alias, field, editable) {
-    return {
+  getBooleanColumnDef(alias, field, editable, maxWidth = null, minWidth = null) {
+    const options =  {
       headerName: this.getTranslate(alias),
       field: field,
       editable: editable,
@@ -484,6 +486,13 @@ export class UtilsService {
       valueGetter: (params) => (params.data[field] ? 'true' : 'false'),
       floatingFilterComponentParams: {suppressFilterButton: true},
     };
+    if (maxWidth) {
+      options['maxWidth'] = maxWidth;
+    }
+    if (minWidth) {
+      options['minWidth'] = minWidth;
+    }
+    return options;
   }
 
   getFormattedColumnDef(

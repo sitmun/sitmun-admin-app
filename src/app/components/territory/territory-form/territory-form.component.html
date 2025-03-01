@@ -1,357 +1,225 @@
-<div class="titleDiv">
+<mat-toolbar>
   <h4>
-    <mat-icon aria-hidden="false" svgIcon="menu_territori"></mat-icon> {{ "territoryEntity.territory" | translate
-    }}-{{(territoryID==-1?"new":"edit") | translate}}
+    <mat-icon aria-hidden="true" svgIcon="menu_territori"></mat-icon>
+    <span> {{ "territoryEntity.territory" | translate }}
+      - {{ (territoryID === -1 ? "new" : "edit") | translate }}</span>
   </h4>
-  <span class="divider"></span>
-</div>
+  <span class="spacer"></span>
+  <button
+    matTooltip="{{ 'save' | translate }}"
+    mat-mini-fab class="add-half-gap"
+    (click)="onSaveButtonClicked()">
+    <mat-icon fontSet="material-icons-round">save</mat-icon>
+  </button>
+  <button
+    matTooltip="{{ 'return' | translate }}"
+    mat-mini-fab class="add-half-gap"
+    (click)="utils.navigateBack()">
+    <mat-icon fontSet="material-icons-round">arrow_back</mat-icon>
+  </button>
+</mat-toolbar>
+<mat-tab-group
+  mat-stretch-tabs="false"
+  mat-align-tabs="end"
+  [dynamicHeight]="true"
+  preserveContent="true"
+  (selectedTabChange)="onTabChange($event)">
+  >
+  <mat-tab label="{{'territoryEntity.generalData' | translate}} ">
+    <form [formGroup]='territoryForm' *ngIf="dataLoaded">
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'territoryEntity.name' | translate }}</mat-label>
+            <input matInput type="text" formControlName="name">
+            <mat-icon matSuffix class="iconTranslate"
+                      (click)="onTranslationButtonClicked()"
+                      onKeyDown="onTranslationButtonClicked()"
+                      svgIcon="ic_translate"></mat-icon>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'territoryEntity.address' | translate }}</mat-label>
+            <input matInput type="text" formControlName="territorialAuthorityAddress">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="quarter add-gap">
+            <mat-label>
+              {{ 'territoryEntity.territoryType' | translate }}
+            </mat-label>
+            <mat-select formControlName="type" class="form-control"
+                        (selectionChange)="onTerritoryTypeChanged($event)">
+              <mat-option [value]="territoryType.id" *ngFor="let territoryType of territoryTypes">
+                {{ territoryType.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="quarter add-gap">
+            <mat-label>{{ 'territoryEntity.code' | translate }}</mat-label>
+            <input matInput type="text" formControlName="code" maxlength="10" required>
+          </mat-form-field>
+          <mat-checkbox formControlName="blocked">
+            {{ 'territoryEntity.blocked' | translate }}
+          </mat-checkbox>
+          <div class="break"></div>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'territoryEntity.logo' | translate }}</mat-label>
+            <input matInput type="text" formControlName="territorialAuthorityLogo">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="quarter">
+            <mat-label>{{ 'territoryEntity.defaultZoomLevel' | translate }}</mat-label>
+            <input matInput type="number" formControlName="defaultZoomLevel">
+          </mat-form-field>
+          <div class="break"></div>
+          <mat-form-field appearance="outline" class="quarter add-gap">
+            <mat-label>{{ 'territoryEntity.centerPointX' | translate }}</mat-label>
+            <input matInput type="number" formControlName="centerPointX">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="quarter">
+            <mat-label>{{ 'territoryEntity.centerPointY' | translate }}</mat-label>
+            <input matInput type="number" formControlName="centerPointY">
+          </mat-form-field>
+          <div class="break"></div>
+          <mat-form-field appearance="outline" class="quarter add-gap">
+            <mat-label>{{ 'territoryEntity.extentMinX' | translate }}</mat-label>
+            <input matInput type="number" formControlName="extentMinX" required>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="quarter add-gap">
+            <mat-label>{{ 'territoryEntity.extentMaxX' | translate }}</mat-label>
+            <input matInput type="number" formControlName="extentMaxX" required>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="quarter add-gap">
+            <mat-label>{{ 'territoryEntity.extentMinY' | translate }}</mat-label>
+            <input matInput type="number" formControlName="extentMinY" required>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="quarter">
+            <mat-label>{{ 'territoryEntity.extentMaxY' | translate }}</mat-label>
+            <input matInput type="number" formControlName="extentMaxY" required>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="quarter">
+            <mat-label>{{ 'applicationEntity.srs' | translate }}</mat-label>
+            <input matInput type="text" title="{{ 'projectionMessage' | translate }}" formControlName="srs">
+          </mat-form-field>
 
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'territoryEntity.note' | translate }}</mat-label>
+            <textarea matInput type="text" formControlName="note"> </textarea>
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+    </form>
+  </mat-tab>
+  <mat-tab label="{{'territoryEntity.permissions' | translate }}">
+    <app-data-grid [changeHeightButton]="true"
+                   [allNewElements]="territoryID === -1"
+                   [columnDefs]="columnDefsPermits"
+                   [getAll]='getAllPermits'
+                   [discardChangesButton]=true
+                   [redoButton]=true [undoButton]=true
+                   [hideDuplicateButton]=true
+                   [addFieldRestriction]="['territoryId', 'roleId', 'userId']"
+                   [defaultColumnSorting]="['user']"
+                   [eventGetAllRowsSubscription]='getAllElementsEventPermits.asObservable()'
+                   [eventRefreshSubscription]='dataUpdatedEventPermits.asObservable()'
+                   [eventAddItemsSubscription]='addElementsEventPermits.asObservable()'
+                   (add)="openPermitsDialog($event, false)"
+                   [deleteButton]=true
+                   [addButton]=true
+                   [actionButton]=true
+                   (getAllRows)="getAllRowsPermits($event)"
+                   [redraw]="activeTabIndex === 1"
+                   *ngIf="dataLoaded">
+    </app-data-grid>
 
-<div class="formDiv">
-  <form [formGroup]='territoryForm' #f="ngForm" (ngSubmit)="onSaveButtonClicked()">
-    <div class="formHeader">
-      <h5> {{'taskGroupEntity.generalData' | translate}} </h5>
-      <button mat-flat-button class="saveButton">
-        <mat-icon fontSet="material-icons-round"> save </mat-icon>
-        {{ "save" | translate }}
-      </button>
-      <button type="button" (click)="utils.navigateBack()" mat-flat-button class="returnButton">
-        <mat-icon fontSet="material-icons-round"> arrow_back </mat-icon>
-        {{ "return" | translate }}
-      </button>
-    </div>
-    <span class="divider"></span>
+  </mat-tab>
+  <mat-tab label="{{'territoryEntity.memberOfTerritories' | translate }}" *ngIf="!currentTypeTop">
+    <app-data-grid [changeHeightButton]="true"
+                   [allNewElements]="territoryID === -1"
+                   [columnDefs]="columnDefsMemberOf"
+                   [getAll]='getAllMembersOf'
+                   [discardChangesButton]=true
+                   [redoButton]=true
+                   [hideDuplicateButton]=true
+                   [eventAddItemsSubscription]='addElementsEventTerritoriesMemberOf.asObservable()'
+                   [eventGetAllRowsSubscription]='getAllElementsEventTerritoriesMemberOf.asObservable()'
+                   [eventRefreshSubscription]='dataUpdatedEventMemberOf.asObservable()'
+                   [undoButton]=true
+                   [deleteButton]=true
+                   [addButton]=true
+                   [actionButton]=true
+                   (getAllRows)="getAllRowsMembersOf($event)"
+                   (add)="openTerritoryMemberOfDialog($event)"
+                   [redraw]="activeTabIndex === 2"
+                   *ngIf="dataLoaded">
+    </app-data-grid>
+  </mat-tab>
+  <mat-tab label="{{'territoryEntity.members' | translate }}" *ngIf="!currentTypeBottom">
+    <app-data-grid [changeHeightButton]="true"
+                   [allNewElements]="territoryID === -1"
+                   [columnDefs]="columnDefsMembers"
+                   [getAll]='getAllMembers'
+                   [discardChangesButton]=true
+                   [redoButton]=true
+                   [hideDuplicateButton]=true
+                   [eventAddItemsSubscription]='addElementsEventTerritoriesMembers.asObservable()'
+                   [eventGetAllRowsSubscription]='getAllElementsEventTerritoriesMembers.asObservable()'
+                   [eventRefreshSubscription]='dataUpdatedEventMembers.asObservable()'
+                   [undoButton]=true
+                   [deleteButton]=true
+                   [addButton]=true
+                   [actionButton]=true
+                   (getAllRows)="getAllRowsMembers($event)"
+                   (add)="openTerritoryMembersDialog($event)"
+                   [redraw]="activeTabIndex === 3"
+                   *ngIf="dataLoaded">
+    </app-data-grid>
 
-    <div class="rowFormDiv">
-      <div class="FirstColFormDiv">
-        <label class="formLabel requiredInput">
-          {{'territoryEntity.code' | translate}}
-        </label>
-        <mat-form-field appearance="outline">
-          <input matInput type="text" formControlName="code" maxlength="10" required>
-        </mat-form-field>
-      </div>
+  </mat-tab>
+  <mat-tab label="{{'territoryEntity.cartography' | translate }}">
+    <app-data-grid [changeHeightButton]="true"
+                   [allNewElements]="territoryID === -1"
+                   [defaultColumnSorting]="['cartographyName']"
+                   [columnDefs]="columnDefsCartographies"
+                   [getAll]='getAllCartographies'
+                   [discardChangesButton]=true
+                   [redoButton]=true
+                   [undoButton]=true
+                   [hideDuplicateButton]=true
+                   [eventAddItemsSubscription]='addElementsEventCartographies.asObservable()'
+                   [eventGetAllRowsSubscription]='getAllElementsEventCartographies.asObservable()'
+                   [eventRefreshSubscription]='dataUpdatedEventCartographies.asObservable()'
+                   [deleteButton]=true
+                   [addButton]=true
+                   [actionButton]=true
+                   addFieldRestriction="cartographyId"
+                   (getAllRows)="getAllRowsCartographies($event)"
+                   (add)="openCartographyDialog($event)"
+                   [redraw]="activeTabIndex === 4"
+                   *ngIf="dataLoaded">
+      >
+    </app-data-grid>
 
-      <div class="LargeColFormDiv">
-        <label class="formLabel requiredInput">
-          {{'territoryEntity.name' | translate}}
-        </label>
-        <mat-form-field appearance="outline">
-          <input matInput type="text" formControlName="name">
-          <mat-icon matSuffix class="iconTranslate" (click)="onTranslationButtonClicked()"
-            svgIcon="ic_translate"></mat-icon>
-        </mat-form-field>
-      </div>
-
-      <div class="LargeColFormDiv">
-        <label class="formLabel">
-          {{'territoryEntity.address' | translate}}
-        </label>
-        <mat-form-field appearance="outline">
-          <input matInput type="text" formControlName="territorialAuthorityAddress">
-        </mat-form-field>
-      </div>
-
-    </div>
-    <div class="rowFormDiv">
-      <div class="HalfMidLargeColFormDiv">
-        <label class="formLabel">
-          {{'territoryEntity.logo' | translate}}
-        </label>
-        <mat-form-field appearance="outline">
-          <input matInput type="text" formControlName="territorialAuthorityLogo">
-        </mat-form-field>
-      </div>
-
-      <div class="HalfMidLargeColFormDiv">
-        <label class="formLabel">
-          {{'territoryEntity.territoryType' | translate}}
-        </label>
-        <mat-form-field appearance="outline">
-          <mat-select matInput formControlName="type" class="form-control"
-            (selectionChange)="onTerritoryTypeChanged($event)">
-            <mat-option [value]="territoryType.id" *ngFor="let territoryType of territoryTypes">
-              {{territoryType.name}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-
-
-      <div class="MidColFormDiv">
-        <label class="formLabel" id="right-column">
-          {{'territoryEntity.blocked' | translate}}
-        </label>
-        <mat-checkbox formControlName="blocked"> </mat-checkbox>
-      </div>
-
-
-    </div>
-
-    <div class="rowFormDiv">
-      <div class="HalfMidLargeColFormDiv">
-        <label class="formLabel">
-          {{'territoryEntity.defaultZoomLevel' | translate}}
-        </label>
-        <mat-form-field appearance="outline">
-          <input matInput type="number" formControlName="defaultZoomLevel">
-        </mat-form-field>
-      </div>
-
-      <div class="HalfMidLargeColFormDiv">
-        <label class="formLabel">
-          {{'territoryEntity.centerPointX' | translate}}
-        </label>
-        <mat-form-field appearance="outline">
-          <input matInput type="number" formControlName="centerPointX">
-        </mat-form-field>
-      </div>
-
-
-      <div class="HalfMidLargeColFormDiv">
-        <label class="formLabel">
-          {{'territoryEntity.centerPointY' | translate}}
-        </label>
-        <mat-form-field appearance="outline">
-          <input matInput type="number" formControlName="centerPointY">
-        </mat-form-field>
-      </div>
-
-      <div class="HalfMidLargeColFormDiv">
-        <label class="formLabel">
-          {{'applicationEntity.srs' | translate}}
-        </label>
-        <mat-form-field appearance="outline">
-          <input matInput type="text" title="{{ 'projectionMessage' | translate }}" formControlName="srs">
-        </mat-form-field>
-      </div>
-
-    </div>
-
-    <div class="rowFormDiv">
-      <div class="HalfMidLargeColFormDiv">
-        <label class="formLabel requiredInput">
-          {{'territoryEntity.extentMinX' | translate}}
-        </label>
-        <mat-form-field appearance="outline">
-          <input matInput type="number" formControlName="extentMinX" required>
-        </mat-form-field>
-      </div>
-
-      <div class="HalfMidLargeColFormDiv">
-        <label class="formLabel requiredInput">
-          {{'territoryEntity.extentMaxX' | translate}}
-        </label>
-        <mat-form-field appearance="outline">
-          <input matInput type="number" formControlName="extentMaxX" required>
-        </mat-form-field>
-      </div>
-
-      <div class="HalfMidLargeColFormDiv">
-        <label class="formLabel requiredInput">
-          {{'territoryEntity.extentMinY' | translate}}
-        </label>
-        <mat-form-field appearance="outline">
-          <input matInput type="number" formControlName="extentMinY" required>
-        </mat-form-field>
-      </div>
-
-      <div class="HalfMidLargeColFormDiv" id="right-column">
-        <label class="formLabel requiredInput">
-          {{'territoryEntity.extentMaxY' | translate}}
-        </label>
-        <mat-form-field appearance="outline">
-          <input matInput type="number" formControlName="extentMaxY" required>
-        </mat-form-field>
-      </div>
-    </div>
-
-    <div class="rowFormDiv">
-
-      <div class="colFormDiv">
-        <label class="formLabel">
-          {{'territoryEntity.note' | translate}}
-        </label>
-        <mat-form-field appearance="outline">
-          <textarea matInput type="text" formControlName="note"> </textarea>
-        </mat-form-field>
-      </div>
-
-    </div>
-
-
-  </form>
-</div>
-<div class="tableDiv" *ngIf="dataLoaded">
-  <mat-accordion multi>
-
-    <!-- Permits table -->
-    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
-      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-        <mat-panel-title>
-          {{ "territoryEntity.permissions" | translate }}
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <ng-template matExpansionPanelContent>
-        <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [allNewElements]="territoryID == -1"
-            [columnDefs]="columnDefsPermits" [getAll]='getAllPermits'
-            [discardChangesButton]=true [redoButton]=true [undoButton]=true [hideDuplicateButton]=true
-            [addFieldRestriction]="['territoryId', 'roleId', 'userId']"
-            [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' defaultColumnSorting="user"
-            [eventGetAllRowsSubscription]='getAllElementsEventPermits.asObservable()'
-            [eventRefreshSubscription]='dataUpdatedEventPermits.asObservable()'
-            [eventAddItemsSubscription]='addElementsEventPermits.asObservable()'
-            (add)="openPermitsDialog($event, false)" [deleteButton]=true [addButton]=true [actionButton]=true
-            (getAllRows)="getAllRowsPermits($event,false)">
-          </app-data-grid>
-        </div>
-      </ng-template>
-    </mat-expansion-panel>
-
-    <!-- Permits children table
-    <div *ngIf="territoryForm.value.scope =='R' ">
-      <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
-        <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-          <mat-panel-title>
-            {{ "territoryEntity.permissionsChildren" | translate }}
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-
-        <ng-template matExpansionPanelContent>
-          <div class="appDataGridEditDiv">
-            <app-data-grid [changeHeightButton]="true" [allNewElements]="territoryID == -1" defaultColumnSorting="user" [columnDefs]="columnDefsPermitsChild" [getAll]='getAllPermitsChild'
-              [discardChangesButton]=true [redoButton]=true [undoButton]=true [hideDuplicateButton]=true [addFieldRestriction]="['territoryId', 'roleId', 'userId']"
-              [eventRefreshSubscription]='dataUpdatedEvent.asObservable()'
-              [eventGetAllRowsSubscription]='getAllElementsEventPermits.asObservable()'
-              [eventRefreshSubscription]='dataUpdatedEventPermits.asObservable()'
-              [eventAddItemsSubscription]='addElementsEventChildrenPermits.asObservable()' (add)="openPermitsDialog($event, true)"
-              [deleteButton]=true [addButton]=true [actionButton]=true (getAllRows)="getAllRowsPermits($event, true)">
-            </app-data-grid>
-          </div>
-        </ng-template>
-      </mat-expansion-panel>
-    </div> -->
-
-    <!-- InheritPermissionsOfParents -->
-    <!-- <div  *ngIf=" territoryForm.value.scope =='M' ">
-      <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
-        <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-          <mat-panel-title>
-            {{ "territoryEntity.inheritPermissionsOfParents" | translate }}
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-
-        <ng-template matExpansionPanelContent>
-          <div class="appDataGridEditDiv">
-            <app-data-grid [changeHeightButton]="true" [columnDefs]="columnDefsPermitsInherit" [getAll]='getAllInheritPermissions'
-               [hideDuplicateButton]=true
-              [eventRefreshSubscription]='dataUpdatedEventInheritPermissions.asObservable()'>
-            </app-data-grid>
-          </div>
-        </ng-template>
-      </mat-expansion-panel>
-    </div> -->
-
-    <!-- MemberOf table -->
-    <div *ngIf="!currentTypeTop">
-      <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
-        <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-          <mat-panel-title>
-            {{ "territoryEntity.memberOfTerritories" | translate }}
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-
-        <ng-template matExpansionPanelContent>
-          <div class="appDataGridEditDiv">
-            <app-data-grid [changeHeightButton]="true" [allNewElements]="territoryID == -1"
-              [columnDefs]="columnDefsMemberOf" [getAll]='getAllMembersOf'
-              [discardChangesButton]=true [redoButton]=true [hideDuplicateButton]=true
-              [eventAddItemsSubscription]='addElementsEventTerritoriesMemberOf.asObservable()'
-              [eventGetAllRowsSubscription]='getAllElementsEventTerritoriesMemberOf.asObservable()'
-              [eventRefreshSubscription]='dataUpdatedEventMemberOf.asObservable()' [undoButton]=true [deleteButton]=true
-              [addButton]=true [actionButton]=true (getAllRows)="getAllRowsMembersOf($event)"
-              (add)="openTerritoryMemberOfDialog($event)">
-            </app-data-grid>
-          </div>
-
-        </ng-template>
-      </mat-expansion-panel>
-    </div>
-
-    <!-- Members table -->
-    <div *ngIf="!currentTypeBottom">
-
-      <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
-        <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-          <mat-panel-title>
-            {{ "territoryEntity.members" | translate }}
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-
-        <ng-template matExpansionPanelContent>
-          <div class="appDataGridEditDiv">
-            <app-data-grid [changeHeightButton]="true" [allNewElements]="territoryID == -1"
-              [columnDefs]="columnDefsMembers" [getAll]='getAllMembers'
-              [discardChangesButton]=true [redoButton]=true [hideDuplicateButton]=true
-              [eventAddItemsSubscription]='addElementsEventTerritoriesMembers.asObservable()'
-              [eventGetAllRowsSubscription]='getAllElementsEventTerritoriesMembers.asObservable()'
-              [eventRefreshSubscription]='dataUpdatedEventMembers.asObservable()' [undoButton]=true [deleteButton]=true
-              [addButton]=true [actionButton]=true (getAllRows)="getAllRowsMembers($event)"
-              (add)="openTerritoryMembersDialog($event)">
-            </app-data-grid>
-          </div>
-        </ng-template>
-
-      </mat-expansion-panel>
-    </div>
-
-    <!-- Cartography table -->
-    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
-      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-        <mat-panel-title>
-          {{ "territoryEntity.cartography" | translate }}
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <ng-template matExpansionPanelContent>
-        <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [allNewElements]="territoryID == -1"
-            defaultColumnSorting="cartographyName" [columnDefs]="columnDefsCartographies" [themeGrid]='themeGrid'
-            [getAll]='getAllCartographies' [discardChangesButton]=true [redoButton]=true [undoButton]=true
-            [hideDuplicateButton]=true [eventAddItemsSubscription]='addElementsEventCartographies.asObservable()'
-            [eventGetAllRowsSubscription]='getAllElementsEventCartographies.asObservable()'
-            [eventRefreshSubscription]='dataUpdatedEventCartographies.asObservable()' [deleteButton]=true
-            [addButton]=true [actionButton]=true addFieldRestriction="cartographyId"
-            (getAllRows)="getAllRowsCartographies($event)" (add)="openCartographyDialog($event)"> </app-data-grid>
-        </div>
-
-      </ng-template>
-    </mat-expansion-panel>
-
-    <!-- Task table -->
-    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
-      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-        <mat-panel-title>
-          {{ "territoryEntity.tasks" | translate }}
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <ng-template matExpansionPanelContent>
-        <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [allNewElements]="territoryID == -1"
-            defaultColumnSorting="taskGroupName" [columnDefs]="columnDefsTasks" [themeGrid]='themeGrid'
-            [getAll]='getAllTasks' [discardChangesButton]=true [redoButton]=true [undoButton]=true
-            [hideDuplicateButton]=true [eventAddItemsSubscription]='addElementsEventTasks.asObservable()'
-            [eventGetAllRowsSubscription]='getAllElementsEventTasks.asObservable()'
-            [eventRefreshSubscription]='dataUpdatedEventTasks.asObservable()' [deleteButton]=true [addButton]=true
-            [actionButton]=true addFieldRestriction="taskId" (getAllRows)="getAllRowsTasks($event)"
-            (add)="openTasksDialog($event)">
-          </app-data-grid>
-        </div>
-
-      </ng-template>
-    </mat-expansion-panel>
-  </mat-accordion>
-</div>
+  </mat-tab>
+  <mat-tab label="{{'territoryEntity.tasks' | translate }}">
+    <app-data-grid [changeHeightButton]="true"
+                   [allNewElements]="territoryID === -1"
+                   [defaultColumnSorting]="['taskGroupName']"
+                   [columnDefs]="columnDefsTasks"
+                   [getAll]='getAllTasks'
+                   [discardChangesButton]=true
+                   [redoButton]=true
+                   [undoButton]=true
+                   [hideDuplicateButton]=true
+                   [eventAddItemsSubscription]='addElementsEventTasks.asObservable()'
+                   [eventGetAllRowsSubscription]='getAllElementsEventTasks.asObservable()'
+                   [eventRefreshSubscription]='dataUpdatedEventTasks.asObservable()'
+                   [deleteButton]=true
+                   [addButton]=true
+                   [actionButton]=true
+                   addFieldRestriction="taskId"
+                   (getAllRows)="getAllRowsTasks($event)"
+                   (add)="openTasksDialog($event)"
+                   [redraw]="activeTabIndex === 5"
+                   *ngIf="dataLoaded">
+      >
+    </app-data-grid>
+  </mat-tab>
+</mat-tab-group>
