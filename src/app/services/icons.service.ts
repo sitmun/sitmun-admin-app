@@ -23,22 +23,27 @@ export class IconsService {
       {
         id: 'connection',
         icon: 'menu_connexio',
+        children: null,
       },
       {
         id: 'service',
         icon: 'menu_servei',
+        children: null,
       },
       {
         id: 'layers',
         icon: 'menu_capes',
+        children: null,
       },
       {
         id: 'trees',
         icon: 'menu_arbres',
+        children: null,
       },
       {
         id: 'backgroundLayers',
         icon: 'menu_capes_fons',
+        children: null,
       }
       ];
 
@@ -46,25 +51,30 @@ export class IconsService {
         {
           id: 'layersPermits',
           icon: 'menu_permisos',
+          children: null,
         },
         {
           id: 'territory',
           icon: 'menu_territori',
+          children: null,
         },
         {
           id: 'role',
           icon: 'menu_rol',
+          children: null,
         },
         {
           id: 'user',
           icon: 'menu_usuari',
+          children: null,
         },
       ];
 
     this.menuOptions3 = [
         {
           id: 'taskGroup',
-          icon: 'ic_gruptasca'
+          icon: 'ic_gruptasca',
+          children: null,
         },
         {
           id: 'tasks',
@@ -73,7 +83,8 @@ export class IconsService {
             {
               id: 'tasks',
               translation: 'basics',
-            },
+              children: null,
+            }/*,
             {
               id: 'tasksDownload',
             },
@@ -126,7 +137,7 @@ export class IconsService {
 
             {
               id: 'tasksExtractionFME',
-            },
+            },*/
 
           ]
         }
@@ -136,6 +147,7 @@ export class IconsService {
       {
         id: 'application',
         icon: 'menu_aplicacio',
+        children: null,
       }
     ];
 
@@ -184,12 +196,9 @@ export class IconsService {
     }
 
     loadSVGs(){
-      // tslint:disable-next-line: forin
-      // tslint:disable-next-line: one-variable-per-declaration
       let menuOptions: any;
       for ( menuOptions of this.menus)
       {
-        // tslint:disable-next-line: forin
         for (const key in menuOptions) {
           const option = menuOptions[key];
           const icon = option.icon;
@@ -200,7 +209,6 @@ export class IconsService {
           );
         }
       }
-      // tslint:disable-next-line: forin
       for ( const key in this.extraImg ) {
         const option = this.extraImg[key];
         const icon = option.icon;

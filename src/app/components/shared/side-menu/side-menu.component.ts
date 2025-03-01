@@ -1,7 +1,6 @@
-import { Component, ViewChild, OnChanges, Input } from '@angular/core';
-import { MatSidenav } from '@angular/material/sidenav';
-import { IconsService } from 'src/app/services/icons.service';
-
+import {Component, ViewChild, OnChanges, Input} from '@angular/core';
+import {MatSidenav} from '@angular/material/sidenav';
+import {IconsService} from 'src/app/services/icons.service';
 
 
 @Component({
@@ -17,25 +16,23 @@ export class SideMenuComponent implements OnChanges {
   openNav: boolean;
 
   @ViewChild('sidenav') public sidenav: MatSidenav;
+
   constructor(
     private iconsservice: IconsService) {
-      this.iconsservice.loadOptions();
-      this.menus = this.iconsservice.getMenuOption();
-      this.iconsservice.loadSVGs();
-      }
+    this.iconsservice.loadOptions();
+    this.menus = this.iconsservice.getMenuOption();
+    this.iconsservice.loadSVGs();
+  }
 
-      ngOnChanges(): void {
-        if (this.openNav != null) {
-        this.sidenav.toggle()
-        }
-      }
+  ngOnChanges(): void {
+    if (this.openNav != null) {
+      this.sidenav.toggle();
+    }
+  }
 
-      toggleSidebar()
-      {
-        this.sidenav.toggle();
-      }
-
-
+  toggleSidebar() {
+    this.sidenav.toggle();
+  }
 
 
 }

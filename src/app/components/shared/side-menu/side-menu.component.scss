@@ -44,6 +44,7 @@
   align-items: center;
   width: 100%;
   padding: 10px 10px 10px 15px;
+  color: #000000 !important;
 }
 
 .sidenav ul li a .mat-icon{
@@ -106,6 +107,15 @@
   text-align: left;
 }
 
-.opcio{
-  margin-top: 10px;
+.expandible-option {
+  padding: 0 10px 0 0 !important;       // Same padding as other sidenav-options
+  height: 40px !important;              // Same height as other sidenav-options
+}
+
+.remove-mat-expansion-panel-padding {
+  ::ng-deep {
+    .mat-expansion-panel-body {
+      padding: 0 10px 0 0 !important;   // Same padding as other sidenav-options
+    }
+  }
 }
