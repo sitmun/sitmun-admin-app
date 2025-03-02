@@ -28,7 +28,7 @@
   <mat-tab label="{{ 'roleEntity.generalData' | translate }}">
     <mat-card appearance="outlined">
       <mat-card-content>
-        <form [formGroup]='formRole' #f="ngForm">
+        <form [formGroup]='formRole'>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'roleEntity.name' | translate }}</mat-label>
             <input matInput type="text" formControlName="name" required>

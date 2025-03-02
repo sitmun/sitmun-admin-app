@@ -15,6 +15,7 @@ import {config} from 'src/config';
 import {DialogGridComponent, DialogMessageComponent} from '../../../frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
 import {constants} from '../../../../environments/constants';
+import {MatTabChangeEvent} from '@angular/material/tabs';
 
 
 @Component({
@@ -856,5 +857,11 @@ export class UserFormComponent implements OnInit {
 
   isUsernamePublic(): boolean {
     return this.userForm.get('username').value === constants.codeValue.systemUser.public;
+  }
+
+  activeTabIndex = 0;
+
+  onTabChange(event: MatTabChangeEvent) {
+    this.activeTabIndex = event.index;
   }
 }
