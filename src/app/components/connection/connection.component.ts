@@ -44,7 +44,6 @@ export class ConnectionComponent implements OnInit {
     columnEditBtn['cellRendererParams'] = {
       clicked: this.newData.bind(this)
     };
-
     this.columnDefs = [
       columnEditBtn,
       this.utils.getSelCheckboxColumnDef(),

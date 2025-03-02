@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, Output, EventEmitter, ElementRef, OnDestroy, SimpleChanges, OnChanges} from '@angular/core';
+import {Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, OnDestroy, SimpleChanges, OnChanges} from '@angular/core';
 
 import {Observable, Subscription} from 'rxjs';
 import {
@@ -133,10 +133,14 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   @Output() getAgGridState: EventEmitter<any[]>;
   @Output() gridModified: EventEmitter<boolean>;
 
+  @Output() visible = new EventEmitter<HTMLElement>();
+
+  @ViewChild('dataGrid', { static: true }) dataGrid: ElementRef;
+  private observer: IntersectionObserver;
 
   constructor(public dialog: MatDialog,
     public translate: TranslateService,
-    public utils: UtilsService
+    public utils: UtilsService,
   ) {
 
     this.remove = new EventEmitter();
@@ -155,7 +159,6 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       onGridReady: this.onGridReady.bind(this),
       autoSizeStrategy: {
         type: 'fitCellContents',
-        defaultMinWidth: 100,
       },
       defaultColDef: {
         filter: true,
@@ -166,12 +169,18 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         cellStyle: (params) => {
           if (params.value && params.colDef.editable) {
             if (this.changesMap.has(params.node.id) && this.changesMap.get(params.node.id).has(params.colDef.field)) {
-              return {'background-color': '#E8F1DE'};
+              return {
+                'background-color': '#E8F1DE',
+              };
             } else {
-              return {'background-color': 'white'};
+              return {
+                'background-color': 'white',
+              };
             }
           } else {
-            return {'background-color': 'white'};
+            return {
+              'background-color': 'white',
+            };
           }
         },
       },
@@ -181,7 +190,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       getLocaleText: ({key, defaultValue}) => {
         const data = this.translate.instant(key);
         return data === key ? defaultValue : data;
-      }
+      },
     }
 
     this.translate = translate;
@@ -202,6 +211,18 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
 
   ngOnInit() : void {
+
+    // Ensure that the grid is visible before autosizing columns.
+    this.observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          // The grid is visible, autosize all columns.
+          this.gridApi.autoSizeAllColumns();
+        }
+      });
+    }, { threshold: 0.1 });
+    this.observer.observe(this.dataGrid.nativeElement);
+
     if (this.eventRefreshSubscription) {
       this._eventRefreshSubscription = this.eventRefreshSubscription.subscribe(() => {
         this.changesMap.clear();
@@ -276,7 +297,6 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       if(!this.gridApi?.isDestroyed()) {
         this.gridApi?.applyTransaction({ add: this.rowData });
       }
-      this.setSize()
       this.isFirstLoad = false;
       this.setLoading(false);
     });
@@ -285,6 +305,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   ngOnDestroy(): void {
     if (this.dataSubscription) {
       this.dataSubscription.unsubscribe();
+    }
+    if (this.observer) {
+      this.observer.disconnect();
     }
   }
 
@@ -471,20 +494,6 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     const input = event.target as HTMLInputElement;
     const searchValue = input.value;
     this.gridApi.setGridOption('quickFilterText', searchValue);
-  }
-
-  setSize() {
-    const allColumnIds = [];
-    let columns: any[];
-    if(!this.gridApi?.isDestroyed()) {
-      columns = this.gridApi?.getAllGridColumns()
-    }
-    if(columns) {
-      columns.forEach(function (column) {
-        allColumnIds.push(column.colId);
-      });
-      this.gridApi.autoSizeAllColumns();
-    }
   }
 
   addItems(newItems: any[]): void {
@@ -856,7 +865,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     }
     if (changes.redraw?.currentValue && this.gridApi) {
       this.gridApi.autoSizeAllColumns();
-      this.gridApi.sizeColumnsToFit();
+      // this.gridApi.sizeColumnsToFit();
     }
   }
 
