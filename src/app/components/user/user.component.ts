@@ -38,8 +38,8 @@ export class UserComponent implements OnInit {
     };
 
     this.columnDefs = [
-      this.utils.getSelCheckboxColumnDef(),
       columnEditBtn,
+      this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
       this.utils.getNonEditableColumnDef('userEntity.user', 'username'),
       this.utils.getNonEditableColumnDef('userEntity.firstname', 'firstName'),
