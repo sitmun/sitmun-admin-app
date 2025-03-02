@@ -12,6 +12,7 @@ import { config } from 'src/config';
 import { DialogGridComponent, DialogMessageComponent } from '../../../frontend-gui/src/lib/public_api';
 import { MatDialog } from '@angular/material/dialog';
 import {MatTabChangeEvent} from '@angular/material/tabs';
+import {constants} from '../../../../environments/constants';
 
 
 @Component({
@@ -25,9 +26,9 @@ export class RoleFormComponent implements OnInit {
   formRole: UntypedFormGroup;
   roleToEdit;
   roleSaved: Role;
-  roleID: number = -1;
+  roleID = -1;
   duplicateID = -1;
-  dataLoaded: Boolean = false;
+  dataLoaded = false;
 
   //Grids
   columnDefsUsers: any[];
@@ -88,7 +89,7 @@ export class RoleFormComponent implements OnInit {
       if (params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
 
       if (this.roleID !== -1 || this.duplicateID != -1) {
-        let idToGet = this.roleID !== -1 ? this.roleID : this.duplicateID
+        const idToGet = this.roleID !== -1 ? this.roleID : this.duplicateID
 
 
         this.roleService.get(idToGet).subscribe(
@@ -114,15 +115,12 @@ export class RoleFormComponent implements OnInit {
 
             this.dataLoaded = true;
           },
-          error => {
 
-          }
         );
       }
       else { this.dataLoaded = true; }
     },
-      error => {
-      });
+      );
 
 
     this.columnDefsUsers = [
@@ -215,14 +213,14 @@ export class RoleFormComponent implements OnInit {
   getAllUsers = (): Observable<any> => {
 
     if (this.roleID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
+      const aux: any[] = [];
       return of(aux);
     }
 
-    let params2: HalParam[] = [];
-    let param: HalParam = { key: 'role.id', value: this.roleID }
+    const params2: HalParam[] = [];
+    const param: HalParam = { key: 'role.id', value: this.roleID }
     params2.push(param);
-    let query: HalOptions = { params: params2 };
+    const query: HalOptions = { params: params2 };
 
     return this.userConfigurationService.getAll(query);
 
@@ -239,31 +237,30 @@ export class RoleFormComponent implements OnInit {
     const promisesCurrentUserConf: Promise<any>[] = [];
     const promises: Promise<any>[] = [];
 
-    for (let i = 0; i < data.length; i++) {
-      let userConf = data[i];
+    for (const userConf of data) {
       if (userConf.status === 'pendingCreation' || (userConf.status === 'pendingModify' && !userConf._links)) {
         let item;
         if (userConf._links) {
 
           let urlReqTerritory = `${userConf._links.territory.href}`
           if (userConf._links.territory.href) {
-            let url = new URL(urlReqTerritory.split("{")[0]);
+            const url = new URL(urlReqTerritory.split("{")[0]);
             url.searchParams.append("projection", "view")
             urlReqTerritory = url.toString();
           }
 
           let urlReqUser = `${userConf._links.user.href}`
           if (userConf._links.user.href) {
-            let url = new URL(urlReqUser.split("{")[0]);
+            const url = new URL(urlReqUser.split("{")[0]);
             url.searchParams.append("projection", "view")
             urlReqUser = url.toString();
           }
           let territoryComplete;
           let userComplete;
 
-          promisesDuplicate.push(new Promise((resolve, reject) => {
+          promisesDuplicate.push(new Promise((resolve, ) => {
 
-            promisesCurrentUserConf.push(new Promise((resolve, reject) => {
+            promisesCurrentUserConf.push(new Promise((resolve, ) => {
               this.http.get(urlReqTerritory).subscribe(result => {
                 territoryComplete = result;
                 resolve(true);
@@ -271,7 +268,7 @@ export class RoleFormComponent implements OnInit {
 
             }))
 
-            promisesCurrentUserConf.push(new Promise((resolve, reject) => {
+            promisesCurrentUserConf.push(new Promise((resolve, ) => {
               this.http.get(urlReqUser).subscribe(result => {
                 userComplete = result;
                 resolve(true);
@@ -289,7 +286,7 @@ export class RoleFormComponent implements OnInit {
                 user: userComplete,
               }
                 userConf.new = false;
-                promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
+                promises.push(new Promise((resolve, ) => { this.userConfigurationService.save(item).subscribe(() => { resolve(true) }) }));
 
               // }
               resolve(true);
@@ -319,7 +316,7 @@ export class RoleFormComponent implements OnInit {
           }
           if (index === -1) {
             userConf.new = false;
-            promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
+            promises.push(new Promise((resolve, ) => { this.userConfigurationService.save(item).subscribe(() => { resolve(true) }) }));
 
           }
         }
@@ -329,23 +326,23 @@ export class RoleFormComponent implements OnInit {
 
         let urlReqTerritory = `${userConf._links.territory.href}`
         if (userConf._links.territory.href) {
-          let url = new URL(urlReqTerritory.split("{")[0]);
+          const url = new URL(urlReqTerritory.split("{")[0]);
           url.searchParams.append("projection", "view")
           urlReqTerritory = url.toString();
         }
 
         let urlReqUser = `${userConf._links.user.href}`
         if (userConf._links.user.href) {
-          let url = new URL(urlReqUser.split("{")[0]);
+          const url = new URL(urlReqUser.split("{")[0]);
           url.searchParams.append("projection", "view")
           urlReqUser = url.toString();
         }
         let territoryComplete;
         let userComplete;
 
-        promisesDuplicate.push(new Promise((resolve, reject) => {
+        promisesDuplicate.push(new Promise((resolve, ) => {
 
-          promisesCurrentUserConf.push(new Promise((resolve, reject) => {
+          promisesCurrentUserConf.push(new Promise((resolve, ) => {
             this.http.get(urlReqTerritory).subscribe(result => {
               territoryComplete = result;
               resolve(true);
@@ -353,7 +350,7 @@ export class RoleFormComponent implements OnInit {
 
           }))
 
-          promisesCurrentUserConf.push(new Promise((resolve, reject) => {
+          promisesCurrentUserConf.push(new Promise((resolve, ) => {
             this.http.get(urlReqUser).subscribe(result => {
               userComplete = result;
               resolve(true);
@@ -364,7 +361,7 @@ export class RoleFormComponent implements OnInit {
 
           Promise.all(promisesCurrentUserConf).then(() => {
 
-            let item = {
+            const item = {
               id: userConf.id,
               role: this.roleToEdit._links.self.href.split("{")[0],
               appliesToChildrenTerritories: userConf.appliesToChildrenTerritories,
@@ -372,16 +369,17 @@ export class RoleFormComponent implements OnInit {
               user: userComplete._links.self.href.split("{")[0],
               _links: userConf._links
             }
-            promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
+            promises.push(new Promise((resolve, ) => { this.userConfigurationService.save(item).subscribe(() => { resolve(true) }) }));
             resolve(true);
           })
 
         }))
       }
       if (userConf.status === 'pendingDelete' && userConf._links && !userConf.new) {
-        promises.push(new Promise((resolve, reject) => { this.userConfigurationService.remove(userConf).subscribe((resp) => { resolve(true) }) }));
+        promises.push(new Promise((resolve, ) => { this.userConfigurationService.remove(userConf).subscribe(() => { resolve(true) }) }));
       }
-    };
+    }
+    ;
     Promise.all([...promises,...promisesDuplicate]).then(() => {
       Promise.all(promises).then(() => {
         this.dataUpdatedEventUsers.next(true);
@@ -396,13 +394,13 @@ export class RoleFormComponent implements OnInit {
   getAllTasks = (): Observable<any> => {
 
     if (this.roleID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
+      const aux: any[] = [];
       return of(aux);
     }
     else {
-      var urlReq = `${this.roleToEdit._links.tasks.href}`
+      let urlReq = `${this.roleToEdit._links.tasks.href}`
       if (this.roleToEdit._links.tasks.templated) {
-        var url = new URL(urlReq.split("{")[0]);
+        const url = new URL(urlReq.split("{")[0]);
         url.searchParams.append("projection", "view")
         urlReq = url.toString();
       }
@@ -423,12 +421,12 @@ export class RoleFormComponent implements OnInit {
   saveTasks(data: any[]) {
     let dataChanged = false;
     const promises: Promise<any>[] = [];
-    let tasksToPut = [];
+    const tasksToPut = [];
     data.forEach(task => {
       if (task.status !== 'pendingDelete') {
         if (task.status === 'pendingModify') {
           if (task.newItem) { dataChanged = true; }
-          promises.push(new Promise((resolve, reject) => { this.tasksService.update(task).subscribe((resp) => { resolve(true) }) }));
+          promises.push(new Promise((resolve, ) => { this.tasksService.update(task).subscribe(() => { resolve(true) }) }));
         }
         else if (task.status === 'pendingCreation') {
           dataChanged = true;
@@ -441,7 +439,7 @@ export class RoleFormComponent implements OnInit {
     });
     Promise.all(promises).then(() => {
       if (dataChanged) {
-        let url = this.roleToEdit._links.tasks.href.split('{', 1)[0];
+        const url = this.roleToEdit._links.tasks.href.split('{', 1)[0];
         this.utils.updateUriList(url, tasksToPut, this.dataUpdatedEventTasks)
       }
       else { this.dataUpdatedEventTasks.next(true) }
@@ -452,14 +450,14 @@ export class RoleFormComponent implements OnInit {
   // ******** Cartography Groups ******** //
   getAllCartographiesGroups = (): Observable<any> => {
     if (this.roleID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
+      const aux: any[] = [];
       return of(aux);
 
     }
     else {
-      var urlReq = `${this.roleToEdit._links.permissions.href}`
+      let urlReq = `${this.roleToEdit._links.permissions.href}`
       if (this.roleToEdit._links.permissions.templated) {
-        var url = new URL(urlReq.split("{")[0]);
+        const url = new URL(urlReq.split("{")[0]);
         url.searchParams.append("projection", "view")
         urlReq = url.toString();
       }
@@ -479,12 +477,12 @@ export class RoleFormComponent implements OnInit {
   saveCartographiesGroups(data: any[]) {
     let dataChanged = false;
     const promises: Promise<any>[] = [];
-    let cartographiesGroupToPut = [];
+    const cartographiesGroupToPut = [];
     data.forEach(cartographyGroup => {
       if (cartographyGroup.status !== 'pendingDelete') {
         if (cartographyGroup.status === 'pendingModify') {
           if (cartographyGroup.newItem) { dataChanged = true; }
-          promises.push(new Promise((resolve, reject) => { this.cartographyGroupService.update(cartographyGroup).subscribe((resp) => { resolve(true) }) }));
+          promises.push(new Promise((resolve, ) => { this.cartographyGroupService.update(cartographyGroup).subscribe(() => { resolve(true) }) }));
 
         }
         else if (cartographyGroup.status === 'pendingCreation') { dataChanged = true };
@@ -494,7 +492,7 @@ export class RoleFormComponent implements OnInit {
     });
     Promise.all(promises).then(() => {
       if (dataChanged) {
-        let url = this.roleToEdit._links.permissions.href.split('{', 1)[0];
+        const url = this.roleToEdit._links.permissions.href.split('{', 1)[0];
         this.utils.updateUriList(url, cartographiesGroupToPut, this.dataUpdatedEventCartographies)
       }
       else { this.dataUpdatedEventCartographies.next(true) }
@@ -505,14 +503,14 @@ export class RoleFormComponent implements OnInit {
   getAllApplications = (): Observable<any> => {
     // //TODO Change the link when available
     if (this.roleID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
+      const aux: any[] = [];
       return of(aux);
 
     }
     else {
-      var urlReq = `${this.roleToEdit._links.applications.href}`
+      let urlReq = `${this.roleToEdit._links.applications.href}`
       if (this.roleToEdit._links.applications.templated) {
-        var url = new URL(urlReq.split("{")[0]);
+        const url = new URL(urlReq.split("{")[0]);
         url.searchParams.append("projection", "view")
         urlReq = url.toString();
       }
@@ -532,12 +530,12 @@ export class RoleFormComponent implements OnInit {
   saveApplications(data: any[]) {
     let dataChanged = false;
     const promises: Promise<any>[] = [];
-    let applicationsToPut = [];
+    const applicationsToPut = [];
     data.forEach(application => {
       if (application.status !== 'pendingDelete') {
         if (application.status === 'pendingModify') {
           if (application.newItem) { dataChanged = true; }
-          promises.push(new Promise((resolve, reject) => { this.applicationService.update(application).subscribe((resp) => { resolve(true) }) }));
+          promises.push(new Promise((resolve, ) => { this.applicationService.update(application).subscribe(() => { resolve(true) }) }));
         }
         else if (application.status === 'pendingCreation') { dataChanged = true }
         applicationsToPut.push(application._links.self.href)
@@ -546,7 +544,7 @@ export class RoleFormComponent implements OnInit {
     });
     Promise.all(promises).then(() => {
       if (dataChanged) {
-        let url = this.roleToEdit._links.applications.href.split('{', 1)[0];
+        const url = this.roleToEdit._links.applications.href.split('{', 1)[0];
         this.utils.updateUriList(url, applicationsToPut, this.dataUpdatedEventApplications)
       }
       else { this.dataUpdatedEventApplications.next(true) }
@@ -582,7 +580,7 @@ export class RoleFormComponent implements OnInit {
         if (result) {
           if (result.event === 'Add') {
             if(result.data[0].length>0 && result.data[1].length>0){
-              let rowsToAdd = this.adaptRowsToAddPermits(this.roleToEdit, result.data[1], result.data[0])
+              const rowsToAdd = this.adaptRowsToAddPermits(this.roleToEdit, result.data[1], result.data[0])
 
               this.addElementsEventUsers.next(rowsToAdd);
             }
@@ -602,7 +600,7 @@ export class RoleFormComponent implements OnInit {
   }
 
   adaptRowsToAddPermits(role: Role, territories: Territory[], users: any[]) {
-    let itemsToAdd: any[] = [];
+    const itemsToAdd: any[] = [];
 
     territories.forEach(territory => {
       let item;
@@ -634,10 +632,10 @@ export class RoleFormComponent implements OnInit {
   // ******** Cartography Dialog  ******** //
 
   getAllCartographiesGroupsDialog = () => {
-    let params2: HalParam[] = [];
-    let param: HalParam = { key: 'type', value: 'C' }
+    const params2: HalParam[] = [];
+    const param: HalParam = { key: 'type', value: constants.codeValue.cartographyPermissionType.cartographyGroup }
     params2.push(param);
-    let query: HalOptions = { params: params2 };
+    const query: HalOptions = { params: params2 };
     return this.cartographyGroupService.getAll(query, undefined);
   }
 
@@ -700,11 +698,11 @@ export class RoleFormComponent implements OnInit {
   }
 
   getRowsToAddPermits(territories: Territory[], users: User[]) {
-    let itemsToAdd: any[] = [];
+    const itemsToAdd: any[] = [];
     territories.forEach(territory => {
 
       users.forEach(user => {
-        let item = {
+        const item = {
           user: user.username,
           userComplete: user,
           territory: territory.name,

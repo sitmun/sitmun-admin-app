@@ -1,313 +1,287 @@
-<div class="titleDiv">
-    <h4>
-        <mat-icon aria-hidden="false" svgIcon="menu_tasques"></mat-icon>  {{ "tasksEntity.tasks" | translate }}-{{taskTypeNameTranslated}}-{{(taskID==-1?"new":"edit") | translate}}
-    </h4>
-    <span class="divider"></span>
-</div>
+<mat-toolbar>
+  <h4>
+    <mat-icon aria-hidden="true" svgIcon="menu_tasques"></mat-icon>
+    <span class="spacer"> {{ "tasksEntity.tasks" | translate }}
+      - {{ taskTypeNameTranslated }}
+      - {{ (taskID === -1 ? "new" : "edit") | translate }}</span>
+  </h4>
+  <span class="spacer"></span>
+  <button
+    matTooltip="{{ 'save' | translate }}"
+    mat-mini-fab class="add-half-gap"
+    (click)="onSaveButtonClicked()">
+    <mat-icon fontSet="material-icons-round">save</mat-icon>
+  </button>
+  <button
+    matTooltip="{{ 'return' | translate }}"
+    mat-mini-fab class="add-half-gap"
+    (click)="utils.navigateBack()">
+    <mat-icon fontSet="material-icons-round">arrow_back</mat-icon>
+  </button>
+</mat-toolbar>
+<mat-tab-group
+  mat-stretch-tabs="false"
+  mat-align-tabs="end"
+  [dynamicHeight]="true"
+  preserveContent="true"
+  (selectedTabChange)="onTabChange($event)">
+  >
+  <mat-tab label="{{ 'tasksEntity.generalData' | translate}}">
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        <div *ngIf="dataLoaded">
+          <form [formGroup]='taskForm'>
+            <div *ngFor="let element of formElements; let i = index"
+                 [hidden]="getFieldWithCondition(element.values.condition, element.values.hidden, 'hidden', taskForm, element.fieldName  )"
+                 [ngSwitch]="getFieldWithCondition(element.values.condition, element.values.control, 'control', taskForm )">
+              <mat-form-field appearance="outline" *ngSwitchCase="'input'" class="full">
+                <mat-label>
+                  {{ element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', taskForm) | translate) : (element.values.label | translate) }}
+                </mat-label>
+                <input matInput type="text" [formControlName]=element.fieldName
+                       [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', taskForm )">
+              </mat-form-field>
 
-<div *ngIf="dataLoaded" class="formDiv">
-    <form [formGroup]='taskForm' #f="ngForm" (ngSubmit)="onSaveButtonClicked()">
-
-        <div class="formHeader">
-
-            <h5> {{properties.form.label | translate}} </h5>
-            <button mat-flat-button type="submit" class="saveButton">
-                <mat-icon fontSet="material-icons-round"> save </mat-icon>
-                {{ "save" | translate }}
-            </button>
-            <button type="button" (click)="utils.navigateBack()" mat-flat-button class="returnButton">
-                <mat-icon fontSet="material-icons-round"> arrow_back </mat-icon>
-                {{ "return" | translate }}
-            </button>
-        </div>
-        <span class="divider"></span>
-
-        <div *ngFor="let element of formElements; let i = index" class="colFormDiv" [hidden]="getFieldWithCondition(element.values.condition, element.values.hidden, 'hidden', taskForm, element.fieldName  )"
-        [ngSwitch]="getFieldWithCondition(element.values.condition, element.values.control, 'control', taskForm )">
-
-            <div *ngSwitchCase="'input'">
-                <label [ngClass]="getFieldWithCondition(element.values.condition, element.values.required, 'required', taskForm )?'formLabel requiredInput':'formLabel'">
-                    {{element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', taskForm ) | translate) : (element.values.label | translate) }}
-                </label>
-
-                <mat-form-field appearance="outline">
-                    <input matInput type="text" [formControlName]=element.fieldName
-                     [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', taskForm )" >
-                </mat-form-field>
-            </div>
-
-            <div *ngSwitchCase="'textArea'">
-                <label [ngClass]="getFieldWithCondition(element.values.condition, element.values.required, 'required', taskForm )?'formLabel requiredInput':'formLabel'">
-                    {{element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', taskForm ) | translate) : (element.values.label | translate) }}
-                </label>
-
-                <mat-form-field appearance="outline">
-                    <textarea matInput type="text" [formControlName]=element.fieldName
-                        [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', taskForm )" >
+              <mat-form-field appearance="outline" *ngSwitchCase="'textArea'" class="full">
+                <mat-label>
+                  {{ element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', taskForm) | translate) : (element.values.label | translate) }}
+                </mat-label>
+                <textarea matInput type="text" [formControlName]=element.fieldName
+                          [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', taskForm )">
                     </textarea>
-                </mat-form-field>
-            </div>
+              </mat-form-field>
 
-            <div *ngSwitchCase="'selector'" >
+              <mat-form-field appearance="outline" class="full" *ngSwitchCase="'selector'">
+                <mat-label>
+                  {{ element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', taskForm) | translate) : (element.values.label | translate) }}
+                </mat-label>
 
-                <label [ngClass]="getFieldWithCondition(element.values.condition, element.values.required, 'required', taskForm)?'formLabel requiredInput':'formLabel'">
-                    {{element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', taskForm ) | translate) : (element.values.label | translate) }}
+                <mat-select
+                  [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', taskForm )"
+                  [formControlName]=element.fieldName>
+                  <mat-option [value]="dataElement[element.values.selector.value]"
+                              *ngFor="let dataElement of getDataSelector(element.values.selector.data, element.values.selector.queryParams, element.values.label)">
+                    {{ dataElement[element.values.selector.name] }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-checkbox [formControlName]=element.fieldName
+                            [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', taskForm )"
+                            *ngSwitchCase="'checkbox'">
+                {{ element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', taskForm) | translate) : (element.values.label | translate) }}
+              </mat-checkbox>
+
+              <div class="form-field">
+                <label
+                  [ngClass]="getFieldWithCondition(element.values.condition, element.values.required, 'required', taskForm)?'requiredInput':''"
+                  [for]=element.fieldName
+                  *ngSwitchCase="'enum'"
+                >
+                  {{ element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', taskForm) | translate) : (element.values.label | translate) }}
                 </label>
-
-                <mat-form-field appearance="outline">
-
-                    <mat-select matInput  [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', taskForm )"
-                     [formControlName]=element.fieldName class="form-control">
-                        <mat-option [value]="dataElement[element.values.selector.value]"
-                            *ngFor="let dataElement of getDataSelector(element.values.selector.data, element.values.selector.queryParams, element.values.label)">
-                            {{ dataElement[element.values.selector.name]}}
-                        </mat-option>
-                    </mat-select>
-<!--
-                    <mat-select *ngIf="element.values.selector.data !== 'codelist-values'" matInput   [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', taskForm )"
-                    [formControlName]=element.fieldName class="form-control">
-                        <mat-option [value]="dataElement[element.values.selector.value]"
-                            *ngFor="let dataElement of getDataFixedSelectors(element.values.selector.data)">
-                            {{ dataElement[element.values.selector.name]}}
-                        </mat-option>
-                    </mat-select> -->
-                </mat-form-field>
-            </div>
-
-            <div *ngSwitchCase="'checkbox'" >
-                <label [ngClass]="getFieldWithCondition(element.values.condition, element.values.required, 'required', taskForm)?'formLabel requiredInput':'formLabel'">
-                    {{element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', taskForm ) | translate) : (element.values.label | translate) }}
-                </label>
-
-                <mat-checkbox [formControlName]=element.fieldName  [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', taskForm )" > </mat-checkbox>
-            </div>
-
-
-            <div *ngSwitchCase="'enum'">
-
-                <label [ngClass]="getFieldWithCondition(element.values.condition, element.values.required, 'required', taskForm)?'formLabel requiredInput':'formLabel'">
-                    {{element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', taskForm ) | translate) : (element.values.label | translate) }}
-                </label>
-
-                <mat-radio-group aria-label="Select an option"  [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', taskForm )"
-                 [formControlName]=element.fieldName>
-                    <mat-radio-button *ngFor="let enumElement of element.values.enum.elements;"
-                        class="radioButtonForm" [value]=enumElement.value> {{ enumElement.label | translate}}
-                    </mat-radio-button>
+                <mat-radio-group aria-label="Select an option"
+                                 [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', taskForm )"
+                                 [formControlName]=element.fieldName
+                                 *ngSwitchCase="'enum'">
+                  <mat-radio-button *ngFor="let enumElement of element.values.enum.elements;"
+                                    [value]=enumElement.value> {{ enumElement.label | translate }}
+                  </mat-radio-button>
                 </mat-radio-group>
+              </div>
 
-            </div>
-            <div *ngSwitchCase="'selectorPopup'" class="selectorPopup">
+              <div *ngSwitchCase="'selectorPopup'">
 
-                <label [ngClass]="getFieldWithCondition(element.values.condition, element.values.required, 'required', taskForm)?'formLabel requiredInput':'formLabel'">
-                    {{element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', taskForm ) | translate) : (element.values.label | translate) }}
-                </label>
-
-                <mat-form-field appearance="outline">
-                    <input matInput *ngIf="this.taskForm.value[element.fieldName]"  [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', taskForm )"
-                     [readonly]="true" type="text" [value]="this.taskForm.value[element.fieldName][element.values.selectorPopup.value]">
-                    <input matInput *ngIf="!this.taskForm.value[element.fieldName]"  [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', taskForm )"
-                        [formControlName]=element.fieldName [readonly]="true" type="text">
+                <mat-form-field appearance="outline" class="half add-gap">
+                  <mat-label>
+                    {{ element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', taskForm) | translate) : (element.values.label | translate) }}
+                  </mat-label>
+                  <input matInput *ngIf="this.taskForm.value[element.fieldName]"
+                         [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', taskForm )"
+                         [readonly]="true" type="text"
+                         [value]="this.taskForm.value[element.fieldName][element.values.selectorPopup.value]">
+                  <input matInput *ngIf="!this.taskForm.value[element.fieldName]"
+                         [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', taskForm )"
+                         [formControlName]=element.fieldName [readonly]="true" type="text">
                 </mat-form-field>
-                <div class="btnsRightInput">
-                    <button type="button" *ngIf="dataLoaded && !this.taskForm.value[element.fieldName]"
-                        title="{{ 'add' | translate }}" mat-mini-fab class="mat-green mini-fab "
+                <button type="button"
+                        *ngIf="dataLoaded && !this.taskForm.value[element.fieldName]"
+                        title="{{ 'add' | translate }}"
+                        mat-mini-fab
+                        class="add-half-gap"
                         (click)="openPopupDialog(element.fieldName, element.values.selectorPopup.data, element.values.selectorPopup.columns, element.values.label, true, false, true, -1, $event, true)">
-                        <mat-icon> add </mat-icon>
-                    </button>
-                    <button type="button" *ngIf="dataLoaded && this.taskForm.value[element.fieldName]"
-                        title="{{ 'tasksEntity.modificate' | translate }}" mat-mini-fab class="mat-orange mini-fab"
+                  <mat-icon> add</mat-icon>
+                </button>
+                <button type="button"
+                        *ngIf="dataLoaded && this.taskForm.value[element.fieldName]"
+                        title="{{ 'tasksEntity.modificate' | translate }}"
+                        mat-mini-fab
+                        class="add-half-gap"
                         (click)="openPopupDialog(element.fieldName, element.values.selectorPopup.data, element.values.selectorPopup.columns, element.values.label, true, false, true, -1, $event, true)">
-                        <mat-icon> create </mat-icon>
-                    </button>
-                    <button type="button" *ngIf="dataLoaded && this.taskForm.value[element.fieldName]"
-                        title="{{ 'tasksEntity.deleteCartography' | translate }}" mat-mini-fab class="mat-red mini-fab"
+                  <mat-icon> create</mat-icon>
+                </button>
+                <button type="button"
+                        *ngIf="dataLoaded && this.taskForm.value[element.fieldName]"
+                        title="{{ 'tasksEntity.deleteCartography' | translate }}"
+                        mat-mini-fab
+                        class="add-half-gap"
                         (click)="onPopupDeleteButtonClicked(element.fieldName)">
-                        <mat-icon> delete </mat-icon>
-                    </button>
-                </div>
+                  <mat-icon> delete</mat-icon>
+                </button>
+              </div>
             </div>
+
+          </form>
         </div>
-
-    </form>
-
-</div>
-<!-- not this.sqlElementModification[i].element  -->
-<div class="tableDiv" *ngIf="dataLoaded">
-    <mat-accordion *ngFor="let table of properties.tables; let i = index" multi>
-        <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
-
-            <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-                <mat-panel-title>
-                    {{ table.label | translate }}
-                </mat-panel-title>
-            </mat-expansion-panel-header>
-
-            <ng-template matExpansionPanelContent>
-                <div class="appDataGridEditDiv">
-                    <app-data-grid [changeHeightButton]="true" [columnDefs]='columnDefsTables[i]'
-                        [getAll]='getAlls[i]' [discardChangesButton]=true [actionButton]=true
-                        [redoButton]="!formHasSqlElementSelector[i]" [undoButton]="!formHasSqlElementSelector[i]" [deleteButton]=true [discardNonReverseStatus]="formHasSqlElementSelector[i]"
-                        [newButton]="table.controlAdd.control==='formPopup'"
-                        [addButton]="table.controlAdd.control!=='formPopup'"
-                        [hideDuplicateButton]="table.controlAdd.control!=='formPopup'"
-                        [eventAddItemsSubscription]='addelements[i].asObservable()'
-                        [eventGetAllRowsSubscription]='getAllElementsEvent[i].asObservable()'
-                        [eventRefreshSubscription]='refreshElements[i].asObservable()'
-                        [defaultColumnSorting]=defaultColumnsSorting[i]
-                        [currentData]="[]"
-                        (duplicate)="table.controlAdd.control==='formPopup'?duplicate($event,i):null"
-                        (add)="openPopupDialog(null, table.controlAdd.data, table.controlAdd.columns, table.label, true, false, false, i, $event)"
-                        (new)="openPopupFormDialog(i, table.label)" (getAllRows)="getAllRowsTable($event, i, table.link)"
-                        (remove)="restoreElementsSqlSelector($event, i)" (discardChanges)="removeElementsSqlSelector($event, i)"
-                        >
-
-                    </app-data-grid>
-                </div>
-            </ng-template>
-
-        </mat-expansion-panel>
-    </mat-accordion>
-</div>
-
-<div *ngFor="let form of forms; let index = index" >
-
-
-<ng-template [name]=index *ngIf="form !== null" id=index  >
-
-    <div class="formDiv" >
-        <form [formGroup]='form' #f="ngForm" (ngSubmit)="onSaveButtonClicked()">
-
-
-            <div *ngFor="let element of tableFormElements[index]; let i = index" class="colFormDiv"
-            [hidden]="getFieldWithCondition(element.values.condition, element.values.hidden, 'hidden', form, element.fieldName )" [ngSwitch]="getFieldWithCondition(element.values.condition, element.values.control, 'control', form )">
-
-                <div *ngSwitchCase="'input'">
-                    <label [ngClass]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )?'formLabel requiredInput':'formLabel'" >
-                        {{element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', form ) | translate) : (element.values.label | translate) }}
-                    </label>
-
-                    <mat-form-field appearance="outline">
-                        <input matInput type="text" [formControlName]=element.fieldName [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )"
-                        [disabled]="getFieldWithCondition(element.values.condition, element.values.disabled, 'disabled', form )" >
-                    </mat-form-field>
-                </div>
-
-                <div *ngSwitchCase="'textArea'">
-                    <label [ngClass]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )?'formLabel requiredInput':'formLabel'">
-                        {{element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', form ) | translate) : (element.values.label | translate) }}
-                    </label>
-
-                    <mat-form-field appearance="outline">
-                        <textarea
-                            matInput type="text" [formControlName]=element.fieldName [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )"
-                            [disabled]="getFieldWithCondition(element.values.condition, element.values.disabled, 'disabled', form )" >
-                        </textarea>
-                    </mat-form-field>
-                </div>
-
-                <div *ngSwitchCase="'selector'" >
-
-                    <label [ngClass]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )?'formLabel requiredInput':'formLabel'">
-                        {{element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', form ) | translate) : (element.values.label | translate) }}
-                    </label>
-
-                    <mat-form-field appearance="outline">
-
-                        <mat-select  matInput [formControlName]=element.fieldName
-                        [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )" class="form-control" [disabled]="getFieldWithCondition(element.values.condition, element.values.disabled, 'disabled', form )">
-                            <mat-option [value]="dataElement[element.values.selector.value]"
-                                *ngFor="let dataElement of getDataSelector(element.values.selector.data, element.values.selector.queryParams, element.values.label)">
-                                {{ dataElement[element.values.selector.name]}}
-                            </mat-option>
-                        </mat-select>
-
-                    </mat-form-field>
-                </div>
-
-
-                <div *ngSwitchCase="'enumBySQLElement'" >
-
-                    <label [ngClass]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )?'formLabel requiredInput':'formLabel'">
-                        {{element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', form ) | translate) : (element.values.label | translate) }}
-                    </label>
-
-                    <mat-form-field appearance="outline">
-
-                        <mat-select  matInput [formControlName]=element.fieldName
-                        [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )" class="form-control"
-                        [disabled]="getFieldWithCondition(element.values.condition, element.values.disabled, 'disabled', form )">
-                            <mat-option [value]="dataElement"
-                                *ngFor="let dataElement of getDataSQLElement(element.values.element, element.values.patternToSearch, i)">
-                                {{ dataElement}}
-                            </mat-option>
-                        </mat-select>
-
-                    </mat-form-field>
-                </div>
-
-                <div *ngSwitchCase="'checkbox'" >
-                    <label [ngClass]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )?'formLabel requiredInput':'formLabel'">
-                        {{element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', form ) | translate) : (element.values.label | translate) }}
-                    </label>
-
-                    <mat-checkbox [formControlName]=element.fieldName [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )"
-                    [disabled]="getFieldWithCondition(element.values.condition, element.values.disabled, 'disabled', form )"> </mat-checkbox>
-                </div>
-
-
-                <div *ngSwitchCase="'enum'">
-
-                    <label [ngClass]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )?'formLabel requiredInput':'formLabel'">
-                        {{element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', form ) | translate) : (element.values.label | translate) }}
-                    </label>
-
-                    <mat-radio-group aria-label="Select an option" [formControlName]=element.fieldName
+      </mat-card-content>
+    </mat-card>
+  </mat-tab>
+  <div *ngIf="dataLoaded">
+    <mat-tab label="{{ table.label | translate }}" *ngFor="let table of properties.tables; let i = index">
+      <app-data-grid [changeHeightButton]="true"
+                     [columnDefs]='columnDefsTables[i]'
+                     [getAll]='getAlls[i]'
+                     [discardChangesButton]=true [actionButton]=true
+                     [redoButton]="!formHasSqlElementSelector[i]"
+                     [undoButton]="!formHasSqlElementSelector[i]"
+                     [deleteButton]=true
+                     [discardNonReverseStatus]="formHasSqlElementSelector[i]"
+                     [newButton]="table.controlAdd.control==='formPopup'"
+                     [addButton]="table.controlAdd.control!=='formPopup'"
+                     [hideDuplicateButton]="table.controlAdd.control!=='formPopup'"
+                     [eventAddItemsSubscription]='addelements[i].asObservable()'
+                     [eventGetAllRowsSubscription]='getAllElementsEvent[i].asObservable()'
+                     [eventRefreshSubscription]='refreshElements[i].asObservable()'
+                     [defaultColumnSorting]=defaultColumnsSorting[i]
+                     [currentData]="[]"
+                     (duplicate)="table.controlAdd.control==='formPopup'?duplicate($event,i):null"
+                     (add)="openPopupDialog(null, table.controlAdd.data, table.controlAdd.columns, table.label, true, false, false, i, $event)"
+                     (new)="openPopupFormDialog(i, table.label)"
+                     (getAllRows)="getAllRowsTable($event, i, table.link)"
+                     (remove)="restoreElementsSqlSelector($event, i)"
+                     (discardChanges)="removeElementsSqlSelector($event, i)"
+      >
+      </app-data-grid>
+    </mat-tab>
+  </div>
+</mat-tab-group>
+<div *ngFor="let form of forms; let index = index">
+  <ng-template [name]=String(index) *ngIf="form !== null" id=index>
+    <form [formGroup]='form' (ngSubmit)="onSaveButtonClicked()">
+      <div *ngFor="let element of tableFormElements[index]; let i = index"
+           [hidden]="getFieldWithCondition(element.values.condition, element.values.hidden, 'hidden', form, element.fieldName )"
+           [ngSwitch]="getFieldWithCondition(element.values.condition, element.values.control, 'control', form )">
+        <mat-form-field appearance="outline" class="full" *ngSwitchCase="'input'">
+          <mat-label>
+            {{ element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', form) | translate) : (element.values.label | translate) }}
+          </mat-label>
+          <input matInput
+                 type="text"
+                 [formControlName]=element.fieldName
+                 [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )"
+                 [disabled]="getFieldWithCondition(element.values.condition, element.values.disabled, 'disabled', form )">
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full" *ngSwitchCase="'textArea'">
+          <mat-label>
+            {{ element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', form) | translate) : (element.values.label | translate) }}
+          </mat-label>
+          <textarea matInput
+                    type="text"
+                    [formControlName]=element.fieldName
                     [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )"
                     [disabled]="getFieldWithCondition(element.values.condition, element.values.disabled, 'disabled', form )">
-                        <mat-radio-button *ngFor="let enumElement of element.values.enum.elements;"
-                            class="radioButtonForm" [value]=enumElement.value  > {{ enumElement.label | translate}}
-                        </mat-radio-button>
-                    </mat-radio-group>
+                </textarea>
+        </mat-form-field>
 
-                </div>
-                <div *ngSwitchCase="'selectorPopup'" class="selectorPopup">
+        <mat-form-field appearance="outline" class="full" *ngSwitchCase="'selector'">
+          <mat-label>
+            {{ element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', form) | translate) : (element.values.label | translate) }}
+          </mat-label>
+          <mat-select [formControlName]=element.fieldName
+                      [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )"
+                      [disabled]="getFieldWithCondition(element.values.condition, element.values.disabled, 'disabled', form )">
+            <mat-option [value]="dataElement[element.values.selector.value]"
+                        *ngFor="let dataElement of getDataSelector(element.values.selector.data, element.values.selector.queryParams, element.values.label)">
+              {{ dataElement[element.values.selector.name] }}
+            </mat-option>
+          </mat-select>
 
-                    <label [ngClass]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )?'formLabel requiredInput':'formLabel'">
-                        {{element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', form ) | translate) : (element.values.label | translate) }}
-                    </label>
+        </mat-form-field>
 
-                    <mat-form-field appearance="outline">
-                        <input matInput *ngIf="this.taskForm.value[element.fieldName]" [readonly]="true" type="text"
-                            [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )"
-                            [value]="this.taskForm.value[element.fieldName][element.values.selectorPopup.value]">
-                        <input matInput *ngIf="!this.taskForm.value[element.fieldName]"
-                            [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )"
-                            [formControlName]=element.fieldName [readonly]="true" type="text">
-                    </mat-form-field>
-                    <div class="btnsRightInput">
-                        <button type="button" *ngIf="dataLoaded && !this.taskForm.value[element.fieldName]"
-                            title="{{ 'add' | translate }}" mat-mini-fab class="mat-green mini-fab "
-                            (click)="openPopupDialog(element.fieldName, element.values.selectorPopup.data, element.values.selectorPopup.columns, element.values.label, true, false, true, -1, $event, true)">
-                            <mat-icon> add </mat-icon>
-                        </button>
-                        <button type="button" *ngIf="dataLoaded && this.taskForm.value[element.fieldName]"
-                            title="{{ 'tasksEntity.modificate' | translate }}" mat-mini-fab class="mat-orange mini-fab"
-                            (click)="openPopupDialog(element.fieldName, element.values.selectorPopup.data, element.values.selectorPopup.columns, element.values.label, true, false, true, -1, $event, true)">
-                            <mat-icon> create </mat-icon>
-                        </button>
-                        <button type="button" *ngIf="dataLoaded && this.taskForm.value[element.fieldName]"
-                            title="{{ 'tasksEntity.deleteCartography' | translate }}" mat-mini-fab class="mat-red mini-fab"
-                            (click)="onPopupDeleteButtonClicked(element.fieldName)">
-                            <mat-icon> delete </mat-icon>
-                        </button>
-                    </div>
-                </div>
-            </div>
+        <mat-form-field appearance="outline" *ngSwitchCase="'enumBySQLElement'">
+          <mat-label>
+            {{ element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', form) | translate) : (element.values.label | translate) }}
+          </mat-label>
+          <mat-select [formControlName]=element.fieldName
+                      [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )"
+                      [disabled]="getFieldWithCondition(element.values.condition, element.values.disabled, 'disabled', form )">
+            <mat-option [value]="dataElement"
+                        *ngFor="let dataElement of getDataSQLElement(element.values.element, element.values.patternToSearch, i)">
+              {{ dataElement }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-checkbox [formControlName]=element.fieldName
+                      [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )"
+                      [disabled]="getFieldWithCondition(element.values.condition, element.values.disabled, 'disabled', form )"
+                      *ngSwitchCase="'checkbox'">>
+          {{ element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', form) | translate) : (element.values.label | translate) }}
+        </mat-checkbox>
 
-        </form>
-
-    </div>
-
-</ng-template>
+        <div class="form-field">
+          <label
+            [ngClass]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )?'requiredInput':''"
+            *ngSwitchCase="'enum'"
+            [for]="element.fieldName"
+          >
+            {{ element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', form) | translate) : (element.values.label | translate) }}
+          </label>
+          <mat-radio-group aria-label="Select an option"
+                           [formControlName]=element.fieldName
+                           [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )"
+                           [disabled]="getFieldWithCondition(element.values.condition, element.values.disabled, 'disabled', form )"
+                           *ngSwitchCase="'enum'"
+          >
+            <mat-radio-button *ngFor="let enumElement of element.values.enum.elements;"
+                              [value]=enumElement.value> {{ enumElement.label | translate }}
+            </mat-radio-button>
+          </mat-radio-group>
+        </div>
+        <div *ngSwitchCase="'selectorPopup'">
+          <mat-form-field appearance="outline">
+            <mat-label>
+              {{ element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', form) | translate) : (element.values.label | translate) }}
+            </mat-label>
+            <input matInput *ngIf="this.taskForm.value[element.fieldName]" [readonly]="true" type="text"
+                   [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )"
+                   [value]="this.taskForm.value[element.fieldName][element.values.selectorPopup.value]">
+            <input matInput *ngIf="!this.taskForm.value[element.fieldName]"
+                   [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )"
+                   [formControlName]=element.fieldName [readonly]="true" type="text">
+          </mat-form-field>
+          <button type="button"
+                  *ngIf="dataLoaded && !this.taskForm.value[element.fieldName]"
+                  matTooltip="{{ 'add' | translate }}"
+                  mat-mini-fab
+                  (click)="openPopupDialog(element.fieldName, element.values.selectorPopup.data, element.values.selectorPopup.columns, element.values.label, true, false, true, -1, $event, true)">
+            <mat-icon fontSet="material-icons-round"> add</mat-icon>
+          </button>
+          <button type="button"
+                  *ngIf="dataLoaded && this.taskForm.value[element.fieldName]"
+                  matTooltip="{{ 'tasksEntity.modificate' | translate }}"
+                  mat-mini-fab
+                  (click)="openPopupDialog(element.fieldName, element.values.selectorPopup.data, element.values.selectorPopup.columns, element.values.label, true, false, true, -1, $event, true)">
+            <mat-icon fontSet="material-icons-round">create</mat-icon>
+          </button>
+          <button type="button"
+                  *ngIf="dataLoaded && this.taskForm.value[element.fieldName]"
+                  matTooltip="{{ 'tasksEntity.deleteCartography' | translate }}"
+                  mat-mini-fab
+                  (click)="onPopupDeleteButtonClicked(element.fieldName)">
+            <mat-icon fontSet="material-icons-round"> delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    </form>
+  </ng-template>
 </div>

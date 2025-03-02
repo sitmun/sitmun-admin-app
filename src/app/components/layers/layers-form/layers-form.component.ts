@@ -15,6 +15,7 @@ import {config} from 'src/config';
 import {DialogFormComponent, DialogGridComponent, DialogMessageComponent} from '../../../frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
 import {MatTabChangeEvent} from '@angular/material/tabs';
+import {constants} from '../../../../environments/constants';
 
 
 @Component({
@@ -1554,7 +1555,7 @@ export class LayersFormComponent implements OnInit {
 
   getAllCartographyGroupsDialog = () => {
     const params2: HalParam[] = [];
-    const param: HalParam = {key: 'type', value: 'C'};
+    const param: HalParam = {key: 'type', value: constants.codeValue.cartographyPermissionType.cartographyGroup};
     params2.push(param);
     const query: HalOptions = {params: params2};
     return this.cartographyGroupService.getAll(query, undefined);

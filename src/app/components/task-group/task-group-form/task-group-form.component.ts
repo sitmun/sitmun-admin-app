@@ -1,11 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { tick } from '@angular/core/testing';
-import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { TaskGroupService, UserService,Connection } from '../../../frontend-core/src/lib/public_api';
+import {Component, OnInit} from '@angular/core';
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
+import {TaskGroupService} from '../../../frontend-core/src/lib/public_api';
 
-import { HttpClient } from '@angular/common/http';
-import { UtilsService } from '../../../services/utils.service';
+import {UtilsService} from '../../../services/utils.service';
+import {MatTabChangeEvent} from '@angular/material/tabs';
 
 @Component({
   selector: 'app-task-group-form',
@@ -16,14 +15,13 @@ export class TaskGroupFormComponent implements OnInit {
 
   formtaskGroup: UntypedFormGroup;
   taskGroupToEdit;
-  taskGroupID: number = -1;
+  taskGroupID = -1;
   duplicateID = -1;
-  
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private taskGroupService: TaskGroupService,
-    private http: HttpClient,
     public utils: UtilsService,
   ) {
     this.initializeTaskGroupForm();
@@ -32,49 +30,44 @@ export class TaskGroupFormComponent implements OnInit {
   ngOnInit(): void {
 
     this.activatedRoute.params.subscribe(params => {
-      this.taskGroupID = +params.id;
-      if(params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
-      
-      if (this.taskGroupID !== -1 || this.duplicateID != -1) {
-        let idToGet = this.taskGroupID !== -1? this.taskGroupID: this.duplicateID  
-        
+        this.taskGroupID = +params.id;
+        if (params.idDuplicate) {
+          this.duplicateID = +params.idDuplicate;
+        }
 
-        this.taskGroupService.get(idToGet).subscribe(
-          resp => {
-           
-            this.taskGroupToEdit = resp;
-            this.formtaskGroup.setValue({
-              id: this.taskGroupID,
-              name: this.taskGroupToEdit.name,
-              _links: this.taskGroupToEdit._links
-            });
+        if (this.taskGroupID !== -1 || this.duplicateID != -1) {
+          const idToGet = this.taskGroupID !== -1 ? this.taskGroupID : this.duplicateID;
 
-            if(this.taskGroupID !== -1){
-              this.formtaskGroup.patchValue({
+
+          this.taskGroupService.get(idToGet).subscribe(
+            resp => {
+
+              this.taskGroupToEdit = resp;
+              this.formtaskGroup.setValue({
                 id: this.taskGroupID,
                 name: this.taskGroupToEdit.name,
+                _links: this.taskGroupToEdit._links
               });
-            }
-            else{
-              this.formtaskGroup.patchValue({
-                name: this.utils.getTranslate('copy_').concat(this.taskGroupToEdit.name),
-              });
-            }
+
+              if (this.taskGroupID !== -1) {
+                this.formtaskGroup.patchValue({
+                  id: this.taskGroupID,
+                  name: this.taskGroupToEdit.name,
+                });
+              } else {
+                this.formtaskGroup.patchValue({
+                  name: this.utils.getTranslate('copy_').concat(this.taskGroupToEdit.name),
+                });
+              }
 
 
-          },
-          error => {
+            },
+          );
+        }
 
-          }
-        );
-      }
-
-    },
-      error => {
-
-      });
+      },
+    );
   }
-
 
 
   initializeTaskGroupForm(): void {
@@ -91,36 +84,37 @@ export class TaskGroupFormComponent implements OnInit {
   }
 
 
+  onSaveButtonClicked() {
 
-  onSaveButtonClicked(){
-
-    if(this.formtaskGroup.valid)
-    {
+    if (this.formtaskGroup.valid) {
 
       if (this.taskGroupID == -1 && this.duplicateID != -1) {
         this.formtaskGroup.patchValue({
           _links: null
-        })
+        });
       }
 
-        this.taskGroupService.save(this.formtaskGroup.value)
-          .subscribe(resp => {
-      
-            this.taskGroupToEdit=resp;
+      this.taskGroupService.save(this.formtaskGroup.value)
+        .subscribe(resp => {
+
+            this.taskGroupToEdit = resp;
             this.formtaskGroup.patchValue({
               id: resp.id,
               _links: resp._links
-            })
+            });
           },
           error => {
             console.log(error);
           });
-    }
-    else{
+    } else {
       this.utils.showRequiredFieldsError();
     }
 
   }
 
+  activeTabIndex = 0;
 
+  onTabChange(event: MatTabChangeEvent) {
+    this.activeTabIndex = event.index;
+  }
 }

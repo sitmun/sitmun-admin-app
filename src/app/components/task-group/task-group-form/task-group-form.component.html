@@ -1,36 +1,40 @@
-<div class="titleDiv" >
-  <h4><mat-icon aria-hidden="false"  svgIcon="ic_gruptasca"></mat-icon> {{ "taskGroupEntity.taskGroup" | translate }}-{{(taskGroupID==-1?"new":"edit") | translate}}</h4>
-  <span class="divider"></span>
-</div>
-
-
-<div class="formDiv">  
-  <form [formGroup]='formtaskGroup' #f="ngForm" 	(ngSubmit)="onSaveButtonClicked()"> 
-  <div class="formHeader">
-    <h5> {{'taskGroupEntity.generalData' | translate}} </h5>
-    <button   mat-flat-button class="saveButton"  >
-      <mat-icon fontSet="material-icons-round"  > save </mat-icon>
-      {{ "save" | translate }}
-    </button>
-    <button type="button" (click)="utils.navigateBack()"  mat-flat-button class="returnButton"  >
-      <mat-icon fontSet="material-icons-round"> arrow_back </mat-icon>
-      {{ "return" | translate }}
-    </button>
-  </div>
-  <span class="divider"></span>
-  
-      <div class="rowFormDiv">
-          <div class="MidLargeColFormDiv">
-            <label class="formLabel requiredInput">
-              {{'taskGroupEntity.name' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="name" required>
-            </mat-form-field>
-          </div>
-
-      </div>
-
-  
-  </form>
-</div>
+<mat-toolbar>
+  <h4>
+    <mat-icon aria-hidden="true" svgIcon="ic_gruptasca"></mat-icon>
+    <span class="spacer"> {{ "taskGroupEntity.taskGroup" | translate }}
+      - {{ (taskGroupID === -1 ? "new" : "edit") | translate }}</span>
+  </h4>
+  <span class="spacer"></span>
+  <button
+    matTooltip="{{ 'save' | translate }}"
+    mat-mini-fab class="add-half-gap"
+    (click)="onSaveButtonClicked()">
+    <mat-icon fontSet="material-icons-round">save</mat-icon>
+  </button>
+  <button
+    matTooltip="{{ 'return' | translate }}"
+    mat-mini-fab class="add-half-gap"
+    (click)="utils.navigateBack()">
+    <mat-icon fontSet="material-icons-round">arrow_back</mat-icon>
+  </button>
+</mat-toolbar>
+<mat-tab-group
+  mat-stretch-tabs="false"
+  mat-align-tabs="end"
+  [dynamicHeight]="true"
+  preserveContent="true"
+  (selectedTabChange)="onTabChange($event)">
+  >
+  <mat-tab label="{{'taskGroupEntity.generalData' | translate}}">
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        <form [formGroup]='formtaskGroup'>
+          <mat-form-field appearance="outline" class="half">
+            <mat-label>{{ 'taskGroupEntity.name' | translate }}</mat-label>
+            <input matInput type="text" formControlName="name" required>
+          </mat-form-field>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </mat-tab>
+</mat-tab-group>
