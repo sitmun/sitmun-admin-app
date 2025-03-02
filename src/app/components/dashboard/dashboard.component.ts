@@ -12,9 +12,9 @@ export class DashboardComponent implements OnInit {
 
   dataLoaded: boolean;
 
-  cartographyDataAvailable: boolean = false;
-  usersDataAvailable: boolean = false;
-  usersPerApplicationDataAvailable: boolean = false;
+  cartographyDataAvailable = false;
+  usersDataAvailable = false;
+  usersPerApplicationDataAvailable = false;
 
   KPIsTable = [];
   totalKPIs;
@@ -28,7 +28,7 @@ export class DashboardComponent implements OnInit {
   usersPerApplicationChartData=[];
   usersPerApplicationToShow = [];
 
-  constructor(    
+  constructor(
     private http: HttpClient,
     public utils: UtilsService,
     public dashboardService: DashboardService,
@@ -38,7 +38,7 @@ export class DashboardComponent implements OnInit {
 
     const promises: Promise<any>[] = [];
 
-    promises.push(new Promise((resolve, reject) => {
+    promises.push(new Promise((resolve, ) => {
       this.dashboardService.getAll().subscribe(
         result => {
           this.saveKPI(result);
@@ -49,25 +49,25 @@ export class DashboardComponent implements OnInit {
           this.usersPerApplication=result['users-per-application']
           if(this.cartographiesOnDate){
             this.cartographyDataAvailable = true;
-            let keysCartographyChartData= Object.keys(this.cartographiesOnDate).sort();
-            for(let i=0; i<keysCartographyChartData.length; i++){
-              this.cartographyChartData.push({index:keysCartographyChartData[i], value:this.cartographiesOnDate[keysCartographyChartData[i]]})
+            const keysCartographyChartData= Object.keys(this.cartographiesOnDate).sort();
+            for (const item of keysCartographyChartData) {
+              this.cartographyChartData.push({index:item, value:this.cartographiesOnDate[item]})
             }
           }
           if(this.usersOnDate){
             this.usersDataAvailable = true;
-            let keysUsersChartData=Object.keys(this.usersOnDate).sort();
-            for(let i=0; i<keysUsersChartData.length; i++){
-              this.usersChartData.push({index:keysUsersChartData[i], value:this.usersOnDate[keysUsersChartData[i]]})
+            const keysUsersChartData=Object.keys(this.usersOnDate).sort();
+            for (const item of keysUsersChartData) {
+              this.usersChartData.push({index:item, value:this.usersOnDate[item]})
             }
             this.usersToShow=this.usersChartData.slice(this.usersChartData.length -30,this.usersChartData.length);
           }
           if(this.usersPerApplication){
             this.usersPerApplicationDataAvailable = true;
-            let keysUsersPerApplication= Object.keys(this.usersPerApplication);
-            for(let i=0; i<keysUsersPerApplication.length; i++){
-              this.usersPerApplicationChartData.push({index:keysUsersPerApplication[i], value:this.usersPerApplication[keysUsersPerApplication[i]]})
-            }   
+            const keysUsersPerApplication= Object.keys(this.usersPerApplication);
+            for (const item of keysUsersPerApplication) {
+              this.usersPerApplicationChartData.push({index:item, value:this.usersPerApplication[item]})
+            }
           }
 
           resolve(true);

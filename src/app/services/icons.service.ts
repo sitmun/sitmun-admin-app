@@ -71,11 +71,12 @@ export class IconsService {
       ];
 
     this.menuOptions3 = [
+      /*
         {
           id: 'taskGroup',
           icon: 'ic_gruptasca',
           children: null,
-        },
+        }, */
         {
           id: 'tasks',
           icon: 'menu_tasques',
