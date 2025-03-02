@@ -144,19 +144,27 @@
           </mat-form-field>
         </mat-card-content>
       </mat-card>
-      <app-data-grid [changeHeightButton]="true" [allNewElements]="layerID === -1"
+      <app-data-grid [changeHeightButton]="true"
+                     [allNewElements]="layerID === -1"
                      [columnDefs]="columnDefsSpatialConfigurations"
                      [getAll]='getAllSpatialConfigurations' [defaultColumnSorting]="['name']"
                      [eventAddItemsSubscription]='addElementsEventSpatialConfigurations.asObservable()'
                      [eventGetAllRowsSubscription]='getAllElementsEventSpatialConfigurations.asObservable()'
                      [eventRefreshSubscription]='dataUpdatedEventSpatialConfigurations.asObservable()'
                      [eventReplaceAllItemsSubscription]='replaceAllElementsEventSpatialConfigurations.asObservable()'
-                     [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true
+                     [discardChangesButton]=true
+                     [redoButton]=true
+                     [undoButton]=true
+                     [deleteButton]=true
                      [newButton]=true
-                     (getAllRows)="getAllRowsParameters($event, true)" [actionButton]=true
+                     (getAllRows)="getAllRowsParameters($event, true)"
+                     [actionButton]=true
                      addFieldRestriction="name"
+                     (duplicate)='duplicateParameters($event, true)'
+                     (new)="openSpatialSelectionDialog($event)"
                      [redraw]="activeTabIndex === 1"
-                     (duplicate)='duplicateParameters($event, true)' (new)="openSpatialSelectionDialog($event)">
+                     *ngIf="dataLoaded"
+      >
       </app-data-grid>
     </mat-tab>
     <mat-tab label="{{ 'layersEntity.parametersConfiguration' | translate }}">
@@ -199,13 +207,18 @@
                      [eventGetAllRowsSubscription]='getAllElementsEventParameters.asObservable()'
                      [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()'
                      [discardChangesButton]=true
-                     [redoButton]=true [undoButton]=true [deleteButton]=true [newButton]=true
+                     [redoButton]=true
+                     [undoButton]=true
+                     [deleteButton]=true
+                     [newButton]=true
                      addFieldRestriction="name"
                      (getAllRows)="getAllRowsParameters($event, false)"
                      [actionButton]=true
                      (duplicate)='duplicateParameters($event, false)'
+                     (new)="openParametersDialog($event)"
                      [redraw]="activeTabIndex === 2"
-                     (new)="openParametersDialog($event)">
+                     *ngIf="dataLoaded"
+      >
       </app-data-grid>
     </mat-tab>
     <mat-tab label="{{ 'layersEntity.filters' | translate }}">
@@ -222,77 +235,119 @@
           </mat-checkbox>
         </mat-card-content>
       </mat-card>
-      <app-data-grid [changeHeightButton]="true" [allNewElements]="layerID === -1"
+      <app-data-grid [changeHeightButton]="true"
+                     [allNewElements]="layerID === -1"
                      [columnDefs]="columnDefsTerritorialFilter"
                      [getAll]='getAllTerritorialFilters'
                      [eventAddItemsSubscription]='addElementsTerritorialFilter.asObservable()'
-                     defaultColumnSorting="name"
+                     [defaultColumnSorting]="['name']"
                      [eventGetAllRowsSubscription]='getAllElementsTerritorialFilter.asObservable()'
                      [eventRefreshSubscription]='dataUpdatedEventTerritorialFilter.asObservable()'
                      [discardChangesButton]=true
-                     [redoButton]=true [undoButton]=true [deleteButton]=true [newButton]=true
-                     (getAllRows)="getAllRowsTerritorialFilters($event)" [actionButton]=true
+                     [redoButton]=true
+                     [undoButton]=true
+                     [deleteButton]=true
+                     [newButton]=true
+                     (getAllRows)="getAllRowsTerritorialFilters($event)"
+                     [actionButton]=true
                      (duplicate)='duplicateTerritorialFilters($event)'
-                     [redraw]="activeTabIndex === 3"
                      (new)="openTerritorialFilterDialog($event)"
+                     [redraw]="activeTabIndex === 3"
+                     *ngIf="dataLoaded"
       >
       </app-data-grid>
     </mat-tab>
     <mat-tab label="{{ 'layersEntity.styles' | translate }}">
-      <app-data-grid [changeHeightButton]="true" [allNewElements]="layerID === -1" [columnDefs]="columnDefsStyles"
+      <app-data-grid [changeHeightButton]="true"
+                     [allNewElements]="layerID === -1"
+                     [columnDefs]="columnDefsStyles"
                      [getAll]='getAllStyles'
-                     [eventAddItemsSubscription]='addElementsEventStyles.asObservable()' defaultColumnSorting="name"
+                     [eventAddItemsSubscription]='addElementsEventStyles.asObservable()'
                      [eventGetAllRowsSubscription]='getAllElementsEventStyles.asObservable()'
-                     [eventRefreshSubscription]='dataUpdatedEventStyles.asObservable()' [discardChangesButton]=true
-                     [redoButton]=true [undoButton]=true [deleteButton]=true [newButton]=true
+                     [eventRefreshSubscription]='dataUpdatedEventStyles.asObservable()'
+                     [discardChangesButton]=true
+                     [redoButton]=true
+                     [undoButton]=true
+                     [deleteButton]=true
+                     [newButton]=true
                      addFieldRestriction="name"
-                     (getAllRows)="getAllRowsStyles($event)" defaultColumnSorting="order" [actionButton]=true
+                     (getAllRows)="getAllRowsStyles($event)"
+                     [defaultColumnSorting]="['name']"
+                     [actionButton]=true
+                     (duplicate)='duplicateStyles($event)'
+                     (new)="openStylesDialog($event)"
                      [redraw]="activeTabIndex === 4"
-                     (duplicate)='duplicateStyles($event)' (new)="openStylesDialog($event)"
+                     *ngIf="dataLoaded"
       >
       </app-data-grid>
     </mat-tab>
     <mat-tab label="{{ 'layersEntity.territory' | translate }}">
-      <app-data-grid [changeHeightButton]="true" [allNewElements]="layerID === -1"
-                     [columnDefs]="columnDefsTerritories" [getAll]='getAllTerritories'
+      <app-data-grid [changeHeightButton]="true"
+                     [allNewElements]="layerID === -1"
+                     [columnDefs]="columnDefsTerritories"
+                     [getAll]='getAllTerritories'
                      [eventAddItemsSubscription]='addElementsEventTerritories.asObservable()'
                      [eventGetAllRowsSubscription]='getAllElementsEventTerritories.asObservable()'
                      addFieldRestriction='territoryId'
                      [eventRefreshSubscription]='dataUpdatedEventTerritories.asObservable()'
                      [discardChangesButton]=true
-                     [redoButton]=true [undoButton]=true defaultColumnSorting="territoryName" [deleteButton]=true
-                     [addButton]=true [hideDuplicateButton]=true
-                     (getAllRows)="getAllRowsTerritories($event)" [actionButton]=true
+                     [redoButton]=true
+                     [undoButton]=true
+                     [defaultColumnSorting]="['territoryName']"
+                     [deleteButton]=true
+                     [addButton]=true
+                     [hideDuplicateButton]=true
+                     (getAllRows)="getAllRowsTerritories($event)"
+                     [actionButton]=true
+                     (add)="openTerritoriesDialog($event)"
                      [redraw]="activeTabIndex === 5"
-                     (add)="openTerritoriesDialog($event)">
+                     *ngIf="dataLoaded"
+      >
       </app-data-grid>
     </mat-tab>
     <mat-tab label="{{ 'layersEntity.permissiongroupLayersConfiguration' | translate }}">
-      <app-data-grid [changeHeightButton]="true" [allNewElements]="layerID === -1"
+      <app-data-grid [changeHeightButton]="true"
+                     [allNewElements]="layerID === -1"
                      [columnDefs]="columnDefsLayersConfiguration"
-                     [getAll]='getAllLayersConfiguration' [defaultColumnSorting]="['name']"
+                     [getAll]='getAllLayersConfiguration'
+                     [defaultColumnSorting]="['name']"
                      [eventAddItemsSubscription]='addElementsEventCartographyGroups.asObservable()'
                      [eventGetAllRowsSubscription]='getAllElementsEventLayersConfigurations.asObservable()'
                      [eventRefreshSubscription]='dataUpdatedEventLayersConfiguration.asObservable()'
                      [discardChangesButton]=true
-                     [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true
+                     [redoButton]=true
+                     [undoButton]=true
+                     [deleteButton]=true
+                     [addButton]=true
                      [hideDuplicateButton]=true
-                     (getAllRows)="getAllRowsLayersConfiguration($event)" [actionButton]=true
+                     (getAllRows)="getAllRowsLayersConfiguration($event)"
+                     [actionButton]=true
+                     (add)="openCartographyGroupsDialog($event)"
                      [redraw]="activeTabIndex === 6"
-                     (add)="openCartographyGroupsDialog($event)">
+                     *ngIf="dataLoaded"
+      >
       </app-data-grid>
     </mat-tab>
     <mat-tab label="{{ 'layersEntity.nodes' | translate }}">
-      <app-data-grid [changeHeightButton]="true" [allNewElements]="layerID === -1" [columnDefs]="columnDefsNodes"
+      <app-data-grid [changeHeightButton]="true"
+                     [allNewElements]="layerID === -1"
+                     [columnDefs]="columnDefsNodes"
                      [getAll]='getAllNodes'
                      [eventAddItemsSubscription]='addElementsEventNodes.asObservable()'
                      [defaultColumnSorting]="['name','treeName']"
                      [eventGetAllRowsSubscription]='getAllElementsEventNodes.asObservable()'
-                     [eventRefreshSubscription]='dataUpdatedEventNodes.asObservable()' [discardChangesButton]=false
-                     [redoButton]=true [undoButton]=true [addButton]=false [hideDuplicateButton]=true
-                     (getAllRows)="getAllRowsNodes($event)" [actionButton]=false
+                     [eventRefreshSubscription]='dataUpdatedEventNodes.asObservable()'
+                     [discardChangesButton]=false
+                     [redoButton]=true
+                     [undoButton]=true
+                     [addButton]=false
+                     [hideDuplicateButton]=true
+                     (getAllRows)="getAllRowsNodes($event)"
+                     [actionButton]=false
+                     (add)="openNodesDialog($event)"
                      [redraw]="activeTabIndex === 7"
-                     (add)="openNodesDialog($event)">
+                     *ngIf="dataLoaded"
+      >
       </app-data-grid>
     </mat-tab>
   </mat-tab-group>

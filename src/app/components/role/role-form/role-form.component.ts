@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { RoleService, UserService, CartographyGroupService, TaskService, UserConfigurationService, TerritoryService, HalOptions, HalParam, 
+import { RoleService, UserService, CartographyGroupService, TaskService, UserConfigurationService, TerritoryService, HalOptions, HalParam,
   User, Territory, Role, ApplicationService } from '../../../frontend-core/src/lib/public_api';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
@@ -11,6 +11,7 @@ import { map } from 'rxjs/operators';
 import { config } from 'src/config';
 import { DialogGridComponent, DialogMessageComponent } from '../../../frontend-gui/src/lib/public_api';
 import { MatDialog } from '@angular/material/dialog';
+import {MatTabChangeEvent} from '@angular/material/tabs';
 
 
 @Component({
@@ -92,7 +93,7 @@ export class RoleFormComponent implements OnInit {
 
         this.roleService.get(idToGet).subscribe(
           resp => {
-         
+
             this.roleToEdit = resp;
             this.formRole.patchValue({
               description: this.roleToEdit.description,
@@ -752,7 +753,7 @@ export class RoleFormComponent implements OnInit {
 
   onSaveButtonClicked() {
 
-    
+
     if(this.formRole.valid)
     {
 
@@ -788,5 +789,9 @@ export class RoleFormComponent implements OnInit {
 
   }
 
+  activeTabIndex = 0;
 
+  onTabChange(event: MatTabChangeEvent) {
+    this.activeTabIndex = event.index;
+  }
 }
