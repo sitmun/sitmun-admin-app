@@ -16,6 +16,7 @@ import {config} from 'src/config';
 import {DataGridComponent, DialogFormComponent, DialogGridComponent} from '../../../frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
 import {constants} from 'src/environments/constants';
+import {MatTabChangeEvent} from '@angular/material/tabs';
 
 
 @Component({
@@ -1067,4 +1068,9 @@ export class ApplicationFormComponent implements OnInit {
     return valid;
   }
 
+  activeTabIndex = 0;
+
+  onTabChange(event: MatTabChangeEvent) {
+    this.activeTabIndex = event.index;
+  }
 }

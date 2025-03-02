@@ -1,286 +1,233 @@
 <mat-toolbar>
   <h4>
-    <mat-icon aria-hidden="false" svgIcon="menu_aplicacio"></mat-icon>
-    <span>{{ "applicationEntity.application" | translate }}
+    <mat-icon aria-hidden="true" svgIcon="menu_aplicacio"></mat-icon>
+    <span class="spacer"> {{ "applicationEntity.application" | translate }}
       - {{ (applicationID === -1 ? "new" : "edit") | translate }}</span>
   </h4>
+  <span class="spacer"></span>
+  <button
+    matTooltip="{{ 'save' | translate }}"
+    mat-mini-fab class="add-half-gap"
+    (click)="onSaveButtonClicked()">
+    <mat-icon fontSet="material-icons-round">save</mat-icon>
+  </button>
+  <button
+    matTooltip="{{ 'return' | translate }}"
+    mat-mini-fab class="add-half-gap"
+    (click)="utils.navigateBack()">
+    <mat-icon fontSet="material-icons-round">arrow_back</mat-icon>
+  </button>
 </mat-toolbar>
-
-<div *ngIf="dataLoaded">
-  <form [formGroup]='applicationForm'>
-    <mat-card class="sitmun-mat-card-margin" appearance="outlined">
-      <mat-card-header class="sitmun-form-title">
-        <mat-card-title>
-          {{ 'applicationEntity.generalData' | translate }}
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-actions align="end">
-        <button mat-flat-button type="submit" class="sitmun-save-button" (click)="onSaveButtonClicked()">
-          <mat-icon fontSet="material-icons-round">save</mat-icon>
-          {{ "save" | translate }}
-        </button>
-        <button mat-flat-button type="button" class="sitmun-return-button" (click)="utils.navigateBack()">
-          <mat-icon fontSet="material-icons-round">arrow_back</mat-icon>
-          {{ "return" | translate }}
-        </button>
-      </mat-card-actions>
-      <mat-card-content>
-        <mat-card class="sitmun-mat-card-margin" appearance="outlined">
-          <mat-card-content>
-            <mat-form-field appearance="outline" class="full">
-              <mat-label>{{ 'applicationEntity.name' | translate }}</mat-label>
-              <input matInput type="text" formControlName="name" required>
-              <mat-icon matSuffix class="iconTranslate"
-                        (click)="onNameTranslationButtonClicked()"
-                        onKeyDown="onNameTranslationButtonClicked()"
-                        svgIcon="ic_translate"></mat-icon>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="full">
-              <mat-label>{{ 'applicationEntity.description' | translate }}</mat-label>
-              <input matInput type="text" formControlName="description" required>
-              <mat-icon matSuffix class="iconTranslate"
-                        (click)="onDescriptionTranslationButtonClicked()"
-                        onKeyDown="onDescriptionTranslationButtonClicked()"
-                        svgIcon="ic_translate"></mat-icon>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="quarter">
-              <mat-label>{{ 'applicationEntity.type' | translate }}</mat-label>
-              <mat-select formControlName="type" class="form-control"
-                          (selectionChange)="onSelectionTypeAppChanged($event)">
-                <mat-option [value]="appType.value" *ngFor="let appType of applicationTypes">
-                  {{ appType.description }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="full">
-              <mat-label>{{ 'applicationEntity.logo' | translate }}</mat-label>
-              <input matInput type="text" formControlName="logo">
-            </mat-form-field>
-          </mat-card-content>
-        </mat-card>
-        <mat-card class="sitmun-mat-card-margin" appearance="outlined"
-                  *ngIf="applicationForm.value.type===codeValues.applicationType.externalApp">
-          <mat-card-content>
-            <mat-form-field appearance="outline" class="full">
-              <mat-label>{{ 'applicationEntity.url' | translate }}</mat-label>
-              <input matInput type="text" formControlName="jspTemplate">
-            </mat-form-field>
-          </mat-card-content>
-        </mat-card>
-        <mat-card class="sitmun-mat-card-margin" appearance="outlined"
-                  *ngIf="applicationForm.value.type===codeValues.applicationType.internalApp">
-          <mat-card-content>
-            <mat-form-field appearance="outline" class="full">
-              <mat-label>{{ 'applicationEntity.title' | translate }}</mat-label>
-              <input matInput type="text" formControlName="title">
-              <mat-icon matSuffix class="iconTranslate"
-                        (click)="onTitleTranslationButtonClicked()"
-                        onKeyDown="onTitleTranslationButtonClicked()"
-                        svgIcon="ic_translate"></mat-icon>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="half add-gap">
-              <mat-label>{{ 'applicationEntity.CSS' | translate }}</mat-label>
-              <input matInput type="text" formControlName="theme">
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="half">
-              <mat-label>{{ 'applicationEntity.scales' | translate }}</mat-label>
-              <input matInput type="text" formControlName="scales">
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="half add-gap">
-              <mat-label>{{ 'applicationEntity.srs' | translate }}</mat-label>
-              <input matInput type="text" formControlName="srs">
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="half">
-              <mat-label>{{ 'applicationEntity.situationMap' | translate }}</mat-label>
-              <mat-select formControlName="situationMap" class="form-control">
-                <mat-option [value]="situationMapObj.id" *ngFor="let situationMapObj of situationMapList">
-                  {{ situationMapObj.name }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-            <div class="break"></div>
-            <mat-checkbox formControlName="accessParentTerritory">
-              <mat-label>{{ 'applicationEntity.accessParentTerritory' | translate }}</mat-label>
-            </mat-checkbox>
-            <mat-checkbox formControlName="accessChildrenTerritory">
-              <mat-label>{{ 'applicationEntity.accessChildrenTerritory' | translate }}</mat-label>
-            </mat-checkbox>
-            <div class="break"></div>
-            <mat-checkbox formControlName="treeAutoRefresh">
-              <mat-label>{{ 'applicationEntity.treeAutoRefresh' | translate }}</mat-label>
-            </mat-checkbox>
-          </mat-card-content>
-        </mat-card>
-      </mat-card-content>
-
-    </mat-card>
-  </form>
-
-  <mat-accordion multi>
-    <!-- Parameters configuration table -->
-    <mat-expansion-panel [expanded]="true" class="sitmun-ag-grid-expansion-panel">
-      <mat-expansion-panel-header class="sitmun-ag-grid-expansion-panel-title">
-        <mat-panel-title>
-          {{ "applicationEntity.parametersConfiguration" | translate }}
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <ng-template matExpansionPanelContent>
-        <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true"
-                         [allNewElements]="applicationID === -1"
-                         [columnDefs]="columnDefsParameters"
-                         [themeGrid]='themeGrid'
-                         [getAll]='getAllParameters'
-                         [eventAddItemsSubscription]='addElementsEventParameters.asObservable()'
-                         [eventGetAllRowsSubscription]='getAllElementsEventParameters.asObservable()'
-                         [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()'
-                         [discardChangesButton]=true
-                         [actionButton]=true
-                         [redoButton]=true
-                         [undoButton]=true
-                         [deleteButton]=true
-                         [newButton]=true
-                         addFieldRestriction="name"
-                         defaultColumnSorting="name"
-                         (new)="openParametersDialog()"
-                         (getAllRows)="getAllRowsParameters($event)"
-                         (duplicate)='duplicateParameters($event)'
-          ></app-data-grid>
-        </div>
-      </ng-template>
-    </mat-expansion-panel>
-
-    <!-- Template table -->
-    <mat-expansion-panel [expanded]="true" class="sitmun-ag-grid-expansion-panel">
-      <mat-expansion-panel-header class="sitmun-ag-grid-expansion-panel-title">
-        <mat-panel-title>
-          {{ "applicationEntity.templateConfiguration" | translate }}
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <ng-template matExpansionPanelContent>
-        <div class="sitmun-app-data-grid-edit">
-          <app-data-grid [changeHeightButton]="true"
-                         [allNewElements]="applicationID === -1"
-                         [columnDefs]="columnDefsTemplates"
-                         [themeGrid]='themeGrid'
-                         [getAll]='getAllTemplates'
-                         [eventAddItemsSubscription]='addElementsEventTemplateConfiguration.asObservable()'
-                         [eventGetAllRowsSubscription]='getAllElementsEventTemplateConfiguration.asObservable()'
-                         [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()'
-                         [actionButton]=true
-                         [discardChangesButton]=true
-                         [redoButton]=true
-                         [undoButton]=true
-                         [deleteButton]=true
-                         [newButton]=true
-                         addFieldRestriction="name"
-                         defaultColumnSorting="name"
-                         (duplicate)='duplicateTemplates($event)'
-                         (getAllRows)="getAllRowsParameters($event)"
-                         (new)="openTemplateConfigurationDialog()"></app-data-grid>
-        </div>
-      </ng-template>
-    </mat-expansion-panel>
-
-    <!-- Roles table -->
-    <mat-expansion-panel [expanded]="true" class="sitmun-ag-grid-expansion-panel">
-      <mat-expansion-panel-header class="sitmun-ag-grid-expansion-panel-title">
-        <mat-panel-title>
-          {{ "applicationEntity.roles" | translate }}
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <ng-template matExpansionPanelContent>
-        <div class="sitmun-app-data-grid-edit">
-          <app-data-grid [changeHeightButton]="true"
-                         [allNewElements]="applicationID === -1"
-                         [columnDefs]="columnDefsRoles"
-                         [themeGrid]='themeGrid'
-                         [getAll]='getAllRoles'
-                         [eventAddItemsSubscription]='addElementsEventRoles.asObservable()'
-                         [eventGetAllRowsSubscription]='getAllElementsEventRoles.asObservable()'
-                         [eventRefreshSubscription]='dataUpdatedEventRoles.asObservable()'
-                         [actionButton]=true
-                         [discardChangesButton]=true
-                         [redoButton]=true
-                         [undoButton]=true
-                         [deleteButton]=true
-                         [addButton]=true
-                         defaultColumnSorting="name"
-                         [hideDuplicateButton]=true
-                         (getAllRows)="getAllRowsRoles($event)"
-                         (add)="openRolesDialog($event)"></app-data-grid>
-        </div>
-      </ng-template>
-    </mat-expansion-panel>
-
-    <!-- Background table -->
-    <mat-expansion-panel [expanded]="true" class="sitmun-ag-grid-expansion-panel">
-      <mat-expansion-panel-header class="sitmun-ag-grid-expansion-panel-title">
-        <mat-panel-title>
-          {{ "applicationEntity.background" | translate }}
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <ng-template matExpansionPanelContent>
-        <div class="sitmun-app-data-grid-edit">
-          <app-data-grid [changeHeightButton]="true"
-                         [allNewElements]="applicationID === -1"
-                         [columnDefs]="columnDefsBackgrounds"
-                         [themeGrid]='themeGrid'
-                         [getAll]='getAllBackgrounds'
-                         [eventAddItemsSubscription]='addElementsEventBackground.asObservable()'
-                         [eventGetAllRowsSubscription]='getAllElementsEventBackground.asObservable()'
-                         [eventRefreshSubscription]='dataUpdatedEventBackground.asObservable()'
-                         [actionButton]=true
-                         [discardChangesButton]=true
-                         [redoButton]=true
-                         [undoButton]=true
-                         [deleteButton]=true
-                         [addButton]=true
-                         [hideDuplicateButton]=true
-                         defaultColumnSorting="order"
-                         (getAllRows)="getAllRowsBackgrounds($event)"
-                         (add)="openBackgroundDialog($event)"></app-data-grid>
-        </div>
-      </ng-template>
-    </mat-expansion-panel>
-
-    <!-- Trees table -->
-    <mat-expansion-panel [expanded]="true" class="sitmun-ag-grid-expansion-panel">
-      <mat-expansion-panel-header class="sitmun-ag-grid-expansion-panel-title">
-        <mat-panel-title>
-          {{ "applicationEntity.tree" | translate }}
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <ng-template matExpansionPanelContent>
-        <div class="sitmun-app-data-grid-edit">
-          <app-data-grid [changeHeightButton]="true"
-                         [allNewElements]="applicationID === -1"
-                         [columnDefs]="columnDefsTrees"
-                         [themeGrid]='themeGrid'
-                         [getAll]='getAllTrees'
-                         [eventAddItemsSubscription]='addElementsEventTree.asObservable()'
-                         [eventGetAllRowsSubscription]='getAllElementsEventTree.asObservable()'
-                         [eventRefreshSubscription]='dataUpdatedEventTree.asObservable()'
-                         [actionButton]=true
-                         [discardChangesButton]=true
-                         [redoButton]=true
-                         [undoButton]=true
-                         [deleteButton]=true
-                         [addButton]=true
-                         [hideDuplicateButton]=true
-                         defaultColumnSorting="name"
-                         (getAllRows)="getAllRowsTrees($event)"
-                         (add)="openTreeDialog($event)"></app-data-grid>
-        </div>
-      </ng-template>
-    </mat-expansion-panel>
-  </mat-accordion>
-</div>
+<mat-tab-group
+  mat-stretch-tabs="false"
+  mat-align-tabs="end"
+  [dynamicHeight]="true"
+  preserveContent="true"
+  (selectedTabChange)="onTabChange($event)">
+  >
+  <mat-tab label="{{ 'roleEntity.generalData' | translate }}">
+    <form [formGroup]='applicationForm' *ngIf="dataLoaded">
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'applicationEntity.name' | translate }}</mat-label>
+            <input matInput type="text" formControlName="name" required>
+            <mat-icon matSuffix class="iconTranslate"
+                      (click)="onNameTranslationButtonClicked()"
+                      onKeyDown="onNameTranslationButtonClicked()"
+                      svgIcon="ic_translate"></mat-icon>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'applicationEntity.description' | translate }}</mat-label>
+            <input matInput type="text" formControlName="description" required>
+            <mat-icon matSuffix class="iconTranslate"
+                      (click)="onDescriptionTranslationButtonClicked()"
+                      onKeyDown="onDescriptionTranslationButtonClicked()"
+                      svgIcon="ic_translate"></mat-icon>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="quarter">
+            <mat-label>{{ 'applicationEntity.type' | translate }}</mat-label>
+            <mat-select formControlName="type" class="form-control"
+                        (selectionChange)="onSelectionTypeAppChanged($event)">
+              <mat-option [value]="appType.value" *ngFor="let appType of applicationTypes">
+                {{ appType.description }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'applicationEntity.logo' | translate }}</mat-label>
+            <input matInput type="text" formControlName="logo">
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined"
+                *ngIf="applicationForm.value.type===codeValues.applicationType.externalApp">
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'applicationEntity.url' | translate }}</mat-label>
+            <input matInput type="text" formControlName="jspTemplate">
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined"
+                *ngIf="applicationForm.value.type===codeValues.applicationType.internalApp">
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'applicationEntity.title' | translate }}</mat-label>
+            <input matInput type="text" formControlName="title">
+            <mat-icon matSuffix class="iconTranslate"
+                      (click)="onTitleTranslationButtonClicked()"
+                      onKeyDown="onTitleTranslationButtonClicked()"
+                      svgIcon="ic_translate"></mat-icon>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="half add-gap">
+            <mat-label>{{ 'applicationEntity.CSS' | translate }}</mat-label>
+            <input matInput type="text" formControlName="theme">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="half">
+            <mat-label>{{ 'applicationEntity.scales' | translate }}</mat-label>
+            <input matInput type="text" formControlName="scales">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="half add-gap">
+            <mat-label>{{ 'applicationEntity.srs' | translate }}</mat-label>
+            <input matInput type="text" formControlName="srs">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="half">
+            <mat-label>{{ 'applicationEntity.situationMap' | translate }}</mat-label>
+            <mat-select formControlName="situationMap" class="form-control">
+              <mat-option [value]="situationMapObj.id" *ngFor="let situationMapObj of situationMapList">
+                {{ situationMapObj.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <div class="break"></div>
+          <mat-checkbox formControlName="accessParentTerritory">
+            <mat-label>{{ 'applicationEntity.accessParentTerritory' | translate }}</mat-label>
+          </mat-checkbox>
+          <mat-checkbox formControlName="accessChildrenTerritory">
+            <mat-label>{{ 'applicationEntity.accessChildrenTerritory' | translate }}</mat-label>
+          </mat-checkbox>
+          <div class="break"></div>
+          <mat-checkbox formControlName="treeAutoRefresh">
+            <mat-label>{{ 'applicationEntity.treeAutoRefresh' | translate }}</mat-label>
+          </mat-checkbox>
+        </mat-card-content>
+      </mat-card>
+    </form>
+  </mat-tab>
+  <mat-tab label="{{ 'applicationEntity.parametersConfiguration' | translate }}">
+    <app-data-grid [changeHeightButton]="true"
+                   [allNewElements]="applicationID === -1"
+                   [columnDefs]="columnDefsParameters"
+                   [getAll]='getAllParameters'
+                   [eventAddItemsSubscription]='addElementsEventParameters.asObservable()'
+                   [eventGetAllRowsSubscription]='getAllElementsEventParameters.asObservable()'
+                   [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()'
+                   [discardChangesButton]=true
+                   [actionButton]=true
+                   [redoButton]=true
+                   [undoButton]=true
+                   [deleteButton]=true
+                   [newButton]=true
+                   addFieldRestriction="name"
+                   [defaultColumnSorting]="['name']"
+                   (new)="openParametersDialog()"
+                   (getAllRows)="getAllRowsParameters($event)"
+                   (duplicate)='duplicateParameters($event)'
+                   [redraw]="activeTabIndex === 1"
+                   *ngIf="dataLoaded"
+    ></app-data-grid>
+  </mat-tab>
+  <mat-tab label="{{ 'applicationEntity.templateConfiguration' | translate }}">
+    <app-data-grid [changeHeightButton]="true"
+                   [allNewElements]="applicationID === -1"
+                   [columnDefs]="columnDefsTemplates"
+                   [getAll]='getAllTemplates'
+                   [eventAddItemsSubscription]='addElementsEventTemplateConfiguration.asObservable()'
+                   [eventGetAllRowsSubscription]='getAllElementsEventTemplateConfiguration.asObservable()'
+                   [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()'
+                   [actionButton]=true
+                   [discardChangesButton]=true
+                   [redoButton]=true
+                   [undoButton]=true
+                   [deleteButton]=true
+                   [newButton]=true
+                   addFieldRestriction="name"
+                   [defaultColumnSorting]="['name']"
+                   (duplicate)='duplicateTemplates($event)'
+                   (getAllRows)="getAllRowsParameters($event)"
+                   (new)="openTemplateConfigurationDialog()"
+                   [redraw]="activeTabIndex === 2"
+                   *ngIf="dataLoaded"
+    ></app-data-grid>
+  </mat-tab>
+  <mat-tab label="{{ 'applicationEntity.roles' | translate }}">
+    <app-data-grid [changeHeightButton]="true"
+                   [allNewElements]="applicationID === -1"
+                   [columnDefs]="columnDefsRoles"
+                   [getAll]='getAllRoles'
+                   [eventAddItemsSubscription]='addElementsEventRoles.asObservable()'
+                   [eventGetAllRowsSubscription]='getAllElementsEventRoles.asObservable()'
+                   [eventRefreshSubscription]='dataUpdatedEventRoles.asObservable()'
+                   [actionButton]=true
+                   [discardChangesButton]=true
+                   [redoButton]=true
+                   [undoButton]=true
+                   [deleteButton]=true
+                   [addButton]=true
+                   [defaultColumnSorting]="['name']"
+                   [hideDuplicateButton]=true
+                   (getAllRows)="getAllRowsRoles($event)"
+                   (add)="openRolesDialog($event)"
+                   [redraw]="activeTabIndex === 3"
+                   *ngIf="dataLoaded"
+    ></app-data-grid>
+  </mat-tab>
+  <mat-tab label="{{ 'applicationEntity.background' | translate }}">
+    <app-data-grid [changeHeightButton]="true"
+                   [allNewElements]="applicationID === -1"
+                   [columnDefs]="columnDefsBackgrounds"
+                   [getAll]='getAllBackgrounds'
+                   [eventAddItemsSubscription]='addElementsEventBackground.asObservable()'
+                   [eventGetAllRowsSubscription]='getAllElementsEventBackground.asObservable()'
+                   [eventRefreshSubscription]='dataUpdatedEventBackground.asObservable()'
+                   [actionButton]=true
+                   [discardChangesButton]=true
+                   [redoButton]=true
+                   [undoButton]=true
+                   [deleteButton]=true
+                   [addButton]=true
+                   [hideDuplicateButton]=true
+                   [defaultColumnSorting]="['name']"
+                   (getAllRows)="getAllRowsBackgrounds($event)"
+                   (add)="openBackgroundDialog($event)"
+                   [redraw]="activeTabIndex === 4"
+                   *ngIf="dataLoaded"
+    ></app-data-grid>
+  </mat-tab>
+  <mat-tab label="{{ 'applicationEntity.tree' | translate }}">
+    <app-data-grid [changeHeightButton]="true"
+                   [allNewElements]="applicationID === -1"
+                   [columnDefs]="columnDefsTrees"
+                   [getAll]='getAllTrees'
+                   [eventAddItemsSubscription]='addElementsEventTree.asObservable()'
+                   [eventGetAllRowsSubscription]='getAllElementsEventTree.asObservable()'
+                   [eventRefreshSubscription]='dataUpdatedEventTree.asObservable()'
+                   [actionButton]=true
+                   [discardChangesButton]=true
+                   [redoButton]=true
+                   [undoButton]=true
+                   [deleteButton]=true
+                   [addButton]=true
+                   [hideDuplicateButton]=true
+                   [defaultColumnSorting]="['name']"
+                   (getAllRows)="getAllRowsTrees($event)"
+                   (add)="openTreeDialog($event)"
+                   [redraw]="activeTabIndex === 5"
+                   *ngIf="dataLoaded"
+    ></app-data-grid>
+  </mat-tab>
+</mat-tab-group>
 
 <ng-template #newParameterDialog>
   <form [formGroup]='parameterForm'>
