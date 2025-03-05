@@ -1,6 +1,7 @@
 import {Component, ViewChild, OnChanges, Input} from '@angular/core';
 import {MatSidenav} from '@angular/material/sidenav';
 import {IconsService} from 'src/app/services/icons.service';
+import {constants} from '../../../../environments/constants';
 
 
 @Component({
@@ -19,8 +20,7 @@ export class SideMenuComponent implements OnChanges {
 
   constructor(
     private iconsservice: IconsService) {
-    this.iconsservice.loadOptions();
-    this.menus = this.iconsservice.getMenuOption();
+    this.menus = constants.menus;
     this.iconsservice.loadSVGs();
   }
 
