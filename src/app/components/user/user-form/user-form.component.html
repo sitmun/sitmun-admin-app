@@ -1,7 +1,7 @@
 <mat-toolbar>
   <h4>
     <mat-icon aria-hidden="true" svgIcon="menu_usuari"></mat-icon>
-    <span class="spacer"> {{ "userEntity.role" | translate }}
+    <span class="spacer"> {{ "userEntity.user" | translate }}
       - {{ (userID === -1 ? "new" : "edit") | translate }}</span>
   </h4>
   <span class="spacer"></span>
@@ -116,38 +116,3 @@
     </app-data-grid>
   </mat-tab>
 </mat-tab-group>
-
-
-<div *ngIf="dataLoaded">
-
-  <mat-accordion multi>
-
-    <!-- Permits table -->
-    <mat-expansion-panel [expanded]="true" class="sitmun-ag-grid-expansion-panel">
-      <mat-expansion-panel-header class="sitmun-ag-grid-expansion-panel-title">
-        <mat-panel-title>
-
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <ng-template matExpansionPanelContent>
-        <div class="sitmun-app-data-grid-edit">
-        </div>
-      </ng-template>
-    </mat-expansion-panel>
-
-    <!-- Territory data table -->
-    <mat-expansion-panel [expanded]="true" class="sitmun-ag-grid-expansion-panel">
-      <mat-expansion-panel-header class="sitmun-ag-grid-expansion-panel-title">
-        <mat-panel-title>
-
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <ng-template matExpansionPanelContent>
-        <div class="sitmun-app-data-grid-edit">
-        </div>
-      </ng-template>
-    </mat-expansion-panel>
-  </mat-accordion>
-</div>
