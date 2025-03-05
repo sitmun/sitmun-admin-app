@@ -67,11 +67,11 @@
   "getInfoMessage": "Do you want to empty parameter table?",
   "atention": "Atention",
   "lang": {
-    "Catalan": "Catalan",
-    "Spanish": "Spanish",
-    "English": "English",
-    "Aranese": "Aranese",
-    "French": "French"
+    "ca": "Catalan",
+    "es": "Spanish",
+    "en": "English",
+    "oc-aranes": "Aranese",
+    "fr": "French"
   },
   "sideMenu": {
     "basics": "Basics",

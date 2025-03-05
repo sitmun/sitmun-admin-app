@@ -65,11 +65,11 @@
   "getCapabilitiesMessage": "S'ils s'obtiennent les données du service, se modifieront les données ne gardées de la table et quelques champs du formulaire, veux continuer?",
   "getInfoMessage": "Veux vider la table de paramètres?",
   "lang": {
-    "Catalan": "Catalan",
-    "Spanish": "Espagnol",
-    "English": "Anglais",
-    "Aranese": "Aranais",
-    "French": "Français"
+    "ca": "Catalan",
+    "es": "Espagnol",
+    "an": "Anglais",
+    "oc-aranes": "Aranais",
+    "fr": "Français"
   },
   "sideMenu": {
     "basics": "Bases",

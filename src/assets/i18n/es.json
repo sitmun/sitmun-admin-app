@@ -67,11 +67,11 @@
   "getInfoMessage": "Quieres vaciar la tabla de parámetros?",
   "atention": "Atención",
   "lang": {
-    "Catalan": "Catalán",
-    "Spanish": "Castellano",
-    "English": "Inglés",
-    "Aranese": "Aranés",
-    "French": "Francés"
+    "ca": "Catalán",
+    "es": "Castellano",
+    "en": "Inglés",
+    "oc-aranes": "Aranés",
+    "fr": "Francés"
   },
   "sideMenu": {
     "basics": "Básicas",

@@ -1,89 +1,110 @@
-import { Component} from '@angular/core';
-import { AuthService, LanguageService, LoginService } from '../../frontend-core/src/lib/public_api';
+import {Component, OnInit, ChangeDetectorRef} from '@angular/core';
+import {Language, LanguageService, LoginService} from '../../frontend-core/src/lib/public_api';
 
-import { config } from 'src/config';
-import { TranslateService } from '@ngx-translate/core';
-import { Router } from '@angular/router';
-import { UntypedFormGroup, UntypedFormBuilder, Validators } from '@angular/forms';
+import {config} from 'src/config';
+import {TranslateService} from '@ngx-translate/core';
+import {Router} from '@angular/router';
+import {UntypedFormGroup, UntypedFormBuilder, Validators} from '@angular/forms';
+import {UtilsService} from '../../services/utils.service';
 
 /** Login component*/
-@Component( {
-    selector: 'app-login',
-    templateUrl: './login.component.html',
-    styleUrls: ['./login.component.scss']
-} )
-export class LoginComponent {
-    langs:any[];
-    /** bad credentials message*/
-    badCredentials: string;
+@Component({
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss']
+})
+export class LoginComponent implements OnInit {
 
-    /** translate service*/
-    translate;
+  langs: any[] = [];
 
-    languagesLoaded = false;
+  /** bad credentials message*/
+  badCredentials: string;
 
-    /** form */
-    form: UntypedFormGroup;
+  /** translate service*/
+  translate;
 
-    /** constructor */
-    constructor( private fb: UntypedFormBuilder,
-        private authService: AuthService,
-        private loginService: LoginService,
-        private languageService: LanguageService,
-        private router: Router,
-        private trans: TranslateService ) {
-        
-        this.translate = trans;
-        let navigatorLang=window.navigator.language.split('-')[0];
-        let defaultLang=config.defaultLang;
-        this.form = this.fb.group( {
-            username: ['', Validators.required],
-            password: ['', Validators.required],
-            lang:[defaultLang, Validators.required],
-        } );
+  languagesLoaded = false;
 
-        this.loadLanguages();
+  /** form */
+  form: UntypedFormGroup;
+  lang: Language;
 
+  /** constructor */
+  constructor(private fb: UntypedFormBuilder,
+              private loginService: LoginService,
+              private languageService: LanguageService,
+              private router: Router,
+              private utils: UtilsService,
+              private trans: TranslateService,
+              private changeDetectorRef: ChangeDetectorRef) {
+    this.translate = trans;
+    this.form = this.fb.group({
+      username: ['', Validators.required],
+      password: ['', Validators.required],
+      lang: ['', Validators.required],
+    });
+  }
 
-        // this.langs=config.languages
-       
+  identifyDefaultLanguage(): Language {
+    const navigatorLang = window.navigator.language.toLowerCase();
+    const defaultLang : string = this.langs.find((lang: Language) =>
+      lang.shortname.toLowerCase() === navigatorLang
+      ||
+      navigatorLang.startsWith(lang.shortname.toLowerCase()+"-")
+    )?.shortname || config.defaultLang;
+    return this.langs.find((lang: Language) => lang.shortname === defaultLang)
+  }
+
+  ngOnInit(): void {
+    this.loadLanguages().then((langs : Language[]) => {
+      this.langs = langs;
+      this.languagesLoaded = true;
+    }).then(() => {
+      const defaultLang = this.identifyDefaultLanguage();
+      this.translate.use(defaultLang.shortname);
+      this.lang = defaultLang;
+      this.form.patchValue({lang: defaultLang});
+      this.changeDetectorRef.detectChanges();
+    }).catch((err) => {
+      const defaultLang = this.identifyDefaultLanguage();
+      this.translate.use(defaultLang.shortname);
+      this.utils.showErrorMessage(err);
+    });
+  }
+
+  /** login action */
+  login() {
+    const val = this.form.value;
+    if (val.username && val.password) {
+      this.loginService.login(val).then(() => {
+        const langCode = this.form.value.lang.shortname;
+        this.translate.use(langCode);
+        this.translate.setDefaultLang(langCode);
+        localStorage.setItem('lang', langCode);
+        void this.router.navigateByUrl('/');
+      }, () => {
+        const langCode = this.form.value.lang.shortname;
+        this.translate.use(langCode);
+        this.translate.setDefaultLang(langCode);
+        localStorage.setItem('lang', langCode);
+        this.badCredentials = 'ERROR';
+      });
+
     }
-    
+  }
 
-    /** login action */
-    login() {
-        const val = this.form.value;
+  private loadLanguages(): Promise<Language[]> {
+    return this.languageService.getAll().toPromise().then((langs) => {
+      if (this.trans.currentLang) {
+        return langs.sort((a, b) => this.trans.instant('lang.' + a.name).localeCompare(this.trans.instant('lang.' + b.name)));
+      } else {
+        return langs.sort((a, b) => a.name.localeCompare(b.name));
+      }
+    })
+  }
 
-        if ( val.username && val.password ) {
-            this.loginService.login( val ).then(() => {
-                this.translate.use(this.form.value.lang)
-                this.translate.setDefaultLang(this.form.value.lang);
-                localStorage.setItem('lang',this.form.value.lang );
-                // this.loadLanguages()
-                this.router.navigateByUrl( '/' );
-            }, ( err ) => {
-                this.translate.use(this.form.value.lang)
-                this.translate.setDefaultLang(this.form.value.lang);
-                localStorage.setItem('lang',this.form.value.lang );
-                this.badCredentials = 'ERROR';
-
-            } );
-
-        }
-    }
-    async loadLanguages(){
-        this.langs = await this.languageService.getAll().toPromise()
-        if(this.trans.currentLang){
-            
-            this.langs.sort((a,b) => this.trans.instant('lang.'+a.name).localeCompare(this.trans.instant('lang.'+b.name)));
-            this.languagesLoaded = true;
-        }
-        else{
-            this.langs.sort((a,b) => a.name.localeCompare(b.name));
-            this.languagesLoaded = true;
-        }
-
-    }
-
- 
+  compareLang(o1: Language, o2: Language) {
+    console.log("compare lang", o1.shortname === o2.shortname)
+    return o1 && o2 && o1.shortname === o2.shortname
+  };
 }

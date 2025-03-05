@@ -639,9 +639,10 @@ export class UserFormComponent implements OnInit {
           if (result.data[0].length > 0 && result.data[1].length > 0) {
 
 
-            const territorySelected = result.data[0][0];
+            for (const territory of result.data[0]) {
 
-            this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, result.data[1], false));
+              this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territory, result.data[1], false));
+            }
             // this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, result.data[1], false));
             // rowsToAdd.push(...tableUserConfWithoutRoleM);
             //  if(territorySelected.scope==="R" ) {

@@ -67,11 +67,11 @@
   "caution": "Perilh",
   "atention": "Atencion",
   "lang": {
-    "Catalan": "Catalan",
-    "Spanish": "Castelhan",
-    "English": "Anglés",
-    "Aranese": "Aranés",
-    "French": "Francés"
+    "ca": "Catalan",
+    "es": "Castelhan",
+    "en": "Anglés",
+    "oc-aranes": "Aranés",
+    "fr": "Francés"
   },
   "sideMenu": {
     "basics": "Basiques",

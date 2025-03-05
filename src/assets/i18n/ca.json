@@ -67,11 +67,11 @@
   "caution": "Perill",
   "atention": "Atenció",
   "lang": {
-    "Catalan": "Català",
-    "Spanish": "Castellà",
-    "English": "Anglès",
-    "Aranese": "Aranès",
-    "French": "Francès"
+    "ca": "Català",
+    "es": "Castellà",
+    "en": "Anglès",
+    "oc-aranes": "Aranès",
+    "fr": "Francès"
   },
   "sideMenu": {
     "basics": "Bàsiques",

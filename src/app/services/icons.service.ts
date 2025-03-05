@@ -85,17 +85,20 @@ export class IconsService {
               id: 'tasks',
               translation: 'basics',
               children: null,
-            }/*,
+            },
             {
               id: 'tasksDownload',
+              children: null,
             },
 
             {
               id: 'tasksDocument',
+              children: null,
             },
 
             {
               id: 'tasksQuery',
+              children: null,
             },
 
             {
@@ -138,7 +141,7 @@ export class IconsService {
 
             {
               id: 'tasksExtractionFME',
-            },*/
+            },
 
           ]
         }
