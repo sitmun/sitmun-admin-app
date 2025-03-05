@@ -2,8 +2,7 @@ import {Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, O
 
 import {Observable, Subscription} from 'rxjs';
 import {
-  ColDef, ColGroupDef,
-  GridApi,
+  GridOptions,
   ModuleRegistry,
 } from '@ag-grid-community/core';
 import { ClientSideRowModelModule } from '@ag-grid-community/client-side-row-model';
@@ -55,8 +54,6 @@ ModuleRegistry.registerModules([
 })
 export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
-  tableRows: any[] = [];
-  tableHeaders: (ColDef | ColGroupDef)[] = [];
   isFirstLoad = true;
   dataSubscription!: Subscription;
 
@@ -81,7 +78,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   redoCounter: number; // Number of redo we can do
   modificationChange = false;
   undoNoChanges = false; // Boolean that indicates if an undo hasn't modifications
-  gridOptions;
+  gridOptions: GridOptions;
   someStatusHasChangedToDelete = false;
 
   @Input() eventRefreshSubscription: Observable<boolean>;
@@ -168,7 +165,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         resizable: true,
         cellStyle: (params) => {
           if (params.value && params.colDef.editable) {
-            if (this.changesMap.has(params.node.id) && this.changesMap.get(params.node.id).has(params.colDef.field)) {
+            if (this.changesMap.has(Number(params.node.id)) && this.changesMap.get(Number(params.node.id)).has(params.colDef.field)) {
               return {
                 'background-color': '#E8F1DE',
               };
@@ -217,7 +214,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           // The grid is visible, autosize all columns.
-          this.gridApi.autoSizeAllColumns();
+          this.gridApi?.autoSizeAllColumns();
         }
       });
     }, { threshold: 0.1 });
@@ -370,9 +367,6 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       }
 
     }
-    if(this.defaultHeight != null){
-      this.changeHeight(this.defaultHeight)
-    }
   }
 
   getDatePicker() {
@@ -460,7 +454,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
   getColumnKeysAndHeaders(columnkeys: any[]): string {
     const header: any[] = [];
-    if (this.columnDefs.length == 0) { return '' };
+    if (this.columnDefs.length == 0) { return '' }
 
     //let allColumnKeys = this.gridOptions.columnApi.getAllDisplayedColumns();
     const allColumnKeys = this.gridApi.getAllDisplayedColumns()
@@ -551,20 +545,6 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       return (item[condition] == undefined || (data.find(element => element[condition] == item[condition])) == undefined)
     }
 
-  }
-
-
-  changeHeight(value: string) {
-    let pixels = "";
-    if (value === '5') {
-      pixels = "200px"
-    } else if (value === '10') {
-      pixels = "315px"
-    } else if (value === '20') {
-      pixels = "630px"
-    } else {
-      pixels = "1550px"
-    }
   }
 
   removeData(): void {
@@ -703,12 +683,12 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   }
 
 
-  onCellEditingStopped(e) {
+  onCellEditingStopped(params) {
     if (this.modificationChange) {
       this.changeCounter++;
       if(this.changeCounter == 1) { this.gridModified.emit(true)}
       this.redoCounter = 0;
-      this.onCellValueChanged(e);
+      this.onCellValueChanged(params);
       this.modificationChange = false;
     }
   }
@@ -722,7 +702,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
       if (params.oldValue !== params.value && !(params.oldValue == null && params.value === '')) {
 
-        if (!this.changesMap.has(params.node.id)) // If it's firts edit of a cell, we add it to the map and we paint it
+        if (!this.changesMap.has(params.node.id)) // If it's first edit of a cell, we add it to the map and we paint it
         {
           const addMap: Map<string, number> = new Map<string, number>();
           addMap.set(params.colDef.field, 1)
@@ -765,7 +745,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
             if (this.gridApi.getRowNode(params.node.id).data.status !== 'pendingCreation') {
               this.gridApi.getRowNode(params.node.id).data.status ='statusOK'
             }
-          };
+          }
           // We paint it white
           this.gridApi.redrawRows({ rowNodes: [row] });
 
@@ -833,9 +813,6 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
   }
 
-  getColumnIndexByColId(api: GridApi, colId: string): number {
-    return api.getAllGridColumns().findIndex(col => col.getColId() === colId);
-  }
   paintCells(params: any, changesMap: Map<number, Map<string, number>>,) {
     this.changesMap = changesMap;
     const row = this.gridApi.getDisplayedRowAtIndex(params.rowIndex);

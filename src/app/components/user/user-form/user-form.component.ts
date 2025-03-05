@@ -51,8 +51,6 @@ export class UserFormComponent implements OnInit {
   getAllElementsEventTerritoryData: Subject<string> = new Subject<string>();
 
   //Save button
-  territorisToUpdate: Territory[] = [];
-  rolesToUpdate: Role[] = [];
   dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
 
 
@@ -208,7 +206,7 @@ export class UserFormComponent implements OnInit {
 
   public matchValues(
     matchTo: string // name of the control to match to
-  ): (AbstractControl) => ValidationErrors | null {
+  ): (arg: AbstractControl) => ValidationErrors | null {
     return (control: AbstractControl): ValidationErrors | null => {
       return !!control.parent &&
       !!control.parent.value &&
@@ -506,7 +504,6 @@ export class UserFormComponent implements OnInit {
         }));
       }
     }
-    ;
 
 
     Promise.all([...promises, ...promisesDuplicate]).then(() => {
@@ -545,12 +542,6 @@ export class UserFormComponent implements OnInit {
       .pipe(map(data => data['_embedded']['user-positions']));
 
   };
-
-
-  newDataData() {
-    // this.router.navigate(['territory', id, 'territoryForm']);
-
-  }
 
   getAllRowsDataTerritories(event) {
     if (event.event == 'save') {
@@ -637,62 +628,9 @@ export class UserFormComponent implements OnInit {
       if (result) {
         if (result.event === 'Add') {
           if (result.data[0].length > 0 && result.data[1].length > 0) {
-
-
             for (const territory of result.data[0]) {
-
-              this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territory, result.data[1], false));
+              this.addElementsEventPermits.next(this.getRowsToAddPermits(territory, result.data[1]));
             }
-            // this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, result.data[1], false));
-            // rowsToAdd.push(...tableUserConfWithoutRoleM);
-            //  if(territorySelected.scope==="R" ) {
-            //   const dialogChildRolesWantedMessageRef = this.dialog.open(DialogMessageComponent);
-            //   dialogChildRolesWantedMessageRef.componentInstance.title = this.utils.getTranslate("atention");
-            //   dialogChildRolesWantedMessageRef.componentInstance.message = this.utils.getTranslate("addChildRoles");
-            //   dialogChildRolesWantedMessageRef.afterClosed().subscribe(messageResult => {
-            //     if (messageResult) {
-            //       if (messageResult.event === 'Accept') {
-            //         const dialogRefChildRoles = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
-            //         dialogRefChildRoles.componentInstance.getAllsTable = [this.getAllRolesDialog];
-            //         dialogRefChildRoles.componentInstance.orderTable = ['name'];
-            //         dialogRefChildRoles.componentInstance.singleSelectionTable = [false];
-            //         dialogRefChildRoles.componentInstance.columnDefsTable = [this.columnDefsRolesDialog];
-            //         dialogRefChildRoles.componentInstance.themeGrid = this.themeGrid;
-            //         dialogRefChildRoles.componentInstance.title = this.utils.getTranslate('userEntity.permissions');
-            //         dialogRefChildRoles.componentInstance.titlesTable = [this.utils.getTranslate('userEntity.roles')];
-            //         dialogRefChildRoles.componentInstance.nonEditable = false;
-            //         dialogRefChildRoles.afterClosed().subscribe(childsResult => {
-            //           if (childsResult) {
-            //             if (childsResult.event === 'Add') {
-            //               this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, childsResult.data[0], true));
-            //               this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, result.data[1], false));
-            //             }
-            //             else{
-            //               this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, result.data[1], false));
-            //             }
-            //           }
-            //           else{
-            //             this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, result.data[1], false));
-            //           }
-
-            //         });
-            //       }
-            //       else{
-            //         this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, result.data[1], false));
-            //       }
-            //     }
-            //     else{
-            //       this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, result.data[1], false));
-            //     }
-            //   });
-
-            // }
-            // else{
-            //   this.addElementsEventPermits.next(this.getRowsToAddPermits(this.userToEdit, territorySelected, result.data[1], false));
-            // }
-            // console.log(rowsToAdd);
-            // this.addElementsEventPermits.next(rowsToAdd);
-
           } else {
             const dialogRef = this.dialog.open(DialogMessageComponent);
             dialogRef.componentInstance.title = this.utils.getTranslate('atention');
@@ -709,28 +647,29 @@ export class UserFormComponent implements OnInit {
 
   }
 
-  getRowsToAddPermits(user: User, territory: Territory, roles: Role[], rolesAreChildren: boolean) {
+  getRowsToAddPermits(territory: Territory, roles: Role[]) {
     const itemsToAdd: any[] = [];
     roles.forEach(role => {
+      const appliesToChildrenTerritories =  role['appliesToChildrenTerritories'] === true;
+      const newRole = { ... role };
+      delete newRole['appliesToChildrenTerritories'];
+
       const item = {
-        role: role.name,
-        roleComplete: role,
-        roleId: role.id,
+        role: newRole.name,
+        roleComplete: newRole,
+        roleId: newRole.id,
         territory: territory.name,
         territoryComplete: territory,
         territoryName: territory.name,
         territoryId: territory.id,
         userId: this.userID,
-        appliesToChildrenTerritories: !!role['appliesToChildrenTerritories'],
+        appliesToChildrenTerritories: appliesToChildrenTerritories,
         new: true,
       };
       if (this.userToEdit) {
         item.userId = this.userToEdit.id;
       }
       itemsToAdd.push(item);
-      if (role['appliesToChildrenTerritories']) {
-        delete role['appliesToChildrenTerritories'];
-      }
     });
 
     return itemsToAdd;
@@ -763,7 +702,6 @@ export class UserFormComponent implements OnInit {
           this.addElementsEventTerritoryData.next(this.adaptFormatTerritory(result.data[0]));
         }
       }
-
     });
 
   }
