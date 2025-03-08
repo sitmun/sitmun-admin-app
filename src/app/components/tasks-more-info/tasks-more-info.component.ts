@@ -30,20 +30,18 @@ export class TasksMoreInfoComponent implements OnInit {
 
   ngOnInit()  {
 
-    var columnEditBtn=this.utils.getEditBtnColumnDef();
+    const columnEditBtn=this.utils.getEditBtnColumnDef();
     columnEditBtn['cellRendererParams']= {
       clicked: this.newData.bind(this)
     }
 
     this.columnDefs = [
-
-
-      this.utils.getSelCheckboxColumnDef(),
       columnEditBtn,
+      this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
       this.utils.getEditableColumnDef('tasksMoreInfoEntity.task', 'name'),
       this.utils.getNonEditableColumnDef('tasksMoreInfoEntity.informationType', 'groupName'),
-      this.utils.getNonEditableColumnDef('tasksMoreInfoEntity.accesType', 'properties.scope'),
+      this.utils.getNonEditableColumnDef('tasksMoreInfoEntity.accessType', 'properties.scope'),
       this.utils.getNonEditableColumnDef('tasksMoreInfoEntity.command', 'properties.command'),
       this.utils.getNonEditableColumnDef('tasksMoreInfoEntity.connection', 'connection'),
       this.utils.getNonEditableColumnDef('tasksMoreInfoEntity.associatedLayer', 'cartographyName'),
@@ -55,7 +53,7 @@ export class TasksMoreInfoComponent implements OnInit {
     if (this.gridModified) {
 
 
-      let result = await this.utils.showNavigationOutDialog().toPromise();
+      const result = await this.utils.showNavigationOutDialog().toPromise();
       if(!result || result.event!=='Accept') { return false }
       else if(result.event ==='Accept') {return true;}
       else{
@@ -72,11 +70,11 @@ export class TasksMoreInfoComponent implements OnInit {
 
 
   getAllTasksMoreInfo = () => {
-    let taskTypeID=config.tasksTypes['moreInfo'];
-    let params2:HalParam[]=[];
-    let param:HalParam={key:'type.id', value:taskTypeID}
+    const taskTypeID=config.tasksTypes['moreInfo'];
+    const params2:HalParam[]=[];
+    const param:HalParam={key:'type.id', value:taskTypeID}
     params2.push(param);
-    let query:HalOptions={ params:params2};
+    const query:HalOptions={ params:params2};
     return this.taskService.getAll(query,undefined,"tasks");
   }
 
@@ -90,7 +88,7 @@ export class TasksMoreInfoComponent implements OnInit {
         if(result.event==='Accept') {
           const promises: Promise<any>[] = [];
           data.forEach(task => {
-            promises.push(new Promise((resolve, reject) => {​​​​​​​ this.taskService.delete(task).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
+            promises.push(new Promise((resolve, ) => { this.taskService.delete(task).subscribe(() =>{ resolve(true)})}));
             Promise.all(promises).then(() => {
               this.dataUpdatedEvent.next(true);
             });
@@ -111,7 +109,7 @@ export class TasksMoreInfoComponent implements OnInit {
   applyChanges(data: Task[]) {
     const promises: Promise<any>[] = [];
     data.forEach(task => {
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.taskService.update(task).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
+      promises.push(new Promise((resolve, ) => { this.taskService.update(task).subscribe(() =>{ resolve(true)})}));
       Promise.all(promises).then(() => {
         this.dataUpdatedEvent.next(true);
       });

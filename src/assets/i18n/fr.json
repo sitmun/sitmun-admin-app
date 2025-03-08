@@ -455,7 +455,6 @@
     "filterText": "Filtre",
     "typeDocument": "Type de document",
     "tasksQuery": "Tâches-Requètes",
-    "accessType": "Type d'accés",
     "command": "Commande",
     "connection": "Connection",
     "associatedLayer": "Calque associé",
@@ -511,7 +510,7 @@
     "creator": "Créateur",
     "extend": "Extension",
     "territory": "Territoires qui ont accès à cette tâche",
-    "accesType": "Type d'accés",
+    "accessType": "Type d'accés",
     "autocomplete": "Autocompletion",
     "anput": "Exprimer",
     "input": "Inserer",
@@ -651,7 +650,6 @@
   },
   "tasksLocatorEntity": {
     "accessType": "Type d'accès",
-    "accesType": "Type d'accès",
     "associatedLayer": "Claque associé",
     "code": "Code",
     "command": "Commande",
@@ -676,7 +674,6 @@
   },
   "tasksMoreInfoEntity": {
     "accessType": "Type d'accès",
-    "accesType": "Type d'accès",
     "associatedLayer": "Claque associé",
     "code": "Code",
     "command": "Commande",

@@ -3,7 +3,8 @@ import {Resource} from '../angular-hal/src/lib/resource';
  * Task type model
  */
 export class TaskType extends Resource {
-  /** name*/  
+  /** name*/
   public name: string;
 
+  public specification: Map<string, any>;
 }

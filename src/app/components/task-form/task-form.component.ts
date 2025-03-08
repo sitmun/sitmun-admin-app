@@ -1,9 +1,9 @@
-import {Component, OnInit, QueryList, ViewChildren} from '@angular/core';
+import {AfterViewInit, Component, OnInit, QueryList, ViewChildren} from '@angular/core';
 import {UtilsService} from 'src/app/services/utils.service';
 import {UntypedFormControl, UntypedFormGroup} from '@angular/forms';
 import {
   ServiceService, TaskService, TaskTypeService, TaskGroupService, CartographyService, ConnectionService, HalOptions, HalParam,
-  TaskUIService, RoleService, CodeListService, TerritoryService, Task, TaskAvailabilityService, TaskAvailability
+  TaskUIService, RoleService, CodeListService, TerritoryService, Task, TaskAvailabilityService, TaskAvailability, TaskType, TaskGroup, TaskUI
 } from '../../frontend-core/src/lib/public_api';
 import {config} from 'src/config';
 import {MatDialog} from '@angular/material/dialog';
@@ -20,10 +20,10 @@ import {MatTabChangeEvent} from '@angular/material/tabs';
   templateUrl: './task-form.component.html',
   styleUrls: ['./task-form.component.scss'],
 })
-export class TaskFormComponent implements OnInit {
+export class TaskFormComponent implements OnInit, AfterViewInit {
 
   taskForm: UntypedFormGroup;
-  taskToEdit;
+  taskToEdit: Task;
 
   formElements = [];
   dataLoaded = false;
@@ -31,9 +31,9 @@ export class TaskFormComponent implements OnInit {
   themeGrid: any = config.agGridTheme;
   getAlls = [];
   columnDefsTables = [];
-  taskTypeName;
-  taskTypeNameTranslated;
-  taskType;
+  taskTypeName: string;
+  taskTypeNameTranslated: any;
+  taskType: TaskType;
   properties;
   //codeLists
   codeListsMap: Map<string, any[]> = new Map<string, any[]>();
@@ -67,7 +67,6 @@ export class TaskFormComponent implements OnInit {
 
 
   //Save
-  saveButtonClicked = false;
   savedTask: Task = new Task;
 
 
@@ -123,7 +122,7 @@ export class TaskFormComponent implements OnInit {
     });
   }
 
-  async setDynamicSelectorValue(queryParams, data, mapKey) {
+  async setDynamicSelectorValue(queryParams, data: string, mapKey: string) {
     const params2: HalParam[] = [];
     const keys = Object.keys(queryParams);
     keys.forEach(key => {
@@ -132,7 +131,7 @@ export class TaskFormComponent implements OnInit {
     });
 
     const query: HalOptions = {params: params2};
-    let result;
+    let result: any[];
     if (data == 'codelist-values') {
       result = await this.codeListService.getAll(query).toPromise();
       this.codeListsMap.set(mapKey, result);
@@ -148,7 +147,7 @@ export class TaskFormComponent implements OnInit {
 
   async initializeNonCodelistSelectors() {
 
-    let tmpTable;
+    let tmpTable: Task[] | TaskGroup[] | TaskUI[];
 
     if (this.taskGroupsNeeded && this.taskGroups.length < 1) {
       tmpTable = await this.taskGroupService.getAll().toPromise();
@@ -213,9 +212,8 @@ export class TaskFormComponent implements OnInit {
   async ngOnInit() {
 
 
-    this.taskType = await this.taskTypeService.getAll().pipe(map((data: any[]) => data.filter(elem => elem.title == this.taskTypeName))).toPromise();
-    this.properties = this.taskType[0].specification;
-    this.taskType = this.taskType[0];
+    this.taskType = await this.taskTypeService.getAll().pipe(map((data: any[]) => data.find(elem => elem.title == this.taskTypeName))).toPromise();
+    this.properties = this.taskType?.specification;
 
     if (this.properties) {
 
@@ -231,7 +229,6 @@ export class TaskFormComponent implements OnInit {
           }
         }
       }
-
 
       let getAll;
       let index = -1;
@@ -295,7 +292,7 @@ export class TaskFormComponent implements OnInit {
         }
 
       }
-      ;
+
       await this.initializeNonCodelistSelectors();
       this.taskForm = this.initializeForm(keys, values);
 
@@ -310,12 +307,10 @@ export class TaskFormComponent implements OnInit {
       } else {
         this.dataLoaded = true;
       }
-
-
     }
   }
 
-  duplicate(data, index) {
+  duplicate(data: any, index: string | number) {
     const elementsToDuplicate = this.utils.duplicateParameter(data, 'name', true, true);
     this.addelements[index].next(elementsToDuplicate);
   }
@@ -562,9 +557,8 @@ export class TaskFormComponent implements OnInit {
         this.taskForm.get(key).setValue(value);
       }
     }
-    ;
     if (this.taskToEdit.properties) {
-      this.loadProperties(this.taskToEdit.properties);
+      await this.loadProperties(this.taskToEdit.properties);
     }
 
   }
@@ -613,6 +607,7 @@ export class TaskFormComponent implements OnInit {
 
 
   getFieldWithCondition(condition, table, fieldResult, form, fieldName?) {
+
     if (table == undefined) {
       return false;
     }
@@ -625,6 +620,7 @@ export class TaskFormComponent implements OnInit {
 
     if (findResult != undefined) {
       findResult = findResult[fieldResult];
+
       if (fieldResult == 'hidden' && table.length > 0 && table[0].ignore) {
         form.get(fieldName).reset();
         form.get(fieldName).disable();
@@ -853,7 +849,7 @@ export class TaskFormComponent implements OnInit {
 
 
   getDataSelector(data, queryParams, label) {
-    let dataToReturn = [];
+    let dataToReturn;
     if (queryParams) {
       dataToReturn = this.getDataDynamicSelectors(data, label);
     } else {
@@ -1009,7 +1005,7 @@ export class TaskFormComponent implements OnInit {
   };
 
   private getOrderField(columns, link, notDialog, hasName?, hasOrder?) {
-    let field = null;
+    let field;
     field = (notDialog) ? config.taskTablesSortField[link] : config.taskTablesDialogsSortField[link];
     if (!field) {
       if (!notDialog) {

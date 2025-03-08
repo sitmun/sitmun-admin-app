@@ -208,10 +208,11 @@
 
         </mat-form-field>
 
-        <mat-form-field appearance="outline" *ngSwitchCase="'enumBySQLElement'">
+        <mat-form-field appearance="outline" class="full" *ngSwitchCase="'enumBySQLElement'">
           <mat-label>
             {{ element.values.condition ? (getFieldWithCondition(element.values.condition, element.values.label, 'text', form) | translate) : (element.values.label | translate) }}
           </mat-label>
+
           <mat-select [formControlName]=element.fieldName
                       [required]="getFieldWithCondition(element.values.condition, element.values.required, 'required', form )"
                       [disabled]="getFieldWithCondition(element.values.condition, element.values.disabled, 'disabled', form )">

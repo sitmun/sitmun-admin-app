@@ -1,121 +1,130 @@
-import { Component, OnInit } from '@angular/core';
-import { UtilsService } from '../../services/utils.service';
-import { Router } from '@angular/router';
-import { Observable, Subject } from 'rxjs';
-import { config } from 'src/config';
-import { HalOptions, HalParam, Task, TaskService } from '../../frontend-core/src/lib/public_api';
-import { MatDialog } from '@angular/material/dialog';
-import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
+import {Component, OnInit} from '@angular/core';
+import {UtilsService} from '../../services/utils.service';
+import {Router} from '@angular/router';
+import {Observable, Subject} from 'rxjs';
+import {config} from 'src/config';
+import {HalOptions, HalParam, Task, TaskService} from '../../frontend-core/src/lib/public_api';
+import {MatDialog} from '@angular/material/dialog';
+import {DialogMessageComponent} from '../../frontend-gui/src/lib/public_api';
 
 
 @Component({
-  selector: 'app-tasks-query',
-  templateUrl: './tasks-query.component.html',
-  styles: []
+    selector: 'app-tasks-query',
+    templateUrl: './tasks-query.component.html',
+    styles: []
 })
 export class TasksQueryComponent implements OnInit {
 
-  dataUpdatedEvent: Subject<boolean> = new Subject <boolean>();
-  saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
-  themeGrid:any=config.agGridTheme;
-  columnDefs: any[];
-  gridModified = false;
+    dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
+    saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
+    themeGrid: any = config.agGridTheme;
+    columnDefs: any[];
+    gridModified = false;
 
-  constructor(private utils: UtilsService,
-              private router: Router,
-              public taskService: TaskService,
-              public dialog: MatDialog,
-              )
-              { }
-
-
-  ngOnInit()  {
-
-    var columnEditBtn=this.utils.getEditBtnColumnDef();
-    columnEditBtn['cellRendererParams']= {
-      clicked: this.newData.bind(this)
+    constructor(private utils: UtilsService,
+                private router: Router,
+                public taskService: TaskService,
+                public dialog: MatDialog,
+    ) {
     }
 
-    this.columnDefs = [
 
-      this.utils.getSelCheckboxColumnDef(),
-      columnEditBtn,
-      this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('tasksQueryEntity.task', 'name'),
-      this.utils.getNonEditableColumnDef('tasksQueryEntity.informationType', 'groupName'),
-      this.utils.getNonEditableColumnDef('tasksQueryEntity.accessType', 'properties.scope'),
-    ];
-  }
+    ngOnInit() {
 
-  async canDeactivate(): Promise<boolean | Observable<boolean>> {
+        const columnEditBtn = this.utils.getEditBtnColumnDef();
+        columnEditBtn['cellRendererParams'] = {
+            clicked: this.newData.bind(this)
+        };
 
-    if (this.gridModified) {
-
-
-      let result = await this.utils.showNavigationOutDialog().toPromise();
-      if(!result || result.event!=='Accept') { return false }
-      else if(result.event ==='Accept') {return true;}
-      else{
-        return true;
-      }
+        this.columnDefs = [
+            columnEditBtn,
+            this.utils.getSelCheckboxColumnDef(),
+            this.utils.getIdColumnDef(),
+            this.utils.getEditableColumnDef('tasksQueryEntity.task', 'name'),
+            this.utils.getNonEditableColumnDef('tasksQueryEntity.informationType', 'groupName'),
+            this.utils.getNonEditableColumnDef('tasksQueryEntity.accessType', 'properties.scope'),
+        ];
     }
-    else return true
-  }
 
-  setGridModifiedValue(value){
-    this.gridModified=value;
-  }
+    async canDeactivate(): Promise<boolean | Observable<boolean>> {
+
+        if (this.gridModified) {
 
 
-  getAllTasksQuery = () => {
-    let taskTypeID=config.tasksTypes['query'];
-    let params2:HalParam[]=[];
-    let param:HalParam={key:'type.id', value:taskTypeID}
-    params2.push(param);
-    let query:HalOptions={ params:params2};
-    return this.taskService.getAll(query,undefined,"tasks");
-  }
+            const result = await this.utils.showNavigationOutDialog().toPromise();
+            if (!result || result.event !== 'Accept') {
+                return false;
+            } else if (result.event === 'Accept') {
+                return true;
+            } else {
+                return true;
+            }
+        } else {
+            return true;
+        }
+    }
 
-  removeData(data: []) {
+    setGridModifiedValue(value) {
+        this.gridModified = value;
+    }
 
-    const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title=this.utils.getTranslate("caution");
-    dialogRef.componentInstance.message=this.utils.getTranslate("removeMessage");
-    dialogRef.afterClosed().subscribe(result => {
-      if(result){
-        if(result.event==='Accept') {
-          const promises: Promise<any>[] = [];
-          data.forEach(task => {
-            promises.push(new Promise((resolve, reject) => {​​​​​​​ this.taskService.delete(task).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
+
+    getAllTasksQuery = () => {
+        const taskTypeID = config.tasksTypes['query'];
+        const params2: HalParam[] = [];
+        const param: HalParam = {key: 'type.id', value: taskTypeID};
+        params2.push(param);
+        const query: HalOptions = {params: params2};
+        return this.taskService.getAll(query, undefined, 'tasks');
+    };
+
+    removeData(data: []) {
+
+        const dialogRef = this.dialog.open(DialogMessageComponent);
+        dialogRef.componentInstance.title = this.utils.getTranslate('caution');
+        dialogRef.componentInstance.message = this.utils.getTranslate('removeMessage');
+        dialogRef.afterClosed().subscribe(result => {
+            if (result) {
+                if (result.event === 'Accept') {
+                    const promises: Promise<any>[] = [];
+                    data.forEach(task => {
+                        promises.push(new Promise((resolve,) => {
+                            this.taskService.delete(task).subscribe(() => {
+                                resolve(true);
+                            });
+                        }));
+                        Promise.all(promises).then(() => {
+                            this.dataUpdatedEvent.next(true);
+                        });
+                    });
+                }
+            }
+        });
+
+    }
+
+    newData(id: any) {
+        this.saveAgGridStateEvent.next(true);
+        this.router.navigate(['taskForm', id, config.tasksTypesNames.query]);
+
+    }
+
+
+    applyChanges(data: Task[]) {
+        const promises: Promise<any>[] = [];
+        data.forEach(task => {
+            promises.push(new Promise((resolve,) => {
+                this.taskService.update(task).subscribe(() => {
+                    resolve(true);
+                });
+            }));
             Promise.all(promises).then(() => {
-              this.dataUpdatedEvent.next(true);
+                this.dataUpdatedEvent.next(true);
             });
-          });
-       }
-      }
-    });
+        });
+    }
 
-  }
-
-  newData(id: any)
-  {
-    this.saveAgGridStateEvent.next(true);
-    this.router.navigate(["taskForm", id, config.tasksTypesNames.query]);
-
-  }
-
-
-  applyChanges(data: Task[]) {
-    const promises: Promise<any>[] = [];
-    data.forEach(task => {
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.taskService.update(task).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
-      });
-    });
-  }
-
-  add($event: any[]) {
-    // TODO: Implement this method
-  }
+    add(event: any[]) {
+        // TODO: Implement this method
+    }
 }
