@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable} from 'rxjs-compat';
-import {ResourceService} from '../angular-hal/src/lib/resource.service';
+import { Observable } from 'rxjs';
+import { ResourceService } from '../angular-hal/src/lib/resource.service';
+import { map } from 'rxjs/operators';
 //import * as moment from 'moment';
 
 /** Authentication service*/
@@ -24,22 +25,28 @@ export class AuthService {
 
     /** login operation */
     login(credentials): Observable<any> {
-
         const data = {
             username: credentials.username,
             password: credentials.password
         };
-        return this.http.post(this.resourceService.getResourceUrl(this.AUTH_API), data, {observe : 'response'}).map(authenticateSuccess.bind(this));
-
-        function authenticateSuccess(resp) {
-            if (resp.ok) {
-                const jwt = resp.body.id_token;
-                this.storeAuthenticationToken(jwt);
-                //const expiresAt = moment().add( resp.headers.get('Token-Validity'),'milisecond');
-                //sessionStorage.setItem('expires_at', JSON.stringify(expiresAt.valueOf()));
-                return jwt;
-            }                    
-        }
+        
+        return this.http.post(
+            this.resourceService.getResourceUrl(this.AUTH_API), 
+            data, 
+            {observe : 'response'}
+        ).pipe(
+            map(this.authenticateSuccess.bind(this))
+        );
+    }
+    
+    private authenticateSuccess(resp) {
+        if (resp.ok) {
+            const jwt = resp.body.id_token;
+            this.storeAuthenticationToken(jwt);
+            //const expiresAt = moment().add( resp.headers.get('Token-Validity'),'milisecond');
+            //sessionStorage.setItem('expires_at', JSON.stringify(expiresAt.valueOf()));
+            return jwt;
+        }                    
     }
     
     /** login operation with jwt token */

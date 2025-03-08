@@ -171,28 +171,31 @@ export class TaskFormComponent implements OnInit {
     }
 
     if (this.wfsServicesNeeded && this.wfsServices.length < 1) {
-      await this.serviceService.getAll().map((resp) => {
-        const wfsServices = [];
-        resp.forEach(service => {
-          if (service.type === 'WFS') {
-            wfsServices.push(service);
-          }
-        });
-        this.wfsServices.push(...wfsServices);
-      }).toPromise();
+      await this.serviceService.getAll().pipe(
+        map((resp) => {
+          const wfsServices = [];
+          resp.forEach(service => {
+            if (service.type === 'WFS') {
+              wfsServices.push(service);
+            }
+          });
+          this.wfsServices.push(...wfsServices);
+        })
+      ).toPromise();
     }
 
     if (this.fmeServicesNeeded && this.fmeServices.length < 1) {
-      await this.serviceService.getAll().map((resp) => {
-        const fmeServices = [];
-        resp.forEach(service => {
-          if (service.type === 'FME') {
-            fmeServices.push(service);
-          }
-        });
-
-        this.fmeServices.push(...fmeServices);
-      }).toPromise();
+      await this.serviceService.getAll().pipe(
+        map((resp) => {
+          const fmeServices = [];
+          resp.forEach(service => {
+            if (service.type === 'FME') {
+              fmeServices.push(service);
+            }
+          });
+          this.fmeServices.push(...fmeServices);
+        })
+      ).toPromise();
     }
 
     if (this.locatorsNeeded && this.locators.length < 1) {

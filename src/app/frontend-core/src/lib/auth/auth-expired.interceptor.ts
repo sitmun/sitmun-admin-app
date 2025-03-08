@@ -1,6 +1,7 @@
 import { Injector, Injectable } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Principal } from './principal.service';
@@ -18,18 +19,23 @@ export class AuthExpiredInterceptor implements HttpInterceptor {
 
     /** request handler */
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-        return next.handle(request).do((event: HttpEvent<any>) => {}, (err: any) => {
-            const intercept: boolean = request.url.indexOf("/api/") != -1;
-            //tractem request
-            if (intercept) {
-                if (err instanceof HttpErrorResponse) {
-                    if (err.status === 401) {                    
-                        this.authService.logout().subscribe();
-                        this.principal.authenticate(null);
-                        this.router.navigate(['/']);
+        return next.handle(request).pipe(
+            tap({
+                next: () => {},
+                error: (err: any) => {
+                    const intercept: boolean = request.url.indexOf("/api/") != -1;
+                    //tractem request
+                    if (intercept) {
+                        if (err instanceof HttpErrorResponse) {
+                            if (err.status === 401) {                    
+                                this.authService.logout().subscribe();
+                                this.principal.authenticate(null);
+                                this.router.navigate(['/']);
+                            }
+                        }
                     }
                 }
-            }
-        });
+            })
+        );
     }
 }

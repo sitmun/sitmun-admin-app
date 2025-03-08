@@ -100,15 +100,16 @@ export class BackgroundLayersFormComponent implements OnInit {
 
     const promises: Promise<any>[] = [];
     promises.push(new Promise((resolve,) => {
-      this.utils.getCodeListValues('cartographyPermission.type', true).map((resp) => {
-        resp.forEach(cartographyGroup => {
-          if (cartographyGroup.value === constants.codeValue.cartographyPermissionType.backgroundMap) {
-            this.permissionGroups.push(cartographyGroup);
-          }
-        });
-        resolve(true);
-      }).subscribe();
-
+      this.utils.getCodeListValues('cartographyPermission.type', true).pipe(
+        map((resp) => {
+          resp.forEach(cartographyGroup => {
+            if (cartographyGroup.value === constants.codeValue.cartographyPermissionType.backgroundMap) {
+              this.permissionGroups.push(cartographyGroup);
+            }
+          });
+          resolve(true);
+        })
+      ).subscribe();
     }));
 
 

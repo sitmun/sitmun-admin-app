@@ -300,18 +300,19 @@ export class LayersFormComponent implements OnInit {
     this.spatialConfigurationServices.push(serviceByDefault);
 
     promises.push(new Promise((resolve,) => {
-      this.serviceService.getAll().map((resp) => {
-        const wfsServices = [];
-        this.services.push(...resp);
-        resp.forEach(service => {
-          if (service.type === config.capabilitiesRequest.WFSIdentificator) {
-            wfsServices.push(service);
-          }
-        });
-
-        this.spatialConfigurationServices.push(...wfsServices);
-        resolve(true);
-      }).subscribe();
+      this.serviceService.getAll().pipe(
+        map((resp) => {
+          const wfsServices = [];
+          this.services.push(...resp);
+          resp.forEach(service => {
+            if (service.type === config.capabilitiesRequest.WFSIdentificator) {
+              wfsServices.push(service);
+            }
+          });
+          this.spatialConfigurationServices.push(...wfsServices);
+          resolve(true);
+        })
+      ).subscribe();
     }));
 
     Promise.all(promises).then(() => {

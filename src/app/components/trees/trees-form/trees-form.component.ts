@@ -12,7 +12,6 @@ import { config } from 'src/config';
 import { Observable, of, Subject } from 'rxjs';
 import { DataTreeComponent, DialogGridComponent, DialogMessageComponent, DataGridComponent } from '../../../frontend-gui/src/lib/public_api';
 import { MatDialog } from '@angular/material/dialog';
-import { isArray } from 'rxjs/internal-compatibility';
 import { constants } from 'src/environments/constants';
 
 
@@ -333,7 +332,7 @@ export class TreesFormComponent implements OnInit {
           //If only have one layer, we have to put it in an Array
           let childrenLayers = element.Layer;
           if (childrenLayers) {
-            if (!isArray(childrenLayers)) {
+            if (!Array.isArray(childrenLayers)) {
               childrenLayers = [element.Layer];
             }
           }
@@ -561,15 +560,15 @@ export class TreesFormComponent implements OnInit {
   }
 
   getAllServices = (): Observable<any> => {
-
-    return this.serviceService.getAll().map((resp) => {
-      let wmsServices = [];
-      resp.forEach(service => {
-        if (service.type === 'WMS') { wmsServices.push(service) }
-      });
-      return wmsServices;
-    })
-
+    return this.serviceService.getAll().pipe(
+      map((resp) => {
+        let wmsServices = [];
+        resp.forEach(service => {
+          if (service.type === 'WMS') { wmsServices.push(service) }
+        });
+        return wmsServices;
+      })
+    );
   }
 
   getAllTreeNodes = (): Observable<any> => {
