@@ -11,7 +11,7 @@ import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
 @Component({
   selector: 'app-tasks-extraction-fme',
   templateUrl: './tasks-extraction-fme.component.html',
-  styleUrls: ['./tasks-extraction-fme.component.scss']
+  styles: []
 })
 export class TasksExtractionFmeComponent implements OnInit {
 

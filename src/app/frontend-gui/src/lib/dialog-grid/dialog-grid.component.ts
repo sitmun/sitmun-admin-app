@@ -12,7 +12,7 @@ export interface DialogData {
 @Component({
   selector: 'app-dialog-grid',
   templateUrl: './dialog-grid.component.html',
-  styleUrls: ['./dialog-grid.component.scss']
+  styles: []
 })
 export class DialogGridComponent implements OnInit {
 

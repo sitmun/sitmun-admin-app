@@ -12,7 +12,7 @@ import {constants} from '../../../environments/constants';
 @Component({
   selector: 'app-user',
   templateUrl: './user.component.html',
-  styleUrls: ['./user.component.scss']
+  styles: []
 })
 export class UserComponent implements OnInit {
   saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();

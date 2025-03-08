@@ -9,7 +9,7 @@ import {MatTabChangeEvent} from '@angular/material/tabs';
 @Component({
   selector: 'app-task-group-form',
   templateUrl: './task-group-form.component.html',
-  styleUrls: ['./task-group-form.component.scss']
+  styles: []
 })
 export class TaskGroupFormComponent implements OnInit {
 

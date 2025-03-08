@@ -35,7 +35,7 @@ ModuleRegistry.registerModules([
 @Component({
   selector: 'app-data-grid',
   templateUrl: './data-grid.component.html',
-  styleUrls: ['./data-grid.component.scss'],
+  styles: [],
   standalone: true,
   imports: [
     CommonModule,

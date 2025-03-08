@@ -10,7 +10,7 @@ import {DialogMessageComponent} from '../../frontend-gui/src/lib/public_api';
 @Component({
   selector: 'app-task-group',
   templateUrl: './task-group.component.html',
-  styleUrls: ['./task-group.component.scss']
+  styles: []
 })
 export class TaskGroupComponent implements OnInit {
   saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();

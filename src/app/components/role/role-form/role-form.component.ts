@@ -18,7 +18,7 @@ import {constants} from '../../../../environments/constants';
 @Component({
   selector: 'app-role-form',
   templateUrl: './role-form.component.html',
-  styleUrls: ['./role-form.component.scss']
+  styles: []
 })
 export class RoleFormComponent implements OnInit {
 

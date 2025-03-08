@@ -10,7 +10,7 @@ import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
 @Component({
   selector: 'app-tasks-edition-relation-table',
   templateUrl: './tasks-edition-relation-table.component.html',
-  styleUrls: ['./tasks-edition-relation-table.component.scss']
+  styles: []
 })
 export class TasksEditionRelationTableComponent implements OnInit {
 

@@ -21,7 +21,7 @@ import {MatTabChangeEvent} from '@angular/material/tabs';
 @Component({
   selector: 'app-user-form',
   templateUrl: './user-form.component.html',
-  styleUrls: ['./user-form.component.scss']
+  styles: []
 })
 export class UserFormComponent implements OnInit {
 

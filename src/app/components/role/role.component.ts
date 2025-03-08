@@ -10,7 +10,7 @@ import {DialogMessageComponent} from '../../frontend-gui/src/lib/public_api';
 @Component({
   selector: 'app-role',
   templateUrl: './role.component.html',
-  styleUrls: ['./role.component.scss']
+  styles: []
 })
 export class RoleComponent implements OnInit {
   saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();

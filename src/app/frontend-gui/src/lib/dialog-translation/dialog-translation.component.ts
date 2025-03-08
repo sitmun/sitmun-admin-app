@@ -8,7 +8,7 @@ import {DomSanitizer} from '@angular/platform-browser';
 @Component({
   selector: 'app-dialog-translation',
   templateUrl: './dialog-translation.component.html',
-  styleUrls: ['./dialog-translation.component.scss']
+  styles: []
 })
 export class DialogTranslationComponent implements OnInit {
 

@@ -27,7 +27,7 @@ import { MatTabChangeEvent } from '@angular/material/tabs';
 @Component({
   selector: 'app-service-form',
   templateUrl: './service-form.component.html',
-  styleUrls: ['./service-form.component.scss']
+  styles: []
 })
 export class ServiceFormComponent implements OnInit {
 

@@ -10,7 +10,7 @@ import {DialogMessageComponent} from '../../frontend-gui/src/lib/public_api';
 @Component({
   selector: 'app-layers',
   templateUrl: './layers.component.html',
-  styleUrls: ['./layers.component.scss']
+  styles: []
 })
 export class LayersComponent implements OnInit {
   saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();

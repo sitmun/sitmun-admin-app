@@ -7,7 +7,7 @@ import { DialogMessageComponent } from '../dialog-message/dialog-message.compone
 @Component({
   selector: 'app-dialog-form',
   templateUrl: './dialog-form.component.html',
-  styleUrls: ['./dialog-form.component.scss']
+  styles: []
 })
 export class DialogFormComponent implements OnInit {
 

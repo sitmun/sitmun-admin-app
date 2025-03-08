@@ -29,7 +29,7 @@ import {constants} from '../../../../environments/constants';
 @Component({
   selector: 'app-background-layers-form',
   templateUrl: './background-layers-form.component.html',
-  styleUrls: ['./background-layers-form.component.scss']
+  styles: []
 })
 export class BackgroundLayersFormComponent implements OnInit {
 

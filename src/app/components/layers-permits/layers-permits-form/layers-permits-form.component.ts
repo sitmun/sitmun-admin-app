@@ -15,7 +15,7 @@ import {MatTabChangeEvent} from '@angular/material/tabs';
 @Component({
   selector: 'app-layers-permits-form',
   templateUrl: './layers-permits-form.component.html',
-  styleUrls: ['./layers-permits-form.component.scss']
+  styles: []
 })
 export class LayersPermitsFormComponent implements OnInit {
 

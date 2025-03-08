@@ -11,7 +11,7 @@ import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
 @Component({
   selector: 'app-tasks-edition',
   templateUrl: './tasks-edition.component.html',
-  styleUrls: ['./tasks-edition.component.scss']
+  styles: []
 })
 export class TasksEditionComponent implements OnInit {
   dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();

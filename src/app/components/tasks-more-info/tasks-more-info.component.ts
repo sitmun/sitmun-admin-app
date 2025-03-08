@@ -10,7 +10,7 @@ import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
 @Component({
   selector: 'app-tasks-more-info',
   templateUrl: './tasks-more-info.component.html',
-  styleUrls: ['./tasks-more-info.component.scss']
+  styles: []
 })
 export class TasksMoreInfoComponent implements OnInit {
 

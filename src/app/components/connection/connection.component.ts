@@ -11,7 +11,7 @@ import {DialogMessageComponent} from '../../frontend-gui/src/lib/public_api';
 @Component({
   selector: 'app-connection',
   templateUrl: './connection.component.html',
-  styleUrls: ['./connection.component.scss']
+  styles: []
 })
 export class ConnectionComponent implements OnInit {
 

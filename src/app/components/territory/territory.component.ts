@@ -10,7 +10,7 @@ import {DialogMessageComponent} from '../../frontend-gui/src/lib/public_api';
 @Component({
   selector: 'app-territory',
   templateUrl: './territory.component.html',
-  styleUrls: ['./territory.component.scss']
+  styles: []
 })
 export class TerritoryComponent implements OnInit {
   saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();

@@ -11,7 +11,7 @@ import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
 @Component({
   selector: 'app-tasks-report',
   templateUrl: './tasks-report.component.html',
-  styleUrls: ['./tasks-report.component.scss']
+  styles: []
 })
 export class TasksReportComponent implements OnInit {
 

@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'app-btn-checkbox-rendered',
   templateUrl: './btn-checkbox-rendered.component.html',
-  styleUrls: ['./btn-checkbox-rendered.component.scss']
+  styles: []
 })
 export class BtnCheckboxRenderedComponent implements ICellRendererAngularComp {
 

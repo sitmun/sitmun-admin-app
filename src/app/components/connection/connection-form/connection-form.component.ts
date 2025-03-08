@@ -18,7 +18,7 @@ import {MatTabChangeEvent} from '@angular/material/tabs';
 @Component({
   selector: 'app-connection-form',
   templateUrl: './connection-form.component.html',
-  styleUrls: ['./connection-form.component.scss']
+  styles: []
 })
 export class ConnectionFormComponent implements OnInit {
 

@@ -6,7 +6,7 @@ import { config } from 'src/config';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styles: []
 })
 export class AppComponent {
   title = 'admin-app';

@@ -10,7 +10,7 @@ import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
 @Component({
   selector: 'app-tasks-thematic',
   templateUrl: './tasks-thematic.component.html',
-  styleUrls: ['./tasks-thematic.component.scss']
+  styles: []
 })
 export class TasksThematicComponent implements OnInit {
 

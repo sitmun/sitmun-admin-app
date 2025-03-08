@@ -10,7 +10,7 @@ import {DialogMessageComponent} from '../../frontend-gui/src/lib/public_api';
 @Component({
   selector: 'app-trees',
   templateUrl: './trees.component.html',
-  styleUrls: ['./trees.component.scss']
+  styles: []
 })
 export class TreesComponent implements OnInit {
   saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();

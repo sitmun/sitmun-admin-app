@@ -10,7 +10,7 @@ import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
 @Component({
   selector: 'app-tasks-edition-search-view',
   templateUrl: './tasks-edition-search-view.component.html',
-  styleUrls: ['./tasks-edition-search-view.component.scss']
+  styles: []
 })
 export class TasksEditionSearchViewComponent implements OnInit {
 

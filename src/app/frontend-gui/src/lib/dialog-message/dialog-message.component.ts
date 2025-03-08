@@ -4,7 +4,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 @Component({
   selector: 'app-dialog-message',
   templateUrl: './dialog-message.component.html',
-  styleUrls: ['./dialog-message.component.scss']
+  styles: []
 })
 export class DialogMessageComponent implements OnInit {
 

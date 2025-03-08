@@ -11,7 +11,7 @@ import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
 @Component({
   selector: 'app-tasks-query',
   templateUrl: './tasks-query.component.html',
-  styleUrls: ['./tasks-query.component.scss']
+  styles: []
 })
 export class TasksQueryComponent implements OnInit {
 

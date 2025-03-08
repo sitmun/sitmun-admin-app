@@ -12,7 +12,7 @@ import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
 @Component({
   selector: 'app-tasks-document',
   templateUrl: './tasks-document.component.html',
-  styleUrls: ['./tasks-document.component.scss']
+  styles: []
 })
 export class TasksDocumentComponent implements OnInit {
   saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();

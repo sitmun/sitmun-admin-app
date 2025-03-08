@@ -10,7 +10,7 @@ import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
 @Component({
   selector: 'app-tasks-download',
   templateUrl: './tasks-download.component.html',
-  styleUrls: ['./tasks-download.component.scss']
+  styles: []
 })
 export class TasksDownloadComponent implements OnInit {
   saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();

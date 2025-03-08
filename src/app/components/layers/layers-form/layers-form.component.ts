@@ -21,7 +21,7 @@ import {constants} from '../../../../environments/constants';
 @Component({
   selector: 'app-layers-form',
   templateUrl: './layers-form.component.html',
-  styleUrls: ['./layers-form.component.scss']
+  styles: []
 })
 export class LayersFormComponent implements OnInit {
 

@@ -10,7 +10,7 @@ import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
 @Component({
   selector: 'app-tasks-locator',
   templateUrl: './tasks-locator.component.html',
-  styleUrls: ['./tasks-locator.component.scss']
+  styles: []
 })
 export class TasksLocatorComponent implements OnInit {
 

@@ -10,7 +10,7 @@ import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
 @Component({
   selector: 'app-background-layers',
   templateUrl: './background-layers.component.html',
-  styleUrls: ['./background-layers.component.scss']
+  styles: []
 })
 export class BackgroundLayersComponent implements OnInit {
   saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();

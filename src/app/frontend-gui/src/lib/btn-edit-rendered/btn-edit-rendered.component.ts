@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon'
 @Component({
   selector: 'app-btn-edit-rendered',
   templateUrl: './btn-edit-rendered.component.html',
-  styleUrls: ['./btn-edit-rendered.component.scss']
+  styles: []
 })
 export class BtnEditRenderedComponent implements ICellRendererAngularComp, OnDestroy {
 

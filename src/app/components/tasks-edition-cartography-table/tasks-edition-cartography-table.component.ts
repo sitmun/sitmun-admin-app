@@ -10,7 +10,7 @@ import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
 @Component({
   selector: 'app-tasks-edition-cartography-table',
   templateUrl: './tasks-edition-cartography-table.component.html',
-  styleUrls: ['./tasks-edition-cartography-table.component.scss']
+  styles: []
 })
 export class TasksEditionCartographyTableComponent implements OnInit {
 
