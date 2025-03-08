@@ -68,7 +68,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   gridColumnApi: any;
   statusColumn = false;
   someColumnIsEditable = false;
-  changesMap: Map<number, Map<string, number>> = new Map<number, Map<string, number>>();
+  changesMap: Map<string, Map<string, number>> = new Map<string, Map<string, number>>();
 
   // We will save the id of edited cells and the number of editions done.
   params: any; // Last parameters of the grid (in case we do apply changes we will need it)
@@ -165,7 +165,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         resizable: true,
         cellStyle: (params) => {
           if (params.value && params.colDef.editable) {
-            if (this.changesMap.has(Number(params.node.id)) && this.changesMap.get(Number(params.node.id)).has(params.colDef.field)) {
+            if (this.changesMap.has(params.node.id) && this.changesMap.get(params.node.id).has(params.colDef.field)) {
               return {
                 'background-color': '#E8F1DE',
               };
@@ -813,7 +813,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
   }
 
-  paintCells(params: any, changesMap: Map<number, Map<string, number>>,) {
+  paintCells(params: any, changesMap: Map<string, Map<string, number>>,) {
     this.changesMap = changesMap;
     const row = this.gridApi.getDisplayedRowAtIndex(params.rowIndex);
 
