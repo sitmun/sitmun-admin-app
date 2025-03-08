@@ -19,7 +19,7 @@ export class AccountService extends RestService<User> {
   }
 
   /** get logged in user account*/
-  get(): Observable<any> {
+  override get(): Observable<any> {
     let result: Observable<Object>;
     result = this.http.get(this.resourceService.getResourceUrl(this.ACCOUNT_API));
     return result;

@@ -148,8 +148,9 @@ export class UtilsService {
         }
         const cellDate = new Date(cellValue);
         if (
-          filterLocalDateAtMidnight.toLocaleDateString() ===
-          cellDate.toLocaleDateString()
+          filterLocalDateAtMidnight.getFullYear() === cellDate.getFullYear() &&
+          filterLocalDateAtMidnight.getMonth() === cellDate.getMonth() &&
+          filterLocalDateAtMidnight.getDate() === cellDate.getDate()
         ) {
           return 0;
         }
@@ -159,6 +160,8 @@ export class UtilsService {
         if (cellDate > filterLocalDateAtMidnight) {
           return 1;
         }
+        // Default return if none of the conditions are met
+        return 0;
       },
       browserDatePicker: true,
       minValidYear: 2000,

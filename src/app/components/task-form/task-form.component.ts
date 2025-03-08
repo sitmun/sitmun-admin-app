@@ -886,6 +886,7 @@ export class TaskFormComponent implements OnInit {
     } else if (config.tasksSelectorsIdentifiers.fmeServices) {
       return this.taskUIs;
     }
+    return null;
   }
 
   getDataDynamicSelectors(data, field) {
@@ -898,6 +899,7 @@ export class TaskFormComponent implements OnInit {
     if (data == 'service') {
       return this.servicesMap.get(field);
     }
+    return null;
   }
 
   onPopupDeleteButtonClicked(field) {
@@ -982,6 +984,7 @@ export class TaskFormComponent implements OnInit {
     if (field == 'availabilities') {
       return this.territoryService.getAll();
     }
+    return null;
   }
 
   getDataTableByLink = (link): Observable<any> => {

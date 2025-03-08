@@ -1,11 +1,10 @@
-
 import { throwError as observableThrowError } from 'rxjs';
 
 import { catchError, map } from 'rxjs/operators';
 import { Resource } from './resource';
 import { ResourceHelper } from './resource-helper';
 import { Injectable } from '@angular/core';
-import { HttpParams, HttpResponse } from '@angular/common/http';
+import { HttpParams, HttpResponse, HttpHeaders } from '@angular/common/http';
 import { Sort } from './sort';
 import { ResourceArray } from './resource-array';
 import { ExternalService } from './external.service';
@@ -132,6 +131,7 @@ export class ResourceService {
     /** create resource from self link and entity data*/
     public create<T extends Resource>(selfResource: string, entity: T) {
         const uri = ResourceHelper.getURL() + selfResource;
+
         const payload = ResourceHelper.resolveRelations(entity);
 
         this.setUrlsResource(entity);
@@ -143,14 +143,24 @@ export class ResourceService {
                 let body: any = response.body;
                 return observableThrowError(body.error);
             }
-        }), catchError(error => observableThrowError(error)));
+            // Add default return
+            return null;
+        }));
     }
 
     /** update resource from a given entity data*/
     public update<T extends Resource>(entity: T) {
+        if (!entity._links) {
+            return observableThrowError('no links found');
+        }
+
+        if (!entity._links.self) {
+            return observableThrowError('no self link found');
+        }
+
         const uri = ResourceHelper.getProxy(entity._links.self.href);
         const payload = ResourceHelper.resolveRelations(entity);
-        this.setUrlsResource(entity);
+
         let observable = ResourceHelper.getHttp().put(uri, payload, { headers: ResourceHelper.headers, observe: 'response' });
         return observable.pipe(map((response: HttpResponse<string>) => {
             if (response.status >= 200 && response.status <= 207)
@@ -159,32 +169,53 @@ export class ResourceService {
                 let body: any = response.body;
                 return observableThrowError(body.error);
             }
-        }), catchError(error => observableThrowError(error)));
+            // Add default return
+            return null;
+        }));
     }
 
     /** update resource from a given entity data*/
     public updateCollection<T extends Resource>(resourceArray: ResourceArray<T>, resourceLink: string) {
         const uri = ResourceHelper.getProxy(resourceLink);
-        //const payload = ResourceHelper.resolveRelations(entity);
-        //this.setUrlsResource(entity);
-        var headersReq = ResourceHelper.headers;
-        headersReq.set("Content-Type", "text/uri-list");
-        let observable = ResourceHelper.getHttp().put(uri, resourceArray, { headers: headersReq, observe: 'response' });
+        // Create a URI list instead of resolving relations
+        const payload = this.createUriList(resourceArray.result);
+
+        // Set Content-Type to text/uri-list
+        const headers = new HttpHeaders({
+            'Content-Type': 'text/uri-list'
+        });
+
+        let observable = ResourceHelper.getHttp().put(uri, payload, { headers: headers, observe: 'response' });
         return observable.pipe(map((response: HttpResponse<string>) => {
             if (response.status >= 200 && response.status <= 207)
-                return "";
+                return resourceArray;
             else if (response.status == 500) {
                 let body: any = response.body;
                 return observableThrowError(body.error);
             }
-        }), catchError(error => observableThrowError(error)));
+            // Add default return
+            return null;
+        }));
+    }
+
+    // Helper method to create URI list
+    private createUriList<T extends Resource>(resources: T[]): string {
+        return resources.map(resource => resource._links.self.href).join('\n');
     }
 
     /** patch resource from a given entity data*/
     public patch<T extends Resource>(entity: T) {
+        if (!entity._links) {
+            return observableThrowError('no links found');
+        }
+
+        if (!entity._links.self) {
+            return observableThrowError('no self link found');
+        }
+
         const uri = ResourceHelper.getProxy(entity._links.self.href);
         const payload = ResourceHelper.resolveRelations(entity);
-        this.setUrlsResource(entity);
+
         let observable = ResourceHelper.getHttp().patch(uri, payload, { headers: ResourceHelper.headers, observe: 'response' });
         return observable.pipe(map((response: HttpResponse<string>) => {
             if (response.status >= 200 && response.status <= 207)
@@ -193,7 +224,9 @@ export class ResourceService {
                 let body: any = response.body;
                 return observableThrowError(body.error);
             }
-        }), catchError(error => observableThrowError(error)));
+            // Add default return
+            return null;
+        }));
     }
 
     /** delete resource from a given entity data*/

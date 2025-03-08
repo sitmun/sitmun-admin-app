@@ -1,12 +1,13 @@
-import {of as observableOf, throwError as observableThrowError} from 'rxjs';
-import {map, mergeMap} from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { throwError as observableThrowError } from 'rxjs';
 import {Resource} from './resource';
 import {ResourceArray} from './resource-array';
 import {Sort} from './sort';
 import {ResourceService} from './resource.service';
 import {SubTypeBuilder} from './subtype-builder';
 import {isNullOrUndefined} from 'util';
-import {Observable} from 'rxjs';
 import {Injector} from "@angular/core";
 
 /** HAL param data model */
@@ -51,17 +52,18 @@ export class RestService<T extends Resource> {
 
     /** get all resources with optional options an subType params */
     public getAll(options?: HalOptions, subType?: SubTypeBuilder, embeddedName?:String, ignoreProjection?:boolean): Observable<T[]> {
-        return this.resourceService.getAll(this.type, this.resource, this._embedded, options, subType,embeddedName, ignoreProjection).pipe(
-            mergeMap((resourceArray: ResourceArray<T>) => {
+        return this.resourceService.getAll(this.type, this.resource, this._embedded, options, subType, embeddedName, ignoreProjection).pipe(
+            map((resourceArray: ResourceArray<T>) => {
                 if (options && options.notPaged && !isNullOrUndefined(resourceArray.first_uri)) {
                     options.notPaged = false;
                     options.size = resourceArray.totalElements;
-                    return this.getAll(options);
+                    return this.getAll(options).toPromise();
                 } else {
                     this.resourceArray = resourceArray;
-                    return observableOf(resourceArray.result);
+                    return resourceArray.result;
                 }
-            }));
+            }) as any
+        );
     }
 
     /** get resource from a given id */
@@ -77,16 +79,17 @@ export class RestService<T extends Resource> {
     /** search resources from a given query string and optional options params */
     public search(query: string, options?: HalOptions): Observable<T[]> {
         return this.resourceService.search(this.type, query, this.resource, this._embedded, options).pipe(
-            mergeMap((resourceArray: ResourceArray<T>) => {
+            map((resourceArray: ResourceArray<T>) => {
                 if (options && options.notPaged && !isNullOrUndefined(resourceArray.first_uri)) {
                     options.notPaged = false;
                     options.size = resourceArray.totalElements;
-                    return this.search(query, options);
+                    return this.search(query, options).toPromise();
                 } else {
                     this.resourceArray = resourceArray;
-                    return observableOf(resourceArray.result);
+                    return resourceArray.result;
                 }
-            }));
+            }) as any
+        );
     }
 
     /** search resource from a given query string and optional options params */
@@ -97,16 +100,17 @@ export class RestService<T extends Resource> {
     /** search resources from a given custom query string and optional options params */
     public customQuery(query: string, options?: HalOptions): Observable<T[]> {
         return this.resourceService.customQuery(this.type, query, this.resource, this._embedded, options).pipe(
-            mergeMap((resourceArray: ResourceArray<T>) => {
+            map((resourceArray: ResourceArray<T>) => {
                 if (options && options.notPaged && !isNullOrUndefined(resourceArray.first_uri)) {
                     options.notPaged = false;
                     options.size = resourceArray.totalElements;
-                    return this.customQuery(query, options);
+                    return this.customQuery(query, options).toPromise();
                 } else {
                     this.resourceArray = resourceArray;
-                    return observableOf(resourceArray.result);
+                    return resourceArray.result;
                 }
-            }));
+            }) as any
+        );
     }
 
 
@@ -193,7 +197,7 @@ export class RestService<T extends Resource> {
                     return resourceArray.result;
                 }));
         else
-            observableThrowError('no resourceArray found');
+            return of([]);
     }
 
     /** get resource array previous page of results*/
@@ -205,35 +209,31 @@ export class RestService<T extends Resource> {
                     return resourceArray.result;
                 }));
         else
-            observableThrowError('no resourceArray found');
+            return of([]);
     }
 
     /** get resource array first page of results*/
     public first(): Observable<T[]> {
         if (this.resourceArray)
-            return this.resourceService.first(this.resourceArray, this.type)
-                .pipe(
-                    map((resourceArray: ResourceArray<T>) => {
-                        this.resourceArray = resourceArray;
-                        return resourceArray.result;
-                    })
-                );
+            return this.resourceService.first(this.resourceArray, this.type).pipe(
+                map((resourceArray: ResourceArray<T>) => {
+                    this.resourceArray = resourceArray;
+                    return resourceArray.result;
+                }));
         else
-            observableThrowError('no resourceArray found');
+            return of([]);
     }
 
     /** get resource array last page of results*/
     public last(): Observable<T[]> {
         if (this.resourceArray)
-            return this.resourceService.last(this.resourceArray, this.type)
-                .pipe(
-                    map((resourceArray: ResourceArray<T>) => {
-                        this.resourceArray = resourceArray;
-                        return resourceArray.result;
-                    })
-                );
+            return this.resourceService.last(this.resourceArray, this.type).pipe(
+                map((resourceArray: ResourceArray<T>) => {
+                    this.resourceArray = resourceArray;
+                    return resourceArray.result;
+                }));
         else
-            observableThrowError('no resourceArray found');
+            return of([]);
     }
 
     /** get resource array page of results given a page number*/
@@ -245,6 +245,6 @@ export class RestService<T extends Resource> {
                     return resourceArray.result;
                 }));
         else
-            observableThrowError('no resourceArray found');
+            return of([]);
     }
 }
