@@ -13,6 +13,7 @@ import { Observable, of, Subject } from 'rxjs';
 import { DataTreeComponent, DialogGridComponent, DialogMessageComponent, DataGridComponent } from '../../../frontend-gui/src/lib/public_api';
 import { MatDialog } from '@angular/material/dialog';
 import { constants } from 'src/environments/constants';
+import {MatTabChangeEvent} from '@angular/material/tabs';
 
 
 
@@ -1460,6 +1461,10 @@ export class TreesFormComponent implements OnInit {
     return this.applicationService.getAll();
   }
 
+  activeTabIndex = 0;
 
+  onTabChange(event: MatTabChangeEvent) {
+    this.activeTabIndex = event.index;
+  }
 }
 

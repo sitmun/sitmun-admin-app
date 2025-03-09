@@ -1,346 +1,379 @@
-<div class="titleDiv">
+<mat-toolbar>
   <h4>
-    <mat-icon aria-hidden="false" svgIcon="menu_arbres"></mat-icon> {{ "sideMenu.trees" | translate
-    }}-{{(treeID==-1?"new":"edit") | translate}}
+    <mat-icon aria-hidden="true" svgIcon="menu_arbres"></mat-icon>
+    <span> {{ "sideMenu.trees" | translate }} - {{ (treeID === -1 ? "new" : "edit") | translate }}</span>
   </h4>
-  <span class="divider"></span>
-</div>
-
-<div class="tree-container">
-  <div class="formDiv">
-    <form [formGroup]='treeForm' (ngSubmit)="onSaveButtonClicked()" #f="ngForm">
-      <div class="formHeader">
-        <h5> {{'treesEntity.generalData' | translate}} </h5>
-        <button mat-flat-button class="saveButton">
-          <mat-icon fontSet="material-icons-round"> save </mat-icon>
-          {{ "save" | translate }}
-        </button>
-        <button type="button" (click)="utils.navigateBack()" mat-flat-button class="returnButton">
-          <mat-icon fontSet="material-icons-round"> arrow_back </mat-icon>
-          {{ "return" | translate }}
-        </button>
-      </div>
-      <span class="divider"></span>
-
-      <div class="rowFormDiv">
-        <div class="colFormDiv">
-          <label class="formLabel requiredInput">
-            {{'treesEntity.name' | translate}}
-          </label>
-          <mat-form-field appearance="outline">
+  <span class="spacer"></span>
+  <button
+    matTooltip="{{ 'save' | translate }}"
+    mat-mini-fab class="add-half-gap"
+    (click)="onSaveButtonClicked()">
+    <mat-icon fontSet="material-icons-round">save</mat-icon>
+  </button>
+  <button
+    matTooltip="{{ 'return' | translate }}"
+    mat-mini-fab class="add-half-gap"
+    (click)="utils.navigateBack()">
+    <mat-icon fontSet="material-icons-round">arrow_back</mat-icon>
+  </button>
+</mat-toolbar>
+<mat-tab-group
+  mat-stretch-tabs="false"
+  mat-align-tabs="end"
+  [dynamicHeight]="true"
+  preserveContent="true"
+  (selectedTabChange)="onTabChange($event)">
+  >
+  <mat-tab label="{{'treesEntity.generalData' | translate}}">
+    <form [formGroup]='treeForm'>
+      <mat-card appearance="outlined">
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'treesEntity.name' | translate }}</mat-label>
             <input matInput type="text" formControlName="name">
-            <mat-icon matSuffix class="iconTranslate" (click)="onNameTranslationButtonClicked()" svgIcon="ic_translate"></mat-icon>
+            <mat-icon matSuffix class="iconTranslate"
+                      (click)="onNameTranslationButtonClicked()"
+                      onKeyDown="onNameTranslationButtonClicked()"
+                      svgIcon="ic_translate"></mat-icon>
           </mat-form-field>
-        </div>
-        <div class="colFormDiv">
-          <label class="formLabel ">
-            {{'treesEntity.description' | translate}}
-          </label>
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'treesEntity.description' | translate }}</mat-label>
             <textarea matInput type="text" formControlName="description"> </textarea>
-            <mat-icon matSuffix class="iconTranslate" (click)="onDescriptionTranslationButtonClicked()" svgIcon="ic_translate"></mat-icon>
+            <mat-icon matSuffix class="iconTranslate"
+                      (click)="onDescriptionTranslationButtonClicked()"
+                      onKeyDown="onDescriptionTranslationButtonClicked()"
+                      svgIcon="ic_translate"></mat-icon>
           </mat-form-field>
-        </div>
-      </div>
-      <div class="rowFormDiv">
-        <div class="colFormDiv">
-          <label class="formLabel ">
-            {{'treesEntity.type' | translate}}
-          </label>
-          <mat-form-field appearance="outline">
-            <mat-select matInput formControlName="type" class="form-control" (selectionChange)="onTreeTypeChange($event.value)">
+          <mat-form-field appearance="outline" class="quarter add-gap">
+            <mat-label>{{ 'treesEntity.type' | translate }}</mat-label>
+            <mat-select formControlName="type" class="form-control" (selectionChange)="onTreeTypeChange($event.value)">
               <mat-option [value]="type.value" *ngFor="let type of treetypesList">
-                {{ type.description}}
+                {{ type.description }}
               </mat-option>
             </mat-select>
           </mat-form-field>
-        </div>
-        <div class="colFormDiv">
-          <label class="formLabel ">
-            {{'treesEntity.image' | translate}}
-          </label>
-          <mat-form-field appearance="outline">
-            <input #treeImageNameInput matInput type="text" formControlName="imageName" (keyup)="onImageChange('tree', $event)" readonly [placeholder]="'treesEntity.imagePlaceHolder' | translate">
+          <div class="break"></div>
+          <mat-form-field appearance="outline" class="half add-gap">
+            <mat-label>{{ 'treesEntity.image' | translate }}</mat-label>
+            <input #treeImageNameInput matInput type="text" formControlName="imageName"
+                   (keyup)="onImageChange('tree', $event)" readonly
+                   [placeholder]="'treesEntity.imagePlaceHolder' | translate">
           </mat-form-field>
           <textarea matInput type="text" hidden formControlName="image"> </textarea>
           <input #treeFileInput type="file" accept="image/*" hidden (change)="onImageSelected('tree', $event)">
-          <div style="display: block">
-            <input type="button" mat-flat-button class="fileButton" (click)="treeFileInput.click()" [value]="'treesEntity.selectFile' | translate"/>
-            <input type="button" mat-flat-button class="fileButton" (click)="activeImageNameInput('tree', treeImageNameInput)" [value]="'treesEntity.webUrl' | translate"/>
-            <input type="button" mat-flat-button class="fileButton" (click)="removeImage('tree')" [value]="'treesEntity.delete' | translate"/>
-          </div>
+          <button mat-raised-button class="add-gap" (click)="treeFileInput.click()" [style.background-color]="'#FF9300'"
+                  [style.color]="'white'">
+            <mat-label>{{ 'treesEntity.selectFile' | translate }}</mat-label>
+          </button>
+          <button mat-raised-button class="add-gap" (click)="activeImageNameInput('tree', treeImageNameInput)"
+                  [style.background-color]="'#FF9300'" [style.color]="'white'">
+            <mat-label>{{ 'treesEntity.webUrl' | translate }}</mat-label>
+          </button>
+          <button mat-raised-button class="add-gap" (click)="removeImage('tree')" [style.background-color]="'#FF9300'"
+                  [style.color]="'white'">
+            <mat-label>{{ 'treesEntity.delete' | translate }}</mat-label>
+          </button>
           <div class="preview" hidden>
-            <label class="previewLabel ">
-              {{'treesEntity.preview' | translate}}:
-            </label>
-            <img id="treeImgPreview" class="previewImage">
+            <div>{{ 'treesEntity.preview' | translate }}:</div>
+            <img id="treeImgPreview" alt="preview" class="previewImage">
           </div>
-        </div>
-      </div>
+        </mat-card-content>
+      </mat-card>
     </form>
-  </div>
-
-
-
-  <div class="formDiv">
-    <div class="formHeader">
-      <h5> {{'treesEntity.configuration' | translate}} </h5>
-    </div>
-    <span class="divider"></span>
-    <div class="formDivTreeLeft" *ngIf="dataLoaded">
-      <app-data-tree [getAll]='getAllTreeNodes' (emitNode)="nodeReceived($event)" (createNode)="createNode($event)" (loadButtonClicked)="loadGroupLayersButtonClicked($event)"
-                     (createFolder)="createFolder($event)" [eventNodeUpdatedSubscription]='sendNodeUpdated.asObservable()' [loadDataButton]="true"
-                     [eventGetAllRowsSubscription]='getAllElementsNodes.asObservable()'   [eventRefreshSubscription]='refreshTreeEvent.asObservable()'
-                     [eventCreateNodeSubscription]='createNodeEvent.asObservable()' [allNewElements]='treeID == -1' (emitAllNodes)="receiveAllNodes($event)">
-        loading</app-data-tree>
-    </div>
-    <div class="formDivTreeRight">
-      <form [formGroup]='treeNodeForm' #f="ngForm" (ngSubmit)="onSaveFormButtonClicked()">
-        <div class="rowFormDiv">
-          <div class="colFormDiv" *ngIf="currentNodeIsFolder != undefined">
-            <label class="formLabel ">
-              {{'treesEntity.type' | translate}}
-            </label>
-            <mat-form-field appearance="outline" *ngIf="(currentNodeIsFolder)">
-              <mat-select matInput formControlName="nodetype" class="form-control" (selectionChange)="onTreeNodeTypeChange($event.value)">
-                <mat-option [value]="type.value" *ngFor="let type of folderNodeTypesList">
-                  {{ type.description}}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-            <mat-form-field appearance="outline" *ngIf="currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
-              <mat-select matInput formControlName="nodetype" class="form-control" (selectionChange)="onTreeNodeTypeChange($event.value)">
-                <mat-option [value]="type.value" *ngFor="let type of leafNodeTypesList">
-                  {{ type.description}}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
+  </mat-tab>
+  <mat-tab label="{{ 'treesEntity.configuration' | translate }}">
+    <mat-card>
+      <mat-card-content>
+        <div class="formDiv">
+          <div class="formDivTreeLeft" *ngIf="dataLoaded">
+            <app-data-tree [getAll]='getAllTreeNodes' (emitNode)="nodeReceived($event)"
+                           (createNode)="createNode($event)"
+                           (loadButtonClicked)="loadGroupLayersButtonClicked($event)"
+                           (createFolder)="createFolder($event)"
+                           [eventNodeUpdatedSubscription]='sendNodeUpdated.asObservable()'
+                           [loadDataButton]="true"
+                           [eventGetAllRowsSubscription]='getAllElementsNodes.asObservable()'
+                           [eventRefreshSubscription]='refreshTreeEvent.asObservable()'
+                           [eventCreateNodeSubscription]='createNodeEvent.asObservable()'
+                           [allNewElements]='treeID == -1'
+                           (emitAllNodes)="receiveAllNodes($event)">
+              loading
+            </app-data-tree>
           </div>
-          <div class="colFormDiv" *ngIf="currentNodeIsFolder != undefined">
-            <label class="formLabel requiredInput">
-              {{'treesEntity.name' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="name" required>
-              <mat-icon matSuffix class="iconTranslate" (click)="onTreeNodeNameTranslationButtonClicked()" svgIcon="ic_translate"></mat-icon>
-            </mat-form-field>
+          <div class="formDivTreeRight">
+            <form [formGroup]='treeNodeForm' #f="ngForm" (ngSubmit)="onSaveFormButtonClicked()">
+              <div class="rowFormDiv">
+                <div class="colFormDiv" *ngIf="currentNodeIsFolder != undefined">
+                  <label class="formLabel ">
+                    {{ 'treesEntity.type' | translate }}
+                  </label>
+                  <mat-form-field appearance="outline" *ngIf="(currentNodeIsFolder)">
+                    <mat-select matInput formControlName="nodetype" class="form-control"
+                                (selectionChange)="onTreeNodeTypeChange($event.value)">
+                      <mat-option [value]="type.value" *ngFor="let type of folderNodeTypesList">
+                        {{ type.description }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline"
+                                  *ngIf="currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
+                    <mat-select matInput formControlName="nodetype" class="form-control"
+                                (selectionChange)="onTreeNodeTypeChange($event.value)">
+                      <mat-option [value]="type.value" *ngFor="let type of leafNodeTypesList">
+                        {{ type.description }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+                <div class="colFormDiv" *ngIf="currentNodeIsFolder != undefined">
+                  <label class="formLabel requiredInput">
+                    {{ 'treesEntity.name' | translate }}
+                  </label>
+                  <mat-form-field appearance="outline">
+                    <input matInput type="text" formControlName="name" required>
+                    <mat-icon matSuffix class="iconTranslate" (click)="onTreeNodeNameTranslationButtonClicked()"
+                              svgIcon="ic_translate"></mat-icon>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <div class="rowFormDiv"
+                   *ngIf=" (currentNodeIsFolder) && currentNodeType === codeValues.treenodeFolderType.cartography">
+                <div class="colFormDiv" *ngIf="currentNodeIsFolder != undefined">
+                  <label class="formLabel">
+                    {{ 'treesEntity.tooltip' | translate }}
+                  </label>
+                  <mat-form-field appearance="outline">
+                    <input matInput type="text" formControlName="tooltip">
+                  </mat-form-field>
+                </div>
+                <div class="colFormDiv">
+                  <label class="formLabel">
+                    {{ 'treesEntity.metadataURL' | translate }}
+                  </label>
+                  <mat-form-field appearance="outline">
+                    <input matInput type="text" formControlName="metadataURL">
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <div class="rowFormDiv" *ngIf="(currentNodeIsFolder)">
+                <div class="colFormDiv"
+                     *ngIf="[codeValues.treenodeFolderType.cartography, codeValues.treenodeFolderType.list].includes(currentNodeType)">
+                  <label class="formLabel">
+                    {{ 'treesEntity.description' | translate }}
+                  </label>
+                  <mat-form-field appearance="outline">
+                    <textarea matInput type="text" formControlName="description"> </textarea>
+                    <mat-icon matSuffix class="iconTranslate" (click)="onTreeNodeDescriptionTranslationButtonClicked()"
+                              svgIcon="ic_translate"></mat-icon>
+                  </mat-form-field>
+                </div>
+                <div class="colFormDiv" *ngIf="currentNodeType === codeValues.treenodeFolderType.cartography">
+                  <label class="formLabel">
+                    {{ 'treesEntity.datasetURL' | translate }}
+                  </label>
+                  <mat-form-field appearance="outline">
+                    <input matInput type="text" formControlName="datasetURL">
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <div class="rowFormDiv"
+                   *ngIf="currentNodeIsFolder != undefined &&  (!currentNodeIsFolder) && currentNodeType === codeValues.treenodeLeafType.cartography">
+                <div class="colFormDiv">
+                  <label class="formLabel">
+                    {{ 'treesEntity.cartography' | translate }}
+                  </label>
+                  <mat-form-field appearance="outline">
+                    <input matInput type="text" [readonly]="true" formControlName="cartographyName">
+                  </mat-form-field>
+                </div>
+                <div class="colFormDiv">
+                  <label class="formLabel">
+                    {{ 'treesEntity.style' | translate }}
+                  </label>
+                  <mat-form-field appearance="outline">
+                    <input matInput type="text" formControlName="style">
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="rowFormDiv" *ngIf="currentNodeType === codeValues.treenodeFolderType.cartography">
+                <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
+                  <label class="formLabel">
+                    {{ 'layersEntity.applyFilterToGetMap' | translate }}
+                  </label>
+                  <mat-form-field appearance="outline">
+                    <mat-select matInput formControlName="filterGetFeatureInfo" class="form-control">
+                      <mat-option [value]="option.value" *ngFor="let option of filterOptions">
+                        {{ option.description | translate }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+                <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
+                  <label class="formLabel">
+                    {{ 'layersEntity.filterInfoByMunicipality' | translate }}
+                  </label>
+                  <mat-form-field appearance="outline">
+                    <mat-select matInput formControlName="filterGetMap" class="form-control">
+                      <mat-option [value]="option.value" *ngFor="let option of filterOptions">
+                        {{ option.description | translate }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="rowFormDiv" *ngIf="currentNodeType === codeValues.treenodeLeafType.cartography">
+                <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
+                  <label class="formLabel">
+                    {{ 'layersEntity.filterSpatialSelectionByMunicipality' | translate }}
+                  </label>
+                  <mat-form-field appearance="outline">
+                    <mat-select matInput formControlName="filterSelectable" class="form-control">
+                      <mat-option [value]="option.value" *ngFor="let option of filterOptions">
+                        {{ option.description | translate }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="rowFormDiv"
+                   *ngIf="[codeValues.treenodeFolderType.menu, codeValues.treenodeFolderType.list].includes(currentNodeType)">
+                <div class="colFormDiv" *ngIf=" (currentNodeIsFolder)">
+                  <label class="formLabel" *ngIf="currentNodeType === codeValues.treenodeFolderType.list">
+                    {{ 'treesEntity.image' | translate }}
+                  </label>
+                  <label class="formLabel" *ngIf="currentNodeType === codeValues.treenodeFolderType.menu">
+                    {{ 'treesEntity.icon' | translate }}
+                  </label>
+                  <mat-form-field appearance="outline">
+                    <input #treenodeImageNameInput matInput type="text" formControlName="imageName"
+                           (keyup)="onImageChange('node', $event)" readonly
+                           [placeholder]="'treesEntity.imagePlaceHolder' | translate">
+                  </mat-form-field>
+                  <textarea matInput type="text" hidden formControlName="image"> </textarea>
+                  <input #nodeFileInput type="file" accept="image/*" hidden (change)="onImageSelected('node', $event)">
+                  <div style="display: block">
+                    <input type="button" mat-flat-button class="fileButton" (click)="nodeFileInput.click()"
+                           [value]="'treesEntity.selectFile' | translate"/>
+                    <input type="button" mat-flat-button class="fileButton"
+                           (click)="activeImageNameInput('node', treenodeImageNameInput)"
+                           [value]="'treesEntity.webUrl' | translate"/>
+                    <input type="button" mat-flat-button class="fileButton" (click)="removeImage('node')"
+                           [value]="'treesEntity.delete' | translate"/>
+                  </div>
+                </div>
+                <div class="colFormDiv" *ngIf="(currentNodeIsFolder)">
+                  <img id="treeNodeImgPreview" class="previewImage" hidden>
+                </div>
+              </div>
+              <div class="rowFormDiv"
+                   *ngIf="currentNodeType === codeValues.treenodeLeafType.task && currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
+                <div class="colFormDiv">
+                  <label class="formLabel">
+                    {{ 'treesEntity.task' | translate }}
+                  </label>
+                  <mat-form-field appearance="outline">
+                    <input matInput type="text" [readonly]="true" formControlName="taskName">
+                  </mat-form-field>
+                </div>
+                <div class="colFormDiv">
+                  <label class="formLabel ">
+                    {{ 'treesEntity.taskview' | translate }}
+                  </label>
+                  <mat-form-field appearance="outline">
+                    <mat-select matInput formControlName="viewMode" class="form-control">
+                      <mat-option [value]="taskview.value" *ngFor="let taskview of taskviewsList">
+                        {{ taskview.description }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="rowFormDiv"
+                   *ngIf="currentNodeType === codeValues.treenodeLeafType.task && currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
+                <div class="colFormDiv">
+                  <label class="formLabel">
+                    {{ 'treesEntity.filterable' | translate }}
+                  </label>
+                  <mat-checkbox formControlName="filterable"></mat-checkbox>
+                </div>
+                <div class="colFormDiv">
+                  <button mat-flat-button class="validateButton">Configurar campos</button>
+                </div>
+              </div>
+
+              <div class="rowFormDiv" *ngIf="currentNodeType === codeValues.treenodeFolderType.cartography">
+                <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
+                  <label class="formLabel">
+                    {{ 'treesEntity.visible' | translate }}
+                  </label>
+                  <mat-checkbox formControlName="active"></mat-checkbox>
+                </div>
+                <div class="colFormDiv" *ngIf=" (currentNodeIsFolder)">
+                  <label class="formLabel">
+                    {{ 'treesEntity.radio' | translate }}
+                  </label>
+                  <mat-checkbox formControlName="radio"></mat-checkbox>
+                </div>
+              </div>
+              <button mat-flat-button class="validateButton"
+                      *ngIf=" !newElement && currentNodeIsFolder != undefined ">{{ "update" | translate }}
+              </button>
+              <button mat-flat-button class="validateButton"
+                      *ngIf="newElement && currentNodeIsFolder != undefined ">{{ "save" | translate }}
+              </button>
+              <div class="appDataGridEditDiv" *ngIf="( currentNodeIsFolder != undefined && !currentNodeIsFolder)">
+                <app-data-grid [changeHeightButton]="true"
+                               [defaultColumnSorting]="['name']"
+                               [columnDefs]="columnDefsCartographies"
+                               [getAll]='getAllCartographies'
+                               [eventGetSelectedRowsSubscription]='getAllElementsEventCartographies.asObservable()'
+                               *ngIf="currentNodeType === codeValues.treenodeLeafType.cartography"
+                               (getSelectedRows)="getSelectedRowsCartographies($event)"
+                               [singleSelection]=true
+                               [redraw]="activeTabIndex === 1">
+                </app-data-grid>
+                <app-data-grid [changeHeightButton]="true"
+                               [defaultColumnSorting]="['name']"
+                               [columnDefs]="columnDefsTasks"
+                               [getAll]='getAllTasks'
+                               [eventGetSelectedRowsSubscription]='getAllElementsEventTasks.asObservable()'
+                               *ngIf="currentNodeType === codeValues.treenodeLeafType.task"
+                               (getSelectedRows)="getSelectedRowsTasks($event)"
+                               [singleSelection]=true
+                               [redraw]="activeTabIndex === 1"
+                >
+                </app-data-grid>
+              </div>
+            </form>
           </div>
         </div>
-
-        <div class="rowFormDiv"  *ngIf=" (currentNodeIsFolder) && currentNodeType === codeValues.treenodeFolderType.cartography">
-          <div class="colFormDiv" *ngIf="currentNodeIsFolder != undefined">
-            <label class="formLabel">
-              {{'treesEntity.tooltip' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="tooltip">
-            </mat-form-field>
-          </div>
-          <div class="colFormDiv">
-            <label class="formLabel">
-              {{'treesEntity.metadataURL' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="metadataURL">
-            </mat-form-field>
-          </div>
-        </div>
-
-        <div class="rowFormDiv" *ngIf="(currentNodeIsFolder)">
-          <div class="colFormDiv" *ngIf="[codeValues.treenodeFolderType.cartography, codeValues.treenodeFolderType.list].includes(currentNodeType)">
-            <label class="formLabel">
-              {{'treesEntity.description' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <textarea matInput type="text" formControlName="description"> </textarea>
-              <mat-icon matSuffix class="iconTranslate" (click)="onTreeNodeDescriptionTranslationButtonClicked()" svgIcon="ic_translate"></mat-icon>
-            </mat-form-field>
-          </div>
-          <div class="colFormDiv" *ngIf="currentNodeType === codeValues.treenodeFolderType.cartography">
-            <label class="formLabel">
-              {{'treesEntity.datasetURL' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="datasetURL">
-            </mat-form-field>
-          </div>
-        </div>
-
-        <div class="rowFormDiv" *ngIf="currentNodeIsFolder != undefined &&  (!currentNodeIsFolder) && currentNodeType === codeValues.treenodeLeafType.cartography">
-          <div class="colFormDiv">
-            <label class="formLabel">
-              {{'treesEntity.cartography' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" [readonly]="true" formControlName="cartographyName">
-            </mat-form-field>
-          </div>
-          <div class="colFormDiv">
-            <label class="formLabel">
-              {{'treesEntity.style' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="style">
-            </mat-form-field>
-          </div>
-        </div>
-        <div class="rowFormDiv" *ngIf="currentNodeType === codeValues.treenodeFolderType.cartography">
-          <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
-            <label class="formLabel">
-              {{'layersEntity.applyFilterToGetMap' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <mat-select matInput formControlName="filterGetFeatureInfo" class="form-control">
-                <mat-option [value]="option.value" *ngFor="let option of filterOptions">
-                  {{ option.description | translate}}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-          <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
-            <label class="formLabel">
-              {{'layersEntity.filterInfoByMunicipality' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <mat-select matInput formControlName="filterGetMap" class="form-control">
-                <mat-option [value]="option.value" *ngFor="let option of filterOptions">
-                  {{ option.description | translate}}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-        </div>
-        <div class="rowFormDiv" *ngIf="currentNodeType === codeValues.treenodeLeafType.cartography">
-          <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
-            <label class="formLabel" >
-              {{'layersEntity.filterSpatialSelectionByMunicipality' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <mat-select matInput formControlName="filterSelectable" class="form-control">
-                <mat-option [value]="option.value" *ngFor="let option of filterOptions">
-                  {{ option.description | translate}}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-        </div>
-        <div class="rowFormDiv" *ngIf="[codeValues.treenodeFolderType.menu, codeValues.treenodeFolderType.list].includes(currentNodeType)">
-          <div class="colFormDiv" *ngIf=" (currentNodeIsFolder)">
-            <label class="formLabel" *ngIf="currentNodeType === codeValues.treenodeFolderType.list">
-              {{'treesEntity.image' | translate}}
-            </label>
-            <label class="formLabel" *ngIf="currentNodeType === codeValues.treenodeFolderType.menu">
-              {{'treesEntity.icon' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input #treenodeImageNameInput matInput type="text" formControlName="imageName" (keyup)="onImageChange('node', $event)" readonly [placeholder]="'treesEntity.imagePlaceHolder' | translate">
-            </mat-form-field>
-            <textarea matInput type="text" hidden formControlName="image"> </textarea>
-            <input #nodeFileInput type="file" accept="image/*" hidden (change)="onImageSelected('node', $event)">
-            <div style="display: block">
-              <input type="button" mat-flat-button class="fileButton" (click)="nodeFileInput.click()" [value]="'treesEntity.selectFile' | translate"/>
-              <input type="button" mat-flat-button class="fileButton" (click)="activeImageNameInput('node', treenodeImageNameInput)" [value]="'treesEntity.webUrl' | translate"/>
-              <input type="button" mat-flat-button class="fileButton" (click)="removeImage('node')" [value]="'treesEntity.delete' | translate"/>
-            </div>
-          </div>
-          <div class="colFormDiv" *ngIf="(currentNodeIsFolder)">
-            <img id="treeNodeImgPreview" class="previewImage" hidden>
-          </div>
-        </div>
-        <div class="rowFormDiv" *ngIf="currentNodeType === codeValues.treenodeLeafType.task && currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
-          <div class="colFormDiv">
-            <label class="formLabel">
-              {{'treesEntity.task' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" [readonly]="true" formControlName="taskName">
-            </mat-form-field>
-          </div>
-          <div class="colFormDiv">
-            <label class="formLabel ">
-              {{'treesEntity.taskview' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <mat-select matInput formControlName="viewMode" class="form-control">
-                <mat-option [value]="taskview.value" *ngFor="let taskview of taskviewsList">
-                  {{ taskview.description}}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-        </div>
-        <div class="rowFormDiv" *ngIf="currentNodeType === codeValues.treenodeLeafType.task && currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
-          <div class="colFormDiv">
-            <label class="formLabel">
-              {{'treesEntity.filterable' | translate}}
-            </label>
-            <mat-checkbox formControlName="filterable"> </mat-checkbox>
-          </div>
-          <div class="colFormDiv">
-            <button  mat-flat-button class="validateButton">Configurar campos</button>
-          </div>
-        </div>
-
-        <div class="rowFormDiv" *ngIf="currentNodeType === codeValues.treenodeFolderType.cartography">
-          <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
-            <label class="formLabel">
-              {{'treesEntity.visible' | translate}}
-            </label>
-            <mat-checkbox formControlName="active"> </mat-checkbox>
-          </div>
-          <div class="colFormDiv" *ngIf=" (currentNodeIsFolder)">
-            <label class="formLabel">
-              {{'treesEntity.radio' | translate}}
-            </label>
-            <mat-checkbox formControlName="radio"> </mat-checkbox>
-          </div>
-        </div>
-        <div class="appDataGridEditDiv" *ngIf="( currentNodeIsFolder != undefined && !currentNodeIsFolder)">
-          <app-data-grid [changeHeightButton]="true" defaultColumnSorting='name' [columnDefs]="columnDefsCartographies" [getAll]='getAllCartographies'
-                         [eventGetSelectedRowsSubscription]='getAllElementsEventCartographies.asObservable()' *ngIf="currentNodeType === codeValues.treenodeLeafType.cartography"
-                         (getSelectedRows)="getSelectedRowsCartographies($event)" [singleSelection]=true [globalSearch]=true>
-          </app-data-grid>
-          <app-data-grid [changeHeightButton]="true" defaultColumnSorting='name' [columnDefs]="columnDefsTasks" [getAll]='getAllTasks'
-                         [eventGetSelectedRowsSubscription]='getAllElementsEventTasks.asObservable()' *ngIf="currentNodeType === codeValues.treenodeLeafType.task"
-                         (getSelectedRows)="getSelectedRowsTasks($event)" [singleSelection]=true [globalSearch]=true>
-          </app-data-grid>
-        </div>
-        <button  mat-flat-button class="validateButton"
-                 *ngIf=" !newElement && currentNodeIsFolder != undefined ">{{ "update" | translate }}</button>
-        <button mat-flat-button class="validateButton"
-                *ngIf="newElement && currentNodeIsFolder != undefined ">{{ "save" | translate }}</button>
-      </form>
-
-    </div>
-  </div>
-
-  <div class="tableDiv" *ngIf=" dataLoaded">
-    <mat-accordion multi>
-
-      <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
-        <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-          <mat-panel-title>
-            {{ "layersPermitsEntity.applications" | translate }}
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-
-        <ng-template matExpansionPanelContent>
-          <div class="appDataGridEditDiv">
-            <app-data-grid #applicationsDataGrid [changeHeightButton]="true" [allNewElements]="treeID == -1"
-                           [columnDefs]="columnDefsApplication" [getAll]='getAllApplications'
-                           [eventAddItemsSubscription]='addElementsEventApplication.asObservable()'
-                           [eventGetAllRowsSubscription]='getAllElementsEventApplication.asObservable()'
-                           [eventRefreshSubscription]='dataUpdatedEventApplication.asObservable()' [discardChangesButton]=true
-                           [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
-                           defaultColumnSorting="order" (getAllRows)="getAllRowsApplication($event)" [actionButton]=true
-                           (add)="openApplicationsDialog($event)"> </app-data-grid>
-          </div>
-        </ng-template>
-
-      </mat-expansion-panel>
-
-
-    </mat-accordion>
-
-  </div>
-</div>
+      </mat-card-content>
+    </mat-card>
+  </mat-tab>
+  <mat-tab label="{{ 'layersPermitsEntity.applications' | translate }}">
+    <app-data-grid #applicationsDataGrid
+                   [changeHeightButton]="true"
+                   [allNewElements]="treeID === -1"
+                   [columnDefs]="columnDefsApplication"
+                   [getAll]='getAllApplications'
+                   [eventAddItemsSubscription]='addElementsEventApplication.asObservable()'
+                   [eventGetAllRowsSubscription]='getAllElementsEventApplication.asObservable()'
+                   [eventRefreshSubscription]='dataUpdatedEventApplication.asObservable()'
+                   [discardChangesButton]=true
+                   [redoButton]=true
+                   [undoButton]=true
+                   [deleteButton]=true
+                   [addButton]=true
+                   [hideDuplicateButton]=true
+                   [defaultColumnSorting]="['order']"
+                   (getAllRows)="getAllRowsApplication($event)"
+                   [actionButton]=true
+                   (add)="openApplicationsDialog($event)"
+                   [redraw]="activeTabIndex === 2"
+                   *ngIf="dataLoaded"
+    ></app-data-grid>
+  </mat-tab>
+</mat-tab-group>
