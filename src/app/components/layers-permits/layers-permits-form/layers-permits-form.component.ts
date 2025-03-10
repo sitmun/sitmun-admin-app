@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
-import {CartographyGroupService, RoleService, CartographyService} from '@app/frontend-core/src/lib/public_api';
+import {CartographyGroupService, RoleService, CartographyService} from '@app/domain';
 import {HttpClient} from '@angular/common/http';
 import {UtilsService} from '@app/services/utils.service';
 import {map} from 'rxjs/operators';

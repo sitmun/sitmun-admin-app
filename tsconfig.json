@@ -19,6 +19,8 @@
     ],
     "paths": {
       "@app/*": ["src/app/*"],
+      "@app/domain": ["src/app/domain"],
+      "@app/domain/*": ["src/app/domain/*"],
       "@config": ["src/config.ts"],
       "@environments/*": ["src/environments/*"]
     },

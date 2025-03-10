@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { DashboardService } from '@app/frontend-core/src/lib/public_api';
+import { DashboardService } from '@app/domain';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '@app/services/utils.service';
 

@@ -3,7 +3,7 @@ import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BackgroundLayersComponent } from './background-layers.component';
-import { BackgroundService,CartographyGroupService, CodeListService,TranslationService,ResourceService,ExternalService } from '@app/frontend-core/src/lib/public_api';
+import { BackgroundService,CartographyGroupService, CodeListService,TranslationService,ResourceService,ExternalService } from '@app/domain';
 import { MaterialModule } from '@app/material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterModule } from '@angular/router';

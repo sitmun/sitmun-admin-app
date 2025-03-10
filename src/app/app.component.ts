@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { LanguageService, ConfigurationParametersService } from '@app/frontend-core/src/lib/public_api';
+import { LanguageService, ConfigurationParametersService } from '@app/domain';
 import { Principal } from '@app/core/auth/principal.service';
 import { LoginService } from '@app/core/auth/login.service';
 import { AuthService } from '@app/core/auth/auth.service';

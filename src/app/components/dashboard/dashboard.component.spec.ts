@@ -10,7 +10,7 @@ import { MaterialModule } from '@app/material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { DashboardService,TranslationService,CodeListService,ResourceService,ExternalService } from '@app/frontend-core/src/lib/public_api';
+import { DashboardService,TranslationService,CodeListService,ResourceService,ExternalService } from '@app/domain';
 describe('DashboardComponent', () => {
 
   let component: DashboardComponent;

@@ -6,7 +6,7 @@ import {
   CartographyService, ServiceService, TerritoryTypeService, ConnectionService, TreeNodeService,
   TerritoryService, CartographyGroupService, CartographyAvailabilityService, CartographyParameterService, TranslationService,
   CodeListService, CartographyFilterService, GetInfoService, ResourceService, ExternalService, CartographyStyleService, CartographySpatialSelectionParameterService
-} from '@app/frontend-core/src/lib/public_api';
+} from '@app/domain';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { RouterTestingModule } from '@angular/router/testing';

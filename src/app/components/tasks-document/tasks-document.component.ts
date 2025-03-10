@@ -4,7 +4,7 @@ import {  Router } from '@angular/router';
 import { Observable, of,Subject } from 'rxjs';
 import { environment } from '@environments/environment';
 import { config } from '@config';
-import { HalOptions, HalParam, Task, TaskService } from '@app/frontend-core/src/lib/public_api';
+import { HalOptions, HalParam, Task, TaskService } from '@app/domain';
 import { map } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogMessageComponent } from '@app/frontend-gui/src/lib/public_api';

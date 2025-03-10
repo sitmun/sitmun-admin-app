@@ -3,7 +3,7 @@ import { UtilsService } from '@app/services/utils.service';
 import { Router } from '@angular/router';
 import { Observable, of,Subject } from 'rxjs';
 import { config } from '@config';
-import { HalOptions, HalParam, Task, TaskService } from '@app/frontend-core/src/lib/public_api';
+import { HalOptions, HalParam, Task, TaskService } from '@app/domain';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogMessageComponent } from '@app/frontend-gui/src/lib/public_api';
 

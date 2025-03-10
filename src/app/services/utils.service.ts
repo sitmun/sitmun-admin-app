@@ -3,7 +3,7 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateService} from '@ngx-translate/core';
 import {Location} from '@angular/common';
 import {Subject} from 'rxjs';
-import {CodeListService, HalOptions, HalParam, Language, Translation, TranslationService} from '@app/frontend-core/src/lib/public_api';
+import {CodeListService, HalOptions, HalParam, Language, Translation, TranslationService} from '@app/domain';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {DialogMessageComponent, DialogTranslationComponent} from '@app/frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';

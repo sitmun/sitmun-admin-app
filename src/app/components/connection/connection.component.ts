@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {ConnectionService, Connection} from '@app/frontend-core/src/lib/public_api';
+import {ConnectionService, Connection} from '@app/domain';
 import {UtilsService} from '@app/services/utils.service';
 
 import {Router} from '@angular/router';

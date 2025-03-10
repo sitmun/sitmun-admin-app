@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {TreeService, Tree} from '@app/frontend-core/src/lib/public_api';
+import {TreeService, Tree} from '@app/domain';
 import {UtilsService} from '@app/services/utils.service';
 import {Router} from '@angular/router';
 import {Observable, Subject, firstValueFrom} from 'rxjs';

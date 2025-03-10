@@ -6,7 +6,7 @@ import {
   CartographyGroupService, TerritoryService, Territory, CartographyAvailabilityService, CartographyParameterService, HalParam,
   HalOptions, Cartography, TreeNode, TranslationService, Translation, CartographyStyleService, CartographySpatialSelectionParameterService
 }
-  from '@app/frontend-core/src/lib/public_api';
+  from '@app/domain';
 import {HttpClient} from '@angular/common/http';
 import {UtilsService} from '@app/services/utils.service';
 import {map} from 'rxjs/operators';

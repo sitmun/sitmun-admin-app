@@ -19,7 +19,7 @@ import {
   ExternalService,
   UserPositionService,
   TerritoryTypeService,
-} from '@app/frontend-core/src/lib/public_api';
+} from '@app/domain';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';

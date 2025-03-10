@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ApplicationComponent } from './application.component';
-import { ApplicationService, CodeListService, ResourceService, ExternalService, Role } from '@app/frontend-core/src/lib/public_api';
+import { ApplicationService, CodeListService, ResourceService, ExternalService, Role } from '@app/domain';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MaterialModule } from '@app/material-module';

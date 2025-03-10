@@ -5,7 +5,7 @@ import { RouterModule } from '@angular/router';
 import { MaterialModule } from '@app/material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { TaskGroupService, CodeListService,TranslationService,ResourceService,ExternalService } from '@app/frontend-core/src/lib/public_api';
+import { TaskGroupService, CodeListService,TranslationService,ResourceService,ExternalService } from '@app/domain';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';

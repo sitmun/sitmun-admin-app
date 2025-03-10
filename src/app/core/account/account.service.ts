@@ -1,4 +1,4 @@
-import { User } from '@app/frontend-core/src/lib/public_api';
+import { User } from '@app/domain';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
 import { Observable } from 'rxjs';

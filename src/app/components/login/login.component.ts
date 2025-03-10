@@ -1,5 +1,5 @@
 import {Component, OnInit, ChangeDetectorRef} from '@angular/core';
-import {Language, LanguageService} from '@app/frontend-core/src/lib/public_api';
+import {Language, LanguageService} from '@app/domain';
 import {LoginService} from '@app/core/auth/login.service';
 
 import {config} from '@config';

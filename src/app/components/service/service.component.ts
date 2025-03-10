@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {ServiceService, Service} from '@app/frontend-core/src/lib/public_api';
+import {ServiceService, Service} from '@app/domain';
 import {UtilsService} from '@app/services/utils.service';
 import {Router} from '@angular/router';
 import {config} from '@config';

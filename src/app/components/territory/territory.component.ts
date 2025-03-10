@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {TerritoryService, Territory, TerritoryTypeService} from '@app/frontend-core/src/lib/public_api';
+import {TerritoryService, Territory, TerritoryTypeService} from '@app/domain';
 import {UtilsService} from '@app/services/utils.service';
 import {Router} from '@angular/router';
 import {config} from '@config';

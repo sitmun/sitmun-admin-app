@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RoleService, UserService, CartographyGroupService, TaskService, UserConfigurationService, TerritoryService, HalOptions, HalParam,
-  User, Territory, Role, ApplicationService } from '@app/frontend-core/src/lib/public_api';
+  User, Territory, Role, ApplicationService } from '@app/domain';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '@app/services/utils.service';
 import { Observable, of, Subject } from 'rxjs';

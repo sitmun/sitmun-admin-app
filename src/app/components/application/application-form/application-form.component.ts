@@ -5,7 +5,7 @@ import {
   ApplicationService, ApplicationParameterService, RoleService,
   HalOptions, HalParam, CartographyGroupService, TreeService, BackgroundService,
   ApplicationBackgroundService, TranslationService, Translation, Application, CodeList
-} from '@app/frontend-core/src/lib/public_api';
+} from '@app/domain';
 
 import {HttpClient} from '@angular/common/http';
 import {UtilsService} from '@app/services/utils.service';

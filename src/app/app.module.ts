@@ -3,14 +3,14 @@ import { NgModule, LOCALE_ID } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { RouterModule } from '@angular/router';
-import { SitmunFrontendCoreModule } from '@app/frontend-core/src/lib/public_api';
 import { SitmunFrontendGuiModule, DataGridComponent } from '@app/frontend-gui/src/lib/public_api';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from './material-module';
 import { APP_ROUTING } from './app-routes';
 
-// Import the new Core module
+// Import the Core and Domain modules
 import { CoreModule } from '@app/core';
+import { DomainModule } from '@app/domain';
 
 //i18n
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
@@ -98,7 +98,7 @@ import {
   TreeNodeService,
   TaskTypeService,
   CapabilitiesService
-} from '@app/frontend-core/src/lib/public_api';
+} from '@app/domain';
 import { UtilsService } from '@app/services/utils.service';
 import { SidenavService } from '@app/services/sidenav.service';
 import { DashboardComponent } from '@app/components/dashboard/dashboard.component';
@@ -166,7 +166,7 @@ import { ResourceService, ExternalService, RestService } from '@app/core/hal';
     ReactiveFormsModule,
     CoreModule.forRoot(),
     SitmunFrontendGuiModule,
-    SitmunFrontendCoreModule.forRoot(),
+    DomainModule.forRoot(),
     MaterialModule,
     RouterModule,
     DataGridComponent,

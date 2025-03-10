@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ConnectionComponent } from './connection.component';
-import { ConnectionService, CodeListService,TranslationService,ResourceService,ExternalService } from '@app/frontend-core/src/lib/public_api';
+import { ConnectionService, CodeListService,TranslationService,ResourceService,ExternalService } from '@app/domain';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { RouterTestingModule } from '@angular/router/testing';

@@ -3,7 +3,7 @@ import { RouterModule } from '@angular/router';
 import { MaterialModule } from '@app/material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { BackgroundService,CartographyGroupService, CartographyService, CodeListService,RoleService,TranslationService,ResourceService,ExternalService, ApplicationService, ApplicationBackgroundService } from '@app/frontend-core/src/lib/public_api';
+import { BackgroundService,CartographyGroupService, CartographyService, CodeListService,RoleService,TranslationService,ResourceService,ExternalService, ApplicationService, ApplicationBackgroundService } from '@app/domain';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';

@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed, getTestBed } from '@angular/core/testing';
 import { RoleFormComponent } from './role-form.component';
 import { RouterModule } from '@angular/router';
 import { RoleService, UserService, CodeListService, CartographyGroupService, TerritoryService,
-  CartographyService, TaskService, UserConfigurationService, ApplicationService,ResourceService,ExternalService } from '@app/frontend-core/src/lib/public_api';
+  CartographyService, TaskService, UserConfigurationService, ApplicationService,ResourceService,ExternalService } from '@app/domain';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';

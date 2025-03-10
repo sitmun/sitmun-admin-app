@@ -7,7 +7,7 @@ import {MatIconTestingModule} from '@angular/material/icon/testing';
 import {
   CodeListService, ApplicationBackgroundService, ApplicationService, ApplicationParameterService,
   RoleService, CartographyGroupService, TreeService, BackgroundService, TranslationService, ResourceService, ExternalService
-} from '@app/frontend-core/src/lib/public_api';
+} from '@app/domain';
 import {ExternalConfigurationService} from '@app/core/config/external-configuration.service';
 import {HttpClientModule} from '@angular/common/http';
 import {SitmunFrontendGuiModule} from '@app/frontend-gui/src/lib/public_api';

@@ -5,7 +5,7 @@ import { RouterModule } from '@angular/router';
 import { MaterialModule } from '@app/material-module';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { UserService, RoleService, TerritoryService, UserConfigurationService,
-  CodeListService, UserPositionService,TranslationService,ResourceService,ExternalService } from '@app/frontend-core/src/lib/public_api';
+  CodeListService, UserPositionService,TranslationService,ResourceService,ExternalService } from '@app/domain';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';

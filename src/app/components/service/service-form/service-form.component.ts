@@ -11,7 +11,7 @@ import {
   ServiceService,
   Translation,
   TranslationService
-} from '@app/frontend-core/src/lib/public_api';
+} from '@app/domain';
 import {HttpClient} from '@angular/common/http';
 import {UtilsService} from '@app/services/utils.service';
 import {COMMA, ENTER} from '@angular/cdk/keycodes';

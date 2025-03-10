@@ -14,7 +14,7 @@ import {
   Translation,
   ApplicationService,
   ApplicationBackgroundService
-} from '@app/frontend-core/src/lib/public_api';
+} from '@app/domain';
 import {HttpClient} from '@angular/common/http';
 import {UtilsService} from '@app/services/utils.service';
 import {Observable, of, Subject} from 'rxjs';

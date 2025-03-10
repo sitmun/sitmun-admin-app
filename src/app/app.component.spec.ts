@@ -10,7 +10,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MaterialModule } from './material-module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ExternalService, LanguageService, ResourceService } from '@app/frontend-core/src/lib/public_api';
+import { ExternalService, LanguageService, ResourceService } from '@app/domain';
 import { AccountService } from '@app/core/account/account.service';
 import { Principal } from '@app/core/auth/principal.service';
 import { LoginService } from '@app/core/auth/login.service';

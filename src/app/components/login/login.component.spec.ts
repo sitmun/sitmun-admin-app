@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LoginComponent } from './login.component';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
-import { CodeListService, TranslationService, ResourceService, ExternalService } from '@app/frontend-core/src/lib/public_api';
+import { CodeListService, TranslationService, ResourceService, ExternalService } from '@app/domain';
 import { AccountService } from '@app/core/account/account.service';
 import { LoginService } from '@app/core/auth/login.service';
 import { AuthService } from '@app/core/auth/auth.service';

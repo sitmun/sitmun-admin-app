@@ -4,7 +4,7 @@ import {UntypedFormControl, UntypedFormGroup} from '@angular/forms';
 import {
   ServiceService, TaskService, TaskTypeService, TaskGroupService, CartographyService, ConnectionService, HalOptions, HalParam,
   TaskUIService, RoleService, CodeListService, TerritoryService, Task, TaskAvailabilityService, TaskAvailability, TaskType, TaskGroup, TaskUI
-} from '@app/frontend-core/src/lib/public_api';
+} from '@app/domain';
 import {config} from '@config';
 import {MatDialog} from '@angular/material/dialog';
 import {DialogFormComponent, DialogGridComponent} from '@app/frontend-gui/src/lib/public_api';

@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {tick} from '@angular/core/testing';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
-import {ConnectionService, CartographyService, TaskService, Cartography, Task, Connection} from '@app/frontend-core/src/lib/public_api';
+import {ConnectionService, CartographyService, TaskService, Cartography, Task, Connection} from '@app/domain';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {UtilsService} from '@app/services/utils.service';
 import {of, Subject} from 'rxjs';

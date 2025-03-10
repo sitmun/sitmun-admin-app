@@ -5,7 +5,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {
   UserService, UserPositionService, UserConfigurationService,
   TerritoryService, RoleService, HalOptions, HalParam, Territory, User, Role
-} from '@app/frontend-core/src/lib/public_api';
+} from '@app/domain';
 import {HttpClient} from '@angular/common/http';
 import {UtilsService} from '@app/services/utils.service';
 import {map} from 'rxjs/operators';
