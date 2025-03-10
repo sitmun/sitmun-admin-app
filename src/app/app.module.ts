@@ -11,6 +11,7 @@ import { APP_ROUTING } from './app-routes';
 // Import the Core and Domain modules
 import { CoreModule } from '@app/core';
 import { DomainModule } from '@app/domain';
+import { ServicesModule } from './services/services.module';
 
 //i18n
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
@@ -21,9 +22,6 @@ import localeEs from '@angular/common/locales/es';
 import localeCa from '@angular/common/locales/ca';
 registerLocaleData(localeEs, 'es-ES');
 registerLocaleData(localeCa, 'ca-ES');
-
-//Rutes
-import { APP_ROUTES } from './app-routes';
 
 //Components
 import { ConnectionComponent } from '@app/components/connection/connection.component';
@@ -99,8 +97,6 @@ import {
   TaskTypeService,
   CapabilitiesService
 } from '@app/domain';
-import { UtilsService } from '@app/services/utils.service';
-import { SidenavService } from '@app/services/sidenav.service';
 import { DashboardComponent } from '@app/components/dashboard/dashboard.component';
 import { TaskFormComponent } from '@app/components/task-form/task-form.component';
 import { NgTemplateNameDirective } from '@app/components/task-form/ng-template-name.directive';
@@ -111,7 +107,7 @@ import { TasksEditionSearchViewComponent } from '@app/components/tasks-edition-s
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
-import { ResourceService, ExternalService, RestService } from '@app/core/hal';
+import { ResourceService, ExternalService } from '@app/core/hal';
 
 @NgModule({
   declarations: [
@@ -165,8 +161,9 @@ import { ResourceService, ExternalService, RestService } from '@app/core/hal';
     FormsModule,
     ReactiveFormsModule,
     CoreModule.forRoot(),
-    SitmunFrontendGuiModule,
     DomainModule.forRoot(),
+    ServicesModule,
+    SitmunFrontendGuiModule,
     MaterialModule,
     RouterModule,
     DataGridComponent,
@@ -185,8 +182,6 @@ import { ResourceService, ExternalService, RestService } from '@app/core/hal';
     MatTooltipModule
   ],
   providers: [
-    SidenavService,
-    UtilsService,
     { provide: LOCALE_ID, useValue: 'es-ES' },
     { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
     ResourceService,
@@ -229,8 +224,4 @@ import { ResourceService, ExternalService, RestService } from '@app/core/hal';
   bootstrap: [AppComponent]
 })
 export class AppModule {
-}
-
-export function HttpLoaderFactory(http: HttpClient) {
-  return new TranslateHttpLoader(http);
 }
