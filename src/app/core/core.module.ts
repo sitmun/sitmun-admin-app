@@ -2,7 +2,7 @@ import { NgModule, ModuleWithProviders, Optional, SkipSelf } from '@angular/core
 import { CommonModule } from '@angular/common';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
-import { AngularHalModule } from '@app/frontend-core/src/lib/public_api';
+import { HalModule, ResourceService, ExternalService } from '@app/core/hal';
 
 // Auth services
 import { AuthService } from './auth/auth.service';
@@ -32,7 +32,7 @@ import { MessagesInterceptor } from './interceptors/messages.interceptor';
     CommonModule,
     HttpClientModule,
     RouterModule,
-    AngularHalModule
+    HalModule.forRoot()
   ],
   declarations: [
     HasAnyAuthorityDirective,
@@ -66,6 +66,10 @@ export class CoreModule {
         // Config services
         ExternalConfigurationService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
+        
+        // HAL services
+        ResourceService,
+        ExternalService,
         
         // Guards
         CanDeactivateGuard,

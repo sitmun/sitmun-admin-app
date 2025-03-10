@@ -1,4 +1,4 @@
-import {Resource} from '../angular-hal/src/lib/resource';
+import { Resource } from '@app/core/hal';
 import { TerritoryGroupType } from './territory-group-type.model';
 import { TerritoryType } from './territory-type.model';
 

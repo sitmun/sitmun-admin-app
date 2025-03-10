@@ -2,8 +2,8 @@ import { User } from '@app/frontend-core/src/lib/public_api';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
 import { Observable } from 'rxjs';
-import { RestService } from '@app/frontend-core/src/lib/angular-hal/src/lib/rest.service';
-import { ResourceService } from '@app/frontend-core/src/lib/angular-hal/src/lib/resource.service';
+import { RestService } from '../hal';
+import { ResourceService } from '../hal';
 
 /** Account manager service */
 @Injectable()

@@ -1,4 +1,4 @@
-import {Resource} from '../angular-hal/src/lib/resource';
+import { Resource } from '@app/core/hal';
 import {TreeNode} from './tree-node.model';
 import {Role} from '../role/role.model';    
 /**

@@ -2,7 +2,7 @@ import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ResourceService } from '../angular-hal/src/lib/resource.service';
+import { ResourceService } from '@app/core/hal';
 
 @Injectable({
   providedIn: 'root'

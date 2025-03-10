@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ResourceService } from '@app/frontend-core/src/lib/angular-hal/src/lib/resource.service';
+import { ResourceService } from '../hal';
 import { map } from 'rxjs/operators';
 //import * as moment from 'moment';
 

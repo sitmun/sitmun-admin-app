@@ -1,4 +1,4 @@
-import {Resource} from '../angular-hal/src/lib/resource';
+import { Resource } from '@app/core/hal';
 import {Tree} from '../tree/tree.model';
 import {Role} from '../role/role.model';
 import {CartographyGroup} from '../cartography/cartography-group.model';

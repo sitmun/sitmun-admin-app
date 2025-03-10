@@ -1,10 +1,11 @@
 import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
-import {Resource} from './resource';
-import {ResourceArray} from './resource-array';
-import {HalOptions} from './rest.service';
-import {SubTypeBuilder} from './subtype-builder';
+import {Resource} from './resource.model';
+import {ResourceArray} from './resource-array.model';
+import {HalOptions} from '../rest/rest.service';
+import {SubTypeBuilder} from '../common/subtype-builder';
 import {isNullOrUndefined, isPrimitive} from 'util';
 import * as url from 'url';
+import { Injectable, Injector } from '@angular/core';
 
 /** REST API access helper */
 export class ResourceHelper {

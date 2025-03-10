@@ -1,4 +1,4 @@
-import {Resource} from '../angular-hal/src/lib/resource';
+import { Resource } from '@app/core/hal';
 import {Connection} from '../connection/connection.model';
 import {ServiceParameter} from './service-parameter.model';
 /**

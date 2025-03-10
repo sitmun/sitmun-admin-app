@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { map, catchError, finalize } from 'rxjs/operators';
@@ -6,10 +6,20 @@ import { UtilsService } from '@app/services/utils.service';
 
 @Injectable()
 export class MessagesInterceptor implements HttpInterceptor {
+    private utilsService: UtilsService;
 
-    constructor(private utilsService: UtilsService) { }
+    constructor(private injector: Injector) {
+        // Lazy load UtilsService to break circular dependency
+        setTimeout(() => {
+            this.utilsService = this.injector.get(UtilsService);
+        });
+    }
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+        // Get UtilsService if not already loaded
+        if (!this.utilsService) {
+            this.utilsService = this.injector.get(UtilsService);
+        }
 
         const intercept: boolean = request.url.indexOf("/api/login") == -1 
         && request.url.indexOf("/api/account") == -1 &&  request.url.indexOf("/api/authenticate")==-1;
@@ -48,6 +58,5 @@ export class MessagesInterceptor implements HttpInterceptor {
             );
         }
         else return next.handle(request);
-
     }
 }

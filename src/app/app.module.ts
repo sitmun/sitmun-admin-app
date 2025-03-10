@@ -64,7 +64,6 @@ import { LoginComponent } from '@app/components/login/login.component';
 
 //Services
 import {
-  AngularHalModule,
   BackgroundService,
   CartographyGroupService,
   CartographyService,
@@ -111,6 +110,8 @@ import { TasksEditionRelationTableComponent } from '@app/components/tasks-editio
 import { TasksEditionSearchViewComponent } from '@app/components/tasks-edition-search-view/tasks-edition-search-view.component';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatTooltipModule} from '@angular/material/tooltip';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
+import { ResourceService, ExternalService, RestService } from '@app/core/hal';
 
 @NgModule({
   declarations: [
@@ -163,14 +164,12 @@ import {MatTooltipModule} from '@angular/material/tooltip';
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
-    AngularHalModule,
+    CoreModule.forRoot(),
     SitmunFrontendGuiModule,
-    SitmunFrontendCoreModule,
+    SitmunFrontendCoreModule.forRoot(),
     MaterialModule,
     RouterModule,
     DataGridComponent,
-    // Import the CoreModule with forRoot() to provide all services
-    CoreModule.forRoot(),
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
@@ -189,6 +188,9 @@ import {MatTooltipModule} from '@angular/material/tooltip';
     SidenavService,
     UtilsService,
     { provide: LOCALE_ID, useValue: 'es-ES' },
+    { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
+    ResourceService,
+    ExternalService,
     RoleService,
     ConnectionService,
     UserService,

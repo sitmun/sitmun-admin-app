@@ -1,13 +1,11 @@
-
-import {throwError as observableThrowError} from 'rxjs';
+import {throwError as observableThrowError, Observable} from 'rxjs';
 
 import {catchError, map} from 'rxjs/operators';
-import {Sort} from './sort';
-import {ArrayInterface} from './array-interface';
+import {Sort} from '../rest/sort.model';
+import {ArrayInterface} from '../common/array-interface';
 import {ResourceHelper} from './resource-helper';
-import {Resource} from './resource';
+import {Resource} from './resource.model';
 import * as url from 'url';
-import {Observable} from 'rxjs';
 
 /** REST array of resource implementation */
 export class ResourceArray<T extends Resource> implements ArrayInterface<T> {

@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {Injectable, Injector} from '@angular/core';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateService} from '@ngx-translate/core';
 import {Location} from '@angular/common';
@@ -17,6 +17,8 @@ export class UtilsService {
   [x: string]: any;
 
   private subjectLoading = new Subject<boolean>();
+  private translationService: TranslationService;
+  private codeListService: CodeListService;
 
   constructor(
     private translate: TranslateService,
@@ -24,9 +26,13 @@ export class UtilsService {
     private snackBar: MatSnackBar,
     private http: HttpClient,
     private location: Location,
-    private translationService: TranslationService,
-    private codeListService: CodeListService
+    private injector: Injector
   ) {
+    // Lazy load services to break circular dependency
+    setTimeout(() => {
+      this.translationService = this.injector.get(TranslationService);
+      this.codeListService = this.injector.get(CodeListService);
+    });
   }
 
   showMessage(message: string | string[]) {

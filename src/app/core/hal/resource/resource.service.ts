@@ -1,16 +1,14 @@
-import { throwError as observableThrowError } from 'rxjs';
-
+import { throwError as observableThrowError, Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { Resource } from './resource';
+import { Resource } from './resource.model';
 import { ResourceHelper } from './resource-helper';
 import { Injectable } from '@angular/core';
 import { HttpParams, HttpResponse, HttpHeaders } from '@angular/common/http';
-import { Sort } from './sort';
-import { ResourceArray } from './resource-array';
-import { ExternalService } from './external.service';
-import { HalOptions } from './rest.service';
-import { SubTypeBuilder } from './subtype-builder';
-import { Observable } from 'rxjs';
+import { Sort } from '../rest/sort.model';
+import { ResourceArray } from './resource-array.model';
+import { ExternalService } from '../config/external.service';
+import { HalOptions } from '../rest/rest.service';
+import { SubTypeBuilder } from '../common/subtype-builder';
 
 /** ResourceService */
 @Injectable()

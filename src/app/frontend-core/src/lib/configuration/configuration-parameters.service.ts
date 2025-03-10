@@ -1,7 +1,7 @@
 import { Injectable, Injector } from '@angular/core';
 import { ConfigurationParameter } from './configuration-parameters.model';
 import { HttpClient } from '@angular/common/http';
-import {RestService} from '../angular-hal/src/lib/rest.service';
+import { RestService } from '@app/core/hal';
 
 @Injectable({
   providedIn: 'root'

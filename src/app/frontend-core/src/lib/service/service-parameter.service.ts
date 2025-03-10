@@ -2,7 +2,7 @@ import { ServiceParameter } from './service-parameter.model';
 import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import {RestService} from '../angular-hal/src/lib/rest.service';
+import { RestService } from '@app/core/hal';
 
 /** Service parameter manager service */
 @Injectable() 

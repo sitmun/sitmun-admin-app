@@ -1,4 +1,4 @@
-import {Resource} from '../angular-hal/src/lib/resource';
+import { Resource } from '@app/core/hal';
 import {Background} from '../cartography/background.model';
 import {Application} from './application.model'; 
 

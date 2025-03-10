@@ -1,4 +1,6 @@
 import { NgModule, ModuleWithProviders } from '@angular/core';
+import { HalModule, ResourceService, ExternalService } from '@app/core/hal';
+import { CommonModule } from '@angular/common';
 
 import {HttpClient} from '@angular/common/http';
 import {CodeListService} from './codelist/codelist.service';
@@ -51,8 +53,9 @@ export function createTranslateLoader(http: HttpClient) {
   imports: [
     /*RouterModule,
     HttpClientModule,
+    CommonModule,*/
     CommonModule,
-    AngularHalModule,*/
+    HalModule.forRoot(),
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
@@ -72,6 +75,8 @@ export class SitmunFrontendCoreModule {
     return {
       ngModule: SitmunFrontendCoreModule,
       providers: [
+        ResourceService,
+        ExternalService,
         CodeListService,
         TerritoryService,
         TerritoryTypeService,

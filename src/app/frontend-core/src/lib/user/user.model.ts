@@ -1,4 +1,4 @@
-import {Resource} from '../angular-hal/src/lib/resource';
+import { Resource } from '@app/core/hal';
 import { UserConfiguration } from './user-configuration.model';
 import { UserPosition } from './user-position.model';
 

@@ -1,4 +1,4 @@
-import {Resource} from '../angular-hal/src/lib/resource';
+import { Resource } from '@app/core/hal';
 import { TerritoryType } from '../territory/territory-type.model';
 import { Cartography } from './cartography.model';
 /**

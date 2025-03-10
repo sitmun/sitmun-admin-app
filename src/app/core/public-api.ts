@@ -26,4 +26,10 @@ export * from './guards/can-deactivate-guard.service';
 // Interceptors
 export * from './interceptors/auth.interceptor';
 export * from './interceptors/auth-expired.interceptor';
-export * from './interceptors/messages.interceptor'; 
+export * from './interceptors/messages.interceptor';
+
+// HAL module
+export * from './hal';
+
+// Core module
+export * from './core.module'; 

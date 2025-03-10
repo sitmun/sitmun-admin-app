@@ -1,18 +1,13 @@
-
-import {throwError as observableThrowError, of as observableOf} from 'rxjs';
-
+import {throwError as observableThrowError, of as observableOf, Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
-
-
 import {HttpParams} from '@angular/common/http';
 import {ResourceHelper} from './resource-helper';
-import {ResourceArray} from './resource-array';
+import {ResourceArray} from './resource-array.model';
 import {isNullOrUndefined} from 'util';
-
-import {HalOptions} from './rest.service';
-import {SubTypeBuilder} from './subtype-builder';
+import {HalOptions} from '../rest/rest.service';
+import {SubTypeBuilder} from '../common/subtype-builder';
 import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
+import { ArrayInterface } from '../common/array-interface';
 
 /** Abstract resource class*/
 @Injectable()
