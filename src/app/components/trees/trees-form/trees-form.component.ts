@@ -3,16 +3,16 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { TreeService, TreeNodeService, Translation, TranslationService, TaskService,
   CartographyService, Tree, TreeNode, Cartography, ServiceService, CapabilitiesService, ApplicationService,
-} from '../../../frontend-core/src/lib/public_api';
+} from '@app/frontend-core/src/lib/public_api';
 import { HttpClient } from '@angular/common/http';
-import { UtilsService } from '../../../services/utils.service';
+import { UtilsService } from '@app/services/utils.service';
 import { map } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
-import { config } from 'src/config';
+import { environment } from '@environments/environment';
+import { config } from '@config';
 import { Observable, of, Subject } from 'rxjs';
-import { DataTreeComponent, DialogGridComponent, DialogMessageComponent, DataGridComponent } from '../../../frontend-gui/src/lib/public_api';
+import { DataTreeComponent, DialogGridComponent, DialogMessageComponent, DataGridComponent } from '@app/frontend-gui/src/lib/public_api';
 import { MatDialog } from '@angular/material/dialog';
-import { constants } from 'src/environments/constants';
+import { constants } from '@environments/constants';
 import {MatTabChangeEvent} from '@angular/material/tabs';
 
 

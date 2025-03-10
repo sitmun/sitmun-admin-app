@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Principal, LoginService, AuthService, LanguageService, ConfigurationParametersService } from './frontend-core/src/lib/public_api';
-import { config } from 'src/config';
+import { Principal, LoginService, AuthService, LanguageService, ConfigurationParametersService } from '@app/frontend-core/src/lib/public_api';
+import { config } from '@config';
 
 @Component({
   selector: 'app-root',

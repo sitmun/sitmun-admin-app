@@ -1,10 +1,10 @@
 import {Component, OnInit} from '@angular/core';
-import {TreeService, Tree} from '../../frontend-core/src/lib/public_api';
-import {UtilsService} from '../../services/utils.service';
+import {TreeService, Tree} from '@app/frontend-core/src/lib/public_api';
+import {UtilsService} from '@app/services/utils.service';
 import {Router} from '@angular/router';
 import {Observable, Subject, firstValueFrom} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
-import {DialogMessageComponent} from '../../frontend-gui/src/lib/public_api';
+import {DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
 
 @Component({
   selector: 'app-trees',

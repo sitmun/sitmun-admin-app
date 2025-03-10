@@ -6,11 +6,11 @@ import {
   CartographyService, ServiceService, TerritoryTypeService, ConnectionService, TreeNodeService,
   TerritoryService, CartographyGroupService, CartographyAvailabilityService, CartographyParameterService, TranslationService,
   CodeListService, CartographyFilterService, GetInfoService, ResourceService, ExternalService, CartographyStyleService, CartographySpatialSelectionParameterService
-} from '../../../frontend-core/src/lib/public_api';
-import { SitmunFrontendGuiModule } from '../../../frontend-gui/src/lib/public_api';
-import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
+} from '@app/frontend-core/src/lib/public_api';
+import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
+import { ExternalConfigurationService } from '@app/ExternalConfigurationService';
 import { RouterTestingModule } from '@angular/router/testing';
-import { MaterialModule } from '../../../material-module';
+import { MaterialModule } from '@app/material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';

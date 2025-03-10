@@ -5,14 +5,14 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {
   UserService, UserPositionService, UserConfigurationService,
   TerritoryService, RoleService, HalOptions, HalParam, Territory, User, Role
-} from '../../../frontend-core/src/lib/public_api';
+} from '@app/frontend-core/src/lib/public_api';
 import {HttpClient} from '@angular/common/http';
-import {UtilsService} from '../../../services/utils.service';
+import {UtilsService} from '@app/services/utils.service';
 import {map} from 'rxjs/operators';
 import {Observable, of, Subject} from 'rxjs';
 
-import {config} from 'src/config';
-import {DialogGridComponent, DialogMessageComponent} from '../../../frontend-gui/src/lib/public_api';
+import {config} from '@config';
+import {DialogGridComponent, DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
 import {constants} from '../../../../environments/constants';
 import {MatTabChangeEvent} from '@angular/material/tabs';

@@ -1,8 +1,8 @@
 import { Output } from '@angular/core';
 import { EventEmitter } from '@angular/core';
 import { Component } from '@angular/core';
-import { SidenavService } from '../../../services/sidenav.service';
-import { LoginService} from '../../../frontend-core/src/lib/public_api';
+import { SidenavService } from '@app/services/sidenav.service';
+import { LoginService} from '@app/frontend-core/src/lib/public_api';
 import { Router } from '@angular/router';
 @Component({
   selector: 'app-toolbar',

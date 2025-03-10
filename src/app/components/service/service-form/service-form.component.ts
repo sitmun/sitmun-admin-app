@@ -11,15 +11,15 @@ import {
   ServiceService,
   Translation,
   TranslationService
-} from '../../../frontend-core/src/lib/public_api';
+} from '@app/frontend-core/src/lib/public_api';
 import {HttpClient} from '@angular/common/http';
-import {UtilsService} from '../../../services/utils.service';
+import {UtilsService} from '@app/services/utils.service';
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import {map} from 'rxjs/operators';
 import {Observable, of, Subject} from 'rxjs';
 import {MatChipInputEvent} from '@angular/material/chips';
-import {config} from 'src/config';
-import {DialogFormComponent, DialogGridComponent, DialogMessageComponent} from '../../../frontend-gui/src/lib/public_api';
+import {config} from '@config';
+import {DialogFormComponent, DialogGridComponent, DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
 import {constants} from '../../../../environments/constants';
 import { MatTabChangeEvent } from '@angular/material/tabs';

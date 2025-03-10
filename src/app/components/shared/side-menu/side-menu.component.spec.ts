@@ -4,7 +4,7 @@ import { SideMenuComponent } from './side-menu.component';
 import { HttpClient, HttpHandler } from '@angular/common/http';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { MaterialModule } from '../../../material-module';
+import { MaterialModule } from '@app/material-module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { APP_ROUTES } from '../../../app-routes';

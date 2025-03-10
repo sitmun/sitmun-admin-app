@@ -2,11 +2,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { TaskFormComponent } from './task-form.component';
 import { ServiceService, TerritoryService, TaskTypeService, CartographyService, ConnectionService, CodeListService, ResourceService, 
-  ExternalService, TaskService, TaskUIService, RoleService, TaskGroupService, TaskAvailabilityService } from '../../frontend-core/src/lib/public_api';
-import { SitmunFrontendGuiModule } from '../../frontend-gui/src/lib/public_api';
-import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
+  ExternalService, TaskService, TaskUIService, RoleService, TaskGroupService, TaskAvailabilityService } from '@app/frontend-core/src/lib/public_api';
+import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
+import { ExternalConfigurationService } from '@app/ExternalConfigurationService';
 import { RouterTestingModule } from '@angular/router/testing';
-import { MaterialModule } from '../../material-module';
+import { MaterialModule } from '@app/material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';

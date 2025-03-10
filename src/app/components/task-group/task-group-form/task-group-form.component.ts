@@ -1,9 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
-import {TaskGroupService} from '../../../frontend-core/src/lib/public_api';
+import {TaskGroupService} from '@app/frontend-core/src/lib/public_api';
 
-import {UtilsService} from '../../../services/utils.service';
+import {UtilsService} from '@app/services/utils.service';
 import {MatTabChangeEvent} from '@angular/material/tabs';
 
 @Component({

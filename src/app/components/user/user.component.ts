@@ -1,11 +1,11 @@
 import {Component, OnInit} from '@angular/core';
-import {UserService, User} from '../../frontend-core/src/lib/public_api';
-import {UtilsService} from '../../services/utils.service';
+import {UserService, User} from '@app/frontend-core/src/lib/public_api';
+import {UtilsService} from '@app/services/utils.service';
 import {Router} from '@angular/router';
-import {config} from 'src/config';
+import {config} from '@config';
 import {Observable, Subject} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
-import {DialogMessageComponent} from '../../frontend-gui/src/lib/public_api';
+import {DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
 import {constants} from '../../../environments/constants';
 
 

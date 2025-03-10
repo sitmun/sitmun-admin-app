@@ -14,14 +14,14 @@ import {
   Translation,
   ApplicationService,
   ApplicationBackgroundService
-} from '../../../frontend-core/src/lib/public_api';
+} from '@app/frontend-core/src/lib/public_api';
 import {HttpClient} from '@angular/common/http';
-import {UtilsService} from '../../../services/utils.service';
+import {UtilsService} from '@app/services/utils.service';
 import {Observable, of, Subject} from 'rxjs';
-import {DialogGridComponent} from '../../../frontend-gui/src/lib/public_api';
+import {DialogGridComponent} from '@app/frontend-gui/src/lib/public_api';
 import {map} from 'rxjs/operators';
 import {MatDialog} from '@angular/material/dialog';
-import {config} from 'src/config';
+import {config} from '@config';
 import {MatTabChangeEvent} from '@angular/material/tabs';
 import {constants} from '../../../../environments/constants';
 

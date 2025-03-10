@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { SitmunFrontendGuiModule } from '../../frontend-gui/src/lib/public_api';
-import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
+import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
+import { ExternalConfigurationService } from '@app/ExternalConfigurationService';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BackgroundLayersComponent } from './background-layers.component';
-import { BackgroundService,CartographyGroupService, CodeListService,TranslationService,ResourceService,ExternalService } from '../../frontend-core/src/lib/public_api';
-import { MaterialModule } from '../../material-module';
+import { BackgroundService,CartographyGroupService, CodeListService,TranslationService,ResourceService,ExternalService } from '@app/frontend-core/src/lib/public_api';
+import { MaterialModule } from '@app/material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterModule } from '@angular/router';
 import { MatIconTestingModule } from '@angular/material/icon/testing';

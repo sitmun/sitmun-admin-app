@@ -1,13 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ToolbarComponent } from './toolbar.component';
-import { MaterialModule } from '../../../material-module';
-import { LoginService, AuthService, Principal, AccountService, ResourceService,ExternalService } from '../../../frontend-core/src/lib/public_api';
-import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
+import { MaterialModule } from '@app/material-module';
+import { LoginService, AuthService, Principal, AccountService, ResourceService,ExternalService } from '@app/frontend-core/src/lib/public_api';
+import { ExternalConfigurationService } from '@app/ExternalConfigurationService';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { HttpClientModule } from '@angular/common/http';
-import { SitmunFrontendGuiModule } from '../../../frontend-gui/src/lib/public_api';
+import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 describe('ToolbarComponent', () => {
   let component: ToolbarComponent;
   let fixture: ComponentFixture<ToolbarComponent>;

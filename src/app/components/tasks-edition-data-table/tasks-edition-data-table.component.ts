@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { UtilsService } from '../../services/utils.service';
+import { UtilsService } from '@app/services/utils.service';
 import { Router } from '@angular/router';
 import { Observable, of, Subject } from 'rxjs';
-import { config } from 'src/config';
-import { HalOptions, HalParam, TaskService, Task } from '../../frontend-core/src/lib/public_api';
+import { config } from '@config';
+import { HalOptions, HalParam, TaskService, Task } from '@app/frontend-core/src/lib/public_api';
 import { MatDialog } from '@angular/material/dialog';
-import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
+import { DialogMessageComponent } from '@app/frontend-gui/src/lib/public_api';
 
 @Component({
   selector: 'app-tasks-edition-data-table',

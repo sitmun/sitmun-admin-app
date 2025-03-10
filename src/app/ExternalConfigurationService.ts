@@ -1,7 +1,7 @@
-import { ExternalConfiguration , ExternalConfigurationHandlerInterface } from './frontend-core/src/lib/public_api';
+import { ExternalConfiguration , ExternalConfigurationHandlerInterface } from '@app/frontend-core/src/lib/public_api';
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {environment } from '../environments/environment';
+import {environment } from '@environments/environment';
 
 /** REST API access configuration service*/
 @Injectable()

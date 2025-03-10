@@ -27,16 +27,16 @@ import {
   Task,
   TaskAvailability,
   TerritoryTypeService,
-} from '../../../frontend-core/src/lib/public_api';
+} from '@app/frontend-core/src/lib/public_api';
 import {HttpClient} from '@angular/common/http';
-import {UtilsService} from '../../../services/utils.service';
+import {UtilsService} from '@app/services/utils.service';
 import {Observable, of, Subject} from 'rxjs';
 import {map} from 'rxjs/operators';
-import {config} from 'src/config';
+import {config} from '@config';
 import {
   DialogGridComponent,
   DialogMessageComponent,
-} from '../../../frontend-gui/src/lib/public_api';
+} from '@app/frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
 import {MatTabChangeEvent} from '@angular/material/tabs';
 

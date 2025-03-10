@@ -1,11 +1,11 @@
 import {Component, OnInit, ChangeDetectorRef} from '@angular/core';
-import {Language, LanguageService, LoginService} from '../../frontend-core/src/lib/public_api';
+import {Language, LanguageService, LoginService} from '@app/frontend-core/src/lib/public_api';
 
-import {config} from 'src/config';
+import {config} from '@config';
 import {TranslateService} from '@ngx-translate/core';
 import {Router} from '@angular/router';
 import {UntypedFormGroup, UntypedFormBuilder, Validators} from '@angular/forms';
-import {UtilsService} from '../../services/utils.service';
+import {UtilsService} from '@app/services/utils.service';
 
 /** Login component*/
 @Component({

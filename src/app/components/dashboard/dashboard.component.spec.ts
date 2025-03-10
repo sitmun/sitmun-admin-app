@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
-import { SitmunFrontendGuiModule } from '../../frontend-gui/src/lib/public_api';
+import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { DashboardComponent } from './dashboard.component';
-import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
+import { ExternalConfigurationService } from '@app/ExternalConfigurationService';
 import { RouterTestingModule } from '@angular/router/testing';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { MaterialModule } from '../../material-module';
+import { MaterialModule } from '@app/material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { DashboardService,TranslationService,CodeListService,ResourceService,ExternalService } from '../../frontend-core/src/lib/public_api';
+import { DashboardService,TranslationService,CodeListService,ResourceService,ExternalService } from '@app/frontend-core/src/lib/public_api';
 describe('DashboardComponent', () => {
   
   let component: DashboardComponent;

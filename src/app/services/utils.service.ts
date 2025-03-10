@@ -3,12 +3,12 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateService} from '@ngx-translate/core';
 import {Location} from '@angular/common';
 import {Subject} from 'rxjs';
-import {CodeListService, HalOptions, HalParam, Language, Translation, TranslationService} from '../frontend-core/src/lib/public_api';
+import {CodeListService, HalOptions, HalParam, Language, Translation, TranslationService} from '@app/frontend-core/src/lib/public_api';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {DialogMessageComponent, DialogTranslationComponent} from '../frontend-gui/src/lib/public_api';
+import {DialogMessageComponent, DialogTranslationComponent} from '@app/frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
-import {config} from 'src/config';
-import {BtnCheckboxFilterComponent} from '../frontend-gui/src/lib/btn-checkbox-filter/btn-checkbox-filter.component';
+import {config} from '@config';
+import {BtnCheckboxFilterComponent} from '@app/frontend-gui/src/lib/btn-checkbox-filter/btn-checkbox-filter.component';
 
 @Injectable({
   providedIn: 'root',

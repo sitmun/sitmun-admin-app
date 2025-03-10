@@ -6,13 +6,13 @@ import {
   CartographyGroupService, TerritoryService, Territory, CartographyAvailabilityService, CartographyParameterService, HalParam,
   HalOptions, Cartography, TreeNode, TranslationService, Translation, CartographyStyleService, CartographySpatialSelectionParameterService
 }
-  from '../../../frontend-core/src/lib/public_api';
+  from '@app/frontend-core/src/lib/public_api';
 import {HttpClient} from '@angular/common/http';
-import {UtilsService} from '../../../services/utils.service';
+import {UtilsService} from '@app/services/utils.service';
 import {map} from 'rxjs/operators';
 import {Observable, of, Subject} from 'rxjs';
-import {config} from 'src/config';
-import {DialogFormComponent, DialogGridComponent, DialogMessageComponent} from '../../../frontend-gui/src/lib/public_api';
+import {config} from '@config';
+import {DialogFormComponent, DialogGridComponent, DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
 import {MatTabChangeEvent} from '@angular/material/tabs';
 import {constants} from '../../../../environments/constants';

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { DashboardService } from '../../frontend-core/src/lib/public_api';
+import { DashboardService } from '@app/frontend-core/src/lib/public_api';
 import { HttpClient } from '@angular/common/http';
-import { UtilsService } from '../../services/utils.service';
+import { UtilsService } from '@app/services/utils.service';
 
 @Component({
   selector: 'app-dashboard',

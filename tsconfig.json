@@ -17,6 +17,11 @@
       "es2020",
       "dom"
     ],
+    "paths": {
+      "@app/*": ["src/app/*"],
+      "@config": ["src/config.ts"],
+      "@environments/*": ["src/environments/*"]
+    },
     "useDefineForClassFields": false,
     "forceConsistentCasingInFileNames": true,
     "strict": false,

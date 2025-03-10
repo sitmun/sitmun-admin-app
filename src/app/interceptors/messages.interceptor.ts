@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpResponse,HttpHeaders  } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { map, catchError, finalize } from 'rxjs/operators';
-import { UtilsService } from '../services/utils.service';
+import { UtilsService } from '@app/services/utils.service';
 
 @Injectable()
 export class MessagesInterceptor implements HttpInterceptor {

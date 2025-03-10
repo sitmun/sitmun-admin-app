@@ -2,12 +2,12 @@ import {Component, OnInit} from '@angular/core';
 
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
-import {CartographyGroupService, RoleService, CartographyService} from '../../../frontend-core/src/lib/public_api';
+import {CartographyGroupService, RoleService, CartographyService} from '@app/frontend-core/src/lib/public_api';
 import {HttpClient} from '@angular/common/http';
-import {UtilsService} from '../../../services/utils.service';
+import {UtilsService} from '@app/services/utils.service';
 import {map} from 'rxjs/operators';
-import {config} from 'src/config';
-import {DialogGridComponent} from '../../../frontend-gui/src/lib/public_api';
+import {config} from '@config';
+import {DialogGridComponent} from '@app/frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
 import {of, Subject} from 'rxjs';
 import {MatTabChangeEvent} from '@angular/material/tabs';

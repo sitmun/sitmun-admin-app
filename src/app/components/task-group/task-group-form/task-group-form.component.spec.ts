@@ -2,13 +2,13 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { TaskGroupFormComponent } from './task-group-form.component';
 import { RouterModule } from '@angular/router';
-import { MaterialModule } from '../../../material-module';
+import { MaterialModule } from '@app/material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { TaskGroupService, CodeListService,TranslationService,ResourceService,ExternalService } from '../../../frontend-core/src/lib/public_api';
-import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
+import { TaskGroupService, CodeListService,TranslationService,ResourceService,ExternalService } from '@app/frontend-core/src/lib/public_api';
+import { ExternalConfigurationService } from '@app/ExternalConfigurationService';
 import { HttpClientModule } from '@angular/common/http';
-import { SitmunFrontendGuiModule } from '../../../frontend-gui/src/lib/public_api';
+import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { RouterTestingModule } from '@angular/router/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 

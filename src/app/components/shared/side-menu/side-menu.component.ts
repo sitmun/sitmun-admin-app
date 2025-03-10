@@ -1,6 +1,6 @@
 import {Component, ViewChild, OnChanges, Input} from '@angular/core';
 import {MatSidenav} from '@angular/material/sidenav';
-import {IconsService} from 'src/app/services/icons.service';
+import {IconsService} from '@app/services/icons.service';
 import {constants} from '../../../../environments/constants';
 
 
