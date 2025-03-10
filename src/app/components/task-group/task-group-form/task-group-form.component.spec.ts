@@ -6,7 +6,7 @@ import { MaterialModule } from '@app/material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { TaskGroupService, CodeListService,TranslationService,ResourceService,ExternalService } from '@app/frontend-core/src/lib/public_api';
-import { ExternalConfigurationService } from '@app/ExternalConfigurationService';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -31,7 +31,7 @@ describe('TaskGroupFormComponent', () => {
     })
     .compileComponents();
   });
- 
+
   beforeEach(() => {
     fixture = TestBed.createComponent(TaskGroupFormComponent);
     component = fixture.componentInstance;
@@ -46,7 +46,7 @@ describe('TaskGroupFormComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-  
+
   it('should instantiate taskGroupService', () => {
     expect(taskGroupService).toBeTruthy();
   });
@@ -58,7 +58,7 @@ describe('TaskGroupFormComponent', () => {
   it('should instantiate translationService', () => {
     expect(translationService).toBeTruthy();
   });
- 
+
   it('should instantiate resourceService', () => {
     expect(resourceService).toBeTruthy();
   });
@@ -69,7 +69,7 @@ describe('TaskGroupFormComponent', () => {
 
   it('form invalid when empty', () => {
     expect(component.formtaskGroup.valid).toBeFalsy();
-  }); 
+  });
 
 
   it('form valid', () => {
@@ -77,9 +77,9 @@ describe('TaskGroupFormComponent', () => {
       name: 'name'
     })
     expect(component.formtaskGroup.valid).toBeTruthy();
-  }); 
+  });
 
   it('Task group form fields', () => {
     expect(component.formtaskGroup.get('name')).toBeTruthy();
-  }); 
+  });
 });

@@ -4,9 +4,9 @@ import { TreesFormComponent } from './trees-form.component';
 import { RouterModule } from '@angular/router';
 import { MaterialModule } from '@app/material-module';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { TreeService, TreeNodeService, CartographyService, CodeListService,TranslationService, ResourceService, 
+import { TreeService, TreeNodeService, CartographyService, CodeListService,TranslationService, ResourceService,
   ExternalService, ServiceService, CapabilitiesService, ApplicationService  } from '@app/frontend-core/src/lib/public_api';
-import { ExternalConfigurationService } from '@app/ExternalConfigurationService';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -56,19 +56,19 @@ describe('TreesFormComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-  
+
   it('should instantiate treeService', () => {
     expect(treeService).toBeTruthy();
   });
-  
+
   it('should instantiate capabilitiesService', () => {
     expect(capabilitiesService).toBeTruthy();
   });
-  
+
   it('should instantiate serviceService', () => {
     expect(serviceService).toBeTruthy();
   });
-  
+
   it('should instantiate applicationService', () => {
     expect(applicationService).toBeTruthy();
   });
@@ -80,7 +80,7 @@ describe('TreesFormComponent', () => {
   it('should instantiate translationService', () => {
     expect(translationService).toBeTruthy();
   });
- 
+
   it('should instantiate resourceService', () => {
     expect(resourceService).toBeTruthy();
   });
@@ -91,7 +91,7 @@ describe('TreesFormComponent', () => {
 
   it('form tree invalid when empty', () => {
     expect(component.treeForm.valid).toBeFalsy();
-  }); 
+  });
 
   it('form tree invalid when mid-empty', () => {
     component.treeForm.patchValue({
@@ -100,7 +100,7 @@ describe('TreesFormComponent', () => {
     })
     //Miss name
     expect(component.treeForm.valid).toBeFalsy();
-  }); 
+  });
 
   it('form tree valid', () => {
     component.treeForm.patchValue({
@@ -109,11 +109,11 @@ describe('TreesFormComponent', () => {
       image: 'www.image.com'
     })
     expect(component.treeForm.valid).toBeTruthy();
-  }); 
+  });
 
   it('form tree node invalid when empty', () => {
     expect(component.treeNodeForm.valid).toBeFalsy();
-  }); 
+  });
 
   it('form tree node invalid when mid-empty', () => {
     component.treeNodeForm.patchValue({
@@ -138,7 +138,7 @@ describe('TreesFormComponent', () => {
     })
     //Miss name
     expect(component.treeNodeForm.valid).toBeFalsy();
-  }); 
+  });
 
   it('form tree node valid', () => {
     component.treeNodeForm.patchValue({
@@ -157,13 +157,13 @@ describe('TreesFormComponent', () => {
       style: null,
     })
     expect(component.treeNodeForm.valid).toBeTruthy();
-  }); 
+  });
 
   it('Tree form fields', () => {
     expect(component.treeForm.get('name')).toBeTruthy();
     expect(component.treeForm.get('description')).toBeTruthy();
     expect(component.treeForm.get('image')).toBeTruthy();
-  }); 
+  });
 
   it('Tree node form fields', () => {
     expect(component.treeNodeForm.get('name')).toBeTruthy();
@@ -179,7 +179,7 @@ describe('TreesFormComponent', () => {
     expect(component.treeNodeForm.get('filterGetMap')).toBeTruthy();
     expect(component.treeNodeForm.get('filterSelectable')).toBeTruthy();
     expect(component.treeNodeForm.get('style')).toBeTruthy();
-  }); 
+  });
 
-  
+
 });

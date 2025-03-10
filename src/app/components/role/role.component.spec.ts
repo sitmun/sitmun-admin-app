@@ -4,7 +4,7 @@ import { RoleComponent } from './role.component';
 import { RoleService, CodeListService,ResourceService,ExternalService } from '@app/frontend-core/src/lib/public_api';
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
-import { ExternalConfigurationService } from '@app/ExternalConfigurationService';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MaterialModule } from '@app/material-module';
 import { RouterModule } from '@angular/router';
@@ -42,7 +42,7 @@ describe('RoleComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-  
+
   it('should instantiate roleService', () => {
     expect(roleService).toBeTruthy();
   });
@@ -51,7 +51,7 @@ describe('RoleComponent', () => {
     expect(codeListService).toBeTruthy();
   });
 
-  
+
   it('should instantiate resourceService', () => {
     expect(resourceService).toBeTruthy();
   });

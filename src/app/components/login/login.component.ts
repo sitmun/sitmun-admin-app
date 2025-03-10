@@ -1,5 +1,6 @@
 import {Component, OnInit, ChangeDetectorRef} from '@angular/core';
-import {Language, LanguageService, LoginService} from '@app/frontend-core/src/lib/public_api';
+import {Language, LanguageService} from '@app/frontend-core/src/lib/public_api';
+import {LoginService} from '@app/core/auth/login.service';
 
 import {config} from '@config';
 import {TranslateService} from '@ngx-translate/core';
@@ -104,7 +105,6 @@ export class LoginComponent implements OnInit {
   }
 
   compareLang(o1: Language, o2: Language) {
-    console.log("compare lang", o1.shortname === o2.shortname)
     return o1 && o2 && o1.shortname === o2.shortname
-  };
+  }
 }

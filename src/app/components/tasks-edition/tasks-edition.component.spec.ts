@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TasksEditionComponent } from './tasks-edition.component';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
-import { ExternalConfigurationService } from '@app/ExternalConfigurationService';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MaterialModule } from '@app/material-module';
 import { RouterModule } from '@angular/router';
@@ -43,7 +43,7 @@ describe('TasksEditionComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-  
+
   it('should instantiate taskService', () => {
     expect(taskService).toBeTruthy();
   });
@@ -55,7 +55,7 @@ describe('TasksEditionComponent', () => {
   it('should instantiate translationService', () => {
     expect(translationService).toBeTruthy();
   });
- 
+
   it('should instantiate resourceService', () => {
     expect(resourceService).toBeTruthy();
   });

@@ -1,24 +1,21 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, LOCALE_ID } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { RouterModule } from '@angular/router';
-import { ExternalConfigurationService } from './ExternalConfigurationService';
 import { SitmunFrontendCoreModule } from '@app/frontend-core/src/lib/public_api';
-import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
+import { SitmunFrontendGuiModule, DataGridComponent } from '@app/frontend-gui/src/lib/public_api';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from './material-module';
 import { APP_ROUTING } from './app-routes';
 
-
-//interceptors
-import { MessagesInterceptor } from './interceptors/messages.interceptor';
-import { AuthInterceptor, AuthExpiredInterceptor, CapabilitiesService } from '@app/frontend-core/src/lib/public_api';
+// Import the new Core module
+import { CoreModule } from '@app/core';
 
 //i18n
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { registerLocaleData } from '@angular/common';
 import localeEs from '@angular/common/locales/es';
 import localeCa from '@angular/common/locales/ca';
@@ -81,11 +78,7 @@ import {
   RoleService,
   UserService,
   TreeService,
-  LoginService,
   CodeListService,
-  AuthService,
-  AccountService,
-  Principal,
   ServiceService,
   ApplicationService,
   CartographyAvailabilityService,
@@ -105,6 +98,7 @@ import {
   DashboardService,
   TreeNodeService,
   TaskTypeService,
+  CapabilitiesService
 } from '@app/frontend-core/src/lib/public_api';
 import { UtilsService } from '@app/services/utils.service';
 import { SidenavService } from '@app/services/sidenav.service';
@@ -115,11 +109,8 @@ import { TasksEditionCartographyTableComponent } from '@app/components/tasks-edi
 import { TasksEditionDataTableComponent } from '@app/components/tasks-edition-data-table/tasks-edition-data-table.component';
 import { TasksEditionRelationTableComponent } from '@app/components/tasks-edition-relation-table/tasks-edition-relation-table.component';
 import { TasksEditionSearchViewComponent } from '@app/components/tasks-edition-search-view/tasks-edition-search-view.component';
-import { CanDeactivateGuard } from '@app/services/can-deactivate-guard.service';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatTooltipModule} from '@angular/material/tooltip';
-
-
 
 @NgModule({
   declarations: [
@@ -167,40 +158,71 @@ import {MatTooltipModule} from '@angular/material/tooltip';
     TasksEditionRelationTableComponent,
     TasksEditionSearchViewComponent,
   ],
-    imports: [
-        BrowserModule,
-        HttpClientModule,
-        FormsModule,
-        AngularHalModule,
-        SitmunFrontendGuiModule,
-        SitmunFrontendCoreModule,
-        MaterialModule,
-        RouterModule,
-        TranslateModule.forRoot({
-            loader: {
-                provide: TranslateLoader,
-                useFactory: (http: HttpClient) => {
-                    return new TranslateHttpLoader(http, './assets/i18n/', '.json');
-                },
-                deps: [HttpClient]
-            }
-        }),
-        APP_ROUTING,
-        BrowserAnimationsModule,
-        MatTabsModule,
-        MatTooltipModule
-    ],
-  providers: [SidenavService, UtilsService, CanDeactivateGuard,
-    { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
+  imports: [
+    BrowserModule,
+    HttpClientModule,
+    FormsModule,
+    ReactiveFormsModule,
+    AngularHalModule,
+    SitmunFrontendGuiModule,
+    SitmunFrontendCoreModule,
+    MaterialModule,
+    RouterModule,
+    DataGridComponent,
+    // Import the CoreModule with forRoot() to provide all services
+    CoreModule.forRoot(),
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: (http: HttpClient) => {
+          return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+        },
+        deps: [HttpClient]
+      }
+    }),
+    APP_ROUTING,
+    BrowserAnimationsModule,
+    MatTabsModule,
+    MatTooltipModule
+  ],
+  providers: [
+    SidenavService,
+    UtilsService,
     { provide: LOCALE_ID, useValue: 'es-ES' },
-    RoleService, ConnectionService, UserService, TerritoryService, ServiceService,
-    ApplicationService, TreeService, TranslationService, TerritoryTypeService, TaskAvailabilityService, BackgroundService, CartographyService, CartographyGroupService,
-    TaskGroupService, DashboardService, TaskService, UserConfigurationService, CodeListService, LoginService, AuthService, ConfigurationParametersService,
-    Principal, UserPositionService, AccountService,CartographyAvailabilityService,ServiceParameterService,ApplicationParameterService,
-    CartographyParameterService, CartographySpatialSelectionParameterService, CartographyStyleService, CapabilitiesService, TaskTypeService, LanguageService, CartographyFilterService,  TaskUIService, TaskParameterService, ApplicationBackgroundService, TreeNodeService,
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: MessagesInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: AuthExpiredInterceptor, multi: true }
+    RoleService,
+    ConnectionService,
+    UserService,
+    TerritoryService,
+    ServiceService,
+    ApplicationService,
+    TreeService,
+    TranslationService,
+    TerritoryTypeService,
+    TaskAvailabilityService,
+    BackgroundService,
+    CartographyService,
+    CartographyGroupService,
+    TaskGroupService,
+    DashboardService,
+    TaskService,
+    UserConfigurationService,
+    CodeListService,
+    ConfigurationParametersService,
+    CartographyAvailabilityService,
+    ServiceParameterService,
+    ApplicationParameterService,
+    CartographyParameterService,
+    CartographySpatialSelectionParameterService,
+    CartographyStyleService,
+    CapabilitiesService,
+    TaskTypeService,
+    LanguageService,
+    CartographyFilterService,
+    TaskUIService,
+    TaskParameterService,
+    ApplicationBackgroundService,
+    TreeNodeService,
+    UserPositionService
   ],
   bootstrap: [AppComponent]
 })

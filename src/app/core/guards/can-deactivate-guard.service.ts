@@ -7,11 +7,12 @@ export interface CanComponentDeactivate {
 }
 
 @Injectable()
-export class CanDeactivateGuard  {
-  canDeactivate(component: CanComponentDeactivate, 
-           route: ActivatedRouteSnapshot, 
-           state: RouterStateSnapshot) {
-
-     return component.canDeactivate ? component.canDeactivate() : true;
+export class CanDeactivateGuard {
+  canDeactivate(
+    component: CanComponentDeactivate,
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ) {
+    return component?.canDeactivate ? component.canDeactivate() : false;
   }
-} 
+}

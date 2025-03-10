@@ -2,12 +2,17 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ToolbarComponent } from './toolbar.component';
 import { MaterialModule } from '@app/material-module';
-import { LoginService, AuthService, Principal, AccountService, ResourceService,ExternalService } from '@app/frontend-core/src/lib/public_api';
-import { ExternalConfigurationService } from '@app/ExternalConfigurationService';
+import { ResourceService, ExternalService } from '@app/frontend-core/src/lib/public_api';
+import { AccountService } from '@app/core/account/account.service';
+import { LoginService } from '@app/core/auth/login.service';
+import { AuthService } from '@app/core/auth/auth.service';
+import { Principal } from '@app/core/auth/principal.service';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
+
 describe('ToolbarComponent', () => {
   let component: ToolbarComponent;
   let fixture: ComponentFixture<ToolbarComponent>;
@@ -21,9 +26,23 @@ describe('ToolbarComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ ToolbarComponent ],
-      imports: [MaterialModule, HttpClientTestingModule,HttpClientModule, RouterTestingModule, SitmunFrontendGuiModule, MatIconTestingModule,],      
-      providers: [  LoginService, AuthService, Principal, AccountService, ResourceService,ExternalService,
-        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
+      imports: [
+        MaterialModule,
+        HttpClientTestingModule,
+        HttpClientModule,
+        RouterTestingModule,
+        SitmunFrontendGuiModule,
+        MatIconTestingModule
+      ],
+      providers: [
+        LoginService,
+        AuthService,
+        Principal,
+        AccountService,
+        ResourceService,
+        ExternalService,
+        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }
+      ]
     })
     .compileComponents();
   });
@@ -44,7 +63,7 @@ describe('ToolbarComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  
+
   it('should instantiate loginService', () => {
     expect(loginService).toBeTruthy();
   });

@@ -39,7 +39,7 @@ import { TasksEditionCartographyTableComponent } from '@app/components/tasks-edi
 import { TasksEditionDataTableComponent } from '@app/components/tasks-edition-data-table/tasks-edition-data-table.component';
 import { TasksEditionRelationTableComponent } from '@app/components/tasks-edition-relation-table/tasks-edition-relation-table.component';
 import { TasksEditionSearchViewComponent } from '@app/components/tasks-edition-search-view/tasks-edition-search-view.component';
-import { CanDeactivateGuard } from '@app/services/can-deactivate-guard.service';
+import { CanDeactivateGuard } from '@app/core/guards/can-deactivate-guard.service';
 
 export const APP_ROUTES: Routes = [
     {path: 'dashboard', component: DashboardComponent},

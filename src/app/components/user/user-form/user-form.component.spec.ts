@@ -4,9 +4,9 @@ import { UserFormComponent } from './user-form.component';
 import { RouterModule } from '@angular/router';
 import { MaterialModule } from '@app/material-module';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { UserService, RoleService, TerritoryService, UserConfigurationService, 
+import { UserService, RoleService, TerritoryService, UserConfigurationService,
   CodeListService, UserPositionService,TranslationService,ResourceService,ExternalService } from '@app/frontend-core/src/lib/public_api';
-import { ExternalConfigurationService } from '@app/ExternalConfigurationService';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -30,7 +30,7 @@ describe('UserFormComponent', () => {
       declarations: [ UserFormComponent ],
       imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,
          RouterModule.forRoot([], {}), MaterialModule, MatIconTestingModule],
-      providers: [UserService,RoleService, TerritoryService, UserPositionService, 
+      providers: [UserService,RoleService, TerritoryService, UserPositionService,
         CodeListService,UserConfigurationService,TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
@@ -94,7 +94,7 @@ describe('UserFormComponent', () => {
 
   it('form invalid when empty', () => {
     expect(component.userForm.valid).toBeFalsy();
-  }); 
+  });
 
   it('form invalid when mid-empty', () => {
     component.userForm.patchValue({
@@ -108,7 +108,7 @@ describe('UserFormComponent', () => {
     })
     //Miss name
     expect(component.userForm.valid).toBeFalsy();
-  }); 
+  });
 
   it('form valid', () => {
     component.userForm.patchValue({
@@ -122,7 +122,7 @@ describe('UserFormComponent', () => {
       blocked: true,
     })
     expect(component.userForm.valid).toBeTruthy();
-  }); 
+  });
 
   it('User form fields', () => {
     expect(component.userForm.get('username')).toBeTruthy();
@@ -132,5 +132,5 @@ describe('UserFormComponent', () => {
     expect(component.userForm.get('confirmPassword')).toBeTruthy();
     expect(component.userForm.get('administrator')).toBeTruthy();
     expect(component.userForm.get('blocked')).toBeTruthy();
-  }); 
+  });
 });

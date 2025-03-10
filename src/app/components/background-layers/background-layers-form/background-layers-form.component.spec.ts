@@ -4,7 +4,7 @@ import { MaterialModule } from '@app/material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { BackgroundService,CartographyGroupService, CartographyService, CodeListService,RoleService,TranslationService,ResourceService,ExternalService, ApplicationService, ApplicationBackgroundService } from '@app/frontend-core/src/lib/public_api';
-import { ExternalConfigurationService } from '@app/ExternalConfigurationService';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -35,7 +35,7 @@ describe('BackgroundLayersFormComponent', () => {
     })
     .compileComponents();
   });
- 
+
   beforeEach(() => {
     fixture = TestBed.createComponent(BackgroundLayersFormComponent);
     component = fixture.componentInstance;
@@ -98,7 +98,7 @@ describe('BackgroundLayersFormComponent', () => {
   });
   it('form invalid when empty', () => {
     expect(component.backgroundForm.valid).toBeFalsy();
-  }); 
+  });
 
   it('form invalid when mid-empty', () => {
     component.backgroundForm.patchValue({
@@ -108,7 +108,7 @@ describe('BackgroundLayersFormComponent', () => {
     })
     //Miss name
     expect(component.backgroundForm.valid).toBeFalsy();
-  }); 
+  });
 
   it('form valid', () => {
     component.backgroundForm.patchValue({
@@ -118,14 +118,14 @@ describe('BackgroundLayersFormComponent', () => {
       active: true
     })
     expect(component.backgroundForm.valid).toBeTruthy();
-  }); 
+  });
 
   it('Background layers form fields', () => {
     expect(component.backgroundForm.get('name')).toBeTruthy();
     expect(component.backgroundForm.get('description')).toBeTruthy();
     expect(component.backgroundForm.get('image')).toBeTruthy();
     expect(component.backgroundForm.get('active')).toBeTruthy();
-  }); 
+  });
 
 
 });

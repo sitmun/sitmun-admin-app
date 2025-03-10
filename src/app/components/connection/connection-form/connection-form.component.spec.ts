@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
-import { ExternalConfigurationService } from '@app/ExternalConfigurationService';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ConnectionService, CartographyService, TaskService, CodeListService,TranslationService,ResourceService,ExternalService } from '@app/frontend-core/src/lib/public_api';
 import { ConnectionFormComponent } from '../connection-form/connection-form.component';
@@ -48,7 +48,7 @@ describe('ConnectionFormComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  
+
   it('should instantiate connectionService', () => {
     expect(connectionService).toBeTruthy();
   });
@@ -76,10 +76,10 @@ describe('ConnectionFormComponent', () => {
   it('should instantiate externalService', () => {
     expect(externalService).toBeTruthy();
   });
-  
+
   it('form invalid when empty', () => {
     expect(component.formConnection.valid).toBeFalsy();
-  }); 
+  });
 
   it('form invalid when mid-empty', () => {
     component.formConnection.patchValue({
@@ -90,7 +90,7 @@ describe('ConnectionFormComponent', () => {
     })
     //Miss driver
     expect(component.formConnection.valid).toBeFalsy();
-  }); 
+  });
 
   it('form valid', () => {
     component.formConnection.patchValue({
@@ -101,7 +101,7 @@ describe('ConnectionFormComponent', () => {
       driver: 5
     })
     expect(component.formConnection.valid).toBeTruthy();
-  }); 
+  });
 
   it('Connection form fields', () => {
     expect(component.formConnection.get('name')).toBeTruthy();
@@ -109,6 +109,6 @@ describe('ConnectionFormComponent', () => {
     expect(component.formConnection.get('password')).toBeTruthy();
     expect(component.formConnection.get('url')).toBeTruthy();
     expect(component.formConnection.get('driver')).toBeTruthy();
-  }); 
+  });
 
 });

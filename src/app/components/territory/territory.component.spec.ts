@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TerritoryComponent } from './territory.component';
-import { TerritoryService, UserService, RoleService, UserConfigurationService, 
+import { TerritoryService, UserService, RoleService, UserConfigurationService,
   CodeListService,TranslationService,ResourceService,ExternalService, TerritoryTypeService } from '@app/frontend-core/src/lib/public_api';
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
-import { ExternalConfigurationService } from '@app/ExternalConfigurationService';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MaterialModule } from '@app/material-module';
 import { RouterModule } from '@angular/router';
@@ -64,7 +64,7 @@ describe('TerritoryComponent', () => {
   it('should instantiate translationService', () => {
     expect(translationService).toBeTruthy();
   });
- 
+
   it('should instantiate resourceService', () => {
     expect(resourceService).toBeTruthy();
   });

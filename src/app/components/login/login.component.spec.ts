@@ -3,8 +3,12 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LoginComponent } from './login.component';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
-import { LoginService, AuthService, CodeListService,Principal, AccountService,TranslationService,ResourceService, ExternalService } from '@app/frontend-core/src/lib/public_api';
-import { ExternalConfigurationService } from '@app/ExternalConfigurationService';
+import { CodeListService, TranslationService, ResourceService, ExternalService } from '@app/frontend-core/src/lib/public_api';
+import { AccountService } from '@app/core/account/account.service';
+import { LoginService } from '@app/core/auth/login.service';
+import { AuthService } from '@app/core/auth/auth.service';
+import { Principal } from '@app/core/auth/principal.service';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -29,20 +33,38 @@ describe('LoginComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ LoginComponent ],
-      imports : [FormsModule, ReactiveFormsModule, HttpClientTestingModule, HttpClientModule,  SitmunFrontendGuiModule, RouterTestingModule, MatIconTestingModule,
-        MaterialModule, RouterModule,
-       TranslateModule.forRoot({
-         loader: {
-           provide: TranslateLoader,
-           useFactory: (http: HttpClient) => {
-             return new TranslateHttpLoader(http, './assets/i18n/', '.json');
-           },
-           deps: [HttpClient]
-           }
-       })],
-     providers: [LoginService, AuthService, CodeListService,Principal, AccountService,TranslationService,ResourceService,ExternalService,
-       { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
-   }).compileComponents();
+      imports : [
+        FormsModule,
+        ReactiveFormsModule,
+        HttpClientTestingModule,
+        HttpClientModule,
+        SitmunFrontendGuiModule,
+        RouterTestingModule,
+        MatIconTestingModule,
+        MaterialModule,
+        RouterModule,
+        TranslateModule.forRoot({
+          loader: {
+            provide: TranslateLoader,
+            useFactory: (http: HttpClient) => {
+              return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+            },
+            deps: [HttpClient]
+          }
+        })
+      ],
+      providers: [
+        LoginService,
+        AuthService,
+        CodeListService,
+        Principal,
+        AccountService,
+        TranslationService,
+        ResourceService,
+        ExternalService,
+        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }
+      ]
+    }).compileComponents();
   });
 
   beforeEach(() => {
@@ -86,7 +108,7 @@ describe('LoginComponent', () => {
   it('should instantiate translationService', () => {
     expect(translationService).toBeTruthy();
   });
- 
+
   it('should instantiate resourceService', () => {
     expect(resourceService).toBeTruthy();
   });
@@ -97,7 +119,7 @@ describe('LoginComponent', () => {
 
   it('form invalid when empty', () => {
     expect(component.form.valid).toBeFalsy();
-  }); 
+  });
 
   it('form invalid when mid-empty', () => {
     component.form.patchValue({
@@ -106,7 +128,7 @@ describe('LoginComponent', () => {
     })
     //Miss username
     expect(component.form.valid).toBeFalsy();
-  }); 
+  });
 
   it('form valid', () => {
     component.form.patchValue({
@@ -115,5 +137,5 @@ describe('LoginComponent', () => {
       lang: 1,
     })
     expect(component.form.valid).toBeTruthy();
-  }); 
+  });
 });

@@ -8,7 +8,7 @@ import {
   CodeListService, ApplicationBackgroundService, ApplicationService, ApplicationParameterService,
   RoleService, CartographyGroupService, TreeService, BackgroundService, TranslationService, ResourceService, ExternalService
 } from '@app/frontend-core/src/lib/public_api';
-import {ExternalConfigurationService} from '@app/ExternalConfigurationService';
+import {ExternalConfigurationService} from '@app/core/config/external-configuration.service';
 import {HttpClientModule} from '@angular/common/http';
 import {SitmunFrontendGuiModule} from '@app/frontend-gui/src/lib/public_api';
 import {RouterTestingModule} from '@angular/router/testing';

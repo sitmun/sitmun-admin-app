@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
-import { ExternalConfigurationService } from '@app/ExternalConfigurationService';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BackgroundLayersComponent } from './background-layers.component';
 import { BackgroundService,CartographyGroupService, CodeListService,TranslationService,ResourceService,ExternalService } from '@app/frontend-core/src/lib/public_api';
@@ -42,7 +42,7 @@ describe('BackgroundLayersComponent', () => {
     expect(component).toBeTruthy();
   });
 
-    
+
   it('should instantiate backgroundService', () => {
     expect(backgroundService).toBeTruthy();
   });
@@ -51,7 +51,7 @@ describe('BackgroundLayersComponent', () => {
     expect(codeListService).toBeTruthy();
   });
 
-  
+
   it('should instantiate resourceService', () => {
     expect(resourceService).toBeTruthy();
   });

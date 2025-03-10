@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ConnectionComponent } from './connection.component';
 import { ConnectionService, CodeListService,TranslationService,ResourceService,ExternalService } from '@app/frontend-core/src/lib/public_api';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
-import { ExternalConfigurationService } from '@app/ExternalConfigurationService';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MaterialModule } from '@app/material-module';
 import { RouterModule } from '@angular/router';
@@ -42,8 +42,8 @@ describe('ConnectionComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  
-  
+
+
   it('should instantiate connectionService', () => {
     expect(connectionService).toBeTruthy();
   });
@@ -52,7 +52,7 @@ describe('ConnectionComponent', () => {
     expect(codeListService).toBeTruthy();
   });
 
-  
+
   it('should instantiate resourceService', () => {
     expect(resourceService).toBeTruthy();
   });

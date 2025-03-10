@@ -1,12 +1,6 @@
 /*
  * Public API Surface of sitmun-plugin-core
  */
-export * from './account/account.service';
-export * from './auth/auth.service';
-export * from './auth/auth.interceptor';
-export * from './auth/auth-expired.interceptor';
-export * from './auth/login.service';
-export * from './auth/principal.service';
 export * from './dashboard/dashboard.service';
 export * from './user/user.model';
 export * from './user/user.service';
@@ -80,5 +74,3 @@ export * from './codelist/codelist.service';
 export * from './map/map-configuration-manager.service';
 export * from './sitmun-frontend-core.module';
 export * from './angular-hal/src/lib/angular-hal.module';
-export * from './auth/has-any-authority.directive';
-export * from './auth/has-any-authority-on-territory.directive';

@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { DashboardComponent } from './dashboard.component';
-import { ExternalConfigurationService } from '@app/ExternalConfigurationService';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -12,7 +12,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { DashboardService,TranslationService,CodeListService,ResourceService,ExternalService } from '@app/frontend-core/src/lib/public_api';
 describe('DashboardComponent', () => {
-  
+
   let component: DashboardComponent;
   let fixture: ComponentFixture<DashboardComponent>;
   let dashboardService: DashboardService;
@@ -71,7 +71,7 @@ describe('DashboardComponent', () => {
     expect(codeListService).toBeTruthy();
   });
 
-  
+
   it('should instantiate resourceService', () => {
     expect(resourceService).toBeTruthy();
   });

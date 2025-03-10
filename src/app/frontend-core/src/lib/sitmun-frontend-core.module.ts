@@ -1,9 +1,6 @@
 import { NgModule, ModuleWithProviders } from '@angular/core';
 
-import { CommonModule } from '@angular/common';
-import {HttpClientModule, HTTP_INTERCEPTORS, HttpClient} from '@angular/common/http';
-import { RouterModule } from '@angular/router';
-//import { AngularHalModule } from '../../lib/angular-hal';
+import {HttpClient} from '@angular/common/http';
 import {CodeListService} from './codelist/codelist.service';
 import {TerritoryService} from './territory/territory.service';
 import {TerritoryTypeService} from './territory/territory-type.service';
@@ -33,14 +30,6 @@ import {ApplicationService} from './application/application.service';
 import {ApplicationParameterService} from './application/application-parameter.service';
 import {ApplicationBackgroundService} from './application/application-background.service';
 import { MapConfigurationManagerService } from './map/map-configuration-manager.service';
-import { AuthService } from './auth/auth.service';
-import { Principal } from './auth/principal.service';
-import { AuthInterceptor } from './auth/auth.interceptor';
-import { AuthExpiredInterceptor } from './auth/auth-expired.interceptor';
-import { HasAnyAuthorityDirective } from './auth/has-any-authority.directive';
-import { HasAnyAuthorityOnTerritoryDirective } from './auth/has-any-authority-on-territory.directive';
-import { LoginService } from './auth/login.service';
-import { AccountService } from './account/account.service';
 import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import { TranslationService } from './translation/translation.service';
@@ -73,12 +62,8 @@ export function createTranslateLoader(http: HttpClient) {
     }),
   ],
   declarations: [
-    HasAnyAuthorityDirective,
-    HasAnyAuthorityOnTerritoryDirective,
   ],
   exports: [
-    HasAnyAuthorityDirective,
-    HasAnyAuthorityOnTerritoryDirective,
     TranslateModule
   ]
 })
@@ -92,8 +77,6 @@ export class SitmunFrontendCoreModule {
         TerritoryTypeService,
         TerritoryGroupTypeService,
         RoleService,
-        AccountService,
-        AuthService,
         UserService,
         ConnectionService,
         TaskService,
@@ -120,26 +103,12 @@ export class SitmunFrontendCoreModule {
         ApplicationService,
         ApplicationParameterService,
         ApplicationBackgroundService,
-        AuthInterceptor,
-        AuthExpiredInterceptor,
-        Principal,
         UserPositionService,
         UserConfigurationService,
-        LoginService,
         TranslationService,
         LanguageService,
         DashboardService,
         MapConfigurationManagerService,
-        {
-          provide: HTTP_INTERCEPTORS,
-          useClass: AuthInterceptor,
-          multi: true
-        }
-        , {
-          provide: HTTP_INTERCEPTORS,
-          useClass: AuthExpiredInterceptor,
-          multi: true
-        }
       ]
     };
   }

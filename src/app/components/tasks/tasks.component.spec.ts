@@ -4,7 +4,7 @@ import { TasksComponent } from './tasks.component';
 import { TaskService, CodeListService, TaskGroupService,TranslationService,ResourceService,ExternalService } from '@app/frontend-core/src/lib/public_api';
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
-import { ExternalConfigurationService } from '@app/ExternalConfigurationService';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MaterialModule } from '@app/material-module';
 import { RouterModule } from '@angular/router';
@@ -20,7 +20,7 @@ describe('TasksComponent', () => {
   let translationService: TranslationService;
   let resourceService: ResourceService;
   let externalService: ExternalService;
- 
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ TasksComponent ],
@@ -46,11 +46,11 @@ describe('TasksComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-  
+
   it('should instantiate taskService', () => {
     expect(taskService).toBeTruthy();
   });
-  
+
   it('should instantiate taskGroupService', () => {
     expect(taskGroupService).toBeTruthy();
   });
@@ -62,7 +62,7 @@ describe('TasksComponent', () => {
   it('should instantiate translationService', () => {
     expect(translationService).toBeTruthy();
   });
- 
+
   it('should instantiate resourceService', () => {
     expect(resourceService).toBeTruthy();
   });

@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { TaskFormComponent } from './task-form.component';
-import { ServiceService, TerritoryService, TaskTypeService, CartographyService, ConnectionService, CodeListService, ResourceService, 
+import { ServiceService, TerritoryService, TaskTypeService, CartographyService, ConnectionService, CodeListService, ResourceService,
   ExternalService, TaskService, TaskUIService, RoleService, TaskGroupService, TaskAvailabilityService } from '@app/frontend-core/src/lib/public_api';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
-import { ExternalConfigurationService } from '@app/ExternalConfigurationService';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MaterialModule } from '@app/material-module';
 import { RouterModule } from '@angular/router';
@@ -28,7 +28,7 @@ describe('TaskFormComponent', () => {
   let taskGroupService: TaskGroupService;
   let resourceService: ResourceService;
   let externalService: ExternalService;
-  
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ TaskFormComponent ],
@@ -63,7 +63,7 @@ describe('TaskFormComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  
+
   it('should instantiate roleService', () => {
     expect(roleService).toBeTruthy();
   });

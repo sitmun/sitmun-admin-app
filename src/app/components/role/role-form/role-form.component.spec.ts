@@ -2,11 +2,11 @@ import { ComponentFixture, TestBed, getTestBed } from '@angular/core/testing';
 
 import { RoleFormComponent } from './role-form.component';
 import { RouterModule } from '@angular/router';
-import { RoleService, UserService, CodeListService, CartographyGroupService, TerritoryService, 
+import { RoleService, UserService, CodeListService, CartographyGroupService, TerritoryService,
   CartographyService, TaskService, UserConfigurationService, ApplicationService,ResourceService,ExternalService } from '@app/frontend-core/src/lib/public_api';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
-import { ExternalConfigurationService } from '@app/ExternalConfigurationService';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MaterialModule } from '@app/material-module';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
@@ -38,7 +38,7 @@ describe('RoleFormComponent', () => {
       declarations: [ RoleFormComponent ],
       imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, RouterModule.forRoot([], {}), HttpClientModule,
       SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
-      providers: [RoleService, UserService, TerritoryService, ApplicationService, CodeListService, 
+      providers: [RoleService, UserService, TerritoryService, ApplicationService, CodeListService,
         CartographyGroupService,UserConfigurationService, CartographyService, TaskService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
@@ -65,7 +65,7 @@ describe('RoleFormComponent', () => {
     httpMock= TestBed.inject(HttpClient);
     service = new RoleService(injector,httpMock)
     fixture.detectChanges();
-    
+
   });
 
   it('should create', () => {
@@ -114,7 +114,7 @@ describe('RoleFormComponent', () => {
 
   it('form invalid when empty', () => {
     expect(component.formRole.valid).toBeFalsy();
-  }); 
+  });
 
   it('form invalid when mid-empty', () => {
     component.formRole.patchValue({
@@ -122,7 +122,7 @@ describe('RoleFormComponent', () => {
     })
     //Miss name
     expect(component.formRole.valid).toBeFalsy();
-  }); 
+  });
 
   it('form valid', () => {
     component.formRole.patchValue({
@@ -130,12 +130,12 @@ describe('RoleFormComponent', () => {
       description: 'description'
     })
     expect(component.formRole.valid).toBeTruthy();
-  }); 
+  });
 
   it('Role form fields', () => {
     expect(component.formRole.get('description')).toBeTruthy();
     expect(component.formRole.get('name')).toBeTruthy();
-  }); 
+  });
 
 
 
