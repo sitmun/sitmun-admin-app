@@ -22,7 +22,8 @@ export class AuthExpiredInterceptor implements HttpInterceptor {
                 (event: HttpEvent<any>) => {},
                 (err: any) => {
                     if (err instanceof HttpErrorResponse) {
-                        if (err.status === 401 && !request.url.includes('api/authenticate')) {
+                        // Handle both 401 (Unauthorized) and 403 (Forbidden) status codes
+                        if ((err.status === 401 || err.status === 403) && !request.url.includes('api/authenticate')) {
                             // Only logout if not already trying to authenticate
                             this.loginService.logout();
                             

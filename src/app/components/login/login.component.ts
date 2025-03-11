@@ -90,7 +90,6 @@ export class LoginComponent implements OnInit {
         localStorage.setItem('lang', langCode);
         this.badCredentials = 'ERROR';
       });
-
     }
   }
 
