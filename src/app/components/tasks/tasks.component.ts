@@ -6,6 +6,7 @@ import {config} from '@config';
 import {Observable, Subject} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
 import {DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
+import { LoggerService } from '@app/services/logger.service';
 
 @Component({
   selector: 'app-tasks',
@@ -24,6 +25,7 @@ export class TasksComponent implements OnInit {
               public taskGroupService: TaskGroupService,
               private utils: UtilsService,
               private router: Router,
+              private loggerService: LoggerService
   ) {
   }
 
@@ -118,7 +120,7 @@ export class TasksComponent implements OnInit {
           });
         },
         error => {
-          console.log(error);
+          this.loggerService.error('Error adding task group', error);
         }
       );
 

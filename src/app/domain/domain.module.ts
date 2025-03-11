@@ -53,7 +53,6 @@ export function createTranslateLoader(http: HttpClient) {
 @NgModule({
   imports: [
     CommonModule,
-    HalModule.forRoot(),
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,

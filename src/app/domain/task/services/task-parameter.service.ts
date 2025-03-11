@@ -1,13 +1,13 @@
-import { TaskParameter } from '../models/task-parameter.model';
+import { TaskParameter } from '@app/domain';
 import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RestService } from '@app/core/hal';
 
 /** Task parameter manager service */
-@Injectable() 
+@Injectable()
 export class TaskParameterService extends RestService<TaskParameter> {
-  
+
 
   /** API resource path */
   public TASK_PARAMETER_API = 'task-parameters';
@@ -16,13 +16,13 @@ export class TaskParameterService extends RestService<TaskParameter> {
   constructor(injector: Injector,private http: HttpClient) {
     super(TaskParameter, "task-parameters", injector);
   }
-  
+
   /** remove task parameter*/
   remove(item: TaskParameter) {
     return this.http.delete(item._links.self.href);
-   
+
   }
-  
+
   /** save task parameter*/
   save(item: TaskParameter): Observable<any> {
     let result: Observable<Object>;
@@ -30,16 +30,16 @@ export class TaskParameterService extends RestService<TaskParameter> {
       result = this.http.put(item._links.self.href, item);
       if (item.task !=null){
           item.substituteRelation('task',item.task).subscribe(result => {
-      
+
       }, error => console.error(error));
       }
-      
+
     } else {
       item.task = item.task._links.self.href;
-  
+
       result = this.http.post(this.resourceService.getResourceUrl(this.TASK_PARAMETER_API) , item);
     }
     return result;
   }
-  
+
 }

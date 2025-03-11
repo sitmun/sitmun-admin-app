@@ -1,10 +1,10 @@
 import {throwError as observableThrowError, Observable} from 'rxjs';
 
 import {catchError, map} from 'rxjs/operators';
-import {Sort} from '../rest/sort.model';
-import {ArrayInterface} from '../common/array-interface';
-import {ResourceHelper} from './resource-helper';
-import {Resource} from './resource.model';
+import {Sort} from '@app/core';
+import {ArrayInterface} from '@app/core/hal/common';
+import {ResourceHelper} from '@app/core';
+import {Resource} from '@app/core';
 import * as url from 'url';
 
 /** REST array of resource implementation */
@@ -34,10 +34,10 @@ export class ResourceArray<T extends Resource> implements ArrayInterface<T> {
     public totalElements = 0;
     /** total number of pages in the response */
     public totalPages = 1;
-    
+
     /** page number in the response */
     public pageNumber = 1;
-    
+
     /** page size */
     public pageSize: number;
 

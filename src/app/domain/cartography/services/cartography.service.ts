@@ -1,4 +1,4 @@
-import { Cartography } from '../models/cartography.model';
+import { Cartography } from '@app/domain';
 import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -32,12 +32,12 @@ export class CartographyService extends RestService<Cartography> {
     cartographyConnection._links = {};
     cartographyConnection._links.self = {};
     cartographyConnection._links.self.href = "";
-     
+
     let cartographyService:any={};
     cartographyService._links = {};
     cartographyService._links.self = {};
     cartographyService._links.self.href = "";
-    
+
     let cartographySelectionService:any = {};
     cartographySelectionService._links = {};
     cartographySelectionService._links.self = {};

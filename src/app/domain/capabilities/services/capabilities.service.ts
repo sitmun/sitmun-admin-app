@@ -2,7 +2,7 @@ import { Injectable, Injector } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RestService } from '@app/core/hal';
-import { Capabilitie } from '../models/capabilitie.model';
+import { Capabilitie } from '@app/domain';
 
 
 @Injectable({
@@ -25,17 +25,17 @@ export class CapabilitiesService extends RestService<Capabilitie>  {
         const headerDict = {
           'Charset': 'UTF-8'
         }
-        
-        const requestOptions = {                                                                                                                                                                                 
-          headers: new HttpHeaders(headerDict), 
+
+        const requestOptions = {
+          headers: new HttpHeaders(headerDict),
         };
         let finalUrl = this.resourceService.getResourceUrl(this.CAPABILITIES_API);
         finalUrl = finalUrl.concat(url);
-        
+
         result = this.http.get(finalUrl, requestOptions);
       }
       return result;
- 
+
     }
-  
+
 }

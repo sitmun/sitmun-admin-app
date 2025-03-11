@@ -6,7 +6,7 @@ import {config} from '@config';
 import {Observable, Subject} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
 import {DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
-import {constants} from '../../../environments/constants';
+import {constants} from '@environments/constants';
 
 
 @Component({

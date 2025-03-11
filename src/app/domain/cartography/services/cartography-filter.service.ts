@@ -1,13 +1,13 @@
-import { CartographyFilter } from '../models/cartography-filter.model';
+import { CartographyFilter } from '@app/domain';
 import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RestService } from '@app/core/hal';
 
 /** CartographyFilter manager service */
-@Injectable() 
+@Injectable()
 export class CartographyFilterService extends RestService<CartographyFilter> {
-  
+
 
   /** API resource path */
   public CARTOGRAPHY_FILTER_API = 'cartography-filters';
@@ -16,13 +16,13 @@ export class CartographyFilterService extends RestService<CartographyFilter> {
   constructor(injector: Injector,private http: HttpClient) {
     super(CartographyFilter, "cartography-filters", injector);
   }
-  
+
   /** remove cartography filter*/
   remove(item: CartographyFilter) {
     return this.http.delete(item._links.self.href);
-   
+
   }
-  
+
   /** save cartography availability*/
   save(item: CartographyFilter): Observable<any> {
     let result: Observable<Object>;
@@ -37,15 +37,15 @@ export class CartographyFilterService extends RestService<CartographyFilter> {
         item.substituteRelation('territorialLevel',item.territorialLevel).subscribe(result => {
         }, error => console.error(error));
       }
-     
+
     } else {
-      
+
       item.cartography = item.cartography._links.self.href;
       item.territorialLevel=item.territorialLevel._links.self.href;
-      
+
       result = this.http.post(this.resourceService.getResourceUrl(this.CARTOGRAPHY_FILTER_API) , item);
     }
     return result;
   }
-  
+
 }

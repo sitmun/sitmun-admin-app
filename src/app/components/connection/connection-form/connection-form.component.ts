@@ -13,7 +13,7 @@ import {DialogGridComponent} from '@app/frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
 import {Location} from '@angular/common';
 import {MatTabChangeEvent} from '@angular/material/tabs';
-
+import { LoggerService } from '@app/services/logger.service';
 
 @Component({
   selector: 'app-connection-form',
@@ -63,7 +63,8 @@ export class ConnectionFormComponent implements OnInit {
     public cartographyService: CartographyService,
     public tasksService: TaskService,
     private http: HttpClient,
-    public utils: UtilsService
+    public utils: UtilsService,
+    private loggerService: LoggerService
   ) {
     this.initializeConnectionForm();
   }
@@ -389,7 +390,7 @@ export class ConnectionFormComponent implements OnInit {
           this.getAllElementsEventTasks.next('save');
         },
         error => {
-          console.log(error);
+          this.loggerService.error('Error saving connection', error);
         });
     } else {
       this.utils.showRequiredFieldsError();
@@ -408,7 +409,7 @@ export class ConnectionFormComponent implements OnInit {
 
       },
       error => {
-        console.log(error);
+        this.loggerService.error('Error testing connection', error);
       });
   }
 

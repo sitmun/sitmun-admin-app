@@ -1,4 +1,4 @@
-import { Territory } from '../models/territory.model';
+import { Territory } from '@app/domain';
 import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { RestService } from '@app/core/hal';
@@ -40,7 +40,7 @@ export class TerritoryService extends RestService<Territory> {
       territoryType = item.type;
       if (typeof item.type._links != 'undefined') {
         item.type = item.type._links.self.href;
-      } 
+      }
     }
 
     if (item._links != null) {

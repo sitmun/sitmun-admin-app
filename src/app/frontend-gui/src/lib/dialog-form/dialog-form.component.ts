@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { UntypedFormGroup } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
-import { DialogMessageComponent } from '../dialog-message/dialog-message.component';
+import { DialogMessageComponent } from '@app/frontend-gui/src/lib/dialog-message/dialog-message.component';
 
 @Component({
   selector: 'app-dialog-form',

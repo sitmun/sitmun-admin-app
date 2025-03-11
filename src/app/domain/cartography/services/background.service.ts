@@ -1,4 +1,4 @@
-import { Background } from '../models/background.model';
+import { Background } from '@app/domain';
 import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -15,17 +15,17 @@ export class BackgroundService extends RestService<Background> {
   constructor(injector: Injector,private http: HttpClient) {
     super(Background, "backgrounds", injector);
   }
-  
+
   /** remove background*/
   remove(item: Background) {
-    return this.http.delete(item._links.self.href);   
+    return this.http.delete(item._links.self.href);
   }
-  
+
   /** save background*/
   save(item: Background): Observable<any> {
     let result: Observable<Object>;
-    let backgroundCartographyGroup:any = {}         
-    
+    let backgroundCartographyGroup:any = {}
+
     backgroundCartographyGroup._links= {};
     backgroundCartographyGroup._links.self = {};
     backgroundCartographyGroup._links.self.href="";
@@ -33,37 +33,37 @@ export class BackgroundService extends RestService<Background> {
 
     if (item.cartographyGroup!=null){
       backgroundCartographyGroup = item.cartographyGroup;
-        if (typeof item.cartographyGroup._links!= 'undefined') { 
+        if (typeof item.cartographyGroup._links!= 'undefined') {
             item.cartographyGroup = item.cartographyGroup._links.self.href;
-        }    
+        }
      }
 
     if (item._links!=null) {
       //update relations
-      delete item.cartographyGroup;        
-      
-      if (backgroundCartographyGroup._links.self.href==''){
-         item.deleteRelation('cartographyGroup',backgroundCartographyGroup).subscribe(result => {     
+      delete item.cartographyGroup;
 
-          
+      if (backgroundCartographyGroup._links.self.href==''){
+         item.deleteRelation('cartographyGroup',backgroundCartographyGroup).subscribe(result => {
+
+
              }, error => console.error(error));
-          
+
       } else {
           item.substituteRelation('cartographyGroup',backgroundCartographyGroup).subscribe(result => {
-         
 
-      
-            }, error => console.error(error));           
-       } 
-       
-         
+
+
+            }, error => console.error(error));
+       }
+
+
       result = this.http.put(item._links.self.href, item);
 
-           
+
     } else {
       result = this.http.post(this.resourceService.getResourceUrl(this.BACKGROUND_API) , item);
     }
     return result;
   }
-  
+
 }

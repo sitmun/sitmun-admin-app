@@ -23,8 +23,8 @@ import {map} from 'rxjs/operators';
 import {MatDialog} from '@angular/material/dialog';
 import {config} from '@config';
 import {MatTabChangeEvent} from '@angular/material/tabs';
-import {constants} from '../../../../environments/constants';
-
+import {constants} from '@environments/constants';
+import { LoggerService } from '@app/services/logger.service';
 
 @Component({
   selector: 'app-background-layers-form',
@@ -84,6 +84,7 @@ export class BackgroundLayersFormComponent implements OnInit {
     private cartographyGroupService: CartographyGroupService,
     private applicationService: ApplicationService,
     private applicationBackgroundService: ApplicationBackgroundService,
+    private loggerService: LoggerService
   ) {
     this.initializeBackgroundForm();
   }
@@ -636,7 +637,7 @@ export class BackgroundLayersFormComponent implements OnInit {
               this.updateBackground(resp);
             },
             error => {
-              console.log(error);
+              this.loggerService.error('Error saving cartography group', error);
             });
       } else {
         this.updateBackground(this.cartographyGroupOfThisLayer);
@@ -687,7 +688,7 @@ export class BackgroundLayersFormComponent implements OnInit {
           this.getAllElementsEventApplications.next('save');
         },
         error => {
-          console.log(error);
+          this.loggerService.error('Error saving cartography', error);
         });
   }
 

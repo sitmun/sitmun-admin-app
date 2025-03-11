@@ -2,7 +2,7 @@ import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RestService } from '@app/core/hal';
-import { Translation } from '../models/translation.model';
+import { Translation } from '@app/domain';
 
 
 @Injectable({

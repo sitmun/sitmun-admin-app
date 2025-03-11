@@ -1,8 +1,8 @@
 import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
-import {Resource} from './resource.model';
-import {ResourceArray} from './resource-array.model';
-import {HalOptions} from '../rest/rest.service';
-import {SubTypeBuilder} from '../common/subtype-builder';
+import {Resource} from '@app/core';
+import {ResourceArray} from '@app/core';
+import {HalOptions} from '@app/core';
+import {SubTypeBuilder} from '@app/core';
 import {isNullOrUndefined, isPrimitive} from 'util';
 import * as url from 'url';
 import { Injectable, Injector } from '@angular/core';
@@ -102,7 +102,7 @@ export class ResourceHelper {
         return (results && results.length > 1) ? results[1] : '';
     }
 
-    
+
     /** get resource class name from a prototype object*/
     static className(objProto: any): string[] {
         let classNames = [];

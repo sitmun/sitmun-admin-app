@@ -14,7 +14,7 @@ import { DataTreeComponent, DialogGridComponent, DialogMessageComponent, DataGri
 import { MatDialog } from '@angular/material/dialog';
 import { constants } from '@environments/constants';
 import {MatTabChangeEvent} from '@angular/material/tabs';
-
+import { LoggerService } from '@app/services/logger.service';
 
 
 @Component({
@@ -104,7 +104,8 @@ export class TreesFormComponent implements OnInit {
     public dialog: MatDialog,
     public serviceService: ServiceService,
     public capabilitiesService: CapabilitiesService,
-    public applicationService: ApplicationService
+    public applicationService: ApplicationService,
+    private loggerService: LoggerService
   ) {
 
     this.initializeTreesForm();
@@ -924,7 +925,7 @@ export class TreesFormComponent implements OnInit {
         this.refreshTreeEvent.next(true)
       },
         error => {
-          console.log(error);
+          this.loggerService.error('Error saving tree', error);
         });
 
   }
@@ -1063,7 +1064,7 @@ export class TreesFormComponent implements OnInit {
                   resolve(true);
                 },
                 error => {
-                  console.log(error);
+                  this.loggerService.error('Error saving tree node', error);
                 }
               )
             }));

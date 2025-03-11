@@ -15,8 +15,8 @@ import {config} from '@config';
 import {DialogFormComponent, DialogGridComponent, DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
 import {MatTabChangeEvent} from '@angular/material/tabs';
-import {constants} from '../../../../environments/constants';
-
+import {constants} from '@environments/constants';
+import { LoggerService } from '@app/services/logger.service';
 
 @Component({
   selector: 'app-layers-form',
@@ -154,7 +154,8 @@ export class LayersFormComponent implements OnInit {
     private territoryTypeService: TerritoryTypeService,
     private http: HttpClient,
     public utils: UtilsService,
-    private getInfoService: GetInfoService
+    private getInfoService: GetInfoService,
+    private loggerService: LoggerService
   ) {
     this.initializeLayersForm();
     this.initializeParameterForm();
@@ -713,7 +714,7 @@ export class LayersFormComponent implements OnInit {
                 this.manageGetInfoResults(result.asJson, replaceAll);
               }
             }, error => {
-              console.log(error);
+              this.loggerService.error('Error getting info service', error);
             });
           }
 

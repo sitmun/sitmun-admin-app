@@ -1,5 +1,5 @@
 import { Injectable, Injector } from '@angular/core';
-import { ConfigurationParameter } from '../models/configuration-parameters.model';
+import { ConfigurationParameter } from '@app/domain';
 import { HttpClient } from '@angular/common/http';
 import { RestService } from '@app/core/hal';
 
@@ -15,6 +15,6 @@ export class ConfigurationParametersService extends RestService<ConfigurationPar
   constructor(injector: Injector,private http: HttpClient) {
     super(ConfigurationParameter, "configuration-parameters", injector);
   }
-  
-  
+
+
 }

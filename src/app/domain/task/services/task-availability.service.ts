@@ -1,13 +1,13 @@
-import { TaskAvailability } from '../models/task-availability.model';
+import { TaskAvailability } from '@app/domain';
 import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RestService } from '@app/core/hal';
 
 /** Task availability manager service */
-@Injectable() 
+@Injectable()
 export class TaskAvailabilityService extends RestService<TaskAvailability> {
-  
+
 
   /** API resource path */
   public TASK_AVAILABILITY_API = 'task-availabilities';
@@ -16,13 +16,13 @@ export class TaskAvailabilityService extends RestService<TaskAvailability> {
   constructor(injector: Injector,private http: HttpClient) {
     super(TaskAvailability, "task-availabilities", injector);
   }
-  
+
   /** remove task availability*/
   remove(item: TaskAvailability) {
     return this.http.delete(item._links.self.href);
-   
+
   }
-  
+
   /** save task availability*/
   save(item: TaskAvailability): Observable<any> {
     let result: Observable<Object>;
@@ -30,21 +30,21 @@ export class TaskAvailabilityService extends RestService<TaskAvailability> {
       result = this.http.put(item._links.self.href, item);
       if (item.task !=null){
           item.substituteRelation('task',item.task).subscribe(result => {
-      
+
       }, error => console.error(error));
       }
       if (item.territory !=null){
           item.substituteRelation('territory',item.territory).subscribe(result => {
-      
+
       }, error => console.error(error));
       }
     } else {
       item.territory = item.territory._links.self.href;
       item.task = item.task._links.self.href;
-  
+
       result = this.http.post(this.resourceService.getResourceUrl(this.TASK_AVAILABILITY_API) , item);
     }
     return result;
   }
-  
+
 }

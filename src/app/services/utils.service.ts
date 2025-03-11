@@ -9,6 +9,7 @@ import {DialogMessageComponent, DialogTranslationComponent} from '@app/frontend-
 import {MatDialog} from '@angular/material/dialog';
 import {config} from '@config';
 import {BtnCheckboxFilterComponent} from '@app/frontend-gui/src/lib/btn-checkbox-filter/btn-checkbox-filter.component';
+import { LoggerService } from '@app/services/logger.service';
 
 @Injectable({
   providedIn: 'root',
@@ -26,7 +27,8 @@ export class UtilsService {
     private snackBar: MatSnackBar,
     private http: HttpClient,
     private location: Location,
-    private injector: Injector
+    private injector: Injector,
+    private loggerService: LoggerService
   ) {
     // Lazy load services to break circular dependency
     setTimeout(() => {
@@ -36,6 +38,7 @@ export class UtilsService {
   }
 
   showMessage(message: string | string[]) {
+    this.loggerService.debug('showMessage', message);
     this.snackBar.open(this.translate.instant(message), '', {
       duration: 5000,
     });
@@ -46,7 +49,7 @@ export class UtilsService {
   }
 
   showErrorMessage(error: any) {
-    console.error(error);
+    this.loggerService.debug('showErrorMessage', error);
     let missatge = '';
     try {
       if (error.error && error.error.errors) {
@@ -65,7 +68,6 @@ export class UtilsService {
     } catch (error) {
       missatge = error.toString();
     }
-    console.error(missatge);
     this.snackBar
       .open(missatge, 'Cerrar', {
         duration: 0,

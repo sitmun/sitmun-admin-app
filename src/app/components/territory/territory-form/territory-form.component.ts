@@ -39,6 +39,7 @@ import {
 } from '@app/frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
 import {MatTabChangeEvent} from '@angular/material/tabs';
+import { LoggerService } from '@app/services/logger.service';
 
 @Component({
   selector: 'app-territory-form',
@@ -134,7 +135,8 @@ export class TerritoryFormComponent implements OnInit {
     private userConfigurationService: UserConfigurationService,
     private userPositionService: UserPositionService,
     private http: HttpClient,
-    public utils: UtilsService
+    public utils: UtilsService,
+    private loggerService: LoggerService
   ) {
     this.initializeTerritoryForm();
   }
@@ -1093,7 +1095,7 @@ export class TerritoryFormComponent implements OnInit {
       // this.utils.updateUriList(url,tasksToPut)
       tasksToPut.forEach((task) => {
         this.taskAvailabilityService.save(task).subscribe((result) => {
-          console.log(result);
+          this.loggerService.info('Task availability saved', result);          
         });
       });
     });
@@ -1186,8 +1188,8 @@ export class TerritoryFormComponent implements OnInit {
             element.typeBottomType === false &&
             element.typeId !== this.currentTerritoryType.id
           ) {
-            console.log(element);
-            console.log(this.currentTerritoryType);
+            this.loggerService.info('Territory member of', element);
+            this.loggerService.info('Current territory type', this.currentTerritoryType);
             newTable.push(element);
           }
         });
@@ -1527,7 +1529,7 @@ export class TerritoryFormComponent implements OnInit {
         }
         this.territoryService.save(this.territoryObj).subscribe(
           async (resp) => {
-            console.log(resp);
+            this.loggerService.info('Territory saved', resp);
             this.territoryToEdit = resp;
             this.territoryID = resp.id;
             this.territoryForm.patchValue({
@@ -1549,7 +1551,7 @@ export class TerritoryFormComponent implements OnInit {
             this.getAllElementsEventPermits.next('save');
           },
           (error) => {
-            console.log(error);
+            this.loggerService.error('Error saving territory', error);
           }
         );
       } else {

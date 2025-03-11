@@ -11,6 +11,7 @@ import {DialogGridComponent} from '@app/frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
 import {of, Subject} from 'rxjs';
 import {MatTabChangeEvent} from '@angular/material/tabs';
+import { LoggerService } from '@app/services/logger.service';
 
 @Component({
   selector: 'app-layers-permits-form',
@@ -53,6 +54,7 @@ export class LayersPermitsFormComponent implements OnInit {
     private roleService: RoleService,
     private http: HttpClient,
     public utils: UtilsService,
+    private loggerService: LoggerService
   ) {
     this.initializeLayersPermitsForm();
   }
@@ -370,7 +372,7 @@ export class LayersPermitsFormComponent implements OnInit {
               this.getAllElementsEventRoles.next('save');
             },
             error => {
-              console.log(error);
+              this.loggerService.error('Error saving cartography group', error);
             });
       } else {
         this.utils.showRequiredFieldsError();

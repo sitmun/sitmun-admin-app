@@ -1,4 +1,4 @@
-import { TerritoryGroupType } from '../models/territory-group-type.model';
+import { TerritoryGroupType } from '@app/domain';
 import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -7,7 +7,7 @@ import { RestService } from '@app/core/hal';
   providedIn: 'root'
 })
 export class TerritoryGroupTypeService extends RestService<TerritoryGroupType> {
-  
+
   /** API resource path */
   public TERRITORYGROUPTYPE_API = 'territory-group-types';
 
@@ -15,13 +15,13 @@ export class TerritoryGroupTypeService extends RestService<TerritoryGroupType> {
   constructor(injector: Injector,private http: HttpClient) {
     super(TerritoryGroupType, "territory-group-types", injector);
   }
-  
+
   /** remove territory*/
   remove(item: TerritoryGroupType) {
     return this.http.delete(item._links.self.href);
-   
+
   }
-  
+
   /** save territory*/
   save(item: any): Observable<any> {
     let result: Observable<Object>;
@@ -32,5 +32,5 @@ export class TerritoryGroupTypeService extends RestService<TerritoryGroupType> {
     }
     return result;
   }
-  
+
 }

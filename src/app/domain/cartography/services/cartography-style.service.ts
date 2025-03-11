@@ -2,7 +2,7 @@ import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RestService } from '@app/core/hal';
-import { CartographyStyle } from '../models/cartography-style.model';
+import { CartographyStyle } from '@app/domain';
 
 @Injectable({
   providedIn: 'root'
@@ -16,35 +16,35 @@ export class CartographyStyleService extends RestService<CartographyStyle> {
   constructor(injector: Injector,private http: HttpClient) {
     super(CartographyStyle, "cartography-styles", injector);
   }
-  
+
   /** remove service parameter*/
   remove(item: CartographyStyle) {
     return this.http.delete(item._links.self.href);
-   
+
   }
-  
+
   /** save service parameter*/
   save(item: CartographyStyle): Observable<any> {
     let result: Observable<Object>;
     if (item._links!=null) {
-      
-      
+
+
       if (item.cartography !=null){
           let cartography =  item.cartography;
           delete item.cartography;
-          item.substituteRelation('cartography',cartography).subscribe(result => {            
-          
+          item.substituteRelation('cartography',cartography).subscribe(result => {
+
       }, error => console.error(error));
       }
       result = this.http.put(item._links.self.href, item);
-      
-      
+
+
     } else {
       item.cartography = item.cartography._links.self.href;
-  
+
       result = this.http.post(this.resourceService.getResourceUrl(this.CARTOGRAPHY_STYLES_API) , item);
     }
     return result;
   }
-  
+
 }

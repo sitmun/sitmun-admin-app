@@ -9,14 +9,17 @@ import {
 
 import {HttpClient} from '@angular/common/http';
 import {UtilsService} from '@app/services/utils.service';
+import {LoggerService} from '@app/services/logger.service';
+import {LogLevel} from '@app/services/log-level.enum';
 
-import {map} from 'rxjs/operators';
+import {map, catchError} from 'rxjs/operators';
 import {Observable, of, Subject} from 'rxjs';
 import {config} from '@config';
 import {DataGridComponent, DialogFormComponent, DialogGridComponent} from '@app/frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
 import {constants} from '@environments/constants';
 import {MatTabChangeEvent} from '@angular/material/tabs';
+import * as UriTemplate from 'uri-templates';
 
 
 @Component({
@@ -112,6 +115,7 @@ export class ApplicationFormComponent implements OnInit {
     private http: HttpClient,
     public utils: UtilsService,
     private cartographyGroupService: CartographyGroupService,
+    private loggerService: LoggerService
   ) {
     this.initializeApplicationForm();
     this.initializeParameterForm();
@@ -437,22 +441,33 @@ export class ApplicationFormComponent implements OnInit {
   // ******** Parameters configuration ******** //
 
   getAllParameters = (): Observable<any> => {
-
     if (this.applicationID == -1 && this.duplicateID == -1) {
-      const aux: any[] = [];
-      return of(aux);
+      return of([]);
     }
 
-    let urlReq = `${this.applicationToEdit._links.parameters.href}`;
+    // Check if the parameters link exists
+    if (!this.applicationToEdit._links || !this.applicationToEdit._links.parameters) {
+      this.loggerService.error('Parameters link not found in application');
+      return of([]);
+    }
+
+    // Expand the URI template using uri-templates library
+    let resourceLink = this.applicationToEdit._links.parameters.href;
     if (this.applicationToEdit._links.parameters.templated) {
-      const url = new URL(urlReq.split('{')[0]);
-      url.searchParams.append('projection', 'view');
-      urlReq = url.toString();
+      const template = new UriTemplate(resourceLink);
+      resourceLink = template.fill({ projection: 'view' });
     }
 
-    return (this.http.get(urlReq))
-      .pipe(map(data => data[`_embedded`][`application-parameters`].filter((elem: { type: string; }) => elem.type != config.applicationTemplateIdentificator)
-      ));
+    // Use applicationParameterService to get parameters for the application
+    // and filter out templates (type != config.applicationTemplateIdentificator)
+    return this.applicationParameterService.getByRelationArray(resourceLink)
+      .pipe(
+        map(parameters => parameters.filter(param => param.type !== config.applicationTemplateIdentificator)),
+        catchError(error => {
+          this.loggerService.error('Error fetching parameters:', error);
+          return of([]);
+        })
+      );
   };
 
   getAllRowsParameters(event: { event: string; data: any[]; }) {
@@ -463,9 +478,10 @@ export class ApplicationFormComponent implements OnInit {
 
 
   saveParameters(data: any[]) {
+    const promises: Promise<any>[] = [];
     // const parameterToSave = [];
     // const parameterToDelete = [];
-    const promises: Promise<any>[] = [];
+
     data.forEach(parameter => {
       if (parameter.status === 'pendingCreation' || parameter.status === 'pendingModify') {
         parameter.application = this.applicationToEdit;
@@ -475,21 +491,32 @@ export class ApplicationFormComponent implements OnInit {
         parameter.id = null;
       }
       // parameterToSave.push(parameter)
-      promises.push(new Promise((resolve, ) => {
-        this.applicationParameterService.save(parameter).subscribe(() => {
-          resolve(true);
-        });
+      promises.push(new Promise((resolve, reject) => {
+        this.applicationParameterService.save(parameter).subscribe(
+          () => {
+            resolve(true);
+          },
+          (error) => {
+            this.loggerService.error('Error saving parameter:', error);
+            reject(error);
+          }
+        );
       }));
 
 
       if (parameter.status === 'pendingDelete' && parameter._links && !parameter.newItem) {
         // parameterToDelete.push(parameter)
-        promises.push(new Promise((resolve, ) => {
-          this.applicationParameterService.remove(parameter).subscribe(() => {
-            resolve(true);
-          });
+        promises.push(new Promise((resolve, reject) => {
+          this.applicationParameterService.remove(parameter).subscribe(
+            () => {
+              resolve(true);
+            },
+            (error) => {
+              this.loggerService.error('Error removing parameter:', error);
+              reject(error);
+            }
+          );
         }));
-
       }
     });
 
@@ -502,9 +529,13 @@ export class ApplicationFormComponent implements OnInit {
 
     // });
 
-    Promise.all(promises).then(() => {
-      this.dataUpdatedEventParameters.next(true);
-    });
+    Promise.all(promises)
+      .then(() => {
+        this.dataUpdatedEventParameters.next(true);
+      })
+      .catch((error) => {
+        this.loggerService.error('Error in saveParameters:', error);
+      });
   }
 
   duplicateParameters(data: any) {
@@ -516,20 +547,32 @@ export class ApplicationFormComponent implements OnInit {
 
   getAllTemplates = (): Observable<any> => {
     if (this.applicationID == -1 && this.duplicateID == -1) {
-      const aux: any[] = [];
-      return of(aux);
+      return of([]);
     }
 
-    let urlReq = `${this.applicationToEdit._links.parameters.href}`;
+    // Check if the parameters link exists
+    if (!this.applicationToEdit._links || !this.applicationToEdit._links.parameters) {
+      this.loggerService.error('Parameters link not found in application');
+      return of([]);
+    }
+
+    // Expand the URI template using uri-templates library
+    let resourceLink = this.applicationToEdit._links.parameters.href;
     if (this.applicationToEdit._links.parameters.templated) {
-      const url = new URL(urlReq.split('{')[0]);
-      url.searchParams.append('projection', 'view');
-      urlReq = url.toString();
-    }
+      const template = new UriTemplate(resourceLink);
+      resourceLink = template.fill({ projection: 'view' });
+    } 
 
-    return (this.http.get(urlReq))
-      .pipe(map(data => data[`_embedded`][`application-parameters`].filter((elem: { type: string; }) => elem.type == config.applicationTemplateIdentificator)
-      ));
+    // Use applicationParameterService to get parameters for the application
+    // and filter for templates (type == config.applicationTemplateIdentificator)
+    return this.applicationParameterService.getByRelationArray(resourceLink)
+      .pipe(
+        map(parameters => parameters.filter(param => param.type === config.applicationTemplateIdentificator)),
+        catchError(error => {
+          this.loggerService.error('Error fetching templates:', error);
+          return of([]);
+        })
+      );
   };
 
   //To update templates we use getAllRowsParameters!
@@ -549,15 +592,27 @@ export class ApplicationFormComponent implements OnInit {
       return of(aux);
     }
 
-    let urlReq = `${this.applicationToEdit._links.availableRoles.href}`;
-    if (this.applicationToEdit._links.availableRoles.templated) {
-      const url = new URL(urlReq.split('{')[0]);
-      url.searchParams.append('projection', 'view');
-      urlReq = url.toString();
+    // Check if the availableRoles link exists
+    if (!this.applicationToEdit._links || !this.applicationToEdit._links.availableRoles) {
+      this.loggerService.error('AvailableRoles link not found in application');
+      return of([]);
     }
 
-    return (this.http.get(urlReq))
-      .pipe(map(data => data[`_embedded`][`roles`]));
+    // Expand the URI template using uri-templates library
+    let resourceLink = this.applicationToEdit._links.availableRoles.href;
+    if (this.applicationToEdit._links.availableRoles.templated) {
+      const template = new UriTemplate(resourceLink);
+      resourceLink = template.fill({ projection: 'view' });
+    } 
+
+    // Use roleService to get roles for the application
+    return this.roleService.getByRelationArray(resourceLink)
+      .pipe(
+        catchError(error => {
+          this.loggerService.error('Error fetching roles:', error);
+          return of([]);
+        })
+      );
   };
 
   getAllRowsRoles(event: { event: string; data: any[]; }) {
@@ -567,21 +622,27 @@ export class ApplicationFormComponent implements OnInit {
   }
 
   saveRoles(data: any[]) {
-    const promises: Promise<any>[] = [];
-
     let dataChanged = false;
     // const rolesModified = [];
     const rolesToPut = [];
-    data.forEach(role => {
+    const promises: Promise<any>[] = [];
 
+    data.forEach(role => {
       if (role.status !== 'pendingDelete') {
         if (role.status === 'pendingModify') {
-          promises.push(new Promise((resolve, ) => {
-            this.roleService.update(role).subscribe(() => {
-              resolve(true);
-            });
-          }));
-          if (role.newItem) {
+          // rolesModified.push(role);
+          if (role._links) {
+            promises.push(new Promise((resolve, reject) => {
+              this.roleService.save(role).subscribe(
+                () => {
+                  resolve(true);
+                },
+                (error) => {
+                  this.loggerService.error('Error saving role:', error);
+                  reject(error);
+                }
+              );
+            }));
             dataChanged = true;
           }
         } else if (role.status === 'pendingCreation') {
@@ -591,40 +652,55 @@ export class ApplicationFormComponent implements OnInit {
       } else {
         dataChanged = true;
       }
-
     });
 
-    Promise.all(promises).then(() => {
-      if (dataChanged) {
-        const url = this.applicationToEdit._links.availableRoles.href.split('{', 1)[0];
-        this.utils.updateUriList(url, rolesToPut, this.dataUpdatedEventRoles);
-      } else {
-        this.dataUpdatedEventRoles.next(true);
-      }
-    });
-
+    Promise.all(promises)
+      .then(() => {
+        if (dataChanged) {
+          const url = this.applicationToEdit._links.availableRoles.href.split('{', 1)[0];
+          try {
+            this.utils.updateUriList(url, rolesToPut, this.dataUpdatedEventRoles);
+          } catch (error) {
+            this.loggerService.error('Error updating URI list for roles:', error);
+          }
+        } else {
+          this.dataUpdatedEventRoles.next(true);
+        }
+      })
+      .catch((error) => {
+        this.loggerService.error('Error in saveRoles:', error);
+      });
   }
 
   // ******** Background ******** //
 
   getAllBackgrounds = (): Observable<any> => {
-
     if (this.applicationID == -1 && this.duplicateID == -1) {
       const aux: any[] = [];
       return of(aux);
     }
 
-    let urlReq = `${this.applicationToEdit._links.backgrounds.href}`;
-    if (this.applicationToEdit._links.backgrounds.templated) {
-      const url = new URL(urlReq.split('{')[0]);
-      url.searchParams.append('projection', 'view');
-      urlReq = url.toString();
+    // Check if the backgrounds link exists
+    if (!this.applicationToEdit._links || !this.applicationToEdit._links.backgrounds) {
+      this.loggerService.error('Backgrounds link not found in application');
+      return of([]);
     }
 
-    return (this.http.get(urlReq))
-      .pipe(map(data => data['_embedded']['application-backgrounds']));
+    // Expand the URI template using uri-templates library
+    let resourceLink = this.applicationToEdit._links.backgrounds.href;
+    if (this.applicationToEdit._links.backgrounds.templated) {
+      const template = new UriTemplate(resourceLink);
+      resourceLink = template.fill({ projection: 'view' });
+    } 
 
-
+    // Use applicationBackgroundService to get backgrounds for the application
+    return this.applicationBackgroundService.getByRelationArray(resourceLink)
+      .pipe(
+        catchError(error => {
+          this.loggerService.error('Error fetching backgrounds:', error);
+          return of([]);
+        })
+      );
   };
 
   getAllRowsBackgrounds(event: { event: string; data: any[]; }) {
@@ -634,100 +710,115 @@ export class ApplicationFormComponent implements OnInit {
   }
 
   saveBackgrounds(data: any[]) {
+    const promises: Promise<any>[] = [];
     // const backgroundsToCreate = [];
     // const backgroundsToDelete = [];
-    const promises: Promise<any>[] = [];
-    // const promisesBackground: Promise<any>[] = [];
-    data.forEach(background => {
-      if (background.status === 'pendingCreation' || (background.status === 'pendingModify') && (background.new)) {
 
-        const index = data.findIndex(element => element.backgroundDescription === background.backgroundDescription && element.backgroundName === background.backgroundName && !element.newItem);
-        if (index === -1) {
-          background.newItem = false;
-          background.application = this.applicationToEdit;
-          if (background._links) { //Duplicate
-            let urlReqBackground = `${background._links.background.href}`;
-            background.id = null;
-            if (background._links.background.href) {
-              const url = new URL(urlReqBackground.split('{')[0]);
-              url.searchParams.append('projection', 'view');
-              urlReqBackground = url.toString();
-            }
-            background._links = null;
-            promises.push(new Promise((resolve, ) => {
-              this.http.get(urlReqBackground).subscribe(result => {
-                background.background = result;
-                this.applicationBackgroundService.save(background).subscribe(() => {
+    data.forEach(background => {
+      if (background.status === 'pendingCreation') {
+        if (background.background) {
+          if (background.background._links) {
+            background.background = background.background._links.self.href;
+            promises.push(new Promise((resolve, reject) => {
+              this.applicationBackgroundService.save(background).subscribe(
+                () => {
                   resolve(true);
-                });
-                // backgroundsToCreate.push(background)
-                // resolve(true);
-              });
+                },
+                (error) => {
+                  this.loggerService.error('Error saving background:', error);
+                  reject(error);
+                }
+              );
             }));
           } else {
-            // backgroundsToCreate.push(background)
-            promises.push(new Promise((resolve, ) => {
-              this.applicationBackgroundService.save(background).subscribe(() => {
-                resolve(true);
-              });
+            promises.push(new Promise((resolve, reject) => {
+              this.backgroundService.save(background.background).subscribe(
+                (resp) => {
+                  background.background = resp._links.self.href;
+                  this.applicationBackgroundService.save(background).subscribe(
+                    () => {
+                      resolve(true);
+                    },
+                    (error) => {
+                      this.loggerService.error('Error saving application background:', error);
+                      reject(error);
+                    }
+                  );
+                },
+                (error) => {
+                  this.loggerService.error('Error saving background:', error);
+                  reject(error);
+                }
+              );
             }));
           }
         }
       } else if (background.status === 'pendingModify') {
-        promises.push(new Promise((resolve, ) => {
-          this.applicationBackgroundService.save(background).subscribe(() => {
-            resolve(true);
-          });
+        promises.push(new Promise((resolve, reject) => {
+          this.applicationBackgroundService.save(background).subscribe(
+            () => {
+              resolve(true);
+            },
+            (error) => {
+              this.loggerService.error('Error updating background:', error);
+              reject(error);
+            }
+          );
         }));
       } else if (background.status === 'pendingDelete' && !background.newItem) {
-        // backgroundsToDelete.push(background)
-        promises.push(new Promise((resolve, ) => {
-          this.applicationBackgroundService.remove(background).subscribe(() => {
-            resolve(true);
-          });
+        promises.push(new Promise((resolve, reject) => {
+          this.applicationBackgroundService.remove(background).subscribe(
+            () => {
+              resolve(true);
+            },
+            (error) => {
+              this.loggerService.error('Error removing background:', error);
+              reject(error);
+            }
+          );
         }));
-
       }
     });
 
-
-    // backgroundsToCreate.forEach(newElement => {
-    //   promises.push(new Promise((resolve, reject) => { this.applicationBackgroundService.save(newElement).subscribe((resp) => { resolve(true) }) }));
-    // });
-
-    // backgroundsToDelete.forEach(deletedElement => {
-    //   promises.push(new Promise((resolve, reject) => { this.applicationBackgroundService.remove(deletedElement).subscribe((resp) => { resolve(true) }) }));
-    // });
-
-
-    Promise.all(promises).then(() => {
-      this.dataUpdatedEventBackground.next(true);
-    });
-
-
+    Promise.all(promises)
+      .then(() => {
+        this.dataUpdatedEventBackground.next(true);
+      })
+      .catch((error) => {
+        this.loggerService.error('Error in saveBackgrounds:', error);
+      });
   }
 
 
   // ******** Trees ******** //
 
   getAllTrees = (): Observable<any> => {
-
     if (this.applicationID == -1 && this.duplicateID == -1) {
       const aux: any[] = [];
       return of(aux);
     }
 
-    let urlReq = `${this.applicationToEdit._links.trees.href}`;
-    if (this.applicationToEdit._links.trees.templated) {
-      const url = new URL(urlReq.split('{')[0]);
-      url.searchParams.append('projection', 'view');
-      urlReq = url.toString();
+    // Check if the trees link exists
+    if (!this.applicationToEdit._links || !this.applicationToEdit._links.trees) {
+      this.loggerService.error('Trees link not found in application');
+      return of([]);
     }
 
-    return (this.http.get(urlReq))
-      .pipe(map(data => data['_embedded']['trees']));
-
-
+    // Expand the URI template using uri-templates library
+    let resourceLink = this.applicationToEdit._links.trees.href;
+    if (this.applicationToEdit._links.trees.templated) {
+      const template = new UriTemplate(resourceLink);
+      resourceLink = template.fill({ projection: 'view' });
+    } 
+    
+    // Use treeService to get trees for the application
+    return this.treeService.getByRelationArray(resourceLink)
+      .pipe(
+        catchError(error => {
+          this.loggerService.error('Error fetching trees:', error);
+          return of([]);
+        })
+      );
   };
 
   getAllRowsTrees(event: { event: string; data: any[]; }) {
@@ -1019,7 +1110,7 @@ export class ApplicationFormComponent implements OnInit {
           this.getAllElementsEventTree.next('save');
         },
         error => {
-          console.log(error);
+          this.loggerService.error(error);
         });
   }
 

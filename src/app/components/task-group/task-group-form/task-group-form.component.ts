@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {TaskGroupService} from '@app/domain';
-
+import { LoggerService } from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 import {MatTabChangeEvent} from '@angular/material/tabs';
 
@@ -23,6 +23,7 @@ export class TaskGroupFormComponent implements OnInit {
     private router: Router,
     private taskGroupService: TaskGroupService,
     public utils: UtilsService,
+    private loggerService: LoggerService
   ) {
     this.initializeTaskGroupForm();
   }
@@ -104,7 +105,7 @@ export class TaskGroupFormComponent implements OnInit {
             });
           },
           error => {
-            console.log(error);
+            this.loggerService.error('Error saving task group', error);
           });
     } else {
       this.utils.showRequiredFieldsError();

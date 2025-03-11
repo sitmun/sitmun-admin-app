@@ -3,7 +3,7 @@ import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ConnectionService, CartographyService, TaskService, CodeListService,TranslationService,ResourceService,ExternalService } from '@app/domain';
-import { ConnectionFormComponent } from '../connection-form/connection-form.component';
+import { ConnectionFormComponent } from './connection-form.component';
 import { MaterialModule } from '@app/material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';

@@ -12,6 +12,7 @@ import { APP_ROUTING } from './app-routes';
 import { CoreModule } from '@app/core';
 import { DomainModule } from '@app/domain';
 import { ServicesModule } from './services/services.module';
+import { HalModule } from '@app/core/hal';
 
 //i18n
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
@@ -59,6 +60,16 @@ import { TaskGroupComponent } from '@app/components/task-group/task-group.compon
 import { TaskGroupFormComponent } from '@app/components/task-group/task-group-form/task-group-form.component';
 import { TasksComponent } from '@app/components/tasks/tasks.component';
 import { LoginComponent } from '@app/components/login/login.component';
+import { LogLevelControlComponent } from '@app/components/log-level-control/log-level-control.component';
+import { DashboardComponent } from '@app/components/dashboard/dashboard.component';
+import { TaskFormComponent } from '@app/components/task-form/task-form.component';
+import { NgTemplateNameDirective } from '@app/components/task-form/ng-template-name.directive';
+import { TasksEditionCartographyTableComponent } from '@app/components/tasks-edition-cartography-table/tasks-edition-cartography-table.component';
+import { TasksEditionDataTableComponent } from '@app/components/tasks-edition-data-table/tasks-edition-data-table.component';
+import { TasksEditionRelationTableComponent } from '@app/components/tasks-edition-relation-table/tasks-edition-relation-table.component';
+import { TasksEditionSearchViewComponent } from '@app/components/tasks-edition-search-view/tasks-edition-search-view.component';
+import {MatTabsModule} from '@angular/material/tabs';
+import {MatTooltipModule} from '@angular/material/tooltip';
 
 //Services
 import {
@@ -97,15 +108,6 @@ import {
   TaskTypeService,
   CapabilitiesService
 } from '@app/domain';
-import { DashboardComponent } from '@app/components/dashboard/dashboard.component';
-import { TaskFormComponent } from '@app/components/task-form/task-form.component';
-import { NgTemplateNameDirective } from '@app/components/task-form/ng-template-name.directive';
-import { TasksEditionCartographyTableComponent } from '@app/components/tasks-edition-cartography-table/tasks-edition-cartography-table.component';
-import { TasksEditionDataTableComponent } from '@app/components/tasks-edition-data-table/tasks-edition-data-table.component';
-import { TasksEditionRelationTableComponent } from '@app/components/tasks-edition-relation-table/tasks-edition-relation-table.component';
-import { TasksEditionSearchViewComponent } from '@app/components/tasks-edition-search-view/tasks-edition-search-view.component';
-import {MatTabsModule} from '@angular/material/tabs';
-import {MatTooltipModule} from '@angular/material/tooltip';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { ResourceService, ExternalService } from '@app/core/hal';
 
@@ -154,6 +156,7 @@ import { ResourceService, ExternalService } from '@app/core/hal';
     TasksEditionDataTableComponent,
     TasksEditionRelationTableComponent,
     TasksEditionSearchViewComponent,
+    LogLevelControlComponent
   ],
   imports: [
     BrowserModule,
@@ -167,6 +170,7 @@ import { ResourceService, ExternalService } from '@app/core/hal';
     MaterialModule,
     RouterModule,
     DataGridComponent,
+    HalModule.forRoot(),
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,

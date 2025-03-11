@@ -1,13 +1,13 @@
-import { ApplicationParameter } from '../models/application-parameter.model';
+import { ApplicationParameter } from '@app/domain';
 import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RestService } from '@app/core/hal';
 
 /** Application parameter manager service */
-@Injectable() 
+@Injectable()
 export class ApplicationParameterService extends RestService<ApplicationParameter> {
-  
+
 
   /** API resource path */
   public APPLICATION_PARAMETER_API = 'application-parameters';
@@ -16,13 +16,13 @@ export class ApplicationParameterService extends RestService<ApplicationParamete
   constructor(injector: Injector,private http: HttpClient) {
     super(ApplicationParameter, "application-parameters", injector);
   }
-  
+
   /** remove application*/
   remove(item: ApplicationParameter) {
     return this.http.delete(item._links.self.href);
-   
+
   }
-  
+
   /** save application*/
   save(item: ApplicationParameter): Observable<any> {
     let result: Observable<Object>;
@@ -30,16 +30,16 @@ export class ApplicationParameterService extends RestService<ApplicationParamete
       result = this.http.put(item._links.self.href, item);
       if (item.application !=null){
           item.substituteRelation('application',item.application).subscribe(result => {
-      
+
       }, error => console.error(error));
       }
-      
+
     } else {
       item.application = item.application._links.self.href;
-  
+
       result = this.http.post(this.resourceService.getResourceUrl(this.APPLICATION_PARAMETER_API) , item);
     }
     return result;
   }
-  
+
 }

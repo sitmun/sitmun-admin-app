@@ -1,8 +1,9 @@
 import { RestService } from '@app/core/hal';
-import { UserConfiguration } from '../models/user-configuration.model';
+import { UserConfiguration } from '@app/domain';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
 import { Observable } from 'rxjs';
+import { LoggerService } from '@app/services/logger.service';
 
 /** User configuration manager service */
 @Injectable()
@@ -12,7 +13,7 @@ export class UserConfigurationService extends RestService<UserConfiguration> {
   public USER_CONFIGURATION_API = 'user-configurations';
 
   /** constructor */
-  constructor(injector: Injector, private http: HttpClient) {
+  constructor(injector: Injector, private http: HttpClient, private loggerService: LoggerService) {
     super(UserConfiguration, "user-configurations", injector);
   }
 
@@ -25,7 +26,7 @@ export class UserConfigurationService extends RestService<UserConfiguration> {
   /** save user configuration*/
   save(item: any): Observable<any> {
     let result: Observable<object>;
-    console.log(item);
+    this.loggerService.info('Saving user configuration', item);
     if (item._links != null) {
       result = this.http.put(item._links.self.href, item);
     } else {

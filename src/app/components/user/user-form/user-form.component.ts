@@ -14,9 +14,9 @@ import {Observable, of, Subject} from 'rxjs';
 import {config} from '@config';
 import {DialogGridComponent, DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
-import {constants} from '../../../../environments/constants';
+import {constants} from '@environments/constants';
 import {MatTabChangeEvent} from '@angular/material/tabs';
-
+import { LoggerService } from '@app/services/logger.service';
 
 @Component({
   selector: 'app-user-form',
@@ -73,6 +73,7 @@ export class UserFormComponent implements OnInit {
     private roleService: RoleService,
     private userPositionService: UserPositionService,
     private territoryService: TerritoryService,
+    private loggerService: LoggerService
   ) {
     this.initializeUserForm();
   }
@@ -758,7 +759,7 @@ export class UserFormComponent implements OnInit {
           this.getAllElementsEventTerritoryData.next('save');
           this.getAllElementsEventPermits.next('save');
         }, error => {
-          console.log(error);
+          this.loggerService.error('Error saving user', error);
         });
 
 

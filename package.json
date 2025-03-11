@@ -44,6 +44,7 @@
     "stream": "0.0.2",
     "timers": "^0.1.1",
     "tslib": "^2.0.0",
+    "uri-templates": "^0.2.0",
     "url": "^0.11.3",
     "util": "^0.12.5",
     "web-animations-js": "^2.3.2",

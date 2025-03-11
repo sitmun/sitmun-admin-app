@@ -1,14 +1,15 @@
-import { throwError as observableThrowError, Observable } from 'rxjs';
+import { throwError as observableThrowError, Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Resource } from './resource.model';
 import { ResourceHelper } from './resource-helper';
 import { Injectable } from '@angular/core';
 import { HttpParams, HttpResponse, HttpHeaders } from '@angular/common/http';
-import { Sort } from '../rest/sort.model';
-import { ResourceArray } from './resource-array.model';
-import { ExternalService } from '../config/external.service';
-import { HalOptions } from '../rest/rest.service';
-import { SubTypeBuilder } from '../common/subtype-builder';
+import { Sort } from '@app/core';
+import { ResourceArray } from '@app/core';
+import { ExternalService } from '@app/core';
+import { HalOptions } from '@app/core';
+import { SubTypeBuilder } from '@app/core';
+import { LoggerService } from '@app/services/logger.service';
 
 /** ResourceService */
 @Injectable()
@@ -16,7 +17,7 @@ export class ResourceService {
 
 
     /** constructor */
-    constructor(private externalService: ExternalService) { }
+    constructor(private externalService: ExternalService, private loggerService: LoggerService) { }
 
 
     /** get URL */
@@ -109,8 +110,8 @@ export class ResourceService {
 
     /** get resource array given a relation link */
     public getByRelationArray<T extends Resource>(type: { new(): T }, resourceLink: string, _embedded: string, builder?: SubTypeBuilder): Observable<ResourceArray<T>> {
+        this.loggerService.trace("ResourceService.getByRelationArray:", type.name, resourceLink, _embedded, builder);
         const result: ResourceArray<T> = ResourceHelper.createEmptyResult<T>(_embedded);
-
         this.setUrls(result);
         let observable = ResourceHelper.getHttp().get(resourceLink, { headers: ResourceHelper.headers });
         return observable.pipe(map(response => ResourceHelper.instantiateResourceCollection(type, response, result, builder)),

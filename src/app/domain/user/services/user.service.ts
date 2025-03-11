@@ -1,5 +1,5 @@
 import { RestService } from '@app/core/hal';
-import { User } from '../models/user.model';
+import { User } from '@app/domain';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
 import { Observable } from 'rxjs';

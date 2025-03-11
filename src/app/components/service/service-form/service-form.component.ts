@@ -21,9 +21,9 @@ import {MatChipInputEvent} from '@angular/material/chips';
 import {config} from '@config';
 import {DialogFormComponent, DialogGridComponent, DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
-import {constants} from '../../../../environments/constants';
+import {constants} from '@environments/constants';
 import { MatTabChangeEvent } from '@angular/material/tabs';
-
+import { LoggerService } from '@app/services/logger.service';
 @Component({
   selector: 'app-service-form',
   templateUrl: './service-form.component.html',
@@ -88,7 +88,8 @@ export class ServiceFormComponent implements OnInit {
     public cartographyService: CartographyService,
     public serviceParameterService: ServiceParameterService,
     public cartographyStyleService: CartographyStyleService,
-    public capabilitiesService: CapabilitiesService
+    public capabilitiesService: CapabilitiesService,
+    private loggerService: LoggerService
   ) {
     this.initializeServiceForm();
     this.initializeParameterForm();
@@ -315,11 +316,11 @@ export class ServiceFormComponent implements OnInit {
           this.changeServiceDataByCapabilities(refresh, ignoreForm);
         }
       }, error => {
-        console.log(error);
+        this.loggerService.error('Error getting capabilities data', error);
         this.capabilitiesLoaded = true;
       });
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      this.loggerService.error('Error getting capabilities data', error);
       this.utils.showErrorMessage('ERROR');
       this.capabilitiesLoaded = true;
 
@@ -870,7 +871,7 @@ export class ServiceFormComponent implements OnInit {
             this.getAllElementsEventLayers.next('save');
           },
           error => {
-            console.log(error);
+            this.loggerService.error('Error saving service', error);
           }
         );
     } else {

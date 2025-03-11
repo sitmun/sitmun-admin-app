@@ -1,5 +1,12 @@
-import { ExternalConfiguration } from './external-configuration.model';
 import { HttpClient } from '@angular/common/http';
+
+/** External configuration data model */
+export class ExternalConfiguration {
+    /** root URI */
+    public rootUrl: string;
+    /** proxy URI */
+    public proxyUrl: string;
+}
 
 /** External configuration handler interface */
 export interface ExternalConfigurationHandlerInterface {
@@ -14,5 +21,5 @@ export interface ExternalConfigurationHandlerInterface {
     getHttp(): HttpClient;
 
     /** set ExternalConfiguration */
-    setExternalConfiguration(externalConfiguration: ExternalConfiguration);
-}
+    setExternalConfiguration(externalConfiguration: ExternalConfiguration): void;
+} 

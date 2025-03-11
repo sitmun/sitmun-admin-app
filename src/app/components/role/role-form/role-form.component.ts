@@ -12,8 +12,8 @@ import { config } from '@config';
 import { DialogGridComponent, DialogMessageComponent } from '@app/frontend-gui/src/lib/public_api';
 import { MatDialog } from '@angular/material/dialog';
 import {MatTabChangeEvent} from '@angular/material/tabs';
-import {constants} from '../../../../environments/constants';
-
+import {constants} from '@environments/constants';
+import { LoggerService } from '@app/services/logger.service';
 
 @Component({
   selector: 'app-role-form',
@@ -78,7 +78,8 @@ export class RoleFormComponent implements OnInit {
     private http: HttpClient,
     public utils: UtilsService,
     private userConfigurationService: UserConfigurationService,
-    private territoryService: TerritoryService
+    private territoryService: TerritoryService,
+    private loggerService: LoggerService
   ) {
     this.initializeRoleForm();
   }
@@ -776,7 +777,7 @@ export class RoleFormComponent implements OnInit {
         this.getAllElementsEventTasks.next('save');
       },
         error => {
-          console.log(error);
+          this.loggerService.error('Error saving role', error);
         });
 
       }

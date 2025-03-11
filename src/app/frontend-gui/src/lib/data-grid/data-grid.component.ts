@@ -8,11 +8,11 @@ import {
 import { ClientSideRowModelModule } from '@ag-grid-community/client-side-row-model';
 import { CsvExportModule } from '@ag-grid-community/csv-export';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
-import { BtnEditRenderedComponent } from '../btn-edit-rendered/btn-edit-rendered.component';
-import { BtnCheckboxRenderedComponent } from '../btn-checkbox-rendered/btn-checkbox-rendered.component';
-import { BtnCheckboxFilterComponent } from '../btn-checkbox-filter/btn-checkbox-filter.component';
+import { BtnEditRenderedComponent } from '@app/frontend-gui/src/lib/btn-edit-rendered/btn-edit-rendered.component';
+import { BtnCheckboxRenderedComponent } from '@app/frontend-gui/src/lib/btn-checkbox-rendered/btn-checkbox-rendered.component';
+import { BtnCheckboxFilterComponent } from '@app/frontend-gui/src/lib/btn-checkbox-filter/btn-checkbox-filter.component';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { DialogMessageComponent } from '../dialog-message/dialog-message.component';
+import { DialogMessageComponent } from '@app/frontend-gui/src/lib/dialog-message/dialog-message.component';
 import { CommonModule } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {AgGridModule} from '@ag-grid-community/angular';
@@ -23,7 +23,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatInputModule} from '@angular/material/input';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {MatCardModule} from '@angular/material/card';
-import {UtilsService} from '../../../../services/utils.service';
+import {UtilsService} from '@app/services/utils.service';
 
 declare let $: any;
 

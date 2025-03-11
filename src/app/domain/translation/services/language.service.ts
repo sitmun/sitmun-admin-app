@@ -2,7 +2,7 @@ import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RestService } from '@app/core/hal';
-import { Language } from '../models/language.model';
+import { Language } from '@app/domain';
 
 
 @Injectable({
@@ -17,13 +17,13 @@ export class LanguageService extends RestService<Language> {
   constructor(injector: Injector,private http: HttpClient) {
     super(Language, "languages", injector);
   }
-  
+
   /** remove translation*/
   remove(item: Language) {
     return this.http.delete(item._links.self.href);
-   
+
   }
-  
+
   /** save translation*/
   save(item: Language): Observable<any> {
     let result: Observable<Object>;

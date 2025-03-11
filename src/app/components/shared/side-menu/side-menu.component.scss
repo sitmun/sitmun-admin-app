@@ -24,6 +24,8 @@
 }
 
 .mat-expansion-panel-header{
+  font-size: 16px;
+  font-weight: normal;
   padding: $spacing-sm $spacing-sm $spacing-sm 0px;
 }
 
@@ -96,13 +98,6 @@
 
 .altresMenus{
   border-top: 1px solid $medium-gray;
-  font-size: normal;
-  text-align: left;
-}
-
-.span{
-  font-size: normal;
-  text-align: left;
 }
 
 .expandible-option {

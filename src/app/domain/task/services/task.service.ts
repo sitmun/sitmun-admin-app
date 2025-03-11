@@ -1,4 +1,4 @@
-import { Task } from '../models/task.model';
+import { Task } from '@app/domain';
 import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -20,7 +20,7 @@ export class TaskService extends RestService<Task> {
     remove(item: Task) {
         return this.http.delete(item._links.self.href);
     }
-    
+
     /** save task*/
     save(item: Task): Observable<any> {
         let result: Observable<Object>;
@@ -33,7 +33,7 @@ export class TaskService extends RestService<Task> {
                 service._links.self = {};
                 service._links.self.href = "";
                 item.deleteRelation('service', service).subscribe(result => {
-                }, error => console.error(error)); 
+                }, error => console.error(error));
             }else {
                 item.service._links.self.href=item.service._links.self.href.split("{")[0]
                 item.substituteRelation('service', item.service).subscribe(result => {
@@ -46,7 +46,7 @@ export class TaskService extends RestService<Task> {
                 cartography._links.self = {};
                 cartography._links.self.href = "";
                 item.deleteRelation('cartography', cartography).subscribe(result => {
-                }, error => console.error(error)); 
+                }, error => console.error(error));
             }else {
                 item.cartography._links.self.href=item.cartography._links.self.href.split("{")[0]
                 item.substituteRelation('cartography', item.cartography).subscribe(result => {
@@ -60,7 +60,7 @@ export class TaskService extends RestService<Task> {
                 connection._links.self = {};
                 connection._links.self.href = "";
                 item.deleteRelation('connection', connection).subscribe(result => {
-                }, error => console.error(error)); 
+                }, error => console.error(error));
             }else {
                 item.connection._links.self.href=item.connection._links.self.href.split("{")[0]
                 item.substituteRelation('connection', item.connection).subscribe(result => {
@@ -70,7 +70,7 @@ export class TaskService extends RestService<Task> {
 
             if (!item.ui) {
                 // item.deleteRelation('ui', item.ui).subscribe(result => {
-                // }, error => console.error(error)); 
+                // }, error => console.error(error));
             }else {
                 item.ui._links.self.href=item.ui._links.self.href.split("{")[0]
                 item.substituteRelation('ui', item.ui).subscribe(result => {
@@ -80,7 +80,7 @@ export class TaskService extends RestService<Task> {
 
             if (!item.group) {
                 // item.deleteRelation('group', item.group).subscribe(result => {
-                // }, error => console.error(error)); 
+                // }, error => console.error(error));
             }else {
                 item.group._links.self.href=item.group._links.self.href.split("{")[0]
                 item.substituteRelation('group', item.group).subscribe(result => {
@@ -90,7 +90,7 @@ export class TaskService extends RestService<Task> {
 
             if (!item.type) {
                 // item.deleteRelation('type', item.type).subscribe(result => {
-                // }, error => console.error(error)); 
+                // }, error => console.error(error));
             }else {
                 item.type._links.self.href=item.type._links.self.href.split("{")[0]
                 item.substituteRelation('type', item.type).subscribe(result => {
@@ -105,7 +105,7 @@ export class TaskService extends RestService<Task> {
                 }, error => console.error(error));
             }
 
-            result = this.http.put(item._links.self.href, item);            
+            result = this.http.put(item._links.self.href, item);
         } else {
             if(item.cartography){
                 item.cartography = item.cartography._links.self.href

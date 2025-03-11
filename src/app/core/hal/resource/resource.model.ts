@@ -1,13 +1,12 @@
 import {throwError as observableThrowError, of as observableOf, Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {HttpParams} from '@angular/common/http';
-import {ResourceHelper} from './resource-helper';
-import {ResourceArray} from './resource-array.model';
+import {ResourceHelper} from '@app/core';
+import {ResourceArray} from '@app/core';
 import {isNullOrUndefined} from 'util';
-import {HalOptions} from '../rest/rest.service';
-import {SubTypeBuilder} from '../common/subtype-builder';
+import {HalOptions} from '@app/core';
+import {SubTypeBuilder} from '@app/core';
 import {Injectable} from '@angular/core';
-import { ArrayInterface } from '../common/array-interface';
 
 /** Abstract resource class*/
 @Injectable()
@@ -23,8 +22,8 @@ export abstract class Resource {
     /** subtypes */
     public _subtypes: Map<string, any>;
 
-    
-    /** get subtypes */    
+
+    /** get subtypes */
     public get subtypes(): Map<string, any> {
         return this._subtypes;
     }
@@ -112,8 +111,8 @@ export abstract class Resource {
             return observableThrowError('no relation found');
         }
     }
-    
-    
+
+
     /** Bind the given resource to this resource by the given relation*/
     public substituteAllRelation<T extends Resource>(relation: string, resources: Resource[]): Observable<any> {
         if (!isNullOrUndefined(this._links) && !isNullOrUndefined(this._links[relation])) {
@@ -145,11 +144,11 @@ export abstract class Resource {
             return observableThrowError('no relation found');
         }
     }
-    
+
     /** Unbind the resource with the given relation from this resource*/
     public deleteAllRelation<T extends Resource>(relation: string): Observable<any> {
         return ResourceHelper.getHttp().delete(ResourceHelper.getProxy(this._links[relation].href ), {headers: ResourceHelper.headers});
-        
+
     }
 
 }

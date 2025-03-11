@@ -2,7 +2,7 @@ import { Injectable, Injector } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RestService } from '@app/core/hal';
-import { Info } from '../models/info.model';
+import { Info } from '@app/domain';
 
 
 @Injectable({
@@ -25,17 +25,17 @@ export class GetInfoService extends RestService<Info>  {
         const headerDict = {
           'Charset': 'UTF-8'
         }
-        
-        const requestOptions = {                                                                                                                                                                                 
-          headers: new HttpHeaders(headerDict), 
+
+        const requestOptions = {
+          headers: new HttpHeaders(headerDict),
         };
         let finalUrl = this.resourceService.getResourceUrl(this.INFO_API);
         finalUrl = finalUrl.concat(url);
-       
+
         result = this.http.get(finalUrl, requestOptions);
       }
       return result;
- 
+
     }
-  
+
 }
