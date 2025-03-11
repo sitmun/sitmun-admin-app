@@ -44,7 +44,11 @@ export class UserInfoComponent implements OnInit {
   }
 
   logout(): void {
+    // Call the login service to handle logout
     this.loginService.logout();
+    
+    // Force reload the application to clear all states
+    window.location.reload();
   }
 
   getUserFullName(): string {

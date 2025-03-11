@@ -40,7 +40,12 @@ export class LoginService {
 
   /** logout operation */
   logout() {
-    this.authServerProvider.logout().subscribe();
+    // First clear the authentication state
     this.principal.authenticate(null);
+    
+    // Then call the auth service to clear tokens
+    this.authServerProvider.logout().subscribe(() => {
+      // Additional cleanup if needed
+    });
   }
 }

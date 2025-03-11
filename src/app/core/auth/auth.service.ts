@@ -78,11 +78,14 @@ export class AuthService {
 
   /** logout operation */
   logout(): Observable<any> {
-
     return new Observable((observer) => {
-      //localStorage.removeItem('authenticationToken');
+      // Clear authentication token
       sessionStorage.removeItem('authenticationToken');
-      //sessionStorage.removeItem('expires_at');
+      
+      // Clear any other session data if needed
+      // sessionStorage.clear(); // Uncomment if you want to clear all session data
+      
+      // Complete the observable
       observer.complete();
     });
   }
