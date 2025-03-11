@@ -6,10 +6,10 @@ import { environment } from '@environments/environment';
 @Component({
   selector: 'app-log-level-control',
   template: `
-    <div class="log-level-control" *ngIf="!environment.production">
-      <button mat-button [matMenuTriggerFor]="logLevelMenu" class="log-level-button">
-        <mat-icon class="log-icon">bug_report</mat-icon>
-        <span class="log-level-text">{{ getLogLevelName(currentLogLevel) }}</span>
+    <div class="toolbar-control" *ngIf="!environment.production">
+      <button mat-button [matMenuTriggerFor]="logLevelMenu" class="toolbar-button">
+        <mat-icon class="toolbar-icon">bug_report</mat-icon>
+        <span class="toolbar-text">{{ getLogLevelName(currentLogLevel) }}</span>
       </button>
       <mat-menu #logLevelMenu="matMenu">
         <button mat-menu-item *ngFor="let level of logLevels" (click)="onLogLevelChange(level.value)">
@@ -19,29 +19,6 @@ import { environment } from '@environments/environment';
       </mat-menu>
     </div>
   `,
-  styles: [`
-    .log-level-control {
-      display: inline-flex;
-      align-items: center;
-    }
-    .log-level-button {
-      background-color: #FF9300;
-      color: white;
-      font-size: 0.8em;
-      padding: 0 8px;
-      height: 30px;
-      line-height: 30px;
-    }
-    .log-icon {
-      font-size: 16px;
-      height: 16px;
-      width: 16px;
-      margin-right: 4px;
-    }
-    .log-level-text {
-      margin-left: 4px;
-    }
-  `]
 })
 export class LogLevelControlComponent implements OnInit {
   currentLogLevel: LogLevel;

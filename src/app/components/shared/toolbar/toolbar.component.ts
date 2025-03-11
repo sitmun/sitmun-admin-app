@@ -2,7 +2,6 @@ import { Output } from '@angular/core';
 import { EventEmitter } from '@angular/core';
 import { Component } from '@angular/core';
 import { SidenavService } from '@app/services/sidenav.service';
-import { LoginService } from '@app/core/auth/login.service';
 import { Router } from '@angular/router';
 @Component({
   selector: 'app-toolbar',
@@ -11,7 +10,7 @@ import { Router } from '@angular/router';
 })
 export class ToolbarComponent{
   langList: any = [];
-  constructor(private sidenav: SidenavService, public loginService:LoginService, private router: Router) { }
+  constructor(private sidenav: SidenavService, private router: Router) { }
 
   @Output()
   open: EventEmitter<boolean> = new EventEmitter()
@@ -22,11 +21,5 @@ export class ToolbarComponent{
 
   clickLogo(){
     this.router.navigate(['dashboard'])
-  }
-
-  
-  /** User log out*/
-  logout(){
-    this.loginService.logout();
   }
 }

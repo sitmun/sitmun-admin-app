@@ -877,3 +877,27 @@ h4 > .mat-icon {
   display: flex !important;
   flex-direction: column;
 }
+
+// Toolbar styles
+
+.toolbar-control {
+  display: inline-flex;
+  align-items: center;
+}
+.toolbar-button {
+  background-color: #FF9300;
+  color: white;
+  font-size: 0.8em;
+  padding: 0 8px;
+  height: 30px;
+  line-height: 30px;
+}
+.toolbar-icon {
+  font-size: 16px;
+  height: 16px;
+  width: 16px;
+  margin-right: 4px;
+}
+.toolbar-text {
+  margin-left: 4px;
+}

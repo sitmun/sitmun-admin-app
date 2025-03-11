@@ -37,6 +37,7 @@ import { ApplicationComponent } from '@app/components/application/application.co
 import { RoleComponent } from '@app/components/role/role.component';
 import { ToolbarComponent } from '@app/components/shared/toolbar/toolbar.component';
 import { SideMenuComponent } from '@app/components/shared/side-menu/side-menu.component';
+import { UserInfoComponent } from '@app/components/shared/user-info/user-info.component';
 import { TasksDownloadComponent } from '@app/components/tasks-download/tasks-download.component';
 import { TasksDocumentComponent } from '@app/components/tasks-document/tasks-document.component';
 import { TasksQueryComponent } from '@app/components/tasks-query/tasks-query.component';
@@ -60,7 +61,7 @@ import { TaskGroupComponent } from '@app/components/task-group/task-group.compon
 import { TaskGroupFormComponent } from '@app/components/task-group/task-group-form/task-group-form.component';
 import { TasksComponent } from '@app/components/tasks/tasks.component';
 import { LoginComponent } from '@app/components/login/login.component';
-import { LogLevelControlComponent } from '@app/components/log-level-control/log-level-control.component';
+import { LogLevelControlComponent } from '@app/components/shared/log-level-control/log-level-control.component';
 import { DashboardComponent } from '@app/components/dashboard/dashboard.component';
 import { TaskFormComponent } from '@app/components/task-form/task-form.component';
 import { NgTemplateNameDirective } from '@app/components/task-form/ng-template-name.directive';
@@ -156,7 +157,8 @@ import { ResourceService, ExternalService } from '@app/core/hal';
     TasksEditionDataTableComponent,
     TasksEditionRelationTableComponent,
     TasksEditionSearchViewComponent,
-    LogLevelControlComponent
+    LogLevelControlComponent,
+    UserInfoComponent
   ],
   imports: [
     BrowserModule,
