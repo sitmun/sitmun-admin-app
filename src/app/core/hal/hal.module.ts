@@ -15,7 +15,7 @@ export {Sort} from './rest/sort.model';
 export {ResourceHelper} from './resource/resource-helper';
 export {HalOptions, HalParam} from './rest/rest.service';
 export {SubTypeBuilder} from './common/subtype-builder';
-export {ExternalConfiguration, ExternalConfigurationHandlerInterface} from './config/external-configuration-handler.interface';
+export {ExternalConfigurationHandlerInterface} from './config/external-configuration-handler.interface';
 
 /** HAL module */
 @NgModule({

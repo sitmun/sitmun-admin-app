@@ -3,10 +3,10 @@ import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {
   CartographyService, GetInfoService, ServiceService, CartographyFilterService, TerritoryTypeService, ConnectionService, TreeNodeService,
-  CartographyGroupService, TerritoryService, Territory, CartographyAvailabilityService, CartographyParameterService, HalParam,
-  HalOptions, Cartography, TreeNode, TranslationService, Translation, CartographyStyleService, CartographySpatialSelectionParameterService
+  CartographyGroupService, TerritoryService, Territory, CartographyAvailabilityService, CartographyParameterService, Cartography, TreeNode, TranslationService, Translation, CartographyStyleService, CartographySpatialSelectionParameterService
 }
   from '@app/domain';
+import { HalOptions, HalParam } from '@app/core/hal/rest/rest.service';
 import {HttpClient} from '@angular/common/http';
 import {UtilsService} from '@app/services/utils.service';
 import {map} from 'rxjs/operators';

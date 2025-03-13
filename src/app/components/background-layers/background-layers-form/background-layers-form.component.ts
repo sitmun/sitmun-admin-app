@@ -3,8 +3,6 @@ import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {
   BackgroundService,
-  HalOptions,
-  HalParam,
   CartographyGroupService,
   TranslationService,
   Background,
@@ -15,6 +13,7 @@ import {
   ApplicationService,
   ApplicationBackgroundService
 } from '@app/domain';
+import { HalOptions, HalParam } from '@app/core/hal/rest/rest.service';
 import {HttpClient} from '@angular/common/http';
 import {UtilsService} from '@app/services/utils.service';
 import {Observable, of, Subject} from 'rxjs';

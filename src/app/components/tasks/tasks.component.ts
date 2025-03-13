@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
-import {TaskService, Task, TaskGroupService, HalParam, HalOptions} from '@app/domain';
+import {TaskService, Task, TaskGroupService} from '@app/domain';
+import { HalOptions, HalParam } from '@app/core/hal/rest/rest.service';
 import {UtilsService} from '@app/services/utils.service';
 import {Router} from '@angular/router';
 import {config} from '@config';

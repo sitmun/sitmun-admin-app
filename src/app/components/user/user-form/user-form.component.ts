@@ -4,8 +4,9 @@ import {AbstractControl, UntypedFormControl, UntypedFormGroup, ValidationErrors,
 import {ActivatedRoute, Router} from '@angular/router';
 import {
   UserService, UserPositionService, UserConfigurationService,
-  TerritoryService, RoleService, HalOptions, HalParam, Territory, User, Role
+  TerritoryService, RoleService, Territory, User, Role
 } from '@app/domain';
+import { HalOptions, HalParam } from '@app/core/hal/rest/rest.service';
 import {HttpClient} from '@angular/common/http';
 import {UtilsService} from '@app/services/utils.service';
 import {map} from 'rxjs/operators';

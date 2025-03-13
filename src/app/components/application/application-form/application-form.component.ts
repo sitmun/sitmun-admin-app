@@ -3,9 +3,10 @@ import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {
   ApplicationService, ApplicationParameterService, RoleService,
-  HalOptions, HalParam, CartographyGroupService, TreeService, BackgroundService,
+  CartographyGroupService, TreeService, BackgroundService,
   ApplicationBackgroundService, TranslationService, Translation, Application, CodeList
 } from '@app/domain';
+import { HalOptions, HalParam } from '@app/core/hal/rest/rest.service';
 
 import {HttpClient} from '@angular/common/http';
 import {UtilsService} from '@app/services/utils.service';

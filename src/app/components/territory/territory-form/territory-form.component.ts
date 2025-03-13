@@ -19,8 +19,6 @@ import {
   CartographyService,
   TaskService,
   UserConfigurationService,
-  HalOptions,
-  HalParam,
   User,
   Role,
   Cartography,
@@ -28,6 +26,7 @@ import {
   TaskAvailability,
   TerritoryTypeService,
 } from '@app/domain';
+import { HalOptions, HalParam } from '@app/core/hal/rest/rest.service';
 import {HttpClient} from '@angular/common/http';
 import {UtilsService} from '@app/services/utils.service';
 import {Observable, of, Subject} from 'rxjs';

@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '@environments/environment';
-import { ExternalConfiguration, ExternalConfigurationHandlerInterface } from '../hal/config/external-configuration-handler.interface';
+import { ExternalConfigurationHandlerInterface } from '../hal/config/external-configuration-handler.interface';
+import { ExternalConfiguration } from '../hal/config/external-configuration.model';
 
 /** REST API access configuration service*/
 @Injectable()

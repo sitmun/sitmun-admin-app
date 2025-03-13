@@ -8,7 +8,14 @@
       "node"
     ],
     "esModuleInterop": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "paths": {
+      "@app/*": ["src/app/*"],
+      "@app/domain": ["src/app/domain"],
+      "@app/domain/*": ["src/app/domain/*"],
+      "@config": ["src/config.ts"],
+      "@environments/*": ["src/environments/*"]
+    }
   },
   "files": [
     "src/polyfills.ts"

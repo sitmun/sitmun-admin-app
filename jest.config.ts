@@ -93,11 +93,9 @@ const config: Config = {
   // moduleNameMapper: {},
   moduleNameMapper: {
     "d3": "<rootDir>/node_modules/d3/dist/d3.min.js",
-    "^src/config$": "<rootDir>/src/config",
-    "^src/app/ExternalConfigurationService$": "<rootDir>/src/app/ExternalConfigurationService.ts",
-    "^src/app/services/icons.service": "<rootDir>/src/app/services/icons.service.ts",
-    "^src/app/services/utils.service": "<rootDir>/src/app/services/utils.service.ts",
-    "^src/environments/constants": "<rootDir>/src/environments/constants.ts"
+    "^@app/(.*)$": "<rootDir>/src/app/$1",
+    "^@config$": "<rootDir>/src/config.ts",
+    "^@environments/(.*)$": "<rootDir>/src/environments/$1"
   },
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader

@@ -23,10 +23,6 @@ export * from './getInfo';
 export * from './map';
 export * from './codelist';
 
-// Re-export HAL types from core module
-export { HalOptions, HalParam, ResourceService, RestService, Resource } from '@app/core/hal';
-export { ExternalConfiguration, ExternalConfigurationHandlerInterface } from '@app/core/hal/config/external-configuration-handler.interface';
-
 // Explicitly export all services to ensure they're available
 // Territory
 export { TerritoryService } from './territory/services/territory.service';

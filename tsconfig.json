@@ -14,7 +14,7 @@
     "module": "es2020",
     "esModuleInterop": true,
     "lib": [
-      "es2020",
+      "es2022",
       "dom"
     ],
     "paths": {
@@ -43,15 +43,18 @@
     "src/polyfills.ts"
   ],
   "include": [
-    "src/**/*.d.ts",
-    "src/app/**/*.ts",
-    "src/environments/environment.ts",
-    "src/environments/constants.ts"
+    "src/**/*.ts",
+    "src/**/*.d.ts"
   ],
   "exclude": [
     "node_modules",
     "**/*.spec.ts",
     "src/environments/environment.prod.ts",
     "src/environments/environment.testdeployment.ts",
+    "src/app/core/hal/config/index.ts",
+    "src/app/core/hal/resource/index.ts",
+    "src/app/core/hal/rest/index.ts",
+    "src/app/core/public-api.ts",
+    "src/app/core/hal/config/external-configuration.model.ts"
   ]
 }

@@ -32,7 +32,8 @@
             ],
             "allowedCommonJsDependencies": [
               "url",
-              "util"
+              "util",
+              "uri-templates"
             ],
             "scripts": []
           },

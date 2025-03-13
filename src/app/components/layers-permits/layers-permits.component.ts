@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
-import {CartographyGroupService, CartographyGroup, HalParam, HalOptions} from '@app/domain';
+import {CartographyGroupService, CartographyGroup} from '@app/domain';
+import { HalOptions, HalParam } from '@app/core/hal/rest/rest.service';
 import {UtilsService} from '@app/services/utils.service';
 import {Router} from '@angular/router';
 import {config} from '@config';

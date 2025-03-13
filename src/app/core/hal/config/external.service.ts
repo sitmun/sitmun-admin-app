@@ -1,7 +1,8 @@
 import { Injectable, Inject, Optional } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ResourceHelper } from '../resource/resource-helper';
-import { ExternalConfiguration, ExternalConfigurationHandlerInterface } from './external-configuration-handler.interface';
+import { ExternalConfigurationHandlerInterface } from './external-configuration-handler.interface';
+import { ExternalConfiguration } from './external-configuration.model';
 
 /** ExternalService */
 @Injectable()

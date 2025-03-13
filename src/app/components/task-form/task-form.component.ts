@@ -2,9 +2,10 @@ import {AfterViewInit, Component, OnInit, QueryList, ViewChildren} from '@angula
 import {UtilsService} from '@app/services/utils.service';
 import {UntypedFormControl, UntypedFormGroup} from '@angular/forms';
 import {
-  ServiceService, TaskService, TaskTypeService, TaskGroupService, CartographyService, ConnectionService, HalOptions, HalParam,
+  ServiceService, TaskService, TaskTypeService, TaskGroupService, CartographyService, ConnectionService,
   TaskUIService, RoleService, CodeListService, TerritoryService, Task, TaskAvailabilityService, TaskAvailability, TaskType, TaskGroup, TaskUI
 } from '@app/domain';
+import { HalOptions, HalParam } from '@app/core/hal/rest/rest.service';
 import {config} from '@config';
 import {MatDialog} from '@angular/material/dialog';
 import {DialogFormComponent, DialogGridComponent} from '@app/frontend-gui/src/lib/public_api';
