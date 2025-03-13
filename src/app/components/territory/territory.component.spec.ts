@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TerritoryComponent } from './territory.component';
 import { TerritoryService, UserService, RoleService, UserConfigurationService,
-  CodeListService,TranslationService,ResourceService,ExternalService, TerritoryTypeService } from '@app/domain';
+  CodeListService,TranslationService, TerritoryTypeService } from '@app/domain';
+import { ResourceService, ExternalService } from '@app/core/hal';
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';

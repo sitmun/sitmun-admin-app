@@ -5,8 +5,9 @@ import { RouterModule } from '@angular/router';
 import {
   CartographyService, ServiceService, TerritoryTypeService, ConnectionService, TreeNodeService,
   TerritoryService, CartographyGroupService, CartographyAvailabilityService, CartographyParameterService, TranslationService,
-  CodeListService, CartographyFilterService, GetInfoService, ResourceService, ExternalService, CartographyStyleService, CartographySpatialSelectionParameterService
+  CodeListService, CartographyFilterService, GetInfoService, CartographyStyleService, CartographySpatialSelectionParameterService
 } from '@app/domain';
+import { ResourceService, ExternalService } from '@app/core/hal';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -258,7 +259,7 @@ describe('LayersFormComponent', () => {
 
     component.loadButtonDisabled();
 
-    expect(component.disableLoadButton).toBeTrue();
+    expect(component.disableLoadButton).toBe(true);
   })
 
   it('Load button enabled', () => {
@@ -272,7 +273,7 @@ describe('LayersFormComponent', () => {
 
     component.loadButtonDisabled();
 
-    expect(component.disableLoadButton).toBeFalse();
+    expect(component.disableLoadButton).toBe(false);
   })
 
   it('getFeature valid', () => {

@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { UserComponent } from './user.component';
-import { UserService,UserConfigurationService, CodeListService,TranslationService,ResourceService,ExternalService } from '@app/domain';
+import { UserService,UserConfigurationService, CodeListService,TranslationService } from '@app/domain';
+import { ResourceService, ExternalService } from '@app/core/hal';
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';

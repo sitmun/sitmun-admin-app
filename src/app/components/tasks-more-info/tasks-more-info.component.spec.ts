@@ -7,7 +7,8 @@ import { MaterialModule } from '@app/material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { CodeListService, TaskService,TranslationService,ResourceService,ExternalService } from '@app/domain';
+import { CodeListService, TaskService,TranslationService } from '@app/domain';
+import { ResourceService, ExternalService } from '@app/core/hal';
 import { HttpClientModule } from '@angular/common/http';
 
 describe('TasksMoreInfoComponent', () => {

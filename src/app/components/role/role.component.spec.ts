@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { RoleComponent } from './role.component';
-import { RoleService, CodeListService,ResourceService,ExternalService } from '@app/domain';
+import { RoleService, CodeListService } from '@app/domain';
+import { ResourceService, ExternalService } from '@app/core/hal';
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';

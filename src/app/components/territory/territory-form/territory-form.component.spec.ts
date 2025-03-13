@@ -15,11 +15,10 @@ import {
   UserConfigurationService,
   CodeListService,
   TranslationService,
-  ResourceService,
-  ExternalService,
   UserPositionService,
   TerritoryTypeService,
 } from '@app/domain';
+import { ResourceService, ExternalService } from '@app/core/hal';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
@@ -272,7 +271,7 @@ describe('TerritoryFormComponent', () => {
   it('defineAppliesToChildrenColumns bottom true', () => {
     component.defineAppliesToChildrenColumns(false, true);
     //If bottom true, columndefsPermits[4] -> appliesToChildren must not be editable
-    expect(component.columnDefsPermits[4].editable).toBeFalse();
+    expect(component.columnDefsPermits[4].editable).toBe(false);
     //If bottom true, columndefsRolesDialog only has 3 columns
     expect(component.columnDefsRolesDialog.length).toEqual(3);
   });
@@ -280,7 +279,7 @@ describe('TerritoryFormComponent', () => {
   it('defineAppliesToChildrenColumns bottom false', () => {
     component.defineAppliesToChildrenColumns(false, false);
     //If bottom false, columndefsPermits[4] -> appliesToChildren must not be editable
-    expect(component.columnDefsPermits[4].editable).toBeTrue();
+    expect(component.columnDefsPermits[4].editable).toBe(true);
     //If bottom false, columndefsRolesDialog has 4 columns
     expect(component.columnDefsRolesDialog.length).toEqual(4);
   });

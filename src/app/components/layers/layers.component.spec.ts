@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { LayersComponent } from './layers.component';
-import { CartographyService, CodeListService,TranslationService,ResourceService,ExternalService } from '@app/domain';
+import { CartographyService, CodeListService,TranslationService } from '@app/domain';
+import { ResourceService, ExternalService } from '@app/core/hal';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';

@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LoginComponent } from './login.component';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
-import { CodeListService, TranslationService, ResourceService, ExternalService } from '@app/domain';
+import { CodeListService, TranslationService } from '@app/domain';
 import { AccountService } from '@app/core/account/account.service';
 import { LoginService } from '@app/core/auth/login.service';
 import { AuthService } from '@app/core/auth/auth.service';
@@ -17,6 +17,8 @@ import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ResourceService, ExternalService } from '@app/core/hal';
+
 
 describe('LoginComponent', () => {
   let component: LoginComponent;

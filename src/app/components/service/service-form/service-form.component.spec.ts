@@ -5,7 +5,8 @@ import { MaterialModule } from '@app/material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { ServiceService, ServiceParameterService, CartographyService, CodeListService,
-  TranslationService, ResourceService, ExternalService, CapabilitiesService, CartographyStyleService } from '@app/domain';
+  TranslationService, CapabilitiesService, CartographyStyleService } from '@app/domain';
+import { ResourceService, ExternalService } from '@app/core/hal';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';

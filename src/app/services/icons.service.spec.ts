@@ -5,12 +5,18 @@ import { IconsService } from './icons.service';
 
 describe('IconsService', () => {
   let service: IconsService;
-  let matIconRegistryMock: jasmine.SpyObj<MatIconRegistry>;
-  let domSanitizerMock: jasmine.SpyObj<DomSanitizer>;
+  let matIconRegistryMock: jest.Mocked<MatIconRegistry>;
+  let domSanitizerMock: jest.Mocked<DomSanitizer>;
 
   beforeEach(() => {
-    matIconRegistryMock = jasmine.createSpyObj('MatIconRegistry', ['addSvgIcon']);
-    domSanitizerMock = jasmine.createSpyObj('DomSanitizer', ['bypassSecurityTrustResourceUrl']);
+    // Create Jest mocks instead of Jasmine spy objects
+    matIconRegistryMock = {
+      addSvgIcon: jest.fn()
+    } as unknown as jest.Mocked<MatIconRegistry>;
+    
+    domSanitizerMock = {
+      bypassSecurityTrustResourceUrl: jest.fn()
+    } as unknown as jest.Mocked<DomSanitizer>;
     
     TestBed.configureTestingModule({
       providers: [
@@ -30,13 +36,13 @@ describe('IconsService', () => {
   it('should load an icon successfully', () => {
     // Arrange
     const iconName = 'test-icon';
-    domSanitizerMock.bypassSecurityTrustResourceUrl.and.returnValue('sanitized-url');
+    domSanitizerMock.bypassSecurityTrustResourceUrl.mockReturnValue('sanitized-url');
     
     // Act
     const result = service.loadIcon(iconName);
     
     // Assert
-    expect(result).toBeTrue();
+    expect(result).toBe(true);
     expect(domSanitizerMock.bypassSecurityTrustResourceUrl)
       .toHaveBeenCalledWith('assets/img/test-icon.svg');
     expect(matIconRegistryMock.addSvgIcon)
@@ -46,28 +52,35 @@ describe('IconsService', () => {
   it('should not load the same icon twice', () => {
     // Arrange
     const iconName = 'test-icon';
-    domSanitizerMock.bypassSecurityTrustResourceUrl.and.returnValue('sanitized-url');
+    domSanitizerMock.bypassSecurityTrustResourceUrl.mockReturnValue('sanitized-url');
     
     // Act
     service.loadIcon(iconName); // First load
     const result = service.loadIcon(iconName); // Second load
     
     // Assert
-    expect(result).toBeFalse();
+    expect(result).toBe(false);
     expect(matIconRegistryMock.addSvgIcon).toHaveBeenCalledTimes(1);
   });
 
   it('should handle errors when loading icons', () => {
     // Arrange
     const iconName = 'error-icon';
-    domSanitizerMock.bypassSecurityTrustResourceUrl.and.throwError('Test error');
-    spyOn(console, 'error');
+    domSanitizerMock.bypassSecurityTrustResourceUrl.mockImplementation(() => {
+      throw new Error('Test error');
+    });
+    
+    // Mock console.error
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
     
     // Act
     const result = service.loadIcon(iconName);
     
     // Assert
-    expect(result).toBeFalse();
-    expect(console.error).toHaveBeenCalled();
+    expect(result).toBe(false);
+    expect(consoleErrorSpy).toHaveBeenCalled();
+    
+    // Clean up
+    consoleErrorSpy.mockRestore();
   });
 });
