@@ -110,6 +110,9 @@ export class UtilsService {
   }
 
   getCodeListValues(valueList, notTraduction?) {
+    if (!this.codeListService) {
+      this.codeListService = this.injector.get(CodeListService);
+    }
     const params2: HalParam[] = [];
     let codelistLangValue = config.defaultLang;
     if (localStorage.lang) {

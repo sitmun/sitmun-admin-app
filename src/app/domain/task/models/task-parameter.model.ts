@@ -1,4 +1,4 @@
-import { Resource } from '@app/core/hal';
+import { Resource } from '@app/core/hal/resource/resource.model';
 import {Task} from './task.model';  
 /**
  * Task parameter model

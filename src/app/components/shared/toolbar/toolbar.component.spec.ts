@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ToolbarComponent } from './toolbar.component';
 import { MaterialModule } from '@app/material-module';
-import { ResourceService, ExternalService } from '@app/domain';
+import { ResourceService, ExternalService } from '@app/core/hal/services';
 import { AccountService } from '@app/core/account/account.service';
 import { LoginService } from '@app/core/auth/login.service';
 import { AuthService } from '@app/core/auth/auth.service';
@@ -12,6 +12,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 describe('ToolbarComponent', () => {
   let component: ToolbarComponent;
@@ -42,7 +43,8 @@ describe('ToolbarComponent', () => {
         ResourceService,
         ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }
-      ]
+      ],
+      schemas: [NO_ERRORS_SCHEMA]
     })
     .compileComponents();
   });

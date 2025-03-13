@@ -1,11 +1,11 @@
-import { Resource } from '@app/core/hal';
+import { Resource } from '@app/core/hal/resource/resource.model';
 import { TerritoryType } from '@app/domain/territory/models/territory-type.model';
 import { Cartography } from './cartography.model';
 /**
  * Cartography availability model
  */
 export class CartographyFilter extends Resource {
- 
+
   /** name*/
   public name: string;
 
@@ -17,14 +17,14 @@ export class CartographyFilter extends Resource {
 
   /** Territorial level. */
   public territorialLevel: TerritoryType;
-  
+
   /** column */
   public column: string;
 
-  /** values*/  
+  /** values*/
   public values: string;
 
-  /** value*/  
+  /** value*/
   public valueType: string;
 
   /** cartography*/

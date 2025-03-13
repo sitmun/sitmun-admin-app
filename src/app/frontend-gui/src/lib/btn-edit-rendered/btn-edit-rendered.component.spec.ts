@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-
 import { BtnEditRenderedComponent } from './btn-edit-rendered.component';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 
 describe('BtnEditRenderedComponent', () => {
   let component: BtnEditRenderedComponent;
@@ -8,7 +9,9 @@ describe('BtnEditRenderedComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ BtnEditRenderedComponent ]
+      declarations: [ BtnEditRenderedComponent ],
+      imports: [ MatIconModule ],
+      schemas: [NO_ERRORS_SCHEMA]
     })
     .compileComponents();
   }));

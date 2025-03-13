@@ -4,11 +4,11 @@ import { Resource } from './resource.model';
 import { ResourceHelper } from './resource-helper';
 import { Injectable } from '@angular/core';
 import { HttpParams, HttpResponse, HttpHeaders } from '@angular/common/http';
-import { Sort } from '@app/core';
-import { ResourceArray } from '@app/core';
-import { ExternalService } from '@app/core';
-import { HalOptions } from '@app/core';
-import { SubTypeBuilder } from '@app/core';
+import { Sort } from '../rest/sort.model';
+import { ResourceArray } from './resource-array.model';
+import { ExternalService } from '../services';
+import { HalOptions } from '../rest/rest.service';
+import { SubTypeBuilder } from '../common/subtype-builder';
 import { LoggerService } from '@app/services/logger.service';
 
 /** ResourceService */

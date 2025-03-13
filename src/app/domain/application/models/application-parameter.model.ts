@@ -1,19 +1,19 @@
-import { Resource } from '@app/core/hal';
-import {Application} from './application.model'; 
+import { Resource } from '@app/core/hal/resource/resource.model';
+import {Application} from './application.model';
 
 /**
- * Application parameter model 
+ * Application parameter model
  */
 export class ApplicationParameter extends Resource {
   /** name*/
   public name: string;
-  
+
   /** type*/
   public type: string;
-  
-  /** value*/    
+
+  /** value*/
   public value: string;
-  
+
   /** application*/
   public application: Application;
 

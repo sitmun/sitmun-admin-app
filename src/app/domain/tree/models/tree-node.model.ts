@@ -1,4 +1,4 @@
-import { Resource } from '@app/core/hal';
+import { Resource } from '@app/core/hal/resource/resource.model';
 import {Cartography} from '@app/domain/cartography/models/cartography.model';
 import { Task } from '@app/domain/task/models/task.model';
 import {Tree} from './tree.model';
@@ -26,23 +26,23 @@ export class TreeNode extends Resource {
   public radio: boolean;
   /** parent tree node */
   public parent: TreeNode;
-  /** displayed cartography */  
+  /** displayed cartography */
   public cartography: Cartography;
-  /** tree */  
+  /** tree */
   public tree: Tree;
-  /** filterGetFeatureInfo */  
+  /** filterGetFeatureInfo */
   public filterGetFeatureInfo: boolean;
-  /** filterGetMap */  
+  /** filterGetMap */
   public filterGetMap: boolean;
-  /** filterSelectable */  
+  /** filterSelectable */
   public filterSelectable: boolean;
-  /** style */  
+  /** style */
   public style: string;
 
   public image: string;
   public imageName: string;
   public task: Task;
   public viewMode: string;
-  public filterable: boolean;  
+  public filterable: boolean;
 
 }

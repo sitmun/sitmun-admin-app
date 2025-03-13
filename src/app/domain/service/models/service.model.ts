@@ -1,4 +1,4 @@
-import { Resource } from '@app/core/hal';
+import { Resource } from '@app/core/hal/resource/resource.model';
 import {Connection} from '@app/domain/connection/models/connection.model';
 import {ServiceParameter} from './service-parameter.model';
 /**

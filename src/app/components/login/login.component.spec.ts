@@ -2,22 +2,22 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { LoginComponent } from './login.component';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
-import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
-import { CodeListService, TranslationService } from '@app/domain';
-import { AccountService } from '@app/core/account/account.service';
-import { LoginService } from '@app/core/auth/login.service';
-import { AuthService } from '@app/core/auth/auth.service';
-import { Principal } from '@app/core/auth/principal.service';
-import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
+import { SitmunFrontendGuiModule } from '../../frontend-gui/src/lib/public_api';
+import { CodeListService, TranslationService } from '../../domain/services';
+import { AccountService } from '../../core/account/account.service';
+import { LoginService } from '../../core/auth/login.service';
+import { AuthService } from '../../core/auth/auth.service';
+import { Principal } from '../../core/auth/principal.service';
+import { ExternalConfigurationService } from '../../core/config/external-configuration.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { MaterialModule } from '@app/material-module';
+import { MaterialModule } from '../../material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ResourceService, ExternalService } from '@app/core/hal';
+import { ResourceService, ExternalService } from '../../core/hal/services';
 
 
 describe('LoginComponent', () => {

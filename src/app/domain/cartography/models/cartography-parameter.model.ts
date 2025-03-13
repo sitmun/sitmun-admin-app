@@ -1,19 +1,19 @@
-import { Resource } from '@app/core/hal';
-import {Cartography} from './cartography.model'; 
+import { Resource } from '@app/core/hal/resource/resource.model';
+import {Cartography} from './cartography.model';
 /**
  * Service parameter model
  */
 export class CartographyParameter extends Resource {
   /** name*/
   public name: string;
-  
+
   /** type*/
   public type: string;
-    
-  /** value*/  
+
+  /** value*/
   public value: string;
-  
-  /** order*/  
+
+  /** order*/
   public order: string;
 
   /** cartography*/

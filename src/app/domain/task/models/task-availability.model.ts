@@ -1,4 +1,4 @@
-import { Resource } from '@app/core/hal';
+import { Resource } from '@app/core/hal/resource/resource.model';
 import { Territory } from '@app/domain/territory/models/territory.model';
 import { Task } from './task.model';
 /**

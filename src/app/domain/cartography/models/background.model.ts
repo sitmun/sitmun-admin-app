@@ -1,12 +1,12 @@
-import { Resource } from '@app/core/hal';
+import { Resource } from '@app/core/hal/resource/resource.model';
 import {CartographyGroup} from './cartography-group.model';
 /**
  * Background model
  */
 export class Background extends Resource {
   /** id */
-  public id: number;  
-  
+  public id: number;
+
   /** name*/
   public name: string;
 
@@ -18,7 +18,7 @@ export class Background extends Resource {
 
   /** whether background is active*/
   public active: Boolean;
-  
+
   /** system created date*/
   public createdDate: any;
 

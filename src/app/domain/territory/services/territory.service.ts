@@ -1,7 +1,8 @@
 import { Territory } from '@app/domain';
 import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { RestService } from '@app/core/hal';
+import { RestService } from '@app/core/hal/rest/rest.service';
+import { ResourceService } from '@app/core/hal/services';
 import { Observable } from 'rxjs';
 
 /** Territory manager service */

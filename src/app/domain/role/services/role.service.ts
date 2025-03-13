@@ -2,7 +2,7 @@ import { Role } from '@app/domain';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
 import { Observable } from 'rxjs';
-import { RestService } from '@app/core/hal';
+import { RestService } from '@app/core/hal/rest/rest.service';
 
 /** Role manager service */
 @Injectable()

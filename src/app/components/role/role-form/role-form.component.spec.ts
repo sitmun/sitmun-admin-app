@@ -119,7 +119,7 @@ describe('RoleFormComponent', () => {
 
   it('form invalid when mid-empty', () => {
     component.formRole.patchValue({
-      name: 'missDescription',
+      description: 'missDescription',
     })
     //Miss name
     expect(component.formRole.valid).toBeFalsy();

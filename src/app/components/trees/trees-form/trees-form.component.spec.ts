@@ -4,13 +4,14 @@ import { TreesFormComponent } from './trees-form.component';
 import { RouterModule } from '@angular/router';
 import { MaterialModule } from '@app/material-module';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { TreeService, TreeNodeService, CartographyService, CodeListService,TranslationService, ServiceService, CapabilitiesService, ApplicationService  } from '@app/domain';
+import { TreeService, TreeNodeService, CartographyService, CodeListService, TranslationService, ServiceService, CapabilitiesService, ApplicationService, TaskService } from '@app/domain';
 import { ResourceService, ExternalService } from '@app/core/hal';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { RouterTestingModule } from '@angular/router/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 describe('TreesFormComponent', () => {
   let component: TreesFormComponent;
@@ -25,14 +26,16 @@ describe('TreesFormComponent', () => {
   let translationService: TranslationService;
   let resourceService: ResourceService;
   let externalService: ExternalService;
+  let taskService: TaskService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ TreesFormComponent ],
       imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,
          RouterModule.forRoot([], {}), MaterialModule, MatIconTestingModule],
-      providers: [TreeService,TreeNodeService, ApplicationService, ServiceService, CapabilitiesService, CartographyService, CodeListService,TranslationService, ResourceService, ExternalService ,
-        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
+      providers: [TreeService, TreeNodeService, ApplicationService, ServiceService, CapabilitiesService, CartographyService, CodeListService, TranslationService, ResourceService, ExternalService, TaskService,
+        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }],
+      schemas: [NO_ERRORS_SCHEMA]
     })
     .compileComponents();
   });
@@ -50,6 +53,7 @@ describe('TreesFormComponent', () => {
     translationService= TestBed.inject(TranslationService);
     resourceService= TestBed.inject(ResourceService);
     externalService= TestBed.inject(ExternalService);
+    taskService= TestBed.inject(TaskService);
     fixture.detectChanges();
   });
 
@@ -87,6 +91,10 @@ describe('TreesFormComponent', () => {
 
   it('should instantiate externalService', () => {
     expect(externalService).toBeTruthy();
+  });
+
+  it('should instantiate taskService', () => {
+    expect(taskService).toBeTruthy();
   });
 
   it('form tree invalid when empty', () => {

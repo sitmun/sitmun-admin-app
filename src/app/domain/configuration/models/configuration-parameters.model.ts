@@ -1,4 +1,4 @@
-import { Resource } from '@app/core/hal';
+import { Resource } from '@app/core/hal/resource/resource.model';
 
 /**
  * Service model
@@ -8,7 +8,7 @@ export class ConfigurationParameter extends Resource {
   public id: number;
   /** name*/
   public name: string;
-    
+
   /** value*/
   public value: string;
 

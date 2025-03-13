@@ -1,6 +1,6 @@
 import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import {Resource} from '@app/core';
-import {ResourceArray} from '@app/core';
+import {ResourceArray} from './resource-array.model';
 import {HalOptions} from '@app/core';
 import {SubTypeBuilder} from '@app/core';
 import {isNullOrUndefined, isPrimitive} from 'util';

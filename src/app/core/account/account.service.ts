@@ -2,8 +2,8 @@ import { User } from '@app/domain';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
 import { Observable } from 'rxjs';
-import { RestService } from '../hal';
-import { ResourceService } from '../hal';
+import { RestService } from '../hal/rest/rest.service';
+import { ResourceService } from '../hal/resource/resource.service';
 
 /** Account manager service */
 @Injectable()

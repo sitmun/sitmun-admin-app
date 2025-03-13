@@ -1,4 +1,4 @@
-import { Resource } from '@app/core/hal';
+import { Resource } from '@app/core/hal/resource/resource.model';
 import {Tree} from '@app/domain/tree/models/tree.model';
 import {Role} from '@app/domain/role/models/role.model';
 import {CartographyGroup} from '@app/domain/cartography/models/cartography-group.model';

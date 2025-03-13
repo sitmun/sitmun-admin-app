@@ -42,6 +42,38 @@ Object.defineProperty(window, 'matchMedia', {
   }),
 });
 
+// Mock IntersectionObserver
+class MockIntersectionObserver {
+  readonly root: Element | Document | null;
+  readonly rootMargin: string;
+  readonly thresholds: ReadonlyArray<number>;
+
+  constructor(callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {
+    this.root = options?.root || null;
+    this.rootMargin = options?.rootMargin || '0px';
+    this.thresholds = Array.isArray(options?.threshold) ? options.threshold : [options?.threshold || 0];
+  }
+
+  observe(target: Element): void {
+    // Mock implementation - do nothing
+  }
+
+  unobserve(target: Element): void {
+    // Mock implementation - do nothing
+  }
+
+  disconnect(): void {
+    // Mock implementation - do nothing
+  }
+
+  takeRecords(): IntersectionObserverEntry[] {
+    return [];
+  }
+}
+
+// Add to global
+global.IntersectionObserver = MockIntersectionObserver as any;
+
 // Output test console logs
 // global.console = {
 //   ...console,

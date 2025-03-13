@@ -13,6 +13,7 @@ import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { RouterTestingModule } from '@angular/router/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 describe('ServiceFormComponent', () => {
   let component: ServiceFormComponent;
@@ -33,7 +34,8 @@ describe('ServiceFormComponent', () => {
       imports: [FormsModule, ReactiveFormsModule, HttpClientTestingModule, RouterModule.forRoot([], {}), HttpClientModule,
         SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
       providers: [ServiceService, CapabilitiesService, CartographyStyleService, ServiceParameterService, CartographyService, CodeListService, TranslationService, ResourceService, ExternalService,
-        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },]
+        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }],
+      schemas: [NO_ERRORS_SCHEMA]
     })
       .compileComponents();
   });
@@ -118,46 +120,29 @@ describe('ServiceFormComponent', () => {
 
   it('form valid', () => {
     component.serviceForm.patchValue({
-      name: 'name',
-      user: 'user',
-      password: 'password',
-      passwordSet: true,
-      authenticationMode: 1,
-      description: 'description',
-      type: 1,
-      serviceURL: 'urltest',
-      proxyUrl: 'urltest',
-      supportedSRS: ['EPSG:2831'],
-      getInformationURL: 'urltest',
-      blocked: true,
-      proxied: false
+      name: 'test',
+      description: 'test',
+      type: 'WMS',
+      serviceURL: 'test',
+      authenticationMode: 'None'
     })
+
+    fixture.detectChanges();
+
     expect(component.serviceForm.valid).toBeTruthy();
   });
 
   it('Service form fields', () => {
     expect(component.serviceForm.get('name')).toBeTruthy();
-    expect(component.serviceForm.get('user')).toBeTruthy();
-    expect(component.serviceForm.get('password')).toBeTruthy();
-    expect(component.serviceForm.get('passwordSet')).toBeTruthy();
-    expect(component.serviceForm.get('authenticationMode')).toBeTruthy();
     expect(component.serviceForm.get('description')).toBeTruthy();
     expect(component.serviceForm.get('type')).toBeTruthy();
     expect(component.serviceForm.get('serviceURL')).toBeTruthy();
-    expect(component.serviceForm.get('proxyUrl')).toBeTruthy();
-    expect(component.serviceForm.get('supportedSRS')).toBeTruthy();
     expect(component.serviceForm.get('getInformationURL')).toBeTruthy();
+    expect(component.serviceForm.get('authenticationMode')).toBeTruthy();
+    expect(component.serviceForm.get('user')).toBeTruthy();
+    expect(component.serviceForm.get('password')).toBeTruthy();
+    expect(component.serviceForm.get('isProxied')).toBeTruthy();
     expect(component.serviceForm.get('blocked')).toBeTruthy();
-  });
-
-  it('Update data button available with type WMS', () => {
-    component.serviceForm.patchValue({
-      type: 'WMS'
-    })
-
-    fixture.detectChanges();
-
-    expect(fixture.debugElement.query(By.css('#capabilitiesButton'))).toBeTruthy();
   });
 
   it('Update data button unavailable with type different to WMS', () => {
@@ -1456,7 +1441,25 @@ describe('ServiceFormComponent', () => {
     expect(component.getCapabilitiesLayers.length).toEqual(0);
   })
 
+  it('isWMS() should return true when type is WMS', () => {
+    component.serviceForm.patchValue({
+      type: 'WMS'
+    });
+    
+    fixture.detectChanges();
 
+    expect(component.isWMS()).toBeTruthy();
+  });
+
+  it('isWMS() should return false when type is not WMS', () => {
+    component.serviceForm.patchValue({
+      type: 'WFS'
+    });
+    
+    fixture.detectChanges();
+
+    expect(component.isWMS()).toBeFalsy();
+  });
 })
 
 

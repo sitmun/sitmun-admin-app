@@ -2,7 +2,7 @@ import { TreeNode } from '@app/domain';
 import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { RestService } from '@app/core/hal';
+import { RestService } from '@app/core/hal/rest/rest.service';
 
 /** Tree node manager service */
 @Injectable()

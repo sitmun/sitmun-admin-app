@@ -1,4 +1,4 @@
-import { Resource } from '@app/core/hal';
+import { Resource } from '@app/core/hal/resource/resource.model';
 import {Cartography} from './cartography.model';
 import {Role} from '@app/domain/role/models/role.model';
 /**

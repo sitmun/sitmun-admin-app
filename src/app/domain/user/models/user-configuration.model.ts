@@ -1,4 +1,4 @@
-import { Resource } from '@app/core/hal';
+import { Resource } from '@app/core/hal/resource/resource.model';
 import { Role } from '@app/domain/role/models/role.model';
 import { Territory } from '@app/domain/territory/models/territory.model';
 import { User } from './user.model';

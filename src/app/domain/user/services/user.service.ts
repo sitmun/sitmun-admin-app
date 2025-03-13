@@ -1,4 +1,4 @@
-import { RestService } from '@app/core/hal';
+import { RestService } from '@app/core/hal/rest/rest.service';
 import { User } from '@app/domain';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';

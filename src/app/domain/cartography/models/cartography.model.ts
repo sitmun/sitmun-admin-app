@@ -1,4 +1,4 @@
-import { Resource } from '@app/core/hal';
+import { Resource } from '@app/core/hal/resource/resource.model';
 import {Service} from '@app/domain/service/models/service.model';
 import {Connection} from '@app/domain/connection/models/connection.model';
 import {CartographyAvailability} from './cartography-availability.model';
