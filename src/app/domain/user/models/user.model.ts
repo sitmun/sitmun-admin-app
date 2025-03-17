@@ -16,6 +16,8 @@ export class User extends Resource {
   public firstName: string;
   /** last name */
   public lastName: string;
+  /** email */
+  public email: string;
   /** whether user is blocked */
   public blocked: boolean;
   /** whether user is administrator */

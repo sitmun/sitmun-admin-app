@@ -143,7 +143,10 @@
     "status": "Statut",
     "appliesToChildrenTerritories": "Applicable aux enfants",
     "childRole": "Rôle des enfants",
-    "passwordSet": "Jeu de mot de passe"
+    "passwordSet": "Jeu de mot de passe",
+    "email": "Courriel",
+    "invalidEmail": "Veuillez entrer une adresse courriel valide",
+    "invalidEmailFormat": "Veuillez entrer un format de courriel valide"
   },
   "connectionEntity": {
     "generalData": "Données générale",

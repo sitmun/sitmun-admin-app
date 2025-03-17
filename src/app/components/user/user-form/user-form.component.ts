@@ -152,6 +152,7 @@ export class UserFormComponent implements OnInit {
               this.userForm.patchValue({
                 firstName: this.userToEdit.firstName,
                 lastName: this.userToEdit.lastName,
+                email: this.userToEdit.email,
                 password: this.passwordSet ? this.passwordPlaceholder : '',
                 administrator: this.userToEdit.administrator,
                 blocked: this.userToEdit.blocked,
@@ -197,11 +198,13 @@ export class UserFormComponent implements OnInit {
       ]),
       firstName: new UntypedFormControl(null, []),
       lastName: new UntypedFormControl(null),
+      email: new UntypedFormControl(null, [
+        Validators.email,
+      ]),
       password: new UntypedFormControl(null),
       administrator: new UntypedFormControl(null, []),
       blocked: new UntypedFormControl(null, []),
       _links: new UntypedFormControl(null, []),
-
     });
 
   }
@@ -744,6 +747,7 @@ export class UserFormComponent implements OnInit {
       }
       userObj.firstName = this.userForm.value.firstName;
       userObj.lastName = this.userForm.value.lastName;
+      userObj.email = this.userForm.value.email;
       userObj.blocked = this.userForm.value.blocked;
       userObj.administrator = this.userForm.value.administrator;
       userObj._links = this.userForm.value._links;

@@ -54,6 +54,18 @@
                 <mat-label>{{ 'userEntity.lastname' | translate }}</mat-label>
                 <input matInput type="text" formControlName="lastName">
               </mat-form-field>
+              <!-- Email -->
+              <mat-form-field appearance="outline" class="half add-gap">
+                <mat-label>{{ 'userEntity.email' | translate }}</mat-label>
+                <input matInput type="email" formControlName="email">
+                <mat-error *ngIf="userForm.get('email').hasError('email')">
+                  {{ 'userEntity.invalidEmail' | translate }}
+                </mat-error>
+                <mat-error *ngIf="userForm.get('email').hasError('pattern')">
+                  {{ 'userEntity.invalidEmailFormat' | translate }}
+                </mat-error>
+              </mat-form-field>
+              <div class="break"></div>
               <!-- Password -->
               <mat-form-field appearance="outline" class="half add-gap">
                 <mat-label>{{ 'userEntity.password' | translate }}</mat-label>

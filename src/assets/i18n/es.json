@@ -145,7 +145,10 @@
     "status": "Estado",
     "appliesToChildrenTerritories": "Aplicado a los hijos",
     "childRole": "Rol hijo",
-    "passwordSet": "Contraseña introducida"
+    "passwordSet": "Contraseña introducida",
+    "email": "Correo electrónico",
+    "invalidEmail": "Por favor, introduzca una dirección de correo electrónico válida",
+    "invalidEmailFormat": "Por favor, introduzca un formato de correo electrónico válido"
   },
   "connectionEntity": {
     "generalData": "Datos Generales",

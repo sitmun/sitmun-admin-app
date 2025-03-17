@@ -128,7 +128,7 @@
     "blocked": "Bloquejat",
     "password": "Contrasenya",
     "confirmPassword": "Confirmació contrasenya",
-    "permissions": "Territoris i Rols als quals té accés aquest usuari",
+    "permissions": "Territoris i rols als quals té accés aquest usuari",
     "permissionsChildren": "Permisos fills",
     "role": "Rol",
     "roles": "Rols",
@@ -145,7 +145,10 @@
     "status": "Estat",
     "appliesToChildrenTerritories": "Aplicat als fills",
     "childRole": "Rol fill",
-    "passwordSet": "Contrasenya introduïda"
+    "passwordSet": "Contrasenya introduïda",
+    "email": "Correu electrònic",
+    "invalidEmail": "Si us plau, introduïu una adreça de correu electrònic vàlida",
+    "invalidEmailFormat": "Si us plau, introduïu un format de correu electrònic vàlid"
   },
   "connectionEntity": {
     "generalData": "Dades Generals",
@@ -266,8 +269,8 @@
     "supportedSRS": "Projeccions",
     "createdDate": "Alta",
     "update": "Actualitza",
-    "roles": "Rols que tenen permís d’accés sobre aquest grup de permís",
-    "cartographiesConfiguration": "Capes que formen part d’aquest grup de permís",
+    "roles": "Rols que tenen permís d'accés sobre aquest grup de permís",
+    "cartographiesConfiguration": "Capes que formen part d'aquest grup de permís",
     "status": "Estat"
   },
   "treesEntity": {
@@ -309,8 +312,8 @@
     "status": "Estat"
   },
   "backgroundEntity": {
-    "roles": "Rols que tenen permís d’accés sobre aquest mapa de fons",
-    "cartographiesConfiguration": "Capes que formen part d’aquest mapa de fons",
+    "roles": "Rols que tenen permís d'accés sobre aquest mapa de fons",
+    "cartographiesConfiguration": "Capes que formen part d'aquest mapa de fons",
     "generalData": "Dades Generals",
     "backgroundLayers": "Capes de fons",
     "name": "Nom",
@@ -335,7 +338,7 @@
     "serviceURL": "Url",
     "user": "Usuari",
     "title": "Títol",
-    "tree": "Arbres disponibles a l’aplicació",
+    "tree": "Arbres disponibles a l'aplicació",
     "desktopUrl": "Url per desktop",
     "desktopCSS": "CSS desktop",
     "url": "Url",
@@ -351,7 +354,7 @@
     "parametersConfiguration": "Configuració de paràmetres",
     "templateConfiguration": "Configuració de plantilla",
     "roles": "Rols que tenen accés a aquesta aplicació",
-    "background": "Mapes de fons disponibles a l’aplicació",
+    "background": "Mapes de fons disponibles a l'aplicació",
     "selectedBackground": "Fons seleccionat",
     "value": "Valor",
     "note": "Observacions",

@@ -820,19 +820,15 @@ h4 > .mat-icon {
 }
 
 .half {
-  width: calc(50% - 5px);
-}
-
-.third {
-  width: calc(33% - 4px);
+  width: calc(50% - 1rem);
 }
 
 .quarter {
-  width: calc(25% - 8px);
+  width: calc(25% - 1.5rem);
 }
 
 .add-gap {
-  margin-right: 10px;
+  margin-right: 2rem;
 }
 
 .add-half-gap {
@@ -900,4 +896,11 @@ h4 > .mat-icon {
 }
 .toolbar-text {
   margin-left: 4px;
+}
+
+// Add spacing between form sections
+mat-card-content {
+  > * {
+    margin-bottom: 0.25rem; // 4px - Consistent spacing between form sections
+  }
 }

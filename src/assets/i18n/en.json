@@ -145,7 +145,10 @@
     "status": "Status",
     "appliesToChildrenTerritories": "Applied to children",
     "childRole": "Children role",
-    "passwordSet": "Password set"
+    "passwordSet": "Password set",
+    "email": "Email",
+    "invalidEmail": "Please enter a valid email address",
+    "invalidEmailFormat": "Please enter a valid email format"
   },
   "connectionEntity": {
     "generalData": "General Data",

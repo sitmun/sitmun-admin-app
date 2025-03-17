@@ -44,7 +44,7 @@
   "error-updated": " I a agut un error en actualizar es elements",
   "ok-deleted": "Es elements s'an eliminat corrèctament",
   "error-deleted": " I a agut un error en esfaçar es elements",
-  "removeMessage": "S’esfaces es donades seleccionades non poiràs tornar endarrèr, segur que vòs seguir?",
+  "removeMessage": "S'esfaces es donades seleccionades non poiràs tornar endarrèr, segur que vòs seguir?",
   "cartographyNonSelectedMessage": "Entà editar un nòde as de seleccionar ua cartografia!",
   "projectionMessage": "Introdusís EPSG:Còdi",
   "projectionsMessage": "Introdusís totes es projeccions EPSG:Còdi separades per intro",
@@ -145,7 +145,10 @@
     "status": "Estat",
     "appliesToChildrenTerritories": "Aplicat as hilhs",
     "childRole": "Ròtle hilh",
-    "passwordSet": "Clau introdusida"
+    "passwordSet": "Clau introdusida",
+    "email": "Corrèu electronic",
+    "invalidEmail": "Per plaser, introdusetz una adreça de corrèu electronic valid",
+    "invalidEmailFormat": "Per plaser, introdusetz un format de corrèu electronic valid"
   },
   "connectionEntity": {
     "generalData": "Donades Generaus",
@@ -215,7 +218,7 @@
     "parametersConfiguration": "Configuracion des atributs alfanumerics dera capa",
     "spatialSelection": "Configuracion dera seleccion espaciau",
     "groupCartographyLayersConfiguration": "Configuracion de capes per grops de cartografia",
-    "permissiongroupLayersConfiguration": "Grops de permisi e Ròtles qu’an accès ara capa",
+    "permissiongroupLayersConfiguration": "Grops de permisi e Ròtles qu'an accès ara capa",
     "nodes": "Arbes e Nòdes que contien era capa.",
     "column": "Colomna",
     "label": "Etiqueta",
@@ -266,8 +269,8 @@
     "supportedSRS": "Projeccions",
     "createdDate": "Registre",
     "update": "Actualiza",
-    "roles": "Ròtles qu’an permís d’accès sus aguest grop de permís",
-    "cartographiesConfiguration": "Capes que formen part d’aquest grop de permís",
+    "roles": "Ròtles qu'an permís d'accès sus aguest grop de permís",
+    "cartographiesConfiguration": "Capes que formen part d'aquest grop de permís",
     "status": "Estat"
   },
   "treesEntity": {
@@ -298,7 +301,7 @@
     "delete": "Eliminar",
     "imagePlaceHolder": "Hès clic en 'Fichèr locau' entà pujar ua imatge o en 'URL web' entà introduir ua URL",
     "preview": "Previsualizacion",
-    "styleError": "Er estil deth nòde a de coïncidir damb un estil dera capa seleccionada, en cas qu’era capa non age cap d’estil, aguest aurà d'èster vuet."
+    "styleError": "Er estil deth nòde a de coïncidir damb un estil dera capa seleccionada, en cas qu'era capa non age cap d'estil, aguest aurà d'èster vuet."
   },
   "taskGroupEntity": {
     "generalData": "Donades Generaus",
@@ -307,8 +310,8 @@
     "status": "Estat"
   },
   "backgroundEntity": {
-    "roles": "Ròtles qu’an permís d’accès sus aguest mapa de hons",
-    "cartographiesConfiguration": "Capes que formen part d’aguest mapa de hons",
+    "roles": "Ròtles qu'an permís d'accès sus aguest mapa de hons",
+    "cartographiesConfiguration": "Capes que formen part d'aguest mapa de hons",
     "generalData": "Donades Generaus",
     "backgroundLayers": "Capes de hons",
     "name": "Nòm",
@@ -348,7 +351,7 @@
     "createdDate": "Registre",
     "parametersConfiguration": "Configuracion de paramètres",
     "templateConfiguration": "Configuracion de modèl",
-    "roles": "Ròtles qu’an accès ad aguesta aplicacion",
+    "roles": "Ròtles qu'an accès ad aguesta aplicacion",
     "background": "Mapes de hons disponibles ena aplicacion",
     "selectedBackground": "Hons seleccionat",
     "value": "Valor",
@@ -448,7 +451,7 @@
     "textFilter": "Tèxte filtre",
     "deleteCartography": "Esfaçar cartografia",
     "id": "ID",
-    "roles": "Ròtles qu’an accès ad aguest trabalh",
+    "roles": "Ròtles qu'an accès ad aguest trabalh",
     "group": "Grop trabalh",
     "ui": "UI",
     "formatDataInput": "Format des donades entrades",
@@ -470,7 +473,7 @@
     "note": "Observacions",
     "path": "Path",
     "extent": "Extension",
-    "territories": "Territòris qu’an accès ad aguesta activitat",
+    "territories": "Territòris qu'an accès ad aguesta activitat",
     "taskName": "Nòm activitat",
     "tasksDocument": "Trabalhs-Document",
     "edit": "Edita",
@@ -511,7 +514,7 @@
     "origin": "Origina",
     "creator": "Creador",
     "extend": "Format",
-    "territory": "Territòris qu’an accès ad aguesta activitat",
+    "territory": "Territòris qu'an accès ad aguesta activitat",
     "accessType": "Tipe d'accès",
     "autocomplete": "Autocompletar",
     "anput": "Anput",
@@ -743,7 +746,7 @@
     "language": "Idiòma",
     "privateAccess": "Accès privat"
   },
-  "selectAll": "Seleccionà’c tot",
+  "selectAll": "Seleccionà'c tot",
   "selectAllSearchResults": "Seleccionar toti es resultats de cerca",
   "searchOoo": "Cercar...",
   "blanks": "Vuets",
