@@ -216,6 +216,7 @@ export class TerritoryFormComponent implements OnInit {
                 );
                 this.territoryForm.patchValue({
                   code: this.territoryToEdit.code,
+                  description: this.territoryToEdit.description,
                   territorialAuthorityAddress:
                   this.territoryToEdit.territorialAuthorityAddress,
                   territorialAuthorityLogo:
@@ -404,6 +405,7 @@ export class TerritoryFormComponent implements OnInit {
       id: new UntypedFormControl(null, []),
       code: new UntypedFormControl(null, [Validators.required]),
       name: new UntypedFormControl(null, [Validators.required]),
+      description: new UntypedFormControl(null),
       territorialAuthorityAddress: new UntypedFormControl(null),
       territorialAuthorityLogo: new UntypedFormControl(null),
       groupType: new UntypedFormControl(null),
@@ -1502,6 +1504,7 @@ export class TerritoryFormComponent implements OnInit {
         (this.territoryObj.id = this.territoryID),
           (this.territoryObj.code = this.territoryForm.value.code),
           (this.territoryObj.name = this.territoryForm.value.name),
+          (this.territoryObj.description = this.territoryForm.value.description),
           (this.territoryObj.territorialAuthorityAddress =
             this.territoryForm.value.territorialAuthorityAddress),
           (this.territoryObj.territorialAuthorityLogo =

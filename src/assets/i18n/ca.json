@@ -369,6 +369,7 @@
     "territories": "Territoris",
     "code": "Codi",
     "name": "Nom",
+    "description": "Descripció",
     "scope": "Àmbit",
     "createdDate": "Data alta",
     "administrator": "Administrador",

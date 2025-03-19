@@ -362,9 +362,10 @@
   "territoryEntity": {
     "generalData": "Données générales",
     "territory": "Territoire",
-    "territories": "Territories",
+    "territories": "Territoires",
     "code": "Code",
     "name": "Nom",
+    "description": "Description",
     "scope": "Portée",
     "createdDate": "Date de création",
     "administrator": "Administrateur",

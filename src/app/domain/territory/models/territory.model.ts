@@ -12,6 +12,8 @@ export class Territory extends Resource {
   public code: string;
   /** name */
   public name: string;
+  /** description */
+  public description: string;
   /** address*/
   public territorialAuthorityAddress: string;
   /** admin */

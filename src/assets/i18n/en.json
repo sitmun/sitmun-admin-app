@@ -402,7 +402,8 @@
     "username": "Username",
     "defaultZoomLevel": "Default zoom level",
     "centerPointX": "Center (X)",
-    "centerPointY": "Center (Y)"
+    "centerPointY": "Center (Y)",
+    "description": "Description"
   },
   "roleEntity": {
     "permissions": "Merge territory and user",
