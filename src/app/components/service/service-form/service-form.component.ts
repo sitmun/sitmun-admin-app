@@ -105,6 +105,7 @@ export class ServiceFormComponent implements OnInit {
       this.utils.getCodeListValues('service.type').subscribe(
         resp => {
           this.serviceTypes.push(...resp);
+          this.serviceTypes.sort((a, b) => a.description.localeCompare(b.description));
           resolve(true);
         }
       );
@@ -114,6 +115,7 @@ export class ServiceFormComponent implements OnInit {
       this.utils.getCodeListValues('service.authenticationMode').subscribe(
         resp => {
           this.authenticationModes.push(...resp);
+          this.authenticationModes.sort((a, b) => a.description.localeCompare(b.description));
           resolve(true);
         }
       );
@@ -124,6 +126,7 @@ export class ServiceFormComponent implements OnInit {
       this.utils.getCodeListValues('serviceParameter.type').subscribe(
         resp => {
           this.requestTypes.push(...resp);
+          this.requestTypes.sort((a, b) => a.description.localeCompare(b.description));
           resolve(true);
         }
       );

@@ -67,6 +67,7 @@ export class LayersPermitsFormComponent implements OnInit {
       this.utils.getCodeListValues('cartographyPermission.type').subscribe(
         resp => {
           this.permissionGroupTypes.push(...resp);
+          this.permissionGroupTypes.sort((a, b) => a.description.localeCompare(b.description));
           resolve(true);
         }
       );

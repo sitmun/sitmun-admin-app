@@ -77,6 +77,7 @@ export class ConnectionFormComponent implements OnInit {
       this.utils.getCodeListValues('databaseConnection.driver').subscribe(
         resp => {
           this.driversList.push(...resp);
+          this.driversList.sort((a, b) => a.description.localeCompare(b.description));
           resolve(true);
         }
       );

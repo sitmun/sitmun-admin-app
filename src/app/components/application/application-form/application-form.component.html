@@ -241,7 +241,7 @@
           <mat-label>{{ 'applicationEntity.type' | translate }}</mat-label>
           <mat-select formControlName="type" class="form-control" required>
             <mat-option [value]="parameterType.value" *ngFor="let parameterType of parametersTypes">
-              {{ parameterType.value }}
+              {{ parameterType.description }}
             </mat-option>
           </mat-select>
         </mat-form-field>

@@ -165,6 +165,7 @@ export class TerritoryFormComponent implements OnInit {
       new Promise((resolve, reject) => {
         this.territoryTypeService.getAll().subscribe((resp) => {
           this.territoryTypes.push(...resp);
+          this.territoryTypes.sort((a, b) => a.name.localeCompare(b.name));
           resolve(true);
         });
       })

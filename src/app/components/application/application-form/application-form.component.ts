@@ -133,6 +133,7 @@ export class ApplicationFormComponent implements OnInit {
       this.utils.getCodeListValues('application.type').subscribe(
         resp => {
           this.applicationTypes.push(...resp);
+          this.applicationTypes.sort((a, b) => a.description.localeCompare(b.description));
           resolve(true);
         }
       );
@@ -147,6 +148,7 @@ export class ApplicationFormComponent implements OnInit {
               newTable.push(element);
             }
           });
+          newTable.sort((a, b) => a.description.localeCompare(b.description));
           return newTable;
         })
       ).subscribe(
@@ -167,6 +169,7 @@ export class ApplicationFormComponent implements OnInit {
       this.getSituationMapList().subscribe(
         resp => {
           this.situationMapList.push(...resp);
+          this.situationMapList.sort((a, b) => a.name.localeCompare(b.name));
           resolve(true);
         }
       );

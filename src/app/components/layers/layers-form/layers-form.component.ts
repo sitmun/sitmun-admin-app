@@ -180,6 +180,7 @@ export class LayersFormComponent implements OnInit {
       this.utils.getCodeListValues('cartography.geometryType').subscribe(
         resp => {
           this.geometryTypes.push(...resp);
+          this.geometryTypes.sort((a, b) => a.description.localeCompare(b.description));
           resolve(true);
         }
       );
@@ -195,6 +196,7 @@ export class LayersFormComponent implements OnInit {
       this.utils.getCodeListValues('cartography.legendType').subscribe(
         resp => {
           this.legendTypes.push(...resp);
+          this.legendTypes.sort((a, b) => a.description.localeCompare(b.description));
           resolve(true);
         }
       );
@@ -207,6 +209,7 @@ export class LayersFormComponent implements OnInit {
             this.parameterTypes.push(element);
             this.parameterTypesDescription.push(element.description);
           });
+          this.parameterTypes.sort((a, b) => a.description.localeCompare(b.description));
           resolve(true);
         }
       );
@@ -219,6 +222,7 @@ export class LayersFormComponent implements OnInit {
             this.spatialSelectionParameterTypes.push(element);
             this.spatialSelectionParameterTypesDescription.push(element.description);
           });
+          this.spatialSelectionParameterTypes.sort((a, b) => a.description.localeCompare(b.description));
           resolve(true);
         }
       );
@@ -228,16 +232,17 @@ export class LayersFormComponent implements OnInit {
       this.utils.getCodeListValues('cartographyFilter.type').subscribe(
         resp => {
           this.filterTypes.push(...resp);
+          this.filterTypes.sort((a, b) => a.description.localeCompare(b.description));
           resolve(true);
         }
       );
     }));
 
-
     promises.push(new Promise((resolve,) => {
       this.utils.getCodeListValues('cartographyFilter.valueType').subscribe(
         resp => {
           this.filterValueTypes.push(...resp);
+          this.filterValueTypes.sort((a, b) => a.description.localeCompare(b.description));
           resolve(true);
         }
       );
@@ -247,11 +252,11 @@ export class LayersFormComponent implements OnInit {
       this.territoryTypeService.getAll().subscribe(
         resp => {
           this.filterTypeIds.push(...resp);
+          this.filterTypeIds.sort((a, b) => a.name.localeCompare(b.name));
           resolve(true);
         }
       );
     }));
-
 
     promises.push(new Promise((resolve,) => {
       this.utils.getCodeListValues('cartographyParameter.format').subscribe(
@@ -260,6 +265,7 @@ export class LayersFormComponent implements OnInit {
             this.parameterFormatTypes.push(element);
             this.parameterFormatTypesDescription.push(element.description);
           });
+          this.parameterFormatTypes.sort((a, b) => a.description.localeCompare(b.description));
           resolve(true);
         }
       );
@@ -272,6 +278,7 @@ export class LayersFormComponent implements OnInit {
             this.spatialSelectionParameterFormatTypes.push(element);
             this.spatialSelectionParameterFormatTypesDescription.push(element.description);
           });
+          this.spatialSelectionParameterFormatTypes.sort((a, b) => a.description.localeCompare(b.description));
           resolve(true);
         }
       );
@@ -288,6 +295,7 @@ export class LayersFormComponent implements OnInit {
       this.connectionService.getAll().subscribe(
         resp => {
           this.spatialConfigurationConnections.push(...resp);
+          this.spatialConfigurationConnections.sort((a, b) => a.name.localeCompare(b.name));
           resolve(true);
         }
       );
@@ -311,6 +319,7 @@ export class LayersFormComponent implements OnInit {
             }
           });
           this.spatialConfigurationServices.push(...wfsServices);
+          this.spatialConfigurationServices.sort((a, b) => a.name.localeCompare(b.name));
           resolve(true);
         })
       ).subscribe();
