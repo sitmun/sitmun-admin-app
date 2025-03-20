@@ -1,7 +1,8 @@
 {
-  "remove": "Elimina",
-  "search": "Busca",
-  "add": "Añade",
+  "remove": "Delete",
+  "search": "Search",
+  "replace": "Reemplazar",
+  "add": "Add",
   "register": "Registrar",
   "actions": "Acciones",
   "export": "Exportar",

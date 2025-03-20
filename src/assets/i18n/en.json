@@ -1,6 +1,7 @@
 {
   "remove": "Delete",
   "search": "Search",
+  "replace": "Replace",
   "add": "Add",
   "register": "Register",
   "actions": "Actions",

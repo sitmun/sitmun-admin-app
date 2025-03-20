@@ -23,7 +23,9 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatInputModule} from '@angular/material/input';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {MatCardModule} from '@angular/material/card';
+import {FormsModule} from '@angular/forms';
 import {UtilsService} from '@app/services/utils.service';
+import {LoggerService} from '@app/services/logger.service';
 
 declare let $: any;
 
@@ -50,6 +52,7 @@ ModuleRegistry.registerModules([
     AgGridModule,
     MatButtonToggleModule,
     MatCardModule,
+    FormsModule,
   ]
 })
 export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
@@ -135,9 +138,12 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   @ViewChild('dataGrid', { static: true }) dataGrid: ElementRef;
   private observer: IntersectionObserver;
 
+  replaceValue: string = '';
+
   constructor(public dialog: MatDialog,
     public translate: TranslateService,
     public utils: UtilsService,
+    private loggerService: LoggerService, 
   ) {
 
     this.remove = new EventEmitter();
@@ -272,30 +278,40 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
   loadData(): void {
     this.setLoading(true);
-    this.dataSubscription = this.getAll().subscribe((data: any[]) => {
-      const status = this.allNewElements?'pendingCreation':'statusOK'
-      const newItems = [];
-      const condition = (this.addFieldRestriction)? this.addFieldRestriction: 'id';
-      data.forEach(element => {
-        if(this.statusColumn){
-          if(element.status != "notAvailable" && element.status != "pendingCreation" && element.status != "pendingRegistration" && element.status != "unregisteredLayer"){
-            element.status=status
+    this.dataSubscription = this.getAll().subscribe({
+      next: (data: any[]) => {
+        const status = this.allNewElements ? 'pendingCreation' : 'statusOK';
+        const newItems = [];
+        const condition = (this.addFieldRestriction) ? this.addFieldRestriction : 'id';
+        
+        data.forEach(element => {
+          if (this.statusColumn) {
+            if (element.status != "notAvailable" && element.status != "pendingCreation" && 
+                element.status != "pendingRegistration" && element.status != "unregisteredLayer") {
+              element.status = status;
+            }
+            if (this.allNewElements) { element.new = true; }
           }
-          if(this.allNewElements) { element.new = true; }
-        }
-        if(this.currentData){
-          if (this.checkElementAllowedToAdd(condition,element, this.currentData)) {
-            newItems.push(element);
+          if (this.currentData) {
+            if (this.checkElementAllowedToAdd(condition, element, this.currentData)) {
+              newItems.push(element);
+            }
           }
-        }
+        });
 
-      });
-      this.rowData = this.currentData?newItems: data;
-      if(!this.gridApi?.isDestroyed()) {
-        this.gridApi?.applyTransaction({ add: this.rowData });
+        this.rowData = this.currentData ? newItems : data;
+        
+        if (this.gridApi && !this.gridApi.isDestroyed()) {
+          this.gridApi.setGridOption('rowData', this.rowData);
+        }
+        
+        this.isFirstLoad = false;
+        this.setLoading(false);
+      },
+      error: (error) => {
+        this.loggerService.error('Error loading data:', error);
+        this.setLoading(false);
       }
-      this.isFirstLoad = false;
-      this.setLoading(false);
     });
   }
 
@@ -415,8 +431,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   emitAllRows(event: string): void {
-    // let rowData = [];
-    // this.gridApi.forEachNode(node => rowData.push(node.data));
+    if (event === 'save') {
+      this.applyChanges();
+    }
     this.getAllRows.emit({data: this.getAllCurrentData(), event: event});
   }
 
@@ -484,10 +501,97 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     this.gridApi.exportDataAsCsv(params);
   }
 
+  applyChanges(): void {
+    this.loggerService.debug('DataGridComponent applyChanges - Starting');
+
+    if (!this.gridApi) {
+      this.loggerService.warn('Grid API is not available');
+      return;
+    }
+
+    // Store current grid state
+    const currentFilterModel = this.gridApi.getFilterModel();
+    const currentQuickFilter = this.searchValue;
+    const currentSortModel = this.gridApi.getColumnState();
+    
+    this.loggerService.debug('Current grid state:', {
+      filterModel: currentFilterModel,
+      quickFilter: currentQuickFilter,
+      sortModel: currentSortModel
+    });
+
+    // Collect changed items
+    const itemsChanged: any[] = [];
+    this.gridApi.stopEditing(false);
+    for (const key of this.changesMap.keys()) {
+      itemsChanged.push(this.gridApi.getRowNode(key).data);
+    }
+
+    this.loggerService.debug('Items to be saved:', itemsChanged);
+
+    // Emit changes and reset change tracking
+    this.sendChanges.emit(itemsChanged);
+    this.gridModified.emit(false);
+    this.changesMap.clear();
+    this.changeCounter = 0;
+    this.previousChangeCounter = 0;
+    this.redoCounter = 0;
+    this.someStatusHasChangedToDelete = false;
+    
+    // Get current data
+    const currentData = this.getAllCurrentData();
+    this.loggerService.debug('Current data count:', currentData.length);
+    
+    // Store reference to gridApi to ensure it's available in requestAnimationFrame
+    const api = this.gridApi;
+    
+    // Update the grid data
+    api.setGridOption('rowData', currentData);
+    
+    // Use requestAnimationFrame to ensure UI is updated properly
+    requestAnimationFrame(() => {
+      if (api && !api.isDestroyed()) {
+        // Restore grid state
+        if (currentQuickFilter) {
+          api.setGridOption('quickFilterText', currentQuickFilter);
+          this.searchValue = currentQuickFilter;
+        }
+        
+        if (Object.keys(currentFilterModel).length > 0) {
+          api.setFilterModel(currentFilterModel);
+        }
+        
+        if (currentSortModel) {
+          api.applyColumnState({
+            state: currentSortModel,
+            applyOrder: true
+          });
+        }
+
+        api.redrawRows();
+        
+        this.loggerService.debug('Grid state after update:', {
+          rowCount: api.getDisplayedRowCount(),
+          filterModel: api.getFilterModel(),
+          quickFilter: this.searchValue,
+          sortModel: api.getColumnState()
+        });
+      } else {
+        this.loggerService.warn('Grid API was destroyed during update');
+      }
+    });
+  }
+
   quickSearch(event: KeyboardEvent): void {
     const input = event.target as HTMLInputElement;
-    const searchValue = input.value;
-    this.gridApi.setGridOption('quickFilterText', searchValue);
+    this.searchValue = input.value;
+    if (this.gridApi) {
+      // Set quickFilterText to empty string when search is cleared
+      this.gridApi.setGridOption('quickFilterText', this.searchValue || '');
+      // Ensure the grid is properly refreshed
+      this.gridApi.onFilterChanged();
+      this.gridApi.onSortChanged();
+    }
   }
 
   addItems(newItems: any[]): void {
@@ -599,25 +703,6 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       this.gridApi.deselectAll()
     }
   }
-
-
-  applyChanges(): void {
-    const itemsChanged: any[] = [];
-    this.gridApi.stopEditing(false);
-    for (const key of this.changesMap.keys()) {
-      itemsChanged.push(this.gridApi.getRowNode(key).data);
-    }
-    this.sendChanges.emit(itemsChanged);
-    this.gridModified.emit(false);
-    this.changesMap.clear();
-    this.changeCounter = 0;
-    this.previousChangeCounter = 0;
-    this.redoCounter = 0;
-    this.someStatusHasChangedToDelete=false;
-    // this.params.colDef.cellStyle = { backgroundColor: '#FFFFFF' };
-    this.gridApi.redrawRows();
-  }
-
 
 
   deleteChanges(): void {
@@ -847,8 +932,108 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   updateGridData(newData: any[]): void {
-    if (this.gridApi) {
-      this.gridApi.setRowData(newData);
+    if (this.gridApi && !this.gridApi.isDestroyed()) {
+      this.gridApi.setGridOption('rowData', newData);
+    }
+  }
+
+  /**
+   * Replaces all occurrences of the search value with the replace value in the selected rows.
+   * This method performs a global search and replace operation on all editable string fields of the selected rows.
+   * The search is case insensitive.
+   * 
+   * The method handles:
+   * - Status field updates (sets to 'pendingModify' if not already 'pendingDelete' or 'pendingCreation')
+   * - Change tracking in the changesMap for undo/redo functionality
+   * - Visual feedback through cell highlighting
+   * - Grid state updates (change counter, modified state)
+   * 
+   * Prerequisites:
+   * - Grid API must be initialized
+   * - Replace value must be set
+   * - At least one row must be selected
+   * - Search value must be set
+   * 
+   * @returns {void}
+   * 
+   * @example
+   * // Assuming grid is initialized and rows are selected
+   * component.searchValue = "old text";
+   * component.replaceValue = "new text";
+   * component.replaceSelected();
+   */
+  replaceSelected(): void {
+    this.loggerService.debug('Starting replace operation', {
+      searchValue: this.searchValue,
+      replaceValue: this.replaceValue
+    });
+
+    if (!this.gridApi || !this.replaceValue) {
+      this.loggerService.warn('Cannot replace: missing grid API or replace value');
+      return;
+    }
+
+    const selectedNodes = this.gridApi.getSelectedNodes();
+    if (!selectedNodes.length) {
+      this.loggerService.warn('No rows selected for replace operation');
+      return;
+    }
+
+    const searchValue = this.searchValue;
+    if (!searchValue) {
+      this.loggerService.warn('No search value provided for replace operation');
+      return;
+    }
+
+    let hasChanges = false;
+    selectedNodes.forEach(node => {
+      const row = node.data;
+      Object.keys(row).forEach(key => {
+        const column = this.gridApi.getColumn(key);
+        if (column && column.getColDef().editable !== false && typeof row[key] === 'string') {
+          const searchRegex = new RegExp(searchValue, 'gi');
+          const originalValue = row[key];
+          
+          if (searchRegex.test(originalValue)) {
+            const newValue = originalValue.replace(searchRegex, this.replaceValue);
+            
+            if (originalValue !== newValue) {
+              hasChanges = true;
+              row[key] = newValue;
+              
+              if (this.statusColumn && row.status !== 'pendingDelete' && row.status !== 'pendingCreation') {
+                row.status = 'pendingModify';
+              }
+              
+              if (!this.changesMap.has(node.id)) {
+                const addMap = new Map<string, number>();
+                addMap.set(key, 1);
+                this.changesMap.set(node.id, addMap);
+              } else if (!this.changesMap.get(node.id).has(key)) {
+                this.changesMap.get(node.id).set(key, 1);
+              } else {
+                const currentChanges = this.changesMap.get(node.id).get(key);
+                this.changesMap.get(node.id).set(key, currentChanges + 1);
+              }
+
+              this.changeCounter++;
+              if (this.changeCounter === 1) {
+                this.gridModified.emit(true);
+              }
+            }
+          }
+        }
+      });
+    });
+
+    if (hasChanges) {
+      this.loggerService.debug('Replace operation completed with changes');
+      this.gridApi.refreshCells({
+        force: true,
+        rowNodes: selectedNodes
+      });
+    } else {
+      this.loggerService.debug('Replace operation completed with no changes');
     }
   }
 }

@@ -48,6 +48,19 @@
     <input matInput type="text" placeholder="" (keyup)="quickSearch($event)">
   </mat-form-field>
 
+  <mat-form-field subscriptSizing="dynamic" class="spacer add-half-gap">
+    <mat-label [translate]="'replace'"></mat-label>
+    <input matInput type="text" placeholder="" [(ngModel)]="replaceValue">
+  </mat-form-field>
+
+  <button type="button"
+          matTooltip="{{ 'replace' | translate }}"
+          mat-mini-fab class="add-half-gap"
+          (click)="replaceSelected()"
+          [disabled]="!areRowsSelected() || !replaceValue">
+    <mat-icon fontSet="material-icons-round">find_replace</mat-icon>
+  </button>
+
   <!--
   <mat-button-toggle-group
     matTooltip="{{ 'rowsToShow' | translate }}"
