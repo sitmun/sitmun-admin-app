@@ -62,6 +62,7 @@ import { TaskGroupFormComponent } from '@app/components/task-group/task-group-fo
 import { TasksComponent } from '@app/components/tasks/tasks.component';
 import { LoginComponent } from '@app/components/login/login.component';
 import { LogLevelControlComponent } from '@app/components/shared/log-level-control/log-level-control.component';
+import { FormToolbarComponent } from '@app/components/shared/form-toolbar/form-toolbar.component';
 import { DashboardComponent } from '@app/components/dashboard/dashboard.component';
 import { TaskFormComponent } from '@app/components/task-form/task-form.component';
 import { NgTemplateNameDirective } from '@app/components/task-form/ng-template-name.directive';
@@ -158,7 +159,8 @@ import { ResourceService, ExternalService } from '@app/core/hal';
     TasksEditionRelationTableComponent,
     TasksEditionSearchViewComponent,
     LogLevelControlComponent,
-    UserInfoComponent
+    UserInfoComponent,
+    FormToolbarComponent
   ],
   imports: [
     BrowserModule,

@@ -3,7 +3,7 @@ import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RestService } from '@app/core/hal/rest/rest.service';
-
+import { LoggerService } from '@app/services/logger.service';
 /** Task manager service */
 @Injectable()
 export class TaskService extends RestService<Task> {
@@ -12,7 +12,7 @@ export class TaskService extends RestService<Task> {
     public CONNECTION_API = 'tasks';
 
     /** constructor */
-    constructor(injector: Injector, private http: HttpClient) {
+    constructor(injector: Injector, private http: HttpClient, private loggerService: LoggerService) {
         super(Task, "tasks", injector);
     }
 
@@ -23,6 +23,7 @@ export class TaskService extends RestService<Task> {
 
     /** save task*/
     save(item: Task): Observable<any> {
+        this.loggerService.debug("Save task:", item);
         let result: Observable<Object>;
 
         if (item._links != null) {
