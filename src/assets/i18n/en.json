@@ -304,7 +304,8 @@
     "delete": "Remove",
     "imagePlaceHolder": "Click on 'Local file' to upload an image or on 'Web URL' to enter a URL",
     "preview": "Preview",
-    "styleError": "The style of the node must match a style of the selected layer, if the layer has no style, it must be empty."
+    "styleError": "The style of the node must match a style of the selected layer, if the layer has no style, it must be empty.",
+    "roles": "Roles"
   },
   "taskGroupEntity": {
     "generalData": "General Data",

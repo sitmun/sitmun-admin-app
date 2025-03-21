@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { TreeService, TreeNodeService, Translation, TranslationService, TaskService,
   CartographyService, Tree, TreeNode, Cartography, ServiceService, CapabilitiesService, ApplicationService,
+  RoleService
 } from '@app/domain';
 import { HttpClient } from '@angular/common/http';
 import { UtilsService } from '@app/services/utils.service';
@@ -91,6 +92,13 @@ export class TreesFormComponent implements OnInit {
     description: 'Mapa'
   }];
 
+  // Roles grid
+  columnDefsRoles: any[];
+  getAllElementsEventRoles: Subject<string> = new Subject<string>();
+  dataUpdatedEventRoles: Subject<boolean> = new Subject<boolean>();
+  addElementsEventRoles: Subject<any[]> = new Subject<any[]>();
+  columnDefsRolesDialog: any[];
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -105,7 +113,8 @@ export class TreesFormComponent implements OnInit {
     public serviceService: ServiceService,
     public capabilitiesService: CapabilitiesService,
     public applicationService: ApplicationService,
-    private loggerService: LoggerService
+    private loggerService: LoggerService,
+    private roleService: RoleService
   ) {
 
     this.initializeTreesForm();
@@ -241,6 +250,20 @@ export class TreesFormComponent implements OnInit {
       this.utils.getNonEditableColumnDef('treesEntity.groupTask', 'groupName'),
       this.utils.getNonEditableColumnDef('treesEntity.typeName', 'typeName'),
       this.utils.getStatusColumnDef()
+    ];
+
+    // Initialize roles grid columns
+    this.columnDefsRoles = [
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('roleEntity.name', 'name'),
+      this.utils.getStatusColumnDef()
+    ];
+
+    this.columnDefsRolesDialog = [
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('roleEntity.name', 'name'),
     ];
   }
 
@@ -921,6 +944,7 @@ export class TreesFormComponent implements OnInit {
         let mapNewIdentificators: Map<number, any[]> = new Map<number, any[]>();
         const promises: Promise<any>[] = [];
         this.getAllElementsEventApplication.next('save');
+        this.getAllElementsEventRoles.next('save');
         this.updateAllTrees(data, 0, mapNewIdentificators, promises, null, null);
         this.refreshTreeEvent.next(true)
       },
@@ -1466,6 +1490,84 @@ export class TreesFormComponent implements OnInit {
 
   onTabChange(event: MatTabChangeEvent) {
     this.activeTabIndex = event.index;
+  }
+
+  // ******** Roles ******** //
+  getAllRoles = (): Observable<any> => {
+    if (this.treeID === -1) {
+      return of([]);
+    } else {
+      let urlReq = `${this.treeToEdit._links.availableRoles.href}`;
+      if (this.treeToEdit._links.availableRoles.templated) {
+        const url = new URL(urlReq.split("{")[0]);
+        url.searchParams.append("projection", "view");
+        urlReq = url.toString();
+      }
+      return this.http.get(urlReq).pipe(map(data => data['_embedded']['roles']));
+    }
+  };
+
+  getAllRowsRoles(event) {
+    if (event.event === "save") {
+      this.saveRoles(event.data);
+    }
+  }
+
+  saveRoles(data: any[]) {
+    let dataChanged = false;
+    const promises: Promise<any>[] = [];
+    const rolesToPut = [];
+    
+    data.forEach(role => {
+      if (role.status !== 'pendingDelete') {
+        if (role.status === 'pendingModify') {
+          if (role.newItem) { dataChanged = true; }
+          promises.push(new Promise((resolve) => { 
+            this.roleService.update(role).subscribe(() => { resolve(true); });
+          }));
+        } else if (role.status === 'pendingCreation') {
+          dataChanged = true;
+        }
+        rolesToPut.push(role._links.self.href);
+      } else {
+        dataChanged = true;
+      }
+    });
+
+    Promise.all(promises).then(() => {
+      if (dataChanged) {
+        const url = this.treeToEdit._links.availableRoles.href.split('{', 1)[0];
+        this.utils.updateUriList(url, rolesToPut, this.dataUpdatedEventRoles);
+      } else {
+        this.dataUpdatedEventRoles.next(true);
+      }
+    });
+  }
+
+  // ******** Roles Dialog ******** //
+  getAllRolesDialog = () => {
+    return this.roleService.getAll();
+  };
+
+  openRolesDialog(data: any) {
+    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
+    dialogRef.componentInstance.orderTable = ['name'];
+    dialogRef.componentInstance.getAllsTable = [this.getAllRolesDialog];
+    dialogRef.componentInstance.singleSelectionTable = [false];
+    dialogRef.componentInstance.columnDefsTable = [this.columnDefsRolesDialog];
+    dialogRef.componentInstance.themeGrid = this.themeGrid;
+    dialogRef.componentInstance.title = this.utils.getTranslate('treesEntity.roles');
+    dialogRef.componentInstance.titlesTable = [''];
+    dialogRef.componentInstance.currentData = [data];
+    dialogRef.componentInstance.nonEditable = false;
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (result.event === 'Add') {
+          this.addElementsEventRoles.next(result.data[0]);
+        }
+      }
+    });
   }
 }
 

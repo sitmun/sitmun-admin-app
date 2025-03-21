@@ -376,4 +376,26 @@
                    *ngIf="dataLoaded"
     ></app-data-grid>
   </mat-tab>
+  <mat-tab label="{{ 'treesEntity.roles' | translate }}">
+    <app-data-grid [changeHeightButton]="true"
+                   [allNewElements]="treeID === -1"
+                   [columnDefs]="columnDefsRoles"
+                   [getAll]='getAllRoles'
+                   [eventAddItemsSubscription]='addElementsEventRoles.asObservable()'
+                   [eventGetAllRowsSubscription]='getAllElementsEventRoles.asObservable()'
+                   [eventRefreshSubscription]='dataUpdatedEventRoles.asObservable()'
+                   [actionButton]=true
+                   [discardChangesButton]=true
+                   [redoButton]=true
+                   [undoButton]=true
+                   [deleteButton]=true
+                   [addButton]=true
+                   [defaultColumnSorting]="['name']"
+                   [hideDuplicateButton]=true
+                   (getAllRows)="getAllRowsRoles($event)"
+                   (add)="openRolesDialog($event)"
+                   [redraw]="activeTabIndex === 3"
+                   *ngIf="dataLoaded"
+    ></app-data-grid>
+  </mat-tab>
 </mat-tab-group>
