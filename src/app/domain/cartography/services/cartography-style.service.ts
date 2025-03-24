@@ -17,12 +17,6 @@ export class CartographyStyleService extends RestService<CartographyStyle> {
     super(CartographyStyle, "cartography-styles", injector);
   }
 
-  /** remove service parameter*/
-  remove(item: CartographyStyle) {
-    return this.http.delete(item._links.self.href);
-
-  }
-
   /** save service parameter*/
   save(item: CartographyStyle): Observable<any> {
     let result: Observable<Object>;

@@ -17,12 +17,6 @@ export class CartographyFilterService extends RestService<CartographyFilter> {
     super(CartographyFilter, "cartography-filters", injector);
   }
 
-  /** remove cartography filter*/
-  remove(item: CartographyFilter) {
-    return this.http.delete(item._links.self.href);
-
-  }
-
   /** save cartography availability*/
   save(item: CartographyFilter): Observable<any> {
     let result: Observable<Object>;

@@ -18,12 +18,6 @@ export class CartographyService extends RestService<Cartography> {
     super(Cartography, "cartographies", injector);
   }
 
-  /** remove cartography*/
-  remove(item: Cartography) {
-    return this.http.delete(item._links.self.href);
-
-  }
-
   /** save cartography*/
   save(item: Cartography): Observable<any> {
     let result: Observable<Object>;

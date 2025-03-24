@@ -485,7 +485,7 @@ export class BackgroundLayersFormComponent implements OnInit {
       } else if (application.status === 'pendingDelete' && !application.newItem) {
         // backgroundsToDelete.push(background)
         promises.push(new Promise((resolve,) => {
-          this.applicationBackgroundService.remove(application).subscribe(() => {
+          this.applicationBackgroundService.delete(application).subscribe(() => {
             resolve(true);
           });
         }));

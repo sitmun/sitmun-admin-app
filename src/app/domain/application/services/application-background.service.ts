@@ -17,12 +17,6 @@ export class ApplicationBackgroundService extends RestService<ApplicationBackgro
     super(ApplicationBackground, "application-backgrounds", injector);
   }
 
-  /** remove application background*/
-  remove(item: ApplicationBackground) {
-    return this.http.delete(item._links.self.href);
-
-  }
-
   /** save application background*/
   save(item: ApplicationBackground): Observable<any> {
     let result: Observable<Object>;

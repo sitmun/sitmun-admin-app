@@ -16,12 +16,6 @@ export class ConnectionService extends RestService<Connection> {
     super(Connection, "connections", injector);
   }
 
-  /** remove connection*/
-  remove(item: Connection) {
-    return this.http.delete(item._links.self.href);
-
-  }
-
   /** save connection*/
   save(item: Connection): Observable<any> {
     let result: Observable<Object>;

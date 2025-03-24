@@ -17,12 +17,6 @@ export class TaskUIService extends RestService<TaskUI> {
     super(TaskUI, "task-uis", injector);
   }
 
-  /** remove task UI*/
-  remove(item: TaskUI) {
-    return this.http.delete(item._links.self.href);
-
-  }
-
   /** save task UI*/
   save(item: TaskUI): Observable<any> {
     let result: Observable<Object>;

@@ -378,7 +378,7 @@ export class RoleFormComponent implements OnInit {
         }))
       }
       if (userConf.status === 'pendingDelete' && userConf._links && !userConf.new) {
-        promises.push(new Promise((resolve, ) => { this.userConfigurationService.remove(userConf).subscribe(() => { resolve(true) }) }));
+        promises.push(new Promise((resolve, ) => { this.userConfigurationService.delete(userConf).subscribe(() => { resolve(true) }) }));
       }
     }
     ;

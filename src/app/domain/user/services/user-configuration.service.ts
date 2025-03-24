@@ -17,12 +17,6 @@ export class UserConfigurationService extends RestService<UserConfiguration> {
     super(UserConfiguration, "user-configurations", injector);
   }
 
-  /** remove user configuration*/
-  remove(item: UserConfiguration) {
-    return this.http.delete(item._links.self.href);
-
-  }
-
   /** save user configuration*/
   save(item: any): Observable<any> {
     let result: Observable<object>;

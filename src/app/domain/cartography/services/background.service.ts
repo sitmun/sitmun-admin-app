@@ -16,11 +16,6 @@ export class BackgroundService extends RestService<Background> {
     super(Background, "backgrounds", injector);
   }
 
-  /** remove background*/
-  remove(item: Background) {
-    return this.http.delete(item._links.self.href);
-  }
-
   /** save background*/
   save(item: Background): Observable<any> {
     let result: Observable<Object>;

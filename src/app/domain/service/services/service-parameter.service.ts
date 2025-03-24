@@ -16,12 +16,6 @@ export class ServiceParameterService extends RestService<ServiceParameter> {
     super(ServiceParameter, "service-parameters", injector);
   }
 
-  /** remove service parameter*/
-  remove(item: ServiceParameter) {
-    return this.http.delete(item._links.self.href);
-
-  }
-
   /** save service parameter*/
   save(item: ServiceParameter, requestTypes: any[]): Observable<any> {
     let result: Observable<Object>;

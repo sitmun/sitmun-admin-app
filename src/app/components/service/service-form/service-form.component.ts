@@ -541,7 +541,7 @@ export class ServiceFormComponent implements OnInit {
       }
       if (parameter.status === 'pendingDelete' && parameter._links && !parameter.newItem) {
         promises.push(new Promise((resolve,) => {
-          this.serviceParameterService.remove(parameter).subscribe(() => {
+          this.serviceParameterService.delete(parameter).subscribe(() => {
             resolve(true);
           });
         }));
@@ -695,7 +695,7 @@ export class ServiceFormComponent implements OnInit {
         }));
       } else if (cartography.status === 'pendingDelete' && cartography._links) {
         promises.push(new Promise((resolve,) => {
-          this.cartographyService.remove(cartography).subscribe(() => {
+          this.cartographyService.delete(cartography).subscribe(() => {
             resolve(true);
           });
         }));

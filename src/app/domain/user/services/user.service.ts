@@ -16,12 +16,6 @@ export class UserService extends RestService<User> {
     super(User, "users", injector);
   }
 
-  /** remove user*/
-  remove(item: User) {
-    return this.http.delete(item._links.self.href);
-
-  }
-
   /** save user*/
   save(item: any): Observable<any> {
     let result: Observable<object>;

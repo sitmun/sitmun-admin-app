@@ -16,12 +16,6 @@ export class CartographySpatialSelectionParameterService extends RestService<Car
     super(CartographyParameter, "cartography-spatial-selection-parameters", injector);
   }
 
-  /** remove service parameter*/
-  remove(item: CartographyParameter) {
-    return this.http.delete(item._links.self.href);
-
-  }
-
   /** save service parameter*/
   save(item: CartographyParameter): Observable<any> {
     let result: Observable<Object>;

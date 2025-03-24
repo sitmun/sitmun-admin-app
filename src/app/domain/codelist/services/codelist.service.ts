@@ -18,12 +18,6 @@ export class CodeListService extends RestService<CodeList> {
     super(CodeList, "codelist-values", injector);
   }
 
-  /** remove connection*/
-  remove(item: CodeList) {
-    return this.http.delete(item._links.self.href);
-
-  }
-
   /** save connection*/
   save(item: CodeList): Observable<any> {
     let result: Observable<Object>;

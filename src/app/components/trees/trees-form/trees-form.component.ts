@@ -1102,7 +1102,7 @@ export class TreesFormComponent implements OnInit {
         else {
           if (tree.id >= 0) {
             let idDeletedElement = tree.id;
-            await this.treeNodeService.remove(treeNodeObj).toPromise();
+            await this.treeNodeService.delete(treeNodeObj).toPromise();
 
           }
         }

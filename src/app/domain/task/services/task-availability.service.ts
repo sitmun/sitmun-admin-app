@@ -17,12 +17,6 @@ export class TaskAvailabilityService extends RestService<TaskAvailability> {
     super(TaskAvailability, "task-availabilities", injector);
   }
 
-  /** remove task availability*/
-  remove(item: TaskAvailability) {
-    return this.http.delete(item._links.self.href);
-
-  }
-
   /** save task availability*/
   save(item: TaskAvailability): Observable<any> {
     let result: Observable<Object>;

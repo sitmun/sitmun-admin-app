@@ -1010,7 +1010,7 @@ export class LayersFormComponent implements OnInit {
       }
       if (style.status === 'pendingDelete' && style._links && !style.newItem) {
         promises.push(new Promise((resolve,) => {
-          this.cartographyStyleService.remove(style).subscribe(() => {
+          this.cartographyStyleService.delete(style).subscribe(() => {
             resolve(true);
           });
         }));
@@ -1111,7 +1111,7 @@ export class LayersFormComponent implements OnInit {
       if (territoryFilter.status === 'pendingDelete' && territoryFilter._links && !territoryFilter.newItem) {
         //  territorialFilterToDelete.push(territoryFilter)
         promises.push(new Promise((resolve,) => {
-          this.cartographyFilterService.remove(territoryFilter).subscribe(() => {
+          this.cartographyFilterService.delete(territoryFilter).subscribe(() => {
             resolve(true);
           });
         }));
@@ -1196,7 +1196,7 @@ export class LayersFormComponent implements OnInit {
       }
       if (territory.status === 'pendingDelete' && territory._links && !territory.newItem) {
         promises.push(new Promise((resolve,) => {
-          this.cartograhyAvailabilityService.remove(territory).subscribe(() => {
+          this.cartograhyAvailabilityService.delete(territory).subscribe(() => {
             resolve(true);
           });
         }));
@@ -1337,7 +1337,7 @@ export class LayersFormComponent implements OnInit {
       } else if (node.status === 'pendingDelete' && !node.newItem) {
         //  nodesToDelete.push(nodeAct)
         promises.push(new Promise((resolve,) => {
-          this.treeNodeService.remove(node).subscribe(() => {
+          this.treeNodeService.delete(node).subscribe(() => {
             resolve(true);
           });
         }));

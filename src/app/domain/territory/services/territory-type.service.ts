@@ -17,12 +17,6 @@ export class TerritoryTypeService extends RestService<TerritoryType> {
     super(TerritoryType, "territory-types", injector);
   }
 
-  /** remove territory type*/
-  remove(item: TerritoryType) {
-    return this.http.delete(item._links.self.href);
-
-  }
-
   /** save territory type*/
   save(item: any): Observable<any> {
     let result: Observable<Object>;

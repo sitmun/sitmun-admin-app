@@ -16,12 +16,6 @@ export class TreeNodeService extends RestService<TreeNode> {
     super(TreeNode, "tree-nodes", injector);
   }
 
-  /** remove tree node*/
-  remove(item: TreeNode) {
-    return this.http.delete(item._links.self.href);
-
-  }
-
   /** save tree node*/
   save(item: TreeNode): Observable<any> {
     let result: Observable<Object>;

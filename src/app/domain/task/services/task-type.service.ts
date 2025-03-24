@@ -17,12 +17,6 @@ export class TaskTypeService extends RestService<TaskType> {
     super(TaskType, "task-types", injector);
   }
 
-  /** remove task type*/
-  remove(item: TaskType) {
-    return this.http.delete(item._links.self.href);
-
-  }
-
   /** save task type*/
   save(item: TaskType): Observable<any> {
     let result: Observable<Object>;

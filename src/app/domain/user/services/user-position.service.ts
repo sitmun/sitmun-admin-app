@@ -17,12 +17,6 @@ export class UserPositionService  extends RestService<UserPosition> {
     super(UserPosition, "user-positions", injector);
   }
 
-  /** remove user position*/
-  remove(item: UserPosition) {
-    return this.http.delete(item._links.self.href);
-
-  }
-
   /** save user position*/
   save(item: any): Observable<any> {
     let result: Observable<Object>;

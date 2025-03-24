@@ -17,12 +17,6 @@ export class TaskParameterService extends RestService<TaskParameter> {
     super(TaskParameter, "task-parameters", injector);
   }
 
-  /** remove task parameter*/
-  remove(item: TaskParameter) {
-    return this.http.delete(item._links.self.href);
-
-  }
-
   /** save task parameter*/
   save(item: TaskParameter): Observable<any> {
     let result: Observable<Object>;

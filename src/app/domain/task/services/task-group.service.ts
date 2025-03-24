@@ -17,12 +17,6 @@ export class TaskGroupService extends RestService<TaskGroup> {
     super(TaskGroup, "task-groups", injector);
   }
 
-  /** remove task group*/
-  remove(item: TaskGroup) {
-    return this.http.delete(item._links.self.href);
-
-  }
-
   /** save task group*/
   save(item: TaskGroup): Observable<any> {
     let result: Observable<Object>;

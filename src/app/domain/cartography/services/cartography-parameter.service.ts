@@ -16,12 +16,6 @@ export class CartographyParameterService extends RestService<CartographyParamete
     super(CartographyParameter, "cartography-parameters", injector);
   }
 
-  /** remove service parameter*/
-  remove(item: CartographyParameter) {
-    return this.http.delete(item._links.self.href);
-
-  }
-
   /** save service parameter*/
   save(item: CartographyParameter): Observable<any> {
     let result: Observable<Object>;

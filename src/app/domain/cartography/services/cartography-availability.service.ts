@@ -17,12 +17,6 @@ export class CartographyAvailabilityService extends RestService<CartographyAvail
     super(CartographyAvailability, "cartography-availabilities", injector);
   }
 
-  /** remove cartography availability*/
-  remove(item: CartographyAvailability) {
-    return this.http.delete(item._links.self.href);
-
-  }
-
   /** save cartography availability*/
   save(item: CartographyAvailability): Observable<any> {
     let result: Observable<Object>;

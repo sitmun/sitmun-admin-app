@@ -18,12 +18,6 @@ export class LanguageService extends RestService<Language> {
     super(Language, "languages", injector);
   }
 
-  /** remove translation*/
-  remove(item: Language) {
-    return this.http.delete(item._links.self.href);
-
-  }
-
   /** save translation*/
   save(item: Language): Observable<any> {
     let result: Observable<Object>;

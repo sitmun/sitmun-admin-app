@@ -503,7 +503,7 @@ export class UserFormComponent implements OnInit {
         }
 
         promises.push(new Promise((resolve,) => {
-          this.userConfigurationService.remove(userConf).subscribe(() => {
+          this.userConfigurationService.delete(userConf).subscribe(() => {
             resolve(true);
           });
         }));
@@ -590,7 +590,7 @@ export class UserFormComponent implements OnInit {
 
       } else if (territory.status === 'pendingDelete') {
         promises.push(new Promise((resolve,) => {
-          this.userPositionService.remove(territory).subscribe(() => {
+          this.userPositionService.delete(territory).subscribe(() => {
             resolve(true);
           });
         }));

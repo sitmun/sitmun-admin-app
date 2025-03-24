@@ -16,11 +16,6 @@ export class TaskService extends RestService<Task> {
         super(Task, "tasks", injector);
     }
 
-    /** remove task*/
-    remove(item: Task) {
-        return this.http.delete(item._links.self.href);
-    }
-
     /** save task*/
     save(item: Task): Observable<any> {
         this.loggerService.debug("Save task:", item);
@@ -74,6 +69,7 @@ export class TaskService extends RestService<Task> {
                 // }, error => console.error(error));
             }else {
                 item.ui._links.self.href=item.ui._links.self.href.split("{")[0]
+                this.loggerService.debug("Save task: UI link", item.ui._links.self.href);
                 item.substituteRelation('ui', item.ui).subscribe(result => {
                 }, error => console.error(error));
                 item.ui = item.ui._links.self.href
@@ -108,24 +104,6 @@ export class TaskService extends RestService<Task> {
 
             result = this.http.put(item._links.self.href, item);
         } else {
-            if(item.cartography){
-                item.cartography = item.cartography._links.self.href
-            }
-            if(item.connection){
-                item.connection = item.connection._links.self.href
-            }
-            if(item.service){
-                item.service = item.service._links.self.href
-            }
-            if(item.ui){
-                item.ui = item.ui._links.self.href
-            }
-            if(item.group){
-                item.group = item.group._links.self.href
-            }
-            if(item.type){
-                item.type = item.type._links.self.href
-            }
             result = this.http.post(this.resourceService.getResourceUrl(this.CONNECTION_API), item);
         }
         return result;

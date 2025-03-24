@@ -16,12 +16,6 @@ export class TreeService extends RestService<Tree> {
     super(Tree, "trees", injector);
   }
 
-  /** remove tree*/
-  remove(item: Tree) {
-    return this.http.delete(item._links.self.href);
-
-  }
-
   /** save tree*/
   save(item: Tree): Observable<any> {
     let result: Observable<Object>;

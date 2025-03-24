@@ -17,12 +17,6 @@ export class ApplicationParameterService extends RestService<ApplicationParamete
     super(ApplicationParameter, "application-parameters", injector);
   }
 
-  /** remove application*/
-  remove(item: ApplicationParameter) {
-    return this.http.delete(item._links.self.href);
-
-  }
-
   /** save application*/
   save(item: ApplicationParameter): Observable<any> {
     let result: Observable<Object>;

@@ -115,7 +115,7 @@ export class ConnectionComponent implements OnInit {
           const promises: Promise<any>[] = [];
           data.forEach(connection => {
             promises.push(new Promise((resolve,) => {
-              this.connectionService.remove(connection).subscribe(() => {
+              this.connectionService.delete(connection).subscribe(() => {
                 resolve(true);
               });
             }));

@@ -16,11 +16,6 @@ export class RoleService extends RestService<Role> {
     super(Role, "roles", injector);
   }
 
-  /** remove role*/
-  remove(item: Role) {
-    return this.http.delete(item._links.self.href);
-
-  }
 
   /** save role*/
   save(item: any): Observable<any> {

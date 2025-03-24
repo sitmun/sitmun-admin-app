@@ -16,12 +16,6 @@ export class ServiceService extends RestService<Service> {
     super(Service, "services", injector);
   }
 
-  /** remove service*/
-  remove(item: Service) {
-    return this.http.delete(item._links.self.href);
-
-  }
-
   /** save service*/
   save(item: Service): Observable<any> {
     let result: Observable<Object>;

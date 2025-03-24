@@ -656,7 +656,7 @@ export class TerritoryFormComponent implements OnInit {
       ) {
         promises.push(
           new Promise((resolve, reject) => {
-            this.userConfigurationService.remove(userConf).subscribe((resp) => {
+            this.userConfigurationService.delete(userConf).subscribe((resp) => {
               resolve(true);
             });
           })
@@ -977,7 +977,7 @@ export class TerritoryFormComponent implements OnInit {
         promises.push(
           new Promise((resolve, reject) => {
             this.cartographyAvailabilityService
-              .remove(cartography)
+              .delete(cartography)
               .subscribe((resp) => {
                 resolve(true);
               });
@@ -1024,7 +1024,7 @@ export class TerritoryFormComponent implements OnInit {
       if (task.status === 'pendingDelete' && task._links && !task.new) {
         promises.push(
           new Promise((resolve, reject) => {
-            this.taskAvailabilityService.remove(task).subscribe((resp) => {
+            this.taskAvailabilityService.delete(task).subscribe((resp) => {
               resolve(true);
             });
           })

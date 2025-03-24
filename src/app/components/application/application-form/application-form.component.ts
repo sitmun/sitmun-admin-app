@@ -511,15 +511,13 @@ export class ApplicationFormComponent implements OnInit {
       if (parameter.status === 'pendingDelete' && parameter._links && !parameter.newItem) {
         // parameterToDelete.push(parameter)
         promises.push(new Promise((resolve, reject) => {
-          this.applicationParameterService.remove(parameter).subscribe(
-            () => {
-              resolve(true);
-            },
-            (error) => {
+          this.applicationParameterService.delete(parameter).subscribe({
+            next: () => resolve(true),
+            error: (error) => {
               this.loggerService.error('Error removing parameter:', error);
               reject(error);
             }
-          );
+          });
         }));
       }
     });
@@ -565,7 +563,7 @@ export class ApplicationFormComponent implements OnInit {
     if (this.applicationToEdit._links.parameters.templated) {
       const template = new UriTemplate(resourceLink);
       resourceLink = template.fill({ projection: 'view' });
-    } 
+    }
 
     // Use applicationParameterService to get parameters for the application
     // and filter for templates (type == config.applicationTemplateIdentificator)
@@ -607,7 +605,7 @@ export class ApplicationFormComponent implements OnInit {
     if (this.applicationToEdit._links.availableRoles.templated) {
       const template = new UriTemplate(resourceLink);
       resourceLink = template.fill({ projection: 'view' });
-    } 
+    }
 
     // Use roleService to get roles for the application
     return this.roleService.getByRelationArray(resourceLink)
@@ -695,7 +693,7 @@ export class ApplicationFormComponent implements OnInit {
     if (this.applicationToEdit._links.backgrounds.templated) {
       const template = new UriTemplate(resourceLink);
       resourceLink = template.fill({ projection: 'view' });
-    } 
+    }
 
     // Use applicationBackgroundService to get backgrounds for the application
     return this.applicationBackgroundService.getByRelationArray(resourceLink)
@@ -771,7 +769,7 @@ export class ApplicationFormComponent implements OnInit {
         }));
       } else if (background.status === 'pendingDelete' && !background.newItem) {
         promises.push(new Promise((resolve, reject) => {
-          this.applicationBackgroundService.remove(background).subscribe(
+          this.applicationBackgroundService.delete(background).subscribe(
             () => {
               resolve(true);
             },
@@ -813,8 +811,8 @@ export class ApplicationFormComponent implements OnInit {
     if (this.applicationToEdit._links.trees.templated) {
       const template = new UriTemplate(resourceLink);
       resourceLink = template.fill({ projection: 'view' });
-    } 
-    
+    }
+
     // Use treeService to get trees for the application
     return this.treeService.getByRelationArray(resourceLink)
       .pipe(

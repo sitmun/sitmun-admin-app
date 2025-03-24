@@ -17,12 +17,6 @@ export class CartographyGroupService extends RestService<CartographyGroup> {
     super(CartographyGroup, "cartography-groups", injector);
   }
 
-  /** remove cartography group*/
-  remove(item: CartographyGroup) {
-    return this.http.delete(item._links.self.href);
-
-  }
-
   /** save cartography group*/
   save(item: CartographyGroup): Observable<any> {
     let result: Observable<Object>;

@@ -15,6 +15,7 @@ import {HttpClient} from '@angular/common/http';
 import {NgTemplateNameDirective} from './ng-template-name.directive';
 import {ActivatedRoute, Router} from '@angular/router';
 import {MatTabChangeEvent} from '@angular/material/tabs';
+import {LoggerService} from '@app/services/logger.service';
 
 @Component({
   selector: 'app-task-form',
@@ -103,6 +104,7 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
     private territoryService: TerritoryService,
     private taskAvailabilityService: TaskAvailabilityService,
     private taskTypeService: TaskTypeService,
+    private loggerService: LoggerService,
     public activatedRoute: ActivatedRoute,
     public router: Router,
   ) {
@@ -425,7 +427,7 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
     data.forEach(territory => {
       if (territory.status === 'pendingDelete' && territory._links && !territory.newItem) {
         promises.push(new Promise((resolve, ) => {
-          this.taskAvailabilityService.remove(territory).subscribe(() => {
+          this.taskAvailabilityService.delete(territory).subscribe(() => {
             resolve(true);
           });
         }));
@@ -512,6 +514,7 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
   }
 
   async initializeSelectorsPopups() {
+    this.loggerService.debug('initializeSelectorsPopups for task', this.taskToEdit);
     const formKeys = Object.keys(this.properties.form.elements);
     for (const key of formKeys) {
       const keySpecification = this.properties.form.elements[key];
@@ -726,6 +729,8 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
   }
 
   saveTask() {
+    this.loggerService.debug("Save task: ", this.savedTask);
+
     let allChangesSaved = true;
     //Verify that all SqlElements are saved
     this.sqlElementModification.forEach(element => {
@@ -736,33 +741,33 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
     if (allChangesSaved) {
       this.currentTablesSaved = 0;
 
-      this.taskService.save(this.savedTask).subscribe(result => {
 
-        if (this.taskForm.get('id')) {
-          this.taskForm.get('id').setValue(result.id);
-        } else {
-          this.taskForm.addControl('id', new UntypedFormControl(result.id, []));
-        }
-
-        if (this.taskForm.get('_links')) {
-          this.taskForm.get('_links').setValue(result._links);
-        } else {
-          this.taskForm.addControl('_links', new UntypedFormControl(result._links, []));
-        }
-
-        this.taskToEdit = result;
-        this.taskID = result.id;
-        if (this.indexParameter >= 0) {
-          this.refreshElements[this.indexParameter].next(true);
-        }
-
-        this.getAllElementsEvent.forEach((element, index) => {
-          if (index != this.indexParameter) {
-            element.next('save');
+      this.taskService.save(this.savedTask).subscribe({
+        next: (result) => {
+          if (this.taskForm.get('id')) {
+            this.taskForm.get('id').setValue(result.id);
+          } else {
+            this.taskForm.addControl('id', new UntypedFormControl(result.id, []));
           }
-        });
 
+          if (this.taskForm.get('_links')) {
+            this.taskForm.get('_links').setValue(result._links);
+          } else {
+            this.taskForm.addControl('_links', new UntypedFormControl(result._links, []));
+          }
 
+          this.taskToEdit = result;
+          this.taskID = result.id;
+          if (this.indexParameter >= 0) {
+            this.refreshElements[this.indexParameter].next(true);
+          }
+
+          this.getAllElementsEvent.forEach((element, index) => {
+            if (index != this.indexParameter) {
+              element.next('save');
+            }
+          });
+        }
       });
     }
 
