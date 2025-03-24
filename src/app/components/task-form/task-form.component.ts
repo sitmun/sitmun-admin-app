@@ -345,7 +345,6 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
           }
         }
       }
-
       if (!this.savedTask.properties) {
         this.savedTask.properties = {};
         this.savedTask.properties[sqlElement.mainFormElement] = this.savedTask[sqlElement.mainFormElement];
@@ -386,6 +385,7 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
   }
 
   putParametersOnProperties(data) {
+    this.loggerService.debug('putParametersOnProperties', { data: data, savedTask: this.savedTask });
     if (data.length > 0) {
       const newData = [];
       data.forEach(element => {
@@ -408,6 +408,7 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
       }
       this.parametersTable = [];
       this.parametersTable.push(...newData);
+      this.loggerService.debug('putParametersOnProperties after', { parametersTable: this.parametersTable, savedTask: this.savedTask });
     }
   }
 
@@ -729,7 +730,7 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
   }
 
   saveTask() {
-    this.loggerService.debug("Save task: ", this.savedTask);
+    this.loggerService.debug("Save task:", this.savedTask);
 
     let allChangesSaved = true;
     //Verify that all SqlElements are saved
@@ -741,8 +742,27 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
     if (allChangesSaved) {
       this.currentTablesSaved = 0;
 
+      const taskToSave = new Task();
+      taskToSave.id = this.savedTask.id;
+      taskToSave.name = this.savedTask.name;
+      taskToSave.order = this.savedTask.order;
+      if (this.savedTask.properties?.parameters) {
+        taskToSave.properties = { parameters: this.savedTask.properties.parameters };
+      } else  {
+        taskToSave.properties = { parameters: [] };
+      }
+      taskToSave.cartography = this.savedTask.cartography;
+      taskToSave.service = this.savedTask.service;
+      taskToSave.group = 'task-groups/' + this.savedTask.group;
+      taskToSave.type = 'task-types/' + (typeof this.savedTask.type === 'string' ? this.savedTask.type : this.savedTask.type.id);
+      taskToSave.ui = this.savedTask.ui;
+      taskToSave.connection = this.savedTask.connection;
+      taskToSave.roles = this.savedTask.roles;
+      taskToSave._links = this.savedTask._links;
 
-      this.taskService.save(this.savedTask).subscribe({
+      this.loggerService.debug('saveTask:', { taskToSave: taskToSave });
+
+      this.taskService.save(taskToSave).subscribe({
         next: (result) => {
           if (this.taskForm.get('id')) {
             this.taskForm.get('id').setValue(result.id);

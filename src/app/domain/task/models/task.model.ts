@@ -25,9 +25,9 @@ export class Task extends Resource {
   /** system created date*/
   public createdDate?: any;
   /** task group*/
-  public group?: TaskGroup;
+  public group?: TaskGroup | string;
   /** task type*/
-  public type?: TaskType;
+  public type?: TaskType | string;
   /** task UI*/
   public ui?: TaskUI;
   /** parameters*/

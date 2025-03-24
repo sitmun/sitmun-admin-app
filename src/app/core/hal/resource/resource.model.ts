@@ -106,7 +106,27 @@ export abstract class Resource {
             if (targetUrl.endsWith('{?projection}')) {
                 targetUrl = targetUrl.substring(0, targetUrl.indexOf('{?projection}'))
             }
-            return ResourceHelper.getHttp().put(ResourceHelper.getProxy(targetUrl), resource._links.self.href, {headers: header});
+            const url = ResourceHelper.getProxy(targetUrl);
+            console.log("Substituting relation", { url: url, resource: resource } );
+            const body = resource._links.self.href;
+            console.log("Substituting relation", { body: body, headers: header } );
+            return ResourceHelper.getHttp().put(url, body, {headers: header});
+        } else {
+            return observableThrowError('no relation found');
+        }
+    }
+
+    public substituteRelationById(relation: string, type: string, key: any): Observable<any> {
+        if (!isNullOrUndefined(this._links) && !isNullOrUndefined(this._links[relation])) {
+            let header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
+            let targetUrl = this._links[relation].href;
+            if (targetUrl.endsWith('{?projection}')) {
+                targetUrl = targetUrl.substring(0, targetUrl.indexOf('{?projection}'))
+            }
+            const url = ResourceHelper.getProxy(targetUrl);
+            const body = type + "/" + key;
+            console.log("Substituting relation", { url: url, body: body} );
+            return ResourceHelper.getHttp().put(url, body, {headers: header});
         } else {
             return observableThrowError('no relation found');
         }
