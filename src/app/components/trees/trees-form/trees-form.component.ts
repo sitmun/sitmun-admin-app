@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, TemplateRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { TreeService, TreeNodeService, Translation, TranslationService, TaskService,
@@ -11,7 +11,7 @@ import { map } from 'rxjs/operators';
 import { environment } from '@environments/environment';
 import { config } from '@config';
 import { Observable, of, Subject } from 'rxjs';
-import { DataTreeComponent, DialogGridComponent, DialogMessageComponent, DataGridComponent } from '@app/frontend-gui/src/lib/public_api';
+import { DataTreeComponent, DialogGridComponent, DialogMessageComponent, DataGridComponent, DialogFormComponent } from '@app/frontend-gui/src/lib/public_api';
 import { MatDialog } from '@angular/material/dialog';
 import { constants } from '@environments/constants';
 import {MatTabChangeEvent} from '@angular/material/tabs';
@@ -47,6 +47,7 @@ export class TreesFormComponent implements OnInit {
   duplicateID = -1;
   treeForm: UntypedFormGroup;
   treeNodeForm: UntypedFormGroup;
+  public fieldsConfigForm: UntypedFormGroup;
   idFictitiousCounter = -1;
   treeToEdit: Tree;
   dataLoaded: Boolean = false;
@@ -56,12 +57,17 @@ export class TreesFormComponent implements OnInit {
   currentNodeType: string;
   currentTreeType: string;
   currentNodeHasParent: Boolean;
+  currentViewMode: string;
+  fieldsConfigTreeGenerated: Boolean = false;
+  selectedXPath: string;
   newElement: Boolean = false;
   duplicateToDo = false;
   sendNodeUpdated: Subject<any> = new Subject<any>();
   getAllElementsNodes: Subject<string> = new Subject<string>();
   refreshTreeEvent: Subject<boolean> = new Subject<boolean>();
+  refreshFieldConfigTreeEvent: Subject<boolean> = new Subject<boolean>();
   createNodeEvent: Subject<boolean> = new Subject<boolean>();
+  createConfigTreeEvent: Subject<boolean> = new Subject<boolean>();
   getAllElementsEventCartographies: Subject<boolean> = new Subject<boolean>();
   getAllElementsEventTasks: Subject<boolean> = new Subject<boolean>();
   columnDefsCartographies: any[];
@@ -69,6 +75,9 @@ export class TreesFormComponent implements OnInit {
   columnDefsServices: any[];
   @ViewChild(DataTreeComponent) dataTree: DataTreeComponent;
   @ViewChild('applicationsDataGrid') appDataGrid: DataGridComponent;
+  @ViewChild('fieldsConfigDialog', {
+      static: true
+    }) private fieldsConfigDialog: TemplateRef<any>;
 
   filterOptions = [{value:'UNDEFINED', description: 'UNDEFINED'}, {value:true, description: 'YES'},{value:false, description: 'NO'}]
 
@@ -78,20 +87,11 @@ export class TreesFormComponent implements OnInit {
   treetypesList = [];
   folderNodeTypesList = [];
   leafNodeTypesList = [];
-  taskviewsList = [{
-    value: 'ld',
-    description: 'Lista detallada'
-  }, {
-    value: 'lep',
-    description: 'Lista elementos proximos'
-  }, {
-    value: 'it',
-    description: 'Itinerario'
-  }, {
-    value: 'map',
-    description: 'Mapa'
-  }];
-
+  nodeInputsControls = [];
+  nodeOutputsControls = constants.nodeMapping.nodeOutputControls;
+  taskviewsList = [];
+  mappingAppOptions = constants.nodeMapping.appOptions;
+  mappingParentTaskOptions = [];
   // Roles grid
   columnDefsRoles: any[];
   getAllElementsEventRoles: Subject<string> = new Subject<string>();
@@ -119,6 +119,7 @@ export class TreesFormComponent implements OnInit {
 
     this.initializeTreesForm();
     this.initializeTreesNodeForm();
+    this.initializeFieldsConfigForm();
   }
 
 
@@ -135,6 +136,10 @@ export class TreesFormComponent implements OnInit {
 
     this.getLeafNodeTypes().then((resp) => {
       this.leafNodeTypesList.push(...resp);
+    });
+
+    this.getTaskViewModes().then((resp) => {
+      this.taskviewsList.push(...resp)
     });
 
     this.layersList = await this.getAllCartographies().toPromise();
@@ -494,9 +499,25 @@ export class TreesFormComponent implements OnInit {
       taskId: new UntypedFormControl(null, []),
       oldTask: new UntypedFormControl(null, []),
       style: new UntypedFormControl(null, []),
-
+      mapping: new UntypedFormControl(null, []),
 
     })
+  }
+
+  initializeFieldsConfigForm() {
+    const outputGroup = {};
+    this.nodeOutputsControls.forEach(f => {
+      outputGroup[f.key] = new UntypedFormGroup({
+        value: new UntypedFormControl(null, []),
+        calculated: new UntypedFormControl(null, [])
+      });
+    });
+    this.fieldsConfigForm = new UntypedFormGroup({
+      taskResponse: new UntypedFormControl(null, []),
+      viewMode: new UntypedFormControl(null, []),
+      output: new UntypedFormGroup(outputGroup),
+      input: new UntypedFormGroup({}),
+    });
   }
 
   async onNameTranslationButtonClicked() {
@@ -549,39 +570,43 @@ export class TreesFormComponent implements OnInit {
   }
 
   getAllTreeTypes = (): Promise<any> => {
-
     return new Promise((resolve, reject) => {
       this.utils.getCodeListValues('tree.type').subscribe(
         resp => {
           resolve(resp);
         }
       )
-    })
-
+    });
   }
 
   getFolderNodeTypes = (): Promise<any> => {
-
     return new Promise((resolve, reject) => {
       this.utils.getCodeListValues('treenode.folder.type').subscribe(
         resp => {
           resolve(resp);
         }
       )
-    })
-
+    });
   }
 
   getLeafNodeTypes = (): Promise<any> => {
-
     return new Promise((resolve, reject) => {
       this.utils.getCodeListValues('treenode.leaf.type').subscribe(
         resp => {
           resolve(resp);
         }
       )
-    })
+    });
+  }
 
+  getTaskViewModes = (): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      this.utils.getCodeListValues('treenode.viewmode').subscribe(
+        resp => {
+          resolve(resp);
+        }
+      )
+    });
   }
 
   getAllServices = (): Observable<any> => {
@@ -626,6 +651,8 @@ export class TreesFormComponent implements OnInit {
       currentType = 'node'
     }
     this.currentNodeType = nodeParent ? nodeParent.nodetype : node.nodetype;
+    this.mappingParentTaskOptions = this.createMappingParentTaskOptions(nodeParent);
+    this.currentViewMode = node.viewMode;
     this.currentNodeHasParent = nodeParent !== null;
     let status = "Modified"
     let nameTranslationsModified = node.nameTranslationsModified ? true : false;
@@ -672,7 +699,8 @@ export class TreesFormComponent implements OnInit {
       filterSelectable: (node.filterSelectable == null || node.filterSelectable == undefined)?"UNDEFINED":node.filterSelectable,
       style: node.style,
       status: status,
-      type: currentType
+      type: currentType,
+      mapping: node.mapping
     });
     setTimeout(() => {
       this.showImgPreview('node', node.image);
@@ -693,11 +721,21 @@ export class TreesFormComponent implements OnInit {
 
   }
 
+  createMappingParentTaskOptions(nodeParent) {
+    const options = [];
+    if (nodeParent && nodeParent.mapping) {
+      const output = nodeParent.mapping.output;
+      Object.keys(output).forEach(k => options.push({label: k, value: '${' + k + '}'}));
+    }
+    return options;
+  }
+
   createNode(parent) {
     this.treeNodeForm.reset();
     this.newElement = true;
     this.currentNodeIsFolder = false;
     this.currentNodeType = parent.nodetype || 'cartography';
+    this.currentViewMode = '';
     this.currentNodeHasParent = parent.id !== null;
     let parentId = parent.id;
     if (parent.name === "") {
@@ -722,6 +760,7 @@ export class TreesFormComponent implements OnInit {
     this.newElement = true;
     this.currentNodeIsFolder = true;
     this.currentNodeType = parent.nodetype || 'cartography';
+    this.currentViewMode = '';
     this.currentNodeHasParent = parent.id !== null;
     let parentId = parent.id;
     if (parent.name === "") {
@@ -813,6 +852,88 @@ export class TreesFormComponent implements OnInit {
         elem.hidden = true;
       }
     }
+  }
+
+  async openFieldsConfigDialog() {
+    const origMapping = this.treeNodeForm.value.mapping;
+    let formValues = {
+      output: {},
+      input: {},
+    };
+    if (origMapping) {
+      formValues = origMapping;
+    }
+    await this.addTaskInput();
+    this.fieldsConfigForm.patchValue({viewMode: this.currentViewMode});
+    this.fieldsConfigForm.get('output')?.patchValue(formValues.output);
+    this.fieldsConfigForm.get('input')?.patchValue(formValues.input);
+    console.log(this.fieldsConfigForm.value);
+
+    const dialogRef = this.dialog.open(DialogFormComponent);
+    dialogRef.componentInstance.HTMLReceived = this.fieldsConfigDialog;
+    dialogRef.componentInstance.title = this.utils.getTranslate('applicationEntity.configurationParameters');
+    dialogRef.componentInstance.form = this.fieldsConfigForm;
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (result.event === 'Add') {
+          const mapping = this.getMappingByViewMode();
+          this.treeNodeForm.patchValue({
+            mapping
+          });
+        }
+      }
+      this.fieldsConfigTreeGenerated = false;
+      this.fieldsConfigForm.reset();
+      this.clearTaskInputFormControls();
+    });
+  }
+
+  async addTaskInput() {
+    const task = await this.taskService.get(this.treeNodeForm.value.taskId).toPromise();
+    const inputFormGroup = this.fieldsConfigForm.get('input') as UntypedFormGroup;
+    if (task.properties && task.properties.parameters) {
+      task.properties.parameters.forEach(par => {
+        const control = {
+          name: par.name ? par.name : par.label,
+          value: par.value
+        };
+        this.nodeInputsControls.push(control);
+        const newGroup = new UntypedFormGroup({
+          value: new UntypedFormControl(null, []),
+          calculated: new UntypedFormControl(null, [])
+        });
+        inputFormGroup.addControl(String(control.name), newGroup);
+        const formValue = {
+          value: control.value,
+          calculated: false
+        };
+        newGroup.patchValue(formValue);
+      });
+    }
+  }
+
+  clearTaskInputFormControls() {
+    const inputFormGroup = this.fieldsConfigForm.get('input') as UntypedFormGroup;
+    Object.keys(inputFormGroup.controls).forEach(key => {
+      inputFormGroup.removeControl(key);
+    });
+    this.nodeInputsControls = [];
+  }
+
+  getMappingByViewMode() {
+    const item = this.fieldsConfigForm.value;
+    console.log(item);
+    const mapping = {
+      output: {},
+      input: item.input,
+    };
+    const outputsKeys = this.nodeOutputsControls.filter(noc => noc.views.includes(this.currentViewMode)).map(c => c.key);
+    outputsKeys.forEach(k => {
+      mapping.output[k] = item.output[k];
+    });
+    
+    return mapping;
   }
 
   getFormByType(formtype) {
@@ -978,6 +1099,7 @@ export class TreesFormComponent implements OnInit {
         treeNodeObj.imageName = tree.imageName;
         treeNodeObj.viewMode = tree.viewMode;
         treeNodeObj.filterable = tree.filterable;
+        treeNodeObj.mapping = tree.mapping;
 
 
 
@@ -1476,7 +1598,6 @@ export class TreesFormComponent implements OnInit {
           this.addElementsEventApplication.next(result.data[0])
         }
       }
-
     });
 
   }
@@ -1490,6 +1611,36 @@ export class TreesFormComponent implements OnInit {
 
   onTabChange(event: MatTabChangeEvent) {
     this.activeTabIndex = event.index;
+  }
+
+  generateFieldsConfigTree() {
+    this.fieldsConfigTreeGenerated = true;
+  }
+
+  hideFieldsConfigTree() {
+    this.fieldsConfigTreeGenerated = false;
+  }
+
+  getFieldConfigInput = (): Observable<any> => {
+    return of(this.fieldsConfigForm.value.taskResponse);
+  }
+
+  fieldTreeNode(node) {
+    this.selectedXPath = node.path ?? '/';
+    const radioBtns = document.querySelectorAll('.mapping-radio');
+    const radioChecked = Array.from(radioBtns).find(i => document.querySelector<HTMLInputElement>(`#${i.id}-input`).checked);
+    const attribute = radioChecked?.id.split('-')[0];
+    const formValue = {
+      value: this.selectedXPath
+    };
+    this.fieldsConfigForm.get('output')?.get(attribute)?.patchValue(formValue);
+  }
+
+  onViewModeChange(value) {
+    this.currentViewMode = value;
+    this.treeNodeForm.patchValue({
+      viewMode: value,
+    });
   }
 
   // ******** Roles ******** //

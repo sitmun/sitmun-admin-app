@@ -94,7 +94,7 @@
               <div class="rowFormDiv">
                 <div class="colFormDiv" *ngIf="currentNodeIsFolder != undefined">
                   <label class="formLabel ">
-                    {{ 'treesEntity.type' | translate }}
+                    {{ 'treesEntity.nodeType' | translate }}
                   </label>
                   <mat-form-field appearance="outline" *ngIf="(currentNodeIsFolder)">
                     <mat-select matInput formControlName="nodetype" class="form-control"
@@ -244,13 +244,9 @@
                   <textarea matInput type="text" hidden formControlName="image"> </textarea>
                   <input #nodeFileInput type="file" accept="image/*" hidden (change)="onImageSelected('node', $event)">
                   <div style="display: block">
-                    <input type="button" mat-flat-button class="fileButton" (click)="nodeFileInput.click()"
-                           [value]="'treesEntity.selectFile' | translate"/>
-                    <input type="button" mat-flat-button class="fileButton"
-                           (click)="activeImageNameInput('node', treenodeImageNameInput)"
-                           [value]="'treesEntity.webUrl' | translate"/>
-                    <input type="button" mat-flat-button class="fileButton" (click)="removeImage('node')"
-                           [value]="'treesEntity.delete' | translate"/>
+                    <input type="button" mat-raised-button [value]="'treesEntity.selectFile' | translate" class="add-gap" (click)="nodeFileInput.click()">
+                    <input type="button" mat-raised-button [value]="'treesEntity.webUrl' | translate" class="add-gap" (click)="activeImageNameInput('node', treenodeImageNameInput)">
+                    <input type="button" mat-raised-button [value]="'treesEntity.delete' | translate" class="add-gap" (click)="removeImage('node')">
                   </div>
                 </div>
                 <div class="colFormDiv" *ngIf="(currentNodeIsFolder)">
@@ -267,18 +263,6 @@
                     <input matInput type="text" [readonly]="true" formControlName="taskName">
                   </mat-form-field>
                 </div>
-                <div class="colFormDiv">
-                  <label class="formLabel ">
-                    {{ 'treesEntity.taskview' | translate }}
-                  </label>
-                  <mat-form-field appearance="outline">
-                    <mat-select matInput formControlName="viewMode" class="form-control">
-                      <mat-option [value]="taskview.value" *ngFor="let taskview of taskviewsList">
-                        {{ taskview.description }}
-                      </mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                </div>
               </div>
               <div class="rowFormDiv"
                    *ngIf="currentNodeType === codeValues.treenodeLeafType.task && currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
@@ -289,7 +273,8 @@
                   <mat-checkbox formControlName="filterable"></mat-checkbox>
                 </div>
                 <div class="colFormDiv">
-                  <button mat-flat-button class="validateButton">Configurar campos</button>
+                  <input type="button" class="add-gap" (click)="openFieldsConfigDialog()"
+                    [value]="'treesEntity.fieldsConfig' | translate">
                 </div>
               </div>
 
@@ -388,3 +373,94 @@
     ></app-data-grid>
   </mat-tab>
 </mat-tab-group>
+
+<ng-template #fieldsConfigDialog>
+  <form [formGroup]='fieldsConfigForm' id="fieldsConfigForm">
+    <div class="formDiv">
+      <div class="formDivTreeLeft" *ngIf="!(fieldsConfigTreeGenerated)">
+        <mat-form-field appearance="outline" class="full">
+          <textarea matInput formControlName="taskResponse" rows="8" placeholder="Pegar aquí la respuesta JSON/XML esperada o su estructura representativa..."
+          style="width: 100%; height: 45vh;"></textarea>
+        </mat-form-field>
+        <button mat-raised-button class="add-gap" (click)="generateFieldsConfigTree()"
+          [style.background-color]="'#FF9300'" [style.color]="'white'">
+          <mat-label>Generar arbol</mat-label>
+        </button>
+      </div>
+      <div class="formDivTreeLeft" *ngIf="fieldsConfigTreeGenerated">
+        <app-map-tree class="fieldsConfigTree" [getAll]='getFieldConfigInput' (emitNode)="fieldTreeNode($event)"
+          [eventCreateTreeSubscription]='createConfigTreeEvent.asObservable()'
+          (emitAllNodes)="receiveAllNodes($event)">
+            loading
+        </app-map-tree>
+        <button mat-raised-button class="add-gap" (click)="hideFieldsConfigTree()"
+          [style.background-color]="'#FF9300'" [style.color]="'white'" [style.margin-top]="'15px'">
+          <mat-label>Editar respuesta</mat-label>
+        </button>
+      </div>
+      <div class="formDivTreeRight">
+        <h5>{{ 'treesEntity.inputMapping' | translate }}</h5>
+        <div class="maping-form" formGroupName="input">
+          <div *ngFor="let control of nodeInputsControls">
+            <div class="rowFormDiv" [formGroupName]="control.name">
+              <div class="colFormDiv">
+                <mat-form-field appearance="outline" class="full">
+                  <mat-label>{{control.name}}</mat-label>
+                  <mat-select formControlName="value">
+                    <mat-option>--None--</mat-option>
+                    <mat-optgroup [label]="'treesEntity.appVars' | translate">
+                      <mat-option *ngFor="let opt of mappingAppOptions" [value]="opt.value">{{opt.label}}</mat-option>
+                    </mat-optgroup>
+                    <mat-optgroup *ngIf="mappingParentTaskOptions.length > 0" [label]="'treesEntity.parentTaskVars' | translate">
+                      <mat-option *ngFor="let opt of mappingParentTaskOptions" [value]="opt.value">{{opt.label}}</mat-option>
+                    </mat-optgroup>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="colFormDiv">
+                <mat-checkbox formControlName="calculated" labelPosition="after">{{ 'treesEntity.calculated' | translate }}</mat-checkbox>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h5>{{ 'treesEntity.outputMapping' | translate }}</h5>
+        <div class="maping-form">
+          <div class="rowFormDiv">
+          <mat-form-field appearance="outline">
+            <mat-label>
+              {{ 'treesEntity.taskview' | translate }}
+            </mat-label>
+            <mat-select matInput formControlName="viewMode" class="form-control" (selectionChange)="onViewModeChange($event.value)">
+              <mat-option [value]="taskview.value" *ngFor="let taskview of taskviewsList">
+                {{ taskview.description }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          </div>
+          <div formGroupName="output">
+            <div *ngFor="let control of nodeOutputsControls">
+              <div class="rowFormDiv" [formGroupName]="control.key" *ngIf="control.views.includes(currentViewMode)">
+                <div class="colFormDiv">
+                  <mat-radio-button name="mapping" [id]="control.key + '-mapping'" class="mapping-radio"></mat-radio-button>
+                </div>
+                <div class="colFormDiv">
+                  <mat-form-field appearance="outline" class="full">
+                    <mat-label>{{control.label | translate}}</mat-label>
+                    <input matInput type="text" formControlName="value">
+                  </mat-form-field>
+                </div>
+                <div class="colFormDiv">
+                  <mat-checkbox formControlName="calculated" labelPosition="after">{{ 'treesEntity.calculated' | translate }}</mat-checkbox>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="selectedXPath" style="margin-top: 20px;">
+              <strong>Sugerencia de xpath/jsonpath:</strong> {{ selectedXPath }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</ng-template>

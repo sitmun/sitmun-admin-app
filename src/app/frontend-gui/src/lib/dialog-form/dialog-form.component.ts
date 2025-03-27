@@ -26,8 +26,9 @@ export class DialogFormComponent implements OnInit {
 
 
   doAdd(){
-    if(this.form.valid) { this.dialogRef.close({event:'Add'}); }
-    else {
+    if(this.form.valid) {
+      this.dialogRef.close({event:'Add'});
+    } else {
        const dialogRef = this.dialog.open(DialogMessageComponent);
        dialogRef.componentInstance.title = this.translate.instant("atention")
        dialogRef.componentInstance.message = this.translate.instant("requiredFieldMessage")
