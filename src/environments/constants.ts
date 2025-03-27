@@ -1,38 +1,47 @@
-export const constants = {
-  codeValue: {
-    applicationType: {
-      turisticApp: 'T',
-      externalApp: 'E',
-      internalApp: 'I'
-    },
-    treeType: {
-      turisticTree: 'tourist',
-    },
-    treenodeFolderType: {
-      menu: 'menu',
-      list: 'list',
-      cartography: 'cartography',
-    },
-    treenodeLeafType: {
-      task: 'task',
-      cartography: 'cartography',
-    },
-    cartographyPermissionType: {
-      cartographyGroup: 'C',
-      report: 'I',
-      backgroundMap: 'F',
-      locationMap: 'M'
-    },
-    systemUser: {
-      public: 'public',
-    },
-    serviceAuthenticationMode: {
-      none: 'None'
-    },
-    serviceType: {
-      wms: 'WMS'
-    }
+const codeValue = {
+  applicationType: {
+    turisticApp: 'T',
+    externalApp: 'E',
+    internalApp: 'I'
   },
+  treeType: {
+    turisticTree: 'tourist',
+  },
+  treenodeFolderType: {
+    menu: 'menu',
+    list: 'list',
+    cartography: 'cartography',
+    map: 'map',
+    favorites: 'fav'
+  },
+  treenodeLeafType: {
+    task: 'task',
+    cartography: 'cartography',
+  },
+  cartographyPermissionType: {
+    cartographyGroup: 'C',
+    report: 'I',
+    backgroundMap: 'F',
+    locationMap: 'M'
+  },
+  taskViewMode: {
+    detailedList: 'dl',
+    nearElements: 'ne',
+    schedule: 'sch'
+  },
+  systemUser: {
+    public: 'public',
+  },
+  serviceAuthenticationMode: {
+    none: 'None'
+  },
+  serviceType: {
+    wms: 'WMS'
+  }
+};
+
+export const constants = {
+  codeValue,
   menus: [
     [
       {
@@ -201,5 +210,59 @@ export const constants = {
       id: 'icon_lang_fr',
       icon: 'flag_oc',
     },
-  ]
+  ],
+  nodeMapping: {
+    nodeOutputControls: [{
+      key: 'id',
+      label: 'nodeMapping.id',
+      views: [codeValue.taskViewMode.detailedList, codeValue.taskViewMode.nearElements, codeValue.taskViewMode.schedule]
+    },
+    {
+      key: 'name',
+      label: 'nodeMapping.name',
+      views: [codeValue.taskViewMode.detailedList, codeValue.taskViewMode.nearElements, codeValue.taskViewMode.schedule]
+    },
+    {
+      key: 'distance',
+      label: 'nodeMapping.distance',
+      views: [codeValue.taskViewMode.nearElements]
+    },
+    {
+      key: 'description',
+      label: 'nodeMapping.description',
+      views: [codeValue.taskViewMode.detailedList]
+    },
+    {
+      key: 'image',
+      label: 'nodeMapping.image',
+      views: [codeValue.taskViewMode.detailedList, codeValue.taskViewMode.nearElements]
+    },
+    {
+      key: 'hour',
+      label: 'nodeMapping.hour',
+      views: [codeValue.taskViewMode.schedule]
+    },
+    {
+      key: 'path',
+      label: 'nodeMapping.path',
+      views: [codeValue.taskViewMode.schedule]
+    },
+    {
+      key: 'geom',
+      label: 'nodeMapping.geometry',
+      views: [codeValue.taskViewMode.detailedList, codeValue.taskViewMode.nearElements]
+    },
+    {
+      key: 'proj',
+      label: 'nodeMapping.proj',
+      views: [codeValue.taskViewMode.detailedList, codeValue.taskViewMode.nearElements]
+    }],
+    appOptions: [{
+      label: 'X',
+      value: '${LATITUD}'
+    },{
+      label: 'Y',
+      value: '${LONGITUD}'
+    }]
+  }
 };
