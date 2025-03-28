@@ -792,7 +792,7 @@ export class TerritoryFormComponent implements OnInit {
 
   updateTerritoriesMembersOf(
     territoriesModified: Territory[],
-    territoriesToPut: Territory[],
+    territoriesToPut: string[],
     dataChanged: boolean
   ) {
     const promises: Promise<any>[] = [];
@@ -870,7 +870,7 @@ export class TerritoryFormComponent implements OnInit {
 
   updateTerritoriesMembers(
     territoriesModified: Territory[],
-    territoriesToPut: Territory[],
+    territoriesToPut: string[],
     dataChanged: boolean
   ) {
     const promises: Promise<any>[] = [];

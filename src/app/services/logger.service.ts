@@ -10,7 +10,7 @@ import { LogLevel } from './log-level.enum';
 })
 export class LoggerService {
   // Current log level - set from environment by default
-  private level: LogLevel = LogLevel.Debug;
+  private level: LogLevel = environment.logLevel || LogLevel.Error;
 
   /**
    * Set the current log level
@@ -111,4 +111,4 @@ export class LoggerService {
         break;
     }
   }
-} 
+}

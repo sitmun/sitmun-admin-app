@@ -1,7 +1,7 @@
 <app-form-toolbar
   icon="menu_aplicacio"
   entityType="applicationEntity.application"
-  [itemName]="applicationForm.get('name')?.value"
+  [itemName]="applicationForm?.get('name')?.value || ''"
   [isNew]="applicationID === -1"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
@@ -22,23 +22,23 @@
             <mat-label>{{ 'applicationEntity.name' | translate }}</mat-label>
             <input matInput type="text" formControlName="name" required>
             <mat-icon matSuffix class="iconTranslate"
-                      (click)="onNameTranslationButtonClicked()"
-                      onKeyDown="onNameTranslationButtonClicked()"
+                      (click)="onTranslated('name')"
+                      onKeyDown="onTranslated('name')"
                       svgIcon="ic_translate"></mat-icon>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'applicationEntity.description' | translate }}</mat-label>
             <input matInput type="text" formControlName="description" required>
             <mat-icon matSuffix class="iconTranslate"
-                      (click)="onDescriptionTranslationButtonClicked()"
-                      onKeyDown="onDescriptionTranslationButtonClicked()"
+                      (click)="onTranslated('description')"
+                      onKeyDown="onTranslated('description')"
                       svgIcon="ic_translate"></mat-icon>
           </mat-form-field>
           <mat-form-field appearance="outline" class="quarter">
             <mat-label>{{ 'applicationEntity.type' | translate }}</mat-label>
             <mat-select formControlName="type" class="form-control"
                         (selectionChange)="onSelectionTypeAppChanged($event)">
-              <mat-option [value]="appType.value" *ngFor="let appType of applicationTypes">
+              <mat-option [value]="appType.value" *ngFor="let appType of this.codeList('application.type')">
                 {{ appType.description }}
               </mat-option>
             </mat-select>
@@ -65,8 +65,8 @@
             <mat-label>{{ 'applicationEntity.title' | translate }}</mat-label>
             <input matInput type="text" formControlName="title">
             <mat-icon matSuffix class="iconTranslate"
-                      (click)="onTitleTranslationButtonClicked()"
-                      onKeyDown="onTitleTranslationButtonClicked()"
+                      (click)="onTranslated('title')"
+                      onKeyDown="onTranslated('title')"
                       svgIcon="ic_translate"></mat-icon>
           </mat-form-field>
           <mat-form-field appearance="outline" class="half add-gap">
@@ -108,7 +108,7 @@
     <app-data-grid [changeHeightButton]="true"
                    [allNewElements]="applicationID === -1"
                    [columnDefs]="columnDefsParameters"
-                   [getAll]='getAllParameters'
+                   [getAll]='fetchParameters'
                    [eventAddItemsSubscription]='addElementsEventParameters.asObservable()'
                    [eventGetAllRowsSubscription]='getAllElementsEventParameters.asObservable()'
                    [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()'
@@ -121,32 +121,9 @@
                    addFieldRestriction="name"
                    [defaultColumnSorting]="['name']"
                    (new)="openParametersDialog()"
-                   (getAllRows)="getAllRowsParameters($event)"
+                   (getAllRows)="handleParametersEvent($event)"
                    (duplicate)='duplicateParameters($event)'
                    [redraw]="activeTabIndex === 1"
-                   *ngIf="dataLoaded"
-    ></app-data-grid>
-  </mat-tab>
-  <mat-tab label="{{ 'applicationEntity.templateConfiguration' | translate }}">
-    <app-data-grid [changeHeightButton]="true"
-                   [allNewElements]="applicationID === -1"
-                   [columnDefs]="columnDefsTemplates"
-                   [getAll]='getAllTemplates'
-                   [eventAddItemsSubscription]='addElementsEventTemplateConfiguration.asObservable()'
-                   [eventGetAllRowsSubscription]='getAllElementsEventTemplateConfiguration.asObservable()'
-                   [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()'
-                   [actionButton]=true
-                   [discardChangesButton]=true
-                   [redoButton]=true
-                   [undoButton]=true
-                   [deleteButton]=true
-                   [newButton]=true
-                   addFieldRestriction="name"
-                   [defaultColumnSorting]="['name']"
-                   (duplicate)='duplicateTemplates($event)'
-                   (getAllRows)="getAllRowsParameters($event)"
-                   (new)="openTemplateConfigurationDialog()"
-                   [redraw]="activeTabIndex === 2"
                    *ngIf="dataLoaded"
     ></app-data-grid>
   </mat-tab>
@@ -154,7 +131,7 @@
     <app-data-grid [changeHeightButton]="true"
                    [allNewElements]="applicationID === -1"
                    [columnDefs]="columnDefsRoles"
-                   [getAll]='getAllRoles'
+                   [getAll]='fetchRoles'
                    [eventAddItemsSubscription]='addElementsEventRoles.asObservable()'
                    [eventGetAllRowsSubscription]='getAllElementsEventRoles.asObservable()'
                    [eventRefreshSubscription]='dataUpdatedEventRoles.asObservable()'
@@ -166,9 +143,9 @@
                    [addButton]=true
                    [defaultColumnSorting]="['name']"
                    [hideDuplicateButton]=true
-                   (getAllRows)="getAllRowsRoles($event)"
+                   (getAllRows)="handleRolesEvent($event)"
                    (add)="openRolesDialog($event)"
-                   [redraw]="activeTabIndex === 3"
+                   [redraw]="activeTabIndex === 2"
                    *ngIf="dataLoaded"
     ></app-data-grid>
   </mat-tab>
@@ -176,7 +153,7 @@
     <app-data-grid [changeHeightButton]="true"
                    [allNewElements]="applicationID === -1"
                    [columnDefs]="columnDefsBackgrounds"
-                   [getAll]='getAllBackgrounds'
+                   [getAll]='fetchApplicationBackgrounds'
                    [eventAddItemsSubscription]='addElementsEventBackground.asObservable()'
                    [eventGetAllRowsSubscription]='getAllElementsEventBackground.asObservable()'
                    [eventRefreshSubscription]='dataUpdatedEventBackground.asObservable()'
@@ -188,20 +165,21 @@
                    [addButton]=true
                    [hideDuplicateButton]=true
                    [defaultColumnSorting]="['name']"
-                   (getAllRows)="getAllRowsBackgrounds($event)"
+                   (getAllRows)="handleApplicationBackgroundsEvent($event)"
                    (add)="openBackgroundDialog($event)"
-                   [redraw]="activeTabIndex === 4"
+                   [redraw]="activeTabIndex === 3"
                    *ngIf="dataLoaded"
     ></app-data-grid>
   </mat-tab>
   <mat-tab label="{{ 'applicationEntity.tree' | translate }}">
-    <app-data-grid [changeHeightButton]="true"
+    <app-data-grid #treesDataGrid
+                   [changeHeightButton]="true"
                    [allNewElements]="applicationID === -1"
                    [columnDefs]="columnDefsTrees"
-                   [getAll]='getAllTrees'
+                   [getAll]='fetchTrees'
                    [eventAddItemsSubscription]='addElementsEventTree.asObservable()'
                    [eventGetAllRowsSubscription]='getAllElementsEventTree.asObservable()'
-                   [eventRefreshSubscription]='dataUpdatedEventTree.asObservable()'
+                   [eventRefreshSubscription]='dataUpdatedEventTrees.asObservable()'
                    [actionButton]=true
                    [discardChangesButton]=true
                    [redoButton]=true
@@ -210,9 +188,9 @@
                    [addButton]=true
                    [hideDuplicateButton]=true
                    [defaultColumnSorting]="['name']"
-                   (getAllRows)="getAllRowsTrees($event)"
+                   (getAllRows)="handleTreesEvent($event)"
                    (add)="openTreeDialog($event)"
-                   [redraw]="activeTabIndex === 5"
+                   [redraw]="activeTabIndex === 4"
                    *ngIf="dataLoaded"
     ></app-data-grid>
   </mat-tab>
@@ -229,27 +207,10 @@
         <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'applicationEntity.type' | translate }}</mat-label>
           <mat-select formControlName="type" class="form-control" required>
-            <mat-option [value]="parameterType.value" *ngFor="let parameterType of parametersTypes">
+            <mat-option [value]="parameterType.value" *ngFor="let parameterType of this.codeList('applicationParameter.type')">
               {{ parameterType.description }}
             </mat-option>
           </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="full">
-          <mat-label>{{ 'serviceEntity.value' | translate }}</mat-label>
-          <input matInput type="text" formControlName="value" required>
-        </mat-form-field>
-      </mat-card-content>
-    </mat-card>
-  </form>
-</ng-template>
-
-<ng-template #newTemplateDialog>
-  <form [formGroup]='parameterForm'>
-    <mat-card appearance="outlined">
-      <mat-card-content>
-        <mat-form-field appearance="outline" class="full">
-          <mat-label>{{ 'applicationEntity.name' | translate }}</mat-label>
-          <input matInput type="text" formControlName="name" required>
         </mat-form-field>
         <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'serviceEntity.value' | translate }}</mat-label>

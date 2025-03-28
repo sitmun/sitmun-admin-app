@@ -1,6 +1,6 @@
 import {Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, OnDestroy, SimpleChanges, OnChanges} from '@angular/core';
 
-import {Observable, Subscription} from 'rxjs';
+import {firstValueFrom, Observable, Subscription} from 'rxjs';
 import {
   GridOptions,
   ModuleRegistry,
@@ -33,6 +33,67 @@ ModuleRegistry.registerModules([
   ClientSideRowModelModule,
   CsvExportModule
 ]);
+
+export type GridEventType = "save"
+
+export interface Status {
+  status: string;
+  newItem: boolean;
+}
+
+export function canDelete(status: Status): boolean {
+  return status.status === 'pendingDelete' && !status.newItem;
+}
+
+export interface GridEvent<T> {
+  event: string
+  data: (T & Status)[]
+}
+
+export function isSave<T>(event: GridEvent<T>): boolean {
+  return event.event === 'save';
+}
+
+export function canUpdate(status: Status): boolean {
+  return status.status === 'pendingModify'
+}
+
+export function canUpdateRelation(status: Status): boolean {
+  return status.status !== 'pendingDelete'
+}
+
+export function canCreate(status: Status): boolean {
+  return status.status === 'pendingCreation'
+}
+
+export function onCreate<T>(data: (T & Status)[]): Executor<T> {
+  return new Executor(data.filter(canCreate))
+}
+
+export function onDelete<T>(data: (T & Status)[]): Executor<T> {
+  return new Executor(data.filter(canDelete))
+}
+
+export function onUpdate<T>(data: (T & Status)[]): Executor<T> {
+  return new Executor(data.filter(canUpdate))
+}
+
+export function onUpdatedRelation<T>(data: (T & Status)[]): Executor<T> {
+  return new Executor(data.filter(canUpdateRelation))
+}
+
+export class Executor<T> {
+  constructor(private readonly data: T[]) {
+  }
+
+  async forAll(func: (item: T[]) => Observable<any>) {
+    return firstValueFrom(func(this.data));
+  }
+
+  async forEach(func: (item: T) => Observable<any>) {
+    return Promise.all(this.data.map(async item => firstValueFrom(func(item))));
+  }
+}
 
 @Component({
   selector: 'app-data-grid',
@@ -86,7 +147,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
   @Input() eventRefreshSubscription: Observable<boolean>;
   @Input() eventGetSelectedRowsSubscription: Observable<boolean>;
-  @Input() eventGetAllRowsSubscription: Observable<string>;
+  @Input() eventGetAllRowsSubscription: Observable<GridEventType>;
   @Input() eventSaveAgGridStateSubscription: Observable<boolean>;
   @Input() eventModifyStatusOfSelectedCells: Observable<string>;
   @Input() eventAddItemsSubscription: Observable<any[]>;
@@ -138,12 +199,12 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   @ViewChild('dataGrid', { static: true }) dataGrid: ElementRef;
   private observer: IntersectionObserver;
 
-  replaceValue: string = '';
+  replaceValue = '';
 
   constructor(public dialog: MatDialog,
     public translate: TranslateService,
     public utils: UtilsService,
-    private loggerService: LoggerService, 
+    private loggerService: LoggerService,
   ) {
 
     this.remove = new EventEmitter();
@@ -242,7 +303,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       });
     }
     if (this.eventGetAllRowsSubscription) {
-      this._eventGetAllRowsSubscription = this.eventGetAllRowsSubscription.subscribe((event: string) => {
+      this._eventGetAllRowsSubscription = this.eventGetAllRowsSubscription.subscribe((event: GridEventType) => {
         this.emitAllRows(event);
       });
     }
@@ -283,10 +344,10 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         const status = this.allNewElements ? 'pendingCreation' : 'statusOK';
         const newItems = [];
         const condition = (this.addFieldRestriction) ? this.addFieldRestriction : 'id';
-        
+
         data.forEach(element => {
           if (this.statusColumn) {
-            if (element.status != "notAvailable" && element.status != "pendingCreation" && 
+            if (element.status != "notAvailable" && element.status != "pendingCreation" &&
                 element.status != "pendingRegistration" && element.status != "unregisteredLayer") {
               element.status = status;
             }
@@ -300,11 +361,11 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         });
 
         this.rowData = this.currentData ? newItems : data;
-        
+
         if (this.gridApi && !this.gridApi.isDestroyed()) {
           this.gridApi.setGridOption('rowData', this.rowData);
         }
-        
+
         this.isFirstLoad = false;
         this.setLoading(false);
       },
@@ -430,8 +491,8 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     this.getSelectedRows.emit(selectedData);
   }
 
-  emitAllRows(event: string): void {
-    if (event === 'save') {
+  emitAllRows(event: GridEventType): void {
+    if (event === "save") {
       this.applyChanges();
     }
     this.getAllRows.emit({data: this.getAllCurrentData(), event: event});
@@ -513,7 +574,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     const currentFilterModel = this.gridApi.getFilterModel();
     const currentQuickFilter = this.searchValue;
     const currentSortModel = this.gridApi.getColumnState();
-    
+
     this.loggerService.debug('Current grid state:', {
       filterModel: currentFilterModel,
       quickFilter: currentQuickFilter,
@@ -537,17 +598,17 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     this.previousChangeCounter = 0;
     this.redoCounter = 0;
     this.someStatusHasChangedToDelete = false;
-    
+
     // Get current data
     const currentData = this.getAllCurrentData();
     this.loggerService.debug('Current data count:', currentData.length);
-    
+
     // Store reference to gridApi to ensure it's available in requestAnimationFrame
     const api = this.gridApi;
-    
+
     // Update the grid data
     api.setGridOption('rowData', currentData);
-    
+
     // Use requestAnimationFrame to ensure UI is updated properly
     requestAnimationFrame(() => {
       if (api && !api.isDestroyed()) {
@@ -556,11 +617,11 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
           api.setGridOption('quickFilterText', currentQuickFilter);
           this.searchValue = currentQuickFilter;
         }
-        
+
         if (Object.keys(currentFilterModel).length > 0) {
           api.setFilterModel(currentFilterModel);
         }
-        
+
         if (currentSortModel) {
           api.applyColumnState({
             state: currentSortModel,
@@ -569,7 +630,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         }
 
         api.redrawRows();
-        
+
         this.loggerService.debug('Grid state after update:', {
           rowCount: api.getDisplayedRowCount(),
           filterModel: api.getFilterModel(),
@@ -941,21 +1002,21 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
    * Replaces all occurrences of the search value with the replace value in the selected rows.
    * This method performs a global search and replace operation on all editable string fields of the selected rows.
    * The search is case insensitive.
-   * 
+   *
    * The method handles:
    * - Status field updates (sets to 'pendingModify' if not already 'pendingDelete' or 'pendingCreation')
    * - Change tracking in the changesMap for undo/redo functionality
    * - Visual feedback through cell highlighting
    * - Grid state updates (change counter, modified state)
-   * 
+   *
    * Prerequisites:
    * - Grid API must be initialized
    * - Replace value must be set
    * - At least one row must be selected
    * - Search value must be set
-   * 
+   *
    * @returns {void}
-   * 
+   *
    * @example
    * // Assuming grid is initialized and rows are selected
    * component.searchValue = "old text";
@@ -993,18 +1054,18 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         if (column && column.getColDef().editable !== false && typeof row[key] === 'string') {
           const searchRegex = new RegExp(searchValue, 'gi');
           const originalValue = row[key];
-          
+
           if (searchRegex.test(originalValue)) {
             const newValue = originalValue.replace(searchRegex, this.replaceValue);
-            
+
             if (originalValue !== newValue) {
               hasChanges = true;
               row[key] = newValue;
-              
+
               if (this.statusColumn && row.status !== 'pendingDelete' && row.status !== 'pendingCreation') {
                 row.status = 'pendingModify';
               }
-              
+
               if (!this.changesMap.has(node.id)) {
                 const addMap = new Map<string, number>();
                 addMap.set(key, 1);

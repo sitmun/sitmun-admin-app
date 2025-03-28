@@ -59,33 +59,26 @@ export class ResourceHelper {
     }
 
     /** resolve resource relations */
-    static resolveRelations(resource: Resource): Object {
+    static resolveRelations(resource: Resource): object {
         const result: any = {};
         for (const key in resource) {
-            if (!isNullOrUndefined(resource[key])) {
-                if (ResourceHelper.className(resource[key])
-                    .find((className: string) => className == 'Resource')) {
-                    if (resource[key]['_links'])
-                        result[key] = resource[key]['_links']['self']['href'];
-                } else if (Array.isArray(resource[key])) {
-                    let array: any[] = resource[key];
-                    if (array) {
-                        result[key] = new Array();
-                        array.forEach((element) => {
-                            if (isPrimitive(element)) {
-                                result[key].push(element);
-                            }
-                            else {
-                                result[key].push(this.resolveRelations(element));
-                            }
-                        });
-                    }
+            if (resource[key] === null) {
+                result[key] = null;
+            } else  if (Array.isArray(resource[key])) {
+              result[key] = resource[key].map((element) => {
+                if (element?._links?.self?.href) {
+                  return element?._links?.self?.href;
                 } else {
-                    result[key] = resource[key];
+                  return element;
                 }
+              });
+            } else if (resource[key]?._links?.self?.href) {
+              result[key] = resource[key]?._links?.self?.href;
+            } else {
+              result[key] = resource[key];
             }
         }
-        return result as Object;
+        return result as object;
     }
 
     /** create an empty resource from embedded data*/

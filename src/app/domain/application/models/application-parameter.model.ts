@@ -17,4 +17,9 @@ export class ApplicationParameter extends Resource {
   /** application*/
   public application: Application;
 
+
+  public typeDescription: string;
+
+  public id: number;
+
 }

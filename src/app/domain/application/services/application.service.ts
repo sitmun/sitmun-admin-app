@@ -57,11 +57,9 @@ export class ApplicationService extends RestService<Application> {
        }
 
 
-      result = this.http.put(item._links.self.href, item);
-
-
+      result = this.update(item)
     } else {
-      result = this.http.post(this.resourceService.getResourceUrl(this.APPLICATION_API) , item);
+      result = this.create(item)
     }
     return result;
   }

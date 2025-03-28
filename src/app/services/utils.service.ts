@@ -9,8 +9,8 @@ import {DialogMessageComponent, DialogTranslationComponent} from '@app/frontend-
 import {MatDialog} from '@angular/material/dialog';
 import {config} from '@config';
 import {BtnCheckboxFilterComponent} from '@app/frontend-gui/src/lib/btn-checkbox-filter/btn-checkbox-filter.component';
-import { LoggerService } from '@app/services/logger.service';
-import { HalOptions, HalParam } from '@app/core/hal/rest/rest.service';
+import {LoggerService} from '@app/services/logger.service';
+import {HalOptions, HalParam} from '@app/core/hal/rest/rest.service';
 
 @Injectable({
   providedIn: 'root',
@@ -154,7 +154,7 @@ export class UtilsService {
 
   getDateFilterParams() {
     return {
-      comparator: function(filterLocalDateAtMidnight, cellValue) {
+      comparator: function (filterLocalDateAtMidnight, cellValue) {
         if (cellValue == null) {
           return -1;
         }
@@ -180,36 +180,36 @@ export class UtilsService {
     };
   }
 
-  //Update grids
+  /**
+   * Updates a list of URIs on the server using a PUT request.
+   * The URIs are sent as a text/uri-list format with one URI per line.
+   *
+   * @param requestURI - The endpoint URL where the URI list will be updated
+   * @param data - Array of URI strings to be sent to the server
+   * @param eventRefresh - Optional Subject to notify when the update is complete
+   * @throws Error if the HTTP request fails
+   */
+  updateUriList(requestURI: string, data: string[], eventRefresh?: Subject<boolean>) {
+    const body = data.join('\n');
 
-  updateUriList(requestURI: string, data: any[], eventRefresh?) {
     this.http
-      .put(requestURI, this.createUriList(data), {
+      .put(requestURI, body, {
         headers: new HttpHeaders({
           'Content-Type': 'text/uri-list',
           Charset: 'UTF-8',
         }),
       })
-      .subscribe(
-        () => {
-          this.success = true;
+      .subscribe({
+        next: () => {
           if (eventRefresh) {
             eventRefresh.next(true);
           }
         },
-        () => {
-          this.success = false;
-        }
-      );
-  }
-
-  createUriList(data: any[]) {
-    let putRequestLine = '';
-    data.forEach((item) => {
-      putRequestLine += `${item}` + '\n';
-    });
-
-    return putRequestLine;
+        error: (error) => {
+          this.loggerService.error('Error updating URI list', error);
+          throw error;
+        },
+      });
   }
 
   showTreeStructureError() {
@@ -350,25 +350,25 @@ export class UtilsService {
         }
       },
       cellClassRules: {
-        pendingModify: function(params) {
+        pendingModify: function (params) {
           return params.value === 'pendingModify';
         },
-        pendingDelete: function(params) {
+        pendingDelete: function (params) {
           return params.value === 'pendingDelete';
         },
-        pendingCreation: function(params) {
+        pendingCreation: function (params) {
           return params.value === 'pendingCreation';
         },
-        notAvailable: function(params) {
+        notAvailable: function (params) {
           return params.value === 'notAvailable';
         },
-        pendingRegistration: function(params) {
+        pendingRegistration: function (params) {
           return params.value === 'pendingRegistration';
         },
-        unregisteredLayer: function(params) {
+        unregisteredLayer: function (params) {
           return params.value === 'unregisteredLayer';
         },
-        stable: function(params) {
+        stable: function (params) {
           return params.value === undefined || params.value === 'statusOK';
         },
       },
@@ -492,7 +492,7 @@ export class UtilsService {
   }
 
   getBooleanColumnDef(alias, field, editable, maxWidth = null, minWidth = null) {
-    const options =  {
+    const options = {
       headerName: this.getTranslate(alias),
       field: field,
       editable: editable,
