@@ -59,6 +59,7 @@ export abstract class Resource {
         return acc;
       }, {});
 
+      console.log("Getting relation array", {url: url, options: remainingOptions});
       const observable = ResourceHelper.getHttp().get(ResourceHelper.getProxy(url), {
         headers: ResourceHelper.headers,
         params: remainingOptions
@@ -242,7 +243,8 @@ export abstract class Resource {
     }).join('\n');
 
     const headers = new HttpHeaders().set('Content-Type', 'text/uri-list');
-    const url = ResourceHelper.getProxy(this._links[relation].href);
+    const template = utpl(this._links[relation].href);
+    const url = template.fillFromObject({});
 
     return ResourceHelper.getHttp().put<void>(
       url,

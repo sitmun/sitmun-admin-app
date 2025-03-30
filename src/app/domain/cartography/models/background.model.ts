@@ -24,4 +24,6 @@ export class Background extends Resource {
 
   /** cartography group*/
   public cartographyGroup: CartographyGroup;
+
+  public cartographyGroupId: number
 }

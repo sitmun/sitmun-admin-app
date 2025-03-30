@@ -25,10 +25,10 @@ export class AuthExpiredInterceptor implements HttpInterceptor {
                         // Handle both 401 (Unauthorized) and 403 (Forbidden) status codes
                         if ((err.status === 401 || err.status === 403) && !request.url.includes('api/authenticate')) {
                             // Only logout if not already trying to authenticate
-                            this.loginService.logout();
-                            
+//                            this.loginService.logout();
+
                             // Force reload to clear all states and redirect to login
-                            window.location.reload();
+//                            window.location.reload();
                         }
                     }
                 }

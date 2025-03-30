@@ -1,265 +1,397 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {
-  BackgroundService,
-  CartographyGroupService,
-  TranslationService,
-  Background,
-  CartographyGroup,
-  CartographyService,
-  RoleService,
-  Translation,
+  ApplicationBackground,
+  ApplicationBackgroundService,
   ApplicationService,
-  ApplicationBackgroundService
+  Background,
+  BackgroundService,
+  Cartography,
+  CartographyGroup,
+  CartographyGroupService,
+  CartographyService,
+  Role,
+  RoleService,
+  TranslationService
 } from '@app/domain';
-import { HalOptions, HalParam } from '@app/core/hal/rest/rest.service';
-import {HttpClient} from '@angular/common/http';
 import {UtilsService} from '@app/services/utils.service';
-import {Observable, of, Subject} from 'rxjs';
-import {DialogGridComponent} from '@app/frontend-gui/src/lib/public_api';
+import {firstValueFrom, Observable, of, Subject} from 'rxjs';
+import {
+  DialogGridComponent,
+  DialogGridData,
+  DialogGridResult,
+  GridEvent,
+  isDialogGridAddEvent,
+  isSave,
+  onCreate,
+  onDelete,
+  onUpdate,
+  onUpdatedRelation,
+  Status
+} from '@app/frontend-gui/src/lib/public_api';
 import {map} from 'rxjs/operators';
 import {MatDialog} from '@angular/material/dialog';
 import {config} from '@config';
-import {MatTabChangeEvent} from '@angular/material/tabs';
 import {constants} from '@environments/constants';
-import { LoggerService } from '@app/services/logger.service';
+import {LoggerService} from '@app/services/logger.service';
+import {TranslateService} from "@ngx-translate/core";
+import {translatableMixin} from "@app/mixins/translatable.mixin";
+import {activeTabMixin} from "@app/mixins/activetab.mixin";
 
+class SitmunBase {
+}
+
+const TranslatableSitmunBase = translatableMixin(activeTabMixin(SitmunBase));
+
+/**
+ * Component for creating, editing, and duplicating Background entities.
+ *
+ * This component manages the background layer form with multiple tabs for:
+ * - Main background properties (name, description, image, etc.)
+ * - Cartographies configuration (map layers associated with this background)
+ * - Role associations (user roles that can access this background)
+ * - Application associations (applications that use this background)
+ *
+ * The form supports three modes:
+ * - Create: Creates a new background from scratch
+ * - Edit: Modifies an existing background's properties and relationships
+ * - Duplicate: Creates a new background based on an existing one, copying its properties and relationships
+ *
+ * Each background is associated with a CartographyGroup that manages the relationship
+ * with cartographies, roles, and applications.
+ */
 @Component({
   selector: 'app-background-layers-form',
   templateUrl: './background-layers-form.component.html',
-  styles: []
 })
-export class BackgroundLayersFormComponent implements OnInit {
+export class BackgroundLayersFormComponent extends TranslatableSitmunBase implements OnInit, OnDestroy {
 
-  //Translations
-  nameTranslationsModified = false;
-  descriptionTranslationsModified = false;
-
-  nameTranslationMap: Map<string, Translation>;
-  descriptionTranslationMap: Map<string, Translation>;
-
-
-  permissionGroups: any[] = [];
-  cartographyGroupOfThisLayer = null;
-  dataLoaded = false;
   themeGrid: any = config.agGridTheme;
 
 
-  //Grids
-  columnDefsCartographies: any[];
-  getAllElementsEventCartographies: Subject<string> = new Subject<string>();
-  dataUpdatedEventCartographies: Subject<boolean> = new Subject<boolean>();
-
-  columnDefsRoles: any[];
-  getAllElementsEventRoles: Subject<string> = new Subject<string>();
-  dataUpdatedEventRoles: Subject<boolean> = new Subject<boolean>();
-
-  columnDefsApplications: any[];
-  getAllElementsEventApplications: Subject<string> = new Subject<string>();
-  dataUpdatedEventApplications: Subject<boolean> = new Subject<boolean>();
-
-  //Dialog
-  columnDefsRolesDialog: any[];
-  addElementsEventRoles: Subject<any[]> = new Subject<any[]>();
-
-  columnDefsCartographiesDialog: any[];
-  addElementsEventCartographies: Subject<any[]> = new Subject<any[]>();
-
-  columnDefsApplicationsDialog: any[];
-  addElementsEventApplications: Subject<any[]> = new Subject<any[]>();
-
-
+  /**
+   * Creates an instance of the BackgroundLayersFormComponent.
+   * Injects all required services for background layer management, including:
+   * - UI services (dialog, utils, translation)
+   * - Data services (background, cartography, role, application)
+   * - Support services (logger, codelist)
+   *
+   * @param {MatDialog} dialog - Dialog service for displaying modal dialogs
+   * @param {ActivatedRoute} activatedRoute - Route service to access URL parameters
+   * @param {BackgroundService} backgroundService - Service for background CRUD operations
+   * @param {TranslationService} translationService - Service for handling entity translations
+   * @param {UtilsService} utils - Utility service for common UI operations
+   * @param {CartographyService} cartographyService - Service for cartography CRUD operations
+   * @param {RoleService} roleService - Service for role CRUD operations
+   * @param {CartographyGroupService} cartographyGroupService - Service for cartography group operations
+   * @param {ApplicationService} applicationService - Service for application CRUD operations
+   * @param {ApplicationBackgroundService} applicationBackgroundService - Service for application-background relations
+   * @param {LoggerService} loggerService - Logging service
+   * @param {TranslateService} translateService - Translation service for UI elements
+   */
   constructor(
-    public dialog: MatDialog,
+    protected override dialog: MatDialog,
     private activatedRoute: ActivatedRoute,
-    private router: Router,
     private backgroundService: BackgroundService,
-    private translationService: TranslationService,
-    private http: HttpClient,
+    protected override translationService: TranslationService,
     public utils: UtilsService,
     private cartographyService: CartographyService,
     private roleService: RoleService,
     private cartographyGroupService: CartographyGroupService,
     private applicationService: ApplicationService,
     private applicationBackgroundService: ApplicationBackgroundService,
-    private loggerService: LoggerService
+    private loggerService: LoggerService,
+    private translateService: TranslateService
   ) {
-    this.initializeBackgroundForm();
+    super()
   }
 
+  /**
+   * Reference to the cartography group associated with this background layer.
+   * Manages relationships between cartographies, roles, and applications.
+   */
+  cartographyGroupOfThisLayer = null;
+
+  /**
+   * Indicates whether all required data has been loaded.
+   * Used to control the rendering of form elements and prevent premature operations.
+   */
+  dataLoaded = false;
+
+  /**
+   * The main form group containing all background properties.
+   * Manages form validation and provides access to form controls.
+   */
   backgroundForm: UntypedFormGroup;
-  backgroundToEdit;
+
+  /**
+   * Reference to the background being edited.
+   * Contains all background data including relationships.
+   */
+  backgroundToEdit: Background;
+
+  /**
+   * ID of the background being edited, or -1 if creating a new background.
+   * Determined from route parameters.
+   */
   backgroundID = -1;
+
+  /**
+   * ID of the background being duplicated, or -1 if not duplicating.
+   * Determined from route parameters.
+   */
   duplicateID = -1;
 
+  /**
+   * Initializes the component by:
+   * 1. Setting up translations
+   * 2. Initializing form sections and tabs
+   * 3. Loading background data or setting defaults
+   */
   ngOnInit(): void {
-
-    this.nameTranslationMap = this.utils.createTranslationsList(config.translationColumns.backgroundName);
-    this.descriptionTranslationMap = this.utils.createTranslationsList(config.translationColumns.backgroundDescription);
-
-    const promises: Promise<any>[] = [];
-    promises.push(new Promise((resolve,) => {
-      this.utils.getCodeListValues('cartographyPermission.type', true).pipe(
-        map((resp) => {
-          resp.forEach(cartographyGroup => {
-            if (cartographyGroup.value === constants.codeValue.cartographyPermissionType.backgroundMap) {
-              this.permissionGroups.push(cartographyGroup);
-            }
-          });
-          resolve(true);
-        })
-      ).subscribe();
-    }));
-
-
-    Promise.all(promises).then(() => {
-      this.activatedRoute.params.subscribe(params => {
-          this.backgroundID = +params.id;
-
-          if (params.idDuplicate) {
-            this.duplicateID = +params.idDuplicate;
-          }
-
-          if (this.backgroundID !== -1 || this.duplicateID !== -1) {
-            const idToGet = this.backgroundID !== -1 ? this.backgroundID : this.duplicateID;
-
-            this.backgroundService.get(idToGet).subscribe(
-              resp => {
-
-                this.backgroundToEdit = resp;
-
-                this.backgroundForm.patchValue({
-                  description: this.backgroundToEdit.description,
-                  image: this.backgroundToEdit.image,
-                  cartographyGroup: this.permissionGroups[0].value,
-                  active: this.backgroundToEdit.active,
-                  _links: this.backgroundToEdit._links
-                });
-
-                if (this.backgroundID !== -1) {
-                  this.backgroundForm.patchValue({
-                    id: this.backgroundID,
-                    name: this.backgroundToEdit.name,
-                  });
-                } else {
-                  this.backgroundForm.patchValue({
-                    name: this.utils.getTranslate('copy_').concat(this.backgroundToEdit.name),
-                  });
-                }
-
-                if (this.backgroundID !== -1) {
-                  this.translationService.getAll()
-                    .pipe(map((data: any[]) => data.filter(elem => elem.element == this.backgroundID)
-                    )).subscribe(result => {
-
-                      const nameTranslations = [];
-                      const descriptionTranslations = [];
-                      result.forEach(translation => {
-                        if (translation.column == config.translationColumns.backgroundName) {
-                          nameTranslations.push(translation);
-                        } else if (translation.column == config.translationColumns.backgroundDescription) {
-                          descriptionTranslations.push(translation);
-                        }
-                      });
-                      this.utils.updateTranslations(this.nameTranslationMap, nameTranslations);
-                      this.utils.updateTranslations(this.descriptionTranslationMap, descriptionTranslations);
-                    }
-                  );
-
-
-                }
-                let urlReq = `${this.backgroundToEdit._links.cartographyGroup.href}`;
-                const url = new URL(urlReq.split('{')[0]);
-                url.searchParams.append('projection', 'view');
-                urlReq = url.toString();
-
-                this.http.get(urlReq)
-                  .pipe(map(data => {
-                    this.cartographyGroupOfThisLayer = data;
-                    this.dataLoaded = true;
-                  })).subscribe();
-
-
-                // if(this.backgroundToEdit.cartographyGroupId == null)
-                // {
-                //   this.backgroundForm.patchValue({
-                //     cartographyGroup: this.permissionGroups[0].id
-                //   })
-                // }
-              },
-            );
-          } else {
-            this.backgroundForm.patchValue({
-              active: false,
-              cartographyGroup: this.permissionGroups[0].value
-            });
-            this.dataLoaded = true;
-          }
-
-        },
-      );
-
-    });
-
-
-    this.columnDefsCartographies = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('layersPermitsEntity.name', 'name'),
-      this.utils.getStatusColumnDef()
-    ];
-
-
-    this.columnDefsRoles = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('layersPermitsEntity.name', 'name'),
-      this.utils.getStatusColumnDef()
-    ];
-
-    this.columnDefsApplications = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('layersPermitsEntity.name', 'applicationName'),
-      this.utils.getEditableColumnDef('applicationEntity.order', 'order'),
-      this.utils.getStatusColumnDef()
-    ];
-
-    this.columnDefsCartographiesDialog = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('layersPermitsEntity.name', 'name'),
-      this.utils.getNonEditableColumnDef('treesEntity.serviceName', 'serviceName'),
-    ];
-
-    this.columnDefsRolesDialog = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('layersPermitsEntity.name', 'name'),
-    ];
-
-
-    this.columnDefsApplicationsDialog = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('layersPermitsEntity.name', 'name'),
-    ];
-
+    this.initTranslations(
+      'Background',
+      ['name', 'description']
+    )
+    this.ngOnInitMainForm()
+    this.ngOnInitCartographies()
+    this.ngOnInitRoles()
+    this.ngOnInitApplications()
+    this.fetchData().catch((reason) => this.loggerService.error('Error in ngOnInit:', reason));
   }
 
-  getPermissionGroups() {
-    const params2: HalParam[] = [];
-    const param: HalParam = {key: 'type', value: constants.codeValue.cartographyPermissionType.backgroundMap};
-    params2.push(param);
-    const query: HalOptions = {params: params2};
+  // ==================================================
+  //                     Utilities
+  // ==================================================
 
-    return this.cartographyGroupService.getAll(query);
+  /**
+   * Checks if the background is in creation mode (not editing or duplicating).
+   * @returns {boolean} True if the background is new, false otherwise
+   */
+  isNew(): boolean {
+    return this.backgroundID == -1 && this.duplicateID == -1
   }
 
+  /**
+   * Checks if the background is in duplication mode.
+   * @returns {boolean} True if the background is being duplicated, false otherwise
+   */
+  isDuplicated() {
+    return this.backgroundID == -1 && this.duplicateID != -1;
+  }
 
-  initializeBackgroundForm(): void {
+  // ==================================================
+  //                 Load Application
+  // ==================================================
 
+  /**
+   * Fetches and loads all necessary data for the background form.
+   * This includes retrieving the background entity and its associated cartography group if editing or duplicating.
+   * Sets up the form with appropriate initial values based on the background state.
+   *
+   * For new backgrounds, initializes the form with default values.
+   * For existing backgrounds, populates the form with data from the server.
+   * For duplicated backgrounds, copies values from the source background.
+   */
+  async fetchData() {
+    const params = await firstValueFrom(this.activatedRoute.params)
+
+    this.backgroundID = params.id;
+
+    if (params.idDuplicate) {
+      this.duplicateID = params.idDuplicate;
+    } else {
+      this.duplicateID = -1;
+    }
+
+    if (this.backgroundID != -1 || this.duplicateID != -1) {
+      const editMode = this.backgroundID != -1;
+      const idToGet = editMode ? this.backgroundID : this.duplicateID;
+
+      this.backgroundToEdit = await firstValueFrom(this.backgroundService.get(idToGet))
+      this.cartographyGroupOfThisLayer = await firstValueFrom(this.cartographyGroupService.get(this.backgroundToEdit.cartographyGroupId))
+
+      const formData: Record<string, any> = {
+        description: this.backgroundToEdit.description,
+        image: this.backgroundToEdit.image,
+        cartographyGroup: constants.codeValue.cartographyPermissionType.backgroundMap,
+        active: this.backgroundToEdit.active,
+        _links: this.backgroundToEdit._links,
+        name: editMode
+          ? this.backgroundToEdit.name
+          : this.translateService.instant('copy_').concat(this.backgroundToEdit.name),
+      }
+
+      // Add ID and
+      if (editMode) {
+        formData.id = this.backgroundID;
+      }
+
+      // Set all values at once
+      this.backgroundForm.patchValue(formData);
+
+      if (editMode) {
+        await this.loadTranslations(this.backgroundToEdit)
+      }
+
+      this.loggerService.debug('background to edit loaded', {
+        backgroundToEdit: this.backgroundToEdit,
+        cartographyGroupOfThisLayer: this.cartographyGroupOfThisLayer,
+      });
+    } else {
+      this.backgroundForm.patchValue({
+        active: false,
+        cartographyGroup: constants.codeValue.cartographyPermissionType.backgroundMap
+      });
+    }
+    this.dataLoaded = true;
+  }
+
+// ==================================================
+//                 Save Background
+// ==================================================
+
+  /**
+   * Event subject for triggering application background data refresh on save.
+   * Used to notify the applications grid to reload or update its data.
+   */
+  readonly getAllElementsEventApplicationsBackground: Subject<string> = new Subject<string>();
+
+  /**
+   * Event subject for triggering roles data refresh on save.
+   * Used to notify the roles grid to reload or update its data.
+   */
+  readonly getAllElementsEventRoles: Subject<string> = new Subject<string>();
+
+  /**
+   * Event subject for triggering cartographies data refresh on save.
+   * Used to notify the cartographies grid to reload or update its data.
+   */
+  readonly getAllElementsEventCartographies: Subject<string> = new Subject<string>();
+
+  /**
+   * Collection of all grid refresh event subjects for centralized management.
+   * Used for batch operations on all subjects, such as emitting save events
+   * or completing subjects on component destruction.
+   */
+  readonly subjects = [
+    this.getAllElementsEventApplicationsBackground,
+    this.getAllElementsEventRoles,
+    this.getAllElementsEventCartographies
+  ]
+
+  /**
+   * Validates the form and initiates the save process if valid.
+   * This method:
+   * 1. Checks if the form is valid
+   * 2. If valid, saves the cartography group first
+   * 3. Then saves the background with a reference to the cartography group
+   * 4. If invalid, displays an error message
+   */
+  async onSaveButtonClicked() {
+    if (this.backgroundForm.valid) {
+      try {
+        const response = await firstValueFrom(this.saveCartographyGroup());
+
+        // Check if the response is a CartographyGroup (not an Observable<never>)
+        if (response instanceof CartographyGroup) {
+          this.loggerService.info('Cartography group updated', {old: this.cartographyGroupOfThisLayer, new: response});
+          this.cartographyGroupOfThisLayer = response;
+          await this.updateBackground(response);
+        } else {
+          this.loggerService.error('Failed to save cartography group - invalid response type');
+          this.utils.showErrorMessage('Error saving background layer. Please try again.');
+        }
+      } catch (error) {
+        this.loggerService.error('Error in onSaveButtonClicked:', error);
+        this.utils.showErrorMessage('Error saving background layer. Please try again.');
+      }
+    } else {
+      this.utils.showRequiredFieldsError();
+    }
+  }
+
+  /**
+   * Saves the cartography group associated with this background.
+   * Creates a new cartography group or updates an existing one based on the current state.
+   *
+   * @returns {Observable<CartographyGroup | Observable<never>>} An observable containing the saved cartography group
+   */
+  saveCartographyGroup(): Observable<CartographyGroup | Observable<never>> {
+    if (this.isDuplicated()) {
+      this.cartographyGroupOfThisLayer = null;
+    }
+
+    const cartographyGroupObj = this.cartographyGroupOfThisLayer == null
+      ? new CartographyGroup()
+      : Object.assign(new CartographyGroup(), this.cartographyGroupOfThisLayer);
+
+    cartographyGroupObj.name = this.backgroundForm.value.name;
+    cartographyGroupObj.type = this.backgroundForm.value.cartographyGroup;
+
+    if (this.cartographyGroupOfThisLayer == null) {
+      return this.cartographyGroupService.create(cartographyGroupObj);
+    } else {
+      return this.cartographyGroupService.update(cartographyGroupObj);
+    }
+  }
+
+  /**
+   * Updates the background with the form values and associates it with the cartography group.
+   * Handles both creation and update operations based on the background state.
+   * After saving, updates the component state and related entity relations.
+   *
+   * @param {CartographyGroup} cartographyGroup - The cartography group to associate with this background
+   * @throws Error if any of the background operations fail
+   */
+  async updateBackground(cartographyGroup: CartographyGroup) {
+    try {
+      // Copy form values to background object
+      const backgroundObj: Background = Object.assign(new Background(), this.backgroundForm.value);
+
+      // Handle special case
+      backgroundObj.cartographyGroup = cartographyGroup;
+
+      // Set ID based on application state
+      let resp: Background | Observable<never>;
+      if (this.backgroundID == -1) {
+        backgroundObj.id = null;
+        resp = await firstValueFrom(this.backgroundService.create(backgroundObj));
+      } else {
+        resp = await firstValueFrom(this.backgroundService.update(backgroundObj));
+      }
+
+      if (resp instanceof Background) {
+        this.backgroundToEdit = resp;
+        this.backgroundID = resp.id;
+        this.backgroundForm.patchValue({
+          id: resp.id,
+          _links: resp._links
+        });
+
+        await this.saveTranslations(this.backgroundToEdit)
+        this.subjects.forEach(subject => subject.next('save'))
+      }
+    } catch (error) {
+      this.loggerService.error('Error saving background:', error);
+      throw error;
+    }
+  }
+
+// ==================================================
+//                    Main form
+// ==================================================
+
+  /**
+   * Initializes the main background form.
+   * Creates a form group with controls for all background properties:
+   * - Basic information (id, name, description)
+   * - Display settings (image)
+   * - Configuration settings (cartographyGroup, active)
+   * - Links (_links)
+   */
+  ngOnInitMainForm() {
     this.backgroundForm = new UntypedFormGroup({
       id: new UntypedFormControl(null, []),
       name: new UntypedFormControl(null, [
@@ -270,250 +402,126 @@ export class BackgroundLayersFormComponent implements OnInit {
       cartographyGroup: new UntypedFormControl(null),
       active: new UntypedFormControl(null),
       _links: new UntypedFormControl(null),
-
     });
-
   }
 
-  async onNameTranslationButtonClicked() {
-    const dialogResult = await this.utils.openTranslationDialog(this.nameTranslationMap);
-    if (dialogResult && dialogResult.event == 'Accept') {
-      this.nameTranslationsModified = true;
-    }
+// ==================================================
+//                    Layers
+// ==================================================
+
+  /**
+   * Column definitions for the cartographies grid.
+   * Includes columns for:
+   * - Selection checkbox
+   * - ID (non-editable)
+   * - Name (editable)
+   * - Service name (non-editable)
+   * - Status indicator
+   */
+  columnDefsCartographies: any[];
+
+  /**
+   * Subject for notifying when cartographies data has been updated.
+   * Used to trigger grid refresh after data operations.
+   */
+  dataUpdatedEventCartographies: Subject<boolean> = new Subject<boolean>();
+
+  /**
+   * Column definitions for the cartographies selection dialog.
+   */
+  columnDefsCartographiesDialog: any[];
+
+  /**
+   * Subject for adding new cartographies to the grid.
+   * Emits arrays of cartographies to be added to the grid.
+   */
+  addElementsEventCartographies: Subject<any[]> = new Subject<any[]>();
+
+  /**
+   * Initializes the cartographies tab configuration.
+   * Sets up column definitions for the cartographies grid:
+   * - Checkbox column for selection
+   * - ID column for identification
+   * - Name column (editable)
+   * - Service name column (non-editable)
+   * - Status column to track changes
+   */
+  ngOnInitCartographies() {
+    this.columnDefsCartographies = [
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('layersPermitsEntity.name', 'name'),
+      this.utils.getNonEditableColumnDef('treesEntity.serviceName', 'serviceName'),
+      this.utils.getStatusColumnDef()
+    ];
   }
 
-  async onDescriptionTranslationButtonClicked() {
-    const dialogResult = await this.utils.openTranslationDialog(this.descriptionTranslationMap);
-    if (dialogResult && dialogResult.event == 'Accept') {
-      this.descriptionTranslationsModified = true;
+  /**
+   * Fetches all cartographies associated with this background's cartography group.
+   * If the cartography group is not yet created or this is a new background, returns an empty array.
+   * Otherwise, retrieves the cartographies through the cartography group's relation array.
+   *
+   * @returns {Observable<Cartography[]>} An observable containing the cartographies
+   */
+  fetchCartographies = (): Observable<Cartography[]> => {
+    if (this.cartographyGroupOfThisLayer == null && this.isNew()) {
+      return of([]);
     }
-  }
-
-  // AG GRID
-
-  // ******** Cartographies configuration ******** //
-  getAllCartographies = () => {
-
-
-    if (this.cartographyGroupOfThisLayer == null && this.backgroundID == -1 && this.duplicateID == -1) {
-      const aux: any[] = [];
-      return of(aux);
-    }
-
-    let urlReq = `${this.cartographyGroupOfThisLayer._links.members.href}`;
-    if (this.cartographyGroupOfThisLayer._links.members.templated) {
-      const url = new URL(urlReq.split('{')[0]);
-      url.searchParams.append('projection', 'view');
-      urlReq = url.toString();
-    }
-    return (this.http.get(urlReq))
-      .pipe(map(data => data['_embedded']['cartographies']));
-
+    return this.cartographyGroupOfThisLayer.getRelationArrayEx(Cartography, 'members', {projection: 'view'})
   };
 
-  getAllRowsCartographies(event) {
-    if (event.event == 'save') {
-      this.saveCartographies(event.data);
+  /**
+   * Handles events from the cartographies grid.
+   * When a save event is received, triggers the update of cartographies.
+   *
+   * @param {GridEvent<Cartography & Status>} event - The grid event containing the event type and data
+   */
+  handleCartographiesEvent(event: GridEvent<Cartography & Status>) {
+    if (isSave(event)) {
+      this.updateCartographies(event.data).catch((reason) => this.loggerService.error('Error in handleCartographiesEvent:', reason));
     }
   }
 
-  saveCartographies(data: any[]) {
-    const promises: Promise<any>[] = [];
-    let dataChanged = false;
-    const cartographiesToPut = [];
-    data.forEach(cartography => {
-      if (cartography.status !== 'pendingDelete') {
-        if (cartography.status === 'pendingModify') {
-          if (cartography.newItem) {
-            dataChanged = true;
-          }
-          promises.push(new Promise((resolve,) => {
-            this.cartographyService.update(cartography).subscribe(() => {
-              resolve(true);
-            });
-          }));
-        } else if (cartography.status === 'pendingCreation') {
-          dataChanged = true;
-        }
-        cartographiesToPut.push(cartography._links.self.href);
-      } else {
-        dataChanged = true;
-      }
-    });
-
-    Promise.all(promises).then(() => {
-      if (dataChanged) {
-        const url = this.cartographyGroupOfThisLayer._links.members.href.split('{', 1)[0];
-        this.utils.updateUriList(url, cartographiesToPut, this.dataUpdatedEventCartographies);
-      } else {
-        this.dataUpdatedEventCartographies.next(true);
-      }
-    });
+  /**
+   * Updates the cartographies by handling modifications and relation updates.
+   * This method processes two types of changes:
+   * 1. Cartography updates: Updates existing cartographies through the cartography service
+   * 2. Relation updates: Updates the cartography group's relation with all cartographies
+   *
+   * @param {(Cartography & Status)[]} cartographies - Array of cartographies with their current status
+   * @throws Error if any of the cartography operations fail
+   */
+  async updateCartographies(cartographies: (Cartography & Status)[]) {
+    await onUpdate(cartographies).forEach(item => this.cartographyService.update(item));
+    await onUpdatedRelation(cartographies).forAll(items => this.cartographyGroupOfThisLayer.substituteAllRelation('members', items));
+    this.dataUpdatedEventCartographies.next(true);
   }
 
-  // ******** Roles  ******** //
-  getAllRoles = () => {
-    if (this.cartographyGroupOfThisLayer == null && this.backgroundID == -1 && this.duplicateID == -1) {
-      const aux: any[] = [];
-      return of(aux);
-    }
-
-    let urlReq = `${this.cartographyGroupOfThisLayer._links.roles.href}`;
-    if (this.cartographyGroupOfThisLayer._links.roles.templated) {
-      const url = new URL(urlReq.split('{')[0]);
-      url.searchParams.append('projection', 'view');
-      urlReq = url.toString();
-    }
-
-    return (this.http.get(urlReq))
-      .pipe(map(data => {
-          return data['_embedded']['roles'];
-        }
-      ));
-
-  };
-
-  getAllRowsRoles(event) {
-    if (event.event == 'save') {
-      this.saveRoles(event.data);
-    }
-  }
-
-  saveRoles(data: any[]) {
-    const promises: Promise<any>[] = [];
-    let dataChanged = false;
-    const rolesToPut = [];
-    data.forEach(role => {
-      if (role.status !== 'pendingDelete') {
-        if (role.status === 'pendingModify') {
-          if (role.newItem) {
-            dataChanged = true;
-          }
-          promises.push(new Promise((resolve,) => {
-            this.roleService.update(role).subscribe(() => {
-              resolve(true);
-            });
-          }));
-        } else if (role.status === 'pendingCreation') {
-          dataChanged = true;
-        }
-        rolesToPut.push(role._links.self.href);
-      } else {
-        dataChanged = true;
-      }
-    });
-
-    Promise.all(promises).then(() => {
-      if (dataChanged) {
-        const url = this.cartographyGroupOfThisLayer._links.roles.href.split('{', 1)[0];
-        this.utils.updateUriList(url, rolesToPut, this.dataUpdatedEventRoles);
-      } else {
-        this.dataUpdatedEventRoles.next(true);
-      }
-    });
-  }
-
-
-  // ******** Background ******** //
-
-  getAllApplications = (): Observable<any> => {
-
-    if (this.backgroundToEdit == null && this.backgroundID == -1 && this.duplicateID == -1) {
-      const aux: any[] = [];
-      return of(aux);
-    }
-
-    let urlReq = `${this.backgroundToEdit._links.applications.href}`;
-    if (this.backgroundToEdit._links.applications.templated) {
-      const url = new URL(urlReq.split('{')[0]);
-      url.searchParams.append('projection', 'view');
-      urlReq = url.toString();
-    }
-
-    return (this.http.get(urlReq))
-      .pipe(map(data => data['_embedded']['application-backgrounds']));
-
-
-  };
-
-  getAllRowsApplications(event) {
-    if (event.event == 'save') {
-      this.saveApplications(event.data);
-    }
-  }
-
-  saveApplications(data: any[]) {
-
-    const promises: Promise<any>[] = [];
-    data.forEach(application => {
-      if (application.status === 'pendingCreation' || (application.status === 'pendingModify') && (application.new)) {
-        const index = data.findIndex(element => element.name === application.applicationName && !element.newItem);
-        if (index === -1) {
-          application.newItem = false;
-          application.background = this.backgroundToEdit;
-          if (application._links) { //Duplicate
-            let urlReqApplication = `${application._links.application.href}`;
-            application.id = null;
-            if (application._links.application.href) {
-              const url = new URL(urlReqApplication.split('{')[0]);
-              url.searchParams.append('projection', 'view');
-              urlReqApplication = url.toString();
-            }
-            application._links = null;
-            promises.push(new Promise((resolve,) => {
-              this.http.get(urlReqApplication).subscribe(result => {
-                application.application = result;
-                this.applicationBackgroundService.save(application).subscribe(() => {
-                  resolve(true);
-                });
-              });
-            }));
-          } else {
-            promises.push(new Promise((resolve,) => {
-              this.applicationBackgroundService.save(application).subscribe(() => {
-                resolve(true);
-              });
-            }));
-          }
-        }
-      } else if (application.status === 'pendingModify') {
-        promises.push(new Promise((resolve,) => {
-          this.applicationBackgroundService.save(application).subscribe(() => {
-            resolve(true);
-          });
-        }));
-      } else if (application.status === 'pendingDelete' && !application.newItem) {
-        // backgroundsToDelete.push(background)
-        promises.push(new Promise((resolve,) => {
-          this.applicationBackgroundService.delete(application).subscribe(() => {
-            resolve(true);
-          });
-        }));
-
-      }
-    });
-
-
-    Promise.all(promises).then(() => {
-      this.dataUpdatedEventApplications.next(true);
-    });
-
-
-  }
-
-
-  // ******** Cartography Dialog  ******** //
-
-  getAllCartographiesDialog = () => {
-    return this.cartographyService.getAll();
-  };
-
-  openCartographyDialog(data: any) {
+  /**
+   * Opens a dialog for selecting cartographies to associate with this background.
+   * This method:
+   * 1. Opens a grid dialog with cartography selection options
+   * 2. Configures the dialog with appropriate columns and data sources
+   * 3. Processes the result when dialog is closed
+   *
+   * When the user confirms by selecting cartographies, the selected cartographies are added to the
+   * background's cartography group through the addElementsEventCartographies Subject.
+   *
+   * @param {Cartography[]} data - Current cartographies associated with the background
+   */
+  openCartographyDialog(data: Cartography[]) {
     const dialogRef = this.dialog.open(DialogGridComponent, {panelClass: 'gridDialogs'});
     dialogRef.componentInstance.orderTable = ['name'];
-    dialogRef.componentInstance.getAllsTable = [this.getAllCartographiesDialog];
+    dialogRef.componentInstance.getAllsTable = [() => {
+      return this.cartographyService.getAll();
+    }];
     dialogRef.componentInstance.singleSelectionTable = [false];
-    dialogRef.componentInstance.columnDefsTable = [this.columnDefsCartographiesDialog];
+    dialogRef.componentInstance.columnDefsTable = [[
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('layersPermitsEntity.name', 'name'),
+      this.utils.getNonEditableColumnDef('treesEntity.serviceName', 'serviceName'),
+    ]];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
     dialogRef.componentInstance.title = this.utils.getTranslate('backgroundEntity.cartographiesConfiguration');
     dialogRef.componentInstance.titlesTable = [''];
@@ -532,168 +540,300 @@ export class BackgroundLayersFormComponent implements OnInit {
 
   }
 
-  // ******** Roles Dialog  ******** //
+// ==================================================
+//                     Role
+// ==================================================
 
-  getAllRolesDialog = () => {
-    return this.roleService.getAll();
-  };
+  /**
+   * Column definitions for the roles grid.
+   * Includes columns for:
+   * - Selection checkbox
+   * - ID (non-editable)
+   * - Name (editable)
+   * - Description/notes (editable)
+   * - Status indicator
+   */
+  columnDefsRoles: any[];
 
-  openRolesDialog(data: any) {
+  /**
+   * Subject for adding new roles to the grid.
+   * Emits arrays of roles to be added to the grid.
+   */
+  addElementsEventRoles: Subject<any[]> = new Subject<any[]>();
 
-    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass: 'gridDialogs'});
-    dialogRef.componentInstance.orderTable = ['name'];
-    dialogRef.componentInstance.getAllsTable = [this.getAllRolesDialog];
-    dialogRef.componentInstance.singleSelectionTable = [false];
-    dialogRef.componentInstance.columnDefsTable = [this.columnDefsRolesDialog];
-    dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate('backgroundEntity.roles');
-    dialogRef.componentInstance.titlesTable = [''];
-    dialogRef.componentInstance.currentData = [data];
-    dialogRef.componentInstance.nonEditable = false;
+  /**
+   * Subject for notifying when roles data has been updated.
+   * Used to trigger grid refresh after data operations.
+   */
+  dataUpdatedEventRoles: Subject<boolean> = new Subject<boolean>();
 
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Add') {
-          this.addElementsEventRoles.next(result.data[0]);
-        }
-      }
-
-    });
-
+  /**
+   * Initializes the roles tab configuration.
+   * Sets up column definitions for the roles grid:
+   * - Checkbox column for selection
+   * - ID column for identification
+   * - Name column (editable)
+   * - Description column (editable)
+   * - Status column to track changes
+   */
+  ngOnInitRoles(): void {
+    this.columnDefsRoles = [
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getEditableColumnDef('layersPermitsEntity.name', 'name'),
+      this.utils.getEditableColumnDef('backgroundEntity.description', 'description'),
+      this.utils.getStatusColumnDef()
+    ];
   }
 
-  // ******** Applications Dialog  ******** //
-
-  getAllApplicationsDialog = () => {
-    return this.applicationService.getAll();
+  /**
+   * Fetches all roles associated with this background's cartography group.
+   * If the cartography group is not yet created or this is a new background, returns an empty array.
+   * Otherwise, retrieves the roles through the cartography group's relation array.
+   *
+   * @returns {Observable<Role[]>} An observable containing the roles
+   */
+  fetchRoles = (): Observable<Role[]> => {
+    if (this.cartographyGroupOfThisLayer == null && this.isNew()) {
+      return of([]);
+    }
+    return this.cartographyGroupOfThisLayer.getRelationArrayEx(Role, 'roles', {projection: 'view'})
   };
 
+  /**
+   * Handles events from the roles grid.
+   * When a save event is received, triggers the update of roles.
+   *
+   * @param {GridEvent<Role>} event - The grid event containing the event type and data
+   */
+  handleRolesEvent(event: GridEvent<Role>) {
+    if (isSave(event)) {
+      this.updateRoles(event.data).catch((reason) => this.loggerService.error('Error in handleRolesEvent:', reason));
+    }
+  }
+
+  /**
+   * Updates the roles by handling modifications and relation updates.
+   * This method processes two types of changes:
+   * 1. Role updates: Updates existing roles through the role service
+   * 2. Relation updates: Updates the cartography group's relation with all roles
+   *
+   * @param {(Role & Status)[]} roles - Array of roles with their current status
+   * @throws Error if any of the role operations fail
+   */
+  async updateRoles(roles: (Role & Status)[]) {
+    await onUpdate(roles).forEach(item => this.roleService.update(item));
+    await onUpdatedRelation(roles).forAll(item => this.cartographyGroupOfThisLayer.substituteAllRelation('roles', item));
+    this.dataUpdatedEventRoles.next(true);
+  }
+
+  /**
+   * Opens a dialog for managing roles associated with this background.
+   * This dialog allows users to select roles from a grid and associate them with the background.
+   *
+   * The dialog displays a grid with checkboxes for selection, showing role IDs, names, and descriptions.
+   * The description field is editable, while other fields are read-only.
+   *
+   * @param {Role[]} roles - The current roles associated with the background
+   */
+  openRolesDialog(roles: Role[]) {
+    const dialogRef = this.dialog.open<DialogGridComponent, DialogGridData, DialogGridResult>(DialogGridComponent, {
+      panelClass: 'gridDialogs',
+      data: {
+        orderTable: ['name'],
+        getAllsTable: [() => this.roleService.getAll()],
+        singleSelectionTable: [false],
+        columnDefsTable: [[
+          this.utils.getSelCheckboxColumnDef(),
+          this.utils.getIdColumnDef(),
+          this.utils.getNonEditableColumnDef('backgroundEntity.name', 'name'),
+          this.utils.getEditableColumnDef('backgroundEntity.description', 'description'),
+        ]],
+        themeGrid: this.themeGrid,
+        title: this.translateService.instant('backgroundEntity.roles'),
+        titlesTable: [''],
+        currentData: [roles],
+        nonEditable: false
+      }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (isDialogGridAddEvent(result)) {
+        this.addElementsEventRoles.next(result.data[0]);
+      }
+    });
+  }
+
+// ==================================================
+//             Application Background
+// ==================================================
+
+  /**
+   * Column definitions for the applications backgrounds grid.
+   * Includes columns for:
+   * - Selection checkbox
+   * - ID (non-editable)
+   * - Application name (non-editable)
+   * - Application description (non-editable)
+   * - Order (editable)
+   * - Status indicator
+   */
+  columnDefsApplicationsBackgrounds: any[];
+
+  /**
+   * Subject for notifying when application backgrounds data has been updated.
+   * Used to trigger grid refresh after data operations.
+   */
+  dataUpdatedEventApplicationBackgrounds: Subject<boolean> = new Subject<boolean>();
+
+  /**
+   * Column definitions for the application background selection dialog.
+   */
+  columnDefsApplicationBackgroundDialog: any[];
+
+  /**
+   * Subject for adding new application backgrounds to the grid.
+   * Emits arrays of application backgrounds to be added to the grid.
+   */
+  addElementsEventApplicationBackground: Subject<any[]> = new Subject<any[]>();
+
+  /**
+   * Initializes the applications tab configuration.
+   * Sets up column definitions for the applications grid and dialog:
+   * - Defines columns for the main grid showing application associations
+   * - Defines columns for the selection dialog
+   */
+  ngOnInitApplications(): void {
+    this.columnDefsApplicationsBackgrounds = [
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('layersPermitsEntity.name', 'applicationName'),
+      this.utils.getNonEditableColumnDef('applicationEntity.description', 'applicationDescription'),
+      this.utils.getEditableColumnDef('applicationEntity.order', 'order'),
+      this.utils.getStatusColumnDef()
+    ];
+    this.columnDefsApplicationBackgroundDialog = [
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getIdColumnDef(),
+      this.utils.getNonEditableColumnDef('layersPermitsEntity.name', 'name'),
+    ];
+  }
+
+  /**
+   * Fetches all application backgrounds associated with the background.
+   * If the background is new (not yet saved), returns an empty array.
+   * Otherwise, retrieves the application backgrounds through the applications's relation array.
+   *
+   * @returns {Observable<ApplicationBackground[]>} An observable containing the application backgrounds
+   */
+  fetchApplicationBackgrounds = (): Observable<ApplicationBackground[]> => {
+    if (this.isNew()) {
+      return of([]);
+    }
+    return this.backgroundToEdit.getRelationArrayEx(ApplicationBackground, 'applications', {projection: 'view'})
+  };
+
+  /**
+   * Handles events from the application backgrounds grid.
+   * When a save event is received, triggers the update of application backgrounds.
+   *
+   * @param {GridEvent<ApplicationBackground & Status>} event - The grid event containing the event type and data
+   */
+  handleApplicationBackgroundsEvent(event: GridEvent<ApplicationBackground & Status>) {
+    if (isSave(event)) {
+      this.updateApplicationBackgrounds(event.data).catch((reason) => this.loggerService.error('Error in handleApplicationBackgroundsEvent:', reason));
+    }
+  }
+
+  /**
+   * Updates the application backgrounds by handling creation, updates, and deletions.
+   * This method processes three types of changes:
+   * 1. New backgrounds: Creates new ApplicationBackground instances and associates them with the background
+   * 2. Updated backgrounds: Updates existing backgrounds
+   * 3. Deleted backgrounds: Removes backgrounds marked for deletion
+   *
+   * @param {(ApplicationBackground & Status)[]} applicationBackgrounds - Array of backgrounds with their current status
+   * @throws Error if any of the background operations fail
+   */
+  async updateApplicationBackgrounds(applicationBackgrounds: (ApplicationBackground & Status)[]) {
+    await onCreate(applicationBackgrounds).forEach(item => this.applicationService.get(item.applicationId).pipe(map(app => item.application = app)))
+    await onCreate(applicationBackgrounds).forEach(item =>
+      this.applicationBackgroundService.create(Object.assign(new ApplicationBackground(), {
+        ...item,
+        background: this.backgroundToEdit
+      }))
+    )
+    await onUpdate(applicationBackgrounds).forEach(item => this.applicationBackgroundService.update(item));
+    await onDelete(applicationBackgrounds).forEach(item => this.applicationBackgroundService.delete(item));
+    applicationBackgrounds.forEach(item => item.newItem = false);
+    this.dataUpdatedEventApplicationBackgrounds.next(true);
+  }
+
+  /**
+   * Opens a dialog for selecting applications to associate with this background.
+   * This method displays a grid dialog that allows users to select from available applications.
+   * When applications are selected and added, they are converted to ApplicationBackground objects
+   * and emitted through the addElementsEventApplicationBackground subject.
+   *
+   * @param {any} data - Array of existing applications to display in the dialog
+   */
   openApplicationsDialog(data: any) {
-    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass: 'gridDialogs'});
-    dialogRef.componentInstance.orderTable = ['name'];
-    dialogRef.componentInstance.getAllsTable = [this.getAllApplicationsDialog];
-    dialogRef.componentInstance.singleSelectionTable = [false];
-    dialogRef.componentInstance.columnDefsTable = [this.columnDefsApplicationsDialog];
-    dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate('layersPermitsEntity.applications');
-    dialogRef.componentInstance.titlesTable = [''];
-    dialogRef.componentInstance.currentData = [data];
-    dialogRef.componentInstance.fieldRestrictionWithDifferentName = ['applicationName'];
-    dialogRef.componentInstance.addFieldRestriction = ['name'];
-    dialogRef.componentInstance.nonEditable = false;
-
+    const dialogRef = this.dialog.open<DialogGridComponent, DialogGridData, DialogGridResult>(DialogGridComponent, {
+      panelClass: 'gridDialogs',
+      data: {
+        orderTable: ['name'],
+        getAllsTable: [() => {
+          return this.applicationService.getAll();
+        }],
+        singleSelectionTable: [false],
+        columnDefsTable: [[
+          this.utils.getSelCheckboxColumnDef(),
+          this.utils.getIdColumnDef(),
+          this.utils.getNonEditableColumnDef('layersPermitsEntity.name', 'name'),
+          this.utils.getNonEditableColumnDef('layersPermitsEntity.description', 'description')
+        ]],
+        themeGrid: this.themeGrid,
+        title: this.translateService.instant('layersPermitsEntity.applications'),
+        titlesTable: [''],
+        currentData: [data],
+        fieldRestrictionWithDifferentName: ['applicationName'],
+        addFieldRestriction: ['name'],
+        nonEditable: false
+      }
+    });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Add') {
-          result.data[0].forEach(element => {
-            element.id = null;
-            element.newItem = true;
-          });
-          this.addElementsEventApplications.next(this.adaptNewApplications(result.data[0]));
-        }
+      if (isDialogGridAddEvent(result)) {
+        const newItems = result.data[0].map((item: Background) => Object.assign(new ApplicationBackground(), {
+          application: item,
+          applicationDescription: item.description,
+          applicationName: item.name
+        }));
+        this.addElementsEventApplicationBackground.next(newItems);
       }
-
     });
-
   }
 
+// ==================================================
+//                    Cleanup
+// ==================================================
 
-  adaptNewApplications(data: any[]) {
-    const newApplications = [];
-    data.forEach(application => {
-      const newBackground = {
-        application: application,
-        applicationName: application.name,
-        new: true
-      };
-      newApplications.push(newBackground);
-    });
-    return newApplications;
+  /**
+   * Handles cleanup when the component is destroyed.
+   * Completes all subjects to prevent memory leaks.
+   */
+  ngOnDestroy(): void {
+    // Complete all event subjects
+    this.subjects.forEach(subject => subject.complete());
 
+    // Complete data updated event subjects
+    this.dataUpdatedEventRoles?.complete();
+    this.dataUpdatedEventApplicationBackgrounds?.complete();
+    this.dataUpdatedEventCartographies?.complete();
 
+    // Complete add elements event subjects
+    this.addElementsEventRoles?.complete();
+    this.addElementsEventApplicationBackground?.complete();
+    this.addElementsEventCartographies?.complete();
   }
 
-
-  onSaveButtonClicked() {
-
-    if (this.backgroundForm.valid) {
-      const cartographyGroupObj = new CartographyGroup();
-      cartographyGroupObj.name = this.backgroundForm.value.name;
-      cartographyGroupObj.type = this.backgroundForm.value.cartographyGroup;
-      cartographyGroupObj._links = null;
-
-      if (this.backgroundID == -1 && this.duplicateID != -1) {
-        this.cartographyGroupOfThisLayer = null;
-      }
-
-
-      if (this.cartographyGroupOfThisLayer == null) {
-        this.cartographyGroupService.save(cartographyGroupObj)
-          .subscribe(resp => {
-              this.cartographyGroupOfThisLayer = resp;
-              this.updateBackground(resp);
-            },
-            error => {
-              this.loggerService.error('Error saving cartography group', error);
-            });
-      } else {
-        this.updateBackground(this.cartographyGroupOfThisLayer);
-      }
-    } else {
-      this.utils.showRequiredFieldsError();
-    }
-
-
-  }
-
-  updateBackground(cartographyGroup: any) {
-
-    if (this.backgroundID == -1 && this.duplicateID != -1) {
-      this.backgroundForm.patchValue({
-        _links: null
-      });
-    }
-
-    const backgroundObj: Background = new Background();
-
-    backgroundObj.id = this.backgroundForm.value.id;
-    backgroundObj.name = this.backgroundForm.value.name;
-    backgroundObj.description = this.backgroundForm.value.description;
-    backgroundObj.image = this.backgroundForm.value.image;
-    backgroundObj.cartographyGroup = cartographyGroup;
-    backgroundObj.active = this.backgroundForm.value.active;
-    backgroundObj._links = this.backgroundForm.value._links;
-    if (backgroundObj._links && backgroundObj._links.cartographyGroup && backgroundObj._links.cartographyGroup.href) {
-      backgroundObj._links.cartographyGroup.href = backgroundObj._links.cartographyGroup.href.split('{')[0];
-    }
-
-    this.backgroundService.save(backgroundObj)
-      .subscribe(async resp => {
-          this.backgroundToEdit = resp;
-          this.backgroundID = resp.id;
-          this.backgroundForm.patchValue({
-            id: resp.id,
-            _links: resp._links
-          });
-          await this.utils.saveTranslation(resp.id, this.nameTranslationMap, this.backgroundToEdit.name, this.nameTranslationsModified);
-          this.nameTranslationsModified = false;
-          await this.utils.saveTranslation(resp.id, this.descriptionTranslationMap, this.backgroundToEdit.description, this.descriptionTranslationsModified);
-          this.descriptionTranslationsModified = false;
-
-          this.getAllElementsEventCartographies.next('save');
-          this.getAllElementsEventRoles.next('save');
-          this.getAllElementsEventApplications.next('save');
-        },
-        error => {
-          this.loggerService.error('Error saving cartography', error);
-        });
-  }
-
-  activeTabIndex = 0;
-
-  onTabChange(event: MatTabChangeEvent) {
-    this.activeTabIndex = event.index;
-  }
 }

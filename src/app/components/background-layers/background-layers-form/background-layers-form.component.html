@@ -1,7 +1,7 @@
 <app-form-toolbar
   icon="menu_capes_fons"
   entityType="backgroundEntity.backgroundLayers"
-  [itemName]="backgroundForm.get('name')?.value"
+  [itemName]="backgroundForm?.get('name')?.value"
   [isNew]="backgroundID === -1"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
@@ -19,24 +19,30 @@
         <mat-card-content>
             <mat-form-field appearance="outline" class="full">
               <mat-label>{{'backgroundEntity.name' | translate}}</mat-label>
-              <input matInput type="text" formControlName="name" required>
-              <mat-icon matSuffix class="iconTranslate" (click)="onNameTranslationButtonClicked()"
-                        onKeyDown="onNameTranslationButtonClicked()"
+              <input matInput type="text" formControlName="name" required [maxlength]="50">
+              <mat-hint align="end" [class.text-warning]="backgroundForm.get('name')?.value?.length > 50">
+                {{backgroundForm.get('name') | characterCount}}
+                <mat-icon *ngIf="backgroundForm.get('name')?.value?.length > 50" fontIcon="warning" class="warning-icon"></mat-icon>
+              </mat-hint>
+              <mat-icon matSuffix class="iconTranslate" (click)="onTranslated('name')"
+                        onKeyDown="onTranslated('name')"
                         svgIcon="ic_translate">
               </mat-icon>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full">
               <mat-label>{{'backgroundEntity.description' | translate}}</mat-label>
-              <textarea matInput type="text" formControlName="description"> </textarea>
-              <mat-icon matSuffix class="iconTranslate" (click)="onDescriptionTranslationButtonClicked()"
-                        onKeyDown="onDescriptionTranslationButtonClicked()"
+              <textarea matInput type="text" formControlName="description" [maxlength]="250"> </textarea>
+              <mat-hint align="end">{{backgroundForm.get('description') | characterCount}}</mat-hint>
+              <mat-icon matSuffix class="iconTranslate" (click)="onTranslated('description')"
+                        onKeyDown="onTranslated('description')"
                         svgIcon="ic_translate"></mat-icon>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full">
               <mat-label>{{'backgroundEntity.image' | translate}}</mat-label>
-              <input matInput type="text" formControlName="image">
+              <input matInput type="text" formControlName="image" [maxlength]="4000">
+              <mat-hint align="end">{{backgroundForm.get('image') | characterCount}}</mat-hint>
             </mat-form-field>
 
             <mat-checkbox formControlName="active">
@@ -51,7 +57,7 @@
     <app-data-grid [changeHeightButton]="true"
                    [allNewElements]="backgroundID === -1"
                    [columnDefs]="columnDefsCartographies"
-                   [getAll]='getAllCartographies'
+                   [getAll]='fetchCartographies'
                    [discardChangesButton]=true
                    [redoButton]=true
                    [undoButton]=true
@@ -63,7 +69,7 @@
                    [eventGetAllRowsSubscription]='getAllElementsEventCartographies.asObservable()'
                    [eventRefreshSubscription]='dataUpdatedEventCartographies.asObservable()'
                    [actionButton]=true
-                   (getAllRows)="getAllRowsCartographies($event)"
+                   (getAllRows)="handleCartographiesEvent($event)"
                    (add)="openCartographyDialog($event)"
                    [redraw]="activeTabIndex === 1"
                    *ngIf="dataLoaded"
@@ -73,7 +79,7 @@
     <app-data-grid [changeHeightButton]="true"
                    [allNewElements]="backgroundID === -1"
                    [columnDefs]="columnDefsRoles"
-                   [getAll]='getAllRoles'
+                   [getAll]='fetchRoles'
                    [defaultColumnSorting]="['name']"
                    [discardChangesButton]=true
                    [redoButton]=true
@@ -85,7 +91,7 @@
                    [eventGetAllRowsSubscription]='getAllElementsEventRoles.asObservable()'
                    [eventRefreshSubscription]='dataUpdatedEventRoles.asObservable()'
                    [actionButton]=true
-                   (getAllRows)="getAllRowsRoles($event)"
+                   (getAllRows)="handleRolesEvent($event)"
                    (add)="openRolesDialog($event)"
                    [redraw]="activeTabIndex === 2"
                    *ngIf="dataLoaded"
@@ -94,11 +100,12 @@
   <mat-tab label="{{ 'layersPermitsEntity.applications' | translate }}">
     <app-data-grid [changeHeightButton]="true"
                    [allNewElements]="backgroundID === -1"
-                   [columnDefs]="columnDefsApplications"
-                   [getAll]='getAllApplications'
-                   [eventAddItemsSubscription]='addElementsEventApplications.asObservable()'
-                   [eventGetAllRowsSubscription]='getAllElementsEventApplications.asObservable()'
-                   [eventRefreshSubscription]='dataUpdatedEventApplications.asObservable()'
+                   [columnDefs]="columnDefsApplicationsBackgrounds"
+                   [getAll]='fetchApplicationBackgrounds'
+                   [eventAddItemsSubscription]='addElementsEventApplicationBackground.asObservable()'
+                   [eventGetAllRowsSubscription]='getAllElementsEventApplicationsBackground.asObservable()'
+                   [eventRefreshSubscription]='dataUpdatedEventApplicationBackgrounds.asObservable()'
+                   [actionButton]=true
                    [discardChangesButton]=true
                    [redoButton]=true
                    [undoButton]=true
@@ -106,8 +113,7 @@
                    [addButton]=true
                    [hideDuplicateButton]=true
                    [defaultColumnSorting]="['order']"
-                   (getAllRows)="getAllRowsApplications($event)"
-                   [actionButton]=true
+                   (getAllRows)="handleApplicationBackgroundsEvent($event)"
                    (add)="openApplicationsDialog($event)"
                    [redraw]="activeTabIndex === 3"
                    *ngIf="dataLoaded"

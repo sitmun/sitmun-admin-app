@@ -39,6 +39,7 @@ export type GridEventType = "save"
 export interface Status {
   status: string;
   newItem: boolean;
+  new: boolean;
 }
 
 export function canDelete(status: Status): boolean {

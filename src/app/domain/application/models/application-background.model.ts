@@ -15,4 +15,8 @@ export class ApplicationBackground extends Resource {
   /** application*/
   public application: Application;
 
+  public applicationId: number;
+
+  public backgroundId: number;
+
 }

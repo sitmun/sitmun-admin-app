@@ -70,6 +70,7 @@ import { TasksEditionCartographyTableComponent } from '@app/components/tasks-edi
 import { TasksEditionDataTableComponent } from '@app/components/tasks-edition-data-table/tasks-edition-data-table.component';
 import { TasksEditionRelationTableComponent } from '@app/components/tasks-edition-relation-table/tasks-edition-relation-table.component';
 import { TasksEditionSearchViewComponent } from '@app/components/tasks-edition-search-view/tasks-edition-search-view.component';
+import { CharacterCountPipe } from '@app/components/shared/character-counter-hint/character-count.pipe';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatTooltipModule} from '@angular/material/tooltip';
 
@@ -160,7 +161,8 @@ import { ResourceService, ExternalService } from '@app/core/hal';
     TasksEditionSearchViewComponent,
     LogLevelControlComponent,
     UserInfoComponent,
-    FormToolbarComponent
+    FormToolbarComponent,
+    CharacterCountPipe
   ],
   imports: [
     BrowserModule,

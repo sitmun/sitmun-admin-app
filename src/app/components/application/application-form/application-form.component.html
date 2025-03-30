@@ -20,16 +20,21 @@
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'applicationEntity.name' | translate }}</mat-label>
-            <input matInput type="text" formControlName="name" required>
-            <mat-icon matSuffix class="iconTranslate"
+            <input matInput type="text" formControlName="name" [maxlength]="50" required>
+            <mat-hint align="end" [class.text-warning]="applicationForm.get('name')?.value?.length > 50">
+              {{applicationForm.get('name') | characterCount}}
+              <mat-icon *ngIf="applicationForm.get('name')?.value?.length > 50" fontIcon="warning" class="warning-icon"></mat-icon>
+            </mat-hint>
+          <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('name')"
                       onKeyDown="onTranslated('name')"
                       svgIcon="ic_translate"></mat-icon>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'applicationEntity.description' | translate }}</mat-label>
-            <input matInput type="text" formControlName="description" required>
-            <mat-icon matSuffix class="iconTranslate"
+            <textarea matInput type="text" formControlName="description" required [maxlength]="4000"></textarea>
+              <mat-hint align="end">{{applicationForm.get('description') | characterCount}}</mat-hint>
+              <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('description')"
                       onKeyDown="onTranslated('description')"
                       svgIcon="ic_translate"></mat-icon>
@@ -45,7 +50,8 @@
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'applicationEntity.logo' | translate }}</mat-label>
-            <input matInput type="text" formControlName="logo">
+            <input matInput type="text" formControlName="logo" [maxlength]="4000">
+            <mat-hint align="end">{{applicationForm.get('logo') | characterCount}}</mat-hint>
           </mat-form-field>
         </mat-card-content>
       </mat-card>
@@ -54,7 +60,8 @@
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'applicationEntity.url' | translate }}</mat-label>
-            <input matInput type="text" formControlName="jspTemplate">
+            <input matInput type="text" formControlName="jspTemplate" [maxlength]="250">
+            <mat-hint align="end">{{applicationForm.get('jspTemplate') | characterCount}}</mat-hint>
           </mat-form-field>
         </mat-card-content>
       </mat-card>
@@ -63,23 +70,27 @@
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'applicationEntity.title' | translate }}</mat-label>
-            <input matInput type="text" formControlName="title">
+            <input matInput type="text" formControlName="title" [maxlength]="250">
             <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('title')"
                       onKeyDown="onTranslated('title')"
                       svgIcon="ic_translate"></mat-icon>
+            <mat-hint align="end">{{applicationForm.get('title') | characterCount}}</mat-hint>
           </mat-form-field>
           <mat-form-field appearance="outline" class="half add-gap">
             <mat-label>{{ 'applicationEntity.CSS' | translate }}</mat-label>
-            <input matInput type="text" formControlName="theme">
+            <input matInput type="text" formControlName="theme" [maxlength]="30">
+            <mat-hint align="end">{{applicationForm.get('theme') | characterCount}}</mat-hint>
           </mat-form-field>
           <mat-form-field appearance="outline" class="half">
             <mat-label>{{ 'applicationEntity.scales' | translate }}</mat-label>
-            <input matInput type="text" formControlName="scales">
+            <input matInput type="text" formControlName="scales" [maxlength]="250">
+            <mat-hint align="end">{{applicationForm.get('scales') | characterCount}}</mat-hint>
           </mat-form-field>
           <mat-form-field appearance="outline" class="half add-gap">
             <mat-label>{{ 'applicationEntity.srs' | translate }}</mat-label>
-            <input matInput type="text" formControlName="srs">
+            <input matInput type="text" formControlName="srs" [maxlength]="50">
+            <mat-hint align="end">{{applicationForm.get('srs') | characterCount}}</mat-hint>
           </mat-form-field>
           <mat-form-field appearance="outline" class="half">
             <mat-label>{{ 'applicationEntity.situationMap' | translate }}</mat-label>
@@ -152,11 +163,11 @@
   <mat-tab label="{{ 'applicationEntity.background' | translate }}">
     <app-data-grid [changeHeightButton]="true"
                    [allNewElements]="applicationID === -1"
-                   [columnDefs]="columnDefsBackgrounds"
+                   [columnDefs]="columnDefsApplicationBackgrounds"
                    [getAll]='fetchApplicationBackgrounds'
-                   [eventAddItemsSubscription]='addElementsEventBackground.asObservable()'
-                   [eventGetAllRowsSubscription]='getAllElementsEventBackground.asObservable()'
-                   [eventRefreshSubscription]='dataUpdatedEventBackground.asObservable()'
+                   [eventAddItemsSubscription]='addElementsEventApplicationBackground.asObservable()'
+                   [eventGetAllRowsSubscription]='getAllElementsEventApplicationBackground.asObservable()'
+                   [eventRefreshSubscription]='dataUpdatedEventApplicationBackground.asObservable()'
                    [actionButton]=true
                    [discardChangesButton]=true
                    [redoButton]=true
@@ -164,7 +175,7 @@
                    [deleteButton]=true
                    [addButton]=true
                    [hideDuplicateButton]=true
-                   [defaultColumnSorting]="['name']"
+                   [defaultColumnSorting]="['order']"
                    (getAllRows)="handleApplicationBackgroundsEvent($event)"
                    (add)="openBackgroundDialog($event)"
                    [redraw]="activeTabIndex === 3"
@@ -202,7 +213,8 @@
       <mat-card-content>
         <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'applicationEntity.name' | translate }}</mat-label>
-          <input matInput type="text" formControlName="name" required>
+          <input matInput type="text" formControlName="name" required [maxlength]="50">
+          <mat-hint align="end">{{parameterForm.get('name') | characterCount}}</mat-hint>
         </mat-form-field>
         <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'applicationEntity.type' | translate }}</mat-label>
@@ -214,7 +226,8 @@
         </mat-form-field>
         <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'serviceEntity.value' | translate }}</mat-label>
-          <input matInput type="text" formControlName="value" required>
+          <input matInput type="text" formControlName="value" required [maxlength]="250">
+          <mat-hint align="end">{{parameterForm.get('value') | characterCount}}</mat-hint>
         </mat-form-field>
       </mat-card-content>
     </mat-card>

@@ -19,7 +19,7 @@ import {
   Tree,
   TreeService
 } from '@app/domain';
-import {HalOptions, HalParam} from '@app/core/hal/rest/rest.service';
+import {HalOptions} from '@app/core/hal/rest/rest.service';
 
 import {UtilsService} from '@app/services/utils.service';
 import {LoggerService} from '@app/services/logger.service';
@@ -63,16 +63,19 @@ const TranslatableSitmunBase = codeListMixin(translatableMixin(activeTabMixin(Si
  * Component for creating, editing, and duplicating Application entities.
  *
  * This component manages the application form with multiple tabs for:
- * - Main application properties
- * - Parameters configuration
- * - Role associations
- * - Background settings
- * - Tree relationships
+ * - Main application properties (name, description, type, etc.)
+ *   - Includes jspTemplate field for linking to external application
+ * - Parameters configuration (application-specific parameters)
+ * - Role associations (user roles that can access this application)
+ * - Background settings (map backgrounds for the application)
+ * - Tree relationships (navigation trees available in the application)
+ form supports three modes:
+ * - Create: Creates a new application from scratch
+ * - Edit: Modifies an existing application's properties and relationships
+ * - Duplicate: Creates a new application based on an existing one, copying its properties and relationships
  *
- * The form supports three modes:
- * - Create: Creates a new application
- * - Edit: Modifies an existing application
- * - Duplicate: Creates a new application based on an existing one
+ * The component implements validation rules specific to application types, including
+ * special handling for turistic applications.
  */
 @Component({
   selector: 'app-application-form',
@@ -84,18 +87,28 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
   themeGrid: any = config.agGridTheme;
   codeValues = constants.codeValue;
 
-  readonly getAllElementsEventBackground = new Subject<GridEventType>();
-  readonly getAllElementsEventRoles = new Subject<GridEventType>();
-  readonly getAllElementsEventTree = new Subject<GridEventType>();
-  readonly getAllElementsEventParameters = new Subject<GridEventType>();
-
-  readonly subjects = [
-    this.getAllElementsEventBackground,
-    this.getAllElementsEventRoles,
-    this.getAllElementsEventTree,
-    this.getAllElementsEventParameters
-  ]
-
+  /**
+   * Creates an instance of the ApplicationFormComponent.
+   * Injects all required services for application management, including:
+   * - UI services (dialog, utils, translation)
+   * - Data services (application, parameter, background, role, tree)
+   * - Support services (logger, codelist)
+   *
+   * @param {MatDialog} dialog - Dialog service for displaying modal dialogs
+   * @param {ActivatedRoute} activatedRoute - Route service to access URL parameters
+   * @param {ApplicationService} applicationService - Service for application CRUD operations
+   * @param {TranslationService} translationService - Service for handling entity translations
+   * @param {BackgroundService} backgroundService - Service for background CRUD operations
+   * @param {ApplicationParameterService} applicationParameterService - Service for parameters CRUD operations
+   * @param {ApplicationBackgroundService} applicationBackgroundService - Service for application-background relations
+   * @param {RoleService} roleService - Service for role CRUD operations
+   * @param {TreeService} treeService - Service for tree CRUD operations
+   * @param {UtilsService} utils - Utility service for common UI operations
+   * @param {CartographyGroupService} cartographyGroupService - Service for cartography group operations
+   * @param {LoggerService} loggerService - Logging service
+   * @param {TranslateService} translateService - Translation service for UI elements
+   * @param {CodeListService} codeListService - Service for retrieving code lists
+   */
   constructor(
     protected override dialog: MatDialog,
     private activatedRoute: ActivatedRoute,
@@ -125,11 +138,7 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
 
     this.initTranslations(
       'Application',
-      [
-        config.translationColumns.applicationName,
-        config.translationColumns.applicationDescription,
-        config.translationColumns.applicationTitle
-      ]
+      ['name', 'description', 'title']
     )
 
     this.ngOnInitMainForm()
@@ -137,7 +146,7 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
     this.ngOnInitRolesTab()
     this.ngOnInitBackgroundTab()
     this.ngOnInitTreesTab()
-    this.fetchData().catch((reason) => this.loggerService.error('Error in ngOnInitMainForm:', reason));
+    this.fetchData().catch((reason) => this.loggerService.error('Error in ngOnInit:', reason));
   }
 
   // ==================================================
@@ -174,12 +183,46 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
   //                 Load Application
   // ==================================================
 
+  /**
+   * Indicates whether all required data has been loaded.
+   * Used to control the rendering of form elements and prevent premature operations.
+   */
   dataLoaded = false;
+
+  /**
+   * Stores the current application type.
+   * Used for controlling form behavior and validation rules based on type.
+   */
   currentAppType: string;
+
+  /**
+   * The main form group containing all application properties.
+   * Manages form validation and provides access to form controls.
+   */
   applicationForm: UntypedFormGroup;
+
+  /**
+   * List of available situation maps for selection.
+   * Includes a default empty option and all cartography groups of type location map.
+   */
   situationMapList: CartographyGroup[] = [];
+
+  /**
+   * Reference to the application being edited.
+   * Contains all application data including relationships.
+   */
   applicationToEdit: Application;
+
+  /**
+   * ID of the application being edited, or -1 if creating a new application.
+   * Determined from route parameters.
+   */
   applicationID = -1;
+
+  /**
+   * ID of the application being duplicated, or -1 if not duplicating.
+   * Determined from route parameters.
+   */
   duplicateID = -1;
 
   /**
@@ -226,12 +269,12 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
         theme: this.applicationToEdit.theme,
         situationMap: this.applicationToEdit.situationMapId ? this.applicationToEdit.situationMapId : this.situationMapList[0].id,
         srs: this.applicationToEdit.srs,
-        scales: this.applicationToEdit.scales,
+        scales: this.applicationToEdit.scales?.join(','),
         treeAutoRefresh: this.applicationToEdit.treeAutoRefresh,
         logo: this.applicationToEdit.logo,
         name: editMode
           ? this.applicationToEdit.name
-          : this.utils.getTranslate('copy_').concat(this.applicationToEdit.name),
+          : this.translateService.instant('copy_').concat(this.applicationToEdit.name),
         _links: this.applicationToEdit._links,
       };
 
@@ -292,6 +335,42 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
   // ==================================================
 
   /**
+   * Event subject for triggering background data refresh on save.
+   * Used to notify the backgrounds grid to reload or update its data.
+   */
+  readonly getAllElementsEventApplicationBackground = new Subject<GridEventType>();
+
+  /**
+   * Event subject for triggering roles data refresh on save.
+   * Used to notify the roles grid to reload or update its data.
+   */
+  readonly getAllElementsEventRoles = new Subject<GridEventType>();
+
+  /**
+   * Event subject for triggering tree data refresh on save.
+   * Used to notify the trees grid to reload or update its data.
+   */
+  readonly getAllElementsEventTree = new Subject<GridEventType>();
+
+  /**
+   * Event subject for triggering parameters data refresh on save.
+   * Used to notify the parameters grid to reload or update its data.
+   */
+  readonly getAllElementsEventParameters = new Subject<GridEventType>();
+
+  /**
+   * Collection of all grid refresh event subjects for centralized management.
+   * Used for batch operations on all subjects, such as emitting save events
+   * or completing subjects on component destruction.
+   */
+  readonly subjects = [
+    this.getAllElementsEventApplicationBackground,
+    this.getAllElementsEventRoles,
+    this.getAllElementsEventTree,
+    this.getAllElementsEventParameters
+  ]
+
+  /**
    * Validates the form and initiates the save process if valid.
    * Triggers validation rules before saving.
    */
@@ -331,7 +410,7 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
         await firstValueFrom(resp.updateRelationship("situationMap", situationMap));
 
         this.applicationToEdit = resp;
-        this.applicationID = this.applicationToEdit.id;
+        this.applicationID = resp.id;
         this.applicationForm.patchValue({
           id: resp.id,
           _links: resp._links
@@ -351,6 +430,9 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
 
   /**
    * Reference to the trees data grid component.
+   * Used to access the grid's data for validation checks.
+   * Particularly important for validating tree-specific rules related to
+   * application types.
    */
   @ViewChild('treesDataGrid') treesDataGrid: DataGridComponent;
 
@@ -426,6 +508,16 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
   //                    Main form
   // ==================================================
 
+  /**
+   * Initializes the main application form.
+   * Creates a form group with controls for all application properties:
+   * - Basic information (id, name, description, type)
+   * - Display settings (title, theme, logo)
+   * - Map configuration (situationMap, srs, scales)
+   * - Behavior settings (treeAutoRefresh, accessParentTerritory, accessChildrenTerritory)
+   * - External resources (jspTemplate - URL or path to external application template)
+   * - Links and templates (_links)
+   */
   ngOnInitMainForm() {
     // Initialize form synchronously first
     this.applicationForm = new UntypedFormGroup({
@@ -434,7 +526,7 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
       description: new UntypedFormControl(null),
       type: new UntypedFormControl(null, [Validators.required,]),
       title: new UntypedFormControl(null),
-      jspTemplate: new UntypedFormControl(null, []),
+      jspTemplate: new UntypedFormControl(null, []), // URL or path to external application template
       theme: new UntypedFormControl(null),
       situationMap: new UntypedFormControl(null, []),
       srs: new UntypedFormControl(null),
@@ -448,6 +540,15 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
     });
   }
 
+  /**
+   * Handles the change of application type selection.
+   * Enables or disables form controls based on the selected application type.
+   * For external applications, most form controls are disabled to simplify the interface,
+   * but the jspTemplate field remains active as it's essential for linking to the external application.
+   * For regular applications, all form controls are enabled for complete configuration.
+   *
+   * @param {{value: string}} event - The selection event containing the new application type value
+   */
   onSelectionTypeAppChanged({value}) {
     this.currentAppType = value;
     if (value === this.codeValues.applicationType.externalApp) {
@@ -475,14 +576,47 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
   //                    Parameters
   // ==================================================
 
+  /**
+   * Column definitions for the parameters grid.
+   * Includes columns for:
+   * - Selection checkbox
+   * - Name (editable)
+   * - Value (editable)
+   * - Type description (non-editable)
+   * - Status indicator
+   */
   columnDefsParameters: any[];
-  columnDefsParametersDialog: any[];
+
+  /**
+   * Subject for adding new parameters to the grid.
+   * Emits arrays of parameters to be added to the grid.
+   */
   addElementsEventParameters: Subject<ApplicationParameter[]> = new Subject<ApplicationParameter[]>();
+
+  /**
+   * Subject for notifying when parameters data has been updated.
+   * Used to trigger grid refresh after data operations.
+   */
   dataUpdatedEventParameters: Subject<boolean> = new Subject<boolean>();
 
+  /**
+   * Form group for creating new application parameters.
+   * Contains controls for name, type, and value.
+   */
   public parameterForm: UntypedFormGroup;
+
+  /**
+   * Reference to the parameter dialog template.
+   * Used when opening the dialog for adding new parameters.
+   */
   @ViewChild('newParameterDialog', {static: true}) private newParameterDialog: TemplateRef<any>;
 
+  /**
+   * Initializes the parameters tab configuration.
+   * Sets up column definitions for the parameters grid and dialog:
+   * - Defines editable and non-editable columns for parameters
+   * - Creates a form group for adding new parameters
+   */
   ngOnInitParametersTab() {
     this.columnDefsParameters = [
       this.utils.getSelCheckboxColumnDef(),
@@ -490,12 +624,6 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
       this.utils.getEditableColumnDef('applicationEntity.value', 'value'),
       this.utils.getNonEditableColumnDef('applicationEntity.type', 'typeDescription'),
       this.utils.getStatusColumnDef(),
-    ];
-    this.columnDefsParametersDialog = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getNonEditableColumnDef('applicationEntity.name', 'name'),
-      this.utils.getNonEditableColumnDef('applicationEntity.value', 'value'),
-      this.utils.getNonEditableColumnDef('applicationEntity.type', 'type'),
     ];
     this.parameterForm = new UntypedFormGroup({
       name: new UntypedFormControl(null),
@@ -605,15 +733,43 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
   //                     Role
   // ==================================================
 
+  /**
+   * Column definitions for the roles grid.
+   * Includes columns for:
+   * - Selection checkbox
+   * - ID (non-editable)
+   * - Name (editable)
+   * - Description/notes (editable)
+   * - Status indicator
+   */
   columnDefsRoles: any[];
+
+  /**
+   * Subject for adding new roles to the grid.
+   * Emits arrays of roles to be added to the grid.
+   */
   addElementsEventRoles: Subject<any[]> = new Subject<any[]>();
+
+  /**
+   * Subject for notifying when roles data has been updated.
+   * Used to trigger grid refresh after data operations.
+   */
   dataUpdatedEventRoles: Subject<boolean> = new Subject<boolean>();
 
+  /**
+   * Initializes the roles tab configuration.
+   * Sets up column definitions for the roles grid:
+   * - Checkbox column for selection
+   * - ID column for identification
+   * - Editable columns for name and description
+   * - Status column to track changes
+   */
   ngOnInitRolesTab() {
     this.columnDefsRoles = [
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
       this.utils.getEditableColumnDef('applicationEntity.name', 'name'),
+      this.utils.getEditableColumnDef('applicationEntity.note', 'description'),
       this.utils.getStatusColumnDef(),
     ];
   }
@@ -699,13 +855,41 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
   //             Application Background
   // ==================================================
 
-  columnDefsBackgrounds: any[];
-  columnDefsBackgroundDialog = []
-  addElementsEventBackground: Subject<any[]> = new Subject<any[]>();
-  dataUpdatedEventBackground: Subject<boolean> = new Subject<boolean>();
+  /**
+   * Column definitions for the application backgrounds grid.
+   * Includes columns for:
+   * - Selection checkbox
+   * - ID (non-editable)
+   * - Background name (non-editable)
+   * - Background description (non-editable)
+   * - Order (editable)
+   * - Status indicator
+   */
+  columnDefsApplicationBackgrounds: any[];
 
+  /**
+   * Subject for notifying when background data has been updated.
+   * Used to trigger grid refresh after data operations.
+   */
+  dataUpdatedEventApplicationBackground: Subject<boolean> = new Subject<boolean>();
+
+  /**
+   * Subject for adding new backgrounds to the grid.
+   * Emits arrays of application backgrounds to be added to the grid.
+   */
+  addElementsEventApplicationBackground: Subject<any[]> = new Subject<any[]>();
+
+  /**
+   * Initializes the background tab configuration.
+   * Sets up column definitions for the application backgrounds grid:
+   * - Checkbox column for selection
+   * - ID column for identification
+   * - Non-editable columns for background name and description
+   * - Editable column for ordering backgrounds
+   * - Status column to track changes
+   */
   ngOnInitBackgroundTab() {
-    this.columnDefsBackgrounds = [
+    this.columnDefsApplicationBackgrounds = [
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
       this.utils.getNonEditableColumnDef('applicationEntity.name', 'backgroundName'),
@@ -713,17 +897,12 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
       this.utils.getEditableColumnDef('applicationEntity.order', 'order'),
       this.utils.getStatusColumnDef()
     ];
-    this.columnDefsBackgroundDialog = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('applicationEntity.name', 'name'),
-    ];
   }
 
   /**
-   * Fetches all backgrounds associated with the application.
+   * Fetches all application backgrounds associated with the application.
    * If the application is new (not yet saved), returns an empty array.
-   * Otherwise, retrieves the backgrounds through the application's relation array.
+   * Otherwise, retrieves the application backgrounds through the backgrounds's relation array.
    *
    * @returns {Observable<ApplicationBackground[]>} An observable containing the application backgrounds
    */
@@ -765,7 +944,7 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
     );
     await onUpdate(applicationBackgrounds).forEach(item => this.applicationBackgroundService.update(item));
     await onDelete(applicationBackgrounds).forEach(item => this.applicationBackgroundService.delete(item));
-    this.dataUpdatedEventBackground.next(true);
+    this.dataUpdatedEventApplicationBackground.next(true);
   }
 
   /**
@@ -789,7 +968,8 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
         columnDefsTable: [[
           this.utils.getSelCheckboxColumnDef(),
           this.utils.getIdColumnDef(),
-          this.utils.getNonEditableColumnDef('applicationEntity.name', 'name')
+          this.utils.getNonEditableColumnDef('applicationEntity.name', 'name'),
+          this.utils.getNonEditableColumnDef('layersPermitsEntity.description', 'description'),
         ]],
         themeGrid: this.themeGrid,
         title: this.translateService.instant('applicationEntity.background'),
@@ -807,7 +987,7 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
           backgroundDescription: item.description,
           backgroundName: item.name,
         }));
-        this.addElementsEventBackground.next(newItems);
+        this.addElementsEventApplicationBackground.next(newItems);
       }
     });
   }
@@ -816,10 +996,36 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
   //                    Trees
   // ==================================================
 
+  /**
+   * Column definitions for the trees grid.
+   * Includes columns for:
+   * - Selection checkbox
+   * - ID (non-editable)
+   * - Name (editable)
+   * - Status indicator
+   */
   columnDefsTrees: any[];
+
+  /**
+   * Subject for notifying when tree data has been updated.
+   * Used to trigger grid refresh after data operations.
+   */
   dataUpdatedEventTrees: Subject<boolean> = new Subject<boolean>();
+
+  /**
+   * Subject for adding new trees to the grid.
+   * Emits arrays of trees to be added to the grid.
+   */
   addElementsEventTree: Subject<any[]> = new Subject<any[]>();
 
+  /**
+   * Initializes the trees tab configuration.
+   * Sets up column definitions for the trees grid:
+   * - Checkbox column for selection
+   * - ID column for identification
+   * - Editable column for tree name
+   * - Status column to track changes
+   */
   ngOnInitTreesTab() {
     this.columnDefsTrees = [
       this.utils.getSelCheckboxColumnDef(),
@@ -866,7 +1072,7 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
    */
   async updateTrees(trees: (Tree & Status)[]) {
     await onUpdate(trees).forEach(item => this.treeService.update(item));
-    await onUpdatedRelation(trees).forAll(item => this.applicationToEdit.substituteAllRelation('trees', item));
+    await onUpdatedRelation(trees).forAll(items => this.applicationToEdit.substituteAllRelation('trees', items));
     this.dataUpdatedEventTrees.next(true);
   }
 
@@ -925,13 +1131,13 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
     // Complete data updated event subjects
     this.dataUpdatedEventParameters?.complete();
     this.dataUpdatedEventRoles?.complete();
-    this.dataUpdatedEventBackground?.complete();
+    this.dataUpdatedEventApplicationBackground?.complete();
     this.dataUpdatedEventTrees?.complete();
 
     // Complete add elements event subjects
     this.addElementsEventParameters?.complete();
     this.addElementsEventRoles?.complete();
-    this.addElementsEventBackground?.complete();
+    this.addElementsEventApplicationBackground?.complete();
     this.addElementsEventTree?.complete();
   }
 }

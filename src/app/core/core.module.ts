@@ -37,7 +37,7 @@ import { MessagesInterceptor } from './interceptors/messages.interceptor';
   ],
   exports: [
     HasAnyAuthorityDirective,
-    HasAnyAuthorityOnTerritoryDirective,
+    HasAnyAuthorityOnTerritoryDirective
   ]
 })
 export class CoreModule {
@@ -56,13 +56,13 @@ export class CoreModule {
         AuthService,
         Principal,
         LoginService,
-        
+
         // Account services
         AccountService,
-        
+
         // Guards
         CanDeactivateGuard,
-        
+
         // Interceptors
         {
           provide: HTTP_INTERCEPTORS,
