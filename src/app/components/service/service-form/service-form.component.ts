@@ -2,7 +2,6 @@ import {Component, OnDestroy, OnInit, TemplateRef, ViewChild} from '@angular/cor
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute} from '@angular/router';
 import {
-  Application,
   CapabilitiesService,
   Cartography,
   CartographyService,
@@ -39,12 +38,9 @@ import {
 import {MatDialog} from '@angular/material/dialog';
 import {constants} from '@environments/constants';
 import {LoggerService} from '@app/services/logger.service';
-import {codeListMixin} from "@app/mixins/codelist.mixin";
-import {PropertyTranslations, translatableMixin} from "@app/mixins/translatable.mixin";
-import {activeTabMixin} from "@app/mixins/activetab.mixin";
+import {PropertyTranslations} from "@app/mixins/translatable.mixin";
 import {TranslateService} from "@ngx-translate/core";
 import {sitmunMixedBase} from "@app/components/sitmun.base";
-import {detectchangeMixin} from "@app/mixins/detectchange.mixin";
 
 /**
  * Component for managing service forms in the application.
@@ -122,8 +118,8 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
    * @param translateService - Service for translation functionality
    */
   constructor(
-    private activatedRoute: ActivatedRoute,
-    private serviceService: ServiceService,
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly serviceService: ServiceService,
     protected override translationService: TranslationService,
     public utils: UtilsService,
     public override dialog: MatDialog,
@@ -131,7 +127,7 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
     public serviceParameterService: ServiceParameterService,
     public cartographyStyleService: CartographyStyleService,
     public capabilitiesService: CapabilitiesService,
-    private loggerService: LoggerService,
+    private readonly loggerService: LoggerService,
     protected override codeListService: CodeListService,
     translateService: TranslateService,
   ) {
@@ -379,11 +375,11 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
   ngInitMainForm(): void {
     this.entityForm = new UntypedFormGroup({
       id: new UntypedFormControl(null, []),
-      name: new UntypedFormControl(null, [Validators.required,]),
+      name: new UntypedFormControl(null, [Validators.required, Validators.maxLength(60)]),
       user: new UntypedFormControl(null),
       password: new UntypedFormControl(null),
       authenticationMode: new UntypedFormControl(null, [Validators.required]),
-      description: new UntypedFormControl(null, [Validators.required]),
+      description: new UntypedFormControl(null, [Validators.required, Validators.maxLength(4000)]),
       type: new UntypedFormControl(null, [
         Validators.required,
       ]),
@@ -588,7 +584,7 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
     });
 
     await Promise.all(onPendingRegistration(cartographies).data.flatMap(async (item, index) => {
-      const newStyles = Object.assign({}, item.styles) as { [key: number]: any; }
+      const newStyles = {...item.styles} as { [key: number]: any; }
       const observables = [];
       this.identifyDefaultStyle(newStyles);
       for (const property in newStyles) {
@@ -740,7 +736,7 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
    * Used when opening the dialog for adding new parameters.
    * Provides a user-friendly interface for parameter creation.
    */
-  @ViewChild('newParameterDialog', {static: true}) private newParameterDialog: TemplateRef<any>;
+  @ViewChild('newParameterDialog', {static: true}) private readonly newParameterDialog: TemplateRef<any>;
 
   /**
    * Initializes the parameters tab configuration.
@@ -920,9 +916,8 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
     dialogRef.componentInstance.message = this.utils.getTranslate('getCapabilitiesMessage');
     dialogRef.afterClosed().subscribe(next => {
       if (next?.event === 'Accept') {
-        switch (this.entityForm.get('type').value) {
-          case constants.codeValue.serviceType.wms:
-            this.processWMSServiceMetadata().catch((reason) => this.loggerService.error('Error in onUpdateGeneralServiceData:', reason));
+        if (this.entityForm.get('type').value === constants.codeValue.serviceType.wms) {
+          this.processWMSServiceMetadata().catch((reason) => this.loggerService.error('Error in onUpdateGeneralServiceData:', reason));
         }
       }
     });
@@ -947,7 +942,7 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
   private async wmsGetCapabilitiesRequest() {
     let url: string = this.entityForm.value.serviceURL;
     if (!url.includes(config.capabilitiesRequest.simpleRequest)) {
-      if (url[url.length - 1] != '?') {
+      if (!url.endsWith('?')) {
         url += '?';
       }
       url += config.capabilitiesRequest.requestWithWMS;
@@ -967,7 +962,7 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
    * Sets the name field in the form with the service title.
    */
   updateName() {
-    const data = this.serviceCapabilitiesData.WMT_MS_Capabilities != undefined ? this.serviceCapabilitiesData.WMT_MS_Capabilities : this.serviceCapabilitiesData.WMS_Capabilities;
+    const data = this.serviceCapabilitiesData.WMT_MS_Capabilities ?? this.serviceCapabilitiesData.WMS_Capabilities;
     if (data?.Service?.Title?.length > 0) {
       this.entityForm.patchValue({
         name: data.Service.Title.substring(0, 60),
@@ -976,10 +971,10 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
   }
 
   updateDescription() {
-    const data = this.serviceCapabilitiesData.WMT_MS_Capabilities != undefined ? this.serviceCapabilitiesData.WMT_MS_Capabilities : this.serviceCapabilitiesData.WMS_Capabilities;
+    const data = this.serviceCapabilitiesData.WMT_MS_Capabilities ?? this.serviceCapabilitiesData.WMS_Capabilities;
     if (data?.Service?.Abstract?.length > 0) {
       const auxDescription = this.extractServiceAbstract(data);
-      const newDescription = auxDescription.length > 250 ? auxDescription.substring(0, 250) : auxDescription;
+      const newDescription = auxDescription.length > 4000 ? auxDescription.substring(0, 4000) : auxDescription;
       this.entityForm.patchValue({
         description: newDescription,
       });
@@ -987,7 +982,7 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
   }
 
   updateSupportedSRS() {
-    const data = this.serviceCapabilitiesData.WMT_MS_Capabilities != undefined ? this.serviceCapabilitiesData.WMT_MS_Capabilities : this.serviceCapabilitiesData.WMS_Capabilities;
+    const data = this.serviceCapabilitiesData.WMT_MS_Capabilities ?? this.serviceCapabilitiesData.WMS_Capabilities;
     if (data?.Capability) {
       this.entityForm.patchValue({
         supportedSRS: this.extractProjections(data),
@@ -1005,9 +1000,8 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
     dialogRef.componentInstance.message = this.utils.getTranslate('getCapabilitiesMessage');
     dialogRef.afterClosed().subscribe(next => {
       if (next?.event === 'Accept') {
-        switch (this.entityForm.get('type').value) {
-          case constants.codeValue.serviceType.wms:
-            this.processWMSServiceCapabilities().catch((reason) => this.loggerService.error('Error in onUpdateGeneralServiceData:', reason));
+        if (this.entityForm.get('type').value === constants.codeValue.serviceType.wms) {
+          this.processWMSServiceCapabilities().catch((reason) => this.loggerService.error('Error in onUpdateGeneralServiceData:', reason));
         }
       }
     });
@@ -1025,7 +1019,6 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
    *    - Updates service capabilities data
    *    - Triggers service data update
    *
-   * @param refresh - Whether to refresh the data
    * @throws {Error} When there's an error retrieving capabilities
    */
   async processWMSServiceCapabilities() {
@@ -1040,10 +1033,9 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
 
   /**
    * Updates service data based on capabilities information.
-   * @param refresh - Whether to refresh the data
    */
   extractLayers(): void {
-    const data = this.serviceCapabilitiesData.WMT_MS_Capabilities != undefined ? this.serviceCapabilitiesData.WMT_MS_Capabilities : this.serviceCapabilitiesData.WMS_Capabilities;
+    const data = this.serviceCapabilitiesData.WMT_MS_Capabilities ?? this.serviceCapabilitiesData.WMS_Capabilities;
     if (data?.Capability) {
       const layerCapability = this.getRootLayer(data);
       const layersTable: any[] = [];
@@ -1103,7 +1095,7 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
           auxDescription = translation.content;
         } else if (descriptionTranslations.map.has(languageShortname)) {
           const currentTranslation = descriptionTranslations.map.get(languageShortname);
-          const translationReduced = translation.content.substring(0, 249);
+          const translationReduced = translation.content.substring(0, 4000);
           if (currentTranslation.translation != translationReduced) {
             currentTranslation.translation = translationReduced;
             descriptionTranslations.modified = true;

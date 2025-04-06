@@ -67,11 +67,11 @@ export type PropertyTranslations = {
  * Creates a mixin that adds translation capabilities to a base class.
  * This mixin provides functionality for managing, loading, and saving translations
  * for entity properties in multiple languages.
- * 
+ *
  * @template TBase - The type of the base class
  * @param Base - The base class to extend with translation functionality
  * @returns A new class that extends the base class with translation capabilities
- * 
+ *
  * @example
  * ```typescript
  * class MyComponent extends translatableMixin(BaseComponent) {
@@ -96,7 +96,7 @@ export function translatableMixin<TBase extends Constructor>(Base: TBase) {
     /**
      * Initializes translation maps for all translatable properties of an entity.
      * Creates empty translation objects for each supported language.
-     * 
+     *
      * @param entity - The name of the entity class being translated
      * @param translatedProperties - Array of property names that need translation
      */
@@ -117,7 +117,7 @@ export function translatableMixin<TBase extends Constructor>(Base: TBase) {
     /**
      * Loads existing translations for an entity from the database.
      * Filters translations by entity ID and updates the translation maps.
-     * 
+     *
      * @param entity - The entity object containing an ID to load translations for
      * @returns Promise that resolves when translations are loaded
      */
@@ -135,7 +135,7 @@ export function translatableMixin<TBase extends Constructor>(Base: TBase) {
     /**
      * Persists all translations for an entity to the database.
      * Saves each modified property's translations.
-     * 
+     *
      * @param entity - The entity object containing an ID to save translations for
      * @returns Promise resolving to an array of void promises, one for each saved translation
      */
@@ -149,7 +149,7 @@ export function translatableMixin<TBase extends Constructor>(Base: TBase) {
     /**
      * Handles the translation event for a specific property.
      * Opens a dialog for editing translations and marks the property as modified if changes are accepted.
-     * 
+     *
      * @param property - The name of the property being translated
      */
     async onTranslated(property: string) {
@@ -162,7 +162,7 @@ export function translatableMixin<TBase extends Constructor>(Base: TBase) {
     /**
      * Saves translations for a specific property to the database.
      * Handles special cases for default language and empty translations.
-     * 
+     *
      * @param id - The entity ID
      * @param translationMap - Map of language codes to translation objects
      * @param internationalValue - The default value in the default language
@@ -186,7 +186,7 @@ export function translatableMixin<TBase extends Constructor>(Base: TBase) {
         if (key !== defaultLanguage && !modifications) return;
 
         // Skip non-default languages with empty translations
-        if (key !== defaultLanguage && (!value || !value.translation)) return;
+        if (key !== defaultLanguage && !value?.translation) return;
 
         // Skip default language with no international value
         if (key === defaultLanguage && !internationalValue) return;
@@ -214,7 +214,7 @@ export function translatableMixin<TBase extends Constructor>(Base: TBase) {
     /**
      * Creates a map of empty translation objects for all supported languages.
      * Uses either configured languages or languages stored in localStorage.
-     * 
+     *
      * @param columnName - The column name for the translations
      * @returns Map of language codes to empty translation objects
      * @private
@@ -243,7 +243,7 @@ export function translatableMixin<TBase extends Constructor>(Base: TBase) {
     /**
      * Opens a dialog for editing translations.
      * Configures the dialog with available languages and current translations.
-     * 
+     *
      * @param translationsMap - Map of current translations to edit
      * @returns Promise resolving to the dialog result
      * @private
