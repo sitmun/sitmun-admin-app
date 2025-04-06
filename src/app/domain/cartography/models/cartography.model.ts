@@ -4,116 +4,119 @@ import {Connection} from '@app/domain/connection/models/connection.model';
 import {CartographyAvailability} from './cartography-availability.model';
 import { CartographyStyle } from './cartography-style.model';
 /**
- * Cartography
+ * Represents a cartography resource in the system.
+ * A cartography defines a map layer with its associated properties, services, and display settings.
+ * @extends Resource
  */
 export class Cartography extends Resource {
-  /** id */
-  public id: number;  
-  /** name*/
+  /** Unique identifier for the cartography */
+  public id: number;
+
+  /** Display name of the cartography */
   public name: string;
-  
-  /** type*/
-  public type : string;
 
-  /** service*/
-  public service : Service;
+  /** Type of the cartography (e.g., WMS, WFS) */
+  public type: string;
 
-  /** order*/  
-  public order: Number; 
+  /** Associated service for this cartography */
+  public service: Service;
 
-  /** description*/  
+  /** Display order of the cartography in the layer list */
+  public order: Number;
+
+  /** Detailed description of the cartography */
   public description: String;
 
-  /** source*/  
+  /** Source information or origin of the cartography data */
   public source: String;
 
-  /** whether cartography is blocked*/
-  public blocked: boolean;  
+  /** Indicates if the cartography is blocked from being used */
+  public blocked: boolean;
 
-  /** apply filter to GetMap*/
-  public applyFilterToGetMap: boolean;  
+  /** Indicates if filters should be applied to GetMap operations */
+  public applyFilterToGetMap: boolean;
 
-  /** apply filter to GetFeatureInfo*/
-  public applyFilterToGetFeatureInfo: boolean;  
+  /** Indicates if filters should be applied to GetFeatureInfo operations */
+  public applyFilterToGetFeatureInfo: boolean;
 
-  /** apply filter to spatial selection*/
-  public applyFilterToSpatialSelection: boolean;  
+  /** Indicates if filters should be applied to spatial selection operations */
+  public applyFilterToSpatialSelection: boolean;
 
-  /** selectable layers*/
+  /** Array of layer names that can be selected in this cartography */
   public selectableLayers: string[];
 
-  /** transparency*/ 
+  /** Opacity/transparency level of the cartography (0-1) */
   public transparency: Number;
 
-  /** whether layer is queryable*/  
+  /** Indicates if the cartography supports feature queries */
   public queryable: Boolean;
 
-  /** whether layer is queryable*/ 
+  /** Indicates if querying is currently active */
   public queryAct: Boolean;
 
-  /** query layer*/
+  /** Specific layer to be queried */
   public queryLay: string;
 
-  /** system created date*/
+  /** Timestamp when the cartography was created */
   public createdDate: any;
 
-  /** minimum scale*/
+  /** Minimum scale at which the cartography should be visible */
   public minimumScale: Number;
 
-  /** maximum scale*/
+  /** Maximum scale at which the cartography should be visible */
   public maximumScale: Number;
 
-  /** layers*/  
-  public layers: string;
-  
-  /** connection*/
+  /** Array of layer names included in this cartography */
+  public layers: string[];
+
+  /** Connection configuration for accessing the cartography */
   public connection: Connection;
 
-  /** queryableFeatureEnabled */
+  /** Indicates if queryable feature functionality is enabled */
   public queryableFeatureEnabled: Boolean;
 
-    /** queryableLayers */
+  /** Indicates if queryable features are available */
   public queryableFeatureAvailable: Boolean;
 
-    /** queryableLayers */
+  /** Array of layer names that support querying */
   public queryableLayers: string[];
 
-  /** availabilities*/
-  public availabilities : CartographyAvailability[];
+  /** Array of availability settings for this cartography */
+  public availabilities: CartographyAvailability[];
 
-  /** whether layer is queryable*/ 
+  /** Indicates if feature selection is enabled */
   public selectableFeatureEnabled: Boolean;
 
-  /** selection layer*/
+  /** Name of the layer used for selection operations */
   public selectionLayer: string;
 
-  /** selection service*/  
+  /** Service used for selection operations */
   public selectionService: Service;
 
-  /** legend tip*/  
+  /** Type of legend to be used (e.g., 'image', 'dynamic') */
   public legendType: string;
-  
-  /** legend url*/
+
+  /** URL to the legend image or service */
   public legendURL: string;
 
-  /** whether layer is editable*/
+  /** Indicates if the cartography features can be edited */
   public editable: Boolean;
 
-  /** metadata URL*/
+  /** URL to the metadata information */
   public metadataURL: string;
 
-  /** metadata URL*/
+  /** URL to the dataset information */
   public datasetURL: string;
 
-  /** whether layer is themable*/
+  /** Indicates if the cartography supports thematic mapping */
   public thematic: Boolean;
-  
-  /** geometry type*/
+
+  /** Type of geometry used in the cartography (e.g., 'point', 'polygon') */
   public geometryType: string;
 
+  /** Optional array of style configurations for this cartography */
   public styles?: CartographyStyle[]
 
+  /** Indicates if all available styles should be used */
   public useAllStyles: boolean;
-  
-
 }

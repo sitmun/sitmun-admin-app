@@ -26,7 +26,6 @@ import {LoggerService} from '@app/services/logger.service';
 
 import {map} from 'rxjs/operators';
 import {firstValueFrom, Observable, of, Subject} from 'rxjs';
-import {config} from '@config';
 import {
   DataGridComponent,
   DIALOG_FORM_EVENTS,
@@ -36,56 +35,89 @@ import {
   DialogGridComponent,
   DialogGridData,
   DialogGridResult,
+  GridEvent,
   GridEventType,
+  isActive,
   isDialogGridAddEvent,
+  isSave,
   onCreate,
   onDelete,
   onUpdate,
   onUpdatedRelation,
-  Status,
-  isSave,
-  GridEvent
+  Status
 } from '@app/frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
 import {constants} from '@environments/constants';
 import {TranslateService} from "@ngx-translate/core";
-import {translatableMixin} from '@app/mixins/translatable.mixin';
-import {activeTabMixin} from "@app/mixins/activetab.mixin";
-import {codeListMixin} from "@app/mixins/codelist.mixin";
+import {sitmunMixedBase} from "@app/components/sitmun.base";
 
-
-class SitmunBase {
-}
-
-const TranslatableSitmunBase = codeListMixin(translatableMixin(activeTabMixin(SitmunBase)));
 
 /**
- * Component for creating, editing, and duplicating Application entities.
+ * Component for managing SITMUN applications through a multi-tab form interface.
  *
- * This component manages the application form with multiple tabs for:
- * - Main application properties (name, description, type, etc.)
- *   - Includes jspTemplate field for linking to external application
- * - Parameters configuration (application-specific parameters)
- * - Role associations (user roles that can access this application)
- * - Background settings (map backgrounds for the application)
- * - Tree relationships (navigation trees available in the application)
- form supports three modes:
- * - Create: Creates a new application from scratch
- * - Edit: Modifies an existing application's properties and relationships
- * - Duplicate: Creates a new application based on an existing one, copying its properties and relationships
+ * This component provides a comprehensive interface for creating, editing, and duplicating Application entities
+ * in the SITMUN platform. It manages application configuration through multiple specialized tabs:
  *
- * The component implements validation rules specific to application types, including
- * special handling for turistic applications.
+ * 1. Main Properties Tab:
+ *    - Basic information (name, description, type)
+ *    - Display settings (title, theme, logo)
+ *    - Map configuration (situation map, SRS, scales)
+ *    - Territory access settings (parent/children territory access)
+ *    - External application integration (JSP template)
+ *
+ * 2. Parameters Tab:
+ *    - Configuration parameters management
+ *    - Parameter type and value definition
+ *    - Support for parameter duplication
+ *
+ * 3. Roles Tab:
+ *    - Role assignment and management
+ *    - Role permissions configuration
+ *    - Bulk role association capabilities
+ *
+ * 4. Backgrounds Tab:
+ *    - Map background configuration
+ *    - Background ordering
+ *    - Background visibility settings
+ *
+ * 5. Trees Tab:
+ *    - Navigation tree association
+ *    - Special handling for turistic applications
+ *    - Tree type validation
+ *
+ * Key Features:
+ * - Supports three operation modes: Create, Edit, and Duplicate
+ * - Implements type-specific validation rules (e.g., special handling for turistic applications)
+ * - Provides real-time form validation
+ * - Manages complex entity relationships
+ * - Supports internationalization
+ * - Implements grid-based data management for related entities
+ *
+ * Technical Details:
+ * - Extends TranslatableSitmunBase for translation support
+ * - Uses reactive forms for data management
+ * - Implements OnInit and OnDestroy lifecycle hooks
+ * - Uses Material Dialog for modal interactions
+ * - Manages entity relationships through HAL-compliant REST services
+ *
+ * @example
+ * // Route configuration
+ * { path: 'applications/new', component: ApplicationFormComponent }
+ * { path: 'applications/:id/edit', component: ApplicationFormComponent }
+ * { path: 'applications/:id/duplicate', component: ApplicationFormComponent }
  */
 @Component({
   selector: 'app-application-form',
   templateUrl: './application-form.component.html',
   styleUrls: ['./application-form.component.scss']
 })
-export class ApplicationFormComponent extends TranslatableSitmunBase implements OnInit, OnDestroy {
+export class ApplicationFormComponent extends sitmunMixedBase<Application>() implements OnInit, OnDestroy {
 
-  themeGrid: any = config.agGridTheme;
-  codeValues = constants.codeValue;
+  /**
+   * Form group for the main application form.
+   * Contains all the controls for application properties.
+   */
+  override entityForm: UntypedFormGroup;
 
   /**
    * Creates an instance of the ApplicationFormComponent.
@@ -122,10 +154,10 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
     public utils: UtilsService,
     private cartographyGroupService: CartographyGroupService,
     private loggerService: LoggerService,
-    private translateService: TranslateService,
+    translateService: TranslateService,
     protected override codeListService: CodeListService
   ) {
-    super();
+    super(translateService);
   }
 
   /**
@@ -146,48 +178,12 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
     this.ngOnInitRolesTab()
     this.ngOnInitBackgroundTab()
     this.ngOnInitTreesTab()
-    this.fetchData().catch((reason) => this.loggerService.error('Error in ngOnInit:', reason));
-  }
-
-  // ==================================================
-  //                     Utilities
-  // ==================================================
-
-  /**
-   * Checks if the application is in creation mode (not editing or duplicating).
-   * @returns {boolean} True if the application is new, false otherwise
-   */
-  isNew(): boolean {
-    return this.applicationID == -1 && this.duplicateID == -1
-  }
-
-  /**
-   * Creates duplicates of items with new names and cleared IDs.
-   * Used to duplicate various entities associated with an application.
-   *
-   * @template T The type of items to duplicate
-   * @param {new() => T} type Constructor for the item type
-   * @param {(T & { name: string })[]} items Array of items to duplicate
-   * @param {Subject<T[]>} subject Subject to emit the duplicated items
-   */
-  duplicate<T>(type: { new(): T; }, items: (T & { name: string }) [], subject: Subject<T[]>): void {
-    subject.next(items.map(item => Object.assign(new type(), {
-      ...item,
-      id: undefined,
-      _links: undefined,
-      name: this.translateService.instant('copy_').concat(item.name)
-    })));
+    this.fetchData().then(() => this.subscribeToFormChanges(this.entityForm)).catch((reason) => this.loggerService.error('Error in ngOnInit:', reason));
   }
 
   // ==================================================
   //                 Load Application
   // ==================================================
-
-  /**
-   * Indicates whether all required data has been loaded.
-   * Used to control the rendering of form elements and prevent premature operations.
-   */
-  dataLoaded = false;
 
   /**
    * Stores the current application type.
@@ -196,34 +192,10 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
   currentAppType: string;
 
   /**
-   * The main form group containing all application properties.
-   * Manages form validation and provides access to form controls.
-   */
-  applicationForm: UntypedFormGroup;
-
-  /**
    * List of available situation maps for selection.
    * Includes a default empty option and all cartography groups of type location map.
    */
   situationMapList: CartographyGroup[] = [];
-
-  /**
-   * Reference to the application being edited.
-   * Contains all application data including relationships.
-   */
-  applicationToEdit: Application;
-
-  /**
-   * ID of the application being edited, or -1 if creating a new application.
-   * Determined from route parameters.
-   */
-  applicationID = -1;
-
-  /**
-   * ID of the application being duplicated, or -1 if not duplicating.
-   * Determined from route parameters.
-   */
-  duplicateID = -1;
 
   /**
    * Fetches and loads all necessary data for the application form.
@@ -244,73 +216,69 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
 
     const params = await firstValueFrom(this.activatedRoute.params)
 
-    this.applicationID = params.id;
+    this.entityID = params.id;
 
     if (params.idDuplicate) {
       this.duplicateID = params.idDuplicate;
-    } else {
-      this.duplicateID = -1;
     }
-    if (this.applicationID != -1 || this.duplicateID != -1) {
-      const editMode = this.applicationID != -1;
-      const idToGet = editMode ? this.applicationID : this.duplicateID;
+    if (!this.isNew()) {
+      const idToGet = this.isEdition() ? this.entityID : this.duplicateID;
 
-      this.applicationToEdit = await firstValueFrom(this.applicationService.get(idToGet))
-      this.currentAppType = this.applicationToEdit.type;
+      this.entityToEdit = await firstValueFrom(this.applicationService.get(idToGet))
+      this.currentAppType = this.entityToEdit.type;
 
       // Prepare form data with common values
       const formData: Record<string, any> = {
-        type: this.applicationToEdit.type,
-        title: this.applicationToEdit.title,
-        description: this.applicationToEdit.description,
-        jspTemplate: this.applicationToEdit.jspTemplate,
-        accessParentTerritory: this.applicationToEdit.accessParentTerritory,
-        accessChildrenTerritory: this.applicationToEdit.accessChildrenTerritory,
-        theme: this.applicationToEdit.theme,
-        situationMap: this.applicationToEdit.situationMapId ? this.applicationToEdit.situationMapId : this.situationMapList[0].id,
-        srs: this.applicationToEdit.srs,
-        scales: this.applicationToEdit.scales?.join(','),
-        treeAutoRefresh: this.applicationToEdit.treeAutoRefresh,
-        logo: this.applicationToEdit.logo,
-        name: editMode
-          ? this.applicationToEdit.name
-          : this.translateService.instant('copy_').concat(this.applicationToEdit.name),
-        _links: this.applicationToEdit._links,
+        type: this.entityToEdit.type,
+        title: this.entityToEdit.title,
+        description: this.entityToEdit.description,
+        jspTemplate: this.entityToEdit.jspTemplate,
+        accessParentTerritory: this.entityToEdit.accessParentTerritory,
+        accessChildrenTerritory: this.entityToEdit.accessChildrenTerritory,
+        theme: this.entityToEdit.theme,
+        situationMap: this.entityToEdit.situationMapId ? this.entityToEdit.situationMapId : this.situationMapList[0].id,
+        srs: this.entityToEdit.srs,
+        scales: this.entityToEdit.scales?.join(','),
+        treeAutoRefresh: this.entityToEdit.treeAutoRefresh,
+        logo: this.entityToEdit.logo,
+        name: this.isEdition()
+          ? this.entityToEdit.name
+          : this.translateService.instant('copy_').concat(this.entityToEdit.name),
+        _links: this.entityToEdit._links,
       };
 
       // Add ID and passwordSet for edit mode
-      if (editMode) {
-        formData.id = this.applicationID;
-        formData.passwordSet = this.applicationToEdit.passwordSet;
+      if (this.isEdition()) {
+        formData.id = this.entityID;
+        formData.passwordSet = this.entityToEdit.passwordSet;
+        await this.loadTranslations(this.entityToEdit);
       }
 
       // Set all values at once
-      this.applicationForm.patchValue(formData);
+      this.entityForm.patchValue(formData);
 
-      if (editMode) {
-        await this.loadTranslations(this.applicationToEdit)
-      }
       this.loggerService.debug('application to edit loaded', {
-        applicationToEdit: this.applicationToEdit,
-        type: this.applicationToEdit.constructor.name
+        entityToEdit: this.entityToEdit,
+        type: this.entityToEdit.constructor.name
       });
     } else {
-      this.applicationForm.patchValue({
+      const formData: Record<string, any> = {
         moveSupramunicipal: false,
         treeAutorefresh: false,
         accessParentTerritory: false,
         accessChildrenTerritory: false,
         type: this.firstInCodeList('application.type').value,
         situationMap: this.situationMapList[0].id
-      });
-      this.applicationForm.get('title').disable();
-      this.applicationForm.get('scales').disable();
-      this.applicationForm.get('situationMap').disable();
-      this.applicationForm.get('treeAutoRefresh').disable();
-      this.applicationForm.get('accessParentTerritory').disable();
-      this.applicationForm.get('accessChildrenTerritory').disable();
-      this.applicationForm.get('theme').disable();
-      this.applicationForm.get('srs').disable();
+      }
+      this.entityForm.patchValue(formData);
+      this.entityForm.get('title').disable();
+      this.entityForm.get('scales').disable();
+      this.entityForm.get('situationMap').disable();
+      this.entityForm.get('treeAutoRefresh').disable();
+      this.entityForm.get('accessParentTerritory').disable();
+      this.entityForm.get('accessChildrenTerritory').disable();
+      this.entityForm.get('theme').disable();
+      this.entityForm.get('srs').disable();
     }
     this.dataLoaded = true;
   }
@@ -376,7 +344,7 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
    */
   onSaveButtonClicked() {
     if (this.appValidations()) {
-      this.saveApp().catch((reason) => this.loggerService.error('Error in onSaveButtonClicked:', reason));
+      this.saveApplication().catch((reason) => this.loggerService.error('Error in onSaveButtonClicked:', reason));
     }
   }
 
@@ -385,38 +353,39 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
    * Handles both creation and update operations based on the application state.
    * After saving, updates the component state and related entity relations.
    */
-  async saveApp() {
+  async saveApplication() {
     try {
       // Copy form values to application object
-      const appObj: Application = Object.assign(new Application(), this.applicationForm.value);
+      const application: Application = Object.assign(new Application(), this.entityForm.value);
 
       // Handle special cases
-      appObj.scales = this.applicationForm.value.scales != null ?
-        this.applicationForm.value.scales.toString().split(',') : null;
-      delete appObj.situationMap
+      application.scales = this.entityForm.value.scales != null ?
+        this.entityForm.value.scales.toString().split(',') : null;
+      delete application.situationMap
 
       // Set ID based on application state
-      let resp: Application | Observable<never>;
-      if (this.applicationID == -1) {
-        appObj.id = null;
-        resp = await firstValueFrom(this.applicationService.create(appObj));
+      let response: Application | Observable<never>;
+      if (this.isNewOrDuplicated()) {
+        application.id = null;
+        response = await firstValueFrom(this.applicationService.create(application));
       } else {
-        appObj.createdDate = this.applicationToEdit.createdDate;
-        resp = await firstValueFrom(this.applicationService.update(appObj));
+        application.createdDate = this.entityToEdit.createdDate;
+        response = await firstValueFrom(this.applicationService.update(application));
       }
 
-      if (resp instanceof Application) {
-        const situationMap = this.situationMapList.find(item => item.id !== -1 && item.id === this.applicationForm.value.situationMap) || null;
-        await firstValueFrom(resp.updateRelationship("situationMap", situationMap));
+      if (response instanceof Application) {
+        const situationMap = this.situationMapList.find(item => item.id !== -1 && item.id === this.entityForm.value.situationMap) || null;
+        await firstValueFrom(response.updateRelationship("situationMap", situationMap));
 
-        this.applicationToEdit = resp;
-        this.applicationID = resp.id;
-        this.applicationForm.patchValue({
-          id: resp.id,
-          _links: resp._links
+        this.entityToEdit = response;
+        this.entityID = response.id;
+        this.entityForm.patchValue({
+          id: response.id,
+          _links: response._links
         });
-        await this.saveTranslations(this.applicationToEdit);
+        await this.saveTranslations(this.entityToEdit);
         this.subjects.forEach(subject => subject.next('save'));
+        this.resetToFormModifiedState(this.entityForm);
       }
     } catch (error) {
       this.loggerService.error('Error saving application:', error);
@@ -448,7 +417,7 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
   appValidations(): boolean {
     let valid = true;
     const trees = this.treesDataGrid?.rowData;
-    const filterTrees = trees?.filter(a => a.status !== 'pendingDelete') ?? [];
+    const filterTrees = trees?.filter(a => isActive(a)) ?? [];
     const validations = [{
       fn: this.validForm,
       param: null,
@@ -477,7 +446,7 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
    * @returns {boolean} True if the form is valid, false otherwise
    */
   validForm(): boolean {
-    return this.applicationForm.valid;
+    return this.entityForm.valid;
   }
 
   /**
@@ -520,7 +489,7 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
    */
   ngOnInitMainForm() {
     // Initialize form synchronously first
-    this.applicationForm = new UntypedFormGroup({
+    this.entityForm = new UntypedFormGroup({
       id: new UntypedFormControl(null, []),
       name: new UntypedFormControl(null, [Validators.required,]),
       description: new UntypedFormControl(null),
@@ -552,23 +521,23 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
   onSelectionTypeAppChanged({value}) {
     this.currentAppType = value;
     if (value === this.codeValues.applicationType.externalApp) {
-      this.applicationForm.get('title').disable();
-      this.applicationForm.get('scales').disable();
-      this.applicationForm.get('situationMap').disable();
-      this.applicationForm.get('treeAutoRefresh').disable();
-      this.applicationForm.get('theme').disable();
-      this.applicationForm.get('accessParentTerritory').disable();
-      this.applicationForm.get('accessChildrenTerritory').disable();
-      this.applicationForm.get('srs').disable();
+      this.entityForm.get('title').disable();
+      this.entityForm.get('scales').disable();
+      this.entityForm.get('situationMap').disable();
+      this.entityForm.get('treeAutoRefresh').disable();
+      this.entityForm.get('theme').disable();
+      this.entityForm.get('accessParentTerritory').disable();
+      this.entityForm.get('accessChildrenTerritory').disable();
+      this.entityForm.get('srs').disable();
     } else {
-      this.applicationForm.get('title').enable();
-      this.applicationForm.get('scales').enable();
-      this.applicationForm.get('situationMap').enable();
-      this.applicationForm.get('treeAutoRefresh').enable();
-      this.applicationForm.get('theme').enable();
-      this.applicationForm.get('accessParentTerritory').enable();
-      this.applicationForm.get('accessChildrenTerritory').enable();
-      this.applicationForm.get('srs').enable();
+      this.entityForm.get('title').enable();
+      this.entityForm.get('scales').enable();
+      this.entityForm.get('situationMap').enable();
+      this.entityForm.get('treeAutoRefresh').enable();
+      this.entityForm.get('theme').enable();
+      this.entityForm.get('accessParentTerritory').enable();
+      this.entityForm.get('accessChildrenTerritory').enable();
+      this.entityForm.get('srs').enable();
     }
   }
 
@@ -626,8 +595,8 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
       this.utils.getStatusColumnDef(),
     ];
     this.parameterForm = new UntypedFormGroup({
-      name: new UntypedFormControl(null),
-      type: new UntypedFormControl(null),
+      name: new UntypedFormControl(null, [Validators.required]),
+      type: new UntypedFormControl(null, [Validators.required]),
       value: new UntypedFormControl(null),
     });
   }
@@ -645,7 +614,7 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
     if (this.isNew()) {
       return of([]);
     }
-    return this.applicationToEdit.getRelationArrayEx(ApplicationParameter, 'parameters', {projection: 'view'})
+    return this.entityToEdit.getRelationArrayEx(ApplicationParameter, 'parameters', {projection: 'view'})
       .pipe(map((data: ApplicationParameter[]) =>
         data.map(element => Object.assign(new ApplicationParameter(), {
           ...element,
@@ -662,7 +631,7 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
    */
   handleParametersEvent(event: GridEvent<ApplicationParameter>) {
     if (isSave(event)) {
-      this.updateParameters(event.data).catch((reason) => this.loggerService.error('Error in getAllRowsParameters:', reason));
+      this.updateParameters(event.data).catch((reason) => this.loggerService.error('Error in handleParametersEvent:', reason));
     }
   }
 
@@ -680,7 +649,7 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
     await onCreate(applicationParameters).forEach(item =>
       this.applicationParameterService.create(Object.assign(new ApplicationParameter(), {
         ...item,
-        application: this.applicationToEdit
+        application: this.entityToEdit
       }))
     );
     await onUpdate(applicationParameters).forEach(item => this.applicationParameterService.update(item));
@@ -785,7 +754,7 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
     if (this.isNew()) {
       return of([]);
     }
-    return this.applicationToEdit.getRelationArrayEx(Role, 'availableRoles', {projection: 'view'})
+    return this.entityToEdit.getRelationArrayEx(Role, 'availableRoles', {projection: 'view'})
   };
 
   /**
@@ -811,7 +780,7 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
    */
   async updateRoles(roles: (Role & Status)[]) {
     await onUpdate(roles).forEach(item => this.roleService.update(item));
-    await onUpdatedRelation(roles).forAll(item => this.applicationToEdit.substituteAllRelation('availableRoles', item));
+    await onUpdatedRelation(roles).forAll(item => this.entityToEdit.substituteAllRelation('availableRoles', item));
     this.dataUpdatedEventRoles.next(true);
   }
 
@@ -910,7 +879,7 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
     if (this.isNew()) {
       return of([]);
     }
-    return this.applicationToEdit.getRelationArrayEx(ApplicationBackground, 'backgrounds', {projection: 'view'})
+    return this.entityToEdit.getRelationArrayEx(ApplicationBackground, 'backgrounds', {projection: 'view'})
   };
 
   /**
@@ -939,7 +908,7 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
     await onCreate(applicationBackgrounds).forEach(item =>
       this.applicationBackgroundService.create(Object.assign(new ApplicationBackground(), {
         ...item,
-        application: this.applicationToEdit
+        application: this.entityToEdit
       }))
     );
     await onUpdate(applicationBackgrounds).forEach(item => this.applicationBackgroundService.update(item));
@@ -1046,7 +1015,7 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
     if (this.isNew()) {
       return of([]);
     }
-    return this.applicationToEdit.getRelationArrayEx(Tree, 'trees', {projection: 'view'})
+    return this.entityToEdit.getRelationArrayEx(Tree, 'trees', {projection: 'view'})
   };
 
   /**
@@ -1072,7 +1041,7 @@ export class ApplicationFormComponent extends TranslatableSitmunBase implements 
    */
   async updateTrees(trees: (Tree & Status)[]) {
     await onUpdate(trees).forEach(item => this.treeService.update(item));
-    await onUpdatedRelation(trees).forAll(items => this.applicationToEdit.substituteAllRelation('trees', items));
+    await onUpdatedRelation(trees).forAll(items => this.entityToEdit.substituteAllRelation('trees', items));
     this.dataUpdatedEventTrees.next(true);
   }
 

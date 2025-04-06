@@ -12,6 +12,17 @@ import {BtnCheckboxFilterComponent} from '@app/frontend-gui/src/lib/btn-checkbox
 import {LoggerService} from '@app/services/logger.service';
 import {HalOptions, HalParam} from '@app/core/hal/rest/rest.service';
 
+/**
+ * A utility service that provides common functionality across the application.
+ * This service includes methods for:
+ * - Message handling and display
+ * - Loading state management
+ * - Navigation
+ * - Data formatting and manipulation
+ * - Dialog management
+ * - Grid column definitions
+ * - Translation management
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -38,6 +49,10 @@ export class UtilsService {
     });
   }
 
+  /**
+   * Displays a snackbar message that automatically dismisses after 5 seconds.
+   * @param message - The message to display. Can be a string or array of strings that will be translated.
+   */
   showMessage(message: string | string[]) {
     this.loggerService.debug('showMessage', message);
     this.snackBar.open(this.translate.instant(message), '', {
@@ -45,10 +60,20 @@ export class UtilsService {
     });
   }
 
+  /**
+   * Translates a given message key using the translation service.
+   * @param msg - The message key to translate.
+   * @returns The translated string.
+   */
   getTranslate(msg: string | string[]) {
     return this.translate.instant(msg);
   }
 
+  /**
+   * Displays an error message in a snackbar that requires user dismissal.
+   * Handles different error formats and translates error messages.
+   * @param error - The error object to process and display.
+   */
   showErrorMessage(error: any) {
     this.loggerService.debug('showErrorMessage', error);
     let missatge = '';
@@ -80,35 +105,63 @@ export class UtilsService {
       });
   }
 
+  showSimpleErrorMessage(message: string) {
+    this.loggerService.debug('showSimpleErrorMessage', message);
+    this.snackBar
+      .open(message, 'Cerrar', {
+        duration: 0,
+        panelClass: ['error-snackbar'],
+      })
+      .onAction()
+      .subscribe(() => {
+        this.snackBar.dismiss();
+      });
+  }
+
   /**
-   * LOADING OBSERVABLE
+   * Enables the loading state of the application.
+   * Notifies subscribers that loading has started.
    */
   enableLoading() {
     this.subjectLoading.next(true);
   }
 
+  /**
+   * Disables the loading state of the application.
+   * Notifies subscribers that loading has finished.
+   */
   disableLoading() {
     this.subjectLoading.next(false);
   }
 
+  /**
+   * Gets the loading state as an Observable.
+   * @returns An Observable that emits boolean values indicating loading state.
+   */
   getLoadingAsObservable() {
     return this.subjectLoading.asObservable();
   }
 
   /**
-   * PRINT
+   * Triggers the browser's print functionality.
    */
   print() {
     window.print();
   }
 
   /**
-   * GO BACK
+   * Navigates back to the previous page in the browser history.
    */
   navigateBack() {
     this.location.back();
   }
 
+  /**
+   * Retrieves code list values from the server.
+   * @param valueList - The name of the code list to retrieve.
+   * @param notTraduction - Optional flag to indicate if translation is not needed.
+   * @returns An Observable of the code list values.
+   */
   getCodeListValues(valueList, notTraduction?) {
     if (!this.codeListService) {
       this.codeListService = this.injector.get(CodeListService);
@@ -129,10 +182,23 @@ export class UtilsService {
     return this.codeListService.getAll(query);
   }
 
+  /**
+   * Formats a date object to a localized string.
+   * @param data - The date object to format.
+   * @returns A formatted date string or empty string if no date provided.
+   */
   getDateFormated(data) {
     return data.value ? new Date(data.value).toLocaleDateString() : '';
   }
 
+  /**
+   * Creates duplicates of elements in an array with modified parameters.
+   * @param data - Array of elements to duplicate.
+   * @param parameterToModify - Parameter to modify in the duplicated elements.
+   * @param ignoreId - Optional flag to keep original IDs.
+   * @param ignoreLinks - Optional flag to keep original links.
+   * @returns Array of duplicated elements.
+   */
   duplicateParameter(data, parameterToModify, ignoreId?, ignoreLinks?) {
     const elementsToDuplicate = [];
     data.forEach((element) => {
@@ -152,6 +218,10 @@ export class UtilsService {
     return elementsToDuplicate;
   }
 
+  /**
+   * Gets date filter parameters for AG Grid date columns.
+   * @returns Object containing date filter configuration.
+   */
   getDateFilterParams() {
     return {
       comparator: function (filterLocalDateAtMidnight, cellValue) {
@@ -182,12 +252,9 @@ export class UtilsService {
 
   /**
    * Updates a list of URIs on the server using a PUT request.
-   * The URIs are sent as a text/uri-list format with one URI per line.
-   *
-   * @param requestURI - The endpoint URL where the URI list will be updated
-   * @param data - Array of URI strings to be sent to the server
-   * @param eventRefresh - Optional Subject to notify when the update is complete
-   * @throws Error if the HTTP request fails
+   * @param requestURI - The endpoint URL where the URI list will be updated.
+   * @param data - Array of URI strings to be sent to the server.
+   * @param eventRefresh - Optional Subject to notify when the update is complete.
    */
   updateUriList(requestURI: string, data: string[], eventRefresh?: Subject<boolean>) {
     const body = data.join('\n');
@@ -212,6 +279,9 @@ export class UtilsService {
       });
   }
 
+  /**
+   * Shows a dialog with a tree structure error message.
+   */
   showTreeStructureError() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
     dialogRef.componentInstance.title = this.getTranslate('atention');
@@ -220,6 +290,9 @@ export class UtilsService {
     dialogRef.afterClosed().subscribe();
   }
 
+  /**
+   * Shows a dialog with a required fields error message.
+   */
   showRequiredFieldsError() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
     dialogRef.componentInstance.title = this.getTranslate('atention');
@@ -228,6 +301,9 @@ export class UtilsService {
     dialogRef.afterClosed().subscribe();
   }
 
+  /**
+   * Shows a dialog with a turistic app tree error message.
+   */
   showTuristicAppTreeError() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
     dialogRef.componentInstance.title = this.getTranslate('atention');
@@ -236,6 +312,9 @@ export class UtilsService {
     dialogRef.afterClosed().subscribe();
   }
 
+  /**
+   * Shows a dialog with a no turistic app tree error message.
+   */
   showNoTuristicAppTreeError() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
     dialogRef.componentInstance.title = this.getTranslate('atention');
@@ -244,6 +323,9 @@ export class UtilsService {
     dialogRef.afterClosed().subscribe();
   }
 
+  /**
+   * Shows a dialog with a turistic tree app error message.
+   */
   showTuristicTreeAppError() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
     dialogRef.componentInstance.title = this.getTranslate('atention');
@@ -252,6 +334,9 @@ export class UtilsService {
     dialogRef.afterClosed().subscribe();
   }
 
+  /**
+   * Shows a dialog with a no turistic tree app error message.
+   */
   showNoTuristicTreeAppError() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
     dialogRef.componentInstance.title = this.getTranslate('atention');
@@ -260,6 +345,10 @@ export class UtilsService {
     dialogRef.afterClosed().subscribe();
   }
 
+  /**
+   * Shows a navigation out confirmation dialog.
+   * @returns Observable that resolves when the dialog is closed.
+   */
   showNavigationOutDialog() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
     dialogRef.componentInstance.title = this.getTranslate('caution');
@@ -267,6 +356,10 @@ export class UtilsService {
     return dialogRef.afterClosed();
   }
 
+  /**
+   * Gets the column definition for a checkbox selection column in AG Grid.
+   * @returns Column definition object for checkbox selection.
+   */
   getSelCheckboxColumnDef() {
     return {
       headerName: '',
@@ -282,6 +375,10 @@ export class UtilsService {
     };
   }
 
+  /**
+   * Gets a value parser for array values in AG Grid.
+   * @returns Value parser configuration object.
+   */
   getArrayValueParser() {
     return {
       valueParser: (params) => {
@@ -296,6 +393,10 @@ export class UtilsService {
     };
   }
 
+  /**
+   * Gets the column definition for an edit button column in AG Grid.
+   * @returns Column definition object for edit button.
+   */
   getEditBtnColumnDef() {
     return {
       headerName: '',
@@ -313,10 +414,9 @@ export class UtilsService {
   }
 
   /**
-   * Generates a non-editable ID column definition.
-   *
-   * @param customId - An optional identifier.
-   * @returns An object representing the column definition.
+   * Gets the column definition for an ID column in AG Grid.
+   * @param customId - Optional custom ID field name.
+   * @returns Column definition object for ID column.
    */
   getIdColumnDef(customId?) {
     return {
@@ -330,6 +430,10 @@ export class UtilsService {
     };
   }
 
+  /**
+   * Gets the column definition for a status column in AG Grid.
+   * @returns Column definition object for status column.
+   */
   getStatusColumnDef() {
     return {
       maxWidth: 180,
@@ -375,6 +479,13 @@ export class UtilsService {
     };
   }
 
+  /**
+   * Gets the column definition for a date column in AG Grid.
+   * @param alias - Translation key for column header.
+   * @param field - Field name in data object.
+   * @param editable - Optional flag to make column editable.
+   * @returns Column definition object for date column.
+   */
   getDateColumnDef(alias, field, editable?: boolean) {
     return {
       headerName: this.getTranslate(alias),
@@ -389,6 +500,16 @@ export class UtilsService {
     };
   }
 
+  /**
+   * Gets the column definition for a select column in AG Grid.
+   * @param alias - Translation key for column header.
+   * @param field - Field name in data object.
+   * @param editable - Flag to make column editable.
+   * @param elements - Array of selectable options.
+   * @param formatted - Optional flag for formatted values.
+   * @param formattedList - Optional list for formatting values.
+   * @returns Column definition object for select column.
+   */
   getSelectColumnDef(
     alias,
     field,
@@ -429,7 +550,7 @@ export class UtilsService {
    * @param field - The field name in the data object that this column represents.
    * @returns An object representing the column definition.
    */
-  getEditableColumnDef(alias, field, width = null) {
+  getEditableColumnDef(alias, field, minWidth: number = null, maxWidth: number = null) {
     const options = {
       headerName: this.getTranslate(alias),
       field: field,
@@ -439,8 +560,13 @@ export class UtilsService {
         return Array.isArray(value) ? value.join(',') : value;
       },
     };
-    if (width) {
-      options['minWidth'] = width;
+    if (minWidth) {
+      options['minWidth'] = minWidth;
+    }
+    if (maxWidth) {
+      options['maxWidth'] = maxWidth;
+      options['wrapText'] = true;
+      options['autoHeight'] = true;
     }
     return options
   }
@@ -475,23 +601,29 @@ export class UtilsService {
    * @param field - The field name for the column.
    * @returns An object representing the column definition.
    */
-  getNonEditableColumnDef(alias, field, maxWidth = null, minWidth = null) {
+  getNonEditableColumnDef(alias, field,  minWidth: number = null, maxWidth: number = null) {
     const options = {
       headerName: this.getTranslate(alias),
       field: field,
       editable: false,
-      cellClass: 'read-only-cell'
+      cellClass: 'read-only-cell',
+      valueGetter: (params) => {
+        const value = params.data[field];
+        return Array.isArray(value) ? value.join(',') : value;
+      },
     };
-    if (maxWidth) {
-      options['maxWidth'] = maxWidth;
-    }
     if (minWidth) {
       options['minWidth'] = minWidth;
+    }
+    if (maxWidth) {
+      options['maxWidth'] = maxWidth;
+      options['wrapText'] = true;
+      options['autoHeight'] = true;
     }
     return options;
   }
 
-  getBooleanColumnDef(alias, field, editable, maxWidth = null, minWidth = null) {
+  getBooleanColumnDef(alias, field, editable,  minWidth: number = null, maxWidth: number = null) {
     const options = {
       headerName: this.getTranslate(alias),
       field: field,
@@ -501,11 +633,13 @@ export class UtilsService {
       valueGetter: (params) => (params.data[field] ? 'true' : 'false'),
       floatingFilterComponentParams: {suppressFilterButton: true},
     };
-    if (maxWidth) {
-      options['maxWidth'] = maxWidth;
-    }
     if (minWidth) {
       options['minWidth'] = minWidth;
+    }
+    if (maxWidth) {
+      options['maxWidth'] = maxWidth;
+      options['wrapText'] = true;
+      options['autoHeight'] = true;
     }
     return options;
   }
@@ -536,6 +670,11 @@ export class UtilsService {
 
   //Translation
 
+  /**
+   * Creates a list of translations for a column.
+   * @param columnName - Name of the column to create translations for.
+   * @returns Map of language codes to Translation objects.
+   */
   createTranslationsList(columnName: string): Map<string, Translation> {
     const translationsList: Map<string, Translation> = new Map<
       string,
@@ -557,6 +696,11 @@ export class UtilsService {
     return translationsList;
   }
 
+  /**
+   * Opens a dialog for editing translations.
+   * @param translationsMap - Map of current translations.
+   * @returns Promise that resolves with updated translations or null if cancelled.
+   */
   async openTranslationDialog(translationsMap: Map<string, Translation>) {
     const dialogRef = this.dialog.open(DialogTranslationComponent, {
       panelClass: 'translateDialogs',
@@ -573,6 +717,12 @@ export class UtilsService {
     }
   }
 
+  /**
+   * Updates a translations map with new translation values.
+   * @param translationsMap - Current translations map.
+   * @param translations - Array of new translations.
+   * @returns Updated translations map.
+   */
   updateTranslations(
     translationsMap: Map<string, Translation>,
     translations: Translation[]
@@ -583,6 +733,14 @@ export class UtilsService {
     return translationsMap;
   }
 
+  /**
+   * Saves translations to the server.
+   * @param id - Element ID associated with translations.
+   * @param translationMap - Map of translations to save.
+   * @param internationalValue - Default language value.
+   * @param modifications - Flag indicating if modifications were made.
+   * @returns Promise that resolves with updated translations map.
+   */
   async saveTranslation(
     id: number,
     translationMap: Map<string, Translation>,

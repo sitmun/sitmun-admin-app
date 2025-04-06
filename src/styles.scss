@@ -185,6 +185,7 @@ h2 {
   min-height: inherit !important
 }
 
+
 /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version. */
 //.mat-mdc-form-field-appearance-outline .mat-mdc-select-arrow-wrapper {
 //  transform: translateY(0%) !important;
@@ -912,3 +913,23 @@ mat-card-content {
   margin-left: 4px;
 }
 
+
+// Reduce line-height for auto-height cells in AG Grid
+
+.ag-cell-auto-height {
+  --reduceLineHeightBy: 24px;
+  line-height: calc(var(--ag-internal-calculated-line-height) - var(--reduceLineHeightBy));
+  padding-top: calc(var(--reduceLineHeightBy) / 2);
+  padding-bottom: calc(var(--reduceLineHeightBy) / 2);
+}
+
+/* Style for modified form fields */
+.input-modified {
+  .mdc-text-field--outlined {
+    background: #E8F1DE !important;
+  }
+  
+  .mdc-checkbox {
+    background: #E8F1DE !important;
+  }
+}

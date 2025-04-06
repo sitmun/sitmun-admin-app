@@ -314,10 +314,10 @@ export class TerritoryFormComponent implements OnInit {
 
     this.columnDefsMemberOf = [
       this.utils.getSelCheckboxColumnDef(),
-      this.utils.getNonEditableColumnDef('territoryEntity.name', 'name', 600, 300),
+      this.utils.getNonEditableColumnDef('territoryEntity.name', 'name', 600),
       this.utils.getNonEditableColumnDef(
         'territoryEntity.territoryType',
-        'typeName', 100, 100
+        'typeName', 100
       ),
       this.utils.getNonEditableColumnDef('territoryEntity.code', 'code'),
       this.utils.getStatusColumnDef(),
@@ -326,10 +326,10 @@ export class TerritoryFormComponent implements OnInit {
     this.columnDefsMembers = [
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('territoryEntity.name', 'name', 600, 300),
+      this.utils.getNonEditableColumnDef('territoryEntity.name', 'name', 600),
       this.utils.getNonEditableColumnDef(
         'territoryEntity.territoryType',
-        'typeName', 100, 100
+        'typeName', 100
       ),
       this.utils.getNonEditableColumnDef('territoryEntity.code', 'code'),
       this.utils.getStatusColumnDef(),
@@ -359,7 +359,6 @@ export class TerritoryFormComponent implements OnInit {
         'territoryEntity.taskGroup',
         'taskGroupName',
         300,
-        300
       ),
       this.utils.getStatusColumnDef(),
     ];
@@ -1097,7 +1096,7 @@ export class TerritoryFormComponent implements OnInit {
       // this.utils.updateUriList(url,tasksToPut)
       tasksToPut.forEach((task) => {
         this.taskAvailabilityService.save(task).subscribe((result) => {
-          this.loggerService.info('Task availability saved', result);          
+          this.loggerService.info('Task availability saved', result);
         });
       });
     });
@@ -1453,7 +1452,7 @@ export class TerritoryFormComponent implements OnInit {
       this.columnDefsRolesDialog = [
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getIdColumnDef(),
-        this.utils.getNonEditableColumnDef('territoryEntity.name', 'name', 300, 300),
+        this.utils.getNonEditableColumnDef('territoryEntity.name', 'name', 300),
         this.utils.getBooleanColumnDef(
           'userEntity.appliesToChildrenTerritories',
           'appliesToChildrenTerritories',

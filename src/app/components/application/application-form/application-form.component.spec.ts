@@ -108,11 +108,11 @@ describe('ApplicationFormComponent', () => {
   });
 
   it('form invalid when empty', () => {
-    expect(component.applicationForm.valid).toBeFalsy();
+    expect(component.entityForm.valid).toBeFalsy();
   });
 
   it('form invalid when mid-empty', () => {
-    component.applicationForm.patchValue({
+    component.entityForm.patchValue({
       logo: 'logo',
       title: 'title',
       jspTemplate: 'url',
@@ -123,11 +123,11 @@ describe('ApplicationFormComponent', () => {
       treeAutoRefresh: true
     });
     //Miss url
-    expect(component.applicationForm.valid).toBeFalsy();
+    expect(component.entityForm.valid).toBeFalsy();
   });
 
   it('form valid', () => {
-    component.applicationForm.patchValue({
+    component.entityForm.patchValue({
       name: 'name',
       logo: 'logo',
       type: 1,
@@ -139,20 +139,20 @@ describe('ApplicationFormComponent', () => {
       srs: 'EPSG:4326',
       treeAutoRefresh: true
     });
-    expect(component.applicationForm.valid).toBeTruthy();
+    expect(component.entityForm.valid).toBeTruthy();
   });
 
   it('Application form fields', () => {
-    expect(component.applicationForm.get('name')).toBeTruthy();
-    expect(component.applicationForm.get('type')).toBeTruthy();
-    expect(component.applicationForm.get('title')).toBeTruthy();
-    expect(component.applicationForm.get('jspTemplate')).toBeTruthy();
-    expect(component.applicationForm.get('accessParentTerritory')).toBeTruthy();
-    expect(component.applicationForm.get('accessChildrenTerritory')).toBeTruthy();
-    expect(component.applicationForm.get('theme')).toBeTruthy();
-    expect(component.applicationForm.get('situationMap')).toBeTruthy();
-    expect(component.applicationForm.get('scales')).toBeTruthy();
-    expect(component.applicationForm.get('treeAutoRefresh')).toBeTruthy();
+    expect(component.entityForm.get('name')).toBeTruthy();
+    expect(component.entityForm.get('type')).toBeTruthy();
+    expect(component.entityForm.get('title')).toBeTruthy();
+    expect(component.entityForm.get('jspTemplate')).toBeTruthy();
+    expect(component.entityForm.get('accessParentTerritory')).toBeTruthy();
+    expect(component.entityForm.get('accessChildrenTerritory')).toBeTruthy();
+    expect(component.entityForm.get('theme')).toBeTruthy();
+    expect(component.entityForm.get('situationMap')).toBeTruthy();
+    expect(component.entityForm.get('scales')).toBeTruthy();
+    expect(component.entityForm.get('treeAutoRefresh')).toBeTruthy();
   });
 
 

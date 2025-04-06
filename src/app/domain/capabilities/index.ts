@@ -3,7 +3,7 @@
  */
 
 // Export models
-export * from './models/capabilitie.model';
+export * from './models/capabilities.model';
 
 // Export services
-export * from './services/capabilities.service'; 
+export * from './services/capabilities.service';

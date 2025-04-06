@@ -2,6 +2,7 @@ import { CodeList, CodeListService } from "@app/domain";
 import { HalOptions, HalParam } from "@app/core";
 import { config } from "@config";
 import { firstValueFrom } from "rxjs";
+import { Constructor } from "./common";
 
 /**
  * Interface defining the properties and methods required for the CodeList mixin.

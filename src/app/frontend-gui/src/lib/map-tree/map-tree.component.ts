@@ -87,7 +87,7 @@ export class MapTreeComponent {
     this.flatNodeMap.set(flatNode, node);
     this.nestedNodeMap.set(node, flatNode);
     return flatNode;
-  
+
   }
   private _getLevel = (node: TreeFlatNode) => node.level;
   private _isExpandable = (node: TreeFlatNode) => node.expandable;
@@ -112,7 +112,6 @@ export class MapTreeComponent {
 
   processData(error, parsedData) {
     const treeData = this.convertToTree(parsedData, 'Root', parsedData).children;
-    console.log(treeData);
     this.dataSource.data = treeData;
     this.treeControl.expandAll();
   }
@@ -135,7 +134,7 @@ export class MapTreeComponent {
       result = {
         name,
         path,
-        children: obj.map((item, index) => 
+        children: obj.map((item, index) =>
           this.convertToTree(item, `${name}[${index}]`, origData, `${path}/${name}[pos]`)
         )
       };
@@ -143,7 +142,7 @@ export class MapTreeComponent {
       result = {
         name,
         path,
-        children: Object.entries(obj).map(([key, value]) => 
+        children: Object.entries(obj).map(([key, value]) =>
           this.convertToTree(value, key, origData, `${path}/${key}`)
         )
       };

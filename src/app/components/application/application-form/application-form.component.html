@@ -1,8 +1,8 @@
 <app-form-toolbar
   icon="menu_aplicacio"
   entityType="applicationEntity.application"
-  [itemName]="applicationForm?.get('name')?.value || ''"
-  [isNew]="applicationID === -1"
+  [itemName]="entityForm?.get('name')?.value || ''"
+  [isNew]="isNewOrDuplicated()"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>
@@ -15,15 +15,15 @@
   (selectedTabChange)="onTabChange($event)">
   >
   <mat-tab label="{{ 'roleEntity.generalData' | translate }}">
-    <form [formGroup]='applicationForm' *ngIf="dataLoaded">
+    <form [formGroup]='entityForm' *ngIf="dataLoaded">
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'applicationEntity.name' | translate }}</mat-label>
             <input matInput type="text" formControlName="name" [maxlength]="50" required>
-            <mat-hint align="end" [class.text-warning]="applicationForm.get('name')?.value?.length > 50">
-              {{applicationForm.get('name') | characterCount}}
-              <mat-icon *ngIf="applicationForm.get('name')?.value?.length > 50" fontIcon="warning" class="warning-icon"></mat-icon>
+            <mat-hint align="end" [class.text-warning]="entityForm.get('name')?.value?.length > 50">
+              {{entityForm.get('name') | characterCount}}
+              <mat-icon *ngIf="entityForm.get('name')?.value?.length > 50" fontIcon="warning" class="warning-icon"></mat-icon>
             </mat-hint>
           <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('name')"
@@ -33,7 +33,7 @@
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'applicationEntity.description' | translate }}</mat-label>
             <textarea matInput type="text" formControlName="description" required [maxlength]="4000"></textarea>
-              <mat-hint align="end">{{applicationForm.get('description') | characterCount}}</mat-hint>
+              <mat-hint align="end">{{entityForm.get('description') | characterCount}}</mat-hint>
               <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('description')"
                       onKeyDown="onTranslated('description')"
@@ -51,22 +51,22 @@
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'applicationEntity.logo' | translate }}</mat-label>
             <input matInput type="text" formControlName="logo" [maxlength]="4000">
-            <mat-hint align="end">{{applicationForm.get('logo') | characterCount}}</mat-hint>
+            <mat-hint align="end">{{entityForm.get('logo') | characterCount}}</mat-hint>
           </mat-form-field>
         </mat-card-content>
       </mat-card>
       <mat-card class="sitmun-mat-card-margin" appearance="outlined"
-                *ngIf="applicationForm.value.type===codeValues.applicationType.externalApp">
+                *ngIf="entityForm.value.type===codeValues.applicationType.externalApp">
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'applicationEntity.url' | translate }}</mat-label>
             <input matInput type="text" formControlName="jspTemplate" [maxlength]="250">
-            <mat-hint align="end">{{applicationForm.get('jspTemplate') | characterCount}}</mat-hint>
+            <mat-hint align="end">{{entityForm.get('jspTemplate') | characterCount}}</mat-hint>
           </mat-form-field>
         </mat-card-content>
       </mat-card>
       <mat-card class="sitmun-mat-card-margin" appearance="outlined"
-                *ngIf="applicationForm.value.type===codeValues.applicationType.internalApp">
+                *ngIf="entityForm.value.type===codeValues.applicationType.internalApp">
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'applicationEntity.title' | translate }}</mat-label>
@@ -75,22 +75,22 @@
                       (click)="onTranslated('title')"
                       onKeyDown="onTranslated('title')"
                       svgIcon="ic_translate"></mat-icon>
-            <mat-hint align="end">{{applicationForm.get('title') | characterCount}}</mat-hint>
+            <mat-hint align="end">{{entityForm.get('title') | characterCount}}</mat-hint>
           </mat-form-field>
           <mat-form-field appearance="outline" class="half add-gap">
             <mat-label>{{ 'applicationEntity.CSS' | translate }}</mat-label>
             <input matInput type="text" formControlName="theme" [maxlength]="30">
-            <mat-hint align="end">{{applicationForm.get('theme') | characterCount}}</mat-hint>
+            <mat-hint align="end">{{entityForm.get('theme') | characterCount}}</mat-hint>
           </mat-form-field>
           <mat-form-field appearance="outline" class="half">
             <mat-label>{{ 'applicationEntity.scales' | translate }}</mat-label>
             <input matInput type="text" formControlName="scales" [maxlength]="250">
-            <mat-hint align="end">{{applicationForm.get('scales') | characterCount}}</mat-hint>
+            <mat-hint align="end">{{entityForm.get('scales') | characterCount}}</mat-hint>
           </mat-form-field>
           <mat-form-field appearance="outline" class="half add-gap">
             <mat-label>{{ 'applicationEntity.srs' | translate }}</mat-label>
             <input matInput type="text" formControlName="srs" [maxlength]="50">
-            <mat-hint align="end">{{applicationForm.get('srs') | characterCount}}</mat-hint>
+            <mat-hint align="end">{{entityForm.get('srs') | characterCount}}</mat-hint>
           </mat-form-field>
           <mat-form-field appearance="outline" class="half">
             <mat-label>{{ 'applicationEntity.situationMap' | translate }}</mat-label>
@@ -117,7 +117,7 @@
   </mat-tab>
   <mat-tab label="{{ 'applicationEntity.parametersConfiguration' | translate }}">
     <app-data-grid [changeHeightButton]="true"
-                   [allNewElements]="applicationID === -1"
+                   [allNewElements]="isNewOrDuplicated()"
                    [columnDefs]="columnDefsParameters"
                    [getAll]='fetchParameters'
                    [eventAddItemsSubscription]='addElementsEventParameters.asObservable()'
@@ -134,13 +134,13 @@
                    (new)="openParametersDialog()"
                    (getAllRows)="handleParametersEvent($event)"
                    (duplicate)='duplicateParameters($event)'
-                   [redraw]="activeTabIndex === 1"
+                   [redraw]="isTabActive(1)"
                    *ngIf="dataLoaded"
     ></app-data-grid>
   </mat-tab>
   <mat-tab label="{{ 'applicationEntity.roles' | translate }}">
     <app-data-grid [changeHeightButton]="true"
-                   [allNewElements]="applicationID === -1"
+                   [allNewElements]="isNewOrDuplicated()"
                    [columnDefs]="columnDefsRoles"
                    [getAll]='fetchRoles'
                    [eventAddItemsSubscription]='addElementsEventRoles.asObservable()'
@@ -156,13 +156,13 @@
                    [hideDuplicateButton]=true
                    (getAllRows)="handleRolesEvent($event)"
                    (add)="openRolesDialog($event)"
-                   [redraw]="activeTabIndex === 2"
+                   [redraw]="isTabActive(2)"
                    *ngIf="dataLoaded"
     ></app-data-grid>
   </mat-tab>
   <mat-tab label="{{ 'applicationEntity.background' | translate }}">
     <app-data-grid [changeHeightButton]="true"
-                   [allNewElements]="applicationID === -1"
+                   [allNewElements]="isNewOrDuplicated()"
                    [columnDefs]="columnDefsApplicationBackgrounds"
                    [getAll]='fetchApplicationBackgrounds'
                    [eventAddItemsSubscription]='addElementsEventApplicationBackground.asObservable()'
@@ -178,14 +178,14 @@
                    [defaultColumnSorting]="['order']"
                    (getAllRows)="handleApplicationBackgroundsEvent($event)"
                    (add)="openBackgroundDialog($event)"
-                   [redraw]="activeTabIndex === 3"
+                   [redraw]="isTabActive(3)"
                    *ngIf="dataLoaded"
     ></app-data-grid>
   </mat-tab>
   <mat-tab label="{{ 'applicationEntity.tree' | translate }}">
     <app-data-grid #treesDataGrid
                    [changeHeightButton]="true"
-                   [allNewElements]="applicationID === -1"
+                   [allNewElements]="isNewOrDuplicated()"
                    [columnDefs]="columnDefsTrees"
                    [getAll]='fetchTrees'
                    [eventAddItemsSubscription]='addElementsEventTree.asObservable()'
@@ -201,7 +201,7 @@
                    [defaultColumnSorting]="['name']"
                    (getAllRows)="handleTreesEvent($event)"
                    (add)="openTreeDialog($event)"
-                   [redraw]="activeTabIndex === 4"
+                   [redraw]="isTabActive(4)"
                    *ngIf="dataLoaded"
     ></app-data-grid>
   </mat-tab>

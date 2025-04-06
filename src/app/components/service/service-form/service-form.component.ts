@@ -1,244 +1,383 @@
-import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {Component, OnDestroy, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute} from '@angular/router';
 import {
+  Application,
   CapabilitiesService,
   Cartography,
   CartographyService,
+  CartographyStyle,
   CartographyStyleService,
+  CodeListService,
   Service,
+  ServiceParameter,
   ServiceParameterService,
   ServiceService,
-  Translation,
-  TranslationService
+  TranslationService,
 } from '@app/domain';
-import {HttpClient} from '@angular/common/http';
 import {UtilsService} from '@app/services/utils.service';
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import {map} from 'rxjs/operators';
-import {Observable, of, Subject} from 'rxjs';
+import {firstValueFrom, Observable, of, Subject} from 'rxjs';
 import {MatChipInputEvent} from '@angular/material/chips';
 import {config} from '@config';
-import {DialogFormComponent, DialogGridComponent, DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
+import {
+  DIALOG_FORM_EVENTS,
+  DialogFormComponent,
+  DialogFormData,
+  DialogFormResult,
+  DialogMessageComponent,
+  GridEvent,
+  isSave,
+  onCreate,
+  onDelete,
+  onNotAvailable,
+  onPendingRegistration,
+  onUpdate,
+  Status
+} from '@app/frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
 import {constants} from '@environments/constants';
-import { MatTabChangeEvent } from '@angular/material/tabs';
-import { LoggerService } from '@app/services/logger.service';
+import {LoggerService} from '@app/services/logger.service';
+import {codeListMixin} from "@app/mixins/codelist.mixin";
+import {PropertyTranslations, translatableMixin} from "@app/mixins/translatable.mixin";
+import {activeTabMixin} from "@app/mixins/activetab.mixin";
+import {TranslateService} from "@ngx-translate/core";
+import {sitmunMixedBase} from "@app/components/sitmun.base";
+import {detectchangeMixin} from "@app/mixins/detectchange.mixin";
+
+/**
+ * Component for managing service forms in the application.
+ * Extends SitmunMixedBase to provide base functionality for service management.
+ *
+ * This component provides a comprehensive interface for:
+ * 1. Service Management
+ *    - Creating new services
+ *    - Editing existing services
+ *    - Duplicating services with modified attributes
+ *    - Form validation and submission
+ *
+ * 2. Service Configuration
+ *    - Basic service information (name, description, URL)
+ *    - Authentication settings (mode, credentials)
+ *    - Service type configuration (WMS, etc.)
+ *    - Proxy settings
+ *    - Projection management (SRS)
+ *
+ * 3. WMS Integration
+ *    - Automatic metadata retrieval from WMS GetCapabilities
+ *    - Layer discovery and management
+ *    - Style configuration
+ *    - Projection support detection
+ *
+ * 4. Parameter Management
+ *    - CRUD operations for service parameters
+ *    - Parameter type configuration
+ *    - Value validation
+ *
+ * 5. Cartography Integration
+ *    - Layer management and configuration
+ *    - Style association
+ *    - Legend configuration
+ *    - Metadata URL management
+ *
+ * The component uses a tabbed interface to organize:
+ * - General Data: Basic service configuration
+ * - Parameters: Service parameter management
+ * - Cartographies: Layer and style management
+ *
+ * Key Features:
+ * - Multi-language support through translations
+ * - Real-time form validation
+ * - Automatic WMS capabilities integration
+ * - Grid-based parameter and layer management
+ * - Support for various service types and authentication modes
+ *
+ * @example
+ * // Route configuration
+ * { path: 'service/:id/serviceForm', component: ServiceFormComponent }
+ * { path: 'service/:id/serviceForm/:idDuplicate', component: ServiceFormComponent }
+ */
 @Component({
   selector: 'app-service-form',
   templateUrl: './service-form.component.html',
   styles: []
 })
-export class ServiceFormComponent implements OnInit {
+export class ServiceFormComponent extends sitmunMixedBase<Service>() implements OnInit, OnDestroy {
+  public override entityForm: UntypedFormGroup;
 
-  //Translations
-  translationMap: Map<string, Translation>;
-
-  translationsModified = false;
-  //form
-  dataLoaded = false;
-  tableLoadButtonDisabled = true;
-  capabilitiesLoaded = true;
-  serviceForm: UntypedFormGroup;
-  serviceToEdit: Service;
-  serviceID = -1;
-  duplicateID = -1;
-  visible = true;
-  selectable = true;
-  removable = true;
-  addOnBlur = true;
-  readonly separatorKeysCodes: number[] = [ENTER, COMMA];
-  projections: string[];
-  serviceTypes: any[] = [];
-  requestTypes: any[] = [];
-  authenticationModes: any[] = [];
-  serviceCapabilitiesData: any = {};
-  getCapabilitiesLayers = [];
-  //Grids
-  themeGrid: any = config.agGridTheme;
-  columnDefsParameters: any[];
-  getAllElementsEventParameters: Subject<string> = new Subject<string>();
-  dataUpdatedEventParameters: Subject<boolean> = new Subject<boolean>();
-
-  columnDefsLayers: any[];
-  getAllElementsEventLayers: Subject<string> = new Subject<string>();
-  dataUpdatedEventLayers: Subject<boolean> = new Subject<boolean>();
-
-  //Dialogs
-
-  public parameterForm: UntypedFormGroup;
-  addElementsEventParameters: Subject<any[]> = new Subject<any[]>();
-  @ViewChild('newParameterDialog', {
-    static: true
-  }) private newParameterDialog: TemplateRef<any>;
-
-
-  columnDefsLayersDialog: any[];
-  addElementsEventLayers: Subject<any[]> = new Subject<any[]>();
-
-
+  /**
+   * Creates an instance of ServiceFormComponent.
+   * @param activatedRoute - Service for accessing route parameters
+   * @param serviceService - Service for managing service entities
+   * @param translationService - Service for handling translations
+   * @param utils - Utility service for common functions
+   * @param dialog - Service for managing Material dialogs
+   * @param cartographyService - Service for managing cartography entities
+   * @param serviceParameterService - Service for managing service parameters
+   * @param cartographyStyleService - Service for managing cartography styles
+   * @param capabilitiesService - Service for retrieving WMS capabilities
+   * @param loggerService - Service for logging
+   * @param codeListService - Service for managing code lists
+   * @param translateService - Service for translation functionality
+   */
   constructor(
     private activatedRoute: ActivatedRoute,
-    private router: Router,
     private serviceService: ServiceService,
-    private translationService: TranslationService,
-    private http: HttpClient,
+    protected override translationService: TranslationService,
     public utils: UtilsService,
-    public dialog: MatDialog,
+    public override dialog: MatDialog,
     public cartographyService: CartographyService,
     public serviceParameterService: ServiceParameterService,
     public cartographyStyleService: CartographyStyleService,
     public capabilitiesService: CapabilitiesService,
-    private loggerService: LoggerService
+    private loggerService: LoggerService,
+    protected override codeListService: CodeListService,
+    translateService: TranslateService,
   ) {
-    this.initializeServiceForm();
-    this.initializeParameterForm();
-    this.projections = [];
-
+    super(translateService)
   }
 
+  /**
+   * Initializes the component.
+   * Sets up translations, forms, and loads initial data.
+   *
+   * Initialization sequence:
+   * 1. Sets up translations for 'Service' entity
+   * 2. Initializes the main form
+   * 3. Sets up cartographies tab
+   * 4. Initializes parameters tab
+   * 5. Fetches and loads service data
+   */
   ngOnInit(): void {
-    this.translationMap = this.utils.createTranslationsList(config.translationColumns.serviceDescription);
-    const promises: Promise<any>[] = [];
+    this.initTranslations(
+      'Service',
+      ['description', 'name']
+    )
 
-    promises.push(new Promise((resolve,) => {
-      this.utils.getCodeListValues('service.type').subscribe(
-        resp => {
-          this.serviceTypes.push(...resp);
-          this.serviceTypes.sort((a, b) => a.description.localeCompare(b.description));
-          resolve(true);
-        }
-      );
-    }));
-
-    promises.push(new Promise((resolve,) => {
-      this.utils.getCodeListValues('service.authenticationMode').subscribe(
-        resp => {
-          this.authenticationModes.push(...resp);
-          this.authenticationModes.sort((a, b) => a.description.localeCompare(b.description));
-          resolve(true);
-        }
-      );
-    }));
-
-
-    promises.push(new Promise((resolve,) => {
-      this.utils.getCodeListValues('serviceParameter.type').subscribe(
-        resp => {
-          this.requestTypes.push(...resp);
-          this.requestTypes.sort((a, b) => a.description.localeCompare(b.description));
-          resolve(true);
-        }
-      );
-    }));
-
-    Promise.all(promises).then(() => {
-
-      this.activatedRoute.params.subscribe(params => {
-          this.serviceID = +params.id;
-          if (params.idDuplicate) {
-            this.duplicateID = +params.idDuplicate;
-          }
-
-          if (this.serviceID !== -1 || this.duplicateID != -1) {
-            const idToGet = this.serviceID !== -1 ? this.serviceID : this.duplicateID;
-            this.serviceService.get(idToGet).subscribe(
-              resp => {
-
-                this.serviceToEdit = resp;
-                if (this.serviceToEdit.supportedSRS !== null) {
-                  this.serviceToEdit.supportedSRS.forEach((projection) => {
-                    this.projections.push(projection);
-                  });
-                }
-                // this.projections = this.serviceToEdit.supportedSRS.split(';');
-                // this.parametersUrl = this.serviceToEdit._links.parameters.href;
-                this.serviceForm.patchValue({
-                  type: this.serviceToEdit.type,
-                  description: this.serviceToEdit.description,
-                  proxyUrl: this.serviceToEdit.proxyUrl,
-                  supportedSRS: this.serviceToEdit.supportedSRS,
-                  blocked: this.serviceToEdit.blocked,
-                  isProxied: this.serviceToEdit.isProxied,
-                  _links: this.serviceToEdit._links
-                });
-
-                const currentType = this.serviceTypes.find(element => element.value == this.serviceToEdit.type);
-                if (currentType) {
-                  this.tableLoadButtonDisabled = currentType.value != config.capabilitiesRequest.WMSIdentificator;
-                }
-
-
-                if (this.serviceID != -1) {
-                  this.serviceForm.patchValue({
-                    id: this.serviceID,
-                    name: this.serviceToEdit.name,
-                    serviceURL: this.serviceToEdit.serviceURL,
-                    getInformationURL: this.serviceToEdit.getInformationURL,
-                    user: this.serviceToEdit.user,
-                    password: this.serviceToEdit.password,
-                    authenticationMode: this.serviceToEdit.authenticationMode,
-                  });
-                  this.translationService.getAll()
-                    .pipe(map((data: any[]) => data.filter(elem => elem.element == this.serviceID && elem.column == config.translationColumns.serviceDescription)
-                    )).subscribe(result => {
-                    this.utils.updateTranslations(this.translationMap, result);
-                  });
-                } else {
-                  this.serviceForm.patchValue({
-                    name: this.utils.getTranslate('copy_').concat(this.serviceToEdit.name),
-                  });
-                }
-
-
-                this.dataLoaded = true;
-              },
-            );
-          } else {
-            this.serviceForm.patchValue({
-              blocked: false,
-              isProxied: false,
-              type: null,
-              authenticationMode: this.authenticationModes[0].value,
-            });
-            this.dataLoaded = true;
-          }
-
-        },
-      );
-
-    });
-
-    this.columnDefsParameters = [
-
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('serviceEntity.request', 'type'),
-      this.utils.getEditableColumnDef('serviceEntity.parameter', 'name'),
-      this.utils.getEditableColumnDef('serviceEntity.value', 'value'),
-      this.utils.getStatusColumnDef()
-
-    ];
-
-    this.columnDefsLayers = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('serviceEntity.name', 'name', 300),
-      this.utils.getEditableColumnDef('serviceEntity.description', 'description'),
-      this.utils.getStatusColumnDef()
-    ];
-
-    this.columnDefsLayersDialog = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('serviceEntity.name', 'name'),
-    ];
-
+    this.ngInitMainForm()
+    this.ngInitCartographiesTab()
+    this.ngOnInitParametersTab()
+    this.fetchData().then(() => this.subscribeToFormChanges(this.entityForm)).catch((reason) => this.loggerService.error('Error in ngOnInit:', reason));
   }
 
-  initializeServiceForm(): void {
+  // ==================================================
+  //                 Load Service
+  // ==================================================
 
-    this.serviceForm = new UntypedFormGroup({
+  /**
+   * Fetches and loads service data based on route parameters.
+   * Handles both new service creation and editing/duplicating existing services.
+   *
+   * Data loading process:
+   * 1. Initializes code lists for service types and parameters
+   * 2. Retrieves service ID from route parameters
+   * 3. For existing services:
+   *    - Loads service data and projections
+   *    - Sets up form with service data
+   *    - Loads translations if in edit mode
+   * 4. For new services:
+   *    - Initializes with default values
+   *
+   * @throws {Error} When there's an error loading service data
+   */
+  async fetchData() {
+    await this.initCodeLists(['service.type', 'service.authenticationMode', 'serviceParameter.type'])
+
+    const params = await firstValueFrom(this.activatedRoute.params)
+
+    this.entityID = params.id;
+
+    if (params.idDuplicate) {
+      this.duplicateID = params.idDuplicate;
+    }
+
+    if (!this.isNew()) {
+      const idToGet = this.isEdition() ? this.entityID : this.duplicateID;
+
+      this.entityToEdit = await firstValueFrom(this.serviceService.get(idToGet))
+
+      const formData: Record<string, any> = {
+        type: this.entityToEdit.type,
+        description: this.entityToEdit.description,
+        proxyUrl: this.entityToEdit.proxyUrl,
+        blocked: this.entityToEdit.blocked,
+        serviceURL: this.entityToEdit.serviceURL,
+        getInformationURL: this.entityToEdit.getInformationURL,
+        user: this.entityToEdit.user,
+        password: this.entityToEdit.password,
+        authenticationMode: this.entityToEdit.authenticationMode,
+        isProxied: this.entityToEdit.isProxied,
+        supportedSRS: this.entityToEdit.supportedSRS,
+        name: this.isEdition()
+          ? this.entityToEdit.name
+          : this.translateService.instant('copy_').concat(this.entityToEdit.name),
+        _links: this.entityToEdit._links,
+      }
+
+      if (this.isEdition()) {
+        formData.id = this.entityID
+        await this.loadTranslations(this.entityToEdit)
+      }
+
+      this.entityForm.patchValue(formData);
+      const currentType = this.findInCodeList('service.type', this.entityToEdit.type);
+      this.tableLoadButtonDisabled = currentType ? currentType.value !== config.capabilitiesRequest.WMSIdentificator : false;
+
+      this.loggerService.debug('Service to edit loaded', {
+        entityToEdit: this.entityToEdit,
+        type: this.entityToEdit.constructor.name
+      });
+    } else {
+      const formData: Record<string, any> = {
+        blocked: false,
+        isProxied: false,
+        type: null,
+        authenticationMode: this.firstInCodeList('service.authenticationMode').value,
+      }
+      this.entityForm.patchValue(formData);
+    }
+    this.dataLoaded = true;
+  }
+
+  // ==================================================
+  //                 Save Application
+  // ==================================================
+
+  /**
+   * Subject for triggering retrieval of all parameter elements.
+   * Used to notify when parameters need to be refreshed or reloaded.
+   */
+  getAllElementsEventParameters: Subject<string> = new Subject<string>();
+
+  /**
+   * Subject for triggering retrieval of all layer elements.
+   * Used to notify when layers need to be refreshed or reloaded.
+   */
+  getAllElementsEventLayers: Subject<string> = new Subject<string>();
+
+  /**
+   * Array of all subjects used in the component for cleanup.
+   * These subjects must be completed in ngOnDestroy to prevent memory leaks.
+   */
+  readonly subjects = [
+    this.getAllElementsEventLayers,
+    this.getAllElementsEventParameters
+  ]
+
+
+  onSaveButtonClicked() {
+    if (this.entityForm.valid) {
+      this.saveService().catch((reason) => this.loggerService.error('Error in onSaveButtonClicked:', reason));
+    } else {
+      this.utils.showRequiredFieldsError();
+    }
+  }
+
+  /**
+   * Saves the service data to the backend.
+   * Handles both creation of new services and updates to existing ones.
+   *
+   * Save process:
+   * 1. Creates a new Service instance with form values
+   * 2. Handles special cases (e.g., supported SRS)
+   * 3. Creates new service or updates existing one
+   * 4. Updates translations
+   * 5. Triggers refresh of related components
+   *
+   * @throws {Error} When there's an error saving the service
+   */
+  async saveService() {
+    try {
+      // Copy form values to service object
+      const service: Service = Object.assign(new Service(), this.entityForm.value);
+
+      // Set ID based on application state
+      let response: Service | Observable<never>;
+      if (this.isNewOrDuplicated()) {
+        service.id = null;
+        response = await firstValueFrom(this.serviceService.create(service));
+      } else {
+        response = await firstValueFrom(this.serviceService.update(service));
+      }
+
+      if (response instanceof Service) {
+        this.entityToEdit = response;
+        this.entityID = response.id;
+        this.entityForm.patchValue({
+          id: response.id,
+          _links: response._links
+        });
+        await this.saveTranslations(this.entityToEdit);
+        this.subjects.forEach(subject => subject.next('save'));
+        this.resetToFormModifiedState(this.entityForm);
+      }
+    } catch (error) {
+      this.loggerService.error('Error saving application:', error);
+      throw error;
+    }
+  }
+
+  // ==================================================
+  //                    Main form
+  // ==================================================
+
+  /**
+   * Main form configuration and management section.
+   * Handles the primary service configuration interface including:
+   *
+   * Form Controls:
+   * - id: Service identifier (auto-generated)
+   * - name: Service name (required, max 60 chars)
+   * - description: Service description (required, max 250 chars)
+   * - type: Service type (required, e.g., WMS)
+   * - serviceURL: Endpoint URL (required)
+   * - proxyUrl: Optional proxy configuration
+   * - supportedSRS: Coordinate reference systems
+   * - getInformationURL: Metadata URL
+   * - authenticationMode: Authentication type (required)
+   * - user/password: Credentials (conditional)
+   * - blocked: Service availability flag
+   * - isProxied: Proxy usage flag
+   *
+   * Features:
+   * - Real-time validation
+   * - Dynamic field visibility based on service type
+   * - Projection management through chip input
+   * - WMS capabilities integration
+   * - Multi-language support for name/description
+   */
+
+  /**
+   * Flag indicating if the WMS capabilities table load button is disabled.
+   * True when service type is not WMS, false otherwise.
+   * Used to control the visibility of WMS-specific functionality.
+   */
+  tableLoadButtonDisabled = true;
+
+  /**
+   * Flag indicating if projections can be removed from the service.
+   * Always true as projections are user-manageable.
+   * Controls the display of remove buttons in projection chips.
+   */
+  readonly canRemoveProjections = true;
+
+  /**
+   * Flag indicating if projections should be added when input loses focus.
+   * Always true to support both manual entry and chip-based input.
+   * Enhances user experience by allowing flexible input methods.
+   */
+  readonly addProjectionsOnBlur = true;
+
+  /**
+   * Array of key codes that trigger projection separation in the input.
+   * Includes ENTER and COMMA for flexible input options.
+   * Allows users to add projections using keyboard shortcuts.
+   */
+  readonly separatorKeysCodesForProjections: number[] = [ENTER, COMMA];
+
+  ngInitMainForm(): void {
+    this.entityForm = new UntypedFormGroup({
       id: new UntypedFormControl(null, []),
       name: new UntypedFormControl(null, [Validators.required,]),
       user: new UntypedFormControl(null),
@@ -261,345 +400,111 @@ export class ServiceFormComponent implements OnInit {
 
   }
 
-  initializeParameterForm(): void {
-    this.parameterForm = new UntypedFormGroup({
-      name: new UntypedFormControl(null, [Validators.required]),
-      type: new UntypedFormControl(null, [Validators.required]),
-      value: new UntypedFormControl(null, []),
-
-    });
+  /**
+   * Adds a new projection to the service.
+   * @param event - The chip input event containing the new projection value
+   */
+  addProjection(event: MatChipInputEvent): void {
+    const value = event.value;
+    if ((value || '').trim()) {
+      const srs = this.entityForm.get('supportedSRS').value;
+      const newSrs = [...srs]
+      newSrs.push(value.trim());
+      this.entityForm.get('supportedSRS').setValue(newSrs)
+    }
   }
 
+  /**
+   * Removes a projection from the service.
+   * @param projection - The projection string to remove
+   */
+  removeProjection(projection: string): void {
+    const srs = this.entityForm.get('supportedSRS').value;
+    const index = srs.indexOf(projection);
+    if (index >= 0) {
+      const newSrs = [...srs]
+      newSrs.splice(index, 1);
+      this.entityForm.get('supportedSRS').setValue(newSrs)
+    }
+  }
+
+  /**
+   * Checks if the current authentication mode is not 'none'.
+   * @returns True if authentication mode requires credentials, false otherwise
+   */
+  isAuthenticationModeNode(): boolean {
+    return this.entityForm.get('authenticationMode').value !== constants.codeValue.serviceAuthenticationMode.none;
+  }
+
+  /**
+   * Checks if the service type is WMS.
+   * @returns True if service type is WMS, false otherwise
+   */
+  isWMS() {
+    return this.entityForm.value.type === constants.codeValue.serviceType.wms
+  }
+
+  /**
+   * Handles service type changes and updates UI state accordingly.
+   * @param event - The change event containing the new service type value
+   */
   onTypeChange(event: { value: string; }): void {
     this.tableLoadButtonDisabled = event.value != config.capabilitiesRequest.WMSIdentificator;
   }
 
-  addProjection(event: MatChipInputEvent): void {
-    const input = event.input;
-    const value = event.value;
+  // ==================================================
+  //                   Cartographies
+  // ==================================================
 
-    // Add our fruit
-    if ((value || '').trim()) {
-      this.projections.push(value.trim());
-    }
+  /**
+   * Column definitions for the layers grid.
+   * Includes columns for selection, name, layers, description, and status.
+   */
+  columnDefsLayers: any[];
 
-    // Reset the input value
-    if (input) {
-      input.value = '';
-    }
+  /**
+   * Subject for adding new elements to the layers grid.
+   * Emits arrays of new layer entries to be added to the grid.
+   */
+  addElementsEventLayers: Subject<any[]> = new Subject<any[]>();
+
+  /**
+   * Subject for notifying when layers data has been updated.
+   * Triggers grid refresh after layer operations.
+   */
+  dataUpdatedEventLayers: Subject<boolean> = new Subject<boolean>();
+
+  ngInitCartographiesTab() {
+    this.columnDefsLayers = [
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getEditableColumnDef('serviceEntity.name', 'name', 150, 300),
+      this.utils.getNonEditableColumnDef('layersEntity.layers', 'layers', 150, 300),
+      this.utils.getEditableColumnDef('serviceEntity.description', 'description', 150, 450),
+      this.utils.getStatusColumnDef()
+    ];
   }
 
-  removeProjection(projection: string): void {
-    const index = this.projections.indexOf(projection);
-
-    if (index >= 0) {
-      this.projections.splice(index, 1);
-    }
-  }
-
-  onTableLoadButtonClicked() {
-    this.getCapabilitiesDataService(true, true);
-  }
-
-  getCapabilitiesDataService(refresh?: boolean, ignoreForm?: boolean) {
-    try {
-      let url: string = this.serviceForm.value.serviceURL;
-      if (!url.includes(config.capabilitiesRequest.simpleRequest)) {
-        if (url[url.length - 1] != '?') {
-          url += '?';
-        }
-
-        url += config.capabilitiesRequest.requestWithWMS;
-      }
-      this.capabilitiesService.getInfo(url).subscribe(result => {
-
-        if (result.success) {
-          this.getCapabilitiesLayers = [];
-          this.serviceCapabilitiesData = result.asJson;
-          this.changeServiceDataByCapabilities(refresh, ignoreForm);
-        }
-      }, error => {
-        this.loggerService.error('Error getting capabilities data', error);
-        this.capabilitiesLoaded = true;
-      });
-    } catch (error) {
-      this.loggerService.error('Error getting capabilities data', error);
-      this.utils.showErrorMessage('ERROR');
-      this.capabilitiesLoaded = true;
-
-    }
-  }
-
-  changeServiceDataByCapabilities(refresh?: boolean, ignoreForm?: boolean) {
-    const data = this.serviceCapabilitiesData.WMT_MS_Capabilities != undefined ? this.serviceCapabilitiesData.WMT_MS_Capabilities : this.serviceCapabilitiesData.WMS_Capabilities;
-
-    if (data != undefined) {
-      if (data.Capability) {
-        let capabilitiesList = null;
-        if (data.Capability.Layer.SRS !== null && data.Capability.Layer.SRS !== undefined) {
-          capabilitiesList = data.Capability.Layer.SRS;
-        } else if (data.Capability.Layer.CRS !== null && data.Capability.Layer.CRS !== undefined) {
-          capabilitiesList = data.Capability.Layer.CRS;
-        }
-        this.projections = [];
-        if (capabilitiesList && !ignoreForm) {
-          this.projections.push(...capabilitiesList);
-        }
-        // this.serviceCapabilitiesData.WMT_MS_Capabilities.Capability.Layer.SRS.forEach((projection) => {
-        //   this.projections.push(projection);
-        // });
-      }
-      let capability = data.Capability.Layer;
-      while (capability.Layer != null) {
-        capability = capability.Layer;
-      }
-      const layersTable = [];
-      this.getLayersCapabilities(capability, layersTable);
-      if (layersTable.length > 0) {
-        layersTable.forEach(lyr => {
-          let layersLyr: string;
-          const styles = [];
-          if (Array.isArray(lyr.Name)) {
-            layersLyr = lyr.Name;
-          } else {
-            if (!isNaN(lyr.Name)) {
-              lyr.Name = lyr.Name.toString();
-            }
-            if (!lyr.Name) {
-              return;
-            }
-            layersLyr = lyr.Name.split(',');
-          }
-          // if (!layersLyr) { layersLyr = [] }
-          const cartography = new Cartography();
-          cartography.name = lyr.Title;
-          if (cartography.name && cartography.name.length > 250) {
-            cartography.name = cartography.name.substring(0, 249);
-          }
-          cartography.description = lyr.Abstract;
-          if (cartography.description && cartography.description.length > 250) {
-            cartography.description = cartography.description.substring(0, 249);
-          }
-          cartography.layers = layersLyr;
-          if (lyr.Style) {
-            if (Array.isArray(lyr.Style)) {
-              styles.push(...lyr.Style);
-            } else {
-              styles.push(lyr.Style);
-            }
-            cartography.styles = styles;
-          }
-          if (lyr) {
-            if (lyr.MetadataURL != undefined) {
-              const metadataURL = Array.isArray(lyr.MetadataURL) ? lyr.MetadataURL[0] : lyr.MetadataURL;
-              cartography.metadataURL = metadataURL.OnlineResource['xlink:href'];
-            }
-
-            if (lyr.DataURL != undefined) {
-              const DataURL = Array.isArray(lyr.DataURL) ? lyr.DataURL[0] : lyr.DataURL;
-              cartography.datasetURL = DataURL.OnlineResource['xlink:href'];
-            }
-
-            if (lyr.Style && lyr.Style[0] && lyr.Style[0].LEGENDURL != undefined) {
-              const style = Array.isArray(lyr.STYLE) ? lyr.STYLE[0] : lyr.STYLE;
-              cartography.legendURL = style.legendURL.OnlineResource['xlink:href'];
-            }
-          }
-
-          this.getCapabilitiesLayers.push(cartography);
-        });
-      }
-      if (data.Service && data.Service.Abstract && data.Service.Abstract.length > 0) {
-        let auxDescription: string;
-        if (Array.isArray(data.Service.Abstract)) {
-
-          // for(let i=0; i<data.Service.Abstract.length; i++){
-          data.Service.Abstract.forEach((translation: { [x: string]: string; content: string; }) => {
-            let languageShortname: string = translation['xml:lang'];
-            const index = languageShortname.indexOf('-');
-            if (index != -1) {
-              languageShortname = languageShortname.substring(0, index);
-            }
-            if (languageShortname == config.defaultLang) {
-              auxDescription = translation.content;
-            } else {
-              if ((this.translationMap.has(languageShortname))) {
-                const currentTranslation = this.translationMap.get(languageShortname);
-                const translationReduced = translation.content.substring(0, 249);
-                if (currentTranslation.translation != translationReduced) {
-                  currentTranslation.translation = translationReduced;
-                  this.translationsModified = true;
-                }
-              }
-            }
-
-          });
-
-
-          auxDescription = data.Service.Abstract.find(element => element['xml:lang'].includes(config.defaultLang));
-          if (!auxDescription) {
-            auxDescription = data.Service.Abstract[0].content;
-          }
-        } else {
-          auxDescription = data.Service.Abstract;
-        }
-        if (!ignoreForm) {
-          const newDescription = auxDescription.length > 250 ? auxDescription.substring(0, 249) : auxDescription;
-          this.serviceForm.patchValue({
-            description: newDescription,
-          });
-        }
-
-      }
-
-    }
-
-
-    this.capabilitiesLoaded = true;
-    if (refresh) {
-      this.dataUpdatedEventLayers.next(true);
-    }
-  }
-
-  private getLayersCapabilities(lyrTable, tableToSave) {
-    if (Array.isArray(lyrTable)) {
-      lyrTable.forEach(layer => {
-        if (layer.Layer != null) {
-          this.getLayersCapabilities(layer.Layer, tableToSave);
-        } else {
-          tableToSave.push(layer);
-        }
-      });
-    } else {
-      tableToSave.push(lyrTable);
-    }
-
-  }
-
-  async onTranslationButtonClicked() {
-    const dialogResult = await this.utils.openTranslationDialog(this.translationMap);
-    if (dialogResult && dialogResult.event == 'Accept') {
-      this.translationsModified = true;
-    }
-  }
-
-  // AG-GRID
-
-  // ******** Parameters configuration ******** //
-  getAllParameters = (): Observable<any> => {
-
-    if (this.serviceID == -1 && this.duplicateID == -1) {
-      const aux: any[] = [];
-      return of(aux);
-    }
-
-    let urlReq = `${this.serviceToEdit._links.parameters.href}`;
-    if (this.serviceToEdit._links.parameters.templated) {
-      const url = new URL(urlReq.split('{')[0]);
-      url.searchParams.append('projection', 'view');
-      urlReq = url.toString();
-    }
-    return this.http.get(urlReq).pipe(
-      map(data => data[`_embedded`][`service-parameters`]),
-      map(serviceParameters =>
-        serviceParameters.map(serviceParam => {
-          const newType = this.requestTypes.find(
-            element => element.value == serviceParam['type'].toUpperCase()
-          ).description;
-          return {
-            ...serviceParam,
-            type: newType
-          };
-        })
-      )
-    );
-  };
-
-  getAllRowsParameters(event) {
-    if (event.event == 'save') {
-      this.saveParameters(event.data);
-    }
-  }
-
-
-  saveParameters(data: any[]) {
-    // let parameterToSave = [];
-    // let parameterToDelete = [];
-    const promises: Promise<any>[] = [];
-    data.forEach(parameter => {
-      if (parameter.status === 'pendingCreation' || parameter.status === 'pendingModify') {
-        if (parameter.status === 'pendingCreation' || parameter.newItem) {
-          parameter.id = null;
-          parameter._links = null;
-          parameter.service = this.serviceToEdit;
-        } //If is new, you need the service link
-        promises.push(new Promise((resolve,) => {
-          this.serviceParameterService.save(parameter, this.requestTypes).subscribe(() => {
-            resolve(true);
-          });
-        }));
-      }
-      if (parameter.status === 'pendingDelete' && parameter._links && !parameter.newItem) {
-        promises.push(new Promise((resolve,) => {
-          this.serviceParameterService.delete(parameter).subscribe(() => {
-            resolve(true);
-          });
-        }));
-        // parameterToDelete.push(parameter)
-      }
-    });
-
-    // parameterToSave.forEach(saveElement => {
-    //   promises.push(new Promise((resolve, reject) => {  this.serviceParameterService.save(saveElement).subscribe((resp) => { resolve(true) }) }));
-    // });
-
-    // parameterToDelete.forEach(deletedElement => {
-    //   promises.push(new Promise((resolve, reject) => {  this.serviceParameterService.remove(deletedElement).subscribe((resp) => { resolve(true) }) }));
-    // });
-
-    Promise.all(promises).then(() => {
-      this.dataUpdatedEventParameters.next(true);
-    });
-
-  }
-
-  duplicateParameters(data) {
-    const parametersToDuplicate = this.utils.duplicateParameter(data, 'name');
-    this.addElementsEventParameters.next(parametersToDuplicate);
-  }
-
-  // ******** Layers ******** //
-  getAllLayers = (): Observable<any> => {
-
+  /**
+   * Fetches cartographies for the service.
+   * @returns An Observable of cartography data
+   */
+  fetchCartographies = (): Observable<any> => {
     if (this.getCapabilitiesLayers.length <= 0) {
-      if (this.serviceID != -1) {
-        let urlReq = `${this.serviceToEdit._links.layers.href}`;
-        if (this.serviceToEdit._links.layers.templated) {
-          const url = new URL(urlReq.split('{')[0]);
-          url.searchParams.append('projection', 'view');
-          urlReq = url.toString();
-        }
-        return (this.http.get(urlReq))
-          .pipe(map(data => data[`_embedded`][`cartographies`]));
+      if (this.isEdition()) {
+        return this.entityToEdit.getRelationArrayEx(Cartography, 'layers', {projection: 'view'})
       } else {
         return of([]);
       }
     }
-
-    if (this.serviceID != -1) {
-
-      let urlReq = `${this.serviceToEdit._links.layers.href}`;
-      if (this.serviceToEdit._links.layers.templated) {
-        const url = new URL(urlReq.split('{')[0]);
-        url.searchParams.append('projection', 'view');
-        urlReq = url.toString();
-      }
-      return (this.http.get(urlReq))
+    if (this.isEdition()) {
+      return this.entityToEdit.getRelationArrayEx(Cartography, 'layers', {projection: 'view'})
         .pipe(map(data => {
           const finalCartographies = [];
-          const cartographies = data['_embedded']['cartographies'];
+          const cartographies = data as (Cartography & Status & {
+            alreadySearched: boolean
+          })[];
           this.getCapabilitiesLayers.forEach(capabilityLayer => {
-            const index = cartographies.findIndex(element => element.layers && capabilityLayer.layers && element.layers.join() == capabilityLayer.layers.join() && !element.alreadySearched);
+            const index = cartographies.findIndex(element => this.normalize(element.layers) === this.normalize(capabilityLayer.layers) && !element.alreadySearched);
             if (index != -1) {
               if (cartographies[index].blocked) {
                 cartographies[index].status = 'notAvailable';
@@ -608,24 +513,18 @@ export class ServiceFormComponent implements OnInit {
               finalCartographies.push(cartographies[index]);
             } else {
               capabilityLayer.status = 'unregisteredLayer';
-              capabilityLayer.newRegister = true;
+              capabilityLayer.newItem = true;
               finalCartographies.push(capabilityLayer);
             }
           });
-
           cartographies.forEach(cartography => {
-
             if (!cartography.alreadySearched) {
               cartography.status = 'notAvailable';
               finalCartographies.push(cartography);
             }
-
           });
-
           return finalCartographies;
-
         }));
-
     } else {
       const finalCartographies = [];
       this.getCapabilitiesLayers.forEach(capabilityLayer => {
@@ -634,93 +533,86 @@ export class ServiceFormComponent implements OnInit {
       });
       return of(finalCartographies);
     }
-
   };
 
-  onDataCapabilitiesButtonClicked() {
-    const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title = this.utils.getTranslate('caution');
-    dialogRef.componentInstance.message = this.utils.getTranslate('getCapabilitiesMessage');
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Accept') {
-          this.getCapabilitiesDataService(true);
-        }
-      }
-    });
-
+  /**
+   * Normalizes a value by joining array elements or returning the value as is.
+   * @param value - The value to normalize
+   * @returns The normalized string value
+   */
+  normalize(value: string | string[]) {
+    if (Array.isArray(value)) {
+      return value.join();
+    }
+    return value
   }
 
-
-  getAllRowsLayers(event) {
-    if (event.event == 'save') {
-      this.saveLayers(event.data);
+  /**
+   * Handles events from the cartographies grid.
+   * @param event - The grid event containing cartography data and type
+   */
+  handleCartographiesEvent(event: GridEvent<Cartography & Status>) {
+    if (isSave(event)) {
+      this.updateCartographies(event.data).catch((reason) => this.loggerService.error('Error in handleCartographiesEvent:', reason));
     }
   }
 
-  saveLayers(data: any[]) {
-    const promises: Promise<any>[] = [];
-    const promisesStyles: Promise<any>[] = [];
-    data.forEach(cartography => {
-      if (cartography.status === 'notAvailable' && !cartography.blocked) {
-        cartography.blocked = true;
-        promises.push(new Promise((resolve,) => {
-          this.cartographyService.update(cartography).subscribe(() => {
-            resolve(true);
-          });
-        }));
-      } else if (cartography.status === 'pendingRegistration' && !cartography._links) {
-        cartography.service = this.serviceToEdit;
-        cartography.blocked = false;
-        cartography.queryableFeatureAvailable = false;
-        cartography.queryableFeatureEnabled = false;
-        const styles = cartography.styles;
-        delete cartography.styles;
-        promises.push(new Promise((resolve,) => {
-          this.cartographyService.save(cartography).subscribe((resp) => {
-            if (styles && styles.length > 0) {
-              this.setStyleByDefault(styles);
-              styles.forEach(style => {
+  /**
+   * Updates cartographies in the backend.
+   * Handles creation, updates, and deletions of cartography entries.
+   *
+   * Process flow:
+   * 1. Updates blocked status for unavailable cartographies
+   * 2. Creates new cartographies with service association
+   * 3. Creates associated styles for new cartographies
+   * 4. Updates existing cartographies
+   * 5. Deletes marked cartographies
+   * 6. Triggers grid refresh
+   *
+   * @param cartographies - Array of cartographies with their current status
+   * @throws {Error} When there's an error in cartography operations
+   */
+  async updateCartographies(cartographies: (Cartography & Status)[]) {
+    await onNotAvailable(cartographies).forEach(item => {
+      item.blocked = true;
+      return this.cartographyService.update(item)
+    })
+    const newCartographies = await onPendingRegistration(cartographies).forEach(item => {
+      const newItem = Object.assign(new Cartography(), item);
+      newItem.service = this.entityToEdit;
+      newItem.blocked = false;
+      newItem.queryableFeatureAvailable = false;
+      newItem.queryableFeatureEnabled = false;
+      delete newItem.styles;
+      return this.cartographyService.create(newItem);
+    });
 
-                style = this.styleTreactment(style, resp);
-                promisesStyles.push(new Promise((resolve,) => {
-                  this.cartographyStyleService.save(style).subscribe(() => {
-                    resolve(true);
-                  });
-                }));
-              });
-            }
-            resolve(true);
-          });
-        }));
-      } else if (cartography.status === 'pendingDelete' && cartography._links) {
-        promises.push(new Promise((resolve,) => {
-          this.cartographyService.delete(cartography).subscribe(() => {
-            resolve(true);
-          });
-        }));
-      } else if (cartography.status === 'pendingModify' && cartography._links) {
-        promises.push(new Promise((resolve,) => {
-          this.cartographyService.update(cartography).subscribe(() => {
-            resolve(true);
-          });
-        }));
-
+    await Promise.all(onPendingRegistration(cartographies).data.flatMap(async (item, index) => {
+      const newStyles = Object.assign({}, item.styles) as { [key: number]: any; }
+      const observables = [];
+      this.identifyDefaultStyle(newStyles);
+      for (const property in newStyles) {
+        const cartography = newCartographies[index]
+        if (cartography instanceof Cartography) {
+          const newStyle = this.createStyle(newStyles[property], cartography);
+          observables.push(await firstValueFrom(this.cartographyStyleService.create(newStyle)));
+        }
       }
-
-
-    });
-
-    Promise.all(promises).then(() => {
-      Promise.all(promisesStyles).then(() => {
-        this.dataUpdatedEventLayers.next(true);
-      });
-    });
+      return observables
+    }))
+    await onUpdate(cartographies).forEach(item => this.cartographyService.update(item));
+    await onDelete(cartographies).forEach(item => this.cartographyService.delete(item));
+    this.dataUpdatedEventLayers.next(true);
   }
 
-  private setStyleByDefault(styles) {
+  /**
+   * Identifies and sets the default style in a collection of styles.
+   * @param styles - Object containing style definitions
+   */
+  private identifyDefaultStyle(styles: { [key: number]: any; }) {
     let styleByDefaultFound = false;
-    styles.forEach(style => {
+    for (const property in styles) {
+      const style = styles[property];
       if (style.defaultStyle) {
         if (styleByDefaultFound) {
           style.defaultStyle = false;
@@ -730,33 +622,35 @@ export class ServiceFormComponent implements OnInit {
       } else {
         style.defaultStyle = false;
       }
-
-    });
-    if (!styleByDefaultFound) {
+    }
+    if (!styleByDefaultFound && styles?.[0]) {
       styles[0].defaultStyle = true;
     }
-
-    // return styles;
   }
 
-  private styleTreactment(style, cartography) {
-    style.cartography = cartography;
+  /**
+   * Creates a new CartographyStyle instance from style data.
+   * @param style - The style data to transform
+   * @param cartography - The associated cartography
+   * @returns A new CartographyStyle instance
+   */
+  private createStyle(style: any, cartography: Cartography): CartographyStyle {
+    const newStyle = Object.assign(new CartographyStyle(), style);
+
+    newStyle.cartography = cartography;
     if (style.Name) {
-      style.name = style.Name;
-      delete style.Name;
+      newStyle.name = style.Name;
     }
 
     if (style.Abstract) {
-      style.description = style.Abstract;
-      delete style.Abstract;
+      newStyle.description = style.Abstract;
     }
 
     if (style.Title) {
-      style.title = style.Title;
-      delete style.Title;
+      newStyle.title = style.Title.substring(0, 50);
     }
     if (style.LegendURL) {
-      let onlineResource;
+      let onlineResource: any;
       if (style.LegendURL.OnlineResource) {
         if (style.LegendURL.OnlineResource['xlink:href']) {
           onlineResource = style.LegendURL.OnlineResource['xlink:href'];
@@ -767,132 +661,561 @@ export class ServiceFormComponent implements OnInit {
         }
       }
 
-      style.legendURL = {
+      newStyle.legendURL = {
         format: style.LegendURL.Format,
         onlineResource: onlineResource,
         height: style.LegendURL.height,
         width: style.LegendURL.width
       };
-      delete style.LegendURL;
     }
-
-    return style;
+    return newStyle;
   }
 
-  // ******** Parameters Dialog  ******** //
+  // ==================================================
+  //                    Parameters
+  // ==================================================
 
+  /**
+   * Service parameters management section.
+   * Provides a grid-based interface for managing service parameters with:
+   *
+   * Parameter Properties:
+   * - name: Parameter identifier (required)
+   * - type: Parameter type from predefined list (required)
+   * - value: Parameter value
+   * - typeDescription: Human-readable type description
+   *
+   * Features:
+   * - CRUD operations through grid interface
+   * - Parameter duplication support
+   * - Real-time validation
+   * - Type-based configuration
+   * - Dialog-based parameter creation
+   * - Status tracking for changes
+   *
+   * Grid Functionality:
+   * - Inline editing
+   * - Multi-select operations
+   * - Sort and filter
+   * - Change tracking
+   * - Undo/redo support
+   */
 
-  openParametersDialog() {
-    this.parameterForm.patchValue({
-      type: this.requestTypes[0].value,
-      description: this.requestTypes[0].description
+  /**
+   * Column definitions for the parameters grid.
+   * Configures the display and behavior of the grid columns:
+   * - Selection checkbox for multi-select operations
+   * - Name (editable) for parameter identification
+   * - Value (editable) for parameter configuration
+   * - Type description (non-editable) for parameter categorization
+   * - Status indicator for tracking changes
+   */
+  columnDefsParameters: any[];
+
+  /**
+   * Subject for adding new parameters to the grid.
+   * Emits arrays of parameters to be added to the grid.
+   * Used by both the dialog-based creation and duplication features.
+   */
+  addElementsEventParameters: Subject<ServiceParameter[]> = new Subject<ServiceParameter[]>();
+
+  /**
+   * Subject for notifying when parameters data has been updated.
+   * Used to trigger grid refresh after data operations.
+   * Ensures grid stays in sync with backend state.
+   */
+  dataUpdatedEventParameters: Subject<boolean> = new Subject<boolean>();
+
+  /**
+   * Form group for creating new service parameters.
+   * Contains controls for:
+   * - name: Parameter identifier (required)
+   * - type: Parameter type (required)
+   * - value: Parameter value
+   */
+  public parameterForm: UntypedFormGroup;
+
+  /**
+   * Reference to the parameter dialog template.
+   * Used when opening the dialog for adding new parameters.
+   * Provides a user-friendly interface for parameter creation.
+   */
+  @ViewChild('newParameterDialog', {static: true}) private newParameterDialog: TemplateRef<any>;
+
+  /**
+   * Initializes the parameters tab configuration.
+   * Sets up column definitions for the parameters grid and dialog:
+   * - Defines editable and non-editable columns for parameters
+   * - Creates a form group for adding new parameters
+   */
+  ngOnInitParametersTab() {
+    this.columnDefsParameters = [
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getEditableColumnDef('serviceEntity.parameter', 'name'),
+      this.utils.getEditableColumnDef('serviceEntity.value', 'value'),
+      this.utils.getNonEditableColumnDef('serviceEntity.type', 'typeDescription'),
+      this.utils.getStatusColumnDef()
+    ];
+    this.parameterForm = new UntypedFormGroup({
+      name: new UntypedFormControl(null, [Validators.required]),
+      type: new UntypedFormControl(null, [Validators.required]),
+      value: new UntypedFormControl(null, []),
     });
-
-    const dialogRef = this.dialog.open(DialogFormComponent);
-    dialogRef.componentInstance.HTMLReceived = this.newParameterDialog;
-    dialogRef.componentInstance.title = this.utils.getTranslate('serviceEntity.configurationParameters');
-    dialogRef.componentInstance.form = this.parameterForm;
-
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Add') {
-          const item = this.parameterForm.value;
-
-          item.type = this.requestTypes.find(
-            element => element.value == item.type.toUpperCase()
-          ).description;
-
-          this.addElementsEventParameters.next([item]);
-
-          this.parameterForm.reset();
-
-        }
-      }
-
-    });
-
   }
 
+  /**
+   * Fetches all parameters associated with the service.
+   * If the service is new (not yet saved), returns an empty array.
+   * Otherwise, retrieves the parameters through the service's relation array
+   * and enriches each parameter with its type description.
+   *
+   * @returns {Observable<ServiceParameter[]>} An observable containing the service parameters
+   * with their type descriptions
+   */
 
-  // ******** Layers Dialog  ******** //
-
-  getAllLayersDialog = () => {
-    return this.cartographyService.getAll();
+  fetchParameters = (): Observable<ServiceParameter[]> => {
+    if (this.isNew()) {
+      return of([]);
+    }
+    return this.entityToEdit.getRelationArrayEx(ServiceParameter, 'parameters', {projection: 'view'})
+      .pipe(map((data: ServiceParameter[]) =>
+        data.map(element => Object.assign(new ServiceParameter(), {
+          ...element,
+          typeDescription: this.findInCodeList('serviceParameter.type', element.type)?.description
+        }))
+      ))
   };
 
-  openCartographyDialog() {
-
-    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass: 'gridDialogs'});
-    dialogRef.componentInstance.getAllsTable = [this.getAllLayersDialog];
-    dialogRef.componentInstance.singleSelectionTable = [false];
-    dialogRef.componentInstance.orderTable = ['name'];
-    dialogRef.componentInstance.columnDefsTable = [this.columnDefsLayersDialog];
-    dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate('serviceEntity.layersToRegister');
-    dialogRef.componentInstance.titlesTable = [''];
-    dialogRef.componentInstance.nonEditable = false;
-
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Add') {
-          this.addElementsEventLayers.next(result.data[0]);
-        }
-      }
-
-    });
-
-  }
-
-  onSaveButtonClicked() {
-    if (this.serviceForm.valid) {
-
-      if (this.serviceID == -1 && this.duplicateID != -1) {
-        this.serviceForm.patchValue({
-          _links: null
-        });
-      }
-
-      this.serviceForm.patchValue({
-        supportedSRS: this.projections
-      });
-
-      this.serviceService.save(this.serviceForm.value)
-        .subscribe(async resp => {
-
-            this.serviceToEdit = resp;
-            this.serviceID = resp.id;
-            this.serviceForm.patchValue({
-              id: resp.id,
-              _links: resp._links
-            });
-
-            await this.utils.saveTranslation(resp.id, this.translationMap, this.serviceToEdit.description, this.translationsModified);
-            this.translationsModified = false;
-            this.getAllElementsEventParameters.next('save');
-            this.getAllElementsEventLayers.next('save');
-          },
-          error => {
-            this.loggerService.error('Error saving service', error);
-          }
-        );
-    } else {
-      this.utils.showRequiredFieldsError();
+  /**
+   * Handles events from the parameters grid.
+   * When a save event is received, triggers the update of service parameters.
+   *
+   * @param {GridEvent<ServiceParameter>} event - The grid event containing the event type and data
+   */
+  handleParametersEvent(event: GridEvent<ServiceParameter>) {
+    if (isSave(event)) {
+      this.updateParameters(event.data).catch((reason) => this.loggerService.error('Error in handleParametersEvent:', reason));
     }
   }
 
-  isAuthenticationModeNode(): boolean {
-    return this.serviceForm.get('authenticationMode').value !== constants.codeValue.serviceAuthenticationMode.none;
+  /**
+   * Updates the service parameters by handling creation, updates, and deletions.
+   * This method processes three types of changes:
+   * 1. New parameters: Creates new ServiceParameter instances and associates them with the service
+   * 2. Updated parameters: Updates existing parameters
+   * 3. Deleted parameters: Removes parameters marked for deletion
+   *
+   * @param {(ServiceParameter & Status)[]} serviceParameters - Array of parameters with their current status
+   * @throws Error if any of the parameter operations fail
+   */
+  async updateParameters(serviceParameters: (ServiceParameter & Status)[]) {
+    await onCreate(serviceParameters).forEach(item =>
+      this.serviceParameterService.create(Object.assign(new ServiceParameter(), {
+        ...item,
+        service: this.entityToEdit
+      }))
+    );
+    await onUpdate(serviceParameters).forEach(item => this.serviceParameterService.update(item));
+    await onDelete(serviceParameters).forEach(item => this.serviceParameterService.delete(item));
+    this.dataUpdatedEventParameters.next(true);
   }
 
-  isWMS() {
-    return this.serviceForm.value.type === constants.codeValue.serviceType.wms
+  /**
+   * Creates a duplicate of the selected parameters with modified names.
+   * Each duplicated parameter will have:
+   * - A new ID (undefined)
+   * - No links (_links: undefined)
+   * - A name prefixed with the translation of 'copy_'
+   *
+   * @param {ServiceParameter[]} parameters - Array of parameters to duplicate
+   */
+  duplicateParameters(parameters: ServiceParameter[]) {
+    this.duplicate(ServiceParameter, parameters, this.addElementsEventParameters);
   }
 
-  activeTabIndex = 0;
+  /**
+   * Opens a dialog for adding new service parameters.
+   * This method:
+   * 1. Resets the parameter form with default type value
+   * 2. Opens a dialog with the parameter form template
+   * 3. Processes the result when dialog is closed
+   *
+   * When the user confirms by clicking Add, the new parameter is added to the grid
+   * through the addElementsEventParameters Subject.
+   */
+  openParametersDialog() {
+    this.parameterForm.reset({type: this.firstInCodeList('serviceParameter.type').value});
+    const dialogRef = this.dialog.open<DialogFormComponent, DialogFormData, DialogFormResult>(
+      DialogFormComponent, {
+        data: {
+          HTMLReceived: this.newParameterDialog,
+          title: this.translateService.instant('serviceEntity.configurationParameters'),
+          form: this.parameterForm
+        }
+      }
+    );
+    dialogRef.afterClosed().subscribe(next => {
+      if (next === DIALOG_FORM_EVENTS.ADD) {
+        this.addElementsEventParameters.next([this.parameterForm.value]);
+      }
+    });
+  }
 
-  onTabChange(event: MatTabChangeEvent) {
-    this.activeTabIndex = event.index;
+  // ==================================================
+  //             Process WMS Capabilities
+  // ==================================================
+
+  /**
+   * WMS Capabilities integration section.
+   * Handles the retrieval and processing of WMS GetCapabilities responses.
+   *
+   * Capabilities Processing:
+   * 1. Service Metadata
+   *    - Service title and abstract
+   *    - Supported projections (SRS/CRS)
+   *    - Contact information
+   *
+   * 2. Layer Management
+   *    - Layer discovery and hierarchy
+   *    - Style configuration
+   *    - Legend URLs
+   *    - Metadata URLs
+   *
+   * 3. Integration Features
+   *    - Automatic form population
+   *    - Layer registration
+   *    - Style association
+   *    - Multi-language support
+   *
+   * The capabilities processing is triggered either:
+   * - On initial service creation
+   * - When updating an existing service
+   * - Through manual refresh
+   */
+
+  /**
+   * Object storing raw WMS capabilities response data.
+   * Contains the complete GetCapabilities response including:
+   * - Service information
+   * - Layer definitions
+   * - Style configurations
+   * - Supported features
+   */
+  serviceCapabilitiesData: any = {};
+
+  /**
+   * Array of cartography layers extracted from WMS capabilities.
+   * Each entry represents a layer with:
+   * - Layer name and title
+   * - Layer description
+   * - Style information
+   * - Metadata URLs
+   * - Current status (new/existing/modified)
+   */
+  getCapabilitiesLayers: (Cartography & Status)[] = [];
+
+  onUpdateServiceMetadata() {
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title = this.utils.getTranslate('caution');
+    dialogRef.componentInstance.message = this.utils.getTranslate('getCapabilitiesMessage');
+    dialogRef.afterClosed().subscribe(next => {
+      if (next?.event === 'Accept') {
+        switch (this.entityForm.get('type').value) {
+          case constants.codeValue.serviceType.wms:
+            this.processWMSServiceMetadata().catch((reason) => this.loggerService.error('Error in onUpdateGeneralServiceData:', reason));
+        }
+      }
+    });
+  }
+
+  /**
+   * Processes the WMS service capabilities.
+   * Retrieves capabilities data and updates the service information.
+   */
+  async processWMSServiceMetadata() {
+    const result = await this.wmsGetCapabilitiesRequest();
+
+    if (result.success) {
+      this.getCapabilitiesLayers = [];
+      this.serviceCapabilitiesData = result.asJson;
+      this.updateName()
+      this.updateDescription()
+      this.updateSupportedSRS()
+    }
+  }
+
+  private async wmsGetCapabilitiesRequest() {
+    let url: string = this.entityForm.value.serviceURL;
+    if (!url.includes(config.capabilitiesRequest.simpleRequest)) {
+      if (url[url.length - 1] != '?') {
+        url += '?';
+      }
+      url += config.capabilitiesRequest.requestWithWMS;
+    }
+    return await firstValueFrom(this.capabilitiesService.getInfo(url)).catch((error) => {
+      this.loggerService.error('Error getting capabilities data', error);
+      this.utils.showSimpleErrorMessage(error.error.reason);
+      return {
+        success: false,
+        asJson: null
+      }
+    });
+  }
+
+  /**
+   * Updates the service title based on WMS capabilities.
+   * Sets the name field in the form with the service title.
+   */
+  updateName() {
+    const data = this.serviceCapabilitiesData.WMT_MS_Capabilities != undefined ? this.serviceCapabilitiesData.WMT_MS_Capabilities : this.serviceCapabilitiesData.WMS_Capabilities;
+    if (data?.Service?.Title?.length > 0) {
+      this.entityForm.patchValue({
+        name: data.Service.Title.substring(0, 60),
+      });
+    }
+  }
+
+  updateDescription() {
+    const data = this.serviceCapabilitiesData.WMT_MS_Capabilities != undefined ? this.serviceCapabilitiesData.WMT_MS_Capabilities : this.serviceCapabilitiesData.WMS_Capabilities;
+    if (data?.Service?.Abstract?.length > 0) {
+      const auxDescription = this.extractServiceAbstract(data);
+      const newDescription = auxDescription.length > 250 ? auxDescription.substring(0, 250) : auxDescription;
+      this.entityForm.patchValue({
+        description: newDescription,
+      });
+    }
+  }
+
+  updateSupportedSRS() {
+    const data = this.serviceCapabilitiesData.WMT_MS_Capabilities != undefined ? this.serviceCapabilitiesData.WMT_MS_Capabilities : this.serviceCapabilitiesData.WMS_Capabilities;
+    if (data?.Capability) {
+      this.entityForm.patchValue({
+        supportedSRS: this.extractProjections(data),
+      })
+    }
+  }
+
+  /**
+   * Handles the data capabilities button click event.
+   * Shows confirmation dialog before retrieving capabilities data.
+   */
+  onUpdateServiceCapabilities() {
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title = this.utils.getTranslate('caution');
+    dialogRef.componentInstance.message = this.utils.getTranslate('getCapabilitiesMessage');
+    dialogRef.afterClosed().subscribe(next => {
+      if (next?.event === 'Accept') {
+        switch (this.entityForm.get('type').value) {
+          case constants.codeValue.serviceType.wms:
+            this.processWMSServiceCapabilities().catch((reason) => this.loggerService.error('Error in onUpdateGeneralServiceData:', reason));
+        }
+      }
+    });
+  }
+
+  /**
+   * Retrieves capabilities data from the service URL.
+   * Processes WMS GetCapabilities request and updates service information.
+   *
+   * Process:
+   * 1. Constructs proper WMS capabilities URL
+   * 2. Makes request to capabilities service
+   * 3. On success:
+   *    - Clears existing layers
+   *    - Updates service capabilities data
+   *    - Triggers service data update
+   *
+   * @param refresh - Whether to refresh the data
+   * @throws {Error} When there's an error retrieving capabilities
+   */
+  async processWMSServiceCapabilities() {
+    const result = await this.wmsGetCapabilitiesRequest();
+
+    if (result.success) {
+      this.serviceCapabilitiesData = result.asJson;
+      this.extractLayers()
+    }
+
+  }
+
+  /**
+   * Updates service data based on capabilities information.
+   * @param refresh - Whether to refresh the data
+   */
+  extractLayers(): void {
+    const data = this.serviceCapabilitiesData.WMT_MS_Capabilities != undefined ? this.serviceCapabilitiesData.WMT_MS_Capabilities : this.serviceCapabilitiesData.WMS_Capabilities;
+    if (data?.Capability) {
+      const layerCapability = this.getRootLayer(data);
+      const layersTable: any[] = [];
+      this.flatMapLayers(layerCapability, layersTable);
+      this.loggerService.debug('layersTable', {
+        rootLayer: layerCapability,
+        layersTable: layersTable,
+      });
+      layersTable.forEach(lyr => {
+        let layersLyr: string[];
+        const styles: any[] = [];
+        if (Array.isArray(lyr.Name)) {
+          layersLyr = lyr.Name;
+        } else {
+          if (!isNaN(lyr.Name)) {
+            lyr.Name = lyr.Name.toString();
+          }
+          if (!lyr.Name) {
+            return;
+          }
+          layersLyr = lyr.Name.split(',');
+        }
+        const cartography = this.extractCartography(lyr, layersLyr, styles);
+
+        const discard = this.getCapabilitiesLayers.find(
+          value => value.layers.length == 1 && value.layers[0] === cartography.layers[0]
+        );
+        if (!discard) {
+          this.getCapabilitiesLayers.push(cartography);
+        } else {
+          this.loggerService.debug('discarded cartography', {
+            discarded: cartography,
+            reason: discard
+          });
+        }
+      });
+    }
+    this.dataUpdatedEventLayers.next(true);
+  }
+
+  /**
+   * Extracts service abstract information from capabilities data.
+   * @param data - The capabilities data
+   * @returns The extracted abstract description
+   */
+  private extractServiceAbstract(data): string {
+    let auxDescription: string;
+    if (Array.isArray(data.Service.Abstract)) {
+      const descriptionTranslations: PropertyTranslations = this.propertyTranslations.get('description')
+      data.Service.Abstract.forEach((translation: { [x: string]: string; content: string; }) => {
+        let languageShortname: string = translation['xml:lang'];
+        const index = languageShortname.indexOf('-');
+        if (index != -1) {
+          languageShortname = languageShortname.substring(0, index);
+        }
+        if (languageShortname == config.defaultLang) {
+          auxDescription = translation.content;
+        } else if (descriptionTranslations.map.has(languageShortname)) {
+          const currentTranslation = descriptionTranslations.map.get(languageShortname);
+          const translationReduced = translation.content.substring(0, 249);
+          if (currentTranslation.translation != translationReduced) {
+            currentTranslation.translation = translationReduced;
+            descriptionTranslations.modified = true;
+          }
+        }
+      });
+      auxDescription = data.Service.Abstract.find(element => element['xml:lang'].includes(config.defaultLang));
+      if (!auxDescription) {
+        return data.Service.Abstract[0].content;
+      } else {
+        return auxDescription;
+      }
+    } else {
+      return data.Service.Abstract;
+    }
+  }
+
+  /**
+   * Creates a cartography instance from layer data.
+   * @param layer - The layer data
+   * @param layerNames - The layer names
+   * @param styles - Array to store style information
+   * @returns A new cartography instance
+   */
+  private extractCartography(layer: any, layerNames: string[], styles: any[]): Cartography & Status {
+    this.loggerService.debug("prepare to extract cartography", {layer: layer, layersLyr: layerNames, styles: styles})
+    const cartography = new Cartography() as (Cartography & Status);
+    cartography.name = layer.Title?.substring(0, 100);
+    cartography.description = layer.Abstract?.substring(0, 250);
+    cartography.layers = layerNames;
+
+    if (layer.Style) {
+      styles.push(...(Array.isArray(layer.Style) ? layer.Style : [layer.Style]));
+      cartography.styles = styles;
+    }
+
+    const metadataURL = Array.isArray(layer.MetadataURL) ? layer.MetadataURL[0] : layer.MetadataURL;
+    cartography.metadataURL = metadataURL?.OnlineResource?.['xlink:href'];
+
+    const dataURL = Array.isArray(layer.DataURL) ? layer.DataURL[0] : layer.DataURL;
+    cartography.datasetURL = dataURL?.OnlineResource?.['xlink:href'];
+
+    const style = Array.isArray(layer.Style) ? layer.Style[0] : layer.Style;
+    cartography.legendURL = style?.LEGENDURL?.OnlineResource?.['xlink:href'];
+
+    this.loggerService.debug('cartography extracted', {})
+    return cartography;
+  }
+
+  /**
+   * Gets the root layer from capabilities data.
+   * @param data - The capabilities data
+   * @returns The root layer object
+   */
+  private getRootLayer(data: { Capability: { Layer: any; }; }): any {
+    let layerCapability = data.Capability.Layer;
+    while (layerCapability?.Layer != null) {
+      layerCapability = layerCapability.Layer;
+    }
+    return layerCapability;
+  }
+
+  /**
+   * Extracts projection information from capabilities data.
+   * @param data - The capabilities data
+   */
+  private extractProjections(data: { Capability: { Layer: any; }; }): string[] {
+    const layer = data.Capability.Layer;
+    const capabilitiesList = layer.SRS ?? layer.CRS;
+    const supportedSRS: string[] = [];
+    if (capabilitiesList) {
+      supportedSRS.push(...capabilitiesList);
+    }
+    return supportedSRS;
+  }
+
+  /**
+   * Recursively extracts layer information from capabilities data.
+   * @param lyrTable - The layer table to process
+   * @param tableToSave - Array to store extracted layer information
+   */
+  private flatMapLayers(lyrTable: any, tableToSave: any[]): void {
+    if (Array.isArray(lyrTable)) {
+      lyrTable.forEach(layer => {
+        tableToSave.push(layer);
+        if (layer.Layer !== null) {
+          this.flatMapLayers(layer.Layer, tableToSave);
+        }
+      });
+    } else if (lyrTable) {
+      tableToSave.push(lyrTable);
+    }
+  }
+
+  // ==================================================
+  //                    Cleanup
+  // ==================================================
+
+  /**
+   * Performs cleanup when component is destroyed.
+   * Completes all subjects to prevent memory leaks.
+   */
+  ngOnDestroy(): void {
+    // Complete all subjects to prevent memory leaks
+    this.subjects?.forEach(subject => {
+      subject.complete();
+    });
+
+    this.addElementsEventLayers?.complete();
+    this.addElementsEventParameters?.complete();
+
+    this.dataUpdatedEventLayers?.complete();
+    this.dataUpdatedEventParameters?.complete();
   }
 }

@@ -7,4 +7,4 @@
  * 
  * @template T - The type of object the constructor creates, defaults to empty object
  */
-type Constructor<T = {}> = new (...args: any[]) => T;
+export type Constructor<T = {}> = new (...args: any[]) => T;

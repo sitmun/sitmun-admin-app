@@ -39,7 +39,7 @@ export class ServiceComponent implements OnInit {
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
       this.utils.getEditableColumnDef('serviceEntity.name', 'name', 300),
-      this.utils.getNonEditableColumnDef('serviceEntity.type', 'type', 120, 120),
+      this.utils.getNonEditableColumnDef('serviceEntity.type', 'type', 120),
       this.utils.getNonEditableColumnDef('serviceEntity.serviceURL', 'serviceURL'),
     ];
   }

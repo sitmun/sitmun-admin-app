@@ -36,10 +36,19 @@ ModuleRegistry.registerModules([
 
 export type GridEventType = "save"
 
+type StatusType = 'notAvailable' | 'statusOK' | 'pendingCreation' | 'pendingModify' | 'pendingDelete' | 'pendingRegistration' | 'unregisteredLayer';
+
 export interface Status {
-  status: string;
+  status: StatusType;
   newItem: boolean;
-  new: boolean;
+}
+
+export function isActive(item: Status): boolean {
+  return item.status === 'statusOK' || item.status === 'pendingModify' || item.status === 'pendingCreation';
+}
+
+export function isRegistered(item: Status): boolean {
+  return item.status === 'statusOK' || item.status === 'pendingModify' || item.status === 'pendingDelete';
 }
 
 export function canDelete(status: Status): boolean {
@@ -67,6 +76,19 @@ export function canCreate(status: Status): boolean {
   return status.status === 'pendingCreation'
 }
 
+export function canRegistry(status: Status): boolean {
+  return status.status === 'pendingRegistration'
+}
+
+export function notAvailable(status: Status): boolean {
+  return status.status === 'notAvailable'
+}
+
+export function onNotAvailable<T>(data: (T & Status)[]): Executor<T> {
+  return new Executor(data.filter(notAvailable))
+}
+
+
 export function onCreate<T>(data: (T & Status)[]): Executor<T> {
   return new Executor(data.filter(canCreate))
 }
@@ -79,23 +101,48 @@ export function onUpdate<T>(data: (T & Status)[]): Executor<T> {
   return new Executor(data.filter(canUpdate))
 }
 
+export function onPendingRegistration<T>(data: (T & Status)[]): Executor<T> {
+  return new Executor(data.filter(canRegistry))
+}
+
 export function onUpdatedRelation<T>(data: (T & Status)[]): Executor<T> {
   return new Executor(data.filter(canUpdateRelation))
 }
 
 export class Executor<T> {
-  constructor(private readonly data: T[]) {
+  constructor(public readonly data: T[]) {
   }
 
-  async forAll(func: (item: T[]) => Observable<any>) {
+  async forAll<S>(func: (item: T[]) => Observable<S | Observable<never>>) : Promise<S | Observable<never>> {
     return firstValueFrom(func(this.data));
   }
 
-  async forEach(func: (item: T) => Observable<any>) {
-    return Promise.all(this.data.map(async item => firstValueFrom(func(item))));
+  async forEach<S>(func: (item: T) => Observable<S | Observable<never>>) : Promise<(S | Observable<never>)[]> {
+    const results = [];
+    for (const item of this.data) {
+      results.push(await firstValueFrom(func(item)));
+    }
+    return results;
   }
 }
 
+/**
+ * A feature-rich Angular wrapper around AG Grid providing advanced data grid functionality.
+ * Supports CRUD operations, state management, undo/redo, search/replace, and more.
+ *
+ * @example
+ * ```typescript
+ * <app-data-grid
+ *   [columnDefs]="columnDefinitions"
+ *   [getAll]="fetchDataFunction"
+ *   [undoButton]="true"
+ *   [redoButton]="true"
+ *   [globalSearch]="true"
+ *   (sendChanges)="onChangesSaved($event)"
+ *   (gridModified)="onGridModified($event)">
+ * </app-data-grid>
+ * ```
+ */
 @Component({
   selector: 'app-data-grid',
   templateUrl: './data-grid.component.html',
@@ -118,88 +165,154 @@ export class Executor<T> {
   ]
 })
 export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
-
+  /** Tracks if this is the first time loading data */
   isFirstLoad = true;
+  /** Subscription for data loading */
   dataSubscription!: Subscription;
 
+  /** Subscription for grid refresh events */
   _eventRefreshSubscription: any;
+  /** Subscription for getting selected rows */
   _eventGetSelectedRowsSubscription: any;
+  /** Subscription for getting all rows */
   _eventGetAllRowsSubscription: any;
+  /** Subscription for saving grid state */
   _eventSaveAgGridStateSubscription: any;
+  /** Subscription for modifying status of selected cells */
   _eventModifyStatusOfSelectedCells: any;
 
+  /** Current search value for quick search */
   searchValue: string;
+  /** Reference to AG Grid API */
   gridApi: any;
+  /** Reference to AG Grid Column API */
   gridColumnApi: any;
+  /** Flag indicating if status column is present */
   statusColumn = false;
+  /** Flag indicating if any column is editable */
   someColumnIsEditable = false;
+  /** Map tracking changes to cells */
   changesMap: Map<string, Map<string, number>> = new Map<string, Map<string, number>>();
 
-  // We will save the id of edited cells and the number of editions done.
-  params: any; // Last parameters of the grid (in case we do apply changes we will need it)
+  /** Last parameters of the grid */
+  params: any;
+  /** Current row data */
   rowData: any[];
-  changeCounter: number; // Number of editions done above any cell
-  previousChangeCounter: number; // Number of ditions done after the last modification(changeCounter)
-  redoCounter: number; // Number of redo we can do
+  /** Number of editions done above any cell */
+  changeCounter: number;
+  /** Number of editions done after the last modification */
+  previousChangeCounter: number;
+  /** Number of redo operations available */
+  redoCounter: number;
+  /** Flag indicating if a modification change occurred */
   modificationChange = false;
-  undoNoChanges = false; // Boolean that indicates if an undo hasn't modifications
+  /** Flag indicating if an undo has no modifications */
+  undoNoChanges = false;
+  /** AG Grid options configuration */
   gridOptions: GridOptions;
+  /** Flag indicating if any status has changed to delete */
   someStatusHasChangedToDelete = false;
 
+  /** Observable triggering grid refresh */
   @Input() eventRefreshSubscription: Observable<boolean>;
+  /** Observable triggering selected rows emission */
   @Input() eventGetSelectedRowsSubscription: Observable<boolean>;
+  /** Observable triggering all rows emission */
   @Input() eventGetAllRowsSubscription: Observable<GridEventType>;
+  /** Observable triggering grid state save */
   @Input() eventSaveAgGridStateSubscription: Observable<boolean>;
+  /** Observable triggering status modification of selected cells */
   @Input() eventModifyStatusOfSelectedCells: Observable<string>;
+  /** Observable for adding new items */
   @Input() eventAddItemsSubscription: Observable<any[]>;
+  /** Custom framework components */
   @Input() frameworkComponents: any;
+  /** Grid components */
   @Input() components: any;
+  /** Column definitions */
   @Input() columnDefs: any[];
+  /** Function to fetch all data */
   @Input() getAll: () => Observable<any>;
+  /** Flag to show/hide discard changes button */
   @Input() discardChangesButton: boolean;
+  /** Flag to discard non-reverse status */
   @Input() discardNonReverseStatus: boolean;
+  /** Grid identifier */
   @Input() id: any;
+  /** Flag to show/hide undo button */
   @Input() undoButton: boolean;
+  /** Default column sorting configuration */
   @Input() defaultColumnSorting: string[];
+  /** Flag to show/hide redo button */
   @Input() redoButton: boolean;
+  /** Flag to show/hide apply changes button */
   @Input() applyChangesButton: boolean;
+  /** Flag to show/hide delete button */
   @Input() deleteButton: boolean;
+  /** Flag to show/hide new button */
   @Input() newButton: boolean;
+  /** Flag to show/hide action button */
   @Input() actionButton: boolean;
+  /** Flag to show/hide add button */
   @Input() addButton: boolean;
+  /** Flag to show/hide register button */
   @Input() registerButton: boolean;
+  /** New status for registration */
   @Input() newStatusRegister: string;
+  /** Flag to enable/disable global search */
   @Input() globalSearch: boolean;
+  /** Flag to show/hide change height button */
   @Input() changeHeightButton: boolean;
+  /** Default height configuration */
   @Input() defaultHeight: any;
+  /** Flag for single selection mode */
   @Input() singleSelection: boolean;
+  /** Flag for non-editable mode */
   @Input() nonEditable: boolean;
+  /** Grid title */
   @Input() title: string;
+  /** Flag to hide export button */
   @Input() hideExportButton: boolean;
+  /** Flag to hide duplicate button */
   @Input() hideDuplicateButton: boolean;
+  /** Flag to hide search/replace button */
   @Input() hideSearchReplaceButton: boolean;
+  /** Field restriction configuration */
   @Input() addFieldRestriction: any;
+  /** Configuration for all new elements */
   @Input() allNewElements: any;
+  /** Current data array */
   @Input() currentData: any[] = null;
+  /** Field restriction with different name */
   @Input() fieldRestrictionWithDifferentName: string;
 
-
+  /** Event emitter for remove operation */
   @Output() remove: EventEmitter<any[]>;
+  /** Event emitter for new operation */
   @Output() new: EventEmitter<number>;
+  /** Event emitter for add operation */
   @Output() add: EventEmitter<any[]>;
+  /** Event emitter for discard changes */
   @Output() discardChanges: EventEmitter<any[]>;
+  /** Event emitter for sending changes */
   @Output() sendChanges: EventEmitter<any[]>;
+  /** Event emitter for duplicate operation */
   @Output() duplicate: EventEmitter<any[]>;
+  /** Event emitter for selected rows */
   @Output() getSelectedRows: EventEmitter<any[]>;
+  /** Event emitter for all rows */
   @Output() getAllRows: EventEmitter<{data: any[], event:string}>;
-  @Output() getAgGridState: EventEmitter<any[]>;
+  /** Event emitter for grid modified state */
   @Output() gridModified: EventEmitter<boolean>;
-
+  /** Event emitter for visibility state */
   @Output() visible = new EventEmitter<HTMLElement>();
 
+  /** Reference to the data grid element */
   @ViewChild('dataGrid', { static: true }) dataGrid: ElementRef;
+  /** Intersection observer for grid visibility */
   private observer: IntersectionObserver;
 
+  /** Current replace value for search/replace operation */
   replaceValue = '';
 
   constructor(public dialog: MatDialog,
@@ -274,7 +387,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     };
   }
 
-
+  /**
+   * Handles component initialization
+   */
   ngOnInit() : void {
 
     // Ensure that the grid is visible before autosizing columns.
@@ -330,6 +445,10 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     this.loadData()
   }
 
+  /**
+   * Sets the loading state of the grid
+   * @param value - True to show loading overlay, false to hide
+   */
   setLoading(value: boolean) {
     if (value) {
       this.gridApi?.showLoadingOverlay();
@@ -338,21 +457,26 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  /**
+   * Loads data into the grid
+   */
   loadData(): void {
     this.setLoading(true);
     this.dataSubscription = this.getAll().subscribe({
-      next: (data: any[]) => {
+      next: (data: Status[]) => {
         const status = this.allNewElements ? 'pendingCreation' : 'statusOK';
         const newItems = [];
         const condition = (this.addFieldRestriction) ? this.addFieldRestriction : 'id';
 
         data.forEach(element => {
           if (this.statusColumn) {
-            if (element.status != "notAvailable" && element.status != "pendingCreation" &&
-                element.status != "pendingRegistration" && element.status != "unregisteredLayer") {
+            if (isRegistered(element)) {
               element.status = status;
             }
-            if (this.allNewElements) { element.new = true; }
+            if (this.allNewElements) {
+              element.status = 'pendingCreation'
+              element.newItem = true;
+            }
           }
           if (this.currentData) {
             if (this.checkElementAllowedToAdd(condition, element, this.currentData)) {
@@ -377,6 +501,10 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     });
   }
 
+  /**
+   * Handles component destruction
+   * Cleans up subscriptions and observers
+   */
   ngOnDestroy(): void {
     if (this.dataSubscription) {
       this.dataSubscription.unsubscribe();
@@ -386,6 +514,10 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  /**
+   * Handles first data rendered event
+   * Restores saved grid state if available
+   */
   firstDataRendered(): void {
     if (localStorage.agGridState != undefined) {
       const agGridState = JSON.parse(localStorage.agGridState)
@@ -405,6 +537,11 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  /**
+   * Handles grid ready event
+   * Initializes grid API and loads initial data
+   * @param params - Grid ready event parameters
+   */
   onGridReady(params): void {
     this.params = params;
     this.gridApi = params.api;
@@ -447,6 +584,10 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  /**
+   * Creates a date picker component for the grid
+   * @returns Date picker component instance
+   */
   getDatePicker() {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     function Datepicker() {
@@ -476,6 +617,10 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     return Datepicker;
   }
 
+  /**
+   * Checks if rows are selected in the grid
+   * @returns True if any rows are selected, false otherwise
+   */
   areRowsSelected(): boolean {
     return (this.gridApi != null && this.gridApi?.getSelectedNodes().length > 0);
     // if (this.gridApi != null && this.gridApi.getSelectedNodes().length > 0) {
@@ -486,12 +631,19 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   }
 
 
+  /**
+   * Emits currently selected rows
+   */
   emitSelectedRows(): void {
     const selectedNodes = this.gridApi.getSelectedNodes();
     const selectedData = selectedNodes.map(node => node.data);
     this.getSelectedRows.emit(selectedData);
   }
 
+  /**
+   * Emits all rows with specified event type
+   * @param event - The grid event type
+   */
   emitAllRows(event: GridEventType): void {
     if (event === "save") {
       this.applyChanges();
@@ -499,12 +651,21 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     this.getAllRows.emit({data: this.getAllCurrentData(), event: event});
   }
 
+  /**
+   * Gets all current data from the grid
+   * @returns Array of all current row data
+   * @private
+   */
   private getAllCurrentData(): any[]{
     const rowData = [];
     this.gridApi.forEachNode(node => rowData.push(node.data));
     return rowData;
   }
 
+  /**
+   * Modifies the status of selected cells
+   * @param status - Optional status to set
+   */
   modifyStatusSelected(status?: string): void{
     const newStatus=status?status:this.newStatusRegister;
     const selectedNodes = this.gridApi.getSelectedNodes();
@@ -515,6 +676,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     this.gridApi.redrawRows();
   }
 
+  /**
+   * Saves the current grid state to localStorage
+   */
   saveAgGridState(): void {
     const agGridState = {
       idAgGrid: this.id,
@@ -527,10 +691,18 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     localStorage.setItem("agGridState", JSON.stringify(agGridState));
 
   }
+  /**
+   * Removes the saved grid state from localStorage
+   */
   removeAgGridState(): void {
     localStorage.removeItem("agGridState")
   }
 
+  /**
+   * Gets column keys and headers
+   * @param columnkeys - Array to store column keys
+   * @returns Comma-separated string of headers
+   */
   getColumnKeysAndHeaders(columnkeys: any[]): string {
     const header: any[] = [];
     if (this.columnDefs.length == 0) { return '' }
@@ -551,6 +723,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   }
 
 
+  /**
+   * Exports grid data to CSV
+   */
   exportData(): void {
     const columnkeys: any[] = [];
     const customHeader= this.getColumnKeysAndHeaders(columnkeys)
@@ -563,6 +738,10 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     this.gridApi.exportDataAsCsv(params);
   }
 
+  /**
+   * Applies all pending changes in the grid
+   * Updates the grid state, saves changes, and refreshes the display
+   */
   applyChanges(): void {
     this.loggerService.debug('DataGridComponent applyChanges - Starting');
 
@@ -644,6 +823,10 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     });
   }
 
+  /**
+   * Performs quick search across all grid columns
+   * @param event - Keyboard event containing search input
+   */
   quickSearch(event: KeyboardEvent): void {
     const input = event.target as HTMLInputElement;
     this.searchValue = input.value;
@@ -656,6 +839,10 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  /**
+   * Adds new items to the grid
+   * @param newItems - Array of items to add
+   */
   addItems(newItems: any[]): void {
 
     const itemsToAdd: any[] = [];
@@ -681,6 +868,14 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  /**
+   * Checks if an element is allowed to be added based on specified conditions
+   * @param condition - The condition to check against
+   * @param item - The item to check
+   * @param data - The existing data to compare against
+   * @returns boolean indicating if the element can be added
+   * @private
+   */
   private checkElementAllowedToAdd(condition, item, data){
 
     let finalAddition = true;
@@ -713,6 +908,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
   }
 
+  /**
+   * Removes selected data from the grid
+   */
   removeData(): void {
     this.gridApi.stopEditing(false);
     const selectedNodes = this.gridApi.getSelectedNodes();
@@ -730,16 +928,26 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     this.gridApi.deselectAll();
   }
 
+  /**
+   * Triggers creation of new data
+   */
   newData(): void {
     this.gridApi.stopEditing(false);
     this.new.emit(-1);
   }
 
+  /**
+   * Handles add button click event
+   */
   onAddButtonClicked(): void {
     this.gridApi.stopEditing(false);
     this.add.emit(this.getAllCurrentData());
   }
 
+  /**
+   * Handles duplicate button click event
+   * Shows confirmation dialog if there are pending changes
+   */
   onDuplicateButtonClicked(): void {
     this.gridApi.stopEditing(false);
     if (this.changeCounter > 0) {
@@ -767,6 +975,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   }
 
 
+  /**
+   * Deletes all pending changes and reverts the grid to its original state
+   */
   deleteChanges(): void {
     this.gridApi.stopEditing(false);
     const newElementsActived= this.allNewElements;
@@ -807,6 +1018,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   }
 
 
+  /**
+   * Handles filter modification events
+   */
   onFilterModified(): void {
 
     this.deleteChanges();
@@ -814,6 +1028,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   }
 
 
+  /**
+   * Performs undo operation on the last cell edit
+   */
   undo(): void {
     this.gridApi.stopEditing(false);
     this.gridApi.undoCellEditing();
@@ -822,6 +1039,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     this.redoCounter += 1;
   }
 
+  /**
+   * Performs redo operation on the last undone edit
+   */
   redo(): void {
     this.gridApi.stopEditing(false);
     this.gridApi.redoCellEditing();
@@ -830,6 +1050,10 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   }
 
 
+  /**
+   * Handles cell editing stopped event
+   * @param params - Cell editing parameters
+   */
   onCellEditingStopped(params) {
     if (this.modificationChange) {
       this.changeCounter++;
@@ -841,6 +1065,11 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   }
 
 
+  /**
+   * Handles cell value changed event
+   * Updates change tracking and cell styling
+   * @param params - Cell value change parameters
+   */
   onCellValueChanged(params): void {
     this.params = params;
     if (this.changeCounter > this.previousChangeCounter)
@@ -936,7 +1165,12 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  modificationWithoutChanges(params: any) {
+  /**
+   * Handles modifications that don't result in actual changes
+   * @param params - Cell parameters
+   * @private
+   */
+  private modificationWithoutChanges(params: any) {
 
     if (this.changesMap.has(params.node.id)) //Modification without changes in en edited cell
     {
@@ -960,6 +1194,11 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
   }
 
+  /**
+   * Updates cell styling based on changes
+   * @param params - Cell parameters
+   * @param changesMap - Map of changes to apply
+   */
   paintCells(params: any, changesMap: Map<string, Map<string, number>>,) {
     this.changesMap = changesMap;
     const row = this.gridApi.getDisplayedRowAtIndex(params.rowIndex);
@@ -983,6 +1222,10 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   @Input() redraw!: boolean;
   @Input() eventReplaceAllItemsSubscription!: Observable<any>;
 
+  /**
+   * Handles changes to component inputs
+   * @param changes - SimpleChanges object containing changed properties
+   */
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.rowData && !changes.rowData.firstChange) {
       this.updateGridData(changes.rowData.currentValue);
@@ -993,6 +1236,10 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  /**
+   * Updates the grid data
+   * @param newData - New data to display in the grid
+   */
   updateGridData(newData: any[]): void {
     if (this.gridApi && !this.gridApi.isDestroyed()) {
       this.gridApi.setGridOption('rowData', newData);
@@ -1000,29 +1247,8 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   /**
-   * Replaces all occurrences of the search value with the replace value in the selected rows.
-   * This method performs a global search and replace operation on all editable string fields of the selected rows.
-   * The search is case insensitive.
-   *
-   * The method handles:
-   * - Status field updates (sets to 'pendingModify' if not already 'pendingDelete' or 'pendingCreation')
-   * - Change tracking in the changesMap for undo/redo functionality
-   * - Visual feedback through cell highlighting
-   * - Grid state updates (change counter, modified state)
-   *
-   * Prerequisites:
-   * - Grid API must be initialized
-   * - Replace value must be set
-   * - At least one row must be selected
-   * - Search value must be set
-   *
-   * @returns {void}
-   *
-   * @example
-   * // Assuming grid is initialized and rows are selected
-   * component.searchValue = "old text";
-   * component.replaceValue = "new text";
-   * component.replaceSelected();
+   * Replaces text in selected rows
+   * Performs a global search and replace operation on all editable string fields
    */
   replaceSelected(): void {
     this.loggerService.debug('Starting replace operation', {

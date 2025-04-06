@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute} from '@angular/router';
 import {
   ApplicationBackground,
   ApplicationBackgroundService,
@@ -38,57 +38,80 @@ import {LoggerService} from '@app/services/logger.service';
 import {TranslateService} from "@ngx-translate/core";
 import {translatableMixin} from "@app/mixins/translatable.mixin";
 import {activeTabMixin} from "@app/mixins/activetab.mixin";
-
-class SitmunBase {
-}
-
-const TranslatableSitmunBase = translatableMixin(activeTabMixin(SitmunBase));
+import {sitmunMixedBase} from "@app/components/sitmun.base";
 
 /**
- * Component for creating, editing, and duplicating Background entities.
+ * Component for managing background layers in the SITMUN application.
  *
- * This component manages the background layer form with multiple tabs for:
- * - Main background properties (name, description, image, etc.)
- * - Cartographies configuration (map layers associated with this background)
- * - Role associations (user roles that can access this background)
- * - Application associations (applications that use this background)
+ * This component provides a form interface for creating, editing, and duplicating Background entities,
+ * which represent map background layers. The form is organized into multiple tabs:
  *
- * The form supports three modes:
+ * 1. General Data Tab:
+ *    - Basic properties (name, description)
+ *    - Display settings (image)
+ *    - Status settings (active)
+ *
+ * 2. Cartographies Tab:
+ *    - Manages associated map layers
+ *    - Allows adding/removing cartographies
+ *    - Configures layer properties
+ *
+ * 3. Roles Tab:
+ *    - Controls access permissions
+ *    - Associates user roles with the background
+ *    - Manages role-specific settings
+ *
+ * 4. Applications Tab:
+ *    - Links backgrounds to applications
+ *    - Configures display order
+ *    - Manages application-specific settings
+ *
+ * The component supports three operation modes:
  * - Create: Creates a new background from scratch
  * - Edit: Modifies an existing background's properties and relationships
- * - Duplicate: Creates a new background based on an existing one, copying its properties and relationships
+ * - Duplicate: Creates a new background based on an existing one
  *
- * Each background is associated with a CartographyGroup that manages the relationship
- * with cartographies, roles, and applications.
+ * Key Features:
+ * - Integrated translation support for multilingual content
+ * - Grid-based interfaces for managing relationships
+ * - Real-time validation and error handling
+ * - Automatic data synchronization
+ *
+ * Technical Details:
+ * - Extends TranslatableSitmunBase for translation capabilities
+ * - Uses reactive forms for data management
+ * - Implements OnInit and OnDestroy lifecycle hooks
+ * - Manages complex entity relationships through CartographyGroup
  */
 @Component({
   selector: 'app-background-layers-form',
   templateUrl: './background-layers-form.component.html',
 })
-export class BackgroundLayersFormComponent extends TranslatableSitmunBase implements OnInit, OnDestroy {
-
-  themeGrid: any = config.agGridTheme;
+export class BackgroundLayersFormComponent extends sitmunMixedBase<Background>() implements OnInit, OnDestroy {
 
 
   /**
    * Creates an instance of the BackgroundLayersFormComponent.
-   * Injects all required services for background layer management, including:
-   * - UI services (dialog, utils, translation)
-   * - Data services (background, cartography, role, application)
-   * - Support services (logger, codelist)
    *
-   * @param {MatDialog} dialog - Dialog service for displaying modal dialogs
-   * @param {ActivatedRoute} activatedRoute - Route service to access URL parameters
-   * @param {BackgroundService} backgroundService - Service for background CRUD operations
-   * @param {TranslationService} translationService - Service for handling entity translations
-   * @param {UtilsService} utils - Utility service for common UI operations
-   * @param {CartographyService} cartographyService - Service for cartography CRUD operations
-   * @param {RoleService} roleService - Service for role CRUD operations
-   * @param {CartographyGroupService} cartographyGroupService - Service for cartography group operations
-   * @param {ApplicationService} applicationService - Service for application CRUD operations
-   * @param {ApplicationBackgroundService} applicationBackgroundService - Service for application-background relations
-   * @param {LoggerService} loggerService - Logging service
-   * @param {TranslateService} translateService - Translation service for UI elements
+   * Dependencies are organized into the following categories:
+   *
+   * UI Services:
+   * @param {MatDialog} dialog - Manages modal dialogs for entity selection
+   * @param {UtilsService} utils - Provides common UI utilities and navigation
+   * @param {TranslateService} translateService - Handles UI element translations
+   *
+   * Data Services:
+   * @param {BackgroundService} backgroundService - Manages background layer CRUD operations
+   * @param {CartographyService} cartographyService - Handles cartography data operations
+   * @param {RoleService} roleService - Manages role data and permissions
+   * @param {CartographyGroupService} cartographyGroupService - Handles cartography group operations
+   * @param {ApplicationService} applicationService - Manages application data
+   * @param {ApplicationBackgroundService} applicationBackgroundService - Handles application-background relations
+   *
+   * Support Services:
+   * @param {ActivatedRoute} activatedRoute - Provides access to route parameters
+   * @param {TranslationService} translationService - Manages entity translations
+   * @param {LoggerService} loggerService - Handles application logging
    */
   constructor(
     protected override dialog: MatDialog,
@@ -102,9 +125,9 @@ export class BackgroundLayersFormComponent extends TranslatableSitmunBase implem
     private applicationService: ApplicationService,
     private applicationBackgroundService: ApplicationBackgroundService,
     private loggerService: LoggerService,
-    private translateService: TranslateService
+    translateService: TranslateService
   ) {
-    super()
+    super(translateService)
   }
 
   /**
@@ -114,40 +137,17 @@ export class BackgroundLayersFormComponent extends TranslatableSitmunBase implem
   cartographyGroupOfThisLayer = null;
 
   /**
-   * Indicates whether all required data has been loaded.
-   * Used to control the rendering of form elements and prevent premature operations.
-   */
-  dataLoaded = false;
-
-  /**
-   * The main form group containing all background properties.
-   * Manages form validation and provides access to form controls.
-   */
-  backgroundForm: UntypedFormGroup;
-
-  /**
-   * Reference to the background being edited.
-   * Contains all background data including relationships.
-   */
-  backgroundToEdit: Background;
-
-  /**
-   * ID of the background being edited, or -1 if creating a new background.
-   * Determined from route parameters.
-   */
-  backgroundID = -1;
-
-  /**
-   * ID of the background being duplicated, or -1 if not duplicating.
-   * Determined from route parameters.
-   */
-  duplicateID = -1;
-
-  /**
-   * Initializes the component by:
-   * 1. Setting up translations
-   * 2. Initializing form sections and tabs
-   * 3. Loading background data or setting defaults
+   * Initializes the component and sets up all necessary resources.
+   *
+   * Initialization sequence:
+   * 1. Sets up translation support for 'name' and 'description' fields
+   * 2. Initializes the main form with validation rules
+   * 3. Sets up grid configurations for cartographies, roles, and applications
+   * 4. Loads existing data if editing/duplicating a background
+   *
+   * Error handling:
+   * - Logs initialization errors through LoggerService
+   * - Continues initialization of other components if one fails
    */
   ngOnInit(): void {
     this.initTranslations(
@@ -158,46 +158,37 @@ export class BackgroundLayersFormComponent extends TranslatableSitmunBase implem
     this.ngOnInitCartographies()
     this.ngOnInitRoles()
     this.ngOnInitApplications()
-    this.fetchData().catch((reason) => this.loggerService.error('Error in ngOnInit:', reason));
+    this.fetchData().then(() => this.subscribeToFormChanges(this.entityForm)).catch((reason) => this.loggerService.error('Error in ngOnInit:', reason));
   }
-
-  // ==================================================
-  //                     Utilities
-  // ==================================================
-
-  /**
-   * Checks if the background is in creation mode (not editing or duplicating).
-   * @returns {boolean} True if the background is new, false otherwise
-   */
-  isNew(): boolean {
-    return this.backgroundID == -1 && this.duplicateID == -1
-  }
-
-  /**
-   * Checks if the background is in duplication mode.
-   * @returns {boolean} True if the background is being duplicated, false otherwise
-   */
-  isDuplicated() {
-    return this.backgroundID == -1 && this.duplicateID != -1;
-  }
-
-  // ==================================================
-  //                 Load Application
-  // ==================================================
 
   /**
    * Fetches and loads all necessary data for the background form.
-   * This includes retrieving the background entity and its associated cartography group if editing or duplicating.
-   * Sets up the form with appropriate initial values based on the background state.
    *
-   * For new backgrounds, initializes the form with default values.
-   * For existing backgrounds, populates the form with data from the server.
-   * For duplicated backgrounds, copies values from the source background.
+   * Data Loading Process:
+   * 1. Retrieves route parameters to determine operation mode
+   * 2. Loads existing background data if editing/duplicating:
+   *    - Fetches background entity
+   *    - Loads associated cartography group
+   *    - Sets up form with existing values
+   *    - Handles translations for editable fields
+   * 3. Initializes new background if creating:
+   *    - Sets default values
+   *    - Configures required relationships
+   *
+   * State Management:
+   * - Updates component state based on loaded data
+   * - Manages loading state through dataLoaded flag
+   * - Handles entity relationships and dependencies
+   *
+   * Error Handling:
+   * - Logs errors through LoggerService
+   * - Maintains consistent state on failure
+   * - Provides debug information for troubleshooting
    */
   async fetchData() {
     const params = await firstValueFrom(this.activatedRoute.params)
 
-    this.backgroundID = params.id;
+    this.entityID = params.id;
 
     if (params.idDuplicate) {
       this.duplicateID = params.idDuplicate;
@@ -205,42 +196,41 @@ export class BackgroundLayersFormComponent extends TranslatableSitmunBase implem
       this.duplicateID = -1;
     }
 
-    if (this.backgroundID != -1 || this.duplicateID != -1) {
-      const editMode = this.backgroundID != -1;
-      const idToGet = editMode ? this.backgroundID : this.duplicateID;
+    if (!this.isNew()) {
+      const idToGet = this.isEdition() ? this.entityID : this.duplicateID;
 
-      this.backgroundToEdit = await firstValueFrom(this.backgroundService.get(idToGet))
-      this.cartographyGroupOfThisLayer = await firstValueFrom(this.cartographyGroupService.get(this.backgroundToEdit.cartographyGroupId))
+      this.entityToEdit = await firstValueFrom(this.backgroundService.get(idToGet))
+      this.cartographyGroupOfThisLayer = await firstValueFrom(this.cartographyGroupService.get(this.entityToEdit.cartographyGroupId))
 
       const formData: Record<string, any> = {
-        description: this.backgroundToEdit.description,
-        image: this.backgroundToEdit.image,
+        description: this.entityToEdit.description,
+        image: this.entityToEdit.image,
         cartographyGroup: constants.codeValue.cartographyPermissionType.backgroundMap,
-        active: this.backgroundToEdit.active,
-        _links: this.backgroundToEdit._links,
-        name: editMode
-          ? this.backgroundToEdit.name
-          : this.translateService.instant('copy_').concat(this.backgroundToEdit.name),
+        active: this.entityToEdit.active,
+        _links: this.entityToEdit._links,
+        name: this.isEdition()
+          ? this.entityToEdit.name
+          : this.translateService.instant('copy_').concat(this.entityToEdit.name),
       }
 
       // Add ID and
-      if (editMode) {
-        formData.id = this.backgroundID;
+      if (this.isEdition()) {
+        formData.id = this.entityID;
       }
 
       // Set all values at once
-      this.backgroundForm.patchValue(formData);
+      this.entityForm.patchValue(formData);
 
-      if (editMode) {
-        await this.loadTranslations(this.backgroundToEdit)
+      if (this.isEdition()) {
+        await this.loadTranslations(this.entityToEdit)
       }
 
       this.loggerService.debug('background to edit loaded', {
-        backgroundToEdit: this.backgroundToEdit,
+        backgroundToEdit: this.entityToEdit,
         cartographyGroupOfThisLayer: this.cartographyGroupOfThisLayer,
       });
     } else {
-      this.backgroundForm.patchValue({
+      this.entityForm.patchValue({
         active: false,
         cartographyGroup: constants.codeValue.cartographyPermissionType.backgroundMap
       });
@@ -253,27 +243,22 @@ export class BackgroundLayersFormComponent extends TranslatableSitmunBase implem
 // ==================================================
 
   /**
-   * Event subject for triggering application background data refresh on save.
-   * Used to notify the applications grid to reload or update its data.
+   * Event subjects for managing grid data synchronization.
+   * These subjects coordinate updates between the form and its child grids.
+   *
+   * @property {Subject<string>} getAllElementsEventApplicationsBackground - Triggers application grid refresh
+   * @property {Subject<string>} getAllElementsEventRoles - Triggers roles grid refresh
+   * @property {Subject<string>} getAllElementsEventCartographies - Triggers cartographies grid refresh
    */
   readonly getAllElementsEventApplicationsBackground: Subject<string> = new Subject<string>();
-
-  /**
-   * Event subject for triggering roles data refresh on save.
-   * Used to notify the roles grid to reload or update its data.
-   */
   readonly getAllElementsEventRoles: Subject<string> = new Subject<string>();
-
-  /**
-   * Event subject for triggering cartographies data refresh on save.
-   * Used to notify the cartographies grid to reload or update its data.
-   */
   readonly getAllElementsEventCartographies: Subject<string> = new Subject<string>();
 
   /**
-   * Collection of all grid refresh event subjects for centralized management.
-   * Used for batch operations on all subjects, such as emitting save events
-   * or completing subjects on component destruction.
+   * Collection of all grid refresh event subjects.
+   * Used for centralized management of grid updates and cleanup.
+   *
+   * Important: These subjects must be completed in ngOnDestroy to prevent memory leaks.
    */
   readonly subjects = [
     this.getAllElementsEventApplicationsBackground,
@@ -282,15 +267,30 @@ export class BackgroundLayersFormComponent extends TranslatableSitmunBase implem
   ]
 
   /**
-   * Validates the form and initiates the save process if valid.
-   * This method:
-   * 1. Checks if the form is valid
-   * 2. If valid, saves the cartography group first
-   * 3. Then saves the background with a reference to the cartography group
-   * 4. If invalid, displays an error message
+   * Validates and saves the background layer configuration.
+   *
+   * Save Process:
+   * 1. Form Validation:
+   *    - Checks required fields
+   *    - Validates field formats
+   *
+   * 2. Data Persistence:
+   *    - Saves cartography group first
+   *    - Then saves background with group reference
+   *    - Updates related entities (roles, applications)
+   *
+   * 3. State Updates:
+   *    - Updates local component state
+   *    - Triggers grid refreshes
+   *    - Updates translations
+   *
+   * Error Handling:
+   * - Displays user-friendly error messages
+   * - Logs detailed errors for debugging
+   * - Maintains data consistency on failure
    */
   async onSaveButtonClicked() {
-    if (this.backgroundForm.valid) {
+    if (this.entityForm.valid) {
       try {
         const response = await firstValueFrom(this.saveCartographyGroup());
 
@@ -313,10 +313,22 @@ export class BackgroundLayersFormComponent extends TranslatableSitmunBase implem
   }
 
   /**
-   * Saves the cartography group associated with this background.
-   * Creates a new cartography group or updates an existing one based on the current state.
+   * Manages the cartography group associated with this background.
    *
-   * @returns {Observable<CartographyGroup | Observable<never>>} An observable containing the saved cartography group
+   * Operations:
+   * 1. Create Mode:
+   *    - Creates new cartography group
+   *    - Sets initial properties
+   *
+   * 2. Update Mode:
+   *    - Updates existing group properties
+   *    - Maintains relationships
+   *
+   * 3. Duplicate Mode:
+   *    - Creates new group from existing
+   *    - Copies relevant properties
+   *
+   * @returns {Observable<CartographyGroup | Observable<never>>} The saved cartography group
    */
   saveCartographyGroup(): Observable<CartographyGroup | Observable<never>> {
     if (this.isDuplicated()) {
@@ -327,8 +339,8 @@ export class BackgroundLayersFormComponent extends TranslatableSitmunBase implem
       ? new CartographyGroup()
       : Object.assign(new CartographyGroup(), this.cartographyGroupOfThisLayer);
 
-    cartographyGroupObj.name = this.backgroundForm.value.name;
-    cartographyGroupObj.type = this.backgroundForm.value.cartographyGroup;
+    cartographyGroupObj.name = this.entityForm.value.name;
+    cartographyGroupObj.type = this.entityForm.value.cartographyGroup;
 
     if (this.cartographyGroupOfThisLayer == null) {
       return this.cartographyGroupService.create(cartographyGroupObj);
@@ -338,24 +350,38 @@ export class BackgroundLayersFormComponent extends TranslatableSitmunBase implem
   }
 
   /**
-   * Updates the background with the form values and associates it with the cartography group.
-   * Handles both creation and update operations based on the background state.
-   * After saving, updates the component state and related entity relations.
+   * Updates the background entity with current form values.
    *
-   * @param {CartographyGroup} cartographyGroup - The cartography group to associate with this background
-   * @throws Error if any of the background operations fail
+   * Update Process:
+   * 1. Data Preparation:
+   *    - Maps form values to entity
+   *    - Handles special fields
+   *    - Sets up relationships
+   *
+   * 2. Persistence:
+   *    - Creates new or updates existing
+   *    - Manages translations
+   *    - Updates related entities
+   *
+   * 3. Post-Update:
+   *    - Updates component state
+   *    - Refreshes grids
+   *    - Handles translations
+   *
+   * @param {CartographyGroup} cartographyGroup - The associated cartography group
+   * @throws Error if update operations fail
    */
   async updateBackground(cartographyGroup: CartographyGroup) {
     try {
       // Copy form values to background object
-      const backgroundObj: Background = Object.assign(new Background(), this.backgroundForm.value);
+      const backgroundObj: Background = Object.assign(new Background(), this.entityForm.value);
 
       // Handle special case
       backgroundObj.cartographyGroup = cartographyGroup;
 
       // Set ID based on application state
       let resp: Background | Observable<never>;
-      if (this.backgroundID == -1) {
+      if (this.isNewOrDuplicated()) {
         backgroundObj.id = null;
         resp = await firstValueFrom(this.backgroundService.create(backgroundObj));
       } else {
@@ -363,15 +389,16 @@ export class BackgroundLayersFormComponent extends TranslatableSitmunBase implem
       }
 
       if (resp instanceof Background) {
-        this.backgroundToEdit = resp;
-        this.backgroundID = resp.id;
-        this.backgroundForm.patchValue({
+        this.entityToEdit = resp;
+        this.entityID = resp.id;
+        this.entityForm.patchValue({
           id: resp.id,
           _links: resp._links
         });
 
-        await this.saveTranslations(this.backgroundToEdit)
+        await this.saveTranslations(this.entityToEdit)
         this.subjects.forEach(subject => subject.next('save'))
+        this.resetToFormModifiedState(this.entityForm);
       }
     } catch (error) {
       this.loggerService.error('Error saving background:', error);
@@ -384,15 +411,24 @@ export class BackgroundLayersFormComponent extends TranslatableSitmunBase implem
 // ==================================================
 
   /**
-   * Initializes the main background form.
-   * Creates a form group with controls for all background properties:
-   * - Basic information (id, name, description)
-   * - Display settings (image)
-   * - Configuration settings (cartographyGroup, active)
-   * - Links (_links)
+   * Initializes the main form with all required fields and validation rules.
+   *
+   * Form Structure:
+   * - id: Background identifier (null for new backgrounds)
+   * - name: Required field, max 50 characters
+   * - description: Optional descriptive text
+   * - image: Optional background image URL
+   * - cartographyGroup: Associated group configuration
+   * - active: Background availability status
+   * - _links: HAL links for API navigation
+   *
+   * Validation Rules:
+   * - Name is required
+   * - Other fields are optional but type-checked
+   * - Form state is tracked for save operations
    */
   ngOnInitMainForm() {
-    this.backgroundForm = new UntypedFormGroup({
+    this.entityForm = new UntypedFormGroup({
       id: new UntypedFormControl(null, []),
       name: new UntypedFormControl(null, [
         Validators.required,
@@ -438,13 +474,20 @@ export class BackgroundLayersFormComponent extends TranslatableSitmunBase implem
   addElementsEventCartographies: Subject<any[]> = new Subject<any[]>();
 
   /**
-   * Initializes the cartographies tab configuration.
-   * Sets up column definitions for the cartographies grid:
-   * - Checkbox column for selection
-   * - ID column for identification
-   * - Name column (editable)
-   * - Service name column (non-editable)
-   * - Status column to track changes
+   * Initializes the cartographies grid configuration.
+   *
+   * Grid Features:
+   * - Selection via checkboxes
+   * - ID display (non-editable)
+   * - Name editing
+   * - Service name display
+   * - Status tracking
+   *
+   * The grid supports:
+   * - Multi-select operations
+   * - Inline editing of name field
+   * - Real-time status updates
+   * - Sorting by name
    */
   ngOnInitCartographies() {
     this.columnDefsCartographies = [
@@ -457,11 +500,19 @@ export class BackgroundLayersFormComponent extends TranslatableSitmunBase implem
   }
 
   /**
-   * Fetches all cartographies associated with this background's cartography group.
-   * If the cartography group is not yet created or this is a new background, returns an empty array.
-   * Otherwise, retrieves the cartographies through the cartography group's relation array.
+   * Retrieves cartographies associated with this background.
    *
-   * @returns {Observable<Cartography[]>} An observable containing the cartographies
+   * Data Flow:
+   * 1. Checks component state:
+   *    - Returns empty array for new backgrounds
+   *    - Fetches data for existing backgrounds
+   *
+   * 2. Data Loading:
+   *    - Uses cartography group relation
+   *    - Applies view projection
+   *    - Handles async loading
+   *
+   * @returns {Observable<Cartography[]>} Stream of associated cartographies
    */
   fetchCartographies = (): Observable<Cartography[]> => {
     if (this.cartographyGroupOfThisLayer == null && this.isNew()) {
@@ -471,10 +522,15 @@ export class BackgroundLayersFormComponent extends TranslatableSitmunBase implem
   };
 
   /**
-   * Handles events from the cartographies grid.
-   * When a save event is received, triggers the update of cartographies.
+   * Processes grid events for the cartographies section.
    *
-   * @param {GridEvent<Cartography & Status>} event - The grid event containing the event type and data
+   * Event Handling:
+   * - Save events trigger cartography updates
+   * - Updates are processed in batch
+   * - Changes are persisted to backend
+   * - Grid is refreshed after updates
+   *
+   * @param {GridEvent<Cartography & Status>} event - The grid event to process
    */
   handleCartographiesEvent(event: GridEvent<Cartography & Status>) {
     if (isSave(event)) {
@@ -483,13 +539,22 @@ export class BackgroundLayersFormComponent extends TranslatableSitmunBase implem
   }
 
   /**
-   * Updates the cartographies by handling modifications and relation updates.
-   * This method processes two types of changes:
-   * 1. Cartography updates: Updates existing cartographies through the cartography service
-   * 2. Relation updates: Updates the cartography group's relation with all cartographies
+   * Updates cartography relationships and data.
    *
-   * @param {(Cartography & Status)[]} cartographies - Array of cartographies with their current status
-   * @throws Error if any of the cartography operations fail
+   * Update Process:
+   * 1. Entity Updates:
+   *    - Processes modified cartographies
+   *    - Updates through cartography service
+   *
+   * 2. Relationship Updates:
+   *    - Updates cartography group relations
+   *    - Maintains consistency
+   *
+   * 3. UI Updates:
+   *    - Refreshes grid data
+   *    - Updates status indicators
+   *
+   * @param {(Cartography & Status)[]} cartographies - Cartographies to update
    */
   async updateCartographies(cartographies: (Cartography & Status)[]) {
     await onUpdate(cartographies).forEach(item => this.cartographyService.update(item));
@@ -498,16 +563,25 @@ export class BackgroundLayersFormComponent extends TranslatableSitmunBase implem
   }
 
   /**
-   * Opens a dialog for selecting cartographies to associate with this background.
-   * This method:
-   * 1. Opens a grid dialog with cartography selection options
-   * 2. Configures the dialog with appropriate columns and data sources
-   * 3. Processes the result when dialog is closed
+   * Opens dialog for cartography selection and management.
    *
-   * When the user confirms by selecting cartographies, the selected cartographies are added to the
-   * background's cartography group through the addElementsEventCartographies Subject.
+   * Dialog Features:
+   * 1. Display:
+   *    - Grid with checkboxes
+   *    - ID and name columns
+   *    - Service information
    *
-   * @param {Cartography[]} data - Current cartographies associated with the background
+   * 2. Functionality:
+   *    - Multi-select support
+   *    - Sorting by name
+   *    - Current selection tracking
+   *
+   * 3. Data Flow:
+   *    - Loads available cartographies
+   *    - Handles selection
+   *    - Updates component on confirmation
+   *
+   * @param {Cartography[]} data - Currently associated cartographies
    */
   openCartographyDialog(data: Cartography[]) {
     const dialogRef = this.dialog.open(DialogGridComponent, {panelClass: 'gridDialogs'});
@@ -729,7 +803,7 @@ export class BackgroundLayersFormComponent extends TranslatableSitmunBase implem
     if (this.isNew()) {
       return of([]);
     }
-    return this.backgroundToEdit.getRelationArrayEx(ApplicationBackground, 'applications', {projection: 'view'})
+    return this.entityToEdit.getRelationArrayEx(ApplicationBackground, 'applications', {projection: 'view'})
   };
 
   /**
@@ -759,7 +833,7 @@ export class BackgroundLayersFormComponent extends TranslatableSitmunBase implem
     await onCreate(applicationBackgrounds).forEach(item =>
       this.applicationBackgroundService.create(Object.assign(new ApplicationBackground(), {
         ...item,
-        background: this.backgroundToEdit
+        background: this.entityToEdit
       }))
     )
     await onUpdate(applicationBackgrounds).forEach(item => this.applicationBackgroundService.update(item));
@@ -818,8 +892,18 @@ export class BackgroundLayersFormComponent extends TranslatableSitmunBase implem
 // ==================================================
 
   /**
-   * Handles cleanup when the component is destroyed.
-   * Completes all subjects to prevent memory leaks.
+   * Performs cleanup when component is destroyed.
+   *
+   * Cleanup Tasks:
+   * 1. Subject Completion:
+   *    - Completes all grid event subjects
+   *    - Completes data update subjects
+   *    - Completes element addition subjects
+   *
+   * 2. Memory Management:
+   *    - Releases subject resources
+   *    - Prevents memory leaks
+   *    - Ensures proper cleanup
    */
   ngOnDestroy(): void {
     // Complete all event subjects
