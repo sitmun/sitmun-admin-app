@@ -1,7 +1,7 @@
 <app-form-toolbar
   icon="menu_aplicacio"
   entityType="applicationEntity.application"
-  [itemName]="entityForm?.get('name')?.value || ''"
+  [itemName]="itemName('name')"
   [isNew]="isNewOrDuplicated()"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
@@ -94,7 +94,7 @@
           </mat-form-field>
           <mat-form-field appearance="outline" class="half">
             <mat-label>{{ 'applicationEntity.situationMap' | translate }}</mat-label>
-            <mat-select formControlName="situationMap" class="form-control">
+            <mat-select formControlName="situationMapId" class="form-control">
               <mat-option [value]="situationMapObj.id" *ngFor="let situationMapObj of situationMapList">
                 {{ situationMapObj.name }}
               </mat-option>
@@ -118,22 +118,21 @@
   <mat-tab label="{{ 'applicationEntity.parametersConfiguration' | translate }}">
     <app-data-grid [changeHeightButton]="true"
                    [allNewElements]="isNewOrDuplicated()"
-                   [columnDefs]="columnDefsParameters"
-                   [getAll]='fetchParameters'
-                   [eventAddItemsSubscription]='addElementsEventParameters.asObservable()'
-                   [eventGetAllRowsSubscription]='getAllElementsEventParameters.asObservable()'
-                   [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()'
-                   [discardChangesButton]=true
+                   [columnDefs]="parametersTable.relationsColumnsDefs"
+                   [getAll]='parametersTable.relationsFetchFn'
+                   [eventAddItemsSubscription]='parametersTable.addCommandEvent$.asObservable()'
+                   [eventGetAllRowsSubscription]='parametersTable.saveCommandEvent$.asObservable()'
+                   [eventRefreshSubscription]='parametersTable.refreshCommandEvent$.asObservable()'
                    [actionButton]=true
+                   [discardChangesButton]=true
                    [redoButton]=true
                    [undoButton]=true
                    [deleteButton]=true
                    [newButton]=true
-                   addFieldRestriction="name"
-                   [defaultColumnSorting]="['name']"
-                   (new)="openParametersDialog()"
-                   (getAllRows)="handleParametersEvent($event)"
-                   (duplicate)='duplicateParameters($event)'
+                   [defaultColumnSorting]='parametersTable.defaultRelationsSorting()'
+                   [hideDuplicateButton]=true
+                   (getAllRows)="parametersTable.handleSaveRelations($event)"
+                   (new)="parametersTable.openTemplateDialog('newParameterDialog')"
                    [redraw]="isTabActive(1)"
                    *ngIf="dataLoaded"
     ></app-data-grid>
@@ -141,21 +140,21 @@
   <mat-tab label="{{ 'applicationEntity.roles' | translate }}">
     <app-data-grid [changeHeightButton]="true"
                    [allNewElements]="isNewOrDuplicated()"
-                   [columnDefs]="columnDefsRoles"
-                   [getAll]='fetchRoles'
-                   [eventAddItemsSubscription]='addElementsEventRoles.asObservable()'
-                   [eventGetAllRowsSubscription]='getAllElementsEventRoles.asObservable()'
-                   [eventRefreshSubscription]='dataUpdatedEventRoles.asObservable()'
+                   [columnDefs]="rolesTable.relationsColumnsDefs"
+                   [getAll]='rolesTable.relationsFetchFn'
+                   [eventAddItemsSubscription]='rolesTable.addCommandEvent$.asObservable()'
+                   [eventGetAllRowsSubscription]='rolesTable.saveCommandEvent$.asObservable()'
+                   [eventRefreshSubscription]='rolesTable.refreshCommandEvent$.asObservable()'
                    [actionButton]=true
                    [discardChangesButton]=true
                    [redoButton]=true
                    [undoButton]=true
                    [deleteButton]=true
                    [addButton]=true
-                   [defaultColumnSorting]="['name']"
+                   [defaultColumnSorting]='rolesTable.defaultRelationsSorting()'
                    [hideDuplicateButton]=true
-                   (getAllRows)="handleRolesEvent($event)"
-                   (add)="openRolesDialog($event)"
+                   (getAllRows)="rolesTable.handleSaveRelations($event)"
+                   (add)="rolesTable.openDialog($event)"
                    [redraw]="isTabActive(2)"
                    *ngIf="dataLoaded"
     ></app-data-grid>
@@ -163,21 +162,21 @@
   <mat-tab label="{{ 'applicationEntity.background' | translate }}">
     <app-data-grid [changeHeightButton]="true"
                    [allNewElements]="isNewOrDuplicated()"
-                   [columnDefs]="columnDefsApplicationBackgrounds"
-                   [getAll]='fetchApplicationBackgrounds'
-                   [eventAddItemsSubscription]='addElementsEventApplicationBackground.asObservable()'
-                   [eventGetAllRowsSubscription]='getAllElementsEventApplicationBackground.asObservable()'
-                   [eventRefreshSubscription]='dataUpdatedEventApplicationBackground.asObservable()'
+                   [columnDefs]="applicationBackgroundsTable.relationsColumnsDefs"
+                   [getAll]='applicationBackgroundsTable.relationsFetchFn'
+                   [eventAddItemsSubscription]='applicationBackgroundsTable.addCommandEvent$.asObservable()'
+                   [eventGetAllRowsSubscription]='applicationBackgroundsTable.saveCommandEvent$.asObservable()'
+                   [eventRefreshSubscription]='applicationBackgroundsTable.refreshCommandEvent$.asObservable()'
                    [actionButton]=true
                    [discardChangesButton]=true
                    [redoButton]=true
                    [undoButton]=true
                    [deleteButton]=true
                    [addButton]=true
+                   [defaultColumnSorting]='applicationBackgroundsTable.defaultRelationsSorting()'
                    [hideDuplicateButton]=true
-                   [defaultColumnSorting]="['order']"
-                   (getAllRows)="handleApplicationBackgroundsEvent($event)"
-                   (add)="openBackgroundDialog($event)"
+                   (getAllRows)="applicationBackgroundsTable.handleSaveRelations($event)"
+                   (add)="applicationBackgroundsTable.openDialog($event)"
                    [redraw]="isTabActive(3)"
                    *ngIf="dataLoaded"
     ></app-data-grid>
@@ -186,35 +185,34 @@
     <app-data-grid #treesDataGrid
                    [changeHeightButton]="true"
                    [allNewElements]="isNewOrDuplicated()"
-                   [columnDefs]="columnDefsTrees"
-                   [getAll]='fetchTrees'
-                   [eventAddItemsSubscription]='addElementsEventTree.asObservable()'
-                   [eventGetAllRowsSubscription]='getAllElementsEventTree.asObservable()'
-                   [eventRefreshSubscription]='dataUpdatedEventTrees.asObservable()'
+                   [columnDefs]="treesTable.relationsColumnsDefs"
+                   [getAll]='treesTable.relationsFetchFn'
+                   [eventAddItemsSubscription]='treesTable.addCommandEvent$.asObservable()'
+                   [eventGetAllRowsSubscription]='treesTable.saveCommandEvent$.asObservable()'
+                   [eventRefreshSubscription]='treesTable.refreshCommandEvent$.asObservable()'
                    [actionButton]=true
                    [discardChangesButton]=true
                    [redoButton]=true
                    [undoButton]=true
                    [deleteButton]=true
                    [addButton]=true
+                   [defaultColumnSorting]='treesTable.defaultRelationsSorting()'
                    [hideDuplicateButton]=true
-                   [defaultColumnSorting]="['name']"
-                   (getAllRows)="handleTreesEvent($event)"
-                   (add)="openTreeDialog($event)"
-                   [redraw]="isTabActive(4)"
+                   (getAllRows)="treesTable.handleSaveRelations($event)"
+                   (add)="treesTable.openDialog($event)"
                    *ngIf="dataLoaded"
     ></app-data-grid>
   </mat-tab>
 </mat-tab-group>
 
 <ng-template #newParameterDialog>
-  <form [formGroup]='parameterForm'>
+  <form [formGroup]="parametersTable.templateDialog('newParameterDialog').form">
     <mat-card appearance="outlined">
       <mat-card-content>
         <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'applicationEntity.name' | translate }}</mat-label>
           <input matInput type="text" formControlName="name" required [maxlength]="50">
-          <mat-hint align="end">{{parameterForm.get('name') | characterCount}}</mat-hint>
+          <mat-hint align="end">{{parametersTable.templateDialog('newParameterDialog').form.get('name') | characterCount}}</mat-hint>
         </mat-form-field>
         <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'applicationEntity.type' | translate }}</mat-label>
@@ -227,7 +225,7 @@
         <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'serviceEntity.value' | translate }}</mat-label>
           <input matInput type="text" formControlName="value" required [maxlength]="250">
-          <mat-hint align="end">{{parameterForm.get('value') | characterCount}}</mat-hint>
+          <mat-hint align="end">{{parametersTable.templateDialog('newParameterDialog').form.get('value') | characterCount}}</mat-hint>
         </mat-form-field>
       </mat-card-content>
     </mat-card>

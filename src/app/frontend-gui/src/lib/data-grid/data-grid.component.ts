@@ -68,7 +68,7 @@ export function canUpdate(status: Status): boolean {
   return status.status === 'pendingModify'
 }
 
-export function canUpdateRelation(status: Status): boolean {
+export function canKeepOrUpdate(status: Status): boolean {
   return status.status !== 'pendingDelete'
 }
 
@@ -106,7 +106,7 @@ export function onPendingRegistration<T>(data: (T & Status)[]): Executor<T> {
 }
 
 export function onUpdatedRelation<T>(data: (T & Status)[]): Executor<T> {
-  return new Executor(data.filter(canUpdateRelation))
+  return new Executor(data.filter(canKeepOrUpdate))
 }
 
 export class Executor<T> {
@@ -115,6 +115,10 @@ export class Executor<T> {
 
   async forAll<S>(func: (item: T[]) => Observable<S | Observable<never>>) : Promise<S | Observable<never>> {
     return firstValueFrom(func(this.data));
+  }
+
+  map<S>(func: (item: T) => S) : Executor<S> {
+    return new Executor(this.data.map(func));
   }
 
   async forEach<S>(func: (item: T) => Observable<S | Observable<never>>) : Promise<(S | Observable<never>)[]> {

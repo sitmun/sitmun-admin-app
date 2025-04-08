@@ -44,26 +44,34 @@ export class CartographyService extends RestService<Cartography> {
       }
     }
 
+    /*
     if (item.selectionService != null) {
       cartographySelectionService = item.selectionService
       if (typeof item.selectionService._links != 'undefined') {
         item.selectionService = item.selectionService._links.self.href;
       }
     }
+    */
 
+    /*
     if (item.connection != null) {
       cartographyConnection=  item.connection;
       if (typeof item.connection._links != 'undefined') {
         item.connection = item.connection._links.self.href;
       }
     }
+     */
 
     if (item._links != null) {
 
       //update relations
+      /*
       delete item.connection;
+       */
       delete item.service;
+      /*
       delete item.selectionService;
+       */
 
       // if (cartographyConnection._links.self.href == '' && cartographyConnection) {
       //   item.deleteRelation('spatialSelectionConnection', cartographyConnection).subscribe(result => {

@@ -500,6 +500,11 @@ export class UtilsService {
     };
   }
 
+  getNonEditableDateColumnDef(alias, field) {
+    return this.getDateColumnDef(alias, field, false)
+  }
+
+
   /**
    * Gets the column definition for a select column in AG Grid.
    * @param alias - Translation key for column header.

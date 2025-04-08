@@ -932,7 +932,7 @@ export class TreesFormComponent implements OnInit {
     outputsKeys.forEach(k => {
       mapping.output[k] = item.output[k];
     });
-    
+
     return mapping;
   }
 
@@ -1009,7 +1009,7 @@ export class TreesFormComponent implements OnInit {
 
   validTreeStructure(treeNodes) {
     let valid = true;
-    if (this.currentTreeType === constants.codeValue.treeType.turisticTree) {
+    if (this.currentTreeType === constants.codeValue.treeType.touristicTree) {
       const rootNodes = treeNodes[0].children.filter(n => n.status !== 'pendingDelete');
       valid = rootNodes.length === 0 || (rootNodes.length === 1 && rootNodes[0].children.length > 0);
     }
@@ -1018,16 +1018,16 @@ export class TreesFormComponent implements OnInit {
 
   validTuristicTreeApp(apps) {
     let valid = true;
-    if (this.currentTreeType === constants.codeValue.treeType.turisticTree) {
-      valid = apps.length == 0 || (apps.length == 1 && apps[0].type === constants.codeValue.applicationType.turisticApp);
+    if (this.currentTreeType === constants.codeValue.treeType.touristicTree) {
+      valid = apps.length == 0 || (apps.length == 1 && apps[0].type === constants.codeValue.applicationType.touristicApp);
     }
     return valid;
   }
 
   validNoTuristicTreeApp(apps) {
     let valid = true;
-    if (this.currentTreeType !== constants.codeValue.treeType.turisticTree) {
-      valid = !apps.some(a => a.type === constants.codeValue.applicationType.turisticApp);
+    if (this.currentTreeType !== constants.codeValue.treeType.touristicTree) {
+      valid = !apps.some(a => a.type === constants.codeValue.applicationType.touristicApp);
     }
     return valid;
   }
@@ -1668,12 +1668,12 @@ export class TreesFormComponent implements OnInit {
     let dataChanged = false;
     const promises: Promise<any>[] = [];
     const rolesToPut = [];
-    
+
     data.forEach(role => {
       if (role.status !== 'pendingDelete') {
         if (role.status === 'pendingModify') {
           if (role.newItem) { dataChanged = true; }
-          promises.push(new Promise((resolve) => { 
+          promises.push(new Promise((resolve) => {
             this.roleService.update(role).subscribe(() => { resolve(true); });
           }));
         } else if (role.status === 'pendingCreation') {

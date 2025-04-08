@@ -14,6 +14,5 @@ export * from './models/task-ui.model';
 export * from './services/task.service';
 export * from './services/task-type.service';
 export * from './services/task-group.service';
-export * from './services/task-parameter.service';
 export * from './services/task-availability.service';
-export * from './services/task-ui.service'; 
+export * from './services/task-ui.service';

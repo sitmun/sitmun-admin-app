@@ -1,13 +1,13 @@
 import {Component, OnInit} from '@angular/core';
-import {TaskService, Task, TaskGroupService} from '@app/domain';
-import { HalOptions, HalParam } from '@app/core/hal/rest/rest.service';
+import {Task, TaskGroupService, TaskService} from '@app/domain';
+import {HalOptions, HalParam} from '@app/core/hal/rest/rest.service';
 import {UtilsService} from '@app/services/utils.service';
 import {Router} from '@angular/router';
 import {config} from '@config';
 import {Observable, Subject} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
 import {DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
-import { LoggerService } from '@app/services/logger.service';
+import {LoggerService} from '@app/services/logger.service';
 
 @Component({
   selector: 'app-tasks',
@@ -16,9 +16,13 @@ import { LoggerService } from '@app/services/logger.service';
 })
 export class TasksComponent implements OnInit {
   saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
+
   dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
+
   themeGrid: any = config.agGridTheme;
+
   columnDefs: any[];
+
   gridModified = false;
 
   constructor(public dialog: MatDialog,
@@ -83,7 +87,7 @@ export class TasksComponent implements OnInit {
 
   newData(id: any) {
     this.saveAgGridStateEvent.next(true);
-    this.router.navigate(['taskForm', id, config.tasksTypesNames.basic]);
+    this.router.navigate(['taskBasic', id, config.tasksTypesNames.basic]);
   }
 
   applyChanges(data: Task[]) {
@@ -101,32 +105,8 @@ export class TasksComponent implements OnInit {
   }
 
   add(data: Task[]) {
-    const promises: Promise<any>[] = [];
-    data.forEach(task => {
-      const newTask: any = task;
-      newTask.id = null;
-      newTask.name = this.utils.getTranslate('copy_').concat(newTask.name);
-      this.taskGroupService.get(newTask.groupId).subscribe(
-        result => {
-          newTask.group = result;
-          newTask._links = null;
-
-          promises.push(new Promise((resolve,) => {
-            this.tasksService.create(newTask).subscribe(() => {
-              resolve(true);
-            });
-          }));
-          Promise.all(promises).then(() => {
-            this.dataUpdatedEvent.next(true);
-          });
-        },
-        error => {
-          this.loggerService.error('Error adding task group', error);
-        }
-      );
-
-    });
-
+    this.saveAgGridStateEvent.next(true);
+    this.router.navigate(['taskBasic', -1, config.tasksTypesNames.basic, data[0].id]);
   }
 
   removeData(data: Task[]) {
@@ -139,7 +119,7 @@ export class TasksComponent implements OnInit {
         if (result.event === 'Accept') {
           const promises: Promise<any>[] = [];
           data.forEach(task => {
-            promises.push(new Promise((resolve, ) => {
+            promises.push(new Promise((resolve,) => {
               this.tasksService.delete(task).subscribe(() => {
                 resolve(true);
               });

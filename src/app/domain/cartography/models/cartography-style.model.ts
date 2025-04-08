@@ -4,6 +4,10 @@ import {Cartography} from './cartography.model';
  * Cartography style model
  */
 export class CartographyStyle extends Resource {
+
+  /** id*/
+  public id: string;
+
   /** name*/
   public name: string;
   
@@ -13,24 +17,27 @@ export class CartographyStyle extends Resource {
   /** description*/  
   public description: string;
   
-  /** format*/  
-  public format: string;
-  
-  /** width*/  
-  public width: number;
-  
-  /** height*/  
-  public height: number;
-  
-  /** url*/  
-  public url: string;
-
   /** cartography*/
   public cartography: Cartography;
 
   public defaultStyle: boolean;
 
-  public legendURL: any;
+  /** legend URL online resource*/  
+  public legendURL: LegendURL;
+
+}
+
+export class LegendURL {
+  /** legend URL format*/  
+  public format: string;
   
+  /** legend URL width */  
+  public width: number;
+
+  /** legend URL height*/  
+  public height: number;
+
+  /** legend URL online resource*/  
+  public onlineResource: any;
 
 }

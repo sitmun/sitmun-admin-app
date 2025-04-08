@@ -1,4 +1,4 @@
-import { throwError, Observable, of } from 'rxjs';
+import {throwError, Observable, of, switchMap, empty, EMPTY} from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Resource } from './resource.model';
 import { ResourceHelper } from './resource-helper';
@@ -14,20 +14,20 @@ import { LoggerService } from '@app/services/logger.service';
 /**
  * Service for handling HAL (Hypertext Application Language) REST API interactions.
  * Provides methods for CRUD operations, pagination, and resource relationship management
- * following the HAL specification. This service works with Resource objects that 
+ * following the HAL specification. This service works with Resource objects that
  * represent HAL-compliant resources with _links and other HAL properties.
  */
 @Injectable()
 export class ResourceService {
 
-    /** 
+    /**
      * Creates a new ResourceService instance
      * @param externalService Service for handling external service configurations
      * @param loggerService Service for logging operations
      */
     constructor(private externalService: ExternalService, private loggerService: LoggerService) { }
 
-    /** 
+    /**
      * Gets the base URL for HAL resources
      * @returns The base URL string for HAL resources
      */
@@ -65,7 +65,23 @@ export class ResourceService {
             catchError(error => throwError(() => error)));
     }
 
-    /**
+  public getAllEx<T extends Resource>(type: { new(): T }, resource: string, _embedded: string, options?: HalOptions, subType?: SubTypeBuilder, embeddedName?:String) {
+    this.loggerService.trace("ResourceService.getAllEx:", {type: type.name, resource: resource, _embedded: _embedded, options: options, subType: subType, embeddedName: embeddedName});
+    const uri = this.getResourceUrl(resource);
+    const params = ResourceHelper.optionParams(new HttpParams(), options);
+
+    // Add projection parameter to params if not ignored
+    const result: ResourceArray<T> = ResourceHelper.createEmptyResult<T>(_embedded);
+
+    this.setUrls(result);
+    result.sortInfo = options ? options.sort : undefined;
+    const observable = ResourceHelper.getHttp().get(uri, { headers: ResourceHelper.headers, params: params });
+    return observable.pipe(map(response => ResourceHelper.instantiateResourceCollection(type, response, result, subType,embeddedName)),
+      catchError(error => throwError(() => error)));
+  }
+
+
+  /**
      * Retrieves a single resource by ID
      * @param type The resource type constructor
      * @param resource The resource path/endpoint
@@ -84,7 +100,20 @@ export class ResourceService {
             catchError(error => throwError(() => error)));
     }
 
-    /**
+  public getOriginal<T extends Resource>(type: { new(): T }, resource: string, id: any): Observable<T> {
+    this.loggerService.trace("ResourceService.get:", type.name, resource, id);
+    const uri = this.getResourceUrl(resource).concat('/', id);
+    const params = new HttpParams();
+    const result: T = new type();
+    this.setUrlsResource(result);
+    const observable = ResourceHelper.getHttp().get(uri, { headers: ResourceHelper.headers, params: params });
+    return observable.pipe(map(data => ResourceHelper.instantiateResource(result, data)),
+      catchError(error => throwError(() => error)));
+  }
+
+  public self
+
+  /**
      * Retrieves a resource using its self link
      * @param type The resource type constructor
      * @param resourceLink The self link URL of the resource
@@ -152,10 +181,10 @@ export class ResourceService {
      */
     public customQuery<T extends Resource>(type: { new(): T }, query: string, resource: string, _embedded: string, options?: HalOptions): Observable<ResourceArray<T>> {
         this.loggerService.trace("ResourceService.customQuery:", type.name, query, resource, _embedded, options);
-        const uri = this.getResourceUrl(resource + query);
+        const uri = this.getResourceUrl(resource + '?' + query);
         const params = ResourceHelper.optionParams(new HttpParams(), options);
         const result: ResourceArray<T> = ResourceHelper.createEmptyResult<T>(_embedded);
-
+        console.log(uri)
         this.setUrls(result);
         let observable = ResourceHelper.getHttp().get(uri, { headers: ResourceHelper.headers, params: params });
         return observable.pipe(map(response => ResourceHelper.instantiateResourceCollection(type, response, result)),
@@ -222,16 +251,16 @@ export class ResourceService {
         const payload = ResourceHelper.resolveRelations(entity);
 
         this.setUrlsResource(entity);
-        let observable = ResourceHelper.getHttp().post(uri, payload, { headers: ResourceHelper.headers, observe: 'response' });
-        return observable.pipe(map((response: HttpResponse<string>) => {
+        const observable = ResourceHelper.getHttp().post(uri, payload, { headers: ResourceHelper.headers, observe: 'response' });
+        return observable.pipe(switchMap((response: HttpResponse<string>) => {
             if (response.status >= 200 && response.status <= 207)
-                return ResourceHelper.instantiateResource(entity, response.body);
+                return of(ResourceHelper.instantiateResource(entity, response.body));
             else if (response.status == 500) {
-                let body: any = response.body;
+                const body: any = response.body;
                 return throwError(() => body.error);
             }
             // Add default return
-            return null;
+            return EMPTY;
         }));
     }
 
@@ -252,16 +281,17 @@ export class ResourceService {
 
         const uri = ResourceHelper.getProxy(entity._links.self.href);
         const payload = ResourceHelper.resolveRelations(entity);
+        console.log("payload", payload)
 
       const observable = ResourceHelper.getHttp().put(uri, payload, { headers: ResourceHelper.headers, observe: 'response' });
       return observable.pipe(
-        map((response: HttpResponse<string>) => {
+        switchMap((response: HttpResponse<string>) => {
           if (response.status >= 200 && response.status <= 207) {
-            return ResourceHelper.instantiateResource(entity, response.body);
+            return of(ResourceHelper.instantiateResource(entity, response.body));
           } else if (response.status === 500) {
             return throwError(() => response.body);
           }
-          return null;
+          return EMPTY;
         })
       );
     }

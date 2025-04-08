@@ -12,7 +12,7 @@ export class FormToolbarComponent {
   @Input() itemName: string = '';
   @Input() isNew: boolean = true;
   @Input() additionalText: string;
-  
+  @Input() canSave: boolean = true;
   @Output() save = new EventEmitter<void>();
   @Output() back = new EventEmitter<void>();
 

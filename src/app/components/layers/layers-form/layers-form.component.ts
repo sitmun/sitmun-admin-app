@@ -1689,7 +1689,7 @@ export class LayersFormComponent implements OnInit {
       }
 
 
-      cartography.selectionService = spatialService;
+      cartography.spatialSelectionService = spatialService;
       if (this.layerForm.value.queryableLayers != null) {
         cartography.queryableLayers = this.layerForm.value.queryableLayers.split(',');
       }
@@ -1700,7 +1700,7 @@ export class LayersFormComponent implements OnInit {
       if (this.layerForm.value.selectableLayers != null) {
         cartography.selectableLayers = this.layerForm.value.selectableLayers.split(',');
       }
-      cartography.connection = null;
+      cartography.spatialSelectionConnection = null;
       cartography._links = this.layerForm.value._links;
 
       this.cartographyService.save(cartography)

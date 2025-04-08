@@ -18,10 +18,10 @@ import { Service } from '@app/domain/service/models/service.model';
 export class Task extends Resource {
   /** id */
   public id?: number;
-  /** name */  
+  /** name */
   public name?: string;
   /** order*/
-  public order?: Number;
+  public order?: number;
   /** system created date*/
   public createdDate?: any;
   /** task group*/
@@ -44,4 +44,71 @@ export class Task extends Resource {
   public service?: Service;
 
   public properties?;
+
+  /**
+   * Creates a new Task instance copying only the properties declared in Task and Resource classes
+   * @param source The source object to copy properties from
+   * @returns A new Task instance with copied properties
+   */
+  public static fromObject(source: any): Task {
+    const task = new Task();
+    // Define the properties to copy
+    const propertiesToCopy = [
+      // Resource properties
+      'proxyUrl', 'rootUrl', '_links', '_subtypes',
+      // Task properties
+      'id', 'name', 'order', 'createdDate', 'group', 'type',
+      'ui', 'parameters', 'connection', 'roles',
+      'availabilities', 'cartography', 'service', 'properties'
+    ];
+    // Copy only defined properties that exist in our class
+    propertiesToCopy.forEach(prop => {
+      if (source[prop] !== undefined) {
+        task[prop] = source[prop];
+      }
+    });
+    return task;
+  }
+}
+
+export class TaskProjection extends Resource {
+  id: number;
+  name: string;
+  createdDate: string;
+  order: number;
+  groupName: string;
+  groupId: number;
+  uiId: number;
+  properties: { parameters: object }
+  serviceId: number;
+  serviceName: string;
+  cartographyId: number;
+  cartographyName: string;
+  typeId: number;
+  typeName: string;
+
+  /**
+   * Creates a new TaskProjection instance copying only the properties declared in TaskProjection and Resource classes
+   * @param source The source object to copy properties from
+   * @returns A new TaskProjection instance with copied properties
+   */
+  public static fromObject(source: any): TaskProjection {
+    const projection = new TaskProjection();
+    // Define the properties to copy
+    const propertiesToCopy = [
+      // Resource properties
+      'proxyUrl', 'rootUrl', '_links', '_subtypes',
+      // TaskProjection properties
+      'id', 'name', 'createdDate', 'order', 'groupName', 'groupId',
+      'uiId', 'properties', 'serviceId', 'serviceName',
+      'cartographyId', 'cartographyName', 'typeId', 'typeName'
+    ];
+    // Copy only defined properties that exist in our class
+    propertiesToCopy.forEach(prop => {
+      if (source[prop] !== undefined) {
+        projection[prop] = source[prop];
+      }
+    });
+    return projection;
+  }
 }

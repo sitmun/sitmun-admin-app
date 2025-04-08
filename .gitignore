@@ -45,7 +45,6 @@ testem.log
 # Sonar
 .scannerwork/*
 /reports
-/coverage
 
 # System Files
 .DS_Store

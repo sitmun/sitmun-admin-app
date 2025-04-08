@@ -14,7 +14,7 @@ import {Capabilities} from '@app/domain';
 })
 export class CapabilitiesService extends RestService<Capabilities> {
 
-  /** 
+  /**
    * API endpoint path for capabilities
    * Used as a base URL for capabilities-related requests
    */

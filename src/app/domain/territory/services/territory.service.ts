@@ -71,5 +71,4 @@ export class TerritoryService extends RestService<Territory> {
     }
     return result;
   }
-
 }

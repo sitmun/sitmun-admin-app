@@ -159,7 +159,7 @@ describe('ServiceFormComponent', () => {
     //When we click on load button, data to be processed is stored on serviceCapabilitiesData
     component.serviceCapabilitiesData = null;
 
-    expect(component.getCapabilitiesLayers.length).toEqual(0);
+    expect(component.layersFromServiceCapabilities.length).toEqual(0);
   })
 
   it('Capabilities format valid with WMS_CAPABILITIES', () => {
@@ -585,7 +585,7 @@ describe('ServiceFormComponent', () => {
 
     component.changeServiceDataByCapabilities(true, false);
 
-    expect(component.getCapabilitiesLayers.length).toEqual(5);
+    expect(component.layersFromServiceCapabilities.length).toEqual(5);
 
   })
 
@@ -1012,7 +1012,7 @@ describe('ServiceFormComponent', () => {
 
     component.changeServiceDataByCapabilities(true, false);
 
-    expect(component.getCapabilitiesLayers.length).toEqual(5);
+    expect(component.layersFromServiceCapabilities.length).toEqual(5);
   })
 
   it('Capabilities format invalid with random name', () => {
@@ -1438,14 +1438,14 @@ describe('ServiceFormComponent', () => {
 
     component.changeServiceDataByCapabilities(true, false);
 
-    expect(component.getCapabilitiesLayers.length).toEqual(0);
+    expect(component.layersFromServiceCapabilities.length).toEqual(0);
   })
 
   it('isWMS() should return true when type is WMS', () => {
     component.serviceForm.patchValue({
       type: 'WMS'
     });
-    
+
     fixture.detectChanges();
 
     expect(component.isWMS()).toBeTruthy();
@@ -1455,7 +1455,7 @@ describe('ServiceFormComponent', () => {
     component.serviceForm.patchValue({
       type: 'WFS'
     });
-    
+
     fixture.detectChanges();
 
     expect(component.isWMS()).toBeFalsy();

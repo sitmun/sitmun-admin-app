@@ -1,7 +1,7 @@
 <app-form-toolbar
   icon="menu_servei"
   entityType="serviceEntity.service"
-  [itemName]="entityForm?.get('name')?.value || ''"
+  [itemName]="itemName('name')"
   [isNew]="isNewOrDuplicated()"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
@@ -148,11 +148,12 @@
       </mat-card-content>
     </mat-card>
     <app-data-grid [allNewElements]="isNewOrDuplicated()"
-                   [columnDefs]="columnDefsLayers"
-                   [getAll]='fetchCartographies'
-                   [eventAddItemsSubscription]='addElementsEventLayers.asObservable()'
-                   [eventGetAllRowsSubscription]='getAllElementsEventLayers.asObservable()'
-                   [eventRefreshSubscription]='dataUpdatedEventLayers.asObservable()'
+                   [columnDefs]="layersTable.relationsColumnsDefs"
+                   [getAll]='layersTable.relationsFetchFn'
+                   [eventAddItemsSubscription]='layersTable.addCommandEvent$.asObservable()'
+                   [eventGetAllRowsSubscription]='layersTable.saveCommandEvent$.asObservable()'
+                   [eventRefreshSubscription]='layersTable.refreshCommandEvent$.asObservable()'
+                   [actionButton]=true
                    [discardChangesButton]=true
                    [redoButton]=true
                    [undoButton]=true
@@ -160,10 +161,10 @@
                    [addButton]=false
                    [hideDuplicateButton]=true
                    [registerButton]=true
+                   [defaultColumnSorting]='layersTable.defaultRelationsSorting()'
                    newStatusRegister="pendingRegistration"
-                   (getAllRows)="handleCartographiesEvent($event)"
-                   [actionButton]=true
-                   (add)="openCartographyDialog()"
+                   (getAllRows)="layersTable.handleSaveRelations($event)"
+                   (add)="layersTable.openDialog($event)"
                    [redraw]="isTabActive(1)"
                    *ngIf="dataLoaded">
     </app-data-grid>
@@ -171,21 +172,20 @@
   <mat-tab label="{{ 'serviceEntity.configurationParameters' | translate }}">
     <app-data-grid [changeHeightButton]="true"
                    [allNewElements]="isNewOrDuplicated()"
-                   [columnDefs]="columnDefsParameters"
-                   [getAll]='fetchParameters'
-                   [eventAddItemsSubscription]='addElementsEventParameters.asObservable()'
-                   [eventGetAllRowsSubscription]='getAllElementsEventParameters.asObservable()'
-                   [eventRefreshSubscription]='dataUpdatedEventParameters.asObservable()'
-                   [discardChangesButton]=true
+                   [columnDefs]="parametersTable.relationsColumnsDefs"
+                   [getAll]='parametersTable.relationsFetchFn'
+                   [eventAddItemsSubscription]='parametersTable.addCommandEvent$.asObservable()'
+                   [eventGetAllRowsSubscription]='parametersTable.saveCommandEvent$.asObservable()'
+                   [eventRefreshSubscription]='parametersTable.refreshCommandEvent$.asObservable()'
                    [actionButton]=true
+                   [discardChangesButton]=true
                    [redoButton]=true
                    [undoButton]=true
                    [deleteButton]=true
                    [newButton]=true
-                   addFieldRestriction="name"
-                   [defaultColumnSorting]="['name']"
-                   (new)="openParametersDialog()"
-                   (getAllRows)="handleParametersEvent($event)"
+                   [defaultColumnSorting]='parametersTable.defaultRelationsSorting()'
+                   (getAllRows)="parametersTable.handleSaveRelations($event)"
+                   (new)="parametersTable.openTemplateDialog('newParameterDialog')"
                    (duplicate)='duplicateParameters($event)'
                    [redraw]="isTabActive(2)"
                    *ngIf="dataLoaded">
@@ -194,26 +194,26 @@
 </mat-tab-group>
 
 <ng-template #newParameterDialog>
-  <form [formGroup]='parameterForm'>
+  <form [formGroup]="parametersTable.templateDialog('newParameterDialog').form">
     <mat-card appearance="outlined">
       <mat-card-content>
         <mat-form-field appearance="outline" class="full">
-          <mat-label>{{ 'serviceEntity.request' | translate }}</mat-label>
+          <mat-label>{{ 'applicationEntity.name' | translate }}</mat-label>
+          <input matInput type="text" formControlName="name" required [maxlength]="50">
+          <mat-hint align="end">{{parametersTable.templateDialog('newParameterDialog').form.get('name') | characterCount}}</mat-hint>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ 'applicationEntity.type' | translate }}</mat-label>
           <mat-select formControlName="type" class="form-control" required>
-            <mat-option [value]="requestType.value" *ngFor="let requestType of this.codeList('serviceParameter.type')">
-              {{ requestType.description }}
+            <mat-option [value]="parameterType.value" *ngFor="let parameterType of this.codeList('serviceParameter.type')">
+              {{ parameterType.description }}
             </mat-option>
           </mat-select>
         </mat-form-field>
-        <mat-form-field appearance="outline" class="full" [maxLength]="30">
-          <mat-label>{{ 'serviceEntity.parameter' | translate }}</mat-label>
-          <input matInput type="text" formControlName="name" required>
-          <mat-hint align="end">{{parameterForm.get('name') | characterCount:30}}</mat-hint>
-        </mat-form-field>
         <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'serviceEntity.value' | translate }}</mat-label>
-          <input matInput type="text" formControlName="value">
-          <mat-hint align="end">{{parameterForm.get('value') | characterCount:4000}}</mat-hint>
+          <input matInput type="text" formControlName="value" required [maxlength]="250">
+          <mat-hint align="end">{{parametersTable.templateDialog('newParameterDialog').form.get('value') | characterCount}}</mat-hint>
         </mat-form-field>
       </mat-card-content>
     </mat-card>

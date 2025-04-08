@@ -1,4 +1,4 @@
-import {throwError as observableThrowError, of as observableOf, Observable, throwError} from 'rxjs';
+import {throwError as observableThrowError, of as observableOf, Observable, throwError, EMPTY} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {HttpParams, HttpHeaders} from '@angular/common/http';
 import {ResourceHelper} from '@app/core';
@@ -59,7 +59,6 @@ export abstract class Resource {
         return acc;
       }, {});
 
-      console.log("Getting relation array", {url: url, options: remainingOptions});
       const observable = ResourceHelper.getHttp().get(ResourceHelper.getProxy(url), {
         headers: ResourceHelper.headers,
         params: remainingOptions
@@ -83,7 +82,7 @@ export abstract class Resource {
     const params = ResourceHelper.optionParams(new HttpParams(), options);
     const result: ResourceArray<T> = ResourceHelper.createEmptyResult<T>(isNullOrUndefined(_embedded) ? "_embedded" : _embedded);
     if (!isNullOrUndefined(this._links) && !isNullOrUndefined(this._links[relation])) {
-      let observable = ResourceHelper.getHttp().get(ResourceHelper.getProxy(this._links[relation].href), {
+      const observable = ResourceHelper.getHttp().get(ResourceHelper.getProxy(this._links[relation].href), {
         headers: ResourceHelper.headers,
         params: params
       });
@@ -95,6 +94,39 @@ export abstract class Resource {
   }
 
   /** Get related resource */
+
+  public getRelationEx<T extends Resource>(type: { new(): T }, relation: string, options: {
+    [p: string]: string
+  } = {}): Observable<T> {
+    if (this._links?.[relation]?.href) {
+      const template = utpl(this._links[relation].href);
+      const url = template.fillFromObject(options);
+
+      // Extract variables used in the template
+      const templateVariables = template.varNames;
+
+      // Filter out template variables from options to get remaining options
+      const remainingOptions = Object.keys(options).reduce((acc, key) => {
+        if (!templateVariables.includes(key)) {
+          acc[key] = options[key];
+        }
+        return acc;
+      }, {});
+
+      const observable = ResourceHelper.getHttp().get(ResourceHelper.getProxy(url), {
+        headers: ResourceHelper.headers,
+        params: remainingOptions
+      });
+      return observable.pipe(map(response => Object.assign(new type(), response)))
+    } else {
+      console.error('No relation intance found for', {
+        resource: this,
+        relation: relation
+      });
+      return observableOf(null);
+    }
+  }
+
   public getRelation<T extends Resource>(type: {
     new(): T
   }, relation: string, builder?: SubTypeBuilder): Observable<T> {
@@ -132,9 +164,9 @@ export abstract class Resource {
 
   /** Bind the given resource to this resource by the given relation*/
 
-  public updateRelationship<T extends Resource>(relation: string, resource?: T, options: {
+  public updateRelationEx<T extends Resource>(relation: string, resource?: T, options: {
     [p: string]: string
-  } = {}): Observable<any> {
+  } = {}) {
     if (this._links?.[relation]?.href) {
       const template = utpl(this._links[relation].href);
       const url = template.fillFromObject(options);
@@ -165,14 +197,14 @@ export abstract class Resource {
           resource: this,
           relation: relation
         });
-        return observableOf([]);
+        return EMPTY;
       }
     } else {
       console.error('No relation found for', {
         resource: this,
         relation: relation
       });
-      return observableOf([]);
+      return EMPTY;
     }
   }
 

@@ -663,8 +663,10 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
       formkeys.forEach(key => {
         this.savedTask[key] = this.taskForm.get(key).value;
       });
+      console.log(this.savedTask)
       this.savedTaskTreatment(this.savedTask);
       this.savedTask.type = this.taskType;
+      console.log(this.savedTask)
       if (this.savedTask._links) {
         this.parseLinksSavedTask();
       }
@@ -747,9 +749,9 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
       taskToSave.name = this.savedTask.name;
       taskToSave.order = this.savedTask.order;
       if (this.savedTask.properties?.parameters) {
-        taskToSave.properties = { parameters: this.savedTask.properties.parameters };
+        taskToSave.properties = { ...this.savedTask.properties, parameters: this.savedTask.properties.parameters };
       } else  {
-        taskToSave.properties = { parameters: [] };
+        taskToSave.properties = { ...this.savedTask.properties, parameters: [] };
       }
       taskToSave.cartography = this.savedTask.cartography;
       taskToSave.service = this.savedTask.service;

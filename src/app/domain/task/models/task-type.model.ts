@@ -10,4 +10,6 @@ export class TaskType extends Resource {
   public name: string;
 
   public specification: Map<string, any>;
+
+  public title: string;
 }

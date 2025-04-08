@@ -1,11 +1,11 @@
 const codeValue = {
   applicationType: {
-    turisticApp: 'T',
+    touristicApp: 'T',
     externalApp: 'E',
     internalApp: 'I'
   },
   treeType: {
-    turisticTree: 'tourist',
+    touristicTree: 'tourist',
   },
   treenodeFolderType: {
     menu: 'menu',

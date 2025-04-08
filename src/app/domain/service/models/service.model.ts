@@ -49,4 +49,30 @@ export class Service extends Resource {
   password: string;
 
   authenticationMode: string;
+
+  /**
+   * Creates a new Service instance copying only the properties declared in Service and Resource classes
+   * @param source The source object to copy properties from
+   * @returns A new Service instance with copied properties
+   */
+  public static fromObject(source: any): Service {
+    const service = new Service();
+    // Define the properties to copy
+    const propertiesToCopy = [
+      // Resource properties
+      'proxyUrl', 'rootUrl', '_links', '_subtypes',
+      // Service properties
+      'id', 'name', 'type', 'serviceURL', 'supportedSRS',
+      'legend', 'infoUrl', 'createdDate', 'connection',
+      'parameters', 'blocked', 'isProxied', 'description',
+      'getInformationURL', 'user', 'password', 'authenticationMode'
+    ];
+    // Copy only defined properties that exist in our class
+    propertiesToCopy.forEach(prop => {
+      if (source[prop] !== undefined) {
+        service[prop] = source[prop];
+      }
+    });
+    return service;
+  }
 }

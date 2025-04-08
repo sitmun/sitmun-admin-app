@@ -59,7 +59,7 @@ import { LayersPermitsFormComponent } from '@app/components/layers-permits/layer
 import { LayersFormComponent } from '@app/components/layers/layers-form/layers-form.component';
 import { TaskGroupComponent } from '@app/components/task-group/task-group.component';
 import { TaskGroupFormComponent } from '@app/components/task-group/task-group-form/task-group-form.component';
-import { TasksComponent } from '@app/components/tasks/tasks.component';
+import { TasksComponent } from '@app/components/tasks-basic/tasks.component';
 import { LoginComponent } from '@app/components/login/login.component';
 import { LogLevelControlComponent } from '@app/components/shared/log-level-control/log-level-control.component';
 import { FormToolbarComponent } from '@app/components/shared/form-toolbar/form-toolbar.component';
@@ -102,7 +102,6 @@ import {
   TaskAvailabilityService,
   UserPositionService,
   ApplicationBackgroundService,
-  TaskParameterService,
   TerritoryTypeService,
   CartographyFilterService,
   ConfigurationParametersService,
@@ -114,8 +113,12 @@ import {
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { ResourceService, ExternalService } from '@app/core/hal';
 
+import {TaskBasicFormComponent} from "@app/components/tasks-basic/task-form/task-basic-form.component";
+import {SitmunBaseComponent} from "@app/components/sitmun-base.component";
+
 @NgModule({
   declarations: [
+    SitmunBaseComponent,
     AppComponent,
     ConnectionComponent,
     ServiceComponent,
@@ -151,6 +154,7 @@ import { ResourceService, ExternalService } from '@app/core/hal';
     TaskGroupComponent,
     TaskGroupFormComponent,
     TasksComponent,
+    TaskBasicFormComponent,
     LoginComponent,
     DashboardComponent,
     TaskFormComponent,
@@ -189,7 +193,7 @@ import { ResourceService, ExternalService } from '@app/core/hal';
     APP_ROUTING,
     BrowserAnimationsModule,
     MatTabsModule,
-    MatTooltipModule
+    MatTooltipModule,
   ],
   providers: [
     { provide: LOCALE_ID, useValue: 'es-ES' },
@@ -226,7 +230,6 @@ import { ResourceService, ExternalService } from '@app/core/hal';
     LanguageService,
     CartographyFilterService,
     TaskUIService,
-    TaskParameterService,
     ApplicationBackgroundService,
     TreeNodeService,
     UserPositionService

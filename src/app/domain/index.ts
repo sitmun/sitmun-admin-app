@@ -38,7 +38,6 @@ export { UserConfigurationService } from './user/services/user-configuration.ser
 export { TaskService } from './task/services/task.service';
 export { TaskTypeService } from './task/services/task-type.service';
 export { TaskGroupService } from './task/services/task-group.service';
-export { TaskParameterService } from './task/services/task-parameter.service';
 export { TaskAvailabilityService } from './task/services/task-availability.service';
 export { TaskUIService } from './task/services/task-ui.service';
 

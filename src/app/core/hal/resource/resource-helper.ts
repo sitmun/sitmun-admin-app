@@ -185,10 +185,14 @@ export class ResourceHelper {
 
     /** add slash to URI */
     private static addSlash(uri: string): string {
+      return uri
+      /*
         let uriParsed = url.parse(uri);
         if (isNullOrUndefined(uriParsed.search) && uri && uri[uri.length - 1] != '/')
             return uri + '/';
         return uri;
+
+       */
     }
 
     /** get proxy from URL */

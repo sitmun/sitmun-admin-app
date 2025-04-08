@@ -18,7 +18,6 @@ import { ConnectionService } from './connection/services/connection.service';
 import { TaskService } from './task/services/task.service';
 import { TaskTypeService } from './task/services/task-type.service';
 import { TaskGroupService } from './task/services/task-group.service';
-import { TaskParameterService } from './task/services/task-parameter.service';
 import { TaskAvailabilityService } from './task/services/task-availability.service';
 import { TaskUIService } from './task/services/task-ui.service';
 import { ServiceService } from './service/services/service.service';
@@ -85,7 +84,6 @@ export class DomainModule {
         TaskTypeService,
         TaskUIService,
         TaskGroupService,
-        TaskParameterService,
         TaskAvailabilityService,
         ServiceService,
         ConfigurationParametersService,
@@ -114,4 +112,4 @@ export class DomainModule {
       ]
     };
   }
-} 
+}

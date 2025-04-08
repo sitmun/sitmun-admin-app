@@ -1,19 +1,26 @@
-import { Resource } from '@app/core/hal/resource/resource.model';
+import {Resource} from '@app/core/hal/resource/resource.model';
 import {Tree} from '@app/domain/tree/models/tree.model';
 import {Role} from '@app/domain/role/models/role.model';
 import {CartographyGroup} from '@app/domain/cartography/models/cartography-group.model';
 import {ApplicationParameter} from './application-parameter.model';
 import {ApplicationBackground} from './application-background.model';
+import {ApplicationTerritory} from "@app/domain/application/models/application-territory.model";
+import {constants} from "@environments/constants";
 
 /**
  * Application model
  */
+
 export class Application extends Resource {
   /** id */
   public id: number;
 
   /** name*/
   public name: string;
+
+  public description: string;
+
+  public logo: string;
 
   /** type*/
   public type: string;
@@ -24,52 +31,143 @@ export class Application extends Resource {
   /** theme*/
   public theme: string;
 
+  public scales: string[];
+
+  public srs: string
+
   /** urlTemplate*/
   public jspTemplate: string;
 
-  /** urlTemplate*/
-  public logo: string;
-
-  /**
-   * If a user has an extended role in a territory, it can be used with this application.
-   */
-  public accessParentTerritory: boolean;
-
-  /**
-   * If a user has an extended role in a territory, it can be used with the territory children of such territory.
-   */
-  public accessChildrenTerritory: boolean;
-
-  /** system created date*/
-  public createdDate: any;
-
-  /** available roles*/
-  public availableRoles : Role[];
-
-  /** trees*/
-  public trees : Tree[];
-
-  /** scales (comma-separated values)*/
-  public scales: string[];
-
-  /** projections(comma-separated EPSG codes)*/
-  public srs: string;
-
-  /** whether application tree will auto refresh*/
   public treeAutoRefresh: boolean;
 
-  /** backgrounds*/
-  public backgrounds: ApplicationBackground[];
+  public accessParentTerritory: boolean;
 
-  /** situation map*/
+  public accessChildrenTerritory: boolean;
+
   public situationMap: CartographyGroup;
 
-  /** parameters*/
+  public createdDate: string;
+
   public parameters: ApplicationParameter[];
 
-  public situationMapId: number;
+  public availableRoles: Role[];
 
-  public passwordSet: boolean;
+  public trees: Tree[];
 
-  public description: string;
+  public backgrounds: ApplicationBackground[];
+
+  public territories: ApplicationTerritory[];
+
+  /**
+   * Creates a new Application instance copying only the properties declared in Application and Resource classes
+   * @param source The source object to copy properties from
+   * @returns A new Application instance with copied properties
+   */
+  public static fromObject(source: any): Application {
+    const application = new Application();
+    // Define the properties to copy
+    let propertiesToCopy: string[];
+    if (source.type === constants.codeValue.applicationType.internalApp) {
+      propertiesToCopy = Application.internalApp
+    } else if (source.type === constants.codeValue.applicationType.externalApp) {
+      propertiesToCopy = Application.externalApp
+    } else if (source.type === constants.codeValue.applicationType.touristicApp) {
+      propertiesToCopy = Application.touristicApp
+    } else {
+      propertiesToCopy = Application.allProperties
+    }
+    // Copy only defined properties that exist in our class
+    propertiesToCopy.forEach(prop => {
+      if (source[prop] !== undefined) {
+        application[prop] = source[prop];
+      }
+    });
+    return application;
+  }
+
+  public static allProperties: string [] = [
+    // Resource properties
+    'proxyUrl', 'rootUrl', '_links', '_subtypes',
+    // Application properties
+    'id', 'name', 'description', 'logo', 'type', 'title', 'theme',
+    'scales', 'srs', 'jspTemplate', 'treeAutoRefresh',
+    'accessParentTerritory', 'accessChildrenTerritory',
+    'situationMap', 'createdDate', 'parameters', 'availableRoles',
+    'trees', 'backgrounds', 'territories'
+  ];
+
+  public static externalApp: string [] = [
+    // Resource properties
+    'proxyUrl', 'rootUrl', '_links', '_subtypes',
+    // Common application properties
+    'id',  'name', 'description', 'logo', 'type',
+    'createdDate', 'parameters', 'availableRoles',
+    'trees', 'backgrounds', 'territories',
+    // Specific application properties
+    'jspTemplate'
+  ]
+
+  public static internalApp: string [] = [
+    // Resource properties
+    'proxyUrl', 'rootUrl', '_links', '_subtypes',
+    // Common application properties
+    'id',  'name', 'description', 'logo', 'type',
+    'createdDate', 'parameters', 'availableRoles',
+    'trees', 'backgrounds', 'territories',
+    // Specific application properties
+    'title', 'theme', 'scales', 'srs', 'treeAutoRefresh',
+    'accessParentTerritory', 'accessChildrenTerritory',
+    'situationMap'
+  ]
+
+  public static touristicApp: string [] = [
+    // Resource properties
+    'proxyUrl', 'rootUrl', '_links', '_subtypes',
+    // Common application properties
+    'id',  'name', 'description', 'logo', 'type',
+    'createdDate', 'parameters', 'availableRoles',
+    'trees', 'backgrounds', 'territories'
+  ]
 }
+
+export class ApplicationProjection extends Resource {
+  id: number;
+  name: string;
+  type: string;
+  title: string;
+  theme: string;
+  scales: string[];
+  srs: string;
+  jspTemplate: string;
+  treeAutoRefresh: boolean;
+  accessParentTerritory: boolean;
+  accessChildrenTerritory: boolean;
+  situationMapId: number;
+  createdDate: string;
+  logo: string;
+  description: string;
+
+  /**
+   * Creates a new ApplicationProjection instance copying only the properties declared in ApplicationProjection and Resource classes
+   * @param source The source object to copy properties from
+   * @returns A new ApplicationProjection instance with copied properties
+   */
+  public static fromObject(source: any): ApplicationProjection {
+    const projection = new ApplicationProjection();
+    const propertiesToCopy = [
+      // Resource properties
+      'proxyUrl', 'rootUrl', '_links', '_subtypes',
+      // ApplicationProjection properties
+      'id', 'name', 'type', 'title', 'theme', 'scales', 'srs', 'jspTemplate',
+      'treeAutoRefresh', 'accessParentTerritory', 'accessChildrenTerritory',
+      'situationMapId', 'createdDate', 'logo', 'description'
+    ];
+    propertiesToCopy.forEach(prop => {
+      if (source[prop] !== undefined) {
+        projection[prop] = source[prop];
+      }
+    });
+    return projection;
+  }
+}
+

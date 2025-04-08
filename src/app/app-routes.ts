@@ -32,7 +32,7 @@ import { LayersPermitsFormComponent } from '@app/components/layers-permits/layer
 import { TaskGroupComponent } from '@app/components/task-group/task-group.component';
 import { TaskGroupFormComponent } from '@app/components/task-group/task-group-form/task-group-form.component';
 import { LayersFormComponent } from '@app/components/layers/layers-form/layers-form.component';
-import { TasksComponent } from '@app/components/tasks/tasks.component';
+import { TasksComponent } from '@app/components/tasks-basic/tasks.component';
 import { DashboardComponent } from '@app/components/dashboard/dashboard.component';
 import { TaskFormComponent } from '@app/components/task-form/task-form.component';
 import { TasksEditionCartographyTableComponent } from '@app/components/tasks-edition-cartography-table/tasks-edition-cartography-table.component';
@@ -40,6 +40,8 @@ import { TasksEditionDataTableComponent } from '@app/components/tasks-edition-da
 import { TasksEditionRelationTableComponent } from '@app/components/tasks-edition-relation-table/tasks-edition-relation-table.component';
 import { TasksEditionSearchViewComponent } from '@app/components/tasks-edition-search-view/tasks-edition-search-view.component';
 import { CanDeactivateGuard } from '@app/core/guards/can-deactivate-guard.service';
+
+import {TaskBasicFormComponent} from "@app/components/tasks-basic/task-form/task-basic-form.component";
 
 export const APP_ROUTES: Routes = [
     {path: 'dashboard', component: DashboardComponent},
@@ -64,6 +66,8 @@ export const APP_ROUTES: Routes = [
     {path: 'tasks', component: TasksComponent, canDeactivate: [CanDeactivateGuard]},
     {path: 'taskForm/:id/:type', component: TaskFormComponent},
     {path: 'taskForm/:id/:type/:idDuplicate', component: TaskFormComponent},
+    {path: 'taskBasic/:id/:type', component: TaskBasicFormComponent},
+    {path: 'taskBasic/:id/:type/:idDuplicate', component: TaskBasicFormComponent},
     {path: 'taskGroup', component: TaskGroupComponent, canDeactivate: [CanDeactivateGuard]},
     {path: 'taskGroup/:id/taskGroupForm', component: TaskGroupFormComponent},
     {path: 'taskGroup/:id/taskGroupForm/:idDuplicate', component: TaskGroupFormComponent},

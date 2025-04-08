@@ -5,11 +5,12 @@ import { Resource } from '@app/core/hal/resource/resource.model';
 export class TaskUI extends Resource {
   /** name*/
   public name: string;
-  
-  /** tooltip*/  
+
+  /** tooltip*/
   public tooltip: string;
-    
-  /** order*/ 
+
+  /** order*/
   public order: number;
 
+  public id: number;
 }
