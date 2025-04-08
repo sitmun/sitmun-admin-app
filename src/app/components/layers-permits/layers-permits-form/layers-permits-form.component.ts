@@ -12,6 +12,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {of, Subject} from 'rxjs';
 import {MatTabChangeEvent} from '@angular/material/tabs';
 import { LoggerService } from '@app/services/logger.service';
+import {constants} from "@environments/constants";
 
 @Component({
   selector: 'app-layers-permits-form',
@@ -66,7 +67,11 @@ export class LayersPermitsFormComponent implements OnInit {
     promises.push(new Promise((resolve,) => {
       this.utils.getCodeListValues('cartographyPermission.type').subscribe(
         resp => {
-          this.permissionGroupTypes.push(...resp);
+          this.permissionGroupTypes.push(...resp.filter(item =>
+            item.value === constants.codeValue.cartographyPermissionType.report ||
+            item.value === constants.codeValue.cartographyPermissionType.cartographyGroup ||
+            item.value === constants.codeValue.cartographyPermissionType.locationMap
+          ));
           this.permissionGroupTypes.sort((a, b) => a.description.localeCompare(b.description));
           resolve(true);
         }
