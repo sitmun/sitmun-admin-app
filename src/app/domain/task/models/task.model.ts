@@ -6,18 +6,32 @@ import { TaskType } from './task-type.model';
 import { TaskGroup } from './task-group.model';
 import { TaskAvailability } from './task-availability.model';
 import { TaskParameter } from './task-parameter.model';
-
-//FIXME ensure task creation in admin app upon initialization (as it is done with Roles and default Users)
-/** GEOADMIN_task id */
-export const GEOADMIN_TREE_TASK_ID:string  = "geoadmin";
-
 import { TaskUI } from './task-ui.model';
 import { Cartography } from '@app/domain/cartography/models/cartography.model';
 import { Service } from '@app/domain/service/models/service.model';
+
+//FIXME ensure task creation in admin app upon initialization (as it is done with Roles and default Users)
+/** GEOADMIN_task id */
+export const GEOADMIN_TREE_TASK_ID: string = "geoadmin";
+
+/** Task properties interface */
+export interface TaskProperties {
+  /** Query scope */
+  scope: string | null;
+  /** Query command */
+  command: string | null;
+  /** Result format */
+  format: string | null;
+  /** Path for target resource */
+  path: string | null;
+  /** Basic and Query parameters */
+  parameters: any[];
+}
+
 /** Task model */
 export class Task extends Resource {
   /** id */
-  public id?: number;
+  public id: number;
   /** name */
   public name?: string;
   /** order*/
@@ -38,12 +52,12 @@ export class Task extends Resource {
   public roles?: Role[];
   /** availabilities*/
   public availabilities?: TaskAvailability[];
-
+  /** cartography */
   public cartography?: Cartography;
-
+  /** service */
   public service?: Service;
-
-  public properties?;
+  /** task properties */
+  public properties?: TaskProperties;
 
   /**
    * Creates a new Task instance copying only the properties declared in Task and Resource classes
@@ -67,7 +81,50 @@ export class Task extends Resource {
         task[prop] = source[prop];
       }
     });
+    // Ensure properties are initialized
+    task.properties = Task.validateProperties(source.properties);
     return task;
+  }
+
+  /**
+   * Validates and normalizes task properties structure
+   * @param properties The properties object to validate
+   * @returns A normalized TaskProperties object
+   */
+  static validateProperties(properties: any): TaskProperties {
+    if (!properties || !(properties instanceof Object)) {
+      return {
+        scope: null,
+        command: null,
+        format: null,
+        path: null,
+        parameters: []
+      };
+    }
+
+    const result = { ...properties };
+
+    if (!result?.scope) {
+      result.scope = null;
+    }
+
+    if (!result?.command) {
+      result.command = null;
+    }
+
+    if (!result?.format) {
+      result.format = null;
+    }
+
+    if (!result?.path) {
+      result.path = null;
+    }
+
+    if (!result?.parameters || !Array.isArray(result?.parameters) || !result?.parameters?.some(item => item instanceof Object)) {
+      result.parameters = [];
+    }
+
+    return result;
   }
 }
 
@@ -79,11 +136,19 @@ export class TaskProjection extends Resource {
   groupName: string;
   groupId: number;
   uiId: number;
-  properties: { parameters: object }
+  properties: TaskProperties = {
+    scope: null,
+    command: null,
+    format: null,
+    path: null,
+    parameters: []
+  };
   serviceId: number;
   serviceName: string;
   cartographyId: number;
   cartographyName: string;
+  connectionId: number;
+  connectionName: string;
   typeId: number;
   typeName: string;
 
@@ -101,7 +166,8 @@ export class TaskProjection extends Resource {
       // TaskProjection properties
       'id', 'name', 'createdDate', 'order', 'groupName', 'groupId',
       'uiId', 'properties', 'serviceId', 'serviceName',
-      'cartographyId', 'cartographyName', 'typeId', 'typeName'
+      'cartographyId', 'cartographyName', 'typeId', 'typeName',
+      'connectionId', 'connectionName'
     ];
     // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
@@ -109,6 +175,8 @@ export class TaskProjection extends Resource {
         projection[prop] = source[prop];
       }
     });
+    // Ensure properties are initialized
+    projection.properties = Task.validateProperties(source.properties);
     return projection;
   }
 }

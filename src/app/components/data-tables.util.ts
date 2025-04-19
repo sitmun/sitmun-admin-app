@@ -155,7 +155,6 @@ export class DataTableDefinition<RELATION, TARGET> {
    * @param relations - Array of relations to duplicate
    */
   async duplicateRelations(relations: RELATION[]) {
-    console.log(relations)
     this.addCommandEvent$.next(relations.map(value => this.relationsDuplicateFn(value)));
   }
 
@@ -222,7 +221,6 @@ export class DataTableDefinition<RELATION, TARGET> {
    * @param name - Name of the template dialog to open
    */
   openTemplateDialog(name: string) {
-    console.log("open template", name)
     const dialog = this.templateDialog(name);
     dialog.preOpenFn(dialog.form);
     const dialogRef = this.targetsDialog.open<DialogFormComponent, DialogFormData, DialogFormResult>(

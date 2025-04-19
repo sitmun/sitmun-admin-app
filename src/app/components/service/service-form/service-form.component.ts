@@ -112,21 +112,21 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
    * Always true as projections are user-manageable.
    * Controls the display of remove buttons in projection chips.
    */
-  private readonly canRemoveProjections = true;
+  protected readonly canRemoveProjections = true;
 
   /**
    * Flag indicating if projections should be added when input loses focus.
    * Always true to support both manual entry and chip-based input.
    * Enhances user experience by allowing flexible input methods.
    */
-  private readonly addProjectionsOnBlur = true;
+  protected readonly addProjectionsOnBlur = true;
 
   /**
    * Array of key codes that trigger projection separation in the input.
    * Includes ENTER and COMMA for flexible input options.
    * Allows users to add projections using keyboard shortcuts.
    */
-  private readonly separatorKeysCodesForProjections: number[] = [ENTER, COMMA];
+  protected readonly separatorKeysCodesForProjections: number[] = [ENTER, COMMA];
 
   /**
    * Stores the WMS layers capabilities data retrieved from the service.
@@ -139,13 +139,13 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
    * Data table configuration for managing service layers.
    * Handles WMS layer configurations and capabilities.
    */
-  private readonly layersTable: DataTableDefinition<CartographyProjection, CartographyProjection>;
+  protected readonly layersTable: DataTableDefinition<CartographyProjection, CartographyProjection>;
 
   /**
    * Data table configuration for managing service parameters.
    * Handles parameter CRUD operations and validation.
    */
-  private readonly parametersTable: DataTableDefinition<ServiceParameter, ServiceParameter>;
+  protected readonly parametersTable: DataTableDefinition<ServiceParameter, ServiceParameter>;
 
   /**
    * Reference to the parameter dialog template.

@@ -4,6 +4,11 @@ const codeValue = {
     externalApp: 'E',
     internalApp: 'I'
   },
+  queryTaskScope: {
+    sqlQuery: 'sql-query',
+    webApiQuery: 'web-api-query',
+    cartographyQuery: 'cartography-query'
+  },
   treeType: {
     touristicTree: 'tourist',
   },
@@ -104,7 +109,7 @@ export const constants = {
         icon: 'menu_tasques',
         children: [
           {
-            id: 'tasks',
+            id: 'tasksBasic',
             translation: 'basics',
             children: null,
           },
@@ -260,7 +265,7 @@ export const constants = {
     appOptions: [{
       label: 'X',
       value: '${LATITUD}'
-    },{
+    }, {
       label: 'Y',
       value: '${LONGITUD}'
     }]

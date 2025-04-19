@@ -1,9 +1,14 @@
 import { Component, OnDestroy, OnInit, TemplateRef, ViewChild } from "@angular/core";
 import { sitmunMixedBase } from "@app/components/sitmun-base.component";
 import {
+  Cartography,
   CodeListService,
+  Connection,
+  ConnectionService,
   Role,
   RoleService,
+  Service,
+  ServiceService,
   Task,
   TaskAvailability,
   TaskAvailabilityProjection,
@@ -15,12 +20,11 @@ import {
   TaskService,
   TaskType,
   TaskTypeService,
-  TaskUI,
   TaskUIService,
   TerritoryProjection,
   TerritoryService,
   TranslationService,
-  TaskPropertiesBuilder
+  CartographyService, TaskPropertiesBuilder
 } from "@app/domain";
 import { MatDialog } from "@angular/material/dialog";
 import { TranslateService } from "@ngx-translate/core";
@@ -38,34 +42,30 @@ import {
   Status
 } from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { MatSelectChange } from "@angular/material/select";
 
 /**
- * Component for managing basic tasks in the SITMUN application.
- * Provides a form interface for creating, editing, and duplicating basic tasks.
+ * Component for managing query tasks in the SITMUN application.
+ * Provides a form interface for creating, editing, and duplicating query tasks.
  *
  * This component handles:
- * - Task metadata (name, UI)
+ * - Task metadata (name, scope, command)
+ * - Connection or cartography selection based on query scope
  * - Task role assignments
  * - Task availability per territory
  * - Task parameters configuration
  *
- * Each task is associated with a specific task type and task group.
+ * Each query task is associated with a specific task type and task group.
  *
  * @extends sitmunMixedBase<TaskProjection>
  * @implements OnInit, OnDestroy
  */
 @Component({
   selector: 'app-service-form',
-  templateUrl: './task-basic-form.component.html',
+  templateUrl: './task-query-form.component.html',
   styles: []
 })
-export class TaskBasicFormComponent extends sitmunMixedBase<TaskProjection>() implements OnInit, OnDestroy {
-
-  /**
-   * The reactive form for editing task properties.
-   * Contains form controls for name and UI selection with validation rules.
-   */
-  public override entityForm: FormGroup;
+export class TaskQueryFormComponent extends sitmunMixedBase<TaskProjection>() implements OnInit, OnDestroy {
 
   /**
    * Data table definition for managing role assignments to the task.
@@ -110,10 +110,22 @@ export class TaskBasicFormComponent extends sitmunMixedBase<TaskProjection>() im
   private taskGroup: TaskGroup = null;
 
   /**
-   * List of available task UIs that can be assigned to this task.
+   * List of available connections that can be assigned to this task.
    * Retrieved during initialization.
    */
-  protected uiList: TaskUI[] = [];
+  private connections: Connection[] = [];
+
+  /**
+   * List of available services that can be assigned to this task.
+   * Retrieved during initialization.
+   */
+  private services: Service[] = [];
+
+  /**
+   * List of available cartographies that can be assigned to cartography query tasks.
+   * Retrieved during initialization.
+   */
+  private cartographies: Cartography[] = [];
 
   /**
    * Reference to the dialog template for adding new parameters.
@@ -123,7 +135,7 @@ export class TaskBasicFormComponent extends sitmunMixedBase<TaskProjection>() im
   private readonly newParameterDialog: TemplateRef<any>;
 
   /**
-   * Constructor for the TaskBasicFormComponent.
+   * Constructor for the TaskQueryFormComponent.
    * Initializes the component with necessary services and sets up the form.
    *
    * @param dialog - Material dialog service for modal dialogs
@@ -142,6 +154,8 @@ export class TaskBasicFormComponent extends sitmunMixedBase<TaskProjection>() im
    * @param taskGroupService - Service for managing task groups
    * @param territoryService - Service for accessing territories
    * @param taskAvailabilityService - Service for managing task availabilities
+   * @param connectionService - Service for database connections
+   * @param cartographyService - Service for cartography management
    */
   constructor(
     protected override dialog: MatDialog,
@@ -160,6 +174,8 @@ export class TaskBasicFormComponent extends sitmunMixedBase<TaskProjection>() im
     protected taskGroupService: TaskGroupService,
     protected territoryService: TerritoryService,
     protected taskAvailabilityService: TaskAvailabilityService,
+    protected connectionService: ConnectionService,
+    protected cartographyService: CartographyService
   ) {
     super(translateService, translationService, errorHandler, activatedRoute, router);
     this.rolesTable = this.defineRolesTable();
@@ -195,16 +211,15 @@ export class TaskBasicFormComponent extends sitmunMixedBase<TaskProjection>() im
     this.dataTables.register(this.rolesTable)
       .register(this.availabilitiesTable)
       .register(this.parametersTable);
+    await this.initCodeLists(['tasksEntity.type', 'queryTask.scope'])
 
-    this.taskTypeName = params.type ?? 'Basic';
+    this.taskTypeName = params.type ?? 'Query';
     this.taskTypeNameTranslated = this.translateService.instant(`tasksEntity.${this.taskTypeName}`);
-    await this.initCodeLists(['tasksEntity.type'])
-    this.initTranslations('Task', ['name'])
-
-    const [taskTypes, taskGroups, uiList] = await Promise.all([
+    const [taskTypes, taskGroups, connections, cartographies] = await Promise.all([
       firstValueFrom(this.taskTypeService.getAllEx()),
       firstValueFrom(this.taskGroupService.getAllEx()),
-      firstValueFrom(this.taskUIService.getAll())
+      firstValueFrom(this.connectionService.getAll()),
+      firstValueFrom(this.cartographyService.getAll())
     ]);
 
     this.taskType = taskTypes.find(taskType => taskType.title === this.taskTypeName);
@@ -217,10 +232,8 @@ export class TaskBasicFormComponent extends sitmunMixedBase<TaskProjection>() im
       throw new Error(`Task group ${this.taskTypeName} not found`);
     }
 
-    this.uiList = uiList;
-    if (!Array.isArray(this.uiList)) {
-      throw new Error(`UI tasks ${this.uiList} not retrieved`);
-    }
+    this.connections = connections
+    this.cartographies = cartographies
   }
 
   /**
@@ -255,14 +268,6 @@ export class TaskBasicFormComponent extends sitmunMixedBase<TaskProjection>() im
   }
 
   /**
-   * Fetches related data for the entity.
-   * Loads translations for the current entity.
-   */
-  override async fetchRelatedData() {
-    return this.loadTranslations(this.entityToEdit);
-  }
-
-  /**
    * Initializes the form after entity data is fetched.
    * Sets up reactive form with entity values and validation rules.
    *
@@ -278,11 +283,24 @@ export class TaskBasicFormComponent extends sitmunMixedBase<TaskProjection>() im
         validators: [Validators.required],
         nonNullable: true
       }),
-      uiId: new FormControl(this.entityToEdit.uiId, {
+      scope: new FormControl(this.entityToEdit.properties.scope, {
         validators: [Validators.required],
         nonNullable: true
       }),
+      command: new FormControl(this.entityToEdit.properties.command, {
+        validators: [Validators.required],
+        nonNullable: true
+      }),
+      connectionId: new FormControl(this.entityToEdit.connectionId, {
+        validators: [Validators.required],
+        nonNullable: true
+      }),
+      cartographyId: new FormControl(this.entityToEdit.cartographyId, {
+        validators: [Validators.required],
+        nonNullable: true
+      })
     });
+    this.configureForm(this.entityToEdit.properties.scope)
   }
 
   /**
@@ -296,10 +314,50 @@ export class TaskBasicFormComponent extends sitmunMixedBase<TaskProjection>() im
     safeToEdit = Object.assign(safeToEdit,
       this.entityForm.value,
       {
-        id: id
+        id: id,
+        properties: TaskPropertiesBuilder.create()
+          .withScope(this.entityForm.get('scope')?.value)
+          .withCommand(this.entityForm.get('command')?.value)
+          .build()
       }
     );
     return Task.fromObject(safeToEdit);
+  }
+
+  /**
+   * Handles scope type change events from the dropdown selection.
+   * Updates form field availability based on the selected scope.
+   * 
+   * @param event - Select change event containing the new scope value
+   */
+  onTypeChange(event: MatSelectChange) {
+    this.configureForm(event.value)
+  }
+
+  /**
+   * Configures form field availability based on the selected query scope.
+   * - SQL Query: Enables command and connection, disables cartography
+   * - Cartography Query: Enables cartography, disables command and connection
+   * - Web API Query: Enables command, disables connection and cartography
+   * 
+   * @param value - The selected scope value
+   */
+  configureForm(value: string) {
+    if (value === this.codeValues.queryTaskScope.sqlQuery) {
+      this.entityForm.get('command').enable();
+      this.entityForm.get('connectionId').enable();
+      this.entityForm.get('cartographyId').disable();
+    }
+    if (value === this.codeValues.queryTaskScope.cartographyQuery) {
+      this.entityForm.get('command').disable();
+      this.entityForm.get('connectionId').disable();
+      this.entityForm.get('cartographyId').enable();
+    }
+    if (value === this.codeValues.queryTaskScope.webApiQuery) {
+      this.entityForm.get('command').enable();
+      this.entityForm.get('connectionId').disable();
+      this.entityForm.get('cartographyId').disable();
+    }
   }
 
   /**
@@ -329,15 +387,25 @@ export class TaskBasicFormComponent extends sitmunMixedBase<TaskProjection>() im
 
   /**
    * Updates related data after the task is saved.
-   * Updates UI relationship if the form is dirty or being duplicated.
+   * Updates translations and manages connection and cartography relationships.
    *
    * @param isDuplicated - Whether this is a duplication operation
    * @returns Promise that resolves when related data is updated
    */
   override async updateDataRelated(isDuplicated: boolean) {
-    const entityToUpdate = this.createObject(this.entityID);
-    await this.saveTranslations(entityToUpdate);
-    await firstValueFrom(entityToUpdate.updateRelationEx("ui", this.taskUIService.createProxy(this.entityForm.get('uiId')?.value)));
+    await this.saveTranslations(this.entityToEdit);
+    const connectionId = this.entityForm.get('connectionId')?.value
+    if (typeof connectionId === 'number') {
+      await firstValueFrom(this.entityToEdit.updateRelationEx("connection", this.connectionService.createProxy(connectionId)));
+    } else {
+      await firstValueFrom(this.entityToEdit.deleteAllRelation("connection"));
+    }
+    const cartographyId = this.entityForm.get('cartographyId')?.value
+    if (typeof cartographyId === 'number') {
+      await firstValueFrom(this.entityToEdit.updateRelationEx("cartography", this.cartographyService.createProxy(cartographyId)));
+    } else {
+      await firstValueFrom(this.entityToEdit.deleteAllRelation("cartography"));
+    }
   }
 
   /**
@@ -449,8 +517,7 @@ export class TaskBasicFormComponent extends sitmunMixedBase<TaskProjection>() im
       })
       .withRelationsUpdater(async (parameters: (TaskParameter & Status)[]) => {
         const parametersToSave = parameters.filter(canKeepOrUpdate).map(value => TaskParameter.fromObject(value))
-        this.entityToEdit.properties = TaskPropertiesBuilder.from(this.entityToEdit.properties)
-          .withParameters(parametersToSave).build();
+        this.entityToEdit.properties.parameters = parametersToSave;
         await firstValueFrom(this.taskService.update(this.entityToEdit));
       })
       .withTemplateDialog('newParameterDialog', () => TemplateDialog.builder()

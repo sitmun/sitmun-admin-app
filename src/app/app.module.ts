@@ -1,18 +1,54 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule, LOCALE_ID } from '@angular/core';
+import { LOCALE_ID, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { RouterModule } from '@angular/router';
-import { SitmunFrontendGuiModule, DataGridComponent } from '@app/frontend-gui/src/lib/public_api';
+import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from './material-module';
 import { APP_ROUTING } from './app-routes';
 
 // Import the Core and Domain modules
 import { CoreModule } from '@app/core';
-import { DomainModule } from '@app/domain';
+//Services
+import {
+  ApplicationBackgroundService,
+  ApplicationParameterService,
+  ApplicationService,
+  BackgroundService,
+  CapabilitiesService,
+  CartographyAvailabilityService,
+  CartographyFilterService,
+  CartographyGroupService,
+  CartographyParameterService,
+  CartographyService,
+  CartographySpatialSelectionParameterService,
+  CartographyStyleService,
+  CodeListService,
+  ConfigurationParametersService,
+  ConnectionService,
+  DashboardService,
+  DomainModule,
+  LanguageService,
+  RoleService,
+  ServiceParameterService,
+  ServiceService,
+  TaskAvailabilityService,
+  TaskGroupService,
+  TaskService,
+  TaskTypeService,
+  TaskUIService,
+  TerritoryService,
+  TerritoryTypeService,
+  TranslationService,
+  TreeNodeService,
+  TreeService,
+  UserConfigurationService,
+  UserPositionService,
+  UserService
+} from '@app/domain';
 import { ServicesModule } from './services/services.module';
-import { HalModule } from '@app/core/hal';
+import { ExternalService, HalModule, ResourceService } from '@app/core/hal';
 
 //i18n
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
@@ -21,9 +57,6 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { registerLocaleData } from '@angular/common';
 import localeEs from '@angular/common/locales/es';
 import localeCa from '@angular/common/locales/ca';
-registerLocaleData(localeEs, 'es-ES');
-registerLocaleData(localeCa, 'ca-ES');
-
 //Components
 import { ConnectionComponent } from '@app/components/connection/connection.component';
 import { ServiceComponent } from '@app/components/service/service.component';
@@ -38,15 +71,6 @@ import { RoleComponent } from '@app/components/role/role.component';
 import { ToolbarComponent } from '@app/components/shared/toolbar/toolbar.component';
 import { SideMenuComponent } from '@app/components/shared/side-menu/side-menu.component';
 import { UserInfoComponent } from '@app/components/shared/user-info/user-info.component';
-import { TasksDownloadComponent } from '@app/components/tasks-download/tasks-download.component';
-import { TasksDocumentComponent } from '@app/components/tasks-document/tasks-document.component';
-import { TasksQueryComponent } from '@app/components/tasks-query/tasks-query.component';
-import { TasksMoreInfoComponent } from '@app/components/tasks-more-info/tasks-more-info.component';
-import { TasksLocatorComponent } from '@app/components/tasks-locator/tasks-locator.component';
-import { TasksReportComponent } from '@app/components/tasks-report/tasks-report.component';
-import { TasksEditionComponent } from '@app/components/tasks-edition/tasks-edition.component';
-import { TasksThematicComponent } from '@app/components/tasks-thematic/tasks-thematic.component';
-import { TasksExtractionFmeComponent } from '@app/components/tasks-extraction-fme/tasks-extraction-fme.component';
 import { ConnectionFormComponent } from '@app/components/connection/connection-form/connection-form.component';
 import { RoleFormComponent } from '@app/components/role/role-form/role-form.component';
 import { UserFormComponent } from '@app/components/user/user-form/user-form.component';
@@ -54,67 +78,46 @@ import { TerritoryFormComponent } from '@app/components/territory/territory-form
 import { ServiceFormComponent } from '@app/components/service/service-form/service-form.component';
 import { ApplicationFormComponent } from '@app/components/application/application-form/application-form.component';
 import { TreesFormComponent } from '@app/components/trees/trees-form/trees-form.component';
-import { BackgroundLayersFormComponent } from '@app/components/background-layers/background-layers-form/background-layers-form.component';
-import { LayersPermitsFormComponent } from '@app/components/layers-permits/layers-permits-form/layers-permits-form.component';
+import {
+  BackgroundLayersFormComponent
+} from '@app/components/background-layers/background-layers-form/background-layers-form.component';
+import {
+  LayersPermitsFormComponent
+} from '@app/components/layers-permits/layers-permits-form/layers-permits-form.component';
 import { LayersFormComponent } from '@app/components/layers/layers-form/layers-form.component';
 import { TaskGroupComponent } from '@app/components/task-group/task-group.component';
 import { TaskGroupFormComponent } from '@app/components/task-group/task-group-form/task-group-form.component';
-import { TasksComponent } from '@app/components/tasks-basic/tasks.component';
+
+import { TasksBasicComponent } from '@app/components/tasks-basic/tasks-basic.component';
+import { TaskBasicFormComponent } from '@app/components/tasks-basic/task-form/task-basic-form.component';
+import { TasksQueryComponent } from "@app/components/tasks-query/tasks-query.component";
+import { TaskQueryFormComponent } from "@app/components/tasks-query/task-form/task-query-form.component";
+import { TaskFormComponent } from '@app/components/task-form/task-form.component';
+import { TasksEditionComponent } from '@app/components/tasks-edition/tasks-edition.component';
+import { TasksEditionRelationTableComponent } from '@app/components/tasks-edition-relation-table/tasks-edition-relation-table.component';
+import { TasksDocumentComponent } from '@app/components/tasks-document/tasks-document.component';
+import { TasksExtractionFmeComponent } from '@app/components/tasks-extraction-fme/tasks-extraction-fme.component';
+import { TasksLocatorComponent } from '@app/components/tasks-locator/tasks-locator.component';
+import { TasksEditionDataTableComponent } from '@app/components/tasks-edition-data-table/tasks-edition-data-table.component';
+import { TasksEditionCartographyTableComponent } from '@app/components/tasks-edition-cartography-table/tasks-edition-cartography-table.component';
+import { TasksThematicComponent } from '@app/components/tasks-thematic/tasks-thematic.component';
+import { TasksEditionSearchViewComponent } from '@app/components/tasks-edition-search-view/tasks-edition-search-view.component';
+import { TasksDownloadComponent } from '@app/components/tasks-download/tasks-download.component';
+import { TasksReportComponent } from '@app/components/tasks-report/tasks-report.component';
+import { TasksMoreInfoComponent } from '@app/components/tasks-more-info/tasks-more-info.component';
+
 import { LoginComponent } from '@app/components/login/login.component';
 import { LogLevelControlComponent } from '@app/components/shared/log-level-control/log-level-control.component';
 import { FormToolbarComponent } from '@app/components/shared/form-toolbar/form-toolbar.component';
 import { DashboardComponent } from '@app/components/dashboard/dashboard.component';
-import { TaskFormComponent } from '@app/components/task-form/task-form.component';
 import { NgTemplateNameDirective } from '@app/components/task-form/ng-template-name.directive';
-import { TasksEditionCartographyTableComponent } from '@app/components/tasks-edition-cartography-table/tasks-edition-cartography-table.component';
-import { TasksEditionDataTableComponent } from '@app/components/tasks-edition-data-table/tasks-edition-data-table.component';
-import { TasksEditionRelationTableComponent } from '@app/components/tasks-edition-relation-table/tasks-edition-relation-table.component';
-import { TasksEditionSearchViewComponent } from '@app/components/tasks-edition-search-view/tasks-edition-search-view.component';
 import { CharacterCountPipe } from '@app/components/shared/character-counter-hint/character-count.pipe';
-import {MatTabsModule} from '@angular/material/tabs';
-import {MatTooltipModule} from '@angular/material/tooltip';
-
-//Services
-import {
-  BackgroundService,
-  CartographyGroupService,
-  CartographyService,
-  ConnectionService,
-  TaskGroupService,
-  TaskService,
-  TranslationService,
-  LanguageService,
-  TerritoryService,
-  UserConfigurationService,
-  RoleService,
-  UserService,
-  TreeService,
-  CodeListService,
-  ServiceService,
-  ApplicationService,
-  CartographyAvailabilityService,
-  ServiceParameterService,
-  TaskUIService,
-  ApplicationParameterService,
-  CartographyParameterService,
-  CartographySpatialSelectionParameterService,
-  CartographyStyleService,
-  TaskAvailabilityService,
-  UserPositionService,
-  ApplicationBackgroundService,
-  TerritoryTypeService,
-  CartographyFilterService,
-  ConfigurationParametersService,
-  DashboardService,
-  TreeNodeService,
-  TaskTypeService,
-  CapabilitiesService
-} from '@app/domain';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
-import { ResourceService, ExternalService } from '@app/core/hal';
 
-import {TaskBasicFormComponent} from "@app/components/tasks-basic/task-form/task-basic-form.component";
-import {SitmunBaseComponent} from "@app/components/sitmun-base.component";
+import { SitmunBaseComponent } from "@app/components/sitmun-base.component";
+
+registerLocaleData(localeEs, 'es-ES');
+registerLocaleData(localeCa, 'ca-ES');
 
 @NgModule({
   declarations: [
@@ -132,15 +135,10 @@ import {SitmunBaseComponent} from "@app/components/sitmun-base.component";
     SideMenuComponent,
     RoleComponent,
     ToolbarComponent,
-    TasksDownloadComponent,
-    TasksDocumentComponent,
+    TasksBasicComponent,
+    TaskBasicFormComponent,
     TasksQueryComponent,
-    TasksMoreInfoComponent,
-    TasksLocatorComponent,
-    TasksReportComponent,
-    TasksEditionComponent,
-    TasksThematicComponent,
-    TasksExtractionFmeComponent,
+    TaskQueryFormComponent,
     ConnectionFormComponent,
     RoleFormComponent,
     UserFormComponent,
@@ -153,20 +151,26 @@ import {SitmunBaseComponent} from "@app/components/sitmun-base.component";
     LayersFormComponent,
     TaskGroupComponent,
     TaskGroupFormComponent,
-    TasksComponent,
-    TaskBasicFormComponent,
     LoginComponent,
     DashboardComponent,
-    TaskFormComponent,
     NgTemplateNameDirective,
-    TasksEditionCartographyTableComponent,
-    TasksEditionDataTableComponent,
-    TasksEditionRelationTableComponent,
-    TasksEditionSearchViewComponent,
     LogLevelControlComponent,
     UserInfoComponent,
     FormToolbarComponent,
-    CharacterCountPipe
+    CharacterCountPipe,
+    TaskFormComponent,
+    TasksEditionComponent,
+    TasksEditionRelationTableComponent,
+    TasksDocumentComponent,
+    TasksExtractionFmeComponent,
+    TasksLocatorComponent,
+    TasksEditionDataTableComponent,
+    TasksEditionCartographyTableComponent,
+    TasksThematicComponent,
+    TasksEditionSearchViewComponent,
+    TasksDownloadComponent,
+    TasksReportComponent,
+    TasksMoreInfoComponent
   ],
   imports: [
     BrowserModule,
@@ -179,7 +183,6 @@ import {SitmunBaseComponent} from "@app/components/sitmun-base.component";
     SitmunFrontendGuiModule,
     MaterialModule,
     RouterModule,
-    DataGridComponent,
     HalModule.forRoot(),
     TranslateModule.forRoot({
       loader: {
@@ -191,9 +194,7 @@ import {SitmunBaseComponent} from "@app/components/sitmun-base.component";
       }
     }),
     APP_ROUTING,
-    BrowserAnimationsModule,
-    MatTabsModule,
-    MatTooltipModule,
+    BrowserAnimationsModule
   ],
   providers: [
     { provide: LOCALE_ID, useValue: 'es-ES' },

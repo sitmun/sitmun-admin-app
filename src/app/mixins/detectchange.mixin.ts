@@ -1,4 +1,4 @@
-import {UntypedFormGroup} from "@angular/forms";
+import { UntypedFormGroup } from "@angular/forms";
 import { Constructor } from "./common";
 
 /**
@@ -12,21 +12,21 @@ interface DetectchangeMixin {
 /**
  * A mixin that adds form change detection capabilities to a class.
  * This mixin tracks modifications in form fields and provides visual feedback for modified fields.
- * 
+ *
  * @template TBase - The type of the base class to extend
  * @param {TBase} Base - The base class to extend
  * @returns A new class that extends the base class with form change detection functionality
- * 
+ *
  * @example
  * ```typescript
  * class YourComponent extends detectchangeMixin(BaseClass) {
  *   form: UntypedFormGroup;
- * 
+ *
  *   ngOnInit() {
  *     this.form = new UntypedFormGroup({...});
  *     this.subscribeToFormChanges(this.form);
  *   }
- * 
+ *
  *   onReset() {
  *     this.resetToFormModifiedState(this.form);
  *   }
@@ -36,18 +36,18 @@ interface DetectchangeMixin {
 export function detectchangeMixin<TBase extends Constructor>(Base: TBase) {
   return class extends Base implements DetectchangeMixin {
     /** Stores the initial values of form controls for comparison */
-    private initialFormValues: {[key: string]: any} = {};
+    private initialFormValues: { [key: string]: any } = {};
 
     /**
      * Initializes form change detection by storing initial values and setting up change subscriptions.
      * Adds visual indicators when form fields are modified.
-     * 
+     *
      * @param {UntypedFormGroup} form - The Angular form group to monitor for changes
      */
     public subscribeToFormChanges(form: UntypedFormGroup) {
       // Store initial form values after data is loaded
       for (const key in form.controls) {
-        this.initialFormValues[key]  = form.get(key).value
+        this.initialFormValues[key] = form.get(key).value
       }
 
       // Subscribe to form changes
@@ -64,7 +64,7 @@ export function detectchangeMixin<TBase extends Constructor>(Base: TBase) {
     /**
      * Checks if a form control's current value differs from its initial value.
      * Handles both primitive values and arrays.
-     * 
+     *
      * @param {UntypedFormGroup} form - The form group containing the control
      * @param {string} controlName - The name of the control to check
      * @returns {boolean} True if the control value has been modified, false otherwise
@@ -89,7 +89,7 @@ export function detectchangeMixin<TBase extends Constructor>(Base: TBase) {
      * Updates the visual state of a form control to indicate modification.
      * Adds or removes the 'input-modified' class based on whether the field has been modified.
      * Works with both Material form fields and regular form controls.
-     * 
+     *
      * @param {UntypedFormGroup} form - The form group containing the control
      * @param {string} controlName - The name of the control to update
      * @private
@@ -113,7 +113,7 @@ export function detectchangeMixin<TBase extends Constructor>(Base: TBase) {
     /**
      * Resets the form's modification tracking state.
      * Updates the stored initial values to the current form values and removes all modification indicators.
-     * 
+     *
      * @param {UntypedFormGroup} form - The form group to reset
      */
     public resetToFormModifiedState(form): void {

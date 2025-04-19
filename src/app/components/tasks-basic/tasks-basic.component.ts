@@ -1,20 +1,20 @@
-import {Component, OnInit} from '@angular/core';
-import {Task, TaskGroupService, TaskService} from '@app/domain';
-import {HalOptions, HalParam} from '@app/core/hal/rest/rest.service';
-import {UtilsService} from '@app/services/utils.service';
-import {Router} from '@angular/router';
-import {config} from '@config';
-import {Observable, Subject} from 'rxjs';
-import {MatDialog} from '@angular/material/dialog';
-import {DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
-import {LoggerService} from '@app/services/logger.service';
+import { Component, OnInit } from '@angular/core';
+import { Task, TaskGroupService, TaskService } from '@app/domain';
+import { HalOptions, HalParam } from '@app/core/hal/rest/rest.service';
+import { UtilsService } from '@app/services/utils.service';
+import { Router } from '@angular/router';
+import { config } from '@config';
+import { Observable, Subject } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogMessageComponent } from '@app/frontend-gui/src/lib/public_api';
+import { LoggerService } from '@app/services/logger.service';
 
 @Component({
   selector: 'app-tasks',
-  templateUrl: './tasks.component.html',
+  templateUrl: './tasks-basic.component.html',
   styles: []
 })
-export class TasksComponent implements OnInit {
+export class TasksBasicComponent implements OnInit {
   saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
 
   dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
@@ -26,11 +26,11 @@ export class TasksComponent implements OnInit {
   gridModified = false;
 
   constructor(public dialog: MatDialog,
-              public tasksService: TaskService,
-              public taskGroupService: TaskGroupService,
-              private utils: UtilsService,
-              private router: Router,
-              private loggerService: LoggerService
+    public tasksService: TaskService,
+    public taskGroupService: TaskGroupService,
+    private utils: UtilsService,
+    private router: Router,
+    private loggerService: LoggerService
   ) {
   }
 
@@ -78,9 +78,9 @@ export class TasksComponent implements OnInit {
   getAllTasks = () => {
     const taskTypeID = config.tasksTypes['basic'];
     const params2: HalParam[] = [];
-    const param: HalParam = {key: 'type.id', value: taskTypeID};
+    const param: HalParam = { key: 'type.id', value: taskTypeID };
     params2.push(param);
-    const query: HalOptions = {params: params2};
+    const query: HalOptions = { params: params2 };
     return this.tasksService.getAll(query, undefined, 'tasks');
 
   };
@@ -124,7 +124,7 @@ export class TasksComponent implements OnInit {
                 resolve(true);
               });
             }))
-            ;
+              ;
             Promise.all(promises).then(() => {
               this.dataUpdatedEvent.next(true);
             });

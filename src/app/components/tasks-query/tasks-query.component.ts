@@ -1,12 +1,12 @@
-import {Component, OnInit} from '@angular/core';
-import {UtilsService} from '@app/services/utils.service';
-import {Router} from '@angular/router';
-import {Observable, Subject} from 'rxjs';
-import {config} from '@config';
-import {Task, TaskService} from '@app/domain';
+import { Component, OnInit } from '@angular/core';
+import { UtilsService } from '@app/services/utils.service';
+import { Router } from '@angular/router';
+import { Observable, Subject } from 'rxjs';
+import { config } from '@config';
+import { Task, TaskService } from '@app/domain';
 import { HalOptions, HalParam } from '@app/core/hal/rest/rest.service';
-import {MatDialog} from '@angular/material/dialog';
-import {DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogMessageComponent } from '@app/frontend-gui/src/lib/public_api';
 
 
 @Component({
@@ -23,9 +23,9 @@ export class TasksQueryComponent implements OnInit {
     gridModified = false;
 
     constructor(private utils: UtilsService,
-                private router: Router,
-                public taskService: TaskService,
-                public dialog: MatDialog,
+        private router: Router,
+        public taskService: TaskService,
+        public dialog: MatDialog,
     ) {
     }
 
@@ -73,9 +73,9 @@ export class TasksQueryComponent implements OnInit {
     getAllTasksQuery = () => {
         const taskTypeID = config.tasksTypes['query'];
         const params2: HalParam[] = [];
-        const param: HalParam = {key: 'type.id', value: taskTypeID};
+        const param: HalParam = { key: 'type.id', value: taskTypeID };
         params2.push(param);
-        const query: HalOptions = {params: params2};
+        const query: HalOptions = { params: params2 };
         return this.taskService.getAll(query, undefined, 'tasks');
     };
 
@@ -106,7 +106,7 @@ export class TasksQueryComponent implements OnInit {
 
     newData(id: any) {
         this.saveAgGridStateEvent.next(true);
-        this.router.navigate(['taskForm', id, config.tasksTypesNames.query]);
+        this.router.navigate(['taskQuery', id, config.tasksTypesNames.query]);
 
     }
 
@@ -125,7 +125,8 @@ export class TasksQueryComponent implements OnInit {
         });
     }
 
-    add(event: any[]) {
-        // TODO: Implement this method
+    add(data: any[]) {
+        this.saveAgGridStateEvent.next(true);
+        this.router.navigate(['taskQuery', -1, config.tasksTypesNames.query, data[0].id]);
     }
 }

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TasksComponent } from './tasks.component';
+import { TasksBasicComponent } from './tasks-basic.component';
 import { TaskService, CodeListService, TaskGroupService,TranslationService } from '@app/domain';
 import { ResourceService, ExternalService } from '@app/core/hal';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
@@ -11,9 +11,9 @@ import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 
-describe('TasksComponent', () => {
-  let component: TasksComponent;
-  let fixture: ComponentFixture<TasksComponent>;
+describe('TasksBasicComponent', () => {
+  let component: TasksBasicComponent;
+  let fixture: ComponentFixture<TasksBasicComponent>;
   let taskService: TaskService;
   let taskGroupService: TaskGroupService;
   let codeListService: CodeListService;
@@ -23,7 +23,7 @@ describe('TasksComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TasksComponent ],
+      declarations: [ TasksBasicComponent ],
       imports : [HttpClientTestingModule, SitmunFrontendGuiModule,  RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
       providers: [TaskService,TaskGroupService, CodeListService,TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
@@ -32,7 +32,7 @@ describe('TasksComponent', () => {
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(TasksComponent);
+    fixture = TestBed.createComponent(TasksBasicComponent);
     component = fixture.componentInstance;
     taskService= TestBed.inject(TaskService);
     taskGroupService= TestBed.inject(TaskGroupService);

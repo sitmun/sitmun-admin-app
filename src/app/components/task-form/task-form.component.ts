@@ -1,21 +1,36 @@
-import {AfterViewInit, Component, OnInit, QueryList, ViewChildren} from '@angular/core';
-import {UtilsService} from '@app/services/utils.service';
-import {UntypedFormControl, UntypedFormGroup} from '@angular/forms';
+import { AfterViewInit, Component, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { UtilsService } from '@app/services/utils.service';
+import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import {
-  ServiceService, TaskService, TaskTypeService, TaskGroupService, CartographyService, ConnectionService,
-  TaskUIService, RoleService, CodeListService, TerritoryService, Task, TaskAvailabilityService, TaskAvailability, TaskType, TaskGroup, TaskUI
+  ServiceService,
+  TaskService,
+  TaskTypeService,
+  TaskGroupService,
+  CartographyService,
+  ConnectionService,
+  TaskUIService,
+  RoleService,
+  CodeListService,
+  TerritoryService,
+  Task,
+  TaskAvailabilityService,
+  TaskAvailability,
+  TaskType,
+  TaskGroup,
+  TaskUI,
+  TaskPropertiesBuilder
 } from '@app/domain';
 import { HalOptions, HalParam } from '@app/core/hal/rest/rest.service';
-import {config} from '@config';
-import {MatDialog} from '@angular/material/dialog';
-import {DialogFormComponent, DialogGridComponent} from '@app/frontend-gui/src/lib/public_api';
-import {Observable, of, Subject} from 'rxjs';
-import {map} from 'rxjs/operators';
-import {HttpClient} from '@angular/common/http';
-import {NgTemplateNameDirective} from './ng-template-name.directive';
-import {ActivatedRoute, Router} from '@angular/router';
-import {MatTabChangeEvent} from '@angular/material/tabs';
-import {LoggerService} from '@app/services/logger.service';
+import { config } from '@config';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogFormComponent, DialogGridComponent } from '@app/frontend-gui/src/lib/public_api';
+import { Observable, of, Subject } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { NgTemplateNameDirective } from './ng-template-name.directive';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MatTabChangeEvent } from '@angular/material/tabs';
+import { LoggerService } from '@app/services/logger.service';
 
 @Component({
   selector: 'app-task-form',
@@ -129,11 +144,11 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
     const params2: HalParam[] = [];
     const keys = Object.keys(queryParams);
     keys.forEach(key => {
-      const param: HalParam = {key: key, value: queryParams[key]};
+      const param: HalParam = { key: key, value: queryParams[key] };
       params2.push(param);
     });
 
-    const query: HalOptions = {params: params2};
+    const query: HalOptions = { params: params2 };
     let result: any[];
     if (data == 'codelist-values') {
       result = await this.codeListService.getAll(query).toPromise();
@@ -203,9 +218,9 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
     if (this.locatorsNeeded && this.locators.length < 1) {
       const taskTypeID = config.tasksTypes['report'];
       const params2: HalParam[] = [];
-      const param: HalParam = {key: 'type.id', value: taskTypeID};
+      const param: HalParam = { key: 'type.id', value: taskTypeID };
       params2.push(param);
-      const query: HalOptions = {params: params2};
+      const query: HalOptions = { params: params2 };
       tmpTable = await this.taskService.getAll(query, undefined, 'tasks').toPromise();
       this.locators.push(...tmpTable);
     }
@@ -223,7 +238,7 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
       const keys = Object.keys(this.properties.form.elements);
       const values = Object.values(this.properties.form.elements);
       for (let i = 0; i < keys.length; i++) {
-        this.formElements.push({fieldName: keys[i], values: values[i]});
+        this.formElements.push({ fieldName: keys[i], values: values[i] });
         if (values[i][`control`] === 'selector') {
           if (values[i][`selector`][`queryParams`]) {
             await this.setDynamicSelectorValue(values[i][`selector`][`queryParams`], values[i][`selector`][`data`], values[i][`label`]);
@@ -251,7 +266,7 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
         this.addelements.push(addElementsEvent);
         this.getAllElementsEvent.push(getAllElements);
         this.refreshElements.push(refreshElements);
-        this.sqlElementModification.push({modifications: false, toSave: false, element: null, mainFormElement: null, tableElements: []});
+        this.sqlElementModification.push({ modifications: false, toSave: false, element: null, mainFormElement: null, tableElements: [] });
         const columnDefs = this.generateColumnDefs(table.columns, table.link, true, true, true);
         this.columnDefsTables.push(columnDefs);
 
@@ -264,7 +279,7 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
           const currentFormElements = [];
           let currentlySqlElement = null;
           for (let i = 0; i < keysFormPopup.length; i++) {
-            currentFormElements.push({fieldName: keysFormPopup[i], values: valuesFormPopup[i]});
+            currentFormElements.push({ fieldName: keysFormPopup[i], values: valuesFormPopup[i] });
             if (valuesFormPopup[i][`control`] === 'selector') {
               if (valuesFormPopup[i][`selector`][`queryParams`]) {
                 await this.setDynamicSelectorValue(valuesFormPopup[i][`selector`][`queryParams`], valuesFormPopup[i][`selector`][`data`], values[i][`label`]);
@@ -346,7 +361,7 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
         }
       }
       if (!this.savedTask.properties) {
-        this.savedTask.properties = {};
+        this.savedTask.properties = TaskPropertiesBuilder.create().build();
         this.savedTask.properties[sqlElement.mainFormElement] = this.savedTask[sqlElement.mainFormElement];
       } else {
         this.savedTask.properties[sqlElement.mainFormElement] = this.savedTask[sqlElement.mainFormElement];
@@ -400,9 +415,9 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
         }
       });
       if (!this.savedTask.properties) {
-        this.savedTask.properties = {
-          parameters: newData
-        };
+        this.savedTask.properties = TaskPropertiesBuilder.create()
+          .withParameters(newData)
+          .build();
       } else {
         this.savedTask.properties.parameters = newData;
       }
@@ -427,7 +442,7 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
     const promises: Promise<any>[] = [];
     data.forEach(territory => {
       if (territory.status === 'pendingDelete' && territory._links && !territory.newItem) {
-        promises.push(new Promise((resolve, ) => {
+        promises.push(new Promise((resolve,) => {
           this.taskAvailabilityService.delete(territory).subscribe(() => {
             resolve(true);
           });
@@ -442,7 +457,7 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
           const taskToCreate: TaskAvailability = new TaskAvailability();
           taskToCreate.task = this.taskToEdit;
           taskToCreate.territory = territory;
-          promises.push(new Promise((resolve, ) => {
+          promises.push(new Promise((resolve,) => {
             this.taskAvailabilityService.save(taskToCreate).subscribe(() => {
               resolve(true);
             });
@@ -663,10 +678,8 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
       formkeys.forEach(key => {
         this.savedTask[key] = this.taskForm.get(key).value;
       });
-      console.log(this.savedTask)
       this.savedTaskTreatment(this.savedTask);
       this.savedTask.type = this.taskType;
-      console.log(this.savedTask)
       if (this.savedTask._links) {
         this.parseLinksSavedTask();
       }
@@ -750,7 +763,7 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
       taskToSave.order = this.savedTask.order;
       if (this.savedTask.properties?.parameters) {
         taskToSave.properties = { ...this.savedTask.properties, parameters: this.savedTask.properties.parameters };
-      } else  {
+      } else {
         taskToSave.properties = { ...this.savedTask.properties, parameters: [] };
       }
       taskToSave.cartography = this.savedTask.cartography;
@@ -818,19 +831,19 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
   savePropertiesTreatment() {
 
     if (this.taskTypeName == config.tasksTypesNames.document || this.taskTypeName == config.tasksTypesNames.download) {
-      this.savedTask.properties = {
-        format: this.savedTask['format'],
-        scope: this.taskTypeName == config.tasksTypesNames.document ? this.savedTask['scope'].value : this.taskForm.get('scope').value,
-        path: this.savedTask['path'],
-      };
+      this.savedTask.properties = TaskPropertiesBuilder.create()
+        .withFormat(this.savedTask['format'])
+        .withScope(this.taskTypeName == config.tasksTypesNames.document ? this.savedTask['scope'].value : this.taskForm.get('scope').value)
+        .withPath(this.savedTask['path'])
+        .build();
       delete this.savedTask['format'];
       delete this.savedTask['scope'];
       delete this.savedTask['path'];
     } else if (this.taskTypeName == config.tasksTypesNames.query || this.taskTypeName == config.tasksTypesNames.moreInfo || this.taskTypeName == config.tasksTypesNames.locator) {
-      this.savedTask.properties = {
-        command: this.savedTask['value'],
-        scope: this.savedTask['scope'].value,
-      };
+      this.savedTask.properties = TaskPropertiesBuilder.create()
+        .withScope(this.savedTask['scope'].value)
+        .withCommand(this.savedTask['value'].value)
+        .build()
       delete this.savedTask['value'];
       delete this.savedTask['scope'];
 
@@ -838,7 +851,7 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
       const key = this.taskTypeName == config.tasksTypesNames.extraction ? 'layers' : 'layer';
       if (!Array.isArray(this.savedTask[key])) {
         const layers = this.savedTask[key] ? this.savedTask[key].split(',') : null;
-        this.savedTask.properties = {};
+        this.savedTask.properties = TaskPropertiesBuilder.create().build();
         this.savedTask.properties[key] = layers;
       }
 
@@ -936,7 +949,7 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
 
     const getAllfunction = this.getDataTable(data);
     const orderField = this.getOrderField(columns, data, false);
-    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass: 'gridDialogs'});
+    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
     dialogRef.componentInstance.getAllsTable = [() => getAllfunction];
     dialogRef.componentInstance.singleSelectionTable = [singleSelection];
     dialogRef.componentInstance.orderTable = [orderField];

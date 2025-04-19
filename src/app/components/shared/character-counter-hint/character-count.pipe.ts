@@ -3,19 +3,19 @@ import { AbstractControl, FormControl } from '@angular/forms';
 
 /**
  * A pipe that displays the current character count and optional maximum length for form controls.
- * 
+ *
  * This pipe can be used to show character count information in the format "current/max" or just "current"
  * if no maximum length is specified. It works with both single values and arrays (where it counts the total
  * length of the joined array values).
- * 
+ *
  * The maximum length can be provided either:
  * 1. Directly as a parameter to the pipe
  * 2. Through a maxLength validator on the form control
- * 
+ *
  * @example
  * <!-- With explicit max length -->
  * <span>{{ formControl | characterCount:50 }}</span>
- * 
+ *
  * <!-- Using maxLength from form validator -->
  * <span>{{ formControl | characterCount }}</span>
  */
@@ -26,7 +26,7 @@ import { AbstractControl, FormControl } from '@angular/forms';
 export class CharacterCountPipe implements PipeTransform {
   /**
    * Transforms a form control into a character count display string.
-   * 
+   *
    * @param control - The form control to count characters from
    * @param maxLength - Optional maximum length. If not provided, attempts to get from control's validators
    * @returns A string in the format "current/max" or "current" if no max length is available
@@ -53,7 +53,7 @@ export class CharacterCountPipe implements PipeTransform {
 
   /**
    * Checks if the control has a maxLength validator.
-   * 
+   *
    * @param control - The form control to check
    * @returns True if the control has a maxLength validator, false otherwise
    * @private
@@ -71,7 +71,7 @@ export class CharacterCountPipe implements PipeTransform {
 
   /**
    * Extracts the maximum length value from a control's validator.
-   * 
+   *
    * @param control - The form control to extract the max length from
    * @param fallback - Optional fallback value if no maxLength validator is found
    * @returns The maximum length value from the validator or the fallback value
