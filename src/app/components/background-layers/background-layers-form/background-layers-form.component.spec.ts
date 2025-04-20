@@ -11,6 +11,8 @@ import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BackgroundLayersFormComponent } from './background-layers-form.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 describe('BackgroundLayersFormComponent', () => {
   let component: BackgroundLayersFormComponent;
@@ -30,9 +32,10 @@ describe('BackgroundLayersFormComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ BackgroundLayersFormComponent ],
       imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, RouterModule.forRoot([], {}), HttpClientModule,
-      SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
+      SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule, TranslateModule.forRoot()],
       providers: [BackgroundService, RoleService, ApplicationBackgroundService, ApplicationService, CartographyService, CodeListService,CartographyGroupService,TranslationService,ResourceService,ExternalService,
-        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
+        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }],
+      schemas: [NO_ERRORS_SCHEMA]
     })
     .compileComponents();
   });
@@ -98,34 +101,34 @@ describe('BackgroundLayersFormComponent', () => {
     expect(externalService).toBeTruthy();
   });
   it('form invalid when empty', () => {
-    expect(component.backgroundForm.valid).toBeFalsy();
+    expect(component.entityForm.valid).toBeFalsy();
   });
 
   it('form invalid when mid-empty', () => {
-    component.backgroundForm.patchValue({
+    component.entityForm.patchValue({
       description: 'desc',
       image: 'image',
       active: true
     })
     //Miss name
-    expect(component.backgroundForm.valid).toBeFalsy();
+    expect(component.entityForm.valid).toBeFalsy();
   });
 
   it('form valid', () => {
-    component.backgroundForm.patchValue({
+    component.entityForm.patchValue({
       name: 'name',
       description: 'desc',
       image: 'image',
       active: true
     })
-    expect(component.backgroundForm.valid).toBeTruthy();
+    expect(component.entityForm.valid).toBeTruthy();
   });
 
   it('Background layers form fields', () => {
-    expect(component.backgroundForm.get('name')).toBeTruthy();
-    expect(component.backgroundForm.get('description')).toBeTruthy();
-    expect(component.backgroundForm.get('image')).toBeTruthy();
-    expect(component.backgroundForm.get('active')).toBeTruthy();
+    expect(component.entityForm.get('name')).toBeTruthy();
+    expect(component.entityForm.get('description')).toBeTruthy();
+    expect(component.entityForm.get('image')).toBeTruthy();
+    expect(component.entityForm.get('active')).toBeTruthy();
   });
 
 

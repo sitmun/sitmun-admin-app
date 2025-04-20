@@ -14,6 +14,7 @@ import {HttpClientModule} from '@angular/common/http';
 import {SitmunFrontendGuiModule} from '@app/frontend-gui/src/lib/public_api';
 import {RouterTestingModule} from '@angular/router/testing';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 describe('ApplicationFormComponent', () => {
   let component: ApplicationFormComponent;
@@ -37,7 +38,8 @@ describe('ApplicationFormComponent', () => {
         SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
       providers: [ApplicationService, ApplicationBackgroundService, RoleService, ApplicationParameterService, TreeService,
         BackgroundService, CodeListService, CartographyGroupService, TranslationService, ResourceService, ExternalService,
-        {provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService},]
+        {provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService},],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA]
     })
       .compileComponents();
   });
@@ -154,6 +156,5 @@ describe('ApplicationFormComponent', () => {
     expect(component.entityForm.get('scales')).toBeTruthy();
     expect(component.entityForm.get('treeAutoRefresh')).toBeTruthy();
   });
-
 
 });

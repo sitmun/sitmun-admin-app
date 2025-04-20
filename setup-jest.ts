@@ -1,6 +1,17 @@
-import { setupZoneTestEnv } from 'jest-preset-angular/setup-env/zone';
+import 'zone.js/bundles/zone-testing-bundle.umd.js';
+import { getTestBed } from '@angular/core/testing';
+import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
 
-setupZoneTestEnv();
+// Initialize TestBed for all tests
+try {
+  getTestBed().resetTestEnvironment();
+  getTestBed().initTestEnvironment(
+    BrowserDynamicTestingModule,
+    platformBrowserDynamicTesting()
+  );
+} catch (e) {
+  console.log('TestBed already initialized, skipping initialization');
+}
 
 // Global mocks for jsdom
 const mock = () => {
@@ -19,14 +30,22 @@ Object.defineProperty(window, 'getComputedStyle', {
   value: () => ['-webkit-appearance']
 });
 
-Object.defineProperty(document.body.style, 'transform', {
-  value: () => {
-    return {
+// Only define transform property if it doesn't already exist
+if (!document.body.style.transform) {
+  try {
+    // Use Object.defineProperty carefully to avoid redefining issues
+    Object.defineProperty(document.body.style, 'transform', {
+      configurable: true,
       enumerable: true,
-      configurable: true
-    };
+      value: () => ({
+        enumerable: true,
+        configurable: true
+      })
+    });
+  } catch (e) {
+    console.log('Cannot define transform property, it may already be defined:', e);
   }
-});
+}
 
 // Angular material mocks
 Object.defineProperty(window, 'matchMedia', {

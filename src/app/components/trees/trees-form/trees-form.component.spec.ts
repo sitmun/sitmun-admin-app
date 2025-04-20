@@ -4,7 +4,7 @@ import { TreesFormComponent } from './trees-form.component';
 import { RouterModule } from '@angular/router';
 import { MaterialModule } from '@app/material-module';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { TreeService, TreeNodeService, CartographyService, CodeListService, TranslationService, ServiceService, CapabilitiesService, ApplicationService, TaskService } from '@app/domain';
+import { TreeService, TreeNodeService, CartographyService, CodeListService, TranslationService, ServiceService, CapabilitiesService, ApplicationService, TaskService, RoleService } from '@app/domain';
 import { ResourceService, ExternalService } from '@app/core/hal';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
@@ -27,13 +27,14 @@ describe('TreesFormComponent', () => {
   let resourceService: ResourceService;
   let externalService: ExternalService;
   let taskService: TaskService;
+  let roleService: RoleService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ TreesFormComponent ],
       imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,
          RouterModule.forRoot([], {}), MaterialModule, MatIconTestingModule],
-      providers: [TreeService, TreeNodeService, ApplicationService, ServiceService, CapabilitiesService, CartographyService, CodeListService, TranslationService, ResourceService, ExternalService, TaskService,
+      providers: [TreeService, TreeNodeService, ApplicationService, ServiceService, CapabilitiesService, CartographyService, CodeListService, TranslationService, ResourceService, ExternalService, TaskService, RoleService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }],
       schemas: [NO_ERRORS_SCHEMA]
     })
@@ -54,6 +55,7 @@ describe('TreesFormComponent', () => {
     resourceService= TestBed.inject(ResourceService);
     externalService= TestBed.inject(ExternalService);
     taskService= TestBed.inject(TaskService);
+    roleService= TestBed.inject(RoleService);
     fixture.detectChanges();
   });
 
@@ -95,6 +97,10 @@ describe('TreesFormComponent', () => {
 
   it('should instantiate taskService', () => {
     expect(taskService).toBeTruthy();
+  });
+
+  it('should instantiate roleService', () => {
+    expect(roleService).toBeTruthy();
   });
 
   it('form tree invalid when empty', () => {
