@@ -184,7 +184,6 @@ export class ResourceService {
         const uri = this.getResourceUrl(resource + '?' + query);
         const params = ResourceHelper.optionParams(new HttpParams(), options);
         const result: ResourceArray<T> = ResourceHelper.createEmptyResult<T>(_embedded);
-        console.log(uri)
         this.setUrls(result);
         let observable = ResourceHelper.getHttp().get(uri, { headers: ResourceHelper.headers, params: params });
         return observable.pipe(map(response => ResourceHelper.instantiateResourceCollection(type, response, result)),
@@ -281,7 +280,6 @@ export class ResourceService {
 
         const uri = ResourceHelper.getProxy(entity._links.self.href);
         const payload = ResourceHelper.resolveRelations(entity);
-        console.log("payload", payload)
 
       const observable = ResourceHelper.getHttp().put(uri, payload, { headers: ResourceHelper.headers, observe: 'response' });
       return observable.pipe(

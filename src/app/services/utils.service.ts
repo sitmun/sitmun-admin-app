@@ -3,7 +3,7 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateService} from '@ngx-translate/core';
 import {Location} from '@angular/common';
 import {Subject} from 'rxjs';
-import {CodeListService, Language, Translation, TranslationService} from '@app/domain';
+import {CodeList, CodeListService, Language, Translation, TranslationService} from '@app/domain';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {DialogMessageComponent, DialogTranslationComponent} from '@app/frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
@@ -549,6 +549,32 @@ export class UtilsService {
   }
 
   /**
+   * Helper method to extract values from an object using property paths.
+   * @param data - The data object to extract values from.
+   * @param field - The field or property path (e.g., "properties.scope").
+   * @returns The extracted value or empty string if path does not exist.
+   */
+  private getValueFromPropertyPath(data: any, field: string): any {
+    if (!data) return '';
+
+    // Handle property paths (e.g., "properties.scope")
+    if (field.includes('.')) {
+      const paths = field.split('.');
+      let value = data;
+
+      for (const path of paths) {
+        if (value === null || value === undefined) return '';
+        value = value[path];
+      }
+
+      return value;
+    }
+
+    // Handle regular fields
+    return data[field];
+  }
+
+  /**
    * Generates a column definition object for an editable column in a data grid.
    *
    * @param alias - The alias used to get the translated header name.
@@ -561,7 +587,7 @@ export class UtilsService {
       field: field,
       editable: true,
       valueGetter: (params) => {
-        const value = params.data[field];
+        const value = this.getValueFromPropertyPath(params.data, field);
         return Array.isArray(value) ? value.join(',') : value;
       },
     };
@@ -584,9 +610,14 @@ export class UtilsService {
    * @param codeList - The list of code-value pairs used to format the column values.
    * @returns An object representing the column definition.
    */
-  getNonEditableColumnWithCodeListDef(alias, field, codeList) {
+  getNonEditableColumnWithCodeListDef(alias, field, codeList: any) {
     const getDescription = (value: string) => {
-      const item = codeList.find((x) => x.value === value);
+      let item: CodeList;
+      if (Array.isArray(codeList)) {
+        item = (codeList as CodeList[]).find((x) => x.value === value);
+      } else {
+        item = (codeList as () => CodeList[])().find((x) => x.value === value);
+      }
       return item ? item.description : value;
     };
 
@@ -594,7 +625,14 @@ export class UtilsService {
       headerName: this.getTranslate(alias),
       field: field,
       editable: false,
-      valueFormatter: (params) => getDescription(params.value),
+      valueFormatter: (params) => {
+        const fieldValue = this.getValueFromPropertyPath(params.data, field);
+        if (fieldValue == null) {
+          console.error(`Field value ${fieldValue} is null or undefined for ${codeList}:`);
+          return '';
+        }
+        return this.getTranslate(getDescription(fieldValue));
+      },
       cellClass: 'read-only-cell'
     };
   }
@@ -603,7 +641,7 @@ export class UtilsService {
    * Generates a non-editable column definition.
    *
    * @param alias - The alias used for translation of the header name.
-   * @param field - The field name for the column.
+   * @param field - The field name for the column, which can be a property path.
    * @returns An object representing the column definition.
    */
   getNonEditableColumnDef(alias, field,  minWidth: number = null, maxWidth: number = null) {
@@ -613,7 +651,7 @@ export class UtilsService {
       editable: false,
       cellClass: 'read-only-cell',
       valueGetter: (params) => {
-        const value = params.data[field];
+        const value = this.getValueFromPropertyPath(params.data, field);
         return Array.isArray(value) ? value.join(',') : value;
       },
     };
@@ -635,7 +673,10 @@ export class UtilsService {
       editable: editable,
       cellRenderer: 'btnCheckboxRendererComponent',
       floatingFilterComponent: BtnCheckboxFilterComponent,
-      valueGetter: (params) => (params.data[field] ? 'true' : 'false'),
+      valueGetter: (params) => {
+        const value = this.getValueFromPropertyPath(params.data, field);
+        return value ? 'true' : 'false';
+      },
       floatingFilterComponentParams: {suppressFilterButton: true},
     };
     if (minWidth) {
@@ -661,14 +702,15 @@ export class UtilsService {
       headerName: this.getTranslate(alias),
       editable: false,
       valueGetter: (params) => {
+        const fieldValue = this.getValueFromPropertyPath(params.data, field);
         const alias = fieldToCompare
           ? filterList.filter(
-            (format) => format[fieldToCompare] == params.data[field]
+            (format) => format[fieldToCompare] == fieldValue
           )[0]
           : filterList.filter(
-            (format: { value: any; }) => format.value == params.data[field]
+            (format: { value: any; }) => format.value == fieldValue
           )[0];
-        return alias != undefined ? alias[fieldReturned] : params.data[field];
+        return alias != undefined ? alias[fieldReturned] : fieldValue;
       },
     };
   }

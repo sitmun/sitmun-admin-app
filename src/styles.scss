@@ -647,9 +647,9 @@ h2 {
 
 .requiredInput::after{
   content: "*";
-  color: #BF0000;
   font-weight: bold;
 }
+
 .stable::before{
   font-family: 'Material Icons', sans-serif;
   content: 'fiber_manual_record';

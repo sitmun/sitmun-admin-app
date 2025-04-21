@@ -1,12 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import { UtilsService } from '@app/services/utils.service';
 import { Router } from '@angular/router';
-import { Observable, Subject } from 'rxjs';
+import {firstValueFrom, Observable, Subject} from 'rxjs';
 import { config } from '@config';
 import { Task, TaskService } from '@app/domain';
 import { HalOptions, HalParam } from '@app/core/hal/rest/rest.service';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogMessageComponent } from '@app/frontend-gui/src/lib/public_api';
+import {constants} from "@environments/constants";
 
 
 @Component({
@@ -31,20 +32,27 @@ export class TasksQueryComponent implements OnInit {
 
 
     ngOnInit() {
+      this.loadData().catch((error) => { console.error('Error loading data:', error); });
+    }
 
-        const columnEditBtn = this.utils.getEditBtnColumnDef();
-        columnEditBtn['cellRendererParams'] = {
-            clicked: this.newData.bind(this)
-        };
+    queryTaskScope: any[] = [];
 
-        this.columnDefs = [
-            columnEditBtn,
-            this.utils.getSelCheckboxColumnDef(),
-            this.utils.getIdColumnDef(),
-            this.utils.getEditableColumnDef('tasksQueryEntity.task', 'name'),
-            this.utils.getNonEditableColumnDef('tasksQueryEntity.informationType', 'groupName'),
-            this.utils.getNonEditableColumnDef('tasksQueryEntity.accessType', 'properties.scope'),
-        ];
+    loadedData = false;
+
+    async loadData() {
+      this.queryTaskScope = await firstValueFrom(this.utils.getCodeListValues('queryTask.scope'))
+      const columnEditBtn = this.utils.getEditBtnColumnDef();
+      columnEditBtn['cellRendererParams'] = {
+        clicked: this.newData.bind(this)
+      };
+      this.columnDefs = [
+        columnEditBtn,
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getIdColumnDef(),
+        this.utils.getEditableColumnDef('tasksQueryEntity.task', 'name'),
+        this.utils.getNonEditableColumnWithCodeListDef('tasksQueryEntity.accessType', 'properties.scope', this.queryTaskScope),
+      ];
+      this.loadedData = true;
     }
 
     async canDeactivate(): Promise<boolean | Observable<boolean>> {
@@ -78,7 +86,6 @@ export class TasksQueryComponent implements OnInit {
         const query: HalOptions = { params: params2 };
         return this.taskService.getAll(query, undefined, 'tasks');
     };
-
     removeData(data: []) {
 
         const dialogRef = this.dialog.open(DialogMessageComponent);

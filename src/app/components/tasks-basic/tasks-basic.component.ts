@@ -48,8 +48,6 @@ export class TasksBasicComponent implements OnInit {
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
       this.utils.getEditableColumnDef('tasksEntity.task', 'name'),
-      this.utils.getNonEditableColumnDef('tasksEntity.groupTask', 'groupName'),
-
     ];
   }
 

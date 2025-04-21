@@ -43,6 +43,8 @@ import {
 } from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { MatSelectChange } from "@angular/material/select";
+import { TaskQueryParameter } from "@app/domain/task/models/task-query-parameter.model";
+import { keyPressed } from "@syncfusion/ej2-angular-grids";
 
 /**
  * Component for managing query tasks in the SITMUN application.
@@ -83,7 +85,7 @@ export class TaskQueryFormComponent extends sitmunMixedBase<TaskProjection>() im
    * Data table definition for managing task parameters.
    * Configures the parameters grid with columns, data fetching, and update operations.
    */
-  protected readonly parametersTable: DataTableDefinition<TaskParameter, TaskParameter>;
+  protected readonly parametersTable: DataTableDefinition<TaskQueryParameter, TaskQueryParameter>;
 
   /**
    * The name of the task type associated with this task.
@@ -211,7 +213,7 @@ export class TaskQueryFormComponent extends sitmunMixedBase<TaskProjection>() im
     this.dataTables.register(this.rolesTable)
       .register(this.availabilitiesTable)
       .register(this.parametersTable);
-    await this.initCodeLists(['tasksEntity.type', 'queryTask.scope'])
+    await this.initCodeLists(['tasksEntity.type', 'queryTask.scope', 'taskEntity.queryType'])
 
     this.taskTypeName = params.type ?? 'Query';
     this.taskTypeNameTranslated = this.translateService.instant(`tasksEntity.${this.taskTypeName}`);
@@ -327,7 +329,7 @@ export class TaskQueryFormComponent extends sitmunMixedBase<TaskProjection>() im
   /**
    * Handles scope type change events from the dropdown selection.
    * Updates form field availability based on the selected scope.
-   * 
+   *
    * @param event - Select change event containing the new scope value
    */
   onTypeChange(event: MatSelectChange) {
@@ -339,7 +341,7 @@ export class TaskQueryFormComponent extends sitmunMixedBase<TaskProjection>() im
    * - SQL Query: Enables command and connection, disables cartography
    * - Cartography Query: Enables cartography, disables command and connection
    * - Web API Query: Enables command, disables connection and cartography
-   * 
+   *
    * @param value - The selected scope value
    */
   configureForm(value: string) {
@@ -498,25 +500,27 @@ export class TaskQueryFormComponent extends sitmunMixedBase<TaskProjection>() im
    *
    * @returns Configured data table definition for parameters
    */
-  private defineParametersTable(): DataTableDefinition<TaskParameter, TaskParameter> {
-    return DataTableDefinition.builder<TaskParameter, TaskParameter>(this.dialog, this.errorHandler)
+  private defineParametersTable(): DataTableDefinition<TaskQueryParameter, TaskQueryParameter> {
+    return DataTableDefinition.builder<TaskQueryParameter, TaskQueryParameter>(this.dialog, this.errorHandler)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getEditableColumnDef('applicationEntity.name', 'name'),
-        this.utils.getNonEditableColumnDef('applicationEntity.type', 'type'),
-        this.utils.getEditableColumnDef('applicationEntity.value', 'value', 300, 500),
+        this.utils.getEditableColumnDef('tasksEntity.key', 'key'),
+        this.utils.getEditableColumnDef('tasksEntity.label', 'label'),
+        this.utils.getNonEditableColumnWithCodeListDef('tasksEntity.type', 'type', () => this.codeList('taskEntity.queryType')),
+        this.utils.getEditableColumnDef('tasksEntity.value', 'value', 300, 500),
+        this.utils.getEditableColumnDef('tasksEntity.order', 'order'),
         this.utils.getStatusColumnDef()])
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
         if (this.entityToEdit?.properties?.parameters) {
-          const originalParameters = this.entityToEdit.properties.parameters as TaskParameter[];
-          const parameters = originalParameters.map((parameter: TaskParameter) => new TaskParameter(parameter.name, parameter.type, parameter.value));
+          const originalParameters = this.entityToEdit.properties.parameters as any[];
+          const parameters = originalParameters.map((parameter: any) => TaskQueryParameter.fromObject(parameter));
           return of(parameters);
         }
-        return of<TaskParameter[]>([])
+        return of<TaskQueryParameter[]>([])
       })
-      .withRelationsUpdater(async (parameters: (TaskParameter & Status)[]) => {
-        const parametersToSave = parameters.filter(canKeepOrUpdate).map(value => TaskParameter.fromObject(value))
+      .withRelationsUpdater(async (parameters: (TaskQueryParameter & Status)[]) => {
+        const parametersToSave = parameters.filter(canKeepOrUpdate).map(value => TaskQueryParameter.fromObject(value))
         this.entityToEdit.properties.parameters = parametersToSave;
         await firstValueFrom(this.taskService.update(this.entityToEdit));
       })
@@ -524,21 +528,29 @@ export class TaskQueryFormComponent extends sitmunMixedBase<TaskProjection>() im
         .withReference(this.newParameterDialog)
         .withTitle(this.translateService.instant('taskEntity.newParameter'))
         .withForm(new FormGroup({
-          name: new FormControl('', {
+          key: new FormControl('', {
             validators: [Validators.required],
             nonNullable: true
           }),
-          type: new FormControl('', {
+          label: new FormControl('', {
             validators: [Validators.required],
             nonNullable: true
           }),
-          value: new FormControl('', {
-            validators: [Validators.required],
+          type: new FormControl(null, {
+            validators: [],
             nonNullable: true
+          }),
+          value: new FormControl(null, {
+            validators: [],
+            nonNullable: true
+          }),
+          order: new FormControl(null, {
+            nonNullable: true,
+            validators: []
           })
         })).build())
-      .withTargetToRelation((items: TaskParameter[]) => items.map(item => TaskParameter.fromObject(item)))
-      .withRelationsDuplicate(item => TaskParameter.fromObject(item))
+      .withTargetToRelation((items: TaskQueryParameter[]) => items.map(item => TaskQueryParameter.fromObject(item)))
+      .withRelationsDuplicate(item => TaskQueryParameter.fromObject(item))
       .build();
   }
 }

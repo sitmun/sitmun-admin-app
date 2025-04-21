@@ -321,7 +321,9 @@ export abstract class Resource {
 
   /** Unbind the resource with the given relation from this resource*/
   public deleteAllRelation<T extends Resource>(relation: string): Observable<any> {
-    return ResourceHelper.getHttp().delete(ResourceHelper.getProxy(this._links[relation].href), {headers: ResourceHelper.headers});
+    const template = utpl(this._links[relation].href);
+    const url = template.fillFromObject({});
+    return ResourceHelper.getHttp().delete(ResourceHelper.getProxy(url), {headers: ResourceHelper.headers});
 
   }
 

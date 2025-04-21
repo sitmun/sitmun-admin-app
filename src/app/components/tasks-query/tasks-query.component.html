@@ -24,6 +24,7 @@
                [defaultColumnSorting]="['name']"
                (gridModified)='setGridModifiedValue($event)'
                (sendChanges)='applyChanges($event)'
-               (duplicate)='add($event)'>
+               (duplicate)='add($event)'
+                *ngIf="loadedData">
 </app-data-grid>
 

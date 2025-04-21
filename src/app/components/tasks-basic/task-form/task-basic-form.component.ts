@@ -198,7 +198,7 @@ export class TaskBasicFormComponent extends sitmunMixedBase<TaskProjection>() im
 
     this.taskTypeName = params.type ?? 'Basic';
     this.taskTypeNameTranslated = this.translateService.instant(`tasksEntity.${this.taskTypeName}`);
-    await this.initCodeLists(['tasksEntity.type'])
+    await this.initCodeLists(['tasksEntity.type', 'taskEntity.jsonParamType'])
     this.initTranslations('Task', ['name'])
 
     const [taskTypes, taskGroups, uiList] = await Promise.all([
@@ -441,8 +441,8 @@ export class TaskBasicFormComponent extends sitmunMixedBase<TaskProjection>() im
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
         if (this.entityToEdit?.properties?.parameters) {
-          const originalParameters = this.entityToEdit.properties.parameters as TaskParameter[];
-          const parameters = originalParameters.map((parameter: TaskParameter) => new TaskParameter(parameter.name, parameter.type, parameter.value));
+          const originalParameters = this.entityToEdit.properties.parameters as any[];
+          const parameters = originalParameters.map((parameter: any) => TaskParameter.fromObject(parameter));
           return of(parameters);
         }
         return of<TaskParameter[]>([])
