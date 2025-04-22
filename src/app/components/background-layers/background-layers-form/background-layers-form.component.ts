@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component} from '@angular/core';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {
@@ -25,7 +25,7 @@ import {onCreate, onDelete, onUpdate, onUpdatedRelation, Status} from '@app/fron
 import {map} from 'rxjs/operators';
 import {MatDialog} from '@angular/material/dialog';
 import {TranslateService} from "@ngx-translate/core";
-import {sitmunMixedBase} from "@app/components/sitmun-base.component";
+import {BaseFormComponent} from "@app/components/base-form.component";
 import {DataTableDefinition} from "@app/components/data-tables.util";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {constants} from "@environments/constants";
@@ -79,7 +79,7 @@ import {constants} from "@environments/constants";
   selector: 'app-background-layers-form',
   templateUrl: './background-layers-form.component.html',
 })
-export class BackgroundLayersFormComponent extends sitmunMixedBase<BackgroundProjection>() implements OnInit, OnDestroy {
+export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundProjection> {
 
   /**
    * Cartography group associated with this background.
@@ -92,19 +92,19 @@ export class BackgroundLayersFormComponent extends sitmunMixedBase<BackgroundPro
    * Data table definition for managing roles associated with this background.
    * Manages access permissions for the background through role assignments.
    */
-  private readonly rolesTable : DataTableDefinition<Role, Role>
+  protected readonly rolesTable: DataTableDefinition<Role, Role>
 
   /**
    * Data table definition for managing application-background relationships.
    * Controls which applications can use this background and their display order.
    */
-  private readonly applicationBackgroundsTable : DataTableDefinition<ApplicationBackgroundProjection, ApplicationProjection>
+  protected readonly applicationBackgroundsTable: DataTableDefinition<ApplicationBackgroundProjection, ApplicationProjection>
 
   /**
    * Data table definition for managing cartography members in the background's group.
    * Controls which layers are included in the background's cartography group.
    */
-  private readonly membersTable : DataTableDefinition<CartographyProjection, CartographyProjection>
+  protected readonly membersTable: DataTableDefinition<CartographyProjection, CartographyProjection>
 
   /**
    * Creates an instance of the BackgroundLayersFormComponent.
@@ -113,15 +113,14 @@ export class BackgroundLayersFormComponent extends sitmunMixedBase<BackgroundPro
    *
    * UI Services:
    * @param {MatDialog} dialog - Manages modal dialogs for entity selection
-   * @param {TranslationService} translationService
-   * @param codeListService
-   * @param errorHandler
-   * @param {UtilsService} utils - Provides common UI utilities and navigation
    * @param {TranslateService} translateService - Handles UI element translations
+   * @param {TranslationService} translationService - Handles entity translation data
+   * @param {CodeListService} codeListService - Provides access to code lists for dropdown options
+   * @param {ErrorHandlerService} errorHandler - Handles error reporting and display
+   * @param {UtilsService} utils - Provides common UI utilities and navigation
    *
    * Data Services:
    * @param {BackgroundService} backgroundService - Manages background layer CRUD operations
-   * @param router
    * @param {CartographyService} cartographyService - Handles cartography data operations
    * @param {RoleService} roleService - Manages role data and permissions
    * @param {CartographyGroupService} cartographyGroupService - Handles cartography group operations
@@ -130,15 +129,16 @@ export class BackgroundLayersFormComponent extends sitmunMixedBase<BackgroundPro
    *
    * Support Services:
    * @param {ActivatedRoute} activatedRoute - Provides access to route parameters
+   * @param {Router} router - Handles navigation within the application
    */
   constructor(
-    protected override dialog: MatDialog,
-    protected override translateService: TranslateService,
-    protected override translationService: TranslationService,
-    protected override codeListService: CodeListService,
-    protected override errorHandler: ErrorHandlerService,
-    protected override activatedRoute: ActivatedRoute,
-    protected override router: Router,
+    dialog: MatDialog,
+    translateService: TranslateService,
+    translationService: TranslationService,
+    codeListService: CodeListService,
+    errorHandler: ErrorHandlerService,
+    activatedRoute: ActivatedRoute,
+    router: Router,
     protected utils: UtilsService,
     protected backgroundService: BackgroundService,
     protected cartographyService: CartographyService,
@@ -147,26 +147,10 @@ export class BackgroundLayersFormComponent extends sitmunMixedBase<BackgroundPro
     protected applicationService: ApplicationService,
     protected applicationBackgroundService: ApplicationBackgroundService,
   ) {
-    super(translateService, translationService, errorHandler, activatedRoute, router);
+    super(dialog, translateService, translationService, codeListService, errorHandler, activatedRoute, router);
     this.membersTable = this.defineMembersTable()
     this.applicationBackgroundsTable = this.defineApplicationBackgroundsTable()
     this.rolesTable = this.defineRolesTable()
-  }
-
-  /**
-   * Lifecycle hook called after entity data is fetched.
-   * Sets up form change subscriptions to track modifications.
-   */
-  override afterFetch() {
-    this.subscribeToFormChanges(this.entityForm)
-  }
-
-  /**
-   * Lifecycle hook called after the entity is successfully saved.
-   * Resets the form to a clean state with the current values.
-   */
-  override afterSave() {
-    this.resetToFormModifiedState(this.entityForm);
   }
 
   /**
@@ -257,7 +241,7 @@ export class BackgroundLayersFormComponent extends sitmunMixedBase<BackgroundPro
   /**
    * Updates related data after the main entity is saved.
    * Creates or updates the associated cartography group and translations.
-   * 
+   *
    * @param isDuplicated - Whether this is a duplication operation
    * @returns Promise that resolves when all related updates are complete
    */
@@ -281,10 +265,10 @@ export class BackgroundLayersFormComponent extends sitmunMixedBase<BackgroundPro
   /**
    * Defines the data table configuration for managing roles.
    * Sets up columns, data fetching, updating logic, and target selection.
-   * 
+   *
    * @returns Configured data table definition for roles
    */
-  private defineRolesTable():  DataTableDefinition<Role, Role> {
+  private defineRolesTable(): DataTableDefinition<Role, Role> {
     return DataTableDefinition.builder<Role, Role>(this.dialog, this.errorHandler)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
@@ -317,7 +301,7 @@ export class BackgroundLayersFormComponent extends sitmunMixedBase<BackgroundPro
   /**
    * Defines the data table configuration for managing application-background relationships.
    * Sets up columns, data fetching, updating logic, and target selection.
-   * 
+   *
    * @returns Configured data table definition for application backgrounds
    */
   private defineApplicationBackgroundsTable(): DataTableDefinition<ApplicationBackgroundProjection, ApplicationProjection> {
@@ -364,7 +348,7 @@ export class BackgroundLayersFormComponent extends sitmunMixedBase<BackgroundPro
   /**
    * Defines the data table configuration for managing cartography members.
    * Sets up columns, data fetching, updating logic, and target selection.
-   * 
+   *
    * @returns Configured data table definition for cartography members
    */
   private defineMembersTable(): DataTableDefinition<CartographyProjection, CartographyProjection> {
@@ -405,7 +389,7 @@ export class BackgroundLayersFormComponent extends sitmunMixedBase<BackgroundPro
 
   /**
    * Creates a Background object from the current form values.
-   * 
+   *
    * @param id - Optional ID for the new object, used when updating
    * @returns New Background instance populated with form values
    */

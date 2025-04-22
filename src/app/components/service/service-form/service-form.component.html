@@ -11,8 +11,7 @@
   mat-stretch-tabs="false"
   mat-align-tabs="end"
   [dynamicHeight]="true"
-  preserveContent="true"
-  (selectedTabChange)="onTabChange($event)">
+  preserveContent="true">
   <mat-tab label="{{ 'serviceEntity.generalData' | translate }}">
     <form [formGroup]='entityForm' *ngIf="dataLoaded">
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
@@ -165,7 +164,6 @@
                    newStatusRegister="pendingRegistration"
                    (getAllRows)="layersTable.handleSaveRelations($event)"
                    (add)="layersTable.openDialog($event)"
-                   [redraw]="isTabActive(1)"
                    *ngIf="dataLoaded">
     </app-data-grid>
   </mat-tab>
@@ -187,7 +185,6 @@
                    (getAllRows)="parametersTable.handleSaveRelations($event)"
                    (new)="parametersTable.openTemplateDialog('newParameterDialog')"
                    (duplicate)='duplicateParameters($event)'
-                   [redraw]="isTabActive(2)"
                    *ngIf="dataLoaded">
     </app-data-grid>
   </mat-tab>

@@ -33,13 +33,10 @@ import {MatDialog} from '@angular/material/dialog';
 import {constants} from '@environments/constants';
 import {LoggerService} from '@app/services/logger.service';
 import {TranslateService} from "@ngx-translate/core";
-import {sitmunMixedBase} from "@app/components/sitmun-base.component";
+import {BaseFormComponent} from "@app/components/base-form.component";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {DataTableDefinition, TemplateDialog} from "@app/components/data-tables.util";
-import {
-  WMSCapabilitiesService,
-  WMSLayersCapabilities
-} from "@app/services/wms-capabilities.service";
+import {WMSCapabilitiesService, WMSLayersCapabilities} from "@app/services/wms-capabilities.service";
 
 /**
  * Component for managing service forms in the application.
@@ -98,14 +95,7 @@ import {
   templateUrl: './service-form.component.html',
   styles: []
 })
-export class ServiceFormComponent extends sitmunMixedBase<Service>() implements OnInit, OnDestroy {
-
-  /**
-   * Flag indicating if the WMS capabilities table load button is disabled.
-   * True when service type is not WMS, false otherwise.
-   * Used to control the visibility of WMS-specific functionality.
-   */
-  private tableLoadButtonDisabled = true;
+export class ServiceFormComponent extends BaseFormComponent<Service> implements OnInit, OnDestroy {
 
   /**
    * Flag indicating if projections can be removed from the service.
@@ -129,23 +119,32 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
   protected readonly separatorKeysCodesForProjections: number[] = [ENTER, COMMA];
 
   /**
-   * Stores the WMS layers capabilities data retrieved from the service.
-   * Contains layer information, styles, and other metadata for WMS services.
-   * Used to populate the layers data table and synchronize with the backend.
-   */
-  private wmsLayersCapabilities: WMSLayersCapabilities = new WMSLayersCapabilities();
-
-  /**
    * Data table configuration for managing service layers.
    * Handles WMS layer configurations and capabilities.
+   * Defines columns, data fetching, and update operations for layers.
    */
   protected readonly layersTable: DataTableDefinition<CartographyProjection, CartographyProjection>;
 
   /**
    * Data table configuration for managing service parameters.
    * Handles parameter CRUD operations and validation.
+   * Defines columns, data fetching, and update operations for parameters.
    */
   protected readonly parametersTable: DataTableDefinition<ServiceParameter, ServiceParameter>;
+
+  /**
+   * Flag indicating if the WMS capabilities table load button is disabled.
+   * True when service type is not WMS, false otherwise.
+   * Used to control the visibility and interactivity of WMS-specific functionality.
+   */
+  private tableLoadButtonDisabled = true;
+
+  /**
+   * Stores the WMS layers capabilities data retrieved from the service.
+   * Contains layer information, styles, and other metadata for WMS services.
+   * Used to populate the layers data table and synchronize with the backend.
+   */
+  private wmsLayersCapabilities: WMSLayersCapabilities = new WMSLayersCapabilities();
 
   /**
    * Reference to the parameter dialog template.
@@ -173,13 +172,13 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
    * @param serviceService - Service for managing service entities
    */
   constructor(
-    protected override dialog: MatDialog,
-    protected override translateService: TranslateService,
-    protected override translationService: TranslationService,
-    protected override codeListService: CodeListService,
-    protected override errorHandler: ErrorHandlerService,
-    protected override activatedRoute: ActivatedRoute,
-    protected override router: Router,
+    dialog: MatDialog,
+    translateService: TranslateService,
+    translationService: TranslationService,
+    codeListService: CodeListService,
+    errorHandler: ErrorHandlerService,
+    activatedRoute: ActivatedRoute,
+    router: Router,
     public utils: UtilsService,
     public cartographyService: CartographyService,
     public serviceParameterService: ServiceParameterService,
@@ -188,25 +187,9 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
     private loggerService: LoggerService,
     private serviceService: ServiceService,
   ) {
-    super(translateService, translationService, errorHandler, activatedRoute, router);
+    super(dialog, translateService, translationService, codeListService, errorHandler, activatedRoute, router);
     this.layersTable = this.defineLayersTable();
     this.parametersTable = this.defineParametersTable();
-  }
-
-  /**
-   * Lifecycle hook called after entity data is fetched.
-   * Sets up form change subscriptions to track modifications.
-   */
-  override afterFetch() {
-    this.subscribeToFormChanges(this.entityForm)
-  }
-
-  /**
-   * Lifecycle hook called after the entity is successfully saved.
-   * Resets the form to a clean state with the current values.
-   */
-  override afterSave() {
-    this.resetToFormModifiedState(this.entityForm);
   }
 
   /**
@@ -302,6 +285,7 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
 
   /**
    * Creates a Service object from the current form values.
+   * Combines form data with entity data to create a complete service object.
    *
    * @param id - Optional ID for the new object, used when updating
    * @returns New Service instance populated with form values
@@ -318,6 +302,7 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
 
   /**
    * Creates a new service entity in the database.
+   * Creates the service using form values and returns the ID of the created entity.
    *
    * @returns Promise resolving to the ID of the created entity
    */
@@ -329,6 +314,7 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
 
   /**
    * Updates an existing service entity with form values.
+   * Calls the service update API to persist the changes.
    *
    * @returns Promise that resolves when the update is complete
    */
@@ -352,6 +338,7 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
 
   /**
    * Validates if the form can be saved.
+   * Checks if all required form fields are valid.
    *
    * @returns True if the form is valid, false otherwise
    */
@@ -361,6 +348,7 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
 
   /**
    * Appends the new projection to the existing list of supported SRS values.
+   * Trims the input value and adds it to the supportedSRS array.
    *
    * @param event - The chip input event containing the new projection value
    */
@@ -376,6 +364,7 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
 
   /**
    * Filters out the specified projection from the list of supported SRS values.
+   * Removes the projection from the supportedSRS array if found.
    *
    * @param projection - The projection string to remove
    */
@@ -390,7 +379,8 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
   }
 
   /**
-   * Used to show/hide credential fields based on authentication mode.
+   * Determines if credential fields should be displayed based on authentication mode.
+   * Used in template to conditionally show/hide user/password fields.
    *
    * @returns True if authentication mode requires credentials, false otherwise
    */
@@ -399,7 +389,8 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
   }
 
   /**
-   * Used to enable/disable WMS-specific functionality.
+   * Checks if the current service is a WMS type service.
+   * Used to enable/disable WMS-specific functionality in the UI.
    *
    * @returns True if service type is WMS, false otherwise
    */
@@ -408,6 +399,7 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
   }
 
   /**
+   * Handles service type change events.
    * Enables/disables capabilities button based on service type.
    *
    * @param event - The change event containing the new service type value
@@ -426,6 +418,7 @@ export class ServiceFormComponent extends sitmunMixedBase<Service>() implements 
    * @param {ServiceParameter[]} parameters - Array of parameters to duplicate
    * @throws Error as this method is not yet implemented
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   duplicateParameters(parameters: ServiceParameter[]) {
     throw new Error("Not implemented")
     //this.duplicate(ServiceParameter, parameters, this.addElementsEventParameters);

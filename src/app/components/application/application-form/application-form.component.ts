@@ -39,7 +39,7 @@ import {
 import {MatDialog} from '@angular/material/dialog';
 import {constants} from '@environments/constants';
 import {TranslateService} from "@ngx-translate/core";
-import {sitmunMixedBase} from "@app/components/sitmun-base.component";
+import {BaseFormComponent} from "@app/components/base-form.component";
 import {DataTableDefinition, TemplateDialog} from '@app/components/data-tables.util';
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 
@@ -48,14 +48,21 @@ import {ErrorHandlerService} from "@app/services/error-handler.service";
  * Angular component that provides a form interface for managing SITMUN applications.
  * Supports creating, editing, and duplicating applications through a multi-tab interface.
  *
- * @extends sitmunMixedBase<ApplicationProjection>
+ * @extends BaseFormComponent<ApplicationProjection>
  */
 @Component({
   selector: 'app-application-form',
   templateUrl: './application-form.component.html',
   styleUrls: ['./application-form.component.scss']
 })
-export class ApplicationFormComponent extends sitmunMixedBase<ApplicationProjection>() {
+export class ApplicationFormComponent extends BaseFormComponent<ApplicationProjection> {
+  /**
+   * Data table configuration for managing application parameters.
+   * Provides CRUD operations for parameters with validation and type management.
+   * Columns: checkbox, name (editable), value (editable), type (non-editable), status
+   */
+  readonly parametersTable: DataTableDefinition<ApplicationParameter, ApplicationParameter>
+
   /**
    * Data table configuration for managing application trees.
    * Handles navigation tree associations with special validation for turistic applications.
@@ -87,20 +94,13 @@ export class ApplicationFormComponent extends sitmunMixedBase<ApplicationProject
    * List of available situation maps for selection.
    * Includes a default empty option and all cartography groups of type location map.
    */
-  private situationMapList: CartographyGroup[] = [];
+  protected situationMapList: CartographyGroup[] = [];
 
   /**
    * Default situation map when none is selected.
    * Represents a null option in the situation map dropdown.
    */
   private situationMapByDefault: CartographyGroup = null;
-
-  /**
-   * Data table configuration for managing application parameters.
-   * Provides CRUD operations for parameters with validation and type management.
-   * Columns: checkbox, name (editable), value (editable), type (non-editable), status
-   */
-  readonly parametersTable: DataTableDefinition<ApplicationParameter, ApplicationParameter>
 
   /**
    * Reference to the dialog template used for creating new parameters.
@@ -121,11 +121,11 @@ export class ApplicationFormComponent extends sitmunMixedBase<ApplicationProject
    *
    * @param dialog - Material dialog service for modal interactions
    * @param translateService - Service for handling translations
-   * @param translationService
+   * @param translationService - Service for managing entity translations
    * @param codeListService - Service for managing code lists
    * @param errorHandler - Service for handling errors
    * @param activatedRoute - Angular route service
-   * @param router
+   * @param router - Angular router for navigation
    * @param applicationService - Service for application CRUD operations
    * @param applicationParameterService - Service for parameter operations
    * @param applicationBackgroundService - Service for background relations
@@ -136,13 +136,13 @@ export class ApplicationFormComponent extends sitmunMixedBase<ApplicationProject
    * @param utils - Utility service for common operations
    */
   constructor(
-    protected override dialog: MatDialog,
-    protected override translateService: TranslateService,
-    protected override translationService: TranslationService,
-    protected override codeListService: CodeListService,
-    protected override errorHandler: ErrorHandlerService,
-    protected override activatedRoute: ActivatedRoute,
-    protected override router: Router,
+    dialog: MatDialog,
+    translateService: TranslateService,
+    translationService: TranslationService,
+    codeListService: CodeListService,
+    errorHandler: ErrorHandlerService,
+    activatedRoute: ActivatedRoute,
+    router: Router,
     protected applicationService: ApplicationService,
     protected applicationParameterService: ApplicationParameterService,
     protected applicationBackgroundService: ApplicationBackgroundService,
@@ -152,27 +152,11 @@ export class ApplicationFormComponent extends sitmunMixedBase<ApplicationProject
     protected treeService: TreeService,
     protected utils: UtilsService,
   ) {
-    super(translateService, translationService, errorHandler, activatedRoute, router);
+    super(dialog, translateService, translationService, codeListService, errorHandler, activatedRoute, router);
     this.parametersTable = this.defineParametersTable();
     this.treesTable = this.defineTreesTable();
     this.rolesTable = this.defineRolesTable();
     this.applicationBackgroundsTable = this.defineApplicationBackgroundsTable();
-  }
-
-  /**
-   * Lifecycle hook called after data is fetched.
-   * Sets up form change subscriptions.
-   */
-  override afterFetch() {
-    this.subscribeToFormChanges(this.entityForm)
-  }
-
-  /**
-   * Lifecycle hook called after entity is saved.
-   * Resets form to initial modified state.
-   */
-  override afterSave() {
-    this.resetToFormModifiedState(this.entityForm);
   }
 
   /**
@@ -374,7 +358,7 @@ export class ApplicationFormComponent extends sitmunMixedBase<ApplicationProject
 
   /**
    * Enables/disables form controls based on selected application type.
-   * @param event - Selection change event with new type value
+   * @param value - The new application type value from selection event
    */
   onSelectionTypeAppChanged({value}): void {
     this.currentAppType = value;

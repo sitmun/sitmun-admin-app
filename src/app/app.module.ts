@@ -114,14 +114,14 @@ import { NgTemplateNameDirective } from '@app/components/task-form/ng-template-n
 import { CharacterCountPipe } from '@app/components/shared/character-counter-hint/character-count.pipe';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 
-import { SitmunBaseComponent } from "@app/components/sitmun-base.component";
+import { BaseFormComponent } from "@app/components/base-form.component";
 
 registerLocaleData(localeEs, 'es-ES');
 registerLocaleData(localeCa, 'ca-ES');
 
 @NgModule({
   declarations: [
-    SitmunBaseComponent,
+    BaseFormComponent,
     AppComponent,
     ConnectionComponent,
     ServiceComponent,

@@ -2,8 +2,7 @@
   [additionalText]="taskTypeNameTranslated" (save)="onSaveButtonClicked()" (back)="utils.navigateBack()">
 </app-form-toolbar>
 
-<mat-tab-group mat-stretch-tabs="false" mat-align-tabs="end" [dynamicHeight]="true" preserveContent="true"
-  (selectedTabChange)="onTabChange($event)">
+<mat-tab-group mat-stretch-tabs="false" mat-align-tabs="end" [dynamicHeight]="true" preserveContent="true">
   <mat-tab label="{{ 'tasksEntity.generalData' | translate }}">
     <form [formGroup]='entityForm' *ngIf="dataLoaded">
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
@@ -78,39 +77,67 @@
     </form>
   </mat-tab>
   <mat-tab label="{{ 'applicationEntity.roles' | translate }}">
-    <app-data-grid [changeHeightButton]="true" [allNewElements]="isNewOrDuplicated()"
-      [columnDefs]='rolesTable.relationsColumnsDefs' [getAll]='rolesTable.relationsFetchFn'
-      [eventAddItemsSubscription]='rolesTable.addCommandEvent$.asObservable()'
-      [eventGetAllRowsSubscription]='rolesTable.saveCommandEvent$.asObservable()'
-      [eventRefreshSubscription]='rolesTable.refreshCommandEvent$.asObservable()' [actionButton]=true
-      [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true
-      [defaultColumnSorting]='rolesTable.defaultRelationsSorting()' [hideDuplicateButton]=true
-      (getAllRows)="rolesTable.handleSaveRelations($event)" (add)="rolesTable.openDialog($event)"
-      [redraw]="isTabActive(1)" *ngIf="dataLoaded"></app-data-grid>
+    <app-data-grid [changeHeightButton]="true"
+                   [allNewElements]="isNewOrDuplicated()"
+                   [columnDefs]='rolesTable.relationsColumnsDefs'
+                   [getAll]='rolesTable.relationsFetchFn'
+                   [eventAddItemsSubscription]='rolesTable.addCommandEvent$.asObservable()'
+                   [eventGetAllRowsSubscription]='rolesTable.saveCommandEvent$.asObservable()'
+                   [eventRefreshSubscription]='rolesTable.refreshCommandEvent$.asObservable()'
+                   [actionButton]=true
+                   [discardChangesButton]=true
+                   [redoButton]=true
+                   [undoButton]=true
+                   [deleteButton]=true
+                   [addButton]=true
+                   [defaultColumnSorting]='rolesTable.defaultRelationsSorting()'
+                   [hideDuplicateButton]=true
+                   (getAllRows)="rolesTable.handleSaveRelations($event)"
+                   (add)="rolesTable.openDialog($event)"
+                   *ngIf="dataLoaded"
+    ></app-data-grid>
   </mat-tab>
   <mat-tab label="{{ 'layersEntity.territory' | translate }}">
-    <app-data-grid [changeHeightButton]="true" [allNewElements]="isNewOrDuplicated()"
-      [columnDefs]='availabilitiesTable.relationsColumnsDefs' [getAll]='availabilitiesTable.relationsFetchFn'
-      [eventAddItemsSubscription]='availabilitiesTable.addCommandEvent$.asObservable()'
-      [eventGetAllRowsSubscription]='availabilitiesTable.saveCommandEvent$.asObservable()'
-      [eventRefreshSubscription]='availabilitiesTable.refreshCommandEvent$.asObservable()' [actionButton]=true
-      [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true
-      [defaultColumnSorting]='availabilitiesTable.defaultRelationsSorting()' [hideDuplicateButton]=true
-      (getAllRows)="availabilitiesTable.handleSaveRelations($event)" (add)="availabilitiesTable.openDialog($event)"
-      [redraw]="isTabActive(2)" *ngIf="dataLoaded"></app-data-grid>
+    <app-data-grid [changeHeightButton]="true"
+                   [allNewElements]="isNewOrDuplicated()"
+                   [columnDefs]='availabilitiesTable.relationsColumnsDefs'
+                   [getAll]='availabilitiesTable.relationsFetchFn'
+                   [eventAddItemsSubscription]='availabilitiesTable.addCommandEvent$.asObservable()'
+                   [eventGetAllRowsSubscription]='availabilitiesTable.saveCommandEvent$.asObservable()'
+                   [eventRefreshSubscription]='availabilitiesTable.refreshCommandEvent$.asObservable()'
+                   [actionButton]=true
+                   [discardChangesButton]=true
+                   [redoButton]=true
+                   [undoButton]=true
+                   [deleteButton]=true
+                   [addButton]=true
+                   [defaultColumnSorting]='availabilitiesTable.defaultRelationsSorting()'
+                   [hideDuplicateButton]=true
+                   (getAllRows)="availabilitiesTable.handleSaveRelations($event)"
+                   (add)="availabilitiesTable.openDialog($event)"
+                   *ngIf="dataLoaded"
+    ></app-data-grid>
   </mat-tab>
   <mat-tab label="{{ 'applicationEntity.parametersConfiguration' | translate }}">
-    <app-data-grid [changeHeightButton]="true" [allNewElements]="isNewOrDuplicated()"
-      [columnDefs]='parametersTable.relationsColumnsDefs' [getAll]='parametersTable.relationsFetchFn'
-      [eventAddItemsSubscription]='parametersTable.addCommandEvent$.asObservable()'
-      [eventGetAllRowsSubscription]='parametersTable.saveCommandEvent$.asObservable()'
-      [eventRefreshSubscription]='parametersTable.refreshCommandEvent$.asObservable()' [discardChangesButton]=true
-      [actionButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [newButton]=true
-      [defaultColumnSorting]="parametersTable.defaultRelationsSorting()"
-      (new)="parametersTable.openTemplateDialog('newParameterDialog')"
-      (getAllRows)="parametersTable.handleSaveRelations($event)"
-      (duplicate)='parametersTable.duplicateRelations($event)' [redraw]="isTabActive(3)"
-      *ngIf="dataLoaded"></app-data-grid>
+    <app-data-grid [changeHeightButton]="true"
+                   [allNewElements]="isNewOrDuplicated()"
+                   [columnDefs]='parametersTable.relationsColumnsDefs'
+                   [getAll]='parametersTable.relationsFetchFn'
+                   [eventAddItemsSubscription]='parametersTable.addCommandEvent$.asObservable()'
+                   [eventGetAllRowsSubscription]='parametersTable.saveCommandEvent$.asObservable()'
+                   [eventRefreshSubscription]='parametersTable.refreshCommandEvent$.asObservable()'
+                   [discardChangesButton]=true
+                   [actionButton]=true
+                   [redoButton]=true
+                   [undoButton]=true
+                   [deleteButton]=true
+                   [newButton]=true
+                   [defaultColumnSorting]="parametersTable.defaultRelationsSorting()"
+                   (new)="parametersTable.openTemplateDialog('newParameterDialog')"
+                   (getAllRows)="parametersTable.handleSaveRelations($event)"
+                   (duplicate)='parametersTable.duplicateRelations($event)'
+                   *ngIf="dataLoaded"
+    ></app-data-grid>
   </mat-tab>
 </mat-tab-group>
 
@@ -126,7 +153,7 @@
           <mat-label>{{ "tasksEntity.label" | translate }}</mat-label>
           <input matInput type="text" formControlName="label" required>
         </mat-form-field>
-        <mat-radio-group appearance="outline" formControlName="type">
+        <mat-radio-group formControlName="type">
           <mat-label class="requiredInput">{{ 'serviceEntity.type' | translate }}</mat-label>
           <mat-radio-button [value]="paramType.value" *ngFor="let paramType of this.codeList('taskEntity.queryType')">
             {{ paramType.description | translate }}

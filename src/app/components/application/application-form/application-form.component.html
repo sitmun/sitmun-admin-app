@@ -11,8 +11,7 @@
   mat-stretch-tabs="false"
   mat-align-tabs="end"
   [dynamicHeight]="true"
-  preserveContent="true"
-  (selectedTabChange)="onTabChange($event)">
+  preserveContent="true">
   >
   <mat-tab label="{{ 'roleEntity.generalData' | translate }}">
     <form [formGroup]='entityForm' *ngIf="dataLoaded">
@@ -133,7 +132,6 @@
                    [hideDuplicateButton]=true
                    (getAllRows)="parametersTable.handleSaveRelations($event)"
                    (new)="parametersTable.openTemplateDialog('newParameterDialog')"
-                   [redraw]="isTabActive(1)"
                    *ngIf="dataLoaded"
     ></app-data-grid>
   </mat-tab>
@@ -155,7 +153,6 @@
                    [hideDuplicateButton]=true
                    (getAllRows)="rolesTable.handleSaveRelations($event)"
                    (add)="rolesTable.openDialog($event)"
-                   [redraw]="isTabActive(2)"
                    *ngIf="dataLoaded"
     ></app-data-grid>
   </mat-tab>
@@ -177,7 +174,6 @@
                    [hideDuplicateButton]=true
                    (getAllRows)="applicationBackgroundsTable.handleSaveRelations($event)"
                    (add)="applicationBackgroundsTable.openDialog($event)"
-                   [redraw]="isTabActive(3)"
                    *ngIf="dataLoaded"
     ></app-data-grid>
   </mat-tab>

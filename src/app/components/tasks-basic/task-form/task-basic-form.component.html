@@ -12,8 +12,7 @@
   mat-stretch-tabs="false"
   mat-align-tabs="end"
   [dynamicHeight]="true"
-  preserveContent="true"
-  (selectedTabChange)="onTabChange($event)">
+  preserveContent="true">
   <mat-tab label="{{ 'tasksEntity.generalData' | translate }}">
     <form [formGroup]='entityForm' *ngIf="dataLoaded">
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
@@ -60,7 +59,6 @@
                    [hideDuplicateButton]=true
                    (getAllRows)="rolesTable.handleSaveRelations($event)"
                    (add)="rolesTable.openDialog($event)"
-                   [redraw]="isTabActive(1)"
                    *ngIf="dataLoaded"
     ></app-data-grid>
   </mat-tab>
@@ -82,7 +80,6 @@
                    [hideDuplicateButton]=true
                    (getAllRows)="availabilitiesTable.handleSaveRelations($event)"
                    (add)="availabilitiesTable.openDialog($event)"
-                   [redraw]="isTabActive(2)"
                    *ngIf="dataLoaded"
     ></app-data-grid>
   </mat-tab>
@@ -104,7 +101,6 @@
                    (new)="parametersTable.openTemplateDialog('newParameterDialog')"
                    (getAllRows)="parametersTable.handleSaveRelations($event)"
                    (duplicate)='parametersTable.duplicateRelations($event)'
-                   [redraw]="isTabActive(3)"
                    *ngIf="dataLoaded"
     ></app-data-grid>
   </mat-tab>
@@ -115,7 +111,7 @@
   <form [formGroup]="parametersTable.templateDialog('newParameterDialog').form">
     <mat-card appearance="outlined">
       <mat-card-content>
-        <mat-radio-group appearance="outline" formControlName="type" required>
+        <mat-radio-group formControlName="type" required>
           <mat-label class="requiredInput">{{ 'serviceEntity.type' | translate }}</mat-label>
           <mat-radio-button [value]="paramType.value" *ngFor="let paramType of this.codeList('taskEntity.jsonParamType')">
             {{ paramType.description | translate }}

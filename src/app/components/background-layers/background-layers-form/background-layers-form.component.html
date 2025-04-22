@@ -10,8 +10,7 @@
   mat-stretch-tabs="false"
   mat-align-tabs="end"
   [dynamicHeight]="true"
-  preserveContent="true"
-  (selectedTabChange)="onTabChange($event)">
+  preserveContent="true">
   >
   <mat-tab label="{{'backgroundEntity.generalData' | translate}}">
     <form [formGroup]='entityForm' (ngSubmit)="onSaveButtonClicked()" *ngIf="dataLoaded">
@@ -71,7 +70,6 @@
                    [defaultColumnSorting]='membersTable.defaultRelationsSorting()'
                    (getAllRows)="membersTable.handleSaveRelations($event)"
                    (add)="membersTable.openDialog($event)"
-                   [redraw]="isTabActive(1)"
                    *ngIf="dataLoaded"
     > </app-data-grid>
   </mat-tab>
@@ -93,7 +91,6 @@
                    [defaultColumnSorting]='rolesTable.defaultRelationsSorting()'
                    (getAllRows)="rolesTable.handleSaveRelations($event)"
                    (add)="rolesTable.openDialog($event)"
-                   [redraw]="isTabActive(2)"
                    *ngIf="dataLoaded"
     > </app-data-grid>
   </mat-tab>
@@ -115,7 +112,6 @@
                    [defaultColumnSorting]='applicationBackgroundsTable.defaultRelationsSorting()'
                    (getAllRows)="applicationBackgroundsTable.handleSaveRelations($event)"
                    (add)="applicationBackgroundsTable.openDialog($event)"
-                   [redraw]="isTabActive(3)"
                    *ngIf="dataLoaded"
     > </app-data-grid>
   </mat-tab>
