@@ -339,7 +339,16 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    */
   validTuristicAppTrees(trees: Tree[]): boolean {
     if (this.currentAppType === constants.codeValue.applicationType.touristicApp) {
-      return trees.length === 0 || (trees.length === 1 && trees[0].type === constants.codeValue.treeType.touristicTree);
+      let valid = trees.length === 0;
+      if (!valid){
+        if (trees.length === 1) {
+          valid = trees[0].type === constants.codeValue.treeType.touristicTree;
+        } else if (trees.length === 2){
+          valid = trees.some(t => t.type === constants.codeValue.treeType.touristicTree)
+            && trees.some(t => t.type === constants.codeValue.treeType.cartography);
+        }
+      }
+      return valid;
     }
     return true;
   }

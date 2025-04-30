@@ -11,6 +11,7 @@ const codeValue = {
   },
   treeType: {
     touristicTree: 'tourist',
+    cartography: 'cartography'
   },
   treenodeFolderType: {
     menu: 'menu',
@@ -32,7 +33,9 @@ const codeValue = {
   taskViewMode: {
     detailedList: 'dl',
     nearElements: 'ne',
-    schedule: 'sch'
+    schedule: 'sch',
+    events: 'evt',
+    eventsCategories: 'evtcat'
   },
   systemUser: {
     public: 'public',
@@ -220,47 +223,121 @@ export const constants = {
     nodeOutputControls: [{
       key: 'id',
       label: 'nodeMapping.id',
-      views: [codeValue.taskViewMode.detailedList, codeValue.taskViewMode.nearElements, codeValue.taskViewMode.schedule]
+      views: [
+        codeValue.taskViewMode.detailedList,
+        codeValue.taskViewMode.nearElements,
+        codeValue.taskViewMode.schedule,
+        codeValue.taskViewMode.events
+      ]
     },
     {
       key: 'name',
       label: 'nodeMapping.name',
-      views: [codeValue.taskViewMode.detailedList, codeValue.taskViewMode.nearElements, codeValue.taskViewMode.schedule]
+      views: [
+        codeValue.taskViewMode.detailedList,
+        codeValue.taskViewMode.nearElements,
+        codeValue.taskViewMode.schedule,
+        codeValue.taskViewMode.events,
+        codeValue.taskViewMode.eventsCategories
+      ]
     },
     {
       key: 'distance',
       label: 'nodeMapping.distance',
-      views: [codeValue.taskViewMode.nearElements]
+      views: [
+        codeValue.taskViewMode.nearElements
+      ]
     },
     {
       key: 'description',
       label: 'nodeMapping.description',
-      views: [codeValue.taskViewMode.detailedList]
+      views: [
+        codeValue.taskViewMode.detailedList,
+        codeValue.taskViewMode.events
+      ]
+    },
+    {
+      key: 'category',
+      label: 'nodeMapping.category',
+      views: [
+        codeValue.taskViewMode.events
+      ]
     },
     {
       key: 'image',
       label: 'nodeMapping.image',
-      views: [codeValue.taskViewMode.detailedList, codeValue.taskViewMode.nearElements]
+      views: [
+        codeValue.taskViewMode.detailedList,
+        codeValue.taskViewMode.nearElements,
+        codeValue.taskViewMode.events
+      ]
+    },
+    {
+      key: 'price',
+      label: 'nodeMapping.price',
+      views: [
+        codeValue.taskViewMode.detailedList
+      ]
+    },
+    {
+      key: 'schedule',
+      label: 'nodeMapping.schedule',
+      views: [
+        codeValue.taskViewMode.detailedList
+      ]
     },
     {
       key: 'hour',
       label: 'nodeMapping.hour',
-      views: [codeValue.taskViewMode.schedule]
+      views: [
+        codeValue.taskViewMode.schedule
+      ]
+    },
+    {
+      key: 'startdate',
+      label: 'nodeMapping.startdate',
+      views: [
+        codeValue.taskViewMode.events
+      ]
+    },
+    {
+      key: 'enddate',
+      label: 'nodeMapping.enddate',
+      views: [
+        codeValue.taskViewMode.events
+      ]
+    },
+    {
+      key: 'dateformat',
+      label: 'nodeMapping.dateformat',
+      views: [
+        codeValue.taskViewMode.events
+      ]
     },
     {
       key: 'path',
       label: 'nodeMapping.path',
-      views: [codeValue.taskViewMode.schedule]
+      views: [
+        codeValue.taskViewMode.schedule
+      ]
     },
     {
       key: 'geom',
       label: 'nodeMapping.geometry',
-      views: [codeValue.taskViewMode.detailedList, codeValue.taskViewMode.nearElements]
+      views: [
+        codeValue.taskViewMode.detailedList,
+        codeValue.taskViewMode.nearElements,
+        codeValue.taskViewMode.events
+      ]
     },
     {
       key: 'proj',
       label: 'nodeMapping.proj',
-      views: [codeValue.taskViewMode.detailedList, codeValue.taskViewMode.nearElements]
+      views: [
+        codeValue.taskViewMode.detailedList,
+        codeValue.taskViewMode.nearElements,
+        codeValue.taskViewMode.events
+      ]
     }],
     appOptions: [{
       label: 'X',
@@ -268,6 +345,18 @@ export const constants = {
     }, {
       label: 'Y',
       value: '${LONGITUD}'
+    }, {
+      label: 'Fecha desde',
+      value: '${STARTDATE}'
+    }, {
+      label: 'Fecha hasta',
+      value: '${ENDDATE}'
+    }, {
+      label: 'Distancia en eje x',
+      value: '${DISTANCEX}'
+    }, {
+      label: 'Distancia en eje y',
+      value: '${DISTANCEY}'
     }]
   }
 };

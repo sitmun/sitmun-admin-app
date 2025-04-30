@@ -46,6 +46,7 @@ export class MapTreeComponent {
   expandDelay = 1000;
   validateDrop = false;
   treeData: any;
+  treeDataType = 'json';
 
   @Input() getAll: () => Observable<any>;
   @Input() allNewElements: any;
@@ -72,8 +73,9 @@ export class MapTreeComponent {
 
   getElements(): void {
     this.getAll()
-    .subscribe((inputText) => {
-      this.parseInput(inputText);
+    .subscribe((parsedData) => {
+      this.treeDataType = parsedData.dataType;
+      this.processData(parsedData.data);
     });
   }
 
@@ -87,54 +89,34 @@ export class MapTreeComponent {
     this.flatNodeMap.set(flatNode, node);
     this.nestedNodeMap.set(node, flatNode);
     return flatNode;
-
+  
   }
   private _getLevel = (node: TreeFlatNode) => node.level;
   private _isExpandable = (node: TreeFlatNode) => node.expandable;
   private _getChildren = (node: TreeNode): Observable<TreeNode[]> => observableOf(node.children);
   hasChild = (_: number, _nodeData: TreeFlatNode) => _nodeData.expandable;
 
-  parseInput(inputText) {
-    try {
-      if (inputText) {
-        let parsedData;
-        if (this.isJson(inputText)) {
-          parsedData = JSON.parse(inputText);
-          this.processData(null, parsedData);
-        } else {
-          xmlJs.parseString(inputText, this.processData);
-        }
-      }
-    } catch (error) {
-      alert('Error al procesar el JSON/XML. Verifique el formato.');
-    }
-  }
-
-  processData(error, parsedData) {
+  processData(parsedData) {
     const treeData = this.convertToTree(parsedData, 'Root', parsedData).children;
     this.dataSource.data = treeData;
     this.treeControl.expandAll();
   }
 
-  isJson(text: string): boolean {
-    try {
-      JSON.parse(text);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
   convertToTree(obj: any, name: string, origData, path = ''): TreeNode {
     let result = null;
     if (typeof obj !== 'object' || obj === null) {
-      const newPath = jp.stringify(jp.paths(origData, '$..'.concat(name))[0]);
+      let newPath = path;
+      if (this.treeDataType === 'json') {
+        newPath = jp.stringify(jp.paths(origData, '$..'.concat(name))[0]);
+      } else if (this.treeDataType === 'xml') {
+        newPath = path.replace('@/', '@');
+      }
       result = { name: `${name}`, path: `${newPath}`, children: [] };
     } else if (Array.isArray(obj)) {
       result = {
         name,
         path,
-        children: obj.map((item, index) =>
+        children: obj.map((item, index) => 
           this.convertToTree(item, `${name}[${index}]`, origData, `${path}/${name}[pos]`)
         )
       };
@@ -142,7 +124,7 @@ export class MapTreeComponent {
       result = {
         name,
         path,
-        children: Object.entries(obj).map(([key, value]) =>
+        children: Object.entries(obj).map(([key, value]) => 
           this.convertToTree(value, key, origData, `${path}/${key}`)
         )
       };
@@ -155,5 +137,3 @@ export class MapTreeComponent {
   }
 
 }
-
-
