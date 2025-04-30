@@ -29,6 +29,7 @@ import {BaseFormComponent} from "@app/components/base-form.component";
 import {DataTableDefinition} from "@app/components/data-tables.util";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {constants} from "@environments/constants";
+import {LoggerService} from "@app/services/logger.service";
 
 /**
  * Component for managing background layers in the SITMUN application.
@@ -136,6 +137,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
     translateService: TranslateService,
     translationService: TranslationService,
     codeListService: CodeListService,
+    loggerService: LoggerService,
     errorHandler: ErrorHandlerService,
     activatedRoute: ActivatedRoute,
     router: Router,
@@ -147,7 +149,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
     protected applicationService: ApplicationService,
     protected applicationBackgroundService: ApplicationBackgroundService,
   ) {
-    super(dialog, translateService, translationService, codeListService, errorHandler, activatedRoute, router);
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router);
     this.membersTable = this.defineMembersTable()
     this.applicationBackgroundsTable = this.defineApplicationBackgroundsTable()
     this.rolesTable = this.defineRolesTable()

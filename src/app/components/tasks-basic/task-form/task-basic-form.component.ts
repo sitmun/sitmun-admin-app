@@ -147,20 +147,20 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
     translateService: TranslateService,
     translationService: TranslationService,
     codeListService: CodeListService,
+    loggerService: LoggerService,
     errorHandler: ErrorHandlerService,
     activatedRoute: ActivatedRoute,
     router: Router,
     protected taskService: TaskService,
     protected taskUIService: TaskUIService,
     protected utils: UtilsService,
-    protected loggerService: LoggerService,
     protected taskTypeService: TaskTypeService,
     protected roleService: RoleService,
     protected taskGroupService: TaskGroupService,
     protected territoryService: TerritoryService,
     protected taskAvailabilityService: TaskAvailabilityService,
   ) {
-    super(dialog, translateService, translationService, codeListService, errorHandler, activatedRoute, router);
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router);
     this.rolesTable = this.defineRolesTable();
     this.availabilitiesTable = this.defineAvailabilitiesTable();
     this.parametersTable = this.defineParametersTable();

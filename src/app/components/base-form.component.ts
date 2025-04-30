@@ -12,6 +12,7 @@ import {CodeList, CodeListService, Language, Translation, TranslationService} fr
 import {MatDialog} from "@angular/material/dialog";
 import {map, tap} from "rxjs/operators";
 import {DialogTranslationComponent} from "@app/frontend-gui/src/lib/dialog-translation/dialog-translation.component";
+import { LoggerService } from "@app/services/logger.service";
 
 /**
  * Base class for SITMUN components that handle resource entities.
@@ -111,9 +112,10 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
     protected translateService: TranslateService,
     protected translationService: TranslationService,
     protected codeListService: CodeListService,
+    protected loggerService: LoggerService,
     protected errorHandler: ErrorHandlerService,
     protected activatedRoute: ActivatedRoute,
-    protected router: Router
+    protected router: Router,
   ) {
   }
 
@@ -324,6 +326,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
    * @returns {Promise<void>} Promise that resolves when the save operation completes
    */
   async onSaveButtonClicked() {
+    this.loggerService.info('onSaveButtonClicked', this.explainFormValidity());
     if (this.canSave()) {
       const duplicated = this.isDuplicated();
       try {
@@ -777,6 +780,55 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
     } else {
       return null;
     }
+  }
+
+  /**
+   * Provides detailed explanation of form validity status
+   * Examines each control's validation status and error messages
+   * 
+   * @returns A string with detailed validation information
+   */
+  explainFormValidity(): string {
+    if (!this.entityForm) {
+      return 'Form is not initialized';
+    }
+
+    let explanation = `Form valid: ${this.entityForm.valid}\n`;
+    explanation += 'Field validation details:\n';
+
+    // Check each control in the form
+    Object.keys(this.entityForm.controls).forEach(key => {
+      const control = this.entityForm.get(key);
+      explanation += `- ${key}: ${control.valid ? 'Valid' : 'Invalid'}`;
+      
+      if (!control.valid) {
+        explanation += ', Errors: ';
+        if (control.errors) {
+          Object.keys(control.errors).forEach(errorKey => {
+            explanation += `${errorKey}`;
+            
+            // Add details for specific validation errors
+            if (errorKey === 'required') {
+              explanation += ' (Field is required)';
+            } else if (errorKey === 'maxlength') {
+              explanation += ` (Max length: ${control.errors.maxlength.requiredLength}, Current length: ${control.errors.maxlength.actualLength})`;
+            }
+            explanation += ', ';
+          });
+        }
+        
+        // Show the current value if it might help debugging
+        explanation += `Current value: "${control.value}"`;
+      }
+      
+      explanation += '\n';
+    });
+    
+    // Explain form pristine state
+    explanation += `Form pristine: ${this.entityForm.pristine}\n`;
+    explanation += `Form touched: ${this.entityForm.touched}\n`;
+    
+    return explanation;
   }
 }
 

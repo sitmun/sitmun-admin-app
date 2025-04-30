@@ -42,6 +42,7 @@ import {TranslateService} from "@ngx-translate/core";
 import {BaseFormComponent} from "@app/components/base-form.component";
 import {DataTableDefinition, TemplateDialog} from '@app/components/data-tables.util';
 import {ErrorHandlerService} from "@app/services/error-handler.service";
+import {LoggerService} from "@app/services/logger.service";
 
 
 /**
@@ -134,12 +135,14 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    * @param roleService - Service for role management
    * @param treeService - Service for tree management
    * @param utils - Utility service for common operations
+   * @param loggerService - Service for logging
    */
   constructor(
     dialog: MatDialog,
     translateService: TranslateService,
     translationService: TranslationService,
     codeListService: CodeListService,
+    loggerService: LoggerService,
     errorHandler: ErrorHandlerService,
     activatedRoute: ActivatedRoute,
     router: Router,
@@ -152,7 +155,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     protected treeService: TreeService,
     protected utils: UtilsService,
   ) {
-    super(dialog, translateService, translationService, codeListService, errorHandler, activatedRoute, router);
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router);
     this.parametersTable = this.defineParametersTable();
     this.treesTable = this.defineTreesTable();
     this.rolesTable = this.defineRolesTable();

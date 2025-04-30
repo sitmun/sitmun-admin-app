@@ -176,6 +176,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
     translateService: TranslateService,
     translationService: TranslationService,
     codeListService: CodeListService,
+    loggerService: LoggerService,
     errorHandler: ErrorHandlerService,
     activatedRoute: ActivatedRoute,
     router: Router,
@@ -184,10 +185,9 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
     public serviceParameterService: ServiceParameterService,
     public cartographyStyleService: CartographyStyleService,
     public wmsCapabilitiesService: WMSCapabilitiesService,
-    private loggerService: LoggerService,
     private serviceService: ServiceService,
   ) {
-    super(dialog, translateService, translationService, codeListService, errorHandler, activatedRoute, router);
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router);
     this.layersTable = this.defineLayersTable();
     this.parametersTable = this.defineParametersTable();
   }
@@ -234,6 +234,9 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
    */
   override empty(): Service {
     return Object.assign(new Service(), {
+      blocked: false,
+      isProxied: false,
+      supportedSRS: [],
       authenticationMode: this.firstInCodeList('service.authenticationMode').value,
     })
   }
@@ -265,7 +268,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
       user: new UntypedFormControl(this.entityToEdit.user),
       password: new UntypedFormControl(this.entityToEdit.password),
       authenticationMode: new UntypedFormControl(this.entityToEdit.authenticationMode, [Validators.required]),
-      description: new UntypedFormControl(this.entityToEdit.description, [Validators.required, Validators.maxLength(4000)]),
+      description: new UntypedFormControl(this.entityToEdit.description, [Validators.maxLength(4000)]),
       type: new UntypedFormControl(this.entityToEdit.type, [
         Validators.required,
       ]),
@@ -343,7 +346,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
    * @returns True if the form is valid, false otherwise
    */
   override canSave(): boolean {
-    return this.entityForm.valid
+    return this.entityForm.valid;
   }
 
   /**
