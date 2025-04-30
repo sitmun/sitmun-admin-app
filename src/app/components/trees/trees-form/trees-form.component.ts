@@ -16,6 +16,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { constants } from '@environments/constants';
 import {MatTabChangeEvent} from '@angular/material/tabs';
 import { LoggerService } from '@app/services/logger.service';
+import * as xmlJs from 'xml2js';
 
 
 @Component({
@@ -88,10 +89,17 @@ export class TreesFormComponent implements OnInit {
   folderNodeTypesList = [];
   leafNodeTypesList = [];
   nodeInputsControls = [];
+  nodeNamespacesControls = [];
+  noNamespaces = true;
+  parsedData = {
+    data: {},
+    dataType: 'json'
+  };
   nodeOutputsControls = constants.nodeMapping.nodeOutputControls;
   taskviewsList = [];
   mappingAppOptions = constants.nodeMapping.appOptions;
   mappingParentTaskOptions = [];
+  namespaces = [];
   // Roles grid
   columnDefsRoles: any[];
   getAllElementsEventRoles: Subject<string> = new Subject<string>();
@@ -517,6 +525,7 @@ export class TreesFormComponent implements OnInit {
       viewMode: new UntypedFormControl(null, []),
       output: new UntypedFormGroup(outputGroup),
       input: new UntypedFormGroup({}),
+      namespaces: new UntypedFormGroup({}),
     });
   }
 
@@ -859,14 +868,18 @@ export class TreesFormComponent implements OnInit {
     let formValues = {
       output: {},
       input: {},
+      namespaces: {},
     };
     if (origMapping) {
       formValues = origMapping;
+      this.unParseNamespaces(formValues);
     }
     await this.addTaskInput();
+    this.addNamespacesControl(formValues);
     this.fieldsConfigForm.patchValue({viewMode: this.currentViewMode});
     this.fieldsConfigForm.get('output')?.patchValue(formValues.output);
     this.fieldsConfigForm.get('input')?.patchValue(formValues.input);
+    this.fieldsConfigForm.get('namespaces')?.patchValue(formValues.namespaces);
     console.log(this.fieldsConfigForm.value);
 
     const dialogRef = this.dialog.open(DialogFormComponent);
@@ -906,7 +919,35 @@ export class TreesFormComponent implements OnInit {
         inputFormGroup.addControl(String(control.name), newGroup);
         const formValue = {
           value: control.value,
-          calculated: false
+          calculated: true
+        };
+        newGroup.patchValue(formValue);
+      });
+    }
+  }
+
+  addNamespacesControl(origMapping) {
+    const namespacesFormGroup = this.fieldsConfigForm.get('namespaces') as UntypedFormGroup;
+    if (origMapping && origMapping.namespaces) {
+      const keys = Object.keys(origMapping.namespaces);
+      if (keys.length > 0) {
+        this.namespaces = keys;
+      }
+    }
+    this.noNamespaces = this.namespaces.length === 0;
+    if (!this.noNamespaces) {
+      this.namespaces.forEach(nm => {
+        const control = {
+          name: nm,
+          value: ''
+        };
+        this.nodeNamespacesControls.push(control);
+        const newGroup = new UntypedFormGroup({
+          value: new UntypedFormControl(null, []),
+        });
+        namespacesFormGroup.addControl(String(control.name), newGroup);
+        const formValue = {
+          value: control.value,
         };
         newGroup.patchValue(formValue);
       });
@@ -921,19 +962,51 @@ export class TreesFormComponent implements OnInit {
     this.nodeInputsControls = [];
   }
 
+  clearNamespacesFormControls() {
+    const namespacesFormGroup = this.fieldsConfigForm.get('namespaces') as UntypedFormGroup;
+    Object.keys(namespacesFormGroup.controls).forEach(key => {
+      namespacesFormGroup.removeControl(key);
+    });
+    this.nodeNamespacesControls = [];
+  }
+
   getMappingByViewMode() {
     const item = this.fieldsConfigForm.value;
     console.log(item);
     const mapping = {
       output: {},
       input: item.input,
+      namespaces: this.parseNamespaces(item.namespaces)
     };
     const outputsKeys = this.nodeOutputsControls.filter(noc => noc.views.includes(this.currentViewMode)).map(c => c.key);
     outputsKeys.forEach(k => {
       mapping.output[k] = item.output[k];
     });
-
+    
     return mapping;
+  }
+
+  parseNamespaces(namespaces: any) {
+    const result: Record<string, string> = {};
+    if (namespaces) {
+      const keys = Object.keys(namespaces);
+      keys.forEach(k => {
+        result[k] = namespaces[k].value;
+      });
+    }
+    return result;
+  }
+
+  unParseNamespaces(formValues) {
+    const newNamespaces = {};
+    if (formValues.namespaces) {
+      const keys = Object.keys(formValues.namespaces);
+      keys.forEach(k => {
+        this.namespaces.push(k);
+        newNamespaces[k] = {value: formValues.namespaces[k]};
+      });
+    }
+    formValues.namespaces = newNamespaces;
   }
 
   getFormByType(formtype) {
@@ -974,7 +1047,7 @@ export class TreesFormComponent implements OnInit {
 
   treeValidations() {
     let valid = true;
-    let nodes = this.dataTree.dataSource.data;
+    const nodes = this.dataTree.dataSource.data;
     const filterNodes = nodes.filter(a => a.status !== 'pendingDelete');
     const apps = this.appDataGrid.rowData;
     const filterApps = apps.filter(a => a.status !== 'pendingDelete')
@@ -986,7 +1059,7 @@ export class TreesFormComponent implements OnInit {
       fn: this.validTreeStructure,
       param: filterNodes,
       msg: this.utils.showTreeStructureError
-    }, {
+    }/*, {
       fn: this.validTuristicTreeApp,
       param: filterApps,
       msg: this.utils.showTuristicTreeAppError
@@ -994,7 +1067,7 @@ export class TreesFormComponent implements OnInit {
       fn: this.validNoTuristicTreeApp,
       param: filterApps,
       msg: this.utils.showNoTuristicTreeAppError
-    }];
+    }*/];
     const error = validations.find(v => !v.fn.bind(this)(v.param));
     if (error) {
       valid = false;
@@ -1027,7 +1100,18 @@ export class TreesFormComponent implements OnInit {
   validNoTuristicTreeApp(apps) {
     let valid = true;
     if (this.currentTreeType !== constants.codeValue.treeType.touristicTree) {
-      valid = !apps.some(a => a.type === constants.codeValue.applicationType.touristicApp);
+      valid = apps.every(a => this.validAppTrees(a));
+    }
+    return valid;
+  }
+
+  validAppTrees(app) {
+    let valid = app.type !== constants.codeValue.applicationType.touristicApp;
+    if (!valid) {
+      this.http.get(app._links.trees.href).pipe(map(data => data['_embedded']['trees']))
+      .subscribe(trees => {
+        valid = trees.length === 1;
+      });
     }
     return valid;
   }
@@ -1614,6 +1698,7 @@ export class TreesFormComponent implements OnInit {
   }
 
   generateFieldsConfigTree() {
+    this.parseInput(this.fieldsConfigForm.value.taskResponse);
     this.fieldsConfigTreeGenerated = true;
   }
 
@@ -1622,11 +1707,80 @@ export class TreesFormComponent implements OnInit {
   }
 
   getFieldConfigInput = (): Observable<any> => {
-    return of(this.fieldsConfigForm.value.taskResponse);
+    return of(this.parsedData);
+  }
+
+  parseInput(inputText) {
+    this.parsedData = {
+      data: {},
+      dataType: 'json'
+    };
+    try {
+      if (inputText) {
+        if (this.isJson(inputText)) {
+          this.parsedData.data = JSON.parse(inputText);
+          this.parsedData.dataType = 'json';
+        } else {
+          this.parsedData.dataType = 'xml';
+          const xmlOptions = {
+            explicitArray: false,
+            attrkey: '@',
+          };
+          xmlJs.parseString(inputText, xmlOptions, (error, result) => {
+            if (error) {
+              console.error(error);
+            }
+            this.parsedData.data = result;
+          });
+        }
+        this.namespaces = this.getNamespacesKeys(this.parsedData.data);
+        console.log(this.namespaces);
+        this.clearNamespacesFormControls();
+        this.addNamespacesControl(null);
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Error al procesar el JSON/XML. Verifique el formato.');
+    }
+  }
+
+  getNamespacesKeys(obj) {
+    const result = new Set<string>();  
+    this.recurseNamespaceSearch(obj, result);
+    return Array.from(result);
+  }
+
+  recurseNamespaceSearch(current: any, result: Set<string>) {
+    if (Array.isArray(current)) {
+      current.forEach(item => this.recurseNamespaceSearch(item, result));
+    } else if (typeof current === 'object' && current !== null) {
+      for (const key in current) {
+        if (key.includes(':')) {
+          const [prefix] = key.split(':');
+          result.add(prefix);
+        }
+        if (key !== '@') {
+          this.recurseNamespaceSearch(current[key], result);
+        }
+      }
+    }
+  }
+
+  isJson(text: string): boolean {
+    try {
+      JSON.parse(text);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   fieldTreeNode(node) {
-    this.selectedXPath = node.path ?? '/';
+    let path = node.path ?? '/';
+    if (path.includes('@/')) {
+      path = path.replace('@/', '@');
+    }
+    this.selectedXPath = path;
     const radioBtns = document.querySelectorAll('.mapping-radio');
     const radioChecked = Array.from(radioBtns).find(i => document.querySelector<HTMLInputElement>(`#${i.id}-input`).checked);
     const attribute = radioChecked?.id.split('-')[0];
@@ -1668,12 +1822,12 @@ export class TreesFormComponent implements OnInit {
     let dataChanged = false;
     const promises: Promise<any>[] = [];
     const rolesToPut = [];
-
+    
     data.forEach(role => {
       if (role.status !== 'pendingDelete') {
         if (role.status === 'pendingModify') {
           if (role.newItem) { dataChanged = true; }
-          promises.push(new Promise((resolve) => {
+          promises.push(new Promise((resolve) => { 
             this.roleService.update(role).subscribe(() => { resolve(true); });
           }));
         } else if (role.status === 'pendingCreation') {

@@ -169,7 +169,7 @@
               </div>
 
               <div class="rowFormDiv"
-                   *ngIf="currentNodeIsFolder != undefined &&  (!currentNodeIsFolder) && currentNodeType === codeValues.treenodeLeafType.cartography">
+                   *ngIf="currentNodeIsFolder != undefined &&  (!currentNodeIsFolder)">
                 <div class="colFormDiv">
                   <label class="formLabel">
                     {{ 'treesEntity.cartography' | translate }}
@@ -178,7 +178,7 @@
                     <input matInput type="text" [readonly]="true" formControlName="cartographyName">
                   </mat-form-field>
                 </div>
-                <div class="colFormDiv">
+                <div class="colFormDiv" *ngIf="currentNodeType === codeValues.treenodeLeafType.cartography">
                   <label class="formLabel">
                     {{ 'treesEntity.style' | translate }}
                   </label>
@@ -299,27 +299,30 @@
                       *ngIf="newElement && currentNodeIsFolder != undefined ">{{ "save" | translate }}
               </button>
               <div class="appDataGridEditDiv" *ngIf="( currentNodeIsFolder != undefined && !currentNodeIsFolder)">
-                <app-data-grid [changeHeightButton]="true"
-                               [defaultColumnSorting]="['name']"
-                               [columnDefs]="columnDefsCartographies"
-                               [getAll]='getAllCartographies'
-                               [eventGetSelectedRowsSubscription]='getAllElementsEventCartographies.asObservable()'
-                               *ngIf="currentNodeType === codeValues.treenodeLeafType.cartography"
-                               (getSelectedRows)="getSelectedRowsCartographies($event)"
-                               [singleSelection]=true
-                               [redraw]="activeTabIndex === 1">
-                </app-data-grid>
-                <app-data-grid [changeHeightButton]="true"
-                               [defaultColumnSorting]="['name']"
-                               [columnDefs]="columnDefsTasks"
-                               [getAll]='getAllTasks'
-                               [eventGetSelectedRowsSubscription]='getAllElementsEventTasks.asObservable()'
-                               *ngIf="currentNodeType === codeValues.treenodeLeafType.task"
-                               (getSelectedRows)="getSelectedRowsTasks($event)"
-                               [singleSelection]=true
-                               [redraw]="activeTabIndex === 1"
-                >
-                </app-data-grid>
+                <div *ngIf="currentNodeType === codeValues.treenodeLeafType.task">
+                  <h5>{{ 'treesEntity.task' | translate }}</h5>
+                  <app-data-grid [changeHeightButton]="true"
+                                [defaultColumnSorting]="['name']"
+                                [columnDefs]="columnDefsTasks"
+                                [getAll]='getAllTasks'
+                                [eventGetSelectedRowsSubscription]='getAllElementsEventTasks.asObservable()'
+                                (getSelectedRows)="getSelectedRowsTasks($event)"
+                                [singleSelection]=true
+                                [redraw]="activeTabIndex === 1">
+                  </app-data-grid>
+                </div>
+                <div>
+                  <h5>{{ 'treesEntity.cartography' | translate }}</h5>
+                  <app-data-grid [changeHeightButton]="true"
+                                [defaultColumnSorting]="['name']"
+                                [columnDefs]="columnDefsCartographies"
+                                [getAll]='getAllCartographies'
+                                [eventGetSelectedRowsSubscription]='getAllElementsEventCartographies.asObservable()'
+                                (getSelectedRows)="getSelectedRowsCartographies($event)"
+                                [singleSelection]=true
+                                [redraw]="activeTabIndex === 1">
+                  </app-data-grid>
+                </div>
               </div>
             </form>
           </div>
@@ -377,37 +380,60 @@
 <ng-template #fieldsConfigDialog>
   <form [formGroup]='fieldsConfigForm' id="fieldsConfigForm">
     <div class="formDiv">
-      <div class="formDivTreeLeft" *ngIf="!(fieldsConfigTreeGenerated)">
-        <mat-form-field appearance="outline" class="full">
-          <textarea matInput formControlName="taskResponse" rows="8" placeholder="Pegar aquí la respuesta JSON/XML esperada o su estructura representativa..."
-          style="width: 100%; height: 45vh;"></textarea>
-        </mat-form-field>
-        <button mat-raised-button class="add-gap" (click)="generateFieldsConfigTree()"
-          [style.background-color]="'#FF9300'" [style.color]="'white'">
-          <mat-label>Generar arbol</mat-label>
-        </button>
-      </div>
-      <div class="formDivTreeLeft" *ngIf="fieldsConfigTreeGenerated">
-        <app-map-tree class="fieldsConfigTree" [getAll]='getFieldConfigInput' (emitNode)="fieldTreeNode($event)"
-          [eventCreateTreeSubscription]='createConfigTreeEvent.asObservable()'
-          (emitAllNodes)="receiveAllNodes($event)">
-            loading
-        </app-map-tree>
-        <button mat-raised-button class="add-gap" (click)="hideFieldsConfigTree()"
-          [style.background-color]="'#FF9300'" [style.color]="'white'" [style.margin-top]="'15px'">
-          <mat-label>Editar respuesta</mat-label>
-        </button>
+      <div class="formDivTreeLeft">
+        <div>
+          <h5>{{ 'treesEntity.namespacesMapping' | translate }}</h5>
+          <div class="maping-form" formGroupName="namespaces">
+            <p *ngIf="noNamespaces">{{'nodeMapping.noNamespaces' | translate}}</p>
+            <div *ngFor="let control of nodeNamespacesControls">
+              <div class="rowFormDiv" [formGroupName]="control.name">
+                <div class="colFormDiv">
+                  <mat-form-field appearance="outline" class="namespace-field">
+                    <mat-label>{{control.name}}</mat-label>
+                    <input matInput type="text" formControlName="value" class="full">
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="!(fieldsConfigTreeGenerated)">
+          <mat-form-field appearance="outline" class="full">
+            <textarea matInput formControlName="taskResponse" rows="8" [placeholder]="'nodeMapping.treePlaceholder' | translate"
+            style="width: 100%; height: 45vh;"></textarea>
+          </mat-form-field>
+          <button mat-raised-button class="add-gap" (click)="generateFieldsConfigTree()"
+            [style.background-color]="'#FF9300'" [style.color]="'white'">
+            <mat-label>{{'nodeMapping.treeGenerate' | translate}}</mat-label>
+          </button>
+        </div>
+        <div *ngIf="fieldsConfigTreeGenerated">
+          <app-map-tree class="fieldsConfigTree" [getAll]='getFieldConfigInput' (emitNode)="fieldTreeNode($event)"
+            [eventCreateTreeSubscription]='createConfigTreeEvent.asObservable()'
+            (emitAllNodes)="receiveAllNodes($event)">
+              loading
+          </app-map-tree>
+          <button mat-raised-button class="add-gap" (click)="hideFieldsConfigTree()"
+            [style.background-color]="'#FF9300'" [style.color]="'white'" [style.margin-top]="'15px'">
+            <mat-label>{{'nodeMapping.editResponse' | translate}}</mat-label>
+          </button>
+          <div *ngIf="selectedXPath" style="margin-top: 20px;">
+            <strong>{{'nodeMapping.suggestion' | translate}}</strong>
+            <p style="word-break: break-all;">{{ selectedXPath }}</p>
+          </div>
+        </div>
       </div>
       <div class="formDivTreeRight">
         <h5>{{ 'treesEntity.inputMapping' | translate }}</h5>
         <div class="maping-form" formGroupName="input">
+          <p *ngIf="nodeInputsControls.length === 0">{{'nodeMapping.noParams' | translate}}</p>
           <div *ngFor="let control of nodeInputsControls">
             <div class="rowFormDiv" [formGroupName]="control.name">
               <div class="colFormDiv">
                 <mat-form-field appearance="outline" class="full">
                   <mat-label>{{control.name}}</mat-label>
                   <mat-select formControlName="value">
-                    <mat-option>--None--</mat-option>
+                    <mat-option value="{{control.value}}">{{control.value || '--None--'}}</mat-option>
                     <mat-optgroup [label]="'treesEntity.appVars' | translate">
                       <mat-option *ngFor="let opt of mappingAppOptions" [value]="opt.value">{{opt.label}}</mat-option>
                     </mat-optgroup>
@@ -454,9 +480,6 @@
                   <mat-checkbox formControlName="calculated" labelPosition="after">{{ 'treesEntity.calculated' | translate }}</mat-checkbox>
                 </div>
               </div>
-            </div>
-            <div *ngIf="selectedXPath" style="margin-top: 20px;">
-              <strong>Sugerencia de xpath/jsonpath:</strong> {{ selectedXPath }}
             </div>
           </div>
         </div>
