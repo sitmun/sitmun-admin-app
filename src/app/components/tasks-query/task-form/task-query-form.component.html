@@ -133,6 +133,7 @@
                    [deleteButton]=true
                    [newButton]=true
                    [defaultColumnSorting]="parametersTable.defaultRelationsSorting()"
+                   [addFieldRestriction]="parametersTable.fieldRestriction"
                    (new)="parametersTable.openTemplateDialog('newParameterDialog')"
                    (getAllRows)="parametersTable.handleSaveRelations($event)"
                    (duplicate)='parametersTable.duplicateRelations($event)'
@@ -146,27 +147,25 @@
     <mat-card appearance="outlined">
       <mat-card-content>
         <mat-form-field appearance="outline" class="full">
-          <mat-label>{{ "tasksEntity.key" | translate }}</mat-label>
+          <mat-label>{{ "tasksEntity.name" | translate }}</mat-label>
           <input matInput type="text" formControlName="name" required>
         </mat-form-field>
         <mat-form-field appearance="outline" class="full">
           <mat-label>{{ "tasksEntity.label" | translate }}</mat-label>
           <input matInput type="text" formControlName="label" required>
         </mat-form-field>
-        <mat-radio-group formControlName="type">
-          <mat-label class="requiredInput">{{ 'serviceEntity.type' | translate }}</mat-label>
-          <mat-radio-button [value]="paramType.value" *ngFor="let paramType of this.codeList('taskEntity.queryType')">
+        <mat-radio-group formControlName="type" class="full">
+          <mat-label class="requiredInput">{{ 'tasksEntity.type' | translate }}</mat-label>
+          <mat-radio-button [value]="paramType.value" *ngFor="let paramType of this.codeList('queryTask.parameterType')">
             {{ paramType.description | translate }}
           </mat-radio-button>
         </mat-radio-group>
-        <mat-form-field appearance="outline" class="full">
-          <mat-label>{{ "tasksEntity.value" | translate }}</mat-label>
-          <input matInput type="text" formControlName="value">
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="full">
-          <mat-label>{{ "tasksEntity.order" | translate }}</mat-label>
-          <input matInput type="text" formControlName="order">
-        </mat-form-field>
+        <br/>
+        <ng-container *ngIf="parametersTable.templateDialog('newParameterDialog').form.get('type')?.value === TaskParameterType.QUERY">
+          <mat-label>{{ 'tasksEntity.required' | translate }}</mat-label>
+          <mat-checkbox formControlName="required">
+          </mat-checkbox>
+        </ng-container>
       </mat-card-content>
     </mat-card>
   </form>

@@ -1,36 +1,50 @@
 /**
+ * Task parameter type enum
+ */
+export enum TaskParameterType {
+  TEMPLATE = 'template',
+  QUERY = 'query'
+}
+
+/**
  * Task parameter model
  */
 export class TaskQueryParameter {
-  /** name*/
-  public key: string;
+  /** name */
+  public name: string;
 
-  /** type*/
+  /** label */
   public label: string;
 
-  /** value*/
-  public type: string;
+  /** type - can be either template or query */
+  public type: TaskParameterType;
 
-  /** value*/
+  /** required - only present when type is query */
+  public required?: boolean;
+
+  /** key */
+  public key: string;
+
+  /** value */
   public value: string;
 
-  /** value*/
+  /** order */
   public order: number;
 
   /**
    * Constructor for TaskParameter
-   * @param key The key of the parameter
+   * @param name The name of the parameter
    * @param label The label of the parameter
-   * @param type The type of the parameter
-   * @param value The value of the parameter
-   * @param order The order of the parameter
+   * @param type The type of the parameter - must be either template or query
+   * @param required Whether the parameter is required - only used when type is query
    */
-  constructor(key?: string, label?: string, type?: string, value?: string, order?: number) {
-    this.key = key;
+  constructor(name?: string, label?: string, type?: TaskParameterType, required?: boolean) {
+    this.name = name;
     this.label = label;
     this.type = type;
-    this.value = value;
-    this.order = order;
+    if (type === TaskParameterType.QUERY) {
+      this.required = required;
+    }
   }
 
   /**
@@ -42,7 +56,7 @@ export class TaskQueryParameter {
     const parameter = new TaskQueryParameter();
     // Define the properties to copy
     const propertiesToCopy = [
-      'key', 'label', 'type', 'value', 'order'
+      'name', 'label', 'type'
     ];
     // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
@@ -50,6 +64,10 @@ export class TaskQueryParameter {
         parameter[prop] = source[prop];
       }
     });
+    // Only copy required if type is query
+    if (source.type === TaskParameterType.QUERY && source.required !== undefined) {
+      parameter.required = source.required;
+    }
     return parameter;
   }
 }

@@ -41,7 +41,7 @@ import {
 } from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {MatSelectChange} from "@angular/material/select";
-import {TaskQueryParameter} from "@app/domain/task/models/task-query-parameter.model";
+import {TaskQueryParameter, TaskParameterType} from "@app/domain/task/models/task-query-parameter.model";
 
 /**
  * Component for managing query tasks in the SITMUN application.
@@ -127,6 +127,11 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
   private readonly newParameterDialog: TemplateRef<any>;
 
   /**
+   * The TaskParameterType enum exposed to the template
+   */
+  protected readonly TaskParameterType = TaskParameterType;
+
+  /**
    * Constructor for the TaskQueryFormComponent.
    * Initializes the component with necessary services and sets up the form.
    *
@@ -187,7 +192,7 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
     this.dataTables.register(this.rolesTable)
       .register(this.availabilitiesTable)
       .register(this.parametersTable);
-    await this.initCodeLists(['tasksEntity.type', 'queryTask.scope', 'taskEntity.queryType'])
+    await this.initCodeLists(['tasksEntity.type', 'queryTask.scope', 'taskEntity.queryType', 'queryTask.parameterType'])
 
     this.taskTypeName = params.type ?? 'Query';
     this.taskTypeNameTranslated = this.translateService.instant(`tasksEntity.${this.taskTypeName}`);
@@ -479,11 +484,10 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
     return DataTableDefinition.builder<TaskQueryParameter, TaskQueryParameter>(this.dialog, this.errorHandler)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getEditableColumnDef('tasksEntity.key', 'key'),
+        this.utils.getEditableColumnDef('tasksEntity.name', 'name'),
         this.utils.getEditableColumnDef('tasksEntity.label', 'label'),
-        this.utils.getNonEditableColumnWithCodeListDef('tasksEntity.type', 'type', () => this.codeList('taskEntity.queryType')),
-        this.utils.getEditableColumnDef('tasksEntity.value', 'value', 300, 500),
-        this.utils.getEditableColumnDef('tasksEntity.order', 'order'),
+        this.utils.getNonEditableColumnWithCodeListDef('tasksEntity.type', 'type', () => this.codeList('queryTask.parameterType')),
+        this.utils.getBooleanColumnDef('tasksEntity.required', 'required', true),
         this.utils.getStatusColumnDef()])
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
@@ -499,11 +503,12 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
           .map(value => TaskQueryParameter.fromObject(value));
         await firstValueFrom(this.taskService.update(this.entityToEdit));
       })
+      .withFieldRestriction('name')
       .withTemplateDialog('newParameterDialog', () => TemplateDialog.builder()
         .withReference(this.newParameterDialog)
         .withTitle(this.translateService.instant('taskEntity.newParameter'))
         .withForm(new FormGroup({
-          key: new FormControl('', {
+          name: new FormControl('', {
             validators: [Validators.required],
             nonNullable: true
           }),
@@ -512,17 +517,13 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
             nonNullable: true
           }),
           type: new FormControl(null, {
-            validators: [],
+            validators: [Validators.required],
             nonNullable: true
           }),
-          value: new FormControl(null, {
-            validators: [],
+          required: new FormControl(false, {
+            validators: [Validators.required],
             nonNullable: true
           }),
-          order: new FormControl(null, {
-            nonNullable: true,
-            validators: []
-          })
         })).build())
       .withTargetToRelation((items: TaskQueryParameter[]) => items.map(item => TaskQueryParameter.fromObject(item)))
       .withRelationsDuplicate(item => TaskQueryParameter.fromObject(item))

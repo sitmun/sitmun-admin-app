@@ -93,7 +93,8 @@ export class DataTableDefinition<RELATION, TARGET> {
     public readonly targetsOrder: string,
     private readonly targetToRelationFn: (targets: TARGET[]) => RELATION[],
     private readonly templateDialogs: Map<string, () => TemplateDialog>,
-    private readonly errorHandler: ErrorHandlerService
+    private readonly errorHandler: ErrorHandlerService,
+    private readonly fieldRestriction: string[]
   ) {
 
   }
@@ -262,7 +263,7 @@ export class DataTableDefinition<RELATION, TARGET> {
           title: this.targetsTitle,
           titlesTable: [''],
           currentData: [relations],
-          nonEditable: false
+          nonEditable: false,
         }
       });
 
@@ -398,6 +399,8 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
    */
   private templateDialogs: Map<string, () => TemplateDialog> = new Map();
 
+  private fieldRestriction: string[] = [];
+
   /**
    * Creates a new DataTableDefinitionBuilder.
    * 
@@ -429,6 +432,11 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
    */
   withTargetsColumns(columns: any[]): this {
     this.targetColumnsDefs = columns;
+    return this;
+  }
+
+  withFieldRestriction(field: string): this {
+    this.fieldRestriction.push(field);
     return this;
   }
 
@@ -563,7 +571,8 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
       this.targetsOrder,
       this.targetToRelationFn,
       this.templateDialogs,
-      this.errorHandler
+      this.errorHandler,
+      this.fieldRestriction
     );
   }
 
