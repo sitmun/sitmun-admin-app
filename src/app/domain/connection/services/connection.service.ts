@@ -16,22 +16,10 @@ export class ConnectionService extends RestService<Connection> {
     super(Connection, "connections", injector);
   }
 
-  /** save connection*/
-  save(item: Connection): Observable<any> {
-    let result: Observable<Object>;
-    if (item._links!=null) {
-
-      result = this.http.put(item._links.self.href, item);
-    } else {
-      result = this.http.post(this.resourceService.getResourceUrl(this.CONNECTION_API) , item);
-    }
-    return result;
-  }
-
+  /** test connection*/
   testConnection(item:any): Observable<any> {
     let result: Observable<Object>;
     result=this.http.post(this.resourceService.getResourceUrl(this.CONNECTION_API)+"/test" , item);
     return result;
   }
-
 }

@@ -99,7 +99,7 @@ export class RestService<T extends Resource> {
 
   public getAllProjection<S extends Resource>(type: {new(): S}, options?: HalOptions, subType?: SubTypeBuilder, embeddedName?: string): Observable<S[]> {
     return this.resourceService
-      .getAll(type, this.resource, this._embedded, options, subType, embeddedName, true)
+      .getAll(type, this.resource, this._embedded, options, subType, embeddedName, false)
       .pipe(
         map((resourceArray: ResourceArray<S>) => {
           if (options?.notPaged && resourceArray.first_uri) {

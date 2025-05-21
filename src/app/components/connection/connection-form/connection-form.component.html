@@ -1,8 +1,8 @@
 <app-form-toolbar
   icon="menu_connexio"
   entityType="connectionEntity.connection"
-  [itemName]="formConnection.get('name')?.value"
-  [isNew]="connectionID === -1"
+  [itemName]="itemName('name')"
+  [isNew]="isNewOrDuplicated()"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>
@@ -11,21 +11,23 @@
   mat-stretch-tabs="false"
   mat-align-tabs="end"
   [dynamicHeight]="true"
-  preserveContent="true"
-  (selectedTabChange)="onTabChange($event)">
+  preserveContent="true">
   >
   <mat-tab label="{{ 'connectionEntity.generalData' | translate }}">
-    <form [formGroup]='formConnection' *ngIf="dataLoaded">
+    <form [formGroup]='entityForm' *ngIf="dataLoaded">
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
             <mat-label> {{ 'connectionEntity.name' | translate }}</mat-label>
-            <input matInput type="text" formControlName="name" required>
-          </mat-form-field>
+            <input matInput type="text" formControlName="name" required [maxlength]="50">
+            <mat-hint align="end">
+              {{entityForm.get('name') | characterCount}}
+            </mat-hint>
+        </mat-form-field>
           <mat-form-field appearance="outline" class="half">
             <mat-select matInput formControlName="driver">
               <mat-label>{{ 'connectionEntity.driver' | translate }}</mat-label>
-              <mat-option [value]="driver.value" *ngFor="let driver of driversList">
+              <mat-option [value]="driver.value" *ngFor="let driver of this.codeList('databaseConnection.driver')">
                 {{ driver.description }}
               </mat-option>
             </mat-select>
@@ -34,16 +36,33 @@
 
           <mat-form-field appearance="outline" class="half add-gap">
             <mat-label> {{ 'connectionEntity.user' | translate }}</mat-label>
-            <input matInput type="text" formControlName="user">
+            <input matInput type="text" formControlName="user" [maxlength]="50">
+            <mat-hint align="end">
+              {{entityForm.get('user') | characterCount}}
+            </mat-hint>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="half">
             <mat-label>{{ 'connectionEntity.password' | translate }}</mat-label>
-            <input matInput [type]="'text'" formControlName="password">
+            <input matInput
+                   [formControlName]="'newPassword'"
+                   [type]="'text'"
+                   [maxlength]="50"
+                   (input)="onPasswordChange()"
+                   class="password-input">
+            <mat-hint *ngIf="isPasswordBeingEdited" align="end">
+              {{entityForm.get('newPassword') | characterCount}}
+            </mat-hint>
+            <mat-hint *ngIf="!isPasswordBeingEdited && passwordSet" align="end">
+              {{ 'connectionEntity.passwordIsSet' | translate }}
+            </mat-hint>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'connectionEntity.connection' | translate }}</mat-label>
-            <input matInput type="text" formControlName="url">
+            <input matInput type="text" formControlName="url" required [maxlength]="250">
+            <mat-hint align="end">
+              {{entityForm.get('url') | characterCount}}
+            </mat-hint>
           </mat-form-field>
 
           <button type="button" (click)="validateConnection()" mat-flat-button
@@ -55,24 +74,22 @@
   </mat-tab>
   <mat-tab label="{{ 'connectionEntity.tasks' | translate }}">
     <app-data-grid [changeHeightButton]="true"
-                   [allNewElements]="connectionID == -1"
-                   defaultColumnSorting="name"
-                   [columnDefs]="columnDefsTasks"
-                   [getAll]='getAllTasks'
-                   [eventAddItemsSubscription]='addElementsEventTasks.asObservable()'
-                   [eventRefreshSubscription]='dataUpdatedEvent.asObservable()'
-                   [eventGetAllRowsSubscription]='getAllElementsEventTasks.asObservable()'
+                   [allNewElements]="isNewOrDuplicated()"
+                   [columnDefs]="tasksTable.relationsColumnsDefs"
+                   [getAll]='tasksTable.relationsFetchFn'
+                   [eventAddItemsSubscription]='tasksTable.addCommandEvent$.asObservable()'
+                   [eventGetAllRowsSubscription]='tasksTable.saveCommandEvent$.asObservable()'
+                   [eventRefreshSubscription]='tasksTable.refreshCommandEvent$.asObservable()'
+                   [actionButton]=false
                    [discardChangesButton]=false
-                   [redoButton]=true
-                   [eventRefreshSubscription]='dataUpdatedEventTasks.asObservable()'
-                   [undoButton]=true
+                   [redoButton]=false
+                   [undoButton]=false
                    [deleteButton]=false
                    [addButton]=false
+                   [hideReplaceButton]=true
+                   [defaultColumnSorting]='tasksTable.defaultRelationsSorting()'
                    [hideDuplicateButton]=true
-                   [actionButton]=false
-                   (add)="openTasksDialog($event)"
-                   (getAllRows)="getAllRowsTasks($event)"
-                   [redraw]="activeTabIndex === 1"
+                   (getAllRows)="tasksTable.handleSaveRelations($event)"
                    *ngIf="dataLoaded"
     ></app-data-grid>
   </mat-tab>

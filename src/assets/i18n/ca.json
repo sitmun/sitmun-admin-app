@@ -164,7 +164,8 @@
     "code": "Codi",
     "taskGroup": "Grup tasca",
     "typeName": "Tipus tasca",
-    "status": "Estat"
+    "status": "Estat",
+    "passwordIsSet": "Contrasenya establerta"
   },
   "serviceEntity": {
     "generalData": "Dades Generals",

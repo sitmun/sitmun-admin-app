@@ -164,7 +164,8 @@
     "code": "Còdi",
     "taskGroup": "Grop trabalh",
     "typeName": "Tipe trabalh",
-    "status": "Estat"
+    "status": "Estat",
+    "passwordIsSet": "Senhal establèrt"
   },
   "serviceEntity": {
     "generalData": "Donades Generaus",

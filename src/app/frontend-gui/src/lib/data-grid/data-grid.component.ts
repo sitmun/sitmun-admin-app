@@ -281,6 +281,8 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   @Input() hideDuplicateButton: boolean;
   /** Flag to hide search/replace button */
   @Input() hideSearchReplaceButton: boolean;
+  /** Flag to hide replace button */
+  @Input() hideReplaceButton: boolean = false;
   /** Field restriction configuration */
   @Input() addFieldRestriction: any;
   /** Configuration for all new elements */

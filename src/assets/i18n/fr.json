@@ -162,7 +162,8 @@
     "code": "Code",
     "taskGroup": "Groupe de tâches",
     "typeName": "Tapez le nom",
-    "status": "Statut"
+    "status": "Statut",
+    "passwordIsSet": "Mot de passe défini"
   },
   "serviceEntity": {
     "generalData": "Données générales",
@@ -774,10 +775,10 @@
     "schedule": "Horario",
     "price": "Precio",
     "treePlaceholder": "Collez ici la réponse JSON/XML attendue ou sa structure représentative...",
-    "treeGenerate": "Générer l’arbre",
+    "treeGenerate": "Générer l'arbre",
     "editResponse": "Éditer la réponse",
     "suggestion": "Suggestion de xpath/jsonpath",
-    "noParams": "La tâche sélectionnée n’a pas de paramètres",
+    "noParams": "La tâche sélectionnée n'a pas de paramètres",
     "noNamespaces": "La réponse indiquée ne nécessite pas de namespaces"
   },
   "selectAll": "Sélectionner tout",
