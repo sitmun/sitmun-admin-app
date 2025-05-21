@@ -47,11 +47,33 @@
               </mat-option>
             </mat-select>
           </mat-form-field>
+
+
+          <mat-form-field appearance="outline" class="quarter">
+            <mat-label> {{'applicationEntity.creatorId' | translate}} </mat-label>
+            <mat-select matInput formControlName="creatorId" class="form-control">
+              <mat-option [value]="userObj.id" *ngFor="let userObj of userList">
+                {{userObj.username}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'applicationEntity.logo' | translate }}</mat-label>
             <input matInput type="text" formControlName="logo" [maxlength]="4000">
             <mat-hint align="end">{{entityForm.get('logo') | characterCount}}</mat-hint>
           </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full">
+            <mat-label> {{'applicationEntity.maintenanceInformation' | translate}} </mat-label>
+            <input matInput type="text"  formControlName="maintenanceInformation">
+            <mat-hint align="end">{{entityForm.get('maintenanceInformation') | characterCount}}</mat-hint>
+          </mat-form-field>
+
+          <div class="break"></div>
+          <mat-checkbox formControlName="isUnavailable">
+            <mat-label> {{'applicationEntity.isUnavailable' | translate}} </mat-label>
+          </mat-checkbox>
+
         </mat-card-content>
       </mat-card>
       <mat-card class="sitmun-mat-card-margin" appearance="outlined"

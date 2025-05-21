@@ -43,6 +43,7 @@ import {BaseFormComponent} from "@app/components/base-form.component";
 import {DataTableDefinition, TemplateDialog} from '@app/components/data-tables.util';
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoggerService} from "@app/services/logger.service";
+import { AccountService } from '@app/core';
 
 
 /**
@@ -117,6 +118,8 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
   @ViewChild('treesDataGrid')
   private treesDataGrid: DataGridComponent;
 
+  userList: Array<any> = [];
+
   /**
    * Creates an instance of ApplicationFormComponent.
    *
@@ -154,12 +157,23 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     protected roleService: RoleService,
     protected treeService: TreeService,
     protected utils: UtilsService,
+    protected accountService: AccountService
   ) {
     super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router);
     this.parametersTable = this.defineParametersTable();
     this.treesTable = this.defineTreesTable();
     this.rolesTable = this.defineRolesTable();
     this.applicationBackgroundsTable = this.defineApplicationBackgroundsTable();
+
+    let userListByDefault = {
+      id: -1,
+      username: '-------'
+    }
+    this.userList.push(userListByDefault);
+    this.accountService.getAll().subscribe(
+      resp => {
+        this.userList.push(...resp);
+      });
   }
 
   /**
@@ -244,6 +258,9 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       accessParentTerritory: new UntypedFormControl(this.entityToEdit.accessParentTerritory),
       accessChildrenTerritory: new UntypedFormControl(this.entityToEdit.accessChildrenTerritory),
       logo: new UntypedFormControl(this.entityToEdit.logo, []),
+      maintenanceInformation: new UntypedFormControl(this.entityToEdit.maintenanceInformation,[]),
+      creatorId: new UntypedFormControl(this.entityToEdit.creatorId ? this.entityToEdit.creatorId : this.userList[0].id,[]),
+      isUnavailable: new UntypedFormControl(this.entityToEdit.isUnavailable ? this.entityToEdit.isUnavailable : false,[]),
     });
   }
 
@@ -265,6 +282,8 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
           || null,
       }
     );
+    if(Number(safeToEdit.creatorId) == -1)
+      safeToEdit.creatorId = null;
     return Application.fromObject(safeToEdit)
   }
 

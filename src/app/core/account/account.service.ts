@@ -24,17 +24,23 @@ export class AccountService extends RestService<User> {
   override get(): Observable<User> {
     return this.http.get<User>(this.resourceService.getResourceUrl(this.ACCOUNT_API));
   }
-  
+
   /** save account*/
   save(item: Partial<User>): Observable<User> {
     return this.http.post<User>(this.resourceService.getResourceUrl(this.ACCOUNT_API), item);
   }
 
-  /** change logged in user account password */  
+  /** change logged in user account password */
   changePassword(passwordData: { currentPassword: string; newPassword: string }): Observable<void> {
     return this.http.post<void>(
       this.resourceService.getResourceUrl(this.ACCOUNT_API + "/change-password"),
       passwordData
     );
   }
-} 
+
+  override getAll() : Observable<any> {
+    let result: Observable<Object>;
+    result = this.http.get(this.resourceService.getResourceUrl(this.ACCOUNT_API+"/all"));
+    return result;
+  }
+}

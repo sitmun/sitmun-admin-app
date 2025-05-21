@@ -371,7 +371,10 @@
     "status": "Estado",
     "logo": "Logo",
     "accessParentTerritory": "Los roles territoriales se aplican a los territorios padre",
-    "accessChildrenTerritory": "Los roles territoriales se aplican a los territorios hijo"
+    "accessChildrenTerritory": "Los roles territoriales se aplican a los territorios hijo",
+    "maintenanceInformation": "Mensaje de mantenimiento",
+    "creatorId": "ID del creador de la aplicación",
+    "isUnavailable": "Aplicación no accesible"
   },
   "territoryEntity": {
     "generalData": "Datos Generales",

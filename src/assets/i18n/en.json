@@ -371,7 +371,10 @@
     "status": "Status",
     "logo": "Logo",
     "accessParentTerritory": "Territorial roles apply to parent territories",
-    "accessChildrenTerritory": "Territorial roles apply to child territories"
+    "accessChildrenTerritory": "Territorial roles apply to child territories",
+    "maintenanceInformation": "Maintenance message",
+    "creatorId": "Application creator ID",
+    "isUnavailable": "Application unavailable"
   },
   "territoryEntity": {
     "generalData": "General Data",

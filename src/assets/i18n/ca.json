@@ -371,7 +371,10 @@
     "status": "Estat",
     "logo": "Logo",
     "accessParentTerritory": "Els rols territorials s'apliquen als territoris pares",
-    "accessChildrenTerritory": "Els rols territorials s'apliquen als territoris fills"
+    "accessChildrenTerritory": "Els rols territorials s'apliquen als territoris fills",
+    "maintenanceInformation": "Missatge de manteniment",
+    "creatorId": "ID del creador de l'aplicació",
+    "isUnavailable": "Aplicació no accessible"
   },
   "territoryEntity": {
     "generalData": "Dades Generals",

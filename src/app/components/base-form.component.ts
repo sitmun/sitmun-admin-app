@@ -785,7 +785,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
   /**
    * Provides detailed explanation of form validity status
    * Examines each control's validation status and error messages
-   * 
+   *
    * @returns A string with detailed validation information
    */
   explainFormValidity(): string {
@@ -800,13 +800,13 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
     Object.keys(this.entityForm.controls).forEach(key => {
       const control = this.entityForm.get(key);
       explanation += `- ${key}: ${control.valid ? 'Valid' : 'Invalid'}`;
-      
+
       if (!control.valid) {
         explanation += ', Errors: ';
         if (control.errors) {
           Object.keys(control.errors).forEach(errorKey => {
             explanation += `${errorKey}`;
-            
+
             // Add details for specific validation errors
             if (errorKey === 'required') {
               explanation += ' (Field is required)';
@@ -816,18 +816,18 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
             explanation += ', ';
           });
         }
-        
+
         // Show the current value if it might help debugging
         explanation += `Current value: "${control.value}"`;
       }
-      
+
       explanation += '\n';
     });
-    
+
     // Explain form pristine state
     explanation += `Form pristine: ${this.entityForm.pristine}\n`;
     explanation += `Form touched: ${this.entityForm.touched}\n`;
-    
+
     return explanation;
   }
 }
