@@ -1,10 +1,10 @@
-import {Component, OnInit} from '@angular/core';
+import {Component} from '@angular/core';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {
-  ConnectionService, 
-  CartographyService, 
-  TaskService, 
+  ConnectionService,
+  CartographyService,
+  TaskService,
   Connection,
   TaskProjection,
   TranslationService,
@@ -15,15 +15,10 @@ import {firstValueFrom, of} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {MatDialog} from '@angular/material/dialog';
 import {BaseFormComponent} from "@app/components/base-form.component";
-import { LoggerService } from '@app/services/logger.service';
+import {LoggerService} from '@app/services/logger.service';
 import {DataTableDefinition} from '@app/components/data-tables.util';
-import {
-  onUpdatedRelation,
-  Status
-} from '@app/frontend-gui/src/lib/public_api';
-import { TranslateService } from '@ngx-translate/core';
-import { ErrorHandlerService } from '@app/services/error-handler.service';
-import { colGroup } from '@syncfusion/ej2-angular-grids';
+import {TranslateService} from '@ngx-translate/core';
+import {ErrorHandlerService} from '@app/services/error-handler.service';
 
 @Component({
   selector: 'app-connection-form',
@@ -34,22 +29,25 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
 
   readonly tasksTable: DataTableDefinition<TaskProjection, TaskProjection>
 
-  /** Flag indicating if password is set */
+  /** Flag indicating if the password is set */
   passwordSet = false;
 
-  /** Flag indicating if password is being edited */
+  /** Flag indicating if the password is being edited */
   isPasswordBeingEdited = false;
 
   /**
    * Creates an instance of ConnectionFormComponent.
-   * 
+   *
    * @param dialog - Material dialog service for modal interactions
+   * @param translateService
+   * @param translationService
+   * @param codeListService
+   * @param errorHandler
    * @param activatedRoute - Angular route service
    * @param router - Angular router for navigation
    * @param connectionService - Service for connection CRUD operations
    * @param cartographyService - Service for cartography operations
    * @param tasksService - Service for task operations
-   * @param http - HTTP client for API calls
    * @param utils - Utility service for common operations
    * @param loggerService - Service for logging
    */
@@ -112,14 +110,14 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
 
 
   /**
-   * Initializes form data after entity is fetched.
+   * Initializes form data after an entity is fetched.
    * Sets up reactive form with entity values and validation rules.
    * @throws Error if entity is undefined
    */
   override postFetchData() {
     if (!this.entityToEdit) {
       throw new Error('Cannot initialize form: entity is undefined');
-    }   
+    }
     if (this.isDuplicated()) {
       this.passwordSet = false;
     } else {
@@ -140,7 +138,7 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
 
   /**
    * Creates a Connection object from the current form values.
-   * Handles password field specially based on passwordSet flag.
+   * Handles the password field specially based on passwordSet flag.
    *
    * @param id - Optional ID for the new object, used when updating
    * @returns New Connection instance populated with form values
@@ -155,7 +153,7 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
     );
     if (this.isPasswordBeingEdited) {
       safeToEdit.password = this.entityForm.get('newPassword').value;
-    }    
+    }
     console.log(safeToEdit);
     return Connection.fromObject(safeToEdit);
   }
@@ -166,7 +164,7 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
    */
   onPasswordChange() {
     const password = this.entityForm.get('newPassword').value;
-    
+
     // If this is the first change
     if (!this.isPasswordBeingEdited && password !== '') {
       this.isPasswordBeingEdited = true;
@@ -211,12 +209,15 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
     return DataTableDefinition.builder<TaskProjection, TaskProjection>(this.dialog, this.errorHandler)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('connectionEntity.name', 'name'),
+        this.utils.getRouterLinkColumnDef('connectionEntity.name', 'name', '/taskQuery/:id/:typeId', {
+          id: 'id',
+          typeId: 'typeId'
+        }),
         this.utils.getNonEditableColumnDef('connectionEntity.groupName', 'groupName'),
       ])
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
-        if (this.isNew() ) {
+        if (this.isNew()) {
           return of([]);
         }
         return this.entityToEdit.getRelationArrayEx(TaskProjection, 'tasks', {projection: 'view'})
@@ -234,11 +235,9 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
       user: this.entityForm.value.user,
       password: this.entityForm.value.password
     };
-    this.connectionService.testConnection(connection).subscribe(
-      () => {},
-      error => {
-        this.loggerService.error('Error testing connection', error);
-      });
+    this.connectionService.testConnection(connection).subscribe({
+      error: err => this.loggerService.error('Error testing connection', err)
+    });
   }
 
 }

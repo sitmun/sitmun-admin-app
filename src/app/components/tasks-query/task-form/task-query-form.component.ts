@@ -1,10 +1,8 @@
 import {Component, TemplateRef, ViewChild} from "@angular/core";
 import {BaseFormComponent} from "@app/components/base-form.component";
 import {
-  Cartography,
   CartographyService,
   CodeListService,
-  Connection,
   ConnectionService,
   Role,
   RoleService,
@@ -108,22 +106,10 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
   private taskGroup: TaskGroup = null;
 
   /**
-   * List of available connections that can be assigned to this task.
-   * Retrieved during initialization.
-   */
-  protected connections: Connection[] = [];
-
-  /**
-   * List of available cartographies that can be assigned to cartography query tasks.
-   * Retrieved during initialization.
-   */
-  protected cartographies: Cartography[] = [];
-
-  /**
    * Reference to the dialog template for adding new parameters.
    * Used by the parameters table for creating new task parameters.
    */
-  @ViewChild('newParameterDialog', { static: true })
+  @ViewChild('newParameterDialog', {static: true})
   private readonly newParameterDialog: TemplateRef<any>;
 
   /**
@@ -194,16 +180,14 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
       .register(this.parametersTable);
     await this.initCodeLists(['tasksEntity.type', 'queryTask.scope', 'taskEntity.queryType', 'queryTask.parameterType'])
 
-    this.taskTypeName = params.type ?? 'Query';
-    this.taskTypeNameTranslated = this.translateService.instant(`tasksEntity.${this.taskTypeName}`);
-    const [taskTypes, taskGroups, connections, cartographies] = await Promise.all([
+    const [taskTypes, taskGroups] = await Promise.all([
       firstValueFrom(this.taskTypeService.getAllEx()),
       firstValueFrom(this.taskGroupService.getAllEx()),
-      firstValueFrom(this.connectionService.getAll()),
-      firstValueFrom(this.cartographyService.getAll())
     ]);
 
-    this.taskType = taskTypes.find(taskType => taskType.title === this.taskTypeName);
+    this.taskType = taskTypes.find(taskType => taskType.id === Number(params.type));
+    this.taskTypeName = this.taskType.title;
+    this.taskTypeNameTranslated = this.translateService.instant(`tasksEntity.${this.taskTypeName}`);
     if (!this.taskType) {
       throw new Error(`Task type ${this.taskTypeName} not found`);
     }
@@ -213,8 +197,6 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
       throw new Error(`Task group ${this.taskTypeName} not found`);
     }
 
-    this.connections = connections
-    this.cartographies = cartographies
   }
 
   /**
@@ -409,7 +391,7 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
         if (this.isNew()) {
           return of([]);
         }
-        return this.entityToEdit.getRelationArrayEx(Role, 'roles', { projection: 'view' })
+        return this.entityToEdit.getRelationArrayEx(Role, 'roles', {projection: 'view'})
       })
       .withRelationsUpdater(async (roles: (Role & Status)[]) => {
         await onUpdatedRelation(roles).forAll(item => this.entityToEdit.substituteAllRelation('roles', item));
@@ -444,7 +426,7 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
       .withRelationsOrder('territoryName')
       .withRelationsFetcher(() => {
         if (!this.isNew()) {
-          return this.entityToEdit.getRelationArrayEx(TaskAvailabilityProjection, 'availabilities', { projection: 'view' })
+          return this.entityToEdit.getRelationArrayEx(TaskAvailabilityProjection, 'availabilities', {projection: 'view'})
         }
         return of([]);
       })

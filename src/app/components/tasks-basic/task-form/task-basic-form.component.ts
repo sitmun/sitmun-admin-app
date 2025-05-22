@@ -118,7 +118,7 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
    * Reference to the dialog template for adding new parameters.
    * Used by the parameters table for creating new task parameters.
    */
-  @ViewChild('newParameterDialog', { static: true })
+  @ViewChild('newParameterDialog', {static: true})
   private readonly newParameterDialog: TemplateRef<any>;
 
   /**
@@ -179,8 +179,6 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
       .register(this.availabilitiesTable)
       .register(this.parametersTable);
 
-    this.taskTypeName = params.type ?? 'Basic';
-    this.taskTypeNameTranslated = this.translateService.instant(`tasksEntity.${this.taskTypeName}`);
     await this.initCodeLists(['tasksEntity.type', 'taskEntity.jsonParamType'])
     this.initTranslations('Task', ['name'])
 
@@ -190,7 +188,9 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
       firstValueFrom(this.taskUIService.getAll())
     ]);
 
-    this.taskType = taskTypes.find(taskType => taskType.title === this.taskTypeName);
+    this.taskType = taskTypes.find(taskType => taskType.id === Number(params.type));
+    this.taskTypeName = this.taskType.title;
+    this.taskTypeNameTranslated = this.translateService.instant(`tasksEntity.${this.taskTypeName}`);
     if (!this.taskType) {
       throw new Error(`Task type ${this.taskTypeName} not found`);
     }
@@ -347,7 +347,7 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
         if (this.isNew()) {
           return of([]);
         }
-        return this.entityToEdit.getRelationArrayEx(Role, 'roles', { projection: 'view' })
+        return this.entityToEdit.getRelationArrayEx(Role, 'roles', {projection: 'view'})
       })
       .withRelationsUpdater(async (roles: (Role & Status)[]) => {
         await onUpdatedRelation(roles).forAll(item => this.entityToEdit.substituteAllRelation('roles', item));
@@ -382,7 +382,7 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
       .withRelationsOrder('territoryName')
       .withRelationsFetcher(() => {
         if (!this.isNew()) {
-          return this.entityToEdit.getRelationArrayEx(TaskAvailabilityProjection, 'availabilities', { projection: 'view' })
+          return this.entityToEdit.getRelationArrayEx(TaskAvailabilityProjection, 'availabilities', {projection: 'view'})
         }
         return of([]);
       })

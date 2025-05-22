@@ -51,7 +51,7 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
   taskTypeName: string;
   taskTypeNameTranslated: any;
   taskType: TaskType;
-  properties;
+  properties: any;
   //codeLists
   codeListsMap: Map<string, any[]> = new Map<string, any[]>();
   tasksMap: Map<string, any[]> = new Map<string, any[]>();
@@ -829,7 +829,7 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
   }
 
   savePropertiesTreatment() {
-
+/*
     if (this.taskTypeName == config.tasksTypesNames.document || this.taskTypeName == config.tasksTypesNames.download) {
       this.savedTask.properties = TaskPropertiesBuilder.create()
         .withFormat(this.savedTask['format'])
@@ -855,7 +855,7 @@ export class TaskFormComponent implements OnInit, AfterViewInit {
         this.savedTask.properties[key] = layers;
       }
 
-    }
+    }*/
 
   }
 

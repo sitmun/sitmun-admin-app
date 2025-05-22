@@ -30,7 +30,9 @@ export class UtilsService {
   [x: string]: any;
 
   private subjectLoading = new Subject<boolean>();
+
   private translationService: TranslationService;
+
   private codeListService: CodeListService;
 
   constructor(
@@ -644,7 +646,7 @@ export class UtilsService {
    * @param field - The field name for the column, which can be a property path.
    * @returns An object representing the column definition.
    */
-  getNonEditableColumnDef(alias, field,  minWidth: number = null, maxWidth: number = null) {
+  getNonEditableColumnDef(alias, field, minWidth: number = null, maxWidth: number = null) {
     const options = {
       headerName: this.getTranslate(alias),
       field: field,
@@ -666,7 +668,7 @@ export class UtilsService {
     return options;
   }
 
-  getBooleanColumnDef(alias, field, editable,  minWidth: number = null, maxWidth: number = null) {
+  getBooleanColumnDef(alias, field, editable, minWidth: number = null, maxWidth: number = null) {
     const options = {
       headerName: this.getTranslate(alias),
       field: field,
@@ -713,6 +715,50 @@ export class UtilsService {
         return alias != undefined ? alias[fieldReturned] : fieldValue;
       },
     };
+  }
+
+  /**
+   * Gets the column definition for a router link column in AG Grid.
+   * @param alias - Translation key for column header
+   * @param field - Field name in data object to display as link text
+   * @param route - Base route path with parameters (e.g. '/taskQuery/:id/:type')
+   * @param paramFields - Object mapping route parameters to data fields (e.g. {id: 'id', type: 'type'})
+   * @param minWidth - Optional minimum width for the column
+   * @param maxWidth - Optional maximum width for the column
+   * @returns Column definition object for router link column
+   */
+  getRouterLinkColumnDef(
+    alias: string,
+    field: string,
+    route: string,
+    paramFields: { [key: string]: string },
+    minWidth?: number,
+    maxWidth?: number
+  ) {
+    const options = {
+      headerName: this.getTranslate(alias),
+      field: field,
+      editable: false,
+      cellRenderer: 'routerLinkRenderer',
+      cellRendererParams: {
+        route: route,
+        paramFields: paramFields
+      },
+      valueGetter: (params) => {
+        return this.getValueFromPropertyPath(params.data, field);
+      }
+    };
+
+    if (minWidth) {
+      options['minWidth'] = minWidth;
+    }
+    if (maxWidth) {
+      options['maxWidth'] = maxWidth;
+      options['wrapText'] = true;
+      options['autoHeight'] = true;
+    }
+
+    return options;
   }
 
   //Translation

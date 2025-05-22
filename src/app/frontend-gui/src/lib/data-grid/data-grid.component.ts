@@ -1,20 +1,33 @@
-import {Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, OnDestroy, SimpleChanges, OnChanges} from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Input,
+  Output,
+  EventEmitter,
+  ViewChild,
+  ElementRef,
+  OnDestroy,
+  SimpleChanges,
+  OnChanges
+} from '@angular/core';
 
 import {firstValueFrom, Observable, Subscription} from 'rxjs';
 import {
   GridOptions,
   ModuleRegistry,
 } from '@ag-grid-community/core';
-import { ClientSideRowModelModule } from '@ag-grid-community/client-side-row-model';
-import { CsvExportModule } from '@ag-grid-community/csv-export';
+import {ClientSideRowModelModule} from '@ag-grid-community/client-side-row-model';
+import {CsvExportModule} from '@ag-grid-community/csv-export';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
-import { BtnEditRenderedComponent } from '@app/frontend-gui/src/lib/btn-edit-rendered/btn-edit-rendered.component';
-import { BtnCheckboxRenderedComponent } from '@app/frontend-gui/src/lib/btn-checkbox-rendered/btn-checkbox-rendered.component';
-import { BtnCheckboxFilterComponent } from '@app/frontend-gui/src/lib/btn-checkbox-filter/btn-checkbox-filter.component';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { DialogMessageComponent } from '@app/frontend-gui/src/lib/dialog-message/dialog-message.component';
-import { CommonModule } from '@angular/common';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import {BtnEditRenderedComponent} from '@app/frontend-gui/src/lib/btn-edit-rendered/btn-edit-rendered.component';
+import {
+  BtnCheckboxRenderedComponent
+} from '@app/frontend-gui/src/lib/btn-checkbox-rendered/btn-checkbox-rendered.component';
+import {BtnCheckboxFilterComponent} from '@app/frontend-gui/src/lib/btn-checkbox-filter/btn-checkbox-filter.component';
+import {MatDialog, MatDialogModule} from '@angular/material/dialog';
+import {DialogMessageComponent} from '@app/frontend-gui/src/lib/dialog-message/dialog-message.component';
+import {CommonModule} from '@angular/common';
+import {MatTooltipModule} from '@angular/material/tooltip';
 import {AgGridModule} from '@ag-grid-community/angular';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatMenuModule} from '@angular/material/menu';
@@ -26,6 +39,7 @@ import {MatCardModule} from '@angular/material/card';
 import {FormsModule} from '@angular/forms';
 import {UtilsService} from '@app/services/utils.service';
 import {LoggerService} from '@app/services/logger.service';
+import {RouterLinkRendererComponent} from '../router-link-renderer/router-link-renderer.component';
 
 declare let $: any;
 
@@ -36,10 +50,18 @@ ModuleRegistry.registerModules([
 
 export type GridEventType = "save"
 
-type StatusType = 'notAvailable' | 'statusOK' | 'pendingCreation' | 'pendingModify' | 'pendingDelete' | 'pendingRegistration' | 'unregisteredLayer';
+type StatusType =
+  'notAvailable'
+  | 'statusOK'
+  | 'pendingCreation'
+  | 'pendingModify'
+  | 'pendingDelete'
+  | 'pendingRegistration'
+  | 'unregisteredLayer';
 
 export interface Status {
   status: StatusType;
+
   newItem: boolean;
 }
 
@@ -57,6 +79,7 @@ export function canDelete(status: Status): boolean {
 
 export interface GridEvent<T> {
   event: string
+
   data: (T & Status)[]
 }
 
@@ -113,15 +136,15 @@ export class Executor<T> {
   constructor(public readonly data: T[]) {
   }
 
-  async forAll<S>(func: (item: T[]) => Observable<S | Observable<never>>) : Promise<S | Observable<never>> {
+  async forAll<S>(func: (item: T[]) => Observable<S | Observable<never>>): Promise<S | Observable<never>> {
     return firstValueFrom(func(this.data));
   }
 
-  map<S>(func: (item: T) => S) : Executor<S> {
+  map<S>(func: (item: T) => S): Executor<S> {
     return new Executor(this.data.map(func));
   }
 
-  async forEach<S>(func: (item: T) => Observable<S | Observable<never>>) : Promise<(S | Observable<never>)[]> {
+  async forEach<S>(func: (item: T) => Observable<S | Observable<never>>): Promise<(S | Observable<never>)[]> {
     const results = [];
     for (const item of this.data) {
       results.push(await firstValueFrom(func(item)));
@@ -171,150 +194,214 @@ export class Executor<T> {
 export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   /** Tracks if this is the first time loading data */
   isFirstLoad = true;
+
   /** Subscription for data loading */
   dataSubscription!: Subscription;
 
   /** Subscription for grid refresh events */
   _eventRefreshSubscription: any;
+
   /** Subscription for getting selected rows */
   _eventGetSelectedRowsSubscription: any;
+
   /** Subscription for getting all rows */
   _eventGetAllRowsSubscription: any;
+
   /** Subscription for saving grid state */
   _eventSaveAgGridStateSubscription: any;
+
   /** Subscription for modifying status of selected cells */
   _eventModifyStatusOfSelectedCells: any;
 
   /** Current search value for quick search */
   searchValue: string;
+
   /** Reference to AG Grid API */
   gridApi: any;
+
   /** Reference to AG Grid Column API */
   gridColumnApi: any;
+
   /** Flag indicating if status column is present */
   statusColumn = false;
+
   /** Flag indicating if any column is editable */
   someColumnIsEditable = false;
+
   /** Map tracking changes to cells */
   changesMap: Map<string, Map<string, number>> = new Map<string, Map<string, number>>();
 
   /** Last parameters of the grid */
   params: any;
+
   /** Current row data */
   rowData: any[];
+
   /** Number of editions done above any cell */
   changeCounter: number;
+
   /** Number of editions done after the last modification */
   previousChangeCounter: number;
+
   /** Number of redo operations available */
   redoCounter: number;
+
   /** Flag indicating if a modification change occurred */
   modificationChange = false;
+
   /** Flag indicating if an undo has no modifications */
   undoNoChanges = false;
+
   /** AG Grid options configuration */
   gridOptions: GridOptions;
+
   /** Flag indicating if any status has changed to delete */
   someStatusHasChangedToDelete = false;
 
   /** Observable triggering grid refresh */
   @Input() eventRefreshSubscription: Observable<boolean>;
+
   /** Observable triggering selected rows emission */
   @Input() eventGetSelectedRowsSubscription: Observable<boolean>;
+
   /** Observable triggering all rows emission */
   @Input() eventGetAllRowsSubscription: Observable<GridEventType>;
+
   /** Observable triggering grid state save */
   @Input() eventSaveAgGridStateSubscription: Observable<boolean>;
+
   /** Observable triggering status modification of selected cells */
   @Input() eventModifyStatusOfSelectedCells: Observable<string>;
+
   /** Observable for adding new items */
   @Input() eventAddItemsSubscription: Observable<any[]>;
+
   /** Custom framework components */
   @Input() frameworkComponents: any;
+
   /** Grid components */
   @Input() components: any;
+
   /** Column definitions */
   @Input() columnDefs: any[];
+
   /** Function to fetch all data */
   @Input() getAll: () => Observable<any>;
+
   /** Flag to show/hide discard changes button */
   @Input() discardChangesButton: boolean;
+
   /** Flag to discard non-reverse status */
   @Input() discardNonReverseStatus: boolean;
+
   /** Grid identifier */
   @Input() id: any;
+
   /** Flag to show/hide undo button */
   @Input() undoButton: boolean;
+
   /** Default column sorting configuration */
   @Input() defaultColumnSorting: string[];
+
   /** Flag to show/hide redo button */
   @Input() redoButton: boolean;
+
   /** Flag to show/hide apply changes button */
   @Input() applyChangesButton: boolean;
+
   /** Flag to show/hide delete button */
   @Input() deleteButton: boolean;
+
   /** Flag to show/hide new button */
   @Input() newButton: boolean;
+
   /** Flag to show/hide action button */
   @Input() actionButton: boolean;
+
   /** Flag to show/hide add button */
   @Input() addButton: boolean;
+
   /** Flag to show/hide register button */
   @Input() registerButton: boolean;
+
   /** New status for registration */
   @Input() newStatusRegister: string;
+
   /** Flag to enable/disable global search */
   @Input() globalSearch: boolean;
+
   /** Flag to show/hide change height button */
   @Input() changeHeightButton: boolean;
+
   /** Default height configuration */
   @Input() defaultHeight: any;
+
   /** Flag for single selection mode */
   @Input() singleSelection: boolean;
+
   /** Flag for non-editable mode */
   @Input() nonEditable: boolean;
+
   /** Grid title */
   @Input() title: string;
+
   /** Flag to hide export button */
   @Input() hideExportButton: boolean;
+
   /** Flag to hide duplicate button */
   @Input() hideDuplicateButton: boolean;
+
   /** Flag to hide search/replace button */
   @Input() hideSearchReplaceButton: boolean;
+
   /** Flag to hide replace button */
   @Input() hideReplaceButton: boolean = false;
+
   /** Field restriction configuration */
   @Input() addFieldRestriction: any;
+
   /** Configuration for all new elements */
   @Input() allNewElements: any;
+
   /** Current data array */
   @Input() currentData: any[] = null;
+
   /** Field restriction with different name */
   @Input() fieldRestrictionWithDifferentName: string;
 
   /** Event emitter for remove operation */
   @Output() remove: EventEmitter<any[]>;
+
   /** Event emitter for new operation */
   @Output() new: EventEmitter<number>;
+
   /** Event emitter for add operation */
   @Output() add: EventEmitter<any[]>;
+
   /** Event emitter for discard changes */
   @Output() discardChanges: EventEmitter<any[]>;
+
   /** Event emitter for sending changes */
   @Output() sendChanges: EventEmitter<any[]>;
+
   /** Event emitter for duplicate operation */
   @Output() duplicate: EventEmitter<any[]>;
+
   /** Event emitter for selected rows */
   @Output() getSelectedRows: EventEmitter<any[]>;
+
   /** Event emitter for all rows */
-  @Output() getAllRows: EventEmitter<{data: any[], event:string}>;
+  @Output() getAllRows: EventEmitter<{ data: any[], event: string }>;
+
   /** Event emitter for grid modified state */
   @Output() gridModified: EventEmitter<boolean>;
+
   /** Event emitter for visibility state */
   @Output() visible = new EventEmitter<HTMLElement>();
 
   /** Reference to the data grid element */
-  @ViewChild('dataGrid', { static: true }) dataGrid: ElementRef;
+  @ViewChild('dataGrid', {static: true}) dataGrid: ElementRef;
+
   /** Intersection observer for grid visibility */
   private observer: IntersectionObserver;
 
@@ -322,15 +409,15 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   replaceValue = '';
 
   constructor(public dialog: MatDialog,
-    public translate: TranslateService,
-    public utils: UtilsService,
-    private loggerService: LoggerService,
+              public translate: TranslateService,
+              public utils: UtilsService,
+              private loggerService: LoggerService,
   ) {
 
     this.remove = new EventEmitter();
     this.new = new EventEmitter();
     this.add = new EventEmitter();
-    this.discardChanges= new EventEmitter();
+    this.discardChanges = new EventEmitter();
     this.sendChanges = new EventEmitter();
     this.getSelectedRows = new EventEmitter();
     this.duplicate = new EventEmitter();
@@ -389,14 +476,15 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       datePicker: this.getDatePicker(),
       btnEditRendererComponent: BtnEditRenderedComponent,
       btnCheckboxRendererComponent: BtnCheckboxRenderedComponent,
-      btnCheckboxFilterComponent: BtnCheckboxFilterComponent
+      btnCheckboxFilterComponent: BtnCheckboxFilterComponent,
+      routerLinkRenderer: RouterLinkRendererComponent
     };
   }
 
   /**
    * Handles component initialization
    */
-  ngOnInit() : void {
+  ngOnInit(): void {
 
     // Ensure that the grid is visible before autosizing columns.
     this.observer = new IntersectionObserver((entries) => {
@@ -406,13 +494,13 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
           this.gridApi?.autoSizeAllColumns();
         }
       });
-    }, { threshold: 0.1 });
+    }, {threshold: 0.1});
     this.observer.observe(this.dataGrid.nativeElement);
 
     if (this.eventRefreshSubscription) {
       this._eventRefreshSubscription = this.eventRefreshSubscription.subscribe(() => {
         this.changesMap.clear();
-        this.someStatusHasChangedToDelete=false;
+        this.someStatusHasChangedToDelete = false;
         this.changeCounter = 0;
         this.previousChangeCounter = 0;
         this.redoCounter = 0;
@@ -532,7 +620,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         //this.gridApi.setColumnState(agGridState.colState);
         //this.gridApi.setSortModel(agGridState.sortState);
         this.gridApi.applyColumnState({
-          state:agGridState.colState,
+          state: agGridState.colState,
           applyOrder: true
         });
         this.searchValue = agGridState.valueSearchGeneric;
@@ -553,10 +641,14 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
 
-    if (this.singleSelection) { this.gridOptions.rowSelection = 'single' }
+    if (this.singleSelection) {
+      this.gridOptions.rowSelection = 'single'
+    }
     // if (this.nonEditable) {this.gridOptions.defaultColDef.editable = false}
     for (const col of this.columnDefs) {
-      if(!this.someColumnIsEditable && col.editable) { this.someColumnIsEditable = true}
+      if (!this.someColumnIsEditable && col.editable) {
+        this.someColumnIsEditable = true
+      }
       if (col.field === 'status') {
         this.statusColumn = true;
       }
@@ -564,25 +656,23 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     this.loadData();
 
     if (this.defaultColumnSorting) {
-      if(!Array.isArray(this.defaultColumnSorting))
-      {
+      if (!Array.isArray(this.defaultColumnSorting)) {
         const sortModel = [
-          { colId: this.defaultColumnSorting, sort: 'asc' }
+          {colId: this.defaultColumnSorting, sort: 'asc'}
         ];
         //this.gridApi.setSortModel(sortModel);
         this.gridApi.applyColumnState({
-          state:sortModel,
+          state: sortModel,
           applyOrder: true
         });
-      }
-      else{
+      } else {
         const sortModel = [];
         this.defaultColumnSorting.forEach(element => {
-          sortModel.push({ colId: element, sort: 'asc' })
+          sortModel.push({colId: element, sort: 'asc'})
         });
         //this.gridApi.setSortModel(sortModel);
         this.gridApi?.applyColumnState({
-          state:sortModel,
+          state: sortModel,
           applyOrder: true
         });
       }
@@ -598,12 +688,13 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     function Datepicker() {
     }
+
     Datepicker.prototype.init = function (params) {
       this.eInput = document.createElement('input');
       this.eInput.value = params.value;
       this.eInput.classList.add('ag-input');
       this.eInput.style.height = '100%';
-      $(this.eInput).datepicker({ dateFormat: 'mm/dd/yy' });
+      $(this.eInput).datepicker({dateFormat: 'mm/dd/yy'});
     };
     Datepicker.prototype.getGui = function () {
       return this.eInput;
@@ -616,7 +707,8 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       return this.eInput.value;
     };
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    Datepicker.prototype.destroy = function () {};
+    Datepicker.prototype.destroy = function () {
+    };
     Datepicker.prototype.isPopup = function () {
       return false;
     };
@@ -662,7 +754,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
    * @returns Array of all current row data
    * @private
    */
-  private getAllCurrentData(): any[]{
+  private getAllCurrentData(): any[] {
     const rowData = [];
     this.gridApi.forEachNode(node => rowData.push(node.data));
     return rowData;
@@ -672,13 +764,13 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
    * Modifies the status of selected cells
    * @param status - Optional status to set
    */
-  modifyStatusSelected(status?: string): void{
-    const newStatus=status?status:this.newStatusRegister;
+  modifyStatusSelected(status?: string): void {
+    const newStatus = status ? status : this.newStatusRegister;
     const selectedNodes = this.gridApi.getSelectedNodes();
     selectedNodes.map(node => {
-      node.data.status=newStatus;
-      node.selected=false;
-    } );
+      node.data.status = newStatus;
+      node.selected = false;
+    });
     this.gridApi.redrawRows();
   }
 
@@ -697,6 +789,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     localStorage.setItem("agGridState", JSON.stringify(agGridState));
 
   }
+
   /**
    * Removes the saved grid state from localStorage
    */
@@ -711,7 +804,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
    */
   getColumnKeysAndHeaders(columnkeys: any[]): string {
     const header: any[] = [];
-    if (this.columnDefs.length == 0) { return '' }
+    if (this.columnDefs.length == 0) {
+      return ''
+    }
 
     //let allColumnKeys = this.gridOptions.columnApi.getAllDisplayedColumns();
     const allColumnKeys = this.gridApi.getAllDisplayedColumns()
@@ -734,7 +829,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
    */
   exportData(): void {
     const columnkeys: any[] = [];
-    const customHeader= this.getColumnKeysAndHeaders(columnkeys)
+    const customHeader = this.getColumnKeysAndHeaders(columnkeys)
     const params = {
       onlySelected: true,
       columnKeys: columnkeys,
@@ -852,25 +947,24 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   addItems(newItems: any[]): void {
 
     const itemsToAdd: any[] = [];
-    const condition = (this.addFieldRestriction)? this.addFieldRestriction: 'id';
+    const condition = (this.addFieldRestriction) ? this.addFieldRestriction : 'id';
 
 
     newItems.forEach(item => {
 
-      if (this.checkElementAllowedToAdd(condition,item, this.rowData)) {
+      if (this.checkElementAllowedToAdd(condition, item, this.rowData)) {
         if (this.statusColumn) {
           item.status = 'pendingCreation'
           item.newItem = true;
         }
         itemsToAdd.push(item);
         this.rowData.push(item);
-      }
-      else {
+      } else {
         this.utils.showErrorMessage({message: `Item already exists`})
       }
     });
-    if(!this.gridApi?.isDestroyed()) {
-      this.gridApi.applyTransaction({ add: itemsToAdd });
+    if (!this.gridApi?.isDestroyed()) {
+      this.gridApi.applyTransaction({add: itemsToAdd});
     }
   }
 
@@ -882,31 +976,30 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
    * @returns boolean indicating if the element can be added
    * @private
    */
-  private checkElementAllowedToAdd(condition, item, data){
+  private checkElementAllowedToAdd(condition, item, data) {
 
     let finalAddition = true;
 
-    if(Array.isArray(condition)){
+    if (Array.isArray(condition)) {
 
-      for(const element of data){
+      for (const element of data) {
         let canAdd = false;
 
-        for(const currentCondition of condition){
-          if(element[currentCondition] != item[currentCondition]){
+        for (const currentCondition of condition) {
+          if (element[currentCondition] != item[currentCondition]) {
             canAdd = true;
             break;
           }
         }
-        if(!canAdd) {
-           finalAddition = false;
-           break;
-          }
+        if (!canAdd) {
+          finalAddition = false;
+          break;
+        }
       }
       return finalAddition;
 
-    }
-    else{
-      if(this.fieldRestrictionWithDifferentName){
+    } else {
+      if (this.fieldRestrictionWithDifferentName) {
         return (item[condition] == undefined || (data.find(element => element[this.fieldRestrictionWithDifferentName] == item[condition])) == undefined)
       }
       return (item[condition] == undefined || (data.find(element => element[condition] == item[condition])) == undefined)
@@ -925,7 +1018,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
     if (this.statusColumn) {
       const selectedRows = selectedNodes.map(node => node.id);
-      if(selectedRows.length>0) {this.someStatusHasChangedToDelete=true;}
+      if (selectedRows.length > 0) {
+        this.someStatusHasChangedToDelete = true;
+      }
       for (const id of selectedRows) {
         this.gridApi.getRowNode(id).data.status = 'pendingDelete';
       }
@@ -970,8 +1065,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         }
       });
 
-    }
-    else {
+    } else {
       const selectedNodes = this.gridApi.getSelectedNodes();
       const selectedData = selectedNodes.map(node => node.data);
       this.duplicate.emit(selectedData);
@@ -986,7 +1080,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
    */
   deleteChanges(): void {
     this.gridApi.stopEditing(false);
-    const newElementsActived= this.allNewElements;
+    const newElementsActived = this.allNewElements;
 
     while (this.changeCounter > 0) {
       this.undo();
@@ -996,28 +1090,26 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     //this.previousChangeCounter = 0;
     this.redoCounter = 0;
 
-    if(this.statusColumn && !this.discardNonReverseStatus)
-    {
+    if (this.statusColumn && !this.discardNonReverseStatus) {
       const rowsWithStatusModified = [];
-      this.gridApi.forEachNode(function(node) {
-        if(node.data.status === 'pendingModify' || node.data.status === 'pendingDelete') {
-          if(node.data.status === 'pendingDelete'){
+      this.gridApi.forEachNode(function (node) {
+        if (node.data.status === 'pendingModify' || node.data.status === 'pendingDelete') {
+          if (node.data.status === 'pendingDelete') {
             rowsWithStatusModified.push(node.data);
           }
-          if(node.data.newItem || newElementsActived){
-            node.data.status='pendingCreation'
-          }
-          else{
-            node.data.status='statusOK'
+          if (node.data.newItem || newElementsActived) {
+            node.data.status = 'pendingCreation'
+          } else {
+            node.data.status = 'statusOK'
           }
         }
 
-    });
-    this.someStatusHasChangedToDelete=false;
-    this.discardChanges.emit(rowsWithStatusModified);
-    this.gridModified.emit(false);
-  }
-  this.gridApi.redrawRows();
+      });
+      this.someStatusHasChangedToDelete = false;
+      this.discardChanges.emit(rowsWithStatusModified);
+      this.gridModified.emit(false);
+    }
+    this.gridApi.redrawRows();
 
     //this.params.colDef.cellStyle =  {backgroundColor: '#FFFFFF'};
     //this.gridApi.redrawRows();
@@ -1041,7 +1133,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     this.gridApi.stopEditing(false);
     this.gridApi.undoCellEditing();
     this.changeCounter -= 1;
-    if(this.changeCounter == 0) { this.gridModified.emit(false)}
+    if (this.changeCounter == 0) {
+      this.gridModified.emit(false)
+    }
     this.redoCounter += 1;
   }
 
@@ -1063,7 +1157,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   onCellEditingStopped(params) {
     if (this.modificationChange) {
       this.changeCounter++;
-      if(this.changeCounter == 1) { this.gridModified.emit(true)}
+      if (this.changeCounter == 1) {
+        this.gridModified.emit(true)
+      }
       this.redoCounter = 0;
       this.onCellValueChanged(params);
       this.modificationChange = false;
@@ -1079,7 +1175,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   onCellValueChanged(params): void {
     this.params = params;
     if (this.changeCounter > this.previousChangeCounter)
-    // True if we have edited some cell or we have done a redo
+      // True if we have edited some cell or we have done a redo
     {
 
       if (params.oldValue !== params.value && !(params.oldValue == null && params.value === '')) {
@@ -1091,17 +1187,14 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
           this.changesMap.set(params.node.id, addMap);
           if (this.statusColumn) {
             // if (this.gridApi.getRowNode(params.node.id).data.status !== 'pendingCreation') {
-              this.gridApi.getRowNode(params.node.id).data.status = 'pendingModify'
+            this.gridApi.getRowNode(params.node.id).data.status = 'pendingModify'
             // }
           }
-        }
-        else {
+        } else {
           if (!this.changesMap.get(params.node.id).has(params.colDef.field)) {
 
             this.changesMap.get(params.node.id).set(params.colDef.field, 1);
-          }
-
-          else {
+          } else {
             // We already had edited this cell, so we only increment number of changes of it on the map
             const currentChanges = this.changesMap.get(params.node.id).get(params.colDef.field);
             this.changesMap.get(params.node.id).set(params.colDef.field, (currentChanges + 1));
@@ -1112,10 +1205,11 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         this.previousChangeCounter++; //We match the current previousChangeCounter with changeCounter
       }
 
-    }
-    else if (this.changeCounter < this.previousChangeCounter) { // True if we have done an undo
+    } else if (this.changeCounter < this.previousChangeCounter) { // True if we have done an undo
       let currentChanges = -1;
-      if (this.changesMap.has(params.node.id)) { currentChanges = this.changesMap.get(params.node.id).get(params.colDef.field); }
+      if (this.changesMap.has(params.node.id)) {
+        currentChanges = this.changesMap.get(params.node.id).get(params.colDef.field);
+      }
 
       if (currentChanges === 1) { //Once the undo it's done, cell is in his initial status
 
@@ -1125,19 +1219,17 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
           const row = this.gridApi.getDisplayedRowAtIndex(params.rowIndex);
           if (this.statusColumn) {
             if (this.gridApi.getRowNode(params.node.id).data.status !== 'pendingCreation') {
-              this.gridApi.getRowNode(params.node.id).data.status ='statusOK'
+              this.gridApi.getRowNode(params.node.id).data.status = 'statusOK'
             }
           }
           // We paint it white
-          this.gridApi.redrawRows({ rowNodes: [row] });
+          this.gridApi.redrawRows({rowNodes: [row]});
 
-        }
-        else {
+        } else {
           this.paintCells(params, this.changesMap);
         }
 
-      }
-      else if (currentChanges > 1) // The cell isn't in his initial state yet
+      } else if (currentChanges > 1) // The cell isn't in his initial state yet
       {                                 //We can't do else because we can be doing an undo without changes
         this.changesMap.get(params.node.id).set(params.colDef.field, (currentChanges - 1));
 
@@ -1145,12 +1237,14 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
       }
       this.previousChangeCounter--;  //We decrement previousChangeCounter because we have done undo
-    }
-    else { // Control of modifications without changes
+    } else { // Control of modifications without changes
       if (!(params.oldValue == null && params.value === '')) {
         let newValue: string;
-        if (params.value == null) { newValue = '' }
-        else { newValue = params.value.toString() }
+        if (params.value == null) {
+          newValue = ''
+        } else {
+          newValue = params.value.toString()
+        }
 
         if ((params.oldValue != undefined && params.oldValue.toString() !== newValue.toString()) || ((params.oldValue == undefined) && newValue != null)) {
 
@@ -1163,11 +1257,13 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
             this.gridApi.undoRedoService.isFilling = false;
             this.onCellEditingStopped(params);
           }
+        } else {
+          this.modificationWithoutChanges(params)
         }
-        else { this.modificationWithoutChanges(params) }
 
+      } else {
+        this.modificationWithoutChanges(params)
       }
-      else { this.modificationWithoutChanges(params) }
     }
   }
 
@@ -1184,18 +1280,19 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         this.gridApi.undoCellEditing(); // Undo to delete the change without changes internally
         this.undoNoChanges = true;
         this.paintCells(params, this.changesMap);  //The cell has modifications yet -> green background
+      } else {
+        this.undoNoChanges = false;
       }
-      else { this.undoNoChanges = false; }
 
 
-    }
-    else {
+    } else {
       //With the internally undo will enter at this function, so we have to control when done the undo or not
       if (!this.undoNoChanges) {
         this.gridApi.undoCellEditing(); // Undo to delete the change internally
         this.undoNoChanges = true;
+      } else {
+        this.undoNoChanges = false;
       }
-      else { this.undoNoChanges = false; }
     }
 
   }
@@ -1210,7 +1307,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     const row = this.gridApi.getDisplayedRowAtIndex(params.rowIndex);
 
     // this.changeCellStyleColumns(params, changesMap, '#E8F1DE');
-    this.gridApi.redrawRows({ rowNodes: [row] });
+    this.gridApi.redrawRows({rowNodes: [row]});
     // this.changeCellStyleColumns(params, changesMap, '#FFFFFF');
     // We will define cellStyle white to future modifications (like filter)
   }
@@ -1226,6 +1323,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   // }
 
   @Input() redraw!: boolean;
+
   @Input() eventReplaceAllItemsSubscription!: Observable<any>;
 
   /**
