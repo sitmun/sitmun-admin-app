@@ -30,15 +30,15 @@ export class AppComponent {
     /** Configuration parameters service */public configurationParametersService: ConfigurationParametersService
     ) {
     this.translate = trans;
+  }
 
-    if(localStorage.getItem('lang') != undefined)
-    {
-      this.translate.setDefaultLang(localStorage.getItem('lang'));
-      this.translate.use(localStorage.getItem('lang'));
-    }
+  /** On component init, get logged user account*/
+  async ngOnInit() {
+    await this.loadLanguages();
+    await this.loadConfiguration();
 
-    // Listen for browser language changes
-    window.addEventListener('languagechange', () => {
+    // Set initial language based on browser preference if not logged in
+    if (!this.authService.getToken()) {
       const navigatorLang = window.navigator.language.toLowerCase();
       const baseLang = navigatorLang.replace(/-[A-Z]+$/, '');
       const defaultLang = config.languagesToUse.find(lang => 
@@ -47,7 +47,66 @@ export class AppComponent {
       
       this.translate.use(defaultLang);
       this.translate.setDefaultLang(defaultLang);
-      localStorage.setItem('lang', defaultLang);
+    } else if (localStorage.getItem('lang') != undefined) {
+      this.translate.setDefaultLang(localStorage.getItem('lang'));
+      this.translate.use(localStorage.getItem('lang'));
+    }
+
+    // Listen for browser language changes
+    window.addEventListener('languagechange', () => {
+      if (!this.authService.getToken()) {
+        const navigatorLang = window.navigator.language.toLowerCase();
+        const baseLang = navigatorLang.replace(/-[A-Z]+$/, '');
+        const defaultLang = config.languagesToUse.find(lang => 
+          lang.shortname.toLowerCase() === baseLang
+        )?.shortname || config.defaultLang;
+        
+        this.translate.use(defaultLang);
+        this.translate.setDefaultLang(defaultLang);
+      }
+    });
+
+    if(this.authService.getToken()){
+      this.principal.identity().then((account) => {
+        this.currentAccount = account;
+      });
+    }
+  }
+
+  //Load from server all languages that we will use
+  async loadLanguages() {
+    return new Promise<void>((resolve) => {
+      this.languageService.getAll().subscribe(
+        result => {
+          result.sort((a,b) => a.shortname.localeCompare(b.shortname));
+          result.forEach(language => {
+            config.languagesObjects[language.shortname] = language;
+          });
+          if(!localStorage.getItem('languages')){
+            localStorage.setItem('languages', JSON.stringify(result));
+          }
+          config.languagesToUse = result;
+          resolve();
+        }
+      );
+    });
+  }
+
+  async loadConfiguration() {
+    return new Promise<void>((resolve) => {
+      this.configurationParametersService.getAll().subscribe(
+        result => {
+          let defaultLang = result.find(element => element.name == 'language.default');
+          if(defaultLang){
+            config.defaultLang = defaultLang.value;
+            if(!localStorage.getItem('lang')){
+              this.translate.setDefaultLang(defaultLang.value);
+              this.translate.use(defaultLang.value);
+            }
+          }
+          resolve();
+        }
+      );
     });
   }
 
@@ -69,55 +128,5 @@ export class AppComponent {
   isLoggedIn() {
     return this.principal.isAuthenticated();
   }
-
-  /** On component init, get logged user account*/
-  ngOnInit() {
-
-    if(this.authService.getToken()){
-      this.principal.identity().then((account) => {
-        this.currentAccount = account;
-      });
-    }
-    this.loadConfiguration();
-    this.loadLanguages();
-  }
-
-     //Load from server all languages that we will use
-     async loadLanguages(){
-      await this.languageService.getAll().subscribe(
-        async result => {
-          result.sort((a,b) => a.shortname.localeCompare(b.shortname));
-          result.forEach(language => {
-            config.languagesObjects[language.shortname]=language;
-          });
-          if(! localStorage.getItem(('languages'))){
-            localStorage.setItem('languages', JSON.stringify(result));
-          }
-
-          config.languagesToUse = result;
-        }
-      )
-    }
-
-    async loadConfiguration(){
-
-        this.configurationParametersService.getAll().subscribe(
-          async result => {
-              let defaultLang = result.find(element => element.name == 'language.default' )
-              if(defaultLang){
-                config.defaultLang = defaultLang.value;
-
-                if(!localStorage.getItem('lang')){
-                  this.translate.setDefaultLang(defaultLang.value);
-                  this.translate.use(defaultLang.value);
-                }
-
-              }
-
-            
-          }
-        )
-    }
-
 }
 
