@@ -24,8 +24,7 @@
   [dynamicHeight]="true"
   preserveContent="true"
   (selectedTabChange)="onTabChange($event)">
-  >
-  <mat-tab label="{{'taskGroupEntity.generalData' | translate}}">
+  <mat-tab label="{{ 'common.form.details' | translate }}">
     <mat-card appearance="outlined">
       <mat-card-content>
         <form [formGroup]='formtaskGroup'>

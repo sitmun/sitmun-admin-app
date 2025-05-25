@@ -76,7 +76,6 @@
   },
   "sideMenu": {
     "basics": "Basiques",
-    "generalData": "Donades Generaus",
     "connection": "Connexion",
     "service": "Servici",
     "layers": "Capes",
@@ -86,7 +85,6 @@
     "territory": "Territòri",
     "role": "Ròtle",
     "user": "Usatgèr",
-    "tasks": "Trabalhs",
     "tasksDownload": "Descarga",
     "tasksDocument": "Document",
     "tasksQuery": "Consulta",
@@ -108,7 +106,6 @@
   "dashboard": {
     "newUsers": "Naui usatgèrs",
     "services": "Servicis",
-    "tasks": "Trabalhs",
     "territories": "Territòris",
     "cartographies": "Cartografies",
     "applications": "Aplicacions",
@@ -119,7 +116,6 @@
     "users": "Usatgèrs"
   },
   "userEntity": {
-    "generalData": "Donades Generaus",
     "user": "Usatgèr",
     "firstname": "Nòm",
     "name": "Nòm",
@@ -152,13 +148,11 @@
     "invalidEmailFormat": "Per plaser, introdusetz un format de corrèu electronic valid"
   },
   "connectionEntity": {
-    "generalData": "Donades Generaus",
     "user": "Usatgèr",
     "name": "Nòm",
     "driver": "Driver",
     "connection": "Connexion",
     "password": "Clau",
-    "tasks": "Trabalhs",
     "cartography": "Cartografia",
     "layers": "Capes",
     "code": "Còdi",
@@ -168,7 +162,6 @@
     "passwordIsSet": "Senhal establèrt"
   },
   "serviceEntity": {
-    "generalData": "Donades Generaus",
     "service": "Servici",
     "name": "Nòm",
     "type": "Tipe",
@@ -237,7 +230,6 @@
     "defaultInformation": "Informacion per defècte",
     "informationLayer": "Capa informacion",
     "thematic": "Tematizable",
-    "generalData": "Donades Generaus",
     "municipalFilter": "Filtre Municipau",
     "alias": "Àlies",
     "status": "Estat",
@@ -263,7 +255,6 @@
   },
   "layersPermitsEntity": {
     "applications": "Aplicacions",
-    "generalData": "Donades Generaus",
     "layersPermits": "Permisi sus es capes",
     "name": "Nòm",
     "type": "Tipe",
@@ -276,7 +267,6 @@
     "status": "Estat"
   },
   "treesEntity": {
-    "generalData": "Donades Generaus",
     "serviceName": "Servei",
     "trees": "Arbes",
     "name": "Nòm",
@@ -285,7 +275,6 @@
     "radio": "Radio",
     "visible": "Visible",
     "cartography":"Cartografia",
-    "task": "Trabalh",
     "metadataURL":"URL de metadades",
     "datasetURL": "URL de donades",
     "description":"Descripcion",
@@ -317,7 +306,6 @@
     "roles": "Ròtles"
   },
   "taskGroupEntity": {
-    "generalData": "Donades Generaus",
     "taskGroup": "Grop trabalh",
     "name": "Nòm",
     "status": "Estat"
@@ -325,7 +313,6 @@
   "backgroundEntity": {
     "roles": "Ròtles qu'an permís d'accès sus aguest mapa de hons",
     "cartographiesConfiguration": "Capes que formen part d'aguest mapa de hons",
-    "generalData": "Donades Generaus",
     "backgroundLayers": "Capes de hons",
     "name": "Nòm",
     "description": "Descripcion",
@@ -337,7 +324,6 @@
   },
   "applicationEntity": {
     "configurationParameters": "Paramètres de configuracion",
-    "generalData": "Donades Generaus",
     "application": "Aplicacion",
     "name": "Nòm",
     "description": "Descripcion",
@@ -375,7 +361,6 @@
     "accessChildrenTerritory": "Los ròtles territorials s'aplican als territòris descendents"
   },
   "territoryEntity": {
-    "generalData": "Donades Generaus",
     "territory": "Territòri",
     "territories": "Territòris",
     "code": "Còdi",
@@ -400,8 +385,6 @@
     "permissions": "Ròtles e usatgèrs damb accès ad aguest territòri",
     "permissionsChildren": "Permisi hilhs",
     "cartography": "Capes tàs quaus a accès aguest territòri",
-    "task": "Trabalh",
-    "tasks": "Trabalhs es quaus a accès aguest territòri",
     "user": "Usatgèr",
     "role": "Ròtle",
     "users": "Usatgèrs",
@@ -418,7 +401,6 @@
   },
   "roleEntity": {
     "permissions": "Combinason de territòri e usatgèrs",
-    "generalData": "Donades Generaus",
     "role": "Ròtle",
     "note": "Observacions",
     "name": "Nòm",
@@ -426,7 +408,6 @@
     "users": "Usatgèrs",
     "cartography": "Cartografia",
     "permissiongroupLayersConfiguration": "Capes tàs quaus a accès aguest ròtle",
-    "tasks": "Trabalhs entàs quaus a accès aguest ròtle",
     "username": "Nòm d'usatgèr",
     "territory": "Territòri",
     "territories": "Territòris",
@@ -440,9 +421,6 @@
     "value": "Valor"
   },
   "tasksEntity": {
-    "generalData": "Donades Generaus",
-    "tasks": "Trabalhs",
-    "task": "Trabalh",
     "name": "Nòm",
     "informationType": "Tipe d'informacion",
     "groupTask": "Grop trabalh",
@@ -553,10 +531,8 @@
     "url": "Url"
   },
   "tasksQueryEntity": {
-    "generalData": "Donades Generaus",
     "tasksQuery": "Trabalhs-Consultes",
     "name": "Nòm",
-    "task": "Trabalh",
     "informationType": "Tipe d'informacion",
     "accessType": "Tipe d'accès",
     "command": "Comanda",
@@ -577,7 +553,6 @@
     "taskName": "Nòm trabalh"
   },
   "tasksDownloadEntity": {
-    "generalData": "Donades Generaus",
     "tasksDownload": "Trabalhs-Descarga",
     "informationType": "Tipe d'informacion",
     "name": "Nòm",
@@ -585,7 +560,6 @@
     "application": "Aplicacion",
     "code": "Còdi",
     "note": "Observacions",
-    "task": "Trabalh",
     "groupTask": "Grop trabalh",
     "path": "Path",
     "extent": "Extension",
@@ -595,9 +569,7 @@
     "taskName": "Nòm trabalh"
   },
   "tasksDocumentEntity": {
-    "generalData": "Donades Generaus",
     "tasksDocument": "Trabalhs-Document",
-    "task": "Trabalh",
     "informationType": "Tipe d'informacion",
     "path": "Path",
     "extent": "Extension",
@@ -615,7 +587,6 @@
     "roles": "Ròtles"
   },
   "tasksEditionEntity": {
-    "generalData": "Donades Generaus",
     "tasksEdition": "Trabalhs-Edicion",
     "name": "Nòm",
     "associatedLayer": "Capa restacada",
@@ -651,7 +622,6 @@
     "taskName": "Nòm trabalh"
   },
   "tasksExtractionFMEEntity": {
-    "generalData": "Donades Generaus",
     "tasksExtractionFME": "Trabalhs-Extraccion FME",
     "cartography": "Cartografia",
     "service": "Servici",
@@ -668,9 +638,7 @@
     "taskName": "Nòm trabalh"
   },
   "tasksLocatorEntity": {
-    "generalData": "Donades Generaus",
     "tasksLocator": "Trabalhs-Localizador",
-    "task": "Trabalh",
     "informationType": "Tipe d'informacion",
     "accessType": "Tipe d'accès",
     "command": "Comanda",
@@ -692,9 +660,7 @@
     "taskName": "Nòm trabalh"
   },
   "tasksMoreInfoEntity": {
-    "generalData": "Donades Generaus",
     "tasksMoreInfo": "Trabalhs-Mès informacion",
-    "task": "Trabalh",
     "informationType": "Tipe d'informacion",
     "accessType": "Tipe d'accès",
     "command": "Comanda",
@@ -717,9 +683,7 @@
     "taskName": "Nòm trabalh"
   },
   "tasksReportEntity": {
-    "generalData": "Donades Generaus",
     "tasksReport": "Trabalhs-Repòrt",
-    "task": "Trabalh",
     "informationType": "Tipe d'informacion",
     "template": "Modèl",
     "taskGroup": "Grop trabalh",
@@ -735,7 +699,6 @@
     "taskName": "Nòm trabalh"
   },
   "tasksThematicEntity": {
-    "generalData": "Donades Generaus",
     "tasksThematic": "Trabalhs-Tematic",
     "name": "Nòm",
     "origin": "Origina",
@@ -813,5 +776,37 @@
   "noRowsToShow": "Non i a hilères entà mostrar",
   "enabled": "Activat",
   "disabled": "Desactivat",
-  "rowsToShow": "Registres tà mostrar"
+  "rowsToShow": "Registres tà mostrar",
+  "common": {
+    "form": {
+      "details": "Detalhs",
+      "name": "Nòm",
+      "password": {
+        "label": "Clau",
+        "set": "Clau introdusida"
+      },
+      "status": "Estat"
+    }
+  },
+  "entity": {
+    "connection": {
+      "label": "Connexion",
+      "driver": "Driver JDBC"
+    },
+    "task": {
+      "label": "Trabalh",
+      "plural": "Trabalhs"
+    },
+    "taskGroup": {
+      "label": "Grop trabalh"
+    },
+    "user": {
+      "label": "Usatgèr"
+    },
+    "button": {
+      "validate": {
+        "label": "Valida"
+      }
+    }
+  }
 }

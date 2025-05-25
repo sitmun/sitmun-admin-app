@@ -76,7 +76,6 @@
   },
   "sideMenu": {
     "basics": "Bàsiques",
-    "generalData": "Dades Generals",
     "connection": "Connexió",
     "service": "Servei",
     "layers": "Capes",
@@ -86,8 +85,7 @@
     "territory": "Territori",
     "role": "Rol",
     "user": "Usuari",
-    "tasks": "Tasques",
-    "tasksDownload": "Descàrrega",
+    "tasksDownload": "Descarrega",
     "tasksDocument": "Document",
     "tasksQuery": "Consulta",
     "tasksMoreInformation": "Més informació",
@@ -108,7 +106,6 @@
   "dashboard": {
     "newUsers": "Nous usuaris",
     "services": "Serveis",
-    "tasks": "Tasques",
     "territories": "Territoris",
     "cartographies": "Cartografies",
     "applications": "Aplicacions",
@@ -119,7 +116,6 @@
     "users": "Usuaris"
   },
   "userEntity": {
-    "generalData": "Dades Generals",
     "user": "Usuari",
     "firstname": "Nom",
     "name": "Nom",
@@ -152,13 +148,11 @@
     "invalidEmailFormat": "Si us plau, introduïu un format de correu electrònic vàlid"
   },
   "connectionEntity": {
-    "generalData": "Dades Generals",
     "user": "Usuari",
     "name": "Nom",
     "driver": "Driver",
     "connection": "Connexió",
     "password": "Contrasenya",
-    "tasks": "Tasques",
     "cartography": "Cartografia",
     "layers": "Capes",
     "code": "Codi",
@@ -168,7 +162,6 @@
     "passwordIsSet": "Contrasenya establerta"
   },
   "serviceEntity": {
-    "generalData": "Dades Generals",
     "service": "Servei",
     "name": "Nom",
     "type": "Tipus",
@@ -237,7 +230,6 @@
     "defaultInformation": "Informació per defecte",
     "informationLayer": "Capa informació",
     "thematic": "Tematitzable",
-    "generalData": "Dades Generals",
     "municipalFilter": "Filtre Municipal",
     "alias": "Àlies",
     "status": "Estat",
@@ -263,7 +255,6 @@
   },
   "layersPermitsEntity": {
     "applications": "Aplicacions",
-    "generalData": "Dades Generals",
     "layersPermits": "Permisos sobre les capes",
     "name": "Nom",
     "type": "Tipus",
@@ -276,7 +267,6 @@
     "status": "Estat"
   },
   "treesEntity": {
-    "generalData": "Dades Generals",
     "serviceName": "Servei",
     "trees": "Arbres",
     "name": "Nom",
@@ -285,7 +275,6 @@
     "radio": "Radio",
     "visible": "Visible",
     "cartography":"Cartografia",
-    "task":"Tasca",
     "metadataURL":"URL de metadades",
     "datasetURL": "URL de dades",
     "description":"Descripció",
@@ -317,7 +306,6 @@
     "roles": "Rols"
   },
   "taskGroupEntity": {
-    "generalData": "Dades Generals",
     "taskGroup": "Grup tasca",
     "name": "Nom",
     "status": "Estat"
@@ -325,7 +313,6 @@
   "backgroundEntity": {
     "roles": "Rols que tenen permís d'accés sobre aquest mapa de fons",
     "cartographiesConfiguration": "Capes que formen part d'aquest mapa de fons",
-    "generalData": "Dades Generals",
     "backgroundLayers": "Capes de fons",
     "name": "Nom",
     "description": "Descripció",
@@ -337,7 +324,6 @@
   },
   "applicationEntity": {
     "configurationParameters": "Paràmetres de configuració",
-    "generalData": "Dades Generals",
     "application": "Aplicació",
     "name": "Nom",
     "description": "Descripció",
@@ -375,7 +361,6 @@
     "accessChildrenTerritory": "Els rols territorials s'apliquen als territoris fills"
   },
   "territoryEntity": {
-    "generalData": "Dades Generals",
     "territory": "Territori",
     "territories": "Territoris",
     "code": "Codi",
@@ -385,7 +370,7 @@
     "createdDate": "Data alta",
     "administrator": "Administrador",
     "email": "Correu",
-    "address": "Direcció",
+    "address": "Adreça",
     "groupType": "Grup tipus",
     "territoryType": "Tipus",
     "extentMinX": "Extensió (min X)",
@@ -399,9 +384,7 @@
     "members": "Territoris fills",
     "permissions": "Rols i usuaris amb accés a aquest territori",
     "permissionsChildren": "Permisos fills",
-    "cartography": "Capes a les quals té accés aquest territori",
-    "task": "Tasca",
-    "tasks": "Tasques a les quals té accés aquest territori",
+    "cartography": "Cartografia",
     "user": "Usuari",
     "role": "Rol",
     "users": "Usuaris",
@@ -417,16 +400,14 @@
     "centerPointY": "Centre (Y)"
   },
   "roleEntity": {
-    "permissions": "Combinació de territori i usuaris",
-    "generalData": "Dades Generals",
+    "permissions": "Combinació de territoris i usuaris",
     "role": "Rol",
     "note": "Observacions",
     "name": "Nom",
-    "applications": "Aplicacions a les quals té accés aquest rol",
+    "applications": "Aplicacions a les que té accés aquest rol",
     "users": "Usuaris",
     "cartography": "Cartografia",
     "permissiongroupLayersConfiguration": "Capes a les que té accés aquest rol",
-    "tasks": "Tasques a les quals té accés aquest rol",
     "username": "Nom d'usuari",
     "territory": "Territori",
     "territories": "Territoris",
@@ -440,9 +421,6 @@
     "value": "Valor"
   },
   "tasksEntity": {
-    "generalData": "Dades Generals",
-    "tasks": "Tasques",
-    "task": "Tasca",
     "name": "Nom",
     "informationType": "Tipus d'informació",
     "groupTask": "Grup tasca",
@@ -559,10 +537,8 @@
     "null": "Nul"
   },
   "tasksQueryEntity": {
-    "generalData": "Dades Generals",
     "tasksQuery": "Tasques-Consultes",
     "name": "Nom",
-    "task": "Tasca",
     "informationType": "Tipus d'informació",
     "accessType": "Tipus d'accés",
     "command": "Comanda",
@@ -583,7 +559,6 @@
     "taskName": "Nom tasca"
   },
   "tasksDownloadEntity": {
-    "generalData": "Dades Generals",
     "tasksDownload": "Tasques-Descàrrega",
     "informationType": "Tipus d'informació",
     "name": "Nom",
@@ -591,7 +566,6 @@
     "application": "Aplicació",
     "code": "Codi",
     "note": "Observacions",
-    "task": "Tasca",
     "groupTask": "Grup tasca",
     "path": "Path",
     "extent": "Extensió",
@@ -601,9 +575,7 @@
     "taskName": "Nom tasca"
   },
   "tasksDocumentEntity": {
-    "generalData": "Dades Generals",
     "tasksDocument": "Tasques-Document",
-    "task": "Tasca",
     "informationType": "Tipus d'informació",
     "path": "Path",
     "extent": "Extensió",
@@ -621,7 +593,6 @@
     "roles": "Rols"
   },
   "tasksEditionEntity": {
-    "generalData": "Dades Generals",
     "tasksEdition": "Tasques-Edició",
     "name": "Nom",
     "associatedLayer": "Capa associada",
@@ -657,7 +628,6 @@
     "taskName": "Nom tasca"
   },
   "tasksExtractionFMEEntity": {
-    "generalData": "Dades Generals",
     "tasksExtractionFME": "Tasques-Extracció FME",
     "cartography": "Cartografia",
     "service": "Servei",
@@ -674,9 +644,7 @@
     "taskName": "Nom tasca"
   },
   "tasksLocatorEntity": {
-    "generalData": "Dades Generals",
     "tasksLocator": "Tasques-Localitzador",
-    "task": "Tasca",
     "informationType": "Tipus d'informació",
     "accessType": "Tipus d'accés",
     "command": "Comanda",
@@ -698,9 +666,7 @@
     "taskName": "Nom tasca"
   },
   "tasksMoreInfoEntity": {
-    "generalData": "Dades Generals",
     "tasksMoreInfo": "Tasques-Més informació",
-    "task": "Tasca",
     "informationType": "Tipus d'informació",
     "accessType": "Tipus d'accés",
     "command": "Comanda",
@@ -723,9 +689,7 @@
     "taskName": "Nom tasca"
   },
   "tasksReportEntity": {
-    "generalData": "Dades Generals",
     "tasksReport": "Tasques-Informe",
-    "task": "Tasca",
     "informationType": "Tipus d'informació",
     "template": "Plantilla",
     "taskGroup": "Grup tasca",
@@ -741,7 +705,6 @@
     "taskName": "Nom tasca"
   },
   "tasksThematicEntity": {
-    "generalData": "Dades Generals",
     "tasksThematic": "Tasques-Temàtic",
     "name": "Nom",
     "origin": "Origen",
@@ -819,5 +782,37 @@
   "noRowsToShow": "No hi ha files per a mostrar",
   "enabled": "Activat",
   "disabled": "Desactivat",
-  "rowsToShow": "Registres a mostrar"
+  "rowsToShow": "Registres a mostrar",
+  "common": {
+    "form": {
+      "details": "Detalls",
+      "name": "Nom",
+      "password": {
+        "label": "Contrasenya",
+        "set": "Contrasenya establerta"
+      },
+      "status": "Estat"
+    }
+  },
+  "entity": {
+    "connection": {
+      "label": "Connexió",
+      "driver": "Controlador JDBC"
+    },
+    "task": {
+      "label": "Tasca",
+      "plural": "Tasques"
+    },
+    "taskGroup": {
+      "label": "Grup de tasques"
+    },
+    "user": {
+      "label": "Usuari"
+    }
+  },
+  "button": {
+    "validate": {
+      "label": "Validar"
+    }
+  }
 }

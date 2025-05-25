@@ -76,7 +76,6 @@
   },
   "sideMenu": {
     "basics": "Básicas",
-    "generalData": "Datos Generales",
     "connection": "Conexión",
     "service": "Servicio",
     "layers": "Capas",
@@ -86,7 +85,6 @@
     "territory": "Territorio",
     "role": "Rol",
     "user": "Usuario",
-    "tasks": "Tareas",
     "tasksDownload": "Descarga",
     "tasksDocument": "Documento",
     "tasksQuery": "Consulta",
@@ -108,7 +106,6 @@
   "dashboard": {
     "newUsers": "Nuevos usuarios",
     "services": "Servicios",
-    "tasks": "Tareas",
     "territories": "Territorios",
     "cartographies": "Cartografías",
     "applications": "Aplicaciones",
@@ -119,7 +116,6 @@
     "users": "Usuarios"
   },
   "userEntity": {
-    "generalData": "Datos Generales",
     "user": "Usuario",
     "firstname": "Nombre",
     "name": "Nombre",
@@ -152,13 +148,11 @@
     "invalidEmailFormat": "Por favor, introduzca un formato de correo electrónico válido"
   },
   "connectionEntity": {
-    "generalData": "Datos Generales",
     "user": "Usuario",
     "name": "Nombre",
     "driver": "Driver",
     "connection": "Conexión",
     "password": "Contraseña",
-    "tasks": "Tareas",
     "cartography": "Cartografía",
     "layers": "Capas",
     "code": "Código",
@@ -168,7 +162,6 @@
     "passwordIsSet": "Contraseña establecida"
   },
   "serviceEntity": {
-    "generalData": "Datos Generales",
     "service": "Servicio",
     "name": "Nombre",
     "type": "Tipo",
@@ -237,7 +230,6 @@
     "defaultInformation": "Información por defecto",
     "informationLayer": "Capa información",
     "thematic": "Tematitzable",
-    "generalData": "Datos Generales",
     "municipalFilter": "Filtro Municipal",
     "alias": "alias",
     "status": "Estado",
@@ -263,7 +255,6 @@
   },
   "layersPermitsEntity": {
     "applications": "Aplicaciones",
-    "generalData": "Datos Generales",
     "layersPermits": "Permisos sobre las capas",
     "name": "Nombre",
     "type": "Tipo",
@@ -276,7 +267,6 @@
     "status": "Estado"
   },
   "treesEntity": {
-    "generalData": "Datos Generales",
     "serviceName": "Servicio",
     "trees": "Árboles",
     "name": "Nombre",
@@ -285,7 +275,6 @@
     "radio": "Radio",
     "visible": "Visible",
     "cartography":"Cartografía",
-    "task": "Tarea",
     "metadataURL":"URL de metadatos",
     "datasetURL": "URL de datos",
     "description":"Descripción",
@@ -317,7 +306,6 @@
     "roles": "Roles"
   },
   "taskGroupEntity": {
-    "generalData": "Datos Generales",
     "taskGroup": "Grupo tarea",
     "name": "Nombre",
     "status": "Estado"
@@ -325,7 +313,6 @@
   "backgroundEntity": {
     "roles": "Roles que tienen permiso de acceso sobre este mapa de fondo",
     "cartographiesConfiguration": "Capas que forman parte de este mapa de fondo",
-    "generalData": "Datos Generales",
     "backgroundLayers": "Capas de fondo",
     "name": "Nombre",
     "description": "Descripción",
@@ -337,7 +324,6 @@
   },
   "applicationEntity": {
     "configurationParameters": "Parámetros de configuración",
-    "generalData": "Datos Generales",
     "application": "Aplicación",
     "name": "Nombre",
     "description": "Descripción",
@@ -375,7 +361,6 @@
     "accessChildrenTerritory": "Los roles territoriales se aplican a los territorios hijo"
   },
   "territoryEntity": {
-    "generalData": "Datos Generales",
     "territory": "Territorio",
     "territories": "Territories",
     "code": "Código",
@@ -399,8 +384,6 @@
     "permissions": "Roles y usuarios con acceso a este territorio",
     "permissionsChildren": "Permisos hijos",
     "cartography": "Cartografía",
-    "task": "Tareas con acceso a este territorio",
-    "tasks": "Tareas",
     "user": "Usuario",
     "role": "Rol",
     "users": "Usuarios",
@@ -417,7 +400,6 @@
   },
   "roleEntity": {
     "permissions": "Combinación de territorios y usuarios",
-    "generalData": "Datos Generales",
     "role": "Rol",
     "note": "Observaciones",
     "name": "Nombre",
@@ -425,7 +407,6 @@
     "users": "Usuarios",
     "cartography": "Cartografía",
     "permissiongroupLayersConfiguration": "Capas a las que tiene acceso este rol",
-    "tasks": "Tareas a las que tiene acceso este rol",
     "username": "Nombre de usuario",
     "territory": "Territorio",
     "territories": "Territorios",
@@ -439,9 +420,6 @@
     "value": "Valor"
   },
   "tasksEntity": {
-    "generalData": "Datos Generales",
-    "tasks": "Tareas",
-    "task": "Tarea",
     "name": "Nombre",
     "informationType": "Tipo de información",
     "groupTask": "Grupo tarea",
@@ -555,10 +533,8 @@
     "null": "Nulo"
   },
   "tasksQueryEntity": {
-    "generalData": "Datos Generales",
     "tasksQuery": "Tareas-Consultas",
     "name": "Nombre",
-    "task": "Tarea",
     "informationType": "Tipo de información",
     "accessType": "Tipo de acceso",
     "command": "Pedido",
@@ -579,7 +555,6 @@
     "taskName": "Nombre tarea"
   },
   "tasksDownloadEntity": {
-    "generalData": "Datos Generales",
     "tasksDownload": "Tareas-Descarga",
     "informationType": "Tipo de información",
     "name": "Nombre",
@@ -587,7 +562,6 @@
     "application": "Aplicación",
     "code": "Código",
     "noto": "Observaciones",
-    "task": "Tarea",
     "groupTask": "Grupo tarea",
     "path": "Path",
     "extent": "Extensión",
@@ -597,9 +571,7 @@
     "taskName": "Nombre tarea"
   },
   "tasksDocumentEntity": {
-    "generalData": "Datos Generales",
     "tasksDocument": "Tareas-Documento",
-    "task": "Tarea",
     "informationType": "Tipo de información",
     "path": "Path",
     "extent": "Extensión",
@@ -617,7 +589,6 @@
     "roles": "Roles"
   },
   "tasksEditionEntity": {
-    "generalData": "Datos Generales",
     "tasksEdition": "Tareas-Edición",
     "name": "Nombre",
     "associatedLayer": "Capa asociada",
@@ -653,7 +624,6 @@
     "taskName": "Nombre tarea"
   },
   "tasksExtractionFMEEntity": {
-    "generalData": "Datos Generales",
     "tasksExtractionFME": "Tareas-Extracción FME",
     "cartography": "Cartografía",
     "service": "Servicio",
@@ -670,9 +640,7 @@
     "taskName": "Nombre tarea"
   },
   "tasksLocatorEntity": {
-    "generalData": "Datos Generales",
     "tasksLocator": "Tareas-Localizador",
-    "task": "Tarea",
     "informationType": "Tipo de información",
     "accessType": "Tipo de acceso",
     "command": "Pedido",
@@ -694,9 +662,7 @@
     "taskName": "Nombre tarea"
   },
   "tasksMoreInfoEntity": {
-    "generalData": "Datos Generales",
     "tasksMoreInfo": "Tareas-Más información",
-    "task": "Tarea",
     "informationType": "Tipo de información",
     "accessType": "Tipo de acceso",
     "command": "Pedido",
@@ -719,9 +685,7 @@
     "taskName": "Nombre tarea"
   },
   "tasksReportEntity": {
-    "generalData": "Datos Generales",
     "tasksReport": "Tareas-Informe",
-    "task": "Tarea",
     "informationType": "Tipo de información",
     "template": "Plantilla",
     "taskGroup": "Grupo tarea",
@@ -737,7 +701,6 @@
     "taskName": "Nombre tarea"
   },
   "tasksThematicEntity": {
-    "generalData": "Datos Generales",
     "tasksThematic": "Tareas-Temático",
     "name": "Nombre",
     "origin": "Origen",
@@ -815,5 +778,37 @@
   "noRowsToShow": "No hay filas para mostrar",
   "enabled": "Activado",
   "disabled": "Desactivado",
-  "rowsToShow": "Registros a mostrar"
+  "rowsToShow": "Registros a mostrar",
+  "common": {
+    "form": {
+      "details": "Detalles",
+      "name": "Nombre",
+      "password": {
+        "label": "Contraseña",
+        "set": "Contraseña establecida"
+      },
+      "status": "Estado"
+    }
+  },
+  "entity": {
+    "connection": {
+      "label": "Conexión",
+      "driver": "Controlador JDBC"
+    },
+    "task": {
+      "label": "Tarea",
+      "plural": "Tareas"
+    },
+    "taskGroup": {
+      "label": "Grupo de tareas"
+    },
+    "user": {
+      "label": "Usuario"
+    }
+  },
+  "button": {
+    "validate": {
+      "label": "Validar"
+    }
+  }
 }

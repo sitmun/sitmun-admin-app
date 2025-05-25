@@ -11,8 +11,7 @@
   mat-align-tabs="end"
   [dynamicHeight]="true"
   preserveContent="true">
-  >
-  <mat-tab label="{{'backgroundEntity.generalData' | translate}}">
+  <mat-tab label="{{ 'common.form.details' | translate }}">
     <form [formGroup]='entityForm' (ngSubmit)="onSaveButtonClicked()" *ngIf="dataLoaded">
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
         <mat-card-content>

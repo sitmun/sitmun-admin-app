@@ -12,8 +12,7 @@
   [dynamicHeight]="true"
   preserveContent="true"
   (selectedTabChange)="onTabChange($event)">
-  >
-  <mat-tab label="{{'territoryEntity.generalData' | translate}} ">
+  <mat-tab label="{{ 'common.form.details' | translate }}">
     <form [formGroup]='territoryForm' *ngIf="dataLoaded">
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
         <mat-card-content>

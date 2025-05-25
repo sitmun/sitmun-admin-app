@@ -1,6 +1,6 @@
 <app-form-toolbar
   icon="menu_connexio"
-  entityType="connectionEntity.connection"
+  entityType="entity.connection.label"
   [itemName]="itemName('name')"
   [isNew]="isNewOrDuplicated()"
   (save)="onSaveButtonClicked()"
@@ -12,21 +12,20 @@
   mat-align-tabs="end"
   [dynamicHeight]="true"
   preserveContent="true">
-  >
-  <mat-tab label="{{ 'connectionEntity.generalData' | translate }}">
+  <mat-tab label="{{ 'common.form.details' | translate }}">
     <form [formGroup]='entityForm' *ngIf="dataLoaded">
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
-            <mat-label> {{ 'connectionEntity.name' | translate }}</mat-label>
+            <mat-label> {{ 'common.form.name' | translate }}</mat-label>
             <input matInput type="text" formControlName="name" required [maxlength]="50">
             <mat-hint align="end">
               {{entityForm.get('name') | characterCount}}
             </mat-hint>
         </mat-form-field>
           <mat-form-field appearance="outline" class="half">
+            <mat-label>{{ 'entity.connection.driver' | translate }}</mat-label>
             <mat-select matInput formControlName="driver">
-              <mat-label>{{ 'connectionEntity.driver' | translate }}</mat-label>
               <mat-option [value]="driver.value" *ngFor="let driver of this.codeList('databaseConnection.driver')">
                 {{ driver.description }}
               </mat-option>
@@ -35,7 +34,7 @@
           <div class="break"></div>
 
           <mat-form-field appearance="outline" class="half add-gap">
-            <mat-label> {{ 'connectionEntity.user' | translate }}</mat-label>
+            <mat-label> {{ 'entity.user.label' | translate }}</mat-label>
             <input matInput type="text" formControlName="user" [maxlength]="50">
             <mat-hint align="end">
               {{entityForm.get('user') | characterCount}}
@@ -43,7 +42,7 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="half">
-            <mat-label>{{ 'connectionEntity.password' | translate }}</mat-label>
+            <mat-label>{{ 'common.form.password.label' | translate }}</mat-label>
             <input matInput
                    [formControlName]="'newPassword'"
                    [type]="'text'"
@@ -54,25 +53,30 @@
               {{entityForm.get('newPassword') | characterCount}}
             </mat-hint>
             <mat-hint *ngIf="!isPasswordBeingEdited && passwordSet" align="end">
-              {{ 'connectionEntity.passwordIsSet' | translate }}
+              {{ 'common.form.password.set' | translate }}
             </mat-hint>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'connectionEntity.connection' | translate }}</mat-label>
+            <mat-label>{{ 'entity.connection.label' | translate }}</mat-label>
             <input matInput type="text" formControlName="url" required [maxlength]="250">
             <mat-hint align="end">
               {{entityForm.get('url') | characterCount}}
             </mat-hint>
           </mat-form-field>
 
-          <button type="button" (click)="validateConnection()" mat-flat-button
-                  class="validateButton">{{ "validate" | translate }}
+          <button
+            mat-raised-button
+            class="sitmun-action-button"
+            type="button"
+            (click)="validateConnection()"
+          >
+          {{ "button.validate.label" | translate }}
           </button>
         </mat-card-content>
       </mat-card>
     </form>
   </mat-tab>
-  <mat-tab label="{{ 'connectionEntity.tasks' | translate }}">
+  <mat-tab label="{{ 'entity.task.plural' | translate }}">
     <app-data-grid [changeHeightButton]="true"
                    [allNewElements]="isNewOrDuplicated()"
                    [columnDefs]="tasksTable.relationsColumnsDefs"

@@ -73,19 +73,17 @@
     "fr": "Français"
   },
   "sideMenu": {
-    "basics": "Bases",
-    "generalData": "Données générales",
+    "basics": "Basiques",
     "connection": "Connexion",
     "service": "Service",
-    "layers": "Calques",
+    "layers": "Couches",
     "trees": "Arbres",
-    "backgroundLayers": "Calques d'arrière-plan",
-    "layersPermits": "Autorisations sur les calques",
+    "backgroundLayers": "Couches de fond",
+    "layersPermits": "Permissions sur les couches",
     "territory": "Territoire",
     "role": "Rôle",
     "user": "Utilisateur",
-    "tasks": "Tâches",
-    "tasksDownload": "Télécharger",
+    "tasksDownload": "Téléchargement",
     "tasksDocument": "Document",
     "tasksQuery": "Requête",
     "tasksMoreInformation": "Plus d'informations",
@@ -106,7 +104,6 @@
   "dashboard": {
     "newUsers": "Nouveaux utilisateurs",
     "services": "Services",
-    "tasks": "Tâches",
     "territories": "Territoires",
     "cartographies": "Cartographies",
     "applications": "Applications",
@@ -117,7 +114,6 @@
     "users": "Utilisateurs"
   },
   "userEntity": {
-    "generalData": "Données générale",
     "user": "Utilisateur",
     "firstname": "Prénom",
     "name": "Nom",
@@ -150,13 +146,11 @@
     "invalidEmailFormat": "Veuillez entrer un format de courriel valide"
   },
   "connectionEntity": {
-    "generalData": "Données générale",
     "user": "Utilisateur",
     "name": "Nom",
     "driver": "Pilote",
     "connection": "Connection",
     "password": "Mot de passe",
-    "tasks": "Tâches",
     "cartography": "Cartographie",
     "layers": "Calques",
     "code": "Code",
@@ -166,7 +160,6 @@
     "passwordIsSet": "Mot de passe défini"
   },
   "serviceEntity": {
-    "generalData": "Données générales",
     "service": "Service",
     "name": "Nom",
     "type": "Tapez",
@@ -235,7 +228,6 @@
     "defaultInformation": "Informations par défaut",
     "informationLayer": "Couche d'informations",
     "thematic": "Thematic",
-    "generalData": "Données générales",
     "municipalFilter": "Filtre municipal",
     "alias": "Alias",
     "status": "Statut",
@@ -261,7 +253,6 @@
   },
   "layersPermitsEntity": {
     "applications": "Applications",
-    "generalData": "Données générales",
     "layersPermits": "Autorisations sur les calques",
     "name": "Nom",
     "type": "Tapez",
@@ -274,7 +265,6 @@
     "status": "Statut"
   },
   "treesEntity": {
-    "generalData": "Données Générales",
     "serviceName": "Service",
     "trees": "Arbres",
     "name": "Nom",
@@ -283,7 +273,6 @@
     "radio": "Radio",
     "visible": "Visible",
     "cartography":"Cartographie",
-    "task": "Tâche",
     "metadataURL":"URL des métadonnées",
     "datasetURL": "URL des données",
     "description":"Description",
@@ -315,7 +304,6 @@
     "roles": "Rôles"
   },
   "taskGroupEntity": {
-    "generalData": "Données générales",
     "taskGroup": "Task group",
     "name": "Nom",
     "status": "Statut"
@@ -323,7 +311,6 @@
   "backgroundEntity": {
     "roles": "Rôles qui ont permission d'accès sur cette carte de fond",
     "cartographiesConfiguration": "Couches qu'ils font partie de cette carte de fond",
-    "generalData": "Données générales",
     "backgroundLayers": "Couches de fond",
     "name": "Name",
     "description": "Description",
@@ -335,7 +322,6 @@
   },
   "applicationEntity": {
     "configurationParameters": "Paramètres de configuration",
-    "generalData": "Données générales",
     "application": "Application",
     "name": "Nom",
     "description": "Description",
@@ -373,7 +359,6 @@
     "accessChildrenTerritory": "Les rôles territoriaux s'appliquent aux territoires descendants"
   },
   "territoryEntity": {
-    "generalData": "Données générales",
     "territory": "Territoire",
     "territories": "Territoires",
     "code": "Code",
@@ -398,8 +383,6 @@
     "permissions": "Rôles et utilisateurs avec accès à ce territoire",
     "permissionsChildren": "Autorisations enfants",
     "cartography": "Couches auxquelles a accès ce territoire",
-    "task": "Tâche",
-    "tasks": "Tâches auxquelles a accès ce territoire",
     "user": "Utilisateur",
     "role": "rôle",
     "users": "Utilisateurs",
@@ -416,7 +399,6 @@
   },
   "roleEntity": {
     "permissions": "Combinaison de territoire et utilisateurs",
-    "generalData": "Données générales",
     "role": "Rôle",
     "note": "Observations",
     "name": "Nom",
@@ -424,7 +406,6 @@
     "users": "Utilisateurs",
     "cartography": "Cartographie",
     "permissiongroupLayersConfiguration": "Couches à celles qu'a accès ce rôle",
-    "tasks": "Tâches auxquelles a accès ce rôle",
     "username": "Nom d'utilisateu",
     "territory": "Territoire",
     "territories": "Territories",
@@ -438,9 +419,6 @@
     "value": "Valeur"
   },
   "tasksEntity": {
-    "generalData": "Données générales",
-    "tasks": "Tâches",
-    "task": "Tâches",
     "name": "Nom",
     "informationType": "Type d'informatione",
     "groupTask": "Groupe de tâches",
@@ -551,10 +529,8 @@
     "url": "Url"
   },
   "tasksQueryEntity": {
-    "generalData": "Données générales",
     "tasksQuery": "Tasks-Queries",
     "name": "Name",
-    "task": "Task",
     "informationType": "Information Type",
     "accessType": "Access Type",
     "command": "Command",
@@ -578,7 +554,6 @@
     "application": "Application",
     "code": "Code",
     "extent": "Extension",
-    "generalData": "Données générales",
     "groupTask": "Groupe de Tâche",
     "informationType": "Type d'information",
     "name": "Nom",
@@ -587,7 +562,6 @@
     "path": "Chemin",
     "roles": "Rôles",
     "status": "Statut",
-    "task": "Tâche",
     "taskName": "Nom de tâche",
     "tasksDownload": "Tâche Téléchargement",
     "territories": "Territoires"
@@ -599,7 +573,6 @@
     "documentType": "Type de document",
     "edit": "Editer",
     "extent": "Extension",
-    "generalData": "Données générales",
     "groupTask": "Groupe de tâche",
     "informationType": "Type d'information",
     "name": "Nom",
@@ -607,7 +580,6 @@
     "path": "Chemin",
     "roles": "Rôles",
     "status": "Statut",
-    "task": "Tâche",
     "taskName": "Nom de tâche",
     "tasksDocument": "Tâche Document",
     "territories": "Territoires"
@@ -624,7 +596,6 @@
     "editionType": "Type d'édition",
     "emptyGeometryParameter": "Geometrie vide",
     "fieldName": "Champ nom",
-    "generalData": "Données générales",
     "help": "Aide",
     "id": "ID",
     "informationType": "Type d'information",
@@ -653,7 +624,6 @@
     "code": "Code",
     "dataCreated": "Date de création",
     "description": "Description",
-    "generalData": "Données générales",
     "layer": "Claque",
     "name": "Nom",
     "roles": "Rôles",
@@ -673,7 +643,6 @@
     "configurationParameters": "Paramète de configuration",
     "connection": "Connection",
     "description": "Description",
-    "generalData": "Données générales",
     "groupTask": "Groupe de tâche",
     "informationType": "Type d'information",
     "key": "Clé",
@@ -683,7 +652,6 @@
     "select": "Selection",
     "status": "Statut",
     "tag": "Etiquette",
-    "task": "Tâche",
     "taskName": "Nom de tâche",
     "tasksLocator": "Tâche Localisation",
     "territories": "Territoires",
@@ -697,7 +665,6 @@
     "configurationParameters": "Paramètre de configuration",
     "connection": "Connection",
     "description": "Description",
-    "generalData": "Données générales",
     "groupTask": "Groupe de tâche",
     "informationType": "Type d'information",
     "key": "Clé",
@@ -707,7 +674,6 @@
     "select": "Selection",
     "status": "Statut",
     "tag": "Étiquette",
-    "task": "Tâche",
     "taskName": "Noom de tâche",
     "tasksMoreInfo": "Tâche Plus d'information",
     "territories": "Territoires",
@@ -715,7 +681,6 @@
     "value": "Valeur"
   },
   "tasksReportEntity": {
-    "generalData": "Données générales",
     "id": "ID",
     "informationType": "Type d'information",
     "locator": "Localisation",
@@ -725,7 +690,6 @@
     "reportID": "ID du Rapport ",
     "roles": "Rôles",
     "status": "Statut",
-    "task": "Tâche",
     "taskGroup": "Groupe de tâche",
     "taskName": "nom de Tâche",
     "tasksReport": "Tâche Rapport",
@@ -739,7 +703,6 @@
     "creator": "Créateur",
     "dataCreated": "Date de création",
     "description": "Description",
-    "generalData": "Données générales",
     "name": "Nom",
     "origin": "Origine",
     "roles": "Rôles",
@@ -811,5 +774,37 @@
   "noRowsToShow": "Aucune ligne à afficher",
   "enabled": "Activé",
   "disabled": "Désactivé",
-  "rowsToShow": "Lignes à afficher"
+  "rowsToShow": "Lignes à afficher",
+  "common": {
+    "form": {
+      "details": "Détails",
+      "name": "Nom",
+      "password": {
+        "label": "Mot de passe",
+        "set": "Mot de passe défini"
+      },
+      "status": "Statut"
+    }
+  },
+  "entity": {
+    "connection": {
+      "label": "Connexion",
+      "driver": "Pilote JDBC"
+    },
+    "task": {
+      "label": "Tâche",
+      "plural": "Tâches"
+    },
+    "taskGroup": {
+      "label": "Groupe de tâches"
+    },
+    "user": {
+      "label": "Utilisateur"
+    }
+  },
+  "button": {
+    "validate": {
+      "label": "Valider"
+    }
+  }
 }

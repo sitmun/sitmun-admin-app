@@ -48,10 +48,10 @@ export class LoginComponent implements OnInit {
 
   identifyDefaultLanguage(): Language {
     const navigatorLang = window.navigator.language.toLowerCase();
+    // Remove region codes (e.g., 'en-US' -> 'en', 'oc-aranes' -> 'oc-aranes')
+    const baseLang = navigatorLang.replace(/-[A-Z]+$/, '');
     const defaultLang : string = this.langs.find((lang: Language) =>
-      lang.shortname.toLowerCase() === navigatorLang
-      ||
-      navigatorLang.startsWith(lang.shortname.toLowerCase()+"-")
+      lang.shortname.toLowerCase() === baseLang
     )?.shortname || config.defaultLang;
     return this.langs.find((lang: Language) => lang.shortname === defaultLang)
   }

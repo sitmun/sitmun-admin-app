@@ -12,8 +12,7 @@
   [dynamicHeight]="true"
   preserveContent="true"
   (selectedTabChange)="onTabChange($event)">
-  >
-  <mat-tab label="{{'treesEntity.generalData' | translate}}">
+  <mat-tab label="{{ 'common.form.details' | translate }}">
     <form [formGroup]='treeForm'>
       <mat-card appearance="outlined">
         <mat-card-content>

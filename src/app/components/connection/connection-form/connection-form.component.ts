@@ -209,11 +209,11 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
     return DataTableDefinition.builder<TaskProjection, TaskProjection>(this.dialog, this.errorHandler)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getRouterLinkColumnDef('connectionEntity.name', 'name', '/taskQuery/:id/:typeId', {
+        this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/taskQuery/:id/:typeId', {
           id: 'id',
           typeId: 'typeId'
         }),
-        this.utils.getNonEditableColumnDef('connectionEntity.groupName', 'groupName'),
+        this.utils.getNonEditableColumnDef('entity.taskGroup.label', 'groupName'),
       ])
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {

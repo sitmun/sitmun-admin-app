@@ -76,7 +76,6 @@
   },
   "sideMenu": {
     "basics": "Basics",
-    "generalData": "General Data",
     "connection": "Connection",
     "service": "Service",
     "layers": "Layers",
@@ -86,7 +85,6 @@
     "territory": "Territory",
     "role": "Role",
     "user": "User",
-    "tasks": "Tasks",
     "tasksDownload": "Download",
     "tasksDocument": "Document",
     "tasksQuery": "Query",
@@ -108,7 +106,6 @@
   "dashboard": {
     "newUsers": "New users",
     "services": "Services",
-    "tasks": "Tasks",
     "territories": "Territories",
     "cartographies": "Cartographies",
     "applications": "Applications",
@@ -119,7 +116,6 @@
     "users": "Users"
   },
   "userEntity": {
-    "generalData": "General Data",
     "user": "User",
     "firstname": "First name",
     "name": "Name",
@@ -151,24 +147,7 @@
     "invalidEmail": "Please enter a valid email address",
     "invalidEmailFormat": "Please enter a valid email format"
   },
-  "connectionEntity": {
-    "generalData": "General Data",
-    "user": "User",
-    "name": "Name",
-    "driver": "Driver",
-    "connection": "Connection",
-    "password": "Password",
-    "tasks": "Tasks",
-    "cartography": "Cartography",
-    "layers": "Layers",
-    "code": "Code",
-    "taskGroup": "Task group",
-    "typeName": "Type name",
-    "status": "Status",
-    "passwordIsSet": "Password is set"
-  },
   "serviceEntity": {
-    "generalData": "General Data",
     "service": "Service",
     "name": "Name",
     "type": "Type",
@@ -237,7 +216,6 @@
     "defaultInformation": "Default information",
     "informationLayer": "Information Layer",
     "thematic": "Thematic",
-    "generalData": "General Data",
     "municipalFilter": "Municipal Filter",
     "alias": "Alias",
     "status": "Status",
@@ -263,7 +241,6 @@
   },
   "layersPermitsEntity": {
     "applications": "Applications",
-    "generalData": "General Data",
     "layersPermits": "Permissions on layers",
     "name": "Name",
     "type": "Type",
@@ -276,7 +253,6 @@
     "status": "Status"
   },
   "treesEntity": {
-    "generalData": "General Data",
     "serviceName": "Service",
     "trees": "Trees",
     "name": "Name",
@@ -285,7 +261,6 @@
     "radio": "Radio",
     "visible": "Visible",
     "cartography":"Cartography",
-    "task": "Task",
     "metadataURL":"Metadata URL",
     "datasetURL": "Dataset URL",
     "description":"Description",
@@ -317,7 +292,6 @@
     "roles": "Roles"
   },
   "taskGroupEntity": {
-    "generalData": "General Data",
     "taskGroup": "Task group",
     "name": "Name",
     "status": "Status"
@@ -325,7 +299,6 @@
   "backgroundEntity": {
     "roles": "Roles that have permission to access this background map",
     "cartographiesConfiguration": "Layers that are part of this background map",
-    "generalData": "General Data",
     "backgroundLayers": "Background Layers",
     "name": "Name",
     "description": "Description",
@@ -337,7 +310,6 @@
   },
   "applicationEntity": {
     "configurationParameters": "Configuration parameters",
-    "generalData": "General Data",
     "application": "Application",
     "name": "Name",
     "description": "Description",
@@ -375,7 +347,6 @@
     "accessChildrenTerritory": "Territorial roles apply to child territories"
   },
   "territoryEntity": {
-    "generalData": "General Data",
     "territory": "Territory",
     "territories": "Territories",
     "code": "Code",
@@ -399,8 +370,6 @@
     "permissions": "Roles and users with access to this territory",
     "permissionsChildren": "Children permissions",
     "cartography": "Layers this territory has access to",
-    "task": "Task",
-    "tasks": "Tasks this territory has access to",
     "user": "User",
     "role": "role",
     "users": "Users",
@@ -418,7 +387,6 @@
   },
   "roleEntity": {
     "permissions": "Merge territory and user",
-    "generalData": "General Data",
     "role": "Role",
     "note": "Observations",
     "name": "Name",
@@ -426,7 +394,6 @@
     "users": "Users",
     "cartography": "Cartography",
     "permissiongroupLayersConfiguration": "Layers this role has access to",
-    "tasks": "Tasks this role has access to",
     "username": "Username",
     "territory": "Territory",
     "territories": "Territories",
@@ -440,9 +407,6 @@
     "value": "Value"
   },
   "tasksEntity": {
-    "generalData": "General Data",
-    "tasks": "Tasks",
-    "task": "Task",
     "name": "Name",
     "informationType": "Information Type",
     "groupTask": "GroupTask",
@@ -559,10 +523,8 @@
     "null": "Null"
   },
   "tasksQueryEntity": {
-    "generalData": "General Data",
     "tasksQuery": "Tasks-Queries",
     "name": "Name",
-    "task": "Task",
     "informationType": "Information Type",
     "accessType": "Access Type",
     "command": "Command",
@@ -583,7 +545,6 @@
     "taskName": "Task name"
   },
   "tasksDownloadEntity": {
-    "generalData": "General Data",
     "tasksDownload": "Tasks-Download",
     "informationType": "Information type",
     "name": "Name",
@@ -591,7 +552,6 @@
     "application": "Application",
     "code": "Code",
     "note": "Observations",
-    "task": "Task",
     "groupTask": "Group task",
     "path": "Path",
     "extent": "Extension",
@@ -601,9 +561,7 @@
     "taskName": "Task name"
   },
   "tasksDocumentEntity": {
-    "generalData": "General Data",
     "tasksDocument": "Tasks-Document",
-    "task": "Task",
     "informationType": "Information type",
     "path": "Path",
     "extent": "Extension",
@@ -621,7 +579,6 @@
     "roles": "Roles"
   },
   "tasksEditionEntity": {
-    "generalData": "General Data",
     "tasksEdition": "Tasks-Editing",
     "name": "Name",
     "associatedLayer": "Associated layer",
@@ -657,7 +614,6 @@
     "taskName": "Task name"
   },
   "tasksExtractionFMEEntity": {
-    "generalData": "General Data",
     "tasksExtractionFME": "Tasks-Extraction FME",
     "cartography": "Cartography",
     "service": "Service",
@@ -674,9 +630,7 @@
     "taskName": "Task name"
   },
   "tasksLocatorEntity": {
-    "generalData": "General Data",
     "tasksLocator": "Tasks-Locator",
-    "task": "Task",
     "informationType": "Information Type",
     "accessType": "Access Type",
     "command": "Command",
@@ -698,9 +652,7 @@
     "taskName": "Task name"
   },
   "tasksMoreInfoEntity": {
-    "generalData": "General Data",
     "tasksMoreInfo": "Tasks-More Information",
-    "task": "Task",
     "informationType": "Information type",
     "accessType": "Access type",
     "command": "Command",
@@ -723,9 +675,7 @@
     "taskName": "Task name"
   },
   "tasksReportEntity": {
-    "generalData": "General Data",
     "tasksReport": "Tasks-Report",
-    "task": "Task",
     "informationType": "Information type",
     "template": "Template",
     "taskGroup": "Task group",
@@ -741,7 +691,6 @@
     "taskName": "Task name"
   },
   "tasksThematicEntity": {
-    "generalData": "General Data",
     "tasksThematic": "Tasks-Thematic",
     "name": "Name",
     "origin": "Origin",
@@ -819,5 +768,37 @@
   "noRowsToShow": "No rows to display",
   "enabled": "Enabled",
   "disabled": "Disabled",
-  "rowsToShow": "Rows to show"
+  "rowsToShow": "Rows to show",
+  "common": {
+    "form": {
+      "details": "Details",
+      "name": "Name",
+      "password": {
+        "label": "Password",
+        "set": "Password is set"
+      },
+      "status": "Status"
+    }
+  },
+  "entity": {
+    "connection": {
+      "label": "Connection",
+      "driver": "JDBC Driver"
+    },
+    "task": {
+      "label": "Task",
+      "plural": "Tasks"
+    },
+    "taskGroup": {
+      "label": "Task group"
+    },
+    "user": {
+      "label": "User"
+    }
+  },
+  "button": {
+    "validate": {
+      "label": "Validate"
+    }
+  }
 }

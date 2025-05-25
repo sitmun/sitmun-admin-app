@@ -37,12 +37,25 @@ export class AppComponent {
       this.translate.use(localStorage.getItem('lang'));
     }
 
-    
+    // Listen for browser language changes
+    window.addEventListener('languagechange', () => {
+      const navigatorLang = window.navigator.language.toLowerCase();
+      const baseLang = navigatorLang.replace(/-[A-Z]+$/, '');
+      const defaultLang = config.languagesToUse.find(lang => 
+        lang.shortname.toLowerCase() === baseLang
+      )?.shortname || config.defaultLang;
+      
+      this.translate.use(defaultLang);
+      this.translate.setDefaultLang(defaultLang);
+      localStorage.setItem('lang', defaultLang);
+    });
   }
 
   /** Change app language*/
   changeLanguage(locale: string) {
     this.translate.use(locale);
+    this.translate.setDefaultLang(locale);
+    localStorage.setItem('lang', locale);
   }
 
   navOpen($event): void {
