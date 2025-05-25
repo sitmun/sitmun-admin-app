@@ -782,7 +782,10 @@
   "common": {
     "form": {
       "details": "Detalles",
+      "description": "Descripción",
       "name": "Nombre",
+      "type": "Tipo",
+      "value": "Valor",
       "password": {
         "label": "Contraseña",
         "set": "Contraseña establecida"
@@ -791,6 +794,10 @@
     }
   },
   "entity": {
+    "cartography": {
+      "label": "Capa",
+      "plural": "Capas"
+    },
     "connection": {
       "label": "Conexión",
       "driver": "Controlador JDBC"
@@ -801,6 +808,34 @@
     },
     "taskGroup": {
       "label": "Grupo de tareas"
+    },
+    "service": {
+      "label": "Servicio",
+      "plural": "Servicios",
+      "blocked": "Bloquea el acceso al servicio",
+      "type": "Tipo de servicio",
+      "endpoint": "Endpoint del servicio",
+      "metadataURL": "URL de la metadata asociada",
+      "projections": "Proyecciones soportadas",
+      "proxied": "Todas las peticiones deben utilizar el proxy de SITMUN",
+      "authenticationMode": "Método de autenticación",
+      "user": "Usuario del servicio",
+      "password": "Contraseña del servicio",
+      "parameters": {
+        "header": "Parámetros de configuración",
+        "title": "Añadir parámetros de configuración"
+      },
+      "layer": {
+        "title": "Título",
+        "name": "Nombre de la capa",
+        "abstract": "Descripción"
+      },
+      "button": {
+        "getMetadata": "Obtener detalles del servicio",
+        "updateMetadata": "Actualizar detalles del servicio",
+        "getLayers": "Obtener capas del servicio",
+        "updateLayers": "Actualizar capas del servicio"
+      }
     },
     "user": {
       "label": "Usuario"

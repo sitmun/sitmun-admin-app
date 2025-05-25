@@ -786,7 +786,10 @@
   "common": {
     "form": {
       "details": "Detalls",
+      "description": "Descripció",
       "name": "Nom",
+      "type": "Tipus",
+      "value": "Valor",
       "password": {
         "label": "Contrasenya",
         "set": "Contrasenya establerta"
@@ -795,6 +798,10 @@
     }
   },
   "entity": {
+    "cartography": {
+      "label": "Capa",
+      "plural": "Capes"
+    },
     "connection": {
       "label": "Connexió",
       "driver": "Controlador JDBC"
@@ -805,6 +812,34 @@
     },
     "taskGroup": {
       "label": "Grup de tasques"
+    },
+    "service": {
+      "label": "Servei",
+      "plural": "Serveis",
+      "blocked": "Bloqueja l'accés al servei",
+      "type": "Tipus de servei",
+      "endpoint": "Endpoint del servei",
+      "metadataURL": "URL de la metadata associada",
+      "projections": "Projeccions suportades",
+      "proxied": "Totes les peticions han d'utilitzar el proxy de SITMUN",
+      "authenticationMode": "Mètode d'autenticació",
+      "user": "Usuari del servei",
+      "password": "Contrasenya del servei",
+      "parameters": {
+        "header": "Paràmetres de configuració",
+        "title": "Afegeix paràmetres de configuració"
+      },
+      "layer": {
+        "title": "Títol",
+        "name": "Nom de la capa",
+        "abstract": "Descripció"
+      },
+      "button": {
+        "getMetadata": "Obtén detalls del servei",
+        "updateMetadata": "Actualitza detalls del servei",
+        "getLayers": "Obtén capes del servei",
+        "updateLayers": "Actualitza capes del servei"
+      }
     },
     "user": {
       "label": "Usuari"

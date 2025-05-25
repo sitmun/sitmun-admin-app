@@ -1,6 +1,6 @@
 <app-form-toolbar
   icon="menu_servei"
-  entityType="serviceEntity.service"
+  entityType="entity.service.label"
   [itemName]="itemName('name')"
   [isNew]="isNewOrDuplicated()"
   (save)="onSaveButtonClicked()"
@@ -17,7 +17,7 @@
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'serviceEntity.name' | translate }}</mat-label>
+            <mat-label>{{ 'common.form.name' | translate }}</mat-label>
             <input matInput type="text" formControlName="name"  [maxlength]="60" required>
             <mat-hint align="end" [class.text-warning]="entityForm.get('name')?.value?.length > 60">
               {{entityForm.get('name') | characterCount}}
@@ -29,7 +29,7 @@
                       svgIcon="ic_translate"></mat-icon>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'serviceEntity.description' | translate }}</mat-label>
+            <mat-label>{{ 'common.form.description' | translate }}</mat-label>
             <textarea matInput type="text" formControlName="description" [maxlength]="4000"> </textarea>
             <mat-hint align="end">{{entityForm.get('description') | characterCount}}</mat-hint>
             <mat-icon matSuffix class="iconTranslate"
@@ -38,7 +38,7 @@
                       svgIcon="ic_translate"></mat-icon>
           </mat-form-field>
           <mat-checkbox formControlName="blocked">
-            {{ 'serviceEntity.available' | translate }}
+            {{ 'entity.service.blocked' | translate }}
           </mat-checkbox>
         </mat-card-content>
       </mat-card>
@@ -46,7 +46,7 @@
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
         <mat-card-content>
           <mat-form-field appearance="outline" class="quarter add-gap">
-            <mat-label>{{ 'serviceEntity.type' | translate }}</mat-label>
+            <mat-label>{{ 'entity.service.type' | translate }}</mat-label>
             <mat-select formControlName="type" class="form-control" (selectionChange)="onTypeChange($event)" required>
               <mat-option [value]="serviceType.value" *ngFor="let serviceType of this.codeList('service.type')">
                 {{ serviceType.description }}
@@ -60,22 +60,22 @@
             *ngIf="isWMS()"
             (click)="onUpdateServiceMetadata()"
           >
-            {{ (isNewOrDuplicated() ? 'serviceEntity.getData' : 'serviceEntity.updateData') | translate }}
+            {{ (isNewOrDuplicated() ? 'entity.service.button.getMetadata' : 'entity.service.button.updateMetadata') | translate }}
           </button>
 
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'serviceEntity.url' | translate }}</mat-label>
+            <mat-label>{{ 'entity.service.endpoint' | translate }}</mat-label>
             <input matInput type="text" formControlName="serviceURL" required [maxlength]="4000">
             <mat-hint align="end">{{entityForm.get('serviceURL') | characterCount}}</mat-hint>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'serviceEntity.metadataURL' | translate }}</mat-label>
+            <mat-label>{{ 'entity.service.metadataURL' | translate }}</mat-label>
             <input matInput type="text" formControlName="getInformationURL"  [maxlength]="4000">
             <mat-hint align="end">{{entityForm.get('getInformationURL') | characterCount}}</mat-hint>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'serviceEntity.projections' | translate }}</mat-label>
-            <mat-chip-grid #chipList aria-label="Selecció de projecció" formControlName="supportedSRS">
+            <mat-label>{{ 'entity.service.projections' | translate }}</mat-label>
+            <mat-chip-grid #chipList formControlName="supportedSRS">
               <mat-chip-row
                 *ngFor="let srs of this.entityForm.get('supportedSRS')?.value"
                 [removable]="canRemoveProjections"
@@ -95,7 +95,7 @@
             <mat-hint align="end">{{entityForm.get('supportedSRS') | characterCount:250}}</mat-hint>
           </mat-form-field>
           <mat-checkbox formControlName="isProxied">
-            {{ 'serviceEntity.proxied' | translate }}
+            {{ 'entity.service.proxied' | translate }}
           </mat-checkbox>
         </mat-card-content>
       </mat-card>
@@ -103,7 +103,7 @@
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
         <mat-card-content>
           <mat-form-field appearance="outline" class="quarter">
-            <mat-label>{{ 'serviceEntity.authenticationMode' | translate }}</mat-label>
+            <mat-label>{{ 'entity.service.authenticationMode' | translate }}</mat-label>
             <mat-select formControlName="authenticationMode" class="form-control" required>
               <mat-option [value]="mode.value" *ngFor="let mode of this.codeList('service.authenticationMode')">
                 {{ mode.description }}
@@ -115,7 +115,7 @@
                           *ngIf="isAuthenticationModeNode()"
                           class="half add-gap"
           >
-            <mat-label>{{ 'serviceEntity.user' | translate }}</mat-label>
+            <mat-label>{{ 'entity.service.user' | translate }}</mat-label>
             <input matInput type="text" formControlName="user" [maxlength]="50">
             <mat-hint align="end">{{entityForm.get('user') | characterCount}}</mat-hint>
           </mat-form-field>
@@ -123,7 +123,7 @@
                           *ngIf="isAuthenticationModeNode()"
                           class="half"
           >
-            <mat-label>{{ 'serviceEntity.password' | translate }}</mat-label>
+            <mat-label>{{ 'entity.service.password' | translate }}</mat-label>
             <input matInput [type]="'text'" formControlName="password" [maxlength]="50">
             <mat-hint align="end">{{entityForm.get('password') | characterCount}}</mat-hint>
           </mat-form-field>
@@ -131,7 +131,7 @@
       </mat-card>
     </form>
   </mat-tab>
-  <mat-tab label="{{ 'serviceEntity.layersToRegister' | translate }}">
+  <mat-tab label="{{ 'entity.cartography.plural' | translate }}">
     <mat-card appearance="outlined">
       <mat-card-content>
         <button
@@ -142,7 +142,7 @@
           *ngIf="isWMS()"
           (click)="onUpdateServiceCapabilities()"
         >
-          {{ (isNewOrDuplicated() ? 'serviceEntity.getData' : 'serviceEntity.updateData') | translate }}
+          {{ (isNewOrDuplicated() ? 'entity.service.button.getLayers' : 'entity.service.button.updateLayers') | translate }}
         </button>
       </mat-card-content>
     </mat-card>
@@ -167,7 +167,7 @@
                    *ngIf="dataLoaded">
     </app-data-grid>
   </mat-tab>
-  <mat-tab label="{{ 'serviceEntity.configurationParameters' | translate }}">
+  <mat-tab label="{{ 'entity.service.parameters.header' | translate }}">
     <app-data-grid [changeHeightButton]="true"
                    [allNewElements]="isNewOrDuplicated()"
                    [columnDefs]="parametersTable.relationsColumnsDefs"
@@ -195,12 +195,12 @@
     <mat-card appearance="outlined">
       <mat-card-content>
         <mat-form-field appearance="outline" class="full">
-          <mat-label>{{ 'applicationEntity.name' | translate }}</mat-label>
+          <mat-label>{{ 'common.form.name' | translate }}</mat-label>
           <input matInput type="text" formControlName="name" required [maxlength]="50">
           <mat-hint align="end">{{parametersTable.templateDialog('newParameterDialog').form.get('name') | characterCount}}</mat-hint>
         </mat-form-field>
         <mat-form-field appearance="outline" class="full">
-          <mat-label>{{ 'applicationEntity.type' | translate }}</mat-label>
+          <mat-label>{{ 'common.form.type' | translate }}</mat-label>
           <mat-select formControlName="type" class="form-control" required>
             <mat-option [value]="parameterType.value" *ngFor="let parameterType of this.codeList('serviceParameter.type')">
               {{ parameterType.description }}
@@ -208,7 +208,7 @@
           </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline" class="full">
-          <mat-label>{{ 'serviceEntity.value' | translate }}</mat-label>
+          <mat-label>{{ 'common.form.value' | translate }}</mat-label>
           <input matInput type="text" formControlName="value" required [maxlength]="250">
           <mat-hint align="end">{{parametersTable.templateDialog('newParameterDialog').form.get('value') | characterCount}}</mat-hint>
         </mat-form-field>

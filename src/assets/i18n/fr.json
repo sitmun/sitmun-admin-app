@@ -778,7 +778,10 @@
   "common": {
     "form": {
       "details": "Détails",
+      "description": "Description",
       "name": "Nom",
+      "type": "Type",
+      "value": "Valeur",
       "password": {
         "label": "Mot de passe",
         "set": "Mot de passe défini"
@@ -787,6 +790,10 @@
     }
   },
   "entity": {
+    "cartography": {
+      "label": "Calque",
+      "plural": "Calques"
+    },
     "connection": {
       "label": "Connexion",
       "driver": "Pilote JDBC"
@@ -797,6 +804,34 @@
     },
     "taskGroup": {
       "label": "Groupe de tâches"
+    },
+    "service": {
+      "label": "Service",
+      "plural": "Services",
+      "blocked": "Bloque le service",
+      "type": "Type de service",
+      "endpoint": "Endpoint du service",
+      "metadataURL": "URL de la metadata associée",
+      "projections": "Projections supportées",
+      "proxied": "Toutes les requêtes doivent utiliser le proxy de SITMUN",
+      "authenticationMode": "Méthode d'authentification",
+      "user": "Utilisateur du service",
+      "password": "Mot de passe du service",
+      "parameters": {
+        "header": "Paramètres de configuration",
+        "title": "Ajouter des paramètres de configuration"
+      },
+      "layer": {
+        "title": "Titre",
+        "name": "Nom du calque",
+        "abstract": "Description"
+      },
+      "button": {
+        "getMetadata": "Obtenir les détails du service",
+        "updateMetadata": "Mettre à jour les détails du service",
+        "getLayers": "Obtenir les calques du service",
+        "updateLayers": "Mettre à jour les calques du service" 
+      }
     },
     "user": {
       "label": "Utilisateur"

@@ -780,7 +780,10 @@
   "common": {
     "form": {
       "details": "Detalhs",
+      "description": "Descripcion",
       "name": "Nòm",
+      "type": "Tipe",
+      "value": "Valor",
       "password": {
         "label": "Clau",
         "set": "Clau introdusida"
@@ -789,6 +792,10 @@
     }
   },
   "entity": {
+    "cartography": {
+      "label": "Capa",
+      "plural": "Capes"
+    },
     "connection": {
       "label": "Connexion",
       "driver": "Driver JDBC"
@@ -799,6 +806,34 @@
     },
     "taskGroup": {
       "label": "Grop trabalh"
+    },
+    "service": {
+      "label": "Servici",
+      "plural": "Servicis", 
+      "blocked": "Blocat",
+      "type": "Tipe",
+      "endpoint": "Url",
+      "metadataURL": "URL metadonades associades",
+      "projections": "Projeccions",
+      "proxied": "Utilitza proxy",
+      "authenticationMode": "Metòde d'autenticacion",
+      "user": "Usatgèr",
+      "password": "Clau",
+      "parameters": {
+        "header": "Paramètres de configuracion",
+        "title": "Paramètres de configuracion"
+      },
+      "layer": {
+        "title": "Títol",
+        "name": "Nòm",
+        "abstract": "Descripcion"
+      },
+      "button": {
+        "getMetadata": "Obtier donades",
+        "updateMetadata": "Actualizar donades",
+        "getLayers": "Obtier capes",
+        "updateLayers": "Actualizar capes"
+      }
     },
     "user": {
       "label": "Usatgèr"

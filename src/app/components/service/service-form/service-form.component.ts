@@ -486,9 +486,9 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
     return DataTableDefinition.builder<CartographyProjection, CartographyProjection>(this.dialog, this.errorHandler)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getEditableColumnDef('serviceEntity.name', 'name', 150, 300),
-        this.utils.getNonEditableColumnDef('layersEntity.layers', 'layers', 150, 300),
-        this.utils.getEditableColumnDef('serviceEntity.description', 'description', 150, 450),
+        this.utils.getEditableColumnDef('entity.service.layer.title', 'name', 150, 300),
+        this.utils.getNonEditableColumnDef('entity.service.layer.name', 'layers', 150, 300),
+        this.utils.getEditableColumnDef('entity.service.layer.abstract', 'description', 150, 450),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('name')
@@ -588,9 +588,9 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
     return DataTableDefinition.builder<ServiceParameter, ServiceParameter>(this.dialog, this.errorHandler)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getEditableColumnDef('serviceEntity.parameter', 'name', 150, 300),
-        this.utils.getEditableColumnDef('serviceEntity.value', 'value', 150, 300),
-        this.utils.getNonEditableColumnDef('serviceEntity.type', 'typeDescription', 150, 300),
+        this.utils.getEditableColumnDef('common.form.name', 'name', 150, 300),
+        this.utils.getEditableColumnDef('common.form.value', 'value', 150, 300),
+        this.utils.getNonEditableColumnDef('common.form.type', 'typeDescription', 150, 300),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('name')

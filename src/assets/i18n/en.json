@@ -147,33 +147,6 @@
     "invalidEmail": "Please enter a valid email address",
     "invalidEmailFormat": "Please enter a valid email format"
   },
-  "serviceEntity": {
-    "service": "Service",
-    "name": "Name",
-    "type": "Type",
-    "serviceURL": "Url",
-    "url": "Url",
-    "user": "User",
-    "password": "Password",
-    "passwordSet": "Password set",
-    "authenticationMode": "Método de autenticación",
-    "connection": "Connection",
-    "supportedSRS": "Projections",
-    "projections": "Projections",
-    "metadataURL": "Associated metadata URL",
-    "createdDate": "Created date",
-    "getData": "Get data",
-    "updateData": "Update data",
-    "parameter": "Parameter",
-    "value": "Value",
-    "configurationParameters": "Service configuration parameters",
-    "layersToRegister": "Service layers",
-    "description": "Description",
-    "status": "Status",
-    "request": "Request",
-    "available": "Available",
-    "proxied": "Uses proxy"
-  },
   "layersEntity": {
     "informationTitle": "Layer Alphanumeric Information",
     "roles": "Roles",
@@ -772,7 +745,10 @@
   "common": {
     "form": {
       "details": "Details",
+      "description": "Description",
       "name": "Name",
+      "type": "Type",
+      "value": "Value",
       "password": {
         "label": "Password",
         "set": "Password is set"
@@ -781,6 +757,10 @@
     }
   },
   "entity": {
+    "cartography": {
+      "label": "Layer",
+      "plural": "Layers"
+    },
     "connection": {
       "label": "Connection",
       "driver": "JDBC Driver"
@@ -791,6 +771,34 @@
     },
     "taskGroup": {
       "label": "Task group"
+    },
+    "service": {
+      "label": "Service",
+      "plural": "Service",
+      "blocked": "Block the access to the service",
+      "type": "Service type",
+      "endpoint": "Service endpoint",
+      "metadataURL": "Location of associated metadata",
+      "projections": "Supported Reference Systems",
+      "proxied": "All requests must use SITMUN proxy",
+      "authenticationMode": "Authentication method",
+      "user": "Service user",
+      "password": "Service password",
+      "parameters": {
+        "header": "Service parameters",
+        "title": "Add service parameters"
+      },
+      "layer": {
+        "title": "Title",
+        "name": "Layer name",
+        "abstract": "Abstract"
+      },
+      "button": {
+        "getMetadata": "Fetch details from Service Capabilities",
+        "updateMetadata": "Update details from Service Capabilities",
+        "getLayers": "Fetch layers from Service Capabilities",
+        "updateLayers": "Update layers from Service Capabilities"
+      }
     },
     "user": {
       "label": "User"
