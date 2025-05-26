@@ -792,7 +792,102 @@
   "entity": {
     "cartography": {
       "label": "Calque",
-      "plural": "Calques"
+      "plural": "Calques",
+      "available": "Calques disponibles pour l'utilisation par les clients",
+      "layerSet": "Calques à afficher",
+      "minimumScale": "Échelle minimale",
+      "maximumScale": "Échelle maximale",
+      "order": "Ordre",
+      "transparency": "Transparence",
+      "source": "Source",
+      "legendType": "Type de légende",
+      "serviceName": "Nom du service",
+      "legendURL": "Lieu de la légende",
+      "datasetURL": "Lieu du dataset du calque",
+      "metadataURL": "Lieu de la metadata du calque",
+      "useAllStyles": "Utiliser tous les styles",
+      "spatialSelection": {
+        "header": "Sélection spatiale",
+        "selectable": "Le calque peut être interrogé pour récupérer des caractéristiques en utilisant des requêtes spatiales",
+        "parameters": {
+          "title": "Ajouter des paramètres de sélection spatiale",
+          "name": "Nom",
+          "value": "Valeur",
+          "format": "Format",
+          "type": "Type"
+        }
+      },
+      "featureInformation": {
+        "header": "Information alphanumérique",
+        "queryable": "Le calque peut être interrogé pour récupérer des informations alphanumériques",
+        "layerAll": "Utiliser tous les calques",
+        "layerFilter": "Utiliser uniquement ces calques",
+        "geometryAll": "Utiliser toutes les géométries",
+        "geometryFilter": "Utiliser uniquement cette géométrie",
+        "parameters": {
+          "title": "Ajouter des paramètres d'information alphanumérique",
+          "name": "Nom",
+          "value": "Valeur",
+          "order": "Ordre",
+          "format": "Format",
+          "type": "Type"
+        }
+      },
+      "filters": {
+        "header": "Filtres",
+        "applyFilterToGetMap": "Appliquer les filtres aux requêtes de carte",
+        "applyFilterToSpatialSelection": "Appliquer les filtres aux requêtes de sélection spatiale",
+        "applyFilterToGetFeatureInfo": "Appliquer les filtres aux requêtes d'information de la caractéristique",
+        "parameters": {
+          "title": "Ajouter un filtre",
+          "name": "Nom",
+          "column": "Colonne",
+          "values": "Valeurs",
+          "type": "Type",
+          "valueType": "Type de valeur",
+          "territorialLevel": "Niveau territorial",
+          "required": "Obligatoire"
+        }
+      },
+      "styles": {
+        "header": "Styles",
+        "parameters": {
+          "header": "Ajouter un style",
+          "name": "Nom",
+          "title": "Titre",
+          "description": "Description",
+          "format": "Format",
+          "width": "Largeur",
+          "height": "Hauteur",
+          "url": "URL",
+          "defaultStyle": "Style par défaut"
+        }
+      },
+      "territories": {
+        "header": "Territoires",
+        "parameters": {
+          "title": "Ajouter un territoire",
+          "name": "Nom",
+          "type": "Type",
+          "code": "Code"
+        }
+      },
+      "permissions": { 
+        "header": "Permissions",
+        "parameters": {
+          "title": "Ajouter des permissions",
+          "name": "Nom",
+          "roles": "Rôles"
+        }
+      },
+      "trees": {
+        "header": "Arbres",
+        "name": "Arbre",
+        "node": "Noeud"
+      },
+      "button": {
+        "loadSpatialParameters": "Charger les paramètres"
+      }
     },
     "connection": {
       "label": "Connexion",

@@ -20,9 +20,9 @@
             <mat-label> {{ 'common.form.name' | translate }}</mat-label>
             <input matInput type="text" formControlName="name" required [maxlength]="50">
             <mat-hint align="end">
-              {{entityForm.get('name') | characterCount}}
+              {{ entityForm.get('name') | characterCount }}
             </mat-hint>
-        </mat-form-field>
+          </mat-form-field>
           <mat-form-field appearance="outline" class="half">
             <mat-label>{{ 'entity.connection.driver' | translate }}</mat-label>
             <mat-select matInput formControlName="driver">
@@ -37,7 +37,7 @@
             <mat-label> {{ 'entity.user.label' | translate }}</mat-label>
             <input matInput type="text" formControlName="user" [maxlength]="50">
             <mat-hint align="end">
-              {{entityForm.get('user') | characterCount}}
+              {{ entityForm.get('user') | characterCount }}
             </mat-hint>
           </mat-form-field>
 
@@ -50,7 +50,7 @@
                    (input)="onPasswordChange()"
                    class="password-input">
             <mat-hint *ngIf="isPasswordBeingEdited" align="end">
-              {{entityForm.get('newPassword') | characterCount}}
+              {{ entityForm.get('newPassword') | characterCount }}
             </mat-hint>
             <mat-hint *ngIf="!isPasswordBeingEdited && passwordSet" align="end">
               {{ 'common.form.password.set' | translate }}
@@ -60,7 +60,7 @@
             <mat-label>{{ 'entity.connection.label' | translate }}</mat-label>
             <input matInput type="text" formControlName="url" required [maxlength]="250">
             <mat-hint align="end">
-              {{entityForm.get('url') | characterCount}}
+              {{ entityForm.get('url') | characterCount }}
             </mat-hint>
           </mat-form-field>
 
@@ -70,31 +70,35 @@
             type="button"
             (click)="validateConnection()"
           >
-          {{ "button.validate.label" | translate }}
+            {{ "button.validate.label" | translate }}
           </button>
         </mat-card-content>
       </mat-card>
     </form>
   </mat-tab>
   <mat-tab label="{{ 'entity.task.plural' | translate }}">
-    <app-data-grid [changeHeightButton]="true"
-                   [allNewElements]="isNewOrDuplicated()"
-                   [columnDefs]="tasksTable.relationsColumnsDefs"
-                   [getAll]='tasksTable.relationsFetchFn'
-                   [eventAddItemsSubscription]='tasksTable.addCommandEvent$.asObservable()'
-                   [eventGetAllRowsSubscription]='tasksTable.saveCommandEvent$.asObservable()'
-                   [eventRefreshSubscription]='tasksTable.refreshCommandEvent$.asObservable()'
-                   [actionButton]=false
-                   [discardChangesButton]=false
-                   [redoButton]=false
-                   [undoButton]=false
-                   [deleteButton]=false
-                   [addButton]=false
-                   [hideReplaceButton]=true
-                   [defaultColumnSorting]='tasksTable.defaultRelationsSorting()'
-                   [hideDuplicateButton]=true
-                   (getAllRows)="tasksTable.handleSaveRelations($event)"
-                   *ngIf="dataLoaded"
-    ></app-data-grid>
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        <app-data-grid [changeHeightButton]="true"
+                       [allNewElements]="isNewOrDuplicated()"
+                       [columnDefs]="tasksTable.relationsColumnsDefs"
+                       [getAll]='tasksTable.relationsFetchFn'
+                       [eventAddItemsSubscription]='tasksTable.addCommandEvent$.asObservable()'
+                       [eventGetAllRowsSubscription]='tasksTable.saveCommandEvent$.asObservable()'
+                       [eventRefreshSubscription]='tasksTable.refreshCommandEvent$.asObservable()'
+                       [actionButton]=false
+                       [discardChangesButton]=false
+                       [redoButton]=false
+                       [undoButton]=false
+                       [deleteButton]=false
+                       [addButton]=false
+                       [hideReplaceButton]=true
+                       [defaultColumnSorting]='tasksTable.defaultRelationsSorting()'
+                       [hideDuplicateButton]=true
+                       (getAllRows)="tasksTable.handleSaveRelations($event)"
+                       *ngIf="dataLoaded"
+        ></app-data-grid>
+      </mat-card-content>
+    </mat-card>
   </mat-tab>
 </mat-tab-group>

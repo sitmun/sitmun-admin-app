@@ -1,21 +1,34 @@
-<h5 mat-dialog-title class="titleDialog">{{titlesTable[0]=="" || !titlesTable[0] ? "" : title}}</h5>
+<h5 mat-dialog-title class="titleDialog">{{ titlesTable[0] == "" || !titlesTable[0] ? "" : title }}</h5>
 <mat-dialog-content class="mat-typography">
-<mat-tab-group>
-  <div *ngFor="let getAll of getAllsTable; let i = index"  [ngStyle]="{'margin-top': i>0?'100px':'0px'}">
-    <mat-tab label="{{titlesTable[i]==='' || !titlesTable[i] ? title : titlesTable[i]}}">
-      <mat-card appearance="outlined">
-        <mat-card-content>
-          <app-data-grid
-            [columnDefs]="columnDefsTable[i]" [changeHeightButton]='changeHeightButton' [defaultHeight]='heightByDefault'  [getAll]='getAll' [globalSearch]=true [singleSelection]="singleSelectionTable[i]"
-            [title]="titlesTable[i]" [defaultColumnSorting]='orderTable.length>=i?orderTable[i]:null' [nonEditable]='nonEditable'
-            [eventGetSelectedRowsSubscription]="getAllRows.asObservable()" [addFieldRestriction]='addFieldRestriction.length>=i?addFieldRestriction[i]:null'
-            [currentData]='currentData.length>=i?currentData[i]:null' [fieldRestrictionWithDifferentName]='fieldRestrictionWithDifferentName.length>=i?fieldRestrictionWithDifferentName[i]:null' (getSelectedRows)='joinRowsReceived($event)' >
-          </app-data-grid>
-        </mat-card-content>
-      </mat-card>
+  <mat-tab-group>
+    <div *ngFor="let getAll of getAllsTable; let i = index" [ngStyle]="{'margin-top': i>0?'100px':'0px'}">
+      <mat-tab label="{{titlesTable[i]==='' || !titlesTable[i] ? title : titlesTable[i]}}">
+        <mat-card appearance="outlined">
+          <mat-card-content>
+            <app-data-grid
+              [columnDefs]="columnDefsTable[i]"
+              [changeHeightButton]='changeHeightButton'
+              [defaultHeight]='heightByDefault'
+              [getAll]='getAll'
+              [globalSearch]=true
+              [singleSelection]="singleSelectionTable[i]"
+              [title]="titlesTable[i]"
+              [defaultColumnSorting]='orderTable.length>=i?orderTable[i]:null'
+              [nonEditable]='nonEditable'
+              [eventGetSelectedRowsSubscription]="getAllRows.asObservable()"
+              [addFieldRestriction]='addFieldRestriction.length>=i?addFieldRestriction[i]:null'
+              [currentData]='currentData.length>=i?currentData[i]:null'
+              [hideReplaceButton]=true
+              [hideDuplicateButton]=true
+              [fieldRestrictionWithDifferentName]='fieldRestrictionWithDifferentName.length>=i?fieldRestrictionWithDifferentName[i]:null'
+              (getSelectedRows)='joinRowsReceived($event)'
+            >
+            </app-data-grid>
+          </mat-card-content>
+        </mat-card>
       </mat-tab>
-  </div>
-</mat-tab-group>
+    </div>
+  </mat-tab-group>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button

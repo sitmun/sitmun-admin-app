@@ -796,7 +796,101 @@
   "entity": {
     "cartography": {
       "label": "Capa",
-      "plural": "Capas"
+      "plural": "Capas",
+      "available": "Capas disponibles para su uso por parte de los clientes",
+      "layerSet": "Capas a mostrar",
+      "minimumScale": "Escala mínima",
+      "maximumScale": "Escala máxima",
+      "order": "Orden",
+      "transparency": "Transparencia",
+      "source": "Origen",
+      "legendType": "Tipo de leyenda",
+      "serviceName": "Nombre del servicio",
+      "legendURL": "URL de la leyenda",
+      "datasetURL": "URL del dataset de la capa",
+      "metadataURL": "URL de la metadata de la capa",
+      "useAllStyles": "Utilizar todos los estilos",
+      "spatialSelection": {
+        "header": "Selección espacial",
+        "selectable": "La capa puede ser consultada para la recuperación de características utilizando consultas espaciales",
+        "parameters": {
+          "title": "Añadir parámetros de selección espacial",
+          "name": "Nombre",
+          "value": "Valor",
+          "format": "Formato",
+          "type": "Tipo"
+        }
+      },
+      "featureInformation": {
+        "header": "Información alfanumérica",
+        "queryable": "La capa puede ser consultada para la recuperación de información alfanumérica",
+        "layerAll": "Utilizar todas las capas",
+        "layerFilter": "Utilizar solo estas capas",
+        "geometryAll": "Utilizar todas las geometrías",
+        "geometryFilter": "Utilizar solo esta geometría",
+        "parameters": {
+          "title": "Añadir parámetros de información de la feature",
+          "name": "Nombre",
+          "value": "Valor",
+          "format": "Formato",
+          "type": "Tipo"
+        }
+      },
+      "filters": {
+        "header": "Filtros",
+        "applyFilterToGetMap": "Aplicar filtros a las peticiones de mapas",
+        "applyFilterToSpatialSelection": "Aplicar filtros a las peticiones de selección espacial",
+        "applyFilterToGetFeatureInfo": "Aplicar filtros a las peticiones de información de features",
+        "parameters": {
+          "title": "Añadir filtro",
+          "name": "Nombre",
+          "column": "Columna",
+          "values": "Valores",
+          "type": "Tipo",
+          "valueType": "Tipo de valor",
+          "territorialLevel": "Nivel territorial",
+          "required": "Obligatorio"
+        }
+      },
+      "styles": {
+        "header": "Estilos",
+        "parameters": {
+          "header": "Añadir estilo",
+          "name": "Nombre",
+          "title": "Título",
+          "description": "Descripción",
+          "format": "Formato",
+          "width": "Ancho",
+          "height": "Alto",
+          "url": "URL",
+          "defaultStyle": "Estilo por defecto"
+        }
+      },
+      "territories": {
+        "header": "Territorios",
+        "parameters": {
+          "title": "Añadir territorio",
+          "name": "Nombre",
+          "type": "Tipo",
+          "code": "Código"
+        }
+      },
+      "permissions": {
+        "header": "Permisos",
+        "parameters": {
+          "title": "Añadir permisos",
+          "name": "Nombre",
+          "roles": "Roles"
+        }
+      },
+      "trees": {
+        "header": "Árboles",
+        "name": "Árbol",
+        "node": "Nodo"
+      },
+      "button": {
+        "loadSpatialParameters": "Cargar parámetros"
+      }
     },
     "connection": {
       "label": "Conexión",

@@ -794,7 +794,102 @@
   "entity": {
     "cartography": {
       "label": "Capa",
-      "plural": "Capes"
+      "plural": "Capes",
+      "available": "Capes disponibles per a l'ús per part dels clients",
+      "layerSet": "Capes a mostrar",
+      "minimumScale": "Escala mínima",
+      "maximumScale": "Escala màxima",
+      "order": "Ordre",
+      "transparency": "Transparència",
+      "source": "Origen",
+      "legendType": "Tipe de llegenda",
+      "serviceName": "Nom del servei",
+      "legendURL": "Lloc de la llegenda",
+      "datasetURL": "Lloc del dataset de la capa",
+      "metadataURL": "Lloc de la metadata de la capa",
+      "useAllStyles": "Utilitza tots els estils",
+      "spatialSelection": {
+        "header": "Selecció espacial",
+        "selectable": "La capa pot ser consultada per a la recuperació de característiques utilitzant consultes espacials",
+        "parameters": {
+          "title": "Afegeix paràmetres de selecció espacial",
+          "name": "Nom",
+          "value": "Valor",
+          "format": "Format",
+          "type": "Tipus"
+        }
+      },
+      "featureInformation": {
+        "header": "Informació alfanumèrica",
+        "queryable": "La capa pot ser consultada per a la recuperació d'informació alfanumèrica",
+        "layerAll": "Utilitza totes les capes",
+        "layerFilter": "Utilitza només aquestes capes",
+        "geometryAll": "Utilitza totes les geometries",
+        "geometryFilter": "Utilitza només aquesta geometria",
+        "parameters": {
+          "title": "Afegeix paràmetres d'informació de la feature",
+          "name": "Nom",
+          "value": "Valor",
+          "order": "Ordre",
+          "format": "Format",
+          "type": "Tipus"
+        }
+      },
+      "filters": {
+        "header": "Filtres",
+        "applyFilterToGetMap": "Aplicar filtres a les peticions de mapa",
+        "applyFilterToSpatialSelection": "Aplicar filtres a les peticions de selecció espacial",
+        "applyFilterToGetFeatureInfo": "Aplicar filtres a les peticions d'informació de la feature",
+        "parameters": {
+          "title": "Afegeix filtre",
+          "name": "Nom",
+          "column": "Columna",
+          "values": "Valors",
+          "type": "Tipus",
+          "valueType": "Tipus de valor",
+          "territorialLevel": "Nivell territorial",
+          "required": "Obligatori"
+        }
+      },
+      "styles": {
+        "header": "Estils",
+        "parameters": {
+          "header": "Afegeix estil",
+          "name": "Nom",
+          "title": "Títol",
+          "description": "Descripcion",
+          "format": "Format",
+          "width": "Mesura",
+          "height": "Mesura",
+          "url": "URL",
+          "defaultStyle": "Estil per defaut"
+        }
+      },
+      "territories": {
+        "header": "Territòris",
+        "parameters": {
+          "title": "Afegeix territori",
+          "name": "Nom",
+          "type": "Tipus",
+          "code": "Còdi"
+        }
+      },
+      "permissions": {
+        "header": "Permisos",
+        "parameters": {
+          "title": "Afegeix permisos",
+          "name": "Nom",
+          "roles": "Ròtles"
+        }
+      },
+      "trees": {
+        "header": "Arbres",
+        "name": "Arbre",
+        "node": "Node"
+      },
+      "button": {
+        "loadSpatialParameters": "Carrega paràmetres espacials"
+      }
     },
     "connection": {
       "label": "Connexion",

@@ -481,73 +481,71 @@ export class LayersFormComponent implements OnInit {
 
     this.columnDefsParameters = [
       this.utils.getSelCheckboxColumnDef(),
-      this.utils.getEditableColumnDef('layersEntity.column', 'name'),
-      this.utils.getEditableColumnDef('layersEntity.label', 'value'),
-      this.utils.getSelectColumnDef('layersEntity.format', 'format', true, this.parameterFormatTypesDescription, true, this.parameterFormatTypes),
-      this.utils.getEditableColumnDef('layersEntity.order', 'order'),
-      this.utils.getSelectColumnDef('layersEntity.type', 'type', true, this.parameterTypesDescription),
+      this.utils.getEditableColumnDef('entity.cartography.featureInformation.parameters.name', 'name'),
+      this.utils.getEditableColumnDef('entity.cartography.featureInformation.parameters.value', 'value'),
+      this.utils.getSelectColumnDef('entity.cartography.featureInformation.parameters.format', 'format', true, this.parameterFormatTypesDescription, true, this.parameterFormatTypes),
+      this.utils.getEditableColumnDef('entity.cartography.featureInformation.parameters.order', 'order'),
+      this.utils.getSelectColumnDef('entity.cartography.featureInformation.parameters.type', 'type', true, this.parameterTypesDescription),
       this.utils.getStatusColumnDef()
     ];
 
 
     this.columnDefsSpatialConfigurations = [
       this.utils.getSelCheckboxColumnDef(),
-      this.utils.getEditableColumnDef('layersEntity.column', 'name'),
-      this.utils.getEditableColumnDef('layersEntity.label', 'value'),
+      this.utils.getEditableColumnDef('entity.cartography.spatialSelection.parameters.name', 'name'),
+      this.utils.getEditableColumnDef('entity.cartography.spatialSelection.parameters.value', 'value'),
       // this.utils.getFormattedColumnDef('layersEntity.format', this.parameterFormatTypes, 'format'),
-      this.utils.getSelectColumnDef('layersEntity.format', 'format', true, this.spatialSelectionParameterFormatTypesDescription, true, this.spatialSelectionParameterFormatTypes),
-      this.utils.getSelectColumnDef('layersEntity.type', 'type', true, this.spatialSelectionParameterTypesDescription, true, this.spatialSelectionParameterTypes),
+      this.utils.getSelectColumnDef('entity.cartography.spatialSelection.parameters.format', 'format', true, this.spatialSelectionParameterFormatTypesDescription, true, this.spatialSelectionParameterFormatTypes),
+      this.utils.getSelectColumnDef('entity.cartography.spatialSelection.parameters.type', 'type', true, this.spatialSelectionParameterTypesDescription, true, this.spatialSelectionParameterTypes),
       this.utils.getStatusColumnDef()
     ];
 
     this.columnDefsTerritorialFilter = [
       this.utils.getSelCheckboxColumnDef(),
-      this.utils.getEditableColumnDef('layersEntity.name', 'name'),
-      this.utils.getEditableColumnDef('layersEntity.column', 'column'),
-      this.utils.getNonEditableColumnWithCodeListDef('layersEntity.valueType', 'valueType', this.filterValueTypes),
-      this.utils.getNonEditableColumnWithCodeListDef('layersEntity.type', 'type', this.filterTypes),
-      this.utils.getEditableColumnDef('layersEntity.value', 'values'),
-      this.utils.getBooleanColumnDef('layersEntity.required', 'required', true),
+      this.utils.getEditableColumnDef('entity.cartography.filters.parameters.name', 'name'),
+      this.utils.getNonEditableColumnWithCodeListDef('entity.cartography.filters.parameters.type', 'type', this.filterTypes),
+      this.utils.getEditableColumnDef('entity.cartography.filters.parameters.column', 'column'),
+      this.utils.getEditableColumnDef('entity.cartography.filters.parameters.values', 'values'),
+      this.utils.getNonEditableColumnWithCodeListDef('entity.cartography.filters.parameters.valueType', 'valueType', this.filterValueTypes),
+      this.utils.getNonEditableColumnWithCodeListDef('entity.cartography.filters.parameters.territorialLevel', 'territorialLevel', this.filterTypeIds),
+      this.utils.getBooleanColumnDef('entity.cartography.filters.parameters.required', 'required', true),
       this.utils.getStatusColumnDef()
     ];
 
     this.columnDefsStyles = [
       this.utils.getSelCheckboxColumnDef(),
-      this.utils.getEditableColumnDef('layersEntity.name', 'name'),
-      this.utils.getEditableColumnDef('layersEntity.title', 'title'),
-      this.utils.getEditableColumnDef('layersEntity.description', 'description'),
-      this.utils.getEditableColumnDef('layersEntity.format', 'legendURL.format'),
+      this.utils.getEditableColumnDef('entity.cartography.styles.parameters.name', 'name'),
+      this.utils.getEditableColumnDef('entity.cartography.styles.parameters.title', 'title'),
+      this.utils.getEditableColumnDef('entity.cartography.styles.parameters.description', 'description'),
+      this.utils.getEditableColumnDef('entity.cartography.styles.parameters.format', 'legendURL.format'),
       // this.utils.getSelectColumnDef('layersEntity.format', 'legendURL.format',true,this.parameterFormatTypesDescription, true, this.parameterFormatTypes),
       // this.utils.getFormattedColumnDef('layersEntity.format', this.parameterFormatTypes, 'format'),
       // this.utils.getSelectColumnDef('layersEntity.format', 'format',true,this.parameterFormatTypesDescription, true, this.parameterFormatTypes),
-      this.utils.getEditableColumnDef('layersEntity.width', 'legendURL.width'),
-      this.utils.getEditableColumnDef('layersEntity.height', 'legendURL.height'),
-      this.utils.getEditableColumnDef('layersEntity.url', 'legendURL.onlineResource'),
-      this.utils.getBooleanColumnDef('layersEntity.defaultStyle', 'defaultStyle', true),
+      this.utils.getEditableColumnDef('entity.cartography.styles.parameters.width', 'legendURL.width'),
+      this.utils.getEditableColumnDef('entity.cartography.styles.parameters.height', 'legendURL.height'),
+      this.utils.getEditableColumnDef('entity.cartography.styles.parameters.url', 'legendURL.onlineResource'),
+      this.utils.getBooleanColumnDef('entity.cartography.styles.parameters.defaultStyle', 'defaultStyle', true),
       this.utils.getStatusColumnDef()
     ];
 
     this.columnDefsTerritories = [
       this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef('territoryId'),
-      this.utils.getNonEditableColumnDef('layersEntity.code', 'territoryCode'),
-      this.utils.getNonEditableColumnDef('layersEntity.name', 'territoryName'),
+      this.utils.getRouterLinkColumnDef('entity.cartography.territories.parameters.name', 'territoryName', '/territory/:id/territoryForm', {id: 'territoryId'}),
+      this.utils.getNonEditableColumnDef('entity.cartography.territories.parameters.type', 'territoryType'),
+      this.utils.getNonEditableColumnDef('entity.cartography.territories.parameters.code', 'territoryCode'),
       this.utils.getStatusColumnDef()
     ];
 
     this.columnDefsLayersConfiguration = [
       this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('layersEntity.name', 'name'),
-      {...this.utils.getNonEditableColumnDef('layersEntity.roles', 'roleNames'), ...this.utils.getArrayValueParser()},
+      this.utils.getRouterLinkColumnDef('entity.cartography.permissions.parameters.name', 'name', '/layersPermits/:id/layersPermitsForm', {id: 'id'}),
+      {...this.utils.getNonEditableColumnDef('entity.cartography.permissions.parameters.roles', 'roleNames'), ...this.utils.getArrayValueParser()},
       this.utils.getStatusColumnDef()
     ];
 
     this.columnDefsNodes = [
-      // this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('layersEntity.name', 'name'),
-      this.utils.getNonEditableColumnDef('layersEntity.treeName', 'treeName'),
+      this.utils.getRouterLinkColumnDef('entity.cartography.trees.name', 'treeName', '/trees/:id/treesForm', {id: 'treeId'}),
+      this.utils.getNonEditableColumnDef('entity.cartography.trees.node', 'name'),
     ];
 
     this.columnDefsParametersDialog = [
@@ -561,23 +559,22 @@ export class LayersFormComponent implements OnInit {
 
     this.columnDefsTerritoriesDialog = [
       this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('layersEntity.code', 'code'),
-      this.utils.getNonEditableColumnDef('layersEntity.name', 'name'),
+      this.utils.getNonEditableColumnDef('entity.cartography.territories.parameters.name', 'name'),
+      this.utils.getNonEditableColumnDef('entity.cartography.territories.parameters.type', 'typeName'),
+      this.utils.getNonEditableColumnDef('entity.cartography.territories.parameters.code', 'code'),
     ];
 
 
     this.columnDefsCartographyGroupsDialog = [
       this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('layersEntity.name', 'name'),
+      this.utils.getNonEditableColumnDef('entity.cartography.permissions.parameters.name', 'name'),
+      {...this.utils.getNonEditableColumnDef('entity.cartography.permissions.parameters.roles', 'roleNames'), ...this.utils.getArrayValueParser()},
     ];
 
     this.columnDefsNodesDialog = [
       this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
       this.utils.getNonEditableColumnDef('layersEntity.name', 'name'),
-      this.utils.getNonEditableColumnDef('layersEntity.treeName', 'treeName'),
+      this.utils.getNonEditableColumnDef('layersEntity.type', 'type'),
     ];
 
 
@@ -1368,7 +1365,7 @@ export class LayersFormComponent implements OnInit {
     });
     const dialogRef = this.dialog.open(DialogFormComponent);
     dialogRef.componentInstance.HTMLReceived = this.newParameterDialog;
-    dialogRef.componentInstance.title = this.utils.getTranslate('layersEntity.parametersConfiguration');
+    dialogRef.componentInstance.title = this.utils.getTranslate('entity.cartography.featureInformation.parameters.title');
     dialogRef.componentInstance.form = this.parameterForm;
 
 
@@ -1398,7 +1395,7 @@ export class LayersFormComponent implements OnInit {
 
     const dialogRef = this.dialog.open(DialogFormComponent);
     dialogRef.componentInstance.HTMLReceived = this.newSpatialConfigurationDialog;
-    dialogRef.componentInstance.title = this.utils.getTranslate('layersEntity.spatialSelection');
+    dialogRef.componentInstance.title = this.utils.getTranslate('entity.cartography.spatialSelection.parameters.title');
     dialogRef.componentInstance.form = this.parameterForm;
 
     dialogRef.afterClosed().subscribe(result => {
@@ -1428,7 +1425,7 @@ export class LayersFormComponent implements OnInit {
 
     const dialogRef = this.dialog.open(DialogFormComponent);
     dialogRef.componentInstance.HTMLReceived = this.newTerritorialFilterDialog;
-    dialogRef.componentInstance.title = this.utils.getTranslate('layersEntity.filters');
+    dialogRef.componentInstance.title = this.utils.getTranslate('entity.cartography.filters.parameters.title');
     dialogRef.componentInstance.form = this.territorialFilterForm;
 
 
@@ -1522,7 +1519,7 @@ export class LayersFormComponent implements OnInit {
     dialogRef.componentInstance.orderTable = ['name'];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsTerritoriesDialog];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate('layersEntity.territory');
+    dialogRef.componentInstance.title = this.utils.getTranslate('entity.cartography.territories.parameters.title');
     dialogRef.componentInstance.titlesTable = [''];
     dialogRef.componentInstance.fieldRestrictionWithDifferentName = ['territoryId'];
     dialogRef.componentInstance.currentData = [data];
@@ -1580,7 +1577,7 @@ export class LayersFormComponent implements OnInit {
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsCartographyGroupsDialog];
     dialogRef.componentInstance.themeGrid = this.themeGrid;
     dialogRef.componentInstance.orderTable = ['name'];
-    dialogRef.componentInstance.title = this.utils.getTranslate('layersEntity.permissiongroupLayersConfiguration');
+    dialogRef.componentInstance.title = this.utils.getTranslate('entity.cartography.permissions.parameters.title');
     dialogRef.componentInstance.titlesTable = [''];
     dialogRef.componentInstance.currentData = [data];
     dialogRef.componentInstance.nonEditable = false;

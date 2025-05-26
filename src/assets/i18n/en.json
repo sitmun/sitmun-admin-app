@@ -147,71 +147,6 @@
     "invalidEmail": "Please enter a valid email address",
     "invalidEmailFormat": "Please enter a valid email format"
   },
-  "layersEntity": {
-    "informationTitle": "Layer Alphanumeric Information",
-    "roles": "Roles",
-    "source": "Source",
-    "layers": "Layers",
-    "name": "Name",
-    "serviceName": "Service",
-    "order": "Order",
-    "load": "Load",
-    "createdDate": "Created date",
-    "minimumScale": "Min Scale",
-    "maximumScale": "Max Scale",
-    "metadataURL": "Associated metadata URL",
-    "geometryType": "Geometry Type",
-    "transparency": "Transparency",
-    "legendType": "Legend Type",
-    "legendUrl": "Legend Url",
-    "description": "Description",
-    "datasetURL": "Data URL",
-    "territory": "Territories with layer access",
-    "code": "Code",
-    "administrator": "Administrator",
-    "parametersConfiguration": "Layer Alphanumeric Attributes Configuration",
-    "spatialSelection": "Spatial Selection configuration",
-    "groupCartographyLayersConfiguration": "Layer configuration by cartography group",
-    "permissiongroupLayersConfiguration": "Permission groups and Roles that have access to the layer",
-    "nodes": "Trees and Nodes containing the layer.",
-    "column": "Column",
-    "label": "Label",
-    "type": "Type",
-    "help": "Help",
-    "selectPath": "Select/Path",
-    "field": "Field",
-    "format": "Format",
-    "municipalFilterFields": "Field for municipal filter",
-    "applyFilterToGetMap": "Filter at get map",
-    "filterInfoByMunicipality": "Filter info ",
-    "filterSpatialSelectionByMunicipality": "Filter spatial selection",
-    "information": "Information",
-    "defaultInformation": "Default information",
-    "informationLayer": "Information Layer",
-    "thematic": "Thematic",
-    "municipalFilter": "Municipal Filter",
-    "alias": "Alias",
-    "status": "Status",
-    "available": "Available",
-    "selectable": "Selectable",
-    "service": "Service",
-    "layer": "Layer",
-    "connection": "Connection",
-    "territorialFilter": "Territorial filter",
-    "filters": "Filters configuration",
-    "value": "Value",
-    "valueType": "Value type",
-    "typeId": "Id type",
-    "required": "Required",
-    "treeName": "Tree name",
-    "styles": "Styles configuration",
-    "title": "Title",
-    "width": "Width",
-    "height": "Height",
-    "url": "Url",
-    "useAllStyles": "Use all styles",
-    "defaultStyle": "Default style"
-  },
   "layersPermitsEntity": {
     "applications": "Applications",
     "layersPermits": "Permissions on layers",
@@ -759,7 +694,102 @@
   "entity": {
     "cartography": {
       "label": "Layer",
-      "plural": "Layers"
+      "plural": "Layers",
+      "available": "Layer available for use by clients",
+      "layerSet": "Layers to display",
+      "minimumScale": "Minimum scale",
+      "maximumScale": "Maximum scale",
+      "order": "Order",
+      "transparency": "Transparency",
+      "source": "Source",
+      "legendType": "Legend type",
+      "serviceName": "Service name",
+      "legendURL": "Legend location",
+      "datasetURL": "Layer dataset location",
+      "metadataURL": "Layer metadata location",
+      "useAllStyles": "Use all styles",
+      "spatialSelection": {
+        "header": "Spatial selection",
+        "selectable": "Layer can be queried for fetching features using spatial queries",
+        "parameters": {
+          "title": "Add spatial selection parameters",
+          "name": "Name",
+          "value": "Value",
+          "format": "Format",
+          "type": "Type"  
+        }
+      },
+      "featureInformation": {
+        "header": "Alphanumeric information",
+        "queryable": "Layer can be queried for alphanumeric information",
+        "layerAll": "Use all layers",
+        "layerFilter": "Use only these layers",
+        "geometryAll": "Use all geometries",
+        "geometryFilter": "Use only this geometry",
+        "parameters": {
+          "title": "Add feature information parameters",
+          "name": "Name",
+          "value": "Value",
+          "order": "Format",
+          "format": "Format",
+          "type": "Type"  
+        }
+      },
+      "filters": {
+        "header": "Filters",
+        "applyFilterToGetMap": "Apply filters to map requests",
+        "applyFilterToSpatialSelection": "Apply filters to spatial selection requests",
+        "applyFilterToGetFeatureInfo": "Apply filters to get feature info requests",
+        "parameters": {
+          "title": "Add filter",
+          "name": "Name",
+          "column": "Column",
+          "values": "Values",
+          "type": "Type",
+          "valueType": "Value type",
+          "territorialLevel": "Territorial level",
+          "required": "Required"
+        }
+      },
+      "styles": {
+        "header": "Styles",
+        "parameters": {
+          "header": "Add style",
+          "name": "Name",
+          "title": "Title",
+          "description": "Description",
+          "format": "Format",
+          "width": "Width",
+          "height": "Height",
+          "url": "URL",
+          "defaultStyle": "Default style"
+        }
+      },
+      "territories": {
+        "header": "Territories",
+        "parameters": {
+          "title": "Add territory",
+          "name": "Name",
+          "type": "Type",
+          "code": "Code"
+        }
+      },
+      "permissions": {
+        "header": "Permissions",
+        "parameters": {
+          "title": "Add permission",
+          "name": "Name",
+          "roles": "Roles"
+        }
+      },
+      "trees": {
+        "header": "Trees",
+        "name": "Tree",
+        "node": "Node"
+      },
+      "button": {
+        "loadSpatialParameters": "Load parameters"
+      }
     },
     "connection": {
       "label": "Connection",
