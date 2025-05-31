@@ -40,9 +40,6 @@ const codeValue = {
   systemUser: {
     public: 'public',
   },
-  serviceAuthenticationMode: {
-    none: 'None'
-  },
   serviceType: {
     wms: 'WMS'
   }

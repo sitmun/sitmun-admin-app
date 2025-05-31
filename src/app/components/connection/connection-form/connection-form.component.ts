@@ -125,8 +125,6 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
     }
     this.isPasswordBeingEdited = false;
 
-    console.log(!this.isPasswordBeingEdited && this.passwordSet);
-
     this.entityForm = new UntypedFormGroup({
       name: new UntypedFormControl(this.entityToEdit.name, [Validators.required]),
       driver: new UntypedFormControl(this.entityToEdit.driver, [Validators.required]),
@@ -154,7 +152,6 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
     if (this.isPasswordBeingEdited) {
       safeToEdit.password = this.entityForm.get('newPassword').value;
     }
-    console.log(safeToEdit);
     return Connection.fromObject(safeToEdit);
   }
 
@@ -187,7 +184,6 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
    */
   override async updateEntity() {
     const entityToUpdate = this.createObject(this.entityID);
-    console.log(entityToUpdate);
     await firstValueFrom(this.connectionService.update(entityToUpdate));
   }
 

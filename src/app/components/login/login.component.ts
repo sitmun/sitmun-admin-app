@@ -16,7 +16,7 @@ import {UtilsService} from '@app/services/utils.service';
 })
 export class LoginComponent implements OnInit {
 
-  langs: any[] = [];
+  langs: Language[] = [];
 
   /** bad credentials message*/
   badCredentials: string;
@@ -24,11 +24,10 @@ export class LoginComponent implements OnInit {
   /** translate service*/
   translate;
 
-  languagesLoaded = false;
+  loadedData = false;
 
   /** form */
   form: UntypedFormGroup;
-  lang: Language;
 
   /** constructor */
   constructor(private fb: UntypedFormBuilder,
@@ -39,37 +38,70 @@ export class LoginComponent implements OnInit {
               private trans: TranslateService,
               private changeDetectorRef: ChangeDetectorRef) {
     this.translate = trans;
-    this.form = this.fb.group({
-      username: ['', Validators.required],
-      password: ['', Validators.required],
-      lang: ['', Validators.required],
-    });
-  }
-
-  identifyDefaultLanguage(): Language {
-    const navigatorLang = window.navigator.language.toLowerCase();
-    // Remove region codes (e.g., 'en-US' -> 'en', 'oc-aranes' -> 'oc-aranes')
-    const baseLang = navigatorLang.replace(/-[A-Z]+$/, '');
-    const defaultLang : string = this.langs.find((lang: Language) =>
-      lang.shortname.toLowerCase() === baseLang
-    )?.shortname || config.defaultLang;
-    return this.langs.find((lang: Language) => lang.shortname === defaultLang)
   }
 
   ngOnInit(): void {
     this.loadLanguages().then((langs : Language[]) => {
       this.langs = langs;
-      this.languagesLoaded = true;
-    }).then(() => {
-      const defaultLang = this.identifyDefaultLanguage();
-      this.translate.use(defaultLang.shortname);
-      this.lang = defaultLang;
-      this.form.patchValue({lang: defaultLang});
-      this.changeDetectorRef.detectChanges();
+
+      // Get stored language or browser language
+      const storedLang = localStorage.getItem('lang');
+
+      let defaultLang: Language;
+
+      if (storedLang) {
+        defaultLang = this.langs.find(lang => lang.shortname === storedLang);
+      }
+
+      if (!defaultLang) {
+        defaultLang = this.identifyDefaultLanguage();
+      }
+
+      // Ensure we have a valid language
+      if (!defaultLang && this.langs.length > 0) {
+        defaultLang = this.langs[0];
+      }
+
+      if (defaultLang) {
+        // Set the language in the translation service
+        this.translate.use(defaultLang.shortname).subscribe(() => {
+          this.translate.setDefaultLang(defaultLang.shortname);
+
+          // Initialize form with default language
+          this.form = this.fb.group({
+            username: ['', Validators.required],
+            password: ['', Validators.required],
+            lang: [defaultLang.shortname, Validators.required],
+          });
+
+          // Mark data as loaded
+          this.loadedData = true;
+        });
+      } else {
+        console.error('No valid language found!');
+      }
     }).catch((err) => {
-      const defaultLang = this.identifyDefaultLanguage();
-      this.translate.use(defaultLang.shortname);
       this.utils.showErrorMessage(err);
+    });
+  }
+
+  private loadLanguages(): Promise<Language[]> {
+    return this.languageService.getAll().toPromise().then((langs) => {
+      if (!langs || langs.length === 0) {
+        throw new Error('No languages available');
+      }
+
+      // Sort languages by name
+      const sortedLangs = langs.sort((a, b) => {
+        try {
+          const nameA = this.trans.instant('lang.' + a.name);
+          const nameB = this.trans.instant('lang.' + b.name);
+          return nameA.localeCompare(nameB);
+        } catch (e) {
+          return a.name.localeCompare(b.name);
+        }
+      });
+      return sortedLangs;
     });
   }
 
@@ -78,13 +110,13 @@ export class LoginComponent implements OnInit {
     const val = this.form.value;
     if (val.username && val.password) {
       this.loginService.login(val).then(() => {
-        const langCode = this.form.value.lang.shortname;
+        const langCode = val.lang;
         this.translate.use(langCode);
         this.translate.setDefaultLang(langCode);
         localStorage.setItem('lang', langCode);
         void this.router.navigateByUrl('/');
       }, () => {
-        const langCode = this.form.value.lang.shortname;
+        const langCode = val.lang;
         this.translate.use(langCode);
         this.translate.setDefaultLang(langCode);
         localStorage.setItem('lang', langCode);
@@ -93,17 +125,43 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  private loadLanguages(): Promise<Language[]> {
-    return this.languageService.getAll().toPromise().then((langs) => {
-      if (this.trans.currentLang) {
-        return langs.sort((a, b) => this.trans.instant('lang.' + a.name).localeCompare(this.trans.instant('lang.' + b.name)));
-      } else {
-        return langs.sort((a, b) => a.name.localeCompare(b.name));
-      }
-    })
+  identifyDefaultLanguage(): Language {
+    if (!this.langs || this.langs.length === 0) {
+      console.warn('No languages available for identification');
+      return null;
+    }
+
+    const navigatorLang = window.navigator.language.toLowerCase();
+
+    // Remove region codes (e.g., 'en-US' -> 'en', 'oc-aranes' -> 'oc-aranes')
+    const baseLang = navigatorLang.replace(/-[A-Z]+$/, '');
+
+    // Try to find exact match first
+    let defaultLang = this.langs.find((lang: Language) =>
+      lang.shortname.toLowerCase() === baseLang
+    );
+
+    // If no exact match, try to find partial match
+    if (!defaultLang) {
+      defaultLang = this.langs.find((lang: Language) =>
+        lang.shortname.toLowerCase().startsWith(baseLang)
+      );
+    }
+
+    // If still no match, use config default
+    if (!defaultLang && config.defaultLang) {
+      defaultLang = this.langs.find((lang: Language) =>
+        lang.shortname === config.defaultLang
+      );
+    }
+
+    // If all else fails, use first language
+    const finalLang = defaultLang || this.langs[0];
+    return finalLang;
   }
 
-  compareLang(o1: Language, o2: Language) {
-    return o1 && o2 && o1.shortname === o2.shortname
+  compareLang(o1: string, o2: string): boolean {
+    if (!o1 || !o2) return false;
+    return o1 === o2;
   }
 }

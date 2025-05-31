@@ -162,6 +162,18 @@ export abstract class Resource {
     }
   }
 
+  public addRelationEx<T extends Resource>(relation: string, resource: T): Observable<any> {
+    if (this._links?.[relation]?.href) {
+      const template = utpl(this._links[relation].href);
+      const url = template.fillFromObject({});
+      let header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
+      return ResourceHelper.getHttp().post(ResourceHelper.getProxy(url), resource._links.self.href, {headers: header});
+    } else {
+      return observableThrowError('no relation found');
+    }
+  }
+
+
   /** Bind the given resource to this resource by the given relation*/
 
   public updateRelationEx<T extends Resource>(relation: string, resource?: T, options: {
@@ -226,9 +238,7 @@ export abstract class Resource {
         targetUrl = targetUrl.substring(0, targetUrl.indexOf('{?projection}'))
       }
       const url = ResourceHelper.getProxy(targetUrl);
-      console.log("Substituting relation", {url: url, resource: resource});
       const body = resource._links.self.href;
-      console.log("Substituting relation", {body: body, headers: header});
       return ResourceHelper.getHttp().put(url, body, {headers: header});
     } else {
       return observableThrowError('no relation found');
@@ -309,15 +319,25 @@ export abstract class Resource {
         return observableThrowError('no relation found');
 
       let relationId: string = link.substring(idx);
-      let targetUrl = this._links[relation].href;
-      if (targetUrl.endsWith('{?projection}')) {
-        targetUrl = targetUrl.substring(0, targetUrl.indexOf('{?projection}'))
-      }
-      return ResourceHelper.getHttp().delete(ResourceHelper.getProxy(targetUrl + '/' + relationId), {headers: ResourceHelper.headers});
+
+      const template = utpl(this._links[relation].href);
+      const url = template.fillFromObject({});
+      return ResourceHelper.getHttp().delete(ResourceHelper.getProxy(url + '/' + relationId), {headers: ResourceHelper.headers});
     } else {
       return observableThrowError('no relation found');
     }
   }
+
+  public deleteRelationById<T extends Resource>(relation: string, id: number): Observable<any> {
+    if (this._links?.[relation]?.href) {
+      const template = utpl(this._links[relation].href);
+      const url = template.fillFromObject({});
+      return ResourceHelper.getHttp().delete(ResourceHelper.getProxy(url + '/' + id), {headers: ResourceHelper.headers});
+    } else {
+      return observableThrowError('no relation found');
+    }
+  }
+
 
   /** Unbind the resource with the given relation from this resource*/
   public deleteAllRelation<T extends Resource>(relation: string): Observable<any> {

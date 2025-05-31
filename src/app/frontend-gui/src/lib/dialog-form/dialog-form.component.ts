@@ -3,7 +3,7 @@ import {UntypedFormGroup} from '@angular/forms';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {TranslateService} from '@ngx-translate/core';
 import {DialogMessageComponent} from '@app/frontend-gui/src/lib/dialog-message/dialog-message.component';
-
+import { explainFormValidity } from '@app/utils/form.utils';
 
 export const DIALOG_FORM_EVENTS = {
   ADD: { event: 'Add' } as DialogFormResult,
@@ -44,6 +44,7 @@ export class DialogFormComponent implements OnInit {
   }
 
   doAdd(){
+    console.log(explainFormValidity(this.form))
     if(this.form.valid) {
       this.dialogRef.close(DIALOG_FORM_EVENTS.ADD);
     } else {

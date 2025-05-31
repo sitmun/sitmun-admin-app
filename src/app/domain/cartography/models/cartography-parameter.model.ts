@@ -4,6 +4,9 @@ import {Cartography} from './cartography.model';
  * Service parameter model
  */
 export class CartographyParameter extends Resource {
+
+  public id: number;
+
   /** name*/
   public name: string;
 

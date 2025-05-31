@@ -13,6 +13,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {map, tap} from "rxjs/operators";
 import {DialogTranslationComponent} from "@app/frontend-gui/src/lib/dialog-translation/dialog-translation.component";
 import { LoggerService } from "@app/services/logger.service";
+import { explainFormValidity } from "@app/utils/form.utils";
 
 /**
  * Base class for SITMUN components that handle resource entities.
@@ -785,50 +786,11 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
   /**
    * Provides detailed explanation of form validity status
    * Examines each control's validation status and error messages
-   * 
+   *
    * @returns A string with detailed validation information
    */
   explainFormValidity(): string {
-    if (!this.entityForm) {
-      return 'Form is not initialized';
-    }
-
-    let explanation = `Form valid: ${this.entityForm.valid}\n`;
-    explanation += 'Field validation details:\n';
-
-    // Check each control in the form
-    Object.keys(this.entityForm.controls).forEach(key => {
-      const control = this.entityForm.get(key);
-      explanation += `- ${key}: ${control.valid ? 'Valid' : 'Invalid'}`;
-      
-      if (!control.valid) {
-        explanation += ', Errors: ';
-        if (control.errors) {
-          Object.keys(control.errors).forEach(errorKey => {
-            explanation += `${errorKey}`;
-            
-            // Add details for specific validation errors
-            if (errorKey === 'required') {
-              explanation += ' (Field is required)';
-            } else if (errorKey === 'maxlength') {
-              explanation += ` (Max length: ${control.errors.maxlength.requiredLength}, Current length: ${control.errors.maxlength.actualLength})`;
-            }
-            explanation += ', ';
-          });
-        }
-        
-        // Show the current value if it might help debugging
-        explanation += `Current value: "${control.value}"`;
-      }
-      
-      explanation += '\n';
-    });
-    
-    // Explain form pristine state
-    explanation += `Form pristine: ${this.entityForm.pristine}\n`;
-    explanation += `Form touched: ${this.entityForm.touched}\n`;
-    
-    return explanation;
+    return explainFormValidity(this.entityForm);
   }
 }
 

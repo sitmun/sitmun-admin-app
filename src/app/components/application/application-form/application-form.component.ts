@@ -174,7 +174,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     list.sort((a, b) => a.name.localeCompare(b.name));
     this.situationMapByDefault = Object.assign(new CartographyGroup(), {
       id: -1,
-      name: this.translateService.instant('(None)')
+      name: ''
     })
     this.situationMapList.push(this.situationMapByDefault);
     this.situationMapList.push(...list);

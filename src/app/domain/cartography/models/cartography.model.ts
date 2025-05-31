@@ -178,6 +178,8 @@ export class CartographyProjection extends Resource {
   public spatialSelectionServiceName: string
   public useAllStyles: boolean
   public stylesNames: string[]
+  public spatialSelectionConnectionId: number
+  public spatialSelectionConnectionName: string
 
   /**
    * Creates a new CartographyProjection instance copying only the properties declared in CartographyProjection and Resource classes
@@ -198,7 +200,8 @@ export class CartographyProjection extends Resource {
       'applyFilterToSpatialSelection', 'legendType', 'legendURL', 'createdDate',
       'metadataURL', 'datasetURL', 'thematic', 'geometryType', 'source',
       'blocked', 'serviceId', 'serviceName', 'spatialSelectionServiceId',
-      'spatialSelectionServiceName', 'useAllStyles', 'stylesNames'
+      'spatialSelectionServiceName', 'useAllStyles', 'stylesNames',
+      'spatialSelectionConnectionId', 'spatialSelectionConnectionName'
     ];
     // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {

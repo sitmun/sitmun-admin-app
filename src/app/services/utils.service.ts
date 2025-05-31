@@ -605,6 +605,42 @@ export class UtilsService {
   }
 
   /**
+   * Generates a column definition object for an editable column that renders as a link.
+   * The link is clickable but the text can also be edited.
+   *
+   * @param alias - The alias used to get the translated header name.
+   * @param field - The field name in the data object that this column represents.
+   * @param minWidth - Optional minimum width for the column.
+   * @param maxWidth - Optional maximum width for the column.
+   * @param openInNewTab - Optional flag to control if links open in new tab. Defaults to true.
+   * @returns An object representing the column definition.
+   */
+  getEditableColumnWithLinkDef(alias, field, minWidth: number = null, maxWidth: number = null, openInNewTab: boolean = true) {
+    const options = {
+      headerName: this.getTranslate(alias),
+      field: field,
+      editable: true,
+      cellRenderer: 'editableLinkRenderer',
+      cellRendererParams: {
+        openInNewTab: openInNewTab
+      },
+      valueGetter: (params) => {
+        const value = this.getValueFromPropertyPath(params.data, field);
+        return Array.isArray(value) ? value.join(',') : value;
+      },
+    };
+    if (minWidth) {
+      options['minWidth'] = minWidth;
+    }
+    if (maxWidth) {
+      options['maxWidth'] = maxWidth;
+      options['wrapText'] = true;
+      options['autoHeight'] = true;
+    }
+    return options;
+  }
+
+  /**
    * Generates a non-editable column definition with a code list for value formatting.
    *
    * @param alias - The alias used for translation of the header name.
@@ -630,7 +666,6 @@ export class UtilsService {
       valueFormatter: (params) => {
         const fieldValue = this.getValueFromPropertyPath(params.data, field);
         if (fieldValue == null) {
-          console.error(`Field value ${fieldValue} is null or undefined for ${codeList}:`);
           return '';
         }
         return this.getTranslate(getDescription(fieldValue));
@@ -638,6 +673,32 @@ export class UtilsService {
       cellClass: 'read-only-cell'
     };
   }
+
+  /**
+   * Generates a non-editable column definition with a code list for value formatting.
+   *
+   * @param alias - The alias used for translation of the header name.
+   * @param field - The field name for the column.
+   * @param descriptionProvider
+   * @returns An object representing the column definition.
+   */
+  getNonEditableColumnWithProviderDef(alias, field, descriptionProvider: (any) => string ) {
+    return {
+      headerName: this.getTranslate(alias),
+      field: field,
+      editable: false,
+      valueFormatter: (params) => {
+        console.log('getNonEditableColumnWithProviderDef', params.data, field);
+        const fieldValue = this.getValueFromPropertyPath(params.data, field);
+        if (fieldValue == null) {
+          return '';
+        }
+        return this.getTranslate(descriptionProvider(fieldValue));
+      },
+      cellClass: 'read-only-cell'
+    };
+  }
+
 
   /**
    * Generates a non-editable column definition.
@@ -668,7 +729,7 @@ export class UtilsService {
     return options;
   }
 
-  getBooleanColumnDef(alias, field, editable, minWidth: number = null, maxWidth: number = null) {
+  getBooleanColumnDef(alias, field, editable, minWidth: number = null, maxWidth: number = null, autoUnsetOthers: boolean = false) {
     const options = {
       headerName: this.getTranslate(alias),
       field: field,
@@ -680,6 +741,17 @@ export class UtilsService {
         return value ? 'true' : 'false';
       },
       floatingFilterComponentParams: {suppressFilterButton: true},
+      onCellValueChanged: autoUnsetOthers ? (params) => {
+        if (params.newValue) {
+          // If setting to true, set all other rows to false
+          params.api.forEachNode((node) => {
+            if (node.id !== params.node.id) {
+              node.data[field] = false;
+            }
+          });
+          params.api.refreshCells({ force: true });
+        }
+      } : undefined
     };
     if (minWidth) {
       options['minWidth'] = minWidth;

@@ -15,6 +15,7 @@ import {
 } from "@app/frontend-gui/src/lib/dialog-grid/dialog-grid.component";
 import {TemplateRef} from "@angular/core";
 import {FormGroup} from "@angular/forms";
+import { explainFormValidity } from "@app/utils/form.utils";
 
 /**
  * Defines the configuration and behavior of a data table in the application.
@@ -240,7 +241,9 @@ export class DataTableDefinition<RELATION, TARGET> {
           this.addCommandEvent$.next(newRelations);
         }
       },
-      error: (error) => this.errorHandler.handleError(error, 'common.error.dialogOperationFailed')
+      error: (error) => {
+        this.errorHandler.handleError(error, 'common.error.dialogOperationFailed')
+      }
     });
   }
 

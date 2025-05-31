@@ -237,7 +237,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
       blocked: false,
       isProxied: false,
       supportedSRS: [],
-      authenticationMode: this.firstInCodeList('service.authenticationMode').value,
+      authenticationMode: 'None' // TODO: change to null
     })
   }
 
@@ -379,16 +379,6 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
       newSrs.splice(index, 1);
       this.entityForm.get('supportedSRS').setValue(newSrs)
     }
-  }
-
-  /**
-   * Determines if credential fields should be displayed based on authentication mode.
-   * Used in template to conditionally show/hide user/password fields.
-   *
-   * @returns True if authentication mode requires credentials, false otherwise
-   */
-  isAuthenticationModeNode(): boolean {
-    return this.entityForm.get('authenticationMode').value !== constants.codeValue.serviceAuthenticationMode.none;
   }
 
   /**

@@ -40,6 +40,7 @@ import {FormsModule} from '@angular/forms';
 import {UtilsService} from '@app/services/utils.service';
 import {LoggerService} from '@app/services/logger.service';
 import {RouterLinkRendererComponent} from '../router-link-renderer/router-link-renderer.component';
+import { EditableLinkRendererComponent } from '../editable-link-renderer/editable-link-renderer.component';
 
 declare let $: any;
 
@@ -477,7 +478,8 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       btnEditRendererComponent: BtnEditRenderedComponent,
       btnCheckboxRendererComponent: BtnCheckboxRenderedComponent,
       btnCheckboxFilterComponent: BtnCheckboxFilterComponent,
-      routerLinkRenderer: RouterLinkRendererComponent
+      routerLinkRenderer: RouterLinkRendererComponent,
+      editableLinkRenderer: EditableLinkRendererComponent
     };
   }
 
