@@ -3,6 +3,10 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { ConfigModule } from './config/config.module';
+import { FeatureFlagDirective } from './features/feature-flag.directive';
+import { FeatureFlagPipe } from './features/feature-flag.pipe';
+import { FeatureFlagComponent } from './features/feature-flag.component';
+import { FeatureFlagService } from './features/feature-flag.service';
 
 // Auth services
 import { AuthService } from './auth/auth.service';
@@ -33,11 +37,17 @@ import { MessagesInterceptor } from './interceptors/messages.interceptor';
   ],
   declarations: [
     HasAnyAuthorityDirective,
-    HasAnyAuthorityOnTerritoryDirective
+    HasAnyAuthorityOnTerritoryDirective,
+    FeatureFlagDirective,
+    FeatureFlagPipe,
+    FeatureFlagComponent
   ],
   exports: [
     HasAnyAuthorityDirective,
-    HasAnyAuthorityOnTerritoryDirective
+    HasAnyAuthorityOnTerritoryDirective,
+    FeatureFlagDirective,
+    FeatureFlagPipe,
+    FeatureFlagComponent
   ]
 })
 export class CoreModule {
@@ -59,6 +69,9 @@ export class CoreModule {
 
         // Account services
         AccountService,
+
+        // Feature services
+        FeatureFlagService,
 
         // Guards
         CanDeactivateGuard,
