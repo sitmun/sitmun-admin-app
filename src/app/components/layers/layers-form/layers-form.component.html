@@ -66,10 +66,12 @@
             <mat-label>{{ 'entity.cartography.transparency' | translate }}</mat-label>
             <input matInput type="number" formControlName="transparency">
           </mat-form-field>
-          <mat-form-field appearance="outline" class="quarter">
-            <mat-label>{{ 'entity.cartography.source' | translate }}</mat-label>
-            <input matInput type="text" formControlName="source">
-          </mat-form-field>
+          <ng-container *featureFlag="'LAYERS_SOURCE_FEATURE'">
+            <mat-form-field appearance="outline" class="quarter">
+              <mat-label>{{ 'entity.cartography.source' | translate | featureFlag:'LAYERS_SOURCE_FEATURE'}}</mat-label>
+              <input matInput type="text" formControlName="source">
+            </mat-form-field>
+          </ng-container>
           <div class="break"></div>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'entity.cartography.datasetURL' | translate }}</mat-label>
@@ -82,7 +84,8 @@
         </mat-card-content>
       </mat-card>
     </mat-tab>
-    <mat-tab label="{{ 'entity.cartography.parameters.header' | translate }}">
+    <ng-container *featureFlag="'LAYERS_QUERYABLE_FEATURE'">
+      <mat-tab label="{{ 'entity.cartography.parameters.header' | translate | featureFlag:'LAYERS_QUERYABLE_FEATURE'}}">
       <mat-card appearance="outlined">
         <mat-card-content>
           <app-data-grid [changeHeightButton]="true"
@@ -109,40 +112,41 @@
         </mat-card-content>
       </mat-card>
     </mat-tab>
-    <mat-tab label="{{ 'entity.cartography.featureInformation.header' | translate }}">
-      <mat-card appearance="outlined" class="sitmun-mat-card-margin">
-        <mat-card-content>
-          <mat-checkbox formControlName="queryableFeatureEnabled">
-            {{ 'entity.cartography.featureInformation.queryable' | translate }}
-          </mat-checkbox>
-        </mat-card-content>
-      </mat-card>
-      <mat-card appearance="outlined" *ngIf="entityForm.get('queryableFeatureEnabled').value"
-                class="sitmun-mat-card-margin">
-        <mat-card-content>
-          <mat-checkbox formControlName="queryableFeatureAvailable">
-            {{ 'entity.cartography.featureInformation.layerAll' | translate }}
-          </mat-checkbox>
-          <div class="break"></div>
-          <mat-form-field appearance="outline" class="half and-gap"
-                          *ngIf="entityForm.get('queryableFeatureAvailable').value !== true">
-            <mat-label>{{ 'entity.cartography.featureInformation.layerFilter' | translate }}</mat-label>
-            <input matInput type="text" formControlName="joinedQueryableLayers">
-            <mat-error *ngIf="entityForm.get('joinedQueryableLayers').errors?.['invalidLayers']">
-              {{ 'entity.cartography.featureInformation.invalidLayers' | translate }}
-              : {{ entityForm.get('joinedQueryableLayers').errors?.['invalidLayers'].join(', ') }}
-            </mat-error>
-            <mat-error *ngIf="entityForm.get('joinedQueryableLayers').errors?.['duplicateLayers']">
-              {{ 'entity.cartography.featureInformation.duplicateLayers' | translate }}
-              : {{ entityForm.get('joinedQueryableLayers').errors?.['duplicateLayers'].join(', ') }}
-            </mat-error>
-            <mat-hint *ngIf="!entityForm.get('joinedQueryableLayers').value || getAvailableLayers()">
-              {{ 'entity.cartography.featureInformation.availableLayers' | translate }}: {{ getAvailableLayers() }}
-            </mat-hint>
-          </mat-form-field>
-        </mat-card-content>
-      </mat-card>
-    </mat-tab>
+      <mat-tab label="{{ 'entity.cartography.featureInformation.header' | translate }}">
+        <mat-card appearance="outlined" class="sitmun-mat-card-margin">
+          <mat-card-content>
+            <mat-checkbox formControlName="queryableFeatureEnabled">
+              {{ 'entity.cartography.featureInformation.queryable' | translate }}
+            </mat-checkbox>
+          </mat-card-content>
+        </mat-card>
+        <mat-card appearance="outlined" *ngIf="entityForm.get('queryableFeatureEnabled').value"
+                  class="sitmun-mat-card-margin">
+          <mat-card-content>
+            <mat-checkbox formControlName="queryableFeatureAvailable">
+              {{ 'entity.cartography.featureInformation.layerAll' | translate }}
+            </mat-checkbox>
+            <div class="break"></div>
+            <mat-form-field appearance="outline" class="half and-gap"
+                            *ngIf="entityForm.get('queryableFeatureAvailable').value !== true">
+              <mat-label>{{ 'entity.cartography.featureInformation.layerFilter' | translate }}</mat-label>
+              <input matInput type="text" formControlName="joinedQueryableLayers">
+              <mat-error *ngIf="entityForm.get('joinedQueryableLayers').errors?.['invalidLayers']">
+                {{ 'entity.cartography.featureInformation.invalidLayers' | translate }}
+                : {{ entityForm.get('joinedQueryableLayers').errors?.['invalidLayers'].join(', ') }}
+              </mat-error>
+              <mat-error *ngIf="entityForm.get('joinedQueryableLayers').errors?.['duplicateLayers']">
+                {{ 'entity.cartography.featureInformation.duplicateLayers' | translate }}
+                : {{ entityForm.get('joinedQueryableLayers').errors?.['duplicateLayers'].join(', ') }}
+              </mat-error>
+              <mat-hint *ngIf="!entityForm.get('joinedQueryableLayers').value || getAvailableLayers()">
+                {{ 'entity.cartography.featureInformation.availableLayers' | translate }}: {{ getAvailableLayers() }}
+              </mat-hint>
+            </mat-form-field>
+          </mat-card-content>
+        </mat-card>
+      </mat-tab>
+    </ng-container>
     <mat-tab label="{{ 'entity.cartography.filters.header' | translate }}">
       <mat-card appearance="outlined" class="sitmun-mat-card-margin">
         <mat-card-content>

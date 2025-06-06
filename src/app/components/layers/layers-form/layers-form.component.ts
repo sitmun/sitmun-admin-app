@@ -49,6 +49,9 @@ import { TranslateService } from '@ngx-translate/core';
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import { DataTableDefinition, TemplateDialog } from '@app/components/data-tables.util';
 import {HttpClient} from "@angular/common/http";
+import { FeatureFlagService } from '@app/core/features/feature-flag.service';
+import { FeatureFlagPipe } from '@app/core/features/feature-flag.pipe';
+import { FeatureFlagComponent } from '@app/core/features/feature-flag.component';
 
 @Component({
   selector: 'app-layers-form',
@@ -144,6 +147,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     protected http: HttpClient,
     protected utils: UtilsService,
     protected getInfoService: GetInfoService,
+    protected featureFlagService: FeatureFlagService,
   ) {
     super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router);
     this.treesNodesTable = this.defineTreesNodesTable();
