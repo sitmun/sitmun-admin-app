@@ -48,12 +48,10 @@
                    [type]="'text'"
                    [maxlength]="50"
                    (input)="onPasswordChange()"
+                   [ngModel]="(!isPasswordBeingEdited && passwordSet) ? '••••••••' : ''"
                    class="password-input">
             <mat-hint *ngIf="isPasswordBeingEdited" align="end">
               {{ entityForm.get('newPassword') | characterCount }}
-            </mat-hint>
-            <mat-hint *ngIf="!isPasswordBeingEdited && passwordSet" align="end">
-              {{ 'common.form.password.set' | translate }}
             </mat-hint>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
