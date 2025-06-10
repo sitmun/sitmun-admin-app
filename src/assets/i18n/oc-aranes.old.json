@@ -528,7 +528,8 @@
     "Thematic": "Tematic",
     "Extraction (FME)": "Extraccion FME",
     "Basic": "Generau",
-    "url": "Url"
+    "url": "Url",
+    "required": "Obligatòri"
   },
   "tasksQueryEntity": {
     "tasksQuery": "Trabalhs-Consultes",
@@ -736,6 +737,7 @@
     "startdate": "Data d'inici",
     "enddate": "Data de fin",
     "dateformat": "Format de data",
+    "address": "Adreça",
     "category": "Category",
     "schedule": "Horario",
     "price": "Precio",

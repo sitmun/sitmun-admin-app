@@ -107,7 +107,7 @@ export class MapTreeComponent {
     if (typeof obj !== 'object' || obj === null) {
       let newPath = path;
       if (this.treeDataType === 'json') {
-        newPath = jp.stringify(jp.paths(origData, '$..'.concat(name))[0]);
+        newPath = jp.stringify(jp.paths(origData, '$..'.concat(name.replace('[pos]', '[0]')))[0]).replaceAll('[0]', '[pos]');
       } else if (this.treeDataType === 'xml') {
         newPath = path.replace('@/', '@');
       }
@@ -116,8 +116,8 @@ export class MapTreeComponent {
       result = {
         name,
         path,
-        children: obj.map((item, index) => 
-          this.convertToTree(item, `${name}[${index}]`, origData, `${path}/${name}[pos]`)
+        children: obj.map((item) => 
+          this.convertToTree(item, `${name}[pos]`, origData, `${path}[pos]`)
         )
       };
     } else {

@@ -738,6 +738,7 @@
     "startdate": "Fecha de inicio",
     "enddate": "Fecha de fin",
     "dateformat": "Formato de fecha",
+    "address": "Dirección",
     "category": "Categoria",
     "schedule": "Horario",
     "price": "Precio",

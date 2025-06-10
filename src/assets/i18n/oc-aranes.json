@@ -325,6 +325,7 @@
   "noTuristicTreeAppMessage": "Un arriu non toristic non pòt auer associada ua aplicacion toristica",
   "nodeMapping.category": "Category",
   "nodeMapping.dateformat": "Format de data",
+  "nodeMapping.address": "Adreça",
   "nodeMapping.description": "Descripcion",
   "nodeMapping.distance": "Distància",
   "nodeMapping.editResponse": "Editar responsa",

@@ -526,7 +526,8 @@
     "Thematic": "Thematic",
     "Extraction (FME)": "Extraction FME",
     "Basic": "General",
-    "url": "Url"
+    "url": "Url",
+    "required": "Requis"
   },
   "tasksQueryEntity": {
     "tasksQuery": "Tasks-Queries",
@@ -734,6 +735,7 @@
     "startdate": "Date de début",
     "enddate": "Date de fin",
     "dateformat": "Format de date",
+    "address": "Addresse",
     "category": "Category",
     "schedule": "Horario",
     "price": "Precio",

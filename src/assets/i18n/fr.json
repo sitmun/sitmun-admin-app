@@ -325,6 +325,7 @@
   "noTuristicTreeAppMessage": "Un arbre non touristique ne peut pas avoir une application touristique associée",
   "nodeMapping.category": "Category",
   "nodeMapping.dateformat": "Format de date",
+  "nodeMapping.address": "Addresse",
   "nodeMapping.description": "Description",
   "nodeMapping.distance": "Distance",
   "nodeMapping.editResponse": "Éditer la réponse",

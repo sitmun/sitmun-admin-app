@@ -428,7 +428,8 @@
     "boolean": "Boolean",
     "number": "Number",
     "array": "Array",
-    "null": "Null"
+    "null": "Null",
+    "required": "Required"
   },
   "tasksQueryEntity": {
     "tasksQuery": "Tasks-Queries",
@@ -633,6 +634,7 @@
     "proj": "Projection",
     "hour": "Hour",
     "path": "Path",
+    "address": "Address",
     "startdate": "Start date",
     "enddate": "End date",
     "dateformat": "Date format",
