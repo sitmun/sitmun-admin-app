@@ -1,6 +1,6 @@
 <app-form-toolbar
   icon="menu_capes_fons"
-  entityType="backgroundEntity.backgroundLayers"
+  entityType="entity.background.label"
   [itemName]="entityForm?.get('name')?.value"
   [isNew]="isNewOrDuplicated()"
   (save)="onSaveButtonClicked()"
@@ -16,7 +16,7 @@
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
         <mat-card-content>
             <mat-form-field appearance="outline" class="full">
-              <mat-label>{{'backgroundEntity.name' | translate}}</mat-label>
+              <mat-label>{{'common.form.name' | translate}}</mat-label>
               <input matInput type="text" formControlName="name" required [maxlength]="50">
               <mat-hint align="end" [class.text-warning]="entityForm.get('name')?.value?.length > 50">
                 {{entityForm.get('name') | characterCount}}
@@ -29,7 +29,7 @@
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full">
-              <mat-label>{{'backgroundEntity.description' | translate}}</mat-label>
+              <mat-label>{{'common.form.description' | translate}}</mat-label>
               <textarea matInput type="text" formControlName="description" [maxlength]="250"> </textarea>
               <mat-hint align="end">{{entityForm.get('description') | characterCount}}</mat-hint>
               <mat-icon matSuffix class="iconTranslate" (click)="onTranslated('description')"
@@ -38,20 +38,20 @@
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full">
-              <mat-label>{{'backgroundEntity.image' | translate}}</mat-label>
+              <mat-label>{{'common.form.image' | translate}}</mat-label>
               <input matInput type="text" formControlName="image" [maxlength]="4000">
               <mat-hint align="end">{{entityForm.get('image') | characterCount}}</mat-hint>
             </mat-form-field>
 
             <mat-checkbox formControlName="active">
-              {{'backgroundEntity.active' | translate}}
+              {{'common.form.active' | translate}}
             </mat-checkbox>
 
         </mat-card-content>
       </mat-card>
     </form>
   </mat-tab>
-  <mat-tab label=" {{ 'backgroundEntity.cartographiesConfiguration' | translate }}">
+  <mat-tab label=" {{ 'entity.permissiongroup.layers.header' | translate }}">
     <app-data-grid [changeHeightButton]="true"
                    [allNewElements]="isNewOrDuplicated()"
                    [columnDefs]="membersTable.relationsColumnsDefs"
@@ -72,7 +72,7 @@
                    *ngIf="dataLoaded"
     > </app-data-grid>
   </mat-tab>
-  <mat-tab label="{{ 'backgroundEntity.roles' | translate }}">
+  <mat-tab label="{{ 'entity.permissiongroup.roles.header' | translate }}">
     <app-data-grid [changeHeightButton]="true"
                    [allNewElements]="isNewOrDuplicated()"
                    [columnDefs]="rolesTable.relationsColumnsDefs"
@@ -93,7 +93,7 @@
                    *ngIf="dataLoaded"
     > </app-data-grid>
   </mat-tab>
-  <mat-tab label="{{ 'layersPermitsEntity.applications' | translate }}">
+  <mat-tab label="{{ 'entity.permissiongroup.applications.header' | translate }}">
     <app-data-grid [changeHeightButton]="true"
                    [allNewElements]="isNewOrDuplicated()"
                    [columnDefs]="applicationBackgroundsTable.relationsColumnsDefs"

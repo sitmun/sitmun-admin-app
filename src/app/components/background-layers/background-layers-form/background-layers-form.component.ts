@@ -274,8 +274,10 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
     return DataTableDefinition.builder<Role, Role>(this.dialog, this.errorHandler)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('layersPermitsEntity.name', 'name'),
-        this.utils.getNonEditableColumnDef('backgroundEntity.description', 'description'),
+        this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/role/:id/roleForm', {
+          id: 'id',
+        }),
+        this.utils.getNonEditableColumnDef('common.form.description', 'description'),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('name')
@@ -291,12 +293,12 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
       })
       .withTargetsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('layersPermitsEntity.name', 'name'),
-        this.utils.getNonEditableColumnDef('backgroundEntity.description', 'description'),
+        this.utils.getNonEditableColumnDef('common.form.name', 'name', 100, 300),
+        this.utils.getNonEditableColumnDef('common.form.description', 'description', 100, 300),
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.roleService.getAll())
-      .withTargetsTitle(this.translateService.instant('backgroundEntity.roles'))
+      .withTargetsTitle(this.translateService.instant('entity.permissiongroup.roles.title'))
       .build();
   }
 
@@ -310,8 +312,10 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
     return DataTableDefinition.builder<ApplicationBackgroundProjection, ApplicationProjection>(this.dialog, this.errorHandler)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('layersPermitsEntity.name', 'applicationName'),
-        this.utils.getEditableColumnDef('applicationEntity.order', 'order'),
+        this.utils.getRouterLinkColumnDef('common.form.name', 'applicationName', '/application/:id/applicationForm', {
+          id: 'applicationId',
+        }),
+        this.utils.getEditableColumnDef('common.form.order', 'order'),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('applicationName')
@@ -335,14 +339,15 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
       })
       .withTargetsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('layersPermitsEntity.name', 'name'),
+        this.utils.getNonEditableColumnDef('common.form.name', 'name', 100, 400),
+        this.utils.getNonEditableColumnDef('common.form.description', 'description', 100, 600),
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.applicationService.getAllProjection(ApplicationProjection))
       .withTargetInclude((applicationBackgrounds: (ApplicationBackgroundProjection)[]) =>
         (item: ApplicationProjection) => !applicationBackgrounds.some((applicationBackground) => applicationBackground.applicationId === item.id))
       .withTargetToRelation((items: ApplicationProjection[]) => items.map(item => ApplicationBackgroundProjection.of(item, this.entityToEdit, 0)))
-      .withTargetsTitle(this.translateService.instant('layersPermitsEntity.applications'))
+      .withTargetsTitle(this.translateService.instant('entity.permissiongroup.applications.title'))
       .withTargetsOrder('name')
       .build();
   }
@@ -357,9 +362,13 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
     return DataTableDefinition.builder<CartographyProjection, CartographyProjection>(this.dialog, this.errorHandler)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('layersPermitsEntity.name', 'name'),
-        this.utils.getNonEditableColumnDef('layersPermitsEntity.layers', 'layers'),
-        this.utils.getNonEditableColumnDef('layersPermitsEntity.serviceName', 'serviceName'),
+        this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/layers/:id/layersForm', {
+          id: 'id',
+        }),
+        this.utils.getNonEditableColumnDef('entity.permissiongroup.layers.layerslist', 'layers'),
+        this.utils.getRouterLinkColumnDef('entity.permissiongroup.layers.service', 'serviceName', '/service/:id/serviceForm', {
+          id: 'serviceId',
+        }),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('name')
@@ -376,16 +385,16 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
       })
       .withTargetsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('layersPermitsEntity.name', 'name'),
-        this.utils.getNonEditableColumnDef('layersPermitsEntity.layers', 'layers'),
-        this.utils.getNonEditableColumnDef('layersPermitsEntity.serviceName', 'serviceName'),
+        this.utils.getNonEditableColumnDef('common.form.name', 'name', 100, 300),
+        this.utils.getNonEditableColumnDef('entity.permissiongroup.layers.layerslist', 'layers', 100, 300),
+        this.utils.getNonEditableColumnDef('entity.permissiongroup.layers.service', 'serviceName', 100, 300),
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.cartographyService.getAllProjection(CartographyProjection))
       .withTargetInclude((cartographies: (CartographyProjection & Status)[]) => (item: CartographyProjection) => {
         return !cartographies.some((cartography) => cartography.id === item.id);
       })
-      .withTargetsTitle(this.translateService.instant('backgroundEntity.roles'))
+      .withTargetsTitle(this.translateService.instant('entity.permissiongroup.layers.title'))
       .build();
   }
 
