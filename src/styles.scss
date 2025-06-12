@@ -933,3 +933,11 @@ mat-card-content {
     background: #E8F1DE !important;
   }
 }
+
+.router-link {
+  color: #007bff;
+  text-decoration: none;
+}
+.router-link:hover {
+  text-decoration: underline;
+}

@@ -24,15 +24,6 @@ import { Router, RouterModule } from '@angular/router';
       {{ params.value }}
     </a>
   `,
-  styles: [`
-    .router-link {
-      color: #007bff;
-      text-decoration: none;
-    }
-    .router-link:hover {
-      text-decoration: underline;
-    }
-  `],
   standalone: true,
   imports: [RouterModule]
 })

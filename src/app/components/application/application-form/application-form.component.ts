@@ -98,12 +98,6 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
   protected situationMapList: CartographyGroup[] = [];
 
   /**
-   * Default situation map when none is selected.
-   * Represents a null option in the situation map dropdown.
-   */
-  private situationMapByDefault: CartographyGroup = null;
-
-  /**
    * Reference to the dialog template used for creating new parameters.
    * Used by the parameters table for adding new application parameters.
    */
@@ -172,12 +166,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     await this.initCodeLists(['application.type', 'applicationParameter.type'])
     const list = await firstValueFrom(this.fetchSituationMapList())
     list.sort((a, b) => a.name.localeCompare(b.name));
-    this.situationMapByDefault = Object.assign(new CartographyGroup(), {
-      id: -1,
-      name: ''
-    })
-    this.situationMapList.push(this.situationMapByDefault);
-    this.situationMapList.push(...list);
+    this.situationMapList = list;
   }
 
   /**
@@ -236,8 +225,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       title: new UntypedFormControl(this.entityToEdit.title),
       jspTemplate: new UntypedFormControl(this.entityToEdit.jspTemplate), // URL or path to external application template
       theme: new UntypedFormControl(this.entityToEdit.theme),
-      situationMapId: new UntypedFormControl(this.entityToEdit.situationMapId ?
-        this.entityToEdit.situationMapId : this.situationMapByDefault.id, []),
+      situationMapId: new UntypedFormControl(this.entityToEdit.situationMapId, []),
       srs: new UntypedFormControl(this.entityToEdit.srs),
       scales: new UntypedFormControl(this.entityToEdit.scales?.join(',')),
       treeAutoRefresh: new UntypedFormControl(this.entityToEdit.treeAutoRefresh),
@@ -260,8 +248,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       {
         id: id,
         scales: this.entityForm.value.scales != null ? this.entityForm.value.scales.toString().split(',') : null,
-        situationMap: this.situationMapList.find(item => item.id !== this.situationMapByDefault.id
-            && item.id === this.entityForm.value.situationMapId)
+        situationMap: this.situationMapList.find(item => item.id === this.entityForm.value.situationMapId)
           || null,
       }
     );
@@ -405,9 +392,9 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     return DataTableDefinition.builder<ApplicationParameter, ApplicationParameter>(this.dialog, this.errorHandler)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getEditableColumnDef('applicationEntity.name', 'name'),
-        this.utils.getEditableColumnDef('applicationEntity.value', 'value'),
-        this.utils.getNonEditableColumnDef('applicationEntity.type', 'typeDescription'),
+        this.utils.getEditableColumnDef('common.form.name', 'name'),
+        this.utils.getEditableColumnDef('common.form.value', 'value'),
+        this.utils.getNonEditableColumnDef('common.form.type', 'typeDescription'),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('name')
@@ -432,7 +419,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       })
       .withTemplateDialog('newParameterDialog', () => TemplateDialog.builder()
         .withReference(this.newParameterDialog)
-        .withTitle(this.translateService.instant('applicationEntity.newParameter'))
+        .withTitle(this.translateService.instant('entity.application.parameters.title'))
         .withForm(
           new FormGroup({
             name: new FormControl('', {
@@ -463,8 +450,8 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     return DataTableDefinition.builder<Tree, Tree>(this.dialog, this.errorHandler)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getIdColumnDef(),
-        this.utils.getEditableColumnDef('applicationEntity.name', 'name'),
+        this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/trees/:id/treesForm', {id: 'id'}),
+        this.utils.getNonEditableColumnDef('common.form.type', 'description'),
         this.utils.getStatusColumnDef(),
       ])
       .withRelationsOrder('name')
@@ -480,12 +467,12 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       })
       .withTargetsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getIdColumnDef(),
-        this.utils.getNonEditableColumnDef('applicationEntity.name', 'name'),
+        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
+        this.utils.getNonEditableColumnDef('common.form.type', 'description'),
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.treeService.getAll())
-      .withTargetsTitle(this.translateService.instant('backgroundEntity.roles'))
+      .withTargetsTitle(this.translateService.instant('entity.application.trees.title'))
       .build();
   }
 
@@ -499,8 +486,8 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     return DataTableDefinition.builder<Role, Role>(this.dialog, this.errorHandler)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('layersPermitsEntity.name', 'name'),
-        this.utils.getNonEditableColumnDef('backgroundEntity.description', 'description'),
+        this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/roles/:id/rolesForm', {id: 'id'}),
+        this.utils.getNonEditableColumnDef('common.form.description', 'description'),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('name')
@@ -515,12 +502,12 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       })
       .withTargetsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('layersPermitsEntity.name', 'name'),
-        this.utils.getNonEditableColumnDef('backgroundEntity.description', 'description'),
+        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
+        this.utils.getNonEditableColumnDef('common.form.description', 'description'),
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.roleService.getAll())
-      .withTargetsTitle(this.translateService.instant('backgroundEntity.roles'))
+      .withTargetsTitle(this.translateService.instant('entity.application.roles.title'))
       .build();
   }
 
@@ -534,10 +521,9 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     return DataTableDefinition.builder<ApplicationBackgroundProjection, BackgroundProjection>(this.dialog, this.errorHandler)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getIdColumnDef(),
-        this.utils.getNonEditableColumnDef('applicationEntity.name', 'backgroundName'),
-        this.utils.getNonEditableColumnDef('applicationEntity.description', 'backgroundDescription'),
-        this.utils.getEditableColumnDef('applicationEntity.order', 'order'),
+        this.utils.getRouterLinkColumnDef('common.form.name', 'backgroundName', '/backgroundLayers/:id/backgroundLayersForm', {id: 'backgroundId'}),
+        this.utils.getNonEditableColumnDef('common.form.description', 'backgroundDescription'),
+        this.utils.getEditableColumnDef('common.form.order', 'order'),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('backgroundName')
@@ -570,9 +556,8 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       })
       .withTargetsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getIdColumnDef(),
-        this.utils.getNonEditableColumnDef('applicationEntity.name', 'name'),
-        this.utils.getNonEditableColumnDef('layersPermitsEntity.description', 'description'),
+        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
+        this.utils.getNonEditableColumnDef('common.form.description', 'description'),
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.backgroundService.getAllProjection(BackgroundProjection))
@@ -582,7 +567,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       .withTargetToRelation((items: BackgroundProjection[]) => {
         return items.map(item => ApplicationBackgroundProjection.of(this.entityToEdit, item, 0));
       })
-      .withTargetsTitle(this.translateService.instant('applicationEntity.background'))
+      .withTargetsTitle(this.translateService.instant('entity.application.background.title'))
       .withTargetsOrder('name')
       .build();
   }
@@ -600,5 +585,15 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       ]
     };
     return this.cartographyGroupService.getAll(query);
+  }
+
+  /**
+   * Gets the name of a situation map by its ID
+   * @param id - The ID of the situation map to look up
+   * @returns The name of the situation map or empty string if not found
+   */
+  getSituationMapName(id: number): string {
+    const map = this.situationMapList?.find(map => map.id === id);
+    return map?.name || '';
   }
 }
