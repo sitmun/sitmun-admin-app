@@ -430,14 +430,14 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     this.gridOptions = {
       onGridReady: this.onGridReady.bind(this),
       autoSizeStrategy: {
-        type: 'fitCellContents',
+        type: 'fitCellContents'
       },
       defaultColDef: {
         filter: true,
-        // floatingFilter: true,
         sortable: true,
         editable: !this.nonEditable,
         resizable: true,
+        minWidth: 100,
         cellStyle: (params) => {
           if (params.value && params.colDef.editable) {
             if (this.changesMap.has(params.node.id) && this.changesMap.get(params.node.id).has(params.colDef.field)) {
@@ -457,7 +457,6 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         },
       },
       rowSelection: 'multiple',
-      singleClickEdit: true,
       suppressHorizontalScroll: false,
       getLocaleText: ({key, defaultValue}) => {
         const data = this.translate.instant(key);
@@ -584,7 +583,16 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         this.rowData = this.currentData ? newItems : data;
 
         if (this.gridApi && !this.gridApi.isDestroyed()) {
+          // Set the data
           this.gridApi.setGridOption('rowData', this.rowData);
+          
+          // Wait for next frame to ensure DOM is updated
+          requestAnimationFrame(() => {
+            if (this.gridApi && !this.gridApi.isDestroyed()) {
+              // Ensure columns are sized properly
+              this.gridApi.autoSizeAllColumns();
+            }
+          });
         }
 
         this.isFirstLoad = false;
@@ -615,12 +623,11 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
    * Restores saved grid state if available
    */
   firstDataRendered(): void {
+    // First handle saved grid state if it exists
     if (localStorage.agGridState != undefined) {
       const agGridState = JSON.parse(localStorage.agGridState)
       if (agGridState.idAgGrid != undefined && agGridState.idAgGrid == this.id) {
         this.gridApi.setFilterModel(agGridState.filterState);
-        //this.gridApi.setColumnState(agGridState.colState);
-        //this.gridApi.setSortModel(agGridState.sortState);
         this.gridApi.applyColumnState({
           state: agGridState.colState,
           applyOrder: true
@@ -630,6 +637,19 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       } else if (this.id != undefined) {
         this.removeAgGridState();
       }
+    }
+
+    // Ensure columns are sized properly after data is rendered
+    if (this.gridApi && !this.gridApi.isDestroyed()) {
+      requestAnimationFrame(() => {
+        if (this.gridApi && !this.gridApi.isDestroyed()) {
+          // First autosize columns based on content
+          this.gridApi.autoSizeAllColumns();
+          
+          // Then ensure columns fill available space
+          this.gridApi.sizeColumnsToFit();
+        }
+      });
     }
   }
 
@@ -646,23 +666,47 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     if (this.singleSelection) {
       this.gridOptions.rowSelection = 'single'
     }
-    // if (this.nonEditable) {this.gridOptions.defaultColDef.editable = false}
-    for (const col of this.columnDefs) {
-      if (!this.someColumnIsEditable && col.editable) {
-        this.someColumnIsEditable = true
+    
+    // Configure column sizes and flex
+    this.columnDefs.forEach((col, index) => {
+      // Ensure each column has minimum width
+      if (!col.minWidth) {
+        col.minWidth = 100;
       }
+      
+      // Special handling for specific columns
       if (col.field === 'status') {
         this.statusColumn = true;
+        col.minWidth = 200; // Status needs more space
       }
-    }
-    this.loadData();
+      
+      // Set flex based on column position
+      if (index === this.columnDefs.length - 1) {
+        // Last column gets flex to fill remaining space
+        col.flex = 1;
+      } else {
+        // Other columns don't flex
+        col.flex = 0;
+        // Use width instead of flex for non-last columns
+        if (!col.width) {
+          col.width = 150; // Default width for columns
+        }
+      }
+      
+      if (col.editable) {
+        this.someColumnIsEditable = true;
+      }
+    });
 
+    // Apply the updated column definitions
+    this.gridApi.setColumnDefs(this.columnDefs);
+
+    // Set initial column state before loading data
     if (this.defaultColumnSorting) {
       if (!Array.isArray(this.defaultColumnSorting)) {
         const sortModel = [
           {colId: this.defaultColumnSorting, sort: 'asc'}
         ];
-        //this.gridApi.setSortModel(sortModel);
         this.gridApi.applyColumnState({
           state: sortModel,
           applyOrder: true
@@ -672,14 +716,15 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         this.defaultColumnSorting.forEach(element => {
           sortModel.push({colId: element, sort: 'asc'})
         });
-        //this.gridApi.setSortModel(sortModel);
         this.gridApi?.applyColumnState({
           state: sortModel,
           applyOrder: true
         });
       }
-
     }
+
+    // Load data after grid is ready
+    this.loadData();
   }
 
   /**

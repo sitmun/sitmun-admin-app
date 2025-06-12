@@ -346,13 +346,13 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
           {
             id: 'id',
           },
-          100,
+          200,
           300
         ),
         this.utils.getNonEditableColumnDef(
           'entity.permissiongroup.layers.layerslist',
           'layers',
-          100,
+          200,
           300
         ),
         this.utils.getRouterLinkColumnDef(
@@ -362,7 +362,7 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
           {
             id: 'serviceId',
           },
-          100,
+          200,
           300
         ),
         this.utils.getStatusColumnDef(),
