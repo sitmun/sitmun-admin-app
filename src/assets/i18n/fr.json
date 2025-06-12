@@ -179,6 +179,7 @@
   "entity.cartography.trees.node": "Noeud",
   "entity.connection.driver": "Pilote JDBC",
   "entity.connection.label": "Connexion",
+  "entity.permissiongroup.label": "Permissions sur les calques",
   "entity.permissiongroup.applications.header": "Applications",
   "entity.permissiongroup.applications.title": "Ajouter des applications",
   "entity.permissiongroup.layers.header": "Calques",

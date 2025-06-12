@@ -179,6 +179,7 @@
   "entity.cartography.trees.node": "Node",
   "entity.connection.driver": "JDBC Driver",
   "entity.connection.label": "Connection",
+  "entity.permissiongroup.label": "Layer permissions",
   "entity.permissiongroup.applications.header": "Applications",
   "entity.permissiongroup.applications.title": "Add applications",
   "entity.permissiongroup.layers.header": "Layers",
