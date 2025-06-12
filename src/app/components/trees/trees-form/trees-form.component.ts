@@ -358,7 +358,7 @@ export class TreesFormComponent implements OnInit {
         if (newNode) {
           newNode.name = name;
           newNode.tooltip = name;
-          newNode.type = 'cartography';
+          newNode.type = this.codeValues.treenodeFolderType.cartography;
           newNode.parent = parentId;
           newNode.id = this.idFictitiousCounter;
           newNode.children = [];
@@ -743,7 +743,7 @@ export class TreesFormComponent implements OnInit {
     this.treeNodeForm.reset();
     this.newElement = true;
     this.currentNodeIsFolder = false;
-    this.currentNodeType = parent.nodeType || 'cartography';
+    this.currentNodeType = parent.nodeType || this.codeValues.treenodeFolderType.cartography;
     this.currentViewMode = '';
     this.currentNodeHasParent = parent.id !== null;
     let parentId = parent.id;
@@ -768,7 +768,7 @@ export class TreesFormComponent implements OnInit {
     this.treeNodeForm.reset();
     this.newElement = true;
     this.currentNodeIsFolder = true;
-    this.currentNodeType = parent.nodeType || 'cartography';
+    this.currentNodeType = parent.nodeType || this.codeValues.treenodeFolderType.cartography;
     this.currentViewMode = '';
     this.currentNodeHasParent = parent.id !== null;
     let parentId = parent.id;

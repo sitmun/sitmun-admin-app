@@ -18,7 +18,6 @@ const codeValue = {
     list: 'list',
     cartography: 'cartography',
     map: 'map',
-    favorites: 'fav',
     nearme: 'nm'
   },
   treenodeLeafType: {
