@@ -7,6 +7,7 @@ import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from './material-module';
 import { APP_ROUTING } from './app-routes';
+import { MAT_TABS_CONFIG } from '@angular/material/tabs';
 
 // Import the Core and Domain modules
 import { CoreModule } from '@app/core';
@@ -199,6 +200,7 @@ registerLocaleData(localeCa, 'ca-ES');
   providers: [
     { provide: LOCALE_ID, useValue: 'es-ES' },
     { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
+    { provide: MAT_TABS_CONFIG, useValue: { animationDuration: '0ms' } },
     ResourceService,
     ExternalService,
     RoleService,
