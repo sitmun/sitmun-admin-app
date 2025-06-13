@@ -190,7 +190,7 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
 
     this.taskType = taskTypes.find(taskType => taskType.id === Number(params.type));
     this.taskTypeName = this.taskType.title;
-    this.taskTypeNameTranslated = this.translateService.instant(`tasksEntity.${this.taskTypeName}`);
+    this.taskTypeNameTranslated = this.translateService.instant(`entity.task.${this.taskTypeName.toLowerCase()}.label`);
     if (!this.taskType) {
       throw new Error(`Task type ${this.taskTypeName} not found`);
     }
@@ -338,8 +338,15 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
     return DataTableDefinition.builder<Role, Role>(this.dialog, this.errorHandler)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('layersPermitsEntity.name', 'name'),
-        this.utils.getNonEditableColumnDef('backgroundEntity.description', 'description'),
+        this.utils.getRouterLinkColumnDef(
+          'common.form.name',
+          'name',
+          '/role/:id/roleForm',
+          {
+            id: 'id',
+          }
+        ),
+        this.utils.getNonEditableColumnDef('common.form.description', 'description'),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('name')
@@ -354,12 +361,12 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
       })
       .withTargetsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('layersPermitsEntity.name', 'name'),
-        this.utils.getNonEditableColumnDef('backgroundEntity.description', 'description'),
+        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
+        this.utils.getNonEditableColumnDef('common.form.description', 'description'),
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.roleService.getAll())
-      .withTargetsTitle(this.translateService.instant('backgroundEntity.roles'))
+      .withTargetsTitle(this.translateService.instant('entity.task.roles.title'))
       .build();
   }
 
@@ -373,10 +380,18 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
     return DataTableDefinition.builder<TaskAvailabilityProjection, TerritoryProjection>(this.dialog, this.errorHandler)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('territoryEntity.name', 'territoryName'),
-        this.utils.getNonEditableColumnDef('territoryEntity.code', 'territoryCode'),
-        this.utils.getNonEditableColumnDef('territoryEntity.type', 'territoryTypeName'),
-        this.utils.getNonEditableDateColumnDef('territoryEntity.createdDate', 'createdDate'),
+        this.utils.getRouterLinkColumnDef(
+          'common.form.name',
+          'territoryName',
+          '/territory/:id/territoryForm',
+          {
+            id: 'territoryId',
+          }
+        ),
+        this.utils.getEditableColumnDef(
+          'common.form.type',
+          'territoryTypeName'
+        ),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('territoryName')
@@ -395,9 +410,8 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
       })
       .withTargetsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('territoryEntity.name', 'name'),
-        this.utils.getNonEditableColumnDef('territoryEntity.code', 'code'),
-        this.utils.getNonEditableColumnDef('territoryEntity.type', 'typeName'),
+        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
+        this.utils.getNonEditableColumnDef('common.form.type', 'typeName'),
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.territoryService.getAllProjection(TerritoryProjection))
@@ -407,7 +421,7 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
       .withTargetToRelation((items: TerritoryProjection[]) => {
         return items.map(item => TaskAvailabilityProjection.of(this.entityToEdit, item));
       })
-      .withTargetsTitle(this.translateService.instant('backgroundEntity.roles'))
+      .withTargetsTitle(this.translateService.instant('entity.task.territories.title'))
       .withTargetsOrder('name')
       .build();
   }
@@ -422,9 +436,9 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
     return DataTableDefinition.builder<TaskParameter, TaskParameter>(this.dialog, this.errorHandler)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getEditableColumnDef('applicationEntity.name', 'name'),
-        this.utils.getNonEditableColumnDef('applicationEntity.type', 'type'),
-        this.utils.getEditableColumnDef('applicationEntity.value', 'value', 300, 500),
+        this.utils.getEditableColumnDef('common.form.name', 'name'),
+        this.utils.getNonEditableColumnDef('common.form.type', 'type'),
+        this.utils.getEditableColumnDef('common.form.value', 'value', 300, 500),
         this.utils.getStatusColumnDef()])
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
@@ -443,7 +457,7 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
       })
       .withTemplateDialog('newParameterDialog', () => TemplateDialog.builder()
         .withReference(this.newParameterDialog)
-        .withTitle(this.translateService.instant('taskEntity.newParameter'))
+        .withTitle(this.translateService.instant('entity.task.parameters.title'))
         .withForm(new FormGroup({
           name: new FormControl('', {
             validators: [Validators.required],
