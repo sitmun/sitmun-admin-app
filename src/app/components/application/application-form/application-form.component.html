@@ -106,7 +106,7 @@
               </mat-select-trigger>
               <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
               <mat-option [value]="situationMapObj.id" *ngFor="let situationMapObj of situationMapList">
-                <div class="situation-map-option">
+                <div>
                   <a [routerLink]="['/layersPermits', situationMapObj.id, 'layersPermitsForm']" 
                      (click)="$event.stopPropagation()" class="router-link">
                     <span>{{ situationMapObj.name | translate }}</span>

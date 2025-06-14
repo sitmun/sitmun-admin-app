@@ -11,6 +11,8 @@ import {config} from '@config';
 import {BtnCheckboxFilterComponent} from '@app/frontend-gui/src/lib/btn-checkbox-filter/btn-checkbox-filter.component';
 import {LoggerService} from '@app/services/logger.service';
 import {HalOptions, HalParam} from '@app/core/hal/rest/rest.service';
+import {Component} from '@angular/core';
+import {ICellRendererAngularComp} from '@ag-grid-community/angular';
 
 /**
  * A utility service that provides common functionality across the application.
@@ -764,6 +766,17 @@ export class UtilsService {
     return options;
   }
 
+  addConditionToColumnDef(options: any, condition: (params: any) => boolean) {
+    const originalCellRenderer = options.cellRenderer;
+    options.cellRendererSelector = (params) => {
+      if (condition(params)) {
+        return { component: originalCellRenderer, params: params }
+      }
+      return { component: EmptyRendererComponent, params: params };
+    };
+    return options;
+  }
+
   getFormattedColumnDef(
     alias: string | string[],
     filterList: any[],
@@ -945,5 +958,21 @@ export class UtilsService {
     Promise.all(promises).then(() => {
       return translationMap;
     });
+  }
+}
+
+@Component({
+  selector: 'app-empty-renderer',
+  template: '<div></div>'
+})
+export class EmptyRendererComponent implements ICellRendererAngularComp {
+  public params: any;
+
+  agInit(params: any): void {
+    this.params = params;
+  }
+
+  refresh(params: any): boolean {
+    return true;
   }
 }

@@ -1,8 +1,10 @@
 import {Component, TemplateRef, ViewChild} from "@angular/core";
 import {BaseFormComponent} from "@app/components/base-form.component";
 import {
+  Cartography,
   CartographyService,
   CodeListService,
+  Connection,
   ConnectionService,
   Role,
   RoleService,
@@ -118,6 +120,68 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
   protected readonly TaskParameterType = TaskParameterType;
 
   /**
+   * Gets the name of a cartography by its ID
+   * @param cartographyId - The ID of the cartography
+   * @returns The name of the cartography or empty string if not found
+   */
+  getCartographyName(cartographyId: number): string {
+    const cartography = this.cartographies.find(cart => cart.id === cartographyId);
+    return cartography?.name || '';
+  }
+
+  /**
+   * Gets the name of a connection by its ID
+   * @param connectionId - The ID of the connection
+   * @returns The name of the connection or empty string if not found
+   */
+  getConnectionName(connectionId: number): string {
+    const connection = this.connections.find(conn => conn.id === connectionId);
+    return connection?.name || '';
+  }
+
+  /**
+   * Checks if the parameter type is QUERY
+   * @returns boolean indicating if parameter type is QUERY
+   */
+  isQueryParameterType(): boolean {
+    return this.parametersTable.templateDialog('newParameterDialog').form.get('type')?.value === TaskParameterType.QUERY;
+  }
+
+  /**
+   * The list of connections
+   */
+  protected connections: Connection[] = [];
+
+  /**
+   * The list of cartographies
+   */
+  protected cartographies: Cartography[] = [];
+
+  /**
+   * Checks if the current task scope is SQL query
+   * @returns boolean indicating if scope is SQL query
+   */
+  isSqlQueryScope(): boolean {
+    return this.entityForm?.value?.scope === this.codeValues.queryTaskScope.sqlQuery;
+  }
+
+  /**
+   * Checks if the current task scope is Web API query
+   * @returns boolean indicating if scope is Web API query
+   */
+  isWebApiQueryScope(): boolean {
+    return this.entityForm?.value?.scope === this.codeValues.queryTaskScope.webApiQuery;
+  }
+
+  /**
+   * Checks if the current task scope is Cartography query
+   * @returns boolean indicating if scope is Cartography query
+   */
+  isCartographyQueryScope(): boolean {
+    return this.entityForm?.value?.scope === this.codeValues.queryTaskScope.cartographyQuery;
+  }
+
+  /**
    * Constructor for the TaskQueryFormComponent.
    * Initializes the component with necessary services and sets up the form.
    *
@@ -180,14 +244,19 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
       .register(this.parametersTable);
     await this.initCodeLists(['tasksEntity.type', 'queryTask.scope', 'taskEntity.queryType', 'queryTask.parameterType'])
 
-    const [taskTypes, taskGroups] = await Promise.all([
+    const [taskTypes, taskGroups, connections, cartographies] = await Promise.all([
       firstValueFrom(this.taskTypeService.getAllEx()),
       firstValueFrom(this.taskGroupService.getAllEx()),
+      firstValueFrom(this.connectionService.getAllEx()),
+      firstValueFrom(this.cartographyService.getAllEx()),
     ]);
+
+    this.connections = connections;
+    this.cartographies = cartographies;
 
     this.taskType = taskTypes.find(taskType => taskType.id === Number(params.type));
     this.taskTypeName = this.taskType.title;
-    this.taskTypeNameTranslated = this.translateService.instant(`tasksEntity.${this.taskTypeName}`);
+    this.taskTypeNameTranslated = this.translateService.instant(`entity.task.query.label`);
     if (!this.taskType) {
       throw new Error(`Task type ${this.taskTypeName} not found`);
     }
@@ -382,8 +451,15 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
     return DataTableDefinition.builder<Role, Role>(this.dialog, this.errorHandler)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('layersPermitsEntity.name', 'name'),
-        this.utils.getNonEditableColumnDef('backgroundEntity.description', 'description'),
+        this.utils.getRouterLinkColumnDef(
+          'common.form.name',
+          'name',
+          '/role/:id/roleForm',
+          {
+            id: 'id',
+          }
+        ),
+        this.utils.getNonEditableColumnDef('common.form.description', 'description'),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('name')
@@ -398,12 +474,12 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
       })
       .withTargetsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('layersPermitsEntity.name', 'name'),
-        this.utils.getNonEditableColumnDef('backgroundEntity.description', 'description'),
+        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
+        this.utils.getNonEditableColumnDef('common.form.description', 'description'),
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.roleService.getAll())
-      .withTargetsTitle(this.translateService.instant('backgroundEntity.roles'))
+      .withTargetsTitle(this.translateService.instant('entity.task.roles.title'))
       .build();
   }
 
@@ -417,10 +493,17 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
     return DataTableDefinition.builder<TaskAvailabilityProjection, TerritoryProjection>(this.dialog, this.errorHandler)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('territoryEntity.name', 'territoryName'),
-        this.utils.getNonEditableColumnDef('territoryEntity.code', 'territoryCode'),
-        this.utils.getNonEditableColumnDef('territoryEntity.type', 'territoryTypeName'),
-        this.utils.getNonEditableDateColumnDef('territoryEntity.createdDate', 'createdDate'),
+        this.utils.getRouterLinkColumnDef(
+          'common.form.name',
+          'territoryName',
+          '/territory/:id/territoryForm',
+          {
+            id: 'territoryId',
+          }
+        ),
+        this.utils.getNonEditableColumnDef('common.form.code', 'territoryCode'),
+        this.utils.getNonEditableColumnDef('common.form.type', 'territoryTypeName'),
+        this.utils.getNonEditableDateColumnDef('common.form.created', 'createdDate'),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('territoryName')
@@ -439,9 +522,9 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
       })
       .withTargetsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('territoryEntity.name', 'name'),
-        this.utils.getNonEditableColumnDef('territoryEntity.code', 'code'),
-        this.utils.getNonEditableColumnDef('territoryEntity.type', 'typeName'),
+        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
+        this.utils.getNonEditableColumnDef('common.form.code', 'code'),
+        this.utils.getNonEditableColumnDef('common.form.type', 'typeName'),
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.territoryService.getAllProjection(TerritoryProjection))
@@ -451,7 +534,7 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
       .withTargetToRelation((items: TerritoryProjection[]) => {
         return items.map(item => TaskAvailabilityProjection.of(this.entityToEdit, item));
       })
-      .withTargetsTitle(this.translateService.instant('backgroundEntity.roles'))
+      .withTargetsTitle(this.translateService.instant('entity.task.territories.title'))
       .withTargetsOrder('name')
       .build();
   }
@@ -466,10 +549,10 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
     return DataTableDefinition.builder<TaskQueryParameter, TaskQueryParameter>(this.dialog, this.errorHandler)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getEditableColumnDef('tasksEntity.name', 'name'),
-        this.utils.getEditableColumnDef('tasksEntity.label', 'label'),
-        this.utils.getNonEditableColumnWithCodeListDef('tasksEntity.type', 'type', () => this.codeList('queryTask.parameterType')),
-        this.utils.getBooleanColumnDef('tasksEntity.required', 'required', true),
+        this.utils.getEditableColumnDef('common.form.name', 'name'),
+        this.utils.getEditableColumnDef('common.form.label', 'label'),
+        this.utils.getNonEditableColumnWithCodeListDef('common.form.type', 'type', () => this.codeList('queryTask.parameterType')),
+        this.utils.addConditionToColumnDef(this.utils.getBooleanColumnDef('common.form.required', 'required', true), (params) => params.data.type === TaskParameterType.QUERY),
         this.utils.getStatusColumnDef()])
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
@@ -488,7 +571,7 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
       .withFieldRestriction('name')
       .withTemplateDialog('newParameterDialog', () => TemplateDialog.builder()
         .withReference(this.newParameterDialog)
-        .withTitle(this.translateService.instant('taskEntity.newParameter'))
+        .withTitle(this.translateService.instant('entity.task.parameters.title'))
         .withForm(new FormGroup({
           name: new FormControl('', {
             validators: [Validators.required],

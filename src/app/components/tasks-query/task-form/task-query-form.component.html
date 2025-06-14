@@ -1,25 +1,37 @@
-<app-form-toolbar icon="menu_tasques" entityType="tasksEntity.tasks" [itemName]="itemName('name')" [isNew]="isNew()"
-  [additionalText]="taskTypeNameTranslated" (save)="onSaveButtonClicked()" (back)="utils.navigateBack()">
+<app-form-toolbar
+  icon="menu_tasques"
+  entityType="entity.task.query.label"
+  [itemName]="entityForm?.get('name')?.value"
+  [isNew]="isNew()"
+  [additionalText]="taskTypeNameTranslated"
+  (save)="onSaveButtonClicked()"
+  (back)="utils.navigateBack()">
 </app-form-toolbar>
 
-<mat-tab-group mat-stretch-tabs="false" mat-align-tabs="end" [dynamicHeight]="true" preserveContent="true">
+<mat-tab-group
+  mat-stretch-tabs="false"
+  mat-align-tabs="end"
+  [dynamicHeight]="true"
+  preserveContent="true">
   <mat-tab label="{{ 'common.form.details' | translate }}">
     <form [formGroup]='entityForm' *ngIf="dataLoaded">
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'tasksEntity.name' | translate }}</mat-label>
+            <mat-label>{{ 'common.form.name' | translate }}</mat-label>
             <input matInput type="text" formControlName="name" [maxlength]="512" required>
             <mat-hint align="end" [class.text-warning]="entityForm.get('name')?.value?.length > 512">
               {{entityForm.get('name') | characterCount}}
               <mat-icon *ngIf="entityForm.get('name')?.value?.length > 512" fontIcon="warning"
                 class="warning-icon"></mat-icon>
             </mat-hint>
-            <mat-icon matSuffix class="iconTranslate" (click)="onTranslated('name')" onKeyDown="onTranslated('name')"
-              svgIcon="ic_translate"></mat-icon>
+            <mat-icon matSuffix class="iconTranslate"
+                      (click)="onTranslated('name')"
+                      onKeyDown="onTranslated('name')"
+                      svgIcon="ic_translate"></mat-icon>
           </mat-form-field>
           <mat-form-field appearance="outline" class="quarter add-gap" *ngIf="isNew()">
-            <mat-label>{{ 'tasksEntity.accessType' | translate }}</mat-label>
+            <mat-label>{{ 'common.form.type' | translate }}</mat-label>
             <mat-select formControlName="scope" class="form-control" (selectionChange)="onTypeChange($event)" required>
               <mat-option [value]="serviceType.value" *ngFor="let serviceType of this.codeList('queryTask.scope')">
                 {{ serviceType.description | translate }}
@@ -27,48 +39,82 @@
             </mat-select>
           </mat-form-field>
           <mat-form-field appearance="outline" class="quarter add-gap" *ngIf="!isNew()">
-            <mat-label>{{ 'tasksEntity.accessType' | translate }}</mat-label>
+            <mat-label>{{ 'common.form.type' | translate }}</mat-label>
             <input matInput [readonly]="true" [value]="findInCodeList('queryTask.scope', entityForm.get('scope').value)?.description | translate">
-            <mat-hint align="end">{{ 'Value fixed at creation' | translate}}</mat-hint>
+            <mat-hint align="end">{{ 'common.hint.valuefixed' | translate}}</mat-hint>
           </mat-form-field>
         </mat-card-content>
       </mat-card>
       <mat-card class="sitmun-mat-card-margin" appearance="outlined"
-        *ngIf="entityForm.value.scope===codeValues.queryTaskScope.sqlQuery">
+        *ngIf="isSqlQueryScope()">
         <mat-card-content>
           <mat-form-field appearance="outline" class="half">
-            <mat-label>{{ 'tasksEntity.connection' | translate }}</mat-label>
+            <mat-label>{{ 'entity.task.query.connection' | translate }}</mat-label>
             <mat-select formControlName="connectionId" class="form-control">
+              <mat-select-trigger>
+                <ng-container *ngIf="entityForm.get('connectionId')?.value as connectionId">
+                  <a [routerLink]="['/connection', connectionId, 'connectionForm']" 
+                     class="router-link">
+                    {{ getConnectionName(connectionId) | translate }}
+                  </a>
+                </ng-container>
+                <span *ngIf="!entityForm.get('connectionId')?.value">
+                  {{ 'common.form.none' | translate }}
+                </span>
+              </mat-select-trigger>
+              <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
               <mat-option [value]="connection.id" *ngFor="let connection of connections">
-                {{ connection.name }}
+                <div>
+                  <a [routerLink]="['/connections', connection.id, 'connectionForm']" 
+                     (click)="$event.stopPropagation()" class="router-link">
+                    <span>{{ connection.name | translate }}</span>
+                  </a>
+                </div>
               </mat-option>
             </mat-select>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'tasksEntity.sql' | translate }}</mat-label>
+            <mat-label>{{ 'entity.task.query.sql' | translate }}</mat-label>
             <textarea matInput type="text" formControlName="command" required [maxlength]="4000" rows="4"></textarea>
             <mat-hint align="end">{{entityForm.get('command') | characterCount}}</mat-hint>
           </mat-form-field>
         </mat-card-content>
       </mat-card>
       <mat-card class="sitmun-mat-card-margin" appearance="outlined"
-        *ngIf="entityForm.value.scope===codeValues.queryTaskScope.webApiQuery">
+        *ngIf="isWebApiQueryScope()">
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'tasksEntity.url' | translate }}</mat-label>
+            <mat-label>{{ 'entity.task.query.webapi' | translate }}</mat-label>
             <textarea matInput type="text" formControlName="command" required [maxlength]="4000" rows="4"></textarea>
             <mat-hint align="end">{{entityForm.get('command') | characterCount}}</mat-hint>
           </mat-form-field>
         </mat-card-content>
       </mat-card>
       <mat-card class="sitmun-mat-card-margin" appearance="outlined"
-        *ngIf="entityForm.value.scope===codeValues.queryTaskScope.cartographyQuery">
+        *ngIf="isCartographyQueryScope()">
         <mat-card-content>
           <mat-form-field appearance="outline" class="half">
-            <mat-label>{{ 'tasksEntity.cartography' | translate }}</mat-label>
+            <mat-label>{{ 'entity.task.query.cartography' | translate }}</mat-label>
             <mat-select formControlName="cartographyId" class="form-control">
-              <mat-option [value]="cartography.id" *ngFor="let cartography of cartographies">
-                {{ cartography.name }}
+              <mat-select-trigger>
+                <ng-container *ngIf="entityForm.get('cartographyId')?.value as cartographyId">
+                  <a [routerLink]="['/layers', cartographyId, 'layerForm']" 
+                     class="router-link">
+                    {{ getCartographyName(cartographyId) | translate }}
+                  </a>
+                </ng-container>
+                <span *ngIf="!entityForm.get('cartographyId')?.value">
+                  {{ 'common.form.none' | translate }}
+                </span>
+              </mat-select-trigger>
+              <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
+              <mat-option [value]="layer.id" *ngFor="let layer of cartographies">
+                <div>
+                  <a [routerLink]="['/layers', layer.id, 'layersForm']" 
+                     (click)="$event.stopPropagation()" class="router-link">
+                    <span>{{ layer.name | translate }}</span>
+                  </a>
+                </div>
               </mat-option>
             </mat-select>
           </mat-form-field>
@@ -76,49 +122,7 @@
       </mat-card>
     </form>
   </mat-tab>
-  <mat-tab label="{{ 'applicationEntity.roles' | translate }}">
-    <app-data-grid [changeHeightButton]="true"
-                   [allNewElements]="isNewOrDuplicated()"
-                   [columnDefs]='rolesTable.relationsColumnsDefs'
-                   [getAll]='rolesTable.relationsFetchFn'
-                   [eventAddItemsSubscription]='rolesTable.addCommandEvent$.asObservable()'
-                   [eventGetAllRowsSubscription]='rolesTable.saveCommandEvent$.asObservable()'
-                   [eventRefreshSubscription]='rolesTable.refreshCommandEvent$.asObservable()'
-                   [actionButton]=true
-                   [discardChangesButton]=true
-                   [redoButton]=true
-                   [undoButton]=true
-                   [deleteButton]=true
-                   [addButton]=true
-                   [defaultColumnSorting]='rolesTable.defaultRelationsSorting()'
-                   [hideDuplicateButton]=true
-                   (getAllRows)="rolesTable.handleSaveRelations($event)"
-                   (add)="rolesTable.openDialog($event)"
-                   *ngIf="dataLoaded"
-    ></app-data-grid>
-  </mat-tab>
-  <mat-tab label="{{ 'layersEntity.territory' | translate }}">
-    <app-data-grid [changeHeightButton]="true"
-                   [allNewElements]="isNewOrDuplicated()"
-                   [columnDefs]='availabilitiesTable.relationsColumnsDefs'
-                   [getAll]='availabilitiesTable.relationsFetchFn'
-                   [eventAddItemsSubscription]='availabilitiesTable.addCommandEvent$.asObservable()'
-                   [eventGetAllRowsSubscription]='availabilitiesTable.saveCommandEvent$.asObservable()'
-                   [eventRefreshSubscription]='availabilitiesTable.refreshCommandEvent$.asObservable()'
-                   [actionButton]=true
-                   [discardChangesButton]=true
-                   [redoButton]=true
-                   [undoButton]=true
-                   [deleteButton]=true
-                   [addButton]=true
-                   [defaultColumnSorting]='availabilitiesTable.defaultRelationsSorting()'
-                   [hideDuplicateButton]=true
-                   (getAllRows)="availabilitiesTable.handleSaveRelations($event)"
-                   (add)="availabilitiesTable.openDialog($event)"
-                   *ngIf="dataLoaded"
-    ></app-data-grid>
-  </mat-tab>
-  <mat-tab label="{{ 'applicationEntity.parametersConfiguration' | translate }}">
+  <mat-tab label="{{ 'entity.task.parameters.header' | translate }}">
     <app-data-grid [changeHeightButton]="true"
                    [allNewElements]="isNewOrDuplicated()"
                    [columnDefs]='parametersTable.relationsColumnsDefs'
@@ -133,10 +137,53 @@
                    [deleteButton]=true
                    [newButton]=true
                    [defaultColumnSorting]="parametersTable.defaultRelationsSorting()"
-                   [addFieldRestriction]="parametersTable.fieldRestriction"
                    (new)="parametersTable.openTemplateDialog('newParameterDialog')"
                    (getAllRows)="parametersTable.handleSaveRelations($event)"
                    (duplicate)='parametersTable.duplicateRelations($event)'
+                   *ngIf="dataLoaded"
+    ></app-data-grid>
+  </mat-tab>
+  <mat-tab label="{{ 'entity.task.roles.header' | translate }}">
+    <app-data-grid [changeHeightButton]="true"
+                   [allNewElements]="isNewOrDuplicated()"
+                   [columnDefs]='rolesTable.relationsColumnsDefs'
+                   [getAll]='rolesTable.relationsFetchFn'
+                   [eventAddItemsSubscription]='rolesTable.addCommandEvent$.asObservable()'
+                   [eventGetAllRowsSubscription]='rolesTable.saveCommandEvent$.asObservable()'
+                   [eventRefreshSubscription]='rolesTable.refreshCommandEvent$.asObservable()'
+                   [actionButton]=true
+                   [discardChangesButton]=true
+                   [redoButton]=true
+                   [undoButton]=true
+                   [deleteButton]=true
+                   [addButton]=true
+                   [hideReplaceButton]=true
+                   [defaultColumnSorting]='rolesTable.defaultRelationsSorting()'
+                   [hideDuplicateButton]=true
+                   (getAllRows)="rolesTable.handleSaveRelations($event)"
+                   (add)="rolesTable.openDialog($event)"
+                   *ngIf="dataLoaded"
+    ></app-data-grid>
+  </mat-tab>
+  <mat-tab label="{{ 'entity.task.territories.header' | translate }}">
+    <app-data-grid [changeHeightButton]="true"
+                   [allNewElements]="isNewOrDuplicated()"
+                   [columnDefs]='availabilitiesTable.relationsColumnsDefs'
+                   [getAll]='availabilitiesTable.relationsFetchFn'
+                   [eventAddItemsSubscription]='availabilitiesTable.addCommandEvent$.asObservable()'
+                   [eventGetAllRowsSubscription]='availabilitiesTable.saveCommandEvent$.asObservable()'
+                   [eventRefreshSubscription]='availabilitiesTable.refreshCommandEvent$.asObservable()'
+                   [actionButton]=true
+                   [discardChangesButton]=true
+                   [redoButton]=true
+                   [undoButton]=true
+                   [deleteButton]=true
+                   [addButton]=true
+                   [hideReplaceButton]=true
+                   [defaultColumnSorting]='availabilitiesTable.defaultRelationsSorting()'
+                   [hideDuplicateButton]=true
+                   (getAllRows)="availabilitiesTable.handleSaveRelations($event)"
+                   (add)="availabilitiesTable.openDialog($event)"
                    *ngIf="dataLoaded"
     ></app-data-grid>
   </mat-tab>
@@ -147,22 +194,22 @@
     <mat-card appearance="outlined">
       <mat-card-content>
         <mat-form-field appearance="outline" class="full">
-          <mat-label>{{ "tasksEntity.name" | translate }}</mat-label>
+          <mat-label>{{ "common.form.name" | translate }}</mat-label>
           <input matInput type="text" formControlName="name" required>
         </mat-form-field>
         <mat-form-field appearance="outline" class="full">
-          <mat-label>{{ "tasksEntity.label" | translate }}</mat-label>
+          <mat-label>{{ "common.form.label" | translate }}</mat-label>
           <input matInput type="text" formControlName="label" required>
         </mat-form-field>
         <mat-radio-group formControlName="type" class="full">
-          <mat-label class="requiredInput">{{ 'tasksEntity.type' | translate }}</mat-label>
+          <mat-label class="requiredInput">{{ 'common.form.type' | translate }}</mat-label>
           <mat-radio-button [value]="paramType.value" *ngFor="let paramType of this.codeList('queryTask.parameterType')">
             {{ paramType.description | translate }}
           </mat-radio-button>
         </mat-radio-group>
         <br/>
-        <ng-container *ngIf="parametersTable.templateDialog('newParameterDialog').form.get('type')?.value === TaskParameterType.QUERY">
-          <mat-label>{{ 'tasksEntity.required' | translate }}</mat-label>
+        <ng-container *ngIf="isQueryParameterType()">
+          <mat-label>{{ 'common.form.required' | translate }}</mat-label>
           <mat-checkbox formControlName="required">
           </mat-checkbox>
         </ng-container>

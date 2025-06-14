@@ -190,7 +190,7 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
 
     this.taskType = taskTypes.find(taskType => taskType.id === Number(params.type));
     this.taskTypeName = this.taskType.title;
-    this.taskTypeNameTranslated = this.translateService.instant(`entity.task.${this.taskTypeName.toLowerCase()}.label`);
+    this.taskTypeNameTranslated = this.translateService.instant(`entity.task.basic.label`);
     if (!this.taskType) {
       throw new Error(`Task type ${this.taskTypeName} not found`);
     }
@@ -388,10 +388,9 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
             id: 'territoryId',
           }
         ),
-        this.utils.getEditableColumnDef(
-          'common.form.type',
-          'territoryTypeName'
-        ),
+        this.utils.getNonEditableColumnDef('common.form.code', 'territoryCode'),
+        this.utils.getNonEditableColumnDef('common.form.type', 'territoryTypeName'),
+        this.utils.getNonEditableDateColumnDef('common.form.created', 'createdDate'),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('territoryName')
@@ -411,6 +410,7 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
       .withTargetsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getNonEditableColumnDef('common.form.name', 'name'),
+        this.utils.getNonEditableColumnDef('common.form.code', 'code'),
         this.utils.getNonEditableColumnDef('common.form.type', 'typeName'),
       ])
       .withTargetsOrder('name')
@@ -425,6 +425,7 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
       .withTargetsOrder('name')
       .build();
   }
+
 
   /**
    * Defines the data table configuration for managing task parameters.
