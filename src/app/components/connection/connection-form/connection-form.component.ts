@@ -209,7 +209,7 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
           id: 'id',
           typeId: 'typeId'
         }),
-        this.utils.getNonEditableColumnDef('entity.taskGroup.label', 'groupName'),
+        this.utils.getNonEditableColumnDef('entity.taskType.label', 'typeName'),
       ])
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {

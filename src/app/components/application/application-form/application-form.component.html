@@ -54,7 +54,7 @@
         </mat-card-content>
       </mat-card>
       <mat-card class="sitmun-mat-card-margin" appearance="outlined"
-                *ngIf="entityForm.value.type===codeValues.applicationType.externalApp">
+                *ngIf="isExternalApp()">
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'entity.application.type.external.url' | translate }}</mat-label>
@@ -64,7 +64,7 @@
         </mat-card-content>
       </mat-card>
       <mat-card class="sitmun-mat-card-margin" appearance="outlined"
-                *ngIf="entityForm.value.type!==codeValues.applicationType.externalApp">
+                *ngIf="isNotExternalApp()">
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'entity.application.type.generic.title' | translate }}</mat-label>
@@ -206,26 +206,30 @@
     </mat-card>
   </mat-tab>
   <mat-tab label="{{ 'entity.application.trees.header' | translate }}">
-    <app-data-grid #treesDataGrid
-                   [changeHeightButton]="true"
-                   [allNewElements]="isNewOrDuplicated()"
-                   [columnDefs]="treesTable.relationsColumnsDefs"
-                   [getAll]='treesTable.relationsFetchFn'
-                   [eventAddItemsSubscription]='treesTable.addCommandEvent$.asObservable()'
-                   [eventGetAllRowsSubscription]='treesTable.saveCommandEvent$.asObservable()'
-                   [eventRefreshSubscription]='treesTable.refreshCommandEvent$.asObservable()'
-                   [actionButton]=true
-                   [discardChangesButton]=true
-                   [redoButton]=true
-                   [undoButton]=true
-                   [deleteButton]=true
-                   [addButton]=true
-                   [defaultColumnSorting]='treesTable.defaultRelationsSorting()'
-                   [hideDuplicateButton]=true
-                   (getAllRows)="treesTable.handleSaveRelations($event)"
-                   (add)="treesTable.openDialog($event)"
-                   *ngIf="dataLoaded"
-    ></app-data-grid>
+    <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+      <mat-card-content>
+        <app-data-grid #treesDataGrid
+                      [changeHeightButton]="true"
+                      [allNewElements]="isNewOrDuplicated()"
+                      [columnDefs]="treesTable.relationsColumnsDefs"
+                      [getAll]='treesTable.relationsFetchFn'
+                      [eventAddItemsSubscription]='treesTable.addCommandEvent$.asObservable()'
+                      [eventGetAllRowsSubscription]='treesTable.saveCommandEvent$.asObservable()'
+                      [eventRefreshSubscription]='treesTable.refreshCommandEvent$.asObservable()'
+                      [actionButton]=true
+                      [discardChangesButton]=true
+                      [redoButton]=true
+                      [undoButton]=true
+                      [deleteButton]=true
+                      [addButton]=true
+                      [defaultColumnSorting]='treesTable.defaultRelationsSorting()'
+                      [hideDuplicateButton]=true
+                      (getAllRows)="treesTable.handleSaveRelations($event)"
+                      (add)="treesTable.openDialog($event)"
+                      *ngIf="dataLoaded"
+        ></app-data-grid>
+      </mat-card-content>
+    </mat-card>
   </mat-tab>
 </mat-tab-group>
 

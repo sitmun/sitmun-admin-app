@@ -1,8 +1,8 @@
-<h5 mat-dialog-title class="titleDialog">{{ titlesTable[0] == "" || !titlesTable[0] ? "" : title }}</h5>
+<h5 mat-dialog-title class="titleDialog">{{ titlesTable[0] == "" || !titlesTable[0] ? "" : title | translate }}</h5>
 <mat-dialog-content class="mat-typography">
   <mat-tab-group>
     <div *ngFor="let getAll of getAllsTable; let i = index" [ngStyle]="{'margin-top': i>0?'100px':'0px'}">
-      <mat-tab label="{{titlesTable[i]==='' || !titlesTable[i] ? title : titlesTable[i]}}">
+      <mat-tab label="{{titlesTable[i]==='' || !titlesTable[i] ? title : titlesTable[i] | translate}}">
         <mat-card appearance="outlined">
           <mat-card-content>
             <app-data-grid

@@ -596,4 +596,20 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     const map = this.situationMapList?.find(map => map.id === id);
     return map?.name || '';
   }
+
+  /**
+   * Checks if the current application is an external application
+   * @returns boolean indicating if the application is external
+   */
+  isExternalApp(): boolean {
+    return this.entityForm?.value?.type === this.codeValues.applicationType.externalApp;
+  }
+
+  /**
+   * Checks if the current application is not an external application
+   * @returns boolean indicating if the application is not external
+   */
+  isNotExternalApp(): boolean {
+    return this.entityForm?.value?.type !== this.codeValues.applicationType.externalApp;
+  }
 }
