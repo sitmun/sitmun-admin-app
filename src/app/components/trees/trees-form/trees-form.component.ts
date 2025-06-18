@@ -358,7 +358,7 @@ export class TreesFormComponent implements OnInit {
         if (newNode) {
           newNode.name = name;
           newNode.tooltip = name;
-          newNode.type = 'cartography';
+          newNode.type = this.codeValues.treenodeFolderType.cartography;
           newNode.parent = parentId;
           newNode.id = this.idFictitiousCounter;
           newNode.children = [];
@@ -471,7 +471,7 @@ export class TreesFormComponent implements OnInit {
       id: new UntypedFormControl(null, []),
       name: new UntypedFormControl(null, [Validators.required]),
       tooltip: new UntypedFormControl(null, []),
-      nodetype: new UntypedFormControl(null, []),
+      nodeType: new UntypedFormControl(null, []),
       cartography: new UntypedFormControl(null, []),
       radio: new UntypedFormControl(null, []),
       datasetURL: new UntypedFormControl(null, []),
@@ -659,21 +659,21 @@ export class TreesFormComponent implements OnInit {
       this.currentNodeIsFolder = false;
       currentType = 'node'
     }
-    this.currentNodeType = nodeParent ? nodeParent.nodetype : node.nodetype;
+    this.currentNodeType = nodeParent && nodeParent.nodeType !== this.codeValues.treenodeFolderType.nearme ? nodeParent.nodeType : node.nodeType;
     this.mappingParentTaskOptions = this.createMappingParentTaskOptions(nodeParent);
     this.currentViewMode = node.viewMode;
     this.currentNodeHasParent = nodeParent !== null;
     let status = "Modified"
-    let nameTranslationsModified = node.nameTranslationsModified ? true : false;
-    let descriptionTranslationsModified = node.descriptionTranslationsModified ? true : false;
-    let nameFormModified = node.nameFormModified ? true : false;
-    let descriptionFormModified = node.descriptionFormModified ? true : false;
+    const nameTranslationsModified = node.nameTranslationsModified ? true : false;
+    const descriptionTranslationsModified = node.descriptionTranslationsModified ? true : false;
+    const nameFormModified = node.nameFormModified ? true : false;
+    const descriptionFormModified = node.descriptionFormModified ? true : false;
     if (node.id < 0) { status = "pendingCreation" }
     this.treeNodeForm.patchValue({
       id: node.id,
       name: node.name,
       tooltip: node.tooltip,
-      nodetype: node.nodetype,
+      nodeType: node.nodeType,
       image: node.image,
       imageName: node.imageName,
       task: node.task,
@@ -743,7 +743,7 @@ export class TreesFormComponent implements OnInit {
     this.treeNodeForm.reset();
     this.newElement = true;
     this.currentNodeIsFolder = false;
-    this.currentNodeType = parent.nodetype || 'cartography';
+    this.currentNodeType = parent.nodeType || this.codeValues.treenodeFolderType.cartography;
     this.currentViewMode = '';
     this.currentNodeHasParent = parent.id !== null;
     let parentId = parent.id;
@@ -768,7 +768,7 @@ export class TreesFormComponent implements OnInit {
     this.treeNodeForm.reset();
     this.newElement = true;
     this.currentNodeIsFolder = true;
-    this.currentNodeType = parent.nodetype || 'cartography';
+    this.currentNodeType = parent.nodeType || this.codeValues.treenodeFolderType.cartography;
     this.currentViewMode = '';
     this.currentNodeHasParent = parent.id !== null;
     let parentId = parent.id;
@@ -864,6 +864,7 @@ export class TreesFormComponent implements OnInit {
   }
 
   async openFieldsConfigDialog() {
+    this.namespaces = [];
     const origMapping = this.treeNodeForm.value.mapping;
     let formValues = {
       output: {},
@@ -899,6 +900,7 @@ export class TreesFormComponent implements OnInit {
       this.fieldsConfigTreeGenerated = false;
       this.fieldsConfigForm.reset();
       this.clearTaskInputFormControls();
+      this.clearNamespacesFormControls();
     });
   }
 
@@ -908,7 +910,8 @@ export class TreesFormComponent implements OnInit {
     if (task.properties && task.properties.parameters) {
       task.properties.parameters.forEach(par => {
         const control = {
-          name: par.name ? par.name : par.label,
+          name: par.name,
+          label: par.label,
           value: par.value
         };
         this.nodeInputsControls.push(control);
@@ -1167,7 +1170,7 @@ export class TreesFormComponent implements OnInit {
         var treeNodeObj: TreeNode = new TreeNode();
 
         treeNodeObj.name = tree.name;
-        treeNodeObj.type = tree.nodetype;
+        treeNodeObj.type = tree.nodeType;
         treeNodeObj.tooltip = tree.tooltip;
         treeNodeObj.order = tree.order;
         treeNodeObj.active = tree.active;

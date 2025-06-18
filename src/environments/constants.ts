@@ -10,7 +10,7 @@ const codeValue = {
     cartographyQuery: 'cartography-query'
   },
   treeType: {
-    touristicTree: 'tourist',
+    touristicTree: 'touristic',
     cartography: 'cartography'
   },
   treenodeFolderType: {
@@ -18,7 +18,7 @@ const codeValue = {
     list: 'list',
     cartography: 'cartography',
     map: 'map',
-    favorites: 'fav'
+    nearme: 'nm'
   },
   treenodeLeafType: {
     task: 'task',
@@ -305,8 +305,8 @@ export const constants = {
       ]
     },
     {
-      key: 'dateformat',
-      label: 'nodeMapping.dateformat',
+      key: 'address',
+      label: 'nodeMapping.address',
       views: [
         codeValue.taskViewMode.events
       ]
@@ -338,10 +338,10 @@ export const constants = {
     }],
     appOptions: [{
       label: 'X',
-      value: '${LATITUD}'
+      value: '${LONGITUD}'
     }, {
       label: 'Y',
-      value: '${LONGITUD}'
+      value: '${LATITUD}'
     }, {
       label: 'Fecha desde',
       value: '${STARTDATE}'
@@ -349,11 +349,11 @@ export const constants = {
       label: 'Fecha hasta',
       value: '${ENDDATE}'
     }, {
-      label: 'Distancia en eje x',
-      value: '${DISTANCEX}'
+      label: 'Distancia',
+      value: '${DISTANCE}'
     }, {
-      label: 'Distancia en eje y',
-      value: '${DISTANCEY}'
+      label: 'Busqueda general',
+      value: '${KEYWORD}'
     }]
   }
 };
