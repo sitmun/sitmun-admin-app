@@ -6,6 +6,7 @@ import {ApplicationParameter} from './application-parameter.model';
 import {ApplicationBackground} from './application-background.model';
 import {ApplicationTerritory} from "@app/domain/application/models/application-territory.model";
 import {constants} from "@environments/constants";
+import {User} from "@app/domain";
 
 /**
  * Application model
@@ -58,6 +59,14 @@ export class Application extends Resource {
 
   public territories: ApplicationTerritory[];
 
+  public maintenanceInformation : string;
+
+  public lastUpdate : Date;
+
+  public creator? : User;
+
+  public isUnavailable : boolean;
+
   /**
    * Creates a new Application instance copying only the properties declared in Application and Resource classes
    * @param source The source object to copy properties from
@@ -93,7 +102,8 @@ export class Application extends Resource {
     'scales', 'srs', 'jspTemplate', 'treeAutoRefresh',
     'accessParentTerritory', 'accessChildrenTerritory',
     'situationMap', 'createdDate', 'parameters', 'availableRoles',
-    'trees', 'backgrounds', 'territories'
+    'trees', 'backgrounds', 'territories', 'maintenanceInformation',
+    'lastUpdate', 'creator', 'isUnavailable'
   ];
 
   public static externalApp: string [] = [
@@ -102,7 +112,8 @@ export class Application extends Resource {
     // Common application properties
     'id',  'name', 'description', 'logo', 'type',
     'createdDate', 'parameters', 'availableRoles',
-    'trees', 'backgrounds', 'territories',
+    'trees', 'backgrounds', 'territories', 'maintenanceInformation',
+    'lastUpdate', 'creator', 'isUnavailable',
     // Specific application properties
     'jspTemplate'
   ]
@@ -113,7 +124,8 @@ export class Application extends Resource {
     // Common application properties
     'id',  'name', 'description', 'logo', 'type',
     'createdDate', 'parameters', 'availableRoles',
-    'trees', 'backgrounds', 'territories',
+    'trees', 'backgrounds', 'territories', 'maintenanceInformation',
+    'lastUpdate', 'creator', 'isUnavailable',
     // Specific application properties
     'title', 'theme', 'scales', 'srs', 'treeAutoRefresh',
     'accessParentTerritory', 'accessChildrenTerritory',
@@ -126,7 +138,8 @@ export class Application extends Resource {
     // Common application properties
     'id',  'name', 'description', 'logo', 'type',
     'createdDate', 'parameters', 'availableRoles',
-    'trees', 'backgrounds', 'territories'
+    'trees', 'backgrounds', 'territories', 'maintenanceInformation',
+    'lastUpdate', 'creator', 'isUnavailable'
   ]
 }
 
@@ -146,6 +159,10 @@ export class ApplicationProjection extends Resource {
   createdDate: string;
   logo: string;
   description: string;
+  maintenanceInformation : string;
+  lastUpdate : Date;
+  creatorId : string;
+  isUnavailable : boolean;
 
   /**
    * Creates a new ApplicationProjection instance copying only the properties declared in ApplicationProjection and Resource classes
@@ -160,7 +177,8 @@ export class ApplicationProjection extends Resource {
       // ApplicationProjection properties
       'id', 'name', 'type', 'title', 'theme', 'scales', 'srs', 'jspTemplate',
       'treeAutoRefresh', 'accessParentTerritory', 'accessChildrenTerritory',
-      'situationMapId', 'createdDate', 'logo', 'description'
+      'situationMapId', 'createdDate', 'logo', 'description',
+      'maintenanceInformation', 'lastUpdate', 'creatorId', 'isUnavailable'
     ];
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {

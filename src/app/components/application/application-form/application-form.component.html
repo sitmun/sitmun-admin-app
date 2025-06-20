@@ -37,7 +37,7 @@
                       onKeyDown="onTranslated('description')"
                       svgIcon="ic_translate"></mat-icon>
           </mat-form-field>
-          <mat-form-field appearance="outline" class="quarter">
+          <mat-form-field appearance="outline" class="half add-gap">
             <mat-label>{{ 'common.form.type' | translate }}</mat-label>
             <mat-select formControlName="type" class="form-control"
                         (selectionChange)="onSelectionTypeAppChanged($event)">
@@ -46,10 +46,47 @@
               </mat-option>
             </mat-select>
           </mat-form-field>
+          <mat-form-field appearance="outline" class="half">
+            <mat-label>{{ 'entity.application.creator' | translate }}</mat-label>
+            <mat-select formControlName="creatorId" class="form-control">
+              <mat-select-trigger>
+                <ng-container *ngIf="entityForm.get('creatorId')?.value as creatorId">
+                  <a [routerLink]="['/user', creatorId, 'userForm']"
+                     class="router-link">
+                    {{ getUsername(creatorId) | translate }}
+                  </a>
+                </ng-container>
+                <span *ngIf="!entityForm.get('creatorId')?.value">
+                  {{ 'common.form.none' | translate }}
+              </span>
+              </mat-select-trigger>
+              <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
+              <mat-option [value]="user.id" *ngFor="let user of usersList">
+                <div>
+                  <a [routerLink]="['/user', user.id, 'userForm']"
+                     (click)="$event.stopPropagation()" class="router-link">
+                    <span>{{ user.username }}</span>
+                  </a>
+                </div>
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'common.form.logo' | translate }}</mat-label>
             <input matInput type="text" formControlName="logo" [maxlength]="4000">
             <mat-hint align="end">{{entityForm.get('logo') | characterCount}}</mat-hint>
+          </mat-form-field>
+          <mat-checkbox formControlName="isUnavailable">
+            <mat-label> {{'entity.application.isUnavailable' | translate}} </mat-label>
+          </mat-checkbox>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label> {{'entity.application.maintenanceInformation' | translate}} </mat-label>
+            <textarea matInput type="text" formControlName="maintenanceInformation" [maxlength]="4000"></textarea>
+            <mat-icon matSuffix class="iconTranslate"
+                      (click)="onTranslated('maintenanceInformation')"
+                      onKeyDown="onTranslated('maintenanceInformation')"
+                      svgIcon="ic_translate"></mat-icon>
+            <mat-hint align="end">{{entityForm.get('maintenanceInformation') | characterCount}}</mat-hint>
           </mat-form-field>
         </mat-card-content>
       </mat-card>
@@ -95,7 +132,7 @@
             <mat-select formControlName="situationMapId" class="form-control">
               <mat-select-trigger>
                 <ng-container *ngIf="entityForm.get('situationMapId')?.value as selectedId">
-                  <a [routerLink]="['/layersPermits', selectedId, 'layersPermitsForm']" 
+                  <a [routerLink]="['/layersPermits', selectedId, 'layersPermitsForm']"
                      class="router-link">
                     {{ getSituationMapName(selectedId) | translate }}
                   </a>
@@ -107,7 +144,7 @@
               <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
               <mat-option [value]="situationMapObj.id" *ngFor="let situationMapObj of situationMapList">
                 <div>
-                  <a [routerLink]="['/layersPermits', situationMapObj.id, 'layersPermitsForm']" 
+                  <a [routerLink]="['/layersPermits', situationMapObj.id, 'layersPermitsForm']"
                      (click)="$event.stopPropagation()" class="router-link">
                     <span>{{ situationMapObj.name | translate }}</span>
                   </a>
@@ -152,7 +189,7 @@
         (new)="parametersTable.openTemplateDialog('newParameterDialog')"
         *ngIf="dataLoaded"
        ></app-data-grid>
-      </mat-card-content>  
+      </mat-card-content>
     </mat-card>
   </mat-tab>
   <mat-tab label="{{ 'entity.application.roles.header' | translate }}">

@@ -19,7 +19,9 @@ import {
   RoleService,
   TranslationService,
   Tree,
-  TreeService
+  TreeService,
+  UserService,
+  User
 } from '@app/domain';
 import {HalOptions} from '@app/core/hal/rest/rest.service';
 
@@ -98,6 +100,11 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
   protected situationMapList: CartographyGroup[] = [];
 
   /**
+   * List of users available for selection in the application form.
+   */
+  protected usersList: User[] = [];
+
+  /**
    * Reference to the dialog template used for creating new parameters.
    * Used by the parameters table for adding new application parameters.
    */
@@ -128,6 +135,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    * @param backgroundService - Service for background management
    * @param roleService - Service for role management
    * @param treeService - Service for tree management
+   * @param userService
    * @param utils - Utility service for common operations
    * @param loggerService - Service for logging
    */
@@ -147,6 +155,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     protected backgroundService: BackgroundService,
     protected roleService: RoleService,
     protected treeService: TreeService,
+    protected userService: UserService,
     protected utils: UtilsService,
   ) {
     super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router);
@@ -162,11 +171,17 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    */
   override async preFetchData() {
     this.dataTables.register(this.parametersTable).register(this.treesTable).register(this.rolesTable).register(this.applicationBackgroundsTable);
-    this.initTranslations('Application', ['name', 'description', 'title'])
+    this.initTranslations('Application', ['name', 'description', 'title', 'maintenanceInformation'])
     await this.initCodeLists(['application.type', 'applicationParameter.type'])
-    const list = await firstValueFrom(this.fetchSituationMapList())
-    list.sort((a, b) => a.name.localeCompare(b.name));
-    this.situationMapList = list;
+    const [situationMaps, users] = await Promise.all([
+      firstValueFrom(this.fetchSituationMapList()),
+      firstValueFrom(this.userService.getAll())
+      ]
+    )
+    situationMaps.sort((a, b) => a.name.localeCompare(b.name));
+    users.sort((a, b) => a.username.localeCompare(b.username));
+    this.situationMapList = situationMaps;
+    this.usersList = users;
   }
 
   /**
@@ -232,6 +247,9 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       accessParentTerritory: new UntypedFormControl(this.entityToEdit.accessParentTerritory),
       accessChildrenTerritory: new UntypedFormControl(this.entityToEdit.accessChildrenTerritory),
       logo: new UntypedFormControl(this.entityToEdit.logo, []),
+      maintenanceInformation: new UntypedFormControl(this.entityToEdit.maintenanceInformation,[]),
+      creatorId: new UntypedFormControl(this.entityToEdit.creatorId,[]),
+      isUnavailable: new UntypedFormControl(this.entityToEdit.isUnavailable,[]),
     });
   }
 
@@ -247,9 +265,9 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       this.entityForm.value,
       {
         id: id,
-        scales: this.entityForm.value.scales != null ? this.entityForm.value.scales.toString().split(',') : null,
-        situationMap: this.situationMapList.find(item => item.id === this.entityForm.value.situationMapId)
-          || null,
+        scales: this.entityForm.value.scales ? this.entityForm.value.scales.toString().split(',') : null,
+        situationMap: this.entityForm.value.situationMapId ? this.cartographyGroupService.createProxy(this.entityForm.value.situationMapId) : null,
+        creator: this.entityForm.value.creatorId ? this.userService.createProxy(this.entityForm.value.creatorId) : null,
       }
     );
     return Application.fromObject(safeToEdit)
@@ -282,6 +300,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     const entityToUpdate = this.createObject(this.entityID);
     await this.saveTranslations(entityToUpdate);
     await firstValueFrom(entityToUpdate.updateRelationEx("situationMap", entityToUpdate.situationMap));
+    await firstValueFrom(entityToUpdate.updateRelationEx("creator", entityToUpdate.creator));
   }
 
   /**
@@ -296,7 +315,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       param: null,
       msg: this.utils.showRequiredFieldsError
     }, {
-      fn: this.validTuristicAppTrees,
+      fn: this.validTouristicAppTrees,
       param: filterTrees,
       msg: this.utils.showTuristicAppTreeError
     }, {
@@ -327,7 +346,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    * @param trees - Array of trees to validate
    * @returns boolean indicating validation result
    */
-  validTuristicAppTrees(trees: Tree[]): boolean {
+  validTouristicAppTrees(trees: Tree[]): boolean {
     if (this.currentAppType === constants.codeValue.applicationType.touristicApp) {
       let valid = trees.length === 0;
       if (!valid){
@@ -611,5 +630,9 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    */
   isNotExternalApp(): boolean {
     return this.entityForm?.value?.type !== this.codeValues.applicationType.externalApp;
+  }
+
+  getUsername(creatorId: number): string {
+    return this.usersList.find(user => user.id === creatorId)?.username || '';
   }
 }
