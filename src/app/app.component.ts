@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { LanguageService, ConfigurationParametersService } from '@app/domain';
 import { Principal } from '@app/core/auth/principal.service';
 import { LoginService } from '@app/core/auth/login.service';
 import { AuthService } from '@app/core/auth/auth.service';
@@ -21,93 +20,63 @@ export class AppComponent {
   currentAccount: any;
 
   isOpen: boolean;
+  
   constructor(
     /** Translate service */public trans: TranslateService, 
     /** Identity service */public principal: Principal,
     /** Login service */public loginService: LoginService,
-    /** Auth service */public authService: AuthService,
-    /** Language service */public languageService: LanguageService,
-    /** Configuration parameters service */public configurationParametersService: ConfigurationParametersService
-    ) {
+    /** Auth service */public authService: AuthService
+  ) {
     this.translate = trans;
   }
 
   /** On component init, get logged user account*/
-  async ngOnInit() {
-    await this.loadLanguages();
-    await this.loadConfiguration();
-
-    // Set initial language based on browser preference if not logged in
-    if (!this.authService.getToken()) {
-      const navigatorLang = window.navigator.language.toLowerCase();
-      const baseLang = navigatorLang.replace(/-[A-Z]+$/, '');
-      const defaultLang = config.languagesToUse.find(lang => 
-        lang.shortname.toLowerCase() === baseLang
-      )?.shortname || config.defaultLang;
-      
-      this.translate.use(defaultLang);
-      this.translate.setDefaultLang(defaultLang);
-    } else if (localStorage.getItem('lang') != undefined) {
-      this.translate.setDefaultLang(localStorage.getItem('lang'));
-      this.translate.use(localStorage.getItem('lang'));
+  ngOnInit() {
+    // Verify that languages are loaded
+    if (!config.languagesToUse || config.languagesToUse.length === 0) {
+      console.warn('Languages not loaded - APP_INITIALIZER may have failed');
+    } else {
+      console.log(`App component initialized with ${config.languagesToUse.length} languages available`);
     }
+
+    // Set language based on stored preference or browser language
+    this.setInitialLanguage();
 
     // Listen for browser language changes
     window.addEventListener('languagechange', () => {
       if (!this.authService.getToken()) {
-        const navigatorLang = window.navigator.language.toLowerCase();
-        const baseLang = navigatorLang.replace(/-[A-Z]+$/, '');
-        const defaultLang = config.languagesToUse.find(lang => 
-          lang.shortname.toLowerCase() === baseLang
-        )?.shortname || config.defaultLang;
-        
-        this.translate.use(defaultLang);
-        this.translate.setDefaultLang(defaultLang);
+        this.setInitialLanguage();
       }
     });
 
-    if(this.authService.getToken()){
+    // Load user account if authenticated
+    if (this.authService.getToken()) {
       this.principal.identity().then((account) => {
         this.currentAccount = account;
       });
     }
   }
 
-  //Load from server all languages that we will use
-  async loadLanguages() {
-    return new Promise<void>((resolve) => {
-      this.languageService.getAll().subscribe(
-        result => {
-          result.sort((a,b) => a.shortname.localeCompare(b.shortname));
-          result.forEach(language => {
-            config.languagesObjects[language.shortname] = language;
-          });
-          if(!localStorage.getItem('languages')){
-            localStorage.setItem('languages', JSON.stringify(result));
-          }
-          config.languagesToUse = result;
-          resolve();
-        }
-      );
-    });
-  }
-
-  async loadConfiguration() {
-    return new Promise<void>((resolve) => {
-      this.configurationParametersService.getAll().subscribe(
-        result => {
-          let defaultLang = result.find(element => element.name == 'language.default');
-          if(defaultLang){
-            config.defaultLang = defaultLang.value;
-            if(!localStorage.getItem('lang')){
-              this.translate.setDefaultLang(defaultLang.value);
-              this.translate.use(defaultLang.value);
-            }
-          }
-          resolve();
-        }
-      );
-    });
+  /**
+   * Set initial language based on stored preference or browser language
+   */
+  private setInitialLanguage() {
+    const storedLang = localStorage.getItem('lang');
+    
+    if (storedLang && config.languagesToUse?.find(lang => lang.shortname === storedLang)) {
+      this.translate.use(storedLang);
+      this.translate.setDefaultLang(storedLang);
+    } else if (!this.authService.getToken()) {
+      // Use browser language for non-authenticated users
+      const navigatorLang = window.navigator.language.toLowerCase();
+      const baseLang = navigatorLang.replace(/-[A-Z]+$/, '');
+      const defaultLang = config.languagesToUse?.find(lang => 
+        lang.shortname.toLowerCase() === baseLang
+      )?.shortname || config.defaultLang || 'en';
+      
+      this.translate.use(defaultLang);
+      this.translate.setDefaultLang(defaultLang);
+    }
   }
 
   /** Change app language*/
@@ -120,9 +89,7 @@ export class AppComponent {
   navOpen($event): void {
     // toggle condition here
     this.isOpen = !this.isOpen;
- 
   }
-
 
   /** Whether user is logged in */
   isLoggedIn() {

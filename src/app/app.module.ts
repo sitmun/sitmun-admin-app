@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { LOCALE_ID, NgModule } from '@angular/core';
+import { LOCALE_ID, NgModule, APP_INITIALIZER } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { RouterModule } from '@angular/router';
@@ -52,12 +52,11 @@ import { ServicesModule } from './services/services.module';
 import { ExternalService, HalModule, ResourceService } from '@app/core/hal';
 
 //i18n
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { registerLocaleData } from '@angular/common';
-import localeEs from '@angular/common/locales/es';
-import localeCa from '@angular/common/locales/ca';
+import { firstValueFrom } from 'rxjs';
+import { config } from '@config';
 //Components
 import { ConnectionComponent } from '@app/components/connection/connection.component';
 import { ServiceComponent } from '@app/components/service/service.component';
@@ -117,8 +116,97 @@ import { ExternalConfigurationService } from '@app/core/config/external-configur
 
 import { BaseFormComponent } from "@app/components/base-form.component";
 
-registerLocaleData(localeEs, 'es-ES');
-registerLocaleData(localeCa, 'ca-ES');
+
+// APP_INITIALIZER factory functions
+export function initializeLanguages(
+  languageService: LanguageService,
+  translateService: TranslateService
+) {
+  return () => {
+    return firstValueFrom(languageService.getAll()).then(languages => {
+      // Sort languages
+      languages.sort((a, b) => a.shortname.localeCompare(b.shortname));
+      
+      // Store in config
+      config.languagesToUse = languages;
+      languages.forEach(language => {
+        config.languagesObjects[language.shortname] = language;
+      });
+      
+      // Store in localStorage if not exists
+      if (!localStorage.getItem('languages')) {
+        localStorage.setItem('languages', JSON.stringify(languages));
+      }
+      
+      // Set default language
+      const defaultLang = getDefaultLanguage(languages);
+      translateService.setDefaultLang(defaultLang);
+      translateService.use(defaultLang);
+      
+      console.log(`Languages initialized: ${languages.length} languages loaded, default: ${defaultLang}`);
+      return languages;
+    }).catch(error => {
+      console.error('Failed to initialize languages:', error);
+      // Fallback to basic configuration
+      config.languagesToUse = [];
+      config.languagesObjects = {};
+      translateService.setDefaultLang('en');
+      translateService.use('en');
+      throw error;
+    });
+  };
+}
+
+export function initializeConfiguration(
+  configurationService: ConfigurationParametersService,
+  translateService: TranslateService
+) {
+  return () => {
+    return firstValueFrom(configurationService.getAll()).then(configParams => {
+      const defaultLang = configParams.find(element => element.name === 'language.default');
+      
+      if (defaultLang) {
+        config.defaultLang = defaultLang.value;
+        
+        // Set language if not already set in localStorage
+        if (!localStorage.getItem('lang')) {
+          translateService.setDefaultLang(defaultLang.value);
+          translateService.use(defaultLang.value);
+        }
+      }
+      
+      console.log(`Configuration initialized: ${configParams.length} parameters loaded`);
+      return configParams;
+    }).catch(error => {
+      console.error('Failed to initialize configuration:', error);
+      // Continue without configuration
+      return [];
+    });
+  };
+}
+
+// Helper function to get default language
+function getDefaultLanguage(languages: any[]): string {
+  // Check localStorage first
+  const storedLang = localStorage.getItem('lang');
+  if (storedLang && languages.find(lang => lang.shortname === storedLang)) {
+    return storedLang;
+  }
+  
+  // Check browser language
+  const navigatorLang = window.navigator.language.toLowerCase();
+  const baseLang = navigatorLang.replace(/-[A-Z]+$/, '');
+  const browserLang = languages.find(lang => 
+    lang.shortname.toLowerCase() === baseLang
+  );
+  
+  if (browserLang) {
+    return browserLang.shortname;
+  }
+  
+  // Fallback to config default or first language
+  return config.defaultLang || (languages.length > 0 ? languages[0].shortname : 'en');
+}
 
 @NgModule({
   declarations: [
@@ -201,6 +289,20 @@ registerLocaleData(localeCa, 'ca-ES');
     { provide: LOCALE_ID, useValue: 'es-ES' },
     { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
     { provide: MAT_TABS_CONFIG, useValue: { animationDuration: '0ms' } },
+    
+    // APP_INITIALIZER providers
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeLanguages,
+      deps: [LanguageService, TranslateService],
+      multi: true
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeConfiguration,
+      deps: [ConfigurationParametersService, TranslateService],
+      multi: true
+    },
     ResourceService,
     ExternalService,
     RoleService,
