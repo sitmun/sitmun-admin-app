@@ -1,4 +1,4 @@
-import {Injectable, Injector} from '@angular/core';
+import {Injectable, Injector, Component} from '@angular/core';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateService} from '@ngx-translate/core';
 import {Location} from '@angular/common';
@@ -11,7 +11,6 @@ import {config} from '@config';
 import {BtnCheckboxFilterComponent} from '@app/frontend-gui/src/lib/btn-checkbox-filter/btn-checkbox-filter.component';
 import {LoggerService} from '@app/services/logger.service';
 import {HalOptions, HalParam} from '@app/core/hal/rest/rest.service';
-import {Component} from '@angular/core';
 import {ICellRendererAngularComp} from '@ag-grid-community/angular';
 
 /**
@@ -79,27 +78,27 @@ export class UtilsService {
    * @param error - The error object to process and display.
    */
   showErrorMessage(error: any) {
-    this.loggerService.debug('showErrorMessage', error);
-    let missatge = '';
+    let msg = '';
     try {
       if (error.error && error.error.errors) {
         error.error.errors.forEach((element) => {
-          missatge += this.translate.instant(
+          msg += this.translate.instant(
             'Property: ' + element.property + ' ' + element.message + ';'
           );
         });
       } else {
-        missatge = this.translate.instant(
+        msg = this.translate.instant(
           error.error
             ? error.error.error + ': ' + error.error.message
             : error.message
         );
       }
     } catch (error) {
-      missatge = error.toString();
+      msg = error.toString();
     }
+    this.loggerService.debug('showMessage', msg);
     this.snackBar
-      .open(missatge, 'Cerrar', {
+      .open(msg, 'Cerrar', {
         duration: 0,
         panelClass: ['error-snackbar'],
       })

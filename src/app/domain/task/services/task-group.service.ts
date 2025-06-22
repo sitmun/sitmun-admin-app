@@ -1,32 +1,14 @@
 import { TaskGroup } from '@app/domain';
 import { Injectable, Injector } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
 import { RestService } from '@app/core/hal/rest/rest.service';
 
 /** Task group manager service */
 @Injectable()
 export class TaskGroupService extends RestService<TaskGroup> {
 
-
-  /** API resource path */
-  public CONNECTION_API = 'task-groups';
-
   /** constructor */
-  constructor(injector: Injector,private http: HttpClient) {
+  constructor(injector: Injector) {
     super(TaskGroup, "task-groups", injector);
-  }
-
-  /** save task group*/
-  save(item: TaskGroup): Observable<any> {
-    let result: Observable<Object>;
-    if (item._links!=null) {
-
-      result = this.http.put(item._links.self.href, item);
-    } else {
-      result = this.http.post(this.resourceService.getResourceUrl(this.CONNECTION_API) , item);
-    }
-    return result;
   }
 
 }

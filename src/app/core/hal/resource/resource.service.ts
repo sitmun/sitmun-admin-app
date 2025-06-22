@@ -190,6 +190,18 @@ export class ResourceService {
             catchError(error => throwError(() => error)));
     }
 
+  public customQueryProjection<T extends Resource>(type: { new(): T }, query: string, resource: string, _embedded: string, options?: HalOptions): Observable<ResourceArray<T>> {
+    this.loggerService.trace("ResourceService.customQuery:", type.name, query, resource, _embedded, options);
+    const uri = this.getResourceUrl(resource + '?' + query);
+    const params = ResourceHelper.optionParams(new HttpParams(), options).append('projection', 'view');
+    const result: ResourceArray<T> = ResourceHelper.createEmptyResult<T>(_embedded);
+    this.setUrls(result);
+    let observable = ResourceHelper.getHttp().get(uri, { headers: ResourceHelper.headers, params: params });
+    return observable.pipe(map(response => ResourceHelper.instantiateResourceCollection(type, response, result)),
+      catchError(error => throwError(() => error)));
+  }
+
+
     /**
      * Retrieves a related resource using its relation link
      * @param type The resource type constructor

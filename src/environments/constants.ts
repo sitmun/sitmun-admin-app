@@ -98,12 +98,11 @@ export const constants = {
       },
     ],
     [
-      /*
-        {
-          id: 'taskGroup',
-          icon: 'ic_gruptasca',
-          children: null,
-        }, */
+      {
+        id: 'taskGroup',
+        icon: 'ic_gruptasca',
+        children: null,
+      },
       {
         id: 'tasks',
         icon: 'menu_tasques',

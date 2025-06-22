@@ -38,6 +38,7 @@ import {
   Status
 } from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
+import assert from "assert";
 
 /**
  * Component for managing basic tasks in the SITMUN application.
@@ -103,16 +104,12 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
   private taskType: TaskType = null;
 
   /**
-   * The task group entity associated with this task.
-   * Retrieved during initialization.
-   */
-  private taskGroup: TaskGroup = null;
-
-  /**
    * List of available task UIs that can be assigned to this task.
    * Retrieved during initialization.
    */
   protected uiList: TaskUI[] = [];
+
+  protected taskGroupList: TaskGroup[] = [];
 
   /**
    * Reference to the dialog template for adding new parameters.
@@ -175,6 +172,10 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
    */
   override async preFetchData() {
     const params = await firstValueFrom(this.activatedRoute.params);
+
+    const type = Number(params.type ?? 1);
+    assert(type == 1, `Task type must be 1 for basic tasks but was ${params.type}`);
+
     this.dataTables.register(this.rolesTable)
       .register(this.availabilitiesTable)
       .register(this.parametersTable);
@@ -188,22 +189,20 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
       firstValueFrom(this.taskUIService.getAll())
     ]);
 
-    this.taskType = taskTypes.find(taskType => taskType.id === Number(params.type));
+    this.taskType = taskTypes.find(taskType => taskType.id === type);
     this.taskTypeName = this.taskType.title;
     this.taskTypeNameTranslated = this.translateService.instant(`entity.task.basic.label`);
     if (!this.taskType) {
       throw new Error(`Task type ${this.taskTypeName} not found`);
     }
 
-    this.taskGroup = taskGroups.find(taskGroup => taskGroup.name === this.taskTypeName);
-    if (!this.taskGroup) {
-      throw new Error(`Task group ${this.taskTypeName} not found`);
-    }
-
     this.uiList = uiList;
     if (!Array.isArray(this.uiList)) {
       throw new Error(`UI tasks ${this.uiList} not retrieved`);
     }
+
+    taskGroups.sort((a, b) => a.name.localeCompare(b.name));
+    this.taskGroupList = taskGroups;
   }
 
   /**
@@ -267,6 +266,10 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
         validators: [Validators.required],
         nonNullable: true
       }),
+      taskGroupId: new FormControl(this.entityToEdit.groupId, {
+        validators: [Validators.required],
+        nonNullable: true
+      }),
     });
   }
 
@@ -300,7 +303,8 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
     const entityCreated = await firstValueFrom(this.taskService.create(entityToCreate));
     // Set immutable relationship
     await firstValueFrom(entityCreated.updateRelationEx("type", this.taskType));
-    await firstValueFrom(entityCreated.updateRelationEx("group", this.taskGroup));
+    const proxyGroup = this.taskGroupService.createProxy(this.entityForm.get('taskGroupId')?.value);
+    await firstValueFrom(entityCreated.updateRelationEx("group", proxyGroup));
     return entityCreated.id;
   }
 
@@ -312,6 +316,10 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
   override async updateEntity() {
     const entityToUpdate = this.createObject(this.entityID);
     await firstValueFrom(this.taskService.update(entityToUpdate));
+    if (this.entityForm.get('taskGroupId')?.dirty) {
+      const proxyGroup = this.taskGroupService.createProxy(this.entityForm.get('taskGroupId')?.value);
+      await firstValueFrom(entityToUpdate.updateRelationEx("group", proxyGroup));
+    }
   }
 
   /**
@@ -326,6 +334,10 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
     const entityToUpdate = this.createObject(this.entityID);
     await this.saveTranslations(entityToUpdate);
     await firstValueFrom(entityToUpdate.updateRelationEx("ui", this.taskUIService.createProxy(this.entityForm.get('uiId')?.value)));
+  }
+
+  getTaskGroupName(taskGroupId: number): string {
+    return this.taskGroupList.find(group => group.id === taskGroupId)?.name || '';
   }
 
   /**

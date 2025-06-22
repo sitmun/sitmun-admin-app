@@ -1,4 +1,4 @@
-import {Observable, of, switchMap, throwError as observableThrowError} from 'rxjs';
+import {firstValueFrom, Observable, of, switchMap, throwError as observableThrowError} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {Resource} from '../resource/resource.model';
 import {ResourceArray} from '../resource/resource-array.model';
@@ -220,6 +220,21 @@ export class RestService<T extends Resource> {
       }) as any
     );
   }
+
+  public customQueryProjection<S extends Resource>(type: {new(): S}, query: string, options?: HalOptions): Observable<S[]> {
+    return this.resourceService.customQueryProjection(type, query, this.resource, this._embedded, options).pipe(
+      map((resourceArray: ResourceArray<T>) => {
+        if (options && options.notPaged && resourceArray.first_uri !== null && resourceArray.first_uri !== undefined) {
+          options.notPaged = false;
+          options.size = resourceArray.totalElements;
+          return firstValueFrom(this.customQueryProjection(type, query, options));
+        } else {
+          return resourceArray.result;
+        }
+      }) as any
+    );
+  }
+
 
   /**
    * Retrieves an array of related resources

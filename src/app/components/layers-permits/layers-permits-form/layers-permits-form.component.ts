@@ -276,7 +276,7 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.roleService.getAll())
       .withTargetsTitle(
-        this.translateService.instant('entity.permissiongroup.roles.title')
+        this.translateService.instant('entity.permissionGroup.roles.title')
       )
       .build();
   }
@@ -350,13 +350,13 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
           300
         ),
         this.utils.getNonEditableColumnDef(
-          'entity.permissiongroup.layers.layerslist',
+          'entity.permissionGroup.layers.layerslist',
           'layers',
           200,
           300
         ),
         this.utils.getRouterLinkColumnDef(
-          'entity.permissiongroup.layers.service',
+          'entity.permissionGroup.layers.service',
           'serviceName',
           '/service/:id/serviceForm',
           {
@@ -396,13 +396,13 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
           300
         ),
         this.utils.getNonEditableColumnDef(
-          'entity.permissiongroup.layers.layerslist',
+          'entity.permissionGroup.layers.layerslist',
           'layers',
           100,
           300
         ),
         this.utils.getNonEditableColumnDef(
-          'entity.permissiongroup.layers.service',
+          'entity.permissionGroup.layers.service',
           'serviceName',
           100,
           300
@@ -421,7 +421,7 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
           }
       )
       .withTargetsTitle(
-        this.translateService.instant('entity.permissiongroup.layers.title')
+        this.translateService.instant('entity.permissionGroup.layers.title')
       )
       .build();
   }

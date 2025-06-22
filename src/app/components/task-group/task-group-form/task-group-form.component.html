@@ -1,38 +1,58 @@
-<mat-toolbar>
-  <h4>
-    <mat-icon aria-hidden="true" svgIcon="ic_gruptasca"></mat-icon>
-    <span class="spacer"> {{ "taskGroupEntity.taskGroup" | translate }}
-      - {{ (taskGroupID === -1 ? "new" : "edit") | translate }}</span>
-  </h4>
-  <span class="spacer"></span>
-  <button
-    matTooltip="{{ 'save' | translate }}"
-    mat-mini-fab class="add-half-gap"
-    (click)="onSaveButtonClicked()">
-    <mat-icon fontSet="material-icons-round">save</mat-icon>
-  </button>
-  <button
-    matTooltip="{{ 'return' | translate }}"
-    mat-mini-fab class="add-half-gap"
-    (click)="utils.navigateBack()">
-    <mat-icon fontSet="material-icons-round">arrow_back</mat-icon>
-  </button>
-</mat-toolbar>
+<app-form-toolbar
+  icon="menu_tasques"
+  entityType="entity.taskGroup.label"
+  [itemName]="entityForm?.get('name')?.value"
+  [isNew]="isNew()"
+  (save)="onSaveButtonClicked()"
+  (back)="utils.navigateBack()">
+</app-form-toolbar>
+
 <mat-tab-group
   mat-stretch-tabs="false"
   mat-align-tabs="end"
   [dynamicHeight]="true"
-  preserveContent="true"
-  (selectedTabChange)="onTabChange($event)">
+  preserveContent="true">
   <mat-tab label="{{ 'common.form.details' | translate }}">
-    <mat-card appearance="outlined">
-      <mat-card-content>
-        <form [formGroup]='formtaskGroup'>
+    <form [formGroup]='entityForm' *ngIf="dataLoaded">
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+        <mat-card-content>
           <mat-form-field appearance="outline" class="half">
-            <mat-label>{{ 'taskGroupEntity.name' | translate }}</mat-label>
-            <input matInput type="text" formControlName="name" required>
+            <mat-label>{{ 'common.form.name' | translate }}</mat-label>
+            <input matInput type="text" formControlName="name"  [maxlength]="50" required>
+            <mat-hint align="end">
+              {{entityForm.get('name') | characterCount}}
+            </mat-hint>
+            <mat-icon matSuffix class="iconTranslate"
+                      (click)="onTranslated('name')"
+                      onKeyDown="onTranslated('name')"
+                      svgIcon="ic_translate"></mat-icon>
           </mat-form-field>
-        </form>
+        </mat-card-content>
+      </mat-card>
+    </form>
+  </mat-tab>
+  <mat-tab label="{{ 'entity.taskGroup.tasks.header' | translate }}">
+    <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+      <mat-card-content>
+        <app-data-grid [allNewElements]="isNewOrDuplicated()"
+                       [columnDefs]='tasksTable.relationsColumnsDefs'
+                       [getAll]='tasksTable.relationsFetchFn'
+                       [eventAddItemsSubscription]='tasksTable.addCommandEvent$.asObservable()'
+                       [eventGetAllRowsSubscription]='tasksTable.saveCommandEvent$.asObservable()'
+                       [eventRefreshSubscription]='tasksTable.refreshCommandEvent$.asObservable()'
+                       [actionButton]=true
+                       [discardChangesButton]=true
+                       [redoButton]=true
+                       [undoButton]=true
+                       [deleteButton]=false
+                       [addButton]=true
+                       [hideReplaceButton]=true
+                       [defaultColumnSorting]='tasksTable.defaultRelationsSorting()'
+                       [hideDuplicateButton]=true
+                       (getAllRows)="tasksTable.handleSaveRelations($event)"
+                       (add)="tasksTable.openDialog($event)"
+                       *ngIf="dataLoaded"
+        ></app-data-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>

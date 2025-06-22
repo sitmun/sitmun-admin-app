@@ -19,21 +19,41 @@
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'common.form.name' | translate }}</mat-label>
-            <input matInput type="text" formControlName="name"  [maxlength]="512" required>
+            <input matInput type="text" formControlName="name" [maxlength]="512" required>
             <mat-hint align="end" [class.text-warning]="entityForm.get('name')?.value?.length > 512">
-              {{entityForm.get('name') | characterCount}}
-              <mat-icon *ngIf="entityForm.get('name')?.value?.length > 512" fontIcon="warning" class="warning-icon"></mat-icon>
+              {{ entityForm.get('name') | characterCount }}
+              <mat-icon *ngIf="entityForm.get('name')?.value?.length > 512" fontIcon="warning"
+                        class="warning-icon"></mat-icon>
             </mat-hint>
             <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('name')"
                       onKeyDown="onTranslated('name')"
                       svgIcon="ic_translate"></mat-icon>
           </mat-form-field>
-          <mat-form-field appearance="outline" class="half">
+          <mat-form-field appearance="outline" class="half add-gap">
             <mat-label>{{ 'entity.task.basic.ui' | translate }}</mat-label>
             <mat-select formControlName="uiId" class="form-control">
               <mat-option [value]="ui.id" *ngFor="let ui of uiList">
                 {{ ui.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="half">
+            <mat-label>{{ 'entity.taskGroup.label' | translate }}</mat-label>
+            <mat-select formControlName="taskGroupId" class="form-control">
+              <mat-select-trigger>
+                <ng-container *ngIf="entityForm.get('taskGroupId')?.value as taskGroupId">
+                  <a [routerLink]="['/taskGroup', taskGroupId, 'taskGroupForm']"
+                     class="router-link">
+                    {{ getTaskGroupName(taskGroupId) }}
+                  </a>
+                </ng-container>
+              </mat-select-trigger>
+              <mat-option [value]="taskGroup.id" *ngFor="let taskGroup of taskGroupList">
+                <a [routerLink]="['/taskGroup', taskGroup.id, 'taskGroupForm']"
+                   class="router-link">
+                  {{ taskGroup.name }}
+                </a>
               </mat-option>
             </mat-select>
           </mat-form-field>
@@ -42,68 +62,80 @@
     </form>
   </mat-tab>
   <mat-tab label="{{ 'entity.task.parameters.header' | translate }}">
-    <app-data-grid [changeHeightButton]="true"
-                   [allNewElements]="isNewOrDuplicated()"
-                   [columnDefs]='parametersTable.relationsColumnsDefs'
-                   [getAll]='parametersTable.relationsFetchFn'
-                   [eventAddItemsSubscription]='parametersTable.addCommandEvent$.asObservable()'
-                   [eventGetAllRowsSubscription]='parametersTable.saveCommandEvent$.asObservable()'
-                   [eventRefreshSubscription]='parametersTable.refreshCommandEvent$.asObservable()'
-                   [discardChangesButton]=true
-                   [actionButton]=true
-                   [redoButton]=true
-                   [undoButton]=true
-                   [deleteButton]=true
-                   [newButton]=true
-                   [defaultColumnSorting]="parametersTable.defaultRelationsSorting()"
-                   (new)="parametersTable.openTemplateDialog('newParameterDialog')"
-                   (getAllRows)="parametersTable.handleSaveRelations($event)"
-                   (duplicate)='parametersTable.duplicateRelations($event)'
-                   *ngIf="dataLoaded"
-    ></app-data-grid>
+    <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+      <mat-card-content>
+        <app-data-grid [changeHeightButton]="true"
+                       [allNewElements]="isNewOrDuplicated()"
+                       [columnDefs]='parametersTable.relationsColumnsDefs'
+                       [getAll]='parametersTable.relationsFetchFn'
+                       [eventAddItemsSubscription]='parametersTable.addCommandEvent$.asObservable()'
+                       [eventGetAllRowsSubscription]='parametersTable.saveCommandEvent$.asObservable()'
+                       [eventRefreshSubscription]='parametersTable.refreshCommandEvent$.asObservable()'
+                       [discardChangesButton]=true
+                       [actionButton]=true
+                       [redoButton]=true
+                       [undoButton]=true
+                       [deleteButton]=true
+                       [newButton]=true
+                       [defaultColumnSorting]="parametersTable.defaultRelationsSorting()"
+                       (new)="parametersTable.openTemplateDialog('newParameterDialog')"
+                       (getAllRows)="parametersTable.handleSaveRelations($event)"
+                       (duplicate)='parametersTable.duplicateRelations($event)'
+                       *ngIf="dataLoaded"
+        ></app-data-grid>
+      </mat-card-content>
+    </mat-card>
   </mat-tab>
   <mat-tab label="{{ 'entity.task.roles.header' | translate }}">
-    <app-data-grid [changeHeightButton]="true"
-                   [allNewElements]="isNewOrDuplicated()"
-                   [columnDefs]='rolesTable.relationsColumnsDefs'
-                   [getAll]='rolesTable.relationsFetchFn'
-                   [eventAddItemsSubscription]='rolesTable.addCommandEvent$.asObservable()'
-                   [eventGetAllRowsSubscription]='rolesTable.saveCommandEvent$.asObservable()'
-                   [eventRefreshSubscription]='rolesTable.refreshCommandEvent$.asObservable()'
-                   [actionButton]=true
-                   [discardChangesButton]=true
-                   [redoButton]=true
-                   [undoButton]=true
-                   [deleteButton]=true
-                   [addButton]=true
-                   [defaultColumnSorting]='rolesTable.defaultRelationsSorting()'
-                   [hideDuplicateButton]=true
-                   (getAllRows)="rolesTable.handleSaveRelations($event)"
-                   (add)="rolesTable.openDialog($event)"
-                   *ngIf="dataLoaded"
-    ></app-data-grid>
+    <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+      <mat-card-content>
+        <app-data-grid [changeHeightButton]="true"
+                       [allNewElements]="isNewOrDuplicated()"
+                       [columnDefs]='rolesTable.relationsColumnsDefs'
+                       [getAll]='rolesTable.relationsFetchFn'
+                       [eventAddItemsSubscription]='rolesTable.addCommandEvent$.asObservable()'
+                       [eventGetAllRowsSubscription]='rolesTable.saveCommandEvent$.asObservable()'
+                       [eventRefreshSubscription]='rolesTable.refreshCommandEvent$.asObservable()'
+                       [actionButton]=true
+                       [discardChangesButton]=true
+                       [redoButton]=true
+                       [undoButton]=true
+                       [deleteButton]=true
+                       [addButton]=true
+                       [defaultColumnSorting]='rolesTable.defaultRelationsSorting()'
+                       [hideDuplicateButton]=true
+                       (getAllRows)="rolesTable.handleSaveRelations($event)"
+                       (add)="rolesTable.openDialog($event)"
+                       *ngIf="dataLoaded"
+        ></app-data-grid>
+      </mat-card-content>
+    </mat-card>
   </mat-tab>
   <mat-tab label="{{ 'entity.task.territories.header' | translate }}">
-    <app-data-grid [changeHeightButton]="true"
-                   [allNewElements]="isNewOrDuplicated()"
-                   [columnDefs]='availabilitiesTable.relationsColumnsDefs'
-                   [getAll]='availabilitiesTable.relationsFetchFn'
-                   [eventAddItemsSubscription]='availabilitiesTable.addCommandEvent$.asObservable()'
-                   [eventGetAllRowsSubscription]='availabilitiesTable.saveCommandEvent$.asObservable()'
-                   [eventRefreshSubscription]='availabilitiesTable.refreshCommandEvent$.asObservable()'
-                   [actionButton]=true
-                   [discardChangesButton]=true
-                   [redoButton]=true
-                   [undoButton]=true
-                   [deleteButton]=true
-                   [addButton]=true
-                   [hideReplaceButton]=true
-                   [defaultColumnSorting]='availabilitiesTable.defaultRelationsSorting()'
-                   [hideDuplicateButton]=true
-                   (getAllRows)="availabilitiesTable.handleSaveRelations($event)"
-                   (add)="availabilitiesTable.openDialog($event)"
-                   *ngIf="dataLoaded"
-    ></app-data-grid>
+    <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+      <mat-card-content>
+        <app-data-grid [changeHeightButton]="true"
+                       [allNewElements]="isNewOrDuplicated()"
+                       [columnDefs]='availabilitiesTable.relationsColumnsDefs'
+                       [getAll]='availabilitiesTable.relationsFetchFn'
+                       [eventAddItemsSubscription]='availabilitiesTable.addCommandEvent$.asObservable()'
+                       [eventGetAllRowsSubscription]='availabilitiesTable.saveCommandEvent$.asObservable()'
+                       [eventRefreshSubscription]='availabilitiesTable.refreshCommandEvent$.asObservable()'
+                       [actionButton]=true
+                       [discardChangesButton]=true
+                       [redoButton]=true
+                       [undoButton]=true
+                       [deleteButton]=true
+                       [addButton]=true
+                       [hideReplaceButton]=true
+                       [defaultColumnSorting]='availabilitiesTable.defaultRelationsSorting()'
+                       [hideDuplicateButton]=true
+                       (getAllRows)="availabilitiesTable.handleSaveRelations($event)"
+                       (add)="availabilitiesTable.openDialog($event)"
+                       *ngIf="dataLoaded"
+        ></app-data-grid>
+      </mat-card-content>
+    </mat-card>
   </mat-tab>
 </mat-tab-group>
 

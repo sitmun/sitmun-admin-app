@@ -22,12 +22,14 @@ export class ErrorHandlerService {
 
   handleDataNotFound(entityType: string) {
     const message = this.translateService.instant('common.error.notFound', { entity: entityType });
+    this.loggerService.error(message);
     this.snackBar.open(message, 'Close', { duration: 5000 });
     return null;
   }
 
   missingRequiredFields(entityType: string) {
     const message = this.translateService.instant('common.error.missingFields', { entity: entityType });
+    this.loggerService.error(message);
     this.snackBar.open(message, 'Close', { duration: 5000 });
     return null;
   }

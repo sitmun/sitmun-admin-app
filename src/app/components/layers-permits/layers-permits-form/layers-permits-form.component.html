@@ -1,6 +1,6 @@
 <app-form-toolbar
   icon="menu_permisos"
-  entityType="entity.permissiongroup.label"
+  entityType="entity.permissionGroup.label"
   [itemName]="entityForm?.get('name')?.value"
   [isNew]="isNewOrDuplicated()"
   (save)="onSaveButtonClicked()"
@@ -31,7 +31,7 @@
     </mat-card>
   </form>
   </mat-tab>
-  <mat-tab label=" {{ 'entity.permissiongroup.layers.header' | translate }}">
+  <mat-tab label=" {{ 'entity.permissionGroup.layers.header' | translate }}">
     <app-data-grid [changeHeightButton]="true"
                    [allNewElements]="isNewOrDuplicated()"
                    [columnDefs]="membersTable.relationsColumnsDefs"
@@ -54,7 +54,7 @@
                    *ngIf="dataLoaded"
     > </app-data-grid>
   </mat-tab>
-  <mat-tab label="{{ 'entity.permissiongroup.roles.header' | translate }}">
+  <mat-tab label="{{ 'entity.permissionGroup.roles.header' | translate }}">
     <app-data-grid [changeHeightButton]="true"
                    [allNewElements]="isNewOrDuplicated()"
                    [columnDefs]="rolesTable.relationsColumnsDefs"
@@ -76,7 +76,7 @@
                    *ngIf="dataLoaded"
     > </app-data-grid>
   </mat-tab>
-  <mat-tab label="{{ 'entity.permissiongroup.applications.header' | translate }}">
+  <mat-tab label="{{ 'entity.permissionGroup.applications.header' | translate }}">
     <app-data-grid [changeHeightButton]="true"
                    [allNewElements]="isNewOrDuplicated()"
                    [columnDefs]="applicationsTable.relationsColumnsDefs"

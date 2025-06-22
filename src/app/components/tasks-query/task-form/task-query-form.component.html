@@ -30,7 +30,7 @@
                       onKeyDown="onTranslated('name')"
                       svgIcon="ic_translate"></mat-icon>
           </mat-form-field>
-          <mat-form-field appearance="outline" class="quarter add-gap" *ngIf="isNew()">
+          <mat-form-field appearance="outline" class="half add-gap" *ngIf="isNew()">
             <mat-label>{{ 'common.form.type' | translate }}</mat-label>
             <mat-select formControlName="scope" class="form-control" (selectionChange)="onTypeChange($event)" required>
               <mat-option [value]="serviceType.value" *ngFor="let serviceType of this.codeList('queryTask.scope')">
@@ -38,10 +38,29 @@
               </mat-option>
             </mat-select>
           </mat-form-field>
-          <mat-form-field appearance="outline" class="quarter add-gap" *ngIf="!isNew()">
+          <mat-form-field appearance="outline" class="half add-gap" *ngIf="!isNew()">
             <mat-label>{{ 'common.form.type' | translate }}</mat-label>
             <input matInput [readonly]="true" [value]="findInCodeList('queryTask.scope', entityForm.get('scope').value)?.description | translate">
             <mat-hint align="end">{{ 'common.hint.valuefixed' | translate}}</mat-hint>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="half">
+            <mat-label>{{ 'entity.taskGroup.label' | translate }}</mat-label>
+            <mat-select formControlName="taskGroupId" class="form-control">
+              <mat-select-trigger>
+                <ng-container *ngIf="entityForm.get('taskGroupId')?.value as taskGroupId">
+                  <a [routerLink]="['/taskGroup', taskGroupId, 'taskGroupForm']"
+                     class="router-link">
+                    {{ getTaskGroupName(taskGroupId) }}
+                  </a>
+                </ng-container>
+              </mat-select-trigger>
+              <mat-option [value]="taskGroup.id" *ngFor="let taskGroup of taskGroupList">
+                <a [routerLink]="['/taskGroup', taskGroup.id, 'taskGroupForm']"
+                   class="router-link">
+                  {{ taskGroup.name }}
+                </a>
+             </mat-option>
+            </mat-select>
           </mat-form-field>
         </mat-card-content>
       </mat-card>
@@ -53,7 +72,7 @@
             <mat-select formControlName="connectionId" class="form-control">
               <mat-select-trigger>
                 <ng-container *ngIf="entityForm.get('connectionId')?.value as connectionId">
-                  <a [routerLink]="['/connection', connectionId, 'connectionForm']" 
+                  <a [routerLink]="['/connection', connectionId, 'connectionForm']"
                      class="router-link">
                     {{ getConnectionName(connectionId) | translate }}
                   </a>
@@ -65,7 +84,7 @@
               <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
               <mat-option [value]="connection.id" *ngFor="let connection of connections">
                 <div>
-                  <a [routerLink]="['/connections', connection.id, 'connectionForm']" 
+                  <a [routerLink]="['/connections', connection.id, 'connectionForm']"
                      (click)="$event.stopPropagation()" class="router-link">
                     <span>{{ connection.name | translate }}</span>
                   </a>
@@ -98,7 +117,7 @@
             <mat-select formControlName="cartographyId" class="form-control">
               <mat-select-trigger>
                 <ng-container *ngIf="entityForm.get('cartographyId')?.value as cartographyId">
-                  <a [routerLink]="['/layers', cartographyId, 'layerForm']" 
+                  <a [routerLink]="['/layers', cartographyId, 'layerForm']"
                      class="router-link">
                     {{ getCartographyName(cartographyId) | translate }}
                   </a>
@@ -110,7 +129,7 @@
               <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
               <mat-option [value]="layer.id" *ngFor="let layer of cartographies">
                 <div>
-                  <a [routerLink]="['/layers', layer.id, 'layersForm']" 
+                  <a [routerLink]="['/layers', layer.id, 'layersForm']"
                      (click)="$event.stopPropagation()" class="router-link">
                     <span>{{ layer.name | translate }}</span>
                   </a>

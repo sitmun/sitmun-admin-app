@@ -51,6 +51,8 @@ export const APP_ROUTES: Routes = [
     { path: 'layersPermits/:id/layersPermitsForm', component: LayersPermitsFormComponent },
     { path: 'layersPermits/:id/layersPermitsForm/:idDuplicate', component: LayersPermitsFormComponent },
     { path: 'tasksBasic', component: TasksBasicComponent, canDeactivate: [CanDeactivateGuard] },
+    { path: 'tasks/:id/1', component: TaskBasicFormComponent },
+    { path: 'tasks/:id/5', component: TaskQueryFormComponent },
     { path: 'taskBasic/:id/:type', component: TaskBasicFormComponent },
     { path: 'taskBasic/:id/:type/:idDuplicate', component: TaskBasicFormComponent },
     { path: 'taskGroup', component: TaskGroupComponent, canDeactivate: [CanDeactivateGuard] },

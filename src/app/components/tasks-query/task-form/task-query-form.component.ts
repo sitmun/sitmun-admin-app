@@ -42,6 +42,7 @@ import {
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {MatSelectChange} from "@angular/material/select";
 import {TaskQueryParameter, TaskParameterType} from "@app/domain/task/models/task-query-parameter.model";
+import assert from 'assert';
 
 /**
  * Component for managing query tasks in the SITMUN application.
@@ -101,11 +102,7 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
    */
   private taskType: TaskType = null;
 
-  /**
-   * The task group entity associated with this task.
-   * Retrieved during initialization.
-   */
-  private taskGroup: TaskGroup = null;
+  protected taskGroupList: TaskGroup[] = [];
 
   /**
    * Reference to the dialog template for adding new parameters.
@@ -239,6 +236,10 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
    */
   override async preFetchData() {
     const params = await firstValueFrom(this.activatedRoute.params);
+
+    const type = Number(params.type ?? 5);
+    assert(type == 5, `Task type must be 5 for query tasks but was ${params.type}`);
+
     this.dataTables.register(this.rolesTable)
       .register(this.availabilitiesTable)
       .register(this.parametersTable);
@@ -254,18 +255,15 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
     this.connections = connections;
     this.cartographies = cartographies;
 
-    this.taskType = taskTypes.find(taskType => taskType.id === Number(params.type));
+    this.taskType = taskTypes.find(taskType => taskType.id === type);
     this.taskTypeName = this.taskType.title;
     this.taskTypeNameTranslated = this.translateService.instant(`entity.task.query.label`);
     if (!this.taskType) {
       throw new Error(`Task type ${this.taskTypeName} not found`);
     }
 
-    this.taskGroup = taskGroups.find(taskGroup => taskGroup.name === this.taskTypeName);
-    if (!this.taskGroup) {
-      throw new Error(`Task group ${this.taskTypeName} not found`);
-    }
-
+    taskGroups.sort((a, b) => a.name.localeCompare(b.name));
+    this.taskGroupList = taskGroups;
   }
 
   /**
@@ -328,6 +326,10 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
         nonNullable: true
       }),
       cartographyId: new FormControl(this.entityToEdit.cartographyId, {
+        validators: [Validators.required],
+        nonNullable: true
+      }),
+      taskGroupId: new FormControl(this.entityToEdit.groupId, {
         validators: [Validators.required],
         nonNullable: true
       })
@@ -403,7 +405,8 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
     const entityCreated = await firstValueFrom(this.taskService.create(entityToCreate));
     // Set immutable relationship
     await firstValueFrom(entityCreated.updateRelationEx("type", this.taskType));
-    await firstValueFrom(entityCreated.updateRelationEx("group", this.taskGroup));
+    const proxyGroup = this.taskGroupService.createProxy(this.entityForm.get('taskGroupId')?.value);
+    await firstValueFrom(entityCreated.updateRelationEx("group", proxyGroup));
     return entityCreated.id;
   }
 
@@ -415,6 +418,10 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
   override async updateEntity() {
     const entityToUpdate = this.createObject(this.entityID);
     await firstValueFrom(this.taskService.update(entityToUpdate));
+    if (this.entityForm.get('taskGroupId')?.dirty) {
+      const proxyGroup = this.taskGroupService.createProxy(this.entityForm.get('taskGroupId')?.value);
+      await firstValueFrom(entityToUpdate.updateRelationEx("group", proxyGroup));
+    }
   }
 
   /**
@@ -593,5 +600,9 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
       .withTargetToRelation((items: TaskQueryParameter[]) => items.map(item => TaskQueryParameter.fromObject(item)))
       .withRelationsDuplicate(item => TaskQueryParameter.fromObject(item))
       .build();
+  }
+
+  getTaskGroupName(taskGroupId: number): string {
+      return this.taskGroupList.find(group => group.id === taskGroupId)?.name || '';
   }
 }
