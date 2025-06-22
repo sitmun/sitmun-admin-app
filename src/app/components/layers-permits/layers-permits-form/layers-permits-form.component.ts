@@ -20,7 +20,7 @@ import {
   TranslationService,
 } from '@app/domain';
 import { UtilsService } from '@app/services/utils.service';
-import { firstValueFrom, of } from 'rxjs';
+import { firstValueFrom, of, EMPTY } from 'rxjs';
 import {
   onUpdate,
   onUpdatedRelation,
@@ -246,7 +246,7 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return of([]);
+          return EMPTY;
         }
         return this.entityToEdit.getRelationArrayEx(Role, 'roles', {
           projection: 'view',
@@ -313,9 +313,9 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
       ])
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return of([]);
+          return EMPTY;
         }
-        return this.entityToEdit.getRelationArrayEx(Role, 'applications', {
+        return this.entityToEdit.getRelationArrayEx(ApplicationProjection, 'applications', {
           projection: 'view',
         });
       })
@@ -370,7 +370,7 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return of([]);
+          return EMPTY;
         }
         return this.entityToEdit.getRelationArrayEx(
           CartographyProjection,

@@ -28,7 +28,7 @@ import {HalOptions} from '@app/core/hal/rest/rest.service';
 import {UtilsService} from '@app/services/utils.service';
 
 import {map} from 'rxjs/operators';
-import {firstValueFrom, Observable, of} from 'rxjs';
+import {firstValueFrom, Observable, EMPTY} from 'rxjs';
 import {
   DataGridComponent,
   isActive,
@@ -419,7 +419,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return of([]);
+          return EMPTY;
         }
         return this.entityToEdit.getRelationArrayEx(ApplicationParameter, 'parameters', {projection: 'view'})
           .pipe(map((data: ApplicationParameter[]) => data.map(element => {
@@ -476,7 +476,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return of([]);
+          return EMPTY;
         }
         return this.entityToEdit.getRelationArrayEx(Tree, 'trees')
       })
@@ -512,7 +512,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return of([]);
+          return EMPTY;
         }
         return this.entityToEdit.getRelationArrayEx(Role, 'availableRoles', {projection: 'view'})
       })
@@ -548,9 +548,9 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       .withRelationsOrder('backgroundName')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return of([]);
+          return EMPTY;
         }
-        return this.entityToEdit.getRelationArrayEx<ApplicationBackground>(ApplicationBackground, 'backgrounds', {projection: 'view'})
+        return this.entityToEdit.getRelationArrayEx<ApplicationBackgroundProjection>(ApplicationBackgroundProjection, 'backgrounds', {projection: 'view'})
       })
       .withRelationsUpdater(async (applicationBackgrounds: (ApplicationBackgroundProjection & Status)[]) => {
         await onCreate(applicationBackgrounds).forEach(item => {

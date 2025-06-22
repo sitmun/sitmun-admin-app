@@ -31,7 +31,7 @@ import {UtilsService} from "@app/services/utils.service";
 import {LoggerService} from "@app/services/logger.service";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {DataTableDefinition, TemplateDialog} from "@app/components/data-tables.util";
-import {firstValueFrom, map, of} from "rxjs";
+import {firstValueFrom, map, of, EMPTY} from "rxjs";
 import {
   canKeepOrUpdate,
   onCreate,
@@ -472,7 +472,7 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return of([]);
+          return EMPTY;
         }
         return this.entityToEdit.getRelationArrayEx(Role, 'roles', {projection: 'view'})
       })
@@ -518,7 +518,7 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
         if (!this.isNew()) {
           return this.entityToEdit.getRelationArrayEx(TaskAvailabilityProjection, 'availabilities', {projection: 'view'})
         }
-        return of([]);
+        return EMPTY;
       })
       .withRelationsUpdater(async (availabilities: (TaskAvailabilityProjection & Status)[]) => {
         await onDelete(availabilities).forEach(item => this.taskAvailabilityService.delete(this.taskAvailabilityService.createProxy(item.id)));

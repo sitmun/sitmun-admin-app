@@ -1,17 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { 
-  RoleService, 
+import {
+  RoleService,
   Role,
-  UserService, 
-  CartographyGroupService, 
-  TaskService, 
+  UserService,
+  CartographyGroupService,
+  TaskService,
   TaskProjection,
-  UserConfigurationService, 
+  UserConfigurationService,
   TerritoryService,
-  User, 
+  User,
   TerritoryProjection,
   ApplicationService,
   Application,
@@ -21,7 +21,7 @@ import {
   UserConfiguration,
 } from '@app/domain';
 import { UtilsService } from '@app/services/utils.service';
-import { of, firstValueFrom } from 'rxjs';
+import { firstValueFrom, EMPTY } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Status, onUpdate, onDelete, onCreate, onUpdatedRelation } from '@app/frontend-gui/src/lib/public_api';
 import { MatDialog } from '@angular/material/dialog';
@@ -30,7 +30,6 @@ import { BaseFormComponent } from '@app/components/base-form.component';
 import { TranslateService } from '@ngx-translate/core';
 import { ErrorHandlerService } from '@app/services/error-handler.service';
 import { DataTable2Definition, DataTableDefinition } from '@app/components/data-tables.util';
-import { W } from '@angular/cdk/keycodes';
 
 @Component({
   selector: 'app-role-form',
@@ -89,7 +88,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
     override fetchOriginal(): Promise<Role> {
       return firstValueFrom(this.roleService.get(this.entityID));
     }
-  
+
   /**
    * Creates a copy of an existing entity for duplication.
    * @returns Promise of duplicated Role entity
@@ -108,7 +107,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
     override empty(): Role {
       return new Role()
     }
-  
+
  /**
    * Initializes form data after entity is fetched.
    * Sets up reactive form with entity values and validation rules.
@@ -174,7 +173,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return of([]);
+          return EMPTY;
         }
         return this.entityToEdit.getRelationArrayEx(UserConfigurationProjection, 'userConfigurations', {projection: 'view'})
       })
@@ -259,7 +258,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return of([]);
+          return EMPTY;
         }
         return this.entityToEdit.getRelationArrayEx(TaskProjection, 'tasks', {projection: 'view'})
       })
@@ -286,7 +285,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
       .build();
   }
 
-  
+
   private defineApplicationsTable(): DataTableDefinition<Application, Application> {
     return DataTableDefinition.builder<Application, Application>(this.dialog, this.errorHandler)
       .withRelationsColumns([
@@ -298,12 +297,12 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return of([]);
+          return EMPTY;
         }
         return this.entityToEdit.getRelationArrayEx<Application>(Application, 'applications')
       })
       .withRelationsUpdater(async (applications: (Application & Status)[]) => {
-        await onUpdatedRelation(applications).forAll(items => 
+        await onUpdatedRelation(applications).forAll(items =>
           this.entityToEdit.substituteAllRelation('applications', items)
         );
       })

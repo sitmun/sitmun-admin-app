@@ -16,7 +16,6 @@ import {
   CodeListService,
   CartographyGroupService,
   TreeNodeProjection,
-  Connection,
   Cartography,
   GetInfoService,
   CartographySpatialSelectionParameterService,
@@ -33,11 +32,9 @@ import {
   from '@app/domain';
 import {UtilsService} from '@app/services/utils.service';
 import {map} from 'rxjs/operators';
-import {firstValueFrom, Observable, of, Subject} from 'rxjs';
-import {config} from '@config';
+import {firstValueFrom, of, Subject, EMPTY} from 'rxjs';
 import {
-  DialogFormComponent,
-  DialogMessageComponent, onCreate, onDelete,
+  onCreate, onDelete,
   onUpdate,
   Status
 } from '@app/frontend-gui/src/lib/public_api';
@@ -50,8 +47,6 @@ import {ErrorHandlerService} from "@app/services/error-handler.service";
 import { DataTableDefinition, TemplateDialog } from '@app/components/data-tables.util';
 import {HttpClient} from "@angular/common/http";
 import { FeatureFlagService } from '@app/core/features/feature-flag.service';
-import { FeatureFlagPipe } from '@app/core/features/feature-flag.pipe';
-import { FeatureFlagComponent } from '@app/core/features/feature-flag.component';
 
 @Component({
   selector: 'app-layers-form',
@@ -225,8 +220,8 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
 
     // Custom validator to ensure queryable layers are subset of joined layers
     const queryableLayersValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
-      const queryableLayers = control.value?.split(',').map(layer => layer.trim()) || [];
-      const joinedLayers = this.entityForm?.get('joinedLayers')?.value?.split(',').map(layer => layer.trim()) || [];
+      const queryableLayers = control.value?.split(',').map(layer => layer.trim()) ?? [];
+      const joinedLayers = this.entityForm?.get('joinedLayers')?.value?.split(',').map(layer => layer.trim()) ?? [];
 
       // Only validate if there are actual entries
       if (queryableLayers.length === 0 || !control.value) return null;
@@ -277,11 +272,9 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
       this.entityForm.get('joinedSelectableLayers').disable();
       // this.entityForm.get('queryableFeatureAvailable').disable();
       this.entityForm.get('joinedQueryableLayers').disable();
-    } else {
-      if (!this.entityToEdit.queryableFeatureEnabled) {
-        // this.entityForm.get('queryableFeatureAvailable').disable();
-        this.entityForm.get('joinedQueryableLayers').disable();
-      }
+    } else if (!this.entityToEdit.queryableFeatureEnabled) {
+      // this.entityForm.get('queryableFeatureAvailable').disable();
+      this.entityForm.get('joinedQueryableLayers').disable();
     }
   }
 
@@ -370,7 +363,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
       ])
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return of([]);
+          return EMPTY;
         }
         return this.entityToEdit.getRelationArrayEx(CartographyParameter, 'parameters', {projection: 'view'});
       })
@@ -418,14 +411,14 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
         }),
         this.utils.getNonEditableColumnWithProviderDef('entity.cartography.filters.parameters.territorialLevel', 'territorialLevelId', (x) => {
           this.loggerService.debug('territorialLevelId', x);
-          return this.territorialTypes.find(item => item.id === x)?.name || '';
+          return this.territorialTypes.find(item => item.id === x)?.name ?? '';
         }),
         this.utils.getBooleanColumnDef('entity.cartography.filters.parameters.required', 'required', true),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return of([]);
+          return EMPTY;
         }
         return this.entityToEdit.getRelationArrayEx(CartographyFilterProjection, 'filters', {projection: 'view'});
       })
@@ -486,7 +479,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
       ])
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return of([]);
+          return EMPTY;
         }
         return this.entityToEdit.getRelationArrayEx(CartographyStyle, 'styles', {projection: 'view'});
       })
@@ -527,7 +520,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
         ])
         .withRelationsFetcher(() => {
           if (this.isNew()) {
-            return of([]);
+            return EMPTY;
           }
           return this.entityToEdit.getRelationArrayEx(CartographyAvailabilityProjection, 'availabilities', {projection: 'view'});
         })
@@ -583,7 +576,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
       ])
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return of([]);
+          return EMPTY;
         }
         return this.entityToEdit.getRelationArrayEx(CartographyGroupProjection, 'permissions', {projection: 'view'});
       })
@@ -631,7 +624,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
       ])
       .withRelationsFetcher(() =>  {
         if (this.isNew()) {
-          return of([]);
+          return EMPTY;
         }
         return this.entityToEdit.getRelationArrayEx(TreeNodeProjection, 'treeNodes', {projection: 'view'})
       })
@@ -640,8 +633,8 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
   }
 
   getAvailableLayers(): string {
-    const joinedLayers = this.entityForm?.get('joinedLayers')?.value?.split(',').map(layer => layer.trim()) || [];
-    const queryableLayers = this.entityForm?.get('joinedQueryableLayers')?.value?.split(',').map(layer => layer.trim()) || [];
+    const joinedLayers = this.entityForm?.get('joinedLayers')?.value?.split(',').map(layer => layer.trim()) ?? [];
+    const queryableLayers = this.entityForm?.get('joinedQueryableLayers')?.value?.split(',').map(layer => layer.trim()) ?? [];
 
     const availableLayers = joinedLayers.filter(layer => !queryableLayers.includes(layer));
     return availableLayers.join(', ');

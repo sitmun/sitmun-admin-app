@@ -17,7 +17,7 @@ import {
 import {UtilsService} from '@app/services/utils.service';
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import {map} from 'rxjs/operators';
-import {firstValueFrom, of} from 'rxjs';
+import {firstValueFrom, of, EMPTY} from 'rxjs';
 import {MatChipInputEvent} from '@angular/material/chips';
 import {config} from '@config';
 import {
@@ -485,7 +485,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
       .withRelationsFetcher(() => {
         if (this.wmsLayersCapabilities?.layers?.length === 0) {
           if (this.isNewOrDuplicated()) {
-            return of([]);
+            return EMPTY;
           } else {
             return this.entityToEdit.getRelationArrayEx(CartographyProjection, 'layers', {projection: 'view'});
           }
@@ -592,7 +592,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
               typeDescription: this.findInCodeList('serviceParameter.type', element.type)?.description
             }))))
         } else {
-          return of([]);
+          return EMPTY;
         }
       })
       .withRelationsUpdater(async (parameters: (ServiceParameter & Status)[]) => {

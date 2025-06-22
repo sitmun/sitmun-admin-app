@@ -1,4 +1,4 @@
-import {map, Observable, of, Subject, ReplaySubject, firstValueFrom, race, timer} from "rxjs";
+import {map, Observable, Subject, ReplaySubject, firstValueFrom, race, timer, EMPTY} from "rxjs";
 import {GridEvent, GridEventType, isSave, Status} from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
 import {MatDialog} from "@angular/material/dialog";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
@@ -20,14 +20,14 @@ import { LoggerService } from "@app/services/logger.service";
 /**
  * Defines the configuration and behavior of a data table in the application.
  * Manages the relationship between primary entities (RELATION) and selectable entities (TARGET).
- * 
+ *
  * This class handles:
  * - Table column definitions
  * - Data fetching and filtering
  * - CRUD operations
  * - Dialog management for entity selection
  * - Events for table refresh and data operations
- * 
+ *
  * @template RELATION - The type of entity displayed in the main relationship table
  * @template TARGET - The type of entity available for selection in target dialogs
  */
@@ -37,25 +37,25 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
    * Helps prevent stale data when backend processing is delayed.
    */
   private readonly DELAY = 500;
-  
+
   /**
    * Subject that emits events when relations should be added to the table.
    * Used to signal the data grid to add new rows.
    */
   addCommandEvent$ = new Subject<RELATION[]>();
-  
+
   /**
    * Subject that emits events when the table should be refreshed.
    * Uses ReplaySubject to ensure late subscribers receive the latest value.
    */
   refreshCommandEvent$ = new ReplaySubject<boolean>(1);
-  
+
   /**
    * Subject that emits save command events to trigger save operations.
    * Emitting "save" to this subject will trigger the save operation.
    */
   saveCommandEvent$ = new Subject<GridEventType>();
-  
+
   /**
    * Map of dialog templates indexed by name.
    * Used to cache template dialog configurations.
@@ -64,7 +64,7 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
 
   /**
    * Creates a new DataTableDefinition instance.
-   * 
+   *
    * @param relationsColumnsDefs - Column definitions for the relations grid
    * @param relationsFetchFn - Function to fetch relation entities
    * @param relationsDuplicateFn - Function to create duplicates of relation entities
@@ -103,7 +103,7 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
   /**
    * Creates a builder for constructing DataTableDefinition instances.
    * Simplifies the complex configuration process through a fluent API.
-   * 
+   *
    * @template RELATION - The type of entity displayed in the main relationship table
    * @template TARGET - The type of entity available for selection in target dialogs
    * @param dialog - MatDialog service for creating dialogs
@@ -116,7 +116,7 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
 
   /**
    * Gets the default sorting configuration for relations grid.
-   * 
+   *
    * @returns Array of field names to sort by, or empty array if no default sorting
    */
   defaultRelationsSorting() {
@@ -125,7 +125,7 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
 
   /**
    * Gets the default sorting configuration for targets grid.
-   * 
+   *
    * @returns Array of field names to sort by, or empty array if no default sorting
    */
   defaultTargetsSorting() {
@@ -153,7 +153,7 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
   /**
    * Creates duplicates of the selected relations.
    * Emits the duplicated relations to the addCommandEvent$ subject.
-   * 
+   *
    * @param relations - Array of relations to duplicate
    */
   async duplicateRelations(relations: RELATION[]) {
@@ -164,7 +164,7 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
    * Handles save events from the data grid.
    * Updates relations and refreshes the grid after a successful save.
    * Implements a delay to prevent stale data when backend processing is delayed.
-   * 
+   *
    * @param event - Grid event containing data to save
    * @throws Error if save operation fails
    */
@@ -187,7 +187,7 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
   /**
    * Composes a filter function that combines target fetching with filtering.
    * Used to filter available targets based on current relations.
-   * 
+   *
    * @param f - Function to fetch all potential targets
    * @param g - Function to create a filter predicate based on current relations
    * @param data - Current relations data
@@ -200,7 +200,7 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
   /**
    * Retrieves a template dialog by name.
    * Creates and caches the dialog if it doesn't exist yet.
-   * 
+   *
    * @param name - Name of the template dialog
    * @returns The template dialog instance
    * @throws Error if the dialog template is not found
@@ -222,7 +222,7 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
    * Opens a template dialog for creating or editing an entity.
    * Handles form initialization and processes dialog results.
    * Adds new relations to the table if dialog is confirmed.
-   * 
+   *
    * @param name - Name of the template dialog to open
    * @throws Error if dialog template is not found or dialog operation fails
    */
@@ -254,7 +254,7 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
   /**
    * Opens a dialog for selecting target entities to add as relations.
    * Configures the dialog with current data and handles selection results.
-   * 
+   *
    * @param relations - Current relations to filter available targets
    */
   openDialog(relations: RELATION[]) {
@@ -293,14 +293,14 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
 /**
  * Defines the configuration and behavior of a data table with dual target selection.
  * Manages the relationship between primary entities (RELATION) and two types of selectable entities (TARGET_LEFT and TARGET_RIGHT).
- * 
+ *
  * This class handles:
  * - Table column definitions for relations and both target types
  * - Data fetching and filtering for all entity types
  * - CRUD operations
  * - Dialog management for dual target selection
  * - Events for table refresh and data operations
- * 
+ *
  * @template RELATION - The type of entity displayed in the main relationship table
  * @template TARGET_LEFT - The type of entity available for selection in the left target dialog
  * @template TARGET_RIGHT - The type of entity available for selection in the right target dialog
@@ -311,25 +311,25 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
    * Helps prevent stale data when backend processing is delayed.
    */
   private readonly DELAY = 500;
-  
+
   /**
    * Subject that emits events when relations should be added to the table.
    * Used to signal the data grid to add new rows.
    */
   addCommandEvent$ = new Subject<RELATION[]>();
-  
+
   /**
    * Subject that emits events when the table should be refreshed.
    * Uses ReplaySubject to ensure late subscribers receive the latest value.
    */
   refreshCommandEvent$ = new ReplaySubject<boolean>(1);
-  
+
   /**
    * Subject that emits save command events to trigger save operations.
    * Emitting "save" to this subject will trigger the save operation.
    */
   saveCommandEvent$ = new Subject<GridEventType>();
-  
+
   /**
    * Map of dialog templates indexed by name.
    * Used to cache template dialog configurations.
@@ -338,7 +338,7 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
 
   /**
    * Creates a new DataTable2Definition instance.
-   * 
+   *
    * @param relationsColumnsDefs - Column definitions for the relations grid
    * @param relationsFetchFn - Function to fetch relation entities
    * @param relationsDuplicateFn - Function to create duplicates of relation entities
@@ -384,7 +384,7 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
   /**
    * Creates a builder for constructing DataTable2Definition instances.
    * Simplifies the complex configuration process through a fluent API.
-   * 
+   *
    * @template RELATION - The type of entity displayed in the main relationship table
    * @template TARGET_LEFT - The type of entity available for selection in the left target dialog
    * @template TARGET_RIGHT - The type of entity available for selection in the right target dialog
@@ -393,7 +393,7 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
    * @returns A DataTable2DefinitionBuilder instance
    */
   static builder<RELATION, TARGET_LEFT, TARGET_RIGHT>(
-    dialog: MatDialog, 
+    dialog: MatDialog,
     errorHandler: ErrorHandlerService
   ): DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
     return new DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT>(dialog, errorHandler);
@@ -401,7 +401,7 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
 
   /**
    * Gets the default sorting configuration for relations grid.
-   * 
+   *
    * @returns Array of field names to sort by, or empty array if no default sorting
    */
   defaultRelationsSorting() {
@@ -410,7 +410,7 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
 
   /**
    * Gets the default sorting configuration for targets grid.
-   * 
+   *
    * @returns Array of field names to sort by, or empty array if no default sorting
    */
   defaultTargetsSorting() {
@@ -438,7 +438,7 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
   /**
    * Creates duplicates of the selected relations.
    * Emits the duplicated relations to the addCommandEvent$ subject.
-   * 
+   *
    * @param relations - Array of relations to duplicate
    */
   async duplicateRelations(relations: RELATION[]) {
@@ -449,7 +449,7 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
    * Handles save events from the data grid.
    * Updates relations and refreshes the grid after a successful save.
    * Implements a delay to prevent stale data when backend processing is delayed.
-   * 
+   *
    * @param event - Grid event containing data to save
    * @throws Error if save operation fails
    */
@@ -472,7 +472,7 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
   /**
    * Composes a filter function that combines target fetching with filtering.
    * Used to filter available targets based on current relations.
-   * 
+   *
    * @param f - Function to fetch all potential targets
    * @param g - Function to create a filter predicate based on current relations
    * @param data - Current relations data
@@ -486,7 +486,7 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
    * Opens a dialog for selecting target entities to add as relations.
    * Configures the dialog with current data and handles selection results.
    * Supports dual target selection with separate grids for left and right targets.
-   * 
+   *
    * @param relations - Current relations to filter available targets
    * @throws Error if dialog operation fails
    */
@@ -533,10 +533,10 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
 export interface DataTableSpec {
   /** Observable that emits when the table should be refreshed */
   refreshCommandEvent$: Observable<boolean>;
-  
+
   /** Triggers a save operation on the table */
   save(): void;
-  
+
   /** Completes all subjects to prevent memory leaks */
   complete(): void;
 }
@@ -550,7 +550,7 @@ export class DataTablesRegistry {
    * Array of registered data table definitions.
    */
   private readonly registry: DataTableSpec[] = [];
-  
+
   /**
    * Timeout in milliseconds for save operations.
    * If a save operation takes longer than this, it will be considered complete anyway.
@@ -572,7 +572,7 @@ export class DataTablesRegistry {
 
   /**
    * Registers a data table definition with the registry.
-   * 
+   *
    * @template RELATION - The relation entity type
    * @template TARGET - The target entity type
    * @param spec - Data table definition to register
@@ -586,7 +586,7 @@ export class DataTablesRegistry {
   /**
    * Saves all registered data tables.
    * Triggers save operations on all tables and waits for them to complete.
-   * 
+   *
    * @returns Promise that resolves when all tables are saved or timeout occurs
    */
   async saveAll(): Promise<void> {
@@ -634,7 +634,7 @@ export class DataTablesRegistry {
 /**
  * Builder for creating DataTableDefinition instances.
  * Provides a fluent API for configuring complex data table definitions.
- * 
+ *
  * @template RELATION - The type of entity displayed in the main relationship table
  * @template TARGET - The type of entity available for selection in target dialogs
  */
@@ -643,32 +643,32 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
    * Column definitions for the relations grid.
    */
   private relationsColumnsDefs: any[] = [];
-  
+
   /**
    * Column definitions for the target selection grid.
    */
   private targetColumnsDefs: any[] = [];
-  
+
   /**
    * Function to create duplicates of relation entities.
    */
   private relationsDuplicateFn: (relation: RELATION) => RELATION;
-  
+
   /**
    * Title for the target selection dialog.
    */
   private targetsTitle = '';
-  
+
   /**
    * Default sorting field for targets.
    */
   private targetsOrder: string | null = null;
-  
+
   /**
    * Default sorting field for relations.
    */
   private relationsOrder: string | null = null;
-  
+
   /**
    * Map of template dialog factory functions.
    */
@@ -678,7 +678,7 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
 
   /**
    * Creates a new DataTableDefinitionBuilder.
-   * 
+   *
    * @param targetsDialog - Dialog service for opening target selection dialogs
    * @param errorHandler - Service for handling errors
    */
@@ -690,7 +690,7 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
 
   /**
    * Sets the column definitions for the relations grid.
-   * 
+   *
    * @param columns - Column definition objects
    * @returns This builder instance for method chaining
    */
@@ -701,7 +701,7 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
 
   /**
    * Sets the column definitions for the target selection grid.
-   * 
+   *
    * @param columns - Column definition objects
    * @returns This builder instance for method chaining
    */
@@ -722,7 +722,7 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
 
   /**
    * Sets the function to fetch relation entities.
-   * 
+   *
    * @param fn - Function that returns an Observable of relations
    * @returns This builder instance for method chaining
    */
@@ -733,7 +733,7 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
 
   /**
    * Sets the function to fetch target entities.
-   * 
+   *
    * @param fn - Function that returns an Observable of targets
    * @returns This builder instance for method chaining
    */
@@ -744,7 +744,7 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
 
   /**
    * Sets the function to create duplicates of relation entities.
-   * 
+   *
    * @param fn - Function that creates a duplicate of a relation
    * @returns This builder instance for method chaining
    */
@@ -755,7 +755,7 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
 
   /**
    * Sets the function to update relation entities.
-   * 
+   *
    * @param fn - Function that updates relations and returns a Promise
    * @returns This builder instance for method chaining
    */
@@ -766,7 +766,7 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
 
   /**
    * Sets the title for the target selection dialog.
-   * 
+   *
    * @param title - Dialog title
    * @returns This builder instance for method chaining
    */
@@ -777,7 +777,7 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
 
   /**
    * Sets the default sorting field for targets.
-   * 
+   *
    * @param order - Field name to sort by
    * @returns This builder instance for method chaining
    */
@@ -788,7 +788,7 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
 
   /**
    * Sets the default sorting field for relations.
-   * 
+   *
    * @param order - Field name to sort by
    * @returns This builder instance for method chaining
    */
@@ -799,7 +799,7 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
 
   /**
    * Sets the function to convert selected targets to relations.
-   * 
+   *
    * @param fn - Function that converts targets to relations
    * @returns This builder instance for method chaining
    */
@@ -810,7 +810,7 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
 
   /**
    * Sets the function to filter which targets should be shown.
-   * 
+   *
    * @param fn - Function that creates a filter predicate based on current relations
    * @returns This builder instance for method chaining
    */
@@ -821,7 +821,7 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
 
   /**
    * Adds a template dialog factory function.
-   * 
+   *
    * @param name - Name to identify the dialog
    * @param fn - Factory function that creates a TemplateDialog
    * @returns This builder instance for method chaining
@@ -833,7 +833,7 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
 
   /**
    * Builds a DataTableDefinition with the configured properties.
-   * 
+   *
    * @returns A new DataTableDefinition instance
    */
   build(): DataTableDefinition<RELATION, TARGET> {
@@ -860,13 +860,13 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
    * Default function to fetch relation entities.
    * Returns an empty array if not overridden.
    */
-  private relationsFetchFn: () => Observable<RELATION[]> = () => of([]);
+  private relationsFetchFn: () => Observable<RELATION[]> = () => EMPTY;
 
   /**
    * Default function to fetch target entities.
    * Returns an empty array if not overridden.
    */
-  private targetsFetchFn: () => Observable<TARGET[]> = () => of([]);
+  private targetsFetchFn: () => Observable<TARGET[]> = () => EMPTY;
 
   /**
    * Default function to filter which targets should be shown.
@@ -894,7 +894,7 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
 /**
  * Builder for creating DataTable2Definition instances.
  * Provides a fluent API for configuring complex data table definitions with dual target selection.
- * 
+ *
  * @template RELATION - The type of entity displayed in the main relationship table
  * @template TARGET_LEFT - The type of entity available for selection in the left target dialog
  * @template TARGET_RIGHT - The type of entity available for selection in the right target dialog
@@ -904,18 +904,18 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
    * Column definitions for the relations grid.
    */
   private relationsColumnsDefs: any[] = [];
-  
+
   /**
    * Column definitions for the target selection grid.
    */
   private targetLeftColumnsDefs: any[] = [];
   private targetRightColumnsDefs: any[] = [];
-  
+
   /**
    * Function to create duplicates of relation entities.
    */
   private relationsDuplicateFn: (relation: RELATION) => RELATION;
-  
+
   /**
    * Title for the target selection dialog.
    */
@@ -924,17 +924,17 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
   private targetsLeftTitle = '';
 
   private targetsRightTitle = '';
-  
+
   /**
    * Default sorting field for targets.
    */
   private targetsOrder: string | null = null;
-  
+
   /**
    * Default sorting field for relations.
    */
   private relationsOrder: string | null = null;
-  
+
   /**
    * Map of template dialog factory functions.
    */
@@ -944,7 +944,7 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
 
   /**
    * Creates a new DataTable2DefinitionBuilder.
-   * 
+   *
    * @param targetsDialog - Dialog service for opening target selection dialogs
    * @param errorHandler - Service for handling errors
    */
@@ -956,7 +956,7 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
 
   /**
    * Sets the column definitions for the relations grid.
-   * 
+   *
    * @param columns - Column definition objects
    * @returns This builder instance for method chaining
    */
@@ -967,7 +967,7 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
 
   /**
    * Sets the column definitions for the target selection grid.
-   * 
+   *
    * @param columns - Column definition objects
    * @returns This builder instance for method chaining
    */
@@ -993,7 +993,7 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
 
   /**
    * Sets the function to fetch relation entities.
-   * 
+   *
    * @param fn - Function that returns an Observable of relations
    * @returns This builder instance for method chaining
    */
@@ -1004,7 +1004,7 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
 
   /**
    * Sets the function to fetch target entities.
-   * 
+   *
    * @param fn - Function that returns an Observable of targets
    * @returns This builder instance for method chaining
    */
@@ -1020,7 +1020,7 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
 
   /**
    * Sets the function to create duplicates of relation entities.
-   * 
+   *
    * @param fn - Function that creates a duplicate of a relation
    * @returns This builder instance for method chaining
    */
@@ -1031,7 +1031,7 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
 
   /**
    * Sets the function to update relation entities.
-   * 
+   *
    * @param fn - Function that updates relations and returns a Promise
    * @returns This builder instance for method chaining
    */
@@ -1042,7 +1042,7 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
 
   /**
    * Sets the title for the target selection dialog.
-   * 
+   *
    * @param title - Dialog title
    * @returns This builder instance for method chaining
    */
@@ -1063,7 +1063,7 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
 
   /**
    * Sets the default sorting field for targets.
-   * 
+   *
    * @param order - Field name to sort by
    * @returns This builder instance for method chaining
    */
@@ -1074,7 +1074,7 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
 
   /**
    * Sets the default sorting field for relations.
-   * 
+   *
    * @param order - Field name to sort by
    * @returns This builder instance for method chaining
    */
@@ -1085,7 +1085,7 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
 
   /**
    * Sets the function to convert selected targets to relations.
-   * 
+   *
    * @param fn - Function that converts targets to relations
    * @returns This builder instance for method chaining
    */
@@ -1096,7 +1096,7 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
 
   /**
    * Sets the function to filter which targets should be shown.
-   * 
+   *
    * @param fn - Function that creates a filter predicate based on current relations
    * @returns This builder instance for method chaining
    */
@@ -1107,7 +1107,7 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
 
   /**
    * Sets the function to filter which targets should be shown.
-   * 
+   *
    * @param fn - Function that creates a filter predicate based on current relations
    * @returns This builder instance for method chaining
    */
@@ -1118,7 +1118,7 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
 
   /**
    * Builds a DataTableDefinition with the configured properties.
-   * 
+   *
    * @returns A new DataTableDefinition instance
    */
   build(): DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> {
@@ -1138,7 +1138,7 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
       this.targetsTitle,
       this.targetsLeftTitle,
       this.targetsRightTitle,
-      this.targetsOrder,  
+      this.targetsOrder,
       this.targetToRelationFn,
       this.errorHandler,
     );
@@ -1147,15 +1147,15 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
    * Default function to fetch relation entities.
    * Returns an empty array if not overridden.
    */
-  private relationsFetchFn: () => Observable<RELATION[]> = () => of([]);
+  private relationsFetchFn: () => Observable<RELATION[]> = () => EMPTY;
 
   /**
    * Default function to fetch target entities.
    * Returns an empty array if not overridden.
    */
-  private targetsLeftFetchFn: () => Observable<TARGET_LEFT[]> = () => of([]);
-  
-  private targetsRightFetchFn: () => Observable<TARGET_RIGHT[]> = () => of([]);
+  private targetsLeftFetchFn: () => Observable<TARGET_LEFT[]> = () => EMPTY;
+
+  private targetsRightFetchFn: () => Observable<TARGET_RIGHT[]> = () => EMPTY;
 
   /**
    * Default function to filter which targets should be shown.
@@ -1190,7 +1190,7 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
 export class TemplateDialog {
   /**
    * Creates a new TemplateDialog instance.
-   * 
+   *
    * @param reference - Angular TemplateRef for the dialog content
    * @param title - Dialog title
    * @param form - Angular FormGroup for the dialog
@@ -1202,19 +1202,19 @@ export class TemplateDialog {
      * Defines the HTML structure of the dialog.
      */
     public reference: TemplateRef<any>,
-    
+
     /**
      * Title for the dialog.
      * Displayed in the dialog header.
      */
     public title: string,
-    
+
     /**
      * Form group for the dialog.
      * Manages form controls and validation.
      */
     public form: FormGroup,
-    
+
     /**
      * Function to call before opening the dialog.
      * Can be used to initialize or reset the form state.
@@ -1226,7 +1226,7 @@ export class TemplateDialog {
   /**
    * Creates a builder for constructing TemplateDialog instances.
    * Provides a fluent API for configuring dialog templates.
-   * 
+   *
    * @returns A new TemplateDialogBuilder instance
    */
   static builder(): TemplateDialogBuilder {
@@ -1245,19 +1245,19 @@ export class TemplateDialogBuilder {
    * Defines the HTML structure of the dialog.
    */
   private _reference: TemplateRef<any>;
-  
+
   /**
    * Title for the dialog.
    * Displayed in the dialog header.
    */
   private _title = '';
-  
+
   /**
    * Form group for the dialog.
    * Manages form controls and validation.
    */
   private _form: FormGroup;
-  
+
   /**
    * Function to call before opening the dialog.
    * Can be used to initialize or reset the form state.
@@ -1267,7 +1267,7 @@ export class TemplateDialogBuilder {
 
   /**
    * Sets the template reference for the dialog content.
-   * 
+   *
    * @param reference - Angular TemplateRef for the dialog content
    * @returns This builder instance for method chaining
    */
@@ -1278,7 +1278,7 @@ export class TemplateDialogBuilder {
 
   /**
    * Sets the title for the dialog.
-   * 
+   *
    * @param title - Dialog title
    * @returns This builder instance for method chaining
    */
@@ -1289,7 +1289,7 @@ export class TemplateDialogBuilder {
 
   /**
    * Sets the form group for the dialog.
-   * 
+   *
    * @param form - Angular FormGroup for the dialog
    * @returns This builder instance for method chaining
    */
@@ -1300,7 +1300,7 @@ export class TemplateDialogBuilder {
 
   /**
    * Sets the function to call before opening the dialog.
-   * 
+   *
    * @param fn - Function that receives the form as parameter
    * @returns This builder instance for method chaining
    */
@@ -1312,7 +1312,7 @@ export class TemplateDialogBuilder {
   /**
    * Builds a TemplateDialog with the configured properties.
    * Validates that all required properties are set.
-   * 
+   *
    * @returns A new TemplateDialog instance
    * @throws Error if required properties are missing
    */

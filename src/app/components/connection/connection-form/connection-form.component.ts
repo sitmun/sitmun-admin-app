@@ -11,7 +11,7 @@ import {
   CodeListService
 } from '@app/domain';
 import {UtilsService} from '@app/services/utils.service';
-import {firstValueFrom, of} from 'rxjs';
+import {firstValueFrom, of, EMPTY} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {MatDialog} from '@angular/material/dialog';
 import {BaseFormComponent} from "@app/components/base-form.component";
@@ -165,7 +165,6 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
     // If this is the first change
     if (!this.isPasswordBeingEdited && password !== '') {
       this.isPasswordBeingEdited = true;
-      return;
     }
   }
 
@@ -214,7 +213,7 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return of([]);
+          return EMPTY;
         }
         return this.entityToEdit.getRelationArrayEx(TaskProjection, 'tasks', {projection: 'view'})
       })

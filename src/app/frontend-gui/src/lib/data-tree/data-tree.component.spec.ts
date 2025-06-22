@@ -37,11 +37,11 @@ describe('DataTreeComponent', () => {
     database = TestBed.inject(FileDatabase);
     fixture = TestBed.createComponent(DataTreeComponent);
     component = fixture.componentInstance;
-    
+
     // Mock the required inputs
-    component.getAll = () => of([]);
+    component.getAll = () => EMPTY;
     component.allNewElements = {};
-    
+
     fixture.detectChanges();
   });
 
