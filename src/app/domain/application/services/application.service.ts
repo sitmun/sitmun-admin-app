@@ -1,70 +1,13 @@
-import { Application } from '@app/domain';
-import { Injectable, Injector } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { RestService } from '@app/core/hal/rest/rest.service';
-import { CartographyGroup } from '@app/domain/cartography/models/cartography-group.model';
-import { LoggerService } from '@app/services/logger.service';
+import {Application} from '@app/domain';
+import {Injectable, Injector} from '@angular/core';
+import {RestService} from '@app/core/hal/rest/rest.service';
 
 /** Application manager service */
 @Injectable()
 export class ApplicationService extends RestService<Application> {
 
-
-  /** API resource path */
-  public APPLICATION_API = 'applications';
-
   /** constructor */
-  constructor(injector: Injector, private http: HttpClient, private loggerService: LoggerService) {
+  constructor(injector: Injector) {
     super(Application, "applications", injector);
   }
-
-  /** remove application*/
-  remove(item: Application) {
-    return this.http.delete(item._links.self.href);
-
-  }
-
-  /** save application*/
-  save(item: Application): Observable<any> {
-    let result: Observable<Object>;
-
-    let applicationSituationMap:any = {};
-    applicationSituationMap._links= {};
-    applicationSituationMap._links.self = {};
-    applicationSituationMap._links.self.href="";
-
-    if (item.situationMap!=null){
-        applicationSituationMap=item.situationMap;
-        if (typeof item.situationMap._links!= 'undefined') {
-            item.situationMap = item.situationMap._links.self.href;
-        }
-     }
-
-    if (item._links!=null) {
-      //update relations
-      delete item.situationMap;
-
-      if (applicationSituationMap._links.self.href==''){
-         item.deleteRelation('situationMap',applicationSituationMap).subscribe(result => {
-
-             }, error => this.loggerService.error('Error deleting situation map relation:', error));
-
-      } else {
-          item.substituteRelation('situationMap',applicationSituationMap).subscribe(result => {
-
-
-            }, error => this.loggerService.error('Error substituting situation map relation:', error));
-       }
-
-
-      result = this.update(item)
-    } else {
-      result = this.create(item)
-    }
-    return result;
-  }
-
-
-
 }

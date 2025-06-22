@@ -1,30 +1,15 @@
 import { TerritoryGroupType } from '@app/domain';
 import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
 import { RestService } from '@app/core/hal/rest/rest.service';
 @Injectable({
   providedIn: 'root'
 })
 export class TerritoryGroupTypeService extends RestService<TerritoryGroupType> {
 
-  /** API resource path */
-  public TERRITORYGROUPTYPE_API = 'territory-group-types';
-
   /** constructor */
-  constructor(injector: Injector,private http: HttpClient) {
+  constructor(injector: Injector) {
     super(TerritoryGroupType, "territory-group-types", injector);
-  }
-
-  /** save territory*/
-  save(item: any): Observable<any> {
-    let result: Observable<Object>;
-    if (item._links!=null) {
-      result = this.http.put(item._links.self.href, item);
-    } else {
-      result = this.http.post(this.resourceService.getResourceUrl(this.TERRITORYGROUPTYPE_API) , item);
-    }
-    return result;
   }
 
 }

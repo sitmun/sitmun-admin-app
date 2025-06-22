@@ -1,6 +1,5 @@
 import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
 import { RestService } from '@app/core/hal/rest/rest.service';
 import { CartographyStyle } from '@app/domain';
 import { LoggerService } from '@app/services/logger.service';
@@ -10,36 +9,9 @@ import { LoggerService } from '@app/services/logger.service';
 })
 export class CartographyStyleService extends RestService<CartographyStyle> {
 
- /** API resource path */
-  public CARTOGRAPHY_STYLES_API = 'cartography-styles';
-
   /** constructor */
-  constructor(injector: Injector, private http: HttpClient, private loggerService: LoggerService) {
+  constructor(injector: Injector) {
     super(CartographyStyle, "cartography-styles", injector);
-  }
-
-  /** save service parameter*/
-  save(item: CartographyStyle): Observable<any> {
-    let result: Observable<Object>;
-    if (item._links!=null) {
-
-
-      if (item.cartography !=null){
-          let cartography =  item.cartography;
-          delete item.cartography;
-          item.substituteRelation('cartography',cartography).subscribe(result => {
-
-      }, error => this.loggerService.error('Error substituting cartography relation:', error));
-      }
-      result = this.http.put(item._links.self.href, item);
-
-
-    } else {
-      item.cartography = item.cartography._links.self.href;
-
-      result = this.http.post(this.resourceService.getResourceUrl(this.CARTOGRAPHY_STYLES_API) , item);
-    }
-    return result;
   }
 
 }

@@ -1,46 +1,13 @@
 import { ApplicationBackground } from '@app/domain';
 import { Injectable, Injector } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
 import { RestService } from '@app/core/hal/rest/rest.service';
-import { LoggerService } from '@app/services/logger.service';
 
 /** Application background manager service */
 @Injectable()
 export class ApplicationBackgroundService extends RestService<ApplicationBackground> {
 
-
-  /** API resource path */
-  public APPLICATION_BACKGROUND_API ='application-backgrounds';
-
   /** constructor */
-  constructor(injector: Injector, private http: HttpClient, private loggerService: LoggerService) {
+  constructor(injector: Injector) {
     super(ApplicationBackground, "application-backgrounds", injector);
   }
-
-  /** save application background*/
-  save(item: ApplicationBackground): Observable<any> {
-    let result: Observable<Object>;
-    if (item._links!=null) {
-      result = this.http.put(item._links.self.href, item);
-      if (item.application !=null){
-          item.substituteRelation('application',item.application).subscribe(result => {
-
-      }, error => this.loggerService.error('Error substituting application relation:', error));
-      }
-      if (item.background !=null){
-          item.substituteRelation('background',item.background).subscribe(result => {
-
-      }, error => this.loggerService.error('Error substituting background relation:', error));
-      }
-
-    } else {
-      item.application = item.application._links.self.href;
-      item.background = item.background._links.self.href;
-
-      result = this.http.post(this.resourceService.getResourceUrl(this.APPLICATION_BACKGROUND_API) , item);
-    }
-    return result;
-  }
-
 }

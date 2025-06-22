@@ -1,6 +1,5 @@
 import { Injectable, Injector } from '@angular/core';
 import { ConfigurationParameter } from '@app/domain';
-import { HttpClient } from '@angular/common/http';
 import { RestService } from '@app/core/hal/rest/rest.service';
 
 @Injectable({
@@ -8,13 +7,8 @@ import { RestService } from '@app/core/hal/rest/rest.service';
 })
 export class ConfigurationParametersService extends RestService<ConfigurationParameter> {
 
-  /** API resource path */
-  public CONFIGURATION_PARAMETERS_API = 'configuration-parameters';
-
   /** constructor */
-  constructor(injector: Injector,private http: HttpClient) {
+  constructor(injector: Injector) {
     super(ConfigurationParameter, "configuration-parameters", injector);
   }
-
-
 }
