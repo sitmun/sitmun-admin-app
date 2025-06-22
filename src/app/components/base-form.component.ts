@@ -454,7 +454,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
    */
   codeList(code: string): CodeList[] {
     if (!this.codelists.has(code)) {
-      console.error(`Code list ${code} not initialized`);
+      this.loggerService.error(`Code list ${code} not initialized`);
     }
     return this.codelists.get(code) || [];
   }

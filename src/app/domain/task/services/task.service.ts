@@ -29,11 +29,11 @@ export class TaskService extends RestService<Task> {
                 service._links.self = {};
                 service._links.self.href = "";
                 item.deleteRelation('service', service).subscribe(result => {
-                }, error => console.error(error));
+                }, error => this.loggerService.error('Error deleting service relation:', error));
             } else {
                 item.service._links.self.href = item.service._links.self.href.split("{")[0]
                 item.substituteRelation('service', item.service).subscribe(result => {
-                }, error => console.error(error));
+                }, error => this.loggerService.error('Error substituting service relation:', error));
                 item.service = item.service._links.self.href
             }
             if (!item.cartography) {
@@ -42,11 +42,11 @@ export class TaskService extends RestService<Task> {
                 cartography._links.self = {};
                 cartography._links.self.href = "";
                 item.deleteRelation('cartography', cartography).subscribe(result => {
-                }, error => console.error(error));
+                }, error => this.loggerService.error('Error deleting cartography relation:', error));
             } else {
                 item.cartography._links.self.href = item.cartography._links.self.href.split("{")[0]
                 item.substituteRelation('cartography', item.cartography).subscribe(result => {
-                }, error => console.error(error));
+                }, error => this.loggerService.error('Error substituting cartography relation:', error));
                 item.cartography = item.cartography._links.self.href
             }
 
@@ -56,42 +56,42 @@ export class TaskService extends RestService<Task> {
                 connection._links.self = {};
                 connection._links.self.href = "";
                 item.deleteRelation('connection', connection).subscribe(result => {
-                }, error => console.error(error));
+                }, error => this.loggerService.error('Error deleting connection relation:', error));
             } else {
                 item.connection._links.self.href = item.connection._links.self.href.split("{")[0]
                 item.substituteRelation('connection', item.connection).subscribe(result => {
-                }, error => console.error(error));
+                }, error => this.loggerService.error('Error substituting connection relation:', error));
                 item.connection = item.connection._links.self.href
             }
 
             if (!item.ui) {
                 // item.deleteRelation('ui', item.ui).subscribe(result => {
-                // }, error => console.error(error));
+                // }, error => this.loggerService.error('Error deleting UI relation:', error));
             } else {
                 item.ui._links.self.href = item.ui._links.self.href.split("{")[0]
                 this.loggerService.debug("Save task: UI link", item.ui._links.self.href);
                 item.substituteRelation('ui', item.ui).subscribe(result => {
-                }, error => console.error(error));
+                }, error => this.loggerService.error('Error substituting UI relation:', error));
                 item.ui = item.ui._links.self.href
             }
 
             if (!item.group) {
                 // item.deleteRelation('group', item.group).subscribe(result => {
-                // }, error => console.error(error));
+                // }, error => this.loggerService.error('Error deleting group relation:', error));
             } else {
                 item.substituteRelationById('group', 'task-groups', item.group).subscribe({
                     next: result => {},
-                    error: error => console.error(error)
+                    error: error => this.loggerService.error('Error substituting group relation by ID:', error)
                 });
             }
 
             if (!item.type) {
                     // item.deleteRelation('type', item.type).subscribe(result => {
-                    // }, error => console.error(error));
+                    // }, error => this.loggerService.error('Error deleting type relation:', error));
                 } else {
                     item.substituteRelationById('type', 'task-types', item.type).subscribe({
                         next: result => {},
-                        error: error => console.error(error)
+                        error: error => this.loggerService.error('Error substituting type relation by ID:', error)
                     });
                 }
 
@@ -99,7 +99,7 @@ export class TaskService extends RestService<Task> {
                     let roles = [...item.roles];
                     delete item.roles;
                     item.substituteAllRelation('roles', roles).subscribe(result => {
-                    }, error => console.error(error));
+                    }, error => this.loggerService.error('Error substituting all roles relation:', error));
                 }
 
                 result = this.http.put(item._links.self.href, item);

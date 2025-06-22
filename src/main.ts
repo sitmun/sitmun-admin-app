@@ -10,4 +10,9 @@ if (environment.production) {
 }
 
 platformBrowserDynamic().bootstrapModule(AppModule)
-  .catch(err => console.error(err));
+  .catch(err => {
+    console.error('Error starting application:', err);
+    // TODO: Improve error handling for Production environment
+    // In a production environment, you might want to show a user-friendly error message
+    // or redirect to an error page instead of just logging to console
+  });

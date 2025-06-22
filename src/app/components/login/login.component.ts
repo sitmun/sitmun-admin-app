@@ -7,6 +7,7 @@ import {TranslateService} from '@ngx-translate/core';
 import {Router} from '@angular/router';
 import {UntypedFormGroup, UntypedFormBuilder, Validators} from '@angular/forms';
 import {UtilsService} from '@app/services/utils.service';
+import {LoggerService} from '@app/services/logger.service';
 
 /** Login component*/
 @Component({
@@ -36,7 +37,8 @@ export class LoginComponent implements OnInit {
               private router: Router,
               private utils: UtilsService,
               private trans: TranslateService,
-              private changeDetectorRef: ChangeDetectorRef) {
+              private changeDetectorRef: ChangeDetectorRef,
+              private loggerService: LoggerService) {
     this.translate = trans;
   }
 
@@ -78,7 +80,7 @@ export class LoginComponent implements OnInit {
           this.loadedData = true;
         });
       } else {
-        console.error('No valid language found!');
+        this.loggerService.error('No valid language found!');
       }
     }).catch((err) => {
       this.utils.showErrorMessage(err);
@@ -127,7 +129,7 @@ export class LoginComponent implements OnInit {
 
   identifyDefaultLanguage(): Language {
     if (!this.langs || this.langs.length === 0) {
-      console.warn('No languages available for identification');
+      this.loggerService.warn('No languages available for identification');
       return null;
     }
 

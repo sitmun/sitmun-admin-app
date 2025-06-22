@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from '@environments/environment';
 import { LogLevel } from './log-level.enum';
+import StackTrace, { StackFrame } from 'stacktrace-js';
 
 /**
  * Logger service for controlling application-wide logging
@@ -76,39 +77,44 @@ export class LoggerService {
       return;
     }
 
-    const timestamp = new Date().toISOString();
-    const logPrefix = `[${timestamp}] [${LogLevel[level]}]`;
+    var callback = function(stackframes) {
+      const timestamp = new Date().toISOString();
+      const caller: StackFrame = stackframes[2]
+      const logCaller = `${caller.functionName} (${caller.fileName}:${caller.lineNumber})`
 
-    switch (level) {
-      case LogLevel.Error:
-        if (data.length > 0) {
-          console.error(`${logPrefix} ${message}`, ...data);
-        } else {
-          console.error(`${logPrefix} ${message}`);
-        }
-        break;
-      case LogLevel.Warning:
-        if (data.length > 0) {
-          console.warn(`${logPrefix} ${message}`, ...data);
-        } else {
-          console.warn(`${logPrefix} ${message}`);
-        }
-        break;
-      case LogLevel.Info:
-        if (data.length > 0) {
-          console.info(`${logPrefix} ${message}`, ...data);
-        } else {
-          console.info(`${logPrefix} ${message}`);
-        }
-        break;
-      case LogLevel.Debug:
-      case LogLevel.Trace:
-        if (data.length > 0) {
-          console.log(`${logPrefix} ${message}`, ...data);
-        } else {
-          console.log(`${logPrefix} ${message}`);
-        }
-        break;
+      const logPrefix = `[${timestamp}] [${LogLevel[level]}] [${logCaller}]`;
+      switch (level) {
+        case LogLevel.Error:
+          if (data.length > 0) {
+            console.error(`${logPrefix} ${message}`, ...data);
+          } else {
+            console.error(`${logPrefix} ${message}`);
+          }
+          break;
+        case LogLevel.Warning:
+          if (data.length > 0) {
+            console.warn(`${logPrefix} ${message}`, ...data);
+          } else {
+            console.warn(`${logPrefix} ${message}`);
+          }
+          break;
+        case LogLevel.Info:
+          if (data.length > 0) {
+            console.info(`${logPrefix} ${message}`, ...data);
+          } else {
+            console.info(`${logPrefix} ${message}`);
+          }
+          break;
+        case LogLevel.Debug:
+        case LogLevel.Trace:
+          if (data.length > 0) {
+            console.log(`${logPrefix} ${message}`, ...data);
+          } else {
+            console.log(`${logPrefix} ${message}`);
+          }
+          break;
+      }
     }
+    StackTrace.get().then(callback)
   }
 }

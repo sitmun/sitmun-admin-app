@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RestService } from '@app/core/hal/rest/rest.service';
 import { CartographyGroup } from '@app/domain/cartography/models/cartography-group.model';
+import { LoggerService } from '@app/services/logger.service';
 
 /** Application manager service */
 @Injectable()
@@ -14,7 +15,7 @@ export class ApplicationService extends RestService<Application> {
   public APPLICATION_API = 'applications';
 
   /** constructor */
-  constructor(injector: Injector,private http: HttpClient) {
+  constructor(injector: Injector, private http: HttpClient, private loggerService: LoggerService) {
     super(Application, "applications", injector);
   }
 
@@ -47,13 +48,13 @@ export class ApplicationService extends RestService<Application> {
       if (applicationSituationMap._links.self.href==''){
          item.deleteRelation('situationMap',applicationSituationMap).subscribe(result => {
 
-             }, error => console.error(error));
+             }, error => this.loggerService.error('Error deleting situation map relation:', error));
 
       } else {
           item.substituteRelation('situationMap',applicationSituationMap).subscribe(result => {
 
 
-            }, error => console.error(error));
+            }, error => this.loggerService.error('Error substituting situation map relation:', error));
        }
 
 

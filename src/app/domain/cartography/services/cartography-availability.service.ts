@@ -3,6 +3,7 @@ import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RestService } from '@app/core/hal/rest/rest.service';
+import { LoggerService } from '@app/services/logger.service';
 
 /** CartographyAvailability manager service */
 @Injectable()
@@ -13,7 +14,7 @@ export class CartographyAvailabilityService extends RestService<CartographyAvail
   public CARTOGRAPHY_AVAILABILITY_API = 'cartography-availabilities';
 
   /** constructor */
-  constructor(injector: Injector,private http: HttpClient) {
+  constructor(injector: Injector, private http: HttpClient, private loggerService: LoggerService) {
     super(CartographyAvailability, "cartography-availabilities", injector);
   }
 
@@ -25,12 +26,12 @@ export class CartographyAvailabilityService extends RestService<CartographyAvail
       if (item.cartography !=null){
           item.substituteRelation('cartography',item.cartography).subscribe(result => {
 
-      }, error => console.error(error));
+      }, error => this.loggerService.error('Error substituting cartography relation:', error));
       }
       if (item.territory !=null){
           item.substituteRelation('territory',item.territory).subscribe(result => {
 
-      }, error => console.error(error));
+      }, error => this.loggerService.error('Error substituting territory relation:', error));
       }
     } else {
       item.territory = item.territory._links.self.href;

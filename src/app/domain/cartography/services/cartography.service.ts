@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { RestService } from '@app/core/hal/rest/rest.service';
 import { Connection } from '@app/domain/connection/models/connection.model';
 import { Service } from '@app/domain/service/models/service.model';
+import { LoggerService } from '@app/services/logger.service';
 
 /** Cartography manager service */
 @Injectable()
@@ -14,7 +15,7 @@ export class CartographyService extends RestService<Cartography> {
   public CARTOGRAPHY_API = 'cartographies';
 
   /** constructor */
-  constructor(injector: Injector, private http: HttpClient) {
+  constructor(injector: Injector, private http: HttpClient, private loggerService: LoggerService) {
     super(Cartography, "cartographies", injector);
   }
 
@@ -75,26 +76,26 @@ export class CartographyService extends RestService<Cartography> {
 
       // if (cartographyConnection._links.self.href == '' && cartographyConnection) {
       //   item.deleteRelation('spatialSelectionConnection', cartographyConnection).subscribe(result => {
-      //   }, error => console.error(error));
+      //   }, error => this.loggerService.error('Error deleting spatial selection connection relation:', error));
       // } else {
       //   item.substituteRelation('spatialSelectionConnection', cartographyConnection).subscribe(result => {
-      //   }, error => console.error(error));
+      //   }, error => this.loggerService.error('Error substituting spatial selection connection relation:', error));
       // }
 
       if (cartographyService._links.self.href == '') {
         item.deleteRelation('service', cartographyService).subscribe(result => {
-        }, error => console.error(error));
+        }, error => this.loggerService.error('Error deleting service relation:', error));
       } else {
         item.substituteRelation('service', cartographyService).subscribe(result => {
-        }, error => console.error(error));
+        }, error => this.loggerService.error('Error substituting service relation:', error));
       }
 
       if (cartographySelectionService._links.self.href == '' && cartographySelectionService) {
         item.deleteRelation('spatialSelectionService', cartographySelectionService).subscribe(result => {
-        }, error => console.error(error));
+        }, error => this.loggerService.error('Error deleting spatial selection service relation:', error));
       } else {
         item.substituteRelation('spatialSelectionService', cartographySelectionService).subscribe(result => {
-        }, error => console.error(error));
+        }, error => this.loggerService.error('Error substituting spatial selection service relation:', error));
       }
 
       result = this.http.put(item._links.self.href, item);

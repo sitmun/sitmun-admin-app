@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { RestService } from '@app/core/hal/rest/rest.service';
 import { ResourceService } from '@app/core/hal/services';
 import { Observable } from 'rxjs';
+import { LoggerService } from '@app/services/logger.service';
 
 /** Territory manager service */
 @Injectable()
@@ -13,7 +14,7 @@ export class TerritoryService extends RestService<Territory> {
   public TERRITORY_API = 'territories';
 
   /** constructor */
-  constructor(injector: Injector, private http: HttpClient) {
+  constructor(injector: Injector, private http: HttpClient, private loggerService: LoggerService) {
     super(Territory, "territories", injector);
   }
 
@@ -45,20 +46,20 @@ export class TerritoryService extends RestService<Territory> {
 
       // if (territoryGroupType._links.self.href == '') {
       //   item.deleteRelation('groupType', territoryGroupType).subscribe(result => {
-      //   }, error => console.error(error));
+      //   }, error => this.loggerService.error('Error deleting group type relation:', error));
 
       // } else {
       //   item.substituteRelation('groupType', territoryGroupType).subscribe(result => {
-      //   }, error => console.error(error));
+      //   }, error => this.loggerService.error('Error substituting group type relation:', error));
       // }
 
       if (territoryType._links.self.href == '') {
         item.deleteRelation('type', territoryType).subscribe(result => {
-        }, error => console.error(error));
+        }, error => this.loggerService.error('Error deleting type relation:', error));
 
       } else {
         item.substituteRelation('type', territoryType).subscribe(result => {
-        }, error => console.error(error));
+        }, error => this.loggerService.error('Error substituting type relation:', error));
       }
 
       delete item.type;

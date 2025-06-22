@@ -690,7 +690,7 @@ export class UtilsService {
       field: field,
       editable: false,
       valueFormatter: (params) => {
-        console.log('getNonEditableColumnWithProviderDef', params.data, field);
+        this.loggerService.debug('getNonEditableColumnWithProviderDef', params.data, field);
         const fieldValue = this.getValueFromPropertyPath(params.data, field);
         if (fieldValue == null) {
           return '';

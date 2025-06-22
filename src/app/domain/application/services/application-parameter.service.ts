@@ -3,6 +3,7 @@ import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RestService } from '@app/core/hal/rest/rest.service';
+import { LoggerService } from '@app/services/logger.service';
 
 /** Application parameter manager service */
 @Injectable()
@@ -13,7 +14,7 @@ export class ApplicationParameterService extends RestService<ApplicationParamete
   public APPLICATION_PARAMETER_API = 'application-parameters';
 
   /** constructor */
-  constructor(injector: Injector,private http: HttpClient) {
+  constructor(injector: Injector, private http: HttpClient, private loggerService: LoggerService) {
     super(ApplicationParameter, "application-parameters", injector);
   }
 
@@ -25,7 +26,7 @@ export class ApplicationParameterService extends RestService<ApplicationParamete
       if (item.application !=null){
           item.substituteRelation('application',item.application).subscribe(result => {
 
-      }, error => console.error(error));
+      }, error => this.loggerService.error('Error substituting application relation:', error));
       }
 
     } else {

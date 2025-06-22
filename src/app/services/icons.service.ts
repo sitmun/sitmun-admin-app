@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import { constants } from '@environments/constants';
+import { LoggerService } from './logger.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,8 @@ export class IconsService {
 
   constructor(
     private matIconRegistry: MatIconRegistry,
-    private domSanitizer: DomSanitizer
+    private domSanitizer: DomSanitizer,
+    private loggerService: LoggerService
   ) { }
 
   /**
@@ -41,7 +43,7 @@ export class IconsService {
       this.loadedIcons.add(iconName);
       return true;
     } catch (error) {
-      console.error(`Failed to load icon: ${iconName}`, error);
+      this.loggerService.error(`Failed to load icon: ${iconName}`, error);
       return false;
     }
   }

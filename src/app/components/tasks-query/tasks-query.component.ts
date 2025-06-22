@@ -7,6 +7,7 @@ import {Task, TaskService} from '@app/domain';
 import {HalOptions, HalParam} from '@app/core/hal/rest/rest.service';
 import {MatDialog} from '@angular/material/dialog';
 import {DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
+import {LoggerService} from '@app/services/logger.service';
 
 
 @Component({
@@ -30,13 +31,14 @@ export class TasksQueryComponent implements OnInit {
               private router: Router,
               public taskService: TaskService,
               public dialog: MatDialog,
+              private loggerService: LoggerService,
   ) {
   }
 
 
   ngOnInit() {
     this.loadData().catch((error) => {
-      console.error('Error loading data:', error);
+      this.loggerService.error('Error loading data:', error);
     });
   }
 

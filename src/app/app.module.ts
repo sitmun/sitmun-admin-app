@@ -50,6 +50,7 @@ import {
 } from '@app/domain';
 import { ServicesModule } from './services/services.module';
 import { ExternalService, HalModule, ResourceService } from '@app/core/hal';
+import { LoggerService } from './services/logger.service';
 
 //i18n
 import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -115,14 +116,21 @@ import { CharacterCountPipe } from '@app/components/shared/character-counter-hin
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 
 import { BaseFormComponent } from "@app/components/base-form.component";
+import { DataTablesRegistry } from "@app/components/data-tables.util";
+import { Resource } from "@app/core/hal/resource/resource.model";
 
 
 // APP_INITIALIZER factory functions
 export function initializeLanguages(
   languageService: LanguageService,
-  translateService: TranslateService
+  translateService: TranslateService,
+  loggerService: LoggerService
 ) {
   return () => {
+    // Initialize static logger services
+    DataTablesRegistry.setLoggerService(loggerService);
+    Resource.setLoggerService(loggerService);
+    
     return firstValueFrom(languageService.getAll()).then(languages => {
       // Sort languages
       languages.sort((a, b) => a.shortname.localeCompare(b.shortname));
@@ -143,10 +151,10 @@ export function initializeLanguages(
       translateService.setDefaultLang(defaultLang);
       translateService.use(defaultLang);
       
-      console.log(`Languages initialized: ${languages.length} languages loaded, default: ${defaultLang}`);
+      loggerService.info(`Languages initialized: ${languages.length} languages loaded, default: ${defaultLang}`);
       return languages;
     }).catch(error => {
-      console.error('Failed to initialize languages:', error);
+      loggerService.error('Failed to initialize languages:', error);
       // Fallback to basic configuration
       config.languagesToUse = [];
       config.languagesObjects = {};
@@ -159,7 +167,8 @@ export function initializeLanguages(
 
 export function initializeConfiguration(
   configurationService: ConfigurationParametersService,
-  translateService: TranslateService
+  translateService: TranslateService,
+  loggerService: LoggerService
 ) {
   return () => {
     return firstValueFrom(configurationService.getAll()).then(configParams => {
@@ -175,10 +184,10 @@ export function initializeConfiguration(
         }
       }
       
-      console.log(`Configuration initialized: ${configParams.length} parameters loaded`);
+      loggerService.info(`Configuration initialized: ${configParams.length} parameters loaded`);
       return configParams;
     }).catch(error => {
-      console.error('Failed to initialize configuration:', error);
+      loggerService.error('Failed to initialize configuration:', error);
       // Continue without configuration
       return [];
     });
@@ -294,13 +303,13 @@ function getDefaultLanguage(languages: any[]): string {
     {
       provide: APP_INITIALIZER,
       useFactory: initializeLanguages,
-      deps: [LanguageService, TranslateService],
+      deps: [LanguageService, TranslateService, LoggerService],
       multi: true
     },
     {
       provide: APP_INITIALIZER,
       useFactory: initializeConfiguration,
-      deps: [ConfigurationParametersService, TranslateService],
+      deps: [ConfigurationParametersService, TranslateService, LoggerService],
       multi: true
     },
     ResourceService,

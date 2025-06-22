@@ -3,6 +3,7 @@ import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RestService } from '@app/core/hal/rest/rest.service';
+import { LoggerService } from '@app/services/logger.service';
 
 /** CartographyFilter manager service */
 @Injectable()
@@ -13,7 +14,7 @@ export class CartographyFilterService extends RestService<CartographyFilter> {
   public CARTOGRAPHY_FILTER_API = 'cartography-filters';
 
   /** constructor */
-  constructor(injector: Injector,private http: HttpClient) {
+  constructor(injector: Injector, private http: HttpClient, private loggerService: LoggerService) {
     super(CartographyFilter, "cartography-filters", injector);
   }
 
@@ -24,12 +25,12 @@ export class CartographyFilterService extends RestService<CartographyFilter> {
       result = this.http.put(item._links.self.href, item);
       if (item.cartography !=null){
           item.substituteRelation('cartography',item.cartography).subscribe(result => {
-      }, error => console.error(error));
+      }, error => this.loggerService.error('Error substituting cartography relation:', error));
       }
 
       if(item.territorialLevel != null && item.territorialLevel != undefined ){
         item.substituteRelation('territorialLevel',item.territorialLevel).subscribe(result => {
-        }, error => console.error(error));
+        }, error => this.loggerService.error('Error substituting territorial level relation:', error));
       }
 
     } else {

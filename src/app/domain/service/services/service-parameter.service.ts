@@ -3,6 +3,7 @@ import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RestService } from '@app/core/hal/rest/rest.service';
+import { LoggerService } from '@app/services/logger.service';
 
 /** Service parameter manager service */
 @Injectable()
@@ -12,7 +13,7 @@ export class ServiceParameterService extends RestService<ServiceParameter> {
   public SERVICE_PARAMETER_API = 'service-parameters';
 
   /** constructor */
-  constructor(injector: Injector,private http: HttpClient) {
+  constructor(injector: Injector, private http: HttpClient, private loggerService: LoggerService) {
     super(ServiceParameter, "service-parameters", injector);
   }
 
@@ -32,7 +33,7 @@ export class ServiceParameterService extends RestService<ServiceParameter> {
           delete item.service;
           item.substituteRelation('service',service).subscribe(result => {
 
-      }, error => console.error(error));
+      }, error => this.loggerService.error('Error substituting service relation:', error));
       }
       result = this.http.put(item._links.self.href, item);
 

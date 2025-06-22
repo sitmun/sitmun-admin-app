@@ -10,6 +10,7 @@ import {Injectable} from '@angular/core';
 import {catchError} from 'rxjs/operators';
 import UriTemplate from 'uri-templates';
 import utpl from "uri-templates";
+import { LoggerService } from '@app/services/logger.service';
 
 /** Abstract resource class*/
 @Injectable()
@@ -25,6 +26,13 @@ export abstract class Resource {
   /** subtypes */
   public _subtypes: Map<string, any>;
 
+  /** Static logger service for error logging */
+  private static loggerService: LoggerService;
+
+  /** Sets the logger service for this resource class */
+  static setLoggerService(loggerService: LoggerService) {
+    Resource.loggerService = loggerService;
+  }
 
   /** get subtypes */
   public get subtypes(): Map<string, any> {
@@ -66,10 +74,17 @@ export abstract class Resource {
       return observable.pipe(map(response => ResourceHelper.instantiateResourceCollection<T>(type, response, result)),
         map((array: ResourceArray<T>) => array.result),);
     } else {
-      console.error('No relation found for', {
-        resource: this,
-        relation: relation
-      });
+      if (Resource.loggerService) {
+        Resource.loggerService.error('No relation found for', new Error(`Relation ${relation} not found`), {
+          resource: this,
+          relation: relation
+        });
+      } else {
+        console.error('No relation found for', {
+          resource: this,
+          relation: relation
+        });
+      }
       return observableOf([]);
     }
   }
@@ -119,10 +134,17 @@ export abstract class Resource {
       });
       return observable.pipe(map(response => Object.assign(new type(), response)))
     } else {
-      console.error('No relation intance found for', {
-        resource: this,
-        relation: relation
-      });
+      if (Resource.loggerService) {
+        Resource.loggerService.error('No relation instance found for', new Error(`Relation ${relation} not found`), {
+          resource: this,
+          relation: relation
+        });
+      } else {
+        console.error('No relation intance found for', {
+          resource: this,
+          relation: relation
+        });
+      }
       return observableOf(null);
     }
   }
@@ -205,17 +227,31 @@ export abstract class Resource {
           params: remainingOptions
         });
       } else  {
-        console.error('No target found for', {
-          resource: this,
-          relation: relation
-        });
+        if (Resource.loggerService) {
+          Resource.loggerService.error('No target found for', new Error(`No target found for relation ${relation}`), {
+            resource: this,
+            relation: relation
+          });
+        } else {
+          console.error('No target found for', {
+            resource: this,
+            relation: relation
+          });
+        }
         return EMPTY;
       }
     } else {
-      console.error('No relation found for', {
-        resource: this,
-        relation: relation
-      });
+      if (Resource.loggerService) {
+        Resource.loggerService.error('No relation found for', new Error(`Relation ${relation} not found`), {
+          resource: this,
+          relation: relation
+        });
+      } else {
+        console.error('No relation found for', {
+          resource: this,
+          relation: relation
+        });
+      }
       return EMPTY;
     }
   }
@@ -254,7 +290,11 @@ export abstract class Resource {
       }
       const url = ResourceHelper.getProxy(targetUrl);
       const body = type + "/" + key;
-      console.log("Substituting relation", {url: url, body: body});
+      if (Resource.loggerService) {
+        Resource.loggerService.debug("Substituting relation", {url: url, body: body});
+      } else {
+        console.log("Substituting relation", {url: url, body: body});
+      }
       return ResourceHelper.getHttp().put(url, body, {headers: header});
     } else {
       return observableThrowError('no relation found');

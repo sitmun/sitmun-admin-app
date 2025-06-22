@@ -15,6 +15,7 @@ import {
 } from "@app/frontend-gui/src/lib/dialog-grid/dialog-grid.component";
 import {TemplateRef} from "@angular/core";
 import {FormGroup} from "@angular/forms";
+import { LoggerService } from "@app/services/logger.service";
 
 /**
  * Defines the configuration and behavior of a data table in the application.
@@ -557,6 +558,19 @@ export class DataTablesRegistry {
   private readonly SAVE_TIMEOUT = 5000;
 
   /**
+   * Logger service for error logging.
+   */
+  private static loggerService: LoggerService;
+
+  /**
+   * Sets the logger service for this registry.
+   * Must be called before using the registry.
+   */
+  static setLoggerService(loggerService: LoggerService) {
+    DataTablesRegistry.loggerService = loggerService;
+  }
+
+  /**
    * Registers a data table definition with the registry.
    * 
    * @template RELATION - The relation entity type
@@ -598,7 +612,11 @@ export class DataTablesRegistry {
     try {
       await Promise.all(refreshPromises);
     } catch (error) {
-      console.error('Error waiting for refresh events:', error);
+      if (DataTablesRegistry.loggerService) {
+        DataTablesRegistry.loggerService.error('Error waiting for refresh events:', error);
+      } else {
+        console.error('Error waiting for refresh events:', error);
+      }
     }
   }
 

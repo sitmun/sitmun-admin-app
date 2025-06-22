@@ -3,6 +3,7 @@ import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RestService } from '@app/core/hal/rest/rest.service';
+import { LoggerService } from '@app/services/logger.service';
 
 /** Task availability manager service */
 @Injectable()
@@ -13,7 +14,7 @@ export class TaskAvailabilityService extends RestService<TaskAvailability> {
   public TASK_AVAILABILITY_API = 'task-availabilities';
 
   /** constructor */
-  constructor(injector: Injector,private http: HttpClient) {
+  constructor(injector: Injector, private http: HttpClient, private loggerService: LoggerService) {
     super(TaskAvailability, "task-availabilities", injector);
   }
 
@@ -25,12 +26,12 @@ export class TaskAvailabilityService extends RestService<TaskAvailability> {
       if (item.task !=null){
           item.substituteRelation('task',item.task).subscribe(result => {
 
-      }, error => console.error(error));
+      }, error => this.loggerService.error('Error substituting task relation:', error));
       }
       if (item.territory !=null){
           item.substituteRelation('territory',item.territory).subscribe(result => {
 
-      }, error => console.error(error));
+      }, error => this.loggerService.error('Error substituting territory relation:', error));
       }
     } else {
       item.territory = item.territory._links.self.href;

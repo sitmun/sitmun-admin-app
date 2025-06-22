@@ -376,7 +376,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
       })
       .withRelationsOrder('name')
       .withRelationsUpdater(async (cartographyParameters: (CartographyParameter & Status)[]) => {
-        console.log('cartographyParameters', cartographyParameters);
+        this.loggerService.debug('cartographyParameters', cartographyParameters);
         await onCreate(cartographyParameters).forEach(item => {
           item.cartography = this.cartographyService.createProxy(this.entityID);
           return this.cartographyParameterService.create(item);
@@ -417,7 +417,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
           return this.codeList('cartographyFilter.valueType').find(item => item.value === x)?.description || '';
         }),
         this.utils.getNonEditableColumnWithProviderDef('entity.cartography.filters.parameters.territorialLevel', 'territorialLevelId', (x) => {
-          console.log('territorialLevelId', x);
+          this.loggerService.debug('territorialLevelId', x);
           return this.territorialTypes.find(item => item.id === x)?.name || '';
         }),
         this.utils.getBooleanColumnDef('entity.cartography.filters.parameters.required', 'required', true),
@@ -432,7 +432,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
       .withRelationsOrder('name')
       .withRelationsUpdater(async (cartographyFilters: (CartographyFilterProjection & Status)[]) => {
         await onCreate(cartographyFilters).forEach(item => {
-          console.log('Creating cartography filter', item);
+          this.loggerService.debug('Creating cartography filter', item);
           const newItem = CartographyFilter.fromObject(item);
           newItem.cartography = this.cartographyService.createProxy(this.entityID);
           if (item.territorialLevelId) {

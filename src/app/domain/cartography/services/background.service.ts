@@ -3,6 +3,7 @@ import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RestService } from '@app/core/hal/rest/rest.service';
+import { LoggerService } from '@app/services/logger.service';
 
 /** Background manager service */
 @Injectable()
@@ -12,7 +13,7 @@ export class BackgroundService extends RestService<Background> {
   public BACKGROUND_API = 'backgrounds';
 
   /** constructor */
-  constructor(injector: Injector,private http: HttpClient) {
+  constructor(injector: Injector, private http: HttpClient, private loggerService: LoggerService) {
     super(Background, "backgrounds", injector);
   }
 
@@ -41,14 +42,14 @@ export class BackgroundService extends RestService<Background> {
          item.deleteRelation('cartographyGroup',backgroundCartographyGroup).subscribe(result => {
 
 
-             }, error => console.error(error));
+             }, error => this.loggerService.error('Error deleting cartography group relation:', error));
 
       } else {
           item.substituteRelation('cartographyGroup',backgroundCartographyGroup).subscribe(result => {
 
 
 
-            }, error => console.error(error));
+            }, error => this.loggerService.error('Error substituting cartography group relation:', error));
        }
 
 

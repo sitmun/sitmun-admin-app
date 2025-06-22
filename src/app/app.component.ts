@@ -4,6 +4,7 @@ import { Principal } from '@app/core/auth/principal.service';
 import { LoginService } from '@app/core/auth/login.service';
 import { AuthService } from '@app/core/auth/auth.service';
 import { config } from '@config';
+import { LoggerService } from '@app/services/logger.service';
 
 @Component({
   selector: 'app-root',
@@ -25,7 +26,8 @@ export class AppComponent {
     /** Translate service */public trans: TranslateService, 
     /** Identity service */public principal: Principal,
     /** Login service */public loginService: LoginService,
-    /** Auth service */public authService: AuthService
+    /** Auth service */public authService: AuthService,
+    private loggerService: LoggerService
   ) {
     this.translate = trans;
   }
@@ -34,9 +36,9 @@ export class AppComponent {
   ngOnInit() {
     // Verify that languages are loaded
     if (!config.languagesToUse || config.languagesToUse.length === 0) {
-      console.warn('Languages not loaded - APP_INITIALIZER may have failed');
+      this.loggerService.warn('Languages not loaded - APP_INITIALIZER may have failed');
     } else {
-      console.log(`App component initialized with ${config.languagesToUse.length} languages available`);
+      this.loggerService.info(`App component initialized with ${config.languagesToUse.length} languages available`);
     }
 
     // Set language based on stored preference or browser language

@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { IconsService } from './icons.service';
 import { SidenavService } from './sidenav.service';
 import { UtilsService } from './utils.service';
+import { LoggerService } from './logger.service';
 
 @NgModule({
   imports: [
@@ -12,7 +13,8 @@ import { UtilsService } from './utils.service';
   providers: [
     IconsService,
     SidenavService,
-    UtilsService
+    UtilsService,
+    LoggerService
   ]
 })
 export class ServicesModule { } 

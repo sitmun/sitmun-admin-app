@@ -3,6 +3,7 @@ import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RestService } from '@app/core/hal/rest/rest.service';
+import { LoggerService } from '@app/services/logger.service';
 
 /** Tree node manager service */
 @Injectable()
@@ -12,7 +13,7 @@ export class TreeNodeService extends RestService<TreeNode> {
   public TREE_NODE_API = 'tree-nodes';
 
   /** constructor */
-  constructor(injector: Injector,private http: HttpClient) {
+  constructor(injector: Injector, private http: HttpClient, private loggerService: LoggerService) {
     super(TreeNode, "tree-nodes", injector);
   }
 
@@ -34,22 +35,22 @@ export class TreeNodeService extends RestService<TreeNode> {
       if (itemTree !=null){
           item.substituteRelation('tree',itemTree).subscribe(result => {
 
-          }, error => console.error(error));
+          }, error => this.loggerService.error('Error substituting tree relation:', error));
       }
       if (itemCartography !=null){
           item.substituteRelation('cartography',itemCartography).subscribe(result => {
 
-          }, error => console.error(error));
+          }, error => this.loggerService.error('Error substituting cartography relation:', error));
       }
       if (itemTask !=null){
         item.substituteRelation('task',itemTask).subscribe(result => {
 
-        }, error => console.error(error));
+        }, error => this.loggerService.error('Error substituting task relation:', error));
       }
       if (itemParent !=null){
           item.substituteRelation('parent',itemParent).subscribe(result => {
 
-          }, error => console.error(error));
+          }, error => this.loggerService.error('Error substituting parent relation:', error));
       }
       else{
           let treeNodeParent:any = {};
@@ -57,7 +58,7 @@ export class TreeNodeService extends RestService<TreeNode> {
           treeNodeParent._links.self = {};
           treeNodeParent._links.self.href="";
           item.deleteRelation('parent', treeNodeParent).subscribe(result => {
-        }, error => console.error(error));
+        }, error => this.loggerService.error('Error deleting parent relation:', error));
       }
 
     } else {

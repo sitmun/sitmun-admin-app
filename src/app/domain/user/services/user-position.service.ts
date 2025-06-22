@@ -3,6 +3,7 @@ import { UserPosition } from '@app/domain';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
 import { Observable } from 'rxjs';
+import { LoggerService } from '@app/services/logger.service';
 
 /** User position manager service */
 @Injectable()
@@ -13,7 +14,7 @@ export class UserPositionService  extends RestService<UserPosition> {
   public USER_POSITION_API = 'user-positions';
 
   /** constructor */
-  constructor(injector: Injector,private http: HttpClient) {
+  constructor(injector: Injector, private http: HttpClient, private loggerService: LoggerService) {
     super(UserPosition, "user-positions", injector);
   }
 
@@ -25,12 +26,12 @@ export class UserPositionService  extends RestService<UserPosition> {
       if (item.user !=null){
           item.substituteRelation('user',item.user).subscribe(result => {
 
-      }, error => console.error(error));
+      }, error => this.loggerService.error('Error substituting user relation:', error));
       }
       if (item.territory !=null){
           item.substituteRelation('territory',item.territory).subscribe(result => {
 
-      }, error => console.error(error));
+      }, error => this.loggerService.error('Error substituting territory relation:', error));
       }
     } else {
       item.territory = item.territory._links.self.href;

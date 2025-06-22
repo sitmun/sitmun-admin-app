@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { LoggerService } from '@app/services/logger.service';
 
 /**
  * Service to manage the state of the application's side navigation
@@ -11,6 +12,8 @@ import { BehaviorSubject, Observable } from 'rxjs';
 export class SidenavService {
   private sidenav: MatSidenav;
   private sideNavToggleSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  
+  constructor(private loggerService: LoggerService) {}
   
   /**
    * Get the current sidenav toggle state as an Observable
@@ -36,7 +39,7 @@ export class SidenavService {
       this.sideNavToggleSubject.next(this.sidenav.opened);
     } else {
       this.sideNavToggleSubject.next(false);
-      console.warn('SidenavService: No sidenav instance has been set');
+      this.loggerService.warn('SidenavService: No sidenav instance has been set');
     }
   }
 
