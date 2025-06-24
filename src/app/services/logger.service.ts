@@ -77,44 +77,54 @@ export class LoggerService {
       return;
     }
 
-    var callback = function(stackframes) {
-      const timestamp = new Date().toISOString();
-      const caller: StackFrame = stackframes[2]
-      const logCaller = `${caller.functionName} (${caller.fileName}:${caller.lineNumber})`
-
-      const logPrefix = `[${timestamp}] [${LogLevel[level]}] [${logCaller}]`;
-      switch (level) {
-        case LogLevel.Error:
-          if (data.length > 0) {
-            console.error(`${logPrefix} ${message}`, ...data);
-          } else {
-            console.error(`${logPrefix} ${message}`);
-          }
-          break;
-        case LogLevel.Warning:
-          if (data.length > 0) {
-            console.warn(`${logPrefix} ${message}`, ...data);
-          } else {
-            console.warn(`${logPrefix} ${message}`);
-          }
-          break;
-        case LogLevel.Info:
-          if (data.length > 0) {
-            console.info(`${logPrefix} ${message}`, ...data);
-          } else {
-            console.info(`${logPrefix} ${message}`);
-          }
-          break;
-        case LogLevel.Debug:
-        case LogLevel.Trace:
-          if (data.length > 0) {
-            console.log(`${logPrefix} ${message}`, ...data);
-          } else {
-            console.log(`${logPrefix} ${message}`);
-          }
-          break;
-      }
+    // Only get stack trace and timestamp for Trace level
+    if (level === LogLevel.Trace) {
+      StackTrace.get().then((stackframes) => {
+        const timestamp = new Date().toISOString();
+        const trace: StackFrame = stackframes[2];
+        const logCaller = `${trace.fileName}:${trace.lineNumber}`;
+        const logPrefix = `[${LogLevel[level]}] [${timestamp}] [${logCaller}]`;
+        
+        if (data.length > 0) {
+          console.log(`${logPrefix} ${message}`, ...data);
+        } else {
+          console.log(`${logPrefix} ${message}`);
+        }
+      });
+      return;
     }
-    StackTrace.get().then(callback)
+
+    // For all other levels, use simple logging without timestamp or stack trace
+    const logPrefix = `[${LogLevel[level]}]`;
+    switch (level) {
+      case LogLevel.Error:
+        if (data.length > 0) {
+          console.error(`${logPrefix} ${message}`, ...data);
+        } else {
+          console.error(`${logPrefix} ${message}`);
+        }
+        break;
+      case LogLevel.Warning:
+        if (data.length > 0) {
+          console.warn(`${logPrefix} ${message}`, ...data);
+        } else {
+          console.warn(`${logPrefix} ${message}`);
+        }
+        break;
+      case LogLevel.Info:
+        if (data.length > 0) {
+          console.info(`${logPrefix} ${message}`, ...data);
+        } else {
+          console.info(`${logPrefix} ${message}`);
+        }
+        break;
+      case LogLevel.Debug:
+        if (data.length > 0) {
+          console.log(`${logPrefix} ${message}`, ...data);
+        } else {
+          console.log(`${logPrefix} ${message}`);
+        }
+        break;
+    }
   }
 }
