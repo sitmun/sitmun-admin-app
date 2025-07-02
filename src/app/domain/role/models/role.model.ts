@@ -6,7 +6,7 @@ import {Application, Task} from "@app/domain";
  */
 export class Role extends Resource {
   /** id */
-  public id: number;
+  public override id: number;
   /** name*/
   public name: string;
   /** comments*/

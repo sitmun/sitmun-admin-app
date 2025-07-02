@@ -1,12 +1,13 @@
-import { Resource } from '@app/core/hal/resource/resource.model';
+import {Resource} from '@app/core/hal/resource/resource.model';
 import {Connection} from '@app/domain/connection/models/connection.model';
 import {ServiceParameter} from './service-parameter.model';
+
 /**
  * Service model
  */
 export class Service extends Resource {
   /** id */
-  public id: number;
+  public override id: number;
   /** name*/
   public name: string;
 

@@ -1,4 +1,5 @@
 import { Resource } from '@app/core/hal/resource/resource.model';
+
 /**
  * Task UI model
  */
@@ -12,5 +13,6 @@ export class TaskUI extends Resource {
   /** order*/
   public order: number;
 
-  public id: number;
+  /** id */
+  public override id: number;
 }

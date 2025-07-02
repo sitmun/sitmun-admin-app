@@ -1,13 +1,13 @@
-import { Resource } from '@app/core/hal/resource/resource.model';
-import { UserConfiguration } from './user-configuration.model';
-import { UserPosition } from './user-position.model';
+import {Resource} from '@app/core/hal/resource/resource.model';
+import {UserConfiguration} from './user-configuration.model';
+import {UserPosition} from './user-position.model';
 
 /**
  * User model
  */
 export class User extends Resource {
   /** id */
-  public id: number;
+  public override id: number;
   /** username */
   public username: string;
   /** password */

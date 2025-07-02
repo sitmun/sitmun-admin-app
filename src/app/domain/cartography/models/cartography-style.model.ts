@@ -6,7 +6,7 @@ import {Cartography} from '@app/domain';
 export class CartographyStyle extends Resource {
 
   /** id*/
-  public id: number;
+  public override id: number;
 
   /** name*/
   public name: string;

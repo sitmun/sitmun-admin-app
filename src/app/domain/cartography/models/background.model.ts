@@ -7,7 +7,7 @@ import {ApplicationBackground} from "@app/domain";
 
 export class Background extends Resource {
   /** id */
-  public id: number;
+  public override id: number;
 
   /** name*/
   public name: string;
@@ -56,7 +56,7 @@ export class Background extends Resource {
 
 
 export class BackgroundProjection extends Resource {
-  id: number
+  override id: number
   name: string
   description: string
   active: boolean

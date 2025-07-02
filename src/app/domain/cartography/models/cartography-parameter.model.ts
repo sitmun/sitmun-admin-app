@@ -5,7 +5,7 @@ import {Cartography} from './cartography.model';
  */
 export class CartographyParameter extends Resource {
 
-  public id: number;
+  public override id: number;
 
   /** name*/
   public name: string;

@@ -1,16 +1,23 @@
 import { Resource } from '@app/core/hal/resource/resource.model';
 import {Service} from '@app/domain/service/models/service.model';
-import {CartographyAvailability, CartographyParameter, Connection} from '@app/domain';
-import { CartographyStyle } from '@app/domain';
-import {CartographyFilter, CartographyGroup, TreeNode} from "@app/domain";
+import {
+  CartographyAvailability,
+  CartographyParameter,
+  Connection,
+  CartographyStyle,
+  CartographyFilter,
+  CartographyGroup,
+  TreeNode
+} from "@app/domain";
+
 /**
  * Represents a cartography resource in the system.
  * A cartography defines a map layer with its associated properties, services, and display settings.
  * @extends Resource
  */
 export class Cartography extends Resource {
-  /** Unique identifier for the cartography */
-  public id: number;
+  /** id */
+  public override id: number;
 
   /** Display name of the cartography */
   public name: string;
@@ -146,7 +153,7 @@ export class Cartography extends Resource {
 }
 
 export class CartographyProjection extends Resource {
-  public id: number
+  override id: number
   public name: string
   public description: string
   public layers: string[]

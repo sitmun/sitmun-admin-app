@@ -5,7 +5,8 @@ import {Task, TaskProjection} from './task.model';
  * Task availability model
  */
 export class TaskAvailability extends Resource {
-  public id: number;
+  /** id */
+  public override id: number;
 
   public createdDate: string;
 
@@ -23,7 +24,7 @@ export class TaskAvailability extends Resource {
 }
 
 export class TaskAvailabilityProjection extends Resource{
-  id: number;
+  override id: number;
   createdDate: string;
   territoryId: number;
   territoryName: string;

@@ -14,7 +14,7 @@ import {User} from "@app/domain";
 
 export class Application extends Resource {
   /** id */
-  public id: number;
+  public override id: number;
 
   /** name*/
   public name: string;
@@ -94,7 +94,7 @@ export class Application extends Resource {
     return application;
   }
 
-  public static allProperties: string [] = [
+  public static readonly allProperties: string [] = [
     // Resource properties
     'proxyUrl', 'rootUrl', '_links', '_subtypes',
     // Application properties
@@ -106,7 +106,7 @@ export class Application extends Resource {
     'lastUpdate', 'creator', 'isUnavailable'
   ];
 
-  public static externalApp: string [] = [
+  public static readonly externalApp: string [] = [
     // Resource properties
     'proxyUrl', 'rootUrl', '_links', '_subtypes',
     // Common application properties
@@ -118,7 +118,7 @@ export class Application extends Resource {
     'jspTemplate'
   ]
 
-  public static internalApp: string [] = [
+  public static readonly internalApp: string [] = [
     // Resource properties
     'proxyUrl', 'rootUrl', '_links', '_subtypes',
     // Common application properties
@@ -132,7 +132,7 @@ export class Application extends Resource {
     'situationMap'
   ]
 
-  public static touristicApp: string [] = [
+  public static readonly touristicApp: string [] = [
     // Resource properties
     'proxyUrl', 'rootUrl', '_links', '_subtypes',
     // Common application properties
@@ -144,7 +144,7 @@ export class Application extends Resource {
 }
 
 export class ApplicationProjection extends Resource {
-  id: number;
+  override id: number;
   name: string;
   type: string;
   title: string;

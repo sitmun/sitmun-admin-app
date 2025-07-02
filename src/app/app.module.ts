@@ -130,27 +130,27 @@ export function initializeLanguages(
     // Initialize static logger services
     DataTablesRegistry.setLoggerService(loggerService);
     Resource.setLoggerService(loggerService);
-    
+
     return firstValueFrom(languageService.getAll()).then(languages => {
       // Sort languages
       languages.sort((a, b) => a.shortname.localeCompare(b.shortname));
-      
+
       // Store in config
       config.languagesToUse = languages;
       languages.forEach(language => {
         config.languagesObjects[language.shortname] = language;
       });
-      
+
       // Store in localStorage if not exists
       if (!localStorage.getItem('languages')) {
         localStorage.setItem('languages', JSON.stringify(languages));
       }
-      
+
       // Set default language
       const defaultLang = getDefaultLanguage(languages);
       translateService.setDefaultLang(defaultLang);
       translateService.use(defaultLang);
-      
+
       loggerService.info(`Languages initialized: ${languages.length} languages loaded, default: ${defaultLang}`);
       return languages;
     }).catch(error => {
@@ -173,17 +173,17 @@ export function initializeConfiguration(
   return () => {
     return firstValueFrom(configurationService.getAll()).then(configParams => {
       const defaultLang = configParams.find(element => element.name === 'language.default');
-      
+
       if (defaultLang) {
         config.defaultLang = defaultLang.value;
-        
+
         // Set language if not already set in localStorage
         if (!localStorage.getItem('lang')) {
           translateService.setDefaultLang(defaultLang.value);
           translateService.use(defaultLang.value);
         }
       }
-      
+
       loggerService.info(`Configuration initialized: ${configParams.length} parameters loaded`);
       return configParams;
     }).catch(error => {
@@ -201,18 +201,18 @@ function getDefaultLanguage(languages: any[]): string {
   if (storedLang && languages.find(lang => lang.shortname === storedLang)) {
     return storedLang;
   }
-  
+
   // Check browser language
   const navigatorLang = window.navigator.language.toLowerCase();
   const baseLang = navigatorLang.replace(/-[A-Z]+$/, '');
-  const browserLang = languages.find(lang => 
+  const browserLang = languages.find(lang =>
     lang.shortname.toLowerCase() === baseLang
   );
-  
+
   if (browserLang) {
     return browserLang.shortname;
   }
-  
+
   // Fallback to config default or first language
   return config.defaultLang || (languages.length > 0 ? languages[0].shortname : 'en');
 }
@@ -298,7 +298,7 @@ function getDefaultLanguage(languages: any[]): string {
     { provide: LOCALE_ID, useValue: 'es-ES' },
     { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
     { provide: MAT_TABS_CONFIG, useValue: { animationDuration: '0ms' } },
-    
+
     // APP_INITIALIZER providers
     {
       provide: APP_INITIALIZER,

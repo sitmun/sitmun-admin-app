@@ -20,7 +20,7 @@ export class ApplicationParameter extends Resource {
 
   public typeDescription: string;
 
-  public id: number;
+  public override id: number;
 
   /**
    * Creates a new ApplicationParameter instance copying only the properties declared in ApplicationParameter and Resource classes

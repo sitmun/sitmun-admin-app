@@ -1,19 +1,21 @@
-import { Resource } from '@app/core/hal/resource/resource.model';
-import { Role } from '@app/domain/role/models/role.model';
-import { Territory } from '@app/domain/territory/models/territory.model';
-import { User } from './user.model';
+import {Resource} from '@app/core/hal/resource/resource.model';
+import {
+  Role,
+  Territory,
+  User
+} from '@app/domain';
 
 /**
  * User permission model
  */
 export class UserConfiguration extends Resource {
 
-  public id: number;
+  public override id: number;
 
-  /** role */  
+  /** role */
   public role: Role;
 
-  /** territory */ 
+  /** territory */
   public territory: Territory;
 
   /** user */
@@ -21,7 +23,7 @@ export class UserConfiguration extends Resource {
 
   public appliesToChildrenTerritories: boolean;
 
-  private createdDate: string;
+  public createdDate: string;
 
   /**
    * Creates a new UserConfiguration instance copying only the properties declared in UserConfiguration and Resource classes
@@ -48,7 +50,7 @@ export class UserConfiguration extends Resource {
 }
 
 export class UserConfigurationProjection extends Resource {
-  id: number;
+  public override id: number;
   user: string;
   userId: number;
   territory: string;

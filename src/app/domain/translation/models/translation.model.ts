@@ -1,11 +1,11 @@
-import { Resource } from '@app/core/hal/resource/resource.model';
-import { Language } from './language.model';
+import {Resource} from '@app/core/hal/resource/resource.model';
+import {Language} from './language.model';
 
 
 /** Task model */
 export class Translation extends Resource {
   /** id */
-  public id: number;
+  public override id: number;
   /** id */
   public element: number;
   /** name */
@@ -18,7 +18,5 @@ export class Translation extends Resource {
   public languageName?: string;
   /** name */
   public languageShortname?: string;
-
-
 
 }

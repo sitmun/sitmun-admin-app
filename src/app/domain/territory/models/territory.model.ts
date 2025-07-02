@@ -1,15 +1,19 @@
 import { Resource } from '@app/core/hal/resource/resource.model';
-import { TerritoryGroupType } from './territory-group-type.model';
-import { TerritoryType } from './territory-type.model';
-import {TaskAvailability, TaskAvailabilityProjection, UserConfiguration, UserPosition} from "@app/domain";
-import {ApplicationTerritory} from "@app/domain/application/models/application-territory.model";
+import {
+  ApplicationTerritory,
+  TaskAvailability,
+  UserConfiguration,
+  UserPosition,
+  TerritoryGroupType,
+  TerritoryType,
+} from "@app/domain";
 
 /**
  * Territory model
  */
 export class Territory extends Resource {
   /** id */
-  public id: number;
+  public override id: number;
   /** code */
   public code: string;
   /** name */
@@ -54,7 +58,7 @@ export class Territory extends Resource {
 }
 
 export class TerritoryProjection extends Resource {
-  id: number;
+  override id: number;
   code: string;
   name: string;
   description: string;

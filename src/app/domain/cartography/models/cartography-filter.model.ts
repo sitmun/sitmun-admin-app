@@ -6,7 +6,8 @@ import { Cartography } from '@app/domain';
  */
 export class CartographyFilter extends Resource {
 
-  public id: number;
+  /** id*/
+  public override id: number;
 
   /** name*/
   public name: string;
@@ -60,7 +61,7 @@ export class CartographyFilter extends Resource {
 
 export class CartographyFilterProjection extends Resource {
 
-  public id: number;
+  public override id: number;
 
   public name: string;
 

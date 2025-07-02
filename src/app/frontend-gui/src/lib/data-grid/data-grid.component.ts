@@ -1,21 +1,18 @@
 import {
   Component,
-  OnInit,
-  Input,
-  Output,
-  EventEmitter,
-  ViewChild,
   ElementRef,
+  EventEmitter,
+  Input,
+  OnChanges,
   OnDestroy,
+  OnInit,
+  Output,
   SimpleChanges,
-  OnChanges
+  ViewChild
 } from '@angular/core';
 
 import {firstValueFrom, Observable, Subscription} from 'rxjs';
-import {
-  GridOptions,
-  ModuleRegistry,
-} from '@ag-grid-community/core';
+import {GridOptions, ModuleRegistry,} from '@ag-grid-community/core';
 import {ClientSideRowModelModule} from '@ag-grid-community/client-side-row-model';
 import {CsvExportModule} from '@ag-grid-community/csv-export';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
@@ -40,7 +37,7 @@ import {FormsModule} from '@angular/forms';
 import {UtilsService} from '@app/services/utils.service';
 import {LoggerService} from '@app/services/logger.service';
 import {RouterLinkRendererComponent} from '../router-link-renderer/router-link-renderer.component';
-import { EditableLinkRendererComponent } from '../editable-link-renderer/editable-link-renderer.component';
+import {EditableLinkRendererComponent} from '../editable-link-renderer/editable-link-renderer.component';
 
 declare let $: any;
 
@@ -585,7 +582,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         if (this.gridApi && !this.gridApi.isDestroyed()) {
           // Set the data
           this.gridApi.setGridOption('rowData', this.rowData);
-          
+
           // Wait for next frame to ensure DOM is updated
           requestAnimationFrame(() => {
             if (this.gridApi && !this.gridApi.isDestroyed()) {
@@ -645,7 +642,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         if (this.gridApi && !this.gridApi.isDestroyed()) {
           // First autosize columns based on content
           this.gridApi.autoSizeAllColumns();
-          
+
           // Then ensure columns fill available space
           this.gridApi.sizeColumnsToFit();
         }
@@ -666,20 +663,18 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     if (this.singleSelection) {
       this.gridOptions.rowSelection = 'single'
     }
-    
+
     // Configure column sizes and flex
     this.columnDefs.forEach((col, index) => {
       // Ensure each column has minimum width
-      if (!col.minWidth) {
-        col.minWidth = 100;
-      }
-      
+      col.minWidth = col.minWidth ?? 100;
+
       // Special handling for specific columns
       if (col.field === 'status') {
         this.statusColumn = true;
         col.minWidth = 200; // Status needs more space
       }
-      
+
       // Set flex based on column position
       if (index === this.columnDefs.length - 1) {
         // Last column gets flex to fill remaining space
@@ -688,11 +683,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         // Other columns don't flex
         col.flex = 0;
         // Use width instead of flex for non-last columns
-        if (!col.width) {
-          col.width = 150; // Default width for columns
-        }
+        col.width = col.width ?? 150; // Default width for non-flex columns
       }
-      
+
       if (col.editable) {
         this.someColumnIsEditable = true;
       }
@@ -773,6 +766,14 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     // } else {
     //   return false
     // }
+  }
+
+  /**
+   * Checks if rows are selected in the grid
+   * @returns True if any rows are selected, false otherwise
+   */
+  oneRowSelected(): boolean {
+    return (this.gridApi != null && this.gridApi?.getSelectedNodes().length == 1);
   }
 
 

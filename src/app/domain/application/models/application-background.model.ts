@@ -1,13 +1,18 @@
 import { Resource } from '@app/core/hal/resource/resource.model';
-import {Background, BackgroundProjection} from '@app/domain';
-import {Application, ApplicationProjection} from '@app/domain';
+import {
+  Application,
+  ApplicationProjection,
+  Background,
+  BackgroundProjection
+} from '@app/domain';
 
 /**
  * Application background model
  */
 
 export class ApplicationBackground extends Resource {
-  public id: number;
+  /** id */
+  public override id: number;
   public application: Application;
   public background: Background;
   public order: number;
@@ -25,7 +30,7 @@ export class ApplicationBackground extends Resource {
 }
 
 export class ApplicationBackgroundProjection extends Resource {
-  id: number;
+  override id: number;
   order: number;
   backgroundName: string;
   backgroundId: number;

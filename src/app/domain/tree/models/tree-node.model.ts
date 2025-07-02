@@ -1,13 +1,14 @@
-import { Resource } from '@app/core/hal/resource/resource.model';
+import {Resource} from '@app/core/hal/resource/resource.model';
 import {Cartography} from '@app/domain/cartography/models/cartography.model';
-import { Task } from '@app/domain/task/models/task.model';
+import {Task} from '@app/domain/task/models/task.model';
 import {Tree} from '@app/domain';
+
 /**
  * Tree node model
  */
 export class TreeNode extends Resource {
   /** id */
-  public id: number;
+  public override id: number;
   /** name */
   public name: string;
   /** type */
@@ -78,8 +79,8 @@ export class TreeNode extends Resource {
 }
 
 export class TreeNodeProjection extends Resource {
+  public override id: number;
   parent: number;
-  id: number;
   name: string;
   description: string;
   nodeType: string;

@@ -5,7 +5,7 @@ import { Resource } from '@app/core/hal/resource/resource.model';
  */
 export class TerritoryType extends Resource {
    /** id */
-   public id: number;  
+   public override id: number;  
   /** name */
   public name: string;
 }

@@ -35,14 +35,6 @@
           [disabled]="changeCounter <= 0">
     <mat-icon fontSet="material-icons-round"> check</mat-icon>
   </button>
-  <button type="button"
-          matTooltip="{{ 'remove' | translate }}"
-          mat-mini-fab class="add-half-gap"
-          *ngIf="deleteButton"
-          (click)="removeData()"
-          [disabled]="!areRowsSelected()">
-    <mat-icon fontSet="material-icons-round"> delete</mat-icon>
-  </button>
   <mat-form-field subscriptSizing="dynamic" class="spacer add-half-gap">
     <mat-label [translate]="'search'"></mat-label>
     <input matInput type="text" placeholder="" (keyup)="quickSearch($event)">
@@ -63,20 +55,6 @@
     </button>
   </ng-container>
 
-  <!--
-  <mat-button-toggle-group
-    matTooltip="{{ 'rowsToShow' | translate }}"
-    name="fontStyle"
-    aria-label="Font Style" value="5"
-    class="add-half-gap"
-    *ngIf="changeHeightButton"
-  >
-    <mat-button-toggle value="5" (change)="changeHeight($event.value)">5</mat-button-toggle>
-    <mat-button-toggle value="20" (change)="changeHeight($event.value)">20</mat-button-toggle>
-    <mat-button-toggle value="50" (change)="changeHeight($event.value)">50</mat-button-toggle>
-  </mat-button-toggle-group>
-  -->
-
   <button type="button"
           mat-mini-fab class="add-half-gap"
           *ngIf="!hideExportButton"
@@ -86,10 +64,18 @@
     <mat-icon fontSet="material-icons-round"> file_download</mat-icon>
   </button>
   <button type="button"
+          matTooltip="{{ 'remove' | translate }}"
+          mat-mini-fab class="add-half-gap"
+          *ngIf="deleteButton"
+          (click)="removeData()"
+          [disabled]="!areRowsSelected()">
+    <mat-icon fontSet="material-icons-round"> delete</mat-icon>
+  </button>
+  <button type="button"
           mat-mini-fab class="add-half-gap"
           matTooltip="{{ 'duplicate' | translate }}"
           *ngIf="!hideDuplicateButton"
-          [disabled]="!areRowsSelected()"
+          [disabled]="!oneRowSelected()"
           (click)="onDuplicateButtonClicked()">
     <mat-icon fontSet="material-icons-round"> content_copy</mat-icon>
   </button>

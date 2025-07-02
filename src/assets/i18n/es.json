@@ -170,6 +170,7 @@
   "entity.cartography.trees.node": "Nodo",
   "entity.connection.driver": "Controlador JDBC",
   "entity.connection.label": "Conexión",
+  "entity.connection.url": "JDBC URL",
   "entity.permissionGroup.applications.header": "Aplicaciones",
   "entity.permissionGroup.applications.title": "Añadir aplicaciones",
   "entity.permissionGroup.label": "Permisos sobre las capas",

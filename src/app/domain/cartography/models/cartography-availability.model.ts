@@ -1,6 +1,6 @@
-import { Resource } from '@app/core/hal/resource/resource.model';
-import { Territory } from '@app/domain/territory/models/territory.model';
-import { Cartography } from '@app/domain';
+import {Resource} from '@app/core/hal/resource/resource.model';
+import {Territory} from '@app/domain/territory/models/territory.model';
+import {Cartography} from '@app/domain';
 
 /**
  * Represents the availability of a cartography for a specific territory
@@ -8,7 +8,7 @@ import { Cartography } from '@app/domain';
  */
 export class CartographyAvailability extends Resource {
   /** Unique identifier of the cartography availability */
-  public id: number;
+  public override id: number;
 
   /** Territory where the cartography is available */
   public territory: Territory;
@@ -49,7 +49,7 @@ export class CartographyAvailability extends Resource {
  */
 export class CartographyAvailabilityProjection extends Resource {
   /** Unique identifier of the cartography availability */
-  public id: number;
+  public override id: number;
 
   /** Date when the cartography availability was created */
   public createdDate: Date;

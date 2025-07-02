@@ -31,7 +31,7 @@ export interface TaskProperties {
 /** Task model */
 export class Task extends Resource {
   /** id */
-  public id: number;
+  public override id: number;
   /** name */
   public name?: string;
   /** order*/
@@ -104,21 +104,10 @@ export class Task extends Resource {
 
     const result = { ...properties };
 
-    if (!result?.scope) {
-      result.scope = null;
-    }
-
-    if (!result?.command) {
-      result.command = null;
-    }
-
-    if (!result?.format) {
-      result.format = null;
-    }
-
-    if (!result?.path) {
-      result.path = null;
-    }
+    result.scope = result?.scope ?? null;
+    result.command = result?.command ?? null;
+    result.format = result?.format ?? null;
+    result.path = result?.path ?? null;
 
     if (!result?.parameters || !Array.isArray(result?.parameters) || !result?.parameters?.some(item => item instanceof Object)) {
       result.parameters = [];
@@ -129,7 +118,7 @@ export class Task extends Resource {
 }
 
 export class TaskProjection extends Resource {
-  id: number;
+  override id: number;
   name: string;
   createdDate: string;
   order: number;

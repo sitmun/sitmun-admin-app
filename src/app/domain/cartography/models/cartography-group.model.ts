@@ -6,7 +6,7 @@ import {Role} from '@app/domain/role/models/role.model';
  */
 export class CartographyGroup extends Resource {
   /** id */
-  public id: number;
+  public override id: number;
   /** name*/
   public name: string;
   /** type*/
@@ -46,7 +46,7 @@ export class CartographyGroup extends Resource {
 }
 
 export class CartographyGroupProjection extends Resource {
-  public id: number;
+  public override id: number;
 
   public name: string;
 

@@ -1,10 +1,11 @@
-import { Resource } from '@app/core/hal/resource/resource.model';
+import {Resource} from '@app/core/hal/resource/resource.model';
+
 /**
  * Connection model
  */
 export class Connection extends Resource {
   /** id */
-  public id: number;
+  public override id: number;
   /** name*/
   public name: string;
   /** driver */

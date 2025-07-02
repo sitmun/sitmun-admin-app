@@ -1,20 +1,17 @@
-import {throwError as observableThrowError, of as observableOf, Observable, throwError, EMPTY} from 'rxjs';
-import {map} from 'rxjs/operators';
-import {HttpParams, HttpHeaders} from '@angular/common/http';
-import {ResourceHelper} from '@app/core';
-import {ResourceArray} from '@app/core';
+import {EMPTY, Observable, of as observableOf, throwError, throwError as observableThrowError} from 'rxjs';
+import {catchError, map} from 'rxjs/operators';
+import {HttpHeaders, HttpParams} from '@angular/common/http';
+import {HalOptions, ResourceArray, ResourceHelper, SubTypeBuilder} from '@app/core';
 import {isNullOrUndefined} from 'util';
-import {HalOptions} from '@app/core';
-import {SubTypeBuilder} from '@app/core';
 import {Injectable} from '@angular/core';
-import {catchError} from 'rxjs/operators';
-import UriTemplate from 'uri-templates';
-import utpl from "uri-templates";
-import { LoggerService } from '@app/services/logger.service';
+import utpl from 'uri-templates';
+import {LoggerService} from '@app/services/logger.service';
 
 /** Abstract resource class*/
 @Injectable()
 export abstract class Resource {
+
+  public id: number;
 
   /** proxy URL */
   public proxyUrl: string;

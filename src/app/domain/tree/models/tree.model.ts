@@ -1,13 +1,13 @@
-import { Resource } from '@app/core/hal/resource/resource.model';
-import {TreeNode} from '@app/domain';
+import {Resource} from '@app/core/hal/resource/resource.model';
+import {Application, TreeNode} from '@app/domain';
 import {Role} from '@app/domain/role/models/role.model';
-import {Application} from "@app/domain";
+
 /**
  * Tree model
  */
 export class Tree extends Resource {
   /** id */
-  public id: number;
+  public override id: number;
   /** name */
   public name: string;
   /** description */
