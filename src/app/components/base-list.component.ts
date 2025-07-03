@@ -1,19 +1,15 @@
-import { HalOptions, HalParam, Resource } from '@app/core';
-import { Component, OnInit } from '@angular/core';
-import {
-  CodeListService,
-  TranslationService,
-  CodeList,
-} from '@app/domain';
-import { UtilsService } from '@app/services/utils.service';
-import { TranslateService } from '@ngx-translate/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { config } from '@config';
-import { Observable, Subject, firstValueFrom, EMPTY } from 'rxjs';
-import { MatDialog } from '@angular/material/dialog';
-import { DialogMessageComponent } from '@app/frontend-gui/src/lib/public_api';
-import { ErrorHandlerService } from '@app/services/error-handler.service';
-import { LoggerService } from '@app/services/logger.service';
+import {HalOptions, HalParam, Resource} from '@app/core';
+import {Component, OnInit} from '@angular/core';
+import {CodeList, CodeListService, TranslationService,} from '@app/domain';
+import {UtilsService} from '@app/services/utils.service';
+import {TranslateService} from '@ngx-translate/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {config} from '@config';
+import {EMPTY, firstValueFrom, Observable, Subject} from 'rxjs';
+import {MatDialog} from '@angular/material/dialog';
+import {DIALOG_EVENTS, DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
+import {ErrorHandlerService} from '@app/services/error-handler.service';
+import {LoggerService} from '@app/services/logger.service';
 
 @Component({
   template: '',
@@ -56,7 +52,7 @@ export abstract class BaseListComponent<T extends Resource>
    * @param utils
    * @param {Router} router - Angular service for navigation
    */
-  constructor(
+  protected constructor(
     protected dialog: MatDialog,
     protected translateService: TranslateService,
     protected translationService: TranslationService,
@@ -219,14 +215,12 @@ export abstract class BaseListComponent<T extends Resource>
       width: '400px',
       data: {
         title: 'common.delete.title',
-        message: 'common.delete.message',
-        confirmText: 'common.delete.confirm',
-        cancelText: 'common.delete.cancel',
+        message: 'common.delete.message'
       },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
+      if (result?.event === DIALOG_EVENTS.ACCEPT) {
         Promise.all(data.map((item) => this.dataDeleteFn(item))).then(() => {
           this.refreshCommandEvent$.next(true);
         });

@@ -1,13 +1,14 @@
-import {Component, OnInit, ChangeDetectorRef} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {Language, LanguageService} from '@app/domain';
 import {LoginService} from '@app/core/auth/login.service';
 
 import {config} from '@config';
 import {TranslateService} from '@ngx-translate/core';
 import {Router} from '@angular/router';
-import {UntypedFormGroup, UntypedFormBuilder, Validators} from '@angular/forms';
+import {UntypedFormBuilder, UntypedFormGroup, Validators} from '@angular/forms';
 import {UtilsService} from '@app/services/utils.service';
 import {LoggerService} from '@app/services/logger.service';
+import {firstValueFrom} from "rxjs";
 
 /** Login component*/
 @Component({
@@ -88,22 +89,21 @@ export class LoginComponent implements OnInit {
   }
 
   private loadLanguages(): Promise<Language[]> {
-    return this.languageService.getAll().toPromise().then((langs) => {
+    return firstValueFrom(this.languageService.getAll()).then((langs) => {
       if (!langs || langs.length === 0) {
         throw new Error('No languages available');
       }
 
       // Sort languages by name
-      const sortedLangs = langs.sort((a, b) => {
+      return langs.sort((a, b) => {
         try {
-          const nameA = this.trans.instant('lang.' + a.name);
-          const nameB = this.trans.instant('lang.' + b.name);
+          const nameA = this.trans.instant('lang.' + a.shortname);
+          const nameB = this.trans.instant('lang.' + b.shortname);
           return nameA.localeCompare(nameB);
         } catch (e) {
-          return a.name.localeCompare(b.name);
+          return a.shortname.localeCompare(b.shortname);
         }
       });
-      return sortedLangs;
     });
   }
 
@@ -158,8 +158,7 @@ export class LoginComponent implements OnInit {
     }
 
     // If all else fails, use first language
-    const finalLang = defaultLang || this.langs[0];
-    return finalLang;
+    return defaultLang ?? this.langs[0];
   }
 
   compareLang(o1: string, o2: string): boolean {

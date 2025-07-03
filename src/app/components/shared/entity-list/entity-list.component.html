@@ -1,0 +1,33 @@
+<mat-toolbar>
+  <span class="spacer"></span>
+  <h4>
+    <mat-icon aria-hidden="true" [svgIcon]="config?.iconName"></mat-icon>
+    <span> {{ config?.entityLabel | translate }}</span>
+  </h4>
+</mat-toolbar>
+<mat-card class="sitmun-mat-card-margin" appearance="outlined">
+  <mat-card-content>
+    <app-data-grid
+      [columnDefs]="columnDefs"
+      [getAll]='dataFetchFn'
+      [globalSearch]="gridOptions.globalSearch"
+      [eventRefreshSubscription]='refreshCommandEvent$.asObservable()'
+      [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
+      [discardChangesButton]="gridOptions.discardChangesButton"
+      [redoButton]="gridOptions.redoButton"
+      [undoButton]="gridOptions.undoButton"
+      [applyChangesButton]="gridOptions.applyChangesButton"
+      [deleteButton]="gridOptions.deleteButton"
+      [newButton]="gridOptions.newButton"
+      [actionButton]="gridOptions.actionButton"
+      [hideReplaceButton]="gridOptions.hideReplaceButton"
+      (remove)="onRemove($event)"
+      (new)='onNew($event)'
+      [defaultColumnSorting]="defaultColumnSorting"
+      (gridModified)='onGridModified($event)'
+      (sendChanges)='onSendChanges($event)'
+      (duplicate)='onDuplicate($event)'
+      *ngIf="dataLoaded">
+    </app-data-grid>
+  </mat-card-content>
+</mat-card> 

@@ -1,7 +1,7 @@
 <mat-toolbar>
   <h4>
     <mat-icon aria-hidden="true" svgIcon="menu_connexio"></mat-icon>
-    <span class="spacer"> {{ "Dashboard" | translate }}</span>
+    <span class="spacer"> {{ "dashboard.title" | translate }}</span>
   </h4>
   <span class="spacer"></span>
 </mat-toolbar>
@@ -36,7 +36,7 @@
     <app-datagraph *ngIf="dataLoaded" [data]="this.usersToShow" type="bar"></app-datagraph>
   </div>
   <div class="gridGraph">
-    <p class="titleGraph">{{ "Usuaris per aplicació" | translate }}
+    <p class="titleGraph">{{ "dashboard.usersPerApplication" | translate }}
       <span *ngIf="!usersPerApplicationDataAvailable">({{ "notAvailable" | translate }})</span>
     </p>
     <app-datagraph *ngIf="dataLoaded" [data]="this.usersPerApplicationChartData" type="bar"></app-datagraph>

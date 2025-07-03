@@ -4,6 +4,7 @@
     <span class="spacer">
       {{ isNew ? (entityType | translate) + ' (' + ('new' | translate) + ')' : itemName }}
       <ng-container *ngIf="additionalText"> - {{ additionalText }}</ng-container>
+      <!-- Test missing key: {{ 'test.missing.key' | translate }} -->
     </span>
   </h4>
   <span class="spacer"></span>
@@ -12,14 +13,16 @@
     mat-mini-fab 
     class="add-half-gap"
     [disabled]="!canSave"
-    (click)="save.emit()">
+    (click)="save.emit()"
+    color="primary">
     <mat-icon fontSet="material-icons-round">save</mat-icon>
   </button>
   <button
     [matTooltip]="'return' | translate"
     mat-mini-fab 
     class="add-half-gap"
-    (click)="back.emit()">
+    (click)="back.emit()"
+    color="primary">
     <mat-icon fontSet="material-icons-round">arrow_back</mat-icon>
   </button>
 </mat-toolbar> 

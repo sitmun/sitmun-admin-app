@@ -1,8 +1,8 @@
-import {Injectable, Injector, Component} from '@angular/core';
+import {Component, Injectable, Injector} from '@angular/core';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateService} from '@ngx-translate/core';
 import {Location} from '@angular/common';
-import {Subject} from 'rxjs';
+import {firstValueFrom, Subject} from 'rxjs';
 import {CodeList, CodeListService, Language, Translation, TranslationService} from '@app/domain';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {DialogMessageComponent, DialogTranslationComponent} from '@app/frontend-gui/src/lib/public_api';
@@ -582,6 +582,10 @@ export class UtilsService {
    *
    * @param alias - The alias used to get the translated header name.
    * @param field - The field name in the data object that this column represents.
+   * @param minWidth
+   * @param maxWidth
+   * @param minWidth
+   * @param maxWidth
    * @returns An object representing the column definition.
    */
   getEditableColumnDef(alias, field, minWidth: number = null, maxWidth: number = null) {
@@ -616,7 +620,7 @@ export class UtilsService {
    * @param openInNewTab - Optional flag to control if links open in new tab. Defaults to true.
    * @returns An object representing the column definition.
    */
-  getEditableColumnWithLinkDef(alias, field, minWidth: number = null, maxWidth: number = null, openInNewTab: boolean = true) {
+  getEditableColumnWithLinkDef(alias, field, minWidth: number = null, maxWidth: number = null, openInNewTab = true) {
     const options = {
       headerName: this.getTranslate(alias),
       field: field,
@@ -669,7 +673,7 @@ export class UtilsService {
         if (fieldValue == null) {
           return '';
         }
-        return this.getTranslate(getDescription(fieldValue));
+        return getDescription(fieldValue);
       },
       cellClass: 'read-only-cell'
     };
@@ -706,6 +710,10 @@ export class UtilsService {
    *
    * @param alias - The alias used for translation of the header name.
    * @param field - The field name for the column, which can be a property path.
+   * @param minWidth
+   * @param maxWidth
+   * @param minWidth
+   * @param maxWidth
    * @returns An object representing the column definition.
    */
   getNonEditableColumnDef(alias, field, minWidth: number = null, maxWidth: number = null) {
@@ -730,7 +738,7 @@ export class UtilsService {
     return options;
   }
 
-  getBooleanColumnDef(alias, field, editable, minWidth: number = null, maxWidth: number = null, autoUnsetOthers: boolean = false) {
+  getBooleanColumnDef(alias, field, editable, minWidth: number = null, maxWidth: number = null, autoUnsetOthers = false) {
     const options = {
       headerName: this.getTranslate(alias),
       field: field,
@@ -886,12 +894,7 @@ export class UtilsService {
     dialogRef.componentInstance.languageByDefault = config.defaultLang;
     dialogRef.componentInstance.languagesAvailables = config.languagesToUse;
 
-    const result = await dialogRef.afterClosed().toPromise();
-    if (result) {
-      return result;
-    } else {
-      return null;
-    }
+    return await firstValueFrom(dialogRef.afterClosed());
   }
 
   /**
@@ -962,6 +965,7 @@ export class UtilsService {
 
 @Component({
   selector: 'app-empty-renderer',
+  standalone: true,
   template: '<div></div>'
 })
 export class EmptyRendererComponent implements ICellRendererAngularComp {

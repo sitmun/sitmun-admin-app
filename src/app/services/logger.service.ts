@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
-import { environment } from '@environments/environment';
-import { LogLevel } from './log-level.enum';
-import StackTrace, { StackFrame } from 'stacktrace-js';
+import {Injectable} from '@angular/core';
+import {environment} from '@environments/environment';
+import {LogLevel} from './log-level.enum';
+import {BehaviorSubject, Observable} from 'rxjs';
+import StackTrace, {StackFrame} from 'stacktrace-js';
 
 /**
  * Logger service for controlling application-wide logging
@@ -13,11 +14,22 @@ export class LoggerService {
   // Current log level - set from environment by default
   private level: LogLevel = environment.logLevel || LogLevel.Error;
 
+  // Subject to track log level changes
+  private logLevelSubject = new BehaviorSubject<LogLevel>(this.level);
+
+  /**
+   * Observable for log level changes
+   */
+  get logLevel$(): Observable<LogLevel> {
+    return this.logLevelSubject.asObservable();
+  }
+
   /**
    * Set the current log level
    */
   setLogLevel(level: LogLevel) {
     this.level = level;
+    this.logLevelSubject.next(level);
   }
 
   /**
@@ -84,7 +96,7 @@ export class LoggerService {
         const trace: StackFrame = stackframes[2];
         const logCaller = `${trace.fileName}:${trace.lineNumber}`;
         const logPrefix = `[${LogLevel[level]}] [${timestamp}] [${logCaller}]`;
-        
+
         if (data.length > 0) {
           console.log(`${logPrefix} ${message}`, ...data);
         } else {

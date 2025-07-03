@@ -1,33 +1,9 @@
-<mat-toolbar>
-  <span class="spacer"></span>
-  <h4>
-    <mat-icon aria-hidden="true" svgIcon="menu_connexio"></mat-icon>
-    <span> {{ "entity.connection.label" | translate }}</span>
-  </h4>
-</mat-toolbar>
-<mat-card class="sitmun-mat-card-margin" appearance="outlined">
-  <mat-card-content>
-    <app-data-grid
-      [columnDefs]="columnDefs"
-      [getAll]='dataFetchFn'
-      [globalSearch]=true
-      [eventRefreshSubscription]='refreshCommandEvent$.asObservable()'
-      [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
-      [discardChangesButton]=false
-      [redoButton]=false
-      [undoButton]=false
-      [applyChangesButton]=false
-      [deleteButton]=true
-      [newButton]=true
-      [actionButton]=true
-      [hideReplaceButton]=true
-      (remove)="removeData($event)"
-      (new)='newData($event)'
-      [defaultColumnSorting]="['name']"
-      (gridModified)='setGridModifiedValue($event)'
-      (sendChanges)='sendChanges($event)'
-      (duplicate)='duplicate($event)'
-      *ngIf="dataLoaded">
-    </app-data-grid>
-  </mat-card-content>
-</mat-card>
+<app-entity-list
+  [config]="entityListConfig"
+  [isDataLoaded]="dataLoaded"
+  (removeData)="removeData($event)"
+  (newDataEvent)='newData()'
+  (gridModifiedEvent)='setGridModifiedValue($event)'
+  (sendChangesEvent)='sendChanges($event)'
+  (duplicateData)='duplicate($event)'>
+</app-entity-list>

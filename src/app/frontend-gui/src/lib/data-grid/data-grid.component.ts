@@ -353,7 +353,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   @Input() hideSearchReplaceButton: boolean;
 
   /** Flag to hide replace button */
-  @Input() hideReplaceButton: boolean = false;
+  @Input() hideReplaceButton = false;
 
   /** Field restriction configuration */
   @Input() addFieldRestriction: any;
@@ -455,10 +455,6 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       },
       rowSelection: 'multiple',
       suppressHorizontalScroll: false,
-      getLocaleText: ({key, defaultValue}) => {
-        const data = this.translate.instant(key);
-        return data === key ? defaultValue : data;
-      },
     }
 
     this.translate = translate;

@@ -8,6 +8,7 @@ import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 import {BaseListComponent} from "@app/components/base-list.component";
+import {EntityListConfig} from "@app/components/shared/entity-list";
 
 @Component({
   selector: 'app-connection',
@@ -15,6 +16,25 @@ import {BaseListComponent} from "@app/components/base-list.component";
   styles: [],
 })
 export class ConnectionComponent extends BaseListComponent<Connection> {
+  entityListConfig: EntityListConfig<Connection> = {
+    entityLabel: 'entity.connection.label',
+    iconName: 'menu_connexio',
+    columnDefs: [],
+    dataFetchFn: () => this.connectionService.getAll(),
+    defaultColumnSorting: ['name'],
+    gridOptions: {
+      globalSearch: true,
+      discardChangesButton: false,
+      redoButton: false,
+      undoButton: false,
+      applyChangesButton: false,
+      deleteButton: true,
+      newButton: true,
+      actionButton: true,
+      hideReplaceButton: true
+    }
+  };
+
   constructor(
     protected override dialog: MatDialog,
     protected override translateService: TranslateService,
@@ -45,7 +65,8 @@ export class ConnectionComponent extends BaseListComponent<Connection> {
   }
 
   override async postFetchData(): Promise<void> {
-    this.columnDefs = [
+    // Set column definitions directly in the config
+    this.entityListConfig.columnDefs = [
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'connection/:id/connectionForm', {id: 'id'}),
       this.utils.getNonEditableColumnWithCodeListDef('entity.connection.driver', 'driver', this.codeList('databaseConnection.driver')),

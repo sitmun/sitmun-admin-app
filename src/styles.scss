@@ -38,8 +38,8 @@
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue. Available color palettes: https://material.io/design/color/
-$sitmun-primary: mat.define-palette(mat.$indigo-palette);
-$sitmun-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
+$sitmun-primary: mat.define-palette(mat.$orange-palette);
+$sitmun-accent: mat.define-palette(mat.$teal-palette, A200, A100, A400);
 
 // The warn palette is optional (defaults to red).
 $sitmun-warn: mat.define-palette(mat.$red-palette);
@@ -76,7 +76,7 @@ body {
 }
 
 #right-column {
-  margin-right: 0%;
+  margin-right: 0;
 }
 
 
@@ -133,16 +133,16 @@ h2 {
 
 
 .basic-container {
-  padding: 0px;
+  padding: 0;
   position: absolute;
-  top: 0px;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 
 .login-container {
-  padding: 0px;
+  padding: 0;
   margin: 50px auto;
   width: 500px;
 }
@@ -359,7 +359,7 @@ h2 {
 
 .rowFormDiv {
   width: 100%;
-  margin: 10px 0px;
+  margin: 10px 0;
   display: flex;
 }
 
@@ -453,7 +453,7 @@ h2 {
 //}
 
 .mat-ink-bar {
-  height: 0px !important;
+  height: 0 !important;
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of tabs that may no longer apply for the MDC version. */
@@ -803,7 +803,7 @@ h4 > .mat-icon {
 
 .sitmun-app-data-grid-edit, .appDataGridEditDiv {
   height: 200px;
-  margin: 20px 0px 60px 0px;
+  margin: 20px 0 60px 0;
 }
 
 .flex-container {
@@ -928,7 +928,7 @@ mat-card-content {
   .mdc-text-field--outlined {
     background: #E8F1DE !important;
   }
-  
+
   .mdc-checkbox {
     background: #E8F1DE !important;
   }
