@@ -254,6 +254,7 @@
   "entity.taskGroup.label": "Grupo de tareas",
   "entity.taskGroup.tasks.header": "Tareas",
   "entity.taskType.label": "Tipo de tarea",
+  "entity.tree.label": "Árboles",
   "entity.user.label": "Usuario",
   "equals": "Igual",
   "error-created": "Se ha producido un error al crear los elementos",

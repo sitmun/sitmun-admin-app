@@ -254,6 +254,7 @@
   "entity.taskGroup.label": "Task group",
   "entity.taskGroup.tasks.header": "Tasks",
   "entity.taskType.label": "Task type",
+  "entity.tree.label": "Trees",
   "entity.user.label": "User",
   "equals": "Equal",
   "error-created": "Error creating items",

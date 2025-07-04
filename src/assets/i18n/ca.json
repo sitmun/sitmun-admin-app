@@ -254,6 +254,7 @@
   "entity.taskGroup.label": "Grup de tasques",
   "entity.taskGroup.tasks.header": "Tasques",
   "entity.taskType.label": "Tipus de tasca",
+  "entity.tree.label": "Arbres",
   "entity.user.label": "Usuari",
   "equals": "Igual",
   "error-created": "S'ha produït un error al crear els elements",
