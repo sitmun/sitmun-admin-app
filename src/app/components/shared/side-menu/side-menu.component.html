@@ -5,20 +5,20 @@
         <li *ngFor="let option of menuOptions" class="side-nav-option">
           <a *ngIf="option.children === null" [routerLink]="[option.id]" routerLinkActive="active">
             <mat-icon aria-hidden="false" aria-label="Example home icon" svgIcon="{{ option.icon }}"></mat-icon>
-            <span>{{ option.id | translate }}</span>
+            <span>{{ option.label | translate }}</span>
           </a>
           <mat-expansion-panel class="mat-elevation-z0 remove-mat-expansion-panel-padding" *ngIf="option.children !== null">
             <mat-expansion-panel-header class="expandible-option">
               <mat-panel-title>
                 <a class="side-nav-option">
                   <mat-icon aria-hidden="false" aria-label="Example home icon" svgIcon="{{ option.icon }}"></mat-icon>
-                  <span>{{ option.translation ? option.translation : option.id | translate }}</span>
+                  <span>{{ option.label | translate }}</span>
                 </a>
               </mat-panel-title>
             </mat-expansion-panel-header>
             <li *ngFor="let expandOption of option.children" class="side-nav-option">
               <a *ngIf="expandOption.children === null" [routerLink]="[expandOption.id]" routerLinkActive="active">
-                <span>{{ (expandOption.translation ? expandOption.translation : expandOption.id) | translate }}</span>
+                <span>{{ expandOption.label | translate }}</span>
               </a>
               <mat-expansion-panel class="mat-elevation-z0 remove-mat-expansion-panel-padding" *ngIf="expandOption.children !== null">
                 <mat-expansion-panel-header class="expandible-option">
@@ -28,7 +28,7 @@
                                 svgIcon="{{ expandOption.icon }}"></mat-icon>
                       <a class="childrenOption">
                         <span
-                          class="expandOptionChildren">{{ (expandOption.translation ? expandOption.translation : expandOption.id) | translate }}
+                          class="expandOptionChildren">{{ expandOption.label | translate }}
                         </span>
                       </a>
                     </a>
@@ -37,7 +37,7 @@
                 <li *ngFor="let expandOptionOfChildren of expandOption.children" class="side-nav-option">
                   <a *ngIf="expandOptionOfChildren.children === null" [routerLink]="[expandOptionOfChildren.id]"
                      routerLinkActive="active">
-                    <span>{{ (expandOptionOfChildren.translation ? expandOptionOfChildren.translation : expandOptionOfChildren.id) | translate }}</span>
+                    <span>{{ expandOptionOfChildren.label| translate }}</span>
                   </a>
                 </li>
               </mat-expansion-panel>
