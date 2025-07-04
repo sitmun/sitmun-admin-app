@@ -1,29 +1,9 @@
-<mat-toolbar>
-  <span class="spacer"></span>
-  <h4>
-    <mat-icon aria-hidden="true" svgIcon="menu_territori"></mat-icon>
-    <span> {{ "territoryEntity.territory" | translate }}</span>
-  </h4>
-</mat-toolbar>
-
-<app-data-grid id="connection"
-               [columnDefs]="columnDefs"
-               [getAll]='getAllTerritories'
-               [globalSearch]=true
-               [eventRefreshSubscription]='dataUpdatedEvent.asObservable()'
-               [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
-               [discardChangesButton]=true
-               [redoButton]=true
-               [undoButton]=true
-               [applyChangesButton]=true
-               [deleteButton]=true
-               [newButton]=true
-               [actionButton]=true
-               (remove)="removeData($event)"
-               (new)='newData($event)'
-               [defaultColumnSorting]="['name']"
-               (gridModified)='setGridModifiedValue($event)'
-               (sendChanges)='applyChanges($event)'
-               (duplicate)='add($event)'>
-</app-data-grid>
-
+<app-entity-list
+  (duplicateData)='duplicate($event)'
+  (gridModifiedEvent)='setGridModifiedValue($event)'
+  (newDataEvent)='newData()'
+  (removeData)="removeData($event)"
+  (sendChangesEvent)='sendChanges($event)'
+  [config]="entityListConfig"
+  [isDataLoaded]="dataLoaded">
+</app-entity-list>

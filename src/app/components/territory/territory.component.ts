@@ -1,143 +1,101 @@
-import {Component, OnInit} from '@angular/core';
-import {TerritoryService, Territory, TerritoryTypeService} from '@app/domain';
-import {UtilsService} from '@app/services/utils.service';
-import {Router} from '@angular/router';
-import {config} from '@config';
-import {Observable, Subject} from 'rxjs';
+import {Component} from '@angular/core';
+import {
+  CodeListService,
+  Territory,
+  TerritoryService,
+  TerritoryType,
+  TerritoryTypeService,
+  TranslationService,
+} from '@app/domain';
+import {TranslateService} from '@ngx-translate/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {firstValueFrom} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
-import {DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
+import {ErrorHandlerService} from '@app/services/error-handler.service';
+import {LoggerService} from '@app/services/logger.service';
+import {UtilsService} from '@app/services/utils.service';
+import {BaseListComponent} from "@app/components/base-list.component";
+import {EntityListConfig} from "@app/components/shared/entity-list";
 
 @Component({
   selector: 'app-territory',
   templateUrl: './territory.component.html',
   styles: []
 })
-export class TerritoryComponent implements OnInit {
-  saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
-  dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
-  themeGrid: any = config.agGridTheme;
-  columnDefs: any[];
-  scopeTypes: any[] = [];
-  territoryTypes: any[] = [];
-  gridModified = false;
-  dataLoaded = false;
+export class TerritoryComponent extends BaseListComponent<Territory> {
+  territoryTypes: TerritoryType[] = [];
 
-
-  constructor(public dialog: MatDialog,
-              public territoryService: TerritoryService,
-              public territoryTypeService: TerritoryTypeService,
-              private utils: UtilsService,
-              private router: Router,
-  ) {
-  }
-
-
-  ngOnInit() {
-
-    const promises: Promise<any>[] = [];
-    promises.push(new Promise((resolve,) => {
-      this.territoryTypeService.getAll().subscribe(
-        resp => {
-          this.territoryTypes.push(...resp);
-          resolve(true);
-        }
-      );
-    }));
-
-
-    const columnEditBtn = this.utils.getEditBtnColumnDef();
-    columnEditBtn['cellRendererParams'] = {
-      clicked: this.newData.bind(this)
-    };
-
-
-    this.columnDefs = [
-      columnEditBtn,
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('territoryEntity.code', 'code'),
-      this.utils.getEditableColumnDef('territoryEntity.name', 'name'),
-      this.utils.getFormattedColumnDef('layersPermitsEntity.type', this.territoryTypes, 'typeId', 'id', 'name'),
-      this.utils.getDateColumnDef('territoryEntity.createdDate', 'createdDate')
-    ];
-    Promise.all(promises).then(() => {
-      this.dataLoaded = true;
-    });
-  }
-
-  async canDeactivate(): Promise<boolean | Observable<boolean>> {
-
-    if (this.gridModified) {
-
-
-      const result = await this.utils.showNavigationOutDialog().toPromise();
-      if (!result || result.event !== 'Accept') {
-        return false;
-      } else if (result.event === 'Accept') {
-        return true;
-      } else {
-        return true;
-      }
-    } else {
-      return true;
+  entityListConfig: EntityListConfig<Territory> = {
+    entityLabel: 'entity.territory.label',
+    iconName: 'menu_territori',
+    columnDefs: [],
+    dataFetchFn: () => this.territoryService.getAll(),
+    defaultColumnSorting: ['name'],
+    gridOptions: {
+      globalSearch: true,
+      discardChangesButton: false,
+      redoButton: false,
+      undoButton: false,
+      applyChangesButton: false,
+      deleteButton: true,
+      newButton: true,
+      actionButton: true,
+      hideReplaceButton: true
     }
-  }
-
-  setGridModifiedValue(value) {
-    this.gridModified = value;
-  }
-
-  getAllTerritories = () => {
-    return this.territoryService.getAll();
   };
 
-  newData(id: any) {
-    this.saveAgGridStateEvent.next(true);
-    this.router.navigate(['territory', id, 'territoryForm']);
+  constructor(
+    protected override dialog: MatDialog,
+    protected override translateService: TranslateService,
+    protected override translationService: TranslationService,
+    protected override codeListService: CodeListService,
+    protected override loggerService: LoggerService,
+    protected override errorHandler: ErrorHandlerService,
+    protected override activatedRoute: ActivatedRoute,
+    protected override utils: UtilsService,
+    protected override router: Router,
+    public territoryService: TerritoryService,
+    public territoryTypeService: TerritoryTypeService
+  ) {
+    super(
+      dialog,
+      translateService,
+      translationService,
+      codeListService,
+      loggerService,
+      errorHandler,
+      activatedRoute,
+      utils,
+      router
+    );
   }
 
-  applyChanges(data: Territory[]) {
-    const promises: Promise<any>[] = [];
-    data.forEach(territory => {
-      promises.push(new Promise((resolve,) => {
-        this.territoryService.update(territory).subscribe(() => {
-          resolve(true);
-        });
-      }));
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
-      });
-    });
+  override async preFetchData(): Promise<void> {
+    this.territoryTypes = await firstValueFrom(this.territoryTypeService.getAll())
   }
 
-  add(data: Territory[]) {
-    this.router.navigate(['territory', -1, 'territoryForm', data[0].id]);
+  override async postFetchData(): Promise<void> {
+    // Set column definitions directly in the config
+    this.entityListConfig.columnDefs = [
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'territory/:id/territoryForm', {id: 'id'}),
+      this.utils.getEditableColumnDef('entity.territory.code', 'code'),
+      this.utils.getFormattedColumnDef('common.form.type', this.territoryTypes, 'typeId', 'id', 'name'),
+      this.utils.getDateColumnDef('common.form.createdDate', 'createdDate')
+    ];
   }
 
-  removeData(data: Territory[]) {
-
-    const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title = this.utils.getTranslate('caution');
-    dialogRef.componentInstance.message = this.utils.getTranslate('removeMessage');
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Accept') {
-          const promises: Promise<any>[] = [];
-          data.forEach(territory => {
-            promises.push(new Promise((resolve,) => {
-              this.territoryService.delete(territory).subscribe(() => {
-                resolve(true);
-              });
-            }));
-            Promise.all(promises).then(() => {
-              this.dataUpdatedEvent.next(true);
-            });
-          });
-        }
-      }
-    });
-
-
+  override async newData() {
+    await this.router.navigate(['territory', -1, 'territoryForm']);
   }
 
+  override async duplicateItem(id: number) {
+    await this.router.navigate(['territory', -1, 'territoryForm', id]);
+  }
+
+  override dataFetchFn = () => this.territoryService.getAll();
+
+  override dataUpdateFn = (data: Territory) => firstValueFrom(this.territoryService.update(data))
+
+  override dataDeleteFn = (data: Territory) => firstValueFrom(this.territoryService.delete(data))
 }
