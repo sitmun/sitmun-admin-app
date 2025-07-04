@@ -1,119 +1,84 @@
-import { Component, OnInit } from '@angular/core';
-import { BackgroundService, Background } from '@app/domain';
-import { UtilsService } from '@app/services/utils.service';
-import { Router } from '@angular/router';
-import { config } from '@config';
-import { Subject, Observable } from 'rxjs';
-import { MatDialog } from '@angular/material/dialog';
-import { DialogMessageComponent } from '@app/frontend-gui/src/lib/public_api';
+import {Component} from '@angular/core';
+import {Background, BackgroundService, CodeListService, TranslationService,} from '@app/domain';
+import {TranslateService} from '@ngx-translate/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {firstValueFrom} from 'rxjs';
+import {MatDialog} from '@angular/material/dialog';
+import {ErrorHandlerService} from '@app/services/error-handler.service';
+import {LoggerService} from '@app/services/logger.service';
+import {UtilsService} from '@app/services/utils.service';
+import {BaseListComponent} from "@app/components/base-list.component";
+import {EntityListConfig} from "@app/components/shared/entity-list";
 
 @Component({
   selector: 'app-background-layers',
   templateUrl: './background-layers.component.html',
   styles: []
 })
-export class BackgroundLayersComponent implements OnInit {
-  saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
-  dataUpdatedEvent: Subject<boolean> = new Subject <boolean>();
-  themeGrid: any = config.agGridTheme;
-  columnDefs: any[];
-  gridModified = false;
+export class BackgroundLayersComponent extends BaseListComponent<Background> {
+  entityListConfig: EntityListConfig<Background> = {
+    entityLabel: 'entity.background.label',
+    iconName: 'menu_capes_fons',
+    columnDefs: [],
+    dataFetchFn: () => this.backgroundService.getAll(),
+    defaultColumnSorting: ['name'],
+    gridOptions: {
+      globalSearch: true,
+      discardChangesButton: false,
+      redoButton: false,
+      undoButton: false,
+      applyChangesButton: false,
+      deleteButton: true,
+      newButton: true,
+      actionButton: true,
+      hideReplaceButton: true
+    }
+  };
 
-  constructor(public dialog: MatDialog,
-    public backgroundService: BackgroundService,
-    private utils: UtilsService,
-    private router: Router,
+  constructor(
+    protected override dialog: MatDialog,
+    protected override translateService: TranslateService,
+    protected override translationService: TranslationService,
+    protected override codeListService: CodeListService,
+    protected override loggerService: LoggerService,
+    protected override errorHandler: ErrorHandlerService,
+    protected override activatedRoute: ActivatedRoute,
+    protected override utils: UtilsService,
+    protected override router: Router,
+    public backgroundService: BackgroundService
   ) {
-
+    super(
+      dialog,
+      translateService,
+      translationService,
+      codeListService,
+      loggerService,
+      errorHandler,
+      activatedRoute,
+      utils,
+      router
+    );
   }
 
-  ngOnInit() {
-
-    const columnEditBtn=this.utils.getEditBtnColumnDef();
-    columnEditBtn['cellRendererParams']= {
-      clicked: this.newData.bind(this)
-    }
-
-
-    this.columnDefs = [
-      columnEditBtn,
+  override async postFetchData(): Promise<void> {
+    // Set column definitions directly in the config
+    this.entityListConfig.columnDefs = [
       this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('backgroundEntity.name','name'),
-      this.utils.getEditableColumnDef('backgroundEntity.description','description'),
-      this.utils.getBooleanColumnDef('backgroundEntity.active', 'active', true),
-      this.utils.getNonEditableColumnDef('backgroundEntity.cartographyGroup','cartographyGroupName'),
-      this.utils.getDateColumnDef('backgroundEntity.createdDate','createdDates')
+      this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'backgroundLayers/:id/backgroundLayersForm', {id: 'id'}),
     ];
-
   }
 
-  async canDeactivate(): Promise<boolean | Observable<boolean>> {
-
-    if (this.gridModified) {
-
-
-      const result = await this.utils.showNavigationOutDialog().toPromise();
-      if(!result || result.event!=='Accept') { return false }
-      else if(result.event ==='Accept') {return true;}
-      else{
-        return true;
-      }
-    }
-    else return true
+  override async newData() {
+    await this.router.navigate(['backgroundLayers', -1, 'backgroundLayersForm']);
   }
 
-  setGridModifiedValue(value){
-    this.gridModified=value;
+  override async duplicateItem(id: number) {
+    await this.router.navigate(['backgroundLayers', -1, 'backgroundLayersForm', id]);
   }
 
-  getAllBackgroundLayers = () => {
+  override dataFetchFn = () => this.backgroundService.getAll();
 
-    return this.backgroundService.getAll()
-  }
+  override dataUpdateFn = (data: Background) => firstValueFrom(this.backgroundService.update(data))
 
-  newData(id: any) {
-    this.saveAgGridStateEvent.next(true);
-    this.router.navigate(['backgroundLayers', id, 'backgroundLayersForm']);
-  }
-
-  applyChanges(data: Background[]) {
-    const promises: Promise<any>[] = [];
-    data.forEach(background => {
-      promises.push(new Promise((resolve, ) => {this.backgroundService.update(background).subscribe(() =>{ resolve(true)})}));
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
-      });
-    });
-  }
-
-  add(data: any[]) {
-    this.saveAgGridStateEvent.next(true);
-    this.router.navigate(['backgroundLayers', -1, 'backgroundLayersForm', data[0].id]);
-
-  }
-
-  removeData(data: Background[]) {
-
-    const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title=this.utils.getTranslate("caution");
-    dialogRef.componentInstance.message=this.utils.getTranslate("removeMessage");
-    dialogRef.afterClosed().subscribe(result => {
-      if(result){
-        if(result.event==='Accept') {
-          const promises: Promise<any>[] = [];
-          data.forEach(background => {
-            promises.push(new Promise((resolve, ) => { this.backgroundService.delete(background).subscribe(() =>{resolve(true)})}));
-            Promise.all(promises).then(() => {
-              this.dataUpdatedEvent.next(true);
-            });
-          });
-       }
-      }
-    });
-
-
-
-  }
-
+  override dataDeleteFn = (data: Background) => firstValueFrom(this.backgroundService.delete(data))
 }
