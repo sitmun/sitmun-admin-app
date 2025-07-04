@@ -1,120 +1,84 @@
-import {Component, OnInit} from '@angular/core';
-import {RoleService, Role} from '@app/domain';
-import {UtilsService} from '@app/services/utils.service';
-import {Router} from '@angular/router';
-import {config} from '@config';
-import {Observable, Subject} from 'rxjs';
+import {Component} from '@angular/core';
+import {CodeListService, Role, RoleService, TranslationService,} from '@app/domain';
+import {TranslateService} from '@ngx-translate/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {firstValueFrom} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
-import {DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
+import {ErrorHandlerService} from '@app/services/error-handler.service';
+import {LoggerService} from '@app/services/logger.service';
+import {UtilsService} from '@app/services/utils.service';
+import {BaseListComponent} from "@app/components/base-list.component";
+import {EntityListConfig} from "@app/components/shared/entity-list";
 
 @Component({
   selector: 'app-role',
   templateUrl: './role.component.html',
-  styles: []
+  styles: [],
 })
-export class RoleComponent implements OnInit {
-  saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
-  dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
-  themeGrid: any = config.agGridTheme;
-  columnDefs: any[];
-  gridModified = false;
+export class RoleComponent extends BaseListComponent<Role> {
+  entityListConfig: EntityListConfig<Role> = {
+    entityLabel: 'entity.role.label',
+    iconName: 'menu_rol',
+    columnDefs: [],
+    dataFetchFn: () => this.roleService.getAll(),
+    defaultColumnSorting: ['name'],
+    gridOptions: {
+      globalSearch: true,
+      discardChangesButton: false,
+      redoButton: false,
+      undoButton: false,
+      applyChangesButton: false,
+      deleteButton: true,
+      newButton: true,
+      actionButton: true,
+      hideReplaceButton: true
+    }
+  };
 
-  constructor(public dialog: MatDialog,
-              public roleService: RoleService,
-              private utils: UtilsService,
-              private router: Router,
+  constructor(
+    protected override dialog: MatDialog,
+    protected override translateService: TranslateService,
+    protected override translationService: TranslationService,
+    protected override codeListService: CodeListService,
+    protected override loggerService: LoggerService,
+    protected override errorHandler: ErrorHandlerService,
+    protected override activatedRoute: ActivatedRoute,
+    protected override utils: UtilsService,
+    protected override router: Router,
+    public roleService: RoleService
   ) {
+    super(
+      dialog,
+      translateService,
+      translationService,
+      codeListService,
+      loggerService,
+      errorHandler,
+      activatedRoute,
+      utils,
+      router
+    );
   }
 
-
-  ngOnInit() {
-
-    const columnEditBtn = this.utils.getEditBtnColumnDef();
-    columnEditBtn['cellRendererParams'] = {
-      clicked: this.newData.bind(this)
-    };
-
-    this.columnDefs = [
-      columnEditBtn,
+  override async postFetchData(): Promise<void> {
+    // Set column definitions directly in the config
+    this.entityListConfig.columnDefs = [
       this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('roleEntity.name', 'name'),
-      this.utils.getEditableColumnDef('roleEntity.note', 'description'),
+      this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'role/:id/roleForm', {id: 'id'}),
     ];
   }
 
-  async canDeactivate(): Promise<boolean | Observable<boolean>> {
-
-    if (this.gridModified) {
-
-
-      const result = await this.utils.showNavigationOutDialog().toPromise();
-      if (!result || result.event !== 'Accept') {
-        return false;
-      } else if (result.event === 'Accept') {
-        return true;
-      } else {
-        return true;
-      }
-    } else {
-      return true;
-    }
+  override async newData() {
+    await this.router.navigate(['role', -1, 'roleForm']);
   }
 
-  setGridModifiedValue(value: boolean) {
-    this.gridModified = value;
+  override async duplicateItem(id: number) {
+    await this.router.navigate(['role', -1, 'roleForm', id]);
   }
 
+  override dataFetchFn = () => this.roleService.getAll();
 
-  getAllRoles = () => {
-    return this.roleService.getAll();
-  };
+  override dataUpdateFn = (data: Role) => firstValueFrom(this.roleService.update(data))
 
-  newData(id: any) {
-    this.saveAgGridStateEvent.next(true);
-    this.router.navigate(['role', id, 'roleForm']);
-  }
-
-  applyChanges(data: Role[]) {
-    const promises: Promise<any>[] = [];
-    data.forEach(role => {
-      promises.push(new Promise((resolve, ) => {
-        this.roleService.update(role).subscribe(() => {
-          resolve(true);
-        });
-      }));
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
-      });
-    });
-  }
-
-  add(data: Role[]) {
-    this.router.navigate(['role', -1, 'roleForm', data[0].id]);
-  }
-
-  removeData(data: Role[]) {
-    const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title = this.utils.getTranslate('caution');
-    dialogRef.componentInstance.message = this.utils.getTranslate('removeMessage');
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Accept') {
-          const promises: Promise<any>[] = [];
-          data.forEach(role => {
-            promises.push(new Promise((resolve, ) => { this.roleService.delete(role).subscribe(() => { resolve(true);
-            })
-            }))
-            ;
-            Promise.all(promises).then(() => {
-              this.dataUpdatedEvent.next(true);
-            });
-          });
-        }
-      }
-    });
-
-
-  }
-
+  override dataDeleteFn = (data: Role) => firstValueFrom(this.roleService.delete(data))
 }
