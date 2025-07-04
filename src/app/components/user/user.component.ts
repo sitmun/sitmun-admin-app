@@ -1,136 +1,86 @@
-import {Component, OnInit} from '@angular/core';
-import {UserService, User} from '@app/domain';
-import {UtilsService} from '@app/services/utils.service';
-import {Router} from '@angular/router';
-import {config} from '@config';
-import {Observable, Subject} from 'rxjs';
+import {Component} from '@angular/core';
+import {CodeListService, TranslationService, User, UserService,} from '@app/domain';
+import {TranslateService} from '@ngx-translate/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {firstValueFrom} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
-import {DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
-import {constants} from '@environments/constants';
-
+import {ErrorHandlerService} from '@app/services/error-handler.service';
+import {LoggerService} from '@app/services/logger.service';
+import {UtilsService} from '@app/services/utils.service';
+import {BaseListComponent} from "@app/components/base-list.component";
+import {EntityListConfig} from "@app/components/shared/entity-list";
 
 @Component({
   selector: 'app-user',
   templateUrl: './user.component.html',
-  styles: []
+  styles: [],
 })
-export class UserComponent implements OnInit {
-  saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
-  dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
-  themeGrid: any = config.agGridTheme;
-  columnDefs: any[];
-  gridModified = false;
+export class UserComponent extends BaseListComponent<User> {
+  entityListConfig: EntityListConfig<User> = {
+    entityLabel: 'entity.user.label',
+    iconName: 'menu_usuari',
+    columnDefs: [],
+    dataFetchFn: () => this.userService.getAll(),
+    defaultColumnSorting: ['name'],
+    gridOptions: {
+      globalSearch: true,
+      discardChangesButton: false,
+      redoButton: false,
+      undoButton: false,
+      applyChangesButton: false,
+      deleteButton: true,
+      newButton: true,
+      actionButton: true,
+      hideReplaceButton: true
+    }
+  };
 
-  constructor(public dialog: MatDialog,
-              public userService: UserService,
-              private utils: UtilsService,
-              private router: Router
+  constructor(
+    protected override dialog: MatDialog,
+    protected override translateService: TranslateService,
+    protected override translationService: TranslationService,
+    protected override codeListService: CodeListService,
+    protected override loggerService: LoggerService,
+    protected override errorHandler: ErrorHandlerService,
+    protected override activatedRoute: ActivatedRoute,
+    protected override utils: UtilsService,
+    protected override router: Router,
+    public userService: UserService
   ) {
-
+    super(
+      dialog,
+      translateService,
+      translationService,
+      codeListService,
+      loggerService,
+      errorHandler,
+      activatedRoute,
+      utils,
+      router
+    );
   }
 
-
-  ngOnInit() {
-
-    const columnEditBtn = this.utils.getEditBtnColumnDef();
-    columnEditBtn['cellRendererParams'] = {
-      clicked: this.newData.bind(this)
-    };
-
-    this.columnDefs = [
-      columnEditBtn,
+  override async postFetchData(): Promise<void> {
+    // Set column definitions directly in the config
+    this.entityListConfig.columnDefs = [
       this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('userEntity.user', 'username'),
-      this.utils.getNonEditableColumnDef('userEntity.firstname', 'firstName'),
-      this.utils.getNonEditableColumnDef('userEntity.lastname', 'lastName'),
+      this.utils.getRouterLinkColumnDef('common.form.name', 'username', 'user/:id/userForm', {id: 'id'}),
+      this.utils.getNonEditableColumnDef('entity.user.firstname', 'firstName'),
+      this.utils.getNonEditableColumnDef('entity.user.lastname', 'lastName'),
     ];
   }
 
-  getAllUsers = () => {
-
-    return this.userService.getAll();
-  };
-
-  async canDeactivate(): Promise<boolean | Observable<boolean>> {
-
-    if (this.gridModified) {
-
-
-      const result = await this.utils.showNavigationOutDialog().toPromise();
-      if (!result || result.event !== 'Accept') {
-        return false;
-      } else if (result.event === 'Accept') {
-        return true;
-      } else {
-        return true;
-      }
-    } else {
-      return true;
-    }
+  override async newData() {
+    await this.router.navigate(['user', -1, 'userForm']);
   }
 
-  setGridModifiedValue(value: boolean) {
-    this.gridModified = value;
+  override async duplicateItem(id: number) {
+    await this.router.navigate(['user', -1, 'userForm', id]);
   }
 
-  newData(id: any) {
-    this.saveAgGridStateEvent.next(true);
-    this.router.navigate(['user', id, 'userForm']);
-  }
+  override dataFetchFn = () => this.userService.getAll();
 
-  applyChanges(data: User[]) {
-    const promises: Promise<any>[] = [];
-    data.forEach(user => {
-      if(!this.isPublic(user)) {
-        promises.push(new Promise((resolve,) => {
-          this.userService.update(user).subscribe(() => {
-            resolve(true);
-          });
-        }));
-      }
-    });
-    Promise.all(promises).then(() => {
-      this.dataUpdatedEvent.next(true);
-    });
-  }
+  override dataUpdateFn = (data: User) => firstValueFrom(this.userService.update(data))
 
-  add(data: User[]) {
-    if (data.length > 0 && !this.isPublic(data[0])) {
-      this.router.navigate(['user', -1, 'userForm', data[0].id]);
-    }
-  }
-
-  removeData(data: User[]) {
-
-    const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title = this.utils.getTranslate('caution');
-    dialogRef.componentInstance.message = this.utils.getTranslate('removeMessage');
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Accept') {
-          const promises: Promise<any>[] = [];
-          data.forEach(user => {
-            if (!this.isPublic(user)) {
-              promises.push(new Promise((resolve, ) => {
-                this.userService.delete(user).subscribe(() => {
-                  resolve(true);
-                });
-              }));
-            }
-          });
-          Promise.all(promises).then(() => {
-            this.dataUpdatedEvent.next(true);
-          });
-        }
-      }
-    });
-
-
-  }
-
-
-  private isPublic(user: User) : boolean {
-    return user.username === constants.codeValue.systemUser.public
-  }
+  override dataDeleteFn = (data: User) => firstValueFrom(this.userService.delete(data))
 }
