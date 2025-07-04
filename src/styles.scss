@@ -941,3 +941,27 @@ mat-card-content {
 .router-link:hover {
   text-decoration: underline;
 }
+
+.url-link {
+  color: #007bff;
+  text-decoration: none;
+  word-break: break-all;
+}
+
+.url-link:hover {
+  text-decoration: underline;
+  color: #0056b3;
+}
+
+.external-link-icon {
+  font-size: 0.8em;
+  margin-left: 2px;
+  opacity: 0.7;
+}
+
+.url-indicator {
+  font-size: 0.8em;
+  margin-left: 4px;
+  opacity: 0.7;
+  color: #007bff;
+}

@@ -168,9 +168,11 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
     }
   }
 
-  passwordChanged(event: InputEvent) {
-    this.entityForm.get('newPassword').setValue(event.data);
-    this.isPasswordBeingEdited = true;
+  passwordChanged(event: Event) {
+    if (event instanceof InputEvent) {
+      this.entityForm.get('newPassword').setValue(event.data);
+      this.isPasswordBeingEdited = true;
+    }
   }
 
   /**

@@ -738,6 +738,59 @@ export class UtilsService {
     return options;
   }
 
+  /**
+   * Generates a non-editable column definition that displays URLs as hyperlinks.
+   *
+   * @param alias - The alias used for translation of the header name.
+   * @param field - The field name for the column, which can be a property path.
+   * @param minWidth - Optional minimum width for the column.
+   * @param maxWidth - Optional maximum width for the column.
+   * @param openInNewTab - Optional flag to control if links open in new tab. Defaults to true.
+   * @returns An object representing the column definition.
+   */
+  getNonEditableColumnWithLinkDef(alias, field, minWidth: number = null, maxWidth: number = null, openInNewTab = true) {
+    const isUrl = (value: string): boolean => {
+      if (!value || typeof value !== 'string') return false;
+      try {
+        const url = new URL(value);
+        return url.protocol === 'http:' || url.protocol === 'https:';
+      } catch {
+        return false;
+      }
+    };
+
+    const options = {
+      headerName: this.getTranslate(alias),
+      field: field,
+      editable: false,
+      cellClass: 'read-only-cell',
+      cellRenderer: (params) => {
+        const value = this.getValueFromPropertyPath(params.data, field);
+        if (!value) return '';
+
+        if (isUrl(value)) {
+          const target = openInNewTab ? '_blank' : '_self';
+          const icon = openInNewTab ? '<span class="external-link-icon">↗</span>' : '';
+          return `<a href="${value}" target="${target}" class="url-link">${value} ${icon}</a>`;
+        }
+        return value;
+      },
+      valueGetter: (params) => {
+        const value = this.getValueFromPropertyPath(params.data, field);
+        return Array.isArray(value) ? value.join(',') : value;
+      },
+    };
+    if (minWidth) {
+      options['minWidth'] = minWidth;
+    }
+    if (maxWidth) {
+      options['maxWidth'] = maxWidth;
+      options['wrapText'] = true;
+      options['autoHeight'] = true;
+    }
+    return options;
+  }
+
   getBooleanColumnDef(alias, field, editable, minWidth: number = null, maxWidth: number = null, autoUnsetOthers = false) {
     const options = {
       headerName: this.getTranslate(alias),

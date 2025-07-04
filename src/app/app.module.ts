@@ -80,6 +80,7 @@ import {RoleFormComponent} from '@app/components/role/role-form/role-form.compon
 import {UserFormComponent} from '@app/components/user/user-form/user-form.component';
 import {TerritoryFormComponent} from '@app/components/territory/territory-form/territory-form.component';
 import {ServiceFormComponent} from '@app/components/service/service-form/service-form.component';
+import {UrlInputDirective} from '@app/components/service/service-form/url-input.directive';
 import {ApplicationFormComponent} from '@app/components/application/application-form/application-form.component';
 import {TreesFormComponent} from '@app/components/trees/trees-form/trees-form.component';
 import {
@@ -282,7 +283,8 @@ function getDefaultLanguage(languages: any[]): string {
     TasksDownloadComponent,
     TasksReportComponent,
     TasksMoreInfoComponent,
-    TranslationDebugComponent
+    TranslationDebugComponent,
+    UrlInputDirective
   ],
   imports: [
     BrowserModule,

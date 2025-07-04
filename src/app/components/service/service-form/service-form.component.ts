@@ -17,7 +17,7 @@ import {
 import {UtilsService} from '@app/services/utils.service';
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import {map} from 'rxjs/operators';
-import {firstValueFrom, of, EMPTY} from 'rxjs';
+import {EMPTY, firstValueFrom, of} from 'rxjs';
 import {MatChipInputEvent} from '@angular/material/chips';
 import {config} from '@config';
 import {

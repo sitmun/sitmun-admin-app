@@ -51,6 +51,7 @@
   "common.form.order": "Order",
   "common.form.password.label": "Password",
   "common.form.password.set": "Password is set",
+  "common.form.replace": "Replace",
   "common.form.required": "Is it required?",
   "common.form.status": "Status",
   "common.form.type": "Type",

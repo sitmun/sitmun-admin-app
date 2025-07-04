@@ -51,6 +51,7 @@
   "common.form.order": "Ordre",
   "common.form.password.label": "Mot de passe",
   "common.form.password.set": "Mot de passe défini",
+  "common.form.replace": "Replace",
   "common.form.required": "Est-il obligatoire?",
   "common.form.status": "Statut",
   "common.form.type": "Type",

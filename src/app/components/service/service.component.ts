@@ -1,127 +1,90 @@
-import {Component, OnInit} from '@angular/core';
-import {ServiceService, Service} from '@app/domain';
-import {UtilsService} from '@app/services/utils.service';
-import {Router} from '@angular/router';
-import {config} from '@config';
-import {Observable, Subject} from 'rxjs';
+import {Component} from '@angular/core';
+import {CodeListService, Service, ServiceService, TranslationService,} from '@app/domain';
+import {TranslateService} from '@ngx-translate/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {firstValueFrom} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
-import {DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
+import {ErrorHandlerService} from '@app/services/error-handler.service';
+import {LoggerService} from '@app/services/logger.service';
+import {UtilsService} from '@app/services/utils.service';
+import {BaseListComponent} from "@app/components/base-list.component";
+import {EntityListConfig} from "@app/components/shared/entity-list";
 
 @Component({
   selector: 'app-service',
   templateUrl: './service.component.html',
-  styleUrls: ['./service.component.scss']
+  styles: [],
 })
-export class ServiceComponent implements OnInit {
-  saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
-  dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
-  themeGrid: any = config.agGridTheme;
-  columnDefs: any[];
-  gridModified = false;
+export class ServiceComponent extends BaseListComponent<Service> {
+  entityListConfig: EntityListConfig<Service> = {
+    entityLabel: 'entity.connection.label',
+    iconName: 'menu_servei',
+    columnDefs: [],
+    dataFetchFn: () => this.serviceService.getAll(),
+    defaultColumnSorting: ['name'],
+    gridOptions: {
+      globalSearch: true,
+      discardChangesButton: false,
+      redoButton: false,
+      undoButton: false,
+      applyChangesButton: false,
+      deleteButton: true,
+      newButton: true,
+      actionButton: true,
+      hideReplaceButton: true
+    }
+  };
 
-  constructor(public dialog: MatDialog,
-              public serviceService: ServiceService,
-              private utils: UtilsService,
-              private router: Router,
+  constructor(
+    protected override dialog: MatDialog,
+    protected override translateService: TranslateService,
+    protected override translationService: TranslationService,
+    protected override codeListService: CodeListService,
+    protected override loggerService: LoggerService,
+    protected override errorHandler: ErrorHandlerService,
+    protected override activatedRoute: ActivatedRoute,
+    protected override utils: UtilsService,
+    protected override router: Router,
+    public serviceService: ServiceService
   ) {
-
+    super(
+      dialog,
+      translateService,
+      translationService,
+      codeListService,
+      loggerService,
+      errorHandler,
+      activatedRoute,
+      utils,
+      router
+    );
   }
 
-  ngOnInit() {
+  override async preFetchData(): Promise<void> {
+    await this.initCodeLists(['databaseConnection.driver']);
+  }
 
-    const columnEditBtn = this.utils.getEditBtnColumnDef();
-    columnEditBtn['cellRendererParams'] = {
-      clicked: this.newData.bind(this)
-    };
-
-    this.columnDefs = [
-      columnEditBtn,
+  override async postFetchData(): Promise<void> {
+    // Set column definitions directly in the config
+    this.entityListConfig.columnDefs = [
       this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('serviceEntity.name', 'name', 300),
-      this.utils.getNonEditableColumnDef('serviceEntity.type', 'type', 120),
-      this.utils.getNonEditableColumnDef('serviceEntity.serviceURL', 'serviceURL'),
+      this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'service/:id/serviceForm', {id: 'id'}),
+      this.utils.getNonEditableColumnDef('common.form.type', 'type'),
+      this.utils.getNonEditableColumnWithLinkDef('entity.service.endpoint', 'serviceURL'),
     ];
   }
 
-  async canDeactivate(): Promise<boolean | Observable<boolean>> {
-
-    if (this.gridModified) {
-
-
-      const result = await this.utils.showNavigationOutDialog().toPromise();
-      if (!result || result.event !== 'Accept') {
-        return false;
-      } else if (result.event === 'Accept') {
-        return true;
-      } else {
-        return true;
-      }
-    } else {
-      return true;
-    }
+  override async newData() {
+    await this.router.navigate(['service', -1, 'serviceForm']);
   }
 
-  setGridModifiedValue(value) {
-    this.gridModified = value;
+  override async duplicateItem(id: number) {
+    await this.router.navigate(['service', -1, 'serviceForm', id]);
   }
 
-  getAllConnections = () => {
+  override dataFetchFn = () => this.serviceService.getAll();
 
-    return this.serviceService.getAll();
-  };
+  override dataUpdateFn = (data: Service) => firstValueFrom(this.serviceService.update(data))
 
-  newData(id: any) {
-    this.saveAgGridStateEvent.next(true);
-    this.router.navigate(['service', id, 'serviceForm']);
-  }
-
-  applyChanges(data: Service[]) {
-    const promises: Promise<any>[] = [];
-    data.forEach(service => {
-      promises.push(new Promise((resolve,) => {
-        this.serviceService.update(service).subscribe(() => {
-          resolve(true);
-        });
-      }))
-      ;
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
-      });
-    });
-  }
-
-  add(data: Service[]) {
-    this.router.navigate(['service', -1, 'serviceForm', data[0].id]);
-  }
-
-  removeData(data: Service[]) {
-
-
-    const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title = this.utils.getTranslate('caution');
-    dialogRef.componentInstance.message = this.utils.getTranslate('removeMessage');
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Accept') {
-          const promises: Promise<any>[] = [];
-          data.forEach(service => {
-            promises.push(new Promise((resolve, ) => {
-              this.serviceService.delete(service).subscribe(() => {
-                resolve(true);
-              });
-            }))
-            ;
-            Promise.all(promises).then(() => {
-              this.dataUpdatedEvent.next(true);
-            });
-          });
-        }
-      }
-    });
-
-
-  }
-
-
+  override dataDeleteFn = (data: Service) => firstValueFrom(this.serviceService.delete(data))
 }
