@@ -1,138 +1,89 @@
-import {Component, OnInit} from '@angular/core';
-import {CartographyGroupService, CartographyGroup} from '@app/domain';
-import { HalOptions, HalParam } from '@app/core/hal/rest/rest.service';
-import {UtilsService} from '@app/services/utils.service';
-import {Router} from '@angular/router';
-import {config} from '@config';
-import {Subject} from 'rxjs';
+import {Component} from '@angular/core';
+import {CartographyGroup, CartographyGroupService, CodeListService, TranslationService,} from '@app/domain';
+import {TranslateService} from '@ngx-translate/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {firstValueFrom} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
-import {DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
-import {Observable} from 'rxjs';
-import {constants} from '@environments/constants';
+import {ErrorHandlerService} from '@app/services/error-handler.service';
+import {LoggerService} from '@app/services/logger.service';
+import {UtilsService} from '@app/services/utils.service';
+import {BaseListComponent} from "@app/components/base-list.component";
+import {EntityListConfig} from "@app/components/shared/entity-list";
 
 @Component({
   selector: 'app-layers-permits',
   templateUrl: './layers-permits.component.html',
-  styles: []
+  styles: [],
 })
-export class LayersPermitsComponent implements OnInit {
-  saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
-  dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
-  themeGrid: any = config.agGridTheme;
-  columnDefs: any[];
-  gridModified = false;
-
-  permissionGroupTypes: any[] = [];
-
-  constructor(public dialog: MatDialog,
-              public cartographyGroupService: CartographyGroupService,
-              private utils: UtilsService,
-              private router: Router
-  ) {
-
-  }
-
-  ngOnInit() {
-
-    this.utils.getCodeListValues('cartographyPermission.type').subscribe(
-      resp => {
-        this.permissionGroupTypes.push(...resp);
-      }
-    );
-    const columnEditBtn = this.utils.getEditBtnColumnDef();
-    columnEditBtn['cellRendererParams'] = {
-      clicked: this.newData.bind(this)
-    };
-
-    this.columnDefs = [
-      columnEditBtn,
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('layersPermitsEntity.name', 'name'),
-      this.utils.getFormattedColumnDef('layersPermitsEntity.type', this.permissionGroupTypes, 'type')
-    ];
-
-  }
-
-  async canDeactivate(): Promise<boolean | Observable<boolean>> {
-
-    if (this.gridModified) {
-
-
-      const result = await this.utils.showNavigationOutDialog().toPromise();
-      if (!result || result.event !== 'Accept') {
-        return false;
-      } else if (result.event === 'Accept') {
-        return true;
-      } else {
-        return true;
-      }
-    } else {
-      return true;
+export class LayersPermitsComponent extends BaseListComponent<CartographyGroup> {
+  entityListConfig: EntityListConfig<CartographyGroup> = {
+    entityLabel: 'entity.CartographyGroup.label',
+    iconName: 'menu_connexio',
+    columnDefs: [],
+    dataFetchFn: () => this.cartographyGroupService.getAll(),
+    defaultColumnSorting: ['name'],
+    gridOptions: {
+      globalSearch: true,
+      discardChangesButton: false,
+      redoButton: false,
+      undoButton: false,
+      applyChangesButton: false,
+      deleteButton: true,
+      newButton: true,
+      actionButton: true,
+      hideReplaceButton: true
     }
-  }
-
-  setGridModifiedValue(value) {
-    this.gridModified = value;
-  }
-
-  getAllLayersPermits = () => {
-    const params2: HalParam[] = [];
-    const param: HalParam[] = [
-      {key: 'type', value: constants.codeValue.cartographyPermissionType.report},
-      {key: 'type', value: constants.codeValue.cartographyPermissionType.cartographyGroup},
-      {key: 'type', value: constants.codeValue.cartographyPermissionType.locationMap}];
-    params2.push(...param);
-    const query: HalOptions = {params: params2};
-    return this.cartographyGroupService.getAll(query, null, null, true);
   };
 
-  newData(id: any) {
-    this.saveAgGridStateEvent.next(true);
-    this.router.navigate(['layersPermits', id, 'layersPermitsForm']);
+  constructor(
+    protected override dialog: MatDialog,
+    protected override translateService: TranslateService,
+    protected override translationService: TranslationService,
+    protected override codeListService: CodeListService,
+    protected override loggerService: LoggerService,
+    protected override errorHandler: ErrorHandlerService,
+    protected override activatedRoute: ActivatedRoute,
+    protected override utils: UtilsService,
+    protected override router: Router,
+    public cartographyGroupService: CartographyGroupService
+  ) {
+    super(
+      dialog,
+      translateService,
+      translationService,
+      codeListService,
+      loggerService,
+      errorHandler,
+      activatedRoute,
+      utils,
+      router
+    );
   }
 
-  applyChanges(data: CartographyGroup[]) {
-    const promises: Promise<any>[] = [];
-    data.forEach(cartographyGroup => {
-      promises.push(new Promise((resolve,) => {
-        this.cartographyGroupService.update(cartographyGroup).subscribe(() => {
-          resolve(true);
-        });
-      }));
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
-      });
-    });
+  override async preFetchData(): Promise<void> {
+    await this.initCodeLists(['cartographyPermission.type']);
   }
 
-  add(data: CartographyGroup[]) {
-    this.router.navigate(['layersPermits', -1, 'layersPermitsForm', data[0].id]);
+  override async postFetchData(): Promise<void> {
+    // Set column definitions directly in the config
+    this.entityListConfig.columnDefs = [
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'layersPermits/:id/layersPermitsForm', {id: 'id'}),
+      this.utils.getNonEditableColumnWithCodeListDef('common.form.type', 'type', this.codeList('cartographyPermission.type')),
+    ];
   }
 
-  removeData(data: CartographyGroup[]) {
-    const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title = this.utils.getTranslate('caution');
-    dialogRef.componentInstance.message = this.utils.getTranslate('removeMessage');
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Accept') {
-          const promises: Promise<any>[] = [];
-          data.forEach(cartographyGroup => {
-            promises.push(new Promise((resolve,) => {
-              this.cartographyGroupService.delete(cartographyGroup).subscribe(() => {
-                resolve(true);
-              });
-            }));
-            Promise.all(promises).then(() => {
-              this.dataUpdatedEvent.next(true);
-            });
-          });
-
-        }
-      }
-    });
-
+  override async newData() {
+    await this.router.navigate(['layersPermits', -1, 'layersPermitsForm']);
   }
 
+  override async duplicateItem(id: number) {
+    await this.router.navigate(['layersPermits', -1, 'layersPermitsForm', id]);
+  }
+
+  override dataFetchFn = () => this.cartographyGroupService.getAll();
+
+  override dataUpdateFn = (data: CartographyGroup) => firstValueFrom(this.cartographyGroupService.update(data))
+
+  override dataDeleteFn = (data: CartographyGroup) => firstValueFrom(this.cartographyGroupService.delete(data))
 }
