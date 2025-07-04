@@ -37,12 +37,12 @@ export class UtilsService {
   private codeListService: CodeListService;
 
   constructor(
-    private translate: TranslateService,
+    private readonly translate: TranslateService,
     public dialog: MatDialog,
-    private snackBar: MatSnackBar,
-    private http: HttpClient,
-    private location: Location,
-    private injector: Injector,
+    private readonly snackBar: MatSnackBar,
+    private readonly http: HttpClient,
+    private readonly location: Location,
+    private readonly injector: Injector,
     private loggerService: LoggerService
   ) {
     // Lazy load services to break circular dependency
@@ -424,7 +424,7 @@ export class UtilsService {
   getIdColumnDef(customId?) {
     return {
       headerName: 'Id',
-      field: customId ? customId : 'id',
+      field: customId ?? 'id',
       editable: false,
       cellClass: 'read-only-cell',
       lockPosition: true,
@@ -495,7 +495,7 @@ export class UtilsService {
       field: field,
       filter: 'agDateColumnFilter',
       filterParams: this.getDateFilterParams(),
-      editable: editable ? editable : false,
+      editable: editable ?? false,
       cellRenderer: (data) => {
         return this.getDateFormated(data);
       },
@@ -609,6 +609,17 @@ export class UtilsService {
     return options
   }
 
+  isUrl = (value: string): boolean => {
+    if (!value || typeof value !== 'string') return false;
+    try {
+      const url = new URL(value);
+      return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  };
+
+
   /**
    * Generates a column definition object for an editable column that renders as a link.
    * The link is clickable but the text can also be edited.
@@ -621,13 +632,21 @@ export class UtilsService {
    * @returns An object representing the column definition.
    */
   getEditableColumnWithLinkDef(alias, field, minWidth: number = null, maxWidth: number = null, openInNewTab = true) {
+
     const options = {
       headerName: this.getTranslate(alias),
       field: field,
       editable: true,
-      cellRenderer: 'editableLinkRenderer',
-      cellRendererParams: {
-        openInNewTab: openInNewTab
+      cellRenderer: (params) => {
+        const value = this.getValueFromPropertyPath(params.data, field);
+        if (!value) return '';
+
+        if (this.isUrl(value)) {
+          const target = openInNewTab ? '_blank' : '_self';
+          const icon = openInNewTab ? '<span class="external-link-icon">↗</span>' : '';
+          return `<a href="${value}" target="${target}" class="url-link">${value} ${icon}</a>`;
+        }
+        return value;
       },
       valueGetter: (params) => {
         const value = this.getValueFromPropertyPath(params.data, field);
@@ -749,15 +768,6 @@ export class UtilsService {
    * @returns An object representing the column definition.
    */
   getNonEditableColumnWithLinkDef(alias, field, minWidth: number = null, maxWidth: number = null, openInNewTab = true) {
-    const isUrl = (value: string): boolean => {
-      if (!value || typeof value !== 'string') return false;
-      try {
-        const url = new URL(value);
-        return url.protocol === 'http:' || url.protocol === 'https:';
-      } catch {
-        return false;
-      }
-    };
 
     const options = {
       headerName: this.getTranslate(alias),
@@ -768,7 +778,7 @@ export class UtilsService {
         const value = this.getValueFromPropertyPath(params.data, field);
         if (!value) return '';
 
-        if (isUrl(value)) {
+        if (this.isUrl(value)) {
           const target = openInNewTab ? '_blank' : '_self';
           const icon = openInNewTab ? '<span class="external-link-icon">↗</span>' : '';
           return `<a href="${value}" target="${target}" class="url-link">${value} ${icon}</a>`;
@@ -919,9 +929,7 @@ export class UtilsService {
       Translation
     >();
 
-    const languagesToUse = config.languagesToUse
-      ? config.languagesToUse
-      : JSON.parse(localStorage.getItem('languages'));
+    const languagesToUse = config.languagesToUse ?? JSON.parse(localStorage.getItem('languages'));
     if (languagesToUse) {
       languagesToUse.forEach((language: Language) => {
         const currentTranslation: Translation = new Translation();

@@ -4,9 +4,9 @@ import {Directive, ElementRef, HostListener, Input, OnInit} from '@angular/core'
   selector: '[appUrlInput]'
 })
 export class UrlInputDirective implements OnInit {
-  @Input() appUrlInput: string = '';
+  @Input() appUrlInput = '';
 
-  constructor(private el: ElementRef) {
+  constructor(private readonly el: ElementRef) {
   }
 
   ngOnInit() {

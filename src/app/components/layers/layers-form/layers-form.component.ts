@@ -1,52 +1,57 @@
 import {Component, TemplateRef, ViewChild} from '@angular/core';
-import {FormControl, FormGroup, UntypedFormControl, UntypedFormGroup, Validators, AbstractControl, ValidationErrors, ValidatorFn} from '@angular/forms';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  UntypedFormControl,
+  UntypedFormGroup,
+  ValidationErrors,
+  ValidatorFn,
+  Validators
+} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {
-  CartographyService,
-  ServiceService,
-  CartographyFilterService,
-  TerritoryTypeService,
-  ConnectionService,
-  TreeNodeService,
-  TerritoryService,
-  CartographyAvailabilityService,
-  TranslationService,
-  Translation,
-  CartographyProjection,
-  CodeListService,
-  CartographyGroupService,
-  TreeNodeProjection,
   Cartography,
-  GetInfoService,
-  CartographySpatialSelectionParameterService,
-  CartographyParameterService,
-  CartographyStyleService,
-  CartographyGroupProjection, TerritoryProjection,
-  CartographyAvailabilityProjection,
   CartographyAvailability,
-  CartographyStyle,
-  CartographyFilterProjection,
+  CartographyAvailabilityProjection,
+  CartographyAvailabilityService,
   CartographyFilter,
-  CartographyParameter
-}
-  from '@app/domain';
+  CartographyFilterProjection,
+  CartographyFilterService,
+  CartographyGroupProjection,
+  CartographyGroupService,
+  CartographyParameter,
+  CartographyParameterService,
+  CartographyProjection,
+  CartographyService,
+  CartographySpatialSelectionParameterService,
+  CartographyStyle,
+  CartographyStyleService,
+  CodeListService,
+  ConnectionService,
+  GetInfoService,
+  ServiceService,
+  TerritoryProjection,
+  TerritoryService,
+  TerritoryTypeService,
+  Translation,
+  TranslationService,
+  TreeNodeProjection,
+  TreeNodeService
+} from '@app/domain';
 import {UtilsService} from '@app/services/utils.service';
 import {map} from 'rxjs/operators';
-import {firstValueFrom, of, Subject, EMPTY} from 'rxjs';
-import {
-  onCreate, onDelete,
-  onUpdate,
-  Status
-} from '@app/frontend-gui/src/lib/public_api';
+import {EMPTY, firstValueFrom, Subject} from 'rxjs';
+import {onCreate, onDelete, onUpdate, Status} from '@app/frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
 import {constants} from '@environments/constants';
 import {LoggerService} from '@app/services/logger.service';
 import {BaseFormComponent} from '@app/components/base-form.component';
-import { TranslateService } from '@ngx-translate/core';
+import {TranslateService} from '@ngx-translate/core';
 import {ErrorHandlerService} from "@app/services/error-handler.service";
-import { DataTableDefinition, TemplateDialog } from '@app/components/data-tables.util';
+import {DataTableDefinition, TemplateDialog} from '@app/components/data-tables.util';
 import {HttpClient} from "@angular/common/http";
-import { FeatureFlagService } from '@app/core/features/feature-flag.service';
+import {FeatureFlagService} from '@app/core/features/feature-flag.service';
 
 @Component({
   selector: 'app-layers-form',
@@ -110,7 +115,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
   }) private newTerritorialFilterDialog: TemplateRef<any>;
 
   @ViewChild('newStyleDialog', { static: true})
-  private newStyleDialog: TemplateRef<any>;
+  private readonly newStyleDialog: TemplateRef<any>;
 
   columnDefsCartographyGroupsDialog: any[];
 
@@ -267,13 +272,10 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     });
 
     if (this.isNew()) {
-      // this.entityForm.get('applyFilterToGetMap').disable();
       this.entityForm.get('spatialSelectionServiceId').disable();
       this.entityForm.get('joinedSelectableLayers').disable();
-      // this.entityForm.get('queryableFeatureAvailable').disable();
       this.entityForm.get('joinedQueryableLayers').disable();
     } else if (!this.entityToEdit.queryableFeatureEnabled) {
-      // this.entityForm.get('queryableFeatureAvailable').disable();
       this.entityForm.get('joinedQueryableLayers').disable();
     }
   }
@@ -638,6 +640,11 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
 
     const availableLayers = joinedLayers.filter(layer => !queryableLayers.includes(layer));
     return availableLayers.join(', ');
+  }
+
+  getServiceName(serviceId: number): string {
+    const service = this.services.find(s => s.id === serviceId);
+    return service ? service.name : '';
   }
 }
 
