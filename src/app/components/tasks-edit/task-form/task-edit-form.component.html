@@ -1,0 +1,155 @@
+<app-form-toolbar
+  (back)="utils.navigateBack()"
+  (save)="onSaveButtonClicked()"
+  [additionalText]="taskTypeNameTranslated"
+  [isNew]="isNew()"
+  [itemName]="entityForm?.get('name')?.value"
+  entityType="entity.task.edit.label"
+  icon="menu_tasques">
+</app-form-toolbar>
+
+<mat-tab-group
+  [dynamicHeight]="true"
+  mat-align-tabs="end"
+  mat-stretch-tabs="false"
+  preserveContent="true">
+  <mat-tab label="{{ 'common.form.details' | translate }}">
+    <form *ngIf="dataLoaded" [formGroup]='entityForm'>
+      <mat-card appearance="outlined" class="sitmun-mat-card-margin">
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'common.form.name' | translate }}</mat-label>
+            <input [maxlength]="512" formControlName="name" matInput required type="text">
+            <mat-hint [class.text-warning]="entityForm.get('name')?.value?.length > 512" align="end">
+              {{ entityForm.get('name') | characterCount }}
+              <mat-icon *ngIf="entityForm.get('name')?.value?.length > 512" class="warning-icon"
+                        fontIcon="warning"></mat-icon>
+            </mat-hint>
+            <mat-icon (click)="onTranslated('name')" class="iconTranslate"
+                      matSuffix
+                      onKeyDown="onTranslated('name')"
+                      svgIcon="ic_translate"></mat-icon>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="half">
+            <mat-label>{{ 'entity.taskGroup.label' | translate }}</mat-label>
+            <mat-select class="form-control" formControlName="taskGroupId">
+              <mat-select-trigger>
+                <ng-container *ngIf="entityForm.get('taskGroupId')?.value as taskGroupId">
+                  <a [routerLink]="['/taskGroup', taskGroupId, 'taskGroupForm']"
+                     class="router-link">
+                    {{ getTaskGroupName(taskGroupId) }}
+                  </a>
+                </ng-container>
+              </mat-select-trigger>
+              <mat-option *ngFor="let taskGroup of taskGroupList" [value]="taskGroup.id">
+                <a [routerLink]="['/taskGroup', taskGroup.id, 'taskGroupForm']"
+                   class="router-link">
+                  {{ taskGroup.name }}
+                </a>
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+    </form>
+  </mat-tab>
+  <mat-tab label="{{ 'entity.task.parameters.header' | translate }}">
+    <mat-card appearance="outlined" class="sitmun-mat-card-margin">
+      <mat-card-content>
+        <app-data-grid (duplicate)='parametersTable.duplicateRelations($event)'
+                       (getAllRows)="parametersTable.handleSaveRelations($event)"
+                       (new)="parametersTable.openTemplateDialog('newParameterDialog')"
+                       *ngIf="dataLoaded"
+                       [actionButton]=true
+                       [allNewElements]="isNewOrDuplicated()"
+                       [changeHeightButton]="true"
+                       [columnDefs]='parametersTable.relationsColumnsDefs'
+                       [defaultColumnSorting]="parametersTable.defaultRelationsSorting()"
+                       [deleteButton]=true
+                       [discardChangesButton]=true
+                       [eventAddItemsSubscription]='parametersTable.addCommandEvent$.asObservable()'
+                       [eventGetAllRowsSubscription]='parametersTable.saveCommandEvent$.asObservable()'
+                       [eventRefreshSubscription]='parametersTable.refreshCommandEvent$.asObservable()'
+                       [getAll]='parametersTable.relationsFetchFn'
+                       [newButton]=true
+                       [redoButton]=true
+                       [undoButton]=true
+        ></app-data-grid>
+      </mat-card-content>
+    </mat-card>
+  </mat-tab>
+  <mat-tab label="{{ 'entity.task.roles.header' | translate }}">
+    <mat-card appearance="outlined" class="sitmun-mat-card-margin">
+      <mat-card-content>
+        <app-data-grid (add)="rolesTable.openDialog($event)"
+                       (getAllRows)="rolesTable.handleSaveRelations($event)"
+                       *ngIf="dataLoaded"
+                       [actionButton]=true
+                       [addButton]=true
+                       [allNewElements]="isNewOrDuplicated()"
+                       [changeHeightButton]="true"
+                       [columnDefs]='rolesTable.relationsColumnsDefs'
+                       [defaultColumnSorting]='rolesTable.defaultRelationsSorting()'
+                       [deleteButton]=true
+                       [discardChangesButton]=true
+                       [eventAddItemsSubscription]='rolesTable.addCommandEvent$.asObservable()'
+                       [eventGetAllRowsSubscription]='rolesTable.saveCommandEvent$.asObservable()'
+                       [eventRefreshSubscription]='rolesTable.refreshCommandEvent$.asObservable()'
+                       [getAll]='rolesTable.relationsFetchFn'
+                       [hideDuplicateButton]=true
+                       [redoButton]=true
+                       [undoButton]=true
+        ></app-data-grid>
+      </mat-card-content>
+    </mat-card>
+  </mat-tab>
+  <mat-tab label="{{ 'entity.task.territories.header' | translate }}">
+    <mat-card appearance="outlined" class="sitmun-mat-card-margin">
+      <mat-card-content>
+        <app-data-grid (add)="availabilitiesTable.openDialog($event)"
+                       (getAllRows)="availabilitiesTable.handleSaveRelations($event)"
+                       *ngIf="dataLoaded"
+                       [actionButton]=true
+                       [addButton]=true
+                       [allNewElements]="isNewOrDuplicated()"
+                       [changeHeightButton]="true"
+                       [columnDefs]='availabilitiesTable.relationsColumnsDefs'
+                       [defaultColumnSorting]='availabilitiesTable.defaultRelationsSorting()'
+                       [deleteButton]=true
+                       [discardChangesButton]=true
+                       [eventAddItemsSubscription]='availabilitiesTable.addCommandEvent$.asObservable()'
+                       [eventGetAllRowsSubscription]='availabilitiesTable.saveCommandEvent$.asObservable()'
+                       [eventRefreshSubscription]='availabilitiesTable.refreshCommandEvent$.asObservable()'
+                       [getAll]='availabilitiesTable.relationsFetchFn'
+                       [hideDuplicateButton]=true
+                       [hideReplaceButton]=true
+                       [redoButton]=true
+                       [undoButton]=true
+        ></app-data-grid>
+      </mat-card-content>
+    </mat-card>
+  </mat-tab>
+</mat-tab-group>
+
+<ng-template #newParameterDialog>
+  <form [formGroup]="parametersTable.templateDialog('newParameterDialog').form">
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ 'common.form.name' | translate }}</mat-label>
+          <input formControlName="name" matInput required type="text">
+        </mat-form-field>
+        <mat-radio-group formControlName="type" required>
+          <mat-label class="requiredInput">{{ 'common.form.type' | translate }}</mat-label>
+          <mat-radio-button *ngFor="let paramType of codeList('taskEntity.jsonParamType')" [value]="paramType.type">
+            {{ paramType.description | translate }}
+          </mat-radio-button>
+        </mat-radio-group>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ 'common.form.value' | translate }}</mat-label>
+          <input formControlName="value" matInput type="text">
+        </mat-form-field>
+      </mat-card-content>
+    </mat-card>
+  </form>
+</ng-template>

@@ -50,66 +50,65 @@ export const constants = {
   menus: [
     [
       {
-        id: 'connection',
+        id: 'entity.connection.label',
         icon: 'menu_connexio',
         children: null,
       },
       {
-        id: 'service',
+        id: 'entity.service.label',
         icon: 'menu_servei',
         children: null,
       },
       {
-        id: 'layers',
+        id: 'entity.layer.label',
         icon: 'menu_capes',
         children: null,
       },
       {
-        id: 'trees',
+        id: 'entity.tree.label',
         icon: 'menu_arbres',
         children: null,
       },
       {
-        id: 'backgroundLayers',
+        id: 'entity.background.label',
         icon: 'menu_capes_fons',
         children: null,
       }
     ],
     [
       {
-        id: 'layersPermits',
+        id: 'entity.permissionGroup.label',
         icon: 'menu_permisos',
         children: null,
       },
       {
-        id: 'territory',
+        id: 'entity.territory.label',
         icon: 'menu_territori',
         children: null,
       },
       {
-        id: 'role',
+        id: 'entity.role.label',
         icon: 'menu_rol',
         children: null,
       },
       {
-        id: 'user',
+        id: 'entity.user.label',
         icon: 'menu_usuari',
         children: null,
       },
     ],
     [
       {
-        id: 'taskGroup',
+        id: 'entity.taskGroup.label',
         icon: 'ic_gruptasca',
         children: null,
       },
       {
-        id: 'tasks',
+        id: 'entity.task.label',
         icon: 'menu_tasques',
         children: [
           {
-            id: 'tasksBasic',
-            translation: 'basics',
+            id: 'entity.task.basic.label',
             children: null,
           },
           /*
@@ -119,12 +118,16 @@ export const constants = {
           },
 
           {
-            id: 'tasksDocument',
+            id: 'entity.task.document.label',
             children: null,
           },
           */
           {
-            id: 'tasksQuery',
+            id: 'entity.task.query.label',
+            children: null,
+          },
+          {
+            id: 'entity.task.edit.label',
             children: null,
           },
           /*
@@ -175,7 +178,7 @@ export const constants = {
     ],
     [
       {
-        id: 'application',
+        id: 'entity.application.label',
         icon: 'menu_aplicacio',
         children: null,
       }

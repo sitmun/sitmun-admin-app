@@ -13,17 +13,17 @@ import {config} from '@config';
 import {HalOptions, HalParam} from '@app/core/hal'
 
 @Component({
-  selector: 'app-tasks-basic',
-  templateUrl: './tasks-basic.component.html',
+  selector: 'app-tasks-edit',
+  templateUrl: './tasks-edit.component.html',
   styles: []
 })
-export class TasksBasicComponent extends BaseListComponent<Task> {
+export class TasksEditComponent extends BaseListComponent<Task> {
   entityListConfig: EntityListConfig<Task> = {
-    entityLabel: 'entity.task.basic.label',
+    entityLabel: 'entity.task.edit.label',
     iconName: 'menu_tasques',
     columnDefs: [],
     dataFetchFn: () => {
-      const taskTypeID = config.tasksTypes.basic;
+      const taskTypeID = config.tasksTypes.edit;
       const params2: HalParam[] = [];
       const param: HalParam = {key: 'type.id', value: taskTypeID};
       params2.push(param);
@@ -73,16 +73,16 @@ export class TasksBasicComponent extends BaseListComponent<Task> {
     // Set column definitions directly in the config
     this.entityListConfig.columnDefs = [
       this.utils.getSelCheckboxColumnDef(),
-      this.utils.getRouterLinkColumnDef('common.form.name', 'name', `taskBasic/:id/${config.tasksTypes.basic}`, {id: 'id'}),
+      this.utils.getRouterLinkColumnDef('common.form.name', 'name', `taskEdit/:id/${config.tasksTypes.edit}`, {id: 'id'}),
     ];
   }
 
   override async newData() {
-    await this.router.navigate(['taskBasic', -1, config.tasksTypes.basic]);
+    await this.router.navigate(['taskEdit', -1, config.tasksTypes.edit]);
   }
 
   override async duplicateItem(id: number) {
-    await this.router.navigate(['taskBasic', -1, config.tasksTypes.basic, id]);
+    await this.router.navigate(['taskEdit', -1, config.tasksTypes.edit, id]);
   }
 
   override dataFetchFn = () => this.taskService.getAll();

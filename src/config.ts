@@ -2,6 +2,7 @@ export const config = {
   agGridTheme: "ag-theme-balham",
   scopeTypes: ['selectType', 'Municipal', 'Supramunicipal', 'Total'],
   tasksTypes: {
+    'edit': 0,
     'basic': 1,
     'download': 2,
     'document': 3,

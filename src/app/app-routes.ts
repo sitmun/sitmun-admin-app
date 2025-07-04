@@ -1,34 +1,40 @@
-import { Routes, RouterModule } from '@angular/router';
-import { LoginComponent } from '@app/components/login/login.component';
-import { ConnectionComponent } from '@app/components/connection/connection.component';
-import { ServiceComponent } from '@app/components/service/service.component';
-import { LayersComponent } from '@app/components/layers/layers.component';
-import { TreesComponent } from '@app/components/trees/trees.component';
-import { BackgroundLayersComponent } from '@app/components/background-layers/background-layers.component';
-import { LayersPermitsComponent } from '@app/components/layers-permits/layers-permits.component';
-import { TerritoryComponent } from '@app/components/territory/territory.component';
-import { RoleComponent } from '@app/components/role/role.component';
-import { UserComponent } from '@app/components/user/user.component';
-import { ApplicationComponent } from '@app/components/application/application.component';
-import { TasksQueryComponent } from '@app/components/tasks-query/tasks-query.component';
-import { TaskQueryFormComponent } from '@app/components/tasks-query/task-form/task-query-form.component';
-import { ConnectionFormComponent } from '@app/components/connection/connection-form/connection-form.component';
-import { RoleFormComponent } from '@app/components/role/role-form/role-form.component';
-import { UserFormComponent } from '@app/components/user/user-form/user-form.component';
-import { TerritoryFormComponent } from '@app/components/territory/territory-form/territory-form.component';
-import { ServiceFormComponent } from '@app/components/service/service-form/service-form.component';
-import { ApplicationFormComponent } from '@app/components/application/application-form/application-form.component';
-import { TreesFormComponent } from '@app/components/trees/trees-form/trees-form.component';
-import { BackgroundLayersFormComponent } from '@app/components/background-layers/background-layers-form/background-layers-form.component';
-import { LayersPermitsFormComponent } from '@app/components/layers-permits/layers-permits-form/layers-permits-form.component';
-import { TaskGroupComponent } from '@app/components/task-group/task-group.component';
-import { TaskGroupFormComponent } from '@app/components/task-group/task-group-form/task-group-form.component';
-import { LayersFormComponent } from '@app/components/layers/layers-form/layers-form.component';
-import { TasksBasicComponent } from '@app/components/tasks-basic/tasks-basic.component';
-import { DashboardComponent } from '@app/components/dashboard/dashboard.component';
-import { CanDeactivateGuard } from '@app/core/guards/can-deactivate-guard.service';
+import {RouterModule, Routes} from '@angular/router';
+import {LoginComponent} from '@app/components/login/login.component';
+import {ConnectionComponent} from '@app/components/connection/connection.component';
+import {ServiceComponent} from '@app/components/service/service.component';
+import {LayersComponent} from '@app/components/layers/layers.component';
+import {TreesComponent} from '@app/components/trees/trees.component';
+import {BackgroundLayersComponent} from '@app/components/background-layers/background-layers.component';
+import {LayersPermitsComponent} from '@app/components/layers-permits/layers-permits.component';
+import {TerritoryComponent} from '@app/components/territory/territory.component';
+import {RoleComponent} from '@app/components/role/role.component';
+import {UserComponent} from '@app/components/user/user.component';
+import {ApplicationComponent} from '@app/components/application/application.component';
+import {TasksQueryComponent} from '@app/components/tasks-query/tasks-query.component';
+import {TaskQueryFormComponent} from '@app/components/tasks-query/task-form/task-query-form.component';
+import {ConnectionFormComponent} from '@app/components/connection/connection-form/connection-form.component';
+import {RoleFormComponent} from '@app/components/role/role-form/role-form.component';
+import {UserFormComponent} from '@app/components/user/user-form/user-form.component';
+import {TerritoryFormComponent} from '@app/components/territory/territory-form/territory-form.component';
+import {ServiceFormComponent} from '@app/components/service/service-form/service-form.component';
+import {ApplicationFormComponent} from '@app/components/application/application-form/application-form.component';
+import {TreesFormComponent} from '@app/components/trees/trees-form/trees-form.component';
+import {
+  BackgroundLayersFormComponent
+} from '@app/components/background-layers/background-layers-form/background-layers-form.component';
+import {
+  LayersPermitsFormComponent
+} from '@app/components/layers-permits/layers-permits-form/layers-permits-form.component';
+import {TaskGroupComponent} from '@app/components/task-group/task-group.component';
+import {TaskGroupFormComponent} from '@app/components/task-group/task-group-form/task-group-form.component';
+import {LayersFormComponent} from '@app/components/layers/layers-form/layers-form.component';
+import {TasksBasicComponent} from '@app/components/tasks-basic/tasks-basic.component';
+import {DashboardComponent} from '@app/components/dashboard/dashboard.component';
+import {CanDeactivateGuard} from '@app/core/guards/can-deactivate-guard.service';
 
-import { TaskBasicFormComponent } from "@app/components/tasks-basic/task-form/task-basic-form.component";
+import {TaskBasicFormComponent} from "@app/components/tasks-basic/task-form/task-basic-form.component";
+import {TasksEditComponent} from '@app/components/tasks-edit/tasks-edit.component';
+import {TaskEditFormComponent} from '@app/components/tasks-edit/task-form/task-edit-form.component';
 
 export const APP_ROUTES: Routes = [
     { path: 'dashboard', component: DashboardComponent },
@@ -50,9 +56,13 @@ export const APP_ROUTES: Routes = [
     { path: 'layersPermits', component: LayersPermitsComponent, canDeactivate: [CanDeactivateGuard] },
     { path: 'layersPermits/:id/layersPermitsForm', component: LayersPermitsFormComponent },
     { path: 'layersPermits/:id/layersPermitsForm/:idDuplicate', component: LayersPermitsFormComponent },
-    { path: 'tasksBasic', component: TasksBasicComponent, canDeactivate: [CanDeactivateGuard] },
+  {path: 'tasks/:id/0', component: TaskEditFormComponent},
     { path: 'tasks/:id/1', component: TaskBasicFormComponent },
     { path: 'tasks/:id/5', component: TaskQueryFormComponent },
+  {path: 'tasksEdit', component: TasksEditComponent},
+  {path: 'taskEdit/:id/:type', component: TaskEditFormComponent},
+  {path: 'taskEdit/:id/:type/:idDuplicate', component: TaskEditFormComponent},
+  {path: 'tasksBasic', component: TasksBasicComponent, canDeactivate: [CanDeactivateGuard]},
     { path: 'taskBasic/:id/:type', component: TaskBasicFormComponent },
     { path: 'taskBasic/:id/:type/:idDuplicate', component: TaskBasicFormComponent },
     { path: 'taskGroup', component: TaskGroupComponent, canDeactivate: [CanDeactivateGuard] },

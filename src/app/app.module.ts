@@ -118,6 +118,8 @@ import {
 import {TasksDownloadComponent} from '@app/components/tasks-download/tasks-download.component';
 import {TasksReportComponent} from '@app/components/tasks-report/tasks-report.component';
 import {TasksMoreInfoComponent} from '@app/components/tasks-more-info/tasks-more-info.component';
+import {TaskEditFormComponent} from '@app/components/tasks-edit/task-form/task-edit-form.component';
+import {TasksEditComponent} from '@app/components/tasks-edit/tasks-edit.component';
 
 import {LoginComponent} from '@app/components/login/login.component';
 import {LogLevelControlComponent} from '@app/components/shared/log-level-control/log-level-control.component';
@@ -284,7 +286,9 @@ function getDefaultLanguage(languages: any[]): string {
     TasksReportComponent,
     TasksMoreInfoComponent,
     TranslationDebugComponent,
-    UrlInputDirective
+    UrlInputDirective,
+    TaskEditFormComponent,
+    TasksEditComponent
   ],
   imports: [
     BrowserModule,
@@ -312,7 +316,8 @@ function getDefaultLanguage(languages: any[]): string {
       }
     }),
     APP_ROUTING,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    CoreModule
   ],
   providers: [
     { provide: LOCALE_ID, useValue: 'es-ES' },
