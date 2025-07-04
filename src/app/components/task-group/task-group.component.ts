@@ -1,126 +1,84 @@
-import {Component, OnInit} from '@angular/core';
-import {TaskGroupService, TaskGroup} from '@app/domain';
-import {UtilsService} from '@app/services/utils.service';
-import {Router} from '@angular/router';
-import {config} from '@config';
-import {Observable, Subject} from 'rxjs';
+import {Component} from '@angular/core';
+import {CodeListService, TaskGroup, TaskGroupService, TranslationService,} from '@app/domain';
+import {TranslateService} from '@ngx-translate/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {firstValueFrom} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
-import {DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
+import {ErrorHandlerService} from '@app/services/error-handler.service';
+import {LoggerService} from '@app/services/logger.service';
+import {UtilsService} from '@app/services/utils.service';
+import {BaseListComponent} from "@app/components/base-list.component";
+import {EntityListConfig} from "@app/components/shared/entity-list";
 
 @Component({
   selector: 'app-task-group',
   templateUrl: './task-group.component.html',
-  styles: []
+  styles: [],
 })
-export class TaskGroupComponent implements OnInit {
-  saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
-  dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
-  themeGrid: any = config.agGridTheme;
-  columnDefs: any[];
-  gridModified = false;
-
-  constructor(public dialog: MatDialog,
-              public taskGroupService: TaskGroupService,
-              private utils: UtilsService,
-              private router: Router,
-  ) {
-
-  }
-
-  ngOnInit() {
-
-    const columnEditBtn = this.utils.getEditBtnColumnDef();
-    columnEditBtn['cellRendererParams'] = {
-      clicked: this.newData.bind(this)
-    };
-
-
-    this.columnDefs = [
-      columnEditBtn,
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('taskGroupEntity.name', 'name'),
-    ];
-
-  }
-
-  async canDeactivate(): Promise<boolean | Observable<boolean>> {
-
-    if (this.gridModified) {
-
-
-      const result = await this.utils.showNavigationOutDialog().toPromise();
-      if (!result || result.event !== 'Accept') {
-        return false;
-      } else if (result.event === 'Accept') {
-        return true;
-      } else {
-        return true;
-      }
-    } else {
-      return true;
+export class TaskGroupComponent extends BaseListComponent<TaskGroup> {
+  entityListConfig: EntityListConfig<TaskGroup> = {
+    entityLabel: 'entity.taskGroup.label',
+    iconName: 'ic_gruptasca',
+    columnDefs: [],
+    dataFetchFn: () => this.taskgroupService.getAll(),
+    defaultColumnSorting: ['name'],
+    gridOptions: {
+      globalSearch: true,
+      discardChangesButton: false,
+      redoButton: false,
+      undoButton: false,
+      applyChangesButton: false,
+      deleteButton: true,
+      newButton: true,
+      actionButton: true,
+      hideReplaceButton: true
     }
-  }
-
-  setGridModifiedValue(value) {
-    this.gridModified = value;
-  }
-
-
-  getAllTaskGroups = () => {
-
-    return this.taskGroupService.getAll();
   };
 
-  newData(id: any) {
-    this.saveAgGridStateEvent.next(true);
-    this.router.navigate(['taskGroup', id, 'taskGroupForm']);
+  constructor(
+    protected override dialog: MatDialog,
+    protected override translateService: TranslateService,
+    protected override translationService: TranslationService,
+    protected override codeListService: CodeListService,
+    protected override loggerService: LoggerService,
+    protected override errorHandler: ErrorHandlerService,
+    protected override activatedRoute: ActivatedRoute,
+    protected override utils: UtilsService,
+    protected override router: Router,
+    public taskgroupService: TaskGroupService
+  ) {
+    super(
+      dialog,
+      translateService,
+      translationService,
+      codeListService,
+      loggerService,
+      errorHandler,
+      activatedRoute,
+      utils,
+      router
+    );
   }
 
-  applyChanges(data: TaskGroup[]) {
-    const promises: Promise<any>[] = [];
-    data.forEach(taskGroup => {
-      promises.push(new Promise((resolve, ) => {
-        this.taskGroupService.update(taskGroup).subscribe(() => {
-          resolve(true);
-        });
-      }))
-      ;
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
-      });
-    });
+  override async postFetchData(): Promise<void> {
+    // Set column definitions directly in the config
+    this.entityListConfig.columnDefs = [
+      this.utils.getSelCheckboxColumnDef(),
+      this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'taskGroup/:id/taskGroupForm', {id: 'id'}),
+    ];
   }
 
-  add(data: TaskGroup[]) {
-    this.router.navigate(['taskGroup', -1, 'taskGroupForm', data[0].id]);
+  override async newData() {
+    await this.router.navigate(['taskGroup', -1, 'taskGroupForm']);
   }
 
-  removeData(data: TaskGroup[]) {
-
-    const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title = this.utils.getTranslate('caution');
-    dialogRef.componentInstance.message = this.utils.getTranslate('removeMessage');
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Accept') {
-          const promises: Promise<any>[] = [];
-          data.forEach(taskGroup => {
-            promises.push(new Promise((resolve, ) => {
-              this.taskGroupService.delete(taskGroup).subscribe(() => {
-                resolve(true);
-              });
-            }))
-            ;
-            Promise.all(promises).then(() => {
-              this.dataUpdatedEvent.next(true);
-            });
-          });
-        }
-      }
-    });
-
-
+  override async duplicateItem(id: number) {
+    await this.router.navigate(['taskGroup', -1, 'taskGroupForm', id]);
   }
+
+  override dataFetchFn = () => this.taskgroupService.getAll();
+
+  override dataUpdateFn = (data: TaskGroup) => firstValueFrom(this.taskgroupService.update(data))
+
+  override dataDeleteFn = (data: TaskGroup) => firstValueFrom(this.taskgroupService.delete(data))
 }
-
