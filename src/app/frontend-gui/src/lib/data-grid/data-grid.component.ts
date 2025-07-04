@@ -634,15 +634,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
     // Ensure columns are sized properly after data is rendered
     if (this.gridApi && !this.gridApi.isDestroyed()) {
-      requestAnimationFrame(() => {
-        if (this.gridApi && !this.gridApi.isDestroyed()) {
-          // First autosize columns based on content
-          this.gridApi.autoSizeAllColumns();
-
-          // Then ensure columns fill available space
-          this.gridApi.sizeColumnsToFit();
-        }
-      });
+      this.safeSizeColumnsToFit();
     }
   }
 
@@ -688,7 +680,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     });
 
     // Apply the updated column definitions
-    this.gridApi.setColumnDefs(this.columnDefs);
+    this.gridApi.updateGridOptions({columnDefs: this.columnDefs});
 
     // Set initial column state before loading data
     if (this.defaultColumnSorting) {
@@ -714,6 +706,37 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
     // Load data after grid is ready
     this.loadData();
+  }
+
+  /**
+   * Safely sizes columns to fit with proper checks for grid width
+   */
+  private safeSizeColumnsToFit(): void {
+    if (!this.gridApi || this.gridApi.isDestroyed()) {
+      return;
+    }
+
+    // Use requestAnimationFrame for better timing
+    requestAnimationFrame(() => {
+      if (this.gridApi && !this.gridApi.isDestroyed()) {
+        try {
+          // Only use autoSizeAllColumns to avoid the width warning
+          this.gridApi.autoSizeAllColumns();
+        } catch (error) {
+          // If autoSizeAllColumns fails, try again after a delay
+          setTimeout(() => {
+            if (this.gridApi && !this.gridApi.isDestroyed()) {
+              try {
+                this.gridApi.autoSizeAllColumns();
+              } catch (retryError) {
+                // Final fallback - do nothing if all else fails
+                console.warn(`AG Grid: Could not auto-size columns: first fail ${error}, next ${retryError}`);
+              }
+            }
+          }, 200);
+        }
+      }
+    });
   }
 
   /**

@@ -2,16 +2,16 @@ import {Component} from '@angular/core';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {
-  ConnectionService,
   CartographyService,
-  TaskService,
+  CodeListService,
   Connection,
+  ConnectionService,
   TaskProjection,
-  TranslationService,
-  CodeListService
+  TaskService,
+  TranslationService
 } from '@app/domain';
 import {UtilsService} from '@app/services/utils.service';
-import {firstValueFrom, of, EMPTY} from 'rxjs';
+import {EMPTY, firstValueFrom} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {MatDialog} from '@angular/material/dialog';
 import {BaseFormComponent} from "@app/components/base-form.component";
@@ -121,7 +121,7 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
     if (this.isDuplicated()) {
       this.passwordSet = false;
     } else {
-      this.passwordSet = this.entityToEdit.passwordSet || false;
+      this.passwordSet = this.entityToEdit.passwordSet ?? false;
     }
     this.isPasswordBeingEdited = false;
 
@@ -129,7 +129,7 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
       name: new UntypedFormControl(this.entityToEdit.name, [Validators.required]),
       driver: new UntypedFormControl(this.entityToEdit.driver, [Validators.required]),
       user: new UntypedFormControl(this.entityToEdit.user),
-      newPassword: new UntypedFormControl(''),
+      newPassword: new UntypedFormControl(this.passwordSet ? '••••••••' : ''),
       url: new UntypedFormControl(this.entityToEdit.url),
     });
   }
@@ -166,6 +166,11 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
     if (!this.isPasswordBeingEdited && password !== '') {
       this.isPasswordBeingEdited = true;
     }
+  }
+
+  passwordChanged(event: InputEvent) {
+    this.entityForm.get('newPassword').setValue(event.data);
+    this.isPasswordBeingEdited = true;
   }
 
   /**

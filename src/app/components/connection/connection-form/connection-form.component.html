@@ -25,7 +25,7 @@
           </mat-form-field>
           <mat-form-field appearance="outline" class="half">
             <mat-label>{{ 'entity.connection.driver' | translate }}</mat-label>
-            <mat-select matInput formControlName="driver">
+            <mat-select formControlName="driver">
               <mat-option [value]="driver.value" *ngFor="let driver of this.codeList('databaseConnection.driver')">
                 {{ driver.description }}
               </mat-option>
@@ -41,18 +41,26 @@
             </mat-hint>
           </mat-form-field>
 
-          <mat-form-field appearance="outline" class="half">
+          <mat-form-field *ngIf="isPasswordBeingEdited" appearance="outline" class="half">
             <mat-label>{{ 'common.form.password.label' | translate }}</mat-label>
             <input matInput
                    [formControlName]="'newPassword'"
                    [type]="'text'"
                    [maxlength]="50"
                    (input)="onPasswordChange()"
-                   [ngModel]="(!isPasswordBeingEdited && passwordSet) ? '••••••••' : ''"
                    class="password-input">
-            <mat-hint *ngIf="isPasswordBeingEdited" align="end">
+            <mat-hint align="end">
               {{ entityForm.get('newPassword') | characterCount }}
             </mat-hint>
+          </mat-form-field>
+          <mat-form-field *ngIf="!isPasswordBeingEdited" appearance="outline" class="half">
+            <mat-label>{{ 'common.form.password.label' | translate }}</mat-label>
+            <input (input)="passwordChanged($event)"
+                   [formControlName]="'newPassword'"
+                   [maxlength]="50"
+                   [type]="'text'"
+                   class="password-input"
+                   matInput>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'entity.connection.url' | translate }}</mat-label>
