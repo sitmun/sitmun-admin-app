@@ -35,6 +35,7 @@ import {CanDeactivateGuard} from '@app/core/guards/can-deactivate-guard.service'
 import {TaskBasicFormComponent} from "@app/components/tasks-basic/task-form/task-basic-form.component";
 import {TasksEditComponent} from '@app/components/tasks-edit/tasks-edit.component';
 import {TaskEditFormComponent} from '@app/components/tasks-edit/task-form/task-edit-form.component';
+import {ErrorPageComponent} from '@app/components/error-page/error-page.component';
 
 export const APP_ROUTES: Routes = [
     { path: 'dashboard', component: DashboardComponent },
@@ -84,6 +85,7 @@ export const APP_ROUTES: Routes = [
     { path: 'application/:id/applicationForm', component: ApplicationFormComponent },
     { path: 'application/:id/applicationForm/:idDuplicate', component: ApplicationFormComponent },
     { path: 'login', component: LoginComponent },
+    { path: 'error', component: ErrorPageComponent },
     { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
     { path: '**', pathMatch: 'full', redirectTo: 'dashboard' }
 

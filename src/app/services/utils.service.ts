@@ -78,6 +78,7 @@ export class UtilsService {
    * @param error - The error object to process and display.
    */
   showErrorMessage(error: any) {
+    console.trace(error);
     let msg = '';
     try {
       if (error.error && error.error.errors) {

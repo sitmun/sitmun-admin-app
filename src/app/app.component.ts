@@ -1,17 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Principal } from '@app/core/auth/principal.service';
 import { LoginService } from '@app/core/auth/login.service';
 import { AuthService } from '@app/core/auth/auth.service';
 import { config } from '@config';
 import { LoggerService } from '@app/services/logger.service';
+import { AppStateService } from './services/app-state.service';
+import { Observable, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styles: []
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
   title = 'admin-app';
 
   /** translate service*/
@@ -21,15 +24,26 @@ export class AppComponent {
   currentAccount: any;
 
   isOpen: boolean;
-  
+
+  hasInitializationError$: Observable<boolean>;
+  initializationError$: Observable<any>;
+  private subscription: Subscription;
+
   constructor(
     /** Translate service */public trans: TranslateService, 
     /** Identity service */public principal: Principal,
     /** Login service */public loginService: LoginService,
     /** Auth service */public authService: AuthService,
-    private loggerService: LoggerService
+    private loggerService: LoggerService,
+    private appStateService: AppStateService
   ) {
     this.translate = trans;
+    this.hasInitializationError$ = this.appStateService.state$.pipe(
+      map(state => state.hasInitializationError)
+    );
+    this.initializationError$ = this.appStateService.state$.pipe(
+      map(state => state.initializationError)
+    );
   }
 
   /** On component init, get logged user account*/
@@ -57,6 +71,11 @@ export class AppComponent {
         this.currentAccount = account;
       });
     }
+
+  }
+
+  ngOnDestroy() {
+    this.subscription?.unsubscribe();
   }
 
   /**

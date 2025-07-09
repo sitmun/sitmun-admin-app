@@ -1,9 +1,20 @@
-<div *ngIf="!isLoggedIn()" class="mat-app-background basic-container">
-  <app-login></app-login>
+<!-- Error page for initialization errors -->
+<div *ngIf="hasInitializationError$ | async" class="mat-app-background">
+  <app-error-page 
+    [error]="initializationError$ | async" 
+    errorType="initialization">
+  </app-error-page>
 </div>
-<div *ngIf="isLoggedIn()" class="mat-app-background basic-container">
-  <app-toolbar (open)="navOpen($event)" ></app-toolbar>
-  <app-side-menu  [openNav]="isOpen"  ></app-side-menu>
+
+<!-- Main application content -->
+<div *ngIf="!(hasInitializationError$ | async)" class="mat-app-background basic-container">
+  <div *ngIf="!isLoggedIn()">
+    <app-login></app-login>
+  </div>
+  <div *ngIf="isLoggedIn()">
+    <app-toolbar (open)="navOpen($event)" ></app-toolbar>
+    <app-side-menu  [openNav]="isOpen"  ></app-side-menu>
+  </div>
 </div>
 
 <!-- Translation debug component (only visible in development) -->

@@ -9,7 +9,7 @@
   </mat-toolbar-row>
 </mat-toolbar>
 <div class="login-container" *ngIf="loadedData">
-  <mat-card appearance="outlined" *ngIf="loadedData">
+  <mat-card appearance="outlined">
     <form [formGroup]="form" (ngSubmit)="login()">
       <mat-card-header>
         <mat-card-title>

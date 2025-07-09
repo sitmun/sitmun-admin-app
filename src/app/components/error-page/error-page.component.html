@@ -1,0 +1,34 @@
+<mat-toolbar color="primary">
+  <mat-toolbar-row class="top-toolbar-row">
+    <div class="sitmun-logo-container">
+      <div class="sitmun-logo">
+        <img class="logo" src="assets/img/logos/logo_sitmun.svg" alt="logo">
+      </div>
+    </div>
+    <span class="toolbar-spacer"></span>
+  </mat-toolbar-row>
+</mat-toolbar>
+
+<div class="error-container" *ngIf="loadedData">
+  <mat-card appearance="outlined">
+    <mat-card-header>
+      <div mat-card-avatar><mat-icon fontSet="material-icons-round" color="error">error</mat-icon></div>
+      <mat-card-title>{{ (errorType === 'initialization' ? 'error.initialization.title' : 'error.general.title') | translate }}</mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <p class="error-message">{{ errorMessage | translate }}</p>
+    </mat-card-content>
+    
+    <mat-card-actions align="end">
+      <button 
+        mat-mini-fab
+        matTooltip="{{ 'error.retry' | translate }}"
+        color="primary" 
+        (click)="retry()">
+        <mat-icon fontSet="material-icons-round">refresh</mat-icon>
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>
+

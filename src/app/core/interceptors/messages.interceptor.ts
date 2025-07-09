@@ -4,11 +4,35 @@ import { Observable, throwError } from 'rxjs';
 import { map, catchError, finalize } from 'rxjs/operators';
 import { UtilsService } from '@app/services/utils.service';
 
+@Injectable({
+  providedIn: 'root'
+})
+export class MessagesInterceptorStateService {
+  private enabled = true;
+
+  enable() {
+    this.enabled = true;
+    console.log("MessagesInterceptor enabled");
+  }
+
+  disable() {
+    this.enabled = false;
+    console.log("MessagesInterceptor disabled");
+  }
+
+  isEnabled(): boolean {
+    return this.enabled;
+  }
+}
+
 @Injectable()
 export class MessagesInterceptor implements HttpInterceptor {
     private utilsService: UtilsService;
 
-    constructor(private injector: Injector) {
+    constructor(
+        private injector: Injector,
+        private stateService: MessagesInterceptorStateService
+    ) {
         // Lazy load UtilsService to break circular dependency
         setTimeout(() => {
             this.utilsService = this.injector.get(UtilsService);
@@ -16,13 +40,15 @@ export class MessagesInterceptor implements HttpInterceptor {
     }
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+        console.log("MessagesInterceptor intercept", this.stateService.isEnabled());
         // Get UtilsService if not already loaded
         if (!this.utilsService) {
             this.utilsService = this.injector.get(UtilsService);
         }
 
         const intercept: boolean = request.url.indexOf("/api/login") == -1 
-        && request.url.indexOf("/api/account") == -1 &&  request.url.indexOf("/api/authenticate")==-1;
+        && request.url.indexOf("/api/account") == -1 &&  request.url.indexOf("/api/authenticate")==-1
+        && this.stateService.isEnabled();
         //tractem request
         if (intercept) {
             this.utilsService.enableLoading();

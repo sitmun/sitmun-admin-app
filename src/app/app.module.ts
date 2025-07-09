@@ -51,6 +51,7 @@ import {
 import {ServicesModule} from './services/services.module';
 import {ExternalService, HalModule, ResourceService} from '@app/core/hal';
 import {LoggerService} from './services/logger.service';
+import {AppStateService} from './services/app-state.service';
 
 //i18n
 import {MissingTranslationHandler, TranslateLoader, TranslateModule, TranslateService} from '@ngx-translate/core';
@@ -133,16 +134,22 @@ import {EntityListComponent} from '@app/components/shared/entity-list';
 import {BaseFormComponent} from "@app/components/base-form.component";
 import {DataTablesRegistry} from "@app/components/data-tables.util";
 import {Resource} from "@app/core/hal/resource/resource.model";
+import {ErrorPageComponent} from "@app/components/error-page/error-page.component";
+import { MessagesInterceptor, MessagesInterceptorStateService } from './core/interceptors/messages.interceptor';
 
 
 // APP_INITIALIZER factory functions
 export function initializeLanguages(
   languageService: LanguageService,
   translateService: TranslateService,
-  loggerService: LoggerService
+  loggerService: LoggerService,
+  appStateService: AppStateService,
+  messagesInterceptorState: MessagesInterceptorStateService
 ) {
   return () => {
     // Initialize static logger services
+
+    messagesInterceptorState.disable();
     DataTablesRegistry.setLoggerService(loggerService);
     Resource.setLoggerService(loggerService);
 
@@ -164,18 +171,24 @@ export function initializeLanguages(
       // Set default language
       const defaultLang = getDefaultLanguage(languages);
       translateService.setDefaultLang(defaultLang);
-      translateService.use(defaultLang);
+      messagesInterceptorState.enable();
 
-      loggerService.info(`Languages initialized: ${languages.length} languages loaded, default: ${defaultLang}`);
-      return languages;
+      // Load translations for the default language
+      return firstValueFrom(translateService.use(defaultLang));
     }).catch(error => {
-      loggerService.error('Failed to initialize languages:', error);
-      // Fallback to basic configuration
-      config.languagesToUse = [];
-      config.languagesObjects = {};
-      translateService.setDefaultLang('en');
-      translateService.use('en');
-      throw error;
+      // Create a proper error object for initialization errors
+      const initError = {
+        message: 'Failed to initialize languages',
+        originalError: error,
+        source: 'languages',
+        timestamp: new Date().toISOString()
+      };
+      appStateService.setInitializationError(initError, 'languages');
+      messagesInterceptorState.enable();
+
+      const browserLang = translateService.getBrowserLang();
+      translateService.setDefaultLang(browserLang);
+      return firstValueFrom(translateService.use(browserLang));
     });
   };
 }
@@ -183,9 +196,12 @@ export function initializeLanguages(
 export function initializeConfiguration(
   configurationService: ConfigurationParametersService,
   translateService: TranslateService,
-  loggerService: LoggerService
+  loggerService: LoggerService,
+  appStateService: AppStateService,
+  messagesInterceptorState: MessagesInterceptorStateService
 ) {
   return () => {
+    messagesInterceptorState.disable();
     return firstValueFrom(configurationService.getAll()).then(configParams => {
       const defaultLang = configParams.find(element => element.name === 'language.default');
 
@@ -200,11 +216,17 @@ export function initializeConfiguration(
       }
 
       loggerService.info(`Configuration initialized: ${configParams.length} parameters loaded`);
-      return configParams;
+      messagesInterceptorState.enable();
     }).catch(error => {
-      loggerService.error('Failed to initialize configuration:', error);
-      // Continue without configuration
-      return [];
+      // Create a proper error object for initialization errors
+      const initError = {
+        message: 'Failed to initialize configuration',
+        originalError: error,
+        source: 'configuration',
+        timestamp: new Date().toISOString()
+      };
+      appStateService.setInitializationError(initError, 'configuration');
+      messagesInterceptorState.enable();
     });
   };
 }
@@ -237,6 +259,7 @@ function getDefaultLanguage(languages: any[]): string {
     BaseFormComponent,
     AppComponent,
     EntityListComponent,
+    ErrorPageComponent,
     ConnectionComponent,
     ServiceComponent,
     LayersComponent,
@@ -328,13 +351,13 @@ function getDefaultLanguage(languages: any[]): string {
     {
       provide: APP_INITIALIZER,
       useFactory: initializeLanguages,
-      deps: [LanguageService, TranslateService, LoggerService],
+      deps: [LanguageService, TranslateService, LoggerService, AppStateService, MessagesInterceptorStateService],
       multi: true
     },
     {
       provide: APP_INITIALIZER,
       useFactory: initializeConfiguration,
-      deps: [ConfigurationParametersService, TranslateService, LoggerService],
+      deps: [ConfigurationParametersService, TranslateService, LoggerService, AppStateService, MessagesInterceptorStateService],
       multi: true
     },
     ResourceService,
@@ -373,7 +396,7 @@ function getDefaultLanguage(languages: any[]): string {
     TreeNodeService,
     UserPositionService,
     CustomMissingTranslationHandler,
-    TranslationMonitorService
+    TranslationMonitorService,
   ],
   bootstrap: [AppComponent]
 })
