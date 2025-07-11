@@ -1,44 +1,38 @@
 import {Component, OnInit} from '@angular/core';
-import {
-  UntypedFormControl,
-  UntypedFormGroup,
-  Validators,
-} from '@angular/forms';
+import {UntypedFormControl, UntypedFormGroup, Validators,} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {
-  Territory,
-  TerritoryService,
-  UserPositionService,
-  TranslationService,
-  Translation,
-  TaskAvailabilityService,
-  TerritoryGroupTypeService,
-  CartographyAvailabilityService,
-  UserService,
-  RoleService,
-  CartographyService,
-  TaskService,
-  UserConfigurationService,
-  User,
-  Role,
   Cartography,
+  CartographyAvailabilityService,
+  CartographyService,
+  Role,
+  RoleService,
   Task,
   TaskAvailability,
+  TaskAvailabilityService,
+  TaskService,
+  Territory,
+  TerritoryGroupTypeService,
+  TerritoryService,
   TerritoryTypeService,
+  Translation,
+  TranslationService,
+  User,
+  UserConfigurationService,
+  UserPositionService,
+  UserService,
 } from '@app/domain';
-import { HalOptions, HalParam } from '@app/core/hal/rest/rest.service';
+import {HalOptions, HalParam} from '@app/core/hal/rest/rest.service';
 import {HttpClient} from '@angular/common/http';
 import {UtilsService} from '@app/services/utils.service';
 import {Observable, of, Subject} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {config} from '@config';
-import {
-  DialogGridComponent,
-  DialogMessageComponent,
-} from '@app/frontend-gui/src/lib/public_api';
+import {DialogGridComponent, DialogMessageComponent,} from '@app/frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
 import {MatTabChangeEvent} from '@angular/material/tabs';
-import { LoggerService } from '@app/services/logger.service';
+import {LoggerService} from '@app/services/logger.service';
+import {Configuration} from "@app/core/config/configuration";
 
 @Component({
   selector: 'app-territory-form',
@@ -46,6 +40,8 @@ import { LoggerService } from '@app/services/logger.service';
   styleUrls: ['./territory-form.component.scss'],
 })
 export class TerritoryFormComponent implements OnInit {
+  readonly config = Configuration.TERRITORY;
+
   //Translations
   translationsModified: boolean = false;
   translationMap: Map<string, Translation>;

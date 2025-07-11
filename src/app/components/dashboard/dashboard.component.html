@@ -1,9 +1,11 @@
 <mat-toolbar>
-  <h4>
-    <mat-icon aria-hidden="true" svgIcon="menu_connexio"></mat-icon>
-    <span class="spacer"> {{ "dashboard.title" | translate }}</span>
-  </h4>
   <span class="spacer"></span>
+  <h4>
+    <span>
+      <mat-icon fontSet="{{ config.font }}">{{ config.icon }}</mat-icon>
+      {{ config.labelSingular | translate }}
+    </span>
+  </h4>
 </mat-toolbar>
 <mat-card class="sitmun-mat-card-margin" appearance="outlined">
   <mat-card-content>
@@ -41,16 +43,4 @@
     </p>
     <app-datagraph *ngIf="dataLoaded" [data]="this.usersPerApplicationChartData" type="bar"></app-datagraph>
   </div>
-  <!--<div class="gridGraph">
-    <p class="titleGraph">{{ "Cartografies 4" | translate}}</p>
-    <app-datagraph *ngIf="dataLoaded" [data]="this.cartographyChartData" type="bar"> </app-datagraph>
-  </div>
-  <div class="gridGraph">
-    <p class="titleGraph">{{ "Cartografies 5" | translate}}</p>
-    <app-datagraph *ngIf="dataLoaded" [data]="this.cartographyChartData" type="bar"> </app-datagraph>
-  </div>
-  <div class="gridGraph">
-    <p class="titleGraph">{{ "Cartografies 6" | translate}}</p>
-    <app-datagraph *ngIf="dataLoaded" [data]="this.cartographyChartData" type="bar"> </app-datagraph>
-  </div>-->
 </div>

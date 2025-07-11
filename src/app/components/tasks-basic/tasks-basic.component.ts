@@ -11,6 +11,7 @@ import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
 import {config} from '@config';
 import {HalOptions, HalParam} from '@app/core/hal'
+import {Configuration} from '@app/core/config/configuration';
 
 @Component({
   selector: 'app-tasks-basic',
@@ -19,8 +20,9 @@ import {HalOptions, HalParam} from '@app/core/hal'
 })
 export class TasksBasicComponent extends BaseListComponent<Task> {
   entityListConfig: EntityListConfig<Task> = {
-    entityLabel: 'entity.task.basic.label',
-    iconName: 'menu_tasques',
+    entityLabel: Configuration.TASK_BASIC.labelPlural,
+    iconName: Configuration.TASK_BASIC.icon,
+    font: Configuration.TASK_BASIC.font,
     columnDefs: [],
     dataFetchFn: () => {
       const taskTypeID = config.tasksTypes.basic;

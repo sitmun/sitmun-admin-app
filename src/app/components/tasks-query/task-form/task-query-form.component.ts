@@ -31,7 +31,7 @@ import {UtilsService} from "@app/services/utils.service";
 import {LoggerService} from "@app/services/logger.service";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {DataTableDefinition, TemplateDialog} from "@app/components/data-tables.util";
-import {firstValueFrom, map, of, EMPTY} from "rxjs";
+import {EMPTY, firstValueFrom, map, of} from "rxjs";
 import {
   canKeepOrUpdate,
   onCreate,
@@ -41,8 +41,9 @@ import {
 } from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {MatSelectChange} from "@angular/material/select";
-import {TaskQueryParameter, TaskParameterType} from "@app/domain/task/models/task-query-parameter.model";
+import {TaskParameterType, TaskQueryParameter} from "@app/domain/task/models/task-query-parameter.model";
 import assert from 'assert';
+import {Configuration} from "@app/core/config/configuration";
 
 /**
  * Component for managing query tasks in the SITMUN application.
@@ -65,6 +66,7 @@ import assert from 'assert';
   styles: []
 })
 export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
+  readonly config = Configuration.TASK_QUERY;
 
   /**
    * Data table definition for managing role assignments to the task.

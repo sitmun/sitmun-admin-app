@@ -15,6 +15,7 @@ import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
+import {Configuration} from '@app/core/config/configuration';
 
 @Component({
   selector: 'app-layers',
@@ -23,8 +24,9 @@ import {EntityListConfig} from "@app/components/shared/entity-list";
 })
 export class LayersComponent extends BaseListComponent<CartographyProjection> {
   entityListConfig: EntityListConfig<CartographyProjection> = {
-    entityLabel: 'entity.cartography.label',
-    iconName: 'menu_capes',
+    entityLabel: Configuration.LAYER.labelPlural,
+    iconName: Configuration.LAYER.icon,
+    font: Configuration.LAYER.font,
     columnDefs: [],
     dataFetchFn: () => this.cartographyService.getAllProjection(CartographyProjection),
     defaultColumnSorting: ['name'],

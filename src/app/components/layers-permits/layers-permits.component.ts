@@ -9,6 +9,7 @@ import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
+import {Configuration} from '@app/core/config/configuration';
 
 @Component({
   selector: 'app-layers-permits',
@@ -17,8 +18,9 @@ import {EntityListConfig} from "@app/components/shared/entity-list";
 })
 export class LayersPermitsComponent extends BaseListComponent<CartographyGroup> {
   entityListConfig: EntityListConfig<CartographyGroup> = {
-    entityLabel: 'entity.CartographyGroup.label',
-    iconName: 'menu_connexio',
+    entityLabel: Configuration.LAYERS_PERMIT.labelPlural,
+    iconName: Configuration.LAYERS_PERMIT.icon,
+    font: Configuration.LAYERS_PERMIT.font,
     columnDefs: [],
     dataFetchFn: () => this.cartographyGroupService.getAll(),
     defaultColumnSorting: ['name'],

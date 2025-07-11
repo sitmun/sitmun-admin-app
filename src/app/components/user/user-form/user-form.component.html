@@ -1,6 +1,7 @@
 <app-form-toolbar
-  icon="menu_usuari"
-  entityType="userEntity.user"
+  entityType="{{ config.labelSingular }}"
+  font="{{ config.font }}"
+  icon="{{ config.icon }}"
   [itemName]="userForm.get('username')?.value"
   [isNew]="userID === -1"
   (save)="onSaveButtonClicked()"

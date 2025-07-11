@@ -1,13 +1,13 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { Principal } from '@app/core/auth/principal.service';
-import { LoginService } from '@app/core/auth/login.service';
-import { AuthService } from '@app/core/auth/auth.service';
-import { config } from '@config';
-import { LoggerService } from '@app/services/logger.service';
-import { AppStateService } from './services/app-state.service';
-import { Observable, Subscription } from 'rxjs';
-import { map } from 'rxjs/operators';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {TranslateService} from '@ngx-translate/core';
+import {Principal} from '@app/core/auth/principal.service';
+import {LoginService} from '@app/core/auth/login.service';
+import {AuthService} from '@app/core/auth/auth.service';
+import {config} from '@config';
+import {LoggerService} from '@app/services/logger.service';
+import {AppStateService} from './services/app-state.service';
+import {Observable, Subscription} from 'rxjs';
+import {map} from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -27,15 +27,16 @@ export class AppComponent implements OnInit, OnDestroy {
 
   hasInitializationError$: Observable<boolean>;
   initializationError$: Observable<any>;
-  private subscription: Subscription;
+
+  private readonly subscription: Subscription;
 
   constructor(
-    /** Translate service */public trans: TranslateService, 
+    /** Translate service */public trans: TranslateService,
     /** Identity service */public principal: Principal,
     /** Login service */public loginService: LoginService,
     /** Auth service */public authService: AuthService,
-    private loggerService: LoggerService,
-    private appStateService: AppStateService
+    private readonly loggerService: LoggerService,
+    private readonly appStateService: AppStateService
   ) {
     this.translate = trans;
     this.hasInitializationError$ = this.appStateService.state$.pipe(
@@ -83,7 +84,7 @@ export class AppComponent implements OnInit, OnDestroy {
    */
   private setInitialLanguage() {
     const storedLang = localStorage.getItem('lang');
-    
+
     if (storedLang && config.languagesToUse?.find(lang => lang.shortname === storedLang)) {
       this.translate.use(storedLang);
       this.translate.setDefaultLang(storedLang);
@@ -91,10 +92,10 @@ export class AppComponent implements OnInit, OnDestroy {
       // Use browser language for non-authenticated users
       const navigatorLang = window.navigator.language.toLowerCase();
       const baseLang = navigatorLang.replace(/-[A-Z]+$/, '');
-      const defaultLang = config.languagesToUse?.find(lang => 
+      const defaultLang = config.languagesToUse?.find(lang =>
         lang.shortname.toLowerCase() === baseLang
-      )?.shortname || config.defaultLang || 'en';
-      
+      )?.shortname ?? config.defaultLang ?? 'en';
+
       this.translate.use(defaultLang);
       this.translate.setDefaultLang(defaultLang);
     }

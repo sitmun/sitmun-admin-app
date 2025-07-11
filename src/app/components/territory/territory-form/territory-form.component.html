@@ -1,6 +1,7 @@
 <app-form-toolbar
-  icon="menu_territori"
-  entityType="territoryEntity.territory"
+  entityType="{{ config.labelSingular }}"
+  font="{{ config.font }}"
+  icon="{{ config.icon }}"
   [itemName]="territoryForm.get('name')?.value"
   [isNew]="territoryID === -1"
   (save)="onSaveButtonClicked()"

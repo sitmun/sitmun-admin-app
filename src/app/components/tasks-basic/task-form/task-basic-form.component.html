@@ -1,6 +1,7 @@
 <app-form-toolbar
-  icon="menu_tasques"
-  entityType="entity.task.basic.label"
+  entityType="{{ config.labelSingular }}"
+  font="{{ config.font }}"
+  icon="{{ config.icon }}"
   [itemName]="entityForm?.get('name')?.value"
   [isNew]="isNew()"
   [additionalText]="taskTypeNameTranslated"

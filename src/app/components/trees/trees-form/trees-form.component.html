@@ -1,6 +1,7 @@
 <app-form-toolbar
-  icon="menu_arbres"
-  entityType="sideMenu.trees"
+  entityType="{{ config.labelSingular }}"
+  font="{{ config.font }}"
+  icon="{{ config.icon }}"
   [itemName]="treeForm.get('name')?.value"
   [isNew]="treeID === -1"
   (save)="onSaveButtonClicked()"

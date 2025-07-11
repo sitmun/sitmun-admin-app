@@ -20,15 +20,15 @@ import {
   TranslationService,
   Tree,
   TreeService,
-  UserService,
-  User
+  User,
+  UserService
 } from '@app/domain';
 import {HalOptions} from '@app/core/hal/rest/rest.service';
 
 import {UtilsService} from '@app/services/utils.service';
 
 import {map} from 'rxjs/operators';
-import {firstValueFrom, Observable, EMPTY} from 'rxjs';
+import {EMPTY, firstValueFrom, Observable} from 'rxjs';
 import {
   DataGridComponent,
   isActive,
@@ -45,6 +45,7 @@ import {BaseFormComponent} from "@app/components/base-form.component";
 import {DataTableDefinition, TemplateDialog} from '@app/components/data-tables.util';
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoggerService} from "@app/services/logger.service";
+import {Configuration} from "@app/core/config/configuration";
 
 
 /**
@@ -59,6 +60,8 @@ import {LoggerService} from "@app/services/logger.service";
   styleUrls: ['./application-form.component.scss']
 })
 export class ApplicationFormComponent extends BaseFormComponent<ApplicationProjection> {
+  readonly config = Configuration.APPLICATION;
+
   /**
    * Data table configuration for managing application parameters.
    * Provides CRUD operations for parameters with validation and type management.
@@ -109,14 +112,14 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    * Used by the parameters table for adding new application parameters.
    */
   @ViewChild('newParameterDialog', {static: true})
-  private newParameterDialog: TemplateRef<any>;
+  private readonly newParameterDialog: TemplateRef<any>;
 
   /**
    * Reference to the trees data grid component.
    * Used to access grid data for tree-specific validation rules.
    */
   @ViewChild('treesDataGrid')
-  private treesDataGrid: DataGridComponent;
+  private readonly treesDataGrid: DataGridComponent;
 
   /**
    * Creates an instance of ApplicationFormComponent.

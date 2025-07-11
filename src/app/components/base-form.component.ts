@@ -12,8 +12,8 @@ import {CodeList, CodeListService, Language, Translation, TranslationService} fr
 import {MatDialog} from "@angular/material/dialog";
 import {map, tap} from "rxjs/operators";
 import {DialogTranslationComponent} from "@app/frontend-gui/src/lib/dialog-translation/dialog-translation.component";
-import { LoggerService } from "@app/services/logger.service";
-import { explainFormValidity } from "@app/utils/form.utils";
+import {LoggerService} from "@app/services/logger.service";
+import {explainFormValidity} from "@app/utils/form.utils";
 
 /**
  * Base class for SITMUN components that handle resource entities.
@@ -89,7 +89,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
   propertyTranslations: Map<string, PropertyTranslations> = new Map();
 
   /** Map of code list names to their associated values */
-  private codelists: Map<string, CodeList[]> = new Map();
+  private readonly codelists: Map<string, CodeList[]> = new Map();
 
   /** Stores the initial values of form controls for comparison */
   private initialFormValues: { [key: string]: any } = {};
@@ -324,9 +324,9 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
    * Handles the save button click event.
    * Validates the form, saves the entity, updates related data, and navigates as needed.
    *
-   * @returns {Promise<void>} Promise that resolves when the save operation completes
+   * @returns {Promise<boolean>} Promise that resolves when the save operation completes
    */
-  async onSaveButtonClicked() {
+  async onSaveButtonClicked(): Promise<boolean> {
     this.loggerService.info('onSaveButtonClicked', this.explainFormValidity());
     if (this.canSave()) {
       const duplicated = this.isDuplicated();
@@ -345,9 +345,10 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
         const parentRoute = segments.slice(0, -1)
           .map(segment => segment === '-1' ? ':id' : segment)
           .join('/');
-        this.router.navigate(['/' + parentRoute, this.entityID], { skipLocationChange: true });
+        return this.router.navigate(['/' + parentRoute, this.entityID], {skipLocationChange: true});
       }
     }
+    return Promise.resolve(false)
   }
 
   // ==================================================

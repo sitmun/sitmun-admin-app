@@ -37,6 +37,7 @@ import {
 } from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import assert from "assert";
+import {Configuration} from "@app/core/config/configuration";
 
 /**
  * Component for managing basic tasks in the SITMUN application.
@@ -58,6 +59,7 @@ import assert from "assert";
   styles: []
 })
 export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
+  readonly config = Configuration.TASK_EDIT;
 
   /**
    * The reactive form for editing task properties.

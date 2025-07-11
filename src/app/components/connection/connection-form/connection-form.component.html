@@ -1,6 +1,7 @@
 <app-form-toolbar
-  icon="menu_connexio"
-  entityType="entity.connection.label"
+  entityType="{{ config.labelSingular }}"
+  font="{{ config.font }}"
+  icon="{{ config.icon }}"
   [itemName]="itemName('name')"
   [isNew]="isNewOrDuplicated()"
   (save)="onSaveButtonClicked()"

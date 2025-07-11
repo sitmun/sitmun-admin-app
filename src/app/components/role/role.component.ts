@@ -9,6 +9,7 @@ import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
+import {Configuration} from '@app/core/config/configuration';
 
 @Component({
   selector: 'app-role',
@@ -17,8 +18,9 @@ import {EntityListConfig} from "@app/components/shared/entity-list";
 })
 export class RoleComponent extends BaseListComponent<Role> {
   entityListConfig: EntityListConfig<Role> = {
-    entityLabel: 'entity.role.label',
-    iconName: 'menu_rol',
+    entityLabel: Configuration.ROLE.labelPlural,
+    iconName: Configuration.ROLE.icon,
+    font: Configuration.ROLE.font,
     columnDefs: [],
     dataFetchFn: () => this.roleService.getAll(),
     defaultColumnSorting: ['name'],

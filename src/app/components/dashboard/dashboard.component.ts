@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { DashboardService } from '@app/domain';
-import { HttpClient } from '@angular/common/http';
-import { UtilsService } from '@app/services/utils.service';
+import {Component, OnInit} from '@angular/core';
+import {DashboardService} from '@app/domain';
+import {UtilsService} from '@app/services/utils.service';
+import {Configuration} from '@app/core/config/configuration';
 
 @Component({
   selector: 'app-dashboard',
@@ -9,6 +9,8 @@ import { UtilsService } from '@app/services/utils.service';
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
+
+  readonly config = Configuration.DASHBOARD;
 
   dataLoaded: boolean;
 
@@ -26,10 +28,8 @@ export class DashboardComponent implements OnInit {
   usersToShow = [];
   usersPerApplication;
   usersPerApplicationChartData=[];
-  usersPerApplicationToShow = [];
 
   constructor(
-    private http: HttpClient,
     public utils: UtilsService,
     public dashboardService: DashboardService,
     ) { }

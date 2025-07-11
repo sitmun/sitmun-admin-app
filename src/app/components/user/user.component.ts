@@ -9,6 +9,7 @@ import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
+import {Configuration} from '@app/core/config/configuration';
 
 @Component({
   selector: 'app-user',
@@ -17,8 +18,9 @@ import {EntityListConfig} from "@app/components/shared/entity-list";
 })
 export class UserComponent extends BaseListComponent<User> {
   entityListConfig: EntityListConfig<User> = {
-    entityLabel: 'entity.user.label',
-    iconName: 'menu_usuari',
+    entityLabel: Configuration.USER.labelPlural,
+    iconName: Configuration.USER.icon,
+    font: Configuration.USER.font,
     columnDefs: [],
     dataFetchFn: () => this.userService.getAll(),
     defaultColumnSorting: ['name'],

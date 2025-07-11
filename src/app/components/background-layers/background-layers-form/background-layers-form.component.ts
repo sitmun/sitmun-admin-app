@@ -20,7 +20,7 @@ import {
   TranslationService,
 } from '@app/domain';
 import {UtilsService} from '@app/services/utils.service';
-import {firstValueFrom, of, EMPTY} from 'rxjs';
+import {EMPTY, firstValueFrom} from 'rxjs';
 import {onCreate, onDelete, onUpdate, onUpdatedRelation, Status} from '@app/frontend-gui/src/lib/public_api';
 import {map} from 'rxjs/operators';
 import {MatDialog} from '@angular/material/dialog';
@@ -30,6 +30,7 @@ import {DataTableDefinition} from "@app/components/data-tables.util";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {constants} from "@environments/constants";
 import {LoggerService} from "@app/services/logger.service";
+import {Configuration} from "@app/core/config/configuration";
 
 /**
  * Component for managing background layers in the SITMUN application.
@@ -81,6 +82,7 @@ import {LoggerService} from "@app/services/logger.service";
   templateUrl: './background-layers-form.component.html',
 })
 export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundProjection> {
+  readonly config = Configuration.BACKGROUND_LAYER;
 
   /**
    * Cartography group associated with this background.

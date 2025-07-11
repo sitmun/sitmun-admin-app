@@ -1,6 +1,7 @@
 <app-form-toolbar
-  icon="ic_gruptasca"
-  entityType="entity.taskGroup.label"
+  entityType="{{ config.labelSingular }}"
+  font="{{ config.font }}"
+  icon="{{ config.icon }}"
   [itemName]="entityForm?.get('name')?.value"
   [isNew]="isNew()"
   (save)="onSaveButtonClicked()"

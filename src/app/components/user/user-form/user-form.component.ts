@@ -3,10 +3,16 @@ import {Component, OnInit} from '@angular/core';
 import {AbstractControl, UntypedFormControl, UntypedFormGroup, ValidationErrors, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {
-  UserService, UserPositionService, UserConfigurationService,
-  TerritoryService, RoleService, Territory, User, Role
+  Role,
+  RoleService,
+  Territory,
+  TerritoryService,
+  User,
+  UserConfigurationService,
+  UserPositionService,
+  UserService
 } from '@app/domain';
-import { HalOptions, HalParam } from '@app/core/hal/rest/rest.service';
+import {HalOptions, HalParam} from '@app/core/hal/rest/rest.service';
 import {HttpClient} from '@angular/common/http';
 import {UtilsService} from '@app/services/utils.service';
 import {map} from 'rxjs/operators';
@@ -17,7 +23,8 @@ import {DialogGridComponent, DialogMessageComponent} from '@app/frontend-gui/src
 import {MatDialog} from '@angular/material/dialog';
 import {constants} from '@environments/constants';
 import {MatTabChangeEvent} from '@angular/material/tabs';
-import { LoggerService } from '@app/services/logger.service';
+import {LoggerService} from '@app/services/logger.service';
+import {Configuration} from "@app/core/config/configuration";
 
 @Component({
   selector: 'app-user-form',
@@ -25,6 +32,7 @@ import { LoggerService } from '@app/services/logger.service';
   styles: []
 })
 export class UserFormComponent implements OnInit {
+  readonly config = Configuration.USER;
 
   //Form
   userForm: UntypedFormGroup;

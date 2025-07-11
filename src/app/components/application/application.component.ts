@@ -9,6 +9,7 @@ import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
+import {Configuration} from '@app/core/config/configuration';
 
 @Component({
   selector: 'app-application',
@@ -17,8 +18,9 @@ import {EntityListConfig} from "@app/components/shared/entity-list";
 })
 export class ApplicationComponent extends BaseListComponent<Application> {
   entityListConfig: EntityListConfig<Application> = {
-    entityLabel: 'entity.application.label',
-    iconName: 'ic_gruptasca',
+    entityLabel: Configuration.APPLICATION.labelPlural,
+    iconName: Configuration.APPLICATION.icon,
+    font: Configuration.APPLICATION.font,
     columnDefs: [],
     dataFetchFn: () => this.applicationService.getAll(),
     defaultColumnSorting: ['name'],

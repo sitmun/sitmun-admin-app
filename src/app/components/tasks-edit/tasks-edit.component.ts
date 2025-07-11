@@ -11,6 +11,7 @@ import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
 import {config} from '@config';
 import {HalOptions, HalParam} from '@app/core/hal'
+import {Configuration} from '@app/core/config/configuration';
 
 @Component({
   selector: 'app-tasks-edit',
@@ -19,8 +20,9 @@ import {HalOptions, HalParam} from '@app/core/hal'
 })
 export class TasksEditComponent extends BaseListComponent<Task> {
   entityListConfig: EntityListConfig<Task> = {
-    entityLabel: 'entity.task.edit.label',
-    iconName: 'menu_tasques',
+    entityLabel: Configuration.TASK_EDIT.labelPlural,
+    iconName: Configuration.TASK_EDIT.icon,
+    font: Configuration.TASK_EDIT.font,
     columnDefs: [],
     dataFetchFn: () => {
       const taskTypeID = config.tasksTypes.edit;

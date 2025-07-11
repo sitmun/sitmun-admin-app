@@ -1,10 +1,6 @@
-import { Component } from '@angular/core';
-import {
-  UntypedFormControl,
-  UntypedFormGroup,
-  Validators,
-} from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import {Component} from '@angular/core';
+import {UntypedFormControl, UntypedFormGroup, Validators,} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
 import {
   ApplicationProjection,
   ApplicationService,
@@ -19,21 +15,18 @@ import {
   RoleService,
   TranslationService,
 } from '@app/domain';
-import { UtilsService } from '@app/services/utils.service';
-import { firstValueFrom, of, EMPTY } from 'rxjs';
-import {
-  onUpdate,
-  onUpdatedRelation,
-  Status,
-} from '@app/frontend-gui/src/lib/public_api';
-import { map } from 'rxjs/operators';
-import { MatDialog } from '@angular/material/dialog';
-import { TranslateService } from '@ngx-translate/core';
-import { BaseFormComponent } from '@app/components/base-form.component';
-import { DataTableDefinition } from '@app/components/data-tables.util';
-import { ErrorHandlerService } from '@app/services/error-handler.service';
-import { constants } from '@environments/constants';
-import { LoggerService } from '@app/services/logger.service';
+import {UtilsService} from '@app/services/utils.service';
+import {EMPTY, firstValueFrom} from 'rxjs';
+import {onUpdate, onUpdatedRelation, Status,} from '@app/frontend-gui/src/lib/public_api';
+import {map} from 'rxjs/operators';
+import {MatDialog} from '@angular/material/dialog';
+import {TranslateService} from '@ngx-translate/core';
+import {BaseFormComponent} from '@app/components/base-form.component';
+import {DataTableDefinition} from '@app/components/data-tables.util';
+import {ErrorHandlerService} from '@app/services/error-handler.service';
+import {constants} from '@environments/constants';
+import {LoggerService} from '@app/services/logger.service';
+import {Configuration} from "@app/core/config/configuration";
 
 @Component({
   selector: 'app-layers-permits-form',
@@ -50,6 +43,8 @@ import { LoggerService } from '@app/services/logger.service';
  * 4. Application relationships
  */
 export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGroupProjection> {
+  readonly config = Configuration.LAYERS_PERMIT;
+
   /**
    * Types of permission groups available.
    * Filtered to only show relevant types for this form.

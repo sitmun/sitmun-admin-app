@@ -9,6 +9,7 @@ import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
+import {Configuration} from '@app/core/config/configuration';
 
 @Component({
   selector: 'app-trees',
@@ -17,8 +18,9 @@ import {EntityListConfig} from "@app/components/shared/entity-list";
 })
 export class TreesComponent extends BaseListComponent<Tree> {
   entityListConfig: EntityListConfig<Tree> = {
-    entityLabel: 'entity.tree.label',
-    iconName: 'menu_arbres',
+    entityLabel: Configuration.TREE.labelPlural,
+    iconName: Configuration.TREE.icon,
+    font: Configuration.TREE.font,
     columnDefs: [],
     dataFetchFn: () => this.treeService.getAll(),
     defaultColumnSorting: ['name'],

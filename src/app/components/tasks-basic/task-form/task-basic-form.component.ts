@@ -29,7 +29,7 @@ import {UtilsService} from "@app/services/utils.service";
 import {LoggerService} from "@app/services/logger.service";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {DataTableDefinition, TemplateDialog} from "@app/components/data-tables.util";
-import {firstValueFrom, map, of, EMPTY} from "rxjs";
+import {EMPTY, firstValueFrom, map, of} from "rxjs";
 import {
   canKeepOrUpdate,
   onCreate,
@@ -39,6 +39,7 @@ import {
 } from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import assert from "assert";
+import {Configuration} from "@app/core/config/configuration";
 
 /**
  * Component for managing basic tasks in the SITMUN application.
@@ -60,6 +61,7 @@ import assert from "assert";
   styles: []
 })
 export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
+  readonly config = Configuration.TASK_BASIC;
 
   /**
    * The reactive form for editing task properties.

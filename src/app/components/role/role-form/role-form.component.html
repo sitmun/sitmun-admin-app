@@ -1,6 +1,7 @@
 <app-form-toolbar
-  icon="menu_rol"
-  entityType="entity.role.label"
+  entityType="{{ config.labelSingular }}"
+  font="{{ config.font }}"
+  icon="{{ config.icon }}"
   [itemName]="itemName('name')"
   [isNew]="isNewOrDuplicated()"
   (save)="onSaveButtonClicked()"

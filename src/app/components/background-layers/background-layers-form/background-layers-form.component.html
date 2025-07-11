@@ -1,6 +1,7 @@
 <app-form-toolbar
-  icon="menu_capes_fons"
-  entityType="entity.background.label"
+  entityType="{{ config.labelSingular }}"
+  font="{{ config.font }}"
+  icon="{{ config.icon }}"
   [itemName]="entityForm?.get('name')?.value"
   [isNew]="isNewOrDuplicated()"
   (save)="onSaveButtonClicked()"

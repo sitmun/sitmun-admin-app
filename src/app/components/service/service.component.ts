@@ -9,6 +9,7 @@ import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
+import {Configuration} from "@app/core/config/configuration";
 
 @Component({
   selector: 'app-service',
@@ -17,8 +18,9 @@ import {EntityListConfig} from "@app/components/shared/entity-list";
 })
 export class ServiceComponent extends BaseListComponent<Service> {
   entityListConfig: EntityListConfig<Service> = {
-    entityLabel: 'entity.connection.label',
-    iconName: 'menu_servei',
+    entityLabel: Configuration.SERVICE.labelPlural,
+    iconName: Configuration.SERVICE.icon,
+    font: Configuration.SERVICE.font,
     columnDefs: [],
     dataFetchFn: () => this.serviceService.getAll(),
     defaultColumnSorting: ['name'],

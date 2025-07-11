@@ -98,27 +98,6 @@ import {TasksBasicComponent} from '@app/components/tasks-basic/tasks-basic.compo
 import {TaskBasicFormComponent} from '@app/components/tasks-basic/task-form/task-basic-form.component';
 import {TasksQueryComponent} from "@app/components/tasks-query/tasks-query.component";
 import {TaskQueryFormComponent} from "@app/components/tasks-query/task-form/task-query-form.component";
-import {TaskFormComponent} from '@app/components/task-form/task-form.component';
-import {TasksEditionComponent} from '@app/components/tasks-edition/tasks-edition.component';
-import {
-  TasksEditionRelationTableComponent
-} from '@app/components/tasks-edition-relation-table/tasks-edition-relation-table.component';
-import {TasksDocumentComponent} from '@app/components/tasks-document/tasks-document.component';
-import {TasksExtractionFmeComponent} from '@app/components/tasks-extraction-fme/tasks-extraction-fme.component';
-import {TasksLocatorComponent} from '@app/components/tasks-locator/tasks-locator.component';
-import {
-  TasksEditionDataTableComponent
-} from '@app/components/tasks-edition-data-table/tasks-edition-data-table.component';
-import {
-  TasksEditionCartographyTableComponent
-} from '@app/components/tasks-edition-cartography-table/tasks-edition-cartography-table.component';
-import {TasksThematicComponent} from '@app/components/tasks-thematic/tasks-thematic.component';
-import {
-  TasksEditionSearchViewComponent
-} from '@app/components/tasks-edition-search-view/tasks-edition-search-view.component';
-import {TasksDownloadComponent} from '@app/components/tasks-download/tasks-download.component';
-import {TasksReportComponent} from '@app/components/tasks-report/tasks-report.component';
-import {TasksMoreInfoComponent} from '@app/components/tasks-more-info/tasks-more-info.component';
 import {TaskEditFormComponent} from '@app/components/tasks-edit/task-form/task-edit-form.component';
 import {TasksEditComponent} from '@app/components/tasks-edit/tasks-edit.component';
 
@@ -126,7 +105,7 @@ import {LoginComponent} from '@app/components/login/login.component';
 import {LogLevelControlComponent} from '@app/components/shared/log-level-control/log-level-control.component';
 import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
 import {DashboardComponent} from '@app/components/dashboard/dashboard.component';
-import {NgTemplateNameDirective} from '@app/components/task-form/ng-template-name.directive';
+
 import {CharacterCountPipe} from '@app/components/shared/character-counter-hint/character-count.pipe';
 import {ExternalConfigurationService} from '@app/core/config/external-configuration.service';
 import {EntityListComponent} from '@app/components/shared/entity-list';
@@ -135,7 +114,7 @@ import {BaseFormComponent} from "@app/components/base-form.component";
 import {DataTablesRegistry} from "@app/components/data-tables.util";
 import {Resource} from "@app/core/hal/resource/resource.model";
 import {ErrorPageComponent} from "@app/components/error-page/error-page.component";
-import { MessagesInterceptor, MessagesInterceptorStateService } from './core/interceptors/messages.interceptor';
+import {MessagesInterceptorStateService} from './core/interceptors/messages.interceptor';
 
 
 // APP_INITIALIZER factory functions
@@ -290,24 +269,10 @@ function getDefaultLanguage(languages: any[]): string {
     TaskGroupFormComponent,
     LoginComponent,
     DashboardComponent,
-    NgTemplateNameDirective,
     LogLevelControlComponent,
     UserInfoComponent,
     FormToolbarComponent,
     CharacterCountPipe,
-    TaskFormComponent,
-    TasksEditionComponent,
-    TasksEditionRelationTableComponent,
-    TasksDocumentComponent,
-    TasksExtractionFmeComponent,
-    TasksLocatorComponent,
-    TasksEditionDataTableComponent,
-    TasksEditionCartographyTableComponent,
-    TasksThematicComponent,
-    TasksEditionSearchViewComponent,
-    TasksDownloadComponent,
-    TasksReportComponent,
-    TasksMoreInfoComponent,
     TranslationDebugComponent,
     UrlInputDirective,
     TaskEditFormComponent,

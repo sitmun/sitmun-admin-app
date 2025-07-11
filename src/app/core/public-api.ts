@@ -32,4 +32,9 @@ export * from './interceptors/messages.interceptor';
 export * from './hal';
 
 // Core module
-export * from './core.module'; 
+export * from './core.module';
+
+// SITMUN configuration
+export * from './config/configuration';
+export * from './config/configuration.service';
+export * from './config/base-configuration.component'; 

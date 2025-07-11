@@ -37,6 +37,7 @@ import {BaseFormComponent} from "@app/components/base-form.component";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {DataTableDefinition, TemplateDialog} from "@app/components/data-tables.util";
 import {WMSCapabilitiesService, WMSLayersCapabilities} from "@app/services/wms-capabilities.service";
+import {Configuration} from "@app/core/config/configuration";
 
 /**
  * Component for managing service forms in the application.
@@ -97,6 +98,8 @@ import {WMSCapabilitiesService, WMSLayersCapabilities} from "@app/services/wms-c
 })
 export class ServiceFormComponent extends BaseFormComponent<Service> implements OnInit, OnDestroy {
 
+  readonly config = Configuration.SERVICE;
+
   /**
    * Flag indicating if projections can be removed from the service.
    * Always true as projections are user-manageable.
@@ -152,7 +155,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
    * Provides a user-friendly interface for parameter creation.
    */
   @ViewChild('newParameterDialog', {static: true})
-  private newParameterDialog: TemplateRef<any>;
+  private readonly newParameterDialog: TemplateRef<any>;
 
   /**
    * Creates an instance of ServiceFormComponent.
@@ -185,7 +188,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
     public serviceParameterService: ServiceParameterService,
     public cartographyStyleService: CartographyStyleService,
     public wmsCapabilitiesService: WMSCapabilitiesService,
-    private serviceService: ServiceService,
+    private readonly serviceService: ServiceService,
   ) {
     super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router);
     this.layersTable = this.defineLayersTable();
@@ -414,7 +417,6 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   duplicateParameters(parameters: ServiceParameter[]) {
     throw new Error("Not implemented")
-    //this.duplicate(ServiceParameter, parameters, this.addElementsEventParameters);
   }
 
   /**

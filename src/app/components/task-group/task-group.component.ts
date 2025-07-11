@@ -9,6 +9,7 @@ import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
+import {Configuration} from '@app/core/config/configuration';
 
 @Component({
   selector: 'app-task-group',
@@ -17,8 +18,9 @@ import {EntityListConfig} from "@app/components/shared/entity-list";
 })
 export class TaskGroupComponent extends BaseListComponent<TaskGroup> {
   entityListConfig: EntityListConfig<TaskGroup> = {
-    entityLabel: 'entity.taskGroup.label',
-    iconName: 'ic_gruptasca',
+    entityLabel: Configuration.TASK_GROUP.labelPlural,
+    iconName: Configuration.TASK_GROUP.icon,
+    font: Configuration.TASK_GROUP.font,
     columnDefs: [],
     dataFetchFn: () => this.taskgroupService.getAll(),
     defaultColumnSorting: ['name'],

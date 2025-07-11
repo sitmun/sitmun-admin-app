@@ -1,10 +1,12 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
-import { Resource } from '@app/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
+import {Observable, Subject} from 'rxjs';
+import {Resource} from '@app/core';
 
 export interface EntityListConfig<T> {
   /** Translation key for the entity label */
   entityLabel: string;
+
+  font: string;
   /** Icon name for the entity */
   iconName: string;
   /** Column definitions for the data grid */
@@ -35,7 +37,7 @@ export interface EntityListConfig<T> {
 export class EntityListComponent<T extends Resource> implements OnInit, OnChanges {
   @Input() config!: EntityListConfig<T>;
   @Input() isDataLoaded = false;
-  
+
   @Output() removeData = new EventEmitter<T[]>();
   @Output() newDataEvent = new EventEmitter<number>();
   @Output() duplicateData = new EventEmitter<T[]>();
@@ -121,4 +123,4 @@ export class EntityListComponent<T extends Resource> implements OnInit, OnChange
   onGridModified(value: boolean): void {
     this.gridModifiedEvent.emit(value);
   }
-} 
+}

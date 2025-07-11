@@ -1,35 +1,36 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 
-import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
 import {
-  RoleService,
-  Role,
-  UserService,
-  CartographyGroupService,
-  TaskService,
-  TaskProjection,
-  UserConfigurationService,
-  TerritoryService,
-  User,
-  TerritoryProjection,
-  ApplicationService,
   Application,
-  TranslationService,
+  ApplicationService,
+  CartographyGroupService,
   CodeListService,
-  UserConfigurationProjection,
+  Role,
+  RoleService,
+  TaskProjection,
+  TaskService,
+  TerritoryProjection,
+  TerritoryService,
+  TranslationService,
+  User,
   UserConfiguration,
+  UserConfigurationProjection,
+  UserConfigurationService,
+  UserService,
 } from '@app/domain';
-import { UtilsService } from '@app/services/utils.service';
-import { firstValueFrom, EMPTY } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { Status, onUpdate, onDelete, onCreate, onUpdatedRelation } from '@app/frontend-gui/src/lib/public_api';
-import { MatDialog } from '@angular/material/dialog';
-import { LoggerService } from '@app/services/logger.service';
-import { BaseFormComponent } from '@app/components/base-form.component';
-import { TranslateService } from '@ngx-translate/core';
-import { ErrorHandlerService } from '@app/services/error-handler.service';
-import { DataTable2Definition, DataTableDefinition } from '@app/components/data-tables.util';
+import {UtilsService} from '@app/services/utils.service';
+import {EMPTY, firstValueFrom} from 'rxjs';
+import {map} from 'rxjs/operators';
+import {onCreate, onDelete, onUpdate, onUpdatedRelation, Status} from '@app/frontend-gui/src/lib/public_api';
+import {MatDialog} from '@angular/material/dialog';
+import {LoggerService} from '@app/services/logger.service';
+import {BaseFormComponent} from '@app/components/base-form.component';
+import {TranslateService} from '@ngx-translate/core';
+import {ErrorHandlerService} from '@app/services/error-handler.service';
+import {DataTable2Definition, DataTableDefinition} from '@app/components/data-tables.util';
+import {Configuration} from "@app/core/config/configuration";
 
 @Component({
   selector: 'app-role-form',
@@ -37,6 +38,7 @@ import { DataTable2Definition, DataTableDefinition } from '@app/components/data-
   styles: []
 })
 export class RoleFormComponent extends BaseFormComponent<Role> {
+  readonly config = Configuration.ROLE;
 
   /**
    * Data table configuration for managing application parameters.
@@ -58,7 +60,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
     errorHandler: ErrorHandlerService,
     activatedRoute: ActivatedRoute,
     router: Router,
-    private roleService: RoleService,
+    private readonly roleService: RoleService,
     public cartographyGroupService: CartographyGroupService,
     public tasksService: TaskService,
     public applicationService: ApplicationService,

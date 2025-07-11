@@ -52,6 +52,7 @@ import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {DataTableDefinition, TemplateDialog} from '@app/components/data-tables.util';
 import {HttpClient} from "@angular/common/http";
 import {FeatureFlagService} from '@app/core/features/feature-flag.service';
+import {Configuration} from "@app/core/config/configuration";
 
 @Component({
   selector: 'app-layers-form',
@@ -59,6 +60,7 @@ import {FeatureFlagService} from '@app/core/features/feature-flag.service';
   styles: []
 })
 export class LayersFormComponent extends BaseFormComponent<CartographyProjection> {
+  readonly config = Configuration.LAYER;
 
   protected readonly treesNodesTable: DataTableDefinition<TreeNodeProjection, TreeNodeProjection>;
   protected readonly cartographyPermissionsTable: DataTableDefinition<CartographyGroupProjection, CartographyGroupProjection>;
@@ -108,11 +110,11 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
 
   @ViewChild('newParameterDialog', {
     static: true
-  }) private newParameterDialog: TemplateRef<any>;
+  }) private readonly newParameterDialog: TemplateRef<any>;
 
   @ViewChild('newTerritorialFilterDialog', {
     static: true
-  }) private newTerritorialFilterDialog: TemplateRef<any>;
+  }) private readonly newTerritorialFilterDialog: TemplateRef<any>;
 
   @ViewChild('newStyleDialog', { static: true})
   private readonly newStyleDialog: TemplateRef<any>;

@@ -1,8 +1,10 @@
 <mat-toolbar>
   <span class="spacer"></span>
   <h4>
-    <mat-icon aria-hidden="true" [svgIcon]="config?.iconName"></mat-icon>
-    <span> {{ config?.entityLabel | translate }}</span>
+    <span>
+    <mat-icon aria-hidden="true" fontSet="{{ config.font }}">{{ config.iconName }}</mat-icon>
+      {{ config.entityLabel | translate }}
+    </span>
   </h4>
 </mat-toolbar>
 <mat-card class="sitmun-mat-card-margin" appearance="outlined">
@@ -30,4 +32,4 @@
       *ngIf="dataLoaded">
     </app-data-grid>
   </mat-card-content>
-</mat-card> 
+</mat-card>

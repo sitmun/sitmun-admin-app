@@ -9,6 +9,7 @@ import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
+import {Configuration} from '@app/core/config/configuration';
 
 @Component({
   selector: 'app-background-layers',
@@ -17,8 +18,9 @@ import {EntityListConfig} from "@app/components/shared/entity-list";
 })
 export class BackgroundLayersComponent extends BaseListComponent<Background> {
   entityListConfig: EntityListConfig<Background> = {
-    entityLabel: 'entity.background.label',
-    iconName: 'menu_capes_fons',
+    entityLabel: Configuration.BACKGROUND_LAYER.labelPlural,
+    iconName: Configuration.BACKGROUND_LAYER.icon,
+    font: Configuration.BACKGROUND_LAYER.font,
     columnDefs: [],
     dataFetchFn: () => this.backgroundService.getAll(),
     defaultColumnSorting: ['name'],

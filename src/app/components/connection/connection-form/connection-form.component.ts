@@ -19,7 +19,14 @@ import {LoggerService} from '@app/services/logger.service';
 import {DataTableDefinition} from '@app/components/data-tables.util';
 import {TranslateService} from '@ngx-translate/core';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
+import {Configuration} from "@app/core/config/configuration";
 
+/**
+ * Component for managing connection forms in the SITMUN application.
+ * Extends BaseFormComponent to provide base functionality for connection management.
+ *
+ * @extends BaseFormComponent<Connection>
+ */
 @Component({
   selector: 'app-connection-form',
   templateUrl: './connection-form.component.html',
@@ -27,6 +34,7 @@ import {ErrorHandlerService} from '@app/services/error-handler.service';
 })
 export class ConnectionFormComponent extends BaseFormComponent<Connection> {
 
+  readonly config = Configuration.CONNECTION;
   readonly tasksTable: DataTableDefinition<TaskProjection, TaskProjection>
 
   /** Flag indicating if the password is set */

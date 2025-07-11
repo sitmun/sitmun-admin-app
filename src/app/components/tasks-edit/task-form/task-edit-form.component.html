@@ -4,8 +4,9 @@
   [additionalText]="taskTypeNameTranslated"
   [isNew]="isNew()"
   [itemName]="entityForm?.get('name')?.value"
-  entityType="entity.task.edit.label"
-  icon="menu_tasques">
+  entityType="{{ config.labelSingular }}"
+  font="{{ config.font }}"
+  icon="{{ config.icon }}">
 </app-form-toolbar>
 
 <mat-tab-group

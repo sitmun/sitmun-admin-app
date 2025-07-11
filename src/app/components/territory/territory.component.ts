@@ -16,6 +16,7 @@ import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
+import {Configuration} from '@app/core/config/configuration';
 
 @Component({
   selector: 'app-territory',
@@ -26,8 +27,9 @@ export class TerritoryComponent extends BaseListComponent<Territory> {
   territoryTypes: TerritoryType[] = [];
 
   entityListConfig: EntityListConfig<Territory> = {
-    entityLabel: 'entity.territory.label',
-    iconName: 'menu_territori',
+    entityLabel: Configuration.TERRITORY.labelPlural,
+    iconName: Configuration.TERRITORY.icon,
+    font: Configuration.TERRITORY.font,
     columnDefs: [],
     dataFetchFn: () => this.territoryService.getAll(),
     defaultColumnSorting: ['name'],

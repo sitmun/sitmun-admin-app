@@ -1,17 +1,17 @@
-<mat-sidenav-container class="sidenav-container">
+<mat-sidenav-container *ngIf="loaded" class="sidenav-container">
   <mat-sidenav #sidenav class="sidenav" mode="side" opened>
     <ul>
       <div *ngFor="let menuOptions of menus; let i = index" [ngClass]="i === 0 ? 'primerMenu' : 'altresMenus'">
         <li *ngFor="let option of menuOptions" class="side-nav-option">
           <a *ngIf="option.children === null" [routerLink]="[option.id]" routerLinkActive="active">
-            <mat-icon aria-hidden="false" aria-label="Example home icon" svgIcon="{{ option.icon }}"></mat-icon>
-            <span>{{ option.label | translate }}</span>
+            <mat-icon aria-hidden="false" fontSet="{{ option.font }}">{{ option.icon }}</mat-icon>
+            {{ option.label | translate }}
           </a>
           <mat-expansion-panel class="mat-elevation-z0 remove-mat-expansion-panel-padding" *ngIf="option.children !== null">
             <mat-expansion-panel-header class="expandible-option">
               <mat-panel-title>
                 <a class="side-nav-option">
-                  <mat-icon aria-hidden="false" aria-label="Example home icon" svgIcon="{{ option.icon }}"></mat-icon>
+                  <mat-icon aria-hidden="false" fontSet="{{ option.font }}">{{ option.icon }}</mat-icon>
                   <span>{{ option.label | translate }}</span>
                 </a>
               </mat-panel-title>
@@ -24,8 +24,7 @@
                 <mat-expansion-panel-header class="expandible-option">
                   <mat-panel-title>
                     <a class="side-nav-option">
-                      <mat-icon aria-hidden="false" aria-label="Example home icon"
-                                svgIcon="{{ expandOption.icon }}"></mat-icon>
+                      <mat-icon aria-hidden="false" fontSet="{{ option.font }}">{{ option.icon }}</mat-icon>
                       <a class="childrenOption">
                         <span
                           class="expandOptionChildren">{{ expandOption.label | translate }}

@@ -5,8 +5,8 @@ import {
   CodeListService,
   TaskGroup,
   TaskGroupService,
-  TaskService,
   TaskProjection,
+  TaskService,
   TranslationService
 } from '@app/domain';
 import {LoggerService} from '@app/services/logger.service';
@@ -17,6 +17,7 @@ import {TranslateService} from '@ngx-translate/core';
 import {firstValueFrom, map} from 'rxjs';
 import {UtilsService} from '@app/services/utils.service';
 import {DataTableDefinition} from "@app/components/data-tables.util";
+import {Configuration} from "@app/core/config/configuration";
 
 @Component({
   selector: 'app-task-group-form',
@@ -24,7 +25,7 @@ import {DataTableDefinition} from "@app/components/data-tables.util";
   styles: []
 })
 export class TaskGroupFormComponent extends BaseFormComponent<TaskGroup> {
-
+  readonly config = Configuration.TASK_GROUP;
 
   /**
    * Data table definition for managing role assignments to the task.

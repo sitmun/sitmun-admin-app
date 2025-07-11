@@ -1,32 +1,35 @@
-import { NgModule, ModuleWithProviders, Optional, SkipSelf } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { RouterModule } from '@angular/router';
-import { ConfigModule } from './config/config.module';
-import { FeatureFlagDirective } from './features/feature-flag.directive';
-import { FeatureFlagPipe } from './features/feature-flag.pipe';
-import { FeatureFlagComponent } from './features/feature-flag.component';
-import { FeatureFlagService } from './features/feature-flag.service';
+import {ModuleWithProviders, NgModule, Optional, SkipSelf} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
+import {RouterModule} from '@angular/router';
+import {ConfigModule} from './config/config.module';
+import {FeatureFlagDirective} from './features/feature-flag.directive';
+import {FeatureFlagPipe} from './features/feature-flag.pipe';
+import {FeatureFlagComponent} from './features/feature-flag.component';
+import {FeatureFlagService} from './features/feature-flag.service';
 
 // Auth services
-import { AuthService } from './auth/auth.service';
-import { Principal } from './auth/principal.service';
-import { LoginService } from './auth/login.service';
+import {AuthService} from './auth/auth.service';
+import {Principal} from './auth/principal.service';
+import {LoginService} from './auth/login.service';
 
 // Account services
-import { AccountService } from './account/account.service';
+import {AccountService} from './account/account.service';
 
 // Directives
-import { HasAnyAuthorityDirective } from './directives/has-any-authority.directive';
-import { HasAnyAuthorityOnTerritoryDirective } from './directives/has-any-authority-on-territory.directive';
+import {HasAnyAuthorityDirective} from './directives/has-any-authority.directive';
+import {HasAnyAuthorityOnTerritoryDirective} from './directives/has-any-authority-on-territory.directive';
 
 // Guards
-import { CanDeactivateGuard } from './guards/can-deactivate-guard.service';
+import {CanDeactivateGuard} from './guards/can-deactivate-guard.service';
 
 // Interceptors
-import { AuthInterceptor } from './interceptors/auth.interceptor';
-import { AuthExpiredInterceptor } from './interceptors/auth-expired.interceptor';
-import { MessagesInterceptor } from './interceptors/messages.interceptor';
+import {AuthInterceptor} from './interceptors/auth.interceptor';
+import {AuthExpiredInterceptor} from './interceptors/auth-expired.interceptor';
+import {MessagesInterceptor} from './interceptors/messages.interceptor';
+
+// SITMUN configuration services
+import {ConfigurationService} from './config/configuration.service';
 
 @NgModule({
   imports: [
@@ -75,6 +78,9 @@ export class CoreModule {
 
         // Guards
         CanDeactivateGuard,
+
+        // SITMUN configuration services
+        ConfigurationService,
 
         // Interceptors
         {
