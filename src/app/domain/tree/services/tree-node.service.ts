@@ -53,7 +53,7 @@ export class TreeNodeService extends RestService<TreeNode> {
           }, error => this.loggerService.error('Error substituting parent relation:', error));
       }
       else{
-          let treeNodeParent:any = {};
+        const treeNodeParent: any = {};
           treeNodeParent._links= {};
           treeNodeParent._links.self = {};
           treeNodeParent._links.self.href="";

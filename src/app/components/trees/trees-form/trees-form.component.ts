@@ -19,7 +19,7 @@ import {HttpClient} from '@angular/common/http';
 import {UtilsService} from '@app/services/utils.service';
 import {map} from 'rxjs/operators';
 import {config} from '@config';
-import {Observable, of, Subject} from 'rxjs';
+import {Observable, Subject, of} from 'rxjs';
 import {
   DataGridComponent,
   DataTreeComponent,
@@ -44,8 +44,9 @@ export class TreesFormComponent implements OnInit {
   readonly config = Configuration.TREE;
 
   //Translations
-  nameTranslationsModified: boolean = false;
-  descriptionTranslationsModified: boolean = false;
+  nameTranslationsModified = false;
+
+  descriptionTranslationsModified = false;
   nameTranslations: Map<number, Map<string, Translation>> = new Map<number, Map<string, Translation>>();
   descriptionTranslations: Map<number, Map<string, Translation>> = new Map<number, Map<string, Translation>>();
 
@@ -60,24 +61,30 @@ export class TreesFormComponent implements OnInit {
   getAllElementsEventApplication: Subject<string> = new Subject<string>();
 
   themeGrid: any = config.agGridTheme;
-  treeID: number = -1;
+
+  treeID = -1;
   duplicateID = -1;
   treeForm: UntypedFormGroup;
   treeNodeForm: UntypedFormGroup;
   public fieldsConfigForm: UntypedFormGroup;
   idFictitiousCounter = -1;
   treeToEdit: Tree;
-  dataLoaded: Boolean = false;
-  currentNodeIsFolder: Boolean;
+
+  dataLoaded = false;
+
+  currentNodeIsFolder: boolean;
   currentNodeName: string;
   currentNodeDescription: string;
   currentNodeType: string;
   currentTreeType: string;
-  currentNodeHasParent: Boolean;
+
+  currentNodeHasParent: boolean;
   currentViewMode: string;
-  fieldsConfigTreeGenerated: Boolean = false;
+
+  fieldsConfigTreeGenerated = false;
   selectedXPath: string;
-  newElement: Boolean = false;
+
+  newElement = false;
   duplicateToDo = false;
   sendNodeUpdated: Subject<any> = new Subject<any>();
   getAllElementsNodes: Subject<string> = new Subject<string>();
@@ -200,7 +207,7 @@ export class TreesFormComponent implements OnInit {
       if (params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
 
       if (this.treeID !== -1 || this.duplicateID != -1) {
-        let idToGet = this.treeID !== -1 ? this.treeID : this.duplicateID
+        const idToGet = this.treeID !== -1 ? this.treeID : this.duplicateID
 
         this.treeService.get(idToGet).subscribe(
           resp => {
@@ -232,8 +239,8 @@ export class TreesFormComponent implements OnInit {
                 .pipe(map((data: any[]) => data.filter(elem => elem.element == this.treeID || elem.column == config.translationColumns.treeNodeName ||
                   elem.column == config.translationColumns.treeNodeDescription)
                 )).subscribe(result => {
-                  let treeNameTranslations = [];
-                  let treeDescriptionTranslations = [];
+                const treeNameTranslations = [];
+                const treeDescriptionTranslations = [];
                   result.forEach(translation => {
                     if (translation.column == config.translationColumns.treeName) {
                       treeNameTranslations.push(translation)
@@ -305,13 +312,13 @@ export class TreesFormComponent implements OnInit {
     }
   }
 
-  private storeTranslationInMap(translation, map: Map<Number, Map<string, Translation>>, column: string) {
-    let currentTranslation = map.get(translation.element)
+  private storeTranslationInMap(translation, map: Map<number, Map<string, Translation>>, column: string) {
+    const currentTranslation = map.get(translation.element)
     if (currentTranslation != undefined) {
       this.utils.updateTranslations(currentTranslation, [translation])
     }
     else {
-      let newMap: Map<string, Translation> = this.utils.createTranslationsList(column)
+      const newMap: Map<string, Translation> = this.utils.createTranslationsList(column)
       this.utils.updateTranslations(newMap, [translation]);
       map.set(translation.element, newMap);
     }
@@ -334,7 +341,7 @@ export class TreesFormComponent implements OnInit {
     let url, service;
 
 
-    let dialogResult = await dialogRef.afterClosed().toPromise()
+    const dialogResult = await dialogRef.afterClosed().toPromise()
     if (dialogResult) {
       if (dialogResult.event === 'Add' && dialogResult.data && dialogResult.data[0].length > 0) {
         service = dialogResult.data[0][0];
@@ -346,9 +353,9 @@ export class TreesFormComponent implements OnInit {
             url += config.capabilitiesRequest.requestWithWMS
           }
 
-          let capabilitiesResult = await this.capabilitiesService.getInfo(url).toPromise();
+          const capabilitiesResult = await this.capabilitiesService.getInfo(url).toPromise();
           if (capabilitiesResult.success) {
-            let groupLayersResult = this.changeServiceDataByCapabilities(capabilitiesResult.asJson)
+            const groupLayersResult = this.changeServiceDataByCapabilities(capabilitiesResult.asJson)
             this.createNodesWithCapabilities(groupLayersResult, data, null)
           }
         }
@@ -361,7 +368,7 @@ export class TreesFormComponent implements OnInit {
       let newNode: any = {};
       let name = element.Title;
       if (name && name.length > 250) { name = name.substring(0, 249) }
-      let disallowNodeCreation = existingNodes.some(element => element.name == name);
+      const disallowNodeCreation = existingNodes.some(element => element.name == name);
       if (!disallowNodeCreation) {
         if (element.Layer) {  //Is folder
           newNode = this.createNewFolderWithCapabilities(element)
@@ -407,7 +414,7 @@ export class TreesFormComponent implements OnInit {
   }
 
   private createNewFolderWithCapabilities(capability) {
-    let newFolder: any = {};
+    const newFolder: any = {};
     newFolder.description = capability.Abstract;
     newFolder.radio = false;
     newFolder.isFolder = true;
@@ -416,12 +423,12 @@ export class TreesFormComponent implements OnInit {
 
 
     if (capability.MetadataURL != undefined) {
-      let metadataURL = Array.isArray(capability.MetadataURL) ? capability.MetadataURL[0] : capability.MetadataURL
+      const metadataURL = Array.isArray(capability.MetadataURL) ? capability.MetadataURL[0] : capability.MetadataURL
       newFolder.metadataURL = metadataURL.OnlineResource['xlink:href']
     }
 
     if (capability.DataURL != undefined) {
-      let DataURL = Array.isArray(capability.DataURL) ? capability.DataURL[0] : capability.DataURL
+      const DataURL = Array.isArray(capability.DataURL) ? capability.DataURL[0] : capability.DataURL
       newFolder.datasetURL = DataURL.OnlineResource['xlink:href']
     }
 
@@ -430,7 +437,7 @@ export class TreesFormComponent implements OnInit {
   }
 
   private createNewNodeWithCapabilities(capability) {
-    let newNode: any = {};
+    const newNode: any = {};
 
     let layersLyr; //Layers field to compare with cartographies
     if (Array.isArray(capability.Name)) {
@@ -443,7 +450,7 @@ export class TreesFormComponent implements OnInit {
 
 
     if (!layersLyr) { return null }
-    let cartography = this.layersList.find(element => element.layers.join() == layersLyr.join())
+    const cartography = this.layersList.find(element => element.layers.join() == layersLyr.join())
     if (!cartography) { return null }
 
     newNode.cartography = cartography;
@@ -454,8 +461,8 @@ export class TreesFormComponent implements OnInit {
   }
 
   changeServiceDataByCapabilities(serviceCapabilitiesData, refresh?): Array<any> {
-    let capabilitiesLayers = [];
-    let data = serviceCapabilitiesData.WMT_MS_Capabilities != undefined ? serviceCapabilitiesData.WMT_MS_Capabilities : serviceCapabilitiesData.WMS_Capabilities
+    const capabilitiesLayers = [];
+    const data = serviceCapabilitiesData.WMT_MS_Capabilities != undefined ? serviceCapabilitiesData.WMT_MS_Capabilities : serviceCapabilitiesData.WMS_Capabilities
     if (data != undefined) {
       let capability = data.Capability.Layer;
       while (capability.Layer != null && capability.Layer != undefined) {
@@ -637,7 +644,7 @@ export class TreesFormComponent implements OnInit {
   getAllServices = (): Observable<any> => {
     return this.serviceService.getAll().pipe(
       map((resp) => {
-        let wmsServices = [];
+        const wmsServices = [];
         resp.forEach(service => {
           if (service.type === 'WMS') { wmsServices.push(service) }
         });
@@ -651,13 +658,13 @@ export class TreesFormComponent implements OnInit {
       const aux: Array<any> = [];
       return of(aux);
     } else {
-      var urlReq = `${this.treeForm.value._links.allNodes.href}`
+      let urlReq = `${this.treeForm.value._links.allNodes.href}`
       if (this.treeForm.value._links.allNodes.templated) {
-        var url = new URL(urlReq.split("{")[0]);
+        const url = new URL(urlReq.split("{")[0]);
         url.searchParams.append("projection", "view")
         urlReq = url.toString();
       }
-      let response = (this.http.get(urlReq)).pipe(map(data => data['_embedded']['tree-nodes']))
+      const response = (this.http.get(urlReq)).pipe(map(data => data['_embedded']['tree-nodes']))
       return response;
     }
   }
@@ -731,14 +738,14 @@ export class TreesFormComponent implements OnInit {
       this.showImgPreview('node', node.image);
     });
     if (this.nameTranslations.has(node.id)) {
-      let translations = this.nameTranslations.get(node.id);
+      const translations = this.nameTranslations.get(node.id);
       this.treeNodeForm.patchValue({
         nameTranslations: translations
       })
     }
 
     if (this.descriptionTranslations.has(node.id)) {
-      let translations = this.descriptionTranslations.get(node.id);
+      const translations = this.descriptionTranslations.get(node.id);
       this.treeNodeForm.patchValue({
         descriptionTranslations: translations
       })
@@ -1047,7 +1054,7 @@ export class TreesFormComponent implements OnInit {
   }
 
   onSaveFormButtonClicked() {
-    let error = false;
+    const error = false;
     if (this.treeNodeForm.valid) {
       if (!this.currentNodeIsFolder) {
         if (this.currentNodeType === this.codeValues.treenodeLeafType.cartography) {
@@ -1165,7 +1172,7 @@ export class TreesFormComponent implements OnInit {
         this.utils.saveTranslation(resp.id, this.treeDescriptionTranslationMap, this.treeToEdit.description, this.descriptionTranslationsModified);
         this.descriptionTranslationsModified = false;
 
-        let mapNewIdentificators: Map<number, any[]> = new Map<number, any[]>();
+          const mapNewIdentificators: Map<number, any[]> = new Map<number, any[]>();
         const promises: Promise<any>[] = [];
         this.getAllElementsEventApplication.next('save');
         this.getAllElementsEventRoles.next('save');
@@ -1180,7 +1187,7 @@ export class TreesFormComponent implements OnInit {
 
   async updateAllTrees(treesToUpdate: any[], depth: number, mapNewIdentificators: Map<number, any[]>, promises: Promise<any>[], newId, newParent) {
     for (let i = 0; i < treesToUpdate.length; i++) {
-      let tree = treesToUpdate[i];
+      const tree = treesToUpdate[i];
 
       if (tree.status) {
         var treeNodeObj: TreeNode = new TreeNode();
@@ -1210,7 +1217,7 @@ export class TreesFormComponent implements OnInit {
 
           let urlReqCartography = `${tree._links.cartography.href}`
           if (tree._links.cartography.href) {
-            let url = new URL(urlReqCartography.split("{")[0]);
+            const url = new URL(urlReqCartography.split("{")[0]);
             url.searchParams.append("projection", "view")
             urlReqCartography = url.toString();
           }
@@ -1218,7 +1225,7 @@ export class TreesFormComponent implements OnInit {
 
           let urlReqTask = `${tree._links.task.href}`
           if (tree._links.task.href) {
-            let url = new URL(urlReqTask.split("{")[0]);
+            const url = new URL(urlReqTask.split("{")[0]);
             url.searchParams.append("projection", "view")
             urlReqTask = url.toString();
           }
@@ -1283,27 +1290,27 @@ export class TreesFormComponent implements OnInit {
             promises.push(new Promise((resolve, reject) => {
               this.treeNodeService.save(treeNodeObj).subscribe(
                 async result => {
-                  let nameTranslationMap = this.nameTranslations.get(tree.id);
+                  const nameTranslationMap = this.nameTranslations.get(tree.id);
                   if (nameTranslationMap) {
                     this.utils.saveTranslation(result.id, nameTranslationMap, result.name, tree.nameTranslationsModified);
                     tree.nameTranslationModified = false;
                   }
                   else if (tree.nameFormModified) {
-                    let map = this.utils.createTranslationsList(config.translationColumns.treeNodeName);
+                    const map = this.utils.createTranslationsList(config.translationColumns.treeNodeName);
                     this.utils.saveTranslation(result.id, map, tree.name, false);
                     this.nameTranslations.set(result.id, map);
                   }
-                  let descriptionTranslationMap = this.descriptionTranslations.get(tree.id);
+                  const descriptionTranslationMap = this.descriptionTranslations.get(tree.id);
                   if (descriptionTranslationMap) {
                     this.utils.saveTranslation(result.id, descriptionTranslationMap, result.description, tree.nameTranslationsModified);
                     tree.descriptionTranslationsModified = false;
                   }
                   else if (tree.descriptionFormModified) {
-                    let map = this.utils.createTranslationsList(config.translationColumns.treeNodeDescription);
+                    const map = this.utils.createTranslationsList(config.translationColumns.treeNodeDescription);
                     this.utils.saveTranslation(result.id, map, tree.description, false);
                     this.descriptionTranslations.set(result.id, map);
                   }
-                  let oldId = tree.id;
+                  const oldId = tree.id;
                   treesToUpdate.splice(i, 1);
                   treesToUpdate.splice(0, 0, result)
                   if (mapNewIdentificators.has(oldId)) {
@@ -1326,7 +1333,7 @@ export class TreesFormComponent implements OnInit {
         }
         else {
           if (tree.id >= 0) {
-            let idDeletedElement = tree.id;
+            const idDeletedElement = tree.id;
             await this.treeNodeService.delete(treeNodeObj).toPromise();
 
           }
@@ -1336,7 +1343,7 @@ export class TreesFormComponent implements OnInit {
       }
 
 
-    };
+    }
     Promise.all(promises).then(() => {
       this.refreshTreeEvent.next(true);
     });
@@ -1429,7 +1436,7 @@ export class TreesFormComponent implements OnInit {
     }
     else{
       if(!this.treeNodeForm.get('isFolder').value){
-        let oldTask = this.treeNodeForm.get('oldTask').value;
+        const oldTask = this.treeNodeForm.get('oldTask').value;
         if(oldTask){
           this.treeNodeForm.patchValue({
             task: oldTask,
@@ -1527,7 +1534,7 @@ export class TreesFormComponent implements OnInit {
     }
     else{
       if(!this.treeNodeForm.get('isFolder').value){
-        let oldCartography = this.treeNodeForm.get('oldCartography').value;
+        const oldCartography = this.treeNodeForm.get('oldCartography').value;
         if(oldCartography){
           this.treeNodeForm.patchValue({
             cartography: oldCartography,
@@ -1620,9 +1627,9 @@ export class TreesFormComponent implements OnInit {
         return of(aux);
       }
 
-      var urlReq = `${this.treeToEdit._links.availableApplications.href}`
+      let urlReq = `${this.treeToEdit._links.availableApplications.href}`
       if (this.treeToEdit._links.availableApplications.templated) {
-        var url = new URL(urlReq.split("{")[0]);
+        const url = new URL(urlReq.split("{")[0]);
         url.searchParams.append("projection", "view")
         urlReq = url.toString();
       }
@@ -1643,7 +1650,7 @@ export class TreesFormComponent implements OnInit {
 
   saveApplications(data: any[]) {
     let dataChanged = false;
-    let applicationsToPut = [];
+    const applicationsToPut = [];
     const promises: Promise<any>[] = [];
 
     data.forEach(application => {
@@ -1669,7 +1676,7 @@ export class TreesFormComponent implements OnInit {
 
     Promise.all(promises).then(() => {
       if (dataChanged) {
-        let url = this.treeToEdit._links.availableApplications.href.split('{', 1)[0];
+        const url = this.treeToEdit._links.availableApplications.href.split('{', 1)[0];
         this.utils.updateUriList(url, applicationsToPut, this.dataUpdatedEventApplication)
       }
       else {

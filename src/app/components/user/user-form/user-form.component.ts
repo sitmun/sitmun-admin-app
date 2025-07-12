@@ -16,7 +16,7 @@ import {HalOptions, HalParam} from '@app/core/hal/rest/rest.service';
 import {HttpClient} from '@angular/common/http';
 import {UtilsService} from '@app/services/utils.service';
 import {map} from 'rxjs/operators';
-import {Observable, of, Subject} from 'rxjs';
+import {Observable, Subject, of} from 'rxjs';
 
 import {config} from '@config';
 import {DialogGridComponent, DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';

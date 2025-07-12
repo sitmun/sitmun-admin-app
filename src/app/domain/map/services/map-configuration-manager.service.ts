@@ -1,30 +1,30 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 
-/** Layer model: configure Layer data and displaying configuration */ 
+/** Layer model: configure Layer data and displaying configuration */
 export class Layer {
   // Display data
-  /** layer visibility*/  
-  visibility: boolean = false;
+  /** layer visibility*/
+  visibility = false;
   /** Transparency (Transparent) 0-1 (Opaque)*/
-  opacity: number = 1.0;
+  opacity = 1.0;
 
   // Configuration data
   /** title*/
   title: string;
-  
+
   /** Id to index*/
   id: any;
-  
+
   /** Service Name*/
   serverName: string;
 
   /** Service attributions*/
-  attributions: string = "";
+  attributions = "";
 
   /** Request format (image/jpg, ...)*/
   format: string;
-  
+
   /** Request service version*/
   version:string;
 
@@ -39,49 +39,49 @@ export class Layer {
 
   /** Is tiled?*/
   tiled: boolean;
-  
+
   /** Description*/
-  desc: string = "";
-  
+  desc = "";
+
   /**  Transparent request parameter?*/
-  url_transparent: string = "true";
-  
+  url_transparent = "true";
+
   /** Request Background parameter color (Hexa)*/
-  url_bgcolor: string = "0x000000";
-  
+  url_bgcolor = "0x000000";
+
   /** Request Exception URL*/
   url_exception: string;
-  
+
   /** Extent for tiled services*/
   extent: any = null;
 
   /** Tile height (if not defined, the default map is taken)*/
   tileHeight?:number;
-  
+
   /** Tile width (if not defined, the default map is taken)*/
   tileWidth?:number;
-  
+
   /** Enabled for GetFeatureInfo requests (enabled to use the viewer features information tool)*/
   queryable?:boolean = false;
-  
+
   /** Minimum scale*/
   minimumScale?:number;
-  
+
   /** Maximum scale*/
   maximumScale?:number;
-  
+
   /** List of available CRS*/
   projections?:string;
-  
+
   /** Features information URL*/
   infoUrl?:string;
-  
+
   /** Metadata information URL*/
   metadataUrl?:string;
-  
+
   /** Legend URL*/
   legendUrl?:string;
-  
+
   /** Array of OptionalParameter object that defines other optional parameter-value pairs for the request (TIME ...)*/
   optionalParameters?:Array<OptionalParameter>;
 }
@@ -103,8 +103,10 @@ export class LayerConfiguration {
 /** Layer group model*/
 export class LayerGroup {
   /** initially activated (all visible layers)*/active?:boolean;
-  /** group name*/name?: String;
-  /** group id*/id: String;
+
+  /** group name*/name?: string;
+
+  /** group id*/id: string;
   /** array of child Layers*/layers: Array<Layer>;
 }
 
@@ -123,7 +125,7 @@ export class MapOptionsConfiguration {
 
 /** Map component status model*/
 export class MapComponentStatus {
-    /** loaded?*/loaded: boolean = false;
+  /** loaded?*/loaded = false;
 }
 
 @Injectable({
@@ -149,10 +151,10 @@ export class MapConfigurationManagerService {
   private mapComponentStatusSubject = new BehaviorSubject([]);
 
   /** constructor*/
-  constructor() { 
+  constructor() {
    //
   }
-  
+
   /** layer count */
   count = 0;
 
@@ -163,7 +165,7 @@ export class MapConfigurationManagerService {
     }
     this.setLayers(configuration);
   }
-  
+
   /**configure the base layers of the map by passing as a parameter an array of objects of type LayerGroup each of them with the corresponding Layer objects defining the layers to load.*/
   loadBaseLayersConfiguration(configuration) {
     this.setBaseLayerGroups(configuration);
@@ -229,14 +231,14 @@ export class MapConfigurationManagerService {
 
   /** remove given layer from map*/
   removeLayer(layer:Layer) {
-    var index = this.layers.indexOf(layer);
+    const index = this.layers.indexOf(layer);
     this.removeLayerIndex(index);
   }
 
   /** remove layer with given id from map */
   removeLayerId(id) {
-    var index = -1;
-    for (var i = 0, iLen = this.layers.length; i < iLen; i++) {
+    let index = -1;
+    for (let i = 0, iLen = this.layers.length; i < iLen; i++) {
       if (this.layers[i].id == id) {
         index = i;
         break;
@@ -247,7 +249,7 @@ export class MapConfigurationManagerService {
 
   /** remove layer at given index from map */
   removeLayerIndex(index:number) {
-    var layer = this.layers[index];
+    const layer = this.layers[index];
     this.layers.splice(index, 1);
     this.refreshRemoveLayers(layer);
   }
@@ -282,8 +284,8 @@ export class MapConfigurationManagerService {
   }
 
   private getLayerIndexById(id:string):number{
-    var index = -1;
-    for (var i = 0, iLen = this.layers.length; i < iLen; i++) {
+    let index = -1;
+    for (let i = 0, iLen = this.layers.length; i < iLen; i++) {
       if (this.layers[i].id == id) {
         index = i;
         break;
@@ -291,13 +293,13 @@ export class MapConfigurationManagerService {
     }
     return index;
   }
-  
+
   /** move layer with given id to the given index*/
   moveLayer(id, index) {
-    var layerIndex = this.getLayerIndexById(id);
+    const layerIndex = this.getLayerIndexById(id);
     if (layerIndex != -1) {
-      var layer = this.layers.splice(layerIndex, 1);
-      this.layers = 
+      const layer = this.layers.splice(layerIndex, 1);
+      this.layers =
         this.layers.slice(0, index)
         .concat(layer)
         .concat(this.layers.slice(index, this.layers.length));
@@ -317,7 +319,7 @@ export class MapConfigurationManagerService {
 
   private refreshLayerConfiguration(id, opacity, visibility, position) {
     // Send the new values so that all subscribers are updated
-    var layer = new LayerConfiguration();
+    const layer = new LayerConfiguration();
     layer.id = id;
     layer.opacity = opacity;
     layer.visibility = visibility;
@@ -348,7 +350,7 @@ export class MapConfigurationManagerService {
   getMapComponentStatusListener(): Observable<MapComponentStatus[]> {
     return this.mapComponentStatusSubject.asObservable();
   }
-  
+
   /** set map component status */
   setMapComponentStatus(status:MapComponentStatus) {
     //Notify the map component status

@@ -2,10 +2,12 @@ import { ComponentFixture, TestBed, getTestBed } from '@angular/core/testing';
 
 import { RoleFormComponent } from './role-form.component';
 import { RouterModule } from '@angular/router';
-import { RoleService, UserService, CodeListService, CartographyGroupService, TerritoryService,
-  CartographyService, TaskService, UserConfigurationService, ApplicationService } from '@app/domain';
-import { ResourceService, ExternalService } from '@app/core/hal';
-import { HttpClientModule, HttpClient } from '@angular/common/http';
+import {
+  ApplicationService, CartographyGroupService, CartographyService, CodeListService, RoleService,
+  TaskService, TerritoryService, UserConfigurationService, UserService
+} from '@app/domain';
+import {ExternalService, ResourceService} from '@app/core/hal';
+import {HttpClient, HttpClientModule} from '@angular/common/http';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { RouterTestingModule } from '@angular/router/testing';

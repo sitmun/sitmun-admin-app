@@ -11,7 +11,7 @@ import {
   ViewChild
 } from '@angular/core';
 
-import {firstValueFrom, Observable, Subscription} from 'rxjs';
+import {Observable, Subscription, firstValueFrom} from 'rxjs';
 import {GridOptions, ModuleRegistry,} from '@ag-grid-community/core';
 import {ClientSideRowModelModule} from '@ag-grid-community/client-side-row-model';
 import {CsvExportModule} from '@ag-grid-community/csv-export';

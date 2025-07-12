@@ -2,11 +2,11 @@ import { Resource } from '@app/core/hal/resource/resource.model';
 import {Service} from '@app/domain/service/models/service.model';
 import {
   CartographyAvailability,
-  CartographyParameter,
-  Connection,
-  CartographyStyle,
   CartographyFilter,
   CartographyGroup,
+  CartographyParameter,
+  CartographyStyle,
+  Connection,
   TreeNode
 } from "@app/domain";
 

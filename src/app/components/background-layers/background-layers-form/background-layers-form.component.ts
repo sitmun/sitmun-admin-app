@@ -21,7 +21,7 @@ import {
 } from '@app/domain';
 import {UtilsService} from '@app/services/utils.service';
 import {EMPTY, firstValueFrom} from 'rxjs';
-import {onCreate, onDelete, onUpdate, onUpdatedRelation, Status} from '@app/frontend-gui/src/lib/public_api';
+import {Status, onCreate, onDelete, onUpdate, onUpdatedRelation} from '@app/frontend-gui/src/lib/public_api';
 import {map} from 'rxjs/operators';
 import {MatDialog} from '@angular/material/dialog';
 import {TranslateService} from "@ngx-translate/core";

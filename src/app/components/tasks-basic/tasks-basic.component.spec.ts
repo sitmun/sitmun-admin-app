@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { TasksBasicComponent } from './tasks-basic.component';
-import { TaskService, CodeListService, TaskGroupService,TranslationService } from '@app/domain';
-import { ResourceService, ExternalService } from '@app/core/hal';
+import {CodeListService, TaskGroupService, TaskService, TranslationService} from '@app/domain';
+import {ExternalService, ResourceService} from '@app/core/hal';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { RouterTestingModule } from '@angular/router/testing';

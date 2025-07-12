@@ -49,9 +49,9 @@ export class EditableLinkRendererComponent implements ICellRendererAngularComp {
   /** AG Grid cell renderer parameters */
   public params: any;
   /** Flag indicating if the cell is being edited */
-  public isEditing: boolean = false;
+  public isEditing = false;
   /** Flag indicating if the link should open in a new tab */
-  public openInNewTab: boolean = true;
+  public openInNewTab = true;
 
   /**
    * Initializes the cell renderer with AG Grid parameters

@@ -1,4 +1,4 @@
-import {EMPTY, Observable, of as observableOf, throwError, throwError as observableThrowError} from 'rxjs';
+import {EMPTY, Observable, of as observableOf, throwError as observableThrowError, throwError} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {HttpHeaders, HttpParams} from '@angular/common/http';
 import {HalOptions, ResourceArray, ResourceHelper, SubTypeBuilder} from '@app/core';
@@ -151,14 +151,14 @@ export abstract class Resource {
   }, relation: string, builder?: SubTypeBuilder): Observable<T> {
     let result: T = new type();
     if (!isNullOrUndefined(this._links) && !isNullOrUndefined(this._links[relation])) {
-      let observable = ResourceHelper.getHttp().get(ResourceHelper.getProxy(this._links[relation].href), {headers: ResourceHelper.headers});
+      const observable = ResourceHelper.getHttp().get(ResourceHelper.getProxy(this._links[relation].href), {headers: ResourceHelper.headers});
       return observable.pipe(map((data: any) => {
         if (builder) {
           for (const embeddedClassName of Object.keys(data['_links'])) {
             if (embeddedClassName == 'self') {
-              let href: string = data._links[embeddedClassName].href;
-              let idx: number = href.lastIndexOf('/');
-              let realClassName = href.replace(ResourceHelper.getRootUri(), "").substring(0, idx);
+              const href: string = data._links[embeddedClassName].href;
+              const idx: number = href.lastIndexOf('/');
+              const realClassName = href.replace(ResourceHelper.getRootUri(), "").substring(0, idx);
               result = ResourceHelper.searchSubtypes(builder, realClassName, result);
               break;
             }
@@ -174,7 +174,7 @@ export abstract class Resource {
   /** Adds the given resource to the bound collection by the relation */
   public addRelation<T extends Resource>(relation: string, resource: T): Observable<any> {
     if (!isNullOrUndefined(this._links) && !isNullOrUndefined(this._links[relation])) {
-      let header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
+      const header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
       return ResourceHelper.getHttp().post(ResourceHelper.getProxy(this._links[relation].href), resource._links.self.href, {headers: header});
     } else {
       return observableThrowError('no relation found');
@@ -185,7 +185,7 @@ export abstract class Resource {
     if (this._links?.[relation]?.href) {
       const template = utpl(this._links[relation].href);
       const url = template.fillFromObject({});
-      let header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
+      const header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
       return ResourceHelper.getHttp().post(ResourceHelper.getProxy(url), resource._links.self.href, {headers: header});
     } else {
       return observableThrowError('no relation found');
@@ -255,7 +255,7 @@ export abstract class Resource {
 
   public updateRelation<T extends Resource>(relation: string, resource: T): Observable<any> {
     if (!isNullOrUndefined(this._links) && !isNullOrUndefined(this._links[relation])) {
-      let header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
+      const header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
       return ResourceHelper.getHttp().patch(ResourceHelper.getProxy(this._links[relation].href), resource._links.self.href, {headers: header});
     } else {
       return observableThrowError('no relation found');
@@ -265,7 +265,7 @@ export abstract class Resource {
   /** Bind the given resource to this resource by the given relation*/
   public substituteRelation<T extends Resource>(relation: string, resource: T): Observable<any> {
     if (!isNullOrUndefined(this._links) && !isNullOrUndefined(this._links[relation])) {
-      let header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
+      const header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
       let targetUrl = this._links[relation].href;
       if (targetUrl.endsWith('{?projection}')) {
         targetUrl = targetUrl.substring(0, targetUrl.indexOf('{?projection}'))
@@ -280,7 +280,7 @@ export abstract class Resource {
 
   public substituteRelationById(relation: string, type: string, key: any): Observable<any> {
     if (!isNullOrUndefined(this._links) && !isNullOrUndefined(this._links[relation])) {
-      let header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
+      const header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
       let targetUrl = this._links[relation].href;
       if (targetUrl.endsWith('{?projection}')) {
         targetUrl = targetUrl.substring(0, targetUrl.indexOf('{?projection}'))
@@ -349,13 +349,13 @@ export abstract class Resource {
   /** Unbind the resource with the given relation from this resource*/
   public deleteRelation<T extends Resource>(relation: string, resource: T): Observable<any> {
     if (!isNullOrUndefined(this._links) && !isNullOrUndefined(resource._links)) {
-      let link: string = resource._links['self'].href;
-      let idx: number = link.lastIndexOf('/') + 1;
+      const link: string = resource._links['self'].href;
+      const idx: number = link.lastIndexOf('/') + 1;
 
       if (idx == -1)
         return observableThrowError('no relation found');
 
-      let relationId: string = link.substring(idx);
+      const relationId: string = link.substring(idx);
 
       const template = utpl(this._links[relation].href);
       const url = template.fillFromObject({});

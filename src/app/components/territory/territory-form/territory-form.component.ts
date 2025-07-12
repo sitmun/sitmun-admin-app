@@ -25,7 +25,7 @@ import {
 import {HalOptions, HalParam} from '@app/core/hal/rest/rest.service';
 import {HttpClient} from '@angular/common/http';
 import {UtilsService} from '@app/services/utils.service';
-import {Observable, of, Subject} from 'rxjs';
+import {Observable, Subject, of} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {config} from '@config';
 import {DialogGridComponent, DialogMessageComponent,} from '@app/frontend-gui/src/lib/public_api';
@@ -43,7 +43,7 @@ export class TerritoryFormComponent implements OnInit {
   readonly config = Configuration.TERRITORY;
 
   //Translations
-  translationsModified: boolean = false;
+  translationsModified = false;
   translationMap: Map<string, Translation>;
 
   //Form
@@ -57,12 +57,14 @@ export class TerritoryFormComponent implements OnInit {
   territoryGroups: Array<any> = [];
   territoryTypes: Array<any> = [];
   extensions: Array<string>;
-  dataLoaded: Boolean = false;
+
+  dataLoaded = false;
   idGroupType: any;
   territoryObj: any;
 
-  currentTypeTop: Boolean;
-  currentTypeBottom: Boolean;
+  currentTypeTop: boolean;
+
+  currentTypeBottom: boolean;
   currentTerritoryType;
 
   //Grids
@@ -141,7 +143,7 @@ export class TerritoryFormComponent implements OnInit {
       config.translationColumns.territoryName
     );
 
-    let territoryByDefault = {
+    const territoryByDefault = {
       id: -1,
       name: '-------',
     };
@@ -185,7 +187,7 @@ export class TerritoryFormComponent implements OnInit {
           }
 
           if (this.territoryID !== -1 || this.duplicateID != -1) {
-            let idToGet =
+            const idToGet =
               this.territoryID !== -1 ? this.territoryID : this.duplicateID;
             this.territoryService.get(idToGet).subscribe(
               (resp) => {
@@ -430,7 +432,7 @@ export class TerritoryFormComponent implements OnInit {
   }
 
   updateExtent() {
-    let extent = {
+    const extent = {
       minX: this.territoryForm.get('extentMinX').value,
       maxX: this.territoryForm.get('extentMaxX').value,
       minY: this.territoryForm.get('extentMinY').value,
@@ -456,12 +458,12 @@ export class TerritoryFormComponent implements OnInit {
       const aux: Array<any> = [];
       return of(aux);
     }
-    let idToUse = this.territoryID == -1 ? this.duplicateID : this.territoryID;
+    const idToUse = this.territoryID == -1 ? this.duplicateID : this.territoryID;
 
-    let params2: HalParam[] = [];
-    let param: HalParam = {key: 'territory.id', value: idToUse};
+    const params2: HalParam[] = [];
+    const param: HalParam = {key: 'territory.id', value: idToUse};
     params2.push(param);
-    let query: HalOptions = {params: params2};
+    const query: HalOptions = {params: params2};
 
     return this.userConfigurationService.getAll(query);
   };
@@ -471,11 +473,11 @@ export class TerritoryFormComponent implements OnInit {
       const aux: Array<any> = [];
       return of(aux);
     }
-    let idToUse = this.territoryID == -1 ? this.duplicateID : this.territoryID;
-    let params2: HalParam[] = [];
-    let param: HalParam = {key: 'territory.id', value: idToUse};
+    const idToUse = this.territoryID == -1 ? this.duplicateID : this.territoryID;
+    const params2: HalParam[] = [];
+    const param: HalParam = {key: 'territory.id', value: idToUse};
     params2.push(param);
-    let query: HalOptions = {params: params2};
+    const query: HalOptions = {params: params2};
 
     return this.userConfigurationService
       .getAll(query)
@@ -493,14 +495,14 @@ export class TerritoryFormComponent implements OnInit {
   }
 
   async savePermits(data: any[]) {
-    let usersPositionToDelete = [];
-    let usersPositionToAdd = [];
+    const usersPositionToDelete = [];
+    const usersPositionToAdd = [];
     const promisesDuplicate: Promise<any>[] = [];
     const promisesCurrentUserConf: Promise<any>[] = [];
     const promises: Promise<any>[] = [];
 
     for (let i = 0; i < data.length; i++) {
-      let userConf = data[i];
+      const userConf = data[i];
       if (
         userConf.status === 'pendingCreation' ||
         (userConf.status === 'pendingModify' && !userConf._links)
@@ -509,14 +511,14 @@ export class TerritoryFormComponent implements OnInit {
         if (userConf._links) {
           let urlReqRole = `${userConf._links.role.href}`;
           if (userConf._links.role.href) {
-            let url = new URL(urlReqRole.split('{')[0]);
+            const url = new URL(urlReqRole.split('{')[0]);
             url.searchParams.append('projection', 'view');
             urlReqRole = url.toString();
           }
 
           let urlReqUser = `${userConf._links.user.href}`;
           if (userConf._links.user.href) {
-            let url = new URL(urlReqUser.split('{')[0]);
+            const url = new URL(urlReqUser.split('{')[0]);
             url.searchParams.append('projection', 'view');
             urlReqUser = url.toString();
           }
@@ -588,14 +590,14 @@ export class TerritoryFormComponent implements OnInit {
       if (userConf.status === 'pendingModify' && userConf._links) {
         let urlReqRole = `${userConf._links.role.href}`;
         if (userConf._links.role.href) {
-          let url = new URL(urlReqRole.split('{')[0]);
+          const url = new URL(urlReqRole.split('{')[0]);
           url.searchParams.append('projection', 'view');
           urlReqRole = url.toString();
         }
 
         let urlReqUser = `${userConf._links.user.href}`;
         if (userConf._links.user.href) {
-          let url = new URL(urlReqUser.split('{')[0]);
+          const url = new URL(urlReqUser.split('{')[0]);
           url.searchParams.append('projection', 'view');
           urlReqUser = url.toString();
         }
@@ -623,7 +625,7 @@ export class TerritoryFormComponent implements OnInit {
             );
 
             Promise.all(promisesCurrentUserConf).then(() => {
-              let item = {
+              const item = {
                 id: userConf.id,
                 role: roleComplete._links.self.href.split('{')[0],
                 appliesToChildrenTerritories:
@@ -690,9 +692,9 @@ export class TerritoryFormComponent implements OnInit {
       return of(aux);
     }
 
-    var urlReq = `${this.territoryToEdit._links.memberOf.href}`;
+    let urlReq = `${this.territoryToEdit._links.memberOf.href}`;
     if (this.territoryToEdit._links.memberOf.templated) {
-      var url = new URL(urlReq.split('{')[0]);
+      const url = new URL(urlReq.split('{')[0]);
       url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
@@ -701,16 +703,16 @@ export class TerritoryFormComponent implements OnInit {
       map(async (data: any[]) => {
         const promises: Promise<any>[] = [];
         let rowsToShow = [];
-        let territoriesMemberOf = data['_embedded']['territories'];
+        const territoriesMemberOf = data['_embedded']['territories'];
         if (territoriesMemberOf.length > 0) {
           territoriesMemberOf.forEach((territoryMemberOf) => {
-            let params2: HalParam[] = [];
-            let param: HalParam = {
+            const params2: HalParam[] = [];
+            const param: HalParam = {
               key: 'territory.id',
               value: territoryMemberOf.id,
             };
             params2.push(param);
-            let query: HalOptions = {params: params2};
+            const query: HalOptions = {params: params2};
             promises.push(
               new Promise((resolve, reject) => {
                 this.userConfigurationService
@@ -743,9 +745,9 @@ export class TerritoryFormComponent implements OnInit {
       return of(aux);
     }
 
-    var urlReq = `${this.territoryToEdit._links.memberOf.href}`;
+    let urlReq = `${this.territoryToEdit._links.memberOf.href}`;
     if (this.territoryToEdit._links.memberOf.templated) {
-      var url = new URL(urlReq.split('{')[0]);
+      const url = new URL(urlReq.split('{')[0]);
       url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
@@ -763,8 +765,8 @@ export class TerritoryFormComponent implements OnInit {
 
   saveMembersOf(data: any[]) {
     let dataChanged = false;
-    let territoriesModified = [];
-    let territoriesToPut = [];
+    const territoriesModified = [];
+    const territoriesToPut = [];
     data.forEach((territory) => {
       if (territory.status !== 'pendingDelete') {
         if (territory.status === 'pendingModify') {
@@ -802,7 +804,7 @@ export class TerritoryFormComponent implements OnInit {
     });
     Promise.all(promises).then(() => {
       if (dataChanged) {
-        let url = this.territoryToEdit._links.memberOf.href.split('{', 1)[0];
+        const url = this.territoryToEdit._links.memberOf.href.split('{', 1)[0];
         this.utils.updateUriList(
           url,
           territoriesToPut,
@@ -821,9 +823,9 @@ export class TerritoryFormComponent implements OnInit {
       return of(aux);
     }
 
-    var urlReq = `${this.territoryToEdit._links.members.href}`;
+    let urlReq = `${this.territoryToEdit._links.members.href}`;
     if (this.territoryToEdit._links.members.templated) {
-      var url = new URL(urlReq.split('{')[0]);
+      const url = new URL(urlReq.split('{')[0]);
       url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
@@ -841,8 +843,8 @@ export class TerritoryFormComponent implements OnInit {
 
   saveMembers(data: any[]) {
     let dataChanged = false;
-    let territoriesModified = [];
-    let territoriesToPut = [];
+    const territoriesModified = [];
+    const territoriesToPut = [];
     data.forEach((territory) => {
       if (territory.status !== 'pendingDelete') {
         if (territory.status === 'pendingModify') {
@@ -880,7 +882,7 @@ export class TerritoryFormComponent implements OnInit {
     });
     Promise.all(promises).then(() => {
       if (dataChanged) {
-        let url = this.territoryToEdit._links.members.href.split('{', 1)[0];
+        const url = this.territoryToEdit._links.members.href.split('{', 1)[0];
         this.utils.updateUriList(
           url,
           territoriesToPut,
@@ -899,9 +901,9 @@ export class TerritoryFormComponent implements OnInit {
       return of(aux);
     }
 
-    var urlReq = `${this.territoryToEdit._links.cartographyAvailabilities.href}`;
+    let urlReq = `${this.territoryToEdit._links.cartographyAvailabilities.href}`;
     if (this.territoryToEdit._links.cartographyAvailabilities.templated) {
-      var url = new URL(urlReq.split('{')[0]);
+      const url = new URL(urlReq.split('{')[0]);
       url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
@@ -923,7 +925,7 @@ export class TerritoryFormComponent implements OnInit {
     data.forEach((cartography) => {
       cartography.territory = this.territoryToEdit;
       if (cartography.status === 'pendingCreation') {
-        let index = data.findIndex(
+        const index = data.findIndex(
           (element) =>
             element.cartographyId === cartography.cartographyId && !element.new
         );
@@ -933,7 +935,7 @@ export class TerritoryFormComponent implements OnInit {
           if (cartography._links) {
             cartography.id = null;
             let urlReqCartography = `${cartography._links.cartography.href}`;
-            let url = new URL(urlReqCartography.split('{')[0]);
+            const url = new URL(urlReqCartography.split('{')[0]);
             url.searchParams.append('projection', 'view');
             urlReqCartography = url.toString();
 
@@ -995,9 +997,9 @@ export class TerritoryFormComponent implements OnInit {
       return of(aux);
     }
 
-    var urlReq = `${this.territoryToEdit._links.taskAvailabilities.href}`;
+    let urlReq = `${this.territoryToEdit._links.taskAvailabilities.href}`;
     if (this.territoryToEdit._links.taskAvailabilities.templated) {
-      var url = new URL(urlReq.split('{')[0]);
+      const url = new URL(urlReq.split('{')[0]);
       url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
@@ -1028,17 +1030,17 @@ export class TerritoryFormComponent implements OnInit {
       }
       if (task.status === 'pendingCreation') {
         task.territory = this.territoryToEdit;
-        let index = data.findIndex(
+        const index = data.findIndex(
           (element) => element.taskId === task.taskId && !element.new
         );
         if (index === -1) {
           task.new = false;
-          let taskToCreate: TaskAvailability = new TaskAvailability();
+          const taskToCreate: TaskAvailability = new TaskAvailability();
           taskToCreate.territory = this.territoryToEdit;
           if (task._links) {
             task.id = null;
             let urlReqTask = `${task._links.task.href}`;
-            let url = new URL(urlReqTask.split('{')[0]);
+            const url = new URL(urlReqTask.split('{')[0]);
             url.searchParams.append('projection', 'view');
             urlReqTask = url.toString();
 
@@ -1144,7 +1146,7 @@ export class TerritoryFormComponent implements OnInit {
       if (result) {
         if (result.event === 'Add') {
           if (result.data[0].length > 0 && result.data[1].length > 0) {
-            let rowsToAdd = this.getRowsToAddPermits(
+            const rowsToAdd = this.getRowsToAddPermits(
               this.territoryToEdit,
               result.data[1],
               result.data[0],
@@ -1179,7 +1181,7 @@ export class TerritoryFormComponent implements OnInit {
   getAllTerritoriesMemberOfDialog = () => {
     return this.territoryService.getAll().pipe(
       map((resp: any) => {
-        let newTable: Territory[] = [];
+        const newTable: Territory[] = [];
         resp.forEach((element) => {
           if (
             element.typeBottomType === false &&
@@ -1233,7 +1235,7 @@ export class TerritoryFormComponent implements OnInit {
   getAllTerritoriesMembersDialog = () => {
     return this.territoryService.getAll().pipe(
       map((resp: any) => {
-        let newTable: Territory[] = [];
+        const newTable: Territory[] = [];
         resp.forEach((element) => {
           if (
             element.typeTopType === false &&
@@ -1311,10 +1313,10 @@ export class TerritoryFormComponent implements OnInit {
   }
 
   adaptFormatCartography(dataToAdapt: Cartography[]) {
-    let newData: any[] = [];
+    const newData: any[] = [];
 
     dataToAdapt.forEach((element) => {
-      let item = {
+      const item = {
         //TODO Put fields when backend return them
         id: null,
         cartography: element,
@@ -1361,10 +1363,10 @@ export class TerritoryFormComponent implements OnInit {
   }
 
   adaptFormatTask(dataToAdapt: any[]) {
-    let newData: any[] = [];
+    const newData: any[] = [];
 
     dataToAdapt.forEach((element) => {
-      let item: any = {...element};
+      const item: any = {...element};
       item.id = null;
       item.taskGroupName = element.groupName;
       item.taskId = element.id;
@@ -1381,7 +1383,7 @@ export class TerritoryFormComponent implements OnInit {
     users: any[],
     childrenTable: boolean
   ) {
-    let itemsToAdd: any[] = [];
+    const itemsToAdd: any[] = [];
 
     roles.forEach((role) => {
       let item;
@@ -1459,7 +1461,7 @@ export class TerritoryFormComponent implements OnInit {
   }
 
   onTerritoryTypeChanged(event) {
-    let territoryType = this.territoryTypes.find(
+    const territoryType = this.territoryTypes.find(
       (element) => element.id == event.value
     );
 

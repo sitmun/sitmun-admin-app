@@ -2,7 +2,7 @@ import {Component, Injectable, Injector} from '@angular/core';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateService} from '@ngx-translate/core';
 import {Location} from '@angular/common';
-import {firstValueFrom, Subject} from 'rxjs';
+import {Subject, firstValueFrom} from 'rxjs';
 import {CodeList, CodeListService, Language, Translation, TranslationService} from '@app/domain';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {DialogMessageComponent, DialogTranslationComponent} from '@app/frontend-gui/src/lib/public_api';

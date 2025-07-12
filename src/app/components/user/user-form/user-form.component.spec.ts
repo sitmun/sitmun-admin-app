@@ -4,9 +4,11 @@ import { UserFormComponent } from './user-form.component';
 import { RouterModule } from '@angular/router';
 import { MaterialModule } from '@app/material-module';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { UserService, RoleService, TerritoryService, UserConfigurationService,
-  CodeListService, UserPositionService,TranslationService } from '@app/domain';
-import { ResourceService, ExternalService } from '@app/core/hal';
+import {
+  CodeListService, RoleService, TerritoryService, TranslationService,
+  UserConfigurationService, UserPositionService, UserService
+} from '@app/domain';
+import {ExternalService, ResourceService} from '@app/core/hal';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';

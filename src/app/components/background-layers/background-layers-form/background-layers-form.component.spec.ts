@@ -3,8 +3,17 @@ import { RouterModule } from '@angular/router';
 import { MaterialModule } from '@app/material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { BackgroundService,CartographyGroupService, CartographyService, CodeListService,RoleService,TranslationService,ApplicationService, ApplicationBackgroundService } from '@app/domain';
-import { ResourceService, ExternalService } from '@app/core/hal';
+import {
+  ApplicationBackgroundService,
+  ApplicationService,
+  BackgroundService,
+  CartographyGroupService,
+  CartographyService,
+  CodeListService,
+  RoleService,
+  TranslationService
+} from '@app/domain';
+import {ExternalService, ResourceService} from '@app/core/hal';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';

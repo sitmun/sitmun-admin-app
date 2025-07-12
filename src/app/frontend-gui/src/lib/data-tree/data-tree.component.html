@@ -13,28 +13,33 @@
 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" >
 	<mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding  draggable="true"
 	(dragstart)="handleDragStart($event, node);" 	(dragover)="handleDragOver($event, node);"
-	(drop)="handleDrop($event, node);" 	(dragend)="handleDragEnd($event);"                  
+	(dragend)="handleDragEnd($event);" 	(drop)="handleDrop($event, node);"
 	  [ngClass]="{'drop-above': dragNodeExpandOverArea === 'above' && dragNodeExpandOverNode === node,
 	'drop-below': dragNodeExpandOverArea === 'below' && dragNodeExpandOverNode === node,
 	'drop-center': dragNodeExpandOverArea === 'center' && dragNodeExpandOverNode === node,
-	'deletedNode': node.status=='pendingDelete'}">
+	'deletedNode': node.status==='pendingDelete'}">
 		<button mat-icon-button disabled></button>
-		<mat-icon *ngIf="node.type ==='folder' && node.status != 'pendingDelete' && node.name != ''" class="type-icon" [attr.aria-label]="node.type + 'icon'">
+    <mat-icon *ngIf="node.type ==='folder' && node.status !== 'pendingDelete' && node.name !== ''" [attr.aria-label]="node.type + 'icon'"
+              class="type-icon">
 			folder
 		</mat-icon>
-		<span *ngIf="node.status=='pendingDelete'">({{"pendingDelete" | translate}})-</span>
+    <span *ngIf="node.status==='pendingDelete'">({{ "pendingDelete" | translate }})-</span>
 		{{node.name}}
-	
-		<button *ngIf="node.type ==='folder' && node.status!='pendingDelete'" (click)="onButtonClicked(node.id, 'newFolder')" mat-icon-button>
+
+    <button (click)="onButtonClicked(node.id, 'newFolder')"
+            *ngIf="node.type ==='folder' && node.status!=='pendingDelete'" mat-icon-button>
 			<mat-icon>create_new_folder</mat-icon>
 		</button>
-		<button *ngIf="node.status!='pendingDelete' && node.name != ''" (click)="onButtonClicked(node.id, 'newNode')" mat-icon-button>
+    <button (click)="onButtonClicked(node.id, 'newNode')" *ngIf="node.status!=='pendingDelete' && node.name !== ''"
+            mat-icon-button>
 			<mat-icon>playlist_add</mat-icon>
 		</button>
-		<button *ngIf="node.id !== undefined && node.status!='pendingDelete'" mat-icon-button (click)="onButtonClicked(node.id, 'delete')">
+    <button (click)="onButtonClicked(node.id, 'delete')" *ngIf="node.id !== undefined && node.status!=='pendingDelete'"
+            mat-icon-button>
 			<mat-icon>delete</mat-icon>
 		</button>
-		<button *ngIf="node.id !== undefined && node.status!='pendingDelete'" mat-icon-button (click)="onButtonClicked(node.id, 'edit')">
+    <button (click)="onButtonClicked(node.id, 'edit')" *ngIf="node.id !== undefined && node.status!=='pendingDelete'"
+            mat-icon-button>
 			<mat-icon>edit</mat-icon>
 		</button>
 
@@ -42,11 +47,11 @@
 
 	<mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding  draggable="true"
 	(dragstart)="handleDragStart($event, node);" 	(dragover)="handleDragOver($event, node);"
-	(drop)="handleDrop($event, node);" 	(dragend)="handleDragEnd($event);"                  
+	(dragend)="handleDragEnd($event);" 	(drop)="handleDrop($event, node);"
 	 [ngClass]="{'drop-above': dragNodeExpandOverArea === 'above' && dragNodeExpandOverNode === node,
 	'drop-below': dragNodeExpandOverArea === 'below' && dragNodeExpandOverNode === node,
 	'drop-center': dragNodeExpandOverArea === 'center' && dragNodeExpandOverNode === node,
-	'deletedNode': node.status=='pendingDelete'}">
+	'deletedNode': node.status==='pendingDelete'}">
 		<button mat-icon-button matTreeNodeToggle (click)="expansionModel.toggle(node.id)"
 			[attr.aria-label]="'toggle ' + node.name">
 			<mat-icon class="mat-icon-rtl-mirror">
@@ -56,21 +61,25 @@
 		<mat-icon *ngIf="node.name !== '' && node.type ==='folder'" class="type-icon" [attr.aria-label]="node.type + 'icon'">
 			folder
 		</mat-icon>
-		<span *ngIf="node.status=='pendingDelete'">({{"pendingDelete" | translate}})-</span>
+    <span *ngIf="node.status==='pendingDelete'">({{ "pendingDelete" | translate }})-</span>
 		{{node.name}}
-		<button *ngIf="node.type ==='folder' && node.status!='pendingDelete'" (click)="onButtonClicked(node.id, 'newFolder')" mat-icon-button>
+    <button (click)="onButtonClicked(node.id, 'newFolder')"
+            *ngIf="node.type ==='folder' && node.status!=='pendingDelete'" mat-icon-button>
 			<mat-icon>create_new_folder</mat-icon>
 		</button>
-		<button *ngIf="node.status!='pendingDelete' && node.name != ''" (click)="onButtonClicked(node.id, 'newNode')" mat-icon-button>
+    <button (click)="onButtonClicked(node.id, 'newNode')" *ngIf="node.status!=='pendingDelete' && node.name !== ''"
+            mat-icon-button>
 			<mat-icon>playlist_add</mat-icon>
 		</button>
-		<button *ngIf="node.id !== undefined && node.id !== null && node.status!='pendingDelete'" mat-icon-button (click)="onButtonClicked(node.id, 'delete')">
+    <button (click)="onButtonClicked(node.id, 'delete')" *ngIf="node.id !== undefined && node.id !== null && node.status!=='pendingDelete'"
+            mat-icon-button>
 			<mat-icon>delete</mat-icon>
 		</button>
-		<button *ngIf="node.id !== undefined && node.id !== null && node.status!='pendingDelete'"  mat-icon-button (click)="onButtonClicked(node.id, 'edit')">
+    <button (click)="onButtonClicked(node.id, 'edit')" *ngIf="node.id !== undefined && node.id !== null && node.status!=='pendingDelete'"
+            mat-icon-button>
 			<mat-icon>edit</mat-icon>
 		</button>
-		
+
 	</mat-tree-node>
 </mat-tree>
 

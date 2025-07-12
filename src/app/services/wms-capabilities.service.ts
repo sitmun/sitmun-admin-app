@@ -176,7 +176,7 @@ export class WMSCapabilitiesService {
     if (Array.isArray(abstract)) {
       abstract.forEach((translation: { [x: string]: string; content: string; }) => {
         let languageShortname = translation['xml:lang'];
-        let index = languageShortname.indexOf("-");
+        const index = languageShortname.indexOf("-");
         if (index != -1) {
           languageShortname = languageShortname.substring(0, index);
         }

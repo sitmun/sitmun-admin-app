@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TreesComponent } from './trees.component';
-import { TreeService, CodeListService,TranslationService } from '@app/domain';
-import { ResourceService, ExternalService } from '@app/core/hal';
+import {CodeListService, TranslationService, TreeService} from '@app/domain';
+import {ExternalService, ResourceService} from '@app/core/hal';
 import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';

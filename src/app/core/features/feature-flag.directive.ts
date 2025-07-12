@@ -1,4 +1,4 @@
-import { Directive, Input, TemplateRef, ViewContainerRef, OnInit } from '@angular/core';
+import {Directive, Input, OnInit, TemplateRef, ViewContainerRef} from '@angular/core';
 import { FeatureFlagService } from './feature-flag.service';
 import { FeatureFlagKeys } from './feature-flag.config';
 
@@ -10,7 +10,7 @@ export class FeatureFlagDirective implements OnInit {
 
   @Input() set featureFlag(feature: FeatureFlagKeys) {
     const isEnabled = this.featureFlagService.isFeatureEnabled(feature);
-    
+
     if (isEnabled && !this.hasView) {
       this.viewContainer.createEmbeddedView(this.templateRef);
       this.hasView = true;

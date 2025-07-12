@@ -1,5 +1,5 @@
 import { ICellRendererAngularComp } from '@ag-grid-community/angular';
-import { Component, OnDestroy,NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'; 
+import {CUSTOM_ELEMENTS_SCHEMA, Component, NgModule, OnDestroy} from '@angular/core';
 import { MatIconModule } from '@angular/material/icon'
 
 
@@ -29,7 +29,7 @@ export class BtnEditRenderedComponent implements ICellRendererAngularComp, OnDes
   }
 
   ngOnDestroy() {
-    // no need to remove the button click handler 
+    // no need to remove the button click handler
   }
 
 }

@@ -5,10 +5,10 @@ import {MaterialModule} from '@app/material-module';
 import {HttpClientTestingModule} from '@angular/common/http/testing';
 import {MatIconTestingModule} from '@angular/material/icon/testing';
 import {
-  CodeListService, ApplicationBackgroundService, ApplicationService, ApplicationParameterService,
-  RoleService, CartographyGroupService, TreeService, BackgroundService, TranslationService
+  ApplicationBackgroundService, ApplicationParameterService, ApplicationService, BackgroundService,
+  CartographyGroupService, CodeListService, RoleService, TranslationService, TreeService
 } from '@app/domain';
-import { ResourceService, ExternalService } from '@app/core/hal';
+import {ExternalService, ResourceService} from '@app/core/hal';
 import {ExternalConfigurationService} from '@app/core/config/external-configuration.service';
 import {HttpClientModule} from '@angular/common/http';
 import {SitmunFrontendGuiModule} from '@app/frontend-gui/src/lib/public_api';

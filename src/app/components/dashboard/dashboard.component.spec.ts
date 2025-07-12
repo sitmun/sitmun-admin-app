@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientModule, HttpClient } from '@angular/common/http';
+import {HttpClient, HttpClientModule} from '@angular/common/http';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { DashboardComponent } from './dashboard.component';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
@@ -10,8 +10,8 @@ import { MaterialModule } from '@app/material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { DashboardService,TranslationService,CodeListService} from '@app/domain';
-import { ResourceService, ExternalService } from '@app/core/hal';
+import {CodeListService, DashboardService, TranslationService} from '@app/domain';
+import {ExternalService, ResourceService} from '@app/core/hal';
 
 describe('DashboardComponent', () => {
 

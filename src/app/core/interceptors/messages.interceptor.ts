@@ -1,7 +1,7 @@
 import { Injectable, Injector } from '@angular/core';
-import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpResponse } from '@angular/common/http';
+import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse} from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { map, catchError, finalize } from 'rxjs/operators';
+import {catchError, finalize, map} from 'rxjs/operators';
 import { UtilsService } from '@app/services/utils.service';
 
 @Injectable({
@@ -46,7 +46,7 @@ export class MessagesInterceptor implements HttpInterceptor {
             this.utilsService = this.injector.get(UtilsService);
         }
 
-        const intercept: boolean = request.url.indexOf("/api/login") == -1 
+        const intercept: boolean = request.url.indexOf("/api/login") == -1
         && request.url.indexOf("/api/account") == -1 &&  request.url.indexOf("/api/authenticate")==-1
         && this.stateService.isEnabled();
         //tractem request

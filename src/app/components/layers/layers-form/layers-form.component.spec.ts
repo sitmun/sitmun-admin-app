@@ -3,11 +3,23 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LayersFormComponent } from './layers-form.component';
 import { RouterModule } from '@angular/router';
 import {
-  CartographyService, ServiceService, TerritoryTypeService, ConnectionService, TreeNodeService,
-  TerritoryService, CartographyGroupService, CartographyAvailabilityService, CartographyParameterService, TranslationService,
-  CodeListService, CartographyFilterService, GetInfoService, CartographyStyleService, CartographySpatialSelectionParameterService
+  CartographyAvailabilityService,
+  CartographyFilterService,
+  CartographyGroupService,
+  CartographyParameterService,
+  CartographyService,
+  CartographySpatialSelectionParameterService,
+  CartographyStyleService,
+  CodeListService,
+  ConnectionService,
+  GetInfoService,
+  ServiceService,
+  TerritoryService,
+  TerritoryTypeService,
+  TranslationService,
+  TreeNodeService
 } from '@app/domain';
-import { ResourceService, ExternalService } from '@app/core/hal';
+import {ExternalService, ResourceService} from '@app/core/hal';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -277,7 +289,7 @@ describe('LayersFormComponent', () => {
   })
 
   it('getFeature valid', () => {
-    let requestResult =
+    const requestResult =
     {
       "xsd:schema": {
         "elementFormDefault": "qualified",
@@ -458,7 +470,7 @@ describe('LayersFormComponent', () => {
   })
 
   it('getFeature with non valid format', () => {
-    let requestResult =
+    const requestResult =
     {
       "INCORRECT_FORMAT": {
         "elementFormDefault": "qualified",

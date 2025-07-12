@@ -1,5 +1,5 @@
 import { FlatTreeControl } from '@angular/cdk/tree';
-import { Component, EventEmitter, Injectable, Input, Output,ElementRef, ViewChild } from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injectable, Input, Output, ViewChild} from '@angular/core';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
 import { BehaviorSubject, Observable, of as observableOf } from 'rxjs';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
@@ -86,10 +86,10 @@ export class FileDatabase {
    * The return value is the list of `FileNode`.
    */
   buildFileTree(arrayTreeNodes: any[], level: number, allNewElements: any) {
-    var map = {};
+    const map = {};
     if(arrayTreeNodes.length===0)
     {
-      let root = {
+      const root = {
         isFolder:true,
         name:'',
         type: 'folder',
@@ -102,7 +102,7 @@ export class FileDatabase {
     }
     else{
       arrayTreeNodes.forEach((treeNode) => {
-        var obj = treeNode;
+        const obj = treeNode;
         obj.children = [];
         obj.type= (treeNode.isFolder) ? "folder" : "node";
         obj.nodetype = treeNode.nodetype;
@@ -111,14 +111,14 @@ export class FileDatabase {
           if(obj.id) { obj.id = obj.id * -1 }
           if(obj.parent) { obj.parent = obj.parent * -1 }
         }
-  
+
         if(!map[obj.id]) {map[obj.id] = obj;}
         else{
-          let previousChildren= map[obj.id].children
+          const previousChildren = map[obj.id].children
           map[obj.id] = obj;
           map[obj.id].children=previousChildren
         }
-        var parent = obj.parent || 'root';
+        const parent = obj.parent || 'root';
         if (!map[parent]) {
           map[parent] = {
             children: []
@@ -137,7 +137,7 @@ export class FileDatabase {
 
     return map['root'];
   }
-  
+
 
   deleteItem(node: FileNode, changedData:any) {
     this.deleteNode(changedData.children, node);
@@ -163,9 +163,9 @@ export class FileDatabase {
       if(data[i].id && Number(data[i].id) < 0){
         data[i].status="pendingCreation";
       }
-      if(!data[i].status && !data[i]['status']) { 
-        data[i].status="Modified"; 
-      } 
+      if(!data[i].status && !data[i]['status']) {
+        data[i].status="Modified";
+      }
     }
     return data;
    }
@@ -189,14 +189,14 @@ export class FileDatabase {
   }
 
   /** Add an item to to-do list */
-  
+
   getNewItem(node:FileNode){
     const newItem = {
       name: node.name,
       children: node.children,
       nodetype: node.nodetype,
       type: node.type,
-      id: node.id, 
+      id: node.id,
       active: node.active,
       cartography: node.cartography,
       cartographyId: node.cartographyId,
@@ -236,7 +236,7 @@ export class FileDatabase {
     const parentNode = this.getParentFromNodes(node,changedData);
     const newItem = this.getNewItem(nodeDrag)
     newItem.parent = parentNode==null || parentNode.id==undefined?null:parentNode.id;
-  
+
     if (parentNode != null) {
       parentNode.children.splice(parentNode.children.indexOf(node), 0, newItem);
       this.setOrder(parentNode.children)
@@ -250,7 +250,7 @@ export class FileDatabase {
 
   insertItemBelow(node: FileNode, nodeDrag: FileNode,changedData:any): FileNode {
     const parentNode = this.getParentFromNodes(node,changedData);
-   
+
     const newItem = this.getNewItem(nodeDrag)
     newItem.parent = parentNode==null || parentNode.id==undefined?null:parentNode.id;
 
@@ -265,7 +265,7 @@ export class FileDatabase {
     return newItem;
   }
 
-  
+
   getParentFromNodes(node: FileNode,changedData:any): FileNode {
     for (let i = 0; i < changedData.children.length; ++i) {
       const currentRoot =  changedData.children[i];
@@ -277,7 +277,7 @@ export class FileDatabase {
     return null;
   }
 
-  
+
   getParent(currentRoot: FileNode, node: FileNode): FileNode {
     if (currentRoot.children && currentRoot.children.length > 0) {
       for (let i = 0; i < currentRoot.children.length; ++i) {
@@ -361,7 +361,7 @@ export class DataTreeComponent {
       this._isExpandable, this._getChildren);
     this.treeControl = new FlatTreeControl<FileFlatNode>(this._getLevel, this._isExpandable);
     this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
- 
+
   }
 
   ngOnInit(){
@@ -395,13 +395,13 @@ export class DataTreeComponent {
         this.getElements();
       });
     }
-    
+
     this.getElements();
   }
 
   loadDataButtonClicked(){
     const dataToEmit = JSON.parse(JSON.stringify(this.dataSource.data))
-    let allRows = this.getAllChildren(dataToEmit); 
+    const allRows = this.getAllChildren(dataToEmit);
     this.loadButtonClicked.emit(allRows)
   }
 
@@ -424,7 +424,7 @@ export class DataTreeComponent {
     this.flatNodeMap.set(flatNode, node);
     this.nestedNodeMap.set(node, flatNode);
     return flatNode;
-  
+
   }
   private _getLevel = (node: FileFlatNode) => node.level;
   private _isExpandable = (node: FileFlatNode) => node.expandable;
@@ -505,14 +505,14 @@ export class DataTreeComponent {
     event.preventDefault();
     const changedData = JSON.parse(JSON.stringify(this.dataSource.data))
     let toFlatNode;
-    if(node.id === undefined) { 
-      toFlatNode=changedData[0] 
+    if(node.id === undefined) {
+      toFlatNode=changedData[0]
     } else {
       toFlatNode= this.findNodeSiblings(changedData[0].children, node.id).find(nodeAct => nodeAct.id === node.id);
     }
     let fromFlatNode;
-    if( this.dragNode.id === undefined) { 
-      fromFlatNode=changedData[0] 
+    if( this.dragNode.id === undefined) {
+      fromFlatNode=changedData[0]
     } else {
       fromFlatNode = this.findNodeSiblings(changedData[0].children, this.dragNode.id).find(nodeAct => nodeAct.id === this.dragNode.id);
     }
@@ -525,15 +525,15 @@ export class DataTreeComponent {
         newItem = this.database.copyPasteItemBelow(fromFlatNode,toFlatNode,changedData[0]);
       } else {
         newItem = this.database.copyPasteItem(fromFlatNode, toFlatNode,changedData[0]);
-      }    
-      let parentLvl=this.treeControl.dataNodes.find((n) => n.id === fromFlatNode.id).level;
+      }
+      const parentLvl = this.treeControl.dataNodes.find((n) => n.id === fromFlatNode.id).level;
       fromFlatNode.children.forEach(child=>{
         this.treeControl.dataNodes.find((n) => n.id === child.id).level=parentLvl+1
       });
       this.database.deleteItem(fromFlatNode,changedData[0]);
       this.treeControl.expandDescendants(this.nestedNodeMap.get(newItem));
     }
-   
+
     this.dragNode = null;
     this.dragNodeExpandOverNode = null;
     this.dragNodeExpandOverTime = 0;
@@ -564,9 +564,9 @@ export class DataTreeComponent {
    setOrder(data: any[]){
     for(let i=0; i< data.length; i++){
       data[i].order=i;
-      if(! data[i].status) { 
-        data[i].status="Modified"; 
-      } 
+      if(! data[i].status) {
+        data[i].status="Modified";
+      }
     }
     return data;
    }
@@ -603,7 +603,7 @@ export class DataTreeComponent {
   {
     const dataToChange = JSON.parse(JSON.stringify(this.dataSource.data))
     const siblings = this.findNodeSiblings(dataToChange, nodeUpdated.id);
-    let index= siblings.findIndex(node => node.id === nodeUpdated.id)
+    const index = siblings.findIndex(node => node.id === nodeUpdated.id)
     siblings[index]=nodeUpdated;
     this.rebuildTreeForData(dataToChange);
 
@@ -619,7 +619,7 @@ export class DataTreeComponent {
     }
     else{
       const siblings = this.findNodeSiblings(dataToChange, newFolder.parent);
-      let index= siblings.findIndex(node => node.id === newFolder.parent);
+      const index = siblings.findIndex(node => node.id === newFolder.parent);
       newFolder.order=siblings[index].children.length;
       siblings[index].children.push(newFolder)
     }
@@ -637,7 +637,7 @@ export class DataTreeComponent {
     }
     else{
     const siblings = this.findNodeSiblings(dataToChange, newNode.parent);
-    let index= siblings.findIndex(node => node.id === newNode.parent);
+      const index = siblings.findIndex(node => node.id === newNode.parent);
     newNode.order=siblings[index].children.length;
     siblings[index].children.push(newNode)
     }
@@ -652,7 +652,7 @@ export class DataTreeComponent {
   {
     const changedData = JSON.parse(JSON.stringify(this.dataSource.data))
     const siblings = this.findNodeSiblings(changedData, id);
-    let nodeClicked= siblings.find(node => node.id === id);
+    const nodeClicked = siblings.find(node => node.id === id);
     if(button ==='edit')  {
       const nodeParent = nodeClicked.parent ?
         this.findNodeSiblings(changedData, nodeClicked.parent).find(node => node.id === nodeClicked.parent) : null;
@@ -673,7 +673,7 @@ export class DataTreeComponent {
       this.deleteChildren(nodeClicked.children);
       // nodeClicked.children=children
       nodeClicked.status='pendingDelete'
-      
+
       this.rebuildTreeForData(changedData);
     }
 
@@ -682,13 +682,13 @@ export class DataTreeComponent {
   emitAllRows(event)
   {
     const dataToEmit = JSON.parse(JSON.stringify(this.dataSource.data))
-    let allRows = this.getAllChildren(dataToEmit); 
+    const allRows = this.getAllChildren(dataToEmit);
     this.emitAllNodes.emit({event:event, data: allRows});
   }
 
   getAllChildren(arr)
   {
-    let result = [];
+    const result = [];
     let subResult;
     arr.forEach((item, i) => {
       if (item.children && item.children.length>0) {

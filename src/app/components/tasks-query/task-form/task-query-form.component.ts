@@ -33,11 +33,11 @@ import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {DataTableDefinition, TemplateDialog} from "@app/components/data-tables.util";
 import {EMPTY, firstValueFrom, map, of} from "rxjs";
 import {
+  Status,
   canKeepOrUpdate,
   onCreate,
   onDelete,
-  onUpdatedRelation,
-  Status
+  onUpdatedRelation
 } from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {MatSelectChange} from "@angular/material/select";

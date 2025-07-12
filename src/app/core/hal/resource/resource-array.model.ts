@@ -1,4 +1,4 @@
-import {throwError as observableThrowError, Observable} from 'rxjs';
+import {Observable, throwError as observableThrowError} from 'rxjs';
 
 import {catchError, map} from 'rxjs/operators';
 import {Sort} from '@app/core';
@@ -106,7 +106,7 @@ export class ResourceArray<T extends Resource> implements ArrayInterface<T> {
     page = (type: { new(): T }, pageNumber: number): Observable<ResourceArray<T>> => {
         this.self_uri = this.self_uri.replace('{?page,size,sort}', '');
         this.self_uri = this.self_uri.replace('{&sort}', '');
-        let urlParsed = url.parse(ResourceHelper.getProxy(this.self_uri));
+      const urlParsed = url.parse(ResourceHelper.getProxy(this.self_uri));
         let query: string = ResourceArray.replaceOrAdd(urlParsed.query, 'size', this.pageSize.toString());
         query = ResourceArray.replaceOrAdd(query, 'page', pageNumber.toString());
 
@@ -152,11 +152,11 @@ export class ResourceArray<T extends Resource> implements ArrayInterface<T> {
     /** Add replace or add param value to query string */
     private static replaceOrAdd(query: string, field: string, value: string): string {
         if (query) {
-            let idx: number = query.indexOf(field);
-            let idxNextAmp: number = query.indexOf('&', idx) == -1 ? query.indexOf('/', idx) : query.indexOf('&', idx);
+          const idx: number = query.indexOf(field);
+          const idxNextAmp: number = query.indexOf('&', idx) == -1 ? query.indexOf('/', idx) : query.indexOf('&', idx);
 
             if (idx != -1) {
-                let seachValue = query.substring(idx, idxNextAmp);
+              const seachValue = query.substring(idx, idxNextAmp);
                 query = query.replace(seachValue, field + '=' + value);
             } else {
                 query = query.concat("&" + field + '=' + value);

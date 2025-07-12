@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import { TranslationMonitorService } from '@app/services/translation-monitor.service';
 import { LoggerService } from '@app/services/logger.service';
 import { LogLevel } from '@app/services/log-level.enum';
@@ -69,7 +69,7 @@ export class TranslationDebugComponent implements OnInit, OnDestroy {
     this.logLevelSubscription = this.loggerService.logLevel$.subscribe(
       (logLevel) => {
         this.showDebug = logLevel >= LogLevel.Debug;
-        
+
         if (this.showDebug) {
           this.updateMissingKeys();
           this.startPeriodicUpdates();
@@ -118,4 +118,4 @@ export class TranslationDebugComponent implements OnInit, OnDestroy {
     this.loggerService.info('Missing translation keys exported', summary);
     console.table(summary.keys);
   }
-} 
+}

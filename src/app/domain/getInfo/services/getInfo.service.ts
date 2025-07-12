@@ -2,7 +2,7 @@ import {Injectable, Injector} from '@angular/core';
 import {RestService} from '@app/core/hal/rest/rest.service';
 import {Info} from '@app/domain';
 import {EMPTY, Observable} from "rxjs";
-import {HttpHeaders, HttpClient} from "@angular/common/http";
+import {HttpClient, HttpHeaders} from "@angular/common/http";
 
 
 @Injectable({

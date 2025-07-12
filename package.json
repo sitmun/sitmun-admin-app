@@ -31,8 +31,6 @@
     "@igniteui/material-icons-extended": "^2.4.0",
     "@ngx-translate/core": "^15.0.0",
     "@ngx-translate/http-loader": "^8.0.0",
-    "@syncfusion/ej2-angular-charts": "19.3.43",
-    "@syncfusion/ej2-angular-grids": "19.3.43",
     "assert": "^2.1.0",
     "d3": "^7.9.0",
     "hammerjs": "^2.0.8",

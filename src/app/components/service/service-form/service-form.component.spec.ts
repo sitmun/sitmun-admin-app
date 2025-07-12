@@ -3,9 +3,17 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ServiceFormComponent } from './service-form.component';
 import { RouterModule } from '@angular/router';
 import { MaterialModule } from '@app/material-module';
-import { CartographyService, CodeListService, RoleService, ServiceParameterService, CartographyStyleService, ServiceService, TranslationService } from '@app/domain';
+import {
+  CartographyService,
+  CartographyStyleService,
+  CodeListService,
+  RoleService,
+  ServiceParameterService,
+  ServiceService,
+  TranslationService
+} from '@app/domain';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
-import { ResourceService, ExternalService } from '@app/core/hal';
+import {ExternalService, ResourceService} from '@app/core/hal';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -37,13 +45,13 @@ describe('ServiceFormComponent', () => {
       imports: [FormsModule, ReactiveFormsModule, HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,
          RouterModule.forRoot([], {}), MaterialModule, TranslateModule.forRoot()],
       providers: [
-        ServiceService, 
-        CartographyService, 
-        CartographyStyleService, 
-        CodeListService, 
-        TranslationService, 
-        ResourceService, 
-        ExternalService, 
+        ServiceService,
+        CartographyService,
+        CartographyStyleService,
+        CodeListService,
+        TranslationService,
+        ResourceService,
+        ExternalService,
         ServiceParameterService,
         RoleService,
         UtilsService,
@@ -69,7 +77,7 @@ describe('ServiceFormComponent', () => {
     externalService = TestBed.inject(ExternalService);
     serviceParameterService = TestBed.inject(ServiceParameterService);
     roleService = TestBed.inject(RoleService);
-    
+
     // Note: The component has been refactored and no longer has serviceForm or serviceCapabilitiesData properties
     // Tests will need to be updated to match the new implementation
     fixture.detectChanges();
@@ -169,11 +177,11 @@ describe('ServiceFormComponent', () => {
     expect(fixture.debugElement.query(By.css('#capabilitiesButton'))).toBeFalsy();
   });
 
-  /* 
-  // The following tests have been commented out because they reference methods 
-  // (changeServiceDataByCapabilities and serviceCapabilitiesData) that no longer exist 
+  /*
+  // The following tests have been commented out because they reference methods
+  // (changeServiceDataByCapabilities and serviceCapabilitiesData) that no longer exist
   // in the refactored component.
-  
+
   it('Capabilities format invalid', () => {
     //When we click on load button, data to be processed is stored on serviceCapabilitiesData
     component.serviceCapabilitiesData = null;
@@ -608,7 +616,7 @@ describe('ServiceFormComponent', () => {
   });
   */
 
-  /* TODO Move to wms-capabilities.service.spec.ts 
+  /* TODO Move to wms-capabilities.service.spec.ts
   it('Capabilities format valid with WMT_MS_Capabilities', () => {
     //When we click on load button, data to be processed is stored on serviceCapabilitiesData
     component.serviceCapabilitiesData = {

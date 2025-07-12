@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { LoginComponent } from './login.component';
-import { HttpClientModule, HttpClient } from '@angular/common/http';
+import {HttpClient, HttpClientModule} from '@angular/common/http';
 import { SitmunFrontendGuiModule } from '../../frontend-gui/src/lib/public_api';
 import { CodeListService, TranslationService } from '@app/domain';
 import { AccountService } from '../../core/account/account.service';
@@ -17,7 +17,7 @@ import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ResourceService, ExternalService } from '@app/core/hal/services';
+import {ExternalService, ResourceService} from '@app/core/hal/services';
 
 
 describe('LoginComponent', () => {

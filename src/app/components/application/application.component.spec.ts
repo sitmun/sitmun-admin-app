@@ -8,7 +8,7 @@ import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import {ExternalConfigurationService} from '@app/core/config/external-configuration.service';
-import { ResourceService, ExternalService } from '@app/core/hal';
+import {ExternalService, ResourceService} from '@app/core/hal';
 
 
 describe('ApplicationComponent', () => {

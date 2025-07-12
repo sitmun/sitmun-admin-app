@@ -28,15 +28,15 @@ import {HalOptions} from '@app/core/hal/rest/rest.service';
 import {UtilsService} from '@app/services/utils.service';
 
 import {map} from 'rxjs/operators';
-import {EMPTY, firstValueFrom, Observable} from 'rxjs';
+import {EMPTY, Observable, firstValueFrom} from 'rxjs';
 import {
   DataGridComponent,
+  Status,
   isActive,
   onCreate,
   onDelete,
   onUpdate,
-  onUpdatedRelation,
-  Status
+  onUpdatedRelation
 } from '@app/frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
 import {constants} from '@environments/constants';

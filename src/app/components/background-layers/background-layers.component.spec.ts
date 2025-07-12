@@ -9,7 +9,7 @@ import { MaterialModule } from '@app/material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterModule } from '@angular/router';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { ResourceService, ExternalService } from '@app/core/hal';
+import {ExternalService, ResourceService} from '@app/core/hal';
 
 describe('BackgroundLayersComponent', () => {
   let component: BackgroundLayersComponent;

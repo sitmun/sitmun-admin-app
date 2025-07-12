@@ -1,5 +1,5 @@
 import { FlatTreeControl } from '@angular/cdk/tree';
-import { Component, EventEmitter, Input, Output,ElementRef, ViewChild } from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
 import { Observable, of as observableOf } from 'rxjs';
 import { SelectionModel } from '@angular/cdk/collections';
@@ -89,7 +89,7 @@ export class MapTreeComponent {
     this.flatNodeMap.set(flatNode, node);
     this.nestedNodeMap.set(node, flatNode);
     return flatNode;
-  
+
   }
   private _getLevel = (node: TreeFlatNode) => node.level;
   private _isExpandable = (node: TreeFlatNode) => node.expandable;
@@ -116,7 +116,7 @@ export class MapTreeComponent {
       result = {
         name,
         path,
-        children: obj.map((item) => 
+        children: obj.map((item) =>
           this.convertToTree(item, `${name}[pos]`, origData, `${path}[pos]`)
         )
       };
@@ -124,7 +124,7 @@ export class MapTreeComponent {
       result = {
         name,
         path,
-        children: Object.entries(obj).map(([key, value]) => 
+        children: Object.entries(obj).map(([key, value]) =>
           this.convertToTree(value, key, origData, `${path}/${key}`)
         )
       };

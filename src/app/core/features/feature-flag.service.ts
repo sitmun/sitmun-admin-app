@@ -1,17 +1,17 @@
 import { Injectable } from '@angular/core';
 import { environment } from '@environments/environment';
-import { 
-  FEATURE_FLAGS, 
-  PROD_FEATURE_FLAGS, 
-  DEV_FEATURE_FLAGS, 
+import {
+  DEV_FEATURE_FLAGS,
+  FEATURE_FLAGS,
+  FeatureFlagConfig,
   FeatureFlagKeys,
-  FeatureFlagConfig 
+  PROD_FEATURE_FLAGS
 } from './feature-flag.config';
 
 /**
  * Service for managing feature flags in the application.
  * Provides type-safe access to feature flags and their states.
- * 
+ *
  * In development mode, features can be toggled for testing purposes.
  * In production, feature states are fixed based on the PROD_FEATURE_FLAGS configuration.
  */

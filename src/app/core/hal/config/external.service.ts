@@ -1,4 +1,4 @@
-import { Injectable, Inject, Optional } from '@angular/core';
+import {Inject, Injectable, Optional} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ResourceHelper } from '../resource/resource-helper';
 import { ExternalConfigurationHandlerInterface } from './external-configuration-handler.interface';

@@ -1,4 +1,4 @@
-import {firstValueFrom, Observable, of, switchMap, throwError as observableThrowError} from 'rxjs';
+import {Observable, firstValueFrom, throwError as observableThrowError, of, switchMap} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {Resource} from '../resource/resource.model';
 import {ResourceArray} from '../resource/resource-array.model';

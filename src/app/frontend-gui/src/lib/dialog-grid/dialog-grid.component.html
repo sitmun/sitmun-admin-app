@@ -1,4 +1,4 @@
-<h5 mat-dialog-title class="titleDialog">{{ titlesTable[0] == "" || !titlesTable[0] ? "" : title | translate }}</h5>
+<h5 class="titleDialog" mat-dialog-title>{{ titlesTable[0] === "" || !titlesTable[0] ? "" : title | translate }}</h5>
 <mat-dialog-content class="mat-typography">
   <mat-tab-group>
     <div *ngFor="let getAll of getAllsTable; let i = index" [ngStyle]="{'margin-top': i>0?'100px':'0px'}">

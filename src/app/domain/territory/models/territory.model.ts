@@ -2,10 +2,10 @@ import { Resource } from '@app/core/hal/resource/resource.model';
 import {
   ApplicationTerritory,
   TaskAvailability,
-  UserConfiguration,
-  UserPosition,
   TerritoryGroupType,
   TerritoryType,
+  UserConfiguration,
+  UserPosition,
 } from "@app/domain";
 
 /**

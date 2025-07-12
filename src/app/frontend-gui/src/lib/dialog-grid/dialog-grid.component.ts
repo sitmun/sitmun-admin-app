@@ -1,4 +1,4 @@
-import {Component, OnInit, Output, EventEmitter, inject} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output, inject} from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import {MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 

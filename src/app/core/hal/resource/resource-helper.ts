@@ -83,22 +83,22 @@ export class ResourceHelper {
 
     /** create an empty resource from embedded data*/
     static createEmptyResult<T extends Resource>(_embedded: string): ResourceArray<T> {
-        let resourceArray: ResourceArray<T> = new ResourceArray<T>();
+      const resourceArray: ResourceArray<T> = new ResourceArray<T>();
         resourceArray._embedded = _embedded;
         return resourceArray;
     }
 
     /** get resource class name*/
     static getClassName(obj: any): string {
-        var funcNameRegex = /function (.+?)\(/;
-        var results = (funcNameRegex).exec(obj.constructor.toString());
+      const funcNameRegex = /function (.+?)\(/;
+      const results = (funcNameRegex).exec(obj.constructor.toString());
         return (results && results.length > 1) ? results[1] : '';
     }
 
 
     /** get resource class name from a prototype object*/
     static className(objProto: any): string[] {
-        let classNames = [];
+      const classNames = [];
         let obj = Object.getPrototypeOf(objProto);
         let className: string;
 
@@ -112,12 +112,12 @@ export class ResourceHelper {
 
     /** instantiate a ResourceCollection from response embedded data*/
     static instantiateResourceCollection<T extends Resource>(type: { new(): T }, payload: any,
-                                                             result: ResourceArray<T>, builder?: SubTypeBuilder,embeddedName?:String): ResourceArray<T> {
+                                                             result: ResourceArray<T>, builder?: SubTypeBuilder, embeddedName?: string): ResourceArray<T> {
         for (const embeddedClassName of Object.keys(payload[result._embedded])) {
             if(!embeddedName || (embeddedName && embeddedClassName==embeddedName)){
-                let embedded: any = payload[result._embedded];
+              const embedded: any = payload[result._embedded];
                 const items = embedded[embeddedClassName];
-                for (let item of items) {
+              for (const item of items) {
                     let instance: T = new type();
                     instance = this.searchSubtypes(builder, embeddedClassName, instance);
 
@@ -143,10 +143,10 @@ export class ResourceHelper {
     /** search subtypes*/
     static searchSubtypes<T extends Resource>(builder: SubTypeBuilder, embeddedClassName: string, instance: T) {
         if (builder && builder.subtypes) {
-            let keys = builder.subtypes.keys();
+          const keys = builder.subtypes.keys();
             Array.from(keys).forEach((subtypeKey: string) => {
                 if (embeddedClassName.toLowerCase().startsWith(subtypeKey.toLowerCase())) {
-                    let subtype: { new(): any } = builder.subtypes.get(subtypeKey);
+                  const subtype: { new(): any } = builder.subtypes.get(subtypeKey);
                     instance = new subtype();
                 }
             });

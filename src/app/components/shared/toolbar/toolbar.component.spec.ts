@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ToolbarComponent } from './toolbar.component';
 import { MaterialModule } from '@app/material-module';
-import { ResourceService, ExternalService } from '@app/core/hal/services';
+import {ExternalService, ResourceService} from '@app/core/hal/services';
 import { AccountService } from '@app/core/account/account.service';
 import { LoginService } from '@app/core/auth/login.service';
 import { AuthService } from '@app/core/auth/auth.service';

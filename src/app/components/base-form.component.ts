@@ -3,7 +3,7 @@ import {config} from "@config";
 import {constants} from "@environments/constants";
 import {UntypedFormGroup} from "@angular/forms";
 import {TranslateService} from "@ngx-translate/core";
-import {firstValueFrom, Subject} from "rxjs";
+import {Subject, firstValueFrom} from "rxjs";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {DataTablesRegistry} from "@app/components/data-tables.util";
 import {ActivatedRoute, Router} from "@angular/router";

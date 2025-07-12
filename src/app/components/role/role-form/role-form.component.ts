@@ -23,7 +23,7 @@ import {
 import {UtilsService} from '@app/services/utils.service';
 import {EMPTY, firstValueFrom} from 'rxjs';
 import {map} from 'rxjs/operators';
-import {onCreate, onDelete, onUpdate, onUpdatedRelation, Status} from '@app/frontend-gui/src/lib/public_api';
+import {Status, onCreate, onDelete, onUpdate, onUpdatedRelation} from '@app/frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
 import {LoggerService} from '@app/services/logger.service';
 import {BaseFormComponent} from '@app/components/base-form.component';

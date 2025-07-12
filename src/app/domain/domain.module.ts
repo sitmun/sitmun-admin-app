@@ -1,5 +1,5 @@
-import { NgModule, ModuleWithProviders } from '@angular/core';
-import { HalModule, ResourceService, ExternalService } from '@app/core/hal';
+import {ModuleWithProviders, NgModule} from '@angular/core';
+import {ExternalService, HalModule, ResourceService} from '@app/core/hal';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';

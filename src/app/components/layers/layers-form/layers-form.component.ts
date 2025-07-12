@@ -41,8 +41,8 @@ import {
 } from '@app/domain';
 import {UtilsService} from '@app/services/utils.service';
 import {map} from 'rxjs/operators';
-import {EMPTY, firstValueFrom, Subject} from 'rxjs';
-import {onCreate, onDelete, onUpdate, Status} from '@app/frontend-gui/src/lib/public_api';
+import {EMPTY, Subject, firstValueFrom} from 'rxjs';
+import {Status, onCreate, onDelete, onUpdate} from '@app/frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
 import {constants} from '@environments/constants';
 import {LoggerService} from '@app/services/logger.service';

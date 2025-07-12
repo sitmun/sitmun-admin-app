@@ -22,12 +22,12 @@ import {MatChipInputEvent} from '@angular/material/chips';
 import {config} from '@config';
 import {
   DialogMessageComponent,
+  Status,
   onCreate,
   onDelete,
   onNotAvailable,
   onPendingRegistration,
-  onUpdate,
-  Status
+  onUpdate
 } from '@app/frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
 import {constants} from '@environments/constants';
