@@ -30,6 +30,19 @@
                       onKeyDown="onTranslated('name')"
                       svgIcon="ic_translate"></mat-icon>
           </mat-form-field>
+          <mat-form-field appearance="outline" class="half add-gap" *ngIf="isNew()">
+            <mat-label>{{ 'common.form.type' | translate }}</mat-label>
+            <mat-select formControlName="scope" class="form-control" (selectionChange)="onTypeChange($event)" required>
+              <mat-option [value]="serviceType.value" *ngFor="let serviceType of this.codeList('editTask.scope')">
+                {{ serviceType.description | translate }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="half add-gap" *ngIf="!isNew()">
+            <mat-label>{{ 'common.form.type' | translate }}</mat-label>
+            <input matInput [readonly]="true" [value]="findInCodeList('editTask.scope', entityForm.get('scope').value)?.description | translate">
+            <mat-hint align="end">{{ 'common.hint.valuefixed' | translate}}</mat-hint>
+          </mat-form-field>
           <mat-form-field appearance="outline" class="half">
             <mat-label>{{ 'entity.taskGroup.label' | translate }}</mat-label>
             <mat-select class="form-control" formControlName="taskGroupId">
@@ -46,6 +59,66 @@
                    class="router-link">
                   {{ taskGroup.name }}
                 </a>
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined"
+        *ngIf="isDBEditionScope()">
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="half">
+            <mat-label>{{ 'entity.task.query.connection' | translate }}</mat-label>
+            <mat-select formControlName="connectionId" class="form-control">
+              <mat-select-trigger>
+                <ng-container *ngIf="entityForm.get('connectionId')?.value as connectionId">
+                  <a [routerLink]="['/connection', connectionId, 'connectionForm']"
+                     class="router-link">
+                    {{ getConnectionName(connectionId) | translate }}
+                  </a>
+                </ng-container>
+                <span *ngIf="!entityForm.get('connectionId')?.value">
+                  {{ 'common.form.none' | translate }}
+                </span>
+              </mat-select-trigger>
+              <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
+              <mat-option [value]="connection.id" *ngFor="let connection of connections">
+                <div>
+                  <a [routerLink]="['/connections', connection.id, 'connectionForm']"
+                     (click)="$event.stopPropagation()" class="router-link">
+                    <span>{{ connection.name | translate }}</span>
+                  </a>
+                </div>
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined"
+        *ngIf="entityForm && isCartographyEditionScope()">
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="half">
+            <mat-label>{{ 'entity.task.query.cartography' | translate }}</mat-label>
+            <mat-select formControlName="cartographyId" class="form-control">
+              <mat-select-trigger>
+                <ng-container *ngIf="entityForm.get('cartographyId')?.value as cartographyId">
+                  <a [routerLink]="['/layers', cartographyId, 'layerForm']"
+                     class="router-link">
+                    {{ getCartographyName(cartographyId) | translate }}
+                  </a>
+                </ng-container>
+                <span *ngIf="!entityForm.get('cartographyId')?.value">
+                  {{ 'common.form.none' | translate }}
+                </span>
+              </mat-select-trigger>
+              <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
+              <mat-option [value]="layer.id" *ngFor="let layer of cartographies">
+                <div>
+                  <a [routerLink]="['/layers', layer.id, 'layersForm']"
+                     (click)="$event.stopPropagation()" class="router-link">
+                    <span>{{ layer.name | translate }}</span>
+                  </a>
+                </div>
               </mat-option>
             </mat-select>
           </mat-form-field>
@@ -129,6 +202,61 @@
       </mat-card-content>
     </mat-card>
   </mat-tab>
+  <mat-tab label="{{ 'tasksEditionEntity.fields' | translate }}">
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        <app-data-grid [changeHeightButton]="true"
+                      [allNewElements]="isNewOrDuplicated()"
+                      [columnDefs]="fieldsTable.relationsColumnsDefs"
+                      [getAll]='fieldsTable.relationsFetchFn'
+                      [eventAddItemsSubscription]='fieldsTable.addCommandEvent$.asObservable()'
+                      [eventGetAllRowsSubscription]='fieldsTable.saveCommandEvent$.asObservable()'
+                      [eventRefreshSubscription]='fieldsTable.refreshCommandEvent$.asObservable()'
+                      [discardChangesButton]=true
+                      [redoButton]=true
+                      [undoButton]=true
+                      [deleteButton]=true
+                      [addButton]=true
+                      [hideDuplicateButton]=true
+                      [hideReplaceButton]=true
+                      [defaultColumnSorting]='fieldsTable.defaultRelationsSorting()'
+                      (getAllRows)="fieldsTable.handleSaveRelations($event)"
+                      [actionButton]=true
+                      (add)="fieldsTable.openTemplateDialog('newFieldDialog')"
+                      *ngIf="dataLoaded"
+        >
+        </app-data-grid>
+        <br/>
+        <form [formGroup]='entityForm' *ngIf="dataLoaded && !isDBEditionScope()">
+          <mat-form-field appearance="outline" class="half">
+            <mat-label>{{ 'entity.task.query.connection' | translate }}</mat-label>
+            <mat-select formControlName="connectionId" class="form-control">
+              <mat-select-trigger>
+                <ng-container *ngIf="entityForm.get('connectionId')?.value as connectionId">
+                  <a [routerLink]="['/connection', connectionId, 'connectionForm']"
+                     class="router-link">
+                    {{ getConnectionName(connectionId) | translate }}
+                  </a>
+                </ng-container>
+                <span *ngIf="!entityForm.get('connectionId')?.value">
+                  {{ 'common.form.none' | translate }}
+                </span>
+              </mat-select-trigger>
+              <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
+              <mat-option [value]="connection.id" *ngFor="let connection of connections">
+                <div>
+                  <a [routerLink]="['/connections', connection.id, 'connectionForm']"
+                     (click)="$event.stopPropagation()" class="router-link">
+                    <span>{{ connection.name | translate }}</span>
+                  </a>
+                </div>
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </mat-tab>
 </mat-tab-group>
 
 <ng-template #newParameterDialog>
@@ -136,19 +264,84 @@
     <mat-card appearance="outlined">
       <mat-card-content>
         <mat-form-field appearance="outline" class="full">
-          <mat-label>{{ 'common.form.name' | translate }}</mat-label>
-          <input formControlName="name" matInput required type="text">
+          <mat-label>{{ "common.form.name" | translate }}</mat-label>
+          <input matInput type="text" formControlName="name" required>
         </mat-form-field>
-        <mat-radio-group formControlName="type" required>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ "common.form.label" | translate }}</mat-label>
+          <input matInput type="text" formControlName="label" required>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ "common.form.value" | translate }}</mat-label>
+          <input matInput type="text" formControlName="value">
+        </mat-form-field>
+        <mat-radio-group formControlName="type" class="full">
           <mat-label class="requiredInput">{{ 'common.form.type' | translate }}</mat-label>
-          <mat-radio-button *ngFor="let paramType of codeList('taskEntity.jsonParamType')" [value]="paramType.type">
+          <mat-radio-button [value]="paramType.value" *ngFor="let paramType of this.codeList('queryTask.parameterType')">
             {{ paramType.description | translate }}
           </mat-radio-button>
         </mat-radio-group>
+        <br/>
+        <ng-container *ngIf="isQueryParameterType()">
+          <mat-label>{{ 'common.form.required' | translate }}</mat-label>
+          <mat-checkbox formControlName="required">
+          </mat-checkbox>
+        </ng-container>
+      </mat-card-content>
+    </mat-card>
+  </form>
+</ng-template>
+
+<ng-template #newFieldDialog>
+  <form [formGroup]="fieldsTable.templateDialog('newFieldDialog').form">
+    <mat-card appearance="outlined">
+      <mat-card-content>
         <mat-form-field appearance="outline" class="full">
-          <mat-label>{{ 'common.form.value' | translate }}</mat-label>
-          <input formControlName="value" matInput type="text">
+          <mat-label>{{ "common.form.name" | translate }}</mat-label>
+          <input matInput type="text" formControlName="name" required>
         </mat-form-field>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ "common.form.label" | translate }}</mat-label>
+          <input matInput type="text" formControlName="label" required>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ 'common.form.type' | translate }}</mat-label>
+          <mat-select formControlName="type" required (selectionChange)="onFieldTypeChange($event)">
+            <mat-option [value]="fieldType.value" *ngFor="let fieldType of codeList('editTask.fieldType')">
+              {{ fieldType.description | translate }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ "tasksEditionEntity.defectValue" | translate }}</mat-label>
+          <input matInput type="text" formControlName="value">
+        </mat-form-field>
+        <ng-container *ngIf="fieldsTable.templateDialog('newFieldDialog').form.get('type')?.value === TaskFieldType.LISTBOX">
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ "entity.task.query.sql" | translate }}</mat-label>
+            <textarea matInput type="text" formControlName="query" required [maxlength]="4000" rows="4"></textarea>
+            <mat-hint align="end">{{fieldsTable.templateDialog('newFieldDialog').form.get('query') | characterCount}}</mat-hint>
+          </mat-form-field>
+        </ng-container>
+        <br/>
+        <ng-container>
+          <div style="display:inline; padding-right: 2rem;">
+            <mat-label>{{ 'tasksEditionEntity.selectable' | translate }}</mat-label>
+            <mat-checkbox formControlName="selectable"></mat-checkbox>
+          </div>
+        </ng-container>
+        <ng-container>
+          <div style="display:inline; padding-right: 2rem;">
+            <mat-label>{{ 'tasksEditionEntity.editable' | translate }}</mat-label>
+            <mat-checkbox matInput formControlName="editable"></mat-checkbox>
+          </div>
+        </ng-container>
+        <ng-container>
+          <div style="display:inline; padding-right: 2rem;">
+            <mat-label>{{ 'tasksEditionEntity.obligatory' | translate }}</mat-label>
+            <mat-checkbox matInput formControlName="required"></mat-checkbox>
+          </div>
+        </ng-container>
       </mat-card-content>
     </mat-card>
   </form>

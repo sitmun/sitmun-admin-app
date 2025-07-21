@@ -26,6 +26,8 @@ export interface TaskProperties {
   path: string | null;
   /** Basic and Query parameters */
   parameters: any[];
+  /** Cartography Query fields */
+  fields: any[];
 }
 
 /** Task model */
@@ -98,7 +100,8 @@ export class Task extends Resource {
         command: null,
         format: null,
         path: null,
-        parameters: []
+        parameters: [],
+        fields: []
       };
     }
 
@@ -111,6 +114,10 @@ export class Task extends Resource {
 
     if (!result?.parameters || !Array.isArray(result?.parameters) || !result?.parameters?.some(item => item instanceof Object)) {
       result.parameters = [];
+    }
+
+    if (!result?.fields || !Array.isArray(result?.fields) || !result?.fields?.some(item => item instanceof Object)) {
+      result.fields = [];
     }
 
     return result;
@@ -130,7 +137,8 @@ export class TaskProjection extends Resource {
     command: null,
     format: null,
     path: null,
-    parameters: []
+    parameters: [],
+    fields: []
   };
   serviceId: number;
   serviceName: string;

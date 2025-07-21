@@ -253,7 +253,7 @@
                 </div>
               </div>
               <div class="rowFormDiv"
-                   *ngIf="currentNodeType === codeValues.treenodeLeafType.task && currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
+                   *ngIf="currentNodeIsFolder != undefined && !currentNodeIsFolder && (currentTreeType === codeValues.treeType.edition || currentNodeType === codeValues.treenodeLeafType.task)">
                 <div class="colFormDiv">
                   <label class="formLabel">
                     {{ 'entity.task.label' | translate }}
@@ -297,31 +297,37 @@
               <button mat-flat-button class="validateButton"
                       *ngIf="newElement && currentNodeIsFolder != undefined ">{{ "save" | translate }}
               </button>
-              <div class="appDataGridEditDiv" *ngIf="( currentNodeIsFolder != undefined && !currentNodeIsFolder)">
-                <div *ngIf="currentNodeType === codeValues.treenodeLeafType.task">
-                  <h5>{{ 'entity.task.plural' | translate }}</h5>
-                  <app-data-grid [changeHeightButton]="true"
-                                [defaultColumnSorting]="['name']"
-                                [columnDefs]="columnDefsTasks"
-                                [getAll]='getAllTasks'
-                                [eventGetSelectedRowsSubscription]='getAllElementsEventTasks.asObservable()'
-                                (getSelectedRows)="getSelectedRowsTasks($event)"
-                                [singleSelection]=true
-                                [redraw]="activeTabIndex === 1">
+              <div class="appDataGridEditDiv" *ngIf="(currentNodeIsFolder != undefined && !currentNodeIsFolder)">
+                <mat-tab-group
+                  mat-stretch-tabs="false"
+                  mat-align-tabs="end"
+                  [dynamicHeight]="true"
+                  preserveContent="true"
+                  (selectedTabChange)="onNodeTabChange($event)">
+                  <mat-tab label="{{ 'treesEntity.cartography' | translate }}">
+                    <app-data-grid [changeHeightButton]="true"
+                      [defaultColumnSorting]="['name']"
+                      [columnDefs]="columnDefsCartographies"
+                      [getAll]='getAllCartographies'
+                      [eventGetSelectedRowsSubscription]='getAllElementsEventCartographies.asObservable()'
+                      (getSelectedRows)="getSelectedRowsCartographies($event)"
+                      [singleSelection]=true
+                      [redraw]="activeTabIndex === 1">
+                    </app-data-grid>
+                  </mat-tab>
+                  <mat-tab label="{{ 'entity.task.plural' | translate }}"
+                    *ngIf="(currentNodeType && currentTreeType === codeValues.treeType.edition) || currentNodeType === codeValues.treenodeLeafType.task">
+                    <app-data-grid [changeHeightButton]="true"
+                      [defaultColumnSorting]="['name']"
+                      [columnDefs]="columnDefsTasks"
+                      [getAll]='getAllTasks'
+                      [eventGetSelectedRowsSubscription]='getAllElementsEventTasks.asObservable()'
+                      (getSelectedRows)="getSelectedRowsTasks($event)"
+                      [singleSelection]=true
+                      [redraw]="activeTabIndex === 1">
                   </app-data-grid>
-                </div>
-                <div>
-                  <h5>{{ 'treesEntity.cartography' | translate }}</h5>
-                  <app-data-grid [changeHeightButton]="true"
-                                [defaultColumnSorting]="['name']"
-                                [columnDefs]="columnDefsCartographies"
-                                [getAll]='getAllCartographies'
-                                [eventGetSelectedRowsSubscription]='getAllElementsEventCartographies.asObservable()'
-                                (getSelectedRows)="getSelectedRowsCartographies($event)"
-                                [singleSelection]=true
-                                [redraw]="activeTabIndex === 1">
-                  </app-data-grid>
-                </div>
+                  </mat-tab>
+                </mat-tab-group>
               </div>
             </form>
           </div>
@@ -452,32 +458,47 @@
         <h5>{{ 'treesEntity.outputMapping' | translate }}</h5>
         <div class="maping-form">
           <div class="rowFormDiv">
-          <mat-form-field appearance="outline">
-            <mat-label>
-              {{ 'treesEntity.taskview' | translate }}
-            </mat-label>
-            <mat-select matInput formControlName="viewMode" class="form-control" (selectionChange)="onViewModeChange($event.value)">
-              <mat-option [value]="taskview.value" *ngFor="let taskview of taskviewsList">
-                {{ taskview.description }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>
+                {{ 'treesEntity.taskview' | translate }}
+              </mat-label>
+              <mat-select matInput formControlName="viewMode" class="form-control" (selectionChange)="onViewModeChange($event.value)">
+                <mat-option [value]="taskview.value" *ngFor="let taskview of taskviewsList">
+                  {{ taskview.description }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
           </div>
           <div formGroupName="output">
             <div *ngFor="let control of nodeOutputsControls">
               <div class="rowFormDiv" [formGroupName]="control.key" *ngIf="control.views.includes(currentViewMode)">
-                <div class="colFormDiv">
-                  <mat-radio-button name="mapping" [id]="control.key + '-mapping'" class="mapping-radio"></mat-radio-button>
+               <!-- Si el output es de tipo boton label, que sea un selector -->
+                <div *ngIf="control.key.includes('Label'); else notLabel">
+                  <div class="colFormDiv" style="margin-left: 32%;">
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{control.label | translate}}</mat-label>
+                      <mat-select matInput formControlName="value" class="form-control" [(value)]="defaultLabel">
+                        <mat-option [value]="labelview.value" *ngFor="let labelview of mappingbtnLabelOptions">
+                          {{ labelview.label | translate }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
                 </div>
-                <div class="colFormDiv">
-                  <mat-form-field appearance="outline" class="full">
-                    <mat-label>{{control.label | translate}}</mat-label>
-                    <input matInput type="text" formControlName="value">
-                  </mat-form-field>
-                </div>
-                <div class="colFormDiv">
-                  <mat-checkbox formControlName="calculated" labelPosition="after">{{ 'treesEntity.calculated' | translate }}</mat-checkbox>
-                </div>
+                <ng-template #notLabel>
+                  <div class="colFormDiv">
+                    <mat-radio-button name="mapping" [id]="control.key + '-mapping'" class="mapping-radio"></mat-radio-button>
+                  </div>
+                  <div class="colFormDiv">
+                    <mat-form-field appearance="outline" class="full">
+                      <mat-label>{{control.label | translate}}</mat-label>
+                      <input matInput type="text" formControlName="value">
+                    </mat-form-field>
+                  </div>
+                  <div class="colFormDiv">
+                    <mat-checkbox formControlName="calculated" labelPosition="after">{{ 'treesEntity.calculated' | translate }}</mat-checkbox>
+                  </div>
+                </ng-template> 
               </div>
             </div>
           </div>

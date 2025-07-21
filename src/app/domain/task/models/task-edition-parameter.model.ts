@@ -9,7 +9,7 @@ export enum TaskParameterType {
 /**
  * Task parameter model
  */
-export class TaskQueryParameter {
+export class TaskEditionParameter {
   /** name */
   public name: string;
 
@@ -54,8 +54,8 @@ export class TaskQueryParameter {
    * @param source The source object to copy properties from
    * @returns A new TaskParameter instance with copied properties
    */
-  public static fromObject(source: any): TaskQueryParameter {
-    const parameter = new TaskQueryParameter();
+  public static fromObject(source: any): TaskEditionParameter {
+    const parameter = new TaskEditionParameter();
     // Define the properties to copy
     const propertiesToCopy = [
       'name', 'label', 'type', 'value'
