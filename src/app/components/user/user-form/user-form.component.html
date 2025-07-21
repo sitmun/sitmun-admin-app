@@ -2,8 +2,8 @@
   entityType="{{ config.labelSingular }}"
   font="{{ config.font }}"
   icon="{{ config.icon }}"
-  [itemName]="userForm.get('username')?.value"
-  [isNew]="userID === -1"
+  [itemName]="entityForm?.get('username')?.value || ''"
+  [isNew]="isNew()"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>
@@ -12,10 +12,9 @@
   mat-stretch-tabs="false"
   mat-align-tabs="end"
   [dynamicHeight]="true"
-  preserveContent="true"
-  (selectedTabChange)="onTabChange($event)">
+  preserveContent="true">
   <mat-tab label="{{ 'common.form.details' | translate }}">
-        <form [formGroup]='userForm'>
+        <form [formGroup]='entityForm' *ngIf="dataLoaded">
           <mat-card class="sitmun-mat-card-margin" appearance="outlined">
             <mat-card-content>
               <!-- User name -->
@@ -46,21 +45,26 @@
               <mat-form-field appearance="outline" class="half add-gap">
                 <mat-label>{{ 'userEntity.email' | translate }}</mat-label>
                 <input matInput type="email" formControlName="email">
-                <mat-error *ngIf="userForm.get('email').hasError('email')">
+                <mat-error *ngIf="entityForm?.get('email')?.hasError('email')">
                   {{ 'userEntity.invalidEmail' | translate }}
                 </mat-error>
-                <mat-error *ngIf="userForm.get('email').hasError('pattern')">
+                <mat-error *ngIf="entityForm?.get('email')?.hasError('pattern')">
                   {{ 'userEntity.invalidEmailFormat' | translate }}
                 </mat-error>
               </mat-form-field>
               <div class="break"></div>
               <!-- Password -->
-              <mat-form-field appearance="outline" class="half add-gap">
-                <mat-label>{{ 'userEntity.password' | translate }}</mat-label>
-                <input matInput [type]="'password'"
-                       formControlName="password"
+              <mat-form-field appearance="outline" class="half">
+                <mat-label>{{ 'common.form.password.label' | translate }}</mat-label>
+                <input matInput
+                       formControlName="newPassword"
+                       type="text"
+                       [maxlength]="50"
                        (input)="onPasswordChange()"
-                       (focus)="resetPasswordField()">
+                       class="password-input">
+                <mat-hint align="end" *ngIf="isPasswordBeingEdited">
+                  {{ entityForm?.get('newPassword') | characterCount }}
+                </mat-hint>
               </mat-form-field>
               <div class="break"></div>
               <!-- Administrator -->
@@ -71,31 +75,35 @@
           </mat-card>
         </form>
   </mat-tab>
-  <mat-tab label="{{ 'userEntity.permissions' | translate }}">
-    <app-data-grid [changeHeightButton]="true"
-                   [allNewElements]="userID === -1"
-                   [columnDefs]="columnDefsPermits"
-                   [defaultColumnSorting]="['territory']"
-                   [getAll]='getAllPermits'
-                   [eventAddItemsSubscription]='addElementsEventPermits.asObservable()'
-                   [eventGetAllRowsSubscription]='getAllElementsEventPermits.asObservable()'
-                   [eventRefreshSubscription]='dataUpdatedEventPermits.asObservable()'
-                   [discardChangesButton]=true
-                   [actionButton]=true
-                   [redoButton]=true
-                   [undoButton]=true
-                   [deleteButton]=true
-                   [addButton]=true
-                   [addFieldRestriction]="['territoryId', 'roleId', 'userId']"
-                   (getAllRows)="getAllRowsPermits($event)"
-                   (add)="openPermitsDialog()"
-                   [redraw]="activeTabIndex === 1"
-                   *ngIf="dataLoaded"
-    ></app-data-grid>
+  <mat-tab label="{{ 'entity.role.users.header' | translate }}">
+    <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+      <mat-card-content>
+        <app-data-grid [changeHeightButton]="true"
+                      [allNewElements]="isNewOrDuplicated()"
+                      [columnDefs]="userConfigurationsTable.relationsColumnsDefs"
+                      [getAll]='userConfigurationsTable.relationsFetchFn'
+                      [eventAddItemsSubscription]='userConfigurationsTable.addCommandEvent$.asObservable()'
+                      [eventGetAllRowsSubscription]='userConfigurationsTable.saveCommandEvent$.asObservable()'
+                      [eventRefreshSubscription]='userConfigurationsTable.refreshCommandEvent$.asObservable()'
+                      [actionButton]=true
+                      [discardChangesButton]=true
+                      [redoButton]=true
+                      [undoButton]=true
+                      [deleteButton]=true
+                      [addButton]=true
+                      [defaultColumnSorting]='userConfigurationsTable.defaultRelationsSorting()'
+                      [hideDuplicateButton]=true
+                      [hideReplaceButton]=true
+                      (getAllRows)="userConfigurationsTable.handleSaveRelations($event)"
+                      (add)="userConfigurationsTable.openDialog($event)"
+                      *ngIf="dataLoaded"
+        ></app-data-grid>
+      </mat-card-content>
+    </mat-card>
   </mat-tab>
   <mat-tab label="{{'userEntity.dataOfTerritory' | translate }}">
     <app-data-grid [changeHeightButton]="true"
-                   [allNewElements]="userID === -1"
+                   [allNewElements]="isNew()"
                    [columnDefs]="columnDefsData"
                    [getAll]='getAllDataTerritory'
                    [eventAddItemsSubscription]='addElementsEventTerritoryData.asObservable()'
@@ -107,9 +115,9 @@
                    [redoButton]=true
                    [undoButton]=true
                    [hideDuplicateButton]=true
+                   [addButton]=true
                    [defaultColumnSorting]="['territoryName']"
                    (getAllRows)="getAllRowsDataTerritories($event)"
-                   [redraw]="activeTabIndex === 2"
                    *ngIf="dataLoaded"
     >
     </app-data-grid>

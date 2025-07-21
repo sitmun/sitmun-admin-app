@@ -861,6 +861,12 @@ export class UtilsService {
       editable: false,
       valueGetter: (params) => {
         const fieldValue = this.getValueFromPropertyPath(params.data, field);
+        
+        // Safety check: ensure filterList is an array
+        if (!Array.isArray(filterList)) {
+          return fieldValue;
+        }
+        
         const alias = fieldToCompare
           ? filterList.filter(
             (format) => format[fieldToCompare] == fieldValue

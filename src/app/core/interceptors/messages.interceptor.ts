@@ -40,7 +40,6 @@ export class MessagesInterceptor implements HttpInterceptor {
     }
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-        console.log("MessagesInterceptor intercept", this.stateService.isEnabled());
         // Get UtilsService if not already loaded
         if (!this.utilsService) {
             this.utilsService = this.injector.get(UtilsService);

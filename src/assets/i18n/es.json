@@ -262,6 +262,7 @@
   "entity.user.firstname": "Nombre",
   "entity.user.label": "Usuario",
   "entity.user.lastname": "Apellidos",
+  "entity.user.roles.title": "Añadir roles",
   "equals": "Igual",
   "error.initialization": "Error de inicialización de la aplicación",
   "error.initialization.title": "Error de Inicialización",

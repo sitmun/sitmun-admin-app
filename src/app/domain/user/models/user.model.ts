@@ -28,4 +28,28 @@ export class User extends Resource {
   public positions: UserPosition[];
   /** user permissions */
   public permissions: UserConfiguration[];
+
+  /**
+   * Creates a new User instance copying only the properties declared in User and Resource classes
+   * @param source The source object to copy properties from
+   * @returns A new User instance with copied properties
+   */
+  public static fromObject(source: any): User {
+    const user = new User();
+    // Define the properties to copy
+    const propertiesToCopy = [
+      // Resource properties
+      'proxyUrl', 'rootUrl', '_links', '_subtypes',
+      // User properties
+      'id', 'username', 'password', 'firstName', 'lastName', 'email',
+      'blocked', 'administrator', 'passwordSet', 'positions', 'permissions'
+    ];
+    // Copy only defined properties that exist in our class
+    propertiesToCopy.forEach(prop => {
+      if (source[prop] !== undefined) {
+        user[prop] = source[prop];
+      }
+    });
+    return user;
+  }
 }

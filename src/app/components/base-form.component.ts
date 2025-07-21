@@ -363,7 +363,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
    * @returns {boolean} true if the entity can be saved, false otherwise
    */
   canSave(): boolean {
-    return this.entityForm.valid;
+    return this.entityForm?.valid ?? false;
   }
 
   /**
@@ -380,7 +380,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
     const isDuplicated = this.isDuplicated();
     if (isNewOrDuplicated) {
       this.entityID = await this.createEntity();
-    } else if (this.entityForm.dirty) {
+    } else if (this.entityForm?.dirty) {
       await this.updateEntity();
     }
     this.entityToEdit = await this.fetchOriginal()
@@ -641,7 +641,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
    * @returns {boolean} True if the control value has been modified, false otherwise
    * @private
    */
-  private isControlModified(form: UntypedFormGroup, controlName: string): boolean {
+  protected isControlModified(form: UntypedFormGroup, controlName: string): boolean {
     const control = form.get(controlName);
     if (!control) return false;
 

@@ -64,7 +64,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
     public cartographyGroupService: CartographyGroupService,
     public tasksService: TaskService,
     public applicationService: ApplicationService,
-    public userConfigurationsService: UserConfigurationService,
+    public userConfiguraitonService: UserConfigurationService,
     public userService: UserService,
     public territoryService: TerritoryService,
     public utils: UtilsService,
@@ -171,6 +171,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
         this.utils.getRouterLinkColumnDef('entity.role.users.territory', 'territory', '/territory/:id/territoryForm', {id: 'territoryId'}),
         this.utils.getNonEditableColumnDef('entity.role.users.appliesToChildrenTerritories', 'appliesToChildrenTerritories'),
         this.utils.getDateColumnDef('entity.role.users.createdDate', 'createdDate', false),
+        this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
@@ -180,33 +181,25 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
         return this.entityToEdit.getRelationArrayEx(UserConfigurationProjection, 'userConfigurations', {projection: 'view'})
       })
       .withFieldRestrictions(['userId', 'territoryId'])
-      .withRelationsColumns([
-        this.utils.getSelCheckboxColumnDef(),
-        this.utils.getRouterLinkColumnDef('entity.role.users.user.title', 'user', '/user/:id/userForm', {id: 'userId'}),
-        this.utils.getRouterLinkColumnDef('entity.role.users.territory.title', 'territory', '/territory/:id/territoryForm', {id: 'territoryId'}),
-        this.utils.getBooleanColumnDef('entity.role.users.appliesToChildrenTerritories', 'appliesToChildrenTerritories', true),
-        this.utils.getDateColumnDef('entity.role.users.createdDate', 'createdDate', false),
-        this.utils.getStatusColumnDef()
-      ])
       .withRelationsUpdater(async (userConfigurations: (UserConfigurationProjection & Status)[]) => {
         await onCreate(userConfigurations).forEach(item => {
           const newItem = UserConfiguration.fromObject(item);
           newItem.user = this.userService.createProxy(item.userId);
           newItem.territory = this.territoryService.createProxy(item.territoryId);
           newItem.role = this.roleService.createProxy(item.roleId);
-          return this.userConfigurationsService.create(newItem);
+          return this.userConfiguraitonService.create(newItem);
         });
         await onUpdate(userConfigurations).forEach(item => {
           const newItem = UserConfiguration.fromObject(item);
           delete newItem.user;
           delete newItem.territory;
           delete newItem.role;
-          return this.userConfigurationsService.update(newItem);
+          return this.userConfiguraitonService.update(newItem);
         }
         );
         await onDelete(userConfigurations).forEach(item => {
-          const newItem = this.userConfigurationsService.createProxy(item.id)
-          return this.userConfigurationsService.delete(newItem);
+          const newItem = this.userConfiguraitonService.createProxy(item.id)
+          return this.userConfiguraitonService.delete(newItem);
         });
       })
       .withTargetToRelation((users: User[], territories: TerritoryProjection[]) => {

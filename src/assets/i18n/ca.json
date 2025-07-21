@@ -262,6 +262,7 @@
   "entity.user.firstname": "Nom",
   "entity.user.label": "Usuari",
   "entity.user.lastname": "Cognoms",
+  "entity.user.roles.title": "Afegeix rols",
   "equals": "Igual",
   "error.initialization": "Error d'inicialització de l'aplicació",
   "error.initialization.title": "Error d'Inicialització",

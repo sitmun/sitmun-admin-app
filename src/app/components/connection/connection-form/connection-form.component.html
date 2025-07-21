@@ -45,8 +45,8 @@
           <mat-form-field *ngIf="isPasswordBeingEdited" appearance="outline" class="half">
             <mat-label>{{ 'common.form.password.label' | translate }}</mat-label>
             <input matInput
-                   [formControlName]="'newPassword'"
-                   [type]="'text'"
+                   formControlName="newPassword"
+                   type="text"
                    [maxlength]="50"
                    (input)="onPasswordChange()"
                    class="password-input">

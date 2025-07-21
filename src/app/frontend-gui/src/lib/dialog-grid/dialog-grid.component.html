@@ -35,6 +35,7 @@
     matTooltip="{{ 'add' | translate }}"
     [mat-dialog-close]="true"
     mat-mini-fab class="add-half-gap"
+    color="primary"
     (click)="getAllSelectedRows()">
     <mat-icon fontSet="material-icons-round">add</mat-icon>
   </button>
@@ -42,6 +43,7 @@
     matTooltip="{{ 'cancel' | translate }}"
     mat-dialog-close
     mat-mini-fab
+    color="primary"
     (click)="closeDialog()">
     <mat-icon fontSet="material-icons-round">arrow_back</mat-icon>
   </button>
