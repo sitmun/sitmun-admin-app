@@ -59,7 +59,7 @@
                 </ng-container>
                 <span *ngIf="!entityForm.get('creatorId')?.value">
                   {{ 'common.form.none' | translate }}
-              </span>
+                </span>
               </mat-select-trigger>
               <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
               <mat-option [value]="user.id" *ngFor="let user of usersList">
@@ -80,6 +80,9 @@
           <mat-checkbox formControlName="isUnavailable">
             <mat-label> {{'entity.application.isUnavailable' | translate}} </mat-label>
           </mat-checkbox>
+          <mat-checkbox formControlName="appPrivate">
+            <mat-label> {{ 'entity.application.appPrivate' | translate }}</mat-label>
+          </mat-checkbox>
           <mat-form-field appearance="outline" class="full">
             <mat-label> {{'entity.application.maintenanceInformation' | translate}} </mat-label>
             <textarea matInput type="text" formControlName="maintenanceInformation" [maxlength]="4000"></textarea>
@@ -89,10 +92,27 @@
                       svgIcon="ic_translate"></mat-icon>
             <mat-hint align="end">{{entityForm.get('maintenanceInformation') | characterCount}}</mat-hint>
           </mat-form-field>
+
+          <!-- Warnings Section -->
+          <mat-expansion-panel *ngIf="entityToEdit?.warnings?.length > 0" [expanded]="true" class="warnings-panel">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <span matBadge="{{ entityToEdit.warnings.length }}" matBadgeColor="warn" matBadgeOverlap="false"
+                      matBadgePosition="before">
+                  &nbsp;
+                  {{ 'entity.application.warnings.title' | translate }}
+                </span>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <mat-divider></mat-divider>
+            <div *ngFor="let warning of entityToEdit.warnings">
+              {{ warning | translate }}
+              <mat-divider></mat-divider>
+            </div>
+          </mat-expansion-panel>
         </mat-card-content>
       </mat-card>
-      <mat-card class="sitmun-mat-card-margin" appearance="outlined"
-                *ngIf="isExternalApp()">
+      <mat-card *ngIf="isExternalApp()" appearance="outlined" class="sitmun-mat-card-margin">
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'entity.application.type.external.url' | translate }}</mat-label>
@@ -101,8 +121,7 @@
           </mat-form-field>
         </mat-card-content>
       </mat-card>
-      <mat-card class="sitmun-mat-card-margin" appearance="outlined"
-                *ngIf="isNotExternalApp()">
+      <mat-card *ngIf="isNotExternalApp()" appearance="outlined" class="sitmun-mat-card-margin">
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'entity.application.type.generic.title' | translate }}</mat-label>
@@ -133,8 +152,7 @@
             <mat-select formControlName="situationMapId" class="form-control">
               <mat-select-trigger>
                 <ng-container *ngIf="entityForm.get('situationMapId')?.value as selectedId">
-                  <a [routerLink]="['/layersPermits', selectedId, 'layersPermitsForm']"
-                     class="router-link">
+                  <a [routerLink]="['/layersPermits', selectedId, 'layersPermitsForm']" class="router-link">
                     {{ getSituationMapName(selectedId) | translate }}
                   </a>
                 </ng-container>
@@ -283,7 +301,8 @@
         <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'common.form.type' | translate }}</mat-label>
           <mat-select formControlName="type" class="form-control" required>
-            <mat-option [value]="parameterType.value" *ngFor="let parameterType of this.codeList('applicationParameter.type')">
+            <mat-option *ngFor="let parameterType of this.codeList('applicationParameter.type')"
+                        [value]="parameterType.value">
               {{ parameterType.description }}
             </mat-option>
           </mat-select>

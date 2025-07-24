@@ -1,5 +1,3 @@
-import {Component, TemplateRef, ViewChild} from '@angular/core';
-import {FormControl, FormGroup, UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {
   Application,
@@ -23,29 +21,30 @@ import {
   User,
   UserService
 } from '@app/domain';
-import {HalOptions} from '@app/core/hal/rest/rest.service';
-
-import {UtilsService} from '@app/services/utils.service';
-
-import {map} from 'rxjs/operators';
-import {EMPTY, Observable, firstValueFrom} from 'rxjs';
+import {Component, TemplateRef, ViewChild} from '@angular/core';
+import {FormControl, FormGroup, UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {
   DataGridComponent,
-  Status,
   isActive,
   onCreate,
   onDelete,
   onUpdate,
-  onUpdatedRelation
+  onUpdatedRelation,
+  Status,
 } from '@app/frontend-gui/src/lib/public_api';
-import {MatDialog} from '@angular/material/dialog';
-import {constants} from '@environments/constants';
-import {TranslateService} from "@ngx-translate/core";
+import {EMPTY, firstValueFrom, Observable} from 'rxjs';
 import {BaseFormComponent} from "@app/components/base-form.component";
+import {Configuration} from "@app/core/config/configuration";
 import {DataTableDefinition, TemplateDialog} from '@app/components/data-tables.util';
 import {ErrorHandlerService} from "@app/services/error-handler.service";
+import {HalOptions} from '@app/core/hal/rest/rest.service';
 import {LoggerService} from "@app/services/logger.service";
-import {Configuration} from "@app/core/config/configuration";
+import {MatDialog} from '@angular/material/dialog';
+import {TranslateService} from "@ngx-translate/core";
+import {UtilsService} from '@app/services/utils.service';
+
+import {constants} from '@environments/constants';
+import {map} from 'rxjs/operators';
 
 
 /**
@@ -213,7 +212,8 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
   override empty(): ApplicationProjection {
     return Object.assign(new ApplicationProjection(), {
       type: this.firstInCodeList('application.type').value,
-      situationMap: this.situationMapList[0].id
+      situationMap: this.situationMapList[0].id,
+      appPrivate: false
     })
   }
 
@@ -253,6 +253,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       maintenanceInformation: new UntypedFormControl(this.entityToEdit.maintenanceInformation,[]),
       creatorId: new UntypedFormControl(this.entityToEdit.creatorId,[]),
       isUnavailable: new UntypedFormControl(this.entityToEdit.isUnavailable,[]),
+      appPrivate: new UntypedFormControl(this.entityToEdit.appPrivate, []),
     });
   }
 
@@ -271,6 +272,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
         scales: this.entityForm.value.scales ? this.entityForm.value.scales.toString().split(',') : null,
         situationMap: this.entityForm.value.situationMapId ? this.cartographyGroupService.createProxy(this.entityForm.value.situationMapId) : null,
         creator: this.entityForm.value.creatorId ? this.userService.createProxy(this.entityForm.value.creatorId) : null,
+        appPrivate: this.entityForm.value.appPrivate,
       }
     );
     return Application.fromObject(safeToEdit)
