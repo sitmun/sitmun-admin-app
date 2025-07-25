@@ -2,134 +2,155 @@
 ![Build Status](https://github.com/sitmun/sitmun-admin-app/workflows/CI/badge.svg)
 [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=org.sitmun%3Asitmun-admin-app&metric=alert_status)](https://sonarcloud.io/dashboard?id=org.sitmun%3Asitmun-admin-app)
 
-The SITMUN Administration Application is a web-based application built using TypeScript, JavaScript, npm, and Angular.
+The SITMUN Administration Application is the official web-based frontend for managing the SITMUN geospatial application platform. Built with TypeScript and Angular, it provides a comprehensive user interface for the [SITMUN Backend Core](https://github.com/sitmun/sitmun-backend-core) REST API.
 
-## Common Build Arguments
+## System Overview
 
-**Environments:**
+This application is part of the SITMUN software system, designed for geospatial application management and user authorization. Key features include:
 
-- Default (`src/environments/environment.ts`)
-- Development (`src/environments/environment.testdeployment.ts`) 
-- Production (`src/environments/environment.prod.ts`) 
+- User and role management
+- Application configuration
+- Territory management
+- Service and layer configuration
+- Background layer management
+- Task management and configuration
+- Connection management
+- Comprehensive security controls
 
-**Variables:**
+The application communicates with the SITMUN Backend Core, which provides:
 
-- `production`: Specifies if the environment is a production or a development enviroment. The default value is `false`.
-- `apiBaseURL`: Specifies the base URL for the SITMUN Backend used by the aplication. The default value is `http://localhost:8080`. In the development environment points at `https://sitmun-backend-core.herokuapp.com`.
+- REST API endpoints for all management operations
+- JWT-based authentication
+- Role-based access control
+- Application privacy controls
+- Public and private application management
 
-## Docker Support
+## Build Configuration
 
-The application is containerized using Docker, as defined in the Dockerfile. The Dockerfile is divided into two stages:
+**Available Environments:**
 
-1. **Build Stage**: Based on Node.js, this stage is responsible for building and compiling the frontend of the application. 
-   It uses npm to manage dependencies and Angular for building the application.
-2. **Production Stage**: Based on Nginx, this stage serves the compiled application. 
-   The compiled application from the build stage is copied into the Nginx container and served from the `/usr/share/nginx/html/` directory.
+- Default (`src/environments/environment.ts`): Development environment with local backend
+  - `apiBaseURL`: http://localhost:8080
+  - `logLevel`: Debug
+  - `production`: false
 
-### Dockerfile Build Arguments
+- Development (`src/environments/environment.development.ts`): Development with SITMUN Application Stack
+  - `apiBaseURL`: http://localhost:9000/backend
+  - `logLevel`: Debug
+  - `production`: false
 
-The Dockerfile for the SITMUN Administration Application takes three arguments during the build stage:
+- Local Test (`src/environments/environment.localtest.ts`): Local testing environment
+  - `apiBaseURL`: http://localhost:8080
+  - `logLevel`: Info
+  - `production`: false
 
-- `GITHUB_TOKEN`: A personal access token from GitHub used to authenticate with GitHub’s package registry when downloading dependencies.
-- `BASE_HREF`: Specifies the base URL for the application, used by Angular for routing.
-- `CONFIGURATION`: Specifies the build configuration for the Angular application (i.e. `testdeployment` and `prod`).
+- Test Deployment (`src/environments/environment.testdeployment.ts`): Heroku test deployment
+  - `apiBaseURL`: https://sitmun-backend-core.herokuapp.com
+  - `logLevel`: Info
+  - `production`: false
 
-### Building the Docker Image
+- Production (`src/environments/environment.prod.ts`): Production environment
+  - `apiBaseURL`: http://localhost:8080 (needs to be configured for actual production URL)
+  - `logLevel`: Error
+  - `production`: true
 
-To build the Docker image for the SITMUN Administration Application, use the `docker build` command. 
-This command includes the image name and any necessary build arguments.
+**Environment Variables:**
 
-Example command to build the Docker image:
+- `production`: Specifies if the environment is a production or a development environment
+- `apiBaseURL`: Specifies the base URL for the SITMUN Backend used by the application
+- `logLevel`: Controls the application logging level (Debug, Info, Error)
 
-```bash
-docker build -t sitmun-admin-app --build-arg GITHUB_TOKEN=your_github_token --build-arg BASE_HREF=/ --build-arg CONFIGURATION=testdeployment .
-```
-Replace `your_github_token` with your actual GitHub token. Adjust the `BASE_HREF` and `CONFIGURATION` as needed.
-
-### Starting the Application with Docker
-
-To start the application, run the following command in the terminal:
-
-```bash
-docker run -p 80:80 sitmun-admin-app 
-```
-
-This command will start the SITMUN Administration Application and map port 80 in the container to port 80 on the host machine.
-The application should now be accessible at http://localhost on your machine.
-
-## Docker Compose Support
-
-To deploy the SITMUN Administration Application using Docker Compose, create a `docker-compose.yml file that defines the services for your application.
-
-### Steps to Create a docker-compose.yml File
-
-1. Create a `docker-compose.yml` file in the root directory of your project. 
-2. Define a service for the SITMUN Administration Application in the `docker-compose.yml` file. 
-   This service should use the Docker image built from the `Dockerfile`, specify the ports to expose, and include any necessary environment variables or build arguments.
-3. Start your application by running the `docker-compose up command in the terminal.
-
-### Example docker-compose.yml File
-
-```yaml
-version: '3.8'
-services:
-  sitmun-admin-app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        GITHUB_TOKEN: your_github_token
-        BASE_HREF: /
-        CONFIGURATION: testdeployment
-    ports:
-      - "80:80"
- ```
-
-Replace `your_github_token` with your actual GitHub token. Adjust the `BASE_HREF` and `CONFIGURATION` as needed.
-
-### Starting the Application with Docker Compose
-
-To start the application, run the following command in the terminal:
+To build for a specific environment:
 
 ```bash
-docker-compose up
+# Development with Application Stack
+npm run build -- --configuration=development
+
+# Local testing
+npm run build -- --configuration=localtest
+
+# Test deployment
+npm run build -- --configuration=testdeployment
+
+# Production
+npm run build -- --configuration=production
 ```
 
-This command will start the SITMUN Administration Application and map port 80 in the container to port 80 on the host machine. 
-The application should now be accessible at http://localhost on your machine.
+## Development Setup
 
-## Development Container support
+### Prerequisites
 
-A development container (or dev container for short) allows you to use a container as a full-featured development environment. 
-The provided devcontainer file uses `mcr.microsoft.com/devcontainers/universal:2` and installs **node 12.1.1**.
+- Node.js (check package.json for compatible version)
+- npm (Node Package Manager)
+- Access to a [SITMUN Backend Core](https://github.com/sitmun/sitmun-backend-core) instance (running on Java 17 with Spring Boot 3.1.0)
 
-```json
-{
-  "image": "mcr.microsoft.com/devcontainers/universal:2",
-  "features": {
-  },
-  "postCreateCommand": "bash -i -c 'nvm install 12.11.1'"
-}
-```
+### Building the Application
 
-### Development Build Arguments
-
-The development for the SITMUN Administration Application takes three arguments during the build stage:
-
-- `GITHUB_TOKEN`: A personal access token from GitHub used to authenticate with GitHub’s package registry when downloading dependencies.
-- `BASE_HREF`: Specifies the base URL for the application, used by Angular for routing.
-- `CONFIGURATION`: Specifies the build configuration for the Angular application (i.e. `testdeployment` and `prod`).
-
-### Building the application
-
-To build the application, run the following command in the terminal:
-
+1. Install dependencies:
 ```bash
-npm set //npm.pkg.github.com/:_authToken $our_github_token
 npm ci
-npm run build -- --configuration=testdeployment --baseHref=/
 ```
 
-Replace `your_github_token` with your actual GitHub token. Adjust the `BASE_HREF` and `CONFIGURATION` as needed.
+2. Build the application:
+```bash
+npm run build -- --configuration=development --baseHref=/
+```
 
-These commands will build the application. The output will be available in `dist/admin-app`.
+The build output will be available in the `dist/admin-app` directory.
+
+### Running Tests
+
+- Run unit tests:
+```bash
+npm run test
+```
+
+- Run end-to-end tests:
+
+```bash
+npm run e2e
+```
+
+### Development Server
+
+To start the development server:
+
+```bash
+npm start
+```
+
+The application will be accessible at `http://localhost:4200` by default. Make sure you have a SITMUN Backend Core instance running (default: `http://localhost:8080`).
+
+### Additional Scripts
+
+- `npm run lint`: Run linting checks
+- `npm run test:coverage`: Run tests with coverage report
+- `npm run build:prod`: Build for production
+
+For more available scripts, check the `scripts` section in `package.json`.
+
+## API Integration
+
+This application integrates with the SITMUN Backend Core REST API. Key endpoints used include:
+
+- Authentication: `/api/auth/login`, `/api/auth/logout`
+- Configuration: `/api/config/client/application`
+- Health: `/api/dashboard/health`
+
+For full API documentation, refer to the [Backend Swagger UI](http://localhost:8080/swagger-ui/index.html) when running a local backend instance.
+
+## Security
+
+The application implements:
+
+- JWT-based authentication
+- Role-based access control
+- Support for public and private applications
+- Territory-based access restrictions
+
+## Contributing
+
+Contributions are welcome. Please open issues or pull requests in the appropriate repository:
+
+- Frontend issues: [sitmun-admin-app](https://github.com/sitmun/sitmun-admin-app/issues)
+- Backend issues: [sitmun-backend-core](https://github.com/sitmun/sitmun-backend-core/issues)
