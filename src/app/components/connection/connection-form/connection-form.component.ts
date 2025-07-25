@@ -1,5 +1,3 @@
-import {Component} from '@angular/core';
-import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {
   CartographyService,
@@ -10,16 +8,19 @@ import {
   TaskService,
   TranslationService
 } from '@app/domain';
-import {UtilsService} from '@app/services/utils.service';
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {EMPTY, firstValueFrom} from 'rxjs';
-import {map} from 'rxjs/operators';
-import {MatDialog} from '@angular/material/dialog';
 import {BaseFormComponent} from "@app/components/base-form.component";
-import {LoggerService} from '@app/services/logger.service';
-import {DataTableDefinition} from '@app/components/data-tables.util';
-import {TranslateService} from '@ngx-translate/core';
-import {ErrorHandlerService} from '@app/services/error-handler.service';
+import {Component} from '@angular/core';
 import {Configuration} from "@app/core/config/configuration";
+import {DataTableDefinition} from '@app/components/data-tables.util';
+import {ErrorHandlerService} from '@app/services/error-handler.service';
+import {LoggerService} from '@app/services/logger.service';
+import {MatDialog} from '@angular/material/dialog';
+import {NotificationService} from '@app/services/notification.service';
+import {UtilsService} from '@app/services/utils.service';
+import {map} from 'rxjs/operators';
+import {TranslateService} from '@ngx-translate/core';
 
 /**
  * Component for managing connection forms in the SITMUN application.
@@ -58,6 +59,7 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
    * @param tasksService - Service for task operations
    * @param utils - Utility service for common operations
    * @param loggerService - Service for logging
+   * @param notificationService
    */
   constructor(
     dialog: MatDialog,
@@ -72,6 +74,7 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
     protected cartographyService: CartographyService,
     protected tasksService: TaskService,
     protected utils: UtilsService,
+    protected notificationService: NotificationService,
   ) {
     super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router);
     this.tasksTable = this.defineTaskType();
@@ -236,6 +239,21 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
   }
 
   /**
+   * Checks if the connection can be validated based on required fields.
+   * @returns boolean indicating if validation is possible
+   */
+  canValidateConnection(): boolean {
+    if (!this.entityForm) {
+      return false;
+    }
+
+    const driver = this.entityForm.get('driver')?.value;
+    const url = this.entityForm.get('url')?.value;
+
+    return driver && url && driver.trim() !== '' && url.trim() !== '';
+  }
+
+  /**
    * Tests the database connection with current form values.
    */
   validateConnection() {
@@ -243,10 +261,17 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
       driver: this.entityForm.value.driver,
       url: this.entityForm.value.url,
       user: this.entityForm.value.user,
-      password: this.entityForm.value.password
+      password: this.entityForm.value.newPassword
     };
     this.connectionService.testConnection(connection).subscribe({
-      error: err => this.loggerService.error('Error testing connection', err)
+      next: () => this.notificationService.showSuccess("entity.connection.test.title", "entity.connection.test.success"),
+      error: err => {
+        const errorMessage = err.error?.message;
+        const shouldTranslate = !errorMessage;
+        const message = errorMessage || "entity.connection.test.error.unknown";
+        console.log("Error: ", err, errorMessage, shouldTranslate, message);
+        this.notificationService.showError("entity.connection.test.title", message, shouldTranslate);
+      }
     });
   }
 

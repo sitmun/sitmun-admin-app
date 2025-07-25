@@ -10,7 +10,7 @@ import {APP_ROUTING} from './app-routes';
 import {MAT_TABS_CONFIG} from '@angular/material/tabs';
 
 // Import the Core and Domain modules
-import {CoreModule} from '@app/core';
+import {CoreModule, MessagesInterceptorStateService} from '@app/core';
 //Services
 import {
   ApplicationBackgroundService,
@@ -100,6 +100,7 @@ import {TasksQueryComponent} from "@app/components/tasks-query/tasks-query.compo
 import {TaskQueryFormComponent} from "@app/components/tasks-query/task-form/task-query-form.component";
 import {TaskEditFormComponent} from '@app/components/tasks-edit/task-form/task-edit-form.component';
 import {TasksEditComponent} from '@app/components/tasks-edit/tasks-edit.component';
+import {NotificationComponent} from '@app/components/shared/notification/notification.component';
 
 import {LoginComponent} from '@app/components/login/login.component';
 import {LogLevelControlComponent} from '@app/components/shared/log-level-control/log-level-control.component';
@@ -114,7 +115,6 @@ import {BaseFormComponent} from "@app/components/base-form.component";
 import {DataTablesRegistry} from "@app/components/data-tables.util";
 import {Resource} from "@app/core/hal/resource/resource.model";
 import {ErrorPageComponent} from "@app/components/error-page/error-page.component";
-import {MessagesInterceptorStateService} from './core/interceptors/messages.interceptor';
 
 
 // APP_INITIALIZER factory functions
@@ -276,7 +276,8 @@ function getDefaultLanguage(languages: any[]): string {
     TranslationDebugComponent,
     UrlInputDirective,
     TaskEditFormComponent,
-    TasksEditComponent
+    TasksEditComponent,
+    NotificationComponent
   ],
   imports: [
     BrowserModule,

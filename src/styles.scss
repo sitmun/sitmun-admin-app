@@ -580,8 +580,26 @@ h2 {
   font-weight: bold !important;
 }
 
-.error-snackbar {
-  background-color: #bf0000;
+
+// Snackbar container overrides
+.mat-mdc-snack-bar-container {
+  &.notification-success, &.notification-error {
+    --mdc-snackbar-container-color: transparent;
+    --mdc-snackbar-supporting-text-color: inherit;
+    padding: 0;
+
+    .mdc-snackbar__surface {
+      background-color: transparent;
+      box-shadow: none;
+      min-width: auto;
+      min-height: auto;
+      padding: 0;
+    }
+
+    .mdc-snackbar__label {
+      padding: 0;
+    }
+  }
 }
 
 //Dialogs
@@ -597,13 +615,9 @@ h2 {
 
 @-webkit-keyframes rotating {
   from {
-    -webkit-transform: rotate(0deg);
-    -o-transform: rotate(0deg);
     transform: rotate(0deg);
   }
   to {
-    -webkit-transform: rotate(360deg);
-    -o-transform: rotate(360deg);
     transform: rotate(360deg);
   }
 }
@@ -615,7 +629,6 @@ h2 {
 .dialog h1 mat-icon.loading {
   -webkit-animation: rotating 1s linear infinite;
   -moz-animation: rotating 1s linear infinite;
-  -ms-animation: rotating 1s linear infinite;
   -o-animation: rotating 1s linear infinite;
   animation: rotating 1s linear infinite;
 }
@@ -743,12 +756,6 @@ h4 > .mat-icon {
 
 .sitmun-mat-button-margin {
   margin-bottom: 16px;
-}
-
-.sitmun-action-button {
-  background-color: #ff9300 !important;
-  color: white !important;
-  margin-right: 10px;
 }
 
 .sitmun-save-button, .sitmun-new-button, .saveButton {

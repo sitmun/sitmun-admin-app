@@ -73,11 +73,12 @@
 
           <button
             mat-raised-button
-            class="sitmun-action-button"
             type="button"
+            [disabled]="!canValidateConnection()"
             (click)="validateConnection()"
+            color="primary"
           >
-            {{ "button.validate.label" | translate }}
+            {{ "common.button.validate" | translate }}
           </button>
         </mat-card-content>
       </mat-card>
