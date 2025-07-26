@@ -1,7 +1,11 @@
 import {Component, TemplateRef, ViewChild} from "@angular/core";
 import {BaseFormComponent} from "@app/components/base-form.component";
 import {
+  Cartography,
+  CartographyService,
   CodeListService,
+  Connection,
+  ConnectionService,
   Role,
   RoleService,
   Task,
@@ -10,7 +14,6 @@ import {
   TaskAvailabilityService,
   TaskGroup,
   TaskGroupService,
-  TaskParameter,
   TaskProjection,
   TaskPropertiesBuilder,
   TaskService,
@@ -37,6 +40,9 @@ import {
 } from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import assert from "assert";
+import { TaskFieldType, TaskEditionField } from "@app/domain/task/models/task-edition-fields.model";
+import { MatSelectChange } from "@angular/material/select";
+import { TaskEditionParameter, TaskParameterType } from "@app/domain/task/models/task-edition-parameter.model";
 import {Configuration} from "@app/core/config/configuration";
 
 /**
@@ -83,7 +89,13 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
    * Data table definition for managing task parameters.
    * Configures the parameters grid with columns, data fetching, and update operations.
    */
-  protected readonly parametersTable: DataTableDefinition<TaskParameter, TaskParameter>;
+  protected readonly parametersTable: DataTableDefinition<TaskEditionParameter, TaskEditionParameter>;
+
+  /**
+   * Data table definition for managing task fields.
+   * Configures the fields grid with columns, data fetching, and update operations.
+   */
+  protected readonly fieldsTable: DataTableDefinition<TaskEditionField, TaskEditionField>;
 
   /**
    * The translated name of the task type.
@@ -113,6 +125,72 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
   private readonly newParameterDialog: TemplateRef<any>;
 
   /**
+   * Reference to the dialog template for adding new fields.
+   * Used by the fields table for creating new task fields.
+   */
+  @ViewChild('newFieldDialog', {static: true})
+  private readonly newFieldDialog: TemplateRef<any>;
+
+    /**
+     * The TaskFieldType enum exposed to the template
+     */
+    protected readonly TaskFieldType = TaskFieldType;
+
+    /**
+     * Gets the name of a cartography by its ID
+     * @param cartographyId - The ID of the cartography
+     * @returns The name of the cartography or empty string if not found
+     */
+    getCartographyName(cartographyId: number): string {
+      const cartography = this.cartographies.find(cart => cart.id === cartographyId);
+      return cartography?.name || '';
+    }
+
+    /**
+     * Gets the name of a connection by its ID
+     * @param connectionId - The ID of the connection
+     * @returns The name of the connection or empty string if not found
+     */
+    getConnectionName(connectionId: number): string {
+      const connection = this.connections.find(conn => conn.id === connectionId);
+      return connection?.name || '';
+    }
+
+    /**
+     * Checks if the parameter type is QUERY
+     * @returns boolean indicating if parameter type is QUERY
+     */
+    isQueryParameterType(): boolean {
+      return this.parametersTable.templateDialog('newParameterDialog').form.get('type')?.value === TaskParameterType.QUERY;
+    }
+
+    /**
+     * The list of connections
+     */
+    protected connections: Connection[] = [];
+
+    /**
+     * The list of cartographies
+     */
+    protected cartographies: Cartography[] = [];
+
+  /**
+   * Checks if the current task scope is SQL query
+   * @returns boolean indicating if scope is SQL query
+   */
+  isDBEditionScope(): boolean {
+    return this.entityForm?.value?.scope === this.codeValues.editionTaskScope.dbEdition;
+  }
+
+  /**
+   * Checks if the current task scope is Cartography query
+   * @returns boolean indicating if scope is Cartography query
+   */
+  isCartographyEditionScope(): boolean {
+    return this.entityForm?.value?.scope === this.codeValues.editionTaskScope.cartographyEdition;
+  }
+
+  /**
    * Constructor for the TaskBasicFormComponent.
    * Initializes the component with necessary services and sets up the form.
    *
@@ -132,6 +210,8 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
    * @param taskGroupService - Service for managing task groups
    * @param territoryService - Service for accessing territories
    * @param taskAvailabilityService - Service for managing task availabilities
+   * @param connectionService - Service for database connections
+   * @param cartographyService - Service for cartography management
    */
   constructor(
     dialog: MatDialog,
@@ -149,11 +229,14 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
     protected taskGroupService: TaskGroupService,
     protected territoryService: TerritoryService,
     protected taskAvailabilityService: TaskAvailabilityService,
+    protected connectionService: ConnectionService,
+    protected cartographyService: CartographyService
   ) {
     super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router);
     this.rolesTable = this.defineRolesTable();
     this.availabilitiesTable = this.defineAvailabilitiesTable();
     this.parametersTable = this.defineParametersTable();
+    this.fieldsTable = this.defineFieldsTable();
   }
 
   /**
@@ -171,15 +254,20 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
 
     this.dataTables.register(this.rolesTable)
       .register(this.availabilitiesTable)
-      .register(this.parametersTable);
+      .register(this.parametersTable)
+      .register(this.fieldsTable);
 
-    await this.initCodeLists(['tasksEntity.type', 'taskEntity.jsonParamType'])
-    this.initTranslations('Task', ['name'])
+    await this.initCodeLists(['taskEntity.jsonParamType', 'editTask.fieldType', 'editTask.scope', 'queryTask.parameterType']);
 
-    const [taskTypes, taskGroups] = await Promise.all([
+    const [taskTypes, taskGroups, connections, cartographies] = await Promise.all([
       firstValueFrom(this.taskTypeService.getAllEx()),
       firstValueFrom(this.taskGroupService.getAllEx()),
+      firstValueFrom(this.connectionService.getAllEx()),
+      firstValueFrom(this.cartographyService.getAllEx()),
     ]);
+
+    this.connections = connections;
+    this.cartographies = cartographies;
 
     this.taskType = taskTypes.find(taskType => taskType.id === type);
     this.taskTypeName = this.taskType.title;
@@ -249,11 +337,24 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
         validators: [Validators.required],
         nonNullable: true
       }),
+      scope: new FormControl(this.entityToEdit.properties.scope, {
+        validators: [Validators.required],
+        nonNullable: true
+      }),
+      connectionId: new FormControl(this.entityToEdit.connectionId, {
+        validators: null,
+        nonNullable: false
+      }),
+      cartographyId: new FormControl(this.entityToEdit.cartographyId, {
+        validators: [Validators.required],
+        nonNullable: true
+      }),
       taskGroupId: new FormControl(this.entityToEdit.groupId, {
         validators: [Validators.required],
         nonNullable: true
       }),
     });
+    this.configureForm(this.entityToEdit.properties.scope);
   }
 
   /**
@@ -269,11 +370,73 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
     safeToEdit = Object.assign(safeToEdit,
       this.entityForm.value,
       {
-        id: id
+        id: id,
+        properties: TaskPropertiesBuilder.create()
+          .withScope(this.entityForm.get('scope')?.value)
+          .build()
       }
     );
     return Task.fromObject(safeToEdit);
   }
+
+    /**
+     * Handles scope type change events from the dropdown selection.
+     * Updates form field availability based on the selected scope.
+     *
+     * @param event - Select change event containing the new scope value
+     */
+    onTypeChange(event: MatSelectChange) {
+      this.configureForm(event.value)
+    }
+
+    /**
+     * Handles field type change events from the dropdown selection.
+     * Updates form field availability based on the selected type.
+     *
+     * @param event - Select change event containing the new type value
+     */
+    onFieldTypeChange(event: MatSelectChange) {
+      this.configureFieldForm(event.value)
+    }
+
+    /**
+     * Configures form field availability based on the selected query scope.
+     * - SQL Query: Enables command and connection, disables cartography
+     * - Cartography Query: Enables cartography, disables command and connection
+     * - Web API Query: Enables command, disables connection and cartography
+     *
+     * @param value - The selected scope value
+     */
+    configureForm(value: string) {
+      if (value === this.codeValues.editionTaskScope.dbEdition) {
+        this.entityForm.get('connectionId').enable();
+        if (!this.entityForm.get('connectionId').hasValidator(Validators.required)) {
+          this.entityForm.get('connectionId').setValidators(Validators.required);
+        }
+        this.entityForm.get('cartographyId').disable();
+      }
+      if (value === this.codeValues.editionTaskScope.cartographyEdition) {
+        this.entityForm.get('connectionId').enable();
+        this.entityForm.get('connectionId').removeValidators(Validators.required);
+        this.entityForm.get('cartographyId').enable();
+      }
+    }
+
+    /**
+     * Configures form field availability based on the selected field type.
+     * - ListBox: Enables query
+     * - Other: Disable query
+     *
+     * @param value - The selected scope value
+     */
+    configureFieldForm(value: string) {
+      const fieldForm = this.fieldsTable.templateDialog('newFieldDialog').form;
+      if (value === TaskFieldType.LISTBOX) {
+        fieldForm.get('query').enable();
+      } else {
+        fieldForm.get('query').disable();
+      }
+    }
 
   /**
    * Creates a new task entity in the database.
@@ -314,8 +477,19 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   override async updateDataRelated(isDuplicated: boolean) {
-    const entityToUpdate = this.createObject(this.entityID);
-    await this.saveTranslations(entityToUpdate);
+    await this.saveTranslations(this.entityToEdit);
+    const connectionId = this.entityForm.get('connectionId')?.value
+    if (typeof connectionId === 'number') {
+      await firstValueFrom(this.entityToEdit.updateRelationEx("connection", this.connectionService.createProxy(connectionId)));
+    } else {
+      await firstValueFrom(this.entityToEdit.deleteAllRelation("connection"));
+    }
+    const cartographyId = this.entityForm.get('cartographyId')?.value
+    if (typeof cartographyId === 'number') {
+      await firstValueFrom(this.entityToEdit.updateRelationEx("cartography", this.cartographyService.createProxy(cartographyId)));
+    } else {
+      await firstValueFrom(this.entityToEdit.deleteAllRelation("cartography"));
+    }
   }
 
   getTaskGroupName(taskGroupId: number): string {
@@ -427,25 +601,26 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
    *
    * @returns Configured data table definition for parameters
    */
-  private defineParametersTable(): DataTableDefinition<TaskParameter, TaskParameter> {
-    return DataTableDefinition.builder<TaskParameter, TaskParameter>(this.dialog, this.errorHandler)
+  private defineParametersTable(): DataTableDefinition<TaskEditionParameter, TaskEditionParameter> {
+    return DataTableDefinition.builder<TaskEditionParameter, TaskEditionParameter>(this.dialog, this.errorHandler)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getEditableColumnDef('common.form.name', 'name'),
         this.utils.getNonEditableColumnDef('common.form.type', 'type'),
-        this.utils.getEditableColumnDef('common.form.value', 'value', 300, 500),
+        this.utils.getNonEditableColumnWithCodeListDef('common.form.type', 'type', () => this.codeList('queryTask.parameterType')),
+        this.utils.addConditionToColumnDef(this.utils.getBooleanColumnDef('common.form.required', 'required', true), (params) => params.data.type === TaskParameterType.QUERY),
         this.utils.getStatusColumnDef()])
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
         if (this.entityToEdit?.properties?.parameters) {
           const originalParameters = this.entityToEdit.properties.parameters;
-          const parameters = originalParameters.map((parameter: any) => TaskParameter.fromObject(parameter));
+          const parameters = originalParameters.map((parameter: any) => TaskEditionParameter.fromObject(parameter));
           return of(parameters);
         }
-        return of<TaskParameter[]>([])
+        return of<TaskEditionParameter[]>([])
       })
-      .withRelationsUpdater(async (parameters: (TaskParameter & Status)[]) => {
-        const parametersToSave = parameters.filter(canKeepOrUpdate).map(value => TaskParameter.fromObject(value))
+      .withRelationsUpdater(async (parameters: (TaskEditionParameter & Status)[]) => {
+        const parametersToSave = parameters.filter(canKeepOrUpdate).map(value => TaskEditionParameter.fromObject(value))
         this.entityToEdit.properties = TaskPropertiesBuilder.from(this.entityToEdit.properties)
           .withParameters(parametersToSave).build();
         await firstValueFrom(this.taskService.update(this.entityToEdit));
@@ -458,17 +633,102 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
             validators: [Validators.required],
             nonNullable: true
           }),
-          type: new FormControl('', {
+          label: new FormControl('', {
             validators: [Validators.required],
             nonNullable: true
           }),
           value: new FormControl('', {
+            validators: [],
+            nonNullable: false
+          }),
+          type: new FormControl(null, {
             validators: [Validators.required],
             nonNullable: true
-          })
+          }),
+          required: new FormControl(false, {
+            validators: [Validators.required],
+            nonNullable: true
+          }),
         })).build())
-      .withTargetToRelation((items: TaskParameter[]) => items.map(item => TaskParameter.fromObject(item)))
-      .withRelationsDuplicate(item => TaskParameter.fromObject(item))
+      .withTargetToRelation((items: TaskEditionParameter[]) => items.map(item => TaskEditionParameter.fromObject(item)))
+      .withRelationsDuplicate(item => TaskEditionParameter.fromObject(item))
+      .build();
+  }
+
+  /**
+   * Defines the data table configuration for managing task parameters.
+   * Sets up columns, data fetching, updating logic, and dialog templates.
+   *
+   * @returns Configured data table definition for parameters
+   */
+  private defineFieldsTable(): DataTableDefinition<TaskEditionField, TaskEditionField> {
+    return DataTableDefinition.builder<TaskEditionField, TaskEditionField>(this.dialog, this.errorHandler)
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getBooleanColumnDef('tasksEditionEntity.selectable', 'selectable', true),
+        this.utils.getBooleanColumnDef('tasksEditionEntity.editable', 'editable', true),
+        this.utils.getEditableColumnDef('tasksEditionEntity.name', 'name'),
+        this.utils.getEditableColumnDef('tasksEditionEntity.tag', 'label'),
+        this.utils.getNonEditableColumnDef('tasksEditionEntity.defectValue', 'value'),
+        this.utils.getNonEditableColumnWithCodeListDef('tasksEditionEntity.type', 'type', () => this.codeList('queryTask.fieldType')),
+        this.utils.getBooleanColumnDef('tasksEditionEntity.obligatory', 'required', true),
+        this.utils.getEditableColumnDef('tasksEditionEntity.selectPath', 'query'),
+        this.utils.getStatusColumnDef()])
+      .withRelationsOrder('name')
+      .withRelationsFetcher(() => {
+        if (this.entityToEdit?.properties?.fields) {
+          const originalFields = this.entityToEdit.properties.fields;
+          const fields = originalFields.map((field: any) => TaskEditionField.fromObject(field));
+          return of(fields);
+        }
+        return of<TaskEditionField[]>([])
+      })
+      .withRelationsUpdater(async (fields: (TaskEditionField & Status)[]) => {
+        const fieldsToSave = fields.filter(canKeepOrUpdate).map(value => TaskEditionField.fromObject(value))
+        this.entityToEdit.properties = TaskPropertiesBuilder.from(this.entityToEdit.properties)
+          .withFields(fieldsToSave).build();
+        await firstValueFrom(this.taskService.update(this.entityToEdit));
+      })
+      .withFieldRestriction('name')
+      .withTemplateDialog('newFieldDialog', () => TemplateDialog.builder()
+        .withReference(this.newFieldDialog)
+        .withTitle(this.translateService.instant('taskEntity.newField'))
+        .withForm(new FormGroup({
+          selectable: new FormControl(false, {
+            validators: [Validators.required],
+            nonNullable: true
+          }),
+          editable: new FormControl(true, {
+            validators: [Validators.required],
+            nonNullable: true
+          }),
+          name: new FormControl('', {
+            validators: [Validators.required],
+            nonNullable: true
+          }),
+          label: new FormControl('', {
+            validators: [Validators.required],
+            nonNullable: true
+          }),
+          value: new FormControl('', {
+            validators: [],
+            nonNullable: false
+          }),
+          type: new FormControl('', {
+            validators: [Validators.required],
+            nonNullable: true
+          }),
+          required: new FormControl(false, {
+            validators: [Validators.required],
+            nonNullable: true
+          }),
+          query: new FormControl('', {
+            validators: [],
+            nonNullable: false
+          }),
+        })).build())
+      .withTargetToRelation((items: TaskEditionField[]) => items.map(item => TaskEditionField.fromObject(item)))
+      .withRelationsDuplicate(item => TaskEditionField.fromObject(item))
       .build();
   }
 }
