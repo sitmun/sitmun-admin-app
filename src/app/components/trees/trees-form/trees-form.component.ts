@@ -1,36 +1,21 @@
-import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
-import {
-  ApplicationService,
-  CapabilitiesService,
-  CartographyService,
-  RoleService,
-  ServiceService,
-  TaskService,
-  Translation,
-  TranslationService,
-  Tree,
-  TreeNode,
-  TreeNodeService,
-  TreeService
+import { Component, TemplateRef, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { TreeService, TreeNodeService, Translation, TranslationService, TaskService,
+  CartographyService, Tree, TreeNode, Cartography, ServiceService, CapabilitiesService, ApplicationService,
+  RoleService
 } from '@app/domain';
-import {HttpClient} from '@angular/common/http';
-import {UtilsService} from '@app/services/utils.service';
-import {map} from 'rxjs/operators';
-import {config} from '@config';
-import {Observable, Subject, of} from 'rxjs';
-import {
-  DataGridComponent,
-  DataTreeComponent,
-  DialogFormComponent,
-  DialogGridComponent,
-  DialogMessageComponent
-} from '@app/frontend-gui/src/lib/public_api';
-import {MatDialog} from '@angular/material/dialog';
-import {constants} from '@environments/constants';
+import { HttpClient } from '@angular/common/http';
+import { UtilsService } from '@app/services/utils.service';
+import { map } from 'rxjs/operators';
+import { environment } from '@environments/environment';
+import { config } from '@config';
+import { Observable, of, Subject } from 'rxjs';
+import { DataTreeComponent, DialogGridComponent, DialogMessageComponent, DataGridComponent, DialogFormComponent } from '@app/frontend-gui/src/lib/public_api';
+import { MatDialog } from '@angular/material/dialog';
+import { constants } from '@environments/constants';
 import {MatTabChangeEvent} from '@angular/material/tabs';
-import {LoggerService} from '@app/services/logger.service';
+import { LoggerService } from '@app/services/logger.service';
 import * as xmlJs from 'xml2js';
 import {Configuration} from "@app/core/config/configuration";
 
@@ -44,9 +29,8 @@ export class TreesFormComponent implements OnInit {
   readonly config = Configuration.TREE;
 
   //Translations
-  nameTranslationsModified = false;
-
-  descriptionTranslationsModified = false;
+  nameTranslationsModified: boolean = false;
+  descriptionTranslationsModified: boolean = false;
   nameTranslations: Map<number, Map<string, Translation>> = new Map<number, Map<string, Translation>>();
   descriptionTranslations: Map<number, Map<string, Translation>> = new Map<number, Map<string, Translation>>();
 
@@ -61,30 +45,26 @@ export class TreesFormComponent implements OnInit {
   getAllElementsEventApplication: Subject<string> = new Subject<string>();
 
   themeGrid: any = config.agGridTheme;
-
-  treeID = -1;
+  treeID: number = -1;
   duplicateID = -1;
   treeForm: UntypedFormGroup;
   treeNodeForm: UntypedFormGroup;
   public fieldsConfigForm: UntypedFormGroup;
   idFictitiousCounter = -1;
   treeToEdit: Tree;
-
-  dataLoaded = false;
-
-  currentNodeIsFolder: boolean;
+  dataLoaded: Boolean = false;
+  currentNodeIsFolder: Boolean;
   currentNodeName: string;
   currentNodeDescription: string;
   currentNodeType: string;
   currentTreeType: string;
-
-  currentNodeHasParent: boolean;
+  currentNodeHasParent: Boolean;
   currentViewMode: string;
-
-  fieldsConfigTreeGenerated = false;
+  currentNodeTask: any;
+  currentNodeCartography: any;
+  fieldsConfigTreeGenerated: Boolean = false;
   selectedXPath: string;
-
-  newElement = false;
+  newElement: Boolean = false;
   duplicateToDo = false;
   sendNodeUpdated: Subject<any> = new Subject<any>();
   getAllElementsNodes: Subject<string> = new Subject<string>();
@@ -104,7 +84,7 @@ export class TreesFormComponent implements OnInit {
     }) private fieldsConfigDialog: TemplateRef<any>;
 
   filterOptions = [{value:'UNDEFINED', description: 'UNDEFINED'}, {value:true, description: 'YES'},{value:false, description: 'NO'}]
-
+  defaultLabel = 'Extra info'
   codeValues = constants.codeValue;
   servicesList = [];
   layersList = [];
@@ -121,6 +101,7 @@ export class TreesFormComponent implements OnInit {
   nodeOutputsControls = constants.nodeMapping.nodeOutputControls;
   taskviewsList = [];
   mappingAppOptions = constants.nodeMapping.appOptions;
+  mappingbtnLabelOptions = constants.nodeMapping.btnlabelOptions;
   mappingParentTaskOptions = [];
   namespaces = [];
   // Roles grid
@@ -207,7 +188,7 @@ export class TreesFormComponent implements OnInit {
       if (params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
 
       if (this.treeID !== -1 || this.duplicateID != -1) {
-        const idToGet = this.treeID !== -1 ? this.treeID : this.duplicateID
+        let idToGet = this.treeID !== -1 ? this.treeID : this.duplicateID
 
         this.treeService.get(idToGet).subscribe(
           resp => {
@@ -239,8 +220,8 @@ export class TreesFormComponent implements OnInit {
                 .pipe(map((data: any[]) => data.filter(elem => elem.element == this.treeID || elem.column == config.translationColumns.treeNodeName ||
                   elem.column == config.translationColumns.treeNodeDescription)
                 )).subscribe(result => {
-                const treeNameTranslations = [];
-                const treeDescriptionTranslations = [];
+                  let treeNameTranslations = [];
+                  let treeDescriptionTranslations = [];
                   result.forEach(translation => {
                     if (translation.column == config.translationColumns.treeName) {
                       treeNameTranslations.push(translation)
@@ -312,13 +293,13 @@ export class TreesFormComponent implements OnInit {
     }
   }
 
-  private storeTranslationInMap(translation, map: Map<number, Map<string, Translation>>, column: string) {
-    const currentTranslation = map.get(translation.element)
+  private storeTranslationInMap(translation, map: Map<Number, Map<string, Translation>>, column: string) {
+    let currentTranslation = map.get(translation.element)
     if (currentTranslation != undefined) {
       this.utils.updateTranslations(currentTranslation, [translation])
     }
     else {
-      const newMap: Map<string, Translation> = this.utils.createTranslationsList(column)
+      let newMap: Map<string, Translation> = this.utils.createTranslationsList(column)
       this.utils.updateTranslations(newMap, [translation]);
       map.set(translation.element, newMap);
     }
@@ -341,7 +322,7 @@ export class TreesFormComponent implements OnInit {
     let url, service;
 
 
-    const dialogResult = await dialogRef.afterClosed().toPromise()
+    let dialogResult = await dialogRef.afterClosed().toPromise()
     if (dialogResult) {
       if (dialogResult.event === 'Add' && dialogResult.data && dialogResult.data[0].length > 0) {
         service = dialogResult.data[0][0];
@@ -353,9 +334,9 @@ export class TreesFormComponent implements OnInit {
             url += config.capabilitiesRequest.requestWithWMS
           }
 
-          const capabilitiesResult = await this.capabilitiesService.getInfo(url).toPromise();
+          let capabilitiesResult = await this.capabilitiesService.getInfo(url).toPromise();
           if (capabilitiesResult.success) {
-            const groupLayersResult = this.changeServiceDataByCapabilities(capabilitiesResult.asJson)
+            let groupLayersResult = this.changeServiceDataByCapabilities(capabilitiesResult.asJson)
             this.createNodesWithCapabilities(groupLayersResult, data, null)
           }
         }
@@ -368,7 +349,7 @@ export class TreesFormComponent implements OnInit {
       let newNode: any = {};
       let name = element.Title;
       if (name && name.length > 250) { name = name.substring(0, 249) }
-      const disallowNodeCreation = existingNodes.some(element => element.name == name);
+      let disallowNodeCreation = existingNodes.some(element => element.name == name);
       if (!disallowNodeCreation) {
         if (element.Layer) {  //Is folder
           newNode = this.createNewFolderWithCapabilities(element)
@@ -414,7 +395,7 @@ export class TreesFormComponent implements OnInit {
   }
 
   private createNewFolderWithCapabilities(capability) {
-    const newFolder: any = {};
+    let newFolder: any = {};
     newFolder.description = capability.Abstract;
     newFolder.radio = false;
     newFolder.isFolder = true;
@@ -423,12 +404,12 @@ export class TreesFormComponent implements OnInit {
 
 
     if (capability.MetadataURL != undefined) {
-      const metadataURL = Array.isArray(capability.MetadataURL) ? capability.MetadataURL[0] : capability.MetadataURL
+      let metadataURL = Array.isArray(capability.MetadataURL) ? capability.MetadataURL[0] : capability.MetadataURL
       newFolder.metadataURL = metadataURL.OnlineResource['xlink:href']
     }
 
     if (capability.DataURL != undefined) {
-      const DataURL = Array.isArray(capability.DataURL) ? capability.DataURL[0] : capability.DataURL
+      let DataURL = Array.isArray(capability.DataURL) ? capability.DataURL[0] : capability.DataURL
       newFolder.datasetURL = DataURL.OnlineResource['xlink:href']
     }
 
@@ -437,7 +418,7 @@ export class TreesFormComponent implements OnInit {
   }
 
   private createNewNodeWithCapabilities(capability) {
-    const newNode: any = {};
+    let newNode: any = {};
 
     let layersLyr; //Layers field to compare with cartographies
     if (Array.isArray(capability.Name)) {
@@ -450,7 +431,7 @@ export class TreesFormComponent implements OnInit {
 
 
     if (!layersLyr) { return null }
-    const cartography = this.layersList.find(element => element.layers.join() == layersLyr.join())
+    let cartography = this.layersList.find(element => element.layers.join() == layersLyr.join())
     if (!cartography) { return null }
 
     newNode.cartography = cartography;
@@ -461,8 +442,8 @@ export class TreesFormComponent implements OnInit {
   }
 
   changeServiceDataByCapabilities(serviceCapabilitiesData, refresh?): Array<any> {
-    const capabilitiesLayers = [];
-    const data = serviceCapabilitiesData.WMT_MS_Capabilities != undefined ? serviceCapabilitiesData.WMT_MS_Capabilities : serviceCapabilitiesData.WMS_Capabilities
+    let capabilitiesLayers = [];
+    let data = serviceCapabilitiesData.WMT_MS_Capabilities != undefined ? serviceCapabilitiesData.WMT_MS_Capabilities : serviceCapabilitiesData.WMS_Capabilities
     if (data != undefined) {
       let capability = data.Capability.Layer;
       while (capability.Layer != null && capability.Layer != undefined) {
@@ -538,9 +519,14 @@ export class TreesFormComponent implements OnInit {
   initializeFieldsConfigForm() {
     const outputGroup = {};
     this.nodeOutputsControls.forEach(f => {
+      // inputs boton labels deben ser calculated = true y valor por defecto
+      let booleanCalculated = false;
+      let defaultValue = null;
+      f.key.includes('Label') ? booleanCalculated = true : booleanCalculated = false;
+      f.key.includes('Label') ? defaultValue = 'Extra info' : defaultValue = null;
       outputGroup[f.key] = new UntypedFormGroup({
-        value: new UntypedFormControl(null, []),
-        calculated: new UntypedFormControl(null, [])
+        value: new UntypedFormControl(defaultValue, []),
+        calculated: new UntypedFormControl(booleanCalculated, [])
       });
     });
     this.fieldsConfigForm = new UntypedFormGroup({
@@ -644,7 +630,7 @@ export class TreesFormComponent implements OnInit {
   getAllServices = (): Observable<any> => {
     return this.serviceService.getAll().pipe(
       map((resp) => {
-        const wmsServices = [];
+        let wmsServices = [];
         resp.forEach(service => {
           if (service.type === 'WMS') { wmsServices.push(service) }
         });
@@ -658,13 +644,13 @@ export class TreesFormComponent implements OnInit {
       const aux: Array<any> = [];
       return of(aux);
     } else {
-      let urlReq = `${this.treeForm.value._links.allNodes.href}`
+      var urlReq = `${this.treeForm.value._links.allNodes.href}`
       if (this.treeForm.value._links.allNodes.templated) {
-        const url = new URL(urlReq.split("{")[0]);
+        var url = new URL(urlReq.split("{")[0]);
         url.searchParams.append("projection", "view")
         urlReq = url.toString();
       }
-      const response = (this.http.get(urlReq)).pipe(map(data => data['_embedded']['tree-nodes']))
+      let response = (this.http.get(urlReq)).pipe(map(data => data['_embedded']['tree-nodes']))
       return response;
     }
   }
@@ -682,7 +668,9 @@ export class TreesFormComponent implements OnInit {
       this.currentNodeIsFolder = false;
       currentType = 'node'
     }
-    this.currentNodeType = nodeParent && nodeParent.nodeType !== this.codeValues.treenodeFolderType.nearme ? nodeParent.nodeType : node.nodeType;
+    this.currentNodeType = nodeParent &&
+      ![this.codeValues.treenodeFolderType.nearme, this.codeValues.treenodeFolderType.map].includes(nodeParent.nodeType)
+      ? nodeParent.nodeType : node.nodeType;
     this.mappingParentTaskOptions = this.createMappingParentTaskOptions(nodeParent);
     this.currentViewMode = node.viewMode;
     this.currentNodeHasParent = nodeParent !== null;
@@ -738,14 +726,14 @@ export class TreesFormComponent implements OnInit {
       this.showImgPreview('node', node.image);
     });
     if (this.nameTranslations.has(node.id)) {
-      const translations = this.nameTranslations.get(node.id);
+      let translations = this.nameTranslations.get(node.id);
       this.treeNodeForm.patchValue({
         nameTranslations: translations
       })
     }
 
     if (this.descriptionTranslations.has(node.id)) {
-      const translations = this.descriptionTranslations.get(node.id);
+      let translations = this.descriptionTranslations.get(node.id);
       this.treeNodeForm.patchValue({
         descriptionTranslations: translations
       })
@@ -895,6 +883,14 @@ export class TreesFormComponent implements OnInit {
       namespaces: {},
     };
     if (origMapping) {
+      //modfica mapping btnLabel sea true, resto false
+      Object.entries(origMapping.output).forEach(([clave, valor]: [string, any]) => {
+        if (clave.includes('Label')) {
+          valor.calculated = true;
+        }else if (valor.calculated === null) {
+          valor.calculated = false;
+        }
+      });
       formValues = origMapping;
       this.unParseNamespaces(formValues);
     }
@@ -1053,18 +1049,25 @@ export class TreesFormComponent implements OnInit {
     this.sendNodeUpdated.next(this.treeNodeForm.value)
   }
 
-  onSaveFormButtonClicked() {
-    const error = false;
+  async onSaveFormButtonClicked() {
     if (this.treeNodeForm.valid) {
       if (!this.currentNodeIsFolder) {
-        if (this.currentNodeType === this.codeValues.treenodeLeafType.cartography) {
-          this.getAllElementsEventCartographies.next(this.treeNodeForm.value);
-        } else if (this.currentNodeType === this.codeValues.treenodeLeafType.task) {
+        if (this.currentNodeType === this.codeValues.treenodeLeafType.task
+          || this.currentTreeType === this.codeValues.treeType.edition) {
+          const taskId = this.treeNodeForm.get('taskId').value;
+          this.currentNodeTask = taskId ? await this.taskService.get(taskId).toPromise() : null;
           this.getAllElementsEventTasks.next(this.treeNodeForm.value);
         }
+        if ([this.codeValues.treenodeLeafType.cartography, this.codeValues.treenodeLeafType.task].includes(this.currentNodeType)) {
+          const cartographyId = this.treeNodeForm.get('cartographyId').value;
+          this.currentNodeCartography = cartographyId ? await this.cartographyService.get(cartographyId).toPromise() : cartographyId;
+          this.getAllElementsEventCartographies.next(this.treeNodeForm.value);
+        }
       } else {
-        this.updateTreeLeft(null);
+        this.updateCartographyTreeLeft(null);
+        this.updateTaskTreeLeft(null);
       }
+      this.updateTreeLeft();
     } else {
       this.utils.showRequiredFieldsError();
     }
@@ -1108,7 +1111,7 @@ export class TreesFormComponent implements OnInit {
 
   validTreeStructure(treeNodes) {
     let valid = true;
-    if (this.currentTreeType === constants.codeValue.treeType.touristicTree) {
+    if (this.currentTreeType === this.codeValues.treeType.touristicTree) {
       const rootNodes = treeNodes[0].children.filter(n => n.status !== 'pendingDelete');
       valid = rootNodes.length === 0 || (rootNodes.length === 1 && rootNodes[0].children.length > 0);
     }
@@ -1117,22 +1120,22 @@ export class TreesFormComponent implements OnInit {
 
   validTuristicTreeApp(apps) {
     let valid = true;
-    if (this.currentTreeType === constants.codeValue.treeType.touristicTree) {
-      valid = apps.length == 0 || (apps.length == 1 && apps[0].type === constants.codeValue.applicationType.touristicApp);
+    if (this.currentTreeType === this.codeValues.treeType.touristicTree) {
+      valid = apps.length == 0 || (apps.length == 1 && apps[0].type === this.codeValues.applicationType.touristicApp);
     }
     return valid;
   }
 
   validNoTuristicTreeApp(apps) {
     let valid = true;
-    if (this.currentTreeType !== constants.codeValue.treeType.touristicTree) {
+    if (this.currentTreeType !== this.codeValues.treeType.touristicTree) {
       valid = apps.every(a => this.validAppTrees(a));
     }
     return valid;
   }
 
   validAppTrees(app) {
-    let valid = app.type !== constants.codeValue.applicationType.touristicApp;
+    let valid = app.type !== this.codeValues.applicationType.touristicApp;
     if (!valid) {
       this.http.get(app._links.trees.href).pipe(map(data => data['_embedded']['trees']))
       .subscribe(trees => {
@@ -1172,7 +1175,7 @@ export class TreesFormComponent implements OnInit {
         this.utils.saveTranslation(resp.id, this.treeDescriptionTranslationMap, this.treeToEdit.description, this.descriptionTranslationsModified);
         this.descriptionTranslationsModified = false;
 
-          const mapNewIdentificators: Map<number, any[]> = new Map<number, any[]>();
+        let mapNewIdentificators: Map<number, any[]> = new Map<number, any[]>();
         const promises: Promise<any>[] = [];
         this.getAllElementsEventApplication.next('save');
         this.getAllElementsEventRoles.next('save');
@@ -1187,7 +1190,7 @@ export class TreesFormComponent implements OnInit {
 
   async updateAllTrees(treesToUpdate: any[], depth: number, mapNewIdentificators: Map<number, any[]>, promises: Promise<any>[], newId, newParent) {
     for (let i = 0; i < treesToUpdate.length; i++) {
-      const tree = treesToUpdate[i];
+      let tree = treesToUpdate[i];
 
       if (tree.status) {
         var treeNodeObj: TreeNode = new TreeNode();
@@ -1217,7 +1220,7 @@ export class TreesFormComponent implements OnInit {
 
           let urlReqCartography = `${tree._links.cartography.href}`
           if (tree._links.cartography.href) {
-            const url = new URL(urlReqCartography.split("{")[0]);
+            let url = new URL(urlReqCartography.split("{")[0]);
             url.searchParams.append("projection", "view")
             urlReqCartography = url.toString();
           }
@@ -1225,7 +1228,7 @@ export class TreesFormComponent implements OnInit {
 
           let urlReqTask = `${tree._links.task.href}`
           if (tree._links.task.href) {
-            const url = new URL(urlReqTask.split("{")[0]);
+            let url = new URL(urlReqTask.split("{")[0]);
             url.searchParams.append("projection", "view")
             urlReqTask = url.toString();
           }
@@ -1290,27 +1293,27 @@ export class TreesFormComponent implements OnInit {
             promises.push(new Promise((resolve, reject) => {
               this.treeNodeService.save(treeNodeObj).subscribe(
                 async result => {
-                  const nameTranslationMap = this.nameTranslations.get(tree.id);
+                  let nameTranslationMap = this.nameTranslations.get(tree.id);
                   if (nameTranslationMap) {
                     this.utils.saveTranslation(result.id, nameTranslationMap, result.name, tree.nameTranslationsModified);
                     tree.nameTranslationModified = false;
                   }
                   else if (tree.nameFormModified) {
-                    const map = this.utils.createTranslationsList(config.translationColumns.treeNodeName);
+                    let map = this.utils.createTranslationsList(config.translationColumns.treeNodeName);
                     this.utils.saveTranslation(result.id, map, tree.name, false);
                     this.nameTranslations.set(result.id, map);
                   }
-                  const descriptionTranslationMap = this.descriptionTranslations.get(tree.id);
+                  let descriptionTranslationMap = this.descriptionTranslations.get(tree.id);
                   if (descriptionTranslationMap) {
                     this.utils.saveTranslation(result.id, descriptionTranslationMap, result.description, tree.nameTranslationsModified);
                     tree.descriptionTranslationsModified = false;
                   }
                   else if (tree.descriptionFormModified) {
-                    const map = this.utils.createTranslationsList(config.translationColumns.treeNodeDescription);
+                    let map = this.utils.createTranslationsList(config.translationColumns.treeNodeDescription);
                     this.utils.saveTranslation(result.id, map, tree.description, false);
                     this.descriptionTranslations.set(result.id, map);
                   }
-                  const oldId = tree.id;
+                  let oldId = tree.id;
                   treesToUpdate.splice(i, 1);
                   treesToUpdate.splice(0, 0, result)
                   if (mapNewIdentificators.has(oldId)) {
@@ -1333,7 +1336,7 @@ export class TreesFormComponent implements OnInit {
         }
         else {
           if (tree.id >= 0) {
-            const idDeletedElement = tree.id;
+            let idDeletedElement = tree.id;
             await this.treeNodeService.delete(treeNodeObj).toPromise();
 
           }
@@ -1343,7 +1346,7 @@ export class TreesFormComponent implements OnInit {
       }
 
 
-    }
+    };
     Promise.all(promises).then(() => {
       this.refreshTreeEvent.next(true);
     });
@@ -1370,10 +1373,10 @@ export class TreesFormComponent implements OnInit {
   }
 
 
-  public async getSelectedRowsCartographies(data: any[]) {
+  public getSelectedRowsCartographies(data: any[]) {
     let cartography = null;
     if(!this.currentNodeIsFolder && (!data || data.length == 0)){
-      cartography = await this.cartographyService.get(this.treeNodeForm.get('cartographyId').value).toPromise()
+      cartography = this.currentNodeCartography;
     }
     if ((data.length <= 0 && this.treeNodeForm.value.cartographyName == null) && !this.currentNodeIsFolder) {
       const dialogRef = this.dialog.open(DialogMessageComponent);
@@ -1390,19 +1393,19 @@ export class TreesFormComponent implements OnInit {
     }
     else {
       if (this.treeNodeForm.value.cartographyName !== null && data.length <= 0) {
-        this.updateTreeLeft(null)
+        this.updateCartographyTreeLeft(null)
       }
       else {
-        this.updateTreeLeft(data[0])
+        this.updateCartographyTreeLeft(data[0])
       }
     }
 
   }
 
-  public async getSelectedRowsTasks(data: any[]) {
+  public getSelectedRowsTasks(data: any[]) {
     let task = null;
     if(!this.currentNodeIsFolder && (!data || data.length == 0)){
-      task = await this.taskService.get(this.treeNodeForm.get('taskId').value).toPromise()
+      task = this.currentNodeTask;
     }
     if ((data.length <= 0 && this.treeNodeForm.value.taskName == null) && !this.currentNodeIsFolder) {
       const dialogRef = this.dialog.open(DialogMessageComponent);
@@ -1413,7 +1416,7 @@ export class TreesFormComponent implements OnInit {
     }
     else {
       if (this.treeNodeForm.value.taskName !== null && data.length <= 0) {
-        this.updateTreeLeft(null)
+        this.updateTaskTreeLeft(null)
       }
       else {
         this.updateTaskTreeLeft(data[0])
@@ -1436,7 +1439,7 @@ export class TreesFormComponent implements OnInit {
     }
     else{
       if(!this.treeNodeForm.get('isFolder').value){
-        const oldTask = this.treeNodeForm.get('oldTask').value;
+        let oldTask = this.treeNodeForm.get('oldTask').value;
         if(oldTask){
           this.treeNodeForm.patchValue({
             task: oldTask,
@@ -1491,9 +1494,6 @@ export class TreesFormComponent implements OnInit {
           })
         }
       }
-
-      this.idFictitiousCounter--;
-      this.createNodeEvent.next(this.treeNodeForm.value);
     }
     else {
       if (newNameTranslation) { this.nameTranslations.set(this.treeNodeForm.value.id, newNameTranslation) }
@@ -1512,15 +1512,10 @@ export class TreesFormComponent implements OnInit {
           })
         }
       }
-      this.updateNode()
     }
-
-    this.newElement = false;
-    this.currentNodeIsFolder = undefined;
-    this.treeNodeForm.reset();
   }
 
-  updateTreeLeft(cartography) {
+  updateCartographyTreeLeft(cartography) {
 
     this.treeNodeForm.patchValue({
       cartography: cartography
@@ -1534,7 +1529,7 @@ export class TreesFormComponent implements OnInit {
     }
     else{
       if(!this.treeNodeForm.get('isFolder').value){
-        const oldCartography = this.treeNodeForm.get('oldCartography').value;
+        let oldCartography = this.treeNodeForm.get('oldCartography').value;
         if(oldCartography){
           this.treeNodeForm.patchValue({
             cartography: oldCartography,
@@ -1589,9 +1584,6 @@ export class TreesFormComponent implements OnInit {
           })
         }
       }
-
-      this.idFictitiousCounter--;
-      this.createNodeEvent.next(this.treeNodeForm.value);
     }
     else {
       if (newNameTranslation) { this.nameTranslations.set(this.treeNodeForm.value.id, newNameTranslation) }
@@ -1610,9 +1602,16 @@ export class TreesFormComponent implements OnInit {
           })
         }
       }
-      this.updateNode()
     }
+  }
 
+  updateTreeLeft() {
+    if (this.newElement) {
+      this.idFictitiousCounter--;
+      this.createNodeEvent.next(this.treeNodeForm.value);
+    } else {
+      this.updateNode();
+    }
     this.newElement = false;
     this.currentNodeIsFolder = undefined;
     this.treeNodeForm.reset();
@@ -1627,9 +1626,9 @@ export class TreesFormComponent implements OnInit {
         return of(aux);
       }
 
-      let urlReq = `${this.treeToEdit._links.availableApplications.href}`
+      var urlReq = `${this.treeToEdit._links.availableApplications.href}`
       if (this.treeToEdit._links.availableApplications.templated) {
-        const url = new URL(urlReq.split("{")[0]);
+        var url = new URL(urlReq.split("{")[0]);
         url.searchParams.append("projection", "view")
         urlReq = url.toString();
       }
@@ -1650,7 +1649,7 @@ export class TreesFormComponent implements OnInit {
 
   saveApplications(data: any[]) {
     let dataChanged = false;
-    const applicationsToPut = [];
+    let applicationsToPut = [];
     const promises: Promise<any>[] = [];
 
     data.forEach(application => {
@@ -1676,7 +1675,7 @@ export class TreesFormComponent implements OnInit {
 
     Promise.all(promises).then(() => {
       if (dataChanged) {
-        const url = this.treeToEdit._links.availableApplications.href.split('{', 1)[0];
+        let url = this.treeToEdit._links.availableApplications.href.split('{', 1)[0];
         this.utils.updateUriList(url, applicationsToPut, this.dataUpdatedEventApplication)
       }
       else {
@@ -1721,6 +1720,12 @@ export class TreesFormComponent implements OnInit {
 
   onTabChange(event: MatTabChangeEvent) {
     this.activeTabIndex = event.index;
+  }
+
+  activeNodeTabIndex = 0;
+
+  onNodeTabChange(event: MatTabChangeEvent) {
+    this.activeNodeTabIndex = event.index;
   }
 
   generateFieldsConfigTree() {

@@ -72,13 +72,13 @@
             <mat-label>{{ 'entity.task.query.connection' | translate }}</mat-label>
             <mat-select formControlName="connectionId" class="form-control">
               <mat-select-trigger>
-                <ng-container *ngIf="entityForm.get('connectionId')?.value as connectionId">
+                <ng-container *ngIf="entityForm?.get('connectionId')?.value as connectionId">
                   <a [routerLink]="['/connection', connectionId, 'connectionForm']"
                      class="router-link">
                     {{ getConnectionName(connectionId) | translate }}
                   </a>
                 </ng-container>
-                <span *ngIf="!entityForm.get('connectionId')?.value">
+                <span *ngIf="!entityForm?.get('connectionId')?.value">
                   {{ 'common.form.none' | translate }}
                 </span>
               </mat-select-trigger>
@@ -117,13 +117,13 @@
             <mat-label>{{ 'entity.task.query.cartography' | translate }}</mat-label>
             <mat-select formControlName="cartographyId" class="form-control">
               <mat-select-trigger>
-                <ng-container *ngIf="entityForm.get('cartographyId')?.value as cartographyId">
+                <ng-container *ngIf="entityForm?.get('cartographyId')?.value as cartographyId">
                   <a [routerLink]="['/layers', cartographyId, 'layerForm']"
                      class="router-link">
                     {{ getCartographyName(cartographyId) | translate }}
                   </a>
                 </ng-container>
-                <span *ngIf="!entityForm.get('cartographyId')?.value">
+                <span *ngIf="!entityForm?.get('cartographyId')?.value">
                   {{ 'common.form.none' | translate }}
                 </span>
               </mat-select-trigger>
@@ -220,6 +220,10 @@
         <mat-form-field appearance="outline" class="full">
           <mat-label>{{ "common.form.label" | translate }}</mat-label>
           <input matInput type="text" formControlName="label" required>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ "common.form.value" | translate }}</mat-label>
+          <input matInput type="text" formControlName="value">
         </mat-form-field>
         <mat-radio-group formControlName="type" class="full">
           <mat-label class="requiredInput">{{ 'common.form.type' | translate }}</mat-label>

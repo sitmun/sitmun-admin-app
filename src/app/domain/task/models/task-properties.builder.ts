@@ -9,6 +9,7 @@ export class TaskPropertiesBuilder {
   private _format: string | null = null;
   private _path: string | null = null;
   private _parameters: any[] = [];
+  private _fields: any[] = [];
 
   /**
    * Creates a new TaskPropertiesBuilder
@@ -33,7 +34,8 @@ export class TaskPropertiesBuilder {
       .withCommand(properties.command)
       .withFormat(properties.format)
       .withPath(properties.path)
-      .withParameters(properties.parameters ? [...properties.parameters] : []);
+      .withParameters(properties.parameters ? [...properties.parameters] : [])
+      .withFields(properties.fields ? [...properties.fields] : []);
   }
 
   /**
@@ -87,12 +89,32 @@ export class TaskPropertiesBuilder {
   }
 
   /**
+   * Sets the fields
+   * @param fields The fields array
+   * @returns This builder for chaining
+   */
+  public withFields(fields: any[]): TaskPropertiesBuilder {
+    this._fields = fields;
+    return this;
+  }
+
+  /**
    * Adds a parameter to the parameters array
    * @param parameter The parameter to add
    * @returns This builder for chaining
    */
   public addParameter(parameter: any): TaskPropertiesBuilder {
     this._parameters.push(parameter);
+    return this;
+  }
+
+  /**
+   * Adds a field to the fields array
+   * @param field The field to add
+   * @returns This builder for chaining
+   */
+  public addField(field: any): TaskPropertiesBuilder {
+    this._fields.push(field);
     return this;
   }
 
@@ -106,7 +128,8 @@ export class TaskPropertiesBuilder {
       command: this._command,
       format: this._format,
       path: this._path,
-      parameters: [...this._parameters]
+      parameters: [...this._parameters],
+      fields: [...this._fields],
     };
   }
 } 

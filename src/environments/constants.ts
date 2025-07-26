@@ -9,9 +9,14 @@ const codeValue = {
     webApiQuery: 'web-api-query',
     cartographyQuery: 'cartography-query'
   },
+  editionTaskScope: {
+    dbEdition: 'db-edit',
+    cartographyEdition: 'feat-edit'
+  },
   treeType: {
     touristicTree: 'touristic',
-    cartography: 'cartography'
+    cartography: 'cartography',
+    edition: 'edition'
   },
   treenodeFolderType: {
     menu: 'menu',
@@ -35,7 +40,9 @@ const codeValue = {
     nearElements: 'ne',
     schedule: 'sch',
     events: 'evt',
-    eventsCategories: 'evtcat'
+    eventsCategories: 'evtcat',
+    eventsLocations: 'evtloc',
+    mapSearch: 'ms'
   },
   systemUser: {
     public: 'public',
@@ -89,7 +96,8 @@ export const constants = {
         codeValue.taskViewMode.detailedList,
         codeValue.taskViewMode.nearElements,
         codeValue.taskViewMode.schedule,
-        codeValue.taskViewMode.events
+        codeValue.taskViewMode.events,
+        codeValue.taskViewMode.mapSearch
       ]
     },
     {
@@ -100,7 +108,9 @@ export const constants = {
         codeValue.taskViewMode.nearElements,
         codeValue.taskViewMode.schedule,
         codeValue.taskViewMode.events,
-        codeValue.taskViewMode.eventsCategories
+        codeValue.taskViewMode.eventsCategories,
+        codeValue.taskViewMode.eventsLocations,
+        codeValue.taskViewMode.mapSearch
       ]
     },
     {
@@ -135,15 +145,29 @@ export const constants = {
       ]
     },
     {
-      key: 'price',
-      label: 'nodeMapping.price',
+      key: 'leftbtnLabel',
+      label: 'nodeMapping.leftbtnLabel',
       views: [
         codeValue.taskViewMode.detailedList
       ]
     },
     {
-      key: 'schedule',
-      label: 'nodeMapping.schedule',
+      key: 'leftbtn',
+      label: 'nodeMapping.leftbtn',
+      views: [
+        codeValue.taskViewMode.detailedList
+      ]
+    },
+    {
+      key: 'rightbtnLabel',
+      label: 'nodeMapping.rightbtnLabel',
+      views: [
+        codeValue.taskViewMode.detailedList
+      ]
+    },
+    {
+      key: 'rightbtn',
+      label: 'nodeMapping.rightbtn',
       views: [
         codeValue.taskViewMode.detailedList
       ]
@@ -177,6 +201,13 @@ export const constants = {
       ]
     },
     {
+      key: 'muni',
+      label: 'nodeMapping.town',
+      views: [
+        codeValue.taskViewMode.events
+      ]
+    },
+    {
       key: 'path',
       label: 'nodeMapping.path',
       views: [
@@ -189,7 +220,8 @@ export const constants = {
       views: [
         codeValue.taskViewMode.detailedList,
         codeValue.taskViewMode.nearElements,
-        codeValue.taskViewMode.events
+        codeValue.taskViewMode.events,
+        codeValue.taskViewMode.mapSearch
       ]
     },
     {
@@ -198,7 +230,8 @@ export const constants = {
       views: [
         codeValue.taskViewMode.detailedList,
         codeValue.taskViewMode.nearElements,
-        codeValue.taskViewMode.events
+        codeValue.taskViewMode.events,
+        codeValue.taskViewMode.mapSearch
       ]
     }],
     appOptions: [{
@@ -219,6 +252,31 @@ export const constants = {
     }, {
       label: 'Busqueda general',
       value: '${KEYWORD}'
+    }, {
+      label: 'Filtro WFS',
+      value: '${WFSFILTER}'
+    }, {
+      label: 'Filtro WFS unitario',
+      value: '${WFSUNITARYFILTER}'
+    }],
+    btnlabelOptions: [{
+      label: 'Extra info',
+      value: 'Extra info'
+    },{
+      label: 'nodeMapping.price',
+      value: 'btnLabel.price'
+    }, {
+      label: 'nodeMapping.schedule',
+      value: 'btnLabel.schedule'
+    }, {
+      label: 'nodeMapping.call',
+      value: 'btnLabel.call'
+    }, {
+      label: 'nodeMapping.point',
+      value: 'btnLabel.point'
+    }, {
+      label: 'nodeMapping.link',
+      value: 'btnLabel.link'
     }]
   }
 };

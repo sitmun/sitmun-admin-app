@@ -101,32 +101,32 @@
     </mat-tab>
     <ng-container *featureFlag="'LAYERS_QUERYABLE_FEATURE'">
       <mat-tab label="{{ 'entity.cartography.parameters.header' | translate | featureFlag:'LAYERS_QUERYABLE_FEATURE'}}">
-      <mat-card appearance="outlined">
-        <mat-card-content>
-          <app-data-grid [changeHeightButton]="true"
-                         [allNewElements]="isNewOrDuplicated()"
-                         [columnDefs]="parametersTable.relationsColumnsDefs"
-                         [getAll]='parametersTable.relationsFetchFn'
-                         [eventAddItemsSubscription]='parametersTable.addCommandEvent$.asObservable()'
-                         [eventGetAllRowsSubscription]='parametersTable.saveCommandEvent$.asObservable()'
-                         [eventRefreshSubscription]='parametersTable.refreshCommandEvent$.asObservable()'
-                         [discardChangesButton]=true
-                         [redoButton]=true
-                         [undoButton]=true
-                         [deleteButton]=true
-                         [addButton]=true
-                         [hideDuplicateButton]=true
-                         [hideReplaceButton]=true
-                         [defaultColumnSorting]='parametersTable.defaultRelationsSorting()'
-                         (getAllRows)="parametersTable.handleSaveRelations($event)"
-                         [actionButton]=true
-                         (add)="parametersTable.openTemplateDialog('newParameterDialog')"
-                         *ngIf="dataLoaded"
-          >
-          </app-data-grid>
-        </mat-card-content>
-      </mat-card>
-    </mat-tab>
+        <mat-card appearance="outlined">
+          <mat-card-content>
+            <app-data-grid [changeHeightButton]="true"
+                          [allNewElements]="isNewOrDuplicated()"
+                          [columnDefs]="parametersTable.relationsColumnsDefs"
+                          [getAll]='parametersTable.relationsFetchFn'
+                          [eventAddItemsSubscription]='parametersTable.addCommandEvent$.asObservable()'
+                          [eventGetAllRowsSubscription]='parametersTable.saveCommandEvent$.asObservable()'
+                          [eventRefreshSubscription]='parametersTable.refreshCommandEvent$.asObservable()'
+                          [discardChangesButton]=true
+                          [redoButton]=true
+                          [undoButton]=true
+                          [deleteButton]=true
+                          [addButton]=true
+                          [hideDuplicateButton]=true
+                          [hideReplaceButton]=true
+                          [defaultColumnSorting]='parametersTable.defaultRelationsSorting()'
+                          (getAllRows)="parametersTable.handleSaveRelations($event)"
+                          [actionButton]=true
+                          (add)="parametersTable.openTemplateDialog('newParameterDialog')"
+                          *ngIf="dataLoaded"
+            >
+            </app-data-grid>
+          </mat-card-content>
+        </mat-card>
+      </mat-tab>
       <mat-tab label="{{ 'entity.cartography.featureInformation.header' | translate }}">
         <mat-card appearance="outlined" class="sitmun-mat-card-margin">
           <mat-card-content>

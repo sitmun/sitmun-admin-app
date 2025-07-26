@@ -245,7 +245,7 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
     this.dataTables.register(this.rolesTable)
       .register(this.availabilitiesTable)
       .register(this.parametersTable);
-    await this.initCodeLists(['tasksEntity.type', 'queryTask.scope', 'taskEntity.queryType', 'queryTask.parameterType'])
+    await this.initCodeLists(['tasksEntity.type', 'queryTask.scope', 'taskEntity.queryType', 'queryTask.parameterType']);
 
     const [taskTypes, taskGroups, connections, cartographies] = await Promise.all([
       firstValueFrom(this.taskTypeService.getAllEx()),
@@ -560,6 +560,7 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getEditableColumnDef('common.form.name', 'name'),
         this.utils.getEditableColumnDef('common.form.label', 'label'),
+        this.utils.getNonEditableColumnDef('common.form.value', 'value'),
         this.utils.getNonEditableColumnWithCodeListDef('common.form.type', 'type', () => this.codeList('queryTask.parameterType')),
         this.utils.addConditionToColumnDef(this.utils.getBooleanColumnDef('common.form.required', 'required', true), (params) => params.data.type === TaskParameterType.QUERY),
         this.utils.getStatusColumnDef()])
@@ -589,6 +590,10 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
           label: new FormControl('', {
             validators: [Validators.required],
             nonNullable: true
+          }),
+          value: new FormControl('', {
+            validators: [],
+            nonNullable: false
           }),
           type: new FormControl(null, {
             validators: [Validators.required],
