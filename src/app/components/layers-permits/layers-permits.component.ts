@@ -2,7 +2,7 @@ import {Component} from '@angular/core';
 import {CartographyGroup, CartographyGroupService, CodeListService, TranslationService,} from '@app/domain';
 import {TranslateService} from '@ngx-translate/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {firstValueFrom} from 'rxjs';
+import {firstValueFrom, map} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoggerService} from '@app/services/logger.service';
@@ -10,6 +10,7 @@ import {UtilsService} from '@app/services/utils.service';
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
 import {Configuration} from '@app/core/config/configuration';
+import {constants} from '@environments/constants';
 
 @Component({
   selector: 'app-layers-permits',
@@ -17,25 +18,9 @@ import {Configuration} from '@app/core/config/configuration';
   styles: [],
 })
 export class LayersPermitsComponent extends BaseListComponent<CartographyGroup> {
-  entityListConfig: EntityListConfig<CartographyGroup> = {
-    entityLabel: Configuration.LAYERS_PERMIT.labelPlural,
-    iconName: Configuration.LAYERS_PERMIT.icon,
-    font: Configuration.LAYERS_PERMIT.font,
-    columnDefs: [],
-    dataFetchFn: () => this.cartographyGroupService.getAll(),
-    defaultColumnSorting: ['name'],
-    gridOptions: {
-      globalSearch: true,
-      discardChangesButton: false,
-      redoButton: false,
-      undoButton: false,
-      applyChangesButton: false,
-      deleteButton: true,
-      newButton: true,
-      actionButton: true,
-      hideReplaceButton: true
-    }
-  };
+  override dataFetchFn = () => this.cartographyGroupService.getAll().pipe(
+    map((groups) => groups.filter(group => group.type !== constants.codeValue.cartographyPermissionType.backgroundMap))
+  );
 
   constructor(
     protected override dialog: MatDialog,
@@ -83,7 +68,25 @@ export class LayersPermitsComponent extends BaseListComponent<CartographyGroup> 
     await this.router.navigate(['layersPermits', -1, 'layersPermitsForm', id]);
   }
 
-  override dataFetchFn = () => this.cartographyGroupService.getAll();
+  entityListConfig: EntityListConfig<CartographyGroup> = {
+    entityLabel: Configuration.LAYERS_PERMIT.labelPlural,
+    iconName: Configuration.LAYERS_PERMIT.icon,
+    font: Configuration.LAYERS_PERMIT.font,
+    columnDefs: [],
+    dataFetchFn: () => this.dataFetchFn(),
+    defaultColumnSorting: ['name'],
+    gridOptions: {
+      globalSearch: true,
+      discardChangesButton: false,
+      redoButton: false,
+      undoButton: false,
+      applyChangesButton: false,
+      deleteButton: true,
+      newButton: true,
+      actionButton: true,
+      hideReplaceButton: true
+    }
+  };
 
   override dataUpdateFn = (data: CartographyGroup) => firstValueFrom(this.cartographyGroupService.update(data))
 
