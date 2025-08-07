@@ -252,7 +252,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       logo: new UntypedFormControl(this.entityToEdit.logo, []),
       maintenanceInformation: new UntypedFormControl(this.entityToEdit.maintenanceInformation,[]),
       creatorId: new UntypedFormControl(this.entityToEdit.creatorId,[]),
-      isUnavailable: new UntypedFormControl(this.entityToEdit.isUnavailable,[]),
+      isUnavailable: new UntypedFormControl(this.entityToEdit.isUnavailable ?? false,[]),
       appPrivate: new UntypedFormControl(this.entityToEdit.appPrivate, []),
     });
   }
