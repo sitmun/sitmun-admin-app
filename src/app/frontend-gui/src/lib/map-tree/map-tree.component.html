@@ -4,7 +4,7 @@
 	</mat-tree-node>
 	<!-- This is the tree node template for expandable nodes -->
 	<mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding
-				  isExpandable [isExpanded]="true" tabindex="0">
+                 isExpandable isExpanded="true" tabindex="0">
 	  <span (click)="onNodeClick(node)" style="cursor: pointer;">{{ node.name }}</span>
 	</mat-tree-node>
   </mat-tree>

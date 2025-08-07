@@ -25,7 +25,7 @@ import {
 import {HalOptions, HalParam} from '@app/core/hal/rest/rest.service';
 import {HttpClient} from '@angular/common/http';
 import {UtilsService} from '@app/services/utils.service';
-import {Observable, Subject, of} from 'rxjs';
+import {Observable, of, Subject} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {config} from '@config';
 import {DialogGridComponent, DialogMessageComponent,} from '@app/frontend-gui/src/lib/public_api';
@@ -69,7 +69,8 @@ export class TerritoryFormComponent implements OnInit {
 
   //Grids
   columnDefsPermits: any[];
-  getAllElementsEventPermits: Subject<string> = new Subject<string>();
+
+  getAllElementsEventPermits: Subject<"save"> = new Subject<"save">();
   dataUpdatedEventPermits: Subject<boolean> = new Subject<boolean>();
 
   columnDefsPermitsChild: any[];
@@ -80,21 +81,25 @@ export class TerritoryFormComponent implements OnInit {
   dataUpdatedEventInheritPermissions: Subject<boolean> = new Subject<boolean>();
 
   columnDefsMemberOf: any[];
-  getAllElementsEventTerritoriesMemberOf: Subject<string> =
-    new Subject<string>();
+
+  getAllElementsEventTerritoriesMemberOf: Subject<"save"> =
+    new Subject<"save">();
   dataUpdatedEventMemberOf: Subject<boolean> = new Subject<boolean>();
 
   columnDefsMembers: any[];
-  getAllElementsEventTerritoriesMembers: Subject<string> =
-    new Subject<string>();
+
+  getAllElementsEventTerritoriesMembers: Subject<"save"> =
+    new Subject<"save">();
   dataUpdatedEventMembers: Subject<boolean> = new Subject<boolean>();
 
   columnDefsCartographies: any[];
-  getAllElementsEventCartographies: Subject<string> = new Subject<string>();
+
+  getAllElementsEventCartographies: Subject<"save"> = new Subject<"save">();
   dataUpdatedEventCartographies: Subject<boolean> = new Subject<boolean>();
 
   columnDefsTasks: any[];
-  getAllElementsEventTasks: Subject<string> = new Subject<string>();
+
+  getAllElementsEventTasks: Subject<"save"> = new Subject<"save">();
   dataUpdatedEventTasks: Subject<boolean> = new Subject<boolean>();
 
   //Dialog

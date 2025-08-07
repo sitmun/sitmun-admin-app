@@ -80,7 +80,7 @@
                            (loadButtonClicked)="loadGroupLayersButtonClicked($event)"
                            (createFolder)="createFolder($event)"
                            [eventNodeUpdatedSubscription]='sendNodeUpdated.asObservable()'
-                           [loadDataButton]="true"
+                           [loadDataButton]="loadDataButton$"
                            [eventGetAllRowsSubscription]='getAllElementsNodes.asObservable()'
                            [eventRefreshSubscription]='refreshTreeEvent.asObservable()'
                            [eventCreateNodeSubscription]='createNodeEvent.asObservable()'

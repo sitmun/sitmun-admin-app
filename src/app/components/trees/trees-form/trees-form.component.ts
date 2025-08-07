@@ -1,24 +1,38 @@
-import { Component, TemplateRef, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
-import { TreeService, TreeNodeService, Translation, TranslationService, TaskService,
-  CartographyService, Tree, TreeNode, Cartography, ServiceService, CapabilitiesService, ApplicationService,
-  RoleService
+import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
+import {
+  ApplicationService,
+  CapabilitiesService,
+  CartographyService,
+  RoleService,
+  ServiceService,
+  TaskService,
+  Translation,
+  TranslationService,
+  Tree,
+  TreeNode,
+  TreeNodeService,
+  TreeService
 } from '@app/domain';
-import { HttpClient } from '@angular/common/http';
-import { UtilsService } from '@app/services/utils.service';
-import { map } from 'rxjs/operators';
-import { environment } from '@environments/environment';
-import { config } from '@config';
-import { Observable, of, Subject } from 'rxjs';
-import { DataTreeComponent, DialogGridComponent, DialogMessageComponent, DataGridComponent, DialogFormComponent } from '@app/frontend-gui/src/lib/public_api';
-import { MatDialog } from '@angular/material/dialog';
-import { constants } from '@environments/constants';
+import {HttpClient} from '@angular/common/http';
+import {UtilsService} from '@app/services/utils.service';
+import {map} from 'rxjs/operators';
+import {config} from '@config';
+import {Observable, of, Subject} from 'rxjs';
+import {
+  DataGridComponent,
+  DataTreeComponent,
+  DialogFormComponent,
+  DialogGridComponent,
+  DialogMessageComponent
+} from '@app/frontend-gui/src/lib/public_api';
+import {MatDialog} from '@angular/material/dialog';
+import {constants} from '@environments/constants';
 import {MatTabChangeEvent} from '@angular/material/tabs';
-import { LoggerService } from '@app/services/logger.service';
+import {LoggerService} from '@app/services/logger.service';
 import * as xmlJs from 'xml2js';
 import {Configuration} from "@app/core/config/configuration";
-
 
 @Component({
   selector: 'app-trees-form',
@@ -27,6 +41,8 @@ import {Configuration} from "@app/core/config/configuration";
 })
 export class TreesFormComponent implements OnInit {
   readonly config = Configuration.TREE;
+
+  loadDataButton$ = of(true);
 
   //Translations
   nameTranslationsModified: boolean = false;
@@ -42,7 +58,8 @@ export class TreesFormComponent implements OnInit {
   dataUpdatedEventApplication: Subject<boolean> = new Subject<boolean>();
 
   columnDefsApplicationDialog: any[];
-  getAllElementsEventApplication: Subject<string> = new Subject<string>();
+
+  getAllElementsEventApplication: Subject<"save"> = new Subject<"save">();
 
   themeGrid: any = config.agGridTheme;
   treeID: number = -1;
@@ -106,7 +123,8 @@ export class TreesFormComponent implements OnInit {
   namespaces = [];
   // Roles grid
   columnDefsRoles: any[];
-  getAllElementsEventRoles: Subject<string> = new Subject<string>();
+
+  getAllElementsEventRoles: Subject<"save"> = new Subject<"save">();
   dataUpdatedEventRoles: Subject<boolean> = new Subject<boolean>();
   addElementsEventRoles: Subject<any[]> = new Subject<any[]>();
   columnDefsRolesDialog: any[];

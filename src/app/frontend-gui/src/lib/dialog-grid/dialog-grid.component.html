@@ -13,7 +13,7 @@
               [globalSearch]=true
               [singleSelection]="singleSelectionTable[i]"
               [title]="titlesTable[i]"
-              [defaultColumnSorting]='orderTable.length>=i?orderTable[i]:null'
+              [defaultColumnSorting]='orderTable.length>=i?[orderTable[i]]:null'
               [nonEditable]='nonEditable'
               [eventGetSelectedRowsSubscription]="getAllRows.asObservable()"
               [addFieldRestriction]='addFieldRestriction.length>=i?addFieldRestriction[i]:null'

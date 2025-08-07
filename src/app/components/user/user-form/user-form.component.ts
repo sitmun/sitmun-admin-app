@@ -1,17 +1,18 @@
-import {Component, OnInit} from '@angular/core';
+import {Component} from '@angular/core';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {
+  CodeListService,
   Role,
   RoleService,
   Territory,
   TerritoryProjection,
   TerritoryService,
+  TranslationService,
   User,
   UserConfiguration,
   UserConfigurationProjection,
   UserConfigurationService,
-  UserPosition,
   UserPositionService,
   UserService
 } from '@app/domain';
@@ -19,20 +20,24 @@ import {HalOptions, HalParam} from '@app/core/hal/rest/rest.service';
 import {HttpClient} from '@angular/common/http';
 import {UtilsService} from '@app/services/utils.service';
 import {map} from 'rxjs/operators';
-import {EMPTY, Observable, Subject, of} from 'rxjs';
-import {DialogGridComponent, DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
+import {EMPTY, firstValueFrom, Observable, of, Subject} from 'rxjs';
+import {
+  DialogGridComponent,
+  DialogMessageComponent,
+  onCreate,
+  onDelete,
+  onUpdate,
+  Status
+} from '@app/frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
 import {constants} from '@environments/constants';
 import {LoggerService} from '@app/services/logger.service';
 import {Configuration} from "@app/core/config/configuration";
 import {BaseFormComponent} from "@app/components/base-form.component";
 import {TranslateService} from "@ngx-translate/core";
-import {TranslationService} from "@app/domain";
-import {CodeListService} from "@app/domain";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
-import {DataTable2Definition, DataTableDefinition} from "@app/components/data-tables.util";
-import {firstValueFrom} from "rxjs";
-import {Status, onCreate, onDelete, onUpdate} from '@app/frontend-gui/src/lib/public_api';
+import {DataTable2Definition} from "@app/components/data-tables.util";
+
 @Component({
   selector: 'app-user-form',
   templateUrl: './user-form.component.html',
@@ -58,7 +63,8 @@ export class UserFormComponent extends BaseFormComponent<User> {
   columnDefsRolesDialog: any[];
   getAllElementsEventPermits: Subject<string> = new Subject<string>();
   columnDefsTerritoryDataDialog: any[];
-  getAllElementsEventTerritoryData: Subject<string> = new Subject<string>();
+
+  getAllElementsEventTerritoryData: Subject<"save"> = new Subject<"save">();
 
   //Save button
   dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
@@ -77,7 +83,7 @@ export class UserFormComponent extends BaseFormComponent<User> {
 
   /** Password placeholder text */
   passwordPlaceholder = '••••••••';
-  
+
   constructor(
     dialog: MatDialog,
     translateService: TranslateService,
@@ -118,9 +124,9 @@ export class UserFormComponent extends BaseFormComponent<User> {
       this.utils.getEditableColumnDef('userEntity.position', 'name'),
       this.utils.getEditableColumnDef('userEntity.organization', 'organization'),
       this.utils.getEditableColumnDef('userEntity.mail', 'email'),
-      this.utils.getSelectColumnDef('userEntity.type', 'type', true, 
-        () => this.codeList('userPosition.type').map(item => item.description), 
-        true, 
+      this.utils.getSelectColumnDef('userEntity.type', 'type', true,
+        () => this.codeList('userPosition.type').map(item => item.description),
+        true,
         () => this.codeList('userPosition.type')),
       this.utils.getDateColumnDef('userEntity.expirationDate', 'expirationDate', true),
       this.utils.getDateColumnDef('userEntity.dataCreated', 'createdDate'),
@@ -170,7 +176,7 @@ export class UserFormComponent extends BaseFormComponent<User> {
       this.passwordSet = this.entityToEdit.passwordSet ?? false;
     }
     this.isPasswordBeingEdited = false;
-    
+
     this.entityForm = new UntypedFormGroup({
       username: new UntypedFormControl(this.entityToEdit.username,[Validators.required]),
       firstName: new UntypedFormControl(this.entityToEdit.firstName, []),
@@ -724,7 +730,7 @@ export class UserFormComponent extends BaseFormComponent<User> {
 
   onPasswordChange() {
     const passwordValue = this.entityForm.get('newPassword')?.value;
-    
+
     // Handle new password field
     if (passwordValue && passwordValue !== '••••••••') {
       this.isPasswordBeingEdited = true;
