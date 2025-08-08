@@ -112,7 +112,7 @@ export class Application extends Resource {
     'id',  'name', 'description', 'logo', 'type',
     'createdDate', 'parameters', 'availableRoles',
     'trees', 'backgrounds', 'territories', 'maintenanceInformation',
-    'lastUpdate', 'creator', 'isUnavailable',
+    'lastUpdate', 'creator', 'isUnavailable',  'headerParams',
     // Specific application properties
     'jspTemplate', 'appPrivate'
   ]
@@ -128,7 +128,7 @@ export class Application extends Resource {
     // Specific application properties
     'title', 'theme', 'scales', 'srs', 'treeAutoRefresh',
     'accessParentTerritory', 'accessChildrenTerritory',
-    'situationMap', 'appPrivate'
+    'situationMap', 'appPrivate', 'headerParams'
   ]
 
   public static readonly touristicApp: string [] = [
@@ -138,7 +138,7 @@ export class Application extends Resource {
     'id',  'name', 'description', 'logo', 'type',
     'createdDate', 'parameters', 'availableRoles',
     'trees', 'backgrounds', 'territories', 'maintenanceInformation',
-    'lastUpdate', 'creator', 'isUnavailable', 'appPrivate'
+    'lastUpdate', 'creator', 'isUnavailable', 'appPrivate', 'headerParams'
   ]
 
   public appPrivate: boolean;
@@ -168,6 +168,7 @@ export class ApplicationProjection extends Resource {
   appPrivate: boolean;
 
   warnings?: string[];
+  headerParams: any;
 
   /**
    * Creates a new ApplicationProjection instance copying only the properties declared in ApplicationProjection and Resource classes
