@@ -5,7 +5,7 @@ import {UtilsService} from '@app/services/utils.service';
 import {TranslateService} from '@ngx-translate/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {config} from '@config';
-import {EMPTY, Observable, Subject, firstValueFrom} from 'rxjs';
+import {EMPTY, firstValueFrom, Observable, Subject} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
 import {DIALOG_EVENTS, DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
@@ -68,7 +68,7 @@ export abstract class BaseListComponent<T extends Resource>
     this.fetchData()
       .then(() => this.afterFetch())
       .catch((reason) =>
-        this.errorHandler.handleError('Error in ngOnInit:', reason)
+        this.errorHandler.handleError(reason, 'common.error.initialization')
       );
   }
 

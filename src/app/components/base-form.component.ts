@@ -186,7 +186,9 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
    * @returns {void}
    */
   ngOnInit(): void {
-    this.fetchData().then(() => this.afterFetch()).catch((reason) => this.errorHandler.handleError('Error in ngOnInit:', reason));
+    this.fetchData()
+      .then(() => this.afterFetch())
+      .catch((reason) => this.errorHandler.handleError(reason, 'common.error.initialization'));
   }
 
   /**

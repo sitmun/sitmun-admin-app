@@ -22,12 +22,12 @@ import {MatChipInputEvent} from '@angular/material/chips';
 import {config} from '@config';
 import {
   DialogMessageComponent,
-  Status,
   onCreate,
   onDelete,
   onNotAvailable,
   onPendingRegistration,
-  onUpdate
+  onUpdate,
+  Status
 } from '@app/frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
 import {constants} from '@environments/constants';
@@ -439,7 +439,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
                 supportedSRS: capabilities.supportedSRS
               });
             })
-            .catch((reason) => this.errorHandler.handleError(reason, `Error in GetCapabilities: ${reason}`));
+            .catch((reason) => this.errorHandler.handleError(reason, 'entity.service.error.processCapabilities'));
         }
       }
     });
@@ -462,7 +462,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
               this.wmsLayersCapabilities = response
               this.layersTable.saveCommandEvent$.next("save")
             })
-            .catch((reason) => this.errorHandler.handleError(reason, `Error in GetCapabilities: ${reason}`));
+            .catch((reason) => this.errorHandler.handleError(reason, 'entity.service.error.processCapabilities'));
         }
       }
     });
