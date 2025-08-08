@@ -1,9 +1,9 @@
-import { Injectable } from '@angular/core';
 import {HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
-import { LoginService } from '@app/core/auth/login.service';
-import { Router } from '@angular/router';
+import {Observable, throwError} from 'rxjs';
+import {Injectable} from '@angular/core';
+import {LoginService} from '@app/core/auth/login.service';
+import {Router} from '@angular/router';
+import {catchError} from 'rxjs/operators';
 
 /** Interceptor for authentication expired response in API requests */
 @Injectable()
@@ -15,22 +15,27 @@ export class AuthExpiredInterceptor implements HttpInterceptor {
         private router: Router
     ) {}
 
+  private redirecting = false;
+
     /** request handler */
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         return next.handle(request).pipe(
-            tap(
-                (event: HttpEvent<any>) => {},
+          catchError(
                 (err: any) => {
                     if (err instanceof HttpErrorResponse) {
-                        // Handle both 401 (Unauthorized) and 403 (Forbidden) status codes
-                        if ((err.status === 401 || err.status === 403) && !request.url.includes('api/authenticate')) {
-                            // Only logout if not already trying to authenticate
-//                            this.loginService.logout();
+                      const unauthorized = err.status === 401 || err.status === 403;
+                      const isAuth = request.url.includes('authenticate');
+                      const onLogin = this.router.url.startsWith('/login');
 
-                            // Force reload to clear all states and redirect to login
-//                            window.location.reload();
-                        }
+                      if (unauthorized && !isAuth && !onLogin && !this.redirecting) {
+                        this.redirecting = true;
+                        this.loginService.logout();
+                        void this.router.navigate(['/login']).finally(() => {
+                          this.redirecting = false;
+                        });
+                      }
                     }
+                  return throwError(() => err)
                 }
             )
         );

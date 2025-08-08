@@ -1,23 +1,23 @@
+import {ActivatedRoute, Router} from "@angular/router";
+import {CodeList, CodeListService, Language, Translation, TranslationService} from "@app/domain";
+import {Component, OnDestroy, OnInit} from "@angular/core";
 import {HalOptions, HalParam, Resource} from "@app/core";
+import {firstValueFrom, Observable} from "rxjs";
+import {map, tap} from "rxjs/operators";
+import {DataTablesRegistry} from "@app/components/data-tables.util";
+import {DialogTranslationComponent} from "@app/frontend-gui/src/lib/dialog-translation/dialog-translation.component";
+import {ErrorHandlerService} from "@app/services/error-handler.service";
+import {LoggerService} from "@app/services/logger.service";
+import {MatDialog} from "@angular/material/dialog";
+import {TranslateService} from "@ngx-translate/core";
+import {UntypedFormGroup} from "@angular/forms";
 import {config} from "@config";
 import {constants} from "@environments/constants";
-import {UntypedFormGroup} from "@angular/forms";
-import {TranslateService} from "@ngx-translate/core";
-import {Subject, firstValueFrom} from "rxjs";
-import {ErrorHandlerService} from "@app/services/error-handler.service";
-import {DataTablesRegistry} from "@app/components/data-tables.util";
-import {ActivatedRoute, Router} from "@angular/router";
-import {Component, OnDestroy, OnInit} from "@angular/core";
-import {CodeList, CodeListService, Language, Translation, TranslationService} from "@app/domain";
-import {MatDialog} from "@angular/material/dialog";
-import {map, tap} from "rxjs/operators";
-import {DialogTranslationComponent} from "@app/frontend-gui/src/lib/dialog-translation/dialog-translation.component";
-import {LoggerService} from "@app/services/logger.service";
 import {explainFormValidity} from "@app/utils/form.utils";
 
 /**
  * Base class for SITMUN components that handle resource entities.
- * Provides common functionality for managing entity lifecycle including creation,
+ * Provides common functionality for managing entity lifecycle, including creation,
  * editing, and duplication of resources. This class serves as the foundation for
  * components that need to handle CRUD operations on SITMUN resources.
  *
@@ -49,7 +49,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
 
   /**
    * The current entity instance being edited or duplicated.
-   * This property holds the working copy of the entity that reflects current form state.
+   * This property holds the working copy of the entity that reflects the current form state.
    */
   entityToEdit: T = null;
 
@@ -88,7 +88,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
   /** Map of property names to their translations */
   propertyTranslations: Map<string, PropertyTranslations> = new Map();
 
-  /** Map of code list names to their associated values */
+  /** Map of code list names with their associated values */
   private readonly codelists: Map<string, CodeList[]> = new Map();
 
   /** Stores the initial values of form controls for comparison */
@@ -104,6 +104,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
    * @param {TranslateService} translateService - Angular service for handling i18n translations
    * @param {TranslationService} translationService - Service for managing entity translations
    * @param {CodeListService} codeListService - Service for retrieving code lists
+   * @param loggerService
    * @param {ErrorHandlerService} errorHandler - Service for handling and displaying errors
    * @param {ActivatedRoute} activatedRoute - Angular service for accessing route parameters
    * @param {Router} router - Angular service for navigation
@@ -197,7 +198,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
    *
    * @returns {void}
    */
-  afterFetch() {
+  afterFetch(): void {
     this.subscribeToFormChanges(this.entityForm)
   }
 
@@ -214,7 +215,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
    * This method coordinates the overall data loading process:
    * 1. Process route parameters to determine operation mode
    * 2. Run pre-fetch operations
-   * 3. Load the entity based on mode (original, copy, or new)
+   * 3. Load the entity based on a mode (original, copy, or new)
    * 4. Fetch related data if needed
    * 5. Set up the form and complete initialization
    *
@@ -222,6 +223,13 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
    */
   async fetchData(): Promise<void> {
     try {
+      // Prevent unauthorized backend calls if the user is logged out
+      const token = sessionStorage.getItem('authenticationToken');
+      if (!token) {
+        this.loggerService.debug('fetchData skipped: no auth token');
+        this.dataLoaded = false;
+        return;
+      }
       await this.processRouteParams();
       await this.preFetchData();
       if (!this.isNewOrDuplicated()) {
@@ -246,7 +254,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
    *
    * @returns {Promise<void>} Promise that resolves when parameters are processed
    */
-  async processRouteParams() {
+  async processRouteParams(): Promise<void> {
     const params = await firstValueFrom(this.activatedRoute.params);
     this.entityID = params.id ?? -1;
     this.duplicateID = params.idDuplicate ?? -1;
@@ -377,7 +385,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
    *
    * @returns {Promise<void>} Promise that resolves when the entity is saved
    */
-  async saveEntity() {
+  async saveEntity(): Promise<void> {
     const isNewOrDuplicated = this.isNewOrDuplicated();
     const isDuplicated = this.isDuplicated();
     if (isNewOrDuplicated) {
@@ -415,38 +423,12 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
    * Updates data related to the main entity.
    * Should be overridden by child classes to save relationships and related entities.
    *
-   * @param {boolean} isDuplicated - Whether the operation is a duplication
+   * @param {boolean} _isDuplicated - Whether the operation is a duplication
    * @returns {Promise<void>} Promise that resolves when related data is updated
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  updateDataRelated(isDuplicated: boolean): Promise<void> {
+  updateDataRelated(_isDuplicated: boolean): Promise<void> {
     return Promise.resolve()
-  }
-
-  /**
-   * Creates duplicates of items with new names and cleared identifiers.
-   * This utility method is used to duplicate various entities while maintaining
-   * their properties but creating new, unique instances.
-   *
-   * The method will:
-   * 1. Create new instances of each item
-   * 2. Copy all properties except id and _links
-   * 3. Prefix the name with a "copy_" translation
-   * 4. Emit the new array through the provided subject
-   *
-   * @template T - The type of items to duplicate
-   * @param {new() => T} type - Constructor for the item type
-   * @param {(T & { name: string })[]} items - Array of items to duplicate
-   * @param {Subject<T[]>} subject - Subject to emit the duplicated items
-   * @returns {void}
-   */
-  duplicate<T>(type: { new(): T; }, items: (T & { name: string })[], subject: Subject<T[]>): void {
-    subject.next(items.map(item => Object.assign(new type(), {
-      ...item,
-      id: undefined,
-      _links: undefined,
-      name: this.translateService.instant('copy_').concat(item.name)
-    })));
   }
 
   /**
@@ -526,8 +508,8 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
    *
    * @param {UntypedFormGroup} form - The form group to reset
    */
-  public resetToFormModifiedState(form): void {
-    // Update initial form values to reset modified state
+  public resetToFormModifiedState(form: UntypedFormGroup): void {
+    // Update initial form values to reset to a modified state
     this.initialFormValues = form.getRawValue();
 
     // Remove modified styling from all form fields
@@ -601,7 +583,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
    * @param {string} property - The name of the property being translated
    * @returns {Promise<void>} Promise that resolves when the translation dialog is closed
    */
-  async onTranslated(property: string) {
+  async onTranslated(property: string): Promise<void> {
     const dialogResult = await this.openTranslationDialog(this.propertyTranslations.get(property).map);
     if (dialogResult && dialogResult.event == 'Accept') {
       this.propertyTranslations.get(property).modified = true;
@@ -609,29 +591,13 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
   }
 
   /**
-   * Fetches code list values from the service with appropriate parameters.
+   * Provides a detailed explanation of form validity status
+   * Examines each control's validation status and error messages
    *
-   * @param {string} valueList - The name of the code list to fetch
-   * @param {boolean} [notTraduction] - Optional flag to skip language parameter
-   * @returns {Observable<CodeList[]>} Observable of CodeList array
-   * @private
+   * @returns A string with detailed validation information
    */
-  private getCodeListValues(valueList, notTraduction?) {
-    const query: HalOptions = {
-      params: [
-        { key: 'codeListName', value: valueList }
-      ]
-    };
-    if (!notTraduction) {
-      let codelistLangValue = config.defaultLang;
-      if (localStorage.lang) {
-        codelistLangValue = localStorage.lang;
-      }
-      const param: HalParam = { key: 'lang', value: codelistLangValue };
-      query.params.push(param);
-    }
-
-    return this.codeListService.getAll(query);
+  explainFormValidity(): string {
+    return explainFormValidity(this.entityForm);
   }
 
   /**
@@ -659,6 +625,32 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
   }
 
   /**
+   * Fetches code list values from the service with appropriate parameters.
+   *
+   * @param {string} valueList - The name of the code list to fetch
+   * @param {boolean} [notTraduction] - Optional flag to skip language parameter
+   * @returns {Observable<CodeList[]>} Observable of CodeList array
+   * @private
+   */
+  private getCodeListValues(valueList: string, notTraduction?: boolean): Observable<CodeList[]> {
+    const query: HalOptions = {
+      params: [
+        { key: 'codeListName', value: valueList }
+      ]
+    };
+    if (!notTraduction) {
+      let codelistLangValue = config.defaultLang;
+      if (localStorage.lang) {
+        codelistLangValue = localStorage.lang;
+      }
+      const param: HalParam = { key: 'lang', value: codelistLangValue };
+      query.params.push(param);
+    }
+
+    return this.codeListService.getAll(query);
+  }
+
+  /**
    * Updates the visual state of a form control to indicate modification.
    * Adds or removes the 'input-modified' class based on whether the field has been modified.
    * Works with both Material form fields and regular form controls.
@@ -667,7 +659,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
    * @param {string} controlName - The name of the control to update
    * @private
    */
-  private checkControlModified(form, controlName: string): void {
+  private checkControlModified(form: UntypedFormGroup, controlName: string): void {
     const isModified = this.isControlModified(form, controlName);
     let element = document.querySelector(`[formControlName="${controlName}"]`)?.closest('mat-form-field');
     if (!element) {
@@ -681,58 +673,6 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
         element.classList.remove('input-modified');
       }
     }
-  }
-
-  /**
-   * Saves translations for a specific property to the database.
-   * Handles special cases for default language and empty translations.
-   *
-   * @param {number} id - The entity ID
-   * @param {Map<string, Translation>} translationMap - Map of language codes to translation objects
-   * @param {string} internationalValue - The default value in the default language
-   * @param {boolean} modifications - Flag indicating if translations were modified
-   * @returns {Promise<Map<string, Translation>>} Promise resolving to the updated translation map
-   * @private
-   */
-  private async saveTranslation(
-    id: number,
-    translationMap: Map<string, Translation>,
-    internationalValue: string,
-    modifications: boolean
-  ): Promise<Map<string, Translation>> {
-    if (!translationMap) return Promise.resolve(new Map<string, Translation>());
-
-    const defaultLanguage = config.defaultLang;
-    const promises: Promise<any>[] = [];
-
-    translationMap.forEach((value: Translation, key: string) => {
-      // Skip if not default language and no modifications needed
-      if (key !== defaultLanguage && !modifications) return;
-
-      // Skip non-default languages with empty translations
-      if (key !== defaultLanguage && !value?.translation) return;
-
-      // Skip default language with no international value
-      if (key === defaultLanguage && !internationalValue) return;
-
-      // Set element ID
-      value.element = id;
-
-      // Set translation for default language
-      if (key === defaultLanguage) {
-        value.translation = internationalValue;
-      }
-
-      // Save translation
-      promises.push(firstValueFrom(
-        this.translationService.save(value).pipe(
-          tap(result => translationMap.set(key, result))
-        )
-      ));
-    });
-
-    await Promise.all(promises);
-    return translationMap;
   }
 
   /**
@@ -763,6 +703,58 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
   }
 
   /**
+   * Saves translations for a specific property to the database.
+   * Handles special cases for default language and empty translations.
+   *
+   * @param {number} id - The entity ID
+   * @param {Map<string, Translation>} translationMap - Map of language codes to translation objects
+   * @param {string} internationalValue - The default value in the default language
+   * @param {boolean} modifications - Flag indicating if translations were modified
+   * @returns {Promise<Map<string, Translation>>} Promise resolving to the updated translation map
+   * @private
+   */
+  private async saveTranslation(
+    id: number,
+    translationMap: Map<string, Translation>,
+    internationalValue: string,
+    modifications: boolean
+  ): Promise<Map<string, Translation>> {
+    if (!translationMap) return Promise.resolve(new Map<string, Translation>());
+
+    const defaultLanguage = config.defaultLang;
+    const promises: Promise<any>[] = [];
+
+    translationMap.forEach((value: Translation, key: string) => {
+      // Skip if it is not defined the default language and no modifications needed
+      if (key !== defaultLanguage && !modifications) return;
+
+      // Skip non-default languages with empty translations
+      if (key !== defaultLanguage && !value?.translation) return;
+
+      // Skip default language with no international value
+      if (key === defaultLanguage && !internationalValue) return;
+
+      // Set element ID
+      value.element = id;
+
+      // Set translation for the default language
+      if (key === defaultLanguage) {
+        value.translation = internationalValue;
+      }
+
+      // Save translation
+      promises.push(firstValueFrom(
+        this.translationService.save(value).pipe(
+          tap(result => translationMap.set(key, result))
+        )
+      ));
+    });
+
+    await Promise.all(promises);
+    return translationMap;
+  }
+
+  /**
    * Opens a dialog for editing translations.
    * Configures the dialog with available languages and current translations.
    *
@@ -770,7 +762,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
    * @returns {Promise<any>} Promise resolving to the dialog result
    * @private
    */
-  private async openTranslationDialog(translationsMap: Map<string, Translation>) {
+  private async openTranslationDialog(translationsMap: Map<string, Translation>): Promise<any> {
     const dialogRef = this.dialog.open(DialogTranslationComponent, {
       panelClass: 'translateDialogs',
     });
@@ -784,16 +776,6 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
     } else {
       return null;
     }
-  }
-
-  /**
-   * Provides detailed explanation of form validity status
-   * Examines each control's validation status and error messages
-   *
-   * @returns A string with detailed validation information
-   */
-  explainFormValidity(): string {
-    return explainFormValidity(this.entityForm);
   }
 }
 

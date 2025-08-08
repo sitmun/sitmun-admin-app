@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { Principal } from '@app/core/auth/principal.service';
-import { LoginService } from '@app/core/auth/login.service';
-import { User } from '@app/domain';
+import {Component, OnInit} from '@angular/core';
+import {LoginService} from '@app/core/auth/login.service';
+import {Principal} from '@app/core/auth/principal.service';
+import {Router} from '@angular/router';
+import {User} from '@app/domain';
 
 @Component({
   selector: 'app-user-info',
@@ -25,12 +26,13 @@ export class UserInfoComponent implements OnInit {
 
   constructor(
     private principal: Principal,
-    private loginService: LoginService
+    private loginService: LoginService,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
     this.loadCurrentUser();
-    
+
     // Subscribe to authentication state changes
     this.principal.getAuthenticationState().subscribe(() => {
       this.loadCurrentUser();
@@ -44,11 +46,8 @@ export class UserInfoComponent implements OnInit {
   }
 
   logout(): void {
-    // Call the login service to handle logout
     this.loginService.logout();
-    
-    // Force reload the application to clear all states
-    window.location.reload();
+    void this.router.navigate(['/login']);
   }
 
   getUserFullName(): string {
@@ -65,4 +64,4 @@ export class UserInfoComponent implements OnInit {
     }
     return '';
   }
-} 
+}

@@ -1,21 +1,14 @@
-<!-- Error page for initialization errors -->
-<div *ngIf="hasInitializationError$ | async" class="mat-app-background">
-  <app-error-page
-    [error]="initializationError$ | async"
-    errorType="initialization">
-  </app-error-page>
-</div>
-
-<!-- Main application content -->
-<div *ngIf="!(hasInitializationError$ | async)" class="mat-app-background basic-container">
-  <div *ngIf="!isLoggedIn()">
-    <app-login></app-login>
+<!-- Render initialization error or main app without negating async -->
+<ng-container *ngIf="hasInitializationError$ | async; else appContent">
+  <div class="mat-app-background">
+    <app-error-page
+      [error]="initializationError$ | async"
+      errorType="initialization">
+    </app-error-page>
   </div>
-  <div *ngIf="isLoggedIn()">
-    <app-toolbar (sidenavEvent)="navOpen($event)"></app-toolbar>
-    <app-side-menu  [openNav]="isOpen"  ></app-side-menu>
-  </div>
-</div>
+</ng-container>
 
-<!-- Translation debug component (only visible in development) -->
-<app-translation-debug></app-translation-debug>
+<ng-template #appContent>
+  <router-outlet></router-outlet>
+  <app-translation-debug></app-translation-debug>
+</ng-template>

@@ -2,7 +2,7 @@
   <mat-toolbar-row class="top-toolbar-row">
     <div class="sitmun-logo-container">
       <div class="sitmun-logo">
-        <img class="logo" src="assets/img/logos/logo_sitmun.svg" alt="logo">
+        <img alt="logo" class="logo" height="48" ngSrc="assets/img/logos/logo_sitmun.svg" width="128">
       </div>
     </div>
     <span class="toolbar-spacer"></span>
@@ -34,7 +34,7 @@
             <mat-label>{{'loginEntity.language' | translate}}</mat-label>
             <mat-icon matPrefix>language</mat-icon>
             <mat-select formControlName="lang">
-              <mat-option *ngFor="let lang of langs" [value]="lang.shortname">
+              <mat-option *ngFor="let lang of languages" [value]="lang.shortname">
                 {{'lang.'+lang.shortname | translate}}
               </mat-option>
             </mat-select>

@@ -1,14 +1,11 @@
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import {Language, LanguageService} from '@app/domain';
+import {Component, OnInit} from '@angular/core';
+import {UntypedFormBuilder, UntypedFormGroup, Validators} from '@angular/forms';
+import {Language} from '@app/domain';
 import {LoginService} from '@app/core/auth/login.service';
+import {Router} from '@angular/router';
+import {TranslateService} from '@ngx-translate/core';
 
 import {config} from '@config';
-import {TranslateService} from '@ngx-translate/core';
-import {Router} from '@angular/router';
-import {UntypedFormBuilder, UntypedFormGroup, Validators} from '@angular/forms';
-import {UtilsService} from '@app/services/utils.service';
-import {LoggerService} from '@app/services/logger.service';
-import { firstValueFrom } from 'rxjs';
 
 /** Login component*/
 @Component({
@@ -18,7 +15,7 @@ import { firstValueFrom } from 'rxjs';
 })
 export class LoginComponent implements OnInit {
 
-  langs: Language[] = [];
+  languages: Language[] = [];
 
   /** bad credentials message*/
   badCredentials: string;
@@ -27,6 +24,9 @@ export class LoginComponent implements OnInit {
 
   /** form */
   form: UntypedFormGroup;
+
+  /** default route after successful login */
+  private readonly defaultRoute: string = '/dashboard';
 
   /** constructor */
   constructor(private fb: UntypedFormBuilder,
@@ -38,14 +38,14 @@ export class LoginComponent implements OnInit {
 
 }
   ngOnInit() {
-          // Initialize form with default language
+    // Initialize the form with a default language
           this.form = this.fb.group({
             username: ['', Validators.required],
             password: ['', Validators.required],
             lang: [this.translateService.getDefaultLang(), Validators.required],
           });
-          this.langs = config.languagesToUse;
-          console.log("LoginComponent initializeLanguages", this.langs);
+    this.languages = config.languagesToUse;
+    console.log("LoginComponent initializeLanguages", this.languages);
           console.log("LoginComponent initializeLanguages", this.translateService.getDefaultLang());
           this.loadedData = true;
   }
@@ -59,7 +59,7 @@ export class LoginComponent implements OnInit {
         this.translateService.use(langCode);
         this.translateService.setDefaultLang(langCode);
         localStorage.setItem('lang', langCode);
-        void this.router.navigateByUrl('/');
+        void this.router.navigateByUrl(this.defaultRoute);
       }, () => {
         const langCode = val.lang;
         this.translateService.use(langCode);
@@ -68,10 +68,5 @@ export class LoginComponent implements OnInit {
         this.badCredentials = 'ERROR';
       });
     }
-  }
-
-  compareLang(o1: string, o2: string): boolean {
-    if (!o1 || !o2) return false;
-    return o1 === o2;
   }
 }
