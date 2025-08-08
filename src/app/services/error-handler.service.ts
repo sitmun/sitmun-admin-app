@@ -14,10 +14,24 @@ export class ErrorHandlerService {
   ) {}
 
   handleError(error: any, defaultMessage = 'common.error.generic') {
-    const message = error?.message || this.translateService.instant(defaultMessage);
+    const hasKey = typeof defaultMessage === 'string' && defaultMessage.length > 0;
+    const fallbackKey = 'common.error.generic';
+    const translationKey = hasKey ? defaultMessage : fallbackKey;
+
+    const message = error?.message || this.safeInstant(translationKey);
     this.loggerService.error(message, error);
     this.snackBar.open(message, 'Close', { duration: 5000 });
     return null;
+  }
+
+  private safeInstant(key: string, params?: Record<string, any>): string {
+    try {
+      if (!key) return 'Unexpected error';
+      return this.translateService.instant(key, params);
+    } catch {
+      // Guard against TranslateService throwing on bad key
+      return key;
+    }
   }
 
   handleDataNotFound(entityType: string) {

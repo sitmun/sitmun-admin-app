@@ -77,7 +77,7 @@ export class MessagesInterceptor implements HttpInterceptor {
                               this.notificationService.showSuccess('backend.status.title', 'backend.operation.updated');
                                 break;
                             case "DELETE":
-                              this.notificationService.showSuccess('backend.status.title', 'backend.operation.delete');
+                              this.notificationService.showSuccess('backend.status.title', 'backend.operation.deleted');
                                 break;
                         }
                     }
