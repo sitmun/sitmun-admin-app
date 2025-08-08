@@ -1,5 +1,4 @@
-import {Component, TemplateRef, ViewChild} from "@angular/core";
-import {BaseFormComponent} from "@app/components/base-form.component";
+import {ActivatedRoute, Router} from "@angular/router";
 import {
   Cartography,
   CartographyService,
@@ -23,27 +22,28 @@ import {
   TerritoryService,
   TranslationService
 } from "@app/domain";
-import {MatDialog} from "@angular/material/dialog";
-import {TranslateService} from "@ngx-translate/core";
-import {ActivatedRoute, Router} from "@angular/router";
-import {UtilsService} from "@app/services/utils.service";
-import {LoggerService} from "@app/services/logger.service";
-import {ErrorHandlerService} from "@app/services/error-handler.service";
+import {Component, TemplateRef, ViewChild} from "@angular/core";
 import {DataTableDefinition, TemplateDialog} from "@app/components/data-tables.util";
 import {EMPTY, firstValueFrom, map, of} from "rxjs";
+import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {
-  Status,
   canKeepOrUpdate,
   onCreate,
   onDelete,
-  onUpdatedRelation
+  onUpdatedRelation,
+  Status
 } from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
-import {FormControl, FormGroup, Validators} from "@angular/forms";
-import assert from "assert";
-import { TaskFieldType, TaskEditionField } from "@app/domain/task/models/task-edition-fields.model";
-import { MatSelectChange } from "@angular/material/select";
-import { TaskEditionParameter, TaskParameterType } from "@app/domain/task/models/task-edition-parameter.model";
+import {TaskEditionField, TaskFieldType} from "@app/domain/task/models/task-edition-fields.model";
+import {TaskEditionParameter, TaskParameterType} from "@app/domain/task/models/task-edition-parameter.model";
 import {Configuration} from "@app/core/config/configuration";
+import {BaseFormComponent} from "@app/components/base-form.component";
+import {ErrorHandlerService} from "@app/services/error-handler.service";
+import {LoggerService} from "@app/services/logger.service";
+import {MatDialog} from "@angular/material/dialog";
+import {MatSelectChange} from "@angular/material/select";
+import {TranslateService} from "@ngx-translate/core";
+import {UtilsService} from "@app/services/utils.service";
+import {magic} from "@environments/constants";
 
 /**
  * Component for managing basic tasks in the SITMUN application.
@@ -75,7 +75,7 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
 
   /**
    * Data table definition for managing role assignments to the task.
-   * Configures the roles grid with columns, data fetching, and update operations.
+   * Configures the roles' grid with columns, data fetching, and update operations.
    */
   protected readonly rolesTable: DataTableDefinition<Role, Role>;
 
@@ -202,7 +202,6 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
    * @param activatedRoute - Service for accessing route parameters
    * @param router - Angular router service for navigation
    * @param taskService - Service for task CRUD operations
-   * @param taskUIService - Service for managing task UIs
    * @param utils - Utility service with common functions
    * @param loggerService - Service for logging
    * @param taskTypeService - Service for managing task types
@@ -241,16 +240,13 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
 
   /**
    * Initializes component data before fetching.
-   * Extracts task type from route, registers data tables, and loads required data.
+   * Registers data tables, and loads required data.
    *
    * @returns Promise that resolves when initialization is complete
    * @throws Error if task type or group is not found
    */
   override async preFetchData() {
-    const params = await firstValueFrom(this.activatedRoute.params);
-
-    const type = Number(params.type ?? 1);
-    assert(type == 0, `Task type must be 0 for edit tasks but was ${params.type}`);
+    const type = magic.taskEditTypeId;
 
     this.dataTables.register(this.rolesTable)
       .register(this.availabilitiesTable)

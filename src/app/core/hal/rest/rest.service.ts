@@ -1,11 +1,10 @@
-import {Observable, firstValueFrom, throwError as observableThrowError, of, switchMap} from 'rxjs';
+import {firstValueFrom, Observable, of, switchMap, throwError} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {Resource} from '../resource/resource.model';
 import {ResourceArray} from '../resource/resource-array.model';
 import {Sort} from './sort.model';
 import {ResourceService} from '../resource/resource.service';
 import {SubTypeBuilder} from '../common/subtype-builder';
-import {isNullOrUndefined} from 'util';
 import {Injector} from "@angular/core";
 
 /** HAL param data model */
@@ -43,7 +42,7 @@ export class RestService<T extends Resource> {
     this.type = type;
     this.resource = resource;
     this.resourceService = injector.get(ResourceService);
-    if (!isNullOrUndefined(_embedded))
+    if (!(_embedded === null || _embedded === undefined))
       this._embedded = _embedded;
   }
 
@@ -62,7 +61,7 @@ export class RestService<T extends Resource> {
    * @returns An Observable that errors with the provided error
    */
   protected static handleError(error: any): Observable<never> {
-    return observableThrowError(error);
+    return throwError(() => error);
   }
 
   /**
@@ -180,7 +179,7 @@ export class RestService<T extends Resource> {
   public search(query: string, options?: HalOptions): Observable<T[]> {
     return this.resourceService.search(this.type, query, this.resource, this._embedded, options).pipe(
       map((resourceArray: ResourceArray<T>) => {
-        if (options && options.notPaged && !isNullOrUndefined(resourceArray.first_uri)) {
+        if (options && options.notPaged && !(resourceArray.first_uri === null || resourceArray.first_uri === undefined)) {
           options.notPaged = false;
           options.size = resourceArray.totalElements;
           return this.search(query, options).toPromise();
@@ -210,7 +209,7 @@ export class RestService<T extends Resource> {
   public customQuery(query: string, options?: HalOptions): Observable<T[]> {
     return this.resourceService.customQuery(this.type, query, this.resource, this._embedded, options).pipe(
       map((resourceArray: ResourceArray<T>) => {
-        if (options && options.notPaged && !isNullOrUndefined(resourceArray.first_uri)) {
+        if (options && options.notPaged && !(resourceArray.first_uri === null || resourceArray.first_uri === undefined)) {
           options.notPaged = false;
           options.size = resourceArray.totalElements;
           return this.customQuery(query, options).toPromise();

@@ -1,29 +1,34 @@
-import {Component, ElementRef, Input, OnChanges, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
-import * as d3 from 'd3';
+import {Component, ElementRef, Input, OnChanges, OnInit, ViewChild} from '@angular/core';
+import {axisBottom, axisLeft, max, ScaleBand, scaleBand, ScaleLinear, scaleLinear, select, Selection,} from 'd3';
 
+type DataPoint = { index: string; value: number };
 
 @Component({
   selector: 'app-datagraph',
   templateUrl: './datagraph.component.html',
   styleUrls: ['./datagraph.component.scss']
 })
-export class DatagraphComponent implements OnInit {
+export class DatagraphComponent implements OnInit, OnChanges {
 
   @ViewChild('chart',{static: true}) private chartContainer: ElementRef;
-  @Input() private data: Array<any>;
+
+  @Input() private data: Array<DataPoint>
   @Input() private type;
   private margin: any = { top: 20, bottom: 60, left: 40, right: 40};
   private margin2 = 80;
-  private chart: any;
+
+  private chart: Selection<SVGGElement, unknown, null, undefined>;
   private width: number;
   private height: number;
-  private xScale: any;
-  private yScale: any;
-  private colors: any;
-  private xAxis: any;
-  private yAxis: any;
 
-  constructor() { }
+  private xScale: ScaleBand<string>;
+
+  private yScale: ScaleLinear<number, number>;
+  private colors: any;
+
+  private xAxis: Selection<SVGGElement, unknown, null, undefined>;
+
+  private yAxis: Selection<SVGGElement, unknown, null, undefined>;
 
   ngOnInit() {
 
@@ -52,7 +57,7 @@ export class DatagraphComponent implements OnInit {
     const element = this.chartContainer.nativeElement;
     this.width = element.offsetWidth - this.margin.left - this.margin.right;
     this.height = element.offsetHeight - this.margin.top - this.margin.bottom;
-    const svg = d3.select(element).append('svg')
+    const svg = select(element).append('svg')
       .attr('width', '100%')
       .attr("height", '100%')
 
@@ -61,20 +66,23 @@ export class DatagraphComponent implements OnInit {
       .attr('class', 'bars')
       .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`);
 
-      const barGroups = this.chart.selectAll()
-      .data(this.data)
+    const barGroups = this.chart
+      .selectAll<SVGGElement, DataPoint>('.bar-group')
+      .data(this.data ?? [])
       .enter()
       .append('g')
+      .attr('class', 'bar-group')
 
 
 
     // define X & Y domains
-    const xDomain = this.data.map(d => d.index);
-    const yDomain = [0, (d3.max(this.data, d => d.value))];
+    const xDomain = (this.data ?? []).map(d => d.index);
+    const yMax = max(this.data ?? [], d => d.value) ?? 0;
+    const yDomain: [number, number] = [0, yMax];
 
     // create scales
-    this.xScale = d3.scaleBand().padding(0.3).domain(xDomain).rangeRound([0, this.width]);
-    this.yScale = d3.scaleLinear().domain(yDomain).range([this.height, 0]);
+    this.xScale = scaleBand().padding(0.3).domain(xDomain).rangeRound([0, this.width]);
+    this.yScale = scaleLinear().domain(yDomain).range([this.height, 0]);
 
     // bar colors
    // this.colors = d3.scaleLinear().domain([0, this.data.length]).range(<any[]>['red', 'blue']);
@@ -91,24 +99,26 @@ export class DatagraphComponent implements OnInit {
 
 
     // x & y axis
-    this.xAxis = svg.append('g')
+    const xAxisG = svg.append('g')
       .attr('class', 'axis axis-x')
       .attr('transform', `translate(${this.margin.left}, ${this.margin.top + this.height})`)
-      .call(d3.axisBottom(this.xScale))
-      .selectAll("text")
-      .attr("transform", "translate(-10,0)rotate(-45)")
-      .style("text-anchor", "end")
-      .style("font-size", 9)
-      .style("fill", "black")
+      .call(axisBottom(this.xScale));
+    xAxisG.selectAll('text')
+      .attr('transform', 'translate(-10,0)rotate(-45)')
+      .style('text-anchor', 'end')
+      .style('font-size', 9)
+      .style('fill', 'black');
+    this.xAxis = xAxisG as Selection<SVGGElement, unknown, null, undefined>;
 
 
-    this.yAxis = svg.append('g')
+    const yAxisG = svg.append('g')
       .attr('class', 'axis axis-y')
       .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`)
-      .call(d3.axisLeft(this.yScale))
-      .selectAll("text")
-      .style("font-size", 9)
-      .style("fill", "black")
+      .call(axisLeft(this.yScale));
+    yAxisG.selectAll('text')
+      .style('font-size', 9)
+      .style('fill', 'black');
+    this.yAxis = yAxisG as Selection<SVGGElement, unknown, null, undefined>;
 
 
   }
@@ -116,22 +126,25 @@ export class DatagraphComponent implements OnInit {
   updateBarChart() {
     // update scales & axis
     this.xScale.domain(this.data.map(d => d.index));
-    this.yScale.domain([0,(d3.max(this.data, d => d.value))]);
-    this.xAxis.transition().call(d3.axisBottom(this.xScale));
-    this.yAxis.transition().call(d3.axisLeft(this.yScale));
+    this.yScale.domain([0, (max(this.data, d => d.value))]);
+    this.xAxis.transition().call(axisBottom(this.xScale));
+    this.yAxis.transition().call(axisLeft(this.yScale));
 
-    const update = this.chart.selectAll('.bar')
-      .data(this.data);
+    const update = this.chart
+      .selectAll<SVGRectElement, DataPoint>('.bar')
+      .data(this.data ?? []);
 
     // remove exiting bars
     update.exit().remove();
 
     // update existing bars
-    this.chart.selectAll('.bar').transition()
-      .attr('x', d => this.xScale(d.index))
+    this.chart
+      .selectAll<SVGRectElement, DataPoint>('.bar')
+      .transition()
+      .attr('x', d => this.xScale(d.index) as number)
       .attr('y', d => this.yScale(d.value))
-      .attr('width', d => this.xScale.bandwidth())
-      .attr('height', d => this.height - this.yScale(d[1]))
+      .attr('width', () => this.xScale.bandwidth())
+      .attr('height', d => this.height - this.yScale(d.value))
       .style('fill', '#be7d27');
 
     // add new bars
@@ -139,7 +152,7 @@ export class DatagraphComponent implements OnInit {
       .enter()
       .append('rect')
       .attr('class', 'bar')
-      .attr('x', d => this.xScale(d.index))
+      .attr('x', d => this.xScale(d.index) as number)
       .attr('y', d => this.yScale(d.value))
       .attr('height', d => this.height - this.yScale(d.value))
       .attr('width', this.xScale.bandwidth())

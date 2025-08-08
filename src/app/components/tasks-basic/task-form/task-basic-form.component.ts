@@ -1,5 +1,4 @@
-import {Component, TemplateRef, ViewChild} from "@angular/core";
-import {BaseFormComponent} from "@app/components/base-form.component";
+import {ActivatedRoute, Router} from "@angular/router";
 import {
   CodeListService,
   Role,
@@ -22,24 +21,25 @@ import {
   TerritoryService,
   TranslationService
 } from "@app/domain";
-import {MatDialog} from "@angular/material/dialog";
-import {TranslateService} from "@ngx-translate/core";
-import {ActivatedRoute, Router} from "@angular/router";
-import {UtilsService} from "@app/services/utils.service";
-import {LoggerService} from "@app/services/logger.service";
-import {ErrorHandlerService} from "@app/services/error-handler.service";
+import {Component, TemplateRef, ViewChild} from "@angular/core";
 import {DataTableDefinition, TemplateDialog} from "@app/components/data-tables.util";
 import {EMPTY, firstValueFrom, map, of} from "rxjs";
+import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {
-  Status,
   canKeepOrUpdate,
   onCreate,
   onDelete,
-  onUpdatedRelation
+  onUpdatedRelation,
+  Status
 } from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
-import {FormControl, FormGroup, Validators} from "@angular/forms";
-import assert from "assert";
+import {BaseFormComponent} from "@app/components/base-form.component";
 import {Configuration} from "@app/core/config/configuration";
+import {ErrorHandlerService} from "@app/services/error-handler.service";
+import {LoggerService} from "@app/services/logger.service";
+import {MatDialog} from "@angular/material/dialog";
+import {TranslateService} from "@ngx-translate/core";
+import {UtilsService} from "@app/services/utils.service";
+import {magic} from "@environments/constants";
 
 /**
  * Component for managing basic tasks in the SITMUN application.
@@ -71,7 +71,7 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
 
   /**
    * Data table definition for managing role assignments to the task.
-   * Configures the roles grid with columns, data fetching, and update operations.
+   * Configures the roles' grid with columns, data fetching, and update operations.
    */
   protected readonly rolesTable: DataTableDefinition<Role, Role>;
 
@@ -83,7 +83,7 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
 
   /**
    * Data table definition for managing task parameters.
-   * Configures the parameters grid with columns, data fetching, and update operations.
+   * Configures the parameters' grid with columns, data fetching, and update operations.
    */
   protected readonly parametersTable: DataTableDefinition<TaskParameter, TaskParameter>;
 
@@ -115,7 +115,7 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
 
   /**
    * Reference to the dialog template for adding new parameters.
-   * Used by the parameters table for creating new task parameters.
+   * Used by the parameters' table for creating new task parameters.
    */
   @ViewChild('newParameterDialog', {static: true})
   private readonly newParameterDialog: TemplateRef<any>;
@@ -167,16 +167,13 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
 
   /**
    * Initializes component data before fetching.
-   * Extracts task type from route, registers data tables, and loads required data.
+   * Registers the data tables and loads required data.
    *
    * @returns Promise that resolves when initialization is complete
    * @throws Error if task type or group is not found
    */
   override async preFetchData() {
-    const params = await firstValueFrom(this.activatedRoute.params);
-
-    const type = Number(params.type ?? 1);
-    assert(type == 1, `Task type must be 1 for basic tasks but was ${params.type}`);
+    const type = magic.taskBasicTypeId;
 
     this.dataTables.register(this.rolesTable)
       .register(this.availabilitiesTable)
@@ -295,7 +292,7 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
   }
 
   /**
-   * Creates a new task entity in the database.
+   * Creates a new basic task entity in the database.
    * Also sets immutable relationships to task type and group.
    *
    * @returns Promise resolving to the ID of the created entity
@@ -311,7 +308,7 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
   }
 
   /**
-   * Updates an existing task entity with form values.
+   * Updates an existing basic task entity with form values.
    *
    * @returns Promise that resolves when the update is complete
    */
@@ -328,11 +325,11 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
    * Updates related data after the task is saved.
    * Updates UI relationship if the form is dirty or being duplicated.
    *
-   * @param isDuplicated - Whether this is a duplication operation
    * @returns Promise that resolves when related data is updated
+   * @param _isDuplicated
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  override async updateDataRelated(isDuplicated: boolean) {
+  override async updateDataRelated(_isDuplicated: boolean) {
     const entityToUpdate = this.createObject(this.entityID);
     await this.saveTranslations(entityToUpdate);
     await firstValueFrom(entityToUpdate.updateRelationEx("ui", this.taskUIService.createProxy(this.entityForm.get('uiId')?.value)));

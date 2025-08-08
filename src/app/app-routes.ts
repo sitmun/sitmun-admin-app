@@ -37,6 +37,7 @@ import {TreesFormComponent} from '@app/components/trees/trees-form/trees-form.co
 import {UserComponent} from '@app/components/user/user.component';
 import {UserFormComponent} from '@app/components/user/user-form/user-form.component';
 import {authGuard} from '@app/core/guards/auth.guard';
+import {magic} from "@environments/constants";
 
 export const APP_ROUTES: Routes = [
   {path: 'login', component: LoginComponent},
@@ -65,9 +66,9 @@ export const APP_ROUTES: Routes = [
       {path: 'layersPermits', component: LayersPermitsComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'layersPermits/:id/layersPermitsForm', component: LayersPermitsFormComponent},
       {path: 'layersPermits/:id/layersPermitsForm/:idDuplicate', component: LayersPermitsFormComponent},
-      {path: 'tasks/:id/0', component: TaskEditFormComponent},
-      {path: 'tasks/:id/1', component: TaskBasicFormComponent},
-      {path: 'tasks/:id/5', component: TaskQueryFormComponent},
+      {path: `tasks/:id/${magic.taskEditTypeId}`, component: TaskEditFormComponent},
+      {path: `tasks/:id/${magic.taskBasicTypeId}`, component: TaskBasicFormComponent},
+      {path: `tasks/:id/${magic.taskQueryTypeId}`, component: TaskQueryFormComponent},
       {path: 'tasksEdit', component: TasksEditComponent},
       {path: 'taskEdit/:id/:type', component: TaskEditFormComponent},
       {path: 'taskEdit/:id/:type/:idDuplicate', component: TaskEditFormComponent},

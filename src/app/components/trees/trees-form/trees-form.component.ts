@@ -31,8 +31,8 @@ import {MatDialog} from '@angular/material/dialog';
 import {constants} from '@environments/constants';
 import {MatTabChangeEvent} from '@angular/material/tabs';
 import {LoggerService} from '@app/services/logger.service';
-import * as xmlJs from 'xml2js';
 import {Configuration} from "@app/core/config/configuration";
+import {XMLParser} from 'fast-xml-parser';
 
 @Component({
   selector: 'app-trees-form',
@@ -1759,7 +1759,7 @@ export class TreesFormComponent implements OnInit {
     return of(this.parsedData);
   }
 
-  parseInput(inputText) {
+  async parseInput(inputText) {
     this.parsedData = {
       data: {},
       dataType: 'json'
@@ -1770,17 +1770,12 @@ export class TreesFormComponent implements OnInit {
           this.parsedData.data = JSON.parse(inputText);
           this.parsedData.dataType = 'json';
         } else {
-          this.parsedData.dataType = 'xml';
-          const xmlOptions = {
-            explicitArray: false,
-            attrkey: '@',
-          };
-          xmlJs.parseString(inputText, xmlOptions, (error, result) => {
-            if (error) {
-              console.error(error);
-            }
-            this.parsedData.data = result;
+          const parser = new XMLParser({
+            ignoreAttributes: false,
+            attributeNamePrefix: '@'
           });
+          this.parsedData.data = parser.parse(inputText);
+          this.parsedData.dataType = 'xml';
         }
         this.namespaces = this.getNamespacesKeys(this.parsedData.data);
         console.log(this.namespaces);

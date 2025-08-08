@@ -1,10 +1,8 @@
-import { FlatTreeControl } from '@angular/cdk/tree';
+import {BehaviorSubject, Observable, of as observableOf} from 'rxjs';
 import {Component, ElementRef, EventEmitter, Injectable, Input, Output, ViewChild} from '@angular/core';
-import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
-import { BehaviorSubject, Observable, of as observableOf } from 'rxjs';
-import { CdkDragDrop } from '@angular/cdk/drag-drop';
-import { SelectionModel } from '@angular/cdk/collections';
-import { forEach } from 'jszip';
+import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
+import {FlatTreeControl} from '@angular/cdk/tree';
+import {SelectionModel} from '@angular/cdk/collections';
 
 /**
  * File node data with nested structure.
@@ -67,10 +65,6 @@ export class FileDatabase {
   dataChange = new BehaviorSubject<FileNode[]>([]);
   get data(): any { return this.dataChange.value; }
 
-  constructor() {
-
-  }
-
   initialize(dataObj, allNewElements) {
 
     // Build the tree nodes from Json object. The result is a list of `FileNode` with nested
@@ -89,16 +83,15 @@ export class FileDatabase {
     const map = {};
     if(arrayTreeNodes.length===0)
     {
-      const root = {
-        isFolder:true,
-        name:'',
+      map['root'] = {
+        isFolder: true,
+        name: '',
         type: 'folder',
         isRoot: true,
         order: 0,
         children: [],
         id: null
-      }
-      map['root']=root;
+      };
     }
     else{
       arrayTreeNodes.forEach((treeNode) => {
@@ -171,27 +164,21 @@ export class FileDatabase {
    }
 
   copyPasteItem(from: FileNode, to: FileNode, changedData:any): FileNode {
-    const newItem = this.insertItem(to, from,changedData);
-
-    return newItem;
+    return this.insertItem(to, from, changedData);
   }
 
   copyPasteItemAbove(from: FileNode, to: FileNode,changedData:any): FileNode {
-    const newItem = this.insertItemAbove(to, from,changedData);
-
-    return newItem;
+    return this.insertItemAbove(to, from, changedData);
   }
 
   copyPasteItemBelow(from: FileNode, to: FileNode,changedData:any): FileNode {
-    const newItem = this.insertItemBelow(to, from,changedData);
-
-    return newItem;
+    return this.insertItemBelow(to, from, changedData);
   }
 
   /** Add an item to to-do list */
 
   getNewItem(node:FileNode){
-    const newItem = {
+    return {
       name: node.name,
       children: node.children,
       nodetype: node.nodetype,
@@ -216,8 +203,8 @@ export class FileDatabase {
       taskName: node.taskName,
       viewMode: node.viewMode,
       filterable: node.filterable,
-      _links: node._links} as FileNode;
-    return newItem;
+      _links: node._links
+    } as FileNode;
   }
 
   insertItem(parent: FileNode, node: FileNode,changedData:any): FileNode {
@@ -225,7 +212,7 @@ export class FileDatabase {
       parent.children = [];
     }
     const newItem = this.getNewItem(node)
-    newItem.parent = parent==null || parent.id==undefined ? null : parent.id;
+    newItem.parent = parent.id == undefined ? null : parent.id;
     parent.children.push(newItem);
     this.setOrder(parent.children)
     this.dataChange.next(changedData);

@@ -35,7 +35,7 @@
               "util",
               "uri-templates",
               "jsonpath",
-              "xml2js"
+              "stacktrace-js"
             ],
             "scripts": []
           },

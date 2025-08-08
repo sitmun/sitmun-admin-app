@@ -1,11 +1,10 @@
-import {Observable, throwError as observableThrowError} from 'rxjs';
+import {Observable, throwError} from 'rxjs';
 
 import {catchError, map} from 'rxjs/operators';
-import {Sort} from '@app/core';
+import {Resource, ResourceHelper, Sort} from '@app/core';
 import {ArrayInterface} from '@app/core/hal/common';
-import {ResourceHelper} from '@app/core';
-import {Resource} from '@app/core';
-import * as url from 'url';
+
+// Replaced Node 'url' with Web URL/URLSearchParams
 
 /** REST array of resource implementation */
 export class ResourceArray<T extends Resource> implements ArrayInterface<T> {
@@ -67,9 +66,9 @@ export class ResourceArray<T extends Resource> implements ArrayInterface<T> {
         if (this.next_uri) {
             return ResourceHelper.getHttp().get(ResourceHelper.getProxy(this.next_uri), {headers: ResourceHelper.headers}).pipe(
                 map(response => this.init(type, response, this.sortInfo)),
-                catchError(error => observableThrowError(error)),);
+              catchError(error => throwError(() => error)),);
         }
-        return observableThrowError('no next defined');
+      return throwError(() => new Error('no next defined'));
     };
 
     /** Load previous page */
@@ -77,9 +76,9 @@ export class ResourceArray<T extends Resource> implements ArrayInterface<T> {
         if (this.prev_uri) {
             return ResourceHelper.getHttp().get(ResourceHelper.getProxy(this.prev_uri), {headers: ResourceHelper.headers}).pipe(
                 map(response => this.init(type, response, this.sortInfo)),
-                catchError(error => observableThrowError(error)),);
+              catchError(error => throwError(() => error)),);
         }
-        return observableThrowError('no prev defined');
+      return throwError(() => new Error('no prev defined'));
     };
 
     /** Load first page */
@@ -87,9 +86,9 @@ export class ResourceArray<T extends Resource> implements ArrayInterface<T> {
         if (this.first_uri) {
             return ResourceHelper.getHttp().get(ResourceHelper.getProxy(this.first_uri), {headers: ResourceHelper.headers}).pipe(
                 map(response => this.init(type, response, this.sortInfo)),
-                catchError(error => observableThrowError(error)),);
+              catchError(error => throwError(() => error)),);
         }
-        return observableThrowError('no first defined');
+      return throwError(() => new Error('no first defined'));
     };
 
     /** Load last page */
@@ -97,46 +96,64 @@ export class ResourceArray<T extends Resource> implements ArrayInterface<T> {
         if (this.last_uri) {
             return ResourceHelper.getHttp().get(ResourceHelper.getProxy(this.last_uri), {headers: ResourceHelper.headers}).pipe(
                 map(response => this.init(type, response, this.sortInfo)),
-                catchError(error => observableThrowError(error)),);
+              catchError(error => throwError(() => error)),);
         }
-        return observableThrowError('no last defined');
+      return throwError(() => new Error('no last defined'));
     };
 
     /** Load page with given pageNumber*/
     page = (type: { new(): T }, pageNumber: number): Observable<ResourceArray<T>> => {
         this.self_uri = this.self_uri.replace('{?page,size,sort}', '');
         this.self_uri = this.self_uri.replace('{&sort}', '');
-      const urlParsed = url.parse(ResourceHelper.getProxy(this.self_uri));
-        let query: string = ResourceArray.replaceOrAdd(urlParsed.query, 'size', this.pageSize.toString());
-        query = ResourceArray.replaceOrAdd(query, 'page', pageNumber.toString());
-
-
-        let uri = urlParsed.query ?
-            ResourceHelper.getProxy(this.self_uri).replace(urlParsed.query, query) : ResourceHelper.getProxy(this.self_uri).concat(query);
+      const proxied = ResourceHelper.getProxy(this.self_uri);
+      // Ensure base for relative URLs
+      const base = (proxied.startsWith('http://') || proxied.startsWith('https://'))
+        ? undefined
+        : window.location.origin;
+      const urlObj = new URL(proxied, base);
+      urlObj.searchParams.set('size', String(this.pageSize));
+      urlObj.searchParams.set('page', String(pageNumber));
+      let uri = urlObj.toString();
         uri = this.addSortInfo(uri);
-        return ResourceHelper.getHttp().get(uri, {headers: ResourceHelper.headers}).pipe(
-            map(response => this.init(type, response, this.sortInfo)),
-            catchError(error => observableThrowError(error)),);
+      return ResourceHelper.getHttp().get(uri, {headers: ResourceHelper.headers}).pipe(
+        map(response => this.init(type, response, this.sortInfo)),
+        catchError(error => throwError(() => error)),
+      );
     };
 
     /** Sort collection based on given sort attribute */
     sortElements = (type: { new(): T }, ...sort: Sort[]): Observable<ResourceArray<T>> => {
         this.self_uri = this.self_uri.replace('{?page,size,sort}', '');
         this.self_uri = this.self_uri.replace('{&sort}', '');
-        let uri = ResourceHelper.getProxy(this.self_uri).concat('?', 'size=', this.pageSize.toString(), '&page=', this.pageNumber.toString());
+      const proxied = ResourceHelper.getProxy(this.self_uri);
+      const base = (proxied.startsWith('http://') || proxied.startsWith('https://'))
+        ? undefined
+        : window.location.origin;
+      const urlObj = new URL(proxied, base);
+      urlObj.searchParams.set('size', String(this.pageSize));
+      urlObj.searchParams.set('page', String(this.pageNumber));
+      let uri = urlObj.toString();
         uri = this.addSortInfo(uri);
-        return ResourceHelper.getHttp().get(uri, {headers: ResourceHelper.headers}).pipe(
-            map(response => this.init(type, response, sort)),
-            catchError(error => observableThrowError(error)),);
+      return ResourceHelper.getHttp().get(uri, {headers: ResourceHelper.headers}).pipe(
+        map(response => this.init(type, response, sort)),
+        catchError(error => throwError(() => error)),
+      );
     };
 
     /** Load page with given size */
     size = (type: { new(): T }, size: number): Observable<ResourceArray<T>> => {
-        let uri = ResourceHelper.getProxy(this.self_uri).concat('?', 'size=', size.toString());
+      const proxied = ResourceHelper.getProxy(this.self_uri);
+      const base = (proxied.startsWith('http://') || proxied.startsWith('https://'))
+        ? undefined
+        : window.location.origin;
+      const urlObj = new URL(proxied, base);
+      urlObj.searchParams.set('size', String(size));
+      let uri = urlObj.toString();
         uri = this.addSortInfo(uri);
-        return ResourceHelper.getHttp().get(uri, {headers: ResourceHelper.headers}).pipe(
-            map(response => this.init(type, response, this.sortInfo)),
-            catchError(error => observableThrowError(error)),);
+      return ResourceHelper.getHttp().get(uri, {headers: ResourceHelper.headers}).pipe(
+        map(response => this.init(type, response, this.sortInfo)),
+        catchError(error => throwError(() => error)),
+      );
     };
 
     /** Add sort info to given URI */

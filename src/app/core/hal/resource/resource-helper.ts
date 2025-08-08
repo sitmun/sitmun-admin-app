@@ -1,11 +1,6 @@
 import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
-import {Resource} from '@app/core';
+import {HalOptions, Resource, SubTypeBuilder} from '@app/core';
 import {ResourceArray} from './resource-array.model';
-import {HalOptions} from '@app/core';
-import {SubTypeBuilder} from '@app/core';
-import {isNullOrUndefined, isPrimitive} from 'util';
-import * as url from 'url';
-import { Injectable, Injector } from '@angular/core';
 
 /** REST API access helper */
 export class ResourceHelper {
@@ -18,18 +13,6 @@ export class ResourceHelper {
     private static root_uri: string = null;
     /** HttpClient */
     private static http: HttpClient = null;
-
-    /** get request headers */
-    /*public static get headers(): HttpHeaders {
-        if (isNullOrUndefined(this._headers))
-          ResourceHelper._headers = new HttpHeaders();
-        return ResourceHelper._headers;
-    }*/
-
-    /** set request headers */
-    /*public static set headers(headers: HttpHeaders) {
-      ResourceHelper._headers = headers;
-    }*/
 
     /** get request option params */
     static optionParams(params: HttpParams, options?: HalOptions): HttpParams {
@@ -157,10 +140,6 @@ export class ResourceHelper {
     /** instantiate a Resource from response */
     static instantiateResource<T extends Resource>(entity: T, payload: Object): T {
         for (const p in payload) {
-            //TODO array init
-            /* if(entity[p].constructor === Array && isNullOrUndefined(payload[p]))
-                 entity[p] = [];
-             else*/
             entity[p] = payload[p];
         }
         return entity;
@@ -186,13 +165,6 @@ export class ResourceHelper {
     /** add slash to URI */
     private static addSlash(uri: string): string {
       return uri
-      /*
-        let uriParsed = url.parse(uri);
-        if (isNullOrUndefined(uriParsed.search) && uri && uri[uri.length - 1] != '/')
-            return uri + '/';
-        return uri;
-
-       */
     }
 
     /** get proxy from URL */

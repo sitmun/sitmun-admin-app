@@ -1,5 +1,4 @@
-import {Component, TemplateRef, ViewChild} from "@angular/core";
-import {BaseFormComponent} from "@app/components/base-form.component";
+import {ActivatedRoute, Router} from "@angular/router";
 import {
   Cartography,
   CartographyService,
@@ -24,26 +23,27 @@ import {
   TerritoryService,
   TranslationService
 } from "@app/domain";
-import {MatDialog} from "@angular/material/dialog";
-import {TranslateService} from "@ngx-translate/core";
-import {ActivatedRoute, Router} from "@angular/router";
-import {UtilsService} from "@app/services/utils.service";
-import {LoggerService} from "@app/services/logger.service";
-import {ErrorHandlerService} from "@app/services/error-handler.service";
+import {Component, TemplateRef, ViewChild} from "@angular/core";
 import {DataTableDefinition, TemplateDialog} from "@app/components/data-tables.util";
 import {EMPTY, firstValueFrom, map, of} from "rxjs";
+import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {
-  Status,
   canKeepOrUpdate,
   onCreate,
   onDelete,
-  onUpdatedRelation
+  onUpdatedRelation,
+  Status
 } from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
-import {FormControl, FormGroup, Validators} from "@angular/forms";
-import {MatSelectChange} from "@angular/material/select";
 import {TaskParameterType, TaskQueryParameter} from "@app/domain/task/models/task-query-parameter.model";
-import assert from 'assert';
+import {BaseFormComponent} from "@app/components/base-form.component";
 import {Configuration} from "@app/core/config/configuration";
+import {ErrorHandlerService} from "@app/services/error-handler.service";
+import {LoggerService} from "@app/services/logger.service";
+import {MatDialog} from "@angular/material/dialog";
+import {MatSelectChange} from "@angular/material/select";
+import {TranslateService} from "@ngx-translate/core";
+import {UtilsService} from "@app/services/utils.service";
+import {magic} from "@environments/constants";
 
 /**
  * Component for managing query tasks in the SITMUN application.
@@ -237,11 +237,9 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
    * @throws Error if task type or group is not found
    */
   override async preFetchData() {
-    const params = await firstValueFrom(this.activatedRoute.params);
+    const type = magic.taskQueryTypeId;
 
-    const type = Number(params.type ?? 5);
-    assert(type == 5, `Task type must be 5 for query tasks but was ${params.type}`);
-
+    // Register data tables for roles, availabilities, and parameters
     this.dataTables.register(this.rolesTable)
       .register(this.availabilitiesTable)
       .register(this.parametersTable);

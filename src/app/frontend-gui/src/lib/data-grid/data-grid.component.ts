@@ -11,7 +11,7 @@ import {
   ViewChild
 } from '@angular/core';
 
-import {Observable, Subscription, firstValueFrom} from 'rxjs';
+import {firstValueFrom, Observable, Subscription} from 'rxjs';
 import {GridOptions, ModuleRegistry,} from '@ag-grid-community/core';
 import {ClientSideRowModelModule} from '@ag-grid-community/client-side-row-model';
 import {CsvExportModule} from '@ag-grid-community/csv-export';
@@ -39,7 +39,7 @@ import {LoggerService} from '@app/services/logger.service';
 import {RouterLinkRendererComponent} from '../router-link-renderer/router-link-renderer.component';
 import {EditableLinkRendererComponent} from '../editable-link-renderer/editable-link-renderer.component';
 
-declare let $: any;
+// Removed jQuery dependency
 
 ModuleRegistry.registerModules([
   ClientSideRowModelModule,
@@ -744,34 +744,53 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
    * @returns Date picker component instance
    */
   getDatePicker() {
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    function Datepicker() {
+    function toInputDate(value: any): string {
+      if (!value) return '';
+      try {
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return '';
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+      } catch {
+        return '';
+      }
     }
 
-    Datepicker.prototype.init = function (params) {
+    // Simple native date input editor (no jQuery)
+    function NativeDatepicker(this: any) {
+    }
+
+    NativeDatepicker.prototype.init = function (params: any) {
       this.eInput = document.createElement('input');
-      this.eInput.value = params.value;
+      this.eInput.type = 'date';
       this.eInput.classList.add('ag-input');
       this.eInput.style.height = '100%';
-      $(this.eInput).datepicker({dateFormat: 'mm/dd/yy'});
+      this.eInput.value = toInputDate(params.value);
     };
-    Datepicker.prototype.getGui = function () {
+
+    NativeDatepicker.prototype.getGui = function () {
       return this.eInput;
     };
-    Datepicker.prototype.afterGuiAttached = function () {
+
+    NativeDatepicker.prototype.afterGuiAttached = function () {
       this.eInput.focus();
       this.eInput.select();
     };
-    Datepicker.prototype.getValue = function () {
+
+    NativeDatepicker.prototype.getValue = function () {
       return this.eInput.value;
     };
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    Datepicker.prototype.destroy = function () {
+
+    NativeDatepicker.prototype.destroy = function () {
     };
-    Datepicker.prototype.isPopup = function () {
+
+    NativeDatepicker.prototype.isPopup = function () {
       return false;
     };
-    return Datepicker;
+
+    return NativeDatepicker;
   }
 
   /**

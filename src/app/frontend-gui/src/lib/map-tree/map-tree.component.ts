@@ -1,10 +1,8 @@
+import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
+import {Observable, of} from 'rxjs';
 import { FlatTreeControl } from '@angular/cdk/tree';
-import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
-import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
-import { Observable, of as observableOf } from 'rxjs';
-import { SelectionModel } from '@angular/cdk/collections';
-import * as xmlJs from 'xml2js';
-import * as jp from 'jsonpath';
+import jsonpath from 'jsonpath';
 
 export class TreeFlatNode {
   constructor(
@@ -31,28 +29,20 @@ export class TreeNode {
   templateUrl: 'map-tree.component.html',
   styleUrls: ['map-tree.component.scss']
 })
-export class MapTreeComponent {
+export class MapTreeComponent implements OnInit {
   @Output() emitNode: EventEmitter<any>;
   @Input() eventCreateTreeSubscription: Observable <any> ;
   @Input() loadDataButton: Observable <any> ;
-  private _eventCreateTreeSubscription: any;
   treeControl: FlatTreeControl<TreeFlatNode>;
   treeFlattener: MatTreeFlattener<TreeNode, TreeFlatNode>;
   dataSource: MatTreeFlatDataSource<TreeNode, TreeFlatNode>;
-  // expansion model tracks expansion state
-  expansionModel = new SelectionModel<string>(true);
-  dragging = false;
-  expandTimeout: any;
-  expandDelay = 1000;
-  validateDrop = false;
-  treeData: any;
   treeDataType = 'json';
 
   @Input() getAll: () => Observable<any>;
   @Input() allNewElements: any;
   @ViewChild('emptyItem') emptyItem: ElementRef;
 
-    /** Map from flat node to nested node. This helps us finding the nested node to be modified */
+  /** Map from flat node to nested node. This helps us find the nested node to be modified */
     flatNodeMap = new Map<TreeFlatNode, TreeNode>();
 
     /** Map from nested node to flattened node. This helps us to keep the same object for selection */
@@ -93,21 +83,23 @@ export class MapTreeComponent {
   }
   private _getLevel = (node: TreeFlatNode) => node.level;
   private _isExpandable = (node: TreeFlatNode) => node.expandable;
-  private _getChildren = (node: TreeNode): Observable<TreeNode[]> => observableOf(node.children);
-  hasChild = (_: number, _nodeData: TreeFlatNode) => _nodeData.expandable;
 
   processData(parsedData) {
-    const treeData = this.convertToTree(parsedData, 'Root', parsedData).children;
-    this.dataSource.data = treeData;
+    this.dataSource.data = this.convertToTree(parsedData, 'Root', parsedData).children;
     this.treeControl.expandAll();
   }
+  hasChild = (_: number, _nodeData: TreeFlatNode) => _nodeData.expandable;
 
   convertToTree(obj: any, name: string, origData, path = ''): TreeNode {
-    let result = null;
+    let result: TreeNode;
     if (typeof obj !== 'object' || obj === null) {
       let newPath = path;
       if (this.treeDataType === 'json') {
-        newPath = jp.stringify(jp.paths(origData, '$..'.concat(name.replace('[pos]', '[0]')))[0]).replaceAll('[0]', '[pos]');
+        const p: Array<Array<string | number>> = jsonpath.paths(
+          origData,
+          `$..${name.replace('[pos]', '[0]')}`
+        );
+        newPath = jsonpath.stringify(p[0]).replaceAll('[0]', '[pos]');
       } else if (this.treeDataType === 'xml') {
         newPath = path.replace('@/', '@');
       }
@@ -131,6 +123,8 @@ export class MapTreeComponent {
     }
     return result;
   }
+
+  private _getChildren = (node: TreeNode): Observable<TreeNode[]> => of(node.children);
 
   onNodeClick(node) {
     this.emitNode.emit(node);
