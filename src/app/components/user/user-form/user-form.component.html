@@ -19,13 +19,13 @@
             <mat-card-content>
               <!-- User name -->
               <mat-form-field appearance="outline" class="quarter">
-                <mat-label>{{ 'userEntity.user' | translate }}</mat-label>
+                <mat-label>{{ 'entity.user.label' | translate }}</mat-label>
                 <input matInput type="text" formControlName="username" [readonly]="isUsernamePublic()">
               </mat-form-field>
               <div class="break"></div>
               <!-- Blocked -->
               <mat-checkbox formControlName="blocked">
-                {{ 'userEntity.blocked' | translate }}
+                {{ 'entity.user.blocked' | translate }}
               </mat-checkbox>
             </mat-card-content>
           </mat-card>
@@ -33,23 +33,23 @@
             <mat-card-content>
               <!-- First name -->
               <mat-form-field appearance="outline" class="half add-gap">
-                <mat-label>{{ 'userEntity.firstname' | translate }}</mat-label>
+                <mat-label>{{ 'entity.user.firstname' | translate }}</mat-label>
                 <input matInput type="text" formControlName="firstName">
               </mat-form-field>
               <!-- Last name -->
               <mat-form-field appearance="outline" class="half">
-                <mat-label>{{ 'userEntity.lastname' | translate }}</mat-label>
+                <mat-label>{{ 'entity.user.lastname' | translate }}</mat-label>
                 <input matInput type="text" formControlName="lastName">
               </mat-form-field>
               <!-- Email -->
               <mat-form-field appearance="outline" class="half add-gap">
-                <mat-label>{{ 'userEntity.email' | translate }}</mat-label>
+                <mat-label>{{ 'common.form.email' | translate }}</mat-label>
                 <input matInput type="email" formControlName="email">
                 <mat-error *ngIf="entityForm?.get('email')?.hasError('email')">
-                  {{ 'userEntity.invalidEmail' | translate }}
+                  {{ 'common.error.invalidEmail' | translate }}
                 </mat-error>
                 <mat-error *ngIf="entityForm?.get('email')?.hasError('pattern')">
-                  {{ 'userEntity.invalidEmailFormat' | translate }}
+                  {{ 'common.error.invalidEmailFormat' | translate }}
                 </mat-error>
               </mat-form-field>
               <div class="break"></div>
@@ -69,13 +69,19 @@
               <div class="break"></div>
               <!-- Administrator -->
               <mat-checkbox formControlName="administrator">
-                {{ 'userEntity.administrator' | translate }}
+                {{ 'entity.user.administrator' | translate }}
               </mat-checkbox>
+              <!-- Warnings Section -->
+              <app-warnings-panel
+                [expanded]="true"
+                [warnings]="entityToEdit?.warnings"
+                titleKey="common.warnings.title">
+              </app-warnings-panel>
             </mat-card-content>
           </mat-card>
         </form>
   </mat-tab>
-  <mat-tab label="{{ 'entity.role.users.header' | translate }}">
+  <mat-tab label="{{ 'entity.users.role.header' | translate }}">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
         <app-data-grid [changeHeightButton]="true"
@@ -101,23 +107,23 @@
       </mat-card-content>
     </mat-card>
   </mat-tab>
-  <mat-tab label="{{'userEntity.dataOfTerritory' | translate }}">
+  <mat-tab label="{{'entity.user.positions.header' | translate }}">
     <app-data-grid [changeHeightButton]="true"
                    [allNewElements]="isNew()"
-                   [columnDefs]="columnDefsData"
-                   [getAll]='getAllDataTerritory'
-                   [eventAddItemsSubscription]='addElementsEventTerritoryData.asObservable()'
-                   [eventGetAllRowsSubscription]='getAllElementsEventTerritoryData.asObservable()'
-                   [eventRefreshSubscription]='dataUpdatedEventTerritoryData.asObservable()'
-                   [discardChangesButton]=true
+                   (duplicate)='userPositionsTable.duplicateRelations($event)'
+                   (getAllRows)="userPositionsTable.handleSaveRelations($event)"
                    [actionButton]=true
+                   [columnDefs]="userPositionsTable.relationsColumnsDefs"
+                   [defaultColumnSorting]='userPositionsTable.defaultRelationsSorting()'
                    [deleteButton]=true
+                   [discardChangesButton]=true
                    [redoButton]=true
                    [undoButton]=true
-                   [hideDuplicateButton]=true
-                   [addButton]=true
-                   [defaultColumnSorting]="['territoryName']"
-                   (getAllRows)="getAllRowsDataTerritories($event)"
+                   [eventAddItemsSubscription]='userPositionsTable.addCommandEvent$.asObservable()'
+                   [eventGetAllRowsSubscription]='userPositionsTable.saveCommandEvent$.asObservable()'
+                   [eventRefreshSubscription]='userPositionsTable.refreshCommandEvent$.asObservable()'
+                   [getAll]='userPositionsTable.relationsFetchFn'
+                   [hideReplaceButton]=true
                    *ngIf="dataLoaded"
     >
     </app-data-grid>

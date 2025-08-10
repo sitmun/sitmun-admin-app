@@ -1426,7 +1426,7 @@ export class TerritoryFormComponent implements OnInit {
         this.utils.getNonEditableColumnDef('territoryEntity.user', 'user'),
         this.utils.getNonEditableColumnDef('territoryEntity.role', 'role'),
         this.utils.getBooleanColumnDef(
-          'userEntity.appliesToChildrenTerritories',
+          'entity.user.appliesToChildrenTerritories',
           'appliesToChildrenTerritories',
           false
         ),
@@ -1445,7 +1445,7 @@ export class TerritoryFormComponent implements OnInit {
         this.utils.getNonEditableColumnDef('territoryEntity.user', 'user'),
         this.utils.getNonEditableColumnDef('territoryEntity.role', 'role'),
         this.utils.getBooleanColumnDef(
-          'userEntity.appliesToChildrenTerritories',
+          'entity.user.appliesToChildrenTerritories',
           'appliesToChildrenTerritories',
           true
         ),
@@ -1457,7 +1457,7 @@ export class TerritoryFormComponent implements OnInit {
         this.utils.getIdColumnDef(),
         this.utils.getNonEditableColumnDef('territoryEntity.name', 'name', 300),
         this.utils.getBooleanColumnDef(
-          'userEntity.appliesToChildrenTerritories',
+          'entity.user.appliesToChildrenTerritories',
           'appliesToChildrenTerritories',
           true, 200, 200
         ),

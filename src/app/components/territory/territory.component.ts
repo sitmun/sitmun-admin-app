@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
 import {
   CodeListService,
   Territory,
@@ -7,16 +7,16 @@ import {
   TerritoryTypeService,
   TranslationService,
 } from '@app/domain';
-import {TranslateService} from '@ngx-translate/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {firstValueFrom} from 'rxjs';
-import {MatDialog} from '@angular/material/dialog';
+import {BaseListComponent} from "@app/components/base-list.component";
+import {Component} from '@angular/core';
+import {Configuration} from '@app/core/config/configuration';
+import {EntityListConfig} from "@app/components/shared/entity-list";
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoggerService} from '@app/services/logger.service';
+import {MatDialog} from '@angular/material/dialog';
+import {TranslateService} from '@ngx-translate/core';
 import {UtilsService} from '@app/services/utils.service';
-import {BaseListComponent} from "@app/components/base-list.component";
-import {EntityListConfig} from "@app/components/shared/entity-list";
-import {Configuration} from '@app/core/config/configuration';
+import {firstValueFrom} from 'rxjs';
 
 @Component({
   selector: 'app-territory',
@@ -82,7 +82,7 @@ export class TerritoryComponent extends BaseListComponent<Territory> {
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'territory/:id/territoryForm', {id: 'id'}),
       this.utils.getEditableColumnDef('entity.territory.code', 'code'),
-      this.utils.getFormattedColumnDef('common.form.type', this.territoryTypes, 'typeId', 'id', 'name'),
+      this.utils.getFormattedColumnDef('common.form.type', () => this.territoryTypes, 'typeId', 'id', 'name'),
       this.utils.getDateColumnDef('common.form.createdDate', 'createdDate')
     ];
   }

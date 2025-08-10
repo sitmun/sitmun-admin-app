@@ -1,7 +1,3 @@
-import {EMPTY, Observable, ReplaySubject, Subject, firstValueFrom, map, race, timer} from "rxjs";
-import {GridEvent, GridEventType, Status, isSave} from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
-import {MatDialog} from "@angular/material/dialog";
-import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {
   DialogFormComponent,
   DialogFormData,
@@ -13,9 +9,13 @@ import {
   DialogGridResult,
   isDialogGridAddEvent
 } from "@app/frontend-gui/src/lib/dialog-grid/dialog-grid.component";
-import {TemplateRef} from "@angular/core";
+import {EMPTY, firstValueFrom, map, Observable, race, ReplaySubject, Subject, timer} from "rxjs";
+import {GridEvent, GridEventType, isSave, Status} from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
+import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {FormGroup} from "@angular/forms";
-import { LoggerService } from "@app/services/logger.service";
+import {LoggerService} from "@app/services/logger.service";
+import {MatDialog} from "@angular/material/dialog";
+import {TemplateRef} from "@angular/core";
 
 /**
  * Defines the configuration and behavior of a data table in the application.
@@ -79,19 +79,20 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
    * @param targetToRelationFn - Function to convert selected targets to relations
    * @param templateDialogs - Map of template dialog factory functions
    * @param errorHandler - Service for handling and displaying errors
+   * @param fieldRestriction
    */
   constructor(
     public readonly relationsColumnsDefs: any[],
     public readonly relationsFetchFn: () => Observable<RELATION[]>,
     public readonly relationsDuplicateFn: (relation: RELATION) => RELATION,
     private readonly relationsUpdateFn: (relations: (RELATION & Status)[]) => Promise<void>,
-    private readonly relationsOrder: string,
+    private readonly relationsOrder: string[],
     public readonly targetsDialog: MatDialog,
     public readonly targetsColumnsDefs: any[],
     private readonly targetsFetchFn: () => Observable<TARGET[]>,
     private readonly targetIncludeFn: (R: RELATION[]) => ((T: TARGET) => boolean),
     private readonly targetsTitle: string,
-    public readonly targetsOrder: string,
+    public readonly targetsOrder: string[],
     private readonly targetToRelationFn: (targets: TARGET[]) => RELATION[],
     private readonly templateDialogs: Map<string, () => TemplateDialog>,
     private readonly errorHandler: ErrorHandlerService,
@@ -115,21 +116,21 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
   }
 
   /**
-   * Gets the default sorting configuration for relations grid.
+   * Gets the default sorting configuration for the relations' grid.
    *
    * @returns Array of field names to sort by, or empty array if no default sorting
    */
   defaultRelationsSorting() {
-    return this.relationsOrder ? [this.relationsOrder] : []
+    return this.relationsOrder
   }
 
   /**
-   * Gets the default sorting configuration for targets grid.
+   * Gets the default sorting configuration for the targets' grid.
    *
    * @returns Array of field names to sort by, or empty array if no default sorting
    */
   defaultTargetsSorting() {
-    return this.targetsOrder ? [this.targetsOrder] : []
+    return this.targetsOrder
   }
 
   /**
@@ -220,8 +221,8 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
 
   /**
    * Opens a template dialog for creating or editing an entity.
-   * Handles form initialization and processes dialog results.
-   * Adds new relations to the table if dialog is confirmed.
+   * Handles form initialization and process dialog results.
+   * Adds new relations to the table if the dialog is confirmed.
    *
    * @param name - Name of the template dialog to open
    * @throws Error if dialog template is not found or dialog operation fails
@@ -298,7 +299,7 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
  * - Table column definitions for relations and both target types
  * - Data fetching and filtering for all entity types
  * - CRUD operations
- * - Dialog management for dual target selection
+ * - Dialog management for a dual-target selection
  * - Events for table refresh and data operations
  *
  * @template RELATION - The type of entity displayed in the main relationship table
@@ -363,7 +364,7 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
     public readonly relationsFetchFn: () => Observable<RELATION[]>,
     public readonly relationsDuplicateFn: (relation: RELATION) => RELATION,
     private readonly relationsUpdateFn: (relations: (RELATION & Status)[]) => Promise<void>,
-    private readonly relationsOrder: string,
+    private readonly relationsOrder: string[],
     public readonly targetsDialog: MatDialog,
     public readonly targetsLeftColumnsDefs: any[],
     public readonly targetsRightColumnsDefs: any[],
@@ -374,7 +375,7 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
     private readonly targetsTitle: string,
     private readonly targetsLeftTitle: string,
     private readonly targetsRightTitle: string,
-    public readonly targetsOrder: string,
+    public readonly targetsOrder: string[],
     private readonly targetToRelationFn: (left: TARGET_LEFT[], right: TARGET_RIGHT[]) => RELATION[],
     private readonly errorHandler: ErrorHandlerService,
   ) {
@@ -400,21 +401,21 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
   }
 
   /**
-   * Gets the default sorting configuration for relations grid.
+   * Gets the default sorting configuration for the relations' grid.
    *
    * @returns Array of field names to sort by, or empty array if no default sorting
    */
   defaultRelationsSorting() {
-    return this.relationsOrder ? [this.relationsOrder] : []
+    return this.relationsOrder
   }
 
   /**
-   * Gets the default sorting configuration for targets grid.
+   * Gets the default sorting configuration for targets' grid.
    *
    * @returns Array of field names to sort by, or empty array if no default sorting
    */
   defaultTargetsSorting() {
-    return this.targetsOrder ? [this.targetsOrder] : []
+    return this.targetsOrder
   }
 
   /**
@@ -485,7 +486,7 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
   /**
    * Opens a dialog for selecting target entities to add as relations.
    * Configures the dialog with current data and handles selection results.
-   * Supports dual target selection with separate grids for left and right targets.
+   * Supports dual-target selection with separate grids for left and right targets.
    *
    * @param relations - Current relations to filter available targets
    * @throws Error if dialog operation fails
@@ -585,7 +586,7 @@ export class DataTablesRegistry {
 
   /**
    * Saves all registered data tables.
-   * Triggers save operations on all tables and waits for them to complete.
+   * Triggers save operations on all tables and wait for them to complete.
    *
    * @returns Promise that resolves when all tables are saved or timeout occurs
    */
@@ -640,7 +641,7 @@ export class DataTablesRegistry {
  */
 class DataTableDefinitionBuilder<RELATION, TARGET> {
   /**
-   * Column definitions for the relations grid.
+   * Column definitions for the relations' grid.
    */
   private relationsColumnsDefs: any[] = [];
 
@@ -662,12 +663,12 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
   /**
    * Default sorting field for targets.
    */
-  private targetsOrder: string | null = null;
+  private targetsOrder: string[] = [];
 
   /**
    * Default sorting field for relations.
    */
-  private relationsOrder: string | null = null;
+  private relationsOrder: string[] = [];
 
   /**
    * Map of template dialog factory functions.
@@ -689,7 +690,7 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
   }
 
   /**
-   * Sets the column definitions for the relations grid.
+   * Sets the column definitions for the relations' grid.
    *
    * @param columns - Column definition objects
    * @returns This builder instance for method chaining
@@ -781,8 +782,8 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
    * @param order - Field name to sort by
    * @returns This builder instance for method chaining
    */
-  withTargetsOrder(order: string): this {
-    this.targetsOrder = order;
+  withTargetsOrder(order: string[] | string): this {
+    this.targetsOrder = typeof order === 'string' ? [order] : order;
     return this;
   }
 
@@ -792,8 +793,8 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
    * @param order - Field name to sort by
    * @returns This builder instance for method chaining
    */
-  withRelationsOrder(order: string): this {
-    this.relationsOrder = order;
+  withRelationsOrder(order: string[] | string): this {
+    this.relationsOrder = typeof order === 'string' ? [order] : order;
     return this;
   }
 
@@ -901,7 +902,7 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
  */
 class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
   /**
-   * Column definitions for the relations grid.
+   * Column definitions for the relations' grid.
    */
   private relationsColumnsDefs: any[] = [];
 
@@ -928,12 +929,12 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
   /**
    * Default sorting field for targets.
    */
-  private targetsOrder: string | null = null;
+  private targetsOrder: string[] = [];
 
   /**
    * Default sorting field for relations.
    */
-  private relationsOrder: string | null = null;
+  private relationsOrder: string[] = [];
 
   /**
    * Map of template dialog factory functions.
@@ -955,7 +956,7 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
   }
 
   /**
-   * Sets the column definitions for the relations grid.
+   * Sets the column definitions for the relations' grid.
    *
    * @param columns - Column definition objects
    * @returns This builder instance for method chaining
@@ -1067,8 +1068,8 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
    * @param order - Field name to sort by
    * @returns This builder instance for method chaining
    */
-  withTargetsOrder(order: string): this {
-    this.targetsOrder = order;
+  withTargetsOrder(order: string[] | string): this {
+    this.targetsOrder = typeof order === 'string' ? [order] : order;
     return this;
   }
 
@@ -1078,8 +1079,8 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
    * @param order - Field name to sort by
    * @returns This builder instance for method chaining
    */
-  withRelationsOrder(order: string): this {
-    this.relationsOrder = order;
+  withRelationsOrder(order: string[] | string): this {
+    this.relationsOrder = typeof order === 'string' ? [order] : order;
     return this;
   }
 
@@ -1211,7 +1212,7 @@ export class TemplateDialog {
 
     /**
      * Form group for the dialog.
-     * Manages form controls and validation.
+     * Manages the form controls and validation.
      */
     public form: FormGroup,
 
@@ -1254,7 +1255,7 @@ export class TemplateDialogBuilder {
 
   /**
    * Form group for the dialog.
-   * Manages form controls and validation.
+   * Manages the form controls and validation.
    */
   private _form: FormGroup;
 

@@ -107,6 +107,7 @@ import {UrlInputDirective} from '@app/components/service/service-form/url-input.
 import {UserComponent} from '@app/components/user/user.component';
 import {UserFormComponent} from '@app/components/user/user-form/user-form.component';
 import {UserInfoComponent} from '@app/components/shared/user-info/user-info.component';
+import {WarningsPanelComponent} from '@app/components/shared/warnings-panel/warnings-panel.component';
 
 import {config} from '@config';
 import {firstValueFrom} from 'rxjs';
@@ -120,14 +121,15 @@ export function initializeLanguages(
   appStateService: AppStateService,
   messagesInterceptorState: MessagesInterceptorStateService
 ) {
-  return () => {
+  return async () => {
     // Initialize static logger services
 
     messagesInterceptorState.disable();
     DataTablesRegistry.setLoggerService(loggerService);
     Resource.setLoggerService(loggerService);
 
-    return firstValueFrom(languageService.getAll()).then(languages => {
+    try {
+      const languages = await firstValueFrom(languageService.getAll());
       // Sort languages
       languages.sort((a, b) => a.shortname.localeCompare(b.shortname));
 
@@ -142,14 +144,12 @@ export function initializeLanguages(
         localStorage.setItem('languages', JSON.stringify(languages));
       }
 
-      // Set default language
+      // Set the default language
       const defaultLang = getDefaultLanguage(languages);
       translateService.setDefaultLang(defaultLang);
       messagesInterceptorState.enable();
-
-      // Load translations for the default language
-      return firstValueFrom(translateService.use(defaultLang));
-    }).catch(error => {
+      return await firstValueFrom(translateService.use(defaultLang));
+    } catch (error) {
       // Create a proper error object for initialization errors
       const initError = {
         message: 'Failed to initialize languages',
@@ -162,8 +162,8 @@ export function initializeLanguages(
 
       const browserLang = translateService.getBrowserLang();
       translateService.setDefaultLang(browserLang);
-      return firstValueFrom(translateService.use(browserLang));
-    });
+      return await firstValueFrom(translateService.use(browserLang));
+    }
   };
 }
 
@@ -174,15 +174,16 @@ export function initializeConfiguration(
   appStateService: AppStateService,
   messagesInterceptorState: MessagesInterceptorStateService
 ) {
-  return () => {
+  return async () => {
     messagesInterceptorState.disable();
-    return firstValueFrom(configurationService.getAll()).then(configParams => {
+    try {
+      const configParams = await firstValueFrom(configurationService.getAll());
       const defaultLang = configParams.find(element => element.name === 'language.default');
 
       if (defaultLang) {
         config.defaultLang = defaultLang.value;
 
-        // Set language if not already set in localStorage
+        // Set language if it is not already set in localStorage
         if (!localStorage.getItem('lang')) {
           translateService.setDefaultLang(defaultLang.value);
           translateService.use(defaultLang.value);
@@ -191,7 +192,7 @@ export function initializeConfiguration(
 
       loggerService.info(`Configuration initialized: ${configParams.length} parameters loaded`);
       messagesInterceptorState.enable();
-    }).catch(error => {
+    } catch (error) {
       // Create a proper error object for initialization errors
       const initError = {
         message: 'Failed to initialize configuration',
@@ -201,7 +202,7 @@ export function initializeConfiguration(
       };
       appStateService.setInitializationError(initError, 'configuration');
       messagesInterceptorState.enable();
-    });
+    }
   };
 }
 
@@ -304,6 +305,7 @@ function getDefaultLanguage(languages: any[]): string {
     BrowserAnimationsModule,
     CoreModule,
     NgOptimizedImage
+    , WarningsPanelComponent
   ],
   providers: [
     { provide: LOCALE_ID, useValue: 'es-ES' },

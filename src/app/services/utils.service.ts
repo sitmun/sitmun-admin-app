@@ -2,7 +2,7 @@ import {Component, Injectable, Injector} from '@angular/core';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateService} from '@ngx-translate/core';
 import {Location} from '@angular/common';
-import {Subject, firstValueFrom} from 'rxjs';
+import {firstValueFrom, Subject} from 'rxjs';
 import {CodeList, CodeListService, Language, Translation, TranslationService} from '@app/domain';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {DialogMessageComponent, DialogTranslationComponent} from '@app/frontend-gui/src/lib/public_api';
@@ -12,6 +12,14 @@ import {BtnCheckboxFilterComponent} from '@app/frontend-gui/src/lib/btn-checkbox
 import {LoggerService} from '@app/services/logger.service';
 import {HalOptions, HalParam} from '@app/core/hal/rest/rest.service';
 import {ICellRendererAngularComp} from '@ag-grid-community/angular';
+import {
+  ColDefField,
+  EditableCallback,
+  ValueGetterFunc,
+  ValueGetterParams,
+  ValueSetterFunc,
+  ValueSetterParams
+} from "@ag-grid-community/core";
 
 /**
  * A utility service that provides common functionality across the application.
@@ -500,7 +508,8 @@ export class UtilsService {
       cellRenderer: (data) => {
         return this.getDateFormated(data);
       },
-      cellEditor: 'datePicker',
+      cellEditor: 'agDateStringCellEditor',
+      cellClass: (editable ?? false) ? null : 'read-only-cell'
     };
   }
 
@@ -519,23 +528,27 @@ export class UtilsService {
    * @param formattedList - Optional list for formatting values.
    * @returns Column definition object for select column.
    */
-  getSelectColumnDef(
-    alias,
-    field,
-    editable,
-    elements,
-    formatted?,
-    formattedList?
+  getSelectColumnDef<TData, TValue>(
+    alias: string,
+    field: ColDefField,
+    editable: boolean | EditableCallback<TData, TValue>,
+    elements: () => TValue[],
+    formattedList?: () => TData[],
+    valuesKeyField?: string,
+    valuesField?: string,
   ) {
     let columnDef;
-    if (formatted && formattedList) {
-      columnDef = this.getFormattedColumnDef(alias, formattedList, field);
+    const cellEditorParamsProvider = (params) => {
+      return {
+        values: elements()
+      }
+    }
+    if (formattedList) {
+      columnDef = this.getFormattedColumnDef(alias, formattedList, field, valuesKeyField, valuesField);
       columnDef.filter = 'agTextColumnFilter';
       columnDef.editable = editable;
       columnDef.field = field;
-      columnDef.cellEditorParams = {
-        values: elements,
-      };
+      columnDef.cellEditorParams = cellEditorParamsProvider;
       columnDef.cellEditor = 'agSelectCellEditor';
     } else {
       columnDef = {
@@ -543,9 +556,7 @@ export class UtilsService {
         field: field,
         filter: 'agTextColumnFilter',
         editable: editable,
-        cellEditorParams: {
-          values: elements,
-        },
+        cellEditorParams: cellEditorParamsProvider,
         cellEditor: 'agSelectCellEditor',
       };
     }
@@ -848,34 +859,38 @@ export class UtilsService {
     return options;
   }
 
-  getFormattedColumnDef(
-    alias: string | string[],
-    filterList: any[],
-    field: string,
-    fieldToCompare?: string,
-    fieldToShow?: string
+  getFormattedColumnDef<TData, TValue>(
+    headerName: string,
+    values: () => TData[],
+    keyField: string,
+    valuesKeyField?: string,
+    valuesField?: string
   ) {
-    const fieldReturned = fieldToShow ? fieldToShow : 'description';
+    const valueGetterFn: ValueGetterFunc<TData, TValue> = (params: ValueGetterParams<TData, TValue>) => {
+      const dataFieldValue = params.data[keyField]
+      const effectiveList = values();
+      const value = effectiveList.find(value => value[valuesKeyField] == dataFieldValue)
+      if (value === undefined) {
+        return dataFieldValue;
+      }
+      return value[valuesField];
+    }
+    const valueSetterFn: ValueSetterFunc<TData, TValue> = (params: ValueSetterParams<TData, TValue>) => {
+      const effectiveList = values();
+      const value = effectiveList.find(value => value[valuesField] == params.newValue)
+      if (value === undefined) {
+        return false;
+      } else {
+        params.data[keyField] = value[valuesKeyField]
+        return true;
+      }
+    }
+
     return {
-      headerName: this.getTranslate(alias),
+      headerName: this.getTranslate(headerName),
       editable: false,
-      valueGetter: (params) => {
-        const fieldValue = this.getValueFromPropertyPath(params.data, field);
-        
-        // Safety check: ensure filterList is an array
-        if (!Array.isArray(filterList)) {
-          return fieldValue;
-        }
-        
-        const alias = fieldToCompare
-          ? filterList.filter(
-            (format) => format[fieldToCompare] == fieldValue
-          )[0]
-          : filterList.filter(
-            (format: { value: any; }) => format.value == fieldValue
-          )[0];
-        return alias != undefined ? alias[fieldReturned] : fieldValue;
-      },
+      valueGetter: valueGetterFn,
+      valueSetter: valueSetterFn,
     };
   }
 

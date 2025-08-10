@@ -161,8 +161,8 @@ export class Configuration {
    */
   static readonly TERRITORY: FormConfiguration = {
     id: 'territory',
-    labelSingular: 'entity.territory.label',
-    labelPlural: 'entity.territory.label',
+    labelSingular: 'entity.territory.plural',
+    labelPlural: 'entity.territory.plural',
     icon: 'place',
     font: 'material-icons-round',
     route: 'territory',

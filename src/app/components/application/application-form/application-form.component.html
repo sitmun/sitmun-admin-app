@@ -94,22 +94,11 @@
           </mat-form-field>
 
           <!-- Warnings Section -->
-          <mat-expansion-panel *ngIf="entityToEdit?.warnings?.length > 0" [expanded]="true" class="warnings-panel">
-            <mat-expansion-panel-header>
-              <mat-panel-title>
-                <span matBadge="{{ entityToEdit.warnings.length }}" matBadgeColor="warn" matBadgeOverlap="false"
-                      matBadgePosition="before">
-                  &nbsp;
-                  {{ 'entity.application.warnings.title' | translate }}
-                </span>
-              </mat-panel-title>
-            </mat-expansion-panel-header>
-            <mat-divider></mat-divider>
-            <div *ngFor="let warning of entityToEdit.warnings">
-              {{ warning | translate }}
-              <mat-divider></mat-divider>
-            </div>
-          </mat-expansion-panel>
+          <app-warnings-panel
+            [expanded]="true"
+            [warnings]="entityToEdit?.warnings"
+            titleKey="common.warnings.title">
+          </app-warnings-panel>
         </mat-card-content>
       </mat-card>
       <mat-card *ngIf="isExternalApp()" appearance="outlined" class="sitmun-mat-card-margin">
