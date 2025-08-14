@@ -53,3 +53,7 @@ Thumbs.db
 
 # Angular
 .angular
+
+# Ignore markdown files in root directory except README.md
+/*.md
+!README.md
