@@ -1,0 +1,104 @@
+import {ModuleWithProviders, NgModule, Optional, SkipSelf} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
+import {RouterModule} from '@angular/router';
+import {ConfigModule} from './config/config.module';
+import {FeatureFlagDirective} from './features/feature-flag.directive';
+import {FeatureFlagPipe} from './features/feature-flag.pipe';
+import {FeatureFlagComponent} from './features/feature-flag.component';
+import {FeatureFlagService} from './features/feature-flag.service';
+
+// Auth services
+import {AuthService} from './auth/auth.service';
+import {Principal} from './auth/principal.service';
+import {LoginService} from './auth/login.service';
+
+// Account services
+import {AccountService} from './account/account.service';
+
+// Directives
+import {HasAnyAuthorityDirective} from './directives/has-any-authority.directive';
+import {HasAnyAuthorityOnTerritoryDirective} from './directives/has-any-authority-on-territory.directive';
+
+// Guards
+import {CanDeactivateGuard} from './guards/can-deactivate-guard.service';
+
+// Interceptors
+import {AuthInterceptor} from './interceptors/auth.interceptor';
+import {AuthExpiredInterceptor} from './interceptors/auth-expired.interceptor';
+import {MessagesInterceptor} from './interceptors/messages.interceptor';
+
+// SITMUN configuration services
+import {ConfigurationService} from './config/configuration.service';
+
+@NgModule({
+  imports: [
+    CommonModule,
+    HttpClientModule,
+    RouterModule,
+    ConfigModule.forRoot()
+  ],
+  declarations: [
+    HasAnyAuthorityDirective,
+    HasAnyAuthorityOnTerritoryDirective,
+    FeatureFlagDirective,
+    FeatureFlagPipe,
+    FeatureFlagComponent
+  ],
+  exports: [
+    HasAnyAuthorityDirective,
+    HasAnyAuthorityOnTerritoryDirective,
+    FeatureFlagDirective,
+    FeatureFlagPipe,
+    FeatureFlagComponent
+  ]
+})
+export class CoreModule {
+  constructor(@Optional() @SkipSelf() parentModule?: CoreModule) {
+    if (parentModule) {
+      throw new Error(
+        'CoreModule is already loaded. Import it in the AppModule only.');
+    }
+  }
+
+  static forRoot(): ModuleWithProviders<CoreModule> {
+    return {
+      ngModule: CoreModule,
+      providers: [
+        // Auth services
+        AuthService,
+        Principal,
+        LoginService,
+
+        // Account services
+        AccountService,
+
+        // Feature services
+        FeatureFlagService,
+
+        // Guards
+        CanDeactivateGuard,
+
+        // SITMUN configuration services
+        ConfigurationService,
+
+        // Interceptors
+        {
+          provide: HTTP_INTERCEPTORS,
+          useClass: AuthInterceptor,
+          multi: true
+        },
+        {
+          provide: HTTP_INTERCEPTORS,
+          useClass: AuthExpiredInterceptor,
+          multi: true
+        },
+        {
+          provide: HTTP_INTERCEPTORS,
+          useClass: MessagesInterceptor,
+          multi: true
+        }
+      ]
+    };
+  }
+}

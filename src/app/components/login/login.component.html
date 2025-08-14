@@ -1,54 +1,53 @@
-<mat-toolbar color="primary" *ngIf="languagesLoaded">
+<mat-toolbar color="primary" *ngIf="loadedData">
   <mat-toolbar-row class="top-toolbar-row">
     <div class="sitmun-logo-container">
       <div class="sitmun-logo">
-        <img class="logo" src="assets/img/logos/logo_sitmun.svg" alt="logo">
+        <img alt="logo" class="logo" height="48" ngSrc="assets/img/logos/logo_sitmun.svg" width="128">
       </div>
     </div>
     <span class="toolbar-spacer"></span>
   </mat-toolbar-row>
 </mat-toolbar>
-<div class="login-container" *ngIf="languagesLoaded">
-  <h5>  {{'loginEntity.privateAccess' | translate}}</h5>
-  <mat-card appearance="outlined" class="mat-card-logi mat-elevation-z0 outline">
+<div class="login-container" *ngIf="loadedData">
+  <mat-card appearance="outlined">
     <form [formGroup]="form" (ngSubmit)="login()">
-
+      <mat-card-header>
+        <mat-card-title>
+          <h4>
+          {{'loginEntity.privateAccess' | translate}}
+          </h4>
+          <br>
+        </mat-card-title>
+      </mat-card-header>
       <mat-card-content>
-
-        <div class="container">
-          <label class="formLabel requiredInput">
-            {{'loginEntity.username' | translate}}
-          </label>
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{'loginEntity.username' | translate}}</mat-label>
+            <mat-icon matPrefix>person</mat-icon>
             <input matInput type="input" formControlName="username">
           </mat-form-field>
-          <label class="formLabel requiredInput">
-            {{'loginEntity.password' | translate}}
-          </label>
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{'loginEntity.password' | translate}}</mat-label>
+            <mat-icon matPrefix>lock</mat-icon>
             <input matInput type="password" formControlName="password">
           </mat-form-field>
-          <label class="formLabel">
-            {{'loginEntity.language' | translate}}
-          </label>
-          <mat-form-field appearance="outline">
-            <mat-select matInput formControlName="lang" class="form-control">
-              <mat-option [value]="lang.shortname" *ngFor="let lang of langs">
-                {{'lang.'+lang.name | translate}}
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{'loginEntity.language' | translate}}</mat-label>
+            <mat-icon matPrefix>language</mat-icon>
+            <mat-select formControlName="lang">
+              <mat-option *ngFor="let lang of languages" [value]="lang.shortname">
+                {{'lang.'+lang.shortname | translate}}
               </mat-option>
             </mat-select>
           </mat-form-field>
+        <div class="alert alert-danger" *ngIf="badCredentials">
+          {{'loginEntity.bad-credentials' | translate}}
         </div>
       </mat-card-content>
       <mat-card-actions>
         <button mat-raised-button class="loginButton" type="submit" [disabled]="!form.valid">
           {{'loginEntity.login' | translate}}
         </button>
-
       </mat-card-actions>
     </form>
-    <div class="alert alert-danger" *ngIf="badCredentials">
-      {{'loginEntity.bad-credentials' | translate}}
-    </div>
   </mat-card>
 </div>

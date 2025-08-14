@@ -40,11 +40,11 @@ npm-debug.log
 yarn-error.log
 testem.log
 /typings
+*.mdc
 
 # Sonar
 .scannerwork/*
 /reports
-/coverage
 
 # System Files
 .DS_Store
@@ -53,3 +53,7 @@ Thumbs.db
 
 # Angular
 .angular
+
+# Ignore markdown files in root directory except README.md
+/*.md
+!README.md

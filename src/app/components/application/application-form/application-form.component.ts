@@ -1,976 +1,643 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {
-  ApplicationService, ApplicationParameterService, RoleService,
-  HalOptions, HalParam, CartographyGroupService, TreeService, BackgroundService,
-  ApplicationBackgroundService, TranslationService, Translation, Application, CodeList
-} from '../../../frontend-core/src/lib/public_api';
+  Application,
+  ApplicationBackground,
+  ApplicationBackgroundProjection,
+  ApplicationBackgroundService,
+  ApplicationParameter,
+  ApplicationParameterService,
+  ApplicationProjection,
+  ApplicationService,
+  BackgroundProjection,
+  BackgroundService,
+  CartographyGroup,
+  CartographyGroupService,
+  CodeListService,
+  Role,
+  RoleService,
+  TranslationService,
+  Tree,
+  TreeService,
+  User,
+  UserService
+} from '@app/domain';
+import {Component, TemplateRef, ViewChild} from '@angular/core';
+import {FormControl, FormGroup, UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
+import {
+  DataGridComponent,
+  isActive,
+  onCreate,
+  onDelete,
+  onUpdate,
+  onUpdatedRelation,
+  Status,
+} from '@app/frontend-gui/src/lib/public_api';
+import {EMPTY, firstValueFrom, Observable} from 'rxjs';
+import {BaseFormComponent} from "@app/components/base-form.component";
+import {Configuration} from "@app/core/config/configuration";
+import {DataTableDefinition, TemplateDialog} from '@app/components/data-tables.util';
+import {ErrorHandlerService} from "@app/services/error-handler.service";
+import {HalOptions} from '@app/core/hal/rest/rest.service';
+import {LoggerService} from "@app/services/logger.service";
+import {MatDialog} from '@angular/material/dialog';
+import {TranslateService} from "@ngx-translate/core";
+import {UtilsService} from '@app/services/utils.service';
 
-import { HttpClient } from '@angular/common/http';
-import { UtilsService } from '../../../services/utils.service';
-
-import { map } from 'rxjs/operators';
-import { Observable, of, Subject } from 'rxjs';
-import { config } from 'src/config';
-import { DialogFormComponent, DialogGridComponent } from '../../../frontend-gui/src/lib/public_api';
-import { MatDialog } from '@angular/material/dialog';
+import {constants} from '@environments/constants';
+import {map} from 'rxjs/operators';
 
 
-
+/**
+ * Angular component that provides a form interface for managing SITMUN applications.
+ * Supports creating, editing, and duplicating applications through a multi-tab interface.
+ *
+ * @extends BaseFormComponent<ApplicationProjection>
+ */
 @Component({
   selector: 'app-application-form',
   templateUrl: './application-form.component.html',
   styleUrls: ['./application-form.component.scss']
 })
-export class ApplicationFormComponent implements OnInit {
+export class ApplicationFormComponent extends BaseFormComponent<ApplicationProjection> {
+  readonly config = Configuration.APPLICATION;
 
-  //Translations
-  nameTranslationsModified: boolean = false;
-  titleTranslationsModified: boolean = false;
+  /**
+   * Data table configuration for managing application parameters.
+   * Provides CRUD operations for parameters with validation and type management.
+   * Columns: checkbox, name (editable), value (editable), type (non-editable), status
+   */
+  readonly parametersTable: DataTableDefinition<ApplicationParameter, ApplicationParameter>
 
-  nameTranslationMap: Map<string, Translation>;
-  titleTranslationMap: Map<string, Translation>;
+  /**
+   * Data table configuration for managing application trees.
+   * Handles navigation tree associations with special validation for turistic applications.
+   * Columns: checkbox, ID, name (editable), status
+   */
+  protected readonly treesTable: DataTableDefinition<Tree, Tree>;
 
-  situationMapList: Array<any> = [];
-  parametersTypes: Array<any> = [];
-  //Dialog
-  applicationForm: UntypedFormGroup;
-  applicationToEdit;
-  applicationSaved: Application;
-  applicationID = -1;
-  duplicateID = -1;
-  dataLoaded: Boolean = false;
-  themeGrid: any = config.agGridTheme;
+  /**
+   * Data table configuration for managing application roles.
+   * Handles role assignments and permissions with bulk operations support.
+   * Columns: checkbox, name (non-editable), description (non-editable), status
+   */
+  protected readonly rolesTable: DataTableDefinition<Role, Role>;
 
-  //Grids
-  columnDefsParameters: any[];
-  addElementsEventParameters: Subject<any[]> = new Subject<any[]>();
-  dataUpdatedEventParameters: Subject<boolean> = new Subject<boolean>();
+  /**
+   * Data table configuration for managing application backgrounds.
+   * Handles map background configurations with ordering and visibility settings.
+   * Columns: checkbox, ID, name (non-editable), description (non-editable), order (editable), status
+   */
+  protected readonly applicationBackgroundsTable: DataTableDefinition<ApplicationBackgroundProjection, BackgroundProjection>;
 
-  columnDefsTemplates: any[];
-  addElementsEventTemplateConfiguration: Subject<any[]> = new Subject<any[]>();
-  dataUpdatedEventTemplateConfiguration: Subject<boolean> = new Subject<boolean>();
+  /**
+   * Stores the current application type.
+   * Used to control form behavior and validation rules based on application type.
+   */
+  private currentAppType: string = null;
 
-  columnDefsRoles: any[];
-  addElementsEventRoles: Subject<any[]> = new Subject<any[]>();
-  dataUpdatedEventRoles: Subject<boolean> = new Subject<boolean>();
+  /**
+   * List of available situation maps for selection.
+   * Includes a default empty option and all cartography groups of type location map.
+   */
+  protected situationMapList: CartographyGroup[] = [];
 
-  columnDefsBackgrounds: any[];
-  addElementsEventBackground: Subject<any[]> = new Subject<any[]>();
-  dataUpdatedEventBackground: Subject<boolean> = new Subject<boolean>();
+  /**
+   * List of users available for selection in the application form.
+   */
+  protected usersList: User[] = [];
 
-  columnDefsTrees: any[];
-  addElementsEventTree: Subject<any[]> = new Subject<any[]>();
-  dataUpdatedEventTree: Subject<boolean> = new Subject<boolean>();
+  /**
+   * Reference to the dialog template used for creating new parameters.
+   * Used by the parameters table for adding new application parameters.
+   */
+  @ViewChild('newParameterDialog', {static: true})
+  private readonly newParameterDialog: TemplateRef<any>;
 
-  applicationTypes: Array<any> = [];
+  /**
+   * Reference to the trees data grid component.
+   * Used to access grid data for tree-specific validation rules.
+   */
+  @ViewChild('treesDataGrid')
+  private readonly treesDataGrid: DataGridComponent;
 
-  //Dialogs
-
-  columnDefsParametersDialog: any[];
-  public parameterForm: UntypedFormGroup;
-  getAllElementsEventParameters: Subject<string> = new Subject<string>();
-  @ViewChild('newParameterDialog', {
-    static: true
-  }) private newParameterDialog: TemplateRef<any>;
-  @ViewChild('newTemplateDialog', {
-    static: true
-  }) private newTemplateDialog: TemplateRef<any>;
-  columnDefsTemplateConfigurationDialog: any[];
-  getAllElementsEventTemplateConfiguration: Subject<string> = new Subject<string>();
-
-  columnDefsRolesDialog: any[];
-  getAllElementsEventRoles: Subject<string> = new Subject<string>();
-
-  columnDefsBackgroundDialog: any[];
-  getAllElementsEventBackground: Subject<string> = new Subject<string>();
-
-  columnDefsTreeDialog: any[];
-  getAllElementsEventTree: Subject<string> = new Subject<string>();
-
+  /**
+   * Creates an instance of ApplicationFormComponent.
+   *
+   * @param dialog - Material dialog service for modal interactions
+   * @param translateService - Service for handling translations
+   * @param translationService - Service for managing entity translations
+   * @param codeListService - Service for managing code lists
+   * @param errorHandler - Service for handling errors
+   * @param activatedRoute - Angular route service
+   * @param router - Angular router for navigation
+   * @param applicationService - Service for application CRUD operations
+   * @param applicationParameterService - Service for parameter operations
+   * @param applicationBackgroundService - Service for background relations
+   * @param cartographyGroupService - Service for cartography operations
+   * @param backgroundService - Service for background management
+   * @param roleService - Service for role management
+   * @param treeService - Service for tree management
+   * @param userService
+   * @param utils - Utility service for common operations
+   * @param loggerService - Service for logging
+   */
   constructor(
-    public dialog: MatDialog,
-    private activatedRoute: ActivatedRoute,
-    private router: Router,
-    private applicationService: ApplicationService,
-    private translationService: TranslationService,
-    private backgroundService: BackgroundService,
-    private applicationParameterService: ApplicationParameterService,
-    private applicationBackgroundService: ApplicationBackgroundService,
-    private roleService: RoleService,
-    private treeService: TreeService,
-    private http: HttpClient,
-    public utils: UtilsService,
-    private cartographyGroupService: CartographyGroupService,
+    dialog: MatDialog,
+    translateService: TranslateService,
+    translationService: TranslationService,
+    codeListService: CodeListService,
+    loggerService: LoggerService,
+    errorHandler: ErrorHandlerService,
+    activatedRoute: ActivatedRoute,
+    router: Router,
+    protected applicationService: ApplicationService,
+    protected applicationParameterService: ApplicationParameterService,
+    protected applicationBackgroundService: ApplicationBackgroundService,
+    protected cartographyGroupService: CartographyGroupService,
+    protected backgroundService: BackgroundService,
+    protected roleService: RoleService,
+    protected treeService: TreeService,
+    protected userService: UserService,
+    protected utils: UtilsService,
   ) {
-    this.initializeApplicationForm();
-    this.initializeParameterForm();
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router);
+    this.parametersTable = this.defineParametersTable();
+    this.treesTable = this.defineTreesTable();
+    this.rolesTable = this.defineRolesTable();
+    this.applicationBackgroundsTable = this.defineApplicationBackgroundsTable();
   }
 
-  ngOnInit(): void {
-    this.nameTranslationMap = this.utils.createTranslationsList(config.translationColumns.applicationName);
-    this.titleTranslationMap = this.utils.createTranslationsList(config.translationColumns.applicationTitle);
+  /**
+   * Initializes component data before fetching.
+   * Sets up data tables, translations, and situation map list.
+   */
+  override async preFetchData() {
+    this.dataTables.register(this.parametersTable).register(this.treesTable).register(this.rolesTable).register(this.applicationBackgroundsTable);
+    this.initTranslations('Application', ['name', 'description', 'title', 'maintenanceInformation'])
+    await this.initCodeLists(['application.type', 'applicationParameter.type'])
+    const [situationMaps, users] = await Promise.all([
+      firstValueFrom(this.fetchSituationMapList()),
+      firstValueFrom(this.userService.getAll())
+      ]
+    )
+    situationMaps.sort((a, b) => a.name.localeCompare(b.name));
+    users.sort((a, b) => a.username.localeCompare(b.username));
+    this.situationMapList = situationMaps;
+    this.usersList = users;
+  }
 
-    const promises: Promise<any>[] = [];
+  /**
+   * Fetches the original entity by ID.
+   * @returns Promise of Application entity with projection
+   */
+  override fetchOriginal(): Promise<ApplicationProjection> {
+    return firstValueFrom(this.applicationService.getProjection(ApplicationProjection, this.entityID));
+  }
 
-    promises.push(new Promise((resolve, reject) => {
-      this.utils.getCodeListValues('application.type').subscribe(
-        resp => {
-          this.applicationTypes.push(...resp);
-          resolve(true);
-        }
-      );
-    }));
+  /**
+   * Creates a copy of an existing entity for duplication.
+   * @returns Promise of duplicated Application entity
+   */
+  override fetchCopy(): Promise<ApplicationProjection> {
+    return firstValueFrom(this.applicationService.getProjection(ApplicationProjection, this.duplicateID).pipe(map((copy: ApplicationProjection) => {
+      copy.name = this.translateService.instant("copy_") + copy.name;
+      return copy;
+    })));
+  }
 
-    promises.push(new Promise((resolve, reject) => {
-      this.utils.getCodeListValues('applicationParameter.type').
-        pipe(
-          map((resp: any) => {
-            let newTable: CodeList[] = [];
-            resp.forEach(element => {
-              if (element.value !== config.applicationTemplateIdentificator) { newTable.push(element) }
-            });
-            return newTable;
-          })
-        ).subscribe(
-          resp => {
-            this.parametersTypes.push(...resp);
-            resolve(true);
-          }
-        );
-    }));
+  /**
+   * Creates an empty entity with default values.
+   * @returns New Application instance with default type and situation map
+   */
+  override empty(): ApplicationProjection {
+    return Object.assign(new ApplicationProjection(), {
+      type: this.firstInCodeList('application.type').value,
+      situationMap: this.situationMapList[0].id,
+      appPrivate: false
+    })
+  }
 
-    let situationMapByDefault = {
-      id: -1,
-      name: '-------'
+  /**
+   * Fetches related data for the entity.
+   * Loads translations for the current entity.
+   */
+  override async fetchRelatedData() {
+    return this.loadTranslations(this.entityToEdit);
+  }
+
+  /**
+   * Initializes form data after entity is fetched.
+   * Sets up reactive form with entity values and validation rules.
+   * @throws Error if entity is undefined
+   */
+  override postFetchData() {
+    if (!this.entityToEdit) {
+      throw new Error('Cannot initialize form: entity is undefined');
     }
-    this.situationMapList.push(situationMapByDefault);
 
-    promises.push(new Promise((resolve, reject) => {
-      this.getSituationMapList().subscribe(
-        resp => {
-          this.situationMapList.push(...resp);
-          resolve(true);
-        }
-      );
-    }));
-
-    Promise.all(promises).then(() => {
-      this.activatedRoute.params.subscribe(params => {
-        this.applicationID = +params.id;
-        if (params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
-
-        if (this.applicationID !== -1 || this.duplicateID != -1) {
-
-          let idToGet = this.applicationID !== -1 ? this.applicationID : this.duplicateID
-
-
-          this.applicationService.get(idToGet).subscribe(
-            resp => {
-
-              this.applicationToEdit = resp;
-
-              this.applicationForm.patchValue({
-                type: this.applicationToEdit.type,
-                title: this.applicationToEdit.title,
-                jspTemplate: this.applicationToEdit.jspTemplate,
-                theme: this.applicationToEdit.theme,
-                situationMap: this.applicationToEdit.situationMapId ? this.applicationToEdit.situationMapId : this.situationMapList[0].id,
-                scales: this.applicationToEdit.scales,
-                srs: this.applicationToEdit.srs,
-                treeAutoRefresh: this.applicationToEdit.treeAutoRefresh,
-                logo: this.applicationToEdit.logo,
-                _links: this.applicationToEdit._links
-              });
-
-              if (this.applicationID !== -1) {
-                this.applicationForm.patchValue({
-                  id: this.applicationID,
-                  name: this.applicationToEdit.name,
-                  passwordSet: this.applicationToEdit.passwordSet,
-                });
-              }
-              else {
-                this.applicationForm.patchValue({
-                  name: this.utils.getTranslate('copy_').concat(this.applicationToEdit.name),
-                });
-              }
-
-
-              if (this.applicationID != -1) {
-                this.translationService.getAll()
-                  .pipe(map((data: any[]) => data.filter(elem => elem.element == this.applicationID)
-                  )).subscribe(result => {
-       
-                    let nameTranslations = [];
-                    let titleTranslations = [];
-                    result.forEach(translation => {
-                      if (translation.column == config.translationColumns.applicationName) {
-                        nameTranslations.push(translation)
-                      }
-                      else if (translation.column == config.translationColumns.applicationTitle) {
-                        titleTranslations.push(translation)
-                      }
-                    });
-                    this.utils.updateTranslations(this.nameTranslationMap, nameTranslations)
-                    this.utils.updateTranslations(this.titleTranslationMap, titleTranslations)
-                  }
-
-                  );;
-
-              }
-              this.dataLoaded = true;
-            },
-            error => {
-
-            }
-          );
-        }
-        else {
-          this.dataLoaded = true;
-          this.applicationForm.patchValue({
-            moveSupramunicipal: false,
-            logo: false,
-            treeAutorefresh: false,
-            type: this.applicationTypes[0].value,
-            situationMap: this.situationMapList[0].id
-          });
-          this.applicationForm.get('title').disable();
-          this.applicationForm.get('scales').disable();
-          this.applicationForm.get('srs').disable();
-          this.applicationForm.get('situationMap').disable();
-          this.applicationForm.get('treeAutoRefresh').disable();
-          this.applicationForm.get('theme').disable();
-        }
-
-      },
-        error => {
-
-        });
+    this.currentAppType = this.entityToEdit.type;
+    this.entityForm = new UntypedFormGroup({
+      name: new UntypedFormControl(this.entityToEdit.name, [Validators.required,]),
+      description: new UntypedFormControl(this.entityToEdit.description),
+      type: new UntypedFormControl(this.entityToEdit.type, [Validators.required,]),
+      title: new UntypedFormControl(this.entityToEdit.title),
+      jspTemplate: new UntypedFormControl(this.entityToEdit.jspTemplate), // URL or path to external application template
+      theme: new UntypedFormControl(this.entityToEdit.theme),
+      situationMapId: new UntypedFormControl(this.entityToEdit.situationMapId, []),
+      srs: new UntypedFormControl(this.entityToEdit.srs),
+      scales: new UntypedFormControl(this.entityToEdit.scales?.join(',')),
+      treeAutoRefresh: new UntypedFormControl(this.entityToEdit.treeAutoRefresh),
+      accessParentTerritory: new UntypedFormControl(this.entityToEdit.accessParentTerritory),
+      accessChildrenTerritory: new UntypedFormControl(this.entityToEdit.accessChildrenTerritory),
+      logo: new UntypedFormControl(this.entityToEdit.logo, []),
+      maintenanceInformation: new UntypedFormControl(this.entityToEdit.maintenanceInformation,[]),
+      creatorId: new UntypedFormControl(this.entityToEdit.creatorId,[]),
+      isUnavailable: new UntypedFormControl(this.entityToEdit.isUnavailable ?? false,[]),
+      appPrivate: new UntypedFormControl(this.entityToEdit.appPrivate, []),
     });
-
-    this.columnDefsParameters = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getEditableColumnDef('applicationEntity.name', 'name'),
-      this.utils.getEditableColumnDef('applicationEntity.value', 'value'),
-      this.utils.getNonEditableColumnDef('applicationEntity.type', 'type'),
-      this.utils.getStatusColumnDef(),
-
-    ];
-
-    this.columnDefsTemplates = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getEditableColumnDef('applicationEntity.name', 'name'),
-      this.utils.getEditableColumnDef('applicationEntity.value', 'value'),
-      this.utils.getStatusColumnDef(),
-    ];
-
-    this.columnDefsRoles = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('applicationEntity.name', 'name'),
-      this.utils.getStatusColumnDef(),
-    ];
-
-    this.columnDefsBackgrounds = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('applicationEntity.name', 'backgroundName'),
-      this.utils.getNonEditableColumnDef('applicationEntity.description', 'description'),
-      this.utils.getEditableColumnDef('applicationEntity.order', 'order'),
-      this.utils.getStatusColumnDef()
-    ];
-
-    this.columnDefsTrees = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('applicationEntity.name', 'name'),
-      this.utils.getStatusColumnDef(),
-    ];
-
-    this.columnDefsParametersDialog = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getNonEditableColumnDef('applicationEntity.name', 'name'),
-      this.utils.getNonEditableColumnDef('applicationEntity.value', 'value'),
-      this.utils.getNonEditableColumnDef('applicationEntity.type', 'type'),
-    ];
-
-    this.columnDefsTemplateConfigurationDialog = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getNonEditableColumnDef('applicationEntity.name', 'name'),
-      this.utils.getNonEditableColumnDef('applicationEntity.value', 'value'),
-    ];
-
-    this.columnDefsRolesDialog = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('applicationEntity.name', 'name'),
-      this.utils.getEditableColumnDef('applicationEntity.note', 'description'),
-    ];
-
-    this.columnDefsBackgroundDialog = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('applicationEntity.name', 'name'),
-    ];
-
-
-    this.columnDefsTreeDialog = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('applicationEntity.name', 'name'),
-    ];
-
   }
-  getSituationMapList() {
-    let params2: HalParam[] = [];
-    let param: HalParam = { key: 'type', value: 'M' }
-    params2.push(param);
-    let query: HalOptions = { params: params2 };
 
+  /**
+   * Creates an Application object from the current form values.
+   *
+   * @param id - Optional ID for the new object, used when updating
+   * @returns New Application instance populated with form values
+   */
+  createObject(id: number = null): Application {
+    let safeToEdit = ApplicationProjection.fromObject(this.entityToEdit);
+    safeToEdit = Object.assign(safeToEdit,
+      this.entityForm.value,
+      {
+        id: id,
+        scales: this.entityForm.value.scales ? this.entityForm.value.scales.toString().split(',') : null,
+        situationMap: this.entityForm.value.situationMapId ? this.cartographyGroupService.createProxy(this.entityForm.value.situationMapId) : null,
+        creator: this.entityForm.value.creatorId ? this.userService.createProxy(this.entityForm.value.creatorId) : null,
+        appPrivate: this.entityForm.value.appPrivate,
+      }
+    );
+    return Application.fromObject(safeToEdit)
+  }
+
+  /**
+   * Creates a new entity or duplicates an existing one.
+   * @returns Promise of created entity ID
+   */
+  override async createEntity(): Promise<number> {
+    const entityToCreate = this.createObject();
+    const response = await firstValueFrom(this.applicationService.create(entityToCreate));
+    return response.id;
+  }
+
+  /**
+   * Updates an existing entity with form values.
+   */
+  override async updateEntity() {
+    const entityToUpdate = this.createObject(this.entityID);
+    await firstValueFrom(this.applicationService.update(entityToUpdate));
+  }
+
+  /**
+   * Updates related data after entity save.
+   * @param isDuplicated - Whether this is a duplication operation
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  override async updateDataRelated(isDuplicated: boolean) {
+    const entityToUpdate = this.createObject(this.entityID);
+    await this.saveTranslations(entityToUpdate);
+    await firstValueFrom(entityToUpdate.updateRelationEx("situationMap", entityToUpdate.situationMap));
+    await firstValueFrom(entityToUpdate.updateRelationEx("creator", entityToUpdate.creator));
+  }
+
+  /**
+   * Checks form validity and application-specific rules.
+   * @returns boolean indicating if save is allowed
+   */
+  override canSave(): boolean {
+    const trees = this.treesDataGrid?.rowData ?? [];
+    const filterTrees = trees.filter(isActive);
+    const validations = [{
+      fn: this.validForm,
+      param: null,
+      msg: this.utils.showRequiredFieldsError
+    }, {
+      fn: this.validTouristicAppTrees,
+      param: filterTrees,
+      msg: this.utils.showTuristicAppTreeError
+    }, {
+      fn: this.validNoTouristicAppTrees,
+      param: filterTrees,
+      msg: this.utils.showNoTuristicAppTreeError
+    }];
+    const error = validations.find(v => {
+      return v.fn.bind(this)(v.param) === false
+    });
+    if (error) {
+      error.msg.bind(this.utils)();
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Validates if the form is valid.
+   * @returns boolean indicating form validity
+   */
+  validForm(): boolean {
+    return this.entityForm.valid;
+  }
+
+  /**
+   * Ensures turistic apps have exactly one turistic tree.
+   * @param trees - Array of trees to validate
+   * @returns boolean indicating validation result
+   */
+  validTouristicAppTrees(trees: Tree[]): boolean {
+    if (this.currentAppType === constants.codeValue.applicationType.touristicApp) {
+      let valid = trees.length === 0;
+      if (!valid){
+        if (trees.length === 1) {
+          valid = trees[0].type === constants.codeValue.treeType.touristicTree;
+        } else if (trees.length === 2){
+          valid = trees.some(t => t.type === constants.codeValue.treeType.touristicTree)
+            && trees.some(t => t.type === constants.codeValue.treeType.cartography);
+        }
+      }
+      return valid;
+    }
+    return true;
+  }
+
+  /**
+   * Ensures non-turistic apps don't have turistic trees.
+   * @param trees - Array of trees to validate
+   * @returns boolean indicating validation result
+   */
+  validNoTouristicAppTrees(trees: Tree[]): boolean {
+    if (this.currentAppType !== constants.codeValue.applicationType.touristicApp) {
+      return !trees.some(tree => tree.type === constants.codeValue.treeType.touristicTree);
+    }
+    return true;
+  }
+
+  /**
+   * Enables/disables form controls based on selected application type.
+   * @param value - The new application type value from selection event
+   */
+  onSelectionTypeAppChanged({value}): void {
+    this.currentAppType = value;
+    if (value === this.codeValues.applicationType.externalApp) {
+      this.entityForm.get('title').disable();
+      this.entityForm.get('scales').disable();
+      this.entityForm.get('situationMapId').disable();
+      this.entityForm.get('treeAutoRefresh').disable();
+      this.entityForm.get('theme').disable();
+      this.entityForm.get('accessParentTerritory').disable();
+      this.entityForm.get('accessChildrenTerritory').disable();
+      this.entityForm.get('srs').disable();
+    } else {
+      this.entityForm.get('title').enable();
+      this.entityForm.get('scales').enable();
+      this.entityForm.get('situationMapId').enable();
+      this.entityForm.get('treeAutoRefresh').enable();
+      this.entityForm.get('theme').enable();
+      this.entityForm.get('accessParentTerritory').enable();
+      this.entityForm.get('accessChildrenTerritory').enable();
+      this.entityForm.get('srs').enable();
+    }
+  }
+
+  /**
+   * Defines the data table for application parameters.
+   * Configures columns, fetching, updating, and dialog template.
+   *
+   * @returns Configured data table definition for parameters
+   */
+  private defineParametersTable(): DataTableDefinition<ApplicationParameter, ApplicationParameter> {
+    return DataTableDefinition.builder<ApplicationParameter, ApplicationParameter>(this.dialog, this.errorHandler)
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getEditableColumnDef('common.form.name', 'name'),
+        this.utils.getEditableColumnDef('common.form.value', 'value'),
+        this.utils.getNonEditableColumnDef('common.form.type', 'typeDescription'),
+        this.utils.getStatusColumnDef()
+      ])
+      .withRelationsOrder('name')
+      .withRelationsFetcher(() => {
+        if (this.isNew()) {
+          return EMPTY;
+        }
+        return this.entityToEdit.getRelationArrayEx(ApplicationParameter, 'parameters', {projection: 'view'})
+          .pipe(map((data: ApplicationParameter[]) => data.map(element => {
+            element.typeDescription = this.findInCodeList('applicationParameter.type', element.type)?.description;
+            return element;
+          })));
+      })
+      .withRelationsUpdater(async (applicationParameters: (ApplicationParameter & Status)[]) => {
+        await onCreate(applicationParameters).forEach(item => {
+          const newItem = ApplicationParameter.fromObject(item);
+          newItem.application = this.applicationService.createProxy(this.entityID);
+          return this.applicationParameterService.create(newItem);
+        })
+        await onUpdate(applicationParameters).forEach(this.applicationParameterService.update);
+        await onDelete(applicationParameters).forEach(this.applicationParameterService.delete);
+      })
+      .withTemplateDialog('newParameterDialog', () => TemplateDialog.builder()
+        .withReference(this.newParameterDialog)
+        .withTitle(this.translateService.instant('entity.application.parameters.title'))
+        .withForm(
+          new FormGroup({
+            name: new FormControl('', {
+              validators: [Validators.required],
+              nonNullable: true
+            }),
+            type: new FormControl('', {
+              validators: [Validators.required],
+              nonNullable: true
+            }),
+            value: new FormControl('', {
+              nonNullable: true
+            }),
+          })
+        ).withPreOpenFunction((form: FormGroup) => {
+          form.reset({type: this.firstInCodeList('applicationParameter.type').value});
+        }).build())
+      .build();
+  }
+
+  /**
+   * Defines the data table for application trees.
+   * Configures columns, fetching, updating, and target selection.
+   *
+   * @returns Configured data table definition for trees
+   */
+  private defineTreesTable(): DataTableDefinition<Tree, Tree> {
+    return DataTableDefinition.builder<Tree, Tree>(this.dialog, this.errorHandler)
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/trees/:id/treesForm', {id: 'id'}),
+        this.utils.getNonEditableColumnDef('common.form.type', 'description'),
+        this.utils.getStatusColumnDef(),
+      ])
+      .withRelationsOrder('name')
+      .withRelationsFetcher(() => {
+        if (this.isNew()) {
+          return EMPTY;
+        }
+        return this.entityToEdit.getRelationArrayEx(Tree, 'trees')
+      })
+      .withRelationsUpdater(async (trees: (Tree & Status)[]) => {
+        await onUpdate(trees).forEach(item => this.treeService.update(item));
+        await onUpdatedRelation(trees).forAll(items => this.entityToEdit.substituteAllRelation('trees', items));
+      })
+      .withTargetsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
+        this.utils.getNonEditableColumnDef('common.form.type', 'description'),
+      ])
+      .withTargetsOrder('name')
+      .withTargetsFetcher(() => this.treeService.getAll())
+      .withTargetsTitle(this.translateService.instant('entity.application.trees.title'))
+      .build();
+  }
+
+  /**
+   * Defines the data table for application roles.
+   * Configures columns, fetching, updating, and target selection.
+   *
+   * @returns Configured data table definition for roles
+   */
+  private defineRolesTable(): DataTableDefinition<Role, Role> {
+    return DataTableDefinition.builder<Role, Role>(this.dialog, this.errorHandler)
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/roles/:id/rolesForm', {id: 'id'}),
+        this.utils.getNonEditableColumnDef('common.form.description', 'description'),
+        this.utils.getStatusColumnDef()
+      ])
+      .withRelationsOrder('name')
+      .withRelationsFetcher(() => {
+        if (this.isNew()) {
+          return EMPTY;
+        }
+        return this.entityToEdit.getRelationArrayEx(Role, 'availableRoles', {projection: 'view'})
+      })
+      .withRelationsUpdater(async (roles: (Role & Status)[]) => {
+        await onUpdatedRelation(roles).forAll(item => this.entityToEdit.substituteAllRelation('availableRoles', item));
+      })
+      .withTargetsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
+        this.utils.getNonEditableColumnDef('common.form.description', 'description'),
+      ])
+      .withTargetsOrder('name')
+      .withTargetsFetcher(() => this.roleService.getAll())
+      .withTargetsTitle(this.translateService.instant('entity.application.roles.title'))
+      .build();
+  }
+
+  /**
+   * Defines the data table for application backgrounds.
+   * Configures columns, fetching, updating, and target selection.
+   *
+   * @returns Configured data table definition for backgrounds
+   */
+  private defineApplicationBackgroundsTable(): DataTableDefinition<ApplicationBackgroundProjection, BackgroundProjection> {
+    return DataTableDefinition.builder<ApplicationBackgroundProjection, BackgroundProjection>(this.dialog, this.errorHandler)
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getRouterLinkColumnDef('common.form.name', 'backgroundName', '/backgroundLayers/:id/backgroundLayersForm', {id: 'backgroundId'}),
+        this.utils.getNonEditableColumnDef('common.form.description', 'backgroundDescription'),
+        this.utils.getEditableColumnDef('common.form.order', 'order'),
+        this.utils.getStatusColumnDef()
+      ])
+      .withRelationsOrder('backgroundName')
+      .withRelationsFetcher(() => {
+        if (this.isNew()) {
+          return EMPTY;
+        }
+        return this.entityToEdit.getRelationArrayEx<ApplicationBackgroundProjection>(ApplicationBackgroundProjection, 'backgrounds', {projection: 'view'})
+      })
+      .withRelationsUpdater(async (applicationBackgrounds: (ApplicationBackgroundProjection & Status)[]) => {
+        await onCreate(applicationBackgrounds).forEach(item => {
+          const newItem = ApplicationBackground.of(
+            this.applicationService.createProxy(this.entityID),
+            this.backgroundService.createProxy(item.backgroundId),
+            item.order);
+          return this.applicationBackgroundService.create(newItem)
+        });
+        await onUpdate(applicationBackgrounds).forEach(item => {
+          const newItem = ApplicationBackground.of(
+            this.applicationService.createProxy(this.entityID),
+            this.backgroundService.createProxy(item.backgroundId),
+            item.order);
+          newItem.id = item.id;
+          return this.applicationBackgroundService.update(newItem);
+        });
+        await onDelete(applicationBackgrounds).forEach(item => {
+          const newItem = this.applicationBackgroundService.createProxy(item.id);
+          return this.applicationBackgroundService.delete(newItem)
+        });
+      })
+      .withTargetsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
+        this.utils.getNonEditableColumnDef('common.form.description', 'description'),
+      ])
+      .withTargetsOrder('name')
+      .withTargetsFetcher(() => this.backgroundService.getAllProjection(BackgroundProjection))
+      .withTargetInclude((applicationBackgrounds: (ApplicationBackgroundProjection)[]) => (item: BackgroundProjection) => {
+        return !applicationBackgrounds.some((applicationBackground) => applicationBackground.backgroundId === item.id);
+      })
+      .withTargetToRelation((items: BackgroundProjection[]) => {
+        return items.map(item => ApplicationBackgroundProjection.of(this.entityToEdit, item, 0));
+      })
+      .withTargetsTitle(this.translateService.instant('entity.application.background.title'))
+      .withTargetsOrder('name')
+      .build();
+  }
+
+  /**
+   * Fetches the list of available situation maps.
+   * Filters cartography groups by location map type.
+   *
+   * @returns Observable of CartographyGroup array filtered by location map type
+   */
+  private fetchSituationMapList(): Observable<CartographyGroup[]> {
+    const query: HalOptions = {
+      params: [
+        {key: 'type', value: this.codeValues.cartographyPermissionType.locationMap}
+      ]
+    };
     return this.cartographyGroupService.getAll(query);
   }
 
-
-  onSelectionTypeAppChanged({ value }) {
-
-    if (value === 'E') {
-      this.applicationForm.get('title').disable();
-      this.applicationForm.get('scales').disable();
-      this.applicationForm.get('srs').disable();
-      this.applicationForm.get('situationMap').disable();
-      this.applicationForm.get('treeAutoRefresh').disable();
-      this.applicationForm.get('theme').disable();
-    } else {
-      this.applicationForm.get('title').enable();
-      this.applicationForm.get('scales').enable();
-      this.applicationForm.get('srs').enable();
-      this.applicationForm.get('situationMap').enable();
-      this.applicationForm.get('treeAutoRefresh').enable();
-      this.applicationForm.get('theme').enable();
-    }
+  /**
+   * Gets the name of a situation map by its ID
+   * @param id - The ID of the situation map to look up
+   * @returns The name of the situation map or empty string if not found
+   */
+  getSituationMapName(id: number): string {
+    const map = this.situationMapList?.find(map => map.id === id);
+    return map?.name || '';
   }
 
-  initializeApplicationForm(): void {
-
-    this.applicationForm = new UntypedFormGroup({
-      id: new UntypedFormControl(null, []),
-      name: new UntypedFormControl(null, [
-        Validators.required,
-      ]),
-      type: new UntypedFormControl(null, [
-        Validators.required,
-      ]),
-      title: new UntypedFormControl(null),
-      jspTemplate: new UntypedFormControl(null,[]),
-      theme: new UntypedFormControl(null),
-
-      situationMap: new UntypedFormControl(null, []),
-      scales: new UntypedFormControl(null),
-      srs: new UntypedFormControl(null),
-      treeAutoRefresh: new UntypedFormControl(null),
-      _links: new UntypedFormControl(null, []),
-      logo: new UntypedFormControl(null,[]),
-
-    });
-
+  /**
+   * Checks if the current application is an external application
+   * @returns boolean indicating if the application is external
+   */
+  isExternalApp(): boolean {
+    return this.entityForm?.value?.type === this.codeValues.applicationType.externalApp;
   }
 
-  initializeParameterForm(): void {
-    this.parameterForm = new UntypedFormGroup({
-      name: new UntypedFormControl(null),
-      type: new UntypedFormControl(null),
-      value: new UntypedFormControl(null),
-
-    })
+  /**
+   * Checks if the current application is not an external application
+   * @returns boolean indicating if the application is not external
+   */
+  isNotExternalApp(): boolean {
+    return this.entityForm?.value?.type !== this.codeValues.applicationType.externalApp;
   }
 
-  async onNameTranslationButtonClicked() {
-    let dialogResult = null
-    dialogResult = await this.utils.openTranslationDialog(this.nameTranslationMap);
-    if (dialogResult && dialogResult.event == "Accept") {
-      this.nameTranslationsModified = true;
-    }
+  getUsername(creatorId: number): string {
+    return this.usersList.find(user => user.id === creatorId)?.username || '';
   }
-
-  async onTitleTranslationButtonClicked() {
-    let dialogResult = null
-    dialogResult = await this.utils.openTranslationDialog(this.titleTranslationMap);
-    if (dialogResult && dialogResult.event == "Accept") {
-      this.titleTranslationsModified = true;
-    }
-  }
-
-
-
-  // AG-GRID
-
-
-  // ******** Parameters configuration ******** //
-
-  getAllParameters = (): Observable<any> => {
-
-    if (this.applicationID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
-      return of(aux);
-    }
-
-    var urlReq = `${this.applicationToEdit._links.parameters.href}`
-    if (this.applicationToEdit._links.parameters.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
-      urlReq = url.toString();
-    }
-
-    return (this.http.get(urlReq))
-      .pipe(map(data => data[`_embedded`][`application-parameters`].filter(elem => elem.type != config.applicationTemplateIdentificator)
-      ));
-  }
-
-  getAllRowsParameters(event) {
-    if (event.event == "save") {
-      this.saveParameters(event.data);
-    }
-  }
-
-
-  saveParameters(data: any[]) {
-    let parameterToSave = [];
-    let parameterToDelete = [];
-    const promises: Promise<any>[] = [];
-    data.forEach(parameter => {
-      if (parameter.status === 'pendingCreation' || parameter.status === 'pendingModify') {
-        parameter.application = this.applicationToEdit
-      } //If is new, you need the application link
-      if (parameter.status === 'pendingCreation' || parameter.newItem) {
-        parameter._links = null;
-        parameter.id = null;
-      }
-      // parameterToSave.push(parameter)
-      promises.push(new Promise((resolve, reject) => { this.applicationParameterService.save(parameter).subscribe((resp) => { resolve(true) }) }));
-
-
-      if (parameter.status === 'pendingDelete' && parameter._links && !parameter.newItem) {
-        // parameterToDelete.push(parameter) 
-        promises.push(new Promise((resolve, reject) => { this.applicationParameterService.remove(parameter).subscribe((resp) => { resolve(true) }) }));
-
-      }
-    });
-
-    // parameterToSave.forEach(saveElement => {
-    //   promises.push(new Promise((resolve, reject) => { this.applicationParameterService.save(saveElement).subscribe((resp) => { resolve(true) }) }));
-    // });
-
-    // parameterToDelete.forEach(deletedElement => {
-    //   promises.push(new Promise((resolve, reject) => { this.applicationParameterService.remove(deletedElement).subscribe((resp) => { resolve(true) }) }));
-
-    // });
-
-    Promise.all(promises).then(() => {
-      this.dataUpdatedEventParameters.next(true);
-    });
-  }
-
-  duplicateParameters(data) {
-    let parametersToDuplicate = this.utils.duplicateParameter(data, 'name');
-    this.addElementsEventParameters.next(parametersToDuplicate);
-  }
-
-  // ******** Template configuration ******** //
-
-  getAllTemplates = (): Observable<any> => {
-    if (this.applicationID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
-      return of(aux);
-    }
-
-    var urlReq = `${this.applicationToEdit._links.parameters.href}`
-    if (this.applicationToEdit._links.parameters.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
-      urlReq = url.toString();
-    }
-
-    return (this.http.get(urlReq))
-      .pipe(map(data => data[`_embedded`][`application-parameters`].filter(elem => elem.type == config.applicationTemplateIdentificator)
-      ));
-  }
-
-  //To update templates we use getAllRowsParameters!
-
-
-  duplicateTemplates(data) {
-    let templatesToDuplicate = this.utils.duplicateParameter(data, 'name');
-    this.addElementsEventTemplateConfiguration.next(templatesToDuplicate);
-  }
-
-
-
-
-  // ******** Roles ******** //
-
-  getAllRoles = (): Observable<any> => {
-    if (this.applicationID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
-      return of(aux);
-    }
-
-    var urlReq = `${this.applicationToEdit._links.availableRoles.href}`
-    if (this.applicationToEdit._links.availableRoles.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
-      urlReq = url.toString();
-    }
-
-    return (this.http.get(urlReq))
-      .pipe(map(data => data[`_embedded`][`roles`]));
-  }
-
-  getAllRowsRoles(event) {
-    if (event.event == "save") {
-      this.saveRoles(event.data);
-    }
-  }
-
-  saveRoles(data: any[]) {
-    const promises: Promise<any>[] = [];
-
-    let dataChanged = false;
-    let rolesModified = [];
-    let rolesToPut = [];
-    data.forEach(role => {
-
-      if (role.status !== 'pendingDelete') {
-        if (role.status === 'pendingModify') {
-          promises.push(new Promise((resolve, reject) => { this.roleService.update(role).subscribe((resp) => { resolve(true) }) }));
-          if (role.newItem) { dataChanged = true; }
-        }
-        else if (role.status === 'pendingCreation') {
-          dataChanged = true;
-        }
-        rolesToPut.push(role._links.self.href)
-      }
-      else { dataChanged = true }
-
-    });
-
-    Promise.all(promises).then(() => {
-      if (dataChanged) {
-        let url = this.applicationToEdit._links.availableRoles.href.split('{', 1)[0];
-        this.utils.updateUriList(url, rolesToPut, this.dataUpdatedEventRoles);
-      }
-      else { this.dataUpdatedEventRoles.next(true) }
-    });
-
-  }
-
-  // ******** Background ******** //
-
-  getAllBackgrounds = (): Observable<any> => {
-
-    if (this.applicationID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
-      return of(aux);
-    }
-
-    var urlReq = `${this.applicationToEdit._links.backgrounds.href}`
-    if (this.applicationToEdit._links.backgrounds.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
-      urlReq = url.toString();
-    }
-
-    return (this.http.get(urlReq))
-      .pipe(map(data => data['_embedded']['application-backgrounds']));
-
-
-  }
-
-  getAllRowsBackgrounds(event) {
-    if (event.event == "save") {
-      this.saveBackgrounds(event.data);
-    }
-  }
-
-  saveBackgrounds(data: any[]) {
-    let backgroundsToCreate = [];
-    let backgroundsToDelete = [];
-    const promises: Promise<any>[] = [];
-    const promisesBackground: Promise<any>[] = [];
-    data.forEach(background => {
-      if (background.status === 'pendingCreation' || (background.status === 'pendingModify') && (background.new)) {
-
-        let index = data.findIndex(element => element.backgroundDescription === background.backgroundDescription && element.backgroundName === background.backgroundName && !element.newItem)
-        if (index === -1) {
-          background.newItem = false;
-          background.application = this.applicationToEdit;
-          if (background._links) { //Duplicate
-            let urlReqBackground = `${background._links.background.href}`
-            background.id = null;
-            if (background._links.background.href) {
-              let url = new URL(urlReqBackground.split("{")[0]);
-              url.searchParams.append("projection", "view")
-              urlReqBackground = url.toString();
-            }
-            background._links = null;
-            promises.push(new Promise((resolve, reject) => {
-              this.http.get(urlReqBackground).subscribe(result => {
-                background.background = result;
-                this.applicationBackgroundService.save(background).subscribe((resp) => { resolve(true) });
-                // backgroundsToCreate.push(background) 
-                // resolve(true);
-              })
-            }))
-          }
-          else {
-            // backgroundsToCreate.push(background) 
-            promises.push(new Promise((resolve, reject) => { this.applicationBackgroundService.save(background).subscribe((resp) => { resolve(true) }) }));
-          }
-        }
-      }
-      else if (background.status === 'pendingModify') {
-        promises.push(new Promise((resolve, reject) => { this.applicationBackgroundService.save(background).subscribe((resp) => { resolve(true) }) }));
-      }
-      else if (background.status === 'pendingDelete' && !background.newItem) {
-        // backgroundsToDelete.push(background) 
-        promises.push(new Promise((resolve, reject) => { this.applicationBackgroundService.remove(background).subscribe((resp) => { resolve(true) }) }));
-
-      }
-    });
-
-
-    // backgroundsToCreate.forEach(newElement => {
-    //   promises.push(new Promise((resolve, reject) => { this.applicationBackgroundService.save(newElement).subscribe((resp) => { resolve(true) }) }));
-    // });
-
-    // backgroundsToDelete.forEach(deletedElement => {
-    //   promises.push(new Promise((resolve, reject) => { this.applicationBackgroundService.remove(deletedElement).subscribe((resp) => { resolve(true) }) }));
-    // });
-
-
-    Promise.all(promises).then(() => {
-      this.dataUpdatedEventBackground.next(true);
-    });
-
-
-
-
-
-
-
-  }
-
-
-
-
-  // ******** Trees ******** //
-
-  getAllTrees = (): Observable<any> => {
-
-    if (this.applicationID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
-      return of(aux);
-    }
-
-    var urlReq = `${this.applicationToEdit._links.trees.href}`
-    if (this.applicationToEdit._links.trees.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
-      urlReq = url.toString();
-    }
-
-    return (this.http.get(urlReq))
-      .pipe(map(data => data['_embedded']['trees']));
-
-
-  }
-
-  getAllRowsTrees(event) {
-    if (event.event == "save") {
-      this.saveTrees(event.data);
-    }
-  }
-
-  saveTrees(data: any[]) {
-    let dataChanged = false;
-    let treesModified = [];
-    let treesToPut = [];
-    const promises: Promise<any>[] = [];
-
-    data.forEach(tree => {
-      if (tree.status !== 'pendingDelete') {
-        if (tree.status === 'pendingModify') {
-          // treesModified.push(tree);
-          if (tree.newItem) { dataChanged = true; }
-          promises.push(new Promise((resolve, reject) => { this.treeService.update(tree).subscribe((resp) => { resolve(true) }) }));
-        }
-        else if (tree.status === 'pendingCreation') {
-          dataChanged = true;
-        }
-        treesToPut.push(tree._links.self.href)
-      }
-      else { dataChanged = true }
-    });
-
-
-
-    Promise.all(promises).then(() => {
-      if (dataChanged) {
-        let url = this.applicationToEdit._links.trees.href.split('{', 1)[0];
-        this.utils.updateUriList(url, treesToPut, this.dataUpdatedEventTree)
-      }
-      else { this.dataUpdatedEventTree.next(true); }
-    });
-
-  }
-
-
-  // ******** Parameters Dialog  ******** //
-
-
-  openParametersDialog(data: any) {
-
-    this.parameterForm.patchValue({
-      type: this.parametersTypes[0].value
-    })
-
-    const dialogRef = this.dialog.open(DialogFormComponent);
-    dialogRef.componentInstance.HTMLReceived = this.newParameterDialog;
-    dialogRef.componentInstance.title = this.utils.getTranslate('applicationEntity.configurationParameters');
-    dialogRef.componentInstance.form = this.parameterForm;
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Add') {
-          let item = this.parameterForm.value;
-          this.addElementsEventParameters.next([item])
-
-
-        }
-      }
-      this.parameterForm.reset();
-
-    });
-
-  }
-
-  // ******** TemplatesConfiguration Dialog  ******** //
-
-  getAllTemplatesConfigurationDialog = () => {
-    const aux: Array<any> = [];
-    return of(aux);
-    // return this.cartographyService.getAll();
-  }
-
-  openTemplateConfigurationDialog(data: any) {
-    const dialogRef = this.dialog.open(DialogFormComponent);
-    dialogRef.componentInstance.HTMLReceived = this.newTemplateDialog;
-    dialogRef.componentInstance.title = this.utils.getTranslate('applicationEntity.configurationParameters');
-    dialogRef.componentInstance.form = this.parameterForm;
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Add') {
-          let item = this.parameterForm.value;
-          item.type = config.applicationTemplateIdentificator;
-          this.addElementsEventTemplateConfiguration.next([item])
-        }
-
-      }
-      this.parameterForm.reset();
-    });
-
-  }
-  // ******** Roles Dialog  ******** //
-
-  getAllRolesDialog = () => {
-    return this.roleService.getAll();
-  }
-
-
-  openRolesDialog(data: any) {
-
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
-    dialogRef.componentInstance.orderTable = ['name'];
-    dialogRef.componentInstance.getAllsTable = [this.getAllRolesDialog];
-    dialogRef.componentInstance.singleSelectionTable = [false];
-    dialogRef.componentInstance.columnDefsTable = [this.columnDefsRolesDialog];
-    dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate("applicationEntity.roles");
-    dialogRef.componentInstance.titlesTable = [''];
-    dialogRef.componentInstance.currentData = [data];
-    dialogRef.componentInstance.nonEditable = false;
-
-
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Add') {
-          this.addElementsEventRoles.next(result.data[0])
-        }
-      }
-
-    });
-
-  }
-
-  // ******** Background Dialog  ******** //
-
-  getAllBackgroundDialog = () => {
-    return this.backgroundService.getAll();
-  }
-
-  openBackgroundDialog(data: any) {
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
-    dialogRef.componentInstance.orderTable = ['name'];
-    dialogRef.componentInstance.getAllsTable = [this.getAllBackgroundDialog];
-    dialogRef.componentInstance.singleSelectionTable = [false];
-    dialogRef.componentInstance.columnDefsTable = [this.columnDefsBackgroundDialog];
-    dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate("applicationEntity.background");
-    dialogRef.componentInstance.titlesTable = [''];
-    dialogRef.componentInstance.currentData = [data];
-    dialogRef.componentInstance.fieldRestrictionWithDifferentName = ['backgroundName'];
-    dialogRef.componentInstance.addFieldRestriction = ['name'];
-    dialogRef.componentInstance.nonEditable = false;
-
-
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Add') {
-          result.data[0].forEach(element => {
-            element.id = null;
-            element.newItem = true;
-          });
-          this.addElementsEventBackground.next(this.adaptNewBackgrounds(result.data[0]))
-        }
-      }
-
-    });
-
-  }
-
-
-  adaptNewBackgrounds(data: any[]) {
-    let newBackgrounds = [];
-    data.forEach(background => {
-      let newBackground = {
-        background: background,
-        backgroundDescription: background.description,
-        backgroundName: background.name,
-        new: true
-      }
-      newBackgrounds.push(newBackground);
-    });
-    return newBackgrounds;
-
-
-  }
-
-  // ******** Tree Dialog  ******** //
-
-  getAllTreeDialog = () => {
-
-    return this.treeService.getAll();
-  }
-
-  openTreeDialog(data: any) {
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
-    dialogRef.componentInstance.orderTable = ['name'];
-    dialogRef.componentInstance.getAllsTable = [this.getAllTreeDialog];
-    dialogRef.componentInstance.singleSelectionTable = [false];
-    dialogRef.componentInstance.columnDefsTable = [this.columnDefsTreeDialog];
-    dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate("applicationEntity.tree");
-    dialogRef.componentInstance.titlesTable = [''];
-    dialogRef.componentInstance.currentData = [data];
-    dialogRef.componentInstance.nonEditable = false;
-
-
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Add') {
-          this.addElementsEventTree.next(result.data[0])
-        }
-      }
-
-    });
-
-  }
-
-
-  // Save button
-
-  onSaveButtonClicked() {
-
-    if (this.applicationForm.valid) {
-      let situationMap = this.situationMapList.find(x => x.id === this.applicationForm.value.situationMap)
-      if (situationMap == undefined || situationMap.id == -1) {
-        situationMap = null
-      }
-
-      if (this.applicationID == -1 && this.duplicateID != -1) {
-        this.applicationForm.patchValue({
-          _links: null
-        })
-      }
-
-      var appObj: Application = new Application();
-
-      appObj.name = this.applicationForm.value.name;
-      appObj.type = this.applicationForm.value.type;
-      appObj.title = this.applicationForm.value.title;
-      appObj.jspTemplate = this.applicationForm.value.jspTemplate;
-      appObj.logo = this.applicationForm.value.logo;
-      appObj.theme = this.applicationForm.value.theme;
-      appObj.scales = this.applicationForm.value.scales != null ? this.applicationForm.value.scales.toString().split(",") : null;
-      appObj.srs = this.applicationForm.value.srs;
-      appObj.treeAutoRefresh = this.applicationForm.value.treeAutoRefresh;
-      appObj._links = this.applicationForm.value._links;
-      appObj.situationMap = situationMap;
-      if (this.applicationID == -1) {
-        appObj.id = null;
-      } else {
-        appObj.id = this.applicationForm.value.id;
-        appObj.createdDate = this.applicationToEdit.createdDate
-      }
-
-
-      this.applicationService.save(appObj)
-        .subscribe(async resp => {
-
-          this.applicationToEdit = resp;
-          this.applicationSaved = resp;
-          this.applicationID = this.applicationToEdit.id;
-          this.applicationForm.patchValue({
-            id: resp.id,
-            _links: resp._links
-          })
-
-          this.utils.saveTranslation(resp.id, this.nameTranslationMap, this.applicationToEdit.name, this.nameTranslationsModified);
-          this.nameTranslationsModified = false;
-          this.utils.saveTranslation(resp.id, this.titleTranslationMap, this.applicationToEdit.title, this.titleTranslationsModified);
-          this.titleTranslationsModified = false;
-
-          this.getAllElementsEventParameters.next("save");
-          this.getAllElementsEventTemplateConfiguration.next("save");
-          this.getAllElementsEventRoles.next("save");
-          this.getAllElementsEventBackground.next("save");
-          this.getAllElementsEventTree.next("save");
-        },
-          error => {
-            console.log(error)
-          });
-    }
-    else {
-      this.utils.showRequiredFieldsError();
-    }
-
-
-  }
-
-
 }

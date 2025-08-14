@@ -1,10 +1,25 @@
-<h5 mat-dialog-title class="titleDialog">{{title}}</h5>
-<mat-dialog-content class="mat-typography">
+<h2 mat-dialog-title>{{ title | translate }}</h2>
+<mat-dialog-content>
   <p>
-    {{message}}
+    {{ message | translate }}
   </p>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-flat-button class="returnButton"  *ngIf="!hideCancelButton" (click)="closeDialog()">{{"cancel" | translate}}</button>
-  <button mat-flat-button class="saveButton"  (click)="doAccept()" cdkFocusInitial>{{"accept" | translate}}</button>
+  <button
+    matTooltip="{{ 'common.button.cancel' | translate }}"
+    mat-mini-fab
+    color="primary"
+    *ngIf="!hideCancelButton"
+    (click)="closeDialog()">
+    <mat-icon fontSet="material-icons-round">cancel</mat-icon>
+  </button>
+  <button
+    matTooltip="{{ 'common.button.accept' | translate }}"
+    mat-mini-fab
+    color="primary"
+    [mat-dialog-close]="true"
+    (click)="doAccept()"
+    cdkFocusInitial>
+    <mat-icon fontSet="material-icons-round">check</mat-icon>
+  </button>
 </mat-dialog-actions>

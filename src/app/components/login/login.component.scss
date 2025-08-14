@@ -3,15 +3,10 @@
     display: flex;
     flex-direction: column;
   }
-  
-  
+
+
   .container > * {
     width: 100%;
-  }
-
-  /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
-  .mat-card-login{
-    background-color: antiquewhite;
   }
 
   .loginButton {
@@ -27,17 +22,17 @@
     background-color: #FF9300 !important;
     color: white !important;
   }
-  
+
   .toolbar-spacer {
     flex: 1 1 auto !important;
   }
-  
-  
-  
+
+
+
   .sitmun-logo-container {
     height: 100%;
   }
-  
+
   .sitmun-logo {
     line-height: 100px;
     display: table-cell;
@@ -50,4 +45,3 @@
     border-style: solid;
     border-width: medium;
 }
-  

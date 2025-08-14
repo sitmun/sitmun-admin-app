@@ -1,16 +1,20 @@
-import { ApplicationFormComponent } from './application-form.component';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterModule } from '@angular/router';
-import { MaterialModule } from '../../../material-module';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { CodeListService, ApplicationBackgroundService, ApplicationService,ApplicationParameterService,
-   RoleService, CartographyGroupService, TreeService,BackgroundService,TranslationService, ResourceService,ExternalService } from '../../../frontend-core/src/lib/public_api';
-import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
-import { HttpClientModule } from '@angular/common/http';
-import { SitmunFrontendGuiModule } from '../../../frontend-gui/src/lib/public_api';
-import { RouterTestingModule } from '@angular/router/testing';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {ApplicationFormComponent} from './application-form.component';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {RouterModule} from '@angular/router';
+import {MaterialModule} from '@app/material-module';
+import {HttpClientTestingModule} from '@angular/common/http/testing';
+import {MatIconTestingModule} from '@angular/material/icon/testing';
+import {
+  ApplicationBackgroundService, ApplicationParameterService, ApplicationService, BackgroundService,
+  CartographyGroupService, CodeListService, RoleService, TranslationService, TreeService
+} from '@app/domain';
+import {ExternalService, ResourceService} from '@app/core/hal';
+import {ExternalConfigurationService} from '@app/core/config/external-configuration.service';
+import {HttpClientModule} from '@angular/common/http';
+import {SitmunFrontendGuiModule} from '@app/frontend-gui/src/lib/public_api';
+import {RouterTestingModule} from '@angular/router/testing';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 describe('ApplicationFormComponent', () => {
   let component: ApplicationFormComponent;
@@ -29,30 +33,31 @@ describe('ApplicationFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ApplicationFormComponent ],
-      imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, RouterModule.forRoot([], {}), HttpClientModule,
-      SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
-      providers: [ApplicationService, ApplicationBackgroundService, RoleService, ApplicationParameterService, TreeService, 
-        BackgroundService, CodeListService, CartographyGroupService,TranslationService,ResourceService,ExternalService,
-        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
+      declarations: [ApplicationFormComponent],
+      imports: [FormsModule, ReactiveFormsModule, HttpClientTestingModule, RouterModule.forRoot([], {}), HttpClientModule,
+        SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
+      providers: [ApplicationService, ApplicationBackgroundService, RoleService, ApplicationParameterService, TreeService,
+        BackgroundService, CodeListService, CartographyGroupService, TranslationService, ResourceService, ExternalService,
+        {provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService},],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA]
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(ApplicationFormComponent);
     component = fixture.componentInstance;
-    roleService= TestBed.inject(RoleService);
-    applicationBackgroundService= TestBed.inject(ApplicationBackgroundService);
-    applicationService= TestBed.inject(ApplicationService);
-    codeListService= TestBed.inject(CodeListService);
-    cartographyGroupService= TestBed.inject(CartographyGroupService);
-    applicationParameterService= TestBed.inject(ApplicationParameterService);
-    treeService= TestBed.inject(TreeService);
-    backgroundService= TestBed.inject(BackgroundService);
-    translationService= TestBed.inject(TranslationService);
-    resourceService= TestBed.inject(ResourceService);
-    externalService= TestBed.inject(ExternalService);
+    roleService = TestBed.inject(RoleService);
+    applicationBackgroundService = TestBed.inject(ApplicationBackgroundService);
+    applicationService = TestBed.inject(ApplicationService);
+    codeListService = TestBed.inject(CodeListService);
+    cartographyGroupService = TestBed.inject(CartographyGroupService);
+    applicationParameterService = TestBed.inject(ApplicationParameterService);
+    treeService = TestBed.inject(TreeService);
+    backgroundService = TestBed.inject(BackgroundService);
+    translationService = TestBed.inject(TranslationService);
+    resourceService = TestBed.inject(ResourceService);
+    externalService = TestBed.inject(ExternalService);
     fixture.detectChanges();
   });
 
@@ -105,23 +110,27 @@ describe('ApplicationFormComponent', () => {
   });
 
   it('form invalid when empty', () => {
-    expect(component.applicationForm.valid).toBeFalsy();
-  }); 
+    expect(component.entityForm.valid).toBeFalsy();
+  });
 
   it('form invalid when mid-empty', () => {
-    component.applicationForm.patchValue({
-      name: 'nameTest',
+    component.entityForm.patchValue({
       logo: 'logo',
-      type: 1,
-    })
+      title: 'title',
+      jspTemplate: 'url',
+      theme: 'theme',
+      situationMap: 1,
+      scales: '1',
+      srs: 'EPSG:4326',
+      treeAutoRefresh: true
+    });
     //Miss url
-    expect(component.applicationForm.valid).toBeFalsy();
-  }); 
+    expect(component.entityForm.valid).toBeFalsy();
+  });
 
   it('form valid', () => {
-    component.applicationForm.patchValue({
+    component.entityForm.patchValue({
       name: 'name',
-      // logo
       logo: 'logo',
       type: 1,
       title: 'title',
@@ -131,21 +140,21 @@ describe('ApplicationFormComponent', () => {
       scales: '1',
       srs: 'EPSG:4326',
       treeAutoRefresh: true
-    })
-    expect(component.applicationForm.valid).toBeTruthy();
-  }); 
+    });
+    expect(component.entityForm.valid).toBeTruthy();
+  });
 
   it('Application form fields', () => {
-    expect(component.applicationForm.get('name')).toBeTruthy();
-    expect(component.applicationForm.get('type')).toBeTruthy();
-    expect(component.applicationForm.get('title')).toBeTruthy();
-    expect(component.applicationForm.get('jspTemplate')).toBeTruthy();
-    expect(component.applicationForm.get('theme')).toBeTruthy();
-    expect(component.applicationForm.get('situationMap')).toBeTruthy();
-    expect(component.applicationForm.get('scales')).toBeTruthy();
-    expect(component.applicationForm.get('srs')).toBeTruthy();
-    expect(component.applicationForm.get('treeAutoRefresh')).toBeTruthy();
-  }); 
-
+    expect(component.entityForm.get('name')).toBeTruthy();
+    expect(component.entityForm.get('type')).toBeTruthy();
+    expect(component.entityForm.get('title')).toBeTruthy();
+    expect(component.entityForm.get('jspTemplate')).toBeTruthy();
+    expect(component.entityForm.get('accessParentTerritory')).toBeTruthy();
+    expect(component.entityForm.get('accessChildrenTerritory')).toBeTruthy();
+    expect(component.entityForm.get('theme')).toBeTruthy();
+    expect(component.entityForm.get('situationMap')).toBeTruthy();
+    expect(component.entityForm.get('scales')).toBeTruthy();
+    expect(component.entityForm.get('treeAutoRefresh')).toBeTruthy();
+  });
 
 });

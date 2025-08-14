@@ -1,15 +1,27 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterModule } from '@angular/router';
-import { MaterialModule } from '../../../material-module';
+import { MaterialModule } from '@app/material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { BackgroundService,CartographyGroupService, CartographyService, CodeListService,RoleService,TranslationService,ResourceService,ExternalService, ApplicationService, ApplicationBackgroundService } from '../../../frontend-core/src/lib/public_api';
-import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
+import {
+  ApplicationBackgroundService,
+  ApplicationService,
+  BackgroundService,
+  CartographyGroupService,
+  CartographyService,
+  CodeListService,
+  RoleService,
+  TranslationService
+} from '@app/domain';
+import {ExternalService, ResourceService} from '@app/core/hal';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { HttpClientModule } from '@angular/common/http';
-import { SitmunFrontendGuiModule } from '../../../frontend-gui/src/lib/public_api';
+import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BackgroundLayersFormComponent } from './background-layers-form.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 describe('BackgroundLayersFormComponent', () => {
   let component: BackgroundLayersFormComponent;
@@ -29,13 +41,14 @@ describe('BackgroundLayersFormComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ BackgroundLayersFormComponent ],
       imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, RouterModule.forRoot([], {}), HttpClientModule,
-      SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
+      SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule, TranslateModule.forRoot()],
       providers: [BackgroundService, RoleService, ApplicationBackgroundService, ApplicationService, CartographyService, CodeListService,CartographyGroupService,TranslationService,ResourceService,ExternalService,
-        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
+        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }],
+      schemas: [NO_ERRORS_SCHEMA]
     })
     .compileComponents();
   });
- 
+
   beforeEach(() => {
     fixture = TestBed.createComponent(BackgroundLayersFormComponent);
     component = fixture.componentInstance;
@@ -97,35 +110,35 @@ describe('BackgroundLayersFormComponent', () => {
     expect(externalService).toBeTruthy();
   });
   it('form invalid when empty', () => {
-    expect(component.backgroundForm.valid).toBeFalsy();
-  }); 
+    expect(component.entityForm.valid).toBeFalsy();
+  });
 
   it('form invalid when mid-empty', () => {
-    component.backgroundForm.patchValue({
+    component.entityForm.patchValue({
       description: 'desc',
       image: 'image',
       active: true
     })
     //Miss name
-    expect(component.backgroundForm.valid).toBeFalsy();
-  }); 
+    expect(component.entityForm.valid).toBeFalsy();
+  });
 
   it('form valid', () => {
-    component.backgroundForm.patchValue({
+    component.entityForm.patchValue({
       name: 'name',
       description: 'desc',
       image: 'image',
       active: true
     })
-    expect(component.backgroundForm.valid).toBeTruthy();
-  }); 
+    expect(component.entityForm.valid).toBeTruthy();
+  });
 
   it('Background layers form fields', () => {
-    expect(component.backgroundForm.get('name')).toBeTruthy();
-    expect(component.backgroundForm.get('description')).toBeTruthy();
-    expect(component.backgroundForm.get('image')).toBeTruthy();
-    expect(component.backgroundForm.get('active')).toBeTruthy();
-  }); 
+    expect(component.entityForm.get('name')).toBeTruthy();
+    expect(component.entityForm.get('description')).toBeTruthy();
+    expect(component.entityForm.get('image')).toBeTruthy();
+    expect(component.entityForm.get('active')).toBeTruthy();
+  });
 
 
 });

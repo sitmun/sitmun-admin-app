@@ -1,133 +1,93 @@
-import { Component, OnInit } from '@angular/core';
-import { ApplicationService, Application } from '../../frontend-core/src/lib/public_api';
-import { UtilsService } from '../../services/utils.service';
-import { Router } from '@angular/router';
-import { config } from 'src/config';
-import { Observable, Subject } from 'rxjs';
-import { MatDialog } from '@angular/material/dialog';
-import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
+import {Component} from '@angular/core';
+import {Application, ApplicationService, CodeListService, TranslationService,} from '@app/domain';
+import {TranslateService} from '@ngx-translate/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {firstValueFrom} from 'rxjs';
+import {MatDialog} from '@angular/material/dialog';
+import {ErrorHandlerService} from '@app/services/error-handler.service';
+import {LoggerService} from '@app/services/logger.service';
+import {UtilsService} from '@app/services/utils.service';
+import {BaseListComponent} from "@app/components/base-list.component";
+import {EntityListConfig} from "@app/components/shared/entity-list";
+import {Configuration} from '@app/core/config/configuration';
 
 @Component({
   selector: 'app-application',
   templateUrl: './application.component.html',
-  styleUrls: ['./application.component.scss']
+  styles: [],
 })
-export class ApplicationComponent implements OnInit {
-  saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
-  dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
-  themeGrid: any = config.agGridTheme;
-  columnDefs: any[];
-  gridModified = false;
-	
-  applicationTypes: Array<any> = [];
+export class ApplicationComponent extends BaseListComponent<Application> {
+  entityListConfig: EntityListConfig<Application> = {
+    entityLabel: Configuration.APPLICATION.labelPlural,
+    iconName: Configuration.APPLICATION.icon,
+    font: Configuration.APPLICATION.font,
+    columnDefs: [],
+    dataFetchFn: () => this.applicationService.getAll(),
+    defaultColumnSorting: ['name'],
+    gridOptions: {
+      globalSearch: true,
+      discardChangesButton: false,
+      redoButton: false,
+      undoButton: false,
+      applyChangesButton: false,
+      deleteButton: true,
+      newButton: true,
+      actionButton: true,
+      hideReplaceButton: true
+    }
+  };
 
-  constructor(public dialog: MatDialog,
-    public applicationService: ApplicationService,
-    private utils: UtilsService,
-    private router: Router,
+  constructor(
+    protected override dialog: MatDialog,
+    protected override translateService: TranslateService,
+    protected override translationService: TranslationService,
+    protected override codeListService: CodeListService,
+    protected override loggerService: LoggerService,
+    protected override errorHandler: ErrorHandlerService,
+    protected override activatedRoute: ActivatedRoute,
+    protected override utils: UtilsService,
+    protected override router: Router,
+    public applicationService: ApplicationService
   ) {
-
-  }
-
-  ngOnInit() {
-
-
-    this.utils.getCodeListValues('application.type').subscribe(
-      resp => {
-        this.applicationTypes.push(...resp);
-      }
+    super(
+      dialog,
+      translateService,
+      translationService,
+      codeListService,
+      loggerService,
+      errorHandler,
+      activatedRoute,
+      utils,
+      router
     );
+  }
 
+  override async preFetchData(): Promise<void> {
+    await this.initCodeLists(['application.type']);
+  }
 
-    var columnEditBtn = this.utils.getEditBtnColumnDef();
-    columnEditBtn['cellRendererParams'] = {
-      clicked: this.newData.bind(this)
-    }
-
-    this.columnDefs = [
+  override async postFetchData(): Promise<void> {
+    // Set column definitions directly in the config
+    this.entityListConfig.columnDefs = [
       this.utils.getSelCheckboxColumnDef(),
-      columnEditBtn,
-      this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('applicationEntity.name','name'),
-      {
-        headerName: this.utils.getTranslate('applicationEntity.type'),  editable: false,
-        valueGetter: (params) => {
-          var alias = this.applicationTypes.filter((type) => type.value == params.data.type)[0];
-          return alias != undefined ? alias.description : params.data.type
-        }
-      },
-      this.utils.getEditableColumnDef('applicationEntity.theme','theme'),
-      this.utils.getEditableColumnDef('applicationEntity.srs','srs'),
-      this.utils.getDateColumnDef('applicationEntity.createdDate','createdDate')
+      this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'application/:id/applicationForm', {id: 'id'}),
+      this.utils.getNonEditableColumnWithCodeListDef('common.form.type', 'type', this.codeList('application.type')),
+      this.utils.getEditableColumnDef('entity.application.type.generic.css', 'theme'),
+      this.utils.getDateColumnDef('common.form.createdDate', 'createdDate')
     ];
-
   }
 
-  async canDeactivate(): Promise<boolean | Observable<boolean>> {
-
-    if (this.gridModified) {
-
-
-      let result = await this.utils.showNavigationOutDialog().toPromise();
-      if(!result || result.event!=='Accept') { return false }
-      else if(result.event ==='Accept') {return true;}
-      else{
-        return true;
-      }
-    }
-    else return true
-  }	
-
-  setGridModifiedValue(value){
-    this.gridModified=value;
-  }
-  
-
-  getAllApplications = () => {
-    return this.applicationService.getAll();
+  override async newData() {
+    await this.router.navigate(['application', -1, 'applicationForm']);
   }
 
-  newData(id: any) {
-    this.saveAgGridStateEvent.next(true);
-    this.router.navigate(['application', id, 'applicationForm']);
+  override async duplicateItem(id: number) {
+    await this.router.navigate(['application', -1, 'applicationForm', id]);
   }
 
-  applyChanges(data: Application[]) {
-    const promises: Promise<any>[] = [];
-    data.forEach(application => {
-      promises.push(new Promise((resolve, reject) => { this.applicationService.update(application).subscribe((resp) => { resolve(true) }) }));
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
-      });
-    });
-  }
+  override dataFetchFn = () => this.applicationService.getAll();
 
-  add(data: Application[]) {
-    const promises: Promise<any>[] = [];
-    this.saveAgGridStateEvent.next(true);
-    this.router.navigate(['application', -1, 'applicationForm', data[0].id]);
-  }
+  override dataUpdateFn = (data: Application) => firstValueFrom(this.applicationService.update(data))
 
-  removeData(data: Application[]) {
-
-    const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title = this.utils.getTranslate("caution");
-    dialogRef.componentInstance.message = this.utils.getTranslate("removeMessage");
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Accept') {
-          const promises: Promise<any>[] = [];
-          data.forEach(application => {
-            promises.push(new Promise((resolve, reject) => { this.applicationService.delete(application).subscribe((resp) => { resolve(true) }) }));
-            Promise.all(promises).then(() => {
-              this.dataUpdatedEvent.next(true);
-            });
-          });
-        }
-      }
-    });
-
-
-
-  }
+  override dataDeleteFn = (data: Application) => firstValueFrom(this.applicationService.delete(data))
 }

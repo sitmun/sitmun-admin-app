@@ -1,6 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { DialogFormComponent } from './dialog-form.component';
+import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import {FormGroup, ReactiveFormsModule} from '@angular/forms';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 describe('DialogFormComponent', () => {
   let component: DialogFormComponent;
@@ -8,7 +15,22 @@ describe('DialogFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DialogFormComponent ]
+      declarations: [ DialogFormComponent ],
+      imports: [
+        MatDialogModule,
+        TranslateModule.forRoot(),
+        NoopAnimationsModule,
+        ReactiveFormsModule,
+        MatCardModule,
+        MatIconModule,
+        MatTooltipModule
+      ],
+      providers: [
+        { provide: MatDialogRef, useValue: { close: () => {} } },
+        { provide: MAT_DIALOG_DATA, useValue: {} },
+        TranslateService
+      ],
+      schemas: [NO_ERRORS_SCHEMA]
     })
     .compileComponents();
   });
@@ -16,6 +38,7 @@ describe('DialogFormComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(DialogFormComponent);
     component = fixture.componentInstance;
+    component.form = new FormGroup({});
     fixture.detectChanges();
   });
 

@@ -1,0 +1,491 @@
+import {ActivatedRoute, Router} from "@angular/router";
+import {
+  CodeListService,
+  Role,
+  RoleService,
+  Task,
+  TaskAvailability,
+  TaskAvailabilityProjection,
+  TaskAvailabilityService,
+  TaskGroup,
+  TaskGroupService,
+  TaskParameter,
+  TaskProjection,
+  TaskPropertiesBuilder,
+  TaskService,
+  TaskType,
+  TaskTypeService,
+  TaskUI,
+  TaskUIService,
+  TerritoryProjection,
+  TerritoryService,
+  TranslationService
+} from "@app/domain";
+import {Component, TemplateRef, ViewChild} from "@angular/core";
+import {DataTableDefinition, TemplateDialog} from "@app/components/data-tables.util";
+import {EMPTY, firstValueFrom, map, of} from "rxjs";
+import {FormControl, FormGroup, Validators} from "@angular/forms";
+import {
+  canKeepOrUpdate,
+  onCreate,
+  onDelete,
+  onUpdatedRelation,
+  Status
+} from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
+import {BaseFormComponent} from "@app/components/base-form.component";
+import {Configuration} from "@app/core/config/configuration";
+import {ErrorHandlerService} from "@app/services/error-handler.service";
+import {LoggerService} from "@app/services/logger.service";
+import {MatDialog} from "@angular/material/dialog";
+import {TranslateService} from "@ngx-translate/core";
+import {UtilsService} from "@app/services/utils.service";
+import {magic} from "@environments/constants";
+
+/**
+ * Component for managing basic tasks in the SITMUN application.
+ * Provides a form interface for creating, editing, and duplicating basic tasks.
+ *
+ * This component handles:
+ * - Task metadata (name, UI)
+ * - Task role assignments
+ * - Task availability per territory
+ * - Task parameters configuration
+ *
+ * Each task is associated with a specific task type and task group.
+ *
+ * @extends BaseFormComponent<TaskProjection>
+ */
+@Component({
+  selector: 'app-task-basic-form',
+  templateUrl: './task-basic-form.component.html',
+  styles: []
+})
+export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
+  readonly config = Configuration.TASK_BASIC;
+
+  /**
+   * The reactive form for editing task properties.
+   * Contains form controls for name and UI selection with validation rules.
+   */
+  public override entityForm: FormGroup;
+
+  /**
+   * Data table definition for managing role assignments to the task.
+   * Configures the roles' grid with columns, data fetching, and update operations.
+   */
+  protected readonly rolesTable: DataTableDefinition<Role, Role>;
+
+  /**
+   * Data table definition for managing task availabilities per territory.
+   * Configures the availability grid with columns, data fetching, and update operations.
+   */
+  protected readonly availabilitiesTable: DataTableDefinition<TaskAvailabilityProjection, TerritoryProjection>;
+
+  /**
+   * Data table definition for managing task parameters.
+   * Configures the parameters' grid with columns, data fetching, and update operations.
+   */
+  protected readonly parametersTable: DataTableDefinition<TaskParameter, TaskParameter>;
+
+  /**
+   * The name of the task type associated with this task.
+   * Determined from route parameters.
+   */
+  private taskTypeName: string = null;
+
+  /**
+   * The translated name of the task type.
+   * Used for display in the UI.
+   */
+  protected taskTypeNameTranslated: string = null;
+
+  /**
+   * The task type entity associated with this task.
+   * Retrieved during initialization.
+   */
+  private taskType: TaskType = null;
+
+  /**
+   * List of available task UIs that can be assigned to this task.
+   * Retrieved during initialization.
+   */
+  protected uiList: TaskUI[] = [];
+
+  protected taskGroupList: TaskGroup[] = [];
+
+  /**
+   * Reference to the dialog template for adding new parameters.
+   * Used by the parameters' table for creating new task parameters.
+   */
+  @ViewChild('newParameterDialog', {static: true})
+  private readonly newParameterDialog: TemplateRef<any>;
+
+  /**
+   * Constructor for the TaskBasicFormComponent.
+   * Initializes the component with necessary services and sets up the form.
+   *
+   * @param dialog - Material dialog service for modal dialogs
+   * @param translateService - Service for handling translations
+   * @param translationService - Service for managing entity translations
+   * @param codeListService - Service for accessing code lists
+   * @param errorHandler - Service for handling errors
+   * @param activatedRoute - Service for accessing route parameters
+   * @param router - Angular router service for navigation
+   * @param taskService - Service for task CRUD operations
+   * @param taskUIService - Service for managing task UIs
+   * @param utils - Utility service with common functions
+   * @param loggerService - Service for logging
+   * @param taskTypeService - Service for managing task types
+   * @param roleService - Service for managing roles
+   * @param taskGroupService - Service for managing task groups
+   * @param territoryService - Service for accessing territories
+   * @param taskAvailabilityService - Service for managing task availabilities
+   */
+  constructor(
+    dialog: MatDialog,
+    translateService: TranslateService,
+    translationService: TranslationService,
+    codeListService: CodeListService,
+    loggerService: LoggerService,
+    errorHandler: ErrorHandlerService,
+    activatedRoute: ActivatedRoute,
+    router: Router,
+    protected taskService: TaskService,
+    protected taskUIService: TaskUIService,
+    protected utils: UtilsService,
+    protected taskTypeService: TaskTypeService,
+    protected roleService: RoleService,
+    protected taskGroupService: TaskGroupService,
+    protected territoryService: TerritoryService,
+    protected taskAvailabilityService: TaskAvailabilityService,
+  ) {
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router);
+    this.rolesTable = this.defineRolesTable();
+    this.availabilitiesTable = this.defineAvailabilitiesTable();
+    this.parametersTable = this.defineParametersTable();
+  }
+
+  /**
+   * Initializes component data before fetching.
+   * Registers the data tables and loads required data.
+   *
+   * @returns Promise that resolves when initialization is complete
+   * @throws Error if task type or group is not found
+   */
+  override async preFetchData() {
+    const type = magic.taskBasicTypeId;
+
+    this.dataTables.register(this.rolesTable)
+      .register(this.availabilitiesTable)
+      .register(this.parametersTable);
+
+    await this.initCodeLists(['tasksEntity.type', 'taskEntity.jsonParamType'])
+    this.initTranslations('Task', ['name'])
+
+    const [taskTypes, taskGroups, uiList] = await Promise.all([
+      firstValueFrom(this.taskTypeService.getAllEx()),
+      firstValueFrom(this.taskGroupService.getAllEx()),
+      firstValueFrom(this.taskUIService.getAll())
+    ]);
+
+    this.taskType = taskTypes.find(taskType => taskType.id === type);
+    this.taskTypeName = this.taskType.title;
+    this.taskTypeNameTranslated = this.translateService.instant(`entity.task.basic.label`);
+    if (!this.taskType) {
+      throw new Error(`Task type ${this.taskTypeName} not found`);
+    }
+
+    this.uiList = uiList;
+    if (!Array.isArray(this.uiList)) {
+      throw new Error(`UI tasks ${this.uiList} not retrieved`);
+    }
+
+    taskGroups.sort((a, b) => a.name.localeCompare(b.name));
+    this.taskGroupList = taskGroups;
+  }
+
+  /**
+   * Fetches the original entity by ID.
+   *
+   * @returns Promise that resolves to the task projection
+   */
+  override fetchOriginal(): Promise<TaskProjection> {
+    return firstValueFrom(this.taskService.getProjection(TaskProjection, this.entityID));
+  }
+
+  /**
+   * Creates a copy of an existing entity for duplication.
+   * Prefixes the name with "copy_" to distinguish from the original.
+   *
+   * @returns Promise that resolves to the duplicated task projection
+   */
+  override fetchCopy(): Promise<TaskProjection> {
+    return firstValueFrom(this.taskService.getProjection(TaskProjection, this.duplicateID).pipe(map((copy: TaskProjection) => {
+      copy.name = this.translateService.instant("copy_") + copy.name;
+      return copy;
+    })));
+  }
+
+  /**
+   * Creates an empty task entity with default values.
+   *
+   * @returns New empty task projection
+   */
+  override empty(): TaskProjection {
+    return new TaskProjection()
+  }
+
+  /**
+   * Fetches related data for the entity.
+   * Loads translations for the current entity.
+   *
+   * @returns Promise that resolves when translations are loaded
+   */
+  override async fetchRelatedData() {
+    return this.loadTranslations(this.entityToEdit);
+  }
+
+  /**
+   * Initializes the form after entity data is fetched.
+   * Sets up reactive form with entity values and validation rules.
+   *
+   * @throws Error if entity is undefined
+   */
+  override postFetchData() {
+    if (!this.entityToEdit) {
+      throw new Error('Cannot initialize form: entity is undefined');
+    }
+
+    this.entityForm = new FormGroup({
+      name: new FormControl(this.entityToEdit.name, {
+        validators: [Validators.required],
+        nonNullable: true
+      }),
+      uiId: new FormControl(this.entityToEdit.uiId, {
+        validators: [Validators.required],
+        nonNullable: true
+      }),
+      taskGroupId: new FormControl(this.entityToEdit.groupId, {
+        validators: [Validators.required],
+        nonNullable: true
+      }),
+    });
+  }
+
+  /**
+   * Creates a Task object from the current form values.
+   * Applies the form values to a copy of the current entity and converts it to a Task domain object.
+   * This method ensures that entity data is not directly modified until explicitly saved.
+   *
+   * @param id - Optional ID for the new object, used when updating
+   * @returns New Task instance populated with form values
+   */
+  createObject(id: number = null): Task {
+    let safeToEdit = TaskProjection.fromObject(this.entityToEdit);
+    safeToEdit = Object.assign(safeToEdit,
+      this.entityForm.value,
+      {
+        id: id
+      }
+    );
+    return Task.fromObject(safeToEdit);
+  }
+
+  /**
+   * Creates a new basic task entity in the database.
+   * Also sets immutable relationships to task type and group.
+   *
+   * @returns Promise resolving to the ID of the created entity
+   */
+  override async createEntity(): Promise<number> {
+    const entityToCreate = this.createObject();
+    const entityCreated = await firstValueFrom(this.taskService.create(entityToCreate));
+    // Set immutable relationship
+    await firstValueFrom(entityCreated.updateRelationEx("type", this.taskType));
+    const proxyGroup = this.taskGroupService.createProxy(this.entityForm.get('taskGroupId')?.value);
+    await firstValueFrom(entityCreated.updateRelationEx("group", proxyGroup));
+    return entityCreated.id;
+  }
+
+  /**
+   * Updates an existing basic task entity with form values.
+   *
+   * @returns Promise that resolves when the update is complete
+   */
+  override async updateEntity() {
+    const entityToUpdate = this.createObject(this.entityID);
+    await firstValueFrom(this.taskService.update(entityToUpdate));
+    if (this.entityForm.get('taskGroupId')?.dirty) {
+      const proxyGroup = this.taskGroupService.createProxy(this.entityForm.get('taskGroupId')?.value);
+      await firstValueFrom(entityToUpdate.updateRelationEx("group", proxyGroup));
+    }
+  }
+
+  /**
+   * Updates related data after the task is saved.
+   * Updates UI relationship if the form is dirty or being duplicated.
+   *
+   * @returns Promise that resolves when related data is updated
+   * @param _isDuplicated
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  override async updateDataRelated(_isDuplicated: boolean) {
+    const entityToUpdate = this.createObject(this.entityID);
+    await this.saveTranslations(entityToUpdate);
+    await firstValueFrom(entityToUpdate.updateRelationEx("ui", this.taskUIService.createProxy(this.entityForm.get('uiId')?.value)));
+  }
+
+  getTaskGroupName(taskGroupId: number): string {
+    return this.taskGroupList.find(group => group.id === taskGroupId)?.name || '';
+  }
+
+  /**
+   * Defines the data table configuration for managing roles.
+   * Sets up columns, data fetching, updating logic, and target selection.
+   *
+   * @returns Configured data table definition for roles
+   */
+  private defineRolesTable(): DataTableDefinition<Role, Role> {
+    return DataTableDefinition.builder<Role, Role>(this.dialog, this.errorHandler)
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getRouterLinkColumnDef(
+          'common.form.name',
+          'name',
+          '/role/:id/roleForm',
+          {
+            id: 'id',
+          }
+        ),
+        this.utils.getNonEditableColumnDef('common.form.description', 'description'),
+        this.utils.getStatusColumnDef()
+      ])
+      .withRelationsOrder('name')
+      .withRelationsFetcher(() => {
+        if (this.isNew()) {
+          return EMPTY;
+        }
+        return this.entityToEdit.getRelationArrayEx(Role, 'roles', {projection: 'view'})
+      })
+      .withRelationsUpdater(async (roles: (Role & Status)[]) => {
+        await onUpdatedRelation(roles).forAll(item => this.entityToEdit.substituteAllRelation('roles', item));
+      })
+      .withTargetsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
+        this.utils.getNonEditableColumnDef('common.form.description', 'description'),
+      ])
+      .withTargetsOrder('name')
+      .withTargetsFetcher(() => this.roleService.getAll())
+      .withTargetsTitle(this.translateService.instant('entity.task.roles.title'))
+      .build();
+  }
+
+  /**
+   * Defines the data table configuration for managing task availabilities.
+   * Sets up columns, data fetching, updating logic, and target selection.
+   *
+   * @returns Configured data table definition for availabilities
+   */
+  private defineAvailabilitiesTable(): DataTableDefinition<TaskAvailabilityProjection, TerritoryProjection> {
+    return DataTableDefinition.builder<TaskAvailabilityProjection, TerritoryProjection>(this.dialog, this.errorHandler)
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getRouterLinkColumnDef(
+          'common.form.name',
+          'territoryName',
+          '/territory/:id/territoryForm',
+          {
+            id: 'territoryId',
+          }
+        ),
+        this.utils.getNonEditableColumnDef('common.form.code', 'territoryCode'),
+        this.utils.getNonEditableColumnDef('common.form.type', 'territoryTypeName'),
+        this.utils.getNonEditableDateColumnDef('common.form.created', 'createdDate'),
+        this.utils.getStatusColumnDef()
+      ])
+      .withRelationsOrder('territoryName')
+      .withRelationsFetcher(() => {
+        if (!this.isNew()) {
+          return this.entityToEdit.getRelationArrayEx(TaskAvailabilityProjection, 'availabilities', {projection: 'view'})
+        }
+        return EMPTY;
+      })
+      .withRelationsUpdater(async (availabilities: (TaskAvailabilityProjection & Status)[]) => {
+        await onDelete(availabilities).forEach(item => this.taskAvailabilityService.delete(this.taskAvailabilityService.createProxy(item.id)));
+        await onCreate(availabilities)
+          .map(item => TaskAvailability.of(this.taskService.createProxy(this.entityID), this.territoryService.createProxy(item.territoryId)))
+          .forEach(item => this.taskAvailabilityService.create(item));
+        availabilities.forEach(item => item.newItem = false);
+      })
+      .withTargetsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
+        this.utils.getNonEditableColumnDef('common.form.code', 'code'),
+        this.utils.getNonEditableColumnDef('common.form.type', 'typeName'),
+      ])
+      .withTargetsOrder('name')
+      .withTargetsFetcher(() => this.territoryService.getAllProjection(TerritoryProjection))
+      .withTargetInclude((availabilities: (TaskAvailabilityProjection)[]) => (item: TerritoryProjection) => {
+        return !availabilities.some((availability) => availability.territoryId === item.id);
+      })
+      .withTargetToRelation((items: TerritoryProjection[]) => {
+        return items.map(item => TaskAvailabilityProjection.of(this.entityToEdit, item));
+      })
+      .withTargetsTitle(this.translateService.instant('entity.task.territories.title'))
+      .withTargetsOrder('name')
+      .build();
+  }
+
+
+  /**
+   * Defines the data table configuration for managing task parameters.
+   * Sets up columns, data fetching, updating logic, and dialog templates.
+   *
+   * @returns Configured data table definition for parameters
+   */
+  private defineParametersTable(): DataTableDefinition<TaskParameter, TaskParameter> {
+    return DataTableDefinition.builder<TaskParameter, TaskParameter>(this.dialog, this.errorHandler)
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getEditableColumnDef('common.form.name', 'name'),
+        this.utils.getNonEditableColumnDef('common.form.type', 'type'),
+        this.utils.getEditableColumnDef('common.form.value', 'value', 300, 500),
+        this.utils.getStatusColumnDef()])
+      .withRelationsOrder('name')
+      .withRelationsFetcher(() => {
+        if (this.entityToEdit?.properties?.parameters) {
+          const originalParameters = this.entityToEdit.properties.parameters;
+          const parameters = originalParameters.map((parameter: any) => TaskParameter.fromObject(parameter));
+          return of(parameters);
+        }
+        return of<TaskParameter[]>([])
+      })
+      .withRelationsUpdater(async (parameters: (TaskParameter & Status)[]) => {
+        const parametersToSave = parameters.filter(canKeepOrUpdate).map(value => TaskParameter.fromObject(value))
+        this.entityToEdit.properties = TaskPropertiesBuilder.from(this.entityToEdit.properties)
+          .withParameters(parametersToSave).build();
+        await firstValueFrom(this.taskService.update(this.entityToEdit));
+      })
+      .withTemplateDialog('newParameterDialog', () => TemplateDialog.builder()
+        .withReference(this.newParameterDialog)
+        .withTitle(this.translateService.instant('entity.task.parameters.title'))
+        .withForm(new FormGroup({
+          name: new FormControl('', {
+            validators: [Validators.required],
+            nonNullable: true
+          }),
+          type: new FormControl('', {
+            validators: [Validators.required],
+            nonNullable: true
+          }),
+          value: new FormControl('', {
+            validators: [Validators.required],
+            nonNullable: true
+          })
+        })).build())
+      .withTargetToRelation((items: TaskParameter[]) => items.map(item => TaskParameter.fromObject(item)))
+      .withRelationsDuplicate(item => TaskParameter.fromObject(item))
+      .build();
+  }
+}

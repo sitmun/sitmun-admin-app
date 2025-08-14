@@ -1,14 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { LayersComponent } from './layers.component';
-import { CartographyService, CodeListService,TranslationService,ResourceService,ExternalService } from '../../frontend-core/src/lib/public_api';
-import { HttpClientModule, HttpClient } from '@angular/common/http';
-import { SitmunFrontendGuiModule } from '../../frontend-gui/src/lib/public_api';
-import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
+import { CartographyService, CodeListService,TranslationService } from '@app/domain';
+import {ExternalService, ResourceService} from '@app/core/hal';
+import {HttpClient, HttpClientModule} from '@angular/common/http';
+import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { MaterialModule } from '../../material-module';
+import { MaterialModule } from '@app/material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
@@ -22,7 +23,7 @@ describe('LayersComponent', () => {
   let resourceService: ResourceService;
   let externalService: ExternalService;
 
- 
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ LayersComponent ],
@@ -69,7 +70,7 @@ describe('LayersComponent', () => {
   it('should instantiate translationService', () => {
     expect(translationService).toBeTruthy();
   });
- 
+
   it('should instantiate resourceService', () => {
     expect(resourceService).toBeTruthy();
   });

@@ -1,0 +1,27 @@
+<mat-toolbar>
+  <h4>
+    <span class="spacer">
+      <mat-icon aria-hidden="true" fontSet="{{ font }}">{{ icon }}</mat-icon>
+      {{ isNew ? (entityType | translate) + ' (' + ('new' | translate) + ')' : itemName }}
+      <ng-container *ngIf="additionalText"> - {{ additionalText }}</ng-container>
+    </span>
+  </h4>
+  <span class="spacer"></span>
+  <button
+    [matTooltip]="'save' | translate"
+    mat-mini-fab
+    class="add-half-gap"
+    [disabled]="!canSave"
+    (click)="save.emit()"
+    color="primary">
+    <mat-icon fontSet="material-icons-round">save</mat-icon>
+  </button>
+  <button
+    [matTooltip]="'return' | translate"
+    mat-mini-fab
+    class="add-half-gap"
+    (click)="back.emit()"
+    color="primary">
+    <mat-icon fontSet="material-icons-round">arrow_back</mat-icon>
+  </button>
+</mat-toolbar>

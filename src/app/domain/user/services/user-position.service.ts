@@ -1,0 +1,45 @@
+import { RestService } from '@app/core/hal/rest/rest.service';
+import { UserPosition } from '@app/domain';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, Injector } from '@angular/core';
+import { Observable } from 'rxjs';
+import { LoggerService } from '@app/services/logger.service';
+
+/** User position manager service */
+@Injectable()
+export class UserPositionService  extends RestService<UserPosition> {
+
+
+  /** API resource path */
+  public USER_POSITION_API = 'user-positions';
+
+  /** constructor */
+  constructor(injector: Injector, private http: HttpClient, private loggerService: LoggerService) {
+    super(UserPosition, "user-positions", injector);
+  }
+
+  /** save user position*/
+  save(item: any): Observable<any> {
+    let result: Observable<Object>;
+    if (item._links!=null) {
+      result = this.http.put(item._links.self.href, item);
+      if (item.user !=null){
+          item.substituteRelation('user',item.user).subscribe(result => {
+
+      }, error => this.loggerService.error('Error substituting user relation:', error));
+      }
+      if (item.territory !=null){
+          item.substituteRelation('territory',item.territory).subscribe(result => {
+
+      }, error => this.loggerService.error('Error substituting territory relation:', error));
+      }
+    } else {
+      item.territory = item.territory._links.self.href;
+      item.user = item.user._links.self.href;
+
+      result = this.http.post(this.resourceService.getResourceUrl(this.USER_POSITION_API) , item);
+    }
+    return result;
+  }
+
+}

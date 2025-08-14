@@ -1,389 +1,437 @@
-import { Component, OnInit } from '@angular/core';
-
-import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { CartographyGroupService, RoleService,  CartographyService } from '../../../frontend-core/src/lib/public_api';
-import { HttpClient } from '@angular/common/http';
-import { UtilsService } from '../../../services/utils.service';
-import { map } from 'rxjs/operators';
-import { config } from 'src/config';
-import { DialogGridComponent } from '../../../frontend-gui/src/lib/public_api';
-import { MatDialog } from '@angular/material/dialog';
-import { of, Subject } from 'rxjs';
+import {ActivatedRoute, Router} from '@angular/router';
+import {
+  ApplicationProjection,
+  ApplicationService,
+  CartographyGroup,
+  CartographyGroupProjection,
+  CartographyGroupService,
+  CartographyProjection,
+  CartographyService,
+  CodeList,
+  CodeListService,
+  Role,
+  RoleService,
+  TranslationService,
+} from '@app/domain';
+import {EMPTY, firstValueFrom} from 'rxjs';
+import {onUpdate, onUpdatedRelation, Status} from '@app/frontend-gui/src/lib/public_api';
+import {UntypedFormControl, UntypedFormGroup, Validators,} from '@angular/forms';
+import {BaseFormComponent} from '@app/components/base-form.component';
+import {Component} from '@angular/core';
+import {Configuration} from "@app/core/config/configuration";
+import {DataTableDefinition} from '@app/components/data-tables.util';
+import {ErrorHandlerService} from '@app/services/error-handler.service';
+import {LoggerService} from '@app/services/logger.service';
+import {MatDialog} from '@angular/material/dialog';
+import {TranslateService} from '@ngx-translate/core';
+import {UtilsService} from '@app/services/utils.service';
+import {constants} from '@environments/constants';
+import {map} from 'rxjs/operators';
 
 @Component({
   selector: 'app-layers-permits-form',
   templateUrl: './layers-permits-form.component.html',
-  styleUrls: ['./layers-permits-form.component.scss']
+  styles: [],
 })
-export class LayersPermitsFormComponent implements OnInit {
- 
-  //Form
-  formLayersPermits: UntypedFormGroup;
-  layersPermitsToEdit;
-  layersPermitsID = -1;
-  duplicateID = -1;
-  themeGrid: any = config.agGridTheme;
-  permissionGroupTypes: Array<any> = [];
-  dataLoaded: Boolean = false;
+/**
+ * Form component for managing layer permissions (cartography groups).
+ * Extends BaseFormComponent to provide CRUD operations for CartographyGroupProjection entities.
+ * Handles three main aspects:
+ * 1. Basic cartography group information (name and type)
+ * 2. Role assignments for access control
+ * 3. Layer membership management
+ * 4. Application relationships
+ */
+export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGroupProjection> {
+  readonly config = Configuration.LAYERS_PERMIT;
 
-  //Grids
-  columnDefsCartographies: any[];
-  getAllElementsEventCartographies: Subject<string> = new Subject <string>();
-  dataUpdatedEventCartographies: Subject<boolean> = new Subject<boolean>();
+  /**
+   * Types of permission groups available.
+   * Filtered to only show relevant types for this form.
+   */
+  public permissionGroupTypes: CodeList[] = [];
 
-  columnDefsRoles: any[];
-  getAllElementsEventRoles: Subject<string> = new Subject <string>();
-  dataUpdatedEventRoles: Subject<boolean> = new Subject<boolean>();
+  /**
+   * Data table definition for managing roles associated with this cartography group.
+   * Manages access permissions for the cartography group through role assignments.
+   */
+  protected readonly rolesTable: DataTableDefinition<Role, Role>;
 
-  //Dialog
-  columnDefsRolesDialog: any[];
-  addElementsEventRoles: Subject<any[]> = new Subject <any[]>();
-  
-  columnDefsCartographiesDialog: any[];
-  addElementsEventCartographies: Subject<any[]> = new Subject <any[]>();
+  /**
+   * Data table definition for managing application relationships.
+   * Controls which applications can use this cartography group as situation map.
+   */
+  protected readonly applicationsTable: DataTableDefinition<
+    ApplicationProjection,
+    ApplicationProjection
+  >;
+
+  /**
+   * Data table definition for managing cartography members in the cartography group.
+   * Controls which layers are included in the cartography group.
+   */
+  protected readonly membersTable: DataTableDefinition<
+    CartographyProjection,
+    CartographyProjection
+  >;
 
   constructor(
-    public dialog: MatDialog,
-    private activatedRoute: ActivatedRoute,
-    private router: Router,
-    private cartographyGroupService: CartographyGroupService,
-    private cartographyService: CartographyService,
-    private roleService: RoleService,
-    private http: HttpClient,
-    public utils: UtilsService,
+    dialog: MatDialog,
+    translateService: TranslateService,
+    translationService: TranslationService,
+    codeListService: CodeListService,
+    loggerService: LoggerService,
+    errorHandler: ErrorHandlerService,
+    activatedRoute: ActivatedRoute,
+    router: Router,
+    protected utils: UtilsService,
+    protected cartographyService: CartographyService,
+    protected roleService: RoleService,
+    protected cartographyGroupService: CartographyGroupService,
+    protected applicationService: ApplicationService
   ) {
-    this.initializeLayersPermitsForm();
+    super(
+      dialog,
+      translateService,
+      translationService,
+      codeListService,
+      loggerService,
+      errorHandler,
+      activatedRoute,
+      router
+    );
+    this.membersTable = this.defineMembersTable();
+    this.rolesTable = this.defineRolesTable();
+    this.applicationsTable = this.defineApplicationTable();
   }
 
-  ngOnInit(): void {
+  /**
+   * Prepares component data before fetching the entity.
+   * Initializes data tables and loads permission group types from code lists.
+   * Filters and sorts the permission types to show only relevant options.
+   */
+  override async preFetchData() {
+    this.dataTables
+      .register(this.rolesTable)
+      .register(this.applicationsTable)
+      .register(this.membersTable);
+    await this.initCodeLists(['cartographyPermission.type']);
+    this.permissionGroupTypes = this.codeList(
+      'cartographyPermission.type'
+    ).filter(
+      (item) =>
+        item.value === constants.codeValue.cartographyPermissionType.report ||
+        item.value ===
+          constants.codeValue.cartographyPermissionType.cartographyGroup ||
+        item.value === constants.codeValue.cartographyPermissionType.locationMap
+    );
+    this.permissionGroupTypes.sort((a, b) =>
+      a.description.localeCompare(b.description)
+    );
+  }
 
-    const promises: Promise<any>[] = [];
-	
-    promises.push(new Promise((resolve, reject) => {
-      this.utils.getCodeListValues('cartographyPermission.type').subscribe(
-        resp => {
-          this.permissionGroupTypes.push(...resp);
-          resolve(true);
-        }
-      );
-    }));
+  /**
+   * Fetches the original entity by ID for editing.
+   * @returns Promise resolving to the background entity with projection
+   */
+  override fetchOriginal(): Promise<CartographyGroupProjection> {
+    return firstValueFrom(
+      this.cartographyGroupService.getProjection(
+        CartographyGroupProjection,
+        this.entityID
+      )
+    );
+  }
 
-
-    Promise.all(promises).then(() => {
-      this.activatedRoute.params.subscribe(params => {
-        this.layersPermitsID = +params.id;
-        if(params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
-      
-        if (this.layersPermitsID !== -1 || this.duplicateID != -1) {
-          let idToGet = this.layersPermitsID !== -1? this.layersPermitsID: this.duplicateID  
-      
-  
-          this.cartographyGroupService.get(idToGet).subscribe(
-            resp => {
-              this.layersPermitsToEdit = resp;
-              this.formLayersPermits.patchValue({
-                type: this.layersPermitsToEdit.type,
-                _links: this.layersPermitsToEdit._links
-              });
-
-              if(this.layersPermitsID !== -1){
-                this.formLayersPermits.patchValue({
-                id: this.layersPermitsID,
-                name: this.layersPermitsToEdit.name,
-                });
-                  }
-              else{
-                this.formLayersPermits.patchValue({
-                name: this.utils.getTranslate('copy_').concat(this.layersPermitsToEdit.name),
-                });
-              }
-  
-              this.dataLoaded = true;
-            },
-            error => {
-  
-            }
-          );
-        }
-        else {
-          this.formLayersPermits.patchValue({
-            type: this.permissionGroupTypes[0].value
+  /**
+   * Creates a copy of an existing entity for duplication.
+   * Prefixes the name with "copy_" to distinguish it from the original.
+   * @returns Promise resolving to the duplicated background entity
+   */
+  override fetchCopy(): Promise<CartographyGroupProjection> {
+    return firstValueFrom(
+      this.cartographyGroupService
+        .getProjection(CartographyGroupProjection, this.duplicateID)
+        .pipe(
+          map((copy: CartographyGroupProjection) => {
+            copy.name = this.translateService.instant('copy_') + copy.name;
+            return copy;
           })
-          this.dataLoaded = true;
-        }
-  
-      },
-        error => {
-  
-        });
-    });
-
-
-    this.columnDefsCartographies = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('layersPermitsEntity.name', 'name'),
-      this.utils.getStatusColumnDef()
-    ];
-
-
-    this.columnDefsRoles = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('layersPermitsEntity.name', 'name'),
-      this.utils.getStatusColumnDef()
-    ];
-
-    this.columnDefsCartographiesDialog = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('layersPermitsEntity.name', 'name'),
-      this.utils.getNonEditableColumnDef('treesEntity.serviceName', 'serviceName'),
-    ];
-
-    this.columnDefsRolesDialog = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('layersPermitsEntity.name', 'name'),
-    ];
+        )
+    );
   }
 
+  /**
+   * Creates an empty CartographyGroupProjection instance.
+   * Used when creating a new cartography group.
+   * @returns New empty CartographyGroupProjection instance
+   */
+  override empty(): CartographyGroupProjection {
+    return new CartographyGroupProjection();
+  }
 
-  initializeLayersPermitsForm(): void {
+  /**
+   * Initializes the form after entity data is fetched.
+   * Sets up reactive form with entity values and validation rules.
+   * @throws Error if entity is undefined
+   */
+  override postFetchData() {
+    if (!this.entityToEdit) {
+      throw new Error('Cannot initialize form: entity is undefined');
+    }
 
-    this.formLayersPermits = new UntypedFormGroup({
-      id: new UntypedFormControl(null, []),
-      name: new UntypedFormControl(null, [
+    this.entityForm = new UntypedFormGroup({
+      name: new UntypedFormControl(this.entityToEdit.name, [
         Validators.required,
       ]),
-      type: new UntypedFormControl(null, [
+      type: new UntypedFormControl(this.entityToEdit.type, [
         Validators.required,
       ]),
-      _links: new UntypedFormControl(null, []),
-
-    })
-
-  }
-
-  // AG GRID
-
-  // ******** Cartographies configuration ******** //
-  getAllCartographies = () => {
-
-    if (this.layersPermitsID == -1 && this.duplicateID == -1) 
-    {
-      const aux: Array<any> = [];
-      return of(aux);
-    }
-
-     var urlReq = `${this.layersPermitsToEdit._links.members.href}`
-     if (this.layersPermitsToEdit._links.members.templated) {
-       var url = new URL(urlReq.split("{")[0]);
-       url.searchParams.append("projection", "view")
-       urlReq = url.toString();
-     }
-     return (this.http.get(urlReq))
-     .pipe(map(data => data['_embedded']['cartographies']));
-
-  }
-
-  getAllRowsCartographies(event){
-    if(event.event == "save"){
-      this.saveCartographies(event.data);
-    }
-  }
-
-
-  saveCartographies(data: any[] )
-  {
-    let dataChanged = false;
-    const promises: Promise<any>[] = [];
-    let cartographiesToPut = [];
-    data.forEach(cartography => {
-      if(cartography.status!== 'pendingDelete') {
-        if (cartography.status === 'pendingModify') {
-          if(cartography.newItem){ dataChanged = true; }
-          promises.push(new Promise((resolve, reject) => { this.cartographyService.update(cartography).subscribe((resp) => { resolve(true) }) }));
-        }
-        else if (cartography.status === 'pendingCreation') {
-          dataChanged = true;
-        }
-        cartographiesToPut.push(cartography._links.self.href) 
-      }
-      else {
-        dataChanged = true;
-      }
-    });
-    Promise.all(promises).then(() => {
-      if(dataChanged){
-        let url=this.layersPermitsToEdit._links.members.href.split('{', 1)[0];
-        this.utils.updateUriList(url,cartographiesToPut, this.dataUpdatedEventCartographies)
-      }
-      else { this.dataUpdatedEventCartographies.next(true) }
     });
   }
 
-  // ******** Roles  ******** //
-  getAllRoles = () => {
-
-    if (this.layersPermitsID == -1 && this.duplicateID == -1) 
-    {
-      const aux: Array<any> = [];
-      return of(aux);
-    }
-
-    var urlReq = `${this.layersPermitsToEdit._links.roles.href}`
-    if (this.layersPermitsToEdit._links.roles.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
-      urlReq = url.toString();
-    }
-   
-    return (this.http.get(urlReq))
-       .pipe(map(data => data['_embedded']['roles']));
-
+  /**
+   * Creates a new cartography group entity in the database.
+   * @returns Promise resolving to the ID of the created entity
+   */
+  override async createEntity(): Promise<number> {
+    const entityToUpdate = this.createObject();
+    const entitySaved = await firstValueFrom(
+      this.cartographyGroupService.create(entityToUpdate)
+    );
+    return entitySaved.id;
   }
 
-  getAllRowsRoles(event){
-    if(event.event == "save"){
-      this.saveRoles(event.data);
-    }
+  /**
+   * Updates an existing cartography group entity with form values.
+   * @returns Promise that resolves when the update is complete
+   */
+  override async updateEntity(): Promise<void> {
+    const entityToUpdate = this.createObject(this.entityID);
+    await firstValueFrom(this.cartographyGroupService.update(entityToUpdate));
   }
 
-  saveRoles(data: any[] )
-  {
-    let dataChanged = false;
-    const promises: Promise<any>[] = [];
-    let rolesToPut = [];
-    data.forEach(role => {
-      if(role.status!== 'pendingDelete') {
-        if (role.status === 'pendingModify') {
-          if(role.newItem){ dataChanged = true; }
-          promises.push(new Promise((resolve, reject) => { this.roleService.update(role).subscribe((resp) => { resolve(true) }) }));
-
+  /**
+   * Defines the data table configuration for managing roles.
+   * Sets up columns, data fetching, updating logic, and target selection.
+   *
+   * @returns Configured data table definition for roles
+   */
+  private defineRolesTable(): DataTableDefinition<Role, Role> {
+    return DataTableDefinition.builder<Role, Role>(
+      this.dialog,
+      this.errorHandler
+    )
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getRouterLinkColumnDef(
+          'common.form.name',
+          'name',
+          '/role/:id/roleForm',
+          {
+            id: 'id',
+          }
+        ),
+        this.utils.getNonEditableColumnDef(
+          'common.form.description',
+          'description'
+        ),
+        this.utils.getStatusColumnDef(),
+      ])
+      .withRelationsOrder('name')
+      .withRelationsFetcher(() => {
+        if (this.isNew()) {
+          return EMPTY;
         }
-        else if(role.status === 'pendingCreation'){
-          dataChanged = true;
-        }
-        rolesToPut.push(role._links.self.href)
-      }
-      else{
-        dataChanged = true;
-      }
-    });
-    Promise.all(promises).then(() => {
-      if(dataChanged)
-      {
-        let url=this.layersPermitsToEdit._links.roles.href.split('{', 1)[0];
-        this.utils.updateUriList(url,rolesToPut, this.dataUpdatedEventRoles)
-      }
-      else { this.dataUpdatedEventRoles.next(true) }
-    });
-  }
-
-  // ******** Cartography Dialog  ******** //
-
-  getAllCartographiesDialog = () => {
-    return this.cartographyService.getAll();
-  }
-
-  openCartographyDialog(data: any) {
-    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
-    dialogRef.componentInstance.orderTable = ['name'];
-    dialogRef.componentInstance.getAllsTable=[this.getAllCartographiesDialog];
-    dialogRef.componentInstance.singleSelectionTable=[false];
-    dialogRef.componentInstance.columnDefsTable=[this.columnDefsCartographiesDialog];
-    dialogRef.componentInstance.themeGrid=this.themeGrid;
-    dialogRef.componentInstance.title=this.utils.getTranslate('layersPermitsEntity.cartographiesConfiguration');
-    dialogRef.componentInstance.currentData=[data];
-    dialogRef.componentInstance.titlesTable=[''];
-    dialogRef.componentInstance.nonEditable=false;
-    
-
-
-    dialogRef.afterClosed().subscribe(result => {
-      if(result){
-        if( result.event==='Add') { 
-          this.addElementsEventCartographies.next(result.data[0])
-        }
-      }
-
-    });
-
-  }
-
-   // ******** Roles Dialog  ******** //
-
-   getAllRolesDialog = () => {
-    return this.roleService.getAll();
-  }
-
-  openRolesDialog(data: any) {
-
-    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass:'gridDialogs'});
-    dialogRef.componentInstance.orderTable = ['name'];
-    dialogRef.componentInstance.getAllsTable=[this.getAllRolesDialog];
-    dialogRef.componentInstance.singleSelectionTable=[false];
-    dialogRef.componentInstance.columnDefsTable=[this.columnDefsRolesDialog];
-    dialogRef.componentInstance.themeGrid=this.themeGrid;
-    dialogRef.componentInstance.title=this.utils.getTranslate('layersPermitsEntity.roles');
-    dialogRef.componentInstance.currentData=[data];
-    dialogRef.componentInstance.titlesTable=[''];
-    dialogRef.componentInstance.nonEditable=false;
-    
-
-
-    dialogRef.afterClosed().subscribe(result => {
-      if(result){
-        if( result.event==='Add') { 
-          this.addElementsEventRoles.next(result.data[0])
-        }
-      }
-
-    });
-
-  }
-
-
-  // Save Button
-
-  onSaveButtonClicked(){
-
-    if(this.formLayersPermits.value.type)
-
-    if(this.formLayersPermits.valid)
-    {
-
-      if (this.layersPermitsID == -1 && this.duplicateID != -1) {
-        this.formLayersPermits.patchValue({
-          _links: null
-        })
-      }
-
-        this.cartographyGroupService.save(this.formLayersPermits.value)
-        .subscribe(resp => {
-          this.layersPermitsToEdit=resp;
-          this.layersPermitsID=resp.id
-          this.formLayersPermits.patchValue({
-            id: resp.id,
-            _links: resp._links
-          })
-          this.getAllElementsEventCartographies.next('save');
-          this.getAllElementsEventRoles.next('save');
-        },
-        error => {
-          console.log(error);
+        return this.entityToEdit.getRelationArrayEx(Role, 'roles', {
+          projection: 'view',
         });
-    }
-    else {
-      this.utils.showRequiredFieldsError();
-    }
-
+      })
+      .withRelationsUpdater(async (roles: (Role & Status)[]) => {
+        await onUpdate(roles).forEach((item) => this.roleService.update(item));
+        await onUpdatedRelation(roles).forAll((item) =>
+          this.entityToEdit.substituteAllRelation('roles', item)
+        );
+      })
+      .withTargetsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getNonEditableColumnDef(
+          'common.form.name',
+          'name',
+          100,
+          300
+        ),
+        this.utils.getNonEditableColumnDef(
+          'common.form.description',
+          'description',
+          100,
+          300
+        ),
+      ])
+      .withTargetsOrder('name')
+      .withTargetsFetcher(() => this.roleService.getAll())
+      .withTargetsTitle(
+        this.translateService.instant('entity.permissionGroup.roles.title')
+      )
+      .build();
   }
 
-  
+  /**
+   * Defines the data table configuration for managing application-background relationships.
+   * Sets up columns, data fetching, updating logic, and target selection.
+   *
+   * @returns Configured data table definition for application backgrounds
+   */
+  private defineApplicationTable(): DataTableDefinition<
+    ApplicationProjection,
+    ApplicationProjection
+  > {
+    return DataTableDefinition.builder<
+      ApplicationProjection,
+      ApplicationProjection
+    >(this.dialog, this.errorHandler)
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getRouterLinkColumnDef(
+          'common.form.name',
+          'name',
+          '/application/:id/applicationForm',
+          {
+            id: 'id',
+          }
+        ),
+        this.utils.getEditableColumnDef(
+          'common.form.description',
+          'description'
+        ),
+        this.utils.getStatusColumnDef(),
+      ])
+      .withRelationsFetcher(() => {
+        if (this.isNew()) {
+          return EMPTY;
+        }
+        return this.entityToEdit.getRelationArrayEx(ApplicationProjection, 'applications', {
+          projection: 'view',
+        });
+      })
+      .withRelationsOrder('applicationName')
+      .build();
+  }
 
+  /**
+   * Defines the data table configuration for managing cartography members.
+   * Sets up columns, data fetching, updating logic, and target selection.
+   *
+   * @returns Configured data table definition for cartography members
+   */
+  private defineMembersTable(): DataTableDefinition<
+    CartographyProjection,
+    CartographyProjection
+  > {
+    return DataTableDefinition.builder<
+      CartographyProjection,
+      CartographyProjection
+    >(this.dialog, this.errorHandler)
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getRouterLinkColumnDef(
+          'common.form.name',
+          'name',
+          '/layers/:id/layersForm',
+          {
+            id: 'id',
+          },
+          200,
+          300
+        ),
+        this.utils.getNonEditableColumnDef(
+          'entity.permissionGroup.layers.layerslist',
+          'layers',
+          200,
+          300
+        ),
+        this.utils.getRouterLinkColumnDef(
+          'entity.permissionGroup.layers.service',
+          'serviceName',
+          '/service/:id/serviceForm',
+          {
+            id: 'serviceId',
+          },
+          200,
+          300
+        ),
+        this.utils.getStatusColumnDef(),
+      ])
+      .withRelationsOrder('name')
+      .withRelationsFetcher(() => {
+        if (this.isNew()) {
+          return EMPTY;
+        }
+        return this.entityToEdit.getRelationArrayEx(
+          CartographyProjection,
+          'members',
+          { projection: 'view' }
+        );
+      })
+      .withRelationsUpdater(
+        async (cartographies: (CartographyProjection & Status)[]) => {
+          await onUpdatedRelation(cartographies)
+            .map((item) => this.cartographyService.createProxy(item.id))
+            .forAll((item) =>
+              this.entityToEdit.substituteAllRelation('members', item)
+            );
+        }
+      )
+      .withTargetsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getNonEditableColumnDef(
+          'common.form.name',
+          'name',
+          100,
+          300
+        ),
+        this.utils.getNonEditableColumnDef(
+          'entity.permissionGroup.layers.layerslist',
+          'layers',
+          100,
+          300
+        ),
+        this.utils.getNonEditableColumnDef(
+          'entity.permissionGroup.layers.service',
+          'serviceName',
+          100,
+          300
+        ),
+      ])
+      .withTargetsOrder('name')
+      .withTargetsFetcher(() =>
+        this.cartographyService.getAllProjection(CartographyProjection)
+      )
+      .withTargetInclude(
+        (cartographies: (CartographyProjection & Status)[]) =>
+          (item: CartographyProjection) => {
+            return !cartographies.some(
+              (cartography) => cartography.id === item.id
+            );
+          }
+      )
+      .withTargetsTitle(
+        this.translateService.instant('entity.permissionGroup.layers.title')
+      )
+      .build();
+  }
+
+  /**
+   * Creates a CartographyGroup object from the current form values.
+   * Used when saving or updating the entity.
+   * @param id - Optional ID for the new object. If provided, indicates an update operation
+   * @returns New CartographyGroup instance populated with form values
+   */
+  private createObject(id: number = null): CartographyGroup {
+    let safeToEdit = CartographyGroupProjection.fromObject(this.entityToEdit);
+    safeToEdit = Object.assign(safeToEdit, this.entityForm.value, {
+      id: id,
+    });
+    return CartographyGroup.fromObject(safeToEdit);
+  }
 }
-
-

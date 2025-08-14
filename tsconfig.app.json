@@ -5,11 +5,11 @@
     "outDir": "./out-tsc/app",
     "types": []
   },
-  "files": [
-    "src/main.ts",
-    "src/polyfills.ts"
-  ],
-  "include": [
-    "src/**/*.d.ts"
+  "exclude": [
+    "src/**/*.spec.ts",
+    "src/app/core/hal/config/index.ts",
+    "src/app/core/hal/resource/index.ts",
+    "src/app/core/hal/rest/index.ts",
+    "src/app/core/public-api.ts"     
   ]
 }

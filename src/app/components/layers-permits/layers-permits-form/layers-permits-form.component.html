@@ -1,100 +1,101 @@
-<div class="titleDiv">
-  <h4>
-    <mat-icon aria-hidden="false" svgIcon="menu_permisos"></mat-icon> {{ "layersPermitsEntity.layersPermits" | translate
-    }}-{{(layersPermitsID==-1?"new":"edit") | translate}}
-  </h4>
-  <span class="divider"></span>
-</div>
-
-<div class="formDiv">
-  <form [formGroup]='formLayersPermits' #f="ngForm" 	(ngSubmit)="onSaveButtonClicked()">
-  <div class="formHeader">
-    <h5> {{'layersPermitsEntity.generalData' | translate}} </h5>
-    <button type="submit" mat-flat-button  class="saveButton">
-      <mat-icon fontSet="material-icons-round"> save </mat-icon>
-      {{ "save" | translate }}
-    </button>
-    <button type="button" type="button" (click)="utils.navigateBack()"  mat-flat-button class="returnButton"  >
-      <mat-icon fontSet="material-icons-round"> arrow_back </mat-icon>
-      {{ "return" | translate }}
-    </button>
-  </div>
-  <span class="divider"></span>
-
-
-    <div class="rowFormDiv">
-      <div class="colFormDiv">
-        <label class="formLabel requiredInput" >
-          {{'layersPermitsEntity.name' | translate}}
-        </label>
-        <mat-form-field appearance="outline">
+<app-form-toolbar
+  entityType="{{ config.labelSingular }}"
+  font="{{ config.font }}"
+  icon="{{ config.icon }}"
+  [itemName]="entityForm?.get('name')?.value"
+  [isNew]="isNewOrDuplicated()"
+  (save)="onSaveButtonClicked()"
+  (back)="utils.navigateBack()">
+</app-form-toolbar>
+<mat-tab-group
+  mat-stretch-tabs="false"
+  mat-align-tabs="end"
+  [dynamicHeight]="true"
+  preserveContent="true">
+  <mat-tab label="{{ 'common.form.details' | translate }}">
+  <form [formGroup]='entityForm' *ngIf="dataLoaded">
+    <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+      <mat-card-content>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ 'common.form.name' | translate }}</mat-label>
           <input matInput type="text" formControlName="name" required>
         </mat-form-field>
-      </div>
-
-      <div class="MidColFormDiv">
-        <label class="formLabel requiredInput">
-          {{'layersPermitsEntity.type' | translate}}
-        </label>
-        <mat-form-field appearance="outline">
-          <mat-select matInput formControlName="type" class="form-control">
+        <mat-form-field appearance="outline" class="quarter">
+          <mat-label>{{ 'common.form.type' | translate }}</mat-label>
+          <mat-select formControlName="type" class="form-control">
             <mat-option [value]="permissionGroupType.value" *ngFor="let permissionGroupType of permissionGroupTypes">
               {{permissionGroupType.description}}
             </mat-option>
           </mat-select>
         </mat-form-field>
-      </div>
-
-
-    </div>
-
-
+      </mat-card-content>
+    </mat-card>
   </form>
-
-</div>
-
-<div class="tableDiv" *ngIf="dataLoaded">
-  <mat-accordion multi>
-
-    <!-- Cartography configuration table -->
-    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
-      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-        <mat-panel-title>
-          {{ "layersPermitsEntity.cartographiesConfiguration" | translate }}
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <ng-template matExpansionPanelContent>
-        <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [allNewElements]="layersPermitsID == -1" defaultColumnSorting="name" [columnDefs]="columnDefsCartographies" [themeGrid]='themeGrid' [getAll]='getAllCartographies'
-            [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
-            [eventAddItemsSubscription]='addElementsEventCartographies.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventCartographies.asObservable()' 
-            [eventRefreshSubscription]='dataUpdatedEventCartographies.asObservable()' [actionButton]=true (getAllRows)="getAllRowsCartographies($event)" 
-            (add)="openCartographyDialog($event)" > </app-data-grid>
-        </div>
-      </ng-template>
-    </mat-expansion-panel>
-
-    <!-- Rols table -->
-    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
-      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-        <mat-panel-title>
-          {{ "layersPermitsEntity.roles" | translate }}
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <ng-template matExpansionPanelContent>
-        <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [allNewElements]="layersPermitsID == -1" defaultColumnSorting="name" [columnDefs]="columnDefsRoles" [themeGrid]='themeGrid' [getAll]='getAllRoles'
-            [discardChangesButton]=true [redoButton]=true [undoButton]=true [deleteButton]=true [addButton]=true [hideDuplicateButton]=true
-            [eventAddItemsSubscription]='addElementsEventRoles.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventRoles.asObservable()' 
-            [eventRefreshSubscription]='dataUpdatedEventRoles.asObservable()' [actionButton]=true (getAllRows)="getAllRowsRoles($event)" 
-            (add)="openRolesDialog($event)" > </app-data-grid>
-        </div>
-      </ng-template>
-
-    </mat-expansion-panel>
-
-
-  </mat-accordion>
-</div>
+  </mat-tab>
+  <mat-tab label=" {{ 'entity.permissionGroup.layers.header' | translate }}">
+    <app-data-grid [changeHeightButton]="true"
+                   [allNewElements]="isNewOrDuplicated()"
+                   [columnDefs]="membersTable.relationsColumnsDefs"
+                   [getAll]='membersTable.relationsFetchFn'
+                   [eventAddItemsSubscription]='membersTable.addCommandEvent$.asObservable()'
+                   [eventGetAllRowsSubscription]='membersTable.saveCommandEvent$.asObservable()'
+                   [eventRefreshSubscription]='membersTable.refreshCommandEvent$.asObservable()'
+                   [actionButton]=true
+                   [discardChangesButton]=true
+                   [redoButton]=true
+                   [undoButton]=true
+                   [deleteButton]=true
+                   [addButton]=true
+                   [hideDuplicateButton]=true
+                   [hideReplaceButton]=true
+                   [defaultColumnSorting]='membersTable.defaultRelationsSorting()'
+                   (getAllRows)="membersTable.handleSaveRelations($event)"
+                   (add)="membersTable.openDialog($event)"
+                   *ngIf="dataLoaded"
+    > </app-data-grid>
+  </mat-tab>
+  <mat-tab label="{{ 'entity.permissionGroup.roles.header' | translate }}">
+    <app-data-grid [changeHeightButton]="true"
+                   [allNewElements]="isNewOrDuplicated()"
+                   [columnDefs]="rolesTable.relationsColumnsDefs"
+                   [getAll]='rolesTable.relationsFetchFn'
+                   [eventAddItemsSubscription]='rolesTable.addCommandEvent$.asObservable()'
+                   [eventGetAllRowsSubscription]='rolesTable.saveCommandEvent$.asObservable()'
+                   [eventRefreshSubscription]='rolesTable.refreshCommandEvent$.asObservable()'
+                   [actionButton]=true
+                   [discardChangesButton]=true
+                   [redoButton]=true
+                   [undoButton]=true
+                   [deleteButton]=true
+                   [addButton]=true
+                   [hideDuplicateButton]=true
+                   [hideReplaceButton]=true
+                   [defaultColumnSorting]='rolesTable.defaultRelationsSorting()'
+                   (getAllRows)="rolesTable.handleSaveRelations($event)"
+                   (add)="rolesTable.openDialog($event)"
+                   *ngIf="dataLoaded"
+    > </app-data-grid>
+  </mat-tab>
+  <mat-tab label="{{ 'entity.permissionGroup.applications.header' | translate }}">
+    <app-data-grid [changeHeightButton]="true"
+                   [allNewElements]="isNewOrDuplicated()"
+                   [columnDefs]="applicationsTable.relationsColumnsDefs"
+                   [getAll]='applicationsTable.relationsFetchFn'
+                   [eventAddItemsSubscription]='applicationsTable.addCommandEvent$.asObservable()'
+                   [eventGetAllRowsSubscription]='applicationsTable.saveCommandEvent$.asObservable()'
+                   [eventRefreshSubscription]='applicationsTable.refreshCommandEvent$.asObservable()'
+                   [actionButton]=false
+                   [discardChangesButton]=false
+                   [redoButton]=false
+                   [undoButton]=false
+                   [deleteButton]=false
+                   [addButton]=false
+                   [hideDuplicateButton]=false
+                   [hideReplaceButton]=true
+                   [defaultColumnSorting]='applicationsTable.defaultRelationsSorting()'
+                   (getAllRows)="applicationsTable.handleSaveRelations($event)"
+                   (add)="applicationsTable.openDialog($event)"
+                   *ngIf="dataLoaded"
+    > </app-data-grid>
+  </mat-tab>
+</mat-tab-group>

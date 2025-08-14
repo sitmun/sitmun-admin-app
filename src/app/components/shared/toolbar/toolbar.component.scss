@@ -1,8 +1,8 @@
 @import "../../../variables.scss";
 
 .top-toolbar-row {
-	background-color: #FF9300;
-	color: white;
+	background-color: $primary-color;
+	color: $white;
 }
 
 .toggle-button{
@@ -35,7 +35,7 @@
 	background: rgba(255, 255, 255, 0.3);
     border-radius: 100%;
     margin-left: 0.5em;
-    color: #FFFFFF;
+    color: $white;
     font-weight: normal;
     display: inline;
     float: left;
@@ -55,7 +55,7 @@
 }
 
 .app-title {
-	font-size: 1.3em;
+	font-size: $font-size-lg;
 }
 
 .toolbar-spacer {
@@ -63,12 +63,12 @@
 }
 
 .toolbar-user {
-  border-left: 1px solid #707070;
-  color:#333;
-  font-size: 0.8em;
-  margin-left: 20px;
-  padding-left: 20px;
-  padding-right: 5px;
+  border-left: 1px solid $dark-gray;
+  color: $text-color;
+  font-size: $font-size-sm;
+  margin-left: $spacing-lg;
+  padding-left: $spacing-lg;
+  padding-right: $spacing-xs;
   display: flex;
   align-items: center;
 }
@@ -78,13 +78,13 @@
 }
 
 .toolbar-icon{
-  color:#333;
+  color: $text-color;
 }
 
 .exit-icon{
-  color:white;
-  background-color: #BF0000;
-  border-color: #BF0000;
+  color: $white;
+  background-color: $warn-color;
+  border-color: $warn-color;
 }
 
 .toolbar-toggle

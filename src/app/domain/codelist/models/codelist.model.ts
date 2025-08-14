@@ -1,0 +1,16 @@
+import { Resource } from '@app/core/hal/resource/resource.model';
+/**
+ * Connection model
+ */
+export class CodeList extends Resource {
+  /** id */
+  public override id: number;
+  /** name*/
+  public codeListName: string;
+  /** type*/
+  public value: string;
+  /** user*/
+  public description: string;
+
+
+}

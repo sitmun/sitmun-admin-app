@@ -1,5 +1,29 @@
+// Color variables
+$primary-color: #FF9300;
+$accent-color: #C56400;
+$warn-color: #BF0000;
+$black: #000000;
+$white: #FFFFFF;
+$light-gray: #F5F5F5;
+$medium-gray: #DDDDDD;
+$dark-gray: #707070;
+$text-color: #333333;
 
-$black: #212121; 
-$light-grey: #EEEEEE; 
-$default-margin: 30px;
+// Spacing variables
+$spacing-xs: 5px;
+$spacing-sm: 10px;
+$spacing-md: 15px;
+$spacing-lg: 20px;
+$spacing-xl: 30px;
 
+// Font sizes
+$font-size-sm: 0.8em;
+$font-size-md: 1em;
+$font-size-lg: 1.3em;
+$font-size-xl: 1.5em;
+
+// Breakpoints
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px; 

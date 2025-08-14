@@ -1,8 +1,14 @@
-<div *ngIf="!isLoggedIn()" class="mat-app-background basic-container">
-  <app-login></app-login>
-</div>
-<div *ngIf="isLoggedIn()" class="mat-app-background basic-container">
-  <app-toolbar (open)="navOpen($event)" ></app-toolbar>
-  <app-side-menu  [openNav]="isOpen"  ></app-side-menu>
-</div>
- 
+<!-- Render initialization error or main app without negating async -->
+<ng-container *ngIf="hasInitializationError$ | async; else appContent">
+  <div class="mat-app-background">
+    <app-error-page
+      [error]="initializationError$ | async"
+      errorType="initialization">
+    </app-error-page>
+  </div>
+</ng-container>
+
+<ng-template #appContent>
+  <router-outlet></router-outlet>
+  <app-translation-debug></app-translation-debug>
+</ng-template>

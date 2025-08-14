@@ -1,16 +1,75 @@
-<h5 mat-dialog-title class="titleDialog">{{title}}</h5>
-<mat-dialog-content class="dialogConent">
-  <div *ngFor="let getAll of getAllsTable; let i = index" class="appDialogDataGridDiv"  [ngStyle]="{'margin-top': i>0?'100px':'0px'}">
-    <app-data-grid 
-    [columnDefs]="columnDefsTable[i]" [themeGrid]='themeGrid' [changeHeightButton]='changeHeightButton' [defaultHeight]='heightByDefault'  [getAll]='getAll' [globalSearch]=true [singleSelection]="singleSelectionTable[i]"
-    [title]="titlesTable[i]" [defaultColumnSorting]='orderTable.length>=i?orderTable[i]:null' [nonEditable]='nonEditable'
-     [eventGetSelectedRowsSubscription]="getAllRows.asObservable()" [addFieldRestriction]='addFieldRestriction.length>=i?addFieldRestriction[i]:null' 
-     [currentData]='currentData.length>=i?currentData[i]:null' [fieldRestrictionWithDifferentName]='fieldRestrictionWithDifferentName.length>=i?fieldRestrictionWithDifferentName[i]:null' (getSelectedRows)='joinRowsReceived($event)' >
-    </app-data-grid>
-  </div>
+<h5 class="titleDialog" mat-dialog-title>{{ title | translate }}</h5>
+<mat-dialog-content>
+  <mat-card *ngIf="getAllsTable.length === 1" appearance="outlined">
+    <div *ngFor="let getAll of getAllsTable; let i = index" [ngStyle]="{'margin-top': i>0?'100px':'0px'}">
+      <mat-card-content>
+        <app-data-grid
+          (getSelectedRows)='joinRowsReceived($event)'
+          [addFieldRestriction]='addFieldRestriction.length>=i?addFieldRestriction[i]:null'
+          [changeHeightButton]='changeHeightButton'
+          [columnDefs]="columnDefsTable[i]"
+          [currentData]='currentData.length>=i?currentData[i]:null'
+          [defaultColumnSorting]='orderTable.length>=i?[orderTable[i]]:null'
+          [defaultHeight]='heightByDefault'
+          [eventGetSelectedRowsSubscription]="getAllRows.asObservable()"
+          [fieldRestrictionWithDifferentName]='fieldRestrictionWithDifferentName.length>=i?fieldRestrictionWithDifferentName[i]:null'
+          [getAll]='getAll'
+          [globalSearch]=true
+          [hideDuplicateButton]=true
+          [hideReplaceButton]=true
+          [nonEditable]='nonEditable'
+          [singleSelection]="singleSelectionTable[i]"
+          [title]="titlesTable[i]"
+        >
+        </app-data-grid>
+      </mat-card-content>
+    </div>
+  </mat-card>
+  <mat-tab-group *ngIf="getAllsTable.length>1">
+    <div *ngFor="let getAll of getAllsTable; let i = index" [ngStyle]="{'margin-top': i>0?'100px':'0px'}">
+      <mat-tab label="{{(titlesTable[i]==='' || !titlesTable[i] ? '' : titlesTable[i]) | translate}}">
+        <mat-card appearance="outlined">
+          <mat-card-content>
+            <app-data-grid
+              [columnDefs]="columnDefsTable[i]"
+              [changeHeightButton]='changeHeightButton'
+              [defaultHeight]='heightByDefault'
+              [getAll]='getAll'
+              [globalSearch]=true
+              [singleSelection]="singleSelectionTable[i]"
+              [title]="titlesTable[i]"
+              [defaultColumnSorting]='orderTable.length>=i?[orderTable[i]]:null'
+              [nonEditable]='nonEditable'
+              [eventGetSelectedRowsSubscription]="getAllRows.asObservable()"
+              [addFieldRestriction]='addFieldRestriction.length>=i?addFieldRestriction[i]:null'
+              [currentData]='currentData.length>=i?currentData[i]:null'
+              [hideReplaceButton]=true
+              [hideDuplicateButton]=true
+              [fieldRestrictionWithDifferentName]='fieldRestrictionWithDifferentName.length>=i?fieldRestrictionWithDifferentName[i]:null'
+              (getSelectedRows)='joinRowsReceived($event)'
+            >
+            </app-data-grid>
+          </mat-card-content>
+        </mat-card>
+      </mat-tab>
+    </div>
+  </mat-tab-group>
 </mat-dialog-content>
-<div mat-dialog-actions align="end">
-  <button mat-flat-button class="returnButton" (click)="closeDialog()">{{"cancel" | translate}}</button>
-  <button mat-flat-button class="saveButton" (click)="getAllSelectedRows()" cdkFocusInitial>{{"add" | translate}}</button>
-</div>
-
+<mat-dialog-actions align="end">
+  <button
+    matTooltip="{{ 'add' | translate }}"
+    [mat-dialog-close]="true"
+    mat-mini-fab class="add-half-gap"
+    color="primary"
+    (click)="getAllSelectedRows()">
+    <mat-icon fontSet="material-icons-round">add</mat-icon>
+  </button>
+  <button
+    matTooltip="{{ 'cancel' | translate }}"
+    mat-dialog-close
+    mat-mini-fab
+    color="primary"
+    (click)="closeDialog()">
+    <mat-icon fontSet="material-icons-round">arrow_back</mat-icon>
+  </button>
+</mat-dialog-actions>

@@ -1,150 +1,131 @@
-<div class="titleDiv" >
-  <h4><mat-icon aria-hidden="false"  svgIcon="menu_usuari"></mat-icon> {{ "userEntity.user" | translate }}-{{(userID==-1?"new":"edit") | translate}}</h4>
-  <span class="divider"></span>
-</div>
+<app-form-toolbar
+  entityType="{{ config.labelSingular }}"
+  font="{{ config.font }}"
+  icon="{{ config.icon }}"
+  [itemName]="entityForm?.get('username')?.value || ''"
+  [isNew]="isNew()"
+  (save)="onSaveButtonClicked()"
+  (back)="utils.navigateBack()">
+</app-form-toolbar>
 
-
-<div class="formDiv">
-  <form [formGroup]='userForm' #f="ngForm" 	(ngSubmit)="onSaveButtonClicked()"> 
-    <div class="formHeader">
-      <h5> {{'userEntity.generalData' | translate}} </h5>
-      <button   mat-flat-button class="saveButton"  >
-        <mat-icon fontSet="material-icons-round"  > save </mat-icon>
-        {{ "save" | translate }}
-      </button>
-      <button type="button" (click)="utils.navigateBack()"  mat-flat-button class="returnButton"  >
-        <mat-icon fontSet="material-icons-round"> arrow_back </mat-icon>
-        {{ "return" | translate }}
-      </button>
-    </div>
-    <span class="divider"></span>
-  
-      <div class="rowFormDiv">
-          <div class="colFormDiv">
-            <label class="formLabel requiredInput">
-              {{'userEntity.user' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="username">
-            </mat-form-field>
-          </div>
-  
-          <div class="colFormDiv" >
-            <label class="formLabel requiredInput">
-              {{'userEntity.firstname' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <input matInput type="text" formControlName="firstName">
-            </mat-form-field>
-          </div>
-  
-          <div class="LargeColFormDiv">
-              <label class="formLabel">
-                {{'userEntity.lastname' | translate}}
-              </label>
-              <mat-form-field appearance="outline">
+<mat-tab-group
+  mat-stretch-tabs="false"
+  mat-align-tabs="end"
+  [dynamicHeight]="true"
+  preserveContent="true">
+  <mat-tab label="{{ 'common.form.details' | translate }}">
+        <form [formGroup]='entityForm' *ngIf="dataLoaded">
+          <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+            <mat-card-content>
+              <!-- User name -->
+              <mat-form-field appearance="outline" class="quarter">
+                <mat-label>{{ 'entity.user.label' | translate }}</mat-label>
+                <input matInput type="text" formControlName="username" [readonly]="isUsernamePublic()">
+              </mat-form-field>
+              <div class="break"></div>
+              <!-- Blocked -->
+              <mat-checkbox formControlName="blocked">
+                {{ 'entity.user.blocked' | translate }}
+              </mat-checkbox>
+            </mat-card-content>
+          </mat-card>
+          <mat-card class="sitmun-mat-card-margin" appearance="outlined" *ngIf="!isUsernamePublic()">
+            <mat-card-content>
+              <!-- First name -->
+              <mat-form-field appearance="outline" class="half add-gap">
+                <mat-label>{{ 'entity.user.firstname' | translate }}</mat-label>
+                <input matInput type="text" formControlName="firstName">
+              </mat-form-field>
+              <!-- Last name -->
+              <mat-form-field appearance="outline" class="half">
+                <mat-label>{{ 'entity.user.lastname' | translate }}</mat-label>
                 <input matInput type="text" formControlName="lastName">
               </mat-form-field>
-            </div>
-
-      </div>
-  
-      <div class="rowFormDiv">
-      
-          
-        <div class="MidColFormDiv" >
-            <label class="formLabel">
-              {{'userEntity.password' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <mat-icon matSuffix (click)="hidePassword = !hidePassword">{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
-              <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
-            </mat-form-field>
-          </div>
-
-          <div class="MidColFormDiv" >
-            <label class="formLabel">
-              {{'userEntity.confirmPassword' | translate}}
-            </label>
-            <mat-form-field appearance="outline">
-              <mat-icon matSuffix (click)="hideConfirmPassword = !hideConfirmPassword">{{hideConfirmPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
-              <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" formControlName="confirmPassword">
-            </mat-form-field>
-          </div>
-
-          <div class="ShortColFormDiv" >
-            <label class="formLabel">
-              {{'userEntity.passwordSet' | translate}}
-            </label>
-            <mat-checkbox (click)="$event.preventDefault()" formControlName="passwordSet" > </mat-checkbox>
-          </div>
-
-          <div class="ExtraShortColFormDiv" >
-            <label class="formLabel">
-              {{'userEntity.administrator' | translate}}
-            </label>
-            <mat-checkbox formControlName="administrator"> </mat-checkbox>
-          </div>
-
-
-          <div class="ExtraShortColFormDiv" >
-            <label class="formLabel" id="right-column">
-              {{'userEntity.blocked' | translate}}
-            </label>
-            <mat-checkbox formControlName="blocked"> </mat-checkbox>
-          </div>
-    </div>
-  </form>
-</div>
-
-<div class="tableDiv" *ngIf="dataLoaded">
-  <mat-accordion multi>
-
-    <!-- Permits table -->
-    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
-      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-        <mat-panel-title  >
-          {{ "userEntity.permissions" | translate }}
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-  
-    <div matExpansionPanelContent>  
-      <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [allNewElements]="userID == -1"  [columnDefs]="columnDefsPermits" defaultColumnSorting="territory" [themeGrid]='themeGrid' [getAll]='getAllPermits'  
-          [eventRefreshSubscription]='dataUpdatedEvent.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventPermits.asObservable()' 
-          [eventRefreshSubscription]='dataUpdatedEventPermits.asObservable()' [eventAddItemsSubscription]='addElementsEventPermits.asObservable()'
-           [discardChangesButton]=true [redoButton]=true [undoButton]=true  [deleteButton]=true [addButton]=true [addFieldRestriction]="['territoryId', 'roleId', 'userId']" 
-          (getAllRows)="getAllRowsPermits($event)" [actionButton]=true  (add)="openPermitsDialog($event)"  > </app-data-grid>
-      </div>
-    </div>
-  
-  
-    </mat-expansion-panel>
-
-
-      <!-- Territory data table -->     
-    <mat-expansion-panel [expanded]="true" class="agGridExpansionPanel">
-      <mat-expansion-panel-header class="agGridExpansionPanelTitle">
-        <mat-panel-title  >
-          {{ "userEntity.dataOfTerritory" | translate }}
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-  
-    <ng-template matExpansionPanelContent>  
-      <div class="appDataGridEditDiv">
-          <app-data-grid [changeHeightButton]="true" [allNewElements]="userID == -1" [columnDefs]="columnDefsData" defaultColumnSorting="territoryName" [themeGrid]='themeGrid' [getAll]='getAllDataTerritory'  
-          [eventAddItemsSubscription]='addElementsEventTerritoryData.asObservable()' [eventGetAllRowsSubscription]='getAllElementsEventTerritoryData.asObservable()' 
-          [eventRefreshSubscription]='dataUpdatedEventTerritoryData.asObservable()' [deleteButton]=true [discardChangesButton]=true [redoButton]=true
-          [undoButton]=true  [hideDuplicateButton]=true (getAllRows)="getAllRowsDataTerritories($event)" [actionButton]=true > </app-data-grid>
-      </div>
-    </ng-template>
-  
-  
-    </mat-expansion-panel>
-
-  </mat-accordion>
-
-</div>
-  
-  
-  
+              <!-- Email -->
+              <mat-form-field appearance="outline" class="half add-gap">
+                <mat-label>{{ 'common.form.email' | translate }}</mat-label>
+                <input matInput type="email" formControlName="email">
+                <mat-error *ngIf="entityForm?.get('email')?.hasError('email')">
+                  {{ 'common.error.invalidEmail' | translate }}
+                </mat-error>
+                <mat-error *ngIf="entityForm?.get('email')?.hasError('pattern')">
+                  {{ 'common.error.invalidEmailFormat' | translate }}
+                </mat-error>
+              </mat-form-field>
+              <div class="break"></div>
+              <!-- Password -->
+              <mat-form-field appearance="outline" class="half">
+                <mat-label>{{ 'common.form.password.label' | translate }}</mat-label>
+                <input matInput
+                       formControlName="newPassword"
+                       type="text"
+                       [maxlength]="50"
+                       (input)="onPasswordChange()"
+                       class="password-input">
+                <mat-hint align="end" *ngIf="isPasswordBeingEdited">
+                  {{ entityForm?.get('newPassword') | characterCount }}
+                </mat-hint>
+              </mat-form-field>
+              <div class="break"></div>
+              <!-- Administrator -->
+              <mat-checkbox formControlName="administrator">
+                {{ 'entity.user.administrator' | translate }}
+              </mat-checkbox>
+              <!-- Warnings Section -->
+              <app-warnings-panel
+                [expanded]="true"
+                [warnings]="entityToEdit?.warnings"
+                titleKey="common.warnings.title">
+              </app-warnings-panel>
+            </mat-card-content>
+          </mat-card>
+        </form>
+  </mat-tab>
+  <mat-tab label="{{ 'entity.users.role.header' | translate }}">
+    <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+      <mat-card-content>
+        <app-data-grid [changeHeightButton]="true"
+                      [allNewElements]="isNewOrDuplicated()"
+                      [columnDefs]="userConfigurationsTable.relationsColumnsDefs"
+                      [getAll]='userConfigurationsTable.relationsFetchFn'
+                      [eventAddItemsSubscription]='userConfigurationsTable.addCommandEvent$.asObservable()'
+                      [eventGetAllRowsSubscription]='userConfigurationsTable.saveCommandEvent$.asObservable()'
+                      [eventRefreshSubscription]='userConfigurationsTable.refreshCommandEvent$.asObservable()'
+                      [actionButton]=true
+                      [discardChangesButton]=true
+                      [redoButton]=true
+                      [undoButton]=true
+                      [deleteButton]=true
+                      [addButton]=true
+                      [defaultColumnSorting]='userConfigurationsTable.defaultRelationsSorting()'
+                      [hideDuplicateButton]=true
+                      [hideReplaceButton]=true
+                      (getAllRows)="userConfigurationsTable.handleSaveRelations($event)"
+                      (add)="userConfigurationsTable.openDialog($event)"
+                      *ngIf="dataLoaded"
+        ></app-data-grid>
+      </mat-card-content>
+    </mat-card>
+  </mat-tab>
+  <mat-tab label="{{'entity.user.positions.header' | translate }}">
+    <app-data-grid [changeHeightButton]="true"
+                   [allNewElements]="isNew()"
+                   (duplicate)='userPositionsTable.duplicateRelations($event)'
+                   (getAllRows)="userPositionsTable.handleSaveRelations($event)"
+                   [actionButton]=true
+                   [columnDefs]="userPositionsTable.relationsColumnsDefs"
+                   [defaultColumnSorting]='userPositionsTable.defaultRelationsSorting()'
+                   [deleteButton]=true
+                   [discardChangesButton]=true
+                   [redoButton]=true
+                   [undoButton]=true
+                   [eventAddItemsSubscription]='userPositionsTable.addCommandEvent$.asObservable()'
+                   [eventGetAllRowsSubscription]='userPositionsTable.saveCommandEvent$.asObservable()'
+                   [eventRefreshSubscription]='userPositionsTable.refreshCommandEvent$.asObservable()'
+                   [getAll]='userPositionsTable.relationsFetchFn'
+                   [hideReplaceButton]=true
+                   *ngIf="dataLoaded"
+    >
+    </app-data-grid>
+  </mat-tab>
+</mat-tab-group>

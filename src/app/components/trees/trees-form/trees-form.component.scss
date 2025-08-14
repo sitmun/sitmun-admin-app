@@ -27,3 +27,45 @@
 .tableDiv{
   margin-top:10px;
 }
+
+.fieldsConfigTree {
+  overflow: auto;
+  height: 45vh;
+  display: block;
+}
+
+.maping-form {
+  margin-top: 20px;
+}
+
+#fieldsConfigForm {
+  width: 80vw;
+}
+
+#fieldsConfigForm .colFormDiv {
+  width: max-content;
+}
+
+input[type=button].add-gap {
+    background-color: rgb(255, 147, 0);
+    color: white;
+    height: 36px;
+    transition: box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0 16px 0 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: var(--mdc-filled-button-container-shape, var(--mdc-shape-small, 4px));
+    font-size: var(--mdc-typography-button-font-size, 14px);
+    font-weight: var(--mdc-typography-button-font-weight, 500);
+    letter-spacing: var(--mdc-typography-button-letter-spacing, 0.0892857143em);
+    margin-bottom: 10px;
+}
+
+.previewImage {
+  height: 80px;
+  width: 80px;
+}
+
+.namespace-field {
+  width: 35vw;
+}

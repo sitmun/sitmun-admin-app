@@ -3,14 +3,27 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LayersFormComponent } from './layers-form.component';
 import { RouterModule } from '@angular/router';
 import {
-  CartographyService, ServiceService, TerritoryTypeService, ConnectionService, TreeNodeService,
-  TerritoryService, CartographyGroupService, CartographyAvailabilityService, CartographyParameterService, TranslationService,
-  CodeListService, CartographyFilterService, GetInfoService, ResourceService, ExternalService, CartographyStyleService, CartographySpatialSelectionParameterService
-} from '../../../frontend-core/src/lib/public_api';
-import { SitmunFrontendGuiModule } from '../../../frontend-gui/src/lib/public_api';
-import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
+  CartographyAvailabilityService,
+  CartographyFilterService,
+  CartographyGroupService,
+  CartographyParameterService,
+  CartographyService,
+  CartographySpatialSelectionParameterService,
+  CartographyStyleService,
+  CodeListService,
+  ConnectionService,
+  GetInfoService,
+  ServiceService,
+  TerritoryService,
+  TerritoryTypeService,
+  TranslationService,
+  TreeNodeService
+} from '@app/domain';
+import {ExternalService, ResourceService} from '@app/core/hal';
+import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { RouterTestingModule } from '@angular/router/testing';
-import { MaterialModule } from '../../../material-module';
+import { MaterialModule } from '@app/material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -258,7 +271,7 @@ describe('LayersFormComponent', () => {
 
     component.loadButtonDisabled();
 
-    expect(component.disableLoadButton).toBeTrue();
+    expect(component.disableLoadButton).toBe(true);
   })
 
   it('Load button enabled', () => {
@@ -272,11 +285,11 @@ describe('LayersFormComponent', () => {
 
     component.loadButtonDisabled();
 
-    expect(component.disableLoadButton).toBeFalse();
+    expect(component.disableLoadButton).toBe(false);
   })
 
   it('getFeature valid', () => {
-    let requestResult =
+    const requestResult =
     {
       "xsd:schema": {
         "elementFormDefault": "qualified",
@@ -457,7 +470,7 @@ describe('LayersFormComponent', () => {
   })
 
   it('getFeature with non valid format', () => {
-    let requestResult =
+    const requestResult =
     {
       "INCORRECT_FORMAT": {
         "elementFormDefault": "qualified",

@@ -2,13 +2,14 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { TaskGroupFormComponent } from './task-group-form.component';
 import { RouterModule } from '@angular/router';
-import { MaterialModule } from '../../../material-module';
+import { MaterialModule } from '@app/material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { TaskGroupService, CodeListService,TranslationService,ResourceService,ExternalService } from '../../../frontend-core/src/lib/public_api';
-import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
+import {CodeListService, TaskGroupService, TranslationService} from '@app/domain';
+import {ExternalService, ResourceService} from '@app/core/hal';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { HttpClientModule } from '@angular/common/http';
-import { SitmunFrontendGuiModule } from '../../../frontend-gui/src/lib/public_api';
+import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { RouterTestingModule } from '@angular/router/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -31,7 +32,7 @@ describe('TaskGroupFormComponent', () => {
     })
     .compileComponents();
   });
- 
+
   beforeEach(() => {
     fixture = TestBed.createComponent(TaskGroupFormComponent);
     component = fixture.componentInstance;
@@ -46,7 +47,7 @@ describe('TaskGroupFormComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-  
+
   it('should instantiate taskGroupService', () => {
     expect(taskGroupService).toBeTruthy();
   });
@@ -58,7 +59,7 @@ describe('TaskGroupFormComponent', () => {
   it('should instantiate translationService', () => {
     expect(translationService).toBeTruthy();
   });
- 
+
   it('should instantiate resourceService', () => {
     expect(resourceService).toBeTruthy();
   });
@@ -69,7 +70,7 @@ describe('TaskGroupFormComponent', () => {
 
   it('form invalid when empty', () => {
     expect(component.formtaskGroup.valid).toBeFalsy();
-  }); 
+  });
 
 
   it('form valid', () => {
@@ -77,9 +78,9 @@ describe('TaskGroupFormComponent', () => {
       name: 'name'
     })
     expect(component.formtaskGroup.valid).toBeTruthy();
-  }); 
+  });
 
   it('Task group form fields', () => {
     expect(component.formtaskGroup.get('name')).toBeTruthy();
-  }); 
+  });
 });

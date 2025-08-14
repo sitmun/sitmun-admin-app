@@ -1,13 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ApplicationComponent } from './application.component';
-import { ApplicationService, CodeListService, ResourceService, ExternalService, Role } from '../../frontend-core/src/lib/public_api';
-import { SitmunFrontendGuiModule } from '../../frontend-gui/src/lib/public_api';
-import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
+import { ApplicationService, CodeListService, Role } from '@app/domain';
+import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { RouterTestingModule } from '@angular/router/testing';
-import { MaterialModule } from '../../material-module';
+import { MaterialModule } from '@app/material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import {ExternalConfigurationService} from '@app/core/config/external-configuration.service';
+import {ExternalService, ResourceService} from '@app/core/hal';
+
 
 describe('ApplicationComponent', () => {
   let component: ApplicationComponent;
@@ -41,7 +43,7 @@ describe('ApplicationComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  
+
   it('should instantiate applicationService', () => {
     expect(applicationService).toBeTruthy();
   });
@@ -50,7 +52,7 @@ describe('ApplicationComponent', () => {
     expect(codeListService).toBeTruthy();
   });
 
-  
+
   it('should instantiate resourceService', () => {
     expect(resourceService).toBeTruthy();
   });

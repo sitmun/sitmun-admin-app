@@ -1,46 +1,46 @@
-<div class="titleDiv" >
-  <h4><mat-icon aria-hidden="false"  svgIcon="menu_connexio"></mat-icon> {{ "Dashboard" | translate}}</h4>
-  <span class="divider"></span>
-</div>
-<div style="width:95%" class="matgridlist">
-  <mat-grid-list rowHeight="2:1" cols="4" *ngIf="dataLoaded" [gutterSize]="'10px'"> 
-    <mat-grid-tile *ngFor="let kpi of KPIsTable; let i = index" class="matgridtitle"> 
-        <div class="totalkpi">
-          <div><span class="numKpi">{{kpi.text}}</span></div>
-          <div class="numDiv">{{kpi.number}}</div>
-        </div>
-    </mat-grid-tile> 
-  </mat-grid-list>
-</div>
+<mat-toolbar>
+  <span class="spacer"></span>
+  <h4>
+    <span>
+      <mat-icon fontSet="{{ config.font }}">{{ config.icon }}</mat-icon>
+      {{ config.labelSingular | translate }}
+    </span>
+  </h4>
+</mat-toolbar>
+<mat-card class="sitmun-mat-card-margin" appearance="outlined">
+  <mat-card-content>
+    <mat-grid-list rowHeight="2:1" cols="4" *ngIf="dataLoaded" [gutterSize]="'10px'">
+      <mat-grid-tile *ngFor="let kpi of KPIsTable; let i = index">
+        <mat-card class="ticker full" appearance="outlined">
+          <mat-card-header>
+            <mat-card-title class="title">{{ kpi.text }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content class="total">
+            {{ kpi.number }}
+          </mat-card-content>
+        </mat-card>
+      </mat-grid-tile>
+    </mat-grid-list>
+  </mat-card-content>
+</mat-card>
+
 <div style="width:100%; margin-top: 20px" *ngIf="dataLoaded">
   <div class="gridGraph">
-    <p class="titleGraph">{{ "dashboard.cartographies" | translate}} 
+    <p class="titleGraph">{{ "dashboard.cartographies" | translate }}
       <span *ngIf="!cartographyDataAvailable">({{ "notAvailable" | translate }})</span>
-    </p> 
-    <app-datagraph *ngIf="dataLoaded" [data]="this.cartographyChartData" type="bar"> </app-datagraph>
+    </p>
+    <app-datagraph *ngIf="dataLoaded" [data]="this.cartographyChartData" type="bar"></app-datagraph>
   </div>
   <div class="gridGraph">
-    <p class="titleGraph">{{ "dashboard.users" | translate}} 
+    <p class="titleGraph">{{ "dashboard.users" | translate }}
       <span *ngIf="!usersDataAvailable">({{ "notAvailable" | translate }})</span>
-    </p> 
-    <app-datagraph *ngIf="dataLoaded" [data]="this.usersToShow" type="bar"> </app-datagraph>
+    </p>
+    <app-datagraph *ngIf="dataLoaded" [data]="this.usersToShow" type="bar"></app-datagraph>
   </div>
   <div class="gridGraph">
-    <p class="titleGraph">{{ "Usuaris per aplicació" | translate}}  
+    <p class="titleGraph">{{ "dashboard.usersPerApplication" | translate }}
       <span *ngIf="!usersPerApplicationDataAvailable">({{ "notAvailable" | translate }})</span>
-    </p> 
-    <app-datagraph *ngIf="dataLoaded" [data]="this.usersPerApplicationChartData" type="bar"> </app-datagraph>
+    </p>
+    <app-datagraph *ngIf="dataLoaded" [data]="this.usersPerApplicationChartData" type="bar"></app-datagraph>
   </div>
-  <!--<div class="gridGraph">
-    <p class="titleGraph">{{ "Cartografies 4" | translate}}</p> 
-    <app-datagraph *ngIf="dataLoaded" [data]="this.cartographyChartData" type="bar"> </app-datagraph>
-  </div>
-  <div class="gridGraph">
-    <p class="titleGraph">{{ "Cartografies 5" | translate}}</p> 
-    <app-datagraph *ngIf="dataLoaded" [data]="this.cartographyChartData" type="bar"> </app-datagraph>
-  </div>
-  <div class="gridGraph">
-    <p class="titleGraph">{{ "Cartografies 6" | translate}}</p> 
-    <app-datagraph *ngIf="dataLoaded" [data]="this.cartographyChartData" type="bar"> </app-datagraph>
-  </div>-->
 </div>

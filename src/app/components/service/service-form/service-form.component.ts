@@ -1,846 +1,625 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { tick } from '@angular/core/testing';
-import { UntypedFormControl, UntypedFormGroup, Validators, FormBuilder } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ServiceService, CartographyService, Translation, TranslationService, Connection, 
-  Cartography, ServiceParameterService, CapabilitiesService, CartographyStyleService, CartographyFilterService } from '../../../frontend-core/src/lib/public_api';
-import { HttpClient } from '@angular/common/http';
-import { UtilsService } from '../../../services/utils.service';
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { map } from 'rxjs/operators';
-import { Observable, of, Subject } from 'rxjs';
-import { MatChipInputEvent } from '@angular/material/chips';
-import { environment } from 'src/environments/environment';
-import { config } from 'src/config';
-import { DialogGridComponent, DialogFormComponent, DialogMessageComponent } from '../../../frontend-gui/src/lib/public_api';
-import { MatDialog } from '@angular/material/dialog';
-import * as xml2js from 'xml2js';
+import {Component, OnDestroy, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
+import {
+  Cartography,
+  CartographyProjection,
+  CartographyService,
+  CartographyStyle,
+  CartographyStyleService,
+  CodeListService,
+  Service,
+  ServiceParameter,
+  ServiceParameterService,
+  ServiceService,
+  TranslationService,
+} from '@app/domain';
+import {UtilsService} from '@app/services/utils.service';
+import {COMMA, ENTER} from '@angular/cdk/keycodes';
+import {map} from 'rxjs/operators';
+import {EMPTY, firstValueFrom, of} from 'rxjs';
+import {MatChipInputEvent} from '@angular/material/chips';
+import {config} from '@config';
+import {
+  DialogMessageComponent,
+  onCreate,
+  onDelete,
+  onNotAvailable,
+  onPendingRegistration,
+  onUpdate,
+  Status
+} from '@app/frontend-gui/src/lib/public_api';
+import {MatDialog} from '@angular/material/dialog';
+import {constants} from '@environments/constants';
+import {LoggerService} from '@app/services/logger.service';
+import {TranslateService} from "@ngx-translate/core";
+import {BaseFormComponent} from "@app/components/base-form.component";
+import {ErrorHandlerService} from "@app/services/error-handler.service";
+import {DataTableDefinition, TemplateDialog} from "@app/components/data-tables.util";
+import {WMSCapabilitiesService, WMSLayersCapabilities} from "@app/services/wms-capabilities.service";
+import {Configuration} from "@app/core/config/configuration";
 
+/**
+ * Component for managing service forms in the application.
+ * Extends SitmunMixedBase to provide base functionality for service management.
+ *
+ * This component provides a comprehensive interface for:
+ * 1. Service Management
+ *    - Creating new services
+ *    - Editing existing services
+ *    - Duplicating services with modified attributes
+ *    - Form validation and submission
+ *
+ * 2. Service Configuration
+ *    - Basic service information (name, description, URL)
+ *    - Authentication settings (mode, credentials)
+ *    - Service type configuration (WMS, etc.)
+ *    - Proxy settings
+ *    - Projection management (SRS)
+ *
+ * 3. WMS Integration
+ *    - Automatic metadata retrieval from WMS GetCapabilities
+ *    - Layer discovery and management
+ *    - Style configuration
+ *    - Projection support detection
+ *
+ * 4. Parameter Management
+ *    - CRUD operations for service parameters
+ *    - Parameter type configuration
+ *    - Value validation
+ *
+ * 5. Cartography Integration
+ *    - Layer management and configuration
+ *    - Style association
+ *    - Legend configuration
+ *    - Metadata URL management
+ *
+ * The component uses a tabbed interface to organize:
+ * - General Data: Basic service configuration
+ * - Parameters: Service parameter management
+ * - Cartographies: Layer and style management
+ *
+ * Key Features:
+ * - Multi-language support through translations
+ * - Real-time form validation
+ * - Automatic WMS capabilities integration
+ * - Grid-based parameter and layer management
+ * - Support for various service types and authentication modes
+ *
+ * @example
+ * // Route configuration
+ * { path: 'service/:id/serviceForm', component: ServiceFormComponent }
+ * { path: 'service/:id/serviceForm/:idDuplicate', component: ServiceFormComponent }
+ */
 @Component({
   selector: 'app-service-form',
   templateUrl: './service-form.component.html',
-  styleUrls: ['./service-form.component.scss']
+  styles: []
 })
-export class ServiceFormComponent implements OnInit {
+export class ServiceFormComponent extends BaseFormComponent<Service> implements OnInit, OnDestroy {
 
-  hidePassword = true;
+  readonly config = Configuration.SERVICE;
 
-  //Translations
-  translationMap: Map<string, Translation>;
+  /**
+   * Flag indicating if projections can be removed from the service.
+   * Always true as projections are user-manageable.
+   * Controls the display of remove buttons in projection chips.
+   */
+  protected readonly canRemoveProjections = true;
 
-  translationsModified: boolean = false;
-  //form
-  dataLoaded: Boolean = false;
-  tableLoadButtonDisabled = true;
-  capabilitiesLoaded: Boolean = true;
-  private parametersUrl: string;
-  serviceForm: UntypedFormGroup;
-  serviceToEdit;
-  serviceID = -1;
-  duplicateID = -1;
-  visible = true;
-  selectable = true;
-  removable = true;
-  addOnBlur = true;
-  readonly separatorKeysCodes: number[] = [ENTER, COMMA];
-  projections: Array<string>;
-  serviceTypes: Array<any> = [];
-  requestTypes: Array<any> = [];
-  authenticationModes: Array<any> = [];
-  serviceCapabilitiesData: any = {};
-  getCapabilitiesLayers = [];
-  //Grids
-  themeGrid: any = config.agGridTheme;
-  columnDefsParameters: any[];
-  getAllElementsEventParameters: Subject<string> = new Subject<string>();
-  dataUpdatedEventParameters: Subject<boolean> = new Subject<boolean>();
+  /**
+   * Flag indicating if projections should be added when input loses focus.
+   * Always true to support both manual entry and chip-based input.
+   * Enhances user experience by allowing flexible input methods.
+   */
+  protected readonly addProjectionsOnBlur = true;
 
-  columnDefsLayers: any[];
-  getAllElementsEventLayers: Subject<string> = new Subject<string>();
-  dataUpdatedEventLayers: Subject<boolean> = new Subject<boolean>();
+  /**
+   * Array of key codes that trigger projection separation in the input.
+   * Includes ENTER and COMMA for flexible input options.
+   * Allows users to add projections using keyboard shortcuts.
+   */
+  protected readonly separatorKeysCodesForProjections: number[] = [ENTER, COMMA];
 
-  //Dialogs
+  /**
+   * Data table configuration for managing service layers.
+   * Handles WMS layer configurations and capabilities.
+   * Defines columns, data fetching, and update operations for layers.
+   */
+  protected readonly layersTable: DataTableDefinition<CartographyProjection, CartographyProjection>;
 
-  public parameterForm: UntypedFormGroup;
-  addElementsEventParameters: Subject<any[]> = new Subject<any[]>();
-  @ViewChild('newParameterDialog', {
-    static: true
-  }) private newParameterDialog: TemplateRef<any>;
+  /**
+   * Data table configuration for managing service parameters.
+   * Handles parameter CRUD operations and validation.
+   * Defines columns, data fetching, and update operations for parameters.
+   */
+  protected readonly parametersTable: DataTableDefinition<ServiceParameter, ServiceParameter>;
 
+  /**
+   * Flag indicating if the WMS capabilities table load button is disabled.
+   * True when service type is not WMS, false otherwise.
+   * Used to control the visibility and interactivity of WMS-specific functionality.
+   */
+  private tableLoadButtonDisabled = true;
 
-  columnDefsLayersDialog: any[];
-  addElementsEventLayers: Subject<any[]> = new Subject<any[]>();
+  /**
+   * Stores the WMS layers capabilities data retrieved from the service.
+   * Contains layer information, styles, and other metadata for WMS services.
+   * Used to populate the layers data table and synchronize with the backend.
+   */
+  private wmsLayersCapabilities: WMSLayersCapabilities = new WMSLayersCapabilities();
 
+  /**
+   * Reference to the parameter dialog template.
+   * Used when opening the dialog for adding new parameters.
+   * Provides a user-friendly interface for parameter creation.
+   */
+  @ViewChild('newParameterDialog', {static: true})
+  private readonly newParameterDialog: TemplateRef<any>;
 
-
-
+  /**
+   * Creates an instance of ServiceFormComponent.
+   * @param dialog - Service for managing Material dialogs
+   * @param translateService - Service for translation functionality
+   * @param translationService - Service for entity translation management
+   * @param codeListService - Service for managing code lists
+   * @param errorHandler - Service for error handling and display
+   * @param activatedRoute - Service for accessing route parameters
+   * @param router - Angular router service for navigation
+   * @param utils - Utility service for common functions
+   * @param cartographyService - Service for managing cartography entities
+   * @param serviceParameterService - Service for managing service parameters
+   * @param cartographyStyleService - Service for managing cartography styles
+   * @param wmsCapabilitiesService - Service for retrieving WMS capabilities
+   * @param loggerService - Service for logging
+   * @param serviceService - Service for managing service entities
+   */
   constructor(
-
-    private activatedRoute: ActivatedRoute,
-    private router: Router,
-    private serviceService: ServiceService,
-    private translationService: TranslationService,
-    private http: HttpClient,
+    dialog: MatDialog,
+    translateService: TranslateService,
+    translationService: TranslationService,
+    codeListService: CodeListService,
+    loggerService: LoggerService,
+    errorHandler: ErrorHandlerService,
+    activatedRoute: ActivatedRoute,
+    router: Router,
     public utils: UtilsService,
-    public dialog: MatDialog,
     public cartographyService: CartographyService,
     public serviceParameterService: ServiceParameterService,
     public cartographyStyleService: CartographyStyleService,
-    public capabilitiesService: CapabilitiesService
-
+    public wmsCapabilitiesService: WMSCapabilitiesService,
+    private readonly serviceService: ServiceService,
   ) {
-    this.initializeServiceForm();
-    this.initializeParameterForm();
-    this.projections = [];
-
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router);
+    this.layersTable = this.defineLayersTable();
+    this.parametersTable = this.defineParametersTable();
   }
 
-  ngOnInit(): void {
-    this.translationMap = this.utils.createTranslationsList(config.translationColumns.serviceDescription);
-    const promises: Promise<any>[] = [];
-
-    promises.push(new Promise((resolve, reject) => {
-      this.utils.getCodeListValues('service.type').subscribe(
-        resp => {
-          this.serviceTypes.push(...resp);
-          resolve(true);
-        }
-      );
-    }));
-
-    promises.push(new Promise((resolve, reject) => {
-      this.utils.getCodeListValues('service.authenticationMode').subscribe(
-        resp => {
-          this.authenticationModes.push(...resp);
-          resolve(true);
-        }
-      );
-    }));
-
-
-    promises.push(new Promise((resolve, reject) => {
-      this.utils.getCodeListValues('serviceParameter.type').subscribe(
-        resp => {
-          this.requestTypes.push(...resp);
-          resolve(true);
-        }
-      );
-    }));
-
-    Promise.all(promises).then(() => {
-
-      this.activatedRoute.params.subscribe(params => {
-        this.serviceID = +params.id;
-        if (params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
-
-        if (this.serviceID !== -1 || this.duplicateID != -1) {
-          let idToGet = this.serviceID !== -1 ? this.serviceID : this.duplicateID
-          this.serviceService.get(idToGet).subscribe(
-            resp => {
-
-              this.serviceToEdit = resp;
-              if (this.serviceToEdit.supportedSRS !== null) {
-                this.serviceToEdit.supportedSRS.forEach((projection) => {
-                  this.projections.push(projection);
-                });
-              }
-              // this.projections = this.serviceToEdit.supportedSRS.split(';');
-              this.parametersUrl = this.serviceToEdit._links.parameters.href;
-              this.serviceForm.patchValue({
-                type: this.serviceToEdit.type,
-                description: this.serviceToEdit.description,
-                proxyUrl: this.serviceToEdit.proxyUrl,
-                supportedSRS: this.serviceToEdit.supportedSRS,
-                blocked: this.serviceToEdit.blocked,
-                isProxied: this.serviceToEdit.isProxied,
-                _links: this.serviceToEdit._links
-              });
-
-              let currentType = this.serviceTypes.find(element => element.value == this.serviceToEdit.type);
-              if (currentType) {
-                this.tableLoadButtonDisabled = currentType.value == config.capabilitiesRequest.WMSIdentificator ? false : true
-              }
-
-
-
-              if (this.serviceID != -1) {
-                this.serviceForm.patchValue({
-                  id: this.serviceID,
-                  name: this.serviceToEdit.name,
-                  serviceURL: this.serviceToEdit.serviceURL,
-                  getInformationURL: this.serviceToEdit.getInformationURL,
-                  user: this.serviceToEdit.user,
-                  password: this.serviceToEdit.password,
-                  passwordSet: this.serviceToEdit.passwordSet,
-                  authenticationMode: this.serviceToEdit.authenticationMode,
-                });
-                this.translationService.getAll()
-                  .pipe(map((data: any[]) => data.filter(elem => elem.element == this.serviceID && elem.column == config.translationColumns.serviceDescription)
-                  )).subscribe(result => {
-                    this.utils.updateTranslations(this.translationMap, result)
-                  });;
-              }
-              else {
-                this.serviceForm.patchValue({
-                  name: this.utils.getTranslate('copy_').concat(this.serviceToEdit.name),
-                });
-              }
-
-              
-
-              this.dataLoaded = true;
-            },
-            error => {
-
-            }
-          );
-        }
-        else {
-          this.serviceForm.patchValue({
-            blocked: false,
-            isProxied: false,
-            type: null,
-            authenticationMode: this.authenticationModes[0].value,
-          })
-          this.dataLoaded = true;
-        }
-
-      },
-        error => {
-
-        });
-
-    });
-
-    this.columnDefsParameters = [
-
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('serviceEntity.request', 'type'),
-      this.utils.getEditableColumnDef('serviceEntity.parameter', 'name'),
-      this.utils.getEditableColumnDef('serviceEntity.value', 'value'),
-      this.utils.getStatusColumnDef()
-
-    ];
-
-    this.columnDefsLayers = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('serviceEntity.name', 'name'),
-      this.utils.getEditableColumnDef('serviceEntity.description', 'description'),
-      this.utils.getStatusColumnDef()
-    ];
-
-    this.columnDefsLayersDialog = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('serviceEntity.name', 'name'),
-    ];
-
+  /**
+   * Prepares component data before fetching the entity.
+   * Initializes translations, registers data tables, and loads code lists.
+   *
+   * @returns Promise that resolves when initialization is complete
+   */
+  override async preFetchData() {
+    this.dataTables.register(this.layersTable).register(this.parametersTable);
+    this.initTranslations('Service', ['description', 'name'])
+    await this.initCodeLists(['service.type', 'service.authenticationMode', 'serviceParameter.type'])
   }
 
-  initializeServiceForm(): void {
-
-    this.serviceForm = new UntypedFormGroup({
-      id: new UntypedFormControl(null, []),
-      name: new UntypedFormControl(null, [Validators.required,]),
-      user: new UntypedFormControl(null),
-      password: new UntypedFormControl(null),
-      passwordSet: new UntypedFormControl(null),
-      authenticationMode: new UntypedFormControl(null, [Validators.required]),
-      description: new UntypedFormControl(null, [Validators.required]),
-      type: new UntypedFormControl(null, [
-        Validators.required,
-      ]),
-      serviceURL: new UntypedFormControl(null, [
-        Validators.required,
-      ]),
-      proxyUrl: new UntypedFormControl(null,),
-      supportedSRS: new UntypedFormControl(null),
-      getInformationURL: new UntypedFormControl(null,),
-      _links: new UntypedFormControl(null, []),
-      blocked: new UntypedFormControl(null, []),
-      isProxied: new UntypedFormControl(null, []),
-    });
-
+  /**
+   * Fetches the original entity by ID for editing.
+   *
+   * @returns Promise resolving to the service entity
+   */
+  override async fetchOriginal(): Promise<Service> {
+    return firstValueFrom(this.serviceService.get(this.entityID));
   }
 
-  initializeParameterForm(): void {
-    this.parameterForm = new UntypedFormGroup({
-      name: new UntypedFormControl(null, [Validators.required]),
-      type: new UntypedFormControl(null, [Validators.required]),
-      value: new UntypedFormControl(null, []),
+  /**
+   * Creates a copy of an existing entity for duplication.
+   * Prefixes the name with "copy_" to distinguish it from the original.
+   *
+   * @returns Promise resolving to the duplicated service entity
+   */
+  override async fetchCopy(): Promise<Service> {
+    return firstValueFrom(this.serviceService.get(this.duplicateID).pipe(map((copy: Service) => {
+      copy.name = this.translateService.instant("copy_") + copy.name;
+      return copy;
+    })));
+  }
 
+  /**
+   * Creates an empty service entity with default values.
+   * Sets default authentication mode from code list.
+   *
+   * @returns New empty service entity
+   */
+  override empty(): Service {
+    return Object.assign(new Service(), {
+      blocked: false,
+      isProxied: false,
+      supportedSRS: [],
+      authenticationMode: 'None' // TODO: change to null
     })
   }
 
-  onTypeChange(event): void {
-    this.tableLoadButtonDisabled = event.value == config.capabilitiesRequest.WMSIdentificator ? false : true;
+  /**
+   * Fetches related data for the service entity.
+   * Loads translations for the current entity.
+   *
+   * @returns Promise that resolves when related data is loaded
+   */
+  override async fetchRelatedData(): Promise<void> {
+    await this.loadTranslations(this.entityToEdit)
   }
 
-  addProjection(event: MatChipInputEvent): void {
-    const input = event.input;
-    const value = event.value;
-
-    // Add our fruit
-    if ((value || '').trim()) {
-      this.projections.push(value.trim());
+  /**
+   * Initializes the form after entity data is fetched.
+   * Sets up reactive form with entity values and validation rules.
+   * Configures the table load button state based on service type.
+   *
+   * @throws Error if entity is undefined
+   */
+  override postFetchData() {
+    if (!this.entityToEdit) {
+      throw new Error('Cannot initialize form: entity is undefined');
     }
 
-    // Reset the input value
-    if (input) {
-      input.value = '';
-    }
+    this.entityForm = new UntypedFormGroup({
+      name: new UntypedFormControl(this.entityToEdit.name, [Validators.required, Validators.maxLength(60)]),
+      user: new UntypedFormControl(this.entityToEdit.user),
+      password: new UntypedFormControl(this.entityToEdit.password),
+      authenticationMode: new UntypedFormControl(this.entityToEdit.authenticationMode, [Validators.required]),
+      description: new UntypedFormControl(this.entityToEdit.description, [Validators.maxLength(4000)]),
+      type: new UntypedFormControl(this.entityToEdit.type, [
+        Validators.required,
+      ]),
+      serviceURL: new UntypedFormControl(this.entityToEdit.serviceURL, [
+        Validators.required,
+      ]),
+      proxyUrl: new UntypedFormControl(this.entityToEdit.proxyUrl,),
+      supportedSRS: new UntypedFormControl(this.entityToEdit.supportedSRS),
+      getInformationURL: new UntypedFormControl(this.entityToEdit.getInformationURL,),
+      blocked: new UntypedFormControl(this.entityToEdit.blocked, []),
+      isProxied: new UntypedFormControl(this.entityToEdit.isProxied, []),
+    });
+
+    const currentType = this.findInCodeList('service.type', this.entityToEdit.type);
+    this.tableLoadButtonDisabled = currentType ? currentType.value !== config.capabilitiesRequest.WMSIdentificator : false;
   }
 
-  removeProjection(projection: string): void {
-    const index = this.projections.indexOf(projection);
-
-    if (index >= 0) {
-      this.projections.splice(index, 1);
-    }
-  }
-
-  onTableLoadButtonClicked() {
-    this.getCapabilitiesDataService(true, true);
-  }
-
-  getCapabilitiesDataService(refresh?, ignoreForm?) {
-    try {
-      let url: string = this.serviceForm.value.serviceURL;
-      if (!url.includes(config.capabilitiesRequest.simpleRequest)) {
-        if (url[url.length - 1] != '?') { url += "?" }
-
-        url += config.capabilitiesRequest.requestWithWMS;
-      }
-      this.capabilitiesService.getInfo(url).subscribe(result => {
-   
-        if (result.success) {
-          this.getCapabilitiesLayers = [];
-          this.serviceCapabilitiesData = result.asJson;
-          this.changeServiceDataByCapabilities(refresh, ignoreForm);
-        }
-      }, error => {
-        console.log(error)
-        this.capabilitiesLoaded = true;
-      })
-    }
-    catch (err) {
-      this.utils.showErrorMessage("ERROR")
-      this.capabilitiesLoaded = true;
-
-    };
-  }
-
-  changeServiceDataByCapabilities(refresh?, ignoreForm?) {
-    let data = this.serviceCapabilitiesData.WMT_MS_Capabilities != undefined ? this.serviceCapabilitiesData.WMT_MS_Capabilities : this.serviceCapabilitiesData.WMS_Capabilities
-
-    if (data != undefined) {
-      if (data.Capability) {
-        let capabilitiesList = null;
-        if (data.Capability.Layer.SRS !== null && data.Capability.Layer.SRS !== undefined) {
-          capabilitiesList = data.Capability.Layer.SRS;
-        }
-        else if (data.Capability.Layer.CRS !== null && data.Capability.Layer.CRS !== undefined) {
-          capabilitiesList = data.Capability.Layer.CRS;
-        }
-        this.projections = [];
-        if (capabilitiesList && !ignoreForm) {
-          this.projections.push(...capabilitiesList);
-        }
-        // this.serviceCapabilitiesData.WMT_MS_Capabilities.Capability.Layer.SRS.forEach((projection) => {
-        //   this.projections.push(projection);
-        // });
-      }
-      let capability = data.Capability.Layer;
-      while (capability.Layer != null && capability.Layer != undefined) {
-        capability = capability.Layer;
-      }
-      let layersTable = [];
-      this.getLayersCapabilities(capability, layersTable);
-      if (layersTable.length > 0) {
-        layersTable.forEach(lyr => {
-          let layersLyr;
-          let styles = [];
-          if (Array.isArray(lyr.Name)) {
-            layersLyr = lyr.Name;
-          }
-          else {
-            if (!isNaN(lyr.Name)) { lyr.Name = lyr.Name.toString() }
-            if (!lyr.Name) { return; }
-            layersLyr = lyr.Name.split(",")
-          }
-          // if (!layersLyr) { layersLyr = [] }
-          let cartography = new Cartography();
-          cartography.name = lyr.Title;
-          if (cartography.name && cartography.name.length > 250) { cartography.name = cartography.name.substring(0, 249) }
-          cartography.description = lyr.Abstract;
-          if (cartography.description && cartography.description.length > 250) { cartography.description = cartography.description.substring(0, 249) }
-          cartography.layers = layersLyr;
-          if (lyr.Style) {
-            if (Array.isArray(lyr.Style)) {
-              styles.push(...lyr.Style)
-            }
-            else {
-              styles.push(lyr.Style)
-            }
-            cartography.styles = styles;
-          }
-          if (lyr) {
-            if (lyr.MetadataURL != undefined) {
-              let metadataURL = Array.isArray(lyr.MetadataURL) ? lyr.MetadataURL[0] : lyr.MetadataURL
-              cartography.metadataURL = metadataURL.OnlineResource['xlink:href']
-            }
-
-            if (lyr.DataURL != undefined) {
-              let DataURL = Array.isArray(lyr.DataURL) ? lyr.DataURL[0] : lyr.DataURL
-              cartography.datasetURL = DataURL.OnlineResource['xlink:href']
-            }
-
-            if (lyr.Style && lyr.Style[0] && lyr.Style[0].LEGENDURL != undefined) {
-              let style = Array.isArray(lyr.STYLE) ? lyr.STYLE[0] : lyr.STYLE
-              cartography.legendURL = style.legendURL.OnlineResource['xlink:href']
-            }
-          }
-
-          this.getCapabilitiesLayers.push(cartography);
-        });
-      }
-      if (data.Service && data.Service.Abstract && data.Service.Abstract.length > 0) {
-        let auxDescription;
-        if (Array.isArray(data.Service.Abstract)) {
-
-          // for(let i=0; i<data.Service.Abstract.length; i++){
-          data.Service.Abstract.forEach(translation => {
-            let languageShortname: string = translation['xml:lang']
-            let index = languageShortname.indexOf("-");
-            if (index != -1) {
-              languageShortname = languageShortname.substring(0, index);
-            }
-            if (languageShortname == config.defaultLang) {
-              auxDescription = translation.content;
-            }
-            else {
-              if ((this.translationMap.has(languageShortname))) {
-                let currentTranslation = this.translationMap.get(languageShortname);
-                let translationReduced = translation.content.substring(0, 249);
-                if (currentTranslation.translation != translationReduced) {
-                  currentTranslation.translation = translationReduced;
-                  this.translationsModified = true;
-                }
-              }
-            }
-
-          });
-
-
-          auxDescription = data.Service.Abstract.find(element => element['xml:lang'].includes(config.defaultLang));
-          if (!auxDescription) { auxDescription = data.Service.Abstract[0].content }
-        }
-        else {
-          auxDescription = data.Service.Abstract;
-        }
-        if (!ignoreForm) {
-          let newDescription = auxDescription.length > 250 ? auxDescription.substring(0, 249) : auxDescription
-          this.serviceForm.patchValue({
-            description: newDescription,
-          })
-        }
-
-      }
-
-    }
-
-
-    this.capabilitiesLoaded = true;
-    if (refresh) { this.dataUpdatedEventLayers.next(true) }
-  }
-
-  private getLayersCapabilities(lyrTable, tableToSave) {
-    if (Array.isArray(lyrTable)) {
-      lyrTable.forEach(layer => {
-        if (layer.Layer != null && layer.Layer != undefined) {
-          this.getLayersCapabilities(layer.Layer, tableToSave)
-        }
-        else {
-          tableToSave.push(layer);
-        }
+  /**
+   * Creates a Service object from the current form values.
+   * Combines form data with entity data to create a complete service object.
+   *
+   * @param id - Optional ID for the new object, used when updating
+   * @returns New Service instance populated with form values
+   */
+  createObject(id: number = null): Service {
+    let safeToEdit = Service.fromObject(this.entityToEdit);
+    safeToEdit = Object.assign(safeToEdit,
+      this.entityForm.value,
+      {
+        id: id,
       });
-    }
-    else {
-      tableToSave.push(lyrTable);
-    }
-
+    return safeToEdit;
   }
 
-  async onTranslationButtonClicked() {
-    let dialogResult = null
-    dialogResult = await this.utils.openTranslationDialog(this.translationMap);
-    if (dialogResult && dialogResult.event == "Accept") {
-      this.translationsModified = true;
+  /**
+   * Creates a new service entity in the database.
+   * Creates the service using form values and returns the ID of the created entity.
+   *
+   * @returns Promise resolving to the ID of the created entity
+   */
+  override async createEntity(): Promise<number> {
+    const entityToCreate = this.createObject();
+    const entityCreated = await firstValueFrom(this.serviceService.create(entityToCreate));
+    return entityCreated.id;
+  }
+
+  /**
+   * Updates an existing service entity with form values.
+   * Calls the service update API to persist the changes.
+   *
+   * @returns Promise that resolves when the update is complete
+   */
+  override async updateEntity() {
+    const entityToUpdate = this.createObject(this.entityID);
+    await firstValueFrom(this.serviceService.update(entityToUpdate));
+  }
+
+  /**
+   * Updates related data after the main entity is saved.
+   * Saves translations for the service entity.
+   *
+   * @param isDuplicated - Whether this is a duplication operation
+   * @returns Promise that resolves when all related updates are complete
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  override async updateDataRelated(isDuplicated: boolean): Promise<void> {
+    const entityToUpdate = this.createObject(this.entityID);
+    await this.saveTranslations(entityToUpdate);
+  }
+
+  /**
+   * Validates if the form can be saved.
+   * Checks if all required form fields are valid.
+   *
+   * @returns True if the form is valid, false otherwise
+   */
+  override canSave(): boolean {
+    return this.entityForm.valid;
+  }
+
+  /**
+   * Appends the new projection to the existing list of supported SRS values.
+   * Trims the input value and adds it to the supportedSRS array.
+   *
+   * @param event - The chip input event containing the new projection value
+   */
+  addProjection(event: MatChipInputEvent): void {
+    const value = event.value;
+    if ((value || '').trim()) {
+      const srs = this.entityForm.get('supportedSRS').value;
+      const newSrs = [...srs]
+      newSrs.push(value.trim());
+      this.entityForm.get('supportedSRS').setValue(newSrs)
     }
   }
 
-  // AG-GRID
-
-  // ******** Parameters configuration ******** //
-  getAllParameters = (): Observable<any> => {
-
-    if (this.serviceID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
-      return of(aux);
-    }
-
-    var urlReq = `${this.serviceToEdit._links.parameters.href}`
-    if (this.serviceToEdit._links.parameters.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
-      urlReq = url.toString();
-    }
-
-
-    return (this.http.get(urlReq))
-      .pipe(map(data => data[`_embedded`][`service-parameters`]));
-  }
-
-  getAllRowsParameters(event) {
-    if (event.event == "save") {
-      this.saveParameters(event.data);
+  /**
+   * Filters out the specified projection from the list of supported SRS values.
+   * Removes the projection from the supportedSRS array if found.
+   *
+   * @param projection - The projection string to remove
+   */
+  removeProjection(projection: string): void {
+    const srs = this.entityForm.get('supportedSRS').value;
+    const index = srs.indexOf(projection);
+    if (index >= 0) {
+      const newSrs = [...srs]
+      newSrs.splice(index, 1);
+      this.entityForm.get('supportedSRS').setValue(newSrs)
     }
   }
 
-
-  saveParameters(data: any[]) {
-    let parameterToSave = [];
-    let parameterToDelete = [];
-    const promises: Promise<any>[] = [];
-    data.forEach(parameter => {
-      if (parameter.status === 'pendingCreation' || parameter.status === 'pendingModify') {
-        if (parameter.status === 'pendingCreation' || parameter.newItem) {
-          parameter.id = null;
-          parameter._links = null;
-          parameter.service = this.serviceToEdit
-        } //If is new, you need the service link
-        promises.push(new Promise((resolve, reject) => { this.serviceParameterService.save(parameter).subscribe((resp) => { resolve(true) }) }));
-      }
-      if (parameter.status === 'pendingDelete' && parameter._links && !parameter.newItem) {
-        promises.push(new Promise((resolve, reject) => { this.serviceParameterService.remove(parameter).subscribe((resp) => { resolve(true) }) }));
-        // parameterToDelete.push(parameter) 
-      }
-    });
-
-    // parameterToSave.forEach(saveElement => {
-    //   promises.push(new Promise((resolve, reject) => {  this.serviceParameterService.save(saveElement).subscribe((resp) => { resolve(true) }) }));
-    // });
-
-    // parameterToDelete.forEach(deletedElement => {
-    //   promises.push(new Promise((resolve, reject) => {  this.serviceParameterService.remove(deletedElement).subscribe((resp) => { resolve(true) }) }));    
-    // });
-
-    Promise.all(promises).then(() => {
-      this.dataUpdatedEventParameters.next(true);
-    });
-
+  /**
+   * Checks if the current service is a WMS type service.
+   * Used to enable/disable WMS-specific functionality in the UI.
+   *
+   * @returns True if service type is WMS, false otherwise
+   */
+  isWMS() {
+    return this.entityForm?.value.type === constants.codeValue.serviceType.wms
   }
 
-  duplicateParameters(data) {
-    let parametersToDuplicate = this.utils.duplicateParameter(data, 'name');
-    this.addElementsEventParameters.next(parametersToDuplicate);
+  /**
+   * Handles service type change events.
+   * Enables/disables capabilities button based on service type.
+   *
+   * @param event - The change event containing the new service type value
+   */
+  onTypeChange(event: { value: string; }): void {
+    this.tableLoadButtonDisabled = event.value != config.capabilitiesRequest.WMSIdentificator;
   }
 
-  // ******** Layers ******** //
-  getAllLayers = (): Observable<any> => {
-
-    if (this.getCapabilitiesLayers.length <= 0) {
-      if (this.serviceID != -1) {
-        var urlReq = `${this.serviceToEdit._links.layers.href}`
-        if (this.serviceToEdit._links.layers.templated) {
-          var url = new URL(urlReq.split("{")[0]);
-          url.searchParams.append("projection", "view")
-          urlReq = url.toString();
-        }
-        return (this.http.get(urlReq))
-          .pipe(map(data => data[`_embedded`][`cartographies`]));
-      }
-      else {
-        return of([])
-      }
-    }
-
-    if (this.serviceID != -1) {
-
-      var urlReq = `${this.serviceToEdit._links.layers.href}`
-      if (this.serviceToEdit._links.layers.templated) {
-        var url = new URL(urlReq.split("{")[0]);
-        url.searchParams.append("projection", "view")
-        urlReq = url.toString();
-      }
-      return (this.http.get(urlReq))
-        .pipe(map(data => {
-          let finalCartographies = [];
-          let cartographies = data['_embedded']['cartographies'];
-          this.getCapabilitiesLayers.forEach(capabilityLayer => {
-            let index = cartographies.findIndex(element => element.layers && capabilityLayer.layers && element.layers.join() == capabilityLayer.layers.join() && !element.alreadySearched);
-            if (index != -1) {
-              if (cartographies[index].blocked) {
-                cartographies[index].status = "notAvailable";
-              }
-              cartographies[index].alreadySearched = true;
-              finalCartographies.push(cartographies[index])
-            }
-            else {
-              capabilityLayer.status = "unregisteredLayer";
-              capabilityLayer.newRegister = true;
-              finalCartographies.push(capabilityLayer);
-            }
-          });
-
-          cartographies.forEach(cartography => {
-
-            if (!cartography.alreadySearched) {
-              cartography.status = "notAvailable";
-              finalCartographies.push(cartography);
-            }
-
-          });
-
-          return finalCartographies;
-
-        }));
-
-    }
-    else {
-      let finalCartographies = [];
-      this.getCapabilitiesLayers.forEach(capabilityLayer => {
-        capabilityLayer.status = "unregisteredLayer"
-        finalCartographies.push(capabilityLayer);
-      })
-      return of(finalCartographies);
-    }
-
+  /**
+   * Creates a duplicate of the selected parameters with modified names.
+   * Each duplicated parameter will have:
+   * - A new ID (undefined)
+   * - No links (_links: undefined)
+   * - A name prefixed with the translation of 'copy_'
+   *
+   * @param {ServiceParameter[]} parameters - Array of parameters to duplicate
+   * @throws Error as this method is not yet implemented
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  duplicateParameters(parameters: ServiceParameter[]) {
+    throw new Error("Not implemented")
   }
 
-  private onDataCapabilitiesButtonClicked() {
+  /**
+   * Updates service metadata from WMS capabilities.
+   * Opens a confirmation dialog before retrieving metadata.
+   * Updates name, description, and supported projections after confirmation.
+   */
+  onUpdateServiceMetadata() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title = this.utils.getTranslate("caution");
-    dialogRef.componentInstance.message = this.utils.getTranslate("getCapabilitiesMessage");
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Accept') {
-          this.getCapabilitiesDataService(true);
-        }
-      }
-    });
-
-  }
-
-
-  getAllRowsLayers(event) {
-    if (event.event == "save") {
-      this.saveLayers(event.data);
-    }
-  }
-
-  saveLayers(data: any[]) {
-    const promises: Promise<any>[] = [];
-    const promisesStyles: Promise<any>[] = [];
-    data.forEach(cartography => {
-      if (cartography.status === 'notAvailable' && !cartography.blocked) {
-        cartography.blocked = true;
-        promises.push(new Promise((resolve, reject) => { this.cartographyService.update(cartography).subscribe((resp) => { resolve(true) }) }));
-      }
-      else if (cartography.status === 'pendingRegistration' && !cartography._links) {
-        cartography.service = this.serviceToEdit;
-        cartography.blocked = false;
-        cartography.queryableFeatureAvailable = false;
-        cartography.queryableFeatureEnabled = false;
-        let styles = cartography.styles;
-        delete cartography.styles;
-        promises.push(new Promise((resolve, reject) => {
-          this.cartographyService.save(cartography).subscribe((resp) => {
-            if (styles && styles.length > 0) {
-              this.setStyleByDefault(styles);
-              styles.forEach(style => {
-               
-                style = this.styleTreactment(style, resp);
-                promisesStyles.push(new Promise((resolve, reject) => { this.cartographyStyleService.save(style).subscribe((resp) => { resolve(true) }) }));
+    dialogRef.componentInstance.title = this.utils.getTranslate('caution');
+    dialogRef.componentInstance.message = this.utils.getTranslate('getCapabilitiesMessage');
+    dialogRef.afterClosed().subscribe(next => {
+      if (next?.event === 'Accept') {
+        if (this.entityForm.get('type').value === constants.codeValue.serviceType.wms) {
+          this.wmsCapabilitiesService.processWMSServiceMetadata(this.entityForm.value.serviceURL)
+            .then((capabilities) => {
+              this.entityForm.patchValue({
+                name: capabilities.title?.substring(0, 60),
+                description: capabilities.abstract?.substring(0, 4000),
+                supportedSRS: capabilities.supportedSRS
               });
-            }
-            resolve(true)
-          })
-        }));
+            })
+            .catch((reason) => this.errorHandler.handleError(reason, 'entity.service.error.processCapabilities'));
+        }
       }
-      else if (cartography.status === 'pendingDelete' && cartography._links) {
-        promises.push(new Promise((resolve, reject) => { this.cartographyService.remove(cartography).subscribe((resp) => { resolve(true) }) }));
-      }
-      else if (cartography.status === 'pendingModify' && cartography._links) {
-        promises.push(new Promise((resolve, reject) => { this.cartographyService.update(cartography).subscribe((resp) => { resolve(true) }) }));
-
-      }
-
-
     });
+  }
 
-    Promise.all(promises).then(() => {
-      Promise.all(promisesStyles).then(() => {
-        this.dataUpdatedEventLayers.next(true)
+  /**
+   * Updates the service layers from WMS capabilities.
+   * Opens a confirmation dialog before retrieving layer information.
+   * Refreshes the layers table with the retrieved capabilities data.
+   */
+  onUpdateServiceCapabilities() {
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title = this.utils.getTranslate('caution');
+    dialogRef.componentInstance.message = this.utils.getTranslate('getCapabilitiesMessage');
+    dialogRef.afterClosed().subscribe(next => {
+      if (next?.event === 'Accept') {
+        if (this.entityForm.get('type').value === constants.codeValue.serviceType.wms) {
+          this.wmsCapabilitiesService.processWMSServiceCapabilities(this.entityForm.value.serviceURL)
+            .then((response: WMSLayersCapabilities) => {
+              this.wmsLayersCapabilities = response
+              this.layersTable.saveCommandEvent$.next("save")
+            })
+            .catch((reason) => this.errorHandler.handleError(reason, 'entity.service.error.processCapabilities'));
+        }
+      }
+    });
+  }
+
+  /**
+   * Defines the data table configuration for managing layers.
+   * Sets up columns, data fetching, updating logic, and synchronization with WMS capabilities.
+   *
+   * @returns Configured data table definition for layers
+   */
+  private defineLayersTable(): DataTableDefinition<CartographyProjection, CartographyProjection> {
+    return DataTableDefinition.builder<CartographyProjection, CartographyProjection>(this.dialog, this.errorHandler)
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getEditableColumnDef('entity.service.layer.title', 'name', 150, 300),
+        this.utils.getNonEditableColumnDef('entity.service.layer.name', 'layers', 150, 300),
+        this.utils.getEditableColumnDef('entity.service.layer.abstract', 'description', 150, 450),
+        this.utils.getStatusColumnDef()
+      ])
+      .withRelationsOrder('name')
+      .withRelationsFetcher(() => {
+        if (this.wmsLayersCapabilities?.layers?.length === 0) {
+          if (this.isNewOrDuplicated()) {
+            return EMPTY;
+          } else {
+            return this.entityToEdit.getRelationArrayEx(CartographyProjection, 'layers', {projection: 'view'});
+          }
+        } else if (this.isNewOrDuplicated()) {
+          // For new services, just return capabilities layers as unregistered
+          return of(this.wmsLayersCapabilities.layers.map(capabilityLayer =>
+            Object.assign(new CartographyProjection(), capabilityLayer, {
+              status: 'unregisteredLayer',
+              newItem: true
+            }) as CartographyProjection & Status
+          ));
+        } else {
+          return this.entityToEdit.getRelationArrayEx(CartographyProjection, 'layers', {projection: 'view'})
+            .pipe(map((currentLayers: (CartographyProjection & Status)[]) => {
+              const finalCartographies: (CartographyProjection & Status)[] = [];
+              const serviceLayers = new Set<string>();
+              this.wmsLayersCapabilities.layers.forEach(capabilityLayer => {
+                const layerName = capabilityLayer.layers[0];
+                serviceLayers.add(layerName);
+
+                const matchingLayers = currentLayers.some(layer =>
+                  layer.layers.length == 1 && layer.layers.includes(layerName));
+                if (!matchingLayers) {
+                  // Layer from capabilities not found in current layers - mark as unregistered
+                  const newLayer = Object.assign(new CartographyProjection(), capabilityLayer, {
+                    status: 'unregisteredLayer',
+                    newItem: true
+                  }) as CartographyProjection & Status;
+                  finalCartographies.push(newLayer);
+                }
+              });
+
+              // Add any remaining layers that weren't found in capabilities as not available
+              currentLayers.forEach(layer => {
+                const allAvailable = layer.layers.every(layer => serviceLayers.has(layer))
+                if (allAvailable) {
+                  finalCartographies.push(layer)
+                } else {
+                  const unavailableLayer = Object.assign(new CartographyProjection(), layer, {
+                    status: 'notAvailable'
+                  }) as CartographyProjection & Status;
+                  finalCartographies.push(unavailableLayer);
+                }
+              });
+              return finalCartographies;
+            }));
+        }
       })
-    });
-  }
-
-  private setStyleByDefault(styles) {
-    let styleByDefaultFound = false;
-    styles.forEach(style => {
-      if (style.defaultStyle) {
-        if (styleByDefaultFound) { style.defaultStyle = false }
-        else { styleByDefaultFound = true }
-      }
-      else {
-        style.defaultStyle = false;
-      }
-
-    });
-    if (!styleByDefaultFound) styles[0].defaultStyle = true;
-
-    // return styles;
-  }
-
-  private styleTreactment(style, cartography) {
-    style.cartography = cartography;
-    if (style.Name) {
-      style.name = style.Name;
-      delete style.Name;
-    }
-
-    if (style.Abstract) {
-      style.description = style.Abstract;
-      delete style.Abstract;
-    }
-
-    if (style.Title) {
-      style.title = style.Title
-      delete style.Title;
-    }
-    if (style.LegendURL) {
-      let onlineResource;
-      if (style.LegendURL.OnlineResource) {
-        if (style.LegendURL.OnlineResource['xlink:href']) { onlineResource = style.LegendURL.OnlineResource['xlink:href'] }
-        else if (style.LegendURL.OnlineResource['xlink:link']) { onlineResource = style.LegendURL.OnlineResource['xlink:link'] }
-        else if (style.LegendURL.OnlineResource['xlink:type']) { onlineResource = style.LegendURL.OnlineResource['xlink:type'] }
-      }
-
-      style.legendURL = {
-        format: style.LegendURL.Format,
-        onlineResource: onlineResource,
-        height: style.LegendURL.height,
-        width: style.LegendURL.width
-      }
-      delete style.LegendURL;
-    }
-
-    return style;
-  }
-
-  // ******** Parameters Dialog  ******** //
-
-
-  openParametersDialog(data: any) {
-
-    this.parameterForm.patchValue({
-      type: this.requestTypes[0].value
-    })
-
-    const dialogRef = this.dialog.open(DialogFormComponent);
-    dialogRef.componentInstance.HTMLReceived = this.newParameterDialog;
-    dialogRef.componentInstance.title = this.utils.getTranslate('serviceEntity.configurationParameters');
-    dialogRef.componentInstance.form = this.parameterForm;
-
-
-
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Add') {
-          let item = this.parameterForm.value;
-          this.addElementsEventParameters.next([item])
-        
-          this.parameterForm.reset();
-
-        }
-      }
-
-    });
-
-  }
-
-
-
-  // ******** Layers Dialog  ******** //
-
-  getAllLayersDialog = () => {
-    return this.cartographyService.getAll();
-  }
-
-  openCartographyDialog(data: any) {
-
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
-    dialogRef.componentInstance.getAllsTable = [this.getAllLayersDialog];
-    dialogRef.componentInstance.singleSelectionTable = [false];
-    dialogRef.componentInstance.orderTable = ['name'];
-    dialogRef.componentInstance.columnDefsTable = [this.columnDefsLayersDialog];
-    dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate('serviceEntity.layersToRegister');
-    dialogRef.componentInstance.titlesTable = [''];
-    dialogRef.componentInstance.nonEditable = false;
-
-
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Add') {
-          this.addElementsEventLayers.next(result.data[0])
-        }
-      }
-
-    });
-
-  }
-
-  onSaveButtonClicked() {
-    if (this.serviceForm.valid) {
-
-      if (this.serviceID == -1 && this.duplicateID != -1) {
-        this.serviceForm.patchValue({
-          _links: null
+      .withRelationsUpdater(async (cartographies: (CartographyProjection & Status)[]) => {
+        await onNotAvailable(cartographies).forEach(item => {
+          item.blocked = true;
+          return this.cartographyService.update(Cartography.fromObject(item))
         })
-      }
-
-      this.serviceForm.patchValue({
-        supportedSRS: this.projections
+        const newCartographies = await onPendingRegistration(cartographies).forEach(item => {
+          const newItem = Cartography.fromObject(item);
+          newItem.service = this.entityToEdit;
+          newItem.blocked = false;
+          newItem.queryableFeatureAvailable = false;
+          newItem.queryableFeatureEnabled = false;
+          return this.cartographyService.create(newItem);
+        }) as Cartography[];
+        await Promise.all(newCartographies.flatMap(cartography => {
+          if (this.wmsLayersCapabilities.styles.has(cartography.layers[0])) {
+            const styles = this.wmsLayersCapabilities.styles.get(cartography.layers[0]);
+            return styles.map(style => {
+              const newStyle = Object.assign(new CartographyStyle(), style);
+              newStyle.cartography = cartography;
+              return newStyle;
+            });
+          } else {
+            return []
+          }
+        }).map(async item => {
+          const style = await firstValueFrom(this.cartographyStyleService.create(item))
+          style.updateRelationEx("cartography", item.cartography)
+        }))
+        await onUpdate(cartographies).forEach(item => this.cartographyService.update(Cartography.fromObject(item)));
+        await onDelete(cartographies).forEach(item => this.cartographyService.delete(Cartography.fromObject(item)));
       })
-
-      this.serviceService.save(this.serviceForm.value)
-        .subscribe(async resp => {
-      
-          this.serviceToEdit = resp;
-          this.serviceID = resp.id;
-          this.serviceForm.patchValue({
-            id: resp.id,
-            _links: resp._links
-          })
-
-          this.utils.saveTranslation(resp.id, this.translationMap, this.serviceToEdit.description, this.translationsModified);
-          this.translationsModified = false;
-          this.getAllElementsEventParameters.next('save');
-          this.getAllElementsEventLayers.next('save');
-        },
-          error => {
-            console.log(error);
-          });
-    }
-    else {
-      this.utils.showRequiredFieldsError();
-    }
+      .build();
   }
 
+  /**
+   * Defines the data table configuration for managing service parameters.
+   * Sets up columns, data fetching, updating logic, and dialog templates.
+   *
+   * @returns Configured data table definition for parameters
+   */
+  private defineParametersTable(): DataTableDefinition<ServiceParameter, ServiceParameter> {
+    return DataTableDefinition.builder<ServiceParameter, ServiceParameter>(this.dialog, this.errorHandler)
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getEditableColumnDef('common.form.name', 'name', 150, 300),
+        this.utils.getEditableColumnDef('common.form.value', 'value', 150, 300),
+        this.utils.getNonEditableColumnDef('common.form.type', 'typeDescription', 150, 300),
+        this.utils.getStatusColumnDef()
+      ])
+      .withRelationsOrder('name')
+      .withRelationsFetcher(() => {
+        if (this.isEdition()) {
+          return this.entityToEdit.getRelationArrayEx(ServiceParameter, 'parameters')
+            .pipe(map(data => data.map(element => Object.assign(new ServiceParameter(), {
+              ...element,
+              typeDescription: this.findInCodeList('serviceParameter.type', element.type)?.description
+            }))))
+        } else {
+          return EMPTY;
+        }
+      })
+      .withRelationsUpdater(async (parameters: (ServiceParameter & Status)[]) => {
+        await onCreate(parameters).forEach(item => this.serviceParameterService.create(Object.assign(new ServiceParameter(), {
+          ...item,
+          service: this.entityToEdit
+        })))
+        await onUpdate(parameters).forEach(item => this.serviceParameterService.update(Object.assign(new ServiceParameter(), {
+          ...item,
+          service: this.entityToEdit
+        })))
+        await onDelete(parameters).forEach(item => this.serviceParameterService.delete(item))
+      })
+      .withTemplateDialog('newParameterDialog', () => TemplateDialog.builder()
+        .withReference(this.newParameterDialog)
+        .withTitle(this.translateService.instant('serviceEntity.newParameter'))
+        .withForm(
+          new UntypedFormGroup({
+            name: new UntypedFormControl('', [Validators.required,]),
+            type: new UntypedFormControl('', [Validators.required,]),
+            value: new UntypedFormControl(''),
+          })
+        ).withPreOpenFunction((form: UntypedFormGroup) => {
+          form.reset({type: this.firstInCodeList('serviceParameter.type').value});
+        }).build())
+      .build();
+  }
 }

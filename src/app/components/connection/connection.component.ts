@@ -1,125 +1,92 @@
-import { Component, OnInit } from '@angular/core';
-import { ConnectionService, Connection } from '../../frontend-core/src/lib/public_api';
-import { UtilsService } from '../../services/utils.service';
-
-import { Router } from '@angular/router';
-import { environment } from 'src/environments/environment';
-import { config } from 'src/config';
-import { Observable, Subject } from 'rxjs';
-import { MatDialog } from '@angular/material/dialog';
-import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
+import {Component} from '@angular/core';
+import {CodeListService, Connection, ConnectionService, TranslationService,} from '@app/domain';
+import {TranslateService} from '@ngx-translate/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {firstValueFrom} from 'rxjs';
+import {MatDialog} from '@angular/material/dialog';
+import {ErrorHandlerService} from '@app/services/error-handler.service';
+import {LoggerService} from '@app/services/logger.service';
+import {UtilsService} from '@app/services/utils.service';
+import {BaseListComponent} from "@app/components/base-list.component";
+import {EntityListConfig} from "@app/components/shared/entity-list";
+import {Configuration} from '@app/core/config/configuration';
 
 @Component({
   selector: 'app-connection',
   templateUrl: './connection.component.html',
-  styleUrls: ['./connection.component.scss']
+  styles: [],
 })
-export class ConnectionComponent implements OnInit {
+export class ConnectionComponent extends BaseListComponent<Connection> {
+  entityListConfig: EntityListConfig<Connection> = {
+    entityLabel: Configuration.CONNECTION.labelPlural,
+    iconName: Configuration.CONNECTION.icon,
+    font: Configuration.CONNECTION.font,
+    columnDefs: [],
+    dataFetchFn: () => this.connectionService.getAll(),
+    defaultColumnSorting: ['name'],
+    gridOptions: {
+      globalSearch: true,
+      discardChangesButton: false,
+      redoButton: false,
+      undoButton: false,
+      applyChangesButton: false,
+      deleteButton: true,
+      newButton: true,
+      actionButton: true,
+      hideReplaceButton: true
+    }
+  };
 
-  dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
-  saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
-  themeGrid: any = config.agGridTheme;
-  columnDefs: any[];
-  driversList = [];
-  driversListDescription = [];
-  gridModified = false;
-  loaded=false;
-
-  constructor(public dialog: MatDialog,
-    public connectionService: ConnectionService,
-    private utils: UtilsService,
-    private router: Router,
+  constructor(
+    protected override dialog: MatDialog,
+    protected override translateService: TranslateService,
+    protected override translationService: TranslationService,
+    protected override codeListService: CodeListService,
+    protected override loggerService: LoggerService,
+    protected override errorHandler: ErrorHandlerService,
+    protected override activatedRoute: ActivatedRoute,
+    protected override utils: UtilsService,
+    protected override router: Router,
+    public connectionService: ConnectionService
   ) {
-
+    super(
+      dialog,
+      translateService,
+      translationService,
+      codeListService,
+      loggerService,
+      errorHandler,
+      activatedRoute,
+      utils,
+      router
+    );
   }
 
-  async ngOnInit() {
+  override async preFetchData(): Promise<void> {
+    await this.initCodeLists(['databaseConnection.driver']);
+  }
 
-    let drivers = await this.utils.getCodeListValues('databaseConnection.driver').toPromise();
-    drivers.forEach(element => {
-      this.driversList.push(element);
-      this.driversListDescription.push(element.description)
-    });
-
-    var columnEditBtn = this.utils.getEditBtnColumnDef();
-    columnEditBtn['cellRendererParams'] = {
-      clicked: this.newData.bind(this)
-    }
-
-    this.columnDefs = [
+  override async postFetchData(): Promise<void> {
+    // Set column definitions directly in the config
+    this.entityListConfig.columnDefs = [
       this.utils.getSelCheckboxColumnDef(),
-      columnEditBtn,
-      this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('connectionEntity.name', 'name'),
-      this.utils.getSelectColumnDef('connectionEntity.driver', 'driver',true,this.driversListDescription, true, this.driversList),
-      this.utils.getEditableColumnDef('connectionEntity.connection', 'url'),
+      this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'connection/:id/connectionForm', {id: 'id'}),
+      this.utils.getNonEditableColumnWithCodeListDef('entity.connection.driver', 'driver', this.codeList('databaseConnection.driver')),
+      this.utils.getNonEditableColumnDef('entity.connection.url', 'url'),
     ];
-
-    this.loaded = true;
   }
 
-  async canDeactivate(): Promise<boolean | Observable<boolean>> {
-
-    if (this.gridModified) {
-
-
-      let result = await this.utils.showNavigationOutDialog().toPromise();
-      if(!result || result.event!=='Accept') { return false }
-      else if(result.event ==='Accept') {return true;}
-      else{
-        return true;
-      }
-    }
-    else return true
-  }	
-
-  setGridModifiedValue(value){
-    this.gridModified=value;
-  }
-  
-  getAllConnections = () => {
-    return this.connectionService.getAll();
+  override async newData(){
+    await this.router.navigate(['connection', -1, 'connectionForm']);
   }
 
-
-
-  newData(id: any) {
-    this.saveAgGridStateEvent.next(true);
-    this.router.navigate(['connection', id, 'connectionForm']);
+  override async duplicateItem(id: number) {
+    await this.router.navigate(['connection', -1, 'connectionForm', id]);
   }
 
-  applyChanges(data: Connection[]) {
-    const promises: Promise<any>[] = [];
-    data.forEach(connection => {
-      promises.push(new Promise((resolve, reject) => { this.connectionService.update(connection).subscribe((resp) => { resolve(true) }) }));
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
-      });
-    });
-  }
+  override dataFetchFn = () => this.connectionService.getAll();
 
-  add(data: Connection[]) {
-    this.router.navigate(['connection', -1, 'connectionForm', data[0].id]);
-  }
+  override dataUpdateFn = (data: Connection) => firstValueFrom(this.connectionService.update(data))
 
-  removeData(data: Connection[]) {
-
-    const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title = this.utils.getTranslate("caution");
-    dialogRef.componentInstance.message = this.utils.getTranslate("removeMessage");
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Accept') {
-          const promises: Promise<any>[] = [];
-          data.forEach(connection => {
-            promises.push(new Promise((resolve, reject) => { this.connectionService.remove(connection).subscribe((resp) => { resolve(true) }) }));
-            Promise.all(promises).then(() => {
-              this.dataUpdatedEvent.next(true);
-            });
-          });
-        }
-      }
-    });
-  }
-
+  override dataDeleteFn = (data: Connection) => firstValueFrom(this.connectionService.delete(data))
 }

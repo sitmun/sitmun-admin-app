@@ -1,89 +1,72 @@
-import { Component} from '@angular/core';
-import { AuthService, LanguageService, LoginService } from '../../frontend-core/src/lib/public_api';
+import {Component, OnInit} from '@angular/core';
+import {UntypedFormBuilder, UntypedFormGroup, Validators} from '@angular/forms';
+import {Language} from '@app/domain';
+import {LoginService} from '@app/core/auth/login.service';
+import {Router} from '@angular/router';
+import {TranslateService} from '@ngx-translate/core';
 
-import { config } from 'src/config';
-import { TranslateService } from '@ngx-translate/core';
-import { Router } from '@angular/router';
-import { UntypedFormGroup, UntypedFormBuilder, Validators } from '@angular/forms';
+import {config} from '@config';
 
 /** Login component*/
-@Component( {
-    selector: 'app-login',
-    templateUrl: './login.component.html',
-    styleUrls: ['./login.component.scss']
-} )
-export class LoginComponent {
-    langs:any[];
-    /** bad credentials message*/
-    badCredentials: string;
+@Component({
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss']
+})
+export class LoginComponent implements OnInit {
 
-    /** translate service*/
-    translate;
+  languages: Language[] = [];
 
-    languagesLoaded = false;
+  /** bad credentials message*/
+  badCredentials: string;
 
-    /** form */
-    form: UntypedFormGroup;
+  loadedData = false;
 
-    /** constructor */
-    constructor( private fb: UntypedFormBuilder,
-        private authService: AuthService,
-        private loginService: LoginService,
-        private languageService: LanguageService,
-        private router: Router,
-        private trans: TranslateService ) {
-        
-        this.translate = trans;
-        let navigatorLang=window.navigator.language.split('-')[0];
-        let defaultLang=config.defaultLang;
-        this.form = this.fb.group( {
+  /** form */
+  form: UntypedFormGroup;
+
+  /** default route after successful login */
+  private readonly defaultRoute: string = '/dashboard';
+
+  /** constructor */
+  constructor(private fb: UntypedFormBuilder,
+              private loginService: LoginService,
+              private translateService: TranslateService,
+              private router: Router,
+)
+{
+
+}
+  ngOnInit() {
+    // Initialize the form with a default language
+          this.form = this.fb.group({
             username: ['', Validators.required],
             password: ['', Validators.required],
-            lang:[defaultLang, Validators.required],
-        } );
+            lang: [this.translateService.getDefaultLang(), Validators.required],
+          });
+    this.languages = config.languagesToUse;
+    console.log("LoginComponent initializeLanguages", this.languages);
+          console.log("LoginComponent initializeLanguages", this.translateService.getDefaultLang());
+          this.loadedData = true;
+  }
 
-        this.loadLanguages();
-
-
-        // this.langs=config.languages
-       
+  /** login action */
+  login() {
+    const val = this.form.value;
+    if (val.username && val.password) {
+      this.loginService.login(val).then(() => {
+        const langCode = val.lang;
+        this.translateService.use(langCode);
+        this.translateService.setDefaultLang(langCode);
+        localStorage.setItem('lang', langCode);
+        void this.router.navigateByUrl(this.defaultRoute);
+      }, () => {
+        const langCode = val.lang;
+        this.translateService.use(langCode);
+        this.translateService.setDefaultLang(langCode);
+        localStorage.setItem('lang', langCode);
+        this.badCredentials = 'ERROR';
+      });
     }
-    
-
-    /** login action */
-    login() {
-        const val = this.form.value;
-
-        if ( val.username && val.password ) {
-            this.loginService.login( val ).then(() => {
-                this.translate.use(this.form.value.lang)
-                this.translate.setDefaultLang(this.form.value.lang);
-                localStorage.setItem('lang',this.form.value.lang );
-                // this.loadLanguages()
-                this.router.navigateByUrl( '/' );
-            }, ( err ) => {
-                this.translate.use(this.form.value.lang)
-                this.translate.setDefaultLang(this.form.value.lang);
-                localStorage.setItem('lang',this.form.value.lang );
-                this.badCredentials = 'ERROR';
-
-            } );
-
-        }
-    }
-    async loadLanguages(){
-        this.langs = await this.languageService.getAll().toPromise()
-        if(this.trans.currentLang){
-            
-            this.langs.sort((a,b) => this.trans.instant('lang.'+a.name).localeCompare(this.trans.instant('lang.'+b.name)));
-            this.languagesLoaded = true;
-        }
-        else{
-            this.langs.sort((a,b) => a.name.localeCompare(b.name));
-            this.languagesLoaded = true;
-        }
-
-    }
-
- 
+  }
 }

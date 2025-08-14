@@ -1,114 +1,86 @@
+import {Component} from '@angular/core';
+import {CodeListService, TranslationService, Tree, TreeService,} from '@app/domain';
+import {TranslateService} from '@ngx-translate/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {firstValueFrom} from 'rxjs';
+import {MatDialog} from '@angular/material/dialog';
+import {ErrorHandlerService} from '@app/services/error-handler.service';
+import {LoggerService} from '@app/services/logger.service';
+import {UtilsService} from '@app/services/utils.service';
+import {BaseListComponent} from "@app/components/base-list.component";
+import {EntityListConfig} from "@app/components/shared/entity-list";
+import {Configuration} from '@app/core/config/configuration';
 
-import { Component, OnInit } from '@angular/core';
-import { TreeService, Tree } from '../../frontend-core/src/lib/public_api';
-import { UtilsService } from '../../services/utils.service';
-import { Router } from '@angular/router';
-import { config } from 'src/config';
-import { Observable, Subject } from 'rxjs';
-import { MatDialog } from '@angular/material/dialog';
-import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
- 
 @Component({
   selector: 'app-trees',
   templateUrl: './trees.component.html',
-  styleUrls: ['./trees.component.scss']
+  styles: [],
 })
-export class TreesComponent implements OnInit {
-  saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
-  dataUpdatedEvent: Subject<boolean> = new Subject <boolean>();
-  themeGrid: any = config.agGridTheme;
-  columnDefs: any[];
-  gridModified = false;
+export class TreesComponent extends BaseListComponent<Tree> {
+  entityListConfig: EntityListConfig<Tree> = {
+    entityLabel: Configuration.TREE.labelPlural,
+    iconName: Configuration.TREE.icon,
+    font: Configuration.TREE.font,
+    columnDefs: [],
+    dataFetchFn: () => this.treeService.getAll(),
+    defaultColumnSorting: ['name'],
+    gridOptions: {
+      globalSearch: true,
+      discardChangesButton: false,
+      redoButton: false,
+      undoButton: false,
+      applyChangesButton: false,
+      deleteButton: true,
+      newButton: true,
+      actionButton: true,
+      hideReplaceButton: true
+    }
+  };
 
-  constructor(public dialog: MatDialog,
-    public treeService: TreeService,
-    private utils: UtilsService,
-    private router: Router,
+  constructor(
+    protected override dialog: MatDialog,
+    protected override translateService: TranslateService,
+    protected override translationService: TranslationService,
+    protected override codeListService: CodeListService,
+    protected override loggerService: LoggerService,
+    protected override errorHandler: ErrorHandlerService,
+    protected override activatedRoute: ActivatedRoute,
+    protected override utils: UtilsService,
+    protected override router: Router,
+    public treeService: TreeService
   ) {
-
+    super(
+      dialog,
+      translateService,
+      translationService,
+      codeListService,
+      loggerService,
+      errorHandler,
+      activatedRoute,
+      utils,
+      router
+    );
   }
 
-  ngOnInit() {
-
-    var columnEditBtn=this.utils.getEditBtnColumnDef();
-    columnEditBtn['cellRendererParams']= {
-      clicked: this.newData.bind(this)
-    }
-
-
-    this.columnDefs = [
+  override async postFetchData(): Promise<void> {
+    // Set column definitions directly in the config
+    this.entityListConfig.columnDefs = [
       this.utils.getSelCheckboxColumnDef(),
-      columnEditBtn,
-      this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('treesEntity.name','name')
+      this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'trees/:id/treesForm', {id: 'id'}),
     ];
-
   }
 
-  async canDeactivate(): Promise<boolean | Observable<boolean>> {
-
-    if (this.gridModified) {
-
-
-      let result = await this.utils.showNavigationOutDialog().toPromise();
-      if(!result || result.event!=='Accept') { return false }
-      else if(result.event ==='Accept') {return true;}
-      else{
-        return true;
-      }
-    }
-    else return true
-  }	
-
-  setGridModifiedValue(value){
-    this.gridModified=value;
+  override async newData() {
+    await this.router.navigate(['trees', -1, 'treesForm']);
   }
 
-  getAllTrees = () => {
-
-    return this.treeService.getAll();
+  override async duplicateItem(id: number) {
+    await this.router.navigate(['trees', -1, 'treesForm', id]);
   }
 
-  newData(id: any) {
-    this.saveAgGridStateEvent.next(true);
-    this.router.navigate(['trees', id, 'treesForm']);
-  }
+  override dataFetchFn = () => this.treeService.getAll();
 
-  applyChanges(data: Tree[]) {
-    const promises: Promise<any>[] = [];
-    data.forEach(tree => {
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.treeService.update(tree).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
-      });
-    });
-  }
+  override dataUpdateFn = (data: Tree) => firstValueFrom(this.treeService.update(data))
 
-  add(data: Tree[]) {
-    this.router.navigate(['trees', -1, 'treesForm', data[0].id]);
-  }
-
-  removeData(data: Tree[]) {
-
-    const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title=this.utils.getTranslate("caution");
-    dialogRef.componentInstance.message=this.utils.getTranslate("removeMessage");
-    dialogRef.afterClosed().subscribe(result => {
-      if(result){
-        if(result.event==='Accept') {  
-          const promises: Promise<any>[] = [];
-          data.forEach(tree => {
-            promises.push(new Promise((resolve, reject) => {​​​​​​​ this.treeService.delete(tree).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
-            Promise.all(promises).then(() => {
-              this.dataUpdatedEvent.next(true);
-            });
-          });
-       }
-      }
-    });
-
-
-
-  }
-
+  override dataDeleteFn = (data: Tree) => firstValueFrom(this.treeService.delete(data))
 }

@@ -9,12 +9,12 @@
     width: 100%;
     height: 400px;
   }
-  
+
   .d3-chart .axis path,
   .d3-chart .axis line {
     stroke: #999;
   }
-  
+
   .d3-chart .axis text {
     fill: #999;
   }
@@ -48,7 +48,7 @@
     padding: 0px 20px;
   }
 
-  
+
   .numKpi{
     font-weight: bold;
     font-size: 1.3rem;
@@ -58,3 +58,28 @@
     margin-top: 10px;
     font-size: 1.3rem;
   }
+
+.ticker {
+
+  height: auto;
+  border-radius: 8px;
+  box-shadow: var(--card-shadow);
+  background-color: var(--base-bg, #fff);
+  padding: 8px;
+  display: flex;
+  align-items: center;
+
+  .title {
+    font-size: 14px;
+    line-height: 20px;
+    margin-bottom: 8px;
+  }
+
+  .total {
+    display: inline-block;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 20px;
+    color: var(--base-text-color);
+  }
+}

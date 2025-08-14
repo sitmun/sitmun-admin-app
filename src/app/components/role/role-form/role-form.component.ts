@@ -1,803 +1,323 @@
-import { Component, OnInit } from '@angular/core';
+import {Component} from '@angular/core';
 
-import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { RoleService, UserService, CartographyGroupService, TaskService, UserConfigurationService, TerritoryService, HalOptions, HalParam, 
-  User, Territory, Role, ApplicationService } from '../../../frontend-core/src/lib/public_api';
-import { HttpClient } from '@angular/common/http';
-import { UtilsService } from '../../../services/utils.service';
-import { Observable, of, Subject } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { config } from 'src/config';
-import { DialogGridComponent, DialogMessageComponent } from '../../../frontend-gui/src/lib/public_api';
-import { MatDialog } from '@angular/material/dialog';
-
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
+import {
+  Application,
+  ApplicationService,
+  CartographyGroupService,
+  CodeListService,
+  Role,
+  RoleService,
+  TaskProjection,
+  TaskService,
+  TerritoryProjection,
+  TerritoryService,
+  TranslationService,
+  User,
+  UserConfiguration,
+  UserConfigurationProjection,
+  UserConfigurationService,
+  UserService,
+} from '@app/domain';
+import {UtilsService} from '@app/services/utils.service';
+import {EMPTY, firstValueFrom} from 'rxjs';
+import {map} from 'rxjs/operators';
+import {Status, onCreate, onDelete, onUpdate, onUpdatedRelation} from '@app/frontend-gui/src/lib/public_api';
+import {MatDialog} from '@angular/material/dialog';
+import {LoggerService} from '@app/services/logger.service';
+import {BaseFormComponent} from '@app/components/base-form.component';
+import {TranslateService} from '@ngx-translate/core';
+import {ErrorHandlerService} from '@app/services/error-handler.service';
+import {DataTable2Definition, DataTableDefinition} from '@app/components/data-tables.util';
+import {Configuration} from "@app/core/config/configuration";
 
 @Component({
   selector: 'app-role-form',
   templateUrl: './role-form.component.html',
-  styleUrls: ['./role-form.component.scss']
+  styles: []
 })
-export class RoleFormComponent implements OnInit {
+export class RoleFormComponent extends BaseFormComponent<Role> {
+  readonly config = Configuration.ROLE;
 
-  //Form
-  formRole: UntypedFormGroup;
-  roleToEdit;
-  roleSaved: Role;
-  roleID: number = -1;
-  duplicateID = -1;
-  dataLoaded: Boolean = false;
+  /**
+   * Data table configuration for managing application parameters.
+   * Provides CRUD operations for parameters with validation and type management.
+   * Columns: checkbox, name (editable), value (editable), type (non-editable), status
+   */
+  readonly applicationsTable: DataTableDefinition<Application, Application>
 
-  //Grids
-  columnDefsUsers: any[];
-  getAllElementsEventUsers: Subject<string> = new Subject<string>();
-  dataUpdatedEventUsers: Subject<boolean> = new Subject<boolean>();
+  readonly tasksTable: DataTableDefinition<TaskProjection, TaskProjection>
 
-  columnDefsTasks: any[];
-  getAllElementsEventTasks: Subject<string> = new Subject<string>();
-  dataUpdatedEventTasks: Subject<boolean> = new Subject<boolean>();
-
-  columnDefsCartography: any[];
-  getAllElementsEventCartographies: Subject<string> = new Subject<string>();
-  dataUpdatedEventCartographies: Subject<boolean> = new Subject<boolean>();
-
-  columnDefsApplications: any[];
-  getAllElementsEventApplications: Subject<string> = new Subject<string>();
-  dataUpdatedEventApplications: Subject<boolean> = new Subject<boolean>();
-
-  themeGrid: any = config.agGridTheme;
-
-  //Dialogs
-  columnDefsUsersDialog: any[];
-  columnDefsTerritoriesDialog: any[];
-  addElementsEventUsers: Subject<any[]> = new Subject<any[]>();
-  columnDefsTasksDialog: any[];
-  addElementsEventTasks: Subject<any[]> = new Subject<any[]>();
-  columnDefsCartographiesDialog: any[];
-  addElementsEventCartographies: Subject<any[]> = new Subject<any[]>();
-  columnDefsApplicationsDialog: any[];
-  addElementsEventApplications: Subject<any[]> = new Subject<any[]>();
-
-  //Save button
-  territorisToUpdate: Territory[] = [];
-  usersToUpdate: User[] = [];
-  dataUpdatedEvent: Subject<boolean> = new Subject<boolean>();
-
+  readonly userConfigurationsTable: DataTable2Definition<UserConfigurationProjection, User, TerritoryProjection>
 
   constructor(
-    public dialog: MatDialog,
-    private activatedRoute: ActivatedRoute,
-    private router: Router,
-    private roleService: RoleService,
-    private userService: UserService,
+    dialog: MatDialog,
+    translateService: TranslateService,
+    translationService: TranslationService,
+    codeListService: CodeListService,
+    loggerService: LoggerService,
+    errorHandler: ErrorHandlerService,
+    activatedRoute: ActivatedRoute,
+    router: Router,
+    private readonly roleService: RoleService,
     public cartographyGroupService: CartographyGroupService,
     public tasksService: TaskService,
     public applicationService: ApplicationService,
-    private http: HttpClient,
+    public userConfiguraitonService: UserConfigurationService,
+    public userService: UserService,
+    public territoryService: TerritoryService,
     public utils: UtilsService,
-    private userConfigurationService: UserConfigurationService,
-    private territoryService: TerritoryService
   ) {
-    this.initializeRoleForm();
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router);
+    this.applicationsTable = this.defineApplicationsTable();
+    this.tasksTable = this.defineTasksTable();
+    this.userConfigurationsTable = this.defineUserConfigurationsTable();
   }
 
-  ngOnInit(): void {
-    this.activatedRoute.params.subscribe(params => {
-      this.roleID = +params.id;
-      if (params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
-
-      if (this.roleID !== -1 || this.duplicateID != -1) {
-        let idToGet = this.roleID !== -1 ? this.roleID : this.duplicateID
-
-
-        this.roleService.get(idToGet).subscribe(
-          resp => {
-         
-            this.roleToEdit = resp;
-            this.formRole.patchValue({
-              description: this.roleToEdit.description,
-              _links: this.roleToEdit._links
-            });
-
-            if (this.roleID !== -1) {
-              this.formRole.patchValue({
-                id: this.roleID,
-                name: this.roleToEdit.name,
-              });
-            }
-            else {
-              this.formRole.patchValue({
-                name: this.utils.getTranslate('copy_').concat(this.roleToEdit.name),
-              });
-            }
-
-            this.dataLoaded = true;
-          },
-          error => {
-
-          }
-        );
-      }
-      else { this.dataLoaded = true; }
-    },
-      error => {
-      });
-
-
-    this.columnDefsUsers = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('roleEntity.username', 'user'),
-      this.utils.getEditableColumnDef('roleEntity.territory', 'territory'),
-      this.utils.getBooleanColumnDef('userEntity.appliesToChildrenTerritories', 'appliesToChildrenTerritories', true),
-      this.utils.getStatusColumnDef()
-    ];
-
-    this.columnDefsTasks = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('roleEntity.name', 'name'),
-      this.utils.getNonEditableColumnDef('roleEntity.groupTask', 'groupName'),
-      this.utils.getNonEditableColumnDef('roleEntity.typeName', 'typeName'),
-      this.utils.getStatusColumnDef()
-    ];
-
-    this.columnDefsCartography = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('roleEntity.name', 'name'),
-      this.utils.getStatusColumnDef()
-    ];
-
-    this.columnDefsApplications = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('roleEntity.name', 'name'),
-      this.utils.getStatusColumnDef()
-    ];
-
-    this.columnDefsUsersDialog = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('roleEntity.username', 'username'),
-    ];
-
-    this.columnDefsTerritoriesDialog = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('roleEntity.code', 'code'),
-      this.utils.getNonEditableColumnDef('roleEntity.name', 'name'),
-      this.utils.getBooleanColumnDef('userEntity.appliesToChildrenTerritories', 'appliesToChildrenTerritories', true),
-    ];
-    this.columnDefsCartographiesDialog = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('roleEntity.name', 'name'),
-    ];
-
-    this.columnDefsTasksDialog = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('roleEntity.name', 'name'),
-      this.utils.getNonEditableColumnDef('roleEntity.groupTask', 'groupName'),
-      this.utils.getNonEditableColumnDef('roleEntity.typeName', 'typeName'),
-    ];
-
-    this.columnDefsApplicationsDialog = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('roleEntity.name', 'name'),
-    ];
-
+  /**
+   * Initializes component data before fetching.
+   * Sets up data tables, translations, and situation map list.
+   */
+  override async preFetchData() {
+    this.dataTables.register(this.applicationsTable).register(this.tasksTable).register(this.userConfigurationsTable);
   }
 
-
-  initializeRoleForm(): void {
-
-    this.formRole = new UntypedFormGroup({
-      id: new UntypedFormControl(null, []),
-      name: new UntypedFormControl(null, [
-        Validators.required,
-      ]),
-      description: new UntypedFormControl(null, [
-        Validators.required,
-      ]),
-      _links: new UntypedFormControl(null, []),
-
-    })
-
-  }
-
-
-  //AG GRID
-
-
-  // ******** Users ******** //
-  getAllUsers = (): Observable<any> => {
-
-    if (this.roleID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
-      return of(aux);
+    /**
+   * Fetches the original entity by ID.
+   * @returns Promise of Role
+   */
+    override fetchOriginal(): Promise<Role> {
+      return firstValueFrom(this.roleService.get(this.entityID));
     }
 
-    let params2: HalParam[] = [];
-    let param: HalParam = { key: 'role.id', value: this.roleID }
-    params2.push(param);
-    let query: HalOptions = { params: params2 };
-
-    return this.userConfigurationService.getAll(query);
-
+  /**
+   * Creates a copy of an existing entity for duplication.
+   * @returns Promise of duplicated Role entity
+   */
+  override fetchCopy(): Promise<Role> {
+    return firstValueFrom(this.roleService.get(this.duplicateID).pipe(map((copy: Role) => {
+      copy.name = this.translateService.instant("copy_") + copy.name;
+      return copy;
+    })));
   }
 
-  getAllRowsUsers(event) {
-    if (event.event == "save") {
-      this.saveUsers(event.data);
-    }
-  }
-
-  saveUsers(data: any[]) {
-    const promisesDuplicate: Promise<any>[] = [];
-    const promisesCurrentUserConf: Promise<any>[] = [];
-    const promises: Promise<any>[] = [];
-
-    for (let i = 0; i < data.length; i++) {
-      let userConf = data[i];
-      if (userConf.status === 'pendingCreation' || (userConf.status === 'pendingModify' && !userConf._links)) {
-        let item;
-        if (userConf._links) {
-
-          let urlReqTerritory = `${userConf._links.territory.href}`
-          if (userConf._links.territory.href) {
-            let url = new URL(urlReqTerritory.split("{")[0]);
-            url.searchParams.append("projection", "view")
-            urlReqTerritory = url.toString();
-          }
-
-          let urlReqUser = `${userConf._links.user.href}`
-          if (userConf._links.user.href) {
-            let url = new URL(urlReqUser.split("{")[0]);
-            url.searchParams.append("projection", "view")
-            urlReqUser = url.toString();
-          }
-          let territoryComplete;
-          let userComplete;
-
-          promisesDuplicate.push(new Promise((resolve, reject) => {
-
-            promisesCurrentUserConf.push(new Promise((resolve, reject) => {
-              this.http.get(urlReqTerritory).subscribe(result => {
-                territoryComplete = result;
-                resolve(true);
-              })
-
-            }))
-
-            promisesCurrentUserConf.push(new Promise((resolve, reject) => {
-              this.http.get(urlReqUser).subscribe(result => {
-                userComplete = result;
-                resolve(true);
-              })
-
-            }))
-
-
-            Promise.all(promisesCurrentUserConf).then(() => {
-
-              item = {
-                role: this.roleToEdit,
-                appliesToChildrenTerritories: userConf.appliesToChildrenTerritories,
-                territory: territoryComplete,
-                user: userComplete,
-              }
-                userConf.new = false;
-                promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
-
-              // }
-              resolve(true);
-            })
-
-          }))
-
-
-
-        }
-        else {
-          item = {
-            role: this.roleToEdit,
-            appliesToChildrenTerritories: userConf.appliesToChildrenTerritories,
-            territory: userConf.territoryComplete,
-            user: userConf.userComplete,
-          }
-
-
-          let index;
-          if (userConf.roleChildren == null) {
-            index = data.findIndex(element => element.territoryId === item.territory.id && element.userId === item.user.id &&
-              element.appliesToChildrenTerritories === item.appliesToChildrenTerritories && !element.new)
-          }
-          else {
-            index = data.findIndex(element => element.territoryId === item.territory.id && element.userId === item.user.id && element.appliesToChildrenTerritories && !element.new)
-          }
-          if (index === -1) {
-            userConf.new = false;
-            promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
-
-          }
-        }
-
-      }
-      if (userConf.status === 'pendingModify' && userConf._links) {
-
-        let urlReqTerritory = `${userConf._links.territory.href}`
-        if (userConf._links.territory.href) {
-          let url = new URL(urlReqTerritory.split("{")[0]);
-          url.searchParams.append("projection", "view")
-          urlReqTerritory = url.toString();
-        }
-
-        let urlReqUser = `${userConf._links.user.href}`
-        if (userConf._links.user.href) {
-          let url = new URL(urlReqUser.split("{")[0]);
-          url.searchParams.append("projection", "view")
-          urlReqUser = url.toString();
-        }
-        let territoryComplete;
-        let userComplete;
-
-        promisesDuplicate.push(new Promise((resolve, reject) => {
-
-          promisesCurrentUserConf.push(new Promise((resolve, reject) => {
-            this.http.get(urlReqTerritory).subscribe(result => {
-              territoryComplete = result;
-              resolve(true);
-            })
-
-          }))
-
-          promisesCurrentUserConf.push(new Promise((resolve, reject) => {
-            this.http.get(urlReqUser).subscribe(result => {
-              userComplete = result;
-              resolve(true);
-            })
-
-          }))
-
-
-          Promise.all(promisesCurrentUserConf).then(() => {
-
-            let item = {
-              id: userConf.id,
-              role: this.roleToEdit._links.self.href.split("{")[0],
-              appliesToChildrenTerritories: userConf.appliesToChildrenTerritories,
-              territory: territoryComplete._links.self.href.split("{")[0],
-              user: userComplete._links.self.href.split("{")[0],
-              _links: userConf._links
-            }
-            promises.push(new Promise((resolve, reject) => { this.userConfigurationService.save(item).subscribe((resp) => { resolve(true) }) }));
-            resolve(true);
-          })
-
-        }))
-      }
-      if (userConf.status === 'pendingDelete' && userConf._links && !userConf.new) {
-        promises.push(new Promise((resolve, reject) => { this.userConfigurationService.remove(userConf).subscribe((resp) => { resolve(true) }) }));
-
-
-      }
-    };
-
-
-    Promise.all([...promises,...promisesDuplicate]).then(() => {
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEventUsers.next(true);
-      })
-    });
-
-
-
-
-
-  }
-
-
-
-
-  // ******** Task ******** //
-  getAllTasks = (): Observable<any> => {
-
-    if (this.roleID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
-      return of(aux);
-    }
-    else {
-      var urlReq = `${this.roleToEdit._links.tasks.href}`
-      if (this.roleToEdit._links.tasks.templated) {
-        var url = new URL(urlReq.split("{")[0]);
-        url.searchParams.append("projection", "view")
-        urlReq = url.toString();
-      }
-      return (this.http.get(urlReq))
-        .pipe(map(data => data['_embedded']['tasks']));
-
+  /**
+   * Creates an empty entity with default values.
+   * @returns New Role instance.
+   */
+    override empty(): Role {
+      return new Role()
     }
 
-
+ /**
+   * Initializes form data after entity is fetched.
+   * Sets up reactive form with entity values and validation rules.
+   * @throws Error if entity is undefined
+   */
+ override postFetchData() {
+  if (!this.entityToEdit) {
+    throw new Error('Cannot initialize form: entity is undefined');
   }
-
-  getAllRowsTasks(event) {
-    if (event.event == "save") {
-      this.saveTasks(event.data);
-    }
-  }
-
-  saveTasks(data: any[]) {
-    let dataChanged = false;
-    const promises: Promise<any>[] = [];
-    let tasksToPut = [];
-    data.forEach(task => {
-      if (task.status !== 'pendingDelete') {
-        if (task.status === 'pendingModify') {
-          if (task.newItem) { dataChanged = true; }
-          promises.push(new Promise((resolve, reject) => { this.tasksService.update(task).subscribe((resp) => { resolve(true) }) }));
-        }
-        else if (task.status === 'pendingCreation') {
-          dataChanged = true;
-        }
-        tasksToPut.push(task._links.self.href)
-      }
-      else {
-        dataChanged = true;
-      }
-    });
-    Promise.all(promises).then(() => {
-      if (dataChanged) {
-        let url = this.roleToEdit._links.tasks.href.split('{', 1)[0];
-        this.utils.updateUriList(url, tasksToPut, this.dataUpdatedEventTasks)
-      }
-      else { this.dataUpdatedEventTasks.next(true) }
-    });
-
-  }
-
-  // ******** Cartography Groups ******** //
-  getAllCartographiesGroups = (): Observable<any> => {
-    if (this.roleID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
-      return of(aux);
-
-    }
-    else {
-      var urlReq = `${this.roleToEdit._links.permissions.href}`
-      if (this.roleToEdit._links.permissions.templated) {
-        var url = new URL(urlReq.split("{")[0]);
-        url.searchParams.append("projection", "view")
-        urlReq = url.toString();
-      }
-      return (this.http.get(urlReq))
-        .pipe(map(data => data['_embedded']['cartography-groups']));
-    }
-
-
-  }
-
-  getAllRowsCartographiesGroups(event) {
-    if (event.event == "save") {
-      this.saveCartographiesGroups(event.data);
-    }
-  }
-
-  saveCartographiesGroups(data: any[]) {
-    let dataChanged = false;
-    const promises: Promise<any>[] = [];
-    let cartographiesGroupToPut = [];
-    data.forEach(cartographyGroup => {
-      if (cartographyGroup.status !== 'pendingDelete') {
-        if (cartographyGroup.status === 'pendingModify') {
-          if (cartographyGroup.newItem) { dataChanged = true; }
-          promises.push(new Promise((resolve, reject) => { this.cartographyGroupService.update(cartographyGroup).subscribe((resp) => { resolve(true) }) }));
-
-        }
-        else if (cartographyGroup.status === 'pendingCreation') { dataChanged = true };
-        cartographiesGroupToPut.push(cartographyGroup._links.self.href)
-      }
-      else { dataChanged = true }
-    });
-    Promise.all(promises).then(() => {
-      if (dataChanged) {
-        let url = this.roleToEdit._links.permissions.href.split('{', 1)[0];
-        this.utils.updateUriList(url, cartographiesGroupToPut, this.dataUpdatedEventCartographies)
-      }
-      else { this.dataUpdatedEventCartographies.next(true) }
-    });
-  }
-
-  // ******** Applications ******** //
-  getAllApplications = (): Observable<any> => {
-    // //TODO Change the link when available
-    if (this.roleID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
-      return of(aux);
-
-    }
-    else {
-      var urlReq = `${this.roleToEdit._links.applications.href}`
-      if (this.roleToEdit._links.applications.templated) {
-        var url = new URL(urlReq.split("{")[0]);
-        url.searchParams.append("projection", "view")
-        urlReq = url.toString();
-      }
-      return (this.http.get(urlReq))
-        .pipe(map(data => data['_embedded']['applications']));
-    }
-
-  }
-
-  getAllRowsApplications(event) {
-    if (event.event == "save") {
-      this.saveApplications(event.data);
-    }
-  }
-
-
-  saveApplications(data: any[]) {
-    let dataChanged = false;
-    const promises: Promise<any>[] = [];
-    let applicationsToPut = [];
-    data.forEach(application => {
-      if (application.status !== 'pendingDelete') {
-        if (application.status === 'pendingModify') {
-          if (application.newItem) { dataChanged = true; }
-          promises.push(new Promise((resolve, reject) => { this.applicationService.update(application).subscribe((resp) => { resolve(true) }) }));
-        }
-        else if (application.status === 'pendingCreation') { dataChanged = true }
-        applicationsToPut.push(application._links.self.href)
-      }
-      else { dataChanged = true }
-    });
-    Promise.all(promises).then(() => {
-      if (dataChanged) {
-        let url = this.roleToEdit._links.applications.href.split('{', 1)[0];
-        this.utils.updateUriList(url, applicationsToPut, this.dataUpdatedEventApplications)
-      }
-      else { this.dataUpdatedEventApplications.next(true) }
-    });
-
-  }
-
-  // ******** Users Dialog  ******** //
-
-  getAllUsersDialog = () => {
-    return this.userService.getAll();
-  }
-
-  getAllTerritoriesDialog = () => {
-    return this.territoryService.getAll();
-  }
-
-  openUsersDialog(data: any) {
-
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
-    dialogRef.componentInstance.getAllsTable = [this.getAllUsersDialog, this.getAllTerritoriesDialog];
-    dialogRef.componentInstance.singleSelectionTable = [false, false];
-    dialogRef.componentInstance.columnDefsTable = [this.columnDefsUsersDialog, this.columnDefsTerritoriesDialog];
-    dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate('roleEntity.permissions');
-    dialogRef.componentInstance.titlesTable = [this.utils.getTranslate('roleEntity.users'), this.utils.getTranslate('roleEntity.territories')];
-    dialogRef.componentInstance.nonEditable = false;
-
-
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result) {
-          if (result.event === 'Add') {
-            if(result.data[0].length>0 && result.data[1].length>0){
-              let rowsToAdd = this.adaptRowsToAddPermits(this.roleToEdit, result.data[1], result.data[0])
-
-              this.addElementsEventUsers.next(rowsToAdd);
-            }
-            else{
-              const dialogRef = this.dialog.open(DialogMessageComponent);
-              dialogRef.componentInstance.title = this.utils.getTranslate("atention");
-              dialogRef.componentInstance.message = this.utils.getTranslate("doubleSelectionMessage");
-              dialogRef.componentInstance.hideCancelButton = true;
-              dialogRef.afterClosed().subscribe();
-            }
-          }
-        }
-      }
-
-    });
-
-  }
-
-  adaptRowsToAddPermits(role: Role, territories: Territory[], users: any[]) {
-    let itemsToAdd: any[] = [];
-
-    territories.forEach(territory => {
-      let item;
-
-      users.forEach(user => {
-
-        item = {
-          user: user.username,
-          userId: user.id,
-          userComplete: user,
-          roleComplete: role,
-          roleId: this.roleID,
-          role: this.roleToEdit.name,
-          territoryId: territory.id,
-          territory: territory.name,
-          territoryComplete: territory,
-          appliesToChildrenTerritories: territory['appliesToChildrenTerritories']?true:false,
-          new: true
-        }
-
-
-        itemsToAdd.push(item);
-      })
-      if(territory['appliesToChildrenTerritories']) { delete territory['appliesToChildrenTerritories'] }
-    })
-    return itemsToAdd;
-  }
-
-  // ******** Cartography Dialog  ******** //
-
-  getAllCartographiesGroupsDialog = () => {
-    let params2: HalParam[] = [];
-    let param: HalParam = { key: 'type', value: 'C' }
-    params2.push(param);
-    let query: HalOptions = { params: params2 };
-    return this.cartographyGroupService.getAll(query, undefined);
-  }
-
-  openCartographyDialog(data: any) {
-
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
-    dialogRef.componentInstance.orderTable = ['name'];
-    dialogRef.componentInstance.getAllsTable = [this.getAllCartographiesGroupsDialog];
-    dialogRef.componentInstance.singleSelectionTable = [false];
-    dialogRef.componentInstance.columnDefsTable = [this.columnDefsCartographiesDialog];
-    dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate('roleEntity.permissiongroupLayersConfiguration');
-    dialogRef.componentInstance.titlesTable = [''];
-    dialogRef.componentInstance.currentData = [data];
-    dialogRef.componentInstance.nonEditable = false;
-
-
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Add') {
-          this.addElementsEventCartographies.next(result.data[0])
-        }
-      }
-
-    });
-
-  }
-
-  // ******** Tasks Dialog  ******** //
-
-  getAllTasksDialog = () => {
-    return this.tasksService.getAll();
-  }
-
-  openTasksDialog(data: any) {
-
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
-    dialogRef.componentInstance.orderTable = ['name'];
-    dialogRef.componentInstance.getAllsTable = [this.getAllTasksDialog];
-    dialogRef.componentInstance.singleSelectionTable = [false];
-    dialogRef.componentInstance.columnDefsTable = [this.columnDefsTasksDialog];
-    dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate('roleEntity.tasks');
-    dialogRef.componentInstance.titlesTable = [''];
-    dialogRef.componentInstance.currentData = [data];
-    dialogRef.componentInstance.nonEditable = false;
-
-
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Add') {
-          this.addElementsEventTasks.next(result.data[0])
-        }
-      }
-
-    });
-
-  }
-
-  getRowsToAddPermits(territories: Territory[], users: User[]) {
-    let itemsToAdd: any[] = [];
-    territories.forEach(territory => {
-
-      users.forEach(user => {
-        let item = {
-          user: user.username,
-          userComplete: user,
-          territory: territory.name,
-          territoryComplete: territory,
-        }
-        itemsToAdd.push(item);
-      })
-    })
-    return itemsToAdd;
-  }
-
-
-  // ******** Applications Dialog  ******** //
-
-  getAllApplicationsDialog = () => {
-    return this.applicationService.getAll();
-  }
-
-  openApplicationsDialog(data: any) {
-
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
-    dialogRef.componentInstance.orderTable = ['name'];
-    dialogRef.componentInstance.getAllsTable = [this.getAllApplicationsDialog];
-    dialogRef.componentInstance.singleSelectionTable = [false];
-    dialogRef.componentInstance.columnDefsTable = [this.columnDefsApplicationsDialog];
-    dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate('roleEntity.applications');
-    dialogRef.componentInstance.titlesTable = [''];
-    dialogRef.componentInstance.currentData = [data];
-    dialogRef.componentInstance.nonEditable = false;
-
-
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Add') {
-          this.addElementsEventApplications.next(result.data[0])
-        }
-      }
-
-    });
-
-  }
-
-
-
-  onSaveButtonClicked() {
-
-    
-    if(this.formRole.valid)
-    {
-
-    this.roleService.save(this.formRole.value)
-      .subscribe(resp => {
-
-        if (this.roleID == -1 && this.duplicateID != -1) {
-          this.formRole.patchValue({
-            _links: null
-          })
-        }
-
-        this.roleToEdit = resp;
-        this.roleID = resp.id
-        this.formRole.patchValue({
-          id: resp.id,
-          _links: resp._links
-        })
-        this.getAllElementsEventUsers.next('save');
-        this.getAllElementsEventApplications.next('save');
-        this.getAllElementsEventCartographies.next('save');
-        this.getAllElementsEventTasks.next('save');
-      },
-        error => {
-          console.log(error);
-        });
-
-      }
-      else {
-        this.utils.showRequiredFieldsError();
-      }
-
-
-  }
-
-
+  this.entityForm = new UntypedFormGroup({
+    name: new UntypedFormControl(this.entityToEdit.name, [Validators.required,]),
+    description: new UntypedFormControl(this.entityToEdit.description),
+  });
 }
+
+  /**
+   * Creates an Role object from the current form values.
+   *
+   * @param id - Optional ID for the new object, used when updating
+   * @returns New Role instance populated with form values
+   */
+  createObject(id: number = null): Role {
+    return Role.fromObject(this.entityToEdit);
+  }
+
+  /**
+   * Creates a new entity or duplicates an existing one.
+   * @returns Promise of created entity ID
+   */
+  override async createEntity(): Promise<number> {
+    const entityToCreate = this.createObject();
+    const response = await firstValueFrom(this.roleService.create(entityToCreate));
+    return response.id;
+  }
+
+  /**
+   * Updates an existing entity with form values.
+   */
+  override async updateEntity() {
+    const entityToUpdate = this.createObject(this.entityID);
+    await firstValueFrom(this.roleService.update(entityToUpdate));
+  }
+
+  /**
+   * Validates if the form is valid.
+   * @returns boolean indicating form validity
+   */
+  validForm(): boolean {
+    return this.entityForm.valid;
+
+  }
+
+
+  private defineUserConfigurationsTable(): DataTable2Definition<UserConfigurationProjection, User, TerritoryProjection> {
+    return DataTable2Definition.builder<UserConfigurationProjection, User, TerritoryProjection>(this.dialog, this.errorHandler)
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getRouterLinkColumnDef('entity.role.users.user', 'user', '/user/:id/userForm', {id: 'userId'}),
+        this.utils.getRouterLinkColumnDef('entity.role.users.territory', 'territory', '/territory/:id/territoryForm', {id: 'territoryId'}),
+        this.utils.getNonEditableColumnDef('entity.role.users.appliesToChildrenTerritories', 'appliesToChildrenTerritories'),
+        this.utils.getDateColumnDef('entity.role.users.createdDate', 'createdDate', false),
+        this.utils.getStatusColumnDef()
+      ])
+      .withRelationsOrder('name')
+      .withRelationsFetcher(() => {
+        if (this.isNew()) {
+          return EMPTY;
+        }
+        return this.entityToEdit.getRelationArrayEx(UserConfigurationProjection, 'userConfigurations', {projection: 'view'})
+      })
+      .withFieldRestrictions(['userId', 'territoryId'])
+      .withRelationsUpdater(async (userConfigurations: (UserConfigurationProjection & Status)[]) => {
+        await onCreate(userConfigurations).forEach(item => {
+          const newItem = UserConfiguration.fromObject(item);
+          newItem.user = this.userService.createProxy(item.userId);
+          newItem.territory = this.territoryService.createProxy(item.territoryId);
+          newItem.role = this.roleService.createProxy(item.roleId);
+          return this.userConfiguraitonService.create(newItem);
+        });
+        await onUpdate(userConfigurations).forEach(item => {
+          const newItem = UserConfiguration.fromObject(item);
+          delete newItem.user;
+          delete newItem.territory;
+          delete newItem.role;
+          return this.userConfiguraitonService.update(newItem);
+        }
+        );
+        await onDelete(userConfigurations).forEach(item => {
+          const newItem = this.userConfiguraitonService.createProxy(item.id)
+          return this.userConfiguraitonService.delete(newItem);
+        });
+      })
+      .withTargetToRelation((users: User[], territories: TerritoryProjection[]) => {
+        const relations: UserConfigurationProjection[] = [];
+        territories.forEach(territory => {
+          users.forEach(user => {
+            relations.push(Object.assign(new UserConfigurationProjection(), {
+              user: user.username,
+              userId: user.id,
+              territory: territory.name,
+              territoryId: territory.id,
+              role: this.entityToEdit.name,
+              roleId: this.entityToEdit.id,
+              appliesToChildrenTerritories: false,
+              createdDate: new Date().toISOString()
+            }));
+          });
+        });
+        return relations;
+      })
+      .withTargetsTitle('entity.role.users.title')
+      .withTargetsLeftColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getNonEditableColumnDef('entity.role.users.user.title', 'username'),
+        this.utils.getNonEditableColumnDef('entity.role.users.user.firstName', 'firstName'),
+        this.utils.getNonEditableColumnDef('entity.role.users.user.lastName', 'lastName'),
+      ])
+      .withTargetsLeftTitle('entity.role.users.user.title')
+      .withTargetsLeftFetcher(() => this.userService.getAll())
+      .withTargetsRightColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
+        this.utils.getNonEditableColumnDef('common.form.code', 'code'),
+        this.utils.getNonEditableColumnDef('common.form.type', 'typeName'),
+      ])
+      .withTargetsRightTitle('entity.role.users.territory.title')
+      .withTargetsRightFetcher(() => this.territoryService.getAllProjection(TerritoryProjection))
+      .build();
+  }
+
+  private defineTasksTable(): DataTableDefinition<TaskProjection, TaskProjection> {
+    return DataTableDefinition.builder<TaskProjection, TaskProjection>(this.dialog, this.errorHandler)
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/taskQuery/:id/:typeId', {
+          id: 'id',
+          typeId: 'typeId'
+        }),
+        this.utils.getNonEditableColumnDef('entity.taskType.label', 'typeName'),
+      ])
+      .withRelationsOrder('name')
+      .withRelationsFetcher(() => {
+        if (this.isNew()) {
+          return EMPTY;
+        }
+        return this.entityToEdit.getRelationArrayEx(TaskProjection, 'tasks', {projection: 'view'})
+      })
+      .withRelationsUpdater(async (tasks: (TaskProjection & Status)[]) => {
+        await onUpdatedRelation(tasks).forAll(items => {
+          const newItems = items.map(item => this.tasksService.createProxy(item.id));
+          return this.entityToEdit.substituteAllRelation('tasks', newItems)
+        }
+        );
+      })
+      .withTargetsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
+        this.utils.getNonEditableColumnDef('entity.taskType.label', 'typeName', 100, 500),
+        this.utils.getStatusColumnDef()
+      ])
+      .withTargetsOrder('name')
+      .withTargetsFetcher(() => this.tasksService.getAllProjection(TaskProjection))
+      .withTargetInclude((tasks: (TaskProjection)[]) => (item: TaskProjection) => {
+        return !tasks.some((task) => task.id === item.id);
+      })
+      .withTargetsTitle(this.translateService.instant('entity.role.tasks.title'))
+      .withTargetsOrder('name')
+      .build();
+  }
+
+
+  private defineApplicationsTable(): DataTableDefinition<Application, Application> {
+    return DataTableDefinition.builder<Application, Application>(this.dialog, this.errorHandler)
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/application/:id/applicationForm', {id: 'id'}),
+        this.utils.getNonEditableColumnDef('common.form.description', 'description', 100, 500),
+        this.utils.getStatusColumnDef()
+      ])
+      .withRelationsOrder('name')
+      .withRelationsFetcher(() => {
+        if (this.isNew()) {
+          return EMPTY;
+        }
+        return this.entityToEdit.getRelationArrayEx<Application>(Application, 'applications')
+      })
+      .withRelationsUpdater(async (applications: (Application & Status)[]) => {
+        await onUpdatedRelation(applications).forAll(items =>
+          this.entityToEdit.substituteAllRelation('applications', items)
+        );
+      })
+      .withTargetsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
+        this.utils.getNonEditableColumnDef('common.form.description', 'description', 100, 500),
+        this.utils.getStatusColumnDef()
+      ])
+      .withTargetsOrder('name')
+      .withTargetsFetcher(() => this.applicationService.getAll())
+      .withTargetInclude((applications: (Application)[]) => (item: Application) => {
+        return !applications.some((application) => application.id === item.id);
+      })
+      .withTargetsTitle(this.translateService.instant('entity.role.applications.title'))
+      .withTargetsOrder('name')
+      .build();
+    }
+}
+
+
+
+

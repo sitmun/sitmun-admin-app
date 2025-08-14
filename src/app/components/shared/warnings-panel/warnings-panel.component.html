@@ -1,0 +1,25 @@
+<mat-expansion-panel *ngIf="warnings && warnings.length > 0" [expanded]="expanded" class="warnings-panel">
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      <span
+        [matBadge]="warnings?.length"
+        matBadgeColor="warn"
+        matBadgeOverlap="false"
+        matBadgePosition="before"
+      >
+        &nbsp;
+        {{ titleKey | translate }}
+      </span>
+    </mat-panel-title>
+  </mat-expansion-panel-header>
+  <mat-divider></mat-divider>
+  <div *ngFor="let warning of warnings">
+    {{ warning | translate }}
+    <mat-divider></mat-divider>
+  </div>
+</mat-expansion-panel>
+
+
+
+
+

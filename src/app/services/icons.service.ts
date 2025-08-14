@@ -1,220 +1,111 @@
-import { Injectable } from '@angular/core';
-import { MatIconRegistry } from '@angular/material/icon';
-import { DomSanitizer } from '@angular/platform-browser';
+import {Injectable} from '@angular/core';
+import {MatIconRegistry} from '@angular/material/icon';
+import {DomSanitizer} from '@angular/platform-browser';
+import {constants} from '@environments/constants';
+import {Configuration} from '@app/core/config/configuration';
+import {LoggerService} from './logger.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class IconsService {
+  private readonly iconBasePath = 'assets/img/';
 
-  menuOptions1: any = [];
-  menuOptions2: any = [];
-  menuOptions3: any = [];
-  menuOptions4: any = [];
-  menus: any = [[]];
-  extraImg: any = [];
-  flagImg: any = [];
+  private readonly loadedIcons: Set<string> = new Set();
 
-  constructor(private matIconRegistry: MatIconRegistry,
-              private domSanitizer: DomSanitizer) { }
+  constructor(
+    private readonly matIconRegistry: MatIconRegistry,
+    private readonly domSanitizer: DomSanitizer,
+    private readonly loggerService: LoggerService
+  ) { }
 
-  loadOptions() {
-    this.menuOptions1 = [
-      {
-        id: 'connection',
-        icon: 'menu_connexio',
-      },
-      {
-        id: 'service',
-        icon: 'menu_servei',
-      },
-      {
-        id: 'layers',
-        icon: 'menu_capes',
-      },
-      {
-        id: 'trees',
-        icon: 'menu_arbres',
-      },
-      {
-        id: 'backgroundLayers',
-        icon: 'menu_capes_fons',
-      }
-      ];
+  /**
+   * Loads all SVG icons defined in the constants
+   */
+  async loadSVGs(): Promise<void> {
+    this.loadMenuIcons();
+    this.loadExtraIcons();
+  }
 
-    this.menuOptions2 = [
-        {
-          id: 'layersPermits',
-          icon: 'menu_permisos',
-        },
-        {
-          id: 'territory',
-          icon: 'menu_territori',
-        },
-        {
-          id: 'role',
-          icon: 'menu_rol',
-        },
-        {
-          id: 'user',
-          icon: 'menu_usuari',
-        },
-      ];
+  /**
+   * Loads a single SVG icon
+   * @param iconName The name of the icon to load
+   * @returns True if the icon was loaded, false if it was already loaded
+   */
+  loadIcon(iconName: string): boolean {
+    if (this.loadedIcons.has(iconName)) {
+      return false;
+    }
 
-    this.menuOptions3 = [
+    try {
+      this.matIconRegistry.addSvgIcon(
+        iconName,
+        this.domSanitizer.bypassSecurityTrustResourceUrl(`${this.iconBasePath}${iconName}.svg`)
+      );
+      this.loadedIcons.add(iconName);
+      return true;
+    } catch (error) {
+      this.loggerService.error(`Failed to load icon: ${iconName}`, error);
+      return false;
+    }
+  }
+
+  /**
+   * Loads all menu icons from constants
+   */
+  private loadMenuIcons(): void {
+    const menus = [
+      [
+        Configuration.toMenuItem(Configuration.DASHBOARD)
+      ],
+      [
+        Configuration.toMenuItem(Configuration.CONNECTION),
+        Configuration.toMenuItem(Configuration.SERVICE),
+        Configuration.toMenuItem(Configuration.LAYER),
+        Configuration.toMenuItem(Configuration.TREE),
+        Configuration.toMenuItem(Configuration.BACKGROUND_LAYER)
+      ],
+      [
+        Configuration.toMenuItem(Configuration.LAYERS_PERMIT),
+        Configuration.toMenuItem(Configuration.TERRITORY),
+        Configuration.toMenuItem(Configuration.ROLE),
+        Configuration.toMenuItem(Configuration.USER)
+      ],
+      [
+        Configuration.toMenuItem(Configuration.TASK_GROUP),
         {
-          id: 'taskGroup',
-          icon: 'ic_gruptasca'
-        },
-        {
-          id: 'tasks',
-          icon: 'menu_tasques',
+          ...Configuration.toMenuItem(Configuration.TASK),
           children: [
-            {
-              id: 'tasks',
-              translation: 'basics',
-            },
-            {
-              id: 'tasksDownload',
-            },
-
-            {
-              id: 'tasksDocument',
-            },
-
-            {
-              id: 'tasksQuery',
-            },
-
-            {
-              id: 'tasksMoreInformation',
-            },
-
-            {
-              id: 'tasksLocator',
-            },
-
-            {
-              id: 'tasksReport',
-            },
-
-            {
-              id: 'tasksEdition',
-              children: [
-                {
-                  id: 'tasksEditionCartographyTable',
-                  translation: 'cartographyTableWFT'
-                },
-                {
-                  id: 'tasksEditionDataTable',
-                  translation: 'dataTable',
-                },
-                {
-                  id: 'tasksEditionRelationTable',
-                  translation: 'relationTable',
-                },
-                {
-                  id: 'tasksEditionSearchView',
-                  translation: 'searchView',
-                },
-              ]
-            },
-
-            {
-              id: 'tasksThematic',
-            },
-
-            {
-              id: 'tasksExtractionFME',
-            },
-
+            Configuration.toMenuItem(Configuration.TASK_BASIC),
+            Configuration.toMenuItem(Configuration.TASK_QUERY),
+            Configuration.toMenuItem(Configuration.TASK_EDIT)
           ]
         }
-      ];
-
-    this.menuOptions4 = [
-      {
-        id: 'application',
-        icon: 'menu_aplicacio',
-      }
+      ],
+      [
+        Configuration.toMenuItem(Configuration.APPLICATION)
+      ]
     ];
 
-    this.extraImg = [
-        {
-          id: 'ic_arrow_down_black',
-          icon: 'ic_arrow_down_black',
-        },
-        {
-          id: 'ic_translate',
-          icon: 'ic_translate',
-        },
-        {
-          id: 'ic_translate',
-          icon: 'ic_translate',
-        },
-        {
-          id: 'icon_lang_ca',
-          icon: 'flag_ca',
-        },
-        {
-          id: 'icon_lang_en',
-          icon: 'flag_en',
-        },
-        {
-          id: 'icon_lang_es',
-          icon: 'flag_es',
-        },
-        {
-          id: 'icon_lang_oc',
-          icon: 'flag_oc',
-        },
-        {
-          id: 'icon_lang_fr',
-          icon: 'flag_oc',
-        },
-
-    ];
-
-
-    this.menus[0] = this.menuOptions1;
-    this.menus[1] = this.menuOptions2;
-    this.menus[2] = this.menuOptions3;
-    this.menus[3] = this.menuOptions4;
-
-    }
-
-    loadSVGs(){
-      // tslint:disable-next-line: forin
-      // tslint:disable-next-line: one-variable-per-declaration
-      let menuOptions: any;
-      for ( menuOptions of this.menus)
-      {
-        // tslint:disable-next-line: forin
-        for (const key in menuOptions) {
-          const option = menuOptions[key];
-          const icon = option.icon;
-
-          this.matIconRegistry.addSvgIcon(
-            icon,
-            this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/' + icon + '.svg')
-          );
+    for (const menuOptions of menus) {
+      for (const key in menuOptions) {
+        const option = menuOptions[key];
+        if (option?.icon) {
+          this.loadIcon(option.icon);
         }
       }
-      // tslint:disable-next-line: forin
-      for ( const key in this.extraImg ) {
-        const option = this.extraImg[key];
-        const icon = option.icon;
+    }
+  }
 
-        this.matIconRegistry.addSvgIcon(
-          icon,
-          this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/' + icon + '.svg')
-        );
+  /**
+   * Loads all extra icons from constants
+   */
+  private loadExtraIcons(): void {
+    for (const key in constants.extraImg) {
+      const option = constants.extraImg[key];
+      if (option?.icon) {
+        this.loadIcon(option.icon);
       }
     }
-
-    getMenuOption() {
-      this.loadOptions();
-      return this.menus;
-    }
-
+  }
 }

@@ -2,11 +2,18 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { LayersPermitsFormComponent } from './layers-permits-form.component';
 import { RouterModule } from '@angular/router';
-import { CartographyGroupService, RoleService, CartographyService, CodeListService,TranslationService,ResourceService,ExternalService } from '../../../frontend-core/src/lib/public_api';
-import { SitmunFrontendGuiModule } from '../../../frontend-gui/src/lib/public_api';
-import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
+import {
+  CartographyGroupService,
+  CartographyService,
+  CodeListService,
+  RoleService,
+  TranslationService
+} from '@app/domain';
+import {ExternalService, ResourceService} from '@app/core/hal';
+import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { RouterTestingModule } from '@angular/router/testing';
-import { MaterialModule } from '../../../material-module';
+import { MaterialModule } from '@app/material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -51,7 +58,7 @@ describe('LayersPermitsFormComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  
+
   it('should instantiate roleService', () => {
     expect(roleService).toBeTruthy();
   });
@@ -82,7 +89,7 @@ describe('LayersPermitsFormComponent', () => {
 
   it('form invalid when empty', () => {
     expect(component.formLayersPermits.valid).toBeFalsy();
-  }); 
+  });
 
   it('form invalid when mid-empty', () => {
     component.formLayersPermits.patchValue({
@@ -90,7 +97,7 @@ describe('LayersPermitsFormComponent', () => {
     })
     //Miss name
     expect(component.formLayersPermits.valid).toBeFalsy();
-  }); 
+  });
 
   it('form valid', () => {
     component.formLayersPermits.patchValue({
@@ -98,11 +105,11 @@ describe('LayersPermitsFormComponent', () => {
       type: 1,
     })
     expect(component.formLayersPermits.valid).toBeTruthy();
-  }); 
+  });
 
-  
+
   it('Layer permits form fields', () => {
     expect(component.formLayersPermits.get('name')).toBeTruthy();
     expect(component.formLayersPermits.get('type')).toBeTruthy();
-  }); 
+  });
 });

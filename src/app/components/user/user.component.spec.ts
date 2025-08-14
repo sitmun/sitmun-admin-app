@@ -1,12 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { UserComponent } from './user.component';
-import { UserService,UserConfigurationService, CodeListService,TranslationService,ResourceService,ExternalService } from '../../frontend-core/src/lib/public_api';
+import {CodeListService, TranslationService, UserConfigurationService, UserService} from '@app/domain';
+import {ExternalService, ResourceService} from '@app/core/hal';
 import { HttpClientModule } from '@angular/common/http';
-import { SitmunFrontendGuiModule } from '../../frontend-gui/src/lib/public_api';
-import { ExternalConfigurationService } from 'src/app/ExternalConfigurationService';
+import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { RouterTestingModule } from '@angular/router/testing';
-import { MaterialModule } from '../../material-module';
+import { MaterialModule } from '@app/material-module';
 import { RouterModule } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
@@ -55,7 +56,7 @@ describe('UserComponent', () => {
   it('should instantiate translationService', () => {
     expect(translationService).toBeTruthy();
   });
- 
+
   it('should instantiate resourceService', () => {
     expect(resourceService).toBeTruthy();
   });

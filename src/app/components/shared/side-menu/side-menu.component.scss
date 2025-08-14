@@ -13,20 +13,20 @@
   align-items: center;
   justify-content: center;
   width: 230px;
-  background-color: #F5F5F5;
+  background-color: $light-gray;
   border: 0px black;
 }
 
 .mat-expansion-panel{
-
   width: 230px;
-  background-color: #F5F5F5;
-  border: 0px #F5F5F5;
-  
+  background-color: $light-gray;
+  border: 0px $light-gray;
 }
 
 .mat-expansion-panel-header{
-  padding: 10px 10px 10px 0px;
+  font-size: 16px;
+  font-weight: normal;
+  padding: $spacing-sm $spacing-sm $spacing-sm 0px;
 }
 
 .sidenav ul {
@@ -43,23 +43,22 @@
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 10px 10px 10px 15px;
+  padding: $spacing-sm $spacing-sm $spacing-sm $spacing-md;
+  color: $black !important;
 }
 
 .sidenav ul li a .mat-icon{
-  color: #333 !important;
+  color: $text-color !important;
 }
 
 .sidenav ul li a.active, .sidenav ul li a.active .mat-icon{
-  color: #C56400 !important;
+  color: $accent-color !important;
   font-weight: 700;
 }
 
 
 .sidenav ul li .mat-icon {
-  margin-right:10px;
-  width:20px;
-  height: 20px;
+  margin-right: $spacing-sm;
 }
 
 .sidenav-content {
@@ -70,11 +69,11 @@
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 10px 10px 10px 15px;
+  padding: $spacing-sm $spacing-sm $spacing-sm $spacing-md;
 }
 
 .sidenav-margin-div{
-	background-color: white;
+	background-color: $white;
 	height: 30px;
 	width: 100%;
 	position: absolute;
@@ -96,17 +95,18 @@
 }
 
 .altresMenus{
-  border-top: 1px solid #DDDDDD;
-  font-size: normal;
-  text-align: left;
+  border-top: 1px solid $medium-gray;
 }
 
-.span{
-  font-size: normal;
-  text-align: left;
+.expandible-option {
+  padding: 0 $spacing-sm 0 0 !important;       // Same padding as other sidenav-options
+  height: 40px !important;              // Same height as other sidenav-options
 }
 
-.opcio{
-  margin-top: 10px;
+.remove-mat-expansion-panel-padding {
+  ::ng-deep {
+    .mat-expansion-panel-body {
+      padding: 0 $spacing-sm 0 0 !important;   // Same padding as other sidenav-options
+    }
+  }
 }
- 

@@ -12,10 +12,58 @@
     "importHelpers": true,
     "target": "ES2022",
     "module": "es2020",
+    "esModuleInterop": true,
     "lib": [
-      "es2018",
+      "es2022",
       "dom"
     ],
-    "useDefineForClassFields": false
-  }
+    "paths": {
+      "@app/*": ["src/app/*"],
+      "@app/domain": ["src/app/domain"],
+      "@app/domain/*": ["src/app/domain/*"],
+      "@app/core/hal/services": ["src/app/core/hal/services"],
+      "@app/core/hal/*": ["src/app/core/hal/*"],
+      "@app/core/auth/*": ["src/app/core/auth/*"],
+      "@app/core/account/*": ["src/app/core/account/*"],
+      "@app/core/config/*": ["src/app/core/config/*"],
+      "@app/components/shared/*": ["src/app/components/shared/*"],
+      "@app/frontend-gui/*": ["src/app/frontend-gui/*"],
+      "@app/material-module": ["src/app/material-module"],
+      "@config": ["src/config.ts"],
+      "@environments/*": ["src/environments/*"]
+    },
+    "useDefineForClassFields": false,
+    "forceConsistentCasingInFileNames": true,
+    "strict": false,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": false,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": false,
+    "strictInputAccessModifiers": false,
+    "strictTemplates": true
+  },
+  "files": [
+    "src/main.ts",
+    "src/polyfills.ts"
+  ],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts",
+    "src/environments/environment.prod.ts",
+    "src/environments/environment.testdeployment.ts",
+    "src/app/core/hal/config/index.ts",
+    "src/app/core/hal/resource/index.ts",
+    "src/app/core/hal/rest/index.ts",
+    "src/app/core/public-api.ts",
+    "src/app/core/hal/config/external-configuration.model.ts"
+  ]
 }

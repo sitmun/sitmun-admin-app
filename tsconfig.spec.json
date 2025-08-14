@@ -4,15 +4,26 @@
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
     "types": [
-      "jasmine"
-    ]
+      "jest",
+      "node"
+    ],
+    "esModuleInterop": true,
+    "emitDecoratorMetadata": true,
+    "paths": {
+      "@app/*": ["src/app/*"],
+      "@app/domain": ["src/app/domain"],
+      "@app/domain/*": ["src/app/domain/*"],
+      "@config": ["src/config.ts"],
+      "@environments/*": ["src/environments/*"]
+    }
   },
   "files": [
-    "src/test.ts",
     "src/polyfills.ts"
   ],
   "include": [
+    "src/**/*.ts",
     "src/**/*.spec.ts",
-    "src/**/*.d.ts"
+    "src/**/*.d.ts",
+    "src/app/types.d.ts"
   ]
 }

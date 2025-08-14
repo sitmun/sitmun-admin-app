@@ -1,118 +1,98 @@
-import { Component, OnInit } from '@angular/core';
-import { CartographyService, Cartography, Service } from '../../frontend-core/src/lib/public_api';
-import { UtilsService } from '../../services/utils.service';
-import { Router } from '@angular/router';
-import { environment } from 'src/environments/environment';
-import { config } from 'src/config';
-import { Observable, Subject } from 'rxjs';
-import { MatDialog } from '@angular/material/dialog';
-import { DialogMessageComponent } from '../../frontend-gui/src/lib/public_api';
-import { HttpClient } from '@angular/common/http';
+import {Component} from '@angular/core';
+import {
+  Cartography,
+  CartographyProjection,
+  CartographyService,
+  CodeListService,
+  TranslationService,
+} from '@app/domain';
+import {TranslateService} from '@ngx-translate/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {firstValueFrom} from 'rxjs';
+import {MatDialog} from '@angular/material/dialog';
+import {ErrorHandlerService} from '@app/services/error-handler.service';
+import {LoggerService} from '@app/services/logger.service';
+import {UtilsService} from '@app/services/utils.service';
+import {BaseListComponent} from "@app/components/base-list.component";
+import {EntityListConfig} from "@app/components/shared/entity-list";
+import {Configuration} from '@app/core/config/configuration';
 
 @Component({
   selector: 'app-layers',
   templateUrl: './layers.component.html',
-  styleUrls: ['./layers.component.scss']
+  styles: []
 })
-export class LayersComponent implements OnInit {
-  saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
-  dataUpdatedEvent: Subject<boolean> = new Subject <boolean>();
-  themeGrid: any = config.agGridTheme;
-  columnDefs: any[];
-  gridModified = false;
+export class LayersComponent extends BaseListComponent<CartographyProjection> {
+  entityListConfig: EntityListConfig<CartographyProjection> = {
+    entityLabel: Configuration.LAYER.labelPlural,
+    iconName: Configuration.LAYER.icon,
+    font: Configuration.LAYER.font,
+    columnDefs: [],
+    dataFetchFn: () => this.cartographyService.getAllProjection(CartographyProjection),
+    defaultColumnSorting: ['name'],
+    gridOptions: {
+      globalSearch: true,
+      discardChangesButton: false,
+      redoButton: false,
+      undoButton: false,
+      applyChangesButton: false,
+      deleteButton: true,
+      newButton: true,
+      actionButton: true,
+      hideReplaceButton: true
+    }
+  };
 
-  constructor(public dialog: MatDialog,
-    public cartographyService: CartographyService,
-    private utils: UtilsService,
-    private router: Router,
-    private http: HttpClient,
+  constructor(
+    protected override dialog: MatDialog,
+    protected override translateService: TranslateService,
+    protected override translationService: TranslationService,
+    protected override codeListService: CodeListService,
+    protected override loggerService: LoggerService,
+    protected override errorHandler: ErrorHandlerService,
+    protected override activatedRoute: ActivatedRoute,
+    protected override utils: UtilsService,
+    protected override router: Router,
+    public cartographyService: CartographyService
   ) {
-
+    super(
+      dialog,
+      translateService,
+      translationService,
+      codeListService,
+      loggerService,
+      errorHandler,
+      activatedRoute,
+      utils,
+      router
+    );
   }
 
-  ngOnInit() {
+  override async preFetchData(): Promise<void> {
+    await this.initCodeLists(['databaseConnection.driver']);
+  }
 
-    var columnEditBtn=this.utils.getEditBtnColumnDef();
-    columnEditBtn['cellRendererParams']= {
-      clicked: this.newData.bind(this)
-    }
-
-    this.columnDefs = [
+  override async postFetchData(): Promise<void> {
+    // Set column definitions directly in the config
+    this.entityListConfig.columnDefs = [
       this.utils.getSelCheckboxColumnDef(),
-      columnEditBtn,
-      this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('layersEntity.name', 'name'),
-      this.utils.getEditableColumnDef('layersEntity.order', 'order'),
-      {...this.utils.getEditableColumnDef('layersEntity.layers', 'layers'), ...this.utils.getArrayValueParser() },
-      this.utils.getEditableColumnDef('layersEntity.serviceName', 'serviceName'),
-      this.utils.getEditableColumnDef('layersEntity.source', 'source'),
-      this.utils.getDateColumnDef('layersEntity.createdDate', 'createdDate'),
+      this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'layers/:id/layersForm', {id: 'id'}, 200, 300),
+      {...this.utils.getNonEditableColumnDef('entity.cartography.layerSet', 'layers', 200, 300), ...this.utils.getArrayValueParser()},
+      this.utils.getRouterLinkColumnDef('entity.service.label', 'serviceName', 'service/:id/serviceForm', {id: 'serviceId'}, 200, 300),
     ];
-
   }
 
-  async canDeactivate(): Promise<boolean | Observable<boolean>> {
-
-    if (this.gridModified) {
-
-
-      let result = await this.utils.showNavigationOutDialog().toPromise();
-      if(!result || result.event!=='Accept') { return false }
-      else if(result.event ==='Accept') {return true;}
-      else{
-        return true;
-      }
-    }
-    else return true
-  }	
-
-  setGridModifiedValue(value){
-    this.gridModified=value;
+  override async newData() {
+    await this.router.navigate(['layers', -1, 'layersForm']);
   }
 
-  getAllLayers = () => {
-    return this.cartographyService.getAll();
+  override async duplicateItem(id: number) {
+    await this.router.navigate(['layers', -1, 'layersForm', id]);
   }
 
-  newData(id: any) {
-    this.saveAgGridStateEvent.next(true);
-    this.router.navigate(['layers', id, 'layersForm']);
-  }
+  override dataFetchFn = () => this.cartographyService.getAllProjection(CartographyProjection);
 
-  applyChanges(data: Cartography[]) {
-    const promises: Promise<any>[] = [];
-    data.forEach(cartography => {
-      promises.push(new Promise((resolve, reject) => {​​​​​​​ this.cartographyService.update(cartography).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
-      Promise.all(promises).then(() => {
-        this.dataUpdatedEvent.next(true);
-      });
-    });
-  }
+  override dataUpdateFn = (data: CartographyProjection) => firstValueFrom(this.cartographyService.update(Cartography.fromObject(data))).then(cartography => CartographyProjection.fromObject(cartography));
 
-  add(data: Cartography[]) {
-    this.router.navigate(['layers', -1, 'layersForm', data[0].id]);
-  }
-
-  removeData(data: Cartography[]) {
-
-    const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title=this.utils.getTranslate("caution");
-    dialogRef.componentInstance.message=this.utils.getTranslate("removeMessage");
-    dialogRef.afterClosed().subscribe(result => {
-      if(result){
-        if(result.event==='Accept') {  
-          const promises: Promise<any>[] = [];
-          data.forEach(cartography => {
-            promises.push(new Promise((resolve, reject) => {​​​​​​​ this.cartographyService.delete(cartography).subscribe((resp) =>{​​​​​​​resolve(true)}​​​​​​​)}​​​​​​​));
-            Promise.all(promises).then(() => {
-              this.dataUpdatedEvent.next(true);
-            });
-          });
-      
-       }
-      }
-    });
-
-  }
-
+  override dataDeleteFn = (data: CartographyProjection) => firstValueFrom(this.cartographyService.delete(Cartography.fromObject(data))).then(cartography => CartographyProjection.fromObject(cartography));
 }

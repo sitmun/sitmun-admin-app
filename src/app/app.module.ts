@@ -1,127 +1,240 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule, LOCALE_ID } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { AppComponent } from './app.component';
-import { RouterModule } from '@angular/router';
-import { ExternalConfigurationService } from './ExternalConfigurationService';
-import { SitmunFrontendCoreModule } from './frontend-core/src/lib/public_api';
-import { SitmunFrontendGuiModule } from './frontend-gui/src/lib/public_api';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MaterialModule } from './material-module';
-import { APP_ROUTING } from './app-routes';
-
-
-//interceptors
-import { MessagesInterceptor } from './interceptors/messages.interceptor';
-import { AuthInterceptor, AuthExpiredInterceptor, CapabilitiesService } from './frontend-core/src/lib/public_api';
-
-//i18n
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { registerLocaleData } from '@angular/common';
-import localeEs from '@angular/common/locales/es';
-import localeCa from '@angular/common/locales/ca';
-registerLocaleData(localeEs, 'es-ES');
-registerLocaleData(localeCa, 'ca-ES');
-
-//Rutes
-import { APP_ROUTES } from './app-routes';
-
-//Components
-import { ConnectionComponent } from './components/connection/connection.component';
-import { ServiceComponent } from './components/service/service.component';
-import { LayersComponent } from './components/layers/layers.component';
-import { TreesComponent } from './components/trees/trees.component';
-import { BackgroundLayersComponent } from './components/background-layers/background-layers.component';
-import { LayersPermitsComponent } from './components/layers-permits/layers-permits.component';
-import { TerritoryComponent } from './components/territory/territory.component';
-import { UserComponent } from './components/user/user.component';
-import { ApplicationComponent } from './components/application/application.component';
-import { RoleComponent } from './components/role/role.component';
-import { ToolbarComponent } from './components/shared/toolbar/toolbar.component';
-import { SideMenuComponent } from './components/shared/side-menu/side-menu.component';
-import { TasksDownloadComponent } from './components/tasks-download/tasks-download.component';
-import { TasksDocumentComponent } from './components/tasks-document/tasks-document.component';
-import { TasksQueryComponent } from './components/tasks-query/tasks-query.component';
-import { TasksMoreInfoComponent } from './components/tasks-more-info/tasks-more-info.component';
-import { TasksLocatorComponent } from './components/tasks-locator/tasks-locator.component';
-import { TasksReportComponent } from './components/tasks-report/tasks-report.component';
-import { TasksEditionComponent } from './components/tasks-edition/tasks-edition.component';
-import { TasksThematicComponent } from './components/tasks-thematic/tasks-thematic.component';
-import { TasksExtractionFmeComponent } from './components/tasks-extraction-fme/tasks-extraction-fme.component';
-import { ConnectionFormComponent } from './components/connection/connection-form/connection-form.component';
-import { RoleFormComponent } from './components/role/role-form/role-form.component';
-import { UserFormComponent } from './components/user/user-form/user-form.component';
-import { TerritoryFormComponent } from './components/territory/territory-form/territory-form.component';
-import { ServiceFormComponent } from './components/service/service-form/service-form.component';
-import { ApplicationFormComponent } from './components/application/application-form/application-form.component';
-import { TreesFormComponent } from './components/trees/trees-form/trees-form.component';
-import { BackgroundLayersFormComponent } from './components/background-layers/background-layers-form/background-layers-form.component';
-import { LayersPermitsFormComponent } from './components/layers-permits/layers-permits-form/layers-permits-form.component';
-import { LayersFormComponent } from './components/layers/layers-form/layers-form.component';
-import { TaskGroupComponent } from './components/task-group/task-group.component';
-import { TaskGroupFormComponent } from './components/task-group/task-group-form/task-group-form.component';
-import { TasksComponent } from './components/tasks/tasks.component';
-import { LoginComponent } from './components/login/login.component';
-
-//Services 
+import {APP_INITIALIZER, LOCALE_ID, NgModule} from '@angular/core';
 import {
-  AngularHalModule,
-  BackgroundService,
-  CartographyGroupService,
-  CartographyService,
-  ConnectionService,
-  TaskGroupService,
-  TaskService,
-  TranslationService,
-  LanguageService,
-  TerritoryService,
-  UserConfigurationService,
-  RoleService,
-  UserService,
-  TreeService,
-  LoginService,
-  CodeListService,
-  AuthService,
-  AccountService,
-  Principal,
-  ServiceService,
-  ApplicationService,
-  CartographyAvailabilityService,
-  ServiceParameterService,
-  TaskUIService,
+  ApplicationBackgroundService,
   ApplicationParameterService,
+  ApplicationService,
+  BackgroundService,
+  CapabilitiesService,
+  CartographyAvailabilityService,
+  CartographyFilterService,
+  CartographyGroupService,
   CartographyParameterService,
+  CartographyService,
   CartographySpatialSelectionParameterService,
   CartographyStyleService,
-  TaskAvailabilityService,
-  UserPositionService,
-  ApplicationBackgroundService,
-  TaskParameterService,
-  TerritoryTypeService,
-  CartographyFilterService,
+  CodeListService,
   ConfigurationParametersService,
+  ConnectionService,
   DashboardService,
-  TreeNodeService,
+  DomainModule,
+  LanguageService,
+  RoleService,
+  ServiceParameterService,
+  ServiceService,
+  TaskAvailabilityService,
+  TaskGroupService,
+  TaskService,
   TaskTypeService,
-} from './frontend-core/src/lib/public_api';
-import { UtilsService } from './services/utils.service';
-import { SidenavService } from './services/sidenav.service';
-import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { TaskFormComponent } from './components/task-form/task-form.component';
-import { NgTemplateNameDirective } from './components/task-form/ng-template-name.directive';
-import { TasksEditionCartographyTableComponent } from './components/tasks-edition-cartography-table/tasks-edition-cartography-table.component';
-import { TasksEditionDataTableComponent } from './components/tasks-edition-data-table/tasks-edition-data-table.component';
-import { TasksEditionRelationTableComponent } from './components/tasks-edition-relation-table/tasks-edition-relation-table.component';
-import { TasksEditionSearchViewComponent } from './components/tasks-edition-search-view/tasks-edition-search-view.component';
-import { CanDeactivateGuard } from './services/can-deactivate-guard.service';
+  TaskUIService,
+  TerritoryService,
+  TerritoryTypeService,
+  TranslationService,
+  TreeNodeService,
+  TreeService,
+  UserConfigurationService,
+  UserPositionService,
+  UserService
+} from '@app/domain';
+
+import {CoreModule, MessagesInterceptorStateService} from '@app/core';
+import {ExternalService, HalModule, ResourceService} from '@app/core/hal';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {HttpClient, HttpClientModule} from '@angular/common/http';
+import {MissingTranslationHandler, TranslateLoader, TranslateModule, TranslateService} from '@ngx-translate/core';
+
+import {APP_ROUTING} from './app-routes';
+import {AppComponent} from './app.component';
+import {AppStateService} from './services/app-state.service';
+import {ApplicationComponent} from '@app/components/application/application.component';
+import {ApplicationFormComponent} from '@app/components/application/application-form/application-form.component';
+import {AuthenticatedLayoutComponent} from '@app/components/shared/authenticated-layout/authenticated-layout.component';
+import {BackgroundLayersComponent} from '@app/components/background-layers/background-layers.component';
+import {
+  BackgroundLayersFormComponent
+} from '@app/components/background-layers/background-layers-form/background-layers-form.component';
+import {BaseFormComponent} from "@app/components/base-form.component";
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {BrowserModule} from '@angular/platform-browser';
+import {CharacterCountPipe} from '@app/components/shared/character-counter-hint/character-count.pipe';
+import {ConnectionComponent} from '@app/components/connection/connection.component';
+import {ConnectionFormComponent} from '@app/components/connection/connection-form/connection-form.component';
+import {CustomMissingTranslationHandler} from './services/missing-translation.handler';
+import {DashboardComponent} from '@app/components/dashboard/dashboard.component';
+import {DataTablesRegistry} from "@app/components/data-tables.util";
+import {EntityListComponent} from '@app/components/shared/entity-list';
+import {ErrorPageComponent} from "@app/components/error-page/error-page.component";
+import {ExternalConfigurationService} from '@app/core/config/external-configuration.service';
+import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
+import {LayersComponent} from '@app/components/layers/layers.component';
+import {LayersFormComponent} from '@app/components/layers/layers-form/layers-form.component';
+import {LayersPermitsComponent} from '@app/components/layers-permits/layers-permits.component';
+import {
+  LayersPermitsFormComponent
+} from '@app/components/layers-permits/layers-permits-form/layers-permits-form.component';
+import {LogLevelControlComponent} from '@app/components/shared/log-level-control/log-level-control.component';
+import {LoggerService} from './services/logger.service';
+import {LoginComponent} from '@app/components/login/login.component';
+import {MAT_TABS_CONFIG} from '@angular/material/tabs';
+import {MaterialModule} from './material-module';
+import {NgOptimizedImage} from "@angular/common";
+import {NotificationComponent} from '@app/components/shared/notification/notification.component';
+import {Resource} from "@app/core/hal/resource/resource.model";
+import {RoleComponent} from '@app/components/role/role.component';
+import {RoleFormComponent} from '@app/components/role/role-form/role-form.component';
+import {RouterModule} from '@angular/router';
+import {ServiceComponent} from '@app/components/service/service.component';
+import {ServiceFormComponent} from '@app/components/service/service-form/service-form.component';
+import {ServicesModule} from './services/services.module';
+import {SideMenuComponent} from '@app/components/shared/side-menu/side-menu.component';
+import {SitmunFrontendGuiModule} from '@app/frontend-gui/src/lib/public_api';
+import {TaskBasicFormComponent} from '@app/components/tasks-basic/task-form/task-basic-form.component';
+import {TaskEditFormComponent} from '@app/components/tasks-edit/task-form/task-edit-form.component';
+import {TaskGroupComponent} from '@app/components/task-group/task-group.component';
+import {TaskGroupFormComponent} from '@app/components/task-group/task-group-form/task-group-form.component';
+import {TaskQueryFormComponent} from "@app/components/tasks-query/task-form/task-query-form.component";
+import {TasksBasicComponent} from '@app/components/tasks-basic/tasks-basic.component';
+import {TasksEditComponent} from '@app/components/tasks-edit/tasks-edit.component';
+import {TasksQueryComponent} from "@app/components/tasks-query/tasks-query.component";
+import {TerritoryComponent} from '@app/components/territory/territory.component';
+import {TerritoryFormComponent} from '@app/components/territory/territory-form/territory-form.component';
+import {ToolbarComponent} from '@app/components/shared/toolbar/toolbar.component';
+import {TranslateHttpLoader} from '@ngx-translate/http-loader';
+import {TranslationDebugComponent} from './components/shared/translation-debug/translation-debug.component';
+import {TranslationMonitorService} from './services/translation-monitor.service';
+import {TreesComponent} from '@app/components/trees/trees.component';
+import {TreesFormComponent} from '@app/components/trees/trees-form/trees-form.component';
+import {UrlInputDirective} from '@app/components/service/service-form/url-input.directive';
+import {UserComponent} from '@app/components/user/user.component';
+import {UserFormComponent} from '@app/components/user/user-form/user-form.component';
+import {UserInfoComponent} from '@app/components/shared/user-info/user-info.component';
+import {WarningsPanelComponent} from '@app/components/shared/warnings-panel/warnings-panel.component';
+
+import {config} from '@config';
+import {firstValueFrom} from 'rxjs';
 
 
+// APP_INITIALIZER factory functions
+export function initializeLanguages(
+  languageService: LanguageService,
+  translateService: TranslateService,
+  loggerService: LoggerService,
+  appStateService: AppStateService,
+  messagesInterceptorState: MessagesInterceptorStateService
+) {
+  return async () => {
+    // Initialize static logger services
+
+    messagesInterceptorState.disable();
+    DataTablesRegistry.setLoggerService(loggerService);
+    Resource.setLoggerService(loggerService);
+
+    try {
+      const languages = await firstValueFrom(languageService.getAll());
+      // Sort languages
+      languages.sort((a, b) => a.shortname.localeCompare(b.shortname));
+
+      // Store in config
+      config.languagesToUse = languages;
+      languages.forEach(language => {
+        config.languagesObjects[language.shortname] = language;
+      });
+
+      // Store in localStorage if not exists
+      if (!localStorage.getItem('languages')) {
+        localStorage.setItem('languages', JSON.stringify(languages));
+      }
+
+      // Set the default language
+      const defaultLang = getDefaultLanguage(languages);
+      translateService.setDefaultLang(defaultLang);
+      messagesInterceptorState.enable();
+      return await firstValueFrom(translateService.use(defaultLang));
+    } catch (error) {
+      // Create a proper error object for initialization errors
+      const initError = {
+        message: 'Failed to initialize languages',
+        originalError: error,
+        source: 'languages',
+        timestamp: new Date().toISOString()
+      };
+      appStateService.setInitializationError(initError, 'languages');
+      messagesInterceptorState.enable();
+
+      const browserLang = translateService.getBrowserLang();
+      translateService.setDefaultLang(browserLang);
+      return await firstValueFrom(translateService.use(browserLang));
+    }
+  };
+}
+
+export function initializeConfiguration(
+  configurationService: ConfigurationParametersService,
+  translateService: TranslateService,
+  loggerService: LoggerService,
+  appStateService: AppStateService,
+  messagesInterceptorState: MessagesInterceptorStateService
+) {
+  return async () => {
+    messagesInterceptorState.disable();
+    try {
+      const configParams = await firstValueFrom(configurationService.getAll());
+      const defaultLang = configParams.find(element => element.name === 'language.default');
+
+      if (defaultLang) {
+        config.defaultLang = defaultLang.value;
+
+        // Set language if it is not already set in localStorage
+        if (!localStorage.getItem('lang')) {
+          translateService.setDefaultLang(defaultLang.value);
+          translateService.use(defaultLang.value);
+        }
+      }
+
+      loggerService.info(`Configuration initialized: ${configParams.length} parameters loaded`);
+      messagesInterceptorState.enable();
+    } catch (error) {
+      // Create a proper error object for initialization errors
+      const initError = {
+        message: 'Failed to initialize configuration',
+        originalError: error,
+        source: 'configuration',
+        timestamp: new Date().toISOString()
+      };
+      appStateService.setInitializationError(initError, 'configuration');
+      messagesInterceptorState.enable();
+    }
+  };
+}
+
+// Helper function to get default language
+function getDefaultLanguage(languages: any[]): string {
+  // Check localStorage first
+  const storedLang = localStorage.getItem('lang');
+  if (storedLang && languages.find(lang => lang.shortname === storedLang)) {
+    return storedLang;
+  }
+
+  // Check browser language
+  const navigatorLang = window.navigator.language.toLowerCase();
+  const baseLang = navigatorLang.replace(/-[A-Z]+$/, '');
+  const browserLang = languages.find(lang =>
+    lang.shortname.toLowerCase() === baseLang
+  );
+
+  if (browserLang) {
+    return browserLang.shortname;
+  }
+
+  // Fallback to config default or first language
+  return config.defaultLang || (languages.length > 0 ? languages[0].shortname : 'en');
+}
 
 @NgModule({
   declarations: [
+    BaseFormComponent,
     AppComponent,
+    EntityListComponent,
+    ErrorPageComponent,
     ConnectionComponent,
     ServiceComponent,
     LayersComponent,
@@ -134,15 +247,11 @@ import { CanDeactivateGuard } from './services/can-deactivate-guard.service';
     SideMenuComponent,
     RoleComponent,
     ToolbarComponent,
-    TasksDownloadComponent,
-    TasksDocumentComponent,
+    AuthenticatedLayoutComponent,
+    TasksBasicComponent,
+    TaskBasicFormComponent,
     TasksQueryComponent,
-    TasksMoreInfoComponent,
-    TasksLocatorComponent,
-    TasksReportComponent,
-    TasksEditionComponent,
-    TasksThematicComponent,
-    TasksExtractionFmeComponent,
+    TaskQueryFormComponent,
     ConnectionFormComponent,
     RoleFormComponent,
     UserFormComponent,
@@ -155,25 +264,30 @@ import { CanDeactivateGuard } from './services/can-deactivate-guard.service';
     LayersFormComponent,
     TaskGroupComponent,
     TaskGroupFormComponent,
-    TasksComponent,
     LoginComponent,
     DashboardComponent,
-    TaskFormComponent,
-    NgTemplateNameDirective,
-    TasksEditionCartographyTableComponent,
-    TasksEditionDataTableComponent,
-    TasksEditionRelationTableComponent,
-    TasksEditionSearchViewComponent,
+    LogLevelControlComponent,
+    UserInfoComponent,
+    FormToolbarComponent,
+    CharacterCountPipe,
+    TranslationDebugComponent,
+    UrlInputDirective,
+    TaskEditFormComponent,
+    TasksEditComponent,
+    NotificationComponent
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
     FormsModule,
-    AngularHalModule,
+    ReactiveFormsModule,
+    CoreModule.forRoot(),
+    DomainModule.forRoot(),
+    ServicesModule,
     SitmunFrontendGuiModule,
-    SitmunFrontendCoreModule,
     MaterialModule,
     RouterModule,
+    HalModule.forRoot(),
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
@@ -181,28 +295,75 @@ import { CanDeactivateGuard } from './services/can-deactivate-guard.service';
           return new TranslateHttpLoader(http, './assets/i18n/', '.json');
         },
         deps: [HttpClient]
+      },
+      missingTranslationHandler: {
+        provide: MissingTranslationHandler,
+        useClass: CustomMissingTranslationHandler
       }
     }),
     APP_ROUTING,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    CoreModule,
+    NgOptimizedImage
+    , WarningsPanelComponent
   ],
-  providers: [SidenavService, UtilsService, CanDeactivateGuard,
-    { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
+  providers: [
     { provide: LOCALE_ID, useValue: 'es-ES' },
-    RoleService, ConnectionService, UserService, TerritoryService, ServiceService,
-    ApplicationService, TreeService, TranslationService, TerritoryTypeService, TaskAvailabilityService, BackgroundService, CartographyService, CartographyGroupService,
-    TaskGroupService, DashboardService, TaskService, UserConfigurationService, CodeListService, LoginService, AuthService, ConfigurationParametersService,
-    Principal, UserPositionService, AccountService,CartographyAvailabilityService,ServiceParameterService,ApplicationParameterService,
-    CartographyParameterService, CartographySpatialSelectionParameterService, CartographyStyleService, CapabilitiesService, TaskTypeService, LanguageService, CartographyFilterService,  TaskUIService, TaskParameterService, ApplicationBackgroundService, TreeNodeService,
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: MessagesInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: AuthExpiredInterceptor, multi: true }
+    { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
+    { provide: MAT_TABS_CONFIG, useValue: { animationDuration: '0ms' } },
+
+    // APP_INITIALIZER providers
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeLanguages,
+      deps: [LanguageService, TranslateService, LoggerService, AppStateService, MessagesInterceptorStateService],
+      multi: true
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeConfiguration,
+      deps: [ConfigurationParametersService, TranslateService, LoggerService, AppStateService, MessagesInterceptorStateService],
+      multi: true
+    },
+    ResourceService,
+    ExternalService,
+    RoleService,
+    ConnectionService,
+    UserService,
+    TerritoryService,
+    ServiceService,
+    ApplicationService,
+    TreeService,
+    TranslationService,
+    TerritoryTypeService,
+    TaskAvailabilityService,
+    BackgroundService,
+    CartographyService,
+    CartographyGroupService,
+    TaskGroupService,
+    DashboardService,
+    TaskService,
+    UserConfigurationService,
+    CodeListService,
+    ConfigurationParametersService,
+    CartographyAvailabilityService,
+    ServiceParameterService,
+    ApplicationParameterService,
+    CartographyParameterService,
+    CartographySpatialSelectionParameterService,
+    CartographyStyleService,
+    CapabilitiesService,
+    TaskTypeService,
+    LanguageService,
+    CartographyFilterService,
+    TaskUIService,
+    ApplicationBackgroundService,
+    TreeNodeService,
+    UserPositionService,
+    CustomMissingTranslationHandler,
+    TranslationMonitorService,
   ],
   bootstrap: [AppComponent]
 })
 export class AppModule {
-}
-
-export function HttpLoaderFactory(http: HttpClient) {
-  return new TranslateHttpLoader(http);
 }

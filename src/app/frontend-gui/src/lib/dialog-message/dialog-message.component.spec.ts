@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-
 import { DialogMessageComponent } from './dialog-message.component';
+import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 describe('DialogMessageComponent', () => {
   let component: DialogMessageComponent;
@@ -8,7 +11,18 @@ describe('DialogMessageComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ DialogMessageComponent ]
+      declarations: [ DialogMessageComponent ],
+      imports: [
+        MatDialogModule,
+        NoopAnimationsModule,
+        TranslateModule.forRoot()
+      ],
+      providers: [
+        { provide: MatDialogRef, useValue: { close: () => {} } },
+        { provide: MAT_DIALOG_DATA, useValue: {} },
+        TranslateService
+      ],
+      schemas: [NO_ERRORS_SCHEMA]
     })
     .compileComponents();
   }));

@@ -1,63 +1,41 @@
+<form [formGroup]='translationForm'>
+  <mat-dialog-content>
+    <mat-form-field appearance="outline" *ngIf="catalanAvailable" class="full">
+      <mat-label>{{ 'Valor' }}</mat-label>
+      <input matInput type="text" formControlName="catalanValue" required>
+      <mat-icon matSuffix svgIcon="icon_lang_ca"></mat-icon>
+    </mat-form-field>
 
+    <mat-form-field appearance="outline" *ngIf="spanishAvailable" class="full">
+      <mat-label>{{ 'Valor' }}</mat-label>
+      <input matInput type="text" formControlName="spanishValue">
+      <mat-icon matSuffix svgIcon="icon_lang_es"></mat-icon>
+    </mat-form-field>
 
-<form [formGroup]='translationForm' #f="ngForm">
+    <mat-form-field appearance="outline" *ngIf="englishAvailable" class="full">
+      <mat-label>{{ 'Value' }}</mat-label>
+      <input matInput type="text" formControlName="englishValue">
+      <mat-icon matSuffix svgIcon="icon_lang_en"></mat-icon>
+    </mat-form-field>
 
+    <mat-form-field appearance="outline" *ngIf="araneseAvailable" class="full">
+      <mat-label>{{ 'Valor' }}</mat-label>
+      <input matInput type="text" formControlName="araneseValue">
+      <mat-icon matSuffix svgIcon="icon_lang_oc"></mat-icon>
+    </mat-form-field>
+    <mat-form-field appearance="outline" *ngIf="frenchAvailable" class="full">
+      <mat-label>{{ 'Valeur' }}</mat-label>
+      <input matInput type="text" formControlName="frenchValue">
+      <mat-icon matSuffix svgIcon="icon_lang_fr"></mat-icon>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
 
-        <div class="displayInline" *ngIf="catalanAvailable">
-            <label class="formLabelDialog">
-                {{'Valor'}}
-            </label>
-            <mat-form-field appearance="outline">
-            <input matInput type="text" formControlName="catalanValue" required>
-            </mat-form-field>
-            <mat-icon class="icon" svgIcon="icon_lang_ca"></mat-icon>
-        </div>
-
-        <div class="displayInline"  *ngIf="spanishAvailable">
-            <label class="formLabelDialog">
-                {{'Valor'}}
-            </label>
-
-            <mat-form-field appearance="outline">
-            <input matInput type="text" formControlName="spanishValue">
-            </mat-form-field>
-            <mat-icon class="icon" svgIcon="icon_lang_es"></mat-icon>
-        </div>
-
-        <div class="displayInline" *ngIf="englishAvailable" >
-            <label class="formLabelDialog">
-                {{'Value'}}
-            </label>
-            <mat-form-field appearance="outline">
-            <input matInput type="text" formControlName="englishValue">
-            </mat-form-field>
-            <mat-icon class="icon" svgIcon="icon_lang_en"></mat-icon>
-        </div>
-
-        <div class="displayInline" *ngIf="araneseAvailable" >
-            <label class="formLabelDialog">
-                {{'Valor'}}
-            </label>
-            <mat-form-field appearance="outline">
-            <input matInput type="text" formControlName="araneseValue">
-            </mat-form-field>
-            <mat-icon class="icon" svgIcon="icon_lang_oc"></mat-icon>
-        </div>
-        <div class="displayInline">
-            <label class="formLabelDialog" *ngIf="frenchAvailable">
-                {{'Valeur'}}
-            </label>
-            <mat-form-field appearance="outline">
-            <input matInput type="text" formControlName="frenchValue">
-            </mat-form-field>
-            <mat-icon class="icon" svgIcon="icon_lang_fr"></mat-icon>
-        </div>
-
-  </form>
-
-<div>
-    <div mat-dialog-actions >
-        <button  mat-flat-button class="returnButton" (click)="closeDialog()">{{"cancel" | translate}}</button>
-        <button  mat-flat-button class="saveButton"  (click)="doAccept()" cdkFocusInitial>{{"accept" | translate}}</button>
-    </div>
-</div>
+    <button mat-flat-button type="submit" class="sitmun-save-button" (click)="doAccept()">
+      {{ "accept" | translate }}
+    </button>
+    <button mat-flat-button type="button" class="sitmun-return-button" (click)="closeDialog()">
+      {{ "cancel" | translate }}
+    </button>
+  </mat-dialog-actions>
+</form>

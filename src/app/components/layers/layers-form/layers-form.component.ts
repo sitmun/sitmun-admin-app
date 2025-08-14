@@ -1,30 +1,77 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { CartographyService, GetInfoService, ServiceService, CartographyFilterService, TerritoryTypeService, ConnectionService, TreeNodeService, 
-  CartographyGroupService, TerritoryService, Territory, CartographyGroup, CartographyAvailabilityService, CartographyParameterService, HalParam, 
-  HalOptions, Cartography, TreeNode, TranslationService, Translation, CartographyStyleService, CartographySpatialSelectionParameterService } 
-  from '../../../frontend-core/src/lib/public_api';
-import { HttpClient } from '@angular/common/http';
-import { UtilsService } from '../../../services/utils.service';
-import { map } from 'rxjs/operators';
-import { Observable, of, Subject } from 'rxjs';
-import { environment } from 'src/environments/environment';
-import { config } from 'src/config';
-import { DialogFormComponent, DialogGridComponent, DialogMessageComponent } from '../../../frontend-gui/src/lib/public_api';
-import { MatDialog } from '@angular/material/dialog';
-
+import {Component, TemplateRef, ViewChild} from '@angular/core';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  UntypedFormControl,
+  UntypedFormGroup,
+  ValidationErrors,
+  ValidatorFn,
+  Validators
+} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
+import {
+  Cartography,
+  CartographyAvailability,
+  CartographyAvailabilityProjection,
+  CartographyAvailabilityService,
+  CartographyFilter,
+  CartographyFilterProjection,
+  CartographyFilterService,
+  CartographyGroupProjection,
+  CartographyGroupService,
+  CartographyParameter,
+  CartographyParameterService,
+  CartographyProjection,
+  CartographyService,
+  CartographySpatialSelectionParameterService,
+  CartographyStyle,
+  CartographyStyleService,
+  CodeListService,
+  ConnectionService,
+  GetInfoService,
+  ServiceService,
+  TerritoryProjection,
+  TerritoryService,
+  TerritoryTypeService,
+  Translation,
+  TranslationService,
+  TreeNodeProjection,
+  TreeNodeService
+} from '@app/domain';
+import {UtilsService} from '@app/services/utils.service';
+import {map} from 'rxjs/operators';
+import {EMPTY, Subject, firstValueFrom} from 'rxjs';
+import {Status, onCreate, onDelete, onUpdate} from '@app/frontend-gui/src/lib/public_api';
+import {MatDialog} from '@angular/material/dialog';
+import {constants} from '@environments/constants';
+import {LoggerService} from '@app/services/logger.service';
+import {BaseFormComponent} from '@app/components/base-form.component';
+import {TranslateService} from '@ngx-translate/core';
+import {ErrorHandlerService} from "@app/services/error-handler.service";
+import {DataTableDefinition, TemplateDialog} from '@app/components/data-tables.util';
+import {HttpClient} from "@angular/common/http";
+import {FeatureFlagService} from '@app/core/features/feature-flag.service';
+import {Configuration} from "@app/core/config/configuration";
 
 @Component({
   selector: 'app-layers-form',
   templateUrl: './layers-form.component.html',
-  styleUrls: ['./layers-form.component.scss']
+  styles: []
 })
-export class LayersFormComponent implements OnInit {
+export class LayersFormComponent extends BaseFormComponent<CartographyProjection> {
+  readonly config = Configuration.LAYER;
 
+  protected readonly treesNodesTable: DataTableDefinition<TreeNodeProjection, TreeNodeProjection>;
+  protected readonly cartographyPermissionsTable: DataTableDefinition<CartographyGroupProjection, CartographyGroupProjection>;
+  protected readonly territoryAvailabilitiesTable: DataTableDefinition<CartographyAvailabilityProjection, TerritoryProjection>;
+  protected readonly stylesTable: DataTableDefinition<CartographyStyle, CartographyStyle>;
+  protected readonly territorialFiltersTable: DataTableDefinition<CartographyFilterProjection, CartographyFilterProjection>;
+  protected readonly parametersTable: DataTableDefinition<CartographyParameter, CartographyParameter>;
   //Translations
   translationMap: Map<string, Translation>;
-  translationsModified: boolean = false;
+
+  translationsModified = false;
 
   parametersPendingDelete = [];
 
@@ -32,684 +79,650 @@ export class LayersFormComponent implements OnInit {
 
 
   //Form
-  private parametersUrl: string;
-  parameteApplyFilterToGetMap;
-  layerForm: UntypedFormGroup;
-  layerToEdit;
-  layerID = -1;
-  duplicateID = -1;
-  firstSaveDone: Boolean = false;
-  dataLoaded: Boolean = false;
-  geometryTypes: Array<any> = [];
-  legendTypes: Array<any> = [];
-  services: Array<any> = [];
-  spatialConfigurationServices: Array<any> = [];
-  spatialConfigurationConnections: Array<any> = [];
-  filterTypes: Array<any> = [];
-  filterValueTypes: Array<any> = [];
-  filterTypeIds: Array<any> = [];
-  currentService;
+  geometryTypes: any[] = [];
 
-  parameterFormatTypes: Array<any> = [];
-  parameterFormatTypesDescription: Array<any> = [];
+  legendTypes: any[] = [];
 
-  spatialSelectionParameterFormatTypes: Array<any> = [];
-  spatialSelectionParameterFormatTypesDescription: Array<any> = [];
+  services: any[] = [];
 
-  parameterTypes: Array<any> = [];
-  parameterTypesDescription: Array<any> = [];
-  spatialSelectionParameterTypes: Array<any> = [];
-  spatialSelectionParameterTypesDescription: Array<any> = [];
+  territorialTypes: any[] = [];
 
+  parameterFormatTypes: any[] = [];
 
+  parameterFormatTypesDescription: any[] = [];
 
-  //Grids
-  themeGrid: any = config.agGridTheme;
+  parameterTypes: any[] = [];
+
+  parameterTypesDescription: any[] = [];
+
   columnDefsParameters: any[];
-  getAllElementsEventParameters: Subject<string> = new Subject<string>();
+
+  getAllElementsEventParameters: Subject<"save"> = new Subject<"save">();
+
   dataUpdatedEventParameters: Subject<boolean> = new Subject<boolean>();
-
-  columnDefsSpatialConfigurations: any[];
-  getAllElementsEventSpatialConfigurations: Subject<string> = new Subject<string>();
-  dataUpdatedEventSpatialConfigurations: Subject<boolean> = new Subject<boolean>();
-
-  columnDefsTerritorialFilter: any[];
-  getAllElementsTerritorialFilter: Subject<string> = new Subject<string>();
-  dataUpdatedEventTerritorialFilter: Subject<boolean> = new Subject<boolean>();
-
-  columnDefsStyles: any[];
-  getAllElementsEventStyles: Subject<string> = new Subject<string>();
-  dataUpdatedEventStyles: Subject<boolean> = new Subject<boolean>();
-
-
-  columnDefsTerritories: any[];
-  getAllElementsEventTerritories: Subject<string> = new Subject<string>();
-  dataUpdatedEventTerritories: Subject<boolean> = new Subject<boolean>();
-
-  columnDefsLayersConfiguration: any[];
-  getAllElementsEventLayersConfigurations: Subject<string> = new Subject<string>();
-  dataUpdatedEventLayersConfiguration: Subject<boolean> = new Subject<boolean>();
-
-  columnDefsNodes: any[];
-  getAllElementsEventNodes: Subject<string> = new Subject<string>();
-  dataUpdatedEventNodes: Subject<boolean> = new Subject<boolean>();
-
 
   //Dialog
   columnDefsParametersDialog: any[];
+
   public parameterForm: UntypedFormGroup;
-  public styleForm: UntypedFormGroup;
+
   addElementsEventParameters: Subject<any[]> = new Subject<any[]>();
+
   @ViewChild('newParameterDialog', {
     static: true
-  }) private newParameterDialog: TemplateRef<any>;
-
-  @ViewChild('newSpatialConfigurationDialog', {
-    static: true
-  }) private newSpatialConfigurationDialog: TemplateRef<any>;
+  }) private readonly newParameterDialog: TemplateRef<any>;
 
   @ViewChild('newTerritorialFilterDialog', {
     static: true
-  }) private newTerritorialFilterDialog: TemplateRef<any>;
+  }) private readonly newTerritorialFilterDialog: TemplateRef<any>;
 
-  @ViewChild('newStyleDialog', {
-    static: true
-  }) private newStyleDialog: TemplateRef<any>;
+  @ViewChild('newStyleDialog', { static: true})
+  private readonly newStyleDialog: TemplateRef<any>;
 
   columnDefsCartographyGroupsDialog: any[];
-  addElementsEventCartographyGroups: Subject<any[]> = new Subject<any[]>();
-
-  addElementsEventSpatialConfigurations: Subject<any> = new Subject<any>();
-  replaceAllElementsEventSpatialConfigurations: Subject<any> = new Subject<any>();
-
-  public territorialFilterForm: UntypedFormGroup;
-  addElementsTerritorialFilter: Subject<any[]> = new Subject<any[]>();
-
-  public stylesForm: UntypedFormGroup;
-  addElementsEventStyles: Subject<any[]> = new Subject<any[]>();
 
   columnDefsTerritoriesDialog: any[];
-  addElementsEventTerritories: Subject<any[]> = new Subject<any[]>();
 
   columnDefsNodesDialog: any[];
-  addElementsEventNodes: Subject<any[]> = new Subject<any[]>();
 
   constructor(
-    public dialog: MatDialog,
-    private activatedRoute: ActivatedRoute,
-    private router: Router,
-    private cartographyService: CartographyService,
-    private connectionService: ConnectionService,
-    private translationService: TranslationService,
-    private serviceService: ServiceService,
-    private cartographyGroupService: CartographyGroupService,
-    private cartograhyAvailabilityService: CartographyAvailabilityService,
-    private cartographyParameterService: CartographyParameterService,
-    private cartographySpatialSelectionParameterService: CartographySpatialSelectionParameterService,
-    private cartographyStyleService: CartographyStyleService,
-    private cartographyFilterService: CartographyFilterService,
-    private treeNodeService: TreeNodeService,
-    private territoryService: TerritoryService,
-    private territoryTypeService: TerritoryTypeService,
-    private http: HttpClient,
-    public utils: UtilsService,
-    private getInfoService: GetInfoService
+    dialog: MatDialog,
+    translateService: TranslateService,
+    translationService: TranslationService,
+    codeListService: CodeListService,
+    loggerService: LoggerService,
+    errorHandler: ErrorHandlerService,
+    activatedRoute: ActivatedRoute,
+    router: Router,
+    protected cartographyService: CartographyService,
+    protected cartographyFilterService: CartographyFilterService,
+    protected cartographyAvailabilityService: CartographyAvailabilityService,
+    protected serviceService: ServiceService,
+    protected connectionService: ConnectionService,
+    protected territoryTypeService: TerritoryTypeService,
+    protected territoryService: TerritoryService,
+    protected treeNodeService: TreeNodeService,
+    protected cartographyGroupService: CartographyGroupService,
+    protected cartographySpatialSelectionParameterService: CartographySpatialSelectionParameterService,
+    protected cartographyParameterService: CartographyParameterService,
+    protected cartographyStyleService: CartographyStyleService,
+    protected http: HttpClient,
+    protected utils: UtilsService,
+    protected getInfoService: GetInfoService,
+    protected featureFlagService: FeatureFlagService,
   ) {
-    this.initializeLayersForm();
-    this.initializeParameterForm();
-    this.initializeStyleForm();
-    this.initializeTerritorialFilterForm();
-
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router);
+    this.treesNodesTable = this.defineTreesNodesTable();
+    this.cartographyPermissionsTable = this.defineCartographyPermissionsTable();
+    this.territoryAvailabilitiesTable = this.defineTerritoryAvailabilitiesTable();
+    this.stylesTable = this.defineStylesTable();
+    this.territorialFiltersTable = this.defineTerritorialFiltersTable();
+    this.parametersTable = this.defineParametersTable();
   }
 
-  ngOnInit(): void {
+  /**
+   * Initializes component data before fetching.
+   * Sets up data tables, translations, and situation map list.
+   */
+  override async preFetchData() {
+    this.dataTables.register(this.treesNodesTable).register(this.cartographyPermissionsTable)
+      .register(this.territoryAvailabilitiesTable).register(this.stylesTable)
+      .register(this.territorialFiltersTable).register(this.parametersTable);
+    this.initTranslations('Cartography', ['description'])
+    await this.initCodeLists([
+      'cartography.geometryType', 'cartography.legendType','cartographyParameter.type',
+      'cartographyFilter.type','cartographyFilter.valueType', 'cartographyParameter.format',
+    ]);
+    this.territorialTypes = await firstValueFrom(this.territoryTypeService.getAll())
+    this.territorialTypes.sort((a, b) => a.name.localeCompare(b.name));
+    this.services = await firstValueFrom(this.serviceService.getAll());
+    this.services.sort((a, b) => a.name.localeCompare(b.name));
+  }
 
-    this.translationMap = this.utils.createTranslationsList(config.translationColumns.cartographyDescription);
+  /**
+   * Fetches the original entity by ID.
+   * @returns Promise of Cartography entity with projection
+   */
+  override fetchOriginal(): Promise<CartographyProjection> {
+    return firstValueFrom(this.cartographyService.getProjection(CartographyProjection, this.entityID));
+  }
 
-    let geometryTypeByDefault = {
-      value: -1,
-      description: '-------'
-    }
-    this.geometryTypes.push(geometryTypeByDefault);
+  /**
+   * Creates a copy of an existing entity for duplication.
+   * @returns Promise of duplicated Cartography entity
+   */
+  override fetchCopy(): Promise<CartographyProjection> {
+    return firstValueFrom(this.cartographyService.getProjection(CartographyProjection, this.duplicateID).pipe(map((copy: CartographyProjection) => {
+      copy.name = this.translateService.instant("copy_") + copy.name;
+      return copy;
+    })));
+  }
 
-    const promises: Promise<any>[] = [];
+  /**
+   * Creates an empty entity with default values.
+   * @returns New Cartography instance with default type and situation map
+   */
+  override empty(): CartographyProjection {
+    return Object.assign(new CartographyProjection(), {
+    })
+  }
 
-    promises.push(new Promise((resolve, reject) => {
-      this.utils.getCodeListValues('cartography.geometryType').subscribe(
-        resp => {
-          this.geometryTypes.push(...resp);
-          resolve(true);
-        }
-      )
-    }));
+  /**
+   * Fetches related data for the entity.
+   * Loads translations for the current entity.
+   */
+  override async fetchRelatedData() {
+    return this.loadTranslations(this.entityToEdit);
+  }
 
-    let legendTypeByDefault = {
-      value: -1,
-      description: '-------'
-    }
-    this.legendTypes.push(legendTypeByDefault);
-
-    promises.push(new Promise((resolve, reject) => {
-      this.utils.getCodeListValues('cartography.legendType').subscribe(
-        resp => {
-          this.legendTypes.push(...resp);
-          resolve(true);
-        }
-      )
-    }));
-
-    promises.push(new Promise((resolve, reject) => {
-      this.utils.getCodeListValues('cartographyParameter.type').subscribe(
-        resp => {
-          resp.forEach(element => {
-            this.parameterTypes.push(element);
-            this.parameterTypesDescription.push(element.description)
-          });
-          resolve(true);
-        }
-      )
-    }));
-
-    promises.push(new Promise((resolve, reject) => {
-      this.utils.getCodeListValues('cartographySpatialSelectionParameter.type').subscribe(
-        resp => {
-          resp.forEach(element => {
-            this.spatialSelectionParameterTypes.push(element);
-            this.spatialSelectionParameterTypesDescription.push(element.description)
-          });
-          resolve(true);
-        }
-      )
-    }));
-
-    promises.push(new Promise((resolve, reject) => {
-      this.utils.getCodeListValues('cartographyFilter.type').subscribe(
-        resp => {
-          this.filterTypes.push(...resp);
-          resolve(true);
-        }
-      )
-    }));
-
-
-
-    promises.push(new Promise((resolve, reject) => {
-      this.utils.getCodeListValues('cartographyFilter.valueType').subscribe(
-        resp => {
-          this.filterValueTypes.push(...resp);
-          resolve(true);
-        }
-      )
-    }));
-
-    promises.push(new Promise((resolve, reject) => {
-      this.territoryTypeService.getAll().subscribe(
-        resp => {
-          this.filterTypeIds.push(...resp);
-          resolve(true);
-        }
-      )
-    }));
-
-
-    promises.push(new Promise((resolve, reject) => {
-      this.utils.getCodeListValues('cartographyParameter.format').subscribe(
-        resp => {
-          resp.forEach(element => {
-            this.parameterFormatTypes.push(element);
-            this.parameterFormatTypesDescription.push(element.description);
-          });
-          resolve(true);
-        }
-      )
-    }));
-
-    promises.push(new Promise((resolve, reject) => {
-      this.utils.getCodeListValues('cartographySpatialSelectionParameter.format').subscribe(
-        resp => {
-          resp.forEach(element => {
-            this.spatialSelectionParameterFormatTypes.push(element);
-            this.spatialSelectionParameterFormatTypesDescription.push(element.description);
-          });
-          resolve(true);
-        }
-      )
-    }));
-
-    let connectionByDefault = {
-      value: null,
-      name: '-------'
+  /**
+   * Initializes form data after an entity is fetched.
+   * Sets up reactive form with entity values and validation rules.
+   * @throws Error if entity is undefined
+   */
+  override postFetchData() {
+    if (!this.entityToEdit) {
+      throw new Error('Cannot initialize form: entity is undefined');
     }
 
-    this.spatialConfigurationConnections.push(connectionByDefault);
+    // Custom validator to ensure queryable layers are subset of joined layers
+    const queryableLayersValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+      const queryableLayers = control.value?.split(',').map(layer => layer.trim()) ?? [];
+      const joinedLayers = this.entityForm?.get('joinedLayers')?.value?.split(',').map(layer => layer.trim()) ?? [];
 
-    promises.push(new Promise((resolve, reject) => {
-      this.connectionService.getAll().subscribe(
-        resp => {
-          this.spatialConfigurationConnections.push(...resp)
-          resolve(true);
-        }
-      )
-    }));
+      // Only validate if there are actual entries
+      if (queryableLayers.length === 0 || !control.value) return null;
 
-    let serviceByDefault = {
-      id: -1,
-      name: '-------'
-    }
+      // Check for duplicates
+      const uniqueLayers = new Set(queryableLayers);
+      if (uniqueLayers.size !== queryableLayers.length) {
+        const duplicates = queryableLayers.filter((layer, index) => queryableLayers.indexOf(layer) !== index);
+        return { duplicateLayers: [...new Set(duplicates)] };
+      }
 
-    this.spatialConfigurationServices.push(serviceByDefault);
+      // Check for invalid layers
+      const invalidLayers = queryableLayers.filter(layer => !joinedLayers.includes(layer));
+      return invalidLayers.length > 0 ? { invalidLayers: invalidLayers } : null;
+    };
 
-    promises.push(new Promise((resolve, reject) => {
-      this.serviceService.getAll().map((resp) => {
-        let wfsServices = [];
-        this.services.push(...resp);
-        resp.forEach(service => {
-          if (service.type === config.capabilitiesRequest.WFSIdentificator) { wfsServices.push(service) }
-        });
-
-        this.spatialConfigurationServices.push(...wfsServices)
-        resolve(true);
-      }).subscribe()
-    }));
-
-    Promise.all(promises).then(() => {
-      this.activatedRoute.params.subscribe(params => {
-        this.layerID = +params.id;
-        if (params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
-
-        if (this.layerID !== -1 || this.duplicateID != -1) {
-          let idToGet = this.layerID !== -1 ? this.layerID : this.duplicateID
-
-          //getCartography Entity
-          this.cartographyService.get(idToGet).subscribe(
-            resp => {
-
-              this.layerToEdit = resp;
-              let layers = this.layerToEdit.layers.join(',');
-              let queryableLayers = null
-              if (this.layerToEdit.queryableLayers != null) { queryableLayers = this.layerToEdit.queryableLayers.join(',') };
-              let selectableLayers = null;
-              if (this.layerToEdit.selectableLayers != null && this.layerToEdit.selectableLayers != undefined) { selectableLayers = this.layerToEdit.selectableLayers.join(',') };
-              this.parametersUrl = this.layerToEdit._links.parameters.href;
-              this.layerForm.patchValue({
-                service: this.layerToEdit.serviceId,
-                layers: layers,
-                minimumScale: this.layerToEdit.minimumScale,
-                maximumScale: this.layerToEdit.maximumScale,
-                geometryType: this.layerToEdit.geometryType,
-                order: this.layerToEdit.order,
-                transparency: this.layerToEdit.transparency,
-                metadataURL: this.layerToEdit.metadataURL,
-                legendType: this.layerToEdit.legendType,
-                legendUrl: this.layerToEdit.legendURL,
-                source: this.layerToEdit.source,
-                description: this.layerToEdit.description,
-                datasetURL: this.layerToEdit.datasetURL, //here
-                applyFilterToGetMap: this.layerToEdit.applyFilterToGetMap,
-                applyFilterToGetFeatureInfo: this.layerToEdit.applyFilterToGetFeatureInfo,
-                applyFilterToSpatialSelection: this.layerToEdit.applyFilterToSpatialSelection,
-                queryableFeatureEnabled: this.layerToEdit.queryableFeatureEnabled,
-                queryableFeatureAvailable: this.layerToEdit.queryableFeatureAvailable,
-                queryableLayers: queryableLayers,
-                thematic: this.layerToEdit.thematic,
-                blocked: !this.layerToEdit.blocked,
-                selectableFeatureEnabled: this.layerToEdit.selectableFeatureEnabled,
-                spatialSelectionService: this.layerToEdit.spatialSelectionServiceId,
-                selectableLayers: selectableLayers,
-                spatialSelectionConnection: "",
-                useAllStyles: this.layerToEdit.useAllStyles,
-                _links: this.layerToEdit._links
-              });
-
-              if (this.layerID !== -1) {
-                this.layerForm.patchValue({
-                  id: this.layerID,
-                  name: this.layerToEdit.name,
-                });
-              }
-              else {
-                this.layerForm.patchValue({
-                  name: this.utils.getTranslate('copy_').concat(this.layerToEdit.name),
-                });
-              }
-
-              if (this.layerToEdit.spatialSelectionServiceId == null) {
-                this.layerForm.patchValue({
-                  spatialSelectionService: this.spatialConfigurationServices[0].id
-                })
-              }
-              if (this.layerToEdit.legendType == null) {
-                this.layerForm.patchValue({
-                  legendType: this.legendTypes[0].value
-                })
-              }
-              if (this.layerToEdit.geometryType == null) {
-                this.layerForm.patchValue({
-                  geometryType: this.geometryTypes[0].value
-                })
-              }
-
-
-              if (this.layerID != -1) {
-                this.translationService.getAll()
-                  .pipe(map((data: any[]) => data.filter(elem => elem.element == this.layerID && elem.column == config.translationColumns.cartographyDescription)
-                  )).subscribe(result => {
-               
-                    this.utils.updateTranslations(this.translationMap, result)
-                  }
-
-                  );;
-
-              }
-
-
-
-
-              var urlReq = `${this.layerToEdit._links.parameters.href}`
-              if (this.layerToEdit._links.parameters.templated) {
-                var url = new URL(urlReq.split("{")[0]);
-                url.searchParams.append("projection", "view")
-                urlReq = url.toString();
-              }
-
-              if (!this.layerToEdit.thematic) { this.layerForm.get('geometryType').disable(); }
-              if (!this.layerToEdit.queryableFeatureEnabled) {
-                this.layerForm.get('queryableFeatureAvailable').disable();
-                this.layerForm.get('queryableLayers').disable();
-              }
-
-              if (!this.layerToEdit.selectableFeatureEnabled) {
-                this.layerForm.get('spatialSelectionService').disable();
-                this.layerForm.get('selectableLayers').disable();
-              }
-
-              this.loadButtonDisabled();
-
-              this.dataLoaded = true;
-
-            },
-            error => {
-
-            }
-          );
-
-
-
-        }
-        else {
-          this.layerForm.patchValue({
-            blocked: true,
-            thematic: false,
-            applyFilterToGetMap: false,
-            service: this.services[0].id,
-            spatialSelectionService: this.spatialConfigurationServices[0].id,
-            geometryType: this.geometryTypes[0].value,
-            legendType: this.legendTypes[0].value,
-            queryableFeatureEnabled: false,
-            useAllStyles: false,
-          })
-          this.layerForm.get('geometryType').disable();
-          // this.layerForm.get('applyFilterToGetMap').disable();
-          this.layerForm.get('spatialSelectionService').disable();
-          this.layerForm.get('selectableLayers').disable();
-          this.layerForm.get('queryableFeatureAvailable').disable();
-          this.layerForm.get('queryableLayers').disable();
-          this.dataLoaded = true;
-        }
-
-      },
-        error => {
-
-        });
-
-
+    this.entityForm = new UntypedFormGroup({
+      name: new UntypedFormControl(this.entityToEdit.name, [Validators.required]),
+      serviceId: new UntypedFormControl(this.entityToEdit.serviceId, [Validators.required]),
+      joinedLayers: new UntypedFormControl(this.entityToEdit.layers?.join(','), [Validators.required]),
+      minimumScale: new UntypedFormControl(this.entityToEdit.minimumScale, []),
+      maximumScale: new UntypedFormControl(this.entityToEdit.maximumScale, []),
+      order: new UntypedFormControl(this.entityToEdit.order, []),
+      transparency: new UntypedFormControl(this.entityToEdit.transparency, []),
+      metadataURL: new UntypedFormControl(this.entityToEdit.metadataURL, []),
+      legendType: new UntypedFormControl(this.entityToEdit.legendType || null, []),
+      legendURL: new UntypedFormControl(this.entityToEdit.legendURL, []),
+      source: new UntypedFormControl(this.entityToEdit.source, []),
+      description: new UntypedFormControl(this.entityToEdit.description, []),
+      datasetURL: new UntypedFormControl(this.entityToEdit.datasetURL, []),
+      applyFilterToGetMap: new UntypedFormControl(this.entityToEdit.applyFilterToGetMap, []),
+      applyFilterToGetFeatureInfo: new UntypedFormControl(this.entityToEdit.applyFilterToGetFeatureInfo, []),
+      applyFilterToSpatialSelection: new UntypedFormControl(this.entityToEdit.applyFilterToSpatialSelection, []),
+      queryableFeatureEnabled: new UntypedFormControl(this.entityToEdit.queryableFeatureEnabled || false, []),
+      queryableFeatureAvailable: new UntypedFormControl(this.entityToEdit.queryableFeatureAvailable || false, []),
+      joinedQueryableLayers: new UntypedFormControl(this.entityToEdit.queryableLayers?.join(','), [queryableLayersValidator]),
+      thematic: new UntypedFormControl(this.entityToEdit.thematic, []),
+      blocked: new UntypedFormControl(this.entityToEdit.blocked || true, []),
+      selectableFeatureEnabled: new UntypedFormControl(this.entityToEdit.selectableFeatureEnabled, [],),
+      joinedSelectableLayers: new UntypedFormControl(this.entityToEdit.selectableLayers?.join(','), []),
+      spatialSelectionConnectionId: new UntypedFormControl(this.entityToEdit.spatialSelectionConnectionId, []),
+      useAllStyles: new UntypedFormControl(this.entityToEdit.useAllStyles || false, []),
     });
 
-
-    this.columnDefsParameters = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getEditableColumnDef('layersEntity.column', 'name'),
-      this.utils.getEditableColumnDef('layersEntity.label', 'value'),
-      this.utils.getSelectColumnDef('layersEntity.format', 'format', true, this.parameterFormatTypesDescription, true, this.parameterFormatTypes),
-      this.utils.getEditableColumnDef('layersEntity.order', 'order'),
-      this.utils.getSelectColumnDef('layersEntity.type', 'type', true, this.parameterTypesDescription),
-      this.utils.getStatusColumnDef()
-    ];
-
-
-    this.columnDefsSpatialConfigurations = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getEditableColumnDef('layersEntity.column', 'name'),
-      this.utils.getEditableColumnDef('layersEntity.label', 'value'),
-      // this.utils.getFormattedColumnDef('layersEntity.format', this.parameterFormatTypes, 'format'),
-      this.utils.getSelectColumnDef('layersEntity.format', 'format', true, this.spatialSelectionParameterFormatTypesDescription, true, this.spatialSelectionParameterFormatTypes),
-      this.utils.getSelectColumnDef('layersEntity.type', 'type', true, this.spatialSelectionParameterTypesDescription, true, this.spatialSelectionParameterTypes),
-      this.utils.getStatusColumnDef()
-    ];
-
-    this.columnDefsTerritorialFilter = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('layersEntity.name', 'name'),
-      this.utils.getEditableColumnDef('layersEntity.type', 'type'),
-      this.utils.getEditableColumnDef('layersEntity.valueType', 'valueType'),
-      this.utils.getEditableColumnDef('layersEntity.column', 'column'),
-      this.utils.getStatusColumnDef()
-    ];
-
-    this.columnDefsStyles = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getEditableColumnDef('layersEntity.name', 'name'),
-      this.utils.getEditableColumnDef('layersEntity.title', 'title'),
-      this.utils.getEditableColumnDef('layersEntity.description', 'description'),
-      this.utils.getEditableColumnDef('layersEntity.format', 'legendURL.format'),
-      // this.utils.getSelectColumnDef('layersEntity.format', 'legendURL.format',true,this.parameterFormatTypesDescription, true, this.parameterFormatTypes),
-      // this.utils.getFormattedColumnDef('layersEntity.format', this.parameterFormatTypes, 'format'),
-      // this.utils.getSelectColumnDef('layersEntity.format', 'format',true,this.parameterFormatTypesDescription, true, this.parameterFormatTypes),
-      this.utils.getEditableColumnDef('layersEntity.width', 'legendURL.width'),
-      this.utils.getEditableColumnDef('layersEntity.height', 'legendURL.height'),
-      this.utils.getEditableColumnDef('layersEntity.url', 'legendURL.onlineResource'),
-      this.utils.getBooleanColumnDef('layersEntity.defaultStyle', 'defaultStyle', true),
-      this.utils.getStatusColumnDef()
-    ];
-
-    this.columnDefsTerritories = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef('territoryId'),
-      this.utils.getNonEditableColumnDef('layersEntity.code', 'territoryCode'),
-      this.utils.getNonEditableColumnDef('layersEntity.name', 'territoryName'),
-      this.utils.getStatusColumnDef()
-    ];
-
-    this.columnDefsLayersConfiguration = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('layersEntity.name', 'name'),
-      {...this.utils.getNonEditableColumnDef('layersEntity.roles', 'roleNames'), ...this.utils.getArrayValueParser() },
-      this.utils.getStatusColumnDef()
-    ];
-
-    this.columnDefsNodes = [
-      // this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('layersEntity.name', 'name'),
-      this.utils.getNonEditableColumnDef('layersEntity.treeName', 'treeName'),
-    ];
-
-    this.columnDefsParametersDialog = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getNonEditableColumnDef('layersEntity.field', 'field'),
-      this.utils.getNonEditableColumnDef('layersEntity.alias', 'alias'),
-      this.utils.getNonEditableColumnDef('layersEntity.format', 'format'),
-      this.utils.getNonEditableColumnDef('layersEntity.type', 'type'),
-      this.utils.getNonEditableColumnDef('layersEntity.order', 'order'),
-    ];
-
-    this.columnDefsTerritoriesDialog = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('layersEntity.code', 'code'),
-      this.utils.getNonEditableColumnDef('layersEntity.name', 'name'),
-    ];
-
-
-    this.columnDefsCartographyGroupsDialog = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('layersEntity.name', 'name'),
-    ];
-
-    this.columnDefsNodesDialog = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('layersEntity.name', 'name'),
-      this.utils.getNonEditableColumnDef('layersEntity.treeName', 'treeName'),
-    ];
-
-
+    if (this.isNew()) {
+      this.entityForm.get('spatialSelectionServiceId').disable();
+      this.entityForm.get('joinedSelectableLayers').disable();
+      this.entityForm.get('joinedQueryableLayers').disable();
+    } else if (!this.entityToEdit.queryableFeatureEnabled) {
+      this.entityForm.get('joinedQueryableLayers').disable();
+    }
   }
 
+  /**
+   * Creates a Cartography object from the current form values.
+   *
+   * @param id - Optional ID for the new object, used when updating
+   * @returns New Cartography instance populated with form values
+   */
+  createObject(id: number = null): Cartography {
+    let safeToEdit = CartographyProjection.fromObject(this.entityToEdit);
+    safeToEdit = Object.assign(safeToEdit,
+      this.entityForm.value,
+      {
+        id: id,
+        layers: this.entityForm.get('joinedLayers')?.value ? this.entityForm.get('joinedLayers').value.split(',') : [],
+        queryableLayers: this.entityForm.get('queryableLayers')?.value ? this.entityForm.get('queryableLayers').value.split(',') : [],
+        selectableLayers: this.entityForm.get('selectableLayers')?.value ? this.entityForm.get('selectableLayers').value.split(',') : [],
+        service: this.serviceService.createProxy(this.entityForm.get('serviceId').value),
+      }
+    );
+    return Cartography.fromObject(safeToEdit)
+  }
+
+  /**
+   * Creates a new entity or duplicates an existing one.
+   * @returns Promise of created entity ID
+   */
+  override async createEntity(): Promise<number> {
+    const entityToCreate = this.createObject();
+    const response = await firstValueFrom(this.cartographyService.create(entityToCreate));
+    return response.id;
+  }
+
+  /**
+   * Updates an existing entity with form values.
+   */
+  override async updateEntity() {
+    const entityToUpdate = this.createObject(this.entityID);
+    await firstValueFrom(this.cartographyService.update(entityToUpdate));
+  }
+
+  /**
+   * Updates related data after entity save.
+   * @param isDuplicated - Whether this is a duplication operation
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  override async updateDataRelated(isDuplicated: boolean) {
+    const entityToUpdate = this.createObject(this.entityID);
+    await this.saveTranslations(entityToUpdate);
+
+    const newServiceId = this.entityForm.get('serviceId').value;
+
+    if (newServiceId === null) {
+      await firstValueFrom(entityToUpdate.updateRelationEx("service"))
+    } else {
+      const newRelation = this.serviceService.createProxy(newServiceId);
+      await firstValueFrom(entityToUpdate.updateRelationEx("service", newRelation));
+    }
+  }
+
+  /**
+   * Validates if the form can be saved.
+   * Checks if all required form fields are valid.
+   *
+   * @returns True if the form is valid, false otherwise
+   */
+  override canSave(): boolean {
+    return this.entityForm.valid;
+  }
+
+  private defineParametersTable(): DataTableDefinition<CartographyParameter, CartographyParameter> {
+    return DataTableDefinition.builder<CartographyParameter, CartographyParameter>(this.dialog, this.errorHandler)
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getEditableColumnDef('entity.cartography.parameters.name', 'name'),
+        this.utils.getNonEditableColumnWithProviderDef('entity.cartography.parameters.type', 'type', (x) => {
+          return this.codeList('cartographyParameter.type').find(item => item.value === x)?.description || '';
+        }),
+        this.utils.getEditableColumnDef('entity.cartography.parameters.value', 'value'),
+        this.utils.getNonEditableColumnWithProviderDef('entity.cartography.parameters.format', 'format', (x) => {
+          return this.codeList('cartographyParameter.format').find(item => item.value === x)?.description || '';
+        }),
+        this.utils.getEditableColumnDef('entity.cartography.parameters.order', 'order'),
+        this.utils.getStatusColumnDef()
+      ])
+      .withRelationsFetcher(() => {
+        if (this.isNew()) {
+          return EMPTY;
+        }
+        return this.entityToEdit.getRelationArrayEx(CartographyParameter, 'parameters', {projection: 'view'});
+      })
+      .withRelationsOrder('name')
+      .withRelationsUpdater(async (cartographyParameters: (CartographyParameter & Status)[]) => {
+        this.loggerService.debug('cartographyParameters', cartographyParameters);
+        await onCreate(cartographyParameters).forEach(item => {
+          item.cartography = this.cartographyService.createProxy(this.entityID);
+          return this.cartographyParameterService.create(item);
+        });
+        await onUpdate(cartographyParameters).forEach(item => {
+          item.cartography = this.cartographyService.createProxy(this.entityID);
+          return this.cartographyParameterService.update(item);
+        });
+        await onDelete(cartographyParameters).forEach(item => {
+          const proxy = this.cartographyParameterService.createProxy(item.id);
+          return this.cartographyParameterService.delete(proxy)
+        });
+      })
+      .withTemplateDialog('newParameterDialog', () => TemplateDialog.builder()
+        .withReference(this.newParameterDialog)
+        .withTitle(this.translateService.instant('entity.cartography.parameters.title'))
+        .withForm(new FormGroup({
+          name: new FormControl(null, [Validators.required]),
+          type: new FormControl(null, [Validators.required]),
+          value: new FormControl(null, [Validators.required]),
+          format: new FormControl(null, []),
+          order: new FormControl(null, []),
+        })).build())
+        .build();
+  }
+
+  private defineTerritorialFiltersTable(): DataTableDefinition<CartographyFilterProjection, CartographyFilterProjection> {
+    return DataTableDefinition.builder<CartographyFilterProjection, CartographyFilterProjection>(this.dialog, this.errorHandler)
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getEditableColumnDef('entity.cartography.filters.parameters.name', 'name'),
+        this.utils.getNonEditableColumnWithProviderDef('entity.cartography.filters.parameters.type', 'type', (x) => {
+          return this.codeList('cartographyFilter.type').find(item => item.value === x)?.description || '';
+        }),
+        this.utils.getEditableColumnDef('entity.cartography.filters.parameters.column', 'column'),
+        this.utils.getEditableColumnDef('entity.cartography.filters.parameters.values', 'values'),
+        this.utils.getNonEditableColumnWithProviderDef('entity.cartography.filters.parameters.valueType', 'valueType',(x) => {
+          return this.codeList('cartographyFilter.valueType').find(item => item.value === x)?.description || '';
+        }),
+        this.utils.getNonEditableColumnWithProviderDef('entity.cartography.filters.parameters.territorialLevel', 'territorialLevelId', (x) => {
+          this.loggerService.debug('territorialLevelId', x);
+          return this.territorialTypes.find(item => item.id === x)?.name ?? '';
+        }),
+        this.utils.getBooleanColumnDef('entity.cartography.filters.parameters.required', 'required', true),
+        this.utils.getStatusColumnDef()
+      ])
+      .withRelationsFetcher(() => {
+        if (this.isNew()) {
+          return EMPTY;
+        }
+        return this.entityToEdit.getRelationArrayEx(CartographyFilterProjection, 'filters', {projection: 'view'});
+      })
+      .withRelationsOrder('name')
+      .withRelationsUpdater(async (cartographyFilters: (CartographyFilterProjection & Status)[]) => {
+        await onCreate(cartographyFilters).forEach(item => {
+          this.loggerService.debug('Creating cartography filter', item);
+          const newItem = CartographyFilter.fromObject(item);
+          newItem.cartography = this.cartographyService.createProxy(this.entityID);
+          if (item.territorialLevelId) {
+            newItem.territorialLevel = this.territoryTypeService.createProxy(item.territorialLevelId);
+          }
+          newItem.values = typeof item.values === 'string' ? (item.values as string).split(',') : (Array.isArray(item.values) ? item.values : null);
+          return this.cartographyFilterService.create(newItem)
+        });
+        await onUpdate(cartographyFilters).forEach(item => {
+          const updatedItem = CartographyFilter.fromObject(item);
+          updatedItem.cartography = this.cartographyService.createProxy(this.entityID);
+          if (item.territorialLevelId) {
+            updatedItem.territorialLevel = this.territoryTypeService.createProxy(item.territorialLevelId);
+          }
+          updatedItem.values = typeof item.values === 'string' ? (item.values as string).split(',') : (Array.isArray(item.values) ? item.values : null);
+          return this.cartographyFilterService.update(updatedItem);
+        });
+        await onDelete(cartographyFilters).forEach(item => {
+          const proxy = this.cartographyFilterService.createProxy(item.id);
+          return this.cartographyFilterService.delete(proxy)
+        });
+      })
+      .withTemplateDialog('newTerritorialFilterDialog', () => TemplateDialog.builder()
+        .withReference(this.newTerritorialFilterDialog)
+        .withTitle(this.translateService.instant('entity.cartography.filters.parameters.title'))
+        .withForm(new FormGroup({
+          name: new FormControl(null, [Validators.required]),
+          required: new FormControl(false),
+          type: new FormControl(null, [Validators.required]),
+          territorialLevelId: new FormControl(null),
+          column: new FormControl(null),
+          values: new FormControl(null),
+          valueType: new FormControl(null, []),
+        })).build())
+      .build();
+  }
+
+  private defineStylesTable(): DataTableDefinition<CartographyStyle, CartographyStyle> {
+    return DataTableDefinition.builder<CartographyStyle, CartographyStyle>(this.dialog, this.errorHandler)
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getEditableColumnDef('entity.cartography.styles.parameters.name', 'name'),
+        this.utils.getBooleanColumnDef('entity.cartography.styles.parameters.defaultStyle', 'defaultStyle', true, null, null, true),
+        this.utils.getEditableColumnDef('entity.cartography.styles.parameters.title', 'title'),
+        this.utils.getEditableColumnDef('entity.cartography.styles.parameters.description', 'description'),
+        this.utils.getEditableColumnWithLinkDef('entity.cartography.styles.parameters.url', 'legendURL.onlineResource'),
+        this.utils.getEditableColumnDef('entity.cartography.styles.parameters.format', 'legendURL.format'),
+        this.utils.getEditableColumnDef('entity.cartography.styles.parameters.width', 'legendURL.width'),
+        this.utils.getEditableColumnDef('entity.cartography.styles.parameters.height', 'legendURL.height'),
+        this.utils.getStatusColumnDef()
+      ])
+      .withRelationsFetcher(() => {
+        if (this.isNew()) {
+          return EMPTY;
+        }
+        return this.entityToEdit.getRelationArrayEx(CartographyStyle, 'styles', {projection: 'view'});
+      })
+      .withRelationsOrder('name')
+      .withRelationsUpdater(async (cartographyStyles: (CartographyStyle & Status)[]) => {
+        await onCreate(cartographyStyles).forEach(item => {
+          item.cartography = this.cartographyService.createProxy(this.entityID);
+          return this.cartographyStyleService.create(item)
+        });
+        await onDelete(cartographyStyles).forEach(item => this.cartographyStyleService.delete(item));
+        await onUpdate(cartographyStyles).forEach(item => this.cartographyStyleService.update(item));
+      })
+      .withTemplateDialog('newStyleDialog', () => TemplateDialog.builder()
+        .withReference(this.newStyleDialog)
+        .withTitle(this.translateService.instant('entity.cartography.styles.parameters.title'))
+        .withForm(new FormGroup({
+          name: new FormControl(null, [Validators.required]),
+          title: new FormControl(null, [Validators.required]),
+          description: new FormControl(null, []),
+          format: new FormControl(null, []),
+          width: new FormControl(null, []),
+          height: new FormControl(null, []),
+          url: new FormControl(null, []),
+          defaultStyle: new FormControl(false, []),
+        })).build())
+      .build()
+  }
+
+
+  private defineTerritoryAvailabilitiesTable(): DataTableDefinition<CartographyAvailabilityProjection, TerritoryProjection> {
+    return DataTableDefinition.builder<CartographyAvailabilityProjection, TerritoryProjection>(this.dialog, this.errorHandler)
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getRouterLinkColumnDef('entity.cartography.territories.parameters.name', 'territoryName', '/territory/:id/territoryForm', {id: 'territoryId'}),
+        this.utils.getNonEditableColumnDef('entity.cartography.territories.parameters.type', 'territoryType'),
+        this.utils.getNonEditableColumnDef('entity.cartography.territories.parameters.code', 'territoryCode'),
+        this.utils.getStatusColumnDef()
+        ])
+        .withRelationsFetcher(() => {
+          if (this.isNew()) {
+            return EMPTY;
+          }
+          return this.entityToEdit.getRelationArrayEx(CartographyAvailabilityProjection, 'availabilities', {projection: 'view'});
+        })
+        .withRelationsOrder('territoryName')
+        .withRelationsUpdater(async (cartographyAvailability: (CartographyAvailabilityProjection & Status)[]) => {
+          await onCreate(cartographyAvailability).forEach(item => {
+              const newItem = new CartographyAvailability()
+              newItem.territory = this.territoryService.createProxy(item.territoryId)
+              newItem.cartography = this.cartographyService.createProxy(this.entityID)
+              return this.cartographyAvailabilityService.create(newItem)
+          });
+          await onDelete(cartographyAvailability).forEach(item => {
+            const proxy = this.cartographyAvailabilityService.createProxy(item.id)
+            return this.cartographyAvailabilityService.delete(proxy)
+          });
+        })
+        .withTargetsColumns([
+          this.utils.getSelCheckboxColumnDef(),
+          this.utils.getNonEditableColumnDef('entity.cartography.territories.parameters.name', 'name'),
+          this.utils.getNonEditableColumnDef('entity.cartography.territories.parameters.type', 'typeName'),
+          this.utils.getNonEditableColumnDef('entity.cartography.territories.parameters.code', 'code'),
+        ])
+        .withTargetsFetcher(() => {
+          return this.territoryService.getAllProjection(TerritoryProjection)
+        })
+        .withTargetInclude((availabilities: (CartographyAvailabilityProjection)[]) => (item: TerritoryProjection) => {
+          return !availabilities.some((availability) => availability.territoryId === item.id);
+        })
+        .withTargetToRelation((items: TerritoryProjection[]) => {
+          const newItems: CartographyAvailabilityProjection[] = []
+          items.forEach(item => {
+            const newItem = new CartographyAvailabilityProjection()
+            newItem.territoryId = item.id
+            newItem.territoryName = item.name
+            newItem.territoryType = item.typeName
+            newItem.territoryCode = item.code
+            newItems.push(newItem)
+          })
+          return newItems
+        })
+        .withTargetsTitle(this.translateService.instant('entity.cartography.territories.parameters.title'))
+        .withTargetsOrder('name')
+        .build();
+  }
+
+  private defineCartographyPermissionsTable(): DataTableDefinition<CartographyGroupProjection, CartographyGroupProjection> {
+    return DataTableDefinition.builder<CartographyGroupProjection, CartographyGroupProjection>(this.dialog, this.errorHandler)
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getRouterLinkColumnDef('entity.cartography.permissions.parameters.name', 'name', '/layersPermits/:id/layersPermitsForm', {id: 'id'}),
+        {...this.utils.getNonEditableColumnDef('entity.cartography.permissions.parameters.roles', 'roleNames'), ...this.utils.getArrayValueParser()},
+        this.utils.getStatusColumnDef()
+      ])
+      .withRelationsFetcher(() => {
+        if (this.isNew()) {
+          return EMPTY;
+        }
+        return this.entityToEdit.getRelationArrayEx(CartographyGroupProjection, 'permissions', {projection: 'view'});
+      })
+      .withRelationsOrder('name')
+      .withRelationsUpdater(async (cartographyGroups: (CartographyGroupProjection & Status)[]) => {
+        await onCreate(cartographyGroups).forEach(item => {
+          return item.addRelationEx("members", this.entityToEdit);
+        });
+        await onDelete(cartographyGroups).forEach(item => {
+          return item.deleteRelationById("members", this.entityToEdit.id);
+        });
+      })
+      .withTargetsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getNonEditableColumnDef('entity.cartography.permissions.parameters.name', 'name'),
+        {...this.utils.getNonEditableColumnDef('entity.cartography.permissions.parameters.roles', 'roleNames'), ...this.utils.getArrayValueParser()},
+      ])
+      .withTargetsOrder('name')
+      .withTargetsFetcher(() => {
+        const filter = {
+          params: [
+            {key: 'type', value: constants.codeValue.cartographyPermissionType.cartographyGroup}
+          ]
+        };
+        return this.cartographyGroupService.getAllProjection(CartographyGroupProjection, filter)
+      })
+      .withTargetInclude((cartographyGroups: (CartographyGroupProjection)[]) => (item: CartographyGroupProjection) => {
+        return !cartographyGroups.some((cartographyGroup) => cartographyGroup.id === item.id);
+      })
+      .withTargetToRelation((items: CartographyGroupProjection[]) => items)
+      .withTargetsTitle(this.translateService.instant('entity.cartography.permissions.parameters.title'))
+      .withTargetsOrder('name')
+      .build();
+  }
+
+  /**
+   * Defines the data table structure for tree nodes.
+   * @returns DataTableDefinition for tree nodes with columns for tree name and node name
+   */
+  private defineTreesNodesTable(): DataTableDefinition<TreeNodeProjection, TreeNodeProjection> {
+    return DataTableDefinition.builder<TreeNodeProjection, TreeNodeProjection>(this.dialog, this.errorHandler)
+      .withRelationsColumns([
+        this.utils.getRouterLinkColumnDef('entity.cartography.trees.name', 'treeName', '/trees/:id/treesForm', {id: 'treeId'}),
+        this.utils.getNonEditableColumnDef('entity.cartography.trees.node', 'name')
+      ])
+      .withRelationsFetcher(() =>  {
+        if (this.isNew()) {
+          return EMPTY;
+        }
+        return this.entityToEdit.getRelationArrayEx(TreeNodeProjection, 'treeNodes', {projection: 'view'})
+      })
+      .withRelationsOrder('treeName')
+      .build();
+  }
+
+  getAvailableLayers(): string {
+    const joinedLayers = this.entityForm?.get('joinedLayers')?.value?.split(',').map(layer => layer.trim()) ?? [];
+    const queryableLayers = this.entityForm?.get('joinedQueryableLayers')?.value?.split(',').map(layer => layer.trim()) ?? [];
+
+    const availableLayers = joinedLayers.filter(layer => !queryableLayers.includes(layer));
+    return availableLayers.join(', ');
+  }
+
+  getServiceName(serviceId: number): string {
+    const service = this.services.find(s => s.id === serviceId);
+    return service ? service.name : '';
+  }
+}
+
+
+//
+// CODE THAT CAN BE REMOVED
+//
+
+/*
 
   onSelectionThematicChanged(value) {
     if (value.checked) {
-      this.layerForm.get('geometryType').enable();
+      this.entityForm.get('geometryType').enable();
     } else {
-      this.layerForm.get('geometryType').disable();
+      this.entityForm.get('geometryType').disable();
     }
   }
 
-
   onSelectableFeatureEnabledChange(value) {
     if (value.checked) {
-      this.layerForm.get('spatialSelectionService').enable();
-      this.layerForm.get('selectableLayers').enable();
+      this.entityForm.get('spatialSelectionServiceId').enable();
+      this.entityForm.get('joinedSelectableLayers').enable();
       this.loadButtonDisabled();
     } else {
-      this.layerForm.get('spatialSelectionService').disable();
-      this.layerForm.get('selectableLayers').disable();
+      this.entityForm.get('spatialSelectionServiceId').disable();
+      this.entityForm.get('joinedSelectableLayers').disable();
       this.disableLoadButton = true;
     }
   }
 
   onQueryableFeatureEnabledChange(value) {
     if (value.checked) {
-      this.layerForm.get('queryableFeatureAvailable').enable();
-      this.layerForm.get('queryableLayers').enable();
+      this.entityForm.get('queryableFeatureAvailable').enable();
+      this.entityForm.get('joinedQueryableLayers').enable();
     } else {
-      this.layerForm.get('queryableFeatureAvailable').disable();
-      this.layerForm.get('queryableLayers').disable();
+      this.entityForm.get('queryableFeatureAvailable').disable();
+      this.entityForm.get('joinedQueryableLayers').disable();
     }
   }
 
   async onTranslationButtonClicked() {
-    let dialogResult = null
-    dialogResult = await this.utils.openTranslationDialog(this.translationMap);
-    if (dialogResult && dialogResult.event == "Accept") {
+    const dialogResult = await this.utils.openTranslationDialog(this.translationMap);
+    if (dialogResult && dialogResult.event == 'Accept') {
       this.translationsModified = true;
     }
   }
 
 
-  initializeLayersForm(): void {
-
-    this.layerForm = new UntypedFormGroup({
-      id: new UntypedFormControl(null, []),
-      name: new UntypedFormControl(null, [Validators.required]),
-      service: new UntypedFormControl(null, [Validators.required]),
-      layers: new UntypedFormControl(null, [Validators.required]),
-      minimumScale: new UntypedFormControl(null, []),
-      maximumScale: new UntypedFormControl(null, []),
-      geometryType: new UntypedFormControl(null, []),
-      order: new UntypedFormControl(null, []),
-      transparency: new UntypedFormControl(null, []),
-      metadataURL: new UntypedFormControl(null, []),
-      legendType: new UntypedFormControl(null, []),
-      legendUrl: new UntypedFormControl(null, []),
-      source: new UntypedFormControl(null, []),
-      description: new UntypedFormControl(null, []),
-      datasetURL: new UntypedFormControl(null, []),//here
-      applyFilterToGetMap: new UntypedFormControl(null, []),
-      applyFilterToGetFeatureInfo: new UntypedFormControl(null, []),
-      applyFilterToSpatialSelection: new UntypedFormControl(null, []),
-      queryableFeatureEnabled: new UntypedFormControl(null, []),
-      queryableFeatureAvailable: new UntypedFormControl(null, []),
-      queryableLayers: new UntypedFormControl(null, [Validators.required]),
-      thematic: new UntypedFormControl(null, []),
-      blocked: new UntypedFormControl(null, []),
-      selectableFeatureEnabled: new UntypedFormControl(null, [],),
-      spatialSelectionService: new UntypedFormControl(null, [Validators.required]),
-      selectableLayers: new UntypedFormControl(null, [Validators.required]),
-      spatialSelectionConnection: new UntypedFormControl(null, []),
-      useAllStyles: new UntypedFormControl(null, []),
-      _links: new UntypedFormControl(null, []),
-    });
-  }
-
-
-  initializeParameterForm(): void {
-    this.parameterForm = new UntypedFormGroup({
-      value: new UntypedFormControl(null, [Validators.required]),
-      name: new UntypedFormControl(null, [Validators.required]),
-      format: new UntypedFormControl(null, []),
-      order: new UntypedFormControl(null, []),
-      type: new UntypedFormControl(null, []),
-    })
-  }
-
-  initializeStyleForm(): void {
-    this.styleForm = new UntypedFormGroup({
-      name: new UntypedFormControl(null, [Validators.required]),
-      title: new UntypedFormControl(null, [Validators.required]),
-      description: new UntypedFormControl(null, []),
-      format: new UntypedFormControl(null, []),
-      width: new UntypedFormControl(null, []),
-      height: new UntypedFormControl(null, []),
-      url: new UntypedFormControl(null, []),
-      defaultStyle: new UntypedFormControl(null, []),
-
-    })
-  }
-
-
-  initializeTerritorialFilterForm(): void {
-    this.territorialFilterForm = new UntypedFormGroup({
-      id: new UntypedFormControl(null,),
-      name: new UntypedFormControl(null, [Validators.required]),
-      required: new UntypedFormControl(null, [Validators.required]),
-      type: new UntypedFormControl(null, [Validators.required]),
-      territorialLevel: new UntypedFormControl(null),
-      column: new UntypedFormControl(null),
-      values: new UntypedFormControl(null, []),
-      valueType: new UntypedFormControl(null, []),
-      _links: new UntypedFormControl(null, []),
-    })
-  }
 
   onLoadButtonClicked(): void {
     try {
 
       const dialogRef = this.dialog.open(DialogMessageComponent);
-      dialogRef.componentInstance.title = this.utils.getTranslate("caution");
-      dialogRef.componentInstance.message = this.utils.getTranslate("getInfoMessage");
+      dialogRef.componentInstance.title = this.utils.getTranslate('caution');
+      dialogRef.componentInstance.message = this.utils.getTranslate('getInfoMessage');
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
-          let replaceAll = result.event === 'Accept';
-          let service = this.spatialConfigurationServices.find(element => element.id == this.layerForm.get('spatialSelectionService').value);
-          let layersName = this.layerForm.get('selectableLayers').value
+          const replaceAll = result.event === 'Accept';
+          const service = this.spatialConfigurationServices.find(element => element.id == this.entityForm.get('spatialSelectionServiceId').value);
+          const layersName = this.entityForm.get('joinedSelectableLayers').value;
           if (service && service.serviceURL && layersName) {
             let url: string = service.serviceURL;
             if (!url.includes('request=DescribeFeatureType')) {
-              if (url[url.length - 1] != '?') { url += "?" }
+              if (url[url.length - 1] != '?') {
+                url += '?';
+              }
 
-              url += `request=DescribeFeatureType%26service=WFS%26typeName=${layersName}`
+              url += `request=DescribeFeatureType%26service=WFS%26typeName=${layersName}`;
             }
             this.getInfoService.getInfo(url).subscribe(result => {
               if (result.success) {
                 this.manageGetInfoResults(result.asJson, replaceAll);
               }
             }, error => {
-              console.log(error)
-            })
+              this.loggerService.error('Error getting info service', error);
+            });
           }
 
 
@@ -717,42 +730,40 @@ export class LayersFormComponent implements OnInit {
       });
 
 
-
+    } catch (err) {
+      this.utils.showErrorMessage(err);
     }
-    catch (err) {
-      this.utils.showErrorMessage(err)
-    };
+
   }
 
   manageGetInfoResults(results, replaceAll: boolean) {
-    let elementsToAdd = [];
-    let elements = []
-    let type = this.spatialSelectionParameterTypes.find(element => element.value == "SELECT")
+    const elementsToAdd = [];
+    const elements = [];
+    const type = this.spatialSelectionParameterTypes.find(element => element.value == 'SELECT');
 
     if (results['xsd:schema'] && results['xsd:schema']['xsd:element']) {
-      elements.push(results['xsd:schema']['xsd:element'])
+      elements.push(results['xsd:schema']['xsd:element']);
     }
 
     if (results['xsd:schema'] && results['xsd:schema']['xsd:complexType'] && results['xsd:schema']['xsd:complexType']['xsd:complexContent']) {
-      let complexContent = results['xsd:schema']['xsd:complexType']['xsd:complexContent'];
+      const complexContent = results['xsd:schema']['xsd:complexType']['xsd:complexContent'];
       if (complexContent['xsd:extension'] && complexContent['xsd:extension']['xsd:sequence'] && complexContent['xsd:extension']['xsd:sequence']['xsd:element']) {
         elements.push(...complexContent['xsd:extension']['xsd:sequence']['xsd:element']);
         if (elements) {
           elements.forEach(element => {
-            let newParameter = {
+            const newParameter = {
               name: element.name,
               value: element.name,
-              type: type?type.value:null,
+              type: type ? type.value : null,
               format: this.getFormatFromGetInfo(element.type),
-            }
+            };
             elementsToAdd.push(newParameter);
           });
           if (elementsToAdd) {
             if (replaceAll) {
               this.getAllElementsEventSpatialConfigurations.next('pendingDelete');
               this.replaceAllElementsEventSpatialConfigurations.next(elementsToAdd);
-            }
-            else {
+            } else {
               this.addElementsEventSpatialConfigurations.next(elementsToAdd);
             }
 
@@ -765,134 +776,47 @@ export class LayersFormComponent implements OnInit {
   }
 
   private getFormatFromGetInfo(format) {
-    if (format == 'xsd:int') { return 'N' }
-    else if (format == 'xsd:string') { return 'T' }
-    else if (format == 'xsd:img') { return 'I' }
-    else if (format == 'gml:PointPropertyType') { return 'N' }
-    else if (format == 'xsd:url') { return 'U' }
-    else if (format == 'xsd:date') { return 'F' }
-    else { return 'T' }
+    if (format == 'xsd:int') {
+      return 'N';
+    } else if (format == 'xsd:string') {
+      return 'T';
+    } else if (format == 'xsd:img') {
+      return 'I';
+    } else if (format == 'gml:PointPropertyType') {
+      return 'N';
+    } else if (format == 'xsd:url') {
+      return 'U';
+    } else if (format == 'xsd:date') {
+      return 'F';
+    } else {
+      return 'T';
+    }
   }
 
   // AG-GRID
 
 
-  // ******** Parameters configuration ******** //
-  getAllParameters = (): Observable<any> => {
-
-    if (this.layerID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
-      return of(aux);
-    }
-    var urlReq = `${this.layerToEdit._links.parameters.href}`
-    if (this.layerToEdit._links.parameters.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
-      urlReq = url.toString();
-    }
-
-    return (this.http.get(urlReq))
-      .pipe(map(data => data['_embedded']['cartography-parameters'] //.filter(elem => elem.type == "INFO")
-      ));
-
-  }
-
-  getAllRowsParameters(event, spatialSelection: boolean) {
-    if (event.event == "save") {
-      this.saveParameters(event.data, spatialSelection);
-    }
-    if (event.event == 'pendingDelete') {
-      this.parametersPendingDelete.push(...event.data)
-    }
-  }
-
-  saveParameters(data: any[], spatialSelection: boolean) {
-
-    const promises: Promise<any>[] = [];
-    let formatsList, typesList, service, event;
-    if (spatialSelection) {
-      formatsList = this.spatialSelectionParameterFormatTypes;
-      typesList = this.spatialSelectionParameterTypes
-      service = this.cartographySpatialSelectionParameterService;
-      event = this.dataUpdatedEventSpatialConfigurations;
-    }
-    else {
-      formatsList = this.parameterFormatTypes;
-      typesList = this.parameterTypes
-      service = this.cartographyParameterService;
-      event = this.dataUpdatedEventParameters;
-    }
-    data.forEach(parameter => {
-      if (parameter.status === 'pendingCreation' || parameter.status === 'pendingModify') {
-        if (parameter.status === 'pendingCreation' || parameter.newItem) {
-          parameter.cartography = this.layerToEdit;
-          parameter._links = null;
-          parameter.id = null;
-        }
-        if (parameter.status === 'pendingModify') {
-
-          if (parameter.format) {
-            let currentFormat = formatsList.find(element => element.description == parameter.format);
-            if (currentFormat) { parameter.format = currentFormat.value }
-          }
-
-          if (parameter.type) {
-            let currentType = typesList.find(element => element.description == parameter.type);
-            if (currentType) { parameter.type = currentType.value }
-          }
-
-        }
-        promises.push(new Promise((resolve, reject) => { service.save(parameter).subscribe((resp) => { resolve(true) }) }));
-      }
-      if (parameter.status === 'pendingDelete' && parameter._links && !parameter.newItem) {
-        promises.push(new Promise((resolve, reject) => { service.remove(parameter).subscribe((resp) => { resolve(true) }) }));
-      }
-    });
-
-    if (this.parametersPendingDelete.length > 0) {
-      this.parametersPendingDelete.forEach(parameter => {
-        if (parameter._links && !parameter.newItem) {
-          promises.push(new Promise((resolve, reject) => { service.remove(parameter).subscribe((resp) => { resolve(true) }) }));
-        }
-      });
-      this.parametersPendingDelete = [];
-    }
-
-    Promise.all(promises).then(() => {
-      event.next(true);
-    });
-
-
-  }
-
-  duplicateParameters(data, spatialSelection: boolean) {
-    let parametersToDuplicate = this.utils.duplicateParameter(data, 'name');
-    if (spatialSelection) { this.addElementsEventSpatialConfigurations.next(parametersToDuplicate); }
-    else { this.addElementsEventParameters.next(parametersToDuplicate); }
-  }
 
   loadButtonDisabled() {
-    let formValues = this.layerForm.value;
-    if (formValues.selectableFeatureEnabled && formValues.spatialSelectionService && formValues.spatialSelectionService > 0 && formValues.selectableLayers) {
-      this.disableLoadButton = false;
-    }
-    else {
-      this.disableLoadButton = true;
-    }
+    const formValues = this.entityForm.value;
+    this.disableLoadButton = !(formValues.selectableFeatureEnabled &&
+      formValues.spatialSelectionService &&
+      formValues.spatialSelectionService > 0 &&
+      formValues.selectableLayers);
 
   }
 
   // ******** Spatial configuration ******** //
   getAllSpatialConfigurations = (): Observable<any> => {
 
-    if (this.layerID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
+    if (this.entityID == -1 && this.duplicateID == -1) {
+      const aux: any[] = [];
       return of(aux);
     }
-    var urlReq = `${this.layerToEdit._links.spatialSelectionParameters.href}`
-    if (this.layerToEdit._links.spatialSelectionParameters.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
+    let urlReq = `${this.entityToEdit._links.spatialSelectionParameters.href}`;
+    if (this.entityToEdit._links.spatialSelectionParameters.templated) {
+      const url = new URL(urlReq.split('{')[0]);
+      url.searchParams.append('projection', 'view');
       urlReq = url.toString();
     }
 
@@ -900,418 +824,10 @@ export class LayersFormComponent implements OnInit {
       .pipe(map(data => data['_embedded']['cartography-spatial-selection-parameters'] //.filter(elem => elem.type == "EDIT")
       ));
 
-  }
+  };
 
 
-  // ******** Styles ******** //
 
-  getAllStyles = () => {
-
-    if (this.layerID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
-      return of(aux);
-    }
-
-    var urlReq = `${this.layerToEdit._links.styles.href}`
-    if (this.layerToEdit._links.styles.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
-      urlReq = url.toString();
-    }
-
-    return (this.http.get(urlReq))
-      .pipe(map(data => data['_embedded']['cartography-styles']));
-
-  }
-
-  getAllRowsStyles(event) {
-    if (event.event == "save") {
-      let stylesByDefault = event.data.filter(d => d.defaultStyle).length;
-      if (stylesByDefault > 1) {
-        this.showStylesError();
-      }
-      else {
-        this.saveStyles(event.data)
-      }
-    }
-  }
-
-  saveStyles(data: any[]) {
-
-    let index = data.findIndex(element => (element.status === 'pendingModify' ||
-      element.status === 'pendingCreation') && element.defaultStyle);
-    let styleToModifyTheLast = null;
-    if (index != -1) {
-      styleToModifyTheLast = data[index];
-      data.splice(index, 1)
-
-    }
-    const promises: Promise<any>[] = [];
-    data.forEach(style => {
-      if (style.status === 'pendingCreation' || style.status === 'pendingModify') {
-        if (!style._links) {
-          style.cartography = this.layerToEdit;
-        }
-        if (style.status === 'pendingCreation' || style.newItem) {
-          style._links = null;
-          style.id = null;
-        }
-        if (style.status === 'pendingModify') {
-
-          if (style.format) {
-            let currentFormat = this.parameterFormatTypes.find(element => element.description == style.format);
-            if (currentFormat) { style.format = currentFormat.value }
-          }
-
-        }
-        promises.push(new Promise((resolve, reject) => { this.cartographyStyleService.save(style).subscribe((resp) => { resolve(true) }) }));
-      }
-      if (style.status === 'pendingDelete' && style._links && !style.newItem) {
-        promises.push(new Promise((resolve, reject) => { this.cartographyStyleService.remove(style).subscribe((resp) => { resolve(true) }) }));
-
-      }
-    });
-
-    Promise.all(promises).then(() => {
-      if (index == -1) {
-        this.dataUpdatedEventStyles.next(true);
-      }
-      else {
-        if (!styleToModifyTheLast._links) {
-          styleToModifyTheLast.cartography = this.layerToEdit;
-        }
-
-        if (styleToModifyTheLast.newItem) {
-          styleToModifyTheLast._links = null;
-          styleToModifyTheLast.id = null;
-          if (styleToModifyTheLast.format) {
-            let currentFormat = this.parameterFormatTypes.find(element => element.description == styleToModifyTheLast.format);
-            if (currentFormat) { styleToModifyTheLast.format = currentFormat.value }
-          }
-        }
-        this.cartographyStyleService.save(styleToModifyTheLast).subscribe((resp) => {
-          this.dataUpdatedEventStyles.next(true);
-        })
-      }
-    });
-
-
-  }
-
-  duplicateStyles(data) {
-    let stylesToDuplicate = this.utils.duplicateParameter(data, 'name');
-    this.addElementsEventStyles.next(stylesToDuplicate);
-  }
-
-
-
-  // ******** Territorial Filters  ******** //
-  getAllTerritorialFilters = (): Observable<any> => {
-
-    if (this.layerID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
-      return of(aux);
-    }
-    var urlReq = `${this.layerToEdit._links.filters.href}`
-    if (this.layerToEdit._links.filters.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
-      urlReq = url.toString();
-    }
-
-    return (this.http.get(urlReq))
-      .pipe(map(data => data['_embedded']['cartography-filters']));
-
-  }
-
-  getAllRowsTerritorialFilters(event) {
-    if (event.event == "save") {
-      this.saveTerritorialFilters(event.data);
-    }
-  }
-
-  saveTerritorialFilters(data: any[]) {
-
-    let territorialFilterToSave = [];
-    let territorialFilterToDelete = [];
-    const promises: Promise<any>[] = [];
-    data.forEach(territoryFilter => {
-      if (territoryFilter.status === 'pendingCreation' || territoryFilter.status === 'pendingModify') {
-        if (territoryFilter.status === 'pendingCreation' || territoryFilter.newItem) {
-          territoryFilter.cartography = this.layerToEdit;
-          if (!territoryFilter.territorialLevel) {
-            let territorialLevel = this.filterTypeIds.find(x => x.id === territoryFilter.terrorialLevelId)
-            if (territorialLevel == undefined || territorialLevel.id == -1) {
-              territorialLevel = null
-            }
-            territoryFilter.territorialLevel = territorialLevel
-            territoryFilter.id = null;
-            territoryFilter._links = null;
-          }
-        }
-        // territorialFilterToSave.push(territoryFilter)
-        promises.push(new Promise((resolve, reject) => { this.cartographyFilterService.save(territoryFilter).subscribe((resp) => { resolve(true) }) }));
-
-      }
-      if (territoryFilter.status === 'pendingDelete' && territoryFilter._links && !territoryFilter.newItem) {
-        //  territorialFilterToDelete.push(territoryFilter) 
-        promises.push(new Promise((resolve, reject) => { this.cartographyFilterService.remove(territoryFilter).subscribe((resp) => { resolve(true) }) }));
-
-      }
-    });
-
-    Promise.all(promises).then(() => {
-      this.dataUpdatedEventTerritorialFilter.next(true);
-    });
-
-
-  }
-
-  duplicateTerritorialFilters(data) {
-    let territorialFiltersToDuplicate = this.utils.duplicateParameter(data, 'name')
-    this.addElementsTerritorialFilter.next(territorialFiltersToDuplicate);
-
-  }
-
-  // ******** Territories ******** //
-  getAllTerritories = (): Observable<any> => {
-    if (this.layerID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
-      return of(aux);
-    }
-
-    var urlReq = `${this.layerToEdit._links.availabilities.href}`
-    if (this.layerToEdit._links.availabilities.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
-      urlReq = url.toString();
-    }
-
-    return (this.http.get(urlReq))
-      .pipe(map(data => data['_embedded']['cartography-availabilities']));
-
-
-  }
-
-  getAllRowsTerritories(event) {
-    if (event.event == "save") {
-      this.saveTerritories(event.data);
-    }
-  }
-
-  saveTerritories(data: any[]) {
-    const promises: Promise<any>[] = [];
-    data.forEach(territory => {
-      territory.cartography = this.layerToEdit;
-      if (territory.status === 'pendingCreation') {
-        let index = data.findIndex(element => element.territoryCode === territory.territoryCode && !element.newItem)
-        territory.newItem = false;
-        if (index === -1) {
-          if (territory._links) {
-            territory.id = null;
-            territory.cartographyId = this.layerToEdit.id;
-            territory.cartographyName = this.layerToEdit.name;
-            let urlReqTerritory = `${territory._links.territory.href}`
-            let url = new URL(urlReqTerritory.split("{")[0]);
-            url.searchParams.append("projection", "view")
-            urlReqTerritory = url.toString();
-            territory._links = null
-            promises.push(new Promise((resolve, reject) => {
-              this.http.get(urlReqTerritory).subscribe(result => {
-                territory.territory = result;
-                this.cartograhyAvailabilityService.save(territory).subscribe((resp) => { resolve(true) });
-              })
-            }))
-
-          }
-          else {
-            promises.push(new Promise((resolve, reject) => { this.cartograhyAvailabilityService.save(territory).subscribe((resp) => { resolve(true) }) }));
-            // territoriesToCreate.push(territory)
-          }
-
-        }
-      }
-      if (territory.status === 'pendingDelete' && territory._links && !territory.newItem) {
-        promises.push(new Promise((resolve, reject) => { this.cartograhyAvailabilityService.remove(territory).subscribe((resp) => { resolve(true) }) }));
-
-        //  territoriesToDelete.push(territory) 
-      }
-    });
-
-    // territoriesToCreate.forEach(newElement => {
-    //   promises.push(new Promise((resolve, reject) => { this.cartograhyAvailabilityService.save(newElement).subscribe((resp) => { resolve(true) }) }));
-    // });
-
-    // territoriesToDelete.forEach(deletedElement => {
-    //   promises.push(new Promise((resolve, reject) => { this.cartograhyAvailabilityService.remove(deletedElement).subscribe((resp) => { resolve(true) }) }));
-
-    // });
-
-    Promise.all(promises).then(() => {
-      this.dataUpdatedEventTerritories.next(true);
-    });
-
-
-  }
-
-
-
-
-  // ******** Layers configuration ******** //
-  getAllLayersConfiguration = (): Observable<any> => {
-
-
-    if (this.layerID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
-      return of(aux);
-    }
-
-    var urlReq = `${this.layerToEdit._links.permissions.href}`
-    if (this.layerToEdit._links.permissions.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
-      urlReq = url.toString();
-    }
-
-    return (this.http.get(urlReq))
-      .pipe(map(data => data['_embedded']['cartography-groups']));
-  }
-
-  getAllRowsLayersConfiguration(event) {
-    if (event.event == "save") {
-      this.saveLayersConfiguration(event.data);
-    }
-  }
-
-  saveLayersConfiguration(data: any[]) {
-    let dataChanged = false;
-    const promises: Promise<any>[] = [];
-    let layersConfigurationToPut = [];
-    data.forEach(layer => {
-
-      if (layer.status !== 'pendingDelete') {
-        if (layer.status === 'pendingModify') {
-          if (layer.newItem) { dataChanged = true; }
-          promises.push(new Promise((resolve, reject) => { this.cartographyGroupService.update(layer).subscribe((resp) => { resolve(true) }) }));
-
-        }
-        else if (layer.status === 'pendingCreation') {
-          dataChanged = true;
-        }
-        layersConfigurationToPut.push(layer._links.self.href)
-      }
-      else { dataChanged = true }
-    });
-    Promise.all(promises).then(() => {
-      if (dataChanged) {
-        let url = this.layerToEdit._links.permissions.href.split('{', 1)[0];
-        this.utils.updateUriList(url, layersConfigurationToPut, this.dataUpdatedEventLayersConfiguration)
-      }
-      else {
-        this.dataUpdatedEventLayersConfiguration.next(true);
-      }
-    });
-  }
-
-
-  // ******** Nodes configuration ******** //
-  getAllNodes = (): Observable<any> => {
-
-    if (this.layerID == -1) {
-      const aux: Array<any> = [];
-      return of(aux);
-    }
-
-    var urlReq = `${this.layerToEdit._links.treeNodes.href}`
-    if (this.layerToEdit._links.treeNodes.templated) {
-      var url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
-      urlReq = url.toString();
-    }
-
-    return (this.http.get(urlReq))
-      .pipe(map(data => data['_embedded']['tree-nodes']));
-  }
-
-  getAllRowsNodes(event) {
-    if (event.event == "save") {
-      this.saveNodes(event.data);
-    }
-  }
-
-
-  saveNodes(data: any[]) {
-
-    const promises: Promise<any>[] = [];
-    data.forEach(node => {
-
-      let nodeAct = new TreeNode();
-      var urlReq = `${node._links.cartography.href}`
-      if (node._links.cartography.templated) {
-        var url = new URL(urlReq.split("{")[0]);
-        url.searchParams.append("projection", "view")
-        urlReq = url.toString();
-      }
-      nodeAct.name = node.name
-      node._links.cartography.href = urlReq
-      nodeAct._links = node._links
-      nodeAct.cartography = this.layerToEdit;
-      if (node.status === 'pendingModify' || node.status === 'pendingCreation') {
-        // if(node.status==='pendingCreation') { node._links=null; }
-        promises.push(new Promise((resolve, reject) => { this.treeNodeService.save(nodeAct).subscribe((resp) => { resolve(true) }) }));
-
-        //  nodesToPut.push(nodeAct) 
-      }
-      else if (node.status === 'pendingDelete' && !node.newItem) {
-        //  nodesToDelete.push(nodeAct) 
-        promises.push(new Promise((resolve, reject) => { this.treeNodeService.remove(node).subscribe((resp) => { resolve(true) }) }));
-
-      }
-    });
-
-
-    // nodesToPut.forEach(node => {
-    //   promises.push(new Promise((resolve, reject) => { this.treeNodeService.save(node).subscribe((resp) => { resolve(true) }) }));
-    // });
-    // nodesToDelete.forEach(node => {
-    //   promises.push(new Promise((resolve, reject) => { this.treeNodeService.remove(node).subscribe((resp) => { resolve(true) }) }));
-    // });
-    Promise.all(promises).then(() => {
-      this.dataUpdatedEventNodes.next(true);
-    });
-
-  }
-
-
-
-  // ******** Parameters Dialog  ******** //
-
-  openParametersDialog(data: any) {
-
-    this.parameterForm.patchValue({
-      format: this.parameterFormatTypes[0].value
-    })
-    const dialogRef = this.dialog.open(DialogFormComponent);
-    dialogRef.componentInstance.HTMLReceived = this.newParameterDialog;
-    dialogRef.componentInstance.title = this.utils.getTranslate('layersEntity.parametersConfiguration');
-    dialogRef.componentInstance.form = this.parameterForm;
-
-
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Add') {
-
-          let item = this.parameterForm.value;
-          this.addElementsEventParameters.next([item])
-
-          this.parameterForm.reset();
-        }
-      }
-      this.parameterForm.reset();
-    });
-
-  }
 
   // ******** Spatial Selection Dialog  ******** //
 
@@ -1320,18 +836,18 @@ export class LayersFormComponent implements OnInit {
 
     this.parameterForm.patchValue({
       format: this.parameterFormatTypes[0].value
-    })
+    });
 
     const dialogRef = this.dialog.open(DialogFormComponent);
     dialogRef.componentInstance.HTMLReceived = this.newSpatialConfigurationDialog;
-    dialogRef.componentInstance.title = this.utils.getTranslate('layersEntity.spatialSelection');
+    dialogRef.componentInstance.title = this.utils.getTranslate('entity.cartography.spatialSelection.parameters.title');
     dialogRef.componentInstance.form = this.parameterForm;
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'Add') {
-          let item = this.parameterForm.value;
-          this.addElementsEventSpatialConfigurations.next([item])
+          const item = this.parameterForm.value;
+          this.addElementsEventSpatialConfigurations.next([item]);
 
         }
       }
@@ -1341,330 +857,4 @@ export class LayersFormComponent implements OnInit {
 
   }
 
-  // ******** Territorial Filter Dialog  ******** //
-
-  openTerritorialFilterDialog(data: any) {
-
-    this.territorialFilterForm.patchValue({
-      type: this.filterTypes[0].value,
-      valueType: this.filterValueTypes[0].value,
-      territorialLevel: this.filterTypeIds[0].id,
-      required: false
-    })
-
-    const dialogRef = this.dialog.open(DialogFormComponent);
-    dialogRef.componentInstance.HTMLReceived = this.newTerritorialFilterDialog;
-    dialogRef.componentInstance.title = this.utils.getTranslate('layersEntity.filters');
-    dialogRef.componentInstance.form = this.territorialFilterForm;
-
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Add') {
-          let territorialLevel = this.filterTypeIds.find(x => x.id === this.territorialFilterForm.value.territorialLevel)
-          if (territorialLevel == undefined || territorialLevel.id == -1) {
-            territorialLevel = null
-          }
-          this.territorialFilterForm.patchValue({
-            territorialLevel: territorialLevel
-          })
-          let item = this.territorialFilterForm.value;
-          if (item.values != null) { item.values = item.values.split(",") }
-          item.giid = this.layerToEdit.id
-          // if(this.territorialFilterForm.value.typeId === -1)
-          // {
-          //   this.territorialFilterForm.patchValue({
-          //     typeId: null
-          //   })
-          // }
-          this.addElementsTerritorialFilter.next([item])
-
-        }
-      }
-      this.territorialFilterForm.reset();
-    });
-
-
-  }
-
-
-  // ******** Style Dialog  ******** //
-
-  openStylesDialog(data: any) {
-
-
-
-    // this.styleForm.patchValue({
-    //   format: this.parameterFormatTypes[0].value
-    // })
-    const dialogRef = this.dialog.open(DialogFormComponent);
-    dialogRef.componentInstance.HTMLReceived = this.newStyleDialog;
-    dialogRef.componentInstance.title = this.utils.getTranslate('layersEntity.styles');
-    dialogRef.componentInstance.form = this.styleForm;
-
-
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Add') {
-
-          let item = this.styleForm.value;
-          this.addElementsEventStyles.next([this.adaptCreatedStyle(item)])
-          this.styleForm.reset();
-        }
-      }
-      this.styleForm.reset();
-    });
-
-  }
-
-  private adaptCreatedStyle(style) {
-    style.legendURL = {
-      width: style.width,
-      height: style.height,
-      onlineResource: style.url,
-      format: style.format
-    }
-    style.defaultStyle = style.defaultStyle ? true : false;
-    delete style.width;
-    delete style.height;
-    delete style.url;
-    delete style.format;
-
-    return style
-
-  }
-
-  // ******** Territory Dialog  ******** //
-
-  getAllTerritoriesDialog = () => {
-    return this.territoryService.getAll();
-  }
-
-  openTerritoriesDialog(data: any) {
-
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
-    dialogRef.componentInstance.getAllsTable = [this.getAllTerritoriesDialog];
-    dialogRef.componentInstance.singleSelectionTable = [false];
-    dialogRef.componentInstance.orderTable = ['name'];
-    dialogRef.componentInstance.columnDefsTable = [this.columnDefsTerritoriesDialog];
-    dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate('layersEntity.territory');
-    dialogRef.componentInstance.titlesTable = [''];
-    dialogRef.componentInstance.fieldRestrictionWithDifferentName = ['territoryId'];
-    dialogRef.componentInstance.currentData = [data];
-    dialogRef.componentInstance.nonEditable = false;
-
-
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Add') {
-          this.addElementsEventTerritories.next(this.adaptFormatTerritories(result.data[0]))
-        }
-      }
-
-    });
-
-  }
-
-  adaptFormatTerritories(dataToAdapt: Territory[]) {
-    let newData: any[] = [];
-
-    dataToAdapt.forEach(element => {
-      let item = {
-        id: null,
-        territoryId: element.id,
-        territoryCode: element.code,
-        code: element.code,
-        territoryName: element.name,
-        createdDate: element.createdDate,
-        owner: null,
-        territory: element,
-        new: true
-      }
-      newData.push(item);
-
-    });
-
-    return newData;
-  }
-
-  // ******** Cartography Groups Dialog  ******** //
-
-  getAllCartographyGroupsDialog = () => {
-    let params2: HalParam[] = [];
-    let param: HalParam = { key: 'type', value: 'C' }
-    params2.push(param);
-    let query: HalOptions = { params: params2 };
-    return this.cartographyGroupService.getAll(query, undefined);
-  }
-
-  openCartographyGroupsDialog(data: any) {
-
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
-    dialogRef.componentInstance.getAllsTable = [this.getAllCartographyGroupsDialog];
-    dialogRef.componentInstance.singleSelectionTable = [false];
-    dialogRef.componentInstance.columnDefsTable = [this.columnDefsCartographyGroupsDialog];
-    dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.orderTable = ['name'];
-    dialogRef.componentInstance.title = this.utils.getTranslate('layersEntity.permissiongroupLayersConfiguration');
-    dialogRef.componentInstance.titlesTable = [''];
-    dialogRef.componentInstance.currentData = [data];
-    dialogRef.componentInstance.nonEditable = false;
-
-
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Add') {
-          console.log('result.data[0]');
-          this.addElementsEventCartographyGroups.next(result.data[0])
-        }
-      }
-
-    });
-
-  }
-
-  // ******** Nodes Dialog  ******** //
-
-  getAllNodesDialog = () => {
-    return this.treeNodeService.getAll();
-  }
-
-  openNodesDialog(data: any) {
-
-    const dialogRef = this.dialog.open(DialogGridComponent, { panelClass: 'gridDialogs' });
-    dialogRef.componentInstance.getAllsTable = [this.getAllNodesDialog];
-    dialogRef.componentInstance.singleSelectionTable = [false];
-    dialogRef.componentInstance.orderTable = ['name'];
-    dialogRef.componentInstance.columnDefsTable = [this.columnDefsNodesDialog];
-    dialogRef.componentInstance.themeGrid = this.themeGrid;
-    dialogRef.componentInstance.title = this.utils.getTranslate('layersEntity.nodes');
-    dialogRef.componentInstance.titlesTable = [''];
-    dialogRef.componentInstance.currentData = [data];
-    dialogRef.componentInstance.nonEditable = false;
-
-
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Add') {
-          this.addElementsEventNodes.next(result.data[0])
-        }
-      }
-
-    });
-
-  }
-
-  //Save Button
-
-  onSaveButtonClicked() {
-
-    if (this.layerForm.valid) {
-
-      if (this.layerID == -1 && this.duplicateID != -1) {
-        this.layerForm.patchValue({
-          _links: null
-        })
-      }
-
-      let service = this.services.find(x => x.id === this.layerForm.value.service)
-      if (service == undefined) {
-        service = null
-      }
-
-      let spatialService = this.spatialConfigurationServices.find(x => x.id === this.layerForm.value.spatialSelectionService)
-      if (spatialService == undefined || spatialService.id == -1) {
-        spatialService = null
-      }
-
-      // let legendType = this.legendTypes.find(x => x.id === this.layerForm.value.legendType)
-      let geometryType = null;
-      if (this.layerForm.value.geometryType !== -1) {
-        geometryType = this.layerForm.value.geometryType
-      }
-
-      let legendType = null;
-      if (this.layerForm.value.legendType !== -1) {
-        legendType = this.layerForm.value.legendType
-      }
-
-      let cartography = new Cartography();
-      cartography.name = this.layerForm.value.name;
-      cartography.service = service;
-      cartography.layers = this.layerForm.value.layers.split(",");
-      cartography.minimumScale = this.layerForm.value.minimumScale;
-      cartography.maximumScale = this.layerForm.value.maximumScale;
-      cartography.geometryType = geometryType;
-      cartography.order = this.layerForm.value.order;
-      cartography.transparency = this.layerForm.value.transparency;
-      cartography.metadataURL = this.layerForm.value.metadataURL;
-      cartography.legendType = legendType
-      cartography.source = this.layerForm.value.source
-      cartography.legendURL = this.layerForm.value.legendUrl;
-      cartography.description = this.layerForm.value.description;
-      cartography.datasetURL = this.layerForm.value.datasetURL; //
-      cartography.applyFilterToGetMap = (this.layerForm.value.applyFilterToGetMap) ? true : false;
-      cartography.applyFilterToGetFeatureInfo = (this.layerForm.value.applyFilterToGetFeatureInfo) ? true : false;
-      cartography.applyFilterToSpatialSelection = (this.layerForm.value.applyFilterToSpatialSelection) ? true : false;
-      cartography.queryableFeatureEnabled = this.layerForm.value.queryableFeatureEnabled;
-      cartography.useAllStyles = this.layerForm.value.useAllStyles;
-
-      if (cartography.queryableFeatureAvailable == null) { cartography.queryableFeatureAvailable = false }
-      else { cartography.queryableFeatureAvailable = this.layerForm.value.queryableFeatureAvailable };//
-
-
-      cartography.selectionService = spatialService
-      if (this.layerForm.value.queryableLayers != null) { cartography.queryableLayers = this.layerForm.value.queryableLayers.split(",") };
-      cartography.thematic = this.layerForm.value.thematic,
-        cartography.blocked = !this.layerForm.value.blocked;
-      cartography.selectableFeatureEnabled = this.layerForm.value.selectableFeatureEnabled;
-      if (this.layerForm.value.selectableLayers != null) { cartography.selectableLayers = this.layerForm.value.selectableLayers.split(",") };
-      //
-      cartography.connection = null;
-      cartography._links = this.layerForm.value._links
-
-      this.cartographyService.save(cartography)
-        .subscribe(async resp => {
-
-          this.layerToEdit = resp;
-          this.layerID = resp.id;
-          this.layerForm.patchValue({
-            id: resp.id,
-            _links: resp._links
-          })
-          this.firstSaveDone = true;
-          this.utils.saveTranslation(resp.id, this.translationMap, this.layerToEdit.description, this.translationsModified);
-          this.translationsModified = false;
-
-          this.getAllElementsEventParameters.next('save');
-          this.getAllElementsEventSpatialConfigurations.next('save');
-          this.getAllElementsTerritorialFilter.next('save');
-          this.getAllElementsEventTerritories.next('save');
-          this.getAllElementsEventLayersConfigurations.next('save');
-          this.getAllElementsEventStyles.next('save');
-          // this.getAllElementsEventNodes.next(true);
-          this.dataUpdatedEventNodes.next(true);
-
-        },
-          error => { console.log(error) });
-    }
-    else {
-      this.utils.showRequiredFieldsError();
-    }
-
-  }
-
-
-  showStylesError() {
-    const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title = "Error"
-    dialogRef.componentInstance.message = this.utils.getTranslate("errorMoreThanOneStyleByDefault")
-    dialogRef.componentInstance.hideCancelButton = true;
-    dialogRef.afterClosed().subscribe();
-  }
-
-}
+*/
