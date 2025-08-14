@@ -1,6 +1,6 @@
+import {Cartography, CartographyProjection} from '@app/domain';
+import {Territory, TerritoryProjection} from '@app/domain/territory/models/territory.model';
 import {Resource} from '@app/core/hal/resource/resource.model';
-import {Territory} from '@app/domain/territory/models/territory.model';
-import {Cartography} from '@app/domain';
 
 /**
  * Represents the availability of a cartography for a specific territory
@@ -19,11 +19,13 @@ export class CartographyAvailability extends Resource {
   /** Associated cartography */
   public cartography: Cartography;
 
-  /**
-   * Creates a new CartographyAvailability instance copying only the properties declared in CartographyAvailability and Resource classes
-   * @param source The source object to copy properties from
-   * @returns A new CartographyAvailability instance with copied properties
-   */
+  public static of(entityToEdit: Territory, item: Cartography) {
+    return Object.assign(new CartographyAvailability(), {
+      territory: entityToEdit,
+      cartography: item
+    });
+  }
+
   public static fromObject(source: any): CartographyAvailability {
     const availability = new CartographyAvailability();
     // Define the properties to copy
@@ -78,6 +80,9 @@ export class CartographyAvailabilityProjection extends Resource {
   /** List of layer names in the cartography */
   public cartographyLayers: string[];
 
+  /** Name of the cartography service */
+  public cartographyServiceName: string;
+
   /**
    * Creates a new CartographyAvailabilityProjection instance copying only the properties declared in CartographyAvailabilityProjection and Resource classes
    * @param source The source object to copy properties from
@@ -92,7 +97,7 @@ export class CartographyAvailabilityProjection extends Resource {
       // CartographyAvailabilityProjection properties
       'id', 'createdDate', 'owner', 'territoryId', 'territoryName',
       'territoryCode', 'territoryType', 'cartographyId', 'cartographyName',
-      'cartographyLayers'
+      'cartographyLayers', 'cartographyServiceName'
     ];
     // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
@@ -101,5 +106,18 @@ export class CartographyAvailabilityProjection extends Resource {
       }
     });
     return projection;
+  }
+
+  static of(entityToEdit: TerritoryProjection, item: CartographyProjection) {
+    return Object.assign(new CartographyAvailabilityProjection(), {
+      territoryId: entityToEdit.id,
+      territoryName: entityToEdit.name,
+      territoryCode: entityToEdit.code,
+      territoryType: entityToEdit.typeName,
+      cartographyId: item.id,
+      cartographyName: item.name,
+      cartographyLayers: item.layers,
+      cartographyServiceName: item.serviceName,
+    });
   }
 }

@@ -1,5 +1,3 @@
-import {Component} from '@angular/core';
-import {UntypedFormControl, UntypedFormGroup, Validators,} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {
   ApplicationProjection,
@@ -15,18 +13,20 @@ import {
   RoleService,
   TranslationService,
 } from '@app/domain';
-import {UtilsService} from '@app/services/utils.service';
 import {EMPTY, firstValueFrom} from 'rxjs';
-import {onUpdate, onUpdatedRelation, Status,} from '@app/frontend-gui/src/lib/public_api';
-import {map} from 'rxjs/operators';
-import {MatDialog} from '@angular/material/dialog';
-import {TranslateService} from '@ngx-translate/core';
+import {onUpdate, onUpdatedRelation, Status} from '@app/frontend-gui/src/lib/public_api';
+import {UntypedFormControl, UntypedFormGroup, Validators,} from '@angular/forms';
 import {BaseFormComponent} from '@app/components/base-form.component';
+import {Component} from '@angular/core';
+import {Configuration} from "@app/core/config/configuration";
 import {DataTableDefinition} from '@app/components/data-tables.util';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
-import {constants} from '@environments/constants';
 import {LoggerService} from '@app/services/logger.service';
-import {Configuration} from "@app/core/config/configuration";
+import {MatDialog} from '@angular/material/dialog';
+import {TranslateService} from '@ngx-translate/core';
+import {UtilsService} from '@app/services/utils.service';
+import {constants} from '@environments/constants';
+import {map} from 'rxjs/operators';
 
 @Component({
   selector: 'app-layers-permits-form',
@@ -188,9 +188,6 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
         Validators.required,
       ]),
     });
-
-    console.log(this.entityForm.get('type').value);
-    console.log(this.permissionGroupTypes);
   }
 
   /**
@@ -436,17 +433,5 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
       id: id,
     });
     return CartographyGroup.fromObject(safeToEdit);
-  }
-
-  /**
-   * Getter that checks if the current permission group is of type locationMap.
-   * Used to conditionally render UI elements specific to location maps.
-   * @returns boolean indicating if the current type is locationMap
-   */
-  get isLocationMap(): boolean {
-    return (
-      this.entityForm?.get('type')?.value ===
-      constants.codeValue.cartographyPermissionType.locationMap
-    );
   }
 }

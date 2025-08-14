@@ -458,15 +458,12 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
     if (isSave(event)) {
       try {
         await this.relationsUpdateFn(event.data);
-        // Caveat: This event triggers an HTTP request to reload the data in AG-grid.
-        // If the backend is under pressure, the returned data may be stale if the request is immediate.
-        // So we should wait a bit before sending the end save event
-        // TODO: Review backend cache policy
-        await new Promise(resolve => setTimeout(resolve, this.DELAY));
-        this.refreshCommandEvent$.next(true);
       } catch (error) {
+        console.error('Error saving relations:', error);
         this.errorHandler.handleError(error, 'common.error.saveFailed');
       }
+      await new Promise(resolve => setTimeout(resolve, this.DELAY));
+      this.refreshCommandEvent$.next(true);
     }
   }
 

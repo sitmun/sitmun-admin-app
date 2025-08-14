@@ -10,34 +10,33 @@ import {
   SimpleChanges,
   ViewChild
 } from '@angular/core';
-
+import {GridOptions, ModuleRegistry} from '@ag-grid-community/core';
+import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 import {firstValueFrom, Observable, Subscription} from 'rxjs';
-import {GridOptions, ModuleRegistry,} from '@ag-grid-community/core';
-import {ClientSideRowModelModule} from '@ag-grid-community/client-side-row-model';
-import {CsvExportModule} from '@ag-grid-community/csv-export';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
-import {BtnEditRenderedComponent} from '@app/frontend-gui/src/lib/btn-edit-rendered/btn-edit-rendered.component';
+import {AgGridModule} from '@ag-grid-community/angular';
+import {BtnCheckboxFilterComponent} from '@app/frontend-gui/src/lib/btn-checkbox-filter/btn-checkbox-filter.component';
 import {
   BtnCheckboxRenderedComponent
 } from '@app/frontend-gui/src/lib/btn-checkbox-rendered/btn-checkbox-rendered.component';
-import {BtnCheckboxFilterComponent} from '@app/frontend-gui/src/lib/btn-checkbox-filter/btn-checkbox-filter.component';
-import {MatDialog, MatDialogModule} from '@angular/material/dialog';
-import {DialogMessageComponent} from '@app/frontend-gui/src/lib/dialog-message/dialog-message.component';
+import {BtnEditRenderedComponent} from '@app/frontend-gui/src/lib/btn-edit-rendered/btn-edit-rendered.component';
+import {ClientSideRowModelModule} from '@ag-grid-community/client-side-row-model';
 import {CommonModule} from '@angular/common';
-import {MatTooltipModule} from '@angular/material/tooltip';
-import {AgGridModule} from '@ag-grid-community/angular';
-import {MatToolbarModule} from '@angular/material/toolbar';
-import {MatMenuModule} from '@angular/material/menu';
-import {MatIconModule} from '@angular/material/icon';
+import {CsvExportModule} from '@ag-grid-community/csv-export';
+import {DialogMessageComponent} from '@app/frontend-gui/src/lib/dialog-message/dialog-message.component';
+import {EditableLinkRendererComponent} from '../editable-link-renderer/editable-link-renderer.component';
+import {FormsModule} from '@angular/forms';
+import {LoggerService} from '@app/services/logger.service';
 import {MatButtonModule} from '@angular/material/button';
-import {MatInputModule} from '@angular/material/input';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {MatCardModule} from '@angular/material/card';
-import {FormsModule} from '@angular/forms';
-import {UtilsService} from '@app/services/utils.service';
-import {LoggerService} from '@app/services/logger.service';
+import {MatIconModule} from '@angular/material/icon';
+import {MatInputModule} from '@angular/material/input';
+import {MatMenuModule} from '@angular/material/menu';
+import {MatToolbarModule} from '@angular/material/toolbar';
+import {MatTooltipModule} from '@angular/material/tooltip';
 import {RouterLinkRendererComponent} from '../router-link-renderer/router-link-renderer.component';
-import {EditableLinkRendererComponent} from '../editable-link-renderer/editable-link-renderer.component';
+import {UtilsService} from '@app/services/utils.service';
 
 // Removed jQuery dependency
 
@@ -143,11 +142,11 @@ export class Executor<T> {
   }
 
   async forEach<S>(func: (item: T) => Observable<S | Observable<never>>): Promise<(S | Observable<never>)[]> {
-    const results = [];
+    const results: (Promise<Observable<never> | S>)[] = [];
     for (const item of this.data) {
-      results.push(await firstValueFrom(func(item)));
+      results.push(firstValueFrom(func(item)));
     }
-    return results;
+    return Promise.all(results);
   }
 }
 

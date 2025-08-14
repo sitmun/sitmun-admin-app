@@ -1,11 +1,7 @@
 import {firstValueFrom, Observable, of, switchMap, throwError} from 'rxjs';
-import {map} from 'rxjs/operators';
-import {Resource} from '../resource/resource.model';
-import {ResourceArray} from '../resource/resource-array.model';
-import {Sort} from './sort.model';
-import {ResourceService} from '../resource/resource.service';
-import {SubTypeBuilder} from '../common/subtype-builder';
+import {Resource, ResourceArray, ResourceService, Sort, SubTypeBuilder} from '@app/core';
 import {Injector} from "@angular/core";
+import {map} from 'rxjs/operators';
 
 /** HAL param data model */
 export type HalParam = { key: string, value: string | number | boolean };
@@ -20,9 +16,9 @@ export type HalOptions = { notPaged?: boolean, size?: number, sort?: Sort[], par
  */
 export class RestService<T extends Resource> {
   /** The constructor type for creating new instances of the resource */
-  private type: { new(): T };
+  private readonly type: { new(): T };
   /** The base resource path for API endpoints */
-  private resource: string;
+  private readonly resource: string;
   /** Service for handling resource operations */
   public resourceService: ResourceService;
   /** The field name for embedded resources in HAL responses */
@@ -37,7 +33,7 @@ export class RestService<T extends Resource> {
    */
   constructor(type: { new(): T },
               resource: string,
-              private readonly injector: Injector,
+              injector: Injector,
               _embedded?: string) {
     this.type = type;
     this.resource = resource;
@@ -69,8 +65,7 @@ export class RestService<T extends Resource> {
    * @param options - Optional HAL options for pagination, sorting, and additional parameters
    * @param subType - Optional builder for handling subtypes
    * @param embeddedName - Optional custom embedded resource name
-   * @param ignoreProjection - Optional flag to ignore projection
-   * @returns Observable of resource array
+   * @returns Observable of a resource array
    */
   public getAllEx(options?: HalOptions, subType?: SubTypeBuilder, embeddedName?: string): Observable<T[]> {
     return this.resourceService
@@ -162,8 +157,8 @@ export class RestService<T extends Resource> {
 
 
   /**
-   * Retrieves a resource using its self link
-   * @param selfLink - The self link URL of the resource
+   * Retrieves a resource using its self-link
+   * @param selfLink - The self-link URL of the resource
    * @returns Observable of single resource
    */
   public getBySelfLink(selfLink: string): Observable<T> {
@@ -174,7 +169,7 @@ export class RestService<T extends Resource> {
    * Searches for resources using a query string
    * @param query - The search query string
    * @param options - Optional HAL options for pagination and sorting
-   * @returns Observable of resource array
+   * @returns Observable of the resource array
    */
   public search(query: string, options?: HalOptions): Observable<T[]> {
     return this.resourceService.search(this.type, query, this.resource, this._embedded, options).pipe(
@@ -182,7 +177,7 @@ export class RestService<T extends Resource> {
         if (options && options.notPaged && !(resourceArray.first_uri === null || resourceArray.first_uri === undefined)) {
           options.notPaged = false;
           options.size = resourceArray.totalElements;
-          return this.search(query, options).toPromise();
+          return firstValueFrom(this.search(query, options));
         } else {
           return resourceArray.result;
         }
@@ -212,7 +207,7 @@ export class RestService<T extends Resource> {
         if (options && options.notPaged && !(resourceArray.first_uri === null || resourceArray.first_uri === undefined)) {
           options.notPaged = false;
           options.size = resourceArray.totalElements;
-          return this.customQuery(query, options).toPromise();
+          return firstValueFrom(this.customQuery(query, options));
         } else {
           return resourceArray.result;
         }
@@ -239,7 +234,7 @@ export class RestService<T extends Resource> {
    * Retrieves an array of related resources
    * @param relation - The relation link name
    * @param builder - Optional subtype builder
-   * @returns Observable of resource array
+   * @returns Observable of the resource array
    */
   public getByRelationArray(relation: string, builder?: SubTypeBuilder): Observable<T[]> {
     return this.resourceService.getByRelationArray(this.type, relation, this._embedded, builder).pipe(
@@ -389,6 +384,7 @@ export class RestService<T extends Resource> {
 
   /**
    * Navigates to a specific page of results
+   * @param resourceArray - The resource array to navigate
    * @param pageNumber - The page number to navigate to
    * @returns Observable of the specified page's resource array
    */
@@ -399,7 +395,17 @@ export class RestService<T extends Resource> {
       }));
   }
 
-  createProxy(id: number) : T {
+  /**
+   * Creates a proxy instance of the resource with the given ID.
+   * This is useful for referencing a resource by ID without fetching it from the server.
+   *
+   * @param id - The ID of the resource to proxy, or null/undefined for no proxy.
+   * @returns A new resource instance with the specified ID and self-link, or null if ID is not provided.
+   */
+  createProxy(id: number | null | undefined): T | null {
+    if (id === null || id === undefined) {
+      return null;
+    }
     return Object.assign(
       new this.type(),
       {
@@ -410,6 +416,6 @@ export class RestService<T extends Resource> {
           }
         }
       }
-    )
+    );
   }
 }

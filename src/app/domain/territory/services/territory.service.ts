@@ -1,75 +1,13 @@
-import { Territory } from '@app/domain';
-import { Injectable, Injector } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { RestService } from '@app/core/hal/rest/rest.service';
-import { ResourceService } from '@app/core/hal/services';
-import { Observable } from 'rxjs';
-import { LoggerService } from '@app/services/logger.service';
+import {Injectable, Injector} from '@angular/core';
+import {RestService} from '@app/core/hal/rest/rest.service';
+import {Territory} from '@app/domain';
 
 /** Territory manager service */
 @Injectable()
 export class TerritoryService extends RestService<Territory> {
 
-  /** API resource path */
-  public TERRITORY_API = 'territories';
-
   /** constructor */
-  constructor(injector: Injector, private http: HttpClient, private loggerService: LoggerService) {
+  constructor(injector: Injector) {
     super(Territory, "territories", injector);
-  }
-
-  /** save territory*/
-  save(item: Territory): Observable<any> {
-    let result: Observable<Object>;
-
-    const territoryGroupType: any = {}
-    territoryGroupType._links = {};
-    territoryGroupType._links.self = {};
-    territoryGroupType._links.self.href = "";
-
-    let territoryType:any = {}
-    territoryType._links = {};
-    territoryType._links.self = {};
-    territoryType._links.self.href = "";
-
-    if (item.type != null) {
-      territoryType = item.type;
-      if (typeof item.type._links != 'undefined') {
-        item.type = item.type._links.self.href;
-      }
-    }
-
-    if (item._links != null) {
-      //update relations
-      delete item.groupType;
-
-
-      // if (territoryGroupType._links.self.href == '') {
-      //   item.deleteRelation('groupType', territoryGroupType).subscribe(result => {
-      //   }, error => this.loggerService.error('Error deleting group type relation:', error));
-
-      // } else {
-      //   item.substituteRelation('groupType', territoryGroupType).subscribe(result => {
-      //   }, error => this.loggerService.error('Error substituting group type relation:', error));
-      // }
-
-      if (territoryType._links.self.href == '') {
-        item.deleteRelation('type', territoryType).subscribe(result => {
-        }, error => this.loggerService.error('Error deleting type relation:', error));
-
-      } else {
-        item.substituteRelation('type', territoryType).subscribe(result => {
-        }, error => this.loggerService.error('Error substituting type relation:', error));
-      }
-
-      delete item.type;
-      // if (item.type != null)
-      //   item.type = item.type._links.self.href;
-
-      result = this.http.put(item._links.self.href, item);
-    } else {
-      result = this.http.post(this.resourceService.getResourceUrl(this.TERRITORY_API), item);
-    }
-    return result;
   }
 }

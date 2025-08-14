@@ -1,8 +1,3 @@
-import { TerritoryFormComponent } from './territory-form.component';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterModule } from '@angular/router';
-import { MaterialModule } from '@app/material-module';
-import { MatIconTestingModule } from '@angular/material/icon/testing';
 import {
   CartographyAvailabilityService,
   CartographyService,
@@ -18,12 +13,17 @@ import {
   UserPositionService,
   UserService,
 } from '@app/domain';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {ExternalService, ResourceService} from '@app/core/hal';
-import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
-import { RouterTestingModule } from '@angular/router/testing';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {ExternalConfigurationService} from '@app/core/config/external-configuration.service';
+import {HttpClientTestingModule} from '@angular/common/http/testing';
+import {MatIconTestingModule} from '@angular/material/icon/testing';
+import {MaterialModule} from '@app/material-module';
+import {RouterModule} from '@angular/router';
+import {RouterTestingModule} from '@angular/router/testing';
+import {SitmunFrontendGuiModule} from '@app/frontend-gui/src/lib/public_api';
+import {TerritoryFormComponent} from './territory-form.component';
 
 describe('TerritoryFormComponent', () => {
   let component: TerritoryFormComponent;
@@ -169,11 +169,11 @@ describe('TerritoryFormComponent', () => {
   });
 
   it('form invalid when empty', () => {
-    expect(component.territoryForm.valid).toBeFalsy();
+    expect(component.entityForm.valid).toBeFalsy();
   });
 
   it('form invalid when mid-empty', () => {
-    component.territoryForm.patchValue({
+    component.entityForm.patchValue({
       code: 1,
       territorialAuthorityAddress: 'address',
       territorialAuthorityLogo: 'urlLogo',
@@ -190,11 +190,11 @@ describe('TerritoryFormComponent', () => {
       centerPointY: 5,
     });
     //Miss name
-    expect(component.territoryForm.valid).toBeFalsy();
+    expect(component.entityForm.valid).toBeFalsy();
   });
 
   it('form valid', () => {
-    component.territoryForm.patchValue({
+    component.entityForm.patchValue({
       code: 1,
       name: 'name',
       territorialAuthorityAddress: 'address',
@@ -212,75 +212,41 @@ describe('TerritoryFormComponent', () => {
       centerPointY: 5,
       srs: 'EPSG:4326',
     });
-    expect(component.territoryForm.valid).toBeTruthy();
+    expect(component.entityForm.valid).toBeTruthy();
   });
 
   it('Territory form fields', () => {
-    expect(component.territoryForm.get('code')).toBeTruthy();
-    expect(component.territoryForm.get('name')).toBeTruthy();
+    expect(component.entityForm.get('code')).toBeTruthy();
+    expect(component.entityForm.get('name')).toBeTruthy();
     expect(
-      component.territoryForm.get('territorialAuthorityAddress')
+      component.entityForm.get('territorialAuthorityAddress')
     ).toBeTruthy();
     expect(
-      component.territoryForm.get('territorialAuthorityLogo')
+      component.entityForm.get('territorialAuthorityLogo')
     ).toBeTruthy();
-    expect(component.territoryForm.get('type')).toBeTruthy();
-    expect(component.territoryForm.get('extentMinX')).toBeTruthy();
-    expect(component.territoryForm.get('extentMaxX')).toBeTruthy();
-    expect(component.territoryForm.get('extentMinY')).toBeTruthy();
-    expect(component.territoryForm.get('extentMaxY')).toBeTruthy();
-    expect(component.territoryForm.get('extent')).toBeTruthy();
-    expect(component.territoryForm.get('note')).toBeTruthy();
-    expect(component.territoryForm.get('blocked')).toBeTruthy();
-    expect(component.territoryForm.get('defaultZoomLevel')).toBeTruthy();
-    expect(component.territoryForm.get('centerPointX')).toBeTruthy();
-    expect(component.territoryForm.get('centerPointY')).toBeTruthy();
-    expect(component.territoryForm.get('srs')).toBeTruthy();
+    expect(component.entityForm.get('type')).toBeTruthy();
+    expect(component.entityForm.get('extentMinX')).toBeTruthy();
+    expect(component.entityForm.get('extentMaxX')).toBeTruthy();
+    expect(component.entityForm.get('extentMinY')).toBeTruthy();
+    expect(component.entityForm.get('extentMaxY')).toBeTruthy();
+    expect(component.entityForm.get('extent')).toBeTruthy();
+    expect(component.entityForm.get('note')).toBeTruthy();
+    expect(component.entityForm.get('blocked')).toBeTruthy();
+    expect(component.entityForm.get('defaultZoomLevel')).toBeTruthy();
+    expect(component.entityForm.get('centerPointX')).toBeTruthy();
+    expect(component.entityForm.get('centerPointY')).toBeTruthy();
+    expect(component.entityForm.get('srs')).toBeTruthy();
   });
 
   it('Validate extent all null', () => {
-    expect(component.validateExtent(null, null, null, null)).toBeTruthy();
+    expect(component.validateEnvelope(null, null, null, null)).toBeTruthy();
   });
 
   it('Validate extent all with value', () => {
-    expect(component.validateExtent(1, 2, 3, 4)).toBeTruthy();
+    expect(component.validateEnvelope(1, 2, 3, 4)).toBeTruthy();
   });
 
   it('Validate extent with invalid values', () => {
-    expect(component.validateExtent(1, null, 3, 4)).toBeFalsy();
-  });
-
-  it('Update extent', () => {
-    component.territoryForm.patchValue({
-      extentMinX: 1,
-      extentMaxX: 2,
-      extentMinY: 3,
-      extentMaxY: 4,
-    });
-
-    component.updateExtent();
-
-    expect(component.territoryForm.get('extent').value).toEqual({
-      minX: 1,
-      maxX: 2,
-      minY: 3,
-      maxY: 4,
-    });
-  });
-
-  it('defineAppliesToChildrenColumns bottom true', () => {
-    component.defineAppliesToChildrenColumns(false, true);
-    //If bottom true, columndefsPermits[4] -> appliesToChildren must not be editable
-    expect(component.columnDefsPermits[4].editable).toBe(false);
-    //If bottom true, columndefsRolesDialog only has 3 columns
-    expect(component.columnDefsRolesDialog.length).toEqual(3);
-  });
-
-  it('defineAppliesToChildrenColumns bottom false', () => {
-    component.defineAppliesToChildrenColumns(false, false);
-    //If bottom false, columndefsPermits[4] -> appliesToChildren must not be editable
-    expect(component.columnDefsPermits[4].editable).toBe(true);
-    //If bottom false, columndefsRolesDialog has 4 columns
-    expect(component.columnDefsRolesDialog.length).toEqual(4);
+    expect(component.validateEnvelope(1, null, 3, 4)).toBeFalsy();
   });
 });

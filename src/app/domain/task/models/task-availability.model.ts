@@ -1,6 +1,7 @@
-import { Resource } from '@app/core/hal/resource/resource.model';
+import {Task, TaskProjection} from '@app/domain';
 import {Territory, TerritoryProjection} from '@app/domain/territory/models/territory.model';
-import {Task, TaskProjection} from './task.model';
+import {Resource} from '@app/core/hal/resource/resource.model';
+
 /**
  * Task availability model
  */
@@ -31,6 +32,10 @@ export class TaskAvailabilityProjection extends Resource{
   territoryCode: string;
   territoryTypeName: string;
   taskId: number;
+
+  taskName: string;
+
+  taskTypeName: string;
   taskGroupName: string;
   static of(task: TaskProjection, territory: TerritoryProjection): TaskAvailabilityProjection {
     const item = new TaskAvailabilityProjection();
@@ -39,6 +44,8 @@ export class TaskAvailabilityProjection extends Resource{
     item.territoryCode = territory.code;
     item.territoryTypeName = territory.typeName;
     item.taskId = task.id;
+    item.taskName = task.name;
+    item.taskTypeName = task.typeName;
     item.taskGroupName = task.groupName;
     return item;
   }

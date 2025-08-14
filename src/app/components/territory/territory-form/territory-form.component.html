@@ -2,8 +2,8 @@
   entityType="{{ config.labelSingular }}"
   font="{{ config.font }}"
   icon="{{ config.icon }}"
-  [itemName]="territoryForm.get('name')?.value"
-  [isNew]="territoryID === -1"
+  [isNew]="isNewOrDuplicated()"
+  [itemName]="itemName('name')"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>
@@ -11,34 +11,33 @@
   mat-stretch-tabs="false"
   mat-align-tabs="end"
   [dynamicHeight]="true"
-  preserveContent="true"
-  (selectedTabChange)="onTabChange($event)">
+  preserveContent="true">
   <mat-tab label="{{ 'common.form.details' | translate }}">
-    <form [formGroup]='territoryForm' *ngIf="dataLoaded">
+    <form *ngIf="dataLoaded" [formGroup]='entityForm'>
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'territoryEntity.name' | translate }}</mat-label>
+            <mat-label>{{ 'entity.territory.name' | translate }}</mat-label>
             <input matInput type="text" formControlName="name">
             <mat-icon matSuffix class="iconTranslate"
-                      (click)="onTranslationButtonClicked()"
-                      onKeyDown="onTranslationButtonClicked()"
+                      (click)="onTranslated('name')"
+                      onKeyDown="onTranslated('name')"
                       svgIcon="ic_translate"></mat-icon>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'territoryEntity.description' | translate }}</mat-label>
+            <mat-label>{{ 'entity.territory.description' | translate }}</mat-label>
             <textarea
               matInput
               formControlName="description"
               rows="2"
             ></textarea>
             <mat-icon matSuffix class="iconTranslate"
-                      (click)="onTranslationButtonClicked()"
-                      onKeyDown="onTranslationButtonClicked()"
+                      (click)="onTranslated('description')"
+                      onKeyDown="onTranslated('description')"
                       svgIcon="ic_translate"></mat-icon>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'territoryEntity.address' | translate }}</mat-label>
+            <mat-label>{{ 'entity.territory.address' | translate }}</mat-label>
             <textarea
               matInput
               formControlName="territorialAuthorityAddress"
@@ -47,9 +46,9 @@
           </mat-form-field>
           <mat-form-field appearance="outline" class="quarter add-gap">
             <mat-label>
-              {{ 'territoryEntity.territoryType' | translate }}
+              {{ 'entity.territory.territoryType' | translate }}
             </mat-label>
-            <mat-select formControlName="type" class="form-control"
+            <mat-select class="form-control" formControlName="typeId"
                         (selectionChange)="onTerritoryTypeChanged($event)">
               <mat-option [value]="territoryType.id" *ngFor="let territoryType of territoryTypes">
                 {{ territoryType.name }}
@@ -57,45 +56,45 @@
             </mat-select>
           </mat-form-field>
           <mat-form-field appearance="outline" class="quarter add-gap">
-            <mat-label>{{ 'territoryEntity.code' | translate }}</mat-label>
+            <mat-label>{{ 'entity.territory.code' | translate }}</mat-label>
             <input matInput type="text" formControlName="code" maxlength="10" required>
           </mat-form-field>
           <mat-checkbox formControlName="blocked">
-            {{ 'territoryEntity.blocked' | translate }}
+            {{ 'entity.territory.blocked' | translate }}
           </mat-checkbox>
           <div class="break"></div>
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'territoryEntity.logo' | translate }}</mat-label>
+            <mat-label>{{ 'entity.territory.logo' | translate }}</mat-label>
             <input matInput type="text" formControlName="territorialAuthorityLogo">
           </mat-form-field>
           <mat-form-field appearance="outline" class="quarter">
-            <mat-label>{{ 'territoryEntity.defaultZoomLevel' | translate }}</mat-label>
+            <mat-label>{{ 'entity.territory.defaultZoomLevel' | translate }}</mat-label>
             <input matInput type="number" formControlName="defaultZoomLevel">
           </mat-form-field>
           <div class="break"></div>
           <mat-form-field appearance="outline" class="quarter add-gap">
-            <mat-label>{{ 'territoryEntity.centerPointX' | translate }}</mat-label>
+            <mat-label>{{ 'entity.territory.centerPointX' | translate }}</mat-label>
             <input matInput type="number" formControlName="centerPointX">
           </mat-form-field>
           <mat-form-field appearance="outline" class="quarter">
-            <mat-label>{{ 'territoryEntity.centerPointY' | translate }}</mat-label>
+            <mat-label>{{ 'entity.territory.centerPointY' | translate }}</mat-label>
             <input matInput type="number" formControlName="centerPointY">
           </mat-form-field>
           <div class="break"></div>
           <mat-form-field appearance="outline" class="quarter add-gap">
-            <mat-label>{{ 'territoryEntity.extentMinX' | translate }}</mat-label>
+            <mat-label>{{ 'entity.territory.extentMinX' | translate }}</mat-label>
             <input matInput type="number" formControlName="extentMinX" required>
           </mat-form-field>
           <mat-form-field appearance="outline" class="quarter add-gap">
-            <mat-label>{{ 'territoryEntity.extentMaxX' | translate }}</mat-label>
+            <mat-label>{{ 'entity.territory.extentMaxX' | translate }}</mat-label>
             <input matInput type="number" formControlName="extentMaxX" required>
           </mat-form-field>
           <mat-form-field appearance="outline" class="quarter add-gap">
-            <mat-label>{{ 'territoryEntity.extentMinY' | translate }}</mat-label>
+            <mat-label>{{ 'entity.territory.extentMinY' | translate }}</mat-label>
             <input matInput type="number" formControlName="extentMinY" required>
           </mat-form-field>
           <mat-form-field appearance="outline" class="quarter">
-            <mat-label>{{ 'territoryEntity.extentMaxY' | translate }}</mat-label>
+            <mat-label>{{ 'entity.territory.extentMaxY' | translate }}</mat-label>
             <input matInput type="number" formControlName="extentMaxY" required>
           </mat-form-field>
           <mat-form-field appearance="outline" class="quarter">
@@ -104,7 +103,7 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'territoryEntity.note' | translate }}</mat-label>
+            <mat-label>{{ 'entity.territory.note' | translate }}</mat-label>
             <textarea
               matInput
               formControlName="note"
@@ -115,119 +114,134 @@
       </mat-card>
     </form>
   </mat-tab>
-  <mat-tab label="{{'territoryEntity.permissions' | translate }}">
-    <app-data-grid [changeHeightButton]="true"
-                   [allNewElements]="territoryID === -1"
-                   [columnDefs]="columnDefsPermits"
-                   [getAll]='getAllPermits'
-                   [discardChangesButton]=true
-                   [redoButton]=true [undoButton]=true
-                   [hideDuplicateButton]=true
-                   [addFieldRestriction]="['territoryId', 'roleId', 'userId']"
-                   [defaultColumnSorting]="['user']"
-                   [eventGetAllRowsSubscription]='getAllElementsEventPermits.asObservable()'
-                   [eventRefreshSubscription]='dataUpdatedEventPermits.asObservable()'
-                   [eventAddItemsSubscription]='addElementsEventPermits.asObservable()'
-                   (add)="openPermitsDialog($event, false)"
-                   [deleteButton]=true
-                   [addButton]=true
-                   [actionButton]=true
-                   (getAllRows)="getAllRowsPermits($event)"
-                   [redraw]="activeTabIndex === 1"
-                   *ngIf="dataLoaded">
-    </app-data-grid>
-
+  <mat-tab label="{{'entity.territory.permissions.header' | translate }}">
+    <mat-card appearance="outlined" class="sitmun-mat-card-margin">
+      <mat-card-content>
+        <app-data-grid (add)="permitsTable.openDialog($event)"
+                       (getAllRows)="permitsTable.handleSaveRelations($event)"
+                       *ngIf="dataLoaded"
+                       [actionButton]=true
+                       [addButton]=true
+                       [allNewElements]="isNewOrDuplicated()"
+                       [changeHeightButton]="true"
+                       [columnDefs]="permitsTable.relationsColumnsDefs"
+                       [defaultColumnSorting]='permitsTable.defaultRelationsSorting()'
+                       [deleteButton]=true
+                       [discardChangesButton]=true
+                       [eventAddItemsSubscription]='permitsTable.addCommandEvent$.asObservable()'
+                       [eventGetAllRowsSubscription]='permitsTable.saveCommandEvent$.asObservable()'
+                       [eventRefreshSubscription]='permitsTable.refreshCommandEvent$.asObservable()'
+                       [getAll]='permitsTable.relationsFetchFn'
+                       [hideDuplicateButton]=true
+                       [hideReplaceButton]=true
+                       [redoButton]=true
+                       [undoButton]=true>
+        </app-data-grid>
+      </mat-card-content>
+    </mat-card>
   </mat-tab>
-  <mat-tab label="{{'territoryEntity.memberOfTerritories' | translate }}" *ngIf="!currentTypeTop">
-    <app-data-grid [changeHeightButton]="true"
-                   [allNewElements]="territoryID === -1"
-                   [columnDefs]="columnDefsMemberOf"
-                   [getAll]='getAllMembersOf'
-                   [discardChangesButton]=true
-                   [redoButton]=true
-                   [hideDuplicateButton]=true
-                   [eventAddItemsSubscription]='addElementsEventTerritoriesMemberOf.asObservable()'
-                   [eventGetAllRowsSubscription]='getAllElementsEventTerritoriesMemberOf.asObservable()'
-                   [eventRefreshSubscription]='dataUpdatedEventMemberOf.asObservable()'
-                   [undoButton]=true
-                   [deleteButton]=true
-                   [addButton]=true
-                   [actionButton]=true
-                   (getAllRows)="getAllRowsMembersOf($event)"
-                   (add)="openTerritoryMemberOfDialog($event)"
-                   [redraw]="activeTabIndex === 2"
-                   *ngIf="dataLoaded">
-    </app-data-grid>
+  <mat-tab *ngIf="!currentTypeTop" label="{{'entity.territory.memberOfTerritories.header' | translate }}">
+    <mat-card appearance="outlined" class="sitmun-mat-card-margin">
+      <mat-card-content>
+        <app-data-grid (add)="membersOfTable.openDialog($event)"
+                       (getAllRows)="membersOfTable.handleSaveRelations($event)"
+                       *ngIf="dataLoaded"
+                       [actionButton]=true
+                       [addButton]=true
+                       [allNewElements]="isNewOrDuplicated()"
+                       [changeHeightButton]="true"
+                       [columnDefs]="membersOfTable.relationsColumnsDefs"
+                       [defaultColumnSorting]='membersOfTable.defaultRelationsSorting()'
+                       [deleteButton]=true
+                       [discardChangesButton]=true
+                       [eventAddItemsSubscription]='membersOfTable.addCommandEvent$.asObservable()'
+                       [eventGetAllRowsSubscription]='membersOfTable.saveCommandEvent$.asObservable()'
+                       [eventRefreshSubscription]='membersOfTable.refreshCommandEvent$.asObservable()'
+                       [getAll]='membersOfTable.relationsFetchFn'
+                       [hideDuplicateButton]=true
+                       [hideReplaceButton]=true
+                       [redoButton]=true
+                       [undoButton]=true>
+        </app-data-grid>
+      </mat-card-content>
+    </mat-card>
   </mat-tab>
-  <mat-tab label="{{'territoryEntity.members' | translate }}" *ngIf="!currentTypeBottom">
-    <app-data-grid [changeHeightButton]="true"
-                   [allNewElements]="territoryID === -1"
-                   [columnDefs]="columnDefsMembers"
-                   [getAll]='getAllMembers'
-                   [discardChangesButton]=true
-                   [redoButton]=true
-                   [hideDuplicateButton]=true
-                   [eventAddItemsSubscription]='addElementsEventTerritoriesMembers.asObservable()'
-                   [eventGetAllRowsSubscription]='getAllElementsEventTerritoriesMembers.asObservable()'
-                   [eventRefreshSubscription]='dataUpdatedEventMembers.asObservable()'
-                   [undoButton]=true
-                   [deleteButton]=true
-                   [addButton]=true
-                   [actionButton]=true
-                   (getAllRows)="getAllRowsMembers($event)"
-                   (add)="openTerritoryMembersDialog($event)"
-                   [redraw]="activeTabIndex === 3"
-                   *ngIf="dataLoaded">
-    </app-data-grid>
-
+  <mat-tab *ngIf="!currentTypeBottom" label="{{'entity.territory.members.header' | translate }}">
+    <mat-card appearance="outlined" class="sitmun-mat-card-margin">
+      <mat-card-content>
+        <app-data-grid (add)="membersTable.openDialog($event)"
+                       (getAllRows)="membersTable.handleSaveRelations($event)"
+                       *ngIf="dataLoaded"
+                       [actionButton]=true
+                       [addButton]=true
+                       [allNewElements]="isNewOrDuplicated()"
+                       [changeHeightButton]="true"
+                       [columnDefs]="membersTable.relationsColumnsDefs"
+                       [defaultColumnSorting]='membersTable.defaultRelationsSorting()'
+                       [deleteButton]=true
+                       [discardChangesButton]=true
+                       [eventAddItemsSubscription]='membersTable.addCommandEvent$.asObservable()'
+                       [eventGetAllRowsSubscription]='membersTable.saveCommandEvent$.asObservable()'
+                       [eventRefreshSubscription]='membersTable.refreshCommandEvent$.asObservable()'
+                       [getAll]='membersTable.relationsFetchFn'
+                       [hideDuplicateButton]=true
+                       [hideReplaceButton]=true
+                       [redoButton]=true
+                       [undoButton]=true>
+        </app-data-grid>
+      </mat-card-content>
+    </mat-card>
   </mat-tab>
-  <mat-tab label="{{'territoryEntity.cartography' | translate }}">
-    <app-data-grid [changeHeightButton]="true"
-                   [allNewElements]="territoryID === -1"
-                   [defaultColumnSorting]="['cartographyName']"
-                   [columnDefs]="columnDefsCartographies"
-                   [getAll]='getAllCartographies'
-                   [discardChangesButton]=true
-                   [redoButton]=true
-                   [undoButton]=true
-                   [hideDuplicateButton]=true
-                   [eventAddItemsSubscription]='addElementsEventCartographies.asObservable()'
-                   [eventGetAllRowsSubscription]='getAllElementsEventCartographies.asObservable()'
-                   [eventRefreshSubscription]='dataUpdatedEventCartographies.asObservable()'
-                   [deleteButton]=true
-                   [addButton]=true
-                   [actionButton]=true
-                   addFieldRestriction="cartographyId"
-                   (getAllRows)="getAllRowsCartographies($event)"
-                   (add)="openCartographyDialog($event)"
-                   [redraw]="activeTabIndex === 4"
-                   *ngIf="dataLoaded">
-      >
-    </app-data-grid>
-
+  <mat-tab label="{{'entity.territory.cartography.header' | translate }}">
+    <mat-card appearance="outlined" class="sitmun-mat-card-margin">
+      <mat-card-content>
+        <app-data-grid (add)="cartographiesTable.openDialog($event)"
+                       (getAllRows)="cartographiesTable.handleSaveRelations($event)"
+                       *ngIf="dataLoaded"
+                       [actionButton]=true
+                       [addButton]=true
+                       [allNewElements]="isNewOrDuplicated()"
+                       [changeHeightButton]="true"
+                       [columnDefs]="cartographiesTable.relationsColumnsDefs"
+                       [defaultColumnSorting]='cartographiesTable.defaultRelationsSorting()'
+                       [deleteButton]=true
+                       [discardChangesButton]=true
+                       [eventAddItemsSubscription]='cartographiesTable.addCommandEvent$.asObservable()'
+                       [eventGetAllRowsSubscription]='cartographiesTable.saveCommandEvent$.asObservable()'
+                       [eventRefreshSubscription]='cartographiesTable.refreshCommandEvent$.asObservable()'
+                       [getAll]='cartographiesTable.relationsFetchFn'
+                       [hideDuplicateButton]=true
+                       [hideReplaceButton]=true
+                       [redoButton]=true
+                       [undoButton]=true>
+        </app-data-grid>
+      </mat-card-content>
+    </mat-card>
   </mat-tab>
-  <mat-tab label="{{'territoryEntity.tasks' | translate }}">
-    <app-data-grid [changeHeightButton]="true"
-                   [allNewElements]="territoryID === -1"
-                   [defaultColumnSorting]="['taskGroupName']"
-                   [columnDefs]="columnDefsTasks"
-                   [getAll]='getAllTasks'
-                   [discardChangesButton]=true
-                   [redoButton]=true
-                   [undoButton]=true
-                   [hideDuplicateButton]=true
-                   [eventAddItemsSubscription]='addElementsEventTasks.asObservable()'
-                   [eventGetAllRowsSubscription]='getAllElementsEventTasks.asObservable()'
-                   [eventRefreshSubscription]='dataUpdatedEventTasks.asObservable()'
-                   [deleteButton]=true
-                   [addButton]=true
-                   [actionButton]=true
-                   addFieldRestriction="taskId"
-                   (getAllRows)="getAllRowsTasks($event)"
-                   (add)="openTasksDialog($event)"
-                   [redraw]="activeTabIndex === 5"
-                   *ngIf="dataLoaded">
-      >
-    </app-data-grid>
+  <mat-tab label="{{'entity.territory.tasks.header' | translate }}">
+    <mat-card appearance="outlined" class="sitmun-mat-card-margin">
+      <mat-card-content>
+        <app-data-grid (add)="tasksTable.openDialog($event)"
+                       (getAllRows)="tasksTable.handleSaveRelations($event)"
+                       *ngIf="dataLoaded"
+                       [actionButton]=true
+                       [addButton]=true
+                       [allNewElements]="isNewOrDuplicated()"
+                       [changeHeightButton]="true"
+                       [columnDefs]="tasksTable.relationsColumnsDefs"
+                       [defaultColumnSorting]='tasksTable.defaultRelationsSorting()'
+                       [deleteButton]=true
+                       [discardChangesButton]=true
+                       [eventAddItemsSubscription]='tasksTable.addCommandEvent$.asObservable()'
+                       [eventGetAllRowsSubscription]='tasksTable.saveCommandEvent$.asObservable()'
+                       [eventRefreshSubscription]='tasksTable.refreshCommandEvent$.asObservable()'
+                       [getAll]='tasksTable.relationsFetchFn'
+                       [hideDuplicateButton]=true
+                       [hideReplaceButton]=true
+                       [redoButton]=true
+                       [undoButton]=true>
+        </app-data-grid>
+      </mat-card-content>
+    </mat-card>
   </mat-tab>
 </mat-tab-group>
