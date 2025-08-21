@@ -258,6 +258,9 @@ export const constants = {
     }, {
       label: 'Filtro WFS unitario',
       value: '${WFSUNITARYFILTER}'
+    }, {
+      label: 'Idioma',
+      value: '${LANGUAGE}'
     }],
     btnlabelOptions: [{
       label: 'Extra info',
