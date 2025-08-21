@@ -1,6 +1,4 @@
-import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {
   ApplicationService,
   CapabilitiesService,
@@ -15,11 +13,7 @@ import {
   TreeNodeService,
   TreeService
 } from '@app/domain';
-import {HttpClient} from '@angular/common/http';
-import {UtilsService} from '@app/services/utils.service';
-import {map} from 'rxjs/operators';
-import {config} from '@config';
-import {Observable, of, Subject} from 'rxjs';
+import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {
   DataGridComponent,
   DataTreeComponent,
@@ -27,11 +21,17 @@ import {
   DialogGridComponent,
   DialogMessageComponent
 } from '@app/frontend-gui/src/lib/public_api';
-import {MatDialog} from '@angular/material/dialog';
-import {constants} from '@environments/constants';
-import {MatTabChangeEvent} from '@angular/material/tabs';
-import {LoggerService} from '@app/services/logger.service';
+import {Observable, of, Subject} from 'rxjs';
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {Configuration} from "@app/core/config/configuration";
+import {HttpClient} from '@angular/common/http';
+import {LoggerService} from '@app/services/logger.service';
+import {MatDialog} from '@angular/material/dialog';
+import {MatTabChangeEvent} from '@angular/material/tabs';
+import {UtilsService} from '@app/services/utils.service';
+import {config} from '@config';
+import {constants} from '@environments/constants';
+import {map} from 'rxjs/operators';
 import {XMLParser} from 'fast-xml-parser';
 
 @Component({
@@ -45,9 +45,8 @@ export class TreesFormComponent implements OnInit {
   loadDataButton$ = of(true);
 
   //Translations
-  nameTranslationsModified = false;
-
-  descriptionTranslationsModified = false;
+  nameTranslationsModified: boolean = false;
+  descriptionTranslationsModified: boolean = false;
   nameTranslations: Map<number, Map<string, Translation>> = new Map<number, Map<string, Translation>>();
   descriptionTranslations: Map<number, Map<string, Translation>> = new Map<number, Map<string, Translation>>();
 
@@ -63,32 +62,26 @@ export class TreesFormComponent implements OnInit {
   getAllElementsEventApplication: Subject<"save"> = new Subject<"save">();
 
   themeGrid: any = config.agGridTheme;
-
-  treeID = -1;
+  treeID: number = -1;
   duplicateID = -1;
   treeForm: UntypedFormGroup;
   treeNodeForm: UntypedFormGroup;
   public fieldsConfigForm: UntypedFormGroup;
   idFictitiousCounter = -1;
   treeToEdit: Tree;
-
-  dataLoaded = false;
-
-  currentNodeIsFolder: boolean;
+  dataLoaded: Boolean = false;
+  currentNodeIsFolder: Boolean;
   currentNodeName: string;
   currentNodeDescription: string;
   currentNodeType: string;
   currentTreeType: string;
-
-  currentNodeHasParent: boolean;
+  currentNodeHasParent: Boolean;
   currentViewMode: string;
   currentNodeTask: any;
   currentNodeCartography: any;
-
-  fieldsConfigTreeGenerated = false;
+  fieldsConfigTreeGenerated: Boolean = false;
   selectedXPath: string;
-
-  newElement = false;
+  newElement: Boolean = false;
   duplicateToDo = false;
   sendNodeUpdated: Subject<any> = new Subject<any>();
   getAllElementsNodes: Subject<string> = new Subject<string>();
@@ -135,6 +128,8 @@ export class TreesFormComponent implements OnInit {
   dataUpdatedEventRoles: Subject<boolean> = new Subject<boolean>();
   addElementsEventRoles: Subject<any[]> = new Subject<any[]>();
   columnDefsRolesDialog: any[];
+
+  savingNode = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -318,6 +313,18 @@ export class TreesFormComponent implements OnInit {
     }
   }
 
+  private storeTranslationInMap(translation, map: Map<number, Map<string, Translation>>, column: string) {
+    const currentTranslation = map.get(translation.element)
+    if (currentTranslation != undefined) {
+      this.utils.updateTranslations(currentTranslation, [translation])
+    }
+    else {
+      const newMap: Map<string, Translation> = this.utils.createTranslationsList(column)
+      this.utils.updateTranslations(newMap, [translation]);
+      map.set(translation.element, newMap);
+    }
+  }
+
   async loadGroupLayersButtonClicked(data) {
 
 
@@ -357,6 +364,103 @@ export class TreesFormComponent implements OnInit {
     }
   }
 
+  private createNodesWithCapabilities(groupLayersResult: Array<any>, existingNodes: Array<any>, parentId?) {
+    groupLayersResult.forEach(element => {
+      let newNode: any = {};
+      let name = element.Title;
+      if (name && name.length > 250) { name = name.substring(0, 249) }
+      const disallowNodeCreation = existingNodes.some(element => element.name == name);
+      if (!disallowNodeCreation) {
+        if (element.Layer) {  //Is folder
+          newNode = this.createNewFolderWithCapabilities(element)
+        }
+        else { //Is node
+          newNode = this.createNewNodeWithCapabilities(element)
+        }
+
+
+        if (newNode) {
+          newNode.name = name;
+          newNode.tooltip = name;
+          newNode.type = this.codeValues.treenodeFolderType.cartography;
+          newNode.parent = parentId;
+          newNode.id = this.idFictitiousCounter;
+          newNode.children = [];
+          newNode.order = null;
+          newNode.status = "pendingCreation";
+          this.idFictitiousCounter--;
+          this.createNodeEvent.next(newNode);
+
+          //If only have one layer, we have to put it in an Array
+          let childrenLayers = element.Layer;
+          if (childrenLayers) {
+            if (!Array.isArray(childrenLayers)) {
+              childrenLayers = [element.Layer];
+            }
+          }
+
+          if (childrenLayers) { this.createNodesWithCapabilities(childrenLayers, existingNodes, newNode.id) }
+
+
+        }
+
+
+
+      }
+
+
+
+
+    });
+  }
+
+  private createNewFolderWithCapabilities(capability) {
+    const newFolder: any = {};
+    newFolder.description = capability.Abstract;
+    newFolder.radio = false;
+    newFolder.isFolder = true;
+
+    if (newFolder.description && newFolder.description.length > 250) { newFolder.description = newFolder.description.substring(0, 249) }
+
+
+    if (capability.MetadataURL != undefined) {
+      const metadataURL = Array.isArray(capability.MetadataURL) ? capability.MetadataURL[0] : capability.MetadataURL
+      newFolder.metadataURL = metadataURL.OnlineResource['xlink:href']
+    }
+
+    if (capability.DataURL != undefined) {
+      const DataURL = Array.isArray(capability.DataURL) ? capability.DataURL[0] : capability.DataURL
+      newFolder.datasetURL = DataURL.OnlineResource['xlink:href']
+    }
+
+    return newFolder;
+
+  }
+
+  private createNewNodeWithCapabilities(capability) {
+    const newNode: any = {};
+
+    let layersLyr; //Layers field to compare with cartographies
+    if (Array.isArray(capability.Name)) {
+      layersLyr = capability.Name;
+    }
+    else {
+      if (!isNaN(capability.Name)) { capability.Name = capability.Name.toString() }
+      layersLyr = capability.Name.split(",");
+    }
+
+
+    if (!layersLyr) { return null }
+    const cartography = this.layersList.find(element => element.layers.join() == layersLyr.join())
+    if (!cartography) { return null }
+
+    newNode.cartography = cartography;
+    newNode.cartographyName = cartography.name;
+    newNode.active = true;
+    newNode.isFolder = false;
+    return newNode;
+  }
+
   changeServiceDataByCapabilities(serviceCapabilitiesData, refresh?): Array<any> {
     const capabilitiesLayers = [];
     const data = serviceCapabilitiesData.WMT_MS_Capabilities != undefined ? serviceCapabilitiesData.WMT_MS_Capabilities : serviceCapabilitiesData.WMS_Capabilities
@@ -370,160 +474,6 @@ export class TreesFormComponent implements OnInit {
     }
 
     return capabilitiesLayers;
-
-  }
-
-  getAllServices = (): Observable<any> => {
-    return this.serviceService.getAll().pipe(
-      map((resp) => {
-        const wmsServices = [];
-        resp.forEach(service => {
-          if (service.type === 'WMS') {
-            wmsServices.push(service)
-          }
-        });
-        return wmsServices;
-      })
-    );
-  }
-
-  getAllTreeNodes = (): Observable<any> => {
-    if (this.treeID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
-      return of(aux);
-    } else {
-      let urlReq = `${this.treeForm.value._links.allNodes.href}`
-      if (this.treeForm.value._links.allNodes.templated) {
-        const url = new URL(urlReq.split("{")[0]);
-        url.searchParams.append("projection", "view")
-        urlReq = url.toString();
-      }
-      const response = (this.http.get(urlReq)).pipe(map(data => data['_embedded']['tree-nodes']))
-      return response;
-    }
-  }
-
-  nodeReceived(emitedObj) {
-    const node = emitedObj.nodeClicked;
-    const nodeParent = emitedObj.nodeParent;
-    this.newElement = false;
-    let currentType;
-    if (node.isFolder) {
-      this.currentNodeIsFolder = true;
-      currentType = 'folder'
-    } else {
-      this.currentNodeIsFolder = false;
-      currentType = 'node'
-    }
-    this.currentNodeType = nodeParent &&
-    ![this.codeValues.treenodeFolderType.nearme, this.codeValues.treenodeFolderType.map].includes(nodeParent.nodeType)
-      ? nodeParent.nodeType : node.nodeType;
-    this.mappingParentTaskOptions = this.createMappingParentTaskOptions(nodeParent);
-    this.currentViewMode = node.viewMode;
-    this.currentNodeHasParent = nodeParent !== null;
-    let status = "Modified"
-    const nameTranslationsModified = node.nameTranslationsModified ? true : false;
-    const descriptionTranslationsModified = node.descriptionTranslationsModified ? true : false;
-    const nameFormModified = node.nameFormModified ? true : false;
-    const descriptionFormModified = node.descriptionFormModified ? true : false;
-    if (node.id < 0) {
-      status = "pendingCreation"
-    }
-    this.treeNodeForm.patchValue({
-      id: node.id,
-      name: node.name,
-      tooltip: node.tooltip,
-      nodeType: node.nodeType,
-      image: node.image,
-      imageName: node.imageName,
-      task: node.task,
-      taskName: node.taskName,
-      taskId: node.taskId,
-      oldTask: node.task,
-      viewMode: node.viewMode,
-      filterable: node.filterable,
-      order: node.order,
-      cartography: node.cartographyName,
-      cartographyName: node.cartographyName,
-      cartographyId: node.cartographyId,
-      // cartographyStyles: node.cartographyStyles,
-      oldCartography: node.cartography,
-      radio: node.radio,
-      description: node.description,
-      datasetURL: node.datasetURL,
-      metadataURL: node.metadataURL,
-      active: node.active,
-      _links: node._links,
-      children: node.children,
-      parent: node.parent,
-      isFolder: node.isFolder,
-      nameTranslationsModified: nameTranslationsModified,
-      descriptionTranslationsModified: descriptionTranslationsModified,
-      nameFormModified: nameFormModified,
-      descriptionFormModified: descriptionFormModified,
-      nameTranslations: node.nameTranslations,
-      descriptionTranslations: node.descriptionTranslations,
-      filterGetFeatureInfo: (node.filterGetFeatureInfo == null || node.filterGetFeatureInfo == undefined) ? "UNDEFINED" : node.filterGetFeatureInfo,
-      filterGetMap: (node.filterGetMap == null || node.filterGetMap == undefined) ? "UNDEFINED" : node.filterGetMap,
-      filterSelectable: (node.filterSelectable == null || node.filterSelectable == undefined) ? "UNDEFINED" : node.filterSelectable,
-      style: node.style,
-      status: status,
-      type: currentType,
-      mapping: node.mapping
-    });
-    setTimeout(() => {
-      this.showImgPreview('node', node.image);
-    });
-    if (this.nameTranslations.has(node.id)) {
-      const translations = this.nameTranslations.get(node.id);
-      this.treeNodeForm.patchValue({
-        nameTranslations: translations
-      })
-    }
-
-    if (this.descriptionTranslations.has(node.id)) {
-      const translations = this.descriptionTranslations.get(node.id);
-      this.treeNodeForm.patchValue({
-        descriptionTranslations: translations
-      })
-    }
-
-  }
-
-  saveAll(data: TreeNode[]) {
-
-    if (this.treeID == -1 && this.duplicateID != -1) {
-      this.treeForm.patchValue({
-        _links: null
-      })
-    }
-
-
-    this.treeService.save(this.treeForm.value)
-      .subscribe(async resp => {
-          this.treeToEdit = resp;
-          this.treeID = resp.id;
-
-          this.treeForm.patchValue({
-            _links: resp._links,
-            id: resp.id
-          })
-
-          this.utils.saveTranslation(resp.id, this.treeNameTranslationMap, this.treeToEdit.name, this.nameTranslationsModified);
-          this.nameTranslationsModified = false;
-          this.utils.saveTranslation(resp.id, this.treeDescriptionTranslationMap, this.treeToEdit.description, this.descriptionTranslationsModified);
-          this.descriptionTranslationsModified = false;
-
-          const mapNewIdentificators: Map<number, any[]> = new Map<number, any[]>();
-          const promises: Promise<any>[] = [];
-          this.getAllElementsEventApplication.next('save');
-          this.getAllElementsEventRoles.next('save');
-          this.updateAllTrees(data, 0, mapNewIdentificators, promises, null, null);
-          this.refreshTreeEvent.next(true)
-        },
-        error => {
-          this.loggerService.error('Error saving tree', error);
-        });
 
   }
 
@@ -697,342 +647,118 @@ export class TreesFormComponent implements OnInit {
     });
   }
 
-  async updateAllTrees(treesToUpdate: any[], depth: number, mapNewIdentificators: Map<number, any[]>, promises: Promise<any>[], newId, newParent) {
-    for (let i = 0; i < treesToUpdate.length; i++) {
-      const tree = treesToUpdate[i];
+  getAllServices = (): Observable<any> => {
+    return this.serviceService.getAll().pipe(
+      map((resp) => {
+        const wmsServices = [];
+        resp.forEach(service => {
+          if (service.type === 'WMS') { wmsServices.push(service) }
+        });
+        return wmsServices;
+      })
+    );
+  }
 
-      if (tree.status) {
-        var treeNodeObj: TreeNode = new TreeNode();
-
-        treeNodeObj.name = tree.name;
-        treeNodeObj.type = tree.nodeType;
-        treeNodeObj.tooltip = tree.tooltip;
-        treeNodeObj.order = tree.order;
-        treeNodeObj.active = tree.active;
-        treeNodeObj.datasetURL = tree.datasetURL;
-        treeNodeObj.metadataURL = tree.metadataURL;
-        treeNodeObj.description = tree.description;
-        treeNodeObj.tree = this.treeToEdit;
-        treeNodeObj.filterGetFeatureInfo = tree.filterGetFeatureInfo == "UNDEFINED" ? null : tree.filterGetFeatureInfo;
-        treeNodeObj.filterGetMap = tree.filterGetMap == "UNDEFINED" ? null : tree.filterGetMap;
-        treeNodeObj.filterSelectable = tree.filterSelectable == "UNDEFINED" ? null : tree.filterSelectable;
-        treeNodeObj.style = tree.style;
-        treeNodeObj.image = tree.image;
-        treeNodeObj.imageName = tree.imageName;
-        treeNodeObj.viewMode = tree.viewMode;
-        treeNodeObj.filterable = tree.filterable;
-        treeNodeObj.mapping = tree.mapping;
-
-
-        if (tree.status === "pendingCreation" && tree._links && !tree.isFolder && (!tree.cartography || !tree.task)) {
-
-          let urlReqCartography = `${tree._links.cartography.href}`
-          if (tree._links.cartography.href) {
-            const url = new URL(urlReqCartography.split("{")[0]);
-            url.searchParams.append("projection", "view")
-            urlReqCartography = url.toString();
-          }
-          tree.cartography = await this.http.get(urlReqCartography).toPromise();
-
-          let urlReqTask = `${tree._links.task.href}`
-          if (tree._links.task.href) {
-            const url = new URL(urlReqTask.split("{")[0]);
-            url.searchParams.append("projection", "view")
-            urlReqTask = url.toString();
-          }
-          tree.task = await this.http.get(urlReqTask).toPromise();
-
-        } else {
-          if (tree.status !== "pendingCreation") {
-            treeNodeObj._links = tree._links;
-          }
-        }
-        treeNodeObj.cartography = tree.cartography;
-        treeNodeObj.task = tree.task;
-
-
-        if (tree.status !== "pendingDelete") {
-
-          let currentParent;
-          if (tree.parent !== null) {
-            if (tree.parent >= 0) {
-              currentParent = treesToUpdate.find(element => element.id === tree.parent);
-              currentParent.tree = this.treeToEdit;
-            } else {
-              if (newId == null) {
-                if (mapNewIdentificators.has(tree.parent)) {
-                  mapNewIdentificators.get(tree.parent).push(tree);
-                } else {
-                  mapNewIdentificators.set(tree.parent, [tree]);
-                }
-                currentParent = undefined;
-              } else {
-                currentParent = newParent;
-              }
-            }
-
-          } else {
-            currentParent = null;
-            treeNodeObj.parent = null;
-          }
-
-          if (currentParent !== undefined) {
-
-            if (tree.status === "pendingCreation" && currentParent != null) {
-              treeNodeObj.parent = currentParent._links.self.href;
-            } else if (tree.status === "Modified" && currentParent != null) {
-              treeNodeObj.parent = currentParent;
-            }
-
-            if (treeNodeObj._links) {
-              treeNodeObj._links.cartography.href = treeNodeObj._links.cartography.href.split("{")[0];
-              treeNodeObj._links.parent.href = treeNodeObj._links.parent.href.split("{")[0];
-              treeNodeObj._links.treeNode.href = treeNodeObj._links.treeNode.href.split("{")[0];
-              treeNodeObj.tree._links.allNodes.href = treeNodeObj.tree._links.allNodes.href.split("{")[0];
-              treeNodeObj._links.task.href = treeNodeObj._links.task.href.split("{")[0];
-            }
-
-            promises.push(new Promise((resolve, reject) => {
-              this.treeNodeService.save(treeNodeObj).subscribe(
-                async result => {
-                  const nameTranslationMap = this.nameTranslations.get(tree.id);
-                  if (nameTranslationMap) {
-                    this.utils.saveTranslation(result.id, nameTranslationMap, result.name, tree.nameTranslationsModified);
-                    tree.nameTranslationModified = false;
-                  } else if (tree.nameFormModified) {
-                    const map = this.utils.createTranslationsList(config.translationColumns.treeNodeName);
-                    this.utils.saveTranslation(result.id, map, tree.name, false);
-                    this.nameTranslations.set(result.id, map);
-                  }
-                  const descriptionTranslationMap = this.descriptionTranslations.get(tree.id);
-                  if (descriptionTranslationMap) {
-                    this.utils.saveTranslation(result.id, descriptionTranslationMap, result.description, tree.nameTranslationsModified);
-                    tree.descriptionTranslationsModified = false;
-                  } else if (tree.descriptionFormModified) {
-                    const map = this.utils.createTranslationsList(config.translationColumns.treeNodeDescription);
-                    this.utils.saveTranslation(result.id, map, tree.description, false);
-                    this.descriptionTranslations.set(result.id, map);
-                  }
-                  const oldId = tree.id;
-                  treesToUpdate.splice(i, 1);
-                  treesToUpdate.splice(0, 0, result)
-                  if (mapNewIdentificators.has(oldId)) {
-                    this.updateAllTrees(mapNewIdentificators.get(oldId), depth++, mapNewIdentificators, promises, result.id, result)
-                  }
-
-                  resolve(true);
-                },
-                error => {
-                  this.loggerService.error('Error saving tree node', error);
-                }
-              )
-            }));
-
-
-          }
-
-
-        } else {
-          if (tree.id >= 0) {
-            const idDeletedElement = tree.id;
-            await this.treeNodeService.delete(treeNodeObj).toPromise();
-
-          }
-        }
-
-
+  getAllTreeNodes = (): Observable<any> => {
+    if (this.treeID == -1 && this.duplicateID == -1) {
+      const aux: Array<any> = [];
+      return of(aux);
+    } else {
+      let urlReq = `${this.treeForm.value._links.allNodes.href}`
+      if (this.treeForm.value._links.allNodes.templated) {
+        const url = new URL(urlReq.split("{")[0]);
+        url.searchParams.append("projection", "view")
+        urlReq = url.toString();
       }
-
-
+      const response = (this.http.get(urlReq)).pipe(map(data => data['_embedded']['tree-nodes']))
+      return response;
     }
-    Promise.all(promises).then(() => {
-      this.refreshTreeEvent.next(true);
+  }
+
+  nodeReceived(emitedObj) {
+    const node = emitedObj.nodeClicked;
+    const nodeParent = emitedObj.nodeParent;
+    this.newElement = false;
+    let currentType;
+    if (node.isFolder) {
+      this.currentNodeIsFolder = true;
+      currentType = 'folder'
+    }
+    else {
+      this.currentNodeIsFolder = false;
+      currentType = 'node'
+    }
+    this.currentNodeType = nodeParent &&
+      ![this.codeValues.treenodeFolderType.nearme, this.codeValues.treenodeFolderType.map].includes(nodeParent.nodeType)
+      ? nodeParent.nodeType : node.nodeType;
+    this.mappingParentTaskOptions = this.createMappingParentTaskOptions(nodeParent);
+    this.currentViewMode = node.viewMode;
+    this.currentNodeHasParent = nodeParent !== null;
+    let status = "Modified"
+    const nameTranslationsModified = node.nameTranslationsModified ? true : false;
+    const descriptionTranslationsModified = node.descriptionTranslationsModified ? true : false;
+    const nameFormModified = node.nameFormModified ? true : false;
+    const descriptionFormModified = node.descriptionFormModified ? true : false;
+    if (node.id < 0) { status = "pendingCreation" }
+    this.treeNodeForm.patchValue({
+      id: node.id,
+      name: node.name,
+      tooltip: node.tooltip,
+      nodeType: node.nodeType,
+      image: node.image,
+      imageName: node.imageName,
+      task: node.task,
+      taskName: node.taskName,
+      taskId: node.taskId,
+      oldTask: node.task,
+      viewMode: node.viewMode,
+      filterable: node.filterable,
+      order: node.order,
+      cartography: node.cartographyName,
+      cartographyName: node.cartographyName,
+      cartographyId: node.cartographyId,
+      // cartographyStyles: node.cartographyStyles,
+      oldCartography: node.cartography,
+      radio: node.radio,
+      description: node.description,
+      datasetURL: node.datasetURL,
+      metadataURL: node.metadataURL,
+      active: node.active,
+      _links: node._links,
+      children: node.children,
+      parent: node.parent,
+      isFolder: node.isFolder,
+      nameTranslationsModified: nameTranslationsModified,
+      descriptionTranslationsModified: descriptionTranslationsModified,
+      nameFormModified: nameFormModified,
+      descriptionFormModified: descriptionFormModified,
+      nameTranslations: node.nameTranslations,
+      descriptionTranslations: node.descriptionTranslations,
+      filterGetFeatureInfo: (node.filterGetFeatureInfo == null || node.filterGetFeatureInfo == undefined)?"UNDEFINED":node.filterGetFeatureInfo,
+      filterGetMap: (node.filterGetMap == null || node.filterGetMap == undefined)?"UNDEFINED":node.filterGetMap,
+      filterSelectable: (node.filterSelectable == null || node.filterSelectable == undefined)?"UNDEFINED":node.filterSelectable,
+      style: node.style,
+      status: status,
+      type: currentType,
+      mapping: node.mapping
     });
-
-  }
-
-  updateTaskTreeLeft(task) {
-
-    this.treeNodeForm.patchValue({
-      task: task
-    })
-    if (task != null) {
+    setTimeout(() => {
+      this.showImgPreview('node', node.image);
+    });
+    if (this.nameTranslations.has(node.id)) {
+      const translations = this.nameTranslations.get(node.id);
       this.treeNodeForm.patchValue({
-        taskName: task.name,
-        taskId: task.id
+        nameTranslations: translations
       })
-
-    } else {
-      if (!this.treeNodeForm.get('isFolder').value) {
-        const oldTask = this.treeNodeForm.get('oldTask').value;
-        if (oldTask) {
-          this.treeNodeForm.patchValue({
-            task: oldTask,
-            taskName: oldTask.name,
-            taskId: oldTask.id
-          })
-        }
-      }
     }
 
-    if (!this.treeNodeForm.get('isFolder').value) {
-      if (this.treeNodeForm.get('filterGetFeatureInfo').value == "UNDEFINED") {
-        this.treeNodeForm.get('filterGetFeatureInfo').patchValue(null);
-      }
-      if (this.treeNodeForm.get('filterGetMap').value == "UNDEFINED") {
-        this.treeNodeForm.get('filterGetMap').patchValue(null);
-      }
-      if (this.treeNodeForm.get('filterSelectable').value == "UNDEFINED") {
-        this.treeNodeForm.get('filterSelectable').patchValue(null);
-      }
-    }
-
-
-    let newNameTranslation: Map<string, Translation> = null;
-    let newDescriptionTranslation: Map<string, Translation> = null;
-
-    if (this.treeNodeForm.value.nameTranslationsModified) {
-      newNameTranslation = this.treeNodeForm.value.nameTranslations
-    }
-
-    if (this.treeNodeForm.value.descriptionTranslationsModified) {
-      newDescriptionTranslation = this.treeNodeForm.value.descriptionTranslations
-    }
-
-    if (this.newElement) {
+    if (this.descriptionTranslations.has(node.id)) {
+      const translations = this.descriptionTranslations.get(node.id);
       this.treeNodeForm.patchValue({
-        id: this.idFictitiousCounter
+        descriptionTranslations: translations
       })
-      if (newNameTranslation) {
-        this.nameTranslations.set(this.idFictitiousCounter, newNameTranslation)
-      } else {
-        if (this.treeNodeForm.value.description && this.treeNodeForm.value.description != this.currentNodeDescription) {
-          this.treeNodeForm.patchValue({
-            descriptionFormModified: true
-          })
-        }
-      }
-      if (newDescriptionTranslation) {
-        this.descriptionTranslations.set(this.idFictitiousCounter, newDescriptionTranslation)
-      } else {
-        if (this.treeNodeForm.value.name && this.treeNodeForm.value.name != this.currentNodeName) {
-          this.treeNodeForm.patchValue({
-            nameFormModified: true
-          })
-        }
-      }
-    } else {
-      if (newNameTranslation) {
-        this.nameTranslations.set(this.treeNodeForm.value.id, newNameTranslation)
-      } else {
-        if (this.treeNodeForm.value.description && this.treeNodeForm.value.description != this.currentNodeDescription) {
-          this.treeNodeForm.patchValue({
-            descriptionFormModified: true
-          })
-        }
-      }
-      if (newDescriptionTranslation) {
-        this.descriptionTranslations.set(this.treeNodeForm.value.id, newDescriptionTranslation)
-      } else {
-        if (this.treeNodeForm.value.name && this.treeNodeForm.value.name != this.currentNodeName) {
-          this.treeNodeForm.patchValue({
-            nameFormModified: true
-          })
-        }
-      }
-    }
-  }
-
-  updateCartographyTreeLeft(cartography) {
-
-    this.treeNodeForm.patchValue({
-      cartography: cartography
-    })
-    if (cartography != null) {
-      this.treeNodeForm.patchValue({
-        cartographyName: cartography.name,
-        cartographyId: cartography.id
-      })
-
-    } else {
-      if (!this.treeNodeForm.get('isFolder').value) {
-        const oldCartography = this.treeNodeForm.get('oldCartography').value;
-        if (oldCartography) {
-          this.treeNodeForm.patchValue({
-            cartography: oldCartography,
-            cartographyName: oldCartography.name,
-            cartographyId: oldCartography.id
-          })
-        }
-      }
     }
 
-    if (!this.treeNodeForm.get('isFolder').value) {
-      if (this.treeNodeForm.get('filterGetFeatureInfo').value == "UNDEFINED") {
-        this.treeNodeForm.get('filterGetFeatureInfo').patchValue(null);
-      }
-      if (this.treeNodeForm.get('filterGetMap').value == "UNDEFINED") {
-        this.treeNodeForm.get('filterGetMap').patchValue(null);
-      }
-      if (this.treeNodeForm.get('filterSelectable').value == "UNDEFINED") {
-        this.treeNodeForm.get('filterSelectable').patchValue(null);
-      }
-    }
-
-
-    let newNameTranslation: Map<string, Translation> = null;
-    let newDescriptionTranslation: Map<string, Translation> = null;
-
-    if (this.treeNodeForm.value.nameTranslationsModified) {
-      newNameTranslation = this.treeNodeForm.value.nameTranslations
-    }
-
-    if (this.treeNodeForm.value.descriptionTranslationsModified) {
-      newDescriptionTranslation = this.treeNodeForm.value.descriptionTranslations
-    }
-
-    if (this.newElement) {
-      this.treeNodeForm.patchValue({
-        id: this.idFictitiousCounter
-      })
-      if (newNameTranslation) {
-        this.nameTranslations.set(this.idFictitiousCounter, newNameTranslation)
-      } else {
-        if (this.treeNodeForm.value.description && this.treeNodeForm.value.description != this.currentNodeDescription) {
-          this.treeNodeForm.patchValue({
-            descriptionFormModified: true
-          })
-        }
-      }
-      if (newDescriptionTranslation) {
-        this.descriptionTranslations.set(this.idFictitiousCounter, newDescriptionTranslation)
-      } else {
-        if (this.treeNodeForm.value.name && this.treeNodeForm.value.name != this.currentNodeName) {
-          this.treeNodeForm.patchValue({
-            nameFormModified: true
-          })
-        }
-      }
-    } else {
-      if (newNameTranslation) {
-        this.nameTranslations.set(this.treeNodeForm.value.id, newNameTranslation)
-      } else {
-        if (this.treeNodeForm.value.description && this.treeNodeForm.value.description != this.currentNodeDescription) {
-          this.treeNodeForm.patchValue({
-            descriptionFormModified: true
-          })
-        }
-      }
-      if (newDescriptionTranslation) {
-        this.descriptionTranslations.set(this.treeNodeForm.value.id, newDescriptionTranslation)
-      } else {
-        if (this.treeNodeForm.value.name && this.treeNodeForm.value.name != this.currentNodeName) {
-          this.treeNodeForm.patchValue({
-            nameFormModified: true
-          })
-        }
-      }
-    }
   }
 
   createMappingParentTaskOptions(nodeParent) {
@@ -1218,7 +944,13 @@ export class TreesFormComponent implements OnInit {
   }
 
   async addTaskInput() {
-    const task = await this.taskService.get(this.treeNodeForm.value.taskId).toPromise();
+    this.getAllElementsEventTasks.next(this.treeNodeForm.value);
+    let task = null;
+    if (this.currentNodeTask && this.currentNodeTask.id !== this.treeNodeForm.value.taskId) {
+      task = this.currentNodeTask;
+    } else {
+      task = await this.taskService.get(this.treeNodeForm.value.taskId).toPromise();
+    }
     const inputFormGroup = this.fieldsConfigForm.get('input') as UntypedFormGroup;
     if (task.properties && task.properties.parameters) {
       task.properties.parameters.forEach(par => {
@@ -1346,6 +1078,7 @@ export class TreesFormComponent implements OnInit {
   async onSaveFormButtonClicked() {
     if (this.treeNodeForm.valid) {
       if (!this.currentNodeIsFolder) {
+        this.savingNode = true;
         if (this.currentNodeType === this.codeValues.treenodeLeafType.task
           || this.currentTreeType === this.codeValues.treeType.edition) {
           const taskId = this.treeNodeForm.get('taskId').value;
@@ -1445,26 +1178,501 @@ export class TreesFormComponent implements OnInit {
     }
   }
 
-  getAllApplications = (): Observable<any> => {
+  saveAll(data: TreeNode[]) {
 
-    if (this.treeID == -1 && this.duplicateID == -1) {
-      const aux: Array<any> = [];
-      return of(aux);
-    }
-
-    let urlReq = `${this.treeToEdit._links.availableApplications.href}`
-    if (this.treeToEdit._links.availableApplications.templated) {
-      const url = new URL(urlReq.split("{")[0]);
-      url.searchParams.append("projection", "view")
-      urlReq = url.toString();
+    if (this.treeID == -1 && this.duplicateID != -1) {
+      this.treeForm.patchValue({
+        _links: null
+      })
     }
 
 
-    return (this.http.get(urlReq))
-      .pipe(map(data => data['_embedded']['applications']));
+    this.treeService.save(this.treeForm.value)
+      .subscribe(async resp => {
+        this.treeToEdit = resp;
+        this.treeID = resp.id;
 
+        this.treeForm.patchValue({
+          _links: resp._links,
+          id: resp.id
+        })
+
+        this.utils.saveTranslation(resp.id, this.treeNameTranslationMap, this.treeToEdit.name, this.nameTranslationsModified);
+        this.nameTranslationsModified = false;
+        this.utils.saveTranslation(resp.id, this.treeDescriptionTranslationMap, this.treeToEdit.description, this.descriptionTranslationsModified);
+        this.descriptionTranslationsModified = false;
+
+        const mapNewIdentificators: Map<number, any[]> = new Map<number, any[]>();
+        const promises: Promise<any>[] = [];
+        this.getAllElementsEventApplication.next('save');
+        this.getAllElementsEventRoles.next('save');
+        this.updateAllTrees(data, 0, mapNewIdentificators, promises, null, null);
+        this.refreshTreeEvent.next(true)
+      },
+        error => {
+          this.loggerService.error('Error saving tree', error);
+        });
 
   }
+
+  async updateAllTrees(treesToUpdate: any[], depth: number, mapNewIdentificators: Map<number, any[]>, promises: Promise<any>[], newId, newParent) {
+    for (let i = 0; i < treesToUpdate.length; i++) {
+      const tree = treesToUpdate[i];
+
+      if (tree.status) {
+        const treeNodeObj: TreeNode = new TreeNode();
+
+        treeNodeObj.name = tree.name;
+        treeNodeObj.type = tree.nodeType;
+        treeNodeObj.tooltip = tree.tooltip;
+        treeNodeObj.order = tree.order;
+        treeNodeObj.active = tree.active;
+        treeNodeObj.datasetURL = tree.datasetURL;
+        treeNodeObj.metadataURL = tree.metadataURL;
+        treeNodeObj.description = tree.description;
+        treeNodeObj.tree = this.treeToEdit;
+        treeNodeObj.filterGetFeatureInfo = tree.filterGetFeatureInfo == "UNDEFINED" ? null : tree.filterGetFeatureInfo;
+        treeNodeObj.filterGetMap = tree.filterGetMap == "UNDEFINED" ? null : tree.filterGetMap;
+        treeNodeObj.filterSelectable = tree.filterSelectable == "UNDEFINED" ? null : tree.filterSelectable;
+        treeNodeObj.style = tree.style;
+        treeNodeObj.image = tree.image;
+        treeNodeObj.imageName = tree.imageName;
+        treeNodeObj.viewMode = tree.viewMode;
+        treeNodeObj.filterable = tree.filterable;
+        treeNodeObj.mapping = tree.mapping;
+
+
+
+        if (tree.status === "pendingCreation" && tree._links && !tree.isFolder && (!tree.cartography || !tree.task)) {
+
+          let urlReqCartography = `${tree._links.cartography.href}`
+          if (tree._links.cartography.href) {
+            const url = new URL(urlReqCartography.split("{")[0]);
+            url.searchParams.append("projection", "view")
+            urlReqCartography = url.toString();
+          }
+          tree.cartography = await this.http.get(urlReqCartography).toPromise();
+
+          let urlReqTask = `${tree._links.task.href}`
+          if (tree._links.task.href) {
+            const url = new URL(urlReqTask.split("{")[0]);
+            url.searchParams.append("projection", "view")
+            urlReqTask = url.toString();
+          }
+          tree.task = await this.http.get(urlReqTask).toPromise();
+
+        }
+        else {
+          if (tree.status !== "pendingCreation") {
+            treeNodeObj._links = tree._links;
+          }
+        }
+        treeNodeObj.cartography = tree.cartography;
+        treeNodeObj.task = tree.task;
+
+
+        if (tree.status !== "pendingDelete") {
+
+          let currentParent;
+          if (tree.parent !== null) {
+            if (tree.parent >= 0) {
+              currentParent = treesToUpdate.find(element => element.id === tree.parent);
+              currentParent.tree = this.treeToEdit;
+            }
+            else {
+              if (newId == null) {
+                if (mapNewIdentificators.has(tree.parent)) {
+                  mapNewIdentificators.get(tree.parent).push(tree);
+                }
+                else {
+                  mapNewIdentificators.set(tree.parent, [tree]);
+                }
+                currentParent = undefined;
+              }
+              else {
+                currentParent = newParent;
+              }
+            }
+
+          }
+          else {
+            currentParent = null;
+            treeNodeObj.parent = null;
+          }
+
+          if (currentParent !== undefined) {
+
+            if (tree.status === "pendingCreation" && currentParent != null) {
+              treeNodeObj.parent = currentParent._links.self.href;
+            }
+            else if (tree.status === "Modified" && currentParent != null) {
+              treeNodeObj.parent = currentParent;
+            }
+
+            if (treeNodeObj._links) {
+              treeNodeObj._links.cartography.href = treeNodeObj._links.cartography.href.split("{")[0];
+              treeNodeObj._links.parent.href = treeNodeObj._links.parent.href.split("{")[0];
+              treeNodeObj._links.treeNode.href = treeNodeObj._links.treeNode.href.split("{")[0];
+              treeNodeObj.tree._links.allNodes.href = treeNodeObj.tree._links.allNodes.href.split("{")[0];
+              treeNodeObj._links.task.href = treeNodeObj._links.task.href.split("{")[0];
+            }
+
+            promises.push(new Promise((resolve, reject) => {
+              this.treeNodeService.save(treeNodeObj).subscribe(
+                async result => {
+                  const nameTranslationMap = this.nameTranslations.get(tree.id);
+                  if (nameTranslationMap) {
+                    this.utils.saveTranslation(result.id, nameTranslationMap, result.name, tree.nameTranslationsModified);
+                    tree.nameTranslationModified = false;
+                  }
+                  else if (tree.nameFormModified) {
+                    const map = this.utils.createTranslationsList(config.translationColumns.treeNodeName);
+                    this.utils.saveTranslation(result.id, map, tree.name, false);
+                    this.nameTranslations.set(result.id, map);
+                  }
+                  const descriptionTranslationMap = this.descriptionTranslations.get(tree.id);
+                  if (descriptionTranslationMap) {
+                    this.utils.saveTranslation(result.id, descriptionTranslationMap, result.description, tree.nameTranslationsModified);
+                    tree.descriptionTranslationsModified = false;
+                  }
+                  else if (tree.descriptionFormModified) {
+                    const map = this.utils.createTranslationsList(config.translationColumns.treeNodeDescription);
+                    this.utils.saveTranslation(result.id, map, tree.description, false);
+                    this.descriptionTranslations.set(result.id, map);
+                  }
+                  const oldId = tree.id;
+                  treesToUpdate.splice(i, 1);
+                  treesToUpdate.splice(0, 0, result)
+                  if (mapNewIdentificators.has(oldId)) {
+                    this.updateAllTrees(mapNewIdentificators.get(oldId), depth++, mapNewIdentificators, promises, result.id, result)
+                  }
+
+                  resolve(true);
+                },
+                error => {
+                  this.loggerService.error('Error saving tree node', error);
+                }
+              )
+            }));
+
+
+
+          }
+
+
+        }
+        else {
+          if (tree.id >= 0) {
+            const idDeletedElement = tree.id;
+            await this.treeNodeService.delete(treeNodeObj).toPromise();
+
+          }
+        }
+
+
+      }
+
+
+    }
+    Promise.all(promises).then(() => {
+      this.refreshTreeEvent.next(true);
+    });
+
+  }
+
+  private showStyleError(){
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title = this.utils.getTranslate("Error");
+    dialogRef.componentInstance.hideCancelButton = true;
+    dialogRef.componentInstance.message = this.utils.getTranslate("treesEntity.styleError");
+    dialogRef.afterClosed().subscribe();
+  }
+
+  private checkIfStyleIsInvalid(currentStyle:string, cartographyStyles: Array<string>):boolean{
+    //True if cartographyStyles is empty and currentStyle is not null, or if cartography styles is not empty but not includes currentStyle
+    if( ((!cartographyStyles || cartographyStyles.length == 0) && currentStyle) ||
+    (cartographyStyles && cartographyStyles.length > 0 && (currentStyle && !cartographyStyles.includes(currentStyle)))){
+      return true;
+    }
+    else{
+      return false;
+    }
+  }
+
+
+  public getSelectedRowsCartographies(data: any[]) {
+    let cartography = null;
+    if(!this.currentNodeIsFolder && (!data || data.length == 0)){
+      cartography = this.currentNodeCartography;
+    }
+    if ((data.length <= 0 && this.treeNodeForm.value.cartographyName == null) && !this.currentNodeIsFolder && this.currentTreeType !== this.codeValues.treeType.edition) {
+      const dialogRef = this.dialog.open(DialogMessageComponent);
+      dialogRef.componentInstance.title = this.utils.getTranslate("Error");
+      dialogRef.componentInstance.hideCancelButton = true;
+      dialogRef.componentInstance.message = this.utils.getTranslate("cartographyNonSelectedMessage");
+      dialogRef.afterClosed().subscribe();
+    }
+    else if( !this.currentNodeIsFolder && data.length >0 && this.checkIfStyleIsInvalid(this.treeNodeForm.get('style').value, data[0].stylesNames)){
+      this.showStyleError();
+    }
+    else if(cartography && this.checkIfStyleIsInvalid(this.treeNodeForm.get('style').value, cartography.stylesNames)){
+        this.showStyleError();
+    }
+    else {
+      if (this.treeNodeForm.value.cartographyName !== null && data.length <= 0) {
+        this.updateCartographyTreeLeft(null)
+      }
+      else {
+        this.updateCartographyTreeLeft(data[0])
+      }
+    }
+
+  }
+
+  public getSelectedRowsTasks(data: any[]) {
+    if(!this.currentNodeIsFolder && (data && data.length > 0)){
+      this.currentNodeTask = data[data.length - 1];
+    }
+    if (this.savingNode) {
+      if ((data.length <= 0 && this.treeNodeForm.value.taskName == null) && !this.currentNodeIsFolder) {
+        const dialogRef = this.dialog.open(DialogMessageComponent);
+        dialogRef.componentInstance.title = this.utils.getTranslate("Error");
+        dialogRef.componentInstance.hideCancelButton = true;
+        dialogRef.componentInstance.message = this.utils.getTranslate("taskNonSelectedMessage");
+        dialogRef.afterClosed().subscribe();
+      } else {
+        if (this.treeNodeForm.value.taskName !== null && data.length <= 0) {
+          this.updateTaskTreeLeft(null)
+        } else {
+          this.updateTaskTreeLeft(data[0])
+        }
+      }
+      this.currentNodeTask = null;
+    }
+  }
+
+  updateTaskTreeLeft(task) {
+
+    this.treeNodeForm.patchValue({
+      task: task
+    })
+    if (task != null) {
+      this.treeNodeForm.patchValue({
+        taskName: task.name,
+        taskId: task.id
+      })
+
+    }
+    else{
+      if(!this.treeNodeForm.get('isFolder').value){
+        const oldTask = this.treeNodeForm.get('oldTask').value;
+        if(oldTask){
+          this.treeNodeForm.patchValue({
+            task: oldTask,
+            taskName: oldTask.name,
+            taskId: oldTask.id
+          })
+        }
+      }
+    }
+
+    if(!this.treeNodeForm.get('isFolder').value){
+      if(this.treeNodeForm.get('filterGetFeatureInfo').value == "UNDEFINED"){
+        this.treeNodeForm.get('filterGetFeatureInfo').patchValue(null);
+      }
+      if(this.treeNodeForm.get('filterGetMap').value == "UNDEFINED"){
+        this.treeNodeForm.get('filterGetMap').patchValue(null);
+      }
+      if(this.treeNodeForm.get('filterSelectable').value == "UNDEFINED"){
+        this.treeNodeForm.get('filterSelectable').patchValue(null);
+      }
+    }
+
+
+    let newNameTranslation: Map<string, Translation> = null;
+    let newDescriptionTranslation: Map<string, Translation> = null;
+
+    if (this.treeNodeForm.value.nameTranslationsModified) {
+      newNameTranslation = this.treeNodeForm.value.nameTranslations
+    }
+
+    if (this.treeNodeForm.value.descriptionTranslationsModified) {
+      newDescriptionTranslation = this.treeNodeForm.value.descriptionTranslations
+    }
+
+    if (this.newElement) {
+      this.treeNodeForm.patchValue({
+        id: this.idFictitiousCounter
+      })
+      if (newNameTranslation) { this.nameTranslations.set(this.idFictitiousCounter, newNameTranslation) }
+      else {
+        if (this.treeNodeForm.value.description && this.treeNodeForm.value.description != this.currentNodeDescription) {
+          this.treeNodeForm.patchValue({
+            descriptionFormModified: true
+          })
+        }
+      }
+      if (newDescriptionTranslation) { this.descriptionTranslations.set(this.idFictitiousCounter, newDescriptionTranslation) }
+      else {
+        if (this.treeNodeForm.value.name && this.treeNodeForm.value.name != this.currentNodeName) {
+          this.treeNodeForm.patchValue({
+            nameFormModified: true
+          })
+        }
+      }
+    }
+    else {
+      if (newNameTranslation) { this.nameTranslations.set(this.treeNodeForm.value.id, newNameTranslation) }
+      else {
+        if (this.treeNodeForm.value.description && this.treeNodeForm.value.description != this.currentNodeDescription) {
+          this.treeNodeForm.patchValue({
+            descriptionFormModified: true
+          })
+        }
+      }
+      if (newDescriptionTranslation) { this.descriptionTranslations.set(this.treeNodeForm.value.id, newDescriptionTranslation) }
+      else {
+        if (this.treeNodeForm.value.name && this.treeNodeForm.value.name != this.currentNodeName) {
+          this.treeNodeForm.patchValue({
+            nameFormModified: true
+          })
+        }
+      }
+    }
+  }
+
+  updateCartographyTreeLeft(cartography) {
+
+    this.treeNodeForm.patchValue({
+      cartography: cartography
+    })
+    if (cartography != null) {
+      this.treeNodeForm.patchValue({
+        cartographyName: cartography.name,
+        cartographyId: cartography.id
+      })
+
+    }
+    else{
+      if(!this.treeNodeForm.get('isFolder').value){
+        const oldCartography = this.treeNodeForm.get('oldCartography').value;
+        if(oldCartography){
+          this.treeNodeForm.patchValue({
+            cartography: oldCartography,
+            cartographyName: oldCartography.name,
+            cartographyId: oldCartography.id
+          })
+        }
+      }
+    }
+
+    if(!this.treeNodeForm.get('isFolder').value){
+      if(this.treeNodeForm.get('filterGetFeatureInfo').value == "UNDEFINED"){
+        this.treeNodeForm.get('filterGetFeatureInfo').patchValue(null);
+      }
+      if(this.treeNodeForm.get('filterGetMap').value == "UNDEFINED"){
+        this.treeNodeForm.get('filterGetMap').patchValue(null);
+      }
+      if(this.treeNodeForm.get('filterSelectable').value == "UNDEFINED"){
+        this.treeNodeForm.get('filterSelectable').patchValue(null);
+      }
+    }
+
+
+    let newNameTranslation: Map<string, Translation> = null;
+    let newDescriptionTranslation: Map<string, Translation> = null;
+
+    if (this.treeNodeForm.value.nameTranslationsModified) {
+      newNameTranslation = this.treeNodeForm.value.nameTranslations
+    }
+
+    if (this.treeNodeForm.value.descriptionTranslationsModified) {
+      newDescriptionTranslation = this.treeNodeForm.value.descriptionTranslations
+    }
+
+    if (this.newElement) {
+      this.treeNodeForm.patchValue({
+        id: this.idFictitiousCounter
+      })
+      if (newNameTranslation) { this.nameTranslations.set(this.idFictitiousCounter, newNameTranslation) }
+      else {
+        if (this.treeNodeForm.value.description && this.treeNodeForm.value.description != this.currentNodeDescription) {
+          this.treeNodeForm.patchValue({
+            descriptionFormModified: true
+          })
+        }
+      }
+      if (newDescriptionTranslation) { this.descriptionTranslations.set(this.idFictitiousCounter, newDescriptionTranslation) }
+      else {
+        if (this.treeNodeForm.value.name && this.treeNodeForm.value.name != this.currentNodeName) {
+          this.treeNodeForm.patchValue({
+            nameFormModified: true
+          })
+        }
+      }
+    }
+    else {
+      if (newNameTranslation) { this.nameTranslations.set(this.treeNodeForm.value.id, newNameTranslation) }
+      else {
+        if (this.treeNodeForm.value.description && this.treeNodeForm.value.description != this.currentNodeDescription) {
+          this.treeNodeForm.patchValue({
+            descriptionFormModified: true
+          })
+        }
+      }
+      if (newDescriptionTranslation) { this.descriptionTranslations.set(this.treeNodeForm.value.id, newDescriptionTranslation) }
+      else {
+        if (this.treeNodeForm.value.name && this.treeNodeForm.value.name != this.currentNodeName) {
+          this.treeNodeForm.patchValue({
+            nameFormModified: true
+          })
+        }
+      }
+    }
+  }
+
+  updateTreeLeft() {
+    if (this.newElement) {
+      this.idFictitiousCounter--;
+      this.createNodeEvent.next(this.treeNodeForm.value);
+    } else {
+      this.updateNode();
+    }
+    this.savingNode = false;
+    this.newElement = false;
+    this.currentNodeIsFolder = undefined;
+    this.treeNodeForm.reset();
+  }
+
+    // ******** Applications ******** //
+
+    getAllApplications = (): Observable<any> => {
+
+      if (this.treeID == -1 && this.duplicateID == -1) {
+        const aux: Array<any> = [];
+        return of(aux);
+      }
+
+      let urlReq = `${this.treeToEdit._links.availableApplications.href}`
+      if (this.treeToEdit._links.availableApplications.templated) {
+        const url = new URL(urlReq.split("{")[0]);
+        url.searchParams.append("projection", "view")
+        urlReq = url.toString();
+      }
+
+
+      return (this.http.get(urlReq))
+        .pipe(map(data => data['_embedded']['applications']));
+
+
+    }
+
+    getAllRowsApplication(event) {
+      if (event.event == "save") {
+        this.saveApplications(event.data);
+      }
+    }
+
 
   saveApplications(data: any[]) {
     let dataChanged = false;
@@ -1496,218 +1704,12 @@ export class TreesFormComponent implements OnInit {
       if (dataChanged) {
         const url = this.treeToEdit._links.availableApplications.href.split('{', 1)[0];
         this.utils.updateUriList(url, applicationsToPut, this.dataUpdatedEventApplication)
-      } else {
+      }
+      else {
         this.dataUpdatedEventApplication.next(true);
       }
     });
 
-  }
-
-  private showStyleError(){
-    const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title = this.utils.getTranslate("Error");
-    dialogRef.componentInstance.hideCancelButton = true;
-    dialogRef.componentInstance.message = this.utils.getTranslate("treesEntity.styleError");
-    dialogRef.afterClosed().subscribe();
-  }
-
-  private checkIfStyleIsInvalid(currentStyle:string, cartographyStyles: Array<string>):boolean{
-    //True if cartographyStyles is empty and currentStyle is not null, or if cartography styles is not empty but not includes currentStyle
-    if( ((!cartographyStyles || cartographyStyles.length == 0) && currentStyle) ||
-    (cartographyStyles && cartographyStyles.length > 0 && (currentStyle && !cartographyStyles.includes(currentStyle)))){
-      return true;
-    }
-    else{
-      return false;
-    }
-  }
-
-
-  public getSelectedRowsCartographies(data: any[]) {
-    let cartography = null;
-    if(!this.currentNodeIsFolder && (!data || data.length == 0)){
-      cartography = this.currentNodeCartography;
-    }
-    if ((data.length <= 0 && this.treeNodeForm.value.cartographyName == null) && !this.currentNodeIsFolder) {
-      const dialogRef = this.dialog.open(DialogMessageComponent);
-      dialogRef.componentInstance.title = this.utils.getTranslate("Error");
-      dialogRef.componentInstance.hideCancelButton = true;
-      dialogRef.componentInstance.message = this.utils.getTranslate("cartographyNonSelectedMessage");
-      dialogRef.afterClosed().subscribe();
-    }
-    else if( !this.currentNodeIsFolder && data.length >0 && this.checkIfStyleIsInvalid(this.treeNodeForm.get('style').value, data[0].stylesNames)){
-      this.showStyleError();
-    }
-    else if(cartography && this.checkIfStyleIsInvalid(this.treeNodeForm.get('style').value, cartography.stylesNames)){
-        this.showStyleError();
-    }
-    else {
-      if (this.treeNodeForm.value.cartographyName !== null && data.length <= 0) {
-        this.updateCartographyTreeLeft(null)
-      }
-      else {
-        this.updateCartographyTreeLeft(data[0])
-      }
-    }
-
-  }
-
-  public getSelectedRowsTasks(data: any[]) {
-    let task = null;
-    if(!this.currentNodeIsFolder && (!data || data.length == 0)){
-      task = this.currentNodeTask;
-    }
-    if ((data.length <= 0 && this.treeNodeForm.value.taskName == null) && !this.currentNodeIsFolder) {
-      const dialogRef = this.dialog.open(DialogMessageComponent);
-      dialogRef.componentInstance.title = this.utils.getTranslate("Error");
-      dialogRef.componentInstance.hideCancelButton = true;
-      dialogRef.componentInstance.message = this.utils.getTranslate("taskNonSelectedMessage");
-      dialogRef.afterClosed().subscribe();
-    }
-    else {
-      if (this.treeNodeForm.value.taskName !== null && data.length <= 0) {
-        this.updateTaskTreeLeft(null)
-      }
-      else {
-        this.updateTaskTreeLeft(data[0])
-      }
-    }
-
-  }
-
-  private storeTranslationInMap(translation, map: Map<number, Map<string, Translation>>, column: string) {
-    const currentTranslation = map.get(translation.element)
-    if (currentTranslation != undefined) {
-      this.utils.updateTranslations(currentTranslation, [translation])
-    } else {
-      const newMap: Map<string, Translation> = this.utils.createTranslationsList(column)
-      this.utils.updateTranslations(newMap, [translation]);
-      map.set(translation.element, newMap);
-    }
-  }
-
-  private createNodesWithCapabilities(groupLayersResult: Array<any>, existingNodes: Array<any>, parentId?) {
-    groupLayersResult.forEach(element => {
-      let newNode: any = {};
-      let name = element.Title;
-      if (name && name.length > 250) {
-        name = name.substring(0, 249)
-      }
-      const disallowNodeCreation = existingNodes.some(element => element.name == name);
-      if (!disallowNodeCreation) {
-        if (element.Layer) {  //Is folder
-          newNode = this.createNewFolderWithCapabilities(element)
-        } else { //Is node
-          newNode = this.createNewNodeWithCapabilities(element)
-        }
-
-
-        if (newNode) {
-          newNode.name = name;
-          newNode.tooltip = name;
-          newNode.type = this.codeValues.treenodeFolderType.cartography;
-          newNode.parent = parentId;
-          newNode.id = this.idFictitiousCounter;
-          newNode.children = [];
-          newNode.order = null;
-          newNode.status = "pendingCreation";
-          this.idFictitiousCounter--;
-          this.createNodeEvent.next(newNode);
-
-          //If only have one layer, we have to put it in an Array
-          let childrenLayers = element.Layer;
-          if (childrenLayers) {
-            if (!Array.isArray(childrenLayers)) {
-              childrenLayers = [element.Layer];
-            }
-          }
-
-          if (childrenLayers) {
-            this.createNodesWithCapabilities(childrenLayers, existingNodes, newNode.id)
-          }
-
-
-        }
-
-
-      }
-
-
-    });
-  }
-
-  updateTreeLeft() {
-    if (this.newElement) {
-      this.idFictitiousCounter--;
-      this.createNodeEvent.next(this.treeNodeForm.value);
-    } else {
-      this.updateNode();
-    }
-    this.newElement = false;
-    this.currentNodeIsFolder = undefined;
-    this.treeNodeForm.reset();
-  }
-
-    // ******** Applications ******** //
-
-  private createNewFolderWithCapabilities(capability) {
-    const newFolder: any = {};
-    newFolder.description = capability.Abstract;
-    newFolder.radio = false;
-    newFolder.isFolder = true;
-
-    if (newFolder.description && newFolder.description.length > 250) {
-      newFolder.description = newFolder.description.substring(0, 249)
-    }
-
-
-    if (capability.MetadataURL != undefined) {
-      const metadataURL = Array.isArray(capability.MetadataURL) ? capability.MetadataURL[0] : capability.MetadataURL
-      newFolder.metadataURL = metadataURL.OnlineResource['xlink:href']
-    }
-
-    if (capability.DataURL != undefined) {
-      const DataURL = Array.isArray(capability.DataURL) ? capability.DataURL[0] : capability.DataURL
-      newFolder.datasetURL = DataURL.OnlineResource['xlink:href']
-    }
-
-    return newFolder;
-
-  }
-
-    getAllRowsApplication(event) {
-      if (event.event == "save") {
-        this.saveApplications(event.data);
-      }
-    }
-
-  private createNewNodeWithCapabilities(capability) {
-    const newNode: any = {};
-
-    let layersLyr; //Layers field to compare with cartographies
-    if (Array.isArray(capability.Name)) {
-      layersLyr = capability.Name;
-    } else {
-      if (!isNaN(capability.Name)) {
-        capability.Name = capability.Name.toString()
-      }
-      layersLyr = capability.Name.split(",");
-    }
-
-
-    if (!layersLyr) {
-      return null
-    }
-    const cartography = this.layersList.find(element => element.layers.join() == layersLyr.join())
-    if (!cartography) {
-      return null
-    }
-
-    newNode.cartography = cartography;
-    newNode.cartographyName = cartography.name;
-    newNode.active = true;
-    newNode.isFolder = false;
-    return newNode;
   }
 
   openApplicationsDialog(data: any) {
@@ -1926,4 +1928,3 @@ export class TreesFormComponent implements OnInit {
     });
   }
 }
-
