@@ -7,3 +7,33 @@
   min-height: 64px;
   padding-left: 24px;
 }
+
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  padding: 16px 0;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+.checkbox-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  mat-checkbox {
+    margin-bottom: 0;
+
+    ::ng-deep .mat-checkbox-layout {
+      margin-bottom: 0;
+    }
+
+    ::ng-deep .mat-checkbox-label {
+      line-height: 20px;
+    }
+  }
+}

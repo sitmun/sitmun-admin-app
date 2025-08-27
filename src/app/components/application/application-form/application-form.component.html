@@ -175,6 +175,59 @@
       </mat-card>
     </form>
   </mat-tab>
+  <mat-tab label=" {{'entity.application.header.headerParamTitle' | translate}}">
+    <mat-card appearance="outlined" class="sitmun-mat-card-margin">
+      <mat-card-content>
+        <form *ngIf="dataLoaded" [formGroup]='entityForm'>
+          <mat-card appearance="outlined" class="sitmun-mat-card-margin">
+            <div class="checkbox-grid">
+              <div class="checkbox-column">
+                <mat-checkbox formControlName="logoSitmun">
+                  <mat-label> {{ 'entity.application.header.displaySitmunLogo' | translate }}</mat-label>
+                </mat-checkbox>
+                <mat-checkbox formControlName="switchApplication">
+                  <mat-label>{{ 'entity.application.header.displaySwitchApplicationButton' | translate }}</mat-label>
+                </mat-checkbox>
+                <mat-checkbox formControlName="homeMenu">
+                  <mat-label>{{ 'entity.application.header.displayHomeButton' | translate }}</mat-label>
+                </mat-checkbox>
+              </div>
+              <div class="checkbox-column">
+                <mat-checkbox formControlName="switchLanguage">
+                  <mat-label>{{ 'entity.application.header.displaySwitchLanguageButton' | translate }}</mat-label>
+                </mat-checkbox>
+                <mat-checkbox formControlName="profileButton">
+                  <mat-label>{{ 'entity.application.header.displayProfileButton' | translate }}</mat-label>
+                </mat-checkbox>
+                <mat-checkbox formControlName="logoutButton">
+                  <mat-label>{{ 'entity.application.header.displayLogoutButton' | translate }}</mat-label>
+                </mat-checkbox>
+              </div>
+            </div>
+          </mat-card>
+        </form>
+        <app-data-grid (getAllRows)="headerParamsTable.handleSaveRelations($event)"
+                       (new)="headerParamsTable.openTemplateDialog('newHeaderParamDialog')"
+                       *ngIf="dataLoaded"
+                       [actionButton]=true
+                       [allNewElements]="isNewOrDuplicated()"
+                       [changeHeightButton]="true"
+                       [columnDefs]="headerParamsTable.relationsColumnsDefs"
+                       [defaultColumnSorting]='headerParamsTable.defaultRelationsSorting()'
+                       [deleteButton]=true
+                       [discardChangesButton]=true
+                       [eventAddItemsSubscription]='headerParamsTable.addCommandEvent$.asObservable()'
+                       [eventGetAllRowsSubscription]='headerParamsTable.saveCommandEvent$.asObservable()'
+                       [eventRefreshSubscription]='headerParamsTable.refreshCommandEvent$.asObservable()'
+                       [getAll]='headerParamsTable.relationsFetchFn'
+                       [hideDuplicateButton]=true
+                       [newButton]=true
+                       [redoButton]=true
+                       [undoButton]=true
+        ></app-data-grid>
+      </mat-card-content>
+    </mat-card>
+  </mat-tab>
   <mat-tab label="{{ 'entity.application.parameters.header' | translate }}">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
@@ -301,6 +354,38 @@
           <input matInput type="text" formControlName="value" required [maxlength]="250">
           <mat-hint align="end">{{parametersTable.templateDialog('newParameterDialog').form.get('value') | characterCount}}</mat-hint>
         </mat-form-field>
+      </mat-card-content>
+    </mat-card>
+  </form>
+</ng-template>
+
+<ng-template #newHeaderParamDialog>
+  <form [formGroup]="headerParamsTable.templateDialog('newHeaderParamDialog').form">
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ 'entity.application.header.name' | translate }}</mat-label>
+          <input [maxlength]="50" formControlName="name" matInput required type="text">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ 'layersPermitsEntity.serviceURL' | translate }}</mat-label>
+          <input [maxlength]="500" formControlName="url" matInput required type="text">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ 'entity.application.header.section' | translate }}</mat-label>
+          <mat-select class="section" formControlName="section" required>
+            <mat-option *ngFor="let parameterType of headerParamsSection" [value]="parameterType">
+              {{ parameterType }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+
+        <mat-checkbox formControlName="visible">
+          <mat-label> {{ 'entity.application.type.generic.visible' | translate }}</mat-label>
+        </mat-checkbox>
       </mat-card-content>
     </mat-card>
   </form>

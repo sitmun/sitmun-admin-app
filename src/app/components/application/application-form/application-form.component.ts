@@ -22,7 +22,6 @@ import {
   UserService
 } from '@app/domain';
 import {Component, TemplateRef, ViewChild} from '@angular/core';
-import {FormControl, FormGroup, UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {
   DataGridComponent,
   isActive,
@@ -32,10 +31,12 @@ import {
   onUpdatedRelation,
   Status,
 } from '@app/frontend-gui/src/lib/public_api';
-import {EMPTY, firstValueFrom, Observable} from 'rxjs';
+import {DataTableDefinition, TemplateDialog} from '@app/components/data-tables.util';
+import {EMPTY, firstValueFrom, Observable, of} from 'rxjs';
+import {FormControl, FormGroup, UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
+import {ApplicationHeaderParameter} from '@app/domain/application/models/application-header-parameter.model';
 import {BaseFormComponent} from "@app/components/base-form.component";
 import {Configuration} from "@app/core/config/configuration";
-import {DataTableDefinition, TemplateDialog} from '@app/components/data-tables.util';
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {HalOptions} from '@app/core/hal/rest/rest.service';
 import {LoggerService} from "@app/services/logger.service";
@@ -68,12 +69,10 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    */
   readonly parametersTable: DataTableDefinition<ApplicationParameter, ApplicationParameter>
 
-  /**
-   * Data table configuration for managing application trees.
-   * Handles navigation tree associations with special validation for turistic applications.
-   * Columns: checkbox, ID, name (editable), status
-   */
-  protected readonly treesTable: DataTableDefinition<Tree, Tree>;
+  headerParamsSection: Array<any> = [
+    this.utils.getTranslate('entity.application.header.headerLeftSection'),
+    this.utils.getTranslate('entity.application.header.headerRightSection')
+  ];
 
   /**
    * Data table configuration for managing application roles.
@@ -89,17 +88,34 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    */
   protected readonly applicationBackgroundsTable: DataTableDefinition<ApplicationBackgroundProjection, BackgroundProjection>;
 
-  /**
-   * Stores the current application type.
-   * Used to control form behavior and validation rules based on application type.
-   */
-  private currentAppType: string = null;
+  headerParams = {
+    headerLeftSection: {
+      logoSitmun: {
+        visible: true
+      }
+    },
+    headerRightSection: {
+      switchApplication: {
+        visible: true
+      },
+      homeMenu: {
+        visible: true
+      },
+      switchLanguage: {
+        visible: true
+      },
+      profileButton: {
+        visible: true
+      },
+      logoutButton: {
+        visible: true
+      },
+    }
+  };
 
-  /**
-   * List of available situation maps for selection.
-   * Includes a default empty option and all cartography groups of type location map.
-   */
-  protected situationMapList: CartographyGroup[] = [];
+  headerBaseLeft: any;
+
+  headerBaseRight: any;
 
   /**
    * List of users available for selection in the application form.
@@ -107,14 +123,42 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
   protected usersList: User[] = [];
 
   /**
+   * Data table configuration for managing application trees.
+   * Handles navigation tree associations with special validation for touristic applications.
+   * Columns: checkbox, ID, name (editable), status
+   */
+  protected readonly treesTable: DataTableDefinition<Tree, Tree>;
+
+  protected readonly headerParamsTable: DataTableDefinition<ApplicationHeaderParameter, ApplicationHeaderParameter>
+
+  /**
+   * List of available situation maps for selection.
+   * Includes a default empty option and all cartography groups of the type location map.
+   */
+  protected situationMapList: CartographyGroup[] = [];
+
+  /**
+   * Stores the current application type.
+   * Used to control form behavior and validation rules based on an application type.
+   */
+  private currentAppType: string = null;
+
+  /**
    * Reference to the dialog template used for creating new parameters.
-   * Used by the parameters table for adding new application parameters.
+   * Used by the table of parameters for adding new application parameters.
    */
   @ViewChild('newParameterDialog', {static: true})
   private readonly newParameterDialog: TemplateRef<any>;
 
   /**
-   * Reference to the trees data grid component.
+   * Reference to the dialog template used for creating new parameters.
+   * Used by the table of parameters for adding new application parameters.
+   */
+  @ViewChild('newHeaderParamDialog', {static: true})
+  private readonly newHeaderParamDialog: TemplateRef<any>;
+
+  /**
+   * Reference to the data grid component that displays the navigation trees for the application.
    * Used to access grid data for tree-specific validation rules.
    */
   @ViewChild('treesDataGrid')
@@ -165,6 +209,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     this.treesTable = this.defineTreesTable();
     this.rolesTable = this.defineRolesTable();
     this.applicationBackgroundsTable = this.defineApplicationBackgroundsTable();
+    this.headerParamsTable = this.defineNewHeaderParamDialog();
   }
 
   /**
@@ -172,7 +217,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    * Sets up data tables, translations, and situation map list.
    */
   override async preFetchData() {
-    this.dataTables.register(this.parametersTable).register(this.treesTable).register(this.rolesTable).register(this.applicationBackgroundsTable);
+    this.dataTables.register(this.parametersTable).register(this.treesTable).register(this.rolesTable).register(this.applicationBackgroundsTable).register(this.headerParamsTable);
     this.initTranslations('Application', ['name', 'description', 'title', 'maintenanceInformation'])
     await this.initCodeLists(['application.type', 'applicationParameter.type'])
     const [situationMaps, users] = await Promise.all([
@@ -226,7 +271,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
   }
 
   /**
-   * Initializes form data after entity is fetched.
+   * Initializes form data after an entity is fetched.
    * Sets up reactive form with entity values and validation rules.
    * @throws Error if entity is undefined
    */
@@ -236,12 +281,18 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     }
 
     this.currentAppType = this.entityToEdit.type;
+    this.headerBaseLeft = Object.keys(this.headerParams.headerLeftSection);
+    this.headerBaseRight = Object.keys(this.headerParams.headerRightSection);
+    if (this.entityToEdit.headerParams != null)
+      this.headerParams = this.entityToEdit.headerParams;
+    this.entityToEdit.headerParams = this.headerParams;
+
     this.entityForm = new UntypedFormGroup({
       name: new UntypedFormControl(this.entityToEdit.name, [Validators.required,]),
       description: new UntypedFormControl(this.entityToEdit.description),
       type: new UntypedFormControl(this.entityToEdit.type, [Validators.required,]),
       title: new UntypedFormControl(this.entityToEdit.title),
-      jspTemplate: new UntypedFormControl(this.entityToEdit.jspTemplate), // URL or path to external application template
+      jspTemplate: new UntypedFormControl(this.entityToEdit.jspTemplate), // URL or path to an external application template
       theme: new UntypedFormControl(this.entityToEdit.theme),
       situationMapId: new UntypedFormControl(this.entityToEdit.situationMapId, []),
       srs: new UntypedFormControl(this.entityToEdit.srs),
@@ -249,6 +300,12 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       treeAutoRefresh: new UntypedFormControl(this.entityToEdit.treeAutoRefresh),
       accessParentTerritory: new UntypedFormControl(this.entityToEdit.accessParentTerritory),
       accessChildrenTerritory: new UntypedFormControl(this.entityToEdit.accessChildrenTerritory),
+      homeMenu: new UntypedFormControl(this.entityToEdit.headerParams.headerRightSection.homeMenu.visible),
+      switchApplication: new UntypedFormControl(this.entityToEdit.headerParams.headerRightSection.switchApplication.visible),
+      logoSitmun: new UntypedFormControl(this.entityToEdit.headerParams.headerLeftSection.logoSitmun.visible),
+      logoutButton: new UntypedFormControl(this.entityToEdit.headerParams.headerRightSection.logoutButton.visible),
+      profileButton: new UntypedFormControl(this.entityToEdit.headerParams.headerRightSection.profileButton.visible),
+      switchLanguage: new UntypedFormControl(this.entityToEdit.headerParams.headerRightSection.switchLanguage.visible),
       logo: new UntypedFormControl(this.entityToEdit.logo, []),
       maintenanceInformation: new UntypedFormControl(this.entityToEdit.maintenanceInformation,[]),
       creatorId: new UntypedFormControl(this.entityToEdit.creatorId,[]),
@@ -265,6 +322,13 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    */
   createObject(id: number = null): Application {
     let safeToEdit = ApplicationProjection.fromObject(this.entityToEdit);
+    this.headerParams.headerLeftSection.logoSitmun.visible = this.entityForm.value.logoSitmun;
+    this.headerParams.headerRightSection.logoutButton.visible = this.entityForm.value.logoutButton;
+    this.headerParams.headerRightSection.profileButton.visible = this.entityForm.value.profileButton;
+    this.headerParams.headerRightSection.switchLanguage.visible = this.entityForm.value.switchLanguage;
+    this.headerParams.headerRightSection.homeMenu.visible = this.entityForm.value.homeMenu;
+    this.headerParams.headerRightSection.switchApplication.visible = this.entityForm.value.switchApplication;
+
     safeToEdit = Object.assign(safeToEdit,
       this.entityForm.value,
       {
@@ -275,6 +339,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
         appPrivate: this.entityForm.value.appPrivate,
       }
     );
+    safeToEdit.headerParams = this.headerParams;
     return Application.fromObject(safeToEdit)
   }
 
@@ -347,7 +412,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
   }
 
   /**
-   * Ensures turistic apps have exactly one turistic tree.
+   * Ensures touristic apps have exactly one touristic tree.
    * @param trees - Array of trees to validate
    * @returns boolean indicating validation result
    */
@@ -368,7 +433,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
   }
 
   /**
-   * Ensures non-turistic apps don't have turistic trees.
+   * Ensures non-touristic apps don't have touristic trees.
    * @param trees - Array of trees to validate
    * @returns boolean indicating validation result
    */
@@ -380,7 +445,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
   }
 
   /**
-   * Enables/disables form controls based on selected application type.
+   * Enables/disables form controls based on the selected application type.
    * @param value - The new application type value from selection event
    */
   onSelectionTypeAppChanged({value}): void {
@@ -461,6 +526,101 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
         ).withPreOpenFunction((form: FormGroup) => {
           form.reset({type: this.firstInCodeList('applicationParameter.type').value});
         }).build())
+      .build();
+  }
+
+  private defineNewHeaderParamDialog(): DataTableDefinition<ApplicationHeaderParameter, ApplicationHeaderParameter> {
+    return DataTableDefinition.builder<ApplicationHeaderParameter, ApplicationHeaderParameter>(this.dialog, this.errorHandler)
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getNonEditableColumnDef('entity.application.header.name', 'name'),
+        this.utils.getEditableColumnDef('entity.application.header.url', 'url'),
+        this.utils.getBooleanColumnDef('entity.application.header.visible', 'visible', true),
+        this.utils.getSelectColumnDef('entity.application.header.section', 'section', true, () => this.headerParamsSection),
+        this.utils.getStatusColumnDef()])
+      .withRelationsOrder('name')
+      .withRelationsFetcher(() => {
+        if (this.isNew()) {
+          return of([]);
+        }
+        return this.getAllHeaderParams();
+      })
+      .withRelationsUpdater(async (applicationParameters: (ApplicationHeaderParameter & Status)[]) => {
+        this.entityToEdit.headerParams = this.entityToEdit.headerParams ?? this.headerParams;
+
+        const handleCreate = new Promise(() => {
+          onCreate(applicationParameters).forEach(item => {
+            const object = {
+              url: item.url,
+              visible: item.visible
+            }
+            if (item.section == this.utils.getTranslate('entity.application.header.headerLeftSection'))
+              this.entityToEdit.headerParams.headerLeftSection[item.name] = object;
+            else if (item.section == this.utils.getTranslate('entity.application.header.headerRightSection'))
+              this.entityToEdit.headerParams.headerRightSection[item.name] = object;
+            const newItem = Application.fromObject(this.entityToEdit);
+            return this.applicationService.update(newItem)
+          });
+        });
+
+        const handleUpdate = new Promise(() => {
+          onUpdate(applicationParameters).forEach(item => {
+            const object = {
+              url: item.url,
+              visible: item.visible
+            }
+            if (item.section == this.utils.getTranslate('entity.application.header.headerLeftSection')) {
+              this.entityToEdit.headerParams.headerLeftSection[item.name] = object;
+              delete this.entityToEdit.headerParams.headerRightSection[item.name];
+            } else if (item.section == this.utils.getTranslate('entity.application.header.headerRightSection')) {
+              this.entityToEdit.headerParams.headerRightSection[item.name] = object;
+              delete this.entityToEdit.headerParams.headerLeftSection[item.name];
+            }
+            const newItem = Application.fromObject(this.entityToEdit);
+            return this.applicationService.update(newItem)
+          });
+        });
+
+        const handleDelete = new Promise(() => {
+          onDelete(applicationParameters).forEach(item => {
+            delete this.entityToEdit.headerParams.headerLeftSection[item.name];
+            delete this.entityToEdit.headerParams.headerRightSection[item.name];
+            const newItem = Application.fromObject(this.entityToEdit);
+            return this.applicationService.update(newItem)
+          });
+        });
+
+        void Promise.allSettled([handleCreate, handleUpdate, handleDelete]);
+        this.headerParams = this.entityToEdit.headerParams;
+      })
+      .withTemplateDialog('newHeaderParamDialog', () => {
+        if (!this.newHeaderParamDialog) {
+          throw new Error('Template reference for newParameterDialog is undefined');
+        }
+        return TemplateDialog.builder()
+          .withReference(this.newHeaderParamDialog)
+          .withTitle(this.translateService.instant('entity.application.header.title'))
+          .withForm(
+            new FormGroup({
+              name: new FormControl('', {
+                validators: [Validators.required],
+                nonNullable: true
+              }),
+              url: new FormControl('', {
+                validators: [Validators.required],
+                nonNullable: true
+              }),
+              visible: new FormControl(false, {
+                nonNullable: true
+              }),
+              section: new FormControl('', {
+                nonNullable: true
+              })
+            })
+          ).build();
+      })
+      .withTargetsTitle(this.translateService.instant('entity.application.header.title'))
+      .withTargetsOrder('name')
       .build();
   }
 
@@ -640,4 +800,41 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
   getUsername(creatorId: number): string {
     return this.usersList.find(user => user.id === creatorId)?.username || '';
   }
+
+  private readonly getAllHeaderParams = (): Observable<ApplicationHeaderParameter[]> => {
+    const result: ApplicationHeaderParameter[] = [];
+    const headerLeft = Object.keys(this.headerParams.headerLeftSection)
+      .filter(key => !this.headerBaseLeft.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = this.headerParams.headerLeftSection[key];
+        return obj;
+      }, {} as any);
+
+    const headerRight = Object.keys(this.headerParams.headerRightSection)
+      .filter(key => !this.headerBaseRight.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = this.headerParams.headerRightSection[key];
+        return obj;
+      }, {} as any);
+
+    Object.entries(headerLeft).forEach(([key, value]: any) => {
+      const object = new ApplicationHeaderParameter();
+      object.url = value.url;
+      object.name = key;
+      object.visible = value.visible;
+      object.section = this.utils.getTranslate('entity.application.header.headerLeftSection');
+      result.push(object);
+    });
+
+    Object.entries(headerRight).forEach(([key, value]: any) => {
+      const object = new ApplicationHeaderParameter();
+      object.url = value.url;
+      object.name = key;
+      object.visible = value.visible;
+      object.section = this.utils.getTranslate('entity.application.header.headerRightSection');
+      result.push(object);
+    });
+
+    return of(result);
+  };
 }
