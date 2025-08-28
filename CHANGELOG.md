@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] - 2025-08-28
+
+### Added
+
+- Application header parameter configuration with customizable left and right sections
+- Header display controls for SITMUN logo, application switcher, home menu, language selector, profile and logout buttons
+- Enhanced task selection functionality on tree nodes with improved validation
+- Application privacy controls through `appPrivate` property configuration
+
+### Changed
+
+- Modernized territory form component with BaseFormComponent pattern for consistency
+- Enhanced tree node task selection with better validation and error messaging
+- Improved warnings panel component with expandable interface and badge notifications
+
+### Fixed
+
+- Angular compiler strict template compliance issues across multiple components
+- Background maps filtering in layers-permits grid to prevent display conflicts
+- Error handling with localized messages for initialization and service capabilities
+- Fallback message translation handling for better internationalization
+- Application form initialization to ensure `isUnavailable` property is properly set
+- Route-driven authentication layout with simplified auth flow
+- Core/HAL module with dropped Node polyfills and modernized RxJS error handling
+
 ## [1.1.0] - 2025-08-03
 
 ### Added
@@ -98,8 +123,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Various bug fixes and improvements from development phase
 
-[unreleased]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.1.0...HEAD
-
+[Unreleased]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.1.1...HEAD
+[1.1.1]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.1.0...sitmun-admin-app/1.1.1
 [1.1.0]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.0.0...sitmun-admin-app/1.1.0
-
 [1.0.0]: https://github.com/sitmun/sitmun-admin-app/releases/tag/sitmun-admin-app/1.0.0
