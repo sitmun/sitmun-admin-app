@@ -1,4 +1,3 @@
-import {Component, TemplateRef, ViewChild} from '@angular/core';
 import {
   AbstractControl,
   FormControl,
@@ -24,35 +23,30 @@ import {
   CartographyParameterService,
   CartographyProjection,
   CartographyService,
-  CartographySpatialSelectionParameterService,
   CartographyStyle,
   CartographyStyleService,
   CodeListService,
-  ConnectionService,
-  GetInfoService,
   ServiceService,
   TerritoryProjection,
   TerritoryService,
   TerritoryTypeService,
-  Translation,
   TranslationService,
   TreeNodeProjection,
-  TreeNodeService
 } from '@app/domain';
-import {UtilsService} from '@app/services/utils.service';
-import {map} from 'rxjs/operators';
-import {EMPTY, Subject, firstValueFrom} from 'rxjs';
-import {Status, onCreate, onDelete, onUpdate} from '@app/frontend-gui/src/lib/public_api';
-import {MatDialog} from '@angular/material/dialog';
-import {constants} from '@environments/constants';
-import {LoggerService} from '@app/services/logger.service';
-import {BaseFormComponent} from '@app/components/base-form.component';
-import {TranslateService} from '@ngx-translate/core';
-import {ErrorHandlerService} from "@app/services/error-handler.service";
+import {Component, TemplateRef, ViewChild} from '@angular/core';
 import {DataTableDefinition, TemplateDialog} from '@app/components/data-tables.util';
-import {HttpClient} from "@angular/common/http";
-import {FeatureFlagService} from '@app/core/features/feature-flag.service';
+import {EMPTY, firstValueFrom} from 'rxjs';
+import {onCreate, onDelete, onUpdate, Status} from '@app/frontend-gui/src/lib/public_api';
+import {BaseFormComponent} from '@app/components/base-form.component';
 import {Configuration} from "@app/core/config/configuration";
+import {ErrorHandlerService} from "@app/services/error-handler.service";
+import {HttpClient} from "@angular/common/http";
+import {LoggerService} from '@app/services/logger.service';
+import {MatDialog} from '@angular/material/dialog';
+import {TranslateService} from '@ngx-translate/core';
+import {UtilsService} from '@app/services/utils.service';
+import {constants} from '@environments/constants';
+import {map} from 'rxjs/operators';
 
 @Component({
   selector: 'app-layers-form',
@@ -68,45 +62,12 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
   protected readonly stylesTable: DataTableDefinition<CartographyStyle, CartographyStyle>;
   protected readonly territorialFiltersTable: DataTableDefinition<CartographyFilterProjection, CartographyFilterProjection>;
   protected readonly parametersTable: DataTableDefinition<CartographyParameter, CartographyParameter>;
-  //Translations
-  translationMap: Map<string, Translation>;
-
-  translationsModified = false;
-
-  parametersPendingDelete = [];
 
   disableLoadButton = true;
-
-
-  //Form
-  geometryTypes: any[] = [];
-
-  legendTypes: any[] = [];
 
   services: any[] = [];
 
   territorialTypes: any[] = [];
-
-  parameterFormatTypes: any[] = [];
-
-  parameterFormatTypesDescription: any[] = [];
-
-  parameterTypes: any[] = [];
-
-  parameterTypesDescription: any[] = [];
-
-  columnDefsParameters: any[];
-
-  getAllElementsEventParameters: Subject<"save"> = new Subject<"save">();
-
-  dataUpdatedEventParameters: Subject<boolean> = new Subject<boolean>();
-
-  //Dialog
-  columnDefsParametersDialog: any[];
-
-  public parameterForm: UntypedFormGroup;
-
-  addElementsEventParameters: Subject<any[]> = new Subject<any[]>();
 
   @ViewChild('newParameterDialog', {
     static: true
@@ -118,12 +79,6 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
 
   @ViewChild('newStyleDialog', { static: true})
   private readonly newStyleDialog: TemplateRef<any>;
-
-  columnDefsCartographyGroupsDialog: any[];
-
-  columnDefsTerritoriesDialog: any[];
-
-  columnDefsNodesDialog: any[];
 
   constructor(
     dialog: MatDialog,
@@ -138,18 +93,13 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     protected cartographyFilterService: CartographyFilterService,
     protected cartographyAvailabilityService: CartographyAvailabilityService,
     protected serviceService: ServiceService,
-    protected connectionService: ConnectionService,
     protected territoryTypeService: TerritoryTypeService,
     protected territoryService: TerritoryService,
-    protected treeNodeService: TreeNodeService,
     protected cartographyGroupService: CartographyGroupService,
-    protected cartographySpatialSelectionParameterService: CartographySpatialSelectionParameterService,
     protected cartographyParameterService: CartographyParameterService,
     protected cartographyStyleService: CartographyStyleService,
     protected http: HttpClient,
     protected utils: UtilsService,
-    protected getInfoService: GetInfoService,
-    protected featureFlagService: FeatureFlagService,
   ) {
     super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router);
     this.treesNodesTable = this.defineTreesNodesTable();
@@ -269,7 +219,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
       blocked: new UntypedFormControl(this.entityToEdit.blocked || true, []),
       selectableFeatureEnabled: new UntypedFormControl(this.entityToEdit.selectableFeatureEnabled, [],),
       joinedSelectableLayers: new UntypedFormControl(this.entityToEdit.selectableLayers?.join(','), []),
-      spatialSelectionConnectionId: new UntypedFormControl(this.entityToEdit.spatialSelectionConnectionId, []),
+      spatialSelectionServiceId: new UntypedFormControl(this.entityToEdit.spatialSelectionServiceId, []),
       useAllStyles: new UntypedFormControl(this.entityToEdit.useAllStyles || false, []),
     });
 
@@ -649,212 +599,3 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     return service ? service.name : '';
   }
 }
-
-
-//
-// CODE THAT CAN BE REMOVED
-//
-
-/*
-
-  onSelectionThematicChanged(value) {
-    if (value.checked) {
-      this.entityForm.get('geometryType').enable();
-    } else {
-      this.entityForm.get('geometryType').disable();
-    }
-  }
-
-  onSelectableFeatureEnabledChange(value) {
-    if (value.checked) {
-      this.entityForm.get('spatialSelectionServiceId').enable();
-      this.entityForm.get('joinedSelectableLayers').enable();
-      this.loadButtonDisabled();
-    } else {
-      this.entityForm.get('spatialSelectionServiceId').disable();
-      this.entityForm.get('joinedSelectableLayers').disable();
-      this.disableLoadButton = true;
-    }
-  }
-
-  onQueryableFeatureEnabledChange(value) {
-    if (value.checked) {
-      this.entityForm.get('queryableFeatureAvailable').enable();
-      this.entityForm.get('joinedQueryableLayers').enable();
-    } else {
-      this.entityForm.get('queryableFeatureAvailable').disable();
-      this.entityForm.get('joinedQueryableLayers').disable();
-    }
-  }
-
-  async onTranslationButtonClicked() {
-    const dialogResult = await this.utils.openTranslationDialog(this.translationMap);
-    if (dialogResult && dialogResult.event == 'Accept') {
-      this.translationsModified = true;
-    }
-  }
-
-
-
-  onLoadButtonClicked(): void {
-    try {
-
-      const dialogRef = this.dialog.open(DialogMessageComponent);
-      dialogRef.componentInstance.title = this.utils.getTranslate('caution');
-      dialogRef.componentInstance.message = this.utils.getTranslate('getInfoMessage');
-      dialogRef.afterClosed().subscribe(result => {
-        if (result) {
-          const replaceAll = result.event === 'Accept';
-          const service = this.spatialConfigurationServices.find(element => element.id == this.entityForm.get('spatialSelectionServiceId').value);
-          const layersName = this.entityForm.get('joinedSelectableLayers').value;
-          if (service && service.serviceURL && layersName) {
-            let url: string = service.serviceURL;
-            if (!url.includes('request=DescribeFeatureType')) {
-              if (url[url.length - 1] != '?') {
-                url += '?';
-              }
-
-              url += `request=DescribeFeatureType%26service=WFS%26typeName=${layersName}`;
-            }
-            this.getInfoService.getInfo(url).subscribe(result => {
-              if (result.success) {
-                this.manageGetInfoResults(result.asJson, replaceAll);
-              }
-            }, error => {
-              this.loggerService.error('Error getting info service', error);
-            });
-          }
-
-
-        }
-      });
-
-
-    } catch (err) {
-      this.utils.showErrorMessage(err);
-    }
-
-  }
-
-  manageGetInfoResults(results, replaceAll: boolean) {
-    const elementsToAdd = [];
-    const elements = [];
-    const type = this.spatialSelectionParameterTypes.find(element => element.value == 'SELECT');
-
-    if (results['xsd:schema'] && results['xsd:schema']['xsd:element']) {
-      elements.push(results['xsd:schema']['xsd:element']);
-    }
-
-    if (results['xsd:schema'] && results['xsd:schema']['xsd:complexType'] && results['xsd:schema']['xsd:complexType']['xsd:complexContent']) {
-      const complexContent = results['xsd:schema']['xsd:complexType']['xsd:complexContent'];
-      if (complexContent['xsd:extension'] && complexContent['xsd:extension']['xsd:sequence'] && complexContent['xsd:extension']['xsd:sequence']['xsd:element']) {
-        elements.push(...complexContent['xsd:extension']['xsd:sequence']['xsd:element']);
-        if (elements) {
-          elements.forEach(element => {
-            const newParameter = {
-              name: element.name,
-              value: element.name,
-              type: type ? type.value : null,
-              format: this.getFormatFromGetInfo(element.type),
-            };
-            elementsToAdd.push(newParameter);
-          });
-          if (elementsToAdd) {
-            if (replaceAll) {
-              this.getAllElementsEventSpatialConfigurations.next('pendingDelete');
-              this.replaceAllElementsEventSpatialConfigurations.next(elementsToAdd);
-            } else {
-              this.addElementsEventSpatialConfigurations.next(elementsToAdd);
-            }
-
-          }
-        }
-      }
-    }
-
-    return elementsToAdd;
-  }
-
-  private getFormatFromGetInfo(format) {
-    if (format == 'xsd:int') {
-      return 'N';
-    } else if (format == 'xsd:string') {
-      return 'T';
-    } else if (format == 'xsd:img') {
-      return 'I';
-    } else if (format == 'gml:PointPropertyType') {
-      return 'N';
-    } else if (format == 'xsd:url') {
-      return 'U';
-    } else if (format == 'xsd:date') {
-      return 'F';
-    } else {
-      return 'T';
-    }
-  }
-
-  // AG-GRID
-
-
-
-  loadButtonDisabled() {
-    const formValues = this.entityForm.value;
-    this.disableLoadButton = !(formValues.selectableFeatureEnabled &&
-      formValues.spatialSelectionService &&
-      formValues.spatialSelectionService > 0 &&
-      formValues.selectableLayers);
-
-  }
-
-  // ******** Spatial configuration ******** //
-  getAllSpatialConfigurations = (): Observable<any> => {
-
-    if (this.entityID == -1 && this.duplicateID == -1) {
-      const aux: any[] = [];
-      return of(aux);
-    }
-    let urlReq = `${this.entityToEdit._links.spatialSelectionParameters.href}`;
-    if (this.entityToEdit._links.spatialSelectionParameters.templated) {
-      const url = new URL(urlReq.split('{')[0]);
-      url.searchParams.append('projection', 'view');
-      urlReq = url.toString();
-    }
-
-    return (this.http.get(urlReq))
-      .pipe(map(data => data['_embedded']['cartography-spatial-selection-parameters'] //.filter(elem => elem.type == "EDIT")
-      ));
-
-  };
-
-
-
-
-  // ******** Spatial Selection Dialog  ******** //
-
-
-  openSpatialSelectionDialog(data: any) {
-
-    this.parameterForm.patchValue({
-      format: this.parameterFormatTypes[0].value
-    });
-
-    const dialogRef = this.dialog.open(DialogFormComponent);
-    dialogRef.componentInstance.HTMLReceived = this.newSpatialConfigurationDialog;
-    dialogRef.componentInstance.title = this.utils.getTranslate('entity.cartography.spatialSelection.parameters.title');
-    dialogRef.componentInstance.form = this.parameterForm;
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        if (result.event === 'Add') {
-          const item = this.parameterForm.value;
-          this.addElementsEventSpatialConfigurations.next([item]);
-
-        }
-      }
-      this.parameterForm.reset();
-    });
-
-
-  }
-
-*/
