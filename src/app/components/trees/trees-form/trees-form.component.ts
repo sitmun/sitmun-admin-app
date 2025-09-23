@@ -101,7 +101,6 @@ export class TreesFormComponent implements OnInit {
     }) private fieldsConfigDialog: TemplateRef<any>;
 
   filterOptions = [{value:'UNDEFINED', description: 'UNDEFINED'}, {value:true, description: 'YES'},{value:false, description: 'NO'}]
-  defaultLabel = 'Extra info'
   codeValues = constants.codeValue;
   servicesList = [];
   layersList = [];
@@ -546,7 +545,8 @@ export class TreesFormComponent implements OnInit {
       f.key.includes('Label') ? defaultValue = 'Extra info' : defaultValue = null;
       outputGroup[f.key] = new UntypedFormGroup({
         value: new UntypedFormControl(defaultValue, []),
-        calculated: new UntypedFormControl(booleanCalculated, [])
+        calculated: new UntypedFormControl(booleanCalculated, []),
+        multilanguage: new UntypedFormControl(false, [])
       });
     });
     this.fieldsConfigForm = new UntypedFormGroup({
@@ -924,7 +924,7 @@ export class TreesFormComponent implements OnInit {
 
     const dialogRef = this.dialog.open(DialogFormComponent);
     dialogRef.componentInstance.HTMLReceived = this.fieldsConfigDialog;
-    dialogRef.componentInstance.title = this.utils.getTranslate('applicationEntity.configurationParameters');
+    dialogRef.componentInstance.title = this.utils.getTranslate('treesEntity.fieldsConfig');
     dialogRef.componentInstance.form = this.fieldsConfigForm;
 
     dialogRef.afterClosed().subscribe(result => {
@@ -1405,7 +1405,9 @@ export class TreesFormComponent implements OnInit {
     if(!this.currentNodeIsFolder && (!data || data.length == 0)){
       cartography = this.currentNodeCartography;
     }
-    if ((data.length <= 0 && this.treeNodeForm.value.cartographyName == null) && !this.currentNodeIsFolder && this.currentTreeType !== this.codeValues.treeType.edition) {
+    if ((data.length <= 0 && this.treeNodeForm.value.cartographyName == null)
+      && !this.currentNodeIsFolder && this.currentTreeType !== this.codeValues.treeType.edition
+      && this.currentNodeType !== this.codeValues.treenodeLeafType.task) {
       const dialogRef = this.dialog.open(DialogMessageComponent);
       dialogRef.componentInstance.title = this.utils.getTranslate("Error");
       dialogRef.componentInstance.hideCancelButton = true;

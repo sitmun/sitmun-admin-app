@@ -37,6 +37,7 @@ const codeValue = {
   },
   taskViewMode: {
     detailedList: 'dl',
+    routes: 'rt',
     nearElements: 'ne',
     schedule: 'sch',
     events: 'evt',
@@ -94,6 +95,7 @@ export const constants = {
       label: 'nodeMapping.id',
       views: [
         codeValue.taskViewMode.detailedList,
+        codeValue.taskViewMode.routes,
         codeValue.taskViewMode.nearElements,
         codeValue.taskViewMode.schedule,
         codeValue.taskViewMode.events,
@@ -105,6 +107,7 @@ export const constants = {
       label: 'nodeMapping.name',
       views: [
         codeValue.taskViewMode.detailedList,
+        codeValue.taskViewMode.routes,
         codeValue.taskViewMode.nearElements,
         codeValue.taskViewMode.schedule,
         codeValue.taskViewMode.events,
@@ -125,6 +128,7 @@ export const constants = {
       label: 'nodeMapping.description',
       views: [
         codeValue.taskViewMode.detailedList,
+        codeValue.taskViewMode.routes,
         codeValue.taskViewMode.events
       ]
     },
@@ -140,6 +144,7 @@ export const constants = {
       label: 'nodeMapping.image',
       views: [
         codeValue.taskViewMode.detailedList,
+        codeValue.taskViewMode.routes,
         codeValue.taskViewMode.nearElements,
         codeValue.taskViewMode.events
       ]
@@ -148,28 +153,32 @@ export const constants = {
       key: 'leftbtnLabel',
       label: 'nodeMapping.leftbtnLabel',
       views: [
-        codeValue.taskViewMode.detailedList
+        codeValue.taskViewMode.detailedList,
+        codeValue.taskViewMode.routes,
       ]
     },
     {
       key: 'leftbtn',
       label: 'nodeMapping.leftbtn',
       views: [
-        codeValue.taskViewMode.detailedList
+        codeValue.taskViewMode.detailedList,
+        codeValue.taskViewMode.routes,
       ]
     },
     {
       key: 'rightbtnLabel',
       label: 'nodeMapping.rightbtnLabel',
       views: [
-        codeValue.taskViewMode.detailedList
+        codeValue.taskViewMode.detailedList,
+        codeValue.taskViewMode.routes
       ]
     },
     {
       key: 'rightbtn',
       label: 'nodeMapping.rightbtn',
       views: [
-        codeValue.taskViewMode.detailedList
+        codeValue.taskViewMode.detailedList,
+        codeValue.taskViewMode.routes
       ]
     },
     {
@@ -208,6 +217,55 @@ export const constants = {
       ]
     },
     {
+      key: 'length',
+      label: 'nodeMapping.length',
+      views: [
+        codeValue.taskViewMode.routes
+      ]
+    },
+    {
+      key: 'difficulty',
+      label: 'nodeMapping.difficulty',
+      views: [
+        codeValue.taskViewMode.routes
+      ]
+    },
+    {
+      key: 'time',
+      label: 'nodeMapping.time',
+      views: [
+        codeValue.taskViewMode.routes
+      ]
+    },
+    {
+      key: 'start',
+      label: 'nodeMapping.start',
+      views: [
+        codeValue.taskViewMode.routes
+      ]
+    },
+    {
+      key: 'end',
+      label: 'nodeMapping.end',
+      views: [
+        codeValue.taskViewMode.routes
+      ]
+    },
+    {
+      key: 'circ',
+      label: 'nodeMapping.circ',
+      views: [
+        codeValue.taskViewMode.routes
+      ]
+    },
+    {
+      key: 'graphic',
+      label: 'nodeMapping.graphic',
+      views: [
+        codeValue.taskViewMode.routes
+      ]
+    },
+    {
       key: 'path',
       label: 'nodeMapping.path',
       views: [
@@ -219,6 +277,7 @@ export const constants = {
       label: 'nodeMapping.geometry',
       views: [
         codeValue.taskViewMode.detailedList,
+        codeValue.taskViewMode.routes,
         codeValue.taskViewMode.nearElements,
         codeValue.taskViewMode.events,
         codeValue.taskViewMode.mapSearch
@@ -229,6 +288,7 @@ export const constants = {
       label: 'nodeMapping.proj',
       views: [
         codeValue.taskViewMode.detailedList,
+        codeValue.taskViewMode.routes,
         codeValue.taskViewMode.nearElements,
         codeValue.taskViewMode.events,
         codeValue.taskViewMode.mapSearch

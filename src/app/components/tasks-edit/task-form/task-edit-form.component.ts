@@ -688,7 +688,7 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
       .withFieldRestriction('name')
       .withTemplateDialog('newFieldDialog', () => TemplateDialog.builder()
         .withReference(this.newFieldDialog)
-        .withTitle(this.translateService.instant('taskEntity.newField'))
+        .withTitle(this.translateService.instant('tasksEditionEntity.newField'))
         .withForm(new FormGroup({
           selectable: new FormControl(false, {
             validators: [Validators.required],

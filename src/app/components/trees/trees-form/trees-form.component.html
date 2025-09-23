@@ -388,7 +388,7 @@
     <div class="formDiv">
       <div class="formDivTreeLeft">
         <div>
-          <h5>{{ 'treesEntity.namespacesMapping' | translate }}</h5>
+          <h5>{{ 'treesEntity.namespacesMapping' | translate }}</h5><span title="{{ 'treesEntity.namespacesHelp' | translate }}"><mat-icon aria-hidden="true" fontSet="{{ config.font }}" style="color: #ff9300; vertical-align: text-bottom; margin-left: 10px;">help</mat-icon></span>
           <div class="maping-form" formGroupName="namespaces">
             <p *ngIf="noNamespaces">{{'nodeMapping.noNamespaces' | translate}}</p>
             <div *ngFor="let control of nodeNamespacesControls">
@@ -430,7 +430,7 @@
         </div>
       </div>
       <div class="formDivTreeRight">
-        <h5>{{ 'treesEntity.inputMapping' | translate }}</h5>
+        <h5>{{ 'treesEntity.inputMapping' | translate }}</h5><span title="{{ 'treesEntity.inputMappingHelp' | translate }}"><mat-icon aria-hidden="true" fontSet="{{ config.font }}" style="color: #ff9300; vertical-align: text-bottom; margin-left: 10px;">help</mat-icon></span>
         <div class="maping-form" formGroupName="input">
           <p *ngIf="nodeInputsControls.length === 0">{{'nodeMapping.noParams' | translate}}</p>
           <div *ngFor="let control of nodeInputsControls">
@@ -456,7 +456,7 @@
           </div>
         </div>
 
-        <h5>{{ 'treesEntity.outputMapping' | translate }}</h5>
+        <h5>{{ 'treesEntity.outputMapping' | translate }}</h5><span title="{{ 'treesEntity.outputMappingHelp' | translate }}"><mat-icon aria-hidden="true" fontSet="{{ config.font }}" style="color: #ff9300; vertical-align: text-bottom; margin-left: 10px;">help</mat-icon></span>
         <div class="maping-form">
           <div class="rowFormDiv">
             <mat-form-field appearance="outline">
@@ -476,9 +476,9 @@
                <!-- Si el output es de tipo boton label, que sea un selector -->
                 <div *ngIf="control.key.includes('Label'); else notLabel">
                   <div class="colFormDiv" style="margin-left: 32%;">
-                    <mat-form-field appearance="outline">
+                    <mat-form-field [id]="control.key" appearance="outline">
                       <mat-label>{{control.label | translate}}</mat-label>
-                      <mat-select matInput formControlName="value" class="form-control" [(value)]="defaultLabel">
+                      <mat-select formControlName="value" class="form-control">
                         <mat-option [value]="labelview.value" *ngFor="let labelview of mappingbtnLabelOptions">
                           {{ labelview.label | translate }}
                         </mat-option>
@@ -498,6 +498,9 @@
                   </div>
                   <div class="colFormDiv">
                     <mat-checkbox formControlName="calculated" labelPosition="after">{{ 'treesEntity.calculated' | translate }}</mat-checkbox>
+                  </div>
+                  <div class="colFormDiv">
+                    <mat-checkbox formControlName="multilanguage" labelPosition="after">{{ 'treesEntity.multilanguage' | translate }}</mat-checkbox>
                   </div>
                 </ng-template> 
               </div>
