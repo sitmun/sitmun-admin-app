@@ -43,7 +43,8 @@ const codeValue = {
     events: 'evt',
     eventsCategories: 'evtcat',
     eventsLocations: 'evtloc',
-    mapSearch: 'ms'
+    mapSearch: 'ms',
+    gallery: 'gallery'
   },
   systemUser: {
     public: 'public',
@@ -99,7 +100,8 @@ export const constants = {
         codeValue.taskViewMode.nearElements,
         codeValue.taskViewMode.schedule,
         codeValue.taskViewMode.events,
-        codeValue.taskViewMode.mapSearch
+        codeValue.taskViewMode.mapSearch,
+        codeValue.taskViewMode.gallery
       ]
     },
     {
@@ -146,7 +148,8 @@ export const constants = {
         codeValue.taskViewMode.detailedList,
         codeValue.taskViewMode.routes,
         codeValue.taskViewMode.nearElements,
-        codeValue.taskViewMode.events
+        codeValue.taskViewMode.events,
+        codeValue.taskViewMode.gallery
       ]
     },
     {
