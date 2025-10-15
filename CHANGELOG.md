@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- New tree node view mode
+- Help tooltips in node mapping and task edit attributes forms
+
+### Fixed
+
+- Numeric layer names handling in WMS capabilities processing
+- Translation infrastructure with defensive programming and null checks
+- Role form save payload to include form values via createObject
+- Field rename from spatialSelectionConnectionId to spatialSelectionServiceId in layers form
+
 ## [1.1.1] - 2025-08-28
 
 ### Added
