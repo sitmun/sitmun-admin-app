@@ -532,6 +532,13 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
     entity: string,
     translatedProperties: string[],
   ): void {
+    if (!entity || entity.trim() === '') {
+      throw new Error('Entity name cannot be empty');
+    }
+    if (!translatedProperties || translatedProperties.length === 0) {
+      this.loggerService.warn(`No translatable properties provided for ${entity}`);
+      return;
+    }
     this.propertyTranslationsEntity = entity;
     translatedProperties.forEach(property => {
       this.propertyTranslations.set(property, {
@@ -584,9 +591,14 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
    * @returns {Promise<void>} Promise that resolves when the translation dialog is closed
    */
   async onTranslated(property: string): Promise<void> {
-    const dialogResult = await this.openTranslationDialog(this.propertyTranslations.get(property).map);
+    const propertyTranslation = this.propertyTranslations.get(property);
+    if (!propertyTranslation) {
+      this.loggerService.error(`Translation not initialized for property: ${property}`);
+      return;
+    }
+    const dialogResult = await this.openTranslationDialog(propertyTranslation.map);
     if (dialogResult && dialogResult.event == 'Accept') {
-      this.propertyTranslations.get(property).modified = true;
+      propertyTranslation.modified = true;
     }
   }
 
@@ -689,16 +701,29 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
       Translation
     >();
 
-    const languagesToUse = config.languagesToUse ?? JSON.parse(localStorage.getItem('languages'));
-    if (languagesToUse) {
-      languagesToUse.forEach((language: Language) => {
-        const currentTranslation: Translation = new Translation();
-        currentTranslation.translation = null;
-        currentTranslation.column = columnName;
-        currentTranslation.language = language;
-        translationsList.set(language.shortname, currentTranslation);
-      });
+    let languagesToUse = config.languagesToUse;
+    if (!languagesToUse) {
+      try {
+        const storedLanguages = localStorage.getItem('languages');
+        languagesToUse = storedLanguages ? JSON.parse(storedLanguages) : [];
+      } catch (error) {
+        this.loggerService.error('Failed to parse languages from localStorage', error);
+        languagesToUse = [];
+      }
     }
+
+    if (!languagesToUse || languagesToUse.length === 0) {
+      this.loggerService.warn('No languages configured for translations');
+      return translationsList;
+    }
+
+    languagesToUse.forEach((language: Language) => {
+      const currentTranslation: Translation = new Translation();
+      currentTranslation.translation = null;
+      currentTranslation.column = columnName;
+      currentTranslation.language = language;
+      translationsList.set(language.shortname, currentTranslation);
+    });
     return translationsList;
   }
 
@@ -726,13 +751,22 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
 
     translationMap.forEach((value: Translation, key: string) => {
       // Skip if it is not defined the default language and no modifications needed
-      if (key !== defaultLanguage && !modifications) return;
+      if (key !== defaultLanguage && !modifications) {
+        this.loggerService.debug(`Skipping non-default language translation for ${key}: no modifications needed`);
+        return;
+      }
 
       // Skip non-default languages with empty translations
-      if (key !== defaultLanguage && !value?.translation) return;
+      if (key !== defaultLanguage && !value?.translation) {
+        this.loggerService.debug(`Skipping non-default language translation for ${key}: no translation value`);
+        return;
+      }
 
       // Skip default language with no international value
-      if (key === defaultLanguage && !internationalValue) return;
+      if (key === defaultLanguage && !internationalValue) {
+        this.loggerService.debug(`Skipping default language translation for ${key}: no value provided`);
+        return;
+      }
 
       // Set element ID
       value.element = id;

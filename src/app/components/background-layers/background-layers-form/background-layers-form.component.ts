@@ -203,6 +203,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
    */
   override async fetchRelatedData() {
     this.cartographyGroup = await firstValueFrom(this.cartographyGroupService.getOriginal(this.entityToEdit.cartographyGroupId))
+    await this.loadTranslations(this.entityToEdit)
   }
 
   /**

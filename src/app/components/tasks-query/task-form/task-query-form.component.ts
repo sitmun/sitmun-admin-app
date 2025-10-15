@@ -244,6 +244,7 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
       .register(this.availabilitiesTable)
       .register(this.parametersTable);
     await this.initCodeLists(['tasksEntity.type', 'queryTask.scope', 'taskEntity.queryType', 'queryTask.parameterType']);
+    this.initTranslations('Task', ['name'])
 
     const [taskTypes, taskGroups, connections, cartographies] = await Promise.all([
       firstValueFrom(this.taskTypeService.getAllEx()),
@@ -264,6 +265,16 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
 
     taskGroups.sort((a, b) => a.name.localeCompare(b.name));
     this.taskGroupList = taskGroups;
+  }
+
+  /**
+   * Fetches related data for the entity.
+   * Loads translations for the current entity.
+   *
+   * @returns Promise that resolves when translations are loaded
+   */
+  override async fetchRelatedData() {
+    return this.loadTranslations(this.entityToEdit);
   }
 
   /**

@@ -254,6 +254,7 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
       .register(this.fieldsTable);
 
     await this.initCodeLists(['taskEntity.jsonParamType', 'editTask.fieldType', 'editTask.scope', 'queryTask.parameterType']);
+    this.initTranslations('Task', ['name'])
 
     const [taskTypes, taskGroups, connections, cartographies] = await Promise.all([
       firstValueFrom(this.taskTypeService.getAllEx()),
