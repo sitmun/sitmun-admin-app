@@ -206,6 +206,24 @@ export class WMSCapabilitiesService {
   }
 
   /**
+   * Validates if a string is a valid URL.
+   * 
+   * @param url - String to validate as URL
+   * @returns True if valid URL, false otherwise
+   */
+  private isValidUrl(url: string): boolean {
+    if (!url || typeof url !== 'string') {
+      return false;
+    }
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
    * Extracts layer information from WMS capabilities.
    * Processes the layer hierarchy and creates cartography objects.
    *
@@ -213,16 +231,34 @@ export class WMSCapabilitiesService {
    * @returns WMSLayersCapabilities object containing layers and styles
    */
   private extractLayers(capability: any): WMSLayersCapabilities {
-    const layerCapability = capability.Layer;
-    if (!layerCapability) {
-      return new WMSLayersCapabilities()
+    try {
+      const layerCapability = capability?.Layer;
+      if (!layerCapability) {
+        this.loggerService.warn('No Layer capability found in WMS response');
+        return new WMSLayersCapabilities();
+      }
+      const layersTable = this.flatLayers(layerCapability)
+        .filter(layer => layer.Name !== null && layer.Name !== undefined);
+      
+      if (layersTable.length === 0) {
+        this.loggerService.warn('No valid layers found in WMS capabilities');
+      } else {
+        this.loggerService.debug(`Processing ${layersTable.length} WMS layers`);
+      }
+      
+      const result = new WMSLayersCapabilities();
+      layersTable.forEach(layer => {
+        try {
+          this.extractCartography(layer, result);
+        } catch (error) {
+          this.loggerService.error(`Failed to extract layer "${layer.Name}": ${error.message}`);
+        }
+      });
+      return result;
+    } catch (error) {
+      this.loggerService.error('Error extracting layers from WMS capabilities', error);
+      return new WMSLayersCapabilities();
     }
-    const layersTable = this.flatLayers(layerCapability).filter(layer => layer.Name);
-    const result = new WMSLayersCapabilities();
-    layersTable.forEach(layer => {
-      this.extractCartography(layer, result);
-    });
-    return result;
   }
 
   /**
@@ -236,15 +272,19 @@ export class WMSCapabilitiesService {
     const cartography = new Cartography();
     cartography.name = layer.Title;
     cartography.description = layer.Abstract;
-    cartography.layers = [layer.Name];
+    cartography.layers = [String(layer.Name)];
 
     if (layer.Style) {
-      const styles : any[] = Array.isArray(layer.Style) ? layer.Style : [layer.Style];
-      if (styles.length>0) {
-        const newStyles = styles.map(item => this.createStyle(item))
-        newStyles[0].defaultStyle = true
-        cartography.legendURL = styles[0].LegendURL?.OnlineResource?.['xlink:href'];
-        registry.styles.set(layer.Name, newStyles);
+      const styles: any[] = Array.isArray(layer.Style) ? layer.Style : [layer.Style];
+      if (styles.length > 0) {
+        const newStyles = styles
+          .map(item => this.createStyle(item))
+          .filter(style => style !== null);
+        if (newStyles.length > 0) {
+          newStyles[0].defaultStyle = true;
+          cartography.legendURL = styles[0].LegendURL?.OnlineResource?.['xlink:href'];
+          registry.styles.set(String(layer.Name), newStyles);
+        }
       }
     }
 
@@ -285,26 +325,30 @@ export class WMSCapabilitiesService {
    * Extracts style metadata including name, title, and legend URL.
    *
    * @param style - Style object from WMS capabilities
-   * @returns CartographyStyle object with style properties
+   * @returns CartographyStyle object with style properties, or null if invalid
    */
-  private createStyle(style: any): CartographyStyle {
+  private createStyle(style: any): CartographyStyle | null {
+    if (!style) {
+      this.loggerService.warn('Encountered null or undefined style object');
+      return null;
+    }
+
     const newStyle = Object.assign(new CartographyStyle(), {
       name: style.Name,
       description: style.Abstract,
       title: style.Title
     });
 
-    if (style.LegendURL) {
+    if (style.LegendURL?.OnlineResource) {
       let onlineResource: any;
-      if (style.LegendURL.OnlineResource) {
-        if (style.LegendURL.OnlineResource['xlink:href']) {
-          onlineResource = style.LegendURL.OnlineResource['xlink:href'];
-        } else if (style.LegendURL.OnlineResource['xlink:link']) {
-          onlineResource = style.LegendURL.OnlineResource['xlink:link'];
-        } else if (style.LegendURL.OnlineResource['xlink:type']) {
-          onlineResource = style.LegendURL.OnlineResource['xlink:type'];
-        }
+      onlineResource = style.LegendURL.OnlineResource['xlink:href'] || 
+                       style.LegendURL.OnlineResource['xlink:link'];
+      
+      if (onlineResource && !this.isValidUrl(onlineResource)) {
+        this.loggerService.warn(`Invalid legend URL detected for style "${style.Name}": ${onlineResource}`);
+        onlineResource = undefined;
       }
+
       newStyle.legendURL = {
         format: style.LegendURL.Format,
         onlineResource: onlineResource,
