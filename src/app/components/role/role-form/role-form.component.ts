@@ -132,7 +132,14 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
    * @returns New Role instance populated with form values
    */
   createObject(id: number = null): Role {
-    return Role.fromObject(this.entityToEdit);
+    let safeToEdit = Role.fromObject(this.entityToEdit);
+    safeToEdit = Object.assign(safeToEdit,
+      this.entityForm.value,
+      {
+        id: id,
+      }
+    );
+    return Role.fromObject(safeToEdit);
   }
 
   /**
