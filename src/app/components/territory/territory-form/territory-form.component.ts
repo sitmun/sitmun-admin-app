@@ -310,14 +310,15 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
    * @returns boolean indicating if save is allowed
    */
   override canSave(): boolean {
+    const formValues = this.entityForm.getRawValue();
     return this.entityForm.valid && this.validateEnvelope(
-      this.entityForm.value.extentMinX,
-      this.entityForm.value.extentMaxX,
-      this.entityForm.value.extentMinY,
-      this.entityForm.value.extentMaxY
+      formValues.extentMinX,
+      formValues.extentMaxX,
+      formValues.extentMinY,
+      formValues.extentMaxY
     ) && this.validatePoint(
-      this.entityForm.value.centerPointX,
-      this.entityForm.value.centerPointY
+      formValues.centerPointX,
+      formValues.centerPointY
     );
   }
 
@@ -347,19 +348,20 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
    */
   private createObject(id: number = null): Territory {
     let safeToEdit = TerritoryProjection.fromObject(this.entityToEdit);
-    safeToEdit = Object.assign(safeToEdit, this.entityForm.value, {
+    const formValues = this.entityForm.getRawValue();
+    safeToEdit = Object.assign(safeToEdit, formValues, {
       id: id,
-      groupType: this.territoryGroupTypeService.createProxy(this.entityForm.value.groupTypeId),
-      type: this.territoryTypeService.createProxy(this.entityForm.value.typeId),
+      groupType: this.territoryGroupTypeService.createProxy(formValues.groupTypeId),
+      type: this.territoryTypeService.createProxy(formValues.typeId),
       extent: this.normalizeEnvelope(
-        this.entityForm.value.extentMinX,
-        this.entityForm.value.extentMaxX,
-        this.entityForm.value.extentMinY,
-        this.entityForm.value.extentMaxY,
+        formValues.extentMinX,
+        formValues.extentMaxX,
+        formValues.extentMinY,
+        formValues.extentMaxY,
       ),
       center: this.normalizePoint(
-        this.entityForm.value.centerPointX,
-        this.entityForm.value.centerPointY
+        formValues.centerPointX,
+        formValues.centerPointY
       )
     });
     return Territory.fromObject(safeToEdit);

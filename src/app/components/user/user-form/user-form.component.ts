@@ -136,14 +136,15 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
    */
  createObject(id: number = null): User {
   let safeToEdit = User.fromObject(this.entityToEdit);
+  const formValues = this.entityForm.getRawValue();
   safeToEdit = Object.assign(safeToEdit,
-    this.entityForm.value,
+    formValues,
     {
       id: id,
     }
   );
   if (this.isPasswordBeingEdited) {
-    safeToEdit.password = this.entityForm.get('newPassword').value;
+    safeToEdit.password = formValues.newPassword;
   }
   return User.fromObject(safeToEdit);
 }

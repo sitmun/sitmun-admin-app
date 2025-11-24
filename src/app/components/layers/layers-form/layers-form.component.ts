@@ -224,10 +224,14 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     });
 
     if (this.isNew()) {
+      this.entityForm.get('spatialSelectionServiceId').setValue(null);
       this.entityForm.get('spatialSelectionServiceId').disable();
+      this.entityForm.get('joinedSelectableLayers').setValue(false);
       this.entityForm.get('joinedSelectableLayers').disable();
+      this.entityForm.get('joinedQueryableLayers').setValue(false);
       this.entityForm.get('joinedQueryableLayers').disable();
     } else if (!this.entityToEdit.queryableFeatureEnabled) {
+      this.entityForm.get('joinedSelectableLayers').setValue(null);
       this.entityForm.get('joinedQueryableLayers').disable();
     }
   }
@@ -240,14 +244,15 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
    */
   createObject(id: number = null): Cartography {
     let safeToEdit = CartographyProjection.fromObject(this.entityToEdit);
+    const formValues = this.entityForm.getRawValue();
     safeToEdit = Object.assign(safeToEdit,
-      this.entityForm.value,
+      formValues,
       {
         id: id,
-        layers: this.entityForm.get('joinedLayers')?.value ? this.entityForm.get('joinedLayers').value.split(',') : [],
-        queryableLayers: this.entityForm.get('queryableLayers')?.value ? this.entityForm.get('queryableLayers').value.split(',') : [],
-        selectableLayers: this.entityForm.get('selectableLayers')?.value ? this.entityForm.get('selectableLayers').value.split(',') : [],
-        service: this.serviceService.createProxy(this.entityForm.get('serviceId').value),
+        layers: formValues.joinedLayers ? formValues.joinedLayers.split(',') : [],
+        queryableLayers: formValues.queryableLayers ? formValues.queryableLayers.split(',') : [],
+        selectableLayers: formValues.selectableLayers ? formValues.selectableLayers.split(',') : [],
+        service: this.serviceService.createProxy(formValues.serviceId),
       }
     );
     return Cartography.fromObject(safeToEdit)

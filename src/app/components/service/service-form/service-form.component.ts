@@ -298,8 +298,9 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
    */
   createObject(id: number = null): Service {
     let safeToEdit = Service.fromObject(this.entityToEdit);
+    const formValues = this.entityForm.getRawValue();
     safeToEdit = Object.assign(safeToEdit,
-      this.entityForm.value,
+      formValues,
       {
         id: id,
       });

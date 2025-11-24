@@ -129,8 +129,9 @@ export class TaskGroupFormComponent extends BaseFormComponent<TaskGroup> {
    */
   createObject(id: number = null): TaskGroup {
     let safeToEdit = TaskGroup.fromObject(this.entityToEdit);
+    const formValues = this.entityForm.getRawValue();
     safeToEdit = Object.assign(safeToEdit,
-      this.entityForm.value,
+      formValues,
       {
         id: id
       }

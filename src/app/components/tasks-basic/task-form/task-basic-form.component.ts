@@ -282,8 +282,9 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
    */
   createObject(id: number = null): Task {
     let safeToEdit = TaskProjection.fromObject(this.entityToEdit);
+    const formValues = this.entityForm.getRawValue();
     safeToEdit = Object.assign(safeToEdit,
-      this.entityForm.value,
+      formValues,
       {
         id: id
       }

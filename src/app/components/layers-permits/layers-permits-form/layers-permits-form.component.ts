@@ -429,7 +429,8 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
    */
   private createObject(id: number = null): CartographyGroup {
     let safeToEdit = CartographyGroupProjection.fromObject(this.entityToEdit);
-    safeToEdit = Object.assign(safeToEdit, this.entityForm.value, {
+    const formValues = this.entityForm.getRawValue();
+    safeToEdit = Object.assign(safeToEdit, formValues, {
       id: id,
     });
     return CartographyGroup.fromObject(safeToEdit);

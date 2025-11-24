@@ -356,13 +356,14 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
    */
   createObject(id: number = null): Task {
     let safeToEdit = TaskProjection.fromObject(this.entityToEdit);
+    const formValues = this.entityForm.getRawValue();
     safeToEdit = Object.assign(safeToEdit,
-      this.entityForm.value,
+      formValues,
       {
         id: id,
         properties: TaskPropertiesBuilder.create()
-          .withScope(this.entityForm.get('scope')?.value)
-          .withCommand(this.entityForm.get('command')?.value)
+          .withScope(formValues.scope)
+          .withCommand(formValues.command)
           .build()
       }
     );
@@ -391,16 +392,21 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
     if (value === this.codeValues.queryTaskScope.sqlQuery) {
       this.entityForm.get('command').enable();
       this.entityForm.get('connectionId').enable();
+      this.entityForm.get('cartographyId').setValue(null);
       this.entityForm.get('cartographyId').disable();
     }
     if (value === this.codeValues.queryTaskScope.cartographyQuery) {
+      this.entityForm.get('command').setValue(null);
       this.entityForm.get('command').disable();
+      this.entityForm.get('connectionId').setValue(null);
       this.entityForm.get('connectionId').disable();
       this.entityForm.get('cartographyId').enable();
     }
     if (value === this.codeValues.queryTaskScope.webApiQuery) {
       this.entityForm.get('command').enable();
+      this.entityForm.get('connectionId').setValue(null);
       this.entityForm.get('connectionId').disable();
+      this.entityForm.get('cartographyId').setValue(null);
       this.entityForm.get('cartographyId').disable();
     }
   }

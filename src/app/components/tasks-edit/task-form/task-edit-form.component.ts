@@ -364,12 +364,13 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
    */
   createObject(id: number = null): Task {
     let safeToEdit = TaskProjection.fromObject(this.entityToEdit);
+    const formValues = this.entityForm.getRawValue();
     safeToEdit = Object.assign(safeToEdit,
-      this.entityForm.value,
+      formValues,
       {
         id: id,
         properties: TaskPropertiesBuilder.create()
-          .withScope(this.entityForm.get('scope')?.value)
+          .withScope(formValues.scope)
           .build()
       }
     );
@@ -410,6 +411,7 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
         if (!this.entityForm.get('connectionId').hasValidator(Validators.required)) {
           this.entityForm.get('connectionId').setValidators(Validators.required);
         }
+        this.entityForm.get('cartographyId').setValue(null);
         this.entityForm.get('cartographyId').disable();
       }
       if (value === this.codeValues.editionTaskScope.cartographyEdition) {
@@ -431,6 +433,7 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
       if (value === TaskFieldType.LISTBOX) {
         fieldForm.get('query').enable();
       } else {
+        fieldForm.get('query').setValue(null);
         fieldForm.get('query').disable();
       }
     }

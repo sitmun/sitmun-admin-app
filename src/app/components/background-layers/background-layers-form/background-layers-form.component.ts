@@ -409,8 +409,9 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
    */
   private createObject(id: number = null): Background {
     let safeToEdit = BackgroundProjection.fromObject(this.entityToEdit);
+    const formValues = this.entityForm.getRawValue();
     safeToEdit = Object.assign(safeToEdit,
-      this.entityForm.value,
+      formValues,
       {
         id: id,
       }

@@ -110,7 +110,7 @@
           </mat-form-field>
         </mat-card-content>
       </mat-card>
-      <mat-card *ngIf="isNotExternalApp()" appearance="outlined" class="sitmun-mat-card-margin">
+      <mat-card *ngIf="isInternalApp()" appearance="outlined" class="sitmun-mat-card-margin">
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'entity.application.type.generic.title' | translate }}</mat-label>

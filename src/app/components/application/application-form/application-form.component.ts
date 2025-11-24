@@ -322,21 +322,22 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    */
   createObject(id: number = null): Application {
     let safeToEdit = ApplicationProjection.fromObject(this.entityToEdit);
-    this.headerParams.headerLeftSection.logoSitmun.visible = this.entityForm.value.logoSitmun;
-    this.headerParams.headerRightSection.logoutButton.visible = this.entityForm.value.logoutButton;
-    this.headerParams.headerRightSection.profileButton.visible = this.entityForm.value.profileButton;
-    this.headerParams.headerRightSection.switchLanguage.visible = this.entityForm.value.switchLanguage;
-    this.headerParams.headerRightSection.homeMenu.visible = this.entityForm.value.homeMenu;
-    this.headerParams.headerRightSection.switchApplication.visible = this.entityForm.value.switchApplication;
+    const formValues = this.entityForm.getRawValue();
+    this.headerParams.headerLeftSection.logoSitmun.visible = formValues.logoSitmun;
+    this.headerParams.headerRightSection.logoutButton.visible = formValues.logoutButton;
+    this.headerParams.headerRightSection.profileButton.visible = formValues.profileButton;
+    this.headerParams.headerRightSection.switchLanguage.visible = formValues.switchLanguage;
+    this.headerParams.headerRightSection.homeMenu.visible = formValues.homeMenu;
+    this.headerParams.headerRightSection.switchApplication.visible = formValues.switchApplication;
 
     safeToEdit = Object.assign(safeToEdit,
-      this.entityForm.value,
+      formValues,
       {
         id: id,
-        scales: this.entityForm.value.scales ? this.entityForm.value.scales.toString().split(',') : null,
-        situationMap: this.entityForm.value.situationMapId ? this.cartographyGroupService.createProxy(this.entityForm.value.situationMapId) : null,
-        creator: this.entityForm.value.creatorId ? this.userService.createProxy(this.entityForm.value.creatorId) : null,
-        appPrivate: this.entityForm.value.appPrivate,
+        scales: formValues.scales ? formValues.scales.toString().split(',') : null,
+        situationMap: formValues.situationMapId ? this.cartographyGroupService.createProxy(formValues.situationMapId) : null,
+        creator: formValues.creatorId ? this.userService.createProxy(formValues.creatorId) : null,
+        appPrivate: formValues.appPrivate,
       }
     );
     safeToEdit.headerParams = this.headerParams;
@@ -450,25 +451,55 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    */
   onSelectionTypeAppChanged({value}): void {
     this.currentAppType = value;
-    if (value === this.codeValues.applicationType.externalApp) {
-      this.entityForm.get('title').disable();
-      this.entityForm.get('scales').disable();
-      this.entityForm.get('situationMapId').disable();
-      this.entityForm.get('treeAutoRefresh').disable();
-      this.entityForm.get('theme').disable();
-      this.entityForm.get('accessParentTerritory').disable();
-      this.entityForm.get('accessChildrenTerritory').disable();
-      this.entityForm.get('srs').disable();
+    if (value === this.codeValues.applicationType.internalApp) {
+      this.enableInternalAppFields();
+      this.disableExternalAppFields();
+    } else if (value === this.codeValues.applicationType.externalApp) {
+      this.disableInternalAppFields();
+      this.enableExternalAppFields();
     } else {
-      this.entityForm.get('title').enable();
-      this.entityForm.get('scales').enable();
-      this.entityForm.get('situationMapId').enable();
-      this.entityForm.get('treeAutoRefresh').enable();
-      this.entityForm.get('theme').enable();
-      this.entityForm.get('accessParentTerritory').enable();
-      this.entityForm.get('accessChildrenTerritory').enable();
-      this.entityForm.get('srs').enable();
+      this.disableInternalAppFields();
+      this.disableExternalAppFields();
     }
+  }
+
+  private enableInternalAppFields(): void {
+    this.entityForm.get('title').enable();
+    this.entityForm.get('scales').enable();
+    this.entityForm.get('situationMapId').enable();
+    this.entityForm.get('treeAutoRefresh').enable();
+    this.entityForm.get('theme').enable();
+    this.entityForm.get('accessParentTerritory').enable();
+    this.entityForm.get('accessChildrenTerritory').enable();
+    this.entityForm.get('srs').enable();
+  }
+
+  private disableInternalAppFields(): void {
+    this.entityForm.get('title').setValue(null);
+    this.entityForm.get('title').disable();
+    this.entityForm.get('scales').setValue(null);
+    this.entityForm.get('scales').disable();
+    this.entityForm.get('situationMapId').setValue(null);
+    this.entityForm.get('situationMapId').disable();
+    this.entityForm.get('treeAutoRefresh').setValue(null);
+    this.entityForm.get('treeAutoRefresh').disable();
+    this.entityForm.get('theme').setValue(null);
+    this.entityForm.get('theme').disable();
+    this.entityForm.get('accessParentTerritory').setValue(null);
+    this.entityForm.get('accessParentTerritory').disable();
+    this.entityForm.get('accessChildrenTerritory').setValue(null);
+    this.entityForm.get('accessChildrenTerritory').disable();
+    this.entityForm.get('srs').setValue(null);
+    this.entityForm.get('srs').disable();
+  }
+
+  private enableExternalAppFields(): void {
+    this.entityForm.get('jspTemplate').enable();
+  }
+
+  private disableExternalAppFields(): void {
+    this.entityForm.get('jspTemplate').setValue(null);
+    this.entityForm.get('jspTemplate').disable();
   }
 
   /**
@@ -786,15 +817,24 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    * @returns boolean indicating if the application is external
    */
   isExternalApp(): boolean {
-    return this.entityForm?.value?.type === this.codeValues.applicationType.externalApp;
+    return this.entityForm?.getRawValue()?.type === this.codeValues.applicationType.externalApp;
+  }
+
+  /**
+   * Checks if the current application is an internal application
+   * @returns boolean indicating if the application is internal
+   */
+  isInternalApp(): boolean {
+    return this.entityForm?.getRawValue()?.type === this.codeValues.applicationType.internalApp;
   }
 
   /**
    * Checks if the current application is not an external application
    * @returns boolean indicating if the application is not external
+   * @deprecated Use isInternalApp() instead for fields specific to internal apps
    */
   isNotExternalApp(): boolean {
-    return this.entityForm?.value?.type !== this.codeValues.applicationType.externalApp;
+    return this.entityForm?.getRawValue()?.type !== this.codeValues.applicationType.externalApp;
   }
 
   getUsername(creatorId: number): string {

@@ -133,8 +133,9 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
    */
   createObject(id: number = null): Role {
     let safeToEdit = Role.fromObject(this.entityToEdit);
+    const formValues = this.entityForm.getRawValue();
     safeToEdit = Object.assign(safeToEdit,
-      this.entityForm.value,
+      formValues,
       {
         id: id,
       }

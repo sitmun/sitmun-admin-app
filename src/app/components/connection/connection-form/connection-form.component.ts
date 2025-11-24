@@ -154,14 +154,15 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
    */
   createObject(id: number = null): Connection {
     let safeToEdit = Connection.fromObject(this.entityToEdit);
+    const formValues = this.entityForm.getRawValue();
     safeToEdit = Object.assign(safeToEdit,
-      this.entityForm.value,
+      formValues,
       {
         id: id,
       }
     );
     if (this.isPasswordBeingEdited) {
-      safeToEdit.password = this.entityForm.get('newPassword').value;
+      safeToEdit.password = formValues.newPassword;
     }
     return Connection.fromObject(safeToEdit);
   }
@@ -257,11 +258,12 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
    * Tests the database connection with current form values.
    */
   validateConnection() {
+    const formValues = this.entityForm.getRawValue();
     const connection = {
-      driver: this.entityForm.value.driver,
-      url: this.entityForm.value.url,
-      user: this.entityForm.value.user,
-      password: this.entityForm.value.newPassword
+      driver: formValues.driver,
+      url: formValues.url,
+      user: formValues.user,
+      password: formValues.newPassword
     };
     this.connectionService.testConnection(connection).subscribe({
       next: () => this.notificationService.showSuccess("entity.connection.test.title", "entity.connection.test.success"),
