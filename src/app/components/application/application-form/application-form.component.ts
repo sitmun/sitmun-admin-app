@@ -520,7 +520,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return EMPTY;
+          return of([]);
         }
         return this.entityToEdit.getRelationArrayEx(ApplicationParameter, 'parameters', {projection: 'view'})
           .pipe(map((data: ApplicationParameter[]) => data.map(element => {
@@ -672,7 +672,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return EMPTY;
+          return of([]);
         }
         return this.entityToEdit.getRelationArrayEx(Tree, 'trees')
       })
@@ -708,7 +708,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return EMPTY;
+          return of([]);
         }
         return this.entityToEdit.getRelationArrayEx(Role, 'availableRoles', {projection: 'view'})
       })
@@ -744,7 +744,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       .withRelationsOrder('backgroundName')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return EMPTY;
+          return of([]);
         }
         return this.entityToEdit.getRelationArrayEx<ApplicationBackgroundProjection>(ApplicationBackgroundProjection, 'backgrounds', {projection: 'view'})
       })

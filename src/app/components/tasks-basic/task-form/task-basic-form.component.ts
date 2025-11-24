@@ -364,7 +364,7 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return EMPTY;
+          return of([]);
         }
         return this.entityToEdit.getRelationArrayEx(Role, 'roles', {projection: 'view'})
       })
@@ -410,7 +410,7 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
         if (!this.isNew()) {
           return this.entityToEdit.getRelationArrayEx(TaskAvailabilityProjection, 'availabilities', {projection: 'view'})
         }
-        return EMPTY;
+        return of([]);
       })
       .withRelationsUpdater(async (availabilities: (TaskAvailabilityProjection & Status)[]) => {
         await onDelete(availabilities).forEach(item => this.taskAvailabilityService.delete(this.taskAvailabilityService.createProxy(item.id)));

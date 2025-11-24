@@ -20,7 +20,7 @@ import {
   TranslationService,
 } from '@app/domain';
 import {UtilsService} from '@app/services/utils.service';
-import {EMPTY, firstValueFrom} from 'rxjs';
+import {EMPTY, firstValueFrom, of} from 'rxjs';
 import {Status, onCreate, onDelete, onUpdate, onUpdatedRelation} from '@app/frontend-gui/src/lib/public_api';
 import {map} from 'rxjs/operators';
 import {MatDialog} from '@angular/material/dialog';
@@ -286,7 +286,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
         if (this.isNew() || this.cartographyGroup == null) {
-          return EMPTY;
+          return of([]);
         }
         return this.cartographyGroup.getRelationArrayEx(Role, 'roles', {projection: 'view'})
       })
@@ -324,7 +324,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
       .withRelationsOrder('applicationName')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return EMPTY;
+          return of([]);
         }
         return this.entityToEdit.getRelationArrayEx(ApplicationBackgroundProjection, 'applications', {projection: 'view'})
       })
@@ -377,7 +377,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
         if (this.isNew() || this.cartographyGroup == null) {
-          return EMPTY;
+          return of([]);
         }
         return this.cartographyGroup.getRelationArrayEx(CartographyProjection, 'members', {projection: 'view'})
       })

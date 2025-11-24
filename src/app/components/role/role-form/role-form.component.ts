@@ -21,7 +21,7 @@ import {
   UserService,
 } from '@app/domain';
 import {UtilsService} from '@app/services/utils.service';
-import {EMPTY, firstValueFrom} from 'rxjs';
+import {EMPTY, firstValueFrom, of} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {Status, onCreate, onDelete, onUpdate, onUpdatedRelation} from '@app/frontend-gui/src/lib/public_api';
 import {MatDialog} from '@angular/material/dialog';
@@ -184,7 +184,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return EMPTY;
+          return of([]);
         }
         return this.entityToEdit.getRelationArrayEx(UserConfigurationProjection, 'userConfigurations', {projection: 'view'})
       })
@@ -194,7 +194,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
           const newItem = UserConfiguration.fromObject(item);
           newItem.user = this.userService.createProxy(item.userId);
           newItem.territory = this.territoryService.createProxy(item.territoryId);
-          newItem.role = this.roleService.createProxy(item.roleId);
+          newItem.role = this.roleService.createProxy(this.entityID);
           return this.userConfiguraitonService.create(newItem);
         });
         await onUpdate(userConfigurations).forEach(item => {
@@ -261,7 +261,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return EMPTY;
+          return of([]);
         }
         return this.entityToEdit.getRelationArrayEx(TaskProjection, 'tasks', {projection: 'view'})
       })
@@ -300,7 +300,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return EMPTY;
+          return of([]);
         }
         return this.entityToEdit.getRelationArrayEx<Application>(Application, 'applications')
       })

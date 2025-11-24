@@ -18,7 +18,7 @@ import {
   UserService
 } from '@app/domain';
 import {DataTable2Definition, DataTableDefinition} from "@app/components/data-tables.util";
-import {EMPTY, firstValueFrom, Subject} from 'rxjs';
+import {EMPTY, firstValueFrom, of, Subject} from 'rxjs';
 import {onCreate, onDelete, onUpdate, Status,} from '@app/frontend-gui/src/lib/public_api';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {BaseFormComponent} from "@app/components/base-form.component";
@@ -196,7 +196,7 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return EMPTY;
+          return of([]);
         }
         return this.entityToEdit.getRelationArrayEx(UserConfigurationProjection, 'permissions', {projection: 'view'})
       })
@@ -204,7 +204,7 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
       .withRelationsUpdater(async (userConfigurations: (UserConfigurationProjection & Status)[]) => {
         await onCreate(userConfigurations).forEach(item => {
           const newItem = UserConfiguration.fromObject(item);
-          newItem.user = this.userService.createProxy(item.userId);
+          newItem.user = this.userService.createProxy(this.entityID);
           newItem.territory = this.territoryService.createProxy(item.territoryId);
           newItem.role = this.roleService.createProxy(item.roleId);
           return this.userConfigurationService.create(newItem);
@@ -278,7 +278,7 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
       .withRelationsOrder(['territoryName', 'createdDate'])
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return EMPTY;
+          return of([]);
         }
         return this.entityToEdit.getRelationArrayEx(UserPositionProjection, 'positions', {projection: 'view'})
       })

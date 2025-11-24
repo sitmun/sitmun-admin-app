@@ -35,7 +35,7 @@ import {
 } from '@app/domain';
 import {Component, TemplateRef, ViewChild} from '@angular/core';
 import {DataTableDefinition, TemplateDialog} from '@app/components/data-tables.util';
-import {EMPTY, firstValueFrom} from 'rxjs';
+import {EMPTY, firstValueFrom, of} from 'rxjs';
 import {onCreate, onDelete, onUpdate, Status} from '@app/frontend-gui/src/lib/public_api';
 import {BaseFormComponent} from '@app/components/base-form.component';
 import {Configuration} from "@app/core/config/configuration";
@@ -322,7 +322,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
       ])
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return EMPTY;
+          return of([]);
         }
         return this.entityToEdit.getRelationArrayEx(CartographyParameter, 'parameters', {projection: 'view'});
       })
@@ -377,7 +377,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
       ])
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return EMPTY;
+          return of([]);
         }
         return this.entityToEdit.getRelationArrayEx(CartographyFilterProjection, 'filters', {projection: 'view'});
       })
@@ -438,7 +438,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
       ])
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return EMPTY;
+          return of([]);
         }
         return this.entityToEdit.getRelationArrayEx(CartographyStyle, 'styles', {projection: 'view'});
       })
@@ -479,7 +479,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
         ])
         .withRelationsFetcher(() => {
           if (this.isNew()) {
-            return EMPTY;
+            return of([]);
           }
           return this.entityToEdit.getRelationArrayEx(CartographyAvailabilityProjection, 'availabilities', {projection: 'view'});
         })
@@ -535,7 +535,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
       ])
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return EMPTY;
+          return of([]);
         }
         return this.entityToEdit.getRelationArrayEx(CartographyGroupProjection, 'permissions', {projection: 'view'});
       })
@@ -583,7 +583,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
       ])
       .withRelationsFetcher(() =>  {
         if (this.isNew()) {
-          return EMPTY;
+          return of([]);
         }
         return this.entityToEdit.getRelationArrayEx(TreeNodeProjection, 'treeNodes', {projection: 'view'})
       })

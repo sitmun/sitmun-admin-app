@@ -9,7 +9,7 @@ import {
   TranslationService
 } from '@app/domain';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
-import {EMPTY, firstValueFrom} from 'rxjs';
+import {EMPTY, firstValueFrom, of} from 'rxjs';
 import {BaseFormComponent} from "@app/components/base-form.component";
 import {Component} from '@angular/core';
 import {Configuration} from "@app/core/config/configuration";
@@ -232,7 +232,7 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return EMPTY;
+          return of([]);
         }
         return this.entityToEdit.getRelationArrayEx(TaskProjection, 'tasks', {projection: 'view'})
       })

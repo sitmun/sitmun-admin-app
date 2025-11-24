@@ -488,7 +488,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
       .withRelationsFetcher(() => {
         if (this.wmsLayersCapabilities?.layers?.length === 0) {
           if (this.isNewOrDuplicated()) {
-            return EMPTY;
+            return of([]);
           } else {
             return this.entityToEdit.getRelationArrayEx(CartographyProjection, 'layers', {projection: 'view'});
           }
@@ -595,7 +595,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
               typeDescription: this.findInCodeList('serviceParameter.type', element.type)?.description
             }))))
         } else {
-          return EMPTY;
+          return of([]);
         }
       })
       .withRelationsUpdater(async (parameters: (ServiceParameter & Status)[]) => {

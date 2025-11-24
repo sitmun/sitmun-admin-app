@@ -13,7 +13,7 @@ import {
   RoleService,
   TranslationService,
 } from '@app/domain';
-import {EMPTY, firstValueFrom} from 'rxjs';
+import {EMPTY, firstValueFrom, of} from 'rxjs';
 import {onUpdate, onUpdatedRelation, Status} from '@app/frontend-gui/src/lib/public_api';
 import {UntypedFormControl, UntypedFormGroup, Validators,} from '@angular/forms';
 import {BaseFormComponent} from '@app/components/base-form.component';
@@ -241,7 +241,7 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return EMPTY;
+          return of([]);
         }
         return this.entityToEdit.getRelationArrayEx(Role, 'roles', {
           projection: 'view',
@@ -308,7 +308,7 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
       ])
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return EMPTY;
+          return of([]);
         }
         return this.entityToEdit.getRelationArrayEx(ApplicationProjection, 'applications', {
           projection: 'view',
@@ -365,7 +365,7 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return EMPTY;
+          return of([]);
         }
         return this.entityToEdit.getRelationArrayEx(
           CartographyProjection,

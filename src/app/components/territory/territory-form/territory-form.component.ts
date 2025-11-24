@@ -32,7 +32,7 @@ import {
   UserService,
 } from '@app/domain';
 import {DataTable2Definition, DataTableDefinition} from '@app/components/data-tables.util';
-import {EMPTY, firstValueFrom} from 'rxjs';
+import {EMPTY, firstValueFrom, of} from 'rxjs';
 import {onCreate, onDelete, onUpdate, onUpdatedRelation, Status} from '@app/frontend-gui/src/lib/public_api';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {BaseFormComponent} from "@app/components/base-form.component";
@@ -457,7 +457,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
       ])
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return EMPTY;
+          return of([]);
         }
         const idToUse = this.entityID == -1 ? this.duplicateID : this.entityID;
         const query = {
@@ -539,7 +539,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
       ])
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return EMPTY;
+          return of([]);
         }
         return this.entityToEdit.getRelationArrayEx(TerritoryProjection, 'members', {projection: 'view'})
       })
@@ -588,7 +588,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
       ])
       .withRelationsFetcher(() => {
         if (this.isNew()) {
-          return EMPTY;
+          return of([]);
         }
         return this.entityToEdit.getRelationArrayEx(TerritoryProjection, 'members', {projection: 'view'})
       })
@@ -635,7 +635,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
         if (this.isEdition()) {
           return this.entityToEdit.getRelationArrayEx(CartographyAvailabilityProjection, 'cartographyAvailabilities', {projection: 'view'})
         } else {
-          return EMPTY;
+          return of([]);
         }
       })
       .withRelationsOrder(['name'])
@@ -685,7 +685,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
         if (this.isEdition()) {
           return this.entityToEdit.getRelationArrayEx(TaskAvailabilityProjection, 'taskAvailabilities', {projection: 'view'})
         } else {
-          return EMPTY;
+          return of([]);
         }
       })
       .withRelationsUpdater(async (tasks: (TaskAvailabilityProjection & Status)[]) => {
