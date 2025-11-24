@@ -177,11 +177,13 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
 
     // Custom validator to ensure queryable layers are subset of joined layers
     const queryableLayersValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
-      const queryableLayers = control.value?.split(',').map(layer => layer.trim()) ?? [];
+      if (!control.value) return null;
+      
+      const queryableLayers = control.value.split(',').map(layer => layer.trim());
       const joinedLayers = this.entityForm?.get('joinedLayers')?.value?.split(',').map(layer => layer.trim()) ?? [];
 
       // Only validate if there are actual entries
-      if (queryableLayers.length === 0 || !control.value) return null;
+      if (queryableLayers.length === 0) return null;
 
       // Check for duplicates
       const uniqueLayers = new Set(queryableLayers);
@@ -226,9 +228,9 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     if (this.isNew()) {
       this.entityForm.get('spatialSelectionServiceId').setValue(null);
       this.entityForm.get('spatialSelectionServiceId').disable();
-      this.entityForm.get('joinedSelectableLayers').setValue(false);
+      this.entityForm.get('joinedSelectableLayers').setValue(null);
       this.entityForm.get('joinedSelectableLayers').disable();
-      this.entityForm.get('joinedQueryableLayers').setValue(false);
+      this.entityForm.get('joinedQueryableLayers').setValue(null);
       this.entityForm.get('joinedQueryableLayers').disable();
     } else if (!this.entityToEdit.queryableFeatureEnabled) {
       this.entityForm.get('joinedSelectableLayers').setValue(null);
