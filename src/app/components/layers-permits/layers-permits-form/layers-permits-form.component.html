@@ -76,26 +76,4 @@
                    *ngIf="dataLoaded"
     > </app-data-grid>
   </mat-tab>
-  <mat-tab label="{{ 'entity.permissionGroup.applications.header' | translate }}">
-    <app-data-grid [changeHeightButton]="true"
-                   [allNewElements]="isNewOrDuplicated()"
-                   [columnDefs]="applicationsTable.relationsColumnsDefs"
-                   [getAll]='applicationsTable.relationsFetchFn'
-                   [eventAddItemsSubscription]='applicationsTable.addCommandEvent$.asObservable()'
-                   [eventGetAllRowsSubscription]='applicationsTable.saveCommandEvent$.asObservable()'
-                   [eventRefreshSubscription]='applicationsTable.refreshCommandEvent$.asObservable()'
-                   [actionButton]=false
-                   [discardChangesButton]=false
-                   [redoButton]=false
-                   [undoButton]=false
-                   [deleteButton]=false
-                   [addButton]=false
-                   [hideDuplicateButton]=false
-                   [hideReplaceButton]=true
-                   [defaultColumnSorting]='applicationsTable.defaultRelationsSorting()'
-                   (getAllRows)="applicationsTable.handleSaveRelations($event)"
-                   (add)="applicationsTable.openDialog($event)"
-                   *ngIf="dataLoaded"
-    > </app-data-grid>
-  </mat-tab>
 </mat-tab-group>

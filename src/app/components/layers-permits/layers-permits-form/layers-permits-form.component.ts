@@ -1,7 +1,5 @@
 import {ActivatedRoute, Router} from '@angular/router';
 import {
-  ApplicationProjection,
-  ApplicationService,
   CartographyGroup,
   CartographyGroupProjection,
   CartographyGroupService,
@@ -13,7 +11,7 @@ import {
   RoleService,
   TranslationService,
 } from '@app/domain';
-import {EMPTY, firstValueFrom, of} from 'rxjs';
+import {firstValueFrom, of} from 'rxjs';
 import {onUpdate, onUpdatedRelation, Status} from '@app/frontend-gui/src/lib/public_api';
 import {UntypedFormControl, UntypedFormGroup, Validators,} from '@angular/forms';
 import {BaseFormComponent} from '@app/components/base-form.component';
@@ -40,7 +38,6 @@ import {map} from 'rxjs/operators';
  * 1. Basic cartography group information (name and type)
  * 2. Role assignments for access control
  * 3. Layer membership management
- * 4. Application relationships
  */
 export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGroupProjection> {
   readonly config = Configuration.LAYERS_PERMIT;
@@ -56,15 +53,6 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
    * Manages access permissions for the cartography group through role assignments.
    */
   protected readonly rolesTable: DataTableDefinition<Role, Role>;
-
-  /**
-   * Data table definition for managing application relationships.
-   * Controls which applications can use this cartography group as situation map.
-   */
-  protected readonly applicationsTable: DataTableDefinition<
-    ApplicationProjection,
-    ApplicationProjection
-  >;
 
   /**
    * Data table definition for managing cartography members in the cartography group.
@@ -87,8 +75,7 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
     protected utils: UtilsService,
     protected cartographyService: CartographyService,
     protected roleService: RoleService,
-    protected cartographyGroupService: CartographyGroupService,
-    protected applicationService: ApplicationService
+    protected cartographyGroupService: CartographyGroupService
   ) {
     super(
       dialog,
@@ -102,7 +89,6 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
     );
     this.membersTable = this.defineMembersTable();
     this.rolesTable = this.defineRolesTable();
-    this.applicationsTable = this.defineApplicationTable();
   }
 
   /**
@@ -113,7 +99,6 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
   override async preFetchData() {
     this.dataTables
       .register(this.rolesTable)
-      .register(this.applicationsTable)
       .register(this.membersTable);
     await this.initCodeLists(['cartographyPermission.type']);
     this.permissionGroupTypes = this.codeList(
@@ -273,48 +258,6 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
       .withTargetsTitle(
         this.translateService.instant('entity.permissionGroup.roles.title')
       )
-      .build();
-  }
-
-  /**
-   * Defines the data table configuration for managing application-background relationships.
-   * Sets up columns, data fetching, updating logic, and target selection.
-   *
-   * @returns Configured data table definition for application backgrounds
-   */
-  private defineApplicationTable(): DataTableDefinition<
-    ApplicationProjection,
-    ApplicationProjection
-  > {
-    return DataTableDefinition.builder<
-      ApplicationProjection,
-      ApplicationProjection
-    >(this.dialog, this.errorHandler)
-      .withRelationsColumns([
-        this.utils.getSelCheckboxColumnDef(),
-        this.utils.getRouterLinkColumnDef(
-          'common.form.name',
-          'name',
-          '/application/:id/applicationForm',
-          {
-            id: 'id',
-          }
-        ),
-        this.utils.getEditableColumnDef(
-          'common.form.description',
-          'description'
-        ),
-        this.utils.getStatusColumnDef(),
-      ])
-      .withRelationsFetcher(() => {
-        if (this.isNew()) {
-          return of([]);
-        }
-        return this.entityToEdit.getRelationArrayEx(ApplicationProjection, 'applications', {
-          projection: 'view',
-        });
-      })
-      .withRelationsOrder('applicationName')
       .build();
   }
 
