@@ -165,6 +165,10 @@ export class TreesFormComponent implements OnInit {
           this.treeForm.patchValue({ type: defaultType.value });
           this.currentTreeType = defaultType.value;
         }
+      } else if (this.treeToEdit && this.treeToEdit.type) {
+        // Re-patch type value after code list loads (for editing existing trees)
+        this.treeForm.patchValue({ type: this.treeToEdit.type });
+        this.currentTreeType = this.treeToEdit.type;
       }
     });
 

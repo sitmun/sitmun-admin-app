@@ -187,8 +187,8 @@
                   </mat-form-field>
                 </div>
               </div>
-              <div class="rowFormDiv" *ngIf="currentNodeType === codeValues.treenodeFolderType.cartography">
-                <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
+              <div class="rowFormDiv" *ngIf="currentNodeType === codeValues.treenodeFolderType.cartography && treeNodeForm.get('cartographyName')?.value">
+                <div class="colFormDiv" *ngIf="currentNodeIsFolder != undefined && (!currentNodeIsFolder) && currentNodeCartography?.applyFilterToGetFeatureInfo">
                   <label class="formLabel">
                     {{ 'layersEntity.applyFilterToGetMap' | translate }}
                   </label>
@@ -200,7 +200,7 @@
                     </mat-select>
                   </mat-form-field>
                 </div>
-                <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
+                <div class="colFormDiv" *ngIf="currentNodeIsFolder != undefined && (!currentNodeIsFolder) && currentNodeCartography?.applyFilterToGetMap">
                   <label class="formLabel">
                     {{ 'layersEntity.filterInfoByMunicipality' | translate }}
                   </label>
@@ -214,7 +214,7 @@
                 </div>
               </div>
               <div class="rowFormDiv" *ngIf="currentNodeType === codeValues.treenodeLeafType.cartography">
-                <div class="colFormDiv" *ngIf=" currentNodeIsFolder != undefined && (!currentNodeIsFolder)">
+                <div class="colFormDiv" *ngIf="currentNodeIsFolder != undefined && (!currentNodeIsFolder) && currentNodeCartography?.applyFilterToSpatialSelection">
                   <label class="formLabel">
                     {{ 'layersEntity.filterSpatialSelectionByMunicipality' | translate }}
                   </label>
