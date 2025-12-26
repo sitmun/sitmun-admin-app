@@ -159,6 +159,13 @@ export class TreesFormComponent implements OnInit {
 
     this.getAllTreeTypes().then((resp) => {
       this.treetypesList.push(...resp);
+      if (this.treeID === -1 && this.duplicateID === -1) {
+        const defaultType = this.treetypesList.find(c => c.defaultCode === true);
+        if (defaultType) {
+          this.treeForm.patchValue({ type: defaultType.value });
+          this.currentTreeType = defaultType.value;
+        }
+      }
     });
 
     this.getFolderNodeTypes().then((resp) => {
@@ -203,8 +210,17 @@ export class TreesFormComponent implements OnInit {
     this.treeDescriptionTranslationMap = this.utils.createTranslationsList(config.translationColumns.treeDescription);
 
     this.activatedRoute.params.subscribe(params => {
-      this.treeID = +params.id;
-      if (params.idDuplicate) { this.duplicateID = +params.idDuplicate; }
+      this.treeID = params.id ? +params.id : -1;
+      if (params.idDuplicate) { this.duplicateID = +params.idDuplicate; } else { this.duplicateID = -1; }
+      
+      // Set default type after route params are known (for new trees)
+      if (this.treeID === -1 && this.duplicateID === -1 && this.treetypesList.length > 0) {
+        const defaultType = this.treetypesList.find(c => c.defaultCode === true);
+        if (defaultType) {
+          this.treeForm.patchValue({ type: defaultType.value });
+          this.currentTreeType = defaultType.value;
+        }
+      }
 
       if (this.treeID !== -1 || this.duplicateID != -1) {
         const idToGet = this.treeID !== -1 ? this.treeID : this.duplicateID

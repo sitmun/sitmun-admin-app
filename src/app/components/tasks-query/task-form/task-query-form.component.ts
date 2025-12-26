@@ -618,7 +618,10 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
             validators: [Validators.required],
             nonNullable: true
           }),
-        })).build())
+        })).withPreOpenFunction((form: FormGroup) => {
+          const defaultType = this.defaultValueOrNull('queryTask.parameterType');
+          form.reset({type: defaultType?.value || null});
+        }).build())
       .withTargetToRelation((items: TaskQueryParameter[]) => items.map(item => TaskQueryParameter.fromObject(item)))
       .withRelationsDuplicate(item => TaskQueryParameter.fromObject(item))
       .build();

@@ -353,7 +353,14 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
           value: new FormControl(null, [Validators.required]),
           format: new FormControl(null, []),
           order: new FormControl(null, []),
-        })).build())
+        })).withPreOpenFunction((form: FormGroup) => {
+          const defaultType = this.defaultValueOrNull('cartographyParameter.type');
+          const defaultFormat = this.defaultValueOrNull('cartographyParameter.format');
+          form.reset({
+            type: defaultType?.value || null,
+            format: defaultFormat?.value || null
+          });
+        }).build())
         .build();
   }
 
@@ -420,7 +427,14 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
           column: new FormControl(null),
           values: new FormControl(null),
           valueType: new FormControl(null, []),
-        })).build())
+        })).withPreOpenFunction((form: FormGroup) => {
+          const defaultType = this.defaultValueOrNull('cartographyFilter.type');
+          const defaultValueType = this.defaultValueOrNull('cartographyFilter.valueType');
+          form.reset({
+            type: defaultType?.value || null,
+            valueType: defaultValueType?.value || null
+          });
+        }).build())
       .build();
   }
 

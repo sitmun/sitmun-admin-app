@@ -649,7 +649,10 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
             validators: [Validators.required],
             nonNullable: true
           }),
-        })).build())
+        })).withPreOpenFunction((form: FormGroup) => {
+          const defaultType = this.defaultValueOrNull('queryTask.parameterType');
+          form.reset({type: defaultType?.value || null});
+        }).build())
       .withTargetToRelation((items: TaskEditionParameter[]) => items.map(item => TaskEditionParameter.fromObject(item)))
       .withRelationsDuplicate(item => TaskEditionParameter.fromObject(item))
       .build();
@@ -726,7 +729,10 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
             validators: [],
             nonNullable: false
           }),
-        })).build())
+        })).withPreOpenFunction((form: FormGroup) => {
+          const defaultType = this.defaultValueOrNull('editTask.fieldType');
+          form.reset({type: defaultType?.value || null});
+        }).build())
       .withTargetToRelation((items: TaskEditionField[]) => items.map(item => TaskEditionField.fromObject(item)))
       .withRelationsDuplicate(item => TaskEditionField.fromObject(item))
       .build();

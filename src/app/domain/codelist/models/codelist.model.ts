@@ -11,6 +11,8 @@ export class CodeList extends Resource {
   public value: string;
   /** user*/
   public description: string;
+  /** default code flag*/
+  public defaultCode: boolean;
 
 
 }

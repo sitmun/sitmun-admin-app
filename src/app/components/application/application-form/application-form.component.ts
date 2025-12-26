@@ -255,8 +255,9 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    * @returns New Application instance with default type and situation map
    */
   override empty(): ApplicationProjection {
+    const defaultType = this.defaultValueOrNull('application.type');
     return Object.assign(new ApplicationProjection(), {
-      type: this.firstInCodeList('application.type').value,
+      type: defaultType?.value || null,
       situationMap: this.situationMapList[0].id,
       appPrivate: false
     })
@@ -555,7 +556,8 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
             }),
           })
         ).withPreOpenFunction((form: FormGroup) => {
-          form.reset({type: this.firstInCodeList('applicationParameter.type').value});
+          const defaultType = this.defaultValueOrNull('applicationParameter.type');
+          form.reset({type: defaultType?.value || null});
         }).build())
       .build();
   }

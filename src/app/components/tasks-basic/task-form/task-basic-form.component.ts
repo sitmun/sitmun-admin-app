@@ -484,7 +484,10 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
             validators: [Validators.required],
             nonNullable: true
           })
-        })).build())
+        })).withPreOpenFunction((form: FormGroup) => {
+          const defaultType = this.defaultValueOrNull('taskEntity.jsonParamType');
+          form.reset({type: defaultType?.value || null});
+        }).build())
       .withTargetToRelation((items: TaskParameter[]) => items.map(item => TaskParameter.fromObject(item)))
       .withRelationsDuplicate(item => TaskParameter.fromObject(item))
       .build();

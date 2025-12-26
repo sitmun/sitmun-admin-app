@@ -152,7 +152,10 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
    * @returns New empty CartographyGroupProjection instance
    */
   override empty(): CartographyGroupProjection {
-    return new CartographyGroupProjection();
+    const defaultType = this.defaultValueOrNull('cartographyPermission.type');
+    return Object.assign(new CartographyGroupProjection(), {
+      type: defaultType?.value || null
+    });
   }
 
   /**

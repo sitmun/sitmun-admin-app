@@ -114,8 +114,9 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
    * @returns New Connection instance
    */
   override empty(): Connection {
+    const defaultDriver = this.defaultValueOrNull('databaseConnection.driver');
     return Object.assign(new Connection(), {
-      driver: this.firstInCodeList('databaseConnection.driver').value,
+      driver: defaultDriver?.value || null,
     })
   }
 

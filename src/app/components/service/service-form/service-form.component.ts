@@ -236,11 +236,12 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
    * @returns New empty service entity
    */
   override empty(): Service {
+    const defaultAuthMode = this.defaultValueOrNull('service.authenticationMode');
     return Object.assign(new Service(), {
       blocked: false,
       isProxied: false,
       supportedSRS: [],
-      authenticationMode: 'None' // TODO: change to null
+      authenticationMode: defaultAuthMode?.value || null
     })
   }
 
@@ -619,7 +620,8 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
             value: new UntypedFormControl(''),
           })
         ).withPreOpenFunction((form: UntypedFormGroup) => {
-          form.reset({type: this.firstInCodeList('serviceParameter.type').value});
+          const defaultType = this.defaultValueOrNull('serviceParameter.type');
+          form.reset({type: defaultType?.value || null});
         }).build())
       .build();
   }

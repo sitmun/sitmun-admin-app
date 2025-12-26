@@ -455,6 +455,18 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
   }
 
   /**
+   * Gets the default value from a code list (where defaultCode = true) or null.
+   *
+   * @param {string} code - The code list name
+   * @returns {CodeList | null} The CodeList item with defaultCode = true, or null if not found
+   */
+  defaultValueOrNull(code: string): CodeList | null {
+    const list = this.codeList(code);
+    const defaultItem = list.find(c => c.defaultCode === true);
+    return defaultItem || null;
+  }
+
+  /**
    * Finds a specific item in a code list by its value.
    *
    * @param {string} code - The code list name to search in
