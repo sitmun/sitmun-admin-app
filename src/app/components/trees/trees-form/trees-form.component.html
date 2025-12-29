@@ -99,6 +99,7 @@
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
         <app-data-grid
+          #applicationsGrid
           [changeHeightButton]="true"
           [allNewElements]="isNewOrDuplicated()"
           [columnDefs]="applicationsTable.relationsColumnsDefs"

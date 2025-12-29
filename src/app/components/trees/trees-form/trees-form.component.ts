@@ -36,6 +36,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
 
   currentTreeType: string;
   @ViewChild('treeNodesComponent') treeNodesComponent: TreeNodesComponent;
+  @ViewChild('applicationsGrid') applicationsGrid: any;
 
   /**
    * Data table configuration for managing tree applications.
@@ -182,12 +183,66 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
 
   /**
    * Override save button click to include tree-specific validations.
+   * Validates tree type change against applications before saving.
    */
   override async onSaveButtonClicked(): Promise<boolean> {
-    if (this.treeValidations()) {
+    if (!this.treeValidations()) {
+      return Promise.resolve(false);
+    }
+
+    // Validate tree type change against applications (only for existing trees)
+    if (this.isEdition() && await this.validateTreeTypeChange()) {
+      return super.onSaveButtonClicked();
+    } else if (this.isNew() || this.isDuplicated()) {
+      // Skip validation for new/duplicated trees
       return super.onSaveButtonClicked();
     }
+    
     return Promise.resolve(false);
+  }
+
+  /**
+   * Validates tree type change against candidate applications.
+   * 
+   * This validation is necessary because Spring Data REST requires two separate 
+   * PUT operations. Without proactive validation, the tree type PUT could succeed 
+   * while the applications PUT fails, requiring a rollback that violates REST 
+   * principles.
+   * 
+   * @returns Promise<boolean> - true if validation passes, false if it fails
+   */
+  private async validateTreeTypeChange(): Promise<boolean> {
+    const newType = this.entityForm.get('type')?.value;
+    
+    // If type hasn't changed, no validation needed
+    if (newType === this.entityToEdit.type) {
+      return true;
+    }
+
+    try {
+      // Get applications from the data grid (includes new, modified, not deleted)
+      const gridData = this.applicationsGrid?.getAllCurrentData() || [];
+      
+      // Filter out applications marked for deletion and extract IDs
+      const applicationIds = gridData
+        .filter((app: any) => app.status !== 'pendingDelete')
+        .map((app: Application) => app.id)
+        .filter((id: number) => id != null);
+
+      // Call validation endpoint
+      await firstValueFrom(
+        this.treeService.validateTypeChange(
+          this.entityID, 
+          newType, 
+          applicationIds
+        )
+      );
+
+      return true;
+    } catch (error) {
+      // Validation failed - error handled by error interceptor
+      return false;
+    }
   }
 
   /**
