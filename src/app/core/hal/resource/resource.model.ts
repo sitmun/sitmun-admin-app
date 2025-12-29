@@ -330,7 +330,10 @@ export abstract class Resource {
       {headers}
     ).pipe(
       catchError(error => {
-        return throwError(() => new Error(`Failed to substitute relation "${relation}": ${error.message}`));
+        if (Resource.loggerService) {
+          Resource.loggerService.error(`Failed to substitute relation "${relation}"`, error);
+        }
+        return throwError(() => error);  // Preserve original error structure
       })
     );
   }

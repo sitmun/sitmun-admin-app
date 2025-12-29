@@ -1,5 +1,4 @@
 import {Component, Injectable, Injector} from '@angular/core';
-import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateService} from '@ngx-translate/core';
 import {Location} from '@angular/common';
 import {firstValueFrom, Subject} from 'rxjs';
@@ -25,7 +24,6 @@ import {
 /**
  * A utility service that provides common functionality across the application.
  * This service includes methods for:
- * - Message handling and display
  * - Loading state management
  * - Navigation
  * - Data formatting and manipulation
@@ -48,7 +46,6 @@ export class UtilsService {
   constructor(
     private readonly translate: TranslateService,
     public dialog: MatDialog,
-    private readonly snackBar: MatSnackBar,
     private readonly http: HttpClient,
     private readonly location: Location,
     private readonly injector: Injector,
@@ -62,73 +59,12 @@ export class UtilsService {
   }
 
   /**
-   * Displays a snackbar message that automatically dismisses after 5 seconds.
-   * @param message - The message to display. Can be a string or array of strings that will be translated.
-   */
-  showMessage(message: string | string[]) {
-    this.loggerService.debug('showMessage', message);
-    this.snackBar.open(this.translate.instant(message), '', {
-      duration: 5000,
-    });
-  }
-
-  /**
    * Translates a given message key using the translation service.
    * @param msg - The message key to translate.
    * @returns The translated string.
    */
   getTranslate(msg: string | string[]) {
     return this.translate.instant(msg);
-  }
-
-  /**
-   * Displays an error message in a snackbar that requires user dismissal.
-   * Handles different error formats and translates error messages.
-   * @param error - The error object to process and display.
-   */
-  showErrorMessage(error: any) {
-    console.trace(error);
-    let msg = '';
-    try {
-      if (error.error && error.error.errors) {
-        error.error.errors.forEach((element) => {
-          msg += this.translate.instant(
-            'Property: ' + element.property + ' ' + element.message + ';'
-          );
-        });
-      } else {
-        msg = this.translate.instant(
-          error.error
-            ? error.error.error + ': ' + error.error.message
-            : error.message
-        );
-      }
-    } catch (error) {
-      msg = error.toString();
-    }
-    this.loggerService.debug('showMessage', msg);
-    this.snackBar
-      .open(msg, 'Cerrar', {
-        duration: 0,
-        panelClass: ['error-snackbar'],
-      })
-      .onAction()
-      .subscribe(() => {
-        this.snackBar.dismiss();
-      });
-  }
-
-  showSimpleErrorMessage(message: string) {
-    this.loggerService.debug('showSimpleErrorMessage', message);
-    this.snackBar
-      .open(message, 'Cerrar', {
-        duration: 0,
-        panelClass: ['error-snackbar'],
-      })
-      .onAction()
-      .subscribe(() => {
-        this.snackBar.dismiss();
-      });
   }
 
   /**
@@ -358,16 +294,6 @@ export class UtilsService {
     dialogRef.afterClosed().subscribe();
   }
 
-  /**
-   * Shows a navigation out confirmation dialog.
-   * @returns Observable that resolves when the dialog is closed.
-   */
-  showNavigationOutDialog() {
-    const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title = this.getTranslate('caution');
-    dialogRef.componentInstance.message = this.getTranslate('navigateOutMessage');
-    return dialogRef.afterClosed();
-  }
 
   /**
    * Gets the column definition for a checkbox selection column in AG Grid.

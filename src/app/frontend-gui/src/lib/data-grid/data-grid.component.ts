@@ -37,6 +37,7 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {RouterLinkRendererComponent} from '../router-link-renderer/router-link-renderer.component';
 import {UtilsService} from '@app/services/utils.service';
+import {ErrorHandlerService} from '@app/services/error-handler.service';
 
 // Removed jQuery dependency
 
@@ -409,6 +410,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
               public translate: TranslateService,
               public utils: UtilsService,
               private loggerService: LoggerService,
+              private errorHandler: ErrorHandlerService,
   ) {
 
     this.remove = new EventEmitter();
@@ -1045,7 +1047,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         itemsToAdd.push(item);
         this.rowData.push(item);
       } else {
-        this.utils.showErrorMessage({message: `Item already exists`})
+        this.errorHandler.handleError({message: `Item already exists`}, 'common.error.itemExists');
       }
     });
     if (!this.gridApi?.isDestroyed()) {

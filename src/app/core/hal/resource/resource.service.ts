@@ -1,4 +1,4 @@
-import {EMPTY, Observable, empty, of, switchMap, throwError} from 'rxjs';
+import {Observable, of, switchMap, throwError} from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Resource } from './resource.model';
 import { ResourceHelper } from './resource-helper';
@@ -268,14 +268,7 @@ export class ResourceService {
         this.setUrlsResource(entity);
         const observable = ResourceHelper.getHttp().post(uri, payload, { headers: ResourceHelper.headers, observe: 'response' });
         return observable.pipe(switchMap((response: HttpResponse<string>) => {
-            if (response.status >= 200 && response.status <= 207)
-                return of(ResourceHelper.instantiateResource(entity, response.body));
-            else if (response.status == 500) {
-                const body: any = response.body;
-                return throwError(() => body.error);
-            }
-            // Add default return
-            return EMPTY;
+            return of(ResourceHelper.instantiateResource(entity, response.body));
         }));
     }
 
@@ -287,11 +280,11 @@ export class ResourceService {
     public update<T extends Resource>(entity: T) {
         this.loggerService.trace("ResourceService.update:", entity);
         if (!entity._links) {
-            return throwError(() => 'no links found');
+            return throwError(() => new Error('no links found'));
         }
 
         if (!entity._links.self) {
-            return throwError(() => 'no self link found');
+            return throwError(() => new Error('no self link found'));
         }
 
         const uri = ResourceHelper.getProxy(entity._links.self.href);
@@ -300,12 +293,7 @@ export class ResourceService {
       const observable = ResourceHelper.getHttp().put(uri, payload, { headers: ResourceHelper.headers, observe: 'response' });
       return observable.pipe(
         switchMap((response: HttpResponse<string>) => {
-          if (response.status >= 200 && response.status <= 207) {
-            return of(ResourceHelper.instantiateResource(entity, response.body));
-          } else if (response.status === 500) {
-            return throwError(() => response.body);
-          }
-          return EMPTY;
+          return of(ResourceHelper.instantiateResource(entity, response.body));
         })
       );
     }
@@ -329,14 +317,7 @@ export class ResourceService {
 
         const observable: Observable<HttpResponse<any>> = ResourceHelper.getHttp().put(uri, payload, { headers: headers, observe: 'response' });
         return observable.pipe(map((response: HttpResponse<string>) => {
-            if (response.status >= 200 && response.status <= 207)
-                return resourceArray;
-            else if (response.status == 500) {
-                const body: any = response.body;
-                return throwError(() => body.error);
-            }
-            // Add default return
-            return null;
+            return resourceArray;
         }));
     }
 
@@ -357,11 +338,11 @@ export class ResourceService {
     public patch<T extends Resource>(entity: T) {
         this.loggerService.trace("ResourceService.patch:", entity);
         if (!entity._links) {
-            return throwError(() => 'no links found');
+            return throwError(() => new Error('no links found'));
         }
 
         if (!entity._links.self) {
-            return throwError(() => 'no self link found');
+            return throwError(() => new Error('no self link found'));
         }
 
         const uri = ResourceHelper.getProxy(entity._links.self.href);
@@ -372,14 +353,7 @@ export class ResourceService {
         observe: 'response'
       });
         return observable.pipe(map((response: HttpResponse<string>) => {
-            if (response.status >= 200 && response.status <= 207)
-                return ResourceHelper.instantiateResource(entity, response.body);
-            else if (response.status == 500) {
-              const body: any = response.body;
-                return throwError(() => body.error);
-            }
-            // Add default return
-            return null;
+            return ResourceHelper.instantiateResource(entity, response.body);
         }));
     }
 
