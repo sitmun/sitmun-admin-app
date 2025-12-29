@@ -1,31 +1,24 @@
-.formDivTreeLeft {
-  width: 45%;
-  height: 100%;
-  float: left;
-  //max-height: calc(100vh - 430px);
-  //overflow-y: auto;
-}
+// Material Design compatible styles only
+// Float-based layouts removed - using Material flexbox instead
+// Custom button styles removed - using Material button components instead
 
-.formDivTreeRight {
-  width: 45%;
-  height: 100%;
-  float: right;
-  padding-left: 30px;
-  padding-right: 10px;
-  overflow-y: auto;
-}
-
-.form-control-feedback {
-  color: red;
-}
-
-.tree-container{
+.tree-container {
   display: flex;
   flex-direction: column;
 }
 
-.tableDiv{
-  margin-top:10px;
+// Ensure mat-card border matches tree-nodes outer card
+::ng-deep .mat-tab-body-content {
+  padding: 0 !important;
+}
+
+mat-card[appearance="outlined"] {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+}
+
+.tableDiv {
+  margin-top: 10px;
 }
 
 .fieldsConfigTree {
@@ -42,30 +35,27 @@
   width: 80vw;
 }
 
-#fieldsConfigForm .colFormDiv {
-  width: max-content;
+// Appearance panel - Material Design compliant structure
+.appearance-panel-content {
+  display: flex;
+  gap: 16px; // Material Design spacing (16dp)
+  flex-wrap: wrap;
+  align-items: flex-start;
 }
 
-input[type=button].add-gap {
-    background-color: rgb(255, 147, 0);
-    color: white;
-    height: 36px;
-    transition: box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1);
-    padding: 0 16px 0 16px;
-    cursor: pointer;
-    border: none;
-    border-radius: var(--mdc-filled-button-container-shape, var(--mdc-shape-small, 4px));
-    font-size: var(--mdc-typography-button-font-size, 14px);
-    font-weight: var(--mdc-typography-button-font-weight, 500);
-    letter-spacing: var(--mdc-typography-button-letter-spacing, 0.0892857143em);
-    margin-bottom: 10px;
+.appearance-input-section {
+  flex: 2;
+  min-width: 400px;
 }
 
-.previewImage {
-  height: 80px;
-  width: 80px;
+.appearance-form-field {
+  width: 100%;
 }
 
-.namespace-field {
-  width: 35vw;
+.appearance-actions {
+  display: flex;
+  gap: 8px; // Material Design spacing (8dp)
+  margin-top: 8px; // Material Design spacing (8dp)
 }
+
+// Image preview styles are now in ImagePreviewComponent

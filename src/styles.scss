@@ -758,19 +758,7 @@ h4 > .mat-icon {
   margin-right: 10px;
 }
 
-.sitmun-get-info-button, .getInfoButton{
-  background-color: #ff9300;
-  color: white;
-  justify-self: right !important;
-  margin-right: 10px;
-}
-
-.sitmun-validate-button, .validateButton {
-  background-color: #ff9300 !important;
-  color: white !important;
-  justify-self: right !important;
-  margin-right: 10px;
-}
+// Removed sitmun-get-info-button and sitmun-validate-button - use mat-raised-button color="primary" instead
 
 .sitmun-delete-button, .deleteButton {
   color: #BF0000 !important;

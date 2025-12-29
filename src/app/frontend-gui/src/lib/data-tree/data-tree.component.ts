@@ -12,7 +12,7 @@ export class FileNode {
   id: string;
   children: FileNode[];
   name: string;
-  nodetype: string;
+  nodeType: string;
   type: any;
   active: any;
   cartography: any;
@@ -24,6 +24,7 @@ export class FileNode {
   filterGetMap: any
   filterSelectable: any
   isFolder: any
+  isRoot: any
   metadataURL: any
   order: any
   parent: any
@@ -47,7 +48,7 @@ export class FileFlatNode {
     public type: any,
     public id: string,
     public status: string,
-    public nodetype: string
+    public nodeType: string
   ) { }
 }
 
@@ -98,7 +99,7 @@ export class FileDatabase {
         const obj = treeNode;
         obj.children = [];
         obj.type= (treeNode.isFolder) ? "folder" : "node";
-        obj.nodetype = treeNode.nodetype;
+        obj.nodeType = treeNode.nodeType;
         if(allNewElements) {
           obj.status='pendingCreation';
           if(obj.id) { obj.id = obj.id * -1 }
@@ -181,7 +182,7 @@ export class FileDatabase {
     return {
       name: node.name,
       children: node.children,
-      nodetype: node.nodetype,
+      nodeType: node.nodeType,
       type: node.type,
       id: node.id,
       active: node.active,
@@ -318,6 +319,9 @@ export class DataTreeComponent {
   expandDelay = 1000;
   validateDrop = false;
   treeData: any;
+  filterValue: string = '';
+  originalData: FileNode[] = [];
+  selectedNodeId: string | null = null;
 
   @Input() getAll: () => Observable<any>;
   @Input() allNewElements: any;
@@ -336,6 +340,9 @@ export class DataTreeComponent {
 
     /** Map from nested node to flattened node. This helps us to keep the same object for selection */
     nestedNodeMap = new Map<FileNode, FileFlatNode>();
+    
+    /** Map to store original node states for revert functionality */
+    originalNodeStates = new Map<string | number, any>();
 
 
   constructor(public database: FileDatabase) {
@@ -406,7 +413,7 @@ export class DataTreeComponent {
     const existingNode = this.nestedNodeMap.get(node);
     const flatNode = existingNode && existingNode.name === node.name
       ? existingNode
-      : new FileFlatNode((node.children && node.children.length > 0),node.name,level,node.type,node.id,node.status, node.nodetype);
+      : new FileFlatNode((node.children && node.children.length > 0),node.name,level,node.type,node.id,node.status, node.nodeType);
 
     this.flatNodeMap.set(flatNode, node);
     this.nestedNodeMap.set(node, flatNode);
@@ -438,10 +445,11 @@ export class DataTreeComponent {
   }
 
 
-   findNodeSiblings(arr: Array<any>, id: string): Array<any> {
+   findNodeSiblings(arr: Array<any>, id: string | number): Array<any> {
     let result, subResult;
+    const idStr = String(id);
     arr.forEach((item, i) => {
-      if (item.id === id) {
+      if (String(item.id) === idStr) {
         result = arr;
       } else if (item.children) {
         subResult = this.findNodeSiblings(item.children, id);
@@ -561,14 +569,115 @@ export class DataTreeComponent {
   rebuildTreeForData(data: any[]) {
     //this.dataSource.data = data;
     this.sortByOrder(data);
-    this.dataSource.data = [];
-    this.dataSource.data = data;
-    this.treeControl.expansionModel.selected.forEach((nodeAct) => {
-      if(nodeAct){
-        const node = this.treeControl.dataNodes.find((n) => n.id === nodeAct.id);
-        this.treeControl.expand(node);
+    this.originalData = data; // Store original data for filtering
+    // Store original states of nodes for revert functionality
+    this.storeOriginalStates(data);
+    this.applyFilter();
+  }
+
+  /**
+   * Recursively store original node states for revert functionality
+   * Only stores state for nodes that don't have Modified or pendingCreation status
+   * (i.e., nodes that are in their original saved state)
+   */
+  private storeOriginalStates(nodes: any[]): void {
+    if (!nodes || nodes.length === 0) {
+      return;
+    }
+    nodes.forEach(node => {
+      if (node.id !== null && node.id !== undefined && node.id >= 0) {
+        // Only store original state if:
+        // 1. Not already stored (to preserve original state)
+        // 2. Node doesn't have Modified or pendingCreation status (it's in saved state)
+        if (!this.originalNodeStates.has(node.id) && 
+            node.status !== 'Modified' && 
+            node.status !== 'pendingCreation') {
+          // Deep clone to store original state
+          const originalState = JSON.parse(JSON.stringify(node));
+          // Remove status from original state so we can restore to clean state
+          delete originalState.status;
+          this.originalNodeStates.set(node.id, originalState);
+        }
+      }
+      // Recursively store children
+      if (node.children && node.children.length > 0) {
+        this.storeOriginalStates(node.children);
       }
     });
+  }
+
+  applyFilter() {
+    let filteredData = this.originalData;
+    
+    if (this.filterValue && this.filterValue.trim() !== '') {
+      const filter = this.filterValue.toLowerCase().trim();
+      filteredData = this.filterTree(this.originalData, filter);
+    }
+    
+    this.dataSource.data = [];
+    this.dataSource.data = filteredData;
+    
+    // Auto-expand only root node (first level) - do not expand nested children
+    setTimeout(() => {
+      if (filteredData.length === 1 && (filteredData[0] as any).isRoot === true && filteredData[0].children) {
+        const rootFlatNode = this.treeControl.dataNodes.find((n) => {
+          const nested = this.flatNodeMap.get(n);
+          return nested && (nested as any).isRoot === true;
+        });
+        if (rootFlatNode) {
+          // Only expand the root node, not its descendants
+          this.treeControl.expand(rootFlatNode);
+          this.expansionModel.select(rootFlatNode.id);
+        }
+      }
+      // Restore previously expanded nodes (but not auto-expand them if they're nested)
+      this.treeControl.expansionModel.selected.forEach((nodeAct) => {
+        if(nodeAct){
+          const node = this.treeControl.dataNodes.find((n) => n.id === nodeAct.id);
+          if (node) {
+            // Only restore expansion if it was manually expanded before
+            // Don't auto-expand nested nodes
+            const nested = this.flatNodeMap.get(node);
+            const isRoot = nested && (nested as any).isRoot === true;
+            if (!isRoot) {
+              // Only restore expansion for non-root nodes that were previously expanded
+              this.treeControl.expand(node);
+            }
+          }
+        }
+      });
+    }, 0);
+  }
+
+  filterTree(nodes: FileNode[], filter: string): FileNode[] {
+    if (!nodes || nodes.length === 0) {
+      return [];
+    }
+
+    return nodes.map(node => {
+      const nodeMatches = node.name && node.name.toLowerCase().includes(filter);
+      const filteredChildren = node.children ? this.filterTree(node.children, filter) : [];
+      const hasMatchingChildren = filteredChildren.length > 0;
+
+      // Include node if it matches or has matching children
+      if (nodeMatches || hasMatchingChildren) {
+        const filteredNode = { ...node };
+        filteredNode.children = filteredChildren;
+        return filteredNode;
+      }
+      return null;
+    }).filter(node => node !== null) as FileNode[];
+  }
+
+  onFilterChange(filterValue: string) {
+    this.filterValue = filterValue;
+    this.applyFilter();
+  }
+
+  onFilterKeyup(event: KeyboardEvent) {
+    const input = event.target as HTMLInputElement;
+    this.filterValue = input.value;
+    this.applyFilter();
   }
 
   private getParentNode(node: FileFlatNode): FileFlatNode | null {
@@ -588,11 +697,54 @@ export class DataTreeComponent {
 
   updateNode(nodeUpdated)
   {
+    console.log('DataTreeComponent.updateNode - Received node update', {
+      nodeId: nodeUpdated.id,
+      nodeName: nodeUpdated.name,
+      nodeType: nodeUpdated.nodeType,
+      hasChildren: !!nodeUpdated.children
+    });
     const dataToChange = JSON.parse(JSON.stringify(this.dataSource.data))
-    const siblings = this.findNodeSiblings(dataToChange, nodeUpdated.id);
-    const index = siblings.findIndex(node => node.id === nodeUpdated.id)
-    siblings[index]=nodeUpdated;
+    const siblings = this.findNodeSiblings(dataToChange, String(nodeUpdated.id));
+    if (!siblings) {
+      console.warn('DataTreeComponent.updateNode - Node not found in tree', {
+        nodeId: nodeUpdated.id
+      });
+      return;
+    }
+    const index = siblings.findIndex(node => String(node.id) === String(nodeUpdated.id));
+    if (index === -1) {
+      console.warn('DataTreeComponent.updateNode - Node index not found', {
+        nodeId: nodeUpdated.id,
+        siblingsCount: siblings.length
+      });
+      return;
+    }
+    // Preserve children if they exist in the original node
+    const originalNode = siblings[index];
+    console.log('DataTreeComponent.updateNode - Original node before update', {
+      nodeId: originalNode.id,
+      originalName: originalNode.name,
+      originalNodeType: originalNode.nodeType,
+      hasChildren: !!originalNode.children
+    });
+    const updatedNode = {
+      ...originalNode,
+      ...nodeUpdated,
+      children: nodeUpdated.children || originalNode.children,
+      id: originalNode.id // Preserve original ID type
+    };
+    console.log('DataTreeComponent.updateNode - Updated node after merge', {
+      nodeId: updatedNode.id,
+      updatedName: updatedNode.name,
+      updatedNodeType: updatedNode.nodeType,
+      hasChildren: !!updatedNode.children
+    });
+    siblings[index] = updatedNode;
     this.rebuildTreeForData(dataToChange);
+    console.log('DataTreeComponent.updateNode - Node update completed', {
+      nodeId: updatedNode.id,
+      nodeName: updatedNode.name
+    });
 
   }
 
@@ -640,6 +792,10 @@ export class DataTreeComponent {
     const changedData = JSON.parse(JSON.stringify(this.dataSource.data))
     const siblings = this.findNodeSiblings(changedData, id);
     const nodeClicked = siblings.find(node => node.id === id);
+    // Track selected node for styling
+    if(button === 'edit') {
+      this.selectedNodeId = id;
+    }
     if(button ==='edit')  {
       const nodeParent = nodeClicked.parent ?
         this.findNodeSiblings(changedData, nodeClicked.parent).find(node => node.id === nodeClicked.parent) : null;
@@ -661,6 +817,43 @@ export class DataTreeComponent {
       // nodeClicked.children=children
       nodeClicked.status='pendingDelete'
 
+      this.rebuildTreeForData(changedData);
+    } else if(button === 'restore') {
+      // Revert delete decision - restore the node and its descendants
+      this.restoreChildren(nodeClicked.children, changedData);
+      
+      // If node exists (id >= 0) and has original state, revert to original state
+      // This overrides any modifications that were made before deletion
+      if (nodeClicked.id >= 0 && this.originalNodeStates.has(nodeClicked.id)) {
+        // Restore to original state, overriding any modifications
+        this.revertNodeToOriginal(changedData, nodeClicked);
+      } else {
+        // New node (id < 0) - just restore status
+        nodeClicked.status = 'pendingCreation';
+      }
+      
+      // Restore ancestors only (parents, grandparents, etc.) - not siblings
+      this.restoreAncestors(changedData, nodeClicked);
+      
+      this.rebuildTreeForData(changedData);
+    } else if(button === 'revert') {
+      // Revert Modified node to its original state
+      this.revertNodeToOriginal(changedData, nodeClicked);
+      this.rebuildTreeForData(changedData);
+      
+      // If this node is currently selected (form is visible), emit it to update the form
+      if (this.selectedNodeId === id) {
+        const nodeParent = nodeClicked.parent ?
+          this.findNodeSiblings(changedData, nodeClicked.parent).find(node => node.id === nodeClicked.parent) : null;
+        const emitedObj = {
+          nodeClicked,
+          nodeParent,
+        };
+        this.emitNode.emit(emitedObj);
+      }
+    } else if(button === 'remove') {
+      // Remove pendingCreation node (unsaved new node) from tree
+      this.removePendingCreationNode(changedData, nodeClicked);
       this.rebuildTreeForData(changedData);
     }
 
@@ -696,6 +889,268 @@ export class DataTreeComponent {
       }
       item.status='pendingDelete'
 
+    });
+  }
+
+  restoreChildren(arr, changedData?: any)
+  {
+    arr.forEach((item, i) => {
+      if (item.children && item.children.length>0) {
+        this.restoreChildren(item.children, changedData);
+      }
+      
+      // If node exists (id >= 0) and has original state, revert to original state
+      // This overrides any modifications that were made before deletion
+      if (item.id >= 0 && changedData && this.originalNodeStates.has(item.id)) {
+        this.revertNodeToOriginal(changedData, item);
+      } else {
+        // New node (id < 0) - just restore status
+        item.status = item.id < 0 ? 'pendingCreation' : 'Modified';
+      }
+    });
+  }
+
+  /**
+   * Restore ancestors (parents, grandparents, etc.) recursively
+   * Only restores the ancestor nodes themselves, not their other children (siblings)
+   * If ancestor has original state, restores to original state (overriding modifications)
+   */
+  restoreAncestors(changedData: any, node: any) {
+    if (!node || node.parent === null || node.parent === undefined) {
+      return; // No parent, stop recursion
+    }
+    
+    const parentNode = this.findNodeSiblings(changedData, node.parent).find(n => n.id === node.parent);
+    if (parentNode && parentNode.status === 'pendingDelete') {
+      // If parent exists (id >= 0) and has original state, revert to original state
+      // This overrides any modifications that were made before deletion
+      if (parentNode.id >= 0 && this.originalNodeStates.has(parentNode.id)) {
+        this.revertNodeToOriginal(changedData, parentNode);
+      } else {
+        // New node (id < 0) - just restore status
+        parentNode.status = parentNode.id < 0 ? 'pendingCreation' : 'Modified';
+      }
+      
+      // Recursively restore the parent's ancestors
+      this.restoreAncestors(changedData, parentNode);
+    }
+  }
+
+  /**
+   * Revert a Modified node to its original state
+   */
+  revertNodeToOriginal(changedData: any, node: any) {
+    if (!node || !node.id) {
+      return;
+    }
+    
+    const originalState = this.originalNodeStates.get(node.id);
+    if (originalState) {
+      // Restore original properties, but preserve children and tree structure
+      const children = node.children || [];
+      const parent = node.parent;
+      
+      // Copy original state properties
+      Object.keys(originalState).forEach(key => {
+        if (key !== 'children' && key !== 'parent') {
+          node[key] = originalState[key];
+        }
+      });
+      
+      // Restore children and parent
+      node.children = children;
+      node.parent = parent;
+      
+      // Remove Modified status (node returns to saved state)
+      delete node.status;
+      
+      // Also revert any modified children
+      if (children && children.length > 0) {
+        children.forEach((child: any) => {
+          if (child.status === 'Modified') {
+            this.revertNodeToOriginal(changedData, child);
+          }
+        });
+      }
+    }
+  }
+
+  /**
+   * Remove a pendingCreation node from the tree
+   * Also removes all its children recursively
+   */
+  removePendingCreationNode(changedData: any, node: any) {
+    if (!node || node.status !== 'pendingCreation') {
+      return;
+    }
+    
+    // Remove all children first (recursively)
+    if (node.children && node.children.length > 0) {
+      node.children.forEach((child: any) => {
+        if (child.status === 'pendingCreation') {
+          this.removePendingCreationNode(changedData, child);
+        }
+        // Remove from original states map
+        if (child.id && this.originalNodeStates.has(child.id)) {
+          this.originalNodeStates.delete(child.id);
+        }
+      });
+    }
+    
+    // Find and remove from parent's children array
+    if (node.parent !== null && node.parent !== undefined) {
+      const siblings = this.findNodeSiblings(changedData, node.parent);
+      const parentNode = siblings.find(n => n.id === node.parent);
+      if (parentNode && parentNode.children) {
+        const index = parentNode.children.findIndex((child: any) => child.id === node.id);
+        if (index !== -1) {
+          parentNode.children.splice(index, 1);
+        }
+      }
+    } else {
+      // Root level - remove from root's children
+      if (changedData && changedData.length > 0 && changedData[0].children) {
+        const index = changedData[0].children.findIndex((child: any) => child.id === node.id);
+        if (index !== -1) {
+          changedData[0].children.splice(index, 1);
+        }
+      }
+    }
+    
+    // Remove from original states map if stored
+    if (node.id && this.originalNodeStates.has(node.id)) {
+      this.originalNodeStates.delete(node.id);
+    }
+  }
+
+  createRootFolder()
+  {
+    const rootNode = {
+      id: null,
+      name: '',
+      isFolder: true,
+      parent: null
+    };
+    this.createFolder.emit(rootNode);
+  }
+
+  getNodeDisplay(node: any): string {
+    // Hide root node (has isRoot property or empty name with null id)
+    // Use visibility hidden instead of display none to preserve tree structure
+    const nestedNode = this.flatNodeMap.get(node);
+    if (nestedNode && (nestedNode.isRoot === true || (nestedNode.name === '' && nestedNode.id === null))) {
+      return 'none';
+    }
+    return 'flex';
+  }
+
+  isRootNode(node: any): boolean {
+    const nestedNode = this.flatNodeMap.get(node);
+    return nestedNode && ((nestedNode as any).isRoot === true || (nestedNode.name === '' && nestedNode.id === null));
+  }
+
+  isRootChild(node: any): boolean {
+    // Check if this node is a direct child of the root (level 1)
+    return node && node.level === 1;
+  }
+
+  isRootDescendant(node: any): boolean {
+    // Check if this node is any descendant of the root (level >= 1)
+    // Since root is at level 0 and hidden, all nodes with level >= 1 should be shifted left
+    return node && node.level >= 1;
+  }
+
+  /**
+   * Calculate adjusted padding for root descendants
+   * Formula: 13px base + ~22px per level (13, 35, 58, 80...)
+   * Pattern matches the relationship 13-35-58
+   */
+  /**
+   * Checks if a node or any of its ancestors are inactive
+   * @param node The flat node to check
+   * @returns true if the node or any ancestor is inactive
+   */
+  isNodeOrAncestorInactive(node: FileFlatNode): boolean {
+    if (!node) {
+      return false;
+    }
+    const nestedNode = this.flatNodeMap.get(node);
+    if (!nestedNode) {
+      return false;
+    }
+    // Check if current node is inactive
+    if (nestedNode.active === false) {
+      return true;
+    }
+    // If node has a parent, check parent recursively
+    if (nestedNode.parent !== null && nestedNode.parent !== undefined) {
+      const parentNode = this.findNodeById(nestedNode.parent);
+      if (parentNode) {
+        const parentFlatNode = this.nestedNodeMap.get(parentNode);
+        if (parentFlatNode) {
+          return this.isNodeOrAncestorInactive(parentFlatNode);
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Finds a nested node by its ID in the tree data
+   * @param id The node ID to find
+   * @returns The found FileNode or null
+   */
+  private findNodeById(id: string | number): FileNode | null {
+    if (!this.dataSource.data || this.dataSource.data.length === 0) {
+      return null;
+    }
+    const searchInNodes = (nodes: FileNode[]): FileNode | null => {
+      for (const node of nodes) {
+        if (String(node.id) === String(id)) {
+          return node;
+        }
+        if (node.children && node.children.length > 0) {
+          const found = searchInNodes(node.children);
+          if (found) {
+            return found;
+          }
+        }
+      }
+      return null;
+    };
+    return searchInNodes(this.dataSource.data);
+  }
+
+  getAdjustedPadding(node: any): string | null {
+    if (!node) {
+      return '13px';
+    }
+    if (!this.isRootDescendant(node)) {
+      return '13px';
+    }
+    // Custom padding based on 13-35-58 relationship
+    // aria-level 2 (first visible) = 13px
+    // aria-level 3 (second visible) = 35px (13 + 22)
+    // aria-level 4 (third visible) = 58px (35 + 23)
+    // Continue with 22px increment
+    const level = node.level;
+    if (level === 1) return '13px'; // First visible
+    if (level === 2) return '35px'; // Second visible
+    if (level === 3) return '58px'; // Third visible
+    // For levels beyond 3, use 22px increment
+    return `${58 + (level - 3) * 22}px`;
+  }
+
+  collapseToFirstLevel(): void {
+    // Collapse all nodes first
+    this.treeControl.collapseAll();
+    
+    // Then expand only first level nodes (level 1) - direct children of root
+    this.treeControl.dataNodes.forEach(node => {
+      if (node.level === 1 && node.expandable) {
+        this.treeControl.expand(node);
+        this.expansionModel.select(node.id);
+      }
     });
   }
 

@@ -3,6 +3,7 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateService} from '@ngx-translate/core';
 import {Location} from '@angular/common';
 import {firstValueFrom, Subject} from 'rxjs';
+import {map} from 'rxjs/operators';
 import {CodeList, CodeListService, Language, Translation, TranslationService} from '@app/domain';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {DialogMessageComponent, DialogTranslationComponent} from '@app/frontend-gui/src/lib/public_api';
@@ -1013,26 +1014,90 @@ export class UtilsService {
     const defaultLanguage = config.defaultLang;
     const promises: Promise<any>[] = [];
     if (translationMap) {
+      // Load existing translations for this element to get _links
+      const existingTranslations = await firstValueFrom(
+        this.translationService.getAll().pipe(
+          map((data: any[]) => data.filter(t => t.element === id))
+        )
+      );
+      this.loggerService.debug('UtilsService.saveTranslation - Loaded existing translations', {
+        elementId: id,
+        existingCount: existingTranslations.length,
+        existingTranslations: existingTranslations.map(t => ({
+          id: t.id,
+          column: t.column,
+          languageShortname: t.languageShortname || t.language?.shortname,
+          hasLinks: !!t._links
+        }))
+      });
+      
       translationMap.forEach((value: Translation, key: string) => {
         if (key == defaultLanguage && internationalValue) {
           value.element = id;
           value.translation = internationalValue;
+          // If translation doesn't have _links, find existing one
+          if (!value._links && value.column) {
+            const existing = existingTranslations.find(t => 
+              t.column === value.column && 
+              (t.languageShortname === key || t.language?.shortname === key)
+            );
+            if (existing && existing._links) {
+              this.loggerService.debug('UtilsService.saveTranslation - Found existing translation, merging _links', {
+                elementId: id,
+                column: value.column,
+                language: key,
+                existingId: existing.id
+              });
+              value._links = existing._links;
+              value.id = existing.id;
+            } else {
+              this.loggerService.debug('UtilsService.saveTranslation - No existing translation found, will INSERT', {
+                elementId: id,
+                column: value.column,
+                language: key
+              });
+            }
+          } else if (value._links) {
+            this.loggerService.debug('UtilsService.saveTranslation - Translation has _links, will UPDATE', {
+              elementId: id,
+              column: value.column,
+              language: key,
+              translationId: value.id
+            });
+          }
           promises.push(
             new Promise((resolve) => {
               this.translationService.save(value).subscribe((result) => {
                 translationMap.set(key, result);
                 resolve(true);
+              }, (error) => {
+                this.loggerService.error('Error saving translation', error);
+                resolve(false);
               });
             })
           );
         } else if (modifications) {
           if (value && value.translation) {
             value.element = id;
+            // If translation doesn't have _links, find existing one
+            if (!value._links && value.column) {
+              const existing = existingTranslations.find(t => 
+                t.column === value.column && 
+                t.languageShortname === key
+              );
+              if (existing && existing._links) {
+                value._links = existing._links;
+                value.id = existing.id;
+              }
+            }
             promises.push(
               new Promise((resolve,) => {
                 this.translationService.save(value).subscribe((result) => {
                   translationMap.set(key, result);
                   resolve(true);
+                }, (error) => {
+                  this.loggerService.error('Error saving translation', error);
+                  resolve(false);
                 });
               })
             );
@@ -1040,9 +1105,8 @@ export class UtilsService {
         }
       });
     }
-    Promise.all(promises).then(() => {
-      return translationMap;
-    });
+    await Promise.all(promises);
+    return translationMap;
   }
 }
 

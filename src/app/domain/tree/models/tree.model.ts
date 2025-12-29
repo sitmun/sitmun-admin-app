@@ -24,4 +24,28 @@ export class Tree extends Resource {
   public availableRoles : Role[];
   /** available applications */
   public availableApplications: Application[];
+
+  /**
+   * Creates a new Tree instance copying only the properties declared in Tree and Resource classes
+   * @param source The source object to copy properties from
+   * @returns A new Tree instance with copied properties
+   */
+  public static fromObject(source: any): Tree {
+    const tree = new Tree();
+    // Define the properties to copy
+    const propertiesToCopy = [
+      // Resource properties
+      'proxyUrl', 'rootUrl', '_links', '_subtypes',
+      // Tree properties
+      'id', 'name', 'description', 'type', 'image', 'imageName',
+      'allNodes', 'availableRoles', 'availableApplications'
+    ];
+    // Copy only defined properties that exist in our class
+    propertiesToCopy.forEach(prop => {
+      if (source[prop] !== undefined) {
+        tree[prop] = source[prop];
+      }
+    });
+    return tree;
+  }
 }

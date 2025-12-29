@@ -1,0 +1,213 @@
+// Material Design compatible styles for tree-nodes component
+
+.panel-icon {
+  margin-right: 8px;
+}
+
+// Header with actions aligned horizontally
+.header-with-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  
+  .header-title-section {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .header-actions-section {
+    margin-left: 16px;
+    flex-shrink: 0;
+  }
+}
+
+.required-asterisk {
+  color: red;
+}
+
+// Resizable layout styles
+.resizable-container {
+  display: flex;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  gap: 0;
+}
+
+.tree-panel {
+  flex-shrink: 0;
+  overflow: hidden;
+  transition: width 0.3s ease;
+  min-width: 0;
+
+  > * {
+    height: 100%;
+    overflow-y: auto;
+  }
+}
+
+.resizer {
+  width: 4px;
+  flex-shrink: 0;
+  cursor: col-resize;
+  background-color: transparent;
+  transition: background-color 0.2s ease;
+  position: relative;
+  z-index: 10;
+  user-select: none;
+
+  &:hover,
+  &.resizing {
+    background-color: rgba(25, 118, 210, 0.3);
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -2px;
+    right: -2px;
+    top: 0;
+    bottom: 0;
+    cursor: col-resize;
+  }
+}
+
+.detail-panel {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  .detail-content {
+    flex: 1;
+    overflow-y: auto;
+    min-width: 0;
+  }
+}
+
+// Ensure formDiv maintains proper layout
+.formDiv {
+  &.resizable-container {
+    gap: 0;
+  }
+}
+
+// Appearance panel - Material Design compliant structure
+.appearance-panel-content {
+  display: flex;
+  gap: 16px; // Material Design spacing (16dp)
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.appearance-input-section {
+  flex: 2;
+  min-width: 400px;
+}
+
+.appearance-form-field {
+  width: 100%;
+}
+
+.appearance-actions {
+  display: flex;
+  gap: 8px; // Material Design spacing (8dp)
+  margin-top: 8px; // Material Design spacing (8dp)
+}
+
+// Image preview styles are now in ImagePreviewComponent
+
+// Description & Metadata panel content layout
+.description-metadata-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px; // Material Design spacing (16dp)
+}
+
+.metadata-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px; // Material Design spacing (16dp)
+}
+
+// Cartography autocomplete styling
+.cartography-option {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0; // Allow text truncation
+}
+
+.cartography-name-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0; // Allow text truncation
+}
+
+.cartography-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0; // Allow truncation
+}
+
+.cartography-detail {
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 0.875rem;
+  flex-shrink: 0; // Don't shrink service name
+}
+
+.cartography-layers {
+  font-size: 0.75rem;
+  color: rgba(0, 0, 0, 0.54);
+  margin-top: 2px;
+  display: flex;
+  min-width: 0;
+}
+
+.layers-label {
+  font-weight: 500;
+  flex-shrink: 0;
+  margin-right: 4px;
+}
+
+.layers-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+// Task autocomplete styling
+.task-option {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.task-name-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.task-name {
+  font-weight: 500;
+}
+
+.task-detail {
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 0.9em;
+}
+
+.task-group {
+  font-size: 0.85em;
+  color: rgba(0, 0, 0, 0.54);
+}

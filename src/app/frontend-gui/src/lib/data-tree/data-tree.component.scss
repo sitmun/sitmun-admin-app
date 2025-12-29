@@ -1,9 +1,149 @@
-.mat-tree-node {
-  user-select: none;
-  cursor: move;
+// Tree card
+.tree-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
+.tree-card-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0 !important;
+  overflow: hidden;
+}
 
+// Toolbar styling - matches DataGrid style (uses default Material toolbar background)
+.tree-search-field {
+  flex: 1 1 auto;
+  min-width: 200px;
+  max-width: 100%;
+  
+  // Make the form field expand to fill available space
+  ::ng-deep {
+    .mat-mdc-text-field-wrapper {
+      width: 100%;
+    }
+    
+    .mat-mdc-form-field {
+      width: 100%;
+    }
+  }
+}
+
+// Tree wrapper with scroll
+.tree-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  
+  // Ensure expand/collapse button matches toolbar button size (40x40 like mat-mini-fab)
+  ::ng-deep .mat-mdc-icon-button.mat-mdc-button-base {
+    width: 40px !important;
+    height: 40px !important;
+    padding: 8px !important;
+    
+    .mat-mdc-button-touch-target {
+      width: 40px !important;
+      height: 40px !important;
+    }
+    
+    mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+      line-height: 24px;
+    }
+  }
+}
+
+// Tree node row styling
+.tree-node-row {
+  user-select: none;
+  cursor: move;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 2px 8px;
+  min-height: 48px; // Material Design minimum touch target
+  transition: background-color 0.2s ease;
+  border-left: 3px solid transparent;
+
+  // Hover state
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+
+    .node-actions {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+
+  // Selected state
+  &.selected {
+    background-color: rgba(25, 118, 210, 0.08);
+    border-left-color: #1976d2;
+    font-weight: 500;
+  }
+
+  // Node name styling
+  .node-name {
+    flex: 1;
+    margin-left: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    // Material Design typography - body-1
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+    letter-spacing: 0.25px;
+    
+    &:hover {
+      color: rgba(25, 118, 210, 0.87);
+    }
+  }
+
+  // Actions container - hidden by default, shown on hover
+  .node-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    margin-left: auto;
+    
+    // Ensure action buttons match toolbar button size (40x40 like mat-mini-fab)
+    ::ng-deep .mat-mdc-icon-button.mat-mdc-button-base {
+      width: 40px !important;
+      height: 40px !important;
+      padding: 8px !important;
+      
+      .mat-mdc-button-touch-target {
+        width: 40px !important;
+        height: 40px !important;
+      }
+      
+      mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+        line-height: 24px;
+      }
+    }
+  }
+}
+
+// Type icon styling
+.type-icon {
+  margin-right: 8px;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+// Drag and drop styles
 .cdk-drop-list-dragging .mat-tree-node:not(.cdk-drag-placeholder) {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
@@ -13,20 +153,123 @@
 }
 
 .drop-above {
-  border-top: 10px solid #dddddd;
-  margin-top: -10px;
+  border-top: 2px solid #1976d2;
+  margin-top: -2px;
 }
 
 .drop-below {
-  border-bottom: 10px solid #dddddd;
-  margin-bottom: -10px;
+  border-bottom: 2px solid #1976d2;
+  margin-bottom: -2px;
 }
 
 .drop-center {
-  background-color: #dddddd;
+  background-color: rgba(25, 118, 210, 0.1);
 }
 
-.deletedNode{
-  color: red;
-  font-style: italic;
+.deletedNode {
+  color: #d32f2f;
+  
+  .node-name {
+    color: #d32f2f;
+  }
+}
+
+// Modified node styling (unsaved changes)
+.modified-node {
+  .node-name {
+    color: #FF9300;
+  }
+  
+  .type-icon {
+    color: #FF9300;
+  }
+}
+
+// Pending creation node styling (new unsaved node)
+.pending-creation-node {
+  .node-name {
+    color: #FF9300;
+  }
+  
+  .type-icon {
+    color: #FF9300;
+  }
+}
+
+// Status indicator icon styling
+.status-indicator-icon {
+  margin-right: 4px;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  color: #FF9300;
+  vertical-align: middle;
+}
+
+// Hide root node completely while preserving tree structure
+.root-node-hidden {
+  visibility: hidden !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  line-height: 0 !important;
+}
+
+// Ensure children of hidden root are still visible
+.mat-tree-node.root-node-hidden + .mat-tree-node {
+  margin-top: 0;
+}
+
+// Remove padding for all descendants of root (level >= 1) when root is hidden
+// This shifts all nodes left by one level since the root (level 0) is hidden
+// Material's matTreeNodePadding applies padding via inline styles, so we need ::ng-deep
+// to override them. Formula: 13px base + ~22px per level
+// The template also uses [style.padding-left] binding which has higher specificity
+// Note: aria-level is 1-indexed, so root=1, first visible=2, etc.
+// Pattern: 13px, 35px (13+22), 58px (35+23), 80px (58+22), 102px (80+22)...
+::ng-deep .mat-tree-node.root-descendant {
+  // Override Material's inline padding-left styles
+  // aria-level 1: root (hidden)
+  // aria-level 2: 13px (first visible level)
+  // aria-level 3: 35px (second visible level, 13+22)
+  // aria-level 4: 58px (third visible level, 35+23)
+  // Pattern continues with ~22px increment
+  
+  // Use attribute selector for aria-level
+  &[aria-level="1"] {
+    padding-left: 0 !important; // Root (hidden anyway)
+  }
+  &[aria-level="2"] {
+    padding-left: 13px !important; // First visible level
+  }
+  &[aria-level="3"] {
+    padding-left: 35px !important; // Second visible level
+  }
+  &[aria-level="4"] {
+    padding-left: 58px !important; // Third visible level
+  }
+  &[aria-level="5"] {
+    padding-left: 80px !important; // (58 + 22)
+  }
+  &[aria-level="6"] {
+    padding-left: 102px !important; // (80 + 22)
+  }
+  &[aria-level="7"] {
+    padding-left: 124px !important; // (102 + 22)
+  }
+  &[aria-level="8"] {
+    padding-left: 146px !important; // (124 + 22)
+  }
+  &[aria-level="9"] {
+    padding-left: 168px !important; // (146 + 22)
+  }
+  &[aria-level="10"] {
+    padding-left: 190px !important; // (168 + 22)
+  }
+  &[aria-level="11"] {
+    padding-left: 212px !important; // (190 + 22)
+  }
 }

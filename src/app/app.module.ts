@@ -103,6 +103,8 @@ import {TranslationDebugComponent} from './components/shared/translation-debug/t
 import {TranslationMonitorService} from './services/translation-monitor.service';
 import {TreesComponent} from '@app/components/trees/trees.component';
 import {TreesFormComponent} from '@app/components/trees/trees-form/trees-form.component';
+import {TreeNodesComponent} from '@app/components/trees/trees-form/tree-nodes/tree-nodes.component';
+import {ImagePreviewComponent} from '@app/frontend-gui/src/lib/image-preview/image-preview.component';
 import {UrlInputDirective} from '@app/components/service/service-form/url-input.directive';
 import {UserComponent} from '@app/components/user/user.component';
 import {UserFormComponent} from '@app/components/user/user-form/user-form.component';
@@ -259,6 +261,7 @@ function getDefaultLanguage(languages: any[]): string {
     ServiceFormComponent,
     ApplicationFormComponent,
     TreesFormComponent,
+    TreeNodesComponent,
     BackgroundLayersFormComponent,
     LayersPermitsFormComponent,
     LayersFormComponent,
@@ -304,8 +307,9 @@ function getDefaultLanguage(languages: any[]): string {
     APP_ROUTING,
     BrowserAnimationsModule,
     CoreModule,
-    NgOptimizedImage
-    , WarningsPanelComponent
+    NgOptimizedImage,
+    WarningsPanelComponent,
+    ImagePreviewComponent
   ],
   providers: [
     { provide: LOCALE_ID, useValue: 'es-ES' },
