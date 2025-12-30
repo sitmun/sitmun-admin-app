@@ -1101,7 +1101,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     dialogRef.componentInstance.getAllsTable = [this.getAllServices];
     dialogRef.componentInstance.singleSelectionTable = [true];
     dialogRef.componentInstance.columnDefsTable = [this.columnDefsServices];
-    dialogRef.componentInstance.themeGrid = config.agGridTheme;
     dialogRef.componentInstance.title = this.utils.getTranslate('treesEntity.services');
     dialogRef.componentInstance.titlesTable = [''];
     dialogRef.componentInstance.nonEditable = false;

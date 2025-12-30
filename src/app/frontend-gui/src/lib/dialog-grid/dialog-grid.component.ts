@@ -1,10 +1,9 @@
-import {Component, EventEmitter, OnInit, Output, inject} from '@angular/core';
+import {Component, OnInit, inject} from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import {MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 export interface DialogGridData {
   title: string;
-  themeGrid: any;
   getAllsTable: (() => Observable<any>)[];
   columnDefsTable: any[][];
   singleSelectionTable: boolean[];
@@ -35,7 +34,22 @@ export function isDialogGridAddEvent(result: DialogGridResult): boolean {
 @Component({
   selector: 'app-dialog-grid',
   templateUrl: './dialog-grid.component.html',
-  styles: []
+  styles: [`
+    mat-dialog-content {
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    mat-card {
+      margin-bottom: 16px;
+    }
+
+    mat-tab-group {
+      flex: 1;
+      overflow: hidden;
+    }
+  `]
 })
 export class DialogGridComponent implements OnInit {
   readonly data = inject<DialogGridData>(MAT_DIALOG_DATA);
@@ -48,7 +62,6 @@ export class DialogGridComponent implements OnInit {
   heightByDefault : any;
 
   //Inputs
-  themeGrid: any;
   getAllsTable: (() => Observable<any>)[];
   columnDefsTable: any[][];
   singleSelectionTable: boolean[];
@@ -60,13 +73,9 @@ export class DialogGridComponent implements OnInit {
   fieldRestrictionWithDifferentName: any[] = [];
   currentData: any[] = [];
 
-  //Outputs
-  @Output() joinTables : EventEmitter<any[][]>;
-
   constructor(private dialogRef: MatDialogRef<DialogGridComponent>) {
-    this.joinTables = new EventEmitter();
     this.tablesReceivedCounter = 0;
-   }
+  }
 
   ngOnInit() {
     if (this.data) {
@@ -98,5 +107,25 @@ export class DialogGridComponent implements OnInit {
 
   closeDialog(){
     this.dialogRef.close(DIALOG_GRID_EVENTS.CANCEL);
+  }
+
+  getOrderTable(index: number): string | null {
+    return this.orderTable.length >= index ? 
+      this.orderTable[index] : null;
+  }
+
+  getAddFieldRestriction(index: number): any {
+    return this.addFieldRestriction.length >= index ? 
+      this.addFieldRestriction[index] : null;
+  }
+
+  getCurrentData(index: number): any {
+    return this.currentData.length >= index ? 
+      this.currentData[index] : null;
+  }
+
+  getFieldRestrictionWithDifferentName(index: number): any {
+    return this.fieldRestrictionWithDifferentName.length >= index ? 
+      this.fieldRestrictionWithDifferentName[index] : null;
   }
 }

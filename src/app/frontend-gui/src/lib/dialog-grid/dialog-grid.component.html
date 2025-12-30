@@ -1,18 +1,18 @@
-<h5 class="titleDialog" mat-dialog-title>{{ title | translate }}</h5>
+<h2 class="titleDialog" mat-dialog-title>{{ title | translate }}</h2>
 <mat-dialog-content>
   <mat-card *ngIf="getAllsTable.length === 1" appearance="outlined">
-    <div *ngFor="let getAll of getAllsTable; let i = index" [ngStyle]="{'margin-top': i>0?'100px':'0px'}">
+    <div *ngFor="let getAll of getAllsTable; let i = index">
       <mat-card-content>
         <app-data-grid
           (getSelectedRows)='joinRowsReceived($event)'
-          [addFieldRestriction]='addFieldRestriction.length>=i?addFieldRestriction[i]:null'
+          [addFieldRestriction]='getAddFieldRestriction(i)'
           [changeHeightButton]='changeHeightButton'
           [columnDefs]="columnDefsTable[i]"
-          [currentData]='currentData.length>=i?currentData[i]:null'
-          [defaultColumnSorting]='orderTable.length>=i?[orderTable[i]]:null'
+          [currentData]='getCurrentData(i)'
+          [defaultColumnSorting]='getOrderTable(i) ? [getOrderTable(i)] : null'
           [defaultHeight]='heightByDefault'
           [eventGetSelectedRowsSubscription]="getAllRows.asObservable()"
-          [fieldRestrictionWithDifferentName]='fieldRestrictionWithDifferentName.length>=i?fieldRestrictionWithDifferentName[i]:null'
+          [fieldRestrictionWithDifferentName]='getFieldRestrictionWithDifferentName(i)'
           [getAll]='getAll'
           [globalSearch]=true
           [hideDuplicateButton]=true
@@ -26,50 +26,50 @@
     </div>
   </mat-card>
   <mat-tab-group *ngIf="getAllsTable.length>1">
-    <div *ngFor="let getAll of getAllsTable; let i = index" [ngStyle]="{'margin-top': i>0?'100px':'0px'}">
-      <mat-tab label="{{(titlesTable[i]==='' || !titlesTable[i] ? '' : titlesTable[i]) | translate}}">
-        <mat-card appearance="outlined">
-          <mat-card-content>
-            <app-data-grid
-              [columnDefs]="columnDefsTable[i]"
-              [changeHeightButton]='changeHeightButton'
-              [defaultHeight]='heightByDefault'
-              [getAll]='getAll'
-              [globalSearch]=true
-              [singleSelection]="singleSelectionTable[i]"
-              [title]="titlesTable[i]"
-              [defaultColumnSorting]='orderTable.length>=i?[orderTable[i]]:null'
-              [nonEditable]='nonEditable'
-              [eventGetSelectedRowsSubscription]="getAllRows.asObservable()"
-              [addFieldRestriction]='addFieldRestriction.length>=i?addFieldRestriction[i]:null'
-              [currentData]='currentData.length>=i?currentData[i]:null'
-              [hideReplaceButton]=true
-              [hideDuplicateButton]=true
-              [fieldRestrictionWithDifferentName]='fieldRestrictionWithDifferentName.length>=i?fieldRestrictionWithDifferentName[i]:null'
-              (getSelectedRows)='joinRowsReceived($event)'
-            >
-            </app-data-grid>
-          </mat-card-content>
-        </mat-card>
-      </mat-tab>
-    </div>
+    <mat-tab
+      *ngFor="let getAll of getAllsTable; let i = index"
+      [label]="(titlesTable[i] | translate) || ''">
+      <mat-card appearance="outlined">
+        <mat-card-content>
+          <app-data-grid
+            [columnDefs]="columnDefsTable[i]"
+            [changeHeightButton]='changeHeightButton'
+            [defaultHeight]='heightByDefault'
+            [getAll]='getAll'
+            [globalSearch]=true
+            [singleSelection]="singleSelectionTable[i]"
+            [title]="titlesTable[i]"
+            [defaultColumnSorting]='getOrderTable(i) ? [getOrderTable(i)] : null'
+            [nonEditable]='nonEditable'
+            [eventGetSelectedRowsSubscription]="getAllRows.asObservable()"
+            [addFieldRestriction]='getAddFieldRestriction(i)'
+            [currentData]='getCurrentData(i)'
+            [hideReplaceButton]=true
+            [hideDuplicateButton]=true
+            [fieldRestrictionWithDifferentName]='getFieldRestrictionWithDifferentName(i)'
+            (getSelectedRows)='joinRowsReceived($event)'
+          >
+          </app-data-grid>
+        </mat-card-content>
+      </mat-card>
+    </mat-tab>
   </mat-tab-group>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button
-    matTooltip="{{ 'add' | translate }}"
+    mat-raised-button
+    color="warn"
+    mat-dialog-close
+    (click)="closeDialog()">
+    <mat-icon fontSet="material-icons-round">close</mat-icon>
+    {{ 'cancel' | translate }}
+  </button>
+  <button
+    mat-raised-button
     [mat-dialog-close]="true"
-    mat-mini-fab class="add-half-gap"
     color="primary"
     (click)="getAllSelectedRows()">
     <mat-icon fontSet="material-icons-round">add</mat-icon>
-  </button>
-  <button
-    matTooltip="{{ 'cancel' | translate }}"
-    mat-dialog-close
-    mat-mini-fab
-    color="primary"
-    (click)="closeDialog()">
-    <mat-icon fontSet="material-icons-round">arrow_back</mat-icon>
+    {{ 'add' | translate }}
   </button>
 </mat-dialog-actions>

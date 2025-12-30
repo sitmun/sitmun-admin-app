@@ -136,9 +136,10 @@ h2 {
 }
 
 
-.gridDialogs{
-  width: calc(100vw - 15%) !important;
-  height: calc(100vh - 15%) !important;
+.gridDialogs {
+  max-width: min(900px, 90vw);
+  width: 100%;
+  max-height: 90vh;
 }
 
 
