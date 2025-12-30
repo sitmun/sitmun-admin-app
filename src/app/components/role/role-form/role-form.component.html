@@ -16,24 +16,32 @@
 >
   <mat-tab label="{{ 'common.form.details' | translate }}">
     <form [formGroup]="entityForm" *ngIf="dataLoaded">
-    <mat-card appearance="outlined">
-      <mat-card-content>
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+        <mat-card-content>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'common.form.name' | translate }}</mat-label>
-            <input matInput type="text" formControlName="name" required>
+            <input matInput type="text" formControlName="name" [maxlength]="50" required>
+            <mat-hint align="end" [class.text-warning]="entityForm.get('name')?.value?.length > 50">
+              {{entityForm.get('name') | characterCount}}
+              <mat-icon *ngIf="entityForm.get('name')?.value?.length > 50" fontIcon="warning" class="warning-icon"></mat-icon>
+            </mat-hint>
+            <mat-error *ngIf="entityForm.get('name')?.hasError('required') && entityForm.get('name')?.touched">
+              {{ 'common.error.required' | translate }}
+            </mat-error>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'common.form.description' | translate }}</mat-label>
-            <textarea matInput type="text" formControlName="description"></textarea>
+            <textarea matInput type="text" formControlName="description" [maxlength]="4000"></textarea>
+            <mat-hint align="end">{{entityForm.get('description') | characterCount}}</mat-hint>
           </mat-form-field>
-      </mat-card-content>
-    </mat-card>
-  </form>
-</mat-tab>
+        </mat-card-content>
+      </mat-card>
+    </form>
+  </mat-tab>
   <mat-tab label="{{ 'entity.role.users.header' | translate }}">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
-        <app-data-grid #treesDataGrid
+        <app-data-grid #userConfigurationsDataGrid
                       [changeHeightButton]="true"
                       [allNewElements]="isNewOrDuplicated()"
                       [columnDefs]="userConfigurationsTable.relationsColumnsDefs"
@@ -60,7 +68,7 @@
   <mat-tab label="{{ 'entity.role.tasks.header' | translate }}">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
-        <app-data-grid #treesDataGrid
+        <app-data-grid #tasksDataGrid
                       [changeHeightButton]="true"
                       [allNewElements]="isNewOrDuplicated()"
                       [columnDefs]="tasksTable.relationsColumnsDefs"
@@ -87,7 +95,7 @@
   <mat-tab label="{{ 'entity.role.applications.header' | translate }}">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
-        <app-data-grid #treesDataGrid
+        <app-data-grid #applicationsDataGrid
                       [changeHeightButton]="true"
                       [allNewElements]="isNewOrDuplicated()"
                       [columnDefs]="applicationsTable.relationsColumnsDefs"

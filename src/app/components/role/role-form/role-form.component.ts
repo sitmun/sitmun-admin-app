@@ -110,20 +110,20 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
       return new Role()
     }
 
- /**
+  /**
    * Initializes form data after entity is fetched.
    * Sets up reactive form with entity values and validation rules.
    * @throws Error if entity is undefined
    */
- override postFetchData() {
-  if (!this.entityToEdit) {
-    throw new Error('Cannot initialize form: entity is undefined');
+  override postFetchData() {
+    if (!this.entityToEdit) {
+      throw new Error('Cannot initialize form: entity is undefined');
+    }
+    this.entityForm = new UntypedFormGroup({
+      name: new UntypedFormControl(this.entityToEdit.name, [Validators.required]),
+      description: new UntypedFormControl(this.entityToEdit.description),
+    });
   }
-  this.entityForm = new UntypedFormGroup({
-    name: new UntypedFormControl(this.entityToEdit.name, [Validators.required,]),
-    description: new UntypedFormControl(this.entityToEdit.description),
-  });
-}
 
   /**
    * Creates an Role object from the current form values.
@@ -162,12 +162,11 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
   }
 
   /**
-   * Validates if the form is valid.
-   * @returns boolean indicating form validity
+   * Validates if the form can be saved.
+   * @returns boolean indicating if save is allowed
    */
-  validForm(): boolean {
-    return this.entityForm.valid;
-
+  override canSave(): boolean {
+    return this.entityForm?.valid ?? false;
   }
 
 
@@ -257,6 +256,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
           typeId: 'typeId'
         }),
         this.utils.getNonEditableColumnDef('entity.taskType.label', 'typeName'),
+        this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
@@ -266,17 +266,14 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
         return this.entityToEdit.getRelationArrayEx(TaskProjection, 'tasks', {projection: 'view'})
       })
       .withRelationsUpdater(async (tasks: (TaskProjection & Status)[]) => {
-        await onUpdatedRelation(tasks).forAll(items => {
-          const newItems = items.map(item => this.tasksService.createProxy(item.id));
-          return this.entityToEdit.substituteAllRelation('tasks', newItems)
-        }
-        );
+        const activeTasks = tasks.filter(task => task.status !== 'pendingDelete');
+        const newItems = activeTasks.map(item => this.tasksService.createProxy(item.id));
+        await firstValueFrom(this.entityToEdit.substituteAllRelation('tasks', newItems));
       })
       .withTargetsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getNonEditableColumnDef('common.form.name', 'name'),
         this.utils.getNonEditableColumnDef('entity.taskType.label', 'typeName', 100, 500),
-        this.utils.getStatusColumnDef()
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.tasksService.getAllProjection(TaskProjection))
@@ -313,7 +310,6 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getNonEditableColumnDef('common.form.name', 'name'),
         this.utils.getNonEditableColumnDef('common.form.description', 'description', 100, 500),
-        this.utils.getStatusColumnDef()
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.applicationService.getAll())

@@ -116,28 +116,28 @@ describe('RoleFormComponent', () => {
   });
 
   it('form invalid when empty', () => {
-    expect(component.formRole.valid).toBeFalsy();
+    expect(component.entityForm.valid).toBeFalsy();
   });
 
   it('form invalid when mid-empty', () => {
-    component.formRole.patchValue({
+    component.entityForm.patchValue({
       description: 'missDescription',
     })
     //Miss name
-    expect(component.formRole.valid).toBeFalsy();
+    expect(component.entityForm.valid).toBeFalsy();
   });
 
   it('form valid', () => {
-    component.formRole.patchValue({
+    component.entityForm.patchValue({
       name: 'name',
       description: 'description'
     })
-    expect(component.formRole.valid).toBeTruthy();
+    expect(component.entityForm.valid).toBeTruthy();
   });
 
   it('Role form fields', () => {
-    expect(component.formRole.get('description')).toBeTruthy();
-    expect(component.formRole.get('name')).toBeTruthy();
+    expect(component.entityForm.get('description')).toBeTruthy();
+    expect(component.entityForm.get('name')).toBeTruthy();
   });
 
 
