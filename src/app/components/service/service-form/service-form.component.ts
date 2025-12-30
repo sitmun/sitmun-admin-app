@@ -35,6 +35,7 @@ import {LoggerService} from '@app/services/logger.service';
 import {TranslateService} from "@ngx-translate/core";
 import {BaseFormComponent} from "@app/components/base-form.component";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
+import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {DataTableDefinition, TemplateDialog} from "@app/components/data-tables.util";
 import {WMSCapabilitiesService, WMSLayersCapabilities} from "@app/services/wms-capabilities.service";
 import {Configuration} from "@app/core/config/configuration";
@@ -183,6 +184,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
     errorHandler: ErrorHandlerService,
     activatedRoute: ActivatedRoute,
     router: Router,
+    loadingService: LoadingOverlayService,
     public utils: UtilsService,
     public cartographyService: CartographyService,
     public serviceParameterService: ServiceParameterService,
@@ -190,7 +192,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
     public wmsCapabilitiesService: WMSCapabilitiesService,
     private readonly serviceService: ServiceService,
   ) {
-    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router);
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService);
     this.layersTable = this.defineLayersTable();
     this.parametersTable = this.defineParametersTable();
   }
@@ -477,7 +479,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
    * @returns Configured data table definition for layers
    */
   private defineLayersTable(): DataTableDefinition<CartographyProjection, CartographyProjection> {
-    return DataTableDefinition.builder<CartographyProjection, CartographyProjection>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<CartographyProjection, CartographyProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getEditableColumnDef('entity.service.layer.title', 'name', 150, 300),
@@ -579,7 +581,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
    * @returns Configured data table definition for parameters
    */
   private defineParametersTable(): DataTableDefinition<ServiceParameter, ServiceParameter> {
-    return DataTableDefinition.builder<ServiceParameter, ServiceParameter>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<ServiceParameter, ServiceParameter>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getEditableColumnDef('common.form.name', 'name', 150, 300),

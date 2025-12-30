@@ -9,19 +9,19 @@
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button
-    matTooltip="{{ 'save' | translate }}"
-    [mat-dialog-close]="true"
-    mat-mini-fab class="add-half-gap"
-    color="primary"
-    (click)="doAdd()">
-    <mat-icon fontSet="material-icons-round">save</mat-icon>
-  </button>
-  <button
-    matTooltip="{{ 'return' | translate }}"
+    matTooltip="{{ 'common.button.return' | translate }}"
     mat-dialog-close
     mat-mini-fab
     color="primary"
     (click)="closeDialog()">
     <mat-icon fontSet="material-icons-round">arrow_back</mat-icon>
+  </button>
+  <button
+    matTooltip="{{ 'common.button.add' | translate }}"
+    [mat-dialog-close]="true"
+    mat-mini-fab class="add-half-gap"
+    color="primary"
+    (click)="doAdd()">
+    <mat-icon fontSet="material-icons-round">add_circle_outline</mat-icon>
   </button>
 </mat-dialog-actions>

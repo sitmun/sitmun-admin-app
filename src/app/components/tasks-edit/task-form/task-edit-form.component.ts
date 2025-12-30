@@ -38,6 +38,7 @@ import {TaskEditionParameter, TaskParameterType} from "@app/domain/task/models/t
 import {Configuration} from "@app/core/config/configuration";
 import {BaseFormComponent} from "@app/components/base-form.component";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
+import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from "@app/services/logger.service";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
@@ -221,6 +222,7 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
     errorHandler: ErrorHandlerService,
     activatedRoute: ActivatedRoute,
     router: Router,
+    loadingService: LoadingOverlayService,
     protected taskService: TaskService,
     protected utils: UtilsService,
     protected taskTypeService: TaskTypeService,
@@ -231,7 +233,7 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
     protected connectionService: ConnectionService,
     protected cartographyService: CartographyService
   ) {
-    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router);
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService);
     this.rolesTable = this.defineRolesTable();
     this.availabilitiesTable = this.defineAvailabilitiesTable();
     this.parametersTable = this.defineParametersTable();
@@ -503,7 +505,7 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
    * @returns Configured data table definition for roles
    */
   private defineRolesTable(): DataTableDefinition<Role, Role> {
-    return DataTableDefinition.builder<Role, Role>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<Role, Role>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getRouterLinkColumnDef(
@@ -545,7 +547,7 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
    * @returns Configured data table definition for availabilities
    */
   private defineAvailabilitiesTable(): DataTableDefinition<TaskAvailabilityProjection, TerritoryProjection> {
-    return DataTableDefinition.builder<TaskAvailabilityProjection, TerritoryProjection>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<TaskAvailabilityProjection, TerritoryProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getRouterLinkColumnDef(
@@ -602,7 +604,7 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
    * @returns Configured data table definition for parameters
    */
   private defineParametersTable(): DataTableDefinition<TaskEditionParameter, TaskEditionParameter> {
-    return DataTableDefinition.builder<TaskEditionParameter, TaskEditionParameter>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<TaskEditionParameter, TaskEditionParameter>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getEditableColumnDef('common.form.name', 'name'),
@@ -665,7 +667,7 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
    * @returns Configured data table definition for parameters
    */
   private defineFieldsTable(): DataTableDefinition<TaskEditionField, TaskEditionField> {
-    return DataTableDefinition.builder<TaskEditionField, TaskEditionField>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<TaskEditionField, TaskEditionField>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getBooleanColumnDef('tasksEditionEntity.selectable', 'selectable', true),

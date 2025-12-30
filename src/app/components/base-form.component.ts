@@ -7,6 +7,7 @@ import {map, tap} from "rxjs/operators";
 import {DataTablesRegistry} from "@app/components/data-tables.util";
 import {DialogTranslationComponent} from "@app/frontend-gui/src/lib/dialog-translation/dialog-translation.component";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
+import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from "@app/services/logger.service";
 import {MatDialog} from "@angular/material/dialog";
 import {TranslateService} from "@ngx-translate/core";
@@ -118,6 +119,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
     protected errorHandler: ErrorHandlerService,
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
+    protected loadingService: LoadingOverlayService,
   ) {
   }
 

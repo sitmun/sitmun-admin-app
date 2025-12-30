@@ -25,6 +25,7 @@ import {BaseFormComponent} from "@app/components/base-form.component";
 import {Component} from '@angular/core';
 import {Configuration} from "@app/core/config/configuration";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
+import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from '@app/services/logger.service';
 import {MatDialog} from '@angular/material/dialog';
 import {TranslateService} from "@ngx-translate/core";
@@ -70,6 +71,7 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
     errorHandler: ErrorHandlerService,
     activatedRoute: ActivatedRoute,
     router: Router,
+    loadingService: LoadingOverlayService,
     private userService: UserService,
     public utils: UtilsService,
     private userConfigurationService: UserConfigurationService,
@@ -77,7 +79,7 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
     private userPositionService: UserPositionService,
     private territoryService: TerritoryService,
   ) {
-    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router);
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService);
     this.userConfigurationsTable = this.defineUserConfigurationsTable();
     this.userPositionsTable = this.defineUserPositionsTable();
   }
@@ -184,7 +186,7 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
   }
 
   private defineUserConfigurationsTable(): DataTable2Definition<UserConfigurationProjection, Role, TerritoryProjection> {
-    return DataTable2Definition.builder<UserConfigurationProjection, Role, TerritoryProjection>(this.dialog, this.errorHandler)
+    return DataTable2Definition.builder<UserConfigurationProjection, Role, TerritoryProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getRouterLinkColumnDef('entity.role.label', 'role', '/role/:id/roleForm', {id: 'roleId'}),
@@ -259,7 +261,7 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
   }
 
   private defineUserPositionsTable(): DataTableDefinition<UserPositionProjection, UserPositionProjection> {
-    return DataTableDefinition.builder<UserPositionProjection, UserPositionProjection>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<UserPositionProjection, UserPositionProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getNonEditableColumnDef('entity.territory.label', 'territoryName'),

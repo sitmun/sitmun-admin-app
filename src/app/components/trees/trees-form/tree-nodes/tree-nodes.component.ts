@@ -22,8 +22,10 @@ import {
   DialogFormComponent,
   DialogGridComponent,
   DialogMessageComponent,
-  ImagePreviewComponent
+  ImagePreviewComponent,
+  openDialogGridWithPreload
 } from '@app/frontend-gui/src/lib/public_api';
+import {LoadingOverlayService} from '@app/services/loading-overlay.service';
 import {firstValueFrom, Observable, of, Subject} from 'rxjs';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {HalOptions, HalParam} from '@app/core';
@@ -159,7 +161,8 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     public serviceService: ServiceService,
     public capabilitiesService: CapabilitiesService,
     private loggerService: LoggerService,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private loadingService: LoadingOverlayService
   ) {
     this.initializeTreesNodeForm();
     this.initializeFieldsConfigForm();
@@ -1096,14 +1099,23 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   };
 
   async loadGroupLayersButtonClicked(data) {
-    const dialogRef = this.dialog.open(DialogGridComponent, {panelClass: 'gridDialogs'});
-    dialogRef.componentInstance.orderTable = ['name'];
-    dialogRef.componentInstance.getAllsTable = [this.getAllServices];
-    dialogRef.componentInstance.singleSelectionTable = [true];
-    dialogRef.componentInstance.columnDefsTable = [this.columnDefsServices];
-    dialogRef.componentInstance.title = this.utils.getTranslate('treesEntity.services');
-    dialogRef.componentInstance.titlesTable = [''];
-    dialogRef.componentInstance.nonEditable = false;
+    const dialogRef = await openDialogGridWithPreload(
+      this.dialog,
+      this.loadingService,
+      {
+        panelClass: 'gridDialogs',
+        data: {
+          orderTable: ['name'],
+          getAllsTable: [this.getAllServices],
+          singleSelectionTable: [true],
+          columnDefsTable: [this.columnDefsServices],
+          title: this.utils.getTranslate('treesEntity.services'),
+          titlesTable: [''],
+          nonEditable: false,
+          currentData: []
+        }
+      }
+    );
 
     let url, service;
 

@@ -39,6 +39,7 @@ import {BaseFormComponent} from "@app/components/base-form.component";
 import {Component} from '@angular/core';
 import {Configuration} from "@app/core/config/configuration";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
+import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from '@app/services/logger.service';
 import {MatDialog} from '@angular/material/dialog';
 import {MatSelectChange} from '@angular/material/select';
@@ -151,6 +152,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
     errorHandler: ErrorHandlerService,
     activatedRoute: ActivatedRoute,
     router: Router,
+    loadingService: LoadingOverlayService,
     private territoryService: TerritoryService,
     private userService: UserService,
     private roleService: RoleService,
@@ -163,7 +165,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
     private cartographyAvailabilityService: CartographyAvailabilityService,
     public utils: UtilsService,
   ) {
-    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router);
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService);
     this.permitsTable = this.definePermitsTable();
     this.membersOfTable = this.defineMemberOfTable();
     this.membersTable = this.defineMembersTable();
@@ -435,7 +437,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
    * @returns {DataTable2Definition<UserConfigurationProjection, User, Role>} The configured permits data table definition.
    */
   private definePermitsTable(): DataTable2Definition<UserConfigurationProjection, User, Role> {
-    return DataTable2Definition.builder<UserConfigurationProjection, User, Role>(this.dialog, this.errorHandler)
+    return DataTable2Definition.builder<UserConfigurationProjection, User, Role>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getNonEditableColumnDef('entity.territory.permissions.user', 'user'),
@@ -522,7 +524,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
    * @returns {DataTableDefinition<TerritoryProjection, TerritoryProjection>} The configured memberOf data table definition.
    */
   private defineMemberOfTable(): DataTableDefinition<TerritoryProjection, TerritoryProjection> {
-    return DataTableDefinition.builder<TerritoryProjection, TerritoryProjection>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<TerritoryProjection, TerritoryProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getRouterLinkColumnDef(
@@ -571,7 +573,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
    * @returns {DataTableDefinition<TerritoryProjection, TerritoryProjection>} The configured members' data table definition.
    */
   private defineMembersTable(): DataTableDefinition<TerritoryProjection, TerritoryProjection> {
-    return DataTableDefinition.builder<TerritoryProjection, TerritoryProjection>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<TerritoryProjection, TerritoryProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getRouterLinkColumnDef(
@@ -620,7 +622,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
    * @returns {DataTableDefinition<Cartography, Cartography>} The configured cartographies data table definition.
    */
   private defineCartographiesTable(): DataTableDefinition<CartographyAvailabilityProjection, CartographyProjection> {
-    return DataTableDefinition.builder<CartographyAvailabilityProjection, CartographyProjection>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<CartographyAvailabilityProjection, CartographyProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getNonEditableColumnDef('common.form.name', 'cartographyName'),
@@ -673,7 +675,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
   }
 
   private defineTasksTable(): DataTableDefinition<TaskAvailabilityProjection, TaskProjection> {
-    return DataTableDefinition.builder<TaskAvailabilityProjection, TaskProjection>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<TaskAvailabilityProjection, TaskProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getNonEditableColumnDef('common.form.name', 'taskName'),

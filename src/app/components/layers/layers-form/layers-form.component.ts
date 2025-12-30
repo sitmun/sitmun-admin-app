@@ -40,6 +40,7 @@ import {onCreate, onDelete, onUpdate, Status} from '@app/frontend-gui/src/lib/pu
 import {BaseFormComponent} from '@app/components/base-form.component';
 import {Configuration} from "@app/core/config/configuration";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
+import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {HttpClient} from "@angular/common/http";
 import {LoggerService} from '@app/services/logger.service';
 import {MatDialog} from '@angular/material/dialog';
@@ -89,6 +90,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     errorHandler: ErrorHandlerService,
     activatedRoute: ActivatedRoute,
     router: Router,
+    loadingService: LoadingOverlayService,
     protected cartographyService: CartographyService,
     protected cartographyFilterService: CartographyFilterService,
     protected cartographyAvailabilityService: CartographyAvailabilityService,
@@ -101,7 +103,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     protected http: HttpClient,
     protected utils: UtilsService,
   ) {
-    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router);
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService);
     this.treesNodesTable = this.defineTreesNodesTable();
     this.cartographyPermissionsTable = this.defineCartographyPermissionsTable();
     this.territoryAvailabilitiesTable = this.defineTerritoryAvailabilitiesTable();
@@ -308,7 +310,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
   }
 
   private defineParametersTable(): DataTableDefinition<CartographyParameter, CartographyParameter> {
-    return DataTableDefinition.builder<CartographyParameter, CartographyParameter>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<CartographyParameter, CartographyParameter>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getEditableColumnDef('entity.cartography.parameters.name', 'name'),
@@ -365,7 +367,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
   }
 
   private defineTerritorialFiltersTable(): DataTableDefinition<CartographyFilterProjection, CartographyFilterProjection> {
-    return DataTableDefinition.builder<CartographyFilterProjection, CartographyFilterProjection>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<CartographyFilterProjection, CartographyFilterProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getEditableColumnDef('entity.cartography.filters.parameters.name', 'name'),
@@ -439,7 +441,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
   }
 
   private defineStylesTable(): DataTableDefinition<CartographyStyle, CartographyStyle> {
-    return DataTableDefinition.builder<CartographyStyle, CartographyStyle>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<CartographyStyle, CartographyStyle>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getEditableColumnDef('entity.cartography.styles.parameters.name', 'name'),
@@ -485,7 +487,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
 
 
   private defineTerritoryAvailabilitiesTable(): DataTableDefinition<CartographyAvailabilityProjection, TerritoryProjection> {
-    return DataTableDefinition.builder<CartographyAvailabilityProjection, TerritoryProjection>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<CartographyAvailabilityProjection, TerritoryProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getRouterLinkColumnDef('entity.cartography.territories.parameters.name', 'territoryName', '/territory/:id/territoryForm', {id: 'territoryId'}),
@@ -542,7 +544,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
   }
 
   private defineCartographyPermissionsTable(): DataTableDefinition<CartographyGroupProjection, CartographyGroupProjection> {
-    return DataTableDefinition.builder<CartographyGroupProjection, CartographyGroupProjection>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<CartographyGroupProjection, CartographyGroupProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getRouterLinkColumnDef('entity.cartography.permissions.parameters.name', 'name', '/layersPermits/:id/layersPermitsForm', {id: 'id'}),
@@ -592,7 +594,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
    * @returns DataTableDefinition for tree nodes with columns for tree name and node name
    */
   private defineTreesNodesTable(): DataTableDefinition<TreeNodeProjection, TreeNodeProjection> {
-    return DataTableDefinition.builder<TreeNodeProjection, TreeNodeProjection>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<TreeNodeProjection, TreeNodeProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getRouterLinkColumnDef('entity.cartography.trees.name', 'treeName', '/trees/:id/treesForm', {id: 'treeId'}),
         this.utils.getNonEditableColumnDef('entity.cartography.trees.node', 'name')

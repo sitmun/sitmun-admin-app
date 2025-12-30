@@ -38,6 +38,7 @@ import {ApplicationHeaderParameter} from '@app/domain/application/models/applica
 import {BaseFormComponent} from "@app/components/base-form.component";
 import {Configuration} from "@app/core/config/configuration";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
+import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {HalOptions} from '@app/core/hal/rest/rest.service';
 import {LoggerService} from "@app/services/logger.service";
 import {MatDialog} from '@angular/material/dialog';
@@ -194,6 +195,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     errorHandler: ErrorHandlerService,
     activatedRoute: ActivatedRoute,
     router: Router,
+    loadingService: LoadingOverlayService,
     protected applicationService: ApplicationService,
     protected applicationParameterService: ApplicationParameterService,
     protected applicationBackgroundService: ApplicationBackgroundService,
@@ -204,7 +206,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     protected userService: UserService,
     protected utils: UtilsService,
   ) {
-    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router);
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService);
     this.parametersTable = this.defineParametersTable();
     this.treesTable = this.defineTreesTable();
     this.rolesTable = this.defineRolesTable();
@@ -510,7 +512,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    * @returns Configured data table definition for parameters
    */
   private defineParametersTable(): DataTableDefinition<ApplicationParameter, ApplicationParameter> {
-    return DataTableDefinition.builder<ApplicationParameter, ApplicationParameter>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<ApplicationParameter, ApplicationParameter>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getEditableColumnDef('common.form.name', 'name'),
@@ -563,7 +565,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
   }
 
   private defineNewHeaderParamDialog(): DataTableDefinition<ApplicationHeaderParameter, ApplicationHeaderParameter> {
-    return DataTableDefinition.builder<ApplicationHeaderParameter, ApplicationHeaderParameter>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<ApplicationHeaderParameter, ApplicationHeaderParameter>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getNonEditableColumnDef('entity.application.header.name', 'name'),
@@ -664,7 +666,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    * @returns Configured data table definition for trees
    */
   private defineTreesTable(): DataTableDefinition<Tree, Tree> {
-    return DataTableDefinition.builder<Tree, Tree>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<Tree, Tree>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/trees/:id/treesForm', {id: 'id'}),
@@ -700,7 +702,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    * @returns Configured data table definition for roles
    */
   private defineRolesTable(): DataTableDefinition<Role, Role> {
-    return DataTableDefinition.builder<Role, Role>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<Role, Role>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/roles/:id/rolesForm', {id: 'id'}),
@@ -735,7 +737,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    * @returns Configured data table definition for backgrounds
    */
   private defineApplicationBackgroundsTable(): DataTableDefinition<ApplicationBackgroundProjection, BackgroundProjection> {
-    return DataTableDefinition.builder<ApplicationBackgroundProjection, BackgroundProjection>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<ApplicationBackgroundProjection, BackgroundProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getRouterLinkColumnDef('common.form.name', 'backgroundName', '/backgroundLayers/:id/backgroundLayersForm', {id: 'backgroundId'}),

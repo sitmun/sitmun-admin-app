@@ -15,6 +15,7 @@ import {Component} from '@angular/core';
 import {Configuration} from "@app/core/config/configuration";
 import {DataTableDefinition} from '@app/components/data-tables.util';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
+import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from '@app/services/logger.service';
 import {MatDialog} from '@angular/material/dialog';
 import {NotificationService} from '@app/services/notification.service';
@@ -70,13 +71,14 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
     errorHandler: ErrorHandlerService,
     activatedRoute: ActivatedRoute,
     router: Router,
+    loadingService: LoadingOverlayService,
     protected connectionService: ConnectionService,
     protected cartographyService: CartographyService,
     protected tasksService: TaskService,
     protected utils: UtilsService,
     protected notificationService: NotificationService,
   ) {
-    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router);
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService);
     this.tasksTable = this.defineTaskType();
   }
 
@@ -221,7 +223,7 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
    * @returns Configured data table definition for task members
    */
   private defineTaskType(): DataTableDefinition<TaskProjection, TaskProjection> {
-    return DataTableDefinition.builder<TaskProjection, TaskProjection>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<TaskProjection, TaskProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/taskQuery/:id/:typeId', {

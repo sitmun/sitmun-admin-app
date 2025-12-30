@@ -38,6 +38,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {RouterLinkRendererComponent} from '../router-link-renderer/router-link-renderer.component';
 import {UtilsService} from '@app/services/utils.service';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
+import {LoadingOverlayService} from '@app/services/loading-overlay.service';
 
 // Removed jQuery dependency
 
@@ -229,6 +230,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   /** Map tracking changes to cells */
   changesMap: Map<string, Map<string, number>> = new Map<string, Map<string, number>>();
 
+  /** Reference to current loading overlay */
+  private loadingOverlayRef: HTMLElement | null = null;
+
   /** Last parameters of the grid */
   params: any;
 
@@ -411,6 +415,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
               public utils: UtilsService,
               private loggerService: LoggerService,
               private errorHandler: ErrorHandlerService,
+              private loadingService: LoadingOverlayService,
   ) {
 
     this.remove = new EventEmitter();
@@ -427,6 +432,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     this.redoCounter = 0;
     this.gridOptions = {
       onGridReady: this.onGridReady.bind(this),
+      overlayLoadingTemplate: '<span></span>',
       autoSizeStrategy: {
         type: 'fitCellContents'
       },
@@ -540,9 +546,20 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
    */
   setLoading(value: boolean) {
     if (value) {
-      this.gridApi?.showLoadingOverlay();
+      // Hide any existing overlay first
+      if (this.loadingOverlayRef) {
+        this.loadingService.hide(this.loadingOverlayRef);
+        this.loadingOverlayRef = null;
+      }
+      // Show new overlay
+      this.loadingOverlayRef = this.loadingService.show({
+        message: 'Loading data...'
+      });
     } else {
-      this.gridApi?.hideOverlay();
+      if (this.loadingOverlayRef) {
+        this.loadingService.hide(this.loadingOverlayRef);
+        this.loadingOverlayRef = null;
+      }
     }
   }
 
@@ -609,6 +626,10 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     }
     if (this.observer) {
       this.observer.disconnect();
+    }
+    if (this.loadingOverlayRef) {
+      this.loadingService.hide(this.loadingOverlayRef);
+      this.loadingOverlayRef = null;
     }
   }
 

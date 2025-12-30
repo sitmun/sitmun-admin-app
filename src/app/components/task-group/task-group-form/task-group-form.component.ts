@@ -13,6 +13,7 @@ import {LoggerService} from '@app/services/logger.service';
 import {BaseFormComponent} from '@app/components/base-form.component';
 import {MatDialog} from '@angular/material/dialog';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
+import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {TranslateService} from '@ngx-translate/core';
 import {firstValueFrom, map} from 'rxjs';
 import {UtilsService} from '@app/services/utils.service';
@@ -42,11 +43,12 @@ export class TaskGroupFormComponent extends BaseFormComponent<TaskGroup> {
     errorHandler: ErrorHandlerService,
     activatedRoute: ActivatedRoute,
     router: Router,
+    loadingService: LoadingOverlayService,
     protected taskGroupService: TaskGroupService,
     protected taskService: TaskService,
     protected utils: UtilsService
   ) {
-    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router);
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService);
     this.tasksTable = this.createTasksTableDefinition();
   }
 
@@ -174,7 +176,7 @@ export class TaskGroupFormComponent extends BaseFormComponent<TaskGroup> {
   }
 
   private createTasksTableDefinition() : DataTableDefinition<TaskProjection, TaskProjection> {
-     return DataTableDefinition.builder<TaskProjection, TaskProjection>(this.dialog, this.errorHandler)
+     return DataTableDefinition.builder<TaskProjection, TaskProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/tasks/:id/:typeId',

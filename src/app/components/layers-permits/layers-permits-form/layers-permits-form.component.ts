@@ -19,6 +19,7 @@ import {Component} from '@angular/core';
 import {Configuration} from "@app/core/config/configuration";
 import {DataTableDefinition} from '@app/components/data-tables.util';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
+import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from '@app/services/logger.service';
 import {MatDialog} from '@angular/material/dialog';
 import {TranslateService} from '@ngx-translate/core';
@@ -72,6 +73,7 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
     errorHandler: ErrorHandlerService,
     activatedRoute: ActivatedRoute,
     router: Router,
+    loadingService: LoadingOverlayService,
     protected utils: UtilsService,
     protected cartographyService: CartographyService,
     protected roleService: RoleService,
@@ -85,7 +87,8 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
       loggerService,
       errorHandler,
       activatedRoute,
-      router
+      router,
+      loadingService
     );
     this.membersTable = this.defineMembersTable();
     this.rolesTable = this.defineRolesTable();
@@ -208,7 +211,8 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
   private defineRolesTable(): DataTableDefinition<Role, Role> {
     return DataTableDefinition.builder<Role, Role>(
       this.dialog,
-      this.errorHandler
+      this.errorHandler,
+      this.loadingService
     )
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
@@ -277,7 +281,7 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
     return DataTableDefinition.builder<
       CartographyProjection,
       CartographyProjection
-    >(this.dialog, this.errorHandler)
+    >(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getRouterLinkColumnDef(

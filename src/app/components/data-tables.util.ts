@@ -7,7 +7,8 @@ import {
   DialogGridComponent,
   DialogGridData,
   DialogGridResult,
-  isDialogGridAddEvent
+  isDialogGridAddEvent,
+  openDialogGridWithPreload
 } from "@app/frontend-gui/src/lib/dialog-grid/dialog-grid.component";
 import {EMPTY, firstValueFrom, map, Observable, race, ReplaySubject, Subject, timer} from "rxjs";
 import {GridEvent, GridEventType, isSave, Status} from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
@@ -16,6 +17,7 @@ import {FormGroup} from "@angular/forms";
 import {LoggerService} from "@app/services/logger.service";
 import {MatDialog} from "@angular/material/dialog";
 import {TemplateRef} from "@angular/core";
+import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 
 /**
  * Defines the configuration and behavior of a data table in the application.
@@ -96,7 +98,8 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
     private readonly targetToRelationFn: (targets: TARGET[]) => RELATION[],
     private readonly templateDialogs: Map<string, () => TemplateDialog>,
     private readonly errorHandler: ErrorHandlerService,
-    private readonly fieldRestriction: string[]
+    private readonly fieldRestriction: string[],
+    private readonly loadingService: LoadingOverlayService
   ) {
 
   }
@@ -109,10 +112,15 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
    * @template TARGET - The type of entity available for selection in target dialogs
    * @param dialog - MatDialog service for creating dialogs
    * @param errorHandler - Service for handling errors
+   * @param loadingService - Service for showing loading overlays
    * @returns A DataTableDefinitionBuilder instance
    */
-  static builder<RELATION, TARGET>(dialog: MatDialog, errorHandler: ErrorHandlerService): DataTableDefinitionBuilder<RELATION, TARGET> {
-    return new DataTableDefinitionBuilder<RELATION, TARGET>(dialog, errorHandler);
+  static builder<RELATION, TARGET>(
+    dialog: MatDialog, 
+    errorHandler: ErrorHandlerService,
+    loadingService: LoadingOverlayService
+  ): DataTableDefinitionBuilder<RELATION, TARGET> {
+    return new DataTableDefinitionBuilder<RELATION, TARGET>(dialog, errorHandler, loadingService);
   }
 
   /**
@@ -260,28 +268,32 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
    */
   openDialog(relations: RELATION[]) {
     try {
-      const dialogRef = this.targetsDialog.open<DialogGridComponent, DialogGridData, DialogGridResult>(DialogGridComponent, {
-        panelClass: 'gridDialogs',
-        data: {
-          orderTable: this.defaultTargetsSorting(),
-          getAllsTable: [this.composeFilter(this.targetsFetchFn, this.targetIncludeFn, relations)],
-          singleSelectionTable: [false],
-          columnDefsTable: [this.targetsColumnsDefs],
-          title: this.targetsTitle,
-          titlesTable: [''],
-          currentData: [relations],
-          nonEditable: false,
-        }
-      });
-
-      dialogRef.afterClosed().subscribe({
-        next: (result) => {
-          if (isDialogGridAddEvent(result)) {
-            const newRelations = this.targetToRelationFn(result.data[0] as TARGET[]);
-            this.addCommandEvent$.next(newRelations);
+      openDialogGridWithPreload(
+        this.targetsDialog,
+        this.loadingService,
+        {
+          panelClass: 'gridDialogs',
+          data: {
+            orderTable: this.defaultTargetsSorting(),
+            getAllsTable: [this.composeFilter(this.targetsFetchFn, this.targetIncludeFn, relations)],
+            singleSelectionTable: [false],
+            columnDefsTable: [this.targetsColumnsDefs],
+            title: this.targetsTitle,
+            titlesTable: [''],
+            currentData: [relations],
+            nonEditable: false,
           }
-        },
-        error: (error) => this.errorHandler.handleError(error, 'common.error.dialogOperationFailed')
+        }
+      ).then((dialogRef) => {
+        dialogRef.afterClosed().subscribe({
+          next: (result) => {
+            if (isDialogGridAddEvent(result)) {
+              const newRelations = this.targetToRelationFn(result.data[0] as TARGET[]);
+              this.addCommandEvent$.next(newRelations);
+            }
+          },
+          error: (error) => this.errorHandler.handleError(error, 'common.error.dialogOperationFailed')
+        });
       });
     } catch (error) {
       this.errorHandler.handleError(error, 'common.error.dialogOpenFailed');
@@ -377,6 +389,7 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
     public readonly targetsOrder: string[],
     private readonly targetToRelationFn: (left: TARGET_LEFT[], right: TARGET_RIGHT[]) => RELATION[],
     private readonly errorHandler: ErrorHandlerService,
+    private readonly loadingService: LoadingOverlayService
   ) {
 
   }
@@ -390,13 +403,15 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
    * @template TARGET_RIGHT - The type of entity available for selection in the right target dialog
    * @param dialog - MatDialog service for creating dialogs
    * @param errorHandler - Service for handling errors
+   * @param loadingService - Service for showing loading overlays
    * @returns A DataTable2DefinitionBuilder instance
    */
   static builder<RELATION, TARGET_LEFT, TARGET_RIGHT>(
     dialog: MatDialog,
-    errorHandler: ErrorHandlerService
+    errorHandler: ErrorHandlerService,
+    loadingService: LoadingOverlayService
   ): DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
-    return new DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT>(dialog, errorHandler);
+    return new DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT>(dialog, errorHandler, loadingService);
   }
 
   /**
@@ -489,31 +504,35 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
    */
   openDialog(relations: RELATION[]) {
     try {
-      const dialogRef = this.targetsDialog.open<DialogGridComponent, DialogGridData, DialogGridResult>(DialogGridComponent, {
-        panelClass: 'gridDialogs',
-        data: {
-          orderTable: this.defaultTargetsSorting(),
-          getAllsTable: [
-            this.composeFilter(this.targetsLeftFetchFn, this.targetLeftIncludeFn, relations),
-            this.composeFilter(this.targetsRightFetchFn, this.targetRightIncludeFn, relations)
-          ],
-          singleSelectionTable: [false, false],
-          columnDefsTable: [this.targetsLeftColumnsDefs, this.targetsRightColumnsDefs],
-          title: this.targetsTitle,
-          titlesTable: [this.targetsLeftTitle, this.targetsRightTitle],
-          currentData: [relations],
-          nonEditable: false,
-        }
-      });
-
-      dialogRef.afterClosed().subscribe({
-        next: (result) => {
-          if (isDialogGridAddEvent(result)) {
-            const newRelations = this.targetToRelationFn(result.data[0] as TARGET_LEFT[], result.data[1] as TARGET_RIGHT[]);
-            this.addCommandEvent$.next(newRelations);
+      openDialogGridWithPreload(
+        this.targetsDialog,
+        this.loadingService,
+        {
+          panelClass: 'gridDialogs',
+          data: {
+            orderTable: this.defaultTargetsSorting(),
+            getAllsTable: [
+              this.composeFilter(this.targetsLeftFetchFn, this.targetLeftIncludeFn, relations),
+              this.composeFilter(this.targetsRightFetchFn, this.targetRightIncludeFn, relations)
+            ],
+            singleSelectionTable: [false, false],
+            columnDefsTable: [this.targetsLeftColumnsDefs, this.targetsRightColumnsDefs],
+            title: this.targetsTitle,
+            titlesTable: [this.targetsLeftTitle, this.targetsRightTitle],
+            currentData: [relations],
+            nonEditable: false,
           }
-        },
-        error: (error) => this.errorHandler.handleError(error, 'common.error.dialogOperationFailed')
+        }
+      ).then((dialogRef) => {
+        dialogRef.afterClosed().subscribe({
+          next: (result) => {
+            if (isDialogGridAddEvent(result)) {
+              const newRelations = this.targetToRelationFn(result.data[0] as TARGET_LEFT[], result.data[1] as TARGET_RIGHT[]);
+              this.addCommandEvent$.next(newRelations);
+            }
+          },
+          error: (error) => this.errorHandler.handleError(error, 'common.error.dialogOperationFailed')
+        });
       });
     } catch (error) {
       this.errorHandler.handleError(error, 'common.error.dialogOpenFailed');
@@ -677,10 +696,12 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
    *
    * @param targetsDialog - Dialog service for opening target selection dialogs
    * @param errorHandler - Service for handling errors
+   * @param loadingService - Service for showing loading overlays
    */
   constructor(
     private readonly targetsDialog: MatDialog,
-    private readonly errorHandler: ErrorHandlerService
+    private readonly errorHandler: ErrorHandlerService,
+    private readonly loadingService: LoadingOverlayService
   ) {
   }
 
@@ -848,7 +869,8 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
       this.targetToRelationFn,
       this.templateDialogs,
       this.errorHandler,
-      this.fieldRestriction
+      this.fieldRestriction,
+      this.loadingService
     );
   }
 
@@ -943,10 +965,12 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
    *
    * @param targetsDialog - Dialog service for opening target selection dialogs
    * @param errorHandler - Service for handling errors
+   * @param loadingService - Service for showing loading overlays
    */
   constructor(
     private readonly targetsDialog: MatDialog,
-    private readonly errorHandler: ErrorHandlerService
+    private readonly errorHandler: ErrorHandlerService,
+    private readonly loadingService: LoadingOverlayService
   ) {
   }
 
@@ -1137,6 +1161,7 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
       this.targetsOrder,
       this.targetToRelationFn,
       this.errorHandler,
+      this.loadingService
     );
   }
   /**

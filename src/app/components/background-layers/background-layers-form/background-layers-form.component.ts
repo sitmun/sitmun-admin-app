@@ -28,6 +28,7 @@ import {TranslateService} from "@ngx-translate/core";
 import {BaseFormComponent} from "@app/components/base-form.component";
 import {DataTableDefinition} from "@app/components/data-tables.util";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
+import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {constants} from "@environments/constants";
 import {LoggerService} from "@app/services/logger.service";
 import {Configuration} from "@app/core/config/configuration";
@@ -143,6 +144,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
     errorHandler: ErrorHandlerService,
     activatedRoute: ActivatedRoute,
     router: Router,
+    loadingService: LoadingOverlayService,
     protected utils: UtilsService,
     protected backgroundService: BackgroundService,
     protected cartographyService: CartographyService,
@@ -151,7 +153,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
     protected applicationService: ApplicationService,
     protected applicationBackgroundService: ApplicationBackgroundService,
   ) {
-    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router);
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService);
     this.membersTable = this.defineMembersTable()
     this.applicationBackgroundsTable = this.defineApplicationBackgroundsTable()
     this.rolesTable = this.defineRolesTable()
@@ -274,7 +276,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
    * @returns Configured data table definition for roles
    */
   private defineRolesTable(): DataTableDefinition<Role, Role> {
-    return DataTableDefinition.builder<Role, Role>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<Role, Role>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/role/:id/roleForm', {
@@ -312,7 +314,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
    * @returns Configured data table definition for application backgrounds
    */
   private defineApplicationBackgroundsTable(): DataTableDefinition<ApplicationBackgroundProjection, ApplicationProjection> {
-    return DataTableDefinition.builder<ApplicationBackgroundProjection, ApplicationProjection>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<ApplicationBackgroundProjection, ApplicationProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getRouterLinkColumnDef('common.form.name', 'applicationName', '/application/:id/applicationForm', {
@@ -362,7 +364,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
    * @returns Configured data table definition for cartography members
    */
   private defineMembersTable(): DataTableDefinition<CartographyProjection, CartographyProjection> {
-    return DataTableDefinition.builder<CartographyProjection, CartographyProjection>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<CartographyProjection, CartographyProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/layers/:id/layersForm', {

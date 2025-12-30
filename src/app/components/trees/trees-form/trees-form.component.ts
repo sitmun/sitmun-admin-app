@@ -21,6 +21,7 @@ import {UtilsService} from '@app/services/utils.service';
 import {map, of} from 'rxjs';
 import {BaseFormComponent} from '@app/components/base-form.component';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
+import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {TranslateService} from '@ngx-translate/core';
 import {TreeNodesComponent} from './tree-nodes/tree-nodes.component';
 import {DataTableDefinition} from '@app/components/data-tables.util';
@@ -61,12 +62,13 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
     errorHandler: ErrorHandlerService,
     activatedRoute: ActivatedRoute,
     router: Router,
+    loadingService: LoadingOverlayService,
     public utils: UtilsService,
     private treeService: TreeService,
     private applicationService: ApplicationService,
     private roleService: RoleService
   ) {
-    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router);
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService);
     this.applicationsTable = this.defineApplicationsTable();
     this.rolesTable = this.defineRolesTable();
     this.initializeTreesForm();
@@ -431,7 +433,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
    * @returns Configured data table definition for applications
    */
   private defineApplicationsTable(): DataTableDefinition<Application, Application> {
-    return DataTableDefinition.builder<Application, Application>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<Application, Application>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getIdColumnDef(),
@@ -475,7 +477,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
    * @returns Configured data table definition for roles
    */
   private defineRolesTable(): DataTableDefinition<Role, Role> {
-    return DataTableDefinition.builder<Role, Role>(this.dialog, this.errorHandler)
+    return DataTableDefinition.builder<Role, Role>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getIdColumnDef(),
