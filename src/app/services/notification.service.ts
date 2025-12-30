@@ -15,6 +15,12 @@ interface QueuedError {
   timestamp: number;
 }
 
+interface QueuedSuccess {
+  titleKey: string;
+  messageKey: string;
+  timestamp: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -28,9 +34,16 @@ export class NotificationService {
   private readonly ERROR_DEBOUNCE_TIME = 500; // 500ms window to group errors
   private readonly MAX_ERRORS_TO_SHOW = 5; // Maximum number of individual errors to show before summarizing
 
+  // Success debouncing configuration
+  private readonly SUCCESS_DEBOUNCE_TIME = 500; // 500ms window to group success messages
+
   private errorQueue: QueuedError[] = [];
   private errorQueueTimer: ReturnType<typeof setTimeout> | null = null;
   private currentErrorRef: ReturnType<typeof this.snackBar.openFromComponent> | null = null;
+
+  private successQueue: QueuedSuccess[] = [];
+  private successQueueTimer: ReturnType<typeof setTimeout> | null = null;
+  private currentSuccessRefs: ReturnType<typeof this.snackBar.openFromComponent>[] = [];
 
   constructor(
     private snackBar: MatSnackBar,
@@ -39,21 +52,30 @@ export class NotificationService {
   }
 
   /**
-   * Shows a success notification
+   * Shows a success notification with debouncing to handle multiple rapid success messages
    * @param titleKey - Translation key for the title
    * @param messageKey - Translation key for the message
-   * @param duration - Duration in milliseconds (default: 5000)
+   * @param duration - Duration in milliseconds (default: 4000)
    */
   showSuccess(titleKey: string, messageKey: string, duration: number = this.DURATION_SHORT): void {
-    const data: NotificationData = {
-      title: this.translateService.instant(titleKey),
-      message: this.translateService.instant(messageKey),
-      type: 'success',
-      duration,
-      showAction: false
-    };
+    const now = Date.now();
+    
+    // Add success to queue
+    this.successQueue.push({
+      titleKey,
+      messageKey,
+      timestamp: now
+    });
 
-    this.snackBar.openFromComponent(NotificationComponent, this.getDefaultConfig(data, duration));
+    // Clear existing timer
+    if (this.successQueueTimer) {
+      clearTimeout(this.successQueueTimer);
+    }
+
+    // Set new timer to process queue after debounce period
+    this.successQueueTimer = setTimeout(() => {
+      this.processSuccessQueue();
+    }, this.SUCCESS_DEBOUNCE_TIME);
   }
 
   /**
@@ -97,6 +119,15 @@ export class NotificationService {
       this.currentErrorRef.dismiss();
       this.currentErrorRef = null;
     }
+
+    // Clear success queue timer - we'll process success queue after error is dismissed
+    if (this.successQueueTimer) {
+      clearTimeout(this.successQueueTimer);
+      this.successQueueTimer = null;
+    }
+
+    // Dismiss any success toasts when error arrives (errors take priority)
+    this.dismissAllSuccesses();
 
     // If only one error, show it directly
     if (this.errorQueue.length === 1) {
@@ -170,12 +201,33 @@ export class NotificationService {
       this.getDefaultConfig(data, 0)
     );
 
-    // Clear reference when dismissed
+    // Clear reference when dismissed and show any queued successes
     if (this.currentErrorRef) {
       this.currentErrorRef.afterDismissed().subscribe(() => {
         this.currentErrorRef = null;
+        // Clear any pending success queue timer - we'll process immediately
+        if (this.successQueueTimer) {
+          clearTimeout(this.successQueueTimer);
+          this.successQueueTimer = null;
+        }
+        // After error is dismissed, process any queued successes immediately
+        if (this.successQueue.length > 0) {
+          this.processSuccessQueue();
+        }
       });
     }
+  }
+
+  /**
+   * Dismisses all currently showing success toasts
+   */
+  private dismissAllSuccesses(): void {
+    for (const ref of this.currentSuccessRefs) {
+      if (ref) {
+        ref.dismiss();
+      }
+    }
+    this.currentSuccessRefs = [];
   }
 
   /**
@@ -194,6 +246,113 @@ export class NotificationService {
     };
 
     this.snackBar.openFromComponent(NotificationComponent, this.getDefaultConfig(data, duration));
+  }
+
+  /**
+   * Processes the queued success messages and displays them appropriately
+   */
+  private processSuccessQueue(): void {
+    if (this.successQueue.length === 0) {
+      return;
+    }
+
+    // Don't process queue if an error is currently showing
+    // Wait until the error is dismissed
+    if (this.currentErrorRef) {
+      return;
+    }
+
+    // Group successes by titleKey + messageKey combination
+    const grouped = new Map<string, QueuedSuccess[]>();
+    
+    for (const success of this.successQueue) {
+      const key = `${success.titleKey}|${success.messageKey}`;
+      if (!grouped.has(key)) {
+        grouped.set(key, []);
+      }
+      grouped.get(key)!.push(success);
+    }
+
+    // Process each group
+    for (const [groupKey, successes] of grouped.entries()) {
+      const [titleKey, messageKey] = groupKey.split('|');
+      const count = successes.length;
+
+      if (count === 1) {
+        // Single message: show as-is
+        this.displaySuccess(titleKey, messageKey, this.DURATION_SHORT);
+      } else {
+        // Multiple identical messages: show combined message with count
+        const pluralMessageKey = this.getPluralMessageKey(messageKey);
+        this.displaySuccess(titleKey, pluralMessageKey, this.DURATION_SHORT, count);
+      }
+    }
+
+    // Clear queue
+    this.successQueue = [];
+  }
+
+  /**
+   * Gets the plural translation key for a message key
+   * @param messageKey - The base message key (e.g., "backend.operation.deleted")
+   * @returns The plural key (e.g., "backend.operation.deleted.multiple")
+   */
+  private getPluralMessageKey(messageKey: string): string {
+    // Map base keys to plural keys
+    const pluralMap: Record<string, string> = {
+      'backend.operation.created': 'backend.operation.created.multiple',
+      'backend.operation.updated': 'backend.operation.updated.multiple',
+      'backend.operation.deleted': 'backend.operation.deleted.multiple'
+    };
+
+    return pluralMap[messageKey] || messageKey;
+  }
+
+  /**
+   * Displays a single success notification
+   */
+  private displaySuccess(titleKey: string, messageKey: string, duration: number, count?: number): void {
+    // Don't show success if an error is currently displayed (queue it instead)
+    if (this.currentErrorRef) {
+      // Re-queue this success to show after error is dismissed
+      this.successQueue.push({
+        titleKey,
+        messageKey,
+        timestamp: Date.now()
+      });
+      return;
+    }
+
+    let message: string;
+    
+    if (count !== undefined) {
+      // Use plural form with count parameter
+      message = this.translateService.instant(messageKey, { count });
+    } else {
+      // Single message
+      message = this.translateService.instant(messageKey);
+    }
+
+    const data: NotificationData = {
+      title: this.translateService.instant(titleKey),
+      message,
+      type: 'success',
+      duration,
+      showAction: false
+    };
+
+    const ref = this.snackBar.openFromComponent(NotificationComponent, this.getDefaultConfig(data, duration));
+    
+    // Track success reference
+    this.currentSuccessRefs.push(ref);
+    
+    // Remove from tracking when dismissed
+    ref.afterDismissed().subscribe(() => {
+      const index = this.currentSuccessRefs.indexOf(ref);
+      if (index > -1) {
+        this.currentSuccessRefs.splice(index, 1);
+      }
+    });
   }
 
   /**

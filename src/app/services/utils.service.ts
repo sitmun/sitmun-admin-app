@@ -303,6 +303,7 @@ export class UtilsService {
     return {
       headerName: '',
       headerCheckboxSelection: true,
+      headerCheckboxSelectionFilteredOnly: true,
       checkboxSelection: true,
       filter: false,
       floatingFilter: false,

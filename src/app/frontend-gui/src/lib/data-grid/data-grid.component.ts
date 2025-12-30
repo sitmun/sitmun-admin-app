@@ -1134,7 +1134,6 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       }
       this.gridApi.refreshCells();
     }
-    this.gridApi.deselectAll();
   }
 
   /**
