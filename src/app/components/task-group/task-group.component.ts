@@ -7,6 +7,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
+import {LoadingOverlayService} from '@app/services/loading-overlay.service';
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
 import {Configuration} from '@app/core/config/configuration';
@@ -47,6 +48,7 @@ export class TaskGroupComponent extends BaseListComponent<TaskGroup> {
     protected override activatedRoute: ActivatedRoute,
     protected override utils: UtilsService,
     protected override router: Router,
+    protected override loadingOverlay: LoadingOverlayService,
     public taskgroupService: TaskGroupService
   ) {
     super(
@@ -58,7 +60,8 @@ export class TaskGroupComponent extends BaseListComponent<TaskGroup> {
       errorHandler,
       activatedRoute,
       utils,
-      router
+      router,
+      loadingOverlay
     );
   }
 

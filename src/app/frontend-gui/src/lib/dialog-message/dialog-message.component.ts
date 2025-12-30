@@ -1,5 +1,6 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+import {TranslateService} from '@ngx-translate/core';
 
 /**
  * Dialog event constants for consistent usage across the application.
@@ -36,7 +37,8 @@ export class DialogMessageComponent implements OnInit {
    */
   constructor(
     private dialogRef: MatDialogRef<DialogMessageComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private translateService: TranslateService
   ) {
   }
 
@@ -63,6 +65,41 @@ export class DialogMessageComponent implements OnInit {
    */
   closeDialog(){
     this.dialogRef.close({event: DIALOG_EVENTS.CANCEL});
+  }
+
+  /**
+   * Formats the message to preserve line breaks for HTML display
+   * Translates the message if it's a translation key, otherwise uses it as-is
+   */
+  getFormattedMessage(): string {
+    if (!this.message) {
+      return '';
+    }
+    
+    // Try to translate the message (in case it's a translation key)
+    let translatedMessage: string;
+    try {
+      translatedMessage = this.translateService.instant(this.message);
+      // If translation returns the key itself, it means translation failed or it's not a key
+      // In that case, use the original message
+      if (translatedMessage === this.message && !this.message.includes('.')) {
+        // Not a translation key, use as-is
+        translatedMessage = this.message;
+      }
+    } catch {
+      // Translation failed, use original message
+      translatedMessage = this.message;
+    }
+    
+    // Escape HTML to prevent XSS, then replace newlines with <br> tags
+    const escaped = translatedMessage
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+    // Replace newlines with <br> tags for HTML display
+    return escaped.replace(/\n/g, '<br>');
   }
 
 }

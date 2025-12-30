@@ -5,5 +5,7 @@
   (removeData)="removeData($event)"
   (sendChangesEvent)='sendChanges($event)'
   [config]="entityListConfig"
-  [isDataLoaded]="dataLoaded">
+  [isDataLoaded]="dataLoaded"
+  [refreshCommandEvent$]="refreshCommandEvent$"
+  [saveAgGridStateEvent]="saveAgGridStateEvent">
 </app-entity-list>

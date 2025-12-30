@@ -16,6 +16,7 @@ import {LoggerService} from '@app/services/logger.service';
 import {MatDialog} from '@angular/material/dialog';
 import {TranslateService} from '@ngx-translate/core';
 import {UtilsService} from '@app/services/utils.service';
+import {LoadingOverlayService} from '@app/services/loading-overlay.service';
 import {firstValueFrom} from 'rxjs';
 
 @Component({
@@ -56,6 +57,7 @@ export class TerritoryComponent extends BaseListComponent<Territory> {
     protected override activatedRoute: ActivatedRoute,
     protected override utils: UtilsService,
     protected override router: Router,
+    protected override loadingOverlay: LoadingOverlayService,
     public territoryService: TerritoryService,
     public territoryTypeService: TerritoryTypeService
   ) {
@@ -68,7 +70,8 @@ export class TerritoryComponent extends BaseListComponent<Territory> {
       errorHandler,
       activatedRoute,
       utils,
-      router
+      router,
+      loadingOverlay
     );
   }
 

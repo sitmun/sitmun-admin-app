@@ -10,6 +10,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {DIALOG_EVENTS, DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoggerService} from '@app/services/logger.service';
+import {LoadingOverlayService} from '@app/services/loading-overlay.service';
 
 @Component({
   template: '',
@@ -51,6 +52,7 @@ export abstract class BaseListComponent<T extends Resource>
    * @param {ActivatedRoute} activatedRoute - Angular service for accessing route parameters
    * @param utils
    * @param {Router} router - Angular service for navigation
+   * @param {LoadingOverlayService} loadingOverlay - Service for showing loading overlay during operations
    */
   protected constructor(
     protected dialog: MatDialog,
@@ -61,7 +63,8 @@ export abstract class BaseListComponent<T extends Resource>
     protected errorHandler: ErrorHandlerService,
     protected activatedRoute: ActivatedRoute,
     protected utils: UtilsService,
-    protected router: Router
+    protected router: Router,
+    protected loadingOverlay: LoadingOverlayService
   ) {}
 
   ngOnInit(): void {
@@ -233,9 +236,41 @@ export abstract class BaseListComponent<T extends Resource>
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result?.event === DIALOG_EVENTS.ACCEPT) {
-        Promise.all(data.map((item) => this.dataDeleteFn(item))).then(() => {
-          this.refreshCommandEvent$.next(true);
-        });
+        // Wrap batch delete operation with loading overlay
+        this.loadingOverlay.wrap(
+          async () => {
+            // Use allSettled instead of all to handle partial failures
+            // This ensures refresh happens even if some deletions fail
+            const results = await Promise.allSettled(
+              data.map((item) => this.dataDeleteFn(item))
+            );
+            
+            // Check for any failures and log them
+            const failures = results.filter((result) => result.status === 'rejected');
+            if (failures.length > 0) {
+              // Log errors for failed deletions
+              failures.forEach((failure, index) => {
+                if (failure.status === 'rejected') {
+                  this.loggerService.error(`Failed to delete item at index ${index}:`, failure.reason);
+                  // Error handler will display user-friendly messages via interceptor
+                }
+              });
+            }
+            
+            // Delay refresh if there were failures to ensure error messages are visible
+            // Error messages are displayed via MatSnackBar with 4-10 second duration
+            // We wait 2 seconds to allow error messages to appear before refreshing
+            const refreshDelay = failures.length > 0 ? 2000 : 0;
+            
+            if (refreshDelay > 0) {
+              await new Promise(resolve => setTimeout(resolve, refreshDelay));
+            }
+            
+            // Always refresh the table to show current state (successful deletions removed, failed ones still visible)
+            this.refreshCommandEvent$.next(true);
+          },
+          { message: this.translateService.instant('common.deleting') }
+        );
       }
     });
   }

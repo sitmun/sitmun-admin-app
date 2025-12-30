@@ -37,6 +37,8 @@ export interface EntityListConfig<T> {
 export class EntityListComponent<T extends Resource> implements OnInit, OnChanges {
   @Input() config!: EntityListConfig<T>;
   @Input() isDataLoaded = false;
+  @Input() refreshCommandEvent$?: Subject<boolean>;
+  @Input() saveAgGridStateEvent?: Subject<boolean>;
 
   @Output() removeData = new EventEmitter<T[]>();
   @Output() newDataEvent = new EventEmitter<number>();
@@ -44,12 +46,19 @@ export class EntityListComponent<T extends Resource> implements OnInit, OnChange
   @Output() sendChangesEvent = new EventEmitter<T[]>();
   @Output() gridModifiedEvent = new EventEmitter<boolean>();
 
-  refreshCommandEvent$: Subject<boolean> = new Subject<boolean>();
-  saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
+  private _refreshCommandEvent$: Subject<boolean> = new Subject<boolean>();
+  private _saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
   dataLoaded = false;
 
   ngOnInit(): void {
     this.checkAndSetDataLoaded();
+    // If parent provides refresh event, use it; otherwise use local one
+    if (!this.refreshCommandEvent$) {
+      this.refreshCommandEvent$ = this._refreshCommandEvent$;
+    }
+    if (!this.saveAgGridStateEvent) {
+      this.saveAgGridStateEvent = this._saveAgGridStateEvent;
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -58,6 +67,18 @@ export class EntityListComponent<T extends Resource> implements OnInit, OnChange
     }
     if (changes['isDataLoaded']) {
       this.dataLoaded = this.isDataLoaded;
+    }
+    // Update refresh event if provided by parent
+    if (changes['refreshCommandEvent$'] && this.refreshCommandEvent$) {
+      // Parent provided refresh event, use it
+    } else if (!this.refreshCommandEvent$) {
+      this.refreshCommandEvent$ = this._refreshCommandEvent$;
+    }
+    // Update save state event if provided by parent
+    if (changes['saveAgGridStateEvent'] && this.saveAgGridStateEvent) {
+      // Parent provided save state event, use it
+    } else if (!this.saveAgGridStateEvent) {
+      this.saveAgGridStateEvent = this._saveAgGridStateEvent;
     }
   }
 

@@ -40,14 +40,10 @@ export function getProblemTranslationKey(error: any): string {
     return 'common.error.generic';
   }
   
-  // Provide more specific translations for data integrity violations
-  // based on HTTP status code (409 Conflict vs 422 Unprocessable Entity)
-  if (problemType === 'data-integrity-violation') {
-    if (error.status === 409) {
-      return 'error.data-integrity-violation.conflict'; // Duplicate/conflict
-    } else if (error.status === 422) {
-      return 'error.data-integrity-violation.constraint'; // FK/constraint
-    }
+  // Provide specific translation for 409 Conflict (duplicate key)
+  // 422 constraint errors are handled by MessagesInterceptor with more context
+  if (problemType === 'data-integrity-violation' && error.status === 409) {
+    return 'error.data-integrity-violation.conflict';
   }
   
   return `error.${problemType}`;

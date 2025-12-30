@@ -5,5 +5,7 @@
   (newDataEvent)='newData()'
   (gridModifiedEvent)='setGridModifiedValue($event)'
   (sendChangesEvent)='sendChanges($event)'
-  (duplicateData)='duplicate($event)'>
+  (duplicateData)='duplicate($event)'
+  [refreshCommandEvent$]="refreshCommandEvent$"
+  [saveAgGridStateEvent]="saveAgGridStateEvent">
 </app-entity-list>

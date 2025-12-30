@@ -292,8 +292,75 @@ export class RestService<T extends Resource> {
    * @param entity - The resource entity to delete
    * @returns Observable of the operation result
    */
+  /**
+   * Deletes a resource entity
+   * Extracts entity type and name from the entity and passes it to ResourceService for enhanced error messages
+   * @param entity The resource entity to delete
+   * @returns Observable of the deletion operation
+   */
   public delete(entity: T) {
-    return this.resourceService.delete(entity);
+    // Extract entity type translation key from resource path
+    // e.g., "services" -> "entity.service.label", "cartographies" -> "entity.cartography.label"
+    const entityTypeKey = this.getEntityTypeTranslationKey();
+    
+    // Extract entity name from entity object (try name, title, or id as fallback)
+    const entityName = this.getEntityName(entity);
+    
+    return this.resourceService.delete(entity, entityTypeKey, entityName);
+  }
+
+  /**
+   * Maps resource path to entity type translation key
+   * @returns Translation key for the entity type (e.g., "entity.service.label")
+   */
+  private getEntityTypeTranslationKey(): string | undefined {
+    // Map common resource paths to entity translation keys
+    const resourceToEntityType: Record<string, string> = {
+      'services': 'entity.service.label',
+      'cartographies': 'entity.cartography.label',
+      'tasks': 'entity.task.label',
+      'applications': 'entity.application.label',
+      'territories': 'entity.territory.label',
+      'users': 'entity.user.label',
+      'roles': 'entity.role.label',
+      'trees': 'entity.tree.label',
+      'backgrounds': 'entity.background.label',
+      'cartography-groups': 'entity.cartography-group.label',
+      'task-groups': 'entity.taskGroup.label',
+      'connections': 'entity.connection.label'
+    };
+    
+    return resourceToEntityType[this.resource] || undefined;
+  }
+
+  /**
+   * Extracts entity name from entity object
+   * Tries name, title, or falls back to id
+   * @param entity The entity object
+   * @returns Entity name or identifier
+   */
+  private getEntityName(entity: T): string | undefined {
+    if (!entity) {
+      return undefined;
+    }
+    
+    // Try common name properties
+    const name = (entity as any).name;
+    if (name && typeof name === 'string' && name.trim()) {
+      return name;
+    }
+    
+    const title = (entity as any).title;
+    if (title && typeof title === 'string' && title.trim()) {
+      return title;
+    }
+    
+    // Fallback to id if available
+    if (entity.id !== undefined && entity.id !== null) {
+      return `#${entity.id}`;
+    }
+    
+    return undefined;
   }
 
   /**

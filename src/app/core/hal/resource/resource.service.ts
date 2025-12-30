@@ -3,13 +3,17 @@ import { catchError, map } from 'rxjs/operators';
 import { Resource } from './resource.model';
 import { ResourceHelper } from './resource-helper';
 import { Injectable } from '@angular/core';
-import {HttpHeaders, HttpParams, HttpResponse} from '@angular/common/http';
+import {HttpContext, HttpContextToken, HttpHeaders, HttpParams, HttpResponse} from '@angular/common/http';
 import { Sort } from '../rest/sort.model';
 import { ResourceArray } from './resource-array.model';
 import { ExternalService } from '../services';
 import { HalOptions } from '../rest/rest.service';
 import { SubTypeBuilder } from '../common/subtype-builder';
 import { LoggerService } from '@app/services/logger.service';
+
+// HTTP context keys for passing entity information during delete operations
+export const ENTITY_TYPE_KEY = new HttpContextToken<string | null>(() => null);
+export const ENTITY_NAME_KEY = new HttpContextToken<string | null>(() => null);
 
 /**
  * Service for handling HAL (Hypertext Application Language) REST API interactions.
@@ -360,12 +364,27 @@ export class ResourceService {
     /**
      * Deletes a resource
      * @param entity The resource entity to delete
+     * @param entityType Optional entity type translation key (e.g., "entity.service.singular")
+     * @param entityName Optional entity name/identifier for error messages
      * @returns Observable of the deletion operation
      */
-    public delete<T extends Resource>(entity: T) {
+    public delete<T extends Resource>(entity: T, entityType?: string, entityName?: string) {
         this.loggerService.trace("ResourceService.delete:", entity);
         const uri = ResourceHelper.getProxy(entity._links.self.href);
-        return ResourceHelper.getHttp().delete<T>(uri, { headers: ResourceHelper.headers }).pipe(catchError(error => throwError(() => error)));
+        
+        // Create HTTP context to pass entity information for error handling
+        const httpContext = new HttpContext();
+        if (entityType) {
+            httpContext.set(ENTITY_TYPE_KEY, entityType);
+        }
+        if (entityName) {
+            httpContext.set(ENTITY_NAME_KEY, entityName);
+        }
+        
+        return ResourceHelper.getHttp().delete<T>(uri, { 
+            headers: ResourceHelper.headers,
+            context: httpContext
+        }).pipe(catchError(error => throwError(() => error)));
     }
 
     /**

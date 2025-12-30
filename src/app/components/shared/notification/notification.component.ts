@@ -1,5 +1,7 @@
 import {Component, Inject} from '@angular/core';
 import {MAT_SNACK_BAR_DATA, MatSnackBarRef} from '@angular/material/snack-bar';
+import {MatDialog} from '@angular/material/dialog';
+import {DialogMessageComponent} from '@app/frontend-gui/src/lib/dialog-message/dialog-message.component';
 
 export interface NotificationData {
   title: string;
@@ -13,6 +15,12 @@ export interface NotificationData {
   showAction?: boolean;
 
   actionText?: string;
+
+  showDetailsButton?: boolean;
+
+  detailsTitle?: string;
+
+  detailsMessage?: string;
 }
 
 @Component({
@@ -26,8 +34,11 @@ export interface NotificationData {
         <div class="notification-title">{{ data.title }}</div>
         <div class="notification-message" *ngIf="data.message">{{ data.message }}</div>
       </div>
-      <div class="notification-action" *ngIf="data.showAction">
-        <button mat-button color="warn" (click)="close()">
+      <div class="notification-actions" *ngIf="data.showAction || data.showDetailsButton">
+        <button mat-button color="primary" *ngIf="data.showDetailsButton" (click)="showDetails()">
+          {{ 'common.button.viewDetails' | translate }}
+        </button>
+        <button mat-button color="warn" *ngIf="data.showAction" (click)="close()">
           {{ data.actionText || 'common.button.close' | translate }}
         </button>
       </div>
@@ -38,7 +49,8 @@ export interface NotificationData {
 export class NotificationComponent {
   constructor(
     @Inject(MAT_SNACK_BAR_DATA) public data: NotificationData,
-    private snackBarRef: MatSnackBarRef<NotificationComponent>
+    private snackBarRef: MatSnackBarRef<NotificationComponent>,
+    private dialog: MatDialog
   ) {
   }
 
@@ -59,5 +71,19 @@ export class NotificationComponent {
 
   close(): void {
     this.snackBarRef.dismiss();
+  }
+
+  showDetails(): void {
+    if (this.data.detailsTitle && this.data.detailsMessage) {
+      this.dialog.open(DialogMessageComponent, {
+        width: '600px',
+        maxWidth: '90vw',
+        data: {
+          title: this.data.detailsTitle,
+          message: this.data.detailsMessage,
+          hideCancelButton: true
+        }
+      });
+    }
   }
 }
