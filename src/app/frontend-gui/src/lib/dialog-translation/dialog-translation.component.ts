@@ -160,6 +160,11 @@ export class DialogTranslationComponent implements OnInit {
       return;
     }
 
+    // Ensure translationsMap is initialized
+    if (!this.translationsMap) {
+      this.translationsMap = new Map<string, Translation>();
+    }
+
     // Get column name from an existing translation (if any) to create new ones
     let columnName: string | null = null;
     if (this.translationsMap && this.translationsMap.size > 0) {

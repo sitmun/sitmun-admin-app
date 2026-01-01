@@ -1142,7 +1142,19 @@ export class DataTreeComponent {
     return `${58 + (level - 3) * 22}px`;
   }
 
+  expandAll(): void {
+    // Check if dataNodes exists before trying to expand
+    if (this.treeControl && this.treeControl.dataNodes && this.treeControl.dataNodes.length > 0) {
+      this.treeControl.expandAll();
+    }
+  }
+
   collapseToFirstLevel(): void {
+    // Check if dataNodes exists before trying to collapse
+    if (!this.treeControl || !this.treeControl.dataNodes || this.treeControl.dataNodes.length === 0) {
+      return;
+    }
+    
     // Collapse all nodes first
     this.treeControl.collapseAll();
     

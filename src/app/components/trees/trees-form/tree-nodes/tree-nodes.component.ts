@@ -931,6 +931,12 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     }
     
     // Image preview is now handled by the ImagePreviewComponent via imageSource input
+    
+    // Load translations for this node if it's an existing node (has real ID) and translations aren't already loaded
+    if (node.id >= 0 && (!this.nameTranslations.has(node.id) || !this.descriptionTranslations.has(node.id))) {
+      await this.loadNodeTranslations(node.id);
+    }
+    
     if (this.nameTranslations.has(node.id)) {
       const translations = this.nameTranslations.get(node.id);
       this.treeNodeForm.patchValue({
@@ -944,6 +950,13 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
         descriptionTranslations: translations
       });
     }
+    
+    // Store original values for change detection
+    this.currentNodeName = node.name || '';
+    this.currentNodeDescription = node.description || '';
+    
+    // Mark form as pristine after loading node data (so dirty state only reflects user changes)
+    this.treeNodeForm.markAsPristine();
     
     // Trigger change detection to update panel visibility conditions
     this.cdr.detectChanges();
@@ -991,6 +1004,10 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       active: true
     });
     
+    // Reset original values for new nodes
+    this.currentNodeName = '';
+    this.currentNodeDescription = '';
+    
     // Trigger change detection to update panel visibility conditions
     this.cdr.detectChanges();
   }
@@ -1030,6 +1047,10 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       nodeType: formNodeType,
       active: true
     });
+    
+    // Reset original values for new folders
+    this.currentNodeName = '';
+    this.currentNodeDescription = '';
     
     // Trigger change detection to update panel visibility conditions
     this.cdr.detectChanges();
@@ -1141,32 +1162,70 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   }
 
   async onTreeNodeNameTranslationButtonClicked() {
+    const nodeId = this.treeNodeForm.get('id')?.value;
+    
+    // Load translations if this is an existing node and translations aren't loaded yet
+    if (nodeId >= 0 && !this.nameTranslations.has(nodeId)) {
+      await this.loadNodeTranslations(nodeId);
+      // Update form with loaded translations
+      if (this.nameTranslations.has(nodeId)) {
+        this.treeNodeForm.patchValue({
+          nameTranslations: this.nameTranslations.get(nodeId)
+        });
+      }
+    }
+    
     let dialogResult = null;
     const maxLength = this.getMaxLengthForProperty('name');
     const useTextarea = this.getUseTextareaForProperty('name');
+    const defaultLanguageValue = this.treeNodeForm.get('name')?.value || '';
+    // Ensure translationsMap is always a Map (create empty one if null/undefined)
+    const translationsMap = this.treeNodeForm.value.nameTranslations || this.utils.createTranslationsList(config.translationColumns.treeNodeName);
     dialogResult = await this.utils.openTranslationDialog(
-      this.treeNodeForm.value.nameTranslations,
-      undefined,
+      translationsMap,
+      defaultLanguageValue,
       maxLength,
       useTextarea
     );
     if (dialogResult && dialogResult.event == "Accept") {
-      this.treeNodeForm.patchValue({nameTranslationsModified: true});
+      this.treeNodeForm.patchValue({
+        nameTranslations: dialogResult.data,
+        nameTranslationsModified: true
+      });
     }
   }
 
   async onTreeNodeDescriptionTranslationButtonClicked() {
+    const nodeId = this.treeNodeForm.get('id')?.value;
+    
+    // Load translations if this is an existing node and translations aren't loaded yet
+    if (nodeId >= 0 && !this.descriptionTranslations.has(nodeId)) {
+      await this.loadNodeTranslations(nodeId);
+      // Update form with loaded translations
+      if (this.descriptionTranslations.has(nodeId)) {
+        this.treeNodeForm.patchValue({
+          descriptionTranslations: this.descriptionTranslations.get(nodeId)
+        });
+      }
+    }
+    
     let dialogResult = null;
     const maxLength = this.getMaxLengthForProperty('description');
     const useTextarea = this.getUseTextareaForProperty('description');
+    const defaultLanguageValue = this.treeNodeForm.get('description')?.value || '';
+    // Ensure translationsMap is always a Map (create empty one if null/undefined)
+    const translationsMap = this.treeNodeForm.value.descriptionTranslations || this.utils.createTranslationsList(config.translationColumns.treeNodeDescription);
     dialogResult = await this.utils.openTranslationDialog(
-      this.treeNodeForm.value.descriptionTranslations,
-      undefined,
+      translationsMap,
+      defaultLanguageValue,
       maxLength,
       useTextarea
     );
     if (dialogResult && dialogResult.event == "Accept") {
-      this.treeNodeForm.patchValue({descriptionTranslationsModified: true});
+      this.treeNodeForm.patchValue({
+        descriptionTranslations: dialogResult.data,
+        descriptionTranslationsModified: true
+      });
     }
   }
 
@@ -1766,25 +1825,39 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
                     savedId: result.id,
                     savedName: result.name
                   });
-                  const nameTranslationMap = this.nameTranslations.get(treeNode.id);
+                  const oldId = treeNode.id;
+                  
+                  // Handle name translations
+                  const nameTranslationMap = this.nameTranslations.get(oldId);
                   if (nameTranslationMap) {
+                    // Save translations with the new real ID
                     this.utils.saveTranslation(result.id, nameTranslationMap, result.name, treeNode.nameTranslationsModified);
-                    treeNode.nameTranslationModified = false;
-                  } else if (treeNode.nameFormModified) {
+                    // Update the map to use the new real ID instead of the fictitious ID
+                    this.nameTranslations.delete(oldId);
+                    this.nameTranslations.set(result.id, nameTranslationMap);
+                    treeNode.nameTranslationsModified = false;
+                  } else if (treeNode.nameTranslationsModified || treeNode.nameFormModified) {
+                    // If translations were modified but not in the map, create and save them
                     const map = this.utils.createTranslationsList(config.translationColumns.treeNodeName);
                     this.utils.saveTranslation(result.id, map, treeNode.name, false);
                     this.nameTranslations.set(result.id, map);
                   }
-                  const descriptionTranslationMap = this.descriptionTranslations.get(treeNode.id);
+                  
+                  // Handle description translations
+                  const descriptionTranslationMap = this.descriptionTranslations.get(oldId);
                   if (descriptionTranslationMap) {
-                    this.utils.saveTranslation(result.id, descriptionTranslationMap, result.description, treeNode.nameTranslationsModified);
+                    // Save translations with the new real ID
+                    this.utils.saveTranslation(result.id, descriptionTranslationMap, result.description, treeNode.descriptionTranslationsModified);
+                    // Update the map to use the new real ID instead of the fictitious ID
+                    this.descriptionTranslations.delete(oldId);
+                    this.descriptionTranslations.set(result.id, descriptionTranslationMap);
                     treeNode.descriptionTranslationsModified = false;
-                  } else if (treeNode.descriptionFormModified) {
+                  } else if (treeNode.descriptionTranslationsModified || treeNode.descriptionFormModified) {
+                    // If translations were modified but not in the map, create and save them
                     const map = this.utils.createTranslationsList(config.translationColumns.treeNodeDescription);
                     this.utils.saveTranslation(result.id, map, treeNode.description, false);
                     this.descriptionTranslations.set(result.id, map);
                   }
-                  const oldId = treeNode.id;
                   treesNodesToUpdate.splice(i, 1);
                   treesNodesToUpdate.splice(0, 0, result);
                   if (mapNewIdentificators.has(oldId)) {
@@ -2112,8 +2185,47 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       // When updating an existing node, keep the form visible with updated data
       this.updateNode();
       this.savingNode = false;
+      // Reset form state after saving to disable update button
+      this.treeNodeForm.markAsPristine();
+      // Reset modification flags
+      this.treeNodeForm.patchValue({
+        nameTranslationsModified: false,
+        descriptionTranslationsModified: false,
+        nameFormModified: false,
+        descriptionFormModified: false
+      });
+      // Update current values to match saved values
+      this.currentNodeName = this.treeNodeForm.get('name')?.value || '';
+      this.currentNodeDescription = this.treeNodeForm.get('description')?.value || '';
+      // Trigger change detection to update button state
+      this.cdr.detectChanges();
       // Don't reset currentNodeIsFolder or form - keep the node selected and form visible
     }
+  }
+
+  /**
+   * Determines if the update button should be enabled.
+   * Button is enabled when:
+   * - Form is valid
+   * - AND (form is dirty OR translations were modified OR form fields were modified)
+   * 
+   * @returns True if update button should be enabled, false otherwise
+   */
+  canUpdateNode(): boolean {
+    if (!this.treeNodeForm) {
+      return false;
+    }
+
+    const isFormValid = this.treeNodeForm.valid ?? false;
+    const isFormDirty = this.treeNodeForm.dirty ?? false;
+    const hasTranslationChanges = 
+      this.treeNodeForm.get('nameTranslationsModified')?.value === true ||
+      this.treeNodeForm.get('descriptionTranslationsModified')?.value === true;
+    const hasFormFieldChanges =
+      this.treeNodeForm.get('nameFormModified')?.value === true ||
+      this.treeNodeForm.get('descriptionFormModified')?.value === true;
+
+    return isFormValid && (isFormDirty || hasTranslationChanges || hasFormFieldChanges);
   }
 
   activeNodeTabIndex = 0;
@@ -2232,6 +2344,33 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       this.storeTranslationInMap(translation, this.nameTranslations, column);
     } else if (translation.column == config.translationColumns.treeNodeDescription) {
       this.storeTranslationInMap(translation, this.descriptionTranslations, column);
+    }
+  }
+
+  /**
+   * Loads translations for a specific node ID.
+   * Fetches translations from the service and stores them in the component's translation maps.
+   * 
+   * @param nodeId - The ID of the node to load translations for
+   * @returns Promise that resolves when translations are loaded
+   */
+  async loadNodeTranslations(nodeId: number): Promise<void> {
+    try {
+      const allTranslations = await firstValueFrom(
+        this.translationService.getAll().pipe(
+          map((data: any[]) => data.filter(elem => 
+            elem.element === nodeId && 
+            (elem.column === config.translationColumns.treeNodeName || 
+             elem.column === config.translationColumns.treeNodeDescription)
+          ))
+        )
+      );
+
+      allTranslations.forEach(translation => {
+        this.saveTreeNodeTranslation(translation, translation.column);
+      });
+    } catch (error) {
+      this.loggerService.error('TreeNodesComponent.loadNodeTranslations - Error loading translations', error);
     }
   }
 

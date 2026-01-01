@@ -46,7 +46,9 @@
               </div>
               <div class="header-actions-section">
                 <button mat-raised-button color="primary" type="button"
-                  *ngIf="!newElement && currentNodeIsFolder != undefined" (click)="onSaveFormButtonClicked()">
+                  *ngIf="!newElement && currentNodeIsFolder != undefined" 
+                  [disabled]="!canUpdateNode()"
+                  (click)="onSaveFormButtonClicked()">
                   {{ "update" | translate }}
                 </button>
                 <button mat-raised-button color="primary" type="button"
