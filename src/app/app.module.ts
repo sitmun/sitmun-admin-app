@@ -55,7 +55,6 @@ import {
 import {BaseFormComponent} from "@app/components/base-form.component";
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {BrowserModule} from '@angular/platform-browser';
-import {CharacterCountPipe} from '@app/components/shared/character-counter-hint/character-count.pipe';
 import {ConnectionComponent} from '@app/components/connection/connection.component';
 import {ConnectionFormComponent} from '@app/components/connection/connection-form/connection-form.component';
 import {DashboardComponent} from '@app/components/dashboard/dashboard.component';
@@ -112,6 +111,8 @@ import {WarningsPanelComponent} from '@app/components/shared/warnings-panel/warn
 
 import {config} from '@config';
 import {firstValueFrom} from 'rxjs';
+import {AppConfigService, initializeAppConfig} from './services/app-config.service';
+import {IconsService, initializeIcons} from './services/icons.service';
 
 
 // APP_INITIALIZER factory functions
@@ -120,7 +121,8 @@ export function initializeLanguages(
   translateService: TranslateService,
   loggerService: LoggerService,
   appStateService: AppStateService,
-  messagesInterceptorState: MessagesInterceptorStateService
+  messagesInterceptorState: MessagesInterceptorStateService,
+  appConfigService: AppConfigService
 ) {
   return async () => {
     // Initialize static logger services
@@ -145,8 +147,8 @@ export function initializeLanguages(
         localStorage.setItem('languages', JSON.stringify(languages));
       }
 
-      // Set the default language
-      const defaultLang = getDefaultLanguage(languages);
+      // Set the default language (with appConfigService for fallback)
+      const defaultLang = getDefaultLanguage(languages, appConfigService);
       translateService.setDefaultLang(defaultLang);
       messagesInterceptorState.enable();
       return await firstValueFrom(translateService.use(defaultLang));
@@ -208,7 +210,7 @@ export function initializeConfiguration(
 }
 
 // Helper function to get default language
-function getDefaultLanguage(languages: any[]): string {
+function getDefaultLanguage(languages: any[], appConfigService?: AppConfigService): string {
   // Check localStorage first
   const storedLang = localStorage.getItem('lang');
   if (storedLang && languages.find(lang => lang.shortname === storedLang)) {
@@ -226,8 +228,18 @@ function getDefaultLanguage(languages: any[]): string {
     return browserLang.shortname;
   }
 
-  // Fallback to config default or first language
-  return config.defaultLang || (languages.length > 0 ? languages[0].shortname : 'en');
+  // Fallback to backend config default
+  if (config.defaultLang) {
+    return config.defaultLang;
+  }
+
+  // Fallback to app-config.json default language (predictable fallback)
+  if (appConfigService) {
+    return appConfigService.getDefaultLanguageFallback();
+  }
+
+  // Final fallback: first language or 'en'
+  return languages.length > 0 ? languages[0].shortname : 'en';
 }
 
 @NgModule({
@@ -269,7 +281,6 @@ function getDefaultLanguage(languages: any[]): string {
     LoginComponent,
     DashboardComponent,
     FormToolbarComponent,
-    CharacterCountPipe,
     SystemInfoMenuComponent,
     ErrorDetailsSidebarComponent,
     AboutDialogComponent,
@@ -313,10 +324,23 @@ function getDefaultLanguage(languages: any[]): string {
     { provide: MAT_TABS_CONFIG, useValue: { animationDuration: '0ms' } },
 
     // APP_INITIALIZER providers
+    // AppConfigService must be initialized FIRST (before languages) so fallback is available
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeAppConfig,
+      deps: [AppConfigService],
+      multi: true
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeIcons,
+      deps: [IconsService],
+      multi: true
+    },
     {
       provide: APP_INITIALIZER,
       useFactory: initializeLanguages,
-      deps: [LanguageService, TranslateService, LoggerService, AppStateService, MessagesInterceptorStateService],
+      deps: [LanguageService, TranslateService, LoggerService, AppStateService, MessagesInterceptorStateService, AppConfigService],
       multi: true
     },
     {
@@ -325,6 +349,7 @@ function getDefaultLanguage(languages: any[]): string {
       deps: [ConfigurationParametersService, TranslateService, LoggerService, AppStateService, MessagesInterceptorStateService],
       multi: true
     },
+    AppConfigService,
     ResourceService,
     ExternalService,
     RoleService,

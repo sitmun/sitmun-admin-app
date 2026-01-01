@@ -27,8 +27,7 @@
             <textarea matInput type="text" formControlName="description"> </textarea>
             <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('description')"
-                      onKeyDown="onTranslated('description')"
-                      svgIcon="ic_translate"></mat-icon>
+                      onKeyDown="onTranslated('description')">translate</mat-icon>
           </mat-form-field>
           <mat-checkbox formControlName="blocked">
             {{ 'entity.cartography.available' | translate }}

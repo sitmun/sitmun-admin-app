@@ -1,41 +1,94 @@
-<form [formGroup]='translationForm'>
+<h2 mat-dialog-title>{{ 'common.dialog.translation.title' | translate }}</h2>
+
+<form [formGroup]='translationForm' (ngSubmit)="doAccept()">
   <mat-dialog-content>
-    <mat-form-field appearance="outline" *ngIf="catalanAvailable" class="full">
-      <mat-label>{{ 'Valor' }}</mat-label>
-      <input matInput type="text" formControlName="catalanValue" required>
-      <mat-icon matSuffix svgIcon="icon_lang_ca"></mat-icon>
+    <!-- Default Language (Read-only Reference) -->
+    <mat-form-field appearance="outline" class="full" *ngIf="defaultLanguageValue">
+      <mat-label>
+        <span class="label-with-flag">
+          <mat-icon class="flag-icon-in-label"
+                    [svgIcon]="getLanguageIconName(languageByDefault)"
+                    *ngIf="hasLanguageIcon(languageByDefault)">
+          </mat-icon>
+          {{ getDefaultLanguageName() }}
+        </span>
+      </mat-label>
+      
+      <!-- Use textarea if useTextarea is true -->
+      <textarea *ngIf="useTextarea"
+                matInput 
+                [value]="defaultLanguageValue"
+                readonly
+                cdkTextareaAutosize
+                cdkAutosizeMinRows="3"
+                cdkAutosizeMaxRows="10"
+                rows="3">
+      </textarea>
+      
+      <!-- Use input if useTextarea is false -->
+      <input *ngIf="!useTextarea"
+             matInput 
+             type="text"
+             [value]="defaultLanguageValue"
+             readonly>
+      
+      <mat-hint>{{ 'common.dialog.translation.sourceValueHint' | translate }}</mat-hint>
     </mat-form-field>
 
-    <mat-form-field appearance="outline" *ngIf="spanishAvailable" class="full">
-      <mat-label>{{ 'Valor' }}</mat-label>
-      <input matInput type="text" formControlName="spanishValue">
-      <mat-icon matSuffix svgIcon="icon_lang_es"></mat-icon>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" *ngIf="englishAvailable" class="full">
-      <mat-label>{{ 'Value' }}</mat-label>
-      <input matInput type="text" formControlName="englishValue">
-      <mat-icon matSuffix svgIcon="icon_lang_en"></mat-icon>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" *ngIf="araneseAvailable" class="full">
-      <mat-label>{{ 'Valor' }}</mat-label>
-      <input matInput type="text" formControlName="araneseValue">
-      <mat-icon matSuffix svgIcon="icon_lang_oc"></mat-icon>
-    </mat-form-field>
-    <mat-form-field appearance="outline" *ngIf="frenchAvailable" class="full">
-      <mat-label>{{ 'Valeur' }}</mat-label>
-      <input matInput type="text" formControlName="frenchValue">
-      <mat-icon matSuffix svgIcon="icon_lang_fr"></mat-icon>
+    <!-- Translation Fields (Editable) -->
+    <mat-form-field appearance="outline" class="full" *ngFor="let lang of availableLanguages">
+      <mat-label>
+        <span class="label-with-flag">
+          <mat-icon class="flag-icon-in-label"
+                    [svgIcon]="getLanguageIconName(lang.shortname)"
+                    *ngIf="hasLanguageIcon(lang.shortname)">
+          </mat-icon>
+          {{ lang.name }}
+        </span>
+      </mat-label>
+      
+      <!-- Use textarea if useTextarea is true -->
+      <textarea *ngIf="useTextarea"
+                matInput 
+                [formControlName]="getFormControlName(lang.shortname)" 
+                [maxlength]="maxLength"
+                cdkTextareaAutosize
+                cdkAutosizeMinRows="3"
+                cdkAutosizeMaxRows="10"
+                rows="3">
+      </textarea>
+      
+      <!-- Use input if useTextarea is false -->
+      <input *ngIf="!useTextarea"
+             matInput 
+             type="text"
+             [formControlName]="getFormControlName(lang.shortname)" 
+             [maxlength]="maxLength">
+      
+      <mat-hint align="end">{{ getFormControl(lang.shortname) | characterCount:maxLength }}</mat-hint>
     </mat-form-field>
   </mat-dialog-content>
-  <mat-dialog-actions align="end">
 
-    <button mat-flat-button type="submit" class="sitmun-save-button" (click)="doAccept()">
-      {{ "accept" | translate }}
+  <mat-dialog-actions align="end">
+    <button
+      matTooltip="{{ 'common.button.cancel' | translate }}"
+      mat-dialog-close
+      mat-mini-fab
+      color="primary"
+      type="button"
+      (click)="closeDialog()">
+      <mat-icon fontSet="material-icons-round">cancel</mat-icon>
     </button>
-    <button mat-flat-button type="button" class="sitmun-return-button" (click)="closeDialog()">
-      {{ "cancel" | translate }}
+    <button
+      matTooltip="{{ 'common.button.accept' | translate }}"
+      [mat-dialog-close]="true"
+      mat-mini-fab
+      color="primary"
+      class="add-half-gap"
+      type="submit"
+      (click)="doAccept()"
+      cdkFocusInitial>
+      <mat-icon fontSet="material-icons-round">check</mat-icon>
     </button>
   </mat-dialog-actions>
 </form>

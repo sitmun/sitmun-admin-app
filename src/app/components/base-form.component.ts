@@ -11,7 +11,7 @@ import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from "@app/services/logger.service";
 import {MatDialog} from "@angular/material/dialog";
 import {TranslateService} from "@ngx-translate/core";
-import {UntypedFormGroup} from "@angular/forms";
+import {FormControl, UntypedFormGroup} from "@angular/forms";
 import {config} from "@config";
 import {constants} from "@environments/constants";
 import {explainFormValidity} from "@app/utils/form.utils";
@@ -711,7 +711,12 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
       this.loggerService.error(`Translation not initialized for property: ${property}`);
       return;
     }
-    const dialogResult = await this.openTranslationDialog(propertyTranslation.map);
+    // Get the current form field value (default language value)
+    const defaultLanguageValue = this.entityForm?.get(property)?.value || '';
+    // Extract maxLength and useTextarea from the form control
+    const maxLength = this.getMaxLengthForProperty(property);
+    const useTextarea = this.getUseTextareaForProperty(property);
+    const dialogResult = await this.openTranslationDialog(propertyTranslation.map, defaultLanguageValue, maxLength, useTextarea);
     if (dialogResult && dialogResult.event == 'Accept') {
       propertyTranslation.modified = true;
     }
@@ -904,20 +909,74 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
   }
 
   /**
+   * Extracts the maxLength value from a form control's validator.
+   * 
+   * @param property - The form control property name
+   * @returns The maxLength value, or 4000 as default fallback
+   * @private
+   */
+  private getMaxLengthForProperty(property: string): number {
+    const control = this.entityForm?.get(property);
+    if (!control) {
+      return 4000; // Default fallback
+    }
+    
+    // Extract from maxLength validator
+    const validator = control.validator;
+    if (validator) {
+      const errors = validator(new FormControl({ length: Infinity }));
+      if (errors?.['maxlength']) {
+        return errors['maxlength']['requiredLength'];
+      }
+    }
+    
+    return 4000; // Default fallback
+  }
+
+  /**
+   * Determines if a form field uses textarea or input by inspecting the DOM.
+   * This is a non-heuristic approach that checks the actual rendered element.
+   * 
+   * @param property - The form control property name
+   * @returns true if the field uses textarea, false if it uses input (or not found)
+   * @private
+   */
+  private getUseTextareaForProperty(property: string): boolean {
+    // Query the DOM to find the actual form field element
+    const formFieldElement = document.querySelector(
+      `[formControlName="${property}"]`
+    )?.closest('mat-form-field');
+    
+    if (!formFieldElement) {
+      return false; // Default to input if element not found
+    }
+    
+    // Check if the element inside mat-form-field is a textarea
+    const inputElement = formFieldElement.querySelector('textarea, input');
+    return inputElement?.tagName === 'TEXTAREA';
+  }
+
+  /**
    * Opens a dialog for editing translations.
    * Configures the dialog with available languages and current translations.
    *
    * @param {Map<string, Translation>} translationsMap - Map of current translations to edit
+   * @param {string} defaultLanguageValue - The current value in the default language (from form field)
+   * @param {number} maxLength - Maximum length for translation fields
+   * @param {boolean} useTextarea - Whether to use textarea (true) or input (false)
    * @returns {Promise<any>} Promise resolving to the dialog result
    * @private
    */
-  private async openTranslationDialog(translationsMap: Map<string, Translation>): Promise<any> {
+  private async openTranslationDialog(translationsMap: Map<string, Translation>, defaultLanguageValue: string, maxLength: number, useTextarea: boolean): Promise<any> {
     const dialogRef = this.dialog.open(DialogTranslationComponent, {
       panelClass: 'translateDialogs',
     });
     dialogRef.componentInstance.translationsMap = translationsMap;
     dialogRef.componentInstance.languageByDefault = config.defaultLang;
     dialogRef.componentInstance.languagesAvailables = config.languagesToUse;
+    dialogRef.componentInstance.defaultLanguageValue = defaultLanguageValue;
+    dialogRef.componentInstance.maxLength = maxLength;
+    dialogRef.componentInstance.useTextarea = useTextarea;
 
     const result = await firstValueFrom(dialogRef.afterClosed());
     if (result) {

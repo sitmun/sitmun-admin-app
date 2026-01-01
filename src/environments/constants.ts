@@ -80,40 +80,7 @@ const entityStatus = {
 export const constants = {
   codeValue,
   entityStatus,
-  extraImg: [
-    {
-      id: 'ic_arrow_down_black',
-      icon: 'ic_arrow_down_black',
-    },
-    {
-      id: 'ic_translate',
-      icon: 'ic_translate',
-    },
-    {
-      id: 'ic_translate',
-      icon: 'ic_translate',
-    },
-    {
-      id: 'icon_lang_ca',
-      icon: 'flag_ca',
-    },
-    {
-      id: 'icon_lang_en',
-      icon: 'flag_en',
-    },
-    {
-      id: 'icon_lang_es',
-      icon: 'flag_es',
-    },
-    {
-      id: 'icon_lang_oc',
-      icon: 'flag_oc',
-    },
-    {
-      id: 'icon_lang_fr',
-      icon: 'flag_oc',
-    },
-  ],
+  extraImg: [],
   nodeMapping: {
     nodeOutputControls: [{
       key: 'id',

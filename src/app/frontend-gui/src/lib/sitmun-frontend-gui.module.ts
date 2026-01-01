@@ -34,6 +34,7 @@ import {DataTreeComponent} from './data-tree/data-tree.component';
 import {DialogTranslationComponent} from './dialog-translation/dialog-translation.component';
 import {DatagraphComponent} from './data-graph/datagraph.component';
 import {MapTreeComponent} from './map-tree/map-tree.component';
+import {CharacterCountPipe} from '@app/components/shared/character-counter-hint/character-count.pipe';
 
 
 registerLocaleData(localeCa, 'ca');
@@ -79,6 +80,7 @@ export function createTranslateLoader(http: HttpClient) {
     DialogTranslationComponent,
     DatagraphComponent,
     MapTreeComponent,
+    CharacterCountPipe,
   ],
   providers: [],
   exports: [
@@ -97,7 +99,8 @@ export function createTranslateLoader(http: HttpClient) {
     DialogTranslationComponent,
     DatagraphComponent,
     // SitmunFrontendCoreModule
-    MapTreeComponent
+    MapTreeComponent,
+    CharacterCountPipe,
   ]
 })
 export class SitmunFrontendGuiModule {

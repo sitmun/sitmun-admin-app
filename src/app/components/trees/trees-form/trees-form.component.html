@@ -27,8 +27,7 @@
             </mat-hint>
             <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('name')"
-                      onKeyDown="onTranslated('name')"
-                      svgIcon="ic_translate"></mat-icon>
+                      onKeyDown="onTranslated('name')">translate</mat-icon>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'treesEntity.description' | translate }}</mat-label>
@@ -36,8 +35,7 @@
             <mat-hint align="end">{{ entityForm.get('description') | characterCount }}</mat-hint>
             <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('description')"
-                      onKeyDown="onTranslated('description')"
-                      svgIcon="ic_translate"></mat-icon>
+                      onKeyDown="onTranslated('description')">translate</mat-icon>
           </mat-form-field>
           <mat-form-field appearance="outline" class="quarter add-gap">
             <mat-label>{{ 'treesEntity.type' | translate }}</mat-label>

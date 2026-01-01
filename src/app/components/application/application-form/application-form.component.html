@@ -27,8 +27,7 @@
             </mat-hint>
           <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('name')"
-                      onKeyDown="onTranslated('name')"
-                      svgIcon="ic_translate"></mat-icon>
+                      onKeyDown="onTranslated('name')">translate</mat-icon>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'common.form.description' | translate }}</mat-label>
@@ -36,8 +35,7 @@
               <mat-hint align="end">{{entityForm.get('description') | characterCount}}</mat-hint>
               <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('description')"
-                      onKeyDown="onTranslated('description')"
-                      svgIcon="ic_translate"></mat-icon>
+                      onKeyDown="onTranslated('description')">translate</mat-icon>
           </mat-form-field>
           <mat-form-field appearance="outline" class="half add-gap">
             <mat-label>{{ 'common.form.type' | translate }}</mat-label>
@@ -89,8 +87,7 @@
             <textarea matInput type="text" formControlName="maintenanceInformation" [maxlength]="4000"></textarea>
             <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('maintenanceInformation')"
-                      onKeyDown="onTranslated('maintenanceInformation')"
-                      svgIcon="ic_translate"></mat-icon>
+                      onKeyDown="onTranslated('maintenanceInformation')">translate</mat-icon>
             <mat-hint align="end">{{entityForm.get('maintenanceInformation') | characterCount}}</mat-hint>
           </mat-form-field>
 
@@ -119,7 +116,7 @@
             <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('title')"
                       onKeyDown="onTranslated('title')"
-                      svgIcon="ic_translate"></mat-icon>
+                      >translate</mat-icon>
             <mat-hint align="end">{{entityForm.get('title') | characterCount}}</mat-hint>
           </mat-form-field>
           <mat-form-field appearance="outline" class="half add-gap">

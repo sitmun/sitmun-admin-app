@@ -29,8 +29,7 @@
             </mat-hint>
             <mat-icon (click)="onTranslated('name')" class="iconTranslate"
                       matSuffix
-                      onKeyDown="onTranslated('name')"
-                      svgIcon="ic_translate"></mat-icon>
+                      onKeyDown="onTranslated('name')">translate</mat-icon>
           </mat-form-field>
           <mat-form-field appearance="outline" class="half add-gap" *ngIf="isNew()">
             <mat-label>{{ 'common.form.type' | translate }}</mat-label>

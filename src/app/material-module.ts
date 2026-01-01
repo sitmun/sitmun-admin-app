@@ -6,6 +6,7 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
 import {CdkStepperModule} from '@angular/cdk/stepper';
 import {CdkTableModule} from '@angular/cdk/table';
 import {CdkTreeModule} from '@angular/cdk/tree';
+import {TextFieldModule} from '@angular/cdk/text-field';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {MatBadgeModule} from '@angular/material/badge';
 import {MatBottomSheetModule} from '@angular/material/bottom-sheet';
@@ -86,6 +87,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
     MatTreeModule,
     PortalModule,
     ScrollingModule,
+    TextFieldModule,
     MatFormFieldModule
   ]
 })

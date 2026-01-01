@@ -55,6 +55,13 @@ $background-color: #f5f5f5;
 
 body {
   font-family: "Open Sans", sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  margin: 0;
+  padding: 0;
 }
 
 //Button validate of forms
@@ -113,9 +120,14 @@ h2 {
   width: calc(100%);
 }
 
-.mat-app-background,
+// Apply gray background only to authenticated pages
 .mat-drawer-container {
   background: $background-color !important;
+}
+
+// Login page should use Material theme background (orange-tinted)
+app-login .mat-app-background {
+  background: transparent !important;
 }
 
 
@@ -129,11 +141,6 @@ h2 {
   right: 0;
 }
 
-.login-container {
-  padding: 0;
-  margin: 50px auto;
-  width: 500px;
-}
 
 
 .gridDialogs {
@@ -237,8 +244,9 @@ h2 {
 }
 
 .translateDialogs{
-  width: calc(100vw - 45%) !important;
-  height: calc(100vh - 40%) !important;
+  max-width: min(600px, 90vw) !important;
+  width: 100% !important;
+  max-height: 90vh !important;
 }
 
 .formLabelDialog {

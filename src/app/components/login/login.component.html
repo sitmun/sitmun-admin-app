@@ -9,14 +9,11 @@
   </mat-toolbar-row>
 </mat-toolbar>
 <div class="login-container" *ngIf="loadedData">
-  <mat-card appearance="outlined">
+  <mat-card>
     <form [formGroup]="form" (ngSubmit)="login()">
       <mat-card-header>
         <mat-card-title>
-          <h4>
-          {{'loginEntity.privateAccess' | translate}}
-          </h4>
-          <br>
+          <h4>{{'systemInfo.applicationName' | translate}}</h4>
         </mat-card-title>
       </mat-card-header>
       <mat-card-content>
@@ -32,10 +29,21 @@
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{'loginEntity.language' | translate}}</mat-label>
-            <mat-icon matPrefix>language</mat-icon>
+            <!-- Show flag icon when language is selected, otherwise show language icon -->
+            <mat-icon matPrefix class="flag-prefix-icon"
+                      [svgIcon]="hasLanguageIcon(getSelectedLanguage()?.shortname || '') ? getLanguageIconName(getSelectedLanguage()!.shortname) : ''"
+                      *ngIf="getSelectedLanguage() && hasLanguageIcon(getSelectedLanguage()!.shortname)">
+            </mat-icon>
+            <mat-icon matPrefix *ngIf="!getSelectedLanguage() || !hasLanguageIcon(getSelectedLanguage()!.shortname)">language</mat-icon>
             <mat-select formControlName="lang">
               <mat-option *ngFor="let lang of languages" [value]="lang.shortname">
-                {{'lang.'+lang.shortname | translate}}
+                <span class="option-with-flag">
+                  <mat-icon class="flag-icon-in-option"
+                            [svgIcon]="getLanguageIconName(lang.shortname)"
+                            *ngIf="hasLanguageIcon(lang.shortname)">
+                  </mat-icon>
+                  {{'lang.'+lang.shortname | translate}}
+                </span>
               </mat-option>
             </mat-select>
           </mat-form-field>

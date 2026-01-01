@@ -1,14 +1,13 @@
 import {Component, OnInit} from '@angular/core';
-import {UntypedFormControl, UntypedFormGroup} from '@angular/forms';
+import {AbstractControl, UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {MatDialogRef} from '@angular/material/dialog';
-import {MatIconRegistry} from '@angular/material/icon';
-import {DomSanitizer} from '@angular/platform-browser';
-
+import {AppConfigService} from '@app/services/app-config.service';
+import {Translation} from '@app/domain';
 
 @Component({
   selector: 'app-dialog-translation',
   templateUrl: './dialog-translation.component.html',
-  styles: []
+  styleUrls: ['./dialog-translation.component.scss']
 })
 export class DialogTranslationComponent implements OnInit {
 
@@ -16,146 +15,187 @@ export class DialogTranslationComponent implements OnInit {
   translationsMap: Map<string, any>;
   languageByDefault: string;
   languagesAvailables: any[];
-  catalanAvailable = false;
-  catalanValue: string;
-  spanishAvailable = false;
-  spanishValue: string;
-  englishAvailable = false;
-  englishValue: string;
-  araneseAvailable = false;
-  araneseValue: string;
-  frenchAvailable = false;
-  frenchValue: string;
+  defaultLanguageValue: string;
+  maxLength: number;
+  useTextarea: boolean;
 
-  constructor(private dialogRef: MatDialogRef<DialogTranslationComponent>,
-              private matIconRegistry: MatIconRegistry,
-              private domSanitizer: DomSanitizer) {
+  constructor(
+    private dialogRef: MatDialogRef<DialogTranslationComponent>,
+    private appConfigService: AppConfigService
+  ) {
     this.initializeTranslationForm();
-    this.matIconRegistry.addSvgIcon(
-      `icon_lang_ca`,
-      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/flag_ca.svg')
-    );
-    this.matIconRegistry.addSvgIcon(
-      `icon_lang_es`,
-      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/flag_es.svg')
-    );
-    this.matIconRegistry.addSvgIcon(
-      `icon_lang_en`,
-      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/flag_en.svg')
-    );
-    this.matIconRegistry.addSvgIcon(
-      `icon_lang_oc`,
-      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/flag_oc.svg')
-    );
-    this.matIconRegistry.addSvgIcon(
-      `icon_lang_fr`,
-      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/flag_fr.svg')
-    );
   }
 
   ngOnInit(): void {
-
-    this.checkLanguagesAvailables();
+    this.initializeDynamicFormControls();
     this.checkTranslationsAlreadyDone();
-    // if(this.catalanValue != null){
-    //   this.translationForm.patchValue({
-    //     catalanValue: this.catalanValue
-    //   })
-    // }
-    // if(this.spanishValue != null){
-    //   this.translationForm.patchValue({
-    //     spanishValue: this.spanishValue
-    //   })
-    // }
-    // if(this.englishValue != null){
-    //   this.translationForm.patchValue({
-    //     englishValue: this.englishValue
-    //   })
-    // }
-    // if(this.araneseValue != null){
-    //   this.translationForm.patchValue({
-    //     araneseValue: this.araneseValue
-    //   })
-    // }
-    // if(this.frenchValue != null){
-    //   this.translationForm.patchValue({
-    //     frenchValue: this.frenchValue
-    //   })
-    // }
   }
 
-  checkLanguagesAvailables(): void {
-    this.languagesAvailables.forEach(element => {
-      if (element.shortname == 'ca' && this.languageByDefault != 'ca') {
-        this.catalanAvailable = true;
-      }
-      if (element.shortname == 'es' && this.languageByDefault != 'es') {
-        this.spanishAvailable = true;
-      }
-      if (element.shortname == 'en' && this.languageByDefault != 'en') {
-        this.englishAvailable = true;
-      }
-      if (element.shortname == 'oc-aranes' && this.languageByDefault != 'oc-aranes') {
-        this.araneseAvailable = true;
-      }
-      if (element.shortname == 'fr' && this.languageByDefault != 'fr') {
-        this.frenchAvailable = true;
-      }
+  /**
+   * Get available languages (excluding the default language), sorted alphabetically by name
+   */
+  get availableLanguages(): any[] {
+    if (!this.languagesAvailables) {
+      return [];
+    }
+    return this.languagesAvailables
+      .filter(lang => lang.shortname !== this.languageByDefault)
+      .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  }
+
+  /**
+   * Get the name of the default language
+   */
+  getDefaultLanguageName(): string {
+    if (!this.languagesAvailables) {
+      return '';
+    }
+    const defaultLang = this.languagesAvailables.find(
+      lang => lang.shortname === this.languageByDefault
+    );
+    return defaultLang?.name || this.languageByDefault;
+  }
+
+  /**
+   * Get language icon path from AppConfigService
+   */
+  getLanguageIcon(shortname: string): string {
+    return this.appConfigService.getLanguageIcon(shortname);
+  }
+
+  /**
+   * Get language icon name for mat-icon svgIcon attribute
+   * Converts path like "assets/flags/spain.svg" to "flag-spain"
+   */
+  getLanguageIconName(shortname: string): string {
+    const iconPath = this.appConfigService.getLanguageIcon(shortname);
+    if (!iconPath) return '';
+    
+    // Extract filename from path: "assets/flags/spain.svg" -> "spain"
+    const filename = iconPath.split('/').pop()?.replace('.svg', '') || '';
+    return filename ? `flag-${filename}` : '';
+  }
+
+  /**
+   * Check if language has an icon
+   */
+  hasLanguageIcon(shortname: string): boolean {
+    return !!this.getLanguageIcon(shortname);
+  }
+
+  /**
+   * Get form control name for a language shortname
+   */
+  getFormControlName(shortname: string): string {
+    return `${shortname}Value`;
+  }
+
+  /**
+   * Get form control for a language shortname (for character count pipe)
+   */
+  getFormControl(shortname: string): AbstractControl | null {
+    const controlName = this.getFormControlName(shortname);
+    return this.translationForm.get(controlName);
+  }
+
+  /**
+   * Initialize the translation form with dynamic controls
+   */
+  private initializeDynamicFormControls(): void {
+    const controls: { [key: string]: UntypedFormControl } = {};
+
+    // Create form controls dynamically for each available language
+    // Add maxLength validator if maxLength is provided
+    const validators = this.maxLength ? [Validators.maxLength(this.maxLength)] : [];
+    
+    this.availableLanguages.forEach(lang => {
+      const controlName = this.getFormControlName(lang.shortname);
+      controls[controlName] = new UntypedFormControl(null, validators);
+    });
+
+    // Update form with new controls
+    Object.keys(controls).forEach(key => {
+      this.translationForm.addControl(key, controls[key]);
     });
   }
 
+  /**
+   * Initialize the base translation form
+   */
+  private initializeTranslationForm(): void {
+    this.translationForm = new UntypedFormGroup({});
+  }
+
+  /**
+   * Check and populate existing translations
+   */
   checkTranslationsAlreadyDone(): void {
+    if (!this.translationsMap) {
+      return;
+    }
+
     this.translationsMap.forEach((value: any, key: string) => {
-      if (key == 'ca' && value && value.translation) {
-        this.translationForm.patchValue({catalanValue: value.translation});
+      // Skip default language
+      if (key === this.languageByDefault) {
+        return;
       }
-      if (key == 'es' && value && value.translation) {
-        this.translationForm.patchValue({spanishValue: value.translation});
-      }
-      if (key == 'en' && value && value.translation) {
-        this.translationForm.patchValue({englishValue: value.translation});
-      }
-      if (key == 'oc-aranes' && value && value.translation) {
-        this.translationForm.patchValue({araneseValue: value.translation});
-      }
-      if (key == 'fr' && value && value.translation) {
-        this.translationForm.patchValue({frenchValue: value.translation});
+
+      // Check if this language is in available languages
+      const lang = this.availableLanguages.find(l => l.shortname === key);
+      if (lang && value && value.translation) {
+        const controlName = this.getFormControlName(key);
+        const control = this.translationForm.get(controlName);
+        if (control) {
+          control.setValue(value.translation);
+        }
       }
     });
   }
 
-  initializeTranslationForm(): void {
+  /**
+   * Accept and save translations
+   */
+  doAccept(): void {
+    if (!this.translationForm.valid) {
+      return;
+    }
 
-    this.translationForm = new UntypedFormGroup({
-      catalanValue: new UntypedFormControl(null, []),
-      spanishValue: new UntypedFormControl(null, []),
-      englishValue: new UntypedFormControl(null, []),
-      araneseValue: new UntypedFormControl(null, []),
-      frenchValue: new UntypedFormControl(null, []),
+    // Get column name from an existing translation (if any) to create new ones
+    let columnName: string | null = null;
+    if (this.translationsMap && this.translationsMap.size > 0) {
+      const firstTranslation = Array.from(this.translationsMap.values())[0];
+      columnName = firstTranslation?.column || null;
+    }
+
+    // Update translations map with form values
+    this.availableLanguages.forEach(lang => {
+      const controlName = this.getFormControlName(lang.shortname);
+      const control = this.translationForm.get(controlName);
+      const value = control?.value || null; // Allow null/empty values
+
+      if (this.translationsMap.has(lang.shortname)) {
+        // Update existing translation
+        const translation = this.translationsMap.get(lang.shortname);
+        translation.translation = value;
+      } else {
+        // Create new translation entry if it doesn't exist
+        if (columnName) {
+          const newTranslation = new Translation();
+          newTranslation.translation = value;
+          newTranslation.column = columnName;
+          newTranslation.language = lang;
+          this.translationsMap.set(lang.shortname, newTranslation);
+        }
+      }
     });
-  }
 
-  doAccept() {
-    if (this.translationsMap.has('ca') && this.translationForm.value.catalanValue) {
-      this.translationsMap.get('ca').translation = this.translationForm.value.catalanValue;
-    }
-    if (this.translationsMap.has('es') && this.translationForm.value.spanishValue) {
-      this.translationsMap.get('es').translation = this.translationForm.value.spanishValue;
-    }
-    if (this.translationsMap.has('en') && this.translationForm.value.englishValue) {
-      this.translationsMap.get('en').translation = this.translationForm.value.englishValue;
-    }
-    if (this.translationsMap.has('oc-aranes') && this.translationForm.value.araneseValue) {
-      this.translationsMap.get('oc-aranes').translation = this.translationForm.value.araneseValue;
-    }
-    if (this.translationsMap.has('fr') && this.translationForm.value.frenchValue) {
-      this.translationsMap.get('fr').translation = this.translationForm.value.frenchValue;
-    }
     this.dialogRef.close({event: 'Accept', data: this.translationsMap});
   }
 
-  closeDialog() {
+  /**
+   * Close dialog without saving
+   */
+  closeDialog(): void {
     this.dialogRef.close({event: 'Cancel'});
   }
-
 }

@@ -25,6 +25,27 @@ export class IconsService {
   async loadSVGs(): Promise<void> {
     this.loadMenuIcons();
     this.loadExtraIcons();
+    this.loadFlagIcons();
+  }
+
+  /**
+   * Loads flag icons for language selection
+   */
+  private loadFlagIcons(): void {
+    const flagIcons = ['spain', 'united-kingdom', 'france', 'catalan', 'val-aran'];
+    const flagBasePath = 'assets/flags/';
+    
+    for (const iconName of flagIcons) {
+      try {
+        this.matIconRegistry.addSvgIcon(
+          `flag-${iconName}`,
+          this.domSanitizer.bypassSecurityTrustResourceUrl(`${flagBasePath}${iconName}.svg`)
+        );
+        this.loadedIcons.add(`flag-${iconName}`);
+      } catch (error) {
+        this.loggerService.error(`Failed to load flag icon: ${iconName}`, error);
+      }
+    }
   }
 
   /**
@@ -108,4 +129,13 @@ export class IconsService {
       }
     }
   }
+}
+
+/**
+ * Factory function for APP_INITIALIZER to load icons before app starts
+ */
+export function initializeIcons(
+  iconsService: IconsService
+): () => Promise<void> {
+  return () => iconsService.loadSVGs();
 }

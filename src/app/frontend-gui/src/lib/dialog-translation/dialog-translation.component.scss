@@ -1,0 +1,71 @@
+@import "../../../../variables.scss";
+
+.flag-icon {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+  max-width: 24px;
+  max-height: 24px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+}
+
+// Ensure proper alignment in form fields
+::ng-deep .mat-mdc-form-field {
+  .flag-icon {
+    margin-left: 0;
+  }
+}
+
+// Read-only field styling
+mat-form-field input[readonly] {
+  background-color: rgba(0, 0, 0, 0.02);
+  cursor: not-allowed;
+}
+
+// Scrollable dialog content
+::ng-deep .translateDialogs {
+  .mat-mdc-dialog-content {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 24px;
+  }
+}
+
+// Spacing between form fields
+mat-form-field {
+  margin-bottom: 16px;
+  
+  &:last-of-type {
+    margin-bottom: 0;
+  }
+}
+
+// Visual separator between default language and translations
+mat-form-field:first-of-type {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+// Flag icon in label - Material Design: 24x24 icon
+.label-with-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.flag-icon-in-label {
+  width: 24px !important;
+  height: 24px !important;
+  flex-shrink: 0;
+  
+  ::ng-deep svg {
+    width: 24px !important;
+    height: 24px !important;
+    display: block;
+  }
+}
+

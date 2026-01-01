@@ -27,7 +27,7 @@ import {
 } from '@app/frontend-gui/src/lib/public_api';
 import {LoadingOverlayService} from '@app/services/loading-overlay.service';
 import {firstValueFrom, Observable, of, Subject} from 'rxjs';
-import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
+import {FormControl, UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {HalOptions, HalParam} from '@app/core';
 import {LoggerService} from '@app/services/logger.service';
 import {MatAccordion} from '@angular/material/expansion';
@@ -1085,9 +1085,71 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
+  /**
+   * Extracts the maxLength value from a form control's validator.
+   * 
+   * @param property - The form control property name
+   * @returns The maxLength value, or 4000 as default fallback
+   * @private
+   */
+  private getMaxLengthForProperty(property: string): number {
+    const control = this.treeNodeForm?.get(property);
+    if (!control) {
+      return 4000; // Default fallback
+    }
+    
+    // Extract from maxLength validator
+    const validator = control.validator;
+    if (validator) {
+      const errors = validator(new FormControl({ length: Infinity }));
+      if (errors?.['maxlength']) {
+        return errors['maxlength']['requiredLength'];
+      }
+    }
+    
+    // Fallback: check HTML attribute (for tree-nodes, we know name=80, description=250)
+    if (property === 'name') {
+      return 80;
+    } else if (property === 'description') {
+      return 250;
+    }
+    
+    return 4000; // Default fallback
+  }
+
+  /**
+   * Determines if a form field uses textarea or input by inspecting the DOM.
+   * This is a non-heuristic approach that checks the actual rendered element.
+   * 
+   * @param property - The form control property name
+   * @returns true if the field uses textarea, false if it uses input (or not found)
+   * @private
+   */
+  private getUseTextareaForProperty(property: string): boolean {
+    // Query the DOM to find the actual form field element
+    const formFieldElement = document.querySelector(
+      `[formControlName="${property}"]`
+    )?.closest('mat-form-field');
+    
+    if (!formFieldElement) {
+      return false; // Default to input if element not found
+    }
+    
+    // Check if the element inside mat-form-field is a textarea
+    const inputElement = formFieldElement.querySelector('textarea, input');
+    return inputElement?.tagName === 'TEXTAREA';
+  }
+
   async onTreeNodeNameTranslationButtonClicked() {
     let dialogResult = null;
-    dialogResult = await this.utils.openTranslationDialog(this.treeNodeForm.value.nameTranslations);
+    const maxLength = this.getMaxLengthForProperty('name');
+    const useTextarea = this.getUseTextareaForProperty('name');
+    dialogResult = await this.utils.openTranslationDialog(
+      this.treeNodeForm.value.nameTranslations,
+      undefined,
+      maxLength,
+      useTextarea
+    );
     if (dialogResult && dialogResult.event == "Accept") {
       this.treeNodeForm.patchValue({nameTranslationsModified: true});
     }
@@ -1095,7 +1157,14 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
 
   async onTreeNodeDescriptionTranslationButtonClicked() {
     let dialogResult = null;
-    dialogResult = await this.utils.openTranslationDialog(this.treeNodeForm.value.descriptionTranslations);
+    const maxLength = this.getMaxLengthForProperty('description');
+    const useTextarea = this.getUseTextareaForProperty('description');
+    dialogResult = await this.utils.openTranslationDialog(
+      this.treeNodeForm.value.descriptionTranslations,
+      undefined,
+      maxLength,
+      useTextarea
+    );
     if (dialogResult && dialogResult.event == "Accept") {
       this.treeNodeForm.patchValue({descriptionTranslationsModified: true});
     }

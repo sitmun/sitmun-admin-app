@@ -92,7 +92,7 @@
                             class="warning-icon"></mat-icon>
                         </mat-hint>
                         <mat-icon matSuffix class="iconTranslate" (click)="onTreeNodeNameTranslationButtonClicked()"
-                          svgIcon="ic_translate" matTooltip="{{ 'common.translate' | translate }}"></mat-icon>
+                          matTooltip="{{ 'common.translate' | translate }}">translate</mat-icon>
                         <mat-error *ngIf="treeNodeForm.get('name')?.hasError('required')">
                           {{ 'common.error.required' | translate }}
                         </mat-error>
@@ -118,8 +118,8 @@
                         <textarea matInput formControlName="description" rows="3" [maxlength]="250"></textarea>
                         <mat-hint align="end">{{ treeNodeForm.get('description') | characterCount }}</mat-hint>
                         <mat-icon matSuffix class="iconTranslate"
-                          (click)="onTreeNodeDescriptionTranslationButtonClicked()" svgIcon="ic_translate"
-                          matTooltip="{{ 'common.translate' | translate }}"></mat-icon>
+                          (click)="onTreeNodeDescriptionTranslationButtonClicked()"
+                          matTooltip="{{ 'common.translate' | translate }}">translate</mat-icon>
                       </mat-form-field>
                       <div class="metadata-fields"
                         *ngIf="effectiveNodeType === codeValues.treenodeFolderType.cartography">

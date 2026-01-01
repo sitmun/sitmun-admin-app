@@ -895,15 +895,31 @@ export class UtilsService {
   /**
    * Opens a dialog for editing translations.
    * @param translationsMap - Map of current translations.
+   * @param defaultLanguageValue - Optional: The current value in the default language (from form field).
+   *                               If not provided, will try to get from translationsMap for default language.
+   * @param maxLength - Maximum length for translation fields (default: 4000)
+   * @param useTextarea - Whether to use textarea (true) or input (false) (default: false)
    * @returns Promise that resolves with updated translations or null if cancelled.
    */
-  async openTranslationDialog(translationsMap: Map<string, Translation>) {
+  async openTranslationDialog(translationsMap: Map<string, Translation>, defaultLanguageValue?: string, maxLength?: number, useTextarea?: boolean) {
     const dialogRef = this.dialog.open(DialogTranslationComponent, {
       panelClass: 'translateDialogs',
     });
     dialogRef.componentInstance.translationsMap = translationsMap;
     dialogRef.componentInstance.languageByDefault = config.defaultLang;
     dialogRef.componentInstance.languagesAvailables = config.languagesToUse;
+    
+    // Get default language value from parameter or from translationsMap
+    let defaultValue = defaultLanguageValue;
+    if (!defaultValue && translationsMap.has(config.defaultLang)) {
+      const defaultTranslation = translationsMap.get(config.defaultLang);
+      defaultValue = defaultTranslation?.translation || '';
+    }
+    dialogRef.componentInstance.defaultLanguageValue = defaultValue || '';
+    
+    // Set maxLength and useTextarea (with defaults if not provided)
+    dialogRef.componentInstance.maxLength = maxLength ?? 4000;
+    dialogRef.componentInstance.useTextarea = useTextarea ?? false;
 
     return await firstValueFrom(dialogRef.afterClosed());
   }

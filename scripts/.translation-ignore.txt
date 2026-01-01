@@ -1,0 +1,25 @@
+# Translation keys to ignore when checking for unused keys
+# One key per line, supports wildcard patterns (e.g., error.*)
+
+# Legacy keys that are no longer used but kept for backwards compatibility
+# ALL
+# NO
+# YES
+# UNDEFINED
+
+# Query-related keys (may be used dynamically)
+# Cartography Query
+# SQL Query
+# Web API Query
+# Query parameter
+# Template parameter
+
+# Backend operation keys (may be used dynamically)
+# backend.operation.*
+# backend.error.*
+
+# Common action keys (may be used in templates)
+# actions
+# add
+# accept
+
