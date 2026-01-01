@@ -20,7 +20,7 @@ export class AppStateService {
   public state$ = this.stateSubject.asObservable();
 
   constructor(private loggerService: LoggerService) {
-    this.loggerService.info('App state service initialized');
+    this.loggerService.debug('App state service initialized');
   }
 
   /**

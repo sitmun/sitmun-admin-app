@@ -60,7 +60,7 @@ export class AppComponent implements OnInit, OnDestroy {
     if (!config.languagesToUse || config.languagesToUse.length === 0) {
       this.loggerService.warn('Languages not loaded - APP_INITIALIZER may have failed');
     } else {
-      this.loggerService.info(`App component initialized with ${config.languagesToUse.length} languages available`);
+      this.loggerService.debug(`App component initialized with ${config.languagesToUse.length} languages available`);
     }
 
     // Set language based on stored preference or browser language
@@ -92,7 +92,7 @@ export class AppComponent implements OnInit, OnDestroy {
     try {
       // Just accessing the service ensures it's initialized
       // The actual tracking will happen via LoggerService's lazy injection
-      this.loggerService.info('Error tracking initialized');
+      this.loggerService.debug('Error tracking initialized');
     } catch (error) {
       // Should not happen, but handle gracefully
       console.warn('Error tracking initialization warning:', error);

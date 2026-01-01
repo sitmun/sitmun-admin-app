@@ -26,13 +26,13 @@ export const PROD_FEATURE_FLAGS: Record<FeatureFlagKeys, FeatureFlagConfig> = {
   LAYERS_QUERYABLE_FEATURE: {
     key: FEATURE_FLAGS.LAYERS_QUERYABLE_FEATURE,
     enabled: false,
-    description: 'Enable queryable feature functionality for layers',
+    description: 'featureFlags.layersQueryableFeature.description',
     category: 'Layers'
   },
   LAYERS_SOURCE_FEATURE: {
     key: FEATURE_FLAGS.LAYERS_SOURCE_FEATURE,
     enabled: false,
-    description: 'Enable source feature functionality for layers',
+    description: 'featureFlags.layersSourceFeature.description',
     category: 'Layers'
   }
 };
@@ -45,14 +45,14 @@ export const DEV_FEATURE_FLAGS: Record<FeatureFlagKeys, FeatureFlagConfig> = {
     key: FEATURE_FLAGS.LAYERS_QUERYABLE_FEATURE,
     enabled: true,
     experimental: true,
-    description: 'Enable queryable feature functionality for layers',
+    description: 'featureFlags.layersQueryableFeature.description',
     category: 'Layers'
   },
   LAYERS_SOURCE_FEATURE: {
     key: FEATURE_FLAGS.LAYERS_SOURCE_FEATURE,
     enabled: true,
     experimental: true,
-    description: 'Enable source feature functionality for layers',
+    description: 'featureFlags.layersSourceFeature.description',
     category: 'Layers'
   }
 }; 

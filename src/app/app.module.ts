@@ -193,7 +193,7 @@ export function initializeConfiguration(
         }
       }
 
-      loggerService.info(`Configuration initialized: ${configParams.length} parameters loaded`);
+      loggerService.debug(`Configuration initialized: ${configParams.length} parameters loaded`);
       messagesInterceptorState.enable();
     } catch (error) {
       // Create a proper error object for initialization errors

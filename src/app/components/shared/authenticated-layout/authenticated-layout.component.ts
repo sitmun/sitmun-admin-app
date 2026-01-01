@@ -1,4 +1,5 @@
 import {Component, OnInit} from '@angular/core';
+import {LoggerService} from '@app/services/logger.service';
 
 @Component({
   selector: 'app-authenticated-layout',
@@ -14,8 +15,10 @@ import {Component, OnInit} from '@angular/core';
 export class AuthenticatedLayoutComponent implements OnInit {
   isOpen = false;
 
+  constructor(private readonly loggerService: LoggerService) {}
+
   ngOnInit(): void {
-    console.log('[AuthenticatedLayoutComponent] Initialized');
+    this.loggerService.debug('[AuthenticatedLayoutComponent] Initialized');
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

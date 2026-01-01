@@ -1,4 +1,4 @@
-import {Component, Injectable, Injector} from '@angular/core';
+import {Component, Injectable, Injector, NgZone} from '@angular/core';
 import {TranslateService} from '@ngx-translate/core';
 import {Location} from '@angular/common';
 import {firstValueFrom, Subject} from 'rxjs';
@@ -49,12 +49,18 @@ export class UtilsService {
     private readonly http: HttpClient,
     private readonly location: Location,
     private readonly injector: Injector,
-    private loggerService: LoggerService
+    private loggerService: LoggerService,
+    private ngZone: NgZone
   ) {
     // Lazy load services to break circular dependency
-    setTimeout(() => {
-      this.translationService = this.injector.get(TranslationService);
-      this.codeListService = this.injector.get(CodeListService);
+    // Use requestAnimationFrame to avoid setTimeout violations
+    this.ngZone.runOutsideAngular(() => {
+      requestAnimationFrame(() => {
+        this.ngZone.run(() => {
+          this.translationService = this.injector.get(TranslationService);
+          this.codeListService = this.injector.get(CodeListService);
+        });
+      });
     });
   }
 

@@ -2,6 +2,7 @@ import {ModuleWithProviders, NgModule, Optional, SkipSelf} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import {RouterModule} from '@angular/router';
+import {MatIconModule} from '@angular/material/icon';
 import {ConfigModule} from './config/config.module';
 import {FeatureFlagDirective} from './features/feature-flag.directive';
 import {FeatureFlagPipe} from './features/feature-flag.pipe';
@@ -36,6 +37,7 @@ import {ConfigurationService} from './config/configuration.service';
     CommonModule,
     HttpClientModule,
     RouterModule,
+    MatIconModule,
     ConfigModule.forRoot()
   ],
   declarations: [

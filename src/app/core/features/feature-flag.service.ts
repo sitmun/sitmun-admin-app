@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '@environments/environment';
+import { BehaviorSubject, Observable } from 'rxjs';
 import {
   DEV_FEATURE_FLAGS,
   FEATURE_FLAGS,
@@ -19,10 +20,70 @@ import {
   providedIn: 'root'
 })
 export class FeatureFlagService {
+  private static readonly STORAGE_KEY = 'sitmun_feature_flags';
   private featureFlags: Record<FeatureFlagKeys, FeatureFlagConfig>;
+  private featureFlagsSubject: BehaviorSubject<Record<FeatureFlagKeys, FeatureFlagConfig>>;
+
+  /**
+   * Observable for feature flag changes
+   */
+  get featureFlags$(): Observable<Record<FeatureFlagKeys, FeatureFlagConfig>> {
+    return this.featureFlagsSubject.asObservable();
+  }
 
   constructor() {
-    this.featureFlags = environment.production ? PROD_FEATURE_FLAGS : DEV_FEATURE_FLAGS;
+    if (environment.production) {
+      this.featureFlags = PROD_FEATURE_FLAGS;
+    } else {
+      // Load persisted flags or use defaults
+      this.featureFlags = this.loadPersistedFlags();
+    }
+    this.featureFlagsSubject = new BehaviorSubject(this.featureFlags);
+  }
+
+  /**
+   * Load persisted feature flags from localStorage
+   */
+  private loadPersistedFlags(): Record<FeatureFlagKeys, FeatureFlagConfig> {
+    try {
+      const stored = localStorage.getItem(FeatureFlagService.STORAGE_KEY);
+      if (stored !== null) {
+        const parsedFlags = JSON.parse(stored);
+        // Validate and merge with defaults
+        const mergedFlags = { ...DEV_FEATURE_FLAGS };
+        Object.keys(DEV_FEATURE_FLAGS).forEach((key) => {
+          const flagKey = key as FeatureFlagKeys;
+          if (parsedFlags[flagKey] && typeof parsedFlags[flagKey].enabled === 'boolean') {
+            mergedFlags[flagKey] = {
+              ...DEV_FEATURE_FLAGS[flagKey],
+              enabled: parsedFlags[flagKey].enabled
+            };
+          }
+        });
+        return mergedFlags;
+      }
+    } catch (e) {
+      // localStorage not available or error reading - use defaults
+    }
+    // Fall back to development defaults
+    return { ...DEV_FEATURE_FLAGS };
+  }
+
+  /**
+   * Persist feature flags to localStorage
+   */
+  private persistFlags(): void {
+    try {
+      // Only persist enabled state for each flag
+      const flagsToStore: Record<string, { enabled: boolean }> = {};
+      Object.keys(this.featureFlags).forEach((key) => {
+        const flagKey = key as FeatureFlagKeys;
+        flagsToStore[flagKey] = { enabled: this.featureFlags[flagKey].enabled };
+      });
+      localStorage.setItem(FeatureFlagService.STORAGE_KEY, JSON.stringify(flagsToStore));
+    } catch (e) {
+      // localStorage not available or error writing - ignore silently
+    }
   }
 
   /**
@@ -61,6 +122,61 @@ export class FeatureFlagService {
   }
 
   /**
+   * Gets feature flags grouped by category
+   * @returns Map of category name to array of feature flag entries
+   */
+  getCategoriesMap(): Map<string, Array<{ key: FeatureFlagKeys; config: FeatureFlagConfig }>> {
+    const categoriesMap = new Map<string, Array<{ key: FeatureFlagKeys; config: FeatureFlagConfig }>>();
+    
+    Object.keys(this.featureFlags).forEach((key) => {
+      const flagKey = key as FeatureFlagKeys;
+      const config = this.featureFlags[flagKey];
+      const category = config.category;
+      
+      if (!categoriesMap.has(category)) {
+        categoriesMap.set(category, []);
+      }
+      
+      categoriesMap.get(category)!.push({ key: flagKey, config });
+    });
+    
+    // Sort flags within each category by key
+    categoriesMap.forEach((flags) => {
+      flags.sort((a, b) => a.config.key.localeCompare(b.config.key));
+    });
+    
+    return categoriesMap;
+  }
+
+  /**
+   * Gets list of category names
+   * @returns Array of category names, sorted alphabetically
+   */
+  getCategories(): string[] {
+    const categories = new Set<string>();
+    Object.values(this.featureFlags).forEach((config) => {
+      categories.add(config.category);
+    });
+    return Array.from(categories).sort();
+  }
+
+  /**
+   * Gets feature flags for a specific category
+   * @param category - The category name
+   * @returns Array of feature flag entries for the category
+   */
+  getFeaturesByCategory(category: string): Array<{ key: FeatureFlagKeys; config: FeatureFlagConfig }> {
+    const categoriesMap = this.getCategoriesMap();
+    const flags = categoriesMap.get(category) || [];
+    // Return a new array with fresh config references to ensure we always get the latest state
+    // This ensures Angular change detection picks up the changes
+    return flags.map(flag => ({
+      key: flag.key,
+      config: this.featureFlags[flag.key] // Get fresh reference from current state
+    }));
+  }
+
+  /**
    * Toggles a feature flag state (development mode only)
    * @param flag - The feature flag to toggle
    * @throws Error if called in production mode
@@ -79,6 +195,8 @@ export class FeatureFlagService {
           enabled: !config.enabled
         }
       };
+      this.persistFlags();
+      this.featureFlagsSubject.next(this.featureFlags);
     }
   }
 
@@ -90,6 +208,13 @@ export class FeatureFlagService {
     if (environment.production) {
       throw new Error('Feature flags cannot be reset in production mode');
     }
-    this.featureFlags = DEV_FEATURE_FLAGS;
+    this.featureFlags = { ...DEV_FEATURE_FLAGS };
+    // Clear persisted flags
+    try {
+      localStorage.removeItem(FeatureFlagService.STORAGE_KEY);
+    } catch (e) {
+      // localStorage not available - ignore silently
+    }
+    this.featureFlagsSubject.next(this.featureFlags);
   }
 }

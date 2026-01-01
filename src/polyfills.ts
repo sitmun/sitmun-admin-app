@@ -52,11 +52,44 @@
  *
  */
 
+// Import zone flags before zone.js to configure event handling
+import './zone-flags';
+
 /***************************************************************************************************
  * Zone JS is required by default for Angular itself.
  */
 import 'zone.js'; // Included with Angular CLI.
 
+// Patch addEventListener after zone.js loads to ensure wheel/mousewheel events are passive
+// This overrides zone.js's addEventListener wrapper to make these events passive by default
+(function() {
+  const passiveEvents = ['wheel', 'mousewheel'];
+  const originalAddEventListener = EventTarget.prototype.addEventListener;
+  
+  EventTarget.prototype.addEventListener = function(
+    type: string,
+    listener: EventListenerOrEventListenerObject | null,
+    options?: boolean | AddEventListenerOptions
+  ) {
+    // If it's a passive event and options isn't explicitly set to non-passive
+    if (passiveEvents.includes(type.toLowerCase())) {
+      if (typeof options === 'boolean') {
+        // Convert boolean to options object with passive: true
+        options = { capture: options, passive: true };
+      } else if (typeof options === 'object' && options !== null) {
+        // If passive is not explicitly set to false, make it passive
+        if (options.passive === undefined) {
+          options = { ...options, passive: true };
+        }
+      } else {
+        // No options provided, default to passive
+        options = { passive: true };
+      }
+    }
+    
+    return originalAddEventListener.call(this, type, listener, options);
+  };
+})();
 
 (window as any).process = {
     env: { DEBUG: undefined },

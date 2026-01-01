@@ -83,7 +83,9 @@
           </mat-form-field>
           <ng-container *featureFlag="'LAYERS_SOURCE_FEATURE'">
             <mat-form-field appearance="outline" class="quarter">
-              <mat-label>{{ 'entity.cartography.source' | translate | featureFlag:'LAYERS_SOURCE_FEATURE'}}</mat-label>
+              <mat-label>
+                <app-feature-flag [text]="'entity.cartography.source' | translate" [flag]="'LAYERS_SOURCE_FEATURE'"></app-feature-flag>
+              </mat-label>
               <input matInput type="text" formControlName="source">
             </mat-form-field>
           </ng-container>
@@ -100,7 +102,10 @@
       </mat-card>
     </mat-tab>
     <ng-container *featureFlag="'LAYERS_QUERYABLE_FEATURE'">
-      <mat-tab label="{{ 'entity.cartography.parameters.header' | translate | featureFlag:'LAYERS_QUERYABLE_FEATURE'}}">
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <app-feature-flag [text]="'entity.cartography.parameters.header' | translate" [flag]="'LAYERS_QUERYABLE_FEATURE'"></app-feature-flag>
+        </ng-template>
         <mat-card appearance="outlined">
           <mat-card-content>
             <app-data-grid [changeHeightButton]="true"

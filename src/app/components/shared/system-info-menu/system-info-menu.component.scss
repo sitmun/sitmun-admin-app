@@ -10,6 +10,8 @@
   .mat-mdc-menu-item {
     min-height: 48px; // Material Design standard menu item height
     padding: 0 16px;
+    display: flex;
+    align-items: center;
     
     mat-icon {
       margin-right: 16px;
@@ -45,8 +47,47 @@
   font-size: 20px;
 }
 
+.check-icon-left {
+  margin-right: 16px;
+  margin-left: 0;
+  color: $primary-color;
+  width: 24px;
+  height: 24px;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.invisible {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.submenu-icon {
+  margin-left: auto !important;
+  margin-right: -8px !important;
+  opacity: 0.5;
+  order: 2; // Ensure icon appears after text
+}
+
 .user-info-item {
   opacity: 0.87; // Material Design disabled text opacity
   cursor: default;
+}
+
+// Feature flags menu styling
+::ng-deep .feature-flags-menu {
+  .feature-flag-item {
+    .feature-flag-content {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      margin-right: 8px;
+      
+      .feature-flag-name {
+        font-weight: 500;
+        font-size: 14px;
+      }
+    }
+  }
 }
 

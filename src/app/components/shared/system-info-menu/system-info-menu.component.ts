@@ -1,15 +1,20 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { VERSION } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatMenu } from '@angular/material/menu';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
 import { LoginService } from '@app/core/auth/login.service';
 import { Principal } from '@app/core/auth/principal.service';
+import { AuthService } from '@app/core/auth/auth.service';
 import { LoggerService } from '@app/services/logger.service';
 import { LogLevel } from '@app/services/log-level.enum';
 import { ErrorTrackingService } from '@app/services/error-tracking.service';
 import { SidebarManagerService } from '@app/services/sidebar-manager.service';
 import { AboutDialogComponent, AboutDialogData } from '@app/components/shared/about-dialog/about-dialog.component';
+import { FeatureFlagService } from '@app/core/features/feature-flag.service';
+import { FeatureFlagKeys, FeatureFlagConfig } from '@app/core/features/feature-flag.config';
 import { User } from '@app/domain';
 import { environment } from '@environments/environment';
 import { Subscription } from 'rxjs';
@@ -26,42 +31,60 @@ export class SystemInfoMenuComponent implements OnInit, OnDestroy {
   angularVersion = VERSION.full;
   
   unreviewedErrorCount = 0;
+  currentCategory: string = '';
   
   private authSubscription?: Subscription;
   private errorsSubscription?: Subscription;
   private logLevelSubscription?: Subscription;
+  private featureFlagsSubscription?: Subscription;
 
   constructor(
     private principal: Principal,
     private loginService: LoginService,
+    private authService: AuthService,
     private router: Router,
     private loggerService: LoggerService,
     private errorTrackingService: ErrorTrackingService,
     private sidebarManager: SidebarManagerService,
     private dialog: MatDialog,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private cdr: ChangeDetectorRef,
+    private featureFlagService: FeatureFlagService,
+    private snackBar: MatSnackBar
   ) {
     this.currentLogLevel = this.loggerService.getLogLevel();
+    // Initialize current category with first available category
+    if (!this.environment.production) {
+      const categories = this.featureFlagService.getCategories();
+      if (categories.length > 0) {
+        this.currentCategory = categories[0];
+      }
+      // Subscribe to feature flag changes for auto-update
+      this.featureFlagsSubscription = this.featureFlagService.featureFlags$.subscribe(() => {
+        this.cdr.markForCheck();
+      });
+    }
   }
 
   ngOnInit(): void {
-    // Do nothing in ngOnInit to avoid blocking
-    // All initialization happens lazily when the menu is opened
+    // Load user if already authenticated (don't wait for menu to open)
+    if (this.authService.getToken()) {
+      this.loadCurrentUser();
+      // Set up subscription to authentication state changes
+      this.authSubscription = this.principal.getAuthenticationState().subscribe(() => {
+        this.loadCurrentUser();
+      });
+    }
   }
+
 
   /**
    * Called when the menu is opened to load data
    */
   onMenuOpened(): void {
     // Only set up subscriptions on first open
-    if (!this.authSubscription) {
-      this.loadCurrentUser();
+    if (!this.errorsSubscription) {
       this.updateErrorCount();
-
-      // Subscribe to authentication state changes
-      this.authSubscription = this.principal.getAuthenticationState().subscribe(() => {
-        this.loadCurrentUser();
-      });
 
       // Subscribe to error changes
       this.errorsSubscription = this.errorTrackingService.errors$.subscribe(() => {
@@ -73,8 +96,21 @@ export class SystemInfoMenuComponent implements OnInit, OnDestroy {
         this.currentLogLevel = level;
       });
     } else {
-      // On subsequent opens, just refresh the data
+      // On subsequent opens, just update error count
       this.updateErrorCount();
+    }
+    
+    // Ensure user is loaded if authenticated (in case it wasn't loaded in ngOnInit)
+    if (this.authService.getToken() && !this.currentUser) {
+      this.loadCurrentUser();
+    }
+    
+    // Ensure current category is set when menu opens
+    if (!this.environment.production && !this.currentCategory) {
+      const categories = this.featureFlagService.getCategories();
+      if (categories.length > 0) {
+        this.currentCategory = categories[0];
+      }
     }
   }
 
@@ -82,12 +118,33 @@ export class SystemInfoMenuComponent implements OnInit, OnDestroy {
     this.authSubscription?.unsubscribe();
     this.errorsSubscription?.unsubscribe();
     this.logLevelSubscription?.unsubscribe();
+    this.featureFlagsSubscription?.unsubscribe();
   }
 
   loadCurrentUser(): void {
-    this.principal.identity().then((user) => {
-      this.currentUser = user;
-    });
+    // Only load if we have a token (user is authenticated)
+    if (this.authService.getToken()) {
+      this.principal.identity().then((user) => {
+        // Set user if it exists (getUserFullName will handle empty properties)
+        if (user) {
+          this.currentUser = user;
+        } else {
+          this.currentUser = null;
+          this.loggerService.warn('User identity returned null');
+        }
+        // Mark for check to update the view
+        this.cdr.markForCheck();
+      }).catch((error) => {
+        // If identity fails, set to null
+        this.currentUser = null;
+        this.loggerService.error('Failed to load user identity:', error);
+        this.cdr.markForCheck();
+      });
+    } else {
+      // No token, user is not authenticated
+      this.currentUser = null;
+      this.cdr.markForCheck();
+    }
   }
 
   updateErrorCount(): void {
@@ -186,14 +243,18 @@ export class SystemInfoMenuComponent implements OnInit, OnDestroy {
 
   getUserFullName(): string {
     if (this.currentUser) {
-      if (this.currentUser.firstName && this.currentUser.lastName) {
-        return `${this.currentUser.firstName} ${this.currentUser.lastName}`;
-      } else if (this.currentUser.firstName) {
-        return this.currentUser.firstName;
-      } else if (this.currentUser.lastName) {
-        return this.currentUser.lastName;
-      } else {
-        return this.currentUser.username;
+      const firstName = this.currentUser.firstName?.trim() || '';
+      const lastName = this.currentUser.lastName?.trim() || '';
+      const username = this.currentUser.username?.trim() || '';
+      
+      if (firstName && lastName) {
+        return `${firstName} ${lastName}`;
+      } else if (firstName) {
+        return firstName;
+      } else if (lastName) {
+        return lastName;
+      } else if (username) {
+        return username;
       }
     }
     return '';
@@ -207,5 +268,101 @@ export class SystemInfoMenuComponent implements OnInit, OnDestroy {
     { name: 'Debug', value: LogLevel.Debug },
     { name: 'Trace', value: LogLevel.Trace }
   ];
+
+  /**
+   * Get categories from service
+   */
+  getCategories(): string[] {
+    return this.featureFlagService.getCategories();
+  }
+
+  /**
+   * Get features for a category from service
+   */
+  getFeaturesByCategory(category: string): Array<{ key: FeatureFlagKeys; config: FeatureFlagConfig }> {
+    return this.featureFlagService.getFeaturesByCategory(category);
+  }
+
+  /**
+   * Track by function for feature flags
+   */
+  trackByFeatureKey(index: number, flag: { key: FeatureFlagKeys; config: FeatureFlagConfig }): FeatureFlagKeys {
+    return flag.key;
+  }
+
+  /**
+   * Get translated category name
+   */
+  getCategoryName(category: string): string {
+    const categoryKey = `featureFlags.category.${category.toLowerCase()}`;
+    const translated = this.translateService.instant(categoryKey);
+    // If translation doesn't exist, return the original category name
+    return translated !== categoryKey ? translated : category;
+  }
+
+  /**
+   * Set current category for submenu
+   */
+  setCurrentCategory(category: string): void {
+    this.currentCategory = category;
+    this.cdr.markForCheck();
+  }
+
+
+  /**
+   * Toggle a feature flag
+   */
+  toggleFeatureFlag(flag: FeatureFlagKeys, event: Event): void {
+    // Stop propagation to prevent menu from closing immediately
+    // This allows the user to see the state change
+    if (event) {
+      event.stopPropagation();
+    }
+    
+    if (!this.environment.production) {
+      try {
+        // Call the service's toggleFeature method
+        this.featureFlagService.toggleFeature(flag);
+        
+        // Get updated config to show current state
+        const config = this.featureFlagService.getFeatureConfig(flag);
+        const state = config?.enabled ? 'enabled' : 'disabled';
+        const message = this.translateService.instant(
+          'systemInfo.featureFlags.toggled',
+          { state }
+        );
+        this.snackBar.open(message, '', { duration: 2000 });
+        
+        // Force change detection to update the UI immediately
+        // The observable subscription will also trigger, but this ensures immediate update
+        this.cdr.detectChanges();
+      } catch (error) {
+        this.loggerService.error('Failed to toggle feature flag:', error);
+      }
+    }
+  }
+
+  /**
+   * Reset all feature flags to defaults
+   */
+  resetFeatureFlags(): void {
+    if (!this.environment.production) {
+      this.featureFlagService.resetFeatures();
+      // Reset to first category
+      const categories = this.featureFlagService.getCategories();
+      if (categories.length > 0) {
+        this.currentCategory = categories[0];
+      }
+      const message = this.translateService.instant('systemInfo.featureFlags.resetSuccess');
+      this.snackBar.open(message, '', { duration: 2000 });
+    }
+  }
+
+  /**
+   * Check if a feature flag is enabled
+   */
+  isFeatureEnabled(flag: FeatureFlagKeys): boolean {
+    return this.featureFlagService.isFeatureEnabled(flag);
+  }
 }
 

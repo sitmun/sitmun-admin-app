@@ -12,8 +12,10 @@ import {ErrorTrackingService} from './error-tracking.service';
   providedIn: 'root'
 })
 export class LoggerService {
-  // Current log level - set from environment by default
-  private level: LogLevel = environment.logLevel || LogLevel.Error;
+  private static readonly STORAGE_KEY = 'sitmun_log_level';
+
+  // Current log level - load from localStorage or use environment default
+  private level: LogLevel = this.loadPersistedLogLevel();
 
   // Subject to track log level changes
   private logLevelSubject = new BehaviorSubject<LogLevel>(this.level);
@@ -30,6 +32,37 @@ export class LoggerService {
   }
 
   /**
+   * Load persisted log level from localStorage
+   */
+  private loadPersistedLogLevel(): LogLevel {
+    try {
+      const stored = localStorage.getItem(LoggerService.STORAGE_KEY);
+      if (stored !== null) {
+        const parsedLevel = parseInt(stored, 10);
+        // Validate that it's a valid LogLevel enum value
+        if (!isNaN(parsedLevel) && parsedLevel >= LogLevel.Off && parsedLevel <= LogLevel.Trace) {
+          return parsedLevel as LogLevel;
+        }
+      }
+    } catch (e) {
+      // localStorage not available or error reading - use default
+    }
+    // Fall back to environment default
+    return environment.logLevel || LogLevel.Error;
+  }
+
+  /**
+   * Persist log level to localStorage
+   */
+  private persistLogLevel(level: LogLevel): void {
+    try {
+      localStorage.setItem(LoggerService.STORAGE_KEY, level.toString());
+    } catch (e) {
+      // localStorage not available or error writing - ignore silently
+    }
+  }
+
+  /**
    * Observable for log level changes
    */
   get logLevel$(): Observable<LogLevel> {
@@ -41,6 +74,7 @@ export class LoggerService {
    */
   setLogLevel(level: LogLevel) {
     this.level = level;
+    this.persistLogLevel(level);
     this.logLevelSubject.next(level);
   }
 

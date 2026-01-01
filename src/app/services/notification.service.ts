@@ -5,7 +5,7 @@ import {
   MatSnackBarVerticalPosition
 } from '@angular/material/snack-bar';
 import {NotificationComponent, NotificationData} from '@app/components/shared/notification/notification.component';
-import {Injectable} from '@angular/core';
+import {Injectable, NgZone} from '@angular/core';
 import {TranslateService} from '@ngx-translate/core';
 
 interface QueuedError {
@@ -47,7 +47,8 @@ export class NotificationService {
 
   constructor(
     private snackBar: MatSnackBar,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private ngZone: NgZone
   ) {
   }
 
@@ -73,8 +74,15 @@ export class NotificationService {
     }
 
     // Set new timer to process queue after debounce period
+    // Use requestAnimationFrame to avoid setTimeout violations
     this.successQueueTimer = setTimeout(() => {
-      this.processSuccessQueue();
+      this.ngZone.runOutsideAngular(() => {
+        requestAnimationFrame(() => {
+          this.ngZone.run(() => {
+            this.processSuccessQueue();
+          });
+        });
+      });
     }, this.SUCCESS_DEBOUNCE_TIME);
   }
 
@@ -101,8 +109,15 @@ export class NotificationService {
     }
 
     // Set new timer to process queue after debounce period
+    // Use requestAnimationFrame to avoid setTimeout violations
     this.errorQueueTimer = setTimeout(() => {
-      this.processErrorQueue();
+      this.ngZone.runOutsideAngular(() => {
+        requestAnimationFrame(() => {
+          this.ngZone.run(() => {
+            this.processErrorQueue();
+          });
+        });
+      });
     }, this.ERROR_DEBOUNCE_TIME);
   }
 

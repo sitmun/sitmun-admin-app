@@ -11,7 +11,7 @@ export class FeatureFlagPipe implements PipeTransform {
 
   transform(text: string, featureKey: FeatureFlagKeys): string {
     if (!text) return '';
-    const config = this.featureFlagService.getFeatureConfig(featureKey);
-    return config?.experimental ? `${text} 🚧` : text;
+    // Just return the text - icon is handled by FeatureFlagComponent
+    return text;
   }
 } 

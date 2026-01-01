@@ -1,6 +1,6 @@
 import {EMPTY, Observable, throwError} from 'rxjs';
 import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse} from '@angular/common/http';
-import {Injectable, Injector} from '@angular/core';
+import {Injectable, Injector, NgZone} from '@angular/core';
 import {catchError, finalize, map} from 'rxjs/operators';
 import {TranslateService} from '@ngx-translate/core';
 import {NotificationService} from '@app/services/notification.service';
@@ -17,12 +17,10 @@ export class MessagesInterceptorStateService {
 
   enable() {
     this.enabled = true;
-    console.log("MessagesInterceptor enabled");
   }
 
   disable() {
     this.enabled = false;
-    console.log("MessagesInterceptor disabled");
   }
 
   isEnabled(): boolean {
@@ -39,15 +37,21 @@ export class MessagesInterceptor implements HttpInterceptor {
 
     constructor(
         private injector: Injector,
-        private stateService: MessagesInterceptorStateService
+        private stateService: MessagesInterceptorStateService,
+        private ngZone: NgZone
     ) {
       // Lazy load services to break circular dependency
-        setTimeout(() => {
+      // Use requestAnimationFrame to avoid setTimeout violations
+      this.ngZone.runOutsideAngular(() => {
+        requestAnimationFrame(() => {
+          this.ngZone.run(() => {
             this.utilsService = this.injector.get(UtilsService);
-          this.notificationService = this.injector.get(NotificationService);
-          this.translateService = this.injector.get(TranslateService);
-          this.errorTrackingService = this.injector.get(ErrorTrackingService);
+            this.notificationService = this.injector.get(NotificationService);
+            this.translateService = this.injector.get(TranslateService);
+            this.errorTrackingService = this.injector.get(ErrorTrackingService);
+          });
         });
+      });
     }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any> | never> {
