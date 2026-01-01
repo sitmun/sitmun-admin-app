@@ -44,6 +44,7 @@ import {LoggerService} from "@app/services/logger.service";
 import {MatDialog} from '@angular/material/dialog';
 import {TranslateService} from "@ngx-translate/core";
 import {UtilsService} from '@app/services/utils.service';
+import {MessagesInterceptorStateService} from '@app/core/interceptors/messages.interceptor';
 
 import {constants} from '@environments/constants';
 import {map} from 'rxjs/operators';
@@ -196,6 +197,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     activatedRoute: ActivatedRoute,
     router: Router,
     loadingService: LoadingOverlayService,
+    messagesInterceptorState: MessagesInterceptorStateService,
     protected applicationService: ApplicationService,
     protected applicationParameterService: ApplicationParameterService,
     protected applicationBackgroundService: ApplicationBackgroundService,
@@ -206,7 +208,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     protected userService: UserService,
     protected utils: UtilsService,
   ) {
-    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService);
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService, messagesInterceptorState);
     this.parametersTable = this.defineParametersTable();
     this.treesTable = this.defineTreesTable();
     this.rolesTable = this.defineRolesTable();

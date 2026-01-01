@@ -27,6 +27,7 @@ import {Status, onCreate, onDelete, onUpdate, onUpdatedRelation} from '@app/fron
 import {MatDialog} from '@angular/material/dialog';
 import {LoggerService} from '@app/services/logger.service';
 import {BaseFormComponent} from '@app/components/base-form.component';
+import {MessagesInterceptorStateService} from '@app/core/interceptors/messages.interceptor';
 import {TranslateService} from '@ngx-translate/core';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
@@ -62,6 +63,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
     activatedRoute: ActivatedRoute,
     router: Router,
     loadingService: LoadingOverlayService,
+    messagesInterceptorState: MessagesInterceptorStateService,
     private readonly roleService: RoleService,
     public cartographyGroupService: CartographyGroupService,
     public tasksService: TaskService,
@@ -71,7 +73,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
     public territoryService: TerritoryService,
     public utils: UtilsService,
   ) {
-    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService);
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService, messagesInterceptorState);
     this.applicationsTable = this.defineApplicationsTable();
     this.tasksTable = this.defineTasksTable();
     this.userConfigurationsTable = this.defineUserConfigurationsTable();

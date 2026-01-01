@@ -5,6 +5,7 @@
   [itemName]="entityForm?.get('name')?.value"
   [isNew]="isNew()"
   [additionalText]="taskTypeNameTranslated"
+  [canSave]="canSaveEntity"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>

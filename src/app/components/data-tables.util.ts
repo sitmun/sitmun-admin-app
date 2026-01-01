@@ -11,7 +11,7 @@ import {
   openDialogGridWithPreload
 } from "@app/frontend-gui/src/lib/dialog-grid/dialog-grid.component";
 import {EMPTY, firstValueFrom, map, Observable, race, ReplaySubject, Subject, timer} from "rxjs";
-import {GridEvent, GridEventType, isSave, Status} from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
+import {DataGridComponent, GridEvent, GridEventType, isSave, Status} from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {FormGroup} from "@angular/forms";
 import {LoggerService} from "@app/services/logger.service";
@@ -172,6 +172,7 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
   /**
    * Handles save events from the data grid.
    * Updates relations and refreshes the grid after a successful save.
+   * On error, refreshes to revert any failed changes (backend state is source of truth).
    * Implements a delay to prevent stale data when backend processing is delayed.
    *
    * @param event - Grid event containing data to save
@@ -189,6 +190,10 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
         this.refreshCommandEvent$.next(true);
       } catch (error) {
         this.errorHandler.handleError(error, 'common.error.saveFailed');
+        // Refresh grid to revert failed changes (e.g., pendingDelete -> statusOK)
+        // Backend state is the source of truth
+        await new Promise(resolve => setTimeout(resolve, this.DELAY));
+        this.refreshCommandEvent$.next(true);
       }
     }
   }
@@ -463,6 +468,7 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
   /**
    * Handles save events from the data grid.
    * Updates relations and refreshes the grid after a successful save.
+   * On error, refreshes to revert any failed changes (backend state is source of truth).
    * Implements a delay to prevent stale data when backend processing is delayed.
    *
    * @param event - Grid event containing data to save
@@ -475,6 +481,11 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
       } catch (error) {
         console.error('Error saving relations:', error);
         this.errorHandler.handleError(error, 'common.error.saveFailed');
+        // Refresh grid to revert failed changes (e.g., pendingDelete -> statusOK)
+        // Backend state is the source of truth
+        await new Promise(resolve => setTimeout(resolve, this.DELAY));
+        this.refreshCommandEvent$.next(true);
+        return; // Exit early, don't do the normal refresh
       }
       await new Promise(resolve => setTimeout(resolve, this.DELAY));
       this.refreshCommandEvent$.next(true);
@@ -567,6 +578,11 @@ export class DataTablesRegistry {
   private readonly registry: DataTableSpec[] = [];
 
   /**
+   * Array of data grid component references for change tracking.
+   */
+  private readonly dataGrids: DataGridComponent[] = [];
+
+  /**
    * Timeout in milliseconds for save operations.
    * If a save operation takes longer than this, it will be considered complete anyway.
    */
@@ -596,6 +612,39 @@ export class DataTablesRegistry {
   register(spec: DataTableSpec) {
     this.registry.push(spec);
     return this
+  }
+
+  /**
+   * Registers a data grid component for change tracking.
+   * This allows the registry to check if any grids have unsaved changes.
+   *
+   * @param dataGrid - The DataGridComponent instance to register
+   * @returns This registry instance for method chaining
+   */
+  registerDataGrid(dataGrid: DataGridComponent) {
+    if (dataGrid && !this.dataGrids.includes(dataGrid)) {
+      this.dataGrids.push(dataGrid);
+    }
+    return this;
+  }
+
+  /**
+   * Checks if any registered data grids have unsaved changes.
+   * Detects changes from:
+   * - Cell edits (changeCounter > 0)
+   * - Status changes (someStatusHasChanged = true)
+   * - Deletion marks (someStatusHasChangedToDelete = true)
+   *
+   * @returns True if any data grid has unsaved changes, false otherwise
+   */
+  hasChanges(): boolean {
+    return this.dataGrids.some(grid => 
+      grid && (
+        grid.changeCounter > 0 || 
+        grid.someStatusHasChanged === true ||
+        grid.someStatusHasChangedToDelete === true
+      )
+    );
   }
 
   /**

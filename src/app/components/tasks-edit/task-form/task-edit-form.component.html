@@ -4,6 +4,7 @@
   [additionalText]="taskTypeNameTranslated"
   [isNew]="isNew()"
   [itemName]="entityForm?.get('name')?.value"
+  [canSave]="canSaveEntity"
   entityType="{{ config.labelSingular }}"
   font="{{ config.font }}"
   icon="{{ config.icon }}">

@@ -37,6 +37,7 @@ import {Configuration} from "@app/core/config/configuration";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from "@app/services/logger.service";
+import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
 import {MatDialog} from "@angular/material/dialog";
 import {TranslateService} from "@ngx-translate/core";
 import {UtilsService} from "@app/services/utils.service";
@@ -152,6 +153,7 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
     activatedRoute: ActivatedRoute,
     router: Router,
     loadingService: LoadingOverlayService,
+    messagesInterceptorState: MessagesInterceptorStateService,
     protected taskService: TaskService,
     protected taskUIService: TaskUIService,
     protected utils: UtilsService,
@@ -161,7 +163,7 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
     protected territoryService: TerritoryService,
     protected taskAvailabilityService: TaskAvailabilityService,
   ) {
-    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService);
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService, messagesInterceptorState);
     this.rolesTable = this.defineRolesTable();
     this.availabilitiesTable = this.defineAvailabilitiesTable();
     this.parametersTable = this.defineParametersTable();

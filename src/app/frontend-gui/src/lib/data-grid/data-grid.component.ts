@@ -39,6 +39,7 @@ import {RouterLinkRendererComponent} from '../router-link-renderer/router-link-r
 import {UtilsService} from '@app/services/utils.service';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from '@app/services/loading-overlay.service';
+import {constants} from '@environments/constants';
 
 // Removed jQuery dependency
 
@@ -65,15 +66,19 @@ export interface Status {
 }
 
 export function isActive(item: Status): boolean {
-  return item.status === 'statusOK' || item.status === 'pendingModify' || item.status === 'pendingCreation';
+  return item.status === constants.entityStatus.statusOK || 
+         item.status === constants.entityStatus.pendingModify || 
+         item.status === constants.entityStatus.pendingCreation;
 }
 
 export function isRegistered(item: Status): boolean {
-  return item.status === 'statusOK' || item.status === 'pendingModify' || item.status === 'pendingDelete';
+  return item.status === constants.entityStatus.statusOK || 
+         item.status === constants.entityStatus.pendingModify || 
+         item.status === constants.entityStatus.pendingDelete;
 }
 
 export function canDelete(status: Status): boolean {
-  return status.status === 'pendingDelete' && !status.newItem;
+  return status.status === constants.entityStatus.pendingDelete && !status.newItem;
 }
 
 export interface GridEvent<T> {
@@ -87,23 +92,23 @@ export function isSave<T>(event: GridEvent<T>): boolean {
 }
 
 export function canUpdate(status: Status): boolean {
-  return status.status === 'pendingModify'
+  return status.status === constants.entityStatus.pendingModify
 }
 
 export function canKeepOrUpdate(status: Status): boolean {
-  return status.status !== 'pendingDelete'
+  return status.status !== constants.entityStatus.pendingDelete
 }
 
 export function canCreate(status: Status): boolean {
-  return status.status === 'pendingCreation'
+  return status.status === constants.entityStatus.pendingCreation
 }
 
 export function canRegistry(status: Status): boolean {
-  return status.status === 'pendingRegistration'
+  return status.status === constants.entityStatus.pendingRegistration
 }
 
 export function notAvailable(status: Status): boolean {
-  return status.status === 'notAvailable'
+  return status.status === constants.entityStatus.notAvailable
 }
 
 export function onNotAvailable<T>(data: (T & Status)[]): Executor<T> {
@@ -259,6 +264,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
   /** Flag indicating if any status has changed to delete */
   someStatusHasChangedToDelete = false;
+
+  /** Flag indicating if any status has been manually changed (e.g., pendingRegistration) */
+  someStatusHasChanged = false;
 
   /** Observable triggering grid refresh */
   @Input() eventRefreshSubscription: Observable<boolean>;
@@ -502,6 +510,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       this._eventRefreshSubscription = this.eventRefreshSubscription.subscribe(() => {
         this.changesMap.clear();
         this.someStatusHasChangedToDelete = false;
+        this.someStatusHasChanged = false;
         this.changeCounter = 0;
         this.previousChangeCounter = 0;
         this.redoCounter = 0;
@@ -872,14 +881,22 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
    * Modifies the status of selected cells
    * @param status - Optional status to set
    */
+  /**
+   * Modifies the status of selected rows
+   * @param status - Optional status to set, defaults to newStatusRegister
+   */
   modifyStatusSelected(status?: string): void {
     const newStatus = status ? status : this.newStatusRegister;
     const selectedNodes = this.gridApi.getSelectedNodes();
-    selectedNodes.map(node => {
-      node.data.status = newStatus;
-      node.selected = false;
-    });
-    this.gridApi.redrawRows();
+    if (selectedNodes.length > 0) {
+      selectedNodes.map(node => {
+        node.data.status = newStatus;
+        node.selected = false;
+      });
+      this.someStatusHasChanged = true;
+      this.gridModified.emit(true);
+      this.gridApi.redrawRows();
+    }
   }
 
   /**
@@ -987,6 +1004,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     this.previousChangeCounter = 0;
     this.redoCounter = 0;
     this.someStatusHasChangedToDelete = false;
+    this.someStatusHasChanged = false;
 
     // Get current data
     const currentData = this.getAllCurrentData();
@@ -1074,6 +1092,12 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     if (!this.gridApi?.isDestroyed()) {
       this.gridApi.applyTransaction({add: itemsToAdd});
     }
+    
+    // If items were added, mark grid as modified to enable save button
+    if (itemsToAdd.length > 0) {
+      this.someStatusHasChanged = true;
+      this.gridModified.emit(true);
+    }
   }
 
   /**
@@ -1128,6 +1152,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       const selectedRows = selectedNodes.map(node => node.id);
       if (selectedRows.length > 0) {
         this.someStatusHasChangedToDelete = true;
+        this.gridModified.emit(true);
       }
       for (const id of selectedRows) {
         this.gridApi.getRowNode(id).data.status = 'pendingDelete';

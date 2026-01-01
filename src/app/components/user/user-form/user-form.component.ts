@@ -27,6 +27,7 @@ import {Configuration} from "@app/core/config/configuration";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from '@app/services/logger.service';
+import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
 import {MatDialog} from '@angular/material/dialog';
 import {TranslateService} from "@ngx-translate/core";
 import {UtilsService} from '@app/services/utils.service';
@@ -72,6 +73,7 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
     activatedRoute: ActivatedRoute,
     router: Router,
     loadingService: LoadingOverlayService,
+    messagesInterceptorState: MessagesInterceptorStateService,
     private userService: UserService,
     public utils: UtilsService,
     private userConfigurationService: UserConfigurationService,
@@ -79,7 +81,7 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
     private userPositionService: UserPositionService,
     private territoryService: TerritoryService,
   ) {
-    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService);
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService, messagesInterceptorState);
     this.userConfigurationsTable = this.defineUserConfigurationsTable();
     this.userPositionsTable = this.defineUserPositionsTable();
   }

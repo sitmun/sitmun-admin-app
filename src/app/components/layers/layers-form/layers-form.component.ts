@@ -46,6 +46,7 @@ import {LoggerService} from '@app/services/logger.service';
 import {MatDialog} from '@angular/material/dialog';
 import {TranslateService} from '@ngx-translate/core';
 import {UtilsService} from '@app/services/utils.service';
+import {MessagesInterceptorStateService} from '@app/core/interceptors/messages.interceptor';
 import {constants} from '@environments/constants';
 import {map} from 'rxjs/operators';
 
@@ -91,6 +92,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     activatedRoute: ActivatedRoute,
     router: Router,
     loadingService: LoadingOverlayService,
+    messagesInterceptorState: MessagesInterceptorStateService,
     protected cartographyService: CartographyService,
     protected cartographyFilterService: CartographyFilterService,
     protected cartographyAvailabilityService: CartographyAvailabilityService,
@@ -103,7 +105,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     protected http: HttpClient,
     protected utils: UtilsService,
   ) {
-    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService);
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService, messagesInterceptorState);
     this.treesNodesTable = this.defineTreesNodesTable();
     this.cartographyPermissionsTable = this.defineCartographyPermissionsTable();
     this.territoryAvailabilitiesTable = this.defineTerritoryAvailabilitiesTable();

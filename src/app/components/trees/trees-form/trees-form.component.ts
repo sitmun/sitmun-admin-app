@@ -22,6 +22,7 @@ import {map, of} from 'rxjs';
 import {BaseFormComponent} from '@app/components/base-form.component';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
+import {MessagesInterceptorStateService} from '@app/core/interceptors/messages.interceptor';
 import {TranslateService} from '@ngx-translate/core';
 import {TreeNodesComponent} from './tree-nodes/tree-nodes.component';
 import {DataTableDefinition} from '@app/components/data-tables.util';
@@ -63,12 +64,13 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
     activatedRoute: ActivatedRoute,
     router: Router,
     loadingService: LoadingOverlayService,
+    messagesInterceptorState: MessagesInterceptorStateService,
     public utils: UtilsService,
     private treeService: TreeService,
     private applicationService: ApplicationService,
     private roleService: RoleService
   ) {
-    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService);
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService, messagesInterceptorState);
     this.applicationsTable = this.defineApplicationsTable();
     this.rolesTable = this.defineRolesTable();
     this.initializeTreesForm();
@@ -310,6 +312,26 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
    */
   override canSave(): boolean {
     return this.entityForm.valid && this.treeValidations();
+  }
+
+  /**
+   * Computed property that determines if the save button should be enabled.
+   * Extends base implementation to include tree node change detection.
+   * 
+   * @returns True if save button should be enabled, false otherwise
+   */
+  override get canSaveEntity(): boolean {
+    // Include base checks (form dirty, data tables, translations)
+    const baseCanSave = super.canSaveEntity;
+    
+    // Also check if tree nodes have unsaved changes
+    const hasTreeNodeChanges = this.treeNodesComponent?.hasUnsavedChanges() ?? false;
+    
+    // Enable save if form is valid and any changes exist
+    const isFormValid = this.entityForm?.valid ?? false;
+    const hasAnyChanges = baseCanSave || (isFormValid && hasTreeNodeChanges);
+    
+    return hasAnyChanges && this.treeValidations();
   }
 
   /**

@@ -1,6 +1,6 @@
 import {ActivatedRoute, Router} from "@angular/router";
 import {CodeList, CodeListService, Language, Translation, TranslationService} from "@app/domain";
-import {Component, OnDestroy, OnInit} from "@angular/core";
+import {AfterViewInit, Component, OnDestroy, OnInit, QueryList, ViewChildren} from "@angular/core";
 import {HalOptions, HalParam, Resource} from "@app/core";
 import {firstValueFrom, Observable} from "rxjs";
 import {map, tap} from "rxjs/operators";
@@ -15,6 +15,8 @@ import {UntypedFormGroup} from "@angular/forms";
 import {config} from "@config";
 import {constants} from "@environments/constants";
 import {explainFormValidity} from "@app/utils/form.utils";
+import {DataGridComponent} from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
+import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
 
 /**
  * Base class for SITMUN components that handle resource entities.
@@ -32,7 +34,13 @@ import {explainFormValidity} from "@app/utils/form.utils";
  * @template T Type of the resource entity being managed, must extend the Resource base class
  */
 @Component({ template: '' })
-export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy {
+export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewInit, OnDestroy {
+
+  /**
+   * Query list of all data-grid components in the template.
+   * Automatically populated by Angular after view initialization.
+   */
+  @ViewChildren(DataGridComponent) dataGrids!: QueryList<DataGridComponent>;
 
   /**
    * Tracks the ID of the entity currently being edited.
@@ -59,6 +67,12 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
    * Handles registration, saving, and cleanup of all data tables.
    */
   dataTables: DataTablesRegistry = new DataTablesRegistry()
+
+  /**
+   * Flag to track if any data table has unsaved changes.
+   * Updated by subscriptions to data grid modification events.
+   */
+  private dataTablesHaveChanges = false;
 
   /**
    * Configuration object for AG Grid theme styling.
@@ -120,6 +134,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
     protected loadingService: LoadingOverlayService,
+    protected messagesInterceptorState: MessagesInterceptorStateService,
   ) {
   }
 
@@ -205,11 +220,32 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
   }
 
   /**
+   * Angular lifecycle hook called after view and child views are initialized.
+   * Automatically registers all data-grid components for change tracking.
+   */
+  ngAfterViewInit(): void {
+    if (this.dataGrids) {
+      this.dataGrids.forEach(grid => this.registerDataGrid(grid));
+      
+      // Re-register if grids are added dynamically
+      this.dataGrids.changes.subscribe(() => {
+        this.dataGrids.forEach(grid => this.registerDataGrid(grid));
+      });
+    }
+  }
+
+  /**
    * Lifecycle hook called after the entity is successfully saved.
-   * Resets the form to a clean state with the current values.
+   * Resets the form to a clean state with the current values and clears change tracking.
    */
   afterSave() {
     this.resetToFormModifiedState(this.entityForm);
+    // Mark form as pristine to disable save button until new changes are made
+    if (this.entityForm) {
+      this.entityForm.markAsPristine();
+    }
+    // Reset data table changes flag
+    this.dataTablesHaveChanges = false;
   }
 
   /**
@@ -376,6 +412,71 @@ export class BaseFormComponent<T extends Resource> implements OnInit, OnDestroy 
    */
   canSave(): boolean {
     return this.entityForm?.valid ?? false;
+  }
+
+  /**
+   * Computed property that determines if the save button should be enabled.
+   * Returns true when the form is valid AND there are unsaved changes.
+   * 
+   * Checks for changes in:
+   * - Form fields (dirty state)
+   * - Data tables (via dataTablesHaveChanges flag)
+   * - Translations (modified flags)
+   *
+   * Child classes can override to add custom logic (e.g., TreesFormComponent for tree nodes).
+   *
+   * @returns {boolean} true if save button should be enabled, false otherwise
+   */
+  get canSaveEntity(): boolean {
+    const isFormValid = this.entityForm?.valid ?? false;
+    const hasFormChanges = this.entityForm?.dirty ?? false;
+    const hasTranslationChanges = this.hasTranslationChanges();
+
+    return isFormValid && (hasFormChanges || this.dataTablesHaveChanges || hasTranslationChanges);
+  }
+
+  /**
+   * Checks if any translations have been modified.
+   *
+   * @returns {boolean} true if any property has modified translations, false otherwise
+   * @private
+   */
+  private hasTranslationChanges(): boolean {
+    return Array.from(this.propertyTranslations.values()).some(pt => pt.modified);
+  }
+
+  /**
+   * Registers a data-grid component with change tracking.
+   * Subscribes to the grid's modification events to enable/disable the save button.
+   * 
+   * @param {DataGridComponent} grid - The data grid component to register
+   * @private
+   */
+  private registerDataGrid(grid: DataGridComponent): void {
+    if (grid && grid.gridModified) {
+      grid.gridModified.subscribe((hasChanges: boolean) => {
+        // Update flag if any grid has changes
+        this.updateDataTablesChangeFlag();
+      });
+    }
+  }
+
+  /**
+   * Updates the dataTablesHaveChanges flag by checking all registered grids.
+   * Sets to true if ANY grid has unsaved changes.
+   * 
+   * @private
+   */
+  private updateDataTablesChangeFlag(): void {
+    if (this.dataGrids) {
+      this.dataTablesHaveChanges = this.dataGrids.some(grid =>
+        grid && (
+          grid.changeCounter > 0 ||
+          grid.someStatusHasChanged === true ||
+          grid.someStatusHasChangedToDelete === true
+        )
+      );
+    }
   }
 
   /**

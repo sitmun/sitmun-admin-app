@@ -20,6 +20,7 @@ import {LoggerService} from '@app/services/logger.service';
 import {MatDialog} from '@angular/material/dialog';
 import {NotificationService} from '@app/services/notification.service';
 import {UtilsService} from '@app/services/utils.service';
+import {MessagesInterceptorStateService} from '@app/core/interceptors/messages.interceptor';
 import {map} from 'rxjs/operators';
 import {TranslateService} from '@ngx-translate/core';
 
@@ -72,13 +73,14 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
     activatedRoute: ActivatedRoute,
     router: Router,
     loadingService: LoadingOverlayService,
+    messagesInterceptorState: MessagesInterceptorStateService,
     protected connectionService: ConnectionService,
     protected cartographyService: CartographyService,
     protected tasksService: TaskService,
     protected utils: UtilsService,
     protected notificationService: NotificationService,
   ) {
-    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService);
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService, messagesInterceptorState);
     this.tasksTable = this.defineTaskType();
   }
 

@@ -24,6 +24,7 @@ import {LoggerService} from '@app/services/logger.service';
 import {MatDialog} from '@angular/material/dialog';
 import {TranslateService} from '@ngx-translate/core';
 import {UtilsService} from '@app/services/utils.service';
+import {MessagesInterceptorStateService} from '@app/core/interceptors/messages.interceptor';
 import {constants} from '@environments/constants';
 import {map} from 'rxjs/operators';
 
@@ -74,6 +75,7 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
     activatedRoute: ActivatedRoute,
     router: Router,
     loadingService: LoadingOverlayService,
+    messagesInterceptorState: MessagesInterceptorStateService,
     protected utils: UtilsService,
     protected cartographyService: CartographyService,
     protected roleService: RoleService,
@@ -88,7 +90,8 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
       errorHandler,
       activatedRoute,
       router,
-      loadingService
+      loadingService,
+      messagesInterceptorState
     );
     this.membersTable = this.defineMembersTable();
     this.rolesTable = this.defineRolesTable();

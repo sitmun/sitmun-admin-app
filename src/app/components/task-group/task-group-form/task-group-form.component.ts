@@ -14,6 +14,7 @@ import {BaseFormComponent} from '@app/components/base-form.component';
 import {MatDialog} from '@angular/material/dialog';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
+import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
 import {TranslateService} from '@ngx-translate/core';
 import {firstValueFrom, map} from 'rxjs';
 import {UtilsService} from '@app/services/utils.service';
@@ -44,11 +45,12 @@ export class TaskGroupFormComponent extends BaseFormComponent<TaskGroup> {
     activatedRoute: ActivatedRoute,
     router: Router,
     loadingService: LoadingOverlayService,
+    messagesInterceptorState: MessagesInterceptorStateService,
     protected taskGroupService: TaskGroupService,
     protected taskService: TaskService,
     protected utils: UtilsService
   ) {
-    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService);
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService, messagesInterceptorState);
     this.tasksTable = this.createTasksTableDefinition();
   }
 

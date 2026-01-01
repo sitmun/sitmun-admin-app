@@ -4,6 +4,7 @@
   icon="{{ config.icon }}"
   [isNew]="isNewOrDuplicated()"
   [itemName]="itemName('name')"
+  [canSave]="canSaveEntity"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>

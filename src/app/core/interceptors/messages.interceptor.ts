@@ -144,16 +144,13 @@ export class MessagesInterceptor implements HttpInterceptor {
                 }),
                 map((event: HttpEvent<any>) => {
                     if (event instanceof HttpResponse) {
-                        switch (request.method) {
-                            case "POST":
-                              this.notificationService.showSuccess('backend.status.title', 'backend.operation.created');
-                                break;
-                            case "PUT":
-                              this.notificationService.showSuccess('backend.status.title', 'backend.operation.updated');
-                                break;
-                            case "DELETE":
-                              this.notificationService.showSuccess('backend.status.title', 'backend.operation.deleted');
-                                break;
+                        // Only show success notifications if interceptor is enabled
+                        // This allows suppressing notifications during batch operations
+                        if (this.stateService.isEnabled()) {
+                            // Show unified success message for all successful operations
+                            if (request.method === "POST" || request.method === "PUT" || request.method === "DELETE") {
+                                this.notificationService.showSuccess('backend.status.title', 'backend.operation.saved');
+                            }
                         }
                     }
                     return event;

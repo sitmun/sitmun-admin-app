@@ -31,6 +31,7 @@ import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {constants} from "@environments/constants";
 import {LoggerService} from "@app/services/logger.service";
+import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
 import {Configuration} from "@app/core/config/configuration";
 
 /**
@@ -145,6 +146,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
     activatedRoute: ActivatedRoute,
     router: Router,
     loadingService: LoadingOverlayService,
+    messagesInterceptorState: MessagesInterceptorStateService,
     protected utils: UtilsService,
     protected backgroundService: BackgroundService,
     protected cartographyService: CartographyService,
@@ -153,7 +155,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
     protected applicationService: ApplicationService,
     protected applicationBackgroundService: ApplicationBackgroundService,
   ) {
-    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService);
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService, messagesInterceptorState);
     this.membersTable = this.defineMembersTable()
     this.applicationBackgroundsTable = this.defineApplicationBackgroundsTable()
     this.rolesTable = this.defineRolesTable()

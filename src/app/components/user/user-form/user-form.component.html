@@ -4,6 +4,7 @@
   icon="{{ config.icon }}"
   [itemName]="entityForm?.get('username')?.value || ''"
   [isNew]="isNew()"
+  [canSave]="canSaveEntity"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>

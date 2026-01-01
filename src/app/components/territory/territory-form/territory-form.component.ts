@@ -41,6 +41,7 @@ import {Configuration} from "@app/core/config/configuration";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from '@app/services/logger.service';
+import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
 import {MatDialog} from '@angular/material/dialog';
 import {MatSelectChange} from '@angular/material/select';
 import {TranslateService} from "@ngx-translate/core";
@@ -153,6 +154,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
     activatedRoute: ActivatedRoute,
     router: Router,
     loadingService: LoadingOverlayService,
+    messagesInterceptorState: MessagesInterceptorStateService,
     private territoryService: TerritoryService,
     private userService: UserService,
     private roleService: RoleService,
@@ -165,7 +167,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
     private cartographyAvailabilityService: CartographyAvailabilityService,
     public utils: UtilsService,
   ) {
-    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService);
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService, messagesInterceptorState);
     this.permitsTable = this.definePermitsTable();
     this.membersOfTable = this.defineMemberOfTable();
     this.membersTable = this.defineMembersTable();

@@ -599,6 +599,31 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Checks if there are any unsaved changes in the tree nodes.
+   * A node has unsaved changes if it has any of these statuses:
+   * - pendingCreation: newly created node
+   * - pendingDelete: node marked for deletion
+   * - Modified: existing node that was modified
+   *
+   * @returns True if any node has unsaved changes, false otherwise
+   */
+  hasUnsavedChanges(): boolean {
+    if (!this.dataTree || !this.dataTree.dataSource) {
+      return false;
+    }
+
+    const dataSourceData = this.dataTree.dataSource.data || [];
+    const rootNode = dataSourceData[0];
+    const allNodes = this.getAllTreeNodesRecursive(rootNode?.children || []);
+
+    return allNodes.some(node => 
+      node.status === constants.entityStatus.pendingCreation ||
+      node.status === constants.entityStatus.pendingDelete ||
+      node.status === constants.entityStatus.modified
+    );
+  }
+
+  /**
    * Saves nodes after tree is saved (called by parent).
    */
   async saveNodes(tree: Tree, entityID: number): Promise<void> {

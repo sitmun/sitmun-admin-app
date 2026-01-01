@@ -54,8 +54,32 @@ const codeValue = {
   }
 };
 
+/**
+ * Entity status constants used across data-grid, data-tree, and form components.
+ * Centralizes status string literals to prevent typos and improve maintainability.
+ */
+const entityStatus = {
+  /** Entity exists in database with no pending changes */
+  statusOK: 'statusOK',
+  /** Entity has been modified but not yet saved */
+  pendingModify: 'pendingModify',
+  /** Entity is marked for deletion but not yet saved */
+  pendingDelete: 'pendingDelete',
+  /** Entity is newly created but not yet saved */
+  pendingCreation: 'pendingCreation',
+  /** Entity is pending registration (layer-specific) */
+  pendingRegistration: 'pendingRegistration',
+  /** Entity is not available */
+  notAvailable: 'notAvailable',
+  /** Layer is not registered */
+  unregisteredLayer: 'unregisteredLayer',
+  /** Tree node has been modified (tree-specific status) */
+  modified: 'Modified'
+};
+
 export const constants = {
   codeValue,
+  entityStatus,
   extraImg: [
     {
       id: 'ic_arrow_down_black',

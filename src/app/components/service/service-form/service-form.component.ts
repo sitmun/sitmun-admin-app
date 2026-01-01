@@ -36,6 +36,7 @@ import {TranslateService} from "@ngx-translate/core";
 import {BaseFormComponent} from "@app/components/base-form.component";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
+import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
 import {DataTableDefinition, TemplateDialog} from "@app/components/data-tables.util";
 import {WMSCapabilitiesService, WMSLayersCapabilities} from "@app/services/wms-capabilities.service";
 import {Configuration} from "@app/core/config/configuration";
@@ -185,6 +186,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
     activatedRoute: ActivatedRoute,
     router: Router,
     loadingService: LoadingOverlayService,
+    messagesInterceptorState: MessagesInterceptorStateService,
     public utils: UtilsService,
     public cartographyService: CartographyService,
     public serviceParameterService: ServiceParameterService,
@@ -192,7 +194,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
     public wmsCapabilitiesService: WMSCapabilitiesService,
     private readonly serviceService: ServiceService,
   ) {
-    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService);
+    super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService, messagesInterceptorState);
     this.layersTable = this.defineLayersTable();
     this.parametersTable = this.defineParametersTable();
   }

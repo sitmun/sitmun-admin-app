@@ -3,6 +3,7 @@ import {Component, ElementRef, EventEmitter, Injectable, Input, Output, ViewChil
 import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
 import {FlatTreeControl} from '@angular/cdk/tree';
 import {SelectionModel} from '@angular/cdk/collections';
+import {constants} from '@environments/constants';
 
 /**
  * File node data with nested structure.
@@ -101,7 +102,7 @@ export class FileDatabase {
         obj.type= (treeNode.isFolder) ? "folder" : "node";
         obj.nodeType = treeNode.nodeType;
         if(allNewElements) {
-          obj.status='pendingCreation';
+          obj.status = constants.entityStatus.pendingCreation;
           if(obj.id) { obj.id = obj.id * -1 }
           if(obj.parent) { obj.parent = obj.parent * -1 }
         }
@@ -590,8 +591,8 @@ export class DataTreeComponent {
         // 1. Not already stored (to preserve original state)
         // 2. Node doesn't have Modified or pendingCreation status (it's in saved state)
         if (!this.originalNodeStates.has(node.id) && 
-            node.status !== 'Modified' && 
-            node.status !== 'pendingCreation') {
+            node.status !== constants.entityStatus.modified && 
+            node.status !== constants.entityStatus.pendingCreation) {
           // Deep clone to store original state
           const originalState = JSON.parse(JSON.stringify(node));
           // Remove status from original state so we can restore to clean state
@@ -811,11 +812,11 @@ export class DataTreeComponent {
     } else if(button === 'delete') {
       // let children= this.getAllChildren(nodeClicked.children)
       // children.forEach(children => {
-      //   children.status='pendingDelete';
+      //   children.status = constants.entityStatus.pendingDelete;
       // });
       this.deleteChildren(nodeClicked.children);
       // nodeClicked.children=children
-      nodeClicked.status='pendingDelete'
+      nodeClicked.status = constants.entityStatus.pendingDelete
 
       this.rebuildTreeForData(changedData);
     } else if(button === 'restore') {
@@ -829,7 +830,7 @@ export class DataTreeComponent {
         this.revertNodeToOriginal(changedData, nodeClicked);
       } else {
         // New node (id < 0) - just restore status
-        nodeClicked.status = 'pendingCreation';
+        nodeClicked.status = constants.entityStatus.pendingCreation;
       }
       
       // Restore ancestors only (parents, grandparents, etc.) - not siblings
@@ -887,7 +888,7 @@ export class DataTreeComponent {
       if (item.children && item.children.length>0) {
         this.deleteChildren(item.children);
       }
-      item.status='pendingDelete'
+      item.status = constants.entityStatus.pendingDelete
 
     });
   }
@@ -905,7 +906,7 @@ export class DataTreeComponent {
         this.revertNodeToOriginal(changedData, item);
       } else {
         // New node (id < 0) - just restore status
-        item.status = item.id < 0 ? 'pendingCreation' : 'Modified';
+        item.status = item.id < 0 ? constants.entityStatus.pendingCreation : constants.entityStatus.modified;
       }
     });
   }
@@ -921,14 +922,14 @@ export class DataTreeComponent {
     }
     
     const parentNode = this.findNodeSiblings(changedData, node.parent).find(n => n.id === node.parent);
-    if (parentNode && parentNode.status === 'pendingDelete') {
+    if (parentNode && parentNode.status === constants.entityStatus.pendingDelete) {
       // If parent exists (id >= 0) and has original state, revert to original state
       // This overrides any modifications that were made before deletion
       if (parentNode.id >= 0 && this.originalNodeStates.has(parentNode.id)) {
         this.revertNodeToOriginal(changedData, parentNode);
       } else {
         // New node (id < 0) - just restore status
-        parentNode.status = parentNode.id < 0 ? 'pendingCreation' : 'Modified';
+        parentNode.status = parentNode.id < 0 ? constants.entityStatus.pendingCreation : constants.entityStatus.modified;
       }
       
       // Recursively restore the parent's ancestors
@@ -967,7 +968,7 @@ export class DataTreeComponent {
       // Also revert any modified children
       if (children && children.length > 0) {
         children.forEach((child: any) => {
-          if (child.status === 'Modified') {
+          if (child.status === constants.entityStatus.modified) {
             this.revertNodeToOriginal(changedData, child);
           }
         });
@@ -980,14 +981,14 @@ export class DataTreeComponent {
    * Also removes all its children recursively
    */
   removePendingCreationNode(changedData: any, node: any) {
-    if (!node || node.status !== 'pendingCreation') {
+    if (!node || node.status !== constants.entityStatus.pendingCreation) {
       return;
     }
     
     // Remove all children first (recursively)
     if (node.children && node.children.length > 0) {
       node.children.forEach((child: any) => {
-        if (child.status === 'pendingCreation') {
+        if (child.status === constants.entityStatus.pendingCreation) {
           this.removePendingCreationNode(changedData, child);
         }
         // Remove from original states map
