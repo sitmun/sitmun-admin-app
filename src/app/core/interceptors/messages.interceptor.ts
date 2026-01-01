@@ -5,6 +5,7 @@ import {catchError, finalize, map} from 'rxjs/operators';
 import {TranslateService} from '@ngx-translate/core';
 import {NotificationService} from '@app/services/notification.service';
 import {UtilsService} from '@app/services/utils.service';
+import {ErrorTrackingService} from '@app/services/error-tracking.service';
 import {getProblemTranslationKey, isProblemDetail, getErrorMessage} from '@app/utils/problem-detail.utils';
 import {ENTITY_TYPE_KEY, ENTITY_NAME_KEY} from '@app/core/hal/resource/resource.service';
 
@@ -34,6 +35,7 @@ export class MessagesInterceptor implements HttpInterceptor {
     private utilsService: UtilsService;
   private notificationService: NotificationService;
   private translateService: TranslateService;
+  private errorTrackingService: ErrorTrackingService;
 
     constructor(
         private injector: Injector,
@@ -44,15 +46,17 @@ export class MessagesInterceptor implements HttpInterceptor {
             this.utilsService = this.injector.get(UtilsService);
           this.notificationService = this.injector.get(NotificationService);
           this.translateService = this.injector.get(TranslateService);
+          this.errorTrackingService = this.injector.get(ErrorTrackingService);
         });
     }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any> | never> {
     // Get services if not already loaded
-    if (!this.utilsService || !this.notificationService || !this.translateService) {
+    if (!this.utilsService || !this.notificationService || !this.translateService || !this.errorTrackingService) {
             this.utilsService = this.injector.get(UtilsService);
       this.notificationService = this.injector.get(NotificationService);
       this.translateService = this.injector.get(TranslateService);
+      this.errorTrackingService = this.injector.get(ErrorTrackingService);
         }
 
         const intercept: boolean = request.url.indexOf("/api/login") == -1
@@ -135,6 +139,27 @@ export class MessagesInterceptor implements HttpInterceptor {
                         // Legacy format
                         message = error.error?.message || 'backend.error.unknown';
                         title = 'backend.error.title';
+                      }
+                      
+                      // Track HTTP error in ErrorTrackingService (with additional null check)
+                      try {
+                        if (!this.errorTrackingService) {
+                          this.errorTrackingService = this.injector.get(ErrorTrackingService, null);
+                        }
+                        if (this.errorTrackingService && error.status >= 400) {
+                          this.errorTrackingService.addError(
+                            message,
+                            'http',
+                            {
+                              httpStatus: error.status,
+                              url: request.url,
+                              details: error.error
+                            }
+                          );
+                        }
+                      } catch (e) {
+                        // ErrorTrackingService not available - ignore silently
+                        // This can happen during app initialization
                       }
                       
                       this.notificationService.showError(title, message, true);

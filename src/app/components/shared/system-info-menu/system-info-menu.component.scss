@@ -1,0 +1,52 @@
+@import "../../../variables.scss";
+
+.system-info-menu {
+  min-width: 280px;
+  max-width: 320px;
+}
+
+// Material Design menu item spacing
+::ng-deep .system-info-menu {
+  .mat-mdc-menu-item {
+    min-height: 48px; // Material Design standard menu item height
+    padding: 0 16px;
+    
+    mat-icon {
+      margin-right: 16px;
+      width: 24px;
+      height: 24px;
+      font-size: 24px;
+    }
+  }
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f44336;
+  color: white;
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  margin-left: auto;
+  min-width: 20px;
+  height: 20px;
+  text-align: center;
+  line-height: 1;
+}
+
+.check-icon {
+  margin-left: auto;
+  color: $primary-color;
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+}
+
+.user-info-item {
+  opacity: 0.87; // Material Design disabled text opacity
+  cursor: default;
+}
+

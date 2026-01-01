@@ -8,6 +8,9 @@ export const environment = {
   production: false,
   apiBaseURL: 'http://localhost:8080',
   logLevel: LogLevel.Debug, // Set to Debug for development
+  version: '1.1.0',
+  buildTimestamp: new Date().toISOString(),
+  environmentName: 'development'
 };
 
 /*

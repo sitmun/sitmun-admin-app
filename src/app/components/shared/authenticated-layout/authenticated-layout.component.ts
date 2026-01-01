@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 
 @Component({
   selector: 'app-authenticated-layout',
@@ -6,17 +6,20 @@ import {Component} from '@angular/core';
     <div class="mat-app-background basic-container">
       <app-toolbar (sidenavEvent)="navOpen($event)"></app-toolbar>
       <app-side-menu [openNav]="isOpen"></app-side-menu>
+      <app-error-details-sidebar></app-error-details-sidebar>
     </div>
   `,
   styles: []
 })
-export class AuthenticatedLayoutComponent {
+export class AuthenticatedLayoutComponent implements OnInit {
   isOpen = false;
+
+  ngOnInit(): void {
+    console.log('[AuthenticatedLayoutComponent] Initialized');
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   navOpen(_: any): void {
     this.isOpen = !this.isOpen;
   }
 }
-
-

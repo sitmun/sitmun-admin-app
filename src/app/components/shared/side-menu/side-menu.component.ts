@@ -60,7 +60,13 @@ export class SideMenuComponent implements OnChanges, OnInit {
   }
 
   ngOnInit() {
+    console.log('[SideMenuComponent] ngOnInit called');
     this.iconsService.loadSVGs().then(() => {
+      console.log('[SideMenuComponent] Icons loaded successfully');
+      this.loaded = true;
+    }).catch((error) => {
+      console.error('[SideMenuComponent] Failed to load SVG icons:', error);
+      // Still set loaded to true to allow the menu to render
       this.loaded = true;
     });
   }

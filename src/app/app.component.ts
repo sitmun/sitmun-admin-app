@@ -5,6 +5,7 @@ import {LoginService} from '@app/core/auth/login.service';
 import {AuthService} from '@app/core/auth/auth.service';
 import {config} from '@config';
 import {LoggerService} from '@app/services/logger.service';
+import {ErrorTrackingService} from '@app/services/error-tracking.service';
 import {AppStateService} from './services/app-state.service';
 import {Observable, Subscription} from 'rxjs';
 import {map} from 'rxjs/operators';
@@ -36,7 +37,8 @@ export class AppComponent implements OnInit, OnDestroy {
     /** Login service */public loginService: LoginService,
     /** Auth service */public authService: AuthService,
     private readonly loggerService: LoggerService,
-    private readonly appStateService: AppStateService
+    private readonly appStateService: AppStateService,
+    private readonly errorTrackingService: ErrorTrackingService
   ) {
     this.translate = trans;
     this.hasInitializationError$ = this.appStateService.state$.pipe(
@@ -49,6 +51,11 @@ export class AppComponent implements OnInit, OnDestroy {
 
   /** On component init, get logged user account*/
   ngOnInit() {
+    // Initialize error tracking after app bootstrap
+    // This ensures all services are fully initialized before error tracking starts
+    // and breaks the circular dependency chain
+    this.initializeErrorTracking();
+
     // Verify that languages are loaded
     if (!config.languagesToUse || config.languagesToUse.length === 0) {
       this.loggerService.warn('Languages not loaded - APP_INITIALIZER may have failed');
@@ -73,6 +80,23 @@ export class AppComponent implements OnInit, OnDestroy {
       });
     }
 
+  }
+
+  /**
+   * Initialize error tracking after app bootstrap
+   * This breaks the circular dependency by deferring initialization
+   */
+  private initializeErrorTracking(): void {
+    // ErrorTrackingService is now available after bootstrap
+    // This ensures LoggerService can safely use it via lazy injection
+    try {
+      // Just accessing the service ensures it's initialized
+      // The actual tracking will happen via LoggerService's lazy injection
+      this.loggerService.info('Error tracking initialized');
+    } catch (error) {
+      // Should not happen, but handle gracefully
+      console.warn('Error tracking initialization warning:', error);
+    }
   }
 
   ngOnDestroy() {

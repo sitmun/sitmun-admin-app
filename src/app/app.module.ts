@@ -1,4 +1,4 @@
-import {APP_INITIALIZER, LOCALE_ID, NgModule} from '@angular/core';
+import {APP_INITIALIZER, ErrorHandler, LOCALE_ID, NgModule} from '@angular/core';
 import {
   ApplicationBackgroundService,
   ApplicationParameterService,
@@ -58,7 +58,6 @@ import {BrowserModule} from '@angular/platform-browser';
 import {CharacterCountPipe} from '@app/components/shared/character-counter-hint/character-count.pipe';
 import {ConnectionComponent} from '@app/components/connection/connection.component';
 import {ConnectionFormComponent} from '@app/components/connection/connection-form/connection-form.component';
-import {CustomMissingTranslationHandler} from './services/missing-translation.handler';
 import {DashboardComponent} from '@app/components/dashboard/dashboard.component';
 import {DataTablesRegistry} from "@app/components/data-tables.util";
 import {EntityListComponent} from '@app/components/shared/entity-list';
@@ -71,7 +70,6 @@ import {LayersPermitsComponent} from '@app/components/layers-permits/layers-perm
 import {
   LayersPermitsFormComponent
 } from '@app/components/layers-permits/layers-permits-form/layers-permits-form.component';
-import {LogLevelControlComponent} from '@app/components/shared/log-level-control/log-level-control.component';
 import {LoggerService} from './services/logger.service';
 import {LoginComponent} from '@app/components/login/login.component';
 import {MAT_TABS_CONFIG} from '@angular/material/tabs';
@@ -99,8 +97,10 @@ import {TerritoryComponent} from '@app/components/territory/territory.component'
 import {TerritoryFormComponent} from '@app/components/territory/territory-form/territory-form.component';
 import {ToolbarComponent} from '@app/components/shared/toolbar/toolbar.component';
 import {TranslateHttpLoader} from '@ngx-translate/http-loader';
-import {TranslationDebugComponent} from './components/shared/translation-debug/translation-debug.component';
-import {TranslationMonitorService} from './services/translation-monitor.service';
+import {SystemInfoMenuComponent} from './components/shared/system-info-menu/system-info-menu.component';
+import {ErrorDetailsSidebarComponent} from './components/shared/error-details-sidebar/error-details-sidebar.component';
+import {AboutDialogComponent} from './components/shared/about-dialog/about-dialog.component';
+import {GlobalErrorHandler} from './core/global-error-handler';
 import {TreesComponent} from '@app/components/trees/trees.component';
 import {TreesFormComponent} from '@app/components/trees/trees-form/trees-form.component';
 import {TreeNodesComponent} from '@app/components/trees/trees-form/tree-nodes/tree-nodes.component';
@@ -108,7 +108,6 @@ import {ImagePreviewComponent} from '@app/frontend-gui/src/lib/image-preview/ima
 import {UrlInputDirective} from '@app/components/service/service-form/url-input.directive';
 import {UserComponent} from '@app/components/user/user.component';
 import {UserFormComponent} from '@app/components/user/user-form/user-form.component';
-import {UserInfoComponent} from '@app/components/shared/user-info/user-info.component';
 import {WarningsPanelComponent} from '@app/components/shared/warnings-panel/warnings-panel.component';
 
 import {config} from '@config';
@@ -269,11 +268,11 @@ function getDefaultLanguage(languages: any[]): string {
     TaskGroupFormComponent,
     LoginComponent,
     DashboardComponent,
-    LogLevelControlComponent,
-    UserInfoComponent,
     FormToolbarComponent,
     CharacterCountPipe,
-    TranslationDebugComponent,
+    SystemInfoMenuComponent,
+    ErrorDetailsSidebarComponent,
+    AboutDialogComponent,
     UrlInputDirective,
     TaskEditFormComponent,
     TasksEditComponent,
@@ -298,10 +297,6 @@ function getDefaultLanguage(languages: any[]): string {
           return new TranslateHttpLoader(http, './assets/i18n/', '.json');
         },
         deps: [HttpClient]
-      },
-      missingTranslationHandler: {
-        provide: MissingTranslationHandler,
-        useClass: CustomMissingTranslationHandler
       }
     }),
     APP_ROUTING,
@@ -313,6 +308,7 @@ function getDefaultLanguage(languages: any[]): string {
   ],
   providers: [
     { provide: LOCALE_ID, useValue: 'es-ES' },
+    { provide: ErrorHandler, useClass: GlobalErrorHandler },
     { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
     { provide: MAT_TABS_CONFIG, useValue: { animationDuration: '0ms' } },
 
@@ -363,9 +359,7 @@ function getDefaultLanguage(languages: any[]): string {
     TaskUIService,
     ApplicationBackgroundService,
     TreeNodeService,
-    UserPositionService,
-    CustomMissingTranslationHandler,
-    TranslationMonitorService,
+    UserPositionService
   ],
   bootstrap: [AppComponent]
 })

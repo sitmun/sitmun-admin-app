@@ -1,8 +1,9 @@
-import {Injectable} from '@angular/core';
+import {Injectable, Injector, Optional} from '@angular/core';
 import {environment} from '@environments/environment';
 import {LogLevel} from './log-level.enum';
 import {BehaviorSubject, Observable} from 'rxjs';
 import StackTrace, {StackFrame} from 'stacktrace-js';
+import {ErrorTrackingService} from './error-tracking.service';
 
 /**
  * Logger service for controlling application-wide logging
@@ -16,6 +17,17 @@ export class LoggerService {
 
   // Subject to track log level changes
   private logLevelSubject = new BehaviorSubject<LogLevel>(this.level);
+
+  // Lazy-loaded error tracking service to avoid circular dependencies
+  private errorTrackingService?: ErrorTrackingService;
+  private static injectorRef: Injector | null = null;
+
+  constructor(@Optional() private injector?: Injector) {
+    // Store injector reference statically for lazy access
+    if (injector) {
+      LoggerService.injectorRef = injector;
+    }
+  }
 
   /**
    * Observable for log level changes
@@ -51,6 +63,43 @@ export class LoggerService {
    */
   error(message: string, ...data: any[]) {
     this.logWith(LogLevel.Error, message, data);
+    
+    // Track error in ErrorTrackingService (lazy-loaded to avoid circular dependencies)
+    // Skip error tracking during app initialization to prevent circular dependencies
+    try {
+      // Only try to track if we have an injector and ErrorTrackingService is available
+      if (!this.errorTrackingService) {
+        // Try to get injector from instance or static reference
+        const injectorToUse = this.injector || LoggerService.injectorRef;
+        if (!injectorToUse) {
+          // During initialization, injector might not be available - skip tracking
+          return;
+        }
+        try {
+          this.errorTrackingService = injectorToUse.get(ErrorTrackingService, null);
+          if (!this.errorTrackingService) {
+            return;
+          }
+        } catch (e) {
+          // Service not available - skip tracking
+          return;
+        }
+      }
+      
+      if (this.errorTrackingService) {
+        const stackTrace = data.length > 0 && data[0]?.stack 
+          ? data[0].stack 
+          : undefined;
+        
+        this.errorTrackingService.addError(message, 'logger', {
+          details: data.length > 0 ? data : undefined,
+          stackTrace
+        });
+      }
+    } catch (e) {
+      // ErrorTrackingService not available yet - ignore silently
+      // This can happen during app initialization
+    }
   }
 
   /**

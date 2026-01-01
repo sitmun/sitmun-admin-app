@@ -1,0 +1,68 @@
+<div class="toolbar-control">
+  <button 
+    mat-button 
+    [matMenuTriggerFor]="systemMenu" 
+    class="toolbar-button"
+    [matTooltip]="'systemInfo.title' | translate"
+    [attr.aria-label]="'systemInfo.title' | translate"
+    [attr.aria-expanded]="false">
+    <mat-icon class="toolbar-icon">more_vert</mat-icon>
+  </button>
+
+  <mat-menu #systemMenu="matMenu" class="system-info-menu" (opened)="onMenuOpened()">
+    <!-- About -->
+    <button mat-menu-item (click)="openAboutDialog()">
+      <mat-icon>info</mat-icon>
+      <span>{{ 'systemInfo.about' | translate }}</span>
+    </button>
+
+    <mat-divider></mat-divider>
+
+    <!-- Non-production features: Log Level, Recent Errors -->
+    <ng-container *ngIf="!environment.production">
+      <!-- Log Level -->
+      <button mat-menu-item [matMenuTriggerFor]="logLevelMenu">
+        <mat-icon>{{ getIconForLevel(currentLogLevel) }}</mat-icon>
+        <span>{{ 'systemInfo.logLevel' | translate }}: {{ getLogLevelName(currentLogLevel) }}</span>
+      </button>
+      <mat-menu #logLevelMenu="matMenu">
+        <button mat-menu-item *ngFor="let level of logLevels" (click)="onLogLevelChange(level.value)">
+          <mat-icon>{{ getIconForLevel(level.value) }}</mat-icon>
+          <span>{{ level.name }}</span>
+          <mat-icon *ngIf="level.value === currentLogLevel" class="check-icon">check</mat-icon>
+        </button>
+      </mat-menu>
+
+      <!-- Recent Errors -->
+      <button mat-menu-item (click)="openErrorSidebar()">
+        <mat-icon>error</mat-icon>
+        <span>{{ 'systemInfo.recentErrors' | translate }}</span>
+        <span class="badge" *ngIf="unreviewedErrorCount > 0">{{ unreviewedErrorCount }}</span>
+      </button>
+
+      <!-- Debug Features (only when Debug/Trace) -->
+      <ng-container *ngIf="shouldShowDebugFeatures()">
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="triggerTestError()">
+          <mat-icon>bug_report</mat-icon>
+          <span>{{ 'systemInfo.triggerTestError' | translate }}</span>
+        </button>
+      </ng-container>
+
+      <mat-divider></mat-divider>
+    </ng-container>
+
+    <!-- User Section -->
+    <button mat-menu-item disabled class="user-info-item" *ngIf="currentUser">
+      <mat-icon>person</mat-icon>
+      <span>{{ getUserFullName() }}</span>
+    </button>
+
+    <!-- Logout -->
+    <button mat-menu-item (click)="logout()">
+      <mat-icon>exit_to_app</mat-icon>
+      <span>{{ 'loginEntity.closeSession' | translate }}</span>
+    </button>
+  </mat-menu>
+</div>
+

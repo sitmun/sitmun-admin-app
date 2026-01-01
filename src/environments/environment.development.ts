@@ -11,4 +11,7 @@ export const environment = {
     // This is the external URL of the backend server in the SITMUN Application Stack in development mode
     apiBaseURL: 'http://localhost:9000/backend',
     logLevel: LogLevel.Debug, // Set to Debug for development
+    version: '1.1.0',
+    buildTimestamp: new Date().toISOString(),
+    environmentName: 'development'
 };
