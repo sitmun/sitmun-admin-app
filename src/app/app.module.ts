@@ -99,6 +99,7 @@ import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 import {SystemInfoMenuComponent} from './components/shared/system-info-menu/system-info-menu.component';
 import {ErrorDetailsSidebarComponent} from './components/shared/error-details-sidebar/error-details-sidebar.component';
 import {AboutDialogComponent} from './components/shared/about-dialog/about-dialog.component';
+import {ConfigurationParametersDialogComponent} from './components/shared/configuration-parameters-dialog/configuration-parameters-dialog.component';
 import {GlobalErrorHandler} from './core/global-error-handler';
 import {TreesComponent} from '@app/components/trees/trees.component';
 import {TreesFormComponent} from '@app/components/trees/trees-form/trees-form.component';
@@ -284,6 +285,7 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
     SystemInfoMenuComponent,
     ErrorDetailsSidebarComponent,
     AboutDialogComponent,
+    ConfigurationParametersDialogComponent,
     UrlInputDirective,
     TaskEditFormComponent,
     TasksEditComponent,

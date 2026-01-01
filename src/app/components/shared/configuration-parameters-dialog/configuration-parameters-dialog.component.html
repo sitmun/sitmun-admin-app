@@ -1,0 +1,58 @@
+<h2 mat-dialog-title>{{ 'systemInfo.configurationParameters.title' | translate }}</h2>
+
+<mat-dialog-content>
+  <div class="configuration-parameters-content">
+    <!-- Loading state -->
+    <div *ngIf="isLoading" class="loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p class="loading-text">{{ 'systemInfo.configurationParameters.loading' | translate }}</p>
+    </div>
+
+    <!-- Error state -->
+    <div *ngIf="!isLoading && error" class="error-container">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <p class="error-text">{{ error }}</p>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!isLoading && !error && dataSource.length === 0" class="empty-container">
+      <mat-icon class="empty-icon">info_outline</mat-icon>
+      <p class="empty-text">{{ 'systemInfo.configurationParameters.empty' | translate }}</p>
+    </div>
+
+    <!-- Table with data -->
+    <div *ngIf="!isLoading && !error && dataSource.length > 0" class="table-container">
+      <table mat-table [dataSource]="dataSource" class="configuration-table">
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>
+            {{ 'systemInfo.configurationParameters.name' | translate }}
+          </th>
+          <td mat-cell *matCellDef="let parameter">
+            <span class="parameter-name">{{ parameter.name }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Value Column -->
+        <ng-container matColumnDef="value">
+          <th mat-header-cell *matHeaderCellDef>
+            {{ 'systemInfo.configurationParameters.value' | translate }}
+          </th>
+          <td mat-cell *matCellDef="let parameter">
+            <span class="parameter-value">{{ parameter.value || '-' }}</span>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()" color="primary">
+    {{ 'common.button.close' | translate }}
+  </button>
+</mat-dialog-actions>
+

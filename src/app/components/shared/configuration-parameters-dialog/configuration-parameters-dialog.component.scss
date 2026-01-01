@@ -1,0 +1,85 @@
+@import "../../../variables.scss";
+
+.configuration-parameters-content {
+  min-width: 500px;
+  max-width: 800px;
+  min-height: 300px;
+  max-height: 600px;
+  display: flex;
+  flex-direction: column;
+}
+
+.loading-container,
+.error-container,
+.empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  min-height: 300px;
+  gap: 16px;
+}
+
+.loading-text,
+.error-text,
+.empty-text {
+  margin: 0;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 14px;
+}
+
+.error-icon,
+.empty-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.error-icon {
+  color: #f44336;
+}
+
+.table-container {
+  overflow: auto;
+  max-height: 500px;
+}
+
+.configuration-table {
+  width: 100%;
+  background: transparent;
+}
+
+.configuration-table th {
+  background-color: rgba(0, 0, 0, 0.02);
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+  font-size: 14px;
+}
+
+.configuration-table td {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.configuration-table tr:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.parameter-name {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+  word-break: break-word;
+}
+
+.parameter-value {
+  color: rgba(0, 0, 0, 0.6);
+  word-break: break-word;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 13px;
+}
+
+::ng-deep .mat-mdc-dialog-content {
+  padding: 24px;
+}
+

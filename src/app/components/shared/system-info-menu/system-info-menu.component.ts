@@ -13,6 +13,7 @@ import { LogLevel } from '@app/services/log-level.enum';
 import { ErrorTrackingService } from '@app/services/error-tracking.service';
 import { SidebarManagerService } from '@app/services/sidebar-manager.service';
 import { AboutDialogComponent, AboutDialogData } from '@app/components/shared/about-dialog/about-dialog.component';
+import { ConfigurationParametersDialogComponent } from '@app/components/shared/configuration-parameters-dialog/configuration-parameters-dialog.component';
 import { FeatureFlagService } from '@app/core/features/feature-flag.service';
 import { FeatureFlagKeys, FeatureFlagConfig } from '@app/core/features/feature-flag.config';
 import { User } from '@app/domain';
@@ -200,6 +201,14 @@ export class SystemInfoMenuComponent implements OnInit, OnDestroy {
       width: '500px',
       maxWidth: '90vw',
       data: dialogData
+    });
+  }
+
+  openConfigurationParametersDialog(): void {
+    this.dialog.open(ConfigurationParametersDialogComponent, {
+      width: '700px',
+      maxWidth: '90vw',
+      maxHeight: '90vh'
     });
   }
 
