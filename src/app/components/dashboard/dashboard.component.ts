@@ -1,4 +1,12 @@
 import {Component, OnInit} from '@angular/core';
+import {
+  trigger,
+  transition,
+  style,
+  animate,
+  query,
+  stagger
+} from '@angular/animations';
 import {DashboardService} from '@app/domain';
 import {UtilsService} from '@app/services/utils.service';
 import {Configuration} from '@app/core/config/configuration';
@@ -6,7 +14,29 @@ import {Configuration} from '@app/core/config/configuration';
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss']
+  styleUrls: ['./dashboard.component.scss'],
+  animations: [
+    trigger('fadeIn', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(20px)' }),
+        animate('500ms ease-out', 
+          style({ opacity: 1, transform: 'translateY(0)' })
+        )
+      ])
+    ]),
+    trigger('listAnimation', [
+      transition('* => *', [
+        query(':enter', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(50, [
+            animate('400ms ease-out', 
+              style({ opacity: 1, transform: 'translateY(0)' })
+            )
+          ])
+        ], { optional: true })
+      ])
+    ])
+  ]
 })
 export class DashboardComponent implements OnInit {
 
@@ -18,7 +48,13 @@ export class DashboardComponent implements OnInit {
   usersDataAvailable = false;
   usersPerApplicationDataAvailable = false;
 
-  KPIsTable = [];
+  KPIsTable: Array<{
+    text: string; 
+    number: number; 
+    icon: string; 
+    color: string;
+    tooltip: string;
+  }> = [];
   totalKPIs;
   sumKPIs;
   cartographiesOnDate;
@@ -28,6 +64,32 @@ export class DashboardComponent implements OnInit {
   usersToShow = [];
   usersPerApplication;
   usersPerApplicationChartData=[];
+
+  /**
+   * Icon mapping for different KPI types
+   */
+  private readonly kpiIcons = {
+    users: 'group',
+    services: 'cloud_queue',
+    tasks: 'assignment',
+    territories: 'place',
+    cartographies: 'layers',
+    applications: 'apps',
+    applicationsTerritories: 'account_tree'
+  };
+
+  /**
+   * Color accent mapping for different KPI types
+   */
+  private readonly kpiColors = {
+    users: 'primary',
+    services: 'accent',
+    tasks: 'primary',
+    territories: 'accent',
+    cartographies: 'primary',
+    applications: 'accent',
+    applicationsTerritories: 'primary'
+  };
 
   constructor(
     public utils: UtilsService,
@@ -46,7 +108,7 @@ export class DashboardComponent implements OnInit {
             this.totalKPIs=result.total;
             this.sumKPIs=result.sum;
             this.cartographiesOnDate=result['cartographies-created-on-date']
-            //this.usersOnDate=result['users-created-on-date']
+            this.usersOnDate=result['users-created-on-date']
             this.usersPerApplication=result['users-per-application']
             if(this.cartographiesOnDate){
               this.cartographyDataAvailable = true;
@@ -93,13 +155,55 @@ export class DashboardComponent implements OnInit {
   }
 
   saveKPI(result){
-    this.KPIsTable.push({text: this.utils.getTranslate("dashboard.newUsers"), number: result.total.users})
-    this.KPIsTable.push({text: this.utils.getTranslate("dashboard.services"), number: result.total.services})
-    this.KPIsTable.push({text: this.utils.getTranslate("dashboard.tasks"), number: result.total.tasks})
-    this.KPIsTable.push({text: this.utils.getTranslate("dashboard.territories"), number: result.total.territories})
-    this.KPIsTable.push({text: this.utils.getTranslate("dashboard.cartographies"), number: result.total.cartographies})
-    this.KPIsTable.push({text: this.utils.getTranslate("dashboard.applications"), number: result.total.applications})
-    this.KPIsTable.push({text: this.utils.getTranslate("dashboard.applicationsTerritories"), number: result.total['applications-territories']})
+    this.KPIsTable.push({
+      text: this.utils.getTranslate("dashboard.totalUsers"), 
+      number: result.total.users,
+      icon: this.kpiIcons.users,
+      color: this.kpiColors.users,
+      tooltip: this.utils.getTranslate("dashboard.totalUsers.tooltip")
+    });
+    this.KPIsTable.push({
+      text: this.utils.getTranslate("dashboard.services"), 
+      number: result.total.services,
+      icon: this.kpiIcons.services,
+      color: this.kpiColors.services,
+      tooltip: this.utils.getTranslate("dashboard.services.tooltip")
+    });
+    this.KPIsTable.push({
+      text: this.utils.getTranslate("dashboard.tasks"), 
+      number: result.total.tasks,
+      icon: this.kpiIcons.tasks,
+      color: this.kpiColors.tasks,
+      tooltip: this.utils.getTranslate("dashboard.tasks.tooltip")
+    });
+    this.KPIsTable.push({
+      text: this.utils.getTranslate("dashboard.territories"), 
+      number: result.total.territories,
+      icon: this.kpiIcons.territories,
+      color: this.kpiColors.territories,
+      tooltip: this.utils.getTranslate("dashboard.territories.tooltip")
+    });
+    this.KPIsTable.push({
+      text: this.utils.getTranslate("dashboard.cartographies"), 
+      number: result.total.cartographies,
+      icon: this.kpiIcons.cartographies,
+      color: this.kpiColors.cartographies,
+      tooltip: this.utils.getTranslate("dashboard.cartographies.tooltip")
+    });
+    this.KPIsTable.push({
+      text: this.utils.getTranslate("dashboard.applications"), 
+      number: result.total.applications,
+      icon: this.kpiIcons.applications,
+      color: this.kpiColors.applications,
+      tooltip: this.utils.getTranslate("dashboard.applications.tooltip")
+    });
+    this.KPIsTable.push({
+      text: this.utils.getTranslate("dashboard.applicationsTerritories"), 
+      number: result.total['applications-territories'],
+      icon: this.kpiIcons.applicationsTerritories,
+      color: this.kpiColors.applicationsTerritories,
+      tooltip: this.utils.getTranslate("dashboard.applicationsTerritories.tooltip")
+    });
   }
 
 }

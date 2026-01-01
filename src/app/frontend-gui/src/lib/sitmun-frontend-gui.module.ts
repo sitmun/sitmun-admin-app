@@ -10,6 +10,7 @@ import {RouterModule, } from '@angular/router';
 //import * as ol from 'openlayers';
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {registerLocaleData} from '@angular/common';
+import {NgxEchartsModule} from 'ngx-echarts';
 //import { AngularHalModule } from '@sitmun/frontend-core';
 
 
@@ -67,6 +68,9 @@ export function createTranslateLoader(http: HttpClient) {
         deps: [HttpClient]
       }
     }),
+    NgxEchartsModule.forRoot({
+      echarts: () => import('echarts')
+    }),
     DataGridComponent
   ],
   declarations: [
@@ -91,6 +95,7 @@ export function createTranslateLoader(http: HttpClient) {
     //AngularHalModule,
     TranslateModule,
     ReactiveFormsModule,
+    NgxEchartsModule,
     DataGridComponent,
     DataTreeComponent,
     DialogGridComponent,

@@ -7,16 +7,35 @@
     </span>
   </h4>
 </mat-toolbar>
-<mat-card class="sitmun-mat-card-margin" appearance="outlined">
+<mat-card class="sitmun-mat-card-margin" appearance="outlined" @fadeIn>
   <mat-card-content>
-    <mat-grid-list rowHeight="2:1" cols="4" *ngIf="dataLoaded" [gutterSize]="'10px'">
+    <!-- Loading skeleton for KPI cards -->
+    <mat-grid-list rowHeight="120px" cols="4" *ngIf="!dataLoaded" [gutterSize]="'16px'">
+      <mat-grid-tile *ngFor="let i of [1,2,3,4,5,6,7]">
+        <mat-card class="kpi-card skeleton-card" appearance="outlined">
+          <mat-card-content class="kpi-content">
+            <div class="skeleton-icon"></div>
+            <div class="kpi-details">
+              <div class="skeleton-text skeleton-title"></div>
+              <div class="skeleton-text skeleton-value"></div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </mat-grid-tile>
+    </mat-grid-list>
+
+    <!-- Actual KPI cards -->
+    <mat-grid-list rowHeight="120px" cols="4" *ngIf="dataLoaded" [gutterSize]="'16px'" [@listAnimation]="KPIsTable.length">
       <mat-grid-tile *ngFor="let kpi of KPIsTable; let i = index">
-        <mat-card class="ticker full" appearance="outlined">
-          <mat-card-header>
-            <mat-card-title class="title">{{ kpi.text }}</mat-card-title>
-          </mat-card-header>
-          <mat-card-content class="total">
-            {{ kpi.number }}
+        <mat-card class="kpi-card" appearance="outlined" [matTooltip]="kpi.tooltip" matTooltipPosition="above">
+          <mat-card-content class="kpi-content">
+            <div class="kpi-icon-wrapper" [class.primary-color]="kpi.color === 'primary'" [class.accent-color]="kpi.color === 'accent'">
+              <mat-icon class="kpi-icon">{{ kpi.icon }}</mat-icon>
+            </div>
+            <div class="kpi-details">
+              <div class="kpi-title">{{ kpi.text }}</div>
+              <div class="kpi-value">{{ kpi.number }}</div>
+            </div>
           </mat-card-content>
         </mat-card>
       </mat-grid-tile>
@@ -24,23 +43,89 @@
   </mat-card-content>
 </mat-card>
 
-<div style="width:100%; margin-top: 20px" *ngIf="dataLoaded">
-  <div class="gridGraph">
-    <p class="titleGraph">{{ "dashboard.cartographies" | translate }}
-      <span *ngIf="!cartographyDataAvailable">({{ "notAvailable" | translate }})</span>
-    </p>
-    <app-datagraph *ngIf="dataLoaded" [data]="this.cartographyChartData" type="bar"></app-datagraph>
-  </div>
-  <div class="gridGraph">
-    <p class="titleGraph">{{ "dashboard.users" | translate }}
-      <span *ngIf="!usersDataAvailable">({{ "notAvailable" | translate }})</span>
-    </p>
-    <app-datagraph *ngIf="dataLoaded" [data]="this.usersToShow" type="bar"></app-datagraph>
-  </div>
-  <div class="gridGraph">
-    <p class="titleGraph">{{ "dashboard.usersPerApplication" | translate }}
-      <span *ngIf="!usersPerApplicationDataAvailable">({{ "notAvailable" | translate }})</span>
-    </p>
-    <app-datagraph *ngIf="dataLoaded" [data]="this.usersPerApplicationChartData" type="bar"></app-datagraph>
-  </div>
+<!-- Loading skeleton for charts -->
+<div class="charts-container" *ngIf="!dataLoaded">
+  <mat-card class="chart-card" appearance="outlined" *ngFor="let i of [1,2,3]">
+    <mat-card-header>
+      <div class="skeleton-text skeleton-chart-title"></div>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="chart-skeleton">
+        <mat-spinner diameter="50"></mat-spinner>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<!-- Actual charts -->
+<div class="charts-container" *ngIf="dataLoaded" @fadeIn>
+  <mat-card class="chart-card" appearance="outlined">
+    <mat-card-header>
+      <mat-card-title class="chart-title">
+        {{ "dashboard.cartographies" | translate }}
+        <span class="chart-subtitle">{{ "dashboard.chartCumulative" | translate }}</span>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <app-datagraph 
+        *ngIf="cartographyDataAvailable" 
+        [data]="cartographyChartData" 
+        type="area"
+        [cumulative]="true">
+      </app-datagraph>
+      <div *ngIf="!cartographyDataAvailable" class="empty-state">
+        <mat-icon class="empty-state-icon">bar_chart</mat-icon>
+        <h3 class="empty-state-title">{{ "notAvailable" | translate }}</h3>
+        <p class="empty-state-message">
+          No cartography creation data available
+        </p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="chart-card" appearance="outlined">
+    <mat-card-header>
+      <mat-card-title class="chart-title">
+        {{ "dashboard.users" | translate }}
+        <span class="chart-subtitle">{{ "dashboard.chartCumulative" | translate }}</span>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <app-datagraph 
+        *ngIf="usersDataAvailable" 
+        [data]="usersToShow" 
+        type="area"
+        [cumulative]="true">
+      </app-datagraph>
+      <div *ngIf="!usersDataAvailable" class="empty-state">
+        <mat-icon class="empty-state-icon">people_outline</mat-icon>
+        <h3 class="empty-state-title">{{ "notAvailable" | translate }}</h3>
+        <p class="empty-state-message">
+          No user registration data available
+        </p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="chart-card" appearance="outlined">
+    <mat-card-header>
+      <mat-card-title class="chart-title">
+        {{ "dashboard.usersPerApplication" | translate }}
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <app-datagraph 
+        *ngIf="usersPerApplicationDataAvailable" 
+        [data]="usersPerApplicationChartData" 
+        type="bar">
+      </app-datagraph>
+      <div *ngIf="!usersPerApplicationDataAvailable" class="empty-state">
+        <mat-icon class="empty-state-icon">apps</mat-icon>
+        <h3 class="empty-state-title">{{ "notAvailable" | translate }}</h3>
+        <p class="empty-state-message">
+          No user-application distribution data available
+        </p>
+      </div>
+    </mat-card-content>
+  </mat-card>
 </div>

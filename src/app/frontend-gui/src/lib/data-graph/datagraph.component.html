@@ -1,1 +1,8 @@
-<div class="d3-chart" #chart></div>
+<div class="chart-container">
+  <div 
+    echarts 
+    [options]="chartOption" 
+    [loading]="loading"
+    class="echarts-instance">
+  </div>
+</div>

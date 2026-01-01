@@ -1,8 +1,13 @@
-import {Component, ElementRef, Input, OnChanges, OnInit, ViewChild} from '@angular/core';
-import {axisBottom, axisLeft, max, ScaleBand, scaleBand, ScaleLinear, scaleLinear, select, Selection,} from 'd3';
+import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+import * as echarts from 'echarts';
+import {EChartsOption} from 'echarts';
 
 type DataPoint = { index: string; value: number };
 
+/**
+ * Chart component using Apache ECharts for modern, 
+ * interactive data visualization
+ */
 @Component({
   selector: 'app-datagraph',
   templateUrl: './datagraph.component.html',
@@ -10,155 +15,270 @@ type DataPoint = { index: string; value: number };
 })
 export class DatagraphComponent implements OnInit, OnChanges {
 
-  @ViewChild('chart',{static: true}) private chartContainer: ElementRef;
+  @Input() data: Array<DataPoint> = [];
+  @Input() type: 'bar' | 'area' = 'bar';
+  @Input() cumulative: boolean = false; // For accumulated charts
 
-  @Input() private data: Array<DataPoint>
-  @Input() private type;
-  private margin: any = { top: 20, bottom: 60, left: 40, right: 40};
-  private margin2 = 80;
+  chartOption: EChartsOption = {};
+  loading = true;
 
-  private chart: Selection<SVGGElement, unknown, null, undefined>;
-  private width: number;
-  private height: number;
-
-  private xScale: ScaleBand<string>;
-
-  private yScale: ScaleLinear<number, number>;
-  private colors: any;
-
-  private xAxis: Selection<SVGGElement, unknown, null, undefined>;
-
-  private yAxis: Selection<SVGGElement, unknown, null, undefined>;
-
-  ngOnInit() {
-
-      if(this.type == "bar"){
-        this.createBarChart();
-        if (this.data) {
-          this.updateBarChart();
-        }
-      }
-
+  ngOnInit(): void {
+    this.updateChartOptions();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['data'] && !changes['data'].firstChange) {
+      this.updateChartOptions();
+    }
+  }
 
-  ngOnChanges() {
-    if(this.type == "bar")
-    {
-      if (this.chart) {
-        this.updateBarChart();
-      }
+  /**
+   * Update ECharts configuration with current data
+   */
+  private updateChartOptions(): void {
+    if (!this.data || this.data.length === 0) {
+      this.loading = false;
+      return;
     }
 
+    const xAxisData = this.data.map(d => d.index);
+    const seriesData = this.data.map(d => d.value);
 
+    this.chartOption = this.type === 'area' 
+      ? this.createAreaChartOptions(xAxisData, seriesData)
+      : this.createBarChartOptions(xAxisData, seriesData);
+    this.loading = false;
   }
 
-  createBarChart() {
-    const element = this.chartContainer.nativeElement;
-    this.width = element.offsetWidth - this.margin.left - this.margin.right;
-    this.height = element.offsetHeight - this.margin.top - this.margin.bottom;
-    const svg = select(element).append('svg')
-      .attr('width', '100%')
-      .attr("height", '100%')
+  /**
+   * Create area chart configuration for time-series data
+   * Uses time-based x-axis for accurate temporal visualization
+   */
+  private createAreaChartOptions(
+    xData: string[], 
+    yData: number[]
+  ): EChartsOption {
+    // Calculate cumulative values if needed
+    let values = yData;
+    if (this.cumulative) {
+      values = [];
+      let sum = 0;
+      for (const val of yData) {
+        sum += val;
+        values.push(sum);
+      }
+    }
+    
+    // Convert date strings to timestamps for proper time-based axis
+    const timeSeriesData = xData.map((date, index) => ({
+      value: [date, values[index]]
+    }));
 
-    // chart plot area
-    this.chart = svg.append('g')
-      .attr('class', 'bars')
-      .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`);
-
-    const barGroups = this.chart
-      .selectAll<SVGGElement, DataPoint>('.bar-group')
-      .data(this.data ?? [])
-      .enter()
-      .append('g')
-      .attr('class', 'bar-group')
-
-
-
-    // define X & Y domains
-    const xDomain = (this.data ?? []).map(d => d.index);
-    const yMax = max(this.data ?? [], d => d.value) ?? 0;
-    const yDomain: [number, number] = [0, yMax];
-
-    // create scales
-    this.xScale = scaleBand().padding(0.3).domain(xDomain).rangeRound([0, this.width]);
-    this.yScale = scaleLinear().domain(yDomain).range([this.height, 0]);
-
-    // bar colors
-   // this.colors = d3.scaleLinear().domain([0, this.data.length]).range(<any[]>['red', 'blue']);
-
-    barGroups
-      .append('text')
-      .attr('class', 'value')
-      .attr('x', (a) => this.xScale(a.index) + this.xScale.bandwidth() / 2)
-      .attr('y', (a) => this.yScale(a.value)-5)
-      .attr('text-anchor', 'middle')
-      .style("font-size", 9)
-      .style("fill", "black")
-      .text((a) => `${a.value}`)
-
-
-    // x & y axis
-    const xAxisG = svg.append('g')
-      .attr('class', 'axis axis-x')
-      .attr('transform', `translate(${this.margin.left}, ${this.margin.top + this.height})`)
-      .call(axisBottom(this.xScale));
-    xAxisG.selectAll('text')
-      .attr('transform', 'translate(-10,0)rotate(-45)')
-      .style('text-anchor', 'end')
-      .style('font-size', 9)
-      .style('fill', 'black');
-    this.xAxis = xAxisG as Selection<SVGGElement, unknown, null, undefined>;
-
-
-    const yAxisG = svg.append('g')
-      .attr('class', 'axis axis-y')
-      .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`)
-      .call(axisLeft(this.yScale));
-    yAxisG.selectAll('text')
-      .style('font-size', 9)
-      .style('fill', 'black');
-    this.yAxis = yAxisG as Selection<SVGGElement, unknown, null, undefined>;
-
-
+    return {
+      backgroundColor: 'transparent',
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'line',
+          lineStyle: {
+            color: '#FF9300',
+            width: 2
+          }
+        },
+        formatter: (params: any) => {
+          const param = params[0];
+          return `${param.value[0]}<br/>${param.value[1]}`;
+        },
+        backgroundColor: 'rgba(50, 50, 50, 0.9)',
+        borderColor: '#FF9300',
+        borderWidth: 1,
+        textStyle: {
+          color: '#fff',
+          fontSize: 12
+        }
+      },
+      grid: {
+        left: '5%',
+        right: '5%',
+        bottom: '20%',
+        top: '10%',
+        containLabel: true
+      },
+      xAxis: {
+        type: 'time',  // Time-based axis for accurate spacing
+        axisLabel: {
+          rotate: 45,
+          fontSize: 10,
+          color: '#666',
+          formatter: '{yyyy}-{MM}-{dd}'
+        },
+        axisLine: {
+          lineStyle: {
+            color: '#ddd'
+          }
+        },
+        splitLine: {
+          show: true,
+          lineStyle: {
+            color: '#eee',
+            type: 'dashed'
+          }
+        }
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: {
+          fontSize: 10,
+          color: '#666'
+        },
+        axisLine: {
+          lineStyle: {
+            color: '#ddd'
+          }
+        },
+        splitLine: {
+          lineStyle: {
+            color: '#eee',
+            type: 'dashed'
+          }
+        }
+      },
+      series: [
+        {
+          type: 'line',
+          data: timeSeriesData,
+          smooth: this.cumulative,  // Smooth cumulative charts for better flow
+          symbol: 'circle',
+          symbolSize: this.cumulative ? 4 : 6,
+          itemStyle: {
+            color: '#FF9300'
+          },
+          lineStyle: {
+            width: this.cumulative ? 3 : 2,
+            color: '#FF9300'
+          },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(
+              0, 0, 0, 1,
+              [
+                { offset: 0, color: 'rgba(255, 147, 0, 0.4)' },
+                { offset: 1, color: 'rgba(255, 147, 0, 0.05)' }
+              ]
+            )
+          },
+          emphasis: {
+            focus: 'series',
+            itemStyle: {
+              color: '#FF9300',
+              borderColor: '#fff',
+              borderWidth: 2,
+              shadowBlur: 10,
+              shadowColor: 'rgba(255, 147, 0, 0.5)'
+            }
+          },
+          animationDuration: 1000,
+          animationEasing: 'cubicOut'
+        }
+      ]
+    };
   }
 
-  updateBarChart() {
-    // update scales & axis
-    this.xScale.domain(this.data.map(d => d.index));
-    this.yScale.domain([0, (max(this.data, d => d.value))]);
-    this.xAxis.transition().call(axisBottom(this.xScale));
-    this.yAxis.transition().call(axisLeft(this.yScale));
-
-    const update = this.chart
-      .selectAll<SVGRectElement, DataPoint>('.bar')
-      .data(this.data ?? []);
-
-    // remove exiting bars
-    update.exit().remove();
-
-    // update existing bars
-    this.chart
-      .selectAll<SVGRectElement, DataPoint>('.bar')
-      .transition()
-      .attr('x', d => this.xScale(d.index) as number)
-      .attr('y', d => this.yScale(d.value))
-      .attr('width', () => this.xScale.bandwidth())
-      .attr('height', d => this.height - this.yScale(d.value))
-      .style('fill', '#be7d27');
-
-    // add new bars
-    update
-      .enter()
-      .append('rect')
-      .attr('class', 'bar')
-      .attr('x', d => this.xScale(d.index) as number)
-      .attr('y', d => this.yScale(d.value))
-      .attr('height', d => this.height - this.yScale(d.value))
-      .attr('width', this.xScale.bandwidth())
-      .style('fill', '#be7d27')
-      .transition()
-      .delay((d, i) => i * 10)
-
+  /**
+   * Create bar chart configuration with Material Design styling
+   */
+  private createBarChartOptions(
+    xData: string[], 
+    yData: number[]
+  ): EChartsOption {
+    return {
+      backgroundColor: 'transparent',
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'shadow'
+        },
+        formatter: '{b}<br/>{c}',
+        backgroundColor: 'rgba(50, 50, 50, 0.9)',
+        borderColor: '#FF9300',
+        borderWidth: 1,
+        textStyle: {
+          color: '#fff',
+          fontSize: 12
+        }
+      },
+      grid: {
+        left: '5%',
+        right: '5%',
+        bottom: '20%',
+        top: '10%',
+        containLabel: true
+      },
+      xAxis: {
+        type: 'category',
+        data: xData,
+        axisLabel: {
+          rotate: 45,
+          fontSize: 10,
+          color: '#666',
+          interval: 0
+        },
+        axisLine: {
+          lineStyle: {
+            color: '#ddd'
+          }
+        }
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: {
+          fontSize: 10,
+          color: '#666'
+        },
+        axisLine: {
+          lineStyle: {
+            color: '#ddd'
+          }
+        },
+        splitLine: {
+          lineStyle: {
+            color: '#eee',
+            type: 'dashed'
+          }
+        }
+      },
+      series: [
+        {
+          type: 'bar',
+          data: yData,
+          barWidth: '60%',
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(
+              0, 0, 0, 1,
+              [
+                { offset: 0, color: '#FF9300' },
+                { offset: 1, color: '#FFB84D' }
+              ]
+            ),
+            borderRadius: [8, 8, 0, 0]
+          },
+          emphasis: {
+            itemStyle: {
+              color: '#FF9300',
+              shadowBlur: 10,
+              shadowColor: 'rgba(255, 147, 0, 0.5)'
+            }
+          },
+          label: {
+            show: true,
+            position: 'top',
+            color: '#333',
+            fontSize: 10,
+            fontWeight: 'bold'
+          },
+          animationDuration: 1000,
+          animationEasing: 'cubicOut'
+        }
+      ]
+    };
   }
 }
