@@ -7,6 +7,12 @@
     </span>
   </h4>
   <span class="spacer"></span>
+  <app-form-validation-banner
+    *ngIf="showValidationBanner && dataLoaded"
+    [form]="form"
+    [entityType]="validationEntityType"
+    class="toolbar-banner">
+  </app-form-validation-banner>
   <button
     [matTooltip]="'save' | translate"
     mat-mini-fab

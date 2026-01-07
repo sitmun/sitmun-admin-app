@@ -1,0 +1,31 @@
+<mat-card
+  *ngIf="isVisible"
+  appearance="outlined"
+  color="warn"
+  role="alert"
+  aria-live="polite"
+  class="form-validation-banner">
+  <mat-card-content>
+    <div class="banner-content">
+      <mat-icon class="banner-icon">error_outline</mat-icon>
+      <div class="banner-text">
+        <span class="banner-title">
+          {{ 'common.validation.saveDisabledTitle' | translate }}
+        </span>
+        <span class="banner-message">
+          {{ 'common.validation.fixRequiredFields' | translate }}
+          <span class="field-list">
+            <ng-container *ngFor="let label of invalidFieldLabels; let last = last">
+              <strong>{{ label }}</strong><span *ngIf="!last">, </span>
+            </ng-container>
+            <span *ngIf="additionalFieldsCount > 0">
+              <span *ngIf="invalidFieldLabels.length > 0">, </span>
+              {{ 'common.validation.andMoreFields' | translate: {count: additionalFieldsCount} }}
+            </span>
+          </span>
+        </span>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>
+

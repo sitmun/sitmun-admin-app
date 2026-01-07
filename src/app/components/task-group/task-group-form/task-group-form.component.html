@@ -5,6 +5,9 @@
   [itemName]="entityForm?.get('name')?.value"
   [isNew]="isNew()"
   [canSave]="canSaveEntity"
+  [form]="entityForm"
+  validationEntityType="taskgroup"
+  [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>

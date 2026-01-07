@@ -36,6 +36,7 @@ import {DialogTranslationComponent} from './dialog-translation/dialog-translatio
 import {DatagraphComponent} from './data-graph/datagraph.component';
 import {MapTreeComponent} from './map-tree/map-tree.component';
 import {CharacterCountPipe} from '@app/components/shared/character-counter-hint/character-count.pipe';
+import {FormValidationBannerComponent} from './form-validation-banner/form-validation-banner.component';
 
 
 registerLocaleData(localeCa, 'ca');
@@ -85,6 +86,7 @@ export function createTranslateLoader(http: HttpClient) {
     DatagraphComponent,
     MapTreeComponent,
     CharacterCountPipe,
+    FormValidationBannerComponent,
   ],
   providers: [],
   exports: [
@@ -106,6 +108,7 @@ export function createTranslateLoader(http: HttpClient) {
     // SitmunFrontendCoreModule
     MapTreeComponent,
     CharacterCountPipe,
+    FormValidationBannerComponent,
   ]
 })
 export class SitmunFrontendGuiModule {

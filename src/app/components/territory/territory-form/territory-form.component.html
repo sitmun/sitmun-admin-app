@@ -5,6 +5,9 @@
   [isNew]="isNewOrDuplicated()"
   [itemName]="itemName('name')"
   [canSave]="canSaveEntity"
+  [form]="entityForm"
+  validationEntityType="territory"
+  [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>

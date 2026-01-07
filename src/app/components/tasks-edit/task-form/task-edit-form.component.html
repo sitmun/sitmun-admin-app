@@ -5,6 +5,9 @@
   [isNew]="isNew()"
   [itemName]="entityForm?.get('name')?.value"
   [canSave]="canSaveEntity"
+  [form]="entityForm"
+  validationEntityType="task"
+  [dataLoaded]="dataLoaded"
   entityType="{{ config.labelSingular }}"
   font="{{ config.font }}"
   icon="{{ config.icon }}">

@@ -1,0 +1,36 @@
+.form-validation-banner {
+  margin: 16px;
+  padding: 0;
+}
+
+.banner-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.banner-icon {
+  color: inherit;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.banner-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.banner-title {
+  font-weight: 500;
+}
+
+.banner-message {
+  font-size: 14px;
+}
+
+.field-list {
+  font-weight: normal;
+}
+

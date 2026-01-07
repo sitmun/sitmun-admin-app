@@ -6,6 +6,9 @@
   [isNew]="isNew()"
   [additionalText]="taskTypeNameTranslated"
   [canSave]="canSaveEntity"
+  [form]="entityForm"
+  validationEntityType="task"
+  [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>

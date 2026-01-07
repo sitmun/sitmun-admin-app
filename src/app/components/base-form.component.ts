@@ -436,6 +436,32 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
   }
 
   /**
+   * Gets the list of form control names that are invalid and have required errors.
+   * Used by form validation banner to display which required fields need attention.
+   *
+   * @returns {string[]} Array of form control names that are invalid with required errors
+   */
+  protected getInvalidRequiredFields(): string[] {
+    if (!this.entityForm) {
+      return [];
+    }
+
+    const invalidFields: string[] = [];
+    const formControls = this.entityForm.controls;
+
+    for (const controlName in formControls) {
+      if (formControls.hasOwnProperty(controlName)) {
+        const control = formControls[controlName];
+        if (control.invalid && control.hasError('required')) {
+          invalidFields.push(controlName);
+        }
+      }
+    }
+
+    return invalidFields;
+  }
+
+  /**
    * Checks if any translations have been modified.
    *
    * @returns {boolean} true if any property has modified translations, false otherwise

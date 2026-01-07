@@ -5,6 +5,9 @@
   [itemName]="entityForm?.get('username')?.value || ''"
   [isNew]="isNew()"
   [canSave]="canSaveEntity"
+  [form]="entityForm"
+  validationEntityType="user"
+  [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>

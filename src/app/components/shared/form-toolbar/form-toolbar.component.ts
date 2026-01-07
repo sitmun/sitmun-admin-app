@@ -1,5 +1,6 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {TranslateService} from '@ngx-translate/core';
+import {UntypedFormGroup} from '@angular/forms';
 
 @Component({
   selector: 'app-form-toolbar',
@@ -19,6 +20,11 @@ export class FormToolbarComponent {
   @Input() additionalText: string;
 
   @Input() canSave = true;
+  @Input() form: UntypedFormGroup;
+  @Input() validationEntityType: string;
+  @Input() showValidationBanner = true;
+  @Input() dataLoaded = false;
+
   @Output() save = new EventEmitter<void>();
   @Output() back = new EventEmitter<void>();
 

@@ -13,4 +13,5 @@ export * from './dialog-form/dialog-form.component';
 export * from './dialog-translation/dialog-translation.component';
 export * from './data-graph/datagraph.component';
 export * from './image-preview/image-preview.component';
+export * from './form-validation-banner/form-validation-banner.component';
 
