@@ -331,7 +331,6 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
     if (isNull) {
       return true
     } else {
-      console.log("validate envelope:", this.normalizeEnvelope(minX, maxX, minY, maxY))
       return this.normalizeEnvelope(minX, maxX, minY, maxY) !== null;
     }
   }
@@ -427,7 +426,6 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
     if (isNull) {
       return true
     } else {
-      console.log("validate point:", this.normalizePoint(x, y))
       return this.normalizePoint(x, y) !== null;
     }
   }

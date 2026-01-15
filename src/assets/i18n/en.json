@@ -174,7 +174,7 @@
   "entity.application.type.external.url": "External URL",
   "entity.application.type.generic.accessChildrenTerritory": "Territorial roles apply to child territories",
   "entity.application.type.generic.accessParentTerritory": "Territorial roles apply to parent territories",
-  "entity.application.type.generic.css": "CSS used",
+  "entity.application.type.generic.css": "Map style used",
   "entity.application.type.generic.scales": "Scales supported",
   "entity.application.type.generic.situationmap": "Location map",
   "entity.application.type.generic.srs": "Supported coordinate reference systems",

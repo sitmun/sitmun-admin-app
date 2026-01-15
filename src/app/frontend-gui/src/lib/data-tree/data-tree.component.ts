@@ -698,12 +698,6 @@ export class DataTreeComponent {
 
   updateNode(nodeUpdated)
   {
-    console.log('DataTreeComponent.updateNode - Received node update', {
-      nodeId: nodeUpdated.id,
-      nodeName: nodeUpdated.name,
-      nodeType: nodeUpdated.nodeType,
-      hasChildren: !!nodeUpdated.children
-    });
     const dataToChange = JSON.parse(JSON.stringify(this.dataSource.data))
     const siblings = this.findNodeSiblings(dataToChange, String(nodeUpdated.id));
     if (!siblings) {
@@ -722,30 +716,14 @@ export class DataTreeComponent {
     }
     // Preserve children if they exist in the original node
     const originalNode = siblings[index];
-    console.log('DataTreeComponent.updateNode - Original node before update', {
-      nodeId: originalNode.id,
-      originalName: originalNode.name,
-      originalNodeType: originalNode.nodeType,
-      hasChildren: !!originalNode.children
-    });
     const updatedNode = {
       ...originalNode,
       ...nodeUpdated,
       children: nodeUpdated.children || originalNode.children,
       id: originalNode.id // Preserve original ID type
     };
-    console.log('DataTreeComponent.updateNode - Updated node after merge', {
-      nodeId: updatedNode.id,
-      updatedName: updatedNode.name,
-      updatedNodeType: updatedNode.nodeType,
-      hasChildren: !!updatedNode.children
-    });
     siblings[index] = updatedNode;
     this.rebuildTreeForData(dataToChange);
-    console.log('DataTreeComponent.updateNode - Node update completed', {
-      nodeId: updatedNode.id,
-      nodeName: updatedNode.name
-    });
 
   }
 

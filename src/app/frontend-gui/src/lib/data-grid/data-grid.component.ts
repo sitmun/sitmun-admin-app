@@ -1202,7 +1202,6 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       const selectedData = selectedNodes.map(node => node.data);
       this.duplicate.emit(selectedData);
       //this.gridOptions.api.deselectAll();
-      console.log("emited event of duplication")
       this.gridApi.deselectAll()
     }
   }

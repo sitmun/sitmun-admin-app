@@ -220,8 +220,6 @@ export class SystemInfoMenuComponent implements OnInit, OnDestroy {
       source: 'System Info Menu'
     };
     
-    console.log('[SystemInfoMenu] Triggering test error...');
-    
     // Add error directly to tracking service
     this.errorTrackingService.addError(
       'Test error triggered from system menu',
@@ -231,8 +229,6 @@ export class SystemInfoMenuComponent implements OnInit, OnDestroy {
         stackTrace: new Error().stack
       }
     );
-    
-    console.log('[SystemInfoMenu] Error added. Total errors:', this.errorTrackingService.getErrors().length);
     
     // Also log it via logger service
     this.loggerService.error('Test error triggered from system menu', testError);

@@ -276,7 +276,6 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
         const errorMessage = err.error?.message;
         const shouldTranslate = !errorMessage;
         const message = errorMessage || "entity.connection.test.error.unknown";
-        console.log("Error: ", err, errorMessage, shouldTranslate, message);
         this.notificationService.showError("entity.connection.test.title", message, shouldTranslate);
       }
     });

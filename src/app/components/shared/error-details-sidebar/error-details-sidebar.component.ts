@@ -52,13 +52,11 @@ export class ErrorDetailsSidebarComponent implements OnInit, OnDestroy {
 
     // Subscribe to errors
     this.errorsSubscription = this.errorTrackingService.errors$.subscribe(errors => {
-      console.log('[ErrorDetailsSidebar] Errors updated:', errors.length);
       this.errors = [...errors]; // Create new array reference to trigger change detection
     });
 
     // Load initial errors
     this.errors = this.errorTrackingService.getErrors();
-    console.log('[ErrorDetailsSidebar] Initialized with', this.errors.length, 'errors');
   }
 
   /**

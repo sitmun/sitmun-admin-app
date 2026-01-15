@@ -174,7 +174,7 @@
   "entity.application.type.external.url": "URL externa",
   "entity.application.type.generic.accessChildrenTerritory": "Los ròtles territorials s'aplican als territòris descendents",
   "entity.application.type.generic.accessParentTerritory": "Los ròtles territorials s'aplican als territòris parents",
-  "entity.application.type.generic.css": "CSS utilizat",
+  "entity.application.type.generic.css": "Estil de mapa utilizat",
   "entity.application.type.generic.scales": "Escales suportadas",
   "entity.application.type.generic.situationmap": "Mapa de localizacion",
   "entity.application.type.generic.srs": "Sistemas de referencia de coordenadas soportados",

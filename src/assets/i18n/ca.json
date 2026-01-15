@@ -174,7 +174,7 @@
   "entity.application.type.external.url": "URL externa",
   "entity.application.type.generic.accessChildrenTerritory": "Els rols territorials s'apliquen als territoris fills",
   "entity.application.type.generic.accessParentTerritory": "Els rols territorials s'apliquen als territoris pares",
-  "entity.application.type.generic.css": "CSS utilitzat",
+  "entity.application.type.generic.css": "Estil de mapa utilitzat",
   "entity.application.type.generic.scales": "Escales suportades",
   "entity.application.type.generic.situationmap": "Mapa de situació",
   "entity.application.type.generic.srs": "Sistema de referència de coordenades suportades",

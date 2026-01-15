@@ -288,8 +288,6 @@ export abstract class Resource {
       const body = type + "/" + key;
       if (Resource.loggerService) {
         Resource.loggerService.debug("Substituting relation", {url: url, body: body});
-      } else {
-        console.log("Substituting relation", {url: url, body: body});
       }
       return ResourceHelper.getHttp().put(url, body, {headers: header});
     } else {
