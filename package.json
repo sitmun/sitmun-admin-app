@@ -45,7 +45,7 @@
     "@angular-eslint/eslint-plugin": "16.3.1",
     "@angular-eslint/eslint-plugin-template": "16.3.1",
     "@angular-eslint/template-parser": "16.3.1",
-    "@angular/cli": "^16.2.14",
+    "@angular/cli": "^21.1.0",
     "@angular/compiler-cli": "^16.2.12",
     "@babel/core": "^7.26.9",
     "@babel/preset-env": "^7.26.9",
