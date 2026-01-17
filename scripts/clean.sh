@@ -1,6 +1,6 @@
 #!/bin/bash
 # clean.sh - Comprehensive cleaning script for admin-app
-# Usage: ./build-scripts/clean.sh [OPTIONS]
+# Usage: ./scripts/clean.sh [OPTIONS]
 #        or: npm run clean [-- OPTIONS]
 
 # Color codes for output
@@ -177,6 +177,44 @@ remove_pattern() {
   fi
 }
 
+# Remove directories matching pattern
+remove_pattern_dir() {
+  local pattern=$1
+  local description=$2
+  
+  if [[ "$DRY_RUN" == "true" ]]; then
+    local found=false
+    while IFS= read -r -d '' dir; do
+      echo -e "${BLUE}[DRY RUN] Would remove: $dir${NC} ${YELLOW}($description)${NC}"
+      found=true
+      ((CLEANED_COUNT++))
+      CLEANED_TARGETS+=("$dir")
+    done < <(find . -name "$pattern" -type d -print0 2>/dev/null)
+    if [[ "$found" == "false" ]]; then
+      echo -e "${YELLOW}Skipping pattern: $pattern${NC} ${YELLOW}(not found)${NC}"
+    fi
+  else
+    local found=false
+    while IFS= read -r -d '' dir; do
+      echo -e "${BLUE}Removing: $dir${NC} ${YELLOW}($description)${NC}"
+      rm -rf "$dir"
+      if [[ $? -eq 0 ]]; then
+        echo -e "${GREEN}  ✓ Successfully removed${NC}"
+        found=true
+        ((CLEANED_COUNT++))
+        CLEANED_TARGETS+=("$dir")
+      else
+        echo -e "${RED}  ✗ Failed to remove${NC}"
+        ((FAILED_COUNT++))
+        FAILED_ITEMS+=("$dir")
+      fi
+    done < <(find . -name "$pattern" -type d -print0 2>/dev/null)
+    if [[ "$found" == "false" ]]; then
+      echo -e "${YELLOW}Skipping pattern: $pattern${NC} ${YELLOW}(not found)${NC}"
+    fi
+  fi
+}
+
 # Parse command-line arguments
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -259,6 +297,12 @@ if [[ "$BUILD_ONLY" != "true" ]]; then
   remove_item ".sass-cache" "Sass compiler cache"
   remove_item "connect.lock" "Browser sync lock"
   
+  # Clean Python cache
+  remove_pattern_dir "__pycache__" "Python bytecode cache directory"
+  remove_pattern "*.pyc" "Python compiled bytecode"
+  remove_pattern "*.pyo" "Python optimized bytecode"
+  remove_pattern "*.pyd" "Python extension module (Windows)"
+  
   remove_pattern "npm-debug.log" "npm error log"
   remove_pattern "yarn-error.log" "Yarn error log"
   remove_pattern "testem.log" "Test runner log"
@@ -316,7 +360,7 @@ if [[ "$BUILD_ONLY" != "true" ]]; then
         fi
       fi
     done < <(find . -type d -empty -not -path "./.git/*" -not -path "./node_modules/*" \
-      -not -path "./src/*" -not -path "./build-scripts/*" -not -path "./scripts/*" \
+      -not -path "./src/*" -not -path "./scripts/*" \
       -not -path "./docs/*" -not -path "./.github/*" -print0 2>/dev/null)
     
     if [[ $empty_dirs_removed -eq 0 ]]; then

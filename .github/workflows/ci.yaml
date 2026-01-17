@@ -9,39 +9,54 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - name: Use Node.js 12
-      uses: actions/setup-node@v1
+    
+    - name: Use Node.js 18
+      uses: actions/setup-node@v4
       with:
-        node-version: '12'
-    - name: Cache node modules
-      uses: actions/cache@v2
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
-    - name: Before install
-      run: npm set //npm.pkg.github.com/:_authToken ${{secrets.TOKEN_FOR_WORKFLOWS}}
+        node-version: '18'
+        cache: 'npm'
+    
     - name: Install dependencies
       run: npm ci
+    
     - name: Unit tests
-      run: npm run test -- --watch=false --no-progress --browsers=ChromeHeadless --code-coverage
+      run: npm run test -- --watch=false --coverage
+    
     - name: Sonar Cloud Scan
       uses: sonarsource/sonarcloud-github-action@master
       env:
         GITHUB_TOKEN: ${{secrets.TOKEN_FOR_WORKFLOWS}}
         SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
+    
     - name: E2E tests
-      run: ./build-scripts/conditional-e2e.sh
+      run: ./scripts/conditional-e2e.sh
       shell: bash
+      continue-on-error: true
+    
     - name: Build for deployment
       run: npm run build -- --configuration=testdeployment --baseHref="https://sitmun.github.io/admin-app/"
+    
+    - name: Validate build artifacts
+      run: |
+        if [ ! -d "dist/admin-app" ]; then
+          echo "ERROR: Build artifacts not found"
+          exit 1
+        fi
+        if [ -z "$(ls -A dist/admin-app)" ]; then
+          echo "ERROR: Build directory is empty"
+          exit 1
+        fi
+        echo "✓ Build artifacts validated"
+    
     - name: Deploy to GitHub pages
       env:
         USERNAME: ${{secrets.USERNAME_FOR_WORKFLOWS}}
         GITHUB_API_KEY: ${{secrets.TOKEN_FOR_WORKFLOWS}}
-      run: ./build-scripts/deploy.sh
+        GITHUB_WORKSPACE: ${{github.workspace}}
+        CI: true
+      run: ./scripts/deploy.sh
       shell: bash

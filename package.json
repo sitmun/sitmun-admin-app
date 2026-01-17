@@ -9,9 +9,9 @@
     "test:watch": "jest --watch",
     "lint": "ng lint",
     "sonar": "sonar-scanner",
-    "clean": "bash build-scripts/clean.sh",
-    "clean:force": "bash build-scripts/clean.sh --force",
-    "clean:build": "bash build-scripts/clean.sh --build-only"
+    "clean": "bash scripts/clean.sh",
+    "clean:force": "bash scripts/clean.sh --force",
+    "clean:build": "bash scripts/clean.sh --build-only"
   },
   "dependencies": {
     "@ag-grid-community/angular": "31.0.0",

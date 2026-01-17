@@ -281,8 +281,8 @@ npm test -- --testNamePattern="UserComponent"
 
 ```bash
 # E2E testing is available via conditional script for CI/CD
-# Check build-scripts/conditional-e2e.sh for implementation details
-./build-scripts/conditional-e2e.sh
+# Check scripts/conditional-e2e.sh for implementation details
+./scripts/conditional-e2e.sh
 ```
 
 **Note**: E2E testing is currently implemented as a conditional script that runs only when the test deployment backend is available.
