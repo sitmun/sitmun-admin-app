@@ -1,36 +1,28 @@
-import {ModuleWithProviders, NgModule, Optional, SkipSelf} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
-import {RouterModule} from '@angular/router';
+import {ModuleWithProviders, NgModule, Optional, SkipSelf} from '@angular/core';
 import {MatIconModule} from '@angular/material/icon';
+import {RouterModule} from '@angular/router';
+
+import {AccountService} from './account/account.service';
+import {AuthService} from './auth/auth.service';
+import {LoginService} from './auth/login.service';
+import {Principal} from './auth/principal.service';
 import {ConfigModule} from './config/config.module';
+import {ConfigurationService} from './config/configuration.service';
+import {HasAnyAuthorityOnTerritoryDirective} from './directives/has-any-authority-on-territory.directive';
+import {HasAnyAuthorityDirective} from './directives/has-any-authority.directive';
+import {FeatureFlagComponent} from './features/feature-flag.component';
 import {FeatureFlagDirective} from './features/feature-flag.directive';
 import {FeatureFlagPipe} from './features/feature-flag.pipe';
-import {FeatureFlagComponent} from './features/feature-flag.component';
 import {FeatureFlagService} from './features/feature-flag.service';
-
-// Auth services
-import {AuthService} from './auth/auth.service';
-import {Principal} from './auth/principal.service';
-import {LoginService} from './auth/login.service';
-
-// Account services
-import {AccountService} from './account/account.service';
-
-// Directives
-import {HasAnyAuthorityDirective} from './directives/has-any-authority.directive';
-import {HasAnyAuthorityOnTerritoryDirective} from './directives/has-any-authority-on-territory.directive';
-
-// Guards
 import {CanDeactivateGuard} from './guards/can-deactivate-guard.service';
-
 // Interceptors
-import {AuthInterceptor} from './interceptors/auth.interceptor';
 import {AuthExpiredInterceptor} from './interceptors/auth-expired.interceptor';
+import {AuthInterceptor} from './interceptors/auth.interceptor';
 import {MessagesInterceptor} from './interceptors/messages.interceptor';
 
 // SITMUN configuration services
-import {ConfigurationService} from './config/configuration.service';
 
 @NgModule({
   imports: [

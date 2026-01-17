@@ -1,6 +1,16 @@
 import {Component} from '@angular/core';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
+import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
+
+import {TranslateService} from "@ngx-translate/core";
+import { firstValueFrom, of} from 'rxjs';
+import {map} from 'rxjs/operators';
+
+import {BaseFormComponent} from "@app/components/base-form.component";
+import {DataTableDefinition} from "@app/components/data-tables.util";
+import {Configuration} from "@app/core/config/configuration";
+import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
 import {
   ApplicationBackground,
   ApplicationBackgroundProjection,
@@ -19,20 +29,12 @@ import {
   RoleService,
   TranslationService,
 } from '@app/domain';
-import {UtilsService} from '@app/services/utils.service';
-import {EMPTY, firstValueFrom, of} from 'rxjs';
 import {Status, onCreate, onDelete, onUpdate, onUpdatedRelation} from '@app/frontend-gui/src/lib/public_api';
-import {map} from 'rxjs/operators';
-import {MatDialog} from '@angular/material/dialog';
-import {TranslateService} from "@ngx-translate/core";
-import {BaseFormComponent} from "@app/components/base-form.component";
-import {DataTableDefinition} from "@app/components/data-tables.util";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
-import {constants} from "@environments/constants";
 import {LoggerService} from "@app/services/logger.service";
-import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
-import {Configuration} from "@app/core/config/configuration";
+import {UtilsService} from '@app/services/utils.service';
+import {constants} from "@environments/constants";
 
 /**
  * Component for managing background layers in the SITMUN application.
@@ -121,11 +123,20 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
    * @param {TranslateService} translateService - Handles UI element translations
    * @param {TranslationService} translationService - Handles entity translation data
    * @param {CodeListService} codeListService - Provides access to code lists for dropdown options
+   * @param loggerService
+   * @param loggerService
+   * @param loggerService
    * @param {ErrorHandlerService} errorHandler - Handles error reporting and display
+   * @param loadingService
+   * @param messagesInterceptorState
    * @param {UtilsService} utils - Provides common UI utilities and navigation
    *
    * Data Services:
+   * @param loadingService
+   * @param messagesInterceptorState
    * @param {BackgroundService} backgroundService - Manages background layer CRUD operations
+   * @param loadingService
+   * @param messagesInterceptorState
    * @param {CartographyService} cartographyService - Handles cartography data operations
    * @param {RoleService} roleService - Manages role data and permissions
    * @param {CartographyGroupService} cartographyGroupService - Handles cartography group operations

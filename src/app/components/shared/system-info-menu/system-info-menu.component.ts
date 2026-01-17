@@ -1,24 +1,25 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { Router } from '@angular/router';
-import { VERSION } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef,  VERSION } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MatMenu } from '@angular/material/menu';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
+
 import { TranslateService } from '@ngx-translate/core';
-import { LoginService } from '@app/core/auth/login.service';
-import { Principal } from '@app/core/auth/principal.service';
-import { AuthService } from '@app/core/auth/auth.service';
-import { LoggerService } from '@app/services/logger.service';
-import { LogLevel } from '@app/services/log-level.enum';
-import { ErrorTrackingService } from '@app/services/error-tracking.service';
-import { SidebarManagerService } from '@app/services/sidebar-manager.service';
+import { Subscription } from 'rxjs';
+
 import { AboutDialogComponent, AboutDialogData } from '@app/components/shared/about-dialog/about-dialog.component';
 import { ConfigurationParametersDialogComponent } from '@app/components/shared/configuration-parameters-dialog/configuration-parameters-dialog.component';
-import { FeatureFlagService } from '@app/core/features/feature-flag.service';
+import { AuthService } from '@app/core/auth/auth.service';
+import { LoginService } from '@app/core/auth/login.service';
+import { Principal } from '@app/core/auth/principal.service';
 import { FeatureFlagKeys, FeatureFlagConfig } from '@app/core/features/feature-flag.config';
+import { FeatureFlagService } from '@app/core/features/feature-flag.service';
 import { User } from '@app/domain';
+import { ErrorTrackingService } from '@app/services/error-tracking.service';
+import { LogLevel } from '@app/services/log-level.enum';
+import { LoggerService } from '@app/services/logger.service';
+import { SidebarManagerService } from '@app/services/sidebar-manager.service';
 import { environment } from '@environments/environment';
-import { Subscription } from 'rxjs';
+
 
 @Component({
   selector: 'app-system-info-menu',
@@ -32,7 +33,7 @@ export class SystemInfoMenuComponent implements OnInit, OnDestroy {
   angularVersion = VERSION.full;
   
   unreviewedErrorCount = 0;
-  currentCategory: string = '';
+  currentCategory = '';
   
   private authSubscription?: Subscription;
   private errorsSubscription?: Subscription;

@@ -6,6 +6,11 @@ export interface LoadingOverlayOptions {
   backdropOpacity?: number;
 }
 
+export interface AntiFlickerOptions {
+  showDelayMs?: number;      // Delay before showing (default: 150ms)
+  minDisplayMs?: number;     // Minimum display duration (default: 400ms)
+}
+
 /**
  * Service to show/hide a global loading overlay
  */
@@ -193,6 +198,95 @@ export class LoadingOverlayService {
       return await operation();
     } finally {
       this.hide(overlay);
+    }
+  }
+
+  /**
+   * Wraps an async operation with anti-flicker loading overlay.
+   * Prevents flicker by delaying show and ensuring minimum display time.
+   * @param operation The async operation to execute
+   * @param options Loading overlay and anti-flicker options
+   * @returns Promise resolving to operation result
+   */
+  async wrapWithAntiFlicker<T>(
+    operation: () => Promise<T>,
+    options?: LoadingOverlayOptions & AntiFlickerOptions
+  ): Promise<T> {
+    const {
+      showDelayMs = 150,
+      minDisplayMs = 400,
+      ...overlayOptions
+    } = options || {};
+
+    const startTime = Date.now();
+    let overlay: HTMLElement | null = null;
+    let showTimer: ReturnType<typeof setTimeout> | null = null;
+    let hideTimer: ReturnType<typeof setTimeout> | null = null;
+    let wasShown = false;
+
+    const cleanup = () => {
+      if (showTimer) {
+        clearTimeout(showTimer);
+        showTimer = null;
+      }
+      if (hideTimer) {
+        clearTimeout(hideTimer);
+        hideTimer = null;
+      }
+    };
+
+    const showOverlay = () => {
+      if (!overlay) {
+        overlay = this.show(overlayOptions);
+        wasShown = true;
+      }
+    };
+
+    const hideOverlay = () => {
+      if (overlay) {
+        this.hide(overlay);
+        overlay = null;
+      }
+    };
+
+    // Schedule showing overlay after delay
+    showTimer = setTimeout(() => {
+      showTimer = null;
+      if (!overlay) {
+        showOverlay();
+      }
+    }, showDelayMs);
+
+    try {
+      const result = await operation();
+      const elapsed = Date.now() - startTime;
+
+      cleanup();
+
+      if (wasShown) {
+        // If overlay was shown, ensure minimum display time
+        const remainingTime = minDisplayMs - (elapsed - showDelayMs);
+        if (remainingTime > 0) {
+          await new Promise<void>((resolve) => {
+            hideTimer = setTimeout(() => {
+              hideTimer = null;
+              hideOverlay();
+              resolve();
+            }, remainingTime);
+          });
+        } else {
+          hideOverlay();
+        }
+      } else {
+        // Operation completed before delay, never show overlay
+        hideOverlay();
+      }
+
+      return result;
+    } catch (error) {
+      cleanup();
+      hideOverlay();
+      throw error;
     }
   }
 }

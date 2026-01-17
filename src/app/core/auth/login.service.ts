@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
-import { AuthService } from './auth.service';
-import { Principal } from './principal.service';
+
+import { firstValueFrom } from 'rxjs';
+
+import {AuthService} from './auth.service';
+import {Principal} from './principal.service';
 
 /** Login service*/
 @Injectable()
@@ -13,25 +16,22 @@ export class LoginService {
   ) {}
 
   /**Login operation*/
-  login(credentials, callback?) {
-    const cb = callback || function() {};
+  async login(credentials, callback?) {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    const cb = callback || (() => {});
 
-    return new Promise((resolve, reject) => {
-      this.authServerProvider.login(credentials).subscribe((data) => {
-        this.principal.identity(true).then((account) => {
-          // After the login the language will be changed to
-          // the language selected by the user during his registration
-          resolve(data);
-        });
-
-
-        return cb();
-      }, (err) => {
-        this.logout();
-        reject(err);
-        return cb(err);
-      });
-    });
+    try {
+      const data = await firstValueFrom(this.authServerProvider.login(credentials));
+      const _account = await this.principal.identity(true);
+      // After the login the language will be changed to
+      // the language selected by the user during his registration
+      cb();
+      return data;
+    } catch (err) {
+      this.logout();
+      cb(err);
+      throw err;
+    }
   }
   /**login with jwt token */
   loginWithToken(jwt) {
@@ -42,7 +42,7 @@ export class LoginService {
   logout() {
     // First clear the authentication state
     this.principal.authenticate(null);
-    
+
     // Then call the auth service to clear tokens
     this.authServerProvider.logout().subscribe(() => {
       // Additional cleanup if needed

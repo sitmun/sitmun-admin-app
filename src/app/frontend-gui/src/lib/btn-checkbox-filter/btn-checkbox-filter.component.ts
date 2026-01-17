@@ -1,17 +1,18 @@
-import { Component} from '@angular/core';
+import { Component, HostBinding} from '@angular/core';
+
+import { IFloatingFilterAngularComp } from '@ag-grid-community/angular';
 import {
   IFloatingFilterParams,
 } from '@ag-grid-community/core';
-import { IFloatingFilterAngularComp } from '@ag-grid-community/angular';
 
 
 @Component({
   selector: 'app-btn-checkbox-filter',
   templateUrl: './btn-checkbox-filter.component.html',
-  styles: [],
-  host: {'class': 'hostClass'}
+  styles: []
 })
 export class BtnCheckboxFilterComponent implements IFloatingFilterAngularComp  {
+  @HostBinding('class') hostClass = 'hostClass';
   private params: IFloatingFilterParams;
   public currentValue = '';
 

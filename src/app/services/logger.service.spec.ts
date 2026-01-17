@@ -1,7 +1,9 @@
 import { TestBed } from '@angular/core/testing';
-import { LoggerService } from './logger.service';
-import { LogLevel } from './log-level.enum';
+
 import { environment } from '@environments/environment';
+
+import { LogLevel } from './log-level.enum';
+import { LoggerService } from './logger.service';
 
 describe('LoggerService', () => {
   let service: LoggerService;
@@ -234,7 +236,7 @@ describe('LoggerService', () => {
 
   describe('timestamp format', () => {
     it('should include ISO timestamp in log messages', () => {
-      const dateSpy = jest.spyOn(Date.prototype, 'toISOString').mockReturnValue('2023-01-01T12:00:00.000Z');
+      const _dateSpy = jest.spyOn(Date.prototype, 'toISOString').mockReturnValue('2023-01-01T12:00:00.000Z');
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
       
       service.setLogLevel(LogLevel.Error);

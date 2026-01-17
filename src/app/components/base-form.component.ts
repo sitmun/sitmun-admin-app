@@ -1,22 +1,24 @@
-import {ActivatedRoute, Router} from "@angular/router";
-import {CodeList, CodeListService, Language, Translation, TranslationService} from "@app/domain";
 import {AfterViewInit, Component, OnDestroy, OnInit, QueryList, ViewChildren} from "@angular/core";
-import {HalOptions, HalParam, Resource} from "@app/core";
+import {FormControl, UntypedFormGroup} from "@angular/forms";
+import {MatDialog} from "@angular/material/dialog";
+import {ActivatedRoute, Router} from "@angular/router";
+
+import {TranslateService} from "@ngx-translate/core";
 import {firstValueFrom, Observable} from "rxjs";
 import {map, tap} from "rxjs/operators";
+
 import {DataTablesRegistry} from "@app/components/data-tables.util";
+import {HalOptions, HalParam, Resource} from "@app/core";
+import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
+import {CodeList, CodeListService, Language, Translation, TranslationService} from "@app/domain";
+import {DataGridComponent} from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
 import {DialogTranslationComponent} from "@app/frontend-gui/src/lib/dialog-translation/dialog-translation.component";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from "@app/services/logger.service";
-import {MatDialog} from "@angular/material/dialog";
-import {TranslateService} from "@ngx-translate/core";
-import {FormControl, UntypedFormGroup} from "@angular/forms";
+import {explainFormValidity} from "@app/utils/form.utils";
 import {config} from "@config";
 import {constants} from "@environments/constants";
-import {explainFormValidity} from "@app/utils/form.utils";
-import {DataGridComponent} from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
-import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
 
 /**
  * Base class for SITMUN components that handle resource entities.
@@ -123,6 +125,10 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    * @param {ErrorHandlerService} errorHandler - Service for handling and displaying errors
    * @param {ActivatedRoute} activatedRoute - Angular service for accessing route parameters
    * @param {Router} router - Angular service for navigation
+   * @param loadingService
+   * @param messagesInterceptorState
+   * @param loadingService
+   * @param messagesInterceptorState
    */
   constructor(
     protected dialog: MatDialog,
@@ -226,7 +232,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
   ngAfterViewInit(): void {
     if (this.dataGrids) {
       this.dataGrids.forEach(grid => this.registerDataGrid(grid));
-      
+
       // Re-register if grids are added dynamically
       this.dataGrids.changes.subscribe(() => {
         this.dataGrids.forEach(grid => this.registerDataGrid(grid));
@@ -417,7 +423,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
   /**
    * Computed property that determines if the save button should be enabled.
    * Returns true when the form is valid AND there are unsaved changes.
-   * 
+   *
    * Checks for changes in:
    * - Form fields (dirty state)
    * - Data tables (via dataTablesHaveChanges flag)
@@ -450,7 +456,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
     const formControls = this.entityForm.controls;
 
     for (const controlName in formControls) {
-      if (formControls.hasOwnProperty(controlName)) {
+      if (Object.prototype.hasOwnProperty.call(formControls, controlName)) {
         const control = formControls[controlName];
         if (control.invalid && control.hasError('required')) {
           invalidFields.push(controlName);
@@ -474,13 +480,13 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
   /**
    * Registers a data-grid component with change tracking.
    * Subscribes to the grid's modification events to enable/disable the save button.
-   * 
+   *
    * @param {DataGridComponent} grid - The data grid component to register
    * @private
    */
   private registerDataGrid(grid: DataGridComponent): void {
     if (grid && grid.gridModified) {
-      grid.gridModified.subscribe((hasChanges: boolean) => {
+      grid.gridModified.subscribe((_hasChanges: boolean) => {
         // Update flag if any grid has changes
         this.updateDataTablesChangeFlag();
       });
@@ -490,7 +496,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
   /**
    * Updates the dataTablesHaveChanges flag by checking all registered grids.
    * Sets to true if ANY grid has unsaved changes.
-   * 
+   *
    * @private
    */
   private updateDataTablesChangeFlag(): void {
@@ -936,7 +942,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
 
   /**
    * Extracts the maxLength value from a form control's validator.
-   * 
+   *
    * @param property - The form control property name
    * @returns The maxLength value, or 4000 as default fallback
    * @private
@@ -946,7 +952,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
     if (!control) {
       return 4000; // Default fallback
     }
-    
+
     // Extract from maxLength validator
     const validator = control.validator;
     if (validator) {
@@ -955,14 +961,14 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
         return errors['maxlength']['requiredLength'];
       }
     }
-    
+
     return 4000; // Default fallback
   }
 
   /**
    * Determines if a form field uses textarea or input by inspecting the DOM.
    * This is a non-heuristic approach that checks the actual rendered element.
-   * 
+   *
    * @param property - The form control property name
    * @returns true if the field uses textarea, false if it uses input (or not found)
    * @private
@@ -972,11 +978,11 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
     const formFieldElement = document.querySelector(
       `[formControlName="${property}"]`
     )?.closest('mat-form-field');
-    
+
     if (!formFieldElement) {
       return false; // Default to input if element not found
     }
-    
+
     // Check if the element inside mat-form-field is a textarea
     const inputElement = formFieldElement.querySelector('textarea, input');
     return inputElement?.tagName === 'TEXTAREA';

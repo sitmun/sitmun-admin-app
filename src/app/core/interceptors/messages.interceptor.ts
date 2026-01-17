@@ -1,13 +1,15 @@
-import {EMPTY, Observable, throwError} from 'rxjs';
 import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse} from '@angular/common/http';
 import {Injectable, Injector, NgZone} from '@angular/core';
-import {catchError, finalize, map} from 'rxjs/operators';
+
 import {TranslateService} from '@ngx-translate/core';
+import {EMPTY, Observable, throwError} from 'rxjs';
+import {catchError, finalize, map} from 'rxjs/operators';
+
+import {ENTITY_TYPE_KEY, ENTITY_NAME_KEY} from '@app/core/hal/resource/resource.service';
+import {ErrorTrackingService} from '@app/services/error-tracking.service';
 import {NotificationService} from '@app/services/notification.service';
 import {UtilsService} from '@app/services/utils.service';
-import {ErrorTrackingService} from '@app/services/error-tracking.service';
 import {getProblemTranslationKey, isProblemDetail, getErrorMessage} from '@app/utils/problem-detail.utils';
-import {ENTITY_TYPE_KEY, ENTITY_NAME_KEY} from '@app/core/hal/resource/resource.service';
 
 @Injectable({
   providedIn: 'root'

@@ -1,3 +1,5 @@
+import {HttpClient} from "@angular/common/http";
+import {Component, TemplateRef, ViewChild} from '@angular/core';
 import {
   AbstractControl,
   FormControl,
@@ -8,7 +10,17 @@ import {
   ValidatorFn,
   Validators
 } from '@angular/forms';
+import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
+
+import {TranslateService} from '@ngx-translate/core';
+import { firstValueFrom, of} from 'rxjs';
+import {map} from 'rxjs/operators';
+
+import {BaseFormComponent} from '@app/components/base-form.component';
+import {DataTableDefinition, TemplateDialog} from '@app/components/data-tables.util';
+import {Configuration} from "@app/core/config/configuration";
+import {MessagesInterceptorStateService} from '@app/core/interceptors/messages.interceptor';
 import {
   Cartography,
   CartographyAvailability,
@@ -33,22 +45,13 @@ import {
   TranslationService,
   TreeNodeProjection,
 } from '@app/domain';
-import {Component, TemplateRef, ViewChild} from '@angular/core';
-import {DataTableDefinition, TemplateDialog} from '@app/components/data-tables.util';
-import {EMPTY, firstValueFrom, of} from 'rxjs';
 import {onCreate, onDelete, onUpdate, Status} from '@app/frontend-gui/src/lib/public_api';
-import {BaseFormComponent} from '@app/components/base-form.component';
-import {Configuration} from "@app/core/config/configuration";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
-import {HttpClient} from "@angular/common/http";
 import {LoggerService} from '@app/services/logger.service';
-import {MatDialog} from '@angular/material/dialog';
-import {TranslateService} from '@ngx-translate/core';
 import {UtilsService} from '@app/services/utils.service';
-import {MessagesInterceptorStateService} from '@app/core/interceptors/messages.interceptor';
 import {constants} from '@environments/constants';
-import {map} from 'rxjs/operators';
+
 
 @Component({
   selector: 'app-layers-form',
@@ -284,10 +287,9 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
 
   /**
    * Updates related data after entity save.
-   * @param isDuplicated - Whether this is a duplication operation
+   * @param _isDuplicated - Whether this is a duplication operation
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  override async updateDataRelated(isDuplicated: boolean) {
+  override async updateDataRelated(_isDuplicated: boolean) {
     const entityToUpdate = this.createObject(this.entityID);
     await this.saveTranslations(entityToUpdate);
 

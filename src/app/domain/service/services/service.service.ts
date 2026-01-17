@@ -1,6 +1,8 @@
-import { Service } from '@app/domain';
 import { Injectable, Injector } from '@angular/core';
+
 import { RestService } from '@app/core/hal/rest/rest.service';
+
+import { Service } from '../models/service.model';
 
 /** Service manager service */
 @Injectable()

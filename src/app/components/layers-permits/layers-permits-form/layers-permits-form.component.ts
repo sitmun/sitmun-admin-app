@@ -1,4 +1,16 @@
+import {Component} from '@angular/core';
+import {UntypedFormControl, UntypedFormGroup, Validators,} from '@angular/forms';
+import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
+
+import {TranslateService} from '@ngx-translate/core';
+import {firstValueFrom, of} from 'rxjs';
+import {map} from 'rxjs/operators';
+
+import {BaseFormComponent} from '@app/components/base-form.component';
+import {DataTableDefinition} from '@app/components/data-tables.util';
+import {Configuration} from "@app/core/config/configuration";
+import {MessagesInterceptorStateService} from '@app/core/interceptors/messages.interceptor';
 import {
   CartographyGroup,
   CartographyGroupProjection,
@@ -11,22 +23,13 @@ import {
   RoleService,
   TranslationService,
 } from '@app/domain';
-import {firstValueFrom, of} from 'rxjs';
 import {onUpdate, onUpdatedRelation, Status} from '@app/frontend-gui/src/lib/public_api';
-import {UntypedFormControl, UntypedFormGroup, Validators,} from '@angular/forms';
-import {BaseFormComponent} from '@app/components/base-form.component';
-import {Component} from '@angular/core';
-import {Configuration} from "@app/core/config/configuration";
-import {DataTableDefinition} from '@app/components/data-tables.util';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from '@app/services/logger.service';
-import {MatDialog} from '@angular/material/dialog';
-import {TranslateService} from '@ngx-translate/core';
 import {UtilsService} from '@app/services/utils.service';
-import {MessagesInterceptorStateService} from '@app/core/interceptors/messages.interceptor';
 import {constants} from '@environments/constants';
-import {map} from 'rxjs/operators';
+
 
 @Component({
   selector: 'app-layers-permits-form',

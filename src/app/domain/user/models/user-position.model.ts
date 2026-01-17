@@ -1,6 +1,7 @@
 import {Resource} from '@app/core/hal/resource/resource.model';
-import {Territory} from '@app/domain/territory/models/territory.model';
-import {User} from '@app/domain';
+
+import {User} from './user.model';
+import {Territory} from '../../territory/models/territory.model';
 
 /**
  * User position model

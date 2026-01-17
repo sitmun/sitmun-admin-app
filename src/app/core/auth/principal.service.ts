@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
+
 import {Observable, Subject} from 'rxjs';
+
 import { AccountService } from '@app/core/account/account.service';
 
 /** Principal service*/
@@ -112,7 +114,7 @@ export class Principal {
       }
       this.authenticationState.next(this.userIdentity);
       return this.userIdentity;
-    }).catch((err) => {
+    }).catch((_err) => {
       this.userIdentity = null;
       this.authenticated = false;
       this.authenticationState.next(this.userIdentity);

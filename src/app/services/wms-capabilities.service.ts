@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
-import { CapabilitiesService, Cartography, CartographyStyle } from "@app/domain";
-import { config } from "@config";
+
 import { firstValueFrom } from "rxjs";
+
+import { CapabilitiesService, Cartography, CartographyStyle } from "@app/domain";
 import {LoggerService} from '@app/services/logger.service';
+import { config } from "@config";
 
 /**
  * Class representing WMS service capabilities metadata.

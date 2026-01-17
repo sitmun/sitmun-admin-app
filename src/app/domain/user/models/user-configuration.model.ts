@@ -1,9 +1,8 @@
 import {Resource} from '@app/core/hal/resource/resource.model';
-import {
-  Role,
-  Territory,
-  User
-} from '@app/domain';
+
+import {User} from './user.model';
+import {Role} from '../../role/models/role.model';
+import {Territory} from '../../territory/models/territory.model';
 
 /**
  * User permission model

@@ -1,9 +1,12 @@
-import { Task } from '@app/domain';
-import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable, Injector } from '@angular/core';
+
 import { Observable } from 'rxjs';
+
 import { RestService } from '@app/core/hal/rest/rest.service';
 import { LoggerService } from '@app/services/logger.service';
+
+import { Task } from '../models/task.model';
 /** Task manager service */
 @Injectable()
 export class TaskService extends RestService<Task> {
@@ -19,7 +22,7 @@ export class TaskService extends RestService<Task> {
     /** save task*/
     save(item: Task): Observable<any> {
         this.loggerService.debug("Save task:", item);
-        let result: Observable<Object>;
+        let result: Observable<any>;
 
         if (item._links != null) {
 
@@ -28,12 +31,18 @@ export class TaskService extends RestService<Task> {
                 service._links = {};
                 service._links.self = {};
                 service._links.self.href = "";
-                item.deleteRelation('service', service).subscribe(result => {
-                }, error => this.loggerService.error('Error deleting service relation:', error));
+                item.deleteRelation('service', service).subscribe(
+                    // eslint-disable-next-line @typescript-eslint/no-empty-function
+                    _result => {},
+                    error => this.loggerService.error('Error deleting service relation:', error)
+                );
             } else {
                 item.service._links.self.href = item.service._links.self.href.split("{")[0]
-                item.substituteRelation('service', item.service).subscribe(result => {
-                }, error => this.loggerService.error('Error substituting service relation:', error));
+                item.substituteRelation('service', item.service).subscribe(
+                    // eslint-disable-next-line @typescript-eslint/no-empty-function
+                    _result => {},
+                    error => this.loggerService.error('Error substituting service relation:', error)
+                );
                 item.service = item.service._links.self.href
             }
             if (!item.cartography) {
@@ -41,12 +50,18 @@ export class TaskService extends RestService<Task> {
                 cartography._links = {};
                 cartography._links.self = {};
                 cartography._links.self.href = "";
-                item.deleteRelation('cartography', cartography).subscribe(result => {
-                }, error => this.loggerService.error('Error deleting cartography relation:', error));
+                item.deleteRelation('cartography', cartography).subscribe(
+                    // eslint-disable-next-line @typescript-eslint/no-empty-function
+                    _result => {},
+                    error => this.loggerService.error('Error deleting cartography relation:', error)
+                );
             } else {
                 item.cartography._links.self.href = item.cartography._links.self.href.split("{")[0]
-                item.substituteRelation('cartography', item.cartography).subscribe(result => {
-                }, error => this.loggerService.error('Error substituting cartography relation:', error));
+                item.substituteRelation('cartography', item.cartography).subscribe(
+                    // eslint-disable-next-line @typescript-eslint/no-empty-function
+                    _result => {},
+                    error => this.loggerService.error('Error substituting cartography relation:', error)
+                );
                 item.cartography = item.cartography._links.self.href
             }
 
@@ -55,12 +70,18 @@ export class TaskService extends RestService<Task> {
                 connection._links = {};
                 connection._links.self = {};
                 connection._links.self.href = "";
-                item.deleteRelation('connection', connection).subscribe(result => {
-                }, error => this.loggerService.error('Error deleting connection relation:', error));
+                item.deleteRelation('connection', connection).subscribe(
+                    // eslint-disable-next-line @typescript-eslint/no-empty-function
+                    _result => {},
+                    error => this.loggerService.error('Error deleting connection relation:', error)
+                );
             } else {
                 item.connection._links.self.href = item.connection._links.self.href.split("{")[0]
-                item.substituteRelation('connection', item.connection).subscribe(result => {
-                }, error => this.loggerService.error('Error substituting connection relation:', error));
+                item.substituteRelation('connection', item.connection).subscribe(
+                    // eslint-disable-next-line @typescript-eslint/no-empty-function
+                    _result => {},
+                    error => this.loggerService.error('Error substituting connection relation:', error)
+                );
                 item.connection = item.connection._links.self.href
             }
 
@@ -70,8 +91,11 @@ export class TaskService extends RestService<Task> {
             } else {
                 item.ui._links.self.href = item.ui._links.self.href.split("{")[0]
                 this.loggerService.debug("Save task: UI link", item.ui._links.self.href);
-                item.substituteRelation('ui', item.ui).subscribe(result => {
-                }, error => this.loggerService.error('Error substituting UI relation:', error));
+                item.substituteRelation('ui', item.ui).subscribe(
+                    // eslint-disable-next-line @typescript-eslint/no-empty-function
+                    _result => {},
+                    error => this.loggerService.error('Error substituting UI relation:', error)
+                );
                 item.ui = item.ui._links.self.href
             }
 
@@ -80,7 +104,8 @@ export class TaskService extends RestService<Task> {
                 // }, error => this.loggerService.error('Error deleting group relation:', error));
             } else {
                 item.substituteRelationById('group', 'task-groups', item.group).subscribe({
-                    next: result => {},
+                    // eslint-disable-next-line @typescript-eslint/no-empty-function
+                    next: _result => {},
                     error: error => this.loggerService.error('Error substituting group relation by ID:', error)
                 });
             }
@@ -90,7 +115,8 @@ export class TaskService extends RestService<Task> {
                     // }, error => this.loggerService.error('Error deleting type relation:', error));
                 } else {
                     item.substituteRelationById('type', 'task-types', item.type).subscribe({
-                        next: result => {},
+                        // eslint-disable-next-line @typescript-eslint/no-empty-function
+                        next: _result => {},
                         error: error => this.loggerService.error('Error substituting type relation by ID:', error)
                     });
                 }
@@ -98,8 +124,11 @@ export class TaskService extends RestService<Task> {
                 if (item.roles) {
                   const roles = [...item.roles];
                     delete item.roles;
-                    item.substituteAllRelation('roles', roles).subscribe(result => {
-                    }, error => this.loggerService.error('Error substituting all roles relation:', error));
+                    item.substituteAllRelation('roles', roles).subscribe(
+                        // eslint-disable-next-line @typescript-eslint/no-empty-function
+                        _result => {},
+                        error => this.loggerService.error('Error substituting all roles relation:', error)
+                    );
                 }
 
                 result = this.http.put(item._links.self.href, item);

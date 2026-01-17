@@ -1,4 +1,16 @@
+import {Component} from '@angular/core';
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
+import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
+
+import {TranslateService} from "@ngx-translate/core";
+import { firstValueFrom, of, Subject} from 'rxjs';
+import {map} from 'rxjs/operators';
+
+import {BaseFormComponent} from "@app/components/base-form.component";
+import {DataTable2Definition, DataTableDefinition} from "@app/components/data-tables.util";
+import {Configuration} from "@app/core/config/configuration";
+import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
 import {
   CodeList,
   CodeListService,
@@ -17,22 +29,13 @@ import {
   UserProjection,
   UserService
 } from '@app/domain';
-import {DataTable2Definition, DataTableDefinition} from "@app/components/data-tables.util";
-import {EMPTY, firstValueFrom, of, Subject} from 'rxjs';
 import {onCreate, onDelete, onUpdate, Status,} from '@app/frontend-gui/src/lib/public_api';
-import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
-import {BaseFormComponent} from "@app/components/base-form.component";
-import {Component} from '@angular/core';
-import {Configuration} from "@app/core/config/configuration";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from '@app/services/logger.service';
-import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
-import {MatDialog} from '@angular/material/dialog';
-import {TranslateService} from "@ngx-translate/core";
 import {UtilsService} from '@app/services/utils.service';
 import {constants} from '@environments/constants';
-import {map} from 'rxjs/operators';
+
 
 @Component({
   selector: 'app-user-form',

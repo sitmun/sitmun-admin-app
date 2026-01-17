@@ -1,12 +1,14 @@
+import {Injectable, NgZone} from '@angular/core';
 import {
   MatSnackBar,
   MatSnackBarConfig,
   MatSnackBarHorizontalPosition,
   MatSnackBarVerticalPosition
 } from '@angular/material/snack-bar';
-import {NotificationComponent, NotificationData} from '@app/components/shared/notification/notification.component';
-import {Injectable, NgZone} from '@angular/core';
+
 import {TranslateService} from '@ngx-translate/core';
+
+import {NotificationComponent, NotificationData} from '@app/components/shared/notification/notification.component';
 
 interface QueuedError {
   titleKey: string;
@@ -58,7 +60,7 @@ export class NotificationService {
    * @param messageKey - Translation key for the message
    * @param duration - Duration in milliseconds (default: 4000)
    */
-  showSuccess(titleKey: string, messageKey: string, duration: number = this.DURATION_SHORT): void {
+  showSuccess(titleKey: string, messageKey: string, _duration: number = this.DURATION_SHORT): void {
     const now = Date.now();
     
     // Add success to queue
@@ -156,7 +158,6 @@ export class NotificationService {
     const errorCount = this.errorQueue.length;
     const titleKey = 'common.error.multipleErrors.title';
     let summaryMessage: string;
-    let detailsMessage: string;
 
     // Build detailed message for dialog (all errors)
     const allErrorMessages = this.errorQueue.map((e, index) => {
@@ -165,7 +166,7 @@ export class NotificationService {
         : e.message;
       return `${index + 1}. ${msg}`;
     }).join('\n\n');
-    detailsMessage = allErrorMessages;
+    const detailsMessage = allErrorMessages;
 
     if (errorCount <= this.MAX_ERRORS_TO_SHOW) {
       // Show individual errors (up to MAX_ERRORS_TO_SHOW)
@@ -285,7 +286,10 @@ export class NotificationService {
       if (!grouped.has(key)) {
         grouped.set(key, []);
       }
-      grouped.get(key)!.push(success);
+      const group = grouped.get(key);
+      if (group) {
+        group.push(success);
+      }
     }
 
     // Process each group

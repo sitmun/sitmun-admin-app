@@ -1,7 +1,13 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { LayersFormComponent } from './layers-form.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { RouterModule } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
+
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
+import {ExternalService, ResourceService} from '@app/core/hal';
 import {
   CartographyAvailabilityService,
   CartographyFilterService,
@@ -19,15 +25,10 @@ import {
   TranslationService,
   TreeNodeService
 } from '@app/domain';
-import {ExternalService, ResourceService} from '@app/core/hal';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
-import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
-import { RouterTestingModule } from '@angular/router/testing';
 import { MaterialModule } from '@app/material-module';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { By } from '@angular/platform-browser';
+
+import { LayersFormComponent } from './layers-form.component';
 
 describe('LayersFormComponent', () => {
   let component: LayersFormComponent;

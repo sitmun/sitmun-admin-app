@@ -1,12 +1,15 @@
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DialogTranslationComponent } from './dialog-translation.component';
+import { ReactiveFormsModule } from '@angular/forms';
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
 import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ReactiveFormsModule } from '@angular/forms';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+
+import { DialogTranslationComponent } from './dialog-translation.component';
+
 
 describe('DialogTranslationComponent', () => {
   let component: DialogTranslationComponent;
@@ -24,7 +27,10 @@ describe('DialogTranslationComponent', () => {
         HttpClientTestingModule
       ],
       providers: [
-        { provide: MatDialogRef, useValue: { close: () => {} } },
+        { provide: MatDialogRef, useValue: { 
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          close: () => {} 
+        } },
         { provide: MAT_DIALOG_DATA, useValue: {} },
         TranslateService,
         MatIconRegistry

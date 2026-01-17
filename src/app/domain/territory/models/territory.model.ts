@@ -1,12 +1,11 @@
-import {
-  ApplicationTerritory,
-  TaskAvailability,
-  TerritoryGroupType,
-  TerritoryType,
-  UserConfiguration,
-  UserPosition,
-} from "@app/domain";
 import {Resource} from '@app/core/hal/resource/resource.model';
+
+import {TerritoryGroupType} from './territory-group-type.model';
+import {TerritoryType} from './territory-type.model';
+import {ApplicationTerritory} from '../../application/models/application-territory.model';
+import {TaskAvailability} from '../../task/models/task-availability.model';
+import {UserConfiguration} from '../../user/models/user-configuration.model';
+import {UserPosition} from '../../user/models/user-position.model';
 
 export class Envelope {
   public minX: number;

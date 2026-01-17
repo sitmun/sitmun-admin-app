@@ -1,16 +1,18 @@
-import {HalOptions, HalParam, Resource} from '@app/core';
 import {Component, OnInit} from '@angular/core';
-import {CodeList, CodeListService, TranslationService,} from '@app/domain';
-import {UtilsService} from '@app/services/utils.service';
-import {TranslateService} from '@ngx-translate/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {config} from '@config';
-import {EMPTY, firstValueFrom, Observable, Subject} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
+import {ActivatedRoute, Router} from '@angular/router';
+
+import {TranslateService} from '@ngx-translate/core';
+import {EMPTY, firstValueFrom, Observable, Subject} from 'rxjs';
+
+import {HalOptions, HalParam, Resource} from '@app/core';
+import {CodeList, CodeListService, TranslationService,} from '@app/domain';
 import {DIALOG_EVENTS, DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
-import {LoggerService} from '@app/services/logger.service';
 import {LoadingOverlayService} from '@app/services/loading-overlay.service';
+import {LoggerService} from '@app/services/logger.service';
+import {UtilsService} from '@app/services/utils.service';
+import {config} from '@config';
 
 @Component({
   template: '',

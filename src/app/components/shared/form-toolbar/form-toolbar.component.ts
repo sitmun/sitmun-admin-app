@@ -1,6 +1,7 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {TranslateService} from '@ngx-translate/core';
 import {UntypedFormGroup} from '@angular/forms';
+
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-form-toolbar',

@@ -1,7 +1,8 @@
 import {Resource} from '@app/core/hal/resource/resource.model';
-import {Cartography} from '@app/domain/cartography/models/cartography.model';
-import {Task} from '@app/domain/task/models/task.model';
-import {Tree} from '@app/domain';
+
+import {Tree} from './tree.model';
+import {Cartography} from '../../cartography/models/cartography.model';
+import {Task} from '../../task/models/task.model';
 
 /**
  * Tree node model

@@ -1,4 +1,5 @@
 import { HttpClient } from '@angular/common/http';
+
 import { ExternalConfiguration } from './external-configuration.model';
 
 /** External configuration handler interface */

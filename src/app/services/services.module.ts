@@ -1,9 +1,9 @@
-import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {NgModule} from '@angular/core';
 
 import {IconsService} from './icons.service';
-import {UtilsService} from './utils.service';
 import {LoggerService} from './logger.service';
+import {UtilsService} from './utils.service';
 
 @NgModule({
   imports: [

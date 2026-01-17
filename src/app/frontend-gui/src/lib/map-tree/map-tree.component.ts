@@ -1,8 +1,9 @@
+import { FlatTreeControl } from '@angular/cdk/tree';
 import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
-import {Observable, of} from 'rxjs';
-import { FlatTreeControl } from '@angular/cdk/tree';
+
 import jsonpath from 'jsonpath';
+import {Observable, of} from 'rxjs';
 
 export class TreeFlatNode {
   constructor(

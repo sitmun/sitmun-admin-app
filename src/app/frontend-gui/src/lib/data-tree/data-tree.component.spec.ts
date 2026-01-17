@@ -1,18 +1,19 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DataTreeComponent } from './data-tree.component';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MatTreeModule } from '@angular/material/tree';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { FileDatabase } from './data-tree.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { of } from 'rxjs';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTreeModule } from '@angular/material/tree';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
+import { FileDatabase , DataTreeComponent } from './data-tree.component';
+
 
 describe('DataTreeComponent', () => {
   let component: DataTreeComponent;
   let fixture: ComponentFixture<DataTreeComponent>;
-  let database: FileDatabase;
+  let _database: FileDatabase;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({

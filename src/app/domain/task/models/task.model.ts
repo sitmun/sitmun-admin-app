@@ -1,14 +1,15 @@
 import { Resource } from '@app/core/hal/resource/resource.model';
 
-import { Connection } from '@app/domain/connection/models/connection.model';
-import { Role } from '@app/domain/role/models/role.model';
-import { TaskType } from './task-type.model';
-import { TaskGroup } from './task-group.model';
-import { TaskAvailability } from './task-availability.model';
-import { TaskParameter } from './task-parameter.model';
-import { TaskUI } from './task-ui.model';
-import { Cartography } from '@app/domain/cartography/models/cartography.model';
-import { Service } from '@app/domain/service/models/service.model';
+import {TaskAvailability} from './task-availability.model';
+import {TaskGroup} from './task-group.model';
+import {TaskParameter} from './task-parameter.model';
+import {TaskType} from './task-type.model';
+import {TaskUI} from './task-ui.model';
+import { Cartography } from '../../cartography/models/cartography.model';
+import { Connection } from '../../connection/models/connection.model';
+import { Role } from '../../role/models/role.model';
+import { Service } from '../../service/models/service.model';
+
 
 //FIXME ensure task creation in admin app upon initialization (as it is done with Roles and default Users)
 /** GEOADMIN_task id */

@@ -1,6 +1,8 @@
 import { Injectable, Injector } from '@angular/core';
+
 import { RestService } from '@app/core/hal/rest/rest.service';
-import { Language } from '@app/domain';
+
+import { Language } from '../models/language.model';
 
 
 @Injectable({

@@ -1,7 +1,8 @@
-import { Sort } from '@app/core';
-import { ResourceArray } from '@app/core';
-import { Resource } from '@app/core';
 import { Observable } from 'rxjs';
+
+import type {ResourceArray} from '../resource/resource-array.model';
+import type {Resource} from '../resource/resource.model';
+import type {Sort} from '../rest/sort.model';
 
 /** Interface for array of REST resources */
 export interface ArrayInterface<T extends Resource> {

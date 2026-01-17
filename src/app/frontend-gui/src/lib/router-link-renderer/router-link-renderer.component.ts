@@ -1,6 +1,7 @@
-import { ICellRendererAngularComp } from '@ag-grid-community/angular';
 import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
+
+import { ICellRendererAngularComp } from '@ag-grid-community/angular';
 
 /**
  * AG Grid cell renderer that converts cell values into Angular router links.

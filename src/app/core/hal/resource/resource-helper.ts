@@ -1,6 +1,10 @@
 import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
-import {HalOptions, Resource, SubTypeBuilder} from '@app/core';
+
 import {ResourceArray} from './resource-array.model';
+import type {Resource} from './resource.model';
+import type {SubTypeBuilder} from '../common/subtype-builder';
+import type {HalOptions} from '../rest/rest.service';
+
 
 /** REST API access helper */
 export class ResourceHelper {
@@ -138,7 +142,7 @@ export class ResourceHelper {
     }
 
     /** instantiate a Resource from response */
-    static instantiateResource<T extends Resource>(entity: T, payload: Object): T {
+    static instantiateResource<T extends Resource>(entity: T, payload: any): T {
         for (const p in payload) {
             entity[p] = payload[p];
         }

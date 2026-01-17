@@ -7,7 +7,7 @@
           [eventNodeUpdatedSubscription]='sendNodeUpdated.asObservable()' [loadDataButton]="loadDataButton$"
           [eventGetAllRowsSubscription]='getAllElementsNodes.asObservable()'
           [eventRefreshSubscription]='refreshTreeEvent.asObservable()'
-          [eventCreateNodeSubscription]='createNodeEvent.asObservable()' [allNewElements]='entityID == -1'
+          [eventCreateNodeSubscription]='createNodeEvent.asObservable()' [allNewElements]='entityID === -1'
           (emitAllNodes)="receiveAllNodes($event)">
           loading
         </app-data-tree>
@@ -16,7 +16,7 @@
       </div>
       <div class="detail-panel">
         <div class="detail-content" [style.padding-left.px]="24">
-          <mat-card appearance="outlined" class="form-detail-card" *ngIf="currentNodeIsFolder != undefined">
+          <mat-card appearance="outlined" class="form-detail-card" *ngIf="currentNodeIsFolder !== undefined">
             <mat-card-header class="header-with-actions">
               <div class="header-title-section">
                 <mat-card-title *ngIf="newElement">
@@ -46,13 +46,13 @@
               </div>
               <div class="header-actions-section">
                 <button mat-raised-button color="primary" type="button"
-                  *ngIf="!newElement && currentNodeIsFolder != undefined" 
+                  *ngIf="!newElement && currentNodeIsFolder !== undefined" 
                   [disabled]="!canUpdateNode()"
                   (click)="onSaveFormButtonClicked()">
                   {{ "update" | translate }}
                 </button>
                 <button mat-raised-button color="primary" type="button"
-                  *ngIf="newElement && currentNodeIsFolder != undefined" (click)="onSaveFormButtonClicked()">
+                  *ngIf="newElement && currentNodeIsFolder !== undefined" (click)="onSaveFormButtonClicked()">
                   {{ "save" | translate }}
                 </button>
               </div>
@@ -73,7 +73,7 @@
                     </mat-expansion-panel-header>
                     <div style="display: flex; gap: 16px; flex-wrap: wrap;">
                       <mat-form-field appearance="outline" style="flex: 0.35; min-width: 200px;"
-                        *ngIf="currentNodeIsFolder != undefined">
+                        *ngIf="currentNodeIsFolder !== undefined">
                         <mat-label>{{ 'treesEntity.nodeType' | translate }}</mat-label>
                         <mat-select formControlName="nodeType" (selectionChange)="onTreeNodeTypeChange($event.value)">
                           <mat-option *ngFor="let type of availableNodeTypes" [value]="type.value">
@@ -85,7 +85,7 @@
                         </mat-error>
                       </mat-form-field>
                       <mat-form-field appearance="outline" style="flex: 0.65; min-width: 200px;"
-                        *ngIf="currentNodeIsFolder != undefined">
+                        *ngIf="currentNodeIsFolder !== undefined">
                         <mat-label>{{ 'treesEntity.name' | translate }}</mat-label>
                         <input matInput type="text" formControlName="name" [maxlength]="80">
                         <mat-hint align="end" [class.text-warning]="treeNodeForm.get('name')?.value?.length > 80">

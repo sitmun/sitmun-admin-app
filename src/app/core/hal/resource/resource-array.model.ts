@@ -1,8 +1,10 @@
 import {Observable, throwError} from 'rxjs';
-
 import {catchError, map} from 'rxjs/operators';
-import {Resource, ResourceHelper, Sort} from '@app/core';
-import {ArrayInterface} from '@app/core/hal/common';
+
+import {ResourceHelper} from './resource-helper';
+import type {Resource} from './resource.model';
+import type {ArrayInterface} from '../common/array-interface';
+import type {Sort} from '../rest/sort.model';
 
 // Replaced Node 'url' with Web URL/URLSearchParams
 

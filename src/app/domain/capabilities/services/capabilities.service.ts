@@ -1,8 +1,11 @@
-import {Injectable, Injector} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {Injectable, Injector} from '@angular/core';
+
 import {Observable, of} from 'rxjs';
+
 import {RestService} from '@app/core/hal/rest/rest.service';
-import {Capabilities} from '@app/domain';
+
+import {Capabilities} from '../models/capabilities.model';
 
 /**
  * Service responsible for handling capabilities-related operations.

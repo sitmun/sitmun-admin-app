@@ -1,10 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { ErrorPageComponent } from './error-page.component';
-import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { TranslateModule } from '@ngx-translate/core';
+import { MatIconModule } from '@angular/material/icon';
+import { Router } from '@angular/router';
+
+import { TranslateService , TranslateModule } from '@ngx-translate/core';
+
+import { ErrorPageComponent } from './error-page.component';
+
 
 describe('ErrorPageComponent', () => {
   let component: ErrorPageComponent;

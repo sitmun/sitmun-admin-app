@@ -1,4 +1,13 @@
 import {Component} from '@angular/core';
+import {MatDialog} from '@angular/material/dialog';
+import {ActivatedRoute, Router} from '@angular/router';
+
+import {TranslateService} from '@ngx-translate/core';
+import {firstValueFrom} from 'rxjs';
+
+import {BaseListComponent} from "@app/components/base-list.component";
+import {EntityListConfig} from "@app/components/shared/entity-list";
+import {Configuration} from '@app/core/config/configuration';
 import {
   Cartography,
   CartographyProjection,
@@ -6,17 +15,10 @@ import {
   CodeListService,
   TranslationService,
 } from '@app/domain';
-import {TranslateService} from '@ngx-translate/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {firstValueFrom} from 'rxjs';
-import {MatDialog} from '@angular/material/dialog';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
+import {LoadingOverlayService} from '@app/services/loading-overlay.service';
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
-import {LoadingOverlayService} from '@app/services/loading-overlay.service';
-import {BaseListComponent} from "@app/components/base-list.component";
-import {EntityListConfig} from "@app/components/shared/entity-list";
-import {Configuration} from '@app/core/config/configuration';
 
 @Component({
   selector: 'app-layers',

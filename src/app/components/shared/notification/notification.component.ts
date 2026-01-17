@@ -1,6 +1,7 @@
 import {Component, Inject} from '@angular/core';
-import {MAT_SNACK_BAR_DATA, MatSnackBarRef} from '@angular/material/snack-bar';
 import {MatDialog} from '@angular/material/dialog';
+import {MAT_SNACK_BAR_DATA, MatSnackBarRef} from '@angular/material/snack-bar';
+
 import {DialogMessageComponent} from '@app/frontend-gui/src/lib/dialog-message/dialog-message.component';
 
 export interface NotificationData {

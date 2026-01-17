@@ -1,17 +1,29 @@
+import {CommonModule} from '@angular/common';
 import {
   Component, 
   OnInit,
   HostBinding,
-  inject,
-  Injectable
+  inject
 } from '@angular/core';
-import { Observable, Subject, forkJoin, of } from 'rxjs';
+import {MatButtonModule} from '@angular/material/button';
+import {MatCardModule} from '@angular/material/card';
 import {
   MAT_DIALOG_DATA, 
   MatDialog, 
-  MatDialogRef 
+  MatDialogRef,
+  MatDialogModule
 } from '@angular/material/dialog';
+import {MatIconModule} from '@angular/material/icon';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatTabsModule} from '@angular/material/tabs';
+import {MatTooltipModule} from '@angular/material/tooltip';
+
+import {TranslateModule} from '@ngx-translate/core';
+import { Observable, Subject, forkJoin, of, firstValueFrom } from 'rxjs';
+
 import { LoadingOverlayService } from '@app/services/loading-overlay.service';
+
+import {DataGridComponent} from '../data-grid/data-grid.component';
 
 export interface DialogGridData {
   title: string;
@@ -88,63 +100,68 @@ function calculateDialogWidth(columnDefsTable: any[][]): number {
  * @param config Dialog configuration
  * @returns Promise resolving to dialogRef
  */
-export function openDialogGridWithPreload(
+export async function openDialogGridWithPreload(
   dialog: MatDialog,
   loadingService: LoadingOverlayService,
   config: { panelClass?: string; data: DialogGridData }
 ): Promise<MatDialogRef<DialogGridComponent, DialogGridResult>> {
-  return new Promise((resolve) => {
-    const { data } = config;
-    
-    if (!data.getAllsTable || data.getAllsTable.length === 0) {
-      const dialogRef = dialog.open(DialogGridComponent, config);
-      resolve(dialogRef);
-      return;
-    }
+  const { data } = config;
+  
+  if (!data.getAllsTable || data.getAllsTable.length === 0) {
+    return dialog.open(DialogGridComponent, config);
+  }
 
-    // Show loading overlay
-    const overlay = loadingService.show({ message: 'Loading data...' });
-    
+  // Show loading overlay
+  const overlay = loadingService.show({ message: 'Loading data...' });
+  
+  try {
     const dataObservables = data.getAllsTable.map(fn => fn());
+    const results = await firstValueFrom(forkJoin(dataObservables));
     
-    forkJoin(dataObservables).subscribe({
-      next: (results) => {
-        // Replace getAllsTable with functions that return pre-loaded data
-        const preloadedGetAlls = results.map(result => () => of(result));
-        
-        // Calculate optimal width before opening
-        const maxWidth = calculateDialogWidth(data.columnDefsTable);
-        
-        const preloadedConfig = {
-          ...config,
-          width: `${maxWidth}px`,
-          data: {
-            ...data,
-            getAllsTable: preloadedGetAlls,
-            currentData: data.currentData || []
-          }
-        };
-        
-        // Remove loading overlay and open dialog
-        loadingService.hide(overlay);
-        setTimeout(() => {
-          const dialogRef = dialog.open(DialogGridComponent, preloadedConfig);
-          resolve(dialogRef);
-        }, 100);
-      },
-      error: (error) => {
-        console.error('Error preloading data:', error);
-        loadingService.hide(overlay);
-        const dialogRef = dialog.open(DialogGridComponent, config);
-        resolve(dialogRef);
+    // Replace getAllsTable with functions that return pre-loaded data
+    const preloadedGetAlls = results.map(result => () => of(result));
+    
+    // Calculate optimal width before opening
+    const maxWidth = calculateDialogWidth(data.columnDefsTable);
+    
+    const preloadedConfig = {
+      ...config,
+      width: `${maxWidth}px`,
+      data: {
+        ...data,
+        getAllsTable: preloadedGetAlls,
+        currentData: data.currentData || []
       }
-    });
-  });
+    };
+    
+    // Remove loading overlay and open dialog
+    loadingService.hide(overlay);
+    // Preserve setTimeout timing for dialog opening
+    await new Promise(resolve => setTimeout(resolve, 100));
+    return dialog.open(DialogGridComponent, preloadedConfig);
+  } catch (error) {
+    console.error('Error preloading data:', error);
+    loadingService.hide(overlay);
+    return dialog.open(DialogGridComponent, config);
+  }
 }
 
 @Component({
   selector: 'app-dialog-grid',
   templateUrl: './dialog-grid.component.html',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatCardModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatTabsModule,
+    MatTooltipModule,
+    TranslateModule,
+    DataGridComponent
+  ],
   styles: [`
     :host {
       display: block;

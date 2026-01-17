@@ -1,8 +1,16 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterModule } from '@angular/router';
-import { MaterialModule } from '@app/material-module';
+import { HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { RouterModule } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
+
+import { TranslateModule } from '@ngx-translate/core';
+
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
+import {ExternalService, ResourceService} from '@app/core/hal';
 import {
   ApplicationBackgroundService,
   ApplicationService,
@@ -13,15 +21,14 @@ import {
   RoleService,
   TranslationService
 } from '@app/domain';
-import {ExternalService, ResourceService} from '@app/core/hal';
-import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
-import { HttpClientModule } from '@angular/common/http';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
-import { RouterTestingModule } from '@angular/router/testing';
+import { MaterialModule } from '@app/material-module';
+
+
+
 import { BackgroundLayersFormComponent } from './background-layers-form.component';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+
+
 
 describe('BackgroundLayersFormComponent', () => {
   let component: BackgroundLayersFormComponent;

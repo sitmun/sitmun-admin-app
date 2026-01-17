@@ -6,12 +6,14 @@ import {
   TemplateRef,
   ViewContainerRef
 } from '@angular/core';
+
 import { Subscription } from 'rxjs';
-import { FeatureFlagService } from './feature-flag.service';
+
 import { FeatureFlagKeys } from './feature-flag.config';
+import { FeatureFlagService } from './feature-flag.service';
 
 @Directive({
-  selector: '[featureFlag]'
+  selector: '[appFeatureFlag]'
 })
 export class FeatureFlagDirective implements OnInit, OnDestroy {
   private hasView = false;

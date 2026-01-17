@@ -1,16 +1,8 @@
-import {Component, Injectable, Injector, NgZone} from '@angular/core';
-import {TranslateService} from '@ngx-translate/core';
 import {Location} from '@angular/common';
-import {firstValueFrom, Subject} from 'rxjs';
-import {map} from 'rxjs/operators';
-import {CodeList, CodeListService, Language, Translation, TranslationService} from '@app/domain';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {DialogMessageComponent, DialogTranslationComponent} from '@app/frontend-gui/src/lib/public_api';
+import {Component, Injectable, Injector, NgZone} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
-import {config} from '@config';
-import {BtnCheckboxFilterComponent} from '@app/frontend-gui/src/lib/btn-checkbox-filter/btn-checkbox-filter.component';
-import {LoggerService} from '@app/services/logger.service';
-import {HalOptions, HalParam} from '@app/core/hal/rest/rest.service';
+
 import {ICellRendererAngularComp} from '@ag-grid-community/angular';
 import {
   ColDefField,
@@ -20,6 +12,17 @@ import {
   ValueSetterFunc,
   ValueSetterParams
 } from "@ag-grid-community/core";
+import {TranslateService} from '@ngx-translate/core';
+import {firstValueFrom, Subject} from 'rxjs';
+import {map} from 'rxjs/operators';
+
+import {HalOptions, HalParam} from '@app/core/hal/rest/rest.service';
+import {CodeList, CodeListService, Language, Translation, TranslationService} from '@app/domain';
+import {BtnCheckboxFilterComponent} from '@app/frontend-gui/src/lib/btn-checkbox-filter/btn-checkbox-filter.component';
+import {DialogMessageComponent, DialogTranslationComponent} from '@app/frontend-gui/src/lib/public_api';
+import {LoggerService} from '@app/services/logger.service';
+import {config} from '@config';
+
 
 /**
  * A utility service that provides common functionality across the application.
@@ -458,8 +461,10 @@ export class UtilsService {
    * @param field - Field name in data object.
    * @param editable - Flag to make column editable.
    * @param elements - Array of selectable options.
-   * @param formatted - Optional flag for formatted values.
-   * @param formattedList - Optional list for formatting values.
+   * @param valuesKeyField
+   * @param valuesKeyField
+   * @param valuesField
+   * @param valuesField
    * @returns Column definition object for select column.
    */
   getSelectColumnDef<TData, TValue>(
@@ -472,7 +477,7 @@ export class UtilsService {
     valuesField?: string,
   ) {
     let columnDef;
-    const cellEditorParamsProvider = (params) => {
+    const cellEditorParamsProvider = (_params) => {
       return {
         values: elements()
       }
@@ -914,7 +919,7 @@ export class UtilsService {
     dialogRef.componentInstance.translationsMap = translationsMap;
     dialogRef.componentInstance.languageByDefault = config.defaultLang;
     dialogRef.componentInstance.languagesAvailables = config.languagesToUse;
-    
+
     // Get default language value from parameter or from translationsMap
     let defaultValue = defaultLanguageValue;
     if (!defaultValue && translationsMap.has(config.defaultLang)) {
@@ -922,7 +927,7 @@ export class UtilsService {
       defaultValue = defaultTranslation?.translation || '';
     }
     dialogRef.componentInstance.defaultLanguageValue = defaultValue || '';
-    
+
     // Set maxLength and useTextarea (with defaults if not provided)
     dialogRef.componentInstance.maxLength = maxLength ?? 4000;
     dialogRef.componentInstance.useTextarea = useTextarea ?? false;
@@ -979,15 +984,15 @@ export class UtilsService {
           hasLinks: !!t._links
         }))
       });
-      
+
       translationMap.forEach((value: Translation, key: string) => {
         if (key == defaultLanguage && internationalValue) {
           value.element = id;
           value.translation = internationalValue;
           // If translation doesn't have _links, find existing one
           if (!value._links && value.column) {
-            const existing = existingTranslations.find(t => 
-              t.column === value.column && 
+            const existing = existingTranslations.find(t =>
+              t.column === value.column &&
               (t.languageShortname === key || t.language?.shortname === key)
             );
             if (existing && existing._links) {
@@ -1015,23 +1020,24 @@ export class UtilsService {
             });
           }
           promises.push(
-            new Promise((resolve) => {
-              this.translationService.save(value).subscribe((result) => {
+            (async () => {
+              try {
+                const result = await firstValueFrom(this.translationService.save(value));
                 translationMap.set(key, result);
-                resolve(true);
-              }, (error) => {
+                return true;
+              } catch (error) {
                 this.loggerService.error('Error saving translation', error);
-                resolve(false);
-              });
-            })
+                return false;
+              }
+            })()
           );
         } else if (modifications) {
           if (value && value.translation) {
             value.element = id;
             // If translation doesn't have _links, find existing one
             if (!value._links && value.column) {
-              const existing = existingTranslations.find(t => 
-                t.column === value.column && 
+              const existing = existingTranslations.find(t =>
+                t.column === value.column &&
                 t.languageShortname === key
               );
               if (existing && existing._links) {
@@ -1040,15 +1046,16 @@ export class UtilsService {
               }
             }
             promises.push(
-              new Promise((resolve,) => {
-                this.translationService.save(value).subscribe((result) => {
+              (async () => {
+                try {
+                  const result = await firstValueFrom(this.translationService.save(value));
                   translationMap.set(key, result);
-                  resolve(true);
-                }, (error) => {
+                  return true;
+                } catch (error) {
                   this.loggerService.error('Error saving translation', error);
-                  resolve(false);
-                });
-              })
+                  return false;
+                }
+              })()
             );
           }
         }
@@ -1071,7 +1078,7 @@ export class EmptyRendererComponent implements ICellRendererAngularComp {
     this.params = params;
   }
 
-  refresh(params: any): boolean {
+  refresh(_params: any): boolean {
     return true;
   }
 }

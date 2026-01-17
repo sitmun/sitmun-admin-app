@@ -132,4 +132,4 @@ export class TaskPropertiesBuilder {
       fields: [...this._fields],
     };
   }
-} 
+}

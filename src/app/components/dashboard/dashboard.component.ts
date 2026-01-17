@@ -1,4 +1,3 @@
-import {Component, OnInit} from '@angular/core';
 import {
   trigger,
   transition,
@@ -7,9 +6,13 @@ import {
   query,
   stagger
 } from '@angular/animations';
+import {Component, OnInit} from '@angular/core';
+
+import {firstValueFrom} from 'rxjs';
+
+import {Configuration} from '@app/core/config/configuration';
 import {DashboardService} from '@app/domain';
 import {UtilsService} from '@app/services/utils.service';
-import {Configuration} from '@app/core/config/configuration';
 
 @Component({
   selector: 'app-dashboard',
@@ -97,61 +100,57 @@ export class DashboardComponent implements OnInit {
     ) { }
 
   ngOnInit(): void {
+    void (async () => {
+      const promises: Promise<any>[] = [];
 
-    const promises: Promise<any>[] = [];
-
-    promises.push(new Promise((resolve, reject) => {
-      this.dashboardService.getAll().subscribe({
-        next: (result) => {
+      promises.push(
+        (async () => {
           try {
+            const result = await firstValueFrom(this.dashboardService.getAll());
             this.saveKPI(result);
-            this.totalKPIs=result.total;
-            this.sumKPIs=result.sum;
-            this.cartographiesOnDate=result['cartographies-created-on-date']
-            this.usersOnDate=result['users-created-on-date']
-            this.usersPerApplication=result['users-per-application']
-            if(this.cartographiesOnDate){
+            this.totalKPIs = result.total;
+            this.sumKPIs = result.sum;
+            this.cartographiesOnDate = result['cartographies-created-on-date'];
+            this.usersOnDate = result['users-created-on-date'];
+            this.usersPerApplication = result['users-per-application'];
+            if (this.cartographiesOnDate) {
               this.cartographyDataAvailable = true;
-              const keysCartographyChartData= Object.keys(this.cartographiesOnDate).sort();
+              const keysCartographyChartData = Object.keys(this.cartographiesOnDate).sort();
               for (const item of keysCartographyChartData) {
-                this.cartographyChartData.push({index:item, value:this.cartographiesOnDate[item]})
+                this.cartographyChartData.push({index: item, value: this.cartographiesOnDate[item]});
               }
             }
-            if(this.usersOnDate){
+            if (this.usersOnDate) {
               this.usersDataAvailable = true;
-              const keysUsersChartData=Object.keys(this.usersOnDate).sort();
+              const keysUsersChartData = Object.keys(this.usersOnDate).sort();
               for (const item of keysUsersChartData) {
-                this.usersChartData.push({index:item, value:this.usersOnDate[item]})
+                this.usersChartData.push({index: item, value: this.usersOnDate[item]});
               }
-              this.usersToShow=this.usersChartData.slice(this.usersChartData.length -30,this.usersChartData.length);
+              this.usersToShow = this.usersChartData.slice(this.usersChartData.length - 30, this.usersChartData.length);
             }
-            if(this.usersPerApplication){
+            if (this.usersPerApplication) {
               this.usersPerApplicationDataAvailable = true;
-              const keysUsersPerApplication= Object.keys(this.usersPerApplication);
+              const keysUsersPerApplication = Object.keys(this.usersPerApplication);
               for (const item of keysUsersPerApplication) {
-                this.usersPerApplicationChartData.push({index:item, value:this.usersPerApplication[item]})
+                this.usersPerApplicationChartData.push({index: item, value: this.usersPerApplication[item]});
               }
             }
-
-            resolve(true);
+            return true;
           } catch (error) {
             console.error('Error processing dashboard data:', error);
-            reject(error);
+            throw error;
           }
-        },
-        error: (error) => {
-          console.error('Error fetching dashboard data:', error);
-          reject(error);
-        }
-      });
-    }));
+        })()
+      );
 
-    Promise.all(promises).then(() => {
-      this.dataLoaded=true;
-    }).catch((error) => {
-      console.error('Dashboard initialization failed:', error);
-      this.dataLoaded=true; // Still set to true to show the UI even with partial data
-    });
+      try {
+        await Promise.all(promises);
+        this.dataLoaded = true;
+      } catch (error) {
+        console.error('Dashboard initialization failed:', error);
+        this.dataLoaded = true; // Still set to true to show the UI even with partial data
+      }
+    })();
   }
 
   saveKPI(result){

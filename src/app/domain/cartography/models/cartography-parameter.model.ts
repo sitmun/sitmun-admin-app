@@ -1,4 +1,5 @@
 import { Resource } from '@app/core/hal/resource/resource.model';
+
 import {Cartography} from './cartography.model';
 /**
  * Service parameter model

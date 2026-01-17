@@ -1,7 +1,8 @@
 import {Component, Input, OnChanges, OnInit, ViewChild} from '@angular/core';
 import {MatSidenav} from '@angular/material/sidenav';
-import {IconsService} from '@app/services/icons.service';
+
 import {Configuration} from '@app/core/config/configuration';
+import {IconsService} from '@app/services/icons.service';
 import {LoggerService} from "@app/services/logger.service";
 
 

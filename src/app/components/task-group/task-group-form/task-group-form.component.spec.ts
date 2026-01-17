@@ -1,17 +1,21 @@
+import { HttpClientModule } from '@angular/common/http';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { RouterModule } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
+
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
+import {ExternalService, ResourceService} from '@app/core/hal';
+import {CodeListService, TaskGroupService, TranslationService} from '@app/domain';
+import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
+import { MaterialModule } from '@app/material-module';
 
 import { TaskGroupFormComponent } from './task-group-form.component';
-import { RouterModule } from '@angular/router';
-import { MaterialModule } from '@app/material-module';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { MatIconTestingModule } from '@angular/material/icon/testing';
-import {CodeListService, TaskGroupService, TranslationService} from '@app/domain';
-import {ExternalService, ResourceService} from '@app/core/hal';
-import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
-import { HttpClientModule } from '@angular/common/http';
-import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
-import { RouterTestingModule } from '@angular/router/testing';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+
+
 
 describe('TaskGroupFormComponent', () => {
   let component: TaskGroupFormComponent;

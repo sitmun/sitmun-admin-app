@@ -1,4 +1,13 @@
+import {Component} from '@angular/core';
+import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
+
+import {TranslateService} from '@ngx-translate/core';
+import {firstValueFrom} from 'rxjs';
+
+import {BaseListComponent} from "@app/components/base-list.component";
+import {EntityListConfig} from "@app/components/shared/entity-list";
+import {Configuration} from '@app/core/config/configuration';
 import {
   CodeListService,
   Territory,
@@ -7,17 +16,11 @@ import {
   TerritoryTypeService,
   TranslationService,
 } from '@app/domain';
-import {BaseListComponent} from "@app/components/base-list.component";
-import {Component} from '@angular/core';
-import {Configuration} from '@app/core/config/configuration';
-import {EntityListConfig} from "@app/components/shared/entity-list";
 import {ErrorHandlerService} from '@app/services/error-handler.service';
-import {LoggerService} from '@app/services/logger.service';
-import {MatDialog} from '@angular/material/dialog';
-import {TranslateService} from '@ngx-translate/core';
-import {UtilsService} from '@app/services/utils.service';
 import {LoadingOverlayService} from '@app/services/loading-overlay.service';
-import {firstValueFrom} from 'rxjs';
+import {LoggerService} from '@app/services/logger.service';
+import {UtilsService} from '@app/services/utils.service';
+
 
 @Component({
   selector: 'app-territory',

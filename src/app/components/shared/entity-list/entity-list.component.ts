@@ -1,5 +1,7 @@
 import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
+
 import {Observable, Subject} from 'rxjs';
+
 import {Resource} from '@app/core';
 
 export interface EntityListConfig<T> {

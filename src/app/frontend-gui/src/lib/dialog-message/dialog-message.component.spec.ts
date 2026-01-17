@@ -1,9 +1,11 @@
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { DialogMessageComponent } from './dialog-message.component';
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
+import { DialogMessageComponent } from './dialog-message.component';
 
 describe('DialogMessageComponent', () => {
   let component: DialogMessageComponent;
@@ -18,7 +20,10 @@ describe('DialogMessageComponent', () => {
         TranslateModule.forRoot()
       ],
       providers: [
-        { provide: MatDialogRef, useValue: { close: () => {} } },
+        { provide: MatDialogRef, useValue: { 
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          close: () => {} 
+        } },
         { provide: MAT_DIALOG_DATA, useValue: {} },
         TranslateService
       ],

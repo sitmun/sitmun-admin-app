@@ -1,10 +1,7 @@
 import { Resource } from '@app/core/hal/resource/resource.model';
-import {
-  Application,
-  ApplicationProjection,
-  Background,
-  BackgroundProjection
-} from '@app/domain';
+
+import {Application, ApplicationProjection} from './application.model';
+import {Background, BackgroundProjection} from '../../cartography/models/background.model';
 
 /**
  * Application background model

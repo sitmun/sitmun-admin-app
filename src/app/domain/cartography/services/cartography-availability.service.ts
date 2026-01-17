@@ -1,6 +1,8 @@
 import {Injectable, Injector} from '@angular/core';
-import {CartographyAvailability} from '@app/domain';
+
 import {RestService} from '@app/core/hal/rest/rest.service';
+
+import {CartographyAvailability} from '../models/cartography-availability.model';
 
 /** CartographyAvailability manager service */
 @Injectable()

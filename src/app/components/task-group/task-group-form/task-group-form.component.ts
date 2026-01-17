@@ -1,6 +1,15 @@
 import {Component} from '@angular/core';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
+import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
+
+import {TranslateService} from '@ngx-translate/core';
+import {firstValueFrom, map} from 'rxjs';
+
+import {BaseFormComponent} from '@app/components/base-form.component';
+import {DataTableDefinition} from "@app/components/data-tables.util";
+import {Configuration} from "@app/core/config/configuration";
+import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
 import {
   CodeListService,
   TaskGroup,
@@ -9,17 +18,10 @@ import {
   TaskService,
   TranslationService
 } from '@app/domain';
-import {LoggerService} from '@app/services/logger.service';
-import {BaseFormComponent} from '@app/components/base-form.component';
-import {MatDialog} from '@angular/material/dialog';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
-import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
-import {TranslateService} from '@ngx-translate/core';
-import {firstValueFrom, map} from 'rxjs';
+import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
-import {DataTableDefinition} from "@app/components/data-tables.util";
-import {Configuration} from "@app/core/config/configuration";
 
 @Component({
   selector: 'app-task-group-form',
@@ -168,11 +170,10 @@ export class TaskGroupFormComponent extends BaseFormComponent<TaskGroup> {
   /**
    * Updates related data after the task group is saved.
    *
-   * @param isDuplicated - Whether this is a duplication operation
+   * @param _isDuplicated - Whether this is a duplication operation
    * @returns Promise that resolves when related data is updated
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  override async updateDataRelated(isDuplicated: boolean) {
+  override async updateDataRelated(_isDuplicated: boolean) {
     const entityToUpdate = this.createObject(this.entityID);
     await this.saveTranslations(entityToUpdate);
   }

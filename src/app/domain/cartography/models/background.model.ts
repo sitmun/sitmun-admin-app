@@ -1,6 +1,8 @@
 import { Resource } from '@app/core/hal/resource/resource.model';
+
 import {CartographyGroup} from './cartography-group.model';
-import {ApplicationBackground} from "@app/domain";
+import {ApplicationBackground} from '../../application/models/application-background.model';
+
 /**
  * Background model
  */

@@ -1,4 +1,4 @@
-import {Resource} from "@app/core";
+import {Resource} from "@app/core/hal/resource/resource.model";
 
 export class ApplicationHeaderParameter extends Resource {
   public name: string;

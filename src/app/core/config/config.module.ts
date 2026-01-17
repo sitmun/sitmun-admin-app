@@ -1,7 +1,8 @@
-import {ModuleWithProviders, NgModule} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import { ExternalConfigurationService } from './external-configuration.service';
+import {ModuleWithProviders, NgModule} from '@angular/core';
+
+import {ExternalConfigurationService} from './external-configuration.service';
 
 @NgModule({
   imports: [

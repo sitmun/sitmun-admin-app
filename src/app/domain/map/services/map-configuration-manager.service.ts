@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+
+import { BehaviorSubject, Observable } from 'rxjs';
 
 /** Layer model: configure Layer data and displaying configuration */
 export class Layer {

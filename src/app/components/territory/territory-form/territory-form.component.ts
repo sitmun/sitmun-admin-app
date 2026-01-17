@@ -1,4 +1,17 @@
+import {Component} from '@angular/core';
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
+import {MatDialog} from '@angular/material/dialog';
+import {MatSelectChange} from '@angular/material/select';
 import {ActivatedRoute, Router} from '@angular/router';
+
+import {TranslateService} from "@ngx-translate/core";
+import { firstValueFrom, of} from 'rxjs';
+import {map} from 'rxjs/operators';
+
+import {BaseFormComponent} from "@app/components/base-form.component";
+import {DataTable2Definition, DataTableDefinition} from '@app/components/data-tables.util';
+import {Configuration} from "@app/core/config/configuration";
+import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
 import {
   CartographyAvailability,
   CartographyAvailabilityProjection,
@@ -31,22 +44,12 @@ import {
   UserConfigurationService,
   UserService,
 } from '@app/domain';
-import {DataTable2Definition, DataTableDefinition} from '@app/components/data-tables.util';
-import {EMPTY, firstValueFrom, of} from 'rxjs';
 import {onCreate, onDelete, onUpdate, onUpdatedRelation, Status} from '@app/frontend-gui/src/lib/public_api';
-import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
-import {BaseFormComponent} from "@app/components/base-form.component";
-import {Component} from '@angular/core';
-import {Configuration} from "@app/core/config/configuration";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from '@app/services/logger.service';
-import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
-import {MatDialog} from '@angular/material/dialog';
-import {MatSelectChange} from '@angular/material/select';
-import {TranslateService} from "@ngx-translate/core";
 import {UtilsService} from '@app/services/utils.service';
-import {map} from 'rxjs/operators';
+
 
 @Component({
   selector: 'app-territory-form',
@@ -132,6 +135,10 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
    * @param errorHandler - Service for handling errors
    * @param activatedRoute - Activated route for accessing route parameters
    * @param router - Angular router for navigation
+   * @param loadingService
+   * @param messagesInterceptorState
+   * @param loadingService
+   * @param messagesInterceptorState
    * @param territoryService - Service for managing territories
    * @param userService - Service for managing users
    * @param roleService - Service for managing roles
@@ -299,10 +306,9 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
 
   /**
    * Updates related data after entity save.
-   * @param isDuplicated - Whether this is a duplication operation
+   * @param _isDuplicated - Whether this is a duplication operation
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  override async updateDataRelated(isDuplicated: boolean): Promise<void> {
+  override async updateDataRelated(_isDuplicated: boolean): Promise<void> {
     const entityToUpdate = this.createObject(this.entityID);
     await this.saveTranslations(entityToUpdate);
     await firstValueFrom(entityToUpdate.updateRelationEx("type", entityToUpdate.type));

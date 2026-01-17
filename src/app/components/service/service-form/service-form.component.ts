@@ -1,6 +1,18 @@
+import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import {Component, OnDestroy, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
+import {MatChipInputEvent} from '@angular/material/chips';
+import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
+
+import {TranslateService} from "@ngx-translate/core";
+import { firstValueFrom, of} from 'rxjs';
+import {map} from 'rxjs/operators';
+
+import {BaseFormComponent} from "@app/components/base-form.component";
+import {DataTableDefinition, TemplateDialog} from "@app/components/data-tables.util";
+import {Configuration} from "@app/core/config/configuration";
+import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
 import {
   Cartography,
   CartographyProjection,
@@ -14,12 +26,6 @@ import {
   ServiceService,
   TranslationService,
 } from '@app/domain';
-import {UtilsService} from '@app/services/utils.service';
-import {COMMA, ENTER} from '@angular/cdk/keycodes';
-import {map} from 'rxjs/operators';
-import {EMPTY, firstValueFrom, of} from 'rxjs';
-import {MatChipInputEvent} from '@angular/material/chips';
-import {config} from '@config';
 import {
   DialogMessageComponent,
   onCreate,
@@ -29,17 +35,13 @@ import {
   onUpdate,
   Status
 } from '@app/frontend-gui/src/lib/public_api';
-import {MatDialog} from '@angular/material/dialog';
-import {constants} from '@environments/constants';
-import {LoggerService} from '@app/services/logger.service';
-import {TranslateService} from "@ngx-translate/core";
-import {BaseFormComponent} from "@app/components/base-form.component";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
-import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
-import {DataTableDefinition, TemplateDialog} from "@app/components/data-tables.util";
+import {LoggerService} from '@app/services/logger.service';
+import {UtilsService} from '@app/services/utils.service';
 import {WMSCapabilitiesService, WMSLayersCapabilities} from "@app/services/wms-capabilities.service";
-import {Configuration} from "@app/core/config/configuration";
+import {config} from '@config';
+import {constants} from '@environments/constants';
 
 /**
  * Component for managing service forms in the application.
@@ -168,6 +170,10 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
    * @param errorHandler - Service for error handling and display
    * @param activatedRoute - Service for accessing route parameters
    * @param router - Angular router service for navigation
+   * @param loadingService
+   * @param messagesInterceptorState
+   * @param loadingService
+   * @param messagesInterceptorState
    * @param utils - Utility service for common functions
    * @param cartographyService - Service for managing cartography entities
    * @param serviceParameterService - Service for managing service parameters
@@ -339,11 +345,10 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
    * Updates related data after the main entity is saved.
    * Saves translations for the service entity.
    *
-   * @param isDuplicated - Whether this is a duplication operation
+   * @param _isDuplicated - Whether this is a duplication operation
    * @returns Promise that resolves when all related updates are complete
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  override async updateDataRelated(isDuplicated: boolean): Promise<void> {
+  override async updateDataRelated(_isDuplicated: boolean): Promise<void> {
     const entityToUpdate = this.createObject(this.entityID);
     await this.saveTranslations(entityToUpdate);
   }
@@ -420,8 +425,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
    * @param {ServiceParameter[]} parameters - Array of parameters to duplicate
    * @throws Error as this method is not yet implemented
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  duplicateParameters(parameters: ServiceParameter[]) {
+  duplicateParameters(_parameters: ServiceParameter[]) {
     throw new Error("Not implemented")
   }
 

@@ -1,6 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+
 import { TranslateService } from '@ngx-translate/core';
+
 import { LoggerService } from '@app/services/logger.service';
 
 @Component({

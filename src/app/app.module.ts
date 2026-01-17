@@ -1,4 +1,66 @@
+import {NgOptimizedImage} from "@angular/common";
+import {HttpClient, HttpClientModule} from '@angular/common/http';
 import {APP_INITIALIZER, ErrorHandler, LOCALE_ID, NgModule} from '@angular/core';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {MAT_TABS_CONFIG} from '@angular/material/tabs';
+import {BrowserModule} from '@angular/platform-browser';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {RouterModule} from '@angular/router';
+
+import { TranslateLoader, TranslateModule, TranslateService} from '@ngx-translate/core';
+import {TranslateHttpLoader} from '@ngx-translate/http-loader';
+import {firstValueFrom} from 'rxjs';
+
+import {ApplicationFormComponent} from '@app/components/application/application-form/application-form.component';
+import {ApplicationComponent} from '@app/components/application/application.component';
+import {
+  BackgroundLayersFormComponent
+} from '@app/components/background-layers/background-layers-form/background-layers-form.component';
+import {BackgroundLayersComponent} from '@app/components/background-layers/background-layers.component';
+import {BaseFormComponent} from "@app/components/base-form.component";
+import {ConnectionFormComponent} from '@app/components/connection/connection-form/connection-form.component';
+import {ConnectionComponent} from '@app/components/connection/connection.component';
+import {DashboardComponent} from '@app/components/dashboard/dashboard.component';
+import {DataTablesRegistry} from "@app/components/data-tables.util";
+import {ErrorPageComponent} from "@app/components/error-page/error-page.component";
+import {LayersFormComponent} from '@app/components/layers/layers-form/layers-form.component';
+import {LayersComponent} from '@app/components/layers/layers.component';
+import {
+  LayersPermitsFormComponent
+} from '@app/components/layers-permits/layers-permits-form/layers-permits-form.component';
+import {LayersPermitsComponent} from '@app/components/layers-permits/layers-permits.component';
+import {LoginComponent} from '@app/components/login/login.component';
+import {RoleFormComponent} from '@app/components/role/role-form/role-form.component';
+import {RoleComponent} from '@app/components/role/role.component';
+import {ServiceFormComponent} from '@app/components/service/service-form/service-form.component';
+import {UrlInputDirective} from '@app/components/service/service-form/url-input.directive';
+import {ServiceComponent} from '@app/components/service/service.component';
+import {AuthenticatedLayoutComponent} from '@app/components/shared/authenticated-layout/authenticated-layout.component';
+import {EntityListComponent} from '@app/components/shared/entity-list';
+import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
+import {NotificationComponent} from '@app/components/shared/notification/notification.component';
+import {SideMenuComponent} from '@app/components/shared/side-menu/side-menu.component';
+import {ToolbarComponent} from '@app/components/shared/toolbar/toolbar.component';
+import {WarningsPanelComponent} from '@app/components/shared/warnings-panel/warnings-panel.component';
+import {TaskGroupFormComponent} from '@app/components/task-group/task-group-form/task-group-form.component';
+import {TaskGroupComponent} from '@app/components/task-group/task-group.component';
+import {TaskBasicFormComponent} from '@app/components/tasks-basic/task-form/task-basic-form.component';
+import {TasksBasicComponent} from '@app/components/tasks-basic/tasks-basic.component';
+import {TaskEditFormComponent} from '@app/components/tasks-edit/task-form/task-edit-form.component';
+import {TasksEditComponent} from '@app/components/tasks-edit/tasks-edit.component';
+import {TaskQueryFormComponent} from "@app/components/tasks-query/task-form/task-query-form.component";
+import {TasksQueryComponent} from "@app/components/tasks-query/tasks-query.component";
+import {TerritoryFormComponent} from '@app/components/territory/territory-form/territory-form.component';
+import {TerritoryComponent} from '@app/components/territory/territory.component';
+import {TreeNodesComponent} from '@app/components/trees/trees-form/tree-nodes/tree-nodes.component';
+import {TreesFormComponent} from '@app/components/trees/trees-form/trees-form.component';
+import {TreesComponent} from '@app/components/trees/trees.component';
+import {UserFormComponent} from '@app/components/user/user-form/user-form.component';
+import {UserComponent} from '@app/components/user/user.component';
+import {CoreModule, MessagesInterceptorStateService} from '@app/core';
+import {ExternalConfigurationService} from '@app/core/config/external-configuration.service';
+import {ExternalService, HalModule, ResourceService} from '@app/core/hal';
+import {Resource} from "@app/core/hal/resource/resource.model";
 import {
   ApplicationBackgroundService,
   ApplicationParameterService,
@@ -35,85 +97,25 @@ import {
   UserPositionService,
   UserService
 } from '@app/domain';
-
-import {CoreModule, MessagesInterceptorStateService} from '@app/core';
-import {ExternalService, HalModule, ResourceService} from '@app/core/hal';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {HttpClient, HttpClientModule} from '@angular/common/http';
-import {MissingTranslationHandler, TranslateLoader, TranslateModule, TranslateService} from '@ngx-translate/core';
+import {DataGridComponent} from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
+import {DialogGridComponent} from '@app/frontend-gui/src/lib/dialog-grid/dialog-grid.component';
+import {ImagePreviewComponent} from '@app/frontend-gui/src/lib/image-preview/image-preview.component';
+import {SitmunFrontendGuiModule} from '@app/frontend-gui/src/lib/public_api';
+import {config} from '@config';
 
 import {APP_ROUTING} from './app-routes';
 import {AppComponent} from './app.component';
-import {AppStateService} from './services/app-state.service';
-import {ApplicationComponent} from '@app/components/application/application.component';
-import {ApplicationFormComponent} from '@app/components/application/application-form/application-form.component';
-import {AuthenticatedLayoutComponent} from '@app/components/shared/authenticated-layout/authenticated-layout.component';
-import {BackgroundLayersComponent} from '@app/components/background-layers/background-layers.component';
-import {
-  BackgroundLayersFormComponent
-} from '@app/components/background-layers/background-layers-form/background-layers-form.component';
-import {BaseFormComponent} from "@app/components/base-form.component";
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {BrowserModule} from '@angular/platform-browser';
-import {ConnectionComponent} from '@app/components/connection/connection.component';
-import {ConnectionFormComponent} from '@app/components/connection/connection-form/connection-form.component';
-import {DashboardComponent} from '@app/components/dashboard/dashboard.component';
-import {DataTablesRegistry} from "@app/components/data-tables.util";
-import {EntityListComponent} from '@app/components/shared/entity-list';
-import {ErrorPageComponent} from "@app/components/error-page/error-page.component";
-import {ExternalConfigurationService} from '@app/core/config/external-configuration.service';
-import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
-import {LayersComponent} from '@app/components/layers/layers.component';
-import {LayersFormComponent} from '@app/components/layers/layers-form/layers-form.component';
-import {LayersPermitsComponent} from '@app/components/layers-permits/layers-permits.component';
-import {
-  LayersPermitsFormComponent
-} from '@app/components/layers-permits/layers-permits-form/layers-permits-form.component';
-import {LoggerService} from './services/logger.service';
-import {LoginComponent} from '@app/components/login/login.component';
-import {MAT_TABS_CONFIG} from '@angular/material/tabs';
-import {MaterialModule} from './material-module';
-import {NgOptimizedImage} from "@angular/common";
-import {NotificationComponent} from '@app/components/shared/notification/notification.component';
-import {Resource} from "@app/core/hal/resource/resource.model";
-import {RoleComponent} from '@app/components/role/role.component';
-import {RoleFormComponent} from '@app/components/role/role-form/role-form.component';
-import {RouterModule} from '@angular/router';
-import {ServiceComponent} from '@app/components/service/service.component';
-import {ServiceFormComponent} from '@app/components/service/service-form/service-form.component';
-import {ServicesModule} from './services/services.module';
-import {SideMenuComponent} from '@app/components/shared/side-menu/side-menu.component';
-import {SitmunFrontendGuiModule} from '@app/frontend-gui/src/lib/public_api';
-import {TaskBasicFormComponent} from '@app/components/tasks-basic/task-form/task-basic-form.component';
-import {TaskEditFormComponent} from '@app/components/tasks-edit/task-form/task-edit-form.component';
-import {TaskGroupComponent} from '@app/components/task-group/task-group.component';
-import {TaskGroupFormComponent} from '@app/components/task-group/task-group-form/task-group-form.component';
-import {TaskQueryFormComponent} from "@app/components/tasks-query/task-form/task-query-form.component";
-import {TasksBasicComponent} from '@app/components/tasks-basic/tasks-basic.component';
-import {TasksEditComponent} from '@app/components/tasks-edit/tasks-edit.component';
-import {TasksQueryComponent} from "@app/components/tasks-query/tasks-query.component";
-import {TerritoryComponent} from '@app/components/territory/territory.component';
-import {TerritoryFormComponent} from '@app/components/territory/territory-form/territory-form.component';
-import {ToolbarComponent} from '@app/components/shared/toolbar/toolbar.component';
-import {TranslateHttpLoader} from '@ngx-translate/http-loader';
-import {SystemInfoMenuComponent} from './components/shared/system-info-menu/system-info-menu.component';
-import {ErrorDetailsSidebarComponent} from './components/shared/error-details-sidebar/error-details-sidebar.component';
 import {AboutDialogComponent} from './components/shared/about-dialog/about-dialog.component';
 import {ConfigurationParametersDialogComponent} from './components/shared/configuration-parameters-dialog/configuration-parameters-dialog.component';
+import {ErrorDetailsSidebarComponent} from './components/shared/error-details-sidebar/error-details-sidebar.component';
+import {SystemInfoMenuComponent} from './components/shared/system-info-menu/system-info-menu.component';
 import {GlobalErrorHandler} from './core/global-error-handler';
-import {TreesComponent} from '@app/components/trees/trees.component';
-import {TreesFormComponent} from '@app/components/trees/trees-form/trees-form.component';
-import {TreeNodesComponent} from '@app/components/trees/trees-form/tree-nodes/tree-nodes.component';
-import {ImagePreviewComponent} from '@app/frontend-gui/src/lib/image-preview/image-preview.component';
-import {UrlInputDirective} from '@app/components/service/service-form/url-input.directive';
-import {UserComponent} from '@app/components/user/user.component';
-import {UserFormComponent} from '@app/components/user/user-form/user-form.component';
-import {WarningsPanelComponent} from '@app/components/shared/warnings-panel/warnings-panel.component';
-
-import {config} from '@config';
-import {firstValueFrom} from 'rxjs';
+import {MaterialModule} from './material-module';
 import {AppConfigService, initializeAppConfig} from './services/app-config.service';
+import {AppStateService} from './services/app-state.service';
 import {IconsService, initializeIcons} from './services/icons.service';
+import {LoggerService} from './services/logger.service';
+import {ServicesModule} from './services/services.module';
 
 
 // APP_INITIALIZER factory functions
@@ -300,6 +302,8 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
     DomainModule.forRoot(),
     ServicesModule,
     SitmunFrontendGuiModule,
+    DataGridComponent,
+    DialogGridComponent,
     MaterialModule,
     RouterModule,
     HalModule.forRoot(),

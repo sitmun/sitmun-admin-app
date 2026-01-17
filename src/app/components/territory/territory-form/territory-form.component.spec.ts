@@ -1,3 +1,12 @@
+import {HttpClientTestingModule} from '@angular/common/http/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {MatIconTestingModule} from '@angular/material/icon/testing';
+import {RouterModule} from '@angular/router';
+import {RouterTestingModule} from '@angular/router/testing';
+
+import {ExternalConfigurationService} from '@app/core/config/external-configuration.service';
+import {ExternalService, ResourceService} from '@app/core/hal';
 import {
   CartographyAvailabilityService,
   CartographyService,
@@ -13,16 +22,9 @@ import {
   UserPositionService,
   UserService,
 } from '@app/domain';
-import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {ExternalService, ResourceService} from '@app/core/hal';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {ExternalConfigurationService} from '@app/core/config/external-configuration.service';
-import {HttpClientTestingModule} from '@angular/common/http/testing';
-import {MatIconTestingModule} from '@angular/material/icon/testing';
-import {MaterialModule} from '@app/material-module';
-import {RouterModule} from '@angular/router';
-import {RouterTestingModule} from '@angular/router/testing';
 import {SitmunFrontendGuiModule} from '@app/frontend-gui/src/lib/public_api';
+import {MaterialModule} from '@app/material-module';
+
 import {TerritoryFormComponent} from './territory-form.component';
 
 describe('TerritoryFormComponent', () => {

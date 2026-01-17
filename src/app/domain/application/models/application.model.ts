@@ -1,11 +1,13 @@
-import {ApplicationBackground, ApplicationParameter, User} from '@app/domain';
-import {ApplicationTerritory} from "@app/domain/application/models/application-territory.model";
-import {CartographyGroup} from '@app/domain/cartography/models/cartography-group.model';
 import {Resource} from '@app/core/hal/resource/resource.model';
-import {Role} from '@app/domain/role/models/role.model';
-import {Tree} from '@app/domain/tree/models/tree.model';
-
 import {constants} from "@environments/constants";
+
+import {ApplicationBackground} from './application-background.model';
+import {ApplicationParameter} from './application-parameter.model';
+import {ApplicationTerritory} from "./application-territory.model";
+import {CartographyGroup} from '../../cartography/models/cartography-group.model';
+import {Role} from '../../role/models/role.model';
+import {Tree} from '../../tree/models/tree.model';
+import {User} from '../../user/models/user.model';
 
 /**
  * Application model

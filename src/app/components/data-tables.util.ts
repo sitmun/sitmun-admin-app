@@ -1,23 +1,23 @@
+import {TemplateRef} from "@angular/core";
+import {FormGroup} from "@angular/forms";
+import {MatDialog} from "@angular/material/dialog";
+
+import {EMPTY, firstValueFrom, map, Observable, race, ReplaySubject, Subject, timer} from "rxjs";
+
+import {DataGridComponent, GridEvent, GridEventType, isSave, Status} from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
 import {
   DialogFormComponent,
   DialogFormData,
   DialogFormResult
 } from "@app/frontend-gui/src/lib/dialog-form/dialog-form.component";
 import {
-  DialogGridComponent,
-  DialogGridData,
-  DialogGridResult,
   isDialogGridAddEvent,
   openDialogGridWithPreload
 } from "@app/frontend-gui/src/lib/dialog-grid/dialog-grid.component";
-import {EMPTY, firstValueFrom, map, Observable, race, ReplaySubject, Subject, timer} from "rxjs";
-import {DataGridComponent, GridEvent, GridEventType, isSave, Status} from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
-import {FormGroup} from "@angular/forms";
-import {LoggerService} from "@app/services/logger.service";
-import {MatDialog} from "@angular/material/dialog";
-import {TemplateRef} from "@angular/core";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
+import {LoggerService} from "@app/services/logger.service";
+
 
 /**
  * Defines the configuration and behavior of a data table in the application.
@@ -82,6 +82,7 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
    * @param templateDialogs - Map of template dialog factory functions
    * @param errorHandler - Service for handling and displaying errors
    * @param fieldRestriction
+   * @param loadingService
    */
   constructor(
     public readonly relationsColumnsDefs: any[],
@@ -116,7 +117,7 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
    * @returns A DataTableDefinitionBuilder instance
    */
   static builder<RELATION, TARGET>(
-    dialog: MatDialog, 
+    dialog: MatDialog,
     errorHandler: ErrorHandlerService,
     loadingService: LoadingOverlayService
   ): DataTableDefinitionBuilder<RELATION, TARGET> {
@@ -374,6 +375,7 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
    * @param targetsOrder - Default sorting field for targets
    * @param targetToRelationFn - Function to convert selected targets to relations
    * @param errorHandler - Service for handling and displaying errors
+   * @param loadingService
    */
   constructor(
     public readonly relationsColumnsDefs: any[],
@@ -638,9 +640,9 @@ export class DataTablesRegistry {
    * @returns True if any data grid has unsaved changes, false otherwise
    */
   hasChanges(): boolean {
-    return this.dataGrids.some(grid => 
+    return this.dataGrids.some(grid =>
       grid && (
-        grid.changeCounter > 0 || 
+        grid.changeCounter > 0 ||
         grid.someStatusHasChanged === true ||
         grid.someStatusHasChangedToDelete === true
       )
@@ -939,8 +941,7 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
    * Default function to filter which targets should be shown.
    * Shows all targets if not overridden.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private targetIncludeFn: (relations: RELATION[]) => ((target: TARGET) => boolean) = (relations) => ((target) => true);
+  private targetIncludeFn: (relations: RELATION[]) => ((target: TARGET) => boolean) = (_relations) => ((_target) => true);
 
   /**
    * Default function to convert selected targets to relations.
@@ -1231,10 +1232,9 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
    * Default function to filter which targets should be shown.
    * Shows all targets if not overridden.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private targetLeftIncludeFn: (relations: RELATION[]) => ((target: TARGET_LEFT) => boolean) = (relations) => ((target) => true);
+  private targetLeftIncludeFn: (relations: RELATION[]) => ((target: TARGET_LEFT) => boolean) = (_relations) => ((_target) => true);
 
-  private targetRightIncludeFn: (relations: RELATION[]) => ((target: TARGET_RIGHT) => boolean) = (relations) => ((target) => true);
+  private targetRightIncludeFn: (relations: RELATION[]) => ((target: TARGET_RIGHT) => boolean) = (_relations) => ((_target) => true);
 
   /**
    * Default function to convert selected targets to relations.

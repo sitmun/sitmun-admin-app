@@ -1,6 +1,8 @@
-import { CartographyFilter } from '@app/domain';
 import { Injectable, Injector } from '@angular/core';
+
 import { RestService } from '@app/core/hal/rest/rest.service';
+
+import { CartographyFilter } from '../models/cartography-filter.model';
 
 /** CartographyFilter manager service */
 @Injectable()

@@ -1,3 +1,4 @@
+import {CommonModule} from '@angular/common';
 import {
   Component,
   ElementRef,
@@ -10,36 +11,38 @@ import {
   SimpleChanges,
   ViewChild
 } from '@angular/core';
-import {GridOptions, ModuleRegistry} from '@ag-grid-community/core';
-import {MatDialog, MatDialogModule} from '@angular/material/dialog';
-import {firstValueFrom, Observable, Subscription} from 'rxjs';
-import {TranslateModule, TranslateService} from '@ngx-translate/core';
-import {AgGridModule} from '@ag-grid-community/angular';
-import {BtnCheckboxFilterComponent} from '@app/frontend-gui/src/lib/btn-checkbox-filter/btn-checkbox-filter.component';
-import {
-  BtnCheckboxRenderedComponent
-} from '@app/frontend-gui/src/lib/btn-checkbox-rendered/btn-checkbox-rendered.component';
-import {BtnEditRenderedComponent} from '@app/frontend-gui/src/lib/btn-edit-rendered/btn-edit-rendered.component';
-import {ClientSideRowModelModule} from '@ag-grid-community/client-side-row-model';
-import {CommonModule} from '@angular/common';
-import {CsvExportModule} from '@ag-grid-community/csv-export';
-import {DialogMessageComponent} from '@app/frontend-gui/src/lib/dialog-message/dialog-message.component';
-import {EditableLinkRendererComponent} from '../editable-link-renderer/editable-link-renderer.component';
 import {FormsModule} from '@angular/forms';
-import {LoggerService} from '@app/services/logger.service';
 import {MatButtonModule} from '@angular/material/button';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {MatCardModule} from '@angular/material/card';
+import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatMenuModule} from '@angular/material/menu';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {RouterLinkRendererComponent} from '../router-link-renderer/router-link-renderer.component';
-import {UtilsService} from '@app/services/utils.service';
+
+import {AgGridModule} from '@ag-grid-community/angular';
+import {ClientSideRowModelModule} from '@ag-grid-community/client-side-row-model';
+import {GridOptions, ModuleRegistry} from '@ag-grid-community/core';
+import {CsvExportModule} from '@ag-grid-community/csv-export';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {firstValueFrom, Observable, Subscription} from 'rxjs';
+
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from '@app/services/loading-overlay.service';
+import {LoggerService} from '@app/services/logger.service';
+import {UtilsService} from '@app/services/utils.service';
 import {constants} from '@environments/constants';
+
+import {BtnCheckboxFilterComponent} from '../btn-checkbox-filter/btn-checkbox-filter.component';
+import {
+  BtnCheckboxRenderedComponent
+} from '../btn-checkbox-rendered/btn-checkbox-rendered.component';
+import {BtnEditRenderedComponent} from '../btn-edit-rendered/btn-edit-rendered.component';
+import {DialogMessageComponent} from '../dialog-message/dialog-message.component';
+import {EditableLinkRendererComponent} from '../editable-link-renderer/editable-link-renderer.component';
+import {RouterLinkRendererComponent} from '../router-link-renderer/router-link-renderer.component';
 
 // Removed jQuery dependency
 
@@ -235,8 +238,6 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   /** Map tracking changes to cells */
   changesMap: Map<string, Map<string, number>> = new Map<string, Map<string, number>>();
 
-  /** Reference to current loading overlay */
-  private loadingOverlayRef: HTMLElement | null = null;
 
   /** Last parameters of the grid */
   params: any;
@@ -550,35 +551,18 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   /**
-   * Sets the loading state of the grid
-   * @param value - True to show loading overlay, false to hide
-   */
-  setLoading(value: boolean) {
-    if (value) {
-      // Hide any existing overlay first
-      if (this.loadingOverlayRef) {
-        this.loadingService.hide(this.loadingOverlayRef);
-        this.loadingOverlayRef = null;
-      }
-      // Show new overlay
-      this.loadingOverlayRef = this.loadingService.show({
-        message: 'Loading data...'
-      });
-    } else {
-      if (this.loadingOverlayRef) {
-        this.loadingService.hide(this.loadingOverlayRef);
-        this.loadingOverlayRef = null;
-      }
-    }
-  }
-
-  /**
-   * Loads data into the grid
+   * Loads data into the grid with anti-flicker loading overlay
    */
   loadData(): void {
-    this.setLoading(true);
-    this.dataSubscription = this.getAll().subscribe({
-      next: (data: Status[]) => {
+    // Clean up any existing subscription
+    if (this.dataSubscription) {
+      this.dataSubscription.unsubscribe();
+    }
+
+    this.loadingService.wrapWithAntiFlicker(
+      async () => {
+        const data = await firstValueFrom(this.getAll());
+        
         const status = this.allNewElements ? 'pendingCreation' : 'statusOK';
         const newItems = [];
         const condition = (this.addFieldRestriction) ? this.addFieldRestriction : 'id';
@@ -616,12 +600,16 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         }
 
         this.isFirstLoad = false;
-        this.setLoading(false);
+        return data;
       },
-      error: (error) => {
-        this.loggerService.error('Error loading data:', error);
-        this.setLoading(false);
+      {
+        message: 'Loading data...',
+        showDelayMs: 150,
+        minDisplayMs: 400
       }
+    ).catch((error) => {
+      this.loggerService.error('Error loading data:', error);
+      throw error;
     });
   }
 
@@ -635,10 +623,6 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     }
     if (this.observer) {
       this.observer.disconnect();
-    }
-    if (this.loadingOverlayRef) {
-      this.loadingService.hide(this.loadingOverlayRef);
-      this.loadingOverlayRef = null;
     }
   }
 
@@ -790,6 +774,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     // Simple native date input editor (no jQuery)
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     function NativeDatepicker(this: any) {
     }
 
@@ -814,6 +799,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       return this.eInput.value;
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     NativeDatepicker.prototype.destroy = function () {
     };
 

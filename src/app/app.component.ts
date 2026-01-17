@@ -1,14 +1,18 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
+
 import {TranslateService} from '@ngx-translate/core';
-import {Principal} from '@app/core/auth/principal.service';
-import {LoginService} from '@app/core/auth/login.service';
-import {AuthService} from '@app/core/auth/auth.service';
-import {config} from '@config';
-import {LoggerService} from '@app/services/logger.service';
-import {ErrorTrackingService} from '@app/services/error-tracking.service';
-import {AppStateService} from './services/app-state.service';
 import {Observable, Subscription} from 'rxjs';
 import {map} from 'rxjs/operators';
+
+import {AuthService} from '@app/core/auth/auth.service';
+import {LoginService} from '@app/core/auth/login.service';
+import {Principal} from '@app/core/auth/principal.service';
+import {ErrorTrackingService} from '@app/services/error-tracking.service';
+import {LoggerService} from '@app/services/logger.service';
+import {config} from '@config';
+
+import {AppStateService} from './services/app-state.service';
+
 
 @Component({
   selector: 'app-root',
@@ -132,7 +136,7 @@ export class AppComponent implements OnInit, OnDestroy {
     localStorage.setItem('lang', locale);
   }
 
-  navOpen($event): void {
+  navOpen(_$event): void {
     // toggle condition here
     this.isOpen = !this.isOpen;
   }

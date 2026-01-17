@@ -1,6 +1,7 @@
-import {CanActivateFn, Router} from '@angular/router';
-import {AuthService} from '@app/core/auth/auth.service';
 import {inject} from '@angular/core';
+import {CanActivateFn, Router} from '@angular/router';
+
+import {AuthService} from '@app/core/auth/auth.service';
 
 /** Functional guard to protect authenticated routes */
 export const authGuard: CanActivateFn = () => {

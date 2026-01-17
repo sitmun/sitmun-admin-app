@@ -1,8 +1,11 @@
-import { TreeNode } from '@app/domain';
 import { Injectable, Injector } from '@angular/core';
+
 import { Observable } from 'rxjs';
+
 import { RestService } from '@app/core/hal/rest/rest.service';
 import { LoggerService } from '@app/services/logger.service';
+
+import { TreeNode } from '../models/tree-node.model';
 
 /** Tree node manager service */
 @Injectable()
@@ -49,6 +52,7 @@ export class TreeNodeService extends RestService<TreeNode> {
     if (itemTree != null) {
       if (itemTree._links && itemTree._links.self) {
         item.substituteRelation('tree', itemTree).subscribe(
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
           () => {},
           error => this.loggerService.error('Error substituting tree relation:', error)
         );
@@ -63,6 +67,7 @@ export class TreeNodeService extends RestService<TreeNode> {
     if (itemCartography != null) {
       if (itemCartography._links && itemCartography._links.self) {
         item.substituteRelation('cartography', itemCartography).subscribe(
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
           () => {},
           error => this.loggerService.error('Error substituting cartography relation:', error)
         );
@@ -77,6 +82,7 @@ export class TreeNodeService extends RestService<TreeNode> {
     if (itemTask != null) {
       if (itemTask._links && itemTask._links.self) {
         item.substituteRelation('task', itemTask).subscribe(
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
           () => {},
           error => this.loggerService.error('Error substituting task relation:', error)
         );
@@ -91,6 +97,7 @@ export class TreeNodeService extends RestService<TreeNode> {
     if (itemParent != null) {
       if (itemParent._links && itemParent._links.self) {
         item.substituteRelation('parent', itemParent).subscribe(
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
           () => {},
           error => this.loggerService.error('Error substituting parent relation:', error)
         );
@@ -109,6 +116,7 @@ export class TreeNodeService extends RestService<TreeNode> {
         }
       };
       item.deleteRelation('parent', treeNodeParent).subscribe(
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         () => {},
         error => this.loggerService.error('Error deleting parent relation:', error)
       );

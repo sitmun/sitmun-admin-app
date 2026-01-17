@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
-import { environment } from '@environments/environment';
+
 import { BehaviorSubject, Observable } from 'rxjs';
+
+import { environment } from '@environments/environment';
+
 import {
   DEV_FEATURE_FLAGS,
-  FEATURE_FLAGS,
   FeatureFlagConfig,
   FeatureFlagKeys,
   PROD_FEATURE_FLAGS
@@ -137,7 +139,10 @@ export class FeatureFlagService {
         categoriesMap.set(category, []);
       }
       
-      categoriesMap.get(category)!.push({ key: flagKey, config });
+      const categoryArray = categoriesMap.get(category);
+      if (categoryArray) {
+        categoryArray.push({ key: flagKey, config });
+      }
     });
     
     // Sort flags within each category by key

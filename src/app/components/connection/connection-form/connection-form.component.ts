@@ -1,4 +1,16 @@
+import {Component} from '@angular/core';
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
+import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
+
+import {TranslateService} from '@ngx-translate/core';
+import { firstValueFrom, of} from 'rxjs';
+import {map} from 'rxjs/operators';
+
+import {BaseFormComponent} from "@app/components/base-form.component";
+import {DataTableDefinition} from '@app/components/data-tables.util';
+import {Configuration} from "@app/core/config/configuration";
+import {MessagesInterceptorStateService} from '@app/core/interceptors/messages.interceptor';
 import {
   CartographyService,
   CodeListService,
@@ -8,21 +20,12 @@ import {
   TaskService,
   TranslationService
 } from '@app/domain';
-import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
-import {EMPTY, firstValueFrom, of} from 'rxjs';
-import {BaseFormComponent} from "@app/components/base-form.component";
-import {Component} from '@angular/core';
-import {Configuration} from "@app/core/config/configuration";
-import {DataTableDefinition} from '@app/components/data-tables.util';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from '@app/services/logger.service';
-import {MatDialog} from '@angular/material/dialog';
 import {NotificationService} from '@app/services/notification.service';
 import {UtilsService} from '@app/services/utils.service';
-import {MessagesInterceptorStateService} from '@app/core/interceptors/messages.interceptor';
-import {map} from 'rxjs/operators';
-import {TranslateService} from '@ngx-translate/core';
+
 
 /**
  * Component for managing connection forms in the SITMUN application.
@@ -57,6 +60,10 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
    * @param activatedRoute - Angular route service
    * @param router - Angular router for navigation
    * @param connectionService - Service for connection CRUD operations
+   * @param loadingService
+   * @param messagesInterceptorState
+   * @param loadingService
+   * @param messagesInterceptorState
    * @param cartographyService - Service for cartography operations
    * @param tasksService - Service for task operations
    * @param utils - Utility service for common operations

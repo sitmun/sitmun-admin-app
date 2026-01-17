@@ -1,8 +1,16 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ServiceFormComponent } from './service-form.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { By } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
-import { MaterialModule } from '@app/material-module';
+import { RouterTestingModule } from '@angular/router/testing';
+
+import { TranslateModule } from '@ngx-translate/core';
+
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
+import {ExternalService, ResourceService} from '@app/core/hal';
 import {
   CartographyService,
   CartographyStyleService,
@@ -12,19 +20,14 @@ import {
   ServiceService,
   TranslationService
 } from '@app/domain';
-import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
-import {ExternalService, ResourceService} from '@app/core/hal';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
-import { RouterTestingModule } from '@angular/router/testing';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { By } from '@angular/platform-browser';
-import { TranslateModule } from '@ngx-translate/core';
-import { UtilsService } from '@app/services/utils.service';
-import { WMSCapabilitiesService } from '@app/services/wms-capabilities.service';
+import { MaterialModule } from '@app/material-module';
 import { ErrorHandlerService } from '@app/services/error-handler.service';
 import { LoggerService } from '@app/services/logger.service';
+import { UtilsService } from '@app/services/utils.service';
+import { WMSCapabilitiesService } from '@app/services/wms-capabilities.service';
+
+import { ServiceFormComponent } from './service-form.component';
 
 describe('ServiceFormComponent', () => {
   let component: ServiceFormComponent;
@@ -36,8 +39,8 @@ describe('ServiceFormComponent', () => {
   let translationService: TranslationService;
   let resourceService: ResourceService;
   let externalService: ExternalService;
-  let serviceParameterService: ServiceParameterService;
-  let roleService: RoleService;
+  let _serviceParameterService: ServiceParameterService;
+  let _roleService: RoleService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({

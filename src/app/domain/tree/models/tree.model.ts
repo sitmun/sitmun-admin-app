@@ -1,6 +1,8 @@
 import {Resource} from '@app/core/hal/resource/resource.model';
-import {Application, TreeNode} from '@app/domain';
-import {Role} from '@app/domain/role/models/role.model';
+
+import {TreeNode} from './tree-node.model';
+import {Application} from '../../application/models/application.model';
+import {Role} from '../../role/models/role.model';
 
 /**
  * Tree model

@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { BtnCheckboxFilterComponent } from './btn-checkbox-filter.component';
+
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
+import { BtnCheckboxFilterComponent } from './btn-checkbox-filter.component';
 
 describe('BtnCheckboxFilterRenderedComponent', () => {
   let component: BtnCheckboxFilterComponent;

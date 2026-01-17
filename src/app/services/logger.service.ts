@@ -1,9 +1,12 @@
 import {Injectable, Injector, Optional} from '@angular/core';
-import {environment} from '@environments/environment';
-import {LogLevel} from './log-level.enum';
+
 import {BehaviorSubject, Observable} from 'rxjs';
 import StackTrace, {StackFrame} from 'stacktrace-js';
+
+import {environment} from '@environments/environment';
+
 import {ErrorTrackingService} from './error-tracking.service';
+import {LogLevel} from './log-level.enum';
 
 /**
  * Logger service for controlling application-wide logging

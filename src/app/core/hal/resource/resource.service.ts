@@ -1,15 +1,21 @@
+import {HttpContext, HttpContextToken, HttpHeaders, HttpParams, HttpResponse} from '@angular/common/http';
+import { Injectable } from '@angular/core';
+
 import {Observable, of, switchMap, throwError} from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { Resource } from './resource.model';
-import { ResourceHelper } from './resource-helper';
-import { Injectable } from '@angular/core';
-import {HttpContext, HttpContextToken, HttpHeaders, HttpParams, HttpResponse} from '@angular/common/http';
-import { Sort } from '../rest/sort.model';
-import { ResourceArray } from './resource-array.model';
-import { ExternalService } from '../services';
-import { HalOptions } from '../rest/rest.service';
-import { SubTypeBuilder } from '../common/subtype-builder';
+
+
 import { LoggerService } from '@app/services/logger.service';
+
+import {ResourceArray} from './resource-array.model';
+import {ResourceHelper} from './resource-helper';
+import type {Resource} from './resource.model';
+import type {SubTypeBuilder} from '../common/subtype-builder';
+import {ExternalService} from '../config/external.service';
+import type {HalOptions} from '../rest/rest.service';
+import type {Sort} from '../rest/sort.model';
+
+
 
 // HTTP context keys for passing entity information during delete operations
 export const ENTITY_TYPE_KEY = new HttpContextToken<string | null>(() => null);
@@ -320,7 +326,7 @@ export class ResourceService {
         });
 
         const observable: Observable<HttpResponse<any>> = ResourceHelper.getHttp().put(uri, payload, { headers: headers, observe: 'response' });
-        return observable.pipe(map((response: HttpResponse<string>) => {
+        return observable.pipe(map((_response: HttpResponse<string>) => {
             return resourceArray;
         }));
     }
@@ -371,7 +377,7 @@ export class ResourceService {
     public delete<T extends Resource>(entity: T, entityType?: string, entityName?: string) {
         this.loggerService.trace("ResourceService.delete:", entity);
         const uri = ResourceHelper.getProxy(entity._links.self.href);
-        
+
         // Create HTTP context to pass entity information for error handling
         const httpContext = new HttpContext();
         if (entityType) {
@@ -380,8 +386,8 @@ export class ResourceService {
         if (entityName) {
             httpContext.set(ENTITY_NAME_KEY, entityName);
         }
-        
-        return ResourceHelper.getHttp().delete<T>(uri, { 
+
+        return ResourceHelper.getHttp().delete<T>(uri, {
             headers: ResourceHelper.headers,
             context: httpContext
         }).pipe(catchError(error => throwError(() => error)));

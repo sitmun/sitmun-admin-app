@@ -1,5 +1,6 @@
-import {ModuleWithProviders, NgModule} from '@angular/core';
 import {HttpClient, HttpClientModule} from '@angular/common/http';
+import {ModuleWithProviders, NgModule} from '@angular/core';
+
 import {ExternalService} from './config/external.service';
 import {ResourceService} from './resource/resource.service';
 
@@ -47,4 +48,4 @@ export class HalModule {
             ]
         };
     }
-} 
+}

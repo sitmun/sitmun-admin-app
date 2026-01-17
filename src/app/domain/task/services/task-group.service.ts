@@ -1,6 +1,8 @@
-import { TaskGroup } from '@app/domain';
 import { Injectable, Injector } from '@angular/core';
+
 import { RestService } from '@app/core/hal/rest/rest.service';
+
+import { TaskGroup } from '../models/task-group.model';
 
 /** Task group manager service */
 @Injectable()

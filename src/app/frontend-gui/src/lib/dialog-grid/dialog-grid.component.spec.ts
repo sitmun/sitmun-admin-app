@@ -1,9 +1,11 @@
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { DialogGridComponent } from './dialog-grid.component';
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
+import { DialogGridComponent } from './dialog-grid.component';
 
 describe('DialogGridComponent', () => {
   let component: DialogGridComponent;
@@ -18,7 +20,10 @@ describe('DialogGridComponent', () => {
         TranslateModule.forRoot()
       ],
       providers: [
-        { provide: MatDialogRef, useValue: { close: () => {} } },
+        { provide: MatDialogRef, useValue: { 
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          close: () => {} 
+        } },
         { provide: MAT_DIALOG_DATA, useValue: {} },
         TranslateService
       ],

@@ -1,4 +1,17 @@
+import {Component, TemplateRef, ViewChild} from '@angular/core';
+import {FormControl, FormGroup, UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
+import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
+
+import {TranslateService} from "@ngx-translate/core";
+import {firstValueFrom, Observable, of} from 'rxjs';
+import {map} from 'rxjs/operators';
+
+import {BaseFormComponent} from "@app/components/base-form.component";
+import {DataTableDefinition, TemplateDialog} from '@app/components/data-tables.util';
+import {Configuration} from "@app/core/config/configuration";
+import {HalOptions} from '@app/core/hal/rest/rest.service';
+import {MessagesInterceptorStateService} from '@app/core/interceptors/messages.interceptor';
 import {
   Application,
   ApplicationBackground,
@@ -21,9 +34,9 @@ import {
   User,
   UserService
 } from '@app/domain';
-import {Component, TemplateRef, ViewChild} from '@angular/core';
+import {ApplicationHeaderParameter} from '@app/domain/application/models/application-header-parameter.model';
+import {DataGridComponent} from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
 import {
-  DataGridComponent,
   isActive,
   onCreate,
   onDelete,
@@ -31,23 +44,12 @@ import {
   onUpdatedRelation,
   Status,
 } from '@app/frontend-gui/src/lib/public_api';
-import {DataTableDefinition, TemplateDialog} from '@app/components/data-tables.util';
-import {EMPTY, firstValueFrom, Observable, of} from 'rxjs';
-import {FormControl, FormGroup, UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
-import {ApplicationHeaderParameter} from '@app/domain/application/models/application-header-parameter.model';
-import {BaseFormComponent} from "@app/components/base-form.component";
-import {Configuration} from "@app/core/config/configuration";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
-import {HalOptions} from '@app/core/hal/rest/rest.service';
 import {LoggerService} from "@app/services/logger.service";
-import {MatDialog} from '@angular/material/dialog';
-import {TranslateService} from "@ngx-translate/core";
 import {UtilsService} from '@app/services/utils.service';
-import {MessagesInterceptorStateService} from '@app/core/interceptors/messages.interceptor';
-
 import {constants} from '@environments/constants';
-import {map} from 'rxjs/operators';
+
 
 
 /**
@@ -176,6 +178,10 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    * @param errorHandler - Service for handling errors
    * @param activatedRoute - Angular route service
    * @param router - Angular router for navigation
+   * @param loadingService
+   * @param messagesInterceptorState
+   * @param loadingService
+   * @param messagesInterceptorState
    * @param applicationService - Service for application CRUD operations
    * @param applicationParameterService - Service for parameter operations
    * @param applicationBackgroundService - Service for background relations
@@ -369,10 +375,9 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
 
   /**
    * Updates related data after entity save.
-   * @param isDuplicated - Whether this is a duplication operation
+   * @param _isDuplicated - Whether this is a duplication operation
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  override async updateDataRelated(isDuplicated: boolean) {
+  override async updateDataRelated(_isDuplicated: boolean) {
     const entityToUpdate = this.createObject(this.entityID);
     await this.saveTranslations(entityToUpdate);
     await firstValueFrom(entityToUpdate.updateRelationEx("situationMap", entityToUpdate.situationMap));

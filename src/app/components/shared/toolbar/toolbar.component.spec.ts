@@ -1,18 +1,21 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ToolbarComponent } from './toolbar.component';
-import { MaterialModule } from '@app/material-module';
-import {ExternalService, ResourceService} from '@app/core/hal/services';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+
 import { AccountService } from '@app/core/account/account.service';
-import { LoginService } from '@app/core/auth/login.service';
 import { AuthService } from '@app/core/auth/auth.service';
+import { LoginService } from '@app/core/auth/login.service';
 import { Principal } from '@app/core/auth/principal.service';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
-import { RouterTestingModule } from '@angular/router/testing';
-import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { HttpClientModule } from '@angular/common/http';
+import {ExternalService, ResourceService} from '@app/core/hal/services';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { MaterialModule } from '@app/material-module';
+
+import { ToolbarComponent } from './toolbar.component';
+
 
 describe('ToolbarComponent', () => {
   let component: ToolbarComponent;

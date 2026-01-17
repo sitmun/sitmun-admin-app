@@ -1,6 +1,7 @@
 import { Resource } from '@app/core/hal/resource/resource.model';
-import { TerritoryType } from '@app/domain/territory/models/territory-type.model';
-import { Cartography } from '@app/domain';
+
+import { Cartography } from './cartography.model';
+import { TerritoryType } from '../../territory/models/territory-type.model';
 /**
  * Cartography availability model
  */

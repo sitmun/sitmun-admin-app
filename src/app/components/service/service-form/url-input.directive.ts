@@ -14,7 +14,7 @@ export class UrlInputDirective implements OnInit {
   }
 
   @HostListener('input', ['$event'])
-  onInput(event: any) {
+  onInput(_event: any) {
     this.updateDisplay();
   }
 

@@ -1,5 +1,6 @@
 import {Component, Input, OnChanges, OnDestroy, SimpleChanges} from '@angular/core';
 import {UntypedFormGroup, AbstractControl} from '@angular/forms';
+
 import {TranslateService} from '@ngx-translate/core';
 import {Subscription} from 'rxjs';
 
@@ -72,7 +73,7 @@ export class FormValidationBannerComponent implements OnChanges, OnDestroy {
     const formControls = this.form.controls;
 
     for (const controlName in formControls) {
-      if (formControls.hasOwnProperty(controlName)) {
+      if (Object.prototype.hasOwnProperty.call(formControls, controlName)) {
         const control: AbstractControl = formControls[controlName];
         if (control.invalid && control.hasError('required')) {
           invalidFields.push(controlName);

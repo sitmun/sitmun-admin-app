@@ -1,6 +1,8 @@
-import { CartographyGroup } from '@app/domain';
 import { Injectable, Injector } from '@angular/core';
+
 import { RestService } from '@app/core/hal/rest/rest.service';
+
+import { CartographyGroup } from '../models/cartography-group.model';
 
 /** CartographyGroup manager service */
 @Injectable()

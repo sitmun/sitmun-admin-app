@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { BtnCheckboxRenderedComponent } from './btn-checkbox-rendered.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+
+import { BtnCheckboxRenderedComponent } from './btn-checkbox-rendered.component';
 
 describe('BtnCheckboxRenderedComponent', () => {
   let component: BtnCheckboxRenderedComponent;
@@ -28,6 +29,7 @@ describe('BtnCheckboxRenderedComponent', () => {
       column: { colId: 'test' },
       node: { 
         rowIndex: 0,
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         setDataValue: () => {} 
       },
       colDef: { 
@@ -38,7 +40,10 @@ describe('BtnCheckboxRenderedComponent', () => {
         undoRedoService: { isFilling: false }
       },
       context: {
-        componentParent: { methodFromParent: () => {} }
+        componentParent: { 
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          methodFromParent: () => {} 
+        }
       }
     };
     

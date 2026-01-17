@@ -1,4 +1,16 @@
 import {ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output, TemplateRef, ViewChild} from '@angular/core';
+import {FormControl, UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
+import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
+import {MatDialog} from '@angular/material/dialog';
+import {MatAccordion} from '@angular/material/expansion';
+import {MatTabChangeEvent} from '@angular/material/tabs';
+
+import {TranslateService} from '@ngx-translate/core';
+import {XMLParser} from 'fast-xml-parser';
+import {firstValueFrom, Observable, of, Subject} from 'rxjs';
+import {map} from 'rxjs/operators';
+
+import {HalOptions, HalParam} from '@app/core';
 import {
   CapabilitiesService,
   CartographyProjection,
@@ -16,29 +28,18 @@ import {
   TreeNodeProjection,
   TreeNodeService
 } from '@app/domain';
-import {TranslateService} from '@ngx-translate/core';
+import {openDialogGridWithPreload} from '@app/frontend-gui/src/lib/dialog-grid/dialog-grid.component';
 import {
   DataTreeComponent,
   DialogFormComponent,
-  DialogGridComponent,
-  DialogMessageComponent,
-  ImagePreviewComponent,
-  openDialogGridWithPreload
+  DialogMessageComponent
 } from '@app/frontend-gui/src/lib/public_api';
 import {LoadingOverlayService} from '@app/services/loading-overlay.service';
-import {firstValueFrom, Observable, of, Subject} from 'rxjs';
-import {FormControl, UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
-import {HalOptions, HalParam} from '@app/core';
 import {LoggerService} from '@app/services/logger.service';
-import {MatAccordion} from '@angular/material/expansion';
-import {MatDialog} from '@angular/material/dialog';
-import {MatTabChangeEvent} from '@angular/material/tabs';
-import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
 import {UtilsService} from '@app/services/utils.service';
 import {config} from '@config';
 import {constants} from '@environments/constants';
-import {map} from 'rxjs/operators';
-import {XMLParser} from 'fast-xml-parser';
+
 
 /**
  * Component for managing tree nodes associated with a tree entity.
@@ -51,9 +52,9 @@ import {XMLParser} from 'fast-xml-parser';
 })
 export class TreeNodesComponent implements OnInit, OnDestroy {
   @Input() tree: Tree;
-  @Input() entityID: number = -1;
-  @Input() duplicateID: number = -1;
-  @Input() dataLoaded: boolean = false;
+  @Input() entityID = -1;
+  @Input() duplicateID = -1;
+  @Input() dataLoaded = false;
   @Input() currentTreeType: string;
   @Input() loadDataButton$: Observable<boolean> = of(true);
 
@@ -72,28 +73,28 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   currentNodeTask: any;
   currentNodeCartography: any;
   availableNodeTypes: CodeList[] = []; // Cache for available node types
-  fieldsConfigTreeGenerated: boolean = false;
+  fieldsConfigTreeGenerated = false;
   private readonly NULL_SENTINEL = 'null'; // Sentinel value to represent null in form controls
   
   // Cartography autocomplete properties
   filteredCartographies: any[] = [];
   allCartographies: any[] = [];
-  cartographiesLoaded: boolean = false;
-  cartographiesLoading: boolean = false;
+  cartographiesLoaded = false;
+  cartographiesLoading = false;
   
   // Task autocomplete properties
   filteredTasks: any[] = [];
   allTasks: any[] = [];
-  tasksLoaded: boolean = false;
-  tasksLoading: boolean = false;
+  tasksLoaded = false;
+  tasksLoading = false;
   
   // Style dropdown properties
   availableStyles: CartographyStyle[] = [];
   defaultStyleSentinel = 'null'; // Sentinel value for null/default style (only used when no default style exists)
   currentCartographyStyles: CartographyStyle[] = [];
-  hasDefaultStyle: boolean = false;
+  hasDefaultStyle = false;
   selectedXPath: string;
-  newElement: boolean = false;
+  newElement = false;
   sendNodeUpdated: Subject<any> = new Subject<any>();
   getAllElementsNodes: Subject<string> = new Subject<string>();
   refreshTreeEvent: Subject<boolean> = new Subject<boolean>();
@@ -144,10 +145,10 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   descriptionTranslations: Map<number, Map<string, Translation>> = new Map<number, Map<string, Translation>>();
 
   // Resizable layout properties
-  treePanelWidth: number = 45; // Percentage
-  isResizing: boolean = false;
-  minTreeWidth: number = 20; // Minimum width percentage
-  maxTreeWidth: number = 70; // Maximum width percentage
+  treePanelWidth = 45; // Percentage
+  isResizing = false;
+  minTreeWidth = 20; // Minimum width percentage
+  maxTreeWidth = 70; // Maximum width percentage
 
   constructor(
     private treeNodeService: TreeNodeService,
@@ -1388,7 +1389,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     return newNode;
   }
 
-  changeServiceDataByCapabilities(serviceCapabilitiesData, refresh?): Array<any> {
+  changeServiceDataByCapabilities(serviceCapabilitiesData, _refresh?): Array<any> {
     const capabilitiesLayers = [];
     const data = serviceCapabilitiesData.WMT_MS_Capabilities != undefined ? serviceCapabilitiesData.WMT_MS_Capabilities : serviceCapabilitiesData.WMS_Capabilities;
     if (data != undefined) {
@@ -1817,9 +1818,10 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
                 description: treeNodeObj.description
               }
             });
-            promises.push(new Promise((resolve, reject) => {
-              this.treeNodeService.save(treeNodeObj).subscribe(
-                async result => {
+            promises.push(
+              (async () => {
+                try {
+                  const result = await firstValueFrom(this.treeNodeService.save(treeNodeObj));
                   this.loggerService.debug('TreeNodesComponent.updateAllTreeNodes - TreeNode saved successfully', {
                     originalId: treeNode.id,
                     savedId: result.id,
@@ -1831,7 +1833,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
                   const nameTranslationMap = this.nameTranslations.get(oldId);
                   if (nameTranslationMap) {
                     // Save translations with the new real ID
-                    this.utils.saveTranslation(result.id, nameTranslationMap, result.name, treeNode.nameTranslationsModified);
+                    await this.utils.saveTranslation(result.id, nameTranslationMap, result.name, treeNode.nameTranslationsModified);
                     // Update the map to use the new real ID instead of the fictitious ID
                     this.nameTranslations.delete(oldId);
                     this.nameTranslations.set(result.id, nameTranslationMap);
@@ -1839,7 +1841,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
                   } else if (treeNode.nameTranslationsModified || treeNode.nameFormModified) {
                     // If translations were modified but not in the map, create and save them
                     const map = this.utils.createTranslationsList(config.translationColumns.treeNodeName);
-                    this.utils.saveTranslation(result.id, map, treeNode.name, false);
+                    await this.utils.saveTranslation(result.id, map, treeNode.name, false);
                     this.nameTranslations.set(result.id, map);
                   }
                   
@@ -1847,7 +1849,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
                   const descriptionTranslationMap = this.descriptionTranslations.get(oldId);
                   if (descriptionTranslationMap) {
                     // Save translations with the new real ID
-                    this.utils.saveTranslation(result.id, descriptionTranslationMap, result.description, treeNode.descriptionTranslationsModified);
+                    await this.utils.saveTranslation(result.id, descriptionTranslationMap, result.description, treeNode.descriptionTranslationsModified);
                     // Update the map to use the new real ID instead of the fictitious ID
                     this.descriptionTranslations.delete(oldId);
                     this.descriptionTranslations.set(result.id, descriptionTranslationMap);
@@ -1855,7 +1857,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
                   } else if (treeNode.descriptionTranslationsModified || treeNode.descriptionFormModified) {
                     // If translations were modified but not in the map, create and save them
                     const map = this.utils.createTranslationsList(config.translationColumns.treeNodeDescription);
-                    this.utils.saveTranslation(result.id, map, treeNode.description, false);
+                    await this.utils.saveTranslation(result.id, map, treeNode.description, false);
                     this.descriptionTranslations.set(result.id, map);
                   }
                   treesNodesToUpdate.splice(i, 1);
@@ -1863,14 +1865,13 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
                   if (mapNewIdentificators.has(oldId)) {
                     this.updateAllTreeNodes(mapNewIdentificators.get(oldId), depth++, mapNewIdentificators, promises, result.id, result, tree, entityID);
                   }
-                  resolve(true);
-                },
-                error => {
+                  return true;
+                } catch (error) {
                   this.loggerService.error('Error saving tree node', error);
-                  reject(error);
+                  throw error;
                 }
-              );
-            }));
+              })()
+            );
           }
         }
     }
@@ -2422,7 +2423,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   }
 
   @HostListener('document:mouseup', ['$event'])
-  onResizeEnd(event: MouseEvent): void {
+  onResizeEnd(_event: MouseEvent): void {
     if (this.isResizing) {
       this.isResizing = false;
     }
@@ -2757,7 +2758,8 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       // First time viewing this node - all panels open by default
       return true;
     }
-    return this.nodeExpansionStates.get(nodeId)!.has(panelId);
+    const expansionState = this.nodeExpansionStates.get(nodeId);
+    return expansionState ? expansionState.has(panelId) : true;
   }
 
   /**
@@ -2771,7 +2773,10 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     if (!this.nodeExpansionStates.has(nodeId)) {
       this.nodeExpansionStates.set(nodeId, new Set(this.allPanelIds));
     }
-    const state = this.nodeExpansionStates.get(nodeId)!;
+    const state = this.nodeExpansionStates.get(nodeId);
+    if (!state) {
+      return;
+    }
     if (isExpanded) {
       state.add(panelId);
     } else {

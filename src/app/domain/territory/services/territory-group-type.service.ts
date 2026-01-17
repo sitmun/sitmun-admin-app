@@ -1,7 +1,9 @@
-import { TerritoryGroupType } from '@app/domain';
 import { Injectable, Injector } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+
 import { RestService } from '@app/core/hal/rest/rest.service';
+
+import { TerritoryGroupType } from '../models/territory-group-type.model';
+
 @Injectable({
   providedIn: 'root'
 })

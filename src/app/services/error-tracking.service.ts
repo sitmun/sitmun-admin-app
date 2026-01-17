@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+
 import { BehaviorSubject, Observable } from 'rxjs';
 
 export interface ErrorEntry {
@@ -21,7 +22,7 @@ export class ErrorTrackingService {
   private errors: ErrorEntry[] = [];
   private errorsSubject = new BehaviorSubject<ErrorEntry[]>([]);
 
-  constructor() {}
+  // Empty constructor - no dependencies needed
 
   /**
    * Observable for error list changes

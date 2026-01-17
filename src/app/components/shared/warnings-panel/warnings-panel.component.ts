@@ -1,8 +1,9 @@
-import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {MatExpansionModule} from '@angular/material/expansion';
-import {MatDividerModule} from '@angular/material/divider';
+import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {MatBadgeModule} from '@angular/material/badge';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatExpansionModule} from '@angular/material/expansion';
+
 import {TranslateModule} from '@ngx-translate/core';
 
 @Component({

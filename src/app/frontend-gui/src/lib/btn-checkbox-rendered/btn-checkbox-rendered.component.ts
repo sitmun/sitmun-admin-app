@@ -1,5 +1,7 @@
-import { ICellRendererAngularComp } from '@ag-grid-community/angular';
 import { Component } from '@angular/core';
+import { MatCheckboxChange } from '@angular/material/checkbox';
+
+import { ICellRendererAngularComp } from '@ag-grid-community/angular';
 
 @Component({
   selector: 'app-btn-checkbox-rendered',
@@ -26,21 +28,14 @@ export class BtnCheckboxRenderedComponent implements ICellRendererAngularComp {
     );
   }
 
-  btnCheckedHandler(event) {
-    if(this.params.colDef.editable){
-      //let checked = !event.target.firstElementChild.checked;
-
-      const checked =event.target.checked;
+  btnCheckedHandler(event: MatCheckboxChange): void {
+    if (this.params.colDef.editable) {
+      const checked = event.checked;
       const colId = this.params.column.colId;
-      this.params.value=checked;
-      this.params.api.undoRedoService.isFilling=true;
+      this.params.value = checked;
+      this.params.api.undoRedoService.isFilling = true;
       this.params.node.setDataValue(colId, checked);
     }
-    else{
-      event.preventDefault();
-    }
-
-
   }
 
   getParams(){

@@ -1,7 +1,8 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { BtnEditRenderedComponent } from './btn-edit-rendered.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatIconModule } from '@angular/material/icon';
+
+import { BtnEditRenderedComponent } from './btn-edit-rendered.component';
 
 describe('BtnEditRenderedComponent', () => {
   let component: BtnEditRenderedComponent;

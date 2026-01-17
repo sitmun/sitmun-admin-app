@@ -1,42 +1,37 @@
+import {CommonModule,registerLocaleData} from '@angular/common';
+import {HttpClient, HttpClientModule} from '@angular/common/http';
+import localeCa from '@angular/common/locales/ca';
+import localeEs from '@angular/common/locales/es';
 import {
   NgModule,
 } from '@angular/core';
-import {FormsModule} from '@angular/forms';
-import {CommonModule} from '@angular/common';
-import {HttpClient, HttpClientModule} from '@angular/common/http';
+import {FormsModule,ReactiveFormsModule} from '@angular/forms';
 import {BrowserAnimationsModule, NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {RouterModule, } from '@angular/router';
 
 //import * as ol from 'openlayers';
+import {AgGridModule} from '@ag-grid-community/angular';
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
-import {registerLocaleData} from '@angular/common';
+import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 import {NgxEchartsModule} from 'ngx-echarts';
 //import { AngularHalModule } from '@sitmun/frontend-core';
 
 
-import {ReactiveFormsModule} from '@angular/forms';
-import localeCa from '@angular/common/locales/ca';
-import localeEs from '@angular/common/locales/es';
+
 // import { SitmunFrontendCoreModule } from '@sitmun/frontend-core';
-import {DataGridComponent} from './data-grid/data-grid.component';
+import {CharacterCountPipe} from '@app/components/shared/character-counter-hint/character-count.pipe';
 
-import {AgGridModule} from '@ag-grid-community/angular';
-
-import {MaterialModule} from './material-module';
-
-import {BtnEditRenderedComponent} from './btn-edit-rendered/btn-edit-rendered.component';
-import {BtnCheckboxRenderedComponent} from './btn-checkbox-rendered/btn-checkbox-rendered.component';
 import {BtnCheckboxFilterComponent} from './btn-checkbox-filter/btn-checkbox-filter.component';
-import {TranslateHttpLoader} from '@ngx-translate/http-loader';
-import {DialogGridComponent} from './dialog-grid/dialog-grid.component';
+import {BtnCheckboxRenderedComponent} from './btn-checkbox-rendered/btn-checkbox-rendered.component';
+import {BtnEditRenderedComponent} from './btn-edit-rendered/btn-edit-rendered.component';
+import {DatagraphComponent} from './data-graph/datagraph.component';
+import {DataTreeComponent} from './data-tree/data-tree.component';
 import {DialogFormComponent} from './dialog-form/dialog-form.component';
 import {DialogMessageComponent} from './dialog-message/dialog-message.component';
-import {DataTreeComponent} from './data-tree/data-tree.component';
 import {DialogTranslationComponent} from './dialog-translation/dialog-translation.component';
-import {DatagraphComponent} from './data-graph/datagraph.component';
-import {MapTreeComponent} from './map-tree/map-tree.component';
-import {CharacterCountPipe} from '@app/components/shared/character-counter-hint/character-count.pipe';
 import {FormValidationBannerComponent} from './form-validation-banner/form-validation-banner.component';
+import {MapTreeComponent} from './map-tree/map-tree.component';
+import {MaterialModule} from './material-module';
 
 
 registerLocaleData(localeCa, 'ca');
@@ -71,15 +66,15 @@ export function createTranslateLoader(http: HttpClient) {
     }),
     NgxEchartsModule.forRoot({
       echarts: () => import('echarts')
-    }),
-    DataGridComponent
+    })
+    // NOTE: DataGridComponent and DialogGridComponent NOT imported here to avoid circular dependency
+    // They're standalone and imported directly in AppModule and components that need them
   ],
   declarations: [
     DataTreeComponent,
     BtnEditRenderedComponent,
     BtnCheckboxRenderedComponent,
     BtnCheckboxFilterComponent,
-    DialogGridComponent,
     DialogFormComponent,
     DialogMessageComponent,
     DialogTranslationComponent,
@@ -98,9 +93,7 @@ export function createTranslateLoader(http: HttpClient) {
     TranslateModule,
     ReactiveFormsModule,
     NgxEchartsModule,
-    DataGridComponent,
     DataTreeComponent,
-    DialogGridComponent,
     DialogFormComponent,
     DialogMessageComponent,
     DialogTranslationComponent,
@@ -109,6 +102,7 @@ export function createTranslateLoader(http: HttpClient) {
     MapTreeComponent,
     CharacterCountPipe,
     FormValidationBannerComponent,
+    // DataGridComponent and DialogGridComponent are standalone and should be imported directly where needed
   ]
 })
 export class SitmunFrontendGuiModule {

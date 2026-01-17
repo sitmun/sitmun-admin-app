@@ -1,8 +1,10 @@
-import {BehaviorSubject, Observable, of as observableOf} from 'rxjs';
-import {Component, ElementRef, EventEmitter, Injectable, Input, Output, ViewChild} from '@angular/core';
-import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
-import {FlatTreeControl} from '@angular/cdk/tree';
 import {SelectionModel} from '@angular/cdk/collections';
+import {FlatTreeControl} from '@angular/cdk/tree';
+import {Component, ElementRef, EventEmitter, Injectable, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
+
+import {BehaviorSubject, Observable, of as observableOf} from 'rxjs';
+
 import {constants} from '@environments/constants';
 
 /**
@@ -295,7 +297,7 @@ export class FileDatabase {
   styleUrls: ['data-tree.component.scss'],
   providers: [FileDatabase]
 })
-export class DataTreeComponent {
+export class DataTreeComponent implements OnInit {
   @Output() createNode: EventEmitter<any>;
   @Output() createFolder: EventEmitter<any>;
   @Output() emitNode: EventEmitter<any>;
@@ -320,7 +322,7 @@ export class DataTreeComponent {
   expandDelay = 1000;
   validateDrop = false;
   treeData: any;
-  filterValue: string = '';
+  filterValue = '';
   originalData: FileNode[] = [];
   selectedNodeId: string | null = null;
 
@@ -449,7 +451,7 @@ export class DataTreeComponent {
    findNodeSiblings(arr: Array<any>, id: string | number): Array<any> {
     let result, subResult;
     const idStr = String(id);
-    arr.forEach((item, i) => {
+    arr.forEach((item, _i) => {
       if (String(item.id) === idStr) {
         result = arr;
       } else if (item.children) {
@@ -486,7 +488,7 @@ export class DataTreeComponent {
     }
 
     // Handle drag area
-    const percentageX = event.offsetX / event.target.clientWidth;
+    const _percentageX = event.offsetX / event.target.clientWidth;
     const percentageY = event.offsetY / event.target.clientHeight;
     if (percentageY < 0.25) {
       this.dragNodeExpandOverArea = 'above';
@@ -535,7 +537,7 @@ export class DataTreeComponent {
     this.dragNodeExpandOverTime = 0;
   }
 
-  handleDragEnd(event) {
+  handleDragEnd(_event) {
     this.dragNode = null;
     this.dragNodeExpandOverNode = null;
     this.dragNodeExpandOverTime = 0;
@@ -849,7 +851,7 @@ export class DataTreeComponent {
   {
     const result = [];
     let subResult;
-    arr.forEach((item, i) => {
+    arr.forEach((item, _i) => {
       if (item.children && item.children.length>0) {
         subResult = this.getAllChildren(item.children);
         if (subResult) result.push(...subResult);
@@ -862,7 +864,7 @@ export class DataTreeComponent {
 
   deleteChildren(arr)
   {
-    arr.forEach((item, i) => {
+    arr.forEach((item, _i) => {
       if (item.children && item.children.length>0) {
         this.deleteChildren(item.children);
       }
@@ -873,7 +875,7 @@ export class DataTreeComponent {
 
   restoreChildren(arr, changedData?: any)
   {
-    arr.forEach((item, i) => {
+    arr.forEach((item, _i) => {
       if (item.children && item.children.length>0) {
         this.restoreChildren(item.children, changedData);
       }

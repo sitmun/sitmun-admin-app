@@ -1,8 +1,11 @@
-import {Injectable, Injector} from '@angular/core';
-import {RestService} from '@app/core/hal/rest/rest.service';
-import {Info} from '@app/domain';
-import {EMPTY, Observable} from "rxjs";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
+import {Injectable, Injector} from '@angular/core';
+
+import {EMPTY, Observable} from "rxjs";
+
+import {RestService} from '@app/core/hal/rest/rest.service';
+
+import {Info} from '../models/info.model';
 
 
 @Injectable({

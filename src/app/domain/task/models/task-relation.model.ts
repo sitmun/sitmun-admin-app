@@ -1,5 +1,6 @@
 import {Resource} from '@app/core/hal/resource/resource.model';
-import {Task} from "@app/domain";
+
+import {Task} from "./task.model";
 
 /**
  * Task type model

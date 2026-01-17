@@ -1,8 +1,11 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+
+
 import { environment } from '@environments/environment';
-import { ExternalConfigurationHandlerInterface } from '../hal/config/external-configuration-handler.interface';
-import { ExternalConfiguration } from '../hal/config/external-configuration.model';
+
+import {ExternalConfigurationHandlerInterface} from '../hal/config/external-configuration-handler.interface';
+import {ExternalConfiguration} from '../hal/config/external-configuration.model';
 
 /** REST API access configuration service*/
 @Injectable()
@@ -43,6 +46,8 @@ export class ExternalConfigurationService implements ExternalConfigurationHandle
   }
 
   /**deprecated*/
-  setExternalConfiguration(externalConfiguration: ExternalConfiguration) {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  setExternalConfiguration(_externalConfiguration: ExternalConfiguration) {
+    // Deprecated method - kept for backward compatibility
   }
-} 
+}

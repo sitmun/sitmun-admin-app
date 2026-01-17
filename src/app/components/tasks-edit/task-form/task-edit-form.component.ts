@@ -1,4 +1,16 @@
+import {Component, TemplateRef, ViewChild} from "@angular/core";
+import {FormControl, FormGroup, Validators} from "@angular/forms";
+import {MatDialog} from "@angular/material/dialog";
+import {MatSelectChange} from "@angular/material/select";
 import {ActivatedRoute, Router} from "@angular/router";
+
+import {TranslateService} from "@ngx-translate/core";
+import { firstValueFrom, map, of} from "rxjs";
+
+import {BaseFormComponent} from "@app/components/base-form.component";
+import {DataTableDefinition, TemplateDialog} from "@app/components/data-tables.util";
+import {Configuration} from "@app/core/config/configuration";
+import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
 import {
   Cartography,
   CartographyService,
@@ -22,10 +34,8 @@ import {
   TerritoryService,
   TranslationService
 } from "@app/domain";
-import {Component, TemplateRef, ViewChild} from "@angular/core";
-import {DataTableDefinition, TemplateDialog} from "@app/components/data-tables.util";
-import {EMPTY, firstValueFrom, map, of} from "rxjs";
-import {FormControl, FormGroup, Validators} from "@angular/forms";
+import {TaskEditionField, TaskFieldType} from "@app/domain/task/models/task-edition-fields.model";
+import {TaskEditionParameter, TaskParameterType} from "@app/domain/task/models/task-edition-parameter.model";
 import {
   canKeepOrUpdate,
   onCreate,
@@ -33,17 +43,9 @@ import {
   onUpdatedRelation,
   Status
 } from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
-import {TaskEditionField, TaskFieldType} from "@app/domain/task/models/task-edition-fields.model";
-import {TaskEditionParameter, TaskParameterType} from "@app/domain/task/models/task-edition-parameter.model";
-import {Configuration} from "@app/core/config/configuration";
-import {BaseFormComponent} from "@app/components/base-form.component";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from "@app/services/logger.service";
-import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
-import {MatDialog} from "@angular/material/dialog";
-import {MatSelectChange} from "@angular/material/select";
-import {TranslateService} from "@ngx-translate/core";
 import {UtilsService} from "@app/services/utils.service";
 import {magic} from "@environments/constants";
 
@@ -203,6 +205,10 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
    * @param errorHandler - Service for handling errors
    * @param activatedRoute - Service for accessing route parameters
    * @param router - Angular router service for navigation
+   * @param loadingService
+   * @param messagesInterceptorState
+   * @param loadingService
+   * @param messagesInterceptorState
    * @param taskService - Service for task CRUD operations
    * @param utils - Utility service with common functions
    * @param loggerService - Service for logging
@@ -476,11 +482,10 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
    * Updates related data after the task is saved.
    * Updates UI relationship if the form is dirty or being duplicated.
    *
-   * @param isDuplicated - Whether this is a duplication operation
+   * @param _isDuplicated - Whether this is a duplication operation
    * @returns Promise that resolves when related data is updated
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  override async updateDataRelated(isDuplicated: boolean) {
+  override async updateDataRelated(_isDuplicated: boolean) {
     await this.saveTranslations(this.entityToEdit);
     const connectionId = this.entityForm.get('connectionId')?.value
     if (typeof connectionId === 'number') {

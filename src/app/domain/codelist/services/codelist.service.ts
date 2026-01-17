@@ -1,6 +1,8 @@
-import { CodeList } from '@app/domain';
 import { Injectable, Injector } from '@angular/core';
+
 import { RestService } from '@app/core/hal/rest/rest.service';
+
+import { CodeList } from '../models/codelist.model';
 
 /** Connection manager service */
 @Injectable()

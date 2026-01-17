@@ -1,5 +1,7 @@
-import {Application, Territory} from "@app/domain";
-import {Resource} from "@app/core";
+import {Resource} from "@app/core/hal/resource/resource.model";
+
+import {Application} from "./application.model";
+import {Territory} from "../../territory/models/territory.model";
 
 export class ApplicationTerritory extends Resource {
   public override id: number;

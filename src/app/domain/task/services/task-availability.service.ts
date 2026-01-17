@@ -1,6 +1,8 @@
 import {Injectable, Injector} from '@angular/core';
+
 import {RestService} from '@app/core/hal/rest/rest.service';
-import {TaskAvailability} from '@app/domain';
+
+import {TaskAvailability} from '../models/task-availability.model';
 
 /** Task availability manager service */
 @Injectable()

@@ -1,7 +1,13 @@
-import {firstValueFrom, Observable, of, switchMap, throwError} from 'rxjs';
-import {Resource, ResourceArray, ResourceService, Sort, SubTypeBuilder} from '@app/core';
 import {Injector} from "@angular/core";
+
+import {firstValueFrom, Observable, of, switchMap, throwError} from 'rxjs';
 import {map} from 'rxjs/operators';
+
+import {Sort} from './sort.model';
+import {SubTypeBuilder} from '../common/subtype-builder';
+import {ResourceArray} from '../resource/resource-array.model';
+import {Resource} from '../resource/resource.model';
+import {ResourceService} from '../resource/resource.service';
 
 /** HAL param data model */
 export type HalParam = { key: string, value: string | number | boolean };

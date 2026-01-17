@@ -1,14 +1,13 @@
 import { Resource } from '@app/core/hal/resource/resource.model';
-import {Service} from '@app/domain/service/models/service.model';
-import {
-  CartographyAvailability,
-  CartographyFilter,
-  CartographyGroup,
-  CartographyParameter,
-  CartographyStyle,
-  Connection,
-  TreeNode
-} from "@app/domain";
+
+import {CartographyAvailability} from './cartography-availability.model';
+import {CartographyFilter} from './cartography-filter.model';
+import {CartographyGroup} from './cartography-group.model';
+import {CartographyParameter} from './cartography-parameter.model';
+import {CartographyStyle} from './cartography-style.model';
+import {Connection} from '../../connection/models/connection.model';
+import {Service} from '../../service/models/service.model';
+import {TreeNode} from '../../tree/models/tree-node.model';
 
 /**
  * Represents a cartography resource in the system.

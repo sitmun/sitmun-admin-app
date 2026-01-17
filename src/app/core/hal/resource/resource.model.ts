@@ -1,10 +1,17 @@
+import {HttpHeaders, HttpParams} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+
 import {EMPTY, Observable, of as observableOf, throwError} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
-import {HttpHeaders, HttpParams} from '@angular/common/http';
-import {HalOptions, ResourceArray, ResourceHelper, SubTypeBuilder} from '@app/core';
-import {Injectable} from '@angular/core';
 import utpl from 'uri-templates';
+
 import {LoggerService} from '@app/services/logger.service';
+
+import type {ResourceArray} from './resource-array.model';
+import {ResourceHelper} from './resource-helper';
+import type {SubTypeBuilder} from '../common/subtype-builder';
+import type {HalOptions} from '../rest/rest.service';
+
 
 /** Abstract resource class*/
 @Injectable()
@@ -41,8 +48,7 @@ export abstract class Resource {
   }
 
   /** constructor*/
-  constructor() {
-  }
+  // Empty constructor required by TypeScript
 
   public getRelationArrayEx<T extends Resource>(type: { new(): T }, relation: string, options: {
     [p: string]: string
@@ -365,7 +371,7 @@ export abstract class Resource {
     }
   }
 
-  public deleteRelationById<T extends Resource>(relation: string, id: number): Observable<any> {
+  public deleteRelationById(relation: string, id: number): Observable<any> {
     if (this._links?.[relation]?.href) {
       const template = utpl(this._links[relation].href);
       const url = template.fillFromObject({});
@@ -377,7 +383,7 @@ export abstract class Resource {
 
 
   /** Unbind the resource with the given relation from this resource*/
-  public deleteAllRelation<T extends Resource>(relation: string): Observable<any> {
+  public deleteAllRelation(relation: string): Observable<any> {
     const template = utpl(this._links[relation].href);
     const url = template.fillFromObject({});
     return ResourceHelper.getHttp().delete(ResourceHelper.getProxy(url), {headers: ResourceHelper.headers});
@@ -385,3 +391,4 @@ export abstract class Resource {
   }
 
 }
+

@@ -1,15 +1,19 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
-import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
-import { RouterTestingModule } from '@angular/router/testing';
-import { BackgroundLayersComponent } from './background-layers.component';
-import { BackgroundService,CartographyGroupService, CodeListService,TranslationService } from '@app/domain';
-
-import { MaterialModule } from '@app/material-module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { RouterModule } from '@angular/router';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { RouterModule } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
+
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import {ExternalService, ResourceService} from '@app/core/hal';
+import { BackgroundService, CodeListService } from '@app/domain';
+import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
+import { MaterialModule } from '@app/material-module';
+
+import { BackgroundLayersComponent } from './background-layers.component';
+
+
+
 
 describe('BackgroundLayersComponent', () => {
   let component: BackgroundLayersComponent;

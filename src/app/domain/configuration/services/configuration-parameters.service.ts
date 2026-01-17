@@ -1,6 +1,8 @@
 import { Injectable, Injector } from '@angular/core';
-import { ConfigurationParameter } from '@app/domain';
+
 import { RestService } from '@app/core/hal/rest/rest.service';
+
+import { ConfigurationParameter } from '../models/configuration-parameters.model';
 
 @Injectable({
   providedIn: 'root'

@@ -1,8 +1,11 @@
-import { Tree } from '@app/domain';
-import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable, Injector } from '@angular/core';
+
 import { Observable } from 'rxjs';
+
 import { RestService } from '@app/core/hal/rest/rest.service';
+
+import { Tree } from '../models/tree.model';
 
 /**
  * Request DTO for validating a tree type change against candidate applications.
@@ -29,7 +32,7 @@ export class TreeService extends RestService<Tree> {
 
   /** save tree*/
   save(item: Tree): Observable<any> {
-    let result: Observable<Object>;
+    let result: Observable<any>;
     if (item._links != null) {
 
       result = this.http.put(item._links.self.href, item);

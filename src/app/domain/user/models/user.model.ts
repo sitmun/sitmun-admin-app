@@ -1,5 +1,7 @@
 import {Resource} from '@app/core/hal/resource/resource.model';
-import {UserConfiguration, UserPosition} from '@app/domain';
+
+import {UserConfiguration} from './user-configuration.model';
+import {UserPosition} from './user-position.model';
 
 /**
  * User model

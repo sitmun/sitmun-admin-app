@@ -1,6 +1,8 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormControl, UntypedFormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
+
 import {FormValidationBannerComponent} from './form-validation-banner.component';
 import {MaterialModule} from '../material-module';
 

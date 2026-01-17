@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
+
 import { BehaviorSubject } from 'rxjs';
+
 import { LoggerService } from './logger.service';
 
 export interface AppState {

@@ -1,4 +1,4 @@
-import { Resource } from '@app/core';
+import type {Resource} from '../resource/resource.model';
 
 /** SubTypeBuilder interface */
 export interface SubTypeBuilder {

@@ -1,6 +1,8 @@
 import {Injectable, Injector} from '@angular/core';
+
 import {RestService} from '@app/core/hal/rest/rest.service';
-import {TerritoryType} from '@app/domain';
+
+import {TerritoryType} from '../models/territory-type.model';
 
 /** TerritoryType manager service */
 @Injectable()

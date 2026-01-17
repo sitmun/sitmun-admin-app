@@ -1,23 +1,26 @@
+import {HttpClient, HttpClientModule} from '@angular/common/http';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
-import { AppComponent } from './app.component';
-import {HttpClient, HttpClientModule, HttpHandler} from '@angular/common/http';
+
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+
 import { SideMenuComponent } from '@app/components/shared/side-menu/side-menu.component';
 import { ToolbarComponent } from '@app/components/shared/toolbar/toolbar.component';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { MaterialModule } from './material-module';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { LanguageService } from '@app/domain';
-import { ExternalService, ResourceService } from '@app/core/hal/services';
 import { AccountService } from '@app/core/account/account.service';
-import { Principal } from '@app/core/auth/principal.service';
-import { LoginService } from '@app/core/auth/login.service';
 import { AuthService } from '@app/core/auth/auth.service';
+import { LoginService } from '@app/core/auth/login.service';
+import { Principal } from '@app/core/auth/principal.service';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
+import { ExternalService, ResourceService } from '@app/core/hal/services';
+import { LanguageService } from '@app/domain';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/sitmun-frontend-gui.module';
+
+import { AppComponent } from './app.component';
+import { MaterialModule } from './material-module';
 
 describe('AppComponent', () => {
   beforeEach(async () => {

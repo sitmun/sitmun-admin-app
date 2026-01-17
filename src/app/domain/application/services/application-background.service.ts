@@ -1,6 +1,8 @@
-import { ApplicationBackground } from '@app/domain';
 import { Injectable, Injector } from '@angular/core';
+
 import { RestService } from '@app/core/hal/rest/rest.service';
+
+import { ApplicationBackground } from '../models/application-background.model';
 
 /** Application background manager service */
 @Injectable()

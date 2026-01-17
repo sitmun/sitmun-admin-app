@@ -1,4 +1,5 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+
 import * as echarts from 'echarts';
 import {EChartsOption} from 'echarts';
 
@@ -17,7 +18,7 @@ export class DatagraphComponent implements OnInit, OnChanges {
 
   @Input() data: Array<DataPoint> = [];
   @Input() type: 'bar' | 'area' = 'bar';
-  @Input() cumulative: boolean = false; // For accumulated charts
+  @Input() cumulative = false; // For accumulated charts
 
   chartOption: EChartsOption = {};
   loading = true;

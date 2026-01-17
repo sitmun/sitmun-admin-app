@@ -1,8 +1,10 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+
 import { Observable } from 'rxjs';
-import { ResourceService } from '../hal';
 import { map } from 'rxjs/operators';
+
+import { ResourceService } from '../hal';
 //import * as moment from 'moment';
 
 /** Authentication service*/

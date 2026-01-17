@@ -1,5 +1,6 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+
 import {TranslateService} from '@ngx-translate/core';
 
 /**
@@ -34,6 +35,7 @@ export class DialogMessageComponent implements OnInit {
    * Creates an instance of DialogMessageComponent.
    * @param dialogRef - Reference to the dialog opened via the Material Dialog service
    * @param data - Data passed to the dialog containing title and message
+   * @param translateService
    */
   constructor(
     private dialogRef: MatDialogRef<DialogMessageComponent>,
@@ -75,7 +77,7 @@ export class DialogMessageComponent implements OnInit {
     if (!this.message) {
       return '';
     }
-    
+
     // Try to translate the message (in case it's a translation key)
     let translatedMessage: string;
     try {
@@ -90,7 +92,7 @@ export class DialogMessageComponent implements OnInit {
       // Translation failed, use original message
       translatedMessage = this.message;
     }
-    
+
     // Escape HTML to prevent XSS, then replace newlines with <br> tags
     const escaped = translatedMessage
       .replace(/&/g, '&amp;')

@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {ConfigurationService} from './configuration.service';
+
 import {FormConfiguration} from './configuration';
+import {ConfigurationService} from './configuration.service';
 
 /**
  * Base class for form components that provides automatic configuration
@@ -35,7 +36,7 @@ export abstract class BaseConfigurationComponent implements OnInit {
    */
   protected componentName: string;
 
-  constructor(
+  protected constructor(
     protected configurationService: ConfigurationService
   ) {
   }

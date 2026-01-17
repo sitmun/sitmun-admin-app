@@ -1,4 +1,5 @@
 import { Directive, Input, TemplateRef, ViewContainerRef } from '@angular/core';
+
 import { Principal } from '@app/core/auth/principal.service';
 
 /**
@@ -7,13 +8,13 @@ import { Principal } from '@app/core/auth/principal.service';
  *
  * @howToUse
  * ```
- *     <some-element *sitmunHasAnyAuthority="'ROLE_ADMIN'">...</some-element>
+ *     <some-element *appHasAnyAuthority="'ROLE_ADMIN'">...</some-element>
  *
- *     <some-element *sitmunHasAnyAuthority="['ROLE_ADMIN', 'ROLE_USER']">...</some-element>
+ *     <some-element *appHasAnyAuthority="['ROLE_ADMIN', 'ROLE_USER']">...</some-element>
  * ```
  */
 @Directive({
-  selector: '[sitmunHasAnyAuthority]'
+  selector: '[appHasAnyAuthority]'
 })
 export class HasAnyAuthorityDirective {
 
@@ -29,11 +30,11 @@ export class HasAnyAuthorityDirective {
 
   /** Set whether current user has any of the given authorities */
   @Input()
-  set sitmunHasAnyAuthority(value: string|string[]) {
+  set appHasAnyAuthority(value: string|string[]) {
     this.authorities = typeof value === 'string' ? [ <string> value ] : <string[]> value;
     this.updateView();
     // Get notified each time authentication state changes.
-    this.principal.getAuthenticationState().subscribe((identity) => this.updateView());
+    this.principal.getAuthenticationState().subscribe((_identity) => this.updateView());
   }
 
   /** update view */

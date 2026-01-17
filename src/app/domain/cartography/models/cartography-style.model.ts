@@ -1,5 +1,6 @@
 import { Resource } from '@app/core/hal/resource/resource.model';
-import {Cartography} from '@app/domain';
+
+import {Cartography} from './cartography.model';
 /**
  * Cartography style model
  */

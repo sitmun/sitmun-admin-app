@@ -1,6 +1,6 @@
+import { Component, OnDestroy} from '@angular/core';
+
 import { ICellRendererAngularComp } from '@ag-grid-community/angular';
-import {CUSTOM_ELEMENTS_SCHEMA, Component, NgModule, OnDestroy} from '@angular/core';
-import { MatIconModule } from '@angular/material/icon'
 
 
 @Component({
@@ -16,11 +16,11 @@ export class BtnEditRenderedComponent implements ICellRendererAngularComp, OnDes
     this.params = params;
   }
 
-  refresh(params: any): boolean {
+  refresh(_params: any): boolean {
     return true;
   }
 
-  btnClickedHandler($event) {
+  btnClickedHandler(_$event) {
     this.params.clicked(this.params.value);
   }
 
@@ -28,6 +28,7 @@ export class BtnEditRenderedComponent implements ICellRendererAngularComp, OnDes
     return this.params;
   }
 
+  // eslint-disable-next-line @angular-eslint/no-empty-lifecycle-method
   ngOnDestroy() {
     // no need to remove the button click handler
   }

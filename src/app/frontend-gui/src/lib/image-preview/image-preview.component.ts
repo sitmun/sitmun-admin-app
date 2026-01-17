@@ -1,7 +1,8 @@
-import { Component, Input, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, Input, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+
 import { TranslateModule } from '@ngx-translate/core';
 
 /**
@@ -23,17 +24,17 @@ import { TranslateModule } from '@ngx-translate/core';
 export class ImagePreviewComponent implements OnChanges, AfterViewInit {
   @Input() imageSource: string | null = null;
   @Input() imageName: string | null = null;
-  @Input() previewId: string = 'imagePreview';
-  @Input() showDownload: boolean = true;
-  @Input() maxWidth: number = 80;
-  @Input() maxHeight: number = 80;
+  @Input() previewId = 'imagePreview';
+  @Input() showDownload = true;
+  @Input() maxWidth = 80;
+  @Input() maxHeight = 80;
 
   @ViewChild('previewImage', { static: false }) previewImageRef!: ElementRef<HTMLImageElement>;
   @ViewChild('previewContainer', { static: false }) previewContainerRef!: ElementRef<HTMLDivElement>;
 
   originalImageWidth: number | null = null;
   originalImageHeight: number | null = null;
-  isVisible: boolean = false;
+  isVisible = false;
 
   ngAfterViewInit(): void {
     if (this.imageSource) {

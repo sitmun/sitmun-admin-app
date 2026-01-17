@@ -1,23 +1,23 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { LoginComponent } from './login.component';
 import {HttpClient, HttpClientModule} from '@angular/common/http';
-import { SitmunFrontendGuiModule } from '../../frontend-gui/src/lib/public_api';
-import { CodeListService, TranslationService } from '@app/domain';
-import { AccountService } from '../../core/account/account.service';
-import { LoginService } from '../../core/auth/login.service';
-import { AuthService } from '../../core/auth/auth.service';
-import { Principal } from '../../core/auth/principal.service';
-import { ExternalConfigurationService } from '../../core/config/external-configuration.service';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
+
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { MaterialModule } from '../../material-module';
-import { RouterModule } from '@angular/router';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
 import {ExternalService, ResourceService} from '@app/core/hal/services';
+import { CodeListService, TranslationService } from '@app/domain';
+
+import { LoginComponent } from './login.component';
+import { AccountService , AuthService , LoginService , Principal , ExternalConfigurationService } from '../../core';
+import { SitmunFrontendGuiModule } from '../../frontend-gui/src/lib/public_api';
+import { MaterialModule } from '../../material-module';
+
+
 
 
 describe('LoginComponent', () => {

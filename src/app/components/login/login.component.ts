@@ -1,11 +1,12 @@
 import {Component, OnInit} from '@angular/core';
 import {UntypedFormBuilder, UntypedFormGroup, Validators} from '@angular/forms';
-import {Language} from '@app/domain';
-import {LoginService} from '@app/core/auth/login.service';
 import {Router} from '@angular/router';
-import {TranslateService} from '@ngx-translate/core';
-import {AppConfigService} from '@app/services/app-config.service';
 
+import {TranslateService} from '@ngx-translate/core';
+
+import {LoginService} from '@app/core/auth/login.service';
+import {Language} from '@app/domain';
+import {AppConfigService} from '@app/services/app-config.service';
 import {config} from '@config';
 
 /** Login component*/

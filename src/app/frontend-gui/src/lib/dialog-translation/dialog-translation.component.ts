@@ -1,8 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {AbstractControl, UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {MatDialogRef} from '@angular/material/dialog';
-import {AppConfigService} from '@app/services/app-config.service';
+
 import {Translation} from '@app/domain';
+import {AppConfigService} from '@app/services/app-config.service';
 
 @Component({
   selector: 'app-dialog-translation',

@@ -1,9 +1,11 @@
 import {HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from '@angular/common/http';
-import {Observable, throwError} from 'rxjs';
 import {Injectable} from '@angular/core';
-import {LoginService} from '@app/core/auth/login.service';
 import {Router} from '@angular/router';
+
+import {Observable, throwError} from 'rxjs';
 import {catchError} from 'rxjs/operators';
+
+import {LoginService} from '@app/core/auth/login.service';
 
 /** Interceptor for authentication expired response in API requests */
 @Injectable()

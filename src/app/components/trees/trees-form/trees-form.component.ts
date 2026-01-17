@@ -1,4 +1,17 @@
+import {Component, ViewChild} from '@angular/core';
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
+import {MatDialog} from '@angular/material/dialog';
+import {MatTabChangeEvent} from '@angular/material/tabs';
 import {ActivatedRoute, Router} from '@angular/router';
+
+
+import {TranslateService} from '@ngx-translate/core';
+import {firstValueFrom,map, of} from 'rxjs';
+
+import {BaseFormComponent} from '@app/components/base-form.component';
+import {DataTableDefinition} from '@app/components/data-tables.util';
+import {Configuration} from "@app/core/config/configuration";
+import {MessagesInterceptorStateService} from '@app/core/interceptors/messages.interceptor';
 import {
   Application,
   ApplicationService,
@@ -10,23 +23,13 @@ import {
   TreeNode,
   TreeService
 } from '@app/domain';
-import {Component, ViewChild} from '@angular/core';
-import {firstValueFrom} from 'rxjs';
-import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
-import {Configuration} from "@app/core/config/configuration";
-import {LoggerService} from '@app/services/logger.service';
-import {MatDialog} from '@angular/material/dialog';
-import {MatTabChangeEvent} from '@angular/material/tabs';
-import {UtilsService} from '@app/services/utils.service';
-import {map, of} from 'rxjs';
-import {BaseFormComponent} from '@app/components/base-form.component';
+import {onUpdatedRelation, Status} from '@app/frontend-gui/src/lib/public_api';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
-import {MessagesInterceptorStateService} from '@app/core/interceptors/messages.interceptor';
-import {TranslateService} from '@ngx-translate/core';
+import {LoggerService} from '@app/services/logger.service';
+import {UtilsService} from '@app/services/utils.service';
+
 import {TreeNodesComponent} from './tree-nodes/tree-nodes.component';
-import {DataTableDefinition} from '@app/components/data-tables.util';
-import {onUpdatedRelation, Status, ImagePreviewComponent} from '@app/frontend-gui/src/lib/public_api';
 
 @Component({
   selector: 'app-trees-form',
@@ -372,7 +375,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
     input.focus();
   }
 
-  removeImage(formtype: string): void {
+  removeImage(_formtype: string): void {
     this.entityForm.patchValue({
       image: null,
       imageName: null,

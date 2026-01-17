@@ -1,5 +1,7 @@
 import { Resource } from '@app/core/hal/resource/resource.model';
-import {Application, Task} from "@app/domain";
+
+import {Application} from '../../application/models/application.model';
+import {Task} from '../../task/models/task.model';
 
 /**
  * Role model

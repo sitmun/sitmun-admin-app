@@ -1,9 +1,12 @@
-import { RestService } from '@app/core/hal/rest/rest.service';
-import { UserConfiguration } from '@app/domain';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
+
 import { Observable } from 'rxjs';
+
+import { RestService } from '@app/core/hal/rest/rest.service';
 import { LoggerService } from '@app/services/logger.service';
+
+import { UserConfiguration } from '../models/user-configuration.model';
 
 /** User configuration manager service */
 @Injectable()

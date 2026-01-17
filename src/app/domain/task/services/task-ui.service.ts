@@ -1,6 +1,8 @@
-import { TaskUI } from '@app/domain';
 import { Injectable, Injector } from '@angular/core';
+
 import { RestService } from '@app/core/hal/rest/rest.service';
+
+import { TaskUI } from '../models/task-ui.model';
 
 /** Task UI manager service */
 @Injectable()

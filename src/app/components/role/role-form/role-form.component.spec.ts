@@ -1,20 +1,23 @@
-import { ComponentFixture, TestBed, getTestBed } from '@angular/core/testing';
 
-import { RoleFormComponent } from './role-form.component';
+import {HttpClient, HttpClientModule} from '@angular/common/http';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { ComponentFixture, TestBed, getTestBed } from '@angular/core/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { RouterModule } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
+
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
+import {ExternalService, ResourceService} from '@app/core/hal';
 import {
   ApplicationService, CartographyGroupService, CartographyService, CodeListService, RoleService,
   TaskService, TerritoryService, UserConfigurationService, UserService
 } from '@app/domain';
-import {ExternalService, ResourceService} from '@app/core/hal';
-import {HttpClient, HttpClientModule} from '@angular/common/http';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
-import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
-import { RouterTestingModule } from '@angular/router/testing';
 import { MaterialModule } from '@app/material-module';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+
+import { RoleFormComponent } from './role-form.component';
 
 
 describe('RoleFormComponent', () => {
@@ -32,7 +35,7 @@ describe('RoleFormComponent', () => {
   let externalService: ExternalService;
 
   let injector: TestBed;
-  let service: RoleService;
+  let _service: RoleService;
   let httpMock: HttpClient;
 
 

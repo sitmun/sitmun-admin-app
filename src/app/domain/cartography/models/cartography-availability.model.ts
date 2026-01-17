@@ -1,6 +1,7 @@
-import {Cartography, CartographyProjection} from '@app/domain';
-import {Territory, TerritoryProjection} from '@app/domain/territory/models/territory.model';
 import {Resource} from '@app/core/hal/resource/resource.model';
+
+import {Cartography, CartographyProjection} from './cartography.model';
+import {Territory, TerritoryProjection} from '../../territory/models/territory.model';
 
 /**
  * Represents the availability of a cartography for a specific territory

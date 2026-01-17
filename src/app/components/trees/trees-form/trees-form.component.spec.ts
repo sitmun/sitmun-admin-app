@@ -1,9 +1,13 @@
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { TreesFormComponent } from './trees-form.component';
-import { RouterModule } from '@angular/router';
-import { MaterialModule } from '@app/material-module';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { RouterModule } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
+
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
+import {ExternalService, ResourceService} from '@app/core/hal';
 import {
   ApplicationService,
   CapabilitiesService,
@@ -16,20 +20,20 @@ import {
   TreeNodeService,
   TreeService
 } from '@app/domain';
-import {ExternalService, ResourceService} from '@app/core/hal';
-import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
-import { RouterTestingModule } from '@angular/router/testing';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { MaterialModule } from '@app/material-module';
+
+import { TreesFormComponent } from './trees-form.component';
+
+
+
 
 describe('TreesFormComponent', () => {
   let component: TreesFormComponent;
   let fixture: ComponentFixture<TreesFormComponent>;
   let treeService: TreeService;
-  let treeNodeService: TreeNodeService;
-  let cartographyService: CartographyService;
+  let _treeNodeService: TreeNodeService;
+  let _cartographyService: CartographyService;
   let applicationService: ApplicationService;
   let serviceService: ServiceService;
   let capabilitiesService: CapabilitiesService;

@@ -1,6 +1,7 @@
-import {Task, TaskProjection} from '@app/domain';
-import {Territory, TerritoryProjection} from '@app/domain/territory/models/territory.model';
 import {Resource} from '@app/core/hal/resource/resource.model';
+
+import {Task, TaskProjection} from './task.model';
+import {Territory, TerritoryProjection} from '../../territory/models/territory.model';
 
 /**
  * Task availability model

@@ -1,8 +1,11 @@
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+
 import { TranslateService } from '@ngx-translate/core';
-import { LoggerService } from './logger.service';
+
 import { isProblemDetail, getProblemTranslationKey, getErrorMessage } from '@app/utils/problem-detail.utils';
+
+import { LoggerService } from './logger.service';
 
 @Injectable({
   providedIn: 'root'
