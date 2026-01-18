@@ -48,7 +48,7 @@ export class CapabilitiesService extends RestService<Capabilities> {
       const finalUrl = this.resourceService.getResourceUrl(this.CAPABILITIES_API).concat(url);
       return this.http.get(finalUrl, requestOptions);
     } else {
-      return of()
+      return of(null);
     }
   }
 

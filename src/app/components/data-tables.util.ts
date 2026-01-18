@@ -2,7 +2,7 @@ import {TemplateRef} from "@angular/core";
 import {FormGroup} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
 
-import {EMPTY, firstValueFrom, map, Observable, race, ReplaySubject, Subject, timer} from "rxjs";
+import {firstValueFrom, map, Observable, of, race, ReplaySubject, Subject, timer} from "rxjs";
 
 import {DataGridComponent, GridEvent, GridEventType, isSave, Status} from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
 import {
@@ -929,13 +929,13 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
    * Default function to fetch relation entities.
    * Returns an empty array if not overridden.
    */
-  private relationsFetchFn: () => Observable<RELATION[]> = () => EMPTY;
+  private relationsFetchFn: () => Observable<RELATION[]> = () => of([]);
 
   /**
    * Default function to fetch target entities.
    * Returns an empty array if not overridden.
    */
-  private targetsFetchFn: () => Observable<TARGET[]> = () => EMPTY;
+  private targetsFetchFn: () => Observable<TARGET[]> = () => of([]);
 
   /**
    * Default function to filter which targets should be shown.
@@ -1218,15 +1218,15 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
    * Default function to fetch relation entities.
    * Returns an empty array if not overridden.
    */
-  private relationsFetchFn: () => Observable<RELATION[]> = () => EMPTY;
+  private relationsFetchFn: () => Observable<RELATION[]> = () => of([]);
 
   /**
    * Default function to fetch target entities.
    * Returns an empty array if not overridden.
    */
-  private targetsLeftFetchFn: () => Observable<TARGET_LEFT[]> = () => EMPTY;
+  private targetsLeftFetchFn: () => Observable<TARGET_LEFT[]> = () => of([]);
 
-  private targetsRightFetchFn: () => Observable<TARGET_RIGHT[]> = () => EMPTY;
+  private targetsRightFetchFn: () => Observable<TARGET_RIGHT[]> = () => of([]);
 
   /**
    * Default function to filter which targets should be shown.

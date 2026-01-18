@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 
-import {Observable, Subject} from 'rxjs';
+import {Observable, of, Subject} from 'rxjs';
 
 import {Resource} from '@app/core';
 
@@ -105,7 +105,7 @@ export class EntityListComponent<T extends Resource> implements OnInit, OnChange
   }
 
   get dataFetchFn(): () => Observable<T[]> {
-    return this.config?.dataFetchFn || (() => new Observable());
+    return this.config?.dataFetchFn || (() => of([]));
   }
 
   get defaultColumnSorting(): string[] {

@@ -1,7 +1,7 @@
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {Injectable, Injector} from '@angular/core';
 
-import {EMPTY, Observable} from "rxjs";
+import {Observable, of} from "rxjs";
 
 import {RestService} from '@app/core/hal/rest/rest.service';
 
@@ -35,7 +35,7 @@ export class GetInfoService extends RestService<Info> {
 
       return this.http.get(finalUrl, requestOptions);
     }
-    return EMPTY;
+    return of(null);
   }
 
 }

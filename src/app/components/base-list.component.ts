@@ -3,7 +3,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from '@ngx-translate/core';
-import {EMPTY, firstValueFrom, Observable, Subject} from 'rxjs';
+import {firstValueFrom, Observable, of, Subject} from 'rxjs';
 
 import {HalOptions, HalParam, Resource} from '@app/core';
 import {CodeList, CodeListService, TranslationService,} from '@app/domain';
@@ -203,7 +203,7 @@ export abstract class BaseListComponent<T extends Resource>
     this.gridModified = value;
   }
 
-  dataFetchFn: () => Observable<T[]> = () => { return EMPTY };
+  dataFetchFn: () => Observable<T[]> = () => { return of([]) };
   dataUpdateFn: (data: T) => Promise<T> = (data) => Promise.resolve(data)
   dataDeleteFn: (data: T) => Promise<T> = (data) => Promise.resolve(data)
 
