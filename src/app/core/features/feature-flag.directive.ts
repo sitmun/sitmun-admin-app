@@ -12,6 +12,10 @@ import { Subscription } from 'rxjs';
 import { FeatureFlagKeys } from './feature-flag.config';
 import { FeatureFlagService } from './feature-flag.service';
 
+/**
+ * Structural directive that conditionally renders content based on feature flag state.
+ * Usage: <ng-container *appFeatureFlag="'FEATURE_KEY'">...</ng-container>
+ */
 @Directive({
   selector: '[appFeatureFlag]'
 })
@@ -20,7 +24,7 @@ export class FeatureFlagDirective implements OnInit, OnDestroy {
   private featureFlagKey?: FeatureFlagKeys;
   private subscription?: Subscription;
 
-  @Input() set featureFlag(feature: FeatureFlagKeys) {
+  @Input('appFeatureFlag') set featureFlag(feature: FeatureFlagKeys) {
     this.featureFlagKey = feature;
     this.updateView();
   }
