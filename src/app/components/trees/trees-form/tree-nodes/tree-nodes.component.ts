@@ -185,7 +185,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       'treenode.viewmode'
     ]);
 
-    this.layersList = await this.getAllCartographies().toPromise();
+    this.layersList = await firstValueFrom(this.getAllCartographies());
     
     // Load and cache cartographies for autocomplete
     await this.loadCartographies();
@@ -1272,7 +1272,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
 
     let url, service;
 
-    const dialogResult = await dialogRef.afterClosed().toPromise();
+    const dialogResult = await firstValueFrom(dialogRef.afterClosed());
     if (dialogResult) {
       if (dialogResult.event === 'Add' && dialogResult.data && dialogResult.data[0].length > 0) {
         service = dialogResult.data[0][0];
@@ -1285,7 +1285,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
             url += config.capabilitiesRequest.requestWithWMS;
           }
 
-          const capabilitiesResult = await this.capabilitiesService.getInfo(url).toPromise();
+          const capabilitiesResult = await firstValueFrom(this.capabilitiesService.getInfo(url));
           if (capabilitiesResult.success) {
             const groupLayersResult = this.changeServiceDataByCapabilities(capabilitiesResult.asJson);
             this.createNodesWithCapabilities(groupLayersResult, data, null);
@@ -1503,7 +1503,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     if (this.currentNodeTask && this.currentNodeTask.id !== this.treeNodeForm.value.taskId) {
       task = this.currentNodeTask;
     } else {
-      task = await this.taskService.get(this.treeNodeForm.value.taskId).toPromise();
+      task = await firstValueFrom(this.taskService.get(this.treeNodeForm.value.taskId));
     }
     const inputFormGroup = this.fieldsConfigForm.get('input') as UntypedFormGroup;
     if (task.properties && task.properties.parameters) {
@@ -1640,12 +1640,12 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
         if (effectiveType === this.codeValues.treenodeLeafType.task
           || this.currentTreeType === this.codeValues.treeType.edition) {
           const taskId = this.treeNodeForm.get('taskId').value;
-          this.currentNodeTask = taskId ? await this.taskService.get(taskId).toPromise() : null;
+          this.currentNodeTask = taskId ? await firstValueFrom(this.taskService.get(taskId)) : null;
           this.getAllElementsEventTasks.next(this.treeNodeForm.value);
         }
         if ([this.codeValues.treenodeLeafType.cartography, this.codeValues.treenodeLeafType.task].includes(effectiveType)) {
           const cartographyId = this.treeNodeForm.get('cartographyId').value;
-          this.currentNodeCartography = cartographyId ? await this.cartographyService.get(cartographyId).toPromise() : cartographyId;
+          this.currentNodeCartography = cartographyId ? await firstValueFrom(this.cartographyService.get(cartographyId)) : cartographyId;
           this.getAllElementsEventCartographies.next(this.treeNodeForm.value);
         }
       } else {
@@ -1718,7 +1718,13 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       });
       const treeNodeObj: TreeNode = new TreeNode();
 
-      treeNodeObj.id = treeNode.id;
+      // For new entities, don't send the fictitious ID to the backend
+      // The backend will generate a real ID on creation
+      if (treeNode.status === "pendingCreation" && !ResourceHelper.canBeUpdated(treeNode)) {
+        treeNodeObj.id = null;
+      } else {
+        treeNodeObj.id = treeNode.id;
+      }
       treeNodeObj.name = treeNode.name;
       // Convert sentinel back to null when saving
       treeNodeObj.type = treeNode.nodeType === this.NULL_SENTINEL ? null : treeNode.nodeType;
@@ -1876,7 +1882,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
         depth: this.calculateNodeDepth(treeNode, treesNodesToUpdate)
       });
 
-      await this.treeNodeService.deleteById(treeNode.id).toPromise();
+      await firstValueFrom(this.treeNodeService.deleteById(treeNode.id));
     }
 
     await Promise.all(promises);
@@ -2443,7 +2449,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     this.cartographiesLoading = true;
 
     try {
-      const cartographies = await this.getAllCartographies().toPromise();
+      const cartographies = await firstValueFrom(this.getAllCartographies());
       this.allCartographies = cartographies || [];
       this.filteredCartographies = [...this.allCartographies];
       this.cartographiesLoaded = true;
@@ -2495,7 +2501,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     this.tasksLoading = true;
 
     try {
-      const tasks = await this.getAllTasks().toPromise();
+      const tasks = await firstValueFrom(this.getAllTasks());
       this.allTasks = tasks || [];
       this.filteredTasks = [...this.allTasks];
       this.tasksLoaded = true;

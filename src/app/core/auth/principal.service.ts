@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import {Observable, Subject} from 'rxjs';
+import {firstValueFrom, Observable, Subject} from 'rxjs';
 
 import { AccountService } from '@app/core/account/account.service';
 
@@ -103,7 +103,7 @@ export class Principal {
     }
 
     // retrieve the userIdentity data from the server, update the identity object, and then resolve.
-    return this.account.get().toPromise().then((response) => {
+    return firstValueFrom(this.account.get()).then((response) => {
       const account = response;
       if (account) {
         this.userIdentity = account;
