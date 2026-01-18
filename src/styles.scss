@@ -599,6 +599,11 @@ app-login .mat-app-background {
   }
 }
 
+// Ensure Material overlay container (snackbars, dialogs) is above app overlays
+.cdk-overlay-container {
+  z-index: 10000 !important;
+}
+
 //Dialogs
 .dialog h1 {
   font-size: 18px !important;

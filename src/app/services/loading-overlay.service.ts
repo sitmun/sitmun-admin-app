@@ -4,6 +4,11 @@ export interface LoadingOverlayOptions {
   message?: string;
   spinnerSize?: number;
   backdropOpacity?: number;
+  /**
+   * z-index for the overlay. Defaults to 9998 to stay below Material overlay
+   * container (10000) which contains snackbars and dialogs.
+   */
+  zIndex?: number;
 }
 
 export interface AntiFlickerOptions {
@@ -29,7 +34,8 @@ export class LoadingOverlayService {
     const {
       message = 'Loading...',
       spinnerSize = 50,
-      backdropOpacity = 0.5
+      backdropOpacity = 0.5,
+      zIndex = 9998
     } = options;
 
     const overlay = document.createElement('div');
@@ -43,7 +49,7 @@ export class LoadingOverlayService {
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 9999;
+      z-index: ${zIndex};
     `;
 
     const container = document.createElement('div');
