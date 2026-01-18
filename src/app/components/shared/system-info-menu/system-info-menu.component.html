@@ -28,14 +28,14 @@
     <ng-container *ngIf="!environment.production">
       <!-- Log Level -->
       <button mat-menu-item [matMenuTriggerFor]="logLevelMenu">
-        <mat-icon>{{ getIconForLevel(currentLogLevel) }}</mat-icon>
-        <span>{{ 'systemInfo.logLevel' | translate }}: {{ getLogLevelName(currentLogLevel) }}</span>
+        <mat-icon>{{ getIconForLevel(currentLogLevel()) }}</mat-icon>
+        <span>{{ 'systemInfo.logLevel' | translate }}: {{ getLogLevelName(currentLogLevel()) }}</span>
       </button>
       <mat-menu #logLevelMenu="matMenu">
         <button mat-menu-item *ngFor="let level of logLevels" (click)="onLogLevelChange(level.value)">
           <mat-icon>{{ getIconForLevel(level.value) }}</mat-icon>
           <span>{{ level.name }}</span>
-          <mat-icon *ngIf="level.value === currentLogLevel" class="check-icon">check</mat-icon>
+          <mat-icon *ngIf="level.value === currentLogLevel()" class="check-icon">check</mat-icon>
         </button>
       </mat-menu>
 
@@ -43,7 +43,13 @@
       <button mat-menu-item (click)="openErrorSidebar()">
         <mat-icon>bug_report</mat-icon>
         <span>{{ 'systemInfo.recentErrors' | translate }}</span>
-        <span class="badge" *ngIf="unreviewedErrorCount > 0">{{ unreviewedErrorCount }}</span>
+        <span class="badge" *ngIf="(unreviewedErrorCount() ?? 0) > 0">{{ unreviewedErrorCount() }}</span>
+      </button>
+
+      <!-- Debug: trigger test error -->
+      <button mat-menu-item *ngIf="shouldShowDebugFeatures()" (click)="triggerTestError()">
+        <mat-icon>bug_report</mat-icon>
+        <span>{{ 'systemInfo.triggerTestError' | translate }}</span>
       </button>
 
       <!-- Feature Flags -->
@@ -88,7 +94,7 @@
     </ng-container>
 
     <!-- User Section -->
-    <button mat-menu-item disabled class="user-info-item" *ngIf="currentUser">
+    <button mat-menu-item disabled class="user-info-item" *ngIf="currentUser()">
       <mat-icon>person</mat-icon>
       <span>{{ getUserFullName() }}</span>
     </button>

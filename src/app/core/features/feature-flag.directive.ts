@@ -2,12 +2,12 @@ import {
   Directive,
   Input,
   OnInit,
-  OnDestroy,
   TemplateRef,
-  ViewContainerRef
+  ViewContainerRef,
+  DestroyRef,
+  inject
 } from '@angular/core';
-
-import { Subscription } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FeatureFlagKeys } from './feature-flag.config';
 import { FeatureFlagService } from './feature-flag.service';
@@ -19,10 +19,10 @@ import { FeatureFlagService } from './feature-flag.service';
 @Directive({
   selector: '[appFeatureFlag]'
 })
-export class FeatureFlagDirective implements OnInit, OnDestroy {
+export class FeatureFlagDirective implements OnInit {
   private hasView = false;
   private featureFlagKey?: FeatureFlagKeys;
-  private subscription?: Subscription;
+  private destroyRef = inject(DestroyRef);
 
   @Input('appFeatureFlag') set featureFlag(feature: FeatureFlagKeys) {
     this.featureFlagKey = feature;
@@ -37,15 +37,13 @@ export class FeatureFlagDirective implements OnInit, OnDestroy {
 
   ngOnInit() {
     // Subscribe to feature flag changes
-    this.subscription = this.featureFlagService.featureFlags$.subscribe(() => {
-      this.updateView();
-    });
+    this.featureFlagService.featureFlags$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.updateView();
+      });
     // Initial check
     this.updateView();
-  }
-
-  ngOnDestroy() {
-    this.subscription?.unsubscribe();
   }
 
   private updateView(): void {
@@ -56,6 +54,7 @@ export class FeatureFlagDirective implements OnInit, OnDestroy {
     const isEnabled =
       this.featureFlagService.isFeatureEnabled(this.featureFlagKey);
 
+    // Only update view if state has actually changed
     if (isEnabled && !this.hasView) {
       this.viewContainer.createEmbeddedView(this.templateRef);
       this.hasView = true;
@@ -63,5 +62,6 @@ export class FeatureFlagDirective implements OnInit, OnDestroy {
       this.viewContainer.clear();
       this.hasView = false;
     }
+    // If state matches view state (enabled+hasView or !enabled+!hasView), do nothing
   }
 }

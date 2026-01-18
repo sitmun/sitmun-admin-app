@@ -8,14 +8,15 @@
   </div>
 
   <div class="sidebar-content">
-    <div *ngIf="errors.length === 0" class="no-errors">
-      <mat-icon>check_circle</mat-icon>
-      <p>{{ 'systemInfo.noErrors' | translate }}</p>
-    </div>
+    <ng-container *ngIf="errors$ | async as errors">
+      <div *ngIf="errors.length === 0" class="no-errors">
+        <mat-icon>check_circle</mat-icon>
+        <p>{{ 'systemInfo.noErrors' | translate }}</p>
+      </div>
 
-    <div *ngIf="errors.length > 0" class="errors-list">
-      <mat-accordion>
-        <mat-expansion-panel *ngFor="let error of errors" class="error-panel">
+      <div *ngIf="errors.length > 0" class="errors-list">
+        <mat-accordion>
+          <mat-expansion-panel *ngFor="let error of errors" class="error-panel">
           <mat-expansion-panel-header>
             <mat-panel-title>
               <div class="error-header">
@@ -68,6 +69,7 @@
         </mat-expansion-panel>
       </mat-accordion>
     </div>
+    </ng-container>
   </div>
 </div>
 

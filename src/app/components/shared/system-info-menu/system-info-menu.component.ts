@@ -1,10 +1,11 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef,  VERSION } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, VERSION, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 
 import { TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { AboutDialogComponent, AboutDialogData } from '@app/components/shared/about-dialog/about-dialog.component';
 import { ConfigurationParametersDialogComponent } from '@app/components/shared/configuration-parameters-dialog/configuration-parameters-dialog.component';
@@ -26,19 +27,23 @@ import { environment } from '@environments/environment';
   templateUrl: './system-info-menu.component.html',
   styleUrls: ['./system-info-menu.component.scss']
 })
-export class SystemInfoMenuComponent implements OnInit, OnDestroy {
-  currentUser: User | null = null;
-  currentLogLevel: LogLevel;
+export class SystemInfoMenuComponent implements OnInit {
+  currentUser = signal<User | null>(null);
+  currentLogLevel = toSignal(this.loggerService.logLevel$, {
+    initialValue: this.loggerService.getLogLevel()
+  });
   environment = environment;
   angularVersion = VERSION.full;
   
-  unreviewedErrorCount = 0;
+  unreviewedErrorCount = toSignal(
+    this.errorTrackingService.errors$.pipe(
+      map(() => this.errorTrackingService.getUnreviewedCount())
+    ),
+    { initialValue: 0 }
+  );
   currentCategory = '';
   
-  private authSubscription?: Subscription;
-  private errorsSubscription?: Subscription;
-  private logLevelSubscription?: Subscription;
-  private featureFlagsSubscription?: Subscription;
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private principal: Principal,
@@ -54,7 +59,6 @@ export class SystemInfoMenuComponent implements OnInit, OnDestroy {
     private featureFlagService: FeatureFlagService,
     private snackBar: MatSnackBar
   ) {
-    this.currentLogLevel = this.loggerService.getLogLevel();
     // Initialize current category with first available category
     if (!this.environment.production) {
       const categories = this.featureFlagService.getCategories();
@@ -62,9 +66,11 @@ export class SystemInfoMenuComponent implements OnInit, OnDestroy {
         this.currentCategory = categories[0];
       }
       // Subscribe to feature flag changes for auto-update
-      this.featureFlagsSubscription = this.featureFlagService.featureFlags$.subscribe(() => {
-        this.cdr.markForCheck();
-      });
+      this.featureFlagService.featureFlags$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
+          this.cdr.markForCheck();
+        });
     }
   }
 
@@ -73,9 +79,11 @@ export class SystemInfoMenuComponent implements OnInit, OnDestroy {
     if (this.authService.getToken()) {
       this.loadCurrentUser();
       // Set up subscription to authentication state changes
-      this.authSubscription = this.principal.getAuthenticationState().subscribe(() => {
-        this.loadCurrentUser();
-      });
+      this.principal.getAuthenticationState()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
+          this.loadCurrentUser();
+        });
     }
   }
 
@@ -84,26 +92,8 @@ export class SystemInfoMenuComponent implements OnInit, OnDestroy {
    * Called when the menu is opened to load data
    */
   onMenuOpened(): void {
-    // Only set up subscriptions on first open
-    if (!this.errorsSubscription) {
-      this.updateErrorCount();
-
-      // Subscribe to error changes
-      this.errorsSubscription = this.errorTrackingService.errors$.subscribe(() => {
-        this.updateErrorCount();
-      });
-
-      // Subscribe to log level changes
-      this.logLevelSubscription = this.loggerService.logLevel$.subscribe(level => {
-        this.currentLogLevel = level;
-      });
-    } else {
-      // On subsequent opens, just update error count
-      this.updateErrorCount();
-    }
-    
     // Ensure user is loaded if authenticated (in case it wasn't loaded in ngOnInit)
-    if (this.authService.getToken() && !this.currentUser) {
+    if (this.authService.getToken() && !this.currentUser()) {
       this.loadCurrentUser();
     }
     
@@ -116,46 +106,34 @@ export class SystemInfoMenuComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
-    this.authSubscription?.unsubscribe();
-    this.errorsSubscription?.unsubscribe();
-    this.logLevelSubscription?.unsubscribe();
-    this.featureFlagsSubscription?.unsubscribe();
-  }
-
   loadCurrentUser(): void {
     // Only load if we have a token (user is authenticated)
     if (this.authService.getToken()) {
       this.principal.identity().then((user) => {
         // Set user if it exists (getUserFullName will handle empty properties)
         if (user) {
-          this.currentUser = user;
+          this.currentUser.set(user);
         } else {
-          this.currentUser = null;
+          this.currentUser.set(null);
           this.loggerService.warn('User identity returned null');
         }
         // Mark for check to update the view
         this.cdr.markForCheck();
       }).catch((error) => {
         // If identity fails, set to null
-        this.currentUser = null;
+        this.currentUser.set(null);
         this.loggerService.error('Failed to load user identity:', error);
         this.cdr.markForCheck();
       });
     } else {
       // No token, user is not authenticated
-      this.currentUser = null;
+      this.currentUser.set(null);
       this.cdr.markForCheck();
     }
   }
 
-  updateErrorCount(): void {
-    this.unreviewedErrorCount = this.errorTrackingService.getUnreviewedCount();
-  }
-
   onLogLevelChange(level: LogLevel): void {
     this.loggerService.setLogLevel(level);
-    this.currentLogLevel = level;
     this.loggerService.info(`Log level changed to ${LogLevel[level]}`);
   }
 
@@ -221,17 +199,7 @@ export class SystemInfoMenuComponent implements OnInit, OnDestroy {
       source: 'System Info Menu'
     };
     
-    // Add error directly to tracking service
-    this.errorTrackingService.addError(
-      'Test error triggered from system menu',
-      'logger',
-      {
-        details: testError,
-        stackTrace: new Error().stack
-      }
-    );
-    
-    // Also log it via logger service
+    // Log via logger service (LoggerService will also track it once)
     this.loggerService.error('Test error triggered from system menu', testError);
     
     // Open the error sidebar to show the error
@@ -239,7 +207,7 @@ export class SystemInfoMenuComponent implements OnInit, OnDestroy {
   }
 
   shouldShowDebugFeatures(): boolean {
-    return this.currentLogLevel >= LogLevel.Debug;
+    return (this.currentLogLevel() ?? LogLevel.Off) >= LogLevel.Debug;
   }
 
   logout(): void {
@@ -248,10 +216,11 @@ export class SystemInfoMenuComponent implements OnInit, OnDestroy {
   }
 
   getUserFullName(): string {
-    if (this.currentUser) {
-      const firstName = this.currentUser.firstName?.trim() || '';
-      const lastName = this.currentUser.lastName?.trim() || '';
-      const username = this.currentUser.username?.trim() || '';
+    const user = this.currentUser();
+    if (user) {
+      const firstName = user.firstName?.trim() || '';
+      const lastName = user.lastName?.trim() || '';
+      const username = user.username?.trim() || '';
       
       if (firstName && lastName) {
         return `${firstName} ${lastName}`;
@@ -339,9 +308,9 @@ export class SystemInfoMenuComponent implements OnInit, OnDestroy {
         );
         this.snackBar.open(message, '', { duration: 2000 });
         
-        // Force change detection to update the UI immediately
-        // The observable subscription will also trigger, but this ensures immediate update
-        this.cdr.detectChanges();
+        // Mark for check - let Angular's change detection handle the update naturally
+        // The observable subscription will trigger FeatureFlagDirective updates automatically
+        this.cdr.markForCheck();
       } catch (error) {
         this.loggerService.error('Failed to toggle feature flag:', error);
       }

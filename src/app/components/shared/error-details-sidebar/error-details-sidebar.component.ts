@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
+import { filter, tap } from 'rxjs/operators';
 
 import { ErrorTrackingService, ErrorEntry } from '@app/services/error-tracking.service';
 import { SidebarManagerService } from '@app/services/sidebar-manager.service';
@@ -11,10 +12,10 @@ import { SidebarManagerService } from '@app/services/sidebar-manager.service';
   templateUrl: './error-details-sidebar.component.html',
   styleUrls: ['./error-details-sidebar.component.scss']
 })
-export class ErrorDetailsSidebarComponent implements OnInit, OnDestroy {
-  errors: ErrorEntry[] = [];
-  private errorsSubscription?: Subscription;
-  private sidebarSubscription?: Subscription;
+export class ErrorDetailsSidebarComponent implements OnInit {
+  errors$ = this.errorTrackingService.errors$;
+  private destroyRef = inject(DestroyRef);
+  private initialized = false;
 
   constructor(
     private errorTrackingService: ErrorTrackingService,
@@ -23,42 +24,19 @@ export class ErrorDetailsSidebarComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Subscribe to sidebar manager to initialize when sidebar becomes active
-    this.sidebarSubscription = this.sidebarManager.activeSidebar$.subscribe(active => {
-      if (active === 'error') {
-        // Initialize if not already initialized
-        if (!this.errorsSubscription) {
-          this.initializeSidebar();
-        } else {
-          // Already initialized, just refresh errors
-          this.errors = this.errorTrackingService.getErrors();
-        }
-      }
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.errorsSubscription?.unsubscribe();
-    this.sidebarSubscription?.unsubscribe();
-  }
-
-  /**
-   * Initialize the sidebar when it's first opened
-   */
-  private initializeSidebar(): void {
-    if (this.errorsSubscription) {
-      // Already initialized, but refresh errors in case new ones were added
-      this.errors = this.errorTrackingService.getErrors();
-      return;
-    }
-
-    // Subscribe to errors
-    this.errorsSubscription = this.errorTrackingService.errors$.subscribe(errors => {
-      this.errors = [...errors]; // Create new array reference to trigger change detection
-    });
-
-    // Load initial errors
-    this.errors = this.errorTrackingService.getErrors();
+    // Subscribe to sidebar manager to refresh errors when sidebar becomes active
+    this.sidebarManager.activeSidebar$
+      .pipe(
+        filter(active => active === 'error'),
+        tap(() => {
+          // Refresh errors when sidebar opens
+          if (!this.initialized) {
+            this.initialized = true;
+          }
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe();
   }
 
   /**
@@ -98,6 +76,13 @@ export class ErrorDetailsSidebarComponent implements OnInit, OnDestroy {
    */
   clearAll(): void {
     this.errorTrackingService.clearErrors();
+  }
+
+  /**
+   * Get current errors array (for methods that need array access)
+   */
+  getErrors(): ErrorEntry[] {
+    return this.errorTrackingService.getErrors();
   }
 
   /**

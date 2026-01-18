@@ -1,7 +1,6 @@
 import {Injectable, Injector, Optional} from '@angular/core';
 
 import {BehaviorSubject, Observable} from 'rxjs';
-import StackTrace, {StackFrame} from 'stacktrace-js';
 
 import {environment} from '@environments/environment';
 
@@ -177,18 +176,16 @@ export class LoggerService {
 
     // Only get stack trace and timestamp for Trace level
     if (level === LogLevel.Trace) {
-      StackTrace.get().then((stackframes) => {
-        const timestamp = new Date().toISOString();
-        const trace: StackFrame = stackframes[2];
-        const logCaller = `${trace.fileName}:${trace.lineNumber}`;
-        const logPrefix = `[${LogLevel[level]}] [${timestamp}] [${logCaller}]`;
+      const timestamp = new Date().toISOString();
+      const stack = new Error().stack?.split('\n') ?? [];
+      const caller = stack[2]?.trim() ?? 'unknown';
+      const logPrefix = `[${LogLevel[level]}] [${timestamp}] [${caller}]`;
 
-        if (data.length > 0) {
-          console.log(`${logPrefix} ${message}`, ...data);
-        } else {
-          console.log(`${logPrefix} ${message}`);
-        }
-      });
+      if (data.length > 0) {
+        console.log(`${logPrefix} ${message}`, ...data);
+      } else {
+        console.log(`${logPrefix} ${message}`);
+      }
       return;
     }
 

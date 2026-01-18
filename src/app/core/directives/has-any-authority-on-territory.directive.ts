@@ -1,4 +1,5 @@
-import { Directive, Input, TemplateRef, ViewContainerRef } from '@angular/core';
+import { Directive, Input, TemplateRef, ViewContainerRef, OnInit, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { Principal } from '@app/core/auth/principal.service';
 
@@ -14,13 +15,15 @@ import { Principal } from '@app/core/auth/principal.service';
 @Directive({
   selector: '[appHasAnyAuthorityOnTerritory]'
 })
-export class HasAnyAuthorityOnTerritoryDirective {
-
+export class HasAnyAuthorityOnTerritoryDirective implements OnInit {
   /** authorities to check */
   public authorities: string[];
 
   /** territory to check authorities*/
   public territory: string;
+
+  private destroyRef = inject(DestroyRef);
+  private subscriptionInitialized = false;
 
   /** constructor */
   constructor(private principal: Principal, private templateRef: TemplateRef<any>, private viewContainerRef: ViewContainerRef) {
@@ -29,12 +32,19 @@ export class HasAnyAuthorityOnTerritoryDirective {
   /** Set whether current user has any of the given authorities on territory */
   @Input()
   set appHasAnyAuthorityOnTerritory(opts: any) {
-
     this.authorities = typeof opts.authorities === 'string' ? [ <string> opts.authorities ] : <string[]> opts.authorities;
     this.territory = opts.territory;
     this.updateView();
-    // Get notified each time authentication state changes.
-    this.principal.getAuthenticationState().subscribe((_identity) => this.updateView());
+  }
+
+  ngOnInit(): void {
+    // Subscribe to authentication state changes only once
+    if (!this.subscriptionInitialized) {
+      this.principal.getAuthenticationState()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((_identity) => this.updateView());
+      this.subscriptionInitialized = true;
+    }
   }
 
   /** update view */

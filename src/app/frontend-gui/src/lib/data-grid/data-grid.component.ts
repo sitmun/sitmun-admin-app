@@ -9,8 +9,11 @@ import {
   OnInit,
   Output,
   SimpleChanges,
-  ViewChild
+  ViewChild,
+  DestroyRef,
+  inject
 } from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
@@ -204,6 +207,8 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
   /** Subscription for data loading */
   dataSubscription!: Subscription;
+
+  private destroyRef = inject(DestroyRef);
 
   /** Subscription for grid refresh events */
   _eventRefreshSubscription: any;
@@ -508,42 +513,53 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     this.observer.observe(this.dataGrid.nativeElement);
 
     if (this.eventRefreshSubscription) {
-      this._eventRefreshSubscription = this.eventRefreshSubscription.subscribe(() => {
-        this.changesMap.clear();
-        this.someStatusHasChangedToDelete = false;
-        this.someStatusHasChanged = false;
-        this.changeCounter = 0;
-        this.previousChangeCounter = 0;
-        this.redoCounter = 0;
-        this.onGridReady(this.params);
-      });
+      this._eventRefreshSubscription = this.eventRefreshSubscription
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
+          this.changesMap.clear();
+          this.someStatusHasChangedToDelete = false;
+          this.someStatusHasChanged = false;
+          this.changeCounter = 0;
+          this.previousChangeCounter = 0;
+          this.redoCounter = 0;
+          this.onGridReady(this.params);
+        });
     }
     if (this.eventGetSelectedRowsSubscription) {
-      this._eventGetSelectedRowsSubscription = this.eventGetSelectedRowsSubscription.subscribe(() => {
-        this.emitSelectedRows();
-      });
+      this._eventGetSelectedRowsSubscription = this.eventGetSelectedRowsSubscription
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
+          this.emitSelectedRows();
+        });
     }
     if (this.eventGetAllRowsSubscription) {
-      this._eventGetAllRowsSubscription = this.eventGetAllRowsSubscription.subscribe((event: GridEventType) => {
-        this.emitAllRows(event);
-      });
+      this._eventGetAllRowsSubscription = this.eventGetAllRowsSubscription
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((event: GridEventType) => {
+          this.emitAllRows(event);
+        });
     }
 
     if (this.eventSaveAgGridStateSubscription) {
-      this._eventSaveAgGridStateSubscription = this.eventSaveAgGridStateSubscription.subscribe(() => {
-        this.saveAgGridState();
-      });
+      this._eventSaveAgGridStateSubscription = this.eventSaveAgGridStateSubscription
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
+          this.saveAgGridState();
+        });
     }
 
     if (this.eventModifyStatusOfSelectedCells) {
-      this._eventModifyStatusOfSelectedCells = this.eventModifyStatusOfSelectedCells.subscribe((status: string) => {
-        this.modifyStatusSelected(status);
-      });
+      this._eventModifyStatusOfSelectedCells = this.eventModifyStatusOfSelectedCells
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((status: string) => {
+          this.modifyStatusSelected(status);
+        });
     }
 
     if (this.eventAddItemsSubscription) {
-      this.eventAddItemsSubscription.subscribe(
-        (items: any[]) => {
+      this.eventAddItemsSubscription
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((items: any[]) => {
           this.addItems(items);
         });
     }
@@ -558,6 +574,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     if (this.dataSubscription) {
       this.dataSubscription.unsubscribe();
     }
+    // Note: dataSubscription is for one-time data loading, not a long-lived subscription
 
     this.loadingService.wrapWithAntiFlicker(
       async () => {
@@ -618,6 +635,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
    * Cleans up subscriptions and observers
    */
   ngOnDestroy(): void {
+    // Event subscriptions are cleaned up by takeUntilDestroyed
     if (this.dataSubscription) {
       this.dataSubscription.unsubscribe();
     }

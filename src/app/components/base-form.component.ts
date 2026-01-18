@@ -1,4 +1,5 @@
-import {AfterViewInit, Component, OnDestroy, OnInit, QueryList, ViewChildren} from "@angular/core";
+import {AfterViewInit, Component, OnDestroy, OnInit, QueryList, ViewChildren, DestroyRef, inject} from "@angular/core";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {FormControl, UntypedFormGroup} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute, Router} from "@angular/router";
@@ -113,6 +114,8 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
 
   /** Name of the entity being translated */
   private propertyTranslationsEntity: string;
+
+  protected destroyRef = inject(DestroyRef);
 
   /**
    * Creates an instance of SitmunBaseComponent.
@@ -236,9 +239,11 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
       this.dataGrids.forEach(grid => this.registerDataGrid(grid));
 
       // Re-register if grids are added dynamically
-      this.dataGrids.changes.subscribe(() => {
-        this.dataGrids.forEach(grid => this.registerDataGrid(grid));
-      });
+      this.dataGrids.changes
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
+          this.dataGrids.forEach(grid => this.registerDataGrid(grid));
+        });
     }
   }
 
@@ -488,10 +493,12 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    */
   private registerDataGrid(grid: DataGridComponent): void {
     if (grid && grid.gridModified) {
-      grid.gridModified.subscribe((_hasChanges: boolean) => {
-        // Update flag if any grid has changes
-        this.updateDataTablesChangeFlag();
-      });
+      grid.gridModified
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((_hasChanges: boolean) => {
+          // Update flag if any grid has changes
+          this.updateDataTablesChangeFlag();
+        });
     }
   }
 
@@ -644,9 +651,11 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
     Object.keys(form.controls).forEach(key => {
       const control = form.get(key);
       if (control) {
-        control.valueChanges.subscribe(() => {
-          this.checkControlModified(form, key);
-        });
+        control.valueChanges
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(() => {
+            this.checkControlModified(form, key);
+          });
       }
     });
   }
