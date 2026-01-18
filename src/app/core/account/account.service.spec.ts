@@ -2,8 +2,12 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestBed, inject } from '@angular/core/testing';
 
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { of } from 'rxjs';
+
 import { AccountService } from './account.service';
 import { LoggerService } from '../../services/logger.service';
+import { configureLoggerForTests } from '../../testing/test-helpers';
 import { ExternalConfigurationService } from '../config/external-configuration.service';
 import { ExternalService , ResourceService } from '../hal';
 
@@ -11,7 +15,17 @@ import { ExternalService , ResourceService } from '../hal';
 describe('AccountService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
+      imports: [
+        HttpClientTestingModule,
+        TranslateModule.forRoot({
+          loader: {
+            provide: TranslateLoader,
+            useFactory: () => ({
+              getTranslation: () => of({})
+            })
+          }
+        })
+      ],
       providers: [
         AccountService,
         ResourceService,
@@ -21,6 +35,10 @@ describe('AccountService', () => {
       ],
       schemas: [NO_ERRORS_SCHEMA]
     });
+    
+    // Suppress debug logs in tests to reduce console noise
+    const loggerService = TestBed.inject(LoggerService);
+    configureLoggerForTests(loggerService);
   });
 
   it('should be created', inject([AccountService], (service: AccountService) => {

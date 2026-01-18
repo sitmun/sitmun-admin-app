@@ -1,12 +1,17 @@
 
-import {HttpClient, HttpClientModule} from '@angular/common/http';
+import { HttpClientModule} from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed, getTestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 
+import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
+import {of} from 'rxjs';
+
+import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import {ExternalService, ResourceService} from '@app/core/hal';
 import {
@@ -15,7 +20,8 @@ import {
 } from '@app/domain';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { MaterialModule } from '@app/material-module';
-
+import {LoggerService} from '@app/services/logger.service';
+import {configureLoggerForTests} from '@app/testing/test-helpers';
 
 import { RoleFormComponent } from './role-form.component';
 
@@ -34,16 +40,19 @@ describe('RoleFormComponent', () => {
   let resourceService: ResourceService;
   let externalService: ExternalService;
 
-  let injector: TestBed;
-  let _service: RoleService;
-  let httpMock: HttpClient;
-
-
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ RoleFormComponent ],
+      declarations: [ RoleFormComponent, FormToolbarComponent ],
       imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, RouterModule.forRoot([], {}), HttpClientModule,
-      SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
+      SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule, BrowserAnimationsModule,
+      TranslateModule.forRoot({
+        loader: {
+          provide: TranslateLoader,
+          useFactory: () => ({
+            getTranslation: () => of({})
+          })
+        }
+      })],
       providers: [RoleService, UserService, TerritoryService, ApplicationService, CodeListService,
         CartographyGroupService,UserConfigurationService, CartographyService, TaskService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
@@ -54,6 +63,9 @@ describe('RoleFormComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(RoleFormComponent);
     component = fixture.componentInstance;
+    // Suppress debug logs in tests to reduce console noise
+    const loggerService = TestBed.inject(LoggerService);
+    configureLoggerForTests(loggerService);
     roleService= TestBed.inject(RoleService);
     userService= TestBed.inject(UserService);
     applicationService= TestBed.inject(ApplicationService);
@@ -64,12 +76,11 @@ describe('RoleFormComponent', () => {
     taskService= TestBed.inject(TaskService);
     resourceService= TestBed.inject(ResourceService);
     externalService= TestBed.inject(ExternalService);
-
-    injector = getTestBed();
-    // service= TestBed.inject(RoleService);
-    // service= injector.get(RoleService);
-    httpMock= TestBed.inject(HttpClient);
-    service = new RoleService(injector,httpMock)
+    // Initialize form if not already initialized
+    if (!component.entityForm) {
+      component.entityToEdit = component.empty();
+      component.postFetchData();
+    }
     fixture.detectChanges();
 
   });

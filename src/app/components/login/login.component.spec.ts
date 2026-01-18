@@ -1,4 +1,4 @@
-import {HttpClient, HttpClientModule} from '@angular/common/http';
+import { HttpClientModule} from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -7,7 +7,7 @@ import { RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { of } from 'rxjs';
 
 import {ExternalService, ResourceService} from '@app/core/hal/services';
 import { CodeListService, TranslationService } from '@app/domain';
@@ -48,10 +48,9 @@ describe('LoginComponent', () => {
         TranslateModule.forRoot({
           loader: {
             provide: TranslateLoader,
-            useFactory: (http: HttpClient) => {
-              return new TranslateHttpLoader(http, './assets/i18n/', '.json');
-            },
-            deps: [HttpClient]
+            useFactory: () => ({
+              getTranslation: () => of({})
+            })
           }
         })
       ],

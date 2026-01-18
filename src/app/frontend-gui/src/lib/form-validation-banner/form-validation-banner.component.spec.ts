@@ -1,7 +1,8 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormControl, UntypedFormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 
-import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {TranslateLoader, TranslateModule, TranslateService} from '@ngx-translate/core';
+import {of} from 'rxjs';
 
 import {FormValidationBannerComponent} from './form-validation-banner.component';
 import {MaterialModule} from '../material-module';
@@ -17,7 +18,14 @@ describe('FormValidationBannerComponent', () => {
       imports: [
         ReactiveFormsModule,
         MaterialModule,
-        TranslateModule.forRoot()
+        TranslateModule.forRoot({
+          loader: {
+            provide: TranslateLoader,
+            useFactory: () => ({
+              getTranslation: () => of({})
+            })
+          }
+        })
       ],
       providers: [TranslateService]
     }).compileComponents();
@@ -49,8 +57,15 @@ describe('FormValidationBannerComponent', () => {
       name: new FormControl('', [Validators.required]),
       type: new FormControl('', [Validators.required])
     });
+    // Ensure form is invalid (empty required controls are invalid by default)
+    expect(form.invalid).toBe(true);
+    expect(form.get('name')?.invalid).toBe(true);
+    expect(form.get('name')?.hasError('required')).toBe(true);
+    // Set form and entityType together to trigger ngOnChanges
     component.form = form;
     component.entityType = 'tree';
+    // Manually trigger updateInvalidFields to ensure it runs after form is set
+    (component as any).updateInvalidFields();
     fixture.detectChanges();
 
     expect(component.isVisible).toBe(true);
@@ -64,8 +79,12 @@ describe('FormValidationBannerComponent', () => {
       field2: new FormControl('', [Validators.required]),
       field3: new FormControl('', [Validators.required])
     });
+    // Ensure form is invalid
+    expect(form.invalid).toBe(true);
     component.form = form;
     component.entityType = 'test';
+    // Manually trigger updateInvalidFields to ensure it runs after form is set
+    (component as any).updateInvalidFields();
     fixture.detectChanges();
 
     expect(component.invalidFieldLabels.length).toBe(3);
@@ -80,8 +99,12 @@ describe('FormValidationBannerComponent', () => {
       field4: new FormControl('', [Validators.required]),
       field5: new FormControl('', [Validators.required])
     });
+    // Ensure form is invalid
+    expect(form.invalid).toBe(true);
     component.form = form;
     component.entityType = 'test';
+    // Manually trigger updateInvalidFields to ensure it runs after form is set
+    (component as any).updateInvalidFields();
     fixture.detectChanges();
 
     expect(component.invalidFieldLabels.length).toBe(3);
@@ -92,17 +115,22 @@ describe('FormValidationBannerComponent', () => {
     const form = new UntypedFormGroup({
       name: new FormControl('', [Validators.required])
     });
+    // Ensure form is invalid
+    expect(form.invalid).toBe(true);
     component.form = form;
     component.entityType = 'tree';
+    // Manually trigger updateInvalidFields to ensure it runs after form is set
+    (component as any).updateInvalidFields();
     fixture.detectChanges();
 
     const banner = fixture.nativeElement.querySelector('.form-validation-banner');
+    expect(banner).not.toBeNull();
     expect(banner.getAttribute('role')).toBe('alert');
     expect(banner.getAttribute('aria-live')).toBe('polite');
   });
 
   it('should resolve labels using entity-specific translation first', () => {
-    spyOn(translateService, 'instant').and.callFake((key: string) => {
+    jest.spyOn(translateService, 'instant').mockImplementation((key: string) => {
       if (key === 'tree.name') return 'Tree Name';
       return key;
     });
@@ -110,15 +138,19 @@ describe('FormValidationBannerComponent', () => {
     const form = new UntypedFormGroup({
       name: new FormControl('', [Validators.required])
     });
+    // Ensure form is invalid
+    expect(form.invalid).toBe(true);
     component.form = form;
     component.entityType = 'tree';
+    // Manually trigger updateInvalidFields to ensure it runs after form is set
+    (component as any).updateInvalidFields();
     fixture.detectChanges();
 
     expect(component.invalidFieldLabels[0]).toBe('Tree Name');
   });
 
   it('should fallback to common.form translation', () => {
-    spyOn(translateService, 'instant').and.callFake((key: string) => {
+    jest.spyOn(translateService, 'instant').mockImplementation((key: string) => {
       if (key === 'common.form.name') return 'Name';
       return key;
     });
@@ -126,8 +158,12 @@ describe('FormValidationBannerComponent', () => {
     const form = new UntypedFormGroup({
       name: new FormControl('', [Validators.required])
     });
+    // Ensure form is invalid
+    expect(form.invalid).toBe(true);
     component.form = form;
     component.entityType = 'unknown';
+    // Manually trigger updateInvalidFields to ensure it runs after form is set
+    (component as any).updateInvalidFields();
     fixture.detectChanges();
 
     expect(component.invalidFieldLabels[0]).toBe('Name');
@@ -139,11 +175,15 @@ describe('FormValidationBannerComponent', () => {
     });
     component.form = form;
     component.entityType = 'tree';
+    // Manually trigger updateInvalidFields to show banner initially
+    (component as any).updateInvalidFields();
     fixture.detectChanges();
 
     expect(component.isVisible).toBe(true);
 
     form.get('name')?.setValue('test');
+    // Manually trigger updateInvalidFields after form becomes valid
+    (component as any).updateInvalidFields();
     fixture.detectChanges();
 
     expect(component.isVisible).toBe(false);

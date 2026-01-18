@@ -6,6 +6,7 @@ import { MatTreeModule } from '@angular/material/tree';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { of } from 'rxjs';
 
 import { FileDatabase , DataTreeComponent } from './data-tree.component';
 
@@ -13,7 +14,6 @@ import { FileDatabase , DataTreeComponent } from './data-tree.component';
 describe('DataTreeComponent', () => {
   let component: DataTreeComponent;
   let fixture: ComponentFixture<DataTreeComponent>;
-  let _database: FileDatabase;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -35,12 +35,10 @@ describe('DataTreeComponent', () => {
   });
 
   beforeEach(() => {
-    database = TestBed.inject(FileDatabase);
     fixture = TestBed.createComponent(DataTreeComponent);
     component = fixture.componentInstance;
 
-    // Mock the required inputs
-    component.getAll = () => EMPTY;
+    component.getAll = () => of([]);
     component.allNewElements = {};
 
     fixture.detectChanges();

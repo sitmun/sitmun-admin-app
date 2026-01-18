@@ -6,9 +6,11 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { of } from 'rxjs';
 
 import { MaterialModule } from '@app/material-module';
+import { LoggerService } from '@app/services/logger.service';
+import { configureLoggerForTests } from '@app/testing/test-helpers';
 
 import { SideMenuComponent } from './side-menu.component';
 import { APP_ROUTES } from '../../../app-routes';
@@ -25,15 +27,18 @@ describe('SideMenuComponent', () => {
          BrowserAnimationsModule, MatIconTestingModule, TranslateModule.forRoot({
         loader: {
           provide: TranslateLoader,
-          useFactory: (http: HttpClient) => {
-            return new TranslateHttpLoader(http, './assets/i18n/', '.json');
-          },
-          deps: [HttpClient]
-          }
+          useFactory: () => ({
+            getTranslation: () => of({})
+          })
+        }
       })],
       providers: [HttpClient, HttpHandler]
     })
     .compileComponents();
+    
+    // Suppress debug logs in tests to reduce console noise
+    const loggerService = TestBed.inject(LoggerService);
+    configureLoggerForTests(loggerService);
   });
 
   beforeEach(() => {

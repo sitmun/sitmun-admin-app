@@ -3,14 +3,21 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { of } from 'rxjs';
+
+import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import {ExternalService, ResourceService} from '@app/core/hal';
-import {CodeListService, TaskGroupService, TranslationService} from '@app/domain';
+import {CodeListService, TaskGroupService, TaskService, TranslationService} from '@app/domain';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { MaterialModule } from '@app/material-module';
+import {LoggerService} from '@app/services/logger.service';
+import {configureLoggerForTests} from '@app/testing/test-helpers';
 
 import { TaskGroupFormComponent } from './task-group-form.component';
 
@@ -28,10 +35,18 @@ describe('TaskGroupFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TaskGroupFormComponent ],
+      declarations: [ TaskGroupFormComponent, FormToolbarComponent ],
       imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, RouterModule.forRoot([], {}), HttpClientModule,
-      SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
-      providers: [TaskGroupService,CodeListService,TranslationService,ResourceService,ExternalService,
+      SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule, BrowserAnimationsModule,
+      TranslateModule.forRoot({
+        loader: {
+          provide: TranslateLoader,
+          useFactory: () => ({
+            getTranslation: () => of({})
+          })
+        }
+      })],
+      providers: [TaskGroupService, TaskService, CodeListService,TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();
@@ -40,11 +55,19 @@ describe('TaskGroupFormComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(TaskGroupFormComponent);
     component = fixture.componentInstance;
+    // Suppress debug logs in tests to reduce console noise
+    const loggerService = TestBed.inject(LoggerService);
+    configureLoggerForTests(loggerService);
     taskGroupService= TestBed.inject(TaskGroupService);
     codeListService= TestBed.inject(CodeListService);
     translationService= TestBed.inject(TranslationService);
     resourceService= TestBed.inject(ResourceService);
     externalService= TestBed.inject(ExternalService);
+    // Initialize form if not already initialized
+    if (!component.entityForm) {
+      component.entityToEdit = component.empty();
+      component.postFetchData();
+    }
     fixture.detectChanges();
   });
 
@@ -73,18 +96,18 @@ describe('TaskGroupFormComponent', () => {
   });
 
   it('form invalid when empty', () => {
-    expect(component.formtaskGroup.valid).toBeFalsy();
+    expect(component.entityForm.valid).toBeFalsy();
   });
 
 
   it('form valid', () => {
-    component.formtaskGroup.patchValue({
+    component.entityForm.patchValue({
       name: 'name'
     })
-    expect(component.formtaskGroup.valid).toBeTruthy();
+    expect(component.entityForm.valid).toBeTruthy();
   });
 
   it('Task group form fields', () => {
-    expect(component.formtaskGroup.get('name')).toBeTruthy();
+    expect(component.entityForm.get('name')).toBeTruthy();
   });
 });

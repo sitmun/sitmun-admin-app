@@ -1,4 +1,4 @@
-import { HttpClientModule , HttpClient } from '@angular/common/http';
+import { HttpClientModule  } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
@@ -6,8 +6,9 @@ import { RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { of } from 'rxjs';
 
+import {EntityListComponent} from '@app/components/shared/entity-list/entity-list.component';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import {ExternalService, ResourceService} from '@app/core/hal';
 import { CartographyGroupService , CodeListService,TranslationService} from '@app/domain';
@@ -27,17 +28,16 @@ describe('LayersPermitsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ LayersPermitsComponent ],
+      declarations: [ LayersPermitsComponent, EntityListComponent ],
       imports : [HttpClientTestingModule,  HttpClientModule, SitmunFrontendGuiModule,
         RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule,
         TranslateModule.forRoot({
           loader: {
             provide: TranslateLoader,
-            useFactory: (http: HttpClient) => {
-              return new TranslateHttpLoader(http, './assets/i18n/', '.json');
-            },
-            deps: [HttpClient]
-            }
+            useFactory: () => ({
+              getTranslation: () => of({})
+            })
+          }
         })],
       providers: [CartographyGroupService, CodeListService,TranslationService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]

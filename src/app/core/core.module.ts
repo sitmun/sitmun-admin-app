@@ -17,7 +17,6 @@ import {FeatureFlagDirective} from './features/feature-flag.directive';
 import {FeatureFlagPipe} from './features/feature-flag.pipe';
 import {FeatureFlagService} from './features/feature-flag.service';
 import {CanDeactivateGuard} from './guards/can-deactivate-guard.service';
-// Interceptors
 import {AuthExpiredInterceptor} from './interceptors/auth-expired.interceptor';
 import {AuthInterceptor} from './interceptors/auth.interceptor';
 import {MessagesInterceptor} from './interceptors/messages.interceptor';

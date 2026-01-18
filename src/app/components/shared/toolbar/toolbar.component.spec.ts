@@ -5,6 +5,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { of } from 'rxjs';
+
 import { AccountService } from '@app/core/account/account.service';
 import { AuthService } from '@app/core/auth/auth.service';
 import { LoginService } from '@app/core/auth/login.service';
@@ -36,7 +39,15 @@ describe('ToolbarComponent', () => {
         HttpClientModule,
         RouterTestingModule,
         SitmunFrontendGuiModule,
-        MatIconTestingModule
+        MatIconTestingModule,
+        TranslateModule.forRoot({
+          loader: {
+            provide: TranslateLoader,
+            useFactory: () => ({
+              getTranslation: () => of({})
+            })
+          }
+        })
       ],
       providers: [
         LoginService,

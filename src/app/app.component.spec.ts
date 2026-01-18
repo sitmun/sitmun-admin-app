@@ -1,4 +1,4 @@
-import {HttpClient, HttpClientModule} from '@angular/common/http';
+import { HttpClientModule} from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
@@ -6,7 +6,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { of } from 'rxjs';
 
 import { SideMenuComponent } from '@app/components/shared/side-menu/side-menu.component';
 import { ToolbarComponent } from '@app/components/shared/toolbar/toolbar.component';
@@ -18,6 +18,8 @@ import { ExternalConfigurationService } from '@app/core/config/external-configur
 import { ExternalService, ResourceService } from '@app/core/hal/services';
 import { LanguageService } from '@app/domain';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/sitmun-frontend-gui.module';
+import { LoggerService } from '@app/services/logger.service';
+import { configureLoggerForTests } from '@app/testing/test-helpers';
 
 import { AppComponent } from './app.component';
 import { MaterialModule } from './material-module';
@@ -36,11 +38,10 @@ describe('AppComponent', () => {
         TranslateModule.forRoot({
           loader: {
             provide: TranslateLoader,
-            useFactory: (http: HttpClient) => {
-              return new TranslateHttpLoader(http, './assets/i18n/', '.json');
-            },
-            deps: [HttpClient]
-            }
+            useFactory: () => ({
+              getTranslation: () => of({})
+            })
+          }
         })
       ],
       declarations: [
@@ -59,6 +60,10 @@ describe('AppComponent', () => {
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
       ]
     }).compileComponents();
+    
+    // Suppress debug logs in tests to reduce console noise
+    const loggerService = TestBed.inject(LoggerService);
+    configureLoggerForTests(loggerService);
   });
 
   it('should create the app', () => {

@@ -1,5 +1,5 @@
 import {CommonModule,registerLocaleData} from '@angular/common';
-import {HttpClient, HttpClientModule} from '@angular/common/http';
+import {HttpClientModule} from '@angular/common/http';
 import localeCa from '@angular/common/locales/ca';
 import localeEs from '@angular/common/locales/es';
 import {
@@ -11,8 +11,7 @@ import {RouterModule, } from '@angular/router';
 
 //import * as ol from 'openlayers';
 import {AgGridModule} from '@ag-grid-community/angular';
-import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
-import {TranslateHttpLoader} from '@ngx-translate/http-loader';
+import {TranslateModule} from '@ngx-translate/core';
 import {NgxEchartsModule} from 'ngx-echarts';
 //import { AngularHalModule } from '@sitmun/frontend-core';
 
@@ -37,11 +36,6 @@ import {MaterialModule} from './material-module';
 registerLocaleData(localeCa, 'ca');
 registerLocaleData(localeEs, 'es');
 
-/** Load translation assets */
-export function createTranslateLoader(http: HttpClient) {
-  return new TranslateHttpLoader(http, '../assets/i18n/', '.json');
-}
-
 
 /** SITMUN plugin core module */
 @NgModule({
@@ -57,13 +51,7 @@ export function createTranslateLoader(http: HttpClient) {
     AgGridModule,
     // SitmunFrontendCoreModule,
     MaterialModule,
-    TranslateModule.forRoot({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: (createTranslateLoader),
-        deps: [HttpClient]
-      }
-    }),
+    TranslateModule,
     NgxEchartsModule.forRoot({
       echarts: () => import('echarts')
     })

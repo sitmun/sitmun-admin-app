@@ -6,7 +6,8 @@ import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/
 import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
+import { of } from 'rxjs';
 
 import { DialogTranslationComponent } from './dialog-translation.component';
 
@@ -22,7 +23,14 @@ describe('DialogTranslationComponent', () => {
         MatDialogModule,
         MatIconModule,
         NoopAnimationsModule,
-        TranslateModule.forRoot(),
+        TranslateModule.forRoot({
+          loader: {
+            provide: TranslateLoader,
+            useFactory: () => ({
+              getTranslation: () => of({})
+            })
+          }
+        }),
         ReactiveFormsModule,
         HttpClientTestingModule
       ],

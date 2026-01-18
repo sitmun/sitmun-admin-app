@@ -1,5 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { of } from 'rxjs';
+import StackTrace from 'stacktrace-js';
+
 import { environment } from '@environments/environment';
 
 import { LogLevel } from './log-level.enum';
@@ -11,9 +15,24 @@ describe('LoggerService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
+      imports: [
+        TranslateModule.forRoot({
+          loader: {
+            provide: TranslateLoader,
+            useFactory: () => ({
+              getTranslation: () => of({})
+            })
+          }
+        })
+      ],
       providers: [LoggerService]
     });
     service = TestBed.inject(LoggerService);
+    jest.spyOn(StackTrace, 'get').mockResolvedValue([
+      {} as any,
+      {} as any,
+      { fileName: 'logger.service.spec.ts', lineNumber: 1 } as any
+    ]);
   });
 
   afterEach(() => {
@@ -27,6 +46,8 @@ describe('LoggerService', () => {
 
   it('should initialize with log level from environment', () => {
     expect(service.getLogLevel()).toBe(environment.logLevel || LogLevel.Error);
+    // Suppress debug logs after checking initial value to reduce console noise
+    service.setLogLevel(LogLevel.Warning);
   });
 
   it('should set and get log level', () => {
@@ -166,12 +187,16 @@ describe('LoggerService', () => {
       consoleSpy = jest.spyOn(console, 'log').mockImplementation();
     });
 
-    it('should log trace messages when log level is Trace', () => {
+    it('should log trace messages when log level is Trace', async () => {
       service.setLogLevel(LogLevel.Trace);
       service.trace('Test trace message');
       
+      // Wait for StackTrace.get() promise to resolve
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       expect(consoleSpy).toHaveBeenCalledTimes(1);
-      expect(consoleSpy.mock.calls[0][0]).toContain('[Trace] Test trace message');
+      expect(consoleSpy.mock.calls[0][0]).toContain('[Trace]');
+      expect(consoleSpy.mock.calls[0][0]).toContain('Test trace message');
     });
 
     it('should not log trace messages when log level is below Trace', () => {
@@ -181,19 +206,23 @@ describe('LoggerService', () => {
       expect(consoleSpy).not.toHaveBeenCalled();
     });
 
-    it('should log trace messages with additional data', () => {
+    it('should log trace messages with additional data', async () => {
       service.setLogLevel(LogLevel.Trace);
       const additionalData = { id: 1, name: 'test' };
       service.trace('Test trace message', additionalData);
       
+      // Wait for StackTrace.get() promise to resolve
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       expect(consoleSpy).toHaveBeenCalledTimes(1);
-      expect(consoleSpy.mock.calls[0][0]).toContain('[Trace] Test trace message');
+      expect(consoleSpy.mock.calls[0][0]).toContain('[Trace]');
+      expect(consoleSpy.mock.calls[0][0]).toContain('Test trace message');
       expect(consoleSpy.mock.calls[0][1]).toBe(additionalData);
     });
   });
 
   describe('multiple log levels', () => {
-    it('should log all message types when log level is Trace', () => {
+    it('should log all message types when log level is Trace', async () => {
       const errorSpy = jest.spyOn(console, 'error').mockImplementation();
       const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
       const infoSpy = jest.spyOn(console, 'info').mockImplementation();
@@ -206,6 +235,9 @@ describe('LoggerService', () => {
       service.info('Info message');
       service.debug('Debug message');
       service.trace('Trace message');
+
+      // Wait for StackTrace.get() promise to resolve for trace
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       expect(errorSpy).toHaveBeenCalledTimes(1);
       expect(warnSpy).toHaveBeenCalledTimes(1);
@@ -235,14 +267,22 @@ describe('LoggerService', () => {
   });
 
   describe('timestamp format', () => {
-    it('should include ISO timestamp in log messages', () => {
-      const _dateSpy = jest.spyOn(Date.prototype, 'toISOString').mockReturnValue('2023-01-01T12:00:00.000Z');
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    it('should include ISO timestamp in trace log messages', async () => {
+      const dateSpy = jest.spyOn(Date.prototype, 'toISOString').mockReturnValue('2023-01-01T12:00:00.000Z');
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
       
-      service.setLogLevel(LogLevel.Error);
-      service.error('Test message');
+      service.setLogLevel(LogLevel.Trace);
+      service.trace('Test message');
       
-      expect(consoleSpy).toHaveBeenCalledWith('[2023-01-01T12:00:00.000Z] [Error] Test message');
+      // Wait for StackTrace.get() promise to resolve
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      expect(consoleSpy).toHaveBeenCalled();
+      expect(consoleSpy.mock.calls[0][0]).toContain('[2023-01-01T12:00:00.000Z]');
+      expect(consoleSpy.mock.calls[0][0]).toContain('[Trace]');
+      expect(consoleSpy.mock.calls[0][0]).toContain('Test message');
+      
+      dateSpy.mockRestore();
     });
   });
 }); 

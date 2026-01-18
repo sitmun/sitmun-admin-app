@@ -2,9 +2,14 @@ import {HttpClientTestingModule} from '@angular/common/http/testing';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatIconTestingModule} from '@angular/material/icon/testing';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {RouterModule} from '@angular/router';
 import {RouterTestingModule} from '@angular/router/testing';
 
+import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
+import {of} from 'rxjs';
+
+import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
 import {ExternalConfigurationService} from '@app/core/config/external-configuration.service';
 import {ExternalService, ResourceService} from '@app/core/hal';
 import {
@@ -24,6 +29,8 @@ import {
 } from '@app/domain';
 import {SitmunFrontendGuiModule} from '@app/frontend-gui/src/lib/public_api';
 import {MaterialModule} from '@app/material-module';
+import {LoggerService} from '@app/services/logger.service';
+import {configureLoggerForTests} from '@app/testing/test-helpers';
 
 import {TerritoryFormComponent} from './territory-form.component';
 
@@ -48,7 +55,7 @@ describe('TerritoryFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [TerritoryFormComponent],
+      declarations: [TerritoryFormComponent, FormToolbarComponent],
       imports: [
         FormsModule,
         ReactiveFormsModule,
@@ -58,6 +65,15 @@ describe('TerritoryFormComponent', () => {
         RouterModule.forRoot([], {}),
         MaterialModule,
         MatIconTestingModule,
+        BrowserAnimationsModule,
+        TranslateModule.forRoot({
+          loader: {
+            provide: TranslateLoader,
+            useFactory: () => ({
+              getTranslation: () => of({})
+            })
+          }
+        }),
       ],
       providers: [
         TerritoryService,
@@ -86,6 +102,9 @@ describe('TerritoryFormComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(TerritoryFormComponent);
     component = fixture.componentInstance;
+    // Suppress debug logs in tests to reduce console noise
+    const loggerService = TestBed.inject(LoggerService);
+    configureLoggerForTests(loggerService);
     roleService = TestBed.inject(RoleService);
     userService = TestBed.inject(UserService);
     territoryService = TestBed.inject(TerritoryService);
@@ -103,6 +122,13 @@ describe('TerritoryFormComponent', () => {
     translationService = TestBed.inject(TranslationService);
     resourceService = TestBed.inject(ResourceService);
     externalService = TestBed.inject(ExternalService);
+    // Initialize territoryTypes before postFetchData (normally done in preFetchData)
+    component.territoryTypes = [{ id: 1, name: 'Test Type', bottomType: true, topType: false } as any];
+    // Initialize form if not already initialized
+    if (!component.entityForm) {
+      component.entityToEdit = component.empty();
+      component.postFetchData();
+    }
     fixture.detectChanges();
   });
 
@@ -179,12 +205,11 @@ describe('TerritoryFormComponent', () => {
       code: 1,
       territorialAuthorityAddress: 'address',
       territorialAuthorityLogo: 'urlLogo',
-      type: 1,
+      typeId: 1,
       extentMinX: 1,
       extentMaxX: 2,
       extentMinY: 3,
       extentMaxY: 4,
-      extent: 12,
       note: 'observations',
       blocked: false,
       defaultZoomLevel: 2,
@@ -201,12 +226,11 @@ describe('TerritoryFormComponent', () => {
       name: 'name',
       territorialAuthorityAddress: 'address',
       territorialAuthorityLogo: 'urlLogo',
-      type: 1,
+      typeId: 1,
       extentMinX: 1,
       extentMaxX: 2,
       extentMinY: 3,
       extentMaxY: 4,
-      extent: 12,
       note: 'observations',
       blocked: false,
       defaultZoomLevel: 2,
@@ -226,12 +250,11 @@ describe('TerritoryFormComponent', () => {
     expect(
       component.entityForm.get('territorialAuthorityLogo')
     ).toBeTruthy();
-    expect(component.entityForm.get('type')).toBeTruthy();
+    expect(component.entityForm.get('typeId')).toBeTruthy();
     expect(component.entityForm.get('extentMinX')).toBeTruthy();
     expect(component.entityForm.get('extentMaxX')).toBeTruthy();
     expect(component.entityForm.get('extentMinY')).toBeTruthy();
     expect(component.entityForm.get('extentMaxY')).toBeTruthy();
-    expect(component.entityForm.get('extent')).toBeTruthy();
     expect(component.entityForm.get('note')).toBeTruthy();
     expect(component.entityForm.get('blocked')).toBeTruthy();
     expect(component.entityForm.get('defaultZoomLevel')).toBeTruthy();

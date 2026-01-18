@@ -1,22 +1,26 @@
 import {HttpClientModule} from '@angular/common/http';
 import {HttpClientTestingModule} from '@angular/common/http/testing';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatIconTestingModule} from '@angular/material/icon/testing';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {RouterModule} from '@angular/router';
 import {RouterTestingModule} from '@angular/router/testing';
 
+import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
+import {of} from 'rxjs';
+
+import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
 import {ExternalConfigurationService} from '@app/core/config/external-configuration.service';
 import {ExternalService, ResourceService} from '@app/core/hal';
 import {
   ApplicationBackgroundService, ApplicationParameterService, ApplicationService, BackgroundService,
-  CartographyGroupService, CodeListService, RoleService, TranslationService, TreeService
+  CartographyGroupService, CodeListService, RoleService, TranslationService, TreeService, UserService
 } from '@app/domain';
 import {SitmunFrontendGuiModule} from '@app/frontend-gui/src/lib/public_api';
 import {MaterialModule} from '@app/material-module';
-
-
+import {LoggerService} from '@app/services/logger.service';
+import {configureLoggerForTests} from '@app/testing/test-helpers';
 
 import {ApplicationFormComponent} from './application-form.component';
 
@@ -37,13 +41,20 @@ describe('ApplicationFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ApplicationFormComponent],
+      declarations: [ApplicationFormComponent, FormToolbarComponent],
       imports: [FormsModule, ReactiveFormsModule, HttpClientTestingModule, RouterModule.forRoot([], {}), HttpClientModule,
-        SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule],
+        SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule, BrowserAnimationsModule,
+        TranslateModule.forRoot({
+          loader: {
+            provide: TranslateLoader,
+            useFactory: () => ({
+              getTranslation: () => of({})
+            })
+          }
+        })],
       providers: [ApplicationService, ApplicationBackgroundService, RoleService, ApplicationParameterService, TreeService,
-        BackgroundService, CodeListService, CartographyGroupService, TranslationService, ResourceService, ExternalService,
-        {provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService},],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA]
+        BackgroundService, CodeListService, CartographyGroupService, TranslationService, ResourceService, ExternalService, UserService,
+        {provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService},]
     })
       .compileComponents();
   });
@@ -62,6 +73,23 @@ describe('ApplicationFormComponent', () => {
     translationService = TestBed.inject(TranslationService);
     resourceService = TestBed.inject(ResourceService);
     externalService = TestBed.inject(ExternalService);
+    // Suppress debug logs in tests to reduce console noise
+    const loggerService = TestBed.inject(LoggerService);
+    configureLoggerForTests(loggerService);
+    // Initialize form if not already initialized
+    // Mock the empty() method to avoid accessing protected situationMapList
+    if (!component.entityForm) {
+      const mockEmpty = jest.spyOn(component, 'empty');
+      mockEmpty.mockReturnValue({
+        id: -1,
+        type: null,
+        situationMap: null,
+        appPrivate: false
+      } as any);
+      component.entityToEdit = component.empty();
+      component.postFetchData();
+      mockEmpty.mockRestore();
+    }
     fixture.detectChanges();
   });
 
@@ -156,7 +184,7 @@ describe('ApplicationFormComponent', () => {
     expect(component.entityForm.get('accessParentTerritory')).toBeTruthy();
     expect(component.entityForm.get('accessChildrenTerritory')).toBeTruthy();
     expect(component.entityForm.get('theme')).toBeTruthy();
-    expect(component.entityForm.get('situationMap')).toBeTruthy();
+    expect(component.entityForm.get('situationMapId')).toBeTruthy();
     expect(component.entityForm.get('scales')).toBeTruthy();
     expect(component.entityForm.get('treeAutoRefresh')).toBeTruthy();
   });

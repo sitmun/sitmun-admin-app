@@ -222,7 +222,9 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    * @returns {void}
    */
   afterFetch(): void {
-    this.subscribeToFormChanges(this.entityForm)
+    if (this.entityForm) {
+      this.subscribeToFormChanges(this.entityForm)
+    }
   }
 
   /**

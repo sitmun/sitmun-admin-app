@@ -1,9 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import {ModuleWithProviders, NgModule} from '@angular/core';
 
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { TranslateModule } from '@ngx-translate/core';
 
 import {ExternalService, ResourceService} from '@app/core/hal';
 // Import services from feature folders
@@ -24,22 +22,11 @@ import { LanguageService , TranslationService } from '@app/domain/translation';
 import { TreeNodeService , TreeService } from '@app/domain/tree';
 import { UserConfigurationService , UserPositionService , UserService } from '@app/domain/user';
 
-/** load i18n assets*/
-export function createTranslateLoader(http: HttpClient) {
-  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
-}
-
 /** SITMUN domain module */
 @NgModule({
   imports: [
     CommonModule,
-    TranslateModule.forRoot({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: (createTranslateLoader),
-        deps: [HttpClient]
-      }
-    }),
+    TranslateModule,
   ],
   declarations: [
   ],

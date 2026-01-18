@@ -1,14 +1,16 @@
 import { HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 
-import { TranslateModule } from '@ngx-translate/core';
+import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
+import {of} from 'rxjs';
 
+import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import {ExternalService, ResourceService} from '@app/core/hal';
 import {
@@ -23,8 +25,8 @@ import {
 } from '@app/domain';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { MaterialModule } from '@app/material-module';
-
-
+import {LoggerService} from '@app/services/logger.service';
+import {configureLoggerForTests} from '@app/testing/test-helpers';
 
 import { BackgroundLayersFormComponent } from './background-layers-form.component';
 
@@ -46,12 +48,18 @@ describe('BackgroundLayersFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ BackgroundLayersFormComponent ],
+      declarations: [ BackgroundLayersFormComponent, FormToolbarComponent ],
       imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, RouterModule.forRoot([], {}), HttpClientModule,
-      SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule, TranslateModule.forRoot()],
+      SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule, TranslateModule.forRoot({
+        loader: {
+          provide: TranslateLoader,
+          useFactory: () => ({
+            getTranslation: () => of({})
+          })
+        }
+      }), BrowserAnimationsModule],
       providers: [BackgroundService, RoleService, ApplicationBackgroundService, ApplicationService, CartographyService, CodeListService,CartographyGroupService,TranslationService,ResourceService,ExternalService,
-        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }],
-      schemas: [NO_ERRORS_SCHEMA]
+        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }]
     })
     .compileComponents();
   });
@@ -59,6 +67,9 @@ describe('BackgroundLayersFormComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(BackgroundLayersFormComponent);
     component = fixture.componentInstance;
+    // Suppress debug logs in tests to reduce console noise
+    const loggerService = TestBed.inject(LoggerService);
+    configureLoggerForTests(loggerService);
     roleService= TestBed.inject(RoleService);
     cartographyService= TestBed.inject(CartographyService);
     codeListService= TestBed.inject(CodeListService);
@@ -69,6 +80,11 @@ describe('BackgroundLayersFormComponent', () => {
     translationService= TestBed.inject(TranslationService);
     resourceService= TestBed.inject(ResourceService);
     externalService= TestBed.inject(ExternalService);
+    // Initialize form if not already initialized
+    if (!component.entityForm) {
+      component.entityToEdit = component.empty();
+      component.postFetchData();
+    }
     fixture.detectChanges();
   });
 
