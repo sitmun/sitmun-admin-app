@@ -180,7 +180,17 @@ export abstract class Resource {
   public addRelation<T extends Resource>(relation: string, resource: T): Observable<any> {
     if (!(this._links === null || this._links === undefined) && !(this._links[relation] === null || this._links[relation] === undefined)) {
       const header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
-      return ResourceHelper.getHttp().post(ResourceHelper.getProxy(this._links[relation].href), resource._links.self.href, {headers: header});
+      const targetUrl = ResourceHelper.normalizeTemplatedUrl(
+        this._links[relation].href
+      );
+      const body = ResourceHelper.normalizeTemplatedUrl(
+        resource._links.self.href
+      );
+      return ResourceHelper.getHttp().post(
+        ResourceHelper.getProxy(targetUrl),
+        body,
+        {headers: header}
+      );
     } else {
       return throwError(() => new Error('no relation found'));
     }
@@ -191,7 +201,14 @@ export abstract class Resource {
       const template = utpl(this._links[relation].href);
       const url = template.fillFromObject({});
       const header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
-      return ResourceHelper.getHttp().post(ResourceHelper.getProxy(url), resource._links.self.href, {headers: header});
+      const body = ResourceHelper.normalizeTemplatedUrl(
+        resource._links.self.href
+      );
+      return ResourceHelper.getHttp().post(
+        ResourceHelper.getProxy(url),
+        body,
+        {headers: header}
+      );
     } else {
       return throwError(() => new Error('no relation found'));
     }
@@ -224,10 +241,17 @@ export abstract class Resource {
           params: remainingOptions
         });
       } else if (resource._links?.self?.href) {
-        return ResourceHelper.getHttp().put(ResourceHelper.getProxy(url), resource._links.self.href, {
-          headers: new HttpHeaders().set('Content-Type', 'text/uri-list'),
-          params: remainingOptions
-        });
+        const body = ResourceHelper.normalizeTemplatedUrl(
+          resource._links.self.href
+        );
+        return ResourceHelper.getHttp().put(
+          ResourceHelper.getProxy(url),
+          body,
+          {
+            headers: new HttpHeaders().set('Content-Type', 'text/uri-list'),
+            params: remainingOptions
+          }
+        );
       } else  {
         if (Resource.loggerService) {
           Resource.loggerService.error('No target found for', new Error(`No target found for relation ${relation}`), {
@@ -261,7 +285,17 @@ export abstract class Resource {
   public updateRelation<T extends Resource>(relation: string, resource: T): Observable<any> {
     if (!(this._links === null || this._links === undefined) && !(this._links[relation] === null || this._links[relation] === undefined)) {
       const header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
-      return ResourceHelper.getHttp().patch(ResourceHelper.getProxy(this._links[relation].href), resource._links.self.href, {headers: header});
+      const targetUrl = ResourceHelper.normalizeTemplatedUrl(
+        this._links[relation].href
+      );
+      const body = ResourceHelper.normalizeTemplatedUrl(
+        resource._links.self.href
+      );
+      return ResourceHelper.getHttp().patch(
+        ResourceHelper.getProxy(targetUrl),
+        body,
+        {headers: header}
+      );
     } else {
       return throwError(() => new Error('no relation found'));
     }
@@ -271,12 +305,13 @@ export abstract class Resource {
   public substituteRelation<T extends Resource>(relation: string, resource: T): Observable<any> {
     if (!(this._links === null || this._links === undefined) && !(this._links[relation] === null || this._links[relation] === undefined)) {
       const header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
-      let targetUrl = this._links[relation].href;
-      if (targetUrl.endsWith('{?projection}')) {
-        targetUrl = targetUrl.substring(0, targetUrl.indexOf('{?projection}'))
-      }
+      const targetUrl = ResourceHelper.normalizeTemplatedUrl(
+        this._links[relation].href
+      );
       const url = ResourceHelper.getProxy(targetUrl);
-      const body = resource._links.self.href;
+      const body = ResourceHelper.normalizeTemplatedUrl(
+        resource._links.self.href
+      );
       return ResourceHelper.getHttp().put(url, body, {headers: header});
     } else {
       return throwError(() => new Error('no relation found'));
@@ -286,10 +321,9 @@ export abstract class Resource {
   public substituteRelationById(relation: string, type: string, key: any): Observable<any> {
     if (!(this._links === null || this._links === undefined) && !(this._links[relation] === null || this._links[relation] === undefined)) {
       const header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
-      let targetUrl = this._links[relation].href;
-      if (targetUrl.endsWith('{?projection}')) {
-        targetUrl = targetUrl.substring(0, targetUrl.indexOf('{?projection}'))
-      }
+      const targetUrl = ResourceHelper.normalizeTemplatedUrl(
+        this._links[relation].href
+      );
       const url = ResourceHelper.getProxy(targetUrl);
       const body = type + "/" + key;
       if (Resource.loggerService) {
@@ -318,10 +352,13 @@ export abstract class Resource {
     }
 
     const resourceUrls = resources.map(resource => {
-      if (!resource?._links?.self?.href) {
+      const url = ResourceHelper.normalizeTemplatedUrl(
+        resource?._links?.self?.href
+      );
+      if (!url) {
         throw new Error('Invalid resource: missing self link');
       }
-      return resource._links.self.href;
+      return url;
     }).join('\n');
 
     const headers = new HttpHeaders().set('Content-Type', 'text/uri-list');
@@ -355,7 +392,9 @@ export abstract class Resource {
   /** Unbind the resource with the given relation from this resource*/
   public deleteRelation<T extends Resource>(relation: string, resource: T): Observable<any> {
     if (!(this._links === null || this._links === undefined) && !(resource._links === null || resource._links === undefined)) {
-      const link: string = resource._links['self'].href;
+      const link = ResourceHelper.normalizeTemplatedUrl(
+        resource._links['self'].href
+      );
       const idx: number = link.lastIndexOf('/') + 1;
 
       if (idx == -1)

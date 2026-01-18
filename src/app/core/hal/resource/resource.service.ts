@@ -297,7 +297,9 @@ export class ResourceService {
             return throwError(() => new Error('no self link found'));
         }
 
-        const uri = ResourceHelper.getProxy(entity._links.self.href);
+        const uri = ResourceHelper.getProxy(
+          ResourceHelper.normalizeTemplatedUrl(entity._links.self.href)
+        );
         const payload = ResourceHelper.resolveRelations(entity);
 
       const observable = ResourceHelper.getHttp().put(uri, payload, { headers: ResourceHelper.headers, observe: 'response' });
@@ -337,7 +339,11 @@ export class ResourceService {
      * @returns String containing URIs separated by newlines
      */
     private createUriList<T extends Resource>(resources: T[]): string {
-        return resources.map(resource => resource._links.self.href).join('\n');
+        return resources.map(resource => {
+          return ResourceHelper.normalizeTemplatedUrl(
+            resource._links.self.href
+          );
+        }).join('\n');
     }
 
     /**
@@ -355,7 +361,9 @@ export class ResourceService {
             return throwError(() => new Error('no self link found'));
         }
 
-        const uri = ResourceHelper.getProxy(entity._links.self.href);
+        const uri = ResourceHelper.getProxy(
+          ResourceHelper.normalizeTemplatedUrl(entity._links.self.href)
+        );
         const payload = ResourceHelper.resolveRelations(entity);
 
       const observable = ResourceHelper.getHttp().patch(uri, payload, {
@@ -376,7 +384,9 @@ export class ResourceService {
      */
     public delete<T extends Resource>(entity: T, entityType?: string, entityName?: string) {
         this.loggerService.trace("ResourceService.delete:", entity);
-        const uri = ResourceHelper.getProxy(entity._links.self.href);
+        const uri = ResourceHelper.getProxy(
+          ResourceHelper.normalizeTemplatedUrl(entity._links.self.href)
+        );
 
         // Create HTTP context to pass entity information for error handling
         const httpContext = new HttpContext();

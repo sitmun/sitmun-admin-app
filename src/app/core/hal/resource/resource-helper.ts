@@ -1,5 +1,7 @@
 import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 
+import utpl from 'uri-templates';
+
 import {ResourceArray} from './resource-array.model';
 import type {Resource} from './resource.model';
 import type {SubTypeBuilder} from '../common/subtype-builder';
@@ -53,19 +55,57 @@ export class ResourceHelper {
                 result[key] = null;
             } else  if (Array.isArray(resource[key])) {
               result[key] = resource[key].map((element) => {
-                if (element?._links?.self?.href) {
-                  return element?._links?.self?.href;
-                } else {
-                  return element;
+                const link = ResourceHelper.normalizeTemplatedUrl(
+                  element?._links?.self?.href
+                );
+                if (link) {
+                  return link;
                 }
+                return element;
               });
             } else if (resource[key]?._links?.self?.href) {
-              result[key] = resource[key]?._links?.self?.href;
+              result[key] = ResourceHelper.normalizeTemplatedUrl(
+                resource[key]?._links?.self?.href
+              );
             } else {
               result[key] = resource[key];
             }
         }
         return result as object;
+    }
+
+    /** normalize templated URLs (e.g., "{?projection}") */
+    static normalizeTemplatedUrl(url: string | undefined | null): string {
+        if (!url) {
+            return url as string;
+        }
+        const template = utpl(url);
+        return template.fillFromObject({});
+    }
+
+    /**
+     * Checks if a resource has a self link and can be updated.
+     * Use this instead of checking `resource._links != null` directly.
+     * @param resource The resource to check
+     * @returns true if resource has a self link
+     */
+    static canBeUpdated(resource: Resource | null | undefined): boolean {
+        return !!(resource?._links?.self?.href);
+    }
+
+    /**
+     * Gets the normalized self link href from a resource.
+     * Use this instead of accessing `resource._links.self.href` directly.
+     * @param resource The resource to get the self link from
+     * @returns Normalized self link href or null if not available
+     */
+    static getSelfHref(resource: Resource | null | undefined): string | null {
+        if (!resource?._links?.self?.href) {
+            return null;
+        }
+        return ResourceHelper.normalizeTemplatedUrl(
+            resource._links.self.href
+        );
     }
 
     /** create an empty resource from embedded data*/

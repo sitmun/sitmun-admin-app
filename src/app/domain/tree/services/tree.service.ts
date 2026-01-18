@@ -3,6 +3,7 @@ import { Injectable, Injector } from '@angular/core';
 
 import { Observable } from 'rxjs';
 
+import { ResourceHelper } from '@app/core/hal/resource/resource-helper';
 import { RestService } from '@app/core/hal/rest/rest.service';
 
 import { Tree } from '../models/tree.model';
@@ -32,14 +33,10 @@ export class TreeService extends RestService<Tree> {
 
   /** save tree*/
   save(item: Tree): Observable<any> {
-    let result: Observable<any>;
-    if (item._links != null) {
-
-      result = this.http.put(item._links.self.href, item);
-    } else {
-      result = this.http.post(this.resourceService.getResourceUrl(this.TREE_API), item);
+    if (ResourceHelper.canBeUpdated(item)) {
+      return this.update(item);
     }
-    return result;
+    return this.create(item);
   }
 
   /**

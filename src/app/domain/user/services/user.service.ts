@@ -1,8 +1,8 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
 
 import { Observable } from 'rxjs';
 
+import { ResourceHelper } from '@app/core/hal/resource/resource-helper';
 import { RestService } from '@app/core/hal/rest/rest.service';
 
 import { User } from '../models/user.model';
@@ -12,21 +12,18 @@ import { User } from '../models/user.model';
 export class UserService extends RestService<User> {
 
   /** API resource path */
-  public USER_API ='users';
+  public USER_API = 'users';
 
   /** constructor */
-  constructor(injector: Injector,private http: HttpClient) {
+  constructor(injector: Injector) {
     super(User, "users", injector);
   }
 
   /** save user*/
   save(item: any): Observable<any> {
-    let result: Observable<object>;
-    if (item._links!=null) {
-      result = this.http.put(item._links.self.href, item);
-    } else {
-      result = this.http.post(this.resourceService.getResourceUrl(this.USER_API) , item);
-    }
-    return result;
+    if (ResourceHelper.canBeUpdated(item)) {
+      return this.update(item);
+    } 
+    return this.create(item);
   }
 }

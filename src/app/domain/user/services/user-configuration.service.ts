@@ -1,8 +1,8 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
 
 import { Observable } from 'rxjs';
 
+import { ResourceHelper } from '@app/core/hal/resource/resource-helper';
 import { RestService } from '@app/core/hal/rest/rest.service';
 import { LoggerService } from '@app/services/logger.service';
 
@@ -16,7 +16,7 @@ export class UserConfigurationService extends RestService<UserConfiguration> {
   public USER_CONFIGURATION_API = 'user-configurations';
 
   /** constructor */
-  constructor(injector: Injector, private http: HttpClient, private loggerService: LoggerService) {
+  constructor(injector: Injector, private loggerService: LoggerService) {
     super(UserConfiguration, "user-configurations", injector);
   }
 
@@ -24,14 +24,14 @@ export class UserConfigurationService extends RestService<UserConfiguration> {
   save(item: any): Observable<any> {
     let result: Observable<object>;
     this.loggerService.info('Saving user configuration', item);
-    if (item._links != null) {
-      result = this.http.put(item._links.self.href, item);
+    if (ResourceHelper.canBeUpdated(item)) {
+      result = this.update(item);
     } else {
-      item.territory = item.territory._links.self.href;
-      item.role = item.role!=null?item.role._links.self.href:null;
-      item.user = item.user._links.self.href;
-      item.roleChildren = item.roleChildren!=null?item.roleChildren._links.self.href:null;
-      result = this.http.post(this.resourceService.getResourceUrl(this.USER_CONFIGURATION_API), item);
+      item.territory = ResourceHelper.getSelfHref(item.territory);
+      item.role = ResourceHelper.getSelfHref(item.role);
+      item.user = ResourceHelper.getSelfHref(item.user);
+      item.roleChildren = ResourceHelper.getSelfHref(item.roleChildren);
+      result = this.create(item);
     }
     return result;
   }

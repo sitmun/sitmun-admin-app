@@ -1,8 +1,8 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
 
 import { Observable } from 'rxjs';
 
+import { ResourceHelper } from '@app/core/hal/resource/resource-helper';
 import { RestService } from '@app/core/hal/rest/rest.service';
 
 import { Translation } from '../models/translation.model';
@@ -17,7 +17,7 @@ export class TranslationService extends RestService<Translation> {
   public TRANSLATION_API = 'translations';
 
   /** constructor */
-  constructor(injector: Injector,private http: HttpClient) {
+  constructor(injector: Injector) {
     super(Translation, "translations", injector);
   }
 
@@ -25,31 +25,11 @@ export class TranslationService extends RestService<Translation> {
   save(item: Translation): Observable<any> {
     let result: Observable<object>;
 
-    let language:any = {}
-    language._links = {};
-    language._links.self = {};
-    language._links.self.href = "";
-
-    if (item.language != null) {
-      language = item.language;
-      if (typeof item.language._links != 'undefined') {
-        item.language = item.language._links.self.href;
-      }
-    }
-
-    if (item._links!=null) {
+    if (ResourceHelper.canBeUpdated(item)) {
       delete item.language;
-      // if (language._links.self.href == '') {
-      //   item.deleteRelation('language', language).subscribe(result => {
-      //   }, error => console.error(error));
-
-      // } else {
-      //   item.substituteRelation('language', language).subscribe(result => {
-      //   }, error => console.error(error));
-      // }
-      result = this.http.put(item._links.self.href, item);
+      result = this.update(item);
     } else {
-      result = this.http.post(this.resourceService.getResourceUrl(this.TRANSLATION_API) , item);
+      result = this.create(item);
     }
     return result;
   }

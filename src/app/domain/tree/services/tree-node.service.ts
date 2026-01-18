@@ -1,7 +1,9 @@
 import { Injectable, Injector } from '@angular/core';
 
-import { Observable } from 'rxjs';
+import { forkJoin, Observable, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 
+import { ResourceHelper } from '@app/core/hal/resource/resource-helper';
 import { RestService } from '@app/core/hal/rest/rest.service';
 import { LoggerService } from '@app/services/logger.service';
 
@@ -19,22 +21,6 @@ export class TreeNodeService extends RestService<TreeNode> {
     super(TreeNode, "tree-nodes", injector);
   }
 
-  /** Create a new tree node
-   * Assumes tree, cartography, and task already exist and have _links
-   */
-  override create(item: TreeNode): Observable<any> {
-    if (item.tree) {
-      item.tree = item.tree._links.self.href;
-    }
-    if (item.cartography) {
-      item.cartography = item.cartography._links.self.href;
-    }
-    if (item.task) {
-      item.task = item.task._links.self.href;
-    }
-    return super.create(item);
-  }
-
   /** Update an existing tree node*/
   override update(item: TreeNode): Observable<any> {
     const itemTree = item.tree;
@@ -47,90 +33,136 @@ export class TreeNodeService extends RestService<TreeNode> {
     delete item.task;
     delete item.parent;
 
-    const result = super.update(item);
-    
-    if (itemTree != null) {
-      if (itemTree._links && itemTree._links.self) {
-        item.substituteRelation('tree', itemTree).subscribe({
-          // eslint-disable-next-line @typescript-eslint/no-empty-function
-          next: () => {},
-          error: error => this.loggerService.error('Error substituting tree relation:', error)
-        });
-      } else {
-        this.loggerService.warn('TreeNodeService.update - Tree relation does not have _links.self, skipping substitution', {
-          treeNodeId: item.id,
-          tree: itemTree
-        });
-      }
-    }
-    
-    if (itemCartography != null) {
-      if (itemCartography._links && itemCartography._links.self) {
-        item.substituteRelation('cartography', itemCartography).subscribe({
-          // eslint-disable-next-line @typescript-eslint/no-empty-function
-          next: () => {},
-          error: error => this.loggerService.error('Error substituting cartography relation:', error)
-        });
-      } else {
-        this.loggerService.warn('TreeNodeService.update - Cartography relation does not have _links.self, skipping substitution', {
-          treeNodeId: item.id,
-          cartography: itemCartography
-        });
-      }
-    }
-    
-    if (itemTask != null) {
-      if (itemTask._links && itemTask._links.self) {
-        item.substituteRelation('task', itemTask).subscribe({
-          // eslint-disable-next-line @typescript-eslint/no-empty-function
-          next: () => {},
-          error: error => this.loggerService.error('Error substituting task relation:', error)
-        });
-      } else {
-        this.loggerService.warn('TreeNodeService.update - Task relation does not have _links.self, skipping substitution', {
-          treeNodeId: item.id,
-          task: itemTask
-        });
-      }
-    }
-    
-    if (itemParent != null) {
-      if (itemParent._links && itemParent._links.self) {
-        item.substituteRelation('parent', itemParent).subscribe({
-          // eslint-disable-next-line @typescript-eslint/no-empty-function
-          next: () => {},
-          error: error => this.loggerService.error('Error substituting parent relation:', error)
-        });
-      } else {
-        this.loggerService.warn('TreeNodeService.update - Parent relation does not have _links.self, skipping substitution', {
-          treeNodeId: item.id,
-          parent: itemParent
-        });
-      }
-    } else {
-      const treeNodeParent: any = {
-        _links: {
-          self: {
-            href: ""
-          }
-        }
-      };
-      item.deleteRelation('parent', treeNodeParent).subscribe({
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        next: () => {},
-        error: error => this.loggerService.error('Error deleting parent relation:', error)
-      });
-    }
+    return super.update(item).pipe(
+      switchMap(updated =>
+        this.ensureRelationLinks(updated, ['tree', 'cartography', 'task', 'parent']).pipe(
+          switchMap(target => {
+            const relationOps = [
+              this.applyRelationUpdate(target, 'tree', itemTree, {
+                treeNodeId: updated.id,
+                tree: itemTree
+              }),
+              this.applyRelationUpdate(target, 'cartography', itemCartography, {
+                treeNodeId: updated.id,
+                cartography: itemCartography
+              }),
+              this.applyRelationUpdate(target, 'task', itemTask, {
+                treeNodeId: updated.id,
+                task: itemTask
+              }),
+              this.applyParentUpdate(target, itemParent)
+            ];
 
-    return result;
+            return forkJoin(relationOps).pipe(map(() => updated));
+          })
+        )
+      )
+    );
+  }
+
+  /**
+   * Ensures relation links are present before relation updates.
+   * If any requested relation link is missing, fetches the resource.
+   */
+  private ensureRelationLinks(
+    target: TreeNode,
+    relations: string[]
+  ): Observable<TreeNode> {
+    if (!target?.id) {
+      return of(target);
+    }
+    const missing = relations.some(relation => !target._links?.[relation]?.href);
+    if (!missing) {
+      return of(target);
+    }
+    return this.get(target.id).pipe(
+      catchError(error => {
+        this.loggerService.warn(
+          'TreeNodeService.update - Unable to load relation links, proceeding with available links',
+          { treeNodeId: target.id, error }
+        );
+        return of(target);
+      })
+    );
+  }
+
+  private applyRelationUpdate(
+    target: TreeNode,
+    relation: string,
+    resource: any,
+    context: Record<string, unknown>
+  ): Observable<unknown> {
+    if (!resource) {
+      return of(null);
+    }
+    if (!ResourceHelper.canBeUpdated(resource)) {
+      this.loggerService.warn(
+        `TreeNodeService.update - ${relation} relation does not have _links.self, skipping substitution`,
+        context
+      );
+      return of(null);
+    }
+    return target.substituteRelation(relation, resource).pipe(
+      catchError(error => {
+        this.loggerService.error(
+          `Error substituting ${relation} relation:`,
+          error
+        );
+        return of(null);
+      })
+    );
+  }
+
+  private applyParentUpdate(
+    target: TreeNode,
+    parent: any
+  ): Observable<unknown> {
+    if (parent == null) {
+      return target.updateRelationEx('parent', null).pipe(
+        catchError(error => {
+          this.loggerService.error(
+            'Error deleting parent relation:',
+            error
+          );
+          return of(null);
+        })
+      );
+    }
+    return this.applyRelationUpdate(target, 'parent', parent, {
+      treeNodeId: target.id,
+      parent: parent
+    });
   }
 
   /** Save tree node (routes to create or update)*/
   save(item: TreeNode): Observable<any> {
-    if (item._links != null) {
+    this.ensureSelfLink(item);
+    if (ResourceHelper.canBeUpdated(item)) {
       return this.update(item);
     } else {
       return this.create(item);
+    }
+  }
+
+  /** Deletes a tree node by id */
+  deleteById(id: number): Observable<any> {
+    const proxy = this.createProxy(id);
+    if (!proxy) {
+      return of(null);
+    }
+    return this.delete(proxy);
+  }
+
+  private ensureSelfLink(item: TreeNode): void {
+    if (ResourceHelper.canBeUpdated(item)) {
+      return;
+    }
+    if (item?.id == null || item.id < 0) {
+      return;
+    }
+    const proxy = this.createProxy(item.id);
+    if (proxy?._links) {
+      item._links = proxy._links;
     }
   }
 

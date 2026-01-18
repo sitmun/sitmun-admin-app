@@ -11,6 +11,7 @@ import {firstValueFrom, Observable, of, Subject} from 'rxjs';
 import {map} from 'rxjs/operators';
 
 import {HalOptions, HalParam} from '@app/core';
+import {ResourceHelper} from '@app/core/hal/resource/resource-helper';
 import {
   CapabilitiesService,
   CartographyProjection,
@@ -704,7 +705,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       viewMode: new UntypedFormControl(null, []),
       filterable: new UntypedFormControl(null, []),
       active: new UntypedFormControl(true, []),
-      _links: new UntypedFormControl(null, []),
       children: new UntypedFormControl(null, []),
       parent: new UntypedFormControl(null, []),
       isFolder: new UntypedFormControl(null, []),
@@ -857,7 +857,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       datasetURL: node.datasetURL,
       metadataURL: node.metadataURL,
       active: node.active !== null && node.active !== undefined ? node.active : true,
-      _links: node._links,
       children: node.children,
       parent: node.parent,
       isFolder: node.isFolder,
@@ -1719,6 +1718,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       });
       const treeNodeObj: TreeNode = new TreeNode();
 
+      treeNodeObj.id = treeNode.id;
       treeNodeObj.name = treeNode.name;
       // Convert sentinel back to null when saving
       treeNodeObj.type = treeNode.nodeType === this.NULL_SENTINEL ? null : treeNode.nodeType;
@@ -1745,7 +1745,10 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       treeNodeObj.filterable = treeNode.filterable;
       treeNodeObj.mapping = treeNode.mapping;
 
-      if (treeNode.status === "pendingCreation" && treeNode._links && !treeNode.isFolder && (!treeNode.cartographyId || !treeNode.taskId)) {
+      if (treeNode.status === "pendingCreation"
+          && ResourceHelper.canBeUpdated(treeNode)
+          && !treeNode.isFolder
+          && (!treeNode.cartographyId || !treeNode.taskId)) {
         const cartographyProjection = await firstValueFrom(
           treeNode.getRelationEx(CartographyProjection, 'cartography', {projection: 'view'})
         ) as CartographyProjection | null;
@@ -1755,9 +1758,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
         treeNodeObj.cartography = cartographyProjection ? this.cartographyService.createProxy(cartographyProjection.id) : null;
         treeNodeObj.task = taskProjection ? this.taskService.createProxy(taskProjection.id) : null;
       } else {
-        if (treeNode.status !== "pendingCreation") {
-          treeNodeObj._links = treeNode._links;
-        }
         if (treeNode.cartographyId) {
           treeNodeObj.cartography = this.cartographyService.createProxy(treeNode.cartographyId);
         }
@@ -1791,17 +1791,9 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
 
           if (currentParent !== undefined) {
             if (treeNode.status === "pendingCreation" && currentParent != null) {
-              treeNodeObj.parent = currentParent._links.self.href;
+              treeNodeObj.parent = currentParent;
             } else if (treeNode.status === "Modified" && currentParent != null) {
               treeNodeObj.parent = currentParent;
-            }
-
-            if (treeNodeObj._links) {
-              treeNodeObj._links.cartography.href = treeNodeObj._links.cartography.href.split("{")[0];
-              treeNodeObj._links.parent.href = treeNodeObj._links.parent.href.split("{")[0];
-              treeNodeObj._links.treeNode.href = treeNodeObj._links.treeNode.href.split("{")[0];
-              treeNodeObj.tree._links.allNodes.href = treeNodeObj.tree._links.allNodes.href.split("{")[0];
-              treeNodeObj._links.task.href = treeNodeObj._links.task.href.split("{")[0];
             }
 
             this.loggerService.debug('TreeNodesComponent.updateAllTreeNodes - Saving TreeNode', {
@@ -1809,7 +1801,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
               nodeName: treeNodeObj.name,
               nodeType: treeNodeObj.type,
               status: treeNode.status,
-              hasLinks: !!treeNodeObj._links,
+              hasSelfLink: ResourceHelper.canBeUpdated(treeNodeObj),
               treeNodeObj: {
                 id: treeNodeObj.id,
                 name: treeNodeObj.name,
@@ -1878,17 +1870,13 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
 
     // Process deletions after all updates/creates, in depth order (children first)
     for (const treeNode of nodesToDelete) {
-      const treeNodeObj: TreeNode = new TreeNode();
-      treeNodeObj._links = treeNode._links;
-      treeNodeObj.id = treeNode.id;
-      
       this.loggerService.debug('TreeNodesComponent.updateAllTreeNodes - Deleting node', {
         nodeId: treeNode.id,
         nodeName: treeNode.name,
         depth: this.calculateNodeDepth(treeNode, treesNodesToUpdate)
       });
-      
-      await this.treeNodeService.delete(treeNodeObj).toPromise();
+
+      await this.treeNodeService.deleteById(treeNode.id).toPromise();
     }
 
     await Promise.all(promises);
