@@ -11,7 +11,7 @@ export const environment = {
   // This is the external URL of the backend server for local testing
   apiBaseURL: 'http://localhost:8080',
   logLevel: LogLevel.Info, // Set to Info for local testing (less verbose than debug)
-  version: '1.1.0',
+  version: '1.2.0-rc.1',
   buildTimestamp: new Date().toISOString(),
   environmentName: 'localtest'
 };

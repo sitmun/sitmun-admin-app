@@ -1,8 +1,7 @@
 # SITMUN Administration Application
 
-![Build Status](https://github.com/sitmun/sitmun-admin-app/workflows/CI/badge.svg)
-[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=org.sitmun%3Asitmun-admin-app&metric=alert_status)](https://sonarcloud.io/dashboard?id=org.sitmun%3Asitmun-admin-app)
 [![License: EUPL v1.2](https://img.shields.io/badge/License-EUPL%20v1.2-blue.svg)](LICENSE)
+![Version](https://img.shields.io/badge/version-1.2.0--rc.1-blue.svg)
 
 The **SITMUN Administration Application** is the official web-based frontend for managing the SITMUN geospatial application platform. Built with TypeScript and Angular 16, it provides a comprehensive administrative interface for the [SITMUN Backend Core](https://github.com/sitmun/sitmun-backend-core) REST API.
 
@@ -140,8 +139,9 @@ The application supports multiple environment configurations:
 | **Default**         | `environment.ts`                | `http://localhost:8080`                     | Debug     | false      |
 | **Development**     | `environment.development.ts`    | `http://localhost:9000/backend`             | Debug     | false      |
 | **Local Test**      | `environment.localtest.ts`      | `http://localhost:8080`                     | Info      | false      |
-| **Test Deployment** | `environment.testdeployment.ts` | `https://sitmun-backend-core.herokuapp.com` | Info      | false      |
 | **Production**      | `environment.prod.ts`           | `http://localhost:8080`                     | Error     | true       |
+
+Use these URLs as defaults. Replace them with your backend endpoints, and rely on Angular file replacements in `angular.json` to select the active environment.
 
 ### Environment Variables
 
@@ -152,6 +152,9 @@ export const environment = {
   production: boolean,           // Production mode flag
   apiBaseURL: string,           // Backend API base URL
   logLevel: LogLevel,           // Application log level (Debug, Info, Error)
+  version: string,              // Application version string
+  buildTimestamp: string,       // Build time in ISO-8601 format
+  environmentName: string,      // Environment label (development, localtest, etc.)
 };
 ```
 
@@ -298,6 +301,8 @@ npm test -- --testNamePattern="UserComponent"
 
 ### Docker Deployment
 
+Example `Dockerfile` for a production build:
+
 ```dockerfile
 # Multi-stage build
 FROM node:16-alpine AS builder
@@ -309,7 +314,6 @@ RUN npm run build -- --configuration=production
 
 FROM nginx:alpine
 COPY --from=builder /app/dist/admin-app /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/nginx.conf
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 ```
@@ -347,50 +351,46 @@ The application integrates with the [SITMUN Backend Core](https://github.com/sit
 
 #### Authentication Endpoints
 
-```typescript
-// Login
-POST / api / authenticate
+```text
+# Login
+POST /api/authenticate
 {
-  "username"
-:
-  "admin",
-    "password"
-:
-  "password"
+  "username": "admin",
+  "password": "password"
 }
 
-// Get current user account
-GET / api / account
-Authorization: Bearer < jwt - token >
+# Get current user account
+GET /api/account
+Authorization: Bearer <jwt-token>
 
-// Logout
-POST / api / logout
+# Logout
+POST /api/logout
 ```
 
 #### Core API Endpoints
 
-```typescript
-// Applications
-GET / api / applications
-POST / api / applications
-PUT / api / applications / {id}
-DELETE / api / applications / {id}
+```text
+# Applications
+GET /api/applications
+POST /api/applications
+PUT /api/applications/{id}
+DELETE /api/applications/{id}
 
-// Users and Roles
-GET / api / users
-GET / api / roles
-POST / api / users
+# Users and Roles
+GET /api/users
+GET /api/roles
+POST /api/users
 
-// Territories
-GET / api / territories
-POST / api / territories
+# Territories
+GET /api/territories
+POST /api/territories
 
-// Services and Connections
-GET / api / services
-GET / api / connections
+# Services and Connections
+GET /api/services
+GET /api/connections
 
-// Health Check
-GET / api / dashboard / health
+# Health Check
+GET /api/dashboard/health
 ```
 
 #### API Client Configuration
