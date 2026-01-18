@@ -27,18 +27,18 @@ export class UserPositionService  extends RestService<UserPosition> {
     if (item._links!=null) {
       result = this.http.put(item._links.self.href, item);
       if (item.user !=null){
-          item.substituteRelation('user',item.user).subscribe(
+          item.substituteRelation('user',item.user).subscribe({
             // eslint-disable-next-line @typescript-eslint/no-empty-function
-            _result => {},
-            error => this.loggerService.error('Error substituting user relation:', error)
-          );
+            next: _result => {},
+            error: error => this.loggerService.error('Error substituting user relation:', error)
+          });
       }
       if (item.territory !=null){
-          item.substituteRelation('territory',item.territory).subscribe(
+          item.substituteRelation('territory',item.territory).subscribe({
             // eslint-disable-next-line @typescript-eslint/no-empty-function
-            _result => {},
-            error => this.loggerService.error('Error substituting territory relation:', error)
-          );
+            next: _result => {},
+            error: error => this.loggerService.error('Error substituting territory relation:', error)
+          });
       }
     } else {
       item.territory = item.territory._links.self.href;

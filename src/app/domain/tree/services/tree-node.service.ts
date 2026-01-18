@@ -51,11 +51,11 @@ export class TreeNodeService extends RestService<TreeNode> {
     
     if (itemTree != null) {
       if (itemTree._links && itemTree._links.self) {
-        item.substituteRelation('tree', itemTree).subscribe(
+        item.substituteRelation('tree', itemTree).subscribe({
           // eslint-disable-next-line @typescript-eslint/no-empty-function
-          () => {},
-          error => this.loggerService.error('Error substituting tree relation:', error)
-        );
+          next: () => {},
+          error: error => this.loggerService.error('Error substituting tree relation:', error)
+        });
       } else {
         this.loggerService.warn('TreeNodeService.update - Tree relation does not have _links.self, skipping substitution', {
           treeNodeId: item.id,
@@ -66,11 +66,11 @@ export class TreeNodeService extends RestService<TreeNode> {
     
     if (itemCartography != null) {
       if (itemCartography._links && itemCartography._links.self) {
-        item.substituteRelation('cartography', itemCartography).subscribe(
+        item.substituteRelation('cartography', itemCartography).subscribe({
           // eslint-disable-next-line @typescript-eslint/no-empty-function
-          () => {},
-          error => this.loggerService.error('Error substituting cartography relation:', error)
-        );
+          next: () => {},
+          error: error => this.loggerService.error('Error substituting cartography relation:', error)
+        });
       } else {
         this.loggerService.warn('TreeNodeService.update - Cartography relation does not have _links.self, skipping substitution', {
           treeNodeId: item.id,
@@ -81,11 +81,11 @@ export class TreeNodeService extends RestService<TreeNode> {
     
     if (itemTask != null) {
       if (itemTask._links && itemTask._links.self) {
-        item.substituteRelation('task', itemTask).subscribe(
+        item.substituteRelation('task', itemTask).subscribe({
           // eslint-disable-next-line @typescript-eslint/no-empty-function
-          () => {},
-          error => this.loggerService.error('Error substituting task relation:', error)
-        );
+          next: () => {},
+          error: error => this.loggerService.error('Error substituting task relation:', error)
+        });
       } else {
         this.loggerService.warn('TreeNodeService.update - Task relation does not have _links.self, skipping substitution', {
           treeNodeId: item.id,
@@ -96,11 +96,11 @@ export class TreeNodeService extends RestService<TreeNode> {
     
     if (itemParent != null) {
       if (itemParent._links && itemParent._links.self) {
-        item.substituteRelation('parent', itemParent).subscribe(
+        item.substituteRelation('parent', itemParent).subscribe({
           // eslint-disable-next-line @typescript-eslint/no-empty-function
-          () => {},
-          error => this.loggerService.error('Error substituting parent relation:', error)
-        );
+          next: () => {},
+          error: error => this.loggerService.error('Error substituting parent relation:', error)
+        });
       } else {
         this.loggerService.warn('TreeNodeService.update - Parent relation does not have _links.self, skipping substitution', {
           treeNodeId: item.id,
@@ -115,11 +115,11 @@ export class TreeNodeService extends RestService<TreeNode> {
           }
         }
       };
-      item.deleteRelation('parent', treeNodeParent).subscribe(
+      item.deleteRelation('parent', treeNodeParent).subscribe({
         // eslint-disable-next-line @typescript-eslint/no-empty-function
-        () => {},
-        error => this.loggerService.error('Error deleting parent relation:', error)
-      );
+        next: () => {},
+        error: error => this.loggerService.error('Error deleting parent relation:', error)
+      });
     }
 
     return result;

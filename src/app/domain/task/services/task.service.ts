@@ -31,18 +31,18 @@ export class TaskService extends RestService<Task> {
                 service._links = {};
                 service._links.self = {};
                 service._links.self.href = "";
-                item.deleteRelation('service', service).subscribe(
+                item.deleteRelation('service', service).subscribe({
                     // eslint-disable-next-line @typescript-eslint/no-empty-function
-                    _result => {},
-                    error => this.loggerService.error('Error deleting service relation:', error)
-                );
+                    next: _result => {},
+                    error: error => this.loggerService.error('Error deleting service relation:', error)
+                });
             } else {
                 item.service._links.self.href = item.service._links.self.href.split("{")[0]
-                item.substituteRelation('service', item.service).subscribe(
+                item.substituteRelation('service', item.service).subscribe({
                     // eslint-disable-next-line @typescript-eslint/no-empty-function
-                    _result => {},
-                    error => this.loggerService.error('Error substituting service relation:', error)
-                );
+                    next: _result => {},
+                    error: error => this.loggerService.error('Error substituting service relation:', error)
+                });
                 item.service = item.service._links.self.href
             }
             if (!item.cartography) {
@@ -50,18 +50,18 @@ export class TaskService extends RestService<Task> {
                 cartography._links = {};
                 cartography._links.self = {};
                 cartography._links.self.href = "";
-                item.deleteRelation('cartography', cartography).subscribe(
+                item.deleteRelation('cartography', cartography).subscribe({
                     // eslint-disable-next-line @typescript-eslint/no-empty-function
-                    _result => {},
-                    error => this.loggerService.error('Error deleting cartography relation:', error)
-                );
+                    next: _result => {},
+                    error: error => this.loggerService.error('Error deleting cartography relation:', error)
+                });
             } else {
                 item.cartography._links.self.href = item.cartography._links.self.href.split("{")[0]
-                item.substituteRelation('cartography', item.cartography).subscribe(
+                item.substituteRelation('cartography', item.cartography).subscribe({
                     // eslint-disable-next-line @typescript-eslint/no-empty-function
-                    _result => {},
-                    error => this.loggerService.error('Error substituting cartography relation:', error)
-                );
+                    next: _result => {},
+                    error: error => this.loggerService.error('Error substituting cartography relation:', error)
+                });
                 item.cartography = item.cartography._links.self.href
             }
 
@@ -70,18 +70,18 @@ export class TaskService extends RestService<Task> {
                 connection._links = {};
                 connection._links.self = {};
                 connection._links.self.href = "";
-                item.deleteRelation('connection', connection).subscribe(
+                item.deleteRelation('connection', connection).subscribe({
                     // eslint-disable-next-line @typescript-eslint/no-empty-function
-                    _result => {},
-                    error => this.loggerService.error('Error deleting connection relation:', error)
-                );
+                    next: _result => {},
+                    error: error => this.loggerService.error('Error deleting connection relation:', error)
+                });
             } else {
                 item.connection._links.self.href = item.connection._links.self.href.split("{")[0]
-                item.substituteRelation('connection', item.connection).subscribe(
+                item.substituteRelation('connection', item.connection).subscribe({
                     // eslint-disable-next-line @typescript-eslint/no-empty-function
-                    _result => {},
-                    error => this.loggerService.error('Error substituting connection relation:', error)
-                );
+                    next: _result => {},
+                    error: error => this.loggerService.error('Error substituting connection relation:', error)
+                });
                 item.connection = item.connection._links.self.href
             }
 
@@ -91,11 +91,11 @@ export class TaskService extends RestService<Task> {
             } else {
                 item.ui._links.self.href = item.ui._links.self.href.split("{")[0]
                 this.loggerService.debug("Save task: UI link", item.ui._links.self.href);
-                item.substituteRelation('ui', item.ui).subscribe(
+                item.substituteRelation('ui', item.ui).subscribe({
                     // eslint-disable-next-line @typescript-eslint/no-empty-function
-                    _result => {},
-                    error => this.loggerService.error('Error substituting UI relation:', error)
-                );
+                    next: _result => {},
+                    error: error => this.loggerService.error('Error substituting UI relation:', error)
+                });
                 item.ui = item.ui._links.self.href
             }
 
@@ -124,11 +124,11 @@ export class TaskService extends RestService<Task> {
                 if (item.roles) {
                   const roles = [...item.roles];
                     delete item.roles;
-                    item.substituteAllRelation('roles', roles).subscribe(
+                    item.substituteAllRelation('roles', roles).subscribe({
                         // eslint-disable-next-line @typescript-eslint/no-empty-function
-                        _result => {},
-                        error => this.loggerService.error('Error substituting all roles relation:', error)
-                    );
+                        next: _result => {},
+                        error: error => this.loggerService.error('Error substituting all roles relation:', error)
+                    });
                 }
 
                 result = this.http.put(item._links.self.href, item);
