@@ -1,5 +1,4 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestBed, inject } from '@angular/core/testing';
 
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
@@ -32,8 +31,7 @@ describe('AccountService', () => {
         ExternalService,
         LoggerService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }
-      ],
-      schemas: [NO_ERRORS_SCHEMA]
+      ]
     });
     
     // Suppress debug logs in tests to reduce console noise

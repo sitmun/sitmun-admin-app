@@ -1,4 +1,3 @@
-import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {FormGroup, ReactiveFormsModule} from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -42,8 +41,7 @@ describe('DialogFormComponent', () => {
         } },
         { provide: MAT_DIALOG_DATA, useValue: {} },
         TranslateService
-      ],
-      schemas: [NO_ERRORS_SCHEMA]
+      ]
     })
     .compileComponents();
   });

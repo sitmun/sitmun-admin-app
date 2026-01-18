@@ -1,6 +1,5 @@
 import { HttpClientModule} from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -64,8 +63,7 @@ describe('DashboardComponent', () => {
           }
         })],
       providers: [DashboardService,TranslationService,CodeListService,ResourceService,ExternalService,UtilsService,
-        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ],
-      schemas: [NO_ERRORS_SCHEMA]
+        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();
   });

@@ -1,6 +1,5 @@
 import { HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -8,6 +7,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
+import { SystemInfoMenuComponent } from '@app/components/shared/system-info-menu/system-info-menu.component';
 import { AccountService } from '@app/core/account/account.service';
 import { AuthService } from '@app/core/auth/auth.service';
 import { LoginService } from '@app/core/auth/login.service';
@@ -32,7 +32,7 @@ describe('ToolbarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ToolbarComponent ],
+      declarations: [ ToolbarComponent, SystemInfoMenuComponent ],
       imports: [
         MaterialModule,
         HttpClientTestingModule,
@@ -57,8 +57,7 @@ describe('ToolbarComponent', () => {
         ResourceService,
         ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }
-      ],
-      schemas: [NO_ERRORS_SCHEMA]
+      ]
     })
     .compileComponents();
   });

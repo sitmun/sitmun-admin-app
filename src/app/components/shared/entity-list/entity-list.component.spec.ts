@@ -1,11 +1,11 @@
-import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { of , firstValueFrom, Observable, toArray } from 'rxjs';
 
-
 import { Resource } from '@app/core';
+import { DataGridComponent } from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
+import { MaterialModule } from '@app/material-module';
 
 import { EntityListComponent, EntityListConfig } from './entity-list.component';
 
@@ -23,6 +23,8 @@ describe('EntityListComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [EntityListComponent],
       imports: [
+        MaterialModule,
+        DataGridComponent,
         TranslateModule.forRoot({
           loader: {
             provide: TranslateLoader,
@@ -31,8 +33,7 @@ describe('EntityListComponent', () => {
             })
           }
         })
-      ],
-      schemas: [NO_ERRORS_SCHEMA]
+      ]
     })
     .compileComponents();
 

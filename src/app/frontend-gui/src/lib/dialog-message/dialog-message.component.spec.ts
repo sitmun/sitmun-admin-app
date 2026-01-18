@@ -1,6 +1,8 @@
-import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { MatButtonModule } from '@angular/material/button';
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -17,6 +19,9 @@ describe('DialogMessageComponent', () => {
       declarations: [ DialogMessageComponent ],
       imports: [
         MatDialogModule,
+        MatButtonModule,
+        MatIconModule,
+        MatTooltipModule,
         NoopAnimationsModule,
         TranslateModule.forRoot({
           loader: {
@@ -34,8 +39,7 @@ describe('DialogMessageComponent', () => {
         } },
         { provide: MAT_DIALOG_DATA, useValue: {} },
         TranslateService
-      ],
-      schemas: [NO_ERRORS_SCHEMA]
+      ]
     })
     .compileComponents();
   }));
