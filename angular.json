@@ -67,46 +67,19 @@
                 }
               ]
             },
-            "testdeployment": {
+            "docker-dev": {
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.testdeployment.ts"
-                }
-              ],
-              "optimization": true,
-              "outputHashing": "all",
-              "sourceMap": false,
-              "namedChunks": false,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "10mb",
-                  "maximumError": "15mb"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "20kb",
-                  "maximumError": "25kb"
-                }
-              ]
-            },
-            "development": {
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.development.ts"
+                  "with": "src/environments/environment.prod.ts"
                 }
               ],
               "optimization": false,
               "outputHashing": "all",
               "sourceMap": true,
-              "namedChunks": false,
-              "extractLicenses": true,
-              "vendorChunk": false,
+              "namedChunks": true,
+              "extractLicenses": false,
+              "vendorChunk": true,
               "buildOptimizer": false,
               "budgets": [
                 {
@@ -121,19 +94,13 @@
                 }
               ]
             },
-            "localtest": {
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.localtest.ts"
-                }
-              ],
+            "development": {
               "optimization": false,
               "outputHashing": "all",
               "sourceMap": true,
-              "namedChunks": false,
-              "extractLicenses": true,
-              "vendorChunk": false,
+              "namedChunks": true,
+              "extractLicenses": false,
+              "vendorChunk": true,
               "buildOptimizer": false,
               "budgets": [
                 {
@@ -158,14 +125,11 @@
             "production": {
               "browserTarget": "admin-app:build:production"
             },
-            "testdeployment": {
-              "browserTarget": "admin-app:build:testdeployment"
+            "docker-dev": {
+              "browserTarget": "admin-app:build:docker-dev"
             },
             "development": {
               "browserTarget": "admin-app:build:development"
-            },
-            "localtest": {
-              "browserTarget": "admin-app:build:localtest"
             }
           },
           "defaultConfiguration": "development"

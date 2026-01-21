@@ -132,16 +132,23 @@ npx serve -s dist/admin-app -l 4200
 
 ### Environment Configuration
 
-The application supports multiple environment configurations:
+The application supports three build configurations:
 
-| Environment         | File                            | API Base URL                                | Log Level | Production |
-|---------------------|---------------------------------|---------------------------------------------|-----------|------------|
-| **Default**         | `environment.ts`                | `http://localhost:8080`                     | Debug     | false      |
-| **Development**     | `environment.development.ts`    | `http://localhost:9000/backend`             | Debug     | false      |
-| **Local Test**      | `environment.localtest.ts`      | `http://localhost:8080`                     | Info      | false      |
-| **Production**      | `environment.prod.ts`           | `http://localhost:8080`                     | Error     | true       |
+| Configuration | Use Case | API URL | Source Maps | Production |
+|---------------|----------|---------|-------------|------------|
+| **development** | Local `ng serve` | `http://localhost:9000/backend` | Yes | false |
+| **docker-dev** | Docker debugging | Template-based (`${PUBLIC_BASE_PATH}backend`) | Yes | false |
+| **production** | Docker production | Template-based (`${PUBLIC_BASE_PATH}backend`) | No | true |
 
-Use these URLs as defaults. Replace them with your backend endpoints, and rely on Angular file replacements in `angular.json` to select the active environment.
+#### Environment Files
+
+```
+src/environments/
+├── environment.ts        # Local development (default)
+└── environment.prod.ts   # Production/Docker builds
+```
+
+The `docker-dev` and `production` configurations both use `environment.prod.ts`, which is generated from `environment.prod.ts.template` during Docker builds via `envsubst`.
 
 ### Environment Variables
 
@@ -160,23 +167,32 @@ export const environment = {
 
 ### Build Configuration
 
-Build for specific environments:
+Build for specific configurations:
 
 ```bash
-# Development with Application Stack
+# Local development (uses environment.ts)
+npm start
+# Or explicitly:
 npm run build -- --configuration=development
 
-# Local testing
-npm run build -- --configuration=localtest
+# Docker debugging (uses environment.prod.ts, with source maps)
+npm run build -- --configuration=docker-dev
 
-# Test deployment
-npm run build -- --configuration=testdeployment
-
-# Production build
+# Production build (uses environment.prod.ts, optimized)
 npm run build -- --configuration=production
 
 # Production build with custom base href
-npm run build -- --configuration=production --baseHref=/admin/
+npm run build -- --configuration=production --base-href=/admin/
+```
+
+For Docker builds, use the parent stack's docker-compose:
+
+```bash
+# Production Docker build (default)
+docker compose build front
+
+# Docker build with source maps for debugging
+BUILD_MODE=docker-dev docker compose build front
 ```
 
 ### Application Configuration
@@ -193,12 +209,8 @@ Key configuration files:
 ### Development Server
 
 ```bash
-# Start development server
+# Start development server (uses environment.ts)
 npm start
-
-# Start with specific configuration
-npm run build -- --configuration=development
-ng serve --configuration=development
 
 # Start with custom port
 ng serve --port 4300

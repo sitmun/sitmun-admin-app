@@ -1,23 +1,13 @@
-// This file can be replaced during build by using the `fileReplacements` array.
-// `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
-// The list of file replacements can be found in `angular.json`.
+// Development environment configuration.
+// Uses the local docker-compose stack backend URL.
 
 import { LogLevel } from '@app/services/log-level.enum';
 
 export const environment = {
   production: false,
-  apiBaseURL: 'http://localhost:8080',
-  logLevel: LogLevel.Debug, // Set to Debug for development
+  apiBaseURL: 'http://localhost:9000/backend',
+  logLevel: LogLevel.Debug,
   version: '1.2.0-rc.1',
   buildTimestamp: new Date().toISOString(),
   environmentName: 'development'
 };
-
-/*
- * For easier debugging in development mode, you can import the following file
- * to ignore zone related error stack frames such as `zone.run`, `zoneDelegate.invokeTask`.
- *
- * This import should be commented out in production mode because it will have a negative impact
- * on performance if an error is thrown.
- */
-// import 'zone.js/dist/zone-error';  // Included with Angular CLI.
