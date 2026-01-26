@@ -7,8 +7,8 @@ import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {RouterModule} from '@angular/router';
 
-import { TranslateLoader, TranslateModule, TranslateService} from '@ngx-translate/core';
-import {TranslateHttpLoader} from '@ngx-translate/http-loader';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import {firstValueFrom} from 'rxjs';
 
 import {ApplicationFormComponent} from '@app/components/application/application-form/application-form.component';
@@ -305,13 +305,7 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
         RouterModule,
         HalModule.forRoot(),
         TranslateModule.forRoot({
-            loader: {
-                provide: TranslateLoader,
-                useFactory: (http: HttpClient) => {
-                    return new TranslateHttpLoader(http, './assets/i18n/', '.json');
-                },
-                deps: [HttpClient]
-            }
+            loader: provideTranslateHttpLoader({ prefix: './assets/i18n/', suffix: '.json' })
         }),
         APP_ROUTING,
         BrowserAnimationsModule,
