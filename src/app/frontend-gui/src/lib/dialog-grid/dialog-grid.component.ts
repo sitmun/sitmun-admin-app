@@ -147,22 +147,21 @@ export async function openDialogGridWithPreload(
 }
 
 @Component({
-  selector: 'app-dialog-grid',
-  templateUrl: './dialog-grid.component.html',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatCardModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatTabsModule,
-    MatTooltipModule,
-    TranslateModule,
-    DataGridComponent
-  ],
-  styles: [`
+    selector: 'app-dialog-grid',
+    templateUrl: './dialog-grid.component.html',
+    imports: [
+        CommonModule,
+        MatDialogModule,
+        MatButtonModule,
+        MatCardModule,
+        MatIconModule,
+        MatProgressSpinnerModule,
+        MatTabsModule,
+        MatTooltipModule,
+        TranslateModule,
+        DataGridComponent
+    ],
+    styles: [`
     :host {
       display: block;
     }

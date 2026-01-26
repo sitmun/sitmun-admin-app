@@ -7,18 +7,17 @@ import {MatExpansionModule} from '@angular/material/expansion';
 import {TranslateModule} from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-warnings-panel',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatExpansionModule,
-    MatDividerModule,
-    MatBadgeModule,
-    TranslateModule,
-  ],
-  templateUrl: './warnings-panel.component.html',
-  styleUrls: ['./warnings-panel.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-warnings-panel',
+    imports: [
+        CommonModule,
+        MatExpansionModule,
+        MatDividerModule,
+        MatBadgeModule,
+        TranslateModule,
+    ],
+    templateUrl: './warnings-panel.component.html',
+    styleUrls: ['./warnings-panel.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WarningsPanelComponent {
   @Input() warnings: string[] | null = [];

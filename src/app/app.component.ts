@@ -15,9 +15,10 @@ import {AppStateService} from './services/app-state.service';
 
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styles: []
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styles: [],
+    standalone: false
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'admin-app';

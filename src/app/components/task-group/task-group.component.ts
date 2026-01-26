@@ -15,9 +15,10 @@ import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 
 @Component({
-  selector: 'app-task-group',
-  templateUrl: './task-group.component.html',
-  styles: [],
+    selector: 'app-task-group',
+    templateUrl: './task-group.component.html',
+    styles: [],
+    standalone: false
 })
 export class TaskGroupComponent extends BaseListComponent<TaskGroup> {
   entityListConfig: EntityListConfig<TaskGroup> = {

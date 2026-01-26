@@ -1,7 +1,8 @@
 import {Directive, ElementRef, HostListener, Input, OnInit} from '@angular/core';
 
 @Directive({
-  selector: '[appUrlInput]'
+    selector: '[appUrlInput]',
+    standalone: false
 })
 export class UrlInputDirective implements OnInit {
   @Input() appUrlInput = '';

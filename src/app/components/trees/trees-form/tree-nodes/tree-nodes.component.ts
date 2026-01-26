@@ -47,9 +47,10 @@ import {constants} from '@environments/constants';
  * Handles displaying, creating, editing, and saving tree nodes.
  */
 @Component({
-  selector: 'app-tree-nodes',
-  templateUrl: './tree-nodes.component.html',
-  styleUrls: ['./tree-nodes.component.scss']
+    selector: 'app-tree-nodes',
+    templateUrl: './tree-nodes.component.html',
+    styleUrls: ['./tree-nodes.component.scss'],
+    standalone: false
 })
 export class TreeNodesComponent implements OnInit, OnDestroy {
   @Input() tree: Tree;

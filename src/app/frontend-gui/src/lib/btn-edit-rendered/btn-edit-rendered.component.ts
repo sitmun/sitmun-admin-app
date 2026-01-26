@@ -4,9 +4,10 @@ import { ICellRendererAngularComp } from '@ag-grid-community/angular';
 
 
 @Component({
-  selector: 'app-btn-edit-rendered',
-  templateUrl: './btn-edit-rendered.component.html',
-  styles: []
+    selector: 'app-btn-edit-rendered',
+    templateUrl: './btn-edit-rendered.component.html',
+    styles: [],
+    standalone: false
 })
 export class BtnEditRenderedComponent implements ICellRendererAngularComp, OnDestroy {
 

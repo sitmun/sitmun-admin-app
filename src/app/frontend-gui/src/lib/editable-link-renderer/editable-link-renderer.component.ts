@@ -8,8 +8,8 @@ import { ICellRendererAngularComp } from '@ag-grid-community/angular';
  * The link is clickable but the text can also be edited.
  */
 @Component({
-  selector: 'app-editable-link-renderer',
-  template: `
+    selector: 'app-editable-link-renderer',
+    template: `
     <div class="editable-link-container">
       <a *ngIf="!isEditing" 
          [href]="params.value" 
@@ -22,7 +22,7 @@ import { ICellRendererAngularComp } from '@ag-grid-community/angular';
       <span *ngIf="isEditing">{{ params.value }}</span>
     </div>
   `,
-  styles: [`
+    styles: [`
     .editable-link-container {
       width: 100%;
       height: 100%;
@@ -43,8 +43,7 @@ import { ICellRendererAngularComp } from '@ag-grid-community/angular';
       text-decoration: underline;
     }
   `],
-  standalone: true,
-  imports: [NgIf]
+    imports: [NgIf]
 })
 export class EditableLinkRendererComponent implements ICellRendererAngularComp {
   /** AG Grid cell renderer parameters */

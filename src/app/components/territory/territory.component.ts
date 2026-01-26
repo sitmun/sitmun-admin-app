@@ -23,9 +23,10 @@ import {UtilsService} from '@app/services/utils.service';
 
 
 @Component({
-  selector: 'app-territory',
-  templateUrl: './territory.component.html',
-  styles: []
+    selector: 'app-territory',
+    templateUrl: './territory.component.html',
+    styles: [],
+    standalone: false
 })
 export class TerritoryComponent extends BaseListComponent<Territory> {
   territoryTypes: TerritoryType[] = [];

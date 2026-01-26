@@ -6,9 +6,10 @@ import {Translation} from '@app/domain';
 import {AppConfigService} from '@app/services/app-config.service';
 
 @Component({
-  selector: 'app-dialog-translation',
-  templateUrl: './dialog-translation.component.html',
-  styleUrls: ['./dialog-translation.component.scss']
+    selector: 'app-dialog-translation',
+    templateUrl: './dialog-translation.component.html',
+    styleUrls: ['./dialog-translation.component.scss'],
+    standalone: false
 })
 export class DialogTranslationComponent implements OnInit {
 

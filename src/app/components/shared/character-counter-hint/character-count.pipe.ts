@@ -20,8 +20,9 @@ import { AbstractControl, FormControl } from '@angular/forms';
  * <span>{{ formControl | characterCount }}</span>
  */
 @Pipe({
-  name: 'characterCount',
-  pure: false
+    name: 'characterCount',
+    pure: false,
+    standalone: false
 })
 export class CharacterCountPipe implements PipeTransform {
   /**

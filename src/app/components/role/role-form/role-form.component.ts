@@ -36,9 +36,10 @@ import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 
 @Component({
-  selector: 'app-role-form',
-  templateUrl: './role-form.component.html',
-  styles: []
+    selector: 'app-role-form',
+    templateUrl: './role-form.component.html',
+    styles: [],
+    standalone: false
 })
 export class RoleFormComponent extends BaseFormComponent<Role> {
   readonly config = Configuration.ROLE;

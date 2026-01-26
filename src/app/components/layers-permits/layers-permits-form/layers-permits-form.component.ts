@@ -32,9 +32,10 @@ import {constants} from '@environments/constants';
 
 
 @Component({
-  selector: 'app-layers-permits-form',
-  templateUrl: './layers-permits-form.component.html',
-  styles: [],
+    selector: 'app-layers-permits-form',
+    templateUrl: './layers-permits-form.component.html',
+    styles: [],
+    standalone: false
 })
 /**
  * Form component for managing layer permissions (cartography groups).

@@ -181,25 +181,24 @@ export class Executor<T> {
  * ```
  */
 @Component({
-  selector: 'app-data-grid',
-  templateUrl: './data-grid.component.html',
-  styles: [],
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatButtonModule,
-    MatTooltipModule,
-    MatDialogModule,
-    MatToolbarModule,
-    MatMenuModule,
-    MatIconModule,
-    MatInputModule,
-    TranslateModule,
-    AgGridModule,
-    MatButtonToggleModule,
-    MatCardModule,
-    FormsModule,
-  ]
+    selector: 'app-data-grid',
+    templateUrl: './data-grid.component.html',
+    styles: [],
+    imports: [
+        CommonModule,
+        MatButtonModule,
+        MatTooltipModule,
+        MatDialogModule,
+        MatToolbarModule,
+        MatMenuModule,
+        MatIconModule,
+        MatInputModule,
+        TranslateModule,
+        AgGridModule,
+        MatButtonToggleModule,
+        MatCardModule,
+        FormsModule,
+    ]
 })
 export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   /** Tracks if this is the first time loading data */

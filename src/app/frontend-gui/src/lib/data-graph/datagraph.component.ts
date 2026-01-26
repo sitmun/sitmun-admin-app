@@ -10,9 +10,10 @@ type DataPoint = { index: string; value: number };
  * interactive data visualization
  */
 @Component({
-  selector: 'app-datagraph',
-  templateUrl: './datagraph.component.html',
-  styleUrls: ['./datagraph.component.scss']
+    selector: 'app-datagraph',
+    templateUrl: './datagraph.component.html',
+    styleUrls: ['./datagraph.component.scss'],
+    standalone: false
 })
 export class DatagraphComponent implements OnInit, OnChanges {
 

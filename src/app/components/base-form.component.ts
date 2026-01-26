@@ -36,7 +36,10 @@ import {constants} from "@environments/constants";
  *
  * @template T Type of the resource entity being managed, must extend the Resource base class
  */
-@Component({ template: '' })
+@Component({
+    template: '',
+    standalone: false
+})
 export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewInit, OnDestroy {
 
   /**

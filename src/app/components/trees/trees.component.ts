@@ -15,9 +15,10 @@ import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 
 @Component({
-  selector: 'app-trees',
-  templateUrl: './trees.component.html',
-  styles: [],
+    selector: 'app-trees',
+    templateUrl: './trees.component.html',
+    styles: [],
+    standalone: false
 })
 export class TreesComponent extends BaseListComponent<Tree> {
   entityListConfig: EntityListConfig<Tree> = {

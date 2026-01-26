@@ -8,7 +8,10 @@ import {ConfigurationService} from './configuration.service';
  * from the Configuration. This class centralizes form properties
  * and makes it easy for components to access their specific configuration.
  */
-@Component({template: ''})
+@Component({
+    template: '',
+    standalone: false
+})
 export abstract class BaseConfigurationComponent implements OnInit {
 
   /**

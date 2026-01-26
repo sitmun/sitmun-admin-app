@@ -4,9 +4,10 @@ import {UntypedFormGroup} from '@angular/forms';
 import {TranslateService} from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-form-toolbar',
-  templateUrl: './form-toolbar.component.html',
-  styleUrls: ['./form-toolbar.component.scss']
+    selector: 'app-form-toolbar',
+    templateUrl: './form-toolbar.component.html',
+    styleUrls: ['./form-toolbar.component.scss'],
+    standalone: false
 })
 export class FormToolbarComponent {
   @Input() font = '';

@@ -16,9 +16,10 @@ import {UtilsService} from '@app/services/utils.service';
 import {constants} from '@environments/constants';
 
 @Component({
-  selector: 'app-layers-permits',
-  templateUrl: './layers-permits.component.html',
-  styles: [],
+    selector: 'app-layers-permits',
+    templateUrl: './layers-permits.component.html',
+    styles: [],
+    standalone: false
 })
 export class LayersPermitsComponent extends BaseListComponent<CartographyGroup> {
   override dataFetchFn = () => this.cartographyGroupService.getAll().pipe(

@@ -15,7 +15,8 @@ import { Principal } from '@app/core/auth/principal.service';
  * ```
  */
 @Directive({
-  selector: '[appHasAnyAuthority]'
+    selector: '[appHasAnyAuthority]',
+    standalone: false
 })
 export class HasAnyAuthorityDirective implements OnInit {
   /** authorities to check */

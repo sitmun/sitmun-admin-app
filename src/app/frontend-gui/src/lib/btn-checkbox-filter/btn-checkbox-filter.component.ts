@@ -7,9 +7,10 @@ import {
 
 
 @Component({
-  selector: 'app-btn-checkbox-filter',
-  templateUrl: './btn-checkbox-filter.component.html',
-  styles: []
+    selector: 'app-btn-checkbox-filter',
+    templateUrl: './btn-checkbox-filter.component.html',
+    styles: [],
+    standalone: false
 })
 export class BtnCheckboxFilterComponent implements IFloatingFilterAngularComp  {
   @HostBinding('class') hostClass = 'hostClass';

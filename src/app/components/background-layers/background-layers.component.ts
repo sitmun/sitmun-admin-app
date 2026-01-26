@@ -15,9 +15,10 @@ import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 
 @Component({
-  selector: 'app-background-layers',
-  templateUrl: './background-layers.component.html',
-  styles: []
+    selector: 'app-background-layers',
+    templateUrl: './background-layers.component.html',
+    styles: [],
+    standalone: false
 })
 export class BackgroundLayersComponent extends BaseListComponent<Background> {
   entityListConfig: EntityListConfig<Background> = {

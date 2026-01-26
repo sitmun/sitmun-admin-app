@@ -82,8 +82,9 @@ import {constants} from "@environments/constants";
  * TODO: remove the linked cartography group when the background is deleted if this is not already done by the backend
  */
 @Component({
-  selector: 'app-background-layers-form',
-  templateUrl: './background-layers-form.component.html',
+    selector: 'app-background-layers-form',
+    templateUrl: './background-layers-form.component.html',
+    standalone: false
 })
 export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundProjection> {
   readonly config = Configuration.BACKGROUND_LAYER;

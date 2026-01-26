@@ -15,9 +15,10 @@ import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 
 @Component({
-  selector: 'app-connection',
-  templateUrl: './connection.component.html',
-  styles: [],
+    selector: 'app-connection',
+    templateUrl: './connection.component.html',
+    styles: [],
+    standalone: false
 })
 export class ConnectionComponent extends BaseListComponent<Connection> {
   entityListConfig: EntityListConfig<Connection> = {

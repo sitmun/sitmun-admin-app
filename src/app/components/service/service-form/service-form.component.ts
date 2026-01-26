@@ -96,9 +96,10 @@ import {constants} from '@environments/constants';
  * { path: 'service/:id/serviceForm/:idDuplicate', component: ServiceFormComponent }
  */
 @Component({
-  selector: 'app-service-form',
-  templateUrl: './service-form.component.html',
-  styles: []
+    selector: 'app-service-form',
+    templateUrl: './service-form.component.html',
+    styles: [],
+    standalone: false
 })
 export class ServiceFormComponent extends BaseFormComponent<Service> implements OnInit, OnDestroy {
 

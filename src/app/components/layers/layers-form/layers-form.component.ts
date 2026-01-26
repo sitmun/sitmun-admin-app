@@ -54,9 +54,10 @@ import {constants} from '@environments/constants';
 
 
 @Component({
-  selector: 'app-layers-form',
-  templateUrl: './layers-form.component.html',
-  styles: []
+    selector: 'app-layers-form',
+    templateUrl: './layers-form.component.html',
+    styles: [],
+    standalone: false
 })
 export class LayersFormComponent extends BaseFormComponent<CartographyProjection> {
   readonly config = Configuration.LAYER;

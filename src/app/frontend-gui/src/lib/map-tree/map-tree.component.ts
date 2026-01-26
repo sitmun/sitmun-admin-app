@@ -26,9 +26,10 @@ export class TreeNode {
  * @title Tree with flat nodes
  */
 @Component({
-  selector: 'app-map-tree',
-  templateUrl: 'map-tree.component.html',
-  styleUrls: ['map-tree.component.scss']
+    selector: 'app-map-tree',
+    templateUrl: 'map-tree.component.html',
+    styleUrls: ['map-tree.component.scss'],
+    standalone: false
 })
 export class MapTreeComponent implements OnInit {
   @Output() emitNode: EventEmitter<any>;
