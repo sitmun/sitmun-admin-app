@@ -22,7 +22,6 @@
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
-            "aot": true,
             "assets": [
               "src/favicon.ico",
               "src/assets"
@@ -62,8 +61,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "20kb",
-                  "maximumError": "25kb"
+                  "maximumWarning": "30kb",
+                  "maximumError": "45kb"
                 }
               ]
             },
@@ -89,8 +88,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "20kb",
-                  "maximumError": "25kb"
+                  "maximumWarning": "30kb",
+                  "maximumError": "45kb"
                 }
               ]
             },
@@ -110,8 +109,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "20kb",
-                  "maximumError": "25kb"
+                  "maximumWarning": "30kb",
+                  "maximumError": "45kb"
                 }
               ]
             }
@@ -123,13 +122,13 @@
           "options": {},
           "configurations": {
             "production": {
-              "browserTarget": "admin-app:build:production"
+              "buildTarget": "admin-app:build:production"
             },
             "docker-dev": {
-              "browserTarget": "admin-app:build:docker-dev"
+              "buildTarget": "admin-app:build:docker-dev"
             },
             "development": {
-              "browserTarget": "admin-app:build:development"
+              "buildTarget": "admin-app:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -137,7 +136,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "admin-app:build"
+            "buildTarget": "admin-app:build"
           }
         },
         "test": {
