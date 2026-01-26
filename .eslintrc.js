@@ -91,7 +91,9 @@ module.exports = {
         // Additional helpful rules
         "import/first": "error",              // Imports must come first
         "import/newline-after-import": "error", // Blank line after imports
-        "import/no-duplicates": "error"       // Merge duplicate imports
+        "import/no-duplicates": "error",      // Merge duplicate imports
+        // NgModule-based; standalone migration deferred per plan
+        "@angular-eslint/prefer-standalone": "off"
         }
     },
     {
