@@ -1,5 +1,5 @@
 import {Location} from '@angular/common';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import {Component, Injectable, Injector, NgZone} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 

@@ -1,5 +1,5 @@
 import {CommonModule,registerLocaleData} from '@angular/common';
-import {HttpClientModule} from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import localeCa from '@angular/common/locales/ca';
 import localeEs from '@angular/common/locales/es';
 import {
@@ -38,60 +38,53 @@ registerLocaleData(localeEs, 'es');
 
 
 /** SITMUN plugin core module */
-@NgModule({
-  imports: [
-    RouterModule,
-    HttpClientModule,
-    CommonModule,
-    FormsModule,
-    NoopAnimationsModule,
-    //AngularHalModule,
-    ReactiveFormsModule,
-    BrowserAnimationsModule,
-    AgGridModule,
-    // SitmunFrontendCoreModule,
-    MaterialModule,
-    TranslateModule,
-    NgxEchartsModule.forRoot({
-      echarts: () => import('echarts')
-    })
-    // NOTE: DataGridComponent and DialogGridComponent NOT imported here to avoid circular dependency
-    // They're standalone and imported directly in AppModule and components that need them
-  ],
-  declarations: [
-    DataTreeComponent,
-    BtnEditRenderedComponent,
-    BtnCheckboxRenderedComponent,
-    BtnCheckboxFilterComponent,
-    DialogFormComponent,
-    DialogMessageComponent,
-    DialogTranslationComponent,
-    DatagraphComponent,
-    MapTreeComponent,
-    CharacterCountPipe,
-    FormValidationBannerComponent,
-  ],
-  providers: [],
-  exports: [
-    HttpClientModule,
-    CommonModule,
-    FormsModule,
-    NoopAnimationsModule,
-    //AngularHalModule,
-    TranslateModule,
-    ReactiveFormsModule,
-    NgxEchartsModule,
-    DataTreeComponent,
-    DialogFormComponent,
-    DialogMessageComponent,
-    DialogTranslationComponent,
-    DatagraphComponent,
-    // SitmunFrontendCoreModule
-    MapTreeComponent,
-    CharacterCountPipe,
-    FormValidationBannerComponent,
-    // DataGridComponent and DialogGridComponent are standalone and should be imported directly where needed
-  ]
-})
+@NgModule({ declarations: [
+        DataTreeComponent,
+        BtnEditRenderedComponent,
+        BtnCheckboxRenderedComponent,
+        BtnCheckboxFilterComponent,
+        DialogFormComponent,
+        DialogMessageComponent,
+        DialogTranslationComponent,
+        DatagraphComponent,
+        MapTreeComponent,
+        CharacterCountPipe,
+        FormValidationBannerComponent,
+    ],
+    exports: [
+        CommonModule,
+        FormsModule,
+        NoopAnimationsModule,
+        //AngularHalModule,
+        TranslateModule,
+        ReactiveFormsModule,
+        NgxEchartsModule,
+        DataTreeComponent,
+        DialogFormComponent,
+        DialogMessageComponent,
+        DialogTranslationComponent,
+        DatagraphComponent,
+        // SitmunFrontendCoreModule
+        MapTreeComponent,
+        CharacterCountPipe,
+        FormValidationBannerComponent,
+        // DataGridComponent and DialogGridComponent are standalone and should be imported directly where needed
+    ], imports: [RouterModule,
+        CommonModule,
+        FormsModule,
+        NoopAnimationsModule,
+        //AngularHalModule,
+        ReactiveFormsModule,
+        BrowserAnimationsModule,
+        AgGridModule,
+        // SitmunFrontendCoreModule,
+        MaterialModule,
+        TranslateModule,
+        NgxEchartsModule.forRoot({
+            echarts: () => import('echarts')
+        })
+        // NOTE: DataGridComponent and DialogGridComponent NOT imported here to avoid circular dependency
+        // They're standalone and imported directly in AppModule and components that need them
+    ], providers: [provideHttpClient(withInterceptorsFromDi())] })
 export class SitmunFrontendGuiModule {
 }

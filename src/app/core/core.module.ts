@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import {ModuleWithProviders, NgModule, Optional, SkipSelf} from '@angular/core';
 import {MatIconModule} from '@angular/material/icon';
 import {RouterModule} from '@angular/router';
@@ -23,29 +23,23 @@ import {MessagesInterceptor} from './interceptors/messages.interceptor';
 
 // SITMUN configuration services
 
-@NgModule({
-  imports: [
-    CommonModule,
-    HttpClientModule,
-    RouterModule,
-    MatIconModule,
-    ConfigModule.forRoot()
-  ],
-  declarations: [
-    HasAnyAuthorityDirective,
-    HasAnyAuthorityOnTerritoryDirective,
-    FeatureFlagDirective,
-    FeatureFlagPipe,
-    FeatureFlagComponent
-  ],
-  exports: [
-    HasAnyAuthorityDirective,
-    HasAnyAuthorityOnTerritoryDirective,
-    FeatureFlagDirective,
-    FeatureFlagPipe,
-    FeatureFlagComponent
-  ]
-})
+@NgModule({ declarations: [
+        HasAnyAuthorityDirective,
+        HasAnyAuthorityOnTerritoryDirective,
+        FeatureFlagDirective,
+        FeatureFlagPipe,
+        FeatureFlagComponent
+    ],
+    exports: [
+        HasAnyAuthorityDirective,
+        HasAnyAuthorityOnTerritoryDirective,
+        FeatureFlagDirective,
+        FeatureFlagPipe,
+        FeatureFlagComponent
+    ], imports: [CommonModule,
+        RouterModule,
+        MatIconModule,
+        ConfigModule.forRoot()], providers: [provideHttpClient(withInterceptorsFromDi())] })
 export class CoreModule {
   constructor(@Optional() @SkipSelf() parentModule?: CoreModule) {
     if (parentModule) {
