@@ -736,10 +736,8 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   initializeFieldsConfigForm() {
     const outputGroup = {};
     this.nodeOutputsControls.forEach(f => {
-      let booleanCalculated = false;
-      let defaultValue = null;
-      f.key.includes('Label') ? booleanCalculated = true : booleanCalculated = false;
-      f.key.includes('Label') ? defaultValue = 'Extra info' : defaultValue = null;
+      const booleanCalculated = f.key.includes('Label');
+      const defaultValue = f.key.includes('Label') ? 'Extra info' : null;
       outputGroup[f.key] = new UntypedFormGroup({
         value: new UntypedFormControl(defaultValue, []),
         calculated: new UntypedFormControl(booleanCalculated, []),
@@ -2297,7 +2295,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     try {
       JSON.parse(text);
       return true;
-    } catch (e) {
+    } catch (_) {
       return false;
     }
   }

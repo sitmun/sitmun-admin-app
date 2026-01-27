@@ -16,7 +16,7 @@ export class GlobalErrorHandler implements ErrorHandler {
     try {
       this.errorTrackingService = this.injector.get(ErrorTrackingService, null);
       this.loggerService = this.injector.get(LoggerService, null);
-    } catch (e) {
+    } catch (_) {
       // Services not available yet
     }
   }
@@ -26,14 +26,14 @@ export class GlobalErrorHandler implements ErrorHandler {
     if (!this.errorTrackingService) {
       try {
         this.errorTrackingService = this.injector.get(ErrorTrackingService);
-      } catch (e) {
+      } catch (_) {
         // Service not available
       }
     }
     if (!this.loggerService) {
       try {
         this.loggerService = this.injector.get(LoggerService);
-      } catch (e) {
+      } catch (_) {
         // Service not available
       }
     }

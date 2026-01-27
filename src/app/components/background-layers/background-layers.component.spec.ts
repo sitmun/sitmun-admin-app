@@ -1,8 +1,8 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { RouterModule } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideRouter, RouterModule } from '@angular/router';
 
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {of} from 'rxjs';
@@ -16,9 +16,6 @@ import { MaterialModule } from '@app/material-module';
 
 import { BackgroundLayersComponent } from './background-layers.component';
 
-
-
-
 describe('BackgroundLayersComponent', () => {
   let component: BackgroundLayersComponent;
   let fixture: ComponentFixture<BackgroundLayersComponent>;
@@ -26,11 +23,12 @@ describe('BackgroundLayersComponent', () => {
   let codeListService: CodeListService;
   let resourceService: ResourceService;
   let externalService: ExternalService;
+  let httpMock: HttpTestingController;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ BackgroundLayersComponent, EntityListComponent ],
-      imports : [HttpClientTestingModule, SitmunFrontendGuiModule, MatIconTestingModule, RouterTestingModule, MaterialModule, RouterModule,
+      imports : [SitmunFrontendGuiModule, MatIconTestingModule, MaterialModule, RouterModule,
         TranslateModule.forRoot({
           loader: {
             provide: TranslateLoader,
@@ -40,20 +38,33 @@ describe('BackgroundLayersComponent', () => {
           }
         })],
       providers: [BackgroundService,CodeListService,ResourceService,ExternalService,
-        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
+        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+      ]
     })
     .compileComponents();
   });
 
-
-  beforeEach(() => {
+  beforeEach(async () => {
+    httpMock = TestBed.inject(HttpTestingController);
     fixture = TestBed.createComponent(BackgroundLayersComponent);
     component = fixture.componentInstance;
-    backgroundService= TestBed.inject(BackgroundService);
-    codeListService= TestBed.inject(CodeListService);
-    resourceService= TestBed.inject(ResourceService);
-    externalService= TestBed.inject(ExternalService);
+    backgroundService = TestBed.inject(BackgroundService);
+    codeListService = TestBed.inject(CodeListService);
+    resourceService = TestBed.inject(ResourceService);
+    externalService = TestBed.inject(ExternalService);
     fixture.detectChanges();
+    await new Promise((r) => setTimeout(r, 0));
+    httpMock.match((req) => req.url.includes('backgrounds')).forEach((req) =>
+      req.flush({ _embedded: { backgrounds: [] } })
+    );
+    await fixture.whenStable();
+  });
+
+  afterEach(() => {
+    httpMock.verify();
   });
 
   it('should create', () => {

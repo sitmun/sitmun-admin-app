@@ -1,23 +1,20 @@
-import {HttpClientTestingModule} from '@angular/common/http/testing';
-import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {MatIconTestingModule} from '@angular/material/icon/testing';
-import {RouterModule} from '@angular/router';
-import {RouterTestingModule} from '@angular/router/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { provideRouter, RouterModule } from '@angular/router';
 
-import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
-import {of} from 'rxjs';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { of } from 'rxjs';
 
-import {EntityListComponent} from '@app/components/shared/entity-list/entity-list.component';
-import {ExternalConfigurationService} from '@app/core/config/external-configuration.service';
-import {ExternalService, ResourceService} from '@app/core/hal';
-import {CodeListService, TaskGroupService, TaskService, TranslationService} from '@app/domain';
-import {SitmunFrontendGuiModule} from '@app/frontend-gui/src/lib/public_api';
-import {MaterialModule} from '@app/material-module';
+import { EntityListComponent } from '@app/components/shared/entity-list/entity-list.component';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
+import { ExternalService, ResourceService } from '@app/core/hal';
+import { CodeListService, TaskGroupService, TaskService, TranslationService } from '@app/domain';
+import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
+import { MaterialModule } from '@app/material-module';
 
-import {TasksEditComponent} from './tasks-edit.component';
-
-
-
+import { TasksEditComponent } from './tasks-edit.component';
 
 describe('TasksEditComponent', () => {
   let component: TasksEditComponent;
@@ -28,11 +25,12 @@ describe('TasksEditComponent', () => {
   let translationService: TranslationService;
   let resourceService: ResourceService;
   let externalService: ExternalService;
+  let httpMock: HttpTestingController;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [TasksEditComponent, EntityListComponent],
-      imports: [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule,
+      imports: [SitmunFrontendGuiModule, MaterialModule, RouterModule, MatIconTestingModule,
         TranslateModule.forRoot({
           loader: {
             provide: TranslateLoader,
@@ -42,12 +40,17 @@ describe('TasksEditComponent', () => {
           }
         })],
       providers: [TaskService, TaskGroupService, CodeListService, TranslationService, ResourceService, ExternalService,
-        {provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService},]
+        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+      ]
     })
       .compileComponents();
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    httpMock = TestBed.inject(HttpTestingController);
     fixture = TestBed.createComponent(TasksEditComponent);
     component = fixture.componentInstance;
     taskService = TestBed.inject(TaskService);
@@ -57,6 +60,15 @@ describe('TasksEditComponent', () => {
     resourceService = TestBed.inject(ResourceService);
     externalService = TestBed.inject(ExternalService);
     fixture.detectChanges();
+    await new Promise((r) => setTimeout(r, 0));
+    httpMock.match((req) => req.url.includes('tasks')).forEach((req) =>
+      req.flush({ _embedded: { tasks: [] } })
+    );
+    await fixture.whenStable();
+  });
+
+  afterEach(() => {
+    httpMock.verify();
   });
 
   it('should create', () => {

@@ -46,7 +46,7 @@ export class LoggerService {
           return parsedLevel as LogLevel;
         }
       }
-    } catch (e) {
+    } catch (_) {
       // localStorage not available or error reading - use default
     }
     // Fall back to environment default
@@ -59,7 +59,7 @@ export class LoggerService {
   private persistLogLevel(level: LogLevel): void {
     try {
       localStorage.setItem(LoggerService.STORAGE_KEY, level.toString());
-    } catch (e) {
+    } catch (_) {
       // localStorage not available or error writing - ignore silently
     }
   }
@@ -116,7 +116,7 @@ export class LoggerService {
           if (!this.errorTrackingService) {
             return;
           }
-        } catch (e) {
+        } catch (_) {
           // Service not available - skip tracking
           return;
         }
@@ -132,7 +132,7 @@ export class LoggerService {
           stackTrace
         });
       }
-    } catch (e) {
+    } catch (_) {
       // ErrorTrackingService not available yet - ignore silently
       // This can happen during app initialization
     }

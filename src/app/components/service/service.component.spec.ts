@@ -1,8 +1,8 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { RouterModule } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideRouter, RouterModule } from '@angular/router';
 
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {of} from 'rxjs';
@@ -24,11 +24,12 @@ describe('ServiceComponent', () => {
   let translationService: TranslationService;
   let resourceService: ResourceService;
   let externalService: ExternalService;
+  let httpMock: HttpTestingController;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ ServiceComponent, EntityListComponent ],
-      imports : [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, MatIconTestingModule, RouterModule,
+      imports : [SitmunFrontendGuiModule, MaterialModule, MatIconTestingModule, RouterModule,
         TranslateModule.forRoot({
           loader: {
             provide: TranslateLoader,
@@ -37,20 +38,40 @@ describe('ServiceComponent', () => {
             })
           }
         })],
-      providers: [ServiceService,CodeListService,TranslationService,ResourceService,ExternalService,
-        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
+      providers: [
+        ServiceService,
+        CodeListService,
+        TranslationService,
+        ResourceService,
+        ExternalService,
+        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+      ]
     })
     .compileComponents();
   });
-  beforeEach(() => {
+
+  beforeEach(async () => {
+    httpMock = TestBed.inject(HttpTestingController);
     fixture = TestBed.createComponent(ServiceComponent);
     component = fixture.componentInstance;
-    serviceService= TestBed.inject(ServiceService);
-    codeListService= TestBed.inject(CodeListService);
-    translationService= TestBed.inject(TranslationService);
-    resourceService= TestBed.inject(ResourceService);
-    externalService= TestBed.inject(ExternalService);
+    serviceService = TestBed.inject(ServiceService);
+    codeListService = TestBed.inject(CodeListService);
+    translationService = TestBed.inject(TranslationService);
+    resourceService = TestBed.inject(ResourceService);
+    externalService = TestBed.inject(ExternalService);
     fixture.detectChanges();
+    await new Promise((r) => setTimeout(r, 0));
+    httpMock.match((req) => req.url.includes('codelist-values')).forEach((req) =>
+      req.flush({ _embedded: { 'codelist-values': [] } })
+    );
+    await fixture.whenStable();
+  });
+
+  afterEach(() => {
+    httpMock.verify();
   });
 
   it('should create', () => {

@@ -163,7 +163,7 @@ export class MessagesInterceptor implements HttpInterceptor {
                             }
                           );
                         }
-                      } catch (e) {
+                      } catch (_) {
                         // ErrorTrackingService not available - ignore silently
                         // This can happen during app initialization
                       }

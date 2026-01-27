@@ -247,7 +247,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       );
 
       return true;
-    } catch (error) {
+    } catch (_) {
       // Validation failed - error handled by error interceptor
       return false;
     }

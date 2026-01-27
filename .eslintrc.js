@@ -32,7 +32,9 @@ module.exports = {
             "vars": "all",
             "varsIgnorePattern": "^_",
             "args": "after-used",
-            "argsIgnorePattern": "^_"
+            "argsIgnorePattern": "^_",
+            "caughtErrors": "none",
+            "caughtErrorsIgnorePattern": "^_"
           }
         ],
         "@angular-eslint/directive-selector": [

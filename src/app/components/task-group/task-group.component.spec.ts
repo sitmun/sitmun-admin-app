@@ -1,9 +1,8 @@
-
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { RouterModule } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideRouter, RouterModule } from '@angular/router';
 
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {of} from 'rxjs';
@@ -25,11 +24,12 @@ describe('TaskGroupComponent', () => {
   let translationService: TranslationService;
   let resourceService: ResourceService;
   let externalService: ExternalService;
+  let httpMock: HttpTestingController;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ TaskGroupComponent, EntityListComponent ],
-      imports : [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule,
+      imports : [SitmunFrontendGuiModule, MaterialModule, RouterModule, MatIconTestingModule,
         TranslateModule.forRoot({
           loader: {
             provide: TranslateLoader,
@@ -39,20 +39,34 @@ describe('TaskGroupComponent', () => {
           }
         })],
       providers: [TaskGroupService,CodeListService,TranslationService,ResourceService,ExternalService,
-        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
+        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+      ]
     })
     .compileComponents();
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    httpMock = TestBed.inject(HttpTestingController);
     fixture = TestBed.createComponent(TaskGroupComponent);
     component = fixture.componentInstance;
-    taskGroupService= TestBed.inject(TaskGroupService);
-    codeListService= TestBed.inject(CodeListService);
-    translationService= TestBed.inject(TranslationService);
-    resourceService= TestBed.inject(ResourceService);
-    externalService= TestBed.inject(ExternalService);
+    taskGroupService = TestBed.inject(TaskGroupService);
+    codeListService = TestBed.inject(CodeListService);
+    translationService = TestBed.inject(TranslationService);
+    resourceService = TestBed.inject(ResourceService);
+    externalService = TestBed.inject(ExternalService);
     fixture.detectChanges();
+    await new Promise((r) => setTimeout(r, 0));
+    httpMock.match((req) => req.url.includes('task-groups')).forEach((req) =>
+      req.flush({ _embedded: { 'task-groups': [] } })
+    );
+    await fixture.whenStable();
+  });
+
+  afterEach(() => {
+    httpMock.verify();
   });
 
   it('should create', () => {
