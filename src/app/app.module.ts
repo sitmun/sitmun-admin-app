@@ -48,6 +48,8 @@ import {TaskBasicFormComponent} from '@app/components/tasks-basic/task-form/task
 import {TasksBasicComponent} from '@app/components/tasks-basic/tasks-basic.component';
 import {TaskEditFormComponent} from '@app/components/tasks-edit/task-form/task-edit-form.component';
 import {TasksEditComponent} from '@app/components/tasks-edit/tasks-edit.component';
+import {TaskMoreInfoFormComponent} from '@app/components/tasks-more-info/task-form/task-more-info-form.component';
+import {TasksMoreInfoComponent} from '@app/components/tasks-more-info/tasks-more-info.component';
 import {TaskQueryFormComponent} from "@app/components/tasks-query/task-form/task-query-form.component";
 import {TasksQueryComponent} from "@app/components/tasks-query/tasks-query.component";
 import {TerritoryFormComponent} from '@app/components/territory/territory-form/territory-form.component';
@@ -268,6 +270,8 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
     TaskBasicFormComponent,
     TasksQueryComponent,
     TaskQueryFormComponent,
+    TasksMoreInfoComponent,
+    TaskMoreInfoFormComponent,
     ConnectionFormComponent,
     RoleFormComponent,
     UserFormComponent,
