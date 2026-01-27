@@ -11,6 +11,15 @@ export class TaskMoreInfoProperties {
   /** Data access type: api, sql, or url-redirect */
   dataAccessType?: 'api' | 'sql' | 'url-redirect';
 
+  /** Connection ID (for SQL access type) */
+  connectionId?: number;
+
+  /** SQL Query (for SQL access type) */
+  sqlQuery?: string;
+
+  /** URL (for API or URL redirect access types) */
+  url?: string;
+
   /** Additional configuration as JSON string */
   configuration?: string;
 
@@ -27,6 +36,9 @@ export class TaskMoreInfoProperties {
     props.parentTaskId = source.parentTaskId;
     props.cartographyId = source.cartographyId;
     props.dataAccessType = source.dataAccessType;
+    props.connectionId = source.connectionId;
+    props.sqlQuery = source.sqlQuery;
+    props.url = source.url;
     props.configuration = source.configuration;
 
     return props;
@@ -40,6 +52,9 @@ export class TaskMoreInfoProperties {
       parentTaskId: this.parentTaskId,
       cartographyId: this.cartographyId,
       dataAccessType: this.dataAccessType,
+      connectionId: this.connectionId,
+      sqlQuery: this.sqlQuery,
+      url: this.url,
       configuration: this.configuration
     };
   }

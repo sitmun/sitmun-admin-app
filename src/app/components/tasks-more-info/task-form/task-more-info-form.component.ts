@@ -14,6 +14,8 @@ import {
   Cartography,
   CartographyService,
   CodeListService,
+  Connection,
+  ConnectionService,
   Role,
   RoleService,
   Task,
@@ -66,6 +68,7 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
   
   protected taskGroupList: TaskGroup[] = [];
   protected cartographies: Cartography[] = [];
+  protected connections: Connection[] = [];
 
   /** Data access type options */
   protected dataAccessTypes = [
@@ -96,6 +99,7 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
     protected roleService: RoleService,
     protected territoryService: TerritoryService,
     protected taskAvailabilityService: TaskAvailabilityService,
+    protected connectionService: ConnectionService,
   ) {
     super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService, messagesInterceptorState);
     this.rolesTable = this.defineRolesTable();
@@ -117,10 +121,11 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
     await this.initCodeLists(['tasksEntity.type', 'taskEntity.jsonParamType'])
     this.initTranslations('Task', ['name'])
 
-    const [taskTypes, taskGroups, cartographies] = await Promise.all([
+    const [taskTypes, taskGroups, cartographies, connections] = await Promise.all([
       firstValueFrom(this.taskTypeService.getAllEx()),
       firstValueFrom(this.taskGroupService.getAllEx()),
-      firstValueFrom(this.cartographyService.getAll())
+      firstValueFrom(this.cartographyService.getAll()),
+      firstValueFrom(this.connectionService.getAll())
     ]);
 
     this.taskType = taskTypes.find(taskType => taskType.id === type);
@@ -132,6 +137,7 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
 
     this.taskGroupList = taskGroups;
     this.cartographies = cartographies;
+    this.connections = connections;
   }
 
   override async fetchRelatedData() {
@@ -161,6 +167,15 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
       dataAccessType: new FormControl(properties.dataAccessType, {
         validators: [Validators.required],
         nonNullable: true
+      }),
+      connectionId: new FormControl(properties.connectionId, {
+        nonNullable: true
+      }),
+      sqlQuery: new FormControl(properties.sqlQuery, {
+        nonNullable: true
+      }),
+      url: new FormControl(properties.url, {
+        nonNullable: true
       })
     });
   }
@@ -171,6 +186,9 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
     const properties = new TaskMoreInfoProperties();
     properties.cartographyId = formValues.cartographyId;
     properties.dataAccessType = formValues.dataAccessType;
+    properties.connectionId = formValues.connectionId;
+    properties.sqlQuery = formValues.sqlQuery;
+    properties.url = formValues.url;
 
     safeToEdit = Object.assign(safeToEdit,
       {
@@ -208,6 +226,22 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
 
   getTaskGroupName(taskGroupId: number): string {
     return this.taskGroupList.find(group => group.id === taskGroupId)?.name || '';
+  }
+
+  getConnectionName(connectionId: number): string {
+    return this.connections.find(conn => conn.id === connectionId)?.name || '';
+  }
+
+  isSqlAccessType(): boolean {
+    return this.entityForm?.value?.dataAccessType === 'sql';
+  }
+
+  isApiAccessType(): boolean {
+    return this.entityForm?.value?.dataAccessType === 'api';
+  }
+
+  isUrlRedirectAccessType(): boolean {
+    return this.entityForm?.value?.dataAccessType === 'url-redirect';
   }
 
   private defineRolesTable(): DataTableDefinition<Role, Role> {
