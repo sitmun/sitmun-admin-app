@@ -4,7 +4,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute, Router} from "@angular/router";
 
 import {TranslateService} from "@ngx-translate/core";
-import {firstValueFrom, of} from "rxjs";
+import {firstValueFrom, map, of} from "rxjs";
 
 import {BaseFormComponent} from "@app/components/base-form.component";
 import {DataTableDefinition, TemplateDialog} from "@app/components/data-tables.util";
@@ -34,7 +34,6 @@ import {
   TerritoryService,
   TranslationService
 } from "@app/domain";
-import {TaskMoreInfoProperties} from "@app/domain/task/models/task-more-info.model";
 import {
   canKeepOrUpdate,
   onCreate,
@@ -144,12 +143,48 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
     return this.loadTranslations(this.entityToEdit);
   }
 
+  override fetchOriginal(): Promise<TaskProjection> {
+    return firstValueFrom(this.taskService.getProjection(TaskProjection, this.entityID));
+  }
+
+  override fetchCopy(): Promise<TaskProjection> {
+    return firstValueFrom(this.taskService.getProjection(TaskProjection, this.duplicateID).pipe(map((copy: TaskProjection) => {
+      copy.name = this.translateService.instant("copy_") + copy.name;
+      return copy;
+    })));
+  }
+
+  override empty(): TaskProjection {
+    return new TaskProjection()
+  }
+
   override postFetchData() {
     if (!this.entityToEdit) {
       throw new Error('Cannot initialize form: entity is undefined');
     }
 
-    const properties = TaskMoreInfoProperties.fromObject(this.entityToEdit.properties);
+    const properties: any = this.entityToEdit.properties || {};
+
+    // Extract dataAccessType from properties or infer from scope
+    let dataAccessType = properties.dataAccessType;
+    if (!dataAccessType) {
+      // Infer from scope if not explicitly stored
+      if (properties.scope === 'sql-query') {
+        dataAccessType = 'sql';
+      } else if (properties.scope === 'web-api-query') {
+        dataAccessType = 'api'; // default, could be url-redirect
+      }
+    }
+
+    // Extract values based on dataAccessType
+    let sqlQuery = null;
+    let url = null;
+
+    if (dataAccessType === 'sql') {
+      sqlQuery = properties.command;
+    } else {
+      url = properties.command;
+    }
 
     this.entityForm = new FormGroup({
       name: new FormControl(this.entityToEdit.name, {
@@ -160,21 +195,21 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
         validators: [Validators.required],
         nonNullable: true
       }),
-      cartographyId: new FormControl(properties.cartographyId, {
+      cartographyId: new FormControl(this.entityToEdit.cartographyId, {
         validators: [Validators.required],
         nonNullable: true
       }),
-      dataAccessType: new FormControl(properties.dataAccessType, {
+      dataAccessType: new FormControl(dataAccessType, {
         validators: [Validators.required],
         nonNullable: true
       }),
-      connectionId: new FormControl(properties.connectionId, {
+      connectionId: new FormControl(this.entityToEdit.connectionId, {
         nonNullable: true
       }),
-      sqlQuery: new FormControl(properties.sqlQuery, {
+      sqlQuery: new FormControl(sqlQuery, {
         nonNullable: true
       }),
-      url: new FormControl(properties.url, {
+      url: new FormControl(url, {
         nonNullable: true
       })
     });
@@ -183,18 +218,39 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
     let safeToEdit = TaskProjection.fromObject(this.entityToEdit);
     const formValues = this.entityForm.getRawValue();
     
-    const properties = new TaskMoreInfoProperties();
-    properties.cartographyId = formValues.cartographyId;
+    // Map dataAccessType to scope and set command appropriately
+    let scope = null;
+    let command = null;
+
+    if (formValues.dataAccessType === 'sql') {
+      scope = 'sql-query';
+      command = formValues.sqlQuery;
+    } else if (formValues.dataAccessType === 'api') {
+      scope = 'web-api-query';
+      command = formValues.url;
+    } else if (formValues.dataAccessType === 'url-redirect') {
+      //URL NEW SCOPE OR USING SAME AS API?
+      scope = 'web-api-query';
+      command = formValues.url;
+    }
+
+    // Get existing properties to preserve fields and parameters
+    const existingProps: any = this.entityToEdit.properties || {};
+    const properties: any = TaskPropertiesBuilder.create()
+      .withScope(scope)
+      .withCommand(command)
+      .withParameters(existingProps.parameters || [])
+      .withFields(existingProps.fields || [])
+      .build();
+
+    // Add dataAccessType to properties (not a standard Task field)
     properties.dataAccessType = formValues.dataAccessType;
-    properties.connectionId = formValues.connectionId;
-    properties.sqlQuery = formValues.sqlQuery;
-    properties.url = formValues.url;
 
     safeToEdit = Object.assign(safeToEdit,
+      formValues,
       {
         id: id,
-        name: formValues.name,
-        properties: properties.toObject()
+        properties: properties
       }
     );
     return Task.fromObject(safeToEdit);
@@ -220,8 +276,23 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
   }
 
   override async updateDataRelated(_isDuplicated: boolean) {
-    const entityToUpdate = this.createObject(this.entityID);
-    await this.saveTranslations(entityToUpdate);
+    await this.saveTranslations(this.entityToEdit);
+
+    // Update connection relationship
+    const connectionId = this.entityForm.get('connectionId')?.value
+    if (typeof connectionId === 'number') {
+      await firstValueFrom(this.entityToEdit.updateRelationEx("connection", this.connectionService.createProxy(connectionId)));
+    } else {
+      await firstValueFrom(this.entityToEdit.deleteAllRelation("connection"));
+    }
+
+    // Update cartography relationship
+    const cartographyId = this.entityForm.get('cartographyId')?.value
+    if (typeof cartographyId === 'number') {
+      await firstValueFrom(this.entityToEdit.updateRelationEx("cartography", this.cartographyService.createProxy(cartographyId)));
+    } else {
+      await firstValueFrom(this.entityToEdit.deleteAllRelation("cartography"));
+    }
   }
 
   getTaskGroupName(taskGroupId: number): string {
