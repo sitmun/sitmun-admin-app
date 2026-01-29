@@ -35,6 +35,11 @@
                       onKeyDown="onTranslated('name')">translate</mat-icon>
           </mat-form-field>
 
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'tasksMoreInfoEntity.ui' | translate }}</mat-label>
+            <input matInput type="text" formControlName="uiName" [disabled]="true">
+          </mat-form-field>
+
           <mat-form-field appearance="outline" class="half add-gap">
             <mat-label>{{ 'entity.taskGroup.label' | translate }}</mat-label>
             <mat-select formControlName="taskGroupId" class="form-control">

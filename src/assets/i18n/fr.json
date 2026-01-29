@@ -778,6 +778,7 @@
   "tasksMoreInfoEntity.tasksMoreInfo": "Tâche Plus d'information",
   "tasksMoreInfoEntity.territories": "Territoires",
   "tasksMoreInfoEntity.type": "Type",
+  "tasksMoreInfoEntity.ui": "Contrôle associé dans le client",
   "tasksMoreInfoEntity.value": "Valeur",
   "tasksMoreInfoEntity.title": "Plus d'informations",
   "tasksMoreInfoEntity.titleField": "Titre",

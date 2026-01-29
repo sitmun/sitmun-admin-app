@@ -30,6 +30,8 @@ import {
   TaskService,
   TaskType,
   TaskTypeService,
+  TaskUI,
+  TaskUIService,
   TerritoryProjection,
   TerritoryService,
   TranslationService
@@ -68,6 +70,7 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
   protected taskGroupList: TaskGroup[] = [];
   protected cartographies: Cartography[] = [];
   protected connections: Connection[] = [];
+  protected moreInfoUI: TaskUI = null;
 
   /** Data access type options */
   protected dataAccessTypes = [
@@ -94,6 +97,7 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
     protected taskTypeService: TaskTypeService,
     protected taskGroupService: TaskGroupService,
     protected cartographyService: CartographyService,
+    protected taskUIService: TaskUIService,
     protected utils: UtilsService,
     protected roleService: RoleService,
     protected territoryService: TerritoryService,
@@ -120,16 +124,17 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
     await this.initCodeLists(['tasksEntity.type', 'taskEntity.jsonParamType'])
     this.initTranslations('Task', ['name'])
 
-    const [taskTypes, taskGroups, cartographies, connections] = await Promise.all([
+    const [taskTypes, taskGroups, cartographies, connections, uiList] = await Promise.all([
       firstValueFrom(this.taskTypeService.getAllEx()),
       firstValueFrom(this.taskGroupService.getAllEx()),
       firstValueFrom(this.cartographyService.getAll()),
-      firstValueFrom(this.connectionService.getAll())
+      firstValueFrom(this.connectionService.getAll()),
+      firstValueFrom(this.taskUIService.getAll())
     ]);
 
     this.taskType = taskTypes.find(taskType => taskType.id === type);
     if (!this.taskType) {
-      throw new Error(`Task type ${type} not found`);
+      this.loggerService.error(`Task type ${type} not found`);
     }
     this.taskTypeName = this.taskType.name;
     this.taskTypeNameTranslated = await firstValueFrom(this.translateService.get(`codelist.${this.taskTypeName}`));
@@ -137,6 +142,10 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
     this.taskGroupList = taskGroups;
     this.cartographies = cartographies;
     this.connections = connections;
+    this.moreInfoUI = uiList.find(ui => ui.name === 'sitna.moreInfo');
+    if (!this.moreInfoUI) {
+      this.loggerService.warn('UI control "sitna.moreInfo" not found in database');
+    }
   }
 
   override async fetchRelatedData() {
@@ -160,7 +169,7 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
 
   override postFetchData() {
     if (!this.entityToEdit) {
-      throw new Error('Cannot initialize form: entity is undefined');
+      this.loggerService.error('Cannot initialize form: entity is undefined');
     }
 
     const properties: any = this.entityToEdit.properties || {};
@@ -189,6 +198,12 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
     this.entityForm = new FormGroup({
       name: new FormControl(this.entityToEdit.name, {
         validators: [Validators.required],
+        nonNullable: true
+      }),
+      uiId: new FormControl(this.moreInfoUI?.id || this.entityToEdit.uiId, {
+        nonNullable: true
+      }),
+      uiName: new FormControl({value: this.moreInfoUI?.name || 'sitna.moreInfo', disabled: true}, {
         nonNullable: true
       }),
       taskGroupId: new FormControl(this.entityToEdit.groupId, {
@@ -263,6 +278,11 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
     await firstValueFrom(entityCreated.updateRelationEx("type", this.taskType));
     const proxyGroup = this.taskGroupService.createProxy(this.entityForm.get('taskGroupId')?.value);
     await firstValueFrom(entityCreated.updateRelationEx("group", proxyGroup));
+
+    const uiId = this.entityForm.get('uiId')?.value;
+    if (typeof uiId === 'number') {
+      await firstValueFrom(entityCreated.updateRelationEx("ui", this.taskUIService.createProxy(uiId)));
+    }
     return entityCreated.id;
   }
 
@@ -277,6 +297,13 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
 
   override async updateDataRelated(_isDuplicated: boolean) {
     await this.saveTranslations(this.entityToEdit);
+
+    const uiId = this.entityForm.get('uiId')?.value;
+    if (typeof uiId === 'number') {
+      await firstValueFrom(this.entityToEdit.updateRelationEx("ui", this.taskUIService.createProxy(uiId)));
+    } else {
+      await firstValueFrom(this.entityToEdit.deleteAllRelation("ui"));
+    }
 
     // Update connection relationship
     const connectionId = this.entityForm.get('connectionId')?.value
