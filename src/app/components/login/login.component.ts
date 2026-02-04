@@ -11,6 +11,11 @@ import {Language} from '@app/domain';
 import {AppConfigService} from '@app/services/app-config.service';
 import {config} from '@config';
 
+export interface LoginMethod {
+  id: string;
+  providers: AuthProvider[];
+}
+
 export interface AuthProvider {
   providerName: string;
   displayName: string;

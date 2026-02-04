@@ -4,6 +4,8 @@ import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 
+import {LoginMethod} from "@app/components/login/login.component";
+
 import {ResourceService} from '../hal';
 
 //import * as moment from 'moment';
@@ -96,7 +98,7 @@ export class AuthService {
     });
   }
 
-  getEnabledAuthMethods(): Observable<any> {
+  getEnabledAuthMethods(): Observable<LoginMethod[]> {
     return this.http.get<any>(this.resourceService.getResourceUrl(this.AUTH_METHODS_API));
   }
 

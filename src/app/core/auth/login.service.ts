@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import {CookieService} from "ngx-cookie-service";
 import {firstValueFrom, Observable} from 'rxjs';
 
+import {LoginMethod} from "@app/components/login/login.component";
 import {environment} from "@environments/environment.prod";
 
 import {AuthService} from './auth.service';
@@ -57,7 +58,7 @@ export class LoginService {
     });
   }
 
-  getEnabledAuthMethods(): Observable<any> {
+  getEnabledAuthMethods(): Observable<LoginMethod[]> {
     return this.authServerProvider.getEnabledAuthMethods();
   }
 
