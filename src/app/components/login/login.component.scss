@@ -48,6 +48,57 @@
   min-width: 88px; // Material Design minimum touch target
 }
 
+.wrapContent {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.verticallyListedContent {
+  display: block;
+  padding-bottom: 0;
+}
+
+.alternativeLoginButton {
+  width: 100%;
+  display: flex;
+
+  .button-content {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    img {
+      object-fit: contain;
+    }
+
+    span {
+      white-space: nowrap;
+    }
+  }
+}
+
+.alt-login-divider {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.alt-login-text {
+  color: #8f8f8f;
+  margin: 0;
+}
+
+.alt-login-divider::before,
+.alt-login-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #8f8f8f;
+}
+
 // Toolbar styling - ensure it's above the login container with no borders
 mat-toolbar {
   position: relative;
@@ -90,7 +141,7 @@ mat-toolbar {
   border-right: none !important;
   outline: none !important;
   box-shadow: none !important;
-  
+
   // Override any Material Design internal styles
   &::before,
   &::after {
@@ -153,7 +204,7 @@ mat-card-content {
   width: 24px !important;
   height: 24px !important;
   flex-shrink: 0;
-  
+
   ::ng-deep svg {
     width: 24px !important;
     height: 24px !important;
@@ -167,7 +218,7 @@ mat-card-content {
     width: 24px !important;
     height: 24px !important;
     flex-shrink: 0;
-    
+
     svg {
       width: 24px !important;
       height: 24px !important;

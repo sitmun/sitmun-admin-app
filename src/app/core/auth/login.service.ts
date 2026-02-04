@@ -1,18 +1,25 @@
 import { Injectable } from '@angular/core';
 
-import { firstValueFrom } from 'rxjs';
+import {CookieService} from "ngx-cookie-service";
+import {firstValueFrom, Observable} from 'rxjs';
+
+import {environment} from "@environments/environment.prod";
 
 import {AuthService} from './auth.service';
 import {Principal} from './principal.service';
+
 
 /** Login service*/
 @Injectable()
 export class LoginService {
 
+  public AUTH_OIDC_LOGIN_API = '/oauth2/authorization';
+
   /** constructor */
   constructor(
-    private authServerProvider: AuthService,
-    private principal: Principal
+    private readonly authServerProvider: AuthService,
+    private readonly cookieService: CookieService,
+    private readonly principal: Principal
   ) {}
 
   /**Login operation*/
@@ -46,6 +53,15 @@ export class LoginService {
     // Then call the auth service to clear tokens
     this.authServerProvider.logout().subscribe(() => {
       // Additional cleanup if needed
+      this.cookieService.delete('oidc_token');
     });
+  }
+
+  getEnabledAuthMethods(): Observable<any> {
+    return this.authServerProvider.getEnabledAuthMethods();
+  }
+
+  initOidcLogin(providerId: string) {
+    globalThis.location.href = `${environment.apiBaseURL}${this.AUTH_OIDC_LOGIN_API}/${providerId}?client_type=admin`
   }
 }
