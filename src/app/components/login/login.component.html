@@ -57,5 +57,32 @@
         </button>
       </mat-card-actions>
     </form>
+    @if (alternativeLoginMethods.length > 0) {
+      <div class="alt-login-divider">
+        <p class="alt-login-text">{{'loginEntity.alternatives' | translate}}</p>
+      </div>
+      <mat-card-content [ngClass]="alternativeLoginMethods.length > 2 ? 'wrapContent' : 'verticallyListedContent'">
+        @for (provider of alternativeLoginMethods; track provider.providerName) {
+          <mat-card-actions>
+            <button
+              mat-raised-button color="primary"
+              class="alternativeLoginButton"
+              (click)="initAuth(provider.providerName)"
+              (keydown)="initAuth(provider.providerName)"
+            >
+              <span class="button-content">
+                <img
+                  *ngIf="provider.imagePath"
+                  [ngSrc]="provider.imagePath"
+                  alt="icon"
+                  width="35"
+                  height="35" />
+                <span>{{ provider.displayName }}</span>
+              </span>
+            </button>
+          </mat-card-actions>
+        }
+      </mat-card-content>
+    }
   </mat-card>
 </div>

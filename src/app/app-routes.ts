@@ -6,6 +6,7 @@ import {
   BackgroundLayersFormComponent
 } from '@app/components/background-layers/background-layers-form/background-layers-form.component';
 import {BackgroundLayersComponent} from '@app/components/background-layers/background-layers.component';
+import {CallbackComponent} from "@app/components/callback/callback.component";
 import {ConnectionFormComponent} from '@app/components/connection/connection-form/connection-form.component';
 import {ConnectionComponent} from '@app/components/connection/connection.component';
 import {DashboardComponent} from '@app/components/dashboard/dashboard.component';
@@ -45,6 +46,7 @@ import {magic} from "@environments/constants";
 export const APP_ROUTES: Routes = [
   {path: 'login', component: LoginComponent},
   {path: 'error', component: ErrorPageComponent},
+  {path: 'callback', component: CallbackComponent},
   {
     path: '',
     component: AuthenticatedLayoutComponent,
