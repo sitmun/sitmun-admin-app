@@ -1,11 +1,12 @@
 import {Component, OnInit, TemplateRef, ViewChild} from "@angular/core";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
+import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
 import {ActivatedRoute, Router} from "@angular/router";
 
 import {TranslateService} from "@ngx-translate/core";
-import {firstValueFrom, map, of} from "rxjs";
+import {firstValueFrom, map, of, startWith} from "rxjs";
 
 import {BaseFormComponent} from "@app/components/base-form.component";
 import {DataTableDefinition, TemplateDialog} from "@app/components/data-tables.util";
@@ -72,6 +73,9 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
   protected cartographies: Cartography[] = [];
   protected connections: Connection[] = [];
   protected moreInfoUI: TaskUI = null;
+
+  protected cartographySearchControl = new FormControl<string | Cartography>('', {nonNullable: true});
+  protected filteredCartographies = of<Cartography[]>([]);
 
   private readonly moreInfoScope = {
     sql: 'SQL',
@@ -218,6 +222,13 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
         nonNullable: true
       })
     });
+
+    const selectedCartography = this.cartographies.find(cartography => cartography.id === this.entityToEdit.cartographyId);
+    this.cartographySearchControl.setValue(selectedCartography?.name || '');
+    this.filteredCartographies = this.cartographySearchControl.valueChanges.pipe(
+      startWith(this.cartographySearchControl.value),
+      map(value => this.filterCartographies(typeof value === 'string' ? value : value?.name || ''))
+    );
   }
   createObject(id: number = null): Task {
     let safeToEdit = TaskProjection.fromObject(this.entityToEdit);
@@ -310,6 +321,17 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
 
   isUrlRedirectAccessType(): boolean {
     return this.entityForm?.value?.scope === this.moreInfoScope.url;
+  }
+
+  onCartographySelected(event: MatAutocompleteSelectedEvent) {
+    const cartography = event.option.value as Cartography;
+    this.entityForm.get('cartographyId')?.setValue(cartography?.id ?? null);
+    this.cartographySearchControl.setValue(cartography?.name || '');
+  }
+
+  private filterCartographies(value?: string): Cartography[] {
+    const filterValue = (value || '').toLowerCase();
+    return this.cartographies.filter(cartography => (cartography.name || '').toLowerCase().includes(filterValue));
   }
 
   onScopeChange(event: MatSelectChange) {

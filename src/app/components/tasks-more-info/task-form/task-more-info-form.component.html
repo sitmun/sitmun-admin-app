@@ -57,11 +57,17 @@
 
           <mat-form-field appearance="outline" class="half">
             <mat-label>{{ 'tasksMoreInfoEntity.cartography' | translate }}</mat-label>
-            <mat-select formControlName="cartographyId" required>
-              <mat-option *ngFor="let cartography of cartographies" [value]="cartography.id">
+            <input
+              matInput
+              type="text"
+              [formControl]="cartographySearchControl"
+              [matAutocomplete]="cartographyAuto"
+              required>
+            <mat-autocomplete #cartographyAuto="matAutocomplete" (optionSelected)="onCartographySelected($event)">
+              <mat-option *ngFor="let cartography of filteredCartographies | async" [value]="cartography">
                 {{ cartography.name }}
               </mat-option>
-            </mat-select>
+            </mat-autocomplete>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="full">
