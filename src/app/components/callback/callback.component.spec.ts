@@ -58,7 +58,7 @@ describe('CallbackComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should access dashboard if token exists', async () => {
+  it('should access dashboard if token exists', () => {
     jest.spyOn(cookieService, 'get').mockReturnValue('token123');
     const loginSpy = jest.spyOn(authService, 'loginWithToken').mockResolvedValue(undefined);
     const navSpy = jest.spyOn(router, 'navigate').mockResolvedValue(true as any);
@@ -68,7 +68,7 @@ describe('CallbackComponent', () => {
     expect(navSpy).toHaveBeenCalledWith(['dashboard']);
   });
 
-  it('should navigate to root and show error if token does not exist', async () => {
+  it('should navigate to root and show error if token does not exist', () => {
     jest.spyOn(cookieService, 'get').mockReturnValue('');
     const navByUrlSpy = jest.spyOn(router, 'navigateByUrl').mockResolvedValue(true as any);
     const showErrorSpy = jest.spyOn(notificationService, 'showError');
