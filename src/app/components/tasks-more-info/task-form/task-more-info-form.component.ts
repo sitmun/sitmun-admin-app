@@ -469,7 +469,14 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
             validators: [],
             nonNullable: false
           })
-        })).build())
+        })).withPreOpenFunction((form: FormGroup) => {
+          form.reset({
+            key: '',
+            label: '',
+            value: '',
+            order: null
+          });
+        }).build())
       .withTargetToRelation((items: TaskMoreInfoParameter[]) => items.map(item => TaskMoreInfoParameter.fromObject(item)))
       .withRelationsDuplicate(item => TaskMoreInfoParameter.fromObject(item))
       .build();
