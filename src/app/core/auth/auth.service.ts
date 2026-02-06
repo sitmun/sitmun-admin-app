@@ -1,10 +1,13 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Injectable} from '@angular/core';
 
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
 
-import { ResourceService } from '../hal';
+import {LoginMethod} from "@app/components/login/login.component";
+
+import {ResourceService} from '../hal';
+
 //import * as moment from 'moment';
 
 /** Authentication service*/
@@ -14,15 +17,18 @@ export class AuthService {
   /** API resource path */
   public AUTH_API = 'authenticate';
 
+  public AUTH_METHODS_API = 'auth/enabled-methods';
+
   /** constructor*/
   constructor(
-    private http: HttpClient,
-    private resourceService: ResourceService
-  ) {}
+    private readonly http: HttpClient,
+    private readonly resourceService: ResourceService
+  ) {
+  }
 
   /** get current user jwt token from session storage*/
   getToken() {
-    return  sessionStorage.getItem('authenticationToken');
+    return sessionStorage.getItem('authenticationToken');
   }
 
   /** login operation */
@@ -35,7 +41,7 @@ export class AuthService {
     return this.http.post(
       this.resourceService.getResourceUrl(this.AUTH_API),
       data,
-      {observe : 'response'}
+      {observe: 'response'}
     ).pipe(
       map(this.authenticateSuccess.bind(this))
     );
@@ -83,15 +89,17 @@ export class AuthService {
     return new Observable((observer) => {
       // Clear authentication token
       sessionStorage.removeItem('authenticationToken');
-      
+
       // Clear any other session data if needed
       // sessionStorage.clear(); // Uncomment if you want to clear all session data
-      
+
       // Complete the observable
       observer.complete();
     });
   }
 
-
+  getEnabledAuthMethods(): Observable<LoginMethod[]> {
+    return this.http.get<any>(this.resourceService.getResourceUrl(this.AUTH_METHODS_API));
+  }
 
 }

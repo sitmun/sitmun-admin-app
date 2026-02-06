@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, effect, OnDestroy, OnInit, signal, WritableSignal} from '@angular/core';
 import {UntypedFormBuilder, UntypedFormGroup, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 
@@ -10,6 +10,17 @@ import {LoginService} from '@app/core/auth/login.service';
 import {Language} from '@app/domain';
 import {AppConfigService} from '@app/services/app-config.service';
 import {config} from '@config';
+
+export interface LoginMethod {
+  id: string;
+  providers: AuthProvider[];
+}
+
+export interface AuthProvider {
+  providerName: string;
+  displayName: string;
+  imagePath: string;
+}
 
 /** Login component*/
 @Component({
@@ -27,6 +38,12 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   loadedData = false;
 
+  loginMethods: WritableSignal<Map<string, AuthProvider[]>> = signal(
+    new Map<string, AuthProvider[]>()
+  );
+
+  alternativeLoginMethods: AuthProvider[] = [];
+
   /** form */
   form: UntypedFormGroup;
 
@@ -43,7 +60,21 @@ export class LoginComponent implements OnInit, OnDestroy {
     private readonly translateService: TranslateService,
     private readonly router: Router,
     private readonly appConfigService: AppConfigService
-  ) {}
+  ) {
+    this.loginService.getEnabledAuthMethods().subscribe((res) => {
+      if (Array.isArray(res)) {
+        const map = new Map<string, AuthProvider[]>();
+        res.forEach((item) => {
+          map.set(item.id, item.providers ?? []);
+        });
+        this.loginMethods.set(map);
+      }
+    });
+
+    effect(() => {
+      this.alternativeLoginMethods = this.loginMethods().get('oidc') ?? [];
+    });
+  }
 
   ngOnInit() {
     // Initialize the form with a default language
@@ -87,6 +118,10 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
   }
 
+  initAuth(provider: string): void {
+    this.loginService.initOidcLogin(provider);
+  }
+
   /**
    * Get language icon path from AppConfigService
    */
@@ -101,7 +136,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   getLanguageIconName(shortname: string): string {
     const iconPath = this.appConfigService.getLanguageIcon(shortname);
     if (!iconPath) return '';
-    
+
     // Extract filename from path: "assets/flags/spain.svg" -> "spain"
     const filename = iconPath.split('/').pop()?.replace('.svg', '') || '';
     return filename ? `flag-${filename}` : '';
