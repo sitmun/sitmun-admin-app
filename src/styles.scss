@@ -1,6 +1,5 @@
 @use '@angular/material' as mat;
-@include mat.elevation-classes();
-@include mat.app-background();
+@include mat.core();
 
 /* You can add global styles to this file, and also import other style files */
 
@@ -24,22 +23,20 @@
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue. Available color palettes: https://material.io/design/color/
-$sitmun-primary: mat.m2-define-palette(mat.$m2-orange-palette);
-$sitmun-accent: mat.m2-define-palette(mat.$m2-teal-palette, A200, A100, A400);
+$sitmun-primary: mat.define-palette(mat.$orange-palette);
+$sitmun-accent: mat.define-palette(mat.$teal-palette, A200, A100, A400);
 
 // The warn palette is optional (defaults to red).
-$sitmun-warn: mat.m2-define-palette(mat.$m2-red-palette);
+$sitmun-warn: mat.define-palette(mat.$red-palette);
 
 
 // Create the theme object (a Sass map containing all of the palettes).
-$sitmun-theme: mat.m2-define-light-theme((
+$sitmun-theme: mat.define-light-theme((
   color: (
     primary: $sitmun-primary,
     accent: $sitmun-accent,
     warn: $sitmun-warn,
-  ),
-  typography: mat.m2-define-typography-config(),
-  density: 0
+  )
 ));
 
 // Include theme styles for core and each component used in your app.

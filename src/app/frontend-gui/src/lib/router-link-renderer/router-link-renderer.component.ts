@@ -25,6 +25,7 @@ import { ICellRendererAngularComp } from '@ag-grid-community/angular';
       {{ params.value }}
     </a>
   `,
+    standalone: true,
     imports: [RouterModule]
 })
 export class RouterLinkRendererComponent implements ICellRendererAngularComp {

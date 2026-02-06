@@ -1,5 +1,5 @@
 import {NgOptimizedImage} from "@angular/common";
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import {APP_INITIALIZER, ErrorHandler, LOCALE_ID, NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MAT_TABS_CONFIG} from '@angular/material/tabs';
@@ -7,8 +7,8 @@ import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {RouterModule} from '@angular/router';
 
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import {firstValueFrom} from 'rxjs';
 
 import {ApplicationFormComponent} from '@app/components/application/application-form/application-form.component';
@@ -214,6 +214,10 @@ export function initializeConfiguration(
   };
 }
 
+export function httpTranslateLoader(http: HttpClient) {
+  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+}
+
 // Helper function to get default language
 function getDefaultLanguage(languages: any[], appConfigService?: AppConfigService): string {
   // Check localStorage first
@@ -309,7 +313,11 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
         RouterModule,
         HalModule.forRoot(),
         TranslateModule.forRoot({
-            loader: provideTranslateHttpLoader({ prefix: './assets/i18n/', suffix: '.json' })
+          loader: {
+            provide: TranslateLoader,
+            useFactory: httpTranslateLoader,
+            deps: [HttpClient]
+          }
         }),
         APP_ROUTING,
         BrowserAnimationsModule,
