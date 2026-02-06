@@ -32,9 +32,10 @@ import {UtilsService} from '@app/services/utils.service';
 import {TreeNodesComponent} from './tree-nodes/tree-nodes.component';
 
 @Component({
-  selector: 'app-trees-form',
-  templateUrl: './trees-form.component.html',
-  styleUrls: ['./trees-form.component.scss']
+    selector: 'app-trees-form',
+    templateUrl: './trees-form.component.html',
+    styleUrls: ['./trees-form.component.scss'],
+    standalone: false
 })
 export class TreesFormComponent extends BaseFormComponent<Tree> {
   readonly config = Configuration.TREE;
@@ -246,7 +247,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       );
 
       return true;
-    } catch (error) {
+    } catch (_) {
       // Validation failed - error handled by error interceptor
       return false;
     }

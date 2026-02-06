@@ -1,8 +1,8 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { RouterModule } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideRouter, RouterModule } from '@angular/router';
 
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {of} from 'rxjs';
@@ -29,11 +29,12 @@ describe('TerritoryComponent', () => {
   let translationService: TranslationService;
   let resourceService: ResourceService;
   let externalService: ExternalService;
+  let httpMock: HttpTestingController;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ TerritoryComponent, EntityListComponent ],
-      imports : [HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule, MatIconTestingModule,
+      imports : [SitmunFrontendGuiModule, MatIconTestingModule,
          MaterialModule, RouterModule, MatIconTestingModule, TranslateModule.forRoot({
           loader: {
             provide: TranslateLoader,
@@ -42,22 +43,45 @@ describe('TerritoryComponent', () => {
             })
           }
         })],
-      providers: [TerritoryService, TerritoryTypeService, UserService, RoleService, CodeListService,UserConfigurationService,TranslationService,ResourceService,ExternalService,
-        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
+      providers: [
+        TerritoryService,
+        TerritoryTypeService,
+        UserService,
+        RoleService,
+        CodeListService,
+        UserConfigurationService,
+        TranslationService,
+        ResourceService,
+        ExternalService,
+        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+      ]
     })
     .compileComponents();
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    httpMock = TestBed.inject(HttpTestingController);
     fixture = TestBed.createComponent(TerritoryComponent);
     component = fixture.componentInstance;
-    territoryService= TestBed.inject(TerritoryService);
-    territoryTypeService= TestBed.inject(TerritoryTypeService);
-    codeListService= TestBed.inject(CodeListService);
-    translationService= TestBed.inject(TranslationService);
-    resourceService= TestBed.inject(ResourceService);
-    externalService= TestBed.inject(ExternalService);
+    territoryService = TestBed.inject(TerritoryService);
+    territoryTypeService = TestBed.inject(TerritoryTypeService);
+    codeListService = TestBed.inject(CodeListService);
+    translationService = TestBed.inject(TranslationService);
+    resourceService = TestBed.inject(ResourceService);
+    externalService = TestBed.inject(ExternalService);
     fixture.detectChanges();
+    await new Promise((r) => setTimeout(r, 0));
+    httpMock.match((req) => req.url.includes('territory-types')).forEach((req) =>
+      req.flush({ _embedded: { 'territory-types': [] } })
+    );
+    await fixture.whenStable();
+  });
+
+  afterEach(() => {
+    httpMock.verify();
   });
 
   it('should create', () => {

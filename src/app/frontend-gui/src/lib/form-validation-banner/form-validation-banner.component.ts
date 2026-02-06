@@ -10,9 +10,10 @@ import {Subscription} from 'rxjs';
  * a "+ X more" indicator if additional fields are invalid.
  */
 @Component({
-  selector: 'app-form-validation-banner',
-  templateUrl: './form-validation-banner.component.html',
-  styleUrls: ['./form-validation-banner.component.scss']
+    selector: 'app-form-validation-banner',
+    templateUrl: './form-validation-banner.component.html',
+    styleUrls: ['./form-validation-banner.component.scss'],
+    standalone: false
 })
 export class FormValidationBannerComponent implements OnChanges, OnDestroy {
   /** The form group to validate */

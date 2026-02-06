@@ -15,8 +15,9 @@ import {UtilsService} from '@app/services/utils.service';
 import {config} from '@config';
 
 @Component({
-  template: '',
-  styles: [],
+    template: '',
+    styles: [],
+    standalone: false
 })
 export abstract class BaseListComponent<T extends Resource>
   implements OnInit

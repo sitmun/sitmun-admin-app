@@ -19,14 +19,13 @@ import { ICellRendererAngularComp } from '@ag-grid-community/angular';
  * }
  */
 @Component({
-  selector: 'app-router-link-renderer',
-  template: `
+    selector: 'app-router-link-renderer',
+    template: `
     <a [routerLink]="getRouterLink()" class="router-link">
       {{ params.value }}
     </a>
   `,
-  standalone: true,
-  imports: [RouterModule]
+    imports: [RouterModule]
 })
 export class RouterLinkRendererComponent implements ICellRendererAngularComp {
   /** AG Grid cell renderer parameters */

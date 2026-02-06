@@ -15,9 +15,10 @@ import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 
 @Component({
-  selector: 'app-role',
-  templateUrl: './role.component.html',
-  styles: [],
+    selector: 'app-role',
+    templateUrl: './role.component.html',
+    styles: [],
+    standalone: false
 })
 export class RoleComponent extends BaseListComponent<Role> {
   entityListConfig: EntityListConfig<Role> = {

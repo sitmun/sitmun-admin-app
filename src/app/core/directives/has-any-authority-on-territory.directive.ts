@@ -13,7 +13,8 @@ import { Principal } from '@app/core/auth/principal.service';
  * ```
  */
 @Directive({
-  selector: '[appHasAnyAuthorityOnTerritory]'
+    selector: '[appHasAnyAuthorityOnTerritory]',
+    standalone: false
 })
 export class HasAnyAuthorityOnTerritoryDirective implements OnInit {
   /** authorities to check */

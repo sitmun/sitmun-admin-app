@@ -85,18 +85,9 @@ export class ErrorHandlerService {
   private safeInstant(key: string, params?: Record<string, any>): string {
     try {
       if (!key) return '';
-      
-      // Check if translation exists to avoid warnings
-      const translations = this.translateService.translations[this.translateService.currentLang];
-      if (!translations) {
-        return ''; // Translations not loaded yet
-      }
-      
       const translated = this.translateService.instant(key, params);
-      // If translation returns the key itself, translation failed
       return (translated && translated !== key) ? translated : '';
     } catch {
-      // Guard against TranslateService throwing on bad key
       return '';
     }
   }

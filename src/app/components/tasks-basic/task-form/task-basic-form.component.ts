@@ -60,9 +60,10 @@ import {magic} from "@environments/constants";
  * @extends BaseFormComponent<TaskProjection>
  */
 @Component({
-  selector: 'app-task-basic-form',
-  templateUrl: './task-basic-form.component.html',
-  styles: []
+    selector: 'app-task-basic-form',
+    templateUrl: './task-basic-form.component.html',
+    styles: [],
+    standalone: false
 })
 export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
   readonly config = Configuration.TASK_BASIC;

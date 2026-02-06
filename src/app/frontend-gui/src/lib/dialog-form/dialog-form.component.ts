@@ -23,9 +23,10 @@ export interface DialogFormResult {
   event: 'Add' | 'Cancel';
 }
 @Component({
-  selector: 'app-dialog-form',
-  templateUrl: './dialog-form.component.html',
-  styles: []
+    selector: 'app-dialog-form',
+    templateUrl: './dialog-form.component.html',
+    styles: [],
+    standalone: false
 })
 export class DialogFormComponent implements OnInit {
   readonly data = inject<DialogFormData>(MAT_DIALOG_DATA);

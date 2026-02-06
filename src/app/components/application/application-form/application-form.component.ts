@@ -59,9 +59,10 @@ import {constants} from '@environments/constants';
  * @extends BaseFormComponent<ApplicationProjection>
  */
 @Component({
-  selector: 'app-application-form',
-  templateUrl: './application-form.component.html',
-  styleUrls: ['./application-form.component.scss']
+    selector: 'app-application-form',
+    templateUrl: './application-form.component.html',
+    styleUrls: ['./application-form.component.scss'],
+    standalone: false
 })
 export class ApplicationFormComponent extends BaseFormComponent<ApplicationProjection> {
   readonly config = Configuration.APPLICATION;

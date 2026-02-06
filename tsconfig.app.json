@@ -10,6 +10,9 @@
     "src/app/core/hal/config/index.ts",
     "src/app/core/hal/resource/index.ts",
     "src/app/core/hal/rest/index.ts",
-    "src/app/core/public-api.ts"     
+    "src/app/core/public-api.ts",
+    "src/app/core/config/base-configuration.component.ts",
+    "src/app/domain/task/models/task-relation.model.ts",
+    "src/app/models/problem-detail.model.ts"
   ]
 }

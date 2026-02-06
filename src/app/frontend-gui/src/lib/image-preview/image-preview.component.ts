@@ -10,16 +10,15 @@ import { TranslateModule } from '@ngx-translate/core';
  * Handles both base64 data URIs and URL images.
  */
 @Component({
-  selector: 'app-image-preview',
-  templateUrl: './image-preview.component.html',
-  styleUrls: ['./image-preview.component.scss'],
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatButtonModule,
-    MatIconModule,
-    TranslateModule
-  ]
+    selector: 'app-image-preview',
+    templateUrl: './image-preview.component.html',
+    styleUrls: ['./image-preview.component.scss'],
+    imports: [
+        CommonModule,
+        MatButtonModule,
+        MatIconModule,
+        TranslateModule
+    ]
 })
 export class ImagePreviewComponent implements OnChanges, AfterViewInit {
   @Input() imageSource: string | null = null;

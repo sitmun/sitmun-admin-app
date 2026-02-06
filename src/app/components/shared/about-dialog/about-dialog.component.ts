@@ -10,9 +10,10 @@ export interface AboutDialogData {
 }
 
 @Component({
-  selector: 'app-about-dialog',
-  templateUrl: './about-dialog.component.html',
-  styleUrls: ['./about-dialog.component.scss']
+    selector: 'app-about-dialog',
+    templateUrl: './about-dialog.component.html',
+    styleUrls: ['./about-dialog.component.scss'],
+    standalone: false
 })
 export class AboutDialogComponent {
   constructor(

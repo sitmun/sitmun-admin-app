@@ -1,4 +1,4 @@
-import {HttpClient, HttpClientModule} from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import {ModuleWithProviders, NgModule} from '@angular/core';
 
 import {ExternalService} from './config/external.service';
@@ -20,18 +20,18 @@ export {ExternalConfigurationHandlerInterface} from './config/external-configura
 
 /** HAL module */
 @NgModule({
-    imports: [HttpClientModule],
-    declarations: [],
-    exports: [HttpClientModule],
-    providers: [
-        ExternalService,
-        HttpClient,
-        {
-            provide: ResourceService,
-            useClass: ResourceService,
-            deps: [ExternalService]
-        }
-    ]
+  declarations: [],
+  imports: [],
+  exports: [],
+  providers: [
+    ExternalService,
+    {
+      provide: ResourceService,
+      useClass: ResourceService,
+      deps: [ExternalService]
+    },
+    provideHttpClient(withInterceptorsFromDi())
+  ]
 })
 export class HalModule {
     static forRoot(): ModuleWithProviders<HalModule> {
@@ -39,7 +39,6 @@ export class HalModule {
             ngModule: HalModule,
             providers: [
                 ExternalService,
-                HttpClient,
                 {
                     provide: ResourceService,
                     useClass: ResourceService,

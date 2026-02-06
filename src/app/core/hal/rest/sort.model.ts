@@ -1,21 +1,13 @@
-/** SortOrder enum */
+/** Sort order type */
 export type SortOrder = 'DESC' | 'ASC';
-/** Sort data interface */
-export interface Sort {
-    /** sort path */
-    path: string;
-    /** sort order */
-    order: SortOrder;
-}
 
-/** Sort data model */
+/** Sort data model (class provides both type and constructor). */
 export class Sort {
-    /** path */
+    /** sort path */
     public path: string;
-    /** order */
+    /** sort order */
     public order: SortOrder;
 
-    /** constructor */
     constructor(path: string, order: SortOrder) {
         this.path = path;
         this.order = order;

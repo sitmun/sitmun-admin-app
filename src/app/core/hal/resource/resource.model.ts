@@ -1,4 +1,4 @@
-import {HttpHeaders, HttpParams} from '@angular/common/http';
+import { HttpHeaders, HttpParams } from '@angular/common/http';
 import {Injectable} from '@angular/core';
 
 import {EMPTY, Observable, of as observableOf, throwError} from 'rxjs';

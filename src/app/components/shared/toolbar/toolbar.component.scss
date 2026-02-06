@@ -1,4 +1,4 @@
-@import "../../../variables.scss";
+@use "../../../variables" as *;
 
 .top-toolbar-row {
 	background-color: $primary-color;

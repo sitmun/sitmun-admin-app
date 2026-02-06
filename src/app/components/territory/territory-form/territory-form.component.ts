@@ -52,9 +52,10 @@ import {UtilsService} from '@app/services/utils.service';
 
 
 @Component({
-  selector: 'app-territory-form',
-  templateUrl: './territory-form.component.html',
-  styleUrls: ['./territory-form.component.scss'],
+    selector: 'app-territory-form',
+    templateUrl: './territory-form.component.html',
+    styleUrls: ['./territory-form.component.scss'],
+    standalone: false
 })
 export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjection> {
   readonly config = Configuration.TERRITORY;

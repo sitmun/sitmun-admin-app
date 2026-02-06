@@ -17,9 +17,10 @@ import {UtilsService} from '@app/services/utils.service';
 import {config} from '@config';
 
 @Component({
-  selector: 'app-tasks-query',
-  templateUrl: './tasks-query.component.html',
-  styles: []
+    selector: 'app-tasks-query',
+    templateUrl: './tasks-query.component.html',
+    styles: [],
+    standalone: false
 })
 export class TasksQueryComponent extends BaseListComponent<Task> {
   entityListConfig: EntityListConfig<Task> = {

@@ -1,4 +1,4 @@
-@import "../../../variables.scss";
+@use "../../../variables" as *;
 
 .configuration-parameters-content {
   min-width: 500px;

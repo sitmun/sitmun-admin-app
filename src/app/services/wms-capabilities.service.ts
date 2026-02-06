@@ -141,7 +141,7 @@ export class WMSCapabilitiesService {
     try {
       const response = await firstValueFrom(this.capabilitiesService.getInfo(url));
       return { success: true, asJson: response };
-    } catch (error) {
+    } catch (_) {
       return { success: false, asJson: null };
     }
   }

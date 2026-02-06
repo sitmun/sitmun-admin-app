@@ -8,9 +8,10 @@ import { ErrorTrackingService, ErrorEntry } from '@app/services/error-tracking.s
 import { SidebarManagerService } from '@app/services/sidebar-manager.service';
 
 @Component({
-  selector: 'app-error-details-sidebar',
-  templateUrl: './error-details-sidebar.component.html',
-  styleUrls: ['./error-details-sidebar.component.scss']
+    selector: 'app-error-details-sidebar',
+    templateUrl: './error-details-sidebar.component.html',
+    styleUrls: ['./error-details-sidebar.component.scss'],
+    standalone: false
 })
 export class ErrorDetailsSidebarComponent implements OnInit {
   errors$ = this.errorTrackingService.errors$;

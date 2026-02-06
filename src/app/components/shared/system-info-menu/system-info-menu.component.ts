@@ -23,9 +23,10 @@ import { environment } from '@environments/environment';
 
 
 @Component({
-  selector: 'app-system-info-menu',
-  templateUrl: './system-info-menu.component.html',
-  styleUrls: ['./system-info-menu.component.scss']
+    selector: 'app-system-info-menu',
+    templateUrl: './system-info-menu.component.html',
+    styleUrls: ['./system-info-menu.component.scss'],
+    standalone: false
 })
 export class SystemInfoMenuComponent implements OnInit {
   currentUser = signal<User | null>(null);

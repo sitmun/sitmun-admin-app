@@ -7,9 +7,10 @@ import { ConfigurationParameter } from '@app/domain';
 import { ConfigurationParametersService } from '@app/domain/configuration/services/configuration-parameters.service';
 
 @Component({
-  selector: 'app-configuration-parameters-dialog',
-  templateUrl: './configuration-parameters-dialog.component.html',
-  styleUrls: ['./configuration-parameters-dialog.component.scss']
+    selector: 'app-configuration-parameters-dialog',
+    templateUrl: './configuration-parameters-dialog.component.html',
+    styleUrls: ['./configuration-parameters-dialog.component.scss'],
+    standalone: false
 })
 export class ConfigurationParametersDialogComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['name', 'value'];

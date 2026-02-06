@@ -38,9 +38,10 @@ import {constants} from '@environments/constants';
 
 
 @Component({
-  selector: 'app-user-form',
-  templateUrl: './user-form.component.html',
-  styles: []
+    selector: 'app-user-form',
+    templateUrl: './user-form.component.html',
+    styles: [],
+    standalone: false
 })
 export class UserFormComponent extends BaseFormComponent<UserProjection> {
   readonly config = Configuration.USER;

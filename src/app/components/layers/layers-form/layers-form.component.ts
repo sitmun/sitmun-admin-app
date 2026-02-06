@@ -1,4 +1,4 @@
-import {HttpClient} from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import {Component, TemplateRef, ViewChild} from '@angular/core';
 import {
   AbstractControl,
@@ -54,9 +54,10 @@ import {constants} from '@environments/constants';
 
 
 @Component({
-  selector: 'app-layers-form',
-  templateUrl: './layers-form.component.html',
-  styles: []
+    selector: 'app-layers-form',
+    templateUrl: './layers-form.component.html',
+    styles: [],
+    standalone: false
 })
 export class LayersFormComponent extends BaseFormComponent<CartographyProjection> {
   readonly config = Configuration.LAYER;

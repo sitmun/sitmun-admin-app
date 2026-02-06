@@ -1,10 +1,12 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
+import { MatIconModule } from '@angular/material/icon';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -26,6 +28,7 @@ describe('DialogTranslationComponent', () => {
         MatDialogModule,
         MatButtonModule,
         MatIconModule,
+        MatIconTestingModule,
         MatFormFieldModule,
         MatInputModule,
         MatTooltipModule,
@@ -39,28 +42,29 @@ describe('DialogTranslationComponent', () => {
           }
         }),
         ReactiveFormsModule,
-        HttpClientTestingModule
       ],
       providers: [
-        { provide: MatDialogRef, useValue: { 
+        { provide: MatDialogRef, useValue: {
           // eslint-disable-next-line @typescript-eslint/no-empty-function
-          close: () => {} 
+          close: () => {}
         } },
         { provide: MAT_DIALOG_DATA, useValue: {} },
         TranslateService,
-        MatIconRegistry
+        provideHttpClient(),
+        provideHttpClientTesting(),
       ]
     })
     .compileComponents();
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     fixture = TestBed.createComponent(DialogTranslationComponent);
     component = fixture.componentInstance;
     component.translationsMap = new Map<string, any>();
     component.languagesAvailables = [];
     component.languageByDefault = 'en';
     fixture.detectChanges();
+    await fixture.whenStable();
   });
 
   it('should create', () => {

@@ -1,4 +1,4 @@
-import {HttpContext, HttpContextToken, HttpHeaders, HttpParams, HttpResponse} from '@angular/common/http';
+import { HttpContext, HttpContextToken, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import {Observable, of, switchMap, throwError} from 'rxjs';

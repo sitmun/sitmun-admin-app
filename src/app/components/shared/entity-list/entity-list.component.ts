@@ -32,9 +32,10 @@ export interface EntityListConfig<T> {
 }
 
 @Component({
-  selector: 'app-entity-list',
-  templateUrl: './entity-list.component.html',
-  styles: [],
+    selector: 'app-entity-list',
+    templateUrl: './entity-list.component.html',
+    styles: [],
+    standalone: false
 })
 export class EntityListComponent<T extends Resource> implements OnInit, OnChanges {
   @Input() config!: EntityListConfig<T>;

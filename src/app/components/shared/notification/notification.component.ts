@@ -25,8 +25,8 @@ export interface NotificationData {
 }
 
 @Component({
-  selector: 'app-notification',
-  template: `
+    selector: 'app-notification',
+    template: `
     <div class="notification-content mat-elevation-z6">
       <div class="notification-icon">
         <mat-icon>{{ getIcon() }}</mat-icon>
@@ -45,7 +45,8 @@ export interface NotificationData {
       </div>
     </div>
   `,
-  styleUrls: ['./notification.component.scss']
+    styleUrls: ['./notification.component.scss'],
+    standalone: false
 })
 export class NotificationComponent {
   constructor(

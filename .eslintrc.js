@@ -32,7 +32,9 @@ module.exports = {
             "vars": "all",
             "varsIgnorePattern": "^_",
             "args": "after-used",
-            "argsIgnorePattern": "^_"
+            "argsIgnorePattern": "^_",
+            "caughtErrors": "none",
+            "caughtErrorsIgnorePattern": "^_"
           }
         ],
         "@angular-eslint/directive-selector": [
@@ -91,7 +93,9 @@ module.exports = {
         // Additional helpful rules
         "import/first": "error",              // Imports must come first
         "import/newline-after-import": "error", // Blank line after imports
-        "import/no-duplicates": "error"       // Merge duplicate imports
+        "import/no-duplicates": "error",      // Merge duplicate imports
+        // NgModule-based; standalone migration deferred per plan
+        "@angular-eslint/prefer-standalone": "off"
         }
     },
     {

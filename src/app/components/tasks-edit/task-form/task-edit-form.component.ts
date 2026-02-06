@@ -64,9 +64,10 @@ import {magic} from "@environments/constants";
  * @extends BaseFormComponent<TaskProjection>
  */
 @Component({
-  selector: 'app-task-edit-form',
-  templateUrl: './task-edit-form.component.html',
-  styles: []
+    selector: 'app-task-edit-form',
+    templateUrl: './task-edit-form.component.html',
+    styles: [],
+    standalone: false
 })
 export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
   readonly config = Configuration.TASK_EDIT;

@@ -1,4 +1,4 @@
-import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse} from '@angular/common/http';
+import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse } from '@angular/common/http';
 import {Injectable, Injector, NgZone} from '@angular/core';
 
 import {TranslateService} from '@ngx-translate/core';
@@ -163,7 +163,7 @@ export class MessagesInterceptor implements HttpInterceptor {
                             }
                           );
                         }
-                      } catch (e) {
+                      } catch (_) {
                         // ErrorTrackingService not available - ignore silently
                         // This can happen during app initialization
                       }

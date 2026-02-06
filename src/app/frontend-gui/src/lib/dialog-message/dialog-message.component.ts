@@ -16,9 +16,10 @@ export const DIALOG_EVENTS = {
  * This component can be used to show confirmation dialogs, alerts, or any message that requires user interaction.
  */
 @Component({
-  selector: 'app-dialog-message',
-  templateUrl: './dialog-message.component.html',
-  styles: []
+    selector: 'app-dialog-message',
+    templateUrl: './dialog-message.component.html',
+    styles: [],
+    standalone: false
 })
 export class DialogMessageComponent implements OnInit {
 

@@ -64,7 +64,7 @@ export class FeatureFlagService {
         });
         return mergedFlags;
       }
-    } catch (e) {
+    } catch (_) {
       // localStorage not available or error reading - use defaults
     }
     // Fall back to development defaults
@@ -83,7 +83,7 @@ export class FeatureFlagService {
         flagsToStore[flagKey] = { enabled: this.featureFlags[flagKey].enabled };
       });
       localStorage.setItem(FeatureFlagService.STORAGE_KEY, JSON.stringify(flagsToStore));
-    } catch (e) {
+    } catch (_) {
       // localStorage not available or error writing - ignore silently
     }
   }
@@ -217,7 +217,7 @@ export class FeatureFlagService {
     // Clear persisted flags
     try {
       localStorage.removeItem(FeatureFlagService.STORAGE_KEY);
-    } catch (e) {
+    } catch (_) {
       // localStorage not available - ignore silently
     }
     this.featureFlagsSubject.next(this.featureFlags);

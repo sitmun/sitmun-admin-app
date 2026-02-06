@@ -1,5 +1,5 @@
 import {Location} from '@angular/common';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import {Component, Injectable, Injector, NgZone} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 
@@ -60,8 +60,12 @@ export class UtilsService {
     this.ngZone.runOutsideAngular(() => {
       requestAnimationFrame(() => {
         this.ngZone.run(() => {
-          this.translationService = this.injector.get(TranslationService);
-          this.codeListService = this.injector.get(CodeListService);
+          try {
+            this.translationService = this.injector.get(TranslationService);
+            this.codeListService = this.injector.get(CodeListService);
+          } catch {
+            // Injector may be destroyed (e.g. in tests after fixture destroy)
+          }
         });
       });
     });

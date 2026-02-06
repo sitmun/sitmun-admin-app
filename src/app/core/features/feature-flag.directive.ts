@@ -17,7 +17,8 @@ import { FeatureFlagService } from './feature-flag.service';
  * Usage: <ng-container *appFeatureFlag="'FEATURE_KEY'">...</ng-container>
  */
 @Directive({
-  selector: '[appFeatureFlag]'
+    selector: '[appFeatureFlag]',
+    standalone: false
 })
 export class FeatureFlagDirective implements OnInit {
   private hasView = false;

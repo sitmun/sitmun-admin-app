@@ -17,9 +17,10 @@ import {UtilsService} from '@app/services/utils.service';
 import {config} from '@config';
 
 @Component({
-  selector: 'app-tasks-edit',
-  templateUrl: './tasks-edit.component.html',
-  styles: []
+    selector: 'app-tasks-edit',
+    templateUrl: './tasks-edit.component.html',
+    styles: [],
+    standalone: false
 })
 export class TasksEditComponent extends BaseListComponent<Task> {
   entityListConfig: EntityListConfig<Task> = {

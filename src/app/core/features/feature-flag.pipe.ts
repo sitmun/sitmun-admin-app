@@ -4,8 +4,9 @@ import { FeatureFlagKeys } from './feature-flag.config';
 import { FeatureFlagService } from './feature-flag.service';
 
 @Pipe({
-  name: 'featureFlag',
-  pure: true
+    name: 'featureFlag',
+    pure: true,
+    standalone: false
 })
 export class FeatureFlagPipe implements PipeTransform {
   constructor(private featureFlagService: FeatureFlagService) {}

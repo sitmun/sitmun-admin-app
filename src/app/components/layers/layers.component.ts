@@ -21,9 +21,10 @@ import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 
 @Component({
-  selector: 'app-layers',
-  templateUrl: './layers.component.html',
-  styles: []
+    selector: 'app-layers',
+    templateUrl: './layers.component.html',
+    styles: [],
+    standalone: false
 })
 export class LayersComponent extends BaseListComponent<CartographyProjection> {
   entityListConfig: EntityListConfig<CartographyProjection> = {

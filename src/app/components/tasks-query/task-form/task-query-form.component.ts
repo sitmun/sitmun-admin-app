@@ -65,9 +65,10 @@ import {magic} from "@environments/constants";
  * @extends BaseFormComponent<TaskProjection>
  */
 @Component({
-  selector: 'app-task-query-form',
-  templateUrl: './task-query-form.component.html',
-  styles: []
+    selector: 'app-task-query-form',
+    templateUrl: './task-query-form.component.html',
+    styles: [],
+    standalone: false
 })
 export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
   readonly config = Configuration.TASK_QUERY;

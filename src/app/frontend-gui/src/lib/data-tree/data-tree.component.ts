@@ -292,10 +292,11 @@ export class FileDatabase {
  * @title Tree with flat nodes
  */
 @Component({
-  selector: 'app-data-tree',
-  templateUrl: 'data-tree.component.html',
-  styleUrls: ['data-tree.component.scss'],
-  providers: [FileDatabase]
+    selector: 'app-data-tree',
+    templateUrl: 'data-tree.component.html',
+    styleUrls: ['data-tree.component.scss'],
+    providers: [FileDatabase],
+    standalone: false
 })
 export class DataTreeComponent implements OnInit {
   @Output() createNode: EventEmitter<any>;
