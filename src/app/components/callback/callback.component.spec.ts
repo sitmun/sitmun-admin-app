@@ -1,5 +1,6 @@
-import {HttpClientModule} from '@angular/common/http';
-import {TestBed, ComponentFixture} from '@angular/core/testing';
+import {provideHttpClient} from '@angular/common/http';
+import {provideHttpClientTesting} from '@angular/common/http/testing';
+import {TestBed, ComponentFixture, fakeAsync, tick} from '@angular/core/testing';
 import {Router} from '@angular/router';
 
 import {TranslateLoader, TranslateModule, TranslateService} from '@ngx-translate/core';
@@ -23,7 +24,6 @@ describe('CallbackComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         CallbackComponent,
-        HttpClientModule,
         TranslateModule.forRoot({
           loader: {
             provide: TranslateLoader,
@@ -34,6 +34,8 @@ describe('CallbackComponent', () => {
         })
       ],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         Router,
         CookieService,
         TranslateService,
@@ -58,22 +60,24 @@ describe('CallbackComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should access dashboard if token exists', () => {
+  it('should access dashboard if token exists', fakeAsync(() => {
     jest.spyOn(cookieService, 'get').mockReturnValue('token123');
     const loginSpy = jest.spyOn(authService, 'loginWithToken').mockResolvedValue(undefined);
     const navSpy = jest.spyOn(router, 'navigate').mockResolvedValue(true as any);
     component.ngOnInit();
+    tick();
     expect(component.messageKey).toBe('callback.redirect');
     expect(loginSpy).toHaveBeenCalledWith('token123');
     expect(navSpy).toHaveBeenCalledWith(['dashboard']);
-  });
+  }));
 
-  it('should navigate to root and show error if token does not exist', () => {
+  it('should navigate to root and show error if token does not exist', fakeAsync(() => {
     jest.spyOn(cookieService, 'get').mockReturnValue('');
     const navByUrlSpy = jest.spyOn(router, 'navigateByUrl').mockResolvedValue(true as any);
     const showErrorSpy = jest.spyOn(notificationService, 'showError');
     component.ngOnInit();
+    tick();
     expect(navByUrlSpy).toHaveBeenCalledWith('/');
     expect(showErrorSpy).toHaveBeenCalled();
-  });
+  }));
 });

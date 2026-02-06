@@ -6,6 +6,7 @@ import {firstValueFrom, Observable} from 'rxjs';
 import {LoginMethod} from "@app/components/login/login.component";
 import {environment} from "@environments/environment.prod";
 
+import {OIDC_CLIENT_TYPE_ADMIN, OIDC_CLIENT_TYPE_QUERY_PARAM, OIDC_TOKEN_COOKIE} from './auth.constants';
 import {AuthService} from './auth.service';
 import {Principal} from './principal.service';
 
@@ -54,7 +55,7 @@ export class LoginService {
     // Then call the auth service to clear tokens
     this.authServerProvider.logout().subscribe(() => {
       // Additional cleanup if needed
-      this.cookieService.delete('oidc_token');
+      this.cookieService.delete(OIDC_TOKEN_COOKIE);
     });
   }
 
@@ -63,6 +64,6 @@ export class LoginService {
   }
 
   initOidcLogin(providerId: string) {
-    globalThis.location.href = `${environment.apiBaseURL}${this.AUTH_OIDC_LOGIN_API}/${providerId}?client_type=admin`
+    globalThis.location.href = `${environment.apiBaseURL}${this.AUTH_OIDC_LOGIN_API}/${providerId}?${OIDC_CLIENT_TYPE_QUERY_PARAM}=${OIDC_CLIENT_TYPE_ADMIN}`;
   }
 }

@@ -1,15 +1,17 @@
 import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {TranslateModule, TranslateService} from "@ngx-translate/core";
 import {CookieService} from "ngx-cookie-service";
 
 import {AuthService} from "@app/core";
+import {OIDC_TOKEN_COOKIE} from "@app/core/auth/auth.constants";
 import {NotificationService} from "@app/services/notification.service";
 
 @Component({
   selector: 'app-callback',
-  imports: [TranslateModule],
+  imports: [MatProgressSpinnerModule, TranslateModule],
   templateUrl: './callback.component.html',
   styleUrl: './callback.component.scss'
 })
@@ -26,7 +28,7 @@ export class CallbackComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const token = this.cookieService.get('oidc_token');
+    const token = this.cookieService.get(OIDC_TOKEN_COOKIE);
     if (token) {
       this.messageKey = 'callback.redirect';
       this.authenticationService.loginWithToken(token).then(() => {
