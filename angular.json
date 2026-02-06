@@ -119,18 +119,16 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-            "browserTarget": "admin-app:build"
-          },
+          "options": {},
           "configurations": {
             "production": {
-              "browserTarget": "admin-app:build:production"
+              "buildTarget": "admin-app:build:production"
             },
             "docker-dev": {
-              "browserTarget": "admin-app:build:docker-dev"
+              "buildTarget": "admin-app:build:docker-dev"
             },
             "development": {
-              "browserTarget": "admin-app:build:development"
+              "buildTarget": "admin-app:build:development"
             }
           },
           "defaultConfiguration": "development"

@@ -54,21 +54,22 @@ import {magic} from "@environments/constants";
 @Component({
   selector: 'app-task-more-info-form',
   templateUrl: './task-more-info-form.component.html',
-  styles: []
+  styles: [],
+  standalone: false
 })
 export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection> implements OnInit {
   readonly config = Configuration.TASK_MORE_INFO;
-  
+
   public override entityForm: FormGroup;
-  
+
   protected readonly rolesTable: DataTableDefinition<Role, Role>;
   protected readonly availabilitiesTable: DataTableDefinition<TaskAvailabilityProjection, TerritoryProjection>;
   protected readonly parametersTable: DataTableDefinition<TaskMoreInfoParameter, TaskMoreInfoParameter>;
-  
+
   private taskTypeName: string = null;
   protected taskTypeNameTranslated: string = null;
   private taskType: TaskType = null;
-  
+
   protected taskGroupList: TaskGroup[] = [];
   protected cartographies: Cartography[] = [];
   protected connections: Connection[] = [];

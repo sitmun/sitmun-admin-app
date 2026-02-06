@@ -19,7 +19,8 @@ import {magic} from '@environments/constants';
 @Component({
   selector: 'app-tasks-more-info',
   templateUrl: './tasks-more-info.component.html',
-  styles: []
+  styles: [],
+  standalone: false
 })
 export class TasksMoreInfoComponent extends BaseListComponent<Task> {
   entityListConfig: EntityListConfig<Task> = {
