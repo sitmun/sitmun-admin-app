@@ -33,7 +33,7 @@
     "@ngx-translate/core": "^17.0.0",
     "@ngx-translate/http-loader": "^17.0.0",
     "echarts": "^5.5.0",
-    "fast-xml-parser": "^5.2.5",
+    "fast-xml-parser": "^5.3.4",
     "jsonpath": "^1.1.1",
     "ngx-cookie-service": "^19.1.2",
     "ngx-echarts": "^19.0.0",
