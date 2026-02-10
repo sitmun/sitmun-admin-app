@@ -454,10 +454,6 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
         .withReference(this.newParameterDialog)
         .withTitle(this.translateService.instant('entity.task.parameters.title'))
         .withForm(new FormGroup({
-          key: new FormControl('', {
-            validators: [Validators.required],
-            nonNullable: true
-          }),
           label: new FormControl('', {
             validators: [Validators.required],
             nonNullable: true
@@ -472,7 +468,6 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
           })
         })).withPreOpenFunction((form: FormGroup) => {
           form.reset({
-            key: '',
             label: '',
             value: '',
             order: null

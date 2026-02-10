@@ -215,16 +215,12 @@
     <mat-card appearance="outlined">
       <mat-card-content>
         <mat-form-field appearance="outline" class="full">
-          <mat-label>{{ 'tasksMoreInfoEntity.key' | translate }}</mat-label>
-          <input matInput type="text" formControlName="key" required>
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'common.form.label' | translate }}</mat-label>
           <input matInput type="text" formControlName="label" required>
         </mat-form-field>
         <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'common.form.value' | translate }}</mat-label>
-          <input matInput type="text" formControlName="value">
+          <input matInput type="text" formControlName="value" required>
         </mat-form-field>
         <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'common.form.order' | translate }}</mat-label>
