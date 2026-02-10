@@ -789,7 +789,7 @@
   "tasksMoreInfoEntity.taskRelationType": "Type de relation",
   "tasksMoreInfoEntity.cartography": "Cartographie",
   "tasksMoreInfoEntity.dataAccessType": "Type d'accès aux données",
-  "tasksMoreInfoEntity.dataAccessTypeApi": "API",
+  "tasksMoreInfoEntity.dataAccessTypeApi": "WS",
   "tasksMoreInfoEntity.dataAccessTypeSql": "SQL",
   "tasksMoreInfoEntity.dataAccessTypeUrlRedirect": "Redirection URL",
   "tasksReportEntity.id": "ID",

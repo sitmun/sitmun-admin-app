@@ -80,7 +80,7 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
 
   private readonly moreInfoScope = {
     sql: 'SQL',
-    api: 'API',
+    api: 'WS',
     url: 'URL'
   };
 
