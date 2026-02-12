@@ -29,6 +29,12 @@ export interface TaskProperties {
   parameters: any[];
   /** Cartography Query fields */
   fields: any[];
+  /** Authentication mode for WS requests */
+  authenticationMode?: string | null;
+  /** Authentication user for WS requests */
+  user?: string | null;
+  /** Authentication password for WS requests */
+  password?: string | null;
 }
 
 /** Task model */
@@ -102,7 +108,10 @@ export class Task extends Resource {
         format: null,
         path: null,
         parameters: [],
-        fields: []
+        fields: [],
+        authenticationMode: null,
+        user: null,
+        password: null
       };
     }
 
@@ -112,6 +121,9 @@ export class Task extends Resource {
     result.command = result?.command ?? null;
     result.format = result?.format ?? null;
     result.path = result?.path ?? null;
+    result.authenticationMode = result?.authenticationMode ?? null;
+    result.user = result?.user ?? null;
+    result.password = result?.password ?? null;
 
     if (!result?.parameters || !Array.isArray(result?.parameters) || !result?.parameters?.some(item => item instanceof Object)) {
       result.parameters = [];
@@ -139,7 +151,10 @@ export class TaskProjection extends Resource {
     format: null,
     path: null,
     parameters: [],
-    fields: []
+    fields: [],
+    authenticationMode: null,
+    user: null,
+    password: null
   };
   serviceId: number;
   serviceName: string;

@@ -80,7 +80,7 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
 
   private readonly moreInfoScope = {
     sql: 'SQL',
-    api: 'WS',
+    api: 'API',
     url: 'URL'
   };
 
@@ -126,7 +126,7 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
       .register(this.availabilitiesTable)
       .register(this.parametersTable);
 
-    await this.initCodeLists(['tasksEntity.type', 'moreInfo.scope'])
+    await this.initCodeLists(['tasksEntity.type', 'moreInfo.scope', 'service.authenticationMode'])
     this.initTranslations('Task', ['name'])
 
     const [taskTypes, taskGroups, cartographies, connections, uiList] = await Promise.all([
@@ -197,6 +197,10 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
       scope = this.moreInfoScope.api;
     }
     const command = properties.command || null;
+    const defaultAuthMode = this.defaultValueOrNull('service.authenticationMode');
+    const authenticationMode = properties.authenticationMode ?? defaultAuthMode?.value ?? null;
+    const user = properties.user || null;
+    const password = properties.password || null;
 
     this.entityForm = new FormGroup({
       name: new FormControl(this.entityToEdit.name, {
@@ -221,7 +225,10 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
       command: new FormControl(command, {
         validators: [Validators.required],
         nonNullable: true
-      })
+      }),
+      authenticationMode: new FormControl(authenticationMode),
+      user: new FormControl(user),
+      password: new FormControl(password)
     });
 
     const selectedCartography = this.cartographies.find(cartography => cartography.id === this.entityToEdit.cartographyId);
@@ -237,12 +244,18 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
 
     const scope = formValues.scope;
     const command = formValues.command;
+    const authenticationMode = scope === this.moreInfoScope.api ? formValues.authenticationMode : null;
+    const user = scope === this.moreInfoScope.api ? formValues.user : null;
+    const password = scope === this.moreInfoScope.api ? formValues.password : null;
 
     // Get existing properties to preserve fields and parameters
     const existingProps: any = this.entityToEdit.properties || {};
     const properties: any = TaskPropertiesBuilder.create()
       .withScope(scope)
       .withCommand(command)
+      .withAuthenticationMode(authenticationMode)
+      .withUser(user)
+      .withPassword(password)
       .withParameters(existingProps.parameters || [])
       .withFields(existingProps.fields || [])
       .build();
@@ -338,6 +351,14 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
   onScopeChange(event: MatSelectChange) {
     if (event.value !== this.moreInfoScope.sql) {
       this.entityForm.get('connectionId')?.setValue(null);
+    }
+    if (event.value !== this.moreInfoScope.api) {
+      this.entityForm.get('authenticationMode')?.setValue(null);
+      this.entityForm.get('user')?.setValue(null);
+      this.entityForm.get('password')?.setValue(null);
+    } else if (!this.entityForm.get('authenticationMode')?.value) {
+      const defaultAuthMode = this.defaultValueOrNull('service.authenticationMode');
+      this.entityForm.get('authenticationMode')?.setValue(defaultAuthMode?.value ?? null);
     }
   }
 

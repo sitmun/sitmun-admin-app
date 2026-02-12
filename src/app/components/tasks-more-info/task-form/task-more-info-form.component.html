@@ -128,6 +128,31 @@
             <input matInput type="text" formControlName="command" [maxlength]="2000">
             <mat-hint align="end">{{ entityForm.get('command') | characterCount }}</mat-hint>
           </mat-form-field>
+          <mat-form-field appearance="outline" class="quarter">
+            <mat-label>{{ 'entity.service.authenticationMode' | translate }}</mat-label>
+            <mat-select formControlName="authenticationMode" [placeholder]="'common.form.none' | translate">
+              <mat-option [value]="mode.value" *ngFor="let mode of this.codeList('service.authenticationMode')">
+                {{ mode.description }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <div class="break"></div>
+          <mat-form-field appearance="outline"
+                          *ngIf="entityForm.get('authenticationMode')?.value !== 'None'"
+                          class="half add-gap"
+          >
+            <mat-label>{{ 'entity.service.user' | translate }}</mat-label>
+            <input matInput type="text" formControlName="user" [maxlength]="50">
+            <mat-hint align="end">{{ entityForm.get('user') | characterCount }}</mat-hint>
+          </mat-form-field>
+          <mat-form-field appearance="outline"
+                          *ngIf="entityForm.get('authenticationMode')?.value !== 'None'"
+                          class="half"
+          >
+            <mat-label>{{ 'entity.service.password' | translate }}</mat-label>
+            <input matInput type="password" formControlName="password" [maxlength]="50" autocomplete="new-password">
+            <mat-hint align="end">{{ entityForm.get('password') | characterCount }}</mat-hint>
+          </mat-form-field>
         </mat-card-content>
       </mat-card>
     </form>

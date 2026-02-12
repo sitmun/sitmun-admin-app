@@ -10,6 +10,9 @@ export class TaskPropertiesBuilder {
   private _path: string | null = null;
   private _parameters: any[] = [];
   private _fields: any[] = [];
+  private _authenticationMode: string | null = null;
+  private _user: string | null = null;
+  private _password: string | null = null;
 
   /**
    * Creates a new TaskPropertiesBuilder
@@ -35,7 +38,10 @@ export class TaskPropertiesBuilder {
       .withFormat(properties.format)
       .withPath(properties.path)
       .withParameters(properties.parameters ? [...properties.parameters] : [])
-      .withFields(properties.fields ? [...properties.fields] : []);
+      .withFields(properties.fields ? [...properties.fields] : [])
+      .withAuthenticationMode(properties.authenticationMode)
+      .withUser(properties.user)
+      .withPassword(properties.password);
   }
 
   /**
@@ -99,6 +105,36 @@ export class TaskPropertiesBuilder {
   }
 
   /**
+   * Sets the authentication mode
+   * @param authenticationMode The authentication mode value
+   * @returns This builder for chaining
+   */
+  public withAuthenticationMode(authenticationMode: string | null): TaskPropertiesBuilder {
+    this._authenticationMode = authenticationMode;
+    return this;
+  }
+
+  /**
+   * Sets the user name for authentication
+   * @param user The user value
+   * @returns This builder for chaining
+   */
+  public withUser(user: string | null): TaskPropertiesBuilder {
+    this._user = user;
+    return this;
+  }
+
+  /**
+   * Sets the password for authentication
+   * @param password The password value
+   * @returns This builder for chaining
+   */
+  public withPassword(password: string | null): TaskPropertiesBuilder {
+    this._password = password;
+    return this;
+  }
+
+  /**
    * Adds a parameter to the parameters array
    * @param parameter The parameter to add
    * @returns This builder for chaining
@@ -130,6 +166,9 @@ export class TaskPropertiesBuilder {
       path: this._path,
       parameters: [...this._parameters],
       fields: [...this._fields],
+      authenticationMode: this._authenticationMode,
+      user: this._user,
+      password: this._password,
     };
   }
 }
