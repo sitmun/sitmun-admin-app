@@ -7,7 +7,9 @@
   [canSave]="canSaveEntity"
   [form]="entityForm"
   validationEntityType="user"
+  [validationFieldLabelKeys]="{ username: 'common.form.identifier' }"
   [dataLoaded]="dataLoaded"
+  [customWarningMessage]="getBuiltInUserWarning()"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>
@@ -21,9 +23,9 @@
         <form [formGroup]='entityForm' *ngIf="dataLoaded">
           <mat-card class="sitmun-mat-card-margin" appearance="outlined">
             <mat-card-content>
-              <!-- User name -->
+              <!-- Login identifier -->
               <mat-form-field appearance="outline" class="quarter">
-                <mat-label>{{ 'entity.user.label' | translate }}</mat-label>
+                <mat-label>{{ 'common.form.identifier' | translate }}</mat-label>
                 <input matInput type="text" formControlName="username" [readonly]="isUsernamePublic()">
               </mat-form-field>
               <div class="break"></div>

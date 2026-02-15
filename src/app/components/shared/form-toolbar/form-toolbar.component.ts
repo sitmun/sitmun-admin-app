@@ -24,8 +24,11 @@ export class FormToolbarComponent {
   @Input() canSave = true;
   @Input() form: UntypedFormGroup;
   @Input() validationEntityType: string;
+  /** Optional map of form control name → i18n key for validation banner labels */
+  @Input() validationFieldLabelKeys: Record<string, string> | undefined;
   @Input() showValidationBanner = true;
   @Input() dataLoaded = false;
+  @Input() customWarningMessage: string;
 
   @Output() save = new EventEmitter<void>();
   @Output() back = new EventEmitter<void>();

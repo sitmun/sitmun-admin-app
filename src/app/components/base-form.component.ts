@@ -6,7 +6,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 
 import {TranslateService} from "@ngx-translate/core";
 import {firstValueFrom, Observable} from "rxjs";
-import {map, tap} from "rxjs/operators";
+import { tap} from "rxjs/operators";
 
 import {DataTablesRegistry} from "@app/components/data-tables.util";
 import {HalOptions, HalParam, Resource} from "@app/core";
@@ -117,6 +117,9 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
 
   /** Name of the entity being translated */
   private propertyTranslationsEntity: string;
+
+  /** Default language code for i18n fields (from config) */
+  defaultLang = config.defaultLang;
 
   protected destroyRef = inject(DestroyRef);
 
@@ -305,13 +308,26 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
   /**
    * Processes route parameters to extract entity IDs.
    * Sets the entityID and duplicateID properties based on the current route.
+   * Redirects to dashboard if route params are invalid (non-numeric).
    *
    * @returns {Promise<void>} Promise that resolves when parameters are processed
+   * @throws {Error} Throws an error if route params are invalid to abort fetchData
    */
   async processRouteParams(): Promise<void> {
     const params = await firstValueFrom(this.activatedRoute.params);
-    this.entityID = params.id ?? -1;
-    this.duplicateID = params.idDuplicate ?? -1;
+    this.entityID = params.id != null ? Number(params.id) : -1;
+    this.duplicateID = params.idDuplicate != null ? Number(params.idDuplicate) : -1;
+
+    // Validate that route params are valid numbers (or -1 for new/no entity)
+    if (Number.isNaN(this.entityID) || Number.isNaN(this.duplicateID)) {
+      this.loggerService.warn('Invalid route parameters detected, redirecting to dashboard', {
+        entityID: this.entityID,
+        duplicateID: this.duplicateID,
+        params
+      });
+      await this.router.navigate(['/dashboard']);
+      throw new Error('Invalid route parameters');
+    }
   }
 
   /**
@@ -712,16 +728,21 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
 
   /**
    * Loads existing translations for an entity from the database.
-   * Filters translations by entity ID and updates the translation maps.
+   * Uses the efficient byElement search endpoint to fetch only relevant translations.
    *
    * @param {Object} entity - The entity object containing an ID to load translations for
    * @param {number} entity.id - The ID of the entity
    * @returns {Promise<void>} Promise that resolves when translations are loaded
    */
   async loadTranslations(entity: { id: number }): Promise<void> {
-    const allTranslations = await firstValueFrom(this.translationService.getAll().pipe(
-      map((data: any[]) => data.filter(elem => elem.element === entity.id))
-    ));
+    const allTranslations = await firstValueFrom(
+      this.translationService.search('byElement', {
+        params: [
+          { key: 'element', value: entity.id.toString() },
+          { key: 'column', value: this.propertyTranslationsEntity }
+        ]
+      })
+    );
     this.propertyTranslations.forEach((value: PropertyTranslations, property: string) => {
       allTranslations.filter(t => t.column === `${this.propertyTranslationsEntity}.${property}`).forEach(t => value.map.set(t.languageShortname, t));
       value.modified = false;

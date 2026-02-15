@@ -7,6 +7,7 @@
   [canSave]="canSaveEntity"
   [form]="entityForm"
   validationEntityType="task"
+  [validationFieldLabelKeys]="getValidationFieldLabelKeys()"
   [dataLoaded]="dataLoaded"
   entityType="{{ config.labelSingular }}"
   font="{{ config.font }}"
@@ -23,7 +24,7 @@
       <mat-card appearance="outlined" class="sitmun-mat-card-margin">
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'common.form.name' | translate }}</mat-label>
+            <mat-label>{{ 'common.form.name' | translate }} ({{ defaultLang }})</mat-label>
             <input [maxlength]="512" formControlName="name" matInput required type="text">
             <mat-hint [class.text-warning]="entityForm.get('name')?.value?.length > 512" align="end">
               {{ entityForm.get('name') | characterCount }}

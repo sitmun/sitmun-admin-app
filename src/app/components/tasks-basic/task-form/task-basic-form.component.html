@@ -8,6 +8,7 @@
   [canSave]="canSaveEntity"
   [form]="entityForm"
   validationEntityType="task"
+  [validationFieldLabelKeys]="{ uiId: 'entity.task.basic.ui', taskGroupId: 'entity.taskGroup.label' }"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
@@ -23,7 +24,7 @@
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'common.form.name' | translate }}</mat-label>
+            <mat-label>{{ 'common.form.name' | translate }} ({{ defaultLang }})</mat-label>
             <input matInput type="text" formControlName="name" [maxlength]="512" required>
             <mat-hint align="end" [class.text-warning]="entityForm.get('name')?.value?.length > 512">
               {{ entityForm.get('name') | characterCount }}
@@ -34,11 +35,16 @@
                       (click)="onTranslated('name')"
                       onKeyDown="onTranslated('name')">translate</mat-icon>
           </mat-form-field>
-          <mat-form-field appearance="outline" class="half add-gap">
+          <mat-form-field appearance="outline" class="half add-gap"
+                          [matTooltip]="getUIName(entityForm.get('uiId')?.value)"
+                          matTooltipPosition="above">
             <mat-label>{{ 'entity.task.basic.ui' | translate }}</mat-label>
             <mat-select formControlName="uiId" class="form-control">
+              <mat-select-trigger>
+                {{ getUIName(entityForm.get('uiId')?.value) }}
+              </mat-select-trigger>
               <mat-option [value]="ui.id" *ngFor="let ui of uiList">
-                {{ ui.name }}
+                {{ ui.tooltip || ui.name }}
               </mat-option>
             </mat-select>
           </mat-form-field>

@@ -8,6 +8,7 @@ import { RouterModule } from '@angular/router';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
+import { Principal } from '@app/core/auth/principal.service';
 import { MaterialModule } from '@app/material-module';
 import { LoggerService } from '@app/services/logger.service';
 import { configureLoggerForTests } from '@app/testing/test-helpers';
@@ -32,7 +33,14 @@ describe('SideMenuComponent', () => {
           })
         }
       })],
-      providers: [HttpClient, HttpHandler]
+      providers: [
+        HttpClient,
+        HttpHandler,
+        {
+          provide: Principal,
+          useValue: { identity: () => Promise.resolve({ username: 'user', administrator: false }) }
+        }
+      ]
     })
     .compileComponents();
     

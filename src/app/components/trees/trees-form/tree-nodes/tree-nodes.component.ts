@@ -124,6 +124,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
 
   filterOptions = [{value: 'UNDEFINED', description: 'UNDEFINED'}, {value: true, description: 'YES'}, {value: false, description: 'NO'}];
   codeValues = constants.codeValue;
+  defaultLang = config.defaultLang;
   servicesList = [];
   layersList = [];
   nodeInputsControls = [];

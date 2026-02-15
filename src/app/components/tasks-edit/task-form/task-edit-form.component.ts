@@ -423,12 +423,22 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
           this.entityForm.get('connectionId').setValidators(Validators.required);
         }
         this.entityForm.get('cartographyId').setValue(null);
+        this.entityForm.get('cartographyId').removeValidators(Validators.required);
         this.entityForm.get('cartographyId').disable();
-      }
-      if (value === this.codeValues.editionTaskScope.cartographyEdition) {
+      } else if (value === this.codeValues.editionTaskScope.cartographyEdition) {
         this.entityForm.get('connectionId').enable();
         this.entityForm.get('connectionId').removeValidators(Validators.required);
         this.entityForm.get('cartographyId').enable();
+        if (!this.entityForm.get('cartographyId').hasValidator(Validators.required)) {
+          this.entityForm.get('cartographyId').setValidators(Validators.required);
+        }
+      } else {
+        this.entityForm.get('connectionId').removeValidators(Validators.required);
+        this.entityForm.get('connectionId').setValue(null);
+        this.entityForm.get('connectionId').disable();
+        this.entityForm.get('cartographyId').setValue(null);
+        this.entityForm.get('cartographyId').removeValidators(Validators.required);
+        this.entityForm.get('cartographyId').disable();
       }
     }
 
@@ -504,6 +514,24 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
 
   getTaskGroupName(taskGroupId: number): string {
     return this.taskGroupList.find(group => group.id === taskGroupId)?.name || '';
+  }
+
+  /**
+   * Label keys for the validation banner. Only includes fields that are mandatory for the current scope.
+   */
+  getValidationFieldLabelKeys(): Record<string, string> {
+    const base: Record<string, string> = {
+      name: 'common.form.name',
+      scope: 'common.form.type',
+      taskGroupId: 'entity.taskGroup.label',
+    };
+    const scope = this.entityForm?.get('scope')?.value;
+    if (scope === this.codeValues.editionTaskScope.dbEdition) {
+      base['connectionId'] = 'entity.task.query.connection';
+    } else if (scope === this.codeValues.editionTaskScope.cartographyEdition) {
+      base['cartographyId'] = 'entity.task.query.cartography';
+    }
+    return base;
   }
 
   /**

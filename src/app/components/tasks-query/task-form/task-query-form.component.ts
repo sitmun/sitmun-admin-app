@@ -254,7 +254,7 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
     this.dataTables.register(this.rolesTable)
       .register(this.availabilitiesTable)
       .register(this.parametersTable);
-    await this.initCodeLists(['tasksEntity.type', 'queryTask.scope', 'taskEntity.queryType', 'queryTask.parameterType']);
+    await this.initCodeLists(['tasksEntity.type', 'queryTask.scope', 'queryTask.parameterType']);
     this.initTranslations('Task', ['name'])
 
     const [taskTypes, taskGroups, connections, cartographies] = await Promise.all([
@@ -400,21 +400,27 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
    * @param value - The selected scope value
    */
   configureForm(value: string) {
-    if (value === this.codeValues.queryTaskScope.sqlQuery) {
+    const scope = this.codeValues?.queryTaskScope;
+    if (value === scope?.sqlQuery) {
       this.entityForm.get('command').enable();
       this.entityForm.get('connectionId').enable();
       this.entityForm.get('cartographyId').setValue(null);
       this.entityForm.get('cartographyId').disable();
-    }
-    if (value === this.codeValues.queryTaskScope.cartographyQuery) {
+    } else if (value === scope?.cartographyQuery) {
       this.entityForm.get('command').setValue(null);
       this.entityForm.get('command').disable();
       this.entityForm.get('connectionId').setValue(null);
       this.entityForm.get('connectionId').disable();
       this.entityForm.get('cartographyId').enable();
-    }
-    if (value === this.codeValues.queryTaskScope.webApiQuery) {
+    } else if (value === scope?.webApiQuery) {
       this.entityForm.get('command').enable();
+      this.entityForm.get('connectionId').setValue(null);
+      this.entityForm.get('connectionId').disable();
+      this.entityForm.get('cartographyId').setValue(null);
+      this.entityForm.get('cartographyId').disable();
+    } else {
+      this.entityForm.get('command').setValue(null);
+      this.entityForm.get('command').disable();
       this.entityForm.get('connectionId').setValue(null);
       this.entityForm.get('connectionId').disable();
       this.entityForm.get('cartographyId').setValue(null);

@@ -22,7 +22,7 @@
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'common.form.name' | translate }}</mat-label>
+            <mat-label>{{ 'common.form.name' | translate }} ({{ defaultLang }})</mat-label>
             <input matInput type="text" formControlName="name" [maxlength]="50" required>
             <mat-hint align="end" [class.text-warning]="entityForm.get('name')?.value?.length > 50">
               {{entityForm.get('name') | characterCount}}
@@ -33,7 +33,7 @@
                       onKeyDown="onTranslated('name')">translate</mat-icon>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'common.form.description' | translate }}</mat-label>
+            <mat-label>{{ 'common.form.description' | translate }} ({{ defaultLang }})</mat-label>
             <textarea matInput type="text" formControlName="description" required [maxlength]="4000"></textarea>
               <mat-hint align="end">{{entityForm.get('description') | characterCount}}</mat-hint>
               <mat-icon matSuffix class="iconTranslate"
@@ -86,7 +86,7 @@
             <mat-label> {{ 'entity.application.appPrivate' | translate }}</mat-label>
           </mat-checkbox>
           <mat-form-field appearance="outline" class="full">
-            <mat-label> {{'entity.application.maintenanceInformation' | translate}} </mat-label>
+            <mat-label> {{'entity.application.maintenanceInformation' | translate}} ({{ defaultLang }}) </mat-label>
             <textarea matInput type="text" formControlName="maintenanceInformation" [maxlength]="4000"></textarea>
             <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('maintenanceInformation')"
@@ -114,7 +114,7 @@
       <mat-card *ngIf="isInternalApp()" appearance="outlined" class="sitmun-mat-card-margin">
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'entity.application.type.generic.title' | translate }}</mat-label>
+            <mat-label>{{ 'entity.application.type.generic.title' | translate }} ({{ defaultLang }})</mat-label>
             <input matInput type="text" formControlName="title" [maxlength]="250">
             <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('title')"

@@ -8,7 +8,6 @@ import { TranslateService } from '@ngx-translate/core';
 import { map } from 'rxjs/operators';
 
 import { AboutDialogComponent, AboutDialogData } from '@app/components/shared/about-dialog/about-dialog.component';
-import { ConfigurationParametersDialogComponent } from '@app/components/shared/configuration-parameters-dialog/configuration-parameters-dialog.component';
 import { AuthService } from '@app/core/auth/auth.service';
 import { LoginService } from '@app/core/auth/login.service';
 import { Principal } from '@app/core/auth/principal.service';
@@ -181,14 +180,6 @@ export class SystemInfoMenuComponent implements OnInit {
       width: '500px',
       maxWidth: '90vw',
       data: dialogData
-    });
-  }
-
-  openConfigurationParametersDialog(): void {
-    this.dialog.open(ConfigurationParametersDialogComponent, {
-      width: '700px',
-      maxWidth: '90vw',
-      maxHeight: '90vh'
     });
   }
 

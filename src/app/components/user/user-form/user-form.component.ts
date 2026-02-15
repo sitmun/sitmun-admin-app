@@ -67,6 +67,12 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
   /** The actual password value */
   actualPassword: string = null;
 
+  /** Flag indicating if this is the built-in admin user */
+  isBuiltInAdmin = false;
+
+  /** Flag indicating if this is the built-in public user */
+  isBuiltInPublic = false;
+
   constructor(
     dialog: MatDialog,
     translateService: TranslateService,
@@ -124,14 +130,29 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
     }
     this.isPasswordBeingEdited = false;
 
+    // Check if this is the built-in admin user
+    this.isBuiltInAdmin = this.entityToEdit.username === 'admin' && !this.isNew();
+
+    // Check if this is the built-in public user
+    this.isBuiltInPublic = this.entityToEdit.username === 'public' && !this.isNew();
+
     this.entityForm = new UntypedFormGroup({
-      username: new UntypedFormControl(this.entityToEdit.username,[Validators.required]),
+      username: new UntypedFormControl(
+        {value: this.entityToEdit.username, disabled: this.isBuiltInAdmin || this.isBuiltInPublic},
+        [Validators.required]
+      ),
       firstName: new UntypedFormControl(this.entityToEdit.firstName, []),
       lastName: new UntypedFormControl(this.entityToEdit.lastName, []),
       email: new UntypedFormControl(this.entityToEdit.email, [Validators.email]),
       newPassword: new UntypedFormControl(this.passwordSet ? '••••••••' : '', []),
-      administrator: new UntypedFormControl(this.entityToEdit.administrator, []),
-      blocked: new UntypedFormControl(this.entityToEdit.blocked, []),
+      administrator: new UntypedFormControl(
+        {value: this.entityToEdit.administrator, disabled: this.isBuiltInAdmin || this.isBuiltInPublic},
+        []
+      ),
+      blocked: new UntypedFormControl(
+        {value: this.entityToEdit.blocked, disabled: this.isBuiltInAdmin},
+        []
+      ),
     });
   }
 
@@ -321,5 +342,15 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
 
   isUsernamePublic(): boolean {
     return this.entityForm.get('username').value === constants.codeValue.systemUser.public;
+  }
+
+  getBuiltInUserWarning(): string {
+    if (this.isBuiltInAdmin) {
+      return this.translateService.instant('entity.user.builtInAdminWarning');
+    }
+    if (this.isBuiltInPublic) {
+      return this.translateService.instant('entity.user.builtInPublicWarning');
+    }
+    return null;
   }
 }

@@ -90,7 +90,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
   override async preFetchData() {
     this.dataTables.register(this.applicationsTable);
     this.dataTables.register(this.rolesTable);
-    this.initTranslations('tree', ['name', 'description']);
+    this.initTranslations('Tree', ['name', 'description']);
     await this.initCodeLists([
       'tree.type',
       'treenode.folder.type',

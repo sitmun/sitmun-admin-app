@@ -221,6 +221,22 @@ export class Configuration {
   };
 
   /**
+   * Task UI configuration
+   */
+  static readonly TASK_UI: FormConfiguration = {
+    id: 'task-ui',
+    labelSingular: 'entity.taskUI.label',
+    labelPlural: 'entity.taskUI.plural',
+    icon: 'widgets',
+    font: 'material-icons-round',
+    route: 'task-ui',
+    formRoute: ':id/taskUIForm',
+    duplicateRoute: ':id/taskUIForm/:idDuplicate',
+    component: 'TaskUIComponent',
+    formComponent: 'TaskUIFormComponent'
+  };
+
+  /**
    * Tasks configuration with sub-items
    */
   static readonly TASK: FormConfiguration = {
@@ -301,6 +317,54 @@ export class Configuration {
   };
 
   /**
+   * Language configuration
+   */
+  static readonly LANGUAGE: FormConfiguration = {
+    id: 'language',
+    labelSingular: 'entity.language.label',
+    labelPlural: 'entity.language.plural',
+    icon: 'language',
+    font: 'material-icons-round',
+    route: 'language',
+    formRoute: ':id/languageForm',
+    duplicateRoute: ':id/languageForm/:idDuplicate',
+    component: 'LanguageComponent',
+    formComponent: 'LanguageFormComponent'
+  };
+
+  /**
+   * Code List Value configuration
+   */
+  static readonly CODELIST_VALUE: FormConfiguration = {
+    id: 'codelistValue',
+    labelSingular: 'entity.codelistValue.label',
+    labelPlural: 'entity.codelistValue.plural',
+    icon: 'list_alt',
+    font: 'material-icons-round',
+    route: 'codelistValue',
+    formRoute: ':id/codelistValueForm',
+    duplicateRoute: ':id/codelistValueForm/:idDuplicate',
+    component: 'CodelistValueComponent',
+    formComponent: 'CodelistValueFormComponent'
+  };
+
+  /**
+   * Configuration Parameter configuration
+   */
+  static readonly CONFIGURATION_PARAMETER: FormConfiguration = {
+    id: 'configurationParameter',
+    labelSingular: 'entity.configurationParameter.label',
+    labelPlural: 'entity.configurationParameter.plural',
+    icon: 'settings',
+    font: 'material-icons-round',
+    route: 'configurationParameter',
+    formRoute: ':id/configurationParameterForm',
+    duplicateRoute: ':id/configurationParameterForm/:idDuplicate',
+    component: 'ConfigurationParameterComponent',
+    formComponent: 'ConfigurationParameterFormComponent'
+  };
+
+  /**
    * Get all form configurations as an array
    */
   static getAllConfigurations(): FormConfiguration[] {
@@ -316,11 +380,15 @@ export class Configuration {
       Configuration.ROLE,
       Configuration.USER,
       Configuration.TASK_GROUP,
+      Configuration.TASK_UI,
       Configuration.TASK,
       Configuration.TASK_BASIC,
       Configuration.TASK_QUERY,
       Configuration.TASK_EDIT,
-      Configuration.APPLICATION
+      Configuration.APPLICATION,
+      Configuration.LANGUAGE,
+      Configuration.CODELIST_VALUE,
+      Configuration.CONFIGURATION_PARAMETER
     ];
   }
 
@@ -378,6 +446,12 @@ export class Configuration {
       ],
       [
         Configuration.toMenuItem(Configuration.APPLICATION)
+      ],
+      [
+        Configuration.toMenuItem(Configuration.TASK_UI),
+        Configuration.toMenuItem(Configuration.LANGUAGE),
+        Configuration.toMenuItem(Configuration.CODELIST_VALUE),
+        Configuration.toMenuItem(Configuration.CONFIGURATION_PARAMETER)
       ]
     ];
   }

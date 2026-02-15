@@ -351,6 +351,20 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
     return this.taskGroupList.find(group => group.id === taskGroupId)?.name || '';
   }
 
+  getUIName(uiId: number | string | null | undefined): string {
+    if (uiId == null || uiId === '') return '';
+    const id = typeof uiId === 'number' ? uiId : Number(uiId);
+    if (Number.isNaN(id)) return '';
+    return this.uiList.find(ui => ui.id === id)?.name ?? '';
+  }
+
+  getUITooltip(uiId: number | string | null | undefined): string {
+    if (uiId == null || uiId === '') return '';
+    const id = typeof uiId === 'number' ? uiId : Number(uiId);
+    if (Number.isNaN(id)) return '';
+    return this.uiList.find(ui => ui.id === id)?.tooltip ?? '';
+  }
+
   /**
    * Defines the data table configuration for managing roles.
    * Sets up columns, data fetching, updating logic, and target selection.

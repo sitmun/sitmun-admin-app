@@ -269,7 +269,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     const defaultType = this.defaultValueOrNull('application.type');
     return Object.assign(new ApplicationProjection(), {
       type: defaultType?.value || null,
-      situationMap: this.situationMapList[0].id,
+      situationMap: this.situationMapList[0]?.id ?? null,
       appPrivate: false
     })
   }

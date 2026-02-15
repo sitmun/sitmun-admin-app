@@ -1,6 +1,7 @@
 import {Component, Input, OnChanges, OnInit, ViewChild} from '@angular/core';
 import {MatSidenav} from '@angular/material/sidenav';
 
+import {Principal} from '@app/core/auth/principal.service';
 import {Configuration} from '@app/core/config/configuration';
 import {IconsService} from '@app/services/icons.service';
 import {LoggerService} from "@app/services/logger.service";
@@ -18,6 +19,8 @@ export class SideMenuComponent implements OnChanges, OnInit {
 
   loaded = false;
 
+  isAdmin = false;
+
   @Input()
   openNav: boolean;
 
@@ -26,8 +29,42 @@ export class SideMenuComponent implements OnChanges, OnInit {
   constructor(
     private readonly iconsService: IconsService,
     private readonly loggerService: LoggerService,
+    private readonly principal: Principal,
   ) {
-    this.menus = [
+    // Menus will be initialized in ngOnInit after checking user permissions
+  }
+
+  ngOnInit() {
+    this.loggerService.debug('[SideMenuComponent] ngOnInit called');
+    
+    // Check if user is the built-in admin user (username "admin" AND administrator flag)
+    this.principal.identity().then((user) => {
+      if (user && user.username === 'admin' && user.administrator === true) {
+        this.isAdmin = true;
+        this.loggerService.debug('[SideMenuComponent] User is built-in admin with administrator flag, showing System menu');
+      } else {
+        this.isAdmin = false;
+        this.loggerService.debug('[SideMenuComponent] User does not meet admin criteria (username: ' + (user?.username || 'unknown') + ', administrator: ' + (user?.administrator || false) + '), hiding System menu');
+      }
+      this.updateMenus();
+    }).catch((error) => {
+      this.loggerService.error('[SideMenuComponent] Failed to load user identity:', error);
+      this.isAdmin = false;
+      this.updateMenus();
+    });
+
+    this.iconsService.loadSVGs().then(() => {
+      this.loggerService.debug('[SideMenuComponent] Icons loaded successfully');
+      this.loaded = true;
+    }).catch((error) => {
+      this.loggerService.error('[SideMenuComponent] Failed to load SVG icons:', error);
+      // Still set loaded to true to allow the menu to render
+      this.loaded = true;
+    });
+  }
+
+  private updateMenus() {
+    const baseMenus = [
       [
         Configuration.toMenuItem(Configuration.DASHBOARD)
       ],
@@ -59,18 +96,26 @@ export class SideMenuComponent implements OnChanges, OnInit {
         Configuration.toMenuItem(Configuration.APPLICATION)
       ]
     ];
-  }
 
-  ngOnInit() {
-    this.loggerService.debug('[SideMenuComponent] ngOnInit called');
-    this.iconsService.loadSVGs().then(() => {
-      this.loggerService.debug('[SideMenuComponent] Icons loaded successfully');
-      this.loaded = true;
-    }).catch((error) => {
-      this.loggerService.error('[SideMenuComponent] Failed to load SVG icons:', error);
-      // Still set loaded to true to allow the menu to render
-      this.loaded = true;
-    });
+    // Only add System menu for the built-in admin user (username "admin" with administrator flag)
+    if (this.isAdmin) {
+      baseMenus.push([
+        {
+          id: 'system',
+          label: 'menu.system',
+          icon: 'settings',
+          font: 'material-icons-round',
+          children: [
+            Configuration.toMenuItem(Configuration.TASK_UI),
+            Configuration.toMenuItem(Configuration.LANGUAGE),
+            Configuration.toMenuItem(Configuration.CODELIST_VALUE),
+            Configuration.toMenuItem(Configuration.CONFIGURATION_PARAMETER)
+          ]
+        }
+      ]);
+    }
+
+    this.menus = baseMenus;
   }
 
   ngOnChanges(): void {

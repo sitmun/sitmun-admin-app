@@ -7,6 +7,7 @@
   [canSave]="canSaveEntity"
   [form]="entityForm"
   validationEntityType="cartographygroup"
+  [validationFieldLabelKeys]="{ name: 'common.form.name', type: 'common.form.type' }"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
