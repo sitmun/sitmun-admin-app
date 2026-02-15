@@ -256,4 +256,102 @@ describe('TreesFormComponent', () => {
   });
 
 
+  describe('Tree type node constraints', () => {
+    beforeEach(() => {
+      // Mock getNodesForValidation to return test nodes
+      component.treeNodesComponent.getNodesForValidation = jest.fn();
+      component.currentTreeType = 'touristic';
+    });
+
+    it('should validate compatible nodes for touristic tree type', () => {
+      const nodes: any[] = [
+        { id: 1, name: 'Menu node', nodeType: 'menu', parent: null },
+        { id: 2, name: 'Task node', nodeType: 'task', parent: 1 }
+      ];
+      component.treeNodesComponent.getNodesForValidation = jest.fn(() => nodes as any);
+
+      const result = component.validNodeTypesForTreeType(nodes);
+      expect(result).toBe(true);
+    });
+
+    it('should reject incompatible node type for tree type', () => {
+      const nodes: any[] = [
+        { id: 1, name: 'Menu node', nodeType: 'menu', parent: null }
+      ];
+      component.treeNodesComponent.getNodesForValidation = jest.fn(() => nodes as any);
+      component.currentTreeType = 'edition';
+
+      const result = component.validNodeTypesForTreeType(nodes);
+      expect(result).toBe(false);
+    });
+
+    it('should reject invalid parent-child relationship', () => {
+      const nodes: any[] = [
+        { id: 1, name: 'Menu folder', nodeType: 'menu', parent: null },
+        { id: 2, name: 'Cartography child', nodeType: 'cartography', parent: 1 }
+      ];
+      component.treeNodesComponent.getNodesForValidation = jest.fn(() => nodes as any);
+      component.currentTreeType = 'touristic';
+
+      const result = component.validNodeTypesForTreeType(nodes);
+      expect(result).toBe(false);
+    });
+
+    it('should allow fav and nm under menu for touristic tree', () => {
+      const nodes: any[] = [
+        { id: 1, name: 'Menu folder', nodeType: 'menu', parent: null },
+        { id: 2, name: 'Favorites', nodeType: 'fav', parent: 1 },
+        { id: 3, name: 'Near me', nodeType: 'nm', parent: 1 }
+      ];
+      component.treeNodesComponent.getNodesForValidation = jest.fn(() => nodes as any);
+      component.currentTreeType = 'touristic';
+
+      const result = component.validNodeTypesForTreeType(nodes);
+      expect(result).toBe(true);
+    });
+
+    it('should allow empty folders', () => {
+      const nodes: any[] = [
+        { id: 1, name: 'Empty menu folder', nodeType: 'menu', parent: null }
+      ];
+      component.treeNodesComponent.getNodesForValidation = jest.fn(() => nodes as any);
+      component.currentTreeType = 'touristic';
+
+      const result = component.validNodeTypesForTreeType(nodes);
+      expect(result).toBe(true);
+    });
+
+    it('should allow nodes with null type (legacy folders)', () => {
+      const nodes: any[] = [
+        { id: 1, name: 'Legacy folder', nodeType: null, parent: null },
+        { id: 2, name: 'Task child', nodeType: 'task', parent: 1 }
+      ];
+      component.treeNodesComponent.getNodesForValidation = jest.fn(() => nodes as any);
+      component.currentTreeType = 'cartography';
+
+      const result = component.validNodeTypesForTreeType(nodes);
+      expect(result).toBe(true);
+    });
+
+    it('should prevent tree type change when nodes are incompatible', () => {
+      const nodes: any[] = [
+        { id: 1, name: 'Menu folder', nodeType: 'menu', parent: null, status: 'statusOK' }
+      ];
+      component.treeNodesComponent.getNodesForValidation = jest.fn(() => nodes as any);
+      component.currentTreeType = 'touristic';
+      component.entityForm.patchValue({ type: 'touristic' });
+
+      // Mock the utils method
+      component.utils.showNodeTypeConstraintError = jest.fn();
+
+      // Try to change to cartography (which doesn't allow menu)
+      component.onTreeTypeChange('cartography');
+
+      // Should still be touristic
+      expect(component.currentTreeType).toBe('touristic');
+      expect(component.entityForm.value.type).toBe('touristic');
+      expect(component.utils.showNodeTypeConstraintError).toHaveBeenCalled();
+    });
+  });
 });
+

@@ -329,6 +329,7 @@ export class DataTreeComponent implements OnInit {
 
   @Input() getAll: () => Observable<any>;
   @Input() allNewElements: any;
+  @Input() canNodeHaveChildren: (nodeType: string | null) => boolean;
 
 
   /* Drag and drop */

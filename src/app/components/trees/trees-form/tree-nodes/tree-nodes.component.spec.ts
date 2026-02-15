@@ -114,5 +114,98 @@ describe('TreeNodesComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  describe('Node type filtering by tree type', () => {
+    beforeEach(async () => {
+      // Mock code list values for testing
+      const mockFolderTypes = [
+        { value: 'menu', description: 'Menu' },
+        { value: 'list', description: 'List' },
+        { value: 'cartography', description: 'Cartography' }
+      ];
+      const mockLeafTypes = [
+        { value: 'task', description: 'Task' },
+        { value: 'map', description: 'Map' },
+        { value: 'fav', description: 'Favorites' },
+        { value: 'nm', description: 'Near me' },
+        { value: 'cartography', description: 'Cartography' }
+      ];
+      
+      // Initialize the code lists manually
+      component['codelists'].set('treenode.folder.type', mockFolderTypes as any);
+      component['codelists'].set('treenode.leaf.type', mockLeafTypes as any);
+    });
+
+    it('should filter folder types for touristic tree', () => {
+      component.currentTreeType = 'touristic';
+      const folderTypes = component.getAvailableFolderTypes();
+      
+      // Should only return menu and list folders for touristic
+      const values = folderTypes.map(t => t.value);
+      expect(values).toContain('menu');
+      expect(values).toContain('list');
+      expect(values).not.toContain('cartography');
+    });
+
+    it('should filter leaf types for cartography tree', () => {
+      component.currentTreeType = 'cartography';
+      const leafTypes = component.getAvailableLeafTypes();
+      
+      const values = leafTypes.map(t => t.value);
+      expect(values).toContain('task');
+      expect(values).toContain('cartography');
+    });
+
+    it('should correctly identify leaf nodes', () => {
+      component.currentTreeType = 'touristic';
+      
+      expect(component.isNodeTypeALeaf('task')).toBe(true);
+      expect(component.isNodeTypeALeaf('map')).toBe(true);
+      expect(component.isNodeTypeALeaf('fav')).toBe(true);
+      expect(component.isNodeTypeALeaf('nm')).toBe(true);
+      expect(component.isNodeTypeALeaf('menu')).toBe(false);
+      expect(component.isNodeTypeALeaf('list')).toBe(false);
+    });
+
+    it('should return correct allowed children for parent node type', () => {
+      component.currentTreeType = 'touristic';
+      
+      const menuChildren = component.getAllowedChildrenForParent('menu');
+      expect(menuChildren).toContain('list');
+      expect(menuChildren).toContain('task');
+      expect(menuChildren).toContain('map');
+      expect(menuChildren).toContain('fav');
+      expect(menuChildren).toContain('nm');
+
+      const listChildren = component.getAllowedChildrenForParent('list');
+      expect(listChildren).toContain('list');
+      expect(listChildren).toContain('task');
+      expect(listChildren).toContain('map');
+      expect(listChildren).not.toContain('fav');
+      expect(listChildren).not.toContain('nm');
+    });
+
+    it('canNodeHaveChildren should return false for leaf nodes', () => {
+      component.currentTreeType = 'touristic';
+      
+      expect(component.canNodeHaveChildren('task')).toBe(false);
+      expect(component.canNodeHaveChildren('map')).toBe(false);
+      expect(component.canNodeHaveChildren('fav')).toBe(false);
+      expect(component.canNodeHaveChildren('nm')).toBe(false);
+    });
+
+    it('canNodeHaveChildren should return true for folder nodes', () => {
+      component.currentTreeType = 'touristic';
+      
+      expect(component.canNodeHaveChildren('menu')).toBe(true);
+      expect(component.canNodeHaveChildren('list')).toBe(true);
+    });
+
+    it('canNodeHaveChildren should return true for null type (legacy folders)', () => {
+      component.currentTreeType = 'cartography';
+      
+      expect(component.canNodeHaveChildren(null)).toBe(true);
+    });
+  });
 });
 

@@ -76,7 +76,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   currentNodeCartography: any;
   availableNodeTypes: CodeList[] = []; // Cache for available node types
   fieldsConfigTreeGenerated = false;
-  private readonly NULL_SENTINEL = 'null'; // Sentinel value to represent null in form controls
   
   // Cartography autocomplete properties
   filteredCartographies: any[] = [];
@@ -325,7 +324,17 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
    */
   getAvailableFolderTypes(): CodeList[] {
     const allTypes = this.codeList('treenode.folder.type');
-    return allTypes;
+    
+    // If no tree type configured or no constraints defined, return all types
+    if (!this.currentTreeType || !config.treeTypeNodeTypes || !config.treeTypeNodeTypes[this.currentTreeType]) {
+      return allTypes;
+    }
+    
+    const treeTypeConfig = config.treeTypeNodeTypes[this.currentTreeType];
+    const allowedFolderTypeValues = Object.keys(treeTypeConfig.folders || {});
+    
+    // Filter to only allowed folder types for this tree type
+    return allTypes.filter(type => allowedFolderTypeValues.includes(type.value));
   }
 
   /**
@@ -333,24 +342,86 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
    */
   getAvailableLeafTypes(): CodeList[] {
     const allTypes = this.codeList('treenode.leaf.type');
-    return allTypes;
+    
+    // If no tree type configured or no constraints defined, return all types
+    if (!this.currentTreeType || !config.treeTypeNodeTypes || !config.treeTypeNodeTypes[this.currentTreeType]) {
+      return allTypes;
+    }
+    
+    const treeTypeConfig = config.treeTypeNodeTypes[this.currentTreeType];
+    const allowedLeafTypeValues = treeTypeConfig.leaves || [];
+    
+    // Filter to only allowed leaf types for this tree type
+    return allTypes.filter(type => allowedLeafTypeValues.includes(type.value));
+  }
+
+  /**
+   * Determines if a node type is classified as a leaf for the current tree type.
+   * Uses the configured treeTypeNodeTypes to classify the node.
+   * @param nodeType The node type to check
+   * @returns true if the node type is a leaf, false if it's a folder
+   */
+  isNodeTypeALeaf(nodeType: string | null): boolean {
+    if (!nodeType || !this.currentTreeType || !config.treeTypeNodeTypes) {
+      return false;
+    }
+    
+    const treeTypeConfig = config.treeTypeNodeTypes[this.currentTreeType];
+    if (!treeTypeConfig) {
+      return false;
+    }
+    
+    // Check if node type is in the folders object (can have children = not a leaf)
+    // This handles cases where a type (like 'cartography') can be both a folder and leaf
+    if (treeTypeConfig.folders && treeTypeConfig.folders[nodeType]) {
+      return false;
+    }
+    
+    // Check if node type is in the leaves array
+    return (treeTypeConfig.leaves || []).includes(nodeType);
+  }
+
+  /**
+   * Gets allowed child types for a given parent node type.
+   * @param parentNodeType The parent node type
+   * @returns Array of allowed child node type values
+   */
+  getAllowedChildrenForParent(parentNodeType: string | null): string[] {
+    if (!parentNodeType || !this.currentTreeType || !config.treeTypeNodeTypes) {
+      return [];
+    }
+    
+    const treeTypeConfig = config.treeTypeNodeTypes[this.currentTreeType];
+    if (!treeTypeConfig || !treeTypeConfig.folders || !treeTypeConfig.folders[parentNodeType]) {
+      return [];
+    }
+    
+    return treeTypeConfig.folders[parentNodeType].allowedChildren || [];
+  }
+
+  /**
+   * Checks if a node can have children based on its type.
+   * Returns false if the node type is classified as a leaf.
+   * @param nodeType The node type to check
+   * @returns true if the node can have children, false otherwise
+   */
+  canNodeHaveChildren(nodeType: string | null): boolean {
+    // Handle null/undefined - default to allowing children (will be fixed by validation)
+    if (!nodeType) {
+      return true;
+    }
+    // Check if this node type is a leaf (cannot have children)
+    return !this.isNodeTypeALeaf(nodeType);
   }
 
   /**
    * Get available node types based on whether the node is a folder or leaf.
    * Returns folder types if isFolder is true, otherwise returns leaf types.
-   * For folders, includes a null option for legacy support (behaves as cartography).
    * This method updates the cached availableNodeTypes array.
    */
   getAvailableNodeTypes(): CodeList[] {
     if (this.currentNodeIsFolder) {
-      const folderTypes = this.getAvailableFolderTypes();
-      // Add sentinel value option for legacy support (behaves as cartography)
-      // Cast to CodeList to allow sentinel value option
-      this.availableNodeTypes = [
-        { value: this.NULL_SENTINEL, description: this.translateService.instant('treesEntity.nodeTypeDefault') } as any,
-        ...folderTypes
-      ];
+      this.availableNodeTypes = this.getAvailableFolderTypes();
     } else {
       this.availableNodeTypes = this.getAvailableLeafTypes();
     }
@@ -359,25 +430,18 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
 
 
   /**
-   * Gets the effective node type, treating null as cartography in all scenarios (legacy support).
-   * When nodeType is null (default), it behaves as cartography.
+   * Gets the effective node type. Since null types are no longer allowed,
+   * this simply returns the current node type.
    * @returns The effective node type to use for behavior/logic
    */
   getEffectiveNodeType(): string {
-    // If currentNodeType is null, undefined, or empty, treat as cartography
-    if (!this.currentNodeType || (typeof this.currentNodeType === 'string' && this.currentNodeType.trim() === '')) {
-      if (this.currentNodeIsFolder) {
-        return this.codeValues.treenodeFolderType.cartography;
-      } else {
-        return this.codeValues.treenodeLeafType.cartography;
-      }
-    }
-    return this.currentNodeType;
+    return this.currentNodeType || (this.currentNodeIsFolder 
+      ? this.codeValues.treenodeFolderType.cartography 
+      : this.codeValues.treenodeLeafType.cartography);
   }
 
   /**
    * Getter for effective node type to use in templates.
-   * Treats null as cartography in all scenarios.
    */
   get effectiveNodeType(): string {
     return this.getEffectiveNodeType();
@@ -484,25 +548,23 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       const nodeTypeMissing = !node.nodeType || (typeof node.nodeType === 'string' && node.nodeType.trim() === '');
 
       if (nodeTypeMissing) {
-        // For folders, null is valid (behaves as cartography via getEffectiveNodeType)
-        // For leaf nodes, set default type
-        if (!node.isFolder) {
-          const oldNodeType = node.nodeType;
-          node.nodeType = this.codeValues.treenodeLeafType.cartography;
-          // Mark node as modified only if we changed it
+        // Assign cartography as default for both folders and leaves
+        const oldNodeType = node.nodeType;
+        node.nodeType = node.isFolder 
+          ? this.codeValues.treenodeFolderType.cartography 
+          : this.codeValues.treenodeLeafType.cartography;
+        // Mark node as modified only if we changed it
         if (currentStatus !== 'pendingCreation' && currentStatus !== 'pendingDelete') {
           (node as any).status = 'Modified';
           this.loggerService.info('TreeNodesComponent.validateTreeNodes - Entry updated on load', {
             nodeId: node.id,
             nodeName: node.name,
-            reason: 'Missing nodeType for leaf node',
+            reason: 'Missing nodeType',
             oldNodeType: oldNodeType,
             newNodeType: node.nodeType,
             isFolder: node.isFolder
           });
         }
-        }
-        // For folders, keep null as-is (no conversion needed)
       } else {
         // Get the appropriate code list based on isFolder
         const correctCodeList = node.isFolder 
@@ -526,45 +588,38 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
 
           if (existsInOtherList) {
             // Fix the nodeType to match the isFolder status (legacy data correction)
-            // Preserve the folder/leaf structure, only correct the type
-            // For folders, null is valid (behaves as cartography via getEffectiveNodeType)
-            if (!node.isFolder) {
-              const oldNodeType = node.nodeType;
-              node.nodeType = this.codeValues.treenodeLeafType.cartography;
-              // Only mark as modified for leaf nodes
+            const oldNodeType = node.nodeType;
+            node.nodeType = node.isFolder 
+              ? this.codeValues.treenodeFolderType.cartography 
+              : this.codeValues.treenodeLeafType.cartography;
             if (currentStatus !== 'pendingCreation' && currentStatus !== 'pendingDelete') {
               (node as any).status = 'Modified';
               this.loggerService.info('TreeNodesComponent.validateTreeNodes - Entry updated on load', {
                 nodeId: node.id,
                 nodeName: node.name,
-                reason: 'NodeType exists in wrong code list (folder types list instead of leaf types list)',
+                reason: 'NodeType exists in wrong code list',
                 oldNodeType: oldNodeType,
                 newNodeType: node.nodeType,
                 isFolder: node.isFolder
               });
             }
-            }
-            // For folders with invalid type, keep null (no conversion needed)
           } else {
             // Not found in either list, set default type based on isFolder
-            // For folders, null is valid (behaves as cartography via getEffectiveNodeType)
-            if (!node.isFolder) {
-              const oldNodeType = node.nodeType;
-              node.nodeType = this.codeValues.treenodeLeafType.cartography;
-              // Only mark as modified for leaf nodes (folders with null are valid)
-              if (currentStatus !== 'pendingCreation' && currentStatus !== 'pendingDelete') {
-                (node as any).status = 'Modified';
-                this.loggerService.info('TreeNodesComponent.validateTreeNodes - Entry updated on load', {
-                  nodeId: node.id,
-                  nodeName: node.name,
-                  reason: 'NodeType not found in any code list (invalid type)',
-                  oldNodeType: oldNodeType,
-                  newNodeType: node.nodeType,
-                  isFolder: node.isFolder
-                });
-              }
+            const oldNodeType = node.nodeType;
+            node.nodeType = node.isFolder 
+              ? this.codeValues.treenodeFolderType.cartography 
+              : this.codeValues.treenodeLeafType.cartography;
+            if (currentStatus !== 'pendingCreation' && currentStatus !== 'pendingDelete') {
+              (node as any).status = 'Modified';
+              this.loggerService.info('TreeNodesComponent.validateTreeNodes - Entry updated on load', {
+                nodeId: node.id,
+                nodeName: node.name,
+                reason: 'NodeType not found in any code list (invalid type)',
+                oldNodeType: oldNodeType,
+                newNodeType: node.nodeType,
+                isFolder: node.isFolder
+              });
             }
-            // For folders, keep null as-is (no conversion needed)
           }
         }
       }
@@ -583,7 +638,10 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       return this.tree.getRelationArrayEx(TreeNodeProjection, 'allNodes', {
         projection: 'view'
       }).pipe(
-        map((nodes: TreeNodeProjection[]) => this.validateTreeNodes(nodes))
+        map((nodes: TreeNodeProjection[]) => {
+          const validatedNodes = this.validateTreeNodes(nodes);
+          return validatedNodes;
+        })
       );
     }
   };
@@ -820,8 +878,8 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     if (node.id < 0) {
       status = "pendingCreation";
     }
-    // Convert null/undefined/empty to sentinel for form display
-    const formNodeType = (!validatedNodeType || (typeof validatedNodeType === 'string' && validatedNodeType.trim() === '')) ? this.NULL_SENTINEL : validatedNodeType;
+    // Default to cartography for folders without a type
+    const formNodeType = validatedNodeType || (node.isFolder ? this.codeValues.treenodeFolderType.cartography : this.codeValues.treenodeLeafType.cartography);
     // Find cartography object from cache if cartographyId is available
     let cartographyObj = null;
     if (node.cartographyId && this.allCartographies.length > 0) {
@@ -1027,8 +1085,8 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     // Update available node types cache
     this.getAvailableNodeTypes();
     
-    // Convert null to sentinel for form display
-    const formNodeType = (parent.nodeType || null) === null ? this.NULL_SENTINEL : parent.nodeType;
+    // Default to cartography for new folders without a parent type
+    const formNodeType = parent.nodeType || this.codeValues.treenodeFolderType.cartography;
     
     this.currentViewMode = '';
     this.currentNodeHasParent = parent.id !== null;
@@ -1057,22 +1115,8 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   }
 
   onTreeNodeTypeChange(type) {
-    // Handle sentinel value for folders (legacy support)
-    if (this.currentNodeIsFolder && type === this.NULL_SENTINEL) {
-      this.currentNodeType = null; // Keep actual null in component state
-      this.cdr.detectChanges(); // Update panel visibility
-      return;
-    }
-    
-    // Allow null for folders (legacy support) - handle any other null cases
-    if (this.currentNodeIsFolder && (type === null || type === undefined || type === '')) {
-      this.currentNodeType = null;
-      this.cdr.detectChanges(); // Update panel visibility
-      return;
-    }
-
-    // For leaf nodes, prevent null/empty values
-    if (!this.currentNodeIsFolder && (!type || type.trim() === '')) {
+    // Validate that type is not empty
+    if (!type || type.trim() === '') {
       return;
     }
 
@@ -1726,8 +1770,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
         treeNodeObj.id = treeNode.id;
       }
       treeNodeObj.name = treeNode.name;
-      // Convert sentinel back to null when saving
-      treeNodeObj.type = treeNode.nodeType === this.NULL_SENTINEL ? null : treeNode.nodeType;
+      treeNodeObj.type = treeNode.nodeType;
       treeNodeObj.tooltip = treeNode.tooltip;
       treeNodeObj.order = treeNode.order;
       treeNodeObj.active = treeNode.active;

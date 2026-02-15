@@ -8,6 +8,7 @@
           [eventGetAllRowsSubscription]='getAllElementsNodes.asObservable()'
           [eventRefreshSubscription]='refreshTreeEvent.asObservable()'
           [eventCreateNodeSubscription]='createNodeEvent.asObservable()' [allNewElements]='entityID === -1'
+          [canNodeHaveChildren]="canNodeHaveChildren.bind(this)"
           (emitAllNodes)="receiveAllNodes($event)">
           loading
         </app-data-tree>
