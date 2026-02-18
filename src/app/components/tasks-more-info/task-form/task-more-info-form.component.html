@@ -126,8 +126,10 @@
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'tasksMoreInfoEntity.apiUrl' | translate }}</mat-label>
             <input matInput type="text" formControlName="command" [maxlength]="2000">
+            <mat-hint align="start">{{ 'tasksMoreInfoEntity.apiUrlHint' | translate }}</mat-hint>
             <mat-hint align="end">{{ entityForm.get('command') | characterCount }}</mat-hint>
           </mat-form-field>
+            <div style="margin-bottom: 12px;"></div>
           <mat-form-field appearance="outline" class="quarter">
             <mat-label>{{ 'entity.service.authenticationMode' | translate }}</mat-label>
             <mat-select formControlName="authenticationMode" [placeholder]="'common.form.none' | translate">
