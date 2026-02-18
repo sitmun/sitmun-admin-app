@@ -126,7 +126,7 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
       .register(this.availabilitiesTable)
       .register(this.parametersTable);
 
-    await this.initCodeLists(['tasksEntity.type', 'moreInfo.scope', 'service.authenticationMode'])
+    await this.initCodeLists(['tasksEntity.type', 'moreInfo.type', 'service.authenticationMode'])
     this.initTranslations('Task', ['name'])
 
     const [taskTypes, taskGroups, cartographies, connections, uiList] = await Promise.all([

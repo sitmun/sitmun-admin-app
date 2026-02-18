@@ -73,8 +73,8 @@
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'tasksMoreInfoEntity.dataAccessType' | translate }}</mat-label>
             <mat-select formControlName="scope" required (selectionChange)="onScopeChange($event)">
-              <mat-option [value]="scope.value" *ngFor="let scope of this.codeList('moreInfo.scope')">
-                {{ scope.description | translate }}
+              <mat-option [value]="type.value" *ngFor="let type of this.codeList('moreInfo.type')">
+                {{ type.description | translate }}
               </mat-option>
             </mat-select>
           </mat-form-field>
