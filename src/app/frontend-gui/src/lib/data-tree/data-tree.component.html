@@ -2,14 +2,14 @@
   <mat-card-content class="tree-card-content">
     <mat-toolbar>
       <button type="button"
-              matTooltip="{{ 'expandAll' | translate }}"
+              matTooltip="{{ 'common.expandAll' | translate }}"
               mat-mini-fab class="add-half-gap"
               color="primary"
               (click)="expandAll()">
         <mat-icon fontSet="material-icons-round">unfold_more</mat-icon>
       </button>
       <button type="button"
-              matTooltip="{{ 'collapseAll' | translate }}"
+              matTooltip="{{ 'common.collapseAll' | translate }}"
               mat-mini-fab class="add-half-gap"
               color="primary"
               (click)="collapseToFirstLevel()">
@@ -20,14 +20,14 @@
         <input matInput type="text" placeholder="" (keyup)="onFilterKeyup($event)" [value]="filterValue">
       </mat-form-field>
       <button type="button"
-              matTooltip="{{ 'treesEntity.createRootFolder' | translate }}"
+              matTooltip="{{ 'entity.tree.createRootFolder' | translate }}"
               mat-mini-fab class="add-half-gap"
               color="primary"
               (click)="createRootFolder()">
         <mat-icon fontSet="material-icons-round">create_new_folder</mat-icon>
       </button>
       <button type="button"
-              matTooltip="{{ 'loadGroupLayers' | translate }}"
+              matTooltip="{{ 'entity.tree.loadGroupLayers' | translate }}"
               mat-mini-fab class="add-half-gap"
               color="primary"
               *ngIf="loadDataButton"
@@ -77,15 +77,15 @@
           <button (click)="onButtonClicked(node.id, 'newFolder')"
                   *ngIf="node.type ==='folder' && node.status!=='pendingDelete' && (!canNodeHaveChildren || canNodeHaveChildren(node.nodeType))" 
                   mat-icon-button 
-                  [matTooltip]="'treesEntity.createFolder' | translate"
-                  [attr.aria-label]="'treesEntity.createFolder' | translate">
+                  [matTooltip]="'entity.tree.createFolder' | translate"
+                  [attr.aria-label]="'entity.tree.createFolder' | translate">
             <mat-icon>create_new_folder</mat-icon>
           </button>
           <button (click)="onButtonClicked(node.id, 'newNode')" 
                   *ngIf="node.status!=='pendingDelete' && node.name !== '' && (!canNodeHaveChildren || canNodeHaveChildren(node.nodeType))"
                   mat-icon-button 
-                  [matTooltip]="'treesEntity.createNode' | translate"
-                  [attr.aria-label]="'treesEntity.createNode' | translate">
+                  [matTooltip]="'entity.tree.createNode' | translate"
+                  [attr.aria-label]="'entity.tree.createNode' | translate">
             <mat-icon>playlist_add</mat-icon>
           </button>
           <button (click)="onButtonClicked(node.id, 'delete')" 
@@ -134,7 +134,7 @@
         [style.padding-left]="getAdjustedPadding(node)"
         class="tree-node-row">
         <button mat-icon-button matTreeNodeToggle (click)="expansionModel.toggle(node.id)"
-          [matTooltip]="(treeControl.isExpanded(node) ? ('collapseAll' | translate) : ('expandAll' | translate))"
+          [matTooltip]="(treeControl.isExpanded(node) ? ('common.collapseAll' | translate) : ('common.expandAll' | translate))"
           [attr.aria-label]="'toggle ' + node.name">
           <mat-icon class="mat-icon-rtl-mirror">
             {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
@@ -159,15 +159,15 @@
           <button (click)="onButtonClicked(node.id, 'newFolder')"
                   *ngIf="node.type ==='folder' && node.status!=='pendingDelete' && (!canNodeHaveChildren || canNodeHaveChildren(node.nodeType))" 
                   mat-icon-button 
-                  [matTooltip]="'treesEntity.createFolder' | translate"
-                  [attr.aria-label]="'treesEntity.createFolder' | translate">
+                  [matTooltip]="'entity.tree.createFolder' | translate"
+                  [attr.aria-label]="'entity.tree.createFolder' | translate">
             <mat-icon>create_new_folder</mat-icon>
           </button>
           <button (click)="onButtonClicked(node.id, 'newNode')" 
                   *ngIf="node.status!=='pendingDelete' && node.name !== '' && (!canNodeHaveChildren || canNodeHaveChildren(node.nodeType))"
                   mat-icon-button 
-                  [matTooltip]="'treesEntity.createNode' | translate"
-                  [attr.aria-label]="'treesEntity.createNode' | translate">
+                  [matTooltip]="'entity.tree.createNode' | translate"
+                  [attr.aria-label]="'entity.tree.createNode' | translate">
             <mat-icon>playlist_add</mat-icon>
           </button>
           <button (click)="onButtonClicked(node.id, 'delete')" 

@@ -256,7 +256,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    */
   override fetchCopy(): Promise<ApplicationProjection> {
     return firstValueFrom(this.applicationService.getProjection(ApplicationProjection, this.duplicateID).pipe(map((copy: ApplicationProjection) => {
-      copy.name = this.translateService.instant("copy_") + copy.name;
+      copy.name = this.translateService.instant("common.copyPrefix") + copy.name;
       return copy;
     })));
   }
@@ -550,7 +550,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       })
       .withTemplateDialog('newParameterDialog', () => TemplateDialog.builder()
         .withReference(this.newParameterDialog)
-        .withTitle(this.translateService.instant('entity.application.parameters.title'))
+        .withTitle('entity.application.parameters.title')
         .withForm(
           new FormGroup({
             name: new FormControl('', {
@@ -642,7 +642,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
         }
         return TemplateDialog.builder()
           .withReference(this.newHeaderParamDialog)
-          .withTitle(this.translateService.instant('entity.application.header.title'))
+          .withTitle('entity.application.header.title')
           .withForm(
             new FormGroup({
               name: new FormControl('', {
@@ -662,7 +662,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
             })
           ).build();
       })
-      .withTargetsTitle(this.translateService.instant('entity.application.header.title'))
+      .withTargetsTitle('entity.application.header.title')
       .withTargetsOrder('name')
       .build();
   }
@@ -699,7 +699,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.treeService.getAll())
-      .withTargetsTitle(this.translateService.instant('entity.application.trees.title'))
+      .withTargetsTitle('entity.application.trees.title')
       .build();
   }
 
@@ -734,7 +734,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.roleService.getAll())
-      .withTargetsTitle(this.translateService.instant('entity.application.roles.title'))
+      .withTargetsTitle('entity.application.roles.title')
       .build();
   }
 
@@ -794,7 +794,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       .withTargetToRelation((items: BackgroundProjection[]) => {
         return items.map(item => ApplicationBackgroundProjection.of(this.entityToEdit, item, 0));
       })
-      .withTargetsTitle(this.translateService.instant('entity.application.background.title'))
+      .withTargetsTitle('entity.application.background.title')
       .withTargetsOrder('name')
       .build();
   }

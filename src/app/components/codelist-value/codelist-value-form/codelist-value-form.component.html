@@ -6,7 +6,7 @@
   [isNew]="isNewOrDuplicated()"
   [canSave]="canSaveEntity"
   [form]="entityForm"
-  validationEntityType="entity.codelistValue"
+  entityLabelPrefix="entity.codelistValue"
   [dataLoaded]="dataLoaded"
   [customWarningMessage]="isSystemRecord ? ('entity.codelistValue.systemWarning' | translate) : null"
   (save)="onSaveButtonClicked()"

@@ -13,7 +13,7 @@
   <mat-card appearance="outlined">
     <mat-card-header>
       <div mat-card-avatar><mat-icon fontSet="material-icons-round" color="error">error</mat-icon></div>
-      <mat-card-title>{{ (errorType === 'initialization' ? 'error.initialization.title' : 'error.general.title') | translate }}</mat-card-title>
+      <mat-card-title>{{ (errorType === 'initialization' ? 'backend.error.initialization.title' : 'backend.error.general.title') | translate }}</mat-card-title>
     </mat-card-header>
     
     <mat-card-content>
@@ -23,7 +23,7 @@
     <mat-card-actions align="end">
       <button 
         mat-mini-fab
-        matTooltip="{{ 'error.retry' | translate }}"
+        matTooltip="{{ 'backend.error.retry' | translate }}"
         color="primary" 
         (click)="retry()">
         <mat-icon fontSet="material-icons-round">refresh</mat-icon>

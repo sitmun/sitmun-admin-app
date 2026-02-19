@@ -7,7 +7,7 @@
   [additionalText]="taskTypeNameTranslated"
   [canSave]="canSaveEntity"
   [form]="entityForm"
-  validationEntityType="task"
+  entityLabelPrefix="entity.task"
   [validationFieldLabelKeys]="{ name: 'common.form.name', scope: 'common.form.type', command: 'entity.task.query.sql', connectionId: 'entity.task.query.connection', cartographyId: 'entity.task.query.cartography', taskGroupId: 'entity.taskGroup.label' }"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
@@ -39,13 +39,13 @@
             <mat-label>{{ 'common.form.type' | translate }}</mat-label>
             <mat-select formControlName="scope" class="form-control" (selectionChange)="onTypeChange($event)" required>
               <mat-option [value]="serviceType.value" *ngFor="let serviceType of this.codeList('queryTask.scope')">
-                {{ serviceType.description | translate }}
+                {{ serviceType.description }}
               </mat-option>
             </mat-select>
           </mat-form-field>
           <mat-form-field appearance="outline" class="half add-gap" *ngIf="!isNew()">
             <mat-label>{{ 'common.form.type' | translate }}</mat-label>
-            <input matInput [readonly]="true" [value]="findInCodeList('queryTask.scope', entityForm.get('scope').value)?.description | translate">
+            <input matInput [readonly]="true" [value]="findInCodeList('queryTask.scope', entityForm.get('scope').value)?.description">
             <mat-hint align="end">{{ 'common.hint.valuefixed' | translate}}</mat-hint>
           </mat-form-field>
           <mat-form-field appearance="outline" class="half">
@@ -79,7 +79,7 @@
                 <ng-container *ngIf="entityForm?.get('connectionId')?.value as connectionId">
                   <a [routerLink]="['/connection', connectionId, 'connectionForm']"
                      class="router-link">
-                    {{ getConnectionName(connectionId) | translate }}
+                    {{ getConnectionName(connectionId) }}
                   </a>
                 </ng-container>
                 <span *ngIf="!entityForm?.get('connectionId')?.value">
@@ -91,7 +91,7 @@
                 <div>
                   <a [routerLink]="['/connections', connection.id, 'connectionForm']"
                      (click)="$event.stopPropagation()" class="router-link">
-                    <span>{{ connection.name | translate }}</span>
+                    <span>{{ connection.name }}</span>
                   </a>
                 </div>
               </mat-option>
@@ -124,7 +124,7 @@
                 <ng-container *ngIf="entityForm?.get('cartographyId')?.value as cartographyId">
                   <a [routerLink]="['/layers', cartographyId, 'layerForm']"
                      class="router-link">
-                    {{ getCartographyName(cartographyId) | translate }}
+                    {{ getCartographyName(cartographyId) }}
                   </a>
                 </ng-container>
                 <span *ngIf="!entityForm?.get('cartographyId')?.value">
@@ -136,7 +136,7 @@
                 <div>
                   <a [routerLink]="['/layers', layer.id, 'layersForm']"
                      (click)="$event.stopPropagation()" class="router-link">
-                    <span>{{ layer.name | translate }}</span>
+                    <span>{{ layer.name }}</span>
                   </a>
                 </div>
               </mat-option>
@@ -232,7 +232,7 @@
         <mat-radio-group formControlName="type" class="full">
           <mat-label class="requiredInput">{{ 'common.form.type' | translate }}</mat-label>
           <mat-radio-button [value]="paramType.value" *ngFor="let paramType of this.codeList('queryTask.parameterType')">
-            {{ paramType.description | translate }}
+            {{ paramType.description }}
           </mat-radio-button>
         </mat-radio-group>
         <br/>

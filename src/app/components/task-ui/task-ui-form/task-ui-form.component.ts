@@ -70,7 +70,7 @@ export class TaskUIFormComponent extends BaseFormComponent<TaskUI> {
    */
   override fetchCopy(): Promise<TaskUI> {
     return firstValueFrom(this.taskUIService.get(this.duplicateID).pipe(map((copy: TaskUI) => {
-      copy.name = this.translateService.instant("copy_") + copy.name;
+      copy.name = this.translateService.instant("common.copyPrefix") + copy.name;
       return copy;
     })));
   }

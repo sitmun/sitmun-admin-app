@@ -19,10 +19,13 @@ export class FormValidationBannerComponent implements OnChanges, OnDestroy {
   /** The form group to validate */
   @Input() form: UntypedFormGroup;
 
-  /** Entity type for label resolution (e.g., 'tree', 'service') */
-  @Input() entityType: string;
+  /** i18n key prefix for field label resolution (e.g. 'entity.task', 'entity.service') */
+  @Input() entityLabelPrefix: string;
 
-  /** Optional map of form control name → i18n key for labels (e.g. { uiId: 'entity.task.basic.ui' }) */
+  /**
+   * Map of form control name → i18n key when the key is not entityLabelPrefix.fieldName.
+   * Use this for controls whose label key differs (e.g. serviceId → 'entity.cartography.serviceName', username → 'common.form.identifier').
+   */
   @Input() fieldLabelKeys: Record<string, string> | undefined;
 
   /** Array of invalid required field labels to display */
@@ -50,7 +53,7 @@ export class FormValidationBannerComponent implements OnChanges, OnDestroy {
         });
       }
     }
-    if (changes['form'] || changes['entityType'] || changes['fieldLabelKeys']) {
+    if (changes['form'] || changes['entityLabelPrefix'] || changes['fieldLabelKeys']) {
       this.updateInvalidFields();
     }
   }
@@ -69,7 +72,7 @@ export class FormValidationBannerComponent implements OnChanges, OnDestroy {
     this.additionalFieldsCount = 0;
     this.isVisible = false;
 
-    if (!this.form || !this.entityType) {
+    if (!this.form || !this.entityLabelPrefix) {
       return;
     }
 
@@ -100,7 +103,7 @@ export class FormValidationBannerComponent implements OnChanges, OnDestroy {
 
   /**
    * Resolves the human-readable label for a field name using i18n.
-   * Uses fieldLabelKeys if provided, then entityType.fieldName, then common.form.fieldName, then raw name.
+   * Uses fieldLabelKeys if provided, then entityLabelPrefix.fieldName, then common.form.fieldName, then raw name.
    *
    * @param fieldName - The form control name
    * @returns The translated label or the field name if no translation found
@@ -114,7 +117,7 @@ export class FormValidationBannerComponent implements OnChanges, OnDestroy {
       }
     }
 
-    const entityKey = `${this.entityType}.${fieldName}`;
+    const entityKey = `${this.entityLabelPrefix}.${fieldName}`;
     let label = this.translateService.instant(entityKey);
     if (label !== entityKey) {
       return label;

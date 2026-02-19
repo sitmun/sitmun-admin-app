@@ -35,8 +35,8 @@ export class CallbackComponent implements OnInit {
     } else {
       this.router.navigateByUrl('/').then(() => {
         this.notificationService.showError(
-          this.translateService.instant('error.general.title'),
-          this.translateService.instant('loginEntity.bad-credentials')
+          this.translateService.instant('backend.error.general.title'),
+          this.translateService.instant('entity.login.bad-credentials')
         );
       });
     }

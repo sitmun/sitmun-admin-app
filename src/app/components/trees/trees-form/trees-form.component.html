@@ -6,8 +6,7 @@
   [isNew]="isNewOrDuplicated()"
   [canSave]="canSaveEntity"
   [form]="entityForm"
-  validationEntityType="tree"
-  [validationFieldLabelKeys]="{ name: 'entity.tree.name', type: 'entity.tree.type' }"
+  entityLabelPrefix="entity.tree"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
@@ -34,7 +33,7 @@
                       onKeyDown="onTranslated('name')">translate</mat-icon>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'treesEntity.description' | translate }} ({{ defaultLang }})</mat-label>
+            <mat-label>{{ 'entity.tree.description' | translate }} ({{ defaultLang }})</mat-label>
             <textarea matInput type="text" formControlName="description" [maxlength]="4000"> </textarea>
             <mat-hint align="end">{{ entityForm.get('description') | characterCount }}</mat-hint>
             <mat-icon matSuffix class="iconTranslate"
@@ -56,22 +55,22 @@
           <div class="appearance-panel-content">
             <div class="appearance-input-section">
               <mat-form-field appearance="outline" class="appearance-form-field">
-                <mat-label>{{ 'treesEntity.image' | translate }}</mat-label>
+                <mat-label>{{ 'entity.tree.image' | translate }}</mat-label>
                 <input #treeImageNameInput matInput type="text" formControlName="imageName"
                        (keyup)="onImageChange('tree', $event)" readonly
-                       [placeholder]="'treesEntity.imagePlaceHolder' | translate">
+                       [placeholder]="'entity.tree.imagePlaceHolder' | translate">
               </mat-form-field>
               <textarea matInput type="text" hidden formControlName="image"> </textarea>
               <input #treeFileInput type="file" accept="image/*" hidden (change)="onImageSelected('tree', $event)">
               <div class="appearance-actions">
                 <button mat-raised-button color="primary" (click)="treeFileInput.click()">
-                  {{ 'treesEntity.selectFile' | translate }}
+                  {{ 'entity.tree.selectFile' | translate }}
                 </button>
                 <button mat-raised-button color="primary" (click)="activeImageNameInput('tree', treeImageNameInput)">
-                  {{ 'treesEntity.webUrl' | translate }}
+                  {{ 'entity.tree.webUrl' | translate }}
                 </button>
                 <button mat-raised-button color="warn" (click)="removeImage('tree')">
-                  {{ 'treesEntity.delete' | translate }}
+                  {{ 'entity.tree.delete' | translate }}
                 </button>
               </div>
             </div>
@@ -87,7 +86,7 @@
       </mat-card>
     </form>
   </mat-tab>
-  <mat-tab label="{{ 'treesEntity.treeStructure' | translate }}">
+  <mat-tab label="{{ 'entity.tree.treeStructure' | translate }}">
     <app-tree-nodes
       #treeNodesComponent
       [tree]="entityToEdit"
@@ -98,7 +97,7 @@
       (saveRequested)="receiveAllNodes($event)">
     </app-tree-nodes>
   </mat-tab>
-  <mat-tab label="{{ 'layersPermitsEntity.applications' | translate }}">
+  <mat-tab label="{{ 'entity.permissionGroup.applications.header' | translate }}">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
         <app-data-grid
@@ -125,7 +124,7 @@
       </mat-card-content>
     </mat-card>
   </mat-tab>
-  <mat-tab label="{{ 'treesEntity.roles' | translate }}">
+  <mat-tab label="{{ 'entity.tree.roles' | translate }}">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
         <app-data-grid

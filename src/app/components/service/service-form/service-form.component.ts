@@ -235,7 +235,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
    */
   override async fetchCopy(): Promise<Service> {
     return firstValueFrom(this.serviceService.get(this.duplicateID).pipe(map((copy: Service) => {
-      copy.name = this.translateService.instant("copy_") + copy.name;
+      copy.name = this.translateService.instant("common.copyPrefix") + copy.name;
       return copy;
     })));
   }
@@ -437,8 +437,8 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
    */
   onUpdateServiceMetadata() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title = this.utils.getTranslate('caution');
-    dialogRef.componentInstance.message = this.utils.getTranslate('getCapabilitiesMessage');
+    dialogRef.componentInstance.title = this.utils.getTranslate('common.caution');
+    dialogRef.componentInstance.message = this.utils.getTranslate('entity.service.getCapabilitiesMessage');
     dialogRef.afterClosed().subscribe(next => {
       if (next?.event === 'Accept') {
         if (this.entityForm.get('type').value === constants.codeValue.serviceType.wms) {
@@ -463,8 +463,8 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
    */
   onUpdateServiceCapabilities() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title = this.utils.getTranslate('caution');
-    dialogRef.componentInstance.message = this.utils.getTranslate('getCapabilitiesMessage');
+    dialogRef.componentInstance.title = this.utils.getTranslate('common.caution');
+    dialogRef.componentInstance.message = this.utils.getTranslate('entity.service.getCapabilitiesMessage');
     dialogRef.afterClosed().subscribe(next => {
       if (next?.event === 'Accept') {
         if (this.entityForm.get('type').value === constants.codeValue.serviceType.wms) {
@@ -621,7 +621,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
       })
       .withTemplateDialog('newParameterDialog', () => TemplateDialog.builder()
         .withReference(this.newParameterDialog)
-        .withTitle(this.translateService.instant('serviceEntity.newParameter'))
+        .withTitle('entity.service.newParameter')
         .withForm(
           new UntypedFormGroup({
             name: new UntypedFormControl('', [Validators.required,]),

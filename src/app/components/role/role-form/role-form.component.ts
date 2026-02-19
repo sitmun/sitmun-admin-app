@@ -103,7 +103,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
    */
   override fetchCopy(): Promise<Role> {
     return firstValueFrom(this.roleService.get(this.duplicateID).pipe(map((copy: Role) => {
-      copy.name = this.translateService.instant("copy_") + copy.name;
+      copy.name = this.translateService.instant("common.copyPrefix") + copy.name;
       return copy;
     })));
   }
@@ -286,7 +286,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
       .withTargetInclude((tasks: (TaskProjection)[]) => (item: TaskProjection) => {
         return !tasks.some((task) => task.id === item.id);
       })
-      .withTargetsTitle(this.translateService.instant('entity.role.tasks.title'))
+      .withTargetsTitle('entity.role.tasks.title')
       .withTargetsOrder('name')
       .build();
   }
@@ -322,7 +322,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
       .withTargetInclude((applications: (Application)[]) => (item: Application) => {
         return !applications.some((application) => application.id === item.id);
       })
-      .withTargetsTitle(this.translateService.instant('entity.role.applications.title'))
+      .withTargetsTitle('entity.role.applications.title')
       .withTargetsOrder('name')
       .build();
     }

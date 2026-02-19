@@ -6,7 +6,7 @@
   [isNew]="isNewOrDuplicated()"
   [canSave]="canSaveEntity"
   [form]="entityForm"
-  validationEntityType="application"
+  entityLabelPrefix="entity.application"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
@@ -370,7 +370,7 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full">
-          <mat-label>{{ 'layersPermitsEntity.serviceURL' | translate }}</mat-label>
+          <mat-label>{{ 'entity.permissionGroup.serviceURL' | translate }}</mat-label>
           <input [maxlength]="500" formControlName="url" matInput required type="text">
         </mat-form-field>
 

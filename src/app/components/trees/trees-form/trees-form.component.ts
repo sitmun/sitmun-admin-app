@@ -121,7 +121,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
   override async fetchCopy(): Promise<Tree> {
     return firstValueFrom(this.treeService.get(this.duplicateID).pipe(
       map((copy: Tree) => {
-        copy.name = this.translateService.instant('copy_') + copy.name;
+        copy.name = this.translateService.instant('common.copyPrefix') + copy.name;
         return copy;
       })
     ));
@@ -174,7 +174,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
     // Handle duplication
     if (this.isDuplicated()) {
       this.entityForm.patchValue({
-        name: this.translateService.instant('copy_') + this.entityToEdit.name
+        name: this.translateService.instant('common.copyPrefix') + this.entityToEdit.name
       });
     }
 
@@ -576,7 +576,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getIdColumnDef(),
-        this.utils.getEditableColumnDef('treesEntity.name', 'name'),
+        this.utils.getEditableColumnDef('entity.tree.name', 'name'),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('name')
@@ -596,7 +596,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       .withTargetsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getIdColumnDef(),
-        this.utils.getNonEditableColumnDef('layersPermitsEntity.name', 'name'),
+        this.utils.getNonEditableColumnDef('entity.permissionGroup.name', 'name'),
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.applicationService.getAll())
@@ -605,7 +605,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
         // This preserves the original fieldRestrictionWithDifferentName behavior
         return !applications.some(app => app.name === target.name);
       })
-      .withTargetsTitle('layersPermitsEntity.applications')
+      .withTargetsTitle('entity.permissionGroup.applications.header')
       .build();
   }
 
@@ -620,7 +620,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getIdColumnDef(),
-        this.utils.getEditableColumnDef('roleEntity.name', 'name'),
+        this.utils.getEditableColumnDef('entity.role.name', 'name'),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('name')
@@ -640,11 +640,11 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       .withTargetsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getIdColumnDef(),
-        this.utils.getNonEditableColumnDef('roleEntity.name', 'name'),
+        this.utils.getNonEditableColumnDef('entity.role.name', 'name'),
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.roleService.getAll())
-      .withTargetsTitle('treesEntity.roles')
+      .withTargetsTitle('entity.tree.roles')
       .build();
   }
 

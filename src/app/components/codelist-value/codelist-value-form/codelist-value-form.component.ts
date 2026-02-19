@@ -52,7 +52,7 @@ export class CodelistValueFormComponent extends BaseFormComponent<CodeList> {
 
   override fetchCopy(): Promise<CodeList> {
     return firstValueFrom(this.codeListService.get(this.duplicateID).pipe(map((copy: CodeList) => {
-      copy.value = this.translateService.instant("copy_") + copy.value;
+      copy.value = this.translateService.instant("common.copyPrefix") + copy.value;
       copy.system = false; // Duplicated records are never system records
       return copy;
     })));

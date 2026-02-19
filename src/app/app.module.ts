@@ -7,7 +7,7 @@ import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {RouterModule} from '@angular/router';
 
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { provideMissingTranslationHandler, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import {firstValueFrom} from 'rxjs';
 
@@ -69,6 +69,7 @@ import {CoreModule, MessagesInterceptorStateService} from '@app/core';
 import {ExternalConfigurationService} from '@app/core/config/external-configuration.service';
 import {ExternalService, HalModule, ResourceService} from '@app/core/hal';
 import {Resource} from "@app/core/hal/resource/resource.model";
+import { AppMissingTranslationHandler } from '@app/core/translate/missing-translation-handler';
 import {
   ApplicationBackgroundService,
   ApplicationParameterService,
@@ -116,6 +117,7 @@ import {AppComponent} from './app.component';
 import {AboutDialogComponent} from './components/shared/about-dialog/about-dialog.component';
 import {ConfigurationParametersDialogComponent} from './components/shared/configuration-parameters-dialog/configuration-parameters-dialog.component';
 import {ErrorDetailsSidebarComponent} from './components/shared/error-details-sidebar/error-details-sidebar.component';
+import {MissingTranslationsSidebarComponent} from './components/shared/missing-translations-sidebar/missing-translations-sidebar.component';
 import {SystemInfoMenuComponent} from './components/shared/system-info-menu/system-info-menu.component';
 import {GlobalErrorHandler} from './core/global-error-handler';
 import {MaterialModule} from './material-module';
@@ -295,6 +297,7 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
         FormToolbarComponent,
         SystemInfoMenuComponent,
         ErrorDetailsSidebarComponent,
+        MissingTranslationsSidebarComponent,
         AboutDialogComponent,
         ConfigurationParametersDialogComponent,
         UrlInputDirective,
@@ -321,7 +324,8 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
         RouterModule,
         HalModule.forRoot(),
         TranslateModule.forRoot({
-            loader: provideTranslateHttpLoader({ prefix: './assets/i18n/', suffix: '.json' })
+            loader: provideTranslateHttpLoader({ prefix: './assets/i18n/', suffix: '.json' }),
+            missingTranslationHandler: provideMissingTranslationHandler(AppMissingTranslationHandler)
         }),
         APP_ROUTING,
         BrowserAnimationsModule,

@@ -81,7 +81,7 @@ export class TaskGroupFormComponent extends BaseFormComponent<TaskGroup> {
    */
   override fetchCopy(): Promise<TaskGroup> {
     return firstValueFrom(this.taskGroupService.getProjection(TaskGroup, this.duplicateID).pipe(map((copy: TaskGroup) => {
-      copy.name = this.translateService.instant("copy_") + copy.name;
+      copy.name = this.translateService.instant("common.copyPrefix") + copy.name;
       return copy;
     })));
   }

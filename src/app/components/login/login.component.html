@@ -18,17 +18,17 @@
       </mat-card-header>
       <mat-card-content>
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{'loginEntity.username' | translate}}</mat-label>
+            <mat-label>{{'entity.login.username' | translate}}</mat-label>
             <mat-icon matPrefix>person</mat-icon>
             <input matInput type="input" formControlName="username">
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{'loginEntity.password' | translate}}</mat-label>
+            <mat-label>{{'entity.login.password' | translate}}</mat-label>
             <mat-icon matPrefix>lock</mat-icon>
             <input matInput type="password" formControlName="password">
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{'loginEntity.language' | translate}}</mat-label>
+            <mat-label>{{'entity.login.language' | translate}}</mat-label>
             <!-- Show flag icon when language is selected, otherwise show language icon -->
             <mat-icon matPrefix class="flag-prefix-icon"
                       [svgIcon]="hasLanguageIcon(getSelectedLanguage()?.shortname || '') ? getLanguageIconName(getSelectedLanguage()!.shortname) : ''"
@@ -48,18 +48,18 @@
             </mat-select>
           </mat-form-field>
         <div class="alert alert-danger" *ngIf="badCredentials">
-          {{'loginEntity.bad-credentials' | translate}}
+          {{'entity.login.bad-credentials' | translate}}
         </div>
       </mat-card-content>
       <mat-card-actions>
         <button mat-raised-button color="primary" class="loginButton" type="submit" [disabled]="!form.valid">
-          {{'loginEntity.login' | translate}}
+          {{'entity.login.login' | translate}}
         </button>
       </mat-card-actions>
     </form>
     @if (alternativeLoginMethods.length > 0) {
       <div class="alt-login-divider">
-        <p class="alt-login-text">{{'loginEntity.alternatives' | translate}}</p>
+        <p class="alt-login-text">{{'entity.login.alternatives' | translate}}</p>
       </div>
       <mat-card-content [ngClass]="alternativeLoginMethods.length > 2 ? 'wrapContent' : 'verticallyListedContent'">
         @for (provider of alternativeLoginMethods; track provider.providerName) {

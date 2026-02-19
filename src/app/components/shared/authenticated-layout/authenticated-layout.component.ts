@@ -9,6 +9,7 @@ import {LoggerService} from '@app/services/logger.service';
       <app-toolbar (sidenavEvent)="navOpen($event)"></app-toolbar>
       <app-side-menu [openNav]="isOpen"></app-side-menu>
       <app-error-details-sidebar></app-error-details-sidebar>
+      <app-missing-translations-sidebar></app-missing-translations-sidebar>
     </div>
   `,
     styles: [],

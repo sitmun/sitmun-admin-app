@@ -50,8 +50,8 @@ export interface DialogGridResult {
   data?: any[];
 }
 
-export function isDialogGridAddEvent(result: DialogGridResult): boolean {
-  return result.event === 'Add'
+export function isDialogGridAddEvent(result: DialogGridResult | null | undefined): boolean {
+  return result?.event === 'Add';
 }
 
 /**

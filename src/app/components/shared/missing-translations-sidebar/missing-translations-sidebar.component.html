@@ -1,0 +1,40 @@
+<div class="translation-sidebar-overlay" *ngIf="isOpen()" (click)="close()" (keyup.enter)="close()" (keyup.escape)="close()" tabindex="0" role="button" [attr.aria-label]="'systemInfo.closeMissingTranslationsPanel' | translate"></div>
+<div class="translation-sidebar" [class.open]="isOpen()">
+  <div class="sidebar-header">
+    <h3>{{ 'systemInfo.missingTranslations' | translate }}</h3>
+    <button mat-icon-button (click)="close()" [attr.aria-label]="'systemInfo.closeMissingTranslationsPanel' | translate">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="sidebar-content">
+    <ng-container *ngIf="keys$ | async as keys">
+      <div *ngIf="keys.length === 0" class="no-keys">
+        <mat-icon>check_circle</mat-icon>
+        <p>{{ 'systemInfo.noMissingTranslations' | translate }}</p>
+      </div>
+
+      <div *ngIf="keys.length > 0" class="keys-list">
+        <div class="sidebar-actions">
+          <button mat-button (click)="copyAllKeys()">
+            <mat-icon>content_copy</mat-icon>
+            <span>{{ 'systemInfo.copyAllKeys' | translate }}</span>
+          </button>
+          <button mat-button (click)="clearAll()">
+            <mat-icon>delete_sweep</mat-icon>
+            <span>{{ 'systemInfo.clearMissingTranslations' | translate }}</span>
+          </button>
+        </div>
+        <div class="keys-count">{{ 'systemInfo.keysInGroup' | translate }}: {{ keys.length }}</div>
+        <ul class="key-items">
+          <li *ngFor="let key of keys" class="key-item">
+            <code class="key-text">{{ key }}</code>
+            <button mat-icon-button (click)="copyKey(key)" [attr.aria-label]="'systemInfo.copyTranslationKey' | translate">
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </ng-container>
+  </div>
+</div>

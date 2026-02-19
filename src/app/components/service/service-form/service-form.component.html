@@ -6,7 +6,7 @@
   [isNew]="isNewOrDuplicated()"
   [canSave]="canSaveEntity"
   [form]="entityForm"
-  validationEntityType="service"
+  entityLabelPrefix="entity.service"
   [validationFieldLabelKeys]="{ type: 'entity.service.type', serviceURL: 'entity.service.endpoint', authenticationMode: 'entity.service.authenticationMode' }"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
