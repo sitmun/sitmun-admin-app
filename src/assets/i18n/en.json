@@ -795,6 +795,7 @@
   "tasksMoreInfoEntity.sqlQuery": "SQL Query",
   "tasksMoreInfoEntity.url": "URL",
   "tasksMoreInfoEntity.apiUrl": "API URL",
+  "tasksMoreInfoEntity.alertPrefix": "WARNING:",
   "tasksMoreInfoEntity.apiUrlHint": "URL parameters must be defined as follows: ${parameterName}, and must match the 'label' field of the parameters defined in the task.",
   "tasksReportEntity.id": "ID",
   "tasksReportEntity.informationType": "Information type",

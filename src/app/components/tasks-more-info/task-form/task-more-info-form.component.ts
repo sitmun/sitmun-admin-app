@@ -54,11 +54,12 @@ import {magic} from "@environments/constants";
 @Component({
   selector: 'app-task-more-info-form',
   templateUrl: './task-more-info-form.component.html',
-  styles: [],
+  styleUrl: './task-more-info-form.component.scss',
   standalone: false
 })
 export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection> implements OnInit {
   readonly config = Configuration.TASK_MORE_INFO;
+  private readonly apiParameterPattern = /\$\{[^}]+}/g;
 
   public override entityForm: FormGroup;
 
@@ -331,6 +332,15 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
 
   isApiAccessType(): boolean {
     return this.entityForm?.value?.scope === this.moreInfoScope.api;
+  }
+
+  protected shouldShowCommandAlertHint(): boolean {
+    const command = this.entityForm?.get('command')?.value ?? '';
+    const matchCount = (command.match(this.apiParameterPattern) || []).length;
+    const declaredParameters = this.entityToEdit?.properties?.parameters || [];
+    const declaredParametersCount = Array.isArray(declaredParameters) ? declaredParameters.length : 0;
+
+    return matchCount === 0 || declaredParametersCount !== matchCount;
   }
 
   isUrlRedirectAccessType(): boolean {
