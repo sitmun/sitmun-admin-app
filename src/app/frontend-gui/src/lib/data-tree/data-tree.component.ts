@@ -107,6 +107,7 @@ export class FileDatabase {
           obj.status = constants.entityStatus.pendingCreation;
           if(obj.id) { obj.id = obj.id * -1 }
           if(obj.parent) { obj.parent = obj.parent * -1 }
+          delete obj._links;
         }
 
         if(!map[obj.id]) {map[obj.id] = obj;}
