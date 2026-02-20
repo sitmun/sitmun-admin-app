@@ -887,6 +887,6 @@
   "systemInfo.recentErrors": "Errores Recientes",
   "systemInfo.searchKeys": "Buscar claves...",
   "systemInfo.title": "Información del Sistema",
-  "systemInfo.triggerTestError": "[DEV] Generar Error de Prueba",
+  "systemInfo.triggerTestError": "Generar Error de Prueba",
   "systemInfo.version": "Versión"
 }

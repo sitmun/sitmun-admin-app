@@ -402,7 +402,7 @@
   "entity.permissionGroup.applications.header": "Aplicacions",
   "entity.permissionGroup.applications.title": "Afegeix aplicacions",
   "entity.permissionGroup.createdDate": "Alta",
-  "entity.permissionGroup.label": "Permisos sobre les capes",
+  "entity.permissionGroup.label": "Permisos a capes",
   "entity.permissionGroup.layers.header": "Capes",
   "entity.permissionGroup.layers.headerDescription": "Capes que formen part d'aquest grup de permisos",
   "entity.permissionGroup.layers.layerslist": "Capes en el grup",
@@ -887,6 +887,6 @@
   "systemInfo.recentErrors": "Errors Recents",
   "systemInfo.searchKeys": "Cercar claus...",
   "systemInfo.title": "Informació del Sistema",
-  "systemInfo.triggerTestError": "[DEV] Generar Error de Prova",
+  "systemInfo.triggerTestError": "Generar Error de Prova",
   "systemInfo.version": "Versió"
 }

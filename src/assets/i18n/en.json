@@ -887,6 +887,6 @@
   "systemInfo.recentErrors": "Recent Errors",
   "systemInfo.searchKeys": "Search keys...",
   "systemInfo.title": "System Information",
-  "systemInfo.triggerTestError": "[DEV] Trigger Test Error",
+  "systemInfo.triggerTestError": "Trigger Test Error",
   "systemInfo.version": "Version"
 }
