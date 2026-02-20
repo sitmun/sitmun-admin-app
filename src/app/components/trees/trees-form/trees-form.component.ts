@@ -28,6 +28,8 @@ import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
+import {config} from '@config';
+import {constants} from '@environments/constants';
 
 import {TreeNodesComponent} from './tree-nodes/tree-nodes.component';
 
@@ -39,6 +41,8 @@ import {TreeNodesComponent} from './tree-nodes/tree-nodes.component';
 })
 export class TreesFormComponent extends BaseFormComponent<Tree> {
   readonly config = Configuration.TREE;
+  readonly treeTypeNodeTypes = config.treeTypeNodeTypes;
+  override readonly codeValues = constants.codeValue;
 
   currentTreeType: string;
   @ViewChild('treeNodesComponent') treeNodesComponent: TreeNodesComponent;
@@ -90,7 +94,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
   override async preFetchData() {
     this.dataTables.register(this.applicationsTable);
     this.dataTables.register(this.rolesTable);
-    this.initTranslations('tree', ['name', 'description']);
+    this.initTranslations('Tree', ['name', 'description']);
     await this.initCodeLists([
       'tree.type',
       'treenode.folder.type',
@@ -364,6 +368,14 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
 
 
   onTreeTypeChange(type: string): void {
+    // Validate that all current nodes are compatible with the candidate tree type
+    if (!this.validateTreeTypeCompatibility(type)) {
+      // Revert to previous tree type
+      this.entityForm.patchValue({ type: this.currentTreeType });
+      this.utils.showNodeTypeConstraintError();
+      return;
+    }
+    
     this.currentTreeType = type;
   }
 
@@ -410,6 +422,103 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
     }
   }
 
+  /**
+   * Validates whether all current nodes are compatible with a given tree type.
+   * Checks both node type allowed lists and parent-child relationships.
+   * @param candidateTreeType The tree type to validate against
+   * @returns true if all nodes are compatible, false otherwise
+   */
+  validateTreeTypeCompatibility(candidateTreeType: string): boolean {
+    const nodes = this.treeNodesComponent?.getNodesForValidation() || [];
+    const filterNodes = nodes.filter(a => (a as any).status !== 'pendingDelete');
+    
+    return this.validNodeTypesForTreeType(filterNodes, candidateTreeType);
+  }
+
+  /**
+   * Validates that all node types are allowed for the given tree type,
+   * and that all parent-child relationships are valid.
+   * @param treeNodes The nodes to validate
+   * @param treeType The tree type to validate against (defaults to currentTreeType)
+   * @returns true if all nodes are compatible, false otherwise
+   */
+  validNodeTypesForTreeType(treeNodes: any[], treeType?: string): boolean {
+    const targetTreeType = treeType || this.currentTreeType;
+    
+    if (!targetTreeType || !this.treeTypeNodeTypes || !this.treeTypeNodeTypes[targetTreeType]) {
+      return true; // No constraints defined
+    }
+    
+    const treeTypeConfig = this.treeTypeNodeTypes[targetTreeType];
+    const allowedFolderTypes = Object.keys(treeTypeConfig.folders || {});
+    const allowedLeafTypes = treeTypeConfig.leaves || [];
+    const allAllowedTypes = [...allowedFolderTypes, ...allowedLeafTypes];
+    
+    // Build a map of nodes by ID for parent-child validation
+    const nodeMap = new Map<number, any>();
+    treeNodes.forEach(node => {
+      if (node.id) {
+        nodeMap.set(node.id, node);
+      }
+    });
+    
+    // Check each node
+    for (const node of treeNodes) {
+      const nodeType = node.nodeType;
+      
+      // Skip nodes without a type (legacy folders with null type are allowed)
+      if (!nodeType) {
+        continue;
+      }
+      
+      // Check if node type is allowed for this tree type
+      if (!allAllowedTypes.includes(nodeType)) {
+        this.loggerService.warn(`Node type '${nodeType}' not allowed for tree type '${targetTreeType}'`, {
+          nodeId: node.id,
+          nodeName: node.name
+        });
+        return false;
+      }
+      
+      // Check parent-child relationships (only for nodes with parents)
+      if (node.parent && nodeMap.has(node.parent)) {
+        const parentNode = nodeMap.get(node.parent);
+        const parentType = parentNode.nodeType;
+        
+        // If parent has no type, skip validation (legacy folder)
+        if (!parentType) {
+          continue;
+        }
+        
+        // Get allowed children for parent type
+        const parentFolderConfig = treeTypeConfig.folders?.[parentType];
+        if (!parentFolderConfig) {
+          // Parent type is not a folder in config, so it shouldn't have children
+          this.loggerService.warn(`Parent node type '${parentType}' cannot have children`, {
+            parentId: node.parent,
+            parentName: parentNode.name,
+            childId: node.id,
+            childName: node.name
+          });
+          return false;
+        }
+        
+        const allowedChildren = parentFolderConfig.allowedChildren || [];
+        if (!allowedChildren.includes(nodeType)) {
+          this.loggerService.warn(`Node type '${nodeType}' not allowed as child of '${parentType}'`, {
+            parentId: node.parent,
+            parentName: parentNode.name,
+            childId: node.id,
+            childName: node.name
+          });
+          return false;
+        }
+      }
+    }
+    
+    return true;
+  }
+
   treeValidations(): boolean {
     let valid = true;
     const nodes = this.treeNodesComponent?.getNodesForValidation() || [];
@@ -422,6 +531,10 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       fn: this.validTreeStructure,
       param: filterNodes,
       msg: this.utils.showTreeStructureError
+    }, {
+      fn: this.validNodeTypesForTreeType,
+      param: filterNodes,
+      msg: this.utils.showNodeTypeConstraintError
     }];
     const error = validations.find(v => !v.fn.bind(this)(v.param));
     if (error) {

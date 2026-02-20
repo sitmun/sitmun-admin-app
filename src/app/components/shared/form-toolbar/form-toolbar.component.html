@@ -11,8 +11,25 @@
     *ngIf="showValidationBanner && dataLoaded"
     [form]="form"
     [entityType]="validationEntityType"
+    [fieldLabelKeys]="validationFieldLabelKeys"
     class="toolbar-banner">
   </app-form-validation-banner>
+  <div *ngIf="customWarningMessage && dataLoaded" class="toolbar-banner custom-warning-wrapper">
+    <mat-card
+      appearance="outlined"
+      role="alert"
+      aria-live="polite"
+      class="form-validation-banner custom-warning-banner">
+      <mat-card-content>
+        <div class="banner-content">
+          <mat-icon class="banner-icon">info</mat-icon>
+          <div class="banner-text">
+            <span class="banner-message">{{ customWarningMessage }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
   <button
     [matTooltip]="'save' | translate"
     mat-mini-fab

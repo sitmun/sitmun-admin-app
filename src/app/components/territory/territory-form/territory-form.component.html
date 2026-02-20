@@ -7,6 +7,7 @@
   [canSave]="canSaveEntity"
   [form]="entityForm"
   validationEntityType="territory"
+  [validationFieldLabelKeys]="{ name: 'entity.territory.name', code: 'entity.territory.code', typeId: 'entity.territory.territoryType', blocked: 'entity.territory.blocked' }"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
@@ -21,14 +22,14 @@
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'entity.territory.name' | translate }}</mat-label>
+            <mat-label>{{ 'entity.territory.name' | translate }} ({{ defaultLang }})</mat-label>
             <input matInput type="text" formControlName="name">
             <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('name')"
                       onKeyDown="onTranslated('name')">translate</mat-icon>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'entity.territory.description' | translate }}</mat-label>
+            <mat-label>{{ 'entity.territory.description' | translate }} ({{ defaultLang }})</mat-label>
             <textarea
               matInput
               formControlName="description"

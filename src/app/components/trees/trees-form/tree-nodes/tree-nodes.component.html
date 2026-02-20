@@ -8,6 +8,7 @@
           [eventGetAllRowsSubscription]='getAllElementsNodes.asObservable()'
           [eventRefreshSubscription]='refreshTreeEvent.asObservable()'
           [eventCreateNodeSubscription]='createNodeEvent.asObservable()' [allNewElements]='entityID === -1'
+          [canNodeHaveChildren]="canNodeHaveChildren.bind(this)"
           (emitAllNodes)="receiveAllNodes($event)">
           loading
         </app-data-tree>
@@ -86,7 +87,7 @@
                       </mat-form-field>
                       <mat-form-field appearance="outline" style="flex: 0.65; min-width: 200px;"
                         *ngIf="currentNodeIsFolder !== undefined">
-                        <mat-label>{{ 'treesEntity.name' | translate }}</mat-label>
+                        <mat-label>{{ 'treesEntity.name' | translate }} ({{ defaultLang }})</mat-label>
                         <input matInput type="text" formControlName="name" [maxlength]="80">
                         <mat-hint align="end" [class.text-warning]="treeNodeForm.get('name')?.value?.length > 80">
                           {{ treeNodeForm.get('name') | characterCount }}
@@ -116,7 +117,7 @@
                     </mat-expansion-panel-header>
                     <div class="description-metadata-content">
                       <mat-form-field appearance="outline" class="full">
-                        <mat-label>{{ 'treesEntity.description' | translate }}</mat-label>
+                        <mat-label>{{ 'treesEntity.description' | translate }} ({{ defaultLang }})</mat-label>
                         <textarea matInput formControlName="description" rows="3" [maxlength]="250"></textarea>
                         <mat-hint align="end">{{ treeNodeForm.get('description') | characterCount }}</mat-hint>
                         <mat-icon matSuffix class="iconTranslate"

@@ -8,6 +8,7 @@
   [canSave]="canSaveEntity"
   [form]="entityForm"
   validationEntityType="task"
+  [validationFieldLabelKeys]="{ name: 'common.form.name', scope: 'common.form.type', command: 'entity.task.query.sql', connectionId: 'entity.task.query.connection', cartographyId: 'entity.task.query.cartography', taskGroupId: 'entity.taskGroup.label' }"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
@@ -23,7 +24,7 @@
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'common.form.name' | translate }}</mat-label>
+            <mat-label>{{ 'common.form.name' | translate }} ({{ defaultLang }})</mat-label>
             <input matInput type="text" formControlName="name" [maxlength]="512" required>
             <mat-hint align="end" [class.text-warning]="entityForm.get('name')?.value?.length > 512">
               {{entityForm.get('name') | characterCount}}

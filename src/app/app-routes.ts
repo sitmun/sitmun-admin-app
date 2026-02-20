@@ -7,10 +7,16 @@ import {
 } from '@app/components/background-layers/background-layers-form/background-layers-form.component';
 import {BackgroundLayersComponent} from '@app/components/background-layers/background-layers.component';
 import {CallbackComponent} from "@app/components/callback/callback.component";
+import {CodelistValueFormComponent} from '@app/components/codelist-value/codelist-value-form/codelist-value-form.component';
+import {CodelistValueComponent} from '@app/components/codelist-value/codelist-value.component';
+import {ConfigurationParameterFormComponent} from '@app/components/configuration-parameter/configuration-parameter-form/configuration-parameter-form.component';
+import {ConfigurationParameterComponent} from '@app/components/configuration-parameter/configuration-parameter.component';
 import {ConnectionFormComponent} from '@app/components/connection/connection-form/connection-form.component';
 import {ConnectionComponent} from '@app/components/connection/connection.component';
 import {DashboardComponent} from '@app/components/dashboard/dashboard.component';
 import {ErrorPageComponent} from '@app/components/error-page/error-page.component';
+import {LanguageFormComponent} from '@app/components/language/language-form/language-form.component';
+import {LanguageComponent} from '@app/components/language/language.component';
 import {LayersFormComponent} from '@app/components/layers/layers-form/layers-form.component';
 import {LayersComponent} from '@app/components/layers/layers.component';
 import {
@@ -25,6 +31,8 @@ import {ServiceComponent} from '@app/components/service/service.component';
 import {AuthenticatedLayoutComponent} from '@app/components/shared/authenticated-layout/authenticated-layout.component';
 import {TaskGroupFormComponent} from '@app/components/task-group/task-group-form/task-group-form.component';
 import {TaskGroupComponent} from '@app/components/task-group/task-group.component';
+import {TaskUIFormComponent} from '@app/components/task-ui/task-ui-form/task-ui-form.component';
+import {TaskUIComponent} from '@app/components/task-ui/task-ui.component';
 import {TaskBasicFormComponent} from "@app/components/tasks-basic/task-form/task-basic-form.component";
 import {TasksBasicComponent} from '@app/components/tasks-basic/tasks-basic.component';
 import {TaskEditFormComponent} from '@app/components/tasks-edit/task-form/task-edit-form.component';
@@ -83,6 +91,9 @@ export const APP_ROUTES: Routes = [
       {path: 'taskGroup', component: TaskGroupComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'taskGroup/:id/taskGroupForm', component: TaskGroupFormComponent},
       {path: 'taskGroup/:id/taskGroupForm/:idDuplicate', component: TaskGroupFormComponent},
+      {path: 'task-ui', component: TaskUIComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'task-ui/:id/taskUIForm', component: TaskUIFormComponent},
+      {path: 'task-ui/:id/taskUIForm/:idDuplicate', component: TaskUIFormComponent},
       {path: 'tasksQuery', component: TasksQueryComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'taskQuery/:id/:type', component: TaskQueryFormComponent},
       {path: 'taskQuery/:id/:type/:idDuplicate', component: TaskQueryFormComponent},
@@ -101,6 +112,15 @@ export const APP_ROUTES: Routes = [
       {path: 'application', component: ApplicationComponent},
       {path: 'application/:id/applicationForm', component: ApplicationFormComponent},
       {path: 'application/:id/applicationForm/:idDuplicate', component: ApplicationFormComponent},
+      {path: 'language', component: LanguageComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'language/:id/languageForm', component: LanguageFormComponent},
+      {path: 'language/:id/languageForm/:idDuplicate', component: LanguageFormComponent},
+      {path: 'codelistValue', component: CodelistValueComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'codelistValue/:id/codelistValueForm', component: CodelistValueFormComponent},
+      {path: 'codelistValue/:id/codelistValueForm/:idDuplicate', component: CodelistValueFormComponent},
+      {path: 'configurationParameter', component: ConfigurationParameterComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'configurationParameter/:id/configurationParameterForm', component: ConfigurationParameterFormComponent},
+      {path: 'configurationParameter/:id/configurationParameterForm/:idDuplicate', component: ConfigurationParameterFormComponent},
       {path: '', pathMatch: 'full', redirectTo: 'dashboard'},
     ]
   },

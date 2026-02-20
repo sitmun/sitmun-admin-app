@@ -72,7 +72,7 @@ export class UserComponent extends BaseListComponent<User> {
     // Set column definitions directly in the config
     this.entityListConfig.columnDefs = [
       this.utils.getSelCheckboxColumnDef(),
-      this.utils.getRouterLinkColumnDef('common.form.name', 'username', 'user/:id/userForm', {id: 'id'}),
+      this.utils.getRouterLinkColumnDef('common.form.identifier', 'username', 'user/:id/userForm', {id: 'id'}),
       this.utils.getNonEditableColumnDef('entity.user.firstname', 'firstName'),
       this.utils.getNonEditableColumnDef('entity.user.lastname', 'lastName'),
     ];
@@ -90,5 +90,11 @@ export class UserComponent extends BaseListComponent<User> {
 
   override dataUpdateFn = (data: User) => firstValueFrom(this.userService.update(data))
 
-  override dataDeleteFn = (data: User) => firstValueFrom(this.userService.delete(data))
+  override dataDeleteFn = (data: User) => {
+    // Prevent deletion of built-in users (admin and public)
+    if (data.username === 'admin' || data.username === 'public') {
+      return Promise.reject(new Error(`Cannot delete built-in ${data.username} user`));
+    }
+    return firstValueFrom(this.userService.delete(data));
+  }
 }

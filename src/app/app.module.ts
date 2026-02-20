@@ -18,11 +18,17 @@ import {
 } from '@app/components/background-layers/background-layers-form/background-layers-form.component';
 import {BackgroundLayersComponent} from '@app/components/background-layers/background-layers.component';
 import {BaseFormComponent} from "@app/components/base-form.component";
+import {CodelistValueFormComponent} from '@app/components/codelist-value/codelist-value-form/codelist-value-form.component';
+import {CodelistValueComponent} from '@app/components/codelist-value/codelist-value.component';
+import {ConfigurationParameterFormComponent} from '@app/components/configuration-parameter/configuration-parameter-form/configuration-parameter-form.component';
+import {ConfigurationParameterComponent} from '@app/components/configuration-parameter/configuration-parameter.component';
 import {ConnectionFormComponent} from '@app/components/connection/connection-form/connection-form.component';
 import {ConnectionComponent} from '@app/components/connection/connection.component';
 import {DashboardComponent} from '@app/components/dashboard/dashboard.component';
 import {DataTablesRegistry} from "@app/components/data-tables.util";
 import {ErrorPageComponent} from "@app/components/error-page/error-page.component";
+import {LanguageFormComponent} from '@app/components/language/language-form/language-form.component';
+import {LanguageComponent} from '@app/components/language/language.component';
 import {LayersFormComponent} from '@app/components/layers/layers-form/layers-form.component';
 import {LayersComponent} from '@app/components/layers/layers.component';
 import {
@@ -44,6 +50,8 @@ import {ToolbarComponent} from '@app/components/shared/toolbar/toolbar.component
 import {WarningsPanelComponent} from '@app/components/shared/warnings-panel/warnings-panel.component';
 import {TaskGroupFormComponent} from '@app/components/task-group/task-group-form/task-group-form.component';
 import {TaskGroupComponent} from '@app/components/task-group/task-group.component';
+import {TaskUIFormComponent} from '@app/components/task-ui/task-ui-form/task-ui-form.component';
+import {TaskUIComponent} from '@app/components/task-ui/task-ui.component';
 import {TaskBasicFormComponent} from '@app/components/tasks-basic/task-form/task-basic-form.component';
 import {TasksBasicComponent} from '@app/components/tasks-basic/tasks-basic.component';
 import {TaskEditFormComponent} from '@app/components/tasks-edit/task-form/task-edit-form.component';
@@ -248,142 +256,150 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
 }
 
 @NgModule({ declarations: [
-    BaseFormComponent,
-    AppComponent,
-    EntityListComponent,
-    ErrorPageComponent,
-    ConnectionComponent,
-    ServiceComponent,
-    LayersComponent,
-    TreesComponent,
-    BackgroundLayersComponent,
-    LayersPermitsComponent,
-    TerritoryComponent,
-    UserComponent,
-    ApplicationComponent,
-    SideMenuComponent,
-    RoleComponent,
-    ToolbarComponent,
-    AuthenticatedLayoutComponent,
-    TasksBasicComponent,
-    TaskBasicFormComponent,
-    TaskMoreInfoFormComponent,
-    TasksMoreInfoComponent,
-    TasksQueryComponent,
-    TaskQueryFormComponent,
-    ConnectionFormComponent,
-    RoleFormComponent,
-    UserFormComponent,
-    TerritoryFormComponent,
-    ServiceFormComponent,
-    ApplicationFormComponent,
-    TreesFormComponent,
-    TreeNodesComponent,
-    BackgroundLayersFormComponent,
-    LayersPermitsFormComponent,
-    LayersFormComponent,
-    TaskGroupComponent,
-    TaskGroupFormComponent,
-    LoginComponent,
-    DashboardComponent,
-    FormToolbarComponent,
-    SystemInfoMenuComponent,
-    ErrorDetailsSidebarComponent,
-    AboutDialogComponent,
-    ConfigurationParametersDialogComponent,
-    UrlInputDirective,
-    TaskEditFormComponent,
-    TasksEditComponent,
-    NotificationComponent
-  ],
-  bootstrap: [AppComponent], imports: [BrowserModule,
-    FormsModule,
-    ReactiveFormsModule,
-    CoreModule.forRoot(),
-    DomainModule.forRoot(),
-    ServicesModule,
-    SitmunFrontendGuiModule,
-    DataGridComponent,
-    DialogGridComponent,
-    MaterialModule,
-    RouterModule,
-    HalModule.forRoot(),
-    TranslateModule.forRoot({
-      loader: provideTranslateHttpLoader({ prefix: './assets/i18n/', suffix: '.json' })
-    }),
-    APP_ROUTING,
-    BrowserAnimationsModule,
-    CoreModule,
-    NgOptimizedImage,
-    WarningsPanelComponent,
-    ImagePreviewComponent], providers: [
-    { provide: LOCALE_ID, useValue: 'es-ES' },
-    { provide: ErrorHandler, useClass: GlobalErrorHandler },
-    { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
-    { provide: MAT_TABS_CONFIG, useValue: { animationDuration: '0ms' } },
-    // APP_INITIALIZER providers
-    // AppConfigService must be initialized FIRST (before languages) so fallback is available
-    {
-      provide: APP_INITIALIZER,
-      useFactory: initializeAppConfig,
-      deps: [AppConfigService],
-      multi: true
-    },
-    {
-      provide: APP_INITIALIZER,
-      useFactory: initializeIcons,
-      deps: [IconsService],
-      multi: true
-    },
-    {
-      provide: APP_INITIALIZER,
-      useFactory: initializeLanguages,
-      deps: [LanguageService, TranslateService, LoggerService, AppStateService, MessagesInterceptorStateService, AppConfigService],
-      multi: true
-    },
-    {
-      provide: APP_INITIALIZER,
-      useFactory: initializeConfiguration,
-      deps: [ConfigurationParametersService, TranslateService, LoggerService, AppStateService, MessagesInterceptorStateService],
-      multi: true
-    },
-    AppConfigService,
-    ResourceService,
-    ExternalService,
-    RoleService,
-    ConnectionService,
-    UserService,
-    TerritoryService,
-    ServiceService,
-    ApplicationService,
-    TreeService,
-    TranslationService,
-    TerritoryTypeService,
-    TaskAvailabilityService,
-    BackgroundService,
-    CartographyService,
-    CartographyGroupService,
-    TaskGroupService,
-    DashboardService,
-    TaskService,
-    UserConfigurationService,
-    CodeListService,
-    ConfigurationParametersService,
-    CartographyAvailabilityService,
-    ServiceParameterService,
-    ApplicationParameterService,
-    CartographyParameterService,
-    CartographySpatialSelectionParameterService,
-    CartographyStyleService,
-    CapabilitiesService,
-    TaskTypeService,
-    LanguageService,
-    CartographyFilterService,
-    TaskUIService,
-    ApplicationBackgroundService,
-    TreeNodeService,
-    UserPositionService,
-    provideHttpClient(withInterceptorsFromDi())
-  ] })
+        BaseFormComponent,
+        AppComponent,
+        EntityListComponent,
+        ErrorPageComponent,
+        ConnectionComponent,
+        ServiceComponent,
+        LayersComponent,
+        TreesComponent,
+        BackgroundLayersComponent,
+        LayersPermitsComponent,
+        TerritoryComponent,
+        UserComponent,
+        ApplicationComponent,
+        SideMenuComponent,
+        RoleComponent,
+        ToolbarComponent,
+        AuthenticatedLayoutComponent,
+        TasksBasicComponent,
+        TaskBasicFormComponent,
+	TaskMoreInfoFormComponent,
+	TasksMoreInfoComponent,
+        TasksQueryComponent,
+        TaskQueryFormComponent,
+        ConnectionFormComponent,
+        RoleFormComponent,
+        UserFormComponent,
+        TerritoryFormComponent,
+        ServiceFormComponent,
+        ApplicationFormComponent,
+        TreesFormComponent,
+        TreeNodesComponent,
+        BackgroundLayersFormComponent,
+        LayersPermitsFormComponent,
+        LayersFormComponent,
+        TaskGroupComponent,
+        TaskGroupFormComponent,
+        TaskUIComponent,
+        TaskUIFormComponent,
+        LoginComponent,
+        DashboardComponent,
+        FormToolbarComponent,
+        SystemInfoMenuComponent,
+        ErrorDetailsSidebarComponent,
+        AboutDialogComponent,
+        ConfigurationParametersDialogComponent,
+        UrlInputDirective,
+        TaskEditFormComponent,
+        TasksEditComponent,
+        NotificationComponent,
+        LanguageComponent,
+        LanguageFormComponent,
+        CodelistValueComponent,
+        CodelistValueFormComponent,
+        ConfigurationParameterComponent,
+        ConfigurationParameterFormComponent
+    ],
+    bootstrap: [AppComponent], imports: [BrowserModule,
+        FormsModule,
+        ReactiveFormsModule,
+        CoreModule.forRoot(),
+        DomainModule.forRoot(),
+        ServicesModule,
+        SitmunFrontendGuiModule,
+        DataGridComponent,
+        DialogGridComponent,
+        MaterialModule,
+        RouterModule,
+        HalModule.forRoot(),
+        TranslateModule.forRoot({
+            loader: provideTranslateHttpLoader({ prefix: './assets/i18n/', suffix: '.json' })
+        }),
+        APP_ROUTING,
+        BrowserAnimationsModule,
+        CoreModule,
+        NgOptimizedImage,
+        WarningsPanelComponent,
+        ImagePreviewComponent], providers: [
+        { provide: LOCALE_ID, useValue: 'es-ES' },
+        { provide: ErrorHandler, useClass: GlobalErrorHandler },
+        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
+        { provide: MAT_TABS_CONFIG, useValue: { animationDuration: '0ms' } },
+        // APP_INITIALIZER providers
+        // AppConfigService must be initialized FIRST (before languages) so fallback is available
+        {
+            provide: APP_INITIALIZER,
+            useFactory: initializeAppConfig,
+            deps: [AppConfigService],
+            multi: true
+        },
+        {
+            provide: APP_INITIALIZER,
+            useFactory: initializeIcons,
+            deps: [IconsService],
+            multi: true
+        },
+        {
+            provide: APP_INITIALIZER,
+            useFactory: initializeLanguages,
+            deps: [LanguageService, TranslateService, LoggerService, AppStateService, MessagesInterceptorStateService, AppConfigService],
+            multi: true
+        },
+        {
+            provide: APP_INITIALIZER,
+            useFactory: initializeConfiguration,
+            deps: [ConfigurationParametersService, TranslateService, LoggerService, AppStateService, MessagesInterceptorStateService],
+            multi: true
+        },
+        AppConfigService,
+        ResourceService,
+        ExternalService,
+        RoleService,
+        ConnectionService,
+        UserService,
+        TerritoryService,
+        ServiceService,
+        ApplicationService,
+        TreeService,
+        TranslationService,
+        TerritoryTypeService,
+        TaskAvailabilityService,
+        BackgroundService,
+        CartographyService,
+        CartographyGroupService,
+        TaskGroupService,
+        DashboardService,
+        TaskService,
+        UserConfigurationService,
+        CodeListService,
+        ConfigurationParametersService,
+        CartographyAvailabilityService,
+        ServiceParameterService,
+        ApplicationParameterService,
+        CartographyParameterService,
+        CartographySpatialSelectionParameterService,
+        CartographyStyleService,
+        CapabilitiesService,
+        TaskTypeService,
+        LanguageService,
+        CartographyFilterService,
+        TaskUIService,
+        ApplicationBackgroundService,
+        TreeNodeService,
+        UserPositionService,
+        provideHttpClient(withInterceptorsFromDi())
+    ] })
 export class AppModule {
 }

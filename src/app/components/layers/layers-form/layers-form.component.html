@@ -7,6 +7,7 @@
   [canSave]="canSaveEntity"
   [form]="entityForm"
   validationEntityType="cartography"
+  [validationFieldLabelKeys]="{ serviceId: 'entity.cartography.serviceName', joinedLayers: 'entity.cartography.layerSet' }"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
@@ -26,7 +27,7 @@
             <input matInput type="text" formControlName="name" required>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'common.form.description' | translate }}</mat-label>
+            <mat-label>{{ 'common.form.description' | translate }} ({{ defaultLang }})</mat-label>
             <textarea matInput type="text" formControlName="description"> </textarea>
             <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('description')"

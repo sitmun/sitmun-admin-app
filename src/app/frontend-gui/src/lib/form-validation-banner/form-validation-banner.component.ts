@@ -22,6 +22,9 @@ export class FormValidationBannerComponent implements OnChanges, OnDestroy {
   /** Entity type for label resolution (e.g., 'tree', 'service') */
   @Input() entityType: string;
 
+  /** Optional map of form control name → i18n key for labels (e.g. { uiId: 'entity.task.basic.ui' }) */
+  @Input() fieldLabelKeys: Record<string, string> | undefined;
+
   /** Array of invalid required field labels to display */
   invalidFieldLabels: string[] = [];
 
@@ -47,7 +50,7 @@ export class FormValidationBannerComponent implements OnChanges, OnDestroy {
         });
       }
     }
-    if (changes['form'] || changes['entityType']) {
+    if (changes['form'] || changes['entityType'] || changes['fieldLabelKeys']) {
       this.updateInvalidFields();
     }
   }
@@ -76,7 +79,7 @@ export class FormValidationBannerComponent implements OnChanges, OnDestroy {
     for (const controlName in formControls) {
       if (Object.prototype.hasOwnProperty.call(formControls, controlName)) {
         const control: AbstractControl = formControls[controlName];
-        if (control.invalid && control.hasError('required')) {
+        if (control.enabled && control.invalid && control.hasError('required')) {
           invalidFields.push(controlName);
         }
       }
@@ -97,27 +100,32 @@ export class FormValidationBannerComponent implements OnChanges, OnDestroy {
 
   /**
    * Resolves the human-readable label for a field name using i18n.
-   * Tries entity-specific key first, then common form key, then raw name.
+   * Uses fieldLabelKeys if provided, then entityType.fieldName, then common.form.fieldName, then raw name.
    *
    * @param fieldName - The form control name
    * @returns The translated label or the field name if no translation found
    */
   private resolveFieldLabel(fieldName: string): string {
-    // Try entity-specific translation: {entityType}.{fieldName}
+    const customKey = this.fieldLabelKeys?.[fieldName];
+    if (customKey) {
+      const label = this.translateService.instant(customKey);
+      if (label !== customKey) {
+        return label;
+      }
+    }
+
     const entityKey = `${this.entityType}.${fieldName}`;
     let label = this.translateService.instant(entityKey);
     if (label !== entityKey) {
       return label;
     }
 
-    // Try common form translation: common.form.{fieldName}
     const commonKey = `common.form.${fieldName}`;
     label = this.translateService.instant(commonKey);
     if (label !== commonKey) {
       return label;
     }
 
-    // Fallback to raw field name (capitalize first letter)
     return fieldName.charAt(0).toUpperCase() + fieldName.slice(1);
   }
 }

@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.2] - 2026-02-16
+
+### Added
+
+- System configuration menu for admin users.
+- Tree type constraints enforcement for node type selection and validation.
+
+## [1.2.1] - 2026-02-06
+
+### Added
+
+- OIDC authentication support with dynamically configured providers ([c4cfdb5](https://github.com/sitmun/sitmun-admin-app/commit/c4cfdb5ee))
+- Callback component to handle backend redirection and JWT storage ([c4cfdb5](https://github.com/sitmun/sitmun-admin-app/commit/c4cfdb5ee))
+- Cookie-based JWT transport using ngx-cookie-service for future HttpOnly cookie support ([c4cfdb5](https://github.com/sitmun/sitmun-admin-app/commit/c4cfdb5ee))
+- OIDC provider buttons dynamically rendered below separator in login form ([c4cfdb5](https://github.com/sitmun/sitmun-admin-app/commit/c4cfdb5ee))
+- Translation strings for OIDC authentication flows ([c4cfdb5](https://github.com/sitmun/sitmun-admin-app/commit/c4cfdb5ee))
+- Callback component tests ([4d30914](https://github.com/sitmun/sitmun-admin-app/commit/4d309140))
+
+### Changed
+
+- Refactored auth constants for better organization ([dfd0ff3](https://github.com/sitmun/sitmun-admin-app/commit/dfd0ff3b))
+- Updated to Material spinner component ([dfd0ff3](https://github.com/sitmun/sitmun-admin-app/commit/dfd0ff3b))
+- Enhanced authentication test coverage ([dfd0ff3](https://github.com/sitmun/sitmun-admin-app/commit/dfd0ff3b))
+
 ## [1.2.0] - 2026-01-27
 
 ### Added
@@ -137,7 +161,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Various bug fixes and improvements from development phase
 
-[Unreleased]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.0...HEAD
+[Unreleased]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.2...HEAD
+[1.2.2]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.1...sitmun-admin-app/1.2.2
 [1.2.0]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.1.1...sitmun-admin-app/1.2.0
 [1.1.1]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.1.0...sitmun-admin-app/1.1.1
 [1.1.0]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.0.0...sitmun-admin-app/1.1.0

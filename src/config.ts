@@ -107,5 +107,26 @@ export const config = {
     WFSIdentificator: 'WFS',
     WMSIdentificator: 'WMS',
 
+  },
+  treeTypeNodeTypes: {
+    cartography: {
+      folders: {
+        cartography: { allowedChildren: ['cartography', 'task'] }
+      },
+      leaves: ['task', 'cartography']
+    },
+    touristic: {
+      folders: {
+        menu: { allowedChildren: ['list', 'task', 'map', 'fav', 'nm'] },
+        list: { allowedChildren: ['list', 'task', 'map'] }
+      },
+      leaves: ['task', 'map', 'fav', 'nm']
+    },
+    edition: {
+      folders: {
+        cartography: { allowedChildren: ['cartography'] }
+      },
+      leaves: ['cartography']
+    }
   }
 };

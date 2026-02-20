@@ -1,0 +1,57 @@
+<app-form-toolbar
+  entityType="{{ config.labelSingular }}"
+  font="{{ config.font }}"
+  icon="{{ config.icon }}"
+  [itemName]="itemName('')"
+  [isNew]="isNewOrDuplicated()"
+  [canSave]="canSaveEntity"
+  [form]="entityForm"
+  validationEntityType="entity.codelistValue"
+  [dataLoaded]="dataLoaded"
+  [customWarningMessage]="isSystemRecord ? ('entity.codelistValue.systemWarning' | translate) : null"
+  (save)="onSaveButtonClicked()"
+  (back)="utils.navigateBack()">
+</app-form-toolbar>
+
+<mat-tab-group
+  mat-stretch-tabs="false"
+  mat-align-tabs="end"
+  [dynamicHeight]="true"
+  preserveContent="true"
+>
+  <mat-tab label="{{ 'common.form.details' | translate }}">
+    <form [formGroup]="entityForm" *ngIf="dataLoaded">
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="half add-gap">
+            <mat-label>{{ 'entity.codelistValue.codeListName' | translate }}</mat-label>
+            <input matInput type="text" formControlName="codeListName" [maxlength]="250" required>
+            <mat-hint align="end">{{entityForm.get('codeListName') | characterCount}}</mat-hint>
+            <mat-error *ngIf="entityForm.get('codeListName')?.hasError('required') && entityForm.get('codeListName')?.touched">
+              {{ 'common.error.required' | translate }}
+            </mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="half">
+            <mat-label>{{ 'entity.codelistValue.value' | translate }}</mat-label>
+            <input matInput type="text" formControlName="value" [maxlength]="250" required>
+            <mat-hint align="end">{{entityForm.get('value') | characterCount}}</mat-hint>
+            <mat-error *ngIf="entityForm.get('value')?.hasError('required') && entityForm.get('value')?.touched">
+              {{ 'common.error.required' | translate }}
+            </mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'entity.codelistValue.description' | translate }} ({{ defaultLang }})</mat-label>
+            <input matInput type="text" formControlName="description" [maxlength]="250">
+            <mat-hint align="end">{{entityForm.get('description') | characterCount}}</mat-hint>
+            <mat-icon matSuffix class="iconTranslate"
+                      (click)="onTranslated('description')"
+                      onKeyDown="onTranslated('description')">translate</mat-icon>
+          </mat-form-field>
+          <mat-checkbox formControlName="defaultCode">
+            {{ 'entity.codelistValue.defaultCode' | translate }}
+          </mat-checkbox>
+        </mat-card-content>
+      </mat-card>
+    </form>
+  </mat-tab>
+</mat-tab-group>

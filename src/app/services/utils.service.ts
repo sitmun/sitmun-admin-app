@@ -264,6 +264,17 @@ export class UtilsService {
   }
 
   /**
+   * Shows a dialog with a node type constraint error message.
+   */
+  showNodeTypeConstraintError() {
+    const dialogRef = this.dialog.open(DialogMessageComponent);
+    dialogRef.componentInstance.title = this.getTranslate('atention');
+    dialogRef.componentInstance.message = this.getTranslate('error.tree-type-node-constraint');
+    dialogRef.componentInstance.hideCancelButton = true;
+    dialogRef.afterClosed().subscribe();
+  }
+
+  /**
    * Shows a dialog with a turistic app tree error message.
    */
   showTuristicAppTreeError() {

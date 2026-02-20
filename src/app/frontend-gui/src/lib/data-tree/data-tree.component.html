@@ -75,14 +75,14 @@
 
         <div class="node-actions">
           <button (click)="onButtonClicked(node.id, 'newFolder')"
-                  *ngIf="node.type ==='folder' && node.status!=='pendingDelete'" 
+                  *ngIf="node.type ==='folder' && node.status!=='pendingDelete' && (!canNodeHaveChildren || canNodeHaveChildren(node.nodeType))" 
                   mat-icon-button 
                   [matTooltip]="'treesEntity.createFolder' | translate"
                   [attr.aria-label]="'treesEntity.createFolder' | translate">
             <mat-icon>create_new_folder</mat-icon>
           </button>
           <button (click)="onButtonClicked(node.id, 'newNode')" 
-                  *ngIf="node.status!=='pendingDelete' && node.name !== ''"
+                  *ngIf="node.status!=='pendingDelete' && node.name !== '' && (!canNodeHaveChildren || canNodeHaveChildren(node.nodeType))"
                   mat-icon-button 
                   [matTooltip]="'treesEntity.createNode' | translate"
                   [attr.aria-label]="'treesEntity.createNode' | translate">
@@ -157,14 +157,14 @@
         <span class="node-name" *ngIf="node.id === undefined || node.id === null || node.status==='pendingDelete'">{{node.name}}</span>
         <div class="node-actions">
           <button (click)="onButtonClicked(node.id, 'newFolder')"
-                  *ngIf="node.type ==='folder' && node.status!=='pendingDelete'" 
+                  *ngIf="node.type ==='folder' && node.status!=='pendingDelete' && (!canNodeHaveChildren || canNodeHaveChildren(node.nodeType))" 
                   mat-icon-button 
                   [matTooltip]="'treesEntity.createFolder' | translate"
                   [attr.aria-label]="'treesEntity.createFolder' | translate">
             <mat-icon>create_new_folder</mat-icon>
           </button>
           <button (click)="onButtonClicked(node.id, 'newNode')" 
-                  *ngIf="node.status!=='pendingDelete' && node.name !== ''"
+                  *ngIf="node.status!=='pendingDelete' && node.name !== '' && (!canNodeHaveChildren || canNodeHaveChildren(node.nodeType))"
                   mat-icon-button 
                   [matTooltip]="'treesEntity.createNode' | translate"
                   [attr.aria-label]="'treesEntity.createNode' | translate">
