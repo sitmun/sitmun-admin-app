@@ -9,27 +9,12 @@ import { Cartography } from '../../cartography/models/cartography.model';
 import { Connection } from '../../connection/models/connection.model';
 import { Role } from '../../role/models/role.model';
 import { Service } from '../../service/models/service.model';
+import { TaskProperties, TaskPropertiesContract } from './task-properties';
 
 
 //FIXME ensure task creation in admin app upon initialization (as it is done with Roles and default Users)
 /** GEOADMIN_task id */
 export const GEOADMIN_TREE_TASK_ID = "geoadmin";
-
-/** Task properties interface */
-export interface TaskProperties {
-  /** Query scope */
-  scope: string | null;
-  /** Query command */
-  command: string | null;
-  /** Result format */
-  format: string | null;
-  /** Path for target resource */
-  path: string | null;
-  /** Basic and Query parameters */
-  parameters: any[];
-  /** Cartography Query fields */
-  fields: any[];
-}
 
 /** Task model */
 export class Task extends Resource {
@@ -84,44 +69,9 @@ export class Task extends Resource {
         task[prop] = source[prop];
       }
     });
-    // Ensure properties are initialized
-    task.properties = Task.validateProperties(source.properties);
+    // Ensure properties are initialized as opaque record.
+    task.properties = TaskPropertiesContract.fromRaw(source.properties);
     return task;
-  }
-
-  /**
-   * Validates and normalizes task properties structure
-   * @param properties The properties object to validate
-   * @returns A normalized TaskProperties object
-   */
-  static validateProperties(properties: any): TaskProperties {
-    if (!properties || !(properties instanceof Object)) {
-      return {
-        scope: null,
-        command: null,
-        format: null,
-        path: null,
-        parameters: [],
-        fields: []
-      };
-    }
-
-    const result = { ...properties };
-
-    result.scope = result?.scope ?? null;
-    result.command = result?.command ?? null;
-    result.format = result?.format ?? null;
-    result.path = result?.path ?? null;
-
-    if (!result?.parameters || !Array.isArray(result?.parameters) || !result?.parameters?.some(item => item instanceof Object)) {
-      result.parameters = [];
-    }
-
-    if (!result?.fields || !Array.isArray(result?.fields) || !result?.fields?.some(item => item instanceof Object)) {
-      result.fields = [];
-    }
-
-    return result;
   }
 }
 
@@ -133,14 +83,7 @@ export class TaskProjection extends Resource {
   groupName: string;
   groupId: number;
   uiId: number;
-  properties: TaskProperties = {
-    scope: null,
-    command: null,
-    format: null,
-    path: null,
-    parameters: [],
-    fields: []
-  };
+  properties: TaskProperties = {};
   serviceId: number;
   serviceName: string;
   cartographyId: number;
@@ -173,8 +116,8 @@ export class TaskProjection extends Resource {
         projection[prop] = source[prop];
       }
     });
-    // Ensure properties are initialized
-    projection.properties = Task.validateProperties(source.properties);
+    // Ensure properties are initialized as opaque record.
+    projection.properties = TaskPropertiesContract.fromRaw(source.properties);
     return projection;
   }
 }

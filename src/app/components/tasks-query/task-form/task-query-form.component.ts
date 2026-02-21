@@ -26,7 +26,6 @@ import {
   TaskGroup,
   TaskGroupService,
   TaskProjection,
-  TaskPropertiesBuilder,
   TaskService,
   TaskType,
   TaskTypeService,
@@ -36,6 +35,7 @@ import {
   TranslationService
 } from "@app/domain";
 import {TaskParameterType, TaskQueryParameter} from "@app/domain/task/models/task-query-parameter.model";
+import { TaskPropertiesContract } from "@app/domain/task/models/task-properties";
 import {
   canKeepOrUpdate,
   onCreate,
@@ -335,11 +335,11 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
         validators: [Validators.required],
         nonNullable: true
       }),
-      scope: new FormControl(this.entityToEdit.properties.scope, {
+      scope: new FormControl(TaskPropertiesContract.getScope(this.entityToEdit.properties), {
         validators: [Validators.required],
         nonNullable: true
       }),
-      command: new FormControl(this.entityToEdit.properties.command, {
+      command: new FormControl(TaskPropertiesContract.getCommand(this.entityToEdit.properties), {
         validators: [Validators.required],
         nonNullable: true
       }),
@@ -356,7 +356,7 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
         nonNullable: true
       })
     });
-    this.configureForm(this.entityToEdit.properties.scope)
+    this.configureForm(TaskPropertiesContract.getScope(this.entityToEdit.properties))
   }
 
   /**
@@ -372,10 +372,10 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
       formValues,
       {
         id: id,
-        properties: TaskPropertiesBuilder.create()
-          .withScope(formValues.scope)
-          .withCommand(formValues.command)
-          .build()
+        properties: TaskPropertiesContract.withCommand(
+          TaskPropertiesContract.withScope(this.entityToEdit.properties, formValues.scope),
+          formValues.command
+        )
       }
     );
     return Task.fromObject(safeToEdit);
@@ -597,16 +597,18 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
         this.utils.getStatusColumnDef()])
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
-        if (this.entityToEdit?.properties?.parameters) {
-          const originalParameters = this.entityToEdit.properties.parameters;
-          const parameters = originalParameters.map((parameter: any) => TaskQueryParameter.fromObject(parameter));
+        const originalParameters = TaskPropertiesContract.getParameters(this.entityToEdit?.properties);
+        if (originalParameters.length > 0) {
+          const parameters = originalParameters.map((parameter) => TaskQueryParameter.fromObject(parameter));
           return of(parameters);
         }
         return of<TaskQueryParameter[]>([])
       })
       .withRelationsUpdater(async (parameters: (TaskQueryParameter & Status)[]) => {
-        this.entityToEdit.properties.parameters = parameters.filter(canKeepOrUpdate)
+        const parametersToSave = parameters
+          .filter(canKeepOrUpdate)
           .map(value => TaskQueryParameter.fromObject(value));
+        this.entityToEdit.properties = TaskPropertiesContract.withParameters(this.entityToEdit.properties, parametersToSave);
         await firstValueFrom(this.taskService.update(this.entityToEdit));
       })
       .withFieldRestriction('name')

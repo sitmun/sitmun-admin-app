@@ -26,7 +26,6 @@ import {
   TaskGroup,
   TaskGroupService,
   TaskProjection,
-  TaskPropertiesBuilder,
   TaskService,
   TaskType,
   TaskTypeService,
@@ -36,6 +35,7 @@ import {
 } from "@app/domain";
 import {TaskEditionField, TaskFieldType} from "@app/domain/task/models/task-edition-fields.model";
 import {TaskEditionParameter, TaskParameterType} from "@app/domain/task/models/task-edition-parameter.model";
+import { TaskPropertiesContract } from "@app/domain/task/models/task-properties";
 import {
   canKeepOrUpdate,
   onCreate,
@@ -345,7 +345,7 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
         validators: [Validators.required],
         nonNullable: true
       }),
-      scope: new FormControl(this.entityToEdit.properties.scope, {
+      scope: new FormControl(TaskPropertiesContract.getScope(this.entityToEdit.properties), {
         validators: [Validators.required],
         nonNullable: true
       }),
@@ -362,7 +362,7 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
         nonNullable: true
       }),
     });
-    this.configureForm(this.entityToEdit.properties.scope);
+    this.configureForm(TaskPropertiesContract.getScope(this.entityToEdit.properties));
   }
 
   /**
@@ -380,9 +380,7 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
       formValues,
       {
         id: id,
-        properties: TaskPropertiesBuilder.create()
-          .withScope(formValues.scope)
-          .build()
+        properties: TaskPropertiesContract.withScope(this.entityToEdit.properties, formValues.scope)
       }
     );
     return Task.fromObject(safeToEdit);
@@ -650,17 +648,16 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
         this.utils.getStatusColumnDef()])
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
-        if (this.entityToEdit?.properties?.parameters) {
-          const originalParameters = this.entityToEdit.properties.parameters;
-          const parameters = originalParameters.map((parameter: any) => TaskEditionParameter.fromObject(parameter));
+        const originalParameters = TaskPropertiesContract.getParameters(this.entityToEdit?.properties);
+        if (originalParameters.length > 0) {
+          const parameters = originalParameters.map((parameter) => TaskEditionParameter.fromObject(parameter));
           return of(parameters);
         }
         return of<TaskEditionParameter[]>([])
       })
       .withRelationsUpdater(async (parameters: (TaskEditionParameter & Status)[]) => {
         const parametersToSave = parameters.filter(canKeepOrUpdate).map(value => TaskEditionParameter.fromObject(value))
-        this.entityToEdit.properties = TaskPropertiesBuilder.from(this.entityToEdit.properties)
-          .withParameters(parametersToSave).build();
+        this.entityToEdit.properties = TaskPropertiesContract.withParameters(this.entityToEdit.properties, parametersToSave);
         await firstValueFrom(this.taskService.update(this.entityToEdit));
       })
       .withTemplateDialog('newParameterDialog', () => TemplateDialog.builder()
@@ -717,17 +714,16 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
         this.utils.getStatusColumnDef()])
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
-        if (this.entityToEdit?.properties?.fields) {
-          const originalFields = this.entityToEdit.properties.fields;
-          const fields = originalFields.map((field: any) => TaskEditionField.fromObject(field));
+        const originalFields = TaskPropertiesContract.getFields(this.entityToEdit?.properties);
+        if (originalFields.length > 0) {
+          const fields = originalFields.map((field) => TaskEditionField.fromObject(field));
           return of(fields);
         }
         return of<TaskEditionField[]>([])
       })
       .withRelationsUpdater(async (fields: (TaskEditionField & Status)[]) => {
         const fieldsToSave = fields.filter(canKeepOrUpdate).map(value => TaskEditionField.fromObject(value))
-        this.entityToEdit.properties = TaskPropertiesBuilder.from(this.entityToEdit.properties)
-          .withFields(fieldsToSave).build();
+        this.entityToEdit.properties = TaskPropertiesContract.withFields(this.entityToEdit.properties, fieldsToSave);
         await firstValueFrom(this.taskService.update(this.entityToEdit));
       })
       .withFieldRestriction('name')

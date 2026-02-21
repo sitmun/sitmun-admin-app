@@ -40,8 +40,15 @@ import {LoadingOverlayService} from '@app/services/loading-overlay.service';
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 import {Configuration} from '@app/core/config/configuration';
+import { TaskPropertiesContract } from '@app/domain/task/models/task-properties';
 import {config} from '@config';
 import {constants} from '@environments/constants';
+
+interface TreeNodeTaskInputParameter {
+  name: string;
+  label: string;
+  value: unknown;
+}
 
 
 /**
@@ -139,7 +146,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   defaultLang = config.defaultLang;
   servicesList = [];
   layersList = [];
-  nodeInputsControls = [];
+  nodeInputsControls: TreeNodeTaskInputParameter[] = [];
   nodeNamespacesControls = [];
   noNamespaces = true;
   parsedData = {
@@ -1452,13 +1459,13 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       task = await firstValueFrom(this.taskService.get(this.treeNodeForm.value.taskId));
     }
     const inputFormGroup = this.fieldsConfigForm.get('input') as UntypedFormGroup;
-    if (task.properties && task.properties.parameters) {
-      task.properties.parameters.forEach(par => {
-        const control = {
-          name: par.name,
-          label: par.label,
-          value: par.value
-        };
+    const parameters = TaskPropertiesContract.getParameters(task.properties);
+    if (parameters.length > 0) {
+      parameters.forEach(par => {
+        const control = this.toTreeNodeTaskInputParameter(par);
+        if (!control) {
+          return;
+        }
         this.nodeInputsControls.push(control);
         const newGroup = new UntypedFormGroup({
           value: new UntypedFormControl('', []),
@@ -1467,6 +1474,20 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
         inputFormGroup.addControl(String(control.name), newGroup);
       });
     }
+  }
+
+  private toTreeNodeTaskInputParameter(raw: Record<string, unknown>): TreeNodeTaskInputParameter | null {
+    if (typeof raw.name !== 'string' || raw.name.trim().length === 0) {
+      return null;
+    }
+    const label = typeof raw.label === 'string' && raw.label.trim().length > 0
+      ? raw.label
+      : raw.name;
+    return {
+      name: raw.name,
+      label,
+      value: raw.value ?? null
+    };
   }
 
   addNamespacesControl(origMapping) {
