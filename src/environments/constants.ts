@@ -18,17 +18,6 @@ const codeValue = {
     cartography: 'cartography',
     edition: 'edition'
   },
-  treenodeFolderType: {
-    menu: 'menu',
-    list: 'list',
-    cartography: 'cartography',
-    map: 'map',
-    nearme: 'nm'
-  },
-  treenodeLeafType: {
-    task: 'task',
-    cartography: 'cartography',
-  },
   cartographyPermissionType: {
     cartographyGroup: 'C',
     report: 'I',
@@ -80,6 +69,14 @@ const entityStatus = {
 export const constants = {
   codeValue,
   entityStatus,
+  treeRenderType: {
+    folder: 'folder',
+    node: 'node'
+  },
+  treeDomainKey: {
+    cartography: 'cartography',
+    task: 'task'
+  },
   extraImg: [],
   nodeMapping: {
     nodeOutputControls: [{

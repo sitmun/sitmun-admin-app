@@ -2,13 +2,16 @@
   <mat-card-content>
     <div class="formDiv resizable-container">
       <div class="tree-panel" [style.width.%]="treePanelWidth" *ngIf="dataLoaded">
-        <app-data-tree [getAll]='getAllTreeNodes' (emitNode)="nodeReceived($event)" (createNode)="createNode($event)"
-          (loadButtonClicked)="loadGroupLayersButtonClicked($event)" (createFolder)="createFolder($event)"
+        <app-data-tree [getAll]='getAllTreeNodes' (emitNode)="nodeReceived($event)" (addNode)="addNodeWithType($event.parent, $event.nodeType)"
+          (loadButtonClicked)="loadGroupLayersButtonClicked($event)"
           [eventNodeUpdatedSubscription]='sendNodeUpdated.asObservable()' [loadDataButton]="loadDataButton$"
           [eventGetAllRowsSubscription]='getAllElementsNodes.asObservable()'
           [eventRefreshSubscription]='refreshTreeEvent.asObservable()'
           [eventCreateNodeSubscription]='createNodeEvent.asObservable()' [allNewElements]='entityID === -1'
+          [currentTreeType]="currentTreeType"
           [canNodeHaveChildren]="canNodeHaveChildren.bind(this)"
+          [getAllowedTypesForParent]="getAllowedTypesForParent.bind(this)"
+          [getNodeTypeLabel]="getNodeTypeLabel.bind(this)"
           (emitAllNodes)="receiveAllNodes($event)">
           loading
         </app-data-tree>
@@ -17,26 +20,14 @@
       </div>
       <div class="detail-panel">
         <div class="detail-content" [style.padding-left.px]="24">
-          <mat-card appearance="outlined" class="form-detail-card" *ngIf="currentNodeIsFolder !== undefined">
+          <mat-card appearance="outlined" class="form-detail-card" *ngIf="hasNodeSelection">
             <mat-card-header class="header-with-actions">
               <div class="header-title-section">
                 <mat-card-title *ngIf="newElement">
-                  <!-- Root folder -->
-                  <span *ngIf="!currentNodeHasParent && currentNodeIsFolder">{{ 'treesEntity.createRootFolder' |
-                    translate }}</span>
-                  <!-- Child folder -->
-                  <span *ngIf="currentNodeHasParent && currentNodeIsFolder && currentParentNodeName">{{
-                    'treesEntity.createFolder' | translate }} in "{{ currentParentNodeName }}"</span>
-                  <span *ngIf="currentNodeHasParent && currentNodeIsFolder && !currentParentNodeName">{{
-                    'treesEntity.createFolder' | translate }} (child)</span>
-                  <!-- Root node -->
-                  <span *ngIf="!currentNodeHasParent && !currentNodeIsFolder">{{ 'treesEntity.createNode' | translate }}
-                    (root)</span>
-                  <!-- Child node -->
-                  <span *ngIf="currentNodeHasParent && !currentNodeIsFolder && currentParentNodeName">{{
-                    'treesEntity.createNode' | translate }} in "{{ currentParentNodeName }}"</span>
-                  <span *ngIf="currentNodeHasParent && !currentNodeIsFolder && !currentParentNodeName">{{
-                    'treesEntity.createNode' | translate }} (child)</span>
+                  <!-- Create [Type]: title reflects actual type (e.g. Cartography), not folder -->
+                  <span *ngIf="!currentNodeHasParent">{{ 'treesEntity.createType' | translate }}: {{ getNodeTypeLabel(treeNodeForm.get('nodeType')?.value) }} ({{ 'treesEntity.root' | translate }})</span>
+                  <span *ngIf="currentNodeHasParent && currentParentNodeName">{{ 'treesEntity.createType' | translate }}: {{ getNodeTypeLabel(treeNodeForm.get('nodeType')?.value) }} {{ 'treesEntity.inParent' | translate }} "{{ currentParentNodeName }}"</span>
+                  <span *ngIf="currentNodeHasParent && !currentParentNodeName">{{ 'treesEntity.createType' | translate }}: {{ getNodeTypeLabel(treeNodeForm.get('nodeType')?.value) }} ({{ 'treesEntity.child' | translate }})</span>
                 </mat-card-title>
                 <mat-card-title *ngIf="!newElement && treeNodeForm.get('name')?.value">
                   {{ 'common.edit' | translate }}: {{ treeNodeForm.get('name')?.value }}
@@ -47,13 +38,15 @@
               </div>
               <div class="header-actions-section">
                 <button mat-raised-button color="primary" type="button"
-                  *ngIf="!newElement && currentNodeIsFolder !== undefined" 
+                  *ngIf="!newElement" 
                   [disabled]="!canUpdateNode()"
                   (click)="onSaveFormButtonClicked()">
                   {{ "update" | translate }}
                 </button>
                 <button mat-raised-button color="primary" type="button"
-                  *ngIf="newElement && currentNodeIsFolder !== undefined" (click)="onSaveFormButtonClicked()">
+                  *ngIf="newElement"
+                  [disabled]="!treeNodeForm.valid"
+                  (click)="onSaveFormButtonClicked()">
                   {{ "save" | translate }}
                 </button>
               </div>
@@ -74,19 +67,14 @@
                     </mat-expansion-panel-header>
                     <div style="display: flex; gap: 16px; flex-wrap: wrap;">
                       <mat-form-field appearance="outline" style="flex: 0.35; min-width: 200px;"
-                        *ngIf="currentNodeIsFolder !== undefined">
+                        class="content-type-readonly" *ngIf="hasNodeSelection">
                         <mat-label>{{ 'treesEntity.nodeType' | translate }}</mat-label>
-                        <mat-select formControlName="nodeType" (selectionChange)="onTreeNodeTypeChange($event.value)">
-                          <mat-option *ngFor="let type of availableNodeTypes" [value]="type.value">
-                            {{ type.description }}
-                          </mat-option>
-                        </mat-select>
-                        <mat-error *ngIf="!currentNodeIsFolder && treeNodeForm.get('nodeType')?.hasError('required')">
-                          {{ 'common.error.required' | translate }}
-                        </mat-error>
+                        <input matInput [value]="getNodeTypeLabel(treeNodeForm.get('nodeType')?.value)" readonly>
+                        <mat-hint>{{ 'treesEntity.typeFixedAtCreation' | translate }}</mat-hint>
                       </mat-form-field>
+                      <input type="hidden" formControlName="nodeType">
                       <mat-form-field appearance="outline" style="flex: 0.65; min-width: 200px;"
-                        *ngIf="currentNodeIsFolder !== undefined">
+                        *ngIf="hasNodeSelection">
                         <mat-label>{{ 'treesEntity.name' | translate }} ({{ defaultLang }})</mat-label>
                         <input matInput type="text" formControlName="name" [maxlength]="80">
                         <mat-hint align="end" [class.text-warning]="treeNodeForm.get('name')?.value?.length > 80">
@@ -103,9 +91,9 @@
                     </div>
                   </mat-expansion-panel>
 
-                  <!-- Description & Metadata Panel -->
+                  <!-- Description & Metadata Panel (folders: after Basic Info) -->
                   <mat-expansion-panel
-                    *ngIf="showDescriptionMetadataPanel"
+                    *ngIf="showDescriptionMetadataPanel && currentNodeIsFolder"
                     [expanded]="isPanelExpanded('description-metadata', currentNodeId)"
                     (opened)="onPanelStateChange('description-metadata', currentNodeId, true)"
                     (closed)="onPanelStateChange('description-metadata', currentNodeId, false)">
@@ -125,7 +113,7 @@
                           matTooltip="{{ 'common.translate' | translate }}">translate</mat-icon>
                       </mat-form-field>
                       <div class="metadata-fields"
-                        *ngIf="effectiveNodeType === codeValues.treenodeFolderType.cartography">
+                        *ngIf="isContainerFolderType">
                         <mat-form-field appearance="outline" class="half add-gap">
                           <mat-label>{{ 'treesEntity.tooltip' | translate }}</mat-label>
                           <input matInput type="text" formControlName="tooltip" [maxlength]="100">
@@ -200,6 +188,50 @@
                     </div>
                   </mat-expansion-panel>
 
+                  <!-- Description & Metadata Panel (leaves: after Cartography Configuration) -->
+                  <mat-expansion-panel
+                    *ngIf="showDescriptionMetadataPanel && !currentNodeIsFolder"
+                    [expanded]="isPanelExpanded('description-metadata', currentNodeId)"
+                    (opened)="onPanelStateChange('description-metadata', currentNodeId, true)"
+                    (closed)="onPanelStateChange('description-metadata', currentNodeId, false)">
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>
+                        <mat-icon class="panel-icon">description</mat-icon>
+                        {{ 'treesEntity.descriptionMetadata' | translate }}
+                      </mat-panel-title>
+                    </mat-expansion-panel-header>
+                    <div class="description-metadata-content">
+                      <mat-form-field appearance="outline" class="full">
+                        <mat-label>{{ 'treesEntity.description' | translate }} ({{ defaultLang }})</mat-label>
+                        <textarea matInput formControlName="description" rows="3" [maxlength]="250"></textarea>
+                        <mat-hint align="end">{{ treeNodeForm.get('description') | characterCount }}</mat-hint>
+                        <mat-icon matSuffix class="iconTranslate"
+                          (click)="onTreeNodeDescriptionTranslationButtonClicked()"
+                          matTooltip="{{ 'common.translate' | translate }}">translate</mat-icon>
+                      </mat-form-field>
+                      <div class="metadata-fields"
+                        *ngIf="isContainerFolderType">
+                        <mat-form-field appearance="outline" class="half add-gap">
+                          <mat-label>{{ 'treesEntity.tooltip' | translate }}</mat-label>
+                          <input matInput type="text" formControlName="tooltip" [maxlength]="100">
+                          <mat-hint align="end">{{ treeNodeForm.get('tooltip') | characterCount }}</mat-hint>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="full">
+                          <mat-label>{{ 'treesEntity.metadataURL' | translate }}</mat-label>
+                          <input matInput type="text" formControlName="metadataURL">
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="full">
+                          <mat-label>{{ 'treesEntity.datasetURL' | translate }}</mat-label>
+                          <input matInput type="text" formControlName="datasetURL">
+                        </mat-form-field>
+                      </div>
+                      <app-image-preview *ngIf="currentNodeIsFolder" [imageSource]="treeNodeForm.get('image')?.value"
+                        [imageName]="treeNodeForm.get('imageName')?.value" [previewId]="'treeNodeImgPreview'"
+                        [maxWidth]="80" [maxHeight]="80">
+                      </app-image-preview>
+                    </div>
+                  </mat-expansion-panel>
+
                   <!-- Filters Panel -->
                   <mat-expansion-panel
                     *ngIf="showFiltersPanel"
@@ -258,8 +290,7 @@
                     <div class="appearance-panel-content">
                       <div class="appearance-input-section">
                         <mat-form-field appearance="outline" class="appearance-form-field">
-                          <mat-label>{{ (effectiveNodeType === codeValues.treenodeFolderType.list ? 'treesEntity.image'
-                            : 'treesEntity.icon') | translate }}</mat-label>
+                          <mat-label>{{ appearanceFieldLabelI18nKey | translate }}</mat-label>
                           <input #treenodeImageNameInput matInput type="text" formControlName="imageName"
                             (keyup)="onImageChange('node', $event)" readonly
                             [placeholder]="'treesEntity.imagePlaceHolder' | translate">
@@ -280,10 +311,6 @@
                           </button>
                         </div>
                       </div>
-                      <app-image-preview *ngIf="currentNodeIsFolder" [imageSource]="treeNodeForm.get('image')?.value"
-                        [imageName]="treeNodeForm.get('imageName')?.value" [previewId]="'treeNodeImgPreview'"
-                        [maxWidth]="80" [maxHeight]="80">
-                      </app-image-preview>
                     </div>
                   </mat-expansion-panel>
 
@@ -295,7 +322,7 @@
                     (closed)="onPanelStateChange('task-config', currentNodeId, false)">
                     <mat-expansion-panel-header>
                       <mat-panel-title>
-                        <mat-icon class="panel-icon">task</mat-icon>
+                        <mat-icon class="panel-icon" [fontSet]="taskPanelIconFont || 'material-icons-round'">{{ taskPanelIcon }}</mat-icon>
                         {{ 'treesEntity.taskConfiguration' | translate }}
                       </mat-panel-title>
                     </mat-expansion-panel-header>
@@ -328,11 +355,11 @@
                         </mat-form-field>
                       </div>
                       <div style="display: flex; align-items: center; gap: 16px;"
-                        *ngIf="effectiveNodeType === codeValues.treenodeLeafType.task">
+                        *ngIf="showFilterableInTaskPanel">
                         <mat-checkbox formControlName="filterable">
                           {{ 'treesEntity.filterable' | translate }}
                         </mat-checkbox>
-                        <button mat-raised-button color="primary" (click)="openFieldsConfigDialog()">
+                        <button mat-raised-button color="primary" [disabled]="!hasTaskSelected" (click)="openFieldsConfigDialog()">
                           {{ 'treesEntity.fieldsConfig' | translate }}
                         </button>
                       </div>
@@ -372,135 +399,156 @@
 
 <ng-template #fieldsConfigDialog>
   <form [formGroup]='fieldsConfigForm' id="fieldsConfigForm">
-    <div class="formDiv" style="display: flex; gap: 24px;">
-      <div style="flex: 0 0 45%;">
-        <div>
-          <h5 style="display: inline-block; margin-right: 8px;">{{ 'treesEntity.namespacesMapping' | translate }}</h5>
-          <button mat-icon-button [matTooltip]="'treesEntity.namespacesHelp' | translate"
-            [attr.aria-label]="'treesEntity.namespacesHelp' | translate">
-            <mat-icon>help</mat-icon>
-          </button>
+    <mat-tab-group class="field-config-tabs" animationDuration="0ms">
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <span class="field-config-tab-label-content">
+            <span class="field-config-tab-label">{{ 'treesEntity.inputMapping' | translate }}</span>
+            <button mat-icon-button class="field-config-tab-help" [matTooltip]="'treesEntity.inputMappingHelp' | translate"
+              [attr.aria-label]="'treesEntity.inputMappingHelp' | translate" (click)="$event.stopPropagation()">
+              <mat-icon>help</mat-icon>
+            </button>
+          </span>
+        </ng-template>
+        <div class="field-config-tab-content">
+          <div class="maping-form" formGroupName="input">
+            <p *ngIf="nodeInputsControls.length === 0">{{'nodeMapping.noParams' | translate}}</p>
+            <div *ngFor="let control of nodeInputsControls">
+              <div class="field-config-row" [formGroupName]="control.name">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{control.label || control.name}}</mat-label>
+                  <mat-select formControlName="value">
+                    <mat-option value="">{{ 'common.form.none' | translate }}</mat-option>
+                    <mat-optgroup [label]="'treesEntity.appVars' | translate">
+                      <mat-option *ngFor="let opt of mappingAppOptions" [value]="opt.value">{{opt.label}}</mat-option>
+                    </mat-optgroup>
+                    <mat-optgroup *ngIf="mappingParentTaskOptions.length > 0"
+                      [label]="'treesEntity.parentTaskVars' | translate">
+                      <mat-option *ngFor="let opt of mappingParentTaskOptions"
+                        [value]="opt.value">{{opt.label}}</mat-option>
+                    </mat-optgroup>
+                  </mat-select>
+                </mat-form-field>
+                <div class="field-options">
+                  <mat-checkbox formControlName="calculated">{{ 'treesEntity.calculated' | translate }}</mat-checkbox>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <span class="field-config-tab-label-content">
+            <span class="field-config-tab-label">{{ 'treesEntity.outputMapping' | translate }}</span>
+            <button mat-icon-button class="field-config-tab-help" [matTooltip]="'treesEntity.outputMappingHelp' | translate"
+              [attr.aria-label]="'treesEntity.outputMappingHelp' | translate" (click)="$event.stopPropagation()">
+              <mat-icon>help</mat-icon>
+            </button>
+          </span>
+        </ng-template>
+        <div class="field-config-tab-content">
+          <div class="maping-form">
+              <div class="field-config-row">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'treesEntity.taskview' | translate }}</mat-label>
+                  <mat-select formControlName="viewMode" (selectionChange)="onViewModeChange($event.value)">
+                    <mat-option [value]="taskview.value" *ngFor="let taskview of this.codeList('treenode.viewmode')">
+                      {{ taskview.description }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <mat-divider class="output-param-divider"></mat-divider>
+              <div formGroupName="output">
+                <div *ngFor="let control of nodeOutputsControls; let last = last">
+                  <div class="field-config-row output-param-block" [formGroupName]="control.key"
+                    *ngIf="control.views.includes(currentViewMode)">
+                    <div *ngIf="control.key.includes('Label'); else notLabel" class="output-label-cell">
+                      <mat-form-field [id]="control.key" appearance="outline" class="output-label-field">
+                        <mat-label>{{control.label | translate}}</mat-label>
+                        <mat-select formControlName="value">
+                          <mat-option [value]="labelview.value" *ngFor="let labelview of mappingbtnLabelOptions">
+                            <span *ngIf="shouldTranslateLabel(labelview.label); else literalLabel">
+                              {{ labelview.label | translate }}
+                            </span>
+                            <ng-template #literalLabel>
+                              {{ labelview.label }}
+                            </ng-template>
+                          </mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </div>
+                    <ng-template #notLabel>
+                      <div class="field-row">
+                        <mat-radio-button name="mapping" [id]="control.key + '-mapping'"
+                          class="mapping-radio"
+                          [matTooltip]="'treesEntity.applyPathFromTree' | translate"
+                          [attr.aria-label]="'treesEntity.applyPathFromTree' | translate">
+                        </mat-radio-button>
+                        <mat-form-field appearance="outline" class="field-row-input">
+                          <mat-label>{{control.label | translate}}</mat-label>
+                          <input matInput type="text" formControlName="value">
+                        </mat-form-field>
+                      </div>
+                      <div class="field-options field-options-row">
+                        <mat-checkbox formControlName="calculated">{{ 'treesEntity.calculated' | translate }}</mat-checkbox>
+                        <mat-checkbox formControlName="multilanguage">{{ 'treesEntity.multilanguage' | translate }}</mat-checkbox>
+                      </div>
+                    </ng-template>
+                  </div>
+                  <mat-divider class="output-param-divider" *ngIf="control.views.includes(currentViewMode) && !last"></mat-divider>
+                </div>
+              </div>
+            </div>
+        </div>
+      </mat-tab>
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <span class="field-config-tab-label-content">
+            <span class="field-config-tab-label">{{ 'treesEntity.responseStructure' | translate }}</span>
+            <button mat-icon-button class="field-config-tab-help" [matTooltip]="'treesEntity.namespacesHelp' | translate"
+              [attr.aria-label]="'treesEntity.namespacesHelp' | translate" (click)="$event.stopPropagation()">
+              <mat-icon>help</mat-icon>
+            </button>
+          </span>
+        </ng-template>
+        <div class="field-config-tab-content">
           <div class="maping-form" formGroupName="namespaces">
             <p *ngIf="noNamespaces">{{'nodeMapping.noNamespaces' | translate}}</p>
             <div *ngFor="let control of nodeNamespacesControls">
-              <div style="display: flex; gap: 16px; margin: 10px 0;" [formGroupName]="control.name">
-                <mat-form-field appearance="outline" style="flex: 1;">
+              <div class="field-row" [formGroupName]="control.name">
+                <mat-form-field appearance="outline" class="field-row-input">
                   <mat-label>{{control.name}}</mat-label>
                   <input matInput type="text" formControlName="value">
                 </mat-form-field>
               </div>
             </div>
           </div>
-        </div>
-        <div *ngIf="!(fieldsConfigTreeGenerated)">
-          <mat-form-field appearance="outline" style="width: 100%; margin-top: 20px;">
-            <mat-label>{{ 'nodeMapping.treePlaceholder' | translate }}</mat-label>
-            <textarea matInput formControlName="taskResponse" rows="8"></textarea>
-          </mat-form-field>
-          <button mat-raised-button color="primary" (click)="generateFieldsConfigTree()" style="margin-top: 8px;">
-            {{'nodeMapping.treeGenerate' | translate}}
-          </button>
-        </div>
-        <div *ngIf="fieldsConfigTreeGenerated">
-          <app-map-tree class="fieldsConfigTree" [getAll]='getFieldConfigInput' (emitNode)="fieldTreeNode($event)"
-            [eventCreateTreeSubscription]='createConfigTreeEvent.asObservable()'>
-            loading
-          </app-map-tree>
-          <button mat-raised-button color="primary" (click)="hideFieldsConfigTree()" style="margin-top: 15px;">
-            {{'nodeMapping.editResponse' | translate}}
-          </button>
-          <div *ngIf="selectedXPath" style="margin-top: 20px;">
-            <strong>{{'nodeMapping.suggestion' | translate}}</strong>
-            <p style="word-break: break-all;">{{ selectedXPath }}</p>
-          </div>
-        </div>
-      </div>
-      <div style="flex: 1;">
-        <h5 style="display: inline-block; margin-right: 8px;">{{ 'treesEntity.inputMapping' | translate }}</h5>
-        <button mat-icon-button [matTooltip]="'treesEntity.inputMappingHelp' | translate"
-          [attr.aria-label]="'treesEntity.inputMappingHelp' | translate">
-          <mat-icon>help</mat-icon>
-        </button>
-        <div class="maping-form" formGroupName="input">
-          <p *ngIf="nodeInputsControls.length === 0">{{'nodeMapping.noParams' | translate}}</p>
-          <div *ngFor="let control of nodeInputsControls">
-            <div style="display: flex; gap: 16px; margin: 10px 0;" [formGroupName]="control.name">
-              <mat-form-field appearance="outline" style="flex: 1;">
-                <mat-label>{{control.label}}</mat-label>
-                <mat-select formControlName="value">
-                  <mat-option [value]="control.value">{{control.value || '--None--'}}</mat-option>
-                  <mat-optgroup [label]="'treesEntity.appVars' | translate">
-                    <mat-option *ngFor="let opt of mappingAppOptions" [value]="opt.value">{{opt.label}}</mat-option>
-                  </mat-optgroup>
-                  <mat-optgroup *ngIf="mappingParentTaskOptions.length > 0"
-                    [label]="'treesEntity.parentTaskVars' | translate">
-                    <mat-option *ngFor="let opt of mappingParentTaskOptions"
-                      [value]="opt.value">{{opt.label}}</mat-option>
-                  </mat-optgroup>
-                </mat-select>
-              </mat-form-field>
-              <div style="display: flex; align-items: center;">
-                <mat-checkbox formControlName="calculated" labelPosition="after">{{ 'treesEntity.calculated' | translate
-                  }}</mat-checkbox>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <h5 style="display: inline-block; margin-right: 8px; margin-top: 20px;">{{ 'treesEntity.outputMapping' |
-          translate }}</h5>
-        <button mat-icon-button [matTooltip]="'treesEntity.outputMappingHelp' | translate"
-          [attr.aria-label]="'treesEntity.outputMappingHelp' | translate">
-          <mat-icon>help</mat-icon>
-        </button>
-        <div class="maping-form">
-          <div style="margin: 10px 0;">
-            <mat-form-field appearance="outline" style="width: 100%;">
-              <mat-label>{{ 'treesEntity.taskview' | translate }}</mat-label>
-              <mat-select formControlName="viewMode" (selectionChange)="onViewModeChange($event.value)">
-                <mat-option [value]="taskview.value" *ngFor="let taskview of this.codeList('treenode.viewmode')">
-                  {{ taskview.description }}
-                </mat-option>
-              </mat-select>
+          <div *ngIf="!(fieldsConfigTreeGenerated)">
+            <mat-form-field appearance="outline" class="full-width dialog-form-field-top">
+              <mat-label>{{ 'nodeMapping.treePlaceholder' | translate }}</mat-label>
+              <textarea matInput formControlName="taskResponse" rows="8"></textarea>
             </mat-form-field>
+            <button mat-raised-button color="primary" (click)="generateFieldsConfigTree()" class="dialog-action-button">
+              {{'nodeMapping.treeGenerate' | translate}}
+            </button>
           </div>
-          <div formGroupName="output">
-            <div *ngFor="let control of nodeOutputsControls">
-              <div style="display: flex; gap: 16px; margin: 10px 0; align-items: center;" [formGroupName]="control.key"
-                *ngIf="control.views.includes(currentViewMode)">
-                <div *ngIf="control.key.includes('Label'); else notLabel"
-                  style="flex: 1; display: flex; justify-content: center;">
-                  <mat-form-field [id]="control.key" appearance="outline" style="width: 100%; max-width: 400px;">
-                    <mat-label>{{control.label | translate}}</mat-label>
-                    <mat-select formControlName="value">
-                      <mat-option [value]="labelview.value" *ngFor="let labelview of mappingbtnLabelOptions">
-                        <span *ngIf="shouldTranslateLabel(labelview.label); else literalLabel">
-                          {{ labelview.label | translate }}
-                        </span>
-                        <ng-template #literalLabel>
-                          {{ labelview.label }}
-                        </ng-template>
-                      </mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                </div>
-                <ng-template #notLabel>
-                  <mat-radio-button name="mapping" [id]="control.key + '-mapping'"
-                    class="mapping-radio"></mat-radio-button>
-                  <mat-form-field appearance="outline" style="flex: 1;">
-                    <mat-label>{{control.label | translate}}</mat-label>
-                    <input matInput type="text" formControlName="value">
-                  </mat-form-field>
-                  <mat-checkbox formControlName="calculated" labelPosition="after">{{ 'treesEntity.calculated' |
-                    translate }}</mat-checkbox>
-                  <mat-checkbox formControlName="multilanguage" labelPosition="after">{{ 'treesEntity.multilanguage' |
-                    translate }}</mat-checkbox>
-                </ng-template>
-              </div>
+          <div *ngIf="fieldsConfigTreeGenerated">
+            <app-map-tree class="fieldsConfigTree" [getAll]='getFieldConfigInput' (emitNode)="fieldTreeNode($event)"
+              [eventCreateTreeSubscription]='createConfigTreeEvent.asObservable()'>
+              loading
+            </app-map-tree>
+            <button mat-raised-button color="primary" (click)="hideFieldsConfigTree()" class="dialog-action-button">
+              {{'nodeMapping.editResponse' | translate}}
+            </button>
+            <div *ngIf="selectedXPath" class="xpath-suggestion">
+              <strong>{{'nodeMapping.suggestion' | translate}}</strong>
+              <p>{{ selectedXPath }}</p>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </mat-tab>
+    </mat-tab-group>
   </form>
 </ng-template>

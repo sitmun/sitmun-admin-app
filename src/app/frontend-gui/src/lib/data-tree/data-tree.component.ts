@@ -3,8 +3,9 @@ import {FlatTreeControl} from '@angular/cdk/tree';
 import {Component, ElementRef, EventEmitter, Injectable, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
 
-import {BehaviorSubject, Observable, of as observableOf} from 'rxjs';
+import {BehaviorSubject, firstValueFrom, Observable, of as observableOf} from 'rxjs';
 
+import {config} from '@config';
 import {constants} from '@environments/constants';
 
 /**
@@ -19,27 +20,26 @@ export class FileNode {
   type: any;
   active: any;
   cartography: any;
-  cartographyId: any
-  cartographyName: any
-  datasetURL: any
-  description: any
-  filterGetFeatureInfo: any
-  filterGetMap: any
-  filterSelectable: any
-  isFolder: any
-  isRoot: any
-  metadataURL: any
-  order: any
-  parent: any
-  queryableActive: any
-  radio: any
-  tooltip: any
-  image: any
-  taskName: any
-  viewMode: any
-  filterable: any
-  _links: any
-  status: any
+  cartographyId: any;
+  cartographyName: any;
+  datasetURL: any;
+  description: any;
+  filterGetFeatureInfo: any;
+  filterGetMap: any;
+  filterSelectable: any;
+  isRoot: any;
+  metadataURL: any;
+  order: any;
+  parent: any;
+  queryableActive: any;
+  radio: any;
+  tooltip: any;
+  image: any;
+  taskName: any;
+  viewMode: any;
+  filterable: any;
+  _links: any;
+  status: any;
 }
 
 /** Flat node with expandable and level information */
@@ -69,28 +69,22 @@ export class FileDatabase {
   dataChange = new BehaviorSubject<FileNode[]>([]);
   get data(): any { return this.dataChange.value; }
 
-  initialize(dataObj, allNewElements) {
-
-    // Build the tree nodes from Json object. The result is a list of `FileNode` with nested
-    //     file node as children.
-    const data = this.buildFileTree(dataObj, 0, allNewElements);
-
-    // Notify the change.
+  initialize(dataObj, allNewElements, treeType?: string) {
+    const data = this.buildFileTree(dataObj, 0, allNewElements, treeType);
     this.dataChange.next(data);
   }
 
   /**
-   * Build the file structure tree. The `value` is the Json object, or a sub-tree of a Json object.
-   * The return value is the list of `FileNode`.
+   * Build the file structure tree. type is derived from nodeType + treeType (config).
+   * isFolder not stored; use canNodeTypeHaveChildren(treeType, nodeType) to check.
    */
-  buildFileTree(arrayTreeNodes: any[], level: number, allNewElements: any) {
+  buildFileTree(arrayTreeNodes: any[], level: number, allNewElements: any, treeType?: string) {
     const map = {};
     if(arrayTreeNodes.length===0)
     {
       map['root'] = {
-        isFolder: true,
         name: '',
-        type: 'folder',
+        type: constants.treeRenderType.folder,
         isRoot: true,
         order: 0,
         children: [],
@@ -101,7 +95,9 @@ export class FileDatabase {
       arrayTreeNodes.forEach((treeNode) => {
         const obj = treeNode;
         obj.children = [];
-        obj.type= (treeNode.isFolder) ? "folder" : "node";
+        const canHaveChildren = treeType ? canNodeTypeHaveChildren(treeType, treeNode.nodeType) : false;
+        obj.type = canHaveChildren ? constants.treeRenderType.folder : constants.treeRenderType.node;
+        // isFolder removed - use canNodeTypeHaveChildren(treeType, nodeType) to check
         obj.nodeType = treeNode.nodeType;
         if(allNewElements) {
           obj.status = constants.entityStatus.pendingCreation;
@@ -123,10 +119,9 @@ export class FileDatabase {
         }
         map[parent].children.push(obj);
       });
-      map['root'].type='folder';
+      map['root'].type = constants.treeRenderType.folder;
       map['root'].name='';
       map['root'].order=0;
-      map['root'].isFolder=true;
       map['root'].isRoot=true;
       map['root'].id=null;
     }
@@ -197,11 +192,12 @@ export class FileDatabase {
       filterGetFeatureInfo: node.filterGetFeatureInfo,
       filterGetMap: node.filterGetMap,
       filterSelectable: node.filterSelectable,
-      isFolder: node.isFolder,
       metadataURL: node.metadataURL,
       order: node.order,
+      parent: node.parent,
       queryableActive: node.queryableActive,
       radio: node.radio,
+      status: node.status,
       tooltip: node.tooltip,
       image: node.image,
       taskName: node.taskName,
@@ -299,6 +295,7 @@ export class FileDatabase {
     standalone: false
 })
 export class DataTreeComponent implements OnInit {
+  @Output() addNode: EventEmitter<{ parent: FileNode | null; nodeType: string }>;
   @Output() createNode: EventEmitter<any>;
   @Output() createFolder: EventEmitter<any>;
   @Output() emitNode: EventEmitter<any>;
@@ -316,7 +313,6 @@ export class DataTreeComponent implements OnInit {
   treeControl: FlatTreeControl<FileFlatNode>;
   treeFlattener: MatTreeFlattener<FileNode, FileFlatNode>;
   dataSource: MatTreeFlatDataSource<FileNode, FileFlatNode>;
-  // expansion model tracks expansion state
   expansionModel = new SelectionModel<string>(true);
   dragging = false;
   expandTimeout: any;
@@ -329,7 +325,12 @@ export class DataTreeComponent implements OnInit {
 
   @Input() getAll: () => Observable<any>;
   @Input() allNewElements: any;
+  @Input() currentTreeType: string;
   @Input() canNodeHaveChildren: (nodeType: string | null) => boolean;
+  /** Returns allowed node types for a parent (null = root). Used to render one add button per type. */
+  @Input() getAllowedTypesForParent: (parent: FileNode | null) => string[] = () => [];
+  /** Returns display label for a node type (tooltips and form). */
+  @Input() getNodeTypeLabel: (nodeType: string) => string = (t) => t;
 
 
   /* Drag and drop */
@@ -351,6 +352,7 @@ export class DataTreeComponent implements OnInit {
 
 
   constructor(public database: FileDatabase) {
+    this.addNode = new EventEmitter();
     this.emitNode = new EventEmitter();
     this.createNode = new EventEmitter();
     this.createFolder = new EventEmitter();
@@ -376,8 +378,7 @@ export class DataTreeComponent implements OnInit {
     {
       this.eventCreateNodeSubscription.subscribe(
         (node) => {
-          if(node.isFolder) this.createNewFolder(node);
-          else this.createNewNode(node);
+          this.addNodeToTree(node);
         }
       )
     }
@@ -408,8 +409,18 @@ export class DataTreeComponent implements OnInit {
     this.getAll()
     .subscribe((items) => {
       this.treeData = items;
-      this.database.initialize(this.treeData, this.allNewElements);
+      this.database.initialize(this.treeData, this.allNewElements, this.currentTreeType);
       this.database.dataChange.subscribe(data => this.rebuildTreeForData([data]));
+    });
+  }
+
+  /** Refetches tree nodes and rebuilds the tree. Returns a promise that resolves when the tree is updated. */
+  refreshTree(): Promise<void> {
+    if (!this.getAll) return Promise.resolve();
+    return firstValueFrom(this.getAll()).then((items) => {
+      this.treeData = items;
+      this.database.initialize(this.treeData, this.allNewElements, this.currentTreeType);
+      this.rebuildTreeForData([this.database.data]);
     });
   }
 
@@ -516,7 +527,7 @@ export class DataTreeComponent implements OnInit {
     } else {
       fromFlatNode = this.findNodeSiblings(changedData[0].children, this.dragNode.id).find(nodeAct => nodeAct.id === this.dragNode.id);
     }
-    if (this.dragNode.status!="pendingDelete" && node !== this.dragNode && (this.dragNodeExpandOverArea !== 'center' || (this.dragNodeExpandOverArea === 'center' && toFlatNode.isFolder))) {
+    if (this.dragNode.status!="pendingDelete" && node !== this.dragNode && (this.dragNodeExpandOverArea !== 'center' || (this.dragNodeExpandOverArea === 'center' && canNodeTypeHaveChildren(this.currentTreeType, toFlatNode.nodeType)))) {
       let newItem: FileNode;
 
       if (this.dragNodeExpandOverArea === 'above') {
@@ -700,6 +711,36 @@ export class DataTreeComponent implements OnInit {
     return null;
   }
 
+  /** Icon for tree row from config (nodeType); fallback by node.type when no treeType. */
+  getNodeIcon(node: FileNode): string {
+    if (!node || node.status === 'pendingDelete') return 'close';
+    if (this.currentTreeType && node.nodeType != null) {
+      return getNodeTypeIcon(this.currentTreeType, node.nodeType);
+    }
+    if (node.type === constants.treeRenderType.folder) return constants.treeRenderType.folder;
+    return 'description';
+  }
+
+  /** Icon for a node type from config (for add buttons). */
+  getNodeIconForType(nodeType: string): string {
+    if (this.currentTreeType) {
+      return getNodeTypeIcon(this.currentTreeType, nodeType);
+    }
+    if (nodeType === constants.treeRenderType.folder) return constants.treeRenderType.folder;
+    return 'description';
+  }
+
+  /** Icon font for tree row (from config); undefined for default font. */
+  getNodeIconFont(node: FileNode): string | undefined {
+    if (!node || !this.currentTreeType || node.nodeType == null) return undefined;
+    return getNodeTypeIconFont(this.currentTreeType, node.nodeType);
+  }
+
+  /** Icon font for a node type (for add buttons); undefined for default font. */
+  getNodeIconFontForType(nodeType: string): string | undefined {
+    return this.currentTreeType ? getNodeTypeIconFont(this.currentTreeType, nodeType) : undefined;
+  }
+
   updateNode(nodeUpdated)
   {
     const dataToChange = JSON.parse(JSON.stringify(this.dataSource.data))
@@ -718,54 +759,43 @@ export class DataTreeComponent implements OnInit {
       });
       return;
     }
-    // Preserve children if they exist in the original node
     const originalNode = siblings[index];
     const updatedNode = {
       ...originalNode,
       ...nodeUpdated,
       children: nodeUpdated.children || originalNode.children,
-      id: originalNode.id // Preserve original ID type
+      id: originalNode.id
     };
+    if (this.currentTreeType && updatedNode.nodeType != null) {
+      const canHaveChildren = canNodeTypeHaveChildren(this.currentTreeType, updatedNode.nodeType);
+      updatedNode.type = canHaveChildren ? constants.treeRenderType.folder : constants.treeRenderType.node;
+      // isFolder removed - computed on demand from nodeType
+    }
     siblings[index] = updatedNode;
     this.rebuildTreeForData(dataToChange);
 
   }
 
-  createNewFolder(newFolder)
-  {
-    newFolder.type="folder";
+  /** 
+   * Add a new node to the tree. Type/isFolder derived from nodeType + treeType config (not stored).
+   */
+  addNodeToTree(newNode: FileNode): void {
+    // Set type for icon display (folder vs node)
+    const canHaveChildren = this.currentTreeType ? canNodeTypeHaveChildren(this.currentTreeType, newNode.nodeType) : false;
+    newNode.type = canHaveChildren ? constants.treeRenderType.folder : constants.treeRenderType.node;
+    // Note: isFolder not stored; computed on demand from nodeType
     const dataToChange = JSON.parse(JSON.stringify(this.dataSource.data))
-    if(newFolder.parent === null) {
-      newFolder.order=dataToChange[0].children.length;
-      dataToChange[0].children.push(newFolder)
-    }
-    else{
-      const siblings = this.findNodeSiblings(dataToChange, newFolder.parent);
-      const index = siblings.findIndex(node => node.id === newFolder.parent);
-      newFolder.order=siblings[index].children.length;
-      siblings[index].children.push(newFolder)
-    }
-    this.rebuildTreeForData(dataToChange);
-
-  }
-
-  createNewNode(newNode)
-  {
-    newNode.type="node";
-    const dataToChange = JSON.parse(JSON.stringify(this.dataSource.data))
-    if(newNode.parent === null) {
-      newNode.order=dataToChange[0].children.length;
+    if(newNode.parent == null) {
+      newNode.order = dataToChange[0].children.length;
       dataToChange[0].children.push(newNode)
     }
-    else{
-    const siblings = this.findNodeSiblings(dataToChange, newNode.parent);
+    else {
+      const siblings = this.findNodeSiblings(dataToChange, newNode.parent);
       const index = siblings.findIndex(node => node.id === newNode.parent);
-    newNode.order=siblings[index].children.length;
-    siblings[index].children.push(newNode)
+      newNode.order = siblings[index].children.length;
+      siblings[index].children.push(newNode)
     }
-
     this.rebuildTreeForData(dataToChange);
-
   }
 
 
@@ -787,10 +817,6 @@ export class DataTreeComponent implements OnInit {
         nodeParent,
       };
       this.emitNode.emit(emitedObj);
-    } else if(button === 'newFolder') {
-      this.createFolder.emit(nodeClicked);
-    } else if(button === 'newNode') {
-      this.createNode.emit( nodeClicked);
     } else if(button === 'delete') {
       // let children= this.getAllChildren(nodeClicked.children)
       // children.forEach(children => {
@@ -1006,15 +1032,24 @@ export class DataTreeComponent implements OnInit {
     }
   }
 
-  createRootFolder()
-  {
-    const rootNode = {
-      id: null,
-      name: '',
-      isFolder: true,
-      parent: null
-    };
-    this.createFolder.emit(rootNode);
+  getAllowedRootTypes(): string[] {
+    return this.getAllowedTypesForParent ? this.getAllowedTypesForParent(null) : [];
+  }
+
+  getAllowedChildTypes(parentNode: FileNode | undefined): string[] {
+    return parentNode && this.getAllowedTypesForParent ? this.getAllowedTypesForParent(parentNode) : [];
+  }
+
+  getNestedNode(flatNode: FileFlatNode): FileNode | undefined {
+    return this.flatNodeMap.get(flatNode);
+  }
+
+  addRootNode(nodeType: string): void {
+    this.addNode.emit({ parent: null, nodeType });
+  }
+
+  onAddChildNode(parentNode: FileNode, nodeType: string): void {
+    this.addNode.emit({ parent: parentNode, nodeType });
   }
 
   getNodeDisplay(node: any): string {
@@ -1140,15 +1175,44 @@ export class DataTreeComponent implements OnInit {
     // Collapse all nodes first
     this.treeControl.collapseAll();
     
-    // Then expand only first level nodes (level 1) - direct children of root
-    this.treeControl.dataNodes.forEach(node => {
-      if (node.level === 1 && node.expandable) {
-        this.treeControl.expand(node);
-        this.expansionModel.select(node.id);
-      }
+    // Expand root only so level-1 nodes appear (root hidden via CSS); do not expand level-1
+    const rootFlatNode = this.treeControl.dataNodes.find((n) => {
+      const nested = this.flatNodeMap.get(n);
+      return nested && (nested as any).isRoot === true;
     });
+    if (rootFlatNode) {
+      this.treeControl.expand(rootFlatNode);
+      this.expansionModel.select(rootFlatNode.id);
+    }
   }
 
+}
+
+/** Whether this node type can have children (container). */
+function canNodeTypeHaveChildren(treeType: string, nodeType: string | null): boolean {
+  if (!treeType || !nodeType) return false;
+  const c = config.treeTypeNodeTypes?.[treeType];
+  const nodeTypes = (c as any)?.nodeTypes;
+  const allowed = nodeTypes?.[nodeType]?.allowedChildren;
+  return Array.isArray(allowed) && allowed.length > 0;
+}
+
+/** Icon for a node type from config; fallback by container vs leaf. */
+function getNodeTypeIcon(treeType: string, nodeType: string | null): string {
+  if (!nodeType) return 'description';
+  const c = config.treeTypeNodeTypes?.[treeType];
+  const nodeTypes = (c as any)?.nodeTypes;
+  const icon = nodeTypes?.[nodeType]?.icon;
+  if (icon != null && icon !== '') return icon;
+  return canNodeTypeHaveChildren(treeType, nodeType) ? 'folder' : 'description';
+}
+
+/** Icon font for a node type from config (e.g. material-symbols-outlined); undefined for default. */
+function getNodeTypeIconFont(treeType: string, nodeType: string | null): string | undefined {
+  if (!treeType || !nodeType) return undefined;
+  const c = config.treeTypeNodeTypes?.[treeType];
+  const nodeTypes = (c as any)?.nodeTypes;
+  return nodeTypes?.[nodeType]?.iconFont;
 }
 
 

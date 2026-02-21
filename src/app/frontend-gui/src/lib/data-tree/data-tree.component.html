@@ -20,11 +20,12 @@
         <input matInput type="text" placeholder="" (keyup)="onFilterKeyup($event)" [value]="filterValue">
       </mat-form-field>
       <button type="button"
-              matTooltip="{{ 'treesEntity.createRootFolder' | translate }}"
+              *ngFor="let nodeType of getAllowedRootTypes()"
+              [matTooltip]="getNodeTypeLabel(nodeType)"
               mat-mini-fab class="add-half-gap"
               color="primary"
-              (click)="createRootFolder()">
-        <mat-icon fontSet="material-icons-round">create_new_folder</mat-icon>
+              (click)="addRootNode(nodeType)">
+        <mat-icon [fontSet]="getNodeIconFontForType(nodeType) || 'material-icons-round'">{{ getNodeIconForType(nodeType) }}</mat-icon>
       </button>
       <button type="button"
               matTooltip="{{ 'loadGroupLayers' | translate }}"
@@ -55,16 +56,9 @@
         <button mat-icon-button disabled aria-hidden="true">
           <mat-icon style="display: none;"></mat-icon>
         </button>
-        <mat-icon *ngIf="node.type ==='folder' && node.status !== 'pendingDelete' && node.name !== ''" [attr.aria-label]="node.type + 'icon'"
-                  class="type-icon">
-          folder
-        </mat-icon>
-        <mat-icon *ngIf="node.type ==='node' && node.status !== 'pendingDelete' && node.name !== ''" [attr.aria-label]="node.type + 'icon'"
-                  class="type-icon">
-          description
-        </mat-icon>
-        <mat-icon *ngIf="node.status==='pendingDelete' && node.name !== ''" class="type-icon" style="color: #d32f2f;">
-          close
+        <mat-icon *ngIf="node.name !== ''" [attr.aria-label]="(node.nodeType || node.type) + ' icon'"
+                  class="type-icon" [fontSet]="getNodeIconFont(node)" [style.color]="node.status === 'pendingDelete' ? '#d32f2f' : null">
+          {{ getNodeIcon(node) }}
         </mat-icon>
         <mat-icon *ngIf="(node.status==='Modified' || node.status==='pendingCreation') && node.name !== '' && node.status !== 'pendingDelete'" 
                   class="status-indicator-icon">
@@ -74,21 +68,16 @@
         <span class="node-name" *ngIf="node.id === undefined || node.status==='pendingDelete'">{{node.name}}</span>
 
         <div class="node-actions">
-          <button (click)="onButtonClicked(node.id, 'newFolder')"
-                  *ngIf="node.type ==='folder' && node.status!=='pendingDelete' && (!canNodeHaveChildren || canNodeHaveChildren(node.nodeType))" 
-                  mat-icon-button 
-                  [matTooltip]="'treesEntity.createFolder' | translate"
-                  [attr.aria-label]="'treesEntity.createFolder' | translate">
-            <mat-icon>create_new_folder</mat-icon>
-          </button>
-          <button (click)="onButtonClicked(node.id, 'newNode')" 
-                  *ngIf="node.status!=='pendingDelete' && node.name !== '' && (!canNodeHaveChildren || canNodeHaveChildren(node.nodeType))"
-                  mat-icon-button 
-                  [matTooltip]="'treesEntity.createNode' | translate"
-                  [attr.aria-label]="'treesEntity.createNode' | translate">
-            <mat-icon>playlist_add</mat-icon>
-          </button>
-          <button (click)="onButtonClicked(node.id, 'delete')" 
+          <ng-container *ngIf="node.status!=='pendingDelete' && (!canNodeHaveChildren || canNodeHaveChildren(node.nodeType))">
+            <button *ngFor="let nodeType of getAllowedChildTypes(getNestedNode(node))"
+                    (click)="onAddChildNode(getNestedNode(node), nodeType)"
+                    mat-icon-button
+                    [matTooltip]="getNodeTypeLabel(nodeType)"
+                    [attr.aria-label]="getNodeTypeLabel(nodeType)">
+              <mat-icon [fontSet]="getNodeIconFontForType(nodeType)">{{ getNodeIconForType(nodeType) }}</mat-icon>
+            </button>
+          </ng-container>
+          <button (click)="onButtonClicked(node.id, 'delete')"
                   *ngIf="node.id !== undefined && node.status!=='pendingDelete'"
                   mat-icon-button 
                   [matTooltip]="'common.delete' | translate"
@@ -140,14 +129,9 @@
             {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
           </mat-icon>
         </button>
-        <mat-icon *ngIf="node.name !== '' && node.type ==='folder' && node.status !== 'pendingDelete'" class="type-icon" [attr.aria-label]="node.type + 'icon'">
-          folder
-        </mat-icon>
-        <mat-icon *ngIf="node.name !== '' && node.type ==='node' && node.status !== 'pendingDelete'" class="type-icon" [attr.aria-label]="node.type + 'icon'">
-          description
-        </mat-icon>
-        <mat-icon *ngIf="node.status==='pendingDelete' && node.name !== ''" class="type-icon" style="color: #d32f2f;">
-          close
+        <mat-icon *ngIf="node.name !== ''" class="type-icon" [attr.aria-label]="(node.nodeType || node.type) + ' icon'"
+                  [fontSet]="getNodeIconFont(node)" [style.color]="node.status === 'pendingDelete' ? '#d32f2f' : null">
+          {{ getNodeIcon(node) }}
         </mat-icon>
         <mat-icon *ngIf="(node.status==='Modified' || node.status==='pendingCreation') && node.name !== '' && node.status !== 'pendingDelete'" 
                   class="status-indicator-icon">
@@ -156,21 +140,16 @@
         <span class="node-name" (click)="onButtonClicked(node.id, 'edit')" (keyup.enter)="onButtonClicked(node.id, 'edit')" tabindex="0" role="button" [attr.aria-label]="('common.edit' | translate) + ': ' + node.name" *ngIf="node.id !== undefined && node.id !== null && node.status!=='pendingDelete'">{{node.name}}</span>
         <span class="node-name" *ngIf="node.id === undefined || node.id === null || node.status==='pendingDelete'">{{node.name}}</span>
         <div class="node-actions">
-          <button (click)="onButtonClicked(node.id, 'newFolder')"
-                  *ngIf="node.type ==='folder' && node.status!=='pendingDelete' && (!canNodeHaveChildren || canNodeHaveChildren(node.nodeType))" 
-                  mat-icon-button 
-                  [matTooltip]="'treesEntity.createFolder' | translate"
-                  [attr.aria-label]="'treesEntity.createFolder' | translate">
-            <mat-icon>create_new_folder</mat-icon>
-          </button>
-          <button (click)="onButtonClicked(node.id, 'newNode')" 
-                  *ngIf="node.status!=='pendingDelete' && node.name !== '' && (!canNodeHaveChildren || canNodeHaveChildren(node.nodeType))"
-                  mat-icon-button 
-                  [matTooltip]="'treesEntity.createNode' | translate"
-                  [attr.aria-label]="'treesEntity.createNode' | translate">
-            <mat-icon>playlist_add</mat-icon>
-          </button>
-          <button (click)="onButtonClicked(node.id, 'delete')" 
+          <ng-container *ngIf="node.status!=='pendingDelete' && (!canNodeHaveChildren || canNodeHaveChildren(node.nodeType))">
+            <button *ngFor="let nodeType of getAllowedChildTypes(getNestedNode(node))"
+                    (click)="onAddChildNode(getNestedNode(node), nodeType)"
+                    mat-icon-button
+                    [matTooltip]="getNodeTypeLabel(nodeType)"
+                    [attr.aria-label]="getNodeTypeLabel(nodeType)">
+              <mat-icon [fontSet]="getNodeIconFontForType(nodeType)">{{ getNodeIconForType(nodeType) }}</mat-icon>
+            </button>
+          </ng-container>
+          <button (click)="onButtonClicked(node.id, 'delete')"
                   *ngIf="node.id !== undefined && node.id !== null && node.status!=='pendingDelete'"
                   mat-icon-button 
                   [matTooltip]="'common.delete' | translate"

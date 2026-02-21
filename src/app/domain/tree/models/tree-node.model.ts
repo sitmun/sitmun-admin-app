@@ -95,6 +95,7 @@ export class TreeNodeProjection extends Resource {
   filterGetFeatureInfo: boolean;
   queryableActive: boolean;
   filterSelectable: boolean;
+  /** @deprecated Frontend computes this from nodeType + treeType config. May still be sent by backend. */
   isFolder: boolean;
   cartographyName: string;
   cartographyId: number;

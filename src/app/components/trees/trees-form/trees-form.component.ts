@@ -450,9 +450,8 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
     }
     
     const treeTypeConfig = this.treeTypeNodeTypes[targetTreeType];
-    const allowedFolderTypes = Object.keys(treeTypeConfig.folders || {});
-    const allowedLeafTypes = treeTypeConfig.leaves || [];
-    const allAllowedTypes = [...allowedFolderTypes, ...allowedLeafTypes];
+    const nodeTypes = (treeTypeConfig as any)?.nodeTypes;
+    const allAllowedTypes = nodeTypes ? Object.keys(nodeTypes) : [];
     
     // Build a map of nodes by ID for parent-child validation
     const nodeMap = new Map<number, any>();
@@ -491,9 +490,8 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
         }
         
         // Get allowed children for parent type
-        const parentFolderConfig = treeTypeConfig.folders?.[parentType];
-        if (!parentFolderConfig) {
-          // Parent type is not a folder in config, so it shouldn't have children
+        const allowedChildren = (treeTypeConfig as any)?.nodeTypes?.[parentType]?.allowedChildren || [];
+        if (allowedChildren.length === 0) {
           this.loggerService.warn(`Parent node type '${parentType}' cannot have children`, {
             parentId: node.parent,
             parentName: parentNode.name,
@@ -502,8 +500,6 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
           });
           return false;
         }
-        
-        const allowedChildren = parentFolderConfig.allowedChildren || [];
         if (!allowedChildren.includes(nodeType)) {
           this.loggerService.warn(`Node type '${nodeType}' not allowed as child of '${parentType}'`, {
             parentId: node.parent,

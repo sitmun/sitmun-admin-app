@@ -462,19 +462,28 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
                 'background-color': '#E8F1DE',
               };
             } else {
+              // Transparent background lets row alternating color show through
               return {
-                'background-color': 'white',
+                'background-color': 'transparent',
               };
             }
           } else {
+            // Transparent background lets row alternating color show through
             return {
-              'background-color': 'white',
+              'background-color': 'transparent',
             };
           }
         },
       },
       rowSelection: 'multiple',
       suppressHorizontalScroll: false,
+      // Add alternating row background
+      getRowStyle: (params) => {
+        if (params.node.rowIndex! % 2 === 0) {
+          return { background: 'rgba(0, 0, 0, 0.02)' };
+        }
+        return { background: 'transparent' };
+      },
     }
 
     this.translate = translate;

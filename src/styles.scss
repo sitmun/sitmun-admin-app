@@ -118,6 +118,39 @@ h2 {
   width: calc(100%);
 }
 
+// Very subtle alternating row background for trees and lists (global)
+.mat-tree-node:nth-of-type(odd) {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+.mat-tree-node:nth-of-type(even) {
+  background-color: transparent;
+}
+// Material table (MDC and legacy)
+.mat-mdc-table tbody .mat-mdc-row:nth-of-type(odd),
+.mat-table tbody .mat-row:nth-of-type(odd) {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+.mat-mdc-table tbody .mat-mdc-row:nth-of-type(even),
+.mat-table tbody .mat-row:nth-of-type(even) {
+  background-color: transparent;
+}
+.mat-mdc-list-item:nth-of-type(odd) {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+.mat-mdc-list-item:nth-of-type(even) {
+  background-color: transparent;
+}
+// AG Grid (data-grid / dialog-grid) – uses built-in .ag-row-odd and theme variable
+// Set globally so it applies regardless of load order
+:root {
+  --ag-odd-row-background-color: rgba(0, 0, 0, 0.02);
+  --ag-row-hover-color: rgba(0, 0, 0, 0.06);
+}
+.ag-theme-material {
+  --ag-odd-row-background-color: rgba(0, 0, 0, 0.02);
+  --ag-row-hover-color: rgba(0, 0, 0, 0.06);
+}
+
 // Apply gray background only to authenticated pages
 .mat-drawer-container {
   background: $background-color !important;

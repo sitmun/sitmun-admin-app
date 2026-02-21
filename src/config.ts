@@ -110,23 +110,124 @@ export const config = {
   },
   treeTypeNodeTypes: {
     cartography: {
-      folders: {
-        cartography: { allowedChildren: ['cartography', 'task'] }
-      },
-      leaves: ['task', 'cartography']
+      allowedRootTypes: ['folder'],
+      nodeTypes: {
+        folder: {
+          allowedChildren: ['cartography', 'folder'],
+          icon: 'folder',
+          showDescriptionPanel: true,
+          showMetadataFieldsInDescriptionPanel: true,
+          showCartographyPanel: false,
+          showAppearancePanel: false,
+          showTaskPanel: false,
+          showDisplayOptionsPanel: true
+        },
+        cartography: {
+          allowedChildren: [],
+          icon: 'stacks',
+          iconFont: 'material-symbols-outlined',
+          showDescriptionPanel: true,
+          showMetadataFieldsInDescriptionPanel: true,
+          showFiltersPanel: true,
+          showCartographyPanel: true,
+          showAppearancePanel: false,
+          showTaskPanel: false,
+          showDisplayOptionsPanel: true
+        }
+      }
     },
     touristic: {
-      folders: {
-        menu: { allowedChildren: ['list', 'task', 'map', 'fav', 'nm'] },
-        list: { allowedChildren: ['list', 'task', 'map'] }
-      },
-      leaves: ['task', 'map', 'fav', 'nm']
+      allowedRootTypes: ['menu'],
+      nodeTypes: {
+        menu: {
+          allowedChildren: ['list', 'task', 'map', 'fav', 'nm', 'menu'],
+          icon: 'apps',
+          showDescriptionPanel: false,
+          showCartographyPanel: false,
+          showAppearancePanel: true,
+          showTaskPanel: false,
+          showDisplayOptionsPanel: true
+        },
+        list: {
+          allowedChildren: ['list', 'task', 'map'],
+          icon: 'list',
+          /** i18n key for appearance field label: 'image' (custom image) vs 'icon' (Material icon name). */
+          appearanceLabelKey: 'image',
+          showDescriptionPanel: true,
+          showMetadataFieldsInDescriptionPanel: true,
+          showCartographyPanel: false,
+          showAppearancePanel: true,
+          showTaskPanel: false,
+          showDisplayOptionsPanel: true
+        },
+        task: {
+          allowedChildren: [],
+          icon: 'sync',
+          showDescriptionPanel: false,
+          showCartographyPanel: false,
+          showAppearancePanel: false,
+          /** Show appearance panel when parent is one of these (e.g. menu). Default false if absent. */
+          showAppearancePanelWhenParentIs: ['menu'],
+          showTaskPanel: true,
+          showFilterableInTaskPanel: true,
+          showDisplayOptionsPanel: true
+        },
+        map: {
+          allowedChildren: ['task'],
+          icon: 'map',
+          showDescriptionPanel: false,
+          showCartographyPanel: false,
+          showAppearancePanelWhenParentIs: ['menu'],
+          showTaskPanel: false,
+          showDisplayOptionsPanel: true
+        },
+        fav: {
+          allowedChildren: [],
+          icon: 'favorite',
+          showDescriptionPanel: false,
+          showCartographyPanel: false,
+          showAppearancePanelWhenParentIs: ['menu'],
+          showTaskPanel: false,
+          showDisplayOptionsPanel: true
+        },
+        nm: {
+          allowedChildren: [],
+          icon: 'track_changes',
+          childrenMustBeLeaves: true,
+          showDescriptionPanel: false,
+          showCartographyPanel: false,
+          showAppearancePanelWhenParentIs: ['menu'],
+          showTaskPanel: false,
+          showDisplayOptionsPanel: true
+        }
+      }
     },
     edition: {
-      folders: {
-        cartography: { allowedChildren: ['cartography'] }
-      },
-      leaves: ['cartography']
+      allowedRootTypes: ['folder'],
+      nodeTypes: {
+        folder: {
+          allowedChildren: ['cartography', 'folder'],
+          icon: 'folder',
+          showDescriptionPanel: true,
+          showMetadataFieldsInDescriptionPanel: true,
+          showCartographyPanel: false,
+          showAppearancePanel: false,
+          showTaskPanel: false,
+          showDisplayOptionsPanel: true
+        },
+        cartography: {
+          allowedChildren: [],
+          icon: 'stacks',
+          iconFont: 'material-symbols-outlined',
+          showDescriptionPanel: true,
+          showMetadataFieldsInDescriptionPanel: true,
+          showFiltersPanel: true,
+          showCartographyPanel: true,
+          showAppearancePanel: false,
+          showTaskPanel: false,
+          showDisplayOptionsPanel: true
+        }
+      }
     }
   }
 };

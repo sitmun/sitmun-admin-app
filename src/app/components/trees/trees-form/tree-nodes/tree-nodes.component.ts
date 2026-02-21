@@ -33,11 +33,13 @@ import {openDialogGridWithPreload} from '@app/frontend-gui/src/lib/dialog-grid/d
 import {
   DataTreeComponent,
   DialogFormComponent,
-  DialogMessageComponent
+  DialogMessageComponent,
+  FileNode
 } from '@app/frontend-gui/src/lib/public_api';
 import {LoadingOverlayService} from '@app/services/loading-overlay.service';
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
+import {Configuration} from '@app/core/config/configuration';
 import {config} from '@config';
 import {constants} from '@environments/constants';
 
@@ -65,7 +67,14 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   treeNodeForm: UntypedFormGroup;
   public fieldsConfigForm: UntypedFormGroup;
   idFictitiousCounter = -1;
-  currentNodeIsFolder: boolean;
+  /** Computed: whether current node type can have children (derived from config). */
+  get currentNodeIsFolder(): boolean {
+    return canNodeTypeHaveChildren(this.currentTreeType, this.currentNodeType);
+  }
+  /** True when a node is selected for edit or we are creating a new node. */
+  get hasNodeSelection(): boolean {
+    return this.currentNodeId != null || this.newElement;
+  }
   currentNodeName: string;
   currentNodeDescription: string;
   currentNodeType: string;
@@ -115,11 +124,15 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   
   // Track current node ID for panel state management
   currentNodeId: number | null = null;
+  /** True when the folder being edited has children (type cannot be changed to cartography). */
+  currentFolderHasChildren = false;
   
   // Per-node expansion state storage
   private nodeExpansionStates: Map<number, Set<string>> = new Map();
-  private allPanelIds = ['basic-info', 'description-metadata', 'cartography-config', 
-                         'filters', 'appearance', 'task-config', 'display-options'];
+  private allPanelIds = ['basic-info', 'description-metadata', 'cartography-config',
+    'filters', 'appearance', 'task-config', 'display-options'];
+  /** Only basic-info expanded by default in the detail. */
+  private defaultExpandedPanelIds = ['basic-info'] as const;
 
   filterOptions = [{value: 'UNDEFINED', description: 'UNDEFINED'}, {value: true, description: 'YES'}, {value: false, description: 'NO'}];
   codeValues = constants.codeValue;
@@ -192,7 +205,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     await this.loadCartographies();
     
     // Set up cartography autocomplete filtering
-    this.treeNodeForm.get('cartography')?.valueChanges.subscribe(value => {
+    this.treeNodeForm.get(constants.treeDomainKey.cartography)?.valueChanges.subscribe(value => {
       // Only filter if value is a string (user typing)
       // Skip if value is object (autocomplete set it)
       if (typeof value === 'string') {
@@ -207,7 +220,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     await this.loadTasks();
 
     // Set up task autocomplete filtering
-    this.treeNodeForm.get('task')?.valueChanges.subscribe(value => {
+    this.treeNodeForm.get(constants.treeDomainKey.task)?.valueChanges.subscribe(value => {
       if (typeof value === 'string') {
         this.filterTasks(value.toLowerCase());
       } else if (value && typeof value === 'object') {
@@ -320,83 +333,56 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Get available folder node types filtered by tree type
+   * Node types that can have children (for folder codelist). No folder/leaf distinction; both are nodes.
    */
   getAvailableFolderTypes(): CodeList[] {
     const allTypes = this.codeList('treenode.folder.type');
-    
-    // If no tree type configured or no constraints defined, return all types
-    if (!this.currentTreeType || !config.treeTypeNodeTypes || !config.treeTypeNodeTypes[this.currentTreeType]) {
-      return allTypes;
-    }
-    
-    const treeTypeConfig = config.treeTypeNodeTypes[this.currentTreeType];
-    const allowedFolderTypeValues = Object.keys(treeTypeConfig.folders || {});
-    
-    // Filter to only allowed folder types for this tree type
-    return allTypes.filter(type => allowedFolderTypeValues.includes(type.value));
+    if (!this.currentTreeType) return allTypes;
+    const allowed = getNodeTypesForTree(this.currentTreeType).filter(nt => canNodeTypeHaveChildren(this.currentTreeType, nt));
+    return allTypes.filter(type => allowed.includes(type.value));
   }
 
   /**
-   * Get available leaf node types filtered by tree type
+   * Node types that cannot have children (for leaf codelist). No folder/leaf distinction; both are nodes.
    */
   getAvailableLeafTypes(): CodeList[] {
     const allTypes = this.codeList('treenode.leaf.type');
-    
-    // If no tree type configured or no constraints defined, return all types
-    if (!this.currentTreeType || !config.treeTypeNodeTypes || !config.treeTypeNodeTypes[this.currentTreeType]) {
-      return allTypes;
-    }
-    
-    const treeTypeConfig = config.treeTypeNodeTypes[this.currentTreeType];
-    const allowedLeafTypeValues = treeTypeConfig.leaves || [];
-    
-    // Filter to only allowed leaf types for this tree type
-    return allTypes.filter(type => allowedLeafTypeValues.includes(type.value));
+    if (!this.currentTreeType) return allTypes;
+    const allowed = getNodeTypesForTree(this.currentTreeType).filter(nt => !canNodeTypeHaveChildren(this.currentTreeType, nt));
+    return allTypes.filter(type => allowed.includes(type.value));
   }
 
-  /**
-   * Determines if a node type is classified as a leaf for the current tree type.
-   * Uses the configured treeTypeNodeTypes to classify the node.
-   * @param nodeType The node type to check
-   * @returns true if the node type is a leaf, false if it's a folder
-   */
+  /** True if this node type cannot have children. */
   isNodeTypeALeaf(nodeType: string | null): boolean {
-    if (!nodeType || !this.currentTreeType || !config.treeTypeNodeTypes) {
-      return false;
-    }
-    
-    const treeTypeConfig = config.treeTypeNodeTypes[this.currentTreeType];
-    if (!treeTypeConfig) {
-      return false;
-    }
-    
-    // Check if node type is in the folders object (can have children = not a leaf)
-    // This handles cases where a type (like 'cartography') can be both a folder and leaf
-    if (treeTypeConfig.folders && treeTypeConfig.folders[nodeType]) {
-      return false;
-    }
-    
-    // Check if node type is in the leaves array
-    return (treeTypeConfig.leaves || []).includes(nodeType);
+    return !canNodeTypeHaveChildren(this.currentTreeType, nodeType);
+  }
+
+  /** Allowed child node types for a given parent type. */
+  getAllowedChildrenForParent(parentNodeType: string | null): string[] {
+    if (!parentNodeType || !this.currentTreeType) return [];
+    return getAllowedChildrenForNodeType(this.currentTreeType, parentNodeType);
   }
 
   /**
-   * Gets allowed child types for a given parent node type.
-   * @param parentNodeType The parent node type
-   * @returns Array of allowed child node type values
+   * Allowed node types for a parent (null = root). Used by data-tree to render one add button per type.
    */
-  getAllowedChildrenForParent(parentNodeType: string | null): string[] {
-    if (!parentNodeType || !this.currentTreeType || !config.treeTypeNodeTypes) {
-      return [];
-    }
-    
-    const treeTypeConfig = config.treeTypeNodeTypes[this.currentTreeType];
-    if (!treeTypeConfig || !treeTypeConfig.folders || !treeTypeConfig.folders[parentNodeType]) {
-      return [];
-    }
-    
-    return treeTypeConfig.folders[parentNodeType].allowedChildren || [];
+  getAllowedTypesForParent(parent: FileNode | null): string[] {
+    if (!parent) return getAllowedRootTypes(this.currentTreeType);
+    return this.getAllowedChildrenForParent(parent.nodeType);
+  }
+
+  /**
+   * Display label for a node type. Uses i18n when a key exists (e.g. entity.task.label), else codelist description.
+   */
+  getNodeTypeLabel(nodeType: string): string {
+    if (!nodeType) return '';
+    const typeKey = `treesEntity.nodeType.${nodeType}`;
+    const translated = this.translateService.instant(typeKey);
+    if (translated !== typeKey) return translated;
+    const folderTypes = this.getAvailableFolderTypes();
+    const leafTypes = this.getAvailableLeafTypes();
+    const found = folderTypes.find(t => t.value === nodeType) || leafTypes.find(t => t.value === nodeType);
+    return found ? found.description : nodeType;
   }
 
   /**
@@ -415,8 +401,8 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Get available node types based on whether the node is a folder or leaf.
-   * Returns folder types if isFolder is true, otherwise returns leaf types.
+   * Get available node types based on whether the node can have children.
+   * Returns folder types if currentNodeIsFolder is true, otherwise returns leaf types.
    * This method updates the cached availableNodeTypes array.
    */
   getAvailableNodeTypes(): CodeList[] {
@@ -430,14 +416,18 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
 
 
   /**
-   * Gets the effective node type. Since null types are no longer allowed,
-   * this simply returns the current node type.
-   * @returns The effective node type to use for behavior/logic
+   * Effective node type for behavior/UI. Folder is the container type (replacement for cartography as container).
    */
   getEffectiveNodeType(): string {
-    return this.currentNodeType || (this.currentNodeIsFolder 
-      ? this.codeValues.treenodeFolderType.cartography 
-      : this.codeValues.treenodeLeafType.cartography);
+    return this.currentNodeType ?? (this.currentNodeIsFolder
+      ? constants.treeRenderType.folder
+      : constants.treeDomainKey.cartography);
+  }
+
+  /** True when config enables metadata fields (tooltip, metadataURL, datasetURL) in description panel. */
+  get isContainerFolderType(): boolean {
+    return !!this.treeNodeForm?.get('nodeType')?.value &&
+      getNodePanelConfig(this.currentTreeType, this.effectiveNodeType, 'showMetadataFieldsInDescriptionPanel');
   }
 
   /**
@@ -449,68 +439,101 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
 
   /**
    * Determines if the filters panel should be displayed.
-   * Panel is shown only if it's a cartography leaf node with at least one applicable filter.
+   * Config-driven; also requires at least one applicable filter on the cartography.
    */
   get showFiltersPanel(): boolean {
-    const hasNodeType = !!this.treeNodeForm?.get('nodeType')?.value;
-    const isCartographyLeaf = !this.currentNodeIsFolder && 
-      this.effectiveNodeType === this.codeValues.treenodeLeafType.cartography;
+    if (!getNodePanelConfig(this.currentTreeType, this.effectiveNodeType, 'showFiltersPanel')) return false;
     const hasApplicableFilter = this.currentNodeCartography && (
       this.currentNodeCartography?.applyFilterToGetFeatureInfo ||
       this.currentNodeCartography?.applyFilterToGetMap ||
       this.currentNodeCartography?.applyFilterToSpatialSelection
     );
-    
-    return hasNodeType && isCartographyLeaf && hasApplicableFilter;
+    return !!hasApplicableFilter;
   }
 
   /**
    * Determines if the description & metadata panel should be displayed.
-   * Panel is shown for cartography or list folder types.
+   * Driven by configuration based on node type.
    */
   get showDescriptionMetadataPanel(): boolean {
-    return this.currentNodeIsFolder && 
-      [this.codeValues.treenodeFolderType.cartography, this.codeValues.treenodeFolderType.list].includes(this.effectiveNodeType);
+    return getNodePanelConfig(this.currentTreeType, this.effectiveNodeType, 'showDescriptionPanel');
   }
 
   /**
    * Determines if the cartography configuration panel should be displayed.
-   * Panel is shown for cartography leaf nodes with a node type value.
+   * Driven by configuration based on node type.
    */
   get showCartographyConfigurationPanel(): boolean {
     return !!this.treeNodeForm?.get('nodeType')?.value && 
-      !this.currentNodeIsFolder && 
-      this.effectiveNodeType === this.codeValues.treenodeLeafType.cartography;
+      getNodePanelConfig(this.currentTreeType, this.effectiveNodeType, 'showCartographyPanel');
+  }
+
+  /** Parent node type of the current node (from tree data). Null if root or parent not found. */
+  get currentParentNodeType(): string | null {
+    const parentId = this.treeNodeForm?.get('parent')?.value;
+    if (parentId == null) return null;
+    const flat = this.getFlatNodesFromDataTree();
+    const parent = flat.find((n: any) => n.id === parentId);
+    return parent?.nodeType ?? null;
   }
 
   /**
    * Determines if the appearance panel should be displayed.
-   * Panel is shown for menu or list folder types with a node type value.
+   * Driven by configuration based on node type (unconditional and/or when parent is in showAppearancePanelWhenParentIs).
    */
   get showAppearancePanel(): boolean {
-    return !!this.treeNodeForm?.get('nodeType')?.value && 
-      this.currentNodeIsFolder && 
-      [this.codeValues.treenodeFolderType.menu, this.codeValues.treenodeFolderType.list].includes(this.effectiveNodeType);
+    if (!this.treeNodeForm?.get('nodeType')?.value || !this.effectiveNodeType) return false;
+    const unconditional = getNodePanelConfig(this.currentTreeType, this.effectiveNodeType, 'showAppearancePanel');
+    if (unconditional) return true;
+    const whenParentIs = getShowAppearancePanelWhenParentIs(this.currentTreeType, this.effectiveNodeType);
+    const parentType = this.currentParentNodeType;
+    return !!(whenParentIs?.length && parentType && whenParentIs.includes(parentType));
   }
 
   /**
    * Determines if the task configuration panel should be displayed.
-   * Panel is shown for task leaf nodes or edition tree types with a node type value.
+   * Driven by configuration based on node type.
    */
   get showTaskConfigurationPanel(): boolean {
     return !!this.treeNodeForm?.get('nodeType')?.value && 
-      !this.currentNodeIsFolder && 
-      (this.currentTreeType === this.codeValues.treeType.edition || 
-       this.effectiveNodeType === this.codeValues.treenodeLeafType.task);
+      getNodePanelConfig(this.currentTreeType, this.effectiveNodeType, 'showTaskPanel');
   }
 
   /**
    * Determines if the display options panel should be displayed.
-   * Panel is shown when node type has a value, or for folders without a node type value.
+   * Driven by configuration based on node type.
    */
   get showDisplayOptionsPanel(): boolean {
-    return !!this.treeNodeForm?.get('nodeType')?.value || 
-      (this.currentNodeIsFolder && !this.treeNodeForm?.get('nodeType')?.value);
+    return !!this.treeNodeForm?.get('nodeType')?.value &&
+      getNodePanelConfig(this.currentTreeType, this.effectiveNodeType, 'showDisplayOptionsPanel');
+  }
+
+  /** i18n key for appearance panel field label (image vs icon), from config. */
+  get appearanceFieldLabelI18nKey(): string {
+    const key = getNodeTypeAppearanceLabelKey(this.currentTreeType, this.effectiveNodeType);
+    return `treesEntity.${key}`;
+  }
+
+  /** True when config shows filterable checkbox and fields config in task panel. */
+  get showFilterableInTaskPanel(): boolean {
+    return !!this.treeNodeForm?.get('nodeType')?.value &&
+      getNodePanelConfig(this.currentTreeType, this.effectiveNodeType, 'showFilterableInTaskPanel');
+  }
+
+  /** Icon for the task panel header (same as nav sidebar Task menu). */
+  get taskPanelIcon(): string {
+    return Configuration.TASK.icon;
+  }
+
+  /** Icon font for task panel icon (same as nav sidebar). */
+  get taskPanelIconFont(): string {
+    return Configuration.TASK.font;
+  }
+
+  /** True when a task is selected in the task panel (enables Field Configuration button). */
+  get hasTaskSelected(): boolean {
+    const value = this.treeNodeForm?.get('task')?.value;
+    return value != null && (typeof value === 'object' ? (value as any).id != null : true);
   }
 
   /**
@@ -528,107 +551,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Validates tree nodes by checking nodeType against code lists and setting defaults.
-   * 1. Checks each node's nodeType against the corresponding code list (folder or leaf)
-   * 2. If not found, checks against the other list
-   * 3. If found in other list, updates isFolder and marks as modified
-   * 4. If not found in either list, marks for deletion
-   * @param nodes Array of tree nodes to validate
-   * @returns Array of validated nodes
-   */
-  private validateTreeNodes(nodes: TreeNodeProjection[]): TreeNodeProjection[] {
-    if (!nodes || nodes.length === 0) {
-      return nodes;
-    }
-
-    return nodes.map(node => {
-      const currentStatus = (node as any).status;
-      
-      // Check if nodeType is missing (null, undefined, or empty string)
-      const nodeTypeMissing = !node.nodeType || (typeof node.nodeType === 'string' && node.nodeType.trim() === '');
-
-      if (nodeTypeMissing) {
-        // Assign cartography as default for both folders and leaves
-        const oldNodeType = node.nodeType;
-        node.nodeType = node.isFolder 
-          ? this.codeValues.treenodeFolderType.cartography 
-          : this.codeValues.treenodeLeafType.cartography;
-        // Mark node as modified only if we changed it
-        if (currentStatus !== 'pendingCreation' && currentStatus !== 'pendingDelete') {
-          (node as any).status = 'Modified';
-          this.loggerService.info('TreeNodesComponent.validateTreeNodes - Entry updated on load', {
-            nodeId: node.id,
-            nodeName: node.name,
-            reason: 'Missing nodeType',
-            oldNodeType: oldNodeType,
-            newNodeType: node.nodeType,
-            isFolder: node.isFolder
-          });
-        }
-      } else {
-        // Get the appropriate code list based on isFolder
-        const correctCodeList = node.isFolder 
-          ? this.getAvailableFolderTypes() 
-          : this.getAvailableLeafTypes();
-        
-        // Check if nodeType exists in the correct code list
-        const existsInCorrectList = correctCodeList.some(codeListItem => 
-          codeListItem.value === node.nodeType
-        );
-
-        if (!existsInCorrectList) {
-          // Check against the other list
-          const otherCodeList = node.isFolder 
-            ? this.getAvailableLeafTypes() 
-            : this.getAvailableFolderTypes();
-          
-          const existsInOtherList = otherCodeList.some(codeListItem => 
-            codeListItem.value === node.nodeType
-          );
-
-          if (existsInOtherList) {
-            // Fix the nodeType to match the isFolder status (legacy data correction)
-            const oldNodeType = node.nodeType;
-            node.nodeType = node.isFolder 
-              ? this.codeValues.treenodeFolderType.cartography 
-              : this.codeValues.treenodeLeafType.cartography;
-            if (currentStatus !== 'pendingCreation' && currentStatus !== 'pendingDelete') {
-              (node as any).status = 'Modified';
-              this.loggerService.info('TreeNodesComponent.validateTreeNodes - Entry updated on load', {
-                nodeId: node.id,
-                nodeName: node.name,
-                reason: 'NodeType exists in wrong code list',
-                oldNodeType: oldNodeType,
-                newNodeType: node.nodeType,
-                isFolder: node.isFolder
-              });
-            }
-          } else {
-            // Not found in either list, set default type based on isFolder
-            const oldNodeType = node.nodeType;
-            node.nodeType = node.isFolder 
-              ? this.codeValues.treenodeFolderType.cartography 
-              : this.codeValues.treenodeLeafType.cartography;
-            if (currentStatus !== 'pendingCreation' && currentStatus !== 'pendingDelete') {
-              (node as any).status = 'Modified';
-              this.loggerService.info('TreeNodesComponent.validateTreeNodes - Entry updated on load', {
-                nodeId: node.id,
-                nodeName: node.name,
-                reason: 'NodeType not found in any code list (invalid type)',
-                oldNodeType: oldNodeType,
-                newNodeType: node.nodeType,
-                isFolder: node.isFolder
-              });
-            }
-          }
-        }
-      }
-
-      return node;
-    });
-  }
-
-  /**
    * Gets all tree nodes for the tree.
    */
   getAllTreeNodes = (): Observable<TreeNodeProjection[]> => {
@@ -637,12 +559,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     } else {
       return this.tree.getRelationArrayEx(TreeNodeProjection, 'allNodes', {
         projection: 'view'
-      }).pipe(
-        map((nodes: TreeNodeProjection[]) => {
-          const validatedNodes = this.validateTreeNodes(nodes);
-          return validatedNodes;
-        })
-      );
+      });
     }
   };
 
@@ -727,7 +644,11 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     }
     
     await this.updateAllTreeNodes(allNodes, 0, new Map<number, TreeNodeProjection[]>(), [], null, null, tree, entityID);
-    this.refreshTreeEvent.next(true);
+    if (this.dataTree?.refreshTree) {
+      await this.dataTree.refreshTree();
+    } else {
+      this.refreshTreeEvent.next(true);
+    }
   }
 
   /**
@@ -746,6 +667,13 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       }
     }
     return result;
+  }
+
+  /** Flat list of tree nodes (excluding root) from dataTree. Empty if no data. */
+  private getFlatNodesFromDataTree(): any[] {
+    if (!this.dataTree?.dataSource?.data?.length) return [];
+    const root = this.dataTree.dataSource.data[0];
+    return this.getAllTreeNodesRecursive(root?.children || []);
   }
 
   initializeTreesNodeForm(): void {
@@ -767,7 +695,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       active: new UntypedFormControl(true, []),
       children: new UntypedFormControl(null, []),
       parent: new UntypedFormControl(null, []),
-      isFolder: new UntypedFormControl(null, []),
       type: new UntypedFormControl(null, []),
       order: new UntypedFormControl(null, []),
       filterGetFeatureInfo: new UntypedFormControl("UNDEFINED", []),
@@ -816,56 +743,20 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     const node = emitedObj.nodeClicked;
     const nodeParent = emitedObj.nodeParent;
     this.newElement = false;
-    let currentType;
-    if (node.isFolder) {
-      this.currentNodeIsFolder = true;
-      currentType = 'folder';
-    } else {
-      this.currentNodeIsFolder = false;
-      currentType = 'node';
-    }
-    
-    // Update available node types cache
-    this.getAvailableNodeTypes();
-    
-    // Validate nodeType - null is valid for folders (behaves as cartography via getEffectiveNodeType)
-    let validatedNodeType = node.nodeType;
-    if (!validatedNodeType || (typeof validatedNodeType === 'string' && validatedNodeType.trim() === '')) {
-      // For folders, null is valid (behaves as cartography)
-      // For leaf nodes, set default type if missing
-      if (!node.isFolder) {
-        validatedNodeType = this.codeValues.treenodeLeafType.cartography;
-      } else {
-        // For folders, normalize null/undefined/empty to null for internal logic
-        validatedNodeType = null;
-      }
-    } else {
-      // Check if nodeType is valid for the isFolder status
-      const correctCodeList = node.isFolder 
-        ? this.getAvailableFolderTypes() 
-        : this.getAvailableLeafTypes();
-      
-      const isValidType = correctCodeList.some(codeListItem => 
-        codeListItem.value === validatedNodeType
-      );
 
-      if (!isValidType) {
-        // Fix invalid type to default for the folder/leaf status
-        // For folders, null is valid (behaves as cartography)
-        if (!node.isFolder) {
-          validatedNodeType = this.codeValues.treenodeLeafType.cartography;
-        } else {
-          // For folders with invalid type, set to null
-          validatedNodeType = null;
-        }
-      }
-    }
+    const nodeType = (node.nodeType && (typeof node.nodeType !== 'string' || node.nodeType.trim() !== ''))
+      ? node.nodeType
+      : null;
+    this.currentNodeType = nodeType;
+    const currentType = this.currentNodeIsFolder ? constants.treeRenderType.folder : constants.treeRenderType.node;
+
+    this.currentFolderHasChildren = !!(this.currentNodeIsFolder && node.children?.length);
+    this.getAvailableNodeTypes();
 
     // Set current node ID for panel state management
     this.currentNodeId = node.id;
-    
-    // Use the node's own validated type, not the parent's (fixes panel visibility bug)
-    this.currentNodeType = validatedNodeType;
+
+    this.currentNodeType = nodeType;
     
     this.mappingParentTaskOptions = this.createMappingParentTaskOptions(nodeParent);
     this.currentViewMode = node.viewMode;
@@ -878,8 +769,11 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     if (node.id < 0) {
       status = "pendingCreation";
     }
-    // Default to cartography for folders without a type
-    const formNodeType = validatedNodeType || (node.isFolder ? this.codeValues.treenodeFolderType.cartography : this.codeValues.treenodeLeafType.cartography);
+    const formNodeType = nodeType ?? (this.currentNodeIsFolder
+      ? (getDefaultContainerTypeFromRules(this.currentTreeType, this.getAvailableFolderTypes())
+          ?? this.getAvailableFolderTypes()[0]?.value ?? constants.treeRenderType.folder)
+      : (getDefaultLeafTypeFromRules(this.currentTreeType, this.getAvailableLeafTypes())
+          ?? this.getAvailableLeafTypes()[0]?.value ?? constants.treeDomainKey.cartography));
     // Find cartography object from cache if cartographyId is available
     let cartographyObj = null;
     if (node.cartographyId && this.allCartographies.length > 0) {
@@ -917,7 +811,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       active: node.active !== null && node.active !== undefined ? node.active : true,
       children: node.children,
       parent: node.parent,
-      isFolder: node.isFolder,
       nameTranslationsModified: nameTranslationsModified,
       descriptionTranslationsModified: descriptionTranslationsModified,
       nameFormModified: nameFormModified,
@@ -1032,12 +925,13 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   createNode(parent) {
     this.treeNodeForm.reset();
     this.newElement = true;
-    this.currentNodeIsFolder = false;
-    this.currentNodeType = parent.nodeType || this.codeValues.treenodeFolderType.cartography;
+    this.currentNodeType = parent.nodeType
+      ?? getDefaultContainerTypeFromRules(this.currentTreeType, this.getAvailableFolderTypes())
+      ?? constants.treeRenderType.folder;
     
-    // Set current node ID to fictitious ID and initialize with all panels open
+    // Set current node ID and default panel state (only basic-info expanded)
     this.currentNodeId = this.idFictitiousCounter;
-    this.nodeExpansionStates.set(this.currentNodeId, new Set(this.allPanelIds));
+    this.nodeExpansionStates.set(this.currentNodeId, new Set(this.defaultExpandedPanelIds));
     
     // Update available node types cache
     this.getAvailableNodeTypes();
@@ -1052,7 +946,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     }
     this.treeNodeForm.patchValue({
       parent: parentId,
-      isFolder: false,
       order: null,
       children: [],
       status: "pendingCreation",
@@ -1071,46 +964,47 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   }
 
   createFolder(parent) {
+    const nodeType = parent?.nodeType
+      ?? getDefaultContainerTypeFromRules(this.currentTreeType, this.getAvailableFolderTypes())
+      ?? constants.treeRenderType.folder;
+    this.addNodeWithType(parent ?? null, nodeType);
+  }
+
+  /**
+   * Opens the form to create a new node of the given type under parent (null = root).
+   * Type is chosen in the tree; form shows type as read-only.
+   */
+  addNodeWithType(parent: FileNode | null, nodeType: string): void {
     this.treeNodeForm.reset();
     this.newElement = true;
-    this.currentNodeIsFolder = true;
-    // Allow null for folders (legacy support - behaves as cartography)
-    // Keep currentNodeType as null for internal logic
-    this.currentNodeType = parent.nodeType || null;
-    
-    // Set current node ID to fictitious ID and initialize with all panels open
+    this.currentNodeType = nodeType;
+    this.currentFolderHasChildren = false;
+
     this.currentNodeId = this.idFictitiousCounter;
-    this.nodeExpansionStates.set(this.currentNodeId, new Set(this.allPanelIds));
-    
-    // Update available node types cache
+    this.nodeExpansionStates.set(this.currentNodeId, new Set(this.defaultExpandedPanelIds));
     this.getAvailableNodeTypes();
-    
-    // Default to cartography for new folders without a parent type
-    const formNodeType = parent.nodeType || this.codeValues.treenodeFolderType.cartography;
-    
+
     this.currentViewMode = '';
-    this.currentNodeHasParent = parent.id !== null;
-    this.currentParentNodeName = parent.name || '';
-    let parentId = parent.id;
-    if (parent.name === "") {
-      parentId = null;
-      this.currentParentNodeName = '';
-    }
+    const isRoot = !parent || parent.id == null || parent.name === '';
+    this.currentNodeHasParent = !isRoot;
+    this.currentParentNodeName = parent && parent.name ? parent.name : '';
+    const parentId = isRoot ? null : parent.id;
+
     this.treeNodeForm.patchValue({
+      id: this.currentNodeId,
       parent: parentId,
-      isFolder: true,
       order: null,
       children: [],
-      status: "pendingCreation",
-      nodeType: formNodeType,
+      status: 'pendingCreation',
+      nodeType,
+      filterGetFeatureInfo: 'UNDEFINED',
+      filterGetMap: 'UNDEFINED',
+      filterSelectable: 'UNDEFINED',
       active: true
     });
-    
-    // Reset original values for new folders
+
     this.currentNodeName = '';
     this.currentNodeDescription = '';
-    
-    // Trigger change detection to update panel visibility conditions
     this.cdr.detectChanges();
   }
 
@@ -1130,23 +1024,22 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     );
 
     if (!isValidType) {
-      // Invalid type selected - reset to default or previous valid type
-      const defaultType = this.currentNodeIsFolder 
-        ? this.codeValues.treenodeFolderType.cartography 
-        : this.codeValues.treenodeLeafType.cartography;
-      
-      // Update form with default type
-      this.treeNodeForm.patchValue({ nodeType: defaultType });
-      this.currentNodeType = defaultType;
-      this.cdr.detectChanges(); // Update panel visibility
+      const defaultType = this.currentNodeIsFolder
+        ? (getDefaultContainerTypeFromRules(this.currentTreeType, this.getAvailableFolderTypes())
+            ?? correctCodeList[0]?.value)
+        : (getDefaultLeafTypeFromRules(this.currentTreeType, this.getAvailableLeafTypes())
+            ?? correctCodeList[0]?.value);
+
+      if (defaultType) {
+        this.treeNodeForm.patchValue({ nodeType: defaultType });
+        this.currentNodeType = defaultType;
+      }
+      this.cdr.detectChanges();
       return;
     }
 
-    if (!this.currentNodeHasParent || !this.currentNodeIsFolder) {
-      this.currentNodeType = type;
-    }
-    
-    // Trigger change detection to update panel visibility conditions
+    this.currentNodeType = type;
+    this.updateNode();
     this.cdr.detectChanges();
   }
 
@@ -1357,7 +1250,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
         if (newNode) {
           newNode.name = name;
           newNode.tooltip = name;
-          newNode.type = this.codeValues.treenodeFolderType.cartography;
+          newNode.type = constants.treeRenderType.folder;
           newNode.parent = parentId;
           newNode.id = this.idFictitiousCounter;
           newNode.children = [];
@@ -1385,7 +1278,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     const newFolder: any = {};
     newFolder.description = capability.Abstract;
     newFolder.radio = false;
-    newFolder.isFolder = true;
 
     if (newFolder.description && newFolder.description.length > 250) {
       newFolder.description = newFolder.description.substring(0, 249);
@@ -1428,7 +1320,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     newNode.cartography = cartography;
     newNode.cartographyName = cartography.name;
     newNode.active = true;
-    newNode.isFolder = false;
     return newNode;
   }
 
@@ -1496,22 +1387,32 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
 
   async openFieldsConfigDialog() {
     this.namespaces = [];
-    const origMapping = this.treeNodeForm.value.mapping;
+    const origMapping = this.treeNodeForm.getRawValue().mapping;
     let formValues = {
       output: {},
       input: {},
       namespaces: {},
     };
     if (origMapping) {
-      Object.entries(origMapping.output).forEach(([clave, valor]: [string, any]) => {
+      // Deep clone to avoid mutating original data
+      formValues = JSON.parse(JSON.stringify(origMapping));
+      
+      Object.entries(formValues.output).forEach(([clave, valor]: [string, any]) => {
         if (clave.includes('Label')) {
           valor.calculated = true;
         } else if (valor.calculated === null) {
           valor.calculated = false;
         }
       });
-      formValues = origMapping;
       this.unParseNamespaces(formValues);
+      // Convert null values to empty strings for mat-select compatibility
+      if (formValues.input) {
+        Object.keys(formValues.input).forEach(key => {
+          if (formValues.input[key] && formValues.input[key].value === null) {
+            formValues.input[key].value = '';
+          }
+        });
+      }
     }
     await this.addTaskInput();
     this.addNamespacesControl(formValues);
@@ -1532,6 +1433,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
           this.treeNodeForm.patchValue({
             mapping
           });
+          this.treeNodeForm.markAsDirty();
         }
       }
       this.fieldsConfigTreeGenerated = false;
@@ -1559,15 +1461,10 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
         };
         this.nodeInputsControls.push(control);
         const newGroup = new UntypedFormGroup({
-          value: new UntypedFormControl(null, []),
-          calculated: new UntypedFormControl(null, [])
+          value: new UntypedFormControl('', []),
+          calculated: new UntypedFormControl(false, [])
         });
         inputFormGroup.addControl(String(control.name), newGroup);
-        const formValue = {
-          value: control.value,
-          calculated: true
-        };
-        newGroup.patchValue(formValue);
       });
     }
   }
@@ -1620,9 +1517,20 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     const item = this.fieldsConfigForm.value;
     const mapping = {
       output: {},
-      input: item.input,
+      input: {},
       namespaces: this.parseNamespaces(item.namespaces)
     };
+    
+    // Convert empty strings back to null for input values
+    if (item.input) {
+      Object.keys(item.input).forEach(key => {
+        mapping.input[key] = {
+          value: item.input[key].value === '' ? null : item.input[key].value,
+          calculated: item.input[key].calculated
+        };
+      });
+    }
+    
     const outputsKeys = this.nodeOutputsControls.filter(noc => noc.views.includes(this.currentViewMode)).map(c => c.key);
     outputsKeys.forEach(k => {
       mapping.output[k] = item.output[k];
@@ -1655,7 +1563,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
 
   getFormByType(formtype) {
     let form = this.treeNodeForm;
-    if (formtype === 'node') {
+    if (formtype === constants.treeRenderType.node) {
       form = this.treeNodeForm;
     }
     return form;
@@ -1667,6 +1575,10 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       ...formValue,
       nodeType: formValue.nodeType
     };
+    // Only push to tree when the user has actually changed the form; avoids tree showing "Modified" when e.g. opening the mapping dialog
+    if (!this.treeNodeForm.dirty) {
+      return;
+    }
     this.loggerService.debug('TreeNodesComponent.updateNode - Sending node update', {
       nodeId: nodeUpdate.id,
       nodeName: nodeUpdate.name,
@@ -1681,13 +1593,13 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       if (!this.currentNodeIsFolder) {
         this.savingNode = true;
         const effectiveType = this.getEffectiveNodeType();
-        if (effectiveType === this.codeValues.treenodeLeafType.task
+        if (effectiveType === constants.treeDomainKey.task
           || this.currentTreeType === this.codeValues.treeType.edition) {
           const taskId = this.treeNodeForm.get('taskId').value;
           this.currentNodeTask = taskId ? await firstValueFrom(this.taskService.get(taskId)) : null;
           this.getAllElementsEventTasks.next(this.treeNodeForm.value);
         }
-        if ([this.codeValues.treenodeLeafType.cartography, this.codeValues.treenodeLeafType.task].includes(effectiveType)) {
+        if ([constants.treeDomainKey.cartography, constants.treeDomainKey.task].includes(effectiveType)) {
           const cartographyId = this.treeNodeForm.get('cartographyId').value;
           this.currentNodeCartography = cartographyId ? await firstValueFrom(this.cartographyService.get(cartographyId)) : cartographyId;
           this.getAllElementsEventCartographies.next(this.treeNodeForm.value);
@@ -1796,13 +1708,13 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
 
       if (treeNode.status === "pendingCreation"
           && ResourceHelper.canBeUpdated(treeNode)
-          && !treeNode.isFolder
+          && !canNodeTypeHaveChildren(this.currentTreeType, treeNode.nodeType)
           && (!treeNode.cartographyId || !treeNode.taskId)) {
         const cartographyProjection = await firstValueFrom(
-          treeNode.getRelationEx(CartographyProjection, 'cartography', {projection: 'view'})
+          treeNode.getRelationEx(CartographyProjection, constants.treeDomainKey.cartography, {projection: 'view'})
         ) as CartographyProjection | null;
         const taskProjection = await firstValueFrom(
-          treeNode.getRelationEx(TaskProjection, 'task', {projection: 'view'})
+          treeNode.getRelationEx(TaskProjection, constants.treeDomainKey.task, {projection: 'view'})
         ) as TaskProjection | null;
         treeNodeObj.cartography = cartographyProjection ? this.cartographyService.createProxy(cartographyProjection.id) : null;
         treeNodeObj.task = taskProjection ? this.taskService.createProxy(taskProjection.id) : null;
@@ -1971,7 +1883,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     }
     if ((data.length <= 0 && this.treeNodeForm.value.cartographyName == null)
       && !this.currentNodeIsFolder && this.currentTreeType !== this.codeValues.treeType.edition
-      && this.getEffectiveNodeType() !== this.codeValues.treenodeLeafType.task) {
+      && this.getEffectiveNodeType() !== constants.treeDomainKey.task) {
       const dialogRef = this.dialog.open(DialogMessageComponent);
       dialogRef.componentInstance.title = this.utils.getTranslate("Error");
       dialogRef.componentInstance.hideCancelButton = true;
@@ -2022,7 +1934,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
         taskId: task.id
       });
     } else {
-      if (!this.treeNodeForm.get('isFolder').value) {
+      if (!this.currentNodeIsFolder) {
         const oldTask = this.treeNodeForm.get('oldTask').value;
         if (oldTask) {
           this.treeNodeForm.patchValue({
@@ -2041,7 +1953,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       });
     }
 
-    if (!this.treeNodeForm.get('isFolder').value) {
+    if (!this.currentNodeIsFolder) {
       if (this.treeNodeForm.get('filterGetFeatureInfo').value == "UNDEFINED") {
         this.treeNodeForm.get('filterGetFeatureInfo').patchValue(null);
       }
@@ -2122,7 +2034,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     } else {
       // Clear styles when cartography is null
       await this.updateAvailableStyles(null);
-      if (!this.treeNodeForm.get('isFolder').value) {
+      if (!this.currentNodeIsFolder) {
         const oldCartography = this.treeNodeForm.get('oldCartography').value;
         if (oldCartography) {
           this.treeNodeForm.patchValue({
@@ -2143,7 +2055,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       });
     }
 
-    if (!this.treeNodeForm.get('isFolder').value) {
+    if (!this.currentNodeIsFolder) {
       if (this.treeNodeForm.get('filterGetFeatureInfo').value == "UNDEFINED") {
         this.treeNodeForm.get('filterGetFeatureInfo').patchValue(null);
       }
@@ -2213,11 +2125,16 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   updateTreeLeft() {
     if (this.newElement) {
       this.idFictitiousCounter--;
-      this.createNodeEvent.next(this.treeNodeForm.value);
+      const value = {
+        ...this.treeNodeForm.value,
+        parent: this.treeNodeForm.value.parent ?? null
+      };
+      this.createNodeEvent.next(value);
       // Reset form only when creating a new element
       this.savingNode = false;
       this.newElement = false;
-      this.currentNodeIsFolder = undefined;
+      this.currentNodeType = null;
+      this.currentNodeId = null;  // clear selection so form hides
       this.treeNodeForm.reset();
     } else {
       // When updating an existing node, keep the form visible with updated data
@@ -2474,7 +2391,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     if (this.cartographiesLoaded) {
       // Cartographies already loaded, but check if we need to set cartography for current node
       const cartographyId = this.treeNodeForm.get('cartographyId')?.value;
-      if (cartographyId && !this.treeNodeForm.get('cartography')?.value) {
+      if (cartographyId && !this.treeNodeForm.get(constants.treeDomainKey.cartography)?.value) {
         const cartographyObj = this.allCartographies.find(c => c.id === cartographyId);
         if (cartographyObj) {
           this.treeNodeForm.patchValue({ 
@@ -2499,7 +2416,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       
       // If a node is already loaded with a cartographyId, set the cartography object
       const cartographyId = this.treeNodeForm.get('cartographyId')?.value;
-      if (cartographyId && !this.treeNodeForm.get('cartography')?.value) {
+      if (cartographyId && !this.treeNodeForm.get(constants.treeDomainKey.cartography)?.value) {
         const cartographyObj = this.allCartographies.find(c => c.id === cartographyId);
         if (cartographyObj) {
           this.treeNodeForm.patchValue({ 
@@ -2527,7 +2444,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   async loadTasks(): Promise<void> {
     if (this.tasksLoaded) {
       const taskId = this.treeNodeForm.get('taskId')?.value;
-      if (taskId && !this.treeNodeForm.get('task')?.value) {
+      if (taskId && !this.treeNodeForm.get(constants.treeDomainKey.task)?.value) {
         const taskObj = this.allTasks.find(t => t.id === taskId);
         if (taskObj) {
           this.treeNodeForm.patchValue({ 
@@ -2550,7 +2467,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       this.tasksLoaded = true;
       
       const taskId = this.treeNodeForm.get('taskId')?.value;
-      if (taskId && !this.treeNodeForm.get('task')?.value) {
+      if (taskId && !this.treeNodeForm.get(constants.treeDomainKey.task)?.value) {
         const taskObj = this.allTasks.find(t => t.id === taskId);
         if (taskObj) {
           this.treeNodeForm.patchValue({ 
@@ -2675,7 +2592,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     if ((!this.treeNodeForm.value.cartography && cartography == null)
         && !this.currentNodeIsFolder 
         && this.currentTreeType !== this.codeValues.treeType.edition
-        && this.getEffectiveNodeType() !== this.codeValues.treenodeLeafType.task) {
+        && this.getEffectiveNodeType() !== constants.treeDomainKey.task) {
       const dialogRef = this.dialog.open(DialogMessageComponent);
       dialogRef.componentInstance.title = this.utils.getTranslate("Error");
       dialogRef.componentInstance.hideCancelButton = true;
@@ -2784,19 +2701,17 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
 
   /**
    * Check if a panel should be expanded for a given node.
-   * Returns true by default for first-time viewing (all panels open).
+   * Only basic-info is expanded by default.
    */
   isPanelExpanded(panelId: string, nodeId: number | null): boolean {
     if (nodeId === null) {
-      // New node - all panels open by default
-      return true;
+      return this.defaultExpandedPanelIds.includes(panelId as any);
     }
     if (!this.nodeExpansionStates.has(nodeId)) {
-      // First time viewing this node - all panels open by default
-      return true;
+      return this.defaultExpandedPanelIds.includes(panelId as any);
     }
     const expansionState = this.nodeExpansionStates.get(nodeId);
-    return expansionState ? expansionState.has(panelId) : true;
+    return expansionState ? expansionState.has(panelId) : this.defaultExpandedPanelIds.includes(panelId as any);
   }
 
   /**
@@ -2808,7 +2723,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       return;
     }
     if (!this.nodeExpansionStates.has(nodeId)) {
-      this.nodeExpansionStates.set(nodeId, new Set(this.allPanelIds));
+      this.nodeExpansionStates.set(nodeId, new Set(this.defaultExpandedPanelIds));
     }
     const state = this.nodeExpansionStates.get(nodeId);
     if (!state) {
@@ -2844,5 +2759,84 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.clearCaches();
   }
+}
+
+/** Allowed node types for root level of a tree type. */
+function getAllowedRootTypes(treeType: string): string[] {
+  const c = config.treeTypeNodeTypes?.[treeType];
+  return (c && (c as any).allowedRootTypes) ? [...(c as any).allowedRootTypes] : [];
+}
+
+/** Whether this node type can have children (container). No folder/leaf distinction; both are nodes. */
+function canNodeTypeHaveChildren(treeType: string, nodeType: string | null): boolean {
+  if (!treeType || !nodeType) return false;
+  const c = config.treeTypeNodeTypes?.[treeType];
+  const nodeTypes = (c as any)?.nodeTypes;
+  const allowed = nodeTypes?.[nodeType]?.allowedChildren;
+  return Array.isArray(allowed) && allowed.length > 0;
+}
+
+/** All node types for a tree type (keys of nodeTypes). */
+function getNodeTypesForTree(treeType: string): string[] {
+  const c = config.treeTypeNodeTypes?.[treeType];
+  const nodeTypes = (c as any)?.nodeTypes;
+  return nodeTypes ? Object.keys(nodeTypes) : [];
+}
+
+/** Allowed child node types for a parent type. */
+function getAllowedChildrenForNodeType(treeType: string, parentNodeType: string): string[] {
+  const c = config.treeTypeNodeTypes?.[treeType];
+  const nodeTypes = (c as any)?.nodeTypes;
+  const allowed = nodeTypes?.[parentNodeType]?.allowedChildren;
+  return Array.isArray(allowed) ? [...allowed] : [];
+}
+
+/** Get panel visibility for a node type. */
+function getNodePanelConfig(treeType: string, nodeType: string | null, panelName: string): boolean {
+  if (!treeType || !nodeType) return false;
+  const c = config.treeTypeNodeTypes?.[treeType];
+  const nodeTypes = (c as any)?.nodeTypes;
+  return nodeTypes?.[nodeType]?.[panelName] ?? false;
+}
+
+/** Parent types for which appearance panel is shown (optional). When set, panel is shown if parent is in this list. */
+function getShowAppearancePanelWhenParentIs(treeType: string, nodeType: string | null): string[] | undefined {
+  if (!treeType || !nodeType) return undefined;
+  const c = config.treeTypeNodeTypes?.[treeType];
+  const nodeTypes = (c as any)?.nodeTypes;
+  const value = nodeTypes?.[nodeType]?.showAppearancePanelWhenParentIs;
+  return Array.isArray(value) ? value : undefined;
+}
+
+/** Appearance field label kind from config: 'image' (custom image) or 'icon' (Material icon). Default 'icon'. */
+function getNodeTypeAppearanceLabelKey(treeType: string, nodeType: string | null): 'image' | 'icon' {
+  if (!treeType || !nodeType) return 'icon';
+  const c = config.treeTypeNodeTypes?.[treeType];
+  const nodeTypes = (c as any)?.nodeTypes;
+  const key = nodeTypes?.[nodeType]?.appearanceLabelKey;
+  return key === 'image' ? 'image' : 'icon';
+}
+
+/** First candidate that appears in available codelist (by value). */
+function pickFirstAllowedFromCodeList(candidates: string[], available: CodeList[]): string | null {
+  const values = new Set(available.map(a => a.value));
+  for (const c of candidates) {
+    if (values.has(c)) return c;
+  }
+  return available.length ? available[0].value : null;
+}
+
+/** Default container type from config rules, constrained by available codelist. */
+function getDefaultContainerTypeFromRules(treeType: string, available: CodeList[]): string | null {
+  if (!treeType || !available?.length) return null;
+  const candidates = getNodeTypesForTree(treeType).filter(nt => canNodeTypeHaveChildren(treeType, nt));
+  return pickFirstAllowedFromCodeList(candidates, available);
+}
+
+/** Default leaf type from config rules, constrained by available codelist. */
+function getDefaultLeafTypeFromRules(treeType: string, available: CodeList[]): string | null {
+  if (!treeType || !available?.length) return null;
+  const candidates = getNodeTypesForTree(treeType).filter(nt => !canNodeTypeHaveChildren(treeType, nt));
+  return pickFirstAllowedFromCodeList(candidates, available);
 }
 
