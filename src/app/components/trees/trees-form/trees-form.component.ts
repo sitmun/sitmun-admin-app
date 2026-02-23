@@ -97,8 +97,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
     this.initTranslations('Tree', ['name', 'description']);
     await this.initCodeLists([
       'tree.type',
-      'treenode.folder.type',
-      'treenode.leaf.type',
+      'treenode.node.type',
       'treenode.viewmode'
     ]);
   }
@@ -169,13 +168,6 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
         this.entityForm.patchValue({ type: defaultType.value });
         this.currentTreeType = defaultType.value;
       }
-    }
-
-    // Handle duplication
-    if (this.isDuplicated()) {
-      this.entityForm.patchValue({
-        name: this.translateService.instant('copy_') + this.entityToEdit.name
-      });
     }
 
     // Image preview is now handled by the ImagePreviewComponent via imageSource input

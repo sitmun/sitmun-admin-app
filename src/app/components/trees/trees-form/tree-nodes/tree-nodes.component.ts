@@ -153,9 +153,9 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     data: {},
     dataType: 'json'
   };
-  nodeOutputsControls = constants.nodeMapping.nodeOutputControls;
-  mappingAppOptions = constants.nodeMapping.appOptions;
-  mappingbtnLabelOptions = constants.nodeMapping.btnlabelOptions;
+  nodeOutputsControls = config.nodeMapping.nodeOutputControls;
+  mappingAppOptions = config.nodeMapping.appOptions;
+  mappingbtnLabelOptions = config.nodeMapping.btnlabelOptions;
   mappingParentTaskOptions = [];
   namespaces = [];
   /** Map of code list names with their associated values */
@@ -201,8 +201,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     }
 
     await this.initCodeLists([
-      'treenode.folder.type',
-      'treenode.leaf.type',
+      'treenode.node.type',
       'treenode.viewmode'
     ]);
 
@@ -339,24 +338,32 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     return this.codelists.get(code) || [];
   }
 
-  /**
-   * Node types that can have children (for folder codelist). No folder/leaf distinction; both are nodes.
-   */
-  getAvailableFolderTypes(): CodeList[] {
-    const allTypes = this.codeList('treenode.folder.type');
+  /** Label for a view mode code from treenode.viewmode codelist; fallback to raw code. */
+  getViewModeLabelForTree(viewMode: string): string {
+    if (!viewMode) return '';
+    const list = this.codeList('treenode.viewmode');
+    const entry = list.find((e: { value: string; description: string }) => e.value === viewMode);
+    return entry?.description ?? viewMode;
+  }
+
+  /** Node types from codelist filtered by tree type; predicate = can have children (true) or cannot (false). */
+  private getAvailableNodeTypesByPredicate(canHaveChildren: boolean): CodeList[] {
+    const allTypes = this.codeList('treenode.node.type');
     if (!this.currentTreeType) return allTypes;
-    const allowed = getNodeTypesForTree(this.currentTreeType).filter(nt => canNodeTypeHaveChildren(this.currentTreeType, nt));
+    const allowed = getNodeTypesForTree(this.currentTreeType).filter(nt =>
+      canNodeTypeHaveChildren(this.currentTreeType, nt) === canHaveChildren
+    );
     return allTypes.filter(type => allowed.includes(type.value));
   }
 
-  /**
-   * Node types that cannot have children (for leaf codelist). No folder/leaf distinction; both are nodes.
-   */
+  /** Node types that can have children (for folder codelist). */
+  getAvailableFolderTypes(): CodeList[] {
+    return this.getAvailableNodeTypesByPredicate(true);
+  }
+
+  /** Node types that cannot have children (for leaf codelist). */
   getAvailableLeafTypes(): CodeList[] {
-    const allTypes = this.codeList('treenode.leaf.type');
-    if (!this.currentTreeType) return allTypes;
-    const allowed = getNodeTypesForTree(this.currentTreeType).filter(nt => !canNodeTypeHaveChildren(this.currentTreeType, nt));
-    return allTypes.filter(type => allowed.includes(type.value));
+    return this.getAvailableNodeTypesByPredicate(false);
   }
 
   /** True if this node type cannot have children. */
@@ -386,10 +393,32 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     const typeKey = `treesEntity.nodeType.${nodeType}`;
     const translated = this.translateService.instant(typeKey);
     if (translated !== typeKey) return translated;
-    const folderTypes = this.getAvailableFolderTypes();
-    const leafTypes = this.getAvailableLeafTypes();
-    const found = folderTypes.find(t => t.value === nodeType) || leafTypes.find(t => t.value === nodeType);
+    const found = this.codeList('treenode.node.type').find(t => t.value === nodeType);
     return found ? found.description : nodeType;
+  }
+
+  /** Material icon name for the current node type (from config). Used in form. */
+  getNodeIconForType(nodeType: string): string {
+    if (!nodeType) return 'description';
+    const c = config.treeTypeNodeTypes?.[this.currentTreeType];
+    const nodeTypes = (c as any)?.nodeTypes;
+    const icon = nodeTypes?.[nodeType]?.icon;
+    if (icon != null && icon !== '') return icon;
+    return canNodeTypeHaveChildren(this.currentTreeType, nodeType) ? 'folder' : 'description';
+  }
+
+  /** Icon font for node type (e.g. material-symbols-outlined); undefined for default. */
+  getNodeIconFontForType(nodeType: string): string | undefined {
+    if (!this.currentTreeType || !nodeType) return undefined;
+    const c = config.treeTypeNodeTypes?.[this.currentTreeType];
+    const nodeTypes = (c as any)?.nodeTypes;
+    return nodeTypes?.[nodeType]?.iconFont;
+  }
+
+  /** Material icon name for a view mode code (from config.nodeViewModes). */
+  getViewModeIcon(viewMode: string): string {
+    if (!viewMode) return config.nodeViewModeFallbackIcon;
+    return config.nodeViewModes?.[viewMode]?.icon ?? config.nodeViewModeFallbackIcon;
   }
 
   /**
@@ -435,6 +464,13 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   get isContainerFolderType(): boolean {
     return !!this.treeNodeForm?.get('nodeType')?.value &&
       getNodePanelConfig(this.currentTreeType, this.effectiveNodeType, 'showMetadataFieldsInDescriptionPanel');
+  }
+
+  /** i18n key for description panel title: 'descriptionMetadata' when metadata fields shown, else 'description'. */
+  get descriptionPanelTitleKey(): string {
+    return getNodePanelConfig(this.currentTreeType, this.effectiveNodeType, 'showMetadataFieldsInDescriptionPanel')
+      ? 'treesEntity.descriptionMetadata'
+      : 'treesEntity.description';
   }
 
   /**
@@ -527,6 +563,12 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       getNodePanelConfig(this.currentTreeType, this.effectiveNodeType, 'showFilterableInTaskPanel');
   }
 
+  /** True when config shows mapping UI (Task view dropdown + Field configuration button) in task panel. */
+  get showMappingInTaskPanel(): boolean {
+    return !!this.treeNodeForm?.get('nodeType')?.value &&
+      getNodePanelConfig(this.currentTreeType, this.effectiveNodeType, 'showMappingInTaskPanel');
+  }
+
   /** Icon for the task panel header (same as nav sidebar Task menu). */
   get taskPanelIcon(): string {
     return Configuration.TASK.icon;
@@ -541,6 +583,51 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   get hasTaskSelected(): boolean {
     const value = this.treeNodeForm?.get('task')?.value;
     return value != null && (typeof value === 'object' ? (value as any).id != null : true);
+  }
+
+  /** Task whose parameters are shown (prefer full task in currentNodeTask when same id). */
+  private get selectedTaskForParams(): { id?: number; properties?: unknown } | null {
+    const formTask = this.treeNodeForm?.get('task')?.value as { id?: number; properties?: unknown } | null;
+    const formTaskId = formTask != null && typeof formTask === 'object' ? formTask.id : undefined;
+    if (this.currentNodeTask && (this.currentNodeTask as any).id === formTaskId) {
+      return this.currentNodeTask as { id?: number; properties?: unknown };
+    }
+    if (formTask != null && typeof formTask === 'object') {
+      return formTask;
+    }
+    return this.currentNodeTask ?? null;
+  }
+
+  /** Loads full task (with properties) for parameter guidance and sets currentNodeTask. */
+  private loadFullTaskForParameterGuidance(taskId: number): void {
+    if (!taskId) return;
+    firstValueFrom(this.taskService.get(taskId)).then((fullTask) => {
+      this.currentNodeTask = fullTask;
+      this.cdr.markForCheck();
+    }).catch(() => {
+      // Keep existing currentNodeTask on error
+    });
+  }
+
+  /** Input parameter labels for the selected task (for panel guidance). */
+  get taskInputParameterLabels(): string[] {
+    const task = this.selectedTaskForParams;
+    if (!task) return [];
+    const parameters = TaskPropertiesContract.getParameters(
+      TaskPropertiesContract.fromRaw(task.properties)
+    );
+    return parameters
+      .map(p => (typeof p.label === 'string' && p.label.trim() ? p.label : p.name))
+      .filter((name): name is string => typeof name === 'string' && name.trim().length > 0);
+  }
+
+  /** Output parameter descriptors for the current view mode (key + i18n label key). */
+  get taskOutputParametersForCurrentMode(): { key: string; label: string }[] {
+    const mode = this.currentViewMode;
+    if (!mode) return [];
+    return this.nodeOutputsControls
+      .filter(noc => noc.views.includes(mode))
+      .map(noc => ({ key: noc.key, label: noc.label }));
   }
 
   /**
@@ -740,6 +827,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     this.fieldsConfigForm = new UntypedFormGroup({
       taskResponse: new UntypedFormControl(null, []),
       viewMode: new UntypedFormControl(null, []),
+      selectedMappingTarget: new UntypedFormControl(null, []),
       output: new UntypedFormGroup(outputGroup),
       input: new UntypedFormGroup({}),
       namespaces: new UntypedFormGroup({}),
@@ -882,10 +970,12 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
             taskId: loadedTask.id
           });
           this.currentNodeTask = loadedTask;
+          this.loadFullTaskForParameterGuidance(node.taskId);
         }
       });
     } else if (taskObj) {
       this.currentNodeTask = taskObj;
+      this.loadFullTaskForParameterGuidance(node.taskId);
     }
     
     // Image preview is now handled by the ImagePreviewComponent via imageSource input
@@ -1427,6 +1517,10 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     this.fieldsConfigForm.get('output')?.patchValue(formValues.output);
     this.fieldsConfigForm.get('input')?.patchValue(formValues.input);
     this.fieldsConfigForm.get('namespaces')?.patchValue(formValues.namespaces);
+    const firstNonLabelKey = this.nodeOutputsControls
+      .filter(c => c.views.includes(this.currentViewMode) && !c.key.includes('Label'))
+      .map(c => c.key)[0] ?? null;
+    this.fieldsConfigForm.patchValue({ selectedMappingTarget: firstNonLabelKey });
 
     const dialogRef = this.dialog.open(DialogFormComponent);
     dialogRef.componentInstance.HTMLReceived = this.fieldsConfigDialog;
@@ -1742,9 +1836,13 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       } else {
         if (treeNode.cartographyId) {
           treeNodeObj.cartography = this.cartographyService.createProxy(treeNode.cartographyId);
+        } else {
+          treeNodeObj.cartography = null;
         }
         if (treeNode.taskId) {
           treeNodeObj.task = this.taskService.createProxy(treeNode.taskId);
+        } else {
+          treeNodeObj.task = null;
         }
       }
 
@@ -2288,13 +2386,11 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       path = path.replace('@/', '@');
     }
     this.selectedXPath = path;
-    const radioBtns = document.querySelectorAll('.mapping-radio');
-    const radioChecked = Array.from(radioBtns).find(i => document.querySelector<HTMLInputElement>(`#${i.id}-input`).checked);
-    const attribute = radioChecked?.id.split('-')[0];
-    const formValue = {
-      value: this.selectedXPath
-    };
-    this.fieldsConfigForm.get('output')?.get(attribute)?.patchValue(formValue);
+    const attribute = this.fieldsConfigForm.get('selectedMappingTarget')?.value;
+    if (attribute) {
+      const formValue = { value: this.selectedXPath };
+      this.fieldsConfigForm.get('output')?.get(attribute)?.patchValue(formValue);
+    }
   }
 
   onViewModeChange(value) {
@@ -2646,6 +2742,24 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Clears the selected task (user-initiated unset).
+   */
+  clearTaskSelection(): void {
+    this.treeNodeForm.patchValue({
+      task: null,
+      taskName: null,
+      taskId: null
+    });
+    this.currentNodeTask = null;
+    if (!this.newElement && this.treeNodeForm.get('id')?.value >= 0) {
+      this.treeNodeForm.patchValue({ status: 'Modified' });
+    }
+    this.treeNodeForm.markAsDirty();
+    this.updateNode();
+    this.cdr.markForCheck();
+  }
+
+  /**
    * Handles task selection from autocomplete.
    */
   async onTaskSelected(event: MatAutocompleteSelectedEvent): Promise<void> {
@@ -2660,6 +2774,9 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
 
     // Material autocomplete has already set the form control
     this.updateTaskTreeLeft(task);
+    if (task?.id) {
+      this.loadFullTaskForParameterGuidance(task.id);
+    }
   }
 
   /**

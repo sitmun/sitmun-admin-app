@@ -208,6 +208,27 @@
   vertical-align: middle;
 }
 
+// View-mode hint icon (mapping type) – muted so it doesn’t overpower type icon
+.view-mode-hint-icon {
+  margin-right: 6px;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  color: rgba(0, 0, 0, 0.54);
+  vertical-align: middle;
+}
+
+.folder-hint-icon {
+  margin-right: 6px;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  color: rgba(0, 0, 0, 0.54);
+  vertical-align: middle;
+}
+
 // Hide root node completely while preserving tree structure
 .root-node-hidden {
   visibility: hidden !important;

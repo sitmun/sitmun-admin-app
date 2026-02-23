@@ -92,8 +92,19 @@ export class TreeNodeService extends RestService<TreeNode> {
     resource: any,
     context: Record<string, unknown>
   ): Observable<unknown> {
-    if (!resource) {
-      return of(null);
+    // When relation is cleared in the form, we need to explicitly DELETE the HAL relation.
+    // Omitting the substitution keeps the previous relation on the backend.
+    if (resource == null) {
+      // Tree relation is required for a node; do not delete it implicitly.
+      if (relation !== 'task' && relation !== 'cartography') {
+        return of(null);
+      }
+      return target.updateRelationEx(relation, null).pipe(
+        catchError(error => {
+          this.loggerService.error(`Error deleting ${relation} relation:`, error);
+          return of(null);
+        })
+      );
     }
     if (!ResourceHelper.canBeUpdated(resource)) {
       this.loggerService.warn(

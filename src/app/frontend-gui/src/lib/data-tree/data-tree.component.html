@@ -57,12 +57,22 @@
           <mat-icon style="display: none;"></mat-icon>
         </button>
         <mat-icon *ngIf="node.name !== ''" [attr.aria-label]="(node.nodeType || node.type) + ' icon'"
-                  class="type-icon" [fontSet]="getNodeIconFont(node)" [style.color]="node.status === 'pendingDelete' ? '#d32f2f' : null">
+                  class="type-icon" [fontSet]="getNodeIconFont(node)" [style.color]="node.status === 'pendingDelete' ? '#d32f2f' : null"
+                  [matTooltip]="getNodeTypeLabel(node.nodeType || node.type)">
           {{ getNodeIcon(node) }}
         </mat-icon>
         <mat-icon *ngIf="(node.status==='Modified' || node.status==='pendingCreation') && node.name !== '' && node.status !== 'pendingDelete'" 
-                  class="status-indicator-icon">
+                  class="status-indicator-icon"
+                  [matTooltip]="node.status === 'Modified' ? ('common.modified' | translate) : ('pendingCreation' | translate)">
           {{node.status === 'Modified' ? 'edit' : 'add_circle'}}
+        </mat-icon>
+        <mat-icon *ngIf="getNestedNode(node)?.viewMode && showMappingInTaskPanelForNodeType(node.nodeType)" class="view-mode-hint-icon"
+                  [matTooltip]="getViewModeLabel ? getViewModeLabel(getNestedNode(node)?.viewMode) : getNestedNode(node)?.viewMode">
+          {{ getViewModeIcon(getNestedNode(node)?.viewMode) }}
+        </mat-icon>
+        <mat-icon *ngIf="showFolderHintForTaskGroupContainer(getNestedNode(node))" class="folder-hint-icon"
+                  [matTooltip]="'treesEntity.taskGroupContainerHint' | translate">
+          folder
         </mat-icon>
         <span class="node-name" (click)="onButtonClicked(node.id, 'edit')" (keyup.enter)="onButtonClicked(node.id, 'edit')" tabindex="0" role="button" [attr.aria-label]="('common.edit' | translate) + ': ' + node.name" *ngIf="node.id !== undefined && node.status!=='pendingDelete'">{{node.name}}</span>
         <span class="node-name" *ngIf="node.id === undefined || node.status==='pendingDelete'">{{node.name}}</span>
@@ -130,12 +140,22 @@
           </mat-icon>
         </button>
         <mat-icon *ngIf="node.name !== ''" class="type-icon" [attr.aria-label]="(node.nodeType || node.type) + ' icon'"
-                  [fontSet]="getNodeIconFont(node)" [style.color]="node.status === 'pendingDelete' ? '#d32f2f' : null">
+                  [fontSet]="getNodeIconFont(node)" [style.color]="node.status === 'pendingDelete' ? '#d32f2f' : null"
+                  [matTooltip]="getNodeTypeLabel(node.nodeType || node.type)">
           {{ getNodeIcon(node) }}
         </mat-icon>
         <mat-icon *ngIf="(node.status==='Modified' || node.status==='pendingCreation') && node.name !== '' && node.status !== 'pendingDelete'" 
-                  class="status-indicator-icon">
+                  class="status-indicator-icon"
+                  [matTooltip]="node.status === 'Modified' ? ('common.modified' | translate) : ('pendingCreation' | translate)">
           {{node.status === 'Modified' ? 'edit' : 'add_circle'}}
+        </mat-icon>
+        <mat-icon *ngIf="getNestedNode(node)?.viewMode && showMappingInTaskPanelForNodeType(node.nodeType)" class="view-mode-hint-icon"
+                  [matTooltip]="getViewModeLabel ? getViewModeLabel(getNestedNode(node)?.viewMode) : getNestedNode(node)?.viewMode">
+          {{ getViewModeIcon(getNestedNode(node)?.viewMode) }}
+        </mat-icon>
+        <mat-icon *ngIf="showFolderHintForTaskGroupContainer(getNestedNode(node))" class="folder-hint-icon"
+                  [matTooltip]="'treesEntity.taskGroupContainerHint' | translate">
+          folder
         </mat-icon>
         <span class="node-name" (click)="onButtonClicked(node.id, 'edit')" (keyup.enter)="onButtonClicked(node.id, 'edit')" tabindex="0" role="button" [attr.aria-label]="('common.edit' | translate) + ': ' + node.name" *ngIf="node.id !== undefined && node.id !== null && node.status!=='pendingDelete'">{{node.name}}</span>
         <span class="node-name" *ngIf="node.id === undefined || node.id === null || node.status==='pendingDelete'">{{node.name}}</span>

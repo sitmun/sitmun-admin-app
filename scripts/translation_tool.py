@@ -202,8 +202,7 @@ def get_false_positive_patterns() -> Set[str]:
         'service.authenticationMode',  # Code list identifier
         'taskEntity.jsonParamType',  # Code list identifier
         'territory.scope',  # Code list identifier
-        'treenode.folder.type',  # Code list identifier
-        'treenode.leaf.type',  # Code list identifier
+        'treenode.node.type',  # Code list identifier (node types)
         'treenode.viewmode',  # Code list identifier
         # Property paths and configuration
         'properties.scope',  # Property path

@@ -331,6 +331,8 @@ export class DataTreeComponent implements OnInit {
   @Input() getAllowedTypesForParent: (parent: FileNode | null) => string[] = () => [];
   /** Returns display label for a node type (tooltips and form). */
   @Input() getNodeTypeLabel: (nodeType: string) => string = (t) => t;
+  /** Returns display label for a view mode code (tooltip on view-mode hint icon). */
+  @Input() getViewModeLabel: (viewMode: string) => string;
 
 
   /* Drag and drop */
@@ -711,6 +713,16 @@ export class DataTreeComponent implements OnInit {
     return null;
   }
 
+  /** True when config requests folder hint: node is container of a task group (no task, no viewMode). Shown as secondary icon. */
+  showFolderHintForTaskGroupContainer(node: FileNode | null): boolean {
+    if (!node || !this.currentTreeType || node.nodeType == null) return false;
+    const nodeCfg = config.treeTypeNodeTypes?.[this.currentTreeType]?.nodeTypes?.[node.nodeType];
+    if (!nodeCfg?.folderHintForTaskGroupContainer) return false;
+    const taskId = (node as any).taskId;
+    const viewMode = (node as any).viewMode;
+    return (taskId == null || taskId === '') && (viewMode == null || viewMode === '');
+  }
+
   /** Icon for tree row from config (nodeType); fallback by node.type when no treeType. */
   getNodeIcon(node: FileNode): string {
     if (!node || node.status === 'pendingDelete') return 'close';
@@ -739,6 +751,17 @@ export class DataTreeComponent implements OnInit {
   /** Icon font for a node type (for add buttons); undefined for default font. */
   getNodeIconFontForType(nodeType: string): string | undefined {
     return this.currentTreeType ? getNodeTypeIconFont(this.currentTreeType, nodeType) : undefined;
+  }
+
+  /** True when config enables mapping UI (and view-mode hint) for this node type. */
+  showMappingInTaskPanelForNodeType(nodeType: string): boolean {
+    return !!(this.currentTreeType && config.treeTypeNodeTypes?.[this.currentTreeType]?.nodeTypes?.[nodeType]?.showMappingInTaskPanel);
+  }
+
+  /** Material icon name for a node view mode code (from config.nodeViewModes). */
+  getViewModeIcon(viewMode: string): string {
+    if (!viewMode) return config.nodeViewModeFallbackIcon;
+    return config.nodeViewModes?.[viewMode]?.icon ?? config.nodeViewModeFallbackIcon;
   }
 
   updateNode(nodeUpdated)
