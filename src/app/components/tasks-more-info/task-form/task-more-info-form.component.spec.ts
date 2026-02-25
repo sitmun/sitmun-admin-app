@@ -156,6 +156,46 @@ describe('TaskMoreInfoFormComponent', () => {
     expect(component.entityForm.get('authenticationMode')?.value).toBe('BASIC');
   });
 
+  it('should initialize api key controls from headers', () => {
+    setupForm({
+      scope: 'API',
+      command: '/service',
+      headers: {
+        'X-API-Key': 'secret-key'
+      }
+    });
+
+    expect(component.entityForm.get('addApiKey')?.value).toBeTruthy();
+    expect(component.entityForm.get('apiKey')?.value).toBe('secret-key');
+  });
+
+  it('should include X-API-Key header when checkbox is checked', () => {
+    setupForm({scope: 'API', command: '/service'});
+    component.entityForm.get('addApiKey')?.setValue(true);
+    component.entityForm.get('apiKey')?.setValue('my-api-key');
+
+    const task = component.createObject();
+
+    expect(task.properties?.headers?.['X-API-Key']).toBe('my-api-key');
+  });
+
+  it('should remove X-API-Key header when checkbox is unchecked', () => {
+    setupForm({
+      scope: 'API',
+      command: '/service',
+      headers: {
+        'X-API-Key': 'old-key',
+        Authorization: 'Bearer token'
+      }
+    });
+    component.entityForm.get('addApiKey')?.setValue(false);
+
+    const task = component.createObject();
+
+    expect(task.properties?.headers?.['X-API-Key']).toBeUndefined();
+    expect(task.properties?.headers?.Authorization).toBe('Bearer token');
+  });
+
   it('should update cartography id and search value on selection', () => {
     setupForm({scope: 'SQL', command: 'select 1'});
 

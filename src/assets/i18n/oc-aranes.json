@@ -834,6 +834,8 @@
   "tasksMoreInfoEntity.sqlQuery": "Consulta SQL",
   "tasksMoreInfoEntity.url": "URL",
   "tasksMoreInfoEntity.apiUrl": "URL deth API",
+  "tasksMoreInfoEntity.addApiKey": "Ahigir Api-key",
+  "tasksMoreInfoEntity.apiKey": "X-API-Key",
   "tasksMoreInfoEntity.alertPrefix": "ALÈRTA:",
   "tasksMoreInfoEntity.apiUrlHint": "Es paramètres dera URL an d'estar definidi atau: ${parameterName}, e an de coincidir damb eth camp 'etiqueta' des paramètres definidi ena trabalh.",
   "tasksReportEntity.id": "ID",

@@ -834,6 +834,8 @@
   "tasksMoreInfoEntity.sqlQuery": "SQL Query",
   "tasksMoreInfoEntity.url": "URL",
   "tasksMoreInfoEntity.apiUrl": "API URL",
+  "tasksMoreInfoEntity.addApiKey": "Add Api-key",
+  "tasksMoreInfoEntity.apiKey": "X-API-Key",
   "tasksMoreInfoEntity.alertPrefix": "WARNING:",
   "tasksMoreInfoEntity.apiUrlHint": "URL parameters must be defined as follows: ${parameterName}, and must match the 'label' field of the parameters defined in the task.",
   "tasksReportEntity.id": "ID",

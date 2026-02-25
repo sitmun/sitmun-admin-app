@@ -202,6 +202,8 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
     const authenticationMode = properties.authenticationMode ?? defaultAuthMode?.value ?? null;
     const user = properties.user || null;
     const password = properties.password || null;
+    const apiKey = properties?.headers?.['X-API-Key'] || null;
+    const addApiKey = scope === this.moreInfoScope.api && !!apiKey;
 
     this.entityForm = new FormGroup({
       name: new FormControl(this.entityToEdit.name, {
@@ -229,7 +231,11 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
       }),
       authenticationMode: new FormControl(authenticationMode),
       user: new FormControl(user),
-      password: new FormControl(password)
+      password: new FormControl(password),
+      addApiKey: new FormControl(addApiKey, {
+        nonNullable: true
+      }),
+      apiKey: new FormControl(apiKey)
     });
 
     const selectedCartography = this.cartographies.find(cartography => cartography.id === this.entityToEdit.cartographyId);
@@ -238,6 +244,10 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
       startWith(this.cartographySearchControl.value),
       map(value => this.filterCartographies(typeof value === 'string' ? value : value?.name || ''))
     );
+
+    this.updateApiKeyValidation();
+    this.entityForm.get('addApiKey')?.valueChanges.subscribe(() => this.updateApiKeyValidation());
+    this.entityForm.get('scope')?.valueChanges.subscribe(() => this.updateApiKeyValidation());
   }
   createObject(id: number = null): Task {
     let safeToEdit = TaskProjection.fromObject(this.entityToEdit);
@@ -248,15 +258,19 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
     const authenticationMode = scope === this.moreInfoScope.api ? formValues.authenticationMode : null;
     const user = scope === this.moreInfoScope.api ? formValues.user : null;
     const password = scope === this.moreInfoScope.api ? formValues.password : null;
+    const addApiKey = scope === this.moreInfoScope.api && !!formValues.addApiKey;
+    const apiKey = addApiKey && typeof formValues.apiKey === 'string' ? formValues.apiKey.trim() : null;
 
     // Get existing properties to preserve fields and parameters
     const existingProps: any = this.entityToEdit.properties || {};
+    const headers = this.buildHeaders(existingProps.headers, apiKey);
     const properties: any = TaskPropertiesBuilder.create()
       .withScope(scope)
       .withCommand(command)
       .withAuthenticationMode(authenticationMode)
       .withUser(user)
       .withPassword(password)
+      .withHeaders(headers)
       .withParameters(existingProps.parameters || [])
       .withFields(existingProps.fields || [])
       .build();
@@ -366,10 +380,44 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
       this.entityForm.get('authenticationMode')?.setValue(null);
       this.entityForm.get('user')?.setValue(null);
       this.entityForm.get('password')?.setValue(null);
+      this.entityForm.get('addApiKey')?.setValue(false);
+      this.entityForm.get('apiKey')?.setValue(null);
     } else if (!this.entityForm.get('authenticationMode')?.value) {
       const defaultAuthMode = this.defaultValueOrNull('service.authenticationMode');
       this.entityForm.get('authenticationMode')?.setValue(defaultAuthMode?.value ?? null);
     }
+  }
+
+  onAddApiKeyChange() {
+    this.updateApiKeyValidation();
+  }
+
+  private updateApiKeyValidation() {
+    const shouldRequireApiKey = this.isApiAccessType() && !!this.entityForm.get('addApiKey')?.value;
+    const apiKeyControl = this.entityForm.get('apiKey');
+
+    if (!apiKeyControl) {
+      return;
+    }
+
+    if (shouldRequireApiKey) {
+      apiKeyControl.setValidators([Validators.required]);
+    } else {
+      apiKeyControl.clearValidators();
+    }
+    apiKeyControl.updateValueAndValidity({emitEvent: false});
+  }
+
+  private buildHeaders(existingHeaders: Record<string, string> | null | undefined, apiKey: string | null): Record<string, string> | null {
+    const headers = existingHeaders && existingHeaders instanceof Object ? {...existingHeaders} : {};
+
+    if (apiKey) {
+      headers['X-API-Key'] = apiKey;
+      return headers;
+    }
+
+    delete headers['X-API-Key'];
+    return Object.keys(headers).length > 0 ? headers : null;
   }
 
   private defineRolesTable(): DataTableDefinition<Role, Role> {

@@ -834,6 +834,8 @@
   "tasksMoreInfoEntity.sqlQuery": "Consulta SQL",
   "tasksMoreInfoEntity.url": "URL",
   "tasksMoreInfoEntity.apiUrl": "URL de l'API",
+  "tasksMoreInfoEntity.addApiKey": "Afegir Api-key",
+  "tasksMoreInfoEntity.apiKey": "X-API-Key",
   "tasksMoreInfoEntity.alertPrefix": "ALERTA:",
   "tasksMoreInfoEntity.apiUrlHint": "Els paràmetres de la url han d'estar definits de la següent manera: ${parameterName}, i han de coincidir amb el camp 'etiqueta' dels paràmetres definits en la tasca.",
   "tasksReportEntity.id": "ID",

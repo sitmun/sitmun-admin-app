@@ -35,6 +35,8 @@ export interface TaskProperties {
   user?: string | null;
   /** Authentication password for WS requests */
   password?: string | null;
+  /** HTTP headers for WS requests */
+  headers?: Record<string, string> | null;
 }
 
 /** Task model */
@@ -111,7 +113,8 @@ export class Task extends Resource {
         fields: [],
         authenticationMode: null,
         user: null,
-        password: null
+        password: null,
+        headers: null
       };
     }
 
@@ -124,6 +127,7 @@ export class Task extends Resource {
     result.authenticationMode = result?.authenticationMode ?? null;
     result.user = result?.user ?? null;
     result.password = result?.password ?? null;
+    result.headers = result?.headers && result.headers instanceof Object ? result.headers : null;
 
     if (!result?.parameters || !Array.isArray(result?.parameters) || !result?.parameters?.some(item => item instanceof Object)) {
       result.parameters = [];
@@ -154,7 +158,8 @@ export class TaskProjection extends Resource {
     fields: [],
     authenticationMode: null,
     user: null,
-    password: null
+    password: null,
+    headers: null
   };
   serviceId: number;
   serviceName: string;

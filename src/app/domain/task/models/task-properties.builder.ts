@@ -13,6 +13,7 @@ export class TaskPropertiesBuilder {
   private _authenticationMode: string | null = null;
   private _user: string | null = null;
   private _password: string | null = null;
+  private _headers: Record<string, string> | null = null;
 
   /**
    * Creates a new TaskPropertiesBuilder
@@ -41,7 +42,8 @@ export class TaskPropertiesBuilder {
       .withFields(properties.fields ? [...properties.fields] : [])
       .withAuthenticationMode(properties.authenticationMode)
       .withUser(properties.user)
-      .withPassword(properties.password);
+      .withPassword(properties.password)
+      .withHeaders(properties.headers ? {...properties.headers} : null);
   }
 
   /**
@@ -135,6 +137,16 @@ export class TaskPropertiesBuilder {
   }
 
   /**
+   * Sets the HTTP headers
+   * @param headers The headers map
+   * @returns This builder for chaining
+   */
+  public withHeaders(headers: Record<string, string> | null): TaskPropertiesBuilder {
+    this._headers = headers;
+    return this;
+  }
+
+  /**
    * Adds a parameter to the parameters array
    * @param parameter The parameter to add
    * @returns This builder for chaining
@@ -159,7 +171,7 @@ export class TaskPropertiesBuilder {
    * @returns A new TaskProperties object
    */
   public build(): TaskProperties {
-    return {
+    const properties: TaskProperties = {
       scope: this._scope,
       command: this._command,
       format: this._format,
@@ -170,5 +182,11 @@ export class TaskPropertiesBuilder {
       user: this._user,
       password: this._password,
     };
+
+    if (this._headers && Object.keys(this._headers).length > 0) {
+      properties.headers = {...this._headers};
+    }
+
+    return properties;
   }
 }
