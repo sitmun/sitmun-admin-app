@@ -184,6 +184,7 @@ export class Executor<T> {
     selector: 'app-data-grid',
     templateUrl: './data-grid.component.html',
     styles: [],
+  standalone: true,
     imports: [
         CommonModule,
         MatButtonModule,

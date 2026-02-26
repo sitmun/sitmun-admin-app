@@ -13,6 +13,7 @@ import { TranslateModule } from '@ngx-translate/core';
     selector: 'app-image-preview',
     templateUrl: './image-preview.component.html',
     styleUrls: ['./image-preview.component.scss'],
+  standalone: true,
     imports: [
         CommonModule,
         MatButtonModule,

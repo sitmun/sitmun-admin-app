@@ -1,4 +1,4 @@
-import {Component, effect, OnDestroy, OnInit, signal, WritableSignal} from '@angular/core';
+import {Component, effect, ElementRef, OnDestroy, OnInit, signal, WritableSignal} from '@angular/core';
 import {UntypedFormBuilder, UntypedFormGroup, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 
@@ -36,8 +36,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   /** bad credentials message*/
   badCredentials: string;
 
-  loadedData = false;
-
   loginMethods: WritableSignal<Map<string, AuthProvider[]>> = signal(
     new Map<string, AuthProvider[]>()
   );
@@ -59,7 +57,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     private readonly loginService: LoginService,
     private readonly translateService: TranslateService,
     private readonly router: Router,
-    private readonly appConfigService: AppConfigService
+    private readonly appConfigService: AppConfigService,
+    private readonly elementRef: ElementRef
   ) {
     this.loginService.getEnabledAuthMethods().subscribe((res) => {
       if (Array.isArray(res)) {
@@ -95,7 +94,6 @@ export class LoginComponent implements OnInit, OnDestroy {
           this.translateService.use(langCode);
         }
       });
-    this.loadedData = true;
   }
 
   /** login action */
@@ -107,6 +105,11 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.translateService.use(langCode);
         this.translateService.setDefaultLang(langCode);
         localStorage.setItem('lang', langCode);
+        
+        // Proactively hide the login component before navigation
+        // This ensures the overlay disappears even if ngOnDestroy is delayed
+        this.hideComponent();
+        
         void this.router.navigateByUrl(this.defaultRoute);
       }, () => {
         const langCode = val.lang;
@@ -157,8 +160,30 @@ export class LoginComponent implements OnInit, OnDestroy {
     return this.languages.find(lang => lang.shortname === selectedLangCode);
   }
 
-  /** cleanup subscriptions */
+  /**
+   * Forcefully hide the component by manipulating the host element
+   * Called both on successful login and in ngOnDestroy for maximum reliability
+   */
+  private hideComponent(): void {
+    const hostElement = this.elementRef.nativeElement as HTMLElement;
+    if (hostElement) {
+      hostElement.style.display = 'none';
+      hostElement.style.visibility = 'hidden';
+      hostElement.style.opacity = '0';
+      hostElement.style.pointerEvents = 'none';
+      hostElement.style.position = 'absolute';
+      hostElement.style.width = '0';
+      hostElement.style.height = '0';
+      hostElement.style.overflow = 'hidden';
+      hostElement.style.zIndex = '-9999';
+    }
+  }
+
+  /** cleanup subscriptions and forcefully hide component to handle browser extension interference */
   ngOnDestroy(): void {
+    // Forcefully hide the component
+    this.hideComponent();
+    
     this.destroy$.next();
     this.destroy$.complete();
   }

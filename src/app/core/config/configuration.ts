@@ -285,6 +285,22 @@ export class Configuration {
   };
 
   /**
+   * More Info tasks configuration
+   */
+  static readonly TASK_MORE_INFO: FormConfiguration = {
+    id: 'tasksMoreInfo',
+    labelSingular: 'entity.task.moreInfo.label',
+    labelPlural: 'entity.task.moreInfo.label',
+    icon: 'task',
+    font: 'material-icons-round',
+    route: 'tasks/moreInfo',
+    formRoute: ':id/taskForm',
+    duplicateRoute: ':id/taskForm/:idDuplicate',
+    component: 'TasksMoreInfoComponent',
+    formComponent: 'TaskFormComponent'
+  };
+
+  /**
    * Edit tasks configuration
    */
   static readonly TASK_EDIT: FormConfiguration = {
@@ -440,7 +456,8 @@ export class Configuration {
           children: [
             Configuration.toMenuItem(Configuration.TASK_BASIC),
             Configuration.toMenuItem(Configuration.TASK_QUERY),
-            Configuration.toMenuItem(Configuration.TASK_EDIT)
+            Configuration.toMenuItem(Configuration.TASK_EDIT),
+            Configuration.toMenuItem(Configuration.TASK_MORE_INFO)
           ]
         }
       ],

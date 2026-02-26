@@ -149,6 +149,7 @@ export async function openDialogGridWithPreload(
 @Component({
     selector: 'app-dialog-grid',
     templateUrl: './dialog-grid.component.html',
+  standalone: true,
     imports: [
         CommonModule,
         MatDialogModule,

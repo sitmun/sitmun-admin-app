@@ -43,6 +43,7 @@ import { ICellRendererAngularComp } from '@ag-grid-community/angular';
       text-decoration: underline;
     }
   `],
+    standalone: true,
     imports: [NgIf]
 })
 export class EditableLinkRendererComponent implements ICellRendererAngularComp {

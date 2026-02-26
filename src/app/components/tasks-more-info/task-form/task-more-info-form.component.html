@@ -1,0 +1,314 @@
+<app-form-toolbar
+  entityType="{{ config.labelSingular }}"
+  font="{{ config.font }}"
+  icon="{{ config.icon }}"
+  [itemName]="entityForm?.get('name')?.value"
+  [isNew]="isNew()"
+  [additionalText]="taskTypeNameTranslated"
+  [canSave]="canSaveEntity"
+  [form]="entityForm"
+  validationEntityType="task"
+  [validationFieldLabelKeys]="validationFieldLabels"
+  [dataLoaded]="dataLoaded"
+  (save)="onSaveButtonClicked()"
+  (back)="utils.navigateBack()">
+</app-form-toolbar>
+
+<mat-tab-group
+  mat-stretch-tabs="false"
+  mat-align-tabs="end"
+  [dynamicHeight]="true"
+  preserveContent="true">
+  <mat-tab label="{{ 'common.form.details' | translate }}">
+    <form [formGroup]='entityForm' *ngIf="dataLoaded">
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'tasksMoreInfoEntity.taskName' | translate }}</mat-label>
+            <input matInput type="text" formControlName="name" [maxlength]="512" required>
+            <mat-hint align="end" [class.text-warning]="entityForm.get('name')?.value?.length > 512">
+              {{ entityForm.get('name') | characterCount }}
+              <mat-icon *ngIf="entityForm.get('name')?.value?.length > 512" fontIcon="warning"
+                        class="warning-icon"></mat-icon>
+            </mat-hint>
+            <mat-icon matSuffix class="iconTranslate"
+                      (click)="onTranslated('name')"
+                      onKeyDown="onTranslated('name')">translate</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half add-gap">
+            <mat-label>{{ 'entity.taskGroup.label' | translate }}</mat-label>
+            <mat-select formControlName="taskGroupId" class="form-control">
+              <mat-select-trigger>
+                <ng-container *ngIf="entityForm.get('taskGroupId')?.value as taskGroupId">
+                  <a [routerLink]="['/taskGroup', taskGroupId, 'taskGroupForm']"
+                     class="router-link">
+                    {{ getTaskGroupName(taskGroupId) }}
+                  </a>
+                </ng-container>
+              </mat-select-trigger>
+              <mat-option [value]="taskGroup.id" *ngFor="let taskGroup of taskGroupList">
+                <a [routerLink]="['/taskGroup', taskGroup.id, 'taskGroupForm']"
+                   class="router-link">
+                  {{ taskGroup.name }}
+                </a>
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half">
+            <mat-label>{{ 'tasksMoreInfoEntity.cartography' | translate }}</mat-label>
+            <input
+              matInput
+              type="text"
+              [formControl]="cartographySearchControl"
+              [matAutocomplete]="cartographyAuto"
+              required
+              [errorStateMatcher]="cartographyErrorMatcher">
+            <mat-error *ngIf="cartographySearchControl.hasError('required')">
+              {{ 'common.error.required' | translate }}
+            </mat-error>
+            <mat-error *ngIf="cartographySearchControl.hasError('invalidCartography')">
+              {{ 'tasksMoreInfoEntity.cartography.invalidSelection' | translate }}
+            </mat-error>
+            <button
+              *ngIf="cartographySearchControl.value"
+              matSuffix
+              mat-icon-button
+              aria-label="Clear"
+              (click)="clearCartography()"
+              type="button">
+              <mat-icon>close</mat-icon>
+            </button>
+            <mat-autocomplete #cartographyAuto="matAutocomplete" (optionSelected)="onCartographySelected($event)" [displayWith]="displayCartography">
+              <mat-option *ngFor="let cartography of filteredCartographies | async" [value]="cartography">
+                {{ cartography.name }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'tasksMoreInfoEntity.dataAccessType' | translate }}</mat-label>
+            <mat-select formControlName="scope" required (selectionChange)="onScopeChange($event)">
+              <mat-option [value]="type.value" *ngFor="let type of this.codeList('moreInfo.type')">
+                {{ type.description | translate }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined" *ngIf="isSqlAccessType()">
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="half">
+            <mat-label>{{ 'tasksMoreInfoEntity.connection' | translate }}</mat-label>
+            <mat-select formControlName="connectionId" class="form-control">
+              <mat-select-trigger>
+                <ng-container *ngIf="entityForm?.get('connectionId')?.value as connectionId">
+                  <a [routerLink]="['/connection', connectionId, 'connectionForm']"
+                     class="router-link">
+                    {{ getConnectionName(connectionId) }}
+                  </a>
+                </ng-container>
+                <span *ngIf="!entityForm?.get('connectionId')?.value">
+                  {{ 'common.form.none' | translate }}
+                </span>
+              </mat-select-trigger>
+              <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
+              <mat-option [value]="connection.id" *ngFor="let connection of connections">
+                <a [routerLink]="['/connection', connection.id, 'connectionForm']"
+                   (click)="$event.stopPropagation()" class="router-link">
+                  {{ connection.name }}
+                </a>
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'tasksMoreInfoEntity.sqlQuery' | translate }}</mat-label>
+            <textarea matInput formControlName="command" [maxlength]="4000" rows="4"></textarea>
+            <mat-hint align="start">{{ 'tasksMoreInfoEntity.sqlQueryHint' | translate }}</mat-hint>
+            <mat-hint align="end">{{ entityForm.get('command') | characterCount }}</mat-hint>
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined" *ngIf="isUrlRedirectAccessType()">
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'tasksMoreInfoEntity.url' | translate }}</mat-label>
+            <input matInput type="text" formControlName="command" [maxlength]="2000">
+            <mat-hint align="start">{{ 'tasksMoreInfoEntity.urlHint' | translate }}</mat-hint>
+            <mat-hint align="end">{{ entityForm.get('command') | characterCount }}</mat-hint>
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined" *ngIf="isApiAccessType()">
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'tasksMoreInfoEntity.apiUrl' | translate }}</mat-label>
+            <input matInput type="text" formControlName="command" [maxlength]="2000">
+            <mat-hint align="start">{{ 'tasksMoreInfoEntity.apiUrlHint' | translate }}</mat-hint>
+            <mat-hint align="end">{{ entityForm.get('command') | characterCount }}</mat-hint>
+          </mat-form-field>
+          <mat-checkbox formControlName="addApiKey" (change)="onAddApiKeyChange()">
+            {{ 'tasksMoreInfoEntity.addApiKey' | translate }}
+          </mat-checkbox>
+          <mat-form-field appearance="outline" class="full" *ngIf="entityForm.get('addApiKey')?.value">
+            <mat-label>{{ 'tasksMoreInfoEntity.apiKey' | translate }}</mat-label>
+            <input matInput type="text" formControlName="apiKey" [maxlength]="512">
+            <mat-hint align="end">{{ entityForm.get('apiKey') | characterCount }}</mat-hint>
+          </mat-form-field>
+          <div style="margin-bottom: 12px;"></div>
+          <mat-form-field appearance="outline" class="quarter">
+            <mat-label>{{ 'entity.service.authenticationMode' | translate }}</mat-label>
+            <mat-select formControlName="authenticationMode" [placeholder]="'common.form.none' | translate">
+              <mat-option [value]="mode.value" *ngFor="let mode of this.codeList('service.authenticationMode')">
+                {{ mode.description }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <div class="break"></div>
+          <mat-form-field appearance="outline"
+                          *ngIf="entityForm.get('authenticationMode')?.value !== 'None'"
+                          class="half add-gap"
+          >
+            <mat-label>{{ 'entity.service.user' | translate }}</mat-label>
+            <input matInput type="text" formControlName="user" [maxlength]="50">
+            <mat-hint align="end">{{ entityForm.get('user') | characterCount }}</mat-hint>
+          </mat-form-field>
+          <mat-form-field appearance="outline"
+                          *ngIf="entityForm.get('authenticationMode')?.value !== 'None'"
+                          class="half"
+          >
+            <mat-label>{{ 'entity.service.password' | translate }}</mat-label>
+            <input matInput type="password" formControlName="password" [maxlength]="50" autocomplete="new-password">
+            <mat-hint align="end">{{ entityForm.get('password') | characterCount }}</mat-hint>
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+    </form>
+  </mat-tab>
+  <mat-tab label="{{ 'entity.task.parameters.header' | translate }}">
+    <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+      <mat-card-content>
+        <app-data-grid [changeHeightButton]="true"
+                       [allNewElements]="isNewOrDuplicated()"
+                       [columnDefs]='parametersTable.relationsColumnsDefs'
+                       [getAll]='parametersTable.relationsFetchFn'
+                       [eventAddItemsSubscription]='parametersTable.addCommandEvent$.asObservable()'
+                       [eventGetAllRowsSubscription]='parametersTable.saveCommandEvent$.asObservable()'
+                       [eventRefreshSubscription]='parametersTable.refreshCommandEvent$.asObservable()'
+                       [discardChangesButton]=true
+                       [actionButton]=true
+                       [redoButton]=true
+                       [undoButton]=true
+                       [deleteButton]=true
+                       [newButton]=true
+                       [defaultColumnSorting]="parametersTable.defaultRelationsSorting()"
+                       (new)="parametersTable.openTemplateDialog('newParameterDialog')"
+                       (getAllRows)="parametersTable.handleSaveRelations($event)"
+                       (duplicate)='parametersTable.duplicateRelations($event)'
+                       *ngIf="dataLoaded"
+        ></app-data-grid>
+      </mat-card-content>
+    </mat-card>
+  </mat-tab>
+  <mat-tab label="{{ 'entity.task.roles.header' | translate }}">
+    <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+      <mat-card-content>
+        <app-data-grid [changeHeightButton]="true"
+                       [allNewElements]="isNewOrDuplicated()"
+                       [columnDefs]='rolesTable.relationsColumnsDefs'
+                       [getAll]='rolesTable.relationsFetchFn'
+                       [eventAddItemsSubscription]='rolesTable.addCommandEvent$.asObservable()'
+                       [eventGetAllRowsSubscription]='rolesTable.saveCommandEvent$.asObservable()'
+                       [eventRefreshSubscription]='rolesTable.refreshCommandEvent$.asObservable()'
+                       [actionButton]=true
+                       [discardChangesButton]=true
+                       [redoButton]=true
+                       [undoButton]=true
+                       [deleteButton]=true
+                       [addButton]=true
+                       [defaultColumnSorting]='rolesTable.defaultRelationsSorting()'
+                       [hideDuplicateButton]=true
+                       (getAllRows)="rolesTable.handleSaveRelations($event)"
+                       (add)="rolesTable.openDialog($event)"
+                       *ngIf="dataLoaded"
+        ></app-data-grid>
+      </mat-card-content>
+    </mat-card>
+  </mat-tab>
+  <mat-tab label="{{ 'entity.task.territories.header' | translate }}">
+    <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+      <mat-card-content>
+        <app-data-grid [changeHeightButton]="true"
+                       [allNewElements]="isNewOrDuplicated()"
+                       [columnDefs]='availabilitiesTable.relationsColumnsDefs'
+                       [getAll]='availabilitiesTable.relationsFetchFn'
+                       [eventAddItemsSubscription]='availabilitiesTable.addCommandEvent$.asObservable()'
+                       [eventGetAllRowsSubscription]='availabilitiesTable.saveCommandEvent$.asObservable()'
+                       [eventRefreshSubscription]='availabilitiesTable.refreshCommandEvent$.asObservable()'
+                       [actionButton]=true
+                       [discardChangesButton]=true
+                       [redoButton]=true
+                       [undoButton]=true
+                       [deleteButton]=true
+                       [addButton]=true
+                       [hideReplaceButton]=true
+                       [defaultColumnSorting]='availabilitiesTable.defaultRelationsSorting()'
+                       [hideDuplicateButton]=true
+                       (getAllRows)="availabilitiesTable.handleSaveRelations($event)"
+                       (add)="availabilitiesTable.openDialog($event)"
+                       *ngIf="dataLoaded"
+        ></app-data-grid>
+      </mat-card-content>
+    </mat-card>
+  </mat-tab>
+</mat-tab-group>
+
+<ng-template #newParameterDialog>
+  <form [formGroup]="parametersTable.templateDialog('newParameterDialog').form">
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ 'entity.task.parameters.variable' | translate }}</mat-label>
+          <input matInput type="text" formControlName="label" required>
+          <mat-hint>{{ 'entity.task.parameters.variable.hint' | translate }}</mat-hint>
+        </mat-form-field>
+        
+        <div style="margin: 12px 0;">
+          <mat-checkbox formControlName="provided">
+            <strong>{{ 'entity.task.parameters.provided' | translate }}</strong>
+          </mat-checkbox>
+          <div style="margin-left: 24px; margin-top: 4px; color: #666; font-size: 0.9em;">
+            {{ 'entity.task.parameters.provided.hint' | translate }}
+          </div>
+        </div>
+        
+        <div *ngIf="parametersTable.templateDialog('newParameterDialog').form.get('provided')?.value" 
+             style="margin: 12px 0; padding: 8px; background-color: #e3f2fd; border-radius: 4px; font-size: 0.9em; color: #1976d2;">
+          <strong>{{ 'entity.task.parameters.systemVariablesLabel' | translate }}</strong>
+          <div style="margin-top: 4px;">
+            {{ getSystemVariablesHelp() }}
+          </div>
+        </div>
+        
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ 'entity.task.parameters.field' | translate }}</mat-label>
+          <input matInput type="text" formControlName="value" 
+                 [required]="!parametersTable.templateDialog('newParameterDialog').form.get('provided')?.value">
+          <mat-hint *ngIf="!parametersTable.templateDialog('newParameterDialog').form.get('provided')?.value">
+            {{ 'entity.task.parameters.field.hint.client' | translate }}
+          </mat-hint>
+          <mat-hint *ngIf="parametersTable.templateDialog('newParameterDialog').form.get('provided')?.value">
+            {{ 'entity.task.parameters.field.hint.provided' | translate }}
+          </mat-hint>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ 'common.form.description' | translate }}</mat-label>
+          <textarea matInput formControlName="description" rows="2"></textarea>
+          <mat-hint>{{ 'entity.task.parameters.descriptionHint' | translate }}</mat-hint>
+        </mat-form-field>
+      </mat-card-content>
+    </mat-card>
+  </form>
+</ng-template>

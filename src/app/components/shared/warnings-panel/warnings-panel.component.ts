@@ -8,6 +8,7 @@ import {TranslateModule} from '@ngx-translate/core';
 
 @Component({
     selector: 'app-warnings-panel',
+  standalone: true,
     imports: [
         CommonModule,
         MatExpansionModule,

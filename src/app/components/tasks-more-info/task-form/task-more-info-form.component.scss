@@ -1,0 +1,7 @@
+@use "../../../variables" as *;
+
+.alert-prefix {
+  color: $warn-color;
+  font-weight: 600;
+  margin-right: 4px;
+}
