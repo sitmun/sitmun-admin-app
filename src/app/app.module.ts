@@ -1,5 +1,5 @@
 import {NgOptimizedImage} from "@angular/common";
-import { HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import {APP_INITIALIZER, ErrorHandler, LOCALE_ID, NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MAT_TABS_CONFIG} from '@angular/material/tabs';
@@ -56,6 +56,8 @@ import {TaskBasicFormComponent} from '@app/components/tasks-basic/task-form/task
 import {TasksBasicComponent} from '@app/components/tasks-basic/tasks-basic.component';
 import {TaskEditFormComponent} from '@app/components/tasks-edit/task-form/task-edit-form.component';
 import {TasksEditComponent} from '@app/components/tasks-edit/tasks-edit.component';
+import {TaskMoreInfoFormComponent} from "@app/components/tasks-more-info/task-form/task-more-info-form.component";
+import {TasksMoreInfoComponent} from "@app/components/tasks-more-info/tasks-more-info.component";
 import {TaskQueryFormComponent} from "@app/components/tasks-query/task-form/task-query-form.component";
 import {TasksQueryComponent} from "@app/components/tasks-query/tasks-query.component";
 import {TerritoryFormComponent} from '@app/components/territory/territory-form/territory-form.component';
@@ -124,8 +126,6 @@ import {AppStateService} from './services/app-state.service';
 import {IconsService, initializeIcons} from './services/icons.service';
 import {LoggerService} from './services/logger.service';
 import {ServicesModule} from './services/services.module';
-import {TaskMoreInfoFormComponent} from "@app/components/tasks-more-info/task-form/task-more-info-form.component";
-import {TasksMoreInfoComponent} from "@app/components/tasks-more-info/tasks-more-info.component";
 
 
 // APP_INITIALIZER factory functions

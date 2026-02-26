@@ -24,7 +24,7 @@ export const config = {
     'document': "Document",
     'locator': "Locator",
     'query': "Query",
-    'moreInfo': "More info",
+    'moreInfo': "More info task",
     'report': "Report",
     'editionWFS': "Cartography table (WFS)",
     'thematic': "Thematic",

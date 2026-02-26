@@ -8,6 +8,7 @@
   [canSave]="canSaveEntity"
   [form]="entityForm"
   validationEntityType="task"
+  [validationFieldLabelKeys]="validationFieldLabels"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
@@ -62,8 +63,24 @@
               type="text"
               [formControl]="cartographySearchControl"
               [matAutocomplete]="cartographyAuto"
-              required>
-            <mat-autocomplete #cartographyAuto="matAutocomplete" (optionSelected)="onCartographySelected($event)">
+              required
+              [errorStateMatcher]="cartographyErrorMatcher">
+            <mat-error *ngIf="cartographySearchControl.hasError('required')">
+              {{ 'common.error.required' | translate }}
+            </mat-error>
+            <mat-error *ngIf="cartographySearchControl.hasError('invalidCartography')">
+              {{ 'tasksMoreInfoEntity.cartography.invalidSelection' | translate }}
+            </mat-error>
+            <button
+              *ngIf="cartographySearchControl.value"
+              matSuffix
+              mat-icon-button
+              aria-label="Clear"
+              (click)="clearCartography()"
+              type="button">
+              <mat-icon>close</mat-icon>
+            </button>
+            <mat-autocomplete #cartographyAuto="matAutocomplete" (optionSelected)="onCartographySelected($event)" [displayWith]="displayCartography">
               <mat-option *ngFor="let cartography of filteredCartographies | async" [value]="cartography">
                 {{ cartography.name }}
               </mat-option>
@@ -108,7 +125,7 @@
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'tasksMoreInfoEntity.sqlQuery' | translate }}</mat-label>
             <textarea matInput formControlName="command" [maxlength]="4000" rows="4"></textarea>
-            <mat-hint align="start" *ngIf="shouldShowCommandAlertHint()"><span class="alert-prefix">{{ 'tasksMoreInfoEntity.alertPrefix' | translate }}</span> {{ 'tasksMoreInfoEntity.apiUrlHint' | translate }}</mat-hint>
+            <mat-hint align="start">{{ 'tasksMoreInfoEntity.sqlQueryHint' | translate }}</mat-hint>
             <mat-hint align="end">{{ entityForm.get('command') | characterCount }}</mat-hint>
           </mat-form-field>
         </mat-card-content>
@@ -118,7 +135,7 @@
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'tasksMoreInfoEntity.url' | translate }}</mat-label>
             <input matInput type="text" formControlName="command" [maxlength]="2000">
-            <mat-hint align="start" *ngIf="shouldShowCommandAlertHint()"><span class="alert-prefix">{{ 'tasksMoreInfoEntity.alertPrefix' | translate }}</span> {{ 'tasksMoreInfoEntity.apiUrlHint' | translate }}</mat-hint>
+            <mat-hint align="start">{{ 'tasksMoreInfoEntity.urlHint' | translate }}</mat-hint>
             <mat-hint align="end">{{ entityForm.get('command') | characterCount }}</mat-hint>
           </mat-form-field>
         </mat-card-content>
@@ -128,7 +145,7 @@
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'tasksMoreInfoEntity.apiUrl' | translate }}</mat-label>
             <input matInput type="text" formControlName="command" [maxlength]="2000">
-            <mat-hint align="start" *ngIf="shouldShowCommandAlertHint()"><span class="alert-prefix">{{ 'tasksMoreInfoEntity.alertPrefix' | translate }}</span> {{ 'tasksMoreInfoEntity.apiUrlHint' | translate }}</mat-hint>
+            <mat-hint align="start">{{ 'tasksMoreInfoEntity.apiUrlHint' | translate }}</mat-hint>
             <mat-hint align="end">{{ entityForm.get('command') | characterCount }}</mat-hint>
           </mat-form-field>
           <mat-checkbox formControlName="addApiKey" (change)="onAddApiKeyChange()">
@@ -252,16 +269,44 @@
     <mat-card appearance="outlined">
       <mat-card-content>
         <mat-form-field appearance="outline" class="full">
-          <mat-label>{{ 'common.form.label' | translate }}</mat-label>
+          <mat-label>{{ 'entity.task.parameters.variable' | translate }}</mat-label>
           <input matInput type="text" formControlName="label" required>
+          <mat-hint>{{ 'entity.task.parameters.variable.hint' | translate }}</mat-hint>
         </mat-form-field>
+        
+        <div style="margin: 12px 0;">
+          <mat-checkbox formControlName="provided">
+            <strong>{{ 'entity.task.parameters.provided' | translate }}</strong>
+          </mat-checkbox>
+          <div style="margin-left: 24px; margin-top: 4px; color: #666; font-size: 0.9em;">
+            {{ 'entity.task.parameters.provided.hint' | translate }}
+          </div>
+        </div>
+        
+        <div *ngIf="parametersTable.templateDialog('newParameterDialog').form.get('provided')?.value" 
+             style="margin: 12px 0; padding: 8px; background-color: #e3f2fd; border-radius: 4px; font-size: 0.9em; color: #1976d2;">
+          <strong>{{ 'entity.task.parameters.systemVariablesLabel' | translate }}</strong>
+          <div style="margin-top: 4px;">
+            {{ getSystemVariablesHelp() }}
+          </div>
+        </div>
+        
         <mat-form-field appearance="outline" class="full">
-          <mat-label>{{ 'common.form.value' | translate }}</mat-label>
-          <input matInput type="text" formControlName="value" required>
+          <mat-label>{{ 'entity.task.parameters.field' | translate }}</mat-label>
+          <input matInput type="text" formControlName="value" 
+                 [required]="!parametersTable.templateDialog('newParameterDialog').form.get('provided')?.value">
+          <mat-hint *ngIf="!parametersTable.templateDialog('newParameterDialog').form.get('provided')?.value">
+            {{ 'entity.task.parameters.field.hint.client' | translate }}
+          </mat-hint>
+          <mat-hint *ngIf="parametersTable.templateDialog('newParameterDialog').form.get('provided')?.value">
+            {{ 'entity.task.parameters.field.hint.provided' | translate }}
+          </mat-hint>
         </mat-form-field>
+        
         <mat-form-field appearance="outline" class="full">
-          <mat-label>{{ 'common.form.order' | translate }}</mat-label>
-          <input matInput type="number" formControlName="order">
+          <mat-label>{{ 'common.form.description' | translate }}</mat-label>
+          <textarea matInput formControlName="description" rows="2"></textarea>
+          <mat-hint>{{ 'entity.task.parameters.descriptionHint' | translate }}</mat-hint>
         </mat-form-field>
       </mat-card-content>
     </mat-card>

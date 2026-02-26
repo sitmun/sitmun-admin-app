@@ -594,6 +594,7 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
         this.utils.getNonEditableColumnDef('common.form.value', 'value'),
         this.utils.getNonEditableColumnWithCodeListDef('common.form.type', 'type', () => this.codeList('queryTask.parameterType')),
         this.utils.addConditionToColumnDef(this.utils.getBooleanColumnDef('common.form.required', 'required', true), (params) => params.data.type === TaskParameterType.QUERY),
+        this.utils.getBooleanColumnDef('entity.task.parameters.provided', 'provided', true),
         this.utils.getStatusColumnDef()])
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
@@ -634,9 +635,13 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
             validators: [Validators.required],
             nonNullable: true
           }),
+          provided: new FormControl(false, {
+            validators: [],
+            nonNullable: true
+          }),
         })).withPreOpenFunction((form: FormGroup) => {
           const defaultType = this.defaultValueOrNull('queryTask.parameterType');
-          form.reset({type: defaultType?.value || null});
+          form.reset({type: defaultType?.value || null, provided: false});
         }).build())
       .withTargetToRelation((items: TaskQueryParameter[]) => items.map(item => TaskQueryParameter.fromObject(item)))
       .withRelationsDuplicate(item => TaskQueryParameter.fromObject(item))

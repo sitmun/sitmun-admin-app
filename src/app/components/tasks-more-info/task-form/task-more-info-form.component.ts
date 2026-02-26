@@ -1,6 +1,8 @@
+import {HttpClient} from "@angular/common/http";
 import {Component, OnInit, TemplateRef, ViewChild} from "@angular/core";
-import {FormControl, FormGroup, Validators} from "@angular/forms";
+import {FormControl, FormGroup, FormGroupDirective, NgForm, Validators} from "@angular/forms";
 import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
+import {ErrorStateMatcher} from "@angular/material/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
 import {ActivatedRoute, Router} from "@angular/router";
@@ -50,6 +52,7 @@ import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from "@app/services/logger.service";
 import {UtilsService} from "@app/services/utils.service";
 import {magic} from "@environments/constants";
+import {environment} from "@environments/environment";
 
 @Component({
   selector: 'app-task-more-info-form',
@@ -59,7 +62,7 @@ import {magic} from "@environments/constants";
 })
 export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection> implements OnInit {
   readonly config = Configuration.TASK_MORE_INFO;
-  private readonly apiParameterPattern = /\$\{[^}]+}/g;
+  private readonly apiParameterPattern = /\{(\w+)\}/g;
 
   public override entityForm: FormGroup;
 
@@ -75,9 +78,24 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
   protected cartographies: Cartography[] = [];
   protected connections: Connection[] = [];
   protected moreInfoUI: TaskUI = null;
+  protected systemVariables: Map<string, string> = new Map();
 
-  protected cartographySearchControl = new FormControl<string | Cartography>('', {nonNullable: true});
+  protected cartographySearchControl = new FormControl<string | Cartography>('', {
+    validators: [Validators.required, this.cartographyValidator.bind(this)],
+    nonNullable: true
+  });
   protected filteredCartographies = of<Cartography[]>([]);
+  protected cartographyErrorMatcher = new CartographyErrorStateMatcher();
+
+  // Map form control names to their i18n label keys for validation banner
+  protected validationFieldLabels: Record<string, string> = {
+    'name': 'entity.task.label',
+    'taskGroupId': 'entity.taskGroup.label',
+    'cartographyId': 'tasksMoreInfoEntity.cartography',
+    'scope': 'tasksMoreInfoEntity.dataAccessType',
+    'command': 'common.form.command',
+    'connectionId': 'tasksMoreInfoEntity.connection'
+  };
 
   private readonly moreInfoScope = {
     sql: 'SQL',
@@ -109,6 +127,7 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
     protected territoryService: TerritoryService,
     protected taskAvailabilityService: TaskAvailabilityService,
     protected connectionService: ConnectionService,
+    protected http: HttpClient,
   ) {
     super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService, messagesInterceptorState);
     this.rolesTable = this.defineRolesTable();
@@ -127,6 +146,17 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
       .register(this.availabilitiesTable)
       .register(this.parametersTable);
 
+    // Fetch system variables from backend
+    try {
+      const variables = await firstValueFrom(
+        this.http.get<Record<string, string>>(`${environment.apiBaseURL}/api/config/system/variables`)
+      );
+      this.systemVariables = new Map(Object.entries(variables));
+    } catch (error) {
+      console.warn('Failed to load system variables:', error);
+      // Continue without system variables
+    }
+
     await this.initCodeLists(['tasksEntity.type', 'moreInfo.type', 'service.authenticationMode'])
     this.initTranslations('Task', ['name'])
 
@@ -143,14 +173,16 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
       this.loggerService.error(`Task type ${type} not found`);
     }
     this.taskTypeName = this.taskType.name;
-    this.taskTypeNameTranslated = await firstValueFrom(this.translateService.get(`codelist.${this.taskTypeName}`));
+    this.taskTypeNameTranslated = this.translateService.instant(`entity.task.moreInfo.label`);
 
     this.taskGroupList = taskGroups;
     this.cartographies = cartographies;
     this.connections = connections;
     this.moreInfoUI = uiList.find(ui => ui.name === 'sitna.moreInfo');
     if (!this.moreInfoUI) {
-      this.loggerService.warn('UI control "sitna.moreInfo" not found in database');
+      this.loggerService.error('UI control "sitna.moreInfo" not found in database - task will not be identified correctly');
+    } else {
+      this.loggerService.info(`UI control "sitna.moreInfo" loaded with ID: ${this.moreInfoUI.id}`);
     }
   }
 
@@ -239,10 +271,13 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
     });
 
     const selectedCartography = this.cartographies.find(cartography => cartography.id === this.entityToEdit.cartographyId);
-    this.cartographySearchControl.setValue(selectedCartography?.name || '');
+    this.cartographySearchControl.setValue(selectedCartography || '');
     this.filteredCartographies = this.cartographySearchControl.valueChanges.pipe(
       startWith(this.cartographySearchControl.value),
-      map(value => this.filterCartographies(typeof value === 'string' ? value : value?.name || ''))
+      map(value => {
+        const searchValue = typeof value === 'string' ? value : value?.name || '';
+        return this.filterCartographies(searchValue);
+      })
     );
 
     this.updateApiKeyValidation();
@@ -306,6 +341,14 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
       const proxyGroup = this.taskGroupService.createProxy(this.entityForm.get('taskGroupId')?.value);
       await firstValueFrom(entityToUpdate.updateRelationEx("group", proxyGroup));
     }
+    
+    // Ensure UI control is set (needed for proper task identification)
+    if (this.moreInfoUI?.id) {
+      this.loggerService.info(`Updating UI relationship to ID: ${this.moreInfoUI.id}`);
+      await firstValueFrom(this.entityToEdit.updateRelationEx("ui", this.taskUIService.createProxy(this.moreInfoUI.id)));
+    } else {
+      this.loggerService.error('Cannot set UI relationship - moreInfoUI is not loaded');
+    }
   }
 
   override async updateDataRelated(_isDuplicated: boolean) {
@@ -350,11 +393,60 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
 
   protected shouldShowCommandAlertHint(): boolean {
     const command = this.entityForm?.get('command')?.value ?? '';
-    const matchCount = (command.match(this.apiParameterPattern) || []).length;
     const declaredParameters = this.entityToEdit?.properties?.parameters || [];
-    const declaredParametersCount = Array.isArray(declaredParameters) ? declaredParameters.length : 0;
+    
+    if (!Array.isArray(declaredParameters) || declaredParameters.length === 0) {
+      return command.match(this.apiParameterPattern) !== null;
+    }
+    
+    // Extract all {variable} patterns from the command
+    const matches = command.matchAll(this.apiParameterPattern);
+    const urlVariables = new Set<string>();
+    for (const match of matches) {
+      if (match[1]) {
+        urlVariables.add(match[1]);
+      }
+    }
+    
+    // Extract all declared parameter labels
+    const declaredLabels = new Set<string>(
+      declaredParameters.map((p: any) => p.label).filter(Boolean)
+    );
+    
+    // Check for mismatches:
+    // 1. URL variables not declared in parameters
+    // 2. Declared parameters not used in URL
+    const unmatchedUrlVars = [...urlVariables].filter(v => !declaredLabels.has(v));
+    const unusedParameters = [...declaredLabels].filter(l => !urlVariables.has(l));
+    
+    return unmatchedUrlVars.length > 0 || unusedParameters.length > 0;
+  }
 
-    return matchCount === 0 || declaredParametersCount !== matchCount;
+  protected getDeclaredParametersList(): string {
+    const declaredParameters = this.entityToEdit?.properties?.parameters || [];
+    if (!Array.isArray(declaredParameters) || declaredParameters.length === 0) {
+      return '';
+    }
+    
+    const labels = declaredParameters
+      .map((p: any) => p.label)
+      .filter(Boolean)
+      .map(label => `{${label}}`)
+      .join(', ');
+    
+    return labels ? `Available parameters: ${labels}` : '';
+  }
+
+  protected getSystemVariablesHelp(): string {
+    if (this.systemVariables.size === 0) {
+      return 'Loading...';
+    }
+    
+    const vars = Array.from(this.systemVariables.keys())
+      .map(key => `#{${key}}`)
+      .join(', ');
+    
+    return vars;
   }
 
   isUrlRedirectAccessType(): boolean {
@@ -363,8 +455,67 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
 
   onCartographySelected(event: MatAutocompleteSelectedEvent) {
     const cartography = event.option.value as Cartography;
-    this.entityForm.get('cartographyId')?.setValue(cartography?.id ?? null);
-    this.cartographySearchControl.setValue(cartography?.name || '');
+    if (cartography?.id) {
+      this.entityForm.get('cartographyId')?.setValue(cartography.id);
+      // Mark form as dirty to enable save button
+      this.entityForm.markAsDirty();
+      // Force validation update
+      this.cartographySearchControl.updateValueAndValidity();
+    }
+  }
+
+  displayCartography(cartography: Cartography | string): string {
+    if (typeof cartography === 'string') {
+      return cartography;
+    }
+    return cartography?.name || '';
+  }
+
+  clearCartography() {
+    this.cartographySearchControl.setValue('');
+    this.entityForm.get('cartographyId')?.setValue(null);
+    // Mark form as dirty when clearing
+    this.entityForm.markAsDirty();
+  }
+
+  private cartographyValidator(control: FormControl): { [key: string]: any } | null {
+    const value = control.value;
+    if (!value) {
+      return null; // Let required validator handle empty
+    }
+    
+    // If value is an object with id, it's valid - update the form
+    if (typeof value === 'object' && value?.id) {
+      // Defer the update to avoid timing issues during validation
+      setTimeout(() => {
+        if (this.entityForm) {
+          this.entityForm.get('cartographyId')?.setValue(value.id, {emitEvent: false});
+          this.entityForm.markAsDirty();
+        }
+      });
+      return null; // Valid selection
+    }
+    
+    // If value is a string, check if it matches an existing cartography name exactly
+    if (typeof value === 'string' && value.trim().length > 0) {
+      const matchingCartography = this.cartographies.find(
+        c => c.name?.toLowerCase() === value.trim().toLowerCase()
+      );
+      if (matchingCartography) {
+        // Auto-select the matching cartography
+        setTimeout(() => {
+          if (this.entityForm) {
+            this.entityForm.get('cartographyId')?.setValue(matchingCartography.id, {emitEvent: false});
+            this.entityForm.markAsDirty();
+          }
+        });
+        return null; // Valid if exact match found
+      }
+      // Invalid if it's a string that doesn't match
+      return { invalidCartography: true };
+    }
+    
+    return null;
   }
 
   private filterCartographies(value?: string): Cartography[] {
@@ -510,9 +661,10 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
     return DataTableDefinition.builder<TaskMoreInfoParameter, TaskMoreInfoParameter>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getEditableColumnDef('common.form.label', 'label'),
-        this.utils.getEditableColumnDef('common.form.order', 'order'),
-        this.utils.getEditableColumnDef('common.form.value', 'value', 300, 500),
+        this.utils.getEditableColumnDef('entity.task.parameters.variable', 'label'),
+        this.utils.getEditableColumnDef('entity.task.parameters.field', 'value', 300, 500),
+        this.utils.getEditableColumnDef('common.form.description', 'description', 250, 500),
+        this.utils.getBooleanColumnDef('entity.task.parameters.provided', 'provided', true),
         this.utils.getStatusColumnDef()])
       .withRelationsOrder('label')
       .withRelationsFetcher(() => {
@@ -524,7 +676,16 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
         return of<TaskMoreInfoParameter[]>([])
       })
       .withRelationsUpdater(async (parameters: (TaskMoreInfoParameter & Status)[]) => {
-        const parametersToSave = parameters.filter(canKeepOrUpdate).map(value => TaskMoreInfoParameter.fromObject(value))
+        const parametersToSave = parameters
+          .filter(canKeepOrUpdate)
+          .map(value => {
+            const p = TaskMoreInfoParameter.fromObject(value);
+            // If provided=true, Field must be empty (backend-only variable)
+            if (p.provided) {
+              p.value = '';
+            }
+            return p;
+          });
         this.entityToEdit.properties = TaskPropertiesBuilder.from(this.entityToEdit.properties)
           .withParameters(parametersToSave).build();
         await firstValueFrom(this.taskService.update(this.entityToEdit));
@@ -538,22 +699,61 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
             nonNullable: true
           }),
           value: new FormControl('', {
-            validators: [Validators.required],
-            nonNullable: true
-          }),
-          order: new FormControl(null, {
             validators: [],
             nonNullable: false
+          }),
+          description: new FormControl('', {
+            validators: [],
+            nonNullable: false
+          }),
+          provided: new FormControl(false, {
+            validators: [],
+            nonNullable: true
           })
         })).withPreOpenFunction((form: FormGroup) => {
           form.reset({
             label: '',
             value: '',
-            order: null
+            description: '',
+            provided: false
           });
+          
+          // Auto-detect system variables and mark as provided
+          const valueControl = form.get('value');
+          const providedControl = form.get('provided');
+          
+          if (valueControl && providedControl) {
+            // When provided=true, Field must be empty (not applicable for backend-provided variables)
+            providedControl.valueChanges.subscribe(isProvided => {
+              if (isProvided) {
+                valueControl.clearValidators();
+                valueControl.setValue('');
+                valueControl.disable({ emitEvent: false });
+              } else {
+                valueControl.enable({ emitEvent: false });
+                valueControl.setValidators([Validators.required]);
+              }
+              valueControl.updateValueAndValidity();
+            });
+
+            // Initial state: provided=false -> Field required/enabled
+            valueControl.enable({ emitEvent: false });
+            valueControl.setValidators([Validators.required]);
+            valueControl.updateValueAndValidity({ emitEvent: false });
+          }
         }).build())
       .withTargetToRelation((items: TaskMoreInfoParameter[]) => items.map(item => TaskMoreInfoParameter.fromObject(item)))
       .withRelationsDuplicate(item => TaskMoreInfoParameter.fromObject(item))
       .build();
+  }
+}
+
+/**
+ * Custom error state matcher for cartography autocomplete.
+ * Shows errors when the control is invalid and (dirty or touched).
+ */
+class CartographyErrorStateMatcher implements ErrorStateMatcher {
+  isErrorState(control: FormControl | null, _form: FormGroupDirective | NgForm | null): boolean {
+    return !!(control && control.invalid && (control.dirty || control.touched));
   }
 }

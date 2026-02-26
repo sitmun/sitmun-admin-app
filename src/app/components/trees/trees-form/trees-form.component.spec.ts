@@ -257,10 +257,18 @@ describe('TreesFormComponent', () => {
 
 
   describe('Tree type node constraints', () => {
+    let warnSpy: jest.SpyInstance;
+
     beforeEach(() => {
       // Mock getNodesForValidation to return test nodes
       component.treeNodesComponent.getNodesForValidation = jest.fn();
       component.currentTreeType = 'touristic';
+      // Suppress expected validation warnings (node type not allowed for tree type)
+      warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      warnSpy?.mockRestore();
     });
 
     it('should validate compatible nodes for touristic tree type', () => {

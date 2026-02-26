@@ -1,26 +1,27 @@
-// Ensure body and html have no margins/padding on login page
+// Make the component host element fill the viewport with the orange gradient
 :host {
   display: block;
-  margin: 0;
-  padding: 0;
-}
-
-// Login container with orange-themed background covering full viewport
-.login-container {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, rgba(255, 147, 0, 0.15) 0%, rgba(255, 147, 0, 0.08) 100%);
+  z-index: 0;
+}
+
+// Login container for centering the card
+.login-container {
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  height: 100%;
   padding: 16px; // 2 × 8dp for mobile spacing
   padding-top: calc(64px + 16px); // Add toolbar height + padding
-  background: linear-gradient(135deg, rgba(255, 147, 0, 0.15) 0%, rgba(255, 147, 0, 0.08) 100%);
   box-sizing: border-box;
-  z-index: 0; // Behind toolbar
-  margin: 0;
 
   mat-card {
     max-width: min(400px, 90vw); // Responsive: 400px max, 90vw on mobile
@@ -33,6 +34,12 @@
 // Full width form fields
 .full {
   width: 100%;
+}
+
+// Mask password input using CSS instead of type="password" to prevent browser password managers
+.masked-password {
+  -webkit-text-security: disc;
+  text-security: disc;
 }
 
 // Material Design card actions - proper layout instead of absolute positioning

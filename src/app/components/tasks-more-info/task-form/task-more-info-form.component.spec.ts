@@ -25,7 +25,8 @@ describe('TaskMoreInfoFormComponent', () => {
       'getNonEditableColumnDef',
       'getStatusColumnDef',
       'getNonEditableDateColumnDef',
-      'getEditableColumnDef'
+      'getEditableColumnDef',
+      'getBooleanColumnDef'
     ]);
     utilsService.getSelCheckboxColumnDef.mockReturnValue({});
     utilsService.getRouterLinkColumnDef.mockReturnValue({});
@@ -33,6 +34,7 @@ describe('TaskMoreInfoFormComponent', () => {
     utilsService.getStatusColumnDef.mockReturnValue({});
     utilsService.getNonEditableDateColumnDef.mockReturnValue({});
     utilsService.getEditableColumnDef.mockReturnValue({});
+    utilsService.getBooleanColumnDef.mockReturnValue({});
 
     component = TestBed.runInInjectionContext(() => new TaskMoreInfoFormComponent(
       {} as any,
@@ -54,7 +56,8 @@ describe('TaskMoreInfoFormComponent', () => {
       createSpyObj(['getAll']) as any,
       createSpyObj(['getAllProjection', 'createProxy']) as any,
       createSpyObj(['create', 'delete', 'createProxy']) as any,
-      createSpyObj(['getAll', 'createProxy']) as any
+      createSpyObj(['getAll', 'createProxy']) as any,
+      createSpyObj(['get']) as any
     ));
 
     (component as any).cartographies = [
@@ -92,7 +95,7 @@ describe('TaskMoreInfoFormComponent', () => {
   it('should initialize cartography search value from selected cartography', () => {
     setupForm({scope: 'SQL', command: 'select * from table'});
 
-    expect((component as any).cartographySearchControl.value).toBe('Base map');
+    expect((component as any).cartographySearchControl.value).toEqual({id: 10, name: 'Base map'});
   });
 
   it('should return names for task group and connection', () => {
@@ -199,13 +202,13 @@ describe('TaskMoreInfoFormComponent', () => {
   it('should update cartography id and search value on selection', () => {
     setupForm({scope: 'SQL', command: 'select 1'});
 
+    const selected = {id: 11, name: 'Ortofoto'};
+    (component as any).cartographySearchControl.setValue(selected);
     component.onCartographySelected({
-      option: {
-        value: {id: 11, name: 'Ortofoto'}
-      }
+      option: { value: selected }
     } as any);
 
     expect(component.entityForm.get('cartographyId')?.value).toBe(11);
-    expect((component as any).cartographySearchControl.value).toBe('Ortofoto');
+    expect((component as any).cartographySearchControl.value).toEqual(selected);
   });
 });
