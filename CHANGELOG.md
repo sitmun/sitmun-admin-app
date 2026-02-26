@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.3] - 2026-02-26
+
+### Added
+
+- More Information task support for API/SQL/URL scopes in task configuration.
+- API key input support for More Information API integrations.
+- Additional form hints and i18n entries for URL and SQL parameterized More Information tasks.
+- Test coverage for More Information task workflows.
+
+### Changed
+
+- More Information model/field mapping updated to use `type` semantics instead of previous `scope` naming.
+- More Information form workflow and field behavior refined for cleaner payloads and easier cartography selection.
+
+### Removed
+
+- Redundant More Information parameter fields (`key`, `name`, `type`) from task configuration values.
+
 ## [1.2.2] - 2026-02-16
 
 ### Added
@@ -161,7 +179,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Various bug fixes and improvements from development phase
 
-[Unreleased]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.2...HEAD
+[Unreleased]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.3...HEAD
+[1.2.3]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.2...sitmun-admin-app/1.2.3
 [1.2.2]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.1...sitmun-admin-app/1.2.2
 [1.2.0]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.1.1...sitmun-admin-app/1.2.0
 [1.1.1]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.1.0...sitmun-admin-app/1.1.1
