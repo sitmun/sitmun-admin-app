@@ -23,7 +23,7 @@ export class AuthenticatedLayoutComponent implements OnInit {
     this.loggerService.debug('[AuthenticatedLayoutComponent] Initialized');
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   navOpen(_: any): void {
     this.isOpen = !this.isOpen;
   }

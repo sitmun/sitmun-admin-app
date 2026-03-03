@@ -1,4 +1,18 @@
-import { TaskProperties } from './task.model';
+import { TaskProperties, TaskPropertiesContract } from './task-properties';
+
+/** Coerce unknown to string | null for TaskProperties string fields. */
+function asString(v: unknown): string | null {
+  return typeof v === 'string' ? v : null;
+}
+
+/** Coerce unknown to Record<string, string> | null for headers. */
+function asHeaders(v: unknown): Record<string, string> | null {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return null;
+  const o = v as Record<string, unknown>;
+  const out: Record<string, string> = {};
+  for (const k of Object.keys(o)) if (typeof o[k] === 'string') out[k] = o[k] as string;
+  return Object.keys(out).length ? out : null;
+}
 
 /**
  * Builder for TaskProperties
@@ -32,18 +46,18 @@ export class TaskPropertiesBuilder {
     if (!properties) {
       return new TaskPropertiesBuilder();
     }
-
+    const p = properties as Record<string, unknown>;
     return new TaskPropertiesBuilder()
-      .withScope(properties.scope)
-      .withCommand(properties.command)
-      .withFormat(properties.format)
-      .withPath(properties.path)
-      .withParameters(properties.parameters ? [...properties.parameters] : [])
-      .withFields(properties.fields ? [...properties.fields] : [])
-      .withAuthenticationMode(properties.authenticationMode)
-      .withUser(properties.user)
-      .withPassword(properties.password)
-      .withHeaders(properties.headers ? {...properties.headers} : null);
+      .withScope(TaskPropertiesContract.getScope(properties))
+      .withCommand(TaskPropertiesContract.getCommand(properties))
+      .withFormat(asString(p.format))
+      .withPath(asString(p.path))
+      .withParameters(TaskPropertiesContract.getParameters(properties))
+      .withFields(TaskPropertiesContract.getFields(properties))
+      .withAuthenticationMode(asString(p.authenticationMode))
+      .withUser(asString(p.user))
+      .withPassword(asString(p.password))
+      .withHeaders(asHeaders(p.headers));
   }
 
   /**

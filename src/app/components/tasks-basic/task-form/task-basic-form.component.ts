@@ -22,7 +22,6 @@ import {
   TaskGroupService,
   TaskParameter,
   TaskProjection,
-  TaskPropertiesBuilder,
   TaskService,
   TaskType,
   TaskTypeService,
@@ -32,6 +31,7 @@ import {
   TerritoryService,
   TranslationService
 } from "@app/domain";
+import { TaskPropertiesContract } from "@app/domain/task/models/task-properties";
 import {
   canKeepOrUpdate,
   onCreate,
@@ -340,7 +340,7 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
    * @returns Promise that resolves when related data is updated
    * @param _isDuplicated
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   override async updateDataRelated(_isDuplicated: boolean) {
     const entityToUpdate = this.createObject(this.entityID);
     await this.saveTranslations(entityToUpdate);
@@ -480,17 +480,16 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
         this.utils.getStatusColumnDef()])
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
-        if (this.entityToEdit?.properties?.parameters) {
-          const originalParameters = this.entityToEdit.properties.parameters;
-          const parameters = originalParameters.map((parameter: any) => TaskParameter.fromObject(parameter));
+        const originalParameters = TaskPropertiesContract.getParameters(this.entityToEdit?.properties);
+        if (originalParameters.length > 0) {
+          const parameters = originalParameters.map((parameter) => TaskParameter.fromObject(parameter));
           return of(parameters);
         }
         return of<TaskParameter[]>([])
       })
       .withRelationsUpdater(async (parameters: (TaskParameter & Status)[]) => {
         const parametersToSave = parameters.filter(canKeepOrUpdate).map(value => TaskParameter.fromObject(value))
-        this.entityToEdit.properties = TaskPropertiesBuilder.from(this.entityToEdit.properties)
-          .withParameters(parametersToSave).build();
+        this.entityToEdit.properties = TaskPropertiesContract.withParameters(this.entityToEdit.properties, parametersToSave);
         await firstValueFrom(this.taskService.update(this.entityToEdit));
       })
       .withTemplateDialog('newParameterDialog', () => TemplateDialog.builder()

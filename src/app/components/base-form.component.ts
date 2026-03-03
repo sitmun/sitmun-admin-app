@@ -378,7 +378,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    *
    * @returns {void}
    */
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
+   
   postFetchData(): void {
   }
 
@@ -567,7 +567,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    *
    * @returns {Promise<number>} Promise that resolves with the ID of the created entity
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   createEntity(): Promise<number> {
     return Promise.resolve(null)
   }
@@ -589,7 +589,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    * @param {boolean} _isDuplicated - Whether the operation is a duplication
    * @returns {Promise<void>} Promise that resolves when related data is updated
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   updateDataRelated(_isDuplicated: boolean): Promise<void> {
     return Promise.resolve()
   }

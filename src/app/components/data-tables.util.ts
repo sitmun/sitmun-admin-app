@@ -953,7 +953,7 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
    * Default function to update relation entities.
    * Does nothing if not overridden.
    */
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
+   
   private relationsUpdateFn: (relations: (RELATION & Status)[]) => Promise<void> = async () => {
   };
 
@@ -1246,7 +1246,7 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
    * Default function to update relation entities.
    * Does nothing if not overridden.
    */
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
+   
   private relationsUpdateFn: (relations: (RELATION & Status)[]) => Promise<void> = async () => {
   };
 
@@ -1332,7 +1332,7 @@ export class TemplateDialogBuilder {
    * Function to call before opening the dialog.
    * Can be used to initialize or reset the form state.
    */
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
+   
   private _preOpenFn: (form: FormGroup) => void = () => {}
 
   /**

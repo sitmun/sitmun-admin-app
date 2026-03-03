@@ -36,7 +36,7 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  
+
   // Ensure expand/collapse button matches toolbar button size (40x40 like mat-mini-fab)
   ::ng-deep .mat-mdc-icon-button.mat-mdc-button-base {
     width: 40px !important;
@@ -65,7 +65,7 @@
   display: flex;
   align-items: center;
   padding: 2px 8px;
-  min-height: 48px; // Material Design minimum touch target
+  min-height: 40px;
   transition: background-color 0.2s ease;
   border-left: 3px solid transparent;
 
@@ -89,18 +89,19 @@
   // Node name styling
   .node-name {
     flex: 1;
-    margin-left: 8px;
+    margin-left: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     cursor: pointer;
     user-select: none;
+    color: rgba(0, 0, 0, 0.87);
     // Material Design typography - body-1
     font-size: 14px;
     font-weight: 400;
     line-height: 20px;
     letter-spacing: 0.25px;
-    
+
     &:hover {
       color: rgba(25, 118, 210, 0.87);
     }
@@ -140,7 +141,7 @@
 // Type icon styling
 .type-icon {
   margin-right: 8px;
-  color: rgba(0, 0, 0, 0.54);
+  color: rgba(0, 0, 0, 0.87);
 }
 
 // Drag and drop styles
@@ -204,6 +205,27 @@
   height: 18px;
   line-height: 18px;
   color: #FF9300;
+  vertical-align: middle;
+}
+
+// View-mode hint icon (mapping type) – muted so it doesn’t overpower type icon
+.view-mode-hint-icon {
+  margin-right: 6px;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  color: rgba(0, 0, 0, 0.54);
+  vertical-align: middle;
+}
+
+.folder-hint-icon {
+  margin-right: 6px;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  color: rgba(0, 0, 0, 0.54);
   vertical-align: middle;
 }
 

@@ -41,7 +41,7 @@ export class DialogFormComponent implements OnInit {
     private translate: TranslateService,
     private loggerService: LoggerService) {}
 
-  // eslint-disable-next-line @angular-eslint/no-empty-lifecycle-method,@typescript-eslint/no-empty-function
+   
   ngOnInit(): void {
     if (this.data) {
       Object.assign(this, this.data);

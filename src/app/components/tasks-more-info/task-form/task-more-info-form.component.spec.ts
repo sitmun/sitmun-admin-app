@@ -196,7 +196,7 @@ describe('TaskMoreInfoFormComponent', () => {
     const task = component.createObject();
 
     expect(task.properties?.headers?.['X-API-Key']).toBeUndefined();
-    expect(task.properties?.headers?.Authorization).toBe('Bearer token');
+    expect((task.properties?.headers as Record<string, string>)?.['Authorization']).toBe('Bearer token');
   });
 
   it('should update cartography id and search value on selection', () => {

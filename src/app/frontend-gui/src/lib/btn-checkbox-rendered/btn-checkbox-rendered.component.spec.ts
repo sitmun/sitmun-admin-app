@@ -29,7 +29,7 @@ describe('BtnCheckboxRenderedComponent', () => {
       column: { colId: 'test' },
       node: { 
         rowIndex: 0,
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
+         
         setDataValue: () => {} 
       },
       colDef: { 
@@ -41,7 +41,7 @@ describe('BtnCheckboxRenderedComponent', () => {
       },
       context: {
         componentParent: { 
-          // eslint-disable-next-line @typescript-eslint/no-empty-function
+           
           methodFromParent: () => {} 
         }
       }

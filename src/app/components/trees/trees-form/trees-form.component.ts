@@ -97,8 +97,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
     this.initTranslations('Tree', ['name', 'description']);
     await this.initCodeLists([
       'tree.type',
-      'treenode.folder.type',
-      'treenode.leaf.type',
+      'treenode.node.type',
       'treenode.viewmode'
     ]);
   }
@@ -169,13 +168,6 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
         this.entityForm.patchValue({ type: defaultType.value });
         this.currentTreeType = defaultType.value;
       }
-    }
-
-    // Handle duplication
-    if (this.isDuplicated()) {
-      this.entityForm.patchValue({
-        name: this.translateService.instant('copy_') + this.entityToEdit.name
-      });
     }
 
     // Image preview is now handled by the ImagePreviewComponent via imageSource input
@@ -450,9 +442,8 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
     }
     
     const treeTypeConfig = this.treeTypeNodeTypes[targetTreeType];
-    const allowedFolderTypes = Object.keys(treeTypeConfig.folders || {});
-    const allowedLeafTypes = treeTypeConfig.leaves || [];
-    const allAllowedTypes = [...allowedFolderTypes, ...allowedLeafTypes];
+    const nodeTypes = (treeTypeConfig as any)?.nodeTypes;
+    const allAllowedTypes = nodeTypes ? Object.keys(nodeTypes) : [];
     
     // Build a map of nodes by ID for parent-child validation
     const nodeMap = new Map<number, any>();
@@ -491,9 +482,8 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
         }
         
         // Get allowed children for parent type
-        const parentFolderConfig = treeTypeConfig.folders?.[parentType];
-        if (!parentFolderConfig) {
-          // Parent type is not a folder in config, so it shouldn't have children
+        const allowedChildren = (treeTypeConfig as any)?.nodeTypes?.[parentType]?.allowedChildren || [];
+        if (allowedChildren.length === 0) {
           this.loggerService.warn(`Parent node type '${parentType}' cannot have children`, {
             parentId: node.parent,
             parentName: parentNode.name,
@@ -502,8 +492,6 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
           });
           return false;
         }
-        
-        const allowedChildren = parentFolderConfig.allowedChildren || [];
         if (!allowedChildren.includes(nodeType)) {
           this.loggerService.warn(`Node type '${nodeType}' not allowed as child of '${parentType}'`, {
             parentId: node.parent,

@@ -9,6 +9,7 @@ export * from './models/task-group.model';
 export * from './models/task-parameter.model';
 export * from './models/task-more-info-parameter.model';
 export * from './models/task-availability.model';
+export * from './models/task-properties';
 export * from './models/task-properties.builder';
 export * from './models/task-ui.model';
 

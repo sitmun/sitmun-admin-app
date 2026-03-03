@@ -335,7 +335,7 @@ describe('TreesFormComponent', () => {
         { id: 2, name: 'Task child', nodeType: 'task', parent: 1 }
       ];
       component.treeNodesComponent.getNodesForValidation = jest.fn(() => nodes as any);
-      component.currentTreeType = 'cartography';
+      component.currentTreeType = 'touristic'; // task allowed under legacy (null) parent
 
       const result = component.validNodeTypesForTreeType(nodes);
       expect(result).toBe(true);

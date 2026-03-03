@@ -25,7 +25,7 @@ export class LoginService {
 
   /**Login operation*/
   async login(credentials, callback?) {
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+     
     const cb = callback || (() => {});
 
     try {

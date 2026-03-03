@@ -46,7 +46,7 @@ export class ExternalConfigurationService implements ExternalConfigurationHandle
   }
 
   /**deprecated*/
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
+   
   setExternalConfiguration(_externalConfiguration: ExternalConfiguration) {
     // Deprecated method - kept for backward compatibility
   }

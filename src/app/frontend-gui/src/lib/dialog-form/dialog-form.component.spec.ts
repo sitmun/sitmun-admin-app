@@ -36,7 +36,7 @@ describe('DialogFormComponent', () => {
       ],
       providers: [
         { provide: MatDialogRef, useValue: { 
-          // eslint-disable-next-line @typescript-eslint/no-empty-function
+           
           close: () => {} 
         } },
         { provide: MAT_DIALOG_DATA, useValue: {} },

@@ -4,6 +4,126 @@
   margin-right: 8px;
 }
 
+// Flex layout utilities (replaces inline styles)
+.flex-row-gap-16 {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.flex-column-gap-16 {
+  display: flex;
+  gap: 16px;
+  flex-direction: column;
+}
+
+.form-field-flex-35 {
+  flex: 0.35;
+  min-width: 200px;
+}
+
+.form-field-flex-65 {
+  flex: 0.65;
+  min-width: 200px;
+}
+
+.form-field-flex-1 {
+  flex: 1;
+  min-width: 200px;
+}
+
+.form-field-flex-1-400 {
+  flex: 1;
+  min-width: 400px;
+}
+
+.detail-content-padded {
+  padding-left: 24px;
+}
+
+// Task Configuration panel – Material 8dp spacing, clear hierarchy
+.task-config-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.task-config-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.task-config-task-field {
+  width: 100%;
+  max-width: 100%;
+}
+
+.task-config-view-mode-field {
+  max-width: 280px;
+}
+
+.task-config-mode-and-action {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  .task-config-view-mode-field {
+    margin-bottom: 0;
+    margin-top: 0;
+  }
+  button {
+    // Same line-height as form field value for baseline alignment
+    line-height: 1.5;
+  }
+}
+
+.task-config-spinner {
+  margin-right: 8px;
+}
+
+.task-config-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+// Guidance block: input/output parameter hints (8dp rhythm, low visual priority)
+.task-config-guidance {
+  padding: 8px 0;
+
+  .task-config-guidance-intro {
+    margin: 0 0 8px 0;
+    font-size: 0.875rem;
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  .task-config-guidance-row {
+    margin-bottom: 4px;
+    font-size: 0.8125rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .task-config-guidance-label {
+    font-weight: 500;
+    margin-right: 4px;
+  }
+
+  .task-config-guidance-values {
+    color: rgba(0, 0, 0, 0.87);
+  }
+
+  .task-config-guidance-empty {
+    font-style: italic;
+    color: rgba(0, 0, 0, 0.5);
+  }
+}
+
 // Header with actions aligned horizontally
 .header-with-actions {
   display: flex;
@@ -24,6 +144,46 @@
 
 .required-asterisk {
   color: red;
+}
+
+// Read-only content type field: subtle differentiation from editable fields
+.content-type-readonly {
+  .mat-mdc-text-field-wrapper {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+
+  .node-type-prefix-icon {
+    margin-right: 8px;
+    color: rgba(0, 0, 0, 0.6);
+  }
+}
+
+// View mode option: icon left of label
+.view-mode-option-row {
+  display: inline-flex;
+  align-items: center;
+}
+
+.view-mode-option-icon {
+  margin-right: 8px;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.view-mode-option-label {
+  flex: 1;
+}
+
+// View mode select trigger: show icon + label when selected
+.view-mode-select-trigger {
+  display: flex;
+  align-items: center;
+
+  .view-mode-trigger-icon {
+    margin-right: 8px;
+    color: rgba(0, 0, 0, 0.6);
+  }
 }
 
 // Resizable layout styles
@@ -210,4 +370,190 @@
 .task-group {
   font-size: 0.85em;
   color: rgba(0, 0, 0, 0.54);
+}
+
+// Field Configuration Dialog – tabbed layout
+.field-config-tabs {
+  min-width: 0;
+}
+
+.field-config-tab-content {
+  padding: 16px 0;
+  min-height: 200px;
+}
+
+.field-config-tab-label-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1;
+}
+
+.field-config-tab-label {
+  margin-right: 0;
+  line-height: inherit;
+}
+
+.field-config-tab-help {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+  vertical-align: middle;
+
+  .mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// Field Configuration Dialog (Material 8px grid, responsive) – kept for any non-tabbed usage
+.dialog-layout {
+  display: flex;
+  gap: 24px;
+
+  @media (max-width: 960px) {
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+
+.left-panel {
+  flex: 0 0 45%;
+
+  @media (max-width: 960px) {
+    flex: 1;
+  }
+}
+
+.right-panel {
+  flex: 1;
+  min-width: 0;
+}
+
+.field-config-divider {
+  margin: 16px 0;
+}
+
+.mapping-section {
+  margin-bottom: 24px;
+
+  h5 {
+    display: inline-block;
+    margin-right: 8px;
+    margin-bottom: 16px;
+  }
+}
+
+.maping-form {
+  padding: 16px 0;
+}
+
+.field-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  align-items: flex-start;
+}
+
+.field-row-input {
+  flex: 1;
+}
+
+.field-config-row {
+  margin-bottom: 16px;
+
+  .mat-mdc-form-field {
+    width: 100%;
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+.dialog-form-field-top {
+  margin-top: 20px;
+}
+
+.dialog-action-button {
+  margin-top: 16px;
+}
+
+.field-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+
+  .mat-mdc-checkbox {
+    display: block;
+  }
+
+  &.field-options-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+}
+
+.output-mapping-radio-group {
+  display: block;
+}
+
+.output-param-divider {
+  margin: 12px 0;
+}
+
+.output-param-block {
+  margin-bottom: 0;
+
+  .field-row {
+    margin-bottom: 8px;
+  }
+
+  .field-options.field-options-row {
+    margin-top: 4px;
+  }
+}
+
+.output-label-cell-below-button {
+  margin-top: 4px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.output-label-field {
+  width: 100%;
+  max-width: 400px;
+}
+
+.mapping-radio {
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+.xpath-suggestion {
+  margin-top: 20px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 4px;
+
+  strong {
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  p {
+    word-break: break-all;
+    margin: 0;
+    font-family: monospace;
+    font-size: 0.875rem;
+  }
 }

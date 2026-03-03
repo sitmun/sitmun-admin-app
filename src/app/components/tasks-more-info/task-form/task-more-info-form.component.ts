@@ -668,9 +668,9 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
         this.utils.getStatusColumnDef()])
       .withRelationsOrder('label')
       .withRelationsFetcher(() => {
-        if (this.entityToEdit?.properties?.parameters) {
-          const originalParameters = this.entityToEdit.properties.parameters;
-          const parameters = originalParameters.map((parameter: any) => TaskMoreInfoParameter.fromObject(parameter));
+        const raw = this.entityToEdit?.properties?.parameters;
+        if (Array.isArray(raw)) {
+          const parameters = raw.map((parameter: any) => TaskMoreInfoParameter.fromObject(parameter));
           return of(parameters);
         }
         return of<TaskMoreInfoParameter[]>([])
