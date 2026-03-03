@@ -1904,7 +1904,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
                   treesNodesToUpdate.splice(i, 1);
                   treesNodesToUpdate.splice(0, 0, result);
                   if (mapNewIdentificators.has(oldId)) {
-                    this.updateAllTreeNodes(mapNewIdentificators.get(oldId), depth++, mapNewIdentificators, promises, result.id, result, tree, entityID);
+                    await this.updateAllTreeNodes(mapNewIdentificators.get(oldId), depth++, mapNewIdentificators, promises, result.id, result, tree, entityID);
                   }
                   return true;
                 } catch (error) {
