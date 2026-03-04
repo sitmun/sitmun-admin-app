@@ -7,14 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.4] - 2026-03-04
+
 ### Added
 
 - Detailed validation error messages in notifications: show field-level errors from RFC 9457 `errors` array, i18n for `messageCode` (e.g. `validation.NotBlank`, `validation.BoundingBox`), multi-line display in notification component.
+- Tree view mode handling with icons and labels for different view modes in tree nodes component.
+- Task properties regression tests to prevent model drift.
+
+### Changed
+
+- Node.js requirement updated to `>=20.19.0` (engines).
+- Angular framework upgraded to version 19 (^19.2.x) with latest features and performance improvements.
+- Tree node type unification: consolidated `treenode.folder.type` and `treenode.leaf.type` into unified `treenode.node.type` for consistent node handling across the application.
+- Task properties made opaque to improve encapsulation and type safety.
 
 ### Fixed
 
 - Save failure: show a single error notification (interceptor only) and skip post-save logic; log error in component catch instead of calling ErrorHandlerService to avoid duplicate snackbar.
 - Development API URL set to `http://localhost:9000/backend` so `ng serve` uses the Nginx proxy path and CORS works correctly.
+- Tree duplication: await recursive node updates so child nodes complete before navigation; strip `_links` on duplicated nodes for clean create path (fixes #359).
+- Tree node type handling and mapping dialog state stabilization.
+- Aranés flag SVG metadata removed to fix language selector label display on login screen (fixes #360).
 
 ## [1.2.3] - 2026-02-26
 
@@ -188,7 +202,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Various bug fixes and improvements from development phase
 
-[Unreleased]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.3...HEAD
+[Unreleased]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.4...HEAD
+[1.2.4]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.3...sitmun-admin-app/1.2.4
 [1.2.3]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.2...sitmun-admin-app/1.2.3
 [1.2.2]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.1...sitmun-admin-app/1.2.2
 [1.2.0]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.1.1...sitmun-admin-app/1.2.0
