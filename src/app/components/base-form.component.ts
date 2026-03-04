@@ -414,7 +414,8 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
         await this.saveEntity();
         await this.dataTables.saveAll();
       } catch (error) {
-        this.errorHandler.handleError(error, 'common.error.savingFailed');
+        this.loggerService.error('Save failed', error);
+        return Promise.resolve(false);
       }
       // Recover the original entity (includes properties that could have been updated by data tables)
       this.entityToEdit = await this.fetchOriginal();

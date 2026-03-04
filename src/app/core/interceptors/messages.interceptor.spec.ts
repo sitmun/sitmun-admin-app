@@ -119,4 +119,97 @@ describe('MessagesInterceptor', () => {
       req.flush('Server Error', { status: 500, statusText: 'Server Error' });
     });
   });
+
+  describe('validation error handling', () => {
+    let notificationService: NotificationService;
+
+    beforeEach(() => {
+      stateService = TestBed.inject(MessagesInterceptorStateService);
+      stateService.enable();
+      notificationService = TestBed.inject(NotificationService);
+    });
+
+    it('should show field-level validation errors in notification message', (done) => {
+      const showErrorSpy = jest.spyOn(notificationService, 'showError');
+      const url = '/api/territories/6';
+      const errorBody = {
+        type: 'https://sitmun.org/problems/validation-error',
+        status: 400,
+        title: 'Validation Failed',
+        detail: 'Request validation failed. Please check the errors field for details.',
+        instance: '/api/territories/6',
+        errors: [{ field: 'extent', message: 'maxY must be greater than minY' }]
+      };
+
+      httpClient.put(url, {}).subscribe({
+        error: () => {
+          expect(showErrorSpy).toHaveBeenCalled();
+          const message = showErrorSpy.mock.calls[0][1];
+          expect(message).toContain('maxY must be greater than minY');
+          expect(message).toContain('extent');
+          done();
+        }
+      });
+
+      const req = httpMock.expectOne(url);
+      req.flush(errorBody, { status: 400, statusText: 'Bad Request' });
+    });
+
+    it('should use translated messageCode when available', (done) => {
+      const showErrorSpy = jest.spyOn(notificationService, 'showError');
+      const translateService = TestBed.inject(TranslateService);
+      translateService.setTranslation('en', {
+        'validation.NotBlank': 'Must not be blank',
+        'error.validation-error.detailWithErrors': 'Validation failed:'
+      });
+      translateService.use('en');
+
+      const url = '/api/territories/6';
+      const errorBody = {
+        type: 'https://sitmun.org/problems/validation-error',
+        status: 400,
+        title: 'Validation Failed',
+        detail: 'Request validation failed.',
+        instance: '/api/territories/6',
+        errors: [{ field: 'name', message: 'must not be blank', messageCode: 'NotBlank' }]
+      };
+
+      httpClient.put(url, {}).subscribe({
+        error: () => {
+          expect(showErrorSpy).toHaveBeenCalled();
+          const message = showErrorSpy.mock.calls[0][1];
+          expect(message).toContain('Must not be blank');
+          expect(message).toContain('Validation failed:');
+          done();
+        }
+      });
+
+      const req = httpMock.expectOne(url);
+      req.flush(errorBody, { status: 400, statusText: 'Bad Request' });
+    });
+
+    it('should fall back to generic message when no errors array', (done) => {
+      const showErrorSpy = jest.spyOn(notificationService, 'showError');
+      const url = '/api/territories/6';
+      const errorBody = {
+        type: 'https://sitmun.org/problems/validation-error',
+        status: 400,
+        title: 'Validation Failed',
+        detail: 'Request validation failed.',
+        instance: '/api/territories/6'
+      };
+
+      httpClient.put(url, {}).subscribe({
+        error: () => {
+          expect(showErrorSpy).toHaveBeenCalled();
+          const message = showErrorSpy.mock.calls[0][1];
+          expect(message).not.toContain('\u2022');
+          done();
+        }
+      });
+
+      const req = httpMock.expectOne(url);
+      req.flush(errorBody, { status: 400, statusText: 'Bad Request' });
+    });
+  });
 });

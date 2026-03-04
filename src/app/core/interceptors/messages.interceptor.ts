@@ -9,7 +9,7 @@ import {ENTITY_TYPE_KEY, ENTITY_NAME_KEY} from '@app/core/hal/resource/resource.
 import {ErrorTrackingService} from '@app/services/error-tracking.service';
 import {NotificationService} from '@app/services/notification.service';
 import {UtilsService} from '@app/services/utils.service';
-import {getProblemTranslationKey, isProblemDetail, getErrorMessage} from '@app/utils/problem-detail.utils';
+import {getProblemTranslationKey, isProblemDetail, getErrorMessage, formatValidationErrors, getExtraValidationErrorCount} from '@app/utils/problem-detail.utils';
 
 @Injectable({
   providedIn: 'root'
@@ -132,6 +132,18 @@ export class MessagesInterceptor implements HttpInterceptor {
                         translated = this.removeUnreplacedPlaceholders(translated);
                         
                         message = translated;
+                        
+                        // Override with field-level validation errors when present
+                        const translateFn = (key: string) => this.translateService.instant(key);
+                        const formatted = formatValidationErrors(error, translateFn);
+                        if (formatted) {
+                          const intro = this.translateService.instant('error.validation-error.detailWithErrors');
+                          const extra = getExtraValidationErrorCount(error);
+                          const suffix = extra > 0
+                            ? '\n' + this.translateService.instant('common.validation.andMoreFields', { count: extra })
+                            : '';
+                          message = intro + '\n' + formatted + suffix;
+                        }
                         
                         // Use contextual title based on status code
                         if (error.status >= 400 && error.status < 500) {

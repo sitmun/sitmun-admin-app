@@ -52,5 +52,12 @@ export interface FieldError {
 
   /** The validation error message */
   message: string;
+
+  /**
+   * Stable machine-readable code for frontend i18n lookup (e.g. "NotBlank",
+   * "BoundingBox"). Clients translate via key "validation.{messageCode}";
+   * falls back to {@link message} when absent or untranslated.
+   */
+  messageCode?: string;
 }
 

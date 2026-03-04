@@ -131,6 +131,8 @@ describe('TreeNodesComponent', () => {
       .compileComponents();
 
     httpMock = TestBed.inject(HttpTestingController);
+    const logger = TestBed.inject(LoggerService);
+    jest.spyOn(logger, 'debug').mockImplementation();
     fixture = TestBed.createComponent(TreeNodesComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

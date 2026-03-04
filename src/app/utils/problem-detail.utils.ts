@@ -85,3 +85,72 @@ export function getErrorMessage(error: any): string {
   }
 }
 
+const MAX_FIELD_ERRORS = 5;
+
+/**
+ * Formats field-level validation errors from a Problem Detail response into
+ * a bullet list string. Tries to resolve each error's messageCode via an
+ * optional translate function before falling back to the raw message.
+ *
+ * @param error The HTTP error response (expects error.error.errors array)
+ * @param translateFn Optional function that receives a messageCode and returns
+ *   the translated string, or the code itself if no translation is found.
+ * @returns Formatted bullet list string joined by '\n', or null if no errors
+ */
+export function formatValidationErrors(
+  error: any,
+  translateFn?: (code: string) => string
+): string | null {
+  const errors = error?.error?.errors;
+  if (!Array.isArray(errors) || errors.length === 0) {
+    return null;
+  }
+
+  const lines = errors.slice(0, MAX_FIELD_ERRORS).map((e: any) => {
+    const message = resolveFieldMessage(e, translateFn);
+    if (!message) {
+      return null;
+    }
+    return e.field ? `\u2022 ${e.field}: ${message}` : `\u2022 ${message}`;
+  }).filter((line: string | null): line is string => line !== null);
+
+  if (lines.length === 0) {
+    return null;
+  }
+
+  return lines.join('\n');
+}
+
+/**
+ * Returns the number of extra validation errors beyond the displayed limit.
+ * Useful for appending a translated "+ N more" suffix.
+ *
+ * @param error The HTTP error response
+ * @returns Number of extra errors, or 0 if within the limit
+ */
+export function getExtraValidationErrorCount(error: any): number {
+  const errors = error?.error?.errors;
+  if (!Array.isArray(errors)) {
+    return 0;
+  }
+  return Math.max(0, errors.length - MAX_FIELD_ERRORS);
+}
+
+/**
+ * Resolves the display message for a single field error.
+ * Prefers a translated messageCode over the raw backend message.
+ */
+function resolveFieldMessage(
+  fieldError: any,
+  translateFn?: (code: string) => string
+): string | null {
+  if (translateFn && fieldError.messageCode) {
+    const key = `validation.${fieldError.messageCode}`;
+    const translated = translateFn(key);
+    if (translated !== key) {
+      return translated;
+    }
+  }
+  return fieldError.message || null;
+}
+

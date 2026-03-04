@@ -5,7 +5,7 @@ import { LogLevel } from '@app/services/log-level.enum';
 
 export const environment = {
   production: false,
-  apiBaseURL: 'http://localhost:9001',
+  apiBaseURL: 'http://localhost:9000/backend',
   logLevel: LogLevel.Debug,
   version: '1.2.3',
   buildTimestamp: new Date().toISOString(),
