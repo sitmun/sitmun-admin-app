@@ -849,7 +849,7 @@
   "entity.task.template.status.pending": "En attente",
   "entity.task.template.status.running": "En cours",
   "entity.task.template.status.completed": "Terminée",
-  "entity.task.template.status.failed": "Échouée",  
+  "entity.task.template.status.failed": "Échouée",
   "entity.task.query.sql": "Requête SQL à exécuter",
   "entity.task.query.url": "URL",
   "entity.task.query.urlHint": "Cette URL s'exécute directement depuis le client (sans proxy, sans variables système #{}). Utilisez {variableName} uniquement pour les paramètres de requête côté client. L'URL doit être publiquement accessible (activée pour CORS) ou ouverte dans un nouvel onglet.",
@@ -1299,5 +1299,6 @@
   "entity.tree.queryableActive": "Interrogeable (GetFeatureInfo)",
   "entity.tree.hint.queryableActive": "Si activé, le catalogue du visualiseur affiche un marqueur informatif interrogeable sur cette feuille. La couche liée doit autoriser GetFeatureInfo.",
   "entity.tree.hint.queryableActive.layerDisabled": "Désactivé car aucune couche n’est liée, ou la couche n’autorise pas GetFeatureInfo. Activez d’abord GetFeatureInfo dans le formulaire de couche.",
-  "entity.tree.treeIndicator.queryableActive": "Interrogeable (GetFeatureInfo) dans le catalogue du visualiseur"
+  "entity.tree.treeIndicator.queryableActive": "Interrogeable (GetFeatureInfo) dans le catalogue du visualiseur",
+  "entity.task.moreInfoAdvanced.label": "Tâche avancée plus d'informations"
 }

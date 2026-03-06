@@ -65,11 +65,13 @@ import {TasksEditComponent} from '@app/components/tasks-edit/tasks-edit.componen
 import {TaskLocatorFormComponent} from '@app/components/tasks-locator/task-form/task-locator-form.component';
 import {TasksLocatorComponent} from '@app/components/tasks-locator/tasks-locator.component';
 import {TaskMoreInfoFormComponent} from "@app/components/tasks-more-info/task-form/task-more-info-form.component";
+import {TaskMoreInfoAdvancedFormComponent} from '@app/components/tasks-more-info-advanced/task-form/task-more-info-advanced-form.component';
 import {TasksMoreInfoComponent} from "@app/components/tasks-more-info/tasks-more-info.component";
 import { TaskTemplateFormComponent } from '@app/components/tasks-template/task-form/task-template-form.component';
 import { TasksTemplateComponent } from '@app/components/tasks-template/tasks-template.component';
 import { QueryExecutionCardComponent } from '@app/components/tasks-template/query-execution-card/query-execution-card.component';
 import { TemplateEditorComponent } from '@app/components/tasks-template/template-editor/template-editor.component';
+import {TasksMoreInfoAdvancedComponent} from '@app/components/tasks-more-info-advanced/tasks-more-info-advanced.component';
 import {TaskQueryFormComponent} from "@app/components/tasks-query/task-form/task-query-form.component";
 import {TasksQueryComponent} from "@app/components/tasks-query/tasks-query.component";
 import {TerritoryFormComponent} from '@app/components/territory/territory-form/territory-form.component';
@@ -263,7 +265,9 @@ export function initializeConfiguration(
         TaskLocatorFormComponent,
         TasksLocatorComponent,
         TaskMoreInfoFormComponent,
+        TaskMoreInfoAdvancedFormComponent,
         TasksMoreInfoComponent,
+        TasksMoreInfoAdvancedComponent,
         TasksTemplateComponent,
         TaskTemplateFormComponent,
         QueryExecutionCardComponent,
