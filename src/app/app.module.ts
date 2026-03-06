@@ -57,7 +57,9 @@ import {TasksBasicComponent} from '@app/components/tasks-basic/tasks-basic.compo
 import {TaskEditFormComponent} from '@app/components/tasks-edit/task-form/task-edit-form.component';
 import {TasksEditComponent} from '@app/components/tasks-edit/tasks-edit.component';
 import {TaskMoreInfoFormComponent} from "@app/components/tasks-more-info/task-form/task-more-info-form.component";
+import {TaskMoreInfoAdvancedFormComponent} from '@app/components/tasks-more-info-advanced/task-form/task-more-info-advanced-form.component';
 import {TasksMoreInfoComponent} from "@app/components/tasks-more-info/tasks-more-info.component";
+import {TasksMoreInfoAdvancedComponent} from '@app/components/tasks-more-info-advanced/tasks-more-info-advanced.component';
 import {TaskQueryFormComponent} from "@app/components/tasks-query/task-form/task-query-form.component";
 import {TasksQueryComponent} from "@app/components/tasks-query/tasks-query.component";
 import {TerritoryFormComponent} from '@app/components/territory/territory-form/territory-form.component';
@@ -276,7 +278,9 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
         TasksBasicComponent,
         TaskBasicFormComponent,
 	TaskMoreInfoFormComponent,
+  TaskMoreInfoAdvancedFormComponent,
 	TasksMoreInfoComponent,
+  TasksMoreInfoAdvancedComponent,
         TasksQueryComponent,
         TaskQueryFormComponent,
         ConnectionFormComponent,

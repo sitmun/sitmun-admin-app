@@ -358,6 +358,7 @@
   "entity.task.basic.ui": "Control restacat",
   "entity.task.edit.label": "Trabalh d'edicion",
   "entity.task.moreInfo.label": "Trabalh mès informacion",
+  "entity.task.moreInfoAdvanced.label": "Trabalh avançat de mès informacion",
   "entity.task.label": "Trabalh",
   "entity.task.parameters.header": "Paramètres",
   "entity.task.parameters.title": "Afegeix paramètre",

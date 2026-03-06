@@ -358,6 +358,7 @@
   "entity.task.basic.ui": "Contrôle associé dans le client",
   "entity.task.edit.label": "Tâche d'édition",
   "entity.task.moreInfo.label": "Tâche plus d'informations",
+  "entity.task.moreInfoAdvanced.label": "Tâche avancée plus d'informations",
   "entity.task.label": "Tâche",
   "entity.task.parameters.header": "Paramètres",
   "entity.task.parameters.title": "Ajouter un paramètre",

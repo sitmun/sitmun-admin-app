@@ -301,6 +301,22 @@ export class Configuration {
   };
 
   /**
+   * Advanced More Info tasks configuration
+   */
+  static readonly TASK_MORE_INFO_ADVANCED: FormConfiguration = {
+    id: 'tasksMoreInfoAdvanced',
+    labelSingular: 'entity.task.moreInfoAdvanced.label',
+    labelPlural: 'entity.task.moreInfoAdvanced.label',
+    icon: 'picture_as_pdf',
+    font: 'material-icons-round',
+    route: 'tasks/moreInfoAdvanced',
+    formRoute: ':id/taskForm',
+    duplicateRoute: ':id/taskForm/:idDuplicate',
+    component: 'TasksMoreInfoAdvancedComponent',
+    formComponent: 'TaskMoreInfoAdvancedFormComponent'
+  };
+
+  /**
    * Edit tasks configuration
    */
   static readonly TASK_EDIT: FormConfiguration = {
@@ -400,6 +416,8 @@ export class Configuration {
       Configuration.TASK,
       Configuration.TASK_BASIC,
       Configuration.TASK_QUERY,
+      Configuration.TASK_MORE_INFO,
+      Configuration.TASK_MORE_INFO_ADVANCED,
       Configuration.TASK_EDIT,
       Configuration.APPLICATION,
       Configuration.LANGUAGE,
@@ -457,7 +475,8 @@ export class Configuration {
             Configuration.toMenuItem(Configuration.TASK_BASIC),
             Configuration.toMenuItem(Configuration.TASK_QUERY),
             Configuration.toMenuItem(Configuration.TASK_EDIT),
-            Configuration.toMenuItem(Configuration.TASK_MORE_INFO)
+            Configuration.toMenuItem(Configuration.TASK_MORE_INFO),
+            Configuration.toMenuItem(Configuration.TASK_MORE_INFO_ADVANCED)
           ]
         }
       ],
