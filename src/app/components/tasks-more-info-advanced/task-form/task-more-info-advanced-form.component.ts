@@ -1,8 +1,9 @@
-import {Component} from '@angular/core';
+import {Component, ElementRef, ViewChild} from '@angular/core';
 import {FormControl, FormGroup, FormGroupDirective, NgForm, Validators} from '@angular/forms';
 import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
 import {ErrorStateMatcher} from '@angular/material/core';
 import {MatDialog} from '@angular/material/dialog';
+import {MatSelectChange} from '@angular/material/select';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from '@ngx-translate/core';
@@ -69,6 +70,10 @@ interface AdvancedTaskProperties extends Record<string, unknown> {
 })
 export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskProjection> {
   readonly config = Configuration.TASK_MORE_INFO_ADVANCED;
+  private readonly childTasksPlaceholder = '{{childTasks}}';
+
+  @ViewChild('htmlTemplateTextarea')
+  private htmlTemplateTextarea?: ElementRef<HTMLTextAreaElement>;
 
   public override entityForm: FormGroup;
 
@@ -113,6 +118,15 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
     {value: 'manual', key: 'tasksMoreInfoAdvancedEntity.childOrder.manual'},
     {value: 'nameAsc', key: 'tasksMoreInfoAdvancedEntity.childOrder.nameAsc'},
     {value: 'nameDesc', key: 'tasksMoreInfoAdvancedEntity.childOrder.nameDesc'}
+  ];
+
+  protected readonly htmlSnippets: Array<{ labelKey: string, snippet: string }> = [
+    {labelKey: 'tasksMoreInfoAdvancedEntity.snippets.title', snippet: '<h2></h2>'},
+    {labelKey: 'tasksMoreInfoAdvancedEntity.snippets.subtitle', snippet: '<h3></h3>'},
+    {labelKey: 'tasksMoreInfoAdvancedEntity.snippets.paragraph', snippet: '<p></p>'},
+    {labelKey: 'tasksMoreInfoAdvancedEntity.snippets.image', snippet: '<img src="" alt="" style="max-width:100%; height:auto;" />'},
+    {labelKey: 'tasksMoreInfoAdvancedEntity.snippets.table', snippet: '<table><thead><tr><th></th></tr></thead><tbody><tr><td></td></tr></tbody></table>'},
+    {labelKey: 'tasksMoreInfoAdvancedEntity.snippets.childTasks', snippet: this.childTasksPlaceholder}
   ];
 
   protected readonly moreInfoScope = {
@@ -262,6 +276,12 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
     );
 
     this.entityForm.get('advancedTaskKind')?.valueChanges.subscribe(() => this.updateDynamicValidations());
+    this.entityForm.get('scope')?.valueChanges.subscribe(scope => {
+      if (scope !== this.moreInfoScope.sql) {
+        this.entityForm.get('connectionId')?.setValue(null);
+      }
+      this.updateDynamicValidations();
+    });
     this.updateDynamicValidations();
   }
 
@@ -322,7 +342,7 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
 
     properties.advancedTaskKind = kind;
     properties.responseFormat = this.shouldShowDataAccessFields() ? values.responseFormat : null;
-    properties.htmlTemplate = this.shouldShowDataAccessFields() ? values.htmlTemplate : null;
+    properties.htmlTemplate = values.htmlTemplate;
     properties.parentLayout = this.isParentTask() ? values.parentLayout : null;
     properties.relatedTable = this.isParentTask() ? values.relatedTable : null;
     properties.childPresentationOrder = this.isParentTask() ? values.childPresentationOrder : null;
@@ -398,6 +418,71 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
 
   isUrlRedirectAccessType(): boolean {
     return this.entityForm?.value?.scope === this.moreInfoScope.url;
+  }
+
+  isHtmlTemplateEnabled(): boolean {
+    return true;
+  }
+
+  getPreviewDocument(): string {
+    const rawTemplate = this.getHtmlTemplateValue();
+    const template = rawTemplate.trim();
+
+    if (!template) {
+      return this.wrapPreviewHtml(`<p>${this.translateService.instant('tasksMoreInfoAdvancedEntity.previewEmpty')}</p>`);
+    }
+
+    let htmlToRender = template;
+
+    if (this.isParentTask()) {
+      const childrenMarkup = this.renderChildTasksPreviewMarkup();
+      if (htmlToRender.includes(this.childTasksPlaceholder)) {
+        htmlToRender = htmlToRender.split(this.childTasksPlaceholder).join(childrenMarkup);
+      } else {
+        htmlToRender = `${htmlToRender}\n<hr/>\n${childrenMarkup}`;
+      }
+    }
+
+    return this.wrapPreviewHtml(htmlToRender);
+  }
+
+  getChildTasksPlaceholder(): string {
+    return this.childTasksPlaceholder;
+  }
+
+  insertHtmlSnippet(snippet: string): void {
+    const control = this.entityForm.get('htmlTemplate');
+    if (!control) {
+      return;
+    }
+
+    const currentValue = typeof control.value === 'string' ? control.value : '';
+    const textarea = this.htmlTemplateTextarea?.nativeElement;
+
+    if (textarea) {
+      const start = textarea.selectionStart ?? currentValue.length;
+      const end = textarea.selectionEnd ?? currentValue.length;
+      const updated = `${currentValue.slice(0, start)}${snippet}${currentValue.slice(end)}`;
+      control.setValue(updated);
+      control.markAsDirty();
+
+      const cursor = start + snippet.length;
+      setTimeout(() => {
+        textarea.focus();
+        textarea.setSelectionRange(cursor, cursor);
+      });
+      return;
+    }
+
+    control.setValue(`${currentValue}${snippet}`);
+    control.markAsDirty();
+  }
+
+  onScopeChange(event: MatSelectChange): void {
+    if (event.value !== this.moreInfoScope.sql) {
+      this.entityForm.get('connectionId')?.setValue(null);
+    }
+    this.updateDynamicValidations();
   }
 
   private updateDynamicValidations(): void {
@@ -522,6 +607,47 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
         return parentIds.includes(this.entityID);
       })
       .map(child => child.id);
+  }
+
+  private getHtmlTemplateValue(): string {
+    const value = this.entityForm?.get('htmlTemplate')?.value;
+    return typeof value === 'string' ? value : '';
+  }
+
+  private renderChildTasksPreviewMarkup(): string {
+    const title = this.translateService.instant('tasksMoreInfoAdvancedEntity.childTasksPreviewTitle');
+    const selectedIds = this.normalizeParentIds(this.entityForm?.get('selectedChildTaskIds')?.value);
+    const selectedNames = this.getAvailableChildTasks()
+      .filter(task => selectedIds.includes(task.id))
+      .map(task => task.name)
+      .filter(Boolean);
+
+    if (selectedNames.length === 0) {
+      return `<section><h3>${title}</h3><p>-</p></section>`;
+    }
+
+    const items = selectedNames.map(name => `<li>${name}</li>`).join('');
+    return `<section><h3>${title}</h3><ul>${items}</ul></section>`;
+  }
+
+  private wrapPreviewHtml(content: string): string {
+    if (/<html[\s>]/i.test(content)) {
+      return content;
+    }
+
+    return `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body { font-family: Arial, sans-serif; padding: 12px; }
+      table { border-collapse: collapse; width: 100%; }
+      th, td { border: 1px solid #ccc; padding: 6px; }
+      img { max-width: 100%; }
+    </style>
+  </head>
+  <body>${content}</body>
+</html>`;
   }
 
   private cartographyValidator(control: FormControl): { [key: string]: any } | null {
