@@ -72,7 +72,7 @@
         <mat-card-content>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'tasksMoreInfoAdvancedEntity.dataAccessType' | translate }}</mat-label>
-            <mat-select formControlName="scope" required>
+            <mat-select formControlName="scope" required (selectionChange)="onScopeChange($event)">
               <mat-option [value]="type.value" *ngFor="let type of this.codeList('moreInfo.type')">
                 {{ type.description | translate }}
               </mat-option>
@@ -103,10 +103,6 @@
             <mat-hint align="end">{{ entityForm.get('command') | characterCount }}</mat-hint>
           </mat-form-field>
 
-          <mat-form-field appearance="outline" class="full" *ngIf="entityForm.get('responseFormat')?.value === 'html'">
-            <mat-label>{{ 'tasksMoreInfoAdvancedEntity.htmlTemplate' | translate }}</mat-label>
-            <textarea matInput formControlName="htmlTemplate" rows="8"></textarea>
-          </mat-form-field>
         </mat-card-content>
       </mat-card>
 
@@ -144,6 +140,34 @@
             </mat-select>
             <mat-hint>{{ 'tasksMoreInfoAdvancedEntity.childrenHint' | translate }}</mat-hint>
           </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined" *ngIf="isHtmlTemplateEnabled()">
+        <mat-card-content>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
+            <button
+              mat-stroked-button
+              type="button"
+              *ngFor="let item of htmlSnippets"
+              (click)="insertHtmlSnippet(item.snippet)">
+              {{ item.labelKey | translate }}
+            </button>
+          </div>
+
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'tasksMoreInfoAdvancedEntity.htmlTemplate' | translate }}</mat-label>
+            <textarea #htmlTemplateTextarea matInput formControlName="htmlTemplate" rows="12"></textarea>
+            <mat-hint>{{ 'tasksMoreInfoAdvancedEntity.previewHint' | translate }} <code>{{ getChildTasksPlaceholder() }}</code></mat-hint>
+          </mat-form-field>
+
+          <h4>{{ 'tasksMoreInfoAdvancedEntity.preview' | translate }}</h4>
+          <iframe
+            title="HTML preview"
+            [srcdoc]="getPreviewDocument()"
+            sandbox
+            style="width: 100%; min-height: 320px; border: 1px solid #d0d0d0; border-radius: 4px; background: #fff;">
+          </iframe>
         </mat-card-content>
       </mat-card>
     </form>
