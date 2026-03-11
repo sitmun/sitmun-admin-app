@@ -165,13 +165,13 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
     if (this.isNew() && !this.entityToEdit.type) {
       const defaultType = this.defaultValueOrNull('tree.type');
       if (defaultType) {
-      this.entityForm.patchValue({ type: defaultType.value });
-      this.currentTreeType = defaultType.value;
+        this.entityForm.patchValue({ type: defaultType.value });
+        this.currentTreeType = defaultType.value;
+      }
     }
-  }
 
-  // Image preview is now handled by the ImagePreviewComponent via imageSource input
-}
+    // Image preview is now handled by the ImagePreviewComponent via imageSource input
+  }
 
   /**
    * Fetches related data for the tree entity.

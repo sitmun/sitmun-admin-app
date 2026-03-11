@@ -1,7 +1,7 @@
 <mat-card appearance="outlined">
   <mat-card-content>
     <div class="formDiv resizable-container">
-      <div class="tree-panel" [style.width.%]="treePanelWidth" *ngIf="dataLoaded">
+      <div class="tree-panel" [style.width.%]="treePanelWidth" *ngIf="dataLoaded && codeListsInitialized">
         <app-data-tree [getAll]='getAllTreeNodes' (emitNode)="nodeReceived($event)" (addNode)="addNodeWithType($event.parent, $event.nodeType)"
           (loadButtonClicked)="loadGroupLayersButtonClicked($event)"
           [eventNodeUpdatedSubscription]='sendNodeUpdated.asObservable()' [loadDataButton]="loadDataButton$"
@@ -9,10 +9,10 @@
           [eventRefreshSubscription]='refreshTreeEvent.asObservable()'
           [eventCreateNodeSubscription]='createNodeEvent.asObservable()' [allNewElements]='entityID === -1'
           [currentTreeType]="currentTreeType"
-          [canNodeHaveChildren]="canNodeHaveChildren.bind(this)"
-          [getAllowedTypesForParent]="getAllowedTypesForParent.bind(this)"
-          [getNodeTypeLabel]="getNodeTypeLabel.bind(this)"
-          [getViewModeLabel]="getViewModeLabelForTree.bind(this)"
+          [canNodeHaveChildren]="canNodeHaveChildrenFn"
+          [getAllowedTypesForParent]="getAllowedTypesForParentFn"
+          [getNodeTypeLabel]="getNodeTypeLabelFn"
+          [getViewModeLabel]="getViewModeLabelForTreeFn"
           (emitAllNodes)="receiveAllNodes($event)">
           loading
         </app-data-tree>
@@ -351,7 +351,7 @@
                               <span *ngIf="!treeNodeForm.get('viewMode')?.value">{{ 'common.form.none' | translate }}</span>
                             </mat-select-trigger>
                             <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
-                            <mat-option [value]="taskview.value" *ngFor="let taskview of codeList('treenode.viewmode')">
+                            <mat-option [value]="taskview.value" *ngFor="let taskview of viewModeOptions">
                               <span class="view-mode-option-row">
                                 <mat-icon class="view-mode-option-icon" [fontSet]="'material-icons-round'">{{ getViewModeIcon(taskview.value) }}</mat-icon>
                                 <span class="view-mode-option-label">{{ taskview.description }}</span>

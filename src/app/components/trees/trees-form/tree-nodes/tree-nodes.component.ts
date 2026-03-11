@@ -74,6 +74,15 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   treeNodeForm: UntypedFormGroup;
   public fieldsConfigForm: UntypedFormGroup;
   idFictitiousCounter = -1;
+  viewModeOptions: CodeList[] = [];
+  private nodeTypeOptions: CodeList[] = [];
+  private nodeTypeDescriptionMap = new Map<string, string>();
+  private nodeTypeDisplayMap = new Map<string, string>();
+  private viewModeDescriptionMap = new Map<string, string>();
+  readonly canNodeHaveChildrenFn = (nodeType: string | null) => this.canNodeHaveChildren(nodeType);
+  readonly getAllowedTypesForParentFn = (parent: FileNode | null) => this.getAllowedTypesForParent(parent);
+  readonly getNodeTypeLabelFn = (nodeType: string) => this.getNodeTypeLabel(nodeType);
+  readonly getViewModeLabelForTreeFn = (viewMode: string) => this.getViewModeLabelForTree(viewMode);
   /** Computed: whether current node type can have children (derived from config). */
   get currentNodeIsFolder(): boolean {
     return canNodeTypeHaveChildren(this.currentTreeType, this.currentNodeType);
@@ -161,7 +170,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   /** Map of code list names with their associated values */
   private readonly codelists: Map<string, CodeList[]> = new Map();
   /** Flag to track if code lists have been initialized */
-  private codeListsInitialized = false;
+  codeListsInitialized = false;
   savingNode = false;
   nameTranslations: Map<number, Map<string, Translation>> = new Map<number, Map<string, Translation>>();
   descriptionTranslations: Map<number, Map<string, Translation>> = new Map<number, Map<string, Translation>>();
@@ -323,7 +332,23 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       this.codelists.set(code, [...list].sort((a, b) => a.description.localeCompare(b.description)));
     }));
     this.codeListsInitialized = true;
+    this.rebuildCodeListCaches();
     return result;
+  }
+
+  private rebuildCodeListCaches(): void {
+    this.nodeTypeOptions = this.codelists.get('treenode.node.type') || [];
+    this.viewModeOptions = this.codelists.get('treenode.viewmode') || [];
+    this.nodeTypeDescriptionMap = new Map(this.nodeTypeOptions.map(item => [item.value, item.description]));
+    this.nodeTypeDisplayMap = new Map(
+      this.nodeTypeOptions.map(item => {
+        const typeKey = `treesEntity.nodeType.${item.value}`;
+        const translated = this.translateService.instant(typeKey);
+        const display = translated !== typeKey ? translated : item.description;
+        return [item.value, display] as [string, string];
+      })
+    );
+    this.viewModeDescriptionMap = new Map(this.viewModeOptions.map(item => [item.value, item.description]));
   }
 
   /**
@@ -341,14 +366,12 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   /** Label for a view mode code from treenode.viewmode codelist; fallback to raw code. */
   getViewModeLabelForTree(viewMode: string): string {
     if (!viewMode) return '';
-    const list = this.codeList('treenode.viewmode');
-    const entry = list.find((e: { value: string; description: string }) => e.value === viewMode);
-    return entry?.description ?? viewMode;
+    return this.viewModeDescriptionMap.get(viewMode) ?? viewMode;
   }
 
   /** Node types from codelist filtered by tree type; predicate = can have children (true) or cannot (false). */
   private getAvailableNodeTypesByPredicate(canHaveChildren: boolean): CodeList[] {
-    const allTypes = this.codeList('treenode.node.type');
+    const allTypes = this.nodeTypeOptions;
     if (!this.currentTreeType) return allTypes;
     const allowed = getNodeTypesForTree(this.currentTreeType).filter(nt =>
       canNodeTypeHaveChildren(this.currentTreeType, nt) === canHaveChildren
@@ -390,11 +413,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
    */
   getNodeTypeLabel(nodeType: string): string {
     if (!nodeType) return '';
-    const typeKey = `treesEntity.nodeType.${nodeType}`;
-    const translated = this.translateService.instant(typeKey);
-    if (translated !== typeKey) return translated;
-    const found = this.codeList('treenode.node.type').find(t => t.value === nodeType);
-    return found ? found.description : nodeType;
+    return this.nodeTypeDisplayMap.get(nodeType) ?? this.nodeTypeDescriptionMap.get(nodeType) ?? nodeType;
   }
 
   /** Material icon name for the current node type (from config). Used in form. */

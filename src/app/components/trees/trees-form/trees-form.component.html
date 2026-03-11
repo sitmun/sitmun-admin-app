@@ -7,6 +7,7 @@
   [canSave]="canSaveEntity"
   [form]="entityForm"
   entityLabelPrefix="entity.tree"
+  [customWarningMessage]="treeValidationWarningMessage"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
@@ -15,7 +16,6 @@
   mat-stretch-tabs="false"
   mat-align-tabs="end"
   [dynamicHeight]="true"
-  preserveContent="true"
   (selectedTabChange)="onTabChange($event)">
   <mat-tab label="{{ 'common.form.details' | translate }}">
     <form [formGroup]='entityForm' *ngIf="dataLoaded">
@@ -87,15 +87,17 @@
     </form>
   </mat-tab>
   <mat-tab label="{{ 'entity.tree.treeStructure' | translate }}">
-    <app-tree-nodes
-      #treeNodesComponent
-      [tree]="entityToEdit"
-      [entityID]="entityID"
-      [duplicateID]="duplicateID"
-      [dataLoaded]="dataLoaded"
-      [currentTreeType]="currentTreeType"
-      (saveRequested)="receiveAllNodes($event)">
-    </app-tree-nodes>
+    <ng-template matTabContent>
+      <app-tree-nodes
+        #treeNodesComponent
+        [tree]="entityToEdit"
+        [entityID]="entityID"
+        [duplicateID]="duplicateID"
+        [dataLoaded]="dataLoaded"
+        [currentTreeType]="currentTreeType"
+        (saveRequested)="receiveAllNodes($event)">
+      </app-tree-nodes>
+    </ng-template>
   </mat-tab>
   <mat-tab label="{{ 'entity.permissionGroup.applications.header' | translate }}">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">

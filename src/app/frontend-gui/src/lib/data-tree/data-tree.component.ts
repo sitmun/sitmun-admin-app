@@ -425,6 +425,7 @@ export class DataTreeComponent implements OnInit {
   dragNodeExpandOverTime: number = 0;
   dragNodeExpandOverArea: DragOverArea = '';
   @ViewChild(MatTree) tree?: MatTree<FileNode>;
+  private nodeTypeLabelCache = new Map<string, string>();
 
     /** Map to store original node states for revert functionality */
     originalNodeStates = new Map<string | number, any>();
@@ -489,7 +490,8 @@ export class DataTreeComponent implements OnInit {
 
   getElements(): void {
     if (!this.getAll) return;
-    this.getAll().pipe(
+    const source$ = this.getAll();
+    source$.pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((items) => {
       this.applyFetchedTreeData(items);
@@ -1189,14 +1191,14 @@ export class DataTreeComponent implements OnInit {
 
   applyFilter(): void {
     let filteredData = this.originalData;
-    
+
     if (this.filterValue && this.filterValue.trim() !== '') {
       const filter = this.filterValue.toLowerCase().trim();
       filteredData = this.filterTree(this.originalData, filter);
     }
-    
+
     this.setTreeData(filteredData);
-    
+
     // Auto-expand only root node (first level) - do not expand nested children
     setTimeout(() => {
       this.ensureRootExpandedAfterFilter(filteredData);
@@ -1266,6 +1268,17 @@ export class DataTreeComponent implements OnInit {
     }
     if (nodeType === constants.treeRenderType.folder) return constants.treeRenderType.folder;
     return 'description';
+  }
+
+  /** Cached node type label to avoid repeated parent callback calls during CD cycles. */
+  nodeTypeLabelCached(nodeType: string | null | undefined): string {
+    if (!nodeType) return '';
+    const key = String(nodeType);
+    const cached = this.nodeTypeLabelCache.get(key);
+    if (cached != null) return cached;
+    const label = this.getNodeTypeLabel ? this.getNodeTypeLabel(key) : key;
+    this.nodeTypeLabelCache.set(key, label);
+    return label;
   }
 
   /** Icon font for tree row (from config); undefined for default font. */

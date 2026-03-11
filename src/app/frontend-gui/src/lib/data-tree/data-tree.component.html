@@ -21,7 +21,7 @@
       </mat-form-field>
       <button type="button"
               *ngFor="let nodeType of getAllowedRootTypes()"
-              [matTooltip]="getNodeTypeLabel(nodeType)"
+              [matTooltip]="nodeTypeLabelCached(nodeType)"
               mat-mini-fab class="add-half-gap"
               color="primary"
               (click)="addRootNode(nodeType)">
@@ -67,7 +67,7 @@
         </button>
         <mat-icon *ngIf="node.name !== ''" [attr.aria-label]="(node.nodeType || node.type) + ' icon'"
                   class="type-icon" [fontSet]="getNodeIconFont(node)" [style.color]="node.status === 'pendingDelete' ? '#d32f2f' : null"
-                  [matTooltip]="getNodeTypeLabel(node.nodeType || node.type)">
+                  [matTooltip]="nodeTypeLabelCached(node.nodeType || node.type)">
           {{ getNodeIcon(node) }}
         </mat-icon>
         <mat-icon *ngIf="(node.status==='Modified' || node.status==='pendingCreation') && node.name !== '' && node.status !== 'pendingDelete'" 
@@ -91,8 +91,8 @@
             <button *ngFor="let nodeType of getAllowedChildTypes(resolveNode(node))"
                     (click)="onAddChildNode(resolveNode(node), nodeType)"
                     mat-icon-button
-                    [matTooltip]="getNodeTypeLabel(nodeType)"
-                    [attr.aria-label]="getNodeTypeLabel(nodeType)">
+                    [matTooltip]="nodeTypeLabelCached(nodeType)"
+                    [attr.aria-label]="nodeTypeLabelCached(nodeType)">
               <mat-icon [fontSet]="getNodeIconFontForType(nodeType)">{{ getNodeIconForType(nodeType) }}</mat-icon>
             </button>
           </ng-container>
@@ -153,7 +153,7 @@
         </button>
         <mat-icon *ngIf="node.name !== ''" class="type-icon" [attr.aria-label]="(node.nodeType || node.type) + ' icon'"
                   [fontSet]="getNodeIconFont(node)" [style.color]="node.status === 'pendingDelete' ? '#d32f2f' : null"
-                  [matTooltip]="getNodeTypeLabel(node.nodeType || node.type)">
+                  [matTooltip]="nodeTypeLabelCached(node.nodeType || node.type)">
           {{ getNodeIcon(node) }}
         </mat-icon>
         <mat-icon *ngIf="(node.status==='Modified' || node.status==='pendingCreation') && node.name !== '' && node.status !== 'pendingDelete'" 
@@ -176,8 +176,8 @@
             <button *ngFor="let nodeType of getAllowedChildTypes(resolveNode(node))"
                     (click)="onAddChildNode(resolveNode(node), nodeType)"
                     mat-icon-button
-                    [matTooltip]="getNodeTypeLabel(nodeType)"
-                    [attr.aria-label]="getNodeTypeLabel(nodeType)">
+                    [matTooltip]="nodeTypeLabelCached(nodeType)"
+                    [attr.aria-label]="nodeTypeLabelCached(nodeType)">
               <mat-icon [fontSet]="getNodeIconFontForType(nodeType)">{{ getNodeIconForType(nodeType) }}</mat-icon>
             </button>
           </ng-container>

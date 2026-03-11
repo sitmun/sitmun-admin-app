@@ -23,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TreesFormComponent enhanced with tree type change warning dialog when existing nodes may be incompatible.
 - TreeNodesComponent updated to work with modernized DataTreeComponent API and emit proper tree node updates.
 - Type safety improvements throughout tree management components with proper TypeScript interfaces.
+- Tree Structure tab content now loads lazily and tree rendering waits for codelist initialization to avoid early heavy work on form open.
+- Tree/data-tree rendering callbacks were stabilized and node type/view mode label resolution now uses caches to reduce change detection churn.
+- Tree node unit tests now rebuild codelist caches after injecting mocked codelists to match runtime behavior.
 
 ### Fixed
 
@@ -32,6 +35,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Development API URL set to `http://localhost:9000/backend` so `ng serve` uses the Nginx proxy path and CORS works correctly.
 - DataTreeComponent subscription cleanup using `takeUntilDestroyed` to prevent memory leaks.
 - Tree expansion state persistence when filtering and reordering nodes.
+- Restored tree save-constraint explanation banner in the toolbar by wiring `treeValidationWarningMessage` into `app-form-toolbar`.
+- Resolved tree form unresponsiveness when opening existing trees and when entering the Tree Structure tab.
+- Updated problem-detail translation-key tests to use the `backend.error.*` namespace.
+- Removed temporary debugging instrumentation introduced during freeze/root-cause investigation.
 
 ### Removed
 
