@@ -8,7 +8,7 @@ import {MatTabChangeEvent} from '@angular/material/tabs';
 import {TranslateService} from '@ngx-translate/core';
 import {XMLParser} from 'fast-xml-parser';
 import {firstValueFrom, Observable, of, Subject} from 'rxjs';
-import {map} from 'rxjs/operators';
+import {map, timeout} from 'rxjs/operators';
 
 import {HalOptions, HalParam} from '@app/core';
 import {Configuration} from '@app/core/config/configuration';
@@ -77,7 +77,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   viewModeOptions: CodeList[] = [];
   private nodeTypeOptions: CodeList[] = [];
   private nodeTypeDescriptionMap = new Map<string, string>();
-  private nodeTypeDisplayMap = new Map<string, string>();
   private viewModeDescriptionMap = new Map<string, string>();
   readonly canNodeHaveChildrenFn = (nodeType: string | null) => this.canNodeHaveChildren(nodeType);
   readonly getAllowedTypesForParentFn = (parent: FileNode | null) => this.getAllowedTypesForParent(parent);
@@ -174,6 +173,14 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   savingNode = false;
   nameTranslations: Map<number, Map<string, Translation>> = new Map<number, Map<string, Translation>>();
   descriptionTranslations: Map<number, Map<string, Translation>> = new Map<number, Map<string, Translation>>();
+  private translationLoadsCompleted: Set<number> = new Set<number>();
+  private translationLoadsInFlight: Map<number, Promise<void>> = new Map<number, Promise<void>>();
+  private fullTaskLoadsInFlight: Set<number> = new Set<number>();
+  private cachedTaskInputLabels: string[] = [];
+  private cachedTaskInputTaskId: number | null = null;
+  private cachedTaskInputPropertiesRef: unknown = undefined;
+  private cachedTaskOutputParameters: { key: string; label: string }[] = [];
+  private cachedTaskOutputMode = '';
 
   // Resizable layout properties
   treePanelWidth = 45; // Percentage
@@ -340,14 +347,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     this.nodeTypeOptions = this.codelists.get('treenode.node.type') || [];
     this.viewModeOptions = this.codelists.get('treenode.viewmode') || [];
     this.nodeTypeDescriptionMap = new Map(this.nodeTypeOptions.map(item => [item.value, item.description]));
-    this.nodeTypeDisplayMap = new Map(
-      this.nodeTypeOptions.map(item => {
-        const typeKey = `treesEntity.nodeType.${item.value}`;
-        const translated = this.translateService.instant(typeKey);
-        const display = translated !== typeKey ? translated : item.description;
-        return [item.value, display] as [string, string];
-      })
-    );
     this.viewModeDescriptionMap = new Map(this.viewModeOptions.map(item => [item.value, item.description]));
   }
 
@@ -408,12 +407,10 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     return this.getAllowedChildrenForParent(parent.nodeType);
   }
 
-  /**
-   * Display label for a node type. Uses i18n when a key exists (e.g. entity.task.label), else codelist description.
-   */
+  /** Display label for a node type from backend codelist description. */
   getNodeTypeLabel(nodeType: string): string {
     if (!nodeType) return '';
-    return this.nodeTypeDisplayMap.get(nodeType) ?? this.nodeTypeDescriptionMap.get(nodeType) ?? nodeType;
+    return this.nodeTypeDescriptionMap.get(nodeType) ?? nodeType;
   }
 
   /** Material icon name for the current node type (from config). Used in form. */
@@ -488,8 +485,8 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   /** i18n key for description panel title: 'descriptionMetadata' when metadata fields shown, else 'description'. */
   get descriptionPanelTitleKey(): string {
     return getNodePanelConfig(this.currentTreeType, this.effectiveNodeType, 'showMetadataFieldsInDescriptionPanel')
-      ? 'treesEntity.descriptionMetadata'
-      : 'treesEntity.description';
+      ? 'entity.tree.descriptionMetadata'
+      : 'entity.tree.description';
   }
 
   /**
@@ -573,7 +570,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   /** i18n key for appearance panel field label (image vs icon), from config. */
   get appearanceFieldLabelI18nKey(): string {
     const key = getNodeTypeAppearanceLabelKey(this.currentTreeType, this.effectiveNodeType);
-    return `treesEntity.${key}`;
+    return `entity.tree.${key}`;
   }
 
   /** True when config shows filterable checkbox and fields config in task panel. */
@@ -620,33 +617,57 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   /** Loads full task (with properties) for parameter guidance and sets currentNodeTask. */
   private loadFullTaskForParameterGuidance(taskId: number): void {
     if (!taskId) return;
-    firstValueFrom(this.taskService.get(taskId)).then((fullTask) => {
+    if (this.fullTaskLoadsInFlight.has(taskId)) {
+      return;
+    }
+    this.fullTaskLoadsInFlight.add(taskId);
+    firstValueFrom(this.taskService.get(taskId).pipe(timeout(5000))).then((fullTask) => {
       this.currentNodeTask = fullTask;
       this.cdr.markForCheck();
+      this.fullTaskLoadsInFlight.delete(taskId);
     }).catch(() => {
       // Keep existing currentNodeTask on error
+      this.fullTaskLoadsInFlight.delete(taskId);
     });
   }
 
   /** Input parameter labels for the selected task (for panel guidance). */
   get taskInputParameterLabels(): string[] {
     const task = this.selectedTaskForParams;
-    if (!task) return [];
+    if (!task) {
+      this.cachedTaskInputTaskId = null;
+      this.cachedTaskInputPropertiesRef = undefined;
+      this.cachedTaskInputLabels = [];
+      return this.cachedTaskInputLabels;
+    }
+    const taskId = typeof task.id === 'number' ? task.id : null;
+    const propertiesRef = task.properties;
+    if (this.cachedTaskInputTaskId === taskId && this.cachedTaskInputPropertiesRef === propertiesRef) {
+      return this.cachedTaskInputLabels;
+    }
     const parameters = TaskPropertiesContract.getParameters(
       TaskPropertiesContract.fromRaw(task.properties)
     );
-    return parameters
+    this.cachedTaskInputLabels = parameters
       .map(p => (typeof p.label === 'string' && p.label.trim() ? p.label : p.name))
       .filter((name): name is string => typeof name === 'string' && name.trim().length > 0);
+    this.cachedTaskInputTaskId = taskId;
+    this.cachedTaskInputPropertiesRef = propertiesRef;
+    return this.cachedTaskInputLabels;
   }
 
   /** Output parameter descriptors for the current view mode (key + i18n label key). */
   get taskOutputParametersForCurrentMode(): { key: string; label: string }[] {
     const mode = this.currentViewMode;
     if (!mode) return [];
-    return this.nodeOutputsControls
+    if (this.cachedTaskOutputMode === mode) {
+      return this.cachedTaskOutputParameters;
+    }
+    this.cachedTaskOutputParameters = this.nodeOutputsControls
       .filter(noc => noc.views.includes(mode))
       .map(noc => ({ key: noc.key, label: noc.label }));
+    this.cachedTaskOutputMode = mode;
+    return this.cachedTaskOutputParameters;
   }
 
   /**
@@ -928,7 +949,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     if (node.taskId && this.allTasks.length > 0) {
       taskObj = this.allTasks.find(t => t.id === node.taskId);
     }
-    
     this.treeNodeForm.patchValue({
       id: node.id,
       name: node.name,
@@ -1028,9 +1048,12 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     
     // Image preview is now handled by the ImagePreviewComponent via imageSource input
     
-    // Load translations for this node if it's an existing node (has real ID) and translations aren't already loaded
-    if (node.id >= 0 && (!this.nameTranslations.has(node.id) || !this.descriptionTranslations.has(node.id))) {
-      await this.loadNodeTranslations(node.id);
+    // Load translations lazily without blocking selection rendering.
+    const shouldLoadNodeTranslations = node.id >= 0 &&
+      !this.translationLoadsCompleted.has(node.id) &&
+      (!this.nameTranslations.has(node.id) || !this.descriptionTranslations.has(node.id));
+    if (shouldLoadNodeTranslations) {
+      this.ensureNodeTranslationsLoaded(node.id);
     }
     
     if (this.nameTranslations.has(node.id)) {
@@ -1056,6 +1079,17 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     
     // Trigger change detection to update panel visibility conditions
     this.cdr.detectChanges();
+  }
+
+  private ensureNodeTranslationsLoaded(nodeId: number): void {
+    if (this.translationLoadsCompleted.has(nodeId) || this.translationLoadsInFlight.has(nodeId)) {
+      return;
+    }
+    const inFlight = this.loadNodeTranslations(nodeId).finally(() => {
+      this.translationLoadsInFlight.delete(nodeId);
+      this.translationLoadsCompleted.add(nodeId);
+    });
+    this.translationLoadsInFlight.set(nodeId, inFlight);
   }
 
   createMappingParentTaskOptions(nodeParent) {
@@ -1487,6 +1521,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       image: null,
       imageName: null,
     });
+    this.markImageChangeAsModified(form);
     input.readOnly = false;
     input.focus();
   }
@@ -1497,6 +1532,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       image: null,
       imageName: null,
     });
+    this.markImageChangeAsModified(form);
   }
 
   onImageChange(formtype, event) {
@@ -1506,6 +1542,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       form.patchValue({
         image: input.value
       });
+      this.markImageChangeAsModified(form);
     }
   }
 
@@ -1523,8 +1560,18 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
           image: reader.result,
           imageName: file.name
         });
+        this.markImageChangeAsModified(form);
       };
       reader.readAsDataURL(file);
+    }
+  }
+
+  private markImageChangeAsModified(form: UntypedFormGroup): void {
+    form.markAsDirty();
+    if (!this.newElement && form.get('id')?.value >= 0) {
+      form.patchValue({
+        status: "Modified"
+      });
     }
   }
 
@@ -2486,6 +2533,20 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       allTranslations.forEach(translation => {
         this.saveTreeNodeTranslation(translation, translation.column);
       });
+      // Keep current detail form in sync when async translations arrive after selection.
+      if (this.currentNodeId === nodeId) {
+        const patch: any = {};
+        if (this.nameTranslations.has(nodeId)) {
+          patch.nameTranslations = this.nameTranslations.get(nodeId);
+        }
+        if (this.descriptionTranslations.has(nodeId)) {
+          patch.descriptionTranslations = this.descriptionTranslations.get(nodeId);
+        }
+        if (Object.keys(patch).length > 0) {
+          this.treeNodeForm.patchValue(patch);
+          this.cdr.markForCheck();
+        }
+      }
     } catch (error) {
       this.loggerService.error('TreeNodesComponent.loadNodeTranslations - Error loading translations', error);
     }

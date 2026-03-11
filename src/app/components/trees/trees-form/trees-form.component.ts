@@ -427,6 +427,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       image: null,
       imageName: null,
     });
+    this.markTreeImageAsModified();
     input.readOnly = false;
     input.focus();
   }
@@ -436,6 +437,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       image: null,
       imageName: null,
     });
+    this.markTreeImageAsModified();
   }
 
   onImageChange(formtype: string, event: Event): void {
@@ -444,6 +446,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       this.entityForm.patchValue({
         image: input.value
       });
+      this.markTreeImageAsModified();
     }
   }
 
@@ -460,9 +463,14 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
           image: reader.result,
           imageName: file.name
         });
+        this.markTreeImageAsModified();
       };
       reader.readAsDataURL(file);
     }
+  }
+
+  private markTreeImageAsModified(): void {
+    this.entityForm.markAsDirty();
   }
 
   /**

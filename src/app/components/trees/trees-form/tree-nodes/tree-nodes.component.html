@@ -186,10 +186,6 @@
                           <input matInput type="text" formControlName="datasetURL">
                         </mat-form-field>
                       </div>
-                      <app-image-preview *ngIf="currentNodeIsFolder" [imageSource]="treeNodeForm.get('image')?.value"
-                        [imageName]="treeNodeForm.get('imageName')?.value" [previewId]="'treeNodeImgPreview'"
-                        [maxWidth]="80" [maxHeight]="80">
-                      </app-image-preview>
                     </div>
                   </mat-expansion-panel>
 
@@ -260,17 +256,25 @@
                         <input #nodeFileInput type="file" accept="image/*" hidden
                           (change)="onImageSelected('node', $event)">
                         <div class="appearance-actions">
-                          <button mat-raised-button color="primary" (click)="nodeFileInput.click()">
+                          <button mat-raised-button color="primary" type="button" (click)="nodeFileInput.click()">
                             {{ 'entity.tree.selectFile' | translate }}
                           </button>
-                          <button mat-raised-button color="primary"
+                          <button mat-raised-button color="primary" type="button"
                             (click)="activeImageNameInput('node', treenodeImageNameInput)">
                             {{ 'entity.tree.webUrl' | translate }}
                           </button>
-                          <button mat-raised-button color="warn" (click)="removeImage('node')">
+                          <button mat-raised-button color="warn" type="button" (click)="removeImage('node')">
                             {{ 'entity.tree.delete' | translate }}
                           </button>
                         </div>
+                        <app-image-preview
+                          *ngIf="appearanceFieldLabelI18nKey === 'entity.tree.image'"
+                          [imageSource]="treeNodeForm.get('image')?.value"
+                          [imageName]="treeNodeForm.get('imageName')?.value"
+                          [previewId]="'treeNodeImgPreview'"
+                          [maxWidth]="80"
+                          [maxHeight]="80">
+                        </app-image-preview>
                       </div>
                     </div>
                   </mat-expansion-panel>
@@ -451,7 +455,7 @@
           <mat-radio-group formControlName="selectedMappingTarget" class="output-mapping-radio-group">
           <div class="maping-form">
               <div formGroupName="output">
-do                <ng-container *ngFor="let control of nodeOutputsControls; let last = last">
+                <ng-container *ngFor="let control of nodeOutputsControls; let last = last">
                   <!-- Skip Label controls here; they'll be rendered with their corresponding button -->
                   <ng-container *ngIf="!control.key.includes('Label') && control.views.includes(currentViewMode)">
                     <div class="field-config-row output-param-block">
