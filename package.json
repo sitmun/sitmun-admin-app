@@ -53,7 +53,7 @@
     "@angular-eslint/eslint-plugin": "^19.8.1",
     "@angular-eslint/eslint-plugin-template": "^19.8.1",
     "@angular-eslint/template-parser": "^19.8.1",
-    "@angular/cli": "^19.2.19",
+    "@angular/cli": "^21.2.1",
     "@angular/compiler-cli": "^19.2.19",
     "@babel/core": "^7.26.9",
     "@babel/preset-env": "^7.26.9",
