@@ -89,12 +89,12 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
 
   // Map form control names to their i18n label keys for validation banner
   protected validationFieldLabels: Record<string, string> = {
-    'name': 'entity.task.label',
+    'name': 'entity.task.moreInfo.taskName',
     'taskGroupId': 'entity.taskGroup.label',
-    'cartographyId': 'tasksMoreInfoEntity.cartography',
-    'scope': 'tasksMoreInfoEntity.dataAccessType',
+    'cartographyId': 'entity.task.moreInfo.cartography',
+    'scope': 'entity.task.moreInfo.dataAccessType',
     'command': 'common.form.command',
-    'connectionId': 'tasksMoreInfoEntity.connection'
+    'connectionId': 'entity.task.moreInfo.connection'
   };
 
   private readonly moreInfoScope = {
