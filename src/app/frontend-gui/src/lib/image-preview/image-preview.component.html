@@ -1,7 +1,7 @@
 <div #previewContainer class="preview-container" [hidden]="!isVisible || !imageSource">
   <img #previewImage [id]="previewId" alt="preview" class="previewImage" [style.max-width.px]="maxWidth" [style.max-height.px]="maxHeight">
   <div class="image-dimensions" *ngIf="imageSource && originalImageWidth && originalImageHeight">
-    {{ 'treesEntity.originalSize' | translate }}: {{ originalImageWidth }}x{{ originalImageHeight }}px
+    {{ 'entity.tree.originalSize' | translate }}: {{ originalImageWidth }}x{{ originalImageHeight }}px
   </div>
   <button *ngIf="imageSource && showDownload" 
           (click)="downloadImage()"
@@ -9,7 +9,7 @@
           mat-button
           color="primary">
     <mat-icon>download</mat-icon>
-    {{ 'treesEntity.downloadImage' | translate }}
+    {{ 'entity.tree.downloadImage' | translate }}
   </button>
 </div>
 

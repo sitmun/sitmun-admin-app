@@ -80,7 +80,7 @@
           {{ getViewModeIcon(resolveNode(node)?.viewMode) }}
         </mat-icon>
         <mat-icon *ngIf="showFolderHintForTaskGroupContainer(resolveNode(node))" class="folder-hint-icon"
-                  [matTooltip]="'treesEntity.taskGroupContainerHint' | translate">
+                  [matTooltip]="'entity.tree.taskGroupContainerHint' | translate">
           folder
         </mat-icon>
         <span class="node-name" (click)="onButtonClicked(node.id, 'edit')" (keyup.enter)="onButtonClicked(node.id, 'edit')" tabindex="0" role="button" [attr.aria-label]="('common.edit' | translate) + ': ' + node.name" *ngIf="node.id !== undefined && node.status!=='pendingDelete'">{{node.name}}</span>
@@ -166,7 +166,7 @@
           {{ getViewModeIcon(resolveNode(node)?.viewMode) }}
         </mat-icon>
         <mat-icon *ngIf="showFolderHintForTaskGroupContainer(resolveNode(node))" class="folder-hint-icon"
-                  [matTooltip]="'treesEntity.taskGroupContainerHint' | translate">
+                  [matTooltip]="'entity.tree.taskGroupContainerHint' | translate">
           folder
         </mat-icon>
         <span class="node-name" (click)="onButtonClicked(node.id, 'edit')" (keyup.enter)="onButtonClicked(node.id, 'edit')" tabindex="0" role="button" [attr.aria-label]="('common.edit' | translate) + ': ' + node.name" *ngIf="node.id !== undefined && node.id !== null && node.status!=='pendingDelete'">{{node.name}}</span>

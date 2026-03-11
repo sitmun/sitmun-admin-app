@@ -6,7 +6,7 @@
   [itemName]="itemName('name')"
   [canSave]="canSaveEntity"
   [form]="entityForm"
-  validationEntityType="territory"
+  entityLabelPrefix="entity.territory"
   [validationFieldLabelKeys]="{ name: 'entity.territory.name', code: 'entity.territory.code', typeId: 'entity.territory.territoryType', blocked: 'entity.territory.blocked' }"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
@@ -101,8 +101,8 @@
             <input matInput type="number" formControlName="extentMaxY" required>
           </mat-form-field>
           <mat-form-field appearance="outline" class="quarter">
-            <mat-label>{{ 'applicationEntity.srs' | translate }}</mat-label>
-            <input matInput type="text" title="{{ 'projectionMessage' | translate }}" formControlName="srs">
+            <mat-label>{{ 'entity.application.srs' | translate }}</mat-label>
+            <input matInput type="text" title="{{ 'entity.territory.projectionMessage' | translate }}" formControlName="srs">
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="full">

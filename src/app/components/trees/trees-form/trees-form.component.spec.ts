@@ -75,6 +75,7 @@ describe('TreesFormComponent', () => {
     // Suppress debug logs in tests to reduce console noise
     const loggerService = TestBed.inject(LoggerService);
     configureLoggerForTests(loggerService);
+    jest.spyOn(loggerService, 'warn').mockImplementation(() => {});
     treeService= TestBed.inject(TreeService);
     applicationService= TestBed.inject(ApplicationService);
     serviceService= TestBed.inject(ServiceService);
@@ -99,6 +100,10 @@ describe('TreesFormComponent', () => {
     }
     // Don't call detectChanges() here to avoid triggering canSaveEntity getter
     // Individual tests can call it if needed
+  });
+
+  afterEach(() => {
+    fixture?.destroy();
   });
 
   it('should create', () => {

@@ -107,7 +107,7 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
 
   override async fetchCopy(): Promise<UserProjection> {
     return firstValueFrom(this.userService.getProjection(UserProjection, this.duplicateID).pipe(map((copy: UserProjection) => {
-      copy.username = this.translateService.instant("copy_") + copy.username;
+      copy.username = this.translateService.instant("common.copyPrefix") + copy.username;
       return copy;
     })));
   }

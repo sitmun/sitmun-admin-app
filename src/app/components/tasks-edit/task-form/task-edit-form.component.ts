@@ -305,7 +305,7 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
    */
   override fetchCopy(): Promise<TaskProjection> {
     return firstValueFrom(this.taskService.getProjection(TaskProjection, this.duplicateID).pipe(map((copy: TaskProjection) => {
-      copy.name = this.translateService.instant("copy_") + copy.name;
+      copy.name = this.translateService.instant("common.copyPrefix") + copy.name;
       return copy;
     })));
   }
@@ -570,7 +570,7 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.roleService.getAll())
-      .withTargetsTitle(this.translateService.instant('entity.task.roles.title'))
+      .withTargetsTitle('entity.task.roles.title')
       .build();
   }
 
@@ -625,7 +625,7 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
       .withTargetToRelation((items: TerritoryProjection[]) => {
         return items.map(item => TaskAvailabilityProjection.of(this.entityToEdit, item));
       })
-      .withTargetsTitle(this.translateService.instant('entity.task.territories.title'))
+      .withTargetsTitle('entity.task.territories.title')
       .withTargetsOrder('name')
       .build();
   }
@@ -663,7 +663,7 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
       })
       .withTemplateDialog('newParameterDialog', () => TemplateDialog.builder()
         .withReference(this.newParameterDialog)
-        .withTitle(this.translateService.instant('entity.task.parameters.title'))
+        .withTitle('entity.task.parameters.title')
         .withForm(new FormGroup({
           name: new FormControl('', {
             validators: [Validators.required],
@@ -708,14 +708,14 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
     return DataTableDefinition.builder<TaskEditionField, TaskEditionField>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getBooleanColumnDef('tasksEditionEntity.selectable', 'selectable', true),
-        this.utils.getBooleanColumnDef('tasksEditionEntity.editable', 'editable', true),
-        this.utils.getEditableColumnDef('tasksEditionEntity.name', 'name'),
-        this.utils.getEditableColumnDef('tasksEditionEntity.tag', 'label'),
-        this.utils.getNonEditableColumnDef('tasksEditionEntity.defectValue', 'value'),
-        this.utils.getNonEditableColumnWithCodeListDef('tasksEditionEntity.type', 'type', () => this.codeList('queryTask.fieldType')),
-        this.utils.getBooleanColumnDef('tasksEditionEntity.obligatory', 'required', true),
-        this.utils.getEditableColumnDef('tasksEditionEntity.selectPath', 'query'),
+        this.utils.getBooleanColumnDef('entity.task.edition.selectable', 'selectable', true),
+        this.utils.getBooleanColumnDef('entity.task.edition.editable', 'editable', true),
+        this.utils.getEditableColumnDef('entity.task.edition.name', 'name'),
+        this.utils.getEditableColumnDef('entity.task.edition.tag', 'label'),
+        this.utils.getNonEditableColumnDef('entity.task.edition.defectValue', 'value'),
+        this.utils.getNonEditableColumnWithCodeListDef('entity.task.edition.type', 'type', () => this.codeList('queryTask.fieldType')),
+        this.utils.getBooleanColumnDef('entity.task.edition.obligatory', 'required', true),
+        this.utils.getEditableColumnDef('entity.task.edition.selectPath', 'query'),
         this.utils.getStatusColumnDef()])
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
@@ -734,7 +734,7 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
       .withFieldRestriction('name')
       .withTemplateDialog('newFieldDialog', () => TemplateDialog.builder()
         .withReference(this.newFieldDialog)
-        .withTitle(this.translateService.instant('tasksEditionEntity.newField'))
+        .withTitle('entity.task.edition.newField')
         .withForm(new FormGroup({
           selectable: new FormControl(false, {
             validators: [Validators.required],

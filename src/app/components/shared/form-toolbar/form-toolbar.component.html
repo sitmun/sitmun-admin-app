@@ -2,7 +2,7 @@
   <h4>
     <span class="spacer">
       <mat-icon aria-hidden="true" fontSet="{{ font }}">{{ icon }}</mat-icon>
-      {{ isNew ? (entityType | translate) + ' (' + ('new' | translate) + ')' : itemName }}
+      {{ isNew ? (entityType | translate) + ' (' + ('common.button.new' | translate) + ')' : itemName }}
       <ng-container *ngIf="additionalText"> - {{ additionalText }}</ng-container>
     </span>
   </h4>
@@ -10,7 +10,7 @@
   <app-form-validation-banner
     *ngIf="showValidationBanner && dataLoaded"
     [form]="form"
-    [entityType]="validationEntityType"
+    [entityLabelPrefix]="entityLabelPrefix"
     [fieldLabelKeys]="validationFieldLabelKeys"
     class="toolbar-banner">
   </app-form-validation-banner>
@@ -31,7 +31,7 @@
     </mat-card>
   </div>
   <button
-    [matTooltip]="'save' | translate"
+    [matTooltip]="'common.button.save' | translate"
     mat-mini-fab
     class="add-half-gap"
     [disabled]="!canSave"
@@ -40,7 +40,7 @@
     <mat-icon fontSet="material-icons-round">save</mat-icon>
   </button>
   <button
-    [matTooltip]="'return' | translate"
+    [matTooltip]="'common.button.return' | translate"
     mat-mini-fab
     class="add-half-gap"
     (click)="back.emit()"

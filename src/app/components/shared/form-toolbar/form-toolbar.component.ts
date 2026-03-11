@@ -23,8 +23,11 @@ export class FormToolbarComponent {
 
   @Input() canSave = true;
   @Input() form: UntypedFormGroup;
-  @Input() validationEntityType: string;
-  /** Optional map of form control name → i18n key for validation banner labels */
+  @Input() entityLabelPrefix: string;
+  /**
+   * Map of form control name → i18n key for validation banner labels.
+   * Required when a field's label key is not entityLabelPrefix.fieldName (e.g. serviceId → 'entity.cartography.serviceName').
+   */
   @Input() validationFieldLabelKeys: Record<string, string> | undefined;
   @Input() showValidationBanner = true;
   @Input() dataLoaded = false;

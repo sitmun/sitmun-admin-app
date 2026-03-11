@@ -141,7 +141,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
   /** Only basic-info expanded by default in the detail. */
   private defaultExpandedPanelIds = ['basic-info'] as const;
 
-  filterOptions = [{value: 'UNDEFINED', description: 'UNDEFINED'}, {value: true, description: 'YES'}, {value: false, description: 'NO'}];
+  filterOptions = [{value: 'UNDEFINED', description: 'common.boolean.undefined'}, {value: true, description: 'common.boolean.yes'}, {value: false, description: 'common.boolean.no'}];
   codeValues = constants.codeValue;
   defaultLang = config.defaultLang;
   servicesList = [];
@@ -237,27 +237,27 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     this.columnDefsServices = [
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
-      this.utils.getEditableColumnDef('serviceEntity.name', 'name'),
-      this.utils.getNonEditableColumnDef('serviceEntity.type', 'type'),
-      this.utils.getEditableColumnDef('serviceEntity.serviceURL', 'serviceURL'),
-      this.utils.getEditableColumnDef('serviceEntity.supportedSRS', 'supportedSRS'),
-      this.utils.getDateColumnDef('serviceEntity.createdDate', 'createdDate')
+      this.utils.getEditableColumnDef('entity.service.name', 'name'),
+      this.utils.getNonEditableColumnDef('entity.service.type', 'type'),
+      this.utils.getEditableColumnDef('entity.service.serviceURL', 'serviceURL'),
+      this.utils.getEditableColumnDef('entity.service.supportedSRS', 'supportedSRS'),
+      this.utils.getDateColumnDef('entity.service.createdDate', 'createdDate')
     ];
 
     this.columnDefsCartographies = [
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('treesEntity.name', 'name'),
-      this.utils.getNonEditableColumnDef('treesEntity.serviceName', 'serviceName'),
-      this.utils.getNonEditableColumnDef('treesEntity.styles', 'stylesNames')
+      this.utils.getNonEditableColumnDef('entity.tree.name', 'name'),
+      this.utils.getNonEditableColumnDef('entity.tree.serviceName', 'serviceName'),
+      this.utils.getNonEditableColumnDef('entity.tree.styles', 'stylesNames')
     ];
 
     this.columnDefsTasks = [
       this.utils.getSelCheckboxColumnDef(),
       this.utils.getIdColumnDef(),
-      this.utils.getNonEditableColumnDef('treesEntity.name', 'name'),
-      this.utils.getNonEditableColumnDef('treesEntity.groupTask', 'groupName'),
-      this.utils.getNonEditableColumnDef('treesEntity.typeName', 'typeName'),
+      this.utils.getNonEditableColumnDef('entity.tree.name', 'name'),
+      this.utils.getNonEditableColumnDef('entity.tree.groupTask', 'groupName'),
+      this.utils.getNonEditableColumnDef('entity.tree.typeName', 'typeName'),
       this.utils.getStatusColumnDef()
     ];
 
@@ -1325,7 +1325,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
           getAllsTable: [this.getAllServices],
           singleSelectionTable: [true],
           columnDefsTable: [this.columnDefsServices],
-          title: this.utils.getTranslate('treesEntity.services'),
+          title: this.utils.getTranslate('entity.tree.services'),
           titlesTable: [''],
           nonEditable: false,
           currentData: []
@@ -1553,7 +1553,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
 
     const dialogRef = this.dialog.open(DialogFormComponent);
     dialogRef.componentInstance.HTMLReceived = this.fieldsConfigDialog;
-    dialogRef.componentInstance.title = this.utils.getTranslate('treesEntity.fieldsConfig');
+    dialogRef.componentInstance.title = this.utils.getTranslate('entity.tree.fieldsConfig');
     dialogRef.componentInstance.form = this.fieldsConfigForm;
 
     dialogRef.afterClosed().subscribe(result => {
@@ -1995,7 +1995,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     const dialogRef = this.dialog.open(DialogMessageComponent);
     dialogRef.componentInstance.title = this.utils.getTranslate("Error");
     dialogRef.componentInstance.hideCancelButton = true;
-    dialogRef.componentInstance.message = this.utils.getTranslate("treesEntity.styleError");
+    dialogRef.componentInstance.message = this.utils.getTranslate("entity.tree.styleError");
     dialogRef.afterClosed().subscribe();
   }
 
@@ -2035,7 +2035,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       const dialogRef = this.dialog.open(DialogMessageComponent);
       dialogRef.componentInstance.title = this.utils.getTranslate("Error");
       dialogRef.componentInstance.hideCancelButton = true;
-      dialogRef.componentInstance.message = this.utils.getTranslate("cartographyNonSelectedMessage");
+      dialogRef.componentInstance.message = this.utils.getTranslate("entity.tree.cartographyNonSelectedMessage");
       dialogRef.afterClosed().subscribe();
     } else if (!this.currentNodeIsFolder && data.length > 0 && this.checkIfStyleIsInvalid(this.treeNodeForm.get('style').value, data[0].stylesNames)) {
       this.showStyleError();
@@ -2741,7 +2741,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       const dialogRef = this.dialog.open(DialogMessageComponent);
       dialogRef.componentInstance.title = this.utils.getTranslate("Error");
       dialogRef.componentInstance.hideCancelButton = true;
-      dialogRef.componentInstance.message = this.utils.getTranslate("cartographyNonSelectedMessage");
+      dialogRef.componentInstance.message = this.utils.getTranslate("entity.tree.cartographyNonSelectedMessage");
       dialogRef.afterClosed().subscribe();
       return;
     }

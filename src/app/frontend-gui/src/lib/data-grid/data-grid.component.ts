@@ -447,6 +447,11 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     this.gridOptions = {
       onGridReady: this.onGridReady.bind(this),
       overlayLoadingTemplate: '<span></span>',
+      getLocaleText: (params) => {
+        const key = `agGrid.${params.key}`;
+        const translated = this.translate.instant(key);
+        return translated !== key ? translated : params.defaultValue;
+      },
       autoSizeStrategy: {
         type: 'fitCellContents'
       },
@@ -1198,8 +1203,8 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     this.gridApi.stopEditing(false);
     if (this.changeCounter > 0) {
       const dialogRef = this.dialog.open(DialogMessageComponent);
-      dialogRef.componentInstance.title = this.translate.instant('caution')
-      dialogRef.componentInstance.message = this.translate.instant('duplicateMessage')
+      dialogRef.componentInstance.title = this.translate.instant('common.caution')
+      dialogRef.componentInstance.message = this.translate.instant('common.duplicateMessage')
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
           if (result.event === 'Accept') {

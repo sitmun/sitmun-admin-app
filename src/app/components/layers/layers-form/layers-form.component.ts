@@ -151,7 +151,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
    */
   override fetchCopy(): Promise<CartographyProjection> {
     return firstValueFrom(this.cartographyService.getProjection(CartographyProjection, this.duplicateID).pipe(map((copy: CartographyProjection) => {
-      copy.name = this.translateService.instant("copy_") + copy.name;
+      copy.name = this.translateService.instant("common.copyPrefix") + copy.name;
       return copy;
     })));
   }
@@ -353,7 +353,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
       })
       .withTemplateDialog('newParameterDialog', () => TemplateDialog.builder()
         .withReference(this.newParameterDialog)
-        .withTitle(this.translateService.instant('entity.cartography.parameters.title'))
+        .withTitle('entity.cartography.parameters.title')
         .withForm(new FormGroup({
           name: new FormControl(null, [Validators.required]),
           type: new FormControl(null, [Validators.required]),
@@ -425,7 +425,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
       })
       .withTemplateDialog('newTerritorialFilterDialog', () => TemplateDialog.builder()
         .withReference(this.newTerritorialFilterDialog)
-        .withTitle(this.translateService.instant('entity.cartography.filters.parameters.title'))
+        .withTitle('entity.cartography.filters.parameters.title')
         .withForm(new FormGroup({
           name: new FormControl(null, [Validators.required]),
           required: new FormControl(false),
@@ -476,7 +476,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
       })
       .withTemplateDialog('newStyleDialog', () => TemplateDialog.builder()
         .withReference(this.newStyleDialog)
-        .withTitle(this.translateService.instant('entity.cartography.styles.parameters.title'))
+        .withTitle('entity.cartography.styles.parameters.title')
         .withForm(new FormGroup({
           name: new FormControl(null, [Validators.required]),
           title: new FormControl(null, [Validators.required]),
@@ -543,7 +543,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
           })
           return newItems
         })
-        .withTargetsTitle(this.translateService.instant('entity.cartography.territories.parameters.title'))
+        .withTargetsTitle('entity.cartography.territories.parameters.title')
         .withTargetsOrder('name')
         .build();
   }
@@ -589,7 +589,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
         return !cartographyGroups.some((cartographyGroup) => cartographyGroup.id === item.id);
       })
       .withTargetToRelation((items: CartographyGroupProjection[]) => items)
-      .withTargetsTitle(this.translateService.instant('entity.cartography.permissions.parameters.title'))
+      .withTargetsTitle('entity.cartography.permissions.parameters.title')
       .withTargetsOrder('name')
       .build();
   }

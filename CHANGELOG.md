@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Missing translations tracker dev tool with sidebar UI for identifying untranslated keys during development.
 - Detailed validation error messages in notifications: show field-level errors from RFC 9457 `errors` array, i18n for `messageCode` (e.g. `validation.NotBlank`, `validation.BoundingBox`), multi-line display in notification component.
 - Comprehensive test coverage for TreeNodeService achieving 100% statements, branches, functions, and lines coverage.
 - Extensive test coverage improvements for TreesFormComponent and DataTreeComponent.
@@ -16,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Standardized form validation labels to use consistent `entity.*` i18n keys across all entity forms.
+- Reorganized and completed all locale files (ca, en, es, fr, oc-aranes) with alphabetically sorted keys.
 - **DataTreeComponent modernization**: Replaced deprecated Angular Material Tree APIs with modern `childrenAccessor` pattern, improving performance and maintainability.
 - TreesFormComponent enhanced with tree type change warning dialog when existing nodes may be incompatible.
 - TreeNodesComponent updated to work with modernized DataTreeComponent API and emit proper tree node updates.
@@ -23,10 +26,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Shortened Catalan label for permission groups to "Permisos a capes".
+- Removed `[DEV]` prefix from trigger test error label in all locales.
 - Save failure: show a single error notification (interceptor only) and skip post-save logic; log error in component catch instead of calling ErrorHandlerService to avoid duplicate snackbar.
 - Development API URL set to `http://localhost:9000/backend` so `ng serve` uses the Nginx proxy path and CORS works correctly.
 - DataTreeComponent subscription cleanup using `takeUntilDestroyed` to prevent memory leaks.
 - Tree expansion state persistence when filtering and reordering nodes.
+
+### Removed
+
+- Unused frontend-gui locale files (`src/app/frontend-gui/src/assets/i18n`).
 
 ## [1.2.3] - 2026-02-26
 

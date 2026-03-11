@@ -165,7 +165,7 @@ export class UtilsService {
     const elementsToDuplicate = [];
     data.forEach((element) => {
       const newElement = {...element};
-      newElement[parameterToModify] = this.getTranslate('copy_').concat(
+      newElement[parameterToModify] = this.getTranslate('common.copyPrefix').concat(
         newElement[parameterToModify]
       );
       if (!ignoreId) {
@@ -246,8 +246,8 @@ export class UtilsService {
    */
   showTreeStructureError() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title = this.getTranslate('atention');
-    dialogRef.componentInstance.message = this.getTranslate('treeStructureMessage');
+    dialogRef.componentInstance.title = this.getTranslate('common.atention');
+    dialogRef.componentInstance.message = this.getTranslate('entity.tree.treeStructureMessage');
     dialogRef.componentInstance.hideCancelButton = true;
     dialogRef.afterClosed().subscribe();
   }
@@ -257,8 +257,8 @@ export class UtilsService {
    */
   showRequiredFieldsError() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title = this.getTranslate('atention');
-    dialogRef.componentInstance.message = this.getTranslate('requiredFieldMessage');
+    dialogRef.componentInstance.title = this.getTranslate('common.atention');
+    dialogRef.componentInstance.message = this.getTranslate('common.requiredFieldMessage');
     dialogRef.componentInstance.hideCancelButton = true;
     dialogRef.afterClosed().subscribe();
   }
@@ -268,8 +268,8 @@ export class UtilsService {
    */
   showNodeTypeConstraintError() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title = this.getTranslate('atention');
-    dialogRef.componentInstance.message = this.getTranslate('error.tree-type-node-constraint');
+    dialogRef.componentInstance.title = this.getTranslate('common.atention');
+    dialogRef.componentInstance.message = this.getTranslate('backend.error.tree-type-node-constraint');
     dialogRef.componentInstance.hideCancelButton = true;
     dialogRef.afterClosed().subscribe();
   }
@@ -279,8 +279,8 @@ export class UtilsService {
    */
   showTuristicAppTreeError() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title = this.getTranslate('atention');
-    dialogRef.componentInstance.message = this.getTranslate('turisticAppTreeMessage');
+    dialogRef.componentInstance.title = this.getTranslate('common.atention');
+    dialogRef.componentInstance.message = this.getTranslate('entity.tree.turisticAppTreeMessage');
     dialogRef.componentInstance.hideCancelButton = true;
     dialogRef.afterClosed().subscribe();
   }
@@ -290,8 +290,8 @@ export class UtilsService {
    */
   showNoTuristicAppTreeError() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title = this.getTranslate('atention');
-    dialogRef.componentInstance.message = this.getTranslate('noTuristicAppTreeMessage');
+    dialogRef.componentInstance.title = this.getTranslate('common.atention');
+    dialogRef.componentInstance.message = this.getTranslate('entity.tree.noTuristicAppTreeMessage');
     dialogRef.componentInstance.hideCancelButton = true;
     dialogRef.afterClosed().subscribe();
   }
@@ -301,8 +301,8 @@ export class UtilsService {
    */
   showTuristicTreeAppError() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title = this.getTranslate('atention');
-    dialogRef.componentInstance.message = this.getTranslate('turisticTreeAppMessage');
+    dialogRef.componentInstance.title = this.getTranslate('common.atention');
+    dialogRef.componentInstance.message = this.getTranslate('entity.tree.turisticTreeAppMessage');
     dialogRef.componentInstance.hideCancelButton = true;
     dialogRef.afterClosed().subscribe();
   }
@@ -312,8 +312,8 @@ export class UtilsService {
    */
   showNoTuristicTreeAppError() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
-    dialogRef.componentInstance.title = this.getTranslate('atention');
-    dialogRef.componentInstance.message = this.getTranslate('noTuristicTreeAppMessage');
+    dialogRef.componentInstance.title = this.getTranslate('common.atention');
+    dialogRef.componentInstance.message = this.getTranslate('entity.tree.noTuristicTreeAppMessage');
     dialogRef.componentInstance.hideCancelButton = true;
     dialogRef.afterClosed().subscribe();
   }
@@ -402,19 +402,19 @@ export class UtilsService {
     return {
       maxWidth: 180,
       minWidth: 180,
-      headerName: this.getTranslate('status'),
+      headerName: this.getTranslate('common.form.status'),
       field: 'status',
       filter: 'agTextColumnFilter',
       filterParams: {
         textFormatter: (filterValue) =>
-          this.getTranslate(filterValue).toLowerCase(),
+          this.getTranslate('common.status.' + filterValue).toLowerCase(),
       },
       editable: false,
       valueFormatter: (params) => {
         if (params.value != undefined && params.value !== '') {
-          return this.getTranslate(params.value);
+          return this.getTranslate('common.status.' + params.value);
         } else {
-          return this.getTranslate('statusOK');
+          return this.getTranslate('common.status.statusOK');
         }
       },
       cellClassRules: {

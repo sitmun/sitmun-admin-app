@@ -149,7 +149,7 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
         .getProjection(CartographyGroupProjection, this.duplicateID)
         .pipe(
           map((copy: CartographyGroupProjection) => {
-            copy.name = this.translateService.instant('copy_') + copy.name;
+            copy.name = this.translateService.instant('common.copyPrefix') + copy.name;
             return copy;
           })
         )
@@ -269,9 +269,7 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.roleService.getAll())
-      .withTargetsTitle(
-        this.translateService.instant('entity.permissionGroup.roles.title')
-      )
+      .withTargetsTitle('entity.permissionGroup.roles.title')
       .build();
   }
 
@@ -372,9 +370,7 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
             );
           }
       )
-      .withTargetsTitle(
-        this.translateService.instant('entity.permissionGroup.layers.title')
-      )
+      .withTargetsTitle('entity.permissionGroup.layers.title')
       .build();
   }
 

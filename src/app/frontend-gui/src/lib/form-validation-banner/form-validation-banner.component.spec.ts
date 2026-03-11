@@ -44,7 +44,7 @@ describe('FormValidationBannerComponent', () => {
       name: new FormControl('test', [Validators.required])
     });
     component.form = form;
-    component.entityType = 'tree';
+    component.entityLabelPrefix = 'tree';
     fixture.detectChanges();
 
     expect(component.isVisible).toBe(false);
@@ -61,9 +61,9 @@ describe('FormValidationBannerComponent', () => {
     expect(form.invalid).toBe(true);
     expect(form.get('name')?.invalid).toBe(true);
     expect(form.get('name')?.hasError('required')).toBe(true);
-    // Set form and entityType together to trigger ngOnChanges
+    // Set form and entityLabelPrefix together to trigger ngOnChanges
     component.form = form;
-    component.entityType = 'tree';
+    component.entityLabelPrefix = 'tree';
     // Manually trigger updateInvalidFields to ensure it runs after form is set
     (component as any).updateInvalidFields();
     fixture.detectChanges();
@@ -82,7 +82,7 @@ describe('FormValidationBannerComponent', () => {
     // Ensure form is invalid
     expect(form.invalid).toBe(true);
     component.form = form;
-    component.entityType = 'test';
+    component.entityLabelPrefix = 'test';
     // Manually trigger updateInvalidFields to ensure it runs after form is set
     (component as any).updateInvalidFields();
     fixture.detectChanges();
@@ -102,7 +102,7 @@ describe('FormValidationBannerComponent', () => {
     // Ensure form is invalid
     expect(form.invalid).toBe(true);
     component.form = form;
-    component.entityType = 'test';
+    component.entityLabelPrefix = 'test';
     // Manually trigger updateInvalidFields to ensure it runs after form is set
     (component as any).updateInvalidFields();
     fixture.detectChanges();
@@ -118,7 +118,7 @@ describe('FormValidationBannerComponent', () => {
     // Ensure form is invalid
     expect(form.invalid).toBe(true);
     component.form = form;
-    component.entityType = 'tree';
+    component.entityLabelPrefix = 'tree';
     // Manually trigger updateInvalidFields to ensure it runs after form is set
     (component as any).updateInvalidFields();
     fixture.detectChanges();
@@ -141,7 +141,7 @@ describe('FormValidationBannerComponent', () => {
     // Ensure form is invalid
     expect(form.invalid).toBe(true);
     component.form = form;
-    component.entityType = 'tree';
+    component.entityLabelPrefix = 'tree';
     // Manually trigger updateInvalidFields to ensure it runs after form is set
     (component as any).updateInvalidFields();
     fixture.detectChanges();
@@ -161,7 +161,7 @@ describe('FormValidationBannerComponent', () => {
     // Ensure form is invalid
     expect(form.invalid).toBe(true);
     component.form = form;
-    component.entityType = 'unknown';
+    component.entityLabelPrefix = 'unknown';
     // Manually trigger updateInvalidFields to ensure it runs after form is set
     (component as any).updateInvalidFields();
     fixture.detectChanges();
@@ -174,7 +174,7 @@ describe('FormValidationBannerComponent', () => {
       name: new FormControl('', [Validators.required])
     });
     component.form = form;
-    component.entityType = 'tree';
+    component.entityLabelPrefix = 'tree';
     // Manually trigger updateInvalidFields to show banner initially
     (component as any).updateInvalidFields();
     fixture.detectChanges();

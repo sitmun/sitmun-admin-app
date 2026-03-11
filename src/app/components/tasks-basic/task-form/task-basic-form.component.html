@@ -7,7 +7,7 @@
   [additionalText]="taskTypeNameTranslated"
   [canSave]="canSaveEntity"
   [form]="entityForm"
-  validationEntityType="task"
+  entityLabelPrefix="entity.task"
   [validationFieldLabelKeys]="{ uiId: 'entity.task.basic.ui', taskGroupId: 'entity.taskGroup.label' }"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
@@ -160,7 +160,7 @@
         <mat-radio-group formControlName="type" required>
           <mat-label class="requiredInput">{{ 'common.form.type' | translate }}</mat-label>
           <mat-radio-button *ngFor="let paramType of codeList('taskEntity.jsonParamType')" [value]="paramType.id">
-            {{ paramType.description | translate }}
+            {{ paramType.description }}
           </mat-radio-button>
         </mat-radio-group>
         <mat-form-field appearance="outline" class="full">

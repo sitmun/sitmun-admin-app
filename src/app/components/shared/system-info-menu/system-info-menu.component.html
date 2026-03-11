@@ -40,6 +40,13 @@
         <span class="badge" *ngIf="(unreviewedErrorCount() ?? 0) > 0">{{ unreviewedErrorCount() }}</span>
       </button>
 
+      <!-- Missing Translations -->
+      <button mat-menu-item (click)="openMissingTranslationsSidebar()">
+        <mat-icon>translate</mat-icon>
+        <span>{{ 'systemInfo.missingTranslations' | translate }}</span>
+        <span class="badge" *ngIf="(missingTranslationCount() ?? 0) > 0">{{ missingTranslationCount() }}</span>
+      </button>
+
       <!-- Debug: trigger test error -->
       <button mat-menu-item *ngIf="shouldShowDebugFeatures()" (click)="triggerTestError()">
         <mat-icon>bug_report</mat-icon>
@@ -96,7 +103,7 @@
     <!-- Logout -->
     <button mat-menu-item (click)="logout()">
       <mat-icon>exit_to_app</mat-icon>
-      <span>{{ 'loginEntity.closeSession' | translate }}</span>
+      <span>{{ 'entity.login.closeSession' | translate }}</span>
     </button>
   </mat-menu>
 </div>

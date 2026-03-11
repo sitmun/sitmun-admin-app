@@ -42,7 +42,7 @@ export class ErrorPageComponent implements OnInit {
         this.errorMessage = this.error.message;
       } else {
         // Use translation key - will be translated in template
-        this.errorMessage = 'error.unknown';
+        this.errorMessage = 'backend.error.unknown';
       }
 
       // Create detailed error information for display
@@ -56,7 +56,7 @@ export class ErrorPageComponent implements OnInit {
       this.errorDetails = JSON.stringify(errorInfo, null, 2);
     } else {
       // Use translation key - will be translated in template
-      this.errorMessage = 'error.initialization';
+      this.errorMessage = 'backend.error.initialization';
     }
     
     // Mark as loaded after processing

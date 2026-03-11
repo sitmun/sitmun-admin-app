@@ -228,7 +228,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
   override async fetchCopy(): Promise<TerritoryProjection> {
     return firstValueFrom(this.territoryService.getProjection(TerritoryProjection, this.duplicateID).pipe(
       map((copy: TerritoryProjection) => {
-        copy.name = this.translateService.instant("copy_") + copy.name;
+        copy.name = this.translateService.instant("common.copyPrefix") + copy.name;
         return copy;
       })
     ));

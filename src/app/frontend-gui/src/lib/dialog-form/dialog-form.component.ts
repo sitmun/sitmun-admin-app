@@ -54,8 +54,8 @@ export class DialogFormComponent implements OnInit {
       this.dialogRef.close(DIALOG_FORM_EVENTS.ADD);
     } else {
        const dialogRef = this.dialog.open(DialogMessageComponent);
-       dialogRef.componentInstance.title = this.translate.instant("atention")
-       dialogRef.componentInstance.message = this.translate.instant("requiredFieldMessage")
+       dialogRef.componentInstance.title = this.translate.instant("common.atention")
+       dialogRef.componentInstance.message = this.translate.instant("common.requiredFieldMessage")
        dialogRef.componentInstance.hideCancelButton = true;
     }
   }
