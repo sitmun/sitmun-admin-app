@@ -893,6 +893,8 @@
   "taskui.tooltip": "Nom",
   "taskui.type": "Tipus",
   "treeStructureMessage": "L'estructura de l'arbre presenta incoherències",
+  "treeStructureMessage.touristic.singleRoot": "En un arbre turístic només es permet un node de primer nivell. Actualment n'hi ha {{count}}.",
+  "treeStructureMessage.touristic.rootMustHaveChildren": "En un arbre turístic, l'únic node de primer nivell ha de contenir almenys un node fill.",
   "treesEntity.appVars": "Variables d'app",
   "treesEntity.applyPathFromTree": "Aplicar el camí de l'arbre a aquest camp",
   "treesEntity.appearance": "Aparença",

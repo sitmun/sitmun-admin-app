@@ -14,6 +14,7 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
+import { constants } from '@environments/constants';
 import { ExternalService, ResourceService } from '@app/core/hal';
 import {
   CapabilitiesService,
@@ -642,5 +643,20 @@ describe('TreeNodesComponent', () => {
       expect(component['currentNodeType']).toBeNull();
     });
   });
+
+  describe('save order normalization', () => {
+    it('normalizes sibling order preserving current tree sequence', () => {
+      const siblings: any[] = [
+        { id: 10, order: 4, status: constants.entityStatus.modified, children: [] },
+        { id: -1, order: null, status: constants.entityStatus.pendingCreation, children: [] },
+        { id: 20, order: 0, status: constants.entityStatus.modified, children: [] }
+      ];
+
+      (component as any).normalizeSiblingOrderForSave(siblings);
+
+      expect(siblings.map((n) => n.order)).toEqual([0, 1, 2]);
+    });
+  });
+
 });
 

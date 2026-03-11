@@ -190,7 +190,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
    * Validates tree type change against applications before saving.
    */
   override async onSaveButtonClicked(): Promise<boolean> {
-    if (!this.treeValidations()) {
+    if (!this.treeValidations(true)) {
       return Promise.resolve(false);
     }
 
@@ -332,6 +332,57 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
     const hasAnyChanges = baseCanSave || (isFormValid && hasTreeNodeChanges);
     
     return hasAnyChanges && this.treeValidations();
+  }
+
+  /**
+   * Non-blocking explanation shown in toolbar when save is disabled by tree-specific rules.
+   * Required field feedback is already handled by the validation banner component.
+   */
+  get treeValidationWarningMessage(): string {
+    if (!this.dataLoaded || !this.entityForm) {
+      return '';
+    }
+    if (this.entityForm.invalid) {
+      return '';
+    }
+
+    const validationError = this.getTreeValidationErrorCode();
+    if (validationError === 'treeStructure') {
+      const nodes = this.treeNodesComponent?.getNodesForValidation() || [];
+      const filterNodes = nodes.filter(a => (a as any).status !== 'pendingDelete');
+      return this.getTreeStructureWarningMessage(filterNodes as any);
+    }
+    if (validationError === 'nodeType') {
+      return this.translateService.instant('error.tree-type-node-constraint');
+    }
+    return '';
+  }
+
+  /** Returns a specific tree-structure warning message for the current failing scenario. */
+  private getTreeStructureWarningMessage(treeNodes: TreeNode[]): string {
+    if (this.currentTreeType !== this.codeValues.treeType.touristicTree) {
+      return this.translateService.instant('treeStructureMessage');
+    }
+
+    if (!Array.isArray(treeNodes) || treeNodes.length === 0) {
+      return this.translateService.instant('treeStructureMessage');
+    }
+
+    const rootNode = treeNodes[0] as any;
+    const rootChildren = Array.isArray(rootNode?.children) ? rootNode.children : [];
+    const rootNodes = rootChildren.filter((n: any) => n.status !== 'pendingDelete');
+
+    if (rootNodes.length > 1) {
+      return this.translateService.instant('treeStructureMessage.touristic.singleRoot', { count: rootNodes.length });
+    }
+    if (rootNodes.length === 1) {
+      const hasChildren = Array.isArray(rootNodes[0]?.children) && rootNodes[0].children.length > 0;
+      if (!hasChildren) {
+        return this.translateService.instant('treeStructureMessage.touristic.rootMustHaveChildren');
+      }
+    }
+
+    return this.translateService.instant('treeStructureMessage');
   }
 
   /**
@@ -507,29 +558,39 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
     return true;
   }
 
-  treeValidations(): boolean {
-    let valid = true;
+  treeValidations(showErrors = false): boolean {
+    const validationError = this.getTreeValidationErrorCode();
+    if (!validationError) {
+      return true;
+    }
+    if (!showErrors) {
+      return false;
+    }
+    if (validationError === 'required') {
+      this.utils.showRequiredFieldsError();
+    } else if (validationError === 'treeStructure') {
+      this.utils.showTreeStructureError();
+    } else if (validationError === 'nodeType') {
+      this.utils.showNodeTypeConstraintError();
+    }
+    return false;
+  }
+
+  /** Returns first failing validation code, preserving current validation priority. */
+  private getTreeValidationErrorCode(): 'required' | 'treeStructure' | 'nodeType' | null {
     const nodes = this.treeNodesComponent?.getNodesForValidation() || [];
     const filterNodes = nodes.filter(a => (a as any).status !== 'pendingDelete');
-    const validations = [{
-      fn: this.validTreeForm,
-      param: null,
-      msg: this.utils.showRequiredFieldsError
-    }, {
-      fn: this.validTreeStructure,
-      param: filterNodes,
-      msg: this.utils.showTreeStructureError
-    }, {
-      fn: this.validNodeTypesForTreeType,
-      param: filterNodes,
-      msg: this.utils.showNodeTypeConstraintError
-    }];
-    const error = validations.find(v => !v.fn.bind(this)(v.param));
-    if (error) {
-      valid = false;
-      error.msg.bind(this.utils)();
+
+    if (!this.validTreeForm()) {
+      return 'required';
     }
-    return valid;
+    if (!this.validTreeStructure(filterNodes as any)) {
+      return 'treeStructure';
+    }
+    if (!this.validNodeTypesForTreeType(filterNodes as any)) {
+      return 'nodeType';
+    }
+    return null;
   }
 
   validTreeForm(): boolean {
@@ -539,9 +600,14 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
   validTreeStructure(treeNodes: TreeNode[]): boolean {
     let valid = true;
     if (this.currentTreeType === this.codeValues.treeType.touristicTree) {
+      if (!Array.isArray(treeNodes) || treeNodes.length === 0) {
+        return true;
+      }
       const rootNode = treeNodes[0] as any;
-      const rootNodes = rootNode.children.filter((n: any) => n.status !== 'pendingDelete');
-      valid = rootNodes.length === 0 || (rootNodes.length === 1 && rootNodes[0].children.length > 0);
+      const rootChildren = Array.isArray(rootNode?.children) ? rootNode.children : [];
+      const rootNodes = rootChildren.filter((n: any) => n.status !== 'pendingDelete');
+      const singleRootHasChildren = rootNodes.length === 1 && Array.isArray(rootNodes[0]?.children) && rootNodes[0].children.length > 0;
+      valid = rootNodes.length === 0 || singleRootHasChildren;
     }
     return valid;
   }

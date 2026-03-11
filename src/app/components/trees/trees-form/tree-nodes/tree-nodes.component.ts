@@ -714,6 +714,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     // dataSource.data is an array with a single root node: [rootNode]
     // Actual tree nodes are in rootNode.children
     const rootNode = dataSourceData[0];
+    this.normalizeSiblingOrderForSave(rootNode?.children || []);
     const allNodes = this.getAllTreeNodesRecursive(rootNode?.children || []);
     
     this.loggerService.debug('TreeNodesComponent.saveNodes - Reading nodes from dataTree', {
@@ -743,6 +744,23 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     } else {
       this.refreshTreeEvent.next(true);
     }
+  }
+
+  /**
+   * Recursively gets all tree nodes from children array, excluding root node.
+   */
+  private normalizeSiblingOrderForSave(children: any[]): void {
+    if (!Array.isArray(children) || children.length === 0) {
+      return;
+    }
+
+    let nextOrder = 0;
+    children.forEach((node) => {
+      if (node?.status !== constants.entityStatus.pendingDelete) {
+        node.order = nextOrder++;
+      }
+      this.normalizeSiblingOrderForSave(node?.children || []);
+    });
   }
 
   /**
@@ -1731,7 +1749,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
           this.getAllElementsEventCartographies.next(this.treeNodeForm.value);
         }
       } else {
-        this.updateCartographyTreeLeft(null);
+        await this.updateCartographyTreeLeft(null);
         this.updateTaskTreeLeft(null);
       }
       this.updateTreeLeft();
@@ -1946,7 +1964,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
                   treesNodesToUpdate.splice(i, 1);
                   treesNodesToUpdate.splice(0, 0, result);
                   if (mapNewIdentificators.has(oldId)) {
-                    await this.updateAllTreeNodes(mapNewIdentificators.get(oldId), depth++, mapNewIdentificators, promises, result.id, result, tree, entityID);
+                    await this.updateAllTreeNodes(mapNewIdentificators.get(oldId), depth + 1, mapNewIdentificators, [], result.id, result, tree, entityID);
                   }
                   return true;
                 } catch (error) {
@@ -2159,10 +2177,8 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
         cartographyName: cartography.name,
         cartographyId: cartography.id
       });
-      // Load and process styles for the cartography
       await this.updateAvailableStyles(cartography.id);
     } else {
-      // Clear styles when cartography is null
       await this.updateAvailableStyles(null);
       if (!this.currentNodeIsFolder) {
         const oldCartography = this.treeNodeForm.get('oldCartography').value;
@@ -2260,11 +2276,10 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
         parent: this.treeNodeForm.value.parent ?? null
       };
       this.createNodeEvent.next(value);
-      // Reset form only when creating a new element
       this.savingNode = false;
       this.newElement = false;
       this.currentNodeType = null;
-      this.currentNodeId = null;  // clear selection so form hides
+      this.currentNodeId = null;
       this.treeNodeForm.reset();
     } else {
       // When updating an existing node, keep the form visible with updated data

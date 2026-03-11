@@ -8,6 +8,7 @@
   [form]="entityForm"
   validationEntityType="tree"
   [validationFieldLabelKeys]="{ name: 'entity.tree.name', type: 'entity.tree.type' }"
+  [customWarningMessage]="treeValidationWarningMessage"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">

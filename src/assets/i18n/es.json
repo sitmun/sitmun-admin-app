@@ -893,6 +893,8 @@
   "taskui.tooltip": "Nombre",
   "taskui.type": "Tipo",
   "treeStructureMessage": "La estructura del arbol presenta incoherencias",
+  "treeStructureMessage.touristic.singleRoot": "En un árbol turístico solo se permite un nodo de primer nivel. Actualmente hay {{count}}.",
+  "treeStructureMessage.touristic.rootMustHaveChildren": "En un árbol turístico, el único nodo de primer nivel debe contener al menos un nodo hijo.",
   "treesEntity.appVars": "Variables de app",
   "treesEntity.applyPathFromTree": "Aplicar ruta del árbol a este campo",
   "treesEntity.appearance": "Apariencia",

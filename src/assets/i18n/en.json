@@ -886,6 +886,8 @@
   "taskui.tooltip": "Name",
   "taskui.type": "Type",
   "treeStructureMessage": "The structure of the tree has inconsistencies",
+  "treeStructureMessage.touristic.singleRoot": "In a touristic tree only one first-level node is allowed. There are currently {{count}}.",
+  "treeStructureMessage.touristic.rootMustHaveChildren": "In a touristic tree, the single first-level node must contain at least one child node.",
   "treesEntity.appVars": "App variables",
   "treesEntity.applyPathFromTree": "Apply path from tree to this field",
   "treesEntity.appearance": "Appearance",

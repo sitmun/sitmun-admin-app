@@ -38,13 +38,22 @@
     </mat-toolbar>
 
     <div class="tree-wrapper">
-    <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
-      <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle draggable="true"
-        (dragstart)="handleDragStart($event, node);" (dragover)="handleDragOver($event, node);"
-        (dragend)="handleDragEnd($event);" (drop)="handleDrop($event, node);"
-        [ngClass]="{'drop-above': dragNodeExpandOverArea === 'above' && dragNodeExpandOverNode === node,
-        'drop-below': dragNodeExpandOverArea === 'below' && dragNodeExpandOverNode === node,
-        'drop-center': dragNodeExpandOverArea === 'center' && dragNodeExpandOverNode === node,
+    <mat-tree [dataSource]="treeDataSourceBindingCompat"
+              [childrenAccessor]="childrenAccessorBindingCompat"
+              cdkDropList
+              [cdkDropListSortingDisabled]="true"
+              [cdkDropListData]="visibleNodes()"
+              (cdkDropListSorted)="handleDragSort($event)"
+              (cdkDropListDropped)="handleDrop($event)">
+      <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle
+        cdkDrag
+        [cdkDragData]="node"
+        (cdkDragStarted)="handleDragStart($event)"
+        (cdkDragEnded)="handleDragEnd($event)"
+        [attr.data-node-id]="node.id"
+        [ngClass]="{'drop-above': isDropAreaActiveForNode(node.id, 'above'),
+        'drop-below': isDropAreaActiveForNode(node.id, 'below'),
+        'drop-center': isDropAreaActiveForNode(node.id, 'center'),
         'deletedNode': node.status==='pendingDelete',
         'modified-node': node.status==='Modified',
         'pending-creation-node': node.status==='pendingCreation',
@@ -66,11 +75,11 @@
                   [matTooltip]="node.status === 'Modified' ? ('common.modified' | translate) : ('pendingCreation' | translate)">
           {{node.status === 'Modified' ? 'edit' : 'add_circle'}}
         </mat-icon>
-        <mat-icon *ngIf="getNestedNode(node)?.viewMode && showMappingInTaskPanelForNodeType(node.nodeType)" class="view-mode-hint-icon"
-                  [matTooltip]="getViewModeLabel ? getViewModeLabel(getNestedNode(node)?.viewMode) : getNestedNode(node)?.viewMode">
-          {{ getViewModeIcon(getNestedNode(node)?.viewMode) }}
+        <mat-icon *ngIf="resolveNode(node)?.viewMode && showMappingInTaskPanelForNodeType(node.nodeType)" class="view-mode-hint-icon"
+                  [matTooltip]="getViewModeLabel ? getViewModeLabel(resolveNode(node)?.viewMode) : resolveNode(node)?.viewMode">
+          {{ getViewModeIcon(resolveNode(node)?.viewMode) }}
         </mat-icon>
-        <mat-icon *ngIf="showFolderHintForTaskGroupContainer(getNestedNode(node))" class="folder-hint-icon"
+        <mat-icon *ngIf="showFolderHintForTaskGroupContainer(resolveNode(node))" class="folder-hint-icon"
                   [matTooltip]="'treesEntity.taskGroupContainerHint' | translate">
           folder
         </mat-icon>
@@ -79,8 +88,8 @@
 
         <div class="node-actions">
           <ng-container *ngIf="node.status!=='pendingDelete' && (!canNodeHaveChildren || canNodeHaveChildren(node.nodeType))">
-            <button *ngFor="let nodeType of getAllowedChildTypes(getNestedNode(node))"
-                    (click)="onAddChildNode(getNestedNode(node), nodeType)"
+            <button *ngFor="let nodeType of getAllowedChildTypes(resolveNode(node))"
+                    (click)="onAddChildNode(resolveNode(node), nodeType)"
                     mat-icon-button
                     [matTooltip]="getNodeTypeLabel(nodeType)"
                     [attr.aria-label]="getNodeTypeLabel(nodeType)">
@@ -118,12 +127,15 @@
         </div>
       </mat-tree-node>
 
-      <mat-tree-node *matTreeNodeDef="let node;when: hasChild" draggable="true"
-        (dragstart)="handleDragStart($event, node);" (dragover)="handleDragOver($event, node);"
-        (dragend)="handleDragEnd($event);" (drop)="handleDrop($event, node);"
-        [ngClass]="{'drop-above': dragNodeExpandOverArea === 'above' && dragNodeExpandOverNode === node,
-        'drop-below': dragNodeExpandOverArea === 'below' && dragNodeExpandOverNode === node,
-        'drop-center': dragNodeExpandOverArea === 'center' && dragNodeExpandOverNode === node,
+      <mat-tree-node *matTreeNodeDef="let node;when: hasChild"
+        cdkDrag
+        [cdkDragData]="node"
+        (cdkDragStarted)="handleDragStart($event)"
+        (cdkDragEnded)="handleDragEnd($event)"
+        [attr.data-node-id]="node.id"
+        [ngClass]="{'drop-above': isDropAreaActiveForNode(node.id, 'above'),
+        'drop-below': isDropAreaActiveForNode(node.id, 'below'),
+        'drop-center': isDropAreaActiveForNode(node.id, 'center'),
         'deletedNode': node.status==='pendingDelete',
         'modified-node': node.status==='Modified',
         'pending-creation-node': node.status==='pendingCreation',
@@ -132,11 +144,11 @@
         [class.root-node-hidden]="isRootNode(node)"
         [style.padding-left]="getAdjustedPadding(node)"
         class="tree-node-row">
-        <button mat-icon-button matTreeNodeToggle (click)="expansionModel.toggle(node.id)"
-          [matTooltip]="(treeControl.isExpanded(node) ? ('collapseAll' | translate) : ('expandAll' | translate))"
+        <button mat-icon-button matTreeNodeToggle (click)="onToggleNodeById(node.id)"
+          [matTooltip]="(isNodeExpandedById(node.id) ? ('collapseAll' | translate) : ('expandAll' | translate))"
           [attr.aria-label]="'toggle ' + node.name">
           <mat-icon class="mat-icon-rtl-mirror">
-            {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+            {{isNodeExpandedById(node.id) ? 'expand_more' : 'chevron_right'}}
           </mat-icon>
         </button>
         <mat-icon *ngIf="node.name !== ''" class="type-icon" [attr.aria-label]="(node.nodeType || node.type) + ' icon'"
@@ -149,11 +161,11 @@
                   [matTooltip]="node.status === 'Modified' ? ('common.modified' | translate) : ('pendingCreation' | translate)">
           {{node.status === 'Modified' ? 'edit' : 'add_circle'}}
         </mat-icon>
-        <mat-icon *ngIf="getNestedNode(node)?.viewMode && showMappingInTaskPanelForNodeType(node.nodeType)" class="view-mode-hint-icon"
-                  [matTooltip]="getViewModeLabel ? getViewModeLabel(getNestedNode(node)?.viewMode) : getNestedNode(node)?.viewMode">
-          {{ getViewModeIcon(getNestedNode(node)?.viewMode) }}
+        <mat-icon *ngIf="resolveNode(node)?.viewMode && showMappingInTaskPanelForNodeType(node.nodeType)" class="view-mode-hint-icon"
+                  [matTooltip]="getViewModeLabel ? getViewModeLabel(resolveNode(node)?.viewMode) : resolveNode(node)?.viewMode">
+          {{ getViewModeIcon(resolveNode(node)?.viewMode) }}
         </mat-icon>
-        <mat-icon *ngIf="showFolderHintForTaskGroupContainer(getNestedNode(node))" class="folder-hint-icon"
+        <mat-icon *ngIf="showFolderHintForTaskGroupContainer(resolveNode(node))" class="folder-hint-icon"
                   [matTooltip]="'treesEntity.taskGroupContainerHint' | translate">
           folder
         </mat-icon>
@@ -161,8 +173,8 @@
         <span class="node-name" *ngIf="node.id === undefined || node.id === null || node.status==='pendingDelete'">{{node.name}}</span>
         <div class="node-actions">
           <ng-container *ngIf="node.status!=='pendingDelete' && (!canNodeHaveChildren || canNodeHaveChildren(node.nodeType))">
-            <button *ngFor="let nodeType of getAllowedChildTypes(getNestedNode(node))"
-                    (click)="onAddChildNode(getNestedNode(node), nodeType)"
+            <button *ngFor="let nodeType of getAllowedChildTypes(resolveNode(node))"
+                    (click)="onAddChildNode(resolveNode(node), nodeType)"
                     mat-icon-button
                     [matTooltip]="getNodeTypeLabel(nodeType)"
                     [attr.aria-label]="getNodeTypeLabel(nodeType)">
@@ -204,4 +216,3 @@
   </mat-card-content>
 </mat-card>
 
-<span #emptyItem></span>

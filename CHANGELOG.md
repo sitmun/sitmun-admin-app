@@ -10,11 +10,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Detailed validation error messages in notifications: show field-level errors from RFC 9457 `errors` array, i18n for `messageCode` (e.g. `validation.NotBlank`, `validation.BoundingBox`), multi-line display in notification component.
+- Comprehensive test coverage for TreeNodeService achieving 100% statements, branches, functions, and lines coverage.
+- Extensive test coverage improvements for TreesFormComponent and DataTreeComponent.
+- Test suites for TreeNodeService covering all CRUD operations, relation management (tree, cartography, task, parent), and error handling scenarios.
+
+### Changed
+
+- **DataTreeComponent modernization**: Replaced deprecated Angular Material Tree APIs with modern `childrenAccessor` pattern, improving performance and maintainability.
+- TreesFormComponent enhanced with tree type change warning dialog when existing nodes may be incompatible.
+- TreeNodesComponent updated to work with modernized DataTreeComponent API and emit proper tree node updates.
+- Type safety improvements throughout tree management components with proper TypeScript interfaces.
 
 ### Fixed
 
 - Save failure: show a single error notification (interceptor only) and skip post-save logic; log error in component catch instead of calling ErrorHandlerService to avoid duplicate snackbar.
 - Development API URL set to `http://localhost:9000/backend` so `ng serve` uses the Nginx proxy path and CORS works correctly.
+- DataTreeComponent subscription cleanup using `takeUntilDestroyed` to prevent memory leaks.
+- Tree expansion state persistence when filtering and reordering nodes.
 
 ## [1.2.3] - 2026-02-26
 

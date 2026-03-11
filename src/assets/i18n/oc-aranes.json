@@ -893,6 +893,8 @@
   "taskui.tooltip": "Name",
   "taskui.type": "Type",
   "treeStructureMessage": "Era estructura der arriu presente incoeréncies",
+  "treeStructureMessage.touristic.singleRoot": "En un arriu toristic sonque ei permetut un nòd de prumèr nivèu. Actuaument n'i a {{count}}.",
+  "treeStructureMessage.touristic.rootMustHaveChildren": "En un arriu toristic, eth solet nòd de prumèr nivèu deu contier ath mens un nòd hilh.",
   "treesEntity.appVars": "Variables d'app",
   "treesEntity.applyPathFromTree": "Aplicar lo camin de l'arbre a aquest camp",
   "treesEntity.appearance": "Aparéncia",

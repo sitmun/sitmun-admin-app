@@ -893,6 +893,8 @@
   "taskui.tooltip": "Name",
   "taskui.type": "Type",
   "treeStructureMessage": "La structure de l'arbre présente des incohérences",
+  "treeStructureMessage.touristic.singleRoot": "Dans un arbre touristique, un seul nœud de premier niveau est autorisé. Il y en a actuellement {{count}}.",
+  "treeStructureMessage.touristic.rootMustHaveChildren": "Dans un arbre touristique, l'unique nœud de premier niveau doit contenir au moins un nœud enfant.",
   "treesEntity.appVars": "Variables d'application",
   "treesEntity.applyPathFromTree": "Appliquer le chemin de l'arbre à ce champ",
   "treesEntity.appearance": "Apparence",
