@@ -1,7 +1,7 @@
 # SITMUN Administration Application
 
 [![License: EUPL v1.2](https://img.shields.io/badge/License-EUPL%20v1.2-blue.svg)](LICENSE)
-![Version](https://img.shields.io/badge/version-1.2.3-blue.svg)
+![Version](https://img.shields.io/badge/version-1.2.4-blue.svg)
 
 The **SITMUN Administration Application** is the official web-based frontend for managing the SITMUN geospatial application platform. Built with TypeScript and Angular 19, it provides a comprehensive administrative interface for the [SITMUN Backend Core](https://github.com/sitmun/sitmun-backend-core) REST API.
 
@@ -62,7 +62,7 @@ This frontend integrates seamlessly with the [SITMUN Backend Core](https://githu
 
 ### Prerequisites
 
-- **Node.js**: 18.19.1+ or 20.11.1+ ([Download](https://nodejs.org/)); use `nvm use 20.11.1` if using nvm (see [.nvmrc](.nvmrc)). Build and tests verified with **Node.js v18.20.7**.
+- **Node.js**: 20.19.0+ ([Download](https://nodejs.org/)); use `nvm use 20.19.0` if using nvm (see [.nvmrc](.nvmrc)). Build and tests verified with **Node.js v20.19.0+**.
 - **npm**: Version 8.x or higher (comes with Node.js)
 - **SITMUN Backend Core**: Running instance ([Setup Guide](https://github.com/sitmun/sitmun-backend-core))
 
@@ -317,7 +317,7 @@ Example `Dockerfile` for a production build:
 
 ```dockerfile
 # Multi-stage build
-FROM node:16-alpine AS builder
+FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
@@ -640,7 +640,7 @@ SITMUN is an open-source platform for territorial information management, design
 
 **Technology Stack:**
 
-- Frontend: Angular 16, TypeScript, Angular Material
+- Frontend: Angular 19, TypeScript, Angular Material
 - Backend: Spring Boot 3, Java 17, PostgreSQL/Oracle
 - Infrastructure: Docker, GitHub Actions, SonarCloud
 
