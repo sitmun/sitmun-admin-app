@@ -1551,6 +1551,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     if (fileInput.files.length > 0) {
       const file = fileInput.files[0];
       if (!file.type.startsWith('image/')) {
+        fileInput.value = '';
         return;
       }
       const form = this.getFormByType(formtype);
@@ -1564,6 +1565,8 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
       };
       reader.readAsDataURL(file);
     }
+    // Allow selecting the same filename again in subsequent uploads.
+    fileInput.value = '';
   }
 
   private markImageChangeAsModified(form: UntypedFormGroup): void {

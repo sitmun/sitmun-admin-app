@@ -455,6 +455,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
     if (fileInput.files.length > 0) {
       const file = fileInput.files[0];
       if (!file.type.startsWith('image/')) {
+        fileInput.value = '';
         return;
       }
       const reader = new FileReader();
@@ -467,6 +468,8 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       };
       reader.readAsDataURL(file);
     }
+    // Allow selecting the same filename again in subsequent uploads.
+    fileInput.value = '';
   }
 
   private markTreeImageAsModified(): void {

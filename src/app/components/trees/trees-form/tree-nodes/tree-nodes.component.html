@@ -268,8 +268,7 @@
                           </button>
                         </div>
                         <app-image-preview
-                          *ngIf="appearanceFieldLabelI18nKey === 'entity.tree.image'"
-                          [imageSource]="treeNodeForm.get('image')?.value"
+                          [imageSource]="treeNodeForm.get('image')?.value || treeNodeForm.get('imageName')?.value"
                           [imageName]="treeNodeForm.get('imageName')?.value"
                           [previewId]="'treeNodeImgPreview'"
                           [maxWidth]="80"
