@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -30,15 +30,16 @@ export class ImagePreviewComponent implements OnChanges, AfterViewInit {
   @Input() maxHeight = 80;
 
   @ViewChild('previewImage', { static: false }) previewImageRef!: ElementRef<HTMLImageElement>;
-  @ViewChild('previewContainer', { static: false }) previewContainerRef!: ElementRef<HTMLDivElement>;
-
   originalImageWidth: number | null = null;
   originalImageHeight: number | null = null;
   isVisible = false;
 
+  constructor(private cdr: ChangeDetectorRef) {}
+
   ngAfterViewInit(): void {
     if (this.imageSource) {
-      this.loadImage(this.imageSource);
+      // Avoid NG0100 by not flipping template-bound visibility during the same view-init check cycle.
+      queueMicrotask(() => this.loadImage(this.imageSource));
     }
   }
 
@@ -48,13 +49,19 @@ export class ImagePreviewComponent implements OnChanges, AfterViewInit {
     }
   }
 
+  private setVisibleDeferred(visible: boolean): void {
+    queueMicrotask(() => {
+      this.isVisible = visible;
+      this.cdr.markForCheck();
+    });
+  }
+
   private loadImage(source: string | null): void {
-    if (!this.previewImageRef || !this.previewContainerRef) {
+    if (!this.previewImageRef) {
       return;
     }
 
     const imgPreview = this.previewImageRef.nativeElement;
-    const container = this.previewContainerRef.nativeElement;
 
     if (source) {
       // Reset dimensions before loading new image
@@ -70,13 +77,11 @@ export class ImagePreviewComponent implements OnChanges, AfterViewInit {
           // Use original image dimensions
           imgPreview.style.width = imgPreview.naturalWidth + 'px';
           imgPreview.style.height = imgPreview.naturalHeight + 'px';
-          container.hidden = false;
-          this.isVisible = true;
+          this.setVisibleDeferred(true);
         } else {
           this.originalImageWidth = null;
           this.originalImageHeight = null;
-          container.hidden = true;
-          this.isVisible = false;
+          this.setVisibleDeferred(false);
         }
       };
 
@@ -84,8 +89,7 @@ export class ImagePreviewComponent implements OnChanges, AfterViewInit {
         // Hide preview if image fails to load
         this.originalImageWidth = null;
         this.originalImageHeight = null;
-        container.hidden = true;
-        this.isVisible = false;
+        this.setVisibleDeferred(false);
       };
 
       imgPreview.src = source;
@@ -97,8 +101,7 @@ export class ImagePreviewComponent implements OnChanges, AfterViewInit {
         this.originalImageHeight = imgPreview.naturalHeight;
         imgPreview.style.width = imgPreview.naturalWidth + 'px';
         imgPreview.style.height = imgPreview.naturalHeight + 'px';
-        container.hidden = false;
-        this.isVisible = true;
+        this.setVisibleDeferred(true);
       }
     } else {
       // Reset dimensions when hiding
@@ -106,8 +109,7 @@ export class ImagePreviewComponent implements OnChanges, AfterViewInit {
       imgPreview.style.height = '';
       this.originalImageWidth = null;
       this.originalImageHeight = null;
-      container.hidden = true;
-      this.isVisible = false;
+      this.setVisibleDeferred(false);
     }
   }
 

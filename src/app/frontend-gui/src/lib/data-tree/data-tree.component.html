@@ -2,14 +2,14 @@
   <mat-card-content class="tree-card-content">
     <mat-toolbar>
       <button type="button"
-              matTooltip="{{ 'expandAll' | translate }}"
+              matTooltip="{{ 'common.expandAll' | translate }}"
               mat-mini-fab class="add-half-gap"
               color="primary"
               (click)="expandAll()">
         <mat-icon fontSet="material-icons-round">unfold_more</mat-icon>
       </button>
       <button type="button"
-              matTooltip="{{ 'collapseAll' | translate }}"
+              matTooltip="{{ 'common.collapseAll' | translate }}"
               mat-mini-fab class="add-half-gap"
               color="primary"
               (click)="collapseToFirstLevel()">
@@ -28,7 +28,7 @@
         <mat-icon [fontSet]="getNodeIconFontForType(nodeType) || 'material-icons-round'">{{ getNodeIconForType(nodeType) }}</mat-icon>
       </button>
       <button type="button"
-              matTooltip="{{ 'loadGroupLayers' | translate }}"
+              matTooltip="{{ 'entity.tree.loadGroupLayers' | translate }}"
               mat-mini-fab class="add-half-gap"
               color="primary"
               *ngIf="loadDataButton"
@@ -145,7 +145,7 @@
         [style.padding-left]="getAdjustedPadding(node)"
         class="tree-node-row">
         <button mat-icon-button matTreeNodeToggle (click)="onToggleNodeById(node.id)"
-          [matTooltip]="(isNodeExpandedById(node.id) ? ('collapseAll' | translate) : ('expandAll' | translate))"
+          [matTooltip]="(isNodeExpandedById(node.id) ? ('common.collapseAll' | translate) : ('common.expandAll' | translate))"
           [attr.aria-label]="'toggle ' + node.name">
           <mat-icon class="mat-icon-rtl-mirror">
             {{isNodeExpandedById(node.id) ? 'expand_more' : 'chevron_right'}}

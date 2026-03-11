@@ -427,6 +427,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       image: null,
       imageName: null,
     });
+    this.markTreeImageAsModified();
     input.readOnly = false;
     input.focus();
   }
@@ -436,6 +437,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       image: null,
       imageName: null,
     });
+    this.markTreeImageAsModified();
   }
 
   onImageChange(formtype: string, event: Event): void {
@@ -444,6 +446,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       this.entityForm.patchValue({
         image: input.value
       });
+      this.markTreeImageAsModified();
     }
   }
 
@@ -452,6 +455,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
     if (fileInput.files.length > 0) {
       const file = fileInput.files[0];
       if (!file.type.startsWith('image/')) {
+        fileInput.value = '';
         return;
       }
       const reader = new FileReader();
@@ -460,9 +464,16 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
           image: reader.result,
           imageName: file.name
         });
+        this.markTreeImageAsModified();
       };
       reader.readAsDataURL(file);
     }
+    // Allow selecting the same filename again in subsequent uploads.
+    fileInput.value = '';
+  }
+
+  private markTreeImageAsModified(): void {
+    this.entityForm.markAsDirty();
   }
 
   /**
