@@ -1,8 +1,8 @@
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 
-import {Observable, of, Subject} from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 
-import {Resource} from '@app/core';
+import { Resource } from '@app/core';
 
 export interface EntityListConfig<T> {
   /** Translation key for the entity label */

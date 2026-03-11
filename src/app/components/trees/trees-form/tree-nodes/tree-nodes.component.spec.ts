@@ -14,6 +14,7 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
+import { constants } from '@environments/constants';
 import { ExternalService, ResourceService } from '@app/core/hal';
 import {
   CapabilitiesService,
@@ -84,6 +85,10 @@ describe('TreeNodesComponent', () => {
   let fixture: ComponentFixture<TreeNodesComponent>;
   let httpMock: HttpTestingController;
   let consoleErrorSpy: jest.SpyInstance;
+  const setCodeList = (name: string, entries: any[]): void => {
+    component['codelists'].set(name, entries as any);
+    component['rebuildCodeListCaches']();
+  };
 
   beforeEach(async () => {
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
@@ -184,7 +189,7 @@ describe('TreeNodesComponent', () => {
     ];
 
     beforeEach(() => {
-      component['codelists'].set('treenode.node.type', nodeTypes as any);
+      setCodeList('treenode.node.type', nodeTypes as any);
     });
 
     it('should filter folder types for touristic tree', () => {
@@ -272,7 +277,7 @@ describe('TreeNodesComponent', () => {
     ];
 
     beforeEach(() => {
-      component['codelists'].set('treenode.node.type', nodeTypes as any);
+      setCodeList('treenode.node.type', nodeTypes as any);
     });
 
     it('should use treenode.node.type for folder types when present', () => {
@@ -349,7 +354,7 @@ describe('TreeNodesComponent', () => {
 
   describe('getViewModeLabelForTree', () => {
     it('returns description when viewMode is in codelist', () => {
-      component['codelists'].set('treenode.viewmode', [
+      setCodeList('treenode.viewmode', [
         { value: 'dl', description: 'Detailed list' },
         { value: 'rt', description: 'Routes' }
       ] as any);
@@ -358,7 +363,7 @@ describe('TreeNodesComponent', () => {
     });
 
     it('returns raw viewMode when not in codelist', () => {
-      component['codelists'].set('treenode.viewmode', [{ value: 'dl', description: 'Detailed list' }] as any);
+      setCodeList('treenode.viewmode', [{ value: 'dl', description: 'Detailed list' }] as any);
       expect(component.getViewModeLabelForTree('unknown')).toBe('unknown');
     });
 
@@ -466,7 +471,7 @@ describe('TreeNodesComponent', () => {
 
   describe('default type fallback from config', () => {
     beforeEach(() => {
-      component['codelists'].set('treenode.node.type', [
+      setCodeList('treenode.node.type', [
         { value: 'folder', description: 'Folder' },
         { value: 'cartography', description: 'Cartography' },
         { value: 'task', description: 'Task' }
@@ -483,7 +488,7 @@ describe('TreeNodesComponent', () => {
     });
 
     it('touristic tree container fallback resolves to valid container from codelist', () => {
-      component['codelists'].set('treenode.node.type', [
+      setCodeList('treenode.node.type', [
         { value: 'menu', description: 'Menu' },
         { value: 'list', description: 'List' }
       ] as any);
@@ -497,7 +502,7 @@ describe('TreeNodesComponent', () => {
     });
 
     it('onTreeNodeTypeChange does not patch when no valid default exists', () => {
-      component['codelists'].set('treenode.node.type', [] as any);
+      setCodeList('treenode.node.type', [] as any);
       component.currentTreeType = 'cartography';
       component.currentNodeType = 'task';
       component.treeNodeForm.patchValue({ nodeType: 'task' });
@@ -642,5 +647,20 @@ describe('TreeNodesComponent', () => {
       expect(component['currentNodeType']).toBeNull();
     });
   });
+
+  describe('save order normalization', () => {
+    it('normalizes sibling order preserving current tree sequence', () => {
+      const siblings: any[] = [
+        { id: 10, order: 4, status: constants.entityStatus.modified, children: [] },
+        { id: -1, order: null, status: constants.entityStatus.pendingCreation, children: [] },
+        { id: 20, order: 0, status: constants.entityStatus.modified, children: [] }
+      ];
+
+      (component as any).normalizeSiblingOrderForSave(siblings);
+
+      expect(siblings.map((n) => n.order)).toEqual([0, 1, 2]);
+    });
+  });
+
 });
 

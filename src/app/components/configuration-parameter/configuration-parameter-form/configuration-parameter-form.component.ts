@@ -52,7 +52,7 @@ export class ConfigurationParameterFormComponent extends BaseFormComponent<Confi
 
   override fetchCopy(): Promise<ConfigurationParameter> {
     return firstValueFrom(this.configurationParametersService.get(this.duplicateID).pipe(map((copy: ConfigurationParameter) => {
-      copy.name = this.translateService.instant("copy_") + copy.name;
+      copy.name = this.translateService.instant("common.copyPrefix") + copy.name;
       return copy;
     })));
   }

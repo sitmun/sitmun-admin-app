@@ -28,11 +28,11 @@ export function extractProblemType(error: any): string | null {
  * Gets the i18n translation key for a problem detail error
  *
  * @param error The HTTP error response
- * @returns The translation key (e.g., "error.unauthorized")
+ * @returns The translation key (e.g., "backend.error.unauthorized")
  *
  * @example
  * getProblemTranslationKey(error)
- * // Returns: "error.unauthorized"
+ * // Returns: "backend.error.unauthorized"
  */
 export function getProblemTranslationKey(error: any): string {
   const problemType = extractProblemType(error);
@@ -43,10 +43,10 @@ export function getProblemTranslationKey(error: any): string {
   // Provide specific translation for 409 Conflict (duplicate key)
   // 422 constraint errors are handled by MessagesInterceptor with more context
   if (problemType === 'data-integrity-violation' && error.status === 409) {
-    return 'error.data-integrity-violation.conflict';
+    return 'backend.error.data-integrity-violation.conflict';
   }
   
-  return `error.${problemType}`;
+  return `backend.error.${problemType}`;
 }
 
 /**

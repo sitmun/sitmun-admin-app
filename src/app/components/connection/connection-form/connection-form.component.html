@@ -6,7 +6,7 @@
   [isNew]="isNewOrDuplicated()"
   [canSave]="canSaveEntity"
   [form]="entityForm"
-  validationEntityType="connection"
+  entityLabelPrefix="entity.connection"
   [validationFieldLabelKeys]="{ driver: 'entity.connection.driver', url: 'entity.connection.url' }"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"

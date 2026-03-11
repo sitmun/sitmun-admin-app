@@ -220,8 +220,12 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    */
   ngOnInit(): void {
     this.fetchData()
-      .then(() => this.afterFetch())
-      .catch((reason) => this.errorHandler.handleError(reason, 'common.error.initialization'));
+      .then(() => {
+        this.afterFetch();
+      })
+      .catch((reason) => {
+        this.errorHandler.handleError(reason, 'common.error.initialization');
+      });
   }
 
   /**

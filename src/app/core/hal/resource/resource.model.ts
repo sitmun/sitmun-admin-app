@@ -73,7 +73,10 @@ export abstract class Resource {
         headers: ResourceHelper.headers,
         params: remainingOptions
       });
-      return observable.pipe(map(response => ResourceHelper.instantiateResourceCollection<T>(type, response, result)),
+      return observable.pipe(map(response => {
+          const collection = ResourceHelper.instantiateResourceCollection<T>(type, response, result);
+          return collection;
+        }),
         map((array: ResourceArray<T>) => array.result),);
     } else {
       if (Resource.loggerService) {

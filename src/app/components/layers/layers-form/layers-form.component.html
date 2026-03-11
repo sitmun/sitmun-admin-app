@@ -6,7 +6,7 @@
   [isNew]="isNewOrDuplicated()"
   [canSave]="canSaveEntity"
   [form]="entityForm"
-  validationEntityType="cartography"
+  entityLabelPrefix="entity.cartography"
   [validationFieldLabelKeys]="{ serviceId: 'entity.cartography.serviceName', joinedLayers: 'entity.cartography.layerSet' }"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"

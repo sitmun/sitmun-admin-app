@@ -75,7 +75,7 @@
       </app-datagraph>
       <div *ngIf="!cartographyDataAvailable" class="empty-state">
         <mat-icon class="empty-state-icon">bar_chart</mat-icon>
-        <h3 class="empty-state-title">{{ "notAvailable" | translate }}</h3>
+        <h3 class="empty-state-title">{{ "common.status.notAvailable" | translate }}</h3>
         <p class="empty-state-message">
           No cartography creation data available
         </p>
@@ -99,7 +99,7 @@
       </app-datagraph>
       <div *ngIf="!usersDataAvailable" class="empty-state">
         <mat-icon class="empty-state-icon">people_outline</mat-icon>
-        <h3 class="empty-state-title">{{ "notAvailable" | translate }}</h3>
+        <h3 class="empty-state-title">{{ "common.status.notAvailable" | translate }}</h3>
         <p class="empty-state-message">
           No user registration data available
         </p>
@@ -121,7 +121,7 @@
       </app-datagraph>
       <div *ngIf="!usersPerApplicationDataAvailable" class="empty-state">
         <mat-icon class="empty-state-icon">apps</mat-icon>
-        <h3 class="empty-state-title">{{ "notAvailable" | translate }}</h3>
+        <h3 class="empty-state-title">{{ "common.status.notAvailable" | translate }}</h3>
         <p class="empty-state-message">
           No user-application distribution data available
         </p>

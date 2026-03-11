@@ -79,18 +79,18 @@ export class DialogMessageComponent implements OnInit {
       return '';
     }
 
-    // Try to translate the message (in case it's a translation key)
+    // Only treat as translation key if it looks like one (contains a dot); otherwise use as-is to avoid recording plain text as missing
     let translatedMessage: string;
-    try {
-      translatedMessage = this.translateService.instant(this.message);
-      // If translation returns the key itself, it means translation failed or it's not a key
-      // In that case, use the original message
-      if (translatedMessage === this.message && !this.message.includes('.')) {
-        // Not a translation key, use as-is
+    if (this.message.includes('.')) {
+      try {
+        translatedMessage = this.translateService.instant(this.message);
+        if (translatedMessage === this.message) {
+          translatedMessage = this.message;
+        }
+      } catch {
         translatedMessage = this.message;
       }
-    } catch {
-      // Translation failed, use original message
+    } else {
       translatedMessage = this.message;
     }
 

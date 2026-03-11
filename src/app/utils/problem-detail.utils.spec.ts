@@ -29,9 +29,9 @@ describe('extractProblemType', () => {
 });
 
 describe('getProblemTranslationKey', () => {
-  it('should return error.<slug> for standard problem types', () => {
+  it('should return backend.error.<slug> for standard problem types', () => {
     const error = makeError({ type: 'https://sitmun.org/problems/validation-error' });
-    expect(getProblemTranslationKey(error)).toBe('error.validation-error');
+    expect(getProblemTranslationKey(error)).toBe('backend.error.validation-error');
   });
 
   it('should return conflict key for 409 data-integrity-violation', () => {
@@ -39,7 +39,7 @@ describe('getProblemTranslationKey', () => {
       { type: 'https://sitmun.org/problems/data-integrity-violation' },
       409
     );
-    expect(getProblemTranslationKey(error)).toBe('error.data-integrity-violation.conflict');
+    expect(getProblemTranslationKey(error)).toBe('backend.error.data-integrity-violation.conflict');
   });
 
   it('should return generic key when type is missing', () => {

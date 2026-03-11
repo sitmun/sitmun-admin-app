@@ -17,6 +17,7 @@ import { User } from '@app/domain';
 import { ErrorTrackingService } from '@app/services/error-tracking.service';
 import { LogLevel } from '@app/services/log-level.enum';
 import { LoggerService } from '@app/services/logger.service';
+import { MissingTranslationTrackerService } from '@app/services/missing-translation-tracker.service';
 import { SidebarManagerService } from '@app/services/sidebar-manager.service';
 import { environment } from '@environments/environment';
 
@@ -41,6 +42,12 @@ export class SystemInfoMenuComponent implements OnInit {
     ),
     { initialValue: 0 }
   );
+  missingTranslationCount = toSignal(
+    this.missingTranslationTracker.keys$.pipe(
+      map(keys => keys.length)
+    ),
+    { initialValue: 0 }
+  );
   currentCategory = '';
   
   private destroyRef = inject(DestroyRef);
@@ -52,6 +59,7 @@ export class SystemInfoMenuComponent implements OnInit {
     private router: Router,
     private loggerService: LoggerService,
     private errorTrackingService: ErrorTrackingService,
+    private missingTranslationTracker: MissingTranslationTrackerService,
     private sidebarManager: SidebarManagerService,
     private dialog: MatDialog,
     private translateService: TranslateService,
@@ -162,6 +170,10 @@ export class SystemInfoMenuComponent implements OnInit {
 
   openErrorSidebar(): void {
     this.sidebarManager.openSidebar('error');
+  }
+
+  openMissingTranslationsSidebar(): void {
+    this.sidebarManager.openSidebar('translation');
   }
 
   openAboutDialog(): void {

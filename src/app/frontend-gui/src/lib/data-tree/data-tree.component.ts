@@ -1,12 +1,93 @@
-import {SelectionModel} from '@angular/cdk/collections';
-import {FlatTreeControl} from '@angular/cdk/tree';
-import {Component, ElementRef, EventEmitter, Injectable, Input, OnInit, Output, ViewChild} from '@angular/core';
-import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
+import {CdkDragDrop, CdkDragEnd, CdkDragSortEvent, CdkDragStart} from '@angular/cdk/drag-drop';
+import {Component, DestroyRef, EventEmitter, inject, Injectable, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {MatTree} from '@angular/material/tree';
 
-import {BehaviorSubject, firstValueFrom, Observable, of as observableOf} from 'rxjs';
+import {BehaviorSubject, firstValueFrom, Observable, Subscription} from 'rxjs';
 
 import {config} from '@config';
 import {constants} from '@environments/constants';
+
+/**
+ * Build the file structure tree from flat array. type is derived from nodeType + treeType (config).
+ * isFolder not stored; use canNodeTypeHaveChildren(treeType, nodeType) to check.
+ */
+type TreeNodeInput = {
+  id?: string | number | null;
+  parent?: string | number | null;
+  name?: string;
+  nodeType?: string;
+  order?: number;
+  children?: any[];
+  [key: string]: any;
+};
+
+type TreeMutationRoot = {
+  children: any[];
+  [key: string]: any;
+};
+
+type OrderedNodeLike = {
+  id?: string | number | null;
+  order?: number;
+  status?: any;
+  [key: string]: any;
+};
+
+function buildFileTree(arrayTreeNodes: TreeNodeInput[], level: number, allNewElements: boolean, treeType?: string): FileNode {
+  const map: Record<string, any> = {};
+  if(arrayTreeNodes.length===0)
+  {
+    map['root'] = {
+      name: '',
+      type: constants.treeRenderType.folder,
+      isRoot: true,
+      order: 0,
+      children: [],
+      id: null
+    };
+  }
+  else{
+    arrayTreeNodes.forEach((treeNode) => {
+      const obj = treeNode;
+      obj.children = [];
+      const canHaveChildren = treeType ? canNodeTypeHaveChildren(treeType, treeNode.nodeType) : false;
+      obj.type = canHaveChildren ? constants.treeRenderType.folder : constants.treeRenderType.node;
+      // isFolder removed - use canNodeTypeHaveChildren(treeType, nodeType) to check
+      obj.nodeType = treeNode.nodeType;
+      if(allNewElements) {
+        obj.status = constants.entityStatus.pendingCreation;
+        if(obj.id) { (obj as any).id = Number(obj.id) * -1; }
+        if(obj.parent) { (obj as any).parent = Number(obj.parent) * -1; }
+        delete obj._links;
+      }
+
+      if(!map[obj.id]) {map[obj.id] = obj;}
+      else{
+        const previousChildren = map[obj.id].children
+        map[obj.id] = obj;
+        map[obj.id].children=previousChildren
+      }
+      const parent = obj.parent || 'root';
+      if (!map[parent]) {
+        map[parent] = {
+          children: []
+        };
+      }
+      map[parent].children.push(obj);
+    });
+    map['root'].type = constants.treeRenderType.folder;
+    map['root'].name='';
+    map['root'].order=0;
+    map['root'].isRoot=true;
+    map['root'].id=null;
+  }
+
+  return map['root'];
+}
+
+/** Exported for testing */
+export { buildFileTree as buildFileTreeForTesting };
 
 /**
  * File node data with nested structure.
@@ -55,8 +136,6 @@ export class FileFlatNode {
   ) { }
 }
 
-
-
 /**
  * File database, it can build a tree structured Json object from string.
  * Each node in Json object represents a file or a directory. For a file, it has name and type.
@@ -67,77 +146,35 @@ export class FileFlatNode {
 @Injectable()
 export class FileDatabase {
   dataChange = new BehaviorSubject<FileNode[]>([]);
-  get data(): any { return this.dataChange.value; }
+  get data(): FileNode | undefined { return this.dataChange.value[0]; }
 
-  initialize(dataObj, allNewElements, treeType?: string) {
-    const data = this.buildFileTree(dataObj, 0, allNewElements, treeType);
-    this.dataChange.next(data);
+  /** Emit a mutated root snapshot in the array shape expected by dataChange. */
+  private emitRootSnapshot(changedData: TreeMutationRoot): void {
+    this.dataChange.next([changedData as FileNode]);
+  }
+
+  /** Initialize the mutable tree root from backend flat rows. */
+  initialize(dataObj: TreeNodeInput[], allNewElements: boolean, treeType?: string): void {
+    const data = buildFileTree(dataObj, 0, allNewElements, treeType);
+    this.dataChange.next([data]);
   }
 
   /**
    * Build the file structure tree. type is derived from nodeType + treeType (config).
    * isFolder not stored; use canNodeTypeHaveChildren(treeType, nodeType) to check.
    */
-  buildFileTree(arrayTreeNodes: any[], level: number, allNewElements: any, treeType?: string) {
-    const map = {};
-    if(arrayTreeNodes.length===0)
-    {
-      map['root'] = {
-        name: '',
-        type: constants.treeRenderType.folder,
-        isRoot: true,
-        order: 0,
-        children: [],
-        id: null
-      };
-    }
-    else{
-      arrayTreeNodes.forEach((treeNode) => {
-        const obj = treeNode;
-        obj.children = [];
-        const canHaveChildren = treeType ? canNodeTypeHaveChildren(treeType, treeNode.nodeType) : false;
-        obj.type = canHaveChildren ? constants.treeRenderType.folder : constants.treeRenderType.node;
-        // isFolder removed - use canNodeTypeHaveChildren(treeType, nodeType) to check
-        obj.nodeType = treeNode.nodeType;
-        if(allNewElements) {
-          obj.status = constants.entityStatus.pendingCreation;
-          if(obj.id) { obj.id = obj.id * -1 }
-          if(obj.parent) { obj.parent = obj.parent * -1 }
-          delete obj._links;
-        }
-
-        if(!map[obj.id]) {map[obj.id] = obj;}
-        else{
-          const previousChildren = map[obj.id].children
-          map[obj.id] = obj;
-          map[obj.id].children=previousChildren
-        }
-        const parent = obj.parent || 'root';
-        if (!map[parent]) {
-          map[parent] = {
-            children: []
-          };
-        }
-        map[parent].children.push(obj);
-      });
-      map['root'].type = constants.treeRenderType.folder;
-      map['root'].name='';
-      map['root'].order=0;
-      map['root'].isRoot=true;
-      map['root'].id=null;
-    }
-
-
-    return map['root'];
+  buildFileTree(arrayTreeNodes: TreeNodeInput[], level: number, allNewElements: boolean, treeType?: string): FileNode {
+    return buildFileTree(arrayTreeNodes, level, allNewElements, treeType);
   }
 
-
-  deleteItem(node: FileNode, changedData:any) {
-    this.deleteNode(changedData.children, node);
-    this.dataChange.next(changedData);
+  /** Remove a node from a mutated root snapshot and emit. */
+  deleteItem(node: FileNode, changedData: TreeMutationRoot): void {
+    this.deleteNode(changedData.children as FileNode[], node);
+    this.emitRootSnapshot(changedData);
   }
 
-  deleteNode(nodes: FileNode[], nodeToDelete: FileNode) {
+  /** Recursively delete a node reference from a nested branch list. */
+  deleteNode(nodes: FileNode[], nodeToDelete: FileNode): void {
     const index = nodes.indexOf(nodeToDelete, 0);
     if (index > -1) {
       nodes.splice(index, 1);
@@ -150,34 +187,37 @@ export class FileDatabase {
     }
   }
 
-  setOrder(data: any[]){
+  /** Recompute sibling order and default status markers after mutations. */
+  setOrder(data: OrderedNodeLike[]): OrderedNodeLike[] {
     for(let i=0; i< data.length; i++){
       data[i].order=i;
       if(data[i].id && Number(data[i].id) < 0){
-        data[i].status="pendingCreation";
+        data[i].status = constants.entityStatus.pendingCreation;
       }
       if(!data[i].status && !data[i]['status']) {
-        data[i].status="Modified";
+        data[i].status = constants.entityStatus.modified;
       }
     }
     return data;
    }
 
-  copyPasteItem(from: FileNode, to: FileNode, changedData:any): FileNode {
+  /** DnD: paste node as child of target node. */
+  copyPasteItem(from: FileNode, to: FileNode, changedData: TreeMutationRoot): FileNode {
     return this.insertItem(to, from, changedData);
   }
 
-  copyPasteItemAbove(from: FileNode, to: FileNode,changedData:any): FileNode {
+  /** DnD: paste node above target node in same parent branch. */
+  copyPasteItemAbove(from: FileNode, to: FileNode,changedData: TreeMutationRoot): FileNode {
     return this.insertItemAbove(to, from, changedData);
   }
 
-  copyPasteItemBelow(from: FileNode, to: FileNode,changedData:any): FileNode {
+  /** DnD: paste node below target node in same parent branch. */
+  copyPasteItemBelow(from: FileNode, to: FileNode,changedData: TreeMutationRoot): FileNode {
     return this.insertItemBelow(to, from, changedData);
   }
 
-  /** Add an item to to-do list */
-
-  getNewItem(node:FileNode){
+  /** Clone only persisted node fields used by current tree/domain flows. */
+  getNewItem(node: FileNode): FileNode {
     return {
       name: node.name,
       children: node.children,
@@ -208,7 +248,8 @@ export class FileDatabase {
     } as FileNode;
   }
 
-  insertItem(parent: FileNode, node: FileNode,changedData:any): FileNode {
+  /** Insert node as child of parent and emit updated root snapshot. */
+  insertItem(parent: FileNode, node: FileNode,changedData: TreeMutationRoot): FileNode {
     if (!parent.children) {
       parent.children = [];
     }
@@ -216,11 +257,12 @@ export class FileDatabase {
     newItem.parent = parent.id == undefined ? null : parent.id;
     parent.children.push(newItem);
     this.setOrder(parent.children)
-    this.dataChange.next(changedData);
+    this.emitRootSnapshot(changedData);
     return newItem;
   }
 
-  insertItemAbove(node: FileNode, nodeDrag: FileNode,changedData:any): FileNode {
+  /** Insert node above target sibling and emit updated root snapshot. */
+  insertItemAbove(node: FileNode, nodeDrag: FileNode,changedData: TreeMutationRoot): FileNode {
     const parentNode = this.getParentFromNodes(node,changedData);
     const newItem = this.getNewItem(nodeDrag)
     newItem.parent = parentNode==null || parentNode.id==undefined?null:parentNode.id;
@@ -232,11 +274,12 @@ export class FileDatabase {
       changedData.children.splice(changedData.children.indexOf(node), 0, newItem);
       this.setOrder(changedData.children)
     }
-    this.dataChange.next(changedData);
+    this.emitRootSnapshot(changedData);
     return newItem;
   }
 
-  insertItemBelow(node: FileNode, nodeDrag: FileNode,changedData:any): FileNode {
+  /** Insert node below target sibling and emit updated root snapshot. */
+  insertItemBelow(node: FileNode, nodeDrag: FileNode,changedData: TreeMutationRoot): FileNode {
     const parentNode = this.getParentFromNodes(node,changedData);
 
     const newItem = this.getNewItem(nodeDrag)
@@ -249,12 +292,12 @@ export class FileDatabase {
       changedData.children.splice(changedData.children.indexOf(node) + 1, 0, newItem);
       this.setOrder(changedData.children)
     }
-    this.dataChange.next(changedData);
+    this.emitRootSnapshot(changedData);
     return newItem;
   }
 
-
-  getParentFromNodes(node: FileNode,changedData:any): FileNode {
+  /** Locate parent branch of node within current mutated root snapshot. */
+  getParentFromNodes(node: FileNode,changedData: TreeMutationRoot): FileNode | null {
     for (let i = 0; i < changedData.children.length; ++i) {
       const currentRoot =  changedData.children[i];
       const parent = this.getParent(currentRoot, node);
@@ -265,8 +308,8 @@ export class FileDatabase {
     return null;
   }
 
-
-  getParent(currentRoot: FileNode, node: FileNode): FileNode {
+  /** Recursive parent search helper used by DnD insertion methods. */
+  getParent(currentRoot: FileNode, node: FileNode): FileNode | null {
     if (currentRoot.children && currentRoot.children.length > 0) {
       for (let i = 0; i < currentRoot.children.length; ++i) {
         const child = currentRoot.children[i];
@@ -285,8 +328,47 @@ export class FileDatabase {
 
 }
 
+type DragOverArea = '' | 'above' | 'below' | 'center';
+type NodeAction = 'edit' | 'delete' | 'restore' | 'revert' | 'remove';
+type DndNodeLike = {
+  id: string | number | null | undefined;
+  status?: string | null;
+};
+type ResolvedDropContext = {
+  rootNode: FileNode;
+  targetNodeId: string | number | undefined;
+  targetNode: FileNode;
+  sourceNode: FileNode;
+};
+interface EmitAllRowsPayload {
+  event: string;
+  data: FileNode[];
+}
+
+interface EmitNodePayload {
+  nodeClicked: FileNode;
+  nodeParent: FileNode | null;
+}
+
+interface ActionContext {
+  changedData: FileNode[];
+  nodeClicked: FileNode;
+}
+
+interface NodeLookupContext {
+  siblings: FileNode[];
+  index: number;
+  node: FileNode;
+}
+
+type NodeUpdatePayload = Partial<Omit<FileNode, 'id' | 'children'>> & {
+  id: string | number;
+  children?: FileNode[];
+  [key: string]: any;
+};
+
 /**
- * @title Tree with flat nodes
+ * @title Tree with nested nodes
  */
 @Component({
     selector: 'app-data-tree',
@@ -296,36 +378,34 @@ export class FileDatabase {
     standalone: false
 })
 export class DataTreeComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
   @Output() addNode: EventEmitter<{ parent: FileNode | null; nodeType: string }>;
-  @Output() createNode: EventEmitter<any>;
-  @Output() createFolder: EventEmitter<any>;
-  @Output() emitNode: EventEmitter<any>;
-  @Output() emitAllNodes: EventEmitter<any>;
-  @Output() loadButtonClicked: EventEmitter<any>;
-  @Input() eventNodeUpdatedSubscription: Observable <any> ;
-  @Input() eventCreateNodeSubscription: Observable <any> ;
-  @Input() eventGetAllRowsSubscription: Observable <any> ;
-  @Input() eventRefreshSubscription: Observable <any> ;
-  @Input() loadDataButton: Observable <any> ;
-  private _eventNodeUpdatedSubscription: any;
-  private _eventCreateNodeSubscription: any;
-  private _eventGetAllRowsSubscription: any;
-  private _eventRefreshSubscription: any;
-  treeControl: FlatTreeControl<FileFlatNode>;
-  treeFlattener: MatTreeFlattener<FileNode, FileFlatNode>;
-  dataSource: MatTreeFlatDataSource<FileNode, FileFlatNode>;
-  expansionModel = new SelectionModel<string>(true);
-  dragging = false;
-  expandTimeout: any;
-  expandDelay = 1000;
-  validateDrop = false;
-  treeData: any;
+  @Output() emitNode: EventEmitter<EmitNodePayload>;
+  @Output() emitAllNodes: EventEmitter<EmitAllRowsPayload>;
+  @Output() loadButtonClicked: EventEmitter<FileNode[]>;
+  @Input() eventNodeUpdatedSubscription: Observable<unknown>;
+  @Input() eventCreateNodeSubscription: Observable<unknown>;
+  @Input() eventGetAllRowsSubscription: Observable<string>;
+  @Input() eventRefreshSubscription: Observable<unknown>;
+  @Input() loadDataButton: Observable<unknown>;
+  /**
+   * Nested tree snapshot store.
+   * Kept as `{ data }` shape for existing component/spec compatibility.
+   */
+  dataSource: { data: FileNode[] } = { data: [] };
+  /** Canonical expansion ids (adapter-neutral) used by expansion wrappers. */
+  private expandedNodeIdsState = new Set<string>();
+  /** One-shot ids that must be re-expanded on next render after action-driven rebuilds. */
+  private pendingReexpandNodeIds = new Set<string>();
+  /** Temporary pin to guarantee visibility of a freshly inserted node during next filter pass. */
+  private newlyInsertedNodeId: string | number | null = null;
+  treeData: TreeNodeInput[];
   filterValue = '';
   originalData: FileNode[] = [];
-  selectedNodeId: string | null = null;
+  selectedNodeId: string | number | null = null;
 
-  @Input() getAll: () => Observable<any>;
-  @Input() allNewElements: any;
+  @Input() getAll?: () => Observable<TreeNodeInput[]>;
+  @Input() allNewElements: boolean;
   @Input() currentTreeType: string;
   @Input() canNodeHaveChildren: (nodeType: string | null) => boolean;
   /** Returns allowed node types for a parent (null = root). Used to render one add button per type. */
@@ -337,83 +417,84 @@ export class DataTreeComponent implements OnInit {
 
 
   /* Drag and drop */
-  dragNode: any;
+  dragNodeId: string | number | undefined;
+  dragNodeStatus: string | null = null;
+  isDragging = false;
   dragNodeExpandOverWaitTimeMs = 1500;
-  dragNodeExpandOverNode: any;
-  dragNodeExpandOverTime: number;
-  dragNodeExpandOverArea: string;
-  @ViewChild('emptyItem') emptyItem: ElementRef;
+  dragNodeExpandOverNodeId: string | null = null;
+  dragNodeExpandOverTime: number = 0;
+  dragNodeExpandOverArea: DragOverArea = '';
+  @ViewChild(MatTree) tree?: MatTree<FileNode>;
+  private nodeTypeLabelCache = new Map<string, string>();
 
-    /** Map from flat node to nested node. This helps us finding the nested node to be modified */
-    flatNodeMap = new Map<FileFlatNode, FileNode>();
-
-    /** Map from nested node to flattened node. This helps us to keep the same object for selection */
-    nestedNodeMap = new Map<FileNode, FileFlatNode>();
-    
     /** Map to store original node states for revert functionality */
     originalNodeStates = new Map<string | number, any>();
 
 
   constructor(public database: FileDatabase) {
     this.addNode = new EventEmitter();
-    this.emitNode = new EventEmitter();
-    this.createNode = new EventEmitter();
-    this.createFolder = new EventEmitter();
-    this.emitAllNodes = new EventEmitter();
-    this.loadButtonClicked = new EventEmitter();
-    this.treeFlattener = new MatTreeFlattener(this.transformer, this._getLevel,
-      this._isExpandable, this._getChildren);
-    this.treeControl = new FlatTreeControl<FileFlatNode>(this._getLevel, this._isExpandable);
-    this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
-
+    this.emitNode = new EventEmitter<EmitNodePayload>();
+    this.emitAllNodes = new EventEmitter<EmitAllRowsPayload>();
+    this.loadButtonClicked = new EventEmitter<FileNode[]>();
   }
 
-  ngOnInit(){
-    if(this.eventNodeUpdatedSubscription)
-    {
-      this.eventNodeUpdatedSubscription.subscribe(
-        (node) => {
-          this.updateNode(node);
-        }
-      )
-    }
-    if(this.eventCreateNodeSubscription)
-    {
-      this.eventCreateNodeSubscription.subscribe(
-        (node) => {
-          this.addNodeToTree(node);
-        }
-      )
-    }
+  /** Subscribe optional input observable with destroy-aware lifecycle handling. */
+  private subscribeInput<T>(source: Observable<T> | undefined, handler: (value: T) => void): Subscription | undefined {
+    if (!source) return undefined;
+    return source.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(handler);
+  }
 
-
-    if (this.eventGetAllRowsSubscription) {
-      this._eventGetAllRowsSubscription = this.eventGetAllRowsSubscription.subscribe((event: string) => {
-        this.emitAllRows(event);
-      });
-    }
-
-    if (this.eventRefreshSubscription) {
-      this._eventRefreshSubscription = this.eventRefreshSubscription.subscribe(() => {
-        this.getElements();
-      });
-    }
+  ngOnInit(): void {
+    this.subscribeInput(this.eventNodeUpdatedSubscription, (node) => {
+      if (!node || typeof node !== 'object' || !('id' in (node as Record<string, unknown>))) {
+        return;
+      }
+      this.updateNode(node as NodeUpdatePayload);
+    });
+    this.subscribeInput(this.eventCreateNodeSubscription, (node) => {
+      if (!node || typeof node !== 'object') {
+        return;
+      }
+      this.addNodeToTree(node as FileNode);
+    });
+    this.subscribeInput(this.eventGetAllRowsSubscription, (event: string) => {
+      this.emitAllRows(event);
+    });
+    this.subscribeInput(this.eventRefreshSubscription, () => {
+      this.getElements();
+    });
 
     this.getElements();
   }
 
-  loadDataButtonClicked(){
-    const dataToEmit = JSON.parse(JSON.stringify(this.dataSource.data))
+  loadDataButtonClicked(): void {
+    const dataToEmit = this.cloneTreeDataSnapshot();
     const allRows = this.getAllChildren(dataToEmit);
     this.loadButtonClicked.emit(allRows)
   }
 
+  /** Rebuild tree using current FileDatabase root snapshot (if present). */
+  private rebuildFromDatabaseRoot(): void {
+    const root = this.database.data;
+    this.rebuildTreeForData(root ? [root] : []);
+  }
+
+  /** Apply fetched rows into database and rebuild current tree snapshot. */
+  private applyFetchedTreeData(items: TreeNodeInput[]): void {
+    this.treeData = items;
+    this.database.initialize(this.treeData, this.allNewElements, this.currentTreeType);
+    this.rebuildFromDatabaseRoot();
+  }
+
   getElements(): void {
-    this.getAll()
-    .subscribe((items) => {
-      this.treeData = items;
-      this.database.initialize(this.treeData, this.allNewElements, this.currentTreeType);
-      this.database.dataChange.subscribe(data => this.rebuildTreeForData([data]));
+    if (!this.getAll) return;
+    const source$ = this.getAll();
+    source$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((items) => {
+      this.applyFetchedTreeData(items);
     });
   }
 
@@ -421,28 +502,517 @@ export class DataTreeComponent implements OnInit {
   refreshTree(): Promise<void> {
     if (!this.getAll) return Promise.resolve();
     return firstValueFrom(this.getAll()).then((items) => {
-      this.treeData = items;
-      this.database.initialize(this.treeData, this.allNewElements, this.currentTreeType);
-      this.rebuildTreeForData([this.database.data]);
+      this.applyFetchedTreeData(items);
     });
   }
 
-
-  transformer = (node: FileNode, level: number) => {
-    const existingNode = this.nestedNodeMap.get(node);
-    const flatNode = existingNode && existingNode.name === node.name
-      ? existingNode
-      : new FileFlatNode((node.children && node.children.length > 0),node.name,level,node.type,node.id,node.status, node.nodeType);
-
-    this.flatNodeMap.set(flatNode, node);
-    this.nestedNodeMap.set(node, flatNode);
-    return flatNode;
-
+  /** Active childrenAccessor for nested mat-tree mode. */
+  readonly childrenAccessorCompat = (node: FileNode): FileNode[] => {
+    const nested = this.resolveNode(node);
+    return this.getNodeChildren(nested);
+  };
+  /** Active childrenAccessor binding for template. */
+  get childrenAccessorBindingCompat(): ((node: FileNode) => FileNode[]) {
+    return this.childrenAccessorCompat;
   }
-  private _getLevel = (node: FileFlatNode) => node.level;
-  private _isExpandable = (node: FileFlatNode) => node.expandable;
-  private _getChildren = (node: FileNode): Observable<FileNode[]> => observableOf(node.children);
-  hasChild = (_: number, _nodeData: FileFlatNode) => _nodeData.expandable;
+  /** Tree template predicate for nested nodes. */
+  hasChild = (_: number, nodeData: FileNode): boolean => {
+    return this.getNodeChildren(this.resolveNode(nodeData)).length > 0;
+  };
+
+  /** Canonical source for current nested tree data. */
+  private getTreeData(): FileNode[] {
+    return this.dataSource.data ?? [];
+  }
+
+  /**
+   * Transitional nested-children accessor seam.
+   * Keeps traversal logic independent from direct `node.children` reads.
+   */
+  private getNodeChildren(node: FileNode | null | undefined): FileNode[] {
+    return node?.children ?? [];
+  }
+
+  /** Safe accessor for children of the first root snapshot node. */
+  private getRootChildren(nodes: FileNode[]): FileNode[] {
+    return this.getNodeChildren(nodes?.[0]);
+  }
+
+  /** Active [dataSource] binding for nested tree. */
+  get treeDataSourceBindingCompat(): FileNode[] {
+    return this.getTreeData();
+  }
+
+  /** Compare ids defensively because runtime mixes string/number ids. */
+  private isSameId(a: string | number | null | undefined, b: string | number | null | undefined): boolean {
+    return String(a) === String(b);
+  }
+
+  /** Normalize nullable/mixed ids to a numeric form for comparisons. */
+  private toNumericId(id: string | number | null | undefined): number {
+    return Number(id);
+  }
+
+  /** Persisted backend nodes have non-negative numeric ids. */
+  private isPersistedNodeId(id: string | number | null | undefined): boolean {
+    return this.toNumericId(id) >= 0;
+  }
+
+  /** Build default synthetic root used when tree data starts empty. */
+  private createSyntheticRootNode(): FileNode {
+    return {
+      name: '',
+      type: constants.treeRenderType.folder,
+      isRoot: true,
+      order: 0,
+      children: [] as FileNode[],
+      id: null
+    } as unknown as FileNode;
+  }
+
+  /** Generic deep clone for plain data objects/arrays used in tree state. */
+  private cloneValue<T>(value: T): T {
+    return JSON.parse(JSON.stringify(value));
+  }
+
+  /**
+   * Returns a deep-cloned snapshot of current tree data so callers can safely mutate
+   * without affecting live UI state until rebuildTreeForData is called.
+   */
+  private cloneTreeDataSnapshot(): FileNode[] {
+    return this.cloneValue(this.getTreeData());
+  }
+
+  /** Replace tree data with a fresh array reference to trigger refresh. */
+  private setTreeData(data: FileNode[]): void {
+    this.dataSource.data = [...(data ?? [])];
+  }
+
+  /** Expand a node id in persisted expansion ids. */
+  private expandFlatNode(node: { id: string | number | null | undefined } | undefined | null): void {
+    if (!node) return;
+    this.expandedNodeIdsState.add(String(node.id));
+  }
+
+  /** Collapse a node id from persisted expansion ids. */
+  private collapseFlatNode(node: { id: string | number | null | undefined } | undefined | null): void {
+    if (!node) return;
+    this.expandedNodeIdsState.delete(String(node.id));
+  }
+
+  /** Expand all descendants for DnD and restore flows. */
+  private expandFlatDescendants(node: { id: string | number | null | undefined } | undefined | null): void {
+    if (!node) return;
+    const nested = this.findNodeById(node.id);
+    if (!nested) return;
+    this.collectDescendantIds(nested).forEach((id) => this.expandedNodeIdsState.add(id));
+  }
+
+  /** Expand full tree when data exists. */
+  private expandAllFlatNodes(): void {
+    if (!this.getTreeData().length) return;
+    this.collectAllNodeIds(this.getTreeData()).forEach((id) => this.expandedNodeIdsState.add(id));
+  }
+
+  /** Collapse full tree and clear persisted expanded ids. */
+  private collapseAllFlatNodes(): void {
+    this.expandedNodeIdsState.clear();
+  }
+
+  /** Collect descendant ids (excluding root node itself) from nested tree node. */
+  private collectDescendantIds(node: FileNode): string[] {
+    const result: string[] = [];
+    const visit = (current: FileNode): void => {
+      this.getNodeChildren(current).forEach((child) => {
+        result.push(String(child.id));
+        visit(child);
+      });
+    };
+    visit(node);
+    return result;
+  }
+
+  /** Collect every node id in nested tree snapshot. */
+  private collectAllNodeIds(nodes: FileNode[]): string[] {
+    const result: string[] = [];
+    const visit = (currentNodes: FileNode[]): void => {
+      currentNodes.forEach((node) => {
+        result.push(String(node.id));
+        visit(this.getNodeChildren(node));
+      });
+    };
+    visit(nodes);
+    return result;
+  }
+
+  /** Collect all nested nodes in DFS order. */
+  private collectAllNodes(nodes: FileNode[]): FileNode[] {
+    const result: FileNode[] = [];
+    const visit = (currentNodes: FileNode[]): void => {
+      currentNodes.forEach((node) => {
+        result.push(node);
+        visit(this.getNodeChildren(node));
+      });
+    };
+    visit(nodes);
+    return result;
+  }
+
+  /** Expanded ids tracked in component state for persistence/restore. */
+  private getExpandedNodeIds(): string[] {
+    return Array.from(this.expandedNodeIdsState);
+  }
+
+  /** Expanded ids normalized as string set for fast mixed-id lookups. */
+  private getExpandedNodeIdSet(): Set<string> {
+    return new Set(this.getExpandedNodeIds());
+  }
+
+  /** Toggle adapter-neutral expansion id state (UI toggle handled by matTreeNodeToggle). */
+  private toggleExpandedNodeId(node: FileFlatNode | undefined | null): void {
+    if (!node) return;
+    const normalizedId = String(node.id);
+    if (this.expandedNodeIdsState.has(normalizedId)) {
+      this.expandedNodeIdsState.delete(normalizedId);
+      return;
+    }
+    this.expandedNodeIdsState.add(normalizedId);
+  }
+
+  /** Check expansion by id with mixed string/number safety. */
+  private isExpandedNodeId(id: string | number): boolean {
+    return this.getExpandedNodeIdSet().has(String(id));
+  }
+
+  /**
+   * Snapshot currently expanded flat-node ids from the live tree-control state.
+   * Used before tree rebuilds triggered by row actions (delete/restore/etc.).
+   */
+  private captureExpandedNodeIdsFromTree(): string[] {
+    // Expansion state is now tracked canonically in id-state across both modes.
+    return Array.from(this.expandedNodeIdsState);
+  }
+
+  /** Merge a pre-rebuild expansion snapshot into persisted expansion state. */
+  private preserveExpandedStateFromTreeSnapshot(): void {
+    this.captureExpandedNodeIdsFromTree().forEach((id) => this.expandedNodeIdsState.add(id));
+  }
+
+  /** Queue a node id to force re-expand after next tree render pass. */
+  private queueNodeForReexpand(id: string | number | null | undefined): void {
+    if (id === null || id === undefined) return;
+    this.pendingReexpandNodeIds.add(String(id));
+  }
+
+  /** Apply and clear one-shot forced re-expansion queue after tree render. */
+  private flushPendingReexpandNodes(): void {
+    this.pendingReexpandNodeIds.forEach((id) => {
+      this.expandedNodeIdsState.add(String(id));
+    });
+    this.pendingReexpandNodeIds.clear();
+  }
+
+  /** Normalize level reads for nested nodes. */
+  private getNodeLevel(node: FileFlatNode | FileNode | undefined | null): number {
+    if (!node) return -1;
+    const maybeFlat = node as FileFlatNode;
+    if (typeof maybeFlat.level === 'number') {
+      return maybeFlat.level;
+    }
+    const nested = this.resolveNode(node as FileNode);
+    if (!nested) return -1;
+    if (this.isRootNestedNode(nested)) return 0;
+    if (nested.parent === null || nested.parent === undefined) return 1;
+    let level = 1;
+    let currentParentId = nested.parent;
+    while (currentParentId !== null && currentParentId !== undefined) {
+      const parent = this.findNodeById(currentParentId);
+      if (!parent) break;
+      if (this.isRootNestedNode(parent)) break;
+      level += 1;
+      currentParentId = parent.parent;
+    }
+    return level;
+  }
+
+  /** Visible content starts at level 1 (root row is level 0 synthetic). */
+  private isVisibleRootDescendant(node: FileFlatNode | FileNode | undefined | null): boolean {
+    return this.getNodeLevel(node) >= 1;
+  }
+
+  /** Reset all transient drag-hover state between DnD operations. */
+  private resetDragState(): void {
+    this.dragNodeId = undefined;
+    this.dragNodeStatus = null;
+    this.isDragging = false;
+    this.dragNodeExpandOverNodeId = null;
+    this.dragNodeExpandOverTime = 0;
+    this.dragNodeExpandOverArea = '';
+  }
+
+  /** Resolve drop target node from cloned snapshot by id. */
+  private resolveDropNodeFromSnapshot(snapshot: FileNode[], nodeId: string | number | null | undefined): FileNode | undefined {
+    if (!snapshot || snapshot.length === 0) return undefined;
+    if (nodeId === null || nodeId === undefined) return snapshot[0];
+    return this.findNodeContext(this.getNodeChildren(snapshot[0]), nodeId)?.node;
+  }
+
+  /** Extract a comparable drag/drop id, skipping null/undefined ids. */
+  private getDndComparableId(node: DndNodeLike | null | undefined): string | number | undefined {
+    if (!node) return undefined;
+    if (node.id === null || node.id === undefined) return undefined;
+    return node.id;
+  }
+
+  /** Snapshot root accessor to keep null/empty handling centralized. */
+  private getSnapshotRoot(snapshot: FileNode[]): FileNode | undefined {
+    if (!snapshot || snapshot.length === 0) return undefined;
+    return snapshot[0];
+  }
+
+  /** Expand/collapse material tree rows to match persisted id-state. */
+  private syncTreeExpansionFromIdState(): void {
+    if (!this.tree) return;
+    const expandedIds = this.getExpandedNodeIdSet();
+    this.collectAllNodes(this.getTreeData()).forEach((node) => {
+      const id = String(node.id);
+      if (expandedIds.has(id)) {
+        this.tree?.expand(node);
+      } else {
+        this.tree?.collapse(node);
+      }
+    });
+  }
+
+  /** Validate DnD operation against status, identity and node type rules. */
+  private canProcessDrop(targetNodeId: string | number | null | undefined, targetSnapshotNode: FileNode): boolean {
+    if (!this.isDragging) return false;
+    if (this.dragNodeStatus === constants.entityStatus.pendingDelete) return false;
+    if (this.isSameId(this.dragNodeId, targetNodeId)) return false;
+    if (!this.isCenterDropArea()) return true;
+    return canNodeTypeHaveChildren(this.currentTreeType, targetSnapshotNode.nodeType);
+  }
+
+  private isCenterDropArea(): boolean {
+    return this.dragNodeExpandOverArea === 'center';
+  }
+
+  private isAboveDropArea(): boolean {
+    return this.dragNodeExpandOverArea === 'above';
+  }
+
+  private isBelowDropArea(): boolean {
+    return this.dragNodeExpandOverArea === 'below';
+  }
+
+  /** Insert dropped node according to hovered drop area. */
+  private insertDroppedNode(fromNode: FileNode, toNode: FileNode, changedRoot: FileNode): FileNode {
+    if (this.isAboveDropArea()) {
+      return this.database.copyPasteItemAbove(fromNode, toNode, changedRoot);
+    }
+    if (this.isBelowDropArea()) {
+      return this.database.copyPasteItemBelow(fromNode, toNode, changedRoot);
+    }
+    return this.database.copyPasteItem(fromNode, toNode, changedRoot);
+  }
+
+  /** Build normalized drop context from current snapshot and drag state. */
+  private resolveDropContext(snapshot: FileNode[], targetNode: DndNodeLike): ResolvedDropContext | undefined {
+    const rootNode = this.getSnapshotRoot(snapshot);
+    const targetNodeId = this.getDndComparableId(targetNode);
+    const targetSnapshotNode = this.resolveDropNodeFromSnapshot(snapshot, targetNodeId);
+    const sourceSnapshotNode = this.resolveDropNodeFromSnapshot(snapshot, this.dragNodeId);
+    if (!rootNode || !targetSnapshotNode || !sourceSnapshotNode) return undefined;
+    return {
+      rootNode,
+      targetNodeId,
+      targetNode: targetSnapshotNode,
+      sourceNode: sourceSnapshotNode
+    };
+  }
+
+  /** Execute one validated DnD operation. Returns true only when mutation is applied. */
+  private executeDropOperation(context: ResolvedDropContext): boolean {
+    const canProcess = this.canProcessDrop(context.targetNodeId, context.targetNode);
+    if (!canProcess) return false;
+    const newItem = this.insertDroppedNode(context.sourceNode, context.targetNode, context.rootNode);
+    this.finalizeDrop(context.sourceNode, newItem, context.rootNode);
+    return true;
+  }
+
+  /** Nested DnD post-mutation behavior (no flat projection dependency). */
+  private finalizeDropNested(newItem: FileNode): void {
+    this.expandedNodeIdsState.add(String(newItem.id));
+    this.collectDescendantIds(newItem).forEach((id) => this.expandedNodeIdsState.add(id));
+  }
+
+  /** Finalize DnD by deleting origin node and restoring expansion visibility. */
+  private finalizeDrop(fromNode: FileNode, newItem: FileNode, changedRoot: FileNode): void {
+    this.database.deleteItem(fromNode, changedRoot);
+    this.finalizeDropNested(newItem);
+  }
+
+  /** Compute DnD area from pointer vertical position in target row. */
+  private calculateDragOverAreaFromClientY(clientY: number, row: HTMLElement): Exclude<DragOverArea, ''> {
+    const rect = row.getBoundingClientRect();
+    const targetHeight = rect.height || 1;
+    const offsetY = clientY - rect.top;
+    const percentageY = offsetY / targetHeight;
+    if (percentageY < 0.25) return 'above';
+    if (percentageY > 0.75) return 'below';
+    return 'center';
+  }
+
+  /** Resolve hovered node id from CDK sorted/drop list index. */
+  private getTargetNodeIdFromDropListData(listData: DndNodeLike[] | undefined, index: number): string | null {
+    if (!listData || listData.length === 0) return null;
+    if (index < 0 || index >= listData.length) return null;
+    const candidateId = listData[index]?.id;
+    return candidateId === null || candidateId === undefined ? null : String(candidateId);
+  }
+
+  /** Approximate drop area from list movement when pointer data is unavailable. */
+  private getDropAreaFromIndexDelta(previousIndex: number, currentIndex: number): Exclude<DragOverArea, ''> {
+    if (currentIndex > previousIndex) return 'below';
+    if (currentIndex < previousIndex) return 'above';
+    return 'center';
+  }
+
+  /** Find current DOM row for node id to compute center/edge placement from pointer. */
+  private getTreeRowElementByNodeId(nodeId: string | null): HTMLElement | null {
+    if (!nodeId) return null;
+    const safeNodeId = nodeId.replace(/"/g, '\\"');
+    return document.querySelector(`.tree-node-row[data-node-id="${safeNodeId}"]`) as HTMLElement | null;
+  }
+
+  /** Resolve target node id directly from pointer at drop time. */
+  private getTargetNodeIdFromDropPoint(dropPoint: { x: number; y: number } | undefined): string | null {
+    if (!dropPoint) return null;
+    const viewportX = dropPoint.x - window.scrollX;
+    const viewportY = dropPoint.y - window.scrollY;
+    const element = document.elementFromPoint(viewportX, viewportY) as HTMLElement | null;
+    const row = element?.closest('.tree-node-row') as HTMLElement | null;
+    const nodeId = row?.getAttribute('data-node-id');
+    return nodeId == null ? null : String(nodeId);
+  }
+
+  /** Auto-expand on hover after configured delay. */
+  private shouldAutoExpandOnHover(node: DndNodeLike): boolean {
+    if (!this.isDragging) return false;
+    if (this.isSameId(this.dragNodeId, node.id)) return false;
+    if (this.isNodeExpandedById(node.id)) return false;
+    return (Date.now() - this.dragNodeExpandOverTime) > this.dragNodeExpandOverWaitTimeMs;
+  }
+
+  /** Expand hovered node according to active adapter mode. */
+  private expandHoveredNode(node: DndNodeLike, hoveredNodeId: string): void {
+    this.expandedNodeIdsState.add(hoveredNodeId);
+  }
+
+  /** Track hovered node and trigger delayed auto-expand when applicable. */
+  private processDragHoverExpansion(node: DndNodeLike): void {
+    const hoveredNodeId = String(node.id);
+    if (this.dragNodeExpandOverNodeId === hoveredNodeId) {
+      if (this.shouldAutoExpandOnHover(node)) {
+        this.expandHoveredNode(node, hoveredNodeId);
+      }
+      return;
+    }
+    this.dragNodeExpandOverNodeId = hoveredNodeId;
+    this.dragNodeExpandOverTime = Date.now();
+  }
+
+  /** Template-friendly DnD class resolver based on id + area. */
+  isDropAreaActiveForNode(nodeId: string | number | null | undefined, area: Exclude<DragOverArea, ''>): boolean {
+    if (nodeId === null || nodeId === undefined) return false;
+    return this.dragNodeExpandOverArea === area && this.dragNodeExpandOverNodeId === String(nodeId);
+  }
+
+  /** Collapse dragged node in expansion-id state. */
+  private collapseDraggedNode(node: DndNodeLike): void {
+    this.expandedNodeIdsState.delete(String(node.id));
+  }
+
+  /** Id-based nested resolver fallback used when map links are missing/stale. */
+  private findNestedNodeById(nodes: FileNode[], id: string | number | null | undefined): FileNode | undefined {
+    if (!nodes || nodes.length === 0) return undefined;
+    for (const candidate of nodes) {
+      if (this.isSameId(candidate.id, id)) return candidate;
+      const inChildren = this.findNestedNodeById(this.getNodeChildren(candidate), id);
+      if (inChildren) return inChildren;
+    }
+    return undefined;
+  }
+
+  /** Id-based nested lookup scoped to an arbitrary tree snapshot. */
+  private findNodeByIdInTree(nodes: FileNode[], id: string | number | null | undefined): FileNode | undefined {
+    if (!nodes || nodes.length === 0) return undefined;
+    for (const node of nodes) {
+      if (this.isSameId(node.id, id)) return node;
+      const found = this.findNodeByIdInTree(this.getNodeChildren(node), id);
+      if (found) return found;
+    }
+    return undefined;
+  }
+
+  /** Collect ancestor ids for a node id within provided tree snapshot. */
+  private collectAncestorIdsInTree(nodes: FileNode[], id: string | number): string[] {
+    const ancestorIds: string[] = [];
+    let current = this.findNodeByIdInTree(nodes, id);
+    while (current && current.parent !== null && current.parent !== undefined) {
+      ancestorIds.push(String(current.parent));
+      current = this.findNodeByIdInTree(nodes, current.parent);
+    }
+    return ancestorIds;
+  }
+
+  /** Root detection supporting both legacy and synthetic root markers. */
+  private isRootNestedNode(node: FileNode | undefined | null): boolean {
+    return !!node && (node.isRoot === true || (node.name === '' && node.id === null));
+  }
+
+  /** Resolve root node from nested tree snapshot. */
+  private getRootNestedNode(nodes: FileNode[] = this.getTreeData()): FileNode | undefined {
+    return nodes.find((node) => this.isRootNestedNode(node));
+  }
+
+  private restoreExpansionState(): void {
+    const expandedNodeIds = this.getExpandedNodeIds();
+    expandedNodeIds.forEach((expandedNodeId) => {
+      const nested = this.findNodeById(expandedNodeId);
+      if (!nested) return;
+      if (this.isRootNestedNode(nested)) return;
+      this.expandedNodeIdsState.add(String(nested.id));
+    });
+    this.syncTreeExpansionFromIdState();
+  }
+
+  /** Toggle expansion tracking by node id (flat/nested compatible entrypoint). */
+  onToggleNodeById(nodeId: string | number | null | undefined): void {
+    if (nodeId === null || nodeId === undefined) return;
+    const normalizedId = String(nodeId);
+    if (this.expandedNodeIdsState.has(normalizedId)) {
+      this.expandedNodeIdsState.delete(normalizedId);
+      return;
+    }
+    this.expandedNodeIdsState.add(normalizedId);
+  }
+
+  /** Expansion status by id (flat/nested compatible entrypoint). */
+  isNodeExpandedById(nodeId: string | number | null | undefined): boolean {
+    if (nodeId === null || nodeId === undefined) return false;
+    return this.isExpandedNodeId(nodeId);
+  }
+
+  /** Backward-compatible wrapper for previous template call sites. */
+  onToggleNode(node: FileFlatNode): void {
+    this.onToggleNodeById(node?.id);
+  }
+
+  /** Backward-compatible wrapper for previous template call sites. */
+  isNodeExpanded(node: FileFlatNode): boolean {
+    return this.isNodeExpandedById(node?.id);
+  }
 
 
   /**
@@ -451,112 +1021,98 @@ export class DataTreeComponent implements OnInit {
   visibleNodes(): FileNode[] {
     const result = [];
 
-    function addExpandedChildren(node: FileNode, expanded: string[]) {
+    const addExpandedChildren = (node: FileNode) => {
       result.push(node);
-      if (expanded.indexOf(node.id) != -1) {
-        node.children.map((child) => addExpandedChildren(child, expanded));
+      if (this.isExpandedNodeId(node.id)) {
+        this.getNodeChildren(node).map((child) => addExpandedChildren(child));
       }
-    }
-    this.dataSource.data.forEach((node) => {
-      addExpandedChildren(node, this.expansionModel.selected);
+    };
+    this.getTreeData().forEach((node) => {
+      addExpandedChildren(node);
     });
     return result;
   }
 
 
-   findNodeSiblings(arr: Array<any>, id: string | number): Array<any> {
-    let result, subResult;
-    const idStr = String(id);
-    arr.forEach((item, _i) => {
-      if (String(item.id) === idStr) {
-        result = arr;
-      } else if (item.children) {
-        subResult = this.findNodeSiblings(item.children, id);
-        if (subResult) result = subResult;
+  /** Compatibility wrapper kept for tests/legacy callers; prefer findNodeContext(...). */
+  findNodeSiblings(arr: FileNode[], id: string | number): FileNode[] | undefined {
+    return this.findNodeContext(arr, id)?.siblings;
+  }
+
+  /** Resolve node + owning siblings/index in one recursive pass. */
+  private findNodeContext(arr: FileNode[], id: string | number): NodeLookupContext | undefined {
+    if (!arr || arr.length === 0) return undefined;
+    for (let i = 0; i < arr.length; i++) {
+      const node = arr[i];
+      if (this.isSameId(node.id, id)) {
+        return { siblings: arr, index: i, node };
       }
-    });
-    return result;
-
+      const nested = this.findNodeContext(this.getNodeChildren(node), id);
+      if (nested) return nested;
+    }
+    return undefined;
   }
 
 
-  handleDragStart(event, node) {
-    // Required by Firefox (https://stackoverflow.com/questions/19055264/why-doesnt-html5-drag-and-drop-work-in-firefox)
-    event.dataTransfer.setData('foo', 'bar');
-    event.dataTransfer.setDragImage(this.emptyItem.nativeElement, 0, 0);
-    this.dragNode = node;
-    this.treeControl.collapse(node);
+  handleDragStart(event: CdkDragStart<DndNodeLike>, fallbackNode?: DndNodeLike): void {
+    const node = fallbackNode ?? event?.source?.data;
+    if (!node) return;
+    this.dragNodeId = this.getDndComparableId(node);
+    this.dragNodeStatus = node.status ?? null;
+    this.isDragging = true;
+    this.collapseDraggedNode(node);
   }
 
-  handleDragOver(event, node) {
-    event.preventDefault();
-
-    // Handle node expand
-    if (node === this.dragNodeExpandOverNode) {
-      if (this.dragNode !== node && !this.treeControl.isExpanded(node)) {
-        if ((new Date().getTime() - this.dragNodeExpandOverTime) > this.dragNodeExpandOverWaitTimeMs) {
-          this.treeControl.expand(node);
-        }
-      }
-    } else {
-      this.dragNodeExpandOverNode = node;
-      this.dragNodeExpandOverTime = new Date().getTime();
-    }
-
-    // Handle drag area
-    const _percentageX = event.offsetX / event.target.clientWidth;
-    const percentageY = event.offsetY / event.target.clientHeight;
-    if (percentageY < 0.25) {
-      this.dragNodeExpandOverArea = 'above';
-    } else if (percentageY > 0.75) {
-      this.dragNodeExpandOverArea = 'below';
-    } else {
-      this.dragNodeExpandOverArea = 'center';
-    }
+  handleDragSort(event: CdkDragSortEvent<DndNodeLike[]>): void {
+    const targetNodeId = this.getTargetNodeIdFromDropListData(event.container?.data as DndNodeLike[] | undefined, event.currentIndex);
+    if (!targetNodeId) return;
+    const hoveredNode = this.findNodeById(targetNodeId);
+    if (!hoveredNode) return;
+    this.processDragHoverExpansion(hoveredNode);
+    this.dragNodeExpandOverArea = this.getDropAreaFromIndexDelta(event.previousIndex, event.currentIndex);
   }
 
-  handleDrop(event, node) {
-    event.preventDefault();
-    const changedData = JSON.parse(JSON.stringify(this.dataSource.data))
-    let toFlatNode;
-    if(node.id === undefined) {
-      toFlatNode=changedData[0]
-    } else {
-      toFlatNode= this.findNodeSiblings(changedData[0].children, node.id).find(nodeAct => nodeAct.id === node.id);
+  handleDrop(event: CdkDragDrop<FileNode[]>, node?: DndNodeLike): void {
+    const sourceNodeFromEvent = (event?.item?.data as DndNodeLike | undefined) ?? undefined;
+    this.dragNodeId = this.getDndComparableId(sourceNodeFromEvent) ?? this.dragNodeId;
+    if (sourceNodeFromEvent?.status !== undefined) {
+      this.dragNodeStatus = sourceNodeFromEvent.status;
     }
-    let fromFlatNode;
-    if( this.dragNode.id === undefined) {
-      fromFlatNode=changedData[0]
-    } else {
-      fromFlatNode = this.findNodeSiblings(changedData[0].children, this.dragNode.id).find(nodeAct => nodeAct.id === this.dragNode.id);
+    // CDK may emit drag-end before drop; reconstruct drag state from drop event.
+    this.isDragging = true;
+    const dropPoint = (event as unknown as { dropPoint?: { x: number; y: number } }).dropPoint;
+    const targetNodeIdFromList = this.getTargetNodeIdFromDropListData(event?.container?.data as DndNodeLike[] | undefined, event.currentIndex);
+    const targetNodeIdFromPoint = this.getTargetNodeIdFromDropPoint(dropPoint);
+    const sameAsSourceFromList = this.isSameId(targetNodeIdFromList, this.dragNodeId);
+    this.dragNodeExpandOverNodeId = sameAsSourceFromList ? targetNodeIdFromPoint : targetNodeIdFromList;
+    this.dragNodeExpandOverArea = this.getDropAreaFromIndexDelta(event.previousIndex, event.currentIndex);
+    const targetRow = this.getTreeRowElementByNodeId(this.dragNodeExpandOverNodeId);
+    if (dropPoint && targetRow) {
+      const viewportY = dropPoint.y - window.scrollY;
+      this.dragNodeExpandOverArea = this.calculateDragOverAreaFromClientY(viewportY, targetRow);
     }
-    if (this.dragNode.status!="pendingDelete" && node !== this.dragNode && (this.dragNodeExpandOverArea !== 'center' || (this.dragNodeExpandOverArea === 'center' && canNodeTypeHaveChildren(this.currentTreeType, toFlatNode.nodeType)))) {
-      let newItem: FileNode;
+    const targetNodeId = this.dragNodeExpandOverNodeId;
+    if (targetNodeId == null) {
+      this.resetDragState();
+      return;
+    }
+    const targetNode: DndNodeLike = node ?? { id: targetNodeId };
+    const changedData = this.cloneTreeDataSnapshot();
+    const dropContext = this.resolveDropContext(changedData, targetNode);
+    if (!dropContext) {
+      this.resetDragState();
+      return;
+    }
+    const applied = this.executeDropOperation(dropContext);
+    if (applied) {
+      this.rebuildTreeForData([dropContext.rootNode]);
+    }
 
-      if (this.dragNodeExpandOverArea === 'above') {
-        newItem = this.database.copyPasteItemAbove(fromFlatNode,toFlatNode,changedData[0]);
-      } else if (this.dragNodeExpandOverArea === 'below') {
-        newItem = this.database.copyPasteItemBelow(fromFlatNode,toFlatNode,changedData[0]);
-      } else {
-        newItem = this.database.copyPasteItem(fromFlatNode, toFlatNode,changedData[0]);
-      }
-      const parentLvl = this.treeControl.dataNodes.find((n) => n.id === fromFlatNode.id).level;
-      fromFlatNode.children.forEach(child=>{
-        this.treeControl.dataNodes.find((n) => n.id === child.id).level=parentLvl+1
-      });
-      this.database.deleteItem(fromFlatNode,changedData[0]);
-      this.treeControl.expandDescendants(this.nestedNodeMap.get(newItem));
-    }
-
-    this.dragNode = null;
-    this.dragNodeExpandOverNode = null;
-    this.dragNodeExpandOverTime = 0;
+    this.resetDragState();
   }
 
-  handleDragEnd(_event) {
-    this.dragNode = null;
-    this.dragNodeExpandOverNode = null;
-    this.dragNodeExpandOverTime = 0;
+  handleDragEnd(_event: CdkDragEnd<DndNodeLike>): void {
+    this.resetDragState();
   }
 
   /**
@@ -564,29 +1120,28 @@ export class DataTreeComponent implements OnInit {
    * after being rebuilt
    */
 
-   sortByOrder(data: any[]){
+   sortByOrder(data: FileNode[]): void {
     // data.sort((a,b) => a.order.toString().localeCompare( b.order.toString()));
     data.sort((a,b) => (a.order > b.order) ? 1 : ((b.order > a.order) ? -1 : 0));
     data.forEach((item) => {
-      if (item.children && item.children.length>0) {
-        this.sortByOrder(item.children);
+      if (this.getNodeChildren(item).length>0) {
+        this.sortByOrder(this.getNodeChildren(item));
       }
 
     });
    }
 
-   setOrder(data: any[]){
+   setOrder(data: FileNode[]): FileNode[] {
     for(let i=0; i< data.length; i++){
       data[i].order=i;
       if(! data[i].status) {
-        data[i].status="Modified";
+        data[i].status = constants.entityStatus.modified;
       }
     }
     return data;
    }
 
-  rebuildTreeForData(data: any[]) {
-    //this.dataSource.data = data;
+  rebuildTreeForData(data: FileNode[]): void {
     this.sortByOrder(data);
     this.originalData = data; // Store original data for filtering
     // Store original states of nodes for revert functionality
@@ -599,12 +1154,12 @@ export class DataTreeComponent implements OnInit {
    * Only stores state for nodes that don't have Modified or pendingCreation status
    * (i.e., nodes that are in their original saved state)
    */
-  private storeOriginalStates(nodes: any[]): void {
+  private storeOriginalStates(nodes: FileNode[]): void {
     if (!nodes || nodes.length === 0) {
       return;
     }
     nodes.forEach(node => {
-      if (node.id !== null && node.id !== undefined && node.id >= 0) {
+      if (node.id !== null && node.id !== undefined && this.isPersistedNodeId(node.id)) {
         // Only store original state if:
         // 1. Not already stored (to preserve original state)
         // 2. Node doesn't have Modified or pendingCreation status (it's in saved state)
@@ -612,59 +1167,45 @@ export class DataTreeComponent implements OnInit {
             node.status !== constants.entityStatus.modified && 
             node.status !== constants.entityStatus.pendingCreation) {
           // Deep clone to store original state
-          const originalState = JSON.parse(JSON.stringify(node));
+          const originalState = this.cloneValue(node);
           // Remove status from original state so we can restore to clean state
           delete originalState.status;
           this.originalNodeStates.set(node.id, originalState);
         }
       }
       // Recursively store children
-      if (node.children && node.children.length > 0) {
-        this.storeOriginalStates(node.children);
+      if (this.getNodeChildren(node).length > 0) {
+        this.storeOriginalStates(this.getNodeChildren(node));
       }
     });
   }
 
-  applyFilter() {
+  /** Ensure root branch stays expanded after filtering. */
+  private ensureRootExpandedAfterFilter(filteredData: FileNode[]): void {
+    if (!(filteredData.length === 1 && this.isRootNestedNode(filteredData[0]) && this.getNodeChildren(filteredData[0]).length > 0)) {
+      return;
+    }
+    this.expandedNodeIdsState.add(String(filteredData[0].id));
+    this.tree?.expand(filteredData[0]);
+  }
+
+  applyFilter(): void {
     let filteredData = this.originalData;
-    
+
     if (this.filterValue && this.filterValue.trim() !== '') {
       const filter = this.filterValue.toLowerCase().trim();
       filteredData = this.filterTree(this.originalData, filter);
     }
-    
-    this.dataSource.data = [];
-    this.dataSource.data = filteredData;
-    
+
+    this.setTreeData(filteredData);
+
     // Auto-expand only root node (first level) - do not expand nested children
     setTimeout(() => {
-      if (filteredData.length === 1 && (filteredData[0] as any).isRoot === true && filteredData[0].children) {
-        const rootFlatNode = this.treeControl.dataNodes.find((n) => {
-          const nested = this.flatNodeMap.get(n);
-          return nested && (nested as any).isRoot === true;
-        });
-        if (rootFlatNode) {
-          // Only expand the root node, not its descendants
-          this.treeControl.expand(rootFlatNode);
-          this.expansionModel.select(rootFlatNode.id);
-        }
-      }
-      // Restore previously expanded nodes (but not auto-expand them if they're nested)
-      this.treeControl.expansionModel.selected.forEach((nodeAct) => {
-        if(nodeAct){
-          const node = this.treeControl.dataNodes.find((n) => n.id === nodeAct.id);
-          if (node) {
-            // Only restore expansion if it was manually expanded before
-            // Don't auto-expand nested nodes
-            const nested = this.flatNodeMap.get(node);
-            const isRoot = nested && (nested as any).isRoot === true;
-            if (!isRoot) {
-              // Only restore expansion for non-root nodes that were previously expanded
-              this.treeControl.expand(node);
-            }
-          }
-        }
-      });
+      this.ensureRootExpandedAfterFilter(filteredData);
+      this.restoreExpansionState();
+      this.flushPendingReexpandNodes();
+      // Clear one-shot visibility pin after tree has been rendered once.
+      this.newlyInsertedNodeId = null;
     }, 0);
   }
 
@@ -675,11 +1216,12 @@ export class DataTreeComponent implements OnInit {
 
     return nodes.map(node => {
       const nodeMatches = node.name && node.name.toLowerCase().includes(filter);
-      const filteredChildren = node.children ? this.filterTree(node.children, filter) : [];
+      const isNewlyInsertedPinned = this.newlyInsertedNodeId !== null && this.isSameId(node.id, this.newlyInsertedNodeId);
+      const filteredChildren = this.filterTree(this.getNodeChildren(node), filter);
       const hasMatchingChildren = filteredChildren.length > 0;
 
       // Include node if it matches or has matching children
-      if (nodeMatches || hasMatchingChildren) {
+      if (nodeMatches || hasMatchingChildren || isNewlyInsertedPinned) {
         const filteredNode = { ...node };
         filteredNode.children = filteredChildren;
         return filteredNode;
@@ -688,30 +1230,15 @@ export class DataTreeComponent implements OnInit {
     }).filter(node => node !== null) as FileNode[];
   }
 
-  onFilterChange(filterValue: string) {
+  onFilterChange(filterValue: string): void {
     this.filterValue = filterValue;
     this.applyFilter();
   }
 
-  onFilterKeyup(event: KeyboardEvent) {
+  onFilterKeyup(event: KeyboardEvent): void {
     const input = event.target as HTMLInputElement;
     this.filterValue = input.value;
     this.applyFilter();
-  }
-
-  private getParentNode(node: FileFlatNode): FileFlatNode | null {
-    const currentLevel = node.level;
-    if (currentLevel < 1) {
-      return null;
-    }
-    const startIndex = this.treeControl.dataNodes.indexOf(node) - 1;
-    for (let i = startIndex; i >= 0; i--) {
-      const currentNode = this.treeControl.dataNodes[i];
-      if (currentNode.level < currentLevel) {
-        return currentNode;
-      }
-    }
-    return null;
   }
 
   /** True when config requests folder hint: node is container of a task group (no task, no viewMode). Shown as secondary icon. */
@@ -726,7 +1253,7 @@ export class DataTreeComponent implements OnInit {
 
   /** Icon for tree row from config (nodeType); fallback by node.type when no treeType. */
   getNodeIcon(node: FileNode): string {
-    if (!node || node.status === 'pendingDelete') return 'close';
+    if (!node || node.status === constants.entityStatus.pendingDelete) return 'close';
     if (this.currentTreeType && node.nodeType != null) {
       return getNodeTypeIcon(this.currentTreeType, node.nodeType);
     }
@@ -741,6 +1268,17 @@ export class DataTreeComponent implements OnInit {
     }
     if (nodeType === constants.treeRenderType.folder) return constants.treeRenderType.folder;
     return 'description';
+  }
+
+  /** Cached node type label to avoid repeated parent callback calls during CD cycles. */
+  nodeTypeLabelCached(nodeType: string | null | undefined): string {
+    if (!nodeType) return '';
+    const key = String(nodeType);
+    const cached = this.nodeTypeLabelCache.get(key);
+    if (cached != null) return cached;
+    const label = this.getNodeTypeLabel ? this.getNodeTypeLabel(key) : key;
+    this.nodeTypeLabelCache.set(key, label);
+    return label;
   }
 
   /** Icon font for tree row (from config); undefined for default font. */
@@ -765,25 +1303,17 @@ export class DataTreeComponent implements OnInit {
     return config.nodeViewModes?.[viewMode]?.icon ?? config.nodeViewModeFallbackIcon;
   }
 
-  updateNode(nodeUpdated)
-  {
-    const dataToChange = JSON.parse(JSON.stringify(this.dataSource.data))
-    const siblings = this.findNodeSiblings(dataToChange, String(nodeUpdated.id));
-    if (!siblings) {
+  /** Merge external node updates into a mutable tree snapshot and rebuild. */
+  updateNode(nodeUpdated: NodeUpdatePayload): void {
+    const dataToChange = this.cloneTreeDataSnapshot();
+    const context = this.findNodeContext(dataToChange, nodeUpdated.id);
+    if (!context) {
       console.warn('DataTreeComponent.updateNode - Node not found in tree', {
         nodeId: nodeUpdated.id
       });
       return;
     }
-    const index = siblings.findIndex(node => String(node.id) === String(nodeUpdated.id));
-    if (index === -1) {
-      console.warn('DataTreeComponent.updateNode - Node index not found', {
-        nodeId: nodeUpdated.id,
-        siblingsCount: siblings.length
-      });
-      return;
-    }
-    const originalNode = siblings[index];
+    const originalNode = context.node;
     const updatedNode = {
       ...originalNode,
       ...nodeUpdated,
@@ -795,7 +1325,7 @@ export class DataTreeComponent implements OnInit {
       updatedNode.type = canHaveChildren ? constants.treeRenderType.folder : constants.treeRenderType.node;
       // isFolder removed - computed on demand from nodeType
     }
-    siblings[index] = updatedNode;
+    context.siblings[context.index] = updatedNode;
     this.rebuildTreeForData(dataToChange);
 
   }
@@ -808,104 +1338,150 @@ export class DataTreeComponent implements OnInit {
     const canHaveChildren = this.currentTreeType ? canNodeTypeHaveChildren(this.currentTreeType, newNode.nodeType) : false;
     newNode.type = canHaveChildren ? constants.treeRenderType.folder : constants.treeRenderType.node;
     // Note: isFolder not stored; computed on demand from nodeType
-    const dataToChange = JSON.parse(JSON.stringify(this.dataSource.data))
+    
+    let dataToChange: FileNode[];
+    const raw = this.getTreeData();
+    if (!raw || !Array.isArray(raw) || raw.length === 0) {
+      dataToChange = [this.createSyntheticRootNode()];
+    } else {
+      dataToChange = this.cloneValue(raw);
+    }
+    
     if(newNode.parent == null) {
-      newNode.order = dataToChange[0].children.length;
-      dataToChange[0].children.push(newNode)
+      const rootChildren = this.getRootChildren(dataToChange);
+      newNode.order = rootChildren.length;
+      rootChildren.push(newNode);
     }
     else {
-      const siblings = this.findNodeSiblings(dataToChange, newNode.parent);
-      const index = siblings.findIndex(node => node.id === newNode.parent);
-      newNode.order = siblings[index].children.length;
-      siblings[index].children.push(newNode)
+      const parentContext = this.findNodeContext(dataToChange, newNode.parent);
+      if (!parentContext) {
+        console.warn('DataTreeComponent.addNodeToTree - Parent not found in tree', {
+          parentId: newNode.parent
+        });
+        return;
+      }
+      newNode.order = parentContext.node.children.length;
+      parentContext.node.children.push(newNode);
+    }
+    if (newNode.id !== undefined && newNode.id !== null) {
+      this.newlyInsertedNodeId = newNode.id;
+      this.collectAncestorIdsInTree(dataToChange, newNode.id).forEach((ancestorId) => {
+        this.expandedNodeIdsState.add(ancestorId);
+      });
     }
     this.rebuildTreeForData(dataToChange);
   }
 
-
-
-  onButtonClicked(id, button: string)
-  {
-    const changedData = JSON.parse(JSON.stringify(this.dataSource.data))
-    const siblings = this.findNodeSiblings(changedData, id);
-    const nodeClicked = siblings.find(node => node.id === id);
-    // Track selected node for styling
-    if(button === 'edit') {
-      this.selectedNodeId = id;
+  private getNodeParent(treeData: FileNode[], node: FileNode): FileNode | null {
+    if (node.parent === null || node.parent === undefined) {
+      return null;
     }
-    if(button ==='edit')  {
-      const nodeParent = nodeClicked.parent ?
-        this.findNodeSiblings(changedData, nodeClicked.parent).find(node => node.id === nodeClicked.parent) : null;
-      const emitedObj = {
-        nodeClicked,
-        nodeParent,
-      };
-      this.emitNode.emit(emitedObj);
-    } else if(button === 'delete') {
-      // let children= this.getAllChildren(nodeClicked.children)
-      // children.forEach(children => {
-      //   children.status = constants.entityStatus.pendingDelete;
-      // });
-      this.deleteChildren(nodeClicked.children);
-      // nodeClicked.children=children
-      nodeClicked.status = constants.entityStatus.pendingDelete
+    return this.findNodeContext(treeData, node.parent)?.node ?? null;
+  }
 
-      this.rebuildTreeForData(changedData);
-    } else if(button === 'restore') {
-      // Revert delete decision - restore the node and its descendants
-      this.restoreChildren(nodeClicked.children, changedData);
-      
-      // If node exists (id >= 0) and has original state, revert to original state
-      // This overrides any modifications that were made before deletion
-      if (nodeClicked.id >= 0 && this.originalNodeStates.has(nodeClicked.id)) {
-        // Restore to original state, overriding any modifications
-        this.revertNodeToOriginal(changedData, nodeClicked);
-      } else {
-        // New node (id < 0) - just restore status
-        nodeClicked.status = constants.entityStatus.pendingCreation;
-      }
-      
-      // Restore ancestors only (parents, grandparents, etc.) - not siblings
-      this.restoreAncestors(changedData, nodeClicked);
-      
-      this.rebuildTreeForData(changedData);
-    } else if(button === 'revert') {
-      // Revert Modified node to its original state
+  private emitSelectedNode(nodeClicked: FileNode, treeData: FileNode[]): void {
+    const nodeParent = this.getNodeParent(treeData, nodeClicked);
+    this.emitNode.emit({ nodeClicked, nodeParent });
+  }
+
+  /** Restore a pending-delete branch, recovering original state when available. */
+  private handleRestoreAction(changedData: FileNode[], nodeClicked: FileNode): void {
+    this.preserveExpandedStateFromTreeSnapshot();
+    // Keep the clicked branch open across rebuild even if adapter snapshot is stale.
+    this.expandedNodeIdsState.add(String(nodeClicked.id));
+    this.queueNodeForReexpand(nodeClicked.id);
+    this.restoreChildren(this.getNodeChildren(nodeClicked), changedData);
+    if (this.isPersistedNodeId(nodeClicked.id) && this.originalNodeStates.has(nodeClicked.id)) {
       this.revertNodeToOriginal(changedData, nodeClicked);
-      this.rebuildTreeForData(changedData);
-      
-      // If this node is currently selected (form is visible), emit it to update the form
-      if (this.selectedNodeId === id) {
-        const nodeParent = nodeClicked.parent ?
-          this.findNodeSiblings(changedData, nodeClicked.parent).find(node => node.id === nodeClicked.parent) : null;
-        const emitedObj = {
-          nodeClicked,
-          nodeParent,
-        };
-        this.emitNode.emit(emitedObj);
-      }
-    } else if(button === 'remove') {
-      // Remove pendingCreation node (unsaved new node) from tree
-      this.removePendingCreationNode(changedData, nodeClicked);
-      this.rebuildTreeForData(changedData);
+    } else {
+      nodeClicked.status = constants.entityStatus.pendingCreation;
+    }
+    this.restoreAncestors(changedData, nodeClicked);
+    this.rebuildTreeForData(changedData);
+  }
+
+  /** Revert a modified persisted node and re-emit selection when still selected. */
+  private handleRevertAction(changedData: FileNode[], nodeClicked: FileNode, id: string | number): void {
+    this.revertNodeToOriginal(changedData, nodeClicked);
+    this.rebuildTreeForData(changedData);
+    if (this.isSameId(this.selectedNodeId, id)) {
+      this.emitSelectedNode(nodeClicked, changedData);
+    }
+  }
+
+  /** Mark node and descendants as pending-delete. */
+  private handleDeleteAction(changedData: FileNode[], nodeClicked: FileNode): void {
+    this.preserveExpandedStateFromTreeSnapshot();
+    // Keep the clicked branch open across rebuild even if adapter snapshot is stale.
+    this.expandedNodeIdsState.add(String(nodeClicked.id));
+    this.queueNodeForReexpand(nodeClicked.id);
+    this.deleteChildren(this.getNodeChildren(nodeClicked));
+    nodeClicked.status = constants.entityStatus.pendingDelete;
+    this.rebuildTreeForData(changedData);
+  }
+
+  /** Remove unsaved node (pending-creation) from tree. */
+  private handleRemoveAction(changedData: FileNode[], nodeClicked: FileNode): void {
+    this.removePendingCreationNode(changedData, nodeClicked);
+    this.rebuildTreeForData(changedData);
+  }
+
+  /** Select node for edition and emit current parent context. */
+  private handleEditAction(id: string | number, changedData: FileNode[], nodeClicked: FileNode): void {
+    this.selectedNodeId = id;
+    this.emitSelectedNode(nodeClicked, changedData);
+  }
+
+  /** Resolve mutable snapshot + clicked node for button actions. */
+  private resolveActionContext(id: string | number): ActionContext | null {
+    const changedData = this.cloneTreeDataSnapshot();
+    const context = this.findNodeContext(changedData, id);
+    if (!context) return null;
+    return { changedData, nodeClicked: context.node };
+  }
+  /** Route row-button actions through isolated handlers using a cloned snapshot. */
+  onButtonClicked(id: string | number, button: NodeAction): void {
+    const actionContext = this.resolveActionContext(id);
+    if (!actionContext) {
+      return;
+    }
+    const { changedData, nodeClicked } = actionContext;
+    switch (button) {
+      case 'edit':
+        this.handleEditAction(id, changedData, nodeClicked);
+        break;
+      case 'delete':
+        this.handleDeleteAction(changedData, nodeClicked);
+        break;
+      case 'restore':
+        this.handleRestoreAction(changedData, nodeClicked);
+        break;
+      case 'revert':
+        this.handleRevertAction(changedData, nodeClicked, id);
+        break;
+      case 'remove':
+        this.handleRemoveAction(changedData, nodeClicked);
+        break;
+      default:
+        return;
     }
 
   }
 
-  emitAllRows(event)
+  emitAllRows(event: string): void
   {
-    const dataToEmit = JSON.parse(JSON.stringify(this.dataSource.data))
+    const dataToEmit = this.cloneTreeDataSnapshot();
     const allRows = this.getAllChildren(dataToEmit);
-    this.emitAllNodes.emit({event:event, data: allRows});
+    this.emitAllNodes.emit({ event, data: allRows });
   }
 
-  getAllChildren(arr)
+  getAllChildren(arr: FileNode[]): FileNode[]
   {
-    const result = [];
-    let subResult;
+    const result: FileNode[] = [];
+    let subResult: FileNode[] | undefined;
     arr.forEach((item, _i) => {
-      if (item.children && item.children.length>0) {
-        subResult = this.getAllChildren(item.children);
+      if (this.getNodeChildren(item).length>0) {
+        subResult = this.getAllChildren(this.getNodeChildren(item));
         if (subResult) result.push(...subResult);
       }
       result.push(item);
@@ -914,31 +1490,31 @@ export class DataTreeComponent implements OnInit {
     return result;
   }
 
-  deleteChildren(arr)
+  deleteChildren(arr: FileNode[]): void
   {
     arr.forEach((item, _i) => {
-      if (item.children && item.children.length>0) {
-        this.deleteChildren(item.children);
+      if (this.getNodeChildren(item).length>0) {
+        this.deleteChildren(this.getNodeChildren(item));
       }
       item.status = constants.entityStatus.pendingDelete
 
     });
   }
 
-  restoreChildren(arr, changedData?: any)
+  restoreChildren(arr: FileNode[], changedData?: FileNode[]): void
   {
     arr.forEach((item, _i) => {
-      if (item.children && item.children.length>0) {
-        this.restoreChildren(item.children, changedData);
+      if (this.getNodeChildren(item).length>0) {
+        this.restoreChildren(this.getNodeChildren(item), changedData);
       }
       
       // If node exists (id >= 0) and has original state, revert to original state
       // This overrides any modifications that were made before deletion
-      if (item.id >= 0 && changedData && this.originalNodeStates.has(item.id)) {
+      if (this.isPersistedNodeId(item.id) && changedData && this.originalNodeStates.has(item.id)) {
         this.revertNodeToOriginal(changedData, item);
       } else {
         // New node (id < 0) - just restore status
-        item.status = item.id < 0 ? constants.entityStatus.pendingCreation : constants.entityStatus.modified;
+        item.status = this.isPersistedNodeId(item.id) ? constants.entityStatus.modified : constants.entityStatus.pendingCreation;
       }
     });
   }
@@ -948,20 +1524,20 @@ export class DataTreeComponent implements OnInit {
    * Only restores the ancestor nodes themselves, not their other children (siblings)
    * If ancestor has original state, restores to original state (overriding modifications)
    */
-  restoreAncestors(changedData: any, node: any) {
+  restoreAncestors(changedData: FileNode[], node: FileNode): void {
     if (!node || node.parent === null || node.parent === undefined) {
       return; // No parent, stop recursion
     }
     
-    const parentNode = this.findNodeSiblings(changedData, node.parent).find(n => n.id === node.parent);
+    const parentNode = this.findNodeContext(changedData, node.parent)?.node;
     if (parentNode && parentNode.status === constants.entityStatus.pendingDelete) {
       // If parent exists (id >= 0) and has original state, revert to original state
       // This overrides any modifications that were made before deletion
-      if (parentNode.id >= 0 && this.originalNodeStates.has(parentNode.id)) {
+      if (this.isPersistedNodeId(parentNode.id) && this.originalNodeStates.has(parentNode.id)) {
         this.revertNodeToOriginal(changedData, parentNode);
       } else {
         // New node (id < 0) - just restore status
-        parentNode.status = parentNode.id < 0 ? constants.entityStatus.pendingCreation : constants.entityStatus.modified;
+        parentNode.status = this.isPersistedNodeId(parentNode.id) ? constants.entityStatus.modified : constants.entityStatus.pendingCreation;
       }
       
       // Recursively restore the parent's ancestors
@@ -972,7 +1548,7 @@ export class DataTreeComponent implements OnInit {
   /**
    * Revert a Modified node to its original state
    */
-  revertNodeToOriginal(changedData: any, node: any) {
+  revertNodeToOriginal(changedData: FileNode[], node: FileNode): void {
     if (!node || !node.id) {
       return;
     }
@@ -980,7 +1556,7 @@ export class DataTreeComponent implements OnInit {
     const originalState = this.originalNodeStates.get(node.id);
     if (originalState) {
       // Restore original properties, but preserve children and tree structure
-      const children = node.children || [];
+      const children = this.getNodeChildren(node);
       const parent = node.parent;
       
       // Copy original state properties
@@ -998,8 +1574,8 @@ export class DataTreeComponent implements OnInit {
       delete node.status;
       
       // Also revert any modified children
-      if (children && children.length > 0) {
-        children.forEach((child: any) => {
+      if (children.length > 0) {
+        children.forEach((child: FileNode) => {
           if (child.status === constants.entityStatus.modified) {
             this.revertNodeToOriginal(changedData, child);
           }
@@ -1012,14 +1588,14 @@ export class DataTreeComponent implements OnInit {
    * Remove a pendingCreation node from the tree
    * Also removes all its children recursively
    */
-  removePendingCreationNode(changedData: any, node: any) {
+  removePendingCreationNode(changedData: FileNode[], node: FileNode): void {
     if (!node || node.status !== constants.entityStatus.pendingCreation) {
       return;
     }
     
     // Remove all children first (recursively)
-    if (node.children && node.children.length > 0) {
-      node.children.forEach((child: any) => {
+    if (this.getNodeChildren(node).length > 0) {
+      this.getNodeChildren(node).forEach((child: FileNode) => {
         if (child.status === constants.entityStatus.pendingCreation) {
           this.removePendingCreationNode(changedData, child);
         }
@@ -1032,20 +1608,20 @@ export class DataTreeComponent implements OnInit {
     
     // Find and remove from parent's children array
     if (node.parent !== null && node.parent !== undefined) {
-      const siblings = this.findNodeSiblings(changedData, node.parent);
-      const parentNode = siblings.find(n => n.id === node.parent);
-      if (parentNode && parentNode.children) {
-        const index = parentNode.children.findIndex((child: any) => child.id === node.id);
+      const parentNode = this.findNodeContext(changedData, node.parent)?.node;
+      if (parentNode?.children) {
+        const index = parentNode.children.findIndex((child: FileNode) => this.isSameId(child.id, node.id));
         if (index !== -1) {
           parentNode.children.splice(index, 1);
         }
       }
     } else {
       // Root level - remove from root's children
-      if (changedData && changedData.length > 0 && changedData[0].children) {
-        const index = changedData[0].children.findIndex((child: any) => child.id === node.id);
+      const rootChildren = this.getRootChildren(changedData);
+      if (rootChildren.length > 0) {
+        const index = rootChildren.findIndex((child: FileNode) => this.isSameId(child.id, node.id));
         if (index !== -1) {
-          changedData[0].children.splice(index, 1);
+          rootChildren.splice(index, 1);
         }
       }
     }
@@ -1064,77 +1640,80 @@ export class DataTreeComponent implements OnInit {
     return parentNode && this.getAllowedTypesForParent ? this.getAllowedTypesForParent(parentNode) : [];
   }
 
-  getNestedNode(flatNode: FileFlatNode): FileNode | undefined {
-    return this.flatNodeMap.get(flatNode);
+  /** Id-first flat->nested resolution for migration away from map identity coupling. */
+  private resolveNestedFromFlatIdFirst(node: FileFlatNode | undefined | null): FileNode | undefined {
+    if (!node) return undefined;
+    return this.findNodeById(node.id) ?? undefined;
+  }
+
+  resolveNode(node: FileFlatNode | FileNode | undefined): FileNode | undefined {
+    if (!node) return undefined;
+    const maybeNested = node as FileNode;
+    if (maybeNested.children !== undefined || maybeNested.nodeType !== undefined) {
+      return maybeNested;
+    }
+    return this.resolveNestedFromFlatIdFirst(node as FileFlatNode);
   }
 
   addRootNode(nodeType: string): void {
     this.addNode.emit({ parent: null, nodeType });
   }
 
-  onAddChildNode(parentNode: FileNode, nodeType: string): void {
+  onAddChildNode(parentNode: FileNode | undefined, nodeType: string): void {
+    if (!parentNode) return;
     this.addNode.emit({ parent: parentNode, nodeType });
   }
 
-  getNodeDisplay(node: any): string {
+  getNodeDisplay(node: FileFlatNode | FileNode | undefined): string {
     // Hide root node (has isRoot property or empty name with null id)
     // Use visibility hidden instead of display none to preserve tree structure
-    const nestedNode = this.flatNodeMap.get(node);
-    if (nestedNode && (nestedNode.isRoot === true || (nestedNode.name === '' && nestedNode.id === null))) {
+    const nestedNode = this.resolveNode(node);
+    if (this.isRootNestedNode(nestedNode)) {
       return 'none';
     }
     return 'flex';
   }
 
-  isRootNode(node: any): boolean {
-    const nestedNode = this.flatNodeMap.get(node);
-    return nestedNode && ((nestedNode as any).isRoot === true || (nestedNode.name === '' && nestedNode.id === null));
+  isRootNode(node: FileFlatNode | FileNode | undefined): boolean {
+    return this.isRootNestedNode(this.resolveNode(node));
   }
 
-  isRootChild(node: any): boolean {
+  isRootChild(node: FileFlatNode | FileNode | undefined): boolean {
     // Check if this node is a direct child of the root (level 1)
-    return node && node.level === 1;
+    return this.getNodeLevel(node) === 1;
   }
 
-  isRootDescendant(node: any): boolean {
+  isRootDescendant(node: FileFlatNode | FileNode | undefined): boolean {
     // Check if this node is any descendant of the root (level >= 1)
     // Since root is at level 0 and hidden, all nodes with level >= 1 should be shifted left
-    return node && node.level >= 1;
+    return this.isVisibleRootDescendant(node);
   }
 
   /**
-   * Calculate adjusted padding for root descendants
-   * Formula: 13px base + ~22px per level (13, 35, 58, 80...)
-   * Pattern matches the relationship 13-35-58
-   */
-  /**
    * Checks if a node or any of its ancestors are inactive
-   * @param node The flat node to check
+   * @param node The tree node to check
    * @returns true if the node or any ancestor is inactive
    */
-  isNodeOrAncestorInactive(node: FileFlatNode): boolean {
+  private isNodeOrAncestorInactiveNested(node: FileNode): boolean {
+    if (node.active === false) {
+      return true;
+    }
+    if (node.parent === null || node.parent === undefined) {
+      return false;
+    }
+    const parentNode = this.findNodeById(node.parent);
+    return parentNode ? this.isNodeOrAncestorInactiveNested(parentNode) : false;
+  }
+
+  isNodeOrAncestorInactive(node: FileFlatNode | FileNode | undefined): boolean {
     if (!node) {
       return false;
     }
-    const nestedNode = this.flatNodeMap.get(node);
+    const nestedNode = this.resolveNode(node);
     if (!nestedNode) {
       return false;
     }
-    // Check if current node is inactive
-    if (nestedNode.active === false) {
-      return true;
-    }
-    // If node has a parent, check parent recursively
-    if (nestedNode.parent !== null && nestedNode.parent !== undefined) {
-      const parentNode = this.findNodeById(nestedNode.parent);
-      if (parentNode) {
-        const parentFlatNode = this.nestedNodeMap.get(parentNode);
-        if (parentFlatNode) {
-          return this.isNodeOrAncestorInactive(parentFlatNode);
-        }
-      }
-    }
-    return false;
+    return this.isNodeOrAncestorInactiveNested(nestedNode);
   }
 
   /**
@@ -1143,27 +1722,10 @@ export class DataTreeComponent implements OnInit {
    * @returns The found FileNode or null
    */
   private findNodeById(id: string | number): FileNode | null {
-    if (!this.dataSource.data || this.dataSource.data.length === 0) {
-      return null;
-    }
-    const searchInNodes = (nodes: FileNode[]): FileNode | null => {
-      for (const node of nodes) {
-        if (String(node.id) === String(id)) {
-          return node;
-        }
-        if (node.children && node.children.length > 0) {
-          const found = searchInNodes(node.children);
-          if (found) {
-            return found;
-          }
-        }
-      }
-      return null;
-    };
-    return searchInNodes(this.dataSource.data);
+    return this.findNodeByIdInTree(this.getTreeData(), id) ?? null;
   }
 
-  getAdjustedPadding(node: any): string | null {
+  getAdjustedPadding(node: FileFlatNode | FileNode | undefined): string | null {
     if (!node) {
       return '13px';
     }
@@ -1175,7 +1737,7 @@ export class DataTreeComponent implements OnInit {
     // aria-level 3 (second visible) = 35px (13 + 22)
     // aria-level 4 (third visible) = 58px (35 + 23)
     // Continue with 22px increment
-    const level = node.level;
+    const level = this.getNodeLevel(node);
     if (level === 1) return '13px'; // First visible
     if (level === 2) return '35px'; // Second visible
     if (level === 3) return '58px'; // Third visible
@@ -1184,30 +1746,19 @@ export class DataTreeComponent implements OnInit {
   }
 
   expandAll(): void {
-    // Check if dataNodes exists before trying to expand
-    if (this.treeControl && this.treeControl.dataNodes && this.treeControl.dataNodes.length > 0) {
-      this.treeControl.expandAll();
-    }
+    this.expandAllFlatNodes();
+    this.syncTreeExpansionFromIdState();
   }
 
   collapseToFirstLevel(): void {
-    // Check if dataNodes exists before trying to collapse
-    if (!this.treeControl || !this.treeControl.dataNodes || this.treeControl.dataNodes.length === 0) {
-      return;
-    }
-    
-    // Collapse all nodes first
-    this.treeControl.collapseAll();
-    
+    this.collapseAllFlatNodes();
+
     // Expand root only so level-1 nodes appear (root hidden via CSS); do not expand level-1
-    const rootFlatNode = this.treeControl.dataNodes.find((n) => {
-      const nested = this.flatNodeMap.get(n);
-      return nested && (nested as any).isRoot === true;
-    });
-    if (rootFlatNode) {
-      this.treeControl.expand(rootFlatNode);
-      this.expansionModel.select(rootFlatNode.id);
+    const root = this.getTreeData().find((node) => this.isRootNestedNode(node));
+    if (root) {
+      this.expandedNodeIdsState.add(String(root.id));
     }
+    this.syncTreeExpansionFromIdState();
   }
 
 }

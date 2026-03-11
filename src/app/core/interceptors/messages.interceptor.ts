@@ -250,13 +250,13 @@ export class MessagesInterceptor implements HttpInterceptor {
     const hasReferencingEntity = !!params['referencingEntityName'];
     
     if (hasEntityInfo && hasReferencingEntity) {
-      return 'error.data-integrity-violation.constraint.full';
+      return 'backend.error.data-integrity-violation.constraint.full';
     } else if (hasEntityInfo) {
-      return 'error.data-integrity-violation.constraint.partial';
+      return 'backend.error.data-integrity-violation.constraint.partial';
     } else if (params['operation']) {
-      return 'error.data-integrity-violation.constraint.minimal';
+      return 'backend.error.data-integrity-violation.constraint.minimal';
     }
-    return 'error.data-integrity-violation';
+    return 'backend.error.data-integrity-violation';
   }
 
   /** Replaces placeholders in message with parameter values. */

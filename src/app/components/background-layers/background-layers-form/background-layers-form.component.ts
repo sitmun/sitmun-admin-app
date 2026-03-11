@@ -200,7 +200,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
    */
   override fetchCopy(): Promise<BackgroundProjection> {
     return firstValueFrom(this.backgroundService.getProjection(BackgroundProjection, this.duplicateID).pipe(map((copy: BackgroundProjection) => {
-      copy.name = this.translateService.instant("copy_") + copy.name;
+      copy.name = this.translateService.instant("common.copyPrefix") + copy.name;
       return copy;
     })));
   }
@@ -317,7 +317,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.roleService.getAll())
-      .withTargetsTitle(this.translateService.instant('entity.permissionGroup.roles.title'))
+      .withTargetsTitle('entity.permissionGroup.roles.title')
       .build();
   }
 
@@ -366,7 +366,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
       .withTargetInclude((applicationBackgrounds: (ApplicationBackgroundProjection)[]) =>
         (item: ApplicationProjection) => !applicationBackgrounds.some((applicationBackground) => applicationBackground.applicationId === item.id))
       .withTargetToRelation((items: ApplicationProjection[]) => items.map(item => ApplicationBackgroundProjection.of(item, this.entityToEdit, 0)))
-      .withTargetsTitle(this.translateService.instant('entity.permissionGroup.applications.title'))
+      .withTargetsTitle('entity.permissionGroup.applications.title')
       .withTargetsOrder('name')
       .build();
   }
@@ -413,7 +413,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
       .withTargetInclude((cartographies: (CartographyProjection & Status)[]) => (item: CartographyProjection) => {
         return !cartographies.some((cartography) => cartography.id === item.id);
       })
-      .withTargetsTitle(this.translateService.instant('entity.permissionGroup.layers.title'))
+      .withTargetsTitle('entity.permissionGroup.layers.title')
       .build();
   }
 

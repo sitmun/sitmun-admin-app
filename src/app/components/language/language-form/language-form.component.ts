@@ -52,7 +52,7 @@ export class LanguageFormComponent extends BaseFormComponent<Language> {
 
   override fetchCopy(): Promise<Language> {
     return firstValueFrom(this.languageService.get(this.duplicateID).pipe(map((copy: Language) => {
-      copy.shortname = this.translateService.instant("copy_") + copy.shortname;
+      copy.shortname = this.translateService.instant("common.copyPrefix") + copy.shortname;
       return copy;
     })));
   }

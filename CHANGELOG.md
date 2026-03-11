@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.5] - 2026-03-11
+
+### Added
+
+- Missing translations tracker dev tool with sidebar UI for identifying untranslated keys during development.
+- Comprehensive test coverage for TreeNodeService achieving 100% statements, branches, functions, and lines coverage.
+- Extensive test coverage improvements for TreesFormComponent and DataTreeComponent.
+- Test suites for TreeNodeService covering all CRUD operations, relation management (tree, cartography, task, parent), and error handling scenarios.
+
+### Changed
+
+- Standardized form validation labels to use consistent `entity.*` i18n keys across all entity forms.
+- Reorganized and completed all locale files (ca, en, es, fr, oc-aranes) with alphabetically sorted keys.
+- **DataTreeComponent modernization**: Replaced deprecated Angular Material Tree APIs with modern `childrenAccessor` pattern, improving performance and maintainability.
+- TreesFormComponent enhanced with tree type change warning dialog when existing nodes may be incompatible.
+- TreeNodesComponent updated to work with modernized DataTreeComponent API and emit proper tree node updates.
+- Type safety improvements throughout tree management components with proper TypeScript interfaces.
+- Tree Structure tab content now loads lazily and tree rendering waits for codelist initialization to avoid early heavy work on form open.
+- Tree/data-tree rendering callbacks were stabilized and node type/view mode label resolution now uses caches to reduce change detection churn.
+- Tree node unit tests now rebuild codelist caches after injecting mocked codelists to match runtime behavior.
+
+### Fixed
+
+- Shortened Catalan label for permission groups to "Permisos a capes".
+- Removed `[DEV]` prefix from trigger test error label in all locales.
+- DataTreeComponent subscription cleanup using `takeUntilDestroyed` to prevent memory leaks.
+- Tree expansion state persistence when filtering and reordering nodes.
+- Restored tree save-constraint explanation banner in the toolbar by wiring `treeValidationWarningMessage` into `app-form-toolbar`.
+- Resolved tree form unresponsiveness when opening existing trees and when entering the Tree Structure tab.
+- Updated problem-detail translation-key tests to use the `backend.error.*` namespace.
+- Removed temporary debugging instrumentation introduced during freeze/root-cause investigation.
+
+### Removed
+
+- Unused frontend-gui locale files (`src/app/frontend-gui/src/assets/i18n`).
+
 ## [1.2.4] - 2026-03-04
 
 ### Added
@@ -202,7 +238,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Various bug fixes and improvements from development phase
 
-[Unreleased]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.4...HEAD
+[Unreleased]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.5...HEAD
+[1.2.5]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.4...sitmun-admin-app/1.2.5
 [1.2.4]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.3...sitmun-admin-app/1.2.4
 [1.2.3]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.2...sitmun-admin-app/1.2.3
 [1.2.2]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.1...sitmun-admin-app/1.2.2
