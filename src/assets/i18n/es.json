@@ -184,6 +184,7 @@
   "common.requiredFieldMessage": "Rellene todos los campos obligatorios",
   "common.restore": "Restaurar",
   "common.revert": "Revertir",
+  "common.modified": "Modificado",
   "common.selectAll": "Seleccionar todo",
   "common.status.disabled": "Desactivado",
   "common.status.enabled": "Activado",

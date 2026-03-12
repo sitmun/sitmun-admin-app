@@ -184,6 +184,7 @@
   "common.requiredFieldMessage": "  You must fill all required fields ",
   "common.restore": "Restore",
   "common.revert": "Revert",
+  "common.modified": "Modified",
   "common.selectAll": "Select All",
   "common.status.disabled": "Disabled",
   "common.status.enabled": "Enabled",

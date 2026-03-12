@@ -162,6 +162,12 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     dataType: 'json'
   };
   nodeOutputsControls = config.nodeMapping.nodeOutputControls;
+  /** Map output key -> label control (e.g. leftbtn -> leftbtnLabel). Built once from static config. */
+  private readonly outputLabelControlMap: Map<string, any> = new Map(
+    config.nodeMapping.nodeOutputControls
+      .filter((c: { key: string }) => c.key.endsWith('Label'))
+      .map((c: { key: string }) => [c.key.slice(0, -'Label'.length), c])
+  );
   mappingAppOptions = config.nodeMapping.appOptions;
   mappingbtnLabelOptions = config.nodeMapping.btnlabelOptions;
   mappingParentTaskOptions = [];
@@ -670,6 +676,13 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     return this.cachedTaskOutputParameters;
   }
 
+  /** Non-Label output controls visible for the current view mode (for Output Mapping tab). */
+  get visibleOutputControls(): any[] {
+    return this.nodeOutputsControls.filter(
+      c => !c.key.includes('Label') && c.views.includes(this.currentViewMode)
+    );
+  }
+
   /**
    * Determines if the tree is new.
    */
@@ -1029,8 +1042,8 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     
     // If task not found in cache yet, load tasks and then set it
     if (node.taskId && !taskObj) {
-      this.loadTasks().then(() => {
-        const loadedTask = this.allTasks.find(t => t.id === node.taskId);
+      this.loadTasks().then(async () => {
+        let loadedTask = this.allTasks.find(t => t.id === node.taskId);
         if (loadedTask) {
           this.treeNodeForm.patchValue({
             task: loadedTask,
@@ -1039,6 +1052,22 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
           });
           this.currentNodeTask = loadedTask;
           this.loadFullTaskForParameterGuidance(node.taskId);
+        } else {
+          // Task not in getAll response (e.g. pagination). Fetch by ID.
+          try {
+            loadedTask = await firstValueFrom(this.taskService.get(node.taskId));
+            if (loadedTask) {
+              this.treeNodeForm.patchValue({
+                task: loadedTask,
+                taskName: loadedTask.name,
+                taskId: loadedTask.id
+              });
+              this.currentNodeTask = loadedTask;
+              this.loadFullTaskForParameterGuidance(node.taskId);
+            }
+          } catch {
+            this.loggerService.error('TreeNodesComponent.nodeReceived - Failed to load task by ID', { taskId: node.taskId });
+          }
         }
       });
     } else if (taskObj) {
@@ -2493,6 +2522,16 @@ export class TreeNodesComponent implements OnInit, OnDestroy {
     this.treeNodeForm.patchValue({
       viewMode: value,
     });
+  }
+
+  /** Lookup label control for a given output key (e.g. leftbtn -> leftbtnLabel). */
+  getLabelControlForOutput(key: string): any | null {
+    const c = this.outputLabelControlMap.get(key);
+    return c && c.views.includes(this.currentViewMode) ? c : null;
+  }
+
+  trackByControlKey(_index: number, control: any): string {
+    return control.key;
   }
 
   /**
