@@ -88,7 +88,16 @@
             </mat-select>
           </mat-form-field>
 
-          <mat-form-field appearance="outline" class="half" *ngIf="!isSqlAccessType()">
+          <mat-form-field appearance="outline" class="half" *ngIf="isSqlAccessType()">
+            <mat-label>{{ 'tasksMoreInfoAdvancedEntity.responseFormat' | translate }}</mat-label>
+            <mat-select formControlName="responseFormat">
+              <mat-option *ngFor="let format of responseFormats" [value]="format.value">
+                {{ format.key | translate }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full" *ngIf="!isSqlAccessType()">
             <mat-label>{{ 'tasksMoreInfoAdvancedEntity.responseFormat' | translate }}</mat-label>
             <mat-select formControlName="responseFormat">
               <mat-option *ngFor="let format of responseFormats" [value]="format.value">
@@ -133,13 +142,41 @@
 
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'tasksMoreInfoAdvancedEntity.childTasks' | translate }}</mat-label>
-            <mat-select formControlName="selectedChildTaskIds" multiple>
+            <mat-select formControlName="selectedChildTaskIds" multiple (selectionChange)="onSelectedChildTasksChanged($event.value)">
               <mat-option *ngFor="let child of getAvailableChildTasks()" [value]="child.id">
                 {{ child.name }}
               </mat-option>
             </mat-select>
             <mat-hint>{{ 'tasksMoreInfoAdvancedEntity.childrenHint' | translate }}</mat-hint>
           </mat-form-field>
+
+          <div class="manual-order-block" *ngIf="canShowManualPriorityOrder()">
+            <h4>{{ 'tasksMoreInfoAdvancedEntity.manualOrderTitle' | translate }}</h4>
+            <p class="manual-order-hint">{{ 'tasksMoreInfoAdvancedEntity.manualOrderHint' | translate }}</p>
+
+            <div class="manual-order-item" *ngFor="let child of getSelectedChildTasksInCurrentOrder(); let i = index">
+              <div class="manual-order-index">{{ i + 1 }}</div>
+              <div class="manual-order-name">{{ child.name }}</div>
+              <div class="manual-order-actions">
+                <button
+                  mat-icon-button
+                  type="button"
+                  [disabled]="i === 0"
+                  (click)="moveChildTaskPriority(child.id, 'up')"
+                  [attr.aria-label]="'move up'">
+                  <mat-icon>arrow_upward</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  type="button"
+                  [disabled]="i === (getSelectedChildTasksInCurrentOrder().length - 1)"
+                  (click)="moveChildTaskPriority(child.id, 'down')"
+                  [attr.aria-label]="'move down'">
+                  <mat-icon>arrow_downward</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
         </mat-card-content>
       </mat-card>
 

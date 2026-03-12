@@ -50,7 +50,7 @@ import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 import {magic} from '@environments/constants';
 
-type AdvancedTaskKind = 'parent' | 'child' | 'independent';
+type AdvancedTaskKind = 'parent' | 'child';
 
 interface AdvancedTaskProperties extends Record<string, unknown> {
   advancedTaskKind?: AdvancedTaskKind;
@@ -59,6 +59,7 @@ interface AdvancedTaskProperties extends Record<string, unknown> {
   parentLayout?: string;
   relatedTable?: string;
   childPresentationOrder?: string;
+  childTaskOrderIds?: number[];
   parentTaskIds?: number[];
 }
 
@@ -99,8 +100,7 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
 
   protected readonly advancedKinds: Array<{ value: AdvancedTaskKind, key: string }> = [
     {value: 'parent', key: 'tasksMoreInfoAdvancedEntity.kind.parent'},
-    {value: 'child', key: 'tasksMoreInfoAdvancedEntity.kind.child'},
-    {value: 'independent', key: 'tasksMoreInfoAdvancedEntity.kind.independent'}
+    {value: 'child', key: 'tasksMoreInfoAdvancedEntity.kind.child'}
   ];
 
   protected readonly responseFormats: Array<{ value: string, key: string }> = [
@@ -140,6 +140,8 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
     'cartographyId': 'tasksMoreInfoAdvancedEntity.cartography',
     'advancedTaskKind': 'tasksMoreInfoAdvancedEntity.taskKind'
   };
+
+  private previousSelectedChildTaskIds: number[] = [];
 
   constructor(
     dialog: MatDialog,
@@ -260,10 +262,12 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
       childPresentationOrder: new FormControl(typeof properties.childPresentationOrder === 'string' ? properties.childPresentationOrder : 'manual', {
         nonNullable: true
       }),
-      selectedChildTaskIds: new FormControl(this.getSelectedChildIdsForParent(), {
+      selectedChildTaskIds: new FormControl(this.getSelectedChildIdsForParent(properties), {
         nonNullable: true
       })
     });
+
+    this.previousSelectedChildTaskIds = this.normalizeParentIds(this.entityForm.get('selectedChildTaskIds')?.value);
 
     const selectedCartography = this.cartographies.find(cartography => cartography.id === this.entityToEdit.cartographyId);
     this.cartographySearchControl.setValue(selectedCartography || '');
@@ -281,6 +285,22 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
         this.entityForm.get('connectionId')?.setValue(null);
       }
       this.updateDynamicValidations();
+    });
+    this.entityForm.get('selectedChildTaskIds')?.valueChanges.subscribe(value => {
+      const selectedIds = this.normalizeParentIds(value);
+      const normalized = this.ensureManualSelectionOrder(selectedIds);
+      if (!this.sameNumberArray(selectedIds, normalized)) {
+        this.entityForm.get('selectedChildTaskIds')?.setValue(normalized, {emitEvent: false});
+      }
+      this.previousSelectedChildTaskIds = normalized;
+    });
+    this.entityForm.get('childPresentationOrder')?.valueChanges.subscribe(() => {
+      const selectedIds = this.normalizeParentIds(this.entityForm.get('selectedChildTaskIds')?.value);
+      const normalized = this.ensureManualSelectionOrder(selectedIds);
+      if (!this.sameNumberArray(selectedIds, normalized)) {
+        this.entityForm.get('selectedChildTaskIds')?.setValue(normalized, {emitEvent: false});
+      }
+      this.previousSelectedChildTaskIds = normalized;
     });
     this.updateDynamicValidations();
   }
@@ -331,21 +351,25 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
     let safeToEdit = TaskProjection.fromObject(this.entityToEdit);
     const values = this.entityForm.getRawValue();
     const kind = this.normalizeKind(values.advancedTaskKind);
+    const isChildOrIndependent = this.shouldShowDataAccessFields();
 
-    const connectionId = this.shouldShowDataAccessFields() ? values.connectionId : null;
+    const connectionId = isChildOrIndependent ? values.connectionId : null;
     const properties = TaskPropertiesBuilder.from(this.entityToEdit.properties)
-      .withScope(this.shouldShowDataAccessFields() ? values.scope : null)
-      .withCommand(this.shouldShowDataAccessFields() ? values.command : null)
-      .withParameters(this.entityToEdit?.properties?.parameters as any[] || [])
-      .withFields(this.entityToEdit?.properties?.fields as any[] || [])
+      .withScope(isChildOrIndependent ? values.scope : null)
+      .withCommand(isChildOrIndependent ? values.command : null)
+      .withParameters(isChildOrIndependent ? (this.entityToEdit?.properties?.parameters as any[] || []) : [])
+      .withFields(isChildOrIndependent ? (this.entityToEdit?.properties?.fields as any[] || []) : [])
       .build() as AdvancedTaskProperties;
 
     properties.advancedTaskKind = kind;
-    properties.responseFormat = this.shouldShowDataAccessFields() ? values.responseFormat : null;
-    properties.htmlTemplate = values.htmlTemplate;
+    properties.responseFormat = isChildOrIndependent ? values.responseFormat : null;
+    properties.htmlTemplate = isChildOrIndependent ? values.htmlTemplate : null;
     properties.parentLayout = this.isParentTask() ? values.parentLayout : null;
     properties.relatedTable = this.isParentTask() ? values.relatedTable : null;
     properties.childPresentationOrder = this.isParentTask() ? values.childPresentationOrder : null;
+    properties.childTaskOrderIds = this.isParentTask() && values.childPresentationOrder === 'manual'
+      ? this.normalizeParentIds(values.selectedChildTaskIds)
+      : null;
     properties.parentTaskIds = this.isParentTask() ? [] : this.normalizeParentIds(properties.parentTaskIds);
     properties.moreInfoAdvanced = true;
 
@@ -395,8 +419,50 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
   getAvailableChildTasks(): TaskProjection[] {
     return this.allMoreInfoTasks.filter(task => {
       const kind = this.readKind(task);
-      return kind === 'child' || kind === 'independent';
+      return kind === 'child' && this.isAdvancedTask(task);
     });
+  }
+
+  canShowManualPriorityOrder(): boolean {
+    return this.isParentTask()
+      && this.entityForm?.get('childPresentationOrder')?.value === 'manual'
+      && this.getSelectedChildTasksInCurrentOrder().length > 0;
+  }
+
+  getSelectedChildTasksInCurrentOrder(): TaskProjection[] {
+    const selectedIds = this.normalizeParentIds(this.entityForm?.get('selectedChildTaskIds')?.value);
+    const byId = new Map(this.getAvailableChildTasks().map(task => [task.id, task]));
+    return selectedIds
+      .map(id => byId.get(id))
+      .filter((task): task is TaskProjection => !!task);
+  }
+
+  moveChildTaskPriority(taskId: number, direction: 'up' | 'down'): void {
+    const selectedIds = [...this.normalizeParentIds(this.entityForm?.get('selectedChildTaskIds')?.value)];
+    const index = selectedIds.indexOf(taskId);
+    if (index < 0) {
+      return;
+    }
+
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= selectedIds.length) {
+      return;
+    }
+
+    [selectedIds[index], selectedIds[targetIndex]] = [selectedIds[targetIndex], selectedIds[index]];
+    this.entityForm.get('selectedChildTaskIds')?.setValue(selectedIds, {emitEvent: false});
+    this.entityForm.get('selectedChildTaskIds')?.markAsDirty();
+    this.entityForm.markAsDirty();
+    this.previousSelectedChildTaskIds = selectedIds;
+  }
+
+  onSelectedChildTasksChanged(value: number[]): void {
+    const selectedIds = this.normalizeParentIds(value);
+    const normalized = this.ensureManualSelectionOrder(selectedIds);
+    this.entityForm.get('selectedChildTaskIds')?.setValue(normalized, {emitEvent: false});
+    this.entityForm.get('selectedChildTaskIds')?.markAsDirty();
+    this.entityForm.markAsDirty();
+    this.previousSelectedChildTaskIds = normalized;
   }
 
   isParentTask(): boolean {
@@ -404,8 +470,7 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
   }
 
   shouldShowDataAccessFields(): boolean {
-    const kind = this.entityForm?.get('advancedTaskKind')?.value;
-    return kind === 'child' || kind === 'independent';
+    return !this.isParentTask();
   }
 
   isSqlAccessType(): boolean {
@@ -421,7 +486,7 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
   }
 
   isHtmlTemplateEnabled(): boolean {
-    return true;
+    return this.shouldShowDataAccessFields() && this.entityForm?.value?.responseFormat === 'html';
   }
 
   getPreviewDocument(): string {
@@ -514,7 +579,11 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
   }
 
   private normalizeKind(kind: unknown): AdvancedTaskKind {
-    return kind === 'parent' || kind === 'child' || kind === 'independent' ? kind : 'independent';
+    if (kind === 'parent') {
+      return 'parent';
+    }
+    // Legacy "independent" tasks are now handled as "child".
+    return 'child';
   }
 
   private normalizeScope(scope: string | null): string | null {
@@ -595,18 +664,28 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
     }
   }
 
-  private getSelectedChildIdsForParent(): number[] {
+  private getSelectedChildIdsForParent(properties?: AdvancedTaskProperties): number[] {
     if (this.isNewOrDuplicated() || this.entityID < 0) {
       return [];
     }
 
-    return this.getAvailableChildTasks()
+    const linkedIds = this.getAvailableChildTasks()
       .filter(child => {
         const childProps = this.getAdvancedProperties(child.properties);
         const parentIds = this.normalizeParentIds(childProps.parentTaskIds);
         return parentIds.includes(this.entityID);
       })
       .map(child => child.id);
+
+    const storedOrder = this.normalizeParentIds(properties?.childTaskOrderIds);
+    if (storedOrder.length === 0) {
+      return linkedIds;
+    }
+
+    const linkedSet = new Set(linkedIds);
+    const ordered = storedOrder.filter(id => linkedSet.has(id));
+    const missing = linkedIds.filter(id => !ordered.includes(id));
+    return [...ordered, ...missing];
   }
 
   private getHtmlTemplateValue(): string {
@@ -616,11 +695,8 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
 
   private renderChildTasksPreviewMarkup(): string {
     const title = this.translateService.instant('tasksMoreInfoAdvancedEntity.childTasksPreviewTitle');
-    const selectedIds = this.normalizeParentIds(this.entityForm?.get('selectedChildTaskIds')?.value);
-    const selectedNames = this.getAvailableChildTasks()
-      .filter(task => selectedIds.includes(task.id))
-      .map(task => task.name)
-      .filter(Boolean);
+    const selectedTasks = this.getOrderedSelectedChildTasksForDisplay();
+    const selectedNames = selectedTasks.map(task => task.name).filter(Boolean);
 
     if (selectedNames.length === 0) {
       return `<section><h3>${title}</h3><p>-</p></section>`;
@@ -628,6 +704,38 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
 
     const items = selectedNames.map(name => `<li>${name}</li>`).join('');
     return `<section><h3>${title}</h3><ul>${items}</ul></section>`;
+  }
+
+  private getOrderedSelectedChildTasksForDisplay(): TaskProjection[] {
+    const selected = this.getSelectedChildTasksInCurrentOrder();
+    const presentationOrder = this.entityForm?.get('childPresentationOrder')?.value;
+
+    if (presentationOrder === 'nameAsc') {
+      return [...selected].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    }
+    if (presentationOrder === 'nameDesc') {
+      return [...selected].sort((a, b) => (b.name || '').localeCompare(a.name || ''));
+    }
+    return selected;
+  }
+
+  private ensureManualSelectionOrder(selectedIds: number[]): number[] {
+    if (!this.isParentTask() || this.entityForm?.get('childPresentationOrder')?.value !== 'manual') {
+      return selectedIds;
+    }
+
+    const selectedSet = new Set(selectedIds);
+    const previousSet = new Set(this.previousSelectedChildTaskIds);
+    const keptInPreviousOrder = this.previousSelectedChildTaskIds.filter(id => selectedSet.has(id));
+    const newlyAdded = selectedIds.filter(id => !previousSet.has(id));
+    return [...keptInPreviousOrder, ...newlyAdded];
+  }
+
+  private sameNumberArray(a: number[], b: number[]): boolean {
+    if (a.length !== b.length) {
+      return false;
+    }
+    return a.every((value, index) => value === b[index]);
   }
 
   private wrapPreviewHtml(content: string): string {

@@ -94,7 +94,7 @@ export class TasksMoreInfoAdvancedComponent extends BaseListComponent<Task> {
       this.utils.getNonEditableColumnWithProviderDef(
         'tasksMoreInfoAdvancedEntity.taskKind',
         'properties.advancedTaskKind',
-        (value: string) => `tasksMoreInfoAdvancedEntity.kind.${value}`
+        (value: string) => `tasksMoreInfoAdvancedEntity.kind.${value === 'independent' ? 'child' : value}`
       ),
       this.utils.getNonEditableColumnDef('tasksMoreInfoAdvancedEntity.cartography', 'cartographyName')
     ];

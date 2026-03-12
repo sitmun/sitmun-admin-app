@@ -6,3 +6,45 @@
 .router-link:hover {
   text-decoration: underline;
 }
+
+.manual-order-block {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  margin-top: 8px;
+  padding: 12px;
+}
+
+.manual-order-hint {
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 12px;
+  margin: 0 0 8px;
+}
+
+.manual-order-item {
+  align-items: center;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  gap: 8px;
+  min-height: 44px;
+  padding: 4px 0;
+}
+
+.manual-order-item:first-of-type {
+  border-top: none;
+}
+
+.manual-order-index {
+  color: rgba(0, 0, 0, 0.7);
+  font-weight: 600;
+  min-width: 24px;
+  text-align: center;
+}
+
+.manual-order-name {
+  flex: 1;
+}
+
+.manual-order-actions {
+  align-items: center;
+  display: flex;
+}
