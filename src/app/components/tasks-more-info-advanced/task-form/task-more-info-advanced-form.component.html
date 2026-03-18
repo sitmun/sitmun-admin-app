@@ -88,28 +88,69 @@
             </mat-select>
           </mat-form-field>
 
-          <mat-form-field appearance="outline" class="half" *ngIf="isSqlAccessType()">
-            <mat-label>{{ 'tasksMoreInfoAdvancedEntity.responseFormat' | translate }}</mat-label>
-            <mat-select formControlName="responseFormat">
-              <mat-option *ngFor="let format of responseFormats" [value]="format.value">
-                {{ format.key | translate }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="full" *ngIf="!isSqlAccessType()">
-            <mat-label>{{ 'tasksMoreInfoAdvancedEntity.responseFormat' | translate }}</mat-label>
-            <mat-select formControlName="responseFormat">
-              <mat-option *ngFor="let format of responseFormats" [value]="format.value">
-                {{ format.key | translate }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'tasksMoreInfoAdvancedEntity.command' | translate }}</mat-label>
+          <mat-form-field appearance="outline" class="full" *ngIf="isSqlAccessType()">
+            <mat-label>{{ 'tasksMoreInfoEntity.sqlQuery' | translate }}</mat-label>
             <textarea matInput formControlName="command" rows="4" [maxlength]="4000"></textarea>
+            <mat-hint align="start">{{ 'tasksMoreInfoEntity.sqlQueryHint' | translate }}</mat-hint>
             <mat-hint align="end">{{ entityForm.get('command') | characterCount }}</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full" *ngIf="isUrlRedirectAccessType()">
+            <mat-label>{{ 'tasksMoreInfoEntity.url' | translate }}</mat-label>
+            <input matInput type="text" formControlName="command" [maxlength]="2000">
+            <mat-hint align="start">{{ 'tasksMoreInfoEntity.urlHint' | translate }}</mat-hint>
+            <mat-hint align="end">{{ entityForm.get('command') | characterCount }}</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full" *ngIf="isApiAccessType()">
+            <mat-label>{{ 'tasksMoreInfoEntity.apiUrl' | translate }}</mat-label>
+            <input matInput type="text" formControlName="command" [maxlength]="2000">
+            <mat-hint align="start">{{ 'tasksMoreInfoEntity.apiUrlHint' | translate }}</mat-hint>
+            <mat-hint align="end">{{ entityForm.get('command') | characterCount }}</mat-hint>
+          </mat-form-field>
+
+          <mat-checkbox formControlName="addApiKey" (change)="onAddApiKeyChange()" *ngIf="isApiAccessType()">
+            {{ 'tasksMoreInfoEntity.addApiKey' | translate }}
+          </mat-checkbox>
+
+          <mat-form-field appearance="outline" class="full" *ngIf="isApiAccessType() && entityForm.get('addApiKey')?.value">
+            <mat-label>{{ 'tasksMoreInfoEntity.apiKey' | translate }}</mat-label>
+            <input matInput type="text" formControlName="apiKey" [maxlength]="512">
+            <mat-hint align="end">{{ entityForm.get('apiKey') | characterCount }}</mat-hint>
+          </mat-form-field>
+
+          <div style="margin-bottom: 12px;" *ngIf="isApiAccessType()"></div>
+
+          <mat-form-field appearance="outline" class="quarter" *ngIf="isApiAccessType()">
+            <mat-label>{{ 'entity.service.authenticationMode' | translate }}</mat-label>
+            <mat-select formControlName="authenticationMode" [placeholder]="'common.form.none' | translate">
+              <mat-option [value]="mode.value" *ngFor="let mode of this.codeList('service.authenticationMode')">
+                {{ mode.description }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <div class="break" *ngIf="isApiAccessType()"></div>
+
+          <mat-form-field appearance="outline" *ngIf="isApiAccessType() && entityForm.get('authenticationMode')?.value !== 'None'" class="half add-gap">
+            <mat-label>{{ 'entity.service.user' | translate }}</mat-label>
+            <input matInput type="text" formControlName="user" [maxlength]="50">
+            <mat-hint align="end">{{ entityForm.get('user') | characterCount }}</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" *ngIf="isApiAccessType() && entityForm.get('authenticationMode')?.value !== 'None'" class="half">
+            <mat-label>{{ 'entity.service.password' | translate }}</mat-label>
+            <input matInput type="password" formControlName="password" [maxlength]="50" autocomplete="new-password">
+            <mat-hint align="end">{{ entityForm.get('password') | characterCount }}</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full response-format-field">
+            <mat-label>{{ 'tasksMoreInfoAdvancedEntity.responseFormat' | translate }}</mat-label>
+            <mat-select formControlName="responseFormat">
+              <mat-option *ngFor="let format of responseFormats" [value]="format.value">
+                {{ format.key | translate }}
+              </mat-option>
+            </mat-select>
           </mat-form-field>
 
         </mat-card-content>
@@ -126,57 +167,6 @@
             </mat-select>
           </mat-form-field>
 
-          <mat-form-field appearance="outline" class="half">
-            <mat-label>{{ 'tasksMoreInfoAdvancedEntity.childPresentationOrder' | translate }}</mat-label>
-            <mat-select formControlName="childPresentationOrder">
-              <mat-option *ngFor="let order of childPresentationOrders" [value]="order.value">
-                {{ order.key | translate }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'tasksMoreInfoAdvancedEntity.relatedTable' | translate }}</mat-label>
-            <input matInput type="text" formControlName="relatedTable" [maxlength]="256">
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'tasksMoreInfoAdvancedEntity.childTasks' | translate }}</mat-label>
-            <mat-select formControlName="selectedChildTaskIds" multiple (selectionChange)="onSelectedChildTasksChanged($event.value)">
-              <mat-option *ngFor="let child of getAvailableChildTasks()" [value]="child.id">
-                {{ child.name }}
-              </mat-option>
-            </mat-select>
-            <mat-hint>{{ 'tasksMoreInfoAdvancedEntity.childrenHint' | translate }}</mat-hint>
-          </mat-form-field>
-
-          <div class="manual-order-block" *ngIf="canShowManualPriorityOrder()">
-            <h4>{{ 'tasksMoreInfoAdvancedEntity.manualOrderTitle' | translate }}</h4>
-            <p class="manual-order-hint">{{ 'tasksMoreInfoAdvancedEntity.manualOrderHint' | translate }}</p>
-
-            <div class="manual-order-item" *ngFor="let child of getSelectedChildTasksInCurrentOrder(); let i = index">
-              <div class="manual-order-index">{{ i + 1 }}</div>
-              <div class="manual-order-name">{{ child.name }}</div>
-              <div class="manual-order-actions">
-                <button
-                  mat-icon-button
-                  type="button"
-                  [disabled]="i === 0"
-                  (click)="moveChildTaskPriority(child.id, 'up')"
-                  [attr.aria-label]="'move up'">
-                  <mat-icon>arrow_upward</mat-icon>
-                </button>
-                <button
-                  mat-icon-button
-                  type="button"
-                  [disabled]="i === (getSelectedChildTasksInCurrentOrder().length - 1)"
-                  (click)="moveChildTaskPriority(child.id, 'down')"
-                  [attr.aria-label]="'move down'">
-                  <mat-icon>arrow_downward</mat-icon>
-                </button>
-              </div>
-            </div>
-          </div>
         </mat-card-content>
       </mat-card>
 
@@ -230,6 +220,36 @@
           [defaultColumnSorting]="parametersTable.defaultRelationsSorting()"
           (getAllRows)="parametersTable.handleSaveRelations($event)"
           (duplicate)="parametersTable.duplicateRelations($event)"
+          *ngIf="dataLoaded">
+        </app-data-grid>
+      </mat-card-content>
+    </mat-card>
+  </mat-tab>
+
+  <mat-tab label="{{ 'tasksMoreInfoAdvancedEntity.childTasks' | translate }}" *ngIf="isParentTask()">
+    <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+      <mat-card-content>
+        <app-data-grid
+          [changeHeightButton]="true"
+          [allNewElements]="isNewOrDuplicated()"
+          [columnDefs]="childTasksTable.relationsColumnsDefs"
+          [getAll]="childTasksTable.relationsFetchFn"
+          [eventAddItemsSubscription]="childTasksTable.addCommandEvent$.asObservable()"
+          [eventGetAllRowsSubscription]="childTasksTable.saveCommandEvent$.asObservable()"
+          [eventRefreshSubscription]="childTasksTable.refreshCommandEvent$.asObservable()"
+          [actionButton]="true"
+          [discardChangesButton]="true"
+          [redoButton]="true"
+          [undoButton]="true"
+          [deleteButton]="true"
+          [addButton]="true"
+          [defaultColumnSorting]="childTasksTable.defaultRelationsSorting()"
+          [hideReplaceButton]="true"
+          [hideDuplicateButton]="true"
+          [rowDragManaged]="true"
+          (getAllRows)="childTasksTable.handleSaveRelations($event)"
+          (add)="childTasksTable.openDialog($event)"
+          (rowOrderChanged)="onChildTaskRowsReordered($event)"
           *ngIf="dataLoaded">
         </app-data-grid>
       </mat-card-content>

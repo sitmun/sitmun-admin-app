@@ -58,7 +58,6 @@ interface AdvancedTaskProperties extends Record<string, unknown> {
   htmlTemplate?: string;
   parentLayout?: string;
   relatedTable?: string;
-  childPresentationOrder?: string;
   childTaskOrderIds?: number[];
   parentTaskIds?: number[];
 }
@@ -81,6 +80,7 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
   protected readonly rolesTable: DataTableDefinition<Role, Role>;
   protected readonly availabilitiesTable: DataTableDefinition<TaskAvailabilityProjection, TerritoryProjection>;
   protected readonly parametersTable: DataTableDefinition<TaskMoreInfoParameter, TaskMoreInfoParameter>;
+  protected readonly childTasksTable: DataTableDefinition<TaskProjection, TaskProjection>;
 
   private taskType: TaskType = null;
   private readonly taskTypeId = magic.taskMoreInfoTypeId;
@@ -112,12 +112,6 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
   protected readonly parentLayouts: Array<{ value: string, key: string }> = [
     {value: 'scroll', key: 'tasksMoreInfoAdvancedEntity.parentLayout.scroll'},
     {value: 'tabs', key: 'tasksMoreInfoAdvancedEntity.parentLayout.tabs'}
-  ];
-
-  protected readonly childPresentationOrders: Array<{ value: string, key: string }> = [
-    {value: 'manual', key: 'tasksMoreInfoAdvancedEntity.childOrder.manual'},
-    {value: 'nameAsc', key: 'tasksMoreInfoAdvancedEntity.childOrder.nameAsc'},
-    {value: 'nameDesc', key: 'tasksMoreInfoAdvancedEntity.childOrder.nameDesc'}
   ];
 
   protected readonly htmlSnippets: Array<{ labelKey: string, snippet: string }> = [
@@ -168,12 +162,14 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
     this.rolesTable = this.defineRolesTable();
     this.availabilitiesTable = this.defineAvailabilitiesTable();
     this.parametersTable = this.defineParametersTable();
+    this.childTasksTable = this.defineChildTasksTable();
   }
 
   override async preFetchData(): Promise<void> {
     this.dataTables.register(this.rolesTable)
       .register(this.availabilitiesTable)
-      .register(this.parametersTable);
+      .register(this.parametersTable)
+      .register(this.childTasksTable);
 
     await this.initCodeLists(['tasksEntity.type', 'moreInfo.type', 'service.authenticationMode']);
     this.initTranslations('Task', ['name']);
@@ -224,6 +220,12 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
     const properties = this.getAdvancedProperties(this.entityToEdit?.properties);
     const kind = this.normalizeKind(properties.advancedTaskKind);
     const scope = this.normalizeScope(properties.scope as string | null);
+    const defaultAuthMode = this.defaultValueOrNull('service.authenticationMode');
+    const authenticationMode = properties.authenticationMode ?? defaultAuthMode?.value ?? null;
+    const user = properties.user || null;
+    const password = properties.password || null;
+    const apiKey = properties?.headers?.['X-API-Key'] || null;
+    const addApiKey = scope === this.moreInfoScope.api && !!apiKey;
 
     this.entityForm = new FormGroup({
       name: new FormControl(this.entityToEdit.name, {
@@ -247,6 +249,13 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
       command: new FormControl(typeof properties.command === 'string' ? properties.command : null, {
         nonNullable: false
       }),
+      authenticationMode: new FormControl(authenticationMode),
+      user: new FormControl(user),
+      password: new FormControl(password),
+      addApiKey: new FormControl(addApiKey, {
+        nonNullable: true
+      }),
+      apiKey: new FormControl(apiKey),
       responseFormat: new FormControl(typeof properties.responseFormat === 'string' ? properties.responseFormat : 'table', {
         nonNullable: true
       }),
@@ -254,12 +263,6 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
         nonNullable: true
       }),
       parentLayout: new FormControl(typeof properties.parentLayout === 'string' ? properties.parentLayout : 'tabs', {
-        nonNullable: true
-      }),
-      relatedTable: new FormControl(typeof properties.relatedTable === 'string' ? properties.relatedTable : '', {
-        nonNullable: true
-      }),
-      childPresentationOrder: new FormControl(typeof properties.childPresentationOrder === 'string' ? properties.childPresentationOrder : 'manual', {
         nonNullable: true
       }),
       selectedChildTaskIds: new FormControl(this.getSelectedChildIdsForParent(properties), {
@@ -286,6 +289,7 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
       }
       this.updateDynamicValidations();
     });
+    this.entityForm.get('addApiKey')?.valueChanges.subscribe(() => this.updateApiKeyValidation());
     this.entityForm.get('selectedChildTaskIds')?.valueChanges.subscribe(value => {
       const selectedIds = this.normalizeParentIds(value);
       const normalized = this.ensureManualSelectionOrder(selectedIds);
@@ -294,14 +298,7 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
       }
       this.previousSelectedChildTaskIds = normalized;
     });
-    this.entityForm.get('childPresentationOrder')?.valueChanges.subscribe(() => {
-      const selectedIds = this.normalizeParentIds(this.entityForm.get('selectedChildTaskIds')?.value);
-      const normalized = this.ensureManualSelectionOrder(selectedIds);
-      if (!this.sameNumberArray(selectedIds, normalized)) {
-        this.entityForm.get('selectedChildTaskIds')?.setValue(normalized, {emitEvent: false});
-      }
-      this.previousSelectedChildTaskIds = normalized;
-    });
+    this.updateApiKeyValidation();
     this.updateDynamicValidations();
   }
 
@@ -352,11 +349,23 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
     const values = this.entityForm.getRawValue();
     const kind = this.normalizeKind(values.advancedTaskKind);
     const isChildOrIndependent = this.shouldShowDataAccessFields();
+    const scope = isChildOrIndependent ? values.scope : null;
+    const authenticationMode = scope === this.moreInfoScope.api ? values.authenticationMode : null;
+    const user = scope === this.moreInfoScope.api ? values.user : null;
+    const password = scope === this.moreInfoScope.api ? values.password : null;
+    const addApiKey = scope === this.moreInfoScope.api && !!values.addApiKey;
+    const apiKey = addApiKey && typeof values.apiKey === 'string' ? values.apiKey.trim() : null;
 
     const connectionId = isChildOrIndependent ? values.connectionId : null;
+    const existingProps = this.getAdvancedProperties(this.entityToEdit.properties);
+    const headers = this.buildHeaders(existingProps.headers as Record<string, string> | null | undefined, apiKey);
     const properties = TaskPropertiesBuilder.from(this.entityToEdit.properties)
-      .withScope(isChildOrIndependent ? values.scope : null)
+      .withScope(scope)
       .withCommand(isChildOrIndependent ? values.command : null)
+      .withAuthenticationMode(authenticationMode)
+      .withUser(user)
+      .withPassword(password)
+      .withHeaders(headers)
       .withParameters(isChildOrIndependent ? (this.entityToEdit?.properties?.parameters as any[] || []) : [])
       .withFields(isChildOrIndependent ? (this.entityToEdit?.properties?.fields as any[] || []) : [])
       .build() as AdvancedTaskProperties;
@@ -365,11 +374,8 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
     properties.responseFormat = isChildOrIndependent ? values.responseFormat : null;
     properties.htmlTemplate = isChildOrIndependent ? values.htmlTemplate : null;
     properties.parentLayout = this.isParentTask() ? values.parentLayout : null;
-    properties.relatedTable = this.isParentTask() ? values.relatedTable : null;
-    properties.childPresentationOrder = this.isParentTask() ? values.childPresentationOrder : null;
-    properties.childTaskOrderIds = this.isParentTask() && values.childPresentationOrder === 'manual'
-      ? this.normalizeParentIds(values.selectedChildTaskIds)
-      : null;
+    properties.relatedTable = null;
+    properties.childTaskOrderIds = this.isParentTask() ? this.normalizeParentIds(values.selectedChildTaskIds) : null;
     properties.parentTaskIds = this.isParentTask() ? [] : this.normalizeParentIds(properties.parentTaskIds);
     properties.moreInfoAdvanced = true;
 
@@ -425,8 +431,34 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
 
   canShowManualPriorityOrder(): boolean {
     return this.isParentTask()
-      && this.entityForm?.get('childPresentationOrder')?.value === 'manual'
       && this.getSelectedChildTasksInCurrentOrder().length > 0;
+  }
+
+  onChildTaskRowsReordered(rows: TaskProjection[]): void {
+    const rowsWithStatus = rows as Array<TaskProjection & Partial<Status>>;
+    const orderedIds = rowsWithStatus
+      .filter(row => row?.status !== 'pendingDelete')
+      .map(row => row.id)
+      .filter((id): id is number => typeof id === 'number');
+    const normalized = this.ensureManualSelectionOrder(orderedIds);
+    this.entityForm.get('selectedChildTaskIds')?.setValue(normalized, {emitEvent: false});
+    this.entityForm.get('selectedChildTaskIds')?.markAsDirty();
+    this.entityForm.markAsDirty();
+    this.previousSelectedChildTaskIds = normalized;
+  }
+
+  sortSelectedChildTasksByName(direction: 'asc' | 'desc'): void {
+    const selected = this.getSelectedChildTasksInCurrentOrder();
+    const sorted = [...selected].sort((a, b) => {
+      const left = a.name || '';
+      const right = b.name || '';
+      return direction === 'asc' ? left.localeCompare(right) : right.localeCompare(left);
+    });
+    const sortedIds = sorted.map(task => task.id);
+    this.entityForm.get('selectedChildTaskIds')?.setValue(sortedIds, {emitEvent: false});
+    this.entityForm.get('selectedChildTaskIds')?.markAsDirty();
+    this.entityForm.markAsDirty();
+    this.previousSelectedChildTaskIds = sortedIds;
   }
 
   getSelectedChildTasksInCurrentOrder(): TaskProjection[] {
@@ -547,7 +579,22 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
     if (event.value !== this.moreInfoScope.sql) {
       this.entityForm.get('connectionId')?.setValue(null);
     }
+    if (event.value !== this.moreInfoScope.api) {
+      this.entityForm.get('authenticationMode')?.setValue(null);
+      this.entityForm.get('user')?.setValue(null);
+      this.entityForm.get('password')?.setValue(null);
+      this.entityForm.get('addApiKey')?.setValue(false);
+      this.entityForm.get('apiKey')?.setValue(null);
+    } else if (!this.entityForm.get('authenticationMode')?.value) {
+      const defaultAuthMode = this.defaultValueOrNull('service.authenticationMode');
+      this.entityForm.get('authenticationMode')?.setValue(defaultAuthMode?.value ?? null);
+    }
+    this.updateApiKeyValidation();
     this.updateDynamicValidations();
+  }
+
+  onAddApiKeyChange(): void {
+    this.updateApiKeyValidation();
   }
 
   private updateDynamicValidations(): void {
@@ -576,6 +623,34 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
     commandControl?.updateValueAndValidity({emitEvent: false});
     connectionControl?.updateValueAndValidity({emitEvent: false});
     responseFormatControl?.updateValueAndValidity({emitEvent: false});
+  }
+
+  private updateApiKeyValidation(): void {
+    const shouldRequireApiKey = this.isApiAccessType() && !!this.entityForm.get('addApiKey')?.value;
+    const apiKeyControl = this.entityForm.get('apiKey');
+
+    if (!apiKeyControl) {
+      return;
+    }
+
+    if (shouldRequireApiKey) {
+      apiKeyControl.setValidators([Validators.required]);
+    } else {
+      apiKeyControl.clearValidators();
+    }
+    apiKeyControl.updateValueAndValidity({emitEvent: false});
+  }
+
+  private buildHeaders(existingHeaders: Record<string, string> | null | undefined, apiKey: string | null): Record<string, string> | null {
+    const headers = existingHeaders && existingHeaders instanceof Object ? {...existingHeaders} : {};
+
+    if (apiKey) {
+      headers['X-API-Key'] = apiKey;
+      return headers;
+    }
+
+    delete headers['X-API-Key'];
+    return Object.keys(headers).length > 0 ? headers : null;
   }
 
   private normalizeKind(kind: unknown): AdvancedTaskKind {
@@ -707,20 +782,11 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
   }
 
   private getOrderedSelectedChildTasksForDisplay(): TaskProjection[] {
-    const selected = this.getSelectedChildTasksInCurrentOrder();
-    const presentationOrder = this.entityForm?.get('childPresentationOrder')?.value;
-
-    if (presentationOrder === 'nameAsc') {
-      return [...selected].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-    }
-    if (presentationOrder === 'nameDesc') {
-      return [...selected].sort((a, b) => (b.name || '').localeCompare(a.name || ''));
-    }
-    return selected;
+    return this.getSelectedChildTasksInCurrentOrder();
   }
 
   private ensureManualSelectionOrder(selectedIds: number[]): number[] {
-    if (!this.isParentTask() || this.entityForm?.get('childPresentationOrder')?.value !== 'manual') {
+    if (!this.isParentTask()) {
       return selectedIds;
     }
 
@@ -918,6 +984,57 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
       .withRelationsDuplicate(item => TaskMoreInfoParameter.fromObject(item))
       .build();
   }
+
+  private defineChildTasksTable(): DataTableDefinition<TaskProjection, TaskProjection> {
+    return DataTableDefinition.builder<TaskProjection, TaskProjection>(this.dialog, this.errorHandler, this.loadingService)
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        {
+          headerName: '',
+          colId: 'rowDragHandle',
+          rowDrag: true,
+          sortable: false,
+          filter: false,
+          editable: false,
+          lockPosition: true,
+          suppressMovable: true,
+          resizable: false,
+          minWidth: 60,
+          maxWidth: 60,
+          cellRenderer: () => '::'
+        },
+        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
+        this.utils.getNonEditableColumnDef('tasksMoreInfoAdvancedEntity.cartography', 'cartographyName', 200),
+        this.utils.getStatusColumnDef()
+      ])
+      .withRelationsOrder('name')
+      .withRelationsFetcher(() => of(this.getSelectedChildTasksInCurrentOrder()))
+      .withRelationsUpdater(async (children: (TaskProjection & Status)[]) => {
+        const orderedIds = children
+          .filter(canKeepOrUpdate)
+          .map(child => child.id)
+          .filter((id): id is number => typeof id === 'number');
+        const normalized = this.ensureManualSelectionOrder(orderedIds);
+        this.entityForm.get('selectedChildTaskIds')?.setValue(normalized, {emitEvent: false});
+        this.entityForm.get('selectedChildTaskIds')?.markAsDirty();
+        this.entityForm.markAsDirty();
+        this.previousSelectedChildTaskIds = normalized;
+      })
+      .withTargetsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
+        this.utils.getNonEditableColumnDef('tasksMoreInfoAdvancedEntity.cartography', 'cartographyName', 200)
+      ])
+      .withTargetsOrder('name')
+      .withTargetsFetcher(() => of(this.getAvailableChildTasks()))
+      .withTargetInclude((children: TaskProjection[]) => (item: TaskProjection) => {
+        return !children.some((child) => child.id === item.id);
+      })
+      .withTargetToRelation((items: TaskProjection[]) => items)
+      .withTargetsTitle(this.translateService.instant('tasksMoreInfoAdvancedEntity.childTasks'))
+      .build();
+  }
+
 }
 
 class CartographyErrorStateMatcher implements ErrorStateMatcher {
