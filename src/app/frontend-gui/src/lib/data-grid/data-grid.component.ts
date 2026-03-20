@@ -373,6 +373,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   /** Flag to hide replace button */
   @Input() hideReplaceButton = false;
 
+  /** Enables managed row drag and drop ordering */
+  @Input() rowDragManaged = false;
+
   /** Field restriction configuration */
   @Input() addFieldRestriction: any;
 
@@ -412,6 +415,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   /** Event emitter for grid modified state */
   @Output() gridModified: EventEmitter<boolean>;
 
+  /** Event emitter for row order changes triggered by drag and drop */
+  @Output() rowOrderChanged: EventEmitter<any[]>;
+
   /** Event emitter for visibility state */
   @Output() visible = new EventEmitter<HTMLElement>();
 
@@ -441,6 +447,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     this.duplicate = new EventEmitter();
     this.getAllRows = new EventEmitter();
     this.gridModified = new EventEmitter();
+    this.rowOrderChanged = new EventEmitter();
     this.changeCounter = 0;
     this.previousChangeCounter = 0;
     this.redoCounter = 0;
@@ -477,6 +484,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         },
       },
       rowSelection: 'multiple',
+      rowDragManaged: this.rowDragManaged,
       suppressHorizontalScroll: false,
       // Add alternating row background
       getRowStyle: (params) => {
@@ -694,6 +702,8 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       this.gridOptions.rowSelection = 'single'
     }
 
+    this.gridOptions.rowDragManaged = this.rowDragManaged;
+
     // Configure column sizes and flex
     this.columnDefs.forEach((col, index) => {
       // Ensure each column has minimum width
@@ -748,6 +758,14 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
     // Load data after grid is ready
     this.loadData();
+  }
+
+  /**
+   * Emits ordered rows after drag and drop operations
+   */
+  onRowDragEnd(): void {
+    this.rowOrderChanged.emit(this.getAllCurrentData());
+    this.gridModified.emit(true);
   }
 
   /**

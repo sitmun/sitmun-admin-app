@@ -83,7 +83,7 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
   protected readonly childTasksTable: DataTableDefinition<TaskProjection, TaskProjection>;
 
   private taskType: TaskType = null;
-  private readonly taskTypeId = magic.taskMoreInfoTypeId;
+  private readonly taskTypeId = magic.taskMoreInfoAdvancedTypeId;
 
   protected taskTypeNameTranslated: string = null;
   protected cartographies: Cartography[] = [];
@@ -445,6 +445,8 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
     this.entityForm.get('selectedChildTaskIds')?.markAsDirty();
     this.entityForm.markAsDirty();
     this.previousSelectedChildTaskIds = normalized;
+    // Refresh the grid to reload data in new order
+    this.childTasksTable.refreshCommandEvent$.next(true);
   }
 
   sortSelectedChildTasksByName(direction: 'asc' | 'desc'): void {
@@ -700,7 +702,7 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
 
   private isAdvancedTask(task: TaskProjection): boolean {
     const properties = this.getAdvancedProperties(task?.properties);
-    return properties.moreInfoAdvanced === true;
+    return properties.moreInfoAdvanced === true || task?.typeId === this.taskTypeId;
   }
 
   private async syncParentChildAssociations(): Promise<void> {
@@ -990,6 +992,21 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         {
+          headerName: this.translateService.instant('common.form.order'),
+          field: 'autoOrder',
+          editable: false,
+          filter: false,
+          minWidth: 110,
+          maxWidth: 110,
+          valueGetter: (params) => {
+            if (params?.node?.rowIndex == null) {
+              return '';
+            }
+            return params.node.rowIndex + 1;
+          },
+          cellClass: 'read-only-cell'
+        },
+        {
           headerName: '',
           colId: 'rowDragHandle',
           rowDrag: true,
@@ -1001,7 +1018,7 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
           resizable: false,
           minWidth: 60,
           maxWidth: 60,
-          cellRenderer: () => '::'
+          cellRenderer: () => '<span style="cursor: grab; user-select: none; font-size: 14px; font-weight: bold; text-align: center; display: block;">⋮⋮</span>'
         },
         this.utils.getNonEditableColumnDef('common.form.name', 'name'),
         this.utils.getNonEditableColumnDef('tasksMoreInfoAdvancedEntity.cartography', 'cartographyName', 200),

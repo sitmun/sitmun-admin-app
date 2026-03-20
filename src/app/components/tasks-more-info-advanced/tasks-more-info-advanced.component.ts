@@ -3,7 +3,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from '@ngx-translate/core';
-import {firstValueFrom, map} from 'rxjs';
+import {firstValueFrom} from 'rxjs';
 
 import {BaseListComponent} from '@app/components/base-list.component';
 import {EntityListConfig} from '@app/components/shared/entity-list';
@@ -30,16 +30,9 @@ export class TasksMoreInfoAdvancedComponent extends BaseListComponent<Task> {
     columnDefs: [],
     dataFetchFn: () => {
       const params: HalParam[] = [];
-      params.push({key: 'type.id', value: magic.taskMoreInfoTypeId});
+      params.push({key: 'type.id', value: magic.taskMoreInfoAdvancedTypeId});
       const query: HalOptions = {params};
-      return this.taskService.getAll(query, undefined, 'tasks').pipe(
-        map(tasks => (tasks || []).filter(task => {
-          const properties = (task?.properties && typeof task.properties === 'object' && !Array.isArray(task.properties))
-            ? task.properties as Record<string, unknown>
-            : {};
-          return properties['moreInfoAdvanced'] === true;
-        }))
-      );
+      return this.taskService.getAll(query, undefined, 'tasks');
     },
     defaultColumnSorting: ['name'],
     gridOptions: {
@@ -88,7 +81,7 @@ export class TasksMoreInfoAdvancedComponent extends BaseListComponent<Task> {
       this.utils.getRouterLinkColumnDef(
         'common.form.name',
         'name',
-        `tasksMoreInfoAdvanced/:id/${magic.taskMoreInfoTypeId}`,
+        `tasksMoreInfoAdvanced/:id/${magic.taskMoreInfoAdvancedTypeId}`,
         {id: 'id'}
       ),
       this.utils.getNonEditableColumnWithProviderDef(
@@ -101,11 +94,11 @@ export class TasksMoreInfoAdvancedComponent extends BaseListComponent<Task> {
   }
 
   override async newData(): Promise<void> {
-    await this.router.navigate(['tasksMoreInfoAdvanced', -1, magic.taskMoreInfoTypeId]);
+    await this.router.navigate(['tasksMoreInfoAdvanced', -1, magic.taskMoreInfoAdvancedTypeId]);
   }
 
   override async duplicateItem(id: number): Promise<void> {
-    await this.router.navigate(['tasksMoreInfoAdvanced', -1, magic.taskMoreInfoTypeId, id]);
+    await this.router.navigate(['tasksMoreInfoAdvanced', -1, magic.taskMoreInfoAdvancedTypeId, id]);
   }
 
   override dataUpdateFn = (data: Task) => firstValueFrom(this.taskService.update(data));

@@ -126,12 +126,14 @@
                      [undoRedoCellEditing]="true"
                      [undoRedoCellEditingLimit]=200
                      [suppressRowClickSelection]=true
+                     [rowDragManaged]="rowDragManaged"
                      [components]="components"
                      rowSelection="multiple"
                      multiSortKey="ctrl"
                      (filterModified)="onFilterModified()"
                      (cellEditingStopped)="onCellEditingStopped($event)"
                      (cellValueChanged)="onCellValueChanged($event)"
+                     (rowDragEnd)="onRowDragEnd()"
                      (firstDataRendered)="firstDataRendered()"
                      [domLayout]="'autoHeight'">
     </ag-grid-angular>
