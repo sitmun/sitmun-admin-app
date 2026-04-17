@@ -76,5 +76,6 @@ export const magic = {
   taskBasicTypeId: 1,
   taskLocatorTypeId: 4,
   taskQueryTypeId: 5,
-  taskMoreInfoTypeId: 6
+  taskMoreInfoTypeId: 6,
+  taskTemplateTypeId: 15
 }

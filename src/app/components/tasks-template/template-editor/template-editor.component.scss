@@ -1,0 +1,11 @@
+:host {
+  display: block;
+}
+
+.template-editor-host {
+  min-height: 24rem;
+}
+
+:host ::ng-deep .ql-container {
+  min-height: 20rem;
+}

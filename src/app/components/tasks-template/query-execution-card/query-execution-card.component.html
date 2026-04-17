@@ -1,0 +1,68 @@
+<mat-card appearance="outlined" class="query-card">
+  <mat-card-header>
+    <mat-card-title>{{ typeLabel }} - {{ task.name }}</mat-card-title>
+    <mat-card-subtitle>ID: {{ task.id }}</mat-card-subtitle>
+    <div class="status-chip" [attr.data-status]="status">{{ statusTranslationKey | translate }}</div>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="task-reference-row">
+      <span>{{ 'entity.task.template.htmlReference' | translate }}</span>
+      <span class="html-reference-token">{{ taskReference }}</span>
+      <button class="copy-icon-button" mat-icon-button type="button" (click)="copyTaskReference()" [attr.aria-label]="'common.copy' | translate">
+        <mat-icon>content_copy</mat-icon>
+      </button>
+    </div>
+
+    <div class="parameter-row" *ngFor="let parameter of parameterDefinitions">
+      <label class="parameter-label">
+        <button class="copy-icon-button" mat-icon-button type="button" (click)="copyParameterReference(parameterControlName(parameter))" [attr.aria-label]="'common.copy' | translate">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+        <span>{{ parameterControlName(parameter) }}</span>
+      </label>
+      <input matInput [formControl]="parameterForm.controls[parameterControlName(parameter)]">
+    </div>
+
+    <button mat-flat-button color="primary" type="button" (click)="execute()">
+      {{ task.typeId === 15 ? 'Ejecutar plantilla' : 'Ejecutar' }}
+    </button>
+
+    <mat-error *ngIf="errorMessage">{{ errorMessage }}</mat-error>
+
+    <div *ngIf="response?.rows?.length" class="response-table-wrapper">
+      <table class="response-table">
+        <thead *ngIf="!isFieldValueTable">
+          <tr>
+            <th *ngFor="let column of responseColumns">
+              <button class="copy-icon-button" mat-icon-button type="button" (click)="copyResponseReference(column)" [attr.aria-label]="'common.copy' | translate">
+                <mat-icon>content_copy</mat-icon>
+              </button>
+              <span class="response-header-label">{{ column }}</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of response.rows">
+            <ng-container *ngIf="isFieldValueTable; else genericResponseRow">
+              <td class="field-value-name-cell">
+                <button class="copy-icon-button" mat-icon-button type="button" (click)="copyResponseReference(stringifyFieldPath(row['field']))" [attr.aria-label]="'common.copy' | translate">
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+                <span>{{ row['field'] }}</span>
+              </td>
+              <td>{{ row['value'] }}</td>
+            </ng-container>
+            <ng-template #genericResponseRow>
+              <td *ngFor="let column of responseColumns">{{ row[column] }}</td>
+            </ng-template>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="response?.resourceUrl" class="resource-link-wrapper">
+      <a [href]="response.resourceUrl || '#'" target="_blank" rel="noopener noreferrer">{{ response.resourceUrl }}</a>
+    </div>
+  </mat-card-content>
+</mat-card>

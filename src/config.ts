@@ -23,6 +23,7 @@ export const config = {
     'query': 5,
     'moreInfo': 6,
     'report': 7,
+    'template': 15,
     'editionWFS': 8,
     'thematic': 9,
     'extraction': 10,

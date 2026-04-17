@@ -21,3 +21,4 @@ export * from './services/task-type.service';
 export * from './services/task-group.service';
 export * from './services/task-availability.service';
 export * from './services/task-ui.service';
+export * from './services/task-template-preview.service';
