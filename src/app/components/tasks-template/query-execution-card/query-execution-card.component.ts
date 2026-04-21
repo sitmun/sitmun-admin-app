@@ -1,7 +1,10 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, QueryList, SimpleChanges, ViewChildren } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { firstValueFrom } from 'rxjs';
 
 import { TaskProjection, TaskPropertiesContract, TaskTemplatePreviewService, TemplateTaskExecutionResponse } from '@app/domain';
+import { magic } from '@environments/constants';
 
 type ExecutionStatus = 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED';
 
@@ -14,15 +17,24 @@ type ExecutionStatus = 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED';
 export class QueryExecutionCardComponent implements OnChanges {
   @Input({ required: true }) task!: TaskProjection;
   @Input({ required: true }) typeLabel = '';
+  @Input() templateChildTasks = new Map<number, TaskProjection[]>();
+  @Input() taskTypeLabelResolver: ((task: TaskProjection) => string) | null = null;
+  @Input() nestingLevel = 0;
+  @Input() templateRootTaskId: number | null = null;
   @Output() executed = new EventEmitter<TemplateTaskExecutionResponse>();
   @Output() placeholderSelected = new EventEmitter<string>();
+
+  @ViewChildren('childCard') private readonly childCards?: QueryList<QueryExecutionCardComponent>;
 
   parameterForm = new FormGroup({});
   status: ExecutionStatus = 'PENDING';
   response: TemplateTaskExecutionResponse | null = null;
   errorMessage: string | null = null;
-
-  constructor(private readonly previewService: TaskTemplatePreviewService) {}
+  trustedRenderedTemplateHtml: SafeHtml = '';
+  constructor(
+    private readonly previewService: TaskTemplatePreviewService,
+    private readonly domSanitizer: DomSanitizer,
+  ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['task']?.currentValue) {
@@ -30,6 +42,7 @@ export class QueryExecutionCardComponent implements OnChanges {
       this.status = 'PENDING';
       this.response = null;
       this.errorMessage = null;
+      this.trustedRenderedTemplateHtml = '';
     }
   }
 
@@ -55,6 +68,33 @@ export class QueryExecutionCardComponent implements OnChanges {
     return `{{task_${this.task?.id}}}`;
   }
 
+  get showEmbeddedChildChrome(): boolean {
+    return this.nestingLevel === 0;
+  }
+
+  get taskResultReference(): string | null {
+    if (this.response?.resultType === 'template') {
+      return `{{task_${this.task?.id}.html}}`;
+    }
+    if (this.response?.resourceUrl) {
+      return `{{task_${this.task?.id}.url}}`;
+    }
+    return null;
+  }
+
+  get isTemplateTask(): boolean {
+    return this.task?.typeId === magic.taskTemplateTypeId;
+  }
+
+  get childTasks(): TaskProjection[] {
+    return this.templateChildTasks.get(this.task?.id ?? -1) ?? [];
+  }
+
+  get renderedTemplateHtml(): string {
+    const html = this.response?.context?.['html'];
+    return typeof html === 'string' ? html : '';
+  }
+
   get responseColumns(): string[] {
     if (!this.response?.rows?.length || this.isFieldValueTable) {
       return [];
@@ -78,21 +118,38 @@ export class QueryExecutionCardComponent implements OnChanges {
     this.status = 'RUNNING';
     this.errorMessage = null;
 
-    this.previewService.executeLinkedTask(this.task.id, this.buildExecutionParameters()).subscribe({
-      next: (response) => {
-        this.response = response;
-        this.status = response.status === 'PENDING' ? 'PENDING' : 'COMPLETED';
-        this.executed.emit(response);
-      },
-      error: (error) => {
-        this.status = 'FAILED';
-        this.errorMessage = error?.error?.message || error?.message || 'Execution failed';
-      },
-    });
+    try {
+      const response = await firstValueFrom(
+        this.previewService.executeLinkedTask(
+          this.task.id,
+          this.buildExecutionParameters(),
+          this.resolvedTemplateTaskId,
+          this.isTemplateTask ? this.collectChildTaskParameters() : undefined,
+        ),
+      );
+
+      this.response = response;
+      this.trustedRenderedTemplateHtml = this.domSanitizer.bypassSecurityTrustHtml(this.renderedTemplateHtml || '');
+      this.status = response.status === 'PENDING' ? 'PENDING' : 'COMPLETED';
+      this.executed.emit(response);
+    } catch (error) {
+      this.status = 'FAILED';
+      this.errorMessage = (error as { error?: { message?: string }, message?: string } | undefined)?.error?.message
+        || (error as { message?: string } | undefined)?.message
+        || 'Execution failed';
+    }
   }
 
   async copyTaskReference(): Promise<void> {
     await this.copyPlaceholder(this.taskReference);
+  }
+
+  async copyTaskResultReference(): Promise<void> {
+    if (!this.taskResultReference) {
+      return;
+    }
+
+    await this.copyPlaceholder(this.taskResultReference);
   }
 
   async copyParameterReference(parameterName: string): Promise<void> {
@@ -103,12 +160,28 @@ export class QueryExecutionCardComponent implements OnChanges {
     await this.copyPlaceholder(`{{task_${this.task.id}.${fieldPath}}}`);
   }
 
+  async copyRenderedHtml(): Promise<void> {
+    if (!this.renderedTemplateHtml) {
+      return;
+    }
+
+    await navigator.clipboard.writeText(this.renderedTemplateHtml).catch(() => undefined);
+  }
+
   stringifyFieldPath(value: unknown): string {
     return value == null ? '' : String(value);
   }
 
   parameterControlName(parameter: Record<string, unknown>): string {
     return String(parameter['variable'] ?? parameter['name'] ?? parameter['label'] ?? '');
+  }
+
+  childTaskTypeLabel(task: TaskProjection): string {
+    return this.taskTypeLabelResolver ? this.taskTypeLabelResolver(task) : '';
+  }
+
+  onChildExecuted(response: TemplateTaskExecutionResponse): void {
+    this.executed.emit(response);
   }
 
   private createParameterForm(): FormGroup {
@@ -148,5 +221,26 @@ export class QueryExecutionCardComponent implements OnChanges {
   private async copyPlaceholder(placeholder: string): Promise<void> {
     await navigator.clipboard.writeText(placeholder).catch(() => undefined);
     this.placeholderSelected.emit(placeholder);
+  }
+
+  get resolvedTemplateTaskId(): number | null {
+    return this.templateRootTaskId ?? (this.isTemplateTask ? this.task.id : null);
+  }
+
+  private collectChildTaskParameters(): Record<string, Record<string, unknown>> {
+    const collected: Record<string, Record<string, unknown>> = {};
+    const directChildCards =
+      this.childCards?.filter((childCard) => childCard.nestingLevel === this.nestingLevel + 1) ?? [];
+
+    directChildCards.forEach((childCard) => {
+      const ownParameters = childCard.buildExecutionParameters();
+      if (Object.keys(ownParameters).length > 0) {
+        collected[String(childCard.task.id)] = ownParameters;
+      }
+
+      Object.assign(collected, childCard.collectChildTaskParameters());
+    });
+
+    return collected;
   }
 }

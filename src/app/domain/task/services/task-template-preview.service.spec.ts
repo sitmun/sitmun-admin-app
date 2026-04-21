@@ -34,11 +34,17 @@ describe('TaskTemplatePreviewService', () => {
   });
 
   it('should skip global message interception for execute child requests', () => {
-    service.executeLinkedTask(13, { where: '1=1' }).subscribe();
+    service.executeLinkedTask(13, { where: '1=1' }, 15, { '27': { param: 'x' } }).subscribe();
 
     const req = httpMock.expectOne((request) => request.url.endsWith('/api/tasks/template/execute-child'));
 
     expect(req.request.context.get(SKIP_MESSAGES_INTERCEPTOR)).toBe(true);
+    expect(req.request.body).toEqual({
+      templateTaskId: 15,
+      linkedTaskId: 13,
+      parameters: { where: '1=1' },
+      childTaskParameters: { '27': { param: 'x' } },
+    });
 
     req.flush({
       taskId: 13,

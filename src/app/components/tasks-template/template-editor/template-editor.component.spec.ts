@@ -25,4 +25,24 @@ describe('TemplateEditorComponent', () => {
       ),
     ).toBe('<p><strong>hola</strong> {{task_32281.geometryType}}</p>');
   });
+
+  it('should allow switching to html source mode', () => {
+    expect(component.editorMode).toBe('visual');
+
+    component.setEditorMode('html');
+
+    expect(component.editorMode).toBe('html');
+    expect(component.htmlSource).toBe('<p>Hello</p>');
+  });
+
+  it('should emit raw html edits in source mode', () => {
+    const emitted: string[] = [];
+    component.htmlChange.subscribe((value) => emitted.push(value));
+    component.setEditorMode('html');
+
+    component.onHtmlSourceChanged('<p>Hello</p><iframe src="https://example.com"></iframe>');
+
+    expect(component.htmlSource).toContain('<iframe');
+    expect(emitted).toEqual(['<p>Hello</p><iframe src="https://example.com"></iframe>']);
+  });
 });

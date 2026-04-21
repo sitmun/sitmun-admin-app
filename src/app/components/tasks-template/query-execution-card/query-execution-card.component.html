@@ -1,15 +1,25 @@
 <mat-card appearance="outlined" class="query-card">
-  <mat-card-header>
+  <mat-card-header *ngIf="showEmbeddedChildChrome">
     <mat-card-title>{{ typeLabel }} - {{ task.name }}</mat-card-title>
     <mat-card-subtitle>ID: {{ task.id }}</mat-card-subtitle>
     <div class="status-chip" [attr.data-status]="status">{{ statusTranslationKey | translate }}</div>
   </mat-card-header>
 
   <mat-card-content>
-    <div class="task-reference-row">
+    <div *ngIf="!showEmbeddedChildChrome" class="embedded-child-title">{{ typeLabel }} - {{ task.name }}</div>
+
+    <div class="task-reference-row" *ngIf="showEmbeddedChildChrome">
       <span>{{ 'entity.task.template.htmlReference' | translate }}</span>
       <span class="html-reference-token">{{ taskReference }}</span>
       <button class="copy-icon-button" mat-icon-button type="button" (click)="copyTaskReference()" [attr.aria-label]="'common.copy' | translate">
+        <mat-icon>content_copy</mat-icon>
+      </button>
+    </div>
+
+    <div class="task-reference-row" *ngIf="showEmbeddedChildChrome && taskResultReference">
+      <span>{{ 'entity.task.template.resultReference' | translate }}</span>
+      <span class="html-reference-token">{{ taskResultReference }}</span>
+      <button class="copy-icon-button" mat-icon-button type="button" (click)="copyTaskResultReference()" [attr.aria-label]="'common.copy' | translate">
         <mat-icon>content_copy</mat-icon>
       </button>
     </div>
@@ -24,13 +34,28 @@
       <input matInput [formControl]="parameterForm.controls[parameterControlName(parameter)]">
     </div>
 
-    <button mat-flat-button color="primary" type="button" (click)="execute()">
+    <button *ngIf="showEmbeddedChildChrome" mat-flat-button color="primary" type="button" (click)="execute()">
       {{ task.typeId === 15 ? 'Ejecutar plantilla' : 'Ejecutar' }}
     </button>
 
-    <mat-error *ngIf="errorMessage">{{ errorMessage }}</mat-error>
+    <div class="nested-template-children" *ngIf="isTemplateTask && childTasks.length > 0">
+      <app-query-execution-card
+        #childCard
+        *ngFor="let childTask of childTasks"
+        [task]="childTask"
+        [typeLabel]="childTaskTypeLabel(childTask)"
+        [templateChildTasks]="templateChildTasks"
+        [taskTypeLabelResolver]="taskTypeLabelResolver"
+        [templateRootTaskId]="resolvedTemplateTaskId"
+        [nestingLevel]="nestingLevel + 1"
+        (executed)="onChildExecuted($event)"
+        (placeholderSelected)="placeholderSelected.emit($event)">
+      </app-query-execution-card>
+    </div>
 
-    <div *ngIf="response?.rows?.length" class="response-table-wrapper">
+    <mat-error *ngIf="showEmbeddedChildChrome && errorMessage">{{ errorMessage }}</mat-error>
+
+    <div *ngIf="showEmbeddedChildChrome && response?.rows?.length" class="response-table-wrapper">
       <table class="response-table">
         <thead *ngIf="!isFieldValueTable">
           <tr>
@@ -61,8 +86,18 @@
       </table>
     </div>
 
-    <div *ngIf="response?.resourceUrl" class="resource-link-wrapper">
+    <div *ngIf="showEmbeddedChildChrome && response?.resourceUrl" class="resource-link-wrapper">
       <a [href]="response.resourceUrl || '#'" target="_blank" rel="noopener noreferrer">{{ response.resourceUrl }}</a>
+    </div>
+
+    <div *ngIf="showEmbeddedChildChrome && response?.resultType === 'template' && renderedTemplateHtml" class="template-result-wrapper">
+      <div class="template-result-header">
+        <strong>{{ 'entity.task.template.renderedHtml' | translate }}</strong>
+        <button class="copy-icon-button" mat-icon-button type="button" (click)="copyRenderedHtml()" [attr.aria-label]="'common.copy' | translate">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </div>
+      <div class="template-result-panel" [innerHTML]="trustedRenderedTemplateHtml"></div>
     </div>
   </mat-card-content>
 </mat-card>

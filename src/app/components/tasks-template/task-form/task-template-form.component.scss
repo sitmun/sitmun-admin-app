@@ -71,7 +71,7 @@
 }
 
 .preview-header h3 {
-  margin: 0;
+  margin-top: 6px;
 }
 
 .preview-error {
@@ -84,14 +84,19 @@
 }
 
 .preview-panel {
-  height: 329px;
+  height: 469px;
   padding: 1rem;
   border: 1px solid rgba(0, 0, 0, 0.12);
   background: #fff;
+  overflow: auto;
 }
 
 .muted-message {
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.35rem;  
+}
+
+.muted-message.preview {
+  margin: 17.5px 0px !important;
 }
 
 .preview-placeholder-list {

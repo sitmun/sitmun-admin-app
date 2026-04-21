@@ -14,7 +14,7 @@ import { QueryExecutionCardComponent } from './query-execution-card.component';
 describe('QueryExecutionCardComponent', () => {
   let component: QueryExecutionCardComponent;
   let fixture: ComponentFixture<QueryExecutionCardComponent>;
-  let previewService: { executeLinkedTask: jest.Mock };
+  let previewService: { executeLinkedTask: jest.Mock, previewTemplate: jest.Mock };
   let clipboardWriteText: ReturnType<typeof jest.spyOn>;
 
   beforeEach(async () => {
@@ -28,15 +28,16 @@ describe('QueryExecutionCardComponent', () => {
 
     previewService = {
       executeLinkedTask: jest.fn().mockReturnValue(of({
-      taskId: 13,
-      status: 'COMPLETED',
-      resultType: 'table',
-      parameters: {},
-      context: {},
-      rows: [],
-      resourceUrl: null,
-      flattenedContextKeys: [],
+        taskId: 13,
+        status: 'COMPLETED',
+        resultType: 'table',
+        parameters: {},
+        context: {},
+        rows: [],
+        resourceUrl: null,
+        flattenedContextKeys: [],
       })),
+      previewTemplate: jest.fn().mockReturnValue(of({ html: '<p>Rendered</p>', placeholders: [] })),
     };
 
     await TestBed.configureTestingModule({
@@ -94,7 +95,7 @@ describe('QueryExecutionCardComponent', () => {
 
     await component.execute();
 
-    expect(previewService.executeLinkedTask).toHaveBeenCalledWith(13, {});
+    expect(previewService.executeLinkedTask).toHaveBeenCalledWith(13, {}, null, undefined);
   });
 
   it('should expose translation keys for execution states', () => {
@@ -150,5 +151,65 @@ describe('QueryExecutionCardComponent', () => {
 
     expect(clipboardWriteText).toHaveBeenCalledWith('{{task_13.features[42].attributes.name_prov}}');
     expect(emitted).toEqual(['{{task_13.features[42].attributes.name_prov}}']);
+  });
+
+  it('should expose url result reference after executing a resource/url task', async () => {
+    component.response = {
+      taskId: 13,
+      status: 'COMPLETED',
+      resultType: 'url',
+      parameters: {},
+      context: { url: 'https://example.com' },
+      rows: [],
+      resourceUrl: 'https://example.com',
+      flattenedContextKeys: ['url'],
+    };
+
+    expect(component.taskResultReference).toBe('{{task_13.url}}');
+  });
+
+  it('should render nested template html from executed child contexts', async () => {
+    component.task = {
+      id: 15,
+      name: 'Plantilla hija',
+      typeId: 15,
+      properties: {
+        templateHtml: '<p>{{task_13.url}}</p>',
+      },
+    } as any;
+    component.templateChildTasks = new Map([
+      [15, [{ id: 13, name: 'URL hija', typeId: 5, properties: {} } as any]],
+    ]);
+    previewService.executeLinkedTask.mockReturnValueOnce(of({
+      taskId: 15,
+      status: 'COMPLETED',
+      resultType: 'template',
+      parameters: {},
+      context: { html: '<p>Rendered</p>' },
+      rows: [],
+      resourceUrl: null,
+      flattenedContextKeys: ['html'],
+    }));
+    component.ngOnChanges({
+      task: {
+        currentValue: component.task,
+        previousValue: null,
+        firstChange: false,
+        isFirstChange: () => false,
+      },
+    });
+    fixture.detectChanges();
+
+    await component.execute();
+
+    expect(previewService.executeLinkedTask).toHaveBeenCalledWith(15, {}, 15, {});
+    expect(component.response?.context['html']).toBe('<p>Rendered</p>');
+    expect(component.taskResultReference).toBe('{{task_15.html}}');
+  });
+
+  it('should hide chrome for nested template child cards', () => {
+    component.nestingLevel = 1;
+
+    expect(component.showEmbeddedChildChrome).toBe(false);
   });
 });

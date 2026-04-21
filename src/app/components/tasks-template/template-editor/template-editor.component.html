@@ -1,1 +1,12 @@
-<div #editorHost class="template-editor-host"></div>
+<div class="template-editor-mode-switch">
+  <button type="button" class="mode-button" [class.mode-button--active]="editorMode === 'visual'" (click)="setEditorMode('visual')">Visual</button>
+  <button type="button" class="mode-button" [class.mode-button--active]="editorMode === 'html'" (click)="setEditorMode('html')">HTML</button>
+</div>
+
+<div #editorHost class="template-editor-host" [class.template-editor-host--hidden]="editorMode !== 'visual'"></div>
+
+<textarea
+  *ngIf="editorMode === 'html'"
+  class="template-editor-source"
+  [value]="htmlSource"
+  (input)="onHtmlSourceChanged($any($event.target).value)"></textarea>

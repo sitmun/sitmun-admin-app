@@ -14,137 +14,204 @@
   (back)="utils.navigateBack()">
 </app-form-toolbar>
 
-<form [formGroup]="entityForm" *ngIf="dataLoaded">
-  <mat-card class="sitmun-mat-card-margin" appearance="outlined">
-    <mat-card-content>
-      <mat-form-field appearance="outline" class="full">
-        <mat-label>{{ 'entity.task.template.label' | translate }}</mat-label>
-        <input matInput type="text" formControlName="name" [maxlength]="512" required>
-        <mat-hint align="end" [class.text-warning]="entityForm.get('name')?.value?.length > 512">
-          {{ entityForm.get('name') | characterCount }}
-        </mat-hint>
-        <mat-icon matSuffix class="iconTranslate" (click)="onTranslated('name')">translate</mat-icon>
-      </mat-form-field>
+<mat-tab-group
+  mat-stretch-tabs="false"
+  mat-align-tabs="end"
+  [dynamicHeight]="true"
+  preserveContent="true">
+  <mat-tab label="{{ 'common.form.details' | translate }}">
+    <form [formGroup]="entityForm" *ngIf="dataLoaded">
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'entity.task.template.label' | translate }}</mat-label>
+            <input matInput type="text" formControlName="name" [maxlength]="512" required>
+            <mat-hint align="end" [class.text-warning]="entityForm.get('name')?.value?.length > 512">
+              {{ entityForm.get('name') | characterCount }}
+            </mat-hint>
+            <mat-icon matSuffix class="iconTranslate" (click)="onTranslated('name')">translate</mat-icon>
+          </mat-form-field>
 
-      <mat-form-field appearance="outline" class="half add-gap">
-        <mat-label>{{ 'entity.taskGroup.label' | translate }}</mat-label>
-        <mat-select formControlName="taskGroupId" class="form-control">
-          <mat-select-trigger>
-            <ng-container *ngIf="entityForm.get('taskGroupId')?.value as taskGroupId">
-              <a [routerLink]="['/taskGroup', taskGroupId, 'taskGroupForm']" class="router-link">
-                {{ getTaskGroupName(taskGroupId) }}
-              </a>
-            </ng-container>
-          </mat-select-trigger>
-          <mat-option [value]="taskGroup.id" *ngFor="let taskGroup of taskGroupList">
-            <a [routerLink]="['/taskGroup', taskGroup.id, 'taskGroupForm']" class="router-link">
-              {{ taskGroup.name }}
-            </a>
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-    </mat-card-content>
-  </mat-card>
+          <mat-form-field appearance="outline" class="half add-gap">
+            <mat-label>{{ 'entity.taskGroup.label' | translate }}</mat-label>
+            <mat-select formControlName="taskGroupId" class="form-control">
+              <mat-select-trigger>
+                <ng-container *ngIf="entityForm.get('taskGroupId')?.value as taskGroupId">
+                  <a [routerLink]="['/taskGroup', taskGroupId, 'taskGroupForm']" class="router-link">
+                    {{ getTaskGroupName(taskGroupId) }}
+                  </a>
+                </ng-container>
+              </mat-select-trigger>
+              <mat-option [value]="taskGroup.id" *ngFor="let taskGroup of taskGroupList">
+                <a [routerLink]="['/taskGroup', taskGroup.id, 'taskGroupForm']" class="router-link">
+                  {{ taskGroup.name }}
+                </a>
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
 
-  <mat-card class="sitmun-mat-card-margin" appearance="outlined">
-    <mat-card-header>
-      <mat-card-title>{{ 'entity.task.report.queries' | translate }}</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <table class="linked-tasks-table" *ngIf="linkedTasks.length > 0; else emptyLinkedTasks">
-        <thead>
-          <tr>
-            <th>{{ 'entity.task.name' | translate }}</th>
-            <th>{{ 'common.form.type' | translate }}</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let linkedTask of linkedTasks">
-            <td>{{ linkedTask.name }} (ID: {{ linkedTask.taskId }})</td>
-            <td>{{ linkedTask.typeLabel }}</td>
-            <td class="actions-cell">
-              <button mat-icon-button type="button" (click)="removeLinkedTask(linkedTask.taskId, linkedTask.relationType)">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+        <mat-card-header>
+          <mat-card-title>{{ 'entity.task.report.queries' | translate }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <table class="linked-tasks-table" *ngIf="linkedTasks.length > 0; else emptyLinkedTasks">
+            <thead>
+              <tr>
+                <th>{{ 'entity.task.name' | translate }}</th>
+                <th>{{ 'common.form.type' | translate }}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let linkedTask of linkedTasks">
+                <td>{{ linkedTask.name }} (ID: {{ linkedTask.taskId }})</td>
+                <td>{{ linkedTask.typeLabel }}</td>
+                <td class="actions-cell">
+                  <button mat-icon-button type="button" (click)="removeLinkedTask(linkedTask.taskId, linkedTask.relationType)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
 
-      <ng-template #emptyLinkedTasks>
-        <p class="muted-message">{{ 'entity.task.template.emptyTasks' | translate }}</p>
-      </ng-template>
+          <ng-template #emptyLinkedTasks>
+            <p class="muted-message">{{ 'entity.task.template.emptyTasks' | translate }}</p>
+          </ng-template>
 
-      <mat-form-field appearance="outline" class="full add-linked-task-field">
-        <mat-label>{{ 'entity.task.report.taskName' | translate }}</mat-label>
-        <input matInput type="text" [formControl]="linkTaskSearchControl" [matAutocomplete]="linkedTaskAuto">
-        <mat-autocomplete #linkedTaskAuto="matAutocomplete" (optionSelected)="onLinkableTaskSelected($event)" [displayWith]="displayLinkableTask.bind(this)">
-          <mat-option *ngFor="let task of filteredLinkableTasks | async" [value]="task">
-            {{ task.name }} (ID: {{ task.taskId }}) - {{ task.typeLabel }}
-          </mat-option>
-        </mat-autocomplete>
-      </mat-form-field>
+          <mat-form-field appearance="outline" class="full add-linked-task-field">
+            <mat-label>{{ 'entity.task.report.taskName' | translate }}</mat-label>
+            <input matInput type="text" [formControl]="linkTaskSearchControl" [matAutocomplete]="linkedTaskAuto">
+            <mat-autocomplete #linkedTaskAuto="matAutocomplete" (optionSelected)="onLinkableTaskSelected($event)" [displayWith]="displayLinkableTask.bind(this)">
+              <mat-option *ngFor="let task of filteredLinkableTasks | async" [value]="task">
+                {{ task.name }} (ID: {{ task.taskId }}) - {{ task.typeLabel }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
 
-      <mat-hint *ngIf="excludedAuthenticatedApiTasks > 0" class="warning-hint">
-        Las tareas Web API con autenticación habilitada no se pueden vincular a Plantilla por ahora.
-      </mat-hint>
-    </mat-card-content>
-  </mat-card>
+          <mat-hint *ngIf="excludedAuthenticatedApiTasks > 0" class="warning-hint">
+            Las tareas Web API con autenticación habilitada no se pueden vincular a Plantilla por ahora.
+          </mat-hint>
+          <mat-hint *ngIf="nestingLimitWarning" class="warning-hint">
+            {{ nestingLimitWarning }}
+          </mat-hint>
+        </mat-card-content>
+      </mat-card>
 
-  <mat-card class="sitmun-mat-card-margin" appearance="outlined">
-    <mat-card-content>
-      <div class="query-section">
-        <app-query-execution-card
-          *ngFor="let linkedTask of linkedTasks"
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+        <mat-card-content>
+          <div class="query-section">
+            <app-query-execution-card
+              *ngFor="let linkedTask of linkedTasks"
           [task]="resolveTask(linkedTask.taskId)!"
           [typeLabel]="linkedTask.typeLabel"
+          [templateChildTasks]="templateChildTasks"
+          [taskTypeLabelResolver]="getTaskTypeLabel.bind(this)"
+          [templateRootTaskId]="entityToEdit?.id ?? null"
           (executed)="onTaskExecuted($event)"
           (placeholderSelected)="onPlaceholderSelected($event)">
         </app-query-execution-card>
-      </div>
-    </mat-card-content>
-  </mat-card>
-
-  <mat-card class="sitmun-mat-card-margin" appearance="outlined">
-    <mat-card-content class="template-workspace">
-      <div class="editor-section">
-        <h3>{{ 'entity.task.template.editor' | translate }}</h3>
-        <app-template-editor
-          [html]="entityForm.get('templateHtml')?.value || ''"
-          (htmlChange)="onTemplateHtmlChanged($event)">
-        </app-template-editor>
-
-        <div class="info-note">
-          {{ 'entity.task.template.placeholders' | translate }}
-        </div>
-        <div class="info-note info-note--backend">
-          <div>{{ 'entity.task.template.backendVariables' | translate }}</div>
-          <div *ngIf="getSystemVariablesHelp()" class="info-note-secondary">
-            {{ 'entity.task.parameters.systemVariablesLabel' | translate }} {{ getSystemVariablesHelp() }}
           </div>
-        </div>
-      </div>
+        </mat-card-content>
+      </mat-card>
 
-      <div class="preview-section">
-        <div class="preview-header">
-          <h3>{{ 'entity.task.template.preview' | translate }}</h3>
-          <button mat-flat-button color="primary" type="button" (click)="renderPreview()">
-            {{ 'entity.task.template.renderPreview' | translate }}
-          </button>
-        </div>
-        <div class="muted-message" [style.visibility]="previewDirty ? 'visible' : 'hidden'">
-          {{ 'entity.task.template.previewPending' | translate }}
-        </div>
-        <div class="preview-error" *ngIf="previewError">
-          {{ previewError }}
-        </div>
-        <div class="preview-panel" [innerHTML]="previewHtml"></div>
-        <div class="preview-placeholder-list" *ngIf="previewPlaceholders.length > 0">
-          <strong>{{ 'entity.task.template.detectedPlaceholders' | translate }}</strong>
-            <div>{{ previewPlaceholders.join(', ') }}</div>
-        </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
-</form>
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+        <mat-card-content class="template-workspace">
+          <div class="editor-section">
+            <h3>{{ 'entity.task.template.editor' | translate }}</h3>
+            <app-template-editor
+              [html]="entityForm.get('templateHtml')?.value || ''"
+              (htmlChange)="onTemplateHtmlChanged($event)">
+            </app-template-editor>
+
+            <div class="info-note">
+              {{ 'entity.task.template.placeholders' | translate }}
+            </div>
+            <div class="info-note info-note--backend">
+              <div>{{ 'entity.task.template.backendVariables' | translate }}</div>
+              <div *ngIf="getSystemVariablesHelp()" class="info-note-secondary">
+                {{ 'entity.task.parameters.systemVariablesLabel' | translate }} {{ getSystemVariablesHelp() }}
+              </div>
+            </div>
+          </div>
+
+          <div class="preview-section">
+            <div class="preview-header">
+              <h3>{{ 'entity.task.template.preview' | translate }}</h3>
+              <button mat-flat-button color="primary" type="button" (click)="renderPreview()">
+                {{ 'entity.task.template.renderPreview' | translate }}
+              </button>
+            </div>
+            <div class="muted-message preview" [style.visibility]="previewDirty ? 'visible' : 'hidden'">
+              {{ 'entity.task.template.previewPending' | translate }}
+            </div>
+            <div class="preview-error" *ngIf="previewError">
+              {{ previewError }}
+            </div>
+            <div class="preview-panel" [innerHTML]="trustedPreviewHtml"></div>
+            <div class="preview-placeholder-list" *ngIf="previewPlaceholders.length > 0">
+              <strong>{{ 'entity.task.template.detectedPlaceholders' | translate }}</strong>
+              <div>{{ previewPlaceholders.join(', ') }}</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </form>
+  </mat-tab>
+
+  <mat-tab label="{{ 'entity.task.roles.header' | translate }}">
+    <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+      <mat-card-content>
+        <app-data-grid [changeHeightButton]="true"
+                       [allNewElements]="isNewOrDuplicated()"
+                       [columnDefs]="rolesTable.relationsColumnsDefs"
+                       [getAll]="rolesTable.relationsFetchFn"
+                       [eventAddItemsSubscription]="rolesTable.addCommandEvent$.asObservable()"
+                       [eventGetAllRowsSubscription]="rolesTable.saveCommandEvent$.asObservable()"
+                       [eventRefreshSubscription]="rolesTable.refreshCommandEvent$.asObservable()"
+                       [actionButton]="true"
+                       [discardChangesButton]="true"
+                       [redoButton]="true"
+                       [undoButton]="true"
+                       [deleteButton]="true"
+                       [addButton]="true"
+                       [defaultColumnSorting]="rolesTable.defaultRelationsSorting()"
+                       [hideDuplicateButton]="true"
+                       (getAllRows)="rolesTable.handleSaveRelations($event)"
+                       (add)="rolesTable.openDialog($event)"
+                       *ngIf="dataLoaded">
+        </app-data-grid>
+      </mat-card-content>
+    </mat-card>
+  </mat-tab>
+
+  <mat-tab label="{{ 'entity.task.territories.header' | translate }}">
+    <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+      <mat-card-content>
+        <app-data-grid [changeHeightButton]="true"
+                       [allNewElements]="isNewOrDuplicated()"
+                       [columnDefs]="availabilitiesTable.relationsColumnsDefs"
+                       [getAll]="availabilitiesTable.relationsFetchFn"
+                       [eventAddItemsSubscription]="availabilitiesTable.addCommandEvent$.asObservable()"
+                       [eventGetAllRowsSubscription]="availabilitiesTable.saveCommandEvent$.asObservable()"
+                       [eventRefreshSubscription]="availabilitiesTable.refreshCommandEvent$.asObservable()"
+                       [actionButton]="true"
+                       [discardChangesButton]="true"
+                       [redoButton]="true"
+                       [undoButton]="true"
+                       [deleteButton]="true"
+                       [addButton]="true"
+                       [hideReplaceButton]="true"
+                       [defaultColumnSorting]="availabilitiesTable.defaultRelationsSorting()"
+                       [hideDuplicateButton]="true"
+                       (getAllRows)="availabilitiesTable.handleSaveRelations($event)"
+                       (add)="availabilitiesTable.openDialog($event)"
+                       *ngIf="dataLoaded">
+        </app-data-grid>
+      </mat-card-content>
+    </mat-card>
+  </mat-tab>
+</mat-tab-group>

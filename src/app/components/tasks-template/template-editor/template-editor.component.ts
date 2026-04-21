@@ -17,6 +17,8 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
   @ViewChild('editorHost', { static: true })
   private readonly editorHost!: ElementRef<HTMLDivElement>;
 
+  editorMode: 'visual' | 'html' = 'visual';
+  htmlSource = '';
   private quill: any = null;
   private syncingFromInput = false;
 
@@ -37,8 +39,9 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
     });
 
     this.quill.clipboard.dangerouslyPasteHTML(this.html || '');
+    this.htmlSource = normalizeHandlebarsMarkup(this.html || '');
     this.quill.on('text-change', () => {
-      if (this.syncingFromInput || !this.quill) {
+      if (this.syncingFromInput || !this.quill || this.editorMode !== 'visual') {
         return;
       }
 
@@ -49,6 +52,7 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
         this.syncingFromInput = false;
       }
 
+      this.htmlSource = normalizedHtml;
       this.htmlChange.emit(normalizedHtml);
     });
   }
@@ -59,6 +63,12 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
     }
 
     const nextHtml = normalizeHandlebarsMarkup(changes['html'].currentValue || '');
+    this.htmlSource = nextHtml;
+
+    if (this.editorMode === 'html') {
+      return;
+    }
+
     if (nextHtml === this.quill.root.innerHTML) {
       return;
     }
@@ -66,6 +76,23 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
     this.syncingFromInput = true;
     this.quill.clipboard.dangerouslyPasteHTML(nextHtml);
     this.syncingFromInput = false;
+  }
+
+  setEditorMode(mode: 'visual' | 'html'): void {
+    this.editorMode = mode;
+    this.htmlSource = normalizeHandlebarsMarkup(this.htmlSource || this.html || this.quill?.root?.innerHTML || '');
+
+    if (mode === 'visual' && this.quill) {
+      this.syncingFromInput = true;
+      this.quill.clipboard.dangerouslyPasteHTML(this.htmlSource);
+      this.syncingFromInput = false;
+    }
+  }
+
+  onHtmlSourceChanged(html: string): void {
+    const normalizedHtml = normalizeHandlebarsMarkup(html);
+    this.htmlSource = normalizedHtml;
+    this.htmlChange.emit(normalizedHtml);
   }
 
   ngOnDestroy(): void {

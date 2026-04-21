@@ -2,8 +2,42 @@
   display: block;
 }
 
+.template-editor-mode-switch {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.mode-button {
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  background: #fff;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+}
+
+.mode-button--active {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  color: #1d4ed8;
+}
+
 .template-editor-host {
-  min-height: 24rem;
+  height: 460px;
+  overflow: auto;
+}
+
+.template-editor-host--hidden {
+  display: none;
+}
+
+.template-editor-source {
+  width: 100%;
+  height: 460px;
+  box-sizing: border-box;
+  padding: 1rem;
+  font-family: monospace;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #fff;
 }
 
 :host ::ng-deep .ql-container {

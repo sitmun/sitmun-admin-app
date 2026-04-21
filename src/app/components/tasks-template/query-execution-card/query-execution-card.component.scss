@@ -79,6 +79,32 @@
   max-height: 400px;
 }
 
+.nested-template-children {
+  margin-top: 1rem;
+}
+
+.embedded-child-title {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.template-result-wrapper {
+  margin-top: 1rem;
+}
+
+.template-result-header {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.template-result-panel {
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #fff;
+}
+
 .response-table {
   width: 100%;
   border-collapse: collapse;

@@ -26,21 +26,29 @@ export interface TemplatePreviewResponse {
 export class TaskTemplatePreviewService {
   constructor(private readonly http: HttpClient) {}
 
-  executeLinkedTask(linkedTaskId: number, parameters: Record<string, unknown>): Observable<TemplateTaskExecutionResponse> {
+  executeLinkedTask(
+    linkedTaskId: number,
+    parameters: Record<string, unknown>,
+    templateTaskId?: number | null,
+    childTaskParameters?: Record<string, Record<string, unknown>>,
+  ): Observable<TemplateTaskExecutionResponse> {
     const requestContext = new HttpContext().set(SKIP_MESSAGES_INTERCEPTOR, true);
 
     return this.http.post<TemplateTaskExecutionResponse>(`${environment.apiBaseURL}/api/tasks/template/execute-child`, {
+      templateTaskId: templateTaskId ?? null,
       linkedTaskId,
       parameters,
+      childTaskParameters: childTaskParameters ?? null,
     }, {
       context: requestContext,
     });
   }
 
-  previewTemplate(templateHtml: string, context: Record<string, unknown>): Observable<TemplatePreviewResponse> {
+  previewTemplate(templateHtml: string, context: Record<string, unknown>, templateTaskId?: number | null): Observable<TemplatePreviewResponse> {
     const requestContext = new HttpContext().set(SKIP_MESSAGES_INTERCEPTOR, true);
 
     return this.http.post<TemplatePreviewResponse>(`${environment.apiBaseURL}/api/tasks/template/preview`, {
+      templateTaskId: templateTaskId ?? null,
       templateHtml,
       context,
     }, {
