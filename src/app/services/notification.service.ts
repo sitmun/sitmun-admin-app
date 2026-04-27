@@ -404,6 +404,12 @@ export class NotificationService {
       case 'error':
         panelClass.push('notification-error', 'mat-mdc-snack-bar-error');
         break;
+      case 'warning':
+        panelClass.push('notification-warning', 'mat-mdc-snack-bar-warning');
+        break;
+      case 'info':
+        panelClass.push('notification-info', 'mat-mdc-snack-bar-info');
+        break;
     }
 
     return {

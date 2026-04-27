@@ -30,7 +30,7 @@ import {
   TaskPropertiesContract,
   TaskService,
   TaskTemplatePreviewService,
-  TemplateTaskExecutionResponse,
+  TemplateTaskExecutionEvent,
   TaskType,
   TaskTypeService,
   TerritoryProjection,
@@ -40,15 +40,19 @@ import {
 import { ErrorHandlerService } from '@app/services/error-handler.service';
 import { LoadingOverlayService } from '@app/services/loading-overlay.service';
 import { LoggerService } from '@app/services/logger.service';
+import { NotificationService } from '@app/services/notification.service';
 import { UtilsService } from '@app/services/utils.service';
 import { onCreate, onDelete, onUpdatedRelation, Status } from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
 import { environment } from '@environments/environment';
 import { magic } from '@environments/constants';
+import { TemplateChildTaskLink } from '../query-execution-card/query-execution-card.component';
 
 interface LinkedTemplateTask {
   relationId: number | null;
   relationType: string;
   taskId: number;
+  referenceAlias: string;
+  draftReferenceAlias: string;
   name: string;
   typeLabel: string;
 }
@@ -60,6 +64,12 @@ interface LinkableTemplateTask {
   typeLabel: string;
 }
 
+interface PendingReferenceAliasChange {
+  linkedTask: LinkedTemplateTask;
+  previousReferenceAlias: string;
+  nextReferenceAlias: string;
+}
+
 @Component({
   selector: 'app-task-template-form',
   templateUrl: './task-template-form.component.html',
@@ -68,6 +78,7 @@ interface LinkableTemplateTask {
 })
 export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection> {
   private static readonly MAX_TEMPLATE_NESTING_LEVEL = 3;
+  private static readonly REFERENCE_ALIAS_PATTERN = /^[A-Za-z_][A-Za-z0-9_]*$/;
 
   readonly config = Configuration.TASK_TEMPLATE;
 
@@ -82,13 +93,14 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
   protected excludedAuthenticatedApiTasks = 0;
   protected nestingLimitWarning = '';
   protected taskLookup = new Map<number, TaskProjection>();
-  protected templateChildTasks = new Map<number, TaskProjection[]>();
+  protected templateChildTasks = new Map<number, TemplateChildTaskLink[]>();
   protected previewHtml = '';
   protected trustedPreviewHtml: SafeHtml = '';
   protected previewPlaceholders: string[] = [];
   protected previewError = '';
   protected previewDirty = true;
   protected systemVariables = new Map<string, string>();
+  protected pendingReferenceAliasChange: PendingReferenceAliasChange | null = null;
   protected linkTaskSearchControl = new FormControl<string | LinkableTemplateTask>('', { nonNullable: true });
   protected filteredLinkableTasks = of<LinkableTemplateTask[]>([]);
   protected validationFieldLabels: Record<string, string> = {
@@ -117,6 +129,7 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
     protected territoryService: TerritoryService,
     protected taskAvailabilityService: TaskAvailabilityService,
     protected taskTemplatePreviewService: TaskTemplatePreviewService,
+    protected notificationService: NotificationService,
     protected utils: UtilsService,
     protected http: HttpClient,
     protected domSanitizer: DomSanitizer,
@@ -310,18 +323,23 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
       return;
     }
 
+    const referenceAlias = this.buildNextReferenceAlias();
+
     this.linkedTasks = [
       ...this.linkedTasks,
       {
         relationId: null,
         relationType: task.relationType,
         taskId: task.taskId,
+        referenceAlias,
+        draftReferenceAlias: referenceAlias,
         name: task.name,
         typeLabel: task.typeLabel,
       },
     ];
     this.entityForm.markAsDirty();
     this.linkTaskSearchControl.setValue('');
+    this.markPreviewDirty();
   }
 
   protected removeLinkedTask(taskId: number, relationType: string) {
@@ -334,12 +352,119 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
     return this.taskLookup.get(taskId);
   }
 
-  protected onTaskExecuted(response: TemplateTaskExecutionResponse) {
+  protected onTaskExecuted(response: TemplateTaskExecutionEvent) {
     this.entityToEdit.properties = this.entityToEdit.properties || {};
     const previewContext = ((this.entityToEdit.properties as Record<string, unknown>)['previewContext'] as Record<string, unknown> | undefined) || {};
-    previewContext[`task_${response.taskId}`] = response.context;
+    previewContext[response.referenceAlias] = response.context;
+    previewContext[response.legacyReferenceAlias] = response.context;
     (this.entityToEdit.properties as Record<string, unknown>)['previewContext'] = previewContext;
     this.markPreviewDirty();
+  }
+
+  protected onReferenceAliasDraftChanged(linkedTask: LinkedTemplateTask, rawReferenceAlias: string) {
+    linkedTask.draftReferenceAlias = rawReferenceAlias;
+    if (this.pendingReferenceAliasChange?.linkedTask === linkedTask) {
+      this.pendingReferenceAliasChange = null;
+    }
+  }
+
+  protected async applyReferenceAliasChange(linkedTask: LinkedTemplateTask) {
+    const nextReferenceAlias = linkedTask.draftReferenceAlias.trim();
+    const previousReferenceAlias = linkedTask.referenceAlias;
+
+    if (!nextReferenceAlias || nextReferenceAlias === previousReferenceAlias) {
+      linkedTask.draftReferenceAlias = previousReferenceAlias;
+      return;
+    }
+
+    if (!TaskTemplateFormComponent.REFERENCE_ALIAS_PATTERN.test(nextReferenceAlias)) {
+      linkedTask.draftReferenceAlias = previousReferenceAlias;
+      this.notificationService.showWarning('common.warnings.title', 'entity.task.template.invalidReferenceAlias');
+      return;
+    }
+
+    if (this.linkedTasks.some((task) => task !== linkedTask && task.referenceAlias === nextReferenceAlias)) {
+      linkedTask.draftReferenceAlias = previousReferenceAlias;
+      this.notificationService.showWarning('common.warnings.title', 'entity.task.template.duplicateReferenceAlias');
+      return;
+    }
+
+    const templateHtml = String(this.entityForm.get('templateHtml')?.value || '');
+    if (this.templateContainsReferenceAlias(templateHtml, previousReferenceAlias)) {
+      this.pendingReferenceAliasChange = {
+        linkedTask,
+        previousReferenceAlias,
+        nextReferenceAlias,
+      };
+      return;
+    }
+
+    this.commitReferenceAliasChange(linkedTask, previousReferenceAlias, nextReferenceAlias, false);
+  }
+
+  protected confirmPendingReferenceAliasChange(replaceTemplateReferences: boolean) {
+    const pendingChange = this.pendingReferenceAliasChange;
+    if (!pendingChange) {
+      return;
+    }
+
+    this.pendingReferenceAliasChange = null;
+    this.commitReferenceAliasChange(
+      pendingChange.linkedTask,
+      pendingChange.previousReferenceAlias,
+      pendingChange.nextReferenceAlias,
+      replaceTemplateReferences,
+    );
+  }
+
+  protected cancelPendingReferenceAliasChange() {
+    const pendingChange = this.pendingReferenceAliasChange;
+    if (!pendingChange) {
+      return;
+    }
+
+    pendingChange.linkedTask.draftReferenceAlias = pendingChange.previousReferenceAlias;
+    this.pendingReferenceAliasChange = null;
+  }
+
+  protected formatPendingReferenceAliasMessage(): string {
+    if (!this.pendingReferenceAliasChange) {
+      return '';
+    }
+
+    return this.translateService.instant('entity.task.template.replaceReferenceAliasConfirm', {
+      previousReferenceAlias: this.pendingReferenceAliasChange.previousReferenceAlias,
+      nextReferenceAlias: this.pendingReferenceAliasChange.nextReferenceAlias,
+    });
+  }
+
+  private commitReferenceAliasChange(
+    linkedTask: LinkedTemplateTask,
+    previousReferenceAlias: string,
+    nextReferenceAlias: string,
+    replaceTemplateReferences: boolean,
+  ) {
+    if (replaceTemplateReferences) {
+      this.replaceReferenceAliasInTemplate(previousReferenceAlias, nextReferenceAlias);
+      this.replaceReferenceAliasInPreviewContext(previousReferenceAlias, nextReferenceAlias);
+    }
+
+    linkedTask.referenceAlias = nextReferenceAlias;
+    linkedTask.draftReferenceAlias = nextReferenceAlias;
+
+    this.entityForm.markAsDirty();
+    this.markPreviewDirty();
+  }
+
+  protected hasPendingReferenceAliasChange(linkedTask: LinkedTemplateTask): boolean {
+    return linkedTask.draftReferenceAlias.trim() !== linkedTask.referenceAlias;
+  }
+
+  protected resetReferenceAliasDraft(linkedTask: LinkedTemplateTask) {
+    linkedTask.draftReferenceAlias = linkedTask.referenceAlias;
+    if (this.pendingReferenceAliasChange?.linkedTask === linkedTask) {
+      this.pendingReferenceAliasChange = null;
+    }
   }
 
   protected getTaskTypeLabel(task: TaskProjection): string {
@@ -368,7 +493,11 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
       return;
     }
 
-    templateHtmlControl.setValue(html);
+    if (templateHtmlControl.value === html) {
+      return;
+    }
+
+    templateHtmlControl.setValue(html, { emitEvent: false });
     templateHtmlControl.markAsDirty();
     this.entityForm.markAsDirty();
     this.markPreviewDirty();
@@ -382,7 +511,12 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
     const previewContext = ((this.entityToEdit?.properties as Record<string, unknown> | undefined)?.['previewContext'] as Record<string, unknown> | undefined) || {};
     const templateHtml = String(this.entityForm.get('templateHtml')?.value || '');
 
-    this.taskTemplatePreviewService.previewTemplate(templateHtml, previewContext, this.entityToEdit?.id ?? null).subscribe({
+    this.taskTemplatePreviewService.previewTemplate(
+      templateHtml,
+      previewContext,
+      this.entityToEdit?.id ?? null,
+      this.buildKnownTaskReferences(),
+    ).subscribe({
       next: (response) => {
         this.previewHtml = response.html;
         this.trustedPreviewHtml = this.domSanitizer.bypassSecurityTrustHtml(this.previewHtml || '');
@@ -461,6 +595,26 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
     return this.linkableTasks.filter((task) => `${task.name} ${task.taskId} ${task.typeLabel}`.toLowerCase().includes(filterValue));
   }
 
+  private buildNextReferenceAlias(): string {
+    const usedAliases = new Set(this.linkedTasks.map((task) => task.referenceAlias));
+    let index = 1;
+    while (usedAliases.has(`task_${index}`)) {
+      index += 1;
+    }
+    return `task_${index}`;
+  }
+
+  private buildLegacyReferenceAlias(taskId: number): string {
+    return `task_${taskId}`;
+  }
+
+  private buildKnownTaskReferences(): string[] {
+    return Array.from(new Set(this.linkedTasks.flatMap((linkedTask) => [
+      linkedTask.referenceAlias,
+      this.buildLegacyReferenceAlias(linkedTask.taskId),
+    ])));
+  }
+
   private exceedsTemplateNestingLimit(templateTaskId: number): boolean {
     const candidateDepth = this.calculateTemplateDepth(templateTaskId, new Set<number>());
     const resultingDepth = candidateDepth + 1;
@@ -477,11 +631,11 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
     const children = this.templateChildTasks.get(templateTaskId) || [];
     let maxChildDepth = 0;
     for (const child of children) {
-      if (child.typeId !== magic.taskTemplateTypeId) {
+      if (child.task.typeId !== magic.taskTemplateTypeId) {
         continue;
       }
 
-      const childDepth = this.calculateTemplateDepth(child.id, visited);
+      const childDepth = this.calculateTemplateDepth(child.task.id, visited);
       maxChildDepth = Math.max(maxChildDepth, childDepth);
     }
 
@@ -509,27 +663,32 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
         relationId: relation.id ?? null,
         relationType: relation.relationType,
         taskId: relatedTask.id,
+        referenceAlias: relation.referenceAlias || this.buildLegacyReferenceAlias(relatedTask.id),
+        draftReferenceAlias: relation.referenceAlias || this.buildLegacyReferenceAlias(relatedTask.id),
         name: relatedTask.name,
         typeLabel,
       } satisfies LinkedTemplateTask;
     }));
 
-    this.linkedTasks = linkedTasks.sort((left, right) => left.name.localeCompare(right.name));
+    this.linkedTasks = linkedTasks;
   }
 
   private async loadTemplateChildTasks(templateTasks: TaskProjection[]) {
-    this.templateChildTasks = new Map<number, TaskProjection[]>();
+    this.templateChildTasks = new Map<number, TemplateChildTaskLink[]>();
 
     for (const templateTask of templateTasks) {
       const relations = await firstValueFrom(templateTask.getRelationArrayEx(TaskRelation, 'relations'));
       const templateRelations = relations.filter((relation) => ['template-task', 'template-nested'].includes(relation.relationType));
 
-      const childTasks: TaskProjection[] = [];
+      const childTasks: TemplateChildTaskLink[] = [];
       for (const relation of templateRelations) {
         const relatedTask = await firstValueFrom(relation.getRelationEx(Task, 'relatedTask'));
         const relatedProjection = this.taskLookup.get(relatedTask.id) || TaskProjection.fromObject(relatedTask as unknown as TaskProjection);
         this.taskLookup.set(relatedProjection.id, relatedProjection);
-        childTasks.push(relatedProjection);
+        childTasks.push({
+          task: relatedProjection,
+          referenceAlias: relation.referenceAlias || this.buildLegacyReferenceAlias(relatedProjection.id),
+        });
       }
 
       this.templateChildTasks.set(templateTask.id, childTasks);
@@ -539,11 +698,11 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
   private async syncLinkedTaskRelations() {
     const existingRelations = await firstValueFrom(this.entityToEdit.getRelationArrayEx(TaskRelation, 'relations'));
     const matchingRelations = existingRelations.filter((relation) => ['template-task', 'template-nested'].includes(relation.relationType));
-    const existingKeys = new Set<string>();
+    const existingByKey = new Map<string, TaskRelation>();
 
     for (const relation of matchingRelations) {
       const relatedTask = await firstValueFrom(relation.getRelationEx(Task, 'relatedTask'));
-      existingKeys.add(`${relation.relationType}:${relatedTask.id}`);
+      existingByKey.set(`${relation.relationType}:${relatedTask.id}`, relation);
     }
 
     const desiredKeys = new Set(this.linkedTasks.map((task) => `${task.relationType}:${task.taskId}`));
@@ -557,12 +716,25 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
     }
 
     for (const linkedTask of this.linkedTasks) {
-      if (existingKeys.has(`${linkedTask.relationType}:${linkedTask.taskId}`)) {
+      const relationKey = `${linkedTask.relationType}:${linkedTask.taskId}`;
+      const existingRelation = existingByKey.get(relationKey);
+      if (!existingRelation) {
+        await firstValueFrom(this.taskRelationService.create(Object.assign(new TaskRelation(), {
+          relationType: linkedTask.relationType,
+          referenceAlias: linkedTask.referenceAlias,
+          task: this.taskService.createProxy(this.entityID),
+          relatedTask: this.taskService.createProxy(linkedTask.taskId),
+        })));
         continue;
       }
 
-      await firstValueFrom(this.taskRelationService.create(Object.assign(new TaskRelation(), {
+      if (existingRelation.referenceAlias === linkedTask.referenceAlias) {
+        continue;
+      }
+
+      await firstValueFrom(this.taskRelationService.update(Object.assign(existingRelation, {
         relationType: linkedTask.relationType,
+        referenceAlias: linkedTask.referenceAlias,
         task: this.taskService.createProxy(this.entityID),
         relatedTask: this.taskService.createProxy(linkedTask.taskId),
       })));
@@ -582,6 +754,39 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
 
     this.entityForm.get('templateHtml')?.setValue(nextHtml);
     this.entityForm.markAsDirty();
+  }
+
+  private templateContainsReferenceAlias(templateHtml: string, referenceAlias: string): boolean {
+    const referencePattern = new RegExp(`\\{\\{\\{?\\s*${this.escapeRegExp(referenceAlias)}(?=[.\\s}\\[])`, 'g');
+    return referencePattern.test(templateHtml);
+  }
+
+  private replaceReferenceAliasInTemplate(previousReferenceAlias: string, nextReferenceAlias: string) {
+    const templateHtmlControl = this.entityForm.get('templateHtml');
+    const currentHtml = String(templateHtmlControl?.value || '');
+    const referencePattern = new RegExp(`(\\{\\{\\{?\\s*)${this.escapeRegExp(previousReferenceAlias)}(?=[.\\s}\\[])`, 'g');
+    const nextHtml = currentHtml.replace(referencePattern, `$1${nextReferenceAlias}`);
+    if (nextHtml === currentHtml) {
+      return;
+    }
+
+    templateHtmlControl?.setValue(nextHtml, { emitEvent: false });
+  }
+
+  private replaceReferenceAliasInPreviewContext(previousReferenceAlias: string, nextReferenceAlias: string) {
+    this.entityToEdit.properties = this.entityToEdit.properties || {};
+    const previewContext = ((this.entityToEdit.properties as Record<string, unknown>)['previewContext'] as Record<string, unknown> | undefined) || {};
+    if (!(previousReferenceAlias in previewContext)) {
+      return;
+    }
+
+    previewContext[nextReferenceAlias] = previewContext[previousReferenceAlias];
+    delete previewContext[previousReferenceAlias];
+    (this.entityToEdit.properties as Record<string, unknown>)['previewContext'] = previewContext;
+  }
+
+  private escapeRegExp(value: string): string {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 
   private resolvePreviewError(error: unknown): string {

@@ -59,6 +59,7 @@ describe('QueryExecutionCardComponent', () => {
         ],
       },
     } as any;
+    component.referenceAlias = 'pepe';
     component.typeLabel = 'Consulta SQL';
     component.ngOnChanges({
       task: {
@@ -129,8 +130,8 @@ describe('QueryExecutionCardComponent', () => {
 
     await component.copyTaskReference();
 
-    expect(clipboardWriteText).toHaveBeenCalledWith('{{task_13}}');
-    expect(emitted).toEqual(['{{task_13}}']);
+    expect(clipboardWriteText).toHaveBeenCalledWith('{{pepe}}');
+    expect(emitted).toEqual(['{{pepe}}']);
   });
 
   it('should copy parameter reference using real parameter name', async () => {
@@ -139,8 +140,8 @@ describe('QueryExecutionCardComponent', () => {
 
     await component.copyParameterReference('param1');
 
-    expect(clipboardWriteText).toHaveBeenCalledWith('{{task_13.$param1}}');
-    expect(emitted).toEqual(['{{task_13.$param1}}']);
+    expect(clipboardWriteText).toHaveBeenCalledWith('{{pepe.$param1}}');
+    expect(emitted).toEqual(['{{pepe.$param1}}']);
   });
 
   it('should copy response field reference', async () => {
@@ -149,8 +150,8 @@ describe('QueryExecutionCardComponent', () => {
 
     await component.copyResponseReference('features[42].attributes.name_prov');
 
-    expect(clipboardWriteText).toHaveBeenCalledWith('{{task_13.features[42].attributes.name_prov}}');
-    expect(emitted).toEqual(['{{task_13.features[42].attributes.name_prov}}']);
+    expect(clipboardWriteText).toHaveBeenCalledWith('{{pepe.features[42].attributes.name_prov}}');
+    expect(emitted).toEqual(['{{pepe.features[42].attributes.name_prov}}']);
   });
 
   it('should expose url result reference after executing a resource/url task', async () => {
@@ -165,7 +166,7 @@ describe('QueryExecutionCardComponent', () => {
       flattenedContextKeys: ['url'],
     };
 
-    expect(component.taskResultReference).toBe('{{task_13.url}}');
+    expect(component.taskResultReference).toBe('{{pepe.url}}');
   });
 
   it('should render nested template html from executed child contexts', async () => {
@@ -173,12 +174,13 @@ describe('QueryExecutionCardComponent', () => {
       id: 15,
       name: 'Plantilla hija',
       typeId: 15,
-      properties: {
-        templateHtml: '<p>{{task_13.url}}</p>',
-      },
-    } as any;
+        properties: {
+          templateHtml: '<p>{{child_url.url}}</p>',
+        },
+      } as any;
+    component.referenceAlias = 'plantilla_hija';
     component.templateChildTasks = new Map([
-      [15, [{ id: 13, name: 'URL hija', typeId: 5, properties: {} } as any]],
+      [15, [{ task: { id: 13, name: 'URL hija', typeId: 5, properties: {} } as any, referenceAlias: 'child_url' }]],
     ]);
     previewService.executeLinkedTask.mockReturnValueOnce(of({
       taskId: 15,
@@ -204,7 +206,7 @@ describe('QueryExecutionCardComponent', () => {
 
     expect(previewService.executeLinkedTask).toHaveBeenCalledWith(15, {}, 15, {});
     expect(component.response?.context['html']).toBe('<p>Rendered</p>');
-    expect(component.taskResultReference).toBe('{{task_15.html}}');
+    expect(component.taskResultReference).toBe('{{plantilla_hija.html}}');
   });
 
   it('should hide chrome for nested template child cards', () => {

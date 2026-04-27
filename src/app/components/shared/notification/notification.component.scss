@@ -79,3 +79,29 @@
     color: #fff;
   }
 }
+
+:host-context(.mat-mdc-snack-bar-container.notification-warning) {
+  .notification-content {
+    color: #7c2d12;
+    background-color: #ffedd5;
+    border: 1px solid #fdba74;
+    border-radius: 4px;
+  }
+
+  mat-icon {
+    color: #ea580c;
+  }
+}
+
+:host-context(.mat-mdc-snack-bar-container.notification-info) {
+  .notification-content {
+    color: #1e3a8a;
+    background-color: #dbeafe;
+    border: 1px solid #93c5fd;
+    border-radius: 4px;
+  }
+
+  mat-icon {
+    color: #2563eb;
+  }
+}

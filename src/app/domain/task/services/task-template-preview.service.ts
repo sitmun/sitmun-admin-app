@@ -17,6 +17,11 @@ export interface TemplateTaskExecutionResponse {
   flattenedContextKeys: string[];
 }
 
+export interface TemplateTaskExecutionEvent extends TemplateTaskExecutionResponse {
+  referenceAlias: string;
+  legacyReferenceAlias: string;
+}
+
 export interface TemplatePreviewResponse {
   html: string;
   placeholders: string[];
@@ -44,13 +49,19 @@ export class TaskTemplatePreviewService {
     });
   }
 
-  previewTemplate(templateHtml: string, context: Record<string, unknown>, templateTaskId?: number | null): Observable<TemplatePreviewResponse> {
+  previewTemplate(
+    templateHtml: string,
+    context: Record<string, unknown>,
+    templateTaskId?: number | null,
+    knownTaskReferences?: string[],
+  ): Observable<TemplatePreviewResponse> {
     const requestContext = new HttpContext().set(SKIP_MESSAGES_INTERCEPTOR, true);
 
     return this.http.post<TemplatePreviewResponse>(`${environment.apiBaseURL}/api/tasks/template/preview`, {
       templateTaskId: templateTaskId ?? null,
       templateHtml,
       context,
+      knownTaskReferences: knownTaskReferences ?? [],
     }, {
       context: requestContext,
     });

@@ -45,4 +45,14 @@ describe('TemplateEditorComponent', () => {
     expect(component.htmlSource).toContain('<iframe');
     expect(emitted).toEqual(['<p>Hello</p><iframe src="https://example.com"></iframe>']);
   });
+
+  it('should not emit duplicated html source changes when content is unchanged', () => {
+    const emitted: string[] = [];
+    component.htmlChange.subscribe((value) => emitted.push(value));
+    component.setEditorMode('html');
+
+    component.onHtmlSourceChanged('<p>Hello</p>');
+
+    expect(emitted).toEqual([]);
+  });
 });

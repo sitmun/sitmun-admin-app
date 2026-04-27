@@ -3,10 +3,21 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { firstValueFrom } from 'rxjs';
 
-import { TaskProjection, TaskPropertiesContract, TaskTemplatePreviewService, TemplateTaskExecutionResponse } from '@app/domain';
+import {
+  TaskProjection,
+  TaskPropertiesContract,
+  TaskTemplatePreviewService,
+  TemplateTaskExecutionEvent,
+  TemplateTaskExecutionResponse,
+} from '@app/domain';
 import { magic } from '@environments/constants';
 
 type ExecutionStatus = 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED';
+
+export interface TemplateChildTaskLink {
+  task: TaskProjection;
+  referenceAlias: string;
+}
 
 @Component({
   selector: 'app-query-execution-card',
@@ -16,12 +27,13 @@ type ExecutionStatus = 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED';
 })
 export class QueryExecutionCardComponent implements OnChanges {
   @Input({ required: true }) task!: TaskProjection;
+  @Input() referenceAlias = '';
   @Input({ required: true }) typeLabel = '';
-  @Input() templateChildTasks = new Map<number, TaskProjection[]>();
+  @Input() templateChildTasks = new Map<number, TemplateChildTaskLink[]>();
   @Input() taskTypeLabelResolver: ((task: TaskProjection) => string) | null = null;
   @Input() nestingLevel = 0;
   @Input() templateRootTaskId: number | null = null;
-  @Output() executed = new EventEmitter<TemplateTaskExecutionResponse>();
+  @Output() executed = new EventEmitter<TemplateTaskExecutionEvent>();
   @Output() placeholderSelected = new EventEmitter<string>();
 
   @ViewChildren('childCard') private readonly childCards?: QueryList<QueryExecutionCardComponent>;
@@ -65,7 +77,7 @@ export class QueryExecutionCardComponent implements OnChanges {
   }
 
   get taskReference(): string {
-    return `{{task_${this.task?.id}}}`;
+    return `{{${this.resolvedReferenceAlias}}}`;
   }
 
   get showEmbeddedChildChrome(): boolean {
@@ -74,19 +86,27 @@ export class QueryExecutionCardComponent implements OnChanges {
 
   get taskResultReference(): string | null {
     if (this.response?.resultType === 'template') {
-      return `{{task_${this.task?.id}.html}}`;
+      return `{{${this.resolvedReferenceAlias}.html}}`;
     }
     if (this.response?.resourceUrl) {
-      return `{{task_${this.task?.id}.url}}`;
+      return `{{${this.resolvedReferenceAlias}.url}}`;
     }
     return null;
+  }
+
+  get resolvedReferenceAlias(): string {
+    return this.referenceAlias?.trim() || this.legacyReferenceAlias;
+  }
+
+  get legacyReferenceAlias(): string {
+    return `task_${this.task?.id}`;
   }
 
   get isTemplateTask(): boolean {
     return this.task?.typeId === magic.taskTemplateTypeId;
   }
 
-  get childTasks(): TaskProjection[] {
+  get childTasks(): TemplateChildTaskLink[] {
     return this.templateChildTasks.get(this.task?.id ?? -1) ?? [];
   }
 
@@ -131,7 +151,11 @@ export class QueryExecutionCardComponent implements OnChanges {
       this.response = response;
       this.trustedRenderedTemplateHtml = this.domSanitizer.bypassSecurityTrustHtml(this.renderedTemplateHtml || '');
       this.status = response.status === 'PENDING' ? 'PENDING' : 'COMPLETED';
-      this.executed.emit(response);
+      this.executed.emit({
+        ...response,
+        referenceAlias: this.resolvedReferenceAlias,
+        legacyReferenceAlias: this.legacyReferenceAlias,
+      });
     } catch (error) {
       this.status = 'FAILED';
       this.errorMessage = (error as { error?: { message?: string }, message?: string } | undefined)?.error?.message
@@ -153,11 +177,11 @@ export class QueryExecutionCardComponent implements OnChanges {
   }
 
   async copyParameterReference(parameterName: string): Promise<void> {
-    await this.copyPlaceholder(`{{task_${this.task.id}.$${parameterName}}}`);
+    await this.copyPlaceholder(`{{${this.resolvedReferenceAlias}.$${parameterName}}}`);
   }
 
   async copyResponseReference(fieldPath: string): Promise<void> {
-    await this.copyPlaceholder(`{{task_${this.task.id}.${fieldPath}}}`);
+    await this.copyPlaceholder(`{{${this.resolvedReferenceAlias}.${fieldPath}}}`);
   }
 
   async copyRenderedHtml(): Promise<void> {
@@ -180,7 +204,7 @@ export class QueryExecutionCardComponent implements OnChanges {
     return this.taskTypeLabelResolver ? this.taskTypeLabelResolver(task) : '';
   }
 
-  onChildExecuted(response: TemplateTaskExecutionResponse): void {
+  onChildExecuted(response: TemplateTaskExecutionEvent): void {
     this.executed.emit(response);
   }
 

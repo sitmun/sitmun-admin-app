@@ -20,6 +20,15 @@
   text-align: right;
 }
 
+.reference-alias-field {
+  width: 55%;
+  min-width: 12rem;
+}
+
+.reference-alias-apply-button {
+  margin-right: -0.25rem;
+}
+
 .add-linked-task-field {
   margin-top: 1rem;
 }
@@ -31,6 +40,26 @@
 .warning-hint {
   display: block;
   margin-top: 0.5rem;
+}
+
+.reference-alias-confirmation {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #fdba74;
+  border-radius: 4px;
+  background: #ffedd5;
+  color: #7c2d12;
+}
+
+.reference-alias-confirmation span {
+  flex: 1;
+}
+
+.reference-alias-confirmation mat-icon {
+  color: #ea580c;
 }
 
 .info-note {

@@ -69,7 +69,8 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
       return;
     }
 
-    if (nextHtml === this.quill.root.innerHTML) {
+    const currentHtml = normalizeHandlebarsMarkup(this.quill.root.innerHTML || '');
+    if (nextHtml === currentHtml) {
       return;
     }
 
@@ -91,6 +92,10 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
 
   onHtmlSourceChanged(html: string): void {
     const normalizedHtml = normalizeHandlebarsMarkup(html);
+    if (normalizedHtml === this.htmlSource) {
+      return;
+    }
+
     this.htmlSource = normalizedHtml;
     this.htmlChange.emit(normalizedHtml);
   }

@@ -24,13 +24,19 @@ describe('TaskTemplatePreviewService', () => {
   });
 
   it('should skip global message interception for template preview requests', () => {
-    service.previewTemplate('<p>{{task_13.name}}</p>', { task_13: { name: 'Layer' } }).subscribe();
+    service.previewTemplate('<p>{{pepe.name}}</p>', { pepe: { name: 'Layer' } }, 15, ['pepe', 'task_13']).subscribe();
 
     const req = httpMock.expectOne((request) => request.url.endsWith('/api/tasks/template/preview'));
 
     expect(req.request.context.get(SKIP_MESSAGES_INTERCEPTOR)).toBe(true);
+    expect(req.request.body).toEqual({
+      templateTaskId: 15,
+      templateHtml: '<p>{{pepe.name}}</p>',
+      context: { pepe: { name: 'Layer' } },
+      knownTaskReferences: ['pepe', 'task_13'],
+    });
 
-    req.flush({ html: '<p>Layer</p>', placeholders: ['task_13.name'] });
+    req.flush({ html: '<p>Layer</p>', placeholders: ['pepe.name'] });
   });
 
   it('should skip global message interception for execute child requests', () => {

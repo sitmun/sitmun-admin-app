@@ -61,6 +61,7 @@
             <thead>
               <tr>
                 <th>{{ 'entity.task.name' | translate }}</th>
+                <th>{{ 'entity.task.template.referenceAlias' | translate }}</th>
                 <th>{{ 'common.form.type' | translate }}</th>
                 <th></th>
               </tr>
@@ -68,6 +69,29 @@
             <tbody>
               <tr *ngFor="let linkedTask of linkedTasks">
                 <td>{{ linkedTask.name }} (ID: {{ linkedTask.taskId }})</td>
+                <td>
+                  <mat-form-field appearance="outline" class="reference-alias-field">
+                    <mat-label>{{ 'entity.task.template.referenceAlias' | translate }}</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      [value]="linkedTask.draftReferenceAlias"
+                      (input)="onReferenceAliasDraftChanged(linkedTask, $any($event.target).value)"
+                      (keydown.enter)="applyReferenceAliasChange(linkedTask)"
+                      (keydown.escape)="resetReferenceAliasDraft(linkedTask)">
+                    <button
+                      mat-icon-button
+                      matSuffix
+                      type="button"
+                      class="reference-alias-apply-button"
+                      [disabled]="!hasPendingReferenceAliasChange(linkedTask)"
+                      [attr.aria-label]="'entity.task.template.applyReferenceAlias' | translate"
+                      [matTooltip]="'entity.task.template.applyReferenceAlias' | translate"
+                      (click)="applyReferenceAliasChange(linkedTask)">
+                      <mat-icon>check</mat-icon>
+                    </button>
+                  </mat-form-field>
+                </td>
                 <td>{{ linkedTask.typeLabel }}</td>
                 <td class="actions-cell">
                   <button mat-icon-button type="button" (click)="removeLinkedTask(linkedTask.taskId, linkedTask.relationType)">
@@ -98,6 +122,19 @@
           <mat-hint *ngIf="nestingLimitWarning" class="warning-hint">
             {{ nestingLimitWarning }}
           </mat-hint>
+          <div *ngIf="pendingReferenceAliasChange" class="reference-alias-confirmation">
+            <mat-icon>warning</mat-icon>
+            <span>{{ formatPendingReferenceAliasMessage() }}</span>
+            <button mat-stroked-button color="primary" type="button" (click)="confirmPendingReferenceAliasChange(true)">
+              {{ 'common.button.replace' | translate }}
+            </button>
+            <button mat-button type="button" (click)="confirmPendingReferenceAliasChange(false)">
+              {{ 'entity.task.template.keepExistingPlaceholders' | translate }}
+            </button>
+            <button mat-icon-button type="button" (click)="cancelPendingReferenceAliasChange()" [attr.aria-label]="'common.button.cancel' | translate">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
         </mat-card-content>
       </mat-card>
 
@@ -107,6 +144,7 @@
             <app-query-execution-card
               *ngFor="let linkedTask of linkedTasks"
           [task]="resolveTask(linkedTask.taskId)!"
+          [referenceAlias]="linkedTask.referenceAlias"
           [typeLabel]="linkedTask.typeLabel"
           [templateChildTasks]="templateChildTasks"
           [taskTypeLabelResolver]="getTaskTypeLabel.bind(this)"

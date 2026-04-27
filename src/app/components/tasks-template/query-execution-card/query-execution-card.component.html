@@ -42,8 +42,9 @@
       <app-query-execution-card
         #childCard
         *ngFor="let childTask of childTasks"
-        [task]="childTask"
-        [typeLabel]="childTaskTypeLabel(childTask)"
+        [task]="childTask.task"
+        [referenceAlias]="childTask.referenceAlias"
+        [typeLabel]="childTaskTypeLabel(childTask.task)"
         [templateChildTasks]="templateChildTasks"
         [taskTypeLabelResolver]="taskTypeLabelResolver"
         [templateRootTaskId]="resolvedTemplateTaskId"
