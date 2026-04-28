@@ -184,6 +184,14 @@ export class QueryExecutionCardComponent implements OnChanges {
     await this.copyPlaceholder(`{{${this.resolvedReferenceAlias}.${fieldPath}}}`);
   }
 
+  async copyResponseColumnTable(column: string): Promise<void> {
+    await this.copyPlaceholder(this.buildResponseTableSnippet([column]));
+  }
+
+  async copyResponseTable(): Promise<void> {
+    await this.copyPlaceholder(this.buildResponseTableSnippet(this.responseColumns));
+  }
+
   async copyRenderedHtml(): Promise<void> {
     if (!this.renderedTemplateHtml) {
       return;
@@ -245,6 +253,21 @@ export class QueryExecutionCardComponent implements OnChanges {
   private async copyPlaceholder(placeholder: string): Promise<void> {
     await navigator.clipboard.writeText(placeholder).catch(() => undefined);
     this.placeholderSelected.emit(placeholder);
+  }
+
+  private buildResponseTableSnippet(columns: string[]): string {
+    const headers = columns.map((column) => `<th>${this.escapeHtml(column)}</th>`).join('');
+    const cells = columns.map((column) => `<td>{{${column}}}</td>`).join('');
+    return `<table data-sitmun-each="${this.escapeHtml(this.resolvedReferenceAlias)}.rows"><thead><tr>${headers}</tr></thead><tbody><tr>${cells}</tr></tbody></table>`;
+  }
+
+  private escapeHtml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   get resolvedTemplateTaskId(): number | null {

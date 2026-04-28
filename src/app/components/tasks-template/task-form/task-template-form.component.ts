@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatDialog } from '@angular/material/dialog';
@@ -10,7 +10,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom, map, of, startWith } from 'rxjs';
 
 import { BaseFormComponent } from '@app/components/base-form.component';
-import { DataTableDefinition } from '@app/components/data-tables.util';
+import { DataTableDefinition, TemplateDialog } from '@app/components/data-tables.util';
 import { Configuration } from '@app/core/config/configuration';
 import { MessagesInterceptorStateService } from '@app/core/interceptors/messages.interceptor';
 import {
@@ -23,6 +23,7 @@ import {
   TaskAvailabilityService,
   TaskGroup,
   TaskGroupService,
+  TaskParameter,
   TaskRelation,
   TaskRelationService,
   TaskProjection,
@@ -42,7 +43,7 @@ import { LoadingOverlayService } from '@app/services/loading-overlay.service';
 import { LoggerService } from '@app/services/logger.service';
 import { NotificationService } from '@app/services/notification.service';
 import { UtilsService } from '@app/services/utils.service';
-import { onCreate, onDelete, onUpdatedRelation, Status } from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
+import { canKeepOrUpdate, onCreate, onDelete, onUpdatedRelation, Status } from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
 import { environment } from '@environments/environment';
 import { magic } from '@environments/constants';
 import { TemplateChildTaskLink } from '../query-execution-card/query-execution-card.component';
@@ -85,6 +86,7 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
   public override entityForm: FormGroup;
   protected readonly rolesTable: DataTableDefinition<Role, Role>;
   protected readonly availabilitiesTable: DataTableDefinition<TaskAvailabilityProjection, TerritoryProjection>;
+  protected readonly parametersTable: DataTableDefinition<TaskParameter, TaskParameter>;
 
   protected taskGroupList: TaskGroup[] = [];
   protected taskTypeNameTranslated: string = null;
@@ -109,6 +111,9 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
   };
 
   private taskType: TaskType = null;
+
+  @ViewChild('newParameterDialog', { static: true })
+  private readonly newParameterDialog: TemplateRef<any>;
 
   constructor(
     dialog: MatDialog,
@@ -149,12 +154,14 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
 
     this.rolesTable = this.defineRolesTable();
     this.availabilitiesTable = this.defineAvailabilitiesTable();
+    this.parametersTable = this.defineParametersTable();
   }
 
   override async preFetchData() {
     const typeId = magic.taskTemplateTypeId;
     this.initTranslations('Task', ['name']);
-    this.dataTables.register(this.rolesTable).register(this.availabilitiesTable);
+    await this.initCodeLists(['taskEntity.jsonParamType']);
+    this.dataTables.register(this.rolesTable).register(this.availabilitiesTable).register(this.parametersTable);
 
     try {
       const variables = await firstValueFrom(
@@ -355,8 +362,12 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
   protected onTaskExecuted(response: TemplateTaskExecutionEvent) {
     this.entityToEdit.properties = this.entityToEdit.properties || {};
     const previewContext = ((this.entityToEdit.properties as Record<string, unknown>)['previewContext'] as Record<string, unknown> | undefined) || {};
-    previewContext[response.referenceAlias] = response.context;
-    previewContext[response.legacyReferenceAlias] = response.context;
+    const contextWithRows = {
+      ...response.context,
+      rows: response.rows,
+    };
+    previewContext[response.referenceAlias] = contextWithRows;
+    previewContext[response.legacyReferenceAlias] = contextWithRows;
     (this.entityToEdit.properties as Record<string, unknown>)['previewContext'] = previewContext;
     this.markPreviewDirty();
   }
@@ -509,11 +520,15 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
     }
 
     const previewContext = ((this.entityToEdit?.properties as Record<string, unknown> | undefined)?.['previewContext'] as Record<string, unknown> | undefined) || {};
+    const previewContextWithTemplateParameters = {
+      ...this.buildTemplateParameterPreviewContext(),
+      ...previewContext,
+    };
     const templateHtml = String(this.entityForm.get('templateHtml')?.value || '');
 
     this.taskTemplatePreviewService.previewTemplate(
       templateHtml,
-      previewContext,
+      previewContextWithTemplateParameters,
       this.entityToEdit?.id ?? null,
       this.buildKnownTaskReferences(),
     ).subscribe({
@@ -748,29 +763,66 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
 
   private appendPlaceholderToTemplate(placeholder: string) {
     const currentHtml = String(this.entityForm.get('templateHtml')?.value || '');
+    const blockHtml = this.isBlockHtmlSnippet(placeholder) ? placeholder : `<p>${placeholder}</p>`;
     const nextHtml = !currentHtml || currentHtml === '<p><br></p>'
-      ? `<p>${placeholder}</p>`
-      : `${currentHtml}<p>${placeholder}</p>`;
+      ? blockHtml
+      : `${currentHtml}${blockHtml}`;
 
     this.entityForm.get('templateHtml')?.setValue(nextHtml);
     this.entityForm.markAsDirty();
   }
 
+  private buildTemplateParameterPreviewContext(): Record<string, unknown> {
+    return TaskPropertiesContract.getParameters(this.entityToEdit?.properties).reduce<Record<string, unknown>>((context, parameter) => {
+      const name = this.parameterName(parameter);
+      if (!name) {
+        return context;
+      }
+
+      const value = parameter['value'];
+      if (typeof value === 'string' && value.trim().length === 0) {
+        return context;
+      }
+      if (value == null) {
+        return context;
+      }
+
+      context[`$${name}`] = value;
+      return context;
+    }, {});
+  }
+
+  private parameterName(parameter: Record<string, unknown>): string {
+    const value = parameter['variable'] ?? parameter['name'] ?? parameter['label'];
+    return typeof value === 'string' ? value.trim() : '';
+  }
+
+  private isBlockHtmlSnippet(value: string): boolean {
+    return /^\s*<(table|div|section|article|ul|ol|p|h[1-6])\b/i.test(value);
+  }
+
   private templateContainsReferenceAlias(templateHtml: string, referenceAlias: string): boolean {
-    const referencePattern = new RegExp(`\\{\\{\\{?\\s*${this.escapeRegExp(referenceAlias)}(?=[.\\s}\\[])`, 'g');
-    return referencePattern.test(templateHtml);
+    return this.replaceReferenceAliasInHtml(templateHtml, referenceAlias, `${referenceAlias}__sitmun_probe__`) !== templateHtml;
   }
 
   private replaceReferenceAliasInTemplate(previousReferenceAlias: string, nextReferenceAlias: string) {
     const templateHtmlControl = this.entityForm.get('templateHtml');
     const currentHtml = String(templateHtmlControl?.value || '');
-    const referencePattern = new RegExp(`(\\{\\{\\{?\\s*)${this.escapeRegExp(previousReferenceAlias)}(?=[.\\s}\\[])`, 'g');
-    const nextHtml = currentHtml.replace(referencePattern, `$1${nextReferenceAlias}`);
+    const nextHtml = this.replaceReferenceAliasInHtml(currentHtml, previousReferenceAlias, nextReferenceAlias);
     if (nextHtml === currentHtml) {
       return;
     }
 
     templateHtmlControl?.setValue(nextHtml, { emitEvent: false });
+  }
+
+  private replaceReferenceAliasInHtml(templateHtml: string, previousReferenceAlias: string, nextReferenceAlias: string): string {
+    const referencePattern = new RegExp(`(^|[^A-Za-z0-9_])${this.escapeRegExp(previousReferenceAlias)}(?=[.\\s}\\]])`, 'g');
+    const tableEachPattern = new RegExp(`(\\sdata-sitmun-each=")${this.escapeRegExp(previousReferenceAlias)}(?=[."])`, 'g');
+
+    return templateHtml
+      .replace(/\{\{\{?[\s\S]*?\}\}\}?/g, (placeholder) => placeholder.replace(referencePattern, `$1${nextReferenceAlias}`))
+      .replace(tableEachPattern, `$1${nextReferenceAlias}`);
   }
 
   private replaceReferenceAliasInPreviewContext(previousReferenceAlias: string, nextReferenceAlias: string) {
@@ -796,6 +848,58 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
     }
 
     return this.translateService.instant('entity.task.template.previewError');
+  }
+
+  private defineParametersTable(): DataTableDefinition<TaskParameter, TaskParameter> {
+    return DataTableDefinition.builder<TaskParameter, TaskParameter>(this.dialog, this.errorHandler, this.loadingService)
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getEditableColumnDef('common.form.name', 'name'),
+        this.utils.getNonEditableColumnDef('common.form.type', 'type'),
+        this.utils.getEditableColumnDef('common.form.value', 'value', 300, 500),
+        this.utils.getStatusColumnDef(),
+      ])
+      .withRelationsOrder('name')
+      .withRelationsFetcher(() => {
+        const originalParameters = TaskPropertiesContract.getParameters(this.entityToEdit?.properties);
+        if (originalParameters.length > 0) {
+          return of(originalParameters.map((parameter) => TaskParameter.fromObject(parameter)));
+        }
+        return of<TaskParameter[]>([]);
+      })
+      .withRelationsUpdater(async (parameters: (TaskParameter & Status)[]) => {
+        const parametersToSave = parameters
+          .filter(canKeepOrUpdate)
+          .map((parameter) => TaskParameter.fromObject(parameter));
+        this.entityToEdit.properties = TaskPropertiesContract.withParameters(this.entityToEdit.properties, parametersToSave);
+        await firstValueFrom(this.taskService.update(this.entityToEdit));
+        this.markPreviewDirty();
+      })
+      .withTemplateDialog('newParameterDialog', () => TemplateDialog.builder()
+        .withReference(this.newParameterDialog)
+        .withTitle('entity.task.parameters.title')
+        .withForm(new FormGroup({
+          name: new FormControl('', {
+            validators: [Validators.required],
+            nonNullable: true,
+          }),
+          type: new FormControl('', {
+            validators: [Validators.required],
+            nonNullable: true,
+          }),
+          value: new FormControl('', {
+            validators: [Validators.required],
+            nonNullable: true,
+          }),
+        }))
+        .withPreOpenFunction((form: FormGroup) => {
+          const defaultType = this.defaultValueOrNull('taskEntity.jsonParamType');
+          form.reset({ type: defaultType?.value || null });
+        })
+        .build())
+      .withTargetToRelation((items: TaskParameter[]) => items.map((item) => TaskParameter.fromObject(item)))
+      .withRelationsDuplicate((item) => TaskParameter.fromObject(item))
+      .build();
   }
 
   private defineRolesTable(): DataTableDefinition<Role, Role> {

@@ -57,11 +57,17 @@
     <mat-error *ngIf="showEmbeddedChildChrome && errorMessage">{{ errorMessage }}</mat-error>
 
     <div *ngIf="showEmbeddedChildChrome && response?.rows?.length" class="response-table-wrapper">
+      <div class="task-reference-row" *ngIf="!isFieldValueTable && responseColumns.length > 0">
+        <span>{{ 'entity.task.template.tableReference' | translate }}</span>
+        <button class="copy-icon-button" mat-icon-button type="button" (click)="copyResponseTable()" [attr.aria-label]="'common.copy' | translate">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </div>
       <table class="response-table">
         <thead *ngIf="!isFieldValueTable">
           <tr>
             <th *ngFor="let column of responseColumns">
-              <button class="copy-icon-button" mat-icon-button type="button" (click)="copyResponseReference(column)" [attr.aria-label]="'common.copy' | translate">
+              <button class="copy-icon-button" mat-icon-button type="button" (click)="copyResponseColumnTable(column)" [attr.aria-label]="'common.copy' | translate">
                 <mat-icon>content_copy</mat-icon>
               </button>
               <span class="response-header-label">{{ column }}</span>

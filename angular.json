@@ -34,7 +34,8 @@
               "util",
               "uri-templates",
               "jsonpath",
-              "stacktrace-js"
+              "stacktrace-js",
+              "quill-table-better"
             ],
             "scripts": []
           },

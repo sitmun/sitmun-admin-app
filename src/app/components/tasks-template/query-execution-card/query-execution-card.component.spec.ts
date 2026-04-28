@@ -154,6 +154,48 @@ describe('QueryExecutionCardComponent', () => {
     expect(emitted).toEqual(['{{pepe.features[42].attributes.name_prov}}']);
   });
 
+  it('should copy a table snippet for a single response column', async () => {
+    const emitted: string[] = [];
+    component.placeholderSelected.subscribe((value) => emitted.push(value));
+    component.response = {
+      taskId: 13,
+      status: 'COMPLETED',
+      resultType: 'table',
+      parameters: {},
+      context: {},
+      rows: [{ tui_tooltip: 'Layer', tui_id: 35 }],
+      resourceUrl: null,
+      flattenedContextKeys: ['tui_tooltip', 'tui_id'],
+    };
+
+    await component.copyResponseColumnTable('tui_tooltip');
+
+    const expected = '<table data-sitmun-each="pepe.rows"><thead><tr><th>tui_tooltip</th></tr></thead><tbody><tr><td>{{tui_tooltip}}</td></tr></tbody></table>';
+    expect(clipboardWriteText).toHaveBeenCalledWith(expected);
+    expect(emitted).toEqual([expected]);
+  });
+
+  it('should copy a table snippet for all response columns', async () => {
+    const emitted: string[] = [];
+    component.placeholderSelected.subscribe((value) => emitted.push(value));
+    component.response = {
+      taskId: 13,
+      status: 'COMPLETED',
+      resultType: 'table',
+      parameters: {},
+      context: {},
+      rows: [{ tui_tooltip: 'Layer', tui_id: 35 }],
+      resourceUrl: null,
+      flattenedContextKeys: ['tui_tooltip', 'tui_id'],
+    };
+
+    await component.copyResponseTable();
+
+    const expected = '<table data-sitmun-each="pepe.rows"><thead><tr><th>tui_tooltip</th><th>tui_id</th></tr></thead><tbody><tr><td>{{tui_tooltip}}</td><td>{{tui_id}}</td></tr></tbody></table>';
+    expect(clipboardWriteText).toHaveBeenCalledWith(expected);
+    expect(emitted).toEqual([expected]);
+  });
+
   it('should expose url result reference after executing a resource/url task', async () => {
     component.response = {
       taskId: 13,

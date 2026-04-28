@@ -56,12 +56,14 @@ describe('TaskTemplateFormComponent', () => {
       'getRouterLinkColumnDef',
       'getNonEditableColumnDef',
       'getNonEditableDateColumnDef',
+      'getEditableColumnDef',
       'getStatusColumnDef',
     ]);
     utils.getSelCheckboxColumnDef.mockReturnValue({});
     utils.getRouterLinkColumnDef.mockReturnValue({});
     utils.getNonEditableColumnDef.mockReturnValue({});
     utils.getNonEditableDateColumnDef.mockReturnValue({});
+    utils.getEditableColumnDef.mockReturnValue({});
     utils.getStatusColumnDef.mockReturnValue({});
 
     component = TestBed.runInInjectionContext(() => new TaskTemplateFormComponent(
@@ -102,6 +104,7 @@ describe('TaskTemplateFormComponent', () => {
   it('should define roles and territories data tables', () => {
     expect((component as any).rolesTable).toBeTruthy();
     expect((component as any).availabilitiesTable).toBeTruthy();
+    expect((component as any).parametersTable).toBeTruthy();
   });
 
   it('should create a form with name and task group controls', () => {
@@ -249,7 +252,7 @@ describe('TaskTemplateFormComponent', () => {
     component.entityForm = new FormGroup({
       name: new FormControl('Template 1'),
       taskGroupId: new FormControl(2),
-      templateHtml: new FormControl('<p>{{pepe}}</p><p>{{pepe.url}}</p>'),
+      templateHtml: new FormControl('<p>{{pepe}}</p><p>{{pepe.url}}</p><p>{{#if pepe.enabled}}{{pepe.name}}{{/if}}</p><table data-sitmun-each="pepe.rows"><tbody><tr><td>{{name}}</td><td>{{../pepe.total}}</td></tr></tbody></table>'),
     });
     (component as any).linkedTasks = [
       { relationType: 'template-task', taskId: 13, referenceAlias: 'pepe', draftReferenceAlias: 'pepe', name: 'Consulta', typeLabel: 'Consulta SQL', relationId: 1 },
@@ -259,7 +262,7 @@ describe('TaskTemplateFormComponent', () => {
     await (component as any).applyReferenceAliasChange((component as any).linkedTasks[0]);
     (component as any).confirmPendingReferenceAliasChange(true);
 
-    expect(component.entityForm.get('templateHtml')?.value).toBe('<p>{{consulta_padron}}</p><p>{{consulta_padron.url}}</p>');
+    expect(component.entityForm.get('templateHtml')?.value).toBe('<p>{{consulta_padron}}</p><p>{{consulta_padron.url}}</p><p>{{#if consulta_padron.enabled}}{{consulta_padron.name}}{{/if}}</p><table data-sitmun-each="consulta_padron.rows"><tbody><tr><td>{{name}}</td><td>{{../consulta_padron.total}}</td></tr></tbody></table>');
     expect((component.entityToEdit as any).properties.previewContext.consulta_padron).toEqual({ value: 1 });
     expect((component as any).linkedTasks[0].referenceAlias).toBe('consulta_padron');
     expect((component as any).linkedTasks[0].draftReferenceAlias).toBe('consulta_padron');
@@ -287,6 +290,27 @@ describe('TaskTemplateFormComponent', () => {
     expect(component.entityForm.get('templateHtml')?.value).toBe('<p>{{consulta_final}}</p>');
     expect((component.entityToEdit as any).properties.previewContext.consulta_final).toEqual({ value: 1 });
     expect((component.entityToEdit as any).properties.previewContext.consulta_padron).toBeUndefined();
+  });
+
+  it('should ask for confirmation when the alias is only used in a table iteration attribute', async () => {
+    component.entityToEdit = { properties: { previewContext: { pepe: { rows: [{ name: 'Layer' }] } } } } as any;
+    component.entityForm = new FormGroup({
+      name: new FormControl('Template 1'),
+      taskGroupId: new FormControl(2),
+      templateHtml: new FormControl('<table data-sitmun-each="pepe.rows"><tbody><tr><td>{{name}}</td></tr></tbody></table>'),
+    });
+    (component as any).linkedTasks = [
+      { relationType: 'template-task', taskId: 13, referenceAlias: 'pepe', draftReferenceAlias: 'pepe', name: 'Consulta', typeLabel: 'Consulta SQL', relationId: 1 },
+    ];
+
+    (component as any).onReferenceAliasDraftChanged((component as any).linkedTasks[0], 'consulta_padron');
+    await (component as any).applyReferenceAliasChange((component as any).linkedTasks[0]);
+
+    expect((component as any).pendingReferenceAliasChange).toEqual({
+      linkedTask: (component as any).linkedTasks[0],
+      previousReferenceAlias: 'pepe',
+      nextReferenceAlias: 'consulta_padron',
+    });
   });
 
   it('should keep the alias change and leave template placeholders unchanged when user keeps existing placeholders', async () => {
@@ -351,6 +375,19 @@ describe('TaskTemplateFormComponent', () => {
     expect(previewService.previewTemplate).not.toHaveBeenCalled();
   });
 
+  it('should append table snippets as block html without wrapping them in paragraphs', () => {
+    component.entityForm = new FormGroup({
+      name: new FormControl('Template 1'),
+      taskGroupId: new FormControl(2),
+      templateHtml: new FormControl(''),
+    });
+
+    (component as any).onPlaceholderSelected('<table data-sitmun-each="pepe.rows"><tbody><tr><td>{{name}}</td></tr></tbody></table>');
+
+    expect(component.entityForm.get('templateHtml')?.value)
+      .toBe('<table data-sitmun-each="pepe.rows"><tbody><tr><td>{{name}}</td></tr></tbody></table>');
+  });
+
   it('should not render preview automatically after executing a linked task', () => {
     component.entityToEdit = {
       properties: {},
@@ -377,6 +414,33 @@ describe('TaskTemplateFormComponent', () => {
     });
 
     expect(previewService.previewTemplate).not.toHaveBeenCalled();
+  });
+
+  it('should store executed rows in preview context for template iteration', () => {
+    component.entityToEdit = {
+      properties: {},
+    } as any;
+    component.entityForm = new FormGroup({
+      name: new FormControl('Template 1'),
+      taskGroupId: new FormControl(2),
+      templateHtml: new FormControl(''),
+    });
+
+    (component as any).onTaskExecuted({
+      taskId: 13,
+      referenceAlias: 'consulta_sql',
+      legacyReferenceAlias: 'task_13',
+      status: 'COMPLETED',
+      resultType: 'table',
+      parameters: {},
+      context: { tui_name: 'layerCatalog' },
+      rows: [{ tui_name: 'layerCatalog' }, { tui_name: 'search' }],
+      resourceUrl: null,
+      flattenedContextKeys: ['tui_name'],
+    });
+
+    expect((component.entityToEdit as any).properties.previewContext.consulta_sql.rows)
+      .toEqual([{ tui_name: 'layerCatalog' }, { tui_name: 'search' }]);
   });
 
   it('should render preview only when requested explicitly', () => {
@@ -408,6 +472,34 @@ describe('TaskTemplateFormComponent', () => {
       task_13: { tui_name: 'layerCatalog' },
     }, null, ['pepe', 'task_13']);
     expect((component as any).previewHtml).toBe('<p>tui name: layerCatalog</p>');
+  });
+
+  it('should include template parameter defaults in preview context', () => {
+    component.entityToEdit = {
+      properties: {
+        parameters: [
+          { name: 'featureId', type: 'string', value: '42' },
+          { name: 'emptyIgnored', type: 'string', value: '' },
+          { variable: 'explicitVar', type: 'string', value: 'abc' },
+        ],
+        previewContext: {
+          pepe: { tui_name: 'layerCatalog' },
+        },
+      },
+    } as any;
+    component.entityForm = new FormGroup({
+      name: new FormControl('Template 1'),
+      taskGroupId: new FormControl(2),
+      templateHtml: new FormControl('feature: {{$featureId}} {{pepe.tui_name}}'),
+    });
+
+    (component as any).renderPreview();
+
+    expect(previewService.previewTemplate).toHaveBeenCalledWith('feature: {{$featureId}} {{pepe.tui_name}}', {
+      $featureId: '42',
+      $explicitVar: 'abc',
+      pepe: { tui_name: 'layerCatalog' },
+    }, null, []);
   });
 
   it('should keep preview errors local to the preview panel', () => {
