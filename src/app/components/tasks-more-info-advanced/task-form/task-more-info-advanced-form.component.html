@@ -23,7 +23,7 @@
             <mat-label>{{ 'tasksMoreInfoAdvancedEntity.taskName' | translate }}</mat-label>
             <input matInput type="text" formControlName="name" [maxlength]="512" required>
             <mat-hint align="end">{{ entityForm.get('name') | characterCount }}</mat-hint>
-            <mat-icon matSuffix class="iconTranslate" (click)="onTranslated('name')" onKeyDown="onTranslated('name')">translate</mat-icon>
+            <mat-icon matSuffix class="iconTranslate" (click)="onTranslated('name')">translate</mat-icon>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="full">

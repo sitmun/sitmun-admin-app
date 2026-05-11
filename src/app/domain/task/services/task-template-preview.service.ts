@@ -14,7 +14,6 @@ export interface TemplateTaskExecutionResponse {
   context: Record<string, unknown>;
   rows: Record<string, unknown>[];
   resourceUrl: string | null;
-  flattenedContextKeys: string[];
 }
 
 export interface TemplateTaskExecutionEvent extends TemplateTaskExecutionResponse {

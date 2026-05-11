@@ -410,7 +410,6 @@ describe('TaskTemplateFormComponent', () => {
       context: { tui_name: 'layerCatalog' },
       rows: [{ tui_name: 'layerCatalog' }],
       resourceUrl: null,
-      flattenedContextKeys: ['tui_name'],
     });
 
     expect(previewService.previewTemplate).not.toHaveBeenCalled();
@@ -436,7 +435,6 @@ describe('TaskTemplateFormComponent', () => {
       context: { tui_name: 'layerCatalog' },
       rows: [{ tui_name: 'layerCatalog' }, { tui_name: 'search' }],
       resourceUrl: null,
-      flattenedContextKeys: ['tui_name'],
     });
 
     expect((component.entityToEdit as any).properties.previewContext.consulta_sql.rows)

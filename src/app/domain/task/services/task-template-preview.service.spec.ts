@@ -60,7 +60,6 @@ describe('TaskTemplatePreviewService', () => {
       context: {},
       rows: [],
       resourceUrl: null,
-      flattenedContextKeys: [],
     });
   });
 });

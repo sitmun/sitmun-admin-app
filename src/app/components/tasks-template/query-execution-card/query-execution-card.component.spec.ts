@@ -14,7 +14,7 @@ import { QueryExecutionCardComponent } from './query-execution-card.component';
 describe('QueryExecutionCardComponent', () => {
   let component: QueryExecutionCardComponent;
   let fixture: ComponentFixture<QueryExecutionCardComponent>;
-  let previewService: { executeLinkedTask: jest.Mock, previewTemplate: jest.Mock };
+  let previewService: { executeLinkedTask: jest.Mock };
   let clipboardWriteText: ReturnType<typeof jest.spyOn>;
 
   beforeEach(async () => {
@@ -35,9 +35,7 @@ describe('QueryExecutionCardComponent', () => {
         context: {},
         rows: [],
         resourceUrl: null,
-        flattenedContextKeys: [],
       })),
-      previewTemplate: jest.fn().mockReturnValue(of({ html: '<p>Rendered</p>', placeholders: [] })),
     };
 
     await TestBed.configureTestingModule({
@@ -165,7 +163,6 @@ describe('QueryExecutionCardComponent', () => {
       context: {},
       rows: [{ tui_tooltip: 'Layer', tui_id: 35 }],
       resourceUrl: null,
-      flattenedContextKeys: ['tui_tooltip', 'tui_id'],
     };
 
     await component.copyResponseColumnTable('tui_tooltip');
@@ -186,7 +183,6 @@ describe('QueryExecutionCardComponent', () => {
       context: {},
       rows: [{ tui_tooltip: 'Layer', tui_id: 35 }],
       resourceUrl: null,
-      flattenedContextKeys: ['tui_tooltip', 'tui_id'],
     };
 
     await component.copyResponseTable();
@@ -205,7 +201,6 @@ describe('QueryExecutionCardComponent', () => {
       context: { url: 'https://example.com' },
       rows: [],
       resourceUrl: 'https://example.com',
-      flattenedContextKeys: ['url'],
     };
 
     expect(component.taskResultReference).toBe('{{pepe.url}}');
@@ -232,7 +227,6 @@ describe('QueryExecutionCardComponent', () => {
       context: { html: '<p>Rendered</p>' },
       rows: [],
       resourceUrl: null,
-      flattenedContextKeys: ['html'],
     }));
     component.ngOnChanges({
       task: {

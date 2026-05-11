@@ -1,60 +1,65 @@
-.router-link {
-  color: inherit;
-  text-decoration: none;
-}
-
-.router-link:hover {
-  text-decoration: underline;
-}
-
-.manual-order-block {
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 4px;
-  margin-top: 8px;
-  padding: 12px;
-}
-
-.manual-order-hint {
-  color: rgba(0, 0, 0, 0.6);
-  font-size: 12px;
-  margin: 0 0 8px;
-}
-
-.manual-order-item {
-  align-items: center;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
+.row-fields {
   display: flex;
-  gap: 8px;
-  min-height: 44px;
-  padding: 4px 0;
+  gap: 16px;
 }
 
-.manual-order-item:first-of-type {
-  border-top: none;
-}
-
-.manual-order-index {
-  color: rgba(0, 0, 0, 0.7);
+.included-tasks-title {
+  font-size: 16px;
   font-weight: 600;
-  min-width: 24px;
-  text-align: center;
+  margin: 0 0 12px;
 }
 
-.manual-order-name {
-  flex: 1;
+.included-tasks-table {
+  border-collapse: collapse;
+  width: 100%;
+
+  th {
+    border-bottom: 2px solid rgba(0, 0, 0, 0.12);
+    color: rgba(0, 0, 0, 0.7);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 12px;
+    text-align: left;
+  }
+
+  td {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    font-size: 14px;
+    padding: 6px 12px;
+    vertical-align: middle;
+  }
+
+  tr:hover td {
+    background: rgba(0, 0, 0, 0.02);
+  }
+
+  .col-order {
+    width: 60px;
+  }
+
+  .col-name {
+    min-width: 200px;
+  }
+
+  .col-type {
+    width: 160px;
+  }
+
+  .col-actions {
+    text-align: right;
+    white-space: nowrap;
+    width: 140px;
+  }
 }
 
-.manual-order-actions {
-  align-items: center;
-  display: flex;
+.no-tasks-hint {
+  color: rgba(0, 0, 0, 0.5);
+  font-style: italic;
+  margin: 8px 0;
 }
 
-.response-format-field {
-  margin-top: 10px;
+.add-task-field {
+  margin-top: 16px;
 }
 
-.child-order-actions {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 10px;
-}
+
