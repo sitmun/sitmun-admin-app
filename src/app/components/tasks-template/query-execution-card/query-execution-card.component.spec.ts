@@ -5,7 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 
 import { TaskTemplatePreviewService } from '@app/domain';
 
@@ -120,6 +120,46 @@ describe('QueryExecutionCardComponent', () => {
 
     expect(component.status).toBe('FAILED');
     expect(component.errorMessage).toBe('Execution failed');
+  });
+
+  it('should request OnPush refresh when execution starts and completes', async () => {
+    const executionResponse$ = new Subject<any>();
+    previewService.executeLinkedTask.mockReturnValueOnce(executionResponse$);
+    const markForCheck = jest.spyOn((component as any).cdr, 'markForCheck');
+
+    const executionPromise = component.execute();
+
+    expect(component.status).toBe('RUNNING');
+    expect(markForCheck).toHaveBeenCalledTimes(1);
+
+    executionResponse$.next({
+      taskId: 13,
+      status: 'COMPLETED',
+      resultType: 'table',
+      parameters: {},
+      context: {},
+      rows: [{ field: 'name', value: 'Parcela' }],
+      resourceUrl: null,
+    });
+    executionResponse$.complete();
+    await executionPromise;
+
+    expect(component.status).toBe('COMPLETED');
+    expect(component.response?.rows).toEqual([{ field: 'name', value: 'Parcela' }]);
+    expect(markForCheck).toHaveBeenCalledTimes(2);
+  });
+
+  it('should request OnPush refresh when execution fails', async () => {
+    previewService.executeLinkedTask.mockReturnValueOnce(
+      throwError(() => ({ error: { message: 'Execution failed' } })),
+    );
+    const markForCheck = jest.spyOn((component as any).cdr, 'markForCheck');
+
+    await component.execute();
+
+    expect(component.status).toBe('FAILED');
+    expect(component.errorMessage).toBe('Execution failed');
+    expect(markForCheck).toHaveBeenCalledTimes(2);
   });
 
   it('should copy task reference and emit it for template insertion', async () => {

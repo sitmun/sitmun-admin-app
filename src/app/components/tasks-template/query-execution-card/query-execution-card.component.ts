@@ -191,6 +191,7 @@ export class QueryExecutionCardComponent implements OnChanges, OnDestroy {
 
     this.status = 'RUNNING';
     this.errorMessage = null;
+    this.cdr.markForCheck();
 
     try {
       const response = await firstValueFrom(
@@ -210,11 +211,13 @@ export class QueryExecutionCardComponent implements OnChanges, OnDestroy {
         referenceAlias: this.resolvedReferenceAlias,
         legacyReferenceAlias: this.legacyReferenceAlias,
       });
+      this.cdr.markForCheck();
     } catch (error) {
       this.status = 'FAILED';
       this.errorMessage = (error as { error?: { message?: string }, message?: string } | undefined)?.error?.message
         || (error as { message?: string } | undefined)?.message
         || 'Execution failed';
+      this.cdr.markForCheck();
     }
   }
 
