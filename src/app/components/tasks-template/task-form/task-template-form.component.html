@@ -67,7 +67,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let linkedTask of linkedTasks">
+              <tr *ngFor="let linkedTask of linkedTasks; trackBy: trackLinkedTask">
                 <td>{{ linkedTask.name }} (ID: {{ linkedTask.taskId }})</td>
                 <td>
                   <mat-form-field appearance="outline" class="reference-alias-field">
@@ -109,8 +109,8 @@
           <mat-form-field appearance="outline" class="full add-linked-task-field">
             <mat-label>{{ 'entity.task.report.taskName' | translate }}</mat-label>
             <input matInput type="text" [formControl]="linkTaskSearchControl" [matAutocomplete]="linkedTaskAuto">
-            <mat-autocomplete #linkedTaskAuto="matAutocomplete" (optionSelected)="onLinkableTaskSelected($event)" [displayWith]="displayLinkableTask.bind(this)">
-              <mat-option *ngFor="let task of filteredLinkableTasks | async" [value]="task">
+            <mat-autocomplete #linkedTaskAuto="matAutocomplete" (optionSelected)="onLinkableTaskSelected($event)" [displayWith]="displayLinkableTaskWith">
+              <mat-option *ngFor="let task of filteredLinkableTasks | async; trackBy: trackLinkableTask" [value]="task">
                 {{ task.name }} (ID: {{ task.taskId }}) - {{ task.typeLabel }}
               </mat-option>
             </mat-autocomplete>
@@ -141,17 +141,19 @@
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
         <mat-card-content>
           <div class="query-section">
-            <app-query-execution-card
-              *ngFor="let linkedTask of linkedTasks"
-          [task]="resolveTask(linkedTask.taskId)!"
-          [referenceAlias]="linkedTask.referenceAlias"
-          [typeLabel]="linkedTask.typeLabel"
-          [templateChildTasks]="templateChildTasks"
-          [taskTypeLabelResolver]="getTaskTypeLabel.bind(this)"
-          [templateRootTaskId]="entityToEdit?.id ?? null"
-          (executed)="onTaskExecuted($event)"
-          (placeholderSelected)="onPlaceholderSelected($event)">
-        </app-query-execution-card>
+            <ng-container *ngFor="let linkedTask of linkedTasks; trackBy: trackLinkedTask">
+              <app-query-execution-card
+                *ngIf="resolveTask(linkedTask.taskId) as task"
+                [task]="task"
+                [referenceAlias]="linkedTask.referenceAlias"
+                [typeLabel]="linkedTask.typeLabel"
+                [templateChildTasks]="templateChildTasks"
+                [taskTypeLabelResolver]="taskTypeLabelResolver"
+                [templateRootTaskId]="entityToEdit?.id ?? null"
+                (executed)="onTaskExecuted($event)"
+                (placeholderSelected)="onPlaceholderSelected($event)">
+              </app-query-execution-card>
+            </ng-container>
           </div>
         </mat-card-content>
       </mat-card>

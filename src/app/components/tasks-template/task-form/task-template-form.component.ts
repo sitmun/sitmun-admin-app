@@ -105,6 +105,8 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
   protected pendingReferenceAliasChange: PendingReferenceAliasChange | null = null;
   protected linkTaskSearchControl = new FormControl<string | LinkableTemplateTask>('', { nonNullable: true });
   protected filteredLinkableTasks = of<LinkableTemplateTask[]>([]);
+  protected readonly displayLinkableTaskWith = (task: LinkableTemplateTask | string): string => this.displayLinkableTask(task);
+  protected readonly taskTypeLabelResolver = (task: TaskProjection): string => this.getTaskTypeLabel(task);
   protected validationFieldLabels: Record<string, string> = {
     name: 'entity.task.template.label',
     taskGroupId: 'entity.taskGroup.label',
@@ -357,6 +359,14 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
 
   protected resolveTask(taskId: number): TaskProjection | undefined {
     return this.taskLookup.get(taskId);
+  }
+
+  protected trackLinkedTask(_index: number, linkedTask: LinkedTemplateTask): string {
+    return `${linkedTask.relationType}:${linkedTask.taskId}`;
+  }
+
+  protected trackLinkableTask(_index: number, task: LinkableTemplateTask): string {
+    return `${task.relationType}:${task.taskId}`;
   }
 
   protected onTaskExecuted(response: TemplateTaskExecutionEvent) {

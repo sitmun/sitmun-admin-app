@@ -360,6 +360,15 @@ describe('TaskTemplateFormComponent', () => {
     expect((component as any).resolveTask(13)).toBe(projection);
   });
 
+  it('should expose stable function references for template bindings', () => {
+    const firstDisplayWith = (component as any).displayLinkableTaskWith;
+    const firstTaskTypeResolver = (component as any).taskTypeLabelResolver;
+
+    expect(firstDisplayWith).toBe((component as any).displayLinkableTaskWith);
+    expect(firstTaskTypeResolver).toBe((component as any).taskTypeLabelResolver);
+    expect(firstDisplayWith({ taskId: 13, name: 'Consulta padron', typeLabel: 'Consulta SQL' })).toBe('Consulta padron (ID: 13)');
+  });
+
   it('should not render preview automatically when the editor value changes', () => {
     component.entityToEdit = {
       name: 'Template 1',

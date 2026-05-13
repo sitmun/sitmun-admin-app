@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -206,7 +206,7 @@ describe('QueryExecutionCardComponent', () => {
     expect(component.taskResultReference).toBe('{{pepe.url}}');
   });
 
-  it('should render nested template html from executed child contexts', async () => {
+  it('should render nested template html from executed child contexts', fakeAsync(async () => {
     component.task = {
       id: 15,
       name: 'Plantilla hija',
@@ -236,6 +236,7 @@ describe('QueryExecutionCardComponent', () => {
         isFirstChange: () => false,
       },
     });
+    tick();
     fixture.detectChanges();
 
     await component.execute();
@@ -243,11 +244,118 @@ describe('QueryExecutionCardComponent', () => {
     expect(previewService.executeLinkedTask).toHaveBeenCalledWith(15, {}, 15, {});
     expect(component.response?.context['html']).toBe('<p>Rendered</p>');
     expect(component.taskResultReference).toBe('{{plantilla_hija.html}}');
-  });
+  }));
 
   it('should hide chrome for nested template child cards', () => {
     component.nestingLevel = 1;
 
     expect(component.showEmbeddedChildChrome).toBe(false);
   });
+
+  it('should not recursively render a self-referencing template task forever', fakeAsync(() => {
+    component.task = { id: 15, name: 'Plantilla', typeId: 15, properties: {} } as any;
+    component.typeLabel = 'Plantilla';
+    component.templateChildTasks = new Map([
+      [15, [{ task: component.task, referenceAlias: 'self' }]],
+    ]);
+    component.ngOnChanges({
+      task: {
+        currentValue: component.task,
+        previousValue: null,
+        firstChange: false,
+        isFirstChange: () => false,
+      },
+    });
+
+    tick();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelectorAll('mat-card.query-card').length).toBe(1);
+  }));
+
+  it('should render valid nested template children normally', fakeAsync(() => {
+    component.task = { id: 100, name: 'Plantilla padre', typeId: 15, properties: {} } as any;
+    component.typeLabel = 'Plantilla';
+    component.templateChildTasks = new Map([
+      [100, [{ task: { id: 101, name: 'Plantilla hija', typeId: 15, properties: {} } as any, referenceAlias: 'child_template' }]],
+      [101, [{ task: { id: 102, name: 'URL nieta', typeId: 5, properties: {} } as any, referenceAlias: 'grandchild_url' }]],
+    ]);
+    component.ngOnChanges({
+      task: {
+        currentValue: component.task,
+        previousValue: null,
+        firstChange: false,
+        isFirstChange: () => false,
+      },
+    });
+
+    // Advance all deferred timers at each nesting level
+    tick(100);
+    fixture.detectChanges();
+    tick(100);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelectorAll('mat-card.query-card').length).toBe(3);
+    expect(fixture.nativeElement.textContent).toContain('Plantilla hija');
+    expect(fixture.nativeElement.textContent).toContain('URL nieta');
+  }));
+
+  it('should keep nested render inputs stable across repeated change detection', fakeAsync(() => {
+    component.task = { id: 100, name: 'Plantilla padre', typeId: 15, properties: {} } as any;
+    component.typeLabel = 'Plantilla';
+    component.templateChildTasks = new Map([
+      [100, [{ task: { id: 101, name: 'Plantilla hija', typeId: 15, properties: {} } as any, referenceAlias: 'child_template' }]],
+    ]);
+    component.ngOnChanges({
+      task: {
+        currentValue: component.task,
+        previousValue: null,
+        firstChange: false,
+        isFirstChange: () => false,
+      },
+    });
+
+    tick();
+    fixture.detectChanges();
+    const firstRenderableChildren = component.renderableChildTasks;
+    const firstAncestorIds = component.childAncestorTaskIds;
+
+    fixture.detectChanges();
+
+    expect(component.renderableChildTasks).toBe(firstRenderableChildren);
+    expect(component.childAncestorTaskIds).toBe(firstAncestorIds);
+  }));
+
+  it('should stop rendering nested children after the maximum depth', fakeAsync(() => {
+    component.task = { id: 200, name: 'Nivel 0', typeId: 15, properties: {} } as any;
+    component.typeLabel = 'Plantilla';
+    component.templateChildTasks = new Map([
+      [200, [{ task: { id: 201, name: 'Nivel 1', typeId: 15, properties: {} } as any, referenceAlias: 'level_1' }]],
+      [201, [{ task: { id: 202, name: 'Nivel 2', typeId: 15, properties: {} } as any, referenceAlias: 'level_2' }]],
+      [202, [{ task: { id: 203, name: 'Nivel 3', typeId: 15, properties: {} } as any, referenceAlias: 'level_3' }]],
+      [203, [{ task: { id: 204, name: 'Nivel 4', typeId: 5, properties: {} } as any, referenceAlias: 'level_4' }]],
+    ]);
+    component.ngOnChanges({
+      task: {
+        currentValue: component.task,
+        previousValue: null,
+        firstChange: false,
+        isFirstChange: () => false,
+      },
+    });
+
+    // Advance all deferred timers at each nesting level
+    tick(100);
+    fixture.detectChanges();
+    tick(100);
+    fixture.detectChanges();
+    tick(100);
+    fixture.detectChanges();
+    tick(100);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelectorAll('mat-card.query-card').length).toBe(4);
+    expect(fixture.nativeElement.textContent).toContain('Nivel 3');
+    expect(fixture.nativeElement.textContent).not.toContain('Nivel 4');
+  }));
 });

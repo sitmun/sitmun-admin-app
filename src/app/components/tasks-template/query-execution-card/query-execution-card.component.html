@@ -38,10 +38,10 @@
       {{ task.typeId === 15 ? 'Ejecutar plantilla' : 'Ejecutar' }}
     </button>
 
-    <div class="nested-template-children" *ngIf="isTemplateTask && childTasks.length > 0">
+    <div class="nested-template-children" *ngIf="childrenReady && renderableChildTasks.length > 0">
       <app-query-execution-card
         #childCard
-        *ngFor="let childTask of childTasks"
+        *ngFor="let childTask of renderableChildTasks; trackBy: trackChildTask"
         [task]="childTask.task"
         [referenceAlias]="childTask.referenceAlias"
         [typeLabel]="childTaskTypeLabel(childTask.task)"
@@ -49,6 +49,7 @@
         [taskTypeLabelResolver]="taskTypeLabelResolver"
         [templateRootTaskId]="resolvedTemplateTaskId"
         [nestingLevel]="nestingLevel + 1"
+        [ancestorTaskIds]="childAncestorTaskIds"
         (executed)="onChildExecuted($event)"
         (placeholderSelected)="placeholderSelected.emit($event)">
       </app-query-execution-card>

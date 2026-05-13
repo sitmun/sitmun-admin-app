@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, Output, QueryList, SimpleChanges, ViewChildren } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, Output, QueryList, SimpleChanges, ViewChildren } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { firstValueFrom } from 'rxjs';
@@ -24,8 +24,11 @@ export interface TemplateChildTaskLink {
   templateUrl: './query-execution-card.component.html',
   styleUrl: './query-execution-card.component.scss',
   standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QueryExecutionCardComponent implements OnChanges {
+export class QueryExecutionCardComponent implements OnChanges, OnDestroy {
+  private static readonly MAX_TEMPLATE_NESTING_LEVEL = 3;
+
   @Input({ required: true }) task!: TaskProjection;
   @Input() referenceAlias = '';
   @Input({ required: true }) typeLabel = '';
@@ -33,6 +36,7 @@ export class QueryExecutionCardComponent implements OnChanges {
   @Input() taskTypeLabelResolver: ((task: TaskProjection) => string) | null = null;
   @Input() nestingLevel = 0;
   @Input() templateRootTaskId: number | null = null;
+  @Input() ancestorTaskIds: number[] = [];
   @Output() executed = new EventEmitter<TemplateTaskExecutionEvent>();
   @Output() placeholderSelected = new EventEmitter<string>();
 
@@ -43,9 +47,16 @@ export class QueryExecutionCardComponent implements OnChanges {
   response: TemplateTaskExecutionResponse | null = null;
   errorMessage: string | null = null;
   trustedRenderedTemplateHtml: SafeHtml = '';
+  renderableChildTasks: TemplateChildTaskLink[] = [];
+  childAncestorTaskIds: number[] = [];
+  childrenReady = false;
+
+  private deferredRenderTimer: ReturnType<typeof setTimeout> | null = null;
+
   constructor(
     private readonly previewService: TaskTemplatePreviewService,
     private readonly domSanitizer: DomSanitizer,
+    private readonly cdr: ChangeDetectorRef,
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -56,6 +67,25 @@ export class QueryExecutionCardComponent implements OnChanges {
       this.errorMessage = null;
       this.trustedRenderedTemplateHtml = '';
     }
+    this.childAncestorTaskIds = this.getChildAncestorTaskIds();
+    this.renderableChildTasks = this.getRenderableChildTasks();
+
+    // Defer actual child rendering to break synchronous cascade.
+    // Each nesting level renders in a separate browser task.
+    this.childrenReady = false;
+    this.cancelDeferredRender();
+    if (this.renderableChildTasks.length > 0) {
+      this.deferredRenderTimer = setTimeout(() => {
+        this.deferredRenderTimer = null;
+        this.childrenReady = true;
+        this.cdr.markForCheck();
+        this.cdr.detectChanges();
+      }, 0);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.cancelDeferredRender();
   }
 
   get parameterDefinitions(): Array<Record<string, unknown>> {
@@ -108,6 +138,30 @@ export class QueryExecutionCardComponent implements OnChanges {
 
   get childTasks(): TemplateChildTaskLink[] {
     return this.templateChildTasks.get(this.task?.id ?? -1) ?? [];
+  }
+
+  trackChildTask(_index: number, childTask: TemplateChildTaskLink): string | number {
+    return childTask.task?.id ?? childTask.referenceAlias;
+  }
+
+  private getRenderableChildTasks(): TemplateChildTaskLink[] {
+    if (!this.isTemplateTask || this.nestingLevel >= QueryExecutionCardComponent.MAX_TEMPLATE_NESTING_LEVEL) {
+      return [];
+    }
+
+    const currentPathIds = new Set([...this.ancestorTaskIds, this.task?.id].filter((id): id is number => typeof id === 'number'));
+    return this.childTasks.filter((childTask) => !currentPathIds.has(childTask.task?.id));
+  }
+
+  private getChildAncestorTaskIds(): number[] {
+    return typeof this.task?.id === 'number' ? [...this.ancestorTaskIds, this.task.id] : this.ancestorTaskIds;
+  }
+
+  private cancelDeferredRender(): void {
+    if (this.deferredRenderTimer !== null) {
+      clearTimeout(this.deferredRenderTimer);
+      this.deferredRenderTimer = null;
+    }
   }
 
   get renderedTemplateHtml(): string {
