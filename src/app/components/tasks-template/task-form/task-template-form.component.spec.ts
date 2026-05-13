@@ -132,7 +132,7 @@ describe('TaskTemplateFormComponent', () => {
 
     const filtered = (component as any).filterLinkableQueryTasks(tasks);
 
-    expect(filtered.map((task: any) => task.taskId)).toEqual([1, 3, 4]);
+    expect(filtered.map((task: any) => task.taskId)).toEqual([1, 3, 4, 5]);
     expect((component as any).excludedAuthenticatedApiTasks).toBe(1);
   });
 
