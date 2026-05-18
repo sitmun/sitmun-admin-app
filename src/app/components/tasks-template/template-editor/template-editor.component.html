@@ -6,6 +6,7 @@
 <div #editorHost class="template-editor-host" [class.template-editor-host--hidden]="editorMode !== 'visual'"></div>
 
 <textarea
+  #htmlEditor
   *ngIf="editorMode === 'html'"
   class="template-editor-source"
   [value]="htmlSource"

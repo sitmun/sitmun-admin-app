@@ -830,6 +830,7 @@
   "entity.task.template.editor": "HTML editor",
   "entity.task.template.placeholders": "Use {{reference.field}} for response fields, {{reference.$param}} for submitted parameters, {{reference.url}} for URL/Resource tasks, and {{reference.html}} for nested templates.",
   "entity.task.template.backendVariables": "Backend-provided variables must use this format: {{#APP_NAME}}",
+  "entity.task.template.translationTooltip": "Wrap in translation tags <t>",
   "entity.task.template.preview": "Preview",
   "entity.task.template.detectedPlaceholders": "Detected placeholders",
   "entity.task.template.renderPreview": "Render",

@@ -830,6 +830,7 @@
   "entity.task.template.editor": "Editor HTML",
   "entity.task.template.placeholders": "Utilizatz {{referencia.camp}} entàs camps de responsa, {{referencia.$param}} entàs paramètres enviats, {{referencia.url}} entàs trabalhs URL/Recors e {{referencia.html}} entàs plantilhes niades.",
   "entity.task.template.backendVariables": "Es variables proporcionades peth backend s'an d'escríuer damb aguest format: {{#APP_NAME}}",
+  "entity.task.template.translationTooltip": "Envolcalla en etiquetes de traduccion <t>",
   "entity.task.template.preview": "Previsualizacion",
   "entity.task.template.detectedPlaceholders": "Marcadors detectadi",
   "entity.task.template.renderPreview": "Renderizar",

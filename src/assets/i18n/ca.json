@@ -830,6 +830,7 @@
   "entity.task.template.editor": "Editor HTML",
   "entity.task.template.placeholders": "Utilitzeu {{referencia.camp}} per accedir als camps de resposta, {{referencia.$param}} per accedir als paràmetres enviats, {{referencia.url}} per a tasques URL/Recurs i {{referencia.html}} per a plantilles imbricades.",
   "entity.task.template.backendVariables": "Les variables proporcionades pel backend s'han d'escriure amb aquest format: {{#APP_NAME}}",
+  "entity.task.template.translationTooltip": "Comprendre entre etiquetes de traducció <t>",
   "entity.task.template.preview": "Previsualització",
   "entity.task.template.detectedPlaceholders": "Marcadors detectats",
   "entity.task.template.renderPreview": "Renderitza",
