@@ -18,12 +18,13 @@
   [dynamicHeight]="true"
   preserveContent="true">
   <mat-tab label="{{ 'common.form.details' | translate }}">
-    <form [formGroup]='entityForm' *ngIf="dataLoaded">
+    <form [formGroup]='entityForm' *ngIf="dataLoaded" class="application-form-entity">
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
         <mat-card-content>
-          <mat-form-field appearance="outline" class="full">
+          <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
             <mat-label>{{ 'common.form.name' | translate }} ({{ defaultLang }})</mat-label>
             <input matInput type="text" formControlName="name" [maxlength]="50" required>
+            <mat-hint align="start">{{ 'entity.application.hint.name' | translate }}</mat-hint>
             <mat-hint align="end" [class.text-warning]="entityForm.get('name')?.value?.length > 50">
               {{entityForm.get('name') | characterCount}}
               <mat-icon *ngIf="entityForm.get('name')?.value?.length > 50" fontIcon="warning" class="warning-icon"></mat-icon>
@@ -32,65 +33,81 @@
                       (click)="onTranslated('name')"
                       onKeyDown="onTranslated('name')">translate</mat-icon>
           </mat-form-field>
-          <mat-form-field appearance="outline" class="full">
+          <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
             <mat-label>{{ 'common.form.description' | translate }} ({{ defaultLang }})</mat-label>
             <textarea matInput type="text" formControlName="description" required [maxlength]="4000"></textarea>
+              <mat-hint align="start">{{ 'entity.application.hint.description' | translate }}</mat-hint>
               <mat-hint align="end">{{entityForm.get('description') | characterCount}}</mat-hint>
               <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('description')"
                       onKeyDown="onTranslated('description')">translate</mat-icon>
           </mat-form-field>
-          <mat-form-field appearance="outline" class="half add-gap">
-            <mat-label>{{ 'common.form.type' | translate }}</mat-label>
-            <mat-select formControlName="type" class="form-control"
-                        (selectionChange)="onSelectionTypeAppChanged($event)">
-              <mat-option [value]="appType.value" *ngFor="let appType of this.codeList('application.type')">
-                {{ appType.description }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="half">
-            <mat-label>{{ 'entity.application.creator' | translate }}</mat-label>
-            <mat-select formControlName="creatorId" class="form-control">
-              <mat-select-trigger>
-                <ng-container *ngIf="entityForm.get('creatorId')?.value as creatorId">
-                  <a [routerLink]="['/user', creatorId, 'userForm']"
-                     class="router-link">
-                    {{ getUsername(creatorId) | translate }}
-                  </a>
-                </ng-container>
-                <span *ngIf="!entityForm.get('creatorId')?.value">
-                  {{ 'common.form.none' | translate }}
-                </span>
-              </mat-select-trigger>
-              <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
-              <mat-option [value]="user.id" *ngFor="let user of usersList">
-                <div>
-                  <a [routerLink]="['/user', user.id, 'userForm']"
-                     (click)="$event.stopPropagation()" class="router-link">
-                    <span>{{ user.username }}</span>
-                  </a>
-                </div>
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'common.form.logo' | translate }}</mat-label>
+          <div class="application-form-field-row application-form-field-row--two-col">
+            <mat-form-field appearance="outline" class="half add-gap" subscriptSizing="dynamic">
+              <mat-label>{{ 'entity.application.type' | translate }}</mat-label>
+              <mat-select formControlName="type" class="form-control"
+                          (selectionChange)="onSelectionTypeAppChanged($event)">
+                <mat-option [value]="appType.value" *ngFor="let appType of this.codeList('application.type')">
+                  {{ appType.description }}
+                </mat-option>
+              </mat-select>
+              <mat-hint align="start">{{ 'entity.application.hint.type' | translate }}</mat-hint>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="half" subscriptSizing="dynamic">
+              <mat-label>{{ 'entity.application.creator' | translate }}</mat-label>
+              <mat-select formControlName="creatorId" class="form-control">
+                <mat-select-trigger>
+                  <ng-container *ngIf="entityForm.get('creatorId')?.value as creatorId">
+                    <a [routerLink]="['/user', creatorId, 'userForm']"
+                       class="router-link">
+                      {{ getUsername(creatorId) | translate }}
+                    </a>
+                  </ng-container>
+                  <span *ngIf="!entityForm.get('creatorId')?.value">
+                    {{ 'common.form.none' | translate }}
+                  </span>
+                </mat-select-trigger>
+                <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
+                <mat-option [value]="user.id" *ngFor="let user of usersList">
+                  <div>
+                    <a [routerLink]="['/user', user.id, 'userForm']"
+                       (click)="$event.stopPropagation()" class="router-link">
+                      <span>{{ user.username }}</span>
+                    </a>
+                  </div>
+                </mat-option>
+              </mat-select>
+              <mat-hint align="start">{{ 'entity.application.hint.creatorId' | translate }}</mat-hint>
+            </mat-form-field>
+          </div>
+          <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
+            <mat-label>{{ 'entity.application.logo' | translate }}</mat-label>
             <input matInput type="text" formControlName="logo" [maxlength]="4000">
+            <mat-hint align="start">{{ 'entity.application.hint.logo' | translate }}</mat-hint>
             <mat-hint align="end">{{entityForm.get('logo') | characterCount}}</mat-hint>
+            <mat-error *ngIf="entityForm.get('logo')?.hasError('optionalHttpUrl')">
+              {{ 'entity.application.error.optionalHttpUrl' | translate }}
+            </mat-error>
           </mat-form-field>
-          <mat-checkbox formControlName="isUnavailable">
-            <mat-label> {{'entity.application.isUnavailable' | translate}} </mat-label>
-          </mat-checkbox>
-          <mat-checkbox formControlName="appPrivate">
-            <mat-label> {{ 'entity.application.appPrivate' | translate }}</mat-label>
-          </mat-checkbox>
-          <mat-form-field appearance="outline" class="full">
+          <div class="application-toggle-row">
+            <mat-slide-toggle color="primary" formControlName="appPrivate">
+              {{ 'entity.application.appPrivate' | translate }}
+            </mat-slide-toggle>
+            <div class="application-field-hint">{{ 'entity.application.hint.appPrivate' | translate }}</div>
+          </div>
+          <div class="application-toggle-row">
+            <mat-slide-toggle color="primary" formControlName="isUnavailable">
+              {{ 'entity.application.isUnavailable' | translate }}
+            </mat-slide-toggle>
+            <div class="application-field-hint">{{ 'entity.application.hint.isUnavailable' | translate }}</div>
+          </div>
+          <mat-form-field *ngIf="entityForm.get('isUnavailable')?.value" appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
             <mat-label> {{'entity.application.maintenanceInformation' | translate}} ({{ defaultLang }}) </mat-label>
             <textarea matInput type="text" formControlName="maintenanceInformation" [maxlength]="4000"></textarea>
             <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('maintenanceInformation')"
                       onKeyDown="onTranslated('maintenanceInformation')">translate</mat-icon>
+            <mat-hint align="start">{{ 'entity.application.hint.maintenanceInformation' | translate }}</mat-hint>
             <mat-hint align="end">{{entityForm.get('maintenanceInformation') | characterCount}}</mat-hint>
           </mat-form-field>
 
@@ -104,74 +121,98 @@
       </mat-card>
       <mat-card *ngIf="isExternalApp()" appearance="outlined" class="sitmun-mat-card-margin">
         <mat-card-content>
-          <mat-form-field appearance="outline" class="full">
+          <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
             <mat-label>{{ 'entity.application.type.external.url' | translate }}</mat-label>
             <input matInput type="text" formControlName="jspTemplate" [maxlength]="250">
+            <mat-hint align="start">{{ 'entity.application.hint.jspTemplate' | translate }}</mat-hint>
             <mat-hint align="end">{{entityForm.get('jspTemplate') | characterCount}}</mat-hint>
+            <mat-error *ngIf="entityForm.get('jspTemplate')?.hasError('optionalHttpUrl')">
+              {{ 'entity.application.error.optionalHttpUrl' | translate }}
+            </mat-error>
           </mat-form-field>
         </mat-card-content>
       </mat-card>
       <mat-card *ngIf="isInternalApp()" appearance="outlined" class="sitmun-mat-card-margin">
         <mat-card-content>
-          <mat-form-field appearance="outline" class="full">
+          <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
             <mat-label>{{ 'entity.application.type.generic.title' | translate }} ({{ defaultLang }})</mat-label>
             <input matInput type="text" formControlName="title" [maxlength]="250">
             <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('title')"
                       onKeyDown="onTranslated('title')"
                       >translate</mat-icon>
+            <mat-hint align="start">{{ 'entity.application.hint.title' | translate }}</mat-hint>
             <mat-hint align="end">{{entityForm.get('title') | characterCount}}</mat-hint>
           </mat-form-field>
-          <mat-form-field appearance="outline" class="half add-gap">
-            <mat-label>{{ 'entity.application.type.generic.css' | translate }}</mat-label>
-            <input matInput type="text" formControlName="theme" [maxlength]="30">
-            <mat-hint align="end">{{entityForm.get('theme') | characterCount}}</mat-hint>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="half">
-            <mat-label>{{ 'entity.application.type.generic.scales' | translate }}</mat-label>
-            <input matInput type="text" formControlName="scales" [maxlength]="250">
-            <mat-hint align="end">{{entityForm.get('scales') | characterCount}}</mat-hint>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="half add-gap">
-            <mat-label>{{ 'entity.application.type.generic.srs' | translate }}</mat-label>
-            <input matInput type="text" formControlName="srs" [maxlength]="50">
-            <mat-hint align="end">{{entityForm.get('srs') | characterCount}}</mat-hint>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="half">
-            <mat-label>{{ 'entity.application.type.generic.situationmap' | translate }}</mat-label>
-            <mat-select formControlName="situationMapId" class="form-control">
-              <mat-select-trigger>
-                <ng-container *ngIf="entityForm.get('situationMapId')?.value as selectedId">
-                  <a [routerLink]="['/layersPermits', selectedId, 'layersPermitsForm']" class="router-link">
-                    {{ getSituationMapName(selectedId) | translate }}
-                  </a>
-                </ng-container>
-                <span *ngIf="!entityForm.get('situationMapId')?.value">
-                  {{ 'common.form.none' | translate }}
-                </span>
-              </mat-select-trigger>
-              <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
-              <mat-option [value]="situationMapObj.id" *ngFor="let situationMapObj of situationMapList">
-                <div>
-                  <a [routerLink]="['/layersPermits', situationMapObj.id, 'layersPermitsForm']"
-                     (click)="$event.stopPropagation()" class="router-link">
-                    <span>{{ situationMapObj.name | translate }}</span>
-                  </a>
-                </div>
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
+          <div class="application-form-field-row application-form-field-row--two-col">
+            <mat-form-field appearance="outline" class="half add-gap sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
+              <mat-label>{{ 'entity.application.type.generic.css' | translate }}</mat-label>
+              <input matInput type="text" formControlName="theme" [maxlength]="30">
+              <mat-hint align="start">{{ 'entity.application.hint.theme' | translate }}</mat-hint>
+              <mat-hint align="end">{{entityForm.get('theme') | characterCount}}</mat-hint>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="half sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
+              <mat-label>{{ 'entity.application.type.generic.scales' | translate }}</mat-label>
+              <input matInput type="text" formControlName="scales" [maxlength]="250">
+              <mat-hint align="start">{{ 'entity.application.hint.scales' | translate }}</mat-hint>
+              <mat-hint align="end">{{entityForm.get('scales') | characterCount}}</mat-hint>
+            </mat-form-field>
+          </div>
+          <div class="application-form-field-row application-form-field-row--two-col">
+            <mat-form-field appearance="outline" class="half add-gap sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
+              <mat-label>{{ 'entity.application.type.generic.srs' | translate }}</mat-label>
+              <input matInput type="text" formControlName="srs" [maxlength]="50">
+              <mat-hint align="start">{{ 'entity.application.hint.srs' | translate }}</mat-hint>
+              <mat-hint align="end">{{entityForm.get('srs') | characterCount}}</mat-hint>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="half sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
+              <mat-label>{{ 'entity.application.type.generic.situationmap' | translate }}</mat-label>
+              <mat-select formControlName="situationMapId" class="form-control">
+                <mat-select-trigger>
+                  <ng-container *ngIf="entityForm.get('situationMapId')?.value as selectedId">
+                    <a [routerLink]="['/layersPermits', selectedId, 'layersPermitsForm']" class="router-link">
+                      {{ getSituationMapName(selectedId) | translate }}
+                    </a>
+                  </ng-container>
+                  <span *ngIf="!entityForm.get('situationMapId')?.value">
+                    {{ 'common.form.none' | translate }}
+                  </span>
+                </mat-select-trigger>
+                <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
+                <mat-option [value]="situationMapObj.id" *ngFor="let situationMapObj of situationMapList">
+                  <div>
+                    <a [routerLink]="['/layersPermits', situationMapObj.id, 'layersPermitsForm']"
+                       (click)="$event.stopPropagation()" class="router-link">
+                      <span>{{ situationMapObj.name | translate }}</span>
+                    </a>
+                  </div>
+                </mat-option>
+              </mat-select>
+              <mat-hint align="start">{{ 'entity.application.hint.situationMap' | translate }}</mat-hint>
+            </mat-form-field>
+          </div>
           <div class="break"></div>
-          <mat-checkbox formControlName="accessParentTerritory">
-            <mat-label>{{ 'entity.application.type.generic.accessParentTerritory' | translate }}</mat-label>
-          </mat-checkbox>
-          <mat-checkbox formControlName="accessChildrenTerritory">
-            <mat-label>{{ 'entity.application.type.generic.accessChildrenTerritory' | translate }}</mat-label>
-          </mat-checkbox>
-          <div class="break"></div>
-          <mat-checkbox formControlName="treeAutoRefresh">
-            <mat-label>{{ 'entity.application.type.generic.treeAutoRefresh' | translate }}</mat-label>
-          </mat-checkbox>
+          <div class="application-toggle-row">
+            <mat-slide-toggle color="primary" formControlName="treeAutoRefresh">
+              {{ 'entity.application.type.generic.treeAutoRefresh' | translate }}
+            </mat-slide-toggle>
+            <div class="application-field-hint application-field-hint--rich">{{ 'entity.application.hint.treeAutoRefresh' | translate }}</div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      <mat-card *ngIf="isInternalApp()" appearance="outlined" class="sitmun-mat-card-margin">
+        <mat-card-content>
+          <p class="application-field-hint--rich application-territorial-access-intro">
+            {{ 'entity.application.territorialAccess.intro' | translate }}
+          </p>
+          <div class="application-territorial-access-toggles">
+            <mat-slide-toggle color="primary" formControlName="accessParentTerritory">
+              {{ 'entity.application.type.generic.accessParentTerritory' | translate }}
+            </mat-slide-toggle>
+            <mat-slide-toggle color="primary" formControlName="accessChildrenTerritory">
+              {{ 'entity.application.type.generic.accessChildrenTerritory' | translate }}
+            </mat-slide-toggle>
+          </div>
         </mat-card-content>
       </mat-card>
     </form>
@@ -181,28 +222,28 @@
       <mat-card-content>
         <form *ngIf="dataLoaded" [formGroup]='entityForm'>
           <mat-card appearance="outlined" class="sitmun-mat-card-margin">
-            <div class="checkbox-grid">
-              <div class="checkbox-column">
-                <mat-checkbox formControlName="logoSitmun">
-                  <mat-label> {{ 'entity.application.header.displaySitmunLogo' | translate }}</mat-label>
-                </mat-checkbox>
-                <mat-checkbox formControlName="switchApplication">
-                  <mat-label>{{ 'entity.application.header.displaySwitchApplicationButton' | translate }}</mat-label>
-                </mat-checkbox>
-                <mat-checkbox formControlName="homeMenu">
-                  <mat-label>{{ 'entity.application.header.displayHomeButton' | translate }}</mat-label>
-                </mat-checkbox>
+            <div class="toggle-grid">
+              <div class="toggle-column">
+                <mat-slide-toggle color="primary" formControlName="logoSitmun">
+                  {{ 'entity.application.header.displaySitmunLogo' | translate }}
+                </mat-slide-toggle>
+                <mat-slide-toggle color="primary" formControlName="switchApplication">
+                  {{ 'entity.application.header.displaySwitchApplicationButton' | translate }}
+                </mat-slide-toggle>
+                <mat-slide-toggle color="primary" formControlName="homeMenu">
+                  {{ 'entity.application.header.displayHomeButton' | translate }}
+                </mat-slide-toggle>
               </div>
-              <div class="checkbox-column">
-                <mat-checkbox formControlName="switchLanguage">
-                  <mat-label>{{ 'entity.application.header.displaySwitchLanguageButton' | translate }}</mat-label>
-                </mat-checkbox>
-                <mat-checkbox formControlName="profileButton">
-                  <mat-label>{{ 'entity.application.header.displayProfileButton' | translate }}</mat-label>
-                </mat-checkbox>
-                <mat-checkbox formControlName="logoutButton">
-                  <mat-label>{{ 'entity.application.header.displayLogoutButton' | translate }}</mat-label>
-                </mat-checkbox>
+              <div class="toggle-column">
+                <mat-slide-toggle color="primary" formControlName="switchLanguage">
+                  {{ 'entity.application.header.displaySwitchLanguageButton' | translate }}
+                </mat-slide-toggle>
+                <mat-slide-toggle color="primary" formControlName="profileButton">
+                  {{ 'entity.application.header.displayProfileButton' | translate }}
+                </mat-slide-toggle>
+                <mat-slide-toggle color="primary" formControlName="logoutButton">
+                  {{ 'entity.application.header.displayLogoutButton' | translate }}
+                </mat-slide-toggle>
               </div>
             </div>
           </mat-card>
@@ -384,9 +425,9 @@
         </mat-form-field>
 
 
-        <mat-checkbox formControlName="visible">
-          <mat-label> {{ 'entity.application.type.generic.visible' | translate }}</mat-label>
-        </mat-checkbox>
+        <mat-slide-toggle color="primary" formControlName="visible">
+          {{ 'entity.application.type.generic.visible' | translate }}
+        </mat-slide-toggle>
       </mat-card-content>
     </mat-card>
   </form>

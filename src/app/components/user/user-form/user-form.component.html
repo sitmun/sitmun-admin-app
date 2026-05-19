@@ -30,9 +30,12 @@
               </mat-form-field>
               <div class="break"></div>
               <!-- Blocked -->
-              <mat-checkbox formControlName="blocked">
-                {{ 'entity.user.blocked' | translate }}
-              </mat-checkbox>
+              <div class="sitmun-toggle-row">
+                <mat-slide-toggle color="primary" formControlName="blocked">
+                  {{ 'entity.user.blocked' | translate }}
+                </mat-slide-toggle>
+                <p class="sitmun-toggle-hint">{{ 'entity.user.hint.blocked' | translate }}</p>
+              </div>
             </mat-card-content>
           </mat-card>
           <mat-card class="sitmun-mat-card-margin" appearance="outlined" *ngIf="!isUsernamePublic()">
@@ -74,9 +77,9 @@
               </mat-form-field>
               <div class="break"></div>
               <!-- Administrator -->
-              <mat-checkbox formControlName="administrator">
+              <mat-slide-toggle color="primary" formControlName="administrator">
                 {{ 'entity.user.administrator' | translate }}
-              </mat-checkbox>
+              </mat-slide-toggle>
               <!-- Warnings Section -->
               <app-warnings-panel
                 [expanded]="true"

@@ -62,9 +62,12 @@
             <mat-label>{{ 'entity.territory.code' | translate }}</mat-label>
             <input matInput type="text" formControlName="code" maxlength="10" required>
           </mat-form-field>
-          <mat-checkbox formControlName="blocked">
-            {{ 'entity.territory.blocked' | translate }}
-          </mat-checkbox>
+          <div class="sitmun-toggle-row">
+            <mat-slide-toggle color="primary" formControlName="blocked">
+              {{ 'entity.territory.blocked' | translate }}
+            </mat-slide-toggle>
+            <p class="sitmun-toggle-hint">{{ 'entity.territory.hint.blocked' | translate }}</p>
+          </div>
           <div class="break"></div>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'entity.territory.logo' | translate }}</mat-label>
