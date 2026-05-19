@@ -16,7 +16,7 @@
       </button>
     </div>
 
-    <div class="task-reference-row" *ngIf="showEmbeddedChildChrome && taskResultReference">
+    <div class="task-reference-row" *ngIf="showEmbeddedChildChrome && showTaskResultReference">
       <span>{{ 'entity.task.template.resultReference' | translate }}</span>
       <span class="html-reference-token">{{ taskResultReference }}</span>
       <button class="copy-icon-button" mat-icon-button type="button" (click)="copyTaskResultReference()" [attr.aria-label]="'common.copy' | translate">
@@ -57,7 +57,7 @@
 
     <mat-error *ngIf="showEmbeddedChildChrome && errorMessage">{{ errorMessage }}</mat-error>
 
-    <div *ngIf="showEmbeddedChildChrome && response?.rows?.length" class="response-table-wrapper">
+    <div *ngIf="showEmbeddedChildChrome && showResponseTable" class="response-table-wrapper">
       <div class="task-reference-row" *ngIf="!isFieldValueTable && responseColumns.length > 0">
         <span>{{ 'entity.task.template.tableReference' | translate }}</span>
         <button class="copy-icon-button" mat-icon-button type="button" (click)="copyResponseTable()" [attr.aria-label]="'common.copy' | translate">
@@ -96,6 +96,9 @@
 
     <div *ngIf="showEmbeddedChildChrome && response?.resourceUrl" class="resource-link-wrapper">
       <a [href]="response.resourceUrl || '#'" target="_blank" rel="noopener noreferrer">{{ response.resourceUrl }}</a>
+      <button *ngIf="isBinaryResourceResponse" class="copy-icon-button" mat-icon-button type="button" (click)="copyBinaryContentSnippet()" [attr.aria-label]="'common.copy' | translate">
+        <mat-icon>content_copy</mat-icon>
+      </button>
     </div>
 
     <div *ngIf="showEmbeddedChildChrome && response?.resultType === 'template' && renderedTemplateHtml" class="template-result-wrapper">

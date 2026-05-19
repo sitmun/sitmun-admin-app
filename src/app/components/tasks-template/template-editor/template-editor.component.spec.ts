@@ -5,6 +5,42 @@ import { normalizeHandlebarsMarkup, TemplateEditorComponent } from './template-e
 describe('TemplateEditorComponent', () => {
   let component: TemplateEditorComponent;
 
+  const mockRect = (element: HTMLElement, rect: { left: number; top: number; width: number; height: number; }) => {
+    jest.spyOn(element, 'getBoundingClientRect').mockReturnValue({
+      x: rect.left,
+      y: rect.top,
+      left: rect.left,
+      top: rect.top,
+      width: rect.width,
+      height: rect.height,
+      right: rect.left + rect.width,
+      bottom: rect.top + rect.height,
+      toJSON: () => '',
+    } as DOMRect);
+  };
+
+  const configureVisualEditorHost = (root?: HTMLElement) => {
+    const host = document.createElement('div');
+    Object.defineProperty(host, 'scrollTop', { value: 0, writable: true });
+    Object.defineProperty(host, 'scrollLeft', { value: 0, writable: true });
+    mockRect(host, { left: 20, top: 10, width: 600, height: 400 });
+    (component as any).editorHost = { nativeElement: host };
+    const surface = document.createElement('div');
+    Object.defineProperty(surface, 'scrollTop', { value: 0, writable: true });
+    Object.defineProperty(surface, 'scrollLeft', { value: 0, writable: true });
+    mockRect(surface, { left: 10, top: 5, width: 640, height: 420 });
+    (component as any).visualSurface = { nativeElement: surface };
+    surface.appendChild(host);
+    if (root) {
+      (component as any).quill = {
+        getModule: () => ({ hideTools: jest.fn() }),
+        root,
+      };
+      host.appendChild(root);
+    }
+    return host;
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [TemplateEditorComponent],
@@ -106,5 +142,516 @@ describe('TemplateEditorComponent', () => {
     expect(emitted).toEqual([
       '<table class="ql-table-better"><colgroup><col width="300"></colgroup><tbody><tr><td>Resized</td></tr></tbody></table>',
     ]);
+  });
+
+  it('should select a directly clicked image and match the overlay to its rendered rect', () => {
+    const root = document.createElement('div');
+    const image = document.createElement('img');
+    image.setAttribute('src', 'https://example.com/image.png');
+    root.appendChild(image);
+    configureVisualEditorHost(root);
+    mockRect(image, { left: 70, top: 45, width: 180, height: 120 });
+
+    component.onEditorHostClick({ target: image } as unknown as MouseEvent);
+
+    expect(component.selectedVisualElement).toEqual({ tagName: 'img' });
+    expect((component as any).resizeOverlay).toEqual({
+      visible: true,
+      tagName: 'img',
+      top: 40,
+      left: 60,
+      width: 180,
+      height: 120,
+    });
+  });
+
+  it('should select a directly clicked iframe and match the overlay to its rendered rect', () => {
+    const root = document.createElement('div');
+    const iframe = document.createElement('iframe');
+    iframe.setAttribute('src', 'https://example.com/doc.pdf');
+    root.appendChild(iframe);
+    configureVisualEditorHost(root);
+    mockRect(iframe, { left: 80, top: 60, width: 260, height: 190 });
+
+    component.onEditorHostClick({ target: iframe } as unknown as MouseEvent);
+
+    expect(component.selectedVisualElement).toEqual({ tagName: 'iframe' });
+
+    expect((component as any).resizeOverlay).toEqual({
+      visible: true,
+      tagName: 'iframe',
+      top: 55,
+      left: 70,
+      width: 260,
+      height: 190,
+    });
+  });
+
+  it('should select an iframe from parent click coordinates when iframe content does not bubble clicks', () => {
+    const root = document.createElement('div');
+    const iframe = document.createElement('iframe');
+    iframe.setAttribute('src', 'https://example.com/doc.pdf');
+    root.appendChild(iframe);
+    configureVisualEditorHost(root);
+    mockRect(iframe, { left: 80, top: 60, width: 260, height: 190 });
+
+    component.onEditorHostClick({
+      target: root,
+      clientX: 120,
+      clientY: 90,
+    } as unknown as MouseEvent);
+
+    expect(component.selectedVisualElement).toEqual({ tagName: 'iframe' });
+    expect((component as any).resizeOverlay).toEqual({
+      visible: true,
+      tagName: 'iframe',
+      top: 55,
+      left: 70,
+      width: 260,
+      height: 190,
+    });
+  });
+
+  it('should position the resize overlay relative to the visual surface context', () => {
+    const image = document.createElement('img');
+    configureVisualEditorHost();
+    mockRect(image, { left: 70, top: 45, width: 180, height: 120 });
+
+    component.selectVisualElement(image);
+
+    expect((component as any).resizeOverlay).toEqual({
+      visible: true,
+      tagName: 'img',
+      top: 40,
+      left: 60,
+      width: 180,
+      height: 120,
+    });
+  });
+
+  it('should refresh the resize overlay when the editor surface scrolls or window resizes', () => {
+    const image = document.createElement('img');
+    const host = configureVisualEditorHost();
+    const surface = (component as any).visualSurface.nativeElement as HTMLDivElement;
+    mockRect(image, { left: 70, top: 45, width: 180, height: 120 });
+
+    component.selectVisualElement(image);
+    expect((component as any).resizeOverlay).toEqual({
+      visible: true,
+      tagName: 'img',
+      top: 40,
+      left: 60,
+      width: 180,
+      height: 120,
+    });
+
+    surface.scrollTop = 30;
+    surface.scrollLeft = 15;
+    host.dispatchEvent(new Event('scroll'));
+
+    expect((component as any).resizeOverlay).toEqual({
+      visible: true,
+      tagName: 'img',
+      top: 70,
+      left: 75,
+      width: 180,
+      height: 120,
+    });
+
+    mockRect(surface, { left: 20, top: 15, width: 640, height: 420 });
+    window.dispatchEvent(new Event('resize'));
+
+    expect((component as any).resizeOverlay).toEqual({
+      visible: true,
+      tagName: 'img',
+      top: 60,
+      left: 65,
+      width: 180,
+      height: 120,
+    });
+  });
+
+  it('should not select an embed when clicking its wrapper instead of the element', () => {
+    const root = document.createElement('div');
+    const wrapper = document.createElement('div');
+    const iframe = document.createElement('iframe');
+    iframe.setAttribute('src', 'https://example.com/doc.pdf');
+    iframe.setAttribute('width', '260');
+    iframe.setAttribute('height', '190');
+    wrapper.appendChild(iframe);
+    root.appendChild(wrapper);
+    configureVisualEditorHost(root);
+    mockRect(wrapper, { left: 40, top: 30, width: 12, height: 12 });
+    mockRect(iframe, { left: 90, top: 60, width: 260, height: 190 });
+
+    component.onEditorHostClick({ target: wrapper } as unknown as MouseEvent);
+
+    expect(component.selectedVisualElement).toBeNull();
+    expect((component as any).resizeOverlay).toBeNull();
+  });
+
+  it('should refresh overlay from the actual rendered element rect when drag resize ends', () => {
+    const root = document.createElement('div');
+    const image = document.createElement('img');
+    image.setAttribute('src', 'https://example.com/image.png');
+    root.appendChild(image);
+    configureVisualEditorHost(root);
+    const rectSpy = jest.spyOn(image, 'getBoundingClientRect');
+    rectSpy.mockReturnValueOnce({
+      x: 70, y: 45, left: 70, top: 45, width: 180, height: 120, right: 250, bottom: 165, toJSON: () => '',
+    } as DOMRect);
+    rectSpy.mockReturnValueOnce({
+      x: 72, y: 48, left: 72, top: 48, width: 255, height: 188, right: 327, bottom: 236, toJSON: () => '',
+    } as DOMRect);
+
+    component.selectVisualElement(image);
+    (component as any).startVisualResize({ clientX: 250, clientY: 165, preventDefault: jest.fn(), stopPropagation: jest.fn() });
+    (component as any).updateVisualResize({ clientX: 330, clientY: 235 });
+    (component as any).endVisualResize();
+
+    expect((component as any).resizeOverlay).toEqual({
+      visible: true,
+      tagName: 'img',
+      top: 43,
+      left: 62,
+      width: 255,
+      height: 188,
+    });
+  });
+
+  it('should keep a resized broken template image visual box at the applied dimensions', () => {
+    const root = document.createElement('div');
+    const image = document.createElement('img');
+    image.setAttribute('src', '{{task_32317.contentUrl}}');
+    root.appendChild(image);
+    configureVisualEditorHost(root);
+    const rectSpy = jest.spyOn(image, 'getBoundingClientRect');
+    rectSpy.mockReturnValue({
+      x: 70, y: 45, left: 70, top: 45, width: 16, height: 16, right: 86, bottom: 61, toJSON: () => '',
+    } as DOMRect);
+
+    component.selectVisualElement(image);
+    (component as any).startVisualResize({ clientX: 86, clientY: 61, preventDefault: jest.fn(), stopPropagation: jest.fn() });
+    (component as any).updateVisualResize({ clientX: 310, clientY: 205 });
+    (component as any).endVisualResize();
+
+    expect(image.getAttribute('width')).toBe('240');
+    expect(image.getAttribute('height')).toBe('160');
+    expect(image.style.width).toBe('240px');
+    expect(image.style.height).toBe('160px');
+    expect((component as any).resizeOverlay).toEqual({
+      visible: true,
+      tagName: 'img',
+      top: 40,
+      left: 60,
+      width: 240,
+      height: 160,
+    });
+  });
+
+  it('should use applied image width when a broken image keeps a narrower alt-text rect', () => {
+    const root = document.createElement('div');
+    const image = document.createElement('img');
+    image.setAttribute('src', '{{task_32317.contentUrl}}');
+    image.setAttribute('width', '240');
+    image.setAttribute('height', '160');
+    image.style.width = '240px';
+    image.style.height = '160px';
+    root.appendChild(image);
+    configureVisualEditorHost(root);
+    mockRect(image, { left: 70, top: 45, width: 118, height: 160 });
+
+    component.selectVisualElement(image);
+
+    expect((component as any).resizeOverlay).toEqual({
+      visible: true,
+      tagName: 'img',
+      top: 40,
+      left: 60,
+      width: 240,
+      height: 160,
+    });
+  });
+
+  it('should use applied image width and measured height when only width is set on a broken template image', () => {
+    const root = document.createElement('div');
+    const image = document.createElement('img');
+    image.setAttribute('src', '{{task_32317.contentUrl}}');
+    image.setAttribute('width', '240');
+    image.style.width = '240px';
+    root.appendChild(image);
+    configureVisualEditorHost(root);
+    mockRect(image, { left: 70, top: 45, width: 118, height: 72 });
+
+    component.selectVisualElement(image);
+
+    expect((component as any).resizeOverlay).toEqual({
+      visible: true,
+      tagName: 'img',
+      top: 40,
+      left: 60,
+      width: 240,
+      height: 72,
+    });
+  });
+
+  it('should use measured width and applied height when only height is set on a broken template image', () => {
+    const root = document.createElement('div');
+    const image = document.createElement('img');
+    image.setAttribute('src', '{{task_32317.contentUrl}}');
+    image.setAttribute('height', '160');
+    image.style.height = '160px';
+    root.appendChild(image);
+    configureVisualEditorHost(root);
+    mockRect(image, { left: 70, top: 45, width: 118, height: 16 });
+
+    component.selectVisualElement(image);
+
+    expect((component as any).resizeOverlay).toEqual({
+      visible: true,
+      tagName: 'img',
+      top: 40,
+      left: 60,
+      width: 118,
+      height: 160,
+    });
+  });
+
+  it('should not select an unrelated embed from a higher ancestor subtree', () => {
+    const root = document.createElement('div');
+    const embedWrapper = document.createElement('div');
+    const iframe = document.createElement('iframe');
+    iframe.setAttribute('src', 'https://example.com/doc.pdf');
+    embedWrapper.appendChild(iframe);
+
+    const textWrapper = document.createElement('div');
+    const unrelatedText = document.createElement('span');
+    unrelatedText.textContent = 'plain text';
+    textWrapper.appendChild(unrelatedText);
+
+    root.appendChild(embedWrapper);
+    root.appendChild(textWrapper);
+    configureVisualEditorHost(root);
+
+    component.onEditorHostClick({ target: unrelatedText } as unknown as MouseEvent);
+
+    expect(component.selectedVisualElement).toBeNull();
+    expect((component as any).resizeOverlay).toBeNull();
+  });
+
+  it('should not select an embed when clicking a mixed container that also contains caption/content', () => {
+    const root = document.createElement('div');
+    const figure = document.createElement('figure');
+    const image = document.createElement('img');
+    const caption = document.createElement('figcaption');
+    const captionText = document.createElement('span');
+
+    image.setAttribute('src', 'https://example.com/image.png');
+    captionText.textContent = 'caption';
+    caption.appendChild(captionText);
+    figure.appendChild(image);
+    figure.appendChild(caption);
+    root.appendChild(figure);
+    configureVisualEditorHost(root);
+
+    component.onEditorHostClick({ target: figure } as unknown as MouseEvent);
+
+    expect(component.selectedVisualElement).toBeNull();
+    expect((component as any).resizeOverlay).toBeNull();
+  });
+
+  it('should not select an embed when wrapper contains non-empty text nodes mixed with the embed', () => {
+    const root = document.createElement('div');
+    const wrapper = document.createElement('div');
+    const image = document.createElement('img');
+
+    wrapper.appendChild(document.createTextNode('texto '));
+    image.setAttribute('src', 'https://example.com/image.png');
+    wrapper.appendChild(image);
+    root.appendChild(wrapper);
+    configureVisualEditorHost(root);
+
+    component.onEditorHostClick({ target: wrapper } as unknown as MouseEvent);
+
+    expect(component.selectedVisualElement).toBeNull();
+    expect((component as any).resizeOverlay).toBeNull();
+  });
+
+  it('should not select an embed when a nested wrapper path contains non-empty text nodes', () => {
+    const root = document.createElement('div');
+    const outerWrapper = document.createElement('div');
+    const innerWrapper = document.createElement('span');
+    const image = document.createElement('img');
+
+    innerWrapper.appendChild(document.createTextNode('texto '));
+    image.setAttribute('src', 'https://example.com/image.png');
+    innerWrapper.appendChild(image);
+    outerWrapper.appendChild(innerWrapper);
+    root.appendChild(outerWrapper);
+    configureVisualEditorHost(root);
+
+    component.onEditorHostClick({ target: outerWrapper } as unknown as MouseEvent);
+
+    expect(component.selectedVisualElement).toBeNull();
+    expect((component as any).resizeOverlay).toBeNull();
+  });
+
+  it('should resize a selected image from the visual resize handle', () => {
+    const emitted: string[] = [];
+    const root = document.createElement('div');
+    const image = document.createElement('img');
+    image.setAttribute('src', 'https://example.com/image.png');
+    root.appendChild(image);
+    component.htmlChange.subscribe((value) => emitted.push(value));
+    configureVisualEditorHost(root);
+    const rectSpy = jest.spyOn(image, 'getBoundingClientRect');
+    rectSpy.mockReturnValueOnce({
+      x: 70, y: 45, left: 70, top: 45, width: 180, height: 120, right: 250, bottom: 165, toJSON: () => '',
+    } as DOMRect);
+    rectSpy.mockReturnValueOnce({
+      x: 70, y: 45, left: 70, top: 45, width: 240, height: 160, right: 310, bottom: 205, toJSON: () => '',
+    } as DOMRect);
+
+    component.selectVisualElement(image);
+    (component as any).startVisualResize({ clientX: 250, clientY: 165, preventDefault: jest.fn(), stopPropagation: jest.fn() });
+    (component as any).updateVisualResize({ clientX: 310, clientY: 205 });
+    (component as any).endVisualResize();
+
+    expect(image.getAttribute('width')).toBe('240');
+    expect(image.getAttribute('height')).toBe('160');
+    expect(component.selectedVisualElement).toEqual({ tagName: 'img' });
+    expect((component as any).resizeOverlay).toEqual({
+      visible: true,
+      tagName: 'img',
+      top: 40,
+      left: 60,
+      width: 240,
+      height: 160,
+    });
+    expect(component.htmlSource).toBe('<img src="https://example.com/image.png" width="240" height="160" style="width: 240px; height: 160px;">');
+    expect(emitted).toEqual(['<img src="https://example.com/image.png" width="240" height="160" style="width: 240px; height: 160px;">']);
+  });
+
+  it('should resize a selected iframe from the visual resize handle', () => {
+    const emitted: string[] = [];
+    const root = document.createElement('div');
+    const iframe = document.createElement('iframe');
+    iframe.setAttribute('src', 'https://example.com/doc.pdf');
+    iframe.style.width = '320px';
+    iframe.style.height = '180px';
+    root.appendChild(iframe);
+    component.htmlChange.subscribe((value) => emitted.push(value));
+    configureVisualEditorHost(root);
+    mockRect(iframe, { left: 80, top: 60, width: 200, height: 140 });
+
+    component.selectVisualElement(iframe);
+    (component as any).startVisualResize({ clientX: 280, clientY: 200, preventDefault: jest.fn(), stopPropagation: jest.fn() });
+    (component as any).updateVisualResize({ clientX: 340, clientY: 250 });
+    (component as any).endVisualResize();
+
+    expect(iframe.getAttribute('width')).toBe('260');
+    expect(iframe.getAttribute('height')).toBe('190');
+    expect(iframe.style.width).toBe('260px');
+    expect(iframe.style.height).toBe('190px');
+    expect(component.htmlSource).toBe('<iframe src="https://example.com/doc.pdf" style="width: 260px; height: 190px;" width="260" height="190"></iframe>');
+    expect(emitted).toEqual(['<iframe src="https://example.com/doc.pdf" style="width: 260px; height: 190px;" width="260" height="190"></iframe>']);
+  });
+
+  it('should remove the selected visual element on delete and sync html source', () => {
+    const emitted: string[] = [];
+    const root = document.createElement('div');
+    const image = document.createElement('img');
+    image.setAttribute('src', '{{task_32317.contentUrl}}');
+    image.setAttribute('width', '240');
+    image.setAttribute('height', '160');
+    root.appendChild(document.createTextNode('Before'));
+    root.appendChild(image);
+    root.appendChild(document.createTextNode('After'));
+    component.htmlSource = root.innerHTML;
+    component.htmlChange.subscribe((value) => emitted.push(value));
+    configureVisualEditorHost(root);
+    mockRect(image, { left: 70, top: 45, width: 240, height: 160 });
+    component.selectVisualElement(image);
+
+    component.onEditorHostKeydown({ key: 'Delete', preventDefault: jest.fn(), stopPropagation: jest.fn() } as unknown as KeyboardEvent);
+
+    expect(root.querySelector('img')).toBeNull();
+    expect(component.selectedVisualElement).toBeNull();
+    expect((component as any).resizeOverlay).toBeNull();
+    expect(component.htmlSource).toBe('BeforeAfter');
+    expect(emitted).toEqual(['BeforeAfter']);
+  });
+
+  it('should not expose manual width and height panel actions', () => {
+    expect((component as any).applySelectedElementDimensions).toBeUndefined();
+    expect((component as any).applyIframePreset).toBeUndefined();
+    expect((component as any).selectedElementWidth).toBeUndefined();
+    expect((component as any).selectedElementHeight).toBeUndefined();
+  });
+
+  it('should update image inline width and height styles when drag resizing', () => {
+    const root = document.createElement('div');
+    const image = document.createElement('img');
+    image.setAttribute('src', 'https://example.com/image.png');
+    image.style.width = '320px';
+    image.style.height = '180px';
+    root.appendChild(image);
+    configureVisualEditorHost(root);
+    mockRect(image, { left: 70, top: 45, width: 180, height: 120 });
+
+    component.selectVisualElement(image);
+    (component as any).startVisualResize({ clientX: 250, clientY: 165, preventDefault: jest.fn(), stopPropagation: jest.fn() });
+    (component as any).updateVisualResize({ clientX: 310, clientY: 205 });
+
+    expect(image.getAttribute('width')).toBe('240');
+    expect(image.getAttribute('height')).toBe('160');
+    expect(image.style.width).toBe('240px');
+    expect(image.style.height).toBe('160px');
+  });
+
+  it('should clear selected element state when switching to html mode', () => {
+    const iframe = document.createElement('iframe');
+    iframe.setAttribute('width', '100%');
+    iframe.setAttribute('height', '600');
+    configureVisualEditorHost();
+    mockRect(iframe, { left: 80, top: 60, width: 200, height: 140 });
+
+    component.selectVisualElement(iframe);
+    expect((component as any).resizeOverlay).toBeTruthy();
+    component.setEditorMode('html');
+
+    expect(component.selectedVisualElement).toBeNull();
+    expect((component as any).resizeOverlay).toBeNull();
+  });
+
+  it('should clear selected element state when reloading editor content', () => {
+    const iframe = document.createElement('iframe');
+    const convert = jest.fn().mockReturnValue({ ops: [] });
+    const setContents = jest.fn();
+    const updateContents = jest.fn();
+    (component as any).quill = {
+      clipboard: { convert },
+      setContents,
+      updateContents,
+    };
+    configureVisualEditorHost();
+    mockRect(iframe, { left: 80, top: 60, width: 200, height: 140 });
+
+    component.selectVisualElement(iframe);
+    expect((component as any).resizeOverlay).toBeTruthy();
+
+    (component as any).loadHtmlIntoEditor('<p>Reloaded</p>');
+
+    expect(component.selectedVisualElement).toBeNull();
+    expect((component as any).resizeOverlay).toBeNull();
+    expect(convert).toHaveBeenCalledWith({ html: '<p>Reloaded</p>' });
+    expect(setContents).toHaveBeenCalledWith([], 'silent');
+    expect(updateContents).toHaveBeenCalledWith({ ops: [] }, 'silent');
+  });
+
+  it('should configure quill modules without the resize plugin', () => {
+    const modules = (component as any).buildQuillModules({ keyboardBindings: {} });
+
+    expect(modules.resize).toBeUndefined();
   });
 });

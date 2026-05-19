@@ -124,6 +124,29 @@ export class QueryExecutionCardComponent implements OnChanges, OnDestroy {
     return null;
   }
 
+  get binaryContentReference(): string | null {
+    return this.isBinaryResourceResponse && this.response?.context?.['contentUrl']
+      ? `{{${this.resolvedReferenceAlias}.contentUrl}}`
+      : null;
+  }
+
+  get isBinaryResourceResponse(): boolean {
+    return this.response?.context?.['binary'] === true || this.response?.binary === true;
+  }
+
+  get showResponseTable(): boolean {
+    return !this.isBinaryResourceResponse && !!this.response?.rows?.length;
+  }
+
+  get showTaskResultReference(): boolean {
+    return !!this.taskResultReference && !this.isBinaryResourceResponse;
+  }
+
+  get binaryMimeType(): string {
+    const contextMimeType = this.response?.context?.['mimeType'];
+    return String(contextMimeType ?? this.response?.mimeType ?? '').toLowerCase();
+  }
+
   get resolvedReferenceAlias(): string {
     return this.referenceAlias?.trim() || this.legacyReferenceAlias;
   }
@@ -257,6 +280,15 @@ export class QueryExecutionCardComponent implements OnChanges, OnDestroy {
     await navigator.clipboard.writeText(this.renderedTemplateHtml).catch(() => undefined);
   }
 
+  async copyBinaryContentSnippet(): Promise<void> {
+    const contentReference = this.binaryContentReference;
+    if (!contentReference) {
+      return;
+    }
+
+    await this.copyPlaceholder(this.buildBinaryContentSnippet(contentReference));
+  }
+
   stringifyFieldPath(value: unknown): string {
     return value == null ? '' : String(value);
   }
@@ -316,6 +348,17 @@ export class QueryExecutionCardComponent implements OnChanges, OnDestroy {
     const headers = columns.map((column) => `<th>${this.escapeHtml(column)}</th>`).join('');
     const cells = columns.map((column) => `<td>{{${column}}}</td>`).join('');
     return `<table data-sitmun-each="${this.escapeHtml(this.resolvedReferenceAlias)}.rows"><thead><tr>${headers}</tr></thead><tbody><tr>${cells}</tr></tbody></table>`;
+  }
+
+  private buildBinaryContentSnippet(contentReference: string): string {
+    const label = this.escapeHtml(this.task?.name || 'Contenido binario');
+    if (this.binaryMimeType === 'application/pdf') {
+      return `<iframe src="${contentReference}" width="100%" height="360" title="${label}"></iframe>`;
+    }
+    if (this.binaryMimeType.startsWith('image/')) {
+      return `<img src="${contentReference}" alt="${label}">`;
+    }
+    return `<a href="${contentReference}" target="_blank" rel="noopener noreferrer">Descargar contenido</a>`;
   }
 
   private escapeHtml(value: string): string {
