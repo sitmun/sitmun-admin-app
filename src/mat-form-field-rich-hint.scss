@@ -1,0 +1,22 @@
+// Long start hint + end character counter (n/m): keep both on one flex row — the start hint
+// wraps inside its flex item; avoid flex-wrap on the MDC hint wrapper (wrap drops the counter).
+
+mat-form-field.sitmun-cartography-rich-hint-field {
+  .mat-mdc-form-field-hint-wrapper {
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: 0.25rem 0.75rem;
+  }
+
+  .mat-mdc-form-field-hint:not(.mat-mdc-form-field-hint-end) {
+    flex: 1 1 auto;
+    min-width: 0;
+    line-height: 1.35;
+    overflow-wrap: break-word;
+  }
+
+  .mat-mdc-form-field-hint-end {
+    flex: 0 0 auto;
+    line-height: 1.35;
+  }
+}

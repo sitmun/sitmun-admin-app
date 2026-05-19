@@ -48,9 +48,8 @@ import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from "@app/services/logger.service";
 import {UtilsService} from '@app/services/utils.service';
+import {optionalHttpOrHttpsUrlValidator} from '@app/validators/optional-http-url.validator';
 import {constants} from '@environments/constants';
-
-
 
 /**
  * Angular component that provides a form interface for managing SITMUN applications.
@@ -304,7 +303,10 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       description: new UntypedFormControl(this.entityToEdit.description),
       type: new UntypedFormControl(this.entityToEdit.type, [Validators.required,]),
       title: new UntypedFormControl(this.entityToEdit.title),
-      jspTemplate: new UntypedFormControl(this.entityToEdit.jspTemplate), // URL or path to an external application template
+      jspTemplate: new UntypedFormControl(this.entityToEdit.jspTemplate, [
+        Validators.maxLength(250),
+        optionalHttpOrHttpsUrlValidator,
+      ]),
       theme: new UntypedFormControl(this.entityToEdit.theme),
       situationMapId: new UntypedFormControl(this.entityToEdit.situationMapId, []),
       srs: new UntypedFormControl(this.entityToEdit.srs),
@@ -318,7 +320,10 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       logoutButton: new UntypedFormControl(this.entityToEdit.headerParams.headerRightSection.logoutButton.visible),
       profileButton: new UntypedFormControl(this.entityToEdit.headerParams.headerRightSection.profileButton.visible),
       switchLanguage: new UntypedFormControl(this.entityToEdit.headerParams.headerRightSection.switchLanguage.visible),
-      logo: new UntypedFormControl(this.entityToEdit.logo, []),
+      logo: new UntypedFormControl(this.entityToEdit.logo, [
+        Validators.maxLength(4000),
+        optionalHttpOrHttpsUrlValidator,
+      ]),
       maintenanceInformation: new UntypedFormControl(this.entityToEdit.maintenanceInformation,[]),
       creatorId: new UntypedFormControl(this.entityToEdit.creatorId,[]),
       isUnavailable: new UntypedFormControl(this.entityToEdit.isUnavailable ?? false,[]),

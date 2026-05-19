@@ -163,10 +163,10 @@ describe('ApplicationFormComponent', () => {
   it('form valid', () => {
     component.entityForm.patchValue({
       name: 'name',
-      logo: 'logo',
+      logo: 'https://example.com/logo.png',
       type: 1,
       title: 'title',
-      jspTemplate: 'url',
+      jspTemplate: 'https://example.com/external-app',
       theme: 'theme',
       situationMap: 1,
       scales: '1',
