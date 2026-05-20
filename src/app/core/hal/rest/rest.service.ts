@@ -207,6 +207,20 @@ export class RestService<T extends Resource> {
   }
 
   /**
+   * Fetches a single HAL content-search page for infinite grids.
+   * Convenience method that calls searchPage with 'content' query and adds q parameter.
+   */
+  public searchTextPage(text: string, options?: HalOptions): Observable<HalPage<T>> {
+    return this.searchPage('content', {
+      ...options,
+      params: [
+        ...(options?.params ?? []),
+        {key: 'q', value: text},
+      ],
+    });
+  }
+
+  /**
    * Fetches all rows across pages for client-side grids and dropdowns.
    * Phase A: single request with high size (default). Phase B: chunked loop when chunkedFullFetch is set.
    */

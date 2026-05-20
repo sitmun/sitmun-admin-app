@@ -16,15 +16,4 @@ export class CartographyService extends RestService<Cartography> {
   constructor(injector: Injector) {
     super(Cartography, "cartographies", injector);
   }
-
-  /** Fetches one paged content-search result set for cartography infinite grids. */
-  searchTextPage(text: string, options?: HalOptions): Observable<HalPage<Cartography>> {
-    return this.searchPage('content', {
-      ...options,
-      params: [
-        ...(options?.params ?? []),
-        {key: 'q', value: text},
-      ],
-    });
-  }
 }

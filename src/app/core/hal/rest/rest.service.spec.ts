@@ -13,7 +13,7 @@ class TestEntity extends Resource {
 }
 
 describe('RestService characterization and paging', () => {
-  let resourceService: jest.Mocked<Pick<ResourceService, 'fetch'>>;
+  let resourceService: jest.Mocked<Pick<ResourceService, 'fetch' | 'search'>>;
   let restService: RestService<TestEntity>;
 
   const sampleArray = (): ResourceArray<TestEntity> => {
@@ -29,7 +29,7 @@ describe('RestService characterization and paging', () => {
   };
 
   beforeEach(() => {
-    resourceService = {fetch: jest.fn()};
+    resourceService = {fetch: jest.fn(), search: jest.fn()};
     TestBed.configureTestingModule({
       providers: [{provide: ResourceService, useValue: resourceService}],
     });
@@ -114,6 +114,43 @@ describe('RestService characterization and paging', () => {
 
     restService.fetchAllItems({chunkedFullFetch: true, size: 10}).subscribe((rows) => {
       expect(rows.map((r) => r.id)).toEqual([1, 2, 3]);
+      done();
+    });
+  });
+
+  it('searchTextPage calls searchPage with content and q param', (done) => {
+    const searchResult = sampleArray();
+    resourceService.search.mockReturnValue(of(searchResult));
+
+    restService.searchTextPage('road').subscribe((page) => {
+      expect(page.rows.length).toBe(2);
+      expect(page.totalElements).toBe(25);
+      expect(resourceService.search).toHaveBeenCalledWith(
+        TestEntity,
+        'content',
+        'tests',
+        'customEmbedded',
+        expect.objectContaining({
+          params: expect.arrayContaining([{key: 'q', value: 'road'}]),
+        }),
+        undefined,
+        undefined,
+        false,
+      );
+      done();
+    });
+  });
+
+  it('searchTextPage merges existing params with q param', (done) => {
+    const searchResult = sampleArray();
+    resourceService.search.mockReturnValue(of(searchResult));
+
+    restService.searchTextPage('road', {params: [{key: 'typeId', value: 1}], page: 0, size: 50}).subscribe(() => {
+      const callArgs = resourceService.search.mock.calls[0];
+      const options = callArgs[4];
+      expect(options.params).toEqual([{key: 'typeId', value: 1}, {key: 'q', value: 'road'}]);
+      expect(options.page).toBe(0);
+      expect(options.size).toBe(50);
       done();
     });
   });
