@@ -26,7 +26,7 @@ export class BackgroundLayersComponent extends BaseListComponent<Background> {
     iconName: Configuration.BACKGROUND_LAYER.icon,
     font: Configuration.BACKGROUND_LAYER.font,
     columnDefs: [],
-    dataFetchFn: () => this.backgroundService.getAll(),
+    dataFetchFn: () => this.backgroundService.fetchAllItems(),
     defaultColumnSorting: ['name'],
     gridOptions: {
       globalSearch: true,
@@ -84,7 +84,7 @@ export class BackgroundLayersComponent extends BaseListComponent<Background> {
     await this.router.navigate(['backgroundLayers', -1, 'backgroundLayersForm', id]);
   }
 
-  override dataFetchFn = () => this.backgroundService.getAll();
+  override dataFetchFn = () => this.backgroundService.fetchAllItems();
 
   override dataUpdateFn = (data: Background) => firstValueFrom(this.backgroundService.update(data))
 

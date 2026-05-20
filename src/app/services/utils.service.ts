@@ -141,7 +141,7 @@ export class UtilsService {
     }
     const query: HalOptions = {params: params2};
 
-    return this.codeListService.getAll(query);
+    return this.codeListService.fetchAllItems(query);
   }
 
   /**
@@ -340,6 +340,30 @@ export class UtilsService {
   }
 
   /**
+   * Gets a row-only checkbox selection column for AG Grid row models
+   * that do not support header checkbox selection.
+   * @returns Column definition object for row checkbox selection.
+   */
+  getRowCheckboxColumnDef() {
+    return {
+      headerName: '',
+      field: '__loadingSelection',
+      valueGetter: () => '',
+      checkboxSelection: (params) => !!params.data,
+      cellClass: (params) => params.data ? '' : 'sitmun-loading-checkbox-cell',
+      filter: false,
+      floatingFilter: false,
+      editable: false,
+      lockPosition: true,
+      suppressMovable: true,
+      resizable: false,
+      width: 56,
+      maxWidth: 56,
+      flex: 0,
+    };
+  }
+
+  /**
    * Gets a value parser for array values in AG Grid.
    * @returns Value parser configuration object.
    */
@@ -476,6 +500,7 @@ export class UtilsService {
    * @param field - Field name in data object.
    * @param editable - Flag to make column editable.
    * @param elements - Array of selectable options.
+   * @param formattedList
    * @param valuesKeyField
    * @param valuesKeyField
    * @param valuesField
@@ -985,7 +1010,7 @@ export class UtilsService {
     if (translationMap) {
       // Load existing translations for this element to get _links
       const existingTranslations = await firstValueFrom(
-        this.translationService.getAll().pipe(
+        this.translationService.fetchAllItems().pipe(
           map((data: any[]) => data.filter(t => t.element === id))
         )
       );

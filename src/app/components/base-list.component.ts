@@ -193,7 +193,7 @@ export abstract class BaseListComponent<T extends Resource>
       query.params.push(param);
     }
 
-    return this.codeListService.getAll(query);
+    return this.codeListService.fetchAllItems(query);
   }
 
   async canDeactivate(): Promise<boolean | Observable<boolean>> {
@@ -247,7 +247,7 @@ export abstract class BaseListComponent<T extends Resource>
             const results = await Promise.allSettled(
               data.map((item) => this.dataDeleteFn(item))
             );
-            
+
             // Check for any failures and log them
             const failures = results.filter((result) => result.status === 'rejected');
             if (failures.length > 0) {
@@ -259,16 +259,16 @@ export abstract class BaseListComponent<T extends Resource>
                 }
               });
             }
-            
+
             // Delay refresh if there were failures to ensure error messages are visible
             // Error messages are displayed via MatSnackBar with 4-10 second duration
             // We wait 2 seconds to allow error messages to appear before refreshing
             const refreshDelay = failures.length > 0 ? 2000 : 0;
-            
+
             if (refreshDelay > 0) {
               await new Promise(resolve => setTimeout(resolve, refreshDelay));
             }
-            
+
             // Always refresh the table to show current state (successful deletions removed, failed ones still visible)
             this.refreshCommandEvent$.next(true);
           },

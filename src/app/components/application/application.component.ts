@@ -26,7 +26,7 @@ export class ApplicationComponent extends BaseListComponent<Application> {
     iconName: Configuration.APPLICATION.icon,
     font: Configuration.APPLICATION.font,
     columnDefs: [],
-    dataFetchFn: () => this.applicationService.getAll(),
+    dataFetchFn: () => this.applicationService.fetchAllItems(),
     defaultColumnSorting: ['name'],
     gridOptions: {
       globalSearch: true,
@@ -91,7 +91,7 @@ export class ApplicationComponent extends BaseListComponent<Application> {
     await this.router.navigate(['application', -1, 'applicationForm', id]);
   }
 
-  override dataFetchFn = () => this.applicationService.getAll();
+  override dataFetchFn = () => this.applicationService.fetchAllItems();
 
   override dataUpdateFn = (data: Application) => firstValueFrom(this.applicationService.update(data))
 

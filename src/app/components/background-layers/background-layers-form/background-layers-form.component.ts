@@ -190,7 +190,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
    * @returns Promise resolving to the background entity with projection
    */
   override fetchOriginal(): Promise<BackgroundProjection> {
-    return firstValueFrom(this.backgroundService.getProjection(BackgroundProjection, this.entityID));
+    return firstValueFrom(this.backgroundService.fetchProjectionById(BackgroundProjection, this.entityID));
   }
 
   /**
@@ -199,7 +199,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
    * @returns Promise resolving to the duplicated background entity
    */
   override fetchCopy(): Promise<BackgroundProjection> {
-    return firstValueFrom(this.backgroundService.getProjection(BackgroundProjection, this.duplicateID).pipe(map((copy: BackgroundProjection) => {
+    return firstValueFrom(this.backgroundService.fetchProjectionById(BackgroundProjection, this.duplicateID).pipe(map((copy: BackgroundProjection) => {
       copy.name = this.translateService.instant("common.copyPrefix") + copy.name;
       return copy;
     })));
@@ -218,7 +218,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
    * Loads the associated cartography group.
    */
   override async fetchRelatedData() {
-    this.cartographyGroup = await firstValueFrom(this.cartographyGroupService.getOriginal(this.entityToEdit.cartographyGroupId))
+    this.cartographyGroup = await firstValueFrom(this.cartographyGroupService.fetchRawById(this.entityToEdit.cartographyGroupId))
     await this.loadTranslations(this.entityToEdit)
   }
 
@@ -316,7 +316,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
         this.utils.getNonEditableColumnDef('common.form.description', 'description', 100, 300),
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.roleService.getAll())
+      .withTargetsFetcher(() => this.roleService.fetchAllItems())
       .withTargetsTitle('entity.permissionGroup.roles.title')
       .build();
   }
@@ -362,7 +362,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
         this.utils.getNonEditableColumnDef('common.form.description', 'description', 100, 600),
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.applicationService.getAllProjection(ApplicationProjection))
+      .withTargetsFetcher(() => this.applicationService.fetchProjectionItems(ApplicationProjection))
       .withTargetInclude((applicationBackgrounds: (ApplicationBackgroundProjection)[]) =>
         (item: ApplicationProjection) => !applicationBackgrounds.some((applicationBackground) => applicationBackground.applicationId === item.id))
       .withTargetToRelation((items: ApplicationProjection[]) => items.map(item => ApplicationBackgroundProjection.of(item, this.entityToEdit, 0)))
@@ -409,7 +409,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
         this.utils.getNonEditableColumnDef('entity.permissionGroup.layers.service', 'serviceName', 100, 300),
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.cartographyService.getAllProjection(CartographyProjection))
+      .withTargetsFetcher(() => this.cartographyService.fetchProjectionItems(CartographyProjection))
       .withTargetInclude((cartographies: (CartographyProjection & Status)[]) => (item: CartographyProjection) => {
         return !cartographies.some((cartography) => cartography.id === item.id);
       })

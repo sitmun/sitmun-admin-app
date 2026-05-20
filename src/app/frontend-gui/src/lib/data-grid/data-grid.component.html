@@ -4,7 +4,7 @@
           matTooltip="{{ 'common.button.cancel' | translate }}"
           mat-mini-fab class="add-half-gap"
           color="primary"
-          *ngIf="discardChangesButton"
+          *ngIf="discardChangesButton && !isInfiniteMode"
           (click)="deleteChanges()"
           [disabled]="changeCounter <= 0 && (!someStatusHasChangedToDelete || discardNonReverseStatus  )">
     <mat-icon fontSet="material-icons-round">close</mat-icon>
@@ -14,7 +14,7 @@
           matTooltip="{{ 'common.button.undo' | translate }}"
           mat-mini-fab class="add-half-gap"
           color="primary"
-          *ngIf="undoButton && someColumnIsEditable"
+          *ngIf="undoButton && someColumnIsEditable && !isInfiniteMode"
           (click)="undo()"
           [disabled]="changeCounter <= 0">
     <mat-icon fontSet="material-icons-round">undo</mat-icon>
@@ -24,7 +24,7 @@
           matTooltip="{{ 'common.button.redo' | translate }}"
           mat-mini-fab class="add-half-gap"
           color="primary"
-          *ngIf="redoButton && someColumnIsEditable"
+          *ngIf="redoButton && someColumnIsEditable && !isInfiniteMode"
           (click)="redo()"
           [disabled]="redoCounter <= 0">
     <mat-icon fontSet="material-icons-round">redo</mat-icon>
@@ -39,12 +39,12 @@
           [disabled]="changeCounter <= 0">
     <mat-icon fontSet="material-icons-round">check</mat-icon>
   </button>
-  <mat-form-field subscriptSizing="dynamic" class="spacer add-half-gap">
+  <mat-form-field subscriptSizing="dynamic" class="spacer add-half-gap" *ngIf="globalSearch && (!isInfiniteMode || progressiveLocalFilter || backendSearch)">
     <mat-label>{{ 'common.button.search' | translate }}</mat-label>
     <input matInput type="text" placeholder="" (keyup)="quickSearch($event)">
   </mat-form-field>
 
-  <ng-container *ngIf="!hideReplaceButton">
+  <ng-container *ngIf="!hideReplaceButton && !isInfiniteMode">
     <mat-form-field subscriptSizing="dynamic" class="spacer add-half-gap">
       <mat-label>{{ 'common.button.replace' | translate }}</mat-label>
       <input matInput type="text" placeholder="" [(ngModel)]="replaceValue">
@@ -63,7 +63,7 @@
   <button type="button"
           mat-mini-fab class="add-half-gap"
           color="primary"
-          *ngIf="!hideExportButton"
+          *ngIf="!hideExportButton && !isInfiniteMode"
           [disabled]="!areRowsSelected()"
           matTooltip="{{ 'common.button.export' | translate }}"
           (click)="exportData()">
@@ -117,7 +117,8 @@
 
 <mat-card appearance="outlined">
   <mat-card-content #dataGrid>
-    <ag-grid-angular class="ag-theme-material"
+    <ag-grid-angular *ngIf="rowModelMode === 'clientSide'"
+                     class="ag-theme-material"
                      [rowData]="rowData"
                      [columnDefs]="columnDefs"
                      [gridOptions]="gridOptions"
@@ -134,6 +135,30 @@
                      (cellValueChanged)="onCellValueChanged($event)"
                      (firstDataRendered)="firstDataRendered()"
                      [domLayout]="'autoHeight'">
+    </ag-grid-angular>
+    <ag-grid-angular *ngIf="rowModelMode === 'infinite'"
+                     class="ag-theme-material sitmun-infinite-grid"
+                     [style.height]="infiniteGridHeight"
+                     [columnDefs]="columnDefs"
+                     [gridOptions]="gridOptions"
+                     [animateRows]="true"
+                     [pagination]="false"
+                     [rowModelType]="'infinite'"
+                     [cacheBlockSize]="pageSize"
+                     [rowHeight]="infiniteRowHeight"
+                     [maxConcurrentDatasourceRequests]="1"
+                     [blockLoadDebounceMillis]="100"
+                     [maxBlocksInCache]="5"
+                     [getRowId]="getInfiniteRowId.bind(this)"
+                     [suppressRowClickSelection]=true
+                     [components]="components"
+                     rowSelection="multiple"
+                     multiSortKey="ctrl"
+                     (sortChanged)="onInfiniteSortChanged()"
+                     (filterChanged)="onInfiniteFilterChanged()"
+                     (cellEditingStopped)="onCellEditingStopped($event)"
+                     (cellValueChanged)="onCellValueChanged($event)"
+                     domLayout="normal">
     </ag-grid-angular>
   </mat-card-content>
 </mat-card>

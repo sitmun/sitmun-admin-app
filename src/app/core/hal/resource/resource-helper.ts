@@ -34,6 +34,10 @@ export class ResourceHelper {
                 params = params.append('size', options.size.toString());
             }
 
+            if (options.page !== undefined && options.page !== null) {
+                params = params.append('page', options.page.toString());
+            }
+
             if (options.sort) {
                 for (const s of options.sort) {
                     let sortString = '';

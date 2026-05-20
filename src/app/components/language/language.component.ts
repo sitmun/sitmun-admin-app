@@ -26,7 +26,7 @@ export class LanguageComponent extends BaseListComponent<Language> {
     iconName: Configuration.LANGUAGE.icon,
     font: Configuration.LANGUAGE.font,
     columnDefs: [],
-    dataFetchFn: () => this.languageService.getAll(),
+    dataFetchFn: () => this.languageService.fetchAllItems(),
     defaultColumnSorting: ['shortname'],
     gridOptions: {
       globalSearch: true,
@@ -90,7 +90,7 @@ export class LanguageComponent extends BaseListComponent<Language> {
     await this.router.navigate(['language', -1, 'languageForm', id]);
   }
 
-  override dataFetchFn = () => this.languageService.getAll();
+  override dataFetchFn = () => this.languageService.fetchAllItems();
 
   override dataUpdateFn = (data: Language) => firstValueFrom(this.languageService.update(data))
 

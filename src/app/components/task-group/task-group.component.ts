@@ -26,7 +26,7 @@ export class TaskGroupComponent extends BaseListComponent<TaskGroup> {
     iconName: Configuration.TASK_GROUP.icon,
     font: Configuration.TASK_GROUP.font,
     columnDefs: [],
-    dataFetchFn: () => this.taskgroupService.getAll(),
+    dataFetchFn: () => this.taskgroupService.fetchAllItems(),
     defaultColumnSorting: ['name'],
     gridOptions: {
       globalSearch: true,
@@ -84,7 +84,7 @@ export class TaskGroupComponent extends BaseListComponent<TaskGroup> {
     await this.router.navigate(['taskGroup', -1, 'taskGroupForm', id]);
   }
 
-  override dataFetchFn = () => this.taskgroupService.getAll();
+  override dataFetchFn = () => this.taskgroupService.fetchAllItems();
 
   override dataUpdateFn = (data: TaskGroup) => firstValueFrom(this.taskgroupService.update(data))
 

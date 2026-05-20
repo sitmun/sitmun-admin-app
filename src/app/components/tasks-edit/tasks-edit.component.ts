@@ -34,7 +34,7 @@ export class TasksEditComponent extends BaseListComponent<Task> {
       const param: HalParam = {key: 'type.id', value: taskTypeID};
       params2.push(param);
       const query: HalOptions = {params: params2};
-      return this.taskService.getAll(query, undefined, 'tasks');
+      return this.taskService.fetchAllItems(query, undefined, 'tasks');
     },
     defaultColumnSorting: ['name'],
     gridOptions: {
@@ -93,7 +93,7 @@ export class TasksEditComponent extends BaseListComponent<Task> {
     await this.router.navigate(['taskEdit', -1, config.tasksTypes.edit, id]);
   }
 
-  override dataFetchFn = () => this.taskService.getAll();
+  override dataFetchFn = () => this.taskService.fetchAllItems();
 
   override dataUpdateFn = (data: Task) => firstValueFrom(this.taskService.update(data))
 

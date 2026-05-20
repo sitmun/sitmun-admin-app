@@ -26,7 +26,7 @@ export class TaskUIComponent extends BaseListComponent<TaskUI> {
     iconName: Configuration.TASK_UI.icon,
     font: Configuration.TASK_UI.font,
     columnDefs: [],
-    dataFetchFn: () => this.taskUIService.getAll(),
+    dataFetchFn: () => this.taskUIService.fetchAllItems(),
     defaultColumnSorting: ['name'],
     gridOptions: {
       globalSearch: true,
@@ -85,7 +85,7 @@ export class TaskUIComponent extends BaseListComponent<TaskUI> {
     await this.router.navigate(['task-ui', -1, 'taskUIForm', id]);
   }
 
-  override dataFetchFn = () => this.taskUIService.getAll();
+  override dataFetchFn = () => this.taskUIService.fetchAllItems();
 
   override dataUpdateFn = (data: TaskUI) => firstValueFrom(this.taskUIService.update(data))
 

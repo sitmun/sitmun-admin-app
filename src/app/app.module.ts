@@ -147,7 +147,7 @@ export function initializeLanguages(
     Resource.setLoggerService(loggerService);
 
     try {
-      const languages = await firstValueFrom(languageService.getAll());
+      const languages = await firstValueFrom(languageService.fetchAllItems());
       // Sort languages
       languages.sort((a, b) => a.shortname.localeCompare(b.shortname));
 
@@ -195,7 +195,7 @@ export function initializeConfiguration(
   return async () => {
     messagesInterceptorState.disable();
     try {
-      const configParams = await firstValueFrom(configurationService.getAll());
+      const configParams = await firstValueFrom(configurationService.fetchAllItems());
       const defaultLang = configParams.find(element => element.name === 'language.default');
 
       if (defaultLang) {

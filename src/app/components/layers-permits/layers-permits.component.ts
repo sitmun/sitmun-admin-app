@@ -22,7 +22,7 @@ import {constants} from '@environments/constants';
     standalone: false
 })
 export class LayersPermitsComponent extends BaseListComponent<CartographyGroup> {
-  override dataFetchFn = () => this.cartographyGroupService.getAll().pipe(
+  override dataFetchFn = () => this.cartographyGroupService.fetchAllItems().pipe(
     map((groups) => groups.filter(group => group.type !== constants.codeValue.cartographyPermissionType.backgroundMap))
   );
 

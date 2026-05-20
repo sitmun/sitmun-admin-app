@@ -26,7 +26,7 @@ export class ConnectionComponent extends BaseListComponent<Connection> {
     iconName: Configuration.CONNECTION.icon,
     font: Configuration.CONNECTION.font,
     columnDefs: [],
-    dataFetchFn: () => this.connectionService.getAll(),
+    dataFetchFn: () => this.connectionService.fetchAllItems(),
     defaultColumnSorting: ['name'],
     gridOptions: {
       globalSearch: true,
@@ -90,7 +90,7 @@ export class ConnectionComponent extends BaseListComponent<Connection> {
     await this.router.navigate(['connection', -1, 'connectionForm', id]);
   }
 
-  override dataFetchFn = () => this.connectionService.getAll();
+  override dataFetchFn = () => this.connectionService.fetchAllItems();
 
   override dataUpdateFn = (data: Connection) => firstValueFrom(this.connectionService.update(data))
 

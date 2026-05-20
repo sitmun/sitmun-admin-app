@@ -56,7 +56,7 @@ export class ResourceService {
      * @param ignoreProjection Whether to ignore the default 'view' projection
      * @returns Observable of ResourceArray containing the retrieved resources
      */
-    public getAll<T extends Resource>(type: {
+    public fetch<T extends Resource>(type: {
       new(): T
     }, resource: string, _embedded: string, options?: HalOptions, subType?: SubTypeBuilder, embeddedName?: string, ignoreProjection?: boolean): Observable<ResourceArray<T>> {
         this.loggerService.trace("ResourceService.getAll:", {type: type.name, resource: resource, _embedded: _embedded, options: options, subType: subType, embeddedName: embeddedName, ignoreProjection: ignoreProjection});
@@ -77,7 +77,7 @@ export class ResourceService {
             catchError(error => throwError(() => error)));
     }
 
-  public getAllEx<T extends Resource>(type: {
+  public fetchRawItems<T extends Resource>(type: {
     new(): T
   }, resource: string, _embedded: string, options?: HalOptions, subType?: SubTypeBuilder, embeddedName?: string) {
     this.loggerService.trace("ResourceService.getAllEx:", {type: type.name, resource: resource, _embedded: _embedded, options: options, subType: subType, embeddedName: embeddedName});
@@ -114,7 +114,7 @@ export class ResourceService {
             catchError(error => throwError(() => error)));
     }
 
-  public getOriginal<T extends Resource>(type: { new(): T }, resource: string, id: any): Observable<T> {
+  public fetchRawById<T extends Resource>(type: { new(): T }, resource: string, id: any): Observable<T> {
     this.loggerService.trace("ResourceService.get:", type.name, resource, id);
     const uri = this.getResourceUrl(resource).concat('/', id);
     const params = new HttpParams();
@@ -150,17 +150,38 @@ export class ResourceService {
      * @param resource The base resource path
      * @param _embedded The name of the embedded collection in the response
      * @param options Optional HAL query parameters
+     * @param subType
+     * @param embeddedName
+     * @param ignoreProjection
+     * @param subType
+     * @param embeddedName
+     * @param ignoreProjection
+     * @param subType
+     * @param embeddedName
+     * @param ignoreProjection
      * @returns Observable of ResourceArray containing the search results
      */
-    public search<T extends Resource>(type: { new(): T }, query: string, resource: string, _embedded: string, options?: HalOptions): Observable<ResourceArray<T>> {
+    public search<T extends Resource>(
+      type: { new(): T },
+      query: string,
+      resource: string,
+      _embedded: string,
+      options?: HalOptions,
+      subType?: SubTypeBuilder,
+      embeddedName?: string,
+      ignoreProjection = true,
+    ): Observable<ResourceArray<T>> {
         this.loggerService.trace("ResourceService.search:", type.name, query, resource, _embedded, options);
         const uri = this.getResourceUrl(resource).concat('/search/', query);
-        const params = ResourceHelper.optionParams(new HttpParams(), options);
+        let params = ResourceHelper.optionParams(new HttpParams(), options);
+        if (!ignoreProjection) {
+            params = params.append('projection', 'view');
+        }
         const result: ResourceArray<T> = ResourceHelper.createEmptyResult<T>(_embedded);
 
         this.setUrls(result);
       const observable = ResourceHelper.getHttp().get(uri, {headers: ResourceHelper.headers, params: params});
-        return observable.pipe(map(response => ResourceHelper.instantiateResourceCollection(type, response, result)),
+        return observable.pipe(map(response => ResourceHelper.instantiateResourceCollection(type, response, result, subType, embeddedName)),
             catchError(error => throwError(() => error)));
     }
 
@@ -172,7 +193,7 @@ export class ResourceService {
      * @param options Optional HAL query parameters
      * @returns Observable of the found resource
      */
-    public searchSingle<T extends Resource>(type: { new(): T }, query: string, resource: string, options?: HalOptions): Observable<T> {
+    public searchOne<T extends Resource>(type: { new(): T }, query: string, resource: string, options?: HalOptions): Observable<T> {
         this.loggerService.trace("ResourceService.searchSingle:", type.name, query, resource, options);
         const uri = this.getResourceUrl(resource).concat('/search/', query);
         const params = ResourceHelper.optionParams(new HttpParams(), options);
@@ -193,7 +214,7 @@ export class ResourceService {
      * @param options Optional HAL query parameters
      * @returns Observable of ResourceArray containing the query results
      */
-    public customQuery<T extends Resource>(type: { new(): T }, query: string, resource: string, _embedded: string, options?: HalOptions): Observable<ResourceArray<T>> {
+    public fetchItemsByQueryString<T extends Resource>(type: { new(): T }, query: string, resource: string, _embedded: string, options?: HalOptions): Observable<ResourceArray<T>> {
         this.loggerService.trace("ResourceService.customQuery:", type.name, query, resource, _embedded, options);
         const uri = this.getResourceUrl(resource + '?' + query);
         const params = ResourceHelper.optionParams(new HttpParams(), options);
@@ -204,7 +225,7 @@ export class ResourceService {
             catchError(error => throwError(() => error)));
     }
 
-  public customQueryProjection<T extends Resource>(type: { new(): T }, query: string, resource: string, _embedded: string, options?: HalOptions): Observable<ResourceArray<T>> {
+  public fetchProjectedByQueryString<T extends Resource>(type: { new(): T }, query: string, resource: string, _embedded: string, options?: HalOptions): Observable<ResourceArray<T>> {
     this.loggerService.trace("ResourceService.customQuery:", type.name, query, resource, _embedded, options);
     const uri = this.getResourceUrl(resource + '?' + query);
     const params = ResourceHelper.optionParams(new HttpParams(), options).append('projection', 'view');
@@ -222,7 +243,7 @@ export class ResourceService {
      * @param resourceLink The relation link URL
      * @returns Observable of the related resource
      */
-    public getByRelation<T extends Resource>(type: { new(): T }, resourceLink: string): Observable<T> {
+    public fetchRelation<T extends Resource>(type: { new(): T }, resourceLink: string): Observable<T> {
         this.loggerService.trace("ResourceService.getByRelation:", type.name, resourceLink);
       const result: T = new type();
 
@@ -238,13 +259,15 @@ export class ResourceService {
      * @param resourceLink The relation link URL
      * @param _embedded The name of the embedded collection
      * @param builder Optional builder for handling subtypes
+     * @param options
      * @returns Observable of ResourceArray containing the related resources
      */
-    public getByRelationArray<T extends Resource>(type: { new(): T }, resourceLink: string, _embedded: string, builder?: SubTypeBuilder): Observable<ResourceArray<T>> {
-        this.loggerService.trace("ResourceService.getByRelationArray:", type.name, resourceLink, _embedded, builder);
+    public fetchRelationItems<T extends Resource>(type: { new(): T }, resourceLink: string, _embedded: string, builder?: SubTypeBuilder, options?: HalOptions): Observable<ResourceArray<T>> {
+        this.loggerService.trace("ResourceService.getByRelationArray:", type.name, resourceLink, _embedded, builder, options);
         const result: ResourceArray<T> = ResourceHelper.createEmptyResult<T>(_embedded);
         this.setUrls(result);
-      const observable = ResourceHelper.getHttp().get(resourceLink, {headers: ResourceHelper.headers});
+        const params = ResourceHelper.optionParams(new HttpParams(), options);
+      const observable = ResourceHelper.getHttp().get(resourceLink, {headers: ResourceHelper.headers, params});
         return observable.pipe(map(response => ResourceHelper.instantiateResourceCollection(type, response, result, builder)),
             catchError(error => throwError(() => error)));
     }

@@ -26,7 +26,7 @@ export class UserComponent extends BaseListComponent<User> {
     iconName: Configuration.USER.icon,
     font: Configuration.USER.font,
     columnDefs: [],
-    dataFetchFn: () => this.userService.getAll(),
+    dataFetchFn: () => this.userService.fetchAllItems(),
     defaultColumnSorting: ['name'],
     gridOptions: {
       globalSearch: true,
@@ -86,7 +86,7 @@ export class UserComponent extends BaseListComponent<User> {
     await this.router.navigate(['user', -1, 'userForm', id]);
   }
 
-  override dataFetchFn = () => this.userService.getAll();
+  override dataFetchFn = () => this.userService.fetchAllItems();
 
   override dataUpdateFn = (data: User) => firstValueFrom(this.userService.update(data))
 

@@ -202,8 +202,8 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
     this.initTranslations('Territory', ['name', 'description'])
     await this.initCodeLists(['territory.scope']);
     const [territoryGroups, territoryTypes, scopeTypes] = await Promise.all([
-      firstValueFrom(this.territoryGroupTypeService.getAll()),
-      firstValueFrom(this.territoryTypeService.getAll()),
+      firstValueFrom(this.territoryGroupTypeService.fetchAllItems()),
+      firstValueFrom(this.territoryTypeService.fetchAllItems()),
       firstValueFrom(this.utils.getCodeListValues('territory.scope'))
     ]);
 
@@ -218,7 +218,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
    * @returns Promise of a Territory entity with projection
    */
   override async fetchOriginal(): Promise<TerritoryProjection> {
-    return firstValueFrom(this.territoryService.getProjection(TerritoryProjection, this.entityID));
+    return firstValueFrom(this.territoryService.fetchProjectionById(TerritoryProjection, this.entityID));
   }
 
   /**
@@ -226,7 +226,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
    * @returns Promise of a duplicated Territory entity with projection
    */
   override async fetchCopy(): Promise<TerritoryProjection> {
-    return firstValueFrom(this.territoryService.getProjection(TerritoryProjection, this.duplicateID).pipe(
+    return firstValueFrom(this.territoryService.fetchProjectionById(TerritoryProjection, this.duplicateID).pipe(
       map((copy: TerritoryProjection) => {
         copy.name = this.translateService.instant("common.copyPrefix") + copy.name;
         return copy;
@@ -477,10 +477,10 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
             }
           ]
         };
-        return this.userConfigurationService.getAllProjection(UserConfigurationProjection, query);
+        return this.userConfigurationService.fetchProjectionItems(UserConfigurationProjection, query);
       })
-      .withTargetsLeftFetcher(() => this.userService.getAll())
-      .withTargetsRightFetcher(() => this.roleService.getAll())
+      .withTargetsLeftFetcher(() => this.userService.fetchAllItems())
+      .withTargetsRightFetcher(() => this.roleService.fetchAllItems())
       .withRelationsDuplicate((relation) => UserConfigurationProjection.fromObject(relation))
       .withRelationsUpdater(async (userConfigurations: (UserConfigurationProjection & Status)[]) => {
         await onCreate(userConfigurations).forEach(userConfiguration => this.userConfigurationService.create(
@@ -562,7 +562,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
         this.utils.getStatusColumnDef()
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.territoryService.getAllProjection(TerritoryProjection).pipe(
+      .withTargetsFetcher(() => this.territoryService.fetchProjectionItems(TerritoryProjection).pipe(
         map((territories: TerritoryProjection[]) => territories.filter(territory => !territory.typeTopType && territory.typeId !== this.currentTerritoryType.id))
       ))
       .withRelationsUpdater(async (territories: (TerritoryProjection & Status)[]) => {
@@ -611,7 +611,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
         this.utils.getStatusColumnDef()
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.territoryService.getAllProjection(TerritoryProjection).pipe(
+      .withTargetsFetcher(() => this.territoryService.fetchProjectionItems(TerritoryProjection).pipe(
         map((territories: TerritoryProjection[]) => territories.filter(territory => !territory.typeTopType && territory.typeId !== this.currentTerritoryType.id))
       ))
       .withRelationsUpdater(async (territories: (TerritoryProjection & Status)[]) => {
@@ -662,7 +662,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
           );
         })
       })
-      .withTargetsFetcher(() => this.cartographyService.getAllProjection(CartographyProjection))
+      .withTargetsFetcher(() => this.cartographyService.fetchProjectionItems(CartographyProjection))
       .withTargetsTitle('entity.territory.cartography.title')
       .withTargetsOrder(['name'])
       .withTargetsColumns([
@@ -718,7 +718,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
         this.utils.getNonEditableColumnDef('common.form.type', 'typeName', 300),
         this.utils.getStatusColumnDef()
       ])
-      .withTargetsFetcher(() => this.taskService.getAllProjection(TaskProjection))
+      .withTargetsFetcher(() => this.taskService.fetchProjectionItems(TaskProjection))
       .withFieldRestriction('taskId')
       .withTargetsOrder(['typeName'])
       .withTargetToRelation((tasks) => tasks.map(task => TaskAvailabilityProjection.of(task, this.entityToEdit)))

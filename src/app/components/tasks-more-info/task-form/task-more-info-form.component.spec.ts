@@ -92,11 +92,11 @@ describe('TaskMoreInfoFormComponent', () => {
     expect((component as any).cartographySearchControl.value).toEqual({ id: 10, name: 'Base map' });
   });
 
-  it('should return names for task group and linked query task', () => {
+  it('should return task group name and resolve query task from loaded list', () => {
     expect(component.getTaskGroupName(1)).toBe('Group A');
-    expect((component as any).getQueryTaskName(7)).toBe('SQL details');
+    expect((component as any).queryTasks.find((t: { id: number }) => t.id === 7)?.name).toBe('SQL details');
     expect(component.getTaskGroupName(999)).toBe('');
-    expect((component as any).getQueryTaskName(999)).toBe('');
+    expect((component as any).queryTasks.find((t: { id: number }) => t.id === 999)).toBeUndefined();
   });
 
   it('should update cartography id and search value on selection', () => {

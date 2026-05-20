@@ -8,6 +8,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
@@ -104,6 +105,7 @@ describe('TreeNodesComponent', () => {
         MatInputModule,
         MatSelectModule,
         MatCheckboxModule,
+        MatSlideToggleModule,
         BrowserAnimationsModule,
         TranslateModule.forRoot({
           loader: {
@@ -196,7 +198,7 @@ describe('TreeNodesComponent', () => {
     it('should filter folder types for touristic tree', () => {
       component.currentTreeType = 'touristic';
       const folderTypes = component.getAvailableFolderTypes();
-      
+
       // Should only return menu and list folders for touristic
       const values = folderTypes.map(t => t.value);
       expect(values).toContain('menu');
@@ -226,7 +228,7 @@ describe('TreeNodesComponent', () => {
 
     it('should return correct allowed children for parent node type', () => {
       component.currentTreeType = 'touristic';
-      
+
       const menuChildren = component.getAllowedChildrenForParent('menu');
       expect(menuChildren).toContain('list');
       expect(menuChildren).toContain('task');
@@ -253,14 +255,14 @@ describe('TreeNodesComponent', () => {
 
     it('canNodeHaveChildren should return true for folder nodes', () => {
       component.currentTreeType = 'touristic';
-      
+
       expect(component.canNodeHaveChildren('menu')).toBe(true);
       expect(component.canNodeHaveChildren('list')).toBe(true);
     });
 
     it('canNodeHaveChildren should return true for null type (legacy folders)', () => {
       component.currentTreeType = 'cartography';
-      
+
       expect(component.canNodeHaveChildren(null)).toBe(true);
     });
   });
@@ -756,9 +758,9 @@ describe('TreeNodesComponent', () => {
   });
 
   describe('Tree node task type filtering (query + edit)', () => {
-    it('getAllTasks merges query and edit lists from two getAll calls and dedupes by id', async () => {
+    it('getAllTasks merges query and edit lists from two fetchAllItems calls and dedupes by id', async () => {
       const taskService: TaskService = TestBed.inject(TaskService);
-      jest.spyOn(taskService, 'getAll').mockImplementation((opts: { params?: { key: string; value: number }[] }) => {
+      jest.spyOn(taskService, 'fetchAllItems').mockImplementation((opts: { params?: { key: string; value: number }[] }) => {
         const typeId = opts?.params?.find((p) => p.key === 'type.id')?.value;
         if (typeId === config.tasksTypes.query) {
           return of([{ id: 1, name: 'Query task', typeId: config.tasksTypes.query }]);
@@ -774,7 +776,7 @@ describe('TreeNodesComponent', () => {
 
       const merged = await firstValueFrom(component.getAllTasks());
 
-      expect(taskService.getAll).toHaveBeenCalledTimes(2);
+      expect(taskService.fetchAllItems).toHaveBeenCalledTimes(2);
       expect(merged.map((t: { id: number }) => t.id)).toEqual([1, 2]);
     });
 

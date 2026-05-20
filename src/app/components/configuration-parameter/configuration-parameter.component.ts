@@ -26,7 +26,7 @@ export class ConfigurationParameterComponent extends BaseListComponent<Configura
     iconName: Configuration.CONFIGURATION_PARAMETER.icon,
     font: Configuration.CONFIGURATION_PARAMETER.font,
     columnDefs: [],
-    dataFetchFn: () => this.configurationParametersService.getAll(),
+    dataFetchFn: () => this.configurationParametersService.fetchAllItems(),
     defaultColumnSorting: ['name'],
     gridOptions: {
       globalSearch: true,
@@ -84,7 +84,7 @@ export class ConfigurationParameterComponent extends BaseListComponent<Configura
     await this.router.navigate(['configurationParameter', -1, 'configurationParameterForm', id]);
   }
 
-  override dataFetchFn = () => this.configurationParametersService.getAll();
+  override dataFetchFn = () => this.configurationParametersService.fetchAllItems();
 
   override dataUpdateFn = (data: ConfigurationParameter) => firstValueFrom(this.configurationParametersService.update(data))
 

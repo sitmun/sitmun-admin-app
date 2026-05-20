@@ -26,7 +26,7 @@ export class TreesComponent extends BaseListComponent<Tree> {
     iconName: Configuration.TREE.icon,
     font: Configuration.TREE.font,
     columnDefs: [],
-    dataFetchFn: () => this.treeService.getAll(),
+    dataFetchFn: () => this.treeService.fetchAllItems(),
     defaultColumnSorting: ['name'],
     gridOptions: {
       globalSearch: true,
@@ -84,7 +84,7 @@ export class TreesComponent extends BaseListComponent<Tree> {
     await this.router.navigate(['trees', -1, 'treesForm', id]);
   }
 
-  override dataFetchFn = () => this.treeService.getAll();
+  override dataFetchFn = () => this.treeService.fetchAllItems();
 
   override dataUpdateFn = (data: Tree) => firstValueFrom(this.treeService.update(data))
 

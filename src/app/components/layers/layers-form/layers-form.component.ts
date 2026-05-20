@@ -131,9 +131,9 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
       'cartography.geometryType', 'cartography.legendType','cartographyParameter.type',
       'cartographyFilter.type','cartographyFilter.valueType', 'cartographyParameter.format',
     ]);
-    this.territorialTypes = await firstValueFrom(this.territoryTypeService.getAll())
+    this.territorialTypes = await firstValueFrom(this.territoryTypeService.fetchAllItems())
     this.territorialTypes.sort((a, b) => a.name.localeCompare(b.name));
-    this.services = await firstValueFrom(this.serviceService.getAll());
+    this.services = await firstValueFrom(this.serviceService.fetchAllItems());
     this.services.sort((a, b) => a.name.localeCompare(b.name));
   }
 
@@ -142,7 +142,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
    * @returns Promise of Cartography entity with projection
    */
   override fetchOriginal(): Promise<CartographyProjection> {
-    return firstValueFrom(this.cartographyService.getProjection(CartographyProjection, this.entityID));
+    return firstValueFrom(this.cartographyService.fetchProjectionById(CartographyProjection, this.entityID));
   }
 
   /**
@@ -150,7 +150,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
    * @returns Promise of duplicated Cartography entity
    */
   override fetchCopy(): Promise<CartographyProjection> {
-    return firstValueFrom(this.cartographyService.getProjection(CartographyProjection, this.duplicateID).pipe(map((copy: CartographyProjection) => {
+    return firstValueFrom(this.cartographyService.fetchProjectionById(CartographyProjection, this.duplicateID).pipe(map((copy: CartographyProjection) => {
       copy.name = this.translateService.instant("common.copyPrefix") + copy.name;
       return copy;
     })));
@@ -222,9 +222,9 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     // Custom validator to ensure queryable layers are subset of joined layers
     const queryableLayersValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
       if (!control.value) return null;
-      
-      const queryableLayers = control.value.split(',').map(layer => layer.trim());
-      const joinedLayers = this.entityForm?.get('joinedLayers')?.value?.split(',').map(layer => layer.trim()) ?? [];
+
+      const queryableLayers = control.value.split(',').map((layer: string) => layer.trim());
+      const joinedLayers = this.entityForm?.get('joinedLayers')?.value?.split(',').map((layer: string) => layer.trim()) ?? [];
 
       // Only validate if there are actual entries
       if (queryableLayers.length === 0) return null;
@@ -573,7 +573,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
           this.utils.getNonEditableColumnDef('entity.cartography.territories.parameters.code', 'code'),
         ])
         .withTargetsFetcher(() => {
-          return this.territoryService.getAllProjection(TerritoryProjection)
+          return this.territoryService.fetchProjectionItems(TerritoryProjection)
         })
         .withTargetInclude((availabilities: (CartographyAvailabilityProjection)[]) => (item: TerritoryProjection) => {
           return !availabilities.some((availability) => availability.territoryId === item.id);
@@ -630,7 +630,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
             {key: 'type', value: constants.codeValue.cartographyPermissionType.cartographyGroup}
           ]
         };
-        return this.cartographyGroupService.getAllProjection(CartographyGroupProjection, filter)
+        return this.cartographyGroupService.fetchProjectionItems(CartographyGroupProjection, filter)
       })
       .withTargetInclude((cartographyGroups: (CartographyGroupProjection)[]) => (item: CartographyGroupProjection) => {
         return !cartographyGroups.some((cartographyGroup) => cartographyGroup.id === item.id);

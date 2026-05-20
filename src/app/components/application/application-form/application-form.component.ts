@@ -232,7 +232,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     await this.initCodeLists(['application.type', 'applicationParameter.type'])
     const [situationMaps, users] = await Promise.all([
       firstValueFrom(this.fetchSituationMapList()),
-      firstValueFrom(this.userService.getAll())
+      firstValueFrom(this.userService.fetchAllItems())
       ]
     )
     situationMaps.sort((a, b) => a.name.localeCompare(b.name));
@@ -246,7 +246,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    * @returns Promise of Application entity with projection
    */
   override fetchOriginal(): Promise<ApplicationProjection> {
-    return firstValueFrom(this.applicationService.getProjection(ApplicationProjection, this.entityID));
+    return firstValueFrom(this.applicationService.fetchProjectionById(ApplicationProjection, this.entityID));
   }
 
   /**
@@ -254,7 +254,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    * @returns Promise of duplicated Application entity
    */
   override fetchCopy(): Promise<ApplicationProjection> {
-    return firstValueFrom(this.applicationService.getProjection(ApplicationProjection, this.duplicateID).pipe(map((copy: ApplicationProjection) => {
+    return firstValueFrom(this.applicationService.fetchProjectionById(ApplicationProjection, this.duplicateID).pipe(map((copy: ApplicationProjection) => {
       copy.name = this.translateService.instant("common.copyPrefix") + copy.name;
       return copy;
     })));
@@ -703,7 +703,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
         this.utils.getNonEditableColumnDef('common.form.type', 'description'),
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.treeService.getAll())
+      .withTargetsFetcher(() => this.treeService.fetchAllItems())
       .withTargetsTitle('entity.application.trees.title')
       .build();
   }
@@ -738,7 +738,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
         this.utils.getNonEditableColumnDef('common.form.description', 'description'),
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.roleService.getAll())
+      .withTargetsFetcher(() => this.roleService.fetchAllItems())
       .withTargetsTitle('entity.application.roles.title')
       .build();
   }
@@ -792,7 +792,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
         this.utils.getNonEditableColumnDef('common.form.description', 'description'),
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.backgroundService.getAllProjection(BackgroundProjection))
+      .withTargetsFetcher(() => this.backgroundService.fetchProjectionItems(BackgroundProjection))
       .withTargetInclude((applicationBackgrounds: (ApplicationBackgroundProjection)[]) => (item: BackgroundProjection) => {
         return !applicationBackgrounds.some((applicationBackground) => applicationBackground.backgroundId === item.id);
       })
@@ -816,7 +816,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
         {key: 'type', value: this.codeValues.cartographyPermissionType.locationMap}
       ]
     };
-    return this.cartographyGroupService.getAll(query);
+    return this.cartographyGroupService.fetchAllItems(query);
   }
 
   /**

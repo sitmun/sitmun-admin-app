@@ -26,7 +26,7 @@ export class CodelistValueComponent extends BaseListComponent<CodeList> {
     iconName: Configuration.CODELIST_VALUE.icon,
     font: Configuration.CODELIST_VALUE.font,
     columnDefs: [],
-    dataFetchFn: () => this.codeListService.getAll(),
+    dataFetchFn: () => this.codeListService.fetchAllItems(),
     defaultColumnSorting: ['codeListName', 'value'],
     gridOptions: {
       globalSearch: true,
@@ -92,7 +92,7 @@ export class CodelistValueComponent extends BaseListComponent<CodeList> {
     await this.router.navigate(['codelistValue', -1, 'codelistValueForm', id]);
   }
 
-  override dataFetchFn = () => this.codeListService.getAll();
+  override dataFetchFn = () => this.codeListService.fetchAllItems();
 
   override dataUpdateFn = (data: CodeList) => firstValueFrom(this.codeListService.update(data))
 

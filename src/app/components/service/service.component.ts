@@ -26,7 +26,7 @@ export class ServiceComponent extends BaseListComponent<Service> {
     iconName: Configuration.SERVICE.icon,
     font: Configuration.SERVICE.font,
     columnDefs: [],
-    dataFetchFn: () => this.serviceService.getAll(),
+    dataFetchFn: () => this.serviceService.fetchAllItems(),
     defaultColumnSorting: ['name'],
     gridOptions: {
       globalSearch: true,
@@ -90,7 +90,7 @@ export class ServiceComponent extends BaseListComponent<Service> {
     await this.router.navigate(['service', -1, 'serviceForm', id]);
   }
 
-  override dataFetchFn = () => this.serviceService.getAll();
+  override dataFetchFn = () => this.serviceService.fetchAllItems();
 
   override dataUpdateFn = (data: Service) => firstValueFrom(this.serviceService.update(data))
 

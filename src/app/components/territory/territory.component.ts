@@ -36,7 +36,7 @@ export class TerritoryComponent extends BaseListComponent<Territory> {
     iconName: Configuration.TERRITORY.icon,
     font: Configuration.TERRITORY.font,
     columnDefs: [],
-    dataFetchFn: () => this.territoryService.getAll(),
+    dataFetchFn: () => this.territoryService.fetchAllItems(),
     defaultColumnSorting: ['name'],
     gridOptions: {
       globalSearch: true,
@@ -80,7 +80,7 @@ export class TerritoryComponent extends BaseListComponent<Territory> {
   }
 
   override async preFetchData(): Promise<void> {
-    this.territoryTypes = await firstValueFrom(this.territoryTypeService.getAll())
+    this.territoryTypes = await firstValueFrom(this.territoryTypeService.fetchAllItems())
   }
 
   override async postFetchData(): Promise<void> {
@@ -102,7 +102,7 @@ export class TerritoryComponent extends BaseListComponent<Territory> {
     await this.router.navigate(['territory', -1, 'territoryForm', id]);
   }
 
-  override dataFetchFn = () => this.territoryService.getAll();
+  override dataFetchFn = () => this.territoryService.fetchAllItems();
 
   override dataUpdateFn = (data: Territory) => firstValueFrom(this.territoryService.update(data))
 

@@ -271,23 +271,23 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       // Skip validation for new/duplicated trees
       return super.onSaveButtonClicked();
     }
-    
+
     return Promise.resolve(false);
   }
 
   /**
    * Validates tree type change against candidate applications.
-   * 
-   * This validation is necessary because Spring Data REST requires two separate 
-   * PUT operations. Without proactive validation, the tree type PUT could succeed 
-   * while the applications PUT fails, requiring a rollback that violates REST 
+   *
+   * This validation is necessary because Spring Data REST requires two separate
+   * PUT operations. Without proactive validation, the tree type PUT could succeed
+   * while the applications PUT fails, requiring a rollback that violates REST
    * principles.
-   * 
+   *
    * @returns Promise<boolean> - true if validation passes, false if it fails
    */
   private async validateTreeTypeChange(): Promise<boolean> {
     const newType = this.entityForm.get('type')?.value;
-    
+
     // If type hasn't changed, no validation needed
     if (newType === this.entityToEdit.type) {
       return true;
@@ -296,7 +296,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
     try {
       // Get applications from the data grid (includes new, modified, not deleted)
       const gridData = this.applicationsGrid?.getAllCurrentData() || [];
-      
+
       // Filter out applications marked for deletion and extract IDs
       const applicationIds = gridData
         .filter((app: any) => app.status !== 'pendingDelete')
@@ -306,8 +306,8 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       // Call validation endpoint
       await firstValueFrom(
         this.treeService.validateTypeChange(
-          this.entityID, 
-          newType, 
+          this.entityID,
+          newType,
           applicationIds
         )
       );
@@ -505,7 +505,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       this.utils.showNodeTypeConstraintError();
       return;
     }
-    
+
     this.currentTreeType = type;
   }
 
@@ -574,7 +574,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
   validateTreeTypeCompatibility(candidateTreeType: string): boolean {
     const nodes = this.treeNodesComponent?.getNodesForValidation() || [];
     const filterNodes = nodes.filter(a => (a as any).status !== 'pendingDelete');
-    
+
     return this.validNodeTypesForTreeType(filterNodes, candidateTreeType);
   }
 
@@ -587,15 +587,15 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
    */
   validNodeTypesForTreeType(treeNodes: any[], treeType?: string): boolean {
     const targetTreeType = treeType || this.currentTreeType;
-    
+
     if (!targetTreeType || !this.treeTypeNodeTypes || !this.treeTypeNodeTypes[targetTreeType]) {
       return true; // No constraints defined
     }
-    
+
     const treeTypeConfig = this.treeTypeNodeTypes[targetTreeType];
     const nodeTypes = (treeTypeConfig as any)?.nodeTypes;
     const allAllowedTypes = nodeTypes ? Object.keys(nodeTypes) : [];
-    
+
     // Build a map of nodes by ID for parent-child validation
     const nodeMap = new Map<number, any>();
     treeNodes.forEach(node => {
@@ -603,16 +603,16 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
         nodeMap.set(node.id, node);
       }
     });
-    
+
     // Check each node
     for (const node of treeNodes) {
       const nodeType = node.nodeType;
-      
+
       // Skip nodes without a type (legacy folders with null type are allowed)
       if (!nodeType) {
         continue;
       }
-      
+
       // Check if node type is allowed for this tree type
       if (!allAllowedTypes.includes(nodeType)) {
         this.loggerService.warn(`Node type '${nodeType}' not allowed for tree type '${targetTreeType}'`, {
@@ -621,17 +621,17 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
         });
         return false;
       }
-      
+
       // Check parent-child relationships (only for nodes with parents)
       if (node.parent && nodeMap.has(node.parent)) {
         const parentNode = nodeMap.get(node.parent);
         const parentType = parentNode.nodeType;
-        
+
         // If parent has no type, skip validation (legacy folder)
         if (!parentType) {
           continue;
         }
-        
+
         // Get allowed children for parent type
         const allowedChildren = (treeTypeConfig as any)?.nodeTypes?.[parentType]?.allowedChildren || [];
         if (allowedChildren.length === 0) {
@@ -654,7 +654,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
         }
       }
     }
-    
+
     return true;
   }
 
@@ -743,7 +743,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
         });
       })
       .withRelationsUpdater(async (applications: (Application & Status)[]) => {
-        await onUpdatedRelation(applications).forAll(item => 
+        await onUpdatedRelation(applications).forAll(item =>
           this.entityToEdit.substituteAllRelation('availableApplications', item)
         );
       })
@@ -753,7 +753,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
         this.utils.getNonEditableColumnDef('entity.permissionGroup.name', 'name'),
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.applicationService.getAll())
+      .withTargetsFetcher(() => this.applicationService.fetchAllItems())
       .withTargetInclude((applications: Application[]) => (target: Application) => {
         // Prevent duplicates: filter out applications where target's name matches any existing relation's name
         // This preserves the original fieldRestrictionWithDifferentName behavior
@@ -797,7 +797,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
         this.utils.getNonEditableColumnDef('entity.role.name', 'name'),
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.roleService.getAll())
+      .withTargetsFetcher(() => this.roleService.fetchAllItems())
       .withTargetsTitle('entity.tree.roles')
       .build();
   }

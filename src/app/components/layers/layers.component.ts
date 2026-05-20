@@ -3,11 +3,13 @@ import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from '@ngx-translate/core';
-import {firstValueFrom} from 'rxjs';
+import {firstValueFrom, of} from 'rxjs';
+import {map} from 'rxjs/operators';
 
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
 import {Configuration} from '@app/core/config/configuration';
+import {INFINITE_PAGE_SIZE_DEFAULT} from '@app/core/hal/infinite-page-size';
 import {
   Cartography,
   CartographyProjection,
@@ -32,7 +34,29 @@ export class LayersComponent extends BaseListComponent<CartographyProjection> {
     iconName: Configuration.LAYER.icon,
     font: Configuration.LAYER.font,
     columnDefs: [],
-    dataFetchFn: () => this.cartographyService.getAllProjection(CartographyProjection),
+    dataFetchFn: () => of([]), // Not used in infinite mode - data loaded via infiniteBlockFetcher
+    rowModelMode: 'infinite',
+    pageSize: INFINITE_PAGE_SIZE_DEFAULT,
+    infiniteBlockFetcher: (request) => {
+      const options = {
+        page: request.page,
+        size: request.size,
+        sort: request.sort,
+      };
+      const page$ = request.searchText
+        ? this.cartographyService.searchTextPage(request.searchText, options)
+        : this.cartographyService.fetchPage(options);
+      return page$.pipe(
+        map(page => {
+          return {
+            ...page,
+            rows: page.rows.map(c => CartographyProjection.fromObject(c))
+          };
+        })
+      );
+    },
+    progressiveLocalFilter: false,
+    backendSearch: true,
     defaultColumnSorting: ['name'],
     gridOptions: {
       globalSearch: true,
@@ -80,11 +104,19 @@ export class LayersComponent extends BaseListComponent<CartographyProjection> {
 
   override async postFetchData(): Promise<void> {
     // Set column definitions directly in the config
+    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'layers/:id/layersForm', {id: 'id'}, 200, 300);
+    nameCol.sortable = true;
+    nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
+
+    const serviceCol: any = this.utils.getRouterLinkColumnDef('entity.service.label', 'serviceName', 'service/:id/serviceForm', {id: 'serviceId'}, 200, 300);
+    serviceCol.sortable = true;
+    serviceCol.cellRendererParams = {...serviceCol.cellRendererParams, sortField: 'service.name'};
+
     this.entityListConfig.columnDefs = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'layers/:id/layersForm', {id: 'id'}, 200, 300),
+      this.utils.getRowCheckboxColumnDef(),
+      nameCol,
       {...this.utils.getNonEditableColumnDef('entity.cartography.layerSet', 'layers', 200, 300), ...this.utils.getArrayValueParser()},
-      this.utils.getRouterLinkColumnDef('entity.service.label', 'serviceName', 'service/:id/serviceForm', {id: 'serviceId'}, 200, 300),
+      serviceCol,
     ];
   }
 
@@ -96,7 +128,7 @@ export class LayersComponent extends BaseListComponent<CartographyProjection> {
     await this.router.navigate(['layers', -1, 'layersForm', id]);
   }
 
-  override dataFetchFn = () => this.cartographyService.getAllProjection(CartographyProjection);
+  override dataFetchFn = () => this.cartographyService.fetchAllProjectionItems(CartographyProjection);
 
   override dataUpdateFn = (data: CartographyProjection) => firstValueFrom(this.cartographyService.update(Cartography.fromObject(data))).then(cartography => CartographyProjection.fromObject(cartography));
 

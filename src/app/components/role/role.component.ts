@@ -26,7 +26,7 @@ export class RoleComponent extends BaseListComponent<Role> {
     iconName: Configuration.ROLE.icon,
     font: Configuration.ROLE.font,
     columnDefs: [],
-    dataFetchFn: () => this.roleService.getAll(),
+    dataFetchFn: () => this.roleService.fetchAllItems(),
     defaultColumnSorting: ['name'],
     gridOptions: {
       globalSearch: true,
@@ -84,7 +84,7 @@ export class RoleComponent extends BaseListComponent<Role> {
     await this.router.navigate(['role', -1, 'roleForm', id]);
   }
 
-  override dataFetchFn = () => this.roleService.getAll();
+  override dataFetchFn = () => this.roleService.fetchAllItems();
 
   override dataUpdateFn = (data: Role) => firstValueFrom(this.roleService.update(data))
 

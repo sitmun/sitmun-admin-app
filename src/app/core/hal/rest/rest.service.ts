@@ -1,10 +1,12 @@
 import {Injector} from "@angular/core";
 
-import {firstValueFrom, Observable, of, switchMap, throwError} from 'rxjs';
-import {map} from 'rxjs/operators';
+import {EMPTY, firstValueFrom, Observable, of, switchMap, throwError} from 'rxjs';
+import {expand, map, reduce} from 'rxjs/operators';
 
 import {Sort} from './sort.model';
 import {SubTypeBuilder} from '../common/subtype-builder';
+import type {HalPage} from '../hal-page';
+import {ALL_PAGES_CHUNK_SIZE, ALL_PAGES_FETCH_SIZE} from '../infinite-page-size';
 import {ResourceArray} from '../resource/resource-array.model';
 import {Resource} from '../resource/resource.model';
 import {ResourceService} from '../resource/resource.service';
@@ -12,7 +14,15 @@ import {ResourceService} from '../resource/resource.service';
 /** HAL param data model */
 export type HalParam = { key: string, value: string | number | boolean };
 /** HAL option data model */
-export type HalOptions = { notPaged?: boolean, size?: number, sort?: Sort[], params?: HalParam[] };
+export type HalOptions = {
+  notPaged?: boolean;
+  page?: number;
+  size?: number;
+  sort?: Sort[];
+  params?: HalParam[];
+  /** When true, concatenates all pages instead of a single high-size request */
+  chunkedFullFetch?: boolean;
+};
 
 /**
  * A generic service class that provides REST API access with HAL (Hypertext Application Language) support.
@@ -73,9 +83,17 @@ export class RestService<T extends Resource> {
    * @param embeddedName - Optional custom embedded resource name
    * @returns Observable of a resource array
    */
-  public getAllEx(options?: HalOptions, subType?: SubTypeBuilder, embeddedName?: string): Observable<T[]> {
+  public fetchAllRawItems(options?: HalOptions, subType?: SubTypeBuilder, embeddedName?: string): Observable<T[]> {
+    return this.fetchRawItems({
+      ...options,
+      size: options?.size ?? ALL_PAGES_FETCH_SIZE,
+      notPaged: options?.notPaged ?? true,
+    }, subType, embeddedName);
+  }
+
+  private fetchRawItems(options?: HalOptions, subType?: SubTypeBuilder, embeddedName?: string): Observable<T[]> {
     return this.resourceService
-      .getAllEx(this.type, this.resource, this._embedded, options, subType, embeddedName)
+      .fetchRawItems(this.type, this.resource, this._embedded, options, subType, embeddedName)
       .pipe(
         map((resourceArray: ResourceArray<T>) => {
           if (options?.notPaged && resourceArray.first_uri) {
@@ -90,16 +108,29 @@ export class RestService<T extends Resource> {
           if (Array.isArray(result)) {
             return of(result);
           } else {
-            return this.getAllEx(result, subType, embeddedName); // Re-call getAll with updated options
+            return this.fetchRawItems(result, subType, embeddedName); // Re-call getAll with updated options
           }
         })
       );
   }
 
 
-  public getAllProjection<S extends Resource>(type: {new(): S}, options?: HalOptions, subType?: SubTypeBuilder, embeddedName?: string): Observable<S[]> {
+  public fetchAllProjectionItems<S extends Resource>(
+    type: {new(): S},
+    options?: HalOptions,
+    subType?: SubTypeBuilder,
+    embeddedName?: string,
+  ): Observable<S[]> {
+    return this.fetchProjectionItems(type, {
+      ...options,
+      size: options?.size ?? ALL_PAGES_FETCH_SIZE,
+      notPaged: options?.notPaged ?? true,
+    }, subType, embeddedName);
+  }
+
+  public fetchProjectionItems<S extends Resource>(type: {new(): S}, options?: HalOptions, subType?: SubTypeBuilder, embeddedName?: string): Observable<S[]> {
     return this.resourceService
-      .getAll(type, this.resource, this._embedded, options, subType, embeddedName, false)
+      .fetch(type, this.resource, this._embedded, options, subType, embeddedName, false)
       .pipe(
         map((resourceArray: ResourceArray<S>) => {
           if (options?.notPaged && resourceArray.first_uri) {
@@ -114,16 +145,16 @@ export class RestService<T extends Resource> {
           if (Array.isArray(result)) {
             return of(result);
           } else {
-            return this.getAllProjection(type, result, subType, embeddedName); // Re-call getAll with updated options
+            return this.fetchProjectionItems(type, result, subType, embeddedName); // Re-call getAll with updated options
           }
         })
       );
   }
 
 
-  public getAll(options?: HalOptions, subType?: SubTypeBuilder, embeddedName?: string, ignoreProjection?: boolean): Observable<T[]> {
+  private fetchItems(options?: HalOptions, subType?: SubTypeBuilder, embeddedName?: string, ignoreProjection?: boolean): Observable<T[]> {
     return this.resourceService
-      .getAll(this.type, this.resource, this._embedded, options, subType, embeddedName, ignoreProjection)
+      .fetch(this.type, this.resource, this._embedded, options, subType, embeddedName, ignoreProjection)
       .pipe(
         map((resourceArray: ResourceArray<T>) => {
           if (options?.notPaged && resourceArray.first_uri) {
@@ -138,10 +169,100 @@ export class RestService<T extends Resource> {
           if (Array.isArray(result)) {
             return of(result);
           } else {
-            return this.getAll(result, subType, embeddedName, ignoreProjection); // Re-call getAll with updated options
+            return this.fetchItems(result, subType, embeddedName, ignoreProjection); // Re-call getAll with updated options
           }
         })
       );
+  }
+
+  /**
+   * Fetches a single HAL page with metadata for infinite row model block loading.
+   */
+  public fetchPage(
+    options?: HalOptions,
+    subType?: SubTypeBuilder,
+    embeddedName?: string,
+    ignoreProjection?: boolean,
+  ): Observable<HalPage<T>> {
+    return this.resourceService
+      .fetch(this.type, this.resource, this._embedded, options, subType, embeddedName, ignoreProjection)
+      .pipe(map((resourceArray) => RestService.toHalPage(resourceArray)));
+  }
+
+  /**
+   * Fetches a single HAL search page with metadata for infinite row model block loading.
+   */
+  public searchPage(
+    query: string,
+    options?: HalOptions,
+    subType?: SubTypeBuilder,
+    embeddedName?: string,
+    ignoreProjection?: boolean,
+  ): Observable<HalPage<T>> {
+    return this.resourceService
+      .search(this.type, query, this.resource, this._embedded, options, subType, embeddedName, ignoreProjection ?? false)
+      .pipe(map((resourceArray) => {
+        return RestService.toHalPage(resourceArray);
+      }));
+  }
+
+  /**
+   * Fetches all rows across pages for client-side grids and dropdowns.
+   * Phase A: single request with high size (default). Phase B: chunked loop when chunkedFullFetch is set.
+   */
+  public fetchAllItems(
+    options?: HalOptions,
+    subType?: SubTypeBuilder,
+    embeddedName?: string,
+    ignoreProjection?: boolean,
+  ): Observable<T[]> {
+    if (options?.chunkedFullFetch === false) {
+      const fullFetchOptions: HalOptions = {
+        ...options,
+        page: undefined,
+        size: options?.size ?? ALL_PAGES_FETCH_SIZE,
+        notPaged: options?.notPaged ?? true,
+      };
+      return this.fetchItems(fullFetchOptions, subType, embeddedName, ignoreProjection);
+    }
+    return this.fetchItemsPageByPage(options, subType, embeddedName, ignoreProjection);
+  }
+
+  private fetchItemsPageByPage(
+    options?: HalOptions,
+    subType?: SubTypeBuilder,
+    embeddedName?: string,
+    ignoreProjection?: boolean,
+  ): Observable<T[]> {
+    const pageSize = options?.size ?? ALL_PAGES_CHUNK_SIZE;
+    const firstPageOptions: HalOptions = {...options, page: 0, size: pageSize, notPaged: false, chunkedFullFetch: undefined};
+
+    return this.fetchPage(firstPageOptions, subType, embeddedName, ignoreProjection).pipe(
+      expand((page) => {
+        const nextPage = page.pageNumber + 1;
+        if (nextPage >= page.totalPages) {
+          return EMPTY;
+        }
+        return this.fetchPage(
+          {...firstPageOptions, page: nextPage},
+          subType,
+          embeddedName,
+          ignoreProjection,
+        );
+      }),
+      map((page) => page.rows),
+      reduce((acc, rows) => acc.concat(rows), [] as T[]),
+    );
+  }
+
+  private static toHalPage<T extends Resource>(resourceArray: ResourceArray<T>): HalPage<T> {
+    return {
+      rows: resourceArray.result,
+      totalElements: resourceArray.totalElements,
+      pageNumber: resourceArray.pageNumber,
+      pageSize: resourceArray.pageSize,
+      totalPages: resourceArray.totalPages,
+    };
   }
 
   /**
@@ -153,12 +274,12 @@ export class RestService<T extends Resource> {
     return this.resourceService.get(this.type, this.resource, id);
   }
 
-  public getProjection<S extends Resource>(type: { new(): S }, id: any): Observable<S> {
+  public fetchProjectionById<S extends Resource>(type: { new(): S }, id: any): Observable<S> {
     return this.resourceService.get(type, this.resource, id);
   }
 
-  public getOriginal(id: any): Observable<T> {
-    return this.resourceService.getOriginal(this.type, this.resource, id);
+  public fetchRawById(id: any): Observable<T> {
+    return this.resourceService.fetchRawById(this.type, this.resource, id);
   }
 
 
@@ -197,23 +318,23 @@ export class RestService<T extends Resource> {
    * @param options - Optional HAL options
    * @returns Observable of single resource
    */
-  public searchSingle(query: string, options?: HalOptions): Observable<T> {
-    return this.resourceService.searchSingle(this.type, query, this.resource, options);
+  public searchOne(query: string, options?: HalOptions): Observable<T> {
+    return this.resourceService.searchOne(this.type, query, this.resource, options);
   }
 
   /**
    * Executes a custom query against the API
-   * @param query - The custom query string
+   * @param queryString - The custom query string
    * @param options - Optional HAL options
    * @returns Observable of resource array
    */
-  public customQuery(query: string, options?: HalOptions): Observable<T[]> {
-    return this.resourceService.customQuery(this.type, query, this.resource, this._embedded, options).pipe(
+  public fetchItemsByQueryString(queryString: string, options?: HalOptions): Observable<T[]> {
+    return this.resourceService.fetchItemsByQueryString(this.type, queryString, this.resource, this._embedded, options).pipe(
       map((resourceArray: ResourceArray<T>) => {
         if (options && options.notPaged && !(resourceArray.first_uri === null || resourceArray.first_uri === undefined)) {
           options.notPaged = false;
           options.size = resourceArray.totalElements;
-          return firstValueFrom(this.customQuery(query, options));
+          return firstValueFrom(this.fetchItemsByQueryString(queryString, options));
         } else {
           return resourceArray.result;
         }
@@ -221,13 +342,13 @@ export class RestService<T extends Resource> {
     );
   }
 
-  public customQueryProjection<S extends Resource>(type: {new(): S}, query: string, options?: HalOptions): Observable<S[]> {
-    return this.resourceService.customQueryProjection(type, query, this.resource, this._embedded, options).pipe(
+  public fetchProjectionItemsByQueryString<S extends Resource>(type: {new(): S}, queryString: string, options?: HalOptions): Observable<S[]> {
+    return this.resourceService.fetchProjectedByQueryString(type, queryString, this.resource, this._embedded, options).pipe(
       map((resourceArray: ResourceArray<T>) => {
         if (options && options.notPaged && resourceArray.first_uri !== null && resourceArray.first_uri !== undefined) {
           options.notPaged = false;
           options.size = resourceArray.totalElements;
-          return firstValueFrom(this.customQueryProjection(type, query, options));
+          return firstValueFrom(this.fetchProjectionItemsByQueryString(type, queryString, options));
         } else {
           return resourceArray.result;
         }
@@ -240,13 +361,34 @@ export class RestService<T extends Resource> {
    * Retrieves an array of related resources
    * @param relation - The relation link name
    * @param builder - Optional subtype builder
+   * @param options
    * @returns Observable of the resource array
    */
-  public getByRelationArray(relation: string, builder?: SubTypeBuilder): Observable<T[]> {
-    return this.resourceService.getByRelationArray(this.type, relation, this._embedded, builder).pipe(
+  public fetchRelationItems(relation: string, builder?: SubTypeBuilder, options?: HalOptions): Observable<T[]> {
+    return this.resourceService.fetchRelationItems(this.type, relation, this._embedded, builder, options).pipe(
       map((resourceArray: ResourceArray<T>) => {
+        if (options?.notPaged && resourceArray.first_uri) {
+          const nextOptions: HalOptions = {...options, notPaged: false, size: resourceArray.totalElements};
+          return nextOptions;
+        }
         return resourceArray.result;
-      }));
+      }),
+      switchMap((result) => {
+        if (Array.isArray(result)) {
+          return of(result);
+        }
+        return this.fetchRelationItems(relation, builder, result);
+      }),
+    );
+  }
+
+  /** Full-fetch variant for relation arrays */
+  public fetchAllRelationItems(relation: string, builder?: SubTypeBuilder, options?: HalOptions): Observable<T[]> {
+    return this.fetchRelationItems(relation, builder, {
+      ...options,
+      size: options?.size ?? ALL_PAGES_FETCH_SIZE,
+      notPaged: options?.notPaged ?? true,
+    });
   }
 
   /**
@@ -254,8 +396,8 @@ export class RestService<T extends Resource> {
    * @param relation - The relation link name
    * @returns Observable of single resource
    */
-  public getByRelation(relation: string): Observable<T> {
-    return this.resourceService.getByRelation(this.type, relation);
+  public fetchRelation(relation: string): Observable<T> {
+    return this.resourceService.fetchRelation(this.type, relation);
   }
 
   /**
@@ -308,10 +450,10 @@ export class RestService<T extends Resource> {
     // Extract entity type translation key from resource path
     // e.g., "services" -> "entity.service.label", "cartographies" -> "entity.cartography.label"
     const entityTypeKey = this.getEntityTypeTranslationKey();
-    
+
     // Extract entity name from entity object (try name, title, or id as fallback)
     const entityName = this.getEntityName(entity);
-    
+
     return this.resourceService.delete(entity, entityTypeKey, entityName);
   }
 
@@ -335,7 +477,7 @@ export class RestService<T extends Resource> {
       'task-groups': 'entity.taskGroup.label',
       'connections': 'entity.connection.label'
     };
-    
+
     return resourceToEntityType[this.resource] || undefined;
   }
 
@@ -349,23 +491,23 @@ export class RestService<T extends Resource> {
     if (!entity) {
       return undefined;
     }
-    
+
     // Try common name properties
     const name = (entity as any).name;
     if (name && typeof name === 'string' && name.trim()) {
       return name;
     }
-    
+
     const title = (entity as any).title;
     if (title && typeof title === 'string' && title.trim()) {
       return title;
     }
-    
+
     // Fallback to id if available
     if (entity.id !== undefined && entity.id !== null) {
       return `#${entity.id}`;
     }
-    
+
     return undefined;
   }
 

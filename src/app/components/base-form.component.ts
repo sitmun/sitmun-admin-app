@@ -851,7 +851,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
       query.params.push(param);
     }
 
-    return this.codeListService.getAll(query);
+    return this.codeListService.fetchAllItems(query);
   }
 
   /**
