@@ -8,14 +8,14 @@ import {firstValueFrom, of} from 'rxjs';
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
 import {Configuration} from '@app/core/config/configuration';
+import {createPagedInfiniteFetcher} from "@app/core/hal";
+import {INFINITE_PAGE_SIZE_DEFAULT} from "@app/core/hal/infinite-page-size";
 import {CartographyGroup, CartographyGroupService, CodeListService, TranslationService,} from '@app/domain';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from '@app/services/loading-overlay.service';
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 import {constants} from '@environments/constants';
-import {INFINITE_PAGE_SIZE_DEFAULT} from "@app/core/hal/infinite-page-size";
-import {createPagedInfiniteFetcher} from "@app/core/hal";
 
 @Component({
     selector: 'app-layers-permits',

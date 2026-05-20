@@ -3,9 +3,8 @@ import {map} from 'rxjs/operators';
 
 import type {HalPage} from './hal-page';
 import type {InfiniteBlockRequest} from './infinite-block-request';
-import type {HalOptions, HalParam} from './rest/rest.service';
-import type {RestService} from './rest/rest.service';
 import type {Resource} from './resource/resource.model';
+import type {HalOptions, HalParam,RestService} from './rest/rest.service';
 
 export interface InfiniteBlockFetcherOptions<T> {
   /** Static params to merge with every request (e.g., type.id filter) */

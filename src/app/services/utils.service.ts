@@ -846,6 +846,9 @@ export class UtilsService {
     valuesField?: string
   ) {
     const valueGetterFn: ValueGetterFunc<TData, TValue> = (params: ValueGetterParams<TData, TValue>) => {
+      if (!params.data) {
+        return undefined;
+      }
       const dataFieldValue = params.data[keyField]
       const effectiveList = values();
       const value = effectiveList.find(value => value[valuesKeyField] == dataFieldValue)

@@ -1,10 +1,10 @@
 import {of} from 'rxjs';
 
 import type {HalPage} from './hal-page';
-import type {InfiniteBlockRequest} from './infinite-block-request';
 import {createPagedInfiniteFetcher} from './infinite-block-fetcher';
-import type {RestService} from './rest/rest.service';
+import type {InfiniteBlockRequest} from './infinite-block-request';
 import {Resource} from './resource/resource.model';
+import type {RestService} from './rest/rest.service';
 
 class MockEntity extends Resource {
   name?: string;

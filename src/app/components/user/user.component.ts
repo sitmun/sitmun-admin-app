@@ -3,11 +3,13 @@ import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from '@ngx-translate/core';
-import {firstValueFrom} from 'rxjs';
+import {firstValueFrom,of} from 'rxjs';
 
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
 import {Configuration} from '@app/core/config/configuration';
+import {createPagedInfiniteFetcher} from '@app/core/hal';
+import {INFINITE_PAGE_SIZE_DEFAULT} from '@app/core/hal/infinite-page-size';
 import {CodeListService, TranslationService, User, UserService,} from '@app/domain';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from '@app/services/loading-overlay.service';
@@ -26,10 +28,14 @@ export class UserComponent extends BaseListComponent<User> {
     iconName: Configuration.USER.icon,
     font: Configuration.USER.font,
     columnDefs: [],
-    dataFetchFn: () => this.userService.fetchAllItems(),
-    defaultColumnSorting: ['name'],
+    dataFetchFn: () => of([]),
+    rowModelMode: 'infinite',
+    pageSize: INFINITE_PAGE_SIZE_DEFAULT,
+    infiniteBlockFetcher: createPagedInfiniteFetcher(this.userService),
+    progressiveLocalFilter: false,
+    backendSearch: true,
+    defaultColumnSorting: ['username'],
     gridOptions: {
-      globalSearch: true,
       discardChangesButton: false,
       redoButton: false,
       undoButton: false,
@@ -69,12 +75,23 @@ export class UserComponent extends BaseListComponent<User> {
   }
 
   override async postFetchData(): Promise<void> {
-    // Set column definitions directly in the config
+    const usernameCol: any = this.utils.getRouterLinkColumnDef('common.form.identifier', 'username', 'user/:id/userForm', {id: 'id'}, 130, 250);
+    usernameCol.sortable = true;
+    usernameCol.cellRendererParams = {...usernameCol.cellRendererParams, sortField: 'username'};
+
+    const firstNameCol: any = this.utils.getNonEditableColumnDef('entity.user.firstname', 'firstName', 130, 250);
+    firstNameCol.sortable = true;
+    firstNameCol.cellRendererParams = {...firstNameCol.cellRendererParams, sortField: 'firstName'};
+
+    const lastNameCol: any = this.utils.getNonEditableColumnDef('entity.user.lastname', 'lastName', 130, 250);
+    lastNameCol.sortable = true;
+    lastNameCol.cellRendererParams = {...lastNameCol.cellRendererParams, sortField: 'lastName'};
+
     this.entityListConfig.columnDefs = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getRouterLinkColumnDef('common.form.identifier', 'username', 'user/:id/userForm', {id: 'id'}),
-      this.utils.getNonEditableColumnDef('entity.user.firstname', 'firstName'),
-      this.utils.getNonEditableColumnDef('entity.user.lastname', 'lastName'),
+      this.utils.getRowCheckboxColumnDef(),
+      usernameCol,
+      firstNameCol,
+      lastNameCol,
     ];
   }
 
@@ -85,8 +102,6 @@ export class UserComponent extends BaseListComponent<User> {
   override async duplicateItem(id: number) {
     await this.router.navigate(['user', -1, 'userForm', id]);
   }
-
-  override dataFetchFn = () => this.userService.fetchAllItems();
 
   override dataUpdateFn = (data: User) => firstValueFrom(this.userService.update(data))
 

@@ -3,11 +3,13 @@ import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from '@ngx-translate/core';
-import {firstValueFrom} from 'rxjs';
+import {firstValueFrom,of} from 'rxjs';
 
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
 import {Configuration} from '@app/core/config/configuration';
+import {createPagedInfiniteFetcher} from '@app/core/hal';
+import {INFINITE_PAGE_SIZE_DEFAULT} from '@app/core/hal/infinite-page-size';
 import {
   CodeListService,
   Territory,
@@ -36,10 +38,14 @@ export class TerritoryComponent extends BaseListComponent<Territory> {
     iconName: Configuration.TERRITORY.icon,
     font: Configuration.TERRITORY.font,
     columnDefs: [],
-    dataFetchFn: () => this.territoryService.fetchAllItems(),
+    dataFetchFn: () => of([]),
+    rowModelMode: 'infinite',
+    pageSize: INFINITE_PAGE_SIZE_DEFAULT,
+    infiniteBlockFetcher: createPagedInfiniteFetcher(this.territoryService),
+    progressiveLocalFilter: false,
+    backendSearch: true,
     defaultColumnSorting: ['name'],
     gridOptions: {
-      globalSearch: true,
       discardChangesButton: false,
       redoButton: false,
       undoButton: false,
@@ -84,13 +90,28 @@ export class TerritoryComponent extends BaseListComponent<Territory> {
   }
 
   override async postFetchData(): Promise<void> {
-    // Set column definitions directly in the config
+    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'territory/:id/territoryForm', {id: 'id'}, 130, 250);
+    nameCol.sortable = true;
+    nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
+
+    const codeCol: any = this.utils.getEditableColumnDef('entity.territory.code', 'code', 130, 250);
+    codeCol.sortable = true;
+    codeCol.cellRendererParams = {...codeCol.cellRendererParams, sortField: 'code'};
+
+    const typeCol: any = this.utils.getFormattedColumnDef('common.form.type', () => this.territoryTypes, 'typeId', 'id', 'name');
+    typeCol.sortable = true;
+    typeCol.cellRendererParams = {...typeCol.cellRendererParams, sortField: 'typeId'};
+
+    const dateCol: any = this.utils.getDateColumnDef('common.form.createdDate', 'createdDate');
+    dateCol.sortable = true;
+    dateCol.cellRendererParams = {...dateCol.cellRendererParams, sortField: 'createdDate'};
+
     this.entityListConfig.columnDefs = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'territory/:id/territoryForm', {id: 'id'}),
-      this.utils.getEditableColumnDef('entity.territory.code', 'code'),
-      this.utils.getFormattedColumnDef('common.form.type', () => this.territoryTypes, 'typeId', 'id', 'name'),
-      this.utils.getDateColumnDef('common.form.createdDate', 'createdDate')
+      this.utils.getRowCheckboxColumnDef(),
+      nameCol,
+      codeCol,
+      typeCol,
+      dateCol
     ];
   }
 
@@ -101,8 +122,6 @@ export class TerritoryComponent extends BaseListComponent<Territory> {
   override async duplicateItem(id: number) {
     await this.router.navigate(['territory', -1, 'territoryForm', id]);
   }
-
-  override dataFetchFn = () => this.territoryService.fetchAllItems();
 
   override dataUpdateFn = (data: Territory) => firstValueFrom(this.territoryService.update(data))
 

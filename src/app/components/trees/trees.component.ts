@@ -3,11 +3,13 @@ import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from '@ngx-translate/core';
-import {firstValueFrom} from 'rxjs';
+import {firstValueFrom,of} from 'rxjs';
 
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
 import {Configuration} from '@app/core/config/configuration';
+import {createPagedInfiniteFetcher} from '@app/core/hal';
+import {INFINITE_PAGE_SIZE_DEFAULT} from '@app/core/hal/infinite-page-size';
 import {CodeListService, TranslationService, Tree, TreeService,} from '@app/domain';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from '@app/services/loading-overlay.service';
@@ -26,10 +28,14 @@ export class TreesComponent extends BaseListComponent<Tree> {
     iconName: Configuration.TREE.icon,
     font: Configuration.TREE.font,
     columnDefs: [],
-    dataFetchFn: () => this.treeService.fetchAllItems(),
+    dataFetchFn: () => of([]),
+    rowModelMode: 'infinite',
+    pageSize: INFINITE_PAGE_SIZE_DEFAULT,
+    infiniteBlockFetcher: createPagedInfiniteFetcher(this.treeService),
+    progressiveLocalFilter: false,
+    backendSearch: true,
     defaultColumnSorting: ['name'],
     gridOptions: {
-      globalSearch: true,
       discardChangesButton: false,
       redoButton: false,
       undoButton: false,
@@ -69,10 +75,13 @@ export class TreesComponent extends BaseListComponent<Tree> {
   }
 
   override async postFetchData(): Promise<void> {
-    // Set column definitions directly in the config
+    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'trees/:id/treesForm', {id: 'id'}, 130, 250);
+    nameCol.sortable = true;
+    nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
+
     this.entityListConfig.columnDefs = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'trees/:id/treesForm', {id: 'id'}),
+      this.utils.getRowCheckboxColumnDef(),
+      nameCol,
     ];
   }
 
@@ -83,8 +92,6 @@ export class TreesComponent extends BaseListComponent<Tree> {
   override async duplicateItem(id: number) {
     await this.router.navigate(['trees', -1, 'treesForm', id]);
   }
-
-  override dataFetchFn = () => this.treeService.fetchAllItems();
 
   override dataUpdateFn = (data: Tree) => firstValueFrom(this.treeService.update(data))
 

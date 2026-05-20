@@ -3,11 +3,13 @@ import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from '@ngx-translate/core';
-import {firstValueFrom} from 'rxjs';
+import {firstValueFrom,of} from 'rxjs';
 
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
 import {Configuration} from '@app/core/config/configuration';
+import {createPagedInfiniteFetcher} from '@app/core/hal';
+import {INFINITE_PAGE_SIZE_DEFAULT} from '@app/core/hal/infinite-page-size';
 import {Application, ApplicationService, CodeListService, TranslationService,} from '@app/domain';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from '@app/services/loading-overlay.service';
@@ -26,10 +28,14 @@ export class ApplicationComponent extends BaseListComponent<Application> {
     iconName: Configuration.APPLICATION.icon,
     font: Configuration.APPLICATION.font,
     columnDefs: [],
-    dataFetchFn: () => this.applicationService.fetchAllItems(),
+    dataFetchFn: () => of([]),
+    rowModelMode: 'infinite',
+    pageSize: INFINITE_PAGE_SIZE_DEFAULT,
+    infiniteBlockFetcher: createPagedInfiniteFetcher(this.applicationService),
+    progressiveLocalFilter: false,
+    backendSearch: true,
     defaultColumnSorting: ['name'],
     gridOptions: {
-      globalSearch: true,
       discardChangesButton: false,
       redoButton: false,
       undoButton: false,
@@ -73,13 +79,28 @@ export class ApplicationComponent extends BaseListComponent<Application> {
   }
 
   override async postFetchData(): Promise<void> {
-    // Set column definitions directly in the config
+    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'application/:id/applicationForm', {id: 'id'}, 130, 250);
+    nameCol.sortable = true;
+    nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
+
+    const typeCol: any = this.utils.getNonEditableColumnWithCodeListDef('common.form.type', 'type', this.codeList('application.type'));
+    typeCol.sortable = true;
+    typeCol.cellRendererParams = {...typeCol.cellRendererParams, sortField: 'type'};
+
+    const themeCol: any = this.utils.getEditableColumnDef('entity.application.type.generic.css', 'theme', 130, 250);
+    themeCol.sortable = true;
+    themeCol.cellRendererParams = {...themeCol.cellRendererParams, sortField: 'theme'};
+
+    const dateCol: any = this.utils.getDateColumnDef('common.form.createdDate', 'createdDate');
+    dateCol.sortable = true;
+    dateCol.cellRendererParams = {...dateCol.cellRendererParams, sortField: 'createdDate'};
+
     this.entityListConfig.columnDefs = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'application/:id/applicationForm', {id: 'id'}),
-      this.utils.getNonEditableColumnWithCodeListDef('common.form.type', 'type', this.codeList('application.type')),
-      this.utils.getEditableColumnDef('entity.application.type.generic.css', 'theme'),
-      this.utils.getDateColumnDef('common.form.createdDate', 'createdDate')
+      this.utils.getRowCheckboxColumnDef(),
+      nameCol,
+      typeCol,
+      themeCol,
+      dateCol
     ];
   }
 
@@ -90,8 +111,6 @@ export class ApplicationComponent extends BaseListComponent<Application> {
   override async duplicateItem(id: number) {
     await this.router.navigate(['application', -1, 'applicationForm', id]);
   }
-
-  override dataFetchFn = () => this.applicationService.fetchAllItems();
 
   override dataUpdateFn = (data: Application) => firstValueFrom(this.applicationService.update(data))
 

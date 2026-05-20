@@ -3,11 +3,13 @@ import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from '@ngx-translate/core';
-import {firstValueFrom} from 'rxjs';
+import {firstValueFrom,of} from 'rxjs';
 
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
 import {Configuration} from '@app/core/config/configuration';
+import {createPagedInfiniteFetcher} from '@app/core/hal';
+import {INFINITE_PAGE_SIZE_DEFAULT} from '@app/core/hal/infinite-page-size';
 import {CodeListService, Role, RoleService, TranslationService,} from '@app/domain';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from '@app/services/loading-overlay.service';
@@ -26,10 +28,14 @@ export class RoleComponent extends BaseListComponent<Role> {
     iconName: Configuration.ROLE.icon,
     font: Configuration.ROLE.font,
     columnDefs: [],
-    dataFetchFn: () => this.roleService.fetchAllItems(),
+    dataFetchFn: () => of([]),
+    rowModelMode: 'infinite',
+    pageSize: INFINITE_PAGE_SIZE_DEFAULT,
+    infiniteBlockFetcher: createPagedInfiniteFetcher(this.roleService),
+    progressiveLocalFilter: false,
+    backendSearch: true,
     defaultColumnSorting: ['name'],
     gridOptions: {
-      globalSearch: true,
       discardChangesButton: false,
       redoButton: false,
       undoButton: false,
@@ -69,10 +75,13 @@ export class RoleComponent extends BaseListComponent<Role> {
   }
 
   override async postFetchData(): Promise<void> {
-    // Set column definitions directly in the config
+    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'role/:id/roleForm', {id: 'id'}, 130, 250);
+    nameCol.sortable = true;
+    nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
+
     this.entityListConfig.columnDefs = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'role/:id/roleForm', {id: 'id'}),
+      this.utils.getRowCheckboxColumnDef(),
+      nameCol,
     ];
   }
 
@@ -83,8 +92,6 @@ export class RoleComponent extends BaseListComponent<Role> {
   override async duplicateItem(id: number) {
     await this.router.navigate(['role', -1, 'roleForm', id]);
   }
-
-  override dataFetchFn = () => this.roleService.fetchAllItems();
 
   override dataUpdateFn = (data: Role) => firstValueFrom(this.roleService.update(data))
 
