@@ -77,9 +77,11 @@ export class BackgroundLayersComponent extends BaseListComponent<Background> {
 
   override async postFetchData(): Promise<void> {
     // Set column definitions directly in the config
-    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'backgroundLayers/:id/backgroundLayersForm', {id: 'id'});
+    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'backgroundLayers/:id/backgroundLayersForm', {id: 'id'}, 220);
     nameCol.sortable = true;
     nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
+    nameCol.flex = 1;
+    nameCol.tooltipField = 'name';
 
     this.entityListConfig.columnDefs = [
       this.utils.getRowCheckboxColumnDef(),

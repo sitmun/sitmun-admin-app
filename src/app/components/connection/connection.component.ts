@@ -80,17 +80,24 @@ export class ConnectionComponent extends BaseListComponent<Connection> {
   }
 
   override async postFetchData(): Promise<void> {
-    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'connection/:id/connectionForm', {id: 'id'}, 130, 250);
+    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'connection/:id/connectionForm', {id: 'id'}, 200);
     nameCol.sortable = true;
     nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
+    nameCol.flex = 2;
+    nameCol.tooltipField = 'name';
 
     const driverCol: any = this.utils.getNonEditableColumnWithCodeListDef('entity.connection.driver', 'driver', this.codeList('databaseConnection.driver'));
     driverCol.sortable = true;
     driverCol.cellRendererParams = {...driverCol.cellRendererParams, sortField: 'driver'};
+    driverCol.minWidth = 220;
+    driverCol.flex = 2;
 
-    const urlCol: any = this.utils.getNonEditableColumnDef('entity.connection.url', 'url', 130, 250);
+    const urlCol: any = this.utils.getNonEditableColumnDef('entity.connection.url', 'url', 260);
     urlCol.sortable = true;
     urlCol.cellRendererParams = {...urlCol.cellRendererParams, sortField: 'url'};
+    urlCol.flex = 4;
+    urlCol.cellClass = 'read-only-cell sitmun-technical-cell';
+    urlCol.tooltipField = 'url';
 
     this.entityListConfig.columnDefs = [
       this.utils.getRowCheckboxColumnDef(),

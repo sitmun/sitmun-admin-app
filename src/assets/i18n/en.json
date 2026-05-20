@@ -345,6 +345,7 @@
   "entity.cartography.error.scaleRange": "Maximum scale must be greater than minimum scale.",
   "entity.cartography.label": "Layer",
   "entity.cartography.layerSet": "Layer or layers from the service used",
+  "entity.cartography.layerSet.short": "Service Layers",
   "entity.cartography.maximumScale": "Maximum scale",
   "entity.cartography.metadataURL": "Layer metadata location",
   "entity.cartography.minimumScale": "Minimum scale",

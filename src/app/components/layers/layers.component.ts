@@ -104,18 +104,34 @@ export class LayersComponent extends BaseListComponent<CartographyProjection> {
 
   override async postFetchData(): Promise<void> {
     // Set column definitions directly in the config
-    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'layers/:id/layersForm', {id: 'id'}, 200, 300);
+    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'layers/:id/layersForm', {id: 'id'}, 220);
     nameCol.sortable = true;
     nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
+    nameCol.flex = 3;
+    nameCol.minWidth = 220;
+    nameCol.tooltipField = 'name';
 
-    const serviceCol: any = this.utils.getRouterLinkColumnDef('entity.service.label', 'serviceName', 'service/:id/serviceForm', {id: 'serviceId'}, 200, 300);
+    const layerCol: any = {
+      ...this.utils.getNonEditableColumnDef('entity.cartography.layerSet.short', 'layers', 140),
+      ...this.utils.getArrayValueParser(),
+      flex: 2,
+      minWidth: 140,
+      cellClass: 'read-only-cell sitmun-technical-cell',
+      tooltipValueGetter: (params) => Array.isArray(params.value) ? params.value.join(', ') : params.value,
+      headerTooltip: this.translateService.instant('entity.cartography.layerSet')
+    };
+
+    const serviceCol: any = this.utils.getRouterLinkColumnDef('entity.service.label', 'serviceName', 'service/:id/serviceForm', {id: 'serviceId'}, 160);
     serviceCol.sortable = true;
     serviceCol.cellRendererParams = {...serviceCol.cellRendererParams, sortField: 'service.name'};
+    serviceCol.flex = 2;
+    serviceCol.minWidth = 160;
+    serviceCol.tooltipField = 'serviceName';
 
     this.entityListConfig.columnDefs = [
       this.utils.getRowCheckboxColumnDef(),
       nameCol,
-      {...this.utils.getNonEditableColumnDef('entity.cartography.layerSet', 'layers', 200, 300), ...this.utils.getArrayValueParser()},
+      layerCol,
       serviceCol,
     ];
   }

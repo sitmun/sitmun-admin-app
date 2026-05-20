@@ -76,7 +76,7 @@ export class LanguageComponent extends BaseListComponent<Language> {
 
   override async postFetchData(): Promise<void> {
     const nameCol: any = {
-      ...this.utils.getRouterLinkColumnDef('entity.language.name', 'name', 'language/:id/languageForm', {id: 'id'}, 130, 250),
+      ...this.utils.getRouterLinkColumnDef('entity.language.name', 'name', 'language/:id/languageForm', {id: 'id'}, 220),
       valueGetter: (params) => {
         const name = params.data?.name || '';
         const shortname = params.data?.shortname || '';
@@ -85,6 +85,8 @@ export class LanguageComponent extends BaseListComponent<Language> {
     };
     nameCol.sortable = true;
     nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
+    nameCol.flex = 1;
+    nameCol.tooltipValueGetter = (params) => params.value;
 
     this.entityListConfig.columnDefs = [
       this.utils.getRowCheckboxColumnDef(),

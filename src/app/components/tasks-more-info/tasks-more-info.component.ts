@@ -78,9 +78,11 @@ export class TasksMoreInfoComponent extends BaseListComponent<Task> {
   }
 
   override async postFetchData(): Promise<void> {
-    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', `tasksMoreInfo/:id/${magic.taskMoreInfoTypeId}`, {id: 'id'}, 130, 250);
+    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', `tasksMoreInfo/:id/${magic.taskMoreInfoTypeId}`, {id: 'id'}, 220);
     nameCol.sortable = true;
     nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
+    nameCol.flex = 1;
+    nameCol.tooltipField = 'name';
 
     this.entityListConfig.columnDefs = [
       this.utils.getRowCheckboxColumnDef(),

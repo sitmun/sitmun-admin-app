@@ -83,13 +83,17 @@ export class TasksQueryComponent extends BaseListComponent<Task> {
   }
 
   override async postFetchData(): Promise<void> {
-    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', `taskQuery/:id/${config.tasksTypes.query}`, {id: 'id'}, 130, 250);
+    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', `taskQuery/:id/${config.tasksTypes.query}`, {id: 'id'}, 220);
     nameCol.sortable = true;
     nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
+    nameCol.flex = 3;
+    nameCol.tooltipField = 'name';
 
     const scopeCol: any = this.utils.getNonEditableColumnWithCodeListDef('common.form.type', 'properties.scope', this.codeList('queryTask.scope'));
     scopeCol.sortable = true;
     scopeCol.cellRendererParams = {...scopeCol.cellRendererParams, sortField: 'properties.scope'};
+    scopeCol.minWidth = 160;
+    scopeCol.flex = 1;
 
     this.entityListConfig.columnDefs = [
       this.utils.getRowCheckboxColumnDef(),

@@ -75,13 +75,18 @@ export class ConfigurationParameterComponent extends BaseListComponent<Configura
   }
 
   override async postFetchData(): Promise<void> {
-    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'configurationParameter/:id/configurationParameterForm', {id: 'id'}, 130, 250);
+    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'configurationParameter/:id/configurationParameterForm', {id: 'id'}, 200);
     nameCol.sortable = true;
     nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
+    nameCol.flex = 2;
+    nameCol.tooltipField = 'name';
 
-    const valueCol: any = this.utils.getNonEditableColumnDef('common.form.value', 'value', 130, 250);
+    const valueCol: any = this.utils.getNonEditableColumnDef('common.form.value', 'value', 260);
     valueCol.sortable = true;
     valueCol.cellRendererParams = {...valueCol.cellRendererParams, sortField: 'value'};
+    valueCol.flex = 3;
+    valueCol.cellClass = 'read-only-cell sitmun-technical-cell';
+    valueCol.tooltipField = 'value';
 
     this.entityListConfig.columnDefs = [
       this.utils.getRowCheckboxColumnDef(),

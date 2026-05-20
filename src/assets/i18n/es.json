@@ -345,6 +345,7 @@
   "entity.cartography.error.scaleRange": "La escala máxima debe ser mayor que la mínima.",
   "entity.cartography.label": "Capa",
   "entity.cartography.layerSet": "Capa o capas del servicio utilizadas",
+  "entity.cartography.layerSet.short": "Capas del servicio",
   "entity.cartography.maximumScale": "Escala máxima",
   "entity.cartography.metadataURL": "URL de la metadata de la capa",
   "entity.cartography.minimumScale": "Escala mínima",

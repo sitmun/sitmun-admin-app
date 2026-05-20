@@ -345,6 +345,7 @@
   "entity.cartography.error.scaleRange": "L'échelle maximale doit être supérieure à l'échelle minimale.",
   "entity.cartography.label": "Calque",
   "entity.cartography.layerSet": "Couche ou couches du service utilisées",
+  "entity.cartography.layerSet.short": "Couches du service",
   "entity.cartography.maximumScale": "Échelle maximale",
   "entity.cartography.metadataURL": "Lieu de la metadata du calque",
   "entity.cartography.minimumScale": "Échelle minimale",

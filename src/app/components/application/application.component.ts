@@ -79,21 +79,30 @@ export class ApplicationComponent extends BaseListComponent<Application> {
   }
 
   override async postFetchData(): Promise<void> {
-    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'application/:id/applicationForm', {id: 'id'}, 130, 250);
+    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'application/:id/applicationForm', {id: 'id'}, 200);
     nameCol.sortable = true;
     nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
+    nameCol.flex = 3;
+    nameCol.tooltipField = 'name';
 
     const typeCol: any = this.utils.getNonEditableColumnWithCodeListDef('common.form.type', 'type', this.codeList('application.type'));
     typeCol.sortable = true;
     typeCol.cellRendererParams = {...typeCol.cellRendererParams, sortField: 'type'};
+    typeCol.minWidth = 140;
+    typeCol.flex = 1;
 
-    const themeCol: any = this.utils.getEditableColumnDef('entity.application.type.generic.css', 'theme', 130, 250);
+    const themeCol: any = this.utils.getEditableColumnDef('entity.application.type.generic.css', 'theme', 180);
     themeCol.sortable = true;
     themeCol.cellRendererParams = {...themeCol.cellRendererParams, sortField: 'theme'};
+    themeCol.flex = 2;
+    themeCol.tooltipField = 'theme';
 
     const dateCol: any = this.utils.getDateColumnDef('common.form.createdDate', 'createdDate');
     dateCol.sortable = true;
     dateCol.cellRendererParams = {...dateCol.cellRendererParams, sortField: 'createdDate'};
+    dateCol.width = 140;
+    dateCol.maxWidth = 140;
+    dateCol.flex = 0;
 
     this.entityListConfig.columnDefs = [
       this.utils.getRowCheckboxColumnDef(),

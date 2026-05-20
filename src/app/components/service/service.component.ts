@@ -81,19 +81,27 @@ export class ServiceComponent extends BaseListComponent<Service> {
 
   override async postFetchData(): Promise<void> {
     // Set column definitions directly in the config
-    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'service/:id/serviceForm', {id: 'id'});
+    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'service/:id/serviceForm', {id: 'id'}, 200);
     nameCol.sortable = true;
     nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
+    nameCol.flex = 2;
+    nameCol.tooltipField = 'name';
 
-    const typeCol: any = this.utils.getNonEditableColumnDef('common.form.type', 'type');
+    const typeCol: any = this.utils.getNonEditableColumnDef('common.form.type', 'type', 140);
     typeCol.sortable = true;
     typeCol.cellRendererParams = {sortField: 'type'};
+    typeCol.flex = 1;
+
+    const endpointCol: any = this.utils.getNonEditableColumnWithLinkDef('entity.service.endpoint', 'serviceURL', 280);
+    endpointCol.flex = 4;
+    endpointCol.cellClass = 'read-only-cell sitmun-technical-cell';
+    endpointCol.tooltipField = 'serviceURL';
 
     this.entityListConfig.columnDefs = [
       this.utils.getRowCheckboxColumnDef(),
       nameCol,
       typeCol,
-      this.utils.getNonEditableColumnWithLinkDef('entity.service.endpoint', 'serviceURL'),
+      endpointCol,
     ];
   }
 

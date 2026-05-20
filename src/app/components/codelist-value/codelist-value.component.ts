@@ -74,12 +74,15 @@ export class CodelistValueComponent extends BaseListComponent<CodeList> {
   }
 
   override async postFetchData(): Promise<void> {
-    const codeListNameCol: any = this.utils.getNonEditableColumnDef('entity.codelistValue.codeListName', 'codeListName', 130, 250);
+    const codeListNameCol: any = this.utils.getNonEditableColumnDef('entity.codelistValue.codeListName', 'codeListName', 180);
     codeListNameCol.sortable = true;
     codeListNameCol.cellRendererParams = {...codeListNameCol.cellRendererParams, sortField: 'codeListName'};
+    codeListNameCol.flex = 2;
+    codeListNameCol.cellClass = 'read-only-cell sitmun-technical-cell';
+    codeListNameCol.tooltipField = 'codeListName';
 
     const descriptionCol: any = {
-      ...this.utils.getRouterLinkColumnDef('entity.codelistValue.description', 'description', 'codelistValue/:id/codelistValueForm', {id: 'id'}, 130, 250),
+      ...this.utils.getRouterLinkColumnDef('entity.codelistValue.description', 'description', 'codelistValue/:id/codelistValueForm', {id: 'id'}, 260),
       valueGetter: (params) => {
         const description = params.data?.description || '';
         const value = params.data?.value || '';
@@ -88,14 +91,20 @@ export class CodelistValueComponent extends BaseListComponent<CodeList> {
     };
     descriptionCol.sortable = true;
     descriptionCol.cellRendererParams = {...descriptionCol.cellRendererParams, sortField: 'description'};
+    descriptionCol.flex = 4;
+    descriptionCol.tooltipValueGetter = (params) => params.value;
 
-    const defaultCodeCol: any = this.utils.getBooleanColumnDef('entity.codelistValue.defaultCode', 'defaultCode', false, 130, 250);
+    const defaultCodeCol: any = this.utils.getBooleanColumnDef('entity.codelistValue.defaultCode', 'defaultCode', false, 160, 160);
     defaultCodeCol.sortable = true;
     defaultCodeCol.cellRendererParams = {...defaultCodeCol.cellRendererParams, sortField: 'defaultCode'};
+    defaultCodeCol.width = 160;
+    defaultCodeCol.flex = 0;
 
-    const systemCol: any = this.utils.getBooleanColumnDef('entity.codelistValue.system', 'system', false, 130, 250);
+    const systemCol: any = this.utils.getBooleanColumnDef('entity.codelistValue.system', 'system', false, 112, 112);
     systemCol.sortable = true;
     systemCol.cellRendererParams = {...systemCol.cellRendererParams, sortField: 'system'};
+    systemCol.width = 112;
+    systemCol.flex = 0;
 
     this.entityListConfig.columnDefs = [
       this.utils.getRowCheckboxColumnDef(),

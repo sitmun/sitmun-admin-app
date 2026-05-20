@@ -319,6 +319,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   /** AG Grid options configuration */
   gridOptions: GridOptions;
 
+  /** Currently expanded column from the truncated-cell inspection shortcut */
+  private expandedColumnId?: string;
+
   /** Flag indicating if any status has changed to delete */
   someStatusHasChangedToDelete = false;
 
@@ -527,6 +530,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       autoSizeStrategy: {
         type: 'fitCellContents'
       },
+      onCellMouseOver: (params) => this.markTruncatedCell(params),
+      onCellMouseOut: (params) => this.unmarkTruncatedCell(params),
+      onCellClicked: (params) => this.expandTruncatedCellColumn(params),
       defaultColDef: {
         filter: true,
         sortable: true,
@@ -554,7 +560,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         },
       },
       rowSelection: 'multiple',
-      suppressHorizontalScroll: false,
+      suppressHorizontalScroll: true,
       // Add alternating row background
       getRowStyle: (params) => {
         if (params.node.rowIndex! % 2 === 0) {
@@ -586,6 +592,8 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
    * Handles component initialization
    */
   ngOnInit(): void {
+    this.configureAutoSizeStrategy();
+
     // Set up debounced search (300ms delay)
     this.searchSubject
       .pipe(
@@ -611,8 +619,11 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     this.observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          // The grid is visible, autosize all columns.
-          this.gridApi?.autoSizeAllColumns();
+          // For infinite mode with flex columns, don't auto-size (flex handles distribution)
+          // Only auto-size for client-side mode where content-based sizing is expected
+          if (this.rowModelMode !== 'infinite') {
+            this.gridApi?.autoSizeAllColumns();
+          }
         }
       });
     }, {threshold: 0.1});
@@ -684,6 +695,187 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
   get isInfiniteMode(): boolean {
     return this.rowModelMode === 'infinite';
+  }
+
+  private expandTruncatedCellColumn(params): void {
+    const cell = this.getEventCell(params);
+    const colId = params.column?.getColId?.() ?? params.column?.getId?.() ?? params.colDef?.colId ?? params.colDef?.field;
+    if (!cell || !colId || params.colDef?.checkboxSelection || !this.isCellTruncated(cell)) {
+      return;
+    }
+
+    if (this.expandedColumnId && this.expandedColumnId !== colId) {
+      this.restoreExpandedColumn();
+    }
+
+    const currentWidth = params.column?.getActualWidth?.() ?? cell.clientWidth;
+    const targetWidth = Math.min(
+      this.getExpandedCellWidth(cell),
+      this.getMaxExpandedColumnWidth(colId, currentWidth)
+    );
+    if (targetWidth <= currentWidth + 1) {
+      return;
+    }
+
+    this.gridApi.applyColumnState({
+      state: [{colId, flex: null, width: targetWidth}],
+      applyOrder: false
+    });
+    this.expandedColumnId = colId;
+    cell.classList.remove('sitmun-truncated-cell');
+  }
+
+  private restoreExpandedColumn(): void {
+    if (!this.expandedColumnId || !this.gridApi || this.gridApi.isDestroyed()) {
+      return;
+    }
+
+    const defaultState = this.getDefaultColumnState(this.expandedColumnId);
+    if (defaultState) {
+      this.gridApi.applyColumnState({
+        state: [defaultState],
+        applyOrder: false
+      });
+    }
+    this.expandedColumnId = undefined;
+  }
+
+  private getDefaultColumnState(colId: string): any | undefined {
+    const columnDef = this.columnDefs.find((col) => this.getColumnDefId(col) === colId);
+    if (!columnDef) {
+      return undefined;
+    }
+
+    if (columnDef.flex !== 0) {
+      return {
+        colId,
+        flex: columnDef.flex ?? 1
+      };
+    }
+
+    return {
+      colId,
+      flex: null,
+      width: columnDef.width ?? columnDef.minWidth ?? 100
+    };
+  }
+
+  private getColumnDefId(columnDef: any): string | undefined {
+    return columnDef.colId ?? columnDef.field;
+  }
+
+  private getMaxExpandedColumnWidth(colId: string, currentWidth: number): number {
+    const viewportWidth = this.getGridViewportWidth();
+    const displayedColumns = this.gridApi?.getAllDisplayedColumns?.() ?? [];
+    if (!viewportWidth || displayedColumns.length === 0) {
+      return currentWidth;
+    }
+
+    const otherColumnsWidth = displayedColumns
+      .filter((column: any) => column.getColId?.() !== colId)
+      .reduce((total: number, column: any) => total + this.getColumnFitFloorWidth(column), 0);
+
+    return Math.max(currentWidth, viewportWidth - otherColumnsWidth - 2);
+  }
+
+  private getGridViewportWidth(): number {
+    const gridElement = this.params?.eGridDiv as HTMLElement | undefined;
+    const gridWidth = gridElement?.querySelector<HTMLElement>('.ag-center-cols-viewport')?.clientWidth ??
+      gridElement?.clientWidth ??
+      this.dataGrid?.nativeElement?.clientWidth;
+
+    return Math.max(0, gridWidth ?? 0);
+  }
+
+  private getColumnFitFloorWidth(column: any): number {
+    const colDef = column.getColDef?.() ?? {};
+    const actualWidth = column.getActualWidth?.() ?? colDef.width ?? colDef.minWidth ?? 100;
+
+    if (colDef.flex === 0 || colDef.suppressSizeToFit) {
+      return actualWidth;
+    }
+
+    return colDef.minWidth ?? Math.min(actualWidth, 100);
+  }
+
+  private withoutCellTooltips(col: any): any {
+    const processed = {...col};
+    delete processed.tooltipField;
+    delete processed.tooltipValueGetter;
+    return processed;
+  }
+
+  private markTruncatedCell(params): void {
+    const cell = this.getEventCell(params);
+    if (cell && !params.colDef?.checkboxSelection && this.isCellTruncated(cell)) {
+      cell.classList.add('sitmun-truncated-cell');
+    }
+  }
+
+  private unmarkTruncatedCell(params): void {
+    this.getEventCell(params)?.classList.remove('sitmun-truncated-cell');
+  }
+
+  private isCellTruncated(cell: HTMLElement): boolean {
+    const candidates: HTMLElement[] = [
+      cell,
+      ...Array.from(cell.querySelectorAll('.ag-cell-value, .ag-cell-wrapper, a, span')) as HTMLElement[]
+    ];
+
+    return candidates.some((element) => element.scrollWidth > element.clientWidth + 1) ||
+      this.isCellTextWiderThanVisibleArea(cell);
+  }
+
+  private getEventCell(params): HTMLElement | null {
+    const target = params.event?.target as HTMLElement | null;
+    return target?.closest?.('.ag-cell') as HTMLElement | null;
+  }
+
+  private isCellTextWiderThanVisibleArea(cell: HTMLElement): boolean {
+    return this.getCellTextWidth(cell) > this.getVisibleCellTextWidth(cell) + 1;
+  }
+
+  private getExpandedCellWidth(cell: HTMLElement): number {
+    const style = window.getComputedStyle(cell);
+    const horizontalPadding = Number.parseFloat(style.paddingLeft || '0') + Number.parseFloat(style.paddingRight || '0');
+    const textWidth = this.getCellTextWidth(cell);
+    const widthWithBreathingRoom = Math.ceil(textWidth + horizontalPadding + 32);
+    return Math.min(Math.max(widthWithBreathingRoom, cell.clientWidth), 720);
+  }
+
+  private getVisibleCellTextWidth(cell: HTMLElement): number {
+    const style = window.getComputedStyle(cell);
+    const horizontalPadding = Number.parseFloat(style.paddingLeft || '0') + Number.parseFloat(style.paddingRight || '0');
+    return cell.clientWidth - horizontalPadding;
+  }
+
+  private getCellTextWidth(cell: HTMLElement): number {
+    const text = cell.innerText?.trim();
+    if (!text) {
+      return 0;
+    }
+
+    const style = window.getComputedStyle(cell);
+    const measurer = document.createElement('span');
+    measurer.textContent = text;
+    measurer.style.position = 'absolute';
+    measurer.style.visibility = 'hidden';
+    measurer.style.whiteSpace = 'nowrap';
+    measurer.style.font = style.font;
+    document.body.appendChild(measurer);
+    const textWidth = measurer.getBoundingClientRect().width;
+    measurer.remove();
+
+    return textWidth;
+  }
+
+  private configureAutoSizeStrategy(): void {
+    if (this.rowModelMode === 'infinite') {
+      delete this.gridOptions.autoSizeStrategy;
+      return;
+    }
+
+    this.gridOptions.autoSizeStrategy = {type: 'fitCellContents'};
   }
 
   /**
@@ -838,6 +1030,8 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       }
     });
 
+    this.columnDefs = this.columnDefs.map((col) => this.withoutCellTooltips(col));
+
     if (this.rowModelMode === 'infinite') {
       this.columnDefs = this.fixedHeightInfiniteColumnDefs(this.columnDefs);
     }
@@ -866,17 +1060,28 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
           wrapText: false,
         };
       }
-      const flexibleCol = {...col};
-      delete flexibleCol.width;
-      delete flexibleCol.maxWidth;
-      return {
-        ...flexibleCol,
+      
+      // Preserve explicit flex if set, otherwise default to 1
+      const flex = col.flex !== undefined ? col.flex : 1;
+      
+      // Keep minWidth if specified (prevents over-squeeze)
+      const processed: any = {
+        ...col,
         filter: false,
         autoHeight: false,
-        flex: col.flex && col.flex > 0 ? col.flex : 1,
-        resizable: true,
         wrapText: false,
+        flex,
+        resizable: true
       };
+
+      // Flex columns should consume available space. Explicit non-flex columns
+      // (for example booleans or dates) keep their fixed sizing.
+      if (flex !== 0) {
+        delete processed.width;
+        delete processed.maxWidth;
+      }
+      
+      return processed;
     });
   }
 
@@ -1695,6 +1900,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
    * @param changes - SimpleChanges object containing changed properties
    */
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes.rowModelMode) {
+      this.configureAutoSizeStrategy();
+    }
     if (changes.rowData && !changes.rowData.firstChange) {
       this.updateGridData(changes.rowData.currentValue);
     }

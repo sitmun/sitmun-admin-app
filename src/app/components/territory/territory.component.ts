@@ -90,21 +90,30 @@ export class TerritoryComponent extends BaseListComponent<Territory> {
   }
 
   override async postFetchData(): Promise<void> {
-    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'territory/:id/territoryForm', {id: 'id'}, 130, 250);
+    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'territory/:id/territoryForm', {id: 'id'}, 220);
     nameCol.sortable = true;
     nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
+    nameCol.flex = 3;
+    nameCol.tooltipField = 'name';
 
-    const codeCol: any = this.utils.getEditableColumnDef('entity.territory.code', 'code', 130, 250);
+    const codeCol: any = this.utils.getEditableColumnDef('entity.territory.code', 'code', 120);
     codeCol.sortable = true;
     codeCol.cellRendererParams = {...codeCol.cellRendererParams, sortField: 'code'};
+    codeCol.flex = 1;
+    codeCol.tooltipField = 'code';
 
     const typeCol: any = this.utils.getFormattedColumnDef('common.form.type', () => this.territoryTypes, 'typeId', 'id', 'name');
     typeCol.sortable = true;
     typeCol.cellRendererParams = {...typeCol.cellRendererParams, sortField: 'typeId'};
+    typeCol.minWidth = 180;
+    typeCol.flex = 2;
 
     const dateCol: any = this.utils.getDateColumnDef('common.form.createdDate', 'createdDate');
     dateCol.sortable = true;
     dateCol.cellRendererParams = {...dateCol.cellRendererParams, sortField: 'createdDate'};
+    dateCol.width = 140;
+    dateCol.maxWidth = 140;
+    dateCol.flex = 0;
 
     this.entityListConfig.columnDefs = [
       this.utils.getRowCheckboxColumnDef(),

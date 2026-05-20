@@ -1,11 +1,11 @@
 @use '@angular/material' as mat;
+@use "mat-form-field-rich-hint";
 @include mat.core();
 
 /* You can add global styles to this file, and also import other style files */
 
 @import "@ag-grid-community/styles/ag-grid.css";
 @import "@ag-grid-community/styles/ag-theme-material.css";
-@import "mat-form-field-rich-hint";
 
 
 // CSS Reset, comment out if not required or using a different module
@@ -149,6 +149,33 @@ h2 {
 .ag-theme-material {
   --ag-odd-row-background-color: rgba(0, 0, 0, 0.02);
   --ag-row-hover-color: rgba(0, 0, 0, 0.06);
+}
+
+.ag-theme-material .ag-cell.sitmun-truncated-cell {
+  cursor: col-resize;
+}
+
+.ag-theme-material .ag-cell.ag-cell-focus,
+.ag-theme-material .ag-cell:focus,
+.ag-theme-material .ag-cell:focus-within {
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none;
+}
+
+.ag-theme-material .ag-cell.sitmun-technical-cell {
+  color: rgba(0, 0, 0, 0.62);
+  letter-spacing: 0.01em;
+}
+
+.ag-theme-material .ag-cell.sitmun-centered-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ag-theme-material .sitmun-centered-header .ag-header-cell-label {
+  justify-content: center;
 }
 
 // Apply gray background only to authenticated pages
@@ -883,7 +910,7 @@ h4 > .mat-icon {
 
 .read-only-cell {
   background-color: $background-color; /* Light gray background */
-  color: #999999; /* Gray text color */
+  color: rgba(0, 0, 0, 0.87); /* Normal data text color */
 }
 
 .spacer {
@@ -964,6 +991,8 @@ mat-card-content {
 
 .router-link {
   color: #007bff;
+  font-size: inherit;
+  line-height: inherit;
   text-decoration: none;
 }
 .router-link:hover {
@@ -972,6 +1001,8 @@ mat-card-content {
 
 .url-link {
   color: #007bff;
+  font-size: inherit;
+  line-height: inherit;
   text-decoration: none;
   word-break: break-all;
 }

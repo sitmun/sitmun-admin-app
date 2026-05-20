@@ -75,13 +75,17 @@ export class TaskUIComponent extends BaseListComponent<TaskUI> {
   }
 
   override async postFetchData(): Promise<void> {
-    const nameCol: any = this.utils.getRouterLinkColumnDef('entity.taskUI.identifier', 'name', 'task-ui/:id/taskUIForm', {id: 'id'}, 130, 250);
+    const nameCol: any = this.utils.getRouterLinkColumnDef('entity.taskUI.identifier', 'name', 'task-ui/:id/taskUIForm', {id: 'id'}, 180);
     nameCol.sortable = true;
     nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
+    nameCol.flex = 2;
+    nameCol.tooltipField = 'name';
 
-    const tooltipCol: any = this.utils.getNonEditableColumnDef('entity.taskUI.name', 'tooltip', 130, 250);
+    const tooltipCol: any = this.utils.getNonEditableColumnDef('entity.taskUI.name', 'tooltip', 260);
     tooltipCol.sortable = true;
     tooltipCol.cellRendererParams = {...tooltipCol.cellRendererParams, sortField: 'tooltip'};
+    tooltipCol.flex = 3;
+    tooltipCol.tooltipField = 'tooltip';
 
     this.entityListConfig.columnDefs = [
       this.utils.getRowCheckboxColumnDef(),

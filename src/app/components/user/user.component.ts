@@ -75,17 +75,23 @@ export class UserComponent extends BaseListComponent<User> {
   }
 
   override async postFetchData(): Promise<void> {
-    const usernameCol: any = this.utils.getRouterLinkColumnDef('common.form.identifier', 'username', 'user/:id/userForm', {id: 'id'}, 130, 250);
+    const usernameCol: any = this.utils.getRouterLinkColumnDef('common.form.identifier', 'username', 'user/:id/userForm', {id: 'id'}, 180);
     usernameCol.sortable = true;
     usernameCol.cellRendererParams = {...usernameCol.cellRendererParams, sortField: 'username'};
+    usernameCol.flex = 2;
+    usernameCol.tooltipField = 'username';
 
-    const firstNameCol: any = this.utils.getNonEditableColumnDef('entity.user.firstname', 'firstName', 130, 250);
+    const firstNameCol: any = this.utils.getNonEditableColumnDef('entity.user.firstname', 'firstName', 180);
     firstNameCol.sortable = true;
     firstNameCol.cellRendererParams = {...firstNameCol.cellRendererParams, sortField: 'firstName'};
+    firstNameCol.flex = 2;
+    firstNameCol.tooltipField = 'firstName';
 
-    const lastNameCol: any = this.utils.getNonEditableColumnDef('entity.user.lastname', 'lastName', 130, 250);
+    const lastNameCol: any = this.utils.getNonEditableColumnDef('entity.user.lastname', 'lastName', 220);
     lastNameCol.sortable = true;
     lastNameCol.cellRendererParams = {...lastNameCol.cellRendererParams, sortField: 'lastName'};
+    lastNameCol.flex = 3;
+    lastNameCol.tooltipField = 'lastName';
 
     this.entityListConfig.columnDefs = [
       this.utils.getRowCheckboxColumnDef(),

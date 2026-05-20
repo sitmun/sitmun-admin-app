@@ -78,9 +78,11 @@ export class TasksEditComponent extends BaseListComponent<Task> {
   }
 
   override async postFetchData(): Promise<void> {
-    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', `taskEdit/:id/${config.tasksTypes.edit}`, {id: 'id'}, 130, 250);
+    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', `taskEdit/:id/${config.tasksTypes.edit}`, {id: 'id'}, 220);
     nameCol.sortable = true;
     nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
+    nameCol.flex = 1;
+    nameCol.tooltipField = 'name';
 
     this.entityListConfig.columnDefs = [
       this.utils.getRowCheckboxColumnDef(),

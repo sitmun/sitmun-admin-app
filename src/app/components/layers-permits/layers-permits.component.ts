@@ -84,13 +84,17 @@ export class LayersPermitsComponent extends BaseListComponent<CartographyGroup> 
 
   override async postFetchData(): Promise<void> {
     // Set column definitions directly in the config
-    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'layersPermits/:id/layersPermitsForm', {id: 'id'});
+    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'layersPermits/:id/layersPermitsForm', {id: 'id'}, 220);
     nameCol.sortable = true;
     nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
+    nameCol.flex = 3;
+    nameCol.tooltipField = 'name';
 
     const typeCol: any = this.utils.getNonEditableColumnWithCodeListDef('common.form.type', 'type', this.codeList('cartographyPermission.type'));
     typeCol.sortable = true;
     typeCol.cellRendererParams = {...typeCol.cellRendererParams, sortField: 'type'};
+    typeCol.minWidth = 160;
+    typeCol.flex = 1;
 
     this.entityListConfig.columnDefs = [
       this.utils.getRowCheckboxColumnDef(),
