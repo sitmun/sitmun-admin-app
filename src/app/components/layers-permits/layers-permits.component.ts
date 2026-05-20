@@ -3,7 +3,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from '@ngx-translate/core';
-import {firstValueFrom, map} from 'rxjs';
+import {firstValueFrom, of} from 'rxjs';
 
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
@@ -14,6 +14,8 @@ import {LoadingOverlayService} from '@app/services/loading-overlay.service';
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 import {constants} from '@environments/constants';
+import {INFINITE_PAGE_SIZE_DEFAULT} from "@app/core/hal/infinite-page-size";
+import {createPagedInfiniteFetcher} from "@app/core/hal";
 
 @Component({
     selector: 'app-layers-permits',
@@ -22,9 +24,32 @@ import {constants} from '@environments/constants';
     standalone: false
 })
 export class LayersPermitsComponent extends BaseListComponent<CartographyGroup> {
-  override dataFetchFn = () => this.cartographyGroupService.fetchAllItems().pipe(
-    map((groups) => groups.filter(group => group.type !== constants.codeValue.cartographyPermissionType.backgroundMap))
-  );
+  entityListConfig: EntityListConfig<CartographyGroup> = {
+    entityLabel: Configuration.LAYERS_PERMIT.labelPlural,
+    iconName: Configuration.LAYERS_PERMIT.icon,
+    font: Configuration.LAYERS_PERMIT.font,
+    columnDefs: [],
+    dataFetchFn: () => of([]),
+    defaultColumnSorting: ['name'],
+    rowModelMode: 'infinite',
+    pageSize: INFINITE_PAGE_SIZE_DEFAULT,
+    infiniteBlockFetcher: createPagedInfiniteFetcher(this.cartographyGroupService, {
+      params: [{key: 'excludedType', value: constants.codeValue.cartographyPermissionType.backgroundMap}]
+    }),
+    progressiveLocalFilter: false,
+    backendSearch: true,
+    gridOptions: {
+      globalSearch: true,
+      discardChangesButton: false,
+      redoButton: false,
+      undoButton: false,
+      applyChangesButton: false,
+      deleteButton: true,
+      newButton: true,
+      actionButton: true,
+      hideReplaceButton: true
+    }
+  };
 
   constructor(
     protected override dialog: MatDialog,
@@ -59,10 +84,18 @@ export class LayersPermitsComponent extends BaseListComponent<CartographyGroup> 
 
   override async postFetchData(): Promise<void> {
     // Set column definitions directly in the config
+    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'layersPermits/:id/layersPermitsForm', {id: 'id'});
+    nameCol.sortable = true;
+    nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
+
+    const typeCol: any = this.utils.getNonEditableColumnWithCodeListDef('common.form.type', 'type', this.codeList('cartographyPermission.type'));
+    typeCol.sortable = true;
+    typeCol.cellRendererParams = {...typeCol.cellRendererParams, sortField: 'type'};
+
     this.entityListConfig.columnDefs = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'layersPermits/:id/layersPermitsForm', {id: 'id'}),
-      this.utils.getNonEditableColumnWithCodeListDef('common.form.type', 'type', this.codeList('cartographyPermission.type')),
+      this.utils.getRowCheckboxColumnDef(),
+      nameCol,
+      typeCol,
     ];
   }
 
@@ -74,25 +107,7 @@ export class LayersPermitsComponent extends BaseListComponent<CartographyGroup> 
     await this.router.navigate(['layersPermits', -1, 'layersPermitsForm', id]);
   }
 
-  entityListConfig: EntityListConfig<CartographyGroup> = {
-    entityLabel: Configuration.LAYERS_PERMIT.labelPlural,
-    iconName: Configuration.LAYERS_PERMIT.icon,
-    font: Configuration.LAYERS_PERMIT.font,
-    columnDefs: [],
-    dataFetchFn: () => this.dataFetchFn(),
-    defaultColumnSorting: ['name'],
-    gridOptions: {
-      globalSearch: true,
-      discardChangesButton: false,
-      redoButton: false,
-      undoButton: false,
-      applyChangesButton: false,
-      deleteButton: true,
-      newButton: true,
-      actionButton: true,
-      hideReplaceButton: true
-    }
-  };
+  override dataFetchFn = () => this.cartographyGroupService.fetchAllItems();
 
   override dataUpdateFn = (data: CartographyGroup) => firstValueFrom(this.cartographyGroupService.update(data))
 

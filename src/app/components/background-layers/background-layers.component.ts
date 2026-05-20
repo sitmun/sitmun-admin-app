@@ -3,7 +3,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from '@ngx-translate/core';
-import {firstValueFrom} from 'rxjs';
+import {firstValueFrom, of} from 'rxjs';
 
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
@@ -13,6 +13,8 @@ import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from '@app/services/loading-overlay.service';
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
+import {INFINITE_PAGE_SIZE_DEFAULT} from "@app/core/hal/infinite-page-size";
+import {createPagedInfiniteFetcher} from "@app/core/hal";
 
 @Component({
     selector: 'app-background-layers',
@@ -26,8 +28,13 @@ export class BackgroundLayersComponent extends BaseListComponent<Background> {
     iconName: Configuration.BACKGROUND_LAYER.icon,
     font: Configuration.BACKGROUND_LAYER.font,
     columnDefs: [],
-    dataFetchFn: () => this.backgroundService.fetchAllItems(),
+    dataFetchFn: () => of([]),
     defaultColumnSorting: ['name'],
+    rowModelMode: 'infinite',
+    pageSize: INFINITE_PAGE_SIZE_DEFAULT,
+    infiniteBlockFetcher: createPagedInfiniteFetcher(this.backgroundService),
+    progressiveLocalFilter: false,
+    backendSearch: true,
     gridOptions: {
       globalSearch: true,
       discardChangesButton: false,
@@ -70,9 +77,13 @@ export class BackgroundLayersComponent extends BaseListComponent<Background> {
 
   override async postFetchData(): Promise<void> {
     // Set column definitions directly in the config
+    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'backgroundLayers/:id/backgroundLayersForm', {id: 'id'});
+    nameCol.sortable = true;
+    nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
+
     this.entityListConfig.columnDefs = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'backgroundLayers/:id/backgroundLayersForm', {id: 'id'}),
+      this.utils.getRowCheckboxColumnDef(),
+      nameCol,
     ];
   }
 
