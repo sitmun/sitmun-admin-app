@@ -649,6 +649,145 @@ describe('TemplateEditorComponent', () => {
     expect(updateContents).toHaveBeenCalledWith({ ops: [] }, 'silent');
   });
 
+  it('should replace unresolved template image and iframe sources with editor placeholders', () => {
+    const root = document.createElement('div');
+    root.innerHTML = [
+      '<img src="{{task_32317.contentUrl}}" alt="sitmun logo (mime image)" width="240" height="160">',
+      '<iframe src="{{task_32315.contentUrl}}" title="Documento PDF" width="320" height="360"></iframe>',
+    ].join('');
+
+    (component as any).applyEditorOnlyTemplatePlaceholders(root);
+
+    const image = root.querySelector('img') as HTMLImageElement;
+    const iframe = root.querySelector('iframe') as HTMLIFrameElement;
+    const imageWrapper = image.parentElement as HTMLElement;
+    const imageLabel = imageWrapper.querySelector('[data-sitmun-template-placeholder-label="img"]') as HTMLElement;
+
+    expect(image.getAttribute('src')).toContain('data:image/gif');
+    expect(image.getAttribute('src')).not.toContain('data:image/svg+xml');
+    expect(image.getAttribute('data-sitmun-original-src')).toBe('{{task_32317.contentUrl}}');
+    expect(image.getAttribute('data-sitmun-template-placeholder')).toBe('img');
+    expect(imageWrapper.getAttribute('data-sitmun-template-placeholder-wrapper')).toBe('img');
+    expect(imageLabel.textContent).toContain('sitmun logo (mime image)');
+    expect(iframe.getAttribute('src')).toBe('about:blank');
+    expect(iframe.getAttribute('srcdoc')).toContain('Documento PDF');
+    expect(iframe.getAttribute('data-sitmun-original-src')).toBe('{{task_32315.contentUrl}}');
+    expect(iframe.getAttribute('data-sitmun-template-placeholder')).toBe('iframe');
+  });
+
+  it('should keep unresolved placeholder label text at fixed 12px size', () => {
+    const root = document.createElement('div');
+    root.innerHTML = '<img src="{{task_32317.contentUrl}}" alt="sitmun logo (mime image)" width="480" height="320">';
+
+    (component as any).applyEditorOnlyTemplatePlaceholders(root);
+
+    const image = root.querySelector('img') as HTMLImageElement;
+    const imageWrapper = image.parentElement as HTMLElement;
+    const imageLabel = imageWrapper.querySelector('[data-sitmun-template-placeholder-label="img"]') as HTMLElement;
+
+    expect(imageLabel.getAttribute('style')).toContain('font-size: 12px');
+    expect(image.getAttribute('src')).not.toContain('data:image/svg+xml');
+  });
+
+  it('should restore original unresolved template sources when serializing editor html', () => {
+    const root = document.createElement('div');
+    root.innerHTML = [
+      '<img src="{{task_32317.contentUrl}}" alt="sitmun logo (mime image)" width="240" height="160">',
+      '<iframe src="{{task_32315.contentUrl}}" title="Documento PDF" width="320" height="360"></iframe>',
+    ].join('');
+    (component as any).applyEditorOnlyTemplatePlaceholders(root);
+    const image = root.querySelector('img') as HTMLImageElement;
+    const iframe = root.querySelector('iframe') as HTMLIFrameElement;
+    image.style.width = '240px';
+    image.style.height = '160px';
+    iframe.style.width = '320px';
+    iframe.style.height = '360px';
+    (component as any).quill = {
+      getModule: () => ({ hideTools: jest.fn() }),
+      root,
+    };
+
+    expect((component as any).getEditorHtml()).toBe(
+      '<img src="{{task_32317.contentUrl}}" alt="sitmun logo (mime image)" width="240" height="160"><iframe src="{{task_32315.contentUrl}}" title="Documento PDF" width="320" height="360"></iframe>',
+    );
+  });
+
+  it('should emit clean unresolved template html after visual resize without editor-only placeholder attrs or styles', () => {
+    const emitted: string[] = [];
+    const root = document.createElement('div');
+    const image = document.createElement('img');
+    image.setAttribute('src', '{{task_32317.contentUrl}}');
+    image.setAttribute('alt', 'sitmun logo (mime image)');
+    root.appendChild(image);
+    component.htmlChange.subscribe((value) => emitted.push(value));
+    configureVisualEditorHost(root);
+    (component as any).applyEditorOnlyTemplatePlaceholders(root);
+    const rectSpy = jest.spyOn(image, 'getBoundingClientRect');
+    rectSpy.mockReturnValue({
+      x: 70, y: 45, left: 70, top: 45, width: 16, height: 16, right: 86, bottom: 61, toJSON: () => '',
+    } as DOMRect);
+
+    component.selectVisualElement(image);
+    (component as any).startVisualResize({ clientX: 86, clientY: 61, preventDefault: jest.fn(), stopPropagation: jest.fn() });
+    (component as any).updateVisualResize({ clientX: 310, clientY: 205 });
+    (component as any).endVisualResize();
+
+    expect(image.style.width).toBe('240px');
+    expect(image.style.height).toBe('160px');
+    expect(component.htmlSource).toBe('<img src="{{task_32317.contentUrl}}" alt="sitmun logo (mime image)" width="240" height="160">');
+    expect(emitted).toEqual(['<img src="{{task_32317.contentUrl}}" alt="sitmun logo (mime image)" width="240" height="160">']);
+  });
+
+  it('should keep wrapped unresolved image placeholder wrapper and overlay aligned after resize', () => {
+    const root = document.createElement('div');
+    const image = document.createElement('img');
+    image.setAttribute('src', '{{task_32317.contentUrl}}');
+    image.setAttribute('alt', 'sitmun logo (mime image)');
+    root.appendChild(image);
+    configureVisualEditorHost(root);
+    (component as any).applyEditorOnlyTemplatePlaceholders(root);
+
+    const wrapper = image.parentElement as HTMLElement;
+    const rectSpy = jest.spyOn(image, 'getBoundingClientRect');
+    rectSpy.mockReturnValue({
+      x: 70, y: 45, left: 70, top: 45, width: 16, height: 16, right: 86, bottom: 61, toJSON: () => '',
+    } as DOMRect);
+
+    component.selectVisualElement(image);
+    (component as any).startVisualResize({ clientX: 86, clientY: 61, preventDefault: jest.fn(), stopPropagation: jest.fn() });
+    (component as any).updateVisualResize({ clientX: 310, clientY: 205 });
+
+    expect(wrapper.style.width).toBe('240px');
+    expect(wrapper.style.height).toBe('160px');
+    expect((component as any).resizeOverlay).toEqual({
+      visible: true,
+      tagName: 'img',
+      top: 40,
+      left: 60,
+      width: 240,
+      height: 160,
+    });
+  });
+
+  it('should preserve original inline styles after placeholder round-trip while removing editor-only resized styles', () => {
+    const root = document.createElement('div');
+    root.innerHTML = '<img src="{{task_32317.contentUrl}}" alt="sitmun logo (mime image)" style="border: 1px solid red; width: 111px; height: 77px;" width="111" height="77">';
+    (component as any).applyEditorOnlyTemplatePlaceholders(root);
+    const image = root.querySelector('img') as HTMLImageElement;
+
+    image.style.width = '240px';
+    image.style.height = '160px';
+
+    (component as any).quill = {
+      getModule: () => ({ hideTools: jest.fn() }),
+      root,
+    };
+
+    expect((component as any).getEditorHtml()).toBe(
+      '<img src="{{task_32317.contentUrl}}" alt="sitmun logo (mime image)" style="border: 1px solid red; width: 111px; height: 77px;" width="111" height="77">',
+    );
+  });
+
   it('should configure quill modules without the resize plugin', () => {
     const modules = (component as any).buildQuillModules({ keyboardBindings: {} });
 

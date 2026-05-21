@@ -59,12 +59,12 @@ describe('TaskTemplateFormComponent', () => {
       'getEditableColumnDef',
       'getStatusColumnDef',
     ]);
-    utils.getSelCheckboxColumnDef.mockReturnValue({});
-    utils.getRouterLinkColumnDef.mockReturnValue({});
-    utils.getNonEditableColumnDef.mockReturnValue({});
-    utils.getNonEditableDateColumnDef.mockReturnValue({});
-    utils.getEditableColumnDef.mockReturnValue({});
-    utils.getStatusColumnDef.mockReturnValue({});
+    utils.getSelCheckboxColumnDef.mockImplementation(() => ({ type: 'select' }));
+    utils.getRouterLinkColumnDef.mockImplementation((label: string, field: string) => ({ type: 'router-link', label, field }));
+    utils.getNonEditableColumnDef.mockImplementation((label: string, field: string) => ({ type: 'readonly', label, field }));
+    utils.getNonEditableDateColumnDef.mockImplementation((label: string, field: string) => ({ type: 'readonly-date', label, field }));
+    utils.getEditableColumnDef.mockImplementation((label: string, field: string) => ({ type: 'editable', label, field }));
+    utils.getStatusColumnDef.mockImplementation(() => ({ type: 'status' }));
 
     component = TestBed.runInInjectionContext(() => new TaskTemplateFormComponent(
       dialog as any,
@@ -148,6 +148,106 @@ describe('TaskTemplateFormComponent', () => {
     expect((component as any).linkedTasks).toEqual([
       { relationType: 'template-nested', taskId: 15, referenceAlias: 'task_2', draftReferenceAlias: 'task_2', name: 'Plantilla', typeLabel: 'Plantilla', relationId: 2 },
     ]);
+  });
+
+  it('should persist linked task order in childTaskOrderIds when saving', () => {
+    component.entityToEdit = {
+      id: 99,
+      name: 'Template 1',
+      groupId: 2,
+      properties: { templateHtml: '<p>x</p>' },
+    } as any;
+    component.entityForm = new FormGroup({
+      name: new FormControl('Template 1'),
+      taskGroupId: new FormControl(2),
+      templateHtml: new FormControl('<p>x</p>'),
+    });
+    (component as any).linkedTasks = [
+      { relationType: 'template-nested', taskId: 15, referenceAlias: 'task_2', draftReferenceAlias: 'task_2', name: 'Plantilla', typeLabel: 'Plantilla', relationId: 2 },
+      { relationType: 'template-task', taskId: 13, referenceAlias: 'task_1', draftReferenceAlias: 'task_1', name: 'Consulta', typeLabel: 'Consulta SQL', relationId: 1 },
+    ];
+
+    const task = (component as any).createObject(99);
+
+    expect(task.properties.childTaskOrderIds).toEqual([15, 13]);
+  });
+
+  it('should expose only name and optional value in template parameter dialog', () => {
+    (component as any).newParameterDialog = {} as any;
+
+    const dialog = (component as any).parametersTable.templateDialog('newParameterDialog');
+
+    expect(dialog.form.contains('name')).toBe(true);
+    expect(dialog.form.contains('value')).toBe(true);
+    expect(dialog.form.contains('type')).toBe(false);
+    expect(dialog.form.get('name')?.hasValidator?.(jest.requireActual('@angular/forms').Validators.required)).toBe(true);
+    expect(dialog.form.get('value')?.hasValidator?.(jest.requireActual('@angular/forms').Validators.required)).toBe(false);
+  });
+
+  it('should not expose a type column in the template parameters table', () => {
+    const fields = (component as any).parametersTable.relationsColumnsDefs
+      .map((column: { field?: string }) => column.field)
+      .filter(Boolean);
+
+    expect(fields).toEqual(['name', 'value']);
+    expect(fields).not.toContain('type');
+  });
+
+  it('should persist template parameters with default string type when omitted in the dialog flow', async () => {
+    component.entityToEdit = {
+      id: 99,
+      properties: {},
+    } as any;
+    (component as any).taskService.update.mockReturnValue(of({}));
+
+    await (component as any).parametersTable.relationsUpdateFn([
+      { name: 'featureId', value: '' },
+    ]);
+
+    expect(component.entityToEdit.properties).toEqual(expect.objectContaining({
+      parameters: [
+        expect.objectContaining({
+          name: 'featureId',
+          type: 'string',
+          value: '',
+        }),
+      ],
+    }));
+    expect((component as any).taskService.update).toHaveBeenCalledWith(expect.objectContaining({
+      properties: expect.objectContaining({
+        parameters: [
+          expect.objectContaining({
+            name: 'featureId',
+            type: 'string',
+            value: '',
+          }),
+        ],
+      }),
+    }));
+  });
+
+  it('should restore linked task order from childTaskOrderIds and append missing ones by task id', async () => {
+    const relationFor = (relationId: number, relationType: string, task: any, referenceAlias?: string) => ({
+      id: relationId,
+      relationType,
+      referenceAlias,
+      getRelationEx: jest.fn().mockReturnValue(of(task)),
+    });
+
+    component.entityID = 99;
+    component.entityToEdit = {
+      id: 99,
+      properties: { childTaskOrderIds: [15] },
+      getRelationArrayEx: jest.fn().mockReturnValue(of([
+        relationFor(3, 'template-task', { id: 20, name: 'Consulta zeta', properties: { scope: 'sql-query' } }, 'task_20'),
+        relationFor(1, 'template-task', { id: 13, name: 'Consulta alfa', properties: { scope: 'sql-query' } }, 'task_13'),
+        relationFor(2, 'template-nested', { id: 15, name: 'Plantilla', properties: {} }, 'task_15'),
+      ])),
+    } as any;
+
+    await (component as any).loadLinkedTasks();
+
+    expect((component as any).linkedTasks.map((task: any) => task.taskId)).toEqual([15, 13, 20]);
   });
 
   it('should block linking nested template when resulting depth exceeds max nesting', () => {
@@ -247,7 +347,58 @@ describe('TaskTemplateFormComponent', () => {
     expect(notificationService.showWarning).toHaveBeenCalledWith('common.warnings.title', 'entity.task.template.invalidReferenceAlias');
   });
 
-  it('should replace placeholders in template when renaming a reference alias and user confirms', async () => {
+  it('should keep template placeholders unchanged when confirming alias change without replacement', async () => {
+    component.entityToEdit = { properties: { previewContext: { pepe: { value: 1 } } } } as any;
+    component.entityForm = new FormGroup({
+      name: new FormControl('Template 1'),
+      taskGroupId: new FormControl(2),
+      templateHtml: new FormControl('<p>{{pepe}}</p><p>{{pepe.url}}</p>'),
+    });
+    (component as any).linkedTasks = [
+      { relationType: 'template-task', taskId: 13, referenceAlias: 'pepe', draftReferenceAlias: 'pepe', name: 'Consulta', typeLabel: 'Consulta SQL', relationId: 1 },
+    ];
+
+    (component as any).onReferenceAliasDraftChanged((component as any).linkedTasks[0], 'consulta_padron');
+    await (component as any).applyReferenceAliasChange((component as any).linkedTasks[0]);
+
+    expect((component as any).pendingReferenceAliasChange).toEqual(expect.objectContaining({
+      previousReferenceAlias: 'pepe',
+      nextReferenceAlias: 'consulta_padron',
+    }));
+
+    (component as any).confirmPendingReferenceAliasChange(false);
+
+    expect(component.entityForm.get('templateHtml')?.value).toBe('<p>{{pepe}}</p><p>{{pepe.url}}</p>');
+    expect((component.entityToEdit as any).properties.previewContext.pepe).toEqual({ value: 1 });
+    expect((component.entityToEdit as any).properties.previewContext.consulta_padron).toBeUndefined();
+    expect((component as any).linkedTasks[0].referenceAlias).toBe('consulta_padron');
+    expect((component as any).linkedTasks[0].draftReferenceAlias).toBe('consulta_padron');
+    expect((component as any).pendingReferenceAliasChange).toBeNull();
+  });
+
+  it('should cancel pending alias change and restore the draft alias', async () => {
+    component.entityForm = new FormGroup({
+      name: new FormControl('Template 1'),
+      taskGroupId: new FormControl(2),
+      templateHtml: new FormControl('<p>{{pepe}}</p>'),
+    });
+    (component as any).linkedTasks = [
+      { relationType: 'template-task', taskId: 13, referenceAlias: 'pepe', draftReferenceAlias: 'pepe', name: 'Consulta', typeLabel: 'Consulta SQL', relationId: 1 },
+    ];
+
+    (component as any).onReferenceAliasDraftChanged((component as any).linkedTasks[0], 'consulta_padron');
+    await (component as any).applyReferenceAliasChange((component as any).linkedTasks[0]);
+
+    expect((component as any).pendingReferenceAliasChange).not.toBeNull();
+
+    (component as any).cancelPendingReferenceAliasChange();
+
+    expect((component as any).linkedTasks[0].referenceAlias).toBe('pepe');
+    expect((component as any).linkedTasks[0].draftReferenceAlias).toBe('pepe');
+    expect((component as any).pendingReferenceAliasChange).toBeNull();
+  });
+
+  it('should replace placeholders in template when renaming a reference alias', async () => {
     component.entityToEdit = { properties: { previewContext: { pepe: { value: 1 } } } } as any;
     component.entityForm = new FormGroup({
       name: new FormControl('Template 1'),
@@ -266,10 +417,9 @@ describe('TaskTemplateFormComponent', () => {
     expect((component.entityToEdit as any).properties.previewContext.consulta_padron).toEqual({ value: 1 });
     expect((component as any).linkedTasks[0].referenceAlias).toBe('consulta_padron');
     expect((component as any).linkedTasks[0].draftReferenceAlias).toBe('consulta_padron');
-    expect((component as any).pendingReferenceAliasChange).toBeNull();
   });
 
-  it('should ask for confirmation on successive alias changes and replace placeholders each time', async () => {
+  it('should replace placeholders on successive alias changes', async () => {
     component.entityToEdit = { properties: { previewContext: { pepe: { value: 1 } } } } as any;
     component.entityForm = new FormGroup({
       name: new FormControl('Template 1'),
@@ -290,67 +440,6 @@ describe('TaskTemplateFormComponent', () => {
     expect(component.entityForm.get('templateHtml')?.value).toBe('<p>{{consulta_final}}</p>');
     expect((component.entityToEdit as any).properties.previewContext.consulta_final).toEqual({ value: 1 });
     expect((component.entityToEdit as any).properties.previewContext.consulta_padron).toBeUndefined();
-  });
-
-  it('should ask for confirmation when the alias is only used in a table iteration attribute', async () => {
-    component.entityToEdit = { properties: { previewContext: { pepe: { rows: [{ name: 'Layer' }] } } } } as any;
-    component.entityForm = new FormGroup({
-      name: new FormControl('Template 1'),
-      taskGroupId: new FormControl(2),
-      templateHtml: new FormControl('<table data-sitmun-each="pepe.rows"><tbody><tr><td>{{name}}</td></tr></tbody></table>'),
-    });
-    (component as any).linkedTasks = [
-      { relationType: 'template-task', taskId: 13, referenceAlias: 'pepe', draftReferenceAlias: 'pepe', name: 'Consulta', typeLabel: 'Consulta SQL', relationId: 1 },
-    ];
-
-    (component as any).onReferenceAliasDraftChanged((component as any).linkedTasks[0], 'consulta_padron');
-    await (component as any).applyReferenceAliasChange((component as any).linkedTasks[0]);
-
-    expect((component as any).pendingReferenceAliasChange).toEqual({
-      linkedTask: (component as any).linkedTasks[0],
-      previousReferenceAlias: 'pepe',
-      nextReferenceAlias: 'consulta_padron',
-    });
-  });
-
-  it('should keep the alias change and leave template placeholders unchanged when user keeps existing placeholders', async () => {
-    component.entityToEdit = { properties: { previewContext: { pepe: { value: 1 } } } } as any;
-    component.entityForm = new FormGroup({
-      name: new FormControl('Template 1'),
-      taskGroupId: new FormControl(2),
-      templateHtml: new FormControl('<p>{{pepe}}</p>'),
-    });
-    (component as any).linkedTasks = [
-      { relationType: 'template-task', taskId: 13, referenceAlias: 'pepe', draftReferenceAlias: 'pepe', name: 'Consulta', typeLabel: 'Consulta SQL', relationId: 1 },
-    ];
-
-    (component as any).onReferenceAliasDraftChanged((component as any).linkedTasks[0], 'consulta_padron');
-    await (component as any).applyReferenceAliasChange((component as any).linkedTasks[0]);
-    (component as any).confirmPendingReferenceAliasChange(false);
-
-    expect((component as any).linkedTasks[0].referenceAlias).toBe('consulta_padron');
-    expect(component.entityForm.get('templateHtml')?.value).toBe('<p>{{pepe}}</p>');
-    expect((component.entityToEdit as any).properties.previewContext.pepe).toEqual({ value: 1 });
-  });
-
-  it('should cancel a pending reference alias replacement without changing the alias', async () => {
-    component.entityToEdit = { properties: { previewContext: { pepe: { value: 1 } } } } as any;
-    component.entityForm = new FormGroup({
-      name: new FormControl('Template 1'),
-      taskGroupId: new FormControl(2),
-      templateHtml: new FormControl('<p>{{pepe}}</p>'),
-    });
-    (component as any).linkedTasks = [
-      { relationType: 'template-task', taskId: 13, referenceAlias: 'pepe', draftReferenceAlias: 'pepe', name: 'Consulta', typeLabel: 'Consulta SQL', relationId: 1 },
-    ];
-
-    (component as any).onReferenceAliasDraftChanged((component as any).linkedTasks[0], 'consulta_padron');
-    await (component as any).applyReferenceAliasChange((component as any).linkedTasks[0]);
-    (component as any).cancelPendingReferenceAliasChange();
-
-    expect((component as any).linkedTasks[0].referenceAlias).toBe('pepe');
-    expect((component as any).linkedTasks[0].draftReferenceAlias).toBe('pepe');
-    expect((component as any).pendingReferenceAliasChange).toBeNull();
   });
 
   it('should resolve linked task from lookup map', () => {

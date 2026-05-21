@@ -7,6 +7,7 @@
   [additionalText]="taskTypeNameTranslated"
   [canSave]="canSaveEntity"
   [dataLoaded]="dataLoaded"
+  [customWarningMessage]="customWarningMessage"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>
@@ -281,6 +282,24 @@
       [allNewElements]="isNewOrDuplicated()"
       templateDialogName="newParameterDialog"
     ></app-relation-grid>
+    <app-data-grid [changeHeightButton]="true"
+                   #parametersGrid
+                   [columnDefs]='parametersTable.relationsColumnsDefs'
+                   [getAll]='parametersTable.relationsFetchFn'
+                   [eventAddItemsSubscription]='parametersTable.addCommandEvent$.asObservable()'
+                   [eventGetAllRowsSubscription]='parametersTable.saveCommandEvent$.asObservable()'
+                   [eventRefreshSubscription]='parametersTable.refreshCommandEvent$.asObservable()'
+                   [discardChangesButton]=true
+                   [actionButton]=true
+                   [redoButton]=true
+                   [undoButton]=true
+                   [deleteButton]=true
+                   [newButton]=true
+                   [defaultColumnSorting]="parametersTable.defaultRelationsSorting()"
+                   (new)="parametersTable.openTemplateDialog('newParameterDialog')"
+                   (getAllRows)="parametersTable.handleSaveRelations($event)"
+                   (duplicate)='parametersTable.duplicateRelations($event)'
+    ></app-data-grid>
   </mat-tab>
   <mat-tab label="{{ 'entity.task.roles.header' | translate }}">
     <app-relation-grid

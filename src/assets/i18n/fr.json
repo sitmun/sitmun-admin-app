@@ -1541,5 +1541,11 @@
   "tasksMoreInfoAdvancedEntity.noTasksIncluded": "Aucune tâche incluse. Utilisez le sélecteur ci-dessous pour ajouter des tâches.",
   "tasksMoreInfoAdvancedEntity.addTask": "Ajouter une tâche",
   "entity.task.query.scope.web-api-query-no-proxy": "Requête Web API (sans proxy)",
-  "entity.task.query.scope.external-link": "Lien externe"
+  "entity.task.query.scope.external-link": "Lien externe",
+  "entity.task.query.missingDeclaredParameters": "Les paramètres doivent être déclarés dans l'onglet Paramètres avant l'enregistrement : {{parameters}}.",
+  "tasksMoreInfoAdvancedEntity.parameterMapping": "Mappage de paramètres",
+  "tasksMoreInfoAdvancedEntity.miaParam": "Paramètre MIA",
+  "tasksMoreInfoAdvancedEntity.childParam": "Paramètre de la tâche enfant",
+  "tasksMoreInfoAdvancedEntity.templateChildMappings": "Paramètres des tâches liées dans le modèle",
+  "tasksMoreInfoAdvancedEntity.noTemplateChildren": "Ce modèle n'a aucune tâche liée."
 }

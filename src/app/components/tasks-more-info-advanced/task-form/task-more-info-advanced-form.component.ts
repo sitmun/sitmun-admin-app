@@ -1,38 +1,36 @@
-import {Component, ElementRef, ViewChild} from '@angular/core';
+import {Component, TemplateRef, ViewChild} from '@angular/core';
 import {FormControl, FormGroup, FormGroupDirective, NgForm, Validators} from '@angular/forms';
 import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
 import {ErrorStateMatcher} from '@angular/material/core';
 import {MatDialog} from '@angular/material/dialog';
-import {MatSelectChange} from '@angular/material/select';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from '@ngx-translate/core';
-import {firstValueFrom, map, of, startWith} from 'rxjs';
+import {firstValueFrom, map, Observable, of, startWith} from 'rxjs';
 
 import {BaseFormComponent} from '@app/components/base-form.component';
-import {DataTableDefinition} from '@app/components/data-tables.util';
+import {DataTableDefinition, TemplateDialog} from '@app/components/data-tables.util';
 import {Configuration} from '@app/core/config/configuration';
 import {MessagesInterceptorStateService} from '@app/core/interceptors/messages.interceptor';
 import {
   Cartography,
   CartographyService,
   CodeListService,
-  Connection,
-  ConnectionService,
   Role,
   RoleService,
   Task,
   TaskAvailability,
   TaskAvailabilityProjection,
   TaskAvailabilityService,
+  TaskGroup,
+  TaskGroupService,
+  TaskMoreInfoParameter,
   TaskProjection,
+  TaskRelation,
+  TaskPropertiesBuilder,
   TaskService,
   TaskType,
   TaskTypeService,
-  TaskUI,
-  TaskUIService,
-  TaskMoreInfoParameter,
-  TaskPropertiesBuilder,
   TerritoryProjection,
   TerritoryService,
   TranslationService
@@ -49,17 +47,61 @@ import {LoadingOverlayService} from '@app/services/loading-overlay.service';
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 import {magic} from '@environments/constants';
+import {constants} from '@environments/constants';
 
-type AdvancedTaskKind = 'parent' | 'child';
-
-interface AdvancedTaskProperties extends Record<string, unknown> {
-  advancedTaskKind?: AdvancedTaskKind;
-  responseFormat?: string;
-  htmlTemplate?: string;
+/**
+ * Properties stored in task.properties for an MIA task.
+ * An MIA task is always a container/grouper.
+ */
+interface MiaTaskProperties {
   parentLayout?: string;
-  relatedTable?: string;
   childTaskOrderIds?: number[];
-  parentTaskIds?: number[];
+  moreInfoAdvanced?: boolean;
+  parameters?: unknown[];
+  childTaskParameters?: Record<string, Record<string, string>>;
+  templateChildTaskParameters?: Record<string, Record<string, Record<string, string>>>;
+}
+
+interface ChildParamMapping {
+  miaParam: string;
+  childParam: string;
+}
+
+interface TemplateChildTaskLink {
+  task: TaskProjection;
+  referenceAlias: string;
+}
+
+interface MappingRowView {
+  mapping: ChildParamMapping;
+  availableMiaParams: TaskMoreInfoParameter[];
+}
+
+interface TemplateChildMappingView {
+  key: string;
+  rootTemplateTaskId: number;
+  task: TaskProjection;
+  referenceAlias: string;
+  depth: number;
+  isTemplate: boolean;
+  renderAsAccordion: boolean;
+  expandedByDefault: boolean;
+  expanded: boolean;
+  mappings: ChildParamMapping[];
+  mappingRows: MappingRowView[];
+  childParameters: TaskMoreInfoParameter[];
+  canAddMapping: boolean;
+  childNodes: TemplateChildMappingView[];
+}
+
+interface IncludedTaskMappingView {
+  task: TaskProjection;
+  mappings: ChildParamMapping[];
+  mappingRows: MappingRowView[];
+  childParameters: TaskMoreInfoParameter[];
+  canAddMapping: boolean;
+  isTemplate: boolean;
+  templateChildViews: TemplateChildMappingView[];
 }
 
 @Component({
@@ -70,72 +112,78 @@ interface AdvancedTaskProperties extends Record<string, unknown> {
 })
 export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskProjection> {
   readonly config = Configuration.TASK_MORE_INFO_ADVANCED;
-  private readonly childTasksPlaceholder = '{{childTasks}}';
-
-  @ViewChild('htmlTemplateTextarea')
-  private htmlTemplateTextarea?: ElementRef<HTMLTextAreaElement>;
 
   public override entityForm: FormGroup;
+
+  @ViewChild('newParameterDialog', {static: true})
+  private readonly newParameterDialog: TemplateRef<any>;
 
   protected readonly rolesTable: DataTableDefinition<Role, Role>;
   protected readonly availabilitiesTable: DataTableDefinition<TaskAvailabilityProjection, TerritoryProjection>;
   protected readonly parametersTable: DataTableDefinition<TaskMoreInfoParameter, TaskMoreInfoParameter>;
-  protected readonly childTasksTable: DataTableDefinition<TaskProjection, TaskProjection>;
+
+  /** Per-child-task parameter mappings: taskId -> array of mappings */
+  protected childTaskParameterMappings: Map<number, ChildParamMapping[]> = new Map();
+
+  /** Nested mappings: templateTaskId -> innerTaskId -> array of mappings */
+  protected templateChildTaskParameterMappings: Map<number, Map<number, ChildParamMapping[]>> = new Map();
+
+  /** Linked child tasks for each included Template task */
+  protected templateChildTasks: Map<number, TemplateChildTaskLink[]> = new Map();
+
+  protected templateExpansionState: Map<string, boolean> = new Map();
+
+  protected miaParameters: TaskMoreInfoParameter[] = [];
+  protected includedTaskMappingViews: IncludedTaskMappingView[] = [];
 
   private taskType: TaskType = null;
   private readonly taskTypeId = magic.taskMoreInfoAdvancedTypeId;
 
-  protected taskTypeNameTranslated: string = null;
-  protected cartographies: Cartography[] = [];
-  protected connections: Connection[] = [];
-  protected allMoreInfoTasks: TaskProjection[] = [];
-  protected advancedUI: TaskUI = null;
+  /** Task type IDs allowed as children of an MIA task: query (5) + template (15) */
+  private readonly allowedChildTypeIds = [magic.taskQueryTypeId, magic.taskTemplateTypeId]; // 5, 15
 
+  /** Scope to exclude within query tasks: cartography queries cannot be included */
+  private readonly excludedScope = constants.codeValue.queryTaskScope.cartographyQuery;
+
+  protected taskTypeNameTranslated: string = null;
+  protected taskGroups: TaskGroup[] = [];
+  protected cartographies: Cartography[] = [];
+
+  /** All candidate tasks that can be included as children */
+  private allCandidateTasks: TaskProjection[] = [];
+
+  /** Currently included tasks in display order */
+  protected includedTasks: TaskProjection[] = [];
+
+  // Cartography autocomplete
   protected cartographySearchControl = new FormControl<string | Cartography>('', {
     validators: [Validators.required, this.cartographyValidator.bind(this)],
     nonNullable: true
   });
-  protected filteredCartographies = of<Cartography[]>([]);
+  protected filteredCartographies: Observable<Cartography[]> = of([]);
   protected cartographyErrorMatcher = new CartographyErrorStateMatcher();
 
-  protected readonly advancedKinds: Array<{ value: AdvancedTaskKind, key: string }> = [
-    {value: 'parent', key: 'tasksMoreInfoAdvancedEntity.kind.parent'},
-    {value: 'child', key: 'tasksMoreInfoAdvancedEntity.kind.child'}
-  ];
-
-  protected readonly responseFormats: Array<{ value: string, key: string }> = [
-    {value: 'table', key: 'tasksMoreInfoAdvancedEntity.responseFormat.table'},
-    {value: 'images', key: 'tasksMoreInfoAdvancedEntity.responseFormat.images'},
-    {value: 'html', key: 'tasksMoreInfoAdvancedEntity.responseFormat.html'}
-  ];
+  // Add task autocomplete
+  protected addTaskControl = new FormControl<string | TaskProjection>('');
+  protected filteredAvailableTasks: Observable<TaskProjection[]> = of([]);
 
   protected readonly parentLayouts: Array<{ value: string, key: string }> = [
-    {value: 'scroll', key: 'tasksMoreInfoAdvancedEntity.parentLayout.scroll'},
-    {value: 'tabs', key: 'tasksMoreInfoAdvancedEntity.parentLayout.tabs'}
+    {value: 'tabs', key: 'tasksMoreInfoAdvancedEntity.parentLayout.tabs'},
+    {value: 'scroll', key: 'tasksMoreInfoAdvancedEntity.parentLayout.scroll'}
   ];
 
-  protected readonly htmlSnippets: Array<{ labelKey: string, snippet: string }> = [
-    {labelKey: 'tasksMoreInfoAdvancedEntity.snippets.title', snippet: '<h2></h2>'},
-    {labelKey: 'tasksMoreInfoAdvancedEntity.snippets.subtitle', snippet: '<h3></h3>'},
-    {labelKey: 'tasksMoreInfoAdvancedEntity.snippets.paragraph', snippet: '<p></p>'},
-    {labelKey: 'tasksMoreInfoAdvancedEntity.snippets.image', snippet: '<img src="" alt="" style="max-width:100%; height:auto;" />'},
-    {labelKey: 'tasksMoreInfoAdvancedEntity.snippets.table', snippet: '<table><thead><tr><th></th></tr></thead><tbody><tr><td></td></tr></tbody></table>'},
-    {labelKey: 'tasksMoreInfoAdvancedEntity.snippets.childTasks', snippet: this.childTasksPlaceholder}
-  ];
+  protected readonly trackTaskById = (_index: number, task: TaskProjection): number => task.id;
+  protected readonly trackIncludedTaskMappingView = (_index: number, view: IncludedTaskMappingView): number => view.task.id;
+  protected readonly trackMappingRow = (_index: number, row: MappingRowView): ChildParamMapping => row.mapping;
+  protected readonly trackTemplateChildMappingView = (_index: number, view: TemplateChildMappingView): string => view.key;
 
-  protected readonly moreInfoScope = {
-    sql: 'SQL',
-    api: 'API',
-    url: 'URL'
-  };
+  private readonly maxTemplateNestingDepth = 6;
 
   protected validationFieldLabels: Record<string, string> = {
     'name': 'entity.task.label',
-    'cartographyId': 'tasksMoreInfoAdvancedEntity.cartography',
-    'advancedTaskKind': 'tasksMoreInfoAdvancedEntity.taskKind'
+    'taskGroupId': 'tasksMoreInfoAdvancedEntity.taskGroup',
+    'cartographyId': 'tasksMoreInfoAdvancedEntity.cartography'
   };
-
-  private previousSelectedChildTaskIds: number[] = [];
 
   constructor(
     dialog: MatDialog,
@@ -150,51 +198,43 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
     messagesInterceptorState: MessagesInterceptorStateService,
     protected taskService: TaskService,
     protected taskTypeService: TaskTypeService,
+    protected taskGroupService: TaskGroupService,
     protected cartographyService: CartographyService,
-    protected taskUIService: TaskUIService,
     protected utils: UtilsService,
     protected roleService: RoleService,
     protected territoryService: TerritoryService,
-    protected taskAvailabilityService: TaskAvailabilityService,
-    protected connectionService: ConnectionService
+    protected taskAvailabilityService: TaskAvailabilityService
   ) {
     super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService, messagesInterceptorState);
     this.rolesTable = this.defineRolesTable();
     this.availabilitiesTable = this.defineAvailabilitiesTable();
     this.parametersTable = this.defineParametersTable();
-    this.childTasksTable = this.defineChildTasksTable();
   }
 
   override async preFetchData(): Promise<void> {
     this.dataTables.register(this.rolesTable)
       .register(this.availabilitiesTable)
-      .register(this.parametersTable)
-      .register(this.childTasksTable);
+      .register(this.parametersTable);
 
-    await this.initCodeLists(['tasksEntity.type', 'moreInfo.type', 'service.authenticationMode']);
     this.initTranslations('Task', ['name']);
 
-    const [taskTypes, cartographies, connections, uiList, allMoreInfoTasks] = await Promise.all([
+    const [taskTypes, taskGroups, cartographies, candidateTasks] = await Promise.all([
       firstValueFrom(this.taskTypeService.getAllEx()),
+      firstValueFrom(this.taskGroupService.getAllEx()),
       firstValueFrom(this.cartographyService.getAll()),
-      firstValueFrom(this.connectionService.getAll()),
-      firstValueFrom(this.taskUIService.getAll()),
-      firstValueFrom(this.taskService.getAllProjection(TaskProjection, {
-        params: [{key: 'type.id', value: this.taskTypeId}]
-      }))
+      this.fetchCandidateChildTasks()
     ]);
 
-    this.taskType = taskTypes.find(taskType => taskType.id === this.taskTypeId);
+    this.taskType = taskTypes.find(t => t.id === this.taskTypeId);
     if (!this.taskType) {
       this.loggerService.error(`Task type ${this.taskTypeId} not found`);
     }
 
     this.taskTypeNameTranslated = this.translateService.instant('entity.task.moreInfoAdvanced.label');
+    this.taskGroups = (taskGroups || []).sort((a, b) => (a.name || '').localeCompare(b.name || ''));
     this.cartographies = cartographies;
-    this.connections = connections;
-    this.advancedUI = uiList.find(ui => ui.name === 'sitna.moreInfoAdvanced') || uiList.find(ui => ui.name === 'sitna.moreInfo') || null;
-
-    this.allMoreInfoTasks = (allMoreInfoTasks || []).filter(task => task.id !== this.entityID);
+    this.allCandidateTasks = candidateTasks;
+    await this.loadTemplateChildTasks(candidateTasks);
   }
 
   override async fetchRelatedData(): Promise<void> {
@@ -217,18 +257,14 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
   }
 
   override postFetchData(): void {
-    const properties = this.getAdvancedProperties(this.entityToEdit?.properties);
-    const kind = this.normalizeKind(properties.advancedTaskKind);
-    const scope = this.normalizeScope(properties.scope as string | null);
-    const defaultAuthMode = this.defaultValueOrNull('service.authenticationMode');
-    const authenticationMode = properties.authenticationMode ?? defaultAuthMode?.value ?? null;
-    const user = properties.user || null;
-    const password = properties.password || null;
-    const apiKey = properties?.headers?.['X-API-Key'] || null;
-    const addApiKey = scope === this.moreInfoScope.api && !!apiKey;
+    const properties = this.getMiaProperties(this.entityToEdit?.properties);
 
     this.entityForm = new FormGroup({
       name: new FormControl(this.entityToEdit.name, {
+        validators: [Validators.required],
+        nonNullable: true
+      }),
+      taskGroupId: new FormControl(this.entityToEdit.groupId, {
         validators: [Validators.required],
         nonNullable: true
       }),
@@ -236,43 +272,21 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
         validators: [Validators.required],
         nonNullable: true
       }),
-      advancedTaskKind: new FormControl(kind, {
-        validators: [Validators.required],
-        nonNullable: true
-      }),
-      scope: new FormControl(scope, {
-        nonNullable: false
-      }),
-      connectionId: new FormControl(this.entityToEdit.connectionId, {
-        nonNullable: false
-      }),
-      command: new FormControl(typeof properties.command === 'string' ? properties.command : null, {
-        nonNullable: false
-      }),
-      authenticationMode: new FormControl(authenticationMode),
-      user: new FormControl(user),
-      password: new FormControl(password),
-      addApiKey: new FormControl(addApiKey, {
-        nonNullable: true
-      }),
-      apiKey: new FormControl(apiKey),
-      responseFormat: new FormControl(typeof properties.responseFormat === 'string' ? properties.responseFormat : 'table', {
-        nonNullable: true
-      }),
-      htmlTemplate: new FormControl(typeof properties.htmlTemplate === 'string' ? properties.htmlTemplate : '', {
-        nonNullable: true
-      }),
-      parentLayout: new FormControl(typeof properties.parentLayout === 'string' ? properties.parentLayout : 'tabs', {
-        nonNullable: true
-      }),
-      selectedChildTaskIds: new FormControl(this.getSelectedChildIdsForParent(properties), {
+      parentLayout: new FormControl(properties.parentLayout || 'tabs', {
         nonNullable: true
       })
     });
 
-    this.previousSelectedChildTaskIds = this.normalizeParentIds(this.entityForm.get('selectedChildTaskIds')?.value);
+    // Restore included tasks from stored order
+    this.restoreIncludedTasks(properties);
 
-    const selectedCartography = this.cartographies.find(cartography => cartography.id === this.entityToEdit.cartographyId);
+    // Restore child task parameter mappings
+    this.restoreChildTaskParameterMappings(properties);
+    this.restoreTemplateChildTaskParameterMappings(properties);
+    this.rebuildIncludedTaskMappingViews();
+
+    // Cartography autocomplete setup
+    const selectedCartography = this.cartographies.find(c => c.id === this.entityToEdit.cartographyId);
     this.cartographySearchControl.setValue(selectedCartography || '');
     this.filteredCartographies = this.cartographySearchControl.valueChanges.pipe(
       startWith(this.cartographySearchControl.value),
@@ -282,24 +296,14 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
       })
     );
 
-    this.entityForm.get('advancedTaskKind')?.valueChanges.subscribe(() => this.updateDynamicValidations());
-    this.entityForm.get('scope')?.valueChanges.subscribe(scope => {
-      if (scope !== this.moreInfoScope.sql) {
-        this.entityForm.get('connectionId')?.setValue(null);
-      }
-      this.updateDynamicValidations();
-    });
-    this.entityForm.get('addApiKey')?.valueChanges.subscribe(() => this.updateApiKeyValidation());
-    this.entityForm.get('selectedChildTaskIds')?.valueChanges.subscribe(value => {
-      const selectedIds = this.normalizeParentIds(value);
-      const normalized = this.ensureManualSelectionOrder(selectedIds);
-      if (!this.sameNumberArray(selectedIds, normalized)) {
-        this.entityForm.get('selectedChildTaskIds')?.setValue(normalized, {emitEvent: false});
-      }
-      this.previousSelectedChildTaskIds = normalized;
-    });
-    this.updateApiKeyValidation();
-    this.updateDynamicValidations();
+    // Add task autocomplete setup
+    this.filteredAvailableTasks = this.addTaskControl.valueChanges.pipe(
+      startWith(''),
+      map(value => {
+        const searchValue = typeof value === 'string' ? value : '';
+        return this.filterAvailableTasks(searchValue);
+      })
+    );
   }
 
   override async createEntity(): Promise<number> {
@@ -308,8 +312,10 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
 
     await firstValueFrom(entityCreated.updateRelationEx('type', this.taskType));
 
-    if (this.advancedUI?.id) {
-      await firstValueFrom(entityCreated.updateRelationEx('ui', this.taskUIService.createProxy(this.advancedUI.id)));
+    const groupId = this.entityForm.get('taskGroupId')?.value;
+    if (typeof groupId === 'number') {
+      const proxyGroup = this.taskGroupService.createProxy(groupId);
+      await firstValueFrom(entityCreated.updateRelationEx('group', proxyGroup));
     }
 
     return entityCreated.id;
@@ -319,20 +325,15 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
     const entityToUpdate = this.createObject(this.entityID);
     await firstValueFrom(this.taskService.update(entityToUpdate));
 
-    if (this.advancedUI?.id) {
-      await firstValueFrom(this.entityToEdit.updateRelationEx('ui', this.taskUIService.createProxy(this.advancedUI.id)));
+    const groupId = this.entityForm.get('taskGroupId')?.value;
+    if (typeof groupId === 'number') {
+      const proxyGroup = this.taskGroupService.createProxy(groupId);
+      await firstValueFrom(this.entityToEdit.updateRelationEx('group', proxyGroup));
     }
   }
 
   override async updateDataRelated(_isDuplicated: boolean): Promise<void> {
     await this.saveTranslations(this.entityToEdit);
-
-    const connectionId = this.entityForm.get('connectionId')?.value;
-    if (typeof connectionId === 'number') {
-      await firstValueFrom(this.entityToEdit.updateRelationEx('connection', this.connectionService.createProxy(connectionId)));
-    } else {
-      await firstValueFrom(this.entityToEdit.deleteAllRelation('connection'));
-    }
 
     const cartographyId = this.entityForm.get('cartographyId')?.value;
     if (typeof cartographyId === 'number') {
@@ -340,57 +341,55 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
     } else {
       await firstValueFrom(this.entityToEdit.deleteAllRelation('cartography'));
     }
-
-    await this.syncParentChildAssociations();
   }
 
   createObject(id: number = null): Task {
     let safeToEdit = TaskProjection.fromObject(this.entityToEdit);
     const values = this.entityForm.getRawValue();
-    const kind = this.normalizeKind(values.advancedTaskKind);
-    const isChildOrIndependent = this.shouldShowDataAccessFields();
-    const scope = isChildOrIndependent ? values.scope : null;
-    const authenticationMode = scope === this.moreInfoScope.api ? values.authenticationMode : null;
-    const user = scope === this.moreInfoScope.api ? values.user : null;
-    const password = scope === this.moreInfoScope.api ? values.password : null;
-    const addApiKey = scope === this.moreInfoScope.api && !!values.addApiKey;
-    const apiKey = addApiKey && typeof values.apiKey === 'string' ? values.apiKey.trim() : null;
 
-    const connectionId = isChildOrIndependent ? values.connectionId : null;
-    const existingProps = this.getAdvancedProperties(this.entityToEdit.properties);
-    const headers = this.buildHeaders(existingProps.headers as Record<string, string> | null | undefined, apiKey);
-    const properties = TaskPropertiesBuilder.from(this.entityToEdit.properties)
-      .withScope(scope)
-      .withCommand(isChildOrIndependent ? values.command : null)
-      .withAuthenticationMode(authenticationMode)
-      .withUser(user)
-      .withPassword(password)
-      .withHeaders(headers)
-      .withParameters(isChildOrIndependent ? (this.entityToEdit?.properties?.parameters as any[] || []) : [])
-      .withFields(isChildOrIndependent ? (this.entityToEdit?.properties?.fields as any[] || []) : [])
-      .build() as AdvancedTaskProperties;
+    const childTaskParameters: Record<string, Record<string, string>> = {};
+    const templateChildTaskParameters: Record<string, Record<string, Record<string, string>>> = {};
+    const miaParams: unknown[] = Array.isArray(this.entityToEdit?.properties?.parameters)
+      ? this.entityToEdit.properties.parameters : [];
+    this.childTaskParameterMappings.forEach((mappings, taskId) => {
+      const map = this.serializeMappings(mappings, miaParams);
+      if (Object.keys(map).length > 0) {
+        childTaskParameters[String(taskId)] = map;
+      }
+    });
+    this.templateChildTaskParameterMappings.forEach((innerMappings, templateTaskId) => {
+      const serializedInnerMappings: Record<string, Record<string, string>> = {};
+      innerMappings.forEach((mappings, innerTaskId) => {
+        const map = this.serializeMappings(mappings, miaParams);
+        if (Object.keys(map).length > 0) {
+          serializedInnerMappings[String(innerTaskId)] = map;
+        }
+      });
+      if (Object.keys(serializedInnerMappings).length > 0) {
+        templateChildTaskParameters[String(templateTaskId)] = serializedInnerMappings;
+      }
+    });
 
-    properties.advancedTaskKind = kind;
-    properties.responseFormat = isChildOrIndependent ? values.responseFormat : null;
-    properties.htmlTemplate = isChildOrIndependent ? values.htmlTemplate : null;
-    properties.parentLayout = this.isParentTask() ? values.parentLayout : null;
-    properties.relatedTable = null;
-    properties.childTaskOrderIds = this.isParentTask() ? this.normalizeParentIds(values.selectedChildTaskIds) : null;
-    properties.parentTaskIds = this.isParentTask() ? [] : this.normalizeParentIds(properties.parentTaskIds);
-    properties.moreInfoAdvanced = true;
+    const properties: MiaTaskProperties = {
+      parentLayout: values.parentLayout,
+      childTaskOrderIds: this.includedTasks.map(t => t.id),
+      moreInfoAdvanced: true,
+      parameters: Array.isArray(this.entityToEdit?.properties?.parameters) ? this.entityToEdit.properties.parameters : [],
+      childTaskParameters,
+      templateChildTaskParameters
+    };
 
-    safeToEdit = Object.assign(safeToEdit, values, {
+    safeToEdit = Object.assign(safeToEdit, {
       id,
-      connectionId,
+      name: values.name,
+      cartographyId: values.cartographyId,
       properties
     });
 
     return Task.fromObject(safeToEdit);
   }
 
-  getCartographyName(cartographyId: number): string {
-    return this.cartographies.find(cartography => cartography.id === cartographyId)?.name || '';
-  }
+  // --- Cartography helpers ---
 
   onCartographySelected(event: MatAutocompleteSelectedEvent): void {
     const cartography = event.option.value as Cartography;
@@ -414,416 +413,593 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
     this.entityForm.markAsDirty();
   }
 
-  getConnectionName(connectionId: number): string {
-    return this.connections.find(conn => conn.id === connectionId)?.name || '';
+  // --- Included tasks management ---
+
+  onTaskSelected(event: MatAutocompleteSelectedEvent): void {
+    const task = event.option.value as TaskProjection;
+    if (task?.id && !this.includedTasks.some(t => t.id === task.id)) {
+      this.includedTasks = [...this.includedTasks, task];
+      this.initializeMappingArraysForTask(task);
+      this.rebuildIncludedTaskMappingViews();
+      this.entityForm.markAsDirty();
+    }
+    // Clear the input after selection
+    this.addTaskControl.setValue('');
   }
 
-  getTaskName(taskId: number): string {
-    return this.allMoreInfoTasks.find(task => task.id === taskId)?.name || '';
+  displayTask(task: TaskProjection | string): string {
+    if (typeof task === 'string') {
+      return task;
+    }
+    return '';
   }
 
-  getAvailableChildTasks(): TaskProjection[] {
-    return this.allMoreInfoTasks.filter(task => {
-      const kind = this.readKind(task);
-      return kind === 'child' && this.isAdvancedTask(task);
-    });
-  }
-
-  canShowManualPriorityOrder(): boolean {
-    return this.isParentTask()
-      && this.getSelectedChildTasksInCurrentOrder().length > 0;
-  }
-
-  onChildTaskRowsReordered(rows: TaskProjection[]): void {
-    const rowsWithStatus = rows as Array<TaskProjection & Partial<Status>>;
-    const orderedIds = rowsWithStatus
-      .filter(row => row?.status !== 'pendingDelete')
-      .map(row => row.id)
-      .filter((id): id is number => typeof id === 'number');
-    const normalized = this.ensureManualSelectionOrder(orderedIds);
-    this.entityForm.get('selectedChildTaskIds')?.setValue(normalized, {emitEvent: false});
-    this.entityForm.get('selectedChildTaskIds')?.markAsDirty();
+  moveTaskUp(index: number): void {
+    if (index <= 0) return;
+    const tasks = [...this.includedTasks];
+    [tasks[index - 1], tasks[index]] = [tasks[index], tasks[index - 1]];
+    this.includedTasks = tasks;
+    this.rebuildIncludedTaskMappingViews();
     this.entityForm.markAsDirty();
-    this.previousSelectedChildTaskIds = normalized;
-    // Refresh the grid to reload data in new order
-    this.childTasksTable.refreshCommandEvent$.next(true);
   }
 
-  sortSelectedChildTasksByName(direction: 'asc' | 'desc'): void {
-    const selected = this.getSelectedChildTasksInCurrentOrder();
-    const sorted = [...selected].sort((a, b) => {
-      const left = a.name || '';
-      const right = b.name || '';
-      return direction === 'asc' ? left.localeCompare(right) : right.localeCompare(left);
-    });
-    const sortedIds = sorted.map(task => task.id);
-    this.entityForm.get('selectedChildTaskIds')?.setValue(sortedIds, {emitEvent: false});
-    this.entityForm.get('selectedChildTaskIds')?.markAsDirty();
+  moveTaskDown(index: number): void {
+    if (index >= this.includedTasks.length - 1) return;
+    const tasks = [...this.includedTasks];
+    [tasks[index], tasks[index + 1]] = [tasks[index + 1], tasks[index]];
+    this.includedTasks = tasks;
+    this.rebuildIncludedTaskMappingViews();
     this.entityForm.markAsDirty();
-    this.previousSelectedChildTaskIds = sortedIds;
   }
 
-  getSelectedChildTasksInCurrentOrder(): TaskProjection[] {
-    const selectedIds = this.normalizeParentIds(this.entityForm?.get('selectedChildTaskIds')?.value);
-    const byId = new Map(this.getAvailableChildTasks().map(task => [task.id, task]));
-    return selectedIds
-      .map(id => byId.get(id))
-      .filter((task): task is TaskProjection => !!task);
-  }
-
-  moveChildTaskPriority(taskId: number, direction: 'up' | 'down'): void {
-    const selectedIds = [...this.normalizeParentIds(this.entityForm?.get('selectedChildTaskIds')?.value)];
-    const index = selectedIds.indexOf(taskId);
-    if (index < 0) {
-      return;
+  removeTask(index: number): void {
+    const removed = this.includedTasks[index];
+    this.includedTasks = this.includedTasks.filter((_, i) => i !== index);
+    if (removed) {
+      this.childTaskParameterMappings.delete(removed.id);
+      this.templateChildTaskParameterMappings.delete(removed.id);
     }
-
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= selectedIds.length) {
-      return;
-    }
-
-    [selectedIds[index], selectedIds[targetIndex]] = [selectedIds[targetIndex], selectedIds[index]];
-    this.entityForm.get('selectedChildTaskIds')?.setValue(selectedIds, {emitEvent: false});
-    this.entityForm.get('selectedChildTaskIds')?.markAsDirty();
+    this.rebuildIncludedTaskMappingViews();
     this.entityForm.markAsDirty();
-    this.previousSelectedChildTaskIds = selectedIds;
   }
 
-  onSelectedChildTasksChanged(value: number[]): void {
-    const selectedIds = this.normalizeParentIds(value);
-    const normalized = this.ensureManualSelectionOrder(selectedIds);
-    this.entityForm.get('selectedChildTaskIds')?.setValue(normalized, {emitEvent: false});
-    this.entityForm.get('selectedChildTaskIds')?.markAsDirty();
-    this.entityForm.markAsDirty();
-    this.previousSelectedChildTaskIds = normalized;
+  // --- Child task parameter mapping helpers ---
+
+  getMiaParameters(): TaskMoreInfoParameter[] {
+    return this.miaParameters;
   }
 
-  isParentTask(): boolean {
-    return this.entityForm?.get('advancedTaskKind')?.value === 'parent';
+  getChildParameters(task: TaskProjection): TaskMoreInfoParameter[] {
+    const raw = (task as any)?.properties?.parameters;
+    return Array.isArray(raw)
+      ? raw
+        .map(parameter => this.normalizeChildParameter(parameter))
+        .filter((parameter): parameter is TaskMoreInfoParameter => !!parameter)
+      : [];
   }
 
-  shouldShowDataAccessFields(): boolean {
-    return !this.isParentTask();
+  isTemplateTask(task: TaskProjection): boolean {
+    return task?.typeId === magic.taskTemplateTypeId;
   }
 
-  isSqlAccessType(): boolean {
-    return this.entityForm?.value?.scope === this.moreInfoScope.sql;
-  }
-
-  isApiAccessType(): boolean {
-    return this.entityForm?.value?.scope === this.moreInfoScope.api;
-  }
-
-  isUrlRedirectAccessType(): boolean {
-    return this.entityForm?.value?.scope === this.moreInfoScope.url;
-  }
-
-  isHtmlTemplateEnabled(): boolean {
-    return this.shouldShowDataAccessFields() && this.entityForm?.value?.responseFormat === 'html';
-  }
-
-  getPreviewDocument(): string {
-    const rawTemplate = this.getHtmlTemplateValue();
-    const template = rawTemplate.trim();
-
-    if (!template) {
-      return this.wrapPreviewHtml(`<p>${this.translateService.instant('tasksMoreInfoAdvancedEntity.previewEmpty')}</p>`);
-    }
-
-    let htmlToRender = template;
-
-    if (this.isParentTask()) {
-      const childrenMarkup = this.renderChildTasksPreviewMarkup();
-      if (htmlToRender.includes(this.childTasksPlaceholder)) {
-        htmlToRender = htmlToRender.split(this.childTasksPlaceholder).join(childrenMarkup);
-      } else {
-        htmlToRender = `${htmlToRender}\n<hr/>\n${childrenMarkup}`;
-      }
-    }
-
-    return this.wrapPreviewHtml(htmlToRender);
-  }
-
-  getChildTasksPlaceholder(): string {
-    return this.childTasksPlaceholder;
-  }
-
-  insertHtmlSnippet(snippet: string): void {
-    const control = this.entityForm.get('htmlTemplate');
-    if (!control) {
-      return;
-    }
-
-    const currentValue = typeof control.value === 'string' ? control.value : '';
-    const textarea = this.htmlTemplateTextarea?.nativeElement;
-
-    if (textarea) {
-      const start = textarea.selectionStart ?? currentValue.length;
-      const end = textarea.selectionEnd ?? currentValue.length;
-      const updated = `${currentValue.slice(0, start)}${snippet}${currentValue.slice(end)}`;
-      control.setValue(updated);
-      control.markAsDirty();
-
-      const cursor = start + snippet.length;
-      setTimeout(() => {
-        textarea.focus();
-        textarea.setSelectionRange(cursor, cursor);
-      });
-      return;
-    }
-
-    control.setValue(`${currentValue}${snippet}`);
-    control.markAsDirty();
-  }
-
-  onScopeChange(event: MatSelectChange): void {
-    if (event.value !== this.moreInfoScope.sql) {
-      this.entityForm.get('connectionId')?.setValue(null);
-    }
-    if (event.value !== this.moreInfoScope.api) {
-      this.entityForm.get('authenticationMode')?.setValue(null);
-      this.entityForm.get('user')?.setValue(null);
-      this.entityForm.get('password')?.setValue(null);
-      this.entityForm.get('addApiKey')?.setValue(false);
-      this.entityForm.get('apiKey')?.setValue(null);
-    } else if (!this.entityForm.get('authenticationMode')?.value) {
-      const defaultAuthMode = this.defaultValueOrNull('service.authenticationMode');
-      this.entityForm.get('authenticationMode')?.setValue(defaultAuthMode?.value ?? null);
-    }
-    this.updateApiKeyValidation();
-    this.updateDynamicValidations();
-  }
-
-  onAddApiKeyChange(): void {
-    this.updateApiKeyValidation();
-  }
-
-  private updateDynamicValidations(): void {
-    const scopeControl = this.entityForm.get('scope');
-    const commandControl = this.entityForm.get('command');
-    const connectionControl = this.entityForm.get('connectionId');
-    const responseFormatControl = this.entityForm.get('responseFormat');
-
-    if (this.shouldShowDataAccessFields()) {
-      scopeControl?.setValidators([Validators.required]);
-      commandControl?.setValidators([Validators.required]);
-      responseFormatControl?.setValidators([Validators.required]);
-      if (this.entityForm.get('scope')?.value === this.moreInfoScope.sql) {
-        connectionControl?.setValidators([Validators.required]);
-      } else {
-        connectionControl?.clearValidators();
-      }
-    } else {
-      scopeControl?.clearValidators();
-      commandControl?.clearValidators();
-      connectionControl?.clearValidators();
-      responseFormatControl?.clearValidators();
-    }
-
-    scopeControl?.updateValueAndValidity({emitEvent: false});
-    commandControl?.updateValueAndValidity({emitEvent: false});
-    connectionControl?.updateValueAndValidity({emitEvent: false});
-    responseFormatControl?.updateValueAndValidity({emitEvent: false});
-  }
-
-  private updateApiKeyValidation(): void {
-    const shouldRequireApiKey = this.isApiAccessType() && !!this.entityForm.get('addApiKey')?.value;
-    const apiKeyControl = this.entityForm.get('apiKey');
-
-    if (!apiKeyControl) {
-      return;
-    }
-
-    if (shouldRequireApiKey) {
-      apiKeyControl.setValidators([Validators.required]);
-    } else {
-      apiKeyControl.clearValidators();
-    }
-    apiKeyControl.updateValueAndValidity({emitEvent: false});
-  }
-
-  private buildHeaders(existingHeaders: Record<string, string> | null | undefined, apiKey: string | null): Record<string, string> | null {
-    const headers = existingHeaders && existingHeaders instanceof Object ? {...existingHeaders} : {};
-
-    if (apiKey) {
-      headers['X-API-Key'] = apiKey;
-      return headers;
-    }
-
-    delete headers['X-API-Key'];
-    return Object.keys(headers).length > 0 ? headers : null;
-  }
-
-  private normalizeKind(kind: unknown): AdvancedTaskKind {
-    if (kind === 'parent') {
-      return 'parent';
-    }
-    // Legacy "independent" tasks are now handled as "child".
-    return 'child';
-  }
-
-  private normalizeScope(scope: string | null): string | null {
-    if (!scope) {
-      return this.moreInfoScope.sql;
-    }
-    if (scope === 'sql-query') {
-      return this.moreInfoScope.sql;
-    }
-    if (scope === 'web-api-query') {
-      return this.moreInfoScope.api;
-    }
-    if (scope === 'url-redirect') {
-      return this.moreInfoScope.url;
-    }
-    return scope;
-  }
-
-  private normalizeParentIds(parentIds: unknown): number[] {
-    if (!Array.isArray(parentIds)) {
+  getTemplateChildLinks(task: TaskProjection): TemplateChildTaskLink[] {
+    if (!this.isTemplateTask(task)) {
       return [];
     }
-    return parentIds
+    return this.templateChildTasks.get(task.id) || [];
+  }
+
+  getChildMappings(taskId: number): ChildParamMapping[] {
+    return this.childTaskParameterMappings.get(taskId) || [];
+  }
+
+  addChildMapping(taskId: number): void {
+    const mappings = this.ensureChildMappings(taskId);
+    mappings.push({miaParam: '', childParam: ''});
+    this.rebuildIncludedTaskMappingViews();
+    this.entityForm.markAsDirty();
+  }
+
+  removeChildMapping(taskId: number, index: number): void {
+    const mappings = this.ensureChildMappings(taskId);
+    mappings.splice(index, 1);
+    this.rebuildIncludedTaskMappingViews();
+    this.entityForm.markAsDirty();
+  }
+
+  getTemplateChildMappings(templateTaskId: number, innerTaskId: number): ChildParamMapping[] {
+    return this.templateChildTaskParameterMappings.get(templateTaskId)?.get(innerTaskId) || [];
+  }
+
+  addTemplateChildMapping(templateTaskId: number, innerTaskId: number): void {
+    const mappings = this.ensureTemplateChildMappings(templateTaskId, innerTaskId);
+    mappings.push({miaParam: '', childParam: ''});
+    this.rebuildIncludedTaskMappingViews();
+    this.entityForm.markAsDirty();
+  }
+
+  removeTemplateChildMapping(templateTaskId: number, innerTaskId: number, index: number): void {
+    const mappings = this.ensureTemplateChildMappings(templateTaskId, innerTaskId);
+    mappings.splice(index, 1);
+    this.rebuildIncludedTaskMappingViews();
+    this.entityForm.markAsDirty();
+  }
+
+  addMapping(taskId: number, rootTemplateTaskId?: number): void {
+    if (typeof rootTemplateTaskId === 'number') {
+      this.addTemplateChildMapping(rootTemplateTaskId, taskId);
+      return;
+    }
+    this.addChildMapping(taskId);
+  }
+
+  removeMapping(taskId: number, index: number, rootTemplateTaskId?: number): void {
+    if (typeof rootTemplateTaskId === 'number') {
+      this.removeTemplateChildMapping(rootTemplateTaskId, taskId, index);
+      return;
+    }
+    this.removeChildMapping(taskId, index);
+  }
+
+  setTemplateNodeExpanded(key: string, expanded: boolean): void {
+    this.templateExpansionState.set(key, expanded);
+  }
+
+  getAvailableMiaParams(taskId: number, currentIndex: number): TaskMoreInfoParameter[] {
+    const allMia = this.getMiaParameters();
+    const mappings = this.getChildMappings(taskId);
+    const usedParams = new Set(
+      mappings
+        .filter((_, i) => i !== currentIndex)
+        .map(m => m.miaParam)
+        .filter(p => !!p)
+    );
+    return allMia.filter(p => !usedParams.has(p.label));
+  }
+
+  getAvailableMiaParamsForTemplateChild(templateTaskId: number, innerTaskId: number, currentIndex: number): TaskMoreInfoParameter[] {
+    const allMia = this.getMiaParameters();
+    const mappings = this.getTemplateChildMappings(templateTaskId, innerTaskId);
+    const usedParams = new Set(
+      mappings
+        .filter((_, i) => i !== currentIndex)
+        .map(m => m.miaParam)
+        .filter(p => !!p)
+    );
+    return allMia.filter(p => !usedParams.has(p.label));
+  }
+
+  onMappingChanged(): void {
+    this.rebuildIncludedTaskMappingViews();
+    this.entityForm.markAsDirty();
+  }
+
+  getTaskTypeName(task: TaskProjection): string {
+    return task.typeName || this.translateService.instant('common.form.unknown');
+  }
+
+  // --- Private helpers ---
+
+  private async fetchCandidateChildTasks(): Promise<TaskProjection[]> {
+    const allTasks = await firstValueFrom(
+      this.taskService.getAllProjection(TaskProjection)
+    );
+    return (allTasks || []).filter(task =>
+      this.allowedChildTypeIds.includes(task.typeId) &&
+      !(task.typeId === magic.taskQueryTypeId && task.properties?.['scope'] === this.excludedScope) &&
+      task.id !== this.entityID
+    );
+  }
+
+  private getMiaProperties(raw: unknown): MiaTaskProperties {
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+      return {};
+    }
+    return {...(raw as MiaTaskProperties)};
+  }
+
+  private restoreIncludedTasks(properties: MiaTaskProperties): void {
+    const storedIds = this.normalizeIds(properties.childTaskOrderIds);
+    const byId = new Map(this.allCandidateTasks.map(t => [t.id, t]));
+    this.includedTasks = storedIds
+      .map(id => byId.get(id))
+      .filter((t): t is TaskProjection => !!t);
+  }
+
+  private restoreChildTaskParameterMappings(properties: MiaTaskProperties): void {
+    this.childTaskParameterMappings = new Map();
+    const raw = properties.childTaskParameters;
+    const miaParams: any[] = Array.isArray(properties.parameters) ? properties.parameters as any[] : [];
+    if (raw && typeof raw === 'object') {
+      Object.entries(raw).forEach(([taskIdStr, mappingObj]) => {
+        const taskId = Number(taskIdStr);
+        if (!isNaN(taskId) && mappingObj && typeof mappingObj === 'object') {
+          this.childTaskParameterMappings.set(taskId, this.deserializeMappings(mappingObj as Record<string, unknown>, miaParams));
+        }
+      });
+    }
+  }
+
+  private restoreTemplateChildTaskParameterMappings(properties: MiaTaskProperties): void {
+    this.templateChildTaskParameterMappings = new Map();
+    const raw = properties.templateChildTaskParameters;
+    const miaParams: any[] = Array.isArray(properties.parameters) ? properties.parameters as any[] : [];
+    if (!raw || typeof raw !== 'object') {
+      return;
+    }
+    Object.entries(raw).forEach(([templateTaskIdStr, innerMappingsObj]) => {
+      const templateTaskId = Number(templateTaskIdStr);
+      if (isNaN(templateTaskId) || !innerMappingsObj || typeof innerMappingsObj !== 'object') {
+        return;
+      }
+      const innerMappings = new Map<number, ChildParamMapping[]>();
+      Object.entries(innerMappingsObj).forEach(([innerTaskIdStr, mappingObj]) => {
+        const innerTaskId = Number(innerTaskIdStr);
+        if (!isNaN(innerTaskId) && mappingObj && typeof mappingObj === 'object') {
+          innerMappings.set(innerTaskId, this.deserializeMappings(mappingObj as Record<string, unknown>, miaParams));
+        }
+      });
+      this.templateChildTaskParameterMappings.set(templateTaskId, innerMappings);
+    });
+  }
+
+  private serializeMappings(mappings: ChildParamMapping[], miaParams: unknown[]): Record<string, string> {
+    const map: Record<string, string> = {};
+    mappings
+      .filter(m => m.miaParam && m.childParam)
+      .forEach(m => {
+        const miaParamObj = miaParams.find((p: any) => p.label === m.miaParam) as any;
+        if (!miaParamObj) {
+          return;
+        }
+        const featureField = miaParamObj?.value || m.miaParam;
+        map[m.childParam] = featureField;
+      });
+    return map;
+  }
+
+  private deserializeMappings(mappingObj: Record<string, unknown>, miaParams: any[]): ChildParamMapping[] {
+    return Object.entries(mappingObj)
+      .map(([childParam, featureField]) => {
+        const miaParamObj = miaParams.find(p => p.value === featureField);
+        const miaParam = miaParamObj?.label || String(featureField);
+        return {miaParam, childParam};
+      });
+  }
+
+  private pruneStoredChildTaskParameters(
+    raw: unknown,
+    parametersToSave: TaskMoreInfoParameter[]
+  ): Record<string, Record<string, string>> {
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+      return {};
+    }
+    const declaredFeatureFields = this.getDeclaredFeatureFields(parametersToSave);
+    const pruned: Record<string, Record<string, string>> = {};
+    Object.entries(raw as Record<string, unknown>).forEach(([taskId, mappingObj]) => {
+      if (!mappingObj || typeof mappingObj !== 'object' || Array.isArray(mappingObj)) {
+        return;
+      }
+      const validMappings = this.pruneStoredMappings(mappingObj as Record<string, unknown>, declaredFeatureFields);
+      if (Object.keys(validMappings).length > 0) {
+        pruned[taskId] = validMappings;
+      }
+    });
+    return pruned;
+  }
+
+  private pruneStoredTemplateChildTaskParameters(
+    raw: unknown,
+    parametersToSave: TaskMoreInfoParameter[]
+  ): Record<string, Record<string, Record<string, string>>> {
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+      return {};
+    }
+    const declaredFeatureFields = this.getDeclaredFeatureFields(parametersToSave);
+    const pruned: Record<string, Record<string, Record<string, string>>> = {};
+    Object.entries(raw as Record<string, unknown>).forEach(([templateTaskId, innerMappingsObj]) => {
+      if (!innerMappingsObj || typeof innerMappingsObj !== 'object' || Array.isArray(innerMappingsObj)) {
+        return;
+      }
+      const prunedInnerMappings: Record<string, Record<string, string>> = {};
+      Object.entries(innerMappingsObj as Record<string, unknown>).forEach(([innerTaskId, mappingObj]) => {
+        if (!mappingObj || typeof mappingObj !== 'object' || Array.isArray(mappingObj)) {
+          return;
+        }
+        const validMappings = this.pruneStoredMappings(mappingObj as Record<string, unknown>, declaredFeatureFields);
+        if (Object.keys(validMappings).length > 0) {
+          prunedInnerMappings[innerTaskId] = validMappings;
+        }
+      });
+      if (Object.keys(prunedInnerMappings).length > 0) {
+        pruned[templateTaskId] = prunedInnerMappings;
+      }
+    });
+    return pruned;
+  }
+
+  private pruneStoredMappings(mappingObj: Record<string, unknown>, declaredFeatureFields: Set<string>): Record<string, string> {
+    const pruned: Record<string, string> = {};
+    Object.entries(mappingObj).forEach(([childParam, featureField]) => {
+      if (typeof featureField === 'string' && declaredFeatureFields.has(featureField)) {
+        pruned[childParam] = featureField;
+      }
+    });
+    return pruned;
+  }
+
+  private getDeclaredFeatureFields(parametersToSave: TaskMoreInfoParameter[]): Set<string> {
+    return new Set(parametersToSave
+      .map(parameter => parameter.value || parameter.label)
+      .filter((value): value is string => typeof value === 'string' && value.length > 0));
+  }
+
+  private async loadTemplateChildTasks(candidateTasks: TaskProjection[]): Promise<void> {
+    this.templateChildTasks = new Map();
+    const byId = new Map(candidateTasks.map(t => [t.id, t]));
+    const templateTasks = candidateTasks.filter(task => task.typeId === magic.taskTemplateTypeId);
+
+    const visited = new Set<number>();
+    const loading = new Set<number>();
+
+    for (const templateTask of templateTasks) {
+      await this.loadTemplateChildTasksRecursively(templateTask, byId, visited, loading, 0);
+    }
+  }
+
+  private async loadTemplateChildTasksRecursively(
+    templateTask: TaskProjection,
+    byId: Map<number, TaskProjection>,
+    visited: Set<number>,
+    loading: Set<number>,
+    depth: number
+  ): Promise<void> {
+    if (!templateTask?.id || templateTask.typeId !== magic.taskTemplateTypeId) {
+      return;
+    }
+    if (visited.has(templateTask.id)) {
+      return;
+    }
+    if (loading.has(templateTask.id)) {
+      this.loggerService.warn(`Detected recursive template relation for template ${templateTask.id}`);
+      this.templateChildTasks.set(templateTask.id, this.templateChildTasks.get(templateTask.id) || []);
+      return;
+    }
+    if (depth >= this.maxTemplateNestingDepth) {
+      this.loggerService.warn(`Template nesting depth exceeded for template ${templateTask.id}`);
+      this.templateChildTasks.set(templateTask.id, this.templateChildTasks.get(templateTask.id) || []);
+      return;
+    }
+
+    loading.add(templateTask.id);
+    const childLinks: TemplateChildTaskLink[] = [];
+    let relations: TaskRelation[] = [];
+    try {
+      relations = await firstValueFrom(templateTask.getRelationArrayEx(TaskRelation, 'relations'));
+    } catch (error) {
+      this.loggerService.warn(`Unable to load child tasks for template ${templateTask.id}`, error);
+      this.templateChildTasks.set(templateTask.id, childLinks);
+      loading.delete(templateTask.id);
+      visited.add(templateTask.id);
+      return;
+    }
+
+    for (const relation of relations.filter(r => ['template-task', 'template-nested'].includes(r.relationType))) {
+      try {
+        const relatedTask = await firstValueFrom(relation.getRelationEx(Task, 'relatedTask'));
+        if (!relatedTask?.id) {
+          continue;
+        }
+        const cachedTask = byId.get(relatedTask.id);
+        const relatedProjection = cachedTask
+          || (typeof (relatedTask as any).getRelationArrayEx === 'function'
+            ? relatedTask as unknown as TaskProjection
+            : TaskProjection.fromObject(relatedTask as unknown as TaskProjection));
+        byId.set(relatedProjection.id, relatedProjection);
+        childLinks.push({
+          task: relatedProjection,
+          referenceAlias: relation.referenceAlias || `task_${relatedProjection.id}`
+        });
+        if (relatedProjection.typeId === magic.taskTemplateTypeId) {
+          await this.loadTemplateChildTasksRecursively(relatedProjection, byId, visited, loading, depth + 1);
+        }
+      } catch (error) {
+        this.loggerService.warn(`Unable to load related task for template ${templateTask.id}`, error);
+      }
+    }
+
+    this.templateChildTasks.set(templateTask.id, childLinks);
+    loading.delete(templateTask.id);
+    visited.add(templateTask.id);
+  }
+
+  private rebuildIncludedTaskMappingViews(): void {
+    this.miaParameters = this.readMiaParameters();
+    this.includedTasks.forEach(task => this.initializeMappingArraysForTask(task));
+    this.includedTaskMappingViews = this.includedTasks.map(task => {
+      const mappings = this.ensureChildMappings(task.id);
+      const childParameters = this.getChildParameters(task);
+      const templateChildViews = this.isTemplateTask(task)
+        ? this.buildTemplateChildViews(task.id, task.id, 1, new Set([task.id]))
+        : [];
+      return {
+        task,
+        mappings,
+        mappingRows: this.buildMappingRows(mappings),
+        childParameters,
+        canAddMapping: mappings.length < this.miaParameters.length,
+        isTemplate: this.isTemplateTask(task),
+        templateChildViews
+      };
+    });
+  }
+
+  private initializeMappingArraysForTask(task: TaskProjection): void {
+    this.ensureChildMappings(task.id);
+    if (!this.isTemplateTask(task)) {
+      return;
+    }
+    this.initializeTemplateDescendantMappings(task.id, task.id, new Set([task.id]), 1);
+  }
+
+  private initializeTemplateDescendantMappings(
+    rootTemplateTaskId: number,
+    templateTaskId: number,
+    path: Set<number>,
+    depth: number
+  ): void {
+    if (depth > this.maxTemplateNestingDepth) {
+      return;
+    }
+    const innerMappings = this.ensureTemplateChildMappingMap(rootTemplateTaskId);
+    (this.templateChildTasks.get(templateTaskId) || []).forEach(childLink => {
+      if (!innerMappings.has(childLink.task.id)) {
+        innerMappings.set(childLink.task.id, []);
+      }
+      if (childLink.task.typeId === magic.taskTemplateTypeId && !path.has(childLink.task.id)) {
+        const nextPath = new Set(path);
+        nextPath.add(childLink.task.id);
+        this.initializeTemplateDescendantMappings(rootTemplateTaskId, childLink.task.id, nextPath, depth + 1);
+      }
+    });
+  }
+
+  private ensureChildMappings(taskId: number): ChildParamMapping[] {
+    if (!this.childTaskParameterMappings.has(taskId)) {
+      this.childTaskParameterMappings.set(taskId, []);
+    }
+    return this.childTaskParameterMappings.get(taskId);
+  }
+
+  private ensureTemplateChildMappingMap(templateTaskId: number): Map<number, ChildParamMapping[]> {
+    if (!this.templateChildTaskParameterMappings.has(templateTaskId)) {
+      this.templateChildTaskParameterMappings.set(templateTaskId, new Map());
+    }
+    return this.templateChildTaskParameterMappings.get(templateTaskId);
+  }
+
+  private ensureTemplateChildMappings(templateTaskId: number, innerTaskId: number): ChildParamMapping[] {
+    const innerMappings = this.ensureTemplateChildMappingMap(templateTaskId);
+    if (!innerMappings.has(innerTaskId)) {
+      innerMappings.set(innerTaskId, []);
+    }
+    return innerMappings.get(innerTaskId);
+  }
+
+  private buildMappingRows(mappings: ChildParamMapping[]): MappingRowView[] {
+    return mappings.map((mapping, index) => ({
+      mapping,
+      availableMiaParams: this.getAvailableMiaParamsForMappings(mappings, index)
+    }));
+  }
+
+  private buildTemplateChildViews(
+    rootTemplateTaskId: number,
+    parentTemplateTaskId: number,
+    depth: number,
+    path: Set<number>
+  ): TemplateChildMappingView[] {
+    if (depth > this.maxTemplateNestingDepth) {
+      return [];
+    }
+
+    return (this.templateChildTasks.get(parentTemplateTaskId) || []).map(childLink => {
+      const childTask = childLink.task;
+      const mappings = this.ensureTemplateChildMappings(rootTemplateTaskId, childTask.id);
+      const childParameters = this.getChildParameters(childTask);
+      const isTemplate = this.isTemplateTask(childTask);
+      const nextPath = new Set(path);
+      const canTraverseChildren = isTemplate && !path.has(childTask.id);
+      nextPath.add(childTask.id);
+
+      const nodeKey = `${rootTemplateTaskId}:${childTask.id}:${childLink.referenceAlias}:${depth}`;
+
+      return {
+        key: nodeKey,
+        rootTemplateTaskId,
+        task: childTask,
+        referenceAlias: childLink.referenceAlias,
+        depth,
+        isTemplate,
+        renderAsAccordion: isTemplate,
+        expandedByDefault: depth === 1,
+        expanded: this.getTemplateNodeExpandedState(nodeKey, depth === 1),
+        mappings,
+        mappingRows: this.buildMappingRows(mappings),
+        childParameters,
+        canAddMapping: mappings.length < this.miaParameters.length && childParameters.length > 0,
+        childNodes: canTraverseChildren
+          ? this.buildTemplateChildViews(rootTemplateTaskId, childTask.id, depth + 1, nextPath)
+          : []
+      };
+    });
+  }
+
+  private getTemplateNodeExpandedState(key: string, defaultExpanded: boolean): boolean {
+    return this.templateExpansionState.has(key)
+      ? this.templateExpansionState.get(key)
+      : defaultExpanded;
+  }
+
+  private getAvailableMiaParamsForMappings(mappings: ChildParamMapping[], currentIndex: number): TaskMoreInfoParameter[] {
+    const usedParams = new Set(
+      mappings
+        .filter((_, i) => i !== currentIndex)
+        .map(m => m.miaParam)
+        .filter(p => !!p)
+    );
+    return this.miaParameters.filter(p => !usedParams.has(p.label));
+  }
+
+  private readMiaParameters(): TaskMoreInfoParameter[] {
+    const raw = this.entityToEdit?.properties?.parameters;
+    return Array.isArray(raw) ? raw as TaskMoreInfoParameter[] : [];
+  }
+
+  private normalizeChildParameter(raw: unknown): TaskMoreInfoParameter | null {
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+      return null;
+    }
+    const parameter = raw as Record<string, unknown>;
+    const label = typeof parameter['label'] === 'string' && parameter['label'].length > 0
+      ? parameter['label']
+      : (typeof parameter['name'] === 'string' && parameter['name'].length > 0 ? parameter['name'] : null);
+    if (!label) {
+      return null;
+    }
+    return {
+      ...(parameter as unknown as Partial<TaskMoreInfoParameter>),
+      label
+    } as TaskMoreInfoParameter;
+  }
+
+  private normalizeIds(ids: unknown): number[] {
+    if (!Array.isArray(ids)) {
+      return [];
+    }
+    return ids
       .filter(id => typeof id === 'number')
       .filter((id, index, arr) => arr.indexOf(id) === index);
   }
 
-  private getAdvancedProperties(raw: unknown): AdvancedTaskProperties {
-    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
-      return {};
-    }
-    return {...(raw as AdvancedTaskProperties)};
+  private filterCartographies(value?: string): Cartography[] {
+    const filterValue = (value || '').toLowerCase();
+    return this.cartographies.filter(c => (c.name || '').toLowerCase().includes(filterValue));
   }
 
-  private readKind(task: TaskProjection): AdvancedTaskKind {
-    const properties = this.getAdvancedProperties(task?.properties);
-    return this.normalizeKind(properties.advancedTaskKind);
-  }
+  private filterAvailableTasks(searchValue: string): TaskProjection[] {
+    const includedIds = new Set(this.includedTasks.map(t => t.id));
+    const available = this.allCandidateTasks.filter(t => !includedIds.has(t.id));
 
-  private isAdvancedTask(task: TaskProjection): boolean {
-    const properties = this.getAdvancedProperties(task?.properties);
-    return properties.moreInfoAdvanced === true || task?.typeId === this.taskTypeId;
-  }
-
-  private async syncParentChildAssociations(): Promise<void> {
-    if (this.isNew()) {
-      return;
+    if (!searchValue || searchValue.trim().length === 0) {
+      return available.slice(0, 50); // Limit initial display
     }
 
-    if (!this.isParentTask()) {
-      return;
-    }
-
-    const selectedChildIds = this.normalizeParentIds(this.entityForm.get('selectedChildTaskIds')?.value);
-    const candidates = this.getAvailableChildTasks();
-
-    for (const child of candidates) {
-      if (!this.isAdvancedTask(child)) {
-        continue;
-      }
-      const childEntity = await firstValueFrom(this.taskService.getProjection(TaskProjection, child.id));
-      const childProps = this.getAdvancedProperties(childEntity.properties);
-      const parentIds = this.normalizeParentIds(childProps.parentTaskIds);
-      const shouldBeLinked = selectedChildIds.includes(child.id);
-
-      const hasLink = parentIds.includes(this.entityID);
-      if (shouldBeLinked && !hasLink) {
-        childProps.parentTaskIds = [...parentIds, this.entityID];
-      }
-      if (!shouldBeLinked && hasLink) {
-        childProps.parentTaskIds = parentIds.filter(id => id !== this.entityID);
-      }
-
-      if (shouldBeLinked !== hasLink) {
-        childEntity.properties = childProps;
-        await firstValueFrom(this.taskService.update(Task.fromObject(childEntity)));
-      }
-    }
-  }
-
-  private getSelectedChildIdsForParent(properties?: AdvancedTaskProperties): number[] {
-    if (this.isNewOrDuplicated() || this.entityID < 0) {
-      return [];
-    }
-
-    const linkedIds = this.getAvailableChildTasks()
-      .filter(child => {
-        const childProps = this.getAdvancedProperties(child.properties);
-        const parentIds = this.normalizeParentIds(childProps.parentTaskIds);
-        return parentIds.includes(this.entityID);
-      })
-      .map(child => child.id);
-
-    const storedOrder = this.normalizeParentIds(properties?.childTaskOrderIds);
-    if (storedOrder.length === 0) {
-      return linkedIds;
-    }
-
-    const linkedSet = new Set(linkedIds);
-    const ordered = storedOrder.filter(id => linkedSet.has(id));
-    const missing = linkedIds.filter(id => !ordered.includes(id));
-    return [...ordered, ...missing];
-  }
-
-  private getHtmlTemplateValue(): string {
-    const value = this.entityForm?.get('htmlTemplate')?.value;
-    return typeof value === 'string' ? value : '';
-  }
-
-  private renderChildTasksPreviewMarkup(): string {
-    const title = this.translateService.instant('tasksMoreInfoAdvancedEntity.childTasksPreviewTitle');
-    const selectedTasks = this.getOrderedSelectedChildTasksForDisplay();
-    const selectedNames = selectedTasks.map(task => task.name).filter(Boolean);
-
-    if (selectedNames.length === 0) {
-      return `<section><h3>${title}</h3><p>-</p></section>`;
-    }
-
-    const items = selectedNames.map(name => `<li>${name}</li>`).join('');
-    return `<section><h3>${title}</h3><ul>${items}</ul></section>`;
-  }
-
-  private getOrderedSelectedChildTasksForDisplay(): TaskProjection[] {
-    return this.getSelectedChildTasksInCurrentOrder();
-  }
-
-  private ensureManualSelectionOrder(selectedIds: number[]): number[] {
-    if (!this.isParentTask()) {
-      return selectedIds;
-    }
-
-    const selectedSet = new Set(selectedIds);
-    const previousSet = new Set(this.previousSelectedChildTaskIds);
-    const keptInPreviousOrder = this.previousSelectedChildTaskIds.filter(id => selectedSet.has(id));
-    const newlyAdded = selectedIds.filter(id => !previousSet.has(id));
-    return [...keptInPreviousOrder, ...newlyAdded];
-  }
-
-  private sameNumberArray(a: number[], b: number[]): boolean {
-    if (a.length !== b.length) {
-      return false;
-    }
-    return a.every((value, index) => value === b[index]);
-  }
-
-  private wrapPreviewHtml(content: string): string {
-    if (/<html[\s>]/i.test(content)) {
-      return content;
-    }
-
-    return `<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <style>
-      body { font-family: Arial, sans-serif; padding: 12px; }
-      table { border-collapse: collapse; width: 100%; }
-      th, td { border: 1px solid #ccc; padding: 6px; }
-      img { max-width: 100%; }
-    </style>
-  </head>
-  <body>${content}</body>
-</html>`;
+    const filter = searchValue.toLowerCase();
+    return available.filter(t =>
+      (t.name || '').toLowerCase().includes(filter) ||
+      String(t.id).includes(filter)
+    ).slice(0, 50);
   }
 
   private cartographyValidator(control: FormControl): { [key: string]: any } | null {
@@ -843,13 +1019,13 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
     }
 
     if (typeof value === 'string' && value.trim().length > 0) {
-      const matchingCartography = this.cartographies.find(
+      const match = this.cartographies.find(
         c => c.name?.toLowerCase() === value.trim().toLowerCase()
       );
-      if (matchingCartography) {
+      if (match) {
         setTimeout(() => {
           if (this.entityForm) {
-            this.entityForm.get('cartographyId')?.setValue(matchingCartography.id, {emitEvent: false});
+            this.entityForm.get('cartographyId')?.setValue(match.id, {emitEvent: false});
             this.entityForm.markAsDirty();
           }
         });
@@ -861,9 +1037,74 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
     return null;
   }
 
-  private filterCartographies(value?: string): Cartography[] {
-    const filterValue = (value || '').toLowerCase();
-    return this.cartographies.filter(cartography => (cartography.name || '').toLowerCase().includes(filterValue));
+  // --- Table definitions (parameters, roles & territories) ---
+
+  private defineParametersTable(): DataTableDefinition<TaskMoreInfoParameter, TaskMoreInfoParameter> {
+    return DataTableDefinition.builder<TaskMoreInfoParameter, TaskMoreInfoParameter>(this.dialog, this.errorHandler, this.loadingService)
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getEditableColumnDef('entity.task.moreInfo.parameters.referenceParameter', 'label'),
+        this.utils.getEditableColumnDef('entity.task.parameters.field', 'value', 300, 500),
+        this.utils.getEditableColumnDef('common.form.description', 'description', 250, 500),
+        this.utils.getStatusColumnDef()])
+      .withRelationsOrder('label')
+      .withRelationsFetcher(() => {
+        const raw = this.entityToEdit?.properties?.parameters;
+        if (Array.isArray(raw)) {
+          return of(raw.map((p: any) => TaskMoreInfoParameter.fromObject(p)));
+        }
+        return of<TaskMoreInfoParameter[]>([]);
+      })
+      .withRelationsUpdater(async (parameters: (TaskMoreInfoParameter & Status)[]) => {
+        const parametersToSave = parameters
+          .filter(canKeepOrUpdate)
+          .map(value => TaskMoreInfoParameter.fromObject(value));
+        // Preserve MIA-specific keys that TaskPropertiesBuilder.build() does not know about
+        const miaKeys: Record<string, unknown> = {};
+        const currentProps = this.entityToEdit.properties || {};
+        for (const k of ['childTaskOrderIds', 'moreInfoAdvanced', 'parentLayout']) {
+          if (currentProps[k] !== undefined) {
+            miaKeys[k] = currentProps[k];
+          }
+        }
+        if (currentProps['childTaskParameters'] !== undefined) {
+          miaKeys['childTaskParameters'] = this.pruneStoredChildTaskParameters(currentProps['childTaskParameters'], parametersToSave);
+        }
+        if (currentProps['templateChildTaskParameters'] !== undefined) {
+          miaKeys['templateChildTaskParameters'] = this.pruneStoredTemplateChildTaskParameters(currentProps['templateChildTaskParameters'], parametersToSave);
+        }
+        this.entityToEdit.properties = {
+          ...TaskPropertiesBuilder.from(this.entityToEdit.properties)
+            .withParameters(parametersToSave).build(),
+          ...miaKeys
+        };
+        this.restoreChildTaskParameterMappings(this.entityToEdit.properties as MiaTaskProperties);
+        this.restoreTemplateChildTaskParameterMappings(this.entityToEdit.properties as MiaTaskProperties);
+        this.rebuildIncludedTaskMappingViews();
+        await firstValueFrom(this.taskService.update(this.entityToEdit));
+      })
+      .withTemplateDialog('newParameterDialog', () => TemplateDialog.builder()
+        .withReference(this.newParameterDialog)
+        .withTitle(this.translateService.instant('entity.task.parameters.title'))
+        .withForm(new FormGroup({
+          label: new FormControl('', {
+            validators: [Validators.required],
+            nonNullable: true
+          }),
+          value: new FormControl('', {
+            validators: [Validators.required],
+            nonNullable: false
+          }),
+          description: new FormControl('', {
+            validators: [],
+            nonNullable: false
+          })
+        })).withPreOpenFunction((form: FormGroup) => {
+          form.reset({label: '', value: '', description: ''});
+        }).build())
+      .withTargetToRelation((items: TaskMoreInfoParameter[]) => items.map(item => TaskMoreInfoParameter.fromObject(item)))
+      .withRelationsDuplicate(item => TaskMoreInfoParameter.fromObject(item))
+      .build();
   }
 
   private defineRolesTable(): DataTableDefinition<Role, Role> {
@@ -946,112 +1187,6 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
       .withTargetsTitle(this.translateService.instant('entity.task.territories.title'))
       .build();
   }
-
-  private defineParametersTable(): DataTableDefinition<TaskMoreInfoParameter, TaskMoreInfoParameter> {
-    return DataTableDefinition.builder<TaskMoreInfoParameter, TaskMoreInfoParameter>(this.dialog, this.errorHandler, this.loadingService)
-      .withRelationsColumns([
-        this.utils.getSelCheckboxColumnDef(),
-        this.utils.getEditableColumnDef('entity.task.parameters.variable', 'label'),
-        this.utils.getEditableColumnDef('entity.task.parameters.field', 'value', 300, 500),
-        this.utils.getEditableColumnDef('common.form.description', 'description', 250, 500),
-        this.utils.getBooleanColumnDef('entity.task.parameters.provided', 'provided', true),
-        this.utils.getStatusColumnDef()
-      ])
-      .withRelationsOrder('label')
-      .withRelationsFetcher(() => {
-        const raw = this.entityToEdit?.properties?.parameters;
-        if (Array.isArray(raw)) {
-          return of(raw.map((parameter: any) => TaskMoreInfoParameter.fromObject(parameter)));
-        }
-        return of<TaskMoreInfoParameter[]>([]);
-      })
-      .withRelationsUpdater(async (parameters: (TaskMoreInfoParameter & Status)[]) => {
-        const parametersToSave = parameters
-          .filter(canKeepOrUpdate)
-          .map(value => {
-            const p = TaskMoreInfoParameter.fromObject(value);
-            if (p.provided) {
-              p.value = '';
-            }
-            return p;
-          });
-
-        this.entityToEdit.properties = TaskPropertiesBuilder.from(this.entityToEdit.properties)
-          .withParameters(parametersToSave)
-          .build();
-
-        await firstValueFrom(this.taskService.update(this.entityToEdit));
-      })
-      .withTargetToRelation((items: TaskMoreInfoParameter[]) => items.map(item => TaskMoreInfoParameter.fromObject(item)))
-      .withRelationsDuplicate(item => TaskMoreInfoParameter.fromObject(item))
-      .build();
-  }
-
-  private defineChildTasksTable(): DataTableDefinition<TaskProjection, TaskProjection> {
-    return DataTableDefinition.builder<TaskProjection, TaskProjection>(this.dialog, this.errorHandler, this.loadingService)
-      .withRelationsColumns([
-        this.utils.getSelCheckboxColumnDef(),
-        {
-          headerName: this.translateService.instant('common.form.order'),
-          field: 'autoOrder',
-          editable: false,
-          filter: false,
-          minWidth: 110,
-          maxWidth: 110,
-          valueGetter: (params) => {
-            if (params?.node?.rowIndex == null) {
-              return '';
-            }
-            return params.node.rowIndex + 1;
-          },
-          cellClass: 'read-only-cell'
-        },
-        {
-          headerName: '',
-          colId: 'rowDragHandle',
-          rowDrag: true,
-          sortable: false,
-          filter: false,
-          editable: false,
-          lockPosition: true,
-          suppressMovable: true,
-          resizable: false,
-          minWidth: 60,
-          maxWidth: 60,
-          cellRenderer: () => '<span style="cursor: grab; user-select: none; font-size: 14px; font-weight: bold; text-align: center; display: block;">⋮⋮</span>'
-        },
-        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
-        this.utils.getNonEditableColumnDef('tasksMoreInfoAdvancedEntity.cartography', 'cartographyName', 200),
-        this.utils.getStatusColumnDef()
-      ])
-      .withRelationsOrder('name')
-      .withRelationsFetcher(() => of(this.getSelectedChildTasksInCurrentOrder()))
-      .withRelationsUpdater(async (children: (TaskProjection & Status)[]) => {
-        const orderedIds = children
-          .filter(canKeepOrUpdate)
-          .map(child => child.id)
-          .filter((id): id is number => typeof id === 'number');
-        const normalized = this.ensureManualSelectionOrder(orderedIds);
-        this.entityForm.get('selectedChildTaskIds')?.setValue(normalized, {emitEvent: false});
-        this.entityForm.get('selectedChildTaskIds')?.markAsDirty();
-        this.entityForm.markAsDirty();
-        this.previousSelectedChildTaskIds = normalized;
-      })
-      .withTargetsColumns([
-        this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
-        this.utils.getNonEditableColumnDef('tasksMoreInfoAdvancedEntity.cartography', 'cartographyName', 200)
-      ])
-      .withTargetsOrder('name')
-      .withTargetsFetcher(() => of(this.getAvailableChildTasks()))
-      .withTargetInclude((children: TaskProjection[]) => (item: TaskProjection) => {
-        return !children.some((child) => child.id === item.id);
-      })
-      .withTargetToRelation((items: TaskProjection[]) => items)
-      .withTargetsTitle(this.translateService.instant('tasksMoreInfoAdvancedEntity.childTasks'))
-      .build();
-  }
-
 }
 
 class CartographyErrorStateMatcher implements ErrorStateMatcher {

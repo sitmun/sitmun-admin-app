@@ -24,6 +24,17 @@ type ResizeSessionState = {
   startHeight: number;
 };
 
+type TemplatePlaceholderKind = 'img' | 'iframe';
+
+const TEMPLATE_PLACEHOLDER_ATTR = 'data-sitmun-template-placeholder';
+const TEMPLATE_PLACEHOLDER_ORIGINAL_SRC_ATTR = 'data-sitmun-original-src';
+const TEMPLATE_PLACEHOLDER_ORIGINAL_STYLE_ATTR = 'data-sitmun-original-style';
+const TEMPLATE_PLACEHOLDER_WRAPPER_ATTR = 'data-sitmun-template-placeholder-wrapper';
+const TEMPLATE_PLACEHOLDER_LABEL_ATTR = 'data-sitmun-template-placeholder-label';
+const TEMPLATE_PLACEHOLDER_DEFAULT_WIDTH = 320;
+const TEMPLATE_PLACEHOLDER_DEFAULT_HEIGHT = 180;
+const TRANSPARENT_GIF_DATA_URL = 'data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=';
+
 export function normalizeHandlebarsMarkup(html: string): string {
   return (html || '').replace(/\{\{[\s\S]*?}}/g, (placeholder) => {
     if (/<\/?(?:p|div|section|article|table|thead|tbody|tfoot|tr|td|th|ul|ol|li|h[1-6]|blockquote|pre|br)\b/i.test(placeholder)) {
@@ -199,7 +210,7 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
 
     event.preventDefault();
     event.stopPropagation();
-    this.selectedVisualDomElement.remove();
+    this.removeSelectedVisualDomElement();
     this.clearSelectedVisualElement();
     this.syncHtmlSourceFromEditorDom();
   }
@@ -318,6 +329,9 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
     const delta = this.quill.clipboard.convert({ html });
     this.quill.setContents([], 'silent');
     this.quill.updateContents(delta, 'silent');
+    if (this.quill.root?.querySelectorAll) {
+      this.applyEditorOnlyTemplatePlaceholders(this.quill.root);
+    }
   }
 
   private resolveVisualEditableElement(target: HTMLElement, event: MouseEvent): VisualEditableElement | null {
@@ -401,7 +415,9 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
     }
 
     this.quill.getModule('table-better')?.hideTools?.();
-    return this.quill.root.innerHTML;
+    const rootClone = this.cloneEditorRoot(this.quill.root);
+    this.restoreEditorOnlyTemplatePlaceholders(rootClone);
+    return rootClone.innerHTML;
   }
 
   private updateElementDimensionAttribute(element: VisualEditableElement, attribute: 'width' | 'height', value: string): void {
@@ -427,6 +443,8 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
       this.updateElementDimensionStyle(this.selectedVisualDomElement, 'height', height);
     }
 
+    this.syncImagePlaceholderWrapperDimensions(this.selectedVisualDomElement, width, height);
+
     this.selectedVisualElement = {
       tagName: this.selectedVisualDomElement.tagName.toLowerCase() as VisualEditableTagName,
     };
@@ -446,8 +464,8 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
   }
 
   private readAppliedElementDimension(element: VisualEditableElement, dimension: 'width' | 'height'): number | null {
-    const styleValue = Number.parseInt(element.style[dimension] || '', 10);
-    if (Number.isFinite(styleValue) && styleValue > 0) {
+    const styleValue = this.readStylePixelDimension(element.style[dimension] || '');
+    if (styleValue) {
       return styleValue;
     }
 
@@ -469,5 +487,251 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
 
   private isTemplateImageSource(element: HTMLImageElement): boolean {
     return element.getAttribute('src')?.includes('{{') || false;
+  }
+
+  private applyEditorOnlyTemplatePlaceholders(root: ParentNode): void {
+    const editableElements = Array.from(root.querySelectorAll('img, iframe')) as VisualEditableElement[];
+    editableElements.forEach((element) => {
+      if (element.hasAttribute(TEMPLATE_PLACEHOLDER_ATTR)) {
+        return;
+      }
+
+      const originalSrc = element.getAttribute('src');
+      if (!this.isUnresolvedTemplateSource(originalSrc)) {
+        return;
+      }
+
+      if (element instanceof HTMLImageElement) {
+        this.applyImageTemplatePlaceholder(element, originalSrc);
+        return;
+      }
+
+      if (element instanceof HTMLIFrameElement) {
+        this.applyIframeTemplatePlaceholder(element, originalSrc);
+      }
+    });
+  }
+
+  private restoreEditorOnlyTemplatePlaceholders(root: ParentNode): void {
+    const editableElements = Array.from(root.querySelectorAll(`img[${TEMPLATE_PLACEHOLDER_ATTR}], iframe[${TEMPLATE_PLACEHOLDER_ATTR}]`)) as VisualEditableElement[];
+    editableElements.forEach((element) => {
+      const originalSrc = element.getAttribute(TEMPLATE_PLACEHOLDER_ORIGINAL_SRC_ATTR);
+      if (!originalSrc) {
+        return;
+      }
+
+      element.setAttribute('src', originalSrc);
+      element.removeAttribute(TEMPLATE_PLACEHOLDER_ATTR);
+      element.removeAttribute(TEMPLATE_PLACEHOLDER_ORIGINAL_SRC_ATTR);
+      this.restoreEditorOnlyPlaceholderStyles(element);
+      this.unwrapImageTemplatePlaceholder(element);
+      if (element instanceof HTMLIFrameElement) {
+        element.removeAttribute('srcdoc');
+      }
+    });
+  }
+
+  private applyImageTemplatePlaceholder(element: HTMLImageElement, originalSrc: string): void {
+    this.storeOriginalEditorPlaceholderStyle(element);
+    element.setAttribute(TEMPLATE_PLACEHOLDER_ATTR, 'img');
+    element.setAttribute(TEMPLATE_PLACEHOLDER_ORIGINAL_SRC_ATTR, originalSrc);
+    element.setAttribute('src', TRANSPARENT_GIF_DATA_URL);
+    this.wrapImageTemplatePlaceholder(element);
+  }
+
+  private applyIframeTemplatePlaceholder(element: HTMLIFrameElement, originalSrc: string): void {
+    this.storeOriginalEditorPlaceholderStyle(element);
+    element.setAttribute(TEMPLATE_PLACEHOLDER_ATTR, 'iframe');
+    element.setAttribute(TEMPLATE_PLACEHOLDER_ORIGINAL_SRC_ATTR, originalSrc);
+    element.setAttribute('src', 'about:blank');
+    element.setAttribute('srcdoc', this.buildIframeTemplatePlaceholderMarkup(element));
+  }
+
+  private isUnresolvedTemplateSource(src: string | null): boolean {
+    return src?.includes('{{') || false;
+  }
+
+  private buildImageTemplatePlaceholderSrc(element: HTMLImageElement): string {
+    const label = this.resolveTemplatePlaceholderLabel(element, 'Imagen binaria');
+    const width = this.readPlaceholderDimension(element, 'width', TEMPLATE_PLACEHOLDER_DEFAULT_WIDTH);
+    const height = this.readPlaceholderDimension(element, 'height', TEMPLATE_PLACEHOLDER_DEFAULT_HEIGHT);
+    return this.buildSvgPlaceholderDataUrl(label, width, height, 'image');
+  }
+
+  private buildIframeTemplatePlaceholderMarkup(element: HTMLIFrameElement): string {
+    const label = this.resolveTemplatePlaceholderLabel(element, 'Documento embebido');
+    return `<!doctype html><html><body style="margin:0;"><div style="width:100%;height:100%;box-sizing:border-box;display:flex;align-items:center;justify-content:center;padding:12px;border:1px dashed #94a3b8;background:#f8fafc;color:#475569;font:600 14px/1.4 Arial, sans-serif;text-align:center;">${this.escapeHtml(label)}</div></body></html>`;
+  }
+
+  private buildSvgPlaceholderDataUrl(label: string, width: number, height: number, kind: string): string {
+    const safeLabel = this.escapeHtml(label);
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><rect width="100%" height="100%" fill="#f8fafc" stroke="#94a3b8" stroke-dasharray="6 4"/><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#475569">${safeLabel}</text><text x="50%" y="calc(50% + 18px)" text-anchor="middle" dominant-baseline="middle" font-family="Arial, sans-serif" font-size="12" fill="#64748b">${kind}</text></svg>`;
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+  }
+
+  private resolveTemplatePlaceholderLabel(element: HTMLElement, fallback: string): string {
+    return element.getAttribute('alt')
+      || element.getAttribute('title')
+      || element.getAttribute('aria-label')
+      || element.getAttribute('name')
+      || fallback;
+  }
+
+  private readPlaceholderDimension(element: VisualEditableElement, dimension: 'width' | 'height', fallback: number): number {
+    return this.readAppliedElementDimension(element, dimension) || fallback;
+  }
+
+  private escapeHtml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  private cloneEditorRoot(root: { innerHTML?: string; cloneNode?: (deep?: boolean) => Node; }): HTMLElement {
+    if (typeof root?.cloneNode === 'function') {
+      return root.cloneNode(true) as HTMLElement;
+    }
+
+    const container = document.createElement('div');
+    container.innerHTML = root?.innerHTML || '';
+    return container;
+  }
+
+  private storeOriginalEditorPlaceholderStyle(element: VisualEditableElement): void {
+    element.setAttribute(TEMPLATE_PLACEHOLDER_ORIGINAL_STYLE_ATTR, element.getAttribute('style') || '');
+  }
+
+  private wrapImageTemplatePlaceholder(element: HTMLImageElement): void {
+    const wrapper = document.createElement('span');
+    const label = document.createElement('span');
+    const width = this.readPlaceholderDimension(element, 'width', TEMPLATE_PLACEHOLDER_DEFAULT_WIDTH);
+    const height = this.readPlaceholderDimension(element, 'height', TEMPLATE_PLACEHOLDER_DEFAULT_HEIGHT);
+
+    wrapper.setAttribute(TEMPLATE_PLACEHOLDER_WRAPPER_ATTR, 'img');
+    wrapper.setAttribute('style', [
+      'position: relative',
+      'display: inline-block',
+      'line-height: 0',
+      `width: ${width}px`,
+      `height: ${height}px`,
+      'max-width: 100%',
+      'background: #f8fafc',
+      'border: 1px dashed #94a3b8',
+      'box-sizing: border-box',
+      'overflow: hidden',
+    ].join('; '));
+
+    label.setAttribute(TEMPLATE_PLACEHOLDER_LABEL_ATTR, 'img');
+    label.setAttribute('style', [
+      'position: absolute',
+      'inset: 0',
+      'display: flex',
+      'align-items: center',
+      'justify-content: center',
+      'padding: 12px',
+      'box-sizing: border-box',
+      'text-align: center',
+      'color: #475569',
+      'font-family: Arial, sans-serif',
+      'font-size: 12px',
+      'font-weight: 600',
+      'line-height: 1.4',
+      'pointer-events: none',
+      'word-break: break-word',
+    ].join('; '));
+    label.textContent = this.resolveTemplatePlaceholderLabel(element, 'Imagen binaria');
+
+    const parent = element.parentNode;
+    if (!parent) {
+      return;
+    }
+
+    parent.insertBefore(wrapper, element);
+    wrapper.appendChild(element);
+    wrapper.appendChild(label);
+
+    element.style.display = 'block';
+    element.style.width = '100%';
+    element.style.height = '100%';
+    element.style.opacity = '0';
+  }
+
+  private unwrapImageTemplatePlaceholder(element: VisualEditableElement): void {
+    if (!(element instanceof HTMLImageElement)) {
+      return;
+    }
+
+    const wrapper = element.parentElement;
+    if (!wrapper?.hasAttribute(TEMPLATE_PLACEHOLDER_WRAPPER_ATTR)) {
+      return;
+    }
+
+    wrapper.replaceWith(element);
+  }
+
+  private removeSelectedVisualDomElement(): void {
+    if (!this.selectedVisualDomElement) {
+      return;
+    }
+
+    const imageWrapper = this.selectedVisualDomElement instanceof HTMLImageElement
+      ? this.selectedVisualDomElement.parentElement
+      : null;
+
+    if (imageWrapper?.hasAttribute(TEMPLATE_PLACEHOLDER_WRAPPER_ATTR)) {
+      imageWrapper.remove();
+      return;
+    }
+
+    this.selectedVisualDomElement.remove();
+  }
+
+  private syncImagePlaceholderWrapperDimensions(element: VisualEditableElement, width: string, height: string): void {
+    if (!(element instanceof HTMLImageElement)) {
+      return;
+    }
+
+    const wrapper = element.parentElement;
+    if (!wrapper?.hasAttribute(TEMPLATE_PLACEHOLDER_WRAPPER_ATTR)) {
+      return;
+    }
+
+    this.updateWrapperPlaceholderDimensionStyle(wrapper, 'width', width);
+    this.updateWrapperPlaceholderDimensionStyle(wrapper, 'height', height);
+  }
+
+  private updateWrapperPlaceholderDimensionStyle(wrapper: HTMLElement, property: 'width' | 'height', value: string): void {
+    const numericValue = Number.parseInt(value.trim(), 10);
+    if (Number.isFinite(numericValue) && numericValue > 0) {
+      wrapper.style[property] = `${numericValue}px`;
+    }
+  }
+
+  private restoreEditorOnlyPlaceholderStyles(element: VisualEditableElement): void {
+    const originalStyle = element.getAttribute(TEMPLATE_PLACEHOLDER_ORIGINAL_STYLE_ATTR);
+    element.removeAttribute(TEMPLATE_PLACEHOLDER_ORIGINAL_STYLE_ATTR);
+
+    if (originalStyle) {
+      element.setAttribute('style', originalStyle);
+      return;
+    }
+
+    element.removeAttribute('style');
+    if (!element.getAttribute('style')) {
+      element.removeAttribute('style');
+    }
+  }
+
+  private readStylePixelDimension(styleValue: string): number | null {
+    const normalizedValue = styleValue.trim().toLowerCase();
+    if (!normalizedValue.endsWith('px')) {
+      return null;
+    }
+
+    const numericValue = Number.parseInt(normalizedValue, 10);
+    return Number.isFinite(numericValue) && numericValue > 0 ? numericValue : null;
   }
 }

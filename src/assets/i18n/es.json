@@ -1560,5 +1560,11 @@
   "tasksMoreInfoAdvancedEntity.noTasksIncluded": "No hay tareas incluidas. Utiliza el selector inferior para añadir tareas.",
   "tasksMoreInfoAdvancedEntity.addTask": "Añadir tarea",
   "entity.task.query.scope.web-api-query-no-proxy": "Consulta Web API (sin proxy)",
-  "entity.task.query.scope.external-link": "Enlace externo"
+  "entity.task.query.scope.external-link": "Enlace externo",
+  "entity.task.query.missingDeclaredParameters": "Faltan parámetros por declarar en la pestaña Parámetros: {{parameters}}.",
+  "tasksMoreInfoAdvancedEntity.parameterMapping": "Mapeo de parámetros",
+  "tasksMoreInfoAdvancedEntity.miaParam": "Parámetro MIA",
+  "tasksMoreInfoAdvancedEntity.childParam": "Parámetro de tarea hija",
+  "tasksMoreInfoAdvancedEntity.templateChildMappings": "Parámetros de tareas enlazadas en la plantilla",
+  "tasksMoreInfoAdvancedEntity.noTemplateChildren": "Esta plantilla no tiene tareas enlazadas."
 }

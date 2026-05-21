@@ -1561,5 +1561,11 @@
   "tasksMoreInfoAdvancedEntity.noTasksIncluded": "No tasks included. Use the selector below to add tasks.",
   "tasksMoreInfoAdvancedEntity.addTask": "Add task",
   "entity.task.query.scope.web-api-query-no-proxy": "Web API Query (no proxy)",
-  "entity.task.query.scope.external-link": "External Link"
+  "entity.task.query.scope.external-link": "External Link",
+  "entity.task.query.missingDeclaredParameters": "Parameters must be declared in the Parameters tab before saving: {{parameters}}.",
+  "tasksMoreInfoAdvancedEntity.parameterMapping": "Parameter mapping",
+  "tasksMoreInfoAdvancedEntity.miaParam": "MIA parameter",
+  "tasksMoreInfoAdvancedEntity.childParam": "Child task parameter",
+  "tasksMoreInfoAdvancedEntity.templateChildMappings": "Linked task parameters in the template",
+  "tasksMoreInfoAdvancedEntity.noTemplateChildren": "This template has no linked tasks."
 }

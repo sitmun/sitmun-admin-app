@@ -71,6 +71,10 @@ interface PendingReferenceAliasChange {
   nextReferenceAlias: string;
 }
 
+interface TemplateTaskProperties extends Record<string, unknown> {
+  childTaskOrderIds?: number[];
+}
+
 @Component({
   selector: 'app-task-template-form',
   templateUrl: './task-template-form.component.html',
@@ -562,10 +566,13 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
   private createObject(id: number | null = null): Task {
     const safeToEdit = TaskProjection.fromObject(this.entityToEdit);
     const formValues = this.entityForm.getRawValue();
-    const properties = TaskPropertiesBuilder.from(this.entityToEdit?.properties)
+    const properties = {
+      ...TaskPropertiesBuilder.from(this.entityToEdit?.properties)
       .withTemplateHtml(formValues.templateHtml || null)
       .withTemplateEditorState(TaskPropertiesContract.getTemplateEditorState(this.entityToEdit?.properties))
-      .build();
+      .build(),
+      childTaskOrderIds: this.linkedTasks.map((linkedTask) => linkedTask.taskId),
+    } as TemplateTaskProperties;
 
     return Task.fromObject(
       Object.assign(safeToEdit, formValues, {
@@ -695,7 +702,41 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
       } satisfies LinkedTemplateTask;
     }));
 
-    this.linkedTasks = linkedTasks;
+    this.linkedTasks = this.sortLinkedTasksByStoredOrder(linkedTasks, this.entityToEdit?.properties);
+  }
+
+  private sortLinkedTasksByStoredOrder(linkedTasks: LinkedTemplateTask[], rawProperties: unknown): LinkedTemplateTask[] {
+    const childTaskOrderIds = this.normalizeStoredTaskOrder((rawProperties as TemplateTaskProperties | null | undefined)?.childTaskOrderIds);
+    if (childTaskOrderIds.length === 0) {
+      return [...linkedTasks].sort((left, right) => left.taskId - right.taskId);
+    }
+
+    const orderIndex = new Map(childTaskOrderIds.map((taskId, index) => [taskId, index]));
+    return [...linkedTasks].sort((left, right) => {
+      const leftIndex = orderIndex.get(left.taskId);
+      const rightIndex = orderIndex.get(right.taskId);
+
+      if (leftIndex != null && rightIndex != null) {
+        return leftIndex - rightIndex;
+      }
+      if (leftIndex != null) {
+        return -1;
+      }
+      if (rightIndex != null) {
+        return 1;
+      }
+      return left.taskId - right.taskId;
+    });
+  }
+
+  private normalizeStoredTaskOrder(childTaskOrderIds: unknown): number[] {
+    if (!Array.isArray(childTaskOrderIds)) {
+      return [];
+    }
+
+    return childTaskOrderIds
+      .filter((taskId): taskId is number => typeof taskId === 'number' && Number.isFinite(taskId))
+      .filter((taskId, index, values) => values.indexOf(taskId) === index);
   }
 
   private async loadTemplateChildTasks(templateTasks: TaskProjection[]) {
@@ -865,7 +906,6 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getEditableColumnDef('common.form.name', 'name'),
-        this.utils.getNonEditableColumnDef('common.form.type', 'type'),
         this.utils.getEditableColumnDef('common.form.value', 'value', 300, 500),
         this.utils.getStatusColumnDef(),
       ])
@@ -880,7 +920,10 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
       .withRelationsUpdater(async (parameters: (TaskParameter & Status)[]) => {
         const parametersToSave = parameters
           .filter(canKeepOrUpdate)
-          .map((parameter) => TaskParameter.fromObject(parameter));
+          .map((parameter) => TaskParameter.fromObject({
+            ...parameter,
+            type: parameter.type || 'string',
+          }));
         this.entityToEdit.properties = TaskPropertiesContract.withParameters(this.entityToEdit.properties, parametersToSave);
         await firstValueFrom(this.taskService.update(this.entityToEdit));
         this.markPreviewDirty();
@@ -893,19 +936,10 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
             validators: [Validators.required],
             nonNullable: true,
           }),
-          type: new FormControl('', {
-            validators: [Validators.required],
-            nonNullable: true,
-          }),
           value: new FormControl('', {
-            validators: [Validators.required],
             nonNullable: true,
           }),
         }))
-        .withPreOpenFunction((form: FormGroup) => {
-          const defaultType = this.defaultValueOrNull('taskEntity.jsonParamType');
-          form.reset({ type: defaultType?.value || null });
-        })
         .build())
       .withTargetToRelation((items: TaskParameter[]) => items.map((item) => TaskParameter.fromObject(item)))
       .withRelationsDuplicate((item) => TaskParameter.fromObject(item))

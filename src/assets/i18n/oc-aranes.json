@@ -1541,5 +1541,11 @@
   "tasksMoreInfoAdvancedEntity.noTasksIncluded": "Non i a trabalhs inclòsi. Emplegatz eth selector ath devath entà ajustar trabalhs.",
   "tasksMoreInfoAdvancedEntity.addTask": "Ajustar trabalh",
   "entity.task.query.scope.web-api-query-no-proxy": "Consulta Web API (sense proxy)",
-  "entity.task.query.scope.external-link": "Ligòt extèrn"
+  "entity.task.query.scope.external-link": "Ligòt extèrn",
+  "entity.task.query.missingDeclaredParameters": "Cau declarar es paramètres ena pestanha Paramètres abans de sauvar: {{parameters}}.",
+  "tasksMoreInfoAdvancedEntity.parameterMapping": "Mapatge de paramètres",
+  "tasksMoreInfoAdvancedEntity.miaParam": "Paramètre MIA",
+  "tasksMoreInfoAdvancedEntity.childParam": "Paramètre deth trabalh hilh",
+  "tasksMoreInfoAdvancedEntity.templateChildMappings": "Paramètres des trabalhs ligadi ena plantilha",
+  "tasksMoreInfoAdvancedEntity.noTemplateChildren": "Aguesta plantilha non a trabalhs ligadi."
 }

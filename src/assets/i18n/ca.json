@@ -1561,5 +1561,11 @@
   "tasksMoreInfoAdvancedEntity.noTasksIncluded": "No hi ha tasques incloses. Utilitza el selector inferior per afegir tasques.",
   "tasksMoreInfoAdvancedEntity.addTask": "Afegir tasca",
   "entity.task.query.scope.web-api-query-no-proxy": "Consulta Web API (sense proxy)",
-  "entity.task.query.scope.external-link": "Enllaç extern"
+  "entity.task.query.scope.external-link": "Enllaç extern",
+  "entity.task.query.missingDeclaredParameters": "Falten paràmetres per declarar a la pestanya Paràmetres: {{parameters}}.",
+  "tasksMoreInfoAdvancedEntity.parameterMapping": "Mapatge de paràmetres",
+  "tasksMoreInfoAdvancedEntity.miaParam": "Paràmetre MIA",
+  "tasksMoreInfoAdvancedEntity.childParam": "Paràmetre de la tasca filla",
+  "tasksMoreInfoAdvancedEntity.templateChildMappings": "Paràmetres de tasques enllaçades a la plantilla",
+  "tasksMoreInfoAdvancedEntity.noTemplateChildren": "Aquesta plantilla no té tasques enllaçades."
 }
