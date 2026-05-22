@@ -141,7 +141,7 @@ export class UtilsService {
     }
     const query: HalOptions = {params: params2};
 
-    return this.codeListService.getAll(query);
+    return this.codeListService.fetchAllItems(query);
   }
 
   /**
@@ -332,10 +332,37 @@ export class UtilsService {
       filter: false,
       floatingFilter: false,
       editable: false,
+      headerClass: 'sitmun-centered-header',
+      cellClass: 'sitmun-centered-cell',
       lockPosition: true,
       suppressMovable: true,
       resizable: false,
       maxWidth: 80,
+    };
+  }
+
+  /**
+   * Gets a row-only checkbox selection column for AG Grid row models
+   * that do not support header checkbox selection.
+   * @returns Column definition object for row checkbox selection.
+   */
+  getRowCheckboxColumnDef() {
+    return {
+      headerName: '',
+      field: '__loadingSelection',
+      valueGetter: () => '',
+      checkboxSelection: (params) => !!params.data,
+      headerClass: 'sitmun-centered-header',
+      cellClass: (params) => params.data ? 'sitmun-centered-cell' : 'sitmun-centered-cell sitmun-loading-checkbox-cell',
+      filter: false,
+      floatingFilter: false,
+      editable: false,
+      lockPosition: true,
+      suppressMovable: true,
+      resizable: false,
+      width: 56,
+      maxWidth: 56,
+      flex: 0,
     };
   }
 
@@ -476,6 +503,7 @@ export class UtilsService {
    * @param field - Field name in data object.
    * @param editable - Flag to make column editable.
    * @param elements - Array of selectable options.
+   * @param formattedList
    * @param valuesKeyField
    * @param valuesKeyField
    * @param valuesField
@@ -772,6 +800,8 @@ export class UtilsService {
       headerName: this.getTranslate(alias),
       field: field,
       editable: editable,
+      headerClass: 'sitmun-centered-header',
+      cellClass: 'sitmun-centered-cell',
       cellRenderer: 'btnCheckboxRendererComponent',
       floatingFilterComponent: BtnCheckboxFilterComponent,
       valueGetter: (params) => {
@@ -821,6 +851,9 @@ export class UtilsService {
     valuesField?: string
   ) {
     const valueGetterFn: ValueGetterFunc<TData, TValue> = (params: ValueGetterParams<TData, TValue>) => {
+      if (!params.data) {
+        return undefined;
+      }
       const dataFieldValue = params.data[keyField]
       const effectiveList = values();
       const value = effectiveList.find(value => value[valuesKeyField] == dataFieldValue)
@@ -985,7 +1018,7 @@ export class UtilsService {
     if (translationMap) {
       // Load existing translations for this element to get _links
       const existingTranslations = await firstValueFrom(
-        this.translationService.getAll().pipe(
+        this.translationService.fetchAllItems().pipe(
           map((data: any[]) => data.filter(t => t.element === id))
         )
       );

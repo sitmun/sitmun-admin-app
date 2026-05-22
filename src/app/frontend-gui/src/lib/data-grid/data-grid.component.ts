@@ -29,9 +29,15 @@ import {AgGridModule} from '@ag-grid-community/angular';
 import {ClientSideRowModelModule} from '@ag-grid-community/client-side-row-model';
 import {GridOptions, ModuleRegistry} from '@ag-grid-community/core';
 import {CsvExportModule} from '@ag-grid-community/csv-export';
+import {InfiniteRowModelModule} from '@ag-grid-community/infinite-row-model';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
-import {firstValueFrom, Observable, Subscription} from 'rxjs';
+import {debounceTime, firstValueFrom, Observable, Subject, Subscription} from 'rxjs';
 
+import type {HalPage} from '@app/core/hal/hal-page';
+import type {InfiniteBlockRequest} from '@app/core/hal/infinite-block-request';
+import {createInfiniteDatasource} from '@app/core/hal/infinite-datasource';
+import {INFINITE_PAGE_SIZE_DEFAULT} from '@app/core/hal/infinite-page-size';
+import {ResourceHelper} from '@app/core/hal/resource/resource-helper';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from '@app/services/loading-overlay.service';
 import {LoggerService} from '@app/services/logger.service';
@@ -51,8 +57,11 @@ import {RouterLinkRendererComponent} from '../router-link-renderer/router-link-r
 
 ModuleRegistry.registerModules([
   ClientSideRowModelModule,
+  InfiniteRowModelModule,
   CsvExportModule
 ]);
+
+export type DataGridRowModelMode = 'clientSide' | 'infinite';
 
 export type GridEventType = "save"
 
@@ -72,14 +81,14 @@ export interface Status {
 }
 
 export function isActive(item: Status): boolean {
-  return item.status === constants.entityStatus.statusOK || 
-         item.status === constants.entityStatus.pendingModify || 
+  return item.status === constants.entityStatus.statusOK ||
+         item.status === constants.entityStatus.pendingModify ||
          item.status === constants.entityStatus.pendingCreation;
 }
 
 export function isRegistered(item: Status): boolean {
-  return item.status === constants.entityStatus.statusOK || 
-         item.status === constants.entityStatus.pendingModify || 
+  return item.status === constants.entityStatus.statusOK ||
+         item.status === constants.entityStatus.pendingModify ||
          item.status === constants.entityStatus.pendingDelete;
 }
 
@@ -183,7 +192,40 @@ export class Executor<T> {
 @Component({
     selector: 'app-data-grid',
     templateUrl: './data-grid.component.html',
-    styles: [],
+    styles: [`
+      :host ::ng-deep .sitmun-infinite-grid .ag-cell,
+      :host ::ng-deep .sitmun-infinite-grid .ag-cell-value,
+      :host ::ng-deep .sitmun-infinite-grid .router-link {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      :host ::ng-deep .sitmun-infinite-grid .sitmun-loading-checkbox-cell {
+        position: relative;
+      }
+
+      :host ::ng-deep .sitmun-infinite-grid .sitmun-loading-checkbox-cell::before {
+        content: '';
+        width: 18px;
+        height: 18px;
+        border: 2px solid rgba(0, 0, 0, 0.16);
+        border-top-color: #ff9300;
+        border-radius: 50%;
+        box-sizing: border-box;
+        left: 50%;
+        position: absolute;
+        top: 50%;
+        transform: translate(calc(-50% + 4px), -50%);
+        animation: sitmun-loading-cell-spin 0.8s linear infinite;
+      }
+
+      @keyframes sitmun-loading-cell-spin {
+        to {
+          transform: translate(calc(-50% + 4px), -50%) rotate(360deg);
+        }
+      }
+    `],
   standalone: true,
     imports: [
         CommonModule,
@@ -228,6 +270,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   /** Current search value for quick search */
   searchValue: string;
 
+  /** Subject for debounced search input */
+  private searchSubject = new Subject<string>();
+
   /** Reference to AG Grid API */
   gridApi: any;
 
@@ -242,6 +287,12 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
   /** Map tracking changes to cells */
   changesMap: Map<string, Map<string, number>> = new Map<string, Map<string, number>>();
+
+  /** Pending row edits in infinite mode (keyed by stable row id) */
+  infiniteRowChanges: Map<string, any> = new Map<string, any>();
+
+  /** Generation counter to drop stale infinite block responses */
+  private infiniteDatasourceGeneration = 0;
 
 
   /** Last parameters of the grid */
@@ -267,6 +318,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
   /** AG Grid options configuration */
   gridOptions: GridOptions;
+
+  /** Currently expanded column from the truncated-cell inspection shortcut */
+  private expandedColumnId?: string;
 
   /** Flag indicating if any status has changed to delete */
   someStatusHasChangedToDelete = false;
@@ -303,6 +357,27 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
   /** Function to fetch all data */
   @Input() getAll: () => Observable<any>;
+
+  /** Row model: client-side full fetch (default) or infinite block loading */
+  @Input() rowModelMode: DataGridRowModelMode = 'clientSide';
+
+  /** Block fetcher for infinite mode */
+  @Input() infiniteBlockFetcher?: (request: InfiniteBlockRequest) => Observable<HalPage<any>>;
+
+  /** Rows per infinite block (must match cacheBlockSize) */
+  @Input() pageSize: number = INFINITE_PAGE_SIZE_DEFAULT;
+
+  /** Fixed height for infinite grid viewport */
+  @Input() infiniteGridHeight = '60vh';
+
+  /** Fixed row height for infinite virtual scrolling */
+  @Input() infiniteRowHeight = 48;
+
+  /** Enables local filtering that scans additional server pages in infinite mode */
+  @Input() progressiveLocalFilter = false;
+
+  /** Enables backend text search for infinite mode */
+  @Input() backendSearch = false;
 
   /** Flag to show/hide discard changes button */
   @Input() discardChangesButton: boolean;
@@ -455,6 +530,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       autoSizeStrategy: {
         type: 'fitCellContents'
       },
+      onCellMouseOver: (params) => this.markTruncatedCell(params),
+      onCellMouseOut: (params) => this.unmarkTruncatedCell(params),
+      onCellClicked: (params) => this.expandTruncatedCellColumn(params),
       defaultColDef: {
         filter: true,
         sortable: true,
@@ -482,7 +560,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         },
       },
       rowSelection: 'multiple',
-      suppressHorizontalScroll: false,
+      suppressHorizontalScroll: true,
       // Add alternating row background
       getRowStyle: (params) => {
         if (params.node.rowIndex! % 2 === 0) {
@@ -514,13 +592,38 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
    * Handles component initialization
    */
   ngOnInit(): void {
+    this.configureAutoSizeStrategy();
+
+    // Set up debounced search (300ms delay)
+    this.searchSubject
+      .pipe(
+        debounceTime(300),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((searchValue) => {
+        this.searchValue = searchValue;
+        if (this.rowModelMode === 'infinite' && (this.progressiveLocalFilter || this.backendSearch)) {
+          this.infiniteDatasourceGeneration++;
+          if (this.gridApi && !this.gridApi.isDestroyed()) {
+            this.gridApi.ensureIndexVisible(0, 'top');
+            this.gridApi.purgeInfiniteCache();
+          }
+        } else if (this.gridApi && !this.gridApi.isDestroyed()) {
+          this.gridApi.setGridOption('quickFilterText', searchValue || '');
+          this.gridApi.onFilterChanged();
+          this.gridApi.onSortChanged();
+        }
+      });
 
     // Ensure that the grid is visible before autosizing columns.
     this.observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          // The grid is visible, autosize all columns.
-          this.gridApi?.autoSizeAllColumns();
+          // For infinite mode with flex columns, don't auto-size (flex handles distribution)
+          // Only auto-size for client-side mode where content-based sizing is expected
+          if (this.rowModelMode !== 'infinite') {
+            this.gridApi?.autoSizeAllColumns();
+          }
         }
       });
     }, {threshold: 0.1});
@@ -531,11 +634,19 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => {
           this.changesMap.clear();
+          this.infiniteRowChanges.clear();
           this.someStatusHasChangedToDelete = false;
           this.someStatusHasChanged = false;
           this.changeCounter = 0;
           this.previousChangeCounter = 0;
           this.redoCounter = 0;
+          if (this.rowModelMode === 'infinite' && this.gridApi && !this.gridApi.isDestroyed()) {
+            this.infiniteDatasourceGeneration++;
+            this.gridApi.deselectAll();
+            this.setupInfiniteGrid();
+            this.gridApi.purgeInfiniteCache();
+            return;
+          }
           this.onGridReady(this.params);
         });
     }
@@ -577,13 +688,203 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
           this.addItems(items);
         });
     }
-    this.loadData()
+    if (this.rowModelMode !== 'infinite') {
+      this.loadData();
+    }
+  }
+
+  get isInfiniteMode(): boolean {
+    return this.rowModelMode === 'infinite';
+  }
+
+  private expandTruncatedCellColumn(params): void {
+    const cell = this.getEventCell(params);
+    const colId = params.column?.getColId?.() ?? params.column?.getId?.() ?? params.colDef?.colId ?? params.colDef?.field;
+    if (!cell || !colId || params.colDef?.checkboxSelection || !this.isCellTruncated(cell)) {
+      return;
+    }
+
+    if (this.expandedColumnId && this.expandedColumnId !== colId) {
+      this.restoreExpandedColumn();
+    }
+
+    const currentWidth = params.column?.getActualWidth?.() ?? cell.clientWidth;
+    const targetWidth = Math.min(
+      this.getExpandedCellWidth(cell),
+      this.getMaxExpandedColumnWidth(colId, currentWidth)
+    );
+    if (targetWidth <= currentWidth + 1) {
+      return;
+    }
+
+    this.gridApi.applyColumnState({
+      state: [{colId, flex: null, width: targetWidth}],
+      applyOrder: false
+    });
+    this.expandedColumnId = colId;
+    cell.classList.remove('sitmun-truncated-cell');
+  }
+
+  private restoreExpandedColumn(): void {
+    if (!this.expandedColumnId || !this.gridApi || this.gridApi.isDestroyed()) {
+      return;
+    }
+
+    const defaultState = this.getDefaultColumnState(this.expandedColumnId);
+    if (defaultState) {
+      this.gridApi.applyColumnState({
+        state: [defaultState],
+        applyOrder: false
+      });
+    }
+    this.expandedColumnId = undefined;
+  }
+
+  private getDefaultColumnState(colId: string): any | undefined {
+    const columnDef = this.columnDefs.find((col) => this.getColumnDefId(col) === colId);
+    if (!columnDef) {
+      return undefined;
+    }
+
+    if (columnDef.flex !== 0) {
+      return {
+        colId,
+        flex: columnDef.flex ?? 1
+      };
+    }
+
+    return {
+      colId,
+      flex: null,
+      width: columnDef.width ?? columnDef.minWidth ?? 100
+    };
+  }
+
+  private getColumnDefId(columnDef: any): string | undefined {
+    return columnDef.colId ?? columnDef.field;
+  }
+
+  private getMaxExpandedColumnWidth(colId: string, currentWidth: number): number {
+    const viewportWidth = this.getGridViewportWidth();
+    const displayedColumns = this.gridApi?.getAllDisplayedColumns?.() ?? [];
+    if (!viewportWidth || displayedColumns.length === 0) {
+      return currentWidth;
+    }
+
+    const otherColumnsWidth = displayedColumns
+      .filter((column: any) => column.getColId?.() !== colId)
+      .reduce((total: number, column: any) => total + this.getColumnFitFloorWidth(column), 0);
+
+    return Math.max(currentWidth, viewportWidth - otherColumnsWidth - 2);
+  }
+
+  private getGridViewportWidth(): number {
+    const gridElement = this.params?.eGridDiv as HTMLElement | undefined;
+    const gridWidth = gridElement?.querySelector<HTMLElement>('.ag-center-cols-viewport')?.clientWidth ??
+      gridElement?.clientWidth ??
+      this.dataGrid?.nativeElement?.clientWidth;
+
+    return Math.max(0, gridWidth ?? 0);
+  }
+
+  private getColumnFitFloorWidth(column: any): number {
+    const colDef = column.getColDef?.() ?? {};
+    const actualWidth = column.getActualWidth?.() ?? colDef.width ?? colDef.minWidth ?? 100;
+
+    if (colDef.flex === 0 || colDef.suppressSizeToFit) {
+      return actualWidth;
+    }
+
+    return colDef.minWidth ?? Math.min(actualWidth, 100);
+  }
+
+  private withoutCellTooltips(col: any): any {
+    const processed = {...col};
+    delete processed.tooltipField;
+    delete processed.tooltipValueGetter;
+    return processed;
+  }
+
+  private markTruncatedCell(params): void {
+    const cell = this.getEventCell(params);
+    if (cell && !params.colDef?.checkboxSelection && this.isCellTruncated(cell)) {
+      cell.classList.add('sitmun-truncated-cell');
+    }
+  }
+
+  private unmarkTruncatedCell(params): void {
+    this.getEventCell(params)?.classList.remove('sitmun-truncated-cell');
+  }
+
+  private isCellTruncated(cell: HTMLElement): boolean {
+    const candidates: HTMLElement[] = [
+      cell,
+      ...Array.from(cell.querySelectorAll('.ag-cell-value, .ag-cell-wrapper, a, span')) as HTMLElement[]
+    ];
+
+    return candidates.some((element) => element.scrollWidth > element.clientWidth + 1) ||
+      this.isCellTextWiderThanVisibleArea(cell);
+  }
+
+  private getEventCell(params): HTMLElement | null {
+    const target = params.event?.target as HTMLElement | null;
+    return target?.closest?.('.ag-cell') as HTMLElement | null;
+  }
+
+  private isCellTextWiderThanVisibleArea(cell: HTMLElement): boolean {
+    return this.getCellTextWidth(cell) > this.getVisibleCellTextWidth(cell) + 1;
+  }
+
+  private getExpandedCellWidth(cell: HTMLElement): number {
+    const style = window.getComputedStyle(cell);
+    const horizontalPadding = Number.parseFloat(style.paddingLeft || '0') + Number.parseFloat(style.paddingRight || '0');
+    const textWidth = this.getCellTextWidth(cell);
+    const widthWithBreathingRoom = Math.ceil(textWidth + horizontalPadding + 32);
+    return Math.min(Math.max(widthWithBreathingRoom, cell.clientWidth), 720);
+  }
+
+  private getVisibleCellTextWidth(cell: HTMLElement): number {
+    const style = window.getComputedStyle(cell);
+    const horizontalPadding = Number.parseFloat(style.paddingLeft || '0') + Number.parseFloat(style.paddingRight || '0');
+    return cell.clientWidth - horizontalPadding;
+  }
+
+  private getCellTextWidth(cell: HTMLElement): number {
+    const text = cell.innerText?.trim();
+    if (!text) {
+      return 0;
+    }
+
+    const style = window.getComputedStyle(cell);
+    const measurer = document.createElement('span');
+    measurer.textContent = text;
+    measurer.style.position = 'absolute';
+    measurer.style.visibility = 'hidden';
+    measurer.style.whiteSpace = 'nowrap';
+    measurer.style.font = style.font;
+    document.body.appendChild(measurer);
+    const textWidth = measurer.getBoundingClientRect().width;
+    measurer.remove();
+
+    return textWidth;
+  }
+
+  private configureAutoSizeStrategy(): void {
+    if (this.rowModelMode === 'infinite') {
+      delete this.gridOptions.autoSizeStrategy;
+      return;
+    }
+
+    this.gridOptions.autoSizeStrategy = {type: 'fitCellContents'};
   }
 
   /**
    * Loads data into the grid with anti-flicker loading overlay
    */
   loadData(): void {
+    if (this.rowModelMode === 'infinite') {
+      return;
+    }
     // Clean up any existing subscription
     if (this.dataSubscription) {
       this.dataSubscription.unsubscribe();
@@ -593,7 +894,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     this.loadingService.wrapWithAntiFlicker(
       async () => {
         const data = await firstValueFrom(this.getAll());
-        
+
         const status = this.allNewElements ? 'pendingCreation' : 'statusOK';
         const newItems = [];
         const condition = (this.addFieldRestriction) ? this.addFieldRestriction : 'id';
@@ -663,6 +964,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
    * Restores saved grid state if available
    */
   firstDataRendered(): void {
+    if (this.rowModelMode === 'infinite') {
+      return;
+    }
     // First handle saved grid state if it exists
     if (localStorage.agGridState != undefined) {
       const agGridState = JSON.parse(localStorage.agGridState)
@@ -713,8 +1017,8 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       // Set flex based on column position
       if (index === this.columnDefs.length - 1) {
         // Last column gets flex to fill remaining space
-        col.flex = 1;
-      } else {
+        col.flex = col.flex ?? 1;
+      } else if (col.flex === undefined) {
         // Other columns don't flex
         col.flex = 0;
         // Use width instead of flex for non-last columns
@@ -726,33 +1030,126 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       }
     });
 
+    this.columnDefs = this.columnDefs.map((col) => this.withoutCellTooltips(col));
+
+    if (this.rowModelMode === 'infinite') {
+      this.columnDefs = this.fixedHeightInfiniteColumnDefs(this.columnDefs);
+    }
+
     // Apply the updated column definitions
     this.gridApi.updateGridOptions({columnDefs: this.columnDefs});
 
-    // Set initial column state before loading data
-    if (this.defaultColumnSorting) {
-      if (!Array.isArray(this.defaultColumnSorting)) {
-        const sortModel = [
-          {colId: this.defaultColumnSorting, sort: 'asc'}
-        ];
-        this.gridApi.applyColumnState({
-          state: sortModel,
-          applyOrder: true
-        });
-      } else {
-        const sortModel = [];
-        this.defaultColumnSorting.forEach(element => {
-          sortModel.push({colId: element, sort: 'asc'})
-        });
-        this.gridApi?.applyColumnState({
-          state: sortModel,
-          applyOrder: true
-        });
-      }
+    this.applyDefaultColumnSorting();
+
+    if (this.rowModelMode === 'infinite') {
+      this.setupInfiniteGrid();
+      return;
     }
 
     // Load data after grid is ready
     this.loadData();
+  }
+
+  private fixedHeightInfiniteColumnDefs(columnDefs: any[]): any[] {
+    return columnDefs.map((col) => {
+      if (col.checkboxSelection) {
+        return {
+          ...col,
+          filter: false,
+          autoHeight: false,
+          wrapText: false,
+        };
+      }
+      
+      // Preserve explicit flex if set, otherwise default to 1
+      const flex = col.flex !== undefined ? col.flex : 1;
+      
+      // Keep minWidth if specified (prevents over-squeeze)
+      const processed: any = {
+        ...col,
+        filter: false,
+        autoHeight: false,
+        wrapText: false,
+        flex,
+        resizable: true
+      };
+
+      // Flex columns should consume available space. Explicit non-flex columns
+      // (for example booleans or dates) keep their fixed sizing.
+      if (flex !== 0) {
+        delete processed.width;
+        delete processed.maxWidth;
+      }
+      
+      return processed;
+    });
+  }
+
+  private applyDefaultColumnSorting(): void {
+    if (!this.defaultColumnSorting || !this.gridApi) {
+      return;
+    }
+    if (!Array.isArray(this.defaultColumnSorting)) {
+      const sortModel = [{colId: this.defaultColumnSorting, sort: 'asc' as const}];
+      this.gridApi.applyColumnState({state: sortModel, applyOrder: true});
+    } else {
+      const sortModel = this.defaultColumnSorting.map((element) => ({colId: element, sort: 'asc' as const}));
+      this.gridApi.applyColumnState({state: sortModel, applyOrder: true});
+    }
+  }
+
+  private setupInfiniteGrid(): void {
+    if (!this.infiniteBlockFetcher) {
+      this.loggerService.error('infiniteBlockFetcher is required when rowModelMode is infinite');
+      return;
+    }
+    const fetch = this.infiniteBlockFetcher.bind(this);
+    const datasource = createInfiniteDatasource(fetch, {
+      pageSize: this.pageSize,
+      columnDefs: this.columnDefs,
+      gridApi: this.gridApi,
+      getGeneration: () => this.infiniteDatasourceGeneration,
+      progressiveLocalFilter: {
+        enabled: this.progressiveLocalFilter && !this.backendSearch,
+        getSearchText: () => this.searchValue,
+      },
+      backendSearch: {
+        enabled: this.backendSearch,
+        getSearchText: () => this.searchValue,
+      },
+    });
+    this.gridApi.setGridOption('datasource', datasource);
+  }
+
+  getInfiniteRowId(params): string {
+    const data = params.data;
+    if (data?.id != null) {
+      return String(data.id);
+    }
+    return String(ResourceHelper.getSelfHref(data) ?? params.node.id);
+  }
+
+  onInfiniteSortChanged(): void {
+    if (this.rowModelMode !== 'infinite' || !this.gridApi || this.gridApi.isDestroyed()) {
+      return;
+    }
+    this.infiniteDatasourceGeneration++;
+    this.gridApi.purgeInfiniteCache();
+  }
+
+  onInfiniteFilterChanged(): void {
+    if (this.rowModelMode !== 'infinite' || !this.gridApi || this.gridApi.isDestroyed()) {
+      return;
+    }
+    this.infiniteDatasourceGeneration++;
+    this.gridApi.purgeInfiniteCache();
+  }
+
+  onFilterModified(): void {
+    if (this.rowModelMode === 'infinite') {
+      return;
+    }
+    this.deleteChanges();
   }
 
   /**
@@ -806,7 +1203,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     // Simple native date input editor (no jQuery)
-     
+
     function NativeDatepicker(this: any) {
     }
 
@@ -831,7 +1228,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       return this.eInput.value;
     };
 
-     
+
     NativeDatepicker.prototype.destroy = function () {
     };
 
@@ -994,6 +1391,22 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       return;
     }
 
+    if (this.rowModelMode === 'infinite') {
+      this.gridApi.stopEditing(false);
+      const itemsChanged = Array.from(this.infiniteRowChanges.values());
+      this.sendChanges.emit(itemsChanged);
+      this.gridModified.emit(false);
+      this.infiniteRowChanges.clear();
+      this.changesMap.clear();
+      this.changeCounter = 0;
+      this.previousChangeCounter = 0;
+      this.redoCounter = 0;
+      this.someStatusHasChangedToDelete = false;
+      this.someStatusHasChanged = false;
+      this.gridApi.refreshInfiniteCache();
+      return;
+    }
+
     // Store current grid state
     const currentFilterModel = this.gridApi.getFilterModel();
     const currentQuickFilter = this.searchValue;
@@ -1074,14 +1487,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
    */
   quickSearch(event: KeyboardEvent): void {
     const input = event.target as HTMLInputElement;
-    this.searchValue = input.value;
-    if (this.gridApi) {
-      // Set quickFilterText to empty string when search is cleared
-      this.gridApi.setGridOption('quickFilterText', this.searchValue || '');
-      // Ensure the grid is properly refreshed
-      this.gridApi.onFilterChanged();
-      this.gridApi.onSortChanged();
-    }
+    this.searchSubject.next(input.value);
   }
 
   /**
@@ -1110,7 +1516,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     if (!this.gridApi?.isDestroyed()) {
       this.gridApi.applyTransaction({add: itemsToAdd});
     }
-    
+
     // If items were added, mark grid as modified to enable save button
     if (itemsToAdd.length > 0) {
       this.someStatusHasChanged = true;
@@ -1229,6 +1635,17 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
    * Deletes all pending changes and reverts the grid to its original state
    */
   deleteChanges(): void {
+    if (this.rowModelMode === 'infinite') {
+      this.infiniteRowChanges.clear();
+      this.changesMap.clear();
+      this.changeCounter = 0;
+      this.previousChangeCounter = 0;
+      this.redoCounter = 0;
+      this.infiniteDatasourceGeneration++;
+      this.gridApi?.purgeInfiniteCache();
+      this.gridModified.emit(false);
+      return;
+    }
     this.gridApi.stopEditing(false);
     const newElementsActived = this.allNewElements;
 
@@ -1263,16 +1680,6 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
     //this.params.colDef.cellStyle =  {backgroundColor: '#FFFFFF'};
     //this.gridApi.redrawRows();
-  }
-
-
-  /**
-   * Handles filter modification events
-   */
-  onFilterModified(): void {
-
-    this.deleteChanges();
-
   }
 
 
@@ -1324,6 +1731,18 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
    */
   onCellValueChanged(params): void {
     this.params = params;
+    if (this.rowModelMode === 'infinite') {
+      const rowId = params.node.id;
+      const existing = this.infiniteRowChanges.get(rowId) ?? {...params.data};
+      existing[params.colDef.field] = params.value;
+      if (this.statusColumn) {
+        existing.status = 'pendingModify';
+      }
+      this.infiniteRowChanges.set(rowId, existing);
+      this.changeCounter++;
+      this.gridModified.emit(true);
+      return;
+    }
     if (this.changeCounter > this.previousChangeCounter)
       // True if we have edited some cell or we have done a redo
     {
@@ -1481,6 +1900,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
    * @param changes - SimpleChanges object containing changed properties
    */
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes.rowModelMode) {
+      this.configureAutoSizeStrategy();
+    }
     if (changes.rowData && !changes.rowData.firstChange) {
       this.updateGridData(changes.rowData.currentValue);
     }

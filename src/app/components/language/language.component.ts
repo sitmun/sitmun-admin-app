@@ -3,11 +3,13 @@ import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from '@ngx-translate/core';
-import {firstValueFrom} from 'rxjs';
+import {firstValueFrom,of} from 'rxjs';
 
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
 import {Configuration} from '@app/core/config/configuration';
+import {createPagedInfiniteFetcher} from '@app/core/hal';
+import {INFINITE_PAGE_SIZE_DEFAULT} from '@app/core/hal/infinite-page-size';
 import {CodeListService, Language, LanguageService, TranslationService} from '@app/domain';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from '@app/services/loading-overlay.service';
@@ -26,10 +28,14 @@ export class LanguageComponent extends BaseListComponent<Language> {
     iconName: Configuration.LANGUAGE.icon,
     font: Configuration.LANGUAGE.font,
     columnDefs: [],
-    dataFetchFn: () => this.languageService.getAll(),
+    dataFetchFn: () => of([]),
+    rowModelMode: 'infinite',
+    pageSize: INFINITE_PAGE_SIZE_DEFAULT,
+    infiniteBlockFetcher: createPagedInfiniteFetcher(this.languageService),
+    progressiveLocalFilter: false,
+    backendSearch: true,
     defaultColumnSorting: ['shortname'],
     gridOptions: {
-      globalSearch: true,
       discardChangesButton: false,
       redoButton: false,
       undoButton: false,
@@ -69,16 +75,22 @@ export class LanguageComponent extends BaseListComponent<Language> {
   }
 
   override async postFetchData(): Promise<void> {
+    const nameCol: any = {
+      ...this.utils.getRouterLinkColumnDef('entity.language.name', 'name', 'language/:id/languageForm', {id: 'id'}, 220),
+      valueGetter: (params) => {
+        const name = params.data?.name || '';
+        const shortname = params.data?.shortname || '';
+        return shortname ? `${name} (${shortname})` : name;
+      }
+    };
+    nameCol.sortable = true;
+    nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
+    nameCol.flex = 1;
+    nameCol.tooltipValueGetter = (params) => params.value;
+
     this.entityListConfig.columnDefs = [
-      this.utils.getSelCheckboxColumnDef(),
-      {
-        ...this.utils.getRouterLinkColumnDef('entity.language.name', 'name', 'language/:id/languageForm', {id: 'id'}),
-        valueGetter: (params) => {
-          const name = params.data?.name || '';
-          const shortname = params.data?.shortname || '';
-          return shortname ? `${name} (${shortname})` : name;
-        }
-      },
+      this.utils.getRowCheckboxColumnDef(),
+      nameCol,
     ];
   }
 
@@ -89,8 +101,6 @@ export class LanguageComponent extends BaseListComponent<Language> {
   override async duplicateItem(id: number) {
     await this.router.navigate(['language', -1, 'languageForm', id]);
   }
-
-  override dataFetchFn = () => this.languageService.getAll();
 
   override dataUpdateFn = (data: Language) => firstValueFrom(this.languageService.update(data))
 

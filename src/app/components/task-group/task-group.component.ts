@@ -3,11 +3,13 @@ import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from '@ngx-translate/core';
-import {firstValueFrom} from 'rxjs';
+import {firstValueFrom,of} from 'rxjs';
 
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
 import {Configuration} from '@app/core/config/configuration';
+import {createPagedInfiniteFetcher} from '@app/core/hal';
+import {INFINITE_PAGE_SIZE_DEFAULT} from '@app/core/hal/infinite-page-size';
 import {CodeListService, TaskGroup, TaskGroupService, TranslationService,} from '@app/domain';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from '@app/services/loading-overlay.service';
@@ -26,10 +28,14 @@ export class TaskGroupComponent extends BaseListComponent<TaskGroup> {
     iconName: Configuration.TASK_GROUP.icon,
     font: Configuration.TASK_GROUP.font,
     columnDefs: [],
-    dataFetchFn: () => this.taskgroupService.getAll(),
+    dataFetchFn: () => of([]),
+    rowModelMode: 'infinite',
+    pageSize: INFINITE_PAGE_SIZE_DEFAULT,
+    infiniteBlockFetcher: createPagedInfiniteFetcher(this.taskgroupService),
+    progressiveLocalFilter: false,
+    backendSearch: true,
     defaultColumnSorting: ['name'],
     gridOptions: {
-      globalSearch: true,
       discardChangesButton: false,
       redoButton: false,
       undoButton: false,
@@ -69,10 +75,15 @@ export class TaskGroupComponent extends BaseListComponent<TaskGroup> {
   }
 
   override async postFetchData(): Promise<void> {
-    // Set column definitions directly in the config
+    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'taskGroup/:id/taskGroupForm', {id: 'id'}, 220);
+    nameCol.sortable = true;
+    nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
+    nameCol.flex = 1;
+    nameCol.tooltipField = 'name';
+
     this.entityListConfig.columnDefs = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'taskGroup/:id/taskGroupForm', {id: 'id'}),
+      this.utils.getRowCheckboxColumnDef(),
+      nameCol,
     ];
   }
 
@@ -83,8 +94,6 @@ export class TaskGroupComponent extends BaseListComponent<TaskGroup> {
   override async duplicateItem(id: number) {
     await this.router.navigate(['taskGroup', -1, 'taskGroupForm', id]);
   }
-
-  override dataFetchFn = () => this.taskgroupService.getAll();
 
   override dataUpdateFn = (data: TaskGroup) => firstValueFrom(this.taskgroupService.update(data))
 

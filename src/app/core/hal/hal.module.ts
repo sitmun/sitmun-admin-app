@@ -17,6 +17,7 @@ export {ResourceHelper} from './resource/resource-helper';
 export {HalOptions, HalParam} from './rest/rest.service';
 export {SubTypeBuilder} from './common/subtype-builder';
 export {ExternalConfigurationHandlerInterface} from './config/external-configuration-handler.interface';
+export {createPagedInfiniteFetcher, InfiniteBlockFetcherOptions} from './infinite-block-fetcher';
 
 /** HAL module */
 @NgModule({

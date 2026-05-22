@@ -98,4 +98,17 @@ describe('TasksQueryComponent', () => {
   it('should instantiate externalService', () => {
     expect(externalService).toBeTruthy();
   });
+
+  it('uses row-only checkbox selection in infinite mode', async () => {
+    await component.postFetchData();
+
+    const checkboxColumn = component.entityListConfig.columnDefs[0] as any;
+
+    expect(checkboxColumn).not.toHaveProperty('headerCheckboxSelection');
+    expect(checkboxColumn.valueGetter()).toBe('');
+    expect(checkboxColumn.checkboxSelection({data: undefined})).toBe(false);
+    expect(checkboxColumn.checkboxSelection({data: {id: 1}})).toBe(true);
+    expect(checkboxColumn.cellClass({data: undefined})).toBe('sitmun-loading-checkbox-cell');
+    expect(checkboxColumn.cellClass({data: {id: 1}})).toBe('');
+  });
 });

@@ -48,9 +48,8 @@ import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from "@app/services/logger.service";
 import {UtilsService} from '@app/services/utils.service';
+import {optionalHttpOrHttpsUrlValidator} from '@app/validators/optional-http-url.validator';
 import {constants} from '@environments/constants';
-
-
 
 /**
  * Angular component that provides a form interface for managing SITMUN applications.
@@ -233,7 +232,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     await this.initCodeLists(['application.type', 'applicationParameter.type'])
     const [situationMaps, users] = await Promise.all([
       firstValueFrom(this.fetchSituationMapList()),
-      firstValueFrom(this.userService.getAll())
+      firstValueFrom(this.userService.fetchAllItems())
       ]
     )
     situationMaps.sort((a, b) => a.name.localeCompare(b.name));
@@ -247,7 +246,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    * @returns Promise of Application entity with projection
    */
   override fetchOriginal(): Promise<ApplicationProjection> {
-    return firstValueFrom(this.applicationService.getProjection(ApplicationProjection, this.entityID));
+    return firstValueFrom(this.applicationService.fetchProjectionById(ApplicationProjection, this.entityID));
   }
 
   /**
@@ -255,7 +254,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    * @returns Promise of duplicated Application entity
    */
   override fetchCopy(): Promise<ApplicationProjection> {
-    return firstValueFrom(this.applicationService.getProjection(ApplicationProjection, this.duplicateID).pipe(map((copy: ApplicationProjection) => {
+    return firstValueFrom(this.applicationService.fetchProjectionById(ApplicationProjection, this.duplicateID).pipe(map((copy: ApplicationProjection) => {
       copy.name = this.translateService.instant("common.copyPrefix") + copy.name;
       return copy;
     })));
@@ -304,7 +303,10 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       description: new UntypedFormControl(this.entityToEdit.description),
       type: new UntypedFormControl(this.entityToEdit.type, [Validators.required,]),
       title: new UntypedFormControl(this.entityToEdit.title),
-      jspTemplate: new UntypedFormControl(this.entityToEdit.jspTemplate), // URL or path to an external application template
+      jspTemplate: new UntypedFormControl(this.entityToEdit.jspTemplate, [
+        Validators.maxLength(250),
+        optionalHttpOrHttpsUrlValidator,
+      ]),
       theme: new UntypedFormControl(this.entityToEdit.theme),
       situationMapId: new UntypedFormControl(this.entityToEdit.situationMapId, []),
       srs: new UntypedFormControl(this.entityToEdit.srs),
@@ -318,7 +320,10 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       logoutButton: new UntypedFormControl(this.entityToEdit.headerParams.headerRightSection.logoutButton.visible),
       profileButton: new UntypedFormControl(this.entityToEdit.headerParams.headerRightSection.profileButton.visible),
       switchLanguage: new UntypedFormControl(this.entityToEdit.headerParams.headerRightSection.switchLanguage.visible),
-      logo: new UntypedFormControl(this.entityToEdit.logo, []),
+      logo: new UntypedFormControl(this.entityToEdit.logo, [
+        Validators.maxLength(4000),
+        optionalHttpOrHttpsUrlValidator,
+      ]),
       maintenanceInformation: new UntypedFormControl(this.entityToEdit.maintenanceInformation,[]),
       creatorId: new UntypedFormControl(this.entityToEdit.creatorId,[]),
       isUnavailable: new UntypedFormControl(this.entityToEdit.isUnavailable ?? false,[]),
@@ -698,7 +703,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
         this.utils.getNonEditableColumnDef('common.form.type', 'description'),
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.treeService.getAll())
+      .withTargetsFetcher(() => this.treeService.fetchAllItems())
       .withTargetsTitle('entity.application.trees.title')
       .build();
   }
@@ -733,7 +738,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
         this.utils.getNonEditableColumnDef('common.form.description', 'description'),
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.roleService.getAll())
+      .withTargetsFetcher(() => this.roleService.fetchAllItems())
       .withTargetsTitle('entity.application.roles.title')
       .build();
   }
@@ -787,7 +792,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
         this.utils.getNonEditableColumnDef('common.form.description', 'description'),
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.backgroundService.getAllProjection(BackgroundProjection))
+      .withTargetsFetcher(() => this.backgroundService.fetchProjectionItems(BackgroundProjection))
       .withTargetInclude((applicationBackgrounds: (ApplicationBackgroundProjection)[]) => (item: BackgroundProjection) => {
         return !applicationBackgrounds.some((applicationBackground) => applicationBackground.backgroundId === item.id);
       })
@@ -811,7 +816,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
         {key: 'type', value: this.codeValues.cartographyPermissionType.locationMap}
       ]
     };
-    return this.cartographyGroupService.getAll(query);
+    return this.cartographyGroupService.fetchAllItems(query);
   }
 
   /**

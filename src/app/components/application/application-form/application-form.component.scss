@@ -1,3 +1,38 @@
+// Vertical rhythm + two-column rows: multiline hints must grow the field (subscriptSizing="dynamic")
+// and the row must align to the tallest column so the next control does not overlap.
+:host form.application-form-entity mat-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  > * {
+    margin-bottom: 0;
+  }
+}
+
+.application-form-field-row--two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+  column-gap: 2rem;
+  row-gap: 0.5rem;
+  width: 100%;
+
+  > mat-form-field.half {
+    width: 100%;
+    margin-right: 0;
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 720px) {
+  .application-form-field-row--two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Rich hint + counter layout: global mat-form-field-rich-hint.scss (sitmun-cartography-rich-hint-field).
+
 .mat-badge-medium.mat-badge-above .mat-badge-content {
   top: -3px;
 }
@@ -8,7 +43,7 @@
   padding-left: 24px;
 }
 
-.checkbox-grid {
+.toggle-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
@@ -20,20 +55,67 @@
   }
 }
 
-.checkbox-column {
+.toggle-column {
   display: flex;
   flex-direction: column;
   gap: 16px;
 
-  mat-checkbox {
+  mat-slide-toggle {
     margin-bottom: 0;
 
-    ::ng-deep .mat-checkbox-layout {
+    ::ng-deep .mdc-form-field {
       margin-bottom: 0;
     }
 
-    ::ng-deep .mat-checkbox-label {
+    ::ng-deep .mdc-label {
       line-height: 20px;
+    }
+  }
+}
+
+.application-toggle-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.application-field-hint {
+  margin: 4px 0 12px 52px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: rgba(0, 0, 0, 0.6);
+  max-width: 56rem;
+}
+
+.application-field-hint--rich {
+  margin-bottom: 16px;
+}
+
+// Territorial access card: intro (no title; flush left — not .application-field-hint checkbox indent).
+.application-territorial-access-intro {
+  margin: 0 0 1rem 0;
+  max-width: 56rem;
+  font-size: 12px;
+  line-height: 1.4;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.application-territorial-access-toggles {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  column-gap: 2rem;
+  row-gap: 0.5rem;
+  width: 100%;
+
+  mat-slide-toggle {
+    flex: 1 1 12rem;
+    margin-bottom: 0;
+
+    ::ng-deep .mdc-form-field {
+      margin-bottom: 0;
     }
   }
 }

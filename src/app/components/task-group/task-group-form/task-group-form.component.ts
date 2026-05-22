@@ -80,7 +80,7 @@ export class TaskGroupFormComponent extends BaseFormComponent<TaskGroup> {
    * @returns Promise that resolves to the duplicated task group
    */
   override fetchCopy(): Promise<TaskGroup> {
-    return firstValueFrom(this.taskGroupService.getProjection(TaskGroup, this.duplicateID).pipe(map((copy: TaskGroup) => {
+    return firstValueFrom(this.taskGroupService.fetchProjectionById(TaskGroup, this.duplicateID).pipe(map((copy: TaskGroup) => {
       copy.name = this.translateService.instant("common.copyPrefix") + copy.name;
       return copy;
     })));
@@ -192,7 +192,7 @@ export class TaskGroupFormComponent extends BaseFormComponent<TaskGroup> {
         this.utils.getStatusColumnDef()])
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
-        return this.taskService.customQueryProjection(TaskProjection, "group.id=" + this.entityID)
+        return this.taskService.fetchProjectionItemsByQueryString(TaskProjection, "group.id=" + this.entityID)
       })
        .build()
   }

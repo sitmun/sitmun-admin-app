@@ -45,9 +45,9 @@
               <mat-hint align="end">{{entityForm.get('image') | characterCount}}</mat-hint>
             </mat-form-field>
 
-            <mat-checkbox formControlName="active">
+            <mat-slide-toggle color="primary" formControlName="active">
               {{'common.form.active' | translate}}
-            </mat-checkbox>
+            </mat-slide-toggle>
 
         </mat-card-content>
       </mat-card>

@@ -3,11 +3,13 @@ import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from '@ngx-translate/core';
-import {firstValueFrom} from 'rxjs';
+import {firstValueFrom,of} from 'rxjs';
 
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
 import {Configuration} from '@app/core/config/configuration';
+import {createPagedInfiniteFetcher} from '@app/core/hal';
+import {INFINITE_PAGE_SIZE_DEFAULT} from '@app/core/hal/infinite-page-size';
 import {CodeListService, TaskUI, TaskUIService, TranslationService,} from '@app/domain';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from '@app/services/loading-overlay.service';
@@ -26,10 +28,14 @@ export class TaskUIComponent extends BaseListComponent<TaskUI> {
     iconName: Configuration.TASK_UI.icon,
     font: Configuration.TASK_UI.font,
     columnDefs: [],
-    dataFetchFn: () => this.taskUIService.getAll(),
+    dataFetchFn: () => of([]),
+    rowModelMode: 'infinite',
+    pageSize: INFINITE_PAGE_SIZE_DEFAULT,
+    infiniteBlockFetcher: createPagedInfiniteFetcher(this.taskUIService),
+    progressiveLocalFilter: false,
+    backendSearch: true,
     defaultColumnSorting: ['name'],
     gridOptions: {
-      globalSearch: true,
       discardChangesButton: false,
       redoButton: false,
       undoButton: false,
@@ -69,11 +75,22 @@ export class TaskUIComponent extends BaseListComponent<TaskUI> {
   }
 
   override async postFetchData(): Promise<void> {
-    // Set column definitions directly in the config
+    const nameCol: any = this.utils.getRouterLinkColumnDef('entity.taskUI.identifier', 'name', 'task-ui/:id/taskUIForm', {id: 'id'}, 180);
+    nameCol.sortable = true;
+    nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
+    nameCol.flex = 2;
+    nameCol.tooltipField = 'name';
+
+    const tooltipCol: any = this.utils.getNonEditableColumnDef('entity.taskUI.name', 'tooltip', 260);
+    tooltipCol.sortable = true;
+    tooltipCol.cellRendererParams = {...tooltipCol.cellRendererParams, sortField: 'tooltip'};
+    tooltipCol.flex = 3;
+    tooltipCol.tooltipField = 'tooltip';
+
     this.entityListConfig.columnDefs = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getRouterLinkColumnDef('entity.taskUI.identifier', 'name', 'task-ui/:id/taskUIForm', {id: 'id'}),
-      this.utils.getNonEditableColumnDef('entity.taskUI.name', 'tooltip'),
+      this.utils.getRowCheckboxColumnDef(),
+      nameCol,
+      tooltipCol,
     ];
   }
 
@@ -84,8 +101,6 @@ export class TaskUIComponent extends BaseListComponent<TaskUI> {
   override async duplicateItem(id: number) {
     await this.router.navigate(['task-ui', -1, 'taskUIForm', id]);
   }
-
-  override dataFetchFn = () => this.taskUIService.getAll();
 
   override dataUpdateFn = (data: TaskUI) => firstValueFrom(this.taskUIService.update(data))
 

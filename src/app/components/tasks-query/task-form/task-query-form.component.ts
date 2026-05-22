@@ -246,6 +246,7 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
    * @param taskAvailabilityService - Service for managing task availabilities
    * @param connectionService - Service for database connections
    * @param cartographyService - Service for cartography management
+   * @param http
    */
   constructor(
     dialog: MatDialog,
@@ -303,10 +304,10 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
     this.initTranslations('Task', ['name'])
 
     const [taskTypes, taskGroups, connections, cartographies] = await Promise.all([
-      firstValueFrom(this.taskTypeService.getAllEx()),
-      firstValueFrom(this.taskGroupService.getAllEx()),
-      firstValueFrom(this.connectionService.getAllEx()),
-      firstValueFrom(this.cartographyService.getAllEx()),
+      firstValueFrom(this.taskTypeService.fetchAllRawItems()),
+      firstValueFrom(this.taskGroupService.fetchAllRawItems()),
+      firstValueFrom(this.connectionService.fetchAllRawItems()),
+      firstValueFrom(this.cartographyService.fetchAllRawItems()),
     ]);
 
     this.connections = connections;
@@ -339,7 +340,7 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
    * @returns Promise that resolves to the task projection
    */
   override fetchOriginal(): Promise<TaskProjection> {
-    return firstValueFrom(this.taskService.getProjection(TaskProjection, this.entityID));
+    return firstValueFrom(this.taskService.fetchProjectionById(TaskProjection, this.entityID));
   }
 
   /**
@@ -349,7 +350,7 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
    * @returns Promise that resolves to the duplicated task projection
    */
   override fetchCopy(): Promise<TaskProjection> {
-    return firstValueFrom(this.taskService.getProjection(TaskProjection, this.duplicateID).pipe(map((copy: TaskProjection) => {
+    return firstValueFrom(this.taskService.fetchProjectionById(TaskProjection, this.duplicateID).pipe(map((copy: TaskProjection) => {
       copy.name = this.translateService.instant("common.copyPrefix") + copy.name;
       return copy;
     })));
@@ -755,7 +756,7 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
         this.utils.getNonEditableColumnDef('common.form.description', 'description'),
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.roleService.getAll())
+      .withTargetsFetcher(() => this.roleService.fetchAllItems())
       .withTargetsTitle('entity.task.roles.title')
       .build();
   }
@@ -804,7 +805,7 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
         this.utils.getNonEditableColumnDef('common.form.type', 'typeName'),
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.territoryService.getAllProjection(TerritoryProjection))
+      .withTargetsFetcher(() => this.territoryService.fetchProjectionItems(TerritoryProjection))
       .withTargetInclude((availabilities: (TaskAvailabilityProjection)[]) => (item: TerritoryProjection) => {
         return !availabilities.some((availability) => availability.territoryId === item.id);
       })

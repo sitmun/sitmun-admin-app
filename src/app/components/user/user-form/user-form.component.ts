@@ -102,11 +102,11 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
   }
 
   override async fetchOriginal(): Promise<UserProjection> {
-    return firstValueFrom(this.userService.getProjection(UserProjection, this.entityID));
+    return firstValueFrom(this.userService.fetchProjectionById(UserProjection, this.entityID));
   }
 
   override async fetchCopy(): Promise<UserProjection> {
-    return firstValueFrom(this.userService.getProjection(UserProjection, this.duplicateID).pipe(map((copy: UserProjection) => {
+    return firstValueFrom(this.userService.fetchProjectionById(UserProjection, this.duplicateID).pipe(map((copy: UserProjection) => {
       copy.username = this.translateService.instant("common.copyPrefix") + copy.username;
       return copy;
     })));
@@ -275,7 +275,7 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
         this.utils.getNonEditableColumnDef('common.form.name', 'name'),
       ])
       .withTargetsLeftTitle('entity.role.label')
-      .withTargetsLeftFetcher(() => this.roleService.getAll())
+      .withTargetsLeftFetcher(() => this.roleService.fetchAllItems())
       .withTargetsRightColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getNonEditableColumnDef('common.form.name', 'name'),
@@ -283,7 +283,7 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
         this.utils.getNonEditableColumnDef('common.form.type', 'typeName'),
       ])
       .withTargetsRightTitle('entity.role.users.territory.title')
-      .withTargetsRightFetcher(() => this.territoryService.getAllProjection(TerritoryProjection))
+      .withTargetsRightFetcher(() => this.territoryService.fetchProjectionItems(TerritoryProjection))
       .build();
   }
 
