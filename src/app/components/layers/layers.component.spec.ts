@@ -108,8 +108,10 @@ describe('LayersComponent', () => {
     expect(checkboxColumn.valueGetter()).toBe('');
     expect(checkboxColumn.checkboxSelection({data: undefined})).toBe(false);
     expect(checkboxColumn.checkboxSelection({data: {id: 1}})).toBe(true);
-    expect(checkboxColumn.cellClass({data: undefined})).toBe('sitmun-loading-checkbox-cell');
-    expect(checkboxColumn.cellClass({data: {id: 1}})).toBe('');
+    expect(checkboxColumn.cellClass({data: undefined})).toBe(
+      'sitmun-centered-cell sitmun-loading-checkbox-cell'
+    );
+    expect(checkboxColumn.cellClass({data: {id: 1}})).toBe('sitmun-centered-cell');
   });
 
   it('uses backend search and disables progressive local filtering', () => {

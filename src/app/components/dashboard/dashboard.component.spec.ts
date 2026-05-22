@@ -1,10 +1,7 @@
-import { HttpClientModule} from '@angular/common/http';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { RouterModule } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideRouter, RouterModule } from '@angular/router';
 
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
@@ -48,11 +45,10 @@ describe('DashboardComponent', () => {
   let resourceService: ResourceService;
   let externalService: ExternalService;
 
-
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ DashboardComponent ],
-      imports : [HttpClientTestingModule, HttpClientModule, SitmunFrontendGuiModule, RouterTestingModule, MatIconTestingModule,
+      imports : [SitmunFrontendGuiModule, MatIconTestingModule,
          MaterialModule, RouterModule, NoopAnimationsModule,
         TranslateModule.forRoot({
           loader: {
@@ -62,12 +58,12 @@ describe('DashboardComponent', () => {
             })
           }
         })],
-      providers: [DashboardService,TranslationService,CodeListService,ResourceService,ExternalService,UtilsService,
+      providers: [
+        provideRouter([]),DashboardService,TranslationService,CodeListService,ResourceService,ExternalService,UtilsService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
     .compileComponents();
   });
-
 
   beforeEach(() => {
     fixture = TestBed.createComponent(DashboardComponent);

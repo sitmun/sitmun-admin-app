@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Jest specs: replace deprecated `HttpClientTestingModule` / `RouterTestingModule` with `provideHttpClient`, `provideHttpClientTesting`, and `provideRouter` (`withInterceptorsFromDi` in interceptor spec).
+- `app.module.ts`: `APP_INITIALIZER` → `provideAppInitializer`.
+- Toolchain: TypeScript `~5.8.3`, `@typescript-eslint` 8.54.x, `@types/node` 20.x.
+- Dev bundle budgets raised to 20 MB / 24 MB.
+
+### Fixed
+
+- Grid/list Jest expectations; `tsconfig.app.json` excludes test-only paths.
+
 ## [1.2.6] - 2026-05-08
 
 ### Added

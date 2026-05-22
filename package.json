@@ -60,6 +60,7 @@
     "@types/jest": "^29.5.14",
     "@types/jsonpath": "^0.2.4",
     "@types/mocha": "^10.0.10",
+    "@types/node": "^20.0.0",
     "@types/uri-templates": "^0.1.34",
     "@typescript-eslint/eslint-plugin": "^8.54.0",
     "@typescript-eslint/parser": "^8.54.0",
@@ -73,7 +74,7 @@
     "jest-preset-angular": "^14.6.2",
     "sonar-scanner": "^3.1.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3",
-    "typescript-eslint": "^8.18.0"
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.54.0"
   }
 }

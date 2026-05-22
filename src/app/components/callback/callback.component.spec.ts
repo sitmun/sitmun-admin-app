@@ -1,4 +1,4 @@
-import {HttpClientModule} from '@angular/common/http';
+
 import {TestBed, ComponentFixture} from '@angular/core/testing';
 import {Router} from '@angular/router';
 
@@ -27,7 +27,6 @@ describe('CallbackComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         CallbackComponent,
-        HttpClientModule,
         TranslateModule.forRoot({
           loader: {
             provide: TranslateLoader,

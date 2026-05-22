@@ -1,11 +1,11 @@
 
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
 
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {of} from 'rxjs';
@@ -72,8 +72,8 @@ describe('LayersFormComponent', () => {
         FeatureFlagComponent,
         FeatureFlagPipe
       ],
-      imports: [FormsModule, ReactiveFormsModule, RouterModule.forRoot([], {}), HttpClientTestingModule, SitmunFrontendGuiModule,
-        RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule, BrowserAnimationsModule,
+      imports: [FormsModule, ReactiveFormsModule, RouterModule.forRoot([], {}), SitmunFrontendGuiModule,
+        MaterialModule, RouterModule, MatIconTestingModule, BrowserAnimationsModule,
         TranslateModule.forRoot({
           loader: {
             provide: TranslateLoader,
@@ -83,6 +83,8 @@ describe('LayersFormComponent', () => {
           }
         })],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         provideErrorHandlerForTests(),
         FeatureFlagService,
         CartographyService,
@@ -289,7 +291,6 @@ describe('LayersFormComponent', () => {
     })
     expect(component.entityForm.valid).toBeTruthy();
   });
-
 
   it('Layer form fields', () => {
     // Initialize form if not already initialized

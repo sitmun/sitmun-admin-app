@@ -1,10 +1,8 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
 
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {of} from 'rxjs';
@@ -33,9 +31,6 @@ import {configureLoggerForTests, provideErrorHandlerForTests} from '@app/testing
 import {TreeNodesComponent} from './tree-nodes/tree-nodes.component';
 import { TreesFormComponent } from './trees-form.component';
 
-
-
-
 describe('TreesFormComponent', () => {
   let component: TreesFormComponent;
   let fixture: ComponentFixture<TreesFormComponent>;
@@ -53,8 +48,7 @@ describe('TreesFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ TreesFormComponent, FormToolbarComponent, TreeNodesComponent ],
-      imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,
-         RouterModule.forRoot([], {}), MaterialModule, MatIconTestingModule, BrowserAnimationsModule,
+      imports: [FormsModule, ReactiveFormsModule,SitmunFrontendGuiModule, RouterModule.forRoot([], {}), MaterialModule, MatIconTestingModule, BrowserAnimationsModule,
          TranslateModule.forRoot({
           loader: {
             provide: TranslateLoader,
@@ -261,7 +255,6 @@ describe('TreesFormComponent', () => {
       expect(true).toBeTruthy(); // Skip if child component not initialized
     }
   });
-
 
   describe('treeValidations does not show errors from getters', () => {
     beforeEach(() => {
@@ -1304,5 +1297,4 @@ describe('TreesFormComponent', () => {
   });
 
 });
-
 

@@ -82,11 +82,18 @@ describe('DataGridComponent', () => {
 
     expect(component.columnDefs).toEqual([
       expect.objectContaining({checkboxSelection, width: 56, maxWidth: 56, flex: 0, wrapText: false, autoHeight: false}),
-      expect.objectContaining({field: 'name', wrapText: false, autoHeight: false, flex: 1, resizable: true}),
+      expect.objectContaining({
+        field: 'name',
+        wrapText: false,
+        autoHeight: false,
+        flex: 0,
+        width: 150,
+        maxWidth: 300,
+        resizable: true,
+      }),
       expect.objectContaining({field: 'description', wrapText: false, autoHeight: false, flex: 2, resizable: true}),
     ]);
-    expect(component.columnDefs[1].width).toBeUndefined();
-    expect(component.columnDefs[1].maxWidth).toBeUndefined();
+    expect(component.columnDefs[2].width).toBeUndefined();
     expect(component.columnDefs[2].maxWidth).toBeUndefined();
     expect(component.gridApi.updateGridOptions).toHaveBeenCalledWith({columnDefs: component.columnDefs});
   });

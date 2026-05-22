@@ -1,6 +1,6 @@
 import {NgOptimizedImage} from "@angular/common";
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import {APP_INITIALIZER, ErrorHandler, LOCALE_ID, NgModule} from '@angular/core';
+import {ErrorHandler, inject, LOCALE_ID, NgModule, provideAppInitializer} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MAT_TABS_CONFIG} from '@angular/material/tabs';
 import {BrowserModule} from '@angular/platform-browser';
@@ -343,30 +343,27 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
         { provide: MAT_TABS_CONFIG, useValue: { animationDuration: '0ms' } },
         // APP_INITIALIZER providers
         // AppConfigService must be initialized FIRST (before languages) so fallback is available
-        {
-            provide: APP_INITIALIZER,
-            useFactory: initializeAppConfig,
-            deps: [AppConfigService],
-            multi: true
-        },
-        {
-            provide: APP_INITIALIZER,
-            useFactory: initializeIcons,
-            deps: [IconsService],
-            multi: true
-        },
-        {
-            provide: APP_INITIALIZER,
-            useFactory: initializeLanguages,
-            deps: [LanguageService, TranslateService, LoggerService, AppStateService, MessagesInterceptorStateService, AppConfigService],
-            multi: true
-        },
-        {
-            provide: APP_INITIALIZER,
-            useFactory: initializeConfiguration,
-            deps: [ConfigurationParametersService, TranslateService, LoggerService, AppStateService, MessagesInterceptorStateService],
-            multi: true
-        },
+        provideAppInitializer(() => initializeAppConfig(inject(AppConfigService))()),
+        provideAppInitializer(() => initializeIcons(inject(IconsService))()),
+        provideAppInitializer(() =>
+            initializeLanguages(
+                inject(LanguageService),
+                inject(TranslateService),
+                inject(LoggerService),
+                inject(AppStateService),
+                inject(MessagesInterceptorStateService),
+                inject(AppConfigService)
+            )()
+        ),
+        provideAppInitializer(() =>
+            initializeConfiguration(
+                inject(ConfigurationParametersService),
+                inject(TranslateService),
+                inject(LoggerService),
+                inject(AppStateService),
+                inject(MessagesInterceptorStateService)
+            )()
+        ),
         AppConfigService,
         ResourceService,
         ExternalService,

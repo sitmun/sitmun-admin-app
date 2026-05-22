@@ -1,10 +1,11 @@
-import {HttpClientTestingModule} from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatIconTestingModule} from '@angular/material/icon/testing';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {RouterModule} from '@angular/router';
-import {RouterTestingModule} from '@angular/router/testing';
+import {} from '@angular/router/testing';
 
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {of} from 'rxjs';
@@ -60,9 +61,7 @@ describe('TerritoryFormComponent', () => {
       imports: [
         FormsModule,
         ReactiveFormsModule,
-        HttpClientTestingModule,
         SitmunFrontendGuiModule,
-        RouterTestingModule,
         RouterModule.forRoot([], {}),
         MaterialModule,
         MatIconTestingModule,
@@ -77,6 +76,8 @@ describe('TerritoryFormComponent', () => {
         }),
       ],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         provideErrorHandlerForTests(),
         TerritoryService,
         UserService,

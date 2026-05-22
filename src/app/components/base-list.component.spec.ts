@@ -1,12 +1,11 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { RouterModule } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideRouter, RouterModule } from '@angular/router';
 
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
-
 
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { ExternalService, ResourceService } from '@app/core/hal';
@@ -29,10 +28,8 @@ describe('BaseListComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [UserComponent, EntityListComponent],
       imports: [
-        HttpClientTestingModule,
         MatIconTestingModule,
         SitmunFrontendGuiModule,
-        RouterTestingModule,
         MaterialModule,
         RouterModule,
         TranslateModule.forRoot({
@@ -45,6 +42,9 @@ describe('BaseListComponent', () => {
         })
       ],
       providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
         UserService,
         CodeListService,
         TranslationService,
