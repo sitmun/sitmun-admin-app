@@ -33,7 +33,7 @@ export class TasksLocatorComponent extends BaseListComponent<Task> {
       const param: HalParam = {key: 'type.id', value: magic.taskLocatorTypeId};
       params.push(param);
       const query: HalOptions = {params: params};
-      return this.taskService.getAll(query, undefined, 'tasks');
+      return this.taskService.fetchAllItems(query, undefined, 'tasks');
     },
     defaultColumnSorting: ['name'],
     gridOptions: {

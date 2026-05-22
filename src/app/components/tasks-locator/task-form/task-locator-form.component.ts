@@ -140,10 +140,10 @@ export class TaskLocatorFormComponent extends BaseFormComponent<TaskProjection> 
     this.initTranslations('Task', ['name'])
 
     const [taskTypes, taskGroups, queryTasks, uiList] = await Promise.all([
-      firstValueFrom(this.taskTypeService.getAllEx()),
-      firstValueFrom(this.taskGroupService.getAllEx()),
-      firstValueFrom(this.taskService.getAllProjection(TaskProjection, queryTaskOptions, undefined, 'tasks')),
-      firstValueFrom(this.taskUIService.getAll())
+      firstValueFrom(this.taskTypeService.fetchAllRawItems()),
+      firstValueFrom(this.taskGroupService.fetchAllRawItems()),
+      firstValueFrom(this.taskService.fetchAllProjectionItems(TaskProjection, queryTaskOptions, undefined, 'tasks')),
+      firstValueFrom(this.taskUIService.fetchAllRawItems())
     ]);
 
     this.taskType = taskTypes.find(taskType => taskType.id === type);
@@ -170,11 +170,11 @@ export class TaskLocatorFormComponent extends BaseFormComponent<TaskProjection> 
   }
 
   override fetchOriginal(): Promise<TaskProjection> {
-    return firstValueFrom(this.taskService.getProjection(TaskProjection, this.entityID));
+    return firstValueFrom(this.taskService.fetchProjectionById(TaskProjection, this.entityID));
   }
 
   override fetchCopy(): Promise<TaskProjection> {
-    return firstValueFrom(this.taskService.getProjection(TaskProjection, this.duplicateID).pipe(map((copy: TaskProjection) => {
+    return firstValueFrom(this.taskService.fetchProjectionById(TaskProjection, this.duplicateID).pipe(map((copy: TaskProjection) => {
       copy.name = this.translateService.instant("copy_") + copy.name;
       return copy;
     })));
@@ -209,6 +209,8 @@ export class TaskLocatorFormComponent extends BaseFormComponent<TaskProjection> 
       geocoderLatField:       new FormControl(this.getGeocoderParam('latField'),       {nonNullable: true}),
       geocoderLonField:       new FormControl(this.getGeocoderParam('lonField'),       {nonNullable: true}),
       geocoderFilterByExtent: new FormControl(this.getGeocoderParam('filterByExtent') === 'true', {nonNullable: true}),
+      geocoderFilterByTerritoryCode: new FormControl(this.getGeocoderParam('filterByTerritoryCode') === 'true', {nonNullable: true}),
+      geocoderTerritoryCodeResponseField: new FormControl(this.getGeocoderParam('territoryCodeResponseField') ?? '', {nonNullable: true}),
       geocoderFilterByMunicipalityCode: new FormControl(this.getGeocoderParam('filterByMunicipalityCode') === 'true', {nonNullable: true}),
       geocoderMunicipalityCodeFilters: new FormArray(
         this.parseGeocoderMunicipalityCodeFilters().map(f => new FormGroup({
@@ -287,6 +289,10 @@ export class TaskLocatorFormComponent extends BaseFormComponent<TaskProjection> 
     if (formValues.geocoderFilterByExtent) {
       params.push({variable: 'filterByExtent', value: 'true'});
     }
+    if (formValues.geocoderFilterByTerritoryCode) {
+      params.push({variable: 'filterByTerritoryCode', value: 'true'});
+    }
+    add('territoryCodeResponseField', formValues.geocoderTerritoryCodeResponseField);
     if (formValues.geocoderFilterByMunicipalityCode) {
       params.push({variable: 'filterByMunicipalityCode', value: 'true'});
     }
@@ -506,7 +512,7 @@ export class TaskLocatorFormComponent extends BaseFormComponent<TaskProjection> 
         this.utils.getNonEditableColumnDef('common.form.description', 'description'),
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.roleService.getAll())
+      .withTargetsFetcher(() => this.roleService.fetchAllItems())
       .withTargetsTitle(this.translateService.instant('entity.task.roles.title'))
       .build();
   }
@@ -547,7 +553,7 @@ export class TaskLocatorFormComponent extends BaseFormComponent<TaskProjection> 
         this.utils.getNonEditableColumnDef('common.form.type', 'typeName'),
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.territoryService.getAllProjection(TerritoryProjection))
+      .withTargetsFetcher(() => this.territoryService.fetchProjectionItems(TerritoryProjection))
       .withTargetInclude((availabilities: (TaskAvailabilityProjection)[]) => (item: TerritoryProjection) => {
         return !availabilities.some((availability) => availability.territoryId === item.id);
       })
