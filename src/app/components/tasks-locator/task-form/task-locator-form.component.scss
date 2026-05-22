@@ -12,3 +12,28 @@
   color: var(--mat-form-field-hint-text-color, rgba(0, 0, 0, 0.6));
   line-height: 1.4;
 }
+
+.municipality-filters-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.municipality-filters-hint {
+  margin-bottom: 4px;
+}
+
+.filter-row {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.filter-field {
+  flex: 1;
+}
+
+.add-filter-row {
+  margin-top: 4px;
+}

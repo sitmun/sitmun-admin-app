@@ -1,5 +1,5 @@
 import {Component, OnInit} from "@angular/core";
-import {FormControl, FormGroup, FormGroupDirective, NgForm, Validators} from "@angular/forms";
+import {FormArray, FormControl, FormGroup, FormGroupDirective, NgForm, Validators} from "@angular/forms";
 import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
 import {ErrorStateMatcher} from "@angular/material/core";
 import {MatDialog} from "@angular/material/dialog";
@@ -56,6 +56,18 @@ import {magic} from "@environments/constants";
 export class TaskLocatorFormComponent extends BaseFormComponent<TaskProjection> implements OnInit {
   readonly config = Configuration.TASK_LOCATOR;
   private readonly queryTaskRelationType = 'query-task';
+
+  /** Available territory field tokens for the municipality filter dropdown. */
+  readonly territoryFieldOptions: {value: string; labelKey: string}[] = [
+    { value: 'territory_code',              labelKey: 'entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_code' },
+    { value: 'territory_name',              labelKey: 'entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_name' },
+    { value: 'territory_description',       labelKey: 'entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_description' },
+    { value: 'territory_authority_name',    labelKey: 'entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_authority_name' },
+    { value: 'territory_authority_address', labelKey: 'entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_authority_address' },
+    { value: 'territory_type_name',         labelKey: 'entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_type_name' },
+    { value: 'territory_center_x',          labelKey: 'entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_center_x' },
+    { value: 'territory_center_y',          labelKey: 'entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_center_y' },
+  ];
 
   public override entityForm: FormGroup;
 
@@ -197,6 +209,14 @@ export class TaskLocatorFormComponent extends BaseFormComponent<TaskProjection> 
       geocoderLatField:       new FormControl(this.getGeocoderParam('latField'),       {nonNullable: true}),
       geocoderLonField:       new FormControl(this.getGeocoderParam('lonField'),       {nonNullable: true}),
       geocoderFilterByExtent: new FormControl(this.getGeocoderParam('filterByExtent') === 'true', {nonNullable: true}),
+      geocoderFilterByMunicipalityCode: new FormControl(this.getGeocoderParam('filterByMunicipalityCode') === 'true', {nonNullable: true}),
+      geocoderMunicipalityCodeFilters: new FormArray(
+        this.parseGeocoderMunicipalityCodeFilters().map(f => new FormGroup({
+          requestParam: new FormControl(f.requestParam, {nonNullable: true}),
+          territoryField: new FormControl(f.territoryField, {nonNullable: true}),
+          responseField: new FormControl(f.responseField, {nonNullable: true})
+        }))
+      ),
     });
 
     const selectedQueryTask = this.queryTasks.find(task => task.id === this.selectedQueryTaskId);
@@ -217,6 +237,39 @@ export class TaskLocatorFormComponent extends BaseFormComponent<TaskProjection> 
     return found?.value ?? '';
   }
 
+  /** Parses the stored municipalityCodeFilters JSON parameter. */
+  private parseGeocoderMunicipalityCodeFilters(): {requestParam: string; territoryField: string; responseField: string}[] {
+    try {
+      const raw = this.getGeocoderParam('municipalityCodeFilters');
+      if (raw) {
+        const parsed = JSON.parse(raw) as {requestParam?: string; territoryField?: string; requestValue?: string; responseField?: string}[];
+        // Normalise legacy data: requestValue → territoryField
+        return parsed.map(f => ({
+          requestParam: f.requestParam ?? '',
+          territoryField: f.territoryField ?? f.requestValue ?? 'territory_code',
+          responseField: f.responseField ?? ''
+        }));
+      }
+    } catch {}
+    return [];
+  }
+
+  get municipalityCodeFiltersArray(): FormArray {
+    return this.entityForm.get('geocoderMunicipalityCodeFilters') as FormArray;
+  }
+
+  addMunicipalityCodeFilter(): void {
+    this.municipalityCodeFiltersArray.push(new FormGroup({
+      requestParam: new FormControl('', {nonNullable: true}),
+      territoryField: new FormControl('territory_code', {nonNullable: true}),
+      responseField: new FormControl('', {nonNullable: true})
+    }));
+  }
+
+  removeMunicipalityCodeFilter(index: number): void {
+    this.municipalityCodeFiltersArray.removeAt(index);
+  }
+
   /** Converts geocoder form values to the {variable, value}[] format stored in task properties. */
   private buildGeocoderParams(formValues: any): {variable: string; value: string}[] {
     const params: {variable: string; value: string}[] = [];
@@ -233,6 +286,14 @@ export class TaskLocatorFormComponent extends BaseFormComponent<TaskProjection> 
     add('lonField',      formValues.geocoderLonField);
     if (formValues.geocoderFilterByExtent) {
       params.push({variable: 'filterByExtent', value: 'true'});
+    }
+    if (formValues.geocoderFilterByMunicipalityCode) {
+      params.push({variable: 'filterByMunicipalityCode', value: 'true'});
+    }
+    const filters = (formValues.geocoderMunicipalityCodeFilters as {requestParam: string; territoryField: string; responseField: string}[])
+      .filter(f => f.requestParam || f.responseField);
+    if (filters.length > 0) {
+      add('municipalityCodeFilters', JSON.stringify(filters));
     }
     return params;
   }

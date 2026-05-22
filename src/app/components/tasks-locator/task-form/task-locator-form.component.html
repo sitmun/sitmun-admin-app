@@ -160,6 +160,49 @@
             <p class="toggle-hint">{{ 'entity.task.locator.parameters.filterByExtent.hint' | translate }}</p>
           </div>
 
+          <div class="full toggle-row">
+            <mat-slide-toggle formControlName="geocoderFilterByMunicipalityCode" color="primary">
+              {{ 'entity.task.locator.parameters.filterByMunicipalityCode' | translate }}
+            </mat-slide-toggle>
+            <p class="toggle-hint">{{ 'entity.task.locator.parameters.filterByMunicipalityCode.hint' | translate }}</p>
+          </div>
+
+          <div class="full municipality-filters-section" formArrayName="geocoderMunicipalityCodeFilters">
+            <p class="toggle-hint municipality-filters-hint">{{ 'entity.task.locator.parameters.municipalityCodeFilters.hint' | translate }}</p>
+            <div *ngFor="let filterCtrl of municipalityCodeFiltersArray.controls; let i = index"
+                 [formGroupName]="i" class="filter-row">
+              <mat-form-field appearance="outline" class="filter-field" subscriptSizing="dynamic">
+                <mat-label>{{ 'entity.task.locator.parameters.municipalityCodeFilters.requestParam' | translate }}</mat-label>
+                <input matInput type="text" formControlName="requestParam"
+                       [placeholder]="'entity.task.locator.parameters.municipalityCodeFilters.requestParam.placeholder' | translate">
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="filter-field" subscriptSizing="dynamic">
+                <mat-label>{{ 'entity.task.locator.parameters.municipalityCodeFilters.territoryField' | translate }}</mat-label>
+                <mat-select formControlName="territoryField">
+                  <mat-option *ngFor="let opt of territoryFieldOptions" [value]="opt.value">
+                    {{ opt.labelKey | translate }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="filter-field" subscriptSizing="dynamic">
+                <mat-label>{{ 'entity.task.locator.parameters.municipalityCodeFilters.responseField' | translate }}</mat-label>
+                <input matInput type="text" formControlName="responseField"
+                       [placeholder]="'entity.task.locator.parameters.municipalityCodeFilters.responseField.placeholder' | translate">
+              </mat-form-field>
+              <button mat-icon-button color="warn" type="button"
+                      (click)="removeMunicipalityCodeFilter(i)"
+                      [attr.aria-label]="'common.remove' | translate">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+            <div class="add-filter-row">
+              <button mat-stroked-button type="button" (click)="addMunicipalityCodeFilter()">
+                <mat-icon>add</mat-icon>
+                {{ 'entity.task.locator.parameters.municipalityCodeFilters.add' | translate }}
+              </button>
+            </div>
+          </div>
+
         </mat-card-content>
       </mat-card>
     </form>
