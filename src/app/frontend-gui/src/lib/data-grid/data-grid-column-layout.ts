@@ -3,7 +3,7 @@
  * and clientSide (form relation grids, dialogs).
  */
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 export type DataGridColumnDef = Record<string, any>;
 
 function narrowCheckboxColumn(col: DataGridColumnDef): DataGridColumnDef {

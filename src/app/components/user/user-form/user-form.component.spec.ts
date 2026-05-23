@@ -7,6 +7,7 @@ import { RouterModule } from '@angular/router';
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {of} from 'rxjs';
 
+import {EntityFormAlertsComponent} from '@app/components/shared/entity-form-alerts/entity-form-alerts.component';
 import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import {ExternalService, ResourceService} from '@app/core/hal';
@@ -37,7 +38,7 @@ describe('UserFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ UserFormComponent, FormToolbarComponent ],
-      imports: [FormsModule, ReactiveFormsModule,SitmunFrontendGuiModule, RouterModule.forRoot([], {}), MaterialModule, MatIconTestingModule, BrowserAnimationsModule,
+      imports: [FormsModule, ReactiveFormsModule, SitmunFrontendGuiModule, EntityFormAlertsComponent, RouterModule.forRoot([], {}), MaterialModule, MatIconTestingModule, BrowserAnimationsModule,
          TranslateModule.forRoot({
           loader: {
             provide: TranslateLoader,
@@ -241,6 +242,20 @@ describe('UserFormComponent', () => {
       component.isBuiltInPublic = true;
       component.entityToEdit.warnings = ['entity.user.warning.position-without-details'];
       expect(component.positionsTabHasWarning()).toBe(false);
+    });
+
+    it('hasRequiredFieldAlerts when username is empty', () => {
+      component.entityForm.get('username')?.setValue('');
+      expect(component.hasRequiredFieldAlerts()).toBe(true);
+      expect(component.detailsTabHasRequiredAlert()).toBe(true);
+    });
+
+    it('does not render toolbar form-validation-banner', () => {
+      component.dataLoaded = true;
+      component.entityForm.get('username')?.setValue('');
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector('app-form-validation-banner')).toBeFalsy();
+      expect(fixture.nativeElement.querySelector('app-entity-form-alerts')).toBeTruthy();
     });
   });
 

@@ -5,19 +5,36 @@
   [itemName]="itemName('name')"
   [isNew]="isNewOrDuplicated()"
   [canSave]="canSaveEntity"
-  [form]="entityForm"
-  entityLabelPrefix="entity.application"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>
+
+<app-entity-form-alerts
+  *ngIf="dataLoaded"
+  [form]="entityForm"
+  entityLabelPrefix="entity.application"
+  [fieldLabelKeys]="validationFieldLabelKeys"
+  [warnings]="entityToEdit?.warnings"
+  [customAlertMessage]="applicationTreeValidationWarningMessage">
+</app-entity-form-alerts>
 
 <mat-tab-group
   mat-stretch-tabs="false"
   mat-align-tabs="end"
   [dynamicHeight]="true"
   preserveContent="true">
-  <mat-tab label="{{ 'common.form.details' | translate }}">
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <span class="sitmun-tab-label-with-indicator">
+        {{ 'common.form.details' | translate }}
+        <span
+          *ngIf="detailsTabHasRequiredAlert()"
+          class="sitmun-tab-warn-indicator"
+          [attr.aria-label]="'common.validation.saveDisabledTitle' | translate">
+        </span>
+      </span>
+    </ng-template>
     <form [formGroup]='entityForm' *ngIf="dataLoaded" class="application-form-entity">
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
         <mat-card-content>
@@ -111,12 +128,6 @@
             <mat-hint align="end">{{entityForm.get('maintenanceInformation') | characterCount}}</mat-hint>
           </mat-form-field>
 
-          <!-- Warnings Section -->
-          <app-warnings-panel
-            [expanded]="true"
-            [warnings]="entityToEdit?.warnings"
-            titleKey="common.warnings.title">
-          </app-warnings-panel>
         </mat-card-content>
       </mat-card>
       <mat-card *ngIf="isExternalApp()" appearance="outlined" class="sitmun-mat-card-margin">
@@ -295,7 +306,17 @@
       </mat-card-content>
     </mat-card>
   </mat-tab>
-  <mat-tab label="{{ 'entity.application.roles.header' | translate }}">
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <span class="sitmun-tab-label-with-indicator">
+        {{ 'entity.application.roles.header' | translate }}
+        <span
+          *ngIf="rolesTabHasWarning()"
+          class="sitmun-tab-warn-indicator"
+          [attr.aria-label]="'common.warnings.title' | translate">
+        </span>
+      </span>
+    </ng-template>
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
         <app-data-grid [changeHeightButton]="true"

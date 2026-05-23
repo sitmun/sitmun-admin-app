@@ -60,6 +60,10 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
 
   readonly config = Configuration.USER;
 
+  readonly validationFieldLabelKeys: Record<string, string> = {
+    username: 'entity.user.username',
+  };
+
   protected readonly userConfigurationsTable: DataTable2Definition<UserConfigurationProjection, Role, TerritoryProjection>
 
   protected readonly userPositionsTable: DataTableDefinition<UserPositionProjection, TerritoryProjection>
@@ -488,6 +492,14 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
 
   hasUserWarnings(): boolean {
     return this.getUserDisplayWarnings().length > 0;
+  }
+
+  hasRequiredFieldAlerts(): boolean {
+    return this.getInvalidRequiredFields().length > 0;
+  }
+
+  detailsTabHasRequiredAlert(): boolean {
+    return this.hasRequiredFieldAlerts();
   }
 
   rolesTabHasWarning(): boolean {

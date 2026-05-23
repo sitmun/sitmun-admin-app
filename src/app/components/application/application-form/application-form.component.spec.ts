@@ -8,6 +8,7 @@ import {} from '@angular/router/testing';
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {of} from 'rxjs';
 
+import {EntityFormAlertsComponent} from '@app/components/shared/entity-form-alerts/entity-form-alerts.component';
 import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
 import {ExternalConfigurationService} from '@app/core/config/external-configuration.service';
 import {ExternalService, ResourceService} from '@app/core/hal';
@@ -19,6 +20,7 @@ import {SitmunFrontendGuiModule} from '@app/frontend-gui/src/lib/public_api';
 import {MaterialModule} from '@app/material-module';
 import {LoggerService} from '@app/services/logger.service';
 import {configureLoggerForTests, provideErrorHandlerForTests} from '@app/testing/test-helpers';
+import {constants} from '@environments/constants';
 
 import {ApplicationFormComponent} from './application-form.component';
 
@@ -40,7 +42,7 @@ describe('ApplicationFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ApplicationFormComponent, FormToolbarComponent],
-      imports: [FormsModule, ReactiveFormsModule, RouterModule.forRoot([], {}), SitmunFrontendGuiModule, MaterialModule, RouterModule, MatIconTestingModule, BrowserAnimationsModule,
+      imports: [FormsModule, ReactiveFormsModule, RouterModule.forRoot([], {}), SitmunFrontendGuiModule, MaterialModule, RouterModule, MatIconTestingModule, BrowserAnimationsModule, EntityFormAlertsComponent,
         TranslateModule.forRoot({
           loader: {
             provide: TranslateLoader,
@@ -184,6 +186,44 @@ describe('ApplicationFormComponent', () => {
     expect(component.entityForm.get('situationMapId')).toBeTruthy();
     expect(component.entityForm.get('scales')).toBeTruthy();
     expect(component.entityForm.get('treeAutoRefresh')).toBeTruthy();
+  });
+
+  describe('entity form alerts integration', () => {
+    it('rolesTabHasWarning when private-app warning is present', () => {
+      component.entityToEdit = Object.assign(component.empty(), {
+        warnings: ['entity.application.warning.private-application-with-public-user'],
+      });
+      expect(component.rolesTabHasWarning()).toBe(true);
+    });
+
+    it('detailsTabHasRequiredAlert when name is missing', () => {
+      component.entityForm.patchValue({ name: '', type: 1 });
+      expect(component.detailsTabHasRequiredAlert()).toBe(true);
+    });
+
+    it('canSave follows canSaveEntity including tree rules', () => {
+      component.dataLoaded = true;
+      component.entityForm.patchValue({
+        name: 'name',
+        description: 'desc',
+        type: constants.codeValue.applicationType.internalApp,
+      });
+      component.entityForm.markAsDirty();
+      (component as any).currentAppType = constants.codeValue.applicationType.internalApp;
+      (component as any).treesDataGrid = {
+        rowData: [{ type: constants.codeValue.treeType.touristicTree, status: constants.entityStatus.statusOK }],
+      };
+      expect(component.canSave()).toBe(false);
+      expect(component.applicationTreeValidationWarningMessage).toBeTruthy();
+    });
+
+    it('does not render toolbar form-validation-banner', () => {
+      component.dataLoaded = true;
+      component.entityForm.get('name')?.setValue('');
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector('app-form-validation-banner')).toBeFalsy();
+      expect(fixture.nativeElement.querySelector('app-entity-form-alerts')).toBeTruthy();
+    });
   });
 
 });

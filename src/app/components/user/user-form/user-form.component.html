@@ -5,36 +5,38 @@
   [itemName]="itemName('username')"
   [isNew]="isNewOrDuplicated()"
   [canSave]="canSaveEntity"
-  [form]="entityForm"
-  entityLabelPrefix="entity.user"
-  [validationFieldLabelKeys]="{ username: 'entity.user.username' }"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>
+
+<app-entity-form-alerts
+  *ngIf="dataLoaded"
+  [form]="entityForm"
+  entityLabelPrefix="entity.user"
+  [fieldLabelKeys]="validationFieldLabelKeys"
+  [warnings]="getUserDisplayWarnings()"
+  [infoMessageKeys]="getBuiltInInfoWarningKeys()"
+  [infoStyle]="useInfoWarningsCardStyle() && !hasRequiredFieldAlerts()">
+</app-entity-form-alerts>
 
 <mat-tab-group
   mat-stretch-tabs="false"
   mat-align-tabs="end"
   [dynamicHeight]="true"
   preserveContent="true">
-  <mat-tab label="{{ 'common.form.details' | translate }}">
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <span class="sitmun-tab-label-with-indicator">
+        {{ 'common.form.details' | translate }}
+        <span
+          *ngIf="detailsTabHasRequiredAlert()"
+          class="sitmun-tab-warn-indicator"
+          [attr.aria-label]="'common.validation.saveDisabledTitle' | translate">
+        </span>
+      </span>
+    </ng-template>
         <form [formGroup]='entityForm' *ngIf="dataLoaded" class="sitmun-service-form-entity">
-          <mat-card
-            *ngIf="hasUserWarnings()"
-            class="sitmun-mat-card-margin sitmun-user-warnings-card"
-            [class.sitmun-user-warnings-card--info]="useInfoWarningsCardStyle()"
-            appearance="outlined">
-            <mat-card-content>
-              <app-warnings-panel
-                [collapsible]="false"
-                [bare]="true"
-                [compact]="true"
-                [warnings]="getUserDisplayWarnings()"
-                [infoMessageKeys]="getBuiltInInfoWarningKeys()">
-              </app-warnings-panel>
-            </mat-card-content>
-          </mat-card>
           <mat-card class="sitmun-mat-card-margin" appearance="outlined">
             <mat-card-content class="sitmun-service-form-stack">
               <div class="sitmun-user-form-half-row">
@@ -110,7 +112,7 @@
   </mat-tab>
   <mat-tab>
     <ng-template mat-tab-label>
-      <span class="sitmun-user-tab-label">
+      <span class="sitmun-tab-label-with-indicator">
         {{ 'entity.users.role.header' | translate }}
         <span
           *ngIf="rolesTabHasWarning()"
@@ -150,7 +152,7 @@
   </mat-tab>
   <mat-tab *ngIf="!isBuiltInAdmin && !isBuiltInPublic">
     <ng-template mat-tab-label>
-      <span class="sitmun-user-tab-label">
+      <span class="sitmun-tab-label-with-indicator">
         {{ 'entity.user.positions.header' | translate }}
         <span
           *ngIf="positionsTabHasWarning()"

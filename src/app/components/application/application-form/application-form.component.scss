@@ -37,12 +37,6 @@
   top: -3px;
 }
 
-::ng-deep .warnings-panel .mat-expansion-panel-header-title {
-  height: 64px !important;
-  min-height: 64px;
-  padding-left: 24px;
-}
-
 .toggle-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

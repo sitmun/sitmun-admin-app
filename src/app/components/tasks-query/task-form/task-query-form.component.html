@@ -6,13 +6,17 @@
   [isNew]="isNew()"
   [additionalText]="taskTypeNameTranslated"
   [canSave]="canSaveEntity"
-  [form]="entityForm"
-  entityLabelPrefix="entity.task"
-  [validationFieldLabelKeys]="{ name: 'common.form.name', scope: 'common.form.type', command: 'entity.task.query.sql', connectionId: 'entity.task.query.connection', cartographyId: 'entity.task.query.cartography', taskGroupId: 'entity.taskGroup.label' }"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>
+
+<app-entity-form-alerts
+  *ngIf="dataLoaded"
+  [form]="entityForm"
+  entityLabelPrefix="entity.task"
+  [fieldLabelKeys]="{ name: 'common.form.name', scope: 'common.form.type', command: 'entity.task.query.sql', connectionId: 'entity.task.query.connection', cartographyId: 'entity.task.query.cartography', taskGroupId: 'entity.taskGroup.label' }">
+</app-entity-form-alerts>
 
 <mat-tab-group
   mat-stretch-tabs="false"

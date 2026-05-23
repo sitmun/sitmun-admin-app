@@ -1,5 +1,6 @@
 @use '@angular/material' as mat;
 @use "mat-form-field-rich-hint";
+@use "styles/entity-warnings-card";
 @include mat.core();
 
 /* You can add global styles to this file, and also import other style files */

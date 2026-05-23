@@ -5,13 +5,18 @@
   [itemName]="itemName('')"
   [isNew]="isNewOrDuplicated()"
   [canSave]="canSaveEntity"
-  [form]="entityForm"
-  entityLabelPrefix="entity.codelistValue"
   [dataLoaded]="dataLoaded"
-  [customWarningMessage]="isSystemRecord ? ('entity.codelistValue.systemWarning' | translate) : null"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>
+
+<app-entity-form-alerts
+  *ngIf="dataLoaded"
+  [form]="entityForm"
+  entityLabelPrefix="entity.codelistValue"
+  [customAlertMessage]="isSystemRecord ? ('entity.codelistValue.systemWarning' | translate) : null"
+  [infoStyle]="isSystemRecord && entityForm?.valid">
+</app-entity-form-alerts>
 
 <mat-tab-group
   mat-stretch-tabs="false"

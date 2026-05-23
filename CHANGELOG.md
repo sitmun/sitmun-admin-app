@@ -28,8 +28,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - i18n: `entity.user.warnings.resolveRolesTab`, `resolvePositionsTab`, and `resolveRolesAndPositionsTabs` in all 5 locales.
 - User form: compact warnings banner (message + icon per row; tab dots and positions hint for context); orange tab indicators on Roles and Positions when a related warning is present.
 - Warnings panel: `compact` input for titleless banner with per-message icons (user form).
+- Shared `app-entity-form-alerts` and `FormFieldLabelResolver` for in-form save validation and backend warnings (replaces toolbar `form-validation-banner`).
+- Global styles: `sitmun-entity-warnings-card`, `sitmun-tab-label-with-indicator`, and `sitmun-tab-warn-indicator`.
 
 ### Changed
+
+- Entity forms: required-field save feedback and cross-tab messages moved from the toolbar to `app-entity-form-alerts` above tabs (user-form pattern); toolbar shows title and save/back only.
+- Application form: backend warnings and touristic tree rules surface in the alerts card (no save-time modals for those rules); Roles tab warn indicator for private-app/public-user warning.
+- User form: alerts card placed above `mat-tab-group`; Details tab indicator when required fields are invalid.
+
+### Removed
+
+- `FormValidationBannerComponent` and toolbar validation/custom-warning inputs on `app-form-toolbar`.
 
 - Data grid: separate column layout for infinite lists (`prepareInfiniteColumnDefs`) and clientSide relation grids (`prepareClientSideColumnDefs`); flex layouts call `sizeColumnsToFit` (fills card width) and skip content auto-size; content-based legacy grids keep `autoSizeAllColumns` (fixes user form Roles/Positions tab width and right-side gap).
 - Selection checkbox column (`getSelCheckboxColumnDef`): 56px fixed width aligned with list row checkbox column.
@@ -49,6 +59,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `app.module.ts`: `APP_INITIALIZER` → `provideAppInitializer`.
 - Toolchain: TypeScript `~5.8.3`, `@typescript-eslint` 8.54.x, `@types/node` 20.x.
 - Dev bundle budgets raised to 20 MB / 24 MB.
+
+### Removed
+
+- `FormValidationBannerComponent` (`app-form-validation-banner`) from admin form toolbars and `sitmun-frontend-gui` exports.
 
 ### Fixed
 

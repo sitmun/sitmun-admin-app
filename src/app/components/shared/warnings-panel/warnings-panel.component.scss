@@ -81,3 +81,20 @@
   line-height: 1.4;
   opacity: 0.95;
 }
+
+.banner-required-fields {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}
+
+.banner-required-fields--compact:last-child {
+  margin-bottom: 0;
+}
+
+.banner-content--compact .banner-required-fields + .banner-messages {
+  margin-top: 0.25rem;
+}

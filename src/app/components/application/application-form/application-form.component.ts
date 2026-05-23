@@ -64,7 +64,16 @@ import {constants} from '@environments/constants';
     standalone: false
 })
 export class ApplicationFormComponent extends BaseFormComponent<ApplicationProjection> {
+  private static readonly WARNING_PRIVATE_APP_PUBLIC_USER =
+    'entity.application.warning.private-application-with-public-user';
+
   readonly config = Configuration.APPLICATION;
+
+  readonly validationFieldLabelKeys: Record<string, string> = {
+    name: 'entity.application.name',
+    description: 'entity.application.description',
+    type: 'entity.application.type',
+  };
 
   /**
    * Data table configuration for managing application parameters.
@@ -300,7 +309,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
 
     this.entityForm = new UntypedFormGroup({
       name: new UntypedFormControl(this.entityToEdit.name, [Validators.required,]),
-      description: new UntypedFormControl(this.entityToEdit.description),
+      description: new UntypedFormControl(this.entityToEdit.description, [Validators.required]),
       type: new UntypedFormControl(this.entityToEdit.type, [Validators.required,]),
       title: new UntypedFormControl(this.entityToEdit.title),
       jspTemplate: new UntypedFormControl(this.entityToEdit.jspTemplate, [
@@ -390,34 +399,48 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     await firstValueFrom(entityToUpdate.updateRelationEx("creator", entityToUpdate.creator));
   }
 
-  /**
-   * Checks form validity and application-specific rules.
-   * @returns boolean indicating if save is allowed
-   */
   override canSave(): boolean {
+    return this.canSaveEntity;
+  }
+
+  override get canSaveEntity(): boolean {
+    return super.canSaveEntity && !this.getApplicationTreeValidationError();
+  }
+
+  get applicationTreeValidationWarningMessage(): string {
+    if (!this.dataLoaded || !this.entityForm?.valid) {
+      return '';
+    }
+    const code = this.getApplicationTreeValidationError();
+    if (code === 'turistic') {
+      return this.translateService.instant('entity.tree.turisticAppTreeMessage');
+    }
+    if (code === 'noTuristic') {
+      return this.translateService.instant('entity.tree.noTuristicAppTreeMessage');
+    }
+    return '';
+  }
+
+  rolesTabHasWarning(): boolean {
+    return (this.entityToEdit?.warnings ?? []).includes(
+      ApplicationFormComponent.WARNING_PRIVATE_APP_PUBLIC_USER
+    );
+  }
+
+  detailsTabHasRequiredAlert(): boolean {
+    return this.getInvalidRequiredFields().length > 0;
+  }
+
+  private getApplicationTreeValidationError(): 'turistic' | 'noTuristic' | null {
     const trees = this.treesDataGrid?.rowData ?? [];
     const filterTrees = trees.filter(isActive);
-    const validations = [{
-      fn: this.validForm,
-      param: null,
-      msg: this.utils.showRequiredFieldsError
-    }, {
-      fn: this.validTouristicAppTrees,
-      param: filterTrees,
-      msg: this.utils.showTuristicAppTreeError
-    }, {
-      fn: this.validNoTouristicAppTrees,
-      param: filterTrees,
-      msg: this.utils.showNoTuristicAppTreeError
-    }];
-    const error = validations.find(v => {
-      return v.fn.bind(this)(v.param) === false
-    });
-    if (error) {
-      error.msg.bind(this.utils)();
-      return false;
+    if (!this.validTouristicAppTrees(filterTrees)) {
+      return 'turistic';
     }
-    return true;
+    if (!this.validNoTouristicAppTrees(filterTrees)) {
+      return 'noTuristic';
+    }
+    return null;
   }
 
   /**

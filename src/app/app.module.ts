@@ -42,12 +42,13 @@ import {ServiceFormComponent} from '@app/components/service/service-form/service
 import {UrlInputDirective} from '@app/components/service/service-form/url-input.directive';
 import {ServiceComponent} from '@app/components/service/service.component';
 import {AuthenticatedLayoutComponent} from '@app/components/shared/authenticated-layout/authenticated-layout.component';
+import {CardLeadComponent} from '@app/components/shared/card-lead/card-lead.component';
+import {EntityFormAlertsComponent} from '@app/components/shared/entity-form-alerts/entity-form-alerts.component';
 import {EntityListComponent} from '@app/components/shared/entity-list';
 import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
 import {NotificationComponent} from '@app/components/shared/notification/notification.component';
 import {SideMenuComponent} from '@app/components/shared/side-menu/side-menu.component';
 import {ToolbarComponent} from '@app/components/shared/toolbar/toolbar.component';
-import {CardLeadComponent} from '@app/components/shared/card-lead/card-lead.component';
 import {WarningsPanelComponent} from '@app/components/shared/warnings-panel/warnings-panel.component';
 import {TaskGroupFormComponent} from '@app/components/task-group/task-group-form/task-group-form.component';
 import {TaskGroupComponent} from '@app/components/task-group/task-group.component';
@@ -337,6 +338,7 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
         CoreModule,
         NgOptimizedImage,
         CardLeadComponent,
+        EntityFormAlertsComponent,
         WarningsPanelComponent,
         ImagePreviewComponent], providers: [
         { provide: LOCALE_ID, useValue: 'es-ES' },
