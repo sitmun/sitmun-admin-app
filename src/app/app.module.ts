@@ -47,6 +47,7 @@ import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-too
 import {NotificationComponent} from '@app/components/shared/notification/notification.component';
 import {SideMenuComponent} from '@app/components/shared/side-menu/side-menu.component';
 import {ToolbarComponent} from '@app/components/shared/toolbar/toolbar.component';
+import {CardLeadComponent} from '@app/components/shared/card-lead/card-lead.component';
 import {WarningsPanelComponent} from '@app/components/shared/warnings-panel/warnings-panel.component';
 import {TaskGroupFormComponent} from '@app/components/task-group/task-group-form/task-group-form.component';
 import {TaskGroupComponent} from '@app/components/task-group/task-group.component';
@@ -335,6 +336,7 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
         BrowserAnimationsModule,
         CoreModule,
         NgOptimizedImage,
+        CardLeadComponent,
         WarningsPanelComponent,
         ImagePreviewComponent], providers: [
         { provide: LOCALE_ID, useValue: 'es-ES' },

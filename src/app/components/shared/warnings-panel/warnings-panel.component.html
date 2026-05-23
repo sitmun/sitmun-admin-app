@@ -1,25 +1,68 @@
-<mat-expansion-panel *ngIf="warnings && warnings.length > 0" [expanded]="expanded" class="warnings-panel">
-  <mat-expansion-panel-header>
-    <mat-panel-title>
-      <span
-        [matBadge]="warnings?.length"
-        matBadgeColor="warn"
-        matBadgeOverlap="false"
-        matBadgePosition="before"
-      >
-        &nbsp;
-        {{ titleKey | translate }}
-      </span>
-    </mat-panel-title>
-  </mat-expansion-panel-header>
-  <mat-divider></mat-divider>
-  <div *ngFor="let warning of warnings">
-    {{ warning | translate }}
+<ng-container *ngIf="warnings && warnings.length > 0">
+  <mat-expansion-panel *ngIf="collapsible" [expanded]="expanded" class="warnings-panel">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <span
+          [matBadge]="warnings?.length"
+          matBadgeColor="warn"
+          matBadgeOverlap="false"
+          matBadgePosition="before"
+        >
+          &nbsp;
+          {{ titleKey | translate }}
+        </span>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
     <mat-divider></mat-divider>
+    <div *ngFor="let warning of warnings">
+      {{ warning | translate }}
+      <mat-divider></mat-divider>
+    </div>
+  </mat-expansion-panel>
+
+  <mat-card
+    *ngIf="!collapsible && !bare"
+    appearance="outlined"
+    color="warn"
+    role="alert"
+    aria-live="polite"
+    class="warnings-banner"
+  >
+    <mat-card-content>
+      <ng-container *ngTemplateOutlet="bannerBody"></ng-container>
+    </mat-card-content>
+  </mat-card>
+
+  <div
+    *ngIf="!collapsible && bare"
+    role="alert"
+    aria-live="polite"
+    class="warnings-banner warnings-banner--bare"
+  >
+    <ng-container *ngTemplateOutlet="bannerBody"></ng-container>
   </div>
-</mat-expansion-panel>
+</ng-container>
 
-
-
-
-
+<ng-template #bannerBody>
+  <div class="banner-content" [class.banner-content--compact]="compact">
+    <mat-icon
+      *ngIf="!compact"
+      class="banner-icon"
+      fontSet="material-icons-round"
+      aria-hidden="true">warning_amber</mat-icon>
+    <div class="banner-text">
+      <span *ngIf="!compact" class="banner-title">{{ titleKey | translate }}</span>
+      <ul class="banner-messages" [class.banner-messages--with-icons]="compact">
+        <li *ngFor="let warning of warnings" [class.banner-message--info]="isInfoMessage(warning)">
+          <mat-icon
+            *ngIf="compact"
+            class="banner-message-icon"
+            fontSet="material-icons-round"
+            aria-hidden="true">{{ isInfoMessage(warning) ? 'info' : 'warning_amber' }}</mat-icon>
+          <span>{{ warning | translate }}</span>
+        </li>
+      </ul>
+      <p *ngIf="footerHintKey && !compact" class="banner-footer-hint">{{ footerHintKey | translate }}</p>
+    </div>
+  </div>
+</ng-template>

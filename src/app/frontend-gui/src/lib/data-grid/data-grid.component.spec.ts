@@ -56,14 +56,9 @@ describe('DataGridComponent', () => {
     expect(component.rowData).toBeUndefined();
   });
 
-  it('disables wrapped auto-height columns in infinite mode', () => {
+  it('applies infinite column layout on grid ready', () => {
     component.rowModelMode = 'infinite';
-    const checkboxSelection = (params) => !!params.data;
-    component.columnDefs = [
-      {checkboxSelection, width: 56, maxWidth: 56, flex: 0, wrapText: true, autoHeight: true},
-      {field: 'name', wrapText: true, autoHeight: true, width: 150, maxWidth: 300},
-      {field: 'description', wrapText: true, autoHeight: true, flex: 2, maxWidth: 400},
-    ];
+    component.columnDefs = [{field: 'name', width: 150}];
     component.infiniteBlockFetcher = () => of({
       rows: [],
       pageNumber: 0,
@@ -80,22 +75,90 @@ describe('DataGridComponent', () => {
 
     component.onGridReady({api: component.gridApi, columnApi: {}});
 
-    expect(component.columnDefs).toEqual([
-      expect.objectContaining({checkboxSelection, width: 56, maxWidth: 56, flex: 0, wrapText: false, autoHeight: false}),
-      expect.objectContaining({
-        field: 'name',
-        wrapText: false,
-        autoHeight: false,
-        flex: 0,
-        width: 150,
-        maxWidth: 300,
-        resizable: true,
-      }),
-      expect.objectContaining({field: 'description', wrapText: false, autoHeight: false, flex: 2, resizable: true}),
-    ]);
-    expect(component.columnDefs[2].width).toBeUndefined();
-    expect(component.columnDefs[2].maxWidth).toBeUndefined();
+    expect(component.columnDefs[0]).toEqual(
+      expect.objectContaining({field: 'name', flex: 0, width: 150, wrapText: false, autoHeight: false})
+    );
     expect(component.gridApi.updateGridOptions).toHaveBeenCalledWith({columnDefs: component.columnDefs});
+  });
+
+  it('applies clientSide column layout on grid ready', () => {
+    component.rowModelMode = 'clientSide';
+    component.columnDefs = [{field: 'role', flex: 2, minWidth: 140}];
+    component.gridOptions = {};
+    component.gridApi = {
+      updateGridOptions: jest.fn(),
+      setGridOption: jest.fn(),
+      isDestroyed: () => false,
+    } as any;
+    component.loadData = jest.fn();
+
+    component.onGridReady({api: component.gridApi, columnApi: {}});
+
+    expect(component.columnDefs[0]).toEqual(
+      expect.objectContaining({field: 'role', flex: 2, minWidth: 140, wrapText: false, autoHeight: false})
+    );
+    expect(component.gridApi.updateGridOptions).toHaveBeenCalledWith({columnDefs: component.columnDefs});
+  });
+
+  describe('undo/redo', () => {
+    beforeEach(() => {
+      component.changeCounter = 1;
+      component.previousChangeCounter = 1;
+      component.redoCounter = 0;
+      component.statusColumn = true;
+      component.changesMap = new Map([
+        ['row-1', new Map([['appliesToChildrenTerritories', 1]])],
+      ]);
+      component.gridApi = {
+        isDestroyed: () => false,
+        stopEditing: jest.fn(),
+        undoCellEditing: jest.fn(),
+        redoCellEditing: jest.fn(),
+        getDisplayedRowAtIndex: jest.fn(() => ({id: 'row-1'})),
+        getRowNode: jest.fn(() => ({data: {status: 'pendingModify'}})),
+        redrawRows: jest.fn(),
+      } as any;
+    });
+
+    it('undo decrements changeCounter before calling undoCellEditing', () => {
+      component.undo();
+
+      expect(component.changeCounter).toBe(0);
+      expect(component.gridApi.undoCellEditing).toHaveBeenCalled();
+      expect(component.redoCounter).toBe(1);
+    });
+
+    it('redo increments changeCounter before calling redoCellEditing', () => {
+      component.changeCounter = 0;
+      component.previousChangeCounter = 0;
+
+      component.redo();
+
+      expect(component.changeCounter).toBe(1);
+      expect(component.gridApi.redoCellEditing).toHaveBeenCalled();
+      expect(component.redoCounter).toBe(-1);
+    });
+
+    it('onCellValueChanged with source undo clears changesMap entry', () => {
+      component.onCellValueChanged({
+        source: 'undo',
+        node: {id: 'row-1'},
+        rowIndex: 0,
+        colDef: {field: 'appliesToChildrenTerritories'},
+        oldValue: true,
+        value: false,
+      });
+
+      expect(component.changesMap.has('row-1')).toBe(false);
+      expect(component.previousChangeCounter).toBe(0);
+      expect(component.gridApi.getRowNode('row-1').data.status).toBe('statusOK');
+    });
+
+    it('cellValuesEqual treats boolean and string equivalents as equal', () => {
+      expect(component['cellValuesEqual']('false', false)).toBe(true);
+      expect(component['cellValuesEqual'](true, 'true')).toBe(true);
+      expect(component['cellValuesEqual'](false, true)).toBe(false);
+    });
   });
 
   describe('Step 7: Server sort and filter policy', () => {

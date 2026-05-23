@@ -1,0 +1,86 @@
+// Details tab: even vertical rhythm.
+:host form.sitmun-service-form-entity mat-card-content.sitmun-service-form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+}
+
+:host form.sitmun-service-form-entity mat-card-content.sitmun-service-form-stack mat-form-field {
+  margin-bottom: 0;
+}
+
+:host form.sitmun-service-form-entity mat-card-content.sitmun-service-form-stack mat-slide-toggle {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+// Pairs of half-width fields on one row (user name/password, first name/last name).
+:host form.sitmun-service-form-entity mat-card-content.sitmun-service-form-stack .sitmun-user-form-half-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+:host form.sitmun-service-form-entity mat-card-content.sitmun-service-form-stack .sitmun-user-form-half-row > mat-form-field {
+  margin-bottom: 0;
+}
+
+:host form.sitmun-service-form-entity mat-card-content.sitmun-service-form-stack .sitmun-user-form-half-row > mat-form-field:only-child {
+  width: 100%;
+  margin-right: 0;
+}
+
+// Warnings card: visible alert surface (aligned with form-validation-banner).
+.sitmun-user-warnings-card {
+  border: 1px solid rgba(255, 152, 0, 0.45);
+  background-color: rgba(255, 243, 224, 0.95);
+  box-shadow: none;
+
+  mat-card-content {
+    padding: 12px 16px;
+  }
+
+  .banner-message-icon {
+    color: #f57c00;
+  }
+
+  .banner-message--info .banner-message-icon {
+    color: #1976d2;
+  }
+
+  .banner-messages {
+    color: #5d4037;
+  }
+}
+
+.sitmun-user-warnings-card--info {
+  border: 1px solid rgba(25, 118, 210, 0.3);
+  background-color: rgba(227, 242, 253, 0.95);
+
+  .banner-message-icon,
+  .banner-message--info .banner-message-icon {
+    color: #1976d2;
+  }
+
+  .banner-messages {
+    color: #0d47a1;
+  }
+}
+
+.sitmun-user-tab-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sitmun-tab-warn-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #f57c00;
+  flex-shrink: 0;
+}

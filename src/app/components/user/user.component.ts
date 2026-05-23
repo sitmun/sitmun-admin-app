@@ -23,6 +23,8 @@ import {UtilsService} from '@app/services/utils.service';
     standalone: false
 })
 export class UserComponent extends BaseListComponent<User> {
+  private static readonly BUILT_IN_USERNAMES = new Set(['admin', 'public']);
+
   entityListConfig: EntityListConfig<User> = {
     entityLabel: Configuration.USER.labelPlural,
     iconName: Configuration.USER.icon,
@@ -93,16 +95,47 @@ export class UserComponent extends BaseListComponent<User> {
     lastNameCol.flex = 3;
     lastNameCol.tooltipField = 'lastName';
 
+    const emailCol: any = this.utils.getNonEditableColumnDef('common.form.email', 'email', 200);
+    emailCol.sortable = true;
+    emailCol.cellRendererParams = {...emailCol.cellRendererParams, sortField: 'email'};
+    emailCol.flex = 3;
+    emailCol.tooltipField = 'email';
+
+    const selectionCol: any = this.utils.getRowCheckboxColumnDef();
+    selectionCol.checkboxSelection = (params) =>
+      !!params.data && !UserComponent.isBuiltInListUser(params.data as User);
+
     this.entityListConfig.columnDefs = [
-      this.utils.getRowCheckboxColumnDef(),
+      selectionCol,
       usernameCol,
       firstNameCol,
       lastNameCol,
+      emailCol,
     ];
+  }
+
+  private static isBuiltInListUser(user: User): boolean {
+    return UserComponent.BUILT_IN_USERNAMES.has(user.username);
   }
 
   override async newData() {
     await this.router.navigate(['user', -1, 'userForm']);
+  }
+
+  override duplicate(data: User[]) {
+    const duplicable = data.filter((user) => !UserComponent.isBuiltInListUser(user));
+    if (duplicable.length === 0) {
+      return;
+    }
+    super.duplicate(duplicable);
+  }
+
+  override removeData(data: User[]) {
+    const removable = data.filter((user) => !UserComponent.isBuiltInListUser(user));
+    if (removable.length === 0) {
+      return;
+    }
+    super.removeData(removable);
   }
 
   override async duplicateItem(id: number) {
@@ -112,8 +145,7 @@ export class UserComponent extends BaseListComponent<User> {
   override dataUpdateFn = (data: User) => firstValueFrom(this.userService.update(data))
 
   override dataDeleteFn = (data: User) => {
-    // Prevent deletion of built-in users (admin and public)
-    if (data.username === 'admin' || data.username === 'public') {
+    if (UserComponent.isBuiltInListUser(data)) {
       return Promise.reject(new Error(`Cannot delete built-in ${data.username} user`));
     }
     return firstValueFrom(this.userService.delete(data));

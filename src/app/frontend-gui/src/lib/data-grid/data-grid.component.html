@@ -6,7 +6,7 @@
           color="primary"
           *ngIf="discardChangesButton && !isInfiniteMode"
           (click)="deleteChanges()"
-          [disabled]="changeCounter <= 0 && (!someStatusHasChangedToDelete || discardNonReverseStatus  )">
+          [disabled]="changeCounter <= 0 && !someStatusHasChanged && (!someStatusHasChangedToDelete || discardNonReverseStatus  )">
     <mat-icon fontSet="material-icons-round">close</mat-icon>
   </button>
   <button type="button"

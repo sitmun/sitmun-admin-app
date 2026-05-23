@@ -7,8 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- i18n: `entity.user.hint.username`, `entity.user.hint.email`, `entity.user.hint.password`, `entity.user.hint.firstName`, `entity.user.hint.lastName`, `entity.user.hint.administrator`, `entity.user.hint.positionsRequired` in all 5 locales (ca, en, es, fr, oc-aranes).
+- i18n: `entity.user.warning.role-without-position` in all 5 locales (previously missing; key was emitted by `UserChecksService` but untranslated).
+- i18n: `entity.user.warning.no-password` in all 5 locales (user cannot sign in without a password; excludes built-in `public` and `admin`).
+- i18n: Tab leads `entity.user.card.rolesLead.*` and `entity.user.card.positionsLead.*` (viewer-prefix + body) in all 5 locales.
+- i18n: `entity.user.card.applicationsAsContactLead.*` and `entity.user.applicationsAsContact.header` for the new read-only applications tab, in all 5 locales.
+- i18n: `entity.user.positions.add.title` for the territory-picker dialog, in all 5 locales.
+- User form: character counters (`characterCount` pipe) on username, firstName, lastName, and email fields (limit 50); `maxlength="50"` HTML attribute and `Validators.maxLength(50)` aligned with backend.
+- User form: layer/service-style `mat-hint` (start + end) on firstName, lastName, and email; `characterCount` on username and password (max 50; max-only label when password is set but not being edited); no descriptive hints on username/password.
+- User form: `sitmun-toggle-row` with `sitmun-toggle-hint` paragraph for the administrator and blocked toggles.
+- User form: card-lead blocks on the Roles and Positions tabs (viewer-audience context).
+- User form: flex/minWidth/tooltipField column definitions on Roles and Positions relation grids (clientSide only; no infinite mode on form grids).
+- User form: territory picker on the Positions tab to add positions manually (`addButton`); uses `withTargetInclude` to exclude already-assigned territories.
+- User form: read-only "Applications (point of contact)" tab (`isEdition()` only); shows application name, title, and type; backed by `ApplicationService.findByCreatorId()`.
+- User list: `email`, `blocked`, and `administrator` columns.
+- Application form i18n: updated `entity.application.hint.creatorId` in all 5 locales to describe email-only publication.
+- New SCSS `user-form.component.scss` with flex-column gap and card-lead styles (parity with service/layer forms).
+- i18n: `entity.user.warnings.resolveRolesTab`, `resolvePositionsTab`, and `resolveRolesAndPositionsTabs` in all 5 locales.
+- User form: compact warnings banner (message + icon per row; tab dots and positions hint for context); orange tab indicators on Roles and Positions when a related warning is present.
+- Warnings panel: `compact` input for titleless banner with per-message icons (user form).
+
 ### Changed
 
+- Data grid: separate column layout for infinite lists (`prepareInfiniteColumnDefs`) and clientSide relation grids (`prepareClientSideColumnDefs`); flex layouts call `sizeColumnsToFit` (fills card width) and skip content auto-size; content-based legacy grids keep `autoSizeAllColumns` (fixes user form Roles/Positions tab width and right-side gap).
+- Selection checkbox column (`getSelCheckboxColumnDef`): 56px fixed width aligned with list row checkbox column.
+- Status column: narrowed from 180px to 160px.
+- User form Roles tab: `appliesToChildrenTerritories` column renamed to "Rol territorial" / "Territorial role" (all 5 locales); boolean checkbox renderer with editable toggle; 120–140px wide; card lead extended to explain propagation to child territories.
+- CSS: `sitmun-centered-cell` — nested `ag-cell-wrapper` and `ag-selection-checkbox` vertically centred so row-selection checkboxes align with cell content.
+- Status column (`getStatusColumnDef`): filtering disabled (`filter: false`); no label when status is OK or pending delete (dot-only via CSS).
+- Data grid: fix undo/redo — adjust counter timing before `undoCellEditing`/`redoCellEditing`, detect `source: 'undo'|'redo'`, remove broken checkbox undo-stack hack; boolean columns use native booleans (`filterValueGetter` for filters only).
+- i18n: `entity.user.warning.position-without-details` and `entity.user.hint.positionsRequired` in all 5 locales — only position title and organization are required for the admin warning (aligned with `UserChecksService`).
+- i18n (ca): `entity.user.dataCreated` from "Alta" to "Data d'alta".
+- i18n (es): `entity.role.users.createdDate` and `entity.user.dataCreated` from "Alta" to "Fecha alta".
+- i18n: revised `entity.user.hint.blocked` in all 5 locales — now references sign-in in both the viewer and the admin app.
+- User form toolbar: `itemName('username')` replaces the raw FormControl value access; `isNew()` replaced with `isNewOrDuplicated()` throughout the template.
+- User form form classes: `sitmun-service-form-entity` on `<form>`, `sitmun-service-form-stack` on `mat-card-content`.
+- User form TS: dead `getAllElementsEventPermits` / `getAllElementsEventTerritoryData` Subject declarations and usages removed; `createObject` JSDoc corrected to "User"; table definitions changed to `protected readonly`.
 - Jest specs: replace deprecated `HttpClientTestingModule` / `RouterTestingModule` with `provideHttpClient`, `provideHttpClientTesting`, and `provideRouter` (`withInterceptorsFromDi` in interceptor spec).
 - `app.module.ts`: `APP_INITIALIZER` → `provideAppInitializer`.
 - Toolchain: TypeScript `~5.8.3`, `@typescript-eslint` 8.54.x, `@types/node` 20.x.
