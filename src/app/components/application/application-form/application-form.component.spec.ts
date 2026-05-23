@@ -10,6 +10,7 @@ import {of} from 'rxjs';
 
 import {EntityFormAlertsComponent} from '@app/components/shared/entity-form-alerts/entity-form-alerts.component';
 import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
+import {CoreModule} from '@app/core';
 import {ExternalConfigurationService} from '@app/core/config/external-configuration.service';
 import {ExternalService, ResourceService} from '@app/core/hal';
 import {
@@ -42,7 +43,7 @@ describe('ApplicationFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ApplicationFormComponent, FormToolbarComponent],
-      imports: [FormsModule, ReactiveFormsModule, RouterModule.forRoot([], {}), SitmunFrontendGuiModule, MaterialModule, RouterModule, MatIconTestingModule, BrowserAnimationsModule, EntityFormAlertsComponent,
+      imports: [FormsModule, ReactiveFormsModule, RouterModule.forRoot([], {}), SitmunFrontendGuiModule, MaterialModule, RouterModule, MatIconTestingModule, BrowserAnimationsModule, CoreModule, EntityFormAlertsComponent,
         TranslateModule.forRoot({
           loader: {
             provide: TranslateLoader,
@@ -162,6 +163,7 @@ describe('ApplicationFormComponent', () => {
   it('form valid', () => {
     component.entityForm.patchValue({
       name: 'name',
+      description: 'description',
       logo: 'https://example.com/logo.png',
       type: 1,
       title: 'title',

@@ -155,20 +155,12 @@
             <mat-hint align="start">{{ 'entity.application.hint.title' | translate }}</mat-hint>
             <mat-hint align="end">{{entityForm.get('title') | characterCount}}</mat-hint>
           </mat-form-field>
-          <div class="application-form-field-row application-form-field-row--two-col">
-            <mat-form-field appearance="outline" class="half add-gap sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
-              <mat-label>{{ 'entity.application.type.generic.css' | translate }}</mat-label>
-              <input matInput type="text" formControlName="theme" [maxlength]="30">
-              <mat-hint align="start">{{ 'entity.application.hint.theme' | translate }}</mat-hint>
-              <mat-hint align="end">{{entityForm.get('theme') | characterCount}}</mat-hint>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="half sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
-              <mat-label>{{ 'entity.application.type.generic.scales' | translate }}</mat-label>
-              <input matInput type="text" formControlName="scales" [maxlength]="250">
-              <mat-hint align="start">{{ 'entity.application.hint.scales' | translate }}</mat-hint>
-              <mat-hint align="end">{{entityForm.get('scales') | characterCount}}</mat-hint>
-            </mat-form-field>
-          </div>
+          <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
+            <mat-label>{{ 'entity.application.type.generic.css' | translate }}</mat-label>
+            <input matInput type="text" formControlName="theme" [maxlength]="30">
+            <mat-hint align="start">{{ 'entity.application.hint.theme' | translate }}</mat-hint>
+            <mat-hint align="end">{{entityForm.get('theme') | characterCount}}</mat-hint>
+          </mat-form-field>
           <div class="application-form-field-row application-form-field-row--two-col">
             <mat-form-field appearance="outline" class="half add-gap sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
               <mat-label>{{ 'entity.application.type.generic.srs' | translate }}</mat-label>
@@ -202,13 +194,30 @@
               <mat-hint align="start">{{ 'entity.application.hint.situationMap' | translate }}</mat-hint>
             </mat-form-field>
           </div>
-          <div class="break"></div>
-          <div class="application-toggle-row">
-            <mat-slide-toggle color="primary" formControlName="treeAutoRefresh">
-              {{ 'entity.application.type.generic.treeAutoRefresh' | translate }}
-            </mat-slide-toggle>
-            <div class="application-field-hint application-field-hint--rich">{{ 'entity.application.hint.treeAutoRefresh' | translate }}</div>
-          </div>
+          <ng-container *appFeatureFlag="'APPLICATION_SCALES_FEATURE'">
+            <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
+              <mat-label>
+                <app-feature-flag
+                  [text]="'entity.application.type.generic.scales' | translate"
+                  [flag]="'APPLICATION_SCALES_FEATURE'">
+                </app-feature-flag>
+              </mat-label>
+              <input matInput type="text" formControlName="scales" [maxlength]="250">
+              <mat-hint align="start">{{ 'entity.application.hint.scales' | translate }}</mat-hint>
+              <mat-hint align="end">{{entityForm.get('scales') | characterCount}}</mat-hint>
+            </mat-form-field>
+          </ng-container>
+          <ng-container *appFeatureFlag="'APPLICATION_TREE_AUTO_REFRESH_FEATURE'">
+            <div class="application-toggle-row">
+              <mat-slide-toggle color="primary" formControlName="treeAutoRefresh">
+                <app-feature-flag
+                  [text]="'entity.application.type.generic.treeAutoRefresh' | translate"
+                  [flag]="'APPLICATION_TREE_AUTO_REFRESH_FEATURE'">
+                </app-feature-flag>
+              </mat-slide-toggle>
+              <div class="application-field-hint application-field-hint--rich">{{ 'entity.application.hint.treeAutoRefresh' | translate }}</div>
+            </div>
+          </ng-container>
         </mat-card-content>
       </mat-card>
       <mat-card *ngIf="isInternalApp()" appearance="outlined" class="sitmun-mat-card-margin">
