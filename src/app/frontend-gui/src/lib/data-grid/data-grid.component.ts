@@ -1077,6 +1077,14 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       this.observer.disconnect();
     }
     this.unbindHeaderTruncationHandlers();
+    if (
+      this.gridApi
+      && typeof this.gridApi.isDestroyed === 'function'
+      && typeof this.gridApi.destroy === 'function'
+      && !this.gridApi.isDestroyed()
+    ) {
+      this.gridApi.destroy();
+    }
   }
 
   /**
@@ -2116,10 +2124,25 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     if (oldValue == null && newValue === '') {
       return true;
     }
-    if (typeof oldValue === 'boolean' || typeof newValue === 'boolean') {
-      return !!oldValue === !!newValue;
+    const oldBool = this.coerceBooleanLike(oldValue);
+    const newBool = this.coerceBooleanLike(newValue);
+    if (oldBool !== undefined || newBool !== undefined) {
+      return oldBool === newBool;
     }
     return oldValue === newValue;
+  }
+
+  private coerceBooleanLike(value: unknown): boolean | undefined {
+    if (typeof value === 'boolean') {
+      return value;
+    }
+    if (value === 'true') {
+      return true;
+    }
+    if (value === 'false') {
+      return false;
+    }
+    return undefined;
   }
 
   private handleUndoCellValueChanged(params: any): void {

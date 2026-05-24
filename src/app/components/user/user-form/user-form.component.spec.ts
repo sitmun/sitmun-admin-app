@@ -7,6 +7,7 @@ import { RouterModule } from '@angular/router';
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {of} from 'rxjs';
 
+import {CardLeadComponent} from '@app/components/shared/card-lead/card-lead.component';
 import {EntityFormAlertsComponent} from '@app/components/shared/entity-form-alerts/entity-form-alerts.component';
 import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
@@ -16,9 +17,14 @@ import {
   UserConfigurationService, UserPositionService, UserService
 } from '@app/domain';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
+import {DataGridComponent} from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
 import { MaterialModule } from '@app/material-module';
 import {LoggerService} from '@app/services/logger.service';
-import {configureLoggerForTests, provideErrorHandlerForTests} from '@app/testing/test-helpers';
+import {
+  configureLoggerForTests,
+  provideErrorHandlerForTests,
+  suppressAgGridConsoleWarnings,
+} from '@app/testing/test-helpers';
 
 import { UserFormComponent } from './user-form.component';
 
@@ -34,11 +40,12 @@ describe('UserFormComponent', () => {
   let translationService: TranslationService;
   let resourceService: ResourceService;
   let externalService: ExternalService;
+  let restoreConsoleWarn: () => void;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ UserFormComponent, FormToolbarComponent ],
-      imports: [FormsModule, ReactiveFormsModule, SitmunFrontendGuiModule, EntityFormAlertsComponent, RouterModule.forRoot([], {}), MaterialModule, MatIconTestingModule, BrowserAnimationsModule,
+      imports: [FormsModule, ReactiveFormsModule, SitmunFrontendGuiModule, DataGridComponent, CardLeadComponent, EntityFormAlertsComponent, RouterModule.forRoot([], {}), MaterialModule, MatIconTestingModule, BrowserAnimationsModule,
          TranslateModule.forRoot({
           loader: {
             provide: TranslateLoader,
@@ -61,6 +68,7 @@ describe('UserFormComponent', () => {
     // Suppress debug logs in tests to reduce console noise
     const loggerService = TestBed.inject(LoggerService);
     configureLoggerForTests(loggerService);
+    restoreConsoleWarn = suppressAgGridConsoleWarnings();
     roleService= TestBed.inject(RoleService);
     userService= TestBed.inject(UserService);
     territoryService= TestBed.inject(TerritoryService);
@@ -75,6 +83,10 @@ describe('UserFormComponent', () => {
     component.entityToEdit = component.empty();
     component.postFetchData();
     fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    restoreConsoleWarn?.();
   });
 
   it('should create', () => {

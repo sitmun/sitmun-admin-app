@@ -32,6 +32,7 @@ export function resolveFormFieldLabel(
     if (label !== customKey) {
       return label;
     }
+    return customKey;
   }
 
   const entityKey = `${entityLabelPrefix}.${fieldName}`;

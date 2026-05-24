@@ -88,6 +88,7 @@ describe('DataGridComponent', () => {
     component.gridApi = {
       updateGridOptions: jest.fn(),
       setGridOption: jest.fn(),
+      addEventListener: jest.fn(),
       isDestroyed: () => false,
     } as any;
     component.loadData = jest.fn();
@@ -101,7 +102,10 @@ describe('DataGridComponent', () => {
   });
 
   describe('undo/redo', () => {
+    const rowData = {status: 'pendingModify'};
+
     beforeEach(() => {
+      rowData.status = 'pendingModify';
       component.changeCounter = 1;
       component.previousChangeCounter = 1;
       component.redoCounter = 0;
@@ -115,7 +119,7 @@ describe('DataGridComponent', () => {
         undoCellEditing: jest.fn(),
         redoCellEditing: jest.fn(),
         getDisplayedRowAtIndex: jest.fn(() => ({id: 'row-1'})),
-        getRowNode: jest.fn(() => ({data: {status: 'pendingModify'}})),
+        getRowNode: jest.fn(() => ({data: rowData})),
         redrawRows: jest.fn(),
       } as any;
     });
@@ -286,41 +290,35 @@ describe('DataGridComponent', () => {
       expect(component.changeCounter).toBe(0);
     });
 
-    it('eventRefreshSubscription clears infiniteRowChanges on refresh', (done) => {
+    it('eventRefreshSubscription clears infiniteRowChanges on refresh', fakeAsync(() => {
       component.eventRefreshSubscription = of(true);
       component.infiniteRowChanges.set('row-4', {id: 4, name: 'D'});
 
       component.ngOnInit();
+      tick();
 
-      setTimeout(() => {
-        expect(component.infiniteRowChanges.size).toBe(0);
-        done();
-      }, 10);
-    });
+      expect(component.infiniteRowChanges.size).toBe(0);
+    }));
 
-    it('eventRefreshSubscription clears stale infinite selection on refresh', (done) => {
+    it('eventRefreshSubscription clears stale infinite selection on refresh', fakeAsync(() => {
       component.eventRefreshSubscription = of(true);
 
       component.ngOnInit();
+      tick();
 
-      setTimeout(() => {
-        expect(component.gridApi.deselectAll).toHaveBeenCalledTimes(1);
-        expect(component.gridApi.purgeInfiniteCache).toHaveBeenCalledTimes(1);
-        done();
-      }, 10);
-    });
+      expect(component.gridApi.deselectAll).toHaveBeenCalledTimes(1);
+      expect(component.gridApi.purgeInfiniteCache).toHaveBeenCalledTimes(1);
+    }));
 
-    it('eventRefreshSubscription recreates the datasource to drop stale progressive cache', (done) => {
+    it('eventRefreshSubscription recreates the datasource to drop stale progressive cache', fakeAsync(() => {
       component.eventRefreshSubscription = of(true);
 
       component.ngOnInit();
+      tick();
 
-      setTimeout(() => {
-        expect(component.gridApi.setGridOption).toHaveBeenCalledWith('datasource', expect.any(Object));
-        expect(component.gridApi.purgeInfiniteCache).toHaveBeenCalledTimes(1);
-        done();
-      }, 10);
-    });
+      expect(component.gridApi.setGridOption).toHaveBeenCalledWith('datasource', expect.any(Object));
+      expect(component.gridApi.purgeInfiniteCache).toHaveBeenCalledTimes(1);
+    }));
 
     it('multiple edits to same row merge into one change map entry', () => {
       const params1 = {
