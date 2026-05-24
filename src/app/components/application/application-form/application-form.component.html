@@ -137,6 +137,9 @@
             <input matInput type="text" formControlName="jspTemplate" [maxlength]="250">
             <mat-hint align="start">{{ 'entity.application.hint.jspTemplate' | translate }}</mat-hint>
             <mat-hint align="end">{{entityForm.get('jspTemplate') | characterCount}}</mat-hint>
+            <mat-error *ngIf="entityForm.get('jspTemplate')?.hasError('required')">
+              {{ 'entity.application.error.externalUrlRequired' | translate }}
+            </mat-error>
             <mat-error *ngIf="entityForm.get('jspTemplate')?.hasError('optionalHttpUrl')">
               {{ 'entity.application.error.optionalHttpUrl' | translate }}
             </mat-error>

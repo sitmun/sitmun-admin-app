@@ -73,6 +73,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     name: 'entity.application.name',
     description: 'entity.application.description',
     type: 'entity.application.type',
+    jspTemplate: 'entity.application.type.external.url',
   };
 
   /**
@@ -338,6 +339,9 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       isUnavailable: new UntypedFormControl(this.entityToEdit.isUnavailable ?? false,[]),
       appPrivate: new UntypedFormControl(this.entityToEdit.appPrivate, []),
     });
+    if (this.currentAppType) {
+      this.onSelectionTypeAppChanged({ value: this.currentAppType });
+    }
   }
 
   /**
@@ -533,12 +537,22 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
   }
 
   private enableExternalAppFields(): void {
-    this.entityForm.get('jspTemplate').enable();
+    const control = this.entityForm.get('jspTemplate');
+    control.enable();
+    control.setValidators([
+      Validators.required,
+      Validators.maxLength(250),
+      optionalHttpOrHttpsUrlValidator,
+    ]);
+    control.updateValueAndValidity();
   }
 
   private disableExternalAppFields(): void {
-    this.entityForm.get('jspTemplate').setValue(null);
-    this.entityForm.get('jspTemplate').disable();
+    const control = this.entityForm.get('jspTemplate');
+    control.setValue(null);
+    control.setValidators([Validators.maxLength(250), optionalHttpOrHttpsUrlValidator]);
+    control.disable();
+    control.updateValueAndValidity();
   }
 
   /**
