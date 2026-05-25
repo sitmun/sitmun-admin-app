@@ -31,8 +31,6 @@ export const FEATURE_FLAGS = {
   APPLICATION_SCALES_FEATURE: 'application-scales',
   /** Application form: tree auto-refresh toggle (not in viewer client profile yet). */
   APPLICATION_TREE_AUTO_REFRESH_FEATURE: 'application-tree-auto-refresh',
-  /** Territory form: focal point (center) and default zoom level fields (focal point ships to viewer; zoom remains unused). */
-  TERRITORY_FOCAL_POINT_FEATURE: 'territory-focal-point',
 } as const;
 
 export type FeatureFlagKeys = keyof typeof FEATURE_FLAGS;
@@ -106,13 +104,6 @@ export const PROD_FEATURE_FLAGS: Record<FeatureFlagKeys, FeatureFlagConfig> = {
     experimental: true,
     description: 'featureFlags.applicationTreeAutoRefresh.description',
     category: 'Applications'
-  },
-  TERRITORY_FOCAL_POINT_FEATURE: {
-    key: FEATURE_FLAGS.TERRITORY_FOCAL_POINT_FEATURE,
-    enabled: false,
-    experimental: true,
-    description: 'featureFlags.territoryFocalPoint.description',
-    category: 'Territories'
   }
 };
 
@@ -189,12 +180,5 @@ export const DEV_FEATURE_FLAGS: Record<FeatureFlagKeys, FeatureFlagConfig> = {
     experimental: true,
     description: 'featureFlags.applicationTreeAutoRefresh.description',
     category: 'Applications'
-  },
-  TERRITORY_FOCAL_POINT_FEATURE: {
-    key: FEATURE_FLAGS.TERRITORY_FOCAL_POINT_FEATURE,
-    enabled: true,
-    experimental: true,
-    description: 'featureFlags.territoryFocalPoint.description',
-    category: 'Territories'
   }
 }; 

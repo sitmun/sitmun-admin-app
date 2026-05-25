@@ -36,10 +36,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Entity forms: required-field save feedback and cross-tab messages moved from the toolbar to `app-entity-form-alerts` above tabs (user-form pattern); toolbar shows title and save/back only.
 - Application form: backend warnings and touristic tree rules surface in the alerts card (no save-time modals for those rules); Roles tab warn indicator for private-app/public-user warning.
 - User form: alerts card placed above `mat-tab-group`; Details tab indicator when required fields are invalid.
+- Territory form: `defaultZoomLevel` shown next to extent maxY as a standard field.
+- Territory form: extent hint documents default zoom level behavior after extent fit.
 
 ### Removed
 
 - `FormValidationBannerComponent` and toolbar validation/custom-warning inputs on `app-form-toolbar`.
+- Feature flag `TERRITORY_FOCAL_POINT_FEATURE` and related `featureFlags.territoryFocalPoint.description` i18n keys.
+- Territory form: separate `entity.territory.hint.defaultZoomLevel` field hint (covered by extent hint).
 
 - Data grid: separate column layout for infinite lists (`prepareInfiniteColumnDefs`) and clientSide relation grids (`prepareClientSideColumnDefs`); flex layouts call `sizeColumnsToFit` (fills card width) and skip content auto-size; content-based legacy grids keep `autoSizeAllColumns` (fixes user form Roles/Positions tab width and right-side gap).
 - Selection checkbox column (`getSelCheckboxColumnDef`): 56px fixed width aligned with list row checkbox column.

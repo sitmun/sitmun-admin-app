@@ -123,9 +123,14 @@
               <mat-label>{{ 'entity.territory.extentMinY' | translate }}</mat-label>
               <input matInput type="number" formControlName="extentMinY">
             </mat-form-field>
-            <mat-form-field appearance="outline" class="quarter">
+            <mat-form-field appearance="outline" class="quarter add-gap">
               <mat-label>{{ 'entity.territory.extentMaxY' | translate }}</mat-label>
               <input matInput type="number" formControlName="extentMaxY">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="quarter">
+              <mat-label>{{ 'entity.territory.defaultZoomLevel' | translate }}</mat-label>
+              <input matInput type="number" formControlName="defaultZoomLevel">
+              <mat-error *ngIf="entityForm.get('defaultZoomLevel')?.hasError('pattern')">{{ 'entity.territory.error.invalidInteger' | translate }}</mat-error>
             </mat-form-field>
           </div>
           <p class="sitmun-coordinates-group-hint">{{ 'entity.territory.hint.center' | translate }}</p>
@@ -154,19 +159,6 @@
             <mat-hint align="end">{{ entityForm.get('note') | characterCount }}</mat-hint>
             <mat-error *ngIf="entityForm.get('note')?.hasError('maxlength')">{{ 'entity.territory.error.maxlength' | translate:{ requiredLength: 250 } }}</mat-error>
           </mat-form-field>
-          <ng-container *appFeatureFlag="'TERRITORY_FOCAL_POINT_FEATURE'">
-            <mat-form-field appearance="outline" class="quarter sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
-              <mat-label>
-                <app-feature-flag
-                  [text]="'entity.territory.defaultZoomLevel' | translate"
-                  [flag]="'TERRITORY_FOCAL_POINT_FEATURE'"
-                ></app-feature-flag>
-              </mat-label>
-              <input matInput type="number" formControlName="defaultZoomLevel">
-              <mat-hint align="start">{{ 'entity.territory.hint.defaultZoomLevel' | translate }}</mat-hint>
-              <mat-error *ngIf="entityForm.get('defaultZoomLevel')?.hasError('pattern')">{{ 'entity.territory.error.invalidInteger' | translate }}</mat-error>
-            </mat-form-field>
-          </ng-container>
         </mat-card-content>
       </mat-card>
     </form>

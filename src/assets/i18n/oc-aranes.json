@@ -967,7 +967,6 @@
   "featureFlags.layersSourceFeature.description": "Funcionalitat de font",
   "featureFlags.servicesCrsList.description": "Listas CRS de servicis",
   "featureFlags.servicesParametersFeature.description": "Pestanha de paramètres deth servici",
-  "featureFlags.territoryFocalPoint.description": "Formulari de territòri: nivèu de zoom per defecte (experimentau, non utilizat peth visualizaire encara)",
   "featureFlags.category.territories": "Territòris",
   "lang.ca": "Catalan",
   "lang.en": "Anglés",
@@ -1101,5 +1100,5 @@
   "treeStructureMessage.touristic.rootMustHaveChildren": "En un arriu toristic, eth solet nòd de prumèr nivèu deu contier ath mens un nòd hilh.",
   "treeStructureMessage.touristic.singleRoot": "En un arriu toristic sonque ei permetut un nòd de prumèr nivèu. Actuaument n'i a {{count}}.",
   "entity.territory.hint.center": "Punt focau dens eth territòri. Utilizat peth visualizaire entà calcular ua extension iniciau centrada que manten visibla tot eth territòri.",
-  "entity.territory.hint.extent": "Limits deth territòri (minX, maxX, minY, maxY) e sistèma de referéncia espaciau (SRS, p.ex., EPSG:4326). Enviadi ath perfil deth client. Era extension e eth SRS (se definit) anulen eths valors dera aplicacion. Eres quatre coordenades son requirides juntes."
+  "entity.territory.hint.extent": "Limits deth territòri (minX, maxX, minY, maxY) e sistèma de referéncia espaciau (SRS, p.ex., EPSG:4326). Enviadi ath perfil deth client. Era extension e eth SRS (se definit) anulen eths valors dera aplicacion. Eres quatre coordenades son requirides juntes. Eth backend utiliza era extension e eth punt d'interès entà calcular era extension dera mapa. Eth nivèu de zoom per defecte (se configurat) anula era escala après der ajust d'extension."
 }
