@@ -676,6 +676,7 @@
   "entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_center_y": "Centre Y coordinate",
   "entity.task.locator.parameters.municipalityCodeFilters.responseField": "Response field",
   "entity.task.locator.parameters.municipalityCodeFilters.responseField.placeholder": "properties.id_municipi",
+  "entity.task.locator.parameters.municipalityCodeFilters.convertToWgs84": "Convert to WGS84",
   "entity.task.locator.roles": "Roles",
   "entity.task.locator.select": "Select",
   "entity.task.locator.status": "Status",

@@ -199,6 +199,9 @@
                   </mat-option>
                 </mat-select>
               </mat-form-field>
+              <mat-slide-toggle formControlName="convertToWgs84" class="filter-wgs84-toggle">
+                {{ 'entity.task.locator.parameters.municipalityCodeFilters.convertToWgs84' | translate }}
+              </mat-slide-toggle>
               <mat-form-field appearance="outline" class="filter-field" subscriptSizing="dynamic">
                 <mat-label>{{ 'entity.task.locator.parameters.municipalityCodeFilters.responseField' | translate }}</mat-label>
                 <input matInput type="text" formControlName="responseField"

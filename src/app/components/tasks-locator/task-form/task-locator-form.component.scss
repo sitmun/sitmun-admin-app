@@ -34,6 +34,12 @@
   flex: 1;
 }
 
+.filter-wgs84-toggle {
+  align-self: center;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 .add-filter-row {
   margin-top: 4px;
 }
