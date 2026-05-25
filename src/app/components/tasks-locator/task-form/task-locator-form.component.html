@@ -199,9 +199,15 @@
                   </mat-option>
                 </mat-select>
               </mat-form-field>
-              <mat-slide-toggle formControlName="convertToWgs84" class="filter-wgs84-toggle">
-                {{ 'entity.task.locator.parameters.municipalityCodeFilters.convertToWgs84' | translate }}
+              <mat-slide-toggle formControlName="convertProjection" class="filter-wgs84-toggle">
+                {{ 'entity.task.locator.parameters.municipalityCodeFilters.convertProjection' | translate }}
               </mat-slide-toggle>
+              <mat-form-field *ngIf="filterCtrl.get('convertProjection')?.value"
+                              appearance="outline" class="filter-field-crs" subscriptSizing="dynamic">
+                <mat-label>{{ 'entity.task.locator.parameters.municipalityCodeFilters.targetCrs' | translate }}</mat-label>
+                <input matInput type="text" formControlName="targetCrs"
+                       [placeholder]="'entity.task.locator.parameters.municipalityCodeFilters.targetCrs.placeholder' | translate">
+              </mat-form-field>
               <mat-form-field appearance="outline" class="filter-field" subscriptSizing="dynamic">
                 <mat-label>{{ 'entity.task.locator.parameters.municipalityCodeFilters.responseField' | translate }}</mat-label>
                 <input matInput type="text" formControlName="responseField"

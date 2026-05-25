@@ -217,7 +217,8 @@ export class TaskLocatorFormComponent extends BaseFormComponent<TaskProjection> 
           requestParam: new FormControl(f.requestParam, {nonNullable: true}),
           territoryField: new FormControl(f.territoryField, {nonNullable: true}),
           responseField: new FormControl(f.responseField, {nonNullable: true}),
-          convertToWgs84: new FormControl(f.convertToWgs84, {nonNullable: true})
+          convertProjection: new FormControl(f.convertProjection, {nonNullable: true}),
+          targetCrs: new FormControl(f.targetCrs, {nonNullable: true})
         }))
       ),
     });
@@ -241,17 +242,18 @@ export class TaskLocatorFormComponent extends BaseFormComponent<TaskProjection> 
   }
 
   /** Parses the stored municipalityCodeFilters JSON parameter. */
-  private parseGeocoderMunicipalityCodeFilters(): {requestParam: string; territoryField: string; responseField: string; convertToWgs84: boolean}[] {
+  private parseGeocoderMunicipalityCodeFilters(): {requestParam: string; territoryField: string; responseField: string; convertProjection: boolean; targetCrs: string}[] {
     try {
       const raw = this.getGeocoderParam('municipalityCodeFilters');
       if (raw) {
-        const parsed = JSON.parse(raw) as {requestParam?: string; territoryField?: string; requestValue?: string; responseField?: string; convertToWgs84?: boolean}[];
-        // Normalise legacy data: requestValue → territoryField
+        const parsed = JSON.parse(raw) as {requestParam?: string; territoryField?: string; requestValue?: string; responseField?: string; convertProjection?: boolean; convertToWgs84?: boolean; targetCrs?: string}[];
+        // Normalise legacy data: requestValue → territoryField, convertToWgs84 → convertProjection
         return parsed.map(f => ({
           requestParam: f.requestParam ?? '',
           territoryField: f.territoryField ?? f.requestValue ?? 'territory_code',
           responseField: f.responseField ?? '',
-          convertToWgs84: f.convertToWgs84 ?? false
+          convertProjection: f.convertProjection ?? f.convertToWgs84 ?? false,
+          targetCrs: f.targetCrs ?? (f.convertToWgs84 ? 'EPSG:4326' : '')
         }));
       }
     } catch {}
@@ -267,7 +269,8 @@ export class TaskLocatorFormComponent extends BaseFormComponent<TaskProjection> 
       requestParam: new FormControl('', {nonNullable: true}),
       territoryField: new FormControl('territory_code', {nonNullable: true}),
       responseField: new FormControl('', {nonNullable: true}),
-      convertToWgs84: new FormControl(false, {nonNullable: true})
+      convertProjection: new FormControl(false, {nonNullable: true}),
+      targetCrs: new FormControl('', {nonNullable: true})
     }));
   }
 
@@ -299,7 +302,7 @@ export class TaskLocatorFormComponent extends BaseFormComponent<TaskProjection> 
     if (formValues.geocoderFilterByMunicipalityCode) {
       params.push({variable: 'filterByMunicipalityCode', value: 'true'});
     }
-    const filters = (formValues.geocoderMunicipalityCodeFilters as {requestParam: string; territoryField: string; responseField: string; convertToWgs84: boolean}[])
+    const filters = (formValues.geocoderMunicipalityCodeFilters as {requestParam: string; territoryField: string; responseField: string; convertProjection: boolean; targetCrs: string}[])
       .filter(f => f.requestParam || f.responseField);
     if (filters.length > 0) {
       add('municipalityCodeFilters', JSON.stringify(filters));
