@@ -77,7 +77,7 @@
                   <ng-container *ngIf="entityForm.get('creatorId')?.value as creatorId">
                     <a [routerLink]="['/user', creatorId, 'userForm']"
                        class="router-link">
-                      {{ getUsername(creatorId) | translate }}
+                      {{ getUsername(creatorId) }}
                     </a>
                   </ng-container>
                   <span *ngIf="!entityForm.get('creatorId')?.value">
@@ -177,7 +177,7 @@
                 <mat-select-trigger>
                   <ng-container *ngIf="entityForm.get('situationMapId')?.value as selectedId">
                     <a [routerLink]="['/layersPermits', selectedId, 'layersPermitsForm']" class="router-link">
-                      {{ getSituationMapName(selectedId) | translate }}
+                      {{ getSituationMapName(selectedId) }}
                     </a>
                   </ng-container>
                   <span *ngIf="!entityForm.get('situationMapId')?.value">
@@ -189,7 +189,7 @@
                   <div>
                     <a [routerLink]="['/layersPermits', situationMapObj.id, 'layersPermitsForm']"
                        (click)="$event.stopPropagation()" class="router-link">
-                      <span>{{ situationMapObj.name | translate }}</span>
+                      <span>{{ situationMapObj.name }}</span>
                     </a>
                   </div>
                 </mat-option>

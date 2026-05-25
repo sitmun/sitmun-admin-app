@@ -250,7 +250,7 @@
   "entity.application.header.url": "Url",
   "entity.application.header.visible": "Mostrar",
   "entity.application.hint.appPrivate": "Se es activat, qui non a iniciada session non pòt usar aguesta aplicacion.",
-  "entity.application.hint.creatorId": "Punt de contacte mostrat en les aplicacions client (p. ex. detaeèths de l'aplicacion). Solament eth corrèu electronic institucionau de l'usèr seleccionat ei publicat, non eth nom d'usèr ni eth nom. Causetz un usèr dab un corrèu electronic adecuat en eth formulari d'usèr.",
+  "entity.application.hint.creatorId": "Punt de contacte mostrat en les aplicacions client (p. ex. detaeèths de l'aplicacion). Solament eth corrèu electronic institucionau de l'usèr seleccionat ei publicat.",
   "entity.application.hint.description": "S'utiliza en targetes e detalhs d'aplicacion en es clients.",
   "entity.application.hint.isUnavailable": "Se es activat, es clients han de mostrar eth messatge de manteniment e s'impedeís d'ubrir l'aplicacion.",
   "entity.application.hint.jspTemplate": "URL o plantilla d'aplicacion externa (sonque aplicacions externas). Se desa en administracion mes non s'exposa ath perfil public n'es utilizada peth visualisador ara.",

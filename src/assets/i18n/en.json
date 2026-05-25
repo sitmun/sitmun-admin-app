@@ -250,7 +250,7 @@
   "entity.application.header.url": "Url",
   "entity.application.header.visible": "Show",
   "entity.application.hint.appPrivate": "When enabled, users who are not signed in cannot use this application.",
-  "entity.application.hint.creatorId": "Point of contact shown in client applications (e.g. application details). Only the selected user's institutional email is published—not their username or name. Choose a user with a suitable email on the user form.",
+  "entity.application.hint.creatorId": "Point of contact shown in client applications (e.g. application details). Only the selected user's institutional email is published.",
   "entity.application.hint.description": "Used on application cards and in application details in client apps.",
   "entity.application.hint.isUnavailable": "When enabled, client apps must show the maintenance message and opening the application is prevented.",
   "entity.application.hint.jspTemplate": "External application URL or template (external apps only). Saved in admin but not exposed on the public profile and not used by the viewer today.",

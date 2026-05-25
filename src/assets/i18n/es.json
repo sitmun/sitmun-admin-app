@@ -250,7 +250,7 @@
   "entity.application.header.url": "Url",
   "entity.application.header.visible": "Mostrar",
   "entity.application.hint.appPrivate": "Si está activado, quien no ha iniciado sesión no puede usar esta aplicación.",
-  "entity.application.hint.creatorId": "Punto de contacto mostrado en las aplicaciones cliente (p. ej., detalles de la aplicación). Solo se publica el correo electrónico institucional del usuario seleccionado, no su nombre de usuario ni su nombre. Elija un usuario con un correo electrónico adecuado en el formulario de usuario.",
+  "entity.application.hint.creatorId": "Punto de contacto mostrado en las aplicaciones cliente (p. ej., detalles de la aplicación). Solo se publica el correo electrónico institucional del usuario seleccionado",
   "entity.application.hint.description": "Usado en tarjetas y detalles de aplicación en los clientes.",
   "entity.application.hint.isUnavailable": "Si está activado, los clientes deben mostrar el mensaje de mantenimiento y se impide abrir la aplicación.",
   "entity.application.hint.jspTemplate": "URL o plantilla de aplicación externa (solo apps externas). Se guarda en administración pero no se expone en el perfil público ni la usa el visor actualmente.",
