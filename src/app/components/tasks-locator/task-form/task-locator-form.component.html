@@ -161,21 +161,6 @@
           </div>
 
           <div class="full toggle-row">
-            <mat-slide-toggle formControlName="geocoderFilterByTerritoryCode" color="primary">
-              {{ 'entity.task.locator.parameters.filterByTerritoryCode' | translate }}
-            </mat-slide-toggle>
-            <p class="toggle-hint">{{ 'entity.task.locator.parameters.filterByTerritoryCode.hint' | translate }}</p>
-          </div>
-
-          <div class="full" *ngIf="entityForm.get('geocoderFilterByTerritoryCode')?.value">
-            <mat-form-field appearance="outline" class="full" subscriptSizing="dynamic">
-              <mat-label>{{ 'entity.task.locator.parameters.filterByTerritoryCode.responseField' | translate }}</mat-label>
-              <input matInput type="text" formControlName="geocoderTerritoryCodeResponseField"
-                     [placeholder]="'entity.task.locator.parameters.filterByTerritoryCode.responseField.placeholder' | translate">
-            </mat-form-field>
-          </div>
-
-          <div class="full toggle-row">
             <mat-slide-toggle formControlName="geocoderFilterByMunicipalityCode" color="primary">
               {{ 'entity.task.locator.parameters.filterByMunicipalityCode' | translate }}
             </mat-slide-toggle>
@@ -183,7 +168,6 @@
           </div>
 
           <div class="full municipality-filters-section" formArrayName="geocoderMunicipalityCodeFilters">
-            <p class="toggle-hint municipality-filters-hint">{{ 'entity.task.locator.parameters.municipalityCodeFilters.hint' | translate }}</p>
             <div *ngFor="let filterCtrl of municipalityCodeFiltersArray.controls; let i = index"
                  [formGroupName]="i" class="filter-row">
               <mat-form-field appearance="outline" class="filter-field" subscriptSizing="dynamic">
