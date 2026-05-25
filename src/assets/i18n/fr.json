@@ -667,6 +667,7 @@
   "entity.task.locator.parameters.municipalityCodeFilters.requestParam.placeholder": "id_municipi",
   "entity.task.locator.parameters.municipalityCodeFilters.territoryField": "Champ du territoire",
   "entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_code": "Code territoire",
+  "entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_idescat_code": "Code IDESCAT (6 chiffres)",
   "entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_name": "Nom du territoire",
   "entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_description": "Description du territoire",
   "entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_authority_name": "Nom de l'autorité territoriale",

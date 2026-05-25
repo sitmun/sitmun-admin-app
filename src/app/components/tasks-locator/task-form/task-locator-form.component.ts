@@ -60,6 +60,7 @@ export class TaskLocatorFormComponent extends BaseFormComponent<TaskProjection> 
   /** Available territory field tokens for the municipality filter dropdown. */
   readonly territoryFieldOptions: {value: string; labelKey: string}[] = [
     { value: 'territory_code',              labelKey: 'entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_code' },
+    { value: 'territory_idescat_code',      labelKey: 'entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_idescat_code' },
     { value: 'territory_name',              labelKey: 'entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_name' },
     { value: 'territory_description',       labelKey: 'entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_description' },
     { value: 'territory_authority_name',    labelKey: 'entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_authority_name' },

@@ -667,6 +667,7 @@
   "entity.task.locator.parameters.municipalityCodeFilters.requestParam.placeholder": "id_municipi",
   "entity.task.locator.parameters.municipalityCodeFilters.territoryField": "Camp deth territòri",
   "entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_code": "Còde territòri",
+  "entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_idescat_code": "Còdi IDESCAT (6 dèjits)",
   "entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_name": "Nom deth territòri",
   "entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_description": "Descripcion deth territòri",
   "entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_authority_name": "Nom dera entítat territoriaus",

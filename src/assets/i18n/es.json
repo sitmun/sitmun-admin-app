@@ -667,6 +667,7 @@
   "entity.task.locator.parameters.municipalityCodeFilters.requestParam.placeholder": "id_municipi",
   "entity.task.locator.parameters.municipalityCodeFilters.territoryField": "Campo del territorio",
   "entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_code": "Código territorio",
+  "entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_idescat_code": "Código IDESCAT (6 dígitos)",
   "entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_name": "Nombre del territorio",
   "entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_description": "Descripción del territorio",
   "entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_authority_name": "Nombre de la entidad territorial",
