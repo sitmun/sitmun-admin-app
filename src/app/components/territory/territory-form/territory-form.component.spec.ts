@@ -228,7 +228,7 @@ describe('TerritoryFormComponent', () => {
       code: 1,
       name: 'name',
       territorialAuthorityAddress: 'address',
-      territorialAuthorityLogo: 'urlLogo',
+      territorialAuthorityLogo: 'https://example.com/logo.png',
       typeId: 1,
       extentMinX: 1,
       extentMaxX: 2,
@@ -286,5 +286,481 @@ describe('TerritoryFormComponent', () => {
 
   it('Validate extent with invalid values', () => {
     expect(component.validateEnvelope(1, null, 3, 4)).toBeFalsy();
+  });
+
+  describe('Validator Tests (TDD)', () => {
+    describe('Max Length Validators', () => {
+      it('should reject code longer than 50 characters', () => {
+        component.entityForm.patchValue({ code: 'a'.repeat(51), name: 'Test', typeId: 1 });
+        expect(component.entityForm.get('code')?.hasError('maxlength')).toBeTruthy();
+        expect(component.entityForm.valid).toBeFalsy();
+      });
+
+      it('should accept code with 50 characters', () => {
+        component.entityForm.patchValue({ code: 'a'.repeat(50), name: 'Test', typeId: 1 });
+        expect(component.entityForm.get('code')?.hasError('maxlength')).toBeFalsy();
+      });
+
+      it('should reject name longer than 250 characters', () => {
+        component.entityForm.patchValue({ code: '1', name: 'a'.repeat(251), typeId: 1 });
+        expect(component.entityForm.get('name')?.hasError('maxlength')).toBeTruthy();
+        expect(component.entityForm.valid).toBeFalsy();
+      });
+
+      it('should accept name with 250 characters', () => {
+        component.entityForm.patchValue({ code: '1', name: 'a'.repeat(250), typeId: 1 });
+        expect(component.entityForm.get('name')?.hasError('maxlength')).toBeFalsy();
+      });
+
+      it('should reject description longer than 4000 characters', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          description: 'a'.repeat(4001),
+          typeId: 1 
+        });
+        expect(component.entityForm.get('description')?.hasError('maxlength')).toBeTruthy();
+      });
+
+      it('should accept description with 4000 characters', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          description: 'a'.repeat(4000),
+          typeId: 1 
+        });
+        expect(component.entityForm.get('description')?.hasError('maxlength')).toBeFalsy();
+      });
+
+      it('should reject note longer than 250 characters', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          note: 'a'.repeat(251),
+          typeId: 1 
+        });
+        expect(component.entityForm.get('note')?.hasError('maxlength')).toBeTruthy();
+      });
+
+      it('should reject territorialAuthorityAddress longer than 250 characters', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          territorialAuthorityAddress: 'a'.repeat(251),
+          typeId: 1 
+        });
+        expect(component.entityForm.get('territorialAuthorityAddress')?.hasError('maxlength')).toBeTruthy();
+      });
+
+      it('should reject territorialAuthorityLogo longer than 4000 characters', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          territorialAuthorityLogo: 'http://' + 'a'.repeat(4000),
+          typeId: 1 
+        });
+        expect(component.entityForm.get('territorialAuthorityLogo')?.hasError('maxlength')).toBeTruthy();
+      });
+
+      it('should reject srs longer than 50 characters', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          srs: 'EPSG:' + '1'.repeat(50),
+          typeId: 1 
+        });
+        expect(component.entityForm.get('srs')?.hasError('maxlength')).toBeTruthy();
+      });
+    });
+
+    describe('HTTP URL Validator for territorialAuthorityLogo', () => {
+      it('should accept valid http URL', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          territorialAuthorityLogo: 'http://example.com/logo.png',
+          typeId: 1 
+        });
+        expect(component.entityForm.get('territorialAuthorityLogo')?.hasError('invalidUrl')).toBeFalsy();
+      });
+
+      it('should accept valid https URL', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          territorialAuthorityLogo: 'https://example.com/logo.png',
+          typeId: 1 
+        });
+        expect(component.entityForm.get('territorialAuthorityLogo')?.hasError('invalidUrl')).toBeFalsy();
+      });
+
+      it('should reject ftp URL', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          territorialAuthorityLogo: 'ftp://example.com/logo.png',
+          typeId: 1 
+        });
+        expect(component.entityForm.get('territorialAuthorityLogo')?.hasError('invalidUrl')).toBeTruthy();
+        expect(component.entityForm.valid).toBeFalsy();
+      });
+
+      it('should reject invalid URL format', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          territorialAuthorityLogo: 'not-a-url',
+          typeId: 1 
+        });
+        expect(component.entityForm.get('territorialAuthorityLogo')?.hasError('invalidUrl')).toBeTruthy();
+        expect(component.entityForm.valid).toBeFalsy();
+      });
+
+      it('should accept empty territorialAuthorityLogo', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          territorialAuthorityLogo: '',
+          typeId: 1 
+        });
+        expect(component.entityForm.get('territorialAuthorityLogo')?.hasError('invalidUrl')).toBeFalsy();
+      });
+
+      it('should accept null territorialAuthorityLogo', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          territorialAuthorityLogo: null,
+          typeId: 1 
+        });
+        expect(component.entityForm.get('territorialAuthorityLogo')?.hasError('invalidUrl')).toBeFalsy();
+      });
+    });
+
+    describe('SRS Pattern Validator', () => {
+      it('should accept valid SRS format EPSG:4326', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          srs: 'EPSG:4326',
+          typeId: 1 
+        });
+        expect(component.entityForm.get('srs')?.hasError('invalidSrs')).toBeFalsy();
+      });
+
+      it('should accept valid SRS format with hyphens', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          srs: 'EPSG-TEST:25830',
+          typeId: 1 
+        });
+        expect(component.entityForm.get('srs')?.hasError('invalidSrs')).toBeFalsy();
+      });
+
+      it('should reject SRS without colon', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          srs: 'EPSG4326',
+          typeId: 1 
+        });
+        expect(component.entityForm.get('srs')?.hasError('invalidSrs')).toBeTruthy();
+        expect(component.entityForm.valid).toBeFalsy();
+      });
+
+      it('should reject SRS with lowercase', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          srs: 'epsg:4326',
+          typeId: 1 
+        });
+        expect(component.entityForm.get('srs')?.hasError('invalidSrs')).toBeTruthy();
+        expect(component.entityForm.valid).toBeFalsy();
+      });
+
+      it('should reject SRS with non-numeric code', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          srs: 'EPSG:ABC',
+          typeId: 1 
+        });
+        expect(component.entityForm.get('srs')?.hasError('invalidSrs')).toBeTruthy();
+        expect(component.entityForm.valid).toBeFalsy();
+      });
+
+      it('should accept empty SRS', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          srs: '',
+          typeId: 1 
+        });
+        expect(component.entityForm.get('srs')?.hasError('invalidSrs')).toBeFalsy();
+      });
+
+      it('should accept null SRS', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          srs: null,
+          typeId: 1 
+        });
+        expect(component.entityForm.get('srs')?.hasError('invalidSrs')).toBeFalsy();
+      });
+    });
+
+    describe('Envelope Validator with maxX > minX and maxY > minY', () => {
+      it('should accept valid envelope', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          extentMinX: 1,
+          extentMaxX: 2,
+          extentMinY: 3,
+          extentMaxY: 4
+        });
+        expect(component.canSave()).toBeTruthy();
+      });
+
+      it('should reject envelope when maxX equals minX', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          extentMinX: 2,
+          extentMaxX: 2,
+          extentMinY: 3,
+          extentMaxY: 4
+        });
+        expect(component.canSave()).toBeFalsy();
+      });
+
+      it('should reject envelope when maxX less than minX', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          extentMinX: 3,
+          extentMaxX: 2,
+          extentMinY: 3,
+          extentMaxY: 4
+        });
+        expect(component.canSave()).toBeFalsy();
+      });
+
+      it('should reject envelope when maxY equals minY', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          extentMinX: 1,
+          extentMaxX: 2,
+          extentMinY: 4,
+          extentMaxY: 4
+        });
+        expect(component.canSave()).toBeFalsy();
+      });
+
+      it('should reject envelope when maxY less than minY', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          extentMinX: 1,
+          extentMaxX: 2,
+          extentMinY: 5,
+          extentMaxY: 4
+        });
+        expect(component.canSave()).toBeFalsy();
+      });
+
+      it('should accept all envelope fields empty', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          extentMinX: null,
+          extentMaxX: null,
+          extentMinY: null,
+          extentMaxY: null
+        });
+        expect(component.canSave()).toBeTruthy();
+      });
+
+      it('should reject partial envelope', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          extentMinX: 1,
+          extentMaxX: null,
+          extentMinY: 3,
+          extentMaxY: 4
+        });
+        expect(component.canSave()).toBeFalsy();
+      });
+    });
+
+    describe('Center Point Validator - both coordinates required together', () => {
+      it('should accept both center coordinates provided', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          centerPointX: 1.5,
+          centerPointY: 2.5
+        });
+        expect(component.canSave()).toBeTruthy();
+      });
+
+      it('should accept both center coordinates empty', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          centerPointX: null,
+          centerPointY: null
+        });
+        expect(component.canSave()).toBeTruthy();
+      });
+
+      it('should reject only centerPointX provided', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          centerPointX: 1.5,
+          centerPointY: null
+        });
+        expect(component.canSave()).toBeFalsy();
+      });
+
+      it('should reject only centerPointY provided', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          centerPointX: null,
+          centerPointY: 2.5
+        });
+        expect(component.canSave()).toBeFalsy();
+      });
+    });
+
+    describe('Integer Validator for defaultZoomLevel', () => {
+      it('should accept positive integer', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          defaultZoomLevel: 10
+        });
+        expect(component.entityForm.get('defaultZoomLevel')?.hasError('pattern')).toBeFalsy();
+      });
+
+      it('should accept zero', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          defaultZoomLevel: 0
+        });
+        expect(component.entityForm.get('defaultZoomLevel')?.hasError('pattern')).toBeFalsy();
+      });
+
+      it('should accept negative integer', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          defaultZoomLevel: -5
+        });
+        expect(component.entityForm.get('defaultZoomLevel')?.hasError('pattern')).toBeFalsy();
+      });
+
+      it('should reject decimal number', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          defaultZoomLevel: 10.5
+        });
+        expect(component.entityForm.get('defaultZoomLevel')?.hasError('pattern')).toBeTruthy();
+        expect(component.entityForm.valid).toBeFalsy();
+      });
+
+      it('should reject non-numeric value', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          defaultZoomLevel: 'abc' as any
+        });
+        expect(component.entityForm.get('defaultZoomLevel')?.hasError('pattern')).toBeTruthy();
+        expect(component.entityForm.valid).toBeFalsy();
+      });
+
+      it('should accept empty defaultZoomLevel', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          defaultZoomLevel: null
+        });
+        expect(component.entityForm.get('defaultZoomLevel')?.hasError('pattern')).toBeFalsy();
+      });
+    });
+  });
+
+  describe('Duplicate Relation Loading (TDD for #383)', () => {
+    beforeEach(() => {
+      component.entityID = -1;
+      component.duplicateID = 123;
+      component.entityToEdit = Object.assign(new TerritoryProjection(), {
+        id: 123,
+        name: 'Original Territory',
+        typeId: 1,
+      });
+    });
+
+    it('should call getRelationArrayEx for cartographies when duplicating', () => {
+      const spy = jest.spyOn(component.entityToEdit, 'getRelationArrayEx').mockReturnValue(of([] as any));
+
+      const fetcher = component['cartographiesTable'].relationsFetchFn;
+      fetcher();
+
+      expect(spy).toHaveBeenCalledWith(expect.anything(), 'cartographyAvailabilities', {projection: 'view'});
+    });
+
+    it('should call getRelationArrayEx for tasks when duplicating', () => {
+      const spy = jest.spyOn(component.entityToEdit, 'getRelationArrayEx').mockReturnValue(of([] as any));
+
+      const fetcher = component['tasksTable'].relationsFetchFn;
+      fetcher();
+
+      expect(spy).toHaveBeenCalledWith(expect.anything(), 'taskAvailabilities', {projection: 'view'});
+    });
+
+    it('should call getRelationArrayEx for members when duplicating', () => {
+      const spy = jest.spyOn(component.entityToEdit, 'getRelationArrayEx').mockReturnValue(of([] as any));
+
+      const fetcher = component['membersTable'].relationsFetchFn;
+      fetcher();
+
+      expect(spy).toHaveBeenCalledWith(expect.anything(), 'members', {projection: 'view'});
+    });
+
+    it('should call getRelationArrayEx for memberOf when duplicating', () => {
+      const spy = jest.spyOn(component.entityToEdit, 'getRelationArrayEx').mockReturnValue(of([] as any));
+
+      const fetcher = component['membersOfTable'].relationsFetchFn;
+      fetcher();
+
+      expect(spy).toHaveBeenCalledWith(expect.anything(), 'memberOf', {projection: 'view'});
+    });
   });
 });

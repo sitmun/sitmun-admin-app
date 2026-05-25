@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import {firstValueFrom, Observable} from 'rxjs';
 
 import {LoginMethod} from "@app/components/login/login.component";
-import {environment} from "@environments/environment.prod";
+import {environment} from "@environments/environment";
 
 import {AuthService} from './auth.service';
 import {Principal} from './principal.service';
@@ -28,13 +28,13 @@ export class LoginService {
 
     try {
       const data = await firstValueFrom(this.authServerProvider.login(credentials));
-      const _account = await this.principal.identity(true);
+      await this.principal.identity(true);
       // After the login the language will be changed to
       // the language selected by the user during his registration
       cb();
       return data;
     } catch (err) {
-      this.logout();
+      this.principal.authenticate(null);
       cb(err);
       throw err;
     }

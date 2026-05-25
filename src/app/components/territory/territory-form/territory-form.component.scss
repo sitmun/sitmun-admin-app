@@ -1,5 +1,35 @@
-.FirstColFormDiv {
-    display: inline-block;
-    width: 47.5%;
-    margin-right: 2.3%;
-  }
+// Details tab: even vertical rhythm using flex gap (avoids margin-collapse between mat-form-field,
+// toggles, and groups).
+:host form mat-card-content.sitmun-territory-form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+}
+
+:host form mat-card-content.sitmun-territory-form-stack mat-form-field {
+  margin-bottom: 0;
+}
+
+:host form mat-card-content.sitmun-territory-form-stack mat-slide-toggle {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+// Horizontal row for coordinate fields
+.sitmun-coordinates-row {
+  display: flex;
+  flex-direction: row;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+// Shared hint for coordinate groups (extent, center)
+// Matches Angular Material's mat-hint styling
+.sitmun-coordinates-group-hint {
+  display: block;
+  margin: 0 0 0.5rem 0;
+  padding: 0 1rem;
+  font-size: 12px;
+  line-height: 1.4;
+  color: rgba(0, 0, 0, 0.6);
+}

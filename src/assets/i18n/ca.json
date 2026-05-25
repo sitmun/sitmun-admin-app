@@ -787,7 +787,7 @@
   "entity.territory.extentMinX": "Extensió (min X)",
   "entity.territory.extentMinY": "Extensió (min Y)",
   "entity.territory.groupType": "Grup tipus",
-  "entity.territory.hint.blocked": "Si està activat, marca el territori com a inactiu al catàleg. No l’oculta del visualitzador ni bloqueja el proxy per si sol.",
+  "entity.territory.hint.blocked": "Els territoris bloquejats s'exclouen de les llistes de territoris del client i de l'accés als perfils. La bandera de bloqueig és només per si mateix i no es propaga a territoris pare o fill.",
   "entity.territory.inheritPermissionsOfParents": "Permisos heredats dels pares",
   "entity.territory.label": "Territori",
   "entity.territory.layers": "Capes",
@@ -967,6 +967,8 @@
   "featureFlags.layersSourceFeature.description": "Funcionalitat de font",
   "featureFlags.servicesCrsList.description": "Llistes CRS de serveis",
   "featureFlags.servicesParametersFeature.description": "Pestanya de paràmetres del servei",
+  "featureFlags.territoryFocalPoint.description": "Formulari de territori: nivell de zoom per defecte (experimental, no l'utilitza el visualitzador actualment)",
+  "featureFlags.category.territories": "Territoris",
   "lang.ca": "Català",
   "lang.en": "Anglès",
   "lang.es": "Castellà",
@@ -1097,5 +1099,7 @@
   "tasksMoreInfoEntity.urlHint": "Utilitzeu {variableName} només per a paràmetres del client. Redirecció directa (sense proxy). Variables backend #{} NO suportades aquí.",
   "tasksMoreInfoEntity.value": "Valor",
   "treeStructureMessage.touristic.rootMustHaveChildren": "En un arbre turístic, l'únic node de primer nivell ha de contenir almenys un node fill.",
-  "treeStructureMessage.touristic.singleRoot": "En un arbre turístic només es permet un node de primer nivell. Actualment n'hi ha {{count}}."
+  "treeStructureMessage.touristic.singleRoot": "En un arbre turístic només es permet un node de primer nivell. Actualment n'hi ha {{count}}.",
+  "entity.territory.hint.center": "Punt focal dins del territori. Utilitzat pel visualitzador per calcular una extensió inicial centrada que manté visible tot el territori.",
+  "entity.territory.hint.extent": "Límits del territori (minX, maxX, minY, maxY) i sistema de referència espacial (SRS, p.ex., EPSG:4326). Enviats al perfil del client. L'extensió i el SRS (si està definit) anulen els valors de l'aplicació. Les quatre coordenades són requerides juntes."
 }
