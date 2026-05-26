@@ -670,8 +670,6 @@
   "entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_type_name": "Tipe de territòri",
   "entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_center_x": "Coordenada X deth centre",
   "entity.task.locator.parameters.municipalityCodeFilters.territoryField.option.territory_center_y": "Coordenada Y deth centre",
-  "entity.task.locator.parameters.municipalityCodeFilters.responseField": "Camp dera respòsta",
-  "entity.task.locator.parameters.municipalityCodeFilters.responseField.placeholder": "properties.id_municipi",
   "entity.task.locator.parameters.municipalityCodeFilters.convertToWgs84": "Convertir a WGS84",
   "entity.task.locator.parameters.municipalityCodeFilters.convertProjection": "Convertir projeccion",
   "entity.task.locator.parameters.municipalityCodeFilters.targetCrs": "CRS destin",

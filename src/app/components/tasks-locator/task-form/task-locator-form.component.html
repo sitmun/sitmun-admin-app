@@ -192,11 +192,6 @@
                 <input matInput type="text" formControlName="targetCrs"
                        [placeholder]="'entity.task.locator.parameters.municipalityCodeFilters.targetCrs.placeholder' | translate">
               </mat-form-field>
-              <mat-form-field appearance="outline" class="filter-field" subscriptSizing="dynamic">
-                <mat-label>{{ 'entity.task.locator.parameters.municipalityCodeFilters.responseField' | translate }}</mat-label>
-                <input matInput type="text" formControlName="responseField"
-                       [placeholder]="'entity.task.locator.parameters.municipalityCodeFilters.responseField.placeholder' | translate">
-              </mat-form-field>
               <button mat-icon-button color="warn" type="button"
                       (click)="removeMunicipalityCodeFilter(i)"
                       [attr.aria-label]="'common.remove' | translate">
