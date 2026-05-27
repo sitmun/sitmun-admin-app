@@ -1,8 +1,8 @@
-import { HttpClientModule } from '@angular/common/http';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideRouter } from '@angular/router';
 
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { BehaviorSubject, of } from 'rxjs';
@@ -19,7 +19,6 @@ import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { MaterialModule } from '@app/material-module';
 
 import { ToolbarComponent } from './toolbar.component';
-
 
 describe('ToolbarComponent', () => {
   let component: ToolbarComponent;
@@ -45,9 +44,6 @@ describe('ToolbarComponent', () => {
       declarations: [ ToolbarComponent, SystemInfoMenuComponent ],
       imports: [
         MaterialModule,
-        HttpClientTestingModule,
-        HttpClientModule,
-        RouterTestingModule,
         SitmunFrontendGuiModule,
         MatIconTestingModule,
         TranslateModule.forRoot({
@@ -60,6 +56,9 @@ describe('ToolbarComponent', () => {
         })
       ],
       providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
         LoginService,
         AuthService,
         { provide: Principal, useValue: principalStub },
@@ -87,7 +86,6 @@ describe('ToolbarComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-
 
   it('should instantiate loginService', () => {
     expect(loginService).toBeTruthy();

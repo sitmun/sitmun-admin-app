@@ -15,12 +15,26 @@ export function configureLoggerForTests(loggerService: LoggerService): void {
 }
 
 /**
+ * AG Grid logs colDef validation warnings via console.warn when tests mount DataGridComponent.
+ * Returns a callback to restore the original implementation.
+ */
+export function suppressAgGridConsoleWarnings(): () => void {
+  const originalWarn = console.warn.bind(console);
+  const spy = jest.spyOn(console, 'warn').mockImplementation((message?: unknown, ...args: unknown[]) => {
+    if (typeof message === 'string' && message.startsWith('AG Grid')) {
+      return;
+    }
+    originalWarn(message, ...args);
+  });
+  return () => spy.mockRestore();
+}
+
+/**
  * TestBed provider that replaces {@link ErrorHandlerService} with no-op mocks.
  *
- * <p>Form components extending {@code BaseFormComponent} run {@code fetchData()} from
- * {@code ngOnInit}; without a backend, HTTP fails and the real handler opens {@code MatSnackBar},
- * which schedules overlay work after the test fixture is destroyed (NG0406 / NG0205, "Cannot log
- * after tests are done").
+ * Form components extending BaseFormComponent run fetchData() from ngOnInit; without a backend,
+ * HTTP fails and the real handler opens MatSnackBar, which schedules overlay work after the
+ * test fixture is destroyed (NG0406 / NG0205, "Cannot log after tests are done").
  */
 export function provideErrorHandlerForTests(): Provider {
   const noop = (): null => null;

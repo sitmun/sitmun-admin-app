@@ -5,13 +5,17 @@
   [itemName]="itemName('name')"
   [isNew]="isNewOrDuplicated()"
   [canSave]="canSaveEntity"
-  [form]="entityForm"
-  entityLabelPrefix="entity.service"
-  [validationFieldLabelKeys]="{ type: 'entity.service.type', serviceURL: 'entity.service.endpoint', authenticationMode: 'entity.service.authenticationMode' }"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>
+
+<app-entity-form-alerts
+  *ngIf="dataLoaded"
+  [form]="entityForm"
+  entityLabelPrefix="entity.service"
+  [fieldLabelKeys]="{ type: 'entity.service.type', serviceURL: 'entity.service.endpoint', authenticationMode: 'entity.service.authenticationMode' }">
+</app-entity-form-alerts>
 
 <mat-tab-group
   mat-stretch-tabs="false"
@@ -206,16 +210,10 @@
       </ng-template>
       <mat-card appearance="outlined" class="sitmun-service-form-parameters-card">
         <mat-card-header>
-          <mat-card-subtitle class="sitmun-service-form-parameters-lead">
-            <span>
-              <strong>{{ 'entity.service.card.parametersLead.viewerPrefix' | translate }}</strong>
-              <span [innerHTML]="'entity.service.card.parametersLead.viewer' | translate"></span>
-            </span>
-            <span>
-              <strong>{{ 'entity.service.card.parametersLead.proxyPrefix' | translate }}</strong>
-              <span [innerHTML]="'entity.service.card.parametersLead.proxy' | translate"></span>
-            </span>
-          </mat-card-subtitle>
+          <app-card-lead
+            viewerKey="entity.service.card.parametersLead.viewer"
+            proxyKey="entity.service.card.parametersLead.proxy">
+          </app-card-lead>
         </mat-card-header>
         <mat-card-content>
           <app-data-grid [changeHeightButton]="true"

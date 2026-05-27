@@ -1,18 +1,8 @@
-import 'zone.js';
-import 'zone.js/testing';
-import { getTestBed } from '@angular/core/testing';
-import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
+import {setupZoneTestEnv} from 'jest-preset-angular/setup-env/zone';
 
-// Initialize TestBed for all tests
-try {
-  getTestBed().resetTestEnvironment();
-  getTestBed().initTestEnvironment(
-    BrowserDynamicTestingModule,
-    platformBrowserDynamicTesting()
-  );
-} catch (e) {
-  console.log('TestBed already initialized, skipping initialization');
-}
+setupZoneTestEnv({
+  teardown: {destroyAfterEach: true},
+});
 
 // Global mocks for jsdom
 const mock = () => {

@@ -49,26 +49,3 @@
   color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
   max-width: 72rem;
 }
-
-// Service parameters tab: two-line lead (bold Viewer / Proxy prefixes).
-.sitmun-service-form-parameters-lead {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  line-height: 1.45;
-}
-
-.sitmun-service-form-parameters-lead span strong {
-  margin-right: 0.25em;
-}
-
-// i18n may include <em> / <code> for service parameter names and literals (innerHTML).
-.sitmun-service-form-parameters-lead em {
-  font-style: italic;
-  font-weight: 500;
-}
-
-.sitmun-service-form-parameters-lead code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.9em;
-}

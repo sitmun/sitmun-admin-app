@@ -1,4 +1,5 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed, inject } from '@angular/core/testing';
 
 import { AuthService } from './auth.service';
@@ -12,10 +13,11 @@ describe('LoginService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [
-        HttpClientTestingModule,
         HalModule
       ],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         LoginService,
         Principal,
         AuthService,

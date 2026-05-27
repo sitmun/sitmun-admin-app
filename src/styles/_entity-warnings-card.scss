@@ -1,0 +1,62 @@
+// Entity form alerts card and tab warning indicators (shared across admin forms).
+
+.sitmun-entity-warnings-card {
+  border: 1px solid rgba(255, 152, 0, 0.45);
+  background-color: rgba(255, 243, 224, 0.95);
+  box-shadow: none;
+
+  mat-card-content {
+    padding: 12px 16px;
+  }
+
+  .banner-message-icon {
+    color: #f57c00;
+  }
+
+  .banner-message--info .banner-message-icon {
+    color: #1976d2;
+  }
+
+  .banner-messages {
+    color: #5d4037;
+  }
+
+  .banner-required-fields {
+    color: #5d4037;
+  }
+
+  .banner-required-fields .field-list strong {
+    color: #e65100;
+    font-weight: 600;
+  }
+}
+
+.sitmun-entity-warnings-card--info {
+  border: 1px solid rgba(25, 118, 210, 0.3);
+  background-color: rgba(227, 242, 253, 0.95);
+
+  .banner-message-icon,
+  .banner-message--info .banner-message-icon {
+    color: #1976d2;
+  }
+
+  .banner-messages,
+  .banner-required-fields {
+    color: #0d47a1;
+  }
+}
+
+.sitmun-tab-label-with-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sitmun-tab-warn-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #f57c00;
+  flex-shrink: 0;
+}

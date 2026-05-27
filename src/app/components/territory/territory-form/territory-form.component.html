@@ -5,13 +5,18 @@
   [isNew]="isNewOrDuplicated()"
   [itemName]="itemName('name')"
   [canSave]="canSaveEntity"
-  [form]="entityForm"
-  entityLabelPrefix="entity.territory"
-  [validationFieldLabelKeys]="{ name: 'entity.territory.name', code: 'entity.territory.code', typeId: 'entity.territory.territoryType', blocked: 'entity.territory.blocked' }"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>
+
+<app-entity-form-alerts
+  *ngIf="dataLoaded"
+  [form]="entityForm"
+  entityLabelPrefix="entity.territory"
+  [fieldLabelKeys]="{ name: 'entity.territory.name', code: 'entity.territory.code', typeId: 'entity.territory.territoryType', blocked: 'entity.territory.blocked' }">
+</app-entity-form-alerts>
+
 <mat-tab-group
   mat-stretch-tabs="false"
   mat-align-tabs="end"
@@ -89,19 +94,19 @@
           <div class="break"></div>
           <mat-form-field appearance="outline" class="quarter add-gap">
             <mat-label>{{ 'entity.territory.extentMinX' | translate }}</mat-label>
-            <input matInput type="number" formControlName="extentMinX" required>
+            <input matInput type="number" formControlName="extentMinX">
           </mat-form-field>
           <mat-form-field appearance="outline" class="quarter add-gap">
             <mat-label>{{ 'entity.territory.extentMaxX' | translate }}</mat-label>
-            <input matInput type="number" formControlName="extentMaxX" required>
+            <input matInput type="number" formControlName="extentMaxX">
           </mat-form-field>
           <mat-form-field appearance="outline" class="quarter add-gap">
             <mat-label>{{ 'entity.territory.extentMinY' | translate }}</mat-label>
-            <input matInput type="number" formControlName="extentMinY" required>
+            <input matInput type="number" formControlName="extentMinY">
           </mat-form-field>
           <mat-form-field appearance="outline" class="quarter">
             <mat-label>{{ 'entity.territory.extentMaxY' | translate }}</mat-label>
-            <input matInput type="number" formControlName="extentMaxY" required>
+            <input matInput type="number" formControlName="extentMaxY">
           </mat-form-field>
           <mat-form-field appearance="outline" class="quarter">
             <mat-label>{{ 'entity.application.srs' | translate }}</mat-label>

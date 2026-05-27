@@ -1,0 +1,15 @@
+<mat-card
+  *ngIf="visible"
+  class="sitmun-mat-card-margin sitmun-entity-warnings-card"
+  [class.sitmun-entity-warnings-card--info]="infoStyle"
+  appearance="outlined">
+  <mat-card-content>
+    <app-warnings-panel
+      [collapsible]="false"
+      [bare]="true"
+      [compact]="true"
+      [alerts]="alerts"
+      [footerHintKey]="footerHintKey">
+    </app-warnings-panel>
+  </mat-card-content>
+</mat-card>

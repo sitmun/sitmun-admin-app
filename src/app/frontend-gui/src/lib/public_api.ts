@@ -20,7 +20,6 @@ export {
 export * from './dialog-form/dialog-form.component';
 export * from './dialog-translation/dialog-translation.component';
 export * from './data-graph/datagraph.component';
-export * from './form-validation-banner/form-validation-banner.component';
 // Re-export utility types and functions from DataGridComponent (but not the component itself)
 export type { Status, GridEvent, GridEventType } from './data-grid/data-grid.component';
 export { 

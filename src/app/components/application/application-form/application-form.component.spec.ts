@@ -1,16 +1,17 @@
-import {HttpClientModule} from '@angular/common/http';
-import {HttpClientTestingModule} from '@angular/common/http/testing';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {NO_ERRORS_SCHEMA} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatIconTestingModule} from '@angular/material/icon/testing';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {RouterModule} from '@angular/router';
-import {RouterTestingModule} from '@angular/router/testing';
+import {} from '@angular/router/testing';
 
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {of} from 'rxjs';
 
+import {EntityFormAlertsComponent} from '@app/components/shared/entity-form-alerts/entity-form-alerts.component';
 import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
+import {CoreModule} from '@app/core';
 import {ExternalConfigurationService} from '@app/core/config/external-configuration.service';
 import {ExternalService, ResourceService} from '@app/core/hal';
 import {
@@ -18,11 +19,31 @@ import {
   CartographyGroupService, CodeListService, RoleService, TranslationService, TreeService, UserService
 } from '@app/domain';
 import {SitmunFrontendGuiModule} from '@app/frontend-gui/src/lib/public_api';
+import {DataGridComponent} from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
 import {MaterialModule} from '@app/material-module';
 import {LoggerService} from '@app/services/logger.service';
-import {configureLoggerForTests, provideErrorHandlerForTests} from '@app/testing/test-helpers';
+import {
+  configureLoggerForTests,
+  provideErrorHandlerForTests,
+  suppressAgGridConsoleWarnings,
+} from '@app/testing/test-helpers';
+import {constants} from '@environments/constants';
 
 import {ApplicationFormComponent} from './application-form.component';
+
+function seedApplicationFormCodeLists(component: ApplicationFormComponent): void {
+  const {internalApp, externalApp} = constants.codeValue.applicationType;
+  (component as unknown as {codelists: Map<string, {value: string; description: string; defaultCode?: boolean}[]>})
+    .codelists.set('application.type', [
+      {value: internalApp, description: 'Internal', defaultCode: true},
+      {value: externalApp, description: 'External', defaultCode: false},
+    ]);
+  (component as unknown as {codelists: Map<string, unknown[]>}).codelists.set('applicationParameter.type', []);
+  (component as unknown as {situationMapList: {id: number; name: string}[]}).situationMapList = [
+    {id: 1, name: 'Default map'},
+  ];
+  (component as unknown as {usersList: unknown[]}).usersList = [];
+}
 
 describe('ApplicationFormComponent', () => {
   let component: ApplicationFormComponent;
@@ -38,12 +59,12 @@ describe('ApplicationFormComponent', () => {
   let translationService: TranslationService;
   let resourceService: ResourceService;
   let externalService: ExternalService;
+  let restoreConsoleWarn: () => void;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ApplicationFormComponent, FormToolbarComponent],
-      imports: [FormsModule, ReactiveFormsModule, HttpClientTestingModule, RouterModule.forRoot([], {}), HttpClientModule,
-        SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule, BrowserAnimationsModule,
+      imports: [FormsModule, ReactiveFormsModule, RouterModule.forRoot([], {}), SitmunFrontendGuiModule, DataGridComponent, MaterialModule, MatIconTestingModule, BrowserAnimationsModule, CoreModule, EntityFormAlertsComponent,
         TranslateModule.forRoot({
           loader: {
             provide: TranslateLoader,
@@ -52,6 +73,7 @@ describe('ApplicationFormComponent', () => {
             })
           }
         })],
+      schemas: [NO_ERRORS_SCHEMA],
       providers: [provideErrorHandlerForTests(), ApplicationService, ApplicationBackgroundService, RoleService, ApplicationParameterService, TreeService,
         BackgroundService, CodeListService, CartographyGroupService, TranslationService, ResourceService, ExternalService, UserService,
         {provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService},]
@@ -73,24 +95,17 @@ describe('ApplicationFormComponent', () => {
     translationService = TestBed.inject(TranslationService);
     resourceService = TestBed.inject(ResourceService);
     externalService = TestBed.inject(ExternalService);
-    // Suppress debug logs in tests to reduce console noise
     const loggerService = TestBed.inject(LoggerService);
     configureLoggerForTests(loggerService);
-    // Initialize form if not already initialized
-    // Mock the empty() method to avoid accessing protected situationMapList
-    if (!component.entityForm) {
-      const mockEmpty = jest.spyOn(component, 'empty');
-      mockEmpty.mockReturnValue({
-        id: -1,
-        type: null,
-        situationMap: null,
-        appPrivate: false
-      } as any);
-      component.entityToEdit = component.empty();
-      component.postFetchData();
-      mockEmpty.mockRestore();
-    }
+    restoreConsoleWarn = suppressAgGridConsoleWarnings();
+    seedApplicationFormCodeLists(component);
+    component.entityToEdit = component.empty();
+    component.postFetchData();
     fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    restoreConsoleWarn?.();
   });
 
   it('should create', () => {
@@ -163,6 +178,7 @@ describe('ApplicationFormComponent', () => {
   it('form valid', () => {
     component.entityForm.patchValue({
       name: 'name',
+      description: 'description',
       logo: 'https://example.com/logo.png',
       type: 1,
       title: 'title',
@@ -187,6 +203,62 @@ describe('ApplicationFormComponent', () => {
     expect(component.entityForm.get('situationMapId')).toBeTruthy();
     expect(component.entityForm.get('scales')).toBeTruthy();
     expect(component.entityForm.get('treeAutoRefresh')).toBeTruthy();
+  });
+
+  it('requires external URL when type is external', () => {
+    component.onSelectionTypeAppChanged({ value: constants.codeValue.applicationType.externalApp });
+    component.entityForm.patchValue({
+      name: 'External',
+      description: 'desc',
+      jspTemplate: '',
+    });
+    expect(component.entityForm.get('jspTemplate')?.valid).toBe(false);
+    component.entityForm.patchValue({ jspTemplate: 'https://www.idee.es' });
+    expect(component.entityForm.get('jspTemplate')?.valid).toBe(true);
+  });
+
+  it('does not require external URL when type is internal', () => {
+    component.onSelectionTypeAppChanged({ value: constants.codeValue.applicationType.internalApp });
+    component.entityForm.patchValue({ jspTemplate: '' });
+    expect(component.entityForm.get('jspTemplate')?.disabled).toBe(true);
+  });
+
+  describe('entity form alerts integration', () => {
+    it('rolesTabHasWarning when private-app warning is present', () => {
+      component.entityToEdit = Object.assign(component.empty(), {
+        warnings: ['entity.application.warning.private-application-with-public-user'],
+      });
+      expect(component.rolesTabHasWarning()).toBe(true);
+    });
+
+    it('detailsTabHasRequiredAlert when name is missing', () => {
+      component.entityForm.patchValue({ name: '', type: 1 });
+      expect(component.detailsTabHasRequiredAlert()).toBe(true);
+    });
+
+    it('canSave follows canSaveEntity including tree rules', () => {
+      component.dataLoaded = true;
+      component.entityForm.patchValue({
+        name: 'name',
+        description: 'desc',
+        type: constants.codeValue.applicationType.internalApp,
+      });
+      component.entityForm.markAsDirty();
+      (component as any).currentAppType = constants.codeValue.applicationType.internalApp;
+      (component as any).treesDataGrid = {
+        rowData: [{ type: constants.codeValue.treeType.touristicTree, status: constants.entityStatus.statusOK }],
+      };
+      expect(component.canSave()).toBe(false);
+      expect(component.applicationTreeValidationWarningMessage).toBeTruthy();
+    });
+
+    it('does not render toolbar form-validation-banner', () => {
+      component.dataLoaded = true;
+      component.entityForm.get('name')?.setValue('');
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector('app-form-validation-banner')).toBeFalsy();
+      expect(fixture.nativeElement.querySelector('app-entity-form-alerts')).toBeTruthy();
+    });
   });
 
 });

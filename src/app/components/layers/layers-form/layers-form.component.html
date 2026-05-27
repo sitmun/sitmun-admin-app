@@ -5,13 +5,18 @@
   [itemName]="itemName('name')"
   [isNew]="isNewOrDuplicated()"
   [canSave]="canSaveEntity"
-  [form]="entityForm"
-  entityLabelPrefix="entity.cartography"
-  [validationFieldLabelKeys]="{ serviceId: 'entity.service.label', joinedLayers: 'entity.cartography.layerSet' }"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>
+
+<app-entity-form-alerts
+  *ngIf="dataLoaded"
+  [form]="entityForm"
+  entityLabelPrefix="entity.cartography"
+  [fieldLabelKeys]="{ serviceId: 'entity.service.label', joinedLayers: 'entity.cartography.layerSet' }">
+</app-entity-form-alerts>
+
 <form [formGroup]='entityForm' *ngIf="dataLoaded" class="sitmun-cartography-form-entity">
   <mat-tab-group
     mat-stretch-tabs="false"

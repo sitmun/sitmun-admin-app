@@ -5,19 +5,36 @@
   [itemName]="itemName('name')"
   [isNew]="isNewOrDuplicated()"
   [canSave]="canSaveEntity"
-  [form]="entityForm"
-  entityLabelPrefix="entity.application"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>
+
+<app-entity-form-alerts
+  *ngIf="dataLoaded"
+  [form]="entityForm"
+  entityLabelPrefix="entity.application"
+  [fieldLabelKeys]="validationFieldLabelKeys"
+  [warnings]="entityToEdit?.warnings"
+  [customAlertMessage]="applicationTreeValidationWarningMessage">
+</app-entity-form-alerts>
 
 <mat-tab-group
   mat-stretch-tabs="false"
   mat-align-tabs="end"
   [dynamicHeight]="true"
   preserveContent="true">
-  <mat-tab label="{{ 'common.form.details' | translate }}">
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <span class="sitmun-tab-label-with-indicator">
+        {{ 'common.form.details' | translate }}
+        <span
+          *ngIf="detailsTabHasRequiredAlert()"
+          class="sitmun-tab-warn-indicator"
+          [attr.aria-label]="'common.validation.saveDisabledTitle' | translate">
+        </span>
+      </span>
+    </ng-template>
     <form [formGroup]='entityForm' *ngIf="dataLoaded" class="application-form-entity">
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
         <mat-card-content>
@@ -60,7 +77,7 @@
                   <ng-container *ngIf="entityForm.get('creatorId')?.value as creatorId">
                     <a [routerLink]="['/user', creatorId, 'userForm']"
                        class="router-link">
-                      {{ getUsername(creatorId) | translate }}
+                      {{ getUsername(creatorId) }}
                     </a>
                   </ng-container>
                   <span *ngIf="!entityForm.get('creatorId')?.value">
@@ -111,12 +128,6 @@
             <mat-hint align="end">{{entityForm.get('maintenanceInformation') | characterCount}}</mat-hint>
           </mat-form-field>
 
-          <!-- Warnings Section -->
-          <app-warnings-panel
-            [expanded]="true"
-            [warnings]="entityToEdit?.warnings"
-            titleKey="common.warnings.title">
-          </app-warnings-panel>
         </mat-card-content>
       </mat-card>
       <mat-card *ngIf="isExternalApp()" appearance="outlined" class="sitmun-mat-card-margin">
@@ -126,6 +137,9 @@
             <input matInput type="text" formControlName="jspTemplate" [maxlength]="250">
             <mat-hint align="start">{{ 'entity.application.hint.jspTemplate' | translate }}</mat-hint>
             <mat-hint align="end">{{entityForm.get('jspTemplate') | characterCount}}</mat-hint>
+            <mat-error *ngIf="entityForm.get('jspTemplate')?.hasError('required')">
+              {{ 'entity.application.error.externalUrlRequired' | translate }}
+            </mat-error>
             <mat-error *ngIf="entityForm.get('jspTemplate')?.hasError('optionalHttpUrl')">
               {{ 'entity.application.error.optionalHttpUrl' | translate }}
             </mat-error>
@@ -144,20 +158,12 @@
             <mat-hint align="start">{{ 'entity.application.hint.title' | translate }}</mat-hint>
             <mat-hint align="end">{{entityForm.get('title') | characterCount}}</mat-hint>
           </mat-form-field>
-          <div class="application-form-field-row application-form-field-row--two-col">
-            <mat-form-field appearance="outline" class="half add-gap sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
-              <mat-label>{{ 'entity.application.type.generic.css' | translate }}</mat-label>
-              <input matInput type="text" formControlName="theme" [maxlength]="30">
-              <mat-hint align="start">{{ 'entity.application.hint.theme' | translate }}</mat-hint>
-              <mat-hint align="end">{{entityForm.get('theme') | characterCount}}</mat-hint>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="half sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
-              <mat-label>{{ 'entity.application.type.generic.scales' | translate }}</mat-label>
-              <input matInput type="text" formControlName="scales" [maxlength]="250">
-              <mat-hint align="start">{{ 'entity.application.hint.scales' | translate }}</mat-hint>
-              <mat-hint align="end">{{entityForm.get('scales') | characterCount}}</mat-hint>
-            </mat-form-field>
-          </div>
+          <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
+            <mat-label>{{ 'entity.application.type.generic.css' | translate }}</mat-label>
+            <input matInput type="text" formControlName="theme" [maxlength]="30">
+            <mat-hint align="start">{{ 'entity.application.hint.theme' | translate }}</mat-hint>
+            <mat-hint align="end">{{entityForm.get('theme') | characterCount}}</mat-hint>
+          </mat-form-field>
           <div class="application-form-field-row application-form-field-row--two-col">
             <mat-form-field appearance="outline" class="half add-gap sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
               <mat-label>{{ 'entity.application.type.generic.srs' | translate }}</mat-label>
@@ -171,7 +177,7 @@
                 <mat-select-trigger>
                   <ng-container *ngIf="entityForm.get('situationMapId')?.value as selectedId">
                     <a [routerLink]="['/layersPermits', selectedId, 'layersPermitsForm']" class="router-link">
-                      {{ getSituationMapName(selectedId) | translate }}
+                      {{ getSituationMapName(selectedId) }}
                     </a>
                   </ng-container>
                   <span *ngIf="!entityForm.get('situationMapId')?.value">
@@ -183,7 +189,7 @@
                   <div>
                     <a [routerLink]="['/layersPermits', situationMapObj.id, 'layersPermitsForm']"
                        (click)="$event.stopPropagation()" class="router-link">
-                      <span>{{ situationMapObj.name | translate }}</span>
+                      <span>{{ situationMapObj.name }}</span>
                     </a>
                   </div>
                 </mat-option>
@@ -191,13 +197,30 @@
               <mat-hint align="start">{{ 'entity.application.hint.situationMap' | translate }}</mat-hint>
             </mat-form-field>
           </div>
-          <div class="break"></div>
-          <div class="application-toggle-row">
-            <mat-slide-toggle color="primary" formControlName="treeAutoRefresh">
-              {{ 'entity.application.type.generic.treeAutoRefresh' | translate }}
-            </mat-slide-toggle>
-            <div class="application-field-hint application-field-hint--rich">{{ 'entity.application.hint.treeAutoRefresh' | translate }}</div>
-          </div>
+          <ng-container *appFeatureFlag="'APPLICATION_SCALES_FEATURE'">
+            <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
+              <mat-label>
+                <app-feature-flag
+                  [text]="'entity.application.type.generic.scales' | translate"
+                  [flag]="'APPLICATION_SCALES_FEATURE'">
+                </app-feature-flag>
+              </mat-label>
+              <input matInput type="text" formControlName="scales" [maxlength]="250">
+              <mat-hint align="start">{{ 'entity.application.hint.scales' | translate }}</mat-hint>
+              <mat-hint align="end">{{entityForm.get('scales') | characterCount}}</mat-hint>
+            </mat-form-field>
+          </ng-container>
+          <ng-container *appFeatureFlag="'APPLICATION_TREE_AUTO_REFRESH_FEATURE'">
+            <div class="application-toggle-row">
+              <mat-slide-toggle color="primary" formControlName="treeAutoRefresh">
+                <app-feature-flag
+                  [text]="'entity.application.type.generic.treeAutoRefresh' | translate"
+                  [flag]="'APPLICATION_TREE_AUTO_REFRESH_FEATURE'">
+                </app-feature-flag>
+              </mat-slide-toggle>
+              <div class="application-field-hint application-field-hint--rich">{{ 'entity.application.hint.treeAutoRefresh' | translate }}</div>
+            </div>
+          </ng-container>
         </mat-card-content>
       </mat-card>
       <mat-card *ngIf="isInternalApp()" appearance="outlined" class="sitmun-mat-card-margin">
@@ -295,7 +318,17 @@
       </mat-card-content>
     </mat-card>
   </mat-tab>
-  <mat-tab label="{{ 'entity.application.roles.header' | translate }}">
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <span class="sitmun-tab-label-with-indicator">
+        {{ 'entity.application.roles.header' | translate }}
+        <span
+          *ngIf="rolesTabHasWarning()"
+          class="sitmun-tab-warn-indicator"
+          [attr.aria-label]="'common.warnings.title' | translate">
+        </span>
+      </span>
+    </ng-template>
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
         <app-data-grid [changeHeightButton]="true"

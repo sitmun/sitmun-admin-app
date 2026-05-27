@@ -1,5 +1,6 @@
 @use '@angular/material' as mat;
 @use "mat-form-field-rich-hint";
+@use "styles/entity-warnings-card";
 @include mat.core();
 
 /* You can add global styles to this file, and also import other style files */
@@ -155,6 +156,10 @@ h2 {
   cursor: col-resize;
 }
 
+.ag-theme-material .ag-header-cell.sitmun-truncated-header {
+  cursor: col-resize;
+}
+
 .ag-theme-material .ag-cell.ag-cell-focus,
 .ag-theme-material .ag-cell:focus,
 .ag-theme-material .ag-cell:focus-within {
@@ -172,10 +177,53 @@ h2 {
   display: flex;
   align-items: center;
   justify-content: center;
+
+  // AG Grid wraps checkbox selection in ag-cell-wrapper and appends an empty
+  // ag-cell-value span; keep the visible checkbox centered in the full cell.
+  .ag-cell-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ag-selection-checkbox {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    margin: 0 auto;
+  }
+
+  .ag-selection-checkbox + .ag-cell-value {
+    display: none;
+  }
+}
+
+.sitmun-status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: 0 0 8px;
 }
 
 .ag-theme-material .sitmun-centered-header .ag-header-cell-label {
   justify-content: center;
+}
+
+.ag-theme-material .ag-header-cell.sitmun-centered-header.ag-column-first {
+  justify-content: center;
+
+  // AG Grid offsets the select-all checkbox to leave room for the empty header
+  // label container; hide that placeholder and center the checkbox in 56px.
+  .ag-header-select-all {
+    margin: 0 !important;
+  }
+
+  .ag-header-cell-comp-wrapper {
+    display: none;
+  }
 }
 
 // Apply gray background only to authenticated pages

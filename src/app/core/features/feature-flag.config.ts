@@ -27,6 +27,10 @@ export const FEATURE_FLAGS = {
   LAYERS_FILTERS_TAB_FEATURE: 'layers-filters-tab',
   /** Layers form: GetFeatureInfo / queryable layer subset and optional cartography parameters (not in SITNA client profile yet). */
   LAYERS_FEATURE_INFORMATION_TAB_FEATURE: 'layers-feature-information-tab',
+  /** Application form: comma-separated scale denominators (not in viewer client profile yet). */
+  APPLICATION_SCALES_FEATURE: 'application-scales',
+  /** Application form: tree auto-refresh toggle (not in viewer client profile yet). */
+  APPLICATION_TREE_AUTO_REFRESH_FEATURE: 'application-tree-auto-refresh',
 } as const;
 
 export type FeatureFlagKeys = keyof typeof FEATURE_FLAGS;
@@ -86,6 +90,20 @@ export const PROD_FEATURE_FLAGS: Record<FeatureFlagKeys, FeatureFlagConfig> = {
     experimental: true,
     description: 'featureFlags.layersFeatureInformationTab.description',
     category: 'Layers'
+  },
+  APPLICATION_SCALES_FEATURE: {
+    key: FEATURE_FLAGS.APPLICATION_SCALES_FEATURE,
+    enabled: false,
+    experimental: true,
+    description: 'featureFlags.applicationScales.description',
+    category: 'Applications'
+  },
+  APPLICATION_TREE_AUTO_REFRESH_FEATURE: {
+    key: FEATURE_FLAGS.APPLICATION_TREE_AUTO_REFRESH_FEATURE,
+    enabled: false,
+    experimental: true,
+    description: 'featureFlags.applicationTreeAutoRefresh.description',
+    category: 'Applications'
   }
 };
 
@@ -148,5 +166,19 @@ export const DEV_FEATURE_FLAGS: Record<FeatureFlagKeys, FeatureFlagConfig> = {
     experimental: true,
     description: 'featureFlags.layersFeatureInformationTab.description',
     category: 'Layers'
+  },
+  APPLICATION_SCALES_FEATURE: {
+    key: FEATURE_FLAGS.APPLICATION_SCALES_FEATURE,
+    enabled: true,
+    experimental: true,
+    description: 'featureFlags.applicationScales.description',
+    category: 'Applications'
+  },
+  APPLICATION_TREE_AUTO_REFRESH_FEATURE: {
+    key: FEATURE_FLAGS.APPLICATION_TREE_AUTO_REFRESH_FEATURE,
+    enabled: true,
+    experimental: true,
+    description: 'featureFlags.applicationTreeAutoRefresh.description',
+    category: 'Applications'
   }
 }; 

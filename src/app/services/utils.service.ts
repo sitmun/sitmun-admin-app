@@ -334,10 +334,14 @@ export class UtilsService {
       editable: false,
       headerClass: 'sitmun-centered-header',
       cellClass: 'sitmun-centered-cell',
+      cellStyle: {padding: '0', display: 'flex', alignItems: 'center', justifyContent: 'center'},
       lockPosition: true,
       suppressMovable: true,
       resizable: false,
-      maxWidth: 80,
+      width: 56,
+      minWidth: 56,
+      maxWidth: 56,
+      flex: 0,
     };
   }
 
@@ -426,46 +430,33 @@ export class UtilsService {
    * @returns Column definition object for status column.
    */
   getStatusColumnDef() {
+    const statusHeader = this.getTranslate('common.form.status');
+    const statusColors = {
+      pendingModify: '#ff9300',
+      pendingCreation: '#ff9300',
+      pendingRegistration: '#ff9300',
+      unregisteredLayer: '#ffe100',
+      pendingDelete: '#bf0000',
+      notAvailable: '#bf0000',
+      statusOK: '#68A225',
+    };
     return {
-      maxWidth: 180,
-      minWidth: 180,
-      headerName: this.getTranslate('common.form.status'),
+      maxWidth: 60,
+      minWidth: 60,
+      headerName: '',
+      headerTooltip: statusHeader,
       field: 'status',
-      filter: 'agTextColumnFilter',
-      filterParams: {
-        textFormatter: (filterValue) =>
-          this.getTranslate('common.status.' + filterValue).toLowerCase(),
-      },
+      filter: false,
       editable: false,
-      valueFormatter: (params) => {
-        if (params.value != undefined && params.value !== '') {
-          return this.getTranslate('common.status.' + params.value);
-        } else {
-          return this.getTranslate('common.status.statusOK');
-        }
-      },
-      cellClassRules: {
-        pendingModify: function (params) {
-          return params.value === 'pendingModify';
-        },
-        pendingDelete: function (params) {
-          return params.value === 'pendingDelete';
-        },
-        pendingCreation: function (params) {
-          return params.value === 'pendingCreation';
-        },
-        notAvailable: function (params) {
-          return params.value === 'notAvailable';
-        },
-        pendingRegistration: function (params) {
-          return params.value === 'pendingRegistration';
-        },
-        unregisteredLayer: function (params) {
-          return params.value === 'unregisteredLayer';
-        },
-        stable: function (params) {
-          return params.value === undefined || params.value === 'statusOK';
-        },
+      cellStyle: {display: 'flex', alignItems: 'center', justifyContent: 'center'},
+      cellRenderer: (params) => {
+        const key = params.value ?? 'statusOK';
+        const span = document.createElement('span');
+        span.className = 'sitmun-status-dot';
+        span.title = this.getTranslate('common.status.' + key);
+        span.setAttribute('aria-label', span.title);
+        span.style.backgroundColor = statusColors[key] ?? statusColors.statusOK;
+        return span;
       },
     };
   }
@@ -803,10 +794,22 @@ export class UtilsService {
       headerClass: 'sitmun-centered-header',
       cellClass: 'sitmun-centered-cell',
       cellRenderer: 'btnCheckboxRendererComponent',
+      filter: 'agTextColumnFilter',
+      filterParams: {
+        filterOptions: ['equals'],
+        suppressAndOrCondition: true,
+      },
       floatingFilterComponent: BtnCheckboxFilterComponent,
-      valueGetter: (params) => {
+      suppressHeaderFilterButton: true,
+      suppressHeaderMenuButton: true,
+      suppressMenu: true,
+      filterValueGetter: (params) => {
         const value = this.getValueFromPropertyPath(params.data, field);
         return value ? 'true' : 'false';
+      },
+      valueSetter: (params) => {
+        params.data[field] = params.newValue;
+        return true;
       },
       floatingFilterComponentParams: {suppressFilterButton: true},
       onCellValueChanged: autoUnsetOthers ? (params) => {
