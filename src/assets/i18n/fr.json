@@ -834,7 +834,7 @@
   "entity.territory.extentMinX": "Extension (min X)",
   "entity.territory.extentMinY": "Extension (min Y)",
   "entity.territory.groupType": "Type de groupe",
-  "entity.territory.hint.blocked": "Lorsque l’option est activée, le territoire est marqué inactif dans le catalogue. Cela ne le masque pas dans le visualiseur ni ne bloque le proxy à lui seul.",
+  "entity.territory.hint.blocked": "Les territoires bloqués sont exclus des listes de territoires client et de l'accès aux profils. Le drapeau de blocage est auto-seulement et ne se propage pas aux territoires parents ou enfants.",
   "entity.territory.inheritPermissionsOfParents": "Hériter les autorisations des parents",
   "entity.territory.label": "Territoire",
   "entity.territory.layers": "Calques",
@@ -1014,6 +1014,8 @@
   "featureFlags.layersSourceFeature.description": "Fonctionnalité de source",
   "featureFlags.servicesCrsList.description": "Listes CRS des services",
   "featureFlags.servicesParametersFeature.description": "Onglet paramètres du service",
+  "featureFlags.territoryFocalPoint.description": "Formulaire de territoire : niveau de zoom par défaut (expérimental, pas encore utilisé par le visualiseur)",
+  "featureFlags.category.territories": "Territoires",
   "lang.ca": "Catalan",
   "lang.en": "Anglais",
   "lang.es": "Espagnol",
@@ -1144,5 +1146,7 @@
   "tasksMoreInfoEntity.urlHint": "Utilisez {variableName} uniquement pour les paramètres client. Redirection directe (sans proxy). Variables backend #{} NON supportées ici.",
   "tasksMoreInfoEntity.value": "Valeur",
   "treeStructureMessage.touristic.rootMustHaveChildren": "Dans un arbre touristique, l'unique nœud de premier niveau doit contenir au moins un nœud enfant.",
-  "treeStructureMessage.touristic.singleRoot": "Dans un arbre touristique, un seul nœud de premier niveau est autorisé. Il y en a actuellement {{count}}."
+  "treeStructureMessage.touristic.singleRoot": "Dans un arbre touristique, un seul nœud de premier niveau est autorisé. Il y en a actuellement {{count}}.",
+  "entity.territory.hint.center": "Point focal dans le territoire. Utilisé par le visualiseur pour calculer une étendue initiale centrée qui garde tout le territoire visible.",
+  "entity.territory.hint.extent": "Limites du territoire (minX, maxX, minY, maxY) et système de référence spatiale (SRS, par ex., EPSG:4326). Envoyés au profil client. L'étendue et le SRS (si défini) remplacent les valeurs de l'application. Les quatre coordonnées sont requises ensemble."
 }

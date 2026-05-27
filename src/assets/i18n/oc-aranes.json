@@ -834,7 +834,7 @@
   "entity.territory.extentMinX": "Extension (min X)",
   "entity.territory.extentMinY": "Extension (min Y)",
   "entity.territory.groupType": "Grop tipe",
-  "entity.territory.hint.blocked": "Se es activat, marca aguest territòri coma inactiu dins eth cataleg. Non l’amaga deth visualizaire ni blocatz eth proxy per conte d’aguesta opcion.",
+  "entity.territory.hint.blocked": "Eths territòris blocadi s'excluden des listes de territòris deth client e de l'accès ath perfils. Eth indicador de blocatge ei sonque entà era madeisha e non se propague ath territòris paire o hilh.",
   "entity.territory.inheritPermissionsOfParents": "Permisi eretadi des pairs",
   "entity.territory.label": "Territòri",
   "entity.territory.layers": "Capes",
@@ -1014,6 +1014,8 @@
   "featureFlags.layersSourceFeature.description": "Funcionalitat de font",
   "featureFlags.servicesCrsList.description": "Listas CRS de servicis",
   "featureFlags.servicesParametersFeature.description": "Pestanha de paramètres deth servici",
+  "featureFlags.territoryFocalPoint.description": "Formulari de territòri: nivèu de zoom per defecte (experimentau, non utilizat peth visualizaire encara)",
+  "featureFlags.category.territories": "Territòris",
   "lang.ca": "Catalan",
   "lang.en": "Anglés",
   "lang.es": "Castelhan",
@@ -1144,5 +1146,7 @@
   "tasksMoreInfoEntity.urlHint": "Utilizar {variableName} sonque entà paramètres der client. Redireccion dirècta (sense proxy). Variables backend #{} NON suportadi ací.",
   "tasksMoreInfoEntity.value": "Valor",
   "treeStructureMessage.touristic.rootMustHaveChildren": "En un arriu toristic, eth solet nòd de prumèr nivèu deu contier ath mens un nòd hilh.",
-  "treeStructureMessage.touristic.singleRoot": "En un arriu toristic sonque ei permetut un nòd de prumèr nivèu. Actuaument n'i a {{count}}."
+  "treeStructureMessage.touristic.singleRoot": "En un arriu toristic sonque ei permetut un nòd de prumèr nivèu. Actuaument n'i a {{count}}.",
+  "entity.territory.hint.center": "Punt focau dens eth territòri. Utilizat peth visualizaire entà calcular ua extension iniciau centrada que manten visibla tot eth territòri.",
+  "entity.territory.hint.extent": "Limits deth territòri (minX, maxX, minY, maxY) e sistèma de referéncia espaciau (SRS, p.ex., EPSG:4326). Enviadi ath perfil deth client. Era extension e eth SRS (se definit) anulen eths valors dera aplicacion. Eres quatre coordenades son requirides juntes."
 }

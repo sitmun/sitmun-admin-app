@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
+import {AbstractControl, UntypedFormControl, UntypedFormGroup, ValidationErrors, ValidatorFn, Validators} from '@angular/forms';
 import {MatDialog} from '@angular/material/dialog';
 import {MatSelectChange} from '@angular/material/select';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -50,6 +50,48 @@ import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 
+function httpUrlValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const value = control.value;
+    if (!value) {
+      return null;
+    }
+    try {
+      const url = new URL(value);
+      if (url.protocol === 'http:' || url.protocol === 'https:') {
+        return null;
+      }
+      return { invalidUrl: true };
+    } catch {
+      return { invalidUrl: true };
+    }
+  };
+}
+
+function srsPatternValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const value = control.value;
+    if (!value) {
+      return null;
+    }
+    const pattern = /^[A-Z-]+:\d+$/;
+    return pattern.test(value) ? null : { invalidSrs: true };
+  };
+}
+
+function integerValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const value = control.value;
+    if (value === null || value === undefined || value === '') {
+      return null;
+    }
+    const num = Number(value);
+    if (isNaN(num) || !Number.isInteger(num)) {
+      return { pattern: true };
+    }
+    return null;
+  };
+}
 
 @Component({
     selector: 'app-territory-form',
@@ -267,21 +309,21 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
     this.currentTypeTop = this.currentTerritoryType.topType;
 
     this.entityForm = new UntypedFormGroup({
-      code: new UntypedFormControl(this.entityToEdit.code, [Validators.required]),
-      name: new UntypedFormControl(this.entityToEdit.name, [Validators.required]),
-      description: new UntypedFormControl(this.entityToEdit.description, []),
-      territorialAuthorityAddress: new UntypedFormControl(this.entityToEdit.territorialAuthorityAddress, []),
-      territorialAuthorityLogo: new UntypedFormControl(this.entityToEdit.territorialAuthorityLogo, []),
+      code: new UntypedFormControl(this.entityToEdit.code, [Validators.required, Validators.maxLength(50)]),
+      name: new UntypedFormControl(this.entityToEdit.name, [Validators.required, Validators.maxLength(250)]),
+      description: new UntypedFormControl(this.entityToEdit.description, [Validators.maxLength(4000)]),
+      territorialAuthorityAddress: new UntypedFormControl(this.entityToEdit.territorialAuthorityAddress, [Validators.maxLength(250)]),
+      territorialAuthorityLogo: new UntypedFormControl(this.entityToEdit.territorialAuthorityLogo, [Validators.maxLength(4000), httpUrlValidator()]),
       groupTypeId: new UntypedFormControl(this.entityToEdit.groupTypeId, []),
       typeId: new UntypedFormControl(this.entityToEdit.typeId, [Validators.required]),
       extentMinX: new UntypedFormControl(this.entityToEdit.extent?.minX, []),
       extentMaxX: new UntypedFormControl(this.entityToEdit.extent?.maxX, []),
       extentMinY: new UntypedFormControl(this.entityToEdit.extent?.minY, []),
       extentMaxY: new UntypedFormControl(this.entityToEdit.extent?.maxY, []),
-      note: new UntypedFormControl(this.entityToEdit.note, []),
-      srs: new UntypedFormControl(this.entityToEdit.srs, []),
+      note: new UntypedFormControl(this.entityToEdit.note, [Validators.maxLength(250)]),
+      srs: new UntypedFormControl(this.entityToEdit.srs, [Validators.maxLength(50), srsPatternValidator()]),
       blocked: new UntypedFormControl(this.entityToEdit.blocked ?? true, [Validators.required]),
-      defaultZoomLevel: new UntypedFormControl(this.entityToEdit.defaultZoomLevel, []),
+      defaultZoomLevel: new UntypedFormControl(this.entityToEdit.defaultZoomLevel, [integerValidator()]),
       centerPointX: new UntypedFormControl(this.entityToEdit.center?.x, []),
       centerPointY: new UntypedFormControl(this.entityToEdit.center?.y),
     });
@@ -379,8 +421,8 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
 
   /**
    * Normalizes extent values by parsing them as floats.
-   * Returns an object with minX, maxX, minY, and maxY if all values are valid numbers,
-   * otherwise returns null if any value is NaN.
+   * Returns an object with minX, maxX, minY, and maxY if all values are valid numbers
+   * and maxX > minX and maxY > minY, otherwise returns null.
    *
    * @param minX - The minimum X value (can be any type, will be parsed as float)
    * @param maxX - The maximum X value (can be any type, will be parsed as float)
@@ -396,14 +438,16 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
     const isNan = [newMinX, newMaxX, newMinY, newMaxY].some(element => Number.isNaN(element));
     if (isNan) {
       return null;
-    } else {
-      return {
-        minX: newMinX,
-        maxX: newMaxX,
-        minY: newMinY,
-        maxY: newMaxY,
-      } as Envelope
     }
+    if (newMaxX <= newMinX || newMaxY <= newMinY) {
+      return null;
+    }
+    return {
+      minX: newMinX,
+      maxX: newMaxX,
+      minY: newMinY,
+      maxY: newMaxY,
+    } as Envelope
   }
 
   /**
@@ -550,7 +594,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
         if (this.isNew()) {
           return of([]);
         }
-        return this.entityToEdit.getRelationArrayEx(TerritoryProjection, 'members', {projection: 'view'})
+        return this.entityToEdit.getRelationArrayEx(TerritoryProjection, 'memberOf', {projection: 'view'})
       })
       .withRelationsOrder('name')
       .withTargetsTitle('entity.territory.memberOf.title')
@@ -641,11 +685,10 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
         this.utils.getStatusColumnDef(),
       ])
       .withRelationsFetcher(() => {
-        if (this.isEdition()) {
-          return this.entityToEdit.getRelationArrayEx(CartographyAvailabilityProjection, 'cartographyAvailabilities', {projection: 'view'})
-        } else {
+        if (this.isNew()) {
           return of([]);
         }
+        return this.entityToEdit.getRelationArrayEx(CartographyAvailabilityProjection, 'cartographyAvailabilities', {projection: 'view'})
       })
       .withRelationsOrder(['name'])
       .withRelationsUpdater(async (cartographies: (CartographyAvailabilityProjection & Status)[]) => {
@@ -691,11 +734,10 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
       ])
       .withRelationsOrder(['taskTypeName'])
       .withRelationsFetcher(() => {
-        if (this.isEdition()) {
-          return this.entityToEdit.getRelationArrayEx(TaskAvailabilityProjection, 'taskAvailabilities', {projection: 'view'})
-        } else {
+        if (this.isNew()) {
           return of([]);
         }
+        return this.entityToEdit.getRelationArrayEx(TaskAvailabilityProjection, 'taskAvailabilities', {projection: 'view'})
       })
       .withRelationsUpdater(async (tasks: (TaskAvailabilityProjection & Status)[]) => {
         await onDelete(tasks).forEach(task => {

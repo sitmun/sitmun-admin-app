@@ -14,12 +14,17 @@ import { environment } from '@environments/environment';
  */
 @Injectable()
 export class AppMissingTranslationHandler implements MissingTranslationHandler {
+  private readonly queuedKeys = new Set<string>();
+
   constructor(private readonly tracker: MissingTranslationTrackerService) {}
 
   handle(params: MissingTranslationHandlerParams): string {
     if (!environment.production) {
       // Defer so we don't emit from inside a computed/template (NG0600: writing to signals in computed).
-      queueMicrotask(() => this.tracker.addKey(params.key));
+      if (!this.queuedKeys.has(params.key)) {
+        this.queuedKeys.add(params.key);
+        queueMicrotask(() => this.tracker.addKey(params.key));
+      }
     }
     return params.key;
   }
