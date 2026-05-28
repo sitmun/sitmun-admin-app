@@ -210,7 +210,7 @@ export class TaskLocatorFormComponent extends BaseFormComponent<TaskProjection> 
       geocoderLatField:       new FormControl(this.getGeocoderParam('latField'),       {nonNullable: true}),
       geocoderLonField:       new FormControl(this.getGeocoderParam('lonField'),       {nonNullable: true}),
       geocoderFilterByExtent: new FormControl(this.getGeocoderParam('filterByExtent') === 'true', {nonNullable: true}),
-      geocoderFilterByMunicipalityCode: new FormControl(this.getGeocoderParam('filterByMunicipalityCode') === 'true', {nonNullable: true}),
+      geocoderEnableServiceParams: new FormControl(this.getGeocoderParam('enableServiceParams') === 'true' || this.getGeocoderParam('filterByMunicipalityCode') === 'true', {nonNullable: true}),
       geocoderMunicipalityCodeFilters: new FormArray(
         this.parseGeocoderMunicipalityCodeFilters().map(f => new FormGroup({
           requestParam: new FormControl(f.requestParam, {nonNullable: true}),
@@ -291,8 +291,8 @@ export class TaskLocatorFormComponent extends BaseFormComponent<TaskProjection> 
     if (formValues.geocoderFilterByExtent) {
       params.push({variable: 'filterByExtent', value: 'true'});
     }
-    if (formValues.geocoderFilterByMunicipalityCode) {
-      params.push({variable: 'filterByMunicipalityCode', value: 'true'});
+    if (formValues.geocoderEnableServiceParams) {
+      params.push({variable: 'enableServiceParams', value: 'true'});
     }
     const filters = (formValues.geocoderMunicipalityCodeFilters as {requestParam: string; territoryField: string; convertProjection: boolean; targetCrs: string}[])
       .filter(f => f.requestParam);
