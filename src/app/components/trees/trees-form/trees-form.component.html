@@ -68,7 +68,8 @@
                        [placeholder]="'entity.tree.imagePlaceHolder' | translate">
               </mat-form-field>
               <textarea matInput type="text" hidden formControlName="image"> </textarea>
-              <input #treeFileInput type="file" accept="image/*" hidden (change)="onImageSelected('tree', $event)">
+              <input #treeFileInput type="file" accept="image/png,image/jpeg,.png,.jpg,.jpeg" hidden (change)="onImageSelected('tree', $event)">
+              <p class="image-upload-hint">{{ 'entity.tree.image.resizeHint' | translate }}</p>
               <div class="appearance-actions">
                 <button mat-raised-button color="primary" type="button" (click)="treeFileInput.click()">
                   {{ 'entity.tree.selectFile' | translate }}
@@ -103,7 +104,7 @@
         [duplicateID]="duplicateID"
         [dataLoaded]="dataLoaded"
         [currentTreeType]="currentTreeType"
-        (saveRequested)="receiveAllNodes($event)">
+        (saveRequested)="onTreeSaveRequested()">
       </app-tree-nodes>
     </ng-template>
   </mat-tab>

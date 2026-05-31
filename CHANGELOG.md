@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Trees: tree image upload validation hints and errors (PNG/JPEG, 2 MB) on Details and node editor.
+- Trees: duplicate tree name error on save via `searchTextPage`.
+- Trees: cartography and task links in node suffix and autocomplete.
+- Trees: discard unsaved node changes dialog (destructive confirmation).
+- Trees: hidden-in-viewer indicators and tooltips in the admin data-tree.
+- Trees: shared `TreeRulesService` for tree-type node rules.
 - i18n: `entity.user.hint.username`, `entity.user.hint.email`, `entity.user.hint.password`, `entity.user.hint.firstName`, `entity.user.hint.lastName`, `entity.user.hint.administrator`, `entity.user.hint.positionsRequired` in all 5 locales (ca, en, es, fr, oc-aranes).
 - i18n: `entity.user.warning.role-without-position` in all 5 locales (previously missing; key was emitted by `UserChecksService` but untranslated).
 - i18n: `entity.user.warning.no-password` in all 5 locales (user cannot sign in without a password; excludes built-in `public` and `admin`).
@@ -33,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Trees: save trigger via `onTreeSaveRequested` from the node editor; batch delete list tests and extracted tree-form test helpers.
 - Entity forms: required-field save feedback and cross-tab messages moved from the toolbar to `app-entity-form-alerts` above tabs (user-form pattern); toolbar shows title and save/back only.
 - Application form: backend warnings and touristic tree rules surface in the alerts card (no save-time modals for those rules); Roles tab warn indicator for private-app/public-user warning.
 - User form: alerts card placed above `mat-tab-group`; Details tab indicator when required fields are invalid.

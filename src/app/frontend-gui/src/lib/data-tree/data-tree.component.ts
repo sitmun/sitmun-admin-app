@@ -3,14 +3,18 @@ import {Component, DestroyRef, EventEmitter, inject, Injectable, Input, OnInit, 
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatTree} from '@angular/material/tree';
 
+import {TranslateService} from '@ngx-translate/core';
 import {BehaviorSubject, firstValueFrom, Observable, Subscription} from 'rxjs';
 
+import {TreeRulesService} from '@app/domain';
 import {config} from '@config';
 import {constants} from '@environments/constants';
 
+const treeRulesForBuild = new TreeRulesService();
+
 /**
  * Build the file structure tree from flat array. type is derived from nodeType + treeType (config).
- * isFolder not stored; use canNodeTypeHaveChildren(treeType, nodeType) to check.
+ * isFolder not stored; use this.treeRulesService.canNodeTypeHaveChildren(treeType, nodeType) to check.
  */
 type TreeNodeInput = {
   id?: string | number | null;
@@ -51,9 +55,9 @@ function buildFileTree(arrayTreeNodes: TreeNodeInput[], level: number, allNewEle
     arrayTreeNodes.forEach((treeNode) => {
       const obj = treeNode;
       obj.children = [];
-      const canHaveChildren = treeType ? canNodeTypeHaveChildren(treeType, treeNode.nodeType) : false;
+      const canHaveChildren = treeType ? treeRulesForBuild.canNodeTypeHaveChildren(treeType, treeNode.nodeType) : false;
       obj.type = canHaveChildren ? constants.treeRenderType.folder : constants.treeRenderType.node;
-      // isFolder removed - use canNodeTypeHaveChildren(treeType, nodeType) to check
+      // isFolder removed - use this.treeRulesService.canNodeTypeHaveChildren(treeType, nodeType) to check
       obj.nodeType = treeNode.nodeType;
       if(allNewElements) {
         obj.status = constants.entityStatus.pendingCreation;
@@ -126,7 +130,6 @@ export class FileNode {
 /** Flat node with expandable and level information */
 export class FileFlatNode {
   constructor(
-    public expandable: boolean,
     public name: string,
     public level: number,
     public type: any,
@@ -161,7 +164,7 @@ export class FileDatabase {
 
   /**
    * Build the file structure tree. type is derived from nodeType + treeType (config).
-   * isFolder not stored; use canNodeTypeHaveChildren(treeType, nodeType) to check.
+   * isFolder not stored; use this.treeRulesService.canNodeTypeHaveChildren(treeType, nodeType) to check.
    */
   buildFileTree(arrayTreeNodes: TreeNodeInput[], level: number, allNewElements: boolean, treeType?: string): FileNode {
     return buildFileTree(arrayTreeNodes, level, allNewElements, treeType);
@@ -379,6 +382,7 @@ type NodeUpdatePayload = Partial<Omit<FileNode, 'id' | 'children'>> & {
 })
 export class DataTreeComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
+  private treeRulesService = inject(TreeRulesService);
   @Output() addNode: EventEmitter<{ parent: FileNode | null; nodeType: string }>;
   @Output() emitNode: EventEmitter<EmitNodePayload>;
   @Output() emitAllNodes: EventEmitter<EmitAllRowsPayload>;
@@ -433,7 +437,10 @@ export class DataTreeComponent implements OnInit {
     originalNodeStates = new Map<string | number, any>();
 
 
-  constructor(public database: FileDatabase) {
+  constructor(
+    public database: FileDatabase,
+    private translate: TranslateService
+  ) {
     this.addNode = new EventEmitter();
     this.emitNode = new EventEmitter<EmitNodePayload>();
     this.emitAllNodes = new EventEmitter<EmitAllRowsPayload>();
@@ -594,26 +601,6 @@ export class DataTreeComponent implements OnInit {
     this.dataSource.data = [...(data ?? [])];
   }
 
-  /** Expand a node id in persisted expansion ids. */
-  private expandFlatNode(node: { id: string | number | null | undefined } | undefined | null): void {
-    if (!node) return;
-    this.expandedNodeIdsState.add(String(node.id));
-  }
-
-  /** Collapse a node id from persisted expansion ids. */
-  private collapseFlatNode(node: { id: string | number | null | undefined } | undefined | null): void {
-    if (!node) return;
-    this.expandedNodeIdsState.delete(String(node.id));
-  }
-
-  /** Expand all descendants for DnD and restore flows. */
-  private expandFlatDescendants(node: { id: string | number | null | undefined } | undefined | null): void {
-    if (!node) return;
-    const nested = this.findNodeById(node.id);
-    if (!nested) return;
-    this.collectDescendantIds(nested).forEach((id) => this.expandedNodeIdsState.add(id));
-  }
-
   /** Expand full tree when data exists. */
   private expandAllFlatNodes(): void {
     if (!this.getTreeData().length) return;
@@ -672,17 +659,6 @@ export class DataTreeComponent implements OnInit {
   /** Expanded ids normalized as string set for fast mixed-id lookups. */
   private getExpandedNodeIdSet(): Set<string> {
     return new Set(this.getExpandedNodeIds());
-  }
-
-  /** Toggle adapter-neutral expansion id state (UI toggle handled by matTreeNodeToggle). */
-  private toggleExpandedNodeId(node: FileFlatNode | undefined | null): void {
-    if (!node) return;
-    const normalizedId = String(node.id);
-    if (this.expandedNodeIdsState.has(normalizedId)) {
-      this.expandedNodeIdsState.delete(normalizedId);
-      return;
-    }
-    this.expandedNodeIdsState.add(normalizedId);
   }
 
   /** Check expansion by id with mixed string/number safety. */
@@ -796,7 +772,7 @@ export class DataTreeComponent implements OnInit {
     if (this.dragNodeStatus === constants.entityStatus.pendingDelete) return false;
     if (this.isSameId(this.dragNodeId, targetNodeId)) return false;
     if (!this.isCenterDropArea()) return true;
-    return canNodeTypeHaveChildren(this.currentTreeType, targetSnapshotNode.nodeType);
+    return this.treeRulesService.canNodeTypeHaveChildren(this.currentTreeType, targetSnapshotNode.nodeType);
   }
 
   private isCenterDropArea(): boolean {
@@ -911,7 +887,7 @@ export class DataTreeComponent implements OnInit {
   }
 
   /** Expand hovered node according to active adapter mode. */
-  private expandHoveredNode(node: DndNodeLike, hoveredNodeId: string): void {
+  private expandHoveredNode(hoveredNodeId: string): void {
     this.expandedNodeIdsState.add(hoveredNodeId);
   }
 
@@ -920,7 +896,7 @@ export class DataTreeComponent implements OnInit {
     const hoveredNodeId = String(node.id);
     if (this.dragNodeExpandOverNodeId === hoveredNodeId) {
       if (this.shouldAutoExpandOnHover(node)) {
-        this.expandHoveredNode(node, hoveredNodeId);
+        this.expandHoveredNode(hoveredNodeId);
       }
       return;
     }
@@ -937,17 +913,6 @@ export class DataTreeComponent implements OnInit {
   /** Collapse dragged node in expansion-id state. */
   private collapseDraggedNode(node: DndNodeLike): void {
     this.expandedNodeIdsState.delete(String(node.id));
-  }
-
-  /** Id-based nested resolver fallback used when map links are missing/stale. */
-  private findNestedNodeById(nodes: FileNode[], id: string | number | null | undefined): FileNode | undefined {
-    if (!nodes || nodes.length === 0) return undefined;
-    for (const candidate of nodes) {
-      if (this.isSameId(candidate.id, id)) return candidate;
-      const inChildren = this.findNestedNodeById(this.getNodeChildren(candidate), id);
-      if (inChildren) return inChildren;
-    }
-    return undefined;
   }
 
   /** Id-based nested lookup scoped to an arbitrary tree snapshot. */
@@ -977,11 +942,6 @@ export class DataTreeComponent implements OnInit {
     return !!node && (node.isRoot === true || (node.name === '' && node.id === null));
   }
 
-  /** Resolve root node from nested tree snapshot. */
-  private getRootNestedNode(nodes: FileNode[] = this.getTreeData()): FileNode | undefined {
-    return nodes.find((node) => this.isRootNestedNode(node));
-  }
-
   private restoreExpansionState(): void {
     const expandedNodeIds = this.getExpandedNodeIds();
     expandedNodeIds.forEach((expandedNodeId) => {
@@ -1008,16 +968,6 @@ export class DataTreeComponent implements OnInit {
   isNodeExpandedById(nodeId: string | number | null | undefined): boolean {
     if (nodeId === null || nodeId === undefined) return false;
     return this.isExpandedNodeId(nodeId);
-  }
-
-  /** Backward-compatible wrapper for previous template call sites. */
-  onToggleNode(node: FileFlatNode): void {
-    this.onToggleNodeById(node?.id);
-  }
-
-  /** Backward-compatible wrapper for previous template call sites. */
-  isNodeExpanded(node: FileFlatNode): boolean {
-    return this.isNodeExpandedById(node?.id);
   }
 
 
@@ -1170,8 +1120,8 @@ export class DataTreeComponent implements OnInit {
         // Only store original state if:
         // 1. Not already stored (to preserve original state)
         // 2. Node doesn't have Modified or pendingCreation status (it's in saved state)
-        if (!this.originalNodeStates.has(node.id) && 
-            node.status !== constants.entityStatus.modified && 
+        if (!this.originalNodeStates.has(node.id) &&
+            node.status !== constants.entityStatus.modified &&
             node.status !== constants.entityStatus.pendingCreation) {
           // Deep clone to store original state
           const originalState = this.cloneValue(node);
@@ -1237,11 +1187,6 @@ export class DataTreeComponent implements OnInit {
     }).filter(node => node !== null) as FileNode[];
   }
 
-  onFilterChange(filterValue: string): void {
-    this.filterValue = filterValue;
-    this.applyFilter();
-  }
-
   onFilterKeyup(event: KeyboardEvent): void {
     const input = event.target as HTMLInputElement;
     this.filterValue = input.value;
@@ -1262,7 +1207,7 @@ export class DataTreeComponent implements OnInit {
   getNodeIcon(node: FileNode): string {
     if (!node || node.status === constants.entityStatus.pendingDelete) return 'close';
     if (this.currentTreeType && node.nodeType != null) {
-      return getNodeTypeIcon(this.currentTreeType, node.nodeType);
+      return this.treeRulesService.getNodeTypeIcon(this.currentTreeType, node.nodeType);
     }
     if (node.type === constants.treeRenderType.folder) return constants.treeRenderType.folder;
     return 'description';
@@ -1271,7 +1216,7 @@ export class DataTreeComponent implements OnInit {
   /** Icon for a node type from config (for add buttons). */
   getNodeIconForType(nodeType: string): string {
     if (this.currentTreeType) {
-      return getNodeTypeIcon(this.currentTreeType, nodeType);
+      return this.treeRulesService.getNodeTypeIcon(this.currentTreeType, nodeType);
     }
     if (nodeType === constants.treeRenderType.folder) return constants.treeRenderType.folder;
     return 'description';
@@ -1291,12 +1236,12 @@ export class DataTreeComponent implements OnInit {
   /** Icon font for tree row (from config); undefined for default font. */
   getNodeIconFont(node: FileNode): string | undefined {
     if (!node || !this.currentTreeType || node.nodeType == null) return undefined;
-    return getNodeTypeIconFont(this.currentTreeType, node.nodeType);
+    return this.treeRulesService.getNodeTypeIconFont(this.currentTreeType, node.nodeType);
   }
 
   /** Icon font for a node type (for add buttons); undefined for default font. */
   getNodeIconFontForType(nodeType: string): string | undefined {
-    return this.currentTreeType ? getNodeTypeIconFont(this.currentTreeType, nodeType) : undefined;
+    return this.currentTreeType ? this.treeRulesService.getNodeTypeIconFont(this.currentTreeType, nodeType) : undefined;
   }
 
   /** True when config enables mapping UI (and view-mode hint) for this node type. */
@@ -1320,15 +1265,18 @@ export class DataTreeComponent implements OnInit {
       });
       return;
     }
+    if (this.isRootNestedNode(context.node)) {
+      return;
+    }
     const originalNode = context.node;
     const updatedNode = {
       ...originalNode,
       ...nodeUpdated,
-      children: nodeUpdated.children || originalNode.children,
+      children: originalNode.children,
       id: originalNode.id
     };
     if (this.currentTreeType && updatedNode.nodeType != null) {
-      const canHaveChildren = canNodeTypeHaveChildren(this.currentTreeType, updatedNode.nodeType);
+      const canHaveChildren = this.treeRulesService.canNodeTypeHaveChildren(this.currentTreeType, updatedNode.nodeType);
       updatedNode.type = canHaveChildren ? constants.treeRenderType.folder : constants.treeRenderType.node;
       // isFolder removed - computed on demand from nodeType
     }
@@ -1337,15 +1285,15 @@ export class DataTreeComponent implements OnInit {
     this.notifyStructureMutated();
   }
 
-  /** 
+  /**
    * Add a new node to the tree. Type/isFolder derived from nodeType + treeType config (not stored).
    */
   addNodeToTree(newNode: FileNode): void {
     // Set type for icon display (folder vs node)
-    const canHaveChildren = this.currentTreeType ? canNodeTypeHaveChildren(this.currentTreeType, newNode.nodeType) : false;
+    const canHaveChildren = this.currentTreeType ? this.treeRulesService.canNodeTypeHaveChildren(this.currentTreeType, newNode.nodeType) : false;
     newNode.type = canHaveChildren ? constants.treeRenderType.folder : constants.treeRenderType.node;
     // Note: isFolder not stored; computed on demand from nodeType
-    
+
     let dataToChange: FileNode[];
     const raw = this.getTreeData();
     if (!raw || !Array.isArray(raw) || raw.length === 0) {
@@ -1353,7 +1301,7 @@ export class DataTreeComponent implements OnInit {
     } else {
       dataToChange = this.cloneValue(raw);
     }
-    
+
     if(newNode.parent == null) {
       const rootChildren = this.getRootChildren(dataToChange);
       newNode.order = rootChildren.length;
@@ -1440,6 +1388,16 @@ export class DataTreeComponent implements OnInit {
     this.emitSelectedNode(nodeClicked, changedData);
   }
 
+  /** Clears the visual selection highlight without mutating tree data. */
+  clearSelection(): void {
+    this.selectedNodeId = null;
+  }
+
+  /** Restores the visual selection highlight without emitting node selection. */
+  setSelectionHighlight(id: string | number | null): void {
+    this.selectedNodeId = id;
+  }
+
   /** Resolve mutable snapshot + clicked node for button actions. */
   private resolveActionContext(id: string | number): ActionContext | null {
     const changedData = this.cloneTreeDataSnapshot();
@@ -1519,7 +1477,7 @@ export class DataTreeComponent implements OnInit {
       if (this.getNodeChildren(item).length>0) {
         this.restoreChildren(this.getNodeChildren(item), changedData);
       }
-      
+
       // If node exists (id >= 0) and has original state, revert to original state
       // This overrides any modifications that were made before deletion
       if (this.isPersistedNodeId(item.id) && changedData && this.originalNodeStates.has(item.id)) {
@@ -1540,7 +1498,7 @@ export class DataTreeComponent implements OnInit {
     if (!node || node.parent === null || node.parent === undefined) {
       return; // No parent, stop recursion
     }
-    
+
     const parentNode = this.findNodeContext(changedData, node.parent)?.node;
     if (parentNode && parentNode.status === constants.entityStatus.pendingDelete) {
       // If parent exists (id >= 0) and has original state, revert to original state
@@ -1551,7 +1509,7 @@ export class DataTreeComponent implements OnInit {
         // New node (id < 0) - just restore status
         parentNode.status = this.isPersistedNodeId(parentNode.id) ? constants.entityStatus.modified : constants.entityStatus.pendingCreation;
       }
-      
+
       // Recursively restore the parent's ancestors
       this.restoreAncestors(changedData, parentNode);
     }
@@ -1564,27 +1522,27 @@ export class DataTreeComponent implements OnInit {
     if (!node || !node.id) {
       return;
     }
-    
+
     const originalState = this.originalNodeStates.get(node.id);
     if (originalState) {
       // Restore original properties, but preserve children and tree structure
       const children = this.getNodeChildren(node);
       const parent = node.parent;
-      
+
       // Copy original state properties
       Object.keys(originalState).forEach(key => {
         if (key !== 'children' && key !== 'parent') {
           node[key] = originalState[key];
         }
       });
-      
+
       // Restore children and parent
       node.children = children;
       node.parent = parent;
-      
+
       // Remove Modified status (node returns to saved state)
       delete node.status;
-      
+
       // Also revert any modified children
       if (children.length > 0) {
         children.forEach((child: FileNode) => {
@@ -1604,7 +1562,7 @@ export class DataTreeComponent implements OnInit {
     if (!node || node.status !== constants.entityStatus.pendingCreation) {
       return;
     }
-    
+
     // Remove all children first (recursively)
     if (this.getNodeChildren(node).length > 0) {
       this.getNodeChildren(node).forEach((child: FileNode) => {
@@ -1617,7 +1575,7 @@ export class DataTreeComponent implements OnInit {
         }
       });
     }
-    
+
     // Find and remove from parent's children array
     if (node.parent !== null && node.parent !== undefined) {
       const parentNode = this.findNodeContext(changedData, node.parent)?.node;
@@ -1637,7 +1595,7 @@ export class DataTreeComponent implements OnInit {
         }
       }
     }
-    
+
     // Remove from original states map if stored
     if (node.id && this.originalNodeStates.has(node.id)) {
       this.originalNodeStates.delete(node.id);
@@ -1701,31 +1659,55 @@ export class DataTreeComponent implements OnInit {
     return this.isVisibleRootDescendant(node);
   }
 
-  /**
-   * Checks if a node or any of its ancestors are inactive
-   * @param node The tree node to check
-   * @returns true if the node or any ancestor is inactive
-   */
-  private isNodeOrAncestorInactiveNested(node: FileNode): boolean {
-    if (node.active === false) {
+  /** Admin default: null/undefined => visible (matches tree-nodes form). */
+  isNodeActive(node: FileFlatNode | FileNode | undefined): boolean {
+    const nested = this.resolveNode(node);
+    if (!nested) {
       return true;
     }
+    return nested.active !== false;
+  }
+
+  /** First inactive ancestor (including self), or null when visible in viewer profile. */
+  findInactiveAncestor(node: FileFlatNode | FileNode | undefined): FileNode | null {
+    const nested = this.resolveNode(node);
+    if (!nested) {
+      return null;
+    }
+    return this.findInactiveAncestorNested(nested);
+  }
+
+  private findInactiveAncestorNested(node: FileNode): FileNode | null {
+    if (node.active === false) {
+      return node;
+    }
     if (node.parent === null || node.parent === undefined) {
-      return false;
+      return null;
     }
     const parentNode = this.findNodeById(node.parent);
-    return parentNode ? this.isNodeOrAncestorInactiveNested(parentNode) : false;
+    return parentNode ? this.findInactiveAncestorNested(parentNode) : null;
+  }
+
+  isHiddenInViewerProfile(node: FileFlatNode | FileNode | undefined): boolean {
+    return this.findInactiveAncestor(node) !== null;
+  }
+
+  hiddenInViewerTooltip(node: FileFlatNode | FileNode | undefined): string {
+    const inactive = this.findInactiveAncestor(node);
+    if (!inactive) {
+      return '';
+    }
+    const nested = this.resolveNode(node);
+    if (nested && nested.active === false) {
+      return this.translate.instant('entity.tree.hiddenInViewer.self');
+    }
+    return this.translate.instant('entity.tree.hiddenInViewer.ancestor', {
+      name: inactive.name || ''
+    });
   }
 
   isNodeOrAncestorInactive(node: FileFlatNode | FileNode | undefined): boolean {
-    if (!node) {
-      return false;
-    }
-    const nestedNode = this.resolveNode(node);
-    if (!nestedNode) {
-      return false;
-    }
-    return this.isNodeOrAncestorInactiveNested(nestedNode);
+    return this.isHiddenInViewerProfile(node);
   }
 
   /**
@@ -1774,32 +1756,4 @@ export class DataTreeComponent implements OnInit {
   }
 
 }
-
-/** Whether this node type can have children (container). */
-function canNodeTypeHaveChildren(treeType: string, nodeType: string | null): boolean {
-  if (!treeType || !nodeType) return false;
-  const c = config.treeTypeNodeTypes?.[treeType];
-  const nodeTypes = (c as any)?.nodeTypes;
-  const allowed = nodeTypes?.[nodeType]?.allowedChildren;
-  return Array.isArray(allowed) && allowed.length > 0;
-}
-
-/** Icon for a node type from config; fallback by container vs leaf. */
-function getNodeTypeIcon(treeType: string, nodeType: string | null): string {
-  if (!nodeType) return 'description';
-  const c = config.treeTypeNodeTypes?.[treeType];
-  const nodeTypes = (c as any)?.nodeTypes;
-  const icon = nodeTypes?.[nodeType]?.icon;
-  if (icon != null && icon !== '') return icon;
-  return canNodeTypeHaveChildren(treeType, nodeType) ? 'folder' : 'description';
-}
-
-/** Icon font for a node type from config (e.g. material-symbols-outlined); undefined for default. */
-function getNodeTypeIconFont(treeType: string, nodeType: string | null): string | undefined {
-  if (!treeType || !nodeType) return undefined;
-  const c = config.treeTypeNodeTypes?.[treeType];
-  const nodeTypes = (c as any)?.nodeTypes;
-  return nodeTypes?.[nodeType]?.iconFont;
-}
-
 

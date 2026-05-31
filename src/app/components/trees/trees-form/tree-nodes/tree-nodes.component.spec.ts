@@ -12,7 +12,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { EMPTY, firstValueFrom, of } from 'rxjs';
+import { EMPTY, firstValueFrom, Observable, of } from 'rxjs';
 
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { ExternalService, ResourceService } from '@app/core/hal';
@@ -25,10 +25,12 @@ import {
   TranslationService,
   TreeNodeService
 } from '@app/domain';
+import { DIALOG_EVENTS } from '@app/frontend-gui/src/lib/dialog-message/dialog-message.component';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { ErrorHandlerService } from '@app/services/error-handler.service';
 import { LoadingOverlayService } from '@app/services/loading-overlay.service';
 import { LoggerService } from '@app/services/logger.service';
+import { NotificationService } from '@app/services/notification.service';
 import { UtilsService } from '@app/services/utils.service';
 import { config } from '@config';
 import { constants } from '@environments/constants';
@@ -82,15 +84,145 @@ jest.mock('@config', () => {
   };
 });
 
+const ALL_NODE_TYPES = [
+  { value: 'cartography', description: 'Cartography' },
+  { value: 'folder', description: 'Folder' },
+  { value: 'list', description: 'List' },
+  { value: 'menu', description: 'Menu' },
+  { value: 'task', description: 'Task' },
+  { value: 'fav', description: 'Favorites' },
+  { value: 'map', description: 'Map' },
+  { value: 'nm', description: 'Near me' }
+];
+
+function flushTreeNodesHttpMocks(httpMock: HttpTestingController): void {
+  httpMock.match((req) => req.url.includes('codelist-values')).forEach((req) =>
+    req.flush({ _embedded: { 'codelist-values': [] } })
+  );
+  httpMock.match((req) => req.url.includes('cartographies')).forEach((req) =>
+    req.flush({ _embedded: { cartographies: [] } })
+  );
+  httpMock.match((req) => req.url.includes('tasks')).forEach((req) =>
+    req.flush({ _embedded: { tasks: [] } })
+  );
+}
+
+function mockDialogOpen(
+  dialog: MatDialog,
+  afterClosed: Observable<unknown> = of(undefined)
+): jest.SpyInstance {
+  return jest.spyOn(dialog, 'open').mockReturnValue({
+    componentInstance: {},
+    afterClosed: () => afterClosed
+  } as any);
+}
+
+function setExistingFolderDetail(
+  component: TreeNodesComponent,
+  opts?: {
+    dirty?: boolean;
+    pristine?: boolean;
+    nodeId?: number;
+    name?: string;
+    nodeType?: string;
+    formPatch?: Record<string, unknown>;
+  }
+): void {
+  const nodeId = opts?.nodeId ?? 5;
+  component['currentNodeId'] = nodeId;
+  component['newElement'] = false;
+  component.treeNodeForm.patchValue({
+    id: nodeId,
+    name: opts?.name ?? 'Node',
+    nodeType: opts?.nodeType ?? 'folder',
+    ...opts?.formPatch,
+  });
+  if (opts?.dirty) {
+    component.treeNodeForm.markAsDirty();
+  }
+  if (opts?.pristine) {
+    component.treeNodeForm.markAsPristine();
+  }
+}
+
+function mockSelectionDialog(
+  event: typeof DIALOG_EVENTS.CANCEL | typeof DIALOG_EVENTS.ACCEPT
+): jest.SpyInstance {
+  return mockDialogOpen(TestBed.inject(MatDialog), of({ event }));
+}
+
+function nodeClickEvent(
+  id: number,
+  name = 'Node',
+  nodeType = 'folder'
+): { nodeClicked: { id: number; name: string; nodeType: string }; nodeParent: null } {
+  return { nodeClicked: { id, name, nodeType }, nodeParent: null };
+}
+
+type PanelFlag = 'showMappingInTaskPanel' | 'showFilterableInTaskPanel';
+
+const panelFlagGetters: Record<PanelFlag, (c: TreeNodesComponent) => boolean> = {
+  showMappingInTaskPanel: (c) => c.showMappingInTaskPanel,
+  showFilterableInTaskPanel: (c) => c.showFilterableInTaskPanel,
+};
+
 describe('TreeNodesComponent', () => {
   let component: TreeNodesComponent;
   let fixture: ComponentFixture<TreeNodesComponent>;
   let httpMock: HttpTestingController;
   let consoleErrorSpy: jest.SpyInstance;
+
   const setCodeList = (name: string, entries: any[]): void => {
     component['codelists'].set(name, entries as any);
     component['rebuildCodeListCaches']();
   };
+
+  function setNodeContext(
+    treeType: string,
+    nodeType: string,
+    opts?: {
+      nodeId?: number;
+      patchForm?: boolean;
+      detectChanges?: boolean;
+      formPatch?: Record<string, unknown>;
+    }
+  ): void {
+    component.currentTreeType = treeType;
+    component.currentNodeType = nodeType;
+    if (opts?.nodeId !== undefined) {
+      component['currentNodeId'] = opts.nodeId;
+    }
+    if (opts?.patchForm !== false) {
+      component.treeNodeForm.patchValue({ nodeType, ...opts?.formPatch });
+    }
+    if (opts?.detectChanges) {
+      fixture.detectChanges();
+    }
+  }
+
+  function setTouristicTaskNode(opts?: {
+    nodeId?: number;
+    detectChanges?: boolean;
+    formPatch?: Record<string, unknown>;
+  }): void {
+    setNodeContext('touristic', 'task', {
+      nodeId: opts?.nodeId ?? 1,
+      detectChanges: opts?.detectChanges,
+      formPatch: opts?.formPatch,
+    });
+  }
+
+  function setCartographyLeafNode(formPatch?: Record<string, unknown>): void {
+    setNodeContext(constants.codeValue.treeType.cartography, constants.treeDomainKey.cartography, {
+      formPatch,
+    });
+  }
+
+  function setCartographyFolderNode(formPatch?: Record<string, unknown>): void {
+    setNodeContext(constants.codeValue.treeType.cartography, constants.treeRenderType.folder, {
+      formPatch,
+    });
+  }
 
   beforeEach(async () => {
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
@@ -145,33 +277,14 @@ describe('TreeNodesComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
     await new Promise((r) => setTimeout(r, 0));
-    const flushPending = (): void => {
-      httpMock.match((req) => req.url.includes('codelist-values')).forEach((req) =>
-        req.flush({ _embedded: { 'codelist-values': [] } })
-      );
-      httpMock.match((req) => req.url.includes('cartographies')).forEach((req) =>
-        req.flush({ _embedded: { cartographies: [] } })
-      );
-      httpMock.match((req) => req.url.includes('tasks')).forEach((req) =>
-        req.flush({ _embedded: { tasks: [] } })
-      );
-    };
-    flushPending();
+    flushTreeNodesHttpMocks(httpMock);
     await new Promise((r) => setTimeout(r, 0));
-    flushPending();
+    flushTreeNodesHttpMocks(httpMock);
     await fixture.whenStable();
   });
 
   afterEach(() => {
-    httpMock.match((req) => req.url.includes('codelist-values')).forEach((req) =>
-      req.flush({ _embedded: { 'codelist-values': [] } })
-    );
-    httpMock.match((req) => req.url.includes('cartographies')).forEach((req) =>
-      req.flush({ _embedded: { cartographies: [] } })
-    );
-    httpMock.match((req) => req.url.includes('tasks')).forEach((req) =>
-      req.flush({ _embedded: { tasks: [] } })
-    );
+    flushTreeNodesHttpMocks(httpMock);
     httpMock.verify();
     consoleErrorSpy.mockRestore();
   });
@@ -180,27 +293,79 @@ describe('TreeNodesComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  describe('Node type filtering by tree type', () => {
-    const nodeTypes = [
-      { value: 'menu', description: 'Menu' },
-      { value: 'list', description: 'List' },
-      { value: 'cartography', description: 'Cartography' },
-      { value: 'task', description: 'Task' },
-      { value: 'map', description: 'Map' },
-      { value: 'fav', description: 'Favorites' },
-      { value: 'nm', description: 'Near me' }
-    ];
+  describe('treeNodeForm validation', () => {
+    it('is invalid when empty', () => {
+      expect(component.treeNodeForm.valid).toBeFalsy();
+    });
 
+    it('is invalid when name is missing', () => {
+      component.treeNodeForm.patchValue({
+        tooltip: true,
+        cartography: null,
+        radio: true,
+        datasetURL: 'url',
+        metadataURL: 'url',
+        description: 'descript',
+        active: true,
+        order: 1,
+        filterGetFeatureInfo: null,
+        filterGetMap: null,
+        filterSelectable: null,
+        style: null,
+        type: 'type',
+        image: null,
+        imageName: null,
+        task: null,
+        viewMode: null,
+        filterable: false,
+      });
+      expect(component.treeNodeForm.valid).toBeFalsy();
+    });
+
+    it('is valid when required name is set', () => {
+      component.treeNodeForm.patchValue({
+        name: 'name',
+        tooltip: true,
+        cartography: null,
+        radio: true,
+        datasetURL: 'url',
+        metadataURL: 'url',
+        description: 'descript',
+        active: true,
+        order: 1,
+        filterGetFeatureInfo: null,
+        filterGetMap: null,
+        filterSelectable: null,
+        style: null,
+      });
+      expect(component.treeNodeForm.valid).toBeTruthy();
+    });
+
+    it('exposes expected form fields', () => {
+      expect(component.treeNodeForm.get('name')).toBeTruthy();
+      expect(component.treeNodeForm.get('tooltip')).toBeTruthy();
+      expect(component.treeNodeForm.get('cartography')).toBeTruthy();
+      expect(component.treeNodeForm.get('radio')).toBeTruthy();
+      expect(component.treeNodeForm.get('datasetURL')).toBeTruthy();
+      expect(component.treeNodeForm.get('metadataURL')).toBeTruthy();
+      expect(component.treeNodeForm.get('description')).toBeTruthy();
+      expect(component.treeNodeForm.get('active')).toBeTruthy();
+      expect(component.treeNodeForm.get('order')).toBeTruthy();
+      expect(component.treeNodeForm.get('filterGetFeatureInfo')).toBeTruthy();
+      expect(component.treeNodeForm.get('filterGetMap')).toBeTruthy();
+      expect(component.treeNodeForm.get('filterSelectable')).toBeTruthy();
+      expect(component.treeNodeForm.get('style')).toBeTruthy();
+    });
+  });
+
+  describe('Node type codelist and filtering', () => {
     beforeEach(() => {
-      setCodeList('treenode.node.type', nodeTypes as any);
+      setCodeList('treenode.node.type', ALL_NODE_TYPES as any);
     });
 
     it('should filter folder types for touristic tree', () => {
       component.currentTreeType = 'touristic';
-      const folderTypes = component.getAvailableFolderTypes();
-
-      // Should only return menu and list folders for touristic
-      const values = folderTypes.map(t => t.value);
+      const values = component.getAvailableFolderTypes().map(t => t.value);
       expect(values).toContain('menu');
       expect(values).toContain('list');
       expect(values).not.toContain('cartography');
@@ -208,16 +373,18 @@ describe('TreeNodesComponent', () => {
 
     it('should filter leaf types for tree with task and cartography (testTree)', () => {
       component.currentTreeType = 'testTree';
-      const leafTypes = component.getAvailableLeafTypes();
-
-      const values = leafTypes.map(t => t.value);
+      const values = component.getAvailableLeafTypes().map(t => t.value);
       expect(values).toContain('task');
       expect(values).toContain('cartography');
     });
 
+    it('getNodeTypeLabel should resolve from treenode.node.type when present', () => {
+      expect(component.getNodeTypeLabel('task')).toBe('Task');
+      expect(component.getNodeTypeLabel('menu')).toBe('Menu');
+    });
+
     it('should correctly identify leaf nodes', () => {
       component.currentTreeType = 'touristic';
-      // task, map, nm can have children (allowedChildren in config); fav cannot
       expect(component.isNodeTypeALeaf('task')).toBe(false);
       expect(component.isNodeTypeALeaf('map')).toBe(false);
       expect(component.isNodeTypeALeaf('fav')).toBe(true);
@@ -246,7 +413,6 @@ describe('TreeNodesComponent', () => {
 
     it('canNodeHaveChildren should return false for leaf nodes', () => {
       component.currentTreeType = 'touristic';
-      // fav is the only leaf among these (allowedChildren: [] in config)
       expect(component.canNodeHaveChildren('task')).toBe(true);
       expect(component.canNodeHaveChildren('map')).toBe(true);
       expect(component.canNodeHaveChildren('fav')).toBe(false);
@@ -255,102 +421,51 @@ describe('TreeNodesComponent', () => {
 
     it('canNodeHaveChildren should return true for folder nodes', () => {
       component.currentTreeType = 'touristic';
-
       expect(component.canNodeHaveChildren('menu')).toBe(true);
       expect(component.canNodeHaveChildren('list')).toBe(true);
     });
 
     it('canNodeHaveChildren should return true for null type (legacy folders)', () => {
       component.currentTreeType = 'cartography';
-
       expect(component.canNodeHaveChildren(null)).toBe(true);
-    });
-  });
-
-  describe('Node type codelist (treenode.node.type)', () => {
-    const nodeTypes = [
-      { value: 'cartography', description: 'Cartography' },
-      { value: 'folder', description: 'Folder' },
-      { value: 'list', description: 'List' },
-      { value: 'menu', description: 'Menu' },
-      { value: 'task', description: 'Task' },
-      { value: 'fav', description: 'Favorites' },
-      { value: 'map', description: 'Map' },
-      { value: 'nm', description: 'Near me' }
-    ];
-
-    beforeEach(() => {
-      setCodeList('treenode.node.type', nodeTypes as any);
-    });
-
-    it('should use treenode.node.type for folder types when present', () => {
-      component.currentTreeType = 'touristic';
-      const folderTypes = component.getAvailableFolderTypes();
-      const values = folderTypes.map(t => t.value);
-      expect(values).toContain('menu');
-      expect(values).toContain('list');
-      expect(values).not.toContain('cartography');
-    });
-
-    it('should use treenode.node.type for leaf types when present', () => {
-      component.currentTreeType = 'testTree';
-      const leafTypes = component.getAvailableLeafTypes();
-      const values = leafTypes.map(t => t.value);
-      expect(values).toContain('task');
-      expect(values).toContain('cartography');
-    });
-
-    it('getNodeTypeLabel should resolve from treenode.node.type when present', () => {
-      expect(component.getNodeTypeLabel('task')).toBe('Task');
-      expect(component.getNodeTypeLabel('menu')).toBe('Menu');
     });
   });
 
   describe('showDescriptionMetadataPanel', () => {
     it('should be true for cartography leaf', () => {
-      component.currentTreeType = 'cartography';
-      component.currentNodeType = 'cartography';
+      setCartographyLeafNode();
       expect(component.showDescriptionMetadataPanel).toBe(true);
     });
 
     it('should be true for cartography folder', () => {
-      component.currentTreeType = 'cartography';
-      component.currentNodeType = 'cartography';
+      setCartographyFolderNode();
       expect(component.showDescriptionMetadataPanel).toBe(true);
     });
 
     it('should be true for list folder', () => {
-      component.currentTreeType = 'touristic';
-      component.currentNodeType = 'list';
+      setNodeContext('touristic', 'list');
       expect(component.showDescriptionMetadataPanel).toBe(true);
     });
 
     it('should be false for task leaf', () => {
-      component.currentTreeType = 'cartography';
-      component.currentNodeType = 'task';
+      setNodeContext('cartography', 'task');
       expect(component.showDescriptionMetadataPanel).toBe(false);
     });
   });
 
-  describe('showMappingInTaskPanel', () => {
-    it('should be true for touristic + task', () => {
-      component.currentTreeType = 'touristic';
-      component.currentNodeType = 'task';
-      component.treeNodeForm.patchValue({ nodeType: 'task' });
-      expect(component.showMappingInTaskPanel).toBe(true);
+  describe('task panel config flags', () => {
+    it.each<[PanelFlag, string, string, boolean]>([
+      ['showMappingInTaskPanel', 'touristic', 'task', true],
+      ['showMappingInTaskPanel', 'cartography', 'cartography', false],
+      ['showFilterableInTaskPanel', 'touristic', 'task', true],
+      ['showFilterableInTaskPanel', 'cartography', 'cartography', false],
+    ])('%s is %s for %s + %s', (flag, treeType, nodeType, expected) => {
+      setNodeContext(treeType, nodeType);
+      expect(panelFlagGetters[flag](component)).toBe(expected);
     });
 
-    it('should be false for cartography + cartography', () => {
-      component.currentTreeType = 'cartography';
-      component.currentNodeType = 'cartography';
-      component.treeNodeForm.patchValue({ nodeType: 'cartography' });
-      expect(component.showMappingInTaskPanel).toBe(false);
-    });
-
-    it('should be true for testTree + task when mock has showMappingInTaskPanel', () => {
-      component.currentTreeType = 'testTree';
-      component.currentNodeType = 'task';
-      component.treeNodeForm.patchValue({ nodeType: 'task' });
+    it('showMappingInTaskPanel should be true for testTree + task when mock has showMappingInTaskPanel', () => {
+      setNodeContext('testTree', 'task');
       expect(component.showMappingInTaskPanel).toBe(true);
     });
   });
@@ -375,29 +490,9 @@ describe('TreeNodesComponent', () => {
     });
   });
 
-  describe('showFilterableInTaskPanel regression', () => {
-    it('should be true for touristic + task', () => {
-      component.currentTreeType = 'touristic';
-      component.currentNodeType = 'task';
-      component.treeNodeForm.patchValue({ nodeType: 'task' });
-      expect(component.showFilterableInTaskPanel).toBe(true);
-    });
-
-    it('should be false for cartography + cartography', () => {
-      component.currentTreeType = 'cartography';
-      component.currentNodeType = 'cartography';
-      component.treeNodeForm.patchValue({ nodeType: 'cartography' });
-      expect(component.showFilterableInTaskPanel).toBe(false);
-    });
-  });
-
   describe('Task Configuration panel template visibility', () => {
     it('shows mapping mode and action row when showMappingInTaskPanel is true', () => {
-      component.currentTreeType = 'touristic';
-      component.currentNodeType = 'task';
-      component['currentNodeId'] = 1;
-      component.treeNodeForm.patchValue({ nodeType: 'task' });
-      fixture.detectChanges();
+      setTouristicTaskNode({ detectChanges: true });
       const modeAndAction = fixture.nativeElement.querySelector('.task-config-mode-and-action');
       expect(modeAndAction).toBeTruthy();
       expect(modeAndAction?.querySelector('mat-form-field')).toBeTruthy();
@@ -405,11 +500,7 @@ describe('TreeNodesComponent', () => {
     });
 
     it('does not show mapping action row when task panel is not shown', () => {
-      component.currentTreeType = 'cartography';
-      component.currentNodeType = 'cartography';
-      component['currentNodeId'] = 1;
-      component.treeNodeForm.patchValue({ nodeType: 'cartography' });
-      fixture.detectChanges();
+      setNodeContext('cartography', 'cartography', { nodeId: 1, detectChanges: true });
       const taskPanel = fixture.nativeElement.querySelector('mat-expansion-panel');
       const taskConfigContent = taskPanel?.querySelector('.task-config-content');
       expect(taskConfigContent).toBeFalsy();
@@ -470,22 +561,14 @@ describe('TreeNodesComponent', () => {
     });
 
     it('guidance block is present when task panel is shown', () => {
-      component.currentTreeType = 'testTree';
-      component.currentNodeType = 'task';
-      component['currentNodeId'] = 1;
-      component.treeNodeForm.patchValue({ nodeType: 'task' });
-      fixture.detectChanges();
+      setNodeContext('testTree', 'task', { nodeId: 1, detectChanges: true });
       const guidance = fixture.nativeElement.querySelector('.task-config-guidance');
       expect(guidance).toBeTruthy();
       expect(guidance?.querySelector('.task-config-guidance-intro')).toBeTruthy();
     });
 
     it('guidance block shows input empty state when no task', () => {
-      component.currentTreeType = 'testTree';
-      component.currentNodeType = 'task';
-      component['currentNodeId'] = 1;
-      component.treeNodeForm.patchValue({ nodeType: 'task', task: null });
-      fixture.detectChanges();
+      setNodeContext('testTree', 'task', { nodeId: 1, formPatch: { task: null }, detectChanges: true });
       const emptyEl = fixture.nativeElement.querySelector('.task-config-guidance-empty');
       expect(emptyEl).toBeTruthy();
     });
@@ -533,140 +616,142 @@ describe('TreeNodesComponent', () => {
     });
   });
 
-  describe('Node creation with fictitious IDs', () => {
-    beforeEach(() => {
+  describe('Node creation and form visibility', () => {
+    const mockParent = { id: 1, name: 'Parent', children: [] } as any;
+
+    function startNewFolderNode(type = 'menu'): void {
       component.currentTreeType = 'cartography';
+      component.addNodeWithType(mockParent, type);
+    }
+
+    describe('Node creation with fictitious IDs', () => {
+      it('should patch fictitious id when creating a folder node', () => {
+        const initialCounter = component['idFictitiousCounter'];
+        startNewFolderNode('menu');
+
+        expect(component.treeNodeForm.get('id')?.value).toBe(initialCounter);
+        expect(component['currentNodeId']).toBe(initialCounter);
+        expect(component.treeNodeForm.get('nodeType')?.value).toBe('menu');
+        expect(component.treeNodeForm.get('status')?.value).toBe('pendingCreation');
+      });
+
+      it('should patch fictitious id when creating a leaf node', () => {
+        const initialCounter = component['idFictitiousCounter'];
+        startNewFolderNode('list');
+
+        expect(component.treeNodeForm.get('id')?.value).toBe(initialCounter);
+        expect(component['currentNodeId']).toBe(initialCounter);
+      });
+
+      it('should emit node with fictitious id when saving new node', () => {
+        const initialCounter = component['idFictitiousCounter'];
+        startNewFolderNode('menu');
+        component.treeNodeForm.patchValue({ name: 'New Folder' });
+
+        const createNodeSpy = jest.fn();
+        component.createNodeEvent.subscribe(createNodeSpy);
+
+        component['updateTreeLeft']();
+
+        expect(createNodeSpy).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: initialCounter,
+            name: 'New Folder',
+            nodeType: 'menu',
+            status: 'pendingCreation',
+            parent: 1
+          })
+        );
+      });
+
+      it('should decrement idFictitiousCounter after creating node', () => {
+        const initialCounter = component['idFictitiousCounter'];
+        startNewFolderNode('menu');
+        component.treeNodeForm.patchValue({ name: 'New Folder' });
+
+        component['updateTreeLeft']();
+
+        expect(component['idFictitiousCounter']).toBe(initialCounter - 1);
+      });
+
+      it('should assign unique fictitious ids to multiple new nodes', () => {
+        const ids: number[] = [];
+        startNewFolderNode('menu');
+        ids.push(component.treeNodeForm.get('id')?.value);
+        component['updateTreeLeft']();
+
+        startNewFolderNode('list');
+        ids.push(component.treeNodeForm.get('id')?.value);
+        component['updateTreeLeft']();
+
+        startNewFolderNode('menu');
+        ids.push(component.treeNodeForm.get('id')?.value);
+
+        expect(ids[0]).toBe(-1);
+        expect(ids[1]).toBe(-2);
+        expect(ids[2]).toBe(-3);
+        expect(new Set(ids).size).toBe(3);
+      });
     });
 
-    it('should patch fictitious id when creating a folder node', () => {
-      const initialCounter = component['idFictitiousCounter'];
-      const mockParent = { id: 1, name: 'Parent Folder', children: [] } as any;
+    describe('Form visibility after node creation', () => {
+      it('should clear currentNodeId after creating new node', () => {
+        startNewFolderNode('menu');
+        component.treeNodeForm.patchValue({ name: 'New Folder' });
 
-      component.addNodeWithType(mockParent, 'menu');
+        expect(component['currentNodeId']).not.toBeNull();
 
-      expect(component.treeNodeForm.get('id')?.value).toBe(initialCounter);
-      expect(component['currentNodeId']).toBe(initialCounter);
-      expect(component.treeNodeForm.get('nodeType')?.value).toBe('menu');
-      expect(component.treeNodeForm.get('status')?.value).toBe('pendingCreation');
-    });
+        component['updateTreeLeft']();
 
-    it('should patch fictitious id when creating a leaf node', () => {
-      const initialCounter = component['idFictitiousCounter'];
-      const mockParent = { id: 1, name: 'Parent Folder', children: [] } as any;
-      // Use folder type 'list' to avoid rendering cartography panels (style/mat-select) in test
-      component.addNodeWithType(mockParent, 'list');
+        expect(component['currentNodeId']).toBeNull();
+      });
 
-      expect(component.treeNodeForm.get('id')?.value).toBe(initialCounter);
-      expect(component['currentNodeId']).toBe(initialCounter);
-    });
+      it('should hide form after creating new node (hasNodeSelection = false)', () => {
+        startNewFolderNode('menu');
+        component.treeNodeForm.patchValue({ name: 'New Folder' });
 
-    it('should emit node with fictitious id when saving new node', () => {
-      const initialCounter = component['idFictitiousCounter'];
-      const mockParent = { id: 1, name: 'Parent', children: [] } as any;
-      component.addNodeWithType(mockParent, 'menu');
-      component.treeNodeForm.patchValue({ name: 'New Folder' });
+        expect(component.hasNodeSelection).toBe(true);
 
-      const createNodeSpy = jest.fn();
-      component.createNodeEvent.subscribe(createNodeSpy);
+        component['updateTreeLeft']();
 
-      component['updateTreeLeft']();
+        expect(component.hasNodeSelection).toBe(false);
+        expect(component['newElement']).toBe(false);
+      });
 
-      expect(createNodeSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          id: initialCounter,
-          name: 'New Folder',
-          nodeType: 'menu',
-          status: 'pendingCreation',
-          parent: 1
-        })
-      );
-    });
+      it('should keep form visible after updating existing node', () => {
+        component.currentTreeType = 'cartography';
+        component['newElement'] = false;
+        component['currentNodeId'] = 5;
+        component.treeNodeForm.patchValue({ id: 5, name: 'Existing Node', nodeType: 'menu' });
+        component.treeNodeForm.markAsDirty();
 
-    it('should decrement idFictitiousCounter after creating node', () => {
-      const initialCounter = component['idFictitiousCounter'];
-      const mockParent = { id: 1, name: 'Parent', children: [] } as any;
-      component.addNodeWithType(mockParent, 'menu');
-      component.treeNodeForm.patchValue({ name: 'New Folder' });
+        component['updateTreeLeft']();
 
-      component['updateTreeLeft']();
+        expect(component['currentNodeId']).toBe(5);
+        expect(component.hasNodeSelection).toBe(true);
+      });
 
-      expect(component['idFictitiousCounter']).toBe(initialCounter - 1);
-    });
+      it('should reset form after creating new node', () => {
+        startNewFolderNode('menu');
+        component.treeNodeForm.patchValue({ name: 'New Folder' });
 
-    it('should assign unique fictitious ids to multiple new nodes', () => {
-      const mockParent = { id: 1, name: 'Parent', children: [] } as any;
-      const ids: number[] = [];
-      // Use folder types only to avoid cartography panel (style control) in test
-      component.addNodeWithType(mockParent, 'menu');
-      ids.push(component.treeNodeForm.get('id')?.value);
-      component['updateTreeLeft']();
+        component['updateTreeLeft']();
 
-      component.addNodeWithType(mockParent, 'list');
-      ids.push(component.treeNodeForm.get('id')?.value);
-      component['updateTreeLeft']();
+        expect(component.treeNodeForm.get('name')?.value).toBeNull();
+        expect(component.treeNodeForm.get('id')?.value).toBeNull();
+        expect(component['currentNodeType']).toBeNull();
+      });
 
-      component.addNodeWithType(mockParent, 'menu');
-      ids.push(component.treeNodeForm.get('id')?.value);
+      it('expands tree to full width when no node is selected', () => {
+        component['treePanelWidth'] = 45;
+        component['currentNodeId'] = 5;
+        expect(component.effectiveTreePanelWidth).toBe(45);
 
-      expect(ids[0]).toBe(-1);
-      expect(ids[1]).toBe(-2);
-      expect(ids[2]).toBe(-3);
-      expect(new Set(ids).size).toBe(3);
-    });
-  });
-
-  describe('Form visibility after node creation', () => {
-    it('should clear currentNodeId after creating new node', () => {
-      const mockParent = { id: 1, name: 'Parent', children: [] } as any;
-      component.currentTreeType = 'cartography';
-      component.addNodeWithType(mockParent, 'menu');
-      component.treeNodeForm.patchValue({ name: 'New Folder' });
-
-      expect(component['currentNodeId']).not.toBeNull();
-
-      component['updateTreeLeft']();
-
-      expect(component['currentNodeId']).toBeNull();
-    });
-
-    it('should hide form after creating new node (hasNodeSelection = false)', () => {
-      const mockParent = { id: 1, name: 'Parent', children: [] } as any;
-      component.currentTreeType = 'cartography';
-      component.addNodeWithType(mockParent, 'menu');
-      component.treeNodeForm.patchValue({ name: 'New Folder' });
-
-      expect(component.hasNodeSelection).toBe(true);
-
-      component['updateTreeLeft']();
-
-      expect(component.hasNodeSelection).toBe(false);
-      expect(component['newElement']).toBe(false);
-    });
-
-    it('should keep form visible after updating existing node', () => {
-      component.currentTreeType = 'cartography';
-      component['newElement'] = false;
-      component['currentNodeId'] = 5;
-      component.treeNodeForm.patchValue({ id: 5, name: 'Existing Node', nodeType: 'menu' });
-      component.treeNodeForm.markAsDirty();
-
-      component['updateTreeLeft']();
-
-      expect(component['currentNodeId']).toBe(5);
-      expect(component.hasNodeSelection).toBe(true);
-    });
-
-    it('should reset form after creating new node', () => {
-      const mockParent = { id: 1, name: 'Parent', children: [] } as any;
-      component.currentTreeType = 'cartography';
-      component.addNodeWithType(mockParent, 'menu');
-      component.treeNodeForm.patchValue({ name: 'New Folder' });
-
-      component['updateTreeLeft']();
-
-      expect(component.treeNodeForm.get('name')?.value).toBeNull();
-      expect(component.treeNodeForm.get('id')?.value).toBeNull();
-      expect(component['currentNodeType']).toBeNull();
+        component['currentNodeId'] = null;
+        component['newElement'] = false;
+        expect(component.hasNodeSelection).toBe(false);
+        expect(component.effectiveTreePanelWidth).toBe(100);
+      });
     });
   });
 
@@ -685,6 +770,23 @@ describe('TreeNodesComponent', () => {
   });
 
   describe('Input mapping field configuration', () => {
+    const widthTaskMock = {
+      id: 99,
+      properties: {
+        parameters: [{ name: 'width', label: 'Width', value: '256' }]
+      }
+    };
+
+    async function openFieldsConfigWithMapping(mapping: { output: object; input: object }): Promise<void> {
+      component.currentTreeType = 'testTree';
+      component.currentViewMode = 'dl';
+      component.treeNodeForm.patchValue({ taskId: 99, mapping });
+      const taskService = TestBed.inject(TaskService);
+      jest.spyOn(taskService, 'get').mockReturnValue(of(widthTaskMock as any));
+      mockDialogOpen(TestBed.inject(MatDialog), EMPTY);
+      await component.openFieldsConfigDialog();
+    }
+
     it('formatTaskParameterDefaultForInput returns empty for null and undefined', () => {
       expect(component.formatTaskParameterDefaultForInput(null)).toBe('');
       expect(component.formatTaskParameterDefaultForInput(undefined)).toBe('');
@@ -698,61 +800,15 @@ describe('TreeNodesComponent', () => {
     });
 
     it('openFieldsConfigDialog prefills input from task parameter default when mapping key is absent', async () => {
-      component.currentTreeType = 'testTree';
-      component.currentViewMode = 'dl';
-      component.treeNodeForm.patchValue({
-        taskId: 99,
-        mapping: { output: {}, input: {} }
-      });
-      const taskService = TestBed.inject(TaskService);
-      jest.spyOn(taskService, 'get').mockReturnValue(
-        of({
-          id: 99,
-          properties: {
-            parameters: [{ name: 'width', label: 'Width', value: '256' }]
-          }
-        } as any)
-      );
-      const matDialog = TestBed.inject(MatDialog);
-      jest.spyOn(matDialog, 'open').mockReturnValue({
-        afterClosed: () => EMPTY,
-        componentInstance: {}
-      } as any);
-
-      await component.openFieldsConfigDialog();
-
+      await openFieldsConfigWithMapping({ output: {}, input: {} });
       expect(component.fieldsConfigForm.get('input.width')?.get('value')?.value).toBe('256');
     });
 
     it('openFieldsConfigDialog does not prefill when saved mapping has explicit key with null value', async () => {
-      component.currentTreeType = 'testTree';
-      component.currentViewMode = 'dl';
-      component.treeNodeForm.patchValue({
-        taskId: 99,
-        mapping: {
-          output: {},
-          input: {
-            width: { value: null, calculated: false }
-          }
-        }
+      await openFieldsConfigWithMapping({
+        output: {},
+        input: { width: { value: null, calculated: false } }
       });
-      const taskService = TestBed.inject(TaskService);
-      jest.spyOn(taskService, 'get').mockReturnValue(
-        of({
-          id: 99,
-          properties: {
-            parameters: [{ name: 'width', label: 'Width', value: '256' }]
-          }
-        } as any)
-      );
-      const matDialog = TestBed.inject(MatDialog);
-      jest.spyOn(matDialog, 'open').mockReturnValue({
-        afterClosed: () => EMPTY,
-        componentInstance: {}
-      } as any);
-
-      await component.openFieldsConfigDialog();
-
       expect(component.fieldsConfigForm.get('input.width')?.get('value')?.value).toBe('');
     });
   });
@@ -796,5 +852,361 @@ describe('TreeNodesComponent', () => {
     });
   });
 
-});
+  describe('cartography selection requirements', () => {
+    let dialogOpenSpy: jest.SpyInstance;
+    let updateCartographySpy: jest.SpyInstance;
 
+    beforeEach(() => {
+      dialogOpenSpy = mockDialogOpen(component.dialog);
+      updateCartographySpy = jest.spyOn(component, 'updateCartographyTreeLeft').mockResolvedValue(undefined);
+      component['currentNodeId'] = 1;
+    });
+
+    describe('requiresCartographySelection', () => {
+      it.each<[string, string, boolean]>([
+        [constants.codeValue.treeType.cartography, constants.treeDomainKey.cartography, true],
+        [constants.codeValue.treeType.cartography, constants.treeRenderType.folder, false],
+        [constants.codeValue.treeType.touristicTree, constants.treeDomainKey.task, false],
+        [constants.codeValue.treeType.edition, constants.treeDomainKey.cartography, false],
+      ])('returns %s for %s + %s', (treeType, nodeType, expected) => {
+        setNodeContext(treeType, nodeType);
+        expect((component as any).requiresCartographySelection()).toBe(expected);
+      });
+    });
+
+    describe('getSelectedRowsCartographies', () => {
+      it('shows error when leaf has no cartography on cartography tree', async () => {
+        setCartographyLeafNode({ cartographyName: null });
+
+        await component.getSelectedRowsCartographies([]);
+
+        expect(dialogOpenSpy).toHaveBeenCalled();
+        expect(updateCartographySpy).not.toHaveBeenCalled();
+      });
+
+      it('does not show error for touristic task nodes without cartography', async () => {
+        setNodeContext(constants.codeValue.treeType.touristicTree, constants.treeDomainKey.task, {
+          formPatch: { cartographyName: null },
+        });
+
+        await component.getSelectedRowsCartographies([]);
+
+        expect(dialogOpenSpy).not.toHaveBeenCalled();
+      });
+
+      it('updates cartography when grid returns a selection', async () => {
+        setCartographyLeafNode();
+        const selected = { id: 2, name: 'Selected layer', stylesNames: [] };
+
+        await component.getSelectedRowsCartographies([selected]);
+
+        expect(dialogOpenSpy).not.toHaveBeenCalled();
+        expect(updateCartographySpy).toHaveBeenCalledWith(selected);
+      });
+    });
+
+    describe('onCartographySelected', () => {
+      it('updates form when a cartography is selected', async () => {
+        setCartographyLeafNode();
+        const selected = { id: 1, name: 'Layer A', stylesNames: [] };
+
+        await component.onCartographySelected({ option: { value: selected } } as any);
+
+        expect(updateCartographySpy).toHaveBeenCalledWith(selected);
+        expect(dialogOpenSpy).not.toHaveBeenCalled();
+      });
+
+      it('blocks clearing cartography when required for the node type', async () => {
+        const existing = { id: 5, name: 'Existing layer' };
+        setCartographyLeafNode({
+          cartographyName: 'Existing layer',
+          cartography: existing,
+          oldCartography: existing,
+        });
+
+        await component.onCartographySelected({ option: { value: null } } as any);
+
+        expect(dialogOpenSpy).toHaveBeenCalled();
+        expect(updateCartographySpy).not.toHaveBeenCalled();
+        expect(component.treeNodeForm.get('cartography')?.value).toEqual(existing);
+      });
+
+      it('allows clearing cartography on touristic task nodes', async () => {
+        setNodeContext(constants.codeValue.treeType.touristicTree, constants.treeDomainKey.task, {
+          formPatch: {
+            cartographyName: 'Old layer',
+            cartography: { id: 1, name: 'Old layer' },
+          },
+        });
+
+        await component.onCartographySelected({ option: { value: null } } as any);
+
+        expect(dialogOpenSpy).not.toHaveBeenCalled();
+        expect(updateCartographySpy).toHaveBeenCalledWith(null);
+      });
+    });
+  });
+
+  describe('fields config response tree', () => {
+    let dialogOpenSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      dialogOpenSpy = mockDialogOpen(component.dialog);
+    });
+
+    it('parseInput returns false and shows dialog when textarea is empty', () => {
+      expect(component.parseInput('')).toBe(false);
+      expect(component.parseInput('   ')).toBe(false);
+      expect(component.parsedData.data).toEqual({});
+      expect(dialogOpenSpy).toHaveBeenCalled();
+    });
+
+    it('parseInput returns false for malformed JSON', () => {
+      expect(component.parseInput('{not json')).toBe(false);
+      expect(component.fieldsConfigTreeGenerated).toBe(false);
+    });
+
+    it('parseInput returns false when JSON root is a primitive', () => {
+      expect(component.parseInput('"hello"')).toBe(false);
+      expect(component.parseInput('42')).toBe(false);
+    });
+
+    it('parseInput returns true for JSON object and populates parsedData', () => {
+      const ok = component.parseInput('{"features":[{"id":1,"name":"Test"}]}');
+
+      expect(ok).toBe(true);
+      expect(component.parsedData.dataType).toBe('json');
+      expect(component.parsedData.data).toEqual({ features: [{ id: 1, name: 'Test' }] });
+    });
+
+    it('parseInput returns true for XML object root', () => {
+      const ok = component.parseInput('<root><id>1</id></root>');
+
+      expect(ok).toBe(true);
+      expect(component.parsedData.dataType).toBe('xml');
+      expect(component.parsedData.data).toEqual({ root: { id: 1 } });
+    });
+
+    it('generateFieldsConfigTree only reveals tree after successful parse', () => {
+      component.fieldsConfigForm.patchValue({ taskResponse: '' });
+      component.generateFieldsConfigTree();
+      expect(component.fieldsConfigTreeGenerated).toBe(false);
+
+      component.fieldsConfigForm.patchValue({ taskResponse: '{"id":1}' });
+      component.generateFieldsConfigTree();
+      expect(component.fieldsConfigTreeGenerated).toBe(true);
+    });
+
+    it('hideFieldsConfigTree keeps parsedData but hides the tree', () => {
+      component.parseInput('{"id":1}');
+      component.fieldsConfigTreeGenerated = true;
+
+      component.hideFieldsConfigTree();
+
+      expect(component.fieldsConfigTreeGenerated).toBe(false);
+      expect(component.parsedData.data).toEqual({ id: 1 });
+    });
+  });
+
+  describe('related entity links', () => {
+    it('builds cartography form link from cartographyId', () => {
+      setNodeContext('testTree', 'cartography', {
+        formPatch: { cartographyId: 42 },
+      });
+      expect(component.getCartographyFormLink()).toEqual(['/layers', 42, 'layersForm']);
+    });
+
+    it('returns null cartography link when no cartography is selected', () => {
+      setNodeContext('testTree', 'cartography', {
+        formPatch: { cartographyId: null },
+      });
+      expect(component.getCartographyFormLink()).toBeNull();
+    });
+
+    it('builds task query form link for query tasks', () => {
+      setNodeContext('testTree', 'task', {
+        formPatch: {
+          taskId: 7,
+          task: { id: 7, typeId: config.tasksTypes.query },
+        },
+      });
+      expect(component.getTaskFormLink()).toEqual(['/taskQuery', 7, config.tasksTypes.query]);
+    });
+
+    it('builds task edit form link for edit tasks', () => {
+      setNodeContext('testTree', 'task', {
+        formPatch: {
+          taskId: 8,
+          task: { id: 8, typeId: config.tasksTypes.edit },
+        },
+      });
+      expect(component.getTaskFormLink()).toEqual(['/taskEdit', 8, config.tasksTypes.edit]);
+    });
+
+    it('builds cartography link for list item id', () => {
+      expect(component.getCartographyFormLinkForId(99)).toEqual(['/layers', 99, 'layersForm']);
+      expect(component.getCartographyFormLinkForId(null)).toBeNull();
+    });
+
+    it('builds task link for list item', () => {
+      expect(component.getTaskFormLinkForTask({ id: 3, typeId: config.tasksTypes.query }))
+        .toEqual(['/taskQuery', 3, config.tasksTypes.query]);
+      expect(component.getTaskFormLinkForTask({ id: 4, typeId: config.tasksTypes.basic })).toBeNull();
+    });
+  });
+
+  describe('selection UX', () => {
+    beforeEach(() => {
+      component.dataTree = { clearSelection: jest.fn(), setSelectionHighlight: jest.fn() } as any;
+    });
+
+    it('hasUnsavedDetailChanges reflects dirty existing node', () => {
+      setExistingFolderDetail(component);
+      expect(component.hasUnsavedDetailChanges()).toBe(false);
+
+      component.treeNodeForm.markAsDirty();
+      expect(component.hasUnsavedDetailChanges()).toBe(true);
+    });
+
+    it('hasUnsavedDetailChanges ignores tree metadata flags on pristine form', () => {
+      setExistingFolderDetail(component, {
+        formPatch: {
+          nameFormModified: true,
+          descriptionFormModified: true,
+        },
+        pristine: true,
+      });
+
+      expect(component.hasUnsavedDetailChanges()).toBe(false);
+    });
+
+    it('hasUnsavedDetailChanges is true for pendingCreation tree node', () => {
+      component.dataTree = {
+        clearSelection: jest.fn(),
+        setSelectionHighlight: jest.fn(),
+        dataSource: {
+          data: [{
+            children: [{ id: -2, name: 'New', status: constants.entityStatus.pendingCreation, nodeType: 'folder' }],
+          }],
+        },
+      } as any;
+      component['currentNodeId'] = -2;
+      component['newElement'] = false;
+      component.treeNodeForm.patchValue({ id: -2, name: 'New', nodeType: 'folder' });
+      component.treeNodeForm.markAsPristine();
+
+      expect(component.hasUnsavedDetailChanges()).toBe(true);
+    });
+
+    it('hasUnsavedDetailChanges reflects create mode with name filled', () => {
+      component['newElement'] = true;
+      component['currentNodeId'] = -1;
+      component.treeNodeForm.patchValue({ name: 'New node', nodeType: 'folder' });
+      expect(component.hasUnsavedDetailChanges()).toBe(true);
+    });
+
+    it('canSaveNodeDetail is false when there are no changes', () => {
+      setExistingFolderDetail(component);
+      expect(component.canSaveNodeDetail).toBe(false);
+    });
+
+    it('canSaveNodeDetail is true when edit form is dirty and valid', () => {
+      setExistingFolderDetail(component, { dirty: true });
+      expect(component.canSaveNodeDetail).toBe(true);
+    });
+
+    it('clears selection when closing pristine detail', async () => {
+      setExistingFolderDetail(component);
+
+      await component.onCloseDetailClicked();
+
+      expect(component['currentNodeId']).toBeNull();
+      expect(component.hasNodeSelection).toBe(false);
+      expect(component.dataTree.clearSelection).toHaveBeenCalled();
+    });
+
+    it('keeps selection when closing dirty detail and canceling confirm', async () => {
+      setExistingFolderDetail(component, { dirty: true });
+      mockSelectionDialog(DIALOG_EVENTS.CANCEL);
+
+      await component.onCloseDetailClicked();
+
+      expect(component['currentNodeId']).toBe(5);
+      expect(component.hasNodeSelection).toBe(true);
+    });
+
+    it('clears selection when closing dirty detail and confirming discard', async () => {
+      setExistingFolderDetail(component, { dirty: true });
+      mockSelectionDialog(DIALOG_EVENTS.ACCEPT);
+
+      await component.onCloseDetailClicked();
+
+      expect(component['currentNodeId']).toBeNull();
+      expect(component.dataTree.clearSelection).toHaveBeenCalled();
+    });
+
+    it('shows snackbar on second click of same dirty node', async () => {
+      const notification = TestBed.inject(NotificationService);
+      const showInfoSpy = jest.spyOn(notification, 'showInfo').mockImplementation();
+      setExistingFolderDetail(component, { dirty: true });
+
+      await component.nodeReceived(nodeClickEvent(5));
+
+      expect(showInfoSpy).toHaveBeenCalledWith('entity.tree.saveBeforeDeselect', '');
+      expect(component['currentNodeId']).toBe(5);
+    });
+
+    it('clears selection on second click of same pristine node', async () => {
+      setExistingFolderDetail(component);
+
+      await component.nodeReceived(nodeClickEvent(5));
+
+      expect(component['currentNodeId']).toBeNull();
+      expect(component.dataTree.clearSelection).toHaveBeenCalled();
+    });
+
+    it('loads different node when switch confirm is accepted', async () => {
+      setExistingFolderDetail(component, { dirty: true });
+      mockSelectionDialog(DIALOG_EVENTS.ACCEPT);
+      const loadSpy = jest.spyOn(component as any, 'loadNodeDetail').mockResolvedValue(undefined);
+
+      await component.nodeReceived(nodeClickEvent(10, 'Other'));
+
+      expect(loadSpy).toHaveBeenCalled();
+    });
+
+    it('cancels switch when confirm is rejected', async () => {
+      setExistingFolderDetail(component, { dirty: true });
+      mockSelectionDialog(DIALOG_EVENTS.CANCEL);
+      const loadSpy = jest.spyOn(component as any, 'loadNodeDetail').mockResolvedValue(undefined);
+
+      await component.nodeReceived(nodeClickEvent(10, 'Other'));
+
+      expect(loadSpy).not.toHaveBeenCalled();
+      expect(component['currentNodeId']).toBe(5);
+      expect(component.dataTree.setSelectionHighlight).toHaveBeenCalledWith(5);
+    });
+
+    it('gates addNodeWithType when detail has unsaved changes', async () => {
+      setExistingFolderDetail(component, { dirty: true });
+      mockSelectionDialog(DIALOG_EVENTS.CANCEL);
+
+      await component.addNodeWithType(null, 'folder');
+
+      expect(component['newElement']).toBe(false);
+      expect(component['currentNodeId']).toBe(5);
+    });
+
+    it('shows snackbar on Escape when detail is dirty', () => {
+      const notification = TestBed.inject(NotificationService);
+      const showInfoSpy = jest.spyOn(notification, 'showInfo').mockImplementation();
+      setExistingFolderDetail(component, { dirty: true });
+
+      component.onDocumentEscape(new KeyboardEvent('keydown', { key: 'Escape' }));
+
+      expect(showInfoSpy).toHaveBeenCalledWith('entity.tree.saveBeforeDeselect', '');
+      expect(component['currentNodeId']).toBe(5);
+    });
+  });
+
+});
