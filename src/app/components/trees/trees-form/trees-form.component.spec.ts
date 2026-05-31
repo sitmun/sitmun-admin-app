@@ -25,29 +25,26 @@ import {
 } from '@app/domain';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { MaterialModule } from '@app/material-module';
+import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoggerService} from '@app/services/logger.service';
 import {configureLoggerForTests, provideErrorHandlerForTests} from '@app/testing/test-helpers';
 
-import {TreeNodesComponent} from './tree-nodes/tree-nodes.component';
+import {
+  assignTreeNodesStub,
+  createMockDataTree,
+  createTouristicRootNode,
+  createTouristicRootWithMenu,
+} from './testing/tree-form-test-helpers';
 import { TreesFormComponent } from './trees-form.component';
 
 describe('TreesFormComponent', () => {
   let component: TreesFormComponent;
   let fixture: ComponentFixture<TreesFormComponent>;
   let treeService: TreeService;
-  let applicationService: ApplicationService;
-  let serviceService: ServiceService;
-  let capabilitiesService: CapabilitiesService;
-  let codeListService: CodeListService;
-  let translationService: TranslationService;
-  let resourceService: ResourceService;
-  let externalService: ExternalService;
-  let taskService: TaskService;
-  let roleService: RoleService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TreesFormComponent, FormToolbarComponent, TreeNodesComponent ],
+      declarations: [ TreesFormComponent, FormToolbarComponent ],
       imports: [FormsModule, ReactiveFormsModule,SitmunFrontendGuiModule, RouterModule.forRoot([], {}), MaterialModule, MatIconTestingModule, BrowserAnimationsModule,
          TranslateModule.forRoot({
           loader: {
@@ -70,24 +67,11 @@ describe('TreesFormComponent', () => {
     const loggerService = TestBed.inject(LoggerService);
     configureLoggerForTests(loggerService);
     jest.spyOn(loggerService, 'warn').mockImplementation(() => {});
-    treeService= TestBed.inject(TreeService);
-    applicationService= TestBed.inject(ApplicationService);
-    serviceService= TestBed.inject(ServiceService);
-    capabilitiesService= TestBed.inject(CapabilitiesService);
-    codeListService= TestBed.inject(CodeListService);
-    translationService= TestBed.inject(TranslationService);
-    resourceService= TestBed.inject(ResourceService);
-    externalService= TestBed.inject(ExternalService);
-    taskService= TestBed.inject(TaskService);
-    roleService= TestBed.inject(RoleService);
-    
+    treeService = TestBed.inject(TreeService);
+
     // Mock treeNodesComponent BEFORE any getter access (canSaveEntity is called during detectChanges)
-    component.treeNodesComponent = {
-      hasUnsavedChanges: jest.fn(() => false),
-      hasUnsavedChangesForToolbar: jest.fn(() => false),
-      treeNodeForm: null
-    } as any;
-    
+    assignTreeNodesStub(component);
+
     // Initialize form if not already initialized
     if (!component.entityForm) {
       component.entityToEdit = component.empty();
@@ -103,46 +87,6 @@ describe('TreesFormComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
-  });
-
-  it('should instantiate treeService', () => {
-    expect(treeService).toBeTruthy();
-  });
-
-  it('should instantiate capabilitiesService', () => {
-    expect(capabilitiesService).toBeTruthy();
-  });
-
-  it('should instantiate serviceService', () => {
-    expect(serviceService).toBeTruthy();
-  });
-
-  it('should instantiate applicationService', () => {
-    expect(applicationService).toBeTruthy();
-  });
-
-  it('should instantiate codeListService', () => {
-    expect(codeListService).toBeTruthy();
-  });
-
-  it('should instantiate translationService', () => {
-    expect(translationService).toBeTruthy();
-  });
-
-  it('should instantiate resourceService', () => {
-    expect(resourceService).toBeTruthy();
-  });
-
-  it('should instantiate externalService', () => {
-    expect(externalService).toBeTruthy();
-  });
-
-  it('should instantiate taskService', () => {
-    expect(taskService).toBeTruthy();
-  });
-
-  it('should instantiate roleService', () => {
-    expect(roleService).toBeTruthy();
   });
 
   it('form tree invalid when empty', () => {
@@ -168,152 +112,40 @@ describe('TreesFormComponent', () => {
     expect(component.entityForm.valid).toBeTruthy();
   });
 
-  it('form tree node invalid when empty', () => {
-    // treeNodeForm is in the child TreeNodesComponent, not the parent
-    if (component.treeNodesComponent && component.treeNodesComponent.treeNodeForm) {
-      expect(component.treeNodesComponent.treeNodeForm.valid).toBeFalsy();
-    } else {
-      expect(true).toBeTruthy(); // Skip if child component not initialized
-    }
-  });
-
-  it('form tree node invalid when mid-empty', () => {
-    if (component.treeNodesComponent && component.treeNodesComponent.treeNodeForm) {
-      component.treeNodesComponent.treeNodeForm.patchValue({
-      tooltip: true,
-      cartography: null,
-      radio: true,
-      datasetURL: 'url',
-      metadataURL: 'url',
-      description: 'descript',
-      active: true,
-      order: 1,
-      filterGetFeatureInfo: null,
-      filterGetMap: null,
-      filterSelectable: null,
-      style: null,
-      type: 'type',
-      image: null,
-      imageName: null,
-      task: null,
-      viewMode: null,
-      filterable: false,
-      });
-      //Miss name
-      expect(component.treeNodesComponent.treeNodeForm.valid).toBeFalsy();
-    } else {
-      expect(true).toBeTruthy(); // Skip if child component not initialized
-    }
-  });
-
-  it('form tree node valid', () => {
-    if (component.treeNodesComponent && component.treeNodesComponent.treeNodeForm) {
-      component.treeNodesComponent.treeNodeForm.patchValue({
-      name: 'name',
-      tooltip: true,
-      cartography: null,
-      radio: true,
-      datasetURL: 'url',
-      metadataURL: 'url',
-      description: 'descript',
-      active: true,
-      order: 1,
-      filterGetFeatureInfo: null,
-      filterGetMap: null,
-      filterSelectable: null,
-        style: null,
-      });
-      expect(component.treeNodesComponent.treeNodeForm.valid).toBeTruthy();
-    } else {
-      expect(true).toBeTruthy(); // Skip if child component not initialized
-    }
-  });
-
   it('Tree form fields', () => {
     expect(component.entityForm.get('name')).toBeTruthy();
     expect(component.entityForm.get('description')).toBeTruthy();
     expect(component.entityForm.get('image')).toBeTruthy();
   });
 
-  it('Tree node form fields', () => {
-    // treeNodeForm is in the child TreeNodesComponent, not the parent
-    if (component.treeNodesComponent && component.treeNodesComponent.treeNodeForm) {
-      expect(component.treeNodesComponent.treeNodeForm.get('name')).toBeTruthy();
-      expect(component.treeNodesComponent.treeNodeForm.get('tooltip')).toBeTruthy();
-      expect(component.treeNodesComponent.treeNodeForm.get('cartography')).toBeTruthy();
-      expect(component.treeNodesComponent.treeNodeForm.get('radio')).toBeTruthy();
-      expect(component.treeNodesComponent.treeNodeForm.get('datasetURL')).toBeTruthy();
-      expect(component.treeNodesComponent.treeNodeForm.get('metadataURL')).toBeTruthy();
-      expect(component.treeNodesComponent.treeNodeForm.get('description')).toBeTruthy();
-      expect(component.treeNodesComponent.treeNodeForm.get('active')).toBeTruthy();
-      expect(component.treeNodesComponent.treeNodeForm.get('order')).toBeTruthy();
-      expect(component.treeNodesComponent.treeNodeForm.get('filterGetFeatureInfo')).toBeTruthy();
-      expect(component.treeNodesComponent.treeNodeForm.get('filterGetMap')).toBeTruthy();
-      expect(component.treeNodesComponent.treeNodeForm.get('filterSelectable')).toBeTruthy();
-      expect(component.treeNodesComponent.treeNodeForm.get('style')).toBeTruthy();
-    } else {
-      expect(true).toBeTruthy(); // Skip if child component not initialized
-    }
-  });
-
   describe('treeValidations does not show errors from getters', () => {
     beforeEach(() => {
       component.currentTreeType = 'touristic';
       component.entityForm.patchValue({ name: 'Test', type: 'touristic', description: 'desc' });
+      assignTreeNodesStub(component, {
+        hasUnsavedChanges: jest.fn(() => true),
+        hasUnsavedChangesForToolbar: jest.fn(() => true),
+        getNodesForValidation: jest.fn(() => [createTouristicRootWithMenu()] as any),
+      });
     });
 
     it('canSaveEntity getter does not open dialogs when validation fails', () => {
-      const rootNode = {
-        isRoot: true, name: '', id: null, children: [
-          { name: 'Menu', nodeType: 'menu', children: [], status: 'pendingCreation', parent: null }
-        ]
-      };
-      component.treeNodesComponent = {
-        hasUnsavedChanges: jest.fn(() => true),
-        hasUnsavedChangesForToolbar: jest.fn(() => true),
-        treeNodeForm: null,
-        getNodesForValidation: jest.fn(() => [rootNode] as any)
-      } as any;
       const showErrorSpy = jest.spyOn(component.utils, 'showTreeStructureError').mockImplementation(() => {});
-
-      const _result = component.canSaveEntity;
 
       expect(showErrorSpy).not.toHaveBeenCalled();
       showErrorSpy.mockRestore();
     });
 
     it('canSave does not open dialogs when validation fails', () => {
-      const rootNode = {
-        isRoot: true, name: '', id: null, children: [
-          { name: 'Menu', nodeType: 'menu', children: [], status: 'pendingCreation', parent: null }
-        ]
-      };
-      component.treeNodesComponent = {
-        hasUnsavedChanges: jest.fn(() => true),
-        hasUnsavedChangesForToolbar: jest.fn(() => true),
-        treeNodeForm: null,
-        getNodesForValidation: jest.fn(() => [rootNode] as any)
-      } as any;
       const showErrorSpy = jest.spyOn(component.utils, 'showTreeStructureError').mockImplementation(() => {});
 
-      const _result = component.canSave();
+      component.canSave();
 
       expect(showErrorSpy).not.toHaveBeenCalled();
       showErrorSpy.mockRestore();
     });
 
     it('treeValidations(true) shows errors when validation fails', () => {
-      const rootNode = {
-        isRoot: true, name: '', id: null, children: [
-          { name: 'Menu', nodeType: 'menu', children: [], status: 'pendingCreation', parent: null }
-        ]
-      };
-      component.treeNodesComponent = {
-        hasUnsavedChanges: jest.fn(() => true),
-        hasUnsavedChangesForToolbar: jest.fn(() => true),
-        treeNodeForm: null,
-        getNodesForValidation: jest.fn(() => [rootNode] as any)
-      } as any;
       const showErrorSpy = jest.spyOn(component.utils, 'showTreeStructureError').mockImplementation(() => {});
 
       component.treeValidations(true);
@@ -323,17 +155,6 @@ describe('TreesFormComponent', () => {
     });
 
     it('calling canSaveEntity many times never triggers error dialogs', () => {
-      const rootNode = {
-        isRoot: true, name: '', id: null, children: [
-          { name: 'Menu', nodeType: 'menu', children: [], status: 'pendingCreation', parent: null }
-        ]
-      };
-      component.treeNodesComponent = {
-        hasUnsavedChanges: jest.fn(() => true),
-        hasUnsavedChangesForToolbar: jest.fn(() => true),
-        treeNodeForm: null,
-        getNodesForValidation: jest.fn(() => [rootNode] as any)
-      } as any;
       const showErrorSpy = jest.spyOn(component.utils, 'showTreeStructureError').mockImplementation(() => {});
       const showRequiredSpy = jest.spyOn(component.utils, 'showRequiredFieldsError').mockImplementation(() => {});
       const showNodeTypeSpy = jest.spyOn(component.utils, 'showNodeTypeConstraintError').mockImplementation(() => {});
@@ -408,61 +229,46 @@ describe('TreesFormComponent', () => {
 
     it('returns empty when form has required-field errors', () => {
       component.entityForm.patchValue({ name: null });
-      component.treeNodesComponent = {
+      assignTreeNodesStub(component, {
         hasUnsavedChanges: jest.fn(() => true),
         hasUnsavedChangesForToolbar: jest.fn(() => true),
-        treeNodeForm: null,
-        getNodesForValidation: jest.fn(() => [])
-      } as any;
+        getNodesForValidation: jest.fn(() => []),
+      });
 
       expect(component.treeValidationWarningMessage).toBe('');
     });
 
     it('does not throw when tree nodes are not loaded yet', () => {
-      component.treeNodesComponent = {
-        hasUnsavedChanges: jest.fn(() => false),
-        hasUnsavedChangesForToolbar: jest.fn(() => false),
-        treeNodeForm: null,
-        getNodesForValidation: jest.fn(() => [])
-      } as any;
+      assignTreeNodesStub(component, {
+        getNodesForValidation: jest.fn(() => []),
+      });
 
       expect(() => component.treeValidationWarningMessage).not.toThrow();
       expect(component.treeValidationWarningMessage).toBe('');
     });
 
     it('returns tree structure message when structure validation fails', () => {
-      const rootNode = {
-        isRoot: true,
-        name: '',
-        id: null,
-        children: [{ name: 'Menu', nodeType: 'menu', children: [], status: 'pendingCreation', parent: null }]
-      };
-      component.treeNodesComponent = {
+      assignTreeNodesStub(component, {
         hasUnsavedChanges: jest.fn(() => true),
         hasUnsavedChangesForToolbar: jest.fn(() => true),
-        treeNodeForm: null,
-        getNodesForValidation: jest.fn(() => [rootNode] as any)
-      } as any;
+        getNodesForValidation: jest.fn(() => [createTouristicRootWithMenu()] as any),
+      });
 
       expect(component.treeValidationWarningMessage).toBe('treeStructureMessage.touristic.rootMustHaveChildren');
     });
 
     it('returns specific message when more than one top-level node exists', () => {
-      const rootNode = {
-        isRoot: true,
-        name: '',
-        id: null,
+      const rootNode = createTouristicRootNode({
         children: [
           { name: 'Menu 1', nodeType: 'menu', children: [{ name: 'Task', children: [] }], status: 'pendingCreation', parent: null },
           { name: 'Menu 2', nodeType: 'menu', children: [{ name: 'Task', children: [] }], status: 'pendingCreation', parent: null }
         ]
-      };
-      component.treeNodesComponent = {
+      });
+      assignTreeNodesStub(component, {
         hasUnsavedChanges: jest.fn(() => true),
         hasUnsavedChangesForToolbar: jest.fn(() => true),
-        treeNodeForm: null,
-        getNodesForValidation: jest.fn(() => [rootNode] as any)
-      } as any;
+        getNodesForValidation: jest.fn(() => [rootNode] as any),
+      });
 
       expect(component.treeValidationWarningMessage).toBe('treeStructureMessage.touristic.singleRoot');
     });
@@ -576,25 +382,11 @@ describe('TreesFormComponent', () => {
 
   describe('TreeNodesComponent consumer contracts', () => {
     beforeEach(() => {
-      // Mock dataTree property to simulate DataTreeComponent
-      const mockDataTree = {
-        dataSource: {
-          data: [{
-            isRoot: true,
-            name: '',
-            id: null,
-            children: []
-          }]
-        },
-        refreshTree: jest.fn(() => Promise.resolve())
-      };
-      component.treeNodesComponent = {
-        hasUnsavedChanges: jest.fn(() => false),
-        hasUnsavedChangesForToolbar: jest.fn(() => false),
-        treeNodeForm: null,
+      const mockDataTree = createMockDataTree();
+      assignTreeNodesStub(component, {
         dataTree: mockDataTree,
-        getNodesForValidation: jest.fn(() => mockDataTree.dataSource.data)
-      } as any;
+        getNodesForValidation: jest.fn(() => mockDataTree.dataSource.data as any),
+      });
     });
 
     it('getNodesForValidation returns array with root node that has .children', () => {
@@ -603,46 +395,6 @@ describe('TreesFormComponent', () => {
       expect(nodes.length).toBeGreaterThan(0);
       expect(nodes[0]).toHaveProperty('children');
       expect((nodes[0] as any).isRoot).toBe(true);
-    });
-
-    it('hasUnsavedChanges returns false when no nodes have pending statuses', () => {
-      component.treeNodesComponent.hasUnsavedChanges = jest.fn(() => false);
-      expect(component.treeNodesComponent.hasUnsavedChanges()).toBe(false);
-    });
-
-    it('hasUnsavedChanges returns true when a child has pendingCreation status', () => {
-      const mockDataTree = {
-        dataSource: {
-          data: [{
-            isRoot: true,
-            children: [{
-              id: 1,
-              name: 'New Node',
-              status: 'pendingCreation',
-              children: []
-            }]
-          }]
-        }
-      };
-      component.treeNodesComponent.dataTree = mockDataTree as any;
-      component.treeNodesComponent.hasUnsavedChanges = jest.fn(() => true);
-      expect(component.treeNodesComponent.hasUnsavedChanges()).toBe(true);
-    });
-
-    it('dataTree.refreshTree() returns Promise<void>', async () => {
-      const mockRefresh = jest.fn(() => Promise.resolve());
-      component.treeNodesComponent.dataTree.refreshTree = mockRefresh;
-      await component.treeNodesComponent.dataTree.refreshTree();
-      expect(mockRefresh).toHaveBeenCalled();
-    });
-
-    it('dataTree.dataSource.data shape is [rootNode] with .children property', () => {
-      const data = component.treeNodesComponent.dataTree.dataSource.data;
-      expect(Array.isArray(data)).toBe(true);
-      expect(data.length).toBe(1);
-      expect(data[0]).toHaveProperty('children');
-      expect(data[0]).toHaveProperty('isRoot');
-      expect((data[0] as any).isRoot).toBe(true);
     });
   });
 
@@ -694,7 +446,7 @@ describe('TreesFormComponent', () => {
     it('returns generic message for empty or invalid node array', () => {
       let message = (component as any).getTreeStructureWarningMessage([]);
       expect(message).toContain('treeStructureMessage');
-      
+
       message = (component as any).getTreeStructureWarningMessage(null);
       expect(message).toContain('treeStructureMessage');
     });
@@ -743,18 +495,18 @@ describe('TreesFormComponent', () => {
 
     it('updates currentTreeType when validation passes', () => {
       jest.spyOn(component as any, 'validateTreeTypeCompatibility').mockReturnValue(true);
-      
+
       component.onTreeTypeChange('cartography');
-      
+
       expect(component.currentTreeType).toBe('cartography');
     });
 
     it('reverts form type and shows error when validation fails', () => {
       jest.spyOn(component as any, 'validateTreeTypeCompatibility').mockReturnValue(false);
       const showErrorSpy = jest.spyOn(component.utils, 'showNodeTypeConstraintError').mockImplementation(() => {});
-      
+
       component.onTreeTypeChange('cartography');
-      
+
       expect(component.currentTreeType).toBe('touristic');
       expect(component.entityForm.value.type).toBe('touristic');
       expect(showErrorSpy).toHaveBeenCalled();
@@ -774,9 +526,9 @@ describe('TreesFormComponent', () => {
       it('clears image fields and makes input editable', () => {
         component.entityForm.patchValue({ image: 'old.png', imageName: 'old.png' });
         const focusSpy = jest.spyOn(input, 'focus');
-        
+
         component.activeImageNameInput('tree', input);
-        
+
         expect(component.entityForm.value.image).toBeNull();
         expect(component.entityForm.value.imageName).toBeNull();
         expect(input.readOnly).toBe(false);
@@ -787,9 +539,9 @@ describe('TreesFormComponent', () => {
     describe('removeImage', () => {
       it('clears both image and imageName fields', () => {
         component.entityForm.patchValue({ image: 'test.png', imageName: 'test.png' });
-        
+
         component.removeImage('tree');
-        
+
         expect(component.entityForm.value.image).toBeNull();
         expect(component.entityForm.value.imageName).toBeNull();
       });
@@ -800,9 +552,9 @@ describe('TreesFormComponent', () => {
         input.readOnly = false;
         input.value = 'http://example.com/image.png';
         const event = { target: input } as any;
-        
+
         component.onImageChange('tree', event);
-        
+
         expect(component.entityForm.value.image).toBe('http://example.com/image.png');
       });
 
@@ -811,9 +563,9 @@ describe('TreesFormComponent', () => {
         input.value = 'http://example.com/image.png';
         component.entityForm.patchValue({ image: 'existing.png' });
         const event = { target: input } as any;
-        
+
         component.onImageChange('tree', event);
-        
+
         expect(component.entityForm.value.image).toBe('existing.png');
       });
     });
@@ -827,9 +579,9 @@ describe('TreesFormComponent', () => {
           writable: false
         });
         const event = { target: fileInput } as any;
-        
+
         component.onImageSelected('tree', event);
-        
+
         setTimeout(() => {
           expect(component.entityForm.value.image).toBeTruthy();
           expect(component.entityForm.value.imageName).toBe('test.png');
@@ -837,7 +589,9 @@ describe('TreesFormComponent', () => {
         }, 100);
       });
 
-      it('ignores non-image files', () => {
+      it('shows error for non-image files', () => {
+        const errorHandler = TestBed.inject(ErrorHandlerService);
+        const handleErrorSpy = jest.spyOn(errorHandler, 'handleError').mockReturnValue(null);
         const file = new File(['dummy content'], 'test.txt', { type: 'text/plain' });
         const fileInput = document.createElement('input');
         Object.defineProperty(fileInput, 'files', {
@@ -846,11 +600,29 @@ describe('TreesFormComponent', () => {
         });
         const event = { target: fileInput } as any;
         component.entityForm.patchValue({ image: 'existing.png', imageName: 'existing.png' });
-        
+
         component.onImageSelected('tree', event);
-        
+
+        expect(handleErrorSpy).toHaveBeenCalledWith(null, 'entity.tree.image.error.invalidType');
         expect(component.entityForm.value.image).toBe('existing.png');
         expect(component.entityForm.value.imageName).toBe('existing.png');
+      });
+
+      it('shows error when file exceeds size limit', () => {
+        const errorHandler = TestBed.inject(ErrorHandlerService);
+        const handleErrorSpy = jest.spyOn(errorHandler, 'handleError').mockReturnValue(null);
+        const bytes = new Uint8Array(2 * 1024 * 1024 + 1);
+        const file = new File([bytes], 'large.png', { type: 'image/png' });
+        const fileInput = document.createElement('input');
+        Object.defineProperty(fileInput, 'files', {
+          value: [file],
+          writable: false
+        });
+        const event = { target: fileInput } as any;
+
+        component.onImageSelected('tree', event);
+
+        expect(handleErrorSpy).toHaveBeenCalledWith(null, 'entity.tree.image.error.tooLarge');
       });
 
       it('does nothing when no file is selected', () => {
@@ -861,9 +633,9 @@ describe('TreesFormComponent', () => {
         });
         const event = { target: fileInput } as any;
         component.entityForm.patchValue({ image: 'existing.png' });
-        
+
         component.onImageSelected('tree', event);
-        
+
         expect(component.entityForm.value.image).toBe('existing.png');
       });
     });
@@ -896,34 +668,24 @@ describe('TreesFormComponent', () => {
         { id: 2, name: 'Deleted Invalid', nodeType: 'cartography', status: 'pendingDelete', parent: null }
       ];
       component.treeNodesComponent.getNodesForValidation = jest.fn(() => nodes);
-      
+
       const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
       // cartography is not allowed in touristic tree - even pendingDelete nodes are validated
       const result = component.validNodeTypesForTreeType(nodes);
       warnSpy.mockRestore();
-      
+
       // validNodeTypesForTreeType does not filter pendingDelete - that's the caller's job
       expect(result).toBe(false);
     });
   });
 
   describe('Additional method coverage', () => {
-    describe('receiveAllNodes', () => {
-      it('calls onSaveButtonClicked when nodes provided', async () => {
+    describe('onTreeSaveRequested', () => {
+      it('calls onSaveButtonClicked when tree structure requests save', () => {
         const saveSpy = jest.spyOn(component, 'onSaveButtonClicked').mockResolvedValue(true);
-        const nodes: any[] = [{ id: 1, name: 'Node' }];
-        
-        component.receiveAllNodes(nodes);
-        
-        expect(saveSpy).toHaveBeenCalled();
-        saveSpy.mockRestore();
-      });
 
-      it('calls onSaveButtonClicked when empty array provided', async () => {
-        const saveSpy = jest.spyOn(component, 'onSaveButtonClicked').mockResolvedValue(true);
-        
-        component.receiveAllNodes([]);
-        
+        component.onTreeSaveRequested();
+
         expect(saveSpy).toHaveBeenCalled();
         saveSpy.mockRestore();
       });
@@ -932,7 +694,7 @@ describe('TreesFormComponent', () => {
     describe('onTabChange', () => {
       it('handles tab change event', () => {
         const event = { index: 1 } as any;
-        
+
         expect(() => component.onTabChange(event)).not.toThrow();
       });
     });
@@ -943,9 +705,9 @@ describe('TreesFormComponent', () => {
           { id: 1, name: 'Menu', nodeType: 'menu', status: 'pendingCreation', parent: null }
         ];
         component.treeNodesComponent.getNodesForValidation = jest.fn(() => nodes);
-        
+
         const result = component['validateTreeTypeCompatibility']('touristic');
-        
+
         expect(result).toBe(true);
       });
 
@@ -954,44 +716,37 @@ describe('TreesFormComponent', () => {
           { id: 1, name: 'Menu', nodeType: 'menu', status: 'pendingCreation', parent: null }
         ];
         component.treeNodesComponent.getNodesForValidation = jest.fn(() => nodes);
-        
+
         const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
         const result = component['validateTreeTypeCompatibility']('cartography');
         warnSpy.mockRestore();
-        
+
         expect(result).toBe(false);
       });
     });
 
     describe('getTreeValidationErrorCode', () => {
       beforeEach(() => {
-        component.treeNodesComponent = {
-          hasUnsavedChanges: jest.fn(() => false),
-          hasUnsavedChangesForToolbar: jest.fn(() => false),
-          treeNodeForm: null,
-          getNodesForValidation: jest.fn(() => [])
-        } as any;
+        assignTreeNodesStub(component, {
+          getNodesForValidation: jest.fn(() => []),
+        });
       });
 
       it('returns required when form is invalid', () => {
         component.entityForm.patchValue({ name: null });
-        
+
         const result = (component as any).getTreeValidationErrorCode();
-        
+
         expect(result).toBe('required');
       });
 
       it('returns treeStructure when structure validation fails', () => {
         component.currentTreeType = 'touristic';
         component.entityForm.patchValue({ name: 'Test', type: 'touristic' });
-        const rootNode = {
-          isRoot: true,
-          children: [{ name: 'Menu', nodeType: 'menu', children: [], status: 'pendingCreation' }]
-        };
-        component.treeNodesComponent.getNodesForValidation = jest.fn(() => [rootNode] as any);
-        
+        component.treeNodesComponent.getNodesForValidation = jest.fn(() => [createTouristicRootWithMenu()] as any);
+
         const result = (component as any).getTreeValidationErrorCode();
-        
+
         expect(result).toBe('treeStructure');
       });
 
@@ -1002,47 +757,43 @@ describe('TreesFormComponent', () => {
           { id: 1, name: 'Menu', nodeType: 'menu', children: [], status: 'pendingCreation', parent: null }
         ];
         component.treeNodesComponent.getNodesForValidation = jest.fn(() => nodes as any);
-        
+
         const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
         const result = (component as any).getTreeValidationErrorCode();
         warnSpy.mockRestore();
-        
+
         expect(result).toBe('nodeType');
       });
 
       it('returns null when all validations pass', () => {
         component.currentTreeType = 'touristic';
         component.entityForm.patchValue({ name: 'Test', type: 'touristic' });
-        const rootNode = {
-          isRoot: true,
+        const rootNode = createTouristicRootNode({
           children: [
             { id: 1, name: 'Menu', nodeType: 'menu', status: 'pendingCreation', parent: null,
               children: [{ id: 2, name: 'Task', nodeType: 'task', children: [], status: 'pendingCreation', parent: 1 }] }
           ]
-        };
+        });
         component.treeNodesComponent.getNodesForValidation = jest.fn(() => [rootNode] as any);
-        
+
         const result = (component as any).getTreeValidationErrorCode();
-        
+
         expect(result).toBeNull();
       });
     });
 
     describe('treeValidations with showErrors', () => {
       beforeEach(() => {
-        component.treeNodesComponent = {
-          hasUnsavedChanges: jest.fn(() => false),
-          hasUnsavedChangesForToolbar: jest.fn(() => false),
-          treeNodeForm: null,
-          getNodesForValidation: jest.fn(() => [])
-        } as any;
+        assignTreeNodesStub(component, {
+          getNodesForValidation: jest.fn(() => []),
+        });
       });
       it('shows required fields error when showErrors is true and required validation fails', () => {
         component.entityForm.patchValue({ name: null });
         const showErrorSpy = jest.spyOn(component.utils, 'showRequiredFieldsError').mockImplementation(() => {});
-        
+
         const result = component.treeValidations(true);
-        
+
         expect(result).toBe(false);
         expect(showErrorSpy).toHaveBeenCalled();
         showErrorSpy.mockRestore();
@@ -1051,15 +802,11 @@ describe('TreesFormComponent', () => {
       it('shows tree structure error when showErrors is true and structure validation fails', () => {
         component.currentTreeType = 'touristic';
         component.entityForm.patchValue({ name: 'Test', type: 'touristic' });
-        const rootNode = {
-          isRoot: true,
-          children: [{ name: 'Menu', nodeType: 'menu', children: [], status: 'pendingCreation' }]
-        };
-        component.treeNodesComponent.getNodesForValidation = jest.fn(() => [rootNode] as any);
+        component.treeNodesComponent.getNodesForValidation = jest.fn(() => [createTouristicRootWithMenu()] as any);
         const showErrorSpy = jest.spyOn(component.utils, 'showTreeStructureError').mockImplementation(() => {});
-        
+
         const result = component.treeValidations(true);
-        
+
         expect(result).toBe(false);
         expect(showErrorSpy).toHaveBeenCalled();
         showErrorSpy.mockRestore();
@@ -1068,9 +815,9 @@ describe('TreesFormComponent', () => {
       it('returns false without showing errors when showErrors is false', () => {
         component.entityForm.patchValue({ name: null });
         const showErrorSpy = jest.spyOn(component.utils, 'showRequiredFieldsError').mockImplementation(() => {});
-        
+
         const result = component.treeValidations(false);
-        
+
         expect(result).toBe(false);
         expect(showErrorSpy).not.toHaveBeenCalled();
         showErrorSpy.mockRestore();
@@ -1086,15 +833,13 @@ describe('TreesFormComponent', () => {
         component.eagerLoadTreeStructure = true;
         component.entityForm.patchValue({ name: 'Test Tree', type: 'touristic' });
         component.entityForm.markAsPristine();
-        
-        const rootNode = { isRoot: true, children: [] };
-        component.treeNodesComponent = {
+
+        assignTreeNodesStub(component, {
           hasUnsavedChanges: jest.fn(() => true),
           hasUnsavedChangesForToolbar: jest.fn(() => false),
-          getNodesForValidation: jest.fn(() => [rootNode] as any),
-          treeNodeForm: null
-        } as any;
-        
+          getNodesForValidation: jest.fn(() => [createTouristicRootNode()] as any),
+        });
+
         expect(component.canSaveEntity).toBe(false);
       });
 
@@ -1104,15 +849,13 @@ describe('TreesFormComponent', () => {
         component.eagerLoadTreeStructure = true;
         component.entityForm.patchValue({ name: 'Test Tree', type: 'touristic' });
         component.entityForm.markAsPristine();
-        
-        const rootNode = { isRoot: true, children: [] };
-        component.treeNodesComponent = {
+
+        assignTreeNodesStub(component, {
           hasUnsavedChanges: jest.fn(() => true),
           hasUnsavedChangesForToolbar: jest.fn(() => true),
-          getNodesForValidation: jest.fn(() => [rootNode] as any),
-          treeNodeForm: null
-        } as any;
-        
+          getNodesForValidation: jest.fn(() => [createTouristicRootNode()] as any),
+        });
+
         expect(component.canSaveEntity).toBe(true);
       });
 
@@ -1122,14 +865,11 @@ describe('TreesFormComponent', () => {
         component.eagerLoadTreeStructure = true;
         component.entityForm.patchValue({ name: 'Test Tree', type: 'touristic' });
         component.entityForm.markAsPristine();
-        
-        component.treeNodesComponent = {
-          hasUnsavedChanges: jest.fn(() => false),
-          hasUnsavedChangesForToolbar: jest.fn(() => false),
+
+        assignTreeNodesStub(component, {
           getNodesForValidation: jest.fn(() => []),
-          treeNodeForm: null
-        } as any;
-        
+        });
+
         expect(component.canSaveEntity).toBe(false);
       });
 
@@ -1139,14 +879,11 @@ describe('TreesFormComponent', () => {
         component.eagerLoadTreeStructure = false;
         component.entityForm.patchValue({ name: 'Test Tree', type: 'touristic' });
         component.entityForm.markAsDirty();
-        
-        component.treeNodesComponent = {
-          hasUnsavedChanges: jest.fn(() => false),
-          hasUnsavedChangesForToolbar: jest.fn(() => false),
+
+        assignTreeNodesStub(component, {
           getNodesForValidation: jest.fn(() => []),
-          treeNodeForm: null
-        } as any;
-        
+        });
+
         expect(component.canSaveEntity).toBe(true);
       });
     });
@@ -1156,15 +893,11 @@ describe('TreesFormComponent', () => {
         component.eagerLoadTreeStructure = true;
         component.entityForm.patchValue({ name: 'Test Tree', type: 'touristic' });
         component.entityForm.markAsPristine();
-        
-        const rootNode = { isRoot: true, children: [] };
-        component.treeNodesComponent = {
-          hasUnsavedChanges: jest.fn(() => false),
-          hasUnsavedChangesForToolbar: jest.fn(() => false),
-          getNodesForValidation: jest.fn(() => [rootNode] as any),
-          treeNodeForm: null
-        } as any;
-        
+
+        assignTreeNodesStub(component, {
+          getNodesForValidation: jest.fn(() => [createTouristicRootNode()] as any),
+        });
+
         expect(component.canSave()).toBe(false);
         expect(component.canSave()).toBe(component.canSaveEntity);
       });
@@ -1172,14 +905,11 @@ describe('TreesFormComponent', () => {
       it('returns false when duplicate tree data is not loaded', () => {
         component.eagerLoadTreeStructure = true;
         component.entityForm.patchValue({ name: 'Test Tree', type: 'touristic' });
-        
-        component.treeNodesComponent = {
-          hasUnsavedChanges: jest.fn(() => false),
-          hasUnsavedChangesForToolbar: jest.fn(() => false),
+
+        assignTreeNodesStub(component, {
           getNodesForValidation: jest.fn(() => []),
-          treeNodeForm: null
-        } as any;
-        
+        });
+
         expect(component.canSave()).toBe(false);
         expect(component.canSave()).toBe(component.canSaveEntity);
       });
@@ -1188,14 +918,11 @@ describe('TreesFormComponent', () => {
         component.eagerLoadTreeStructure = false;
         component.entityForm.patchValue({ name: 'Test Tree', type: 'touristic' });
         component.entityForm.markAsDirty();
-        
-        component.treeNodesComponent = {
-          hasUnsavedChanges: jest.fn(() => false),
-          hasUnsavedChangesForToolbar: jest.fn(() => false),
+
+        assignTreeNodesStub(component, {
           getNodesForValidation: jest.fn(() => []),
-          treeNodeForm: null
-        } as any;
-        
+        });
+
         expect(component.canSave()).toBe(true);
         expect(component.canSave()).toBe(component.canSaveEntity);
       });
@@ -1204,21 +931,18 @@ describe('TreesFormComponent', () => {
     describe('updateDataRelated with saveNodes', () => {
       it('invokes saveNodes when treeNodesComponent exists', async () => {
         const saveNodesSpy = jest.fn().mockResolvedValue(undefined);
-        component.treeNodesComponent = {
+        assignTreeNodesStub(component, {
           saveNodes: saveNodesSpy,
-          hasUnsavedChanges: jest.fn(() => false),
-          hasUnsavedChangesForToolbar: jest.fn(() => false),
           getNodesForValidation: jest.fn(() => []),
-          treeNodeForm: null
-        } as any;
-        
+        });
+
         component.entityID = 123;
         component.entityToEdit = new Tree();
         component.entityToEdit.id = 123;
         component.entityToEdit.name = 'Test Tree';
-        
+
         await component.updateDataRelated(true);
-        
+
         expect(saveNodesSpy).toHaveBeenCalledWith(component.entityToEdit, 123);
       });
 
@@ -1227,9 +951,9 @@ describe('TreesFormComponent', () => {
         component.treeNodesComponent = undefined as any;
         component.entityID = 123;
         component.entityToEdit = new Tree();
-        
+
         await component.updateDataRelated(true);
-        
+
         expect(warnSpy).toHaveBeenCalledWith(
           'TreesFormComponent.updateDataRelated: treeNodesComponent missing during duplication; nodes were not saved.'
         );
@@ -1241,9 +965,9 @@ describe('TreesFormComponent', () => {
         component.treeNodesComponent = undefined as any;
         component.entityID = 123;
         component.entityToEdit = new Tree();
-        
+
         await component.updateDataRelated(false);
-        
+
         expect(warnSpy).not.toHaveBeenCalled();
         warnSpy.mockRestore();
       });
@@ -1252,47 +976,71 @@ describe('TreesFormComponent', () => {
     describe('isDuplicatedTreeReadyForSave', () => {
       it('returns true for non-eager flows', () => {
         component.eagerLoadTreeStructure = false;
-        component.treeNodesComponent = {
+        assignTreeNodesStub(component, {
           getNodesForValidation: jest.fn(() => []),
-          hasUnsavedChanges: jest.fn(() => false),
-          hasUnsavedChangesForToolbar: jest.fn(() => false),
-          treeNodeForm: null
-        } as any;
-        
+        });
+
         expect(component['isDuplicatedTreeReadyForSave']()).toBe(true);
       });
 
       it('returns true when eager tree has loaded nodes', () => {
         component.eagerLoadTreeStructure = true;
-        const rootNode = { isRoot: true, children: [] };
-        component.treeNodesComponent = {
-          getNodesForValidation: jest.fn(() => [rootNode]),
-          hasUnsavedChanges: jest.fn(() => false),
-          hasUnsavedChangesForToolbar: jest.fn(() => false),
-          treeNodeForm: null
-        } as any;
-        
+        assignTreeNodesStub(component, {
+          getNodesForValidation: jest.fn(() => [createTouristicRootNode()]),
+        });
+
         expect(component['isDuplicatedTreeReadyForSave']()).toBe(true);
       });
 
       it('returns false when eager tree has no nodes yet', () => {
         component.eagerLoadTreeStructure = true;
-        component.treeNodesComponent = {
+        assignTreeNodesStub(component, {
           getNodesForValidation: jest.fn(() => []),
-          hasUnsavedChanges: jest.fn(() => false),
-          hasUnsavedChangesForToolbar: jest.fn(() => false),
-          treeNodeForm: null
-        } as any;
-        
+        });
+
         expect(component['isDuplicatedTreeReadyForSave']()).toBe(false);
       });
 
       it('returns false when treeNodesComponent is undefined in eager mode', () => {
         component.eagerLoadTreeStructure = true;
         component.treeNodesComponent = undefined as any;
-        
+
         expect(component['isDuplicatedTreeReadyForSave']()).toBe(false);
       });
+    });
+  });
+
+  describe('validateUniqueName', () => {
+    beforeEach(() => {
+      component.entityForm.patchValue({ name: 'Catalog Tree', type: 'touristic', description: 'desc' });
+      component.entityID = 10;
+    });
+
+    it('returns true when search finds only the current tree', async () => {
+      jest.spyOn(treeService, 'searchTextPage').mockReturnValue(of({
+        rows: [{ id: 10, name: 'Catalog Tree' } as Tree],
+        totalElements: 1,
+        pageNumber: 0,
+        pageSize: 20,
+        totalPages: 1,
+      }));
+
+      expect(await (component as any).validateUniqueName()).toBe(true);
+    });
+
+    it('returns false and shows error when another tree has the same name', async () => {
+      const errorHandler = TestBed.inject(ErrorHandlerService);
+      const handleErrorSpy = jest.spyOn(errorHandler, 'handleError').mockReturnValue(null);
+      jest.spyOn(treeService, 'searchTextPage').mockReturnValue(of({
+        rows: [{ id: 99, name: 'Catalog Tree' } as Tree],
+        totalElements: 1,
+        pageNumber: 0,
+        pageSize: 20,
+        totalPages: 1,
+      }));
+
+      expect(await (component as any).validateUniqueName()).toBe(false);
+      expect(handleErrorSpy).toHaveBeenCalledWith(null, 'entity.tree.error.duplicateName');
     });
   });
 

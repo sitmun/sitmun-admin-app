@@ -21,6 +21,7 @@ import {
   TranslationService,
   Tree,
   TreeNode,
+  TreeRulesService,
   TreeService
 } from '@app/domain';
 import {onUpdatedRelation, Status} from '@app/frontend-gui/src/lib/public_api';
@@ -28,6 +29,10 @@ import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
+import {
+  getImageUploadErrorKey,
+  validateImageUpload,
+} from '@app/utils/image-upload.utils';
 import {config} from '@config';
 import {constants} from '@environments/constants';
 
@@ -48,6 +53,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
   override readonly codeValues = constants.codeValue;
 
   private readonly injector = inject(Injector);
+  private readonly treeRulesService = inject(TreeRulesService);
 
   currentTreeType: string;
   eagerLoadTreeStructure = false;
@@ -264,6 +270,10 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       return Promise.resolve(false);
     }
 
+    if (!await this.validateUniqueName()) {
+      return Promise.resolve(false);
+    }
+
     // Validate tree type change against applications (only for existing trees)
     if (this.isEdition() && await this.validateTreeTypeChange()) {
       return super.onSaveButtonClicked();
@@ -273,6 +283,32 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
     }
 
     return Promise.resolve(false);
+  }
+
+  /** Rejects save when another tree already uses the same name (case-insensitive). */
+  private async validateUniqueName(): Promise<boolean> {
+    const rawName = this.entityForm.get('name')?.value;
+    const name = typeof rawName === 'string' ? rawName.trim() : '';
+    if (!name) {
+      return true;
+    }
+
+    try {
+      const page = await firstValueFrom(this.treeService.searchTextPage(name, { size: 20 }));
+      const duplicate = page.rows.some((tree) =>
+        tree.id !== this.entityID
+        && typeof tree.name === 'string'
+        && tree.name.trim().toLowerCase() === name.toLowerCase()
+      );
+      if (duplicate) {
+        this.errorHandler.handleError(null, 'entity.tree.error.duplicateName');
+        return false;
+      }
+      return true;
+    } catch (error) {
+      this.errorHandler.handleError(error);
+      return false;
+    }
   }
 
   /**
@@ -473,16 +509,10 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
   }
 
   /**
-   * Receives nodes from tree nodes component for saving.
-   * This method is called by the tree nodes component when save is requested.
-   *
-   * @param nodes - Array of tree nodes to save
+   * Tree structure tab requested save (same as toolbar Save).
    */
-  receiveAllNodes(nodes: TreeNode[]) {
-    if (nodes && nodes.length >= 0) {
-      // Trigger save through base class
-      this.onSaveButtonClicked();
-    }
+  onTreeSaveRequested(): void {
+    void this.onSaveButtonClicked();
   }
 
   initializeTreesForm(): void {
@@ -541,7 +571,9 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
     const fileInput = event.target as HTMLInputElement;
     if (fileInput.files.length > 0) {
       const file = fileInput.files[0];
-      if (!file.type.startsWith('image/')) {
+      const validation = validateImageUpload(file);
+      if (!validation.valid) {
+        this.errorHandler.handleError(null, getImageUploadErrorKey(validation.error!));
         fileInput.value = '';
         return;
       }
@@ -592,9 +624,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       return true; // No constraints defined
     }
 
-    const treeTypeConfig = this.treeTypeNodeTypes[targetTreeType];
-    const nodeTypes = (treeTypeConfig as any)?.nodeTypes;
-    const allAllowedTypes = nodeTypes ? Object.keys(nodeTypes) : [];
+    const allAllowedTypes = this.treeRulesService.getNodeTypesForTree(targetTreeType);
 
     // Build a map of nodes by ID for parent-child validation
     const nodeMap = new Map<number, any>();
@@ -633,7 +663,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
         }
 
         // Get allowed children for parent type
-        const allowedChildren = (treeTypeConfig as any)?.nodeTypes?.[parentType]?.allowedChildren || [];
+        const allowedChildren = this.treeRulesService.getAllowedChildrenForNodeType(targetTreeType, parentType);
         if (allowedChildren.length === 0) {
           this.loggerService.warn(`Parent node type '${parentType}' cannot have children`, {
             parentId: node.parent,
