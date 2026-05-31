@@ -16,8 +16,8 @@ import {
   ApplicationService, CodeListService, RoleService, TerritoryService, TranslationService,
   UserConfigurationService, UserPositionService, UserService
 } from '@app/domain';
-import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import {DataGridComponent} from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
+import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { MaterialModule } from '@app/material-module';
 import {LoggerService} from '@app/services/logger.service';
 import {

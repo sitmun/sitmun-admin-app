@@ -1,5 +1,5 @@
-import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {NO_ERRORS_SCHEMA} from '@angular/core';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatIconTestingModule} from '@angular/material/icon/testing';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
@@ -18,8 +18,8 @@ import {
   ApplicationBackgroundService, ApplicationParameterService, ApplicationService, BackgroundService,
   CartographyGroupService, CodeListService, RoleService, TranslationService, TreeService, UserService
 } from '@app/domain';
-import {SitmunFrontendGuiModule} from '@app/frontend-gui/src/lib/public_api';
 import {DataGridComponent} from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
+import {SitmunFrontendGuiModule} from '@app/frontend-gui/src/lib/public_api';
 import {MaterialModule} from '@app/material-module';
 import {LoggerService} from '@app/services/logger.service';
 import {
