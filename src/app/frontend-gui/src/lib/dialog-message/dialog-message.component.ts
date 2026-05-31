@@ -32,6 +32,15 @@ export class DialogMessageComponent implements OnInit {
   /** Controls the visibility of the cancel button. When true, the cancel button will be hidden */
   hideCancelButton = false;
 
+  /** i18n key for the accept button label (defaults to common.button.accept). */
+  acceptLabel = 'common.button.accept';
+
+  /** i18n key for the cancel button label (defaults to common.button.cancel). */
+  cancelLabel = 'common.button.cancel';
+
+  /** When true, discard-style icon and focus on cancel (keep editing). */
+  destructive = false;
+
   /**
    * Creates an instance of DialogMessageComponent.
    * @param dialogRef - Reference to the dialog opened via the Material Dialog service
@@ -51,6 +60,9 @@ export class DialogMessageComponent implements OnInit {
       this.title = this.data.title || '';
       this.message = this.data.message || '';
       this.hideCancelButton = this.data.hideCancelButton || false;
+      this.acceptLabel = this.data.acceptLabel || 'common.button.accept';
+      this.cancelLabel = this.data.cancelLabel || 'common.button.cancel';
+      this.destructive = this.data.destructive === true;
     }
   }
 
