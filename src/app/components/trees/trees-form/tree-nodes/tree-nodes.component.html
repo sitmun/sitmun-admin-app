@@ -429,10 +429,13 @@
                       <mat-slide-toggle color="primary" formControlName="active">
                         {{ 'entity.tree.visible' | translate }}
                       </mat-slide-toggle>
-                      <span class="mat-hint visible-hint">{{ 'entity.tree.hint.visible' | translate }}</span>
                       <mat-slide-toggle color="primary" formControlName="radio" *ngIf="currentNodeIsFolder">
                         {{ 'entity.tree.radio' | translate }}
                       </mat-slide-toggle>
+                    </div>
+                    <div class="visible-hints">
+                      <span class="mat-hint">{{ 'entity.tree.hint.visible' | translate }}</span>
+                      <span class="mat-hint">{{ 'entity.tree.hint.visible.permissions' | translate }}</span>
                     </div>
                   </mat-expansion-panel>
                 </mat-accordion>

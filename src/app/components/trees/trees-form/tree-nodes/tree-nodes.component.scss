@@ -11,6 +11,13 @@
   flex-wrap: wrap;
 }
 
+.visible-hints {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+}
+
 .flex-column-gap-16 {
   display: flex;
   gap: 16px;

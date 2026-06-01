@@ -683,7 +683,7 @@ describe('DataTreeComponent', () => {
         'entity.tree.hiddenInViewer.self':
           'Hidden in viewer: this node and its children are omitted from the map catalog.',
         'entity.tree.hiddenInViewer.ancestor':
-          'Hidden in viewer because parent "{{name}}" is not visible.'
+          'Hidden in viewer because parent "{{name}}" is not in the map catalog.'
       }, true);
       translate.use('en');
     });
