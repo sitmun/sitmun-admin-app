@@ -45,10 +45,10 @@ describe('ServiceFormComponent', () => {
   let _roleService: RoleService;
   let consoleErrorSpy: jest.SpyInstance;
 
-  beforeEach(async () => {
-    // Mock console.error to prevent console output during tests
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+  beforeAll(async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [ ServiceFormComponent, FormToolbarComponent ],
       imports: [FormsModule, ReactiveFormsModule, SitmunFrontendGuiModule, RouterModule.forRoot([], {}), MaterialModule, TranslateModule.forRoot({
           loader: {
@@ -80,11 +80,8 @@ describe('ServiceFormComponent', () => {
     .compileComponents();
   });
 
-  afterEach(() => {
-    consoleErrorSpy.mockRestore();
-  });
-
   beforeEach(() => {
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
     fixture = TestBed.createComponent(ServiceFormComponent);
     component = fixture.componentInstance;
     // Suppress debug logs in tests to reduce console noise
@@ -107,6 +104,9 @@ describe('ServiceFormComponent', () => {
     }
     fixture.detectChanges();
   });
+
+  afterEach(() => fixture?.destroy());
+  afterAll(() => TestBed.resetTestingModule());
 
   it('should create', () => {
     expect(component).toBeTruthy();

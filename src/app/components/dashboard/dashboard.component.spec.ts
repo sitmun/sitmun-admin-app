@@ -45,8 +45,10 @@ describe('DashboardComponent', () => {
   let resourceService: ResourceService;
   let externalService: ExternalService;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [ DashboardComponent ],
       imports : [SitmunFrontendGuiModule, MatIconTestingModule,
          MaterialModule, RouterModule, NoopAnimationsModule,
@@ -89,6 +91,9 @@ describe('DashboardComponent', () => {
     // Don't call detectChanges() here to avoid animation issues
     // Individual tests can call it if needed
   });
+
+  afterEach(() => fixture?.destroy());
+  afterAll(() => TestBed.resetTestingModule());
 
   it('should create', () => {
     expect(component).toBeTruthy();

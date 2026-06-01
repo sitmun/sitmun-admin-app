@@ -32,10 +32,10 @@ describe('ConnectionFormComponent', () => {
   let externalService: ExternalService;
   let consoleErrorSpy: jest.SpyInstance;
 
-  beforeEach(async () => {
-    // Mock console.error to prevent console output during tests
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+  beforeAll(async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [ ConnectionFormComponent, FormToolbarComponent ],
       imports : [FormsModule, ReactiveFormsModule, SitmunFrontendGuiModule, MatIconTestingModule, MaterialModule, RouterModule, BrowserAnimationsModule,
         TranslateModule.forRoot({
@@ -64,11 +64,8 @@ describe('ConnectionFormComponent', () => {
     .compileComponents();
   });
 
-  afterEach(() => {
-    consoleErrorSpy.mockRestore();
-  });
-
   beforeEach(() => {
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
     fixture = TestBed.createComponent(ConnectionFormComponent);
     component = fixture.componentInstance;
     // Suppress debug logs in tests to reduce console noise
@@ -88,6 +85,9 @@ describe('ConnectionFormComponent', () => {
     }
     fixture.detectChanges();
   });
+
+  afterEach(() => fixture?.destroy());
+  afterAll(() => TestBed.resetTestingModule());
 
   it('should create', () => {
     expect(component).toBeTruthy();

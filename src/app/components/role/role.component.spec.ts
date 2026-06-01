@@ -25,8 +25,10 @@ describe('RoleComponent', () => {
   let externalService: ExternalService;
   let httpMock: HttpTestingController;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [ RoleComponent, EntityListComponent ],
       imports : [SitmunFrontendGuiModule, MaterialModule, RouterModule, MatIconTestingModule,
         TranslateModule.forRoot({
@@ -64,8 +66,11 @@ describe('RoleComponent', () => {
   });
 
   afterEach(() => {
+    fixture?.destroy();
     httpMock.verify();
   });
+
+  afterAll(() => TestBed.resetTestingModule());
 
   it('should create', () => {
     expect(component).toBeTruthy();

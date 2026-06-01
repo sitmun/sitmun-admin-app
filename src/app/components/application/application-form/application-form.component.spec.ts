@@ -61,8 +61,10 @@ describe('ApplicationFormComponent', () => {
   let externalService: ExternalService;
   let restoreConsoleWarn: () => void;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [ApplicationFormComponent, FormToolbarComponent],
       imports: [FormsModule, ReactiveFormsModule, RouterModule.forRoot([], {}), SitmunFrontendGuiModule, DataGridComponent, MaterialModule, MatIconTestingModule, BrowserAnimationsModule, CoreModule, EntityFormAlertsComponent,
         TranslateModule.forRoot({
@@ -105,8 +107,11 @@ describe('ApplicationFormComponent', () => {
   });
 
   afterEach(() => {
+    fixture?.destroy();
     restoreConsoleWarn?.();
   });
+
+  afterAll(() => TestBed.resetTestingModule());
 
   it('should create', () => {
     expect(component).toBeTruthy();

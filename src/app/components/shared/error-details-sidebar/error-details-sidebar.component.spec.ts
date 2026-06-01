@@ -37,7 +37,7 @@ describe('ErrorDetailsSidebarComponent', () => {
     }
   ];
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     if (!navigator.clipboard) {
       Object.defineProperty(navigator, 'clipboard', {
         value: { writeText: jest.fn() },
@@ -64,7 +64,9 @@ describe('ErrorDetailsSidebarComponent', () => {
       getActiveSidebar: jest.fn(() => null)
     } as any;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [ErrorDetailsSidebarComponent],
       imports: [
         MatIconModule,
@@ -78,10 +80,17 @@ describe('ErrorDetailsSidebarComponent', () => {
         { provide: SidebarManagerService, useValue: sidebarManagerService }
       ]
     }).compileComponents();
+  });
 
+  beforeEach(() => {
+    errorsSubject = new BehaviorSubject<ErrorEntry[]>([]);
+    (errorTrackingService as any).errors$ = errorsSubject.asObservable();
     fixture = TestBed.createComponent(ErrorDetailsSidebarComponent);
     component = fixture.componentInstance;
   });
+
+  afterEach(() => fixture?.destroy());
+  afterAll(() => TestBed.resetTestingModule());
 
   it('should create', () => {
     expect(component).toBeTruthy();

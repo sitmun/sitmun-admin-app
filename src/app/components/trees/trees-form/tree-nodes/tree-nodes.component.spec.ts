@@ -224,9 +224,10 @@ describe('TreeNodesComponent', () => {
     });
   }
 
-  beforeEach(async () => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+  beforeAll(async () => {
     await TestBed.configureTestingModule({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [TreeNodesComponent],
       imports: [
         FormsModule,
@@ -269,7 +270,10 @@ describe('TreeNodesComponent', () => {
       ]
     })
       .compileComponents();
+  });
 
+  beforeEach(async () => {
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
     httpMock = TestBed.inject(HttpTestingController);
     const logger = TestBed.inject(LoggerService);
     jest.spyOn(logger, 'debug').mockImplementation();
@@ -284,10 +288,13 @@ describe('TreeNodesComponent', () => {
   });
 
   afterEach(() => {
+    fixture?.destroy();
     flushTreeNodesHttpMocks(httpMock);
     httpMock.verify();
     consoleErrorSpy.mockRestore();
   });
+
+  afterAll(() => TestBed.resetTestingModule());
 
   it('should create', () => {
     expect(component).toBeTruthy();

@@ -1,7 +1,7 @@
 import {setupZoneTestEnv} from 'jest-preset-angular/setup-env/zone';
 
 setupZoneTestEnv({
-  teardown: {destroyAfterEach: true},
+  teardown: {destroyAfterEach: false},
 });
 
 // Global mocks for jsdom

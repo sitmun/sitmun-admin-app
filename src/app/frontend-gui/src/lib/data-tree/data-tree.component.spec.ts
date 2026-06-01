@@ -8,7 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from '@angular/material/tree';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
@@ -88,8 +88,10 @@ describe('DataTreeComponent', () => {
     };
   }
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     await TestBed.configureTestingModule({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [ DataTreeComponent ],
       imports: [
         TranslateModule.forRoot(),
@@ -102,7 +104,7 @@ describe('DataTreeComponent', () => {
         MatInputModule,
         MatTooltipModule,
         DragDropModule,
-        BrowserAnimationsModule
+        NoopAnimationsModule
       ],
       providers: [
         FileDatabase,
@@ -121,6 +123,12 @@ describe('DataTreeComponent', () => {
 
     fixture.detectChanges();
   });
+
+  afterEach(() => {
+    fixture?.destroy();
+  });
+
+  afterAll(() => TestBed.resetTestingModule());
 
   it('should create', () => {
     expect(component).toBeTruthy();

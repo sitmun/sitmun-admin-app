@@ -33,14 +33,16 @@ describe('ToolbarComponent', () => {
   const mockUser = { id: 1, username: 't', firstName: 'T', lastName: 'U' } as User;
   let authStateSubject: BehaviorSubject<unknown>;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     authStateSubject = new BehaviorSubject<unknown>(null);
     const principalStub = {
       getAuthenticationState: jest.fn(() => authStateSubject.asObservable()),
       identity: jest.fn(() => Promise.resolve(mockUser))
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [ ToolbarComponent, SystemInfoMenuComponent ],
       imports: [
         MaterialModule,
@@ -82,6 +84,9 @@ describe('ToolbarComponent', () => {
     externalService= TestBed.inject(ExternalService);
     fixture.detectChanges();
   });
+
+  afterEach(() => fixture?.destroy());
+  afterAll(() => TestBed.resetTestingModule());
 
   it('should create', () => {
     expect(component).toBeTruthy();

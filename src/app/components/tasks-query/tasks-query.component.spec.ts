@@ -27,8 +27,10 @@ describe('TasksQueryComponent', () => {
   let externalService: ExternalService;
   let httpMock: HttpTestingController;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [ TasksQueryComponent, EntityListComponent ],
       imports : [SitmunFrontendGuiModule, MaterialModule, RouterModule, MatIconTestingModule,
         TranslateModule.forRoot({
@@ -72,8 +74,11 @@ describe('TasksQueryComponent', () => {
   });
 
   afterEach(() => {
+    fixture?.destroy();
     httpMock.verify();
   });
+
+  afterAll(() => TestBed.resetTestingModule());
 
   it('should create', () => {
     expect(component).toBeTruthy();

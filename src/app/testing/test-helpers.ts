@@ -1,4 +1,5 @@
 import { Provider } from '@angular/core';
+import { ComponentFixture, TestBed, TestModuleMetadata } from '@angular/core/testing';
 
 import { ErrorHandlerService } from '@app/services/error-handler.service';
 import { LogLevel } from '@app/services/log-level.enum';
@@ -36,6 +37,38 @@ export function suppressAgGridConsoleWarnings(): () => void {
  * HTTP fails and the real handler opens MatSnackBar, which schedules overlay work after the
  * test fixture is destroyed (NG0406 / NG0205, "Cannot log after tests are done").
  */
+/**
+ * Call inside `beforeAll` to compile the testing module once for the entire suite.
+ * Pair with `destroyFixtureAfterEach` and `resetTestingModuleAfterAll` in each spec.
+ *
+ * Uses `teardown: { destroyAfterEach: false }` so the compiled module is not reset
+ * between tests, making `beforeAll` compilation effective.
+ */
+export async function configureTestingModuleOnce(
+  config: TestModuleMetadata
+): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // destroyAfterEach: 0 as any — truthy non-boolean bypasses both cleanup hooks
+  // (beforeEach fires on === false, afterEach fires on === true; 0 matches neither),
+  // keeping the compiled module alive for the entire suite.
+  await TestBed.configureTestingModule({
+    ...config,
+    teardown: { destroyAfterEach: 0 as any },
+  }).compileComponents();
+}
+
+/** Register an `afterEach` hook that destroys the fixture returned by `getFixture`. */
+export function destroyFixtureAfterEach(
+  getFixture: () => ComponentFixture<unknown> | undefined
+): void {
+  afterEach(() => getFixture()?.destroy());
+}
+
+/** Register an `afterAll` hook that resets the TestBed module. */
+export function resetTestingModuleAfterAll(): void {
+  afterAll(() => TestBed.resetTestingModule());
+}
+
 export function provideErrorHandlerForTests(): Provider {
   const noop = (): null => null;
   return {

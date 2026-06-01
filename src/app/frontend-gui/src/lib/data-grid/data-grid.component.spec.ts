@@ -15,8 +15,10 @@ describe('DataGridComponent', () => {
   let component: DataGridComponent;
   let fixture: ComponentFixture<DataGridComponent>;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       imports: [DataGridComponent],
       providers: [
         {provide: MatDialog, useValue: {open: () => ({})}},
@@ -27,12 +29,17 @@ describe('DataGridComponent', () => {
         {provide: LoadingOverlayService, useValue: {wrapWithAntiFlicker: (fn: () => Promise<unknown>) => fn()}},
       ],
     }).compileComponents();
+  });
 
+  beforeEach(() => {
     fixture = TestBed.createComponent(DataGridComponent);
     component = fixture.componentInstance;
     component.columnDefs = [{field: 'name'}];
     component.getAll = () => of([{id: 1, name: 'row'}]);
   });
+
+  afterEach(() => fixture?.destroy());
+  afterAll(() => TestBed.resetTestingModule());
 
   it('defaults to clientSide row model', () => {
     expect(component.rowModelMode).toBe('clientSide');

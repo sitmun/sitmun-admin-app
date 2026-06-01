@@ -26,8 +26,10 @@ describe('ServiceComponent', () => {
   let externalService: ExternalService;
   let httpMock: HttpTestingController;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [ ServiceComponent, EntityListComponent ],
       imports : [SitmunFrontendGuiModule, MaterialModule, MatIconTestingModule, RouterModule,
         TranslateModule.forRoot({
@@ -71,8 +73,11 @@ describe('ServiceComponent', () => {
   });
 
   afterEach(() => {
+    fixture?.destroy();
     httpMock.verify();
   });
+
+  afterAll(() => TestBed.resetTestingModule());
 
   it('should create', () => {
     expect(component).toBeTruthy();

@@ -11,6 +11,11 @@ const config: Config = {
   // Automatically clear mock calls, instances, contexts and results before every test
   clearMocks: true,
 
+  // Automatically restore mock state and implementation before every test.
+  // Required to prevent mockImplementation overrides from leaking across tests when
+  // providers are shared singletons (destroyAfterEach: false in compile-once specs).
+  restoreMocks: true,
+
   // Indicates whether the coverage information should be collected while executing the test
   collectCoverage: true,
 

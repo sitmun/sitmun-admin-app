@@ -23,8 +23,10 @@ describe('CallbackComponent', () => {
   let notificationService: NotificationService;
   let principal: Principal;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       imports: [
         CallbackComponent,
         TranslateModule.forRoot({
@@ -55,13 +57,18 @@ describe('CallbackComponent', () => {
         }
       ]
     }).compileComponents();
+  });
 
+  beforeEach(() => {
     fixture = TestBed.createComponent(CallbackComponent);
     component = fixture.componentInstance;
     router = TestBed.inject(Router);
     notificationService = TestBed.inject(NotificationService);
     principal = TestBed.inject(Principal);
   });
+
+  afterEach(() => fixture?.destroy());
+  afterAll(() => TestBed.resetTestingModule());
 
   it('should create', async () => {
     (principal.identity as jest.Mock) = jest.fn().mockResolvedValue({ username: 'user' });

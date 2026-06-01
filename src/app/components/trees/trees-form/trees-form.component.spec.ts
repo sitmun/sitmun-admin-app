@@ -42,8 +42,10 @@ describe('TreesFormComponent', () => {
   let fixture: ComponentFixture<TreesFormComponent>;
   let treeService: TreeService;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     await TestBed.configureTestingModule({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [ TreesFormComponent, FormToolbarComponent ],
       imports: [FormsModule, ReactiveFormsModule,SitmunFrontendGuiModule, RouterModule.forRoot([], {}), MaterialModule, MatIconTestingModule, BrowserAnimationsModule,
          TranslateModule.forRoot({
@@ -84,6 +86,8 @@ describe('TreesFormComponent', () => {
   afterEach(() => {
     fixture?.destroy();
   });
+
+  afterAll(() => TestBed.resetTestingModule());
 
   it('should create', () => {
     expect(component).toBeTruthy();

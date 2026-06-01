@@ -55,8 +55,10 @@ describe('TerritoryFormComponent', () => {
   let resourceService: ResourceService;
   let externalService: ExternalService;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [TerritoryFormComponent, FormToolbarComponent],
       imports: [
         FormsModule,
@@ -134,6 +136,9 @@ describe('TerritoryFormComponent', () => {
     }
     fixture.detectChanges();
   });
+
+  afterEach(() => fixture?.destroy());
+  afterAll(() => TestBed.resetTestingModule());
 
   it('should create', () => {
     expect(component).toBeTruthy();
