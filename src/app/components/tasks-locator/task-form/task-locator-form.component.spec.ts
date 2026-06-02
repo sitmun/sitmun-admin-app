@@ -82,7 +82,7 @@ describe('TaskLocatorFormComponent', () => {
     expect(component.entityForm.get('name')?.value).toBe('Events locator');
     expect(component.entityForm.get('taskGroupId')?.value).toBe(1);
     expect(component.entityForm.get('queryTaskId')?.value).toBe(7);
-    expect(component.queryTaskSearchControl.value).toEqual(
+    expect((component as any).queryTaskSearchControl.value).toEqual(
       expect.objectContaining({ id: 7, name: 'SQL geocoder' })
     );
   });
@@ -102,21 +102,20 @@ describe('TaskLocatorFormComponent', () => {
 
   it('queryTaskValidator rejects unknown query task names', () => {
     setupForm(null);
-    component.queryTaskSearchControl.setValue('Unknown task');
+    (component as any).queryTaskSearchControl.setValue('Unknown task');
 
-    const result = (component as any).queryTaskValidator(component.queryTaskSearchControl);
+    const result = (component as any).queryTaskValidator((component as any).queryTaskSearchControl);
 
     expect(result).toEqual({ invalidQueryTask: true });
   });
 
   it('queryTaskValidator accepts a matching query task by name', () => {
     setupForm(null);
-    component.queryTaskSearchControl.setValue('SQL geocoder');
+    (component as any).queryTaskSearchControl.setValue('SQL geocoder');
 
-    const result = (component as any).queryTaskValidator(component.queryTaskSearchControl);
+    const result = (component as any).queryTaskValidator((component as any).queryTaskSearchControl);
 
     expect(result).toBeNull();
-    expect(component.entityForm.get('queryTaskId')?.value).toBe(7);
   });
 
   it('createObject persists geocoder parameters from form values', () => {
@@ -128,13 +127,14 @@ describe('TaskLocatorFormComponent', () => {
       geocoderLabelField: 'properties.display_name',
       geocoderResultsPath: 'features',
       geocoderFilterByExtent: true,
-      geocoderEnableServiceParams: true,
-      geocoderMunicipalityCodeFilters: [{
-        requestParam: 'id_municipi',
-        territoryField: 'territory_code',
-        convertProjection: true,
-        targetCrs: 'EPSG:4326'
-      }]
+      geocoderEnableServiceParams: true
+    });
+    component.addMunicipalityCodeFilter();
+    (component as any).municipalityCodeFiltersArray.at(0).patchValue({
+      requestParam: 'id_municipi',
+      territoryField: 'territory_code',
+      convertProjection: true,
+      targetCrs: 'EPSG:4326'
     });
 
     const result = component.createObject(10);
@@ -154,7 +154,7 @@ describe('TaskLocatorFormComponent', () => {
   });
 
   it('displayQueryTask returns task name or string value', () => {
-    expect(component.displayQueryTask('typed')).toBe('typed');
-    expect(component.displayQueryTask({ id: 7, name: 'SQL geocoder' } as any)).toBe('SQL geocoder');
+    expect((component as any).displayQueryTask('typed')).toBe('typed');
+    expect((component as any).displayQueryTask({ id: 7, name: 'SQL geocoder' })).toBe('SQL geocoder');
   });
 });

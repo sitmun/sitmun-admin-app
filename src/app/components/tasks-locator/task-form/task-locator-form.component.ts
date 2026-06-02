@@ -253,7 +253,9 @@ export class TaskLocatorFormComponent extends BaseFormComponent<TaskProjection> 
           targetCrs: f.targetCrs ?? (f.convertToWgs84 ? 'EPSG:4326' : '')
         }));
       }
-    } catch {}
+    } catch {
+      // Ignore malformed municipalityCodeFilters JSON; fall back to empty list.
+    }
     return [];
   }
 
