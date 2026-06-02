@@ -74,6 +74,7 @@ export const constants = {
 export const magic = {
   taskEditTypeId: 0,
   taskBasicTypeId: 1,
+  taskLocatorTypeId: 4,
   taskQueryTypeId: 5,
   taskMoreInfoTypeId: 6
 }
