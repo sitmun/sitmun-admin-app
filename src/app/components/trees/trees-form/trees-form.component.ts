@@ -6,7 +6,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 
 
 import {TranslateService} from '@ngx-translate/core';
-import {firstValueFrom, map, of} from 'rxjs';
+import {Observable, firstValueFrom, map, of} from 'rxjs';
 
 import {BaseFormComponent} from '@app/components/base-form.component';
 import {DataTableDefinition} from '@app/components/data-tables.util';
@@ -24,12 +24,14 @@ import {
   TreeRulesService,
   TreeService
 } from '@app/domain';
+import {AdminRuntimeConfigurationService} from '@app/domain/admin-configuration/services/admin-runtime-configuration.service';
 import {onUpdatedRelation, Status} from '@app/frontend-gui/src/lib/public_api';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 import {
+  formatImageAccept,
   getImageUploadErrorKey,
   validateImageUpload,
 } from '@app/utils/image-upload.utils';
@@ -54,6 +56,23 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
 
   private readonly injector = inject(Injector);
   private readonly treeRulesService = inject(TreeRulesService);
+  private readonly adminConfigService = inject(AdminRuntimeConfigurationService);
+
+  /** Params for `entity.tree.image.resizeHint`. Emits once backend config loads; hint hidden until then. */
+  readonly treeImageResizeHintParams$: Observable<{ width: number; height: number; maxSizeMb: number }> =
+    this.adminConfigService.getTreeImageUploadConfiguration().pipe(
+      map(({ defaultSize, maxBytes }) => ({
+        width: defaultSize.width,
+        height: defaultSize.height,
+        maxSizeMb: Math.round(maxBytes / (1024 * 1024)),
+      }))
+    );
+
+  readonly treeImageAccept$: Observable<string> = this.adminConfigService.getTreeImageUploadConfiguration().pipe(
+    map(({ supportedFormats }) => formatImageAccept(supportedFormats))
+  );
+
+  treeImagePreviewState: 'uploaded' | 'stored' = 'stored';
 
   currentTreeType: string;
   eagerLoadTreeStructure = false;
@@ -233,6 +252,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
     });
 
     this.currentTreeType = this.entityToEdit.type;
+    this.treeImagePreviewState = 'stored';
 
     // Set default type for new trees
     if (this.isNew() && !this.entityToEdit.type) {
@@ -283,6 +303,15 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
     }
 
     return Promise.resolve(false);
+  }
+
+  override afterSave(): void {
+    this.entityForm.patchValue({
+      image: this.entityToEdit?.image ?? null,
+      imageName: this.entityToEdit?.imageName ?? null,
+    }, { emitEvent: false });
+    this.treeImagePreviewState = 'stored';
+    super.afterSave();
   }
 
   /** Rejects save when another tree already uses the same name (case-insensitive). */
@@ -567,13 +596,14 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
     }
   }
 
-  onImageSelected(formtype: string, event: Event): void {
+  async onImageSelected(formtype: string, event: Event): Promise<void> {
     const fileInput = event.target as HTMLInputElement;
     if (fileInput.files.length > 0) {
       const file = fileInput.files[0];
-      const validation = validateImageUpload(file);
+      const { supportedFormats, maxBytes } = await firstValueFrom(this.adminConfigService.getTreeImageUploadConfiguration());
+      const validation = validateImageUpload(file, supportedFormats, maxBytes);
       if (!validation.valid) {
-        this.errorHandler.handleError(null, getImageUploadErrorKey(validation.error!));
+        this.errorHandler.handleError(null, getImageUploadErrorKey(validation.error!), validation.errorParams);
         fileInput.value = '';
         return;
       }
@@ -583,6 +613,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
           image: reader.result,
           imageName: file.name
         });
+        this.treeImagePreviewState = 'uploaded';
         this.markTreeImageAsModified();
         // Same filename can be selected again on the next open.
         fileInput.value = '';

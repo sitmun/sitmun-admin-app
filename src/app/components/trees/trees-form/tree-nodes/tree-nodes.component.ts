@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, DestroyRef, ElementRef, EventEmitter, HostListener, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, TemplateRef, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, DestroyRef, ElementRef, EventEmitter, HostListener, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, TemplateRef, ViewChild, inject} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormControl, UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {MatAutocompleteSelectedEvent, MatAutocompleteTrigger} from '@angular/material/autocomplete';
@@ -31,6 +31,7 @@ import {
   TreeNodeService,
   TreeRulesService
 } from '@app/domain';
+import {AdminRuntimeConfigurationService} from '@app/domain/admin-configuration/services/admin-runtime-configuration.service';
 import { TaskPropertiesContract } from '@app/domain/task/models/task-properties';
 import {openDialogGridWithPreload} from '@app/frontend-gui/src/lib/dialog-grid/dialog-grid.component';
 import {
@@ -46,6 +47,7 @@ import {LoggerService} from '@app/services/logger.service';
 import {NotificationService} from '@app/services/notification.service';
 import {UtilsService} from '@app/services/utils.service';
 import {
+  formatImageAccept,
   getImageUploadErrorKey,
   validateImageUpload,
 } from '@app/utils/image-upload.utils';
@@ -71,6 +73,25 @@ interface TreeNodeTaskInputParameter {
 })
 export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly adminConfigService = inject(AdminRuntimeConfigurationService);
+
+  /** Params for `entity.tree.image.resizeHint`. Emits on each node selection; hint hidden until config loads. */
+  get nodeImageResizeHintParams$(): Observable<{ width: number; height: number; maxSizeMb: number }> {
+    return this.adminConfigService.getTreeImageUploadConfiguration().pipe(
+      map(({ defaultSize, sizesByType, maxBytes }) => {
+        const type = this.currentParentNodeType;
+        const size = (type && sizesByType[type]) ?? defaultSize;
+        return { width: size.width, height: size.height, maxSizeMb: Math.round(maxBytes / (1024 * 1024)) };
+      })
+    );
+  }
+
+  readonly nodeImageAccept$: Observable<string> = this.adminConfigService.getTreeImageUploadConfiguration().pipe(
+    map(({ supportedFormats }) => formatImageAccept(supportedFormats))
+  );
+
+  nodeImagePreviewState: 'uploaded' | 'stored' = 'stored';
+
   @Input() tree: Tree;
   @Input() entityID = -1;
   @Input() duplicateID = -1;
@@ -1133,6 +1154,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
       type: currentType,
       mapping: node.mapping
     }, { emitEvent: false });
+    this.nodeImagePreviewState = 'stored';
 
     // If cartography not found in cache yet, load cartographies and then set it
     if (node.cartographyId && !cartographyObj) {
@@ -1854,13 +1876,14 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  onImageSelected(formtype, event) {
+  async onImageSelected(formtype, event): Promise<void> {
     const fileInput = event.target;
     if (fileInput.files.length > 0) {
       const file = fileInput.files[0];
-      const validation = validateImageUpload(file);
+      const { supportedFormats, maxBytes } = await firstValueFrom(this.adminConfigService.getTreeImageUploadConfiguration());
+      const validation = validateImageUpload(file, supportedFormats, maxBytes);
       if (!validation.valid) {
-        this.errorHandler.handleError(null, getImageUploadErrorKey(validation.error!));
+        this.errorHandler.handleError(null, getImageUploadErrorKey(validation.error!), validation.errorParams);
         fileInput.value = '';
         return;
       }
@@ -1871,6 +1894,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
           image: reader.result,
           imageName: file.name
         });
+        this.nodeImagePreviewState = 'uploaded';
         this.markImageChangeAsModified(form);
         if (!this.newElement) {
           this.updateNode();
@@ -2362,6 +2386,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
                     savedName: result.name
                   });
                   const oldId = treeNode.id;
+                  this.patchCurrentNodeImageFromSavedResult(oldId, result);
 
                   // Handle name translations
                   const nameTranslationMap = this.nameTranslations.get(oldId);
@@ -2422,6 +2447,20 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     await Promise.all(promises);
+  }
+
+  private patchCurrentNodeImageFromSavedResult(previousId: number, savedNode: TreeNode): void {
+    const selectedId = this.treeNodeForm?.get('id')?.value;
+    if (selectedId !== previousId && selectedId !== savedNode.id) {
+      return;
+    }
+    this.treeNodeForm.patchValue({
+      id: savedNode.id,
+      image: savedNode.image ?? null,
+      imageName: savedNode.imageName ?? null,
+    }, { emitEvent: false });
+    this.currentNodeId = savedNode.id;
+    this.nodeImagePreviewState = 'stored';
   }
 
   private showStyleError() {

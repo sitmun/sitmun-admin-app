@@ -270,9 +270,9 @@
                             [placeholder]="'entity.tree.imagePlaceHolder' | translate">
                         </mat-form-field>
                         <textarea matInput type="text" hidden formControlName="image"></textarea>
-                        <input #nodeFileInput type="file" accept="image/png,image/jpeg,.png,.jpg,.jpeg" hidden
+                        <input #nodeFileInput type="file" [accept]="nodeImageAccept$ | async" hidden
                           (change)="onImageSelected('node', $event)">
-                        <p class="image-upload-hint">{{ 'entity.tree.image.resizeHint' | translate }}</p>
+                        <p *ngIf="nodeImageResizeHintParams$ | async as params" class="image-upload-hint">{{ 'entity.tree.image.resizeHint' | translate: params }}</p>
                         <div class="appearance-actions">
                           <button mat-raised-button color="primary" type="button" (click)="nodeFileInput.click()">
                             {{ 'entity.tree.selectFile' | translate }}
@@ -288,9 +288,12 @@
                         <app-image-preview
                           [imageSource]="treeNodeForm.get('image')?.value || treeNodeForm.get('imageName')?.value"
                           [imageName]="treeNodeForm.get('imageName')?.value"
+                          [imageState]="nodeImagePreviewState"
                           [previewId]="'treeNodeImgPreview'"
                           [maxWidth]="80"
-                          [maxHeight]="80">
+                          [maxHeight]="80"
+                          [targetWidth]="(nodeImageResizeHintParams$ | async)?.width ?? null"
+                          [targetHeight]="(nodeImageResizeHintParams$ | async)?.height ?? null">
                         </app-image-preview>
                       </div>
                     </div>

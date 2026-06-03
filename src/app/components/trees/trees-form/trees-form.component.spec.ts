@@ -5,7 +5,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
-import {of} from 'rxjs';
+import {firstValueFrom, of} from 'rxjs';
 
 import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
@@ -23,6 +23,7 @@ import {
   TreeNodeService,
   TreeService
 } from '@app/domain';
+import { AdminRuntimeConfigurationService } from '@app/domain/admin-configuration/services/admin-runtime-configuration.service';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { MaterialModule } from '@app/material-module';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
@@ -44,7 +45,7 @@ describe('TreesFormComponent', () => {
 
   beforeAll(async () => {
     await TestBed.configureTestingModule({
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       teardown: { destroyAfterEach: 0 as any },
       declarations: [ TreesFormComponent, FormToolbarComponent ],
       imports: [FormsModule, ReactiveFormsModule,SitmunFrontendGuiModule, RouterModule.forRoot([], {}), MaterialModule, MatIconTestingModule, BrowserAnimationsModule,
@@ -57,7 +58,11 @@ describe('TreesFormComponent', () => {
           }
         })],
       providers: [provideErrorHandlerForTests(), TreeService, TreeNodeService, ApplicationService, ServiceService, CapabilitiesService, CartographyService, CodeListService, TranslationService, ResourceService, ExternalService, TaskService, RoleService,
-        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }]
+        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
+        {
+          provide: AdminRuntimeConfigurationService,
+          useValue: { getTreeImageUploadConfiguration: () => of({ supportedFormats: ['png', 'jpg', 'jpeg'], maxBytes: 2_097_152, defaultSize: { width: 125, height: 125 }, sizesByType: { menu: { width: 50, height: 50 }, list: { width: 350, height: 350 } } }) }
+        }]
     })
     .compileComponents();
   });
@@ -593,7 +598,7 @@ describe('TreesFormComponent', () => {
         }, 100);
       });
 
-      it('shows error for non-image files', () => {
+      it('shows error for non-image files', async () => {
         const errorHandler = TestBed.inject(ErrorHandlerService);
         const handleErrorSpy = jest.spyOn(errorHandler, 'handleError').mockReturnValue(null);
         const file = new File(['dummy content'], 'test.txt', { type: 'text/plain' });
@@ -605,14 +610,14 @@ describe('TreesFormComponent', () => {
         const event = { target: fileInput } as any;
         component.entityForm.patchValue({ image: 'existing.png', imageName: 'existing.png' });
 
-        component.onImageSelected('tree', event);
+        await component.onImageSelected('tree', event);
 
-        expect(handleErrorSpy).toHaveBeenCalledWith(null, 'entity.tree.image.error.invalidType');
+        expect(handleErrorSpy).toHaveBeenCalledWith(null, 'entity.tree.image.error.invalidType', { formats: 'PNG, JPG, JPEG' });
         expect(component.entityForm.value.image).toBe('existing.png');
         expect(component.entityForm.value.imageName).toBe('existing.png');
       });
 
-      it('shows error when file exceeds size limit', () => {
+      it('shows error when file exceeds size limit', async () => {
         const errorHandler = TestBed.inject(ErrorHandlerService);
         const handleErrorSpy = jest.spyOn(errorHandler, 'handleError').mockReturnValue(null);
         const bytes = new Uint8Array(2 * 1024 * 1024 + 1);
@@ -624,9 +629,9 @@ describe('TreesFormComponent', () => {
         });
         const event = { target: fileInput } as any;
 
-        component.onImageSelected('tree', event);
+        await component.onImageSelected('tree', event);
 
-        expect(handleErrorSpy).toHaveBeenCalledWith(null, 'entity.tree.image.error.tooLarge');
+        expect(handleErrorSpy).toHaveBeenCalledWith(null, 'entity.tree.image.error.tooLarge', { maxSizeMb: 2 });
       });
 
       it('does nothing when no file is selected', () => {
@@ -1011,6 +1016,19 @@ describe('TreesFormComponent', () => {
 
         expect(component['isDuplicatedTreeReadyForSave']()).toBe(false);
       });
+    });
+  });
+
+  describe('treeImageResizeHintParams$', () => {
+    it('derives resize hint params from backend-provided default size', async () => {
+      const params = await firstValueFrom(component.treeImageResizeHintParams$);
+      expect(params).toEqual({ width: 125, height: 125, maxSizeMb: 2 });
+    });
+  });
+
+  describe('treeImageAccept$', () => {
+    it('derives file picker accepted extensions from backend-supported formats', async () => {
+      await expect(firstValueFrom(component.treeImageAccept$)).resolves.toBe('.png,.jpg,.jpeg');
     });
   });
 

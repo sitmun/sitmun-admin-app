@@ -25,6 +25,7 @@ import {
   TranslationService,
   TreeNodeService
 } from '@app/domain';
+import { AdminRuntimeConfigurationService } from '@app/domain/admin-configuration/services/admin-runtime-configuration.service';
 import { DIALOG_EVENTS } from '@app/frontend-gui/src/lib/dialog-message/dialog-message.component';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { ErrorHandlerService } from '@app/services/error-handler.service';
@@ -226,7 +227,7 @@ describe('TreeNodesComponent', () => {
 
   beforeAll(async () => {
     await TestBed.configureTestingModule({
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       teardown: { destroyAfterEach: 0 as any },
       declarations: [TreeNodesComponent],
       imports: [
@@ -265,6 +266,10 @@ describe('TreeNodesComponent', () => {
         UtilsService,
         ErrorHandlerService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
+        {
+          provide: AdminRuntimeConfigurationService,
+          useValue: { getTreeImageUploadConfiguration: () => of({ supportedFormats: ['png', 'jpg', 'jpeg'], maxBytes: 2_097_152, defaultSize: { width: 125, height: 125 }, sizesByType: { menu: { width: 50, height: 50 }, list: { width: 350, height: 350 } } }) }
+        },
         provideHttpClient(),
         provideHttpClientTesting(),
       ]
@@ -1258,6 +1263,44 @@ describe('TreeNodesComponent', () => {
 
       expect(showInfoSpy).toHaveBeenCalledWith('entity.tree.saveBeforeDeselect', '');
       expect(component['currentNodeId']).toBe(5);
+    });
+  });
+
+  describe('nodeImageResizeHintParams$', () => {
+    let parentTypeSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      parentTypeSpy = jest.spyOn(component, 'currentParentNodeType', 'get');
+    });
+
+    afterEach(() => {
+      parentTypeSpy.mockRestore();
+    });
+
+    it('returns default size when no parent type is set', async () => {
+      parentTypeSpy.mockReturnValue(null);
+      expect(await firstValueFrom(component.nodeImageResizeHintParams$)).toEqual({ width: 125, height: 125, maxSizeMb: 2 });
+    });
+
+    it('returns menu size when parent type is menu', async () => {
+      parentTypeSpy.mockReturnValue('menu');
+      expect(await firstValueFrom(component.nodeImageResizeHintParams$)).toEqual({ width: 50, height: 50, maxSizeMb: 2 });
+    });
+
+    it('returns list size when parent type is list', async () => {
+      parentTypeSpy.mockReturnValue('list');
+      expect(await firstValueFrom(component.nodeImageResizeHintParams$)).toEqual({ width: 350, height: 350, maxSizeMb: 2 });
+    });
+
+    it('returns default size for unknown parent type', async () => {
+      parentTypeSpy.mockReturnValue('unknown');
+      expect(await firstValueFrom(component.nodeImageResizeHintParams$)).toEqual({ width: 125, height: 125, maxSizeMb: 2 });
+    });
+  });
+
+  describe('nodeImageAccept$', () => {
+    it('derives file picker accepted extensions from backend-supported formats', async () => {
+      await expect(firstValueFrom(component.nodeImageAccept$)).resolves.toBe('.png,.jpg,.jpeg');
     });
   });
 
