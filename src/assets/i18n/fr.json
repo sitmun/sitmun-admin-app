@@ -250,7 +250,7 @@
   "entity.application.header.url": "Url",
   "entity.application.header.visible": "Afficher",
   "entity.application.hint.appPrivate": "Si activé, les visiteurs non connectés ne peuvent pas utiliser cette application.",
-  "entity.application.hint.creatorId": "Point de contact affiché dans les applications client (p. ex. détails de l'application). Seule l'adresse électronique institutionnelle de l'utilisateur sélectionné est publiée.",
+  "entity.application.hint.creatorId": "Point de contact affiché dans les applications client (p. ex. détails de l'application). Seule l'adresse électronique institutionnelle de l'utilisateur sélectionné est publiée. Si aucune adresse n'est configurée, aucune information de contact n'est affichée aux utilisateurs finaux.",
   "entity.application.hint.description": "Utilisé sur les cartes et dans les détails d'application côté client.",
   "entity.application.hint.isUnavailable": "Si activé, les applications clientes doivent afficher le message de maintenance et l’ouverture de l’application est empêchée.",
   "entity.application.hint.jspTemplate": "URL ou modèle d’application externe (applications externes uniquement). Enregistré dans l’admin mais non exposé sur le profil public et non utilisé par le visualiseur actuellement.",

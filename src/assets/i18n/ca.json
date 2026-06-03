@@ -250,7 +250,7 @@
   "entity.application.header.url": "Url",
   "entity.application.header.visible": "Mostrar",
   "entity.application.hint.appPrivate": "Si està actiu, qui no ha iniciat sessió no pot usar aquesta aplicació.",
-  "entity.application.hint.creatorId": "Punt de contacte mostrat a les aplicacions client (p. ex. detalls de l'aplicació). Només es publica el correu electrònic institucional de l'usuari seleccionat",
+  "entity.application.hint.creatorId": "Punt de contacte mostrat a les aplicacions client (p. ex. detalls de l'aplicació). Només es publica el correu electrònic institucional de l'usuari seleccionat. Si no hi ha correu electrònic configurat, no es mostra cap informació de contacte als usuaris finals.",
   "entity.application.hint.description": "S'utilitza en les targetes i als detalls d'aplicació als clients.",
   "entity.application.hint.isUnavailable": "Si està actiu, els clients han de mostrar el missatge de manteniment i s'impedeix obrir l'aplicació.",
   "entity.application.hint.jspTemplate": "URL o plantilla d'aplicació externa (només apps externes). Es desa a administració però no s'exposa al perfil públic ni ho usa el visor actualment.",
