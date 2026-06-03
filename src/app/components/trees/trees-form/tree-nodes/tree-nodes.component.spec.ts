@@ -460,6 +460,51 @@ describe('TreeNodesComponent', () => {
     });
   });
 
+  describe('showAppearancePanel', () => {
+    function setTouristicTaskUnderParent(parentNodeType: string | null): void {
+      const parentId = 99;
+      component.dataTree = {
+        clearSelection: jest.fn(),
+        setSelectionHighlight: jest.fn(),
+        dataSource: {
+          data: [{
+            children: parentNodeType != null
+              ? [{ id: parentId, nodeType: parentNodeType, children: [] }]
+              : [],
+          }],
+        },
+      } as any;
+      setNodeContext('touristic', 'task', {
+        formPatch: { parent: parentNodeType != null ? parentId : null },
+      });
+    }
+
+    it('is true for touristic task under menu', () => {
+      setTouristicTaskUnderParent('menu');
+      expect(component.showAppearancePanel).toBe(true);
+    });
+
+    it('is true for touristic task under list (fix for issue #412)', () => {
+      setTouristicTaskUnderParent('list');
+      expect(component.showAppearancePanel).toBe(true);
+    });
+
+    it('is false for touristic task without a parent', () => {
+      setTouristicTaskUnderParent(null);
+      expect(component.showAppearancePanel).toBe(false);
+    });
+
+    it('is true for touristic list node (unconditional showAppearancePanel)', () => {
+      setNodeContext('touristic', 'list');
+      expect(component.showAppearancePanel).toBe(true);
+    });
+
+    it('is false for touristic task under an unrelated parent type', () => {
+      setTouristicTaskUnderParent('task');
+      expect(component.showAppearancePanel).toBe(false);
+    });
+  });
+
   describe('task panel config flags', () => {
     it.each<[PanelFlag, string, string, boolean]>([
       ['showMappingInTaskPanel', 'touristic', 'task', true],

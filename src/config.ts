@@ -405,8 +405,9 @@ export const config = {
           folderHintForTaskGroupContainer: true,
           showDescriptionPanel: false,
           showCartographyPanel: false,
-          /** Show appearance panel when parent is one of these (e.g. menu). Default false if absent. */
-          showAppearancePanelWhenParentIs: ['menu'],
+          /** Show appearance panel when parent is one of these (image upload for preview/cover). */
+          appearanceLabelKey: 'image',
+          showAppearancePanelWhenParentIs: ['menu', 'list'],
           showTaskPanel: true,
           showFilterableInTaskPanel: true,
           showMappingInTaskPanel: true,
