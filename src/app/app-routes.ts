@@ -45,6 +45,8 @@ import {TaskQueryFormComponent} from '@app/components/tasks-query/task-form/task
 import {TasksQueryComponent} from '@app/components/tasks-query/tasks-query.component';
 import {TerritoryFormComponent} from '@app/components/territory/territory-form/territory-form.component';
 import {TerritoryComponent} from '@app/components/territory/territory.component';
+import {TerritoryTypeFormComponent} from '@app/components/territory-type/territory-type-form/territory-type-form.component';
+import {TerritoryTypeComponent} from '@app/components/territory-type/territory-type.component';
 import {TreesFormComponent} from '@app/components/trees/trees-form/trees-form.component';
 import {TreesComponent} from '@app/components/trees/trees.component';
 import {UserFormComponent} from '@app/components/user/user-form/user-form.component';
@@ -120,6 +122,9 @@ export const APP_ROUTES: Routes = [
       {path: 'language', component: LanguageComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'language/:id/languageForm', component: LanguageFormComponent},
       {path: 'language/:id/languageForm/:idDuplicate', component: LanguageFormComponent},
+      {path: 'territoryType', component: TerritoryTypeComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'territoryType/:id/territoryTypeForm', component: TerritoryTypeFormComponent},
+      {path: 'territoryType/:id/territoryTypeForm/:idDuplicate', component: TerritoryTypeFormComponent},
       {path: 'codelistValue', component: CodelistValueComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'codelistValue/:id/codelistValueForm', component: CodelistValueFormComponent},
       {path: 'codelistValue/:id/codelistValueForm/:idDuplicate', component: CodelistValueFormComponent},

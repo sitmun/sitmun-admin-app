@@ -365,6 +365,22 @@ export class Configuration {
   };
 
   /**
+   * Territory type configuration
+   */
+  static readonly TERRITORY_TYPE: FormConfiguration = {
+    id: 'territoryType',
+    labelSingular: 'entity.territoryType.label',
+    labelPlural: 'entity.territoryType.plural',
+    icon: 'category',
+    font: 'material-icons-round',
+    route: 'territoryType',
+    formRoute: ':id/territoryTypeForm',
+    duplicateRoute: ':id/territoryTypeForm/:idDuplicate',
+    component: 'TerritoryTypeComponent',
+    formComponent: 'TerritoryTypeFormComponent'
+  };
+
+  /**
    * Code List Value configuration
    */
   static readonly CODELIST_VALUE: FormConfiguration = {
@@ -420,6 +436,7 @@ export class Configuration {
       Configuration.TASK_EDIT,
       Configuration.APPLICATION,
       Configuration.LANGUAGE,
+      Configuration.TERRITORY_TYPE,
       Configuration.CODELIST_VALUE,
       Configuration.CONFIGURATION_PARAMETER
     ];
@@ -485,6 +502,7 @@ export class Configuration {
       [
         Configuration.toMenuItem(Configuration.TASK_UI),
         Configuration.toMenuItem(Configuration.LANGUAGE),
+        Configuration.toMenuItem(Configuration.TERRITORY_TYPE),
         Configuration.toMenuItem(Configuration.CODELIST_VALUE),
         Configuration.toMenuItem(Configuration.CONFIGURATION_PARAMETER)
       ]

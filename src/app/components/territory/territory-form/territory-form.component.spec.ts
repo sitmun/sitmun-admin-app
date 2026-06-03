@@ -7,8 +7,9 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {RouterModule} from '@angular/router';
 import {} from '@angular/router/testing';
 
+import {MatSelectChange} from '@angular/material/select';
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
-import {of} from 'rxjs';
+import {firstValueFrom, of} from 'rxjs';
 
 import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
 import {ExternalConfigurationService} from '@app/core/config/external-configuration.service';
@@ -718,6 +719,142 @@ describe('TerritoryFormComponent', () => {
         });
         expect(component.entityForm.get('defaultZoomLevel')?.hasError('pattern')).toBeFalsy();
       });
+    });
+  });
+
+  describe('Territory hierarchy pickers', () => {
+    const municipiType = {id: 6, name: 'Municipi', topType: false, bottomType: false} as any;
+    const provinciaType = {id: 8, name: 'Provincia', topType: true, bottomType: false} as any;
+    const bottomType = {id: 9, name: 'Bottom', topType: false, bottomType: true} as any;
+
+    const sameTypeTerritory = Object.assign(new TerritoryProjection(), {
+      id: 1,
+      name: 'Manlleu',
+      typeId: 6,
+      typeTopType: false,
+      typeBottomType: false,
+    });
+    const provinciaTerritory = Object.assign(new TerritoryProjection(), {
+      id: 2,
+      name: 'Navarra',
+      typeId: 8,
+      typeTopType: true,
+      typeBottomType: false,
+    });
+    const bottomTerritory = Object.assign(new TerritoryProjection(), {
+      id: 3,
+      name: 'Leaf',
+      typeId: 9,
+      typeTopType: false,
+      typeBottomType: true,
+    });
+
+    const parentTargetsFetcher = () =>
+      (component['membersOfTable'] as unknown as {targetsFetchFn: () => ReturnType<TerritoryService['fetchProjectionItems']>})
+        .targetsFetchFn;
+
+    const childTargetsFetcher = () =>
+      (component['membersTable'] as unknown as {targetsFetchFn: () => ReturnType<TerritoryService['fetchProjectionItems']>})
+        .targetsFetchFn;
+
+    beforeEach(() => {
+      component.currentTerritoryType = municipiType;
+      jest.spyOn(territoryService, 'fetchProjectionItems').mockReturnValue(
+        of([sameTypeTerritory, provinciaTerritory, bottomTerritory] as any)
+      );
+    });
+
+    it('includes top non-bottom territories as parent candidates', async () => {
+      const targets = await firstValueFrom(parentTargetsFetcher()());
+
+      expect(targets.map(t => t.id)).toEqual([2]);
+    });
+
+    it('excludes top territories from child candidates', async () => {
+      const targets = await firstValueFrom(childTargetsFetcher()());
+
+      expect(targets.map(t => t.id)).toEqual([3]);
+    });
+  });
+
+  describe('Territory type change', () => {
+    const municipiType = {id: 6, name: 'Municipi', topType: false, bottomType: false} as any;
+    const provinciaType = {id: 8, name: 'Provincia', topType: true, bottomType: false} as any;
+    const bottomType = {id: 9, name: 'Bottom', topType: false, bottomType: true} as any;
+
+    beforeEach(() => {
+      component.territoryTypes = [municipiType, provinciaType, bottomType];
+      component.currentTerritoryType = municipiType;
+      component.currentTypeTop = false;
+      component.currentTypeBottom = false;
+      component.entityToEdit = Object.assign(new TerritoryProjection(), {
+        id: 100,
+        name: 'Manlleu',
+        typeId: 6,
+      });
+      component.entityID = 100;
+      component.entityForm.patchValue({
+        code: 'MAN',
+        name: 'Manlleu',
+        typeId: 6,
+      });
+    });
+
+    it('syncs currentTerritoryType when type changes without conflicting relations', async () => {
+      jest.spyOn(component.entityToEdit, 'getRelationArrayEx').mockReturnValue(of([] as any));
+
+      component.entityForm.patchValue({typeId: 8});
+      await component.onTerritoryTypeChanged({value: 8} as MatSelectChange);
+
+      expect(component.currentTerritoryType.id).toBe(8);
+      expect(component.currentTypeTop).toBe(true);
+      expect(component.currentTypeBottom).toBe(false);
+      expect(component.entityForm.get('typeId')?.value).toBe(8);
+    });
+
+    it('rejects top type when parents exist', async () => {
+      jest.spyOn(component.entityToEdit, 'getRelationArrayEx').mockImplementation((_cls, relation) => {
+        if (relation === 'memberOf') {
+          return of([{id: 2, name: 'Navarra'}] as any);
+        }
+        return of([] as any);
+      });
+
+      component.entityForm.patchValue({typeId: 8});
+      await component.onTerritoryTypeChanged({value: 8} as MatSelectChange);
+
+      expect(component.entityForm.get('typeId')?.value).toBe(6);
+      expect(component.currentTerritoryType.id).toBe(6);
+      expect(component.entityForm.get('typeId')?.hasError('topTypeWithParents')).toBe(true);
+      expect(component.canSave()).toBe(false);
+    });
+
+    it('rejects bottom type when children exist', async () => {
+      jest.spyOn(component.entityToEdit, 'getRelationArrayEx').mockImplementation((_cls, relation) => {
+        if (relation === 'members') {
+          return of([{id: 3, name: 'Child'}] as any);
+        }
+        return of([] as any);
+      });
+
+      component.entityForm.patchValue({typeId: 9});
+      await component.onTerritoryTypeChanged({value: 9} as MatSelectChange);
+
+      expect(component.entityForm.get('typeId')?.value).toBe(6);
+      expect(component.currentTerritoryType.id).toBe(6);
+      expect(component.entityForm.get('typeId')?.hasError('bottomTypeWithChildren')).toBe(true);
+      expect(component.canSave()).toBe(false);
+    });
+
+    it('allows top type when no parents exist', async () => {
+      jest.spyOn(component.entityToEdit, 'getRelationArrayEx').mockReturnValue(of([] as any));
+
+      component.entityForm.patchValue({typeId: 8});
+      await component.onTerritoryTypeChanged({value: 8} as MatSelectChange);
+
+      expect(component.entityForm.get('typeId')?.value).toBe(8);
+      expect(component.currentTerritoryType.id).toBe(8);
+      expect(component.entityForm.get('typeId')?.hasError('topTypeWithParents')).toBe(false);
     });
   });
 

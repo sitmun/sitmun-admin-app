@@ -66,6 +66,8 @@ import {TaskQueryFormComponent} from "@app/components/tasks-query/task-form/task
 import {TasksQueryComponent} from "@app/components/tasks-query/tasks-query.component";
 import {TerritoryFormComponent} from '@app/components/territory/territory-form/territory-form.component';
 import {TerritoryComponent} from '@app/components/territory/territory.component';
+import {TerritoryTypeFormComponent} from '@app/components/territory-type/territory-type-form/territory-type-form.component';
+import {TerritoryTypeComponent} from '@app/components/territory-type/territory-type.component';
 import {TreeNodesComponent} from '@app/components/trees/trees-form/tree-nodes/tree-nodes.component';
 import {TreesFormComponent} from '@app/components/trees/trees-form/trees-form.component';
 import {TreesComponent} from '@app/components/trees/trees.component';
@@ -316,6 +318,8 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
         NotificationComponent,
         LanguageComponent,
         LanguageFormComponent,
+        TerritoryTypeComponent,
+        TerritoryTypeFormComponent,
         CodelistValueComponent,
         CodelistValueFormComponent,
         ConfigurationParameterComponent,

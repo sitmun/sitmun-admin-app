@@ -384,12 +384,106 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
     }
   }
 
-  onTerritoryTypeChanged(event: MatSelectChange) {
-    const territoryType = this.territoryTypes.find(
-      (element) => element.id == event.value
-    );
+  async onTerritoryTypeChanged(event: MatSelectChange): Promise<void> {
+    const previousTypeId = this.currentTerritoryType?.id ?? Number(this.entityForm.get('typeId')?.value);
+    const previousTerritoryType = this.currentTerritoryType;
+    const selectedTypeId = Number(event.value);
+    const territoryType = this.territoryTypes.find((element) => element.id === selectedTypeId);
+
+    if (!territoryType) {
+      this.restoreTerritoryTypeSelection(previousTypeId, previousTerritoryType);
+      return;
+    }
+
+    const blockingErrorKey = await this.getTypeChangeBlockingErrorKey(territoryType);
+    if (blockingErrorKey) {
+      this.restoreTerritoryTypeSelection(previousTypeId, previousTerritoryType);
+      this.setTypeIdRelationError(blockingErrorKey);
+      return;
+    }
+
+    this.clearTypeIdRelationErrors();
+    this.applyTerritoryType(territoryType);
+  }
+
+  private applyTerritoryType(territoryType: TerritoryType): void {
+    this.currentTerritoryType = territoryType;
     this.currentTypeBottom = territoryType.bottomType;
     this.currentTypeTop = territoryType.topType;
+  }
+
+  private restoreTerritoryTypeSelection(previousTypeId: number, previousTerritoryType: TerritoryType): void {
+    this.entityForm.get('typeId')?.setValue(previousTypeId, {emitEvent: false});
+    if (previousTerritoryType) {
+      this.applyTerritoryType(previousTerritoryType);
+    }
+  }
+
+  private setTypeIdRelationError(errorKey: 'topTypeWithParents' | 'bottomTypeWithChildren'): void {
+    const control = this.entityForm.get('typeId');
+    if (!control) {
+      return;
+    }
+    control.setErrors({...(control.errors ?? {}), [errorKey]: true});
+    control.markAsTouched();
+  }
+
+  private clearTypeIdRelationErrors(): void {
+    const control = this.entityForm.get('typeId');
+    if (!control?.errors) {
+      return;
+    }
+    const {topTypeWithParents, bottomTypeWithChildren, ...remainingErrors} = control.errors;
+    control.setErrors(Object.keys(remainingErrors).length > 0 ? remainingErrors : null);
+  }
+
+  private async getTypeChangeBlockingErrorKey(
+    territoryType: TerritoryType
+  ): Promise<'topTypeWithParents' | 'bottomTypeWithChildren' | null> {
+    if (this.isNew()) {
+      return null;
+    }
+    if (territoryType.topType) {
+      const parents = await firstValueFrom(
+        this.entityToEdit.getRelationArrayEx(TerritoryProjection, 'memberOf', {projection: 'view'})
+      );
+      if (parents.length > 0) {
+        return 'topTypeWithParents';
+      }
+    }
+    if (territoryType.bottomType) {
+      const children = await firstValueFrom(
+        this.entityToEdit.getRelationArrayEx(TerritoryProjection, 'members', {projection: 'view'})
+      );
+      if (children.length > 0) {
+        return 'bottomTypeWithChildren';
+      }
+    }
+    return null;
+  }
+
+  private filterParentTargetTerritories(territories: TerritoryProjection[]): TerritoryProjection[] {
+    const currentTypeId = this.currentTerritoryType?.id;
+    if (currentTypeId == null) {
+      return [];
+    }
+    return territories.filter((territory) => this.isParentTerritoryCandidate(territory, currentTypeId));
+  }
+
+  private filterChildTargetTerritories(territories: TerritoryProjection[]): TerritoryProjection[] {
+    const currentTypeId = this.currentTerritoryType?.id;
+    if (currentTypeId == null) {
+      return [];
+    }
+    return territories.filter((territory) => this.isChildTerritoryCandidate(territory, currentTypeId));
+  }
+
+  private isParentTerritoryCandidate(territory: TerritoryProjection, currentTypeId: number): boolean {
+    return territory.typeId !== currentTypeId && !territory.typeBottomType;
+  }
+
+  private isChildTerritoryCandidate(territory: TerritoryProjection, currentTypeId: number): boolean {
+    return territory.typeId !== currentTypeId && !territory.typeTopType;
   }
 
   /**
@@ -607,7 +701,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.territoryService.fetchProjectionItems(TerritoryProjection).pipe(
-        map((territories: TerritoryProjection[]) => territories.filter(territory => !territory.typeTopType && territory.typeId !== this.currentTerritoryType.id))
+        map((territories: TerritoryProjection[]) => this.filterParentTargetTerritories(territories))
       ))
       .withRelationsUpdater(async (territories: (TerritoryProjection & Status)[]) => {
         await onUpdatedRelation(territories)
@@ -656,7 +750,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.territoryService.fetchProjectionItems(TerritoryProjection).pipe(
-        map((territories: TerritoryProjection[]) => territories.filter(territory => !territory.typeTopType && territory.typeId !== this.currentTerritoryType.id))
+        map((territories: TerritoryProjection[]) => this.filterChildTargetTerritories(territories))
       ))
       .withRelationsUpdater(async (territories: (TerritoryProjection & Status)[]) => {
         await onUpdatedRelation(territories)

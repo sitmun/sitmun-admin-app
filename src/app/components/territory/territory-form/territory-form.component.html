@@ -84,6 +84,12 @@
                   {{ territoryType.name }}
                 </mat-option>
               </mat-select>
+              <mat-error *ngIf="entityForm.get('typeId')?.hasError('topTypeWithParents')">
+                {{ 'entity.territory.error.topTypeWithParents' | translate }}
+              </mat-error>
+              <mat-error *ngIf="entityForm.get('typeId')?.hasError('bottomTypeWithChildren')">
+                {{ 'entity.territory.error.bottomTypeWithChildren' | translate }}
+              </mat-error>
             </mat-form-field>
           </div>
           <div class="sitmun-toggle-row">
