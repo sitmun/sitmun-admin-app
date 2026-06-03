@@ -433,7 +433,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
     if (!control?.errors) {
       return;
     }
-    const {topTypeWithParents, bottomTypeWithChildren, ...remainingErrors} = control.errors;
+    const {topTypeWithParents: _topTypeWithParents, bottomTypeWithChildren: _bottomTypeWithChildren, ...remainingErrors} = control.errors;
     control.setErrors(Object.keys(remainingErrors).length > 0 ? remainingErrors : null);
   }
 

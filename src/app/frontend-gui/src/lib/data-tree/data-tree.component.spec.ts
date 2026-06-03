@@ -90,7 +90,7 @@ describe('DataTreeComponent', () => {
 
   beforeAll(async () => {
     await TestBed.configureTestingModule({
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       teardown: { destroyAfterEach: 0 as any },
       declarations: [ DataTreeComponent ],
       imports: [

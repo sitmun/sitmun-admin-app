@@ -30,10 +30,10 @@ describe('ConnectionFormComponent', () => {
   let translationService: TranslationService;
   let resourceService: ResourceService;
   let externalService: ExternalService;
-  let consoleErrorSpy: jest.SpyInstance;
+  let _consoleErrorSpy: jest.SpyInstance;
 
   beforeAll(async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     await TestBed.configureTestingModule({
       teardown: { destroyAfterEach: 0 as any },
       declarations: [ ConnectionFormComponent, FormToolbarComponent ],
@@ -65,7 +65,7 @@ describe('ConnectionFormComponent', () => {
   });
 
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+    _consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
     fixture = TestBed.createComponent(ConnectionFormComponent);
     component = fixture.componentInstance;
     // Suppress debug logs in tests to reduce console noise

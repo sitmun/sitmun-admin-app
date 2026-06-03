@@ -40,7 +40,7 @@ describe('ToolbarComponent', () => {
       identity: jest.fn(() => Promise.resolve(mockUser))
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     await TestBed.configureTestingModule({
       teardown: { destroyAfterEach: 0 as any },
       declarations: [ ToolbarComponent, SystemInfoMenuComponent ],

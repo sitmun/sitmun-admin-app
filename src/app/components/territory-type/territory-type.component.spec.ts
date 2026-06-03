@@ -23,10 +23,10 @@ describe('TerritoryTypeComponent', () => {
   let fixture: ComponentFixture<TerritoryTypeComponent>;
   let router: Router;
   let territoryTypeService: TerritoryTypeService;
-  let utils: UtilsService;
+  let _utils: UtilsService;
 
   beforeAll(async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     await TestBed.configureTestingModule({
       teardown: { destroyAfterEach: 0 as any },
       declarations: [TerritoryTypeComponent, EntityListComponent],
@@ -63,7 +63,7 @@ describe('TerritoryTypeComponent', () => {
     component = fixture.componentInstance;
     router = TestBed.inject(Router);
     territoryTypeService = TestBed.inject(TerritoryTypeService);
-    utils = TestBed.inject(UtilsService);
+    _utils = TestBed.inject(UtilsService);
     jest.spyOn(router, 'navigate').mockResolvedValue(true);
   });
 

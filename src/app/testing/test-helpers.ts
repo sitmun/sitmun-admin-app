@@ -47,7 +47,7 @@ export function suppressAgGridConsoleWarnings(): () => void {
 export async function configureTestingModuleOnce(
   config: TestModuleMetadata
 ): Promise<void> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   // destroyAfterEach: 0 as any — truthy non-boolean bypasses both cleanup hooks
   // (beforeEach fires on === false, afterEach fires on === true; 0 matches neither),
   // keeping the compiled module alive for the entire suite.

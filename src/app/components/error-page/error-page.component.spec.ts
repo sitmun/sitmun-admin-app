@@ -17,7 +17,7 @@ describe('ErrorPageComponent', () => {
   let component: ErrorPageComponent;
   let fixture: ComponentFixture<ErrorPageComponent>;
   let loggerService: jest.Mocked<LoggerService>;
-  let consoleErrorSpy: jest.SpyInstance;
+  let _consoleErrorSpy: jest.SpyInstance;
 
   beforeAll(async () => {
     loggerService = {
@@ -29,7 +29,7 @@ describe('ErrorPageComponent', () => {
       getLogLevel: jest.fn()
     } as any;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     await TestBed.configureTestingModule({
       teardown: { destroyAfterEach: 0 as any },
       declarations: [ErrorPageComponent],
@@ -50,7 +50,7 @@ describe('ErrorPageComponent', () => {
   });
 
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+    _consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
     fixture = TestBed.createComponent(ErrorPageComponent);
     component = fixture.componentInstance;
   });

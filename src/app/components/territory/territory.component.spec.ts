@@ -32,7 +32,7 @@ describe('TerritoryComponent', () => {
   let httpMock: HttpTestingController;
 
   beforeAll(async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     await TestBed.configureTestingModule({
       teardown: { destroyAfterEach: 0 as any },
       declarations: [ TerritoryComponent, EntityListComponent ],

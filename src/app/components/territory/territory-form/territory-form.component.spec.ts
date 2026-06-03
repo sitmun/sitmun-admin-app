@@ -3,11 +3,10 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatIconTestingModule} from '@angular/material/icon/testing';
+import {MatSelectChange} from '@angular/material/select';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {RouterModule} from '@angular/router';
-import {} from '@angular/router/testing';
 
-import {MatSelectChange} from '@angular/material/select';
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {firstValueFrom, of} from 'rxjs';
 
@@ -57,7 +56,7 @@ describe('TerritoryFormComponent', () => {
   let externalService: ExternalService;
 
   beforeAll(async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     await TestBed.configureTestingModule({
       teardown: { destroyAfterEach: 0 as any },
       declarations: [TerritoryFormComponent, FormToolbarComponent],
@@ -724,8 +723,6 @@ describe('TerritoryFormComponent', () => {
 
   describe('Territory hierarchy pickers', () => {
     const municipiType = {id: 6, name: 'Municipi', topType: false, bottomType: false} as any;
-    const provinciaType = {id: 8, name: 'Provincia', topType: true, bottomType: false} as any;
-    const bottomType = {id: 9, name: 'Bottom', topType: false, bottomType: true} as any;
 
     const sameTypeTerritory = Object.assign(new TerritoryProjection(), {
       id: 1,

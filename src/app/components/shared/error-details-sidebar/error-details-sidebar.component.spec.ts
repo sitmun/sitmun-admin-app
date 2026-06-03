@@ -64,7 +64,7 @@ describe('ErrorDetailsSidebarComponent', () => {
       getActiveSidebar: jest.fn(() => null)
     } as any;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     await TestBed.configureTestingModule({
       teardown: { destroyAfterEach: 0 as any },
       declarations: [ErrorDetailsSidebarComponent],
