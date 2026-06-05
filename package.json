@@ -1,6 +1,6 @@
 {
   "name": "admin-app",
-  "version": "1.2.7-SNAPSHOT",
+  "version": "1.2.7",
   "engines": {
     "node": ">=20.19.0"
   },

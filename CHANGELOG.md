@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.7] - 2026-06-05
+
 ### Added
 
 - **Trees**: improved authoring UX with image validation (PNG/JPEG, 2 MB), duplicate-name save checks, node cartography/task linkage, hidden-in-viewer indicators, and unsaved-changes confirmation.
@@ -294,7 +296,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Various bug fixes and improvements from development phase
 
-[Unreleased]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.6...HEAD
+[Unreleased]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.7...HEAD
+[1.2.7]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.6...sitmun-admin-app/1.2.7
 [1.2.6]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.5...sitmun-admin-app/1.2.6
 [1.2.5]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.4...sitmun-admin-app/1.2.5
 [1.2.4]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.3...sitmun-admin-app/1.2.4
