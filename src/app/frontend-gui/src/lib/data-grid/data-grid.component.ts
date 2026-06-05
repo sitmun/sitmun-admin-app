@@ -667,11 +667,17 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
           this.redoCounter = 0;
           this.manualUndoStack.length = 0;
           this.manualRedoStack.length = 0;
-          if (this.rowModelMode === 'infinite' && this.gridApi && !this.gridApi.isDestroyed()) {
+          if (!this.gridApi || this.gridApi.isDestroyed()) {
+            return;
+          }
+          if (this.rowModelMode === 'infinite') {
             this.infiniteDatasourceGeneration++;
             this.gridApi.deselectAll();
             this.setupInfiniteGrid();
             this.gridApi.purgeInfiniteCache();
+            return;
+          }
+          if (!this.params?.api) {
             return;
           }
           this.onGridReady(this.params);
@@ -1152,6 +1158,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
    * @param params - Grid ready event parameters
    */
   onGridReady(params): void {
+    if (!params?.api) {
+      return;
+    }
     this.params = params;
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;

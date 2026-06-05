@@ -108,6 +108,18 @@ describe('DataGridComponent', () => {
     expect(component.gridApi.updateGridOptions).toHaveBeenCalledWith({columnDefs: component.columnDefs});
   });
 
+  it('ignores refresh events replayed before the grid is ready', fakeAsync(() => {
+    component.eventRefreshSubscription = of(true);
+    component.dataGrid = {nativeElement: document.createElement('div')} as any;
+    component.loadData = jest.fn();
+
+    expect(() => component.ngOnInit()).not.toThrow();
+    tick();
+
+    expect(component.loadData).toHaveBeenCalledTimes(1);
+    expect(component.params).toBeUndefined();
+  }));
+
   describe('undo/redo', () => {
     const rowData = {status: 'pendingModify'};
 
