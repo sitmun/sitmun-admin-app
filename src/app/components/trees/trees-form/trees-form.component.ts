@@ -6,7 +6,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 
 
 import {TranslateService} from '@ngx-translate/core';
-import {firstValueFrom, map, of} from 'rxjs';
+import {Observable, firstValueFrom, map, of} from 'rxjs';
 
 import {BaseFormComponent} from '@app/components/base-form.component';
 import {DataTableDefinition} from '@app/components/data-tables.util';
@@ -21,13 +21,20 @@ import {
   TranslationService,
   Tree,
   TreeNode,
+  TreeRulesService,
   TreeService
 } from '@app/domain';
+import {AdminRuntimeConfigurationService} from '@app/domain/admin-configuration/services/admin-runtime-configuration.service';
 import {onUpdatedRelation, Status} from '@app/frontend-gui/src/lib/public_api';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
+import {
+  formatImageAccept,
+  getImageUploadErrorKey,
+  validateImageUpload,
+} from '@app/utils/image-upload.utils';
 import {config} from '@config';
 import {constants} from '@environments/constants';
 
@@ -48,6 +55,24 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
   override readonly codeValues = constants.codeValue;
 
   private readonly injector = inject(Injector);
+  private readonly treeRulesService = inject(TreeRulesService);
+  private readonly adminConfigService = inject(AdminRuntimeConfigurationService);
+
+  /** Params for `entity.tree.image.resizeHint`. Emits once backend config loads; hint hidden until then. */
+  readonly treeImageResizeHintParams$: Observable<{ width: number; height: number; maxSizeMb: number }> =
+    this.adminConfigService.getTreeImageUploadConfiguration().pipe(
+      map(({ defaultSize, maxBytes }) => ({
+        width: defaultSize.width,
+        height: defaultSize.height,
+        maxSizeMb: Math.round(maxBytes / (1024 * 1024)),
+      }))
+    );
+
+  readonly treeImageAccept$: Observable<string> = this.adminConfigService.getTreeImageUploadConfiguration().pipe(
+    map(({ supportedFormats }) => formatImageAccept(supportedFormats))
+  );
+
+  treeImagePreviewState: 'uploaded' | 'stored' = 'stored';
 
   currentTreeType: string;
   eagerLoadTreeStructure = false;
@@ -227,6 +252,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
     });
 
     this.currentTreeType = this.entityToEdit.type;
+    this.treeImagePreviewState = 'stored';
 
     // Set default type for new trees
     if (this.isNew() && !this.entityToEdit.type) {
@@ -264,6 +290,10 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       return Promise.resolve(false);
     }
 
+    if (!await this.validateUniqueName()) {
+      return Promise.resolve(false);
+    }
+
     // Validate tree type change against applications (only for existing trees)
     if (this.isEdition() && await this.validateTreeTypeChange()) {
       return super.onSaveButtonClicked();
@@ -271,23 +301,58 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       // Skip validation for new/duplicated trees
       return super.onSaveButtonClicked();
     }
-    
+
     return Promise.resolve(false);
+  }
+
+  override afterSave(): void {
+    this.entityForm.patchValue({
+      image: this.entityToEdit?.image ?? null,
+      imageName: this.entityToEdit?.imageName ?? null,
+    }, { emitEvent: false });
+    this.treeImagePreviewState = 'stored';
+    super.afterSave();
+  }
+
+  /** Rejects save when another tree already uses the same name (case-insensitive). */
+  private async validateUniqueName(): Promise<boolean> {
+    const rawName = this.entityForm.get('name')?.value;
+    const name = typeof rawName === 'string' ? rawName.trim() : '';
+    if (!name) {
+      return true;
+    }
+
+    try {
+      const page = await firstValueFrom(this.treeService.searchTextPage(name, { size: 20 }));
+      const duplicate = page.rows.some((tree) =>
+        tree.id !== this.entityID
+        && typeof tree.name === 'string'
+        && tree.name.trim().toLowerCase() === name.toLowerCase()
+      );
+      if (duplicate) {
+        this.errorHandler.handleError(null, 'entity.tree.error.duplicateName');
+        return false;
+      }
+      return true;
+    } catch (error) {
+      this.errorHandler.handleError(error);
+      return false;
+    }
   }
 
   /**
    * Validates tree type change against candidate applications.
-   * 
-   * This validation is necessary because Spring Data REST requires two separate 
-   * PUT operations. Without proactive validation, the tree type PUT could succeed 
-   * while the applications PUT fails, requiring a rollback that violates REST 
+   *
+   * This validation is necessary because Spring Data REST requires two separate
+   * PUT operations. Without proactive validation, the tree type PUT could succeed
+   * while the applications PUT fails, requiring a rollback that violates REST
    * principles.
-   * 
+   *
    * @returns Promise<boolean> - true if validation passes, false if it fails
    */
   private async validateTreeTypeChange(): Promise<boolean> {
     const newType = this.entityForm.get('type')?.value;
-    
+
     // If type hasn't changed, no validation needed
     if (newType === this.entityToEdit.type) {
       return true;
@@ -296,7 +361,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
     try {
       // Get applications from the data grid (includes new, modified, not deleted)
       const gridData = this.applicationsGrid?.getAllCurrentData() || [];
-      
+
       // Filter out applications marked for deletion and extract IDs
       const applicationIds = gridData
         .filter((app: any) => app.status !== 'pendingDelete')
@@ -306,8 +371,8 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       // Call validation endpoint
       await firstValueFrom(
         this.treeService.validateTypeChange(
-          this.entityID, 
-          newType, 
+          this.entityID,
+          newType,
           applicationIds
         )
       );
@@ -473,16 +538,10 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
   }
 
   /**
-   * Receives nodes from tree nodes component for saving.
-   * This method is called by the tree nodes component when save is requested.
-   *
-   * @param nodes - Array of tree nodes to save
+   * Tree structure tab requested save (same as toolbar Save).
    */
-  receiveAllNodes(nodes: TreeNode[]) {
-    if (nodes && nodes.length >= 0) {
-      // Trigger save through base class
-      this.onSaveButtonClicked();
-    }
+  onTreeSaveRequested(): void {
+    void this.onSaveButtonClicked();
   }
 
   initializeTreesForm(): void {
@@ -505,7 +564,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       this.utils.showNodeTypeConstraintError();
       return;
     }
-    
+
     this.currentTreeType = type;
   }
 
@@ -537,11 +596,14 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
     }
   }
 
-  onImageSelected(formtype: string, event: Event): void {
+  async onImageSelected(formtype: string, event: Event): Promise<void> {
     const fileInput = event.target as HTMLInputElement;
     if (fileInput.files.length > 0) {
       const file = fileInput.files[0];
-      if (!file.type.startsWith('image/')) {
+      const { supportedFormats, maxBytes } = await firstValueFrom(this.adminConfigService.getTreeImageUploadConfiguration());
+      const validation = validateImageUpload(file, supportedFormats, maxBytes);
+      if (!validation.valid) {
+        this.errorHandler.handleError(null, getImageUploadErrorKey(validation.error!), validation.errorParams);
         fileInput.value = '';
         return;
       }
@@ -551,6 +613,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
           image: reader.result,
           imageName: file.name
         });
+        this.treeImagePreviewState = 'uploaded';
         this.markTreeImageAsModified();
         // Same filename can be selected again on the next open.
         fileInput.value = '';
@@ -574,7 +637,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
   validateTreeTypeCompatibility(candidateTreeType: string): boolean {
     const nodes = this.treeNodesComponent?.getNodesForValidation() || [];
     const filterNodes = nodes.filter(a => (a as any).status !== 'pendingDelete');
-    
+
     return this.validNodeTypesForTreeType(filterNodes, candidateTreeType);
   }
 
@@ -587,15 +650,13 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
    */
   validNodeTypesForTreeType(treeNodes: any[], treeType?: string): boolean {
     const targetTreeType = treeType || this.currentTreeType;
-    
+
     if (!targetTreeType || !this.treeTypeNodeTypes || !this.treeTypeNodeTypes[targetTreeType]) {
       return true; // No constraints defined
     }
-    
-    const treeTypeConfig = this.treeTypeNodeTypes[targetTreeType];
-    const nodeTypes = (treeTypeConfig as any)?.nodeTypes;
-    const allAllowedTypes = nodeTypes ? Object.keys(nodeTypes) : [];
-    
+
+    const allAllowedTypes = this.treeRulesService.getNodeTypesForTree(targetTreeType);
+
     // Build a map of nodes by ID for parent-child validation
     const nodeMap = new Map<number, any>();
     treeNodes.forEach(node => {
@@ -603,16 +664,16 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
         nodeMap.set(node.id, node);
       }
     });
-    
+
     // Check each node
     for (const node of treeNodes) {
       const nodeType = node.nodeType;
-      
+
       // Skip nodes without a type (legacy folders with null type are allowed)
       if (!nodeType) {
         continue;
       }
-      
+
       // Check if node type is allowed for this tree type
       if (!allAllowedTypes.includes(nodeType)) {
         this.loggerService.warn(`Node type '${nodeType}' not allowed for tree type '${targetTreeType}'`, {
@@ -621,19 +682,19 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
         });
         return false;
       }
-      
+
       // Check parent-child relationships (only for nodes with parents)
       if (node.parent && nodeMap.has(node.parent)) {
         const parentNode = nodeMap.get(node.parent);
         const parentType = parentNode.nodeType;
-        
+
         // If parent has no type, skip validation (legacy folder)
         if (!parentType) {
           continue;
         }
-        
+
         // Get allowed children for parent type
-        const allowedChildren = (treeTypeConfig as any)?.nodeTypes?.[parentType]?.allowedChildren || [];
+        const allowedChildren = this.treeRulesService.getAllowedChildrenForNodeType(targetTreeType, parentType);
         if (allowedChildren.length === 0) {
           this.loggerService.warn(`Parent node type '${parentType}' cannot have children`, {
             parentId: node.parent,
@@ -654,7 +715,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
         }
       }
     }
-    
+
     return true;
   }
 
@@ -743,7 +804,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
         });
       })
       .withRelationsUpdater(async (applications: (Application & Status)[]) => {
-        await onUpdatedRelation(applications).forAll(item => 
+        await onUpdatedRelation(applications).forAll(item =>
           this.entityToEdit.substituteAllRelation('availableApplications', item)
         );
       })
@@ -753,7 +814,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
         this.utils.getNonEditableColumnDef('entity.permissionGroup.name', 'name'),
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.applicationService.getAll())
+      .withTargetsFetcher(() => this.applicationService.fetchAllItems())
       .withTargetInclude((applications: Application[]) => (target: Application) => {
         // Prevent duplicates: filter out applications where target's name matches any existing relation's name
         // This preserves the original fieldRestrictionWithDifferentName behavior
@@ -797,7 +858,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
         this.utils.getNonEditableColumnDef('entity.role.name', 'name'),
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.roleService.getAll())
+      .withTargetsFetcher(() => this.roleService.fetchAllItems())
       .withTargetsTitle('entity.tree.roles')
       .build();
   }

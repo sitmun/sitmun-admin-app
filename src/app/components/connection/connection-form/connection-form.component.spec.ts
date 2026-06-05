@@ -1,10 +1,10 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { RouterModule } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideRouter, RouterModule } from '@angular/router';
 
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {of} from 'rxjs';
@@ -20,7 +20,6 @@ import {configureLoggerForTests, provideErrorHandlerForTests} from '@app/testing
 
 import { ConnectionFormComponent } from './connection-form.component';
 
-
 describe('ConnectionFormComponent', () => {
   let component: ConnectionFormComponent;
   let fixture: ComponentFixture<ConnectionFormComponent>;
@@ -31,14 +30,14 @@ describe('ConnectionFormComponent', () => {
   let translationService: TranslationService;
   let resourceService: ResourceService;
   let externalService: ExternalService;
-  let consoleErrorSpy: jest.SpyInstance;
+  let _consoleErrorSpy: jest.SpyInstance;
 
-  beforeEach(async () => {
-    // Mock console.error to prevent console output during tests
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+  beforeAll(async () => {
+     
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [ ConnectionFormComponent, FormToolbarComponent ],
-      imports : [HttpClientTestingModule, FormsModule, ReactiveFormsModule, SitmunFrontendGuiModule, MatIconTestingModule, RouterTestingModule, MaterialModule, RouterModule, BrowserAnimationsModule,
+      imports : [FormsModule, ReactiveFormsModule, SitmunFrontendGuiModule, MatIconTestingModule, MaterialModule, RouterModule, BrowserAnimationsModule,
         TranslateModule.forRoot({
           loader: {
             provide: TranslateLoader,
@@ -48,6 +47,9 @@ describe('ConnectionFormComponent', () => {
           }
         })],
       providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
         provideErrorHandlerForTests(),
         ConnectionService,
         CartographyService,
@@ -62,11 +64,8 @@ describe('ConnectionFormComponent', () => {
     .compileComponents();
   });
 
-  afterEach(() => {
-    consoleErrorSpy.mockRestore();
-  });
-
   beforeEach(() => {
+    _consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
     fixture = TestBed.createComponent(ConnectionFormComponent);
     component = fixture.componentInstance;
     // Suppress debug logs in tests to reduce console noise
@@ -87,10 +86,12 @@ describe('ConnectionFormComponent', () => {
     fixture.detectChanges();
   });
 
+  afterEach(() => fixture?.destroy());
+  afterAll(() => TestBed.resetTestingModule());
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-
 
   it('should instantiate connectionService', () => {
     expect(connectionService).toBeTruthy();

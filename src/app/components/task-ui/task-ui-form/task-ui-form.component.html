@@ -5,12 +5,16 @@
   [itemName]="entityForm?.get('name')?.value"
   [isNew]="isNew()"
   [canSave]="canSaveEntity"
-  [form]="entityForm"
-  entityLabelPrefix="entity.taskUI"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>
+
+<app-entity-form-alerts
+  *ngIf="dataLoaded"
+  [form]="entityForm"
+  entityLabelPrefix="entity.taskUI">
+</app-entity-form-alerts>
 
 <mat-tab-group
   mat-stretch-tabs="false"

@@ -1,18 +1,24 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { provideRouter, RouterModule } from '@angular/router';
 
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
-import {of} from 'rxjs';
+import {of, throwError} from 'rxjs';
 
 import {EntityListComponent} from '@app/components/shared/entity-list/entity-list.component';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import {ExternalService, ResourceService} from '@app/core/hal';
-import {CodeListService, TranslationService, TreeService} from '@app/domain';
+import {CodeListService, TranslationService, Tree, TreeService} from '@app/domain';
+import { DIALOG_EVENTS } from '@app/frontend-gui/src/lib/dialog-message/dialog-message.component';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { MaterialModule } from '@app/material-module';
+import { ErrorHandlerService } from '@app/services/error-handler.service';
+import { LoadingOverlayService } from '@app/services/loading-overlay.service';
+import { LoggerService } from '@app/services/logger.service';
+import { UtilsService } from '@app/services/utils.service';
 
 import { TreesComponent } from './trees.component';
 
@@ -25,9 +31,13 @@ describe('TreesComponent', () => {
   let resourceService: ResourceService;
   let externalService: ExternalService;
   let httpMock: HttpTestingController;
+  let loadingOverlay: LoadingOverlayService;
+  let dialog: MatDialog;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     await TestBed.configureTestingModule({
+       
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [ TreesComponent, EntityListComponent ],
       imports : [MatIconTestingModule, SitmunFrontendGuiModule, MaterialModule, RouterModule,
         TranslateModule.forRoot({
@@ -39,6 +49,10 @@ describe('TreesComponent', () => {
           }
         })],
       providers: [TreeService,CodeListService,TranslationService,ResourceService,ExternalService,
+        ErrorHandlerService,
+        LoadingOverlayService,
+        LoggerService,
+        UtilsService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
         provideHttpClient(),
         provideHttpClientTesting(),
@@ -57,6 +71,8 @@ describe('TreesComponent', () => {
     translationService = TestBed.inject(TranslationService);
     resourceService = TestBed.inject(ResourceService);
     externalService = TestBed.inject(ExternalService);
+    loadingOverlay = TestBed.inject(LoadingOverlayService);
+    dialog = TestBed.inject(MatDialog);
     fixture.detectChanges();
     await new Promise((r) => setTimeout(r, 0));
     httpMock.match((req) => req.url.includes('trees')).forEach((req) =>
@@ -66,8 +82,11 @@ describe('TreesComponent', () => {
   });
 
   afterEach(() => {
+    fixture?.destroy();
     httpMock.verify();
   });
+
+  afterAll(() => TestBed.resetTestingModule());
 
   it('should create', () => {
     expect(component).toBeTruthy();
@@ -91,6 +110,55 @@ describe('TreesComponent', () => {
 
   it('should instantiate externalService', () => {
     expect(externalService).toBeTruthy();
+  });
+
+  describe('removeData batch deletion', () => {
+    it('deletes all selected trees when deletion is confirmed', async () => {
+      const trees = [
+        Tree.fromObject({ id: 1, name: 'A' }),
+        Tree.fromObject({ id: 2, name: 'B' }),
+      ];
+      const deleteSpy = jest.spyOn(treeService, 'delete').mockReturnValue(of(null));
+      jest.spyOn(dialog, 'open').mockReturnValue({
+        afterClosed: () => of({ event: DIALOG_EVENTS.ACCEPT }),
+      } as any);
+      jest.spyOn(loadingOverlay, 'wrap').mockImplementation(async (operation) => operation());
+      const refreshSpy = jest.spyOn(component['refreshCommandEvent$'], 'next');
+
+      component.removeData(trees);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(deleteSpy).toHaveBeenCalledTimes(2);
+      expect(refreshSpy).toHaveBeenCalledWith(true);
+    });
+
+    it('refreshes the grid after partial batch deletion failures', async () => {
+      // jest.advanceTimersByTimeAsync interleaves microtask flushes with timer advances,
+      // handling the Promise.allSettled → await setTimeout(2000) chain without a real 2s wait.
+      jest.useFakeTimers();
+      try {
+        const trees = [
+          Tree.fromObject({ id: 1, name: 'A' }),
+          Tree.fromObject({ id: 2, name: 'B' }),
+        ];
+        jest.spyOn(treeService, 'delete')
+          .mockReturnValueOnce(of(null))
+          .mockReturnValueOnce(throwError(() => new Error('delete failed')));
+        jest.spyOn(dialog, 'open').mockReturnValue({
+          afterClosed: () => of({ event: DIALOG_EVENTS.ACCEPT }),
+        } as any);
+        jest.spyOn(loadingOverlay, 'wrap').mockImplementation(async (operation) => operation());
+        jest.spyOn(TestBed.inject(LoggerService), 'error').mockImplementation();
+        const refreshSpy = jest.spyOn(component['refreshCommandEvent$'], 'next');
+
+        component.removeData(trees);
+        await jest.advanceTimersByTimeAsync(2000);
+
+        expect(refreshSpy).toHaveBeenCalledWith(true);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
   });
 
 

@@ -1,0 +1,50 @@
+:host {
+  display: contents;
+}
+
+.sitmun-card-lead {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.25em;
+  padding: 0.75rem 1rem 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+}
+
+// Two-line variant (Viewer + Proxy): stack lines vertically.
+.sitmun-card-lead--stacked {
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.sitmun-card-lead-line {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.25em;
+  line-height: 1.45;
+}
+
+.sitmun-card-lead-prefix {
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.sitmun-card-lead-body {
+  flex: 1;
+  min-width: 0;
+}
+
+// i18n body may contain <em> / <code> (service parameters, etc.).
+.sitmun-card-lead-body em {
+  font-style: italic;
+  font-weight: 500;
+}
+
+.sitmun-card-lead-body code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}

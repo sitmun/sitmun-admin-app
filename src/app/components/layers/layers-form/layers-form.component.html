@@ -5,13 +5,18 @@
   [itemName]="itemName('name')"
   [isNew]="isNewOrDuplicated()"
   [canSave]="canSaveEntity"
-  [form]="entityForm"
-  entityLabelPrefix="entity.cartography"
-  [validationFieldLabelKeys]="{ serviceId: 'entity.service.label', joinedLayers: 'entity.cartography.layerSet' }"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>
+
+<app-entity-form-alerts
+  *ngIf="dataLoaded"
+  [form]="entityForm"
+  entityLabelPrefix="entity.cartography"
+  [fieldLabelKeys]="{ serviceId: 'entity.service.label', joinedLayers: 'entity.cartography.layerSet' }">
+</app-entity-form-alerts>
+
 <form [formGroup]='entityForm' *ngIf="dataLoaded" class="sitmun-cartography-form-entity">
   <mat-tab-group
     mat-stretch-tabs="false"
@@ -43,9 +48,9 @@
                       (click)="onTranslated('description')"
                       onKeyDown="onTranslated('description')">translate</mat-icon>
           </mat-form-field>
-          <mat-checkbox formControlName="availableForClients">
+          <mat-slide-toggle color="primary" formControlName="availableForClients">
             {{ 'entity.cartography.available' | translate }}
-          </mat-checkbox>
+          </mat-slide-toggle>
         </mat-card-content>
       </mat-card>
       <mat-card appearance="outlined" class="sitmun-mat-card-margin">
@@ -79,9 +84,9 @@
             <input matInput type="text" formControlName="joinedLayers" required>
             <mat-hint align="start">{{ 'entity.cartography.hint.layerSet' | translate }}</mat-hint>
           </mat-form-field>
-          <mat-checkbox formControlName="queryableFeatureEnabled">
+          <mat-slide-toggle color="primary" formControlName="queryableFeatureEnabled">
             {{ 'entity.cartography.featureInformation.queryable' | translate }}
-          </mat-checkbox>
+          </mat-slide-toggle>
         </mat-card-content>
       </mat-card>
       <mat-card appearance="outlined" class="sitmun-mat-card-margin">
@@ -233,9 +238,9 @@
         </mat-card>
         <mat-card appearance="outlined" class="sitmun-mat-card-margin">
           <mat-card-content class="sitmun-service-form-stack">
-            <mat-checkbox formControlName="queryableFeatureAvailable">
+            <mat-slide-toggle color="primary" formControlName="queryableFeatureAvailable">
               {{ 'entity.cartography.featureInformation.layerAll' | translate }}
-            </mat-checkbox>
+            </mat-slide-toggle>
             <mat-form-field appearance="outline" class="half and-gap"
                             *ngIf="entityForm.get('queryableFeatureAvailable').value !== true">
               <mat-label>{{ 'entity.cartography.featureInformation.layerFilter' | translate }}</mat-label>
@@ -296,15 +301,15 @@
         </mat-card>
         <mat-card appearance="outlined" class="sitmun-mat-card-margin">
           <mat-card-content class="sitmun-service-form-stack">
-            <mat-checkbox formControlName="applyFilterToGetMap">
+            <mat-slide-toggle color="primary" formControlName="applyFilterToGetMap">
               {{ 'entity.cartography.filters.applyFilterToGetMap' | translate }}
-            </mat-checkbox>
-            <mat-checkbox formControlName="applyFilterToSpatialSelection">
+            </mat-slide-toggle>
+            <mat-slide-toggle color="primary" formControlName="applyFilterToSpatialSelection">
               {{ 'entity.cartography.filters.applyFilterToSpatialSelection' | translate }}
-            </mat-checkbox>
-            <mat-checkbox formControlName="applyFilterToGetFeatureInfo">
+            </mat-slide-toggle>
+            <mat-slide-toggle color="primary" formControlName="applyFilterToGetFeatureInfo">
               {{ 'entity.cartography.filters.applyFilterToGetFeatureInfo' | translate }}
-            </mat-checkbox>
+            </mat-slide-toggle>
           </mat-card-content>
         </mat-card>
         <mat-card appearance="outlined" class="sitmun-mat-card-margin">
@@ -380,10 +385,10 @@
         </mat-card>
         <mat-card appearance="outlined" class="sitmun-mat-card-margin">
           <mat-card-content class="sitmun-service-form-stack">
-            <div class="sitmun-checkbox-with-hint">
-              <mat-checkbox formControlName="useAllStyles">
+            <div class="sitmun-toggle-with-hint">
+              <mat-slide-toggle color="primary" formControlName="useAllStyles">
                 {{ 'entity.cartography.styles.useAllStyles' | translate }}
-              </mat-checkbox>
+              </mat-slide-toggle>
               <p class="sitmun-form-hint-text">{{ 'entity.cartography.styles.useAllStylesHint' | translate }}</p>
             </div>
           </mat-card-content>

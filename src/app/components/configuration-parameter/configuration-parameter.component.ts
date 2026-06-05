@@ -3,11 +3,13 @@ import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from '@ngx-translate/core';
-import {firstValueFrom} from 'rxjs';
+import {firstValueFrom,of} from 'rxjs';
 
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
 import {Configuration} from '@app/core/config/configuration';
+import {createPagedInfiniteFetcher} from '@app/core/hal';
+import {INFINITE_PAGE_SIZE_DEFAULT} from '@app/core/hal/infinite-page-size';
 import {CodeListService, ConfigurationParameter, ConfigurationParametersService, TranslationService} from '@app/domain';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from '@app/services/loading-overlay.service';
@@ -26,10 +28,14 @@ export class ConfigurationParameterComponent extends BaseListComponent<Configura
     iconName: Configuration.CONFIGURATION_PARAMETER.icon,
     font: Configuration.CONFIGURATION_PARAMETER.font,
     columnDefs: [],
-    dataFetchFn: () => this.configurationParametersService.getAll(),
+    dataFetchFn: () => of([]),
+    rowModelMode: 'infinite',
+    pageSize: INFINITE_PAGE_SIZE_DEFAULT,
+    infiniteBlockFetcher: createPagedInfiniteFetcher(this.configurationParametersService),
+    progressiveLocalFilter: false,
+    backendSearch: true,
     defaultColumnSorting: ['name'],
     gridOptions: {
-      globalSearch: true,
       discardChangesButton: false,
       redoButton: false,
       undoButton: false,
@@ -69,10 +75,23 @@ export class ConfigurationParameterComponent extends BaseListComponent<Configura
   }
 
   override async postFetchData(): Promise<void> {
+    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'configurationParameter/:id/configurationParameterForm', {id: 'id'}, 200);
+    nameCol.sortable = true;
+    nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
+    nameCol.flex = 2;
+    nameCol.tooltipField = 'name';
+
+    const valueCol: any = this.utils.getNonEditableColumnDef('common.form.value', 'value', 260);
+    valueCol.sortable = true;
+    valueCol.cellRendererParams = {...valueCol.cellRendererParams, sortField: 'value'};
+    valueCol.flex = 3;
+    valueCol.cellClass = 'read-only-cell sitmun-technical-cell';
+    valueCol.tooltipField = 'value';
+
     this.entityListConfig.columnDefs = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'configurationParameter/:id/configurationParameterForm', {id: 'id'}),
-      this.utils.getNonEditableColumnDef('common.form.value', 'value'),
+      this.utils.getRowCheckboxColumnDef(),
+      nameCol,
+      valueCol,
     ];
   }
 
@@ -83,8 +102,6 @@ export class ConfigurationParameterComponent extends BaseListComponent<Configura
   override async duplicateItem(id: number) {
     await this.router.navigate(['configurationParameter', -1, 'configurationParameterForm', id]);
   }
-
-  override dataFetchFn = () => this.configurationParametersService.getAll();
 
   override dataUpdateFn = (data: ConfigurationParameter) => firstValueFrom(this.configurationParametersService.update(data))
 

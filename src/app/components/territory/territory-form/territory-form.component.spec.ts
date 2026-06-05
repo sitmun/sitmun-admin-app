@@ -1,13 +1,14 @@
-import {HttpClientTestingModule} from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatIconTestingModule} from '@angular/material/icon/testing';
+import {MatSelectChange} from '@angular/material/select';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {RouterModule} from '@angular/router';
-import {RouterTestingModule} from '@angular/router/testing';
 
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
-import {of} from 'rxjs';
+import {firstValueFrom, of} from 'rxjs';
 
 import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
 import {ExternalConfigurationService} from '@app/core/config/external-configuration.service';
@@ -26,6 +27,7 @@ import {
   UserConfigurationService,
   UserPositionService,
   UserService,
+  TerritoryProjection,
 } from '@app/domain';
 import {SitmunFrontendGuiModule} from '@app/frontend-gui/src/lib/public_api';
 import {MaterialModule} from '@app/material-module';
@@ -53,15 +55,15 @@ describe('TerritoryFormComponent', () => {
   let resourceService: ResourceService;
   let externalService: ExternalService;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
+     
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [TerritoryFormComponent, FormToolbarComponent],
       imports: [
         FormsModule,
         ReactiveFormsModule,
-        HttpClientTestingModule,
         SitmunFrontendGuiModule,
-        RouterTestingModule,
         RouterModule.forRoot([], {}),
         MaterialModule,
         MatIconTestingModule,
@@ -76,6 +78,8 @@ describe('TerritoryFormComponent', () => {
         }),
       ],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         provideErrorHandlerForTests(),
         TerritoryService,
         UserService,
@@ -132,6 +136,9 @@ describe('TerritoryFormComponent', () => {
     }
     fixture.detectChanges();
   });
+
+  afterEach(() => fixture?.destroy());
+  afterAll(() => TestBed.resetTestingModule());
 
   it('should create', () => {
     expect(component).toBeTruthy();
@@ -226,7 +233,7 @@ describe('TerritoryFormComponent', () => {
       code: 1,
       name: 'name',
       territorialAuthorityAddress: 'address',
-      territorialAuthorityLogo: 'urlLogo',
+      territorialAuthorityLogo: 'https://example.com/logo.png',
       typeId: 1,
       extentMinX: 1,
       extentMaxX: 2,
@@ -240,6 +247,16 @@ describe('TerritoryFormComponent', () => {
       srs: 'EPSG:4326',
     });
     expect(component.entityForm.valid).toBeTruthy();
+  });
+
+  it('initializes extentMaxY from extent.maxY (not maxX)', () => {
+    component.entityToEdit = Object.assign(new TerritoryProjection(), {
+      typeId: 1,
+      extent: {minX: 1, maxX: 50, minY: 2, maxY: 99},
+    });
+    component.postFetchData();
+    expect(component.entityForm.get('extentMaxX')?.value).toBe(50);
+    expect(component.entityForm.get('extentMaxY')?.value).toBe(99);
   });
 
   it('Territory form fields', () => {
@@ -274,5 +291,615 @@ describe('TerritoryFormComponent', () => {
 
   it('Validate extent with invalid values', () => {
     expect(component.validateEnvelope(1, null, 3, 4)).toBeFalsy();
+  });
+
+  describe('Validator Tests (TDD)', () => {
+    describe('Max Length Validators', () => {
+      it('should reject code longer than 50 characters', () => {
+        component.entityForm.patchValue({ code: 'a'.repeat(51), name: 'Test', typeId: 1 });
+        expect(component.entityForm.get('code')?.hasError('maxlength')).toBeTruthy();
+        expect(component.entityForm.valid).toBeFalsy();
+      });
+
+      it('should accept code with 50 characters', () => {
+        component.entityForm.patchValue({ code: 'a'.repeat(50), name: 'Test', typeId: 1 });
+        expect(component.entityForm.get('code')?.hasError('maxlength')).toBeFalsy();
+      });
+
+      it('should reject name longer than 250 characters', () => {
+        component.entityForm.patchValue({ code: '1', name: 'a'.repeat(251), typeId: 1 });
+        expect(component.entityForm.get('name')?.hasError('maxlength')).toBeTruthy();
+        expect(component.entityForm.valid).toBeFalsy();
+      });
+
+      it('should accept name with 250 characters', () => {
+        component.entityForm.patchValue({ code: '1', name: 'a'.repeat(250), typeId: 1 });
+        expect(component.entityForm.get('name')?.hasError('maxlength')).toBeFalsy();
+      });
+
+      it('should reject description longer than 4000 characters', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          description: 'a'.repeat(4001),
+          typeId: 1 
+        });
+        expect(component.entityForm.get('description')?.hasError('maxlength')).toBeTruthy();
+      });
+
+      it('should accept description with 4000 characters', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          description: 'a'.repeat(4000),
+          typeId: 1 
+        });
+        expect(component.entityForm.get('description')?.hasError('maxlength')).toBeFalsy();
+      });
+
+      it('should reject note longer than 250 characters', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          note: 'a'.repeat(251),
+          typeId: 1 
+        });
+        expect(component.entityForm.get('note')?.hasError('maxlength')).toBeTruthy();
+      });
+
+      it('should reject territorialAuthorityAddress longer than 250 characters', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          territorialAuthorityAddress: 'a'.repeat(251),
+          typeId: 1 
+        });
+        expect(component.entityForm.get('territorialAuthorityAddress')?.hasError('maxlength')).toBeTruthy();
+      });
+
+      it('should reject territorialAuthorityLogo longer than 4000 characters', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          territorialAuthorityLogo: 'http://' + 'a'.repeat(4000),
+          typeId: 1 
+        });
+        expect(component.entityForm.get('territorialAuthorityLogo')?.hasError('maxlength')).toBeTruthy();
+      });
+
+      it('should reject srs longer than 50 characters', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          srs: 'EPSG:' + '1'.repeat(50),
+          typeId: 1 
+        });
+        expect(component.entityForm.get('srs')?.hasError('maxlength')).toBeTruthy();
+      });
+    });
+
+    describe('HTTP URL Validator for territorialAuthorityLogo', () => {
+      it('should accept valid http URL', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          territorialAuthorityLogo: 'http://example.com/logo.png',
+          typeId: 1 
+        });
+        expect(component.entityForm.get('territorialAuthorityLogo')?.hasError('invalidUrl')).toBeFalsy();
+      });
+
+      it('should accept valid https URL', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          territorialAuthorityLogo: 'https://example.com/logo.png',
+          typeId: 1 
+        });
+        expect(component.entityForm.get('territorialAuthorityLogo')?.hasError('invalidUrl')).toBeFalsy();
+      });
+
+      it('should reject ftp URL', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          territorialAuthorityLogo: 'ftp://example.com/logo.png',
+          typeId: 1 
+        });
+        expect(component.entityForm.get('territorialAuthorityLogo')?.hasError('invalidUrl')).toBeTruthy();
+        expect(component.entityForm.valid).toBeFalsy();
+      });
+
+      it('should reject invalid URL format', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          territorialAuthorityLogo: 'not-a-url',
+          typeId: 1 
+        });
+        expect(component.entityForm.get('territorialAuthorityLogo')?.hasError('invalidUrl')).toBeTruthy();
+        expect(component.entityForm.valid).toBeFalsy();
+      });
+
+      it('should accept empty territorialAuthorityLogo', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          territorialAuthorityLogo: '',
+          typeId: 1 
+        });
+        expect(component.entityForm.get('territorialAuthorityLogo')?.hasError('invalidUrl')).toBeFalsy();
+      });
+
+      it('should accept null territorialAuthorityLogo', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          territorialAuthorityLogo: null,
+          typeId: 1 
+        });
+        expect(component.entityForm.get('territorialAuthorityLogo')?.hasError('invalidUrl')).toBeFalsy();
+      });
+    });
+
+    describe('SRS Pattern Validator', () => {
+      it('should accept valid SRS format EPSG:4326', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          srs: 'EPSG:4326',
+          typeId: 1 
+        });
+        expect(component.entityForm.get('srs')?.hasError('invalidSrs')).toBeFalsy();
+      });
+
+      it('should accept valid SRS format with hyphens', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          srs: 'EPSG-TEST:25830',
+          typeId: 1 
+        });
+        expect(component.entityForm.get('srs')?.hasError('invalidSrs')).toBeFalsy();
+      });
+
+      it('should reject SRS without colon', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          srs: 'EPSG4326',
+          typeId: 1 
+        });
+        expect(component.entityForm.get('srs')?.hasError('invalidSrs')).toBeTruthy();
+        expect(component.entityForm.valid).toBeFalsy();
+      });
+
+      it('should reject SRS with lowercase', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          srs: 'epsg:4326',
+          typeId: 1 
+        });
+        expect(component.entityForm.get('srs')?.hasError('invalidSrs')).toBeTruthy();
+        expect(component.entityForm.valid).toBeFalsy();
+      });
+
+      it('should reject SRS with non-numeric code', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          srs: 'EPSG:ABC',
+          typeId: 1 
+        });
+        expect(component.entityForm.get('srs')?.hasError('invalidSrs')).toBeTruthy();
+        expect(component.entityForm.valid).toBeFalsy();
+      });
+
+      it('should accept empty SRS', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          srs: '',
+          typeId: 1 
+        });
+        expect(component.entityForm.get('srs')?.hasError('invalidSrs')).toBeFalsy();
+      });
+
+      it('should accept null SRS', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          srs: null,
+          typeId: 1 
+        });
+        expect(component.entityForm.get('srs')?.hasError('invalidSrs')).toBeFalsy();
+      });
+    });
+
+    describe('Envelope Validator with maxX > minX and maxY > minY', () => {
+      it('should accept valid envelope', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          extentMinX: 1,
+          extentMaxX: 2,
+          extentMinY: 3,
+          extentMaxY: 4
+        });
+        expect(component.canSave()).toBeTruthy();
+      });
+
+      it('should reject envelope when maxX equals minX', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          extentMinX: 2,
+          extentMaxX: 2,
+          extentMinY: 3,
+          extentMaxY: 4
+        });
+        expect(component.canSave()).toBeFalsy();
+      });
+
+      it('should reject envelope when maxX less than minX', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          extentMinX: 3,
+          extentMaxX: 2,
+          extentMinY: 3,
+          extentMaxY: 4
+        });
+        expect(component.canSave()).toBeFalsy();
+      });
+
+      it('should reject envelope when maxY equals minY', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          extentMinX: 1,
+          extentMaxX: 2,
+          extentMinY: 4,
+          extentMaxY: 4
+        });
+        expect(component.canSave()).toBeFalsy();
+      });
+
+      it('should reject envelope when maxY less than minY', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          extentMinX: 1,
+          extentMaxX: 2,
+          extentMinY: 5,
+          extentMaxY: 4
+        });
+        expect(component.canSave()).toBeFalsy();
+      });
+
+      it('should accept all envelope fields empty', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          extentMinX: null,
+          extentMaxX: null,
+          extentMinY: null,
+          extentMaxY: null
+        });
+        expect(component.canSave()).toBeTruthy();
+      });
+
+      it('should reject partial envelope', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          extentMinX: 1,
+          extentMaxX: null,
+          extentMinY: 3,
+          extentMaxY: 4
+        });
+        expect(component.canSave()).toBeFalsy();
+      });
+    });
+
+    describe('Center Point Validator - both coordinates required together', () => {
+      it('should accept both center coordinates provided', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          centerPointX: 1.5,
+          centerPointY: 2.5
+        });
+        expect(component.canSave()).toBeTruthy();
+      });
+
+      it('should accept both center coordinates empty', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          centerPointX: null,
+          centerPointY: null
+        });
+        expect(component.canSave()).toBeTruthy();
+      });
+
+      it('should reject only centerPointX provided', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          centerPointX: 1.5,
+          centerPointY: null
+        });
+        expect(component.canSave()).toBeFalsy();
+      });
+
+      it('should reject only centerPointY provided', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          centerPointX: null,
+          centerPointY: 2.5
+        });
+        expect(component.canSave()).toBeFalsy();
+      });
+    });
+
+    describe('Integer Validator for defaultZoomLevel', () => {
+      it('should accept positive integer', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          defaultZoomLevel: 10
+        });
+        expect(component.entityForm.get('defaultZoomLevel')?.hasError('pattern')).toBeFalsy();
+      });
+
+      it('should accept zero', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          defaultZoomLevel: 0
+        });
+        expect(component.entityForm.get('defaultZoomLevel')?.hasError('pattern')).toBeFalsy();
+      });
+
+      it('should accept negative integer', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          defaultZoomLevel: -5
+        });
+        expect(component.entityForm.get('defaultZoomLevel')?.hasError('pattern')).toBeFalsy();
+      });
+
+      it('should reject decimal number', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          defaultZoomLevel: 10.5
+        });
+        expect(component.entityForm.get('defaultZoomLevel')?.hasError('pattern')).toBeTruthy();
+        expect(component.entityForm.valid).toBeFalsy();
+      });
+
+      it('should reject non-numeric value', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          defaultZoomLevel: 'abc' as any
+        });
+        expect(component.entityForm.get('defaultZoomLevel')?.hasError('pattern')).toBeTruthy();
+        expect(component.entityForm.valid).toBeFalsy();
+      });
+
+      it('should accept empty defaultZoomLevel', () => {
+        component.entityForm.patchValue({ 
+          code: '1', 
+          name: 'Test',
+          typeId: 1,
+          defaultZoomLevel: null
+        });
+        expect(component.entityForm.get('defaultZoomLevel')?.hasError('pattern')).toBeFalsy();
+      });
+    });
+  });
+
+  describe('Territory hierarchy pickers', () => {
+    const municipiType = {id: 6, name: 'Municipi', topType: false, bottomType: false} as any;
+
+    const sameTypeTerritory = Object.assign(new TerritoryProjection(), {
+      id: 1,
+      name: 'Manlleu',
+      typeId: 6,
+      typeTopType: false,
+      typeBottomType: false,
+    });
+    const provinciaTerritory = Object.assign(new TerritoryProjection(), {
+      id: 2,
+      name: 'Navarra',
+      typeId: 8,
+      typeTopType: true,
+      typeBottomType: false,
+    });
+    const bottomTerritory = Object.assign(new TerritoryProjection(), {
+      id: 3,
+      name: 'Leaf',
+      typeId: 9,
+      typeTopType: false,
+      typeBottomType: true,
+    });
+
+    const parentTargetsFetcher = () =>
+      (component['membersOfTable'] as unknown as {targetsFetchFn: () => ReturnType<TerritoryService['fetchProjectionItems']>})
+        .targetsFetchFn;
+
+    const childTargetsFetcher = () =>
+      (component['membersTable'] as unknown as {targetsFetchFn: () => ReturnType<TerritoryService['fetchProjectionItems']>})
+        .targetsFetchFn;
+
+    beforeEach(() => {
+      component.currentTerritoryType = municipiType;
+      jest.spyOn(territoryService, 'fetchProjectionItems').mockReturnValue(
+        of([sameTypeTerritory, provinciaTerritory, bottomTerritory] as any)
+      );
+    });
+
+    it('includes top non-bottom territories as parent candidates', async () => {
+      const targets = await firstValueFrom(parentTargetsFetcher()());
+
+      expect(targets.map(t => t.id)).toEqual([2]);
+    });
+
+    it('excludes top territories from child candidates', async () => {
+      const targets = await firstValueFrom(childTargetsFetcher()());
+
+      expect(targets.map(t => t.id)).toEqual([3]);
+    });
+  });
+
+  describe('Territory type change', () => {
+    const municipiType = {id: 6, name: 'Municipi', topType: false, bottomType: false} as any;
+    const provinciaType = {id: 8, name: 'Provincia', topType: true, bottomType: false} as any;
+    const bottomType = {id: 9, name: 'Bottom', topType: false, bottomType: true} as any;
+
+    beforeEach(() => {
+      component.territoryTypes = [municipiType, provinciaType, bottomType];
+      component.currentTerritoryType = municipiType;
+      component.currentTypeTop = false;
+      component.currentTypeBottom = false;
+      component.entityToEdit = Object.assign(new TerritoryProjection(), {
+        id: 100,
+        name: 'Manlleu',
+        typeId: 6,
+      });
+      component.entityID = 100;
+      component.entityForm.patchValue({
+        code: 'MAN',
+        name: 'Manlleu',
+        typeId: 6,
+      });
+    });
+
+    it('syncs currentTerritoryType when type changes without conflicting relations', async () => {
+      jest.spyOn(component.entityToEdit, 'getRelationArrayEx').mockReturnValue(of([] as any));
+
+      component.entityForm.patchValue({typeId: 8});
+      await component.onTerritoryTypeChanged({value: 8} as MatSelectChange);
+
+      expect(component.currentTerritoryType.id).toBe(8);
+      expect(component.currentTypeTop).toBe(true);
+      expect(component.currentTypeBottom).toBe(false);
+      expect(component.entityForm.get('typeId')?.value).toBe(8);
+    });
+
+    it('rejects top type when parents exist', async () => {
+      jest.spyOn(component.entityToEdit, 'getRelationArrayEx').mockImplementation((_cls, relation) => {
+        if (relation === 'memberOf') {
+          return of([{id: 2, name: 'Navarra'}] as any);
+        }
+        return of([] as any);
+      });
+
+      component.entityForm.patchValue({typeId: 8});
+      await component.onTerritoryTypeChanged({value: 8} as MatSelectChange);
+
+      expect(component.entityForm.get('typeId')?.value).toBe(6);
+      expect(component.currentTerritoryType.id).toBe(6);
+      expect(component.entityForm.get('typeId')?.hasError('topTypeWithParents')).toBe(true);
+      expect(component.canSave()).toBe(false);
+    });
+
+    it('rejects bottom type when children exist', async () => {
+      jest.spyOn(component.entityToEdit, 'getRelationArrayEx').mockImplementation((_cls, relation) => {
+        if (relation === 'members') {
+          return of([{id: 3, name: 'Child'}] as any);
+        }
+        return of([] as any);
+      });
+
+      component.entityForm.patchValue({typeId: 9});
+      await component.onTerritoryTypeChanged({value: 9} as MatSelectChange);
+
+      expect(component.entityForm.get('typeId')?.value).toBe(6);
+      expect(component.currentTerritoryType.id).toBe(6);
+      expect(component.entityForm.get('typeId')?.hasError('bottomTypeWithChildren')).toBe(true);
+      expect(component.canSave()).toBe(false);
+    });
+
+    it('allows top type when no parents exist', async () => {
+      jest.spyOn(component.entityToEdit, 'getRelationArrayEx').mockReturnValue(of([] as any));
+
+      component.entityForm.patchValue({typeId: 8});
+      await component.onTerritoryTypeChanged({value: 8} as MatSelectChange);
+
+      expect(component.entityForm.get('typeId')?.value).toBe(8);
+      expect(component.currentTerritoryType.id).toBe(8);
+      expect(component.entityForm.get('typeId')?.hasError('topTypeWithParents')).toBe(false);
+    });
+  });
+
+  describe('Duplicate Relation Loading (TDD for #383)', () => {
+    beforeEach(() => {
+      component.entityID = -1;
+      component.duplicateID = 123;
+      component.entityToEdit = Object.assign(new TerritoryProjection(), {
+        id: 123,
+        name: 'Original Territory',
+        typeId: 1,
+      });
+    });
+
+    it('should call getRelationArrayEx for cartographies when duplicating', () => {
+      const spy = jest.spyOn(component.entityToEdit, 'getRelationArrayEx').mockReturnValue(of([] as any));
+
+      const fetcher = component['cartographiesTable'].relationsFetchFn;
+      fetcher();
+
+      expect(spy).toHaveBeenCalledWith(expect.anything(), 'cartographyAvailabilities', {projection: 'view'});
+    });
+
+    it('should call getRelationArrayEx for tasks when duplicating', () => {
+      const spy = jest.spyOn(component.entityToEdit, 'getRelationArrayEx').mockReturnValue(of([] as any));
+
+      const fetcher = component['tasksTable'].relationsFetchFn;
+      fetcher();
+
+      expect(spy).toHaveBeenCalledWith(expect.anything(), 'taskAvailabilities', {projection: 'view'});
+    });
+
+    it('should call getRelationArrayEx for members when duplicating', () => {
+      const spy = jest.spyOn(component.entityToEdit, 'getRelationArrayEx').mockReturnValue(of([] as any));
+
+      const fetcher = component['membersTable'].relationsFetchFn;
+      fetcher();
+
+      expect(spy).toHaveBeenCalledWith(expect.anything(), 'members', {projection: 'view'});
+    });
+
+    it('should call getRelationArrayEx for memberOf when duplicating', () => {
+      const spy = jest.spyOn(component.entityToEdit, 'getRelationArrayEx').mockReturnValue(of([] as any));
+
+      const fetcher = component['membersOfTable'].relationsFetchFn;
+      fetcher();
+
+      expect(spy).toHaveBeenCalledWith(expect.anything(), 'memberOf', {projection: 'view'});
+    });
   });
 });

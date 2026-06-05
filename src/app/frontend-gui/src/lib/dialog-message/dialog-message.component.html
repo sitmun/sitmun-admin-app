@@ -3,21 +3,46 @@
   <div class="error-details" [innerHTML]="getFormattedMessage()"></div>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button
-    matTooltip="{{ 'common.button.cancel' | translate }}"
-    mat-mini-fab
-    color="primary"
-    *ngIf="!hideCancelButton"
-    (click)="closeDialog()">
-    <mat-icon fontSet="material-icons-round">cancel</mat-icon>
-  </button>
-  <button
-    matTooltip="{{ 'common.button.accept' | translate }}"
-    mat-mini-fab
-    color="primary"
-    [mat-dialog-close]="true"
-    (click)="doAccept()"
-    cdkFocusInitial>
-    <mat-icon fontSet="material-icons-round">check</mat-icon>
-  </button>
+  <ng-container *ngIf="destructive; else standardFocus">
+    <button
+      matTooltip="{{ cancelLabel | translate }}"
+      mat-mini-fab
+      color="primary"
+      type="button"
+      *ngIf="!hideCancelButton"
+      (click)="closeDialog()"
+      cdkFocusInitial>
+      <mat-icon fontSet="material-icons-round">cancel</mat-icon>
+    </button>
+    <button
+      matTooltip="{{ acceptLabel | translate }}"
+      mat-mini-fab
+      color="primary"
+      type="button"
+      class="add-half-gap"
+      (click)="doAccept()">
+      <mat-icon fontSet="material-icons-round">delete</mat-icon>
+    </button>
+  </ng-container>
+  <ng-template #standardFocus>
+    <button
+      matTooltip="{{ cancelLabel | translate }}"
+      mat-mini-fab
+      color="primary"
+      type="button"
+      *ngIf="!hideCancelButton"
+      (click)="closeDialog()">
+      <mat-icon fontSet="material-icons-round">cancel</mat-icon>
+    </button>
+    <button
+      matTooltip="{{ acceptLabel | translate }}"
+      mat-mini-fab
+      color="primary"
+      type="button"
+      class="add-half-gap"
+      (click)="doAccept()"
+      cdkFocusInitial>
+      <mat-icon fontSet="material-icons-round">check</mat-icon>
+    </button>
+  </ng-template>
 </mat-dialog-actions>

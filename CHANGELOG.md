@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.7] - 2026-06-05
+
+### Added
+
+- **Trees**: improved authoring UX with image validation (PNG/JPEG, 2 MB), duplicate-name save checks, node cartography/task linkage, hidden-in-viewer indicators, and unsaved-changes confirmation.
+- **Trees**: introduced shared `TreeRulesService` for tree-type node behavior and validation rules.
+- **User management**: richer user form guidance and validation UX (hints, counters, tab lead text, compact warnings with tab indicators) plus new read-only “Applications (point of contact)” tab and extended user-list columns.
+- **User form relations**: manual territory picker for positions, relation-grid layout improvements, and i18n support for role/position warnings and tab guidance across all locales.
+- **i18n**: completed missing keys for user hints/warnings and tab lead messages in ca/en/es/fr/oc-aranes; updated application creator hint wording for email-only publication.
+- **Form alerts**: added shared `app-entity-form-alerts` + `FormFieldLabelResolver` for in-form validation/warning display; added compact warnings-panel mode and supporting global styles.
+- **Data grid**: added dedicated clientSide/infinite column-layout paths, fixed-width selection checkbox column, and centered checkbox cell styling.
+
+### Changed
+
+- **Trees**: save trigger routed through `onTreeSaveRequested`; batch-delete tests and tree-form test helpers were extracted.
+- **Entity forms**: required-field feedback and cross-tab warnings moved to `app-entity-form-alerts`; toolbar simplified to title/save/back.
+- **Application form**: backend warnings and touristic tree rules now surface in alerts card; private-app/public-user warning shows on Roles tab.
+- **User form**: alerts card moved above tabs, invalid-state indicators added, and toolbar/form internals simplified (`itemName`, `isNewOrDuplicated`, dead code removal, readonly table definitions).
+- **Territory form**: `defaultZoomLevel` is now a standard extent-adjacent field and extent hints reflect runtime zoom behavior.
+- **Data grid**: status column sizing/filter behavior tightened; Roles tab territorial-role column renamed with editable boolean renderer and clearer propagation context.
+- **i18n**: position-warning semantics aligned with backend (`name`/`organization` required), blocked-user hint wording refined, and locale string corrections applied (including ca/es date labels).
+- **Tests/tooling**: deprecated Angular test modules replaced with provider-based setup; `APP_INITIALIZER` moved to `provideAppInitializer`; TypeScript/ESLint/Node type tooling updated.
+- **Build**: dev bundle budgets raised to 20 MB / 24 MB.
+
+### Removed
+
+- `FormValidationBannerComponent` (`app-form-validation-banner`) and toolbar validation/custom-warning inputs were removed from admin form toolbars and `sitmun-frontend-gui` exports.
+- Feature flag `TERRITORY_FOCAL_POINT_FEATURE` and related `featureFlags.territoryFocalPoint.description` i18n keys.
+- Territory form: separate `entity.territory.hint.defaultZoomLevel` field hint (covered by extent hint).
+
+### Fixed
+
+- Data grid: undo/redo handling fixed (counter timing, `source: 'undo'|'redo'`, boolean handling, checkbox stack behavior).
+- Grid/list Jest expectations; `tsconfig.app.json` excludes test-only paths.
+
 ## [1.2.6] - 2026-05-08
 
 ### Added
@@ -261,7 +296,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Various bug fixes and improvements from development phase
 
-[Unreleased]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.6...HEAD
+[Unreleased]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.7...HEAD
+[1.2.7]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.6...sitmun-admin-app/1.2.7
 [1.2.6]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.5...sitmun-admin-app/1.2.6
 [1.2.5]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.4...sitmun-admin-app/1.2.5
 [1.2.4]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.3...sitmun-admin-app/1.2.4

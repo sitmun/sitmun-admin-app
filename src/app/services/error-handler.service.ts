@@ -17,14 +17,14 @@ export class ErrorHandlerService {
     private loggerService: LoggerService
   ) {}
 
-  handleError(error: any, defaultMessage = 'common.error.generic') {
+  handleError(error: any, defaultMessage = 'common.error.generic', messageParams?: Record<string, any>) {
     let translationKey = defaultMessage;
-    const params: Record<string, any> = {};
-    
+    const params: Record<string, any> = { ...messageParams };
+
     // Try to get RFC 9457 problem type first
     if (isProblemDetail(error)) {
       translationKey = getProblemTranslationKey(error);
-      
+
       // Extract and translate entity name if present
       if (error.error?.properties?.referencingEntityTranslationKey) {
         const entityTranslationKey = error.error.properties.referencingEntityTranslationKey;
@@ -34,7 +34,7 @@ export class ErrorHandlerService {
         }
       }
     }
-    
+
     // Try to translate with parameters, fallback to detail or original message
     let message: string;
     if (Object.keys(params).length > 0) {

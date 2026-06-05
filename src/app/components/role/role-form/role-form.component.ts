@@ -241,7 +241,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
         this.utils.getNonEditableColumnDef('entity.role.users.user.lastName', 'lastName'),
       ])
       .withTargetsLeftTitle('entity.role.users.user.title')
-      .withTargetsLeftFetcher(() => this.userService.getAll())
+      .withTargetsLeftFetcher(() => this.userService.fetchAllItems())
       .withTargetsRightColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getNonEditableColumnDef('common.form.name', 'name'),
@@ -249,7 +249,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
         this.utils.getNonEditableColumnDef('common.form.type', 'typeName'),
       ])
       .withTargetsRightTitle('entity.role.users.territory.title')
-      .withTargetsRightFetcher(() => this.territoryService.getAllProjection(TerritoryProjection))
+      .withTargetsRightFetcher(() => this.territoryService.fetchProjectionItems(TerritoryProjection))
       .build();
   }
 
@@ -282,7 +282,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
         this.utils.getNonEditableColumnDef('entity.taskType.label', 'typeName', 100, 500),
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.tasksService.getAllProjection(TaskProjection))
+      .withTargetsFetcher(() => this.tasksService.fetchProjectionItems(TaskProjection))
       .withTargetInclude((tasks: (TaskProjection)[]) => (item: TaskProjection) => {
         return !tasks.some((task) => task.id === item.id);
       })
@@ -318,7 +318,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
         this.utils.getNonEditableColumnDef('common.form.description', 'description', 100, 500),
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.applicationService.getAll())
+      .withTargetsFetcher(() => this.applicationService.fetchAllItems())
       .withTargetInclude((applications: (Application)[]) => (item: Application) => {
         return !applications.some((application) => application.id === item.id);
       })

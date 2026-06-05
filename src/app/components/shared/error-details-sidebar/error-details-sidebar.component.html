@@ -23,7 +23,7 @@
                 <span class="error-type-badge" [attr.data-type]="error.type">
                   {{ getErrorTypeLabel(error.type) }}
                 </span>
-                <span class="error-time">{{ getRelativeTime(error.timestamp) }}</span>
+                <span class="error-time">{{ getFullTimestamp(error.timestamp) }}</span>
               </div>
             </mat-panel-title>
           </mat-expansion-panel-header>

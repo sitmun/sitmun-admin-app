@@ -1,4 +1,4 @@
-import {Component, effect, ElementRef, OnDestroy, OnInit, signal, WritableSignal} from '@angular/core';
+import {Component, effect, OnDestroy, OnInit, signal, WritableSignal} from '@angular/core';
 import {UntypedFormBuilder, UntypedFormGroup, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 
@@ -57,25 +57,26 @@ export class LoginComponent implements OnInit, OnDestroy {
     private readonly loginService: LoginService,
     private readonly translateService: TranslateService,
     private readonly router: Router,
-    private readonly appConfigService: AppConfigService,
-    private readonly elementRef: ElementRef
+    private readonly appConfigService: AppConfigService
   ) {
-    this.loginService.getEnabledAuthMethods().subscribe((res) => {
-      if (Array.isArray(res)) {
-        const map = new Map<string, AuthProvider[]>();
-        res.forEach((item) => {
-          map.set(item.id, item.providers ?? []);
-        });
-        this.loginMethods.set(map);
-      }
-    });
-
     effect(() => {
       this.alternativeLoginMethods = this.loginMethods().get('oidc') ?? [];
     });
   }
 
   ngOnInit() {
+    this.loginService.getEnabledAuthMethods()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((res) => {
+        if (Array.isArray(res)) {
+          const map = new Map<string, AuthProvider[]>();
+          res.forEach((item) => {
+            map.set(item.id, item.providers ?? []);
+          });
+          this.loginMethods.set(map);
+        }
+      });
+
     // Initialize the form with a default language
     this.form = this.fb.group({
       username: ['', Validators.required],
@@ -105,11 +106,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.translateService.use(langCode);
         this.translateService.setDefaultLang(langCode);
         localStorage.setItem('lang', langCode);
-        
-        // Proactively hide the login component before navigation
-        // This ensures the overlay disappears even if ngOnDestroy is delayed
-        this.hideComponent();
-        
+
         void this.router.navigateByUrl(this.defaultRoute);
       }, () => {
         const langCode = val.lang;
@@ -160,30 +157,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     return this.languages.find(lang => lang.shortname === selectedLangCode);
   }
 
-  /**
-   * Forcefully hide the component by manipulating the host element
-   * Called both on successful login and in ngOnDestroy for maximum reliability
-   */
-  private hideComponent(): void {
-    const hostElement = this.elementRef.nativeElement as HTMLElement;
-    if (hostElement) {
-      hostElement.style.display = 'none';
-      hostElement.style.visibility = 'hidden';
-      hostElement.style.opacity = '0';
-      hostElement.style.pointerEvents = 'none';
-      hostElement.style.position = 'absolute';
-      hostElement.style.width = '0';
-      hostElement.style.height = '0';
-      hostElement.style.overflow = 'hidden';
-      hostElement.style.zIndex = '-9999';
-    }
-  }
-
-  /** cleanup subscriptions and forcefully hide component to handle browser extension interference */
+  /** cleanup subscriptions */
   ngOnDestroy(): void {
-    // Forcefully hide the component
-    this.hideComponent();
-    
     this.destroy$.next();
     this.destroy$.complete();
   }

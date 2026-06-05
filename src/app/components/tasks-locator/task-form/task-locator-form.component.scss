@@ -1,0 +1,49 @@
+@use "../../../variables" as *;
+
+.toggle-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.toggle-hint {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--mat-form-field-hint-text-color, rgba(0, 0, 0, 0.6));
+  line-height: 1.4;
+}
+
+.municipality-filters-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.municipality-filters-hint {
+  margin-bottom: 4px;
+}
+
+.filter-row {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.filter-field {
+  flex: 1;
+}
+
+.filter-wgs84-toggle {
+  align-self: center;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.filter-field-crs {
+  flex: 0 0 140px;
+}
+
+.add-filter-row {
+  margin-top: 4px;
+}

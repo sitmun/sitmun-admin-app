@@ -23,7 +23,6 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.spec.ts",
-    "src/**/*.d.ts",
-    "src/app/types.d.ts"
+    "src/**/*.d.ts"
   ]
 }

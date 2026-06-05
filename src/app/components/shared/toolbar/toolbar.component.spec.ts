@@ -1,8 +1,8 @@
-import { HttpClientModule } from '@angular/common/http';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideRouter } from '@angular/router';
 
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { BehaviorSubject, of } from 'rxjs';
@@ -20,7 +20,6 @@ import { MaterialModule } from '@app/material-module';
 
 import { ToolbarComponent } from './toolbar.component';
 
-
 describe('ToolbarComponent', () => {
   let component: ToolbarComponent;
   let fixture: ComponentFixture<ToolbarComponent>;
@@ -34,20 +33,19 @@ describe('ToolbarComponent', () => {
   const mockUser = { id: 1, username: 't', firstName: 'T', lastName: 'U' } as User;
   let authStateSubject: BehaviorSubject<unknown>;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     authStateSubject = new BehaviorSubject<unknown>(null);
     const principalStub = {
       getAuthenticationState: jest.fn(() => authStateSubject.asObservable()),
       identity: jest.fn(() => Promise.resolve(mockUser))
     };
 
+     
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [ ToolbarComponent, SystemInfoMenuComponent ],
       imports: [
         MaterialModule,
-        HttpClientTestingModule,
-        HttpClientModule,
-        RouterTestingModule,
         SitmunFrontendGuiModule,
         MatIconTestingModule,
         TranslateModule.forRoot({
@@ -60,6 +58,9 @@ describe('ToolbarComponent', () => {
         })
       ],
       providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
         LoginService,
         AuthService,
         { provide: Principal, useValue: principalStub },
@@ -84,10 +85,12 @@ describe('ToolbarComponent', () => {
     fixture.detectChanges();
   });
 
+  afterEach(() => fixture?.destroy());
+  afterAll(() => TestBed.resetTestingModule());
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-
 
   it('should instantiate loginService', () => {
     expect(loginService).toBeTruthy();

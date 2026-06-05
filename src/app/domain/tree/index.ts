@@ -8,4 +8,5 @@ export * from './models/tree-node.model';
 
 // Export services
 export * from './services/tree.service';
-export * from './services/tree-node.service'; 
+export * from './services/tree-node.service';
+export * from './services/tree-rules.service'; 

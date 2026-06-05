@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 
@@ -21,12 +22,13 @@ import { ICellRendererAngularComp } from '@ag-grid-community/angular';
 @Component({
     selector: 'app-router-link-renderer',
     template: `
-    <a [routerLink]="getRouterLink()" class="router-link">
+    <a *ngIf="params.data" [routerLink]="getRouterLink()" class="router-link">
       {{ params.value }}
     </a>
+    <span *ngIf="!params.data"></span>
   `,
     standalone: true,
-    imports: [RouterModule]
+    imports: [CommonModule, RouterModule]
 })
 export class RouterLinkRendererComponent implements ICellRendererAngularComp {
   /** AG Grid cell renderer parameters */
@@ -62,6 +64,11 @@ export class RouterLinkRendererComponent implements ICellRendererAngularComp {
    * @returns Array of route segments for Angular router
    */
   getRouterLink(): any[] {
+    // Guard: return empty route if data is not yet loaded (infinite row model)
+    if (!this.params.data) {
+      return [];
+    }
+    
     // Split the route into segments
     const segments = this.params.route.split('/');
     

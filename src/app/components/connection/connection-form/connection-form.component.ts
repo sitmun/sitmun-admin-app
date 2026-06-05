@@ -154,7 +154,7 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
       driver: new UntypedFormControl(this.entityToEdit.driver, [Validators.required]),
       user: new UntypedFormControl(this.entityToEdit.user),
       newPassword: new UntypedFormControl(this.passwordSet ? '••••••••' : ''),
-      url: new UntypedFormControl(this.entityToEdit.url),
+      url: new UntypedFormControl(this.entityToEdit.url, [Validators.required]),
     });
   }
 

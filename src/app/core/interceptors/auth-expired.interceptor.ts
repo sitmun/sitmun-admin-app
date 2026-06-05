@@ -25,7 +25,7 @@ export class AuthExpiredInterceptor implements HttpInterceptor {
           catchError(
                 (err: any) => {
                     if (err instanceof HttpErrorResponse) {
-                      const unauthorized = err.status === 401 || err.status === 403;
+                      const unauthorized = err.status === 401;
                       const isAuth = request.url.includes('authenticate');
                       const onLogin = this.router.url.startsWith('/login');
 

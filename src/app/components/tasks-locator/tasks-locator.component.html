@@ -1,0 +1,11 @@
+<app-entity-list
+  (duplicateData)='duplicate($event)'
+  (gridModifiedEvent)='setGridModifiedValue($event)'
+  (newDataEvent)='newData()'
+  (removeData)="removeData($event)"
+  (sendChangesEvent)='sendChanges($event)'
+  [config]="entityListConfig"
+  [isDataLoaded]="dataLoaded"
+  [refreshCommandEvent$]="refreshCommandEvent$"
+  [saveAgGridStateEvent]="saveAgGridStateEvent">
+</app-entity-list>

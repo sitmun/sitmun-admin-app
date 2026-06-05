@@ -1,10 +1,10 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
 
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {of} from 'rxjs';
@@ -26,8 +26,6 @@ import {configureLoggerForTests, provideErrorHandlerForTests} from '@app/testing
 
 import { LayersPermitsFormComponent } from './layers-permits-form.component';
 
-
-
 describe('LayersPermitsFormComponent', () => {
   let component: LayersPermitsFormComponent;
   let fixture: ComponentFixture<LayersPermitsFormComponent>;
@@ -38,15 +36,15 @@ describe('LayersPermitsFormComponent', () => {
   let translationService: TranslationService;
   let resourceService: ResourceService;
   let externalService: ExternalService;
-  let consoleErrorSpy: jest.SpyInstance;
+  let _consoleErrorSpy: jest.SpyInstance;
 
-  beforeEach(async () => {
-    // Mock console.error to prevent console output during tests
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+  beforeAll(async () => {
+     
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [ LayersPermitsFormComponent, FormToolbarComponent ],
-      imports: [FormsModule, ReactiveFormsModule, RouterModule.forRoot([], {}), HttpClientTestingModule, SitmunFrontendGuiModule,
-      RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule, BrowserAnimationsModule,
+      imports: [FormsModule, ReactiveFormsModule, RouterModule.forRoot([], {}), SitmunFrontendGuiModule,
+      MaterialModule, RouterModule, MatIconTestingModule, BrowserAnimationsModule,
       TranslateModule.forRoot({
         loader: {
           provide: TranslateLoader,
@@ -56,6 +54,8 @@ describe('LayersPermitsFormComponent', () => {
         }
       })],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         provideErrorHandlerForTests(),
         CartographyGroupService,
         RoleService,
@@ -70,11 +70,8 @@ describe('LayersPermitsFormComponent', () => {
     .compileComponents();
   });
 
-  afterEach(() => {
-    consoleErrorSpy.mockRestore();
-  });
-
   beforeEach(() => {
+    _consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
     fixture = TestBed.createComponent(LayersPermitsFormComponent);
     component = fixture.componentInstance;
     // Suppress debug logs in tests to reduce console noise
@@ -95,10 +92,12 @@ describe('LayersPermitsFormComponent', () => {
     fixture.detectChanges();
   });
 
+  afterEach(() => fixture?.destroy());
+  afterAll(() => TestBed.resetTestingModule());
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-
 
   it('should instantiate roleService', () => {
     expect(roleService).toBeTruthy();
@@ -147,7 +146,6 @@ describe('LayersPermitsFormComponent', () => {
     })
     expect(component.entityForm.valid).toBeTruthy();
   });
-
 
   it('Layer permits form fields', () => {
     expect(component.entityForm.get('name')).toBeTruthy();

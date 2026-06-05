@@ -150,11 +150,11 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
     this.initTranslations('Task', ['name'])
 
     const [taskTypes, taskGroups, cartographies, queryTasks, uiList] = await Promise.all([
-      firstValueFrom(this.taskTypeService.getAllEx()),
-      firstValueFrom(this.taskGroupService.getAllEx()),
-      firstValueFrom(this.cartographyService.getAll()),
-      firstValueFrom(this.taskService.getAllProjection(TaskProjection, queryTaskOptions, undefined, 'tasks')),
-      firstValueFrom(this.taskUIService.getAll())
+      firstValueFrom(this.taskTypeService.fetchAllRawItems()),
+      firstValueFrom(this.taskGroupService.fetchAllRawItems()),
+      firstValueFrom(this.cartographyService.fetchAllItems()),
+      firstValueFrom(this.taskService.fetchProjectionItems(TaskProjection, queryTaskOptions, undefined, 'tasks')),
+      firstValueFrom(this.taskUIService.fetchAllItems())
     ]);
 
     this.taskType = taskTypes.find(taskType => taskType.id === type);
@@ -182,11 +182,11 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
   }
 
   override fetchOriginal(): Promise<TaskProjection> {
-    return firstValueFrom(this.taskService.getProjection(TaskProjection, this.entityID));
+    return firstValueFrom(this.taskService.fetchProjectionById(TaskProjection, this.entityID));
   }
 
   override fetchCopy(): Promise<TaskProjection> {
-    return firstValueFrom(this.taskService.getProjection(TaskProjection, this.duplicateID).pipe(map((copy: TaskProjection) => {
+    return firstValueFrom(this.taskService.fetchProjectionById(TaskProjection, this.duplicateID).pipe(map((copy: TaskProjection) => {
       copy.name = this.translateService.instant("copy_") + copy.name;
       return copy;
     })));
@@ -280,7 +280,7 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
       const proxyGroup = this.taskGroupService.createProxy(this.entityForm.get('taskGroupId')?.value);
       await firstValueFrom(entityToUpdate.updateRelationEx("group", proxyGroup));
     }
-    
+
     // Ensure UI control is set (needed for proper task identification)
     if (this.moreInfoUI?.id) {
       this.loggerService.info(`Updating UI relationship to ID: ${this.moreInfoUI.id}`);
@@ -317,11 +317,11 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
   protected shouldShowCommandAlertHint(): boolean {
     const command = this.entityForm?.get('command')?.value ?? '';
     const declaredParameters = this.entityToEdit?.properties?.parameters || [];
-    
+
     if (!Array.isArray(declaredParameters) || declaredParameters.length === 0) {
       return command.match(this.apiParameterPattern) !== null;
     }
-    
+
     // Extract all {variable} patterns from the command
     const matches = command.matchAll(this.apiParameterPattern);
     const urlVariables = new Set<string>();
@@ -330,18 +330,18 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
         urlVariables.add(match[1]);
       }
     }
-    
+
     // Extract all declared parameter labels
     const declaredLabels = new Set<string>(
       declaredParameters.map((p: any) => p.label).filter(Boolean)
     );
-    
+
     // Check for mismatches:
     // 1. URL variables not declared in parameters
     // 2. Declared parameters not used in URL
     const unmatchedUrlVars = [...urlVariables].filter(v => !declaredLabels.has(v));
     const unusedParameters = [...declaredLabels].filter(l => !urlVariables.has(l));
-    
+
     return unmatchedUrlVars.length > 0 || unusedParameters.length > 0;
   }
 
@@ -350,13 +350,13 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
     if (!Array.isArray(declaredParameters) || declaredParameters.length === 0) {
       return '';
     }
-    
+
     const labels = declaredParameters
       .map((p: any) => p.label)
       .filter(Boolean)
       .map(label => `{${label}}`)
       .join(', ');
-    
+
     return labels ? `Available parameters: ${labels}` : '';
   }
 
@@ -449,7 +449,7 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
     if (!value) {
       return null; // Let required validator handle empty
     }
-    
+
     // If value is an object with id, it's valid - update the form
     if (typeof value === 'object' && value?.id) {
       // Defer the update to avoid timing issues during validation
@@ -461,7 +461,7 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
       });
       return null; // Valid selection
     }
-    
+
     // If value is a string, check if it matches an existing cartography name exactly
     if (typeof value === 'string' && value.trim().length > 0) {
       const matchingCartography = this.cartographies.find(
@@ -480,7 +480,7 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
       // Invalid if it's a string that doesn't match
       return { invalidCartography: true };
     }
-    
+
     return null;
   }
 
@@ -595,7 +595,7 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
         this.utils.getNonEditableColumnDef('common.form.description', 'description'),
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.roleService.getAll())
+      .withTargetsFetcher(() => this.roleService.fetchAllItems())
       .withTargetsTitle(this.translateService.instant('entity.task.roles.title'))
       .build();
   }
@@ -638,7 +638,7 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
         this.utils.getNonEditableColumnDef('common.form.type', 'typeName'),
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.territoryService.getAllProjection(TerritoryProjection))
+      .withTargetsFetcher(() => this.territoryService.fetchProjectionItems(TerritoryProjection))
       .withTargetInclude((availabilities: (TaskAvailabilityProjection)[]) => (item: TerritoryProjection) => {
         return !availabilities.some((availability) => availability.territoryId === item.id);
       })

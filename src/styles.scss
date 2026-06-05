@@ -1,4 +1,6 @@
 @use '@angular/material' as mat;
+@use "mat-form-field-rich-hint";
+@use "styles/entity-warnings-card";
 @include mat.core();
 
 /* You can add global styles to this file, and also import other style files */
@@ -63,10 +65,6 @@ html {
 
 //Button validate of forms
 
-.formHeader {
-  //display: inline-block;
-}
-
 #right-column {
   margin-right: 0;
 }
@@ -87,10 +85,6 @@ h2 {
   display: inline-block;
 }
 
-.titleDiv {
-  margin-left: 10px;
-}
-
 //.appDataGridDiv {
 //  height: calc(100% - 190px);
 //  margin: 50px;
@@ -100,10 +94,6 @@ h2 {
 //   resize: vertical;
 //   overflow: hidden;
 // }
-
-.appDialogDataGridDiv {
-  height: calc(100% - 80px);
-}
 
 .divider {
   height: 3px;
@@ -125,20 +115,6 @@ h2 {
   background-color: transparent;
 }
 // Material table (MDC and legacy)
-.mat-mdc-table tbody .mat-mdc-row:nth-of-type(odd),
-.mat-table tbody .mat-row:nth-of-type(odd) {
-  background-color: rgba(0, 0, 0, 0.02);
-}
-.mat-mdc-table tbody .mat-mdc-row:nth-of-type(even),
-.mat-table tbody .mat-row:nth-of-type(even) {
-  background-color: transparent;
-}
-.mat-mdc-list-item:nth-of-type(odd) {
-  background-color: rgba(0, 0, 0, 0.02);
-}
-.mat-mdc-list-item:nth-of-type(even) {
-  background-color: transparent;
-}
 // AG Grid (data-grid / dialog-grid) – uses built-in .ag-row-odd and theme variable
 // Set globally so it applies regardless of load order
 :root {
@@ -151,9 +127,6 @@ h2 {
 }
 
 // Apply gray background only to authenticated pages
-.mat-drawer-container {
-  background: $background-color !important;
-}
 
 // Login page should use Material theme background (orange-tinted)
 app-login .mat-app-background {
@@ -184,32 +157,11 @@ app-login .mat-app-background {
   display: none!important;
 }
 
-.mat-mdc-table {
-  width: calc(100% - 20px);
-  margin-top: 5px;
-  border: 1px solid #ddd;
-  border-radius: 3px;
-  overflow: auto;
-}
-
-.flexDiv {
-  display: flex;
-  align-items: center;
-}
-
-.flexDiv .mat-mdc-form-field {
-  margin-left: auto;
-}
-
 /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version. */
 //.mat-mdc-form-field-appearance-outline .mat-mdc-form-field-infix {
 //  padding: 0.4em 0 0.4em 0 !important;
 //  top: -0.25em;
 //}
-
-.mat-mdc-form-field-infix {
-  min-height: inherit !important
-}
 
 
 /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version. */
@@ -235,64 +187,13 @@ app-login .mat-app-background {
 //  right: 0px;
 //}
 
-.mdc-checkbox .mdc-checkbox__native-control:enabled:checked~.mdc-checkbox__background,
-.mdc-checkbox .mdc-checkbox__native-control:enabled:indeterminate~.mdc-checkbox__background,
-.mdc-checkbox .mdc-checkbox__native-control[data-indeterminate=true]:enabled~.mdc-checkbox__background
-{
-  border-color:   #ff9300 !important;
-  background-color:  #ff9300 !important;
-}
-
-.mdc-checkbox .mdc-checkbox__native-control:enabled:checked~.mdc-checkbox__background,
-.mdc-checkbox .mdc-checkbox__native-control:enabled:indeterminate~.mdc-checkbox__background,
-.mdc-checkbox .mdc-checkbox__native-control[data-indeterminate=true]:enabled~.mdc-checkbox__background
-{
-  border-color:   #ff9300 !important;
-  background-color:  #ff9300 !important;
-}
-
 .formDiv {
   margin-left: 10px;
   margin-right: 20px;
 }
 
-.tableDiv {
-  margin-left: 10px;
-  padding-right: 20px;
-}
-
 .tableDiv .mat-expansion-panel-header.mat-expanded {
   height: 50px;
-}
-
-.formLabel {
-  display: block !important;
-  font-weight: 500 !important;
-  margin-bottom: 5px !important;
-  padding-left: 5px !important;
-  width: 100% !important;
-}
-
-.translateDialogs{
-  max-width: min(600px, 90vw) !important;
-  width: 100% !important;
-  max-height: 90vh !important;
-}
-
-.formLabelDialog {
-  display: flex !important;
-  font-weight: 500 !important;
-  margin-right: 5px !important;
-  margin-top: 7px !important;
-  padding-left: 5px !important;
-  width: 20% !important;
-}
-
-.formLabel1Line {
-  display: inline-block !important;
-  font-weight: 500 !important;
-  margin-right: 5px !important;
-  padding-left: 5px !important;
 }
 
 .mat-mdc-list-item .list-text {
@@ -302,92 +203,6 @@ app-login .mat-app-background {
 .formLabel span {
   color: gray !important  ;
   font-weight: normal !important;
-}
-
-.singleColFormDiv {
-  display: inline-block !important;
-  width: 100% !important;
-}
-
-.chipLimit{
-  max-height:70px;
-  overflow-y: scroll;
-}
-
-.colFormDiv{
-  display: inline-block;
-  width: 47.5%;
-  margin-right: 5%;
-}
-
-.colFormDivTwoSelectors{
-  display: inline-block;
-  width: 45%;
-  margin-right: 5%;
-}
-
-
-.colFormDivBtn {
-  margin-left: -40px;
-}
-
-.ShortColFormDiv {
-  display: inline-block;
-  width: 15%;
-  margin-right: 3%;
-}
-
-.MidColFormDiv {
-  display: inline-block;
-  width: 27%;
-  margin-right: 3%;
-}
-
-.MidLargeColFormDiv {
-  display: inline-block;
-  width: 47%;
-  margin-right: 3%;
-}
-
-.HalfMidLargeColFormDiv {
-  display: inline-block;
-  width: 22%;
-  margin-right: 3%;
-}
-
-.LargeColFormDiv {
-  display: inline-block;
-  width: 72%;
-  margin-right: 3%;
-}
-
-.oneLargeColFormDiv{
-  display: inline-block;
-  width: 100%;
-  margin-right: 5%;
-
-}
-
-.longCol {
-  display: inline-block;
-  width: 75%;
-}
-
-.shortCol {
-  display: inline-block;
-  width: 20%;
-  margin-right: 5%;
-}
-
-.middleCol {
-  display: inline-block;
-  width: 50%;
-}
-
-.rowFormDiv {
-  width: 100%;
-  margin: 10px 0;
-  display: flex;
 }
 
 
@@ -405,18 +220,8 @@ app-login .mat-app-background {
 //  padding-left: 12px !important;
 //}
 
-.mat-mdc-standard-chip {
-  min-height: unset !important;
-}
-
 .routerTitle > h6 {
   display: inline-block;
-}
-
-.routerTitle {
-  display: block;
-  margin-bottom: -30px;
-  margin-top: -20px;
 }
 
 .routerTitle a {
@@ -434,23 +239,10 @@ app-login .mat-app-background {
   width: unset;
 }
 
-.mat-mdc-header-cell,
-.mat-header-cell .mat-sort-header-button {
-  text-transform: capitalize;
-}
-
-.tabForm .bgColor {
-  padding: 0;
-}
-
 /* TODO(mdc-migration): The following rule targets internal classes of tabs that may no longer apply for the MDC version. */
 //.mat-mdc-tab-body.mat-tab-body-active {
 //  animation: fade 0.5s;
 //}
-
-.mat-mdc-tab-body {
-  padding-top: 20px;
-}
 
 /* TODO(mdc-migration): The following rule targets internal classes of tabs that may no longer apply for the MDC version. */
 //.mat-tab-body-content {
@@ -479,64 +271,11 @@ app-login .mat-app-background {
 //  font-weight: 700;
 //}
 
-.mat-ink-bar {
-  height: 0 !important;
-}
-
 /* TODO(mdc-migration): The following rule targets internal classes of tabs that may no longer apply for the MDC version. */
 //.mat-tab-label {
 //  font-size: 16px !important;
 //}
 
-
-.mat-datepicker-toggle {
-  color: #bf0000 !important;
-}
-
-
-.sample-wrapper {
-  width: inherit;
-  position: relative;
-  height: 100%;
-  margin: 0 auto;
-  background: transparent;
-}
-
-.sample-content {
-  display: flex;
-  flex-grow: 1;
-  flex-flow: row wrap;
-  justify-content: flex-start;
-  padding: 0;
-  -webkit-animation: fade-in 0.3s cubic-bezier(0.39, 0.575, 0.565, 1) both;
-  -moz-animation: fade-in 0.3s cubic-bezier(0.39, 0.575, 0.565, 1) both;
-  animation: fade-in 0.3s cubic-bezier(0.39, 0.575, 0.565, 1) both;
-}
-
-.sample-column {
-  display: flex;
-  flex-flow: column nowrap;
-  flex: 1 0 25%;
-  align-content: flex-start;
-  margin: 16px;
-  min-width: 280px;
-}
-
-.sample-title {
-  color: #0375be;
-  margin-bottom: 12px;
-  margin-top: 12px;
-}
-
-.sample-title .light {
-  font-weight: 400;
-}
-
-.sample-description {
-  font-size: 14px;
-  font-weight: normal;
-  color: #717171;
-}
 
 @-webkit-keyframes color-change-2x {
   0% {
@@ -574,14 +313,6 @@ app-login .mat-app-background {
   }
 }
 
-.headerAlignSyle {
-  text-align: right !important;
-}
-
-.sample-wrapper {
-  overflow-y: auto;
-}
-
 .item-container {
   display: flex;
   justify-content: space-between;
@@ -602,37 +333,10 @@ app-login .mat-app-background {
   text-align: right;
 }
 
-.btnActive {
-  color: #bf0000 !important;
-  font-weight: bold !important;
-}
-
 
 // Snackbar container overrides
-.mat-mdc-snack-bar-container {
-  &.notification-success, &.notification-error {
-    --mdc-snackbar-container-color: transparent;
-    --mdc-snackbar-supporting-text-color: inherit;
-    padding: 0;
-
-    .mdc-snackbar__surface {
-      background-color: transparent;
-      box-shadow: none;
-      min-width: auto;
-      min-height: auto;
-      padding: 0;
-    }
-
-    .mdc-snackbar__label {
-      padding: 0;
-    }
-  }
-}
 
 // Ensure Material overlay container (snackbars, dialogs) is above app overlays
-.cdk-overlay-container {
-  z-index: 10000 !important;
-}
 
 //Dialogs
 .dialog h1 {
@@ -665,14 +369,6 @@ app-login .mat-app-background {
   animation: rotating 1s linear infinite;
 }
 
-.dialog div.mat-mdc-dialog-actions {
-  justify-content: flex-end;
-}
-
-.dialog div.mat-mdc-dialog-content {
-  padding: 24px;
-  margin: 0;
-}
 //CUSTOM SCROLLBAR
 //::-webkit-scrollbar-track {
 //  padding: 2px 0;
@@ -790,18 +486,6 @@ h4 > .mat-icon {
   margin-bottom: 16px;
 }
 
-.sitmun-save-button, .sitmun-new-button, .saveButton {
-  background-color: #68a225 !important;
-  color: #fff !important;
-  margin-right: 10px;
-}
-
-.sitmun-return-button, .returnButton {
-  color: #ff9300 !important;
-  border: #ff9300 solid 1px !important;
-  margin-right: 10px;
-}
-
 // Removed sitmun-get-info-button and sitmun-validate-button - use mat-raised-button color="primary" instead
 
 .sitmun-delete-button, .deleteButton {
@@ -827,11 +511,6 @@ h4 > .mat-icon {
 //  background-color: #ffe9cc !important;
 //  font-weight: bold !important;
 // }
-
-.sitmun-app-data-grid-edit, .appDataGridEditDiv {
-  height: 200px;
-  margin: 20px 0 60px 0;
-}
 
 .flex-container {
   display: flex;
@@ -868,21 +547,10 @@ h4 > .mat-icon {
   height: 0;
 }
 
-.grow {
-  flex-grow: 1;
-  flex-shrink: 0;
-  flex-basis: 0;
-}
-
 // Ag-Grid
 
 .force-padding {
   padding-left: 11px !important;
-}
-
-.read-only-cell {
-  background-color: $background-color; /* Light gray background */
-  color: #999999; /* Gray text color */
 }
 
 .spacer {
@@ -943,26 +611,15 @@ mat-card-content {
 
 // Reduce line-height for auto-height cells in AG Grid
 
-.ag-cell-auto-height {
-  --reduceLineHeightBy: 24px;
-  line-height: calc(var(--ag-internal-calculated-line-height) - var(--reduceLineHeightBy));
-  padding-top: calc(var(--reduceLineHeightBy) / 2);
-  padding-bottom: calc(var(--reduceLineHeightBy) / 2);
-}
-
 /* Style for modified form fields */
 .input-modified {
-  .mdc-text-field--outlined {
-    background: #E8F1DE !important;
-  }
 
-  .mdc-checkbox {
-    background: #E8F1DE !important;
-  }
 }
 
 .router-link {
   color: #007bff;
+  font-size: inherit;
+  line-height: inherit;
   text-decoration: none;
 }
 .router-link:hover {
@@ -971,6 +628,8 @@ mat-card-content {
 
 .url-link {
   color: #007bff;
+  font-size: inherit;
+  line-height: inherit;
   text-decoration: none;
   word-break: break-all;
 }
@@ -986,50 +645,17 @@ mat-card-content {
   opacity: 0.7;
 }
 
-.url-indicator {
-  font-size: 0.8em;
-  margin-left: 4px;
-  opacity: 0.7;
-  color: #007bff;
+.sitmun-toggle-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
 }
 
-// Tree node field-config: input mapping autocomplete (CDK overlay — global). Same row as task selector: name - value
-.input-mapping-suggestions-panel {
-  min-width: 280px;
-
-  .mat-mdc-option {
-    min-height: 40px;
-    height: auto;
-    white-space: normal;
-    line-height: 1.35;
-
-    .mdc-list-item__primary-text {
-      white-space: normal;
-      overflow: visible;
-      text-overflow: clip;
-    }
-  }
-
-  .input-mapping-option {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    padding: 4px 0;
-  }
-
-  .input-mapping-option-name {
-    font-weight: 500;
-  }
-
-  .input-mapping-option-sep {
-    color: rgba(0, 0, 0, 0.45);
-    flex-shrink: 0;
-  }
-
-  .input-mapping-option-token {
-    font-family: monospace;
-    font-size: 0.9em;
-    color: rgba(0, 0, 0, 0.6);
-    word-break: break-all;
-  }
+.sitmun-toggle-hint {
+  margin: 4px 0 12px 52px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: rgba(0, 0, 0, 0.6);
+  max-width: 56rem;
 }

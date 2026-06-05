@@ -62,7 +62,7 @@ export class ConfigurationParametersDialogComponent implements OnInit, OnDestroy
     }, this.showDelayMs);
 
     try {
-      const configParams = await firstValueFrom(this.configurationParametersService.getAll());
+      const configParams = await firstValueFrom(this.configurationParametersService.fetchAllItems());
       const elapsed = Date.now() - startTime;
 
       this.clearTimers();

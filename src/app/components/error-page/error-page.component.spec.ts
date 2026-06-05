@@ -17,12 +17,9 @@ describe('ErrorPageComponent', () => {
   let component: ErrorPageComponent;
   let fixture: ComponentFixture<ErrorPageComponent>;
   let loggerService: jest.Mocked<LoggerService>;
-  let consoleErrorSpy: jest.SpyInstance;
+  let _consoleErrorSpy: jest.SpyInstance;
 
-  beforeEach(async () => {
-    // Mock console.error to prevent console output during tests
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-
+  beforeAll(async () => {
     loggerService = {
       error: jest.fn(),
       warn: jest.fn(),
@@ -32,7 +29,9 @@ describe('ErrorPageComponent', () => {
       getLogLevel: jest.fn()
     } as any;
 
+     
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [ErrorPageComponent],
       imports: [
         MatIconModule,
@@ -50,14 +49,14 @@ describe('ErrorPageComponent', () => {
     }).compileComponents();
   });
 
-  afterEach(() => {
-    consoleErrorSpy.mockRestore();
-  });
-
   beforeEach(() => {
+    _consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
     fixture = TestBed.createComponent(ErrorPageComponent);
     component = fixture.componentInstance;
   });
+
+  afterEach(() => fixture?.destroy());
+  afterAll(() => TestBed.resetTestingModule());
 
   it('should create', () => {
     expect(component).toBeTruthy();

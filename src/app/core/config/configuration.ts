@@ -285,6 +285,22 @@ export class Configuration {
   };
 
   /**
+   * Locator tasks configuration
+   */
+  static readonly TASK_LOCATOR: FormConfiguration = {
+    id: 'tasksLocator',
+    labelSingular: 'entity.task.locator.label',
+    labelPlural: 'entity.task.locator.label',
+    icon: 'search',
+    font: 'material-icons-round',
+    route: 'tasks/locator',
+    formRoute: ':id/taskForm',
+    duplicateRoute: ':id/taskForm/:idDuplicate',
+    component: 'TasksLocatorComponent',
+    formComponent: 'TaskLocatorFormComponent'
+  };
+
+  /**
    * More Info tasks configuration
    */
   static readonly TASK_MORE_INFO: FormConfiguration = {
@@ -349,6 +365,22 @@ export class Configuration {
   };
 
   /**
+   * Territory type configuration
+   */
+  static readonly TERRITORY_TYPE: FormConfiguration = {
+    id: 'territoryType',
+    labelSingular: 'entity.territoryType.label',
+    labelPlural: 'entity.territoryType.plural',
+    icon: 'category',
+    font: 'material-icons-round',
+    route: 'territoryType',
+    formRoute: ':id/territoryTypeForm',
+    duplicateRoute: ':id/territoryTypeForm/:idDuplicate',
+    component: 'TerritoryTypeComponent',
+    formComponent: 'TerritoryTypeFormComponent'
+  };
+
+  /**
    * Code List Value configuration
    */
   static readonly CODELIST_VALUE: FormConfiguration = {
@@ -400,9 +432,11 @@ export class Configuration {
       Configuration.TASK,
       Configuration.TASK_BASIC,
       Configuration.TASK_QUERY,
+      Configuration.TASK_LOCATOR,
       Configuration.TASK_EDIT,
       Configuration.APPLICATION,
       Configuration.LANGUAGE,
+      Configuration.TERRITORY_TYPE,
       Configuration.CODELIST_VALUE,
       Configuration.CONFIGURATION_PARAMETER
     ];
@@ -456,6 +490,7 @@ export class Configuration {
           children: [
             Configuration.toMenuItem(Configuration.TASK_BASIC),
             Configuration.toMenuItem(Configuration.TASK_QUERY),
+            Configuration.toMenuItem(Configuration.TASK_LOCATOR),
             Configuration.toMenuItem(Configuration.TASK_EDIT),
             Configuration.toMenuItem(Configuration.TASK_MORE_INFO)
           ]
@@ -467,6 +502,7 @@ export class Configuration {
       [
         Configuration.toMenuItem(Configuration.TASK_UI),
         Configuration.toMenuItem(Configuration.LANGUAGE),
+        Configuration.toMenuItem(Configuration.TERRITORY_TYPE),
         Configuration.toMenuItem(Configuration.CODELIST_VALUE),
         Configuration.toMenuItem(Configuration.CONFIGURATION_PARAMETER)
       ]

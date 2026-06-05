@@ -57,6 +57,7 @@
         'deletedNode': node.status==='pendingDelete',
         'modified-node': node.status==='Modified',
         'pending-creation-node': node.status==='pendingCreation',
+        'hidden-in-viewer-node': isHiddenInViewerProfile(node),
         'selected': selectedNodeId === node.id,
         'root-descendant': isRootDescendant(node)}"
         [class.root-node-hidden]="isRootNode(node)"
@@ -83,6 +84,11 @@
                   [matTooltip]="'entity.tree.taskGroupContainerHint' | translate">
           folder
         </mat-icon>
+        <mat-icon *ngIf="isHiddenInViewerProfile(node)"
+                  class="hidden-in-viewer-icon"
+                  [matTooltip]="hiddenInViewerTooltip(node)">
+          visibility_off
+        </mat-icon>
         <span class="node-name" (click)="onButtonClicked(node.id, 'edit')" (keyup.enter)="onButtonClicked(node.id, 'edit')" tabindex="0" role="button" [attr.aria-label]="('common.edit' | translate) + ': ' + node.name" *ngIf="node.id !== undefined && node.status!=='pendingDelete'">{{node.name}}</span>
         <span class="node-name" *ngIf="node.id === undefined || node.status==='pendingDelete'">{{node.name}}</span>
 
@@ -97,7 +103,7 @@
             </button>
           </ng-container>
           <button (click)="onButtonClicked(node.id, 'delete')"
-                  *ngIf="node.id !== undefined && node.status!=='pendingDelete'"
+                  *ngIf="node.id !== undefined && node.status!=='pendingDelete' && node.status!=='pendingCreation'"
                   mat-icon-button 
                   [matTooltip]="'common.delete' | translate"
                   [attr.aria-label]="'common.delete' | translate">
@@ -139,6 +145,7 @@
         'deletedNode': node.status==='pendingDelete',
         'modified-node': node.status==='Modified',
         'pending-creation-node': node.status==='pendingCreation',
+        'hidden-in-viewer-node': isHiddenInViewerProfile(node),
         'selected': selectedNodeId === node.id,
         'root-descendant': isRootDescendant(node)}"
         [class.root-node-hidden]="isRootNode(node)"
@@ -169,6 +176,11 @@
                   [matTooltip]="'entity.tree.taskGroupContainerHint' | translate">
           folder
         </mat-icon>
+        <mat-icon *ngIf="isHiddenInViewerProfile(node)"
+                  class="hidden-in-viewer-icon"
+                  [matTooltip]="hiddenInViewerTooltip(node)">
+          visibility_off
+        </mat-icon>
         <span class="node-name" (click)="onButtonClicked(node.id, 'edit')" (keyup.enter)="onButtonClicked(node.id, 'edit')" tabindex="0" role="button" [attr.aria-label]="('common.edit' | translate) + ': ' + node.name" *ngIf="node.id !== undefined && node.id !== null && node.status!=='pendingDelete'">{{node.name}}</span>
         <span class="node-name" *ngIf="node.id === undefined || node.id === null || node.status==='pendingDelete'">{{node.name}}</span>
         <div class="node-actions">
@@ -182,7 +194,7 @@
             </button>
           </ng-container>
           <button (click)="onButtonClicked(node.id, 'delete')"
-                  *ngIf="node.id !== undefined && node.id !== null && node.status!=='pendingDelete'"
+                  *ngIf="node.id !== undefined && node.id !== null && node.status!=='pendingDelete' && node.status!=='pendingCreation'"
                   mat-icon-button 
                   [matTooltip]="'common.delete' | translate"
                   [attr.aria-label]="'common.delete' | translate">

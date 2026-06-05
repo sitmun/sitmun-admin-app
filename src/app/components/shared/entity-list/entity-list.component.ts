@@ -3,6 +3,9 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { Observable, of, Subject } from 'rxjs';
 
 import { Resource } from '@app/core';
+import type {HalPage} from '@app/core/hal/hal-page';
+import type {InfiniteBlockRequest} from '@app/core/hal/infinite-block-request';
+import type {DataGridRowModelMode} from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
 
 export interface EntityListConfig<T> {
   /** Translation key for the entity label */
@@ -15,6 +18,18 @@ export interface EntityListConfig<T> {
   columnDefs: any[];
   /** Function to fetch all data */
   dataFetchFn: () => Observable<T[]>;
+  /** AG Grid row model mode */
+  rowModelMode?: DataGridRowModelMode;
+  /** Block size for infinite mode */
+  pageSize?: number;
+  /** Infinite block fetcher */
+  infiniteBlockFetcher?: (request: InfiniteBlockRequest) => Observable<HalPage<T>>;
+  /** Fixed height for infinite grid viewport */
+  infiniteGridHeight?: string;
+  /** Enables local search that progressively scans server pages in infinite mode */
+  progressiveLocalFilter?: boolean;
+  /** Enables backend text search in infinite mode */
+  backendSearch?: boolean;
   /** Default column sorting */
   defaultColumnSorting?: string[];
   /** Grid configuration options */
