@@ -9,74 +9,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Trees: tree image upload validation hints and errors (PNG/JPEG, 2 MB) on Details and node editor.
-- Trees: duplicate tree name error on save via `searchTextPage`.
-- Trees: cartography and task links in node suffix and autocomplete.
-- Trees: discard unsaved node changes dialog (destructive confirmation).
-- Trees: hidden-in-viewer indicators and tooltips in the admin data-tree.
-- Trees: shared `TreeRulesService` for tree-type node rules.
-- i18n: `entity.user.hint.username`, `entity.user.hint.email`, `entity.user.hint.password`, `entity.user.hint.firstName`, `entity.user.hint.lastName`, `entity.user.hint.administrator`, `entity.user.hint.positionsRequired` in all 5 locales (ca, en, es, fr, oc-aranes).
-- i18n: `entity.user.warning.role-without-position` in all 5 locales (previously missing; key was emitted by `UserChecksService` but untranslated).
-- i18n: `entity.user.warning.no-password` in all 5 locales (user cannot sign in without a password; excludes built-in `public` and `admin`).
-- i18n: Tab leads `entity.user.card.rolesLead.*` and `entity.user.card.positionsLead.*` (viewer-prefix + body) in all 5 locales.
-- i18n: `entity.user.card.applicationsAsContactLead.*` and `entity.user.applicationsAsContact.header` for the new read-only applications tab, in all 5 locales.
-- i18n: `entity.user.positions.add.title` for the territory-picker dialog, in all 5 locales.
-- User form: character counters (`characterCount` pipe) on username, firstName, lastName, and email fields (limit 50); `maxlength="50"` HTML attribute and `Validators.maxLength(50)` aligned with backend.
-- User form: layer/service-style `mat-hint` (start + end) on firstName, lastName, and email; `characterCount` on username and password (max 50; max-only label when password is set but not being edited); no descriptive hints on username/password.
-- User form: `sitmun-toggle-row` with `sitmun-toggle-hint` paragraph for the administrator and blocked toggles.
-- User form: card-lead blocks on the Roles and Positions tabs (viewer-audience context).
-- User form: flex/minWidth/tooltipField column definitions on Roles and Positions relation grids (clientSide only; no infinite mode on form grids).
-- User form: territory picker on the Positions tab to add positions manually (`addButton`); uses `withTargetInclude` to exclude already-assigned territories.
-- User form: read-only "Applications (point of contact)" tab (`isEdition()` only); shows application name, title, and type; backed by `ApplicationService.findByCreatorId()`.
-- User list: `email`, `blocked`, and `administrator` columns.
-- Application form i18n: updated `entity.application.hint.creatorId` in all 5 locales to describe email-only publication.
-- New SCSS `user-form.component.scss` with flex-column gap and card-lead styles (parity with service/layer forms).
-- i18n: `entity.user.warnings.resolveRolesTab`, `resolvePositionsTab`, and `resolveRolesAndPositionsTabs` in all 5 locales.
-- User form: compact warnings banner (message + icon per row; tab dots and positions hint for context); orange tab indicators on Roles and Positions when a related warning is present.
-- Warnings panel: `compact` input for titleless banner with per-message icons (user form).
-- Shared `app-entity-form-alerts` and `FormFieldLabelResolver` for in-form save validation and backend warnings (replaces toolbar `form-validation-banner`).
-- Global styles: `sitmun-entity-warnings-card`, `sitmun-tab-label-with-indicator`, and `sitmun-tab-warn-indicator`.
+- **Trees**: improved authoring UX with image validation (PNG/JPEG, 2 MB), duplicate-name save checks, node cartography/task linkage, hidden-in-viewer indicators, and unsaved-changes confirmation.
+- **Trees**: introduced shared `TreeRulesService` for tree-type node behavior and validation rules.
+- **User management**: richer user form guidance and validation UX (hints, counters, tab lead text, compact warnings with tab indicators) plus new read-only “Applications (point of contact)” tab and extended user-list columns.
+- **User form relations**: manual territory picker for positions, relation-grid layout improvements, and i18n support for role/position warnings and tab guidance across all locales.
+- **i18n**: completed missing keys for user hints/warnings and tab lead messages in ca/en/es/fr/oc-aranes; updated application creator hint wording for email-only publication.
+- **Form alerts**: added shared `app-entity-form-alerts` + `FormFieldLabelResolver` for in-form validation/warning display; added compact warnings-panel mode and supporting global styles.
+- **Data grid**: added dedicated clientSide/infinite column-layout paths, fixed-width selection checkbox column, and centered checkbox cell styling.
 
 ### Changed
 
-- Trees: save trigger via `onTreeSaveRequested` from the node editor; batch delete list tests and extracted tree-form test helpers.
-- Entity forms: required-field save feedback and cross-tab messages moved from the toolbar to `app-entity-form-alerts` above tabs (user-form pattern); toolbar shows title and save/back only.
-- Application form: backend warnings and touristic tree rules surface in the alerts card (no save-time modals for those rules); Roles tab warn indicator for private-app/public-user warning.
-- User form: alerts card placed above `mat-tab-group`; Details tab indicator when required fields are invalid.
-- Territory form: `defaultZoomLevel` shown next to extent maxY as a standard field.
-- Territory form: extent hint documents default zoom level behavior after extent fit.
+- **Trees**: save trigger routed through `onTreeSaveRequested`; batch-delete tests and tree-form test helpers were extracted.
+- **Entity forms**: required-field feedback and cross-tab warnings moved to `app-entity-form-alerts`; toolbar simplified to title/save/back.
+- **Application form**: backend warnings and touristic tree rules now surface in alerts card; private-app/public-user warning shows on Roles tab.
+- **User form**: alerts card moved above tabs, invalid-state indicators added, and toolbar/form internals simplified (`itemName`, `isNewOrDuplicated`, dead code removal, readonly table definitions).
+- **Territory form**: `defaultZoomLevel` is now a standard extent-adjacent field and extent hints reflect runtime zoom behavior.
+- **Data grid**: status column sizing/filter behavior tightened; Roles tab territorial-role column renamed with editable boolean renderer and clearer propagation context.
+- **i18n**: position-warning semantics aligned with backend (`name`/`organization` required), blocked-user hint wording refined, and locale string corrections applied (including ca/es date labels).
+- **Tests/tooling**: deprecated Angular test modules replaced with provider-based setup; `APP_INITIALIZER` moved to `provideAppInitializer`; TypeScript/ESLint/Node type tooling updated.
+- **Build**: dev bundle budgets raised to 20 MB / 24 MB.
 
 ### Removed
 
-- `FormValidationBannerComponent` and toolbar validation/custom-warning inputs on `app-form-toolbar`.
+- `FormValidationBannerComponent` (`app-form-validation-banner`) and toolbar validation/custom-warning inputs were removed from admin form toolbars and `sitmun-frontend-gui` exports.
 - Feature flag `TERRITORY_FOCAL_POINT_FEATURE` and related `featureFlags.territoryFocalPoint.description` i18n keys.
 - Territory form: separate `entity.territory.hint.defaultZoomLevel` field hint (covered by extent hint).
 
-- Data grid: separate column layout for infinite lists (`prepareInfiniteColumnDefs`) and clientSide relation grids (`prepareClientSideColumnDefs`); flex layouts call `sizeColumnsToFit` (fills card width) and skip content auto-size; content-based legacy grids keep `autoSizeAllColumns` (fixes user form Roles/Positions tab width and right-side gap).
-- Selection checkbox column (`getSelCheckboxColumnDef`): 56px fixed width aligned with list row checkbox column.
-- Status column: narrowed from 180px to 160px.
-- User form Roles tab: `appliesToChildrenTerritories` column renamed to "Rol territorial" / "Territorial role" (all 5 locales); boolean checkbox renderer with editable toggle; 120–140px wide; card lead extended to explain propagation to child territories.
-- CSS: `sitmun-centered-cell` — nested `ag-cell-wrapper` and `ag-selection-checkbox` vertically centred so row-selection checkboxes align with cell content.
-- Status column (`getStatusColumnDef`): filtering disabled (`filter: false`); no label when status is OK or pending delete (dot-only via CSS).
-- Data grid: fix undo/redo — adjust counter timing before `undoCellEditing`/`redoCellEditing`, detect `source: 'undo'|'redo'`, remove broken checkbox undo-stack hack; boolean columns use native booleans (`filterValueGetter` for filters only).
-- i18n: `entity.user.warning.position-without-details` and `entity.user.hint.positionsRequired` in all 5 locales — only position title and organization are required for the admin warning (aligned with `UserChecksService`).
-- i18n (ca): `entity.user.dataCreated` from "Alta" to "Data d'alta".
-- i18n (es): `entity.role.users.createdDate` and `entity.user.dataCreated` from "Alta" to "Fecha alta".
-- i18n: revised `entity.user.hint.blocked` in all 5 locales — now references sign-in in both the viewer and the admin app.
-- User form toolbar: `itemName('username')` replaces the raw FormControl value access; `isNew()` replaced with `isNewOrDuplicated()` throughout the template.
-- User form form classes: `sitmun-service-form-entity` on `<form>`, `sitmun-service-form-stack` on `mat-card-content`.
-- User form TS: dead `getAllElementsEventPermits` / `getAllElementsEventTerritoryData` Subject declarations and usages removed; `createObject` JSDoc corrected to "User"; table definitions changed to `protected readonly`.
-- Jest specs: replace deprecated `HttpClientTestingModule` / `RouterTestingModule` with `provideHttpClient`, `provideHttpClientTesting`, and `provideRouter` (`withInterceptorsFromDi` in interceptor spec).
-- `app.module.ts`: `APP_INITIALIZER` → `provideAppInitializer`.
-- Toolchain: TypeScript `~5.8.3`, `@typescript-eslint` 8.54.x, `@types/node` 20.x.
-- Dev bundle budgets raised to 20 MB / 24 MB.
-
-### Removed
-
-- `FormValidationBannerComponent` (`app-form-validation-banner`) from admin form toolbars and `sitmun-frontend-gui` exports.
-
 ### Fixed
 
+- Data grid: undo/redo handling fixed (counter timing, `source: 'undo'|'redo'`, boolean handling, checkbox stack behavior).
 - Grid/list Jest expectations; `tsconfig.app.json` excludes test-only paths.
 
 ## [1.2.6] - 2026-05-08
