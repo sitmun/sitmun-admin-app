@@ -1,5 +1,35 @@
 import { TaskProperties, TaskPropertiesContract } from './task-properties';
 
+/** Keys written by {@link TaskPropertiesBuilder.build}; excluded from preserved extras. */
+const MANAGED_PROPERTY_KEYS = new Set([
+  'scope',
+  'command',
+  'format',
+  'path',
+  'parameters',
+  'fields',
+  'authenticationMode',
+  'user',
+  'password',
+  'apiKeyType',
+  'mimeType',
+  'filename',
+  'headers',
+  'queryParams',
+]);
+
+/** Copies keys not managed by the builder so schemaless properties survive round-trips. */
+function extractExtraProperties(properties: TaskProperties): TaskProperties {
+  const raw = TaskPropertiesContract.fromRaw(properties);
+  const extras: TaskProperties = {};
+  for (const key of Object.keys(raw)) {
+    if (!MANAGED_PROPERTY_KEYS.has(key)) {
+      extras[key] = raw[key];
+    }
+  }
+  return extras;
+}
+
 /** Coerce unknown to string | null for TaskProperties string fields. */
 function asString(v: unknown): string | null {
   return typeof v === 'string' ? v : null;
@@ -18,6 +48,7 @@ function asHeaders(v: unknown): Record<string, string> | null {
  * Builder for TaskProperties
  */
 export class TaskPropertiesBuilder {
+  private readonly _extras: TaskProperties;
   private _scope: string | null = null;
   private _command: string | null = null;
   private _format: string | null = null;
@@ -34,6 +65,10 @@ export class TaskPropertiesBuilder {
   private _filename: string | null = null;
   private _templateHtml: string | null = null;
   private _templateEditorState: unknown = null;
+
+  private constructor(extras: TaskProperties = {}) {
+    this._extras = extras;
+  }
 
   /**
    * Creates a new TaskPropertiesBuilder
@@ -53,7 +88,7 @@ export class TaskPropertiesBuilder {
       return new TaskPropertiesBuilder();
     }
     const p = properties as Record<string, unknown>;
-    return new TaskPropertiesBuilder()
+    return new TaskPropertiesBuilder(extractExtraProperties(properties))
       .withScope(TaskPropertiesContract.getScope(properties))
       .withCommand(TaskPropertiesContract.getCommand(properties))
       .withFormat(asString(p.format))
@@ -243,11 +278,12 @@ export class TaskPropertiesBuilder {
   }
 
   /**
-   * Builds the TaskProperties object
+   * Builds the TaskProperties object, preserving unknown keys from {@link from}.
    * @returns A new TaskProperties object
    */
   public build(): TaskProperties {
     const properties: TaskProperties = {
+      ...this._extras,
       scope: this._scope,
       command: this._command,
       format: this._format,

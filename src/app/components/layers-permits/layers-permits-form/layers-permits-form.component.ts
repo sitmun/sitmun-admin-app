@@ -131,7 +131,7 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
    */
   override fetchOriginal(): Promise<CartographyGroupProjection> {
     return firstValueFrom(
-      this.cartographyGroupService.getProjection(
+      this.cartographyGroupService.fetchProjectionById(
         CartographyGroupProjection,
         this.entityID
       )
@@ -146,7 +146,7 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
   override fetchCopy(): Promise<CartographyGroupProjection> {
     return firstValueFrom(
       this.cartographyGroupService
-        .getProjection(CartographyGroupProjection, this.duplicateID)
+        .fetchProjectionById(CartographyGroupProjection, this.duplicateID)
         .pipe(
           map((copy: CartographyGroupProjection) => {
             copy.name = this.translateService.instant('common.copyPrefix') + copy.name;
@@ -268,7 +268,7 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
         ),
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.roleService.getAll())
+      .withTargetsFetcher(() => this.roleService.fetchAllItems())
       .withTargetsTitle('entity.permissionGroup.roles.title')
       .build();
   }
@@ -360,7 +360,7 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() =>
-        this.cartographyService.getAllProjection(CartographyProjection)
+        this.cartographyService.fetchProjectionItems(CartographyProjection)
       )
       .withTargetInclude(
         (cartographies: (CartographyProjection & Status)[]) =>

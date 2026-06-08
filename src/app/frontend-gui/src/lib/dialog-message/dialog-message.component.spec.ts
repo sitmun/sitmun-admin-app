@@ -53,4 +53,23 @@ describe('DialogMessageComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('uses default mini-fab actions when destructive is false', () => {
+    component.destructive = false;
+    fixture.detectChanges();
+    const buttons = fixture.nativeElement.querySelectorAll('mat-dialog-actions button');
+    expect(buttons.length).toBe(2);
+    expect(fixture.nativeElement.querySelector('mat-dialog-actions button[mat-mini-fab]')).toBeTruthy();
+  });
+
+  it('uses mini-fab actions with discard icon when destructive is true', () => {
+    component.destructive = true;
+    component.acceptLabel = 'entity.tree.discardNodeChanges.discard';
+    component.cancelLabel = 'entity.tree.discardNodeChanges.keepEditing';
+    fixture.detectChanges();
+    const buttons = fixture.nativeElement.querySelectorAll('mat-dialog-actions button[mat-mini-fab]');
+    expect(buttons.length).toBe(2);
+    expect(fixture.nativeElement.querySelector('mat-dialog-actions mat-icon').textContent.trim()).toBe('cancel');
+    expect(fixture.nativeElement.querySelectorAll('mat-dialog-actions mat-icon')[1].textContent.trim()).toBe('delete');
+  });
 });

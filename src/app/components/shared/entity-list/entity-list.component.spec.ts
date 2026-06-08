@@ -19,8 +19,10 @@ describe('EntityListComponent', () => {
   let component: EntityListComponent<TestResource>;
   let fixture: ComponentFixture<EntityListComponent<TestResource>>;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
+     
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [EntityListComponent],
       imports: [
         MaterialModule,
@@ -36,10 +38,15 @@ describe('EntityListComponent', () => {
       ]
     })
     .compileComponents();
+  });
 
+  beforeEach(() => {
     fixture = TestBed.createComponent(EntityListComponent<TestResource>);
     component = fixture.componentInstance;
   });
+
+  afterEach(() => fixture?.destroy());
+  afterAll(() => TestBed.resetTestingModule());
 
   it('should create', () => {
     expect(component).toBeTruthy();

@@ -6,13 +6,16 @@
   [isNew]="isNew()"
   [additionalText]="taskTypeNameTranslated"
   [canSave]="canSaveEntity"
-  [form]="entityForm"
-  entityLabelPrefix="entity.task.template"
-  [validationFieldLabelKeys]="validationFieldLabels"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>
+
+<app-entity-form-alerts
+  *ngIf="dataLoaded"
+  [form]="entityForm"
+  entityLabelPrefix="entity.task.template">
+</app-entity-form-alerts>
 
 <mat-tab-group
   mat-stretch-tabs="false"

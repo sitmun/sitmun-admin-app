@@ -1,7 +1,7 @@
 <mat-card appearance="outlined">
   <mat-card-content>
-    <div class="formDiv resizable-container">
-      <div class="tree-panel" [style.width.%]="treePanelWidth" *ngIf="dataLoaded && codeListsInitialized">
+    <div class="resizable-container">
+      <div class="tree-panel" [class.tree-panel-full]="!hasNodeSelection" [style.width.%]="effectiveTreePanelWidth" *ngIf="dataLoaded && codeListsInitialized">
         <app-data-tree [getAll]='getAllTreeNodes' (emitNode)="nodeReceived($event)" (structureMutated)="onStructureMutatedFromDataTree()"
           (addNode)="addNodeWithType($event.parent, $event.nodeType)"
           (loadButtonClicked)="loadGroupLayersButtonClicked($event)"
@@ -15,49 +15,40 @@
           [getNodeTypeLabel]="getNodeTypeLabelFn"
           [getViewModeLabel]="getViewModeLabelForTreeFn"
           (emitAllNodes)="receiveAllNodes($event)">
-          loading
         </app-data-tree>
       </div>
-      <div class="resizer" *ngIf="dataLoaded" (mousedown)="onResizeStart($event)" [class.resizing]="isResizing">
+      <div class="resizer" *ngIf="dataLoaded && hasNodeSelection" (mousedown)="onResizeStart($event)" [class.resizing]="isResizing">
       </div>
-      <div class="detail-panel">
-        <div class="detail-content detail-content-padded">
+      <div class="detail-panel" *ngIf="hasNodeSelection">
+        <div class="detail-content">
           <mat-card appearance="outlined" class="form-detail-card" *ngIf="hasNodeSelection">
-            <mat-card-header class="header-with-actions">
-              <div class="header-title-section">
-                <mat-card-title *ngIf="newElement">
-                  <!-- Create [Type]: title reflects actual type (e.g. Cartography), not folder -->
-                  <span *ngIf="!currentNodeHasParent">{{ 'entity.tree.createType' | translate }}: {{ getNodeTypeLabel(treeNodeForm.get('nodeType')?.value) }} ({{ 'entity.tree.root' | translate }})</span>
-                  <span *ngIf="currentNodeHasParent && currentParentNodeName">{{ 'entity.tree.createType' | translate }}: {{ getNodeTypeLabel(treeNodeForm.get('nodeType')?.value) }} {{ 'entity.tree.inParent' | translate }} "{{ currentParentNodeName }}"</span>
-                  <span *ngIf="currentNodeHasParent && !currentParentNodeName">{{ 'entity.tree.createType' | translate }}: {{ getNodeTypeLabel(treeNodeForm.get('nodeType')?.value) }} ({{ 'entity.tree.child' | translate }})</span>
-                </mat-card-title>
-                <mat-card-title *ngIf="!newElement && treeNodeForm.get('name')?.value">
-                  {{ 'common.edit' | translate }}: {{ treeNodeForm.get('name')?.value }}
-                </mat-card-title>
-                <mat-card-subtitle *ngIf="!newElement && !treeNodeForm.get('name')?.value">
-                  {{ 'entity.tree.selectNode' | translate }}
-                </mat-card-subtitle>
+            <mat-toolbar class="detail-header-toolbar">
+              <div class="detail-header-title">
+                <mat-icon class="detail-header-type-icon"
+                  [fontSet]="getNodeIconFontForType(treeNodeForm.get('nodeType')?.value) || 'material-icons-round'">
+                  {{ getNodeIconForType(treeNodeForm.get('nodeType')?.value) }}
+                </mat-icon>
+                <span class="detail-header-title-text">{{ getNodeTypeLabel(treeNodeForm.get('nodeType')?.value) }}: {{ detailHeaderName }}</span>
               </div>
-              <div class="header-actions-section">
-                <button mat-raised-button color="primary" type="button"
-                  *ngIf="!newElement" 
-                  [disabled]="!canUpdateNode()"
-                  (click)="onSaveFormButtonClicked()">
-                  {{ "common.button.update" | translate }}
-                </button>
-                <button mat-raised-button color="primary" type="button"
-                  *ngIf="newElement"
-                  [disabled]="!treeNodeForm.valid"
-                  (click)="onSaveFormButtonClicked()">
-                  {{ "common.button.save" | translate }}
-                </button>
-              </div>
-            </mat-card-header>
+              <span class="spacer"></span>
+              <button mat-mini-fab color="primary" type="button" class="add-half-gap"
+                [disabled]="!canSaveNodeDetail"
+                [matTooltip]="'entity.tree.applyToTreeHint' | translate"
+                (click)="onSaveFormButtonClicked()">
+                <mat-icon fontSet="material-icons-round">save</mat-icon>
+              </button>
+              <button mat-mini-fab color="primary" type="button" class="add-half-gap"
+                [matTooltip]="'common.button.close' | translate"
+                [attr.aria-label]="'common.button.close' | translate"
+                (click)="onCloseDetailClicked()">
+                <mat-icon fontSet="material-icons-round">close</mat-icon>
+              </button>
+            </mat-toolbar>
             <mat-card-content class="form-card-content">
-              <form [formGroup]='treeNodeForm' #f="ngForm" (ngSubmit)="onSaveFormButtonClicked()">
-                <mat-accordion #accordion multi="true">
+              <form [formGroup]='treeNodeForm' (ngSubmit)="onSaveFormButtonClicked()">
+                <mat-accordion multi="true">
                   <!-- Basic Information Panel -->
-                  <mat-expansion-panel 
+                  <mat-expansion-panel
                     [expanded]="isPanelExpanded('basic-info', currentNodeId)"
                     (opened)="onPanelStateChange('basic-info', currentNodeId, true)"
                     (closed)="onPanelStateChange('basic-info', currentNodeId, false)">
@@ -68,14 +59,8 @@
                       </mat-panel-title>
                     </mat-expansion-panel-header>
                     <div class="flex-row-gap-16">
-                      <mat-form-field appearance="outline" class="form-field-flex-35 content-type-readonly" *ngIf="hasNodeSelection">
-                        <mat-label>{{ 'entity.tree.nodeType' | translate }}</mat-label>
-                        <mat-icon matPrefix class="node-type-prefix-icon" [fontSet]="getNodeIconFontForType(treeNodeForm.get('nodeType')?.value) || 'material-icons-round'">{{ getNodeIconForType(treeNodeForm.get('nodeType')?.value) }}</mat-icon>
-                        <input matInput [value]="getNodeTypeLabel(treeNodeForm.get('nodeType')?.value)" readonly>
-                        <mat-hint>{{ 'entity.tree.typeFixedAtCreation' | translate }}</mat-hint>
-                      </mat-form-field>
                       <input type="hidden" formControlName="nodeType">
-                      <mat-form-field appearance="outline" class="form-field-flex-65"
+                      <mat-form-field appearance="outline" class="form-field-flex-1"
                         *ngIf="hasNodeSelection">
                         <mat-label>{{ 'entity.tree.name' | translate }} ({{ defaultLang }})</mat-label>
                         <input matInput type="text" formControlName="name" [maxlength]="80">
@@ -107,11 +92,33 @@
                     </mat-expansion-panel-header>
                     <div class="flex-column-gap-16">
                       <div class="flex-row-gap-16">
-                        <mat-form-field appearance="outline" class="full">
+                        <mat-form-field appearance="outline" class="full entity-autocomplete-field"
+                          [class.entity-field-link-mode]="showCartographyAsLink"
+                          (click)="onCartographyFieldContainerClick($event)">
                           <mat-label>{{ 'entity.tree.cartography' | translate }}</mat-label>
-                          <input matInput type="text" formControlName="cartography"
+                          <input #cartographyInput
+                            matInput
+                            type="text"
+                            formControlName="cartography"
                             [matAutocomplete]="cartographyAutocomplete"
-                            placeholder="{{ 'entity.tree.cartography.select' | translate }}">
+                            [readonly]="showCartographyAsLink"
+                            placeholder="{{ 'entity.tree.cartography.select' | translate }}"
+                            (mousedown)="onCartographyFieldInputPointerDown($event)"
+                            (blur)="onCartographyFieldBlur($event)">
+                          <span *ngIf="showCartographyAsLink" class="entity-field-link-overlay">
+                            <a [routerLink]="getCartographyFormLink()!"
+                              class="router-link"
+                              (click)="$event.stopPropagation()">
+                              {{ displayCartography(treeNodeForm.get('cartography')?.value) }}
+                            </a>
+                          </span>
+                          <button mat-icon-button matSuffix type="button"
+                            class="entity-field-clear-button"
+                            *ngIf="hasCartographySelected && !cartographiesLoading"
+                            (mousedown)="clearCartographySelection($event)"
+                            [attr.aria-label]="'entity.tree.cartographyClear' | translate">
+                            <mat-icon>close</mat-icon>
+                          </button>
                           <mat-spinner *ngIf="cartographiesLoading" matSuffix diameter="20"
                             style="margin-right: 8px;"></mat-spinner>
                           <mat-autocomplete #cartographyAutocomplete="matAutocomplete"
@@ -119,7 +126,14 @@
                             <mat-option *ngFor="let cartography of filteredCartographies" [value]="cartography">
                               <div class="cartography-option">
                                 <div class="cartography-name-row">
-                                  <strong class="cartography-name">{{ cartography.name }}</strong>
+                                  <a *ngIf="getCartographyFormLinkForId(cartography.id) as link"
+                                    [routerLink]="link"
+                                    (click)="$event.stopPropagation()"
+                                    class="router-link cartography-name">
+                                    {{ cartography.name }}
+                                  </a>
+                                  <strong *ngIf="!getCartographyFormLinkForId(cartography.id)"
+                                    class="cartography-name">{{ cartography.name }}</strong>
                                   <span *ngIf="cartography.serviceName" class="cartography-detail">
                                     - {{ cartography.serviceName }}
                                   </span>
@@ -256,8 +270,9 @@
                             [placeholder]="'entity.tree.imagePlaceHolder' | translate">
                         </mat-form-field>
                         <textarea matInput type="text" hidden formControlName="image"></textarea>
-                        <input #nodeFileInput type="file" accept="image/*" hidden
+                        <input #nodeFileInput type="file" [accept]="nodeImageAccept$ | async" hidden
                           (change)="onImageSelected('node', $event)">
+                        <p *ngIf="nodeImageResizeHintParams$ | async as params" class="image-upload-hint">{{ 'entity.tree.image.resizeHint' | translate: params }}</p>
                         <div class="appearance-actions">
                           <button mat-raised-button color="primary" type="button" (click)="nodeFileInput.click()">
                             {{ 'entity.tree.selectFile' | translate }}
@@ -273,9 +288,12 @@
                         <app-image-preview
                           [imageSource]="treeNodeForm.get('image')?.value || treeNodeForm.get('imageName')?.value"
                           [imageName]="treeNodeForm.get('imageName')?.value"
+                          [imageState]="nodeImagePreviewState"
                           [previewId]="'treeNodeImgPreview'"
                           [maxWidth]="80"
-                          [maxHeight]="80">
+                          [maxHeight]="80"
+                          [targetWidth]="(nodeImageResizeHintParams$ | async)?.width ?? null"
+                          [targetHeight]="(nodeImageResizeHintParams$ | async)?.height ?? null">
                         </app-image-preview>
                       </div>
                     </div>
@@ -295,13 +313,31 @@
                     </mat-expansion-panel-header>
                     <div class="task-config-content">
                       <div class="task-config-row">
-                        <mat-form-field appearance="outline" class="task-config-task-field">
+                        <mat-form-field appearance="outline" class="task-config-task-field entity-autocomplete-field"
+                          [class.entity-field-link-mode]="showTaskAsLink"
+                          (click)="onTaskFieldContainerClick($event)">
                           <mat-label>{{ 'entity.task.label' | translate }}</mat-label>
-                          <input matInput type="text" formControlName="task"
+                          <input #taskInput
+                            matInput
+                            type="text"
+                            formControlName="task"
                             [matAutocomplete]="taskAutocomplete"
-                            placeholder="{{ 'entity.tree.task.select' | translate }}">
-                          <button mat-icon-button matSuffix type="button" *ngIf="hasTaskSelected && !tasksLoading"
-                            (click)="clearTaskSelection()" [attr.aria-label]="'entity.tree.taskClear' | translate">
+                            [readonly]="showTaskAsLink"
+                            placeholder="{{ 'entity.tree.task.select' | translate }}"
+                            (mousedown)="onTaskFieldInputPointerDown($event)"
+                            (blur)="onTaskFieldBlur($event)">
+                          <span *ngIf="showTaskAsLink" class="entity-field-link-overlay">
+                            <a [routerLink]="getTaskFormLink()!"
+                              class="router-link"
+                              (click)="$event.stopPropagation()">
+                              {{ displayTask(treeNodeForm.get('task')?.value) }}
+                            </a>
+                          </span>
+                          <button mat-icon-button matSuffix type="button"
+                            class="entity-field-clear-button"
+                            *ngIf="hasTaskSelected && !tasksLoading"
+                            (mousedown)="clearTaskSelection($event)"
+                            [attr.aria-label]="'entity.tree.taskClear' | translate">
                             <mat-icon>close</mat-icon>
                           </button>
                           <mat-spinner *ngIf="tasksLoading" matSuffix diameter="20" class="task-config-spinner"></mat-spinner>
@@ -310,7 +346,14 @@
                             <mat-option *ngFor="let task of filteredTasks; trackBy: trackTaskOptionById" [value]="task">
                               <div class="task-option">
                                 <div class="task-name-row">
-                                  <strong class="task-name">{{ task.name }}</strong>
+                                  <a *ngIf="getTaskFormLinkForTask(task) as link"
+                                    [routerLink]="link"
+                                    (click)="$event.stopPropagation()"
+                                    class="router-link task-name">
+                                    {{ task.name }}
+                                  </a>
+                                  <strong *ngIf="!getTaskFormLinkForTask(task)"
+                                    class="task-name">{{ task.name }}</strong>
                                   <ng-container *ngIf="getTaskKindDisplayForListItem(task) as kindLabel">
                                     <span class="task-detail"> - {{ kindLabel }}</span>
                                   </ng-container>
@@ -326,9 +369,9 @@
                         </mat-form-field>
                       </div>
                       <div class="task-config-row" *ngIf="showFilterableInTaskPanel">
-                        <mat-checkbox formControlName="filterable">
+                        <mat-slide-toggle color="primary" formControlName="filterable">
                           {{ 'entity.tree.filterable' | translate }}
-                        </mat-checkbox>
+                        </mat-slide-toggle>
                       </div>
                       <div class="task-config-guidance">
                         <p class="task-config-guidance-intro">{{ 'entity.tree.taskConfigGuidanceIntro' | translate }}</p>
@@ -379,19 +422,23 @@
                     [expanded]="isPanelExpanded('display-options', currentNodeId)"
                     (opened)="onPanelStateChange('display-options', currentNodeId, true)"
                     (closed)="onPanelStateChange('display-options', currentNodeId, false)">
-<mat-expansion-panel-header>
-                    <mat-panel-title>
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>
                         <mat-icon class="panel-icon">visibility</mat-icon>
                         {{ 'entity.tree.displayOptions' | translate }}
                       </mat-panel-title>
                     </mat-expansion-panel-header>
                     <div class="flex-row-gap-16">
-                      <mat-checkbox formControlName="active">
+                      <mat-slide-toggle color="primary" formControlName="active">
                         {{ 'entity.tree.visible' | translate }}
-                      </mat-checkbox>
-                      <mat-checkbox formControlName="radio" *ngIf="currentNodeIsFolder">
+                      </mat-slide-toggle>
+                      <mat-slide-toggle color="primary" formControlName="radio" *ngIf="currentNodeIsFolder">
                         {{ 'entity.tree.radio' | translate }}
-                      </mat-checkbox>
+                      </mat-slide-toggle>
+                    </div>
+                    <div class="visible-hints">
+                      <span class="mat-hint">{{ 'entity.tree.hint.visible' | translate }}</span>
+                      <span class="mat-hint">{{ 'entity.tree.hint.visible.permissions' | translate }}</span>
                     </div>
                   </mat-expansion-panel>
                 </mat-accordion>
@@ -426,8 +473,7 @@
                   <mat-label>{{control.label || control.name}}</mat-label>
                   <input matInput type="text" formControlName="value"
                     [matAutocomplete]="inputMappingAuto" autocomplete="off" />
-                  <mat-autocomplete #inputMappingAuto="matAutocomplete"
-                    panelClass="input-mapping-suggestions-panel">
+                  <mat-autocomplete #inputMappingAuto="matAutocomplete" class="input-mapping-suggestions-panel">
                     <ng-container *ngIf="formatTaskParameterDefaultForInput(control.value) as defaultStr">
                       <mat-optgroup [label]="'entity.tree.taskParamDefault' | translate">
                         <mat-option [value]="defaultStr">
@@ -560,7 +606,6 @@
           <div *ngIf="fieldsConfigTreeGenerated">
             <app-map-tree class="fieldsConfigTree" [getAll]='getFieldConfigInput' (emitNode)="fieldTreeNode($event)"
               [eventCreateTreeSubscription]='createConfigTreeEvent.asObservable()'>
-              loading
             </app-map-tree>
             <button mat-raised-button color="primary" (click)="hideFieldsConfigTree()" class="dialog-action-button">
               {{'nodeMapping.editResponse' | translate}}

@@ -482,7 +482,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
     for (const controlName in formControls) {
       if (Object.prototype.hasOwnProperty.call(formControls, controlName)) {
         const control = formControls[controlName];
-        if (control.invalid && control.hasError('required')) {
+        if (control.enabled && control.invalid && control.hasError('required')) {
           invalidFields.push(controlName);
         }
       }
@@ -851,7 +851,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
       query.params.push(param);
     }
 
-    return this.codeListService.getAll(query);
+    return this.codeListService.fetchAllItems(query);
   }
 
   /**

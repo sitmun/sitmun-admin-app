@@ -43,7 +43,7 @@ describe('SystemInfoMenuComponent', () => {
     lastName: 'User'
   } as User;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     logLevelSubject = new BehaviorSubject<LogLevel>(LogLevel.Info);
     errorsSubject = new BehaviorSubject<any[]>([]);
     authStateSubject = new BehaviorSubject<any>(null);
@@ -83,7 +83,9 @@ describe('SystemInfoMenuComponent', () => {
       resetFeatures: jest.fn()
     } as any;
 
+     
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [SystemInfoMenuComponent],
       imports: [
         MatMenuModule,
@@ -107,10 +109,20 @@ describe('SystemInfoMenuComponent', () => {
         { provide: Router, useValue: { navigate: jest.fn() } }
       ]
     }).compileComponents();
+  });
 
+  beforeEach(() => {
+    logLevelSubject = new BehaviorSubject<LogLevel>(LogLevel.Info);
+    errorsSubject = new BehaviorSubject<any[]>([]);
+    authStateSubject = new BehaviorSubject<any>(null);
+    (loggerService as any).logLevel$ = logLevelSubject.asObservable();
+    (errorTrackingService as any).errors$ = errorsSubject.asObservable();
     fixture = TestBed.createComponent(SystemInfoMenuComponent);
     component = fixture.componentInstance;
   });
+
+  afterEach(() => fixture?.destroy());
+  afterAll(() => TestBed.resetTestingModule());
 
   it('should create', () => {
     expect(component).toBeTruthy();

@@ -5,14 +5,18 @@
   [isNew]="isNew()"
   [itemName]="entityForm?.get('name')?.value"
   [canSave]="canSaveEntity"
-  [form]="entityForm"
-  entityLabelPrefix="entity.task"
-  [validationFieldLabelKeys]="getValidationFieldLabelKeys()"
   [dataLoaded]="dataLoaded"
   entityType="{{ config.labelSingular }}"
   font="{{ config.font }}"
   icon="{{ config.icon }}">
 </app-form-toolbar>
+
+<app-entity-form-alerts
+  *ngIf="dataLoaded"
+  [form]="entityForm"
+  entityLabelPrefix="entity.task"
+  [fieldLabelKeys]="getValidationFieldLabelKeys()">
+</app-entity-form-alerts>
 
 <mat-tab-group
   [dynamicHeight]="true"

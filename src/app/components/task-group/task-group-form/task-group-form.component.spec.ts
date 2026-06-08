@@ -1,11 +1,8 @@
-import { HttpClientModule } from '@angular/common/http';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
 
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
@@ -21,9 +18,6 @@ import {configureLoggerForTests, provideErrorHandlerForTests} from '@app/testing
 
 import { TaskGroupFormComponent } from './task-group-form.component';
 
-
-
-
 describe('TaskGroupFormComponent', () => {
   let component: TaskGroupFormComponent;
   let fixture: ComponentFixture<TaskGroupFormComponent>;
@@ -33,11 +27,12 @@ describe('TaskGroupFormComponent', () => {
   let resourceService: ResourceService;
   let externalService: ExternalService;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
+     
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [ TaskGroupFormComponent, FormToolbarComponent ],
-      imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, RouterModule.forRoot([], {}), HttpClientModule,
-      SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule, BrowserAnimationsModule,
+      imports: [FormsModule, ReactiveFormsModule,RouterModule.forRoot([], {}), SitmunFrontendGuiModule, MaterialModule, RouterModule, MatIconTestingModule, BrowserAnimationsModule,
       TranslateModule.forRoot({
         loader: {
           provide: TranslateLoader,
@@ -71,6 +66,9 @@ describe('TaskGroupFormComponent', () => {
     fixture.detectChanges();
   });
 
+  afterEach(() => fixture?.destroy());
+  afterAll(() => TestBed.resetTestingModule());
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
@@ -98,7 +96,6 @@ describe('TaskGroupFormComponent', () => {
   it('form invalid when empty', () => {
     expect(component.entityForm.valid).toBeFalsy();
   });
-
 
   it('form valid', () => {
     component.entityForm.patchValue({

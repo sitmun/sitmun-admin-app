@@ -1,4 +1,5 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed, inject } from '@angular/core/testing';
 
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
@@ -10,12 +11,10 @@ import { configureLoggerForTests } from '../../testing/test-helpers';
 import { ExternalConfigurationService } from '../config/external-configuration.service';
 import { ExternalService , ResourceService } from '../hal';
 
-
 describe('AccountService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [
-        HttpClientTestingModule,
         TranslateModule.forRoot({
           loader: {
             provide: TranslateLoader,
@@ -26,6 +25,8 @@ describe('AccountService', () => {
         })
       ],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         AccountService,
         ResourceService,
         ExternalService,

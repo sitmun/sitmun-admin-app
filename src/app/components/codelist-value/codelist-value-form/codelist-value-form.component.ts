@@ -43,7 +43,7 @@ export class CodelistValueFormComponent extends BaseFormComponent<CodeList> {
   }
 
   override async preFetchData() {
-    this.initTranslations('CodeList', ['description']);
+    this.initTranslations('CodeListValue', ['description']);
   }
 
   override fetchOriginal(): Promise<CodeList> {
@@ -56,6 +56,14 @@ export class CodelistValueFormComponent extends BaseFormComponent<CodeList> {
       copy.system = false; // Duplicated records are never system records
       return copy;
     })));
+  }
+
+  override async fetchRelatedData(): Promise<void> {
+    if (!this.entityToEdit?.id) {
+      return;
+    }
+
+    await this.loadTranslations(this.entityToEdit);
   }
 
   override empty(): CodeList {

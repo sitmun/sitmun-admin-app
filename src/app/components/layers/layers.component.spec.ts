@@ -26,8 +26,10 @@ describe('LayersComponent', () => {
   let externalService: ExternalService;
   let httpMock: HttpTestingController;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
+     
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [ LayersComponent, EntityListComponent ],
       imports : [SitmunFrontendGuiModule, MatIconTestingModule,
          MaterialModule, RouterModule,
@@ -72,8 +74,11 @@ describe('LayersComponent', () => {
   });
 
   afterEach(() => {
+    fixture?.destroy();
     httpMock.verify();
   });
+
+  afterAll(() => TestBed.resetTestingModule());
 
   it('should create', () => {
     expect(component).toBeTruthy();
@@ -97,5 +102,78 @@ describe('LayersComponent', () => {
 
   it('should instantiate externalService', () => {
     expect(externalService).toBeTruthy();
+  });
+
+  it('uses row-only checkbox selection in infinite mode', async () => {
+    await component.postFetchData();
+
+    const checkboxColumn = component.entityListConfig.columnDefs[0] as any;
+
+    expect(checkboxColumn).not.toHaveProperty('headerCheckboxSelection');
+    expect(checkboxColumn.valueGetter()).toBe('');
+    expect(checkboxColumn.checkboxSelection({data: undefined})).toBe(false);
+    expect(checkboxColumn.checkboxSelection({data: {id: 1}})).toBe(true);
+    expect(checkboxColumn.cellClass({data: undefined})).toBe(
+      'sitmun-centered-cell sitmun-loading-checkbox-cell'
+    );
+    expect(checkboxColumn.cellClass({data: {id: 1}})).toBe('sitmun-centered-cell');
+  });
+
+  it('uses backend search and disables progressive local filtering', () => {
+    expect(component.entityListConfig.backendSearch).toBe(true);
+    expect(component.entityListConfig.progressiveLocalFilter).toBe(false);
+  });
+
+  it('routes non-blank infinite block search through cartography text search', (done) => {
+    const getPageSpy = jest.spyOn(cartographyService, 'fetchPage');
+    const searchSpy = jest.spyOn(cartographyService, 'searchTextPage').mockReturnValue(of({
+      rows: [{id: 1, name: 'Road layer'} as any],
+      pageNumber: 0,
+      pageSize: 10,
+      totalElements: 1,
+      totalPages: 1,
+    }));
+
+    component.entityListConfig.infiniteBlockFetcher({
+      page: 0,
+      size: 10,
+      sort: [{path: 'name', order: 'ASC'}, {path: 'id', order: 'ASC'}],
+      searchText: 'road',
+    }).subscribe((page) => {
+      expect(searchSpy).toHaveBeenCalledWith('road', {
+        page: 0,
+        size: 10,
+        sort: [{path: 'name', order: 'ASC'}, {path: 'id', order: 'ASC'}],
+      });
+      expect(getPageSpy).not.toHaveBeenCalled();
+      expect(page.totalElements).toBe(1);
+      done();
+    });
+  });
+
+  it('routes blank infinite block search through normal cartography paging', (done) => {
+    const searchSpy = jest.spyOn(cartographyService, 'searchTextPage');
+    const getPageSpy = jest.spyOn(cartographyService, 'fetchPage').mockReturnValue(of({
+      rows: [{id: 2, name: 'Any layer'} as any],
+      pageNumber: 0,
+      pageSize: 10,
+      totalElements: 2,
+      totalPages: 1,
+    }));
+
+    component.entityListConfig.infiniteBlockFetcher({
+      page: 0,
+      size: 10,
+      sort: [{path: 'name', order: 'ASC'}, {path: 'id', order: 'ASC'}],
+    }).subscribe((page) => {
+      expect(getPageSpy).toHaveBeenCalledWith({
+        page: 0,
+        size: 10,
+        sort: [{path: 'name', order: 'ASC'}, {path: 'id', order: 'ASC'}],
+      });
+      expect(searchSpy).not.toHaveBeenCalled();
+      expect(page.totalElements).toBe(2);
+      done();
+    });
   });
 });

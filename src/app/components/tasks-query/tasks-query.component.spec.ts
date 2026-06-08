@@ -27,8 +27,10 @@ describe('TasksQueryComponent', () => {
   let externalService: ExternalService;
   let httpMock: HttpTestingController;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
+     
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [ TasksQueryComponent, EntityListComponent ],
       imports : [SitmunFrontendGuiModule, MaterialModule, RouterModule, MatIconTestingModule,
         TranslateModule.forRoot({
@@ -72,8 +74,11 @@ describe('TasksQueryComponent', () => {
   });
 
   afterEach(() => {
+    fixture?.destroy();
     httpMock.verify();
   });
+
+  afterAll(() => TestBed.resetTestingModule());
 
   it('should create', () => {
     expect(component).toBeTruthy();
@@ -97,5 +102,20 @@ describe('TasksQueryComponent', () => {
 
   it('should instantiate externalService', () => {
     expect(externalService).toBeTruthy();
+  });
+
+  it('uses row-only checkbox selection in infinite mode', async () => {
+    await component.postFetchData();
+
+    const checkboxColumn = component.entityListConfig.columnDefs[0] as any;
+
+    expect(checkboxColumn).not.toHaveProperty('headerCheckboxSelection');
+    expect(checkboxColumn.valueGetter()).toBe('');
+    expect(checkboxColumn.checkboxSelection({data: undefined})).toBe(false);
+    expect(checkboxColumn.checkboxSelection({data: {id: 1}})).toBe(true);
+    expect(checkboxColumn.cellClass({data: undefined})).toBe(
+      'sitmun-centered-cell sitmun-loading-checkbox-cell'
+    );
+    expect(checkboxColumn.cellClass({data: {id: 1}})).toBe('sitmun-centered-cell');
   });
 });

@@ -5,13 +5,18 @@
   [itemName]="itemName('name')"
   [isNew]="isNewOrDuplicated()"
   [canSave]="canSaveEntity"
-  [form]="entityForm"
-  entityLabelPrefix="entity.tree"
-  [customWarningMessage]="treeValidationWarningMessage"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>
+
+<app-entity-form-alerts
+  *ngIf="dataLoaded"
+  [form]="entityForm"
+  entityLabelPrefix="entity.tree"
+  [customAlertMessage]="treeValidationWarningMessage">
+</app-entity-form-alerts>
+
 <mat-tab-group
   #tabGroup
   mat-stretch-tabs="false"
@@ -63,7 +68,8 @@
                        [placeholder]="'entity.tree.imagePlaceHolder' | translate">
               </mat-form-field>
               <textarea matInput type="text" hidden formControlName="image"> </textarea>
-              <input #treeFileInput type="file" accept="image/*" hidden (change)="onImageSelected('tree', $event)">
+              <input #treeFileInput type="file" [accept]="treeImageAccept$ | async" hidden (change)="onImageSelected('tree', $event)">
+              <p *ngIf="treeImageResizeHintParams$ | async as params" class="image-upload-hint">{{ 'entity.tree.image.resizeHint' | translate: params }}</p>
               <div class="appearance-actions">
                 <button mat-raised-button color="primary" type="button" (click)="treeFileInput.click()">
                   {{ 'entity.tree.selectFile' | translate }}
@@ -79,9 +85,12 @@
             <app-image-preview
               [imageSource]="entityForm.get('image')?.value"
               [imageName]="entityForm.get('imageName')?.value"
+              [imageState]="treeImagePreviewState"
               [previewId]="'treeImgPreview'"
               [maxWidth]="80"
-              [maxHeight]="80">
+              [maxHeight]="80"
+              [targetWidth]="(treeImageResizeHintParams$ | async)?.width ?? null"
+              [targetHeight]="(treeImageResizeHintParams$ | async)?.height ?? null">
             </app-image-preview>
           </div>
         </mat-card-content>
@@ -98,7 +107,7 @@
         [duplicateID]="duplicateID"
         [dataLoaded]="dataLoaded"
         [currentTreeType]="currentTreeType"
-        (saveRequested)="receiveAllNodes($event)">
+        (saveRequested)="onTreeSaveRequested()">
       </app-tree-nodes>
     </ng-template>
   </mat-tab>

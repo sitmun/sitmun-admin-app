@@ -2,7 +2,99 @@
   margin-top: 8px;
 }
 
+.warnings-banner {
+  margin: 0;
+  padding: 0;
+}
 
+.warnings-banner--bare {
+  color: var(--mat-card-subtitle-text-color, inherit);
+}
 
+.banner-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
 
+.banner-icon {
+  color: inherit;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
 
+.banner-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.banner-title {
+  font-weight: 500;
+}
+
+.banner-messages {
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.banner-messages li + li {
+  margin-top: 0.25rem;
+}
+
+.banner-content--compact .banner-text {
+  gap: 0;
+}
+
+.banner-messages--with-icons {
+  list-style: none;
+  padding-left: 0;
+}
+
+.banner-messages--with-icons li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.banner-messages--with-icons li + li {
+  margin-top: 0.5rem;
+}
+
+.banner-message-icon {
+  color: inherit;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+
+.banner-footer-hint {
+  margin: 0.5rem 0 0;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  opacity: 0.95;
+}
+
+.banner-required-fields {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}
+
+.banner-required-fields--compact:last-child {
+  margin-bottom: 0;
+}
+
+.banner-content--compact .banner-required-fields + .banner-messages {
+  margin-top: 0.25rem;
+}

@@ -3,12 +3,13 @@ import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from '@ngx-translate/core';
-import {firstValueFrom} from 'rxjs';
+import {firstValueFrom,of} from 'rxjs';
 
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
 import {Configuration} from '@app/core/config/configuration';
-import {HalOptions, HalParam} from '@app/core/hal'
+import {createPagedInfiniteFetcher} from '@app/core/hal'
+import {INFINITE_PAGE_SIZE_DEFAULT} from '@app/core/hal/infinite-page-size';
 import {CodeListService, Task, TaskService, TranslationService,} from '@app/domain';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from '@app/services/loading-overlay.service';
@@ -28,17 +29,17 @@ export class TasksQueryComponent extends BaseListComponent<Task> {
     iconName: Configuration.TASK_QUERY.icon,
     font: Configuration.TASK_QUERY.font,
     columnDefs: [],
-    dataFetchFn: () => {
-      const taskTypeID = config.tasksTypes.query;
-      const params2: HalParam[] = [];
-      const param: HalParam = {key: 'type.id', value: taskTypeID};
-      params2.push(param);
-      const query: HalOptions = {params: params2};
-      return this.taskService.getAll(query, undefined, 'tasks');
-    },
+    dataFetchFn: () => of([]),
+    rowModelMode: 'infinite',
+    pageSize: INFINITE_PAGE_SIZE_DEFAULT,
+    infiniteGridHeight: '80vh',
+    infiniteBlockFetcher: createPagedInfiniteFetcher(this.taskService, {
+      params: [{key: 'typeId', value: config.tasksTypes.query}]
+    }),
+    progressiveLocalFilter: false,
+    backendSearch: true,
     defaultColumnSorting: ['name'],
     gridOptions: {
-      globalSearch: true,
       discardChangesButton: false,
       redoButton: false,
       undoButton: false,
@@ -82,11 +83,22 @@ export class TasksQueryComponent extends BaseListComponent<Task> {
   }
 
   override async postFetchData(): Promise<void> {
-    // Set column definitions directly in the config
+    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', `taskQuery/:id/${config.tasksTypes.query}`, {id: 'id'}, 220);
+    nameCol.sortable = true;
+    nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
+    nameCol.flex = 3;
+    nameCol.tooltipField = 'name';
+
+    const scopeCol: any = this.utils.getNonEditableColumnWithCodeListDef('common.form.type', 'properties.scope', this.codeList('queryTask.scope'));
+    scopeCol.sortable = true;
+    scopeCol.cellRendererParams = {...scopeCol.cellRendererParams, sortField: 'properties.scope'};
+    scopeCol.minWidth = 160;
+    scopeCol.flex = 1;
+
     this.entityListConfig.columnDefs = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getRouterLinkColumnDef('common.form.name', 'name', `taskQuery/:id/${config.tasksTypes.query}`, {id: 'id'}),
-      this.utils.getNonEditableColumnWithCodeListDef('common.form.type', 'properties.scope', this.codeList('queryTask.scope')),
+      this.utils.getRowCheckboxColumnDef(),
+      nameCol,
+      scopeCol,
     ];
   }
 
@@ -97,8 +109,6 @@ export class TasksQueryComponent extends BaseListComponent<Task> {
   override async duplicateItem(id: number) {
     await this.router.navigate(['taskQuery', -1, config.tasksTypes.query, id]);
   }
-
-  override dataFetchFn = () => this.taskService.getAll();
 
   override dataUpdateFn = (data: Task) => firstValueFrom(this.taskService.update(data))
 

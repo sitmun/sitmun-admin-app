@@ -28,10 +28,13 @@ export class ImagePreviewComponent implements OnChanges, AfterViewInit {
   @Input() showDownload = true;
   @Input() maxWidth = 80;
   @Input() maxHeight = 80;
+  @Input() targetWidth: number | null = null;
+  @Input() targetHeight: number | null = null;
+  @Input() imageState: 'uploaded' | 'stored' | null = null;
 
   @ViewChild('previewImage', { static: false }) previewImageRef!: ElementRef<HTMLImageElement>;
-  originalImageWidth: number | null = null;
-  originalImageHeight: number | null = null;
+  imageWidth: number | null = null;
+  imageHeight: number | null = null;
   isVisible = false;
 
   constructor(private cdr: ChangeDetectorRef) {}
@@ -70,25 +73,25 @@ export class ImagePreviewComponent implements OnChanges, AfterViewInit {
 
       // Set up load handlers before setting src
       imgPreview.onload = () => {
-        // Store original dimensions only if valid
+        // Store loaded image dimensions only if valid.
         if (imgPreview.naturalWidth > 0 && imgPreview.naturalHeight > 0) {
-          this.originalImageWidth = imgPreview.naturalWidth;
-          this.originalImageHeight = imgPreview.naturalHeight;
-          // Use original image dimensions
+          this.imageWidth = imgPreview.naturalWidth;
+          this.imageHeight = imgPreview.naturalHeight;
+          // Use intrinsic dimensions, constrained by max-width/max-height styles.
           imgPreview.style.width = imgPreview.naturalWidth + 'px';
           imgPreview.style.height = imgPreview.naturalHeight + 'px';
           this.setVisibleDeferred(true);
         } else {
-          this.originalImageWidth = null;
-          this.originalImageHeight = null;
+          this.imageWidth = null;
+          this.imageHeight = null;
           this.setVisibleDeferred(false);
         }
       };
 
       imgPreview.onerror = () => {
         // Hide preview if image fails to load
-        this.originalImageWidth = null;
-        this.originalImageHeight = null;
+        this.imageWidth = null;
+        this.imageHeight = null;
         this.setVisibleDeferred(false);
       };
 
@@ -96,9 +99,8 @@ export class ImagePreviewComponent implements OnChanges, AfterViewInit {
 
       // Handle case where image might already be cached
       if (imgPreview.complete && imgPreview.naturalWidth > 0 && imgPreview.naturalHeight > 0) {
-        // Store original dimensions
-        this.originalImageWidth = imgPreview.naturalWidth;
-        this.originalImageHeight = imgPreview.naturalHeight;
+        this.imageWidth = imgPreview.naturalWidth;
+        this.imageHeight = imgPreview.naturalHeight;
         imgPreview.style.width = imgPreview.naturalWidth + 'px';
         imgPreview.style.height = imgPreview.naturalHeight + 'px';
         this.setVisibleDeferred(true);
@@ -107,10 +109,52 @@ export class ImagePreviewComponent implements OnChanges, AfterViewInit {
       // Reset dimensions when hiding
       imgPreview.style.width = '';
       imgPreview.style.height = '';
-      this.originalImageWidth = null;
-      this.originalImageHeight = null;
+      this.imageWidth = null;
+      this.imageHeight = null;
       this.setVisibleDeferred(false);
     }
+  }
+
+  get imageFormat(): string | null {
+    if (this.imageSource?.startsWith('data:')) {
+      const mime = this.imageSource.split(';', 1)[0].split(':', 2)[1];
+      return mime?.split('/')[1]?.toUpperCase() ?? null;
+    }
+    const name = this.imageName || this.imageSource;
+    const extension = name?.match(/\.([a-z0-9]+)(?:[?#].*)?$/i)?.[1];
+    return extension ? extension.toUpperCase() : null;
+  }
+
+  get isUploadedImage(): boolean {
+    if (this.imageState) {
+      return this.imageState === 'uploaded';
+    }
+    return this.imageSource?.startsWith('data:') ?? false;
+  }
+
+  get imageInfoKey(): string {
+    return this.isUploadedImage
+      ? 'entity.tree.uploadedImageInfo'
+      : 'entity.tree.storedImageInfo';
+  }
+
+  get imageDimensionsKey(): string {
+    return this.isUploadedImage
+      ? 'entity.tree.uploadedImageDimensions'
+      : 'entity.tree.storedImageDimensions';
+  }
+
+  get hasTargetSize(): boolean {
+    return this.targetWidth != null && this.targetHeight != null;
+  }
+
+  get uploadResizeHintKey(): string | null {
+    if (!this.isUploadedImage || !this.imageWidth || !this.imageHeight || !this.hasTargetSize) {
+      return null;
+    }
+    return this.imageWidth === this.targetWidth && this.imageHeight === this.targetHeight
+      ? 'entity.tree.uploadedImageMatchesTarget'
+      : 'entity.tree.uploadedImageWillBeResized';
   }
 
   downloadImage(): void {

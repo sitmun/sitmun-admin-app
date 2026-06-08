@@ -5,13 +5,18 @@
   [isNew]="isNewOrDuplicated()"
   [itemName]="itemName('name')"
   [canSave]="canSaveEntity"
-  [form]="entityForm"
-  entityLabelPrefix="entity.territory"
-  [validationFieldLabelKeys]="{ name: 'entity.territory.name', code: 'entity.territory.code', typeId: 'entity.territory.territoryType', blocked: 'entity.territory.blocked' }"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>
+
+<app-entity-form-alerts
+  *ngIf="dataLoaded"
+  [form]="entityForm"
+  entityLabelPrefix="entity.territory"
+  [fieldLabelKeys]="{ name: 'entity.territory.name', code: 'entity.territory.code', typeId: 'entity.territory.territoryType', blocked: 'entity.territory.blocked' }">
+</app-entity-form-alerts>
+
 <mat-tab-group
   mat-stretch-tabs="false"
   mat-align-tabs="end"
@@ -20,98 +25,145 @@
   <mat-tab label="{{ 'common.form.details' | translate }}">
     <form *ngIf="dataLoaded" [formGroup]='entityForm'>
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
-        <mat-card-content>
-          <mat-form-field appearance="outline" class="full">
+        <mat-card-content class="sitmun-territory-form-stack">
+          <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
             <mat-label>{{ 'entity.territory.name' | translate }} ({{ defaultLang }})</mat-label>
-            <input matInput type="text" formControlName="name">
+            <input matInput type="text" formControlName="name" [maxlength]="250" required>
+            <mat-hint align="start">{{ 'entity.territory.hint.name' | translate }}</mat-hint>
+            <mat-hint align="end" [class.text-warning]="entityForm.get('name')?.value?.length > 250">
+              {{ entityForm.get('name') | characterCount }}
+              <mat-icon *ngIf="entityForm.get('name')?.value?.length > 250" fontIcon="warning" class="warning-icon"></mat-icon>
+            </mat-hint>
+            <mat-error *ngIf="entityForm.get('name')?.hasError('required')">{{ 'common.error.required' | translate }}</mat-error>
+            <mat-error *ngIf="entityForm.get('name')?.hasError('maxlength')">{{ 'entity.territory.error.maxlength' | translate:{ requiredLength: 250 } }}</mat-error>
             <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('name')"
                       onKeyDown="onTranslated('name')">translate</mat-icon>
           </mat-form-field>
-          <mat-form-field appearance="outline" class="full">
+          <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
             <mat-label>{{ 'entity.territory.description' | translate }} ({{ defaultLang }})</mat-label>
             <textarea
               matInput
               formControlName="description"
+              [maxlength]="4000"
               rows="2"
             ></textarea>
+            <mat-hint align="start">{{ 'entity.territory.hint.description' | translate }}</mat-hint>
+            <mat-hint align="end">{{ entityForm.get('description') | characterCount }}</mat-hint>
+            <mat-error *ngIf="entityForm.get('description')?.hasError('maxlength')">{{ 'entity.territory.error.maxlength' | translate:{ requiredLength: 4000 } }}</mat-error>
             <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('description')"
                       onKeyDown="onTranslated('description')">translate</mat-icon>
           </mat-form-field>
-          <mat-form-field appearance="outline" class="full">
+          <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
             <mat-label>{{ 'entity.territory.address' | translate }}</mat-label>
             <textarea
               matInput
               formControlName="territorialAuthorityAddress"
+              [maxlength]="250"
               rows="2"
             ></textarea>
+            <mat-hint align="start">{{ 'entity.territory.hint.territorialAuthorityAddress' | translate }}</mat-hint>
+            <mat-hint align="end">{{ entityForm.get('territorialAuthorityAddress') | characterCount }}</mat-hint>
+            <mat-error *ngIf="entityForm.get('territorialAuthorityAddress')?.hasError('maxlength')">{{ 'entity.territory.error.maxlength' | translate:{ requiredLength: 250 } }}</mat-error>
           </mat-form-field>
-          <mat-form-field appearance="outline" class="quarter add-gap">
-            <mat-label>
-              {{ 'entity.territory.territoryType' | translate }}
-            </mat-label>
-            <mat-select class="form-control" formControlName="typeId"
-                        (selectionChange)="onTerritoryTypeChanged($event)">
-              <mat-option [value]="territoryType.id" *ngFor="let territoryType of territoryTypes">
-                {{ territoryType.name }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="quarter add-gap">
-            <mat-label>{{ 'entity.territory.code' | translate }}</mat-label>
-            <input matInput type="text" formControlName="code" maxlength="10" required>
-          </mat-form-field>
-          <mat-checkbox formControlName="blocked">
-            {{ 'entity.territory.blocked' | translate }}
-          </mat-checkbox>
-          <div class="break"></div>
-          <mat-form-field appearance="outline" class="full">
+          <div class="sitmun-coordinates-row">
+            <mat-form-field appearance="outline" class="quarter add-gap">
+              <mat-label>{{ 'entity.territory.code' | translate }}</mat-label>
+              <input matInput type="text" formControlName="code" [maxlength]="50" required>
+              <mat-error *ngIf="entityForm.get('code')?.hasError('required')">{{ 'common.error.required' | translate }}</mat-error>
+              <mat-error *ngIf="entityForm.get('code')?.hasError('maxlength')">{{ 'entity.territory.error.maxlength' | translate:{ requiredLength: 50 } }}</mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="quarter">
+              <mat-label>
+                {{ 'entity.territory.territoryType' | translate }}
+              </mat-label>
+              <mat-select class="form-control" formControlName="typeId"
+                          (selectionChange)="onTerritoryTypeChanged($event)">
+                <mat-option [value]="territoryType.id" *ngFor="let territoryType of territoryTypes">
+                  {{ territoryType.name }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="entityForm.get('typeId')?.hasError('topTypeWithParents')">
+                {{ 'entity.territory.error.topTypeWithParents' | translate }}
+              </mat-error>
+              <mat-error *ngIf="entityForm.get('typeId')?.hasError('bottomTypeWithChildren')">
+                {{ 'entity.territory.error.bottomTypeWithChildren' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div class="sitmun-toggle-row">
+            <mat-slide-toggle color="primary" formControlName="blocked">
+              {{ 'entity.territory.blocked' | translate }}
+            </mat-slide-toggle>
+            <p class="sitmun-toggle-hint">{{ 'entity.territory.hint.blocked' | translate }}</p>
+          </div>
+          <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
             <mat-label>{{ 'entity.territory.logo' | translate }}</mat-label>
-            <input matInput type="text" formControlName="territorialAuthorityLogo">
+            <input matInput type="text" appUrlInput formControlName="territorialAuthorityLogo" [maxlength]="4000">
+            <mat-hint align="start">{{ 'entity.territory.hint.territorialAuthorityLogo' | translate }}</mat-hint>
+            <mat-hint align="end">{{ entityForm.get('territorialAuthorityLogo') | characterCount }}</mat-hint>
+            <mat-error *ngIf="entityForm.get('territorialAuthorityLogo')?.hasError('invalidUrl')">{{ 'entity.territory.error.invalidUrl' | translate }}</mat-error>
+            <mat-error *ngIf="entityForm.get('territorialAuthorityLogo')?.hasError('maxlength')">{{ 'entity.territory.error.maxlength' | translate:{ requiredLength: 4000 } }}</mat-error>
           </mat-form-field>
-          <mat-form-field appearance="outline" class="quarter">
-            <mat-label>{{ 'entity.territory.defaultZoomLevel' | translate }}</mat-label>
-            <input matInput type="number" formControlName="defaultZoomLevel">
-          </mat-form-field>
-          <div class="break"></div>
-          <mat-form-field appearance="outline" class="quarter add-gap">
-            <mat-label>{{ 'entity.territory.centerPointX' | translate }}</mat-label>
-            <input matInput type="number" formControlName="centerPointX">
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="quarter">
-            <mat-label>{{ 'entity.territory.centerPointY' | translate }}</mat-label>
-            <input matInput type="number" formControlName="centerPointY">
-          </mat-form-field>
-          <div class="break"></div>
-          <mat-form-field appearance="outline" class="quarter add-gap">
-            <mat-label>{{ 'entity.territory.extentMinX' | translate }}</mat-label>
-            <input matInput type="number" formControlName="extentMinX" required>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="quarter add-gap">
-            <mat-label>{{ 'entity.territory.extentMaxX' | translate }}</mat-label>
-            <input matInput type="number" formControlName="extentMaxX" required>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="quarter add-gap">
-            <mat-label>{{ 'entity.territory.extentMinY' | translate }}</mat-label>
-            <input matInput type="number" formControlName="extentMinY" required>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="quarter">
-            <mat-label>{{ 'entity.territory.extentMaxY' | translate }}</mat-label>
-            <input matInput type="number" formControlName="extentMaxY" required>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="quarter">
-            <mat-label>{{ 'entity.application.srs' | translate }}</mat-label>
-            <input matInput type="text" title="{{ 'entity.territory.projectionMessage' | translate }}" formControlName="srs">
-          </mat-form-field>
+          <p class="sitmun-coordinates-group-hint">{{ 'entity.territory.hint.extent' | translate }}</p>
+          <div class="sitmun-coordinates-row">
+            <mat-form-field appearance="outline" class="quarter add-gap">
+              <mat-label>{{ 'entity.territory.extentMinX' | translate }}</mat-label>
+              <input matInput type="number" formControlName="extentMinX">
+              <mat-error *ngIf="!canSave() && entityForm.get('extentMinX')?.value">{{ 'entity.territory.error.extentInvalid' | translate }}</mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="quarter add-gap">
+              <mat-label>{{ 'entity.territory.extentMaxX' | translate }}</mat-label>
+              <input matInput type="number" formControlName="extentMaxX">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="quarter">
+              <mat-label>{{ 'entity.application.srs' | translate }}</mat-label>
+              <input matInput type="text" formControlName="srs" [maxlength]="50" title="{{ 'entity.territory.projectionMessage' | translate }}">
+              <mat-error *ngIf="entityForm.get('srs')?.hasError('invalidSrs')">{{ 'entity.territory.error.invalidSrs' | translate }}</mat-error>
+              <mat-error *ngIf="entityForm.get('srs')?.hasError('maxlength')">{{ 'entity.territory.error.maxlength' | translate:{ requiredLength: 50 } }}</mat-error>
+            </mat-form-field>
+          </div>
+          <div class="sitmun-coordinates-row">
+            <mat-form-field appearance="outline" class="quarter add-gap">
+              <mat-label>{{ 'entity.territory.extentMinY' | translate }}</mat-label>
+              <input matInput type="number" formControlName="extentMinY">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="quarter add-gap">
+              <mat-label>{{ 'entity.territory.extentMaxY' | translate }}</mat-label>
+              <input matInput type="number" formControlName="extentMaxY">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="quarter">
+              <mat-label>{{ 'entity.territory.defaultZoomLevel' | translate }}</mat-label>
+              <input matInput type="number" formControlName="defaultZoomLevel">
+              <mat-error *ngIf="entityForm.get('defaultZoomLevel')?.hasError('pattern')">{{ 'entity.territory.error.invalidInteger' | translate }}</mat-error>
+            </mat-form-field>
+          </div>
+          <p class="sitmun-coordinates-group-hint">{{ 'entity.territory.hint.center' | translate }}</p>
+          <div class="sitmun-coordinates-row">
+            <mat-form-field appearance="outline" class="quarter add-gap">
+              <mat-label>{{ 'entity.territory.centerPointX' | translate }}</mat-label>
+              <input matInput type="number" formControlName="centerPointX">
+              <mat-error *ngIf="!canSave() && entityForm.get('centerPointX')?.value && !entityForm.get('centerPointY')?.value">{{ 'entity.territory.error.centerIncomplete' | translate }}</mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="quarter">
+              <mat-label>{{ 'entity.territory.centerPointY' | translate }}</mat-label>
+              <input matInput type="number" formControlName="centerPointY">
+              <mat-error *ngIf="!canSave() && entityForm.get('centerPointY')?.value && !entityForm.get('centerPointX')?.value">{{ 'entity.territory.error.centerIncomplete' | translate }}</mat-error>
+            </mat-form-field>
+          </div>
 
-          <mat-form-field appearance="outline" class="full">
+          <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
             <mat-label>{{ 'entity.territory.note' | translate }}</mat-label>
             <textarea
               matInput
               formControlName="note"
+              [maxlength]="250"
               rows="2"
             ></textarea>
+            <mat-hint align="start">{{ 'entity.territory.hint.note' | translate }}</mat-hint>
+            <mat-hint align="end">{{ entityForm.get('note') | characterCount }}</mat-hint>
+            <mat-error *ngIf="entityForm.get('note')?.hasError('maxlength')">{{ 'entity.territory.error.maxlength' | translate:{ requiredLength: 250 } }}</mat-error>
           </mat-form-field>
         </mat-card-content>
       </mat-card>

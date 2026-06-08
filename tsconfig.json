@@ -17,6 +17,7 @@
       "es2022",
       "dom"
     ],
+    "types": ["jest", "node"],
     "paths": {
       "@app/*": ["src/app/*"],
       "@app/domain": ["src/app/domain"],
@@ -57,7 +58,6 @@
   ],
   "exclude": [
     "node_modules",
-    "**/*.spec.ts",
     "src/environments/environment.prod.ts",
     "src/environments/environment.testdeployment.ts",
     "src/app/core/hal/config/index.ts",

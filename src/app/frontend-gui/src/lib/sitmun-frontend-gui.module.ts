@@ -28,7 +28,6 @@ import {DataTreeComponent} from './data-tree/data-tree.component';
 import {DialogFormComponent} from './dialog-form/dialog-form.component';
 import {DialogMessageComponent} from './dialog-message/dialog-message.component';
 import {DialogTranslationComponent} from './dialog-translation/dialog-translation.component';
-import {FormValidationBannerComponent} from './form-validation-banner/form-validation-banner.component';
 import {MapTreeComponent} from './map-tree/map-tree.component';
 import {MaterialModule} from './material-module';
 
@@ -49,7 +48,6 @@ registerLocaleData(localeEs, 'es');
         DatagraphComponent,
         MapTreeComponent,
         CharacterCountPipe,
-        FormValidationBannerComponent,
     ],
     exports: [
         CommonModule,
@@ -67,7 +65,6 @@ registerLocaleData(localeEs, 'es');
         // SitmunFrontendCoreModule
         MapTreeComponent,
         CharacterCountPipe,
-        FormValidationBannerComponent,
         // DataGridComponent and DialogGridComponent are standalone and should be imported directly where needed
     ], imports: [RouterModule,
         CommonModule,

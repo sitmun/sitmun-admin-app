@@ -1,11 +1,8 @@
-import { HttpClientModule } from '@angular/common/http';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
 
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {of} from 'rxjs';
@@ -30,8 +27,6 @@ import {configureLoggerForTests, provideErrorHandlerForTests} from '@app/testing
 
 import { BackgroundLayersFormComponent } from './background-layers-form.component';
 
-
-
 describe('BackgroundLayersFormComponent', () => {
   let component: BackgroundLayersFormComponent;
   let fixture: ComponentFixture<BackgroundLayersFormComponent>;
@@ -46,11 +41,12 @@ describe('BackgroundLayersFormComponent', () => {
   let resourceService: ResourceService;
   let externalService: ExternalService;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
+     
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [ BackgroundLayersFormComponent, FormToolbarComponent ],
-      imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, RouterModule.forRoot([], {}), HttpClientModule,
-      SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule, TranslateModule.forRoot({
+      imports: [FormsModule, ReactiveFormsModule,RouterModule.forRoot([], {}), SitmunFrontendGuiModule, MaterialModule, RouterModule, MatIconTestingModule, TranslateModule.forRoot({
         loader: {
           provide: TranslateLoader,
           useFactory: () => ({
@@ -88,6 +84,8 @@ describe('BackgroundLayersFormComponent', () => {
     fixture.detectChanges();
   });
 
+  afterEach(() => fixture?.destroy());
+  afterAll(() => TestBed.resetTestingModule());
 
   it('should create', () => {
     expect(component).toBeTruthy();
@@ -162,6 +160,5 @@ describe('BackgroundLayersFormComponent', () => {
     expect(component.entityForm.get('image')).toBeTruthy();
     expect(component.entityForm.get('active')).toBeTruthy();
   });
-
 
 });

@@ -1,6 +1,6 @@
 import {NgOptimizedImage} from "@angular/common";
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import {APP_INITIALIZER, ErrorHandler, LOCALE_ID, NgModule} from '@angular/core';
+import {ErrorHandler, inject, LOCALE_ID, NgModule, provideAppInitializer} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MAT_TABS_CONFIG} from '@angular/material/tabs';
 import {BrowserModule} from '@angular/platform-browser';
@@ -42,6 +42,8 @@ import {ServiceFormComponent} from '@app/components/service/service-form/service
 import {UrlInputDirective} from '@app/components/service/service-form/url-input.directive';
 import {ServiceComponent} from '@app/components/service/service.component';
 import {AuthenticatedLayoutComponent} from '@app/components/shared/authenticated-layout/authenticated-layout.component';
+import {CardLeadComponent} from '@app/components/shared/card-lead/card-lead.component';
+import {EntityFormAlertsComponent} from '@app/components/shared/entity-form-alerts/entity-form-alerts.component';
 import {EntityListComponent} from '@app/components/shared/entity-list';
 import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
 import {NotificationComponent} from '@app/components/shared/notification/notification.component';
@@ -56,6 +58,8 @@ import {TaskBasicFormComponent} from '@app/components/tasks-basic/task-form/task
 import {TasksBasicComponent} from '@app/components/tasks-basic/tasks-basic.component';
 import {TaskEditFormComponent} from '@app/components/tasks-edit/task-form/task-edit-form.component';
 import {TasksEditComponent} from '@app/components/tasks-edit/tasks-edit.component';
+import {TaskLocatorFormComponent} from '@app/components/tasks-locator/task-form/task-locator-form.component';
+import {TasksLocatorComponent} from '@app/components/tasks-locator/tasks-locator.component';
 import {TaskMoreInfoFormComponent} from "@app/components/tasks-more-info/task-form/task-more-info-form.component";
 import {TaskMoreInfoAdvancedFormComponent} from '@app/components/tasks-more-info-advanced/task-form/task-more-info-advanced-form.component';
 import {TasksMoreInfoComponent} from "@app/components/tasks-more-info/tasks-more-info.component";
@@ -68,6 +72,8 @@ import {TaskQueryFormComponent} from "@app/components/tasks-query/task-form/task
 import {TasksQueryComponent} from "@app/components/tasks-query/tasks-query.component";
 import {TerritoryFormComponent} from '@app/components/territory/territory-form/territory-form.component';
 import {TerritoryComponent} from '@app/components/territory/territory.component';
+import {TerritoryTypeFormComponent} from '@app/components/territory-type/territory-type-form/territory-type-form.component';
+import {TerritoryTypeComponent} from '@app/components/territory-type/territory-type.component';
 import {TreeNodesComponent} from '@app/components/trees/trees-form/tree-nodes/tree-nodes.component';
 import {TreesFormComponent} from '@app/components/trees/trees-form/trees-form.component';
 import {TreesComponent} from '@app/components/trees/trees.component';
@@ -153,7 +159,7 @@ export function initializeLanguages(
     Resource.setLoggerService(loggerService);
 
     try {
-      const languages = await firstValueFrom(languageService.getAll());
+      const languages = await firstValueFrom(languageService.fetchAllItems());
       // Sort languages
       languages.sort((a, b) => a.shortname.localeCompare(b.shortname));
 
@@ -201,7 +207,7 @@ export function initializeConfiguration(
   return async () => {
     messagesInterceptorState.disable();
     try {
-      const configParams = await firstValueFrom(configurationService.getAll());
+      const configParams = await firstValueFrom(configurationService.fetchAllItems());
       const defaultLang = configParams.find(element => element.name === 'language.default');
 
       if (defaultLang) {
@@ -283,14 +289,16 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
         AuthenticatedLayoutComponent,
         TasksBasicComponent,
         TaskBasicFormComponent,
-	TaskMoreInfoFormComponent,
-  TaskMoreInfoAdvancedFormComponent,
-	TasksMoreInfoComponent,
+        TaskMoreInfoFormComponent,
+        TaskMoreInfoAdvancedFormComponent,
+        TasksMoreInfoComponent,
         TasksTemplateComponent,
         TaskTemplateFormComponent,
         QueryExecutionCardComponent,
         TemplateEditorComponent,
-  TasksMoreInfoAdvancedComponent,
+        TasksMoreInfoAdvancedComponent,
+        TaskLocatorFormComponent,
+        TasksLocatorComponent,
         TasksQueryComponent,
         TaskQueryFormComponent,
         ConnectionFormComponent,
@@ -322,6 +330,8 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
         NotificationComponent,
         LanguageComponent,
         LanguageFormComponent,
+        TerritoryTypeComponent,
+        TerritoryTypeFormComponent,
         CodelistValueComponent,
         CodelistValueFormComponent,
         ConfigurationParameterComponent,
@@ -347,6 +357,8 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
         BrowserAnimationsModule,
         CoreModule,
         NgOptimizedImage,
+        CardLeadComponent,
+        EntityFormAlertsComponent,
         WarningsPanelComponent,
         ImagePreviewComponent], providers: [
         { provide: LOCALE_ID, useValue: 'es-ES' },
@@ -355,30 +367,27 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
         { provide: MAT_TABS_CONFIG, useValue: { animationDuration: '0ms' } },
         // APP_INITIALIZER providers
         // AppConfigService must be initialized FIRST (before languages) so fallback is available
-        {
-            provide: APP_INITIALIZER,
-            useFactory: initializeAppConfig,
-            deps: [AppConfigService],
-            multi: true
-        },
-        {
-            provide: APP_INITIALIZER,
-            useFactory: initializeIcons,
-            deps: [IconsService],
-            multi: true
-        },
-        {
-            provide: APP_INITIALIZER,
-            useFactory: initializeLanguages,
-            deps: [LanguageService, TranslateService, LoggerService, AppStateService, MessagesInterceptorStateService, AppConfigService],
-            multi: true
-        },
-        {
-            provide: APP_INITIALIZER,
-            useFactory: initializeConfiguration,
-            deps: [ConfigurationParametersService, TranslateService, LoggerService, AppStateService, MessagesInterceptorStateService],
-            multi: true
-        },
+        provideAppInitializer(() => initializeAppConfig(inject(AppConfigService))()),
+        provideAppInitializer(() => initializeIcons(inject(IconsService))()),
+        provideAppInitializer(() =>
+            initializeLanguages(
+                inject(LanguageService),
+                inject(TranslateService),
+                inject(LoggerService),
+                inject(AppStateService),
+                inject(MessagesInterceptorStateService),
+                inject(AppConfigService)
+            )()
+        ),
+        provideAppInitializer(() =>
+            initializeConfiguration(
+                inject(ConfigurationParametersService),
+                inject(TranslateService),
+                inject(LoggerService),
+                inject(AppStateService),
+                inject(MessagesInterceptorStateService)
+            )()
+        ),
         AppConfigService,
         ResourceService,
         ExternalService,
