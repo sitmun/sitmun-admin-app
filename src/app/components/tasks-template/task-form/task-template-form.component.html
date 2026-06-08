@@ -290,12 +290,6 @@
           <mat-label>{{ 'common.form.name' | translate }}</mat-label>
           <input matInput type="text" formControlName="name" required>
         </mat-form-field>
-        <mat-radio-group formControlName="type" required>
-          <mat-label class="requiredInput">{{ 'common.form.type' | translate }}</mat-label>
-          <mat-radio-button *ngFor="let paramType of codeList('taskEntity.jsonParamType')" [value]="paramType.id">
-            {{ paramType.description }}
-          </mat-radio-button>
-        </mat-radio-group>
         <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'common.form.value' | translate }}</mat-label>
           <input matInput type="text" formControlName="value">

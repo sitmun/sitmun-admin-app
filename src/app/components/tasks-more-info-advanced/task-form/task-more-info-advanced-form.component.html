@@ -94,15 +94,88 @@
               <tr>
                 <th class="col-order">{{ 'tasksMoreInfoAdvancedEntity.order' | translate }}</th>
                 <th class="col-name">{{ 'common.form.name' | translate }}</th>
+                <th class="col-mapping">{{ 'tasksMoreInfoAdvancedEntity.parameterMapping' | translate }}</th>
                 <th class="col-type">{{ 'common.form.type' | translate }}</th>
                 <th class="col-actions"></th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let task of includedTasks; let i = index">
-                <td class="col-order">{{ i + 1 }}</td>
-                <td class="col-name">{{ task.name }} (ID: {{ task.id }})</td>
-                <td class="col-type">{{ getTaskTypeName(task) }}</td>
+              <tr *ngFor="let taskView of includedTaskMappingViews; let i = index; trackBy: trackIncludedTaskMappingView">
+                <td class="col-order">
+                  <span class="included-task-order-badge">{{ i + 1 }}</span>
+                </td>
+                <td class="col-name">
+                  <div class="included-task-meta">
+                    <div class="included-task-name">{{ taskView.task.name }}</div>
+                    <div class="included-task-id">ID: {{ taskView.task.id }}</div>
+                  </div>
+                </td>
+                <td class="col-mapping">
+                  <div class="included-task-mapping-card" [class.included-task-mapping-card-template]="taskView.isTemplate">
+                    <div class="mapping-section-header">
+                      <div>
+                        <div class="mapping-section-title">{{ 'tasksMoreInfoAdvancedEntity.parameterMapping' | translate }}</div>
+                        <div class="mapping-section-subtitle" *ngIf="taskView.isTemplate">
+                          {{ 'tasksMoreInfoAdvancedEntity.templateChildMappings' | translate }}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="mapping-block" [class.mapping-block-root-template]="taskView.isTemplate">
+                      <div class="mapping-block-header">
+                        <div>
+                          <div class="mapping-block-title">
+                            {{ taskView.isTemplate ? ('tasksMoreInfoAdvancedEntity.childParam' | translate) : ('tasksMoreInfoAdvancedEntity.parameterMapping' | translate) }}
+                          </div>
+                          <div class="mapping-block-subtitle" *ngIf="taskView.isTemplate">
+                            {{ taskView.task.name }} (ID: {{ taskView.task.id }})
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="mapping-rows">
+                        <div class="mapping-row mapping-row-card" *ngFor="let row of taskView.mappingRows; let mi = index; trackBy: trackMappingRow">
+                          <mat-form-field appearance="outline" class="mapping-select">
+                            <mat-label>{{ 'tasksMoreInfoAdvancedEntity.miaParam' | translate }}</mat-label>
+                            <mat-select [(value)]="row.mapping.miaParam" (selectionChange)="onMappingChanged()">
+                              <mat-option *ngFor="let p of row.availableMiaParams" [value]="p.label">
+                                {{ p.label }}
+                              </mat-option>
+                            </mat-select>
+                          </mat-form-field>
+                          <mat-form-field appearance="outline" class="mapping-select">
+                            <mat-label>{{ 'tasksMoreInfoAdvancedEntity.childParam' | translate }}</mat-label>
+                            <mat-select [(value)]="row.mapping.childParam" (selectionChange)="onMappingChanged()">
+                              <mat-option *ngFor="let p of taskView.childParameters" [value]="p.label">
+                                {{ p.label }}
+                              </mat-option>
+                            </mat-select>
+                          </mat-form-field>
+                          <button mat-icon-button type="button" (click)="removeMapping(taskView.task.id, mi)" color="warn">
+                            <mat-icon>remove_circle</mat-icon>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div class="mapping-actions-row">
+                        <button mat-stroked-button type="button" (click)="addMapping(taskView.task.id)" [disabled]="!taskView.canAddMapping">
+                          <mat-icon>add_circle</mat-icon>
+                          {{ 'common.button.add' | translate }}
+                        </button>
+                      </div>
+                    </div>
+
+                    <mat-accordion class="template-mapping-accordion" *ngIf="taskView.isTemplate">
+                      <ng-container *ngIf="taskView.templateChildViews.length > 0; else noTemplateChildren">
+                        <ng-container *ngTemplateOutlet="templateMappingNode; context: { $implicit: taskView.templateChildViews }"></ng-container>
+                      </ng-container>
+                    </mat-accordion>
+                    <ng-template #noTemplateChildren>
+                      <p class="template-child-empty">{{ 'tasksMoreInfoAdvancedEntity.noTemplateChildren' | translate }}</p>
+                    </ng-template>
+                  </div>
+                </td>
+                <td class="col-type">{{ getTaskTypeName(taskView.task) }}</td>
                 <td class="col-actions">
                   <button mat-icon-button type="button" (click)="moveTaskUp(i)" [disabled]="i === 0" aria-label="Move up">
                     <mat-icon>arrow_upward</mat-icon>
@@ -139,7 +212,139 @@
 
         </mat-card-content>
       </mat-card>
+
+      <ng-template #templateMappingNode let-nodes>
+        <ng-container *ngFor="let node of nodes; trackBy: trackTemplateChildMappingView">
+          <mat-expansion-panel
+            class="template-mapping-panel"
+            *ngIf="node.renderAsAccordion; else simpleTemplateMappingNode"
+            [expanded]="node.expanded"
+            (opened)="setTemplateNodeExpanded(node.key, true)"
+            (closed)="setTemplateNodeExpanded(node.key, false)">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <span class="template-node-title">{{ node.referenceAlias }} — {{ node.task.name }}</span>
+              </mat-panel-title>
+              <mat-panel-description>
+                ID: {{ node.task.id }}
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+
+            <div class="template-node-content" [style.--template-node-depth]="node.depth">
+              <div class="mapping-block" [class.mapping-block-template-node]="node.isTemplate">
+                <div class="mapping-block-header">
+                  <div>
+                    <div class="mapping-block-title">{{ 'tasksMoreInfoAdvancedEntity.parameterMapping' | translate }}</div>
+                    <div class="mapping-block-subtitle">{{ node.task.name }} (ID: {{ node.task.id }})</div>
+                  </div>
+                </div>
+
+                <div class="mapping-rows">
+                  <div class="mapping-row mapping-row-card" *ngFor="let row of node.mappingRows; let mi = index; trackBy: trackMappingRow">
+                    <mat-form-field appearance="outline" class="mapping-select">
+                      <mat-label>{{ 'tasksMoreInfoAdvancedEntity.miaParam' | translate }}</mat-label>
+                      <mat-select [(value)]="row.mapping.miaParam" (selectionChange)="onMappingChanged()">
+                        <mat-option *ngFor="let p of row.availableMiaParams" [value]="p.label">
+                          {{ p.label }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="mapping-select">
+                      <mat-label>{{ 'tasksMoreInfoAdvancedEntity.childParam' | translate }}</mat-label>
+                      <mat-select [(value)]="row.mapping.childParam" (selectionChange)="onMappingChanged()">
+                        <mat-option *ngFor="let p of node.childParameters" [value]="p.label">
+                          {{ p.label }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                    <button mat-icon-button type="button" (click)="removeMapping(node.task.id, mi, node.rootTemplateTaskId)" color="warn">
+                      <mat-icon>remove_circle</mat-icon>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="mapping-actions-row">
+                  <button mat-stroked-button type="button" (click)="addMapping(node.task.id, node.rootTemplateTaskId)" [disabled]="!node.canAddMapping">
+                    <mat-icon>add_circle</mat-icon>
+                    {{ 'common.button.add' | translate }}
+                  </button>
+                </div>
+              </div>
+
+              <mat-accordion class="template-mapping-accordion nested" *ngIf="node.childNodes.length > 0">
+                <ng-container *ngTemplateOutlet="templateMappingNode; context: { $implicit: node.childNodes }"></ng-container>
+              </mat-accordion>
+            </div>
+          </mat-expansion-panel>
+
+          <ng-template #simpleTemplateMappingNode>
+            <div class="template-simple-node" [style.--template-node-depth]="node.depth">
+              <div class="template-simple-node-header">
+                <div class="template-node-title">{{ node.referenceAlias }} — {{ node.task.name }}</div>
+                <div class="mapping-block-subtitle">ID: {{ node.task.id }}</div>
+              </div>
+              <div class="mapping-block template-simple-node-block">
+                <div class="mapping-rows">
+                  <div class="mapping-row mapping-row-card" *ngFor="let row of node.mappingRows; let mi = index; trackBy: trackMappingRow">
+                    <mat-form-field appearance="outline" class="mapping-select">
+                      <mat-label>{{ 'tasksMoreInfoAdvancedEntity.miaParam' | translate }}</mat-label>
+                      <mat-select [(value)]="row.mapping.miaParam" (selectionChange)="onMappingChanged()">
+                        <mat-option *ngFor="let p of row.availableMiaParams" [value]="p.label">
+                          {{ p.label }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="mapping-select">
+                      <mat-label>{{ 'tasksMoreInfoAdvancedEntity.childParam' | translate }}</mat-label>
+                      <mat-select [(value)]="row.mapping.childParam" (selectionChange)="onMappingChanged()">
+                        <mat-option *ngFor="let p of node.childParameters" [value]="p.label">
+                          {{ p.label }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                    <button mat-icon-button type="button" (click)="removeMapping(node.task.id, mi, node.rootTemplateTaskId)" color="warn">
+                      <mat-icon>remove_circle</mat-icon>
+                    </button>
+                  </div>
+                </div>
+                <div class="mapping-actions-row">
+                  <button mat-stroked-button type="button" (click)="addMapping(node.task.id, node.rootTemplateTaskId)" [disabled]="!node.canAddMapping">
+                    <mat-icon>add_circle</mat-icon>
+                    {{ 'common.button.add' | translate }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+        </ng-container>
+      </ng-template>
     </form>
+  </mat-tab>
+
+  <mat-tab label="{{ 'entity.task.parameters.header' | translate }}">
+    <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+      <mat-card-content>
+        <app-data-grid [changeHeightButton]="true"
+                       [allNewElements]="isNewOrDuplicated()"
+                       [columnDefs]="parametersTable.relationsColumnsDefs"
+                       [getAll]="parametersTable.relationsFetchFn"
+                       [eventAddItemsSubscription]="parametersTable.addCommandEvent$.asObservable()"
+                       [eventGetAllRowsSubscription]="parametersTable.saveCommandEvent$.asObservable()"
+                       [eventRefreshSubscription]="parametersTable.refreshCommandEvent$.asObservable()"
+                       [discardChangesButton]="true"
+                       [actionButton]="true"
+                       [redoButton]="true"
+                       [undoButton]="true"
+                       [deleteButton]="true"
+                       [newButton]="true"
+                       [defaultColumnSorting]="parametersTable.defaultRelationsSorting()"
+                       (new)="parametersTable.openTemplateDialog('newParameterDialog')"
+                       (getAllRows)="parametersTable.handleSaveRelations($event)"
+                       (duplicate)="parametersTable.duplicateRelations($event)"
+                       *ngIf="dataLoaded">
+        </app-data-grid>
+      </mat-card-content>
+    </mat-card>
   </mat-tab>
 
   <mat-tab label="{{ 'entity.task.roles.header' | translate }}">
@@ -197,3 +402,29 @@
     </mat-card>
   </mat-tab>
 </mat-tab-group>
+
+<ng-template #newParameterDialog>
+  <form [formGroup]="parametersTable.templateDialog('newParameterDialog').form">
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        <mat-form-field style="margin-bottom:20px;" appearance="outline" class="full">
+          <mat-label>{{ 'entity.task.moreInfo.parameters.referenceParameter' | translate }}</mat-label>
+          <input matInput type="text" formControlName="label" required>
+          <mat-hint>{{ 'entity.task.moreInfo.parameters.referenceParameter.hint' | translate }}</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ 'entity.task.parameters.field' | translate }}</mat-label>
+          <input matInput type="text" formControlName="value" required>
+          <mat-hint>{{ 'entity.task.parameters.field.hint.client' | translate }}</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ 'common.form.description' | translate }}</mat-label>
+          <textarea matInput formControlName="description" rows="2"></textarea>
+          <mat-hint>{{ 'entity.task.parameters.descriptionHint' | translate }}</mat-hint>
+        </mat-form-field>
+      </mat-card-content>
+    </mat-card>
+  </form>
+</ng-template>

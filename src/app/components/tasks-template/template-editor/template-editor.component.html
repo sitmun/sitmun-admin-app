@@ -3,7 +3,22 @@
   <button type="button" class="mode-button" [class.mode-button--active]="editorMode === 'html'" (click)="setEditorMode('html')">HTML</button>
 </div>
 
-<div #editorHost class="template-editor-host" [class.template-editor-host--hidden]="editorMode !== 'visual'"></div>
+<div #visualSurface class="template-editor-visual-surface" [class.template-editor-visual-surface--hidden]="editorMode !== 'visual'">
+  <div #editorHost class="template-editor-host" tabindex="0" (click)="onEditorHostClick($event)" (keydown)="onEditorHostKeydown($event)"></div>
+
+  <div
+    *ngIf="resizeOverlay as overlay"
+    class="visual-resize-overlay"
+    [style.top.px]="overlay.top"
+    [style.left.px]="overlay.left"
+    [style.width.px]="overlay.width"
+    [style.height.px]="overlay.height">
+    <button
+      type="button"
+      class="visual-resize-overlay__handle visual-resize-overlay__handle--bottom-right"
+      (mousedown)="startVisualResize($event)"></button>
+  </div>
+</div>
 
 <textarea
   #htmlEditor

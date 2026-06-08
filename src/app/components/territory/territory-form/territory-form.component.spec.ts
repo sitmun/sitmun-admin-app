@@ -26,6 +26,7 @@ import {
   UserConfigurationService,
   UserPositionService,
   UserService,
+  TerritoryProjection,
 } from '@app/domain';
 import {SitmunFrontendGuiModule} from '@app/frontend-gui/src/lib/public_api';
 import {MaterialModule} from '@app/material-module';
@@ -240,6 +241,16 @@ describe('TerritoryFormComponent', () => {
       srs: 'EPSG:4326',
     });
     expect(component.entityForm.valid).toBeTruthy();
+  });
+
+  it('initializes extentMaxY from extent.maxY (not maxX)', () => {
+    component.entityToEdit = Object.assign(new TerritoryProjection(), {
+      typeId: 1,
+      extent: {minX: 1, maxX: 50, minY: 2, maxY: 99},
+    });
+    component.postFetchData();
+    expect(component.entityForm.get('extentMaxX')?.value).toBe(50);
+    expect(component.entityForm.get('extentMaxY')?.value).toBe(99);
   });
 
   it('Territory form fields', () => {

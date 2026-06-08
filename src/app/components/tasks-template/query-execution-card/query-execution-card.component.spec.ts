@@ -246,6 +246,146 @@ describe('QueryExecutionCardComponent', () => {
     expect(component.taskResultReference).toBe('{{pepe.url}}');
   });
 
+  it('should copy iframe snippet for binary PDF responses', async () => {
+    const emitted: string[] = [];
+    component.placeholderSelected.subscribe((value) => emitted.push(value));
+    component.task = { id: 32315, name: 'Informe PDF', typeId: 5, properties: {} } as any;
+    component.referenceAlias = 'task_32315';
+    component.response = {
+      taskId: 32315,
+      status: 'COMPLETED',
+      resultType: 'resource',
+      parameters: {},
+      context: {
+        contentUrl: 'https://api.example.org/report.pdf',
+        mimeType: 'application/pdf',
+        binary: true,
+        value: '[contenido binario]',
+      },
+      rows: [{ field: 'value', value: '[contenido binario]' }],
+      resourceUrl: 'https://api.example.org/report.pdf',
+    };
+
+    await component.copyBinaryContentSnippet();
+
+    const expected = '<iframe src="{{task_32315.contentUrl}}" width="100%" height="360" title="Informe PDF"></iframe>';
+    expect(component.taskResultReference).toBe('{{task_32315.url}}');
+    expect(component.showTaskResultReference).toBe(false);
+    expect(clipboardWriteText).toHaveBeenCalledWith(expected);
+    expect(emitted).toEqual([expected]);
+  });
+
+  it('should copy img snippet for binary image responses', async () => {
+    const emitted: string[] = [];
+    component.placeholderSelected.subscribe((value) => emitted.push(value));
+    component.task = { id: 32317, name: 'Foto JPG', typeId: 5, properties: {} } as any;
+    component.referenceAlias = 'task_32317';
+    component.ngOnChanges({
+      task: {
+        currentValue: component.task,
+        previousValue: null,
+        firstChange: false,
+        isFirstChange: () => false,
+      },
+    });
+    component.response = {
+      taskId: 32317,
+      status: 'COMPLETED',
+      resultType: 'resource',
+      parameters: {},
+      context: {
+        contentUrl: 'https://api.example.org/image.jpg',
+        mimeType: 'image/jpeg',
+        binary: true,
+        value: '[contenido binario]',
+      },
+      rows: [{ field: 'value', value: '[contenido binario]' }],
+      resourceUrl: 'https://api.example.org/image.jpg',
+    };
+
+    await component.copyBinaryContentSnippet();
+
+    const expected = '<img src="{{task_32317.contentUrl}}" alt="Foto JPG">';
+    expect(component.taskResultReference).toBe('{{task_32317.url}}');
+    expect(component.showTaskResultReference).toBe(false);
+    expect(clipboardWriteText).toHaveBeenCalledWith(expected);
+    expect(emitted).toEqual([expected]);
+  });
+
+  it('should hide binary metadata table and result reference while showing only the final URL copy action', () => {
+    component.task = { id: 32317, name: 'Foto JPG', typeId: 5, properties: {} } as any;
+    component.referenceAlias = 'task_32317';
+    component.response = {
+      taskId: 32317,
+      status: 'COMPLETED',
+      resultType: 'resource',
+      parameters: {},
+      context: {
+        contentUrl: 'https://api.example.org/image.jpg',
+        url: 'https://api.example.org/image.jpg',
+        mimeType: 'image/jpeg',
+        binary: true,
+        embeddable: true,
+        value: '[contenido binario]',
+      },
+      rows: [
+        { field: 'contentUrl', value: 'https://api.example.org/image.jpg' },
+        { field: 'url', value: 'https://api.example.org/image.jpg' },
+        { field: 'mimeType', value: 'image/jpeg' },
+        { field: 'binary', value: true },
+        { field: 'embeddable', value: true },
+        { field: 'value', value: '[contenido binario]' },
+      ],
+      resourceUrl: 'https://api.example.org/image.jpg',
+    };
+    (component as any).cdr.markForCheck();
+
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.response-table-wrapper')).toBeNull();
+    expect(fixture.nativeElement.textContent).not.toContain('{{task_32317.contentUrl}}');
+    expect(fixture.nativeElement.textContent).not.toContain('[contenido binario]');
+    expect(fixture.nativeElement.textContent).toContain('https://api.example.org/image.jpg');
+    expect(fixture.nativeElement.querySelector('.resource-link-wrapper button.copy-icon-button')).not.toBeNull();
+  });
+
+  it('should copy binary snippet from the final URL copy button', async () => {
+    const emitted: string[] = [];
+    component.placeholderSelected.subscribe((value) => emitted.push(value));
+    component.task = { id: 32317, name: 'Foto JPG', typeId: 5, properties: {} } as any;
+    component.referenceAlias = 'task_32317';
+    component.ngOnChanges({
+      task: {
+        currentValue: component.task,
+        previousValue: null,
+        firstChange: false,
+        isFirstChange: () => false,
+      },
+    });
+    component.response = {
+      taskId: 32317,
+      status: 'COMPLETED',
+      resultType: 'resource',
+      parameters: {},
+      context: {
+        contentUrl: 'https://api.example.org/image.jpg',
+        mimeType: 'image/jpeg',
+        binary: true,
+      },
+      rows: [{ field: 'value', value: '[contenido binario]' }],
+      resourceUrl: 'https://api.example.org/image.jpg',
+    };
+    (component as any).cdr.markForCheck();
+    fixture.detectChanges();
+
+    fixture.nativeElement.querySelector('.resource-link-wrapper button.copy-icon-button').click();
+    await fixture.whenStable();
+
+    const expected = '<img src="{{task_32317.contentUrl}}" alt="Foto JPG">';
+    expect(clipboardWriteText).toHaveBeenCalledWith(expected);
+    expect(emitted).toEqual([expected]);
+  });
+
   it('should render nested template html from executed child contexts', fakeAsync(async () => {
     component.task = {
       id: 15,

@@ -10,6 +10,7 @@
   entityLabelPrefix="entity.task"
   [validationFieldLabelKeys]="{ name: 'common.form.name', scope: 'common.form.type', command: 'entity.task.query.sql', connectionId: 'entity.task.query.connection', cartographyId: 'entity.task.query.cartography', taskGroupId: 'entity.taskGroup.label' }"
   [dataLoaded]="dataLoaded"
+  [customWarningMessage]="customWarningMessage"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>
@@ -261,6 +262,7 @@
   </mat-tab>
   <mat-tab label="{{ 'entity.task.parameters.header' | translate }}">
     <app-data-grid [changeHeightButton]="true"
+                   #parametersGrid
                    [allNewElements]="isNewOrDuplicated()"
                    [columnDefs]='parametersTable.relationsColumnsDefs'
                    [getAll]='parametersTable.relationsFetchFn'

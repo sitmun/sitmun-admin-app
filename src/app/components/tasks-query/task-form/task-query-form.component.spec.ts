@@ -17,7 +17,13 @@ describe('TaskQueryFormComponent', () => {
     TestBed.configureTestingModule({});
 
     const translateService = createSpyObj(['instant']);
-    translateService.instant.mockImplementation((key: string) => key);
+    translateService.instant.mockImplementation((key: string, params?: Record<string, unknown>) => {
+      const firstParam = Object.values(params || {})[0];
+      if (typeof firstParam === 'string') {
+        return `${key}|${firstParam}`;
+      }
+      return key;
+    });
 
     const utilsService = createSpyObj([
       'getSelCheckboxColumnDef',
@@ -112,5 +118,147 @@ describe('TaskQueryFormComponent', () => {
 
     expect(dialog.form.contains('provided')).toBe(true);
     expect(fields).toContain('provided');
+  });
+
+  it('blocks save and shows deterministic warning when command placeholders are undeclared', () => {
+    const component = createComponent();
+    component.entityToEdit = TaskProjection.fromObject({
+      id: 10,
+      name: 'query',
+      properties: {
+        command: 'https://example.com/${zeta}?layer={alpha}&app=#{APP_ID}&territory=#{territory.id}&repeat={alpha}',
+        parameters: [],
+      },
+    });
+    component.entityForm = new FormGroup({
+      name: new FormControl('query'),
+      scope: new FormControl('web-api-query'),
+      command: new FormControl('https://example.com/${zeta}?layer={alpha}&app=#{APP_ID}&territory=#{territory.id}&repeat={alpha}'),
+      connectionId: new FormControl(null),
+      cartographyId: new FormControl(null),
+      taskGroupId: new FormControl(1),
+    });
+    component.entityForm.markAsDirty();
+
+    expect((component as any).customWarningMessage).toBe('entity.task.query.missingDeclaredParameters|alpha, zeta');
+    expect(component.canSaveEntity).toBe(false);
+    expect(component.canSave()).toBe(false);
+  });
+
+  it('uses pending parameter grid rows to validate command placeholders', () => {
+    const component = createComponent();
+    component.entityToEdit = TaskProjection.fromObject({
+      id: 10,
+      name: 'query',
+      properties: {
+        command: 'https://example.com/{layerid}/${featureid}',
+        parameters: [],
+      },
+    });
+    component.entityForm = new FormGroup({
+      name: new FormControl('query'),
+      scope: new FormControl('URL'),
+      command: new FormControl('https://example.com/{layerid}/${featureid}'),
+      connectionId: new FormControl(null),
+      cartographyId: new FormControl(null),
+      taskGroupId: new FormControl(1),
+    });
+    component.entityForm.markAsDirty();
+    (component as any).parametersGrid = {
+      rowData: [
+        { name: 'featureid' },
+        { name: 'layerid', status: 'pendingRegistration' },
+      ],
+    };
+
+    expect((component as any).customWarningMessage).toBe('');
+    expect(component.canSave()).toBe(true);
+    expect(component.canSaveEntity).toBe(true);
+  });
+
+  it('ignores parameters pending delete when validating command placeholders', () => {
+    const component = createComponent();
+    component.entityToEdit = TaskProjection.fromObject({
+      id: 10,
+      name: 'query',
+      properties: {
+        command: 'https://example.com/{layerid}',
+        parameters: [],
+      },
+    });
+    component.entityForm = new FormGroup({
+      name: new FormControl('query'),
+      scope: new FormControl('URL'),
+      command: new FormControl('https://example.com/{layerid}'),
+      connectionId: new FormControl(null),
+      cartographyId: new FormControl(null),
+      taskGroupId: new FormControl(1),
+    });
+    component.entityForm.markAsDirty();
+    (component as any).parametersGrid = {
+      rowData: [
+        { name: 'layerid', status: 'pendingDelete' },
+      ],
+    };
+
+    expect((component as any).customWarningMessage).toBe('entity.task.query.missingDeclaredParameters|layerid');
+    expect(component.canSave()).toBe(false);
+  });
+
+  it('treats loaded but empty parameter grid as empty instead of falling back to persisted properties', () => {
+    const component = createComponent();
+    component.entityToEdit = TaskProjection.fromObject({
+      id: 10,
+      name: 'query',
+      properties: {
+        command: 'https://example.com/{layerid}',
+        parameters: [
+          { name: 'layerid' },
+        ],
+      },
+    });
+    component.entityForm = new FormGroup({
+      name: new FormControl('query'),
+      scope: new FormControl('web-api-query'),
+      command: new FormControl('https://example.com/{layerid}'),
+      connectionId: new FormControl(null),
+      cartographyId: new FormControl(null),
+      taskGroupId: new FormControl(1),
+    });
+    component.entityForm.markAsDirty();
+    (component as any).parametersGrid = {
+      rowData: [],
+    };
+
+    expect((component as any).customWarningMessage).toBe('entity.task.query.missingDeclaredParameters|layerid');
+    expect(component.canSaveEntity).toBe(false);
+  });
+
+  it('rejects save click path when command placeholders are missing', async () => {
+    const component = createComponent();
+    component.entityToEdit = TaskProjection.fromObject({
+      id: 10,
+      name: 'query',
+      properties: {
+        command: 'https://example.com/{layerid}',
+        parameters: [],
+      },
+    });
+    component.entityForm = new FormGroup({
+      name: new FormControl('query'),
+      scope: new FormControl('web-api-query-no-proxy'),
+      command: new FormControl('https://example.com/{layerid}'),
+      connectionId: new FormControl(null),
+      cartographyId: new FormControl(null),
+      taskGroupId: new FormControl(1),
+    });
+    component.entityForm.markAsDirty();
+    const saveEntitySpy = jest.spyOn(component, 'saveEntity').mockResolvedValue(undefined);
+    jest.spyOn(component, 'fetchOriginal').mockResolvedValue(component.entityToEdit);
+
+    const result = await component.onSaveButtonClicked();
+
+    expect(result).toBe(false);
+    expect(saveEntitySpy).not.toHaveBeenCalled();
   });
 });

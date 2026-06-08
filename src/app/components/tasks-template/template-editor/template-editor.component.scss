@@ -21,13 +21,42 @@
   color: #1d4ed8;
 }
 
+.template-editor-visual-surface {
+  position: relative;
+  height: 428px;
+}
+
+.template-editor-visual-surface--hidden {
+  display: none;
+}
+
 .template-editor-host {
-  height: 460px;
+  height: 100%;
   overflow: auto;
 }
 
-.template-editor-host--hidden {
-  display: none;
+.visual-resize-overlay {
+  position: absolute;
+  border: 1px solid #2563eb;
+  box-sizing: border-box;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.visual-resize-overlay__handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 1px solid #1d4ed8;
+  background: #fff;
+  pointer-events: auto;
+  padding: 0;
+}
+
+.visual-resize-overlay__handle--bottom-right {
+  right: -7px;
+  bottom: -7px;
+  cursor: nwse-resize;
 }
 
 .template-editor-source {
@@ -42,4 +71,8 @@
 
 :host ::ng-deep .ql-container {
   min-height: 20rem;
+}
+
+:host ::ng-deep .template-editor-host iframe {
+  pointer-events: none;
 }

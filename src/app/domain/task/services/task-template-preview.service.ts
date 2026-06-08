@@ -14,6 +14,8 @@ export interface TemplateTaskExecutionResponse {
   context: Record<string, unknown>;
   rows: Record<string, unknown>[];
   resourceUrl: string | null;
+  mimeType?: string | null;
+  binary?: boolean;
 }
 
 export interface TemplateTaskExecutionEvent extends TemplateTaskExecutionResponse {
