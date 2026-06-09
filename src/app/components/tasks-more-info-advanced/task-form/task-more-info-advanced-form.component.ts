@@ -219,9 +219,9 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
     this.initTranslations('Task', ['name']);
 
     const [taskTypes, taskGroups, cartographies, candidateTasks] = await Promise.all([
-      firstValueFrom(this.taskTypeService.getAllEx()),
-      firstValueFrom(this.taskGroupService.getAllEx()),
-      firstValueFrom(this.cartographyService.getAll()),
+      firstValueFrom(this.taskTypeService.fetchAllItems()),
+      firstValueFrom(this.taskGroupService.fetchAllItems()),
+      firstValueFrom(this.cartographyService.fetchAllItems()),
       this.fetchCandidateChildTasks()
     ]);
 
@@ -242,11 +242,11 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
   }
 
   override fetchOriginal(): Promise<TaskProjection> {
-    return firstValueFrom(this.taskService.getProjection(TaskProjection, this.entityID));
+    return firstValueFrom(this.taskService.fetchProjectionById(TaskProjection, this.entityID));
   }
 
   override fetchCopy(): Promise<TaskProjection> {
-    return firstValueFrom(this.taskService.getProjection(TaskProjection, this.duplicateID).pipe(map((copy: TaskProjection) => {
+    return firstValueFrom(this.taskService.fetchProjectionById(TaskProjection, this.duplicateID).pipe(map((copy: TaskProjection) => {
       copy.name = this.translateService.instant('copy_') + copy.name;
       return copy;
     })));
@@ -582,7 +582,7 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
 
   private async fetchCandidateChildTasks(): Promise<TaskProjection[]> {
     const allTasks = await firstValueFrom(
-      this.taskService.getAllProjection(TaskProjection)
+      this.taskService.fetchAllProjectionItems(TaskProjection)
     );
     return (allTasks || []).filter(task =>
       this.allowedChildTypeIds.includes(task.typeId) &&
@@ -1136,7 +1136,7 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
         this.utils.getNonEditableColumnDef('common.form.description', 'description')
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.roleService.getAll())
+      .withTargetsFetcher(() => this.roleService.fetchAllItems())
       .withTargetsTitle(this.translateService.instant('entity.task.roles.title'))
       .build();
   }
@@ -1177,7 +1177,7 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
         this.utils.getNonEditableColumnDef('common.form.type', 'typeName')
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.territoryService.getAllProjection(TerritoryProjection))
+      .withTargetsFetcher(() => this.territoryService.fetchAllProjectionItems(TerritoryProjection))
       .withTargetInclude((availabilities: (TaskAvailabilityProjection)[]) => (item: TerritoryProjection) => {
         return !availabilities.some((availability) => availability.territoryId === item.id);
       })

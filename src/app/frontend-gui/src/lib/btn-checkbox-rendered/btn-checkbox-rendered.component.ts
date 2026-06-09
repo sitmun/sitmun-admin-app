@@ -19,7 +19,6 @@ export class BtnCheckboxRenderedComponent implements ICellRendererAngularComp {
 
   refresh(params: any): boolean {
     this.params = params;
-
     return true;
   }
 
@@ -31,16 +30,17 @@ export class BtnCheckboxRenderedComponent implements ICellRendererAngularComp {
 
   btnCheckedHandler(event: MatCheckboxChange): void {
     if (this.params.colDef.editable) {
-      const checked = event.checked;
-      const colId = this.params.column.colId;
-      this.params.value = checked;
-      this.params.api.undoRedoService.isFilling = true;
-      this.params.node.setDataValue(colId, checked);
+      this.params.node.setDataValue(this.params.colDef.field, event.checked);
     }
   }
 
   getParams(){
     return this.params;
+  }
+
+  isChecked(): boolean {
+    const field = this.params?.colDef?.field;
+    return this.params?.data?.[field] === true;
   }
 
 }

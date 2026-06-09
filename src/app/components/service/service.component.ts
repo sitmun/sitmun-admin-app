@@ -3,11 +3,13 @@ import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from '@ngx-translate/core';
-import {firstValueFrom} from 'rxjs';
+import {firstValueFrom, of} from 'rxjs';
 
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
 import {Configuration} from "@app/core/config/configuration";
+import {createPagedInfiniteFetcher} from "@app/core/hal";
+import {INFINITE_PAGE_SIZE_DEFAULT} from "@app/core/hal/infinite-page-size";
 import {CodeListService, Service, ServiceService, TranslationService,} from '@app/domain';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from '@app/services/loading-overlay.service';
@@ -26,8 +28,13 @@ export class ServiceComponent extends BaseListComponent<Service> {
     iconName: Configuration.SERVICE.icon,
     font: Configuration.SERVICE.font,
     columnDefs: [],
-    dataFetchFn: () => this.serviceService.getAll(),
+    dataFetchFn: () => of([]),
     defaultColumnSorting: ['name'],
+    rowModelMode: 'infinite',
+    pageSize: INFINITE_PAGE_SIZE_DEFAULT,
+    infiniteBlockFetcher: createPagedInfiniteFetcher(this.serviceService),
+    progressiveLocalFilter: false,
+    backendSearch: true,
     gridOptions: {
       globalSearch: true,
       discardChangesButton: false,
@@ -74,11 +81,27 @@ export class ServiceComponent extends BaseListComponent<Service> {
 
   override async postFetchData(): Promise<void> {
     // Set column definitions directly in the config
+    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'service/:id/serviceForm', {id: 'id'}, 200);
+    nameCol.sortable = true;
+    nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
+    nameCol.flex = 2;
+    nameCol.tooltipField = 'name';
+
+    const typeCol: any = this.utils.getNonEditableColumnDef('common.form.type', 'type', 140);
+    typeCol.sortable = true;
+    typeCol.cellRendererParams = {sortField: 'type'};
+    typeCol.flex = 1;
+
+    const endpointCol: any = this.utils.getNonEditableColumnWithLinkDef('entity.service.endpoint', 'serviceURL', 280);
+    endpointCol.flex = 4;
+    endpointCol.cellClass = 'read-only-cell sitmun-technical-cell';
+    endpointCol.tooltipField = 'serviceURL';
+
     this.entityListConfig.columnDefs = [
-      this.utils.getSelCheckboxColumnDef(),
-      this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'service/:id/serviceForm', {id: 'id'}),
-      this.utils.getNonEditableColumnDef('common.form.type', 'type'),
-      this.utils.getNonEditableColumnWithLinkDef('entity.service.endpoint', 'serviceURL'),
+      this.utils.getRowCheckboxColumnDef(),
+      nameCol,
+      typeCol,
+      endpointCol,
     ];
   }
 
@@ -90,7 +113,7 @@ export class ServiceComponent extends BaseListComponent<Service> {
     await this.router.navigate(['service', -1, 'serviceForm', id]);
   }
 
-  override dataFetchFn = () => this.serviceService.getAll();
+  override dataFetchFn = () => this.serviceService.fetchAllItems();
 
   override dataUpdateFn = (data: Service) => firstValueFrom(this.serviceService.update(data))
 

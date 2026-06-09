@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
+import {AbstractControl, UntypedFormControl, UntypedFormGroup, ValidationErrors, ValidatorFn, Validators} from '@angular/forms';
 import {MatDialog} from '@angular/material/dialog';
 import {MatSelectChange} from '@angular/material/select';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -50,6 +50,48 @@ import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 
+function httpUrlValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const value = control.value;
+    if (!value) {
+      return null;
+    }
+    try {
+      const url = new URL(value);
+      if (url.protocol === 'http:' || url.protocol === 'https:') {
+        return null;
+      }
+      return { invalidUrl: true };
+    } catch {
+      return { invalidUrl: true };
+    }
+  };
+}
+
+function srsPatternValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const value = control.value;
+    if (!value) {
+      return null;
+    }
+    const pattern = /^[A-Z-]+:\d+$/;
+    return pattern.test(value) ? null : { invalidSrs: true };
+  };
+}
+
+function integerValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const value = control.value;
+    if (value === null || value === undefined || value === '') {
+      return null;
+    }
+    const num = Number(value);
+    if (isNaN(num) || !Number.isInteger(num)) {
+      return { pattern: true };
+    }
+    return null;
+  };
+}
 
 @Component({
     selector: 'app-territory-form',
@@ -202,8 +244,8 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
     this.initTranslations('Territory', ['name', 'description'])
     await this.initCodeLists(['territory.scope']);
     const [territoryGroups, territoryTypes, scopeTypes] = await Promise.all([
-      firstValueFrom(this.territoryGroupTypeService.getAll()),
-      firstValueFrom(this.territoryTypeService.getAll()),
+      firstValueFrom(this.territoryGroupTypeService.fetchAllItems()),
+      firstValueFrom(this.territoryTypeService.fetchAllItems()),
       firstValueFrom(this.utils.getCodeListValues('territory.scope'))
     ]);
 
@@ -218,7 +260,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
    * @returns Promise of a Territory entity with projection
    */
   override async fetchOriginal(): Promise<TerritoryProjection> {
-    return firstValueFrom(this.territoryService.getProjection(TerritoryProjection, this.entityID));
+    return firstValueFrom(this.territoryService.fetchProjectionById(TerritoryProjection, this.entityID));
   }
 
   /**
@@ -226,7 +268,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
    * @returns Promise of a duplicated Territory entity with projection
    */
   override async fetchCopy(): Promise<TerritoryProjection> {
-    return firstValueFrom(this.territoryService.getProjection(TerritoryProjection, this.duplicateID).pipe(
+    return firstValueFrom(this.territoryService.fetchProjectionById(TerritoryProjection, this.duplicateID).pipe(
       map((copy: TerritoryProjection) => {
         copy.name = this.translateService.instant("common.copyPrefix") + copy.name;
         return copy;
@@ -267,21 +309,21 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
     this.currentTypeTop = this.currentTerritoryType.topType;
 
     this.entityForm = new UntypedFormGroup({
-      code: new UntypedFormControl(this.entityToEdit.code, [Validators.required]),
-      name: new UntypedFormControl(this.entityToEdit.name, [Validators.required]),
-      description: new UntypedFormControl(this.entityToEdit.description, []),
-      territorialAuthorityAddress: new UntypedFormControl(this.entityToEdit.territorialAuthorityAddress, []),
-      territorialAuthorityLogo: new UntypedFormControl(this.entityToEdit.territorialAuthorityLogo, []),
+      code: new UntypedFormControl(this.entityToEdit.code, [Validators.required, Validators.maxLength(50)]),
+      name: new UntypedFormControl(this.entityToEdit.name, [Validators.required, Validators.maxLength(250)]),
+      description: new UntypedFormControl(this.entityToEdit.description, [Validators.maxLength(4000)]),
+      territorialAuthorityAddress: new UntypedFormControl(this.entityToEdit.territorialAuthorityAddress, [Validators.maxLength(250)]),
+      territorialAuthorityLogo: new UntypedFormControl(this.entityToEdit.territorialAuthorityLogo, [Validators.maxLength(4000), httpUrlValidator()]),
       groupTypeId: new UntypedFormControl(this.entityToEdit.groupTypeId, []),
       typeId: new UntypedFormControl(this.entityToEdit.typeId, [Validators.required]),
       extentMinX: new UntypedFormControl(this.entityToEdit.extent?.minX, []),
       extentMaxX: new UntypedFormControl(this.entityToEdit.extent?.maxX, []),
       extentMinY: new UntypedFormControl(this.entityToEdit.extent?.minY, []),
       extentMaxY: new UntypedFormControl(this.entityToEdit.extent?.maxY, []),
-      note: new UntypedFormControl(this.entityToEdit.note, []),
-      srs: new UntypedFormControl(this.entityToEdit.srs, []),
+      note: new UntypedFormControl(this.entityToEdit.note, [Validators.maxLength(250)]),
+      srs: new UntypedFormControl(this.entityToEdit.srs, [Validators.maxLength(50), srsPatternValidator()]),
       blocked: new UntypedFormControl(this.entityToEdit.blocked ?? true, [Validators.required]),
-      defaultZoomLevel: new UntypedFormControl(this.entityToEdit.defaultZoomLevel, []),
+      defaultZoomLevel: new UntypedFormControl(this.entityToEdit.defaultZoomLevel, [integerValidator()]),
       centerPointX: new UntypedFormControl(this.entityToEdit.center?.x, []),
       centerPointY: new UntypedFormControl(this.entityToEdit.center?.y),
     });
@@ -342,12 +384,106 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
     }
   }
 
-  onTerritoryTypeChanged(event: MatSelectChange) {
-    const territoryType = this.territoryTypes.find(
-      (element) => element.id == event.value
-    );
+  async onTerritoryTypeChanged(event: MatSelectChange): Promise<void> {
+    const previousTypeId = this.currentTerritoryType?.id ?? Number(this.entityForm.get('typeId')?.value);
+    const previousTerritoryType = this.currentTerritoryType;
+    const selectedTypeId = Number(event.value);
+    const territoryType = this.territoryTypes.find((element) => element.id === selectedTypeId);
+
+    if (!territoryType) {
+      this.restoreTerritoryTypeSelection(previousTypeId, previousTerritoryType);
+      return;
+    }
+
+    const blockingErrorKey = await this.getTypeChangeBlockingErrorKey(territoryType);
+    if (blockingErrorKey) {
+      this.restoreTerritoryTypeSelection(previousTypeId, previousTerritoryType);
+      this.setTypeIdRelationError(blockingErrorKey);
+      return;
+    }
+
+    this.clearTypeIdRelationErrors();
+    this.applyTerritoryType(territoryType);
+  }
+
+  private applyTerritoryType(territoryType: TerritoryType): void {
+    this.currentTerritoryType = territoryType;
     this.currentTypeBottom = territoryType.bottomType;
     this.currentTypeTop = territoryType.topType;
+  }
+
+  private restoreTerritoryTypeSelection(previousTypeId: number, previousTerritoryType: TerritoryType): void {
+    this.entityForm.get('typeId')?.setValue(previousTypeId, {emitEvent: false});
+    if (previousTerritoryType) {
+      this.applyTerritoryType(previousTerritoryType);
+    }
+  }
+
+  private setTypeIdRelationError(errorKey: 'topTypeWithParents' | 'bottomTypeWithChildren'): void {
+    const control = this.entityForm.get('typeId');
+    if (!control) {
+      return;
+    }
+    control.setErrors({...(control.errors ?? {}), [errorKey]: true});
+    control.markAsTouched();
+  }
+
+  private clearTypeIdRelationErrors(): void {
+    const control = this.entityForm.get('typeId');
+    if (!control?.errors) {
+      return;
+    }
+    const {topTypeWithParents: _topTypeWithParents, bottomTypeWithChildren: _bottomTypeWithChildren, ...remainingErrors} = control.errors;
+    control.setErrors(Object.keys(remainingErrors).length > 0 ? remainingErrors : null);
+  }
+
+  private async getTypeChangeBlockingErrorKey(
+    territoryType: TerritoryType
+  ): Promise<'topTypeWithParents' | 'bottomTypeWithChildren' | null> {
+    if (this.isNew()) {
+      return null;
+    }
+    if (territoryType.topType) {
+      const parents = await firstValueFrom(
+        this.entityToEdit.getRelationArrayEx(TerritoryProjection, 'memberOf', {projection: 'view'})
+      );
+      if (parents.length > 0) {
+        return 'topTypeWithParents';
+      }
+    }
+    if (territoryType.bottomType) {
+      const children = await firstValueFrom(
+        this.entityToEdit.getRelationArrayEx(TerritoryProjection, 'members', {projection: 'view'})
+      );
+      if (children.length > 0) {
+        return 'bottomTypeWithChildren';
+      }
+    }
+    return null;
+  }
+
+  private filterParentTargetTerritories(territories: TerritoryProjection[]): TerritoryProjection[] {
+    const currentTypeId = this.currentTerritoryType?.id;
+    if (currentTypeId == null) {
+      return [];
+    }
+    return territories.filter((territory) => this.isParentTerritoryCandidate(territory, currentTypeId));
+  }
+
+  private filterChildTargetTerritories(territories: TerritoryProjection[]): TerritoryProjection[] {
+    const currentTypeId = this.currentTerritoryType?.id;
+    if (currentTypeId == null) {
+      return [];
+    }
+    return territories.filter((territory) => this.isChildTerritoryCandidate(territory, currentTypeId));
+  }
+
+  private isParentTerritoryCandidate(territory: TerritoryProjection, currentTypeId: number): boolean {
+    return territory.typeId !== currentTypeId && !territory.typeBottomType;
+  }
+
+  private isChildTerritoryCandidate(territory: TerritoryProjection, currentTypeId: number): boolean {
+    return territory.typeId !== currentTypeId && !territory.typeTopType;
   }
 
   /**
@@ -379,8 +515,8 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
 
   /**
    * Normalizes extent values by parsing them as floats.
-   * Returns an object with minX, maxX, minY, and maxY if all values are valid numbers,
-   * otherwise returns null if any value is NaN.
+   * Returns an object with minX, maxX, minY, and maxY if all values are valid numbers
+   * and maxX > minX and maxY > minY, otherwise returns null.
    *
    * @param minX - The minimum X value (can be any type, will be parsed as float)
    * @param maxX - The maximum X value (can be any type, will be parsed as float)
@@ -396,14 +532,16 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
     const isNan = [newMinX, newMaxX, newMinY, newMaxY].some(element => Number.isNaN(element));
     if (isNan) {
       return null;
-    } else {
-      return {
-        minX: newMinX,
-        maxX: newMaxX,
-        minY: newMinY,
-        maxY: newMaxY,
-      } as Envelope
     }
+    if (newMaxX <= newMinX || newMaxY <= newMinY) {
+      return null;
+    }
+    return {
+      minX: newMinX,
+      maxX: newMaxX,
+      minY: newMinY,
+      maxY: newMaxY,
+    } as Envelope
   }
 
   /**
@@ -477,10 +615,10 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
             }
           ]
         };
-        return this.userConfigurationService.getAllProjection(UserConfigurationProjection, query);
+        return this.userConfigurationService.fetchProjectionItems(UserConfigurationProjection, query);
       })
-      .withTargetsLeftFetcher(() => this.userService.getAll())
-      .withTargetsRightFetcher(() => this.roleService.getAll())
+      .withTargetsLeftFetcher(() => this.userService.fetchAllItems())
+      .withTargetsRightFetcher(() => this.roleService.fetchAllItems())
       .withRelationsDuplicate((relation) => UserConfigurationProjection.fromObject(relation))
       .withRelationsUpdater(async (userConfigurations: (UserConfigurationProjection & Status)[]) => {
         await onCreate(userConfigurations).forEach(userConfiguration => this.userConfigurationService.create(
@@ -550,7 +688,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
         if (this.isNew()) {
           return of([]);
         }
-        return this.entityToEdit.getRelationArrayEx(TerritoryProjection, 'members', {projection: 'view'})
+        return this.entityToEdit.getRelationArrayEx(TerritoryProjection, 'memberOf', {projection: 'view'})
       })
       .withRelationsOrder('name')
       .withTargetsTitle('entity.territory.memberOf.title')
@@ -562,8 +700,8 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
         this.utils.getStatusColumnDef()
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.territoryService.getAllProjection(TerritoryProjection).pipe(
-        map((territories: TerritoryProjection[]) => territories.filter(territory => !territory.typeTopType && territory.typeId !== this.currentTerritoryType.id))
+      .withTargetsFetcher(() => this.territoryService.fetchProjectionItems(TerritoryProjection).pipe(
+        map((territories: TerritoryProjection[]) => this.filterParentTargetTerritories(territories))
       ))
       .withRelationsUpdater(async (territories: (TerritoryProjection & Status)[]) => {
         await onUpdatedRelation(territories)
@@ -611,8 +749,8 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
         this.utils.getStatusColumnDef()
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.territoryService.getAllProjection(TerritoryProjection).pipe(
-        map((territories: TerritoryProjection[]) => territories.filter(territory => !territory.typeTopType && territory.typeId !== this.currentTerritoryType.id))
+      .withTargetsFetcher(() => this.territoryService.fetchProjectionItems(TerritoryProjection).pipe(
+        map((territories: TerritoryProjection[]) => this.filterChildTargetTerritories(territories))
       ))
       .withRelationsUpdater(async (territories: (TerritoryProjection & Status)[]) => {
         await onUpdatedRelation(territories)
@@ -641,11 +779,10 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
         this.utils.getStatusColumnDef(),
       ])
       .withRelationsFetcher(() => {
-        if (this.isEdition()) {
-          return this.entityToEdit.getRelationArrayEx(CartographyAvailabilityProjection, 'cartographyAvailabilities', {projection: 'view'})
-        } else {
+        if (this.isNew()) {
           return of([]);
         }
+        return this.entityToEdit.getRelationArrayEx(CartographyAvailabilityProjection, 'cartographyAvailabilities', {projection: 'view'})
       })
       .withRelationsOrder(['name'])
       .withRelationsUpdater(async (cartographies: (CartographyAvailabilityProjection & Status)[]) => {
@@ -662,7 +799,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
           );
         })
       })
-      .withTargetsFetcher(() => this.cartographyService.getAllProjection(CartographyProjection))
+      .withTargetsFetcher(() => this.cartographyService.fetchProjectionItems(CartographyProjection))
       .withTargetsTitle('entity.territory.cartography.title')
       .withTargetsOrder(['name'])
       .withTargetsColumns([
@@ -691,11 +828,10 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
       ])
       .withRelationsOrder(['taskTypeName'])
       .withRelationsFetcher(() => {
-        if (this.isEdition()) {
-          return this.entityToEdit.getRelationArrayEx(TaskAvailabilityProjection, 'taskAvailabilities', {projection: 'view'})
-        } else {
+        if (this.isNew()) {
           return of([]);
         }
+        return this.entityToEdit.getRelationArrayEx(TaskAvailabilityProjection, 'taskAvailabilities', {projection: 'view'})
       })
       .withRelationsUpdater(async (tasks: (TaskAvailabilityProjection & Status)[]) => {
         await onDelete(tasks).forEach(task => {
@@ -718,7 +854,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
         this.utils.getNonEditableColumnDef('common.form.type', 'typeName', 300),
         this.utils.getStatusColumnDef()
       ])
-      .withTargetsFetcher(() => this.taskService.getAllProjection(TaskProjection))
+      .withTargetsFetcher(() => this.taskService.fetchProjectionItems(TaskProjection))
       .withFieldRestriction('taskId')
       .withTargetsOrder(['typeName'])
       .withTargetToRelation((tasks) => tasks.map(task => TaskAvailabilityProjection.of(task, this.entityToEdit)))

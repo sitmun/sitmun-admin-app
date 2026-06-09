@@ -1,11 +1,11 @@
 
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
 
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
@@ -43,15 +43,14 @@ describe('ServiceFormComponent', () => {
   let externalService: ExternalService;
   let _serviceParameterService: ServiceParameterService;
   let _roleService: RoleService;
-  let consoleErrorSpy: jest.SpyInstance;
+  let _consoleErrorSpy: jest.SpyInstance;
 
-  beforeEach(async () => {
-    // Mock console.error to prevent console output during tests
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+  beforeAll(async () => {
+     
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [ ServiceFormComponent, FormToolbarComponent ],
-      imports: [FormsModule, ReactiveFormsModule, HttpClientTestingModule, SitmunFrontendGuiModule, RouterTestingModule,
-         RouterModule.forRoot([], {}), MaterialModule, TranslateModule.forRoot({
+      imports: [FormsModule, ReactiveFormsModule, SitmunFrontendGuiModule, RouterModule.forRoot([], {}), MaterialModule, TranslateModule.forRoot({
           loader: {
             provide: TranslateLoader,
             useFactory: () => ({
@@ -60,6 +59,8 @@ describe('ServiceFormComponent', () => {
           }
         }), BrowserAnimationsModule],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         provideErrorHandlerForTests(),
         ServiceService,
         CartographyService,
@@ -79,11 +80,8 @@ describe('ServiceFormComponent', () => {
     .compileComponents();
   });
 
-  afterEach(() => {
-    consoleErrorSpy.mockRestore();
-  });
-
   beforeEach(() => {
+    _consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
     fixture = TestBed.createComponent(ServiceFormComponent);
     component = fixture.componentInstance;
     // Suppress debug logs in tests to reduce console noise
@@ -106,6 +104,9 @@ describe('ServiceFormComponent', () => {
     }
     fixture.detectChanges();
   });
+
+  afterEach(() => fixture?.destroy());
+  afterAll(() => TestBed.resetTestingModule());
 
   it('should create', () => {
     expect(component).toBeTruthy();
@@ -1524,5 +1525,4 @@ describe('ServiceFormComponent', () => {
     expect(component.isWMS()).toBeFalsy();
   });
 });
-
 

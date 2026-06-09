@@ -3,12 +3,13 @@ import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from '@ngx-translate/core';
-import {firstValueFrom} from 'rxjs';
+import {firstValueFrom, of} from 'rxjs';
 
 import {BaseListComponent} from '@app/components/base-list.component';
 import {EntityListConfig} from '@app/components/shared/entity-list';
 import {Configuration} from '@app/core/config/configuration';
-import {HalOptions, HalParam} from '@app/core/hal';
+import {createPagedInfiniteFetcher} from '@app/core/hal';
+import {INFINITE_PAGE_SIZE_DEFAULT} from '@app/core/hal/infinite-page-size';
 import {CodeListService, Task, TaskService, TranslationService} from '@app/domain';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from '@app/services/loading-overlay.service';
@@ -28,12 +29,14 @@ export class TasksMoreInfoAdvancedComponent extends BaseListComponent<Task> {
     iconName: Configuration.TASK_MORE_INFO_ADVANCED.icon,
     font: Configuration.TASK_MORE_INFO_ADVANCED.font,
     columnDefs: [],
-    dataFetchFn: () => {
-      const params: HalParam[] = [];
-      params.push({key: 'type.id', value: magic.taskMoreInfoAdvancedTypeId});
-      const query: HalOptions = {params};
-      return this.taskService.getAll(query, undefined, 'tasks');
-    },
+    dataFetchFn: () => of([]),
+    rowModelMode: 'infinite',
+    pageSize: INFINITE_PAGE_SIZE_DEFAULT,
+    infiniteBlockFetcher: createPagedInfiniteFetcher(this.taskService, {
+      params: [{key: 'typeId', value: magic.taskMoreInfoAdvancedTypeId}]
+    }),
+    progressiveLocalFilter: false,
+    backendSearch: true,
     defaultColumnSorting: ['name'],
     gridOptions: {
       globalSearch: true,

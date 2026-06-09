@@ -1,7 +1,7 @@
 # SITMUN Administration Application
 
 [![License: EUPL v1.2](https://img.shields.io/badge/License-EUPL%20v1.2-blue.svg)](LICENSE)
-![Version](https://img.shields.io/badge/version-1.2.6-blue.svg)
+![Version](https://img.shields.io/badge/version-1.2.7-blue.svg)
 
 The **SITMUN Administration Application** is the official web-based frontend for managing the SITMUN geospatial application platform. Built with TypeScript and Angular 19, it provides a comprehensive administrative interface for the [SITMUN Backend Core](https://github.com/sitmun/sitmun-backend-core) REST API.
 
@@ -355,6 +355,21 @@ rsync -avz dist/admin-app/ user@dev-server:/var/www/sitmun-admin/
 npm run build -- --configuration=production
 rsync -avz dist/admin-app/ user@prod-server:/var/www/sitmun-admin/
 ```
+
+## Data grids: client-side vs infinite
+
+Entity lists use `app-data-grid` with two row models:
+
+| Mode | When to use | Data loading |
+|------|-------------|--------------|
+| `clientSide` (default) | Bounded lists, dialog pickers with `currentData`, inline edit with undo | `RestService.getAllPages()` via `dataFetchFn` |
+| `infinite` | Large read-mostly tables (e.g. task query list) | `infiniteBlockFetcher` → `RestService.getPage({ page, size, sort })` |
+
+Constants: `INFINITE_PAGE_SIZE_DEFAULT` (50), `INFINITE_PAGE_SIZE_TEST` (10). `cacheBlockSize` must equal `pageSize`.
+
+Infinite grids do not support client-side column filters or quick-search; use server `sortField` on column defs and optional paged `search` endpoints.
+
+Full-list callers must use `getAllPages()` / `getAllPagesEx()` / `getAllPagesProjection()` — not bare `getAll()`. Backend default page size is 10; `max-page-size` is 200.
 
 ## API Integration
 

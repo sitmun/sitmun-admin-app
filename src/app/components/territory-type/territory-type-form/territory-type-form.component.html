@@ -1,0 +1,53 @@
+<app-form-toolbar
+  entityType="{{ config.labelSingular }}"
+  font="{{ config.font }}"
+  icon="{{ config.icon }}"
+  [itemName]="itemName('')"
+  [isNew]="isNewOrDuplicated()"
+  [canSave]="canSaveEntity"
+  [dataLoaded]="dataLoaded"
+  (save)="onSaveButtonClicked()"
+  (back)="utils.navigateBack()">
+</app-form-toolbar>
+
+<app-entity-form-alerts
+  *ngIf="dataLoaded"
+  [form]="entityForm"
+  entityLabelPrefix="entity.territoryType">
+</app-entity-form-alerts>
+
+<mat-tab-group
+  mat-stretch-tabs="false"
+  mat-align-tabs="end"
+  [dynamicHeight]="true"
+  preserveContent="true"
+>
+  <mat-tab label="{{ 'common.form.details' | translate }}">
+    <form [formGroup]="entityForm" *ngIf="dataLoaded">
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'entity.territoryType.name' | translate }} ({{ defaultLang }})</mat-label>
+            <input matInput type="text" formControlName="name" [maxlength]="50" required>
+            <mat-hint align="end">{{entityForm.get('name') | characterCount}}</mat-hint>
+            <mat-icon matSuffix class="iconTranslate"
+                      (click)="onTranslated('name')"
+                      onKeyDown="onTranslated('name')">translate</mat-icon>
+            <mat-error *ngIf="entityForm.get('name')?.hasError('required') && entityForm.get('name')?.touched">
+              {{ 'common.error.required' | translate }}
+            </mat-error>
+          </mat-form-field>
+          <mat-checkbox formControlName="official" class="sitmun-checkbox-row">
+            {{ 'entity.territoryType.official' | translate }}
+          </mat-checkbox>
+          <mat-checkbox formControlName="topType" class="sitmun-checkbox-row">
+            {{ 'entity.territoryType.topType' | translate }}
+          </mat-checkbox>
+          <mat-checkbox formControlName="bottomType" class="sitmun-checkbox-row">
+            {{ 'entity.territoryType.bottomType' | translate }}
+          </mat-checkbox>
+        </mat-card-content>
+      </mat-card>
+    </form>
+  </mat-tab>
+</mat-tab-group>

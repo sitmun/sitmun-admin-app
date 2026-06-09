@@ -5,13 +5,17 @@
   [itemName]="itemName('name')"
   [isNew]="isNewOrDuplicated()"
   [canSave]="canSaveEntity"
-  [form]="entityForm"
-  entityLabelPrefix="entity.service"
-  [validationFieldLabelKeys]="{ type: 'entity.service.type', serviceURL: 'entity.service.endpoint', authenticationMode: 'entity.service.authenticationMode' }"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>
+
+<app-entity-form-alerts
+  *ngIf="dataLoaded"
+  [form]="entityForm"
+  entityLabelPrefix="entity.service"
+  [fieldLabelKeys]="{ type: 'entity.service.type', serviceURL: 'entity.service.endpoint', authenticationMode: 'entity.service.authenticationMode' }">
+</app-entity-form-alerts>
 
 <mat-tab-group
   mat-stretch-tabs="false"
@@ -22,7 +26,7 @@
     <form [formGroup]='entityForm' *ngIf="dataLoaded" class="sitmun-service-form-entity">
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
         <mat-card-content class="sitmun-service-form-stack">
-          <mat-form-field appearance="outline" class="full">
+          <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
             <mat-label>{{ 'common.form.name' | translate }} ({{ defaultLang }})</mat-label>
             <input matInput type="text" formControlName="name" [maxlength]="60" required>
             <mat-hint align="start">{{ 'entity.service.hint.name' | translate }}</mat-hint>
@@ -35,7 +39,7 @@
                       (click)="onTranslated('name')"
                       onKeyDown="onTranslated('name')">translate</mat-icon>
           </mat-form-field>
-          <mat-form-field appearance="outline" class="full">
+          <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
             <mat-label>{{ 'common.form.description' | translate }} ({{ defaultLang }})</mat-label>
             <textarea matInput type="text" formControlName="description" [maxlength]="4000"> </textarea>
             <mat-hint align="start">{{ 'entity.service.hint.description' | translate }}</mat-hint>
@@ -44,9 +48,12 @@
                       (click)="onTranslated('description')"
                       onKeyDown="onTranslated('description')">translate</mat-icon>
           </mat-form-field>
-          <mat-checkbox formControlName="blocked">
-            {{ 'entity.service.blocked' | translate }}
-          </mat-checkbox>
+          <div class="sitmun-toggle-row">
+            <mat-slide-toggle color="primary" formControlName="blocked">
+              {{ 'entity.service.blocked' | translate }}
+            </mat-slide-toggle>
+            <p class="sitmun-toggle-hint">{{ 'entity.service.hint.blocked' | translate }}</p>
+          </div>
         </mat-card-content>
       </mat-card>
 
@@ -61,7 +68,7 @@
             </mat-select>
           </mat-form-field>
 
-          <mat-form-field appearance="outline" class="full">
+          <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
             <mat-label>{{ 'entity.service.endpoint' | translate }}</mat-label>
             <input [maxlength]="4000" appUrlInput formControlName="serviceURL" matInput required type="text">
             <mat-hint align="start">{{ 'entity.service.hint.serviceURL' | translate }}</mat-hint>
@@ -77,14 +84,14 @@
           >
             {{ (isNewOrDuplicated() ? 'entity.service.button.getMetadata' : 'entity.service.button.updateMetadata') | translate }}
           </button>
-          <mat-form-field appearance="outline" class="full">
+          <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
             <mat-label>{{ 'entity.service.metadataURL' | translate }}</mat-label>
             <input [maxlength]="4000" appUrlInput formControlName="getInformationURL" matInput type="text">
             <mat-hint align="start">{{ 'entity.service.hint.metadataURL' | translate }}</mat-hint>
             <mat-hint align="end">{{ entityForm.get('getInformationURL') | characterCount }}</mat-hint>
           </mat-form-field>
           <ng-container *appFeatureFlag="'SERVICES_CRS_LIST'">
-            <mat-form-field appearance="outline" class="full">
+            <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
               <mat-label>
                 <app-feature-flag
                   [text]="'entity.service.projections' | translate"
@@ -112,9 +119,12 @@
               <mat-hint align="end">{{ entityForm.get('supportedSRS') | characterCount:250 }}</mat-hint>
             </mat-form-field>
           </ng-container>
-          <mat-checkbox formControlName="isProxied">
-            {{ 'entity.service.proxied' | translate }}
-          </mat-checkbox>
+          <div class="sitmun-toggle-row">
+            <mat-slide-toggle color="primary" formControlName="isProxied">
+              {{ 'entity.service.proxied' | translate }}
+            </mat-slide-toggle>
+            <p class="sitmun-toggle-hint">{{ 'entity.service.hint.proxied' | translate }}</p>
+          </div>
         </mat-card-content>
       </mat-card>
 
@@ -132,13 +142,13 @@
             class="sitmun-service-form-auth-credentials"
             *ngIf="entityForm.get('authenticationMode').value !== 'None'"
           >
-            <mat-form-field appearance="outline" class="half">
+            <mat-form-field appearance="outline" class="half sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
               <mat-label>{{ 'entity.service.user' | translate }}</mat-label>
               <input matInput type="text" formControlName="user" [maxlength]="50">
               <mat-hint align="start">{{ 'entity.service.hint.user' | translate }}</mat-hint>
               <mat-hint align="end">{{ entityForm.get('user') | characterCount }}</mat-hint>
             </mat-form-field>
-            <mat-form-field appearance="outline" class="half">
+            <mat-form-field appearance="outline" class="half sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
               <mat-label>{{ 'entity.service.password' | translate }}</mat-label>
               <input matInput [type]="'text'" formControlName="password" [maxlength]="50">
               <mat-hint align="start">{{ 'entity.service.hint.password' | translate }}</mat-hint>
@@ -200,16 +210,10 @@
       </ng-template>
       <mat-card appearance="outlined" class="sitmun-service-form-parameters-card">
         <mat-card-header>
-          <mat-card-subtitle class="sitmun-service-form-parameters-lead">
-            <span>
-              <strong>{{ 'entity.service.card.parametersLead.viewerPrefix' | translate }}</strong>
-              <span [innerHTML]="'entity.service.card.parametersLead.viewer' | translate"></span>
-            </span>
-            <span>
-              <strong>{{ 'entity.service.card.parametersLead.proxyPrefix' | translate }}</strong>
-              <span [innerHTML]="'entity.service.card.parametersLead.proxy' | translate"></span>
-            </span>
-          </mat-card-subtitle>
+          <app-card-lead
+            viewerKey="entity.service.card.parametersLead.viewer"
+            proxyKey="entity.service.card.parametersLead.proxy">
+          </app-card-lead>
         </mat-card-header>
         <mat-card-content>
           <app-data-grid [changeHeightButton]="true"

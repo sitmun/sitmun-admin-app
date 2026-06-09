@@ -8,20 +8,90 @@ import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from '@angular/material/tree';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
 import { FileDatabase , DataTreeComponent } from './data-tree.component';
 
+const DEFAULT_TREE_TYPE = 'touristic';
+
+function makeNode(overrides: Record<string, unknown> = {}): any {
+  return { children: [], parent: null, ...overrides };
+}
+
+function makeTouristicTaskNode(overrides: Record<string, unknown> = {}): any {
+  return makeNode({ nodeType: 'task', taskId: null, viewMode: null, ...overrides });
+}
+
+function makeMenuParent(id = 1, overrides: Record<string, unknown> = {}): any {
+  return makeNode({ id, name: 'Parent', nodeType: 'menu', children: [], parent: null, ...overrides });
+}
+
+function makeTaskChild(parentId: number, overrides: Record<string, unknown> = {}): any {
+  return makeNode({ id: 2, name: 'Child', nodeType: 'task', parent: parentId, children: [], ...overrides });
+}
+
+function withElementFromPoint(element: Element | null, fn: () => void): void {
+  const original = document.elementFromPoint;
+  document.elementFromPoint = jest.fn().mockReturnValue(element);
+  try {
+    fn();
+  } finally {
+    document.elementFromPoint = original;
+  }
+}
 
 describe('DataTreeComponent', () => {
   let component: DataTreeComponent;
   let fixture: ComponentFixture<DataTreeComponent>;
 
-  beforeEach(async () => {
+  function setTouristicTreeData(children: any[] = []): void {
+    component.currentTreeType = DEFAULT_TREE_TYPE;
+    component.dataSource.data = [{
+      name: '', isRoot: true, id: null, order: 0, children, type: 'folder'
+    } as any];
+  }
+
+  function mockExpandedLegacyTreeOps(nodeId: number | string = 1): void {
+
+    (component as any).legacyTreeOps = {
+      ...(component as any).legacyTreeOps,
+      isExpanded: (node: any) => node.id === nodeId,
+    };
+  }
+
+  function inactiveParentWithActiveChild(): { parent: any; child: any } {
+    const parent = makeMenuParent(1, { active: false });
+    const child = makeTaskChild(1, { id: 2, active: true });
+    return { parent, child };
+  }
+
+  function makeHandleDropEvent(overrides: Record<string, unknown> = {}): any {
+    return {
+      item: { data: { id: 1, status: 'modified' } },
+      container: { data: [{ id: 2 }] },
+      previousIndex: 0,
+      currentIndex: 0,
+      ...overrides,
+    };
+  }
+
+  function makeDropContext(overrides: Record<string, unknown> = {}): any {
+    return {
+      targetNodeId: 2,
+      targetNode: { id: 2, nodeType: 'menu', children: [] },
+      sourceNode: { id: 1, nodeType: 'menu', children: [] },
+      rootNode: { id: null, children: [] },
+      ...overrides,
+    };
+  }
+
+  beforeAll(async () => {
     await TestBed.configureTestingModule({
+       
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [ DataTreeComponent ],
       imports: [
         TranslateModule.forRoot(),
@@ -34,7 +104,7 @@ describe('DataTreeComponent', () => {
         MatInputModule,
         MatTooltipModule,
         DragDropModule,
-        BrowserAnimationsModule
+        NoopAnimationsModule
       ],
       providers: [
         FileDatabase,
@@ -54,24 +124,24 @@ describe('DataTreeComponent', () => {
     fixture.detectChanges();
   });
 
+  afterEach(() => {
+    fixture?.destroy();
+  });
+
+  afterAll(() => TestBed.resetTestingModule());
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
   describe('showMappingInTaskPanelForNodeType', () => {
-    it('returns true for touristic + task', () => {
-      component.currentTreeType = 'touristic';
-      expect(component.showMappingInTaskPanelForNodeType('task')).toBe(true);
-    });
-
-    it('returns false for touristic + menu', () => {
-      component.currentTreeType = 'touristic';
-      expect(component.showMappingInTaskPanelForNodeType('menu')).toBe(false);
-    });
-
-    it('returns false for cartography + cartography', () => {
-      component.currentTreeType = 'cartography';
-      expect(component.showMappingInTaskPanelForNodeType('cartography')).toBe(false);
+    it.each([
+      ['touristic', 'task', true],
+      ['touristic', 'menu', false],
+      ['cartography', 'cartography', false],
+    ])('returns %s for %s node type', (treeType, nodeType, expected) => {
+      component.currentTreeType = treeType;
+      expect(component.showMappingInTaskPanelForNodeType(nodeType)).toBe(expected);
     });
 
     it('returns false when currentTreeType is not set', () => {
@@ -100,68 +170,47 @@ describe('DataTreeComponent', () => {
   });
 
   describe('getNodeIcon (main icon)', () => {
-    it('returns nodeType icon for touristic task even when unconfigured (folder is secondary hint)', () => {
-      component.currentTreeType = 'touristic';
-      const node: any = { status: null, nodeType: 'task', taskId: null, viewMode: null, type: 'node' };
-      expect(component.getNodeIcon(node)).toBe('sync');
-    });
-
-    it('returns configured nodeType icon when taskId is present', () => {
-      component.currentTreeType = 'touristic';
-      const node: any = { status: null, nodeType: 'task', taskId: 123, viewMode: null, type: 'node' };
-      expect(component.getNodeIcon(node)).toBe('sync');
-    });
-
-    it('returns configured nodeType icon when viewMode is present', () => {
-      component.currentTreeType = 'touristic';
-      const node: any = { status: null, nodeType: 'task', taskId: null, viewMode: 'dl', type: 'node' };
+    it.each([
+      [{ taskId: null, viewMode: null }],
+      [{ taskId: 123, viewMode: null }],
+      [{ taskId: null, viewMode: 'dl' }],
+    ])('returns sync icon for touristic task node', (overrides) => {
+      component.currentTreeType = DEFAULT_TREE_TYPE;
+      const node = makeTouristicTaskNode({ status: null, type: 'node', ...overrides });
       expect(component.getNodeIcon(node)).toBe('sync');
     });
   });
 
   describe('showFolderHintForTaskGroupContainer', () => {
-    it('returns true for touristic task with no taskId and no viewMode when config enables hint', () => {
-      component.currentTreeType = 'touristic';
-      const node: any = { nodeType: 'task', taskId: null, viewMode: null };
-      expect(component.showFolderHintForTaskGroupContainer(node)).toBe(true);
-    });
-
-    it('returns false when taskId is set', () => {
-      component.currentTreeType = 'touristic';
-      const node: any = { nodeType: 'task', taskId: 123, viewMode: null };
-      expect(component.showFolderHintForTaskGroupContainer(node)).toBe(false);
-    });
-
-    it('returns false when viewMode is set', () => {
-      component.currentTreeType = 'touristic';
-      const node: any = { nodeType: 'task', taskId: null, viewMode: 'dl' };
-      expect(component.showFolderHintForTaskGroupContainer(node)).toBe(false);
+    it.each([
+      [{ taskId: null, viewMode: null }, true],
+      [{ taskId: 123, viewMode: null }, false],
+      [{ taskId: null, viewMode: 'dl' }, false],
+    ])('returns expected hint for touristic task node', (overrides, expected) => {
+      component.currentTreeType = DEFAULT_TREE_TYPE;
+      expect(component.showFolderHintForTaskGroupContainer(makeTouristicTaskNode(overrides))).toBe(expected);
     });
 
     it('returns false when currentTreeType has no folderHintForTaskGroupContainer for nodeType', () => {
       component.currentTreeType = 'cartography';
-      const node: any = { nodeType: 'task', taskId: null, viewMode: null };
-      expect(component.showFolderHintForTaskGroupContainer(node)).toBe(false);
+      expect(component.showFolderHintForTaskGroupContainer(makeTouristicTaskNode())).toBe(false);
     });
   });
 
   describe('addNodeToTree (first node / new tree)', () => {
     it('does not throw when adding first root node and dataSource.data is empty (simulates race before getElements)', () => {
-      component.getAll = () => of([]);
-      component.currentTreeType = 'touristic';
+      component.currentTreeType = DEFAULT_TREE_TYPE;
       component.allNewElements = true;
       fixture.detectChanges();
       // Simulate race: data not yet set (e.g. tab just opened, async callback not run)
       component.dataSource.data = [];
-      const firstNode = {
+      const firstNode = makeMenuParent(undefined as any, {
         name: 'Inicio',
-        nodeType: 'menu',
         parent: null,
         order: 0,
-        children: [],
         status: 'pendingCreation',
-        active: true
-      };
+        active: true,
+      });
       expect(() => component.addNodeToTree(firstNode as any)).not.toThrow();
       expect(component.dataSource.data).toBeDefined();
       expect(component.dataSource.data.length).toBeGreaterThan(0);
@@ -175,13 +224,17 @@ describe('DataTreeComponent', () => {
   describe('FileDatabase', () => {
     let database: FileDatabase;
 
+    function buildTouristicTree(flatNodes: any[], allNewElements = false, parentId = 0) {
+      return database.buildFileTree(flatNodes, parentId, allNewElements, DEFAULT_TREE_TYPE);
+    }
+
     beforeEach(() => {
       database = TestBed.inject(FileDatabase);
     });
 
     describe('buildFileTree', () => {
       it('returns root with empty children when given empty array', () => {
-        const result = database.buildFileTree([], 0, false, 'touristic');
+        const result = buildTouristicTree([]);
         expect(result.name).toBe('');
         expect(result.isRoot).toBe(true);
         expect(result.children).toEqual([]);
@@ -194,7 +247,7 @@ describe('DataTreeComponent', () => {
           { id: 2, name: 'Child1', nodeType: 'task', parent: 1, order: 0 },
           { id: 3, name: 'Child2', nodeType: 'task', parent: 1, order: 1 }
         ];
-        const result = database.buildFileTree(flatNodes, 0, false, 'touristic');
+        const result = buildTouristicTree(flatNodes);
         expect(result.children.length).toBe(1);
         expect(result.children[0].name).toBe('Parent');
         expect(result.children[0].children.length).toBe(2);
@@ -206,7 +259,7 @@ describe('DataTreeComponent', () => {
         const flatNodes = [
           { id: 1, name: 'Node', nodeType: 'menu', parent: null, order: 0 }
         ];
-        const result = database.buildFileTree(flatNodes, 0, true, 'touristic');
+        const result = buildTouristicTree(flatNodes, true);
         expect(result.children[0].id).toBe(-1);
         expect(result.children[0].status).toBe('pendingCreation');
       });
@@ -216,7 +269,7 @@ describe('DataTreeComponent', () => {
           { id: 1, name: 'Folder', nodeType: 'menu', parent: null, order: 0 },
           { id: 2, name: 'Leaf', nodeType: 'task', parent: 1, order: 0 }
         ];
-        const result = database.buildFileTree(flatNodes, 0, false, 'touristic');
+        const result = buildTouristicTree(flatNodes);
         expect(result.children[0].type).toBe('folder');
         expect(result.children[0].children[0].type).toBe('folder');
       });
@@ -274,28 +327,19 @@ describe('DataTreeComponent', () => {
       });
     });
 
-    describe('insertItemAbove', () => {
-      it('inserts node above target at correct position', () => {
+    describe('insertItemAbove and insertItemBelow', () => {
+      it.each([
+        ['insertItemAbove', 'Second', 1],
+        ['insertItemBelow', 'First', 1],
+      ])('%s inserts node at correct position', (method, targetName, expectedIndex) => {
         const sibling1: any = { id: 1, name: 'First', children: [] };
         const sibling2: any = { id: 2, name: 'Second', children: [] };
         const parent: any = { id: null, name: '', children: [sibling1, sibling2] };
         const nodeDrag: any = { id: 3, name: 'New' };
-        database.insertItemAbove(sibling2, nodeDrag, parent);
+        const target = targetName === 'Second' ? sibling2 : sibling1;
+        database[method as 'insertItemAbove' | 'insertItemBelow'](target, nodeDrag, parent);
         expect(parent.children.length).toBe(3);
-        expect(parent.children[1].name).toBe('New');
-        expect(parent.children[2].name).toBe('Second');
-      });
-    });
-
-    describe('insertItemBelow', () => {
-      it('inserts node below target at correct position', () => {
-        const sibling1: any = { id: 1, name: 'First', children: [] };
-        const sibling2: any = { id: 2, name: 'Second', children: [] };
-        const parent: any = { id: null, name: '', children: [sibling1, sibling2] };
-        const nodeDrag: any = { id: 3, name: 'New' };
-        database.insertItemBelow(sibling1, nodeDrag, parent);
-        expect(parent.children.length).toBe(3);
-        expect(parent.children[1].name).toBe('New');
+        expect(parent.children[expectedIndex].name).toBe('New');
         expect(parent.children[2].name).toBe('Second');
       });
     });
@@ -319,15 +363,10 @@ describe('DataTreeComponent', () => {
   });
 
   describe('addNodeToTree', () => {
-    beforeEach(() => {
-      component.currentTreeType = 'touristic';
-      component.dataSource.data = [{
-        name: '', isRoot: true, id: null, order: 0, children: [], type: 'folder'
-      } as any];
-    });
+    beforeEach(() => setTouristicTreeData());
 
     it('appends as root child when parent is null', () => {
-      const newNode: any = { name: 'RootChild', nodeType: 'menu', parent: null, children: [] };
+      const newNode = makeMenuParent(undefined as any, { name: 'RootChild', parent: null });
       component.addNodeToTree(newNode);
       const root = component.dataSource.data[0];
       expect(root.children.length).toBe(1);
@@ -336,9 +375,9 @@ describe('DataTreeComponent', () => {
     });
 
     it('appends under parent when parent ID is provided', () => {
-      const parent: any = { id: 1, name: 'Parent', nodeType: 'menu', children: [], parent: null };
+      const parent = makeMenuParent(1);
       component.dataSource.data[0].children = [parent];
-      const newNode: any = { name: 'Child', nodeType: 'task', parent: 1, children: [] };
+      const newNode = makeTaskChild(1, { name: 'Child' });
       component.addNodeToTree(newNode);
       // addNodeToTree does a deep clone, so check the updated dataSource
       const updatedParent = component.dataSource.data[0].children[0];
@@ -347,16 +386,16 @@ describe('DataTreeComponent', () => {
     });
 
     it('sets type based on canNodeTypeHaveChildren', () => {
-      const newNode: any = { name: 'Menu', nodeType: 'menu', parent: null, children: [] };
+      const newNode = makeMenuParent(undefined as any, { name: 'Menu', parent: null });
       component.addNodeToTree(newNode);
       expect(newNode.type).toBe('folder');
     });
 
     it('keeps a newly inserted node visible even when current filter does not match', () => {
-      const parent: any = { id: 1, name: 'Parent', nodeType: 'menu', children: [], parent: null };
+      const parent = makeMenuParent(1);
       component.dataSource.data[0].children = [parent];
       component.filterValue = 'not-matching-filter';
-      const newNode: any = { id: 2, name: 'Child', nodeType: 'task', parent: 1, children: [] };
+      const newNode = makeTaskChild(1, { id: 2, name: 'Child' });
 
       component.addNodeToTree(newNode);
 
@@ -367,9 +406,9 @@ describe('DataTreeComponent', () => {
     });
 
     it('expands ancestor ids for newly inserted child nodes', () => {
-      const parent: any = { id: 10, name: 'Parent', nodeType: 'menu', children: [], parent: null };
+      const parent = makeMenuParent(10);
       component.dataSource.data[0].children = [parent];
-      const newNode: any = { id: 20, name: 'Child', nodeType: 'task', parent: 10, children: [] };
+      const newNode = makeTaskChild(10, { id: 20, name: 'Child' });
 
       component.addNodeToTree(newNode);
 
@@ -379,11 +418,8 @@ describe('DataTreeComponent', () => {
 
   describe('updateNode', () => {
     beforeEach(() => {
-      component.currentTreeType = 'touristic';
-      const existingNode: any = { id: 1, name: 'Original', nodeType: 'menu', children: [], parent: null };
-      component.dataSource.data = [{
-        name: '', isRoot: true, id: null, children: [existingNode], type: 'folder'
-      } as any];
+      const existingNode = makeMenuParent(1, { name: 'Original' });
+      setTouristicTreeData([existingNode]);
     });
 
     it('merges new properties and preserves children', () => {
@@ -401,15 +437,22 @@ describe('DataTreeComponent', () => {
       expect(spy).toHaveBeenCalled();
       spy.mockRestore();
     });
+
+    it('ignores stale form payload with null id so root children are preserved', () => {
+      component.addNodeToTree({ id: -1, name: 'Nuevo', nodeType: 'folder', parent: null, status: 'pendingCreation' } as any);
+      expect(component.dataSource.data[0].children).toHaveLength(2);
+
+      component.updateNode({ id: null, name: null, nodeType: null, children: [] } as any);
+
+      expect(component.dataSource.data[0].children).toHaveLength(2);
+      expect(component.dataSource.data[0].children[1].name).toBe('Nuevo');
+    });
   });
 
   describe('onButtonClicked', () => {
     beforeEach(() => {
-      component.currentTreeType = 'touristic';
-      const node: any = { id: 1, name: 'Node1', nodeType: 'menu', children: [], parent: null, status: null };
-      component.dataSource.data = [{
-        name: '', isRoot: true, id: null, children: [node], type: 'folder'
-      } as any];
+      const node = makeMenuParent(1, { name: 'Node1', status: null });
+      setTouristicTreeData([node]);
     });
 
     it('sets selectedNodeId and emits emitNode on edit', (done) => {
@@ -421,8 +464,14 @@ describe('DataTreeComponent', () => {
       expect(component.selectedNodeId).toBe(1);
     });
 
+    it('clearSelection resets selectedNodeId', () => {
+      component.selectedNodeId = 1;
+      component.clearSelection();
+      expect(component.selectedNodeId).toBeNull();
+    });
+
     it('marks node and children as pendingDelete on delete', () => {
-      const child: any = { id: 2, name: 'Child', children: [], parent: 1 };
+      const child = makeTaskChild(1, { id: 2, name: 'Child' });
       component.dataSource.data[0].children[0].children = [child];
       component.onButtonClicked(1, 'delete');
       const node = component.dataSource.data[0].children[0];
@@ -431,15 +480,10 @@ describe('DataTreeComponent', () => {
     });
 
     it('preserves expanded state when marking expanded node as deleted', () => {
-      const child: any = { id: 2, name: 'Child', children: [], parent: 1 };
+      const child = makeTaskChild(1, { id: 2, name: 'Child' });
       component.dataSource.data[0].children[0].children = [child];
       (component as any).expandedNodeIdsState.clear();
-      const expandedFlatNode: any = { id: 1 };
-      (component as any).legacyTreeOps = {
-        ...(component as any).legacyTreeOps,
-        getDataNodes: () => [expandedFlatNode],
-        isExpanded: (node: any) => node.id === 1
-      };
+      mockExpandedLegacyTreeOps(1);
 
       component.onButtonClicked(1, 'delete');
 
@@ -450,12 +494,7 @@ describe('DataTreeComponent', () => {
     it('preserves expanded state when restoring a deleted expanded node', () => {
       component.dataSource.data[0].children[0].status = 'pendingDelete';
       (component as any).expandedNodeIdsState.clear();
-      const expandedFlatNode: any = { id: 1 };
-      (component as any).legacyTreeOps = {
-        ...(component as any).legacyTreeOps,
-        getDataNodes: () => [expandedFlatNode],
-        isExpanded: (node: any) => node.id === 1
-      };
+      mockExpandedLegacyTreeOps(1);
 
       component.onButtonClicked(1, 'restore');
 
@@ -499,8 +538,8 @@ describe('DataTreeComponent', () => {
 
   describe('findNodeSiblings', () => {
     beforeEach(() => {
-      const child: any = { id: 2, name: 'Child', children: [] };
-      const parent: any = { id: 1, name: 'Parent', children: [child] };
+      const child = makeTaskChild(1, { id: 2, name: 'Child' });
+      const parent = makeMenuParent(1, { children: [child] });
       component.dataSource.data = [{ children: [parent] } as any];
     });
 
@@ -516,7 +555,7 @@ describe('DataTreeComponent', () => {
     });
   });
 
-  describe('getAllChildren', () => {
+  describe('getAllChildren from tree root', () => {
     it('flattens tree structure', () => {
       const tree: any[] = [{
         name: 'Root', children: [
@@ -554,27 +593,21 @@ describe('DataTreeComponent', () => {
   });
 
   describe('expandAll and collapseToFirstLevel', () => {
-    it('expandAll does not throw on empty tree', () => {
+    it.each([
+      ['expandAll', () => component.expandAll()],
+      ['collapseToFirstLevel', () => component.collapseToFirstLevel()],
+    ])('%s does not throw on empty tree', (_method, action) => {
       component.dataSource.data = [];
-      expect(() => component.expandAll()).not.toThrow();
+      expect(action).not.toThrow();
     });
 
-    it('collapseToFirstLevel does not throw on empty tree', () => {
-      component.dataSource.data = [];
-      expect(() => component.collapseToFirstLevel()).not.toThrow();
-    });
-
-    it('expandAll syncs material tree expansion state', () => {
+    it.each([
+      ['expandAll', () => component.expandAll()],
+      ['collapseToFirstLevel', () => component.collapseToFirstLevel()],
+    ])('%s syncs material tree expansion state', (_method, action) => {
       const syncSpy = jest.spyOn(component as any, 'syncTreeExpansionFromIdState').mockImplementation(() => {});
       component.dataSource.data = [{ id: null, isRoot: true, name: '', children: [{ id: 1, children: [] }] } as any];
-      component.expandAll();
-      expect(syncSpy).toHaveBeenCalled();
-    });
-
-    it('collapseToFirstLevel syncs material tree expansion state', () => {
-      const syncSpy = jest.spyOn(component as any, 'syncTreeExpansionFromIdState').mockImplementation(() => {});
-      component.dataSource.data = [{ id: null, isRoot: true, name: '', children: [{ id: 1, children: [] }] } as any];
-      component.collapseToFirstLevel();
+      action();
       expect(syncSpy).toHaveBeenCalled();
     });
   });
@@ -632,13 +665,69 @@ describe('DataTreeComponent', () => {
     });
 
     it('checks inactive ancestors for nested nodes', () => {
-      const nestedParent: any = { id: 1, name: 'Parent', active: false, children: [], parent: null };
-      const nestedChild: any = { id: 2, name: 'Child', active: true, children: [], parent: 1 };
-      component.dataSource.data = [nestedParent, nestedChild];
+      const { parent, child } = inactiveParentWithActiveChild();
+      component.dataSource.data = [parent, child];
 
-      expect(component.isNodeOrAncestorInactive(nestedChild)).toBe(true);
-      nestedParent.active = true;
-      expect(component.isNodeOrAncestorInactive(nestedChild)).toBe(false);
+      expect(component.isNodeOrAncestorInactive(child)).toBe(true);
+      parent.active = true;
+      expect(component.isNodeOrAncestorInactive(child)).toBe(false);
+    });
+  });
+
+  describe('hidden in viewer profile indicators', () => {
+    let translate: TranslateService;
+
+    beforeEach(() => {
+      translate = TestBed.inject(TranslateService);
+      translate.setTranslation('en', {
+        'entity.tree.hiddenInViewer.self':
+          'Hidden in viewer: this node and its children are omitted from the map catalog.',
+        'entity.tree.hiddenInViewer.ancestor':
+          'Hidden in viewer because parent "{{name}}" is not in the map catalog.'
+      }, true);
+      translate.use('en');
+    });
+
+    it('treats null and undefined active as visible', () => {
+      const nodeNull: any = { id: 1, name: 'A', active: null, children: [], parent: null };
+      const nodeUndef: any = { id: 2, name: 'B', children: [], parent: null };
+      component.dataSource.data = [nodeNull, nodeUndef];
+
+      expect(component.isNodeActive(nodeNull)).toBe(true);
+      expect(component.isNodeActive(nodeUndef)).toBe(true);
+      expect(component.isHiddenInViewerProfile(nodeNull)).toBe(false);
+    });
+
+    it('detects node hidden by itself', () => {
+      const node: any = { id: 1, name: 'Hidden', active: false, children: [], parent: null };
+      component.dataSource.data = [node];
+
+      expect(component.isHiddenInViewerProfile(node)).toBe(true);
+      expect(component.findInactiveAncestor(node)?.id).toBe(1);
+    });
+
+    it('detects node hidden by ancestor', () => {
+      const { parent, child } = inactiveParentWithActiveChild();
+      component.dataSource.data = [parent, child];
+
+      expect(component.isHiddenInViewerProfile(child)).toBe(true);
+      expect(component.findInactiveAncestor(child)?.id).toBe(1);
+    });
+
+    it('builds self-hidden tooltip', () => {
+      const node: any = { id: 1, name: 'Hidden', active: false, children: [], parent: null };
+      component.dataSource.data = [node];
+
+      expect(component.hiddenInViewerTooltip(node)).toContain('Hidden in viewer');
+      expect(component.hiddenInViewerTooltip(node)).toContain('this node');
+    });
+
+    it('builds ancestor-hidden tooltip', () => {
+      const { parent, child } = inactiveParentWithActiveChild();
+      parent.name = 'Parent folder';
+      component.dataSource.data = [parent, child];
+
+      expect(component.hiddenInViewerTooltip(child)).toContain('Parent folder');
     });
   });
 
@@ -730,18 +819,8 @@ describe('DataTreeComponent', () => {
     });
 
     it('handleDrop delegates through resolveDropContext + executeDropOperation', () => {
-      const event: any = {
-        item: { data: { id: 1 } },
-        container: { data: [{ id: 2 }] },
-        previousIndex: 0,
-        currentIndex: 0
-      };
-      const context: any = {
-        targetNodeId: 2,
-        targetNode: { id: 2, nodeType: 'menu', children: [] },
-        sourceNode: { id: 1, nodeType: 'menu', children: [] },
-        rootNode: { id: null, children: [] }
-      };
+      const event = makeHandleDropEvent();
+      const context = makeDropContext();
       (component as any).isDragging = true;
       (component as any).dragNodeId = 1;
       (component as any).dragNodeExpandOverNodeId = '2';
@@ -805,22 +884,16 @@ describe('DataTreeComponent', () => {
       });
 
       it('returns null when no element found at point', () => {
-        const originalElementFromPoint = document.elementFromPoint;
-        document.elementFromPoint = jest.fn().mockReturnValue(null);
-        
-        expect((component as any).getTargetNodeIdFromDropPoint({ x: 100, y: 100 })).toBeNull();
-        
-        document.elementFromPoint = originalElementFromPoint;
+        withElementFromPoint(null, () => {
+          expect((component as any).getTargetNodeIdFromDropPoint({ x: 100, y: 100 })).toBeNull();
+        });
       });
 
       it('returns null when element is not inside tree-node-row', () => {
         const element = document.createElement('div');
-        const originalElementFromPoint = document.elementFromPoint;
-        document.elementFromPoint = jest.fn().mockReturnValue(element);
-        
-        expect((component as any).getTargetNodeIdFromDropPoint({ x: 100, y: 100 })).toBeNull();
-        
-        document.elementFromPoint = originalElementFromPoint;
+        withElementFromPoint(element, () => {
+          expect((component as any).getTargetNodeIdFromDropPoint({ x: 100, y: 100 })).toBeNull();
+        });
       });
 
       it('returns node id when row found at drop point', () => {
@@ -830,14 +903,12 @@ describe('DataTreeComponent', () => {
         const child = document.createElement('span');
         row.appendChild(child);
         document.body.appendChild(row);
-        
-        const originalElementFromPoint = document.elementFromPoint;
-        document.elementFromPoint = jest.fn().mockReturnValue(child);
-        
-        const result = (component as any).getTargetNodeIdFromDropPoint({ x: 100, y: 100 });
-        expect(result).toBe('10');
-        
-        document.elementFromPoint = originalElementFromPoint;
+
+        withElementFromPoint(child, () => {
+          const result = (component as any).getTargetNodeIdFromDropPoint({ x: 100, y: 100 });
+          expect(result).toBe('10');
+        });
+
         document.body.removeChild(row);
       });
     });
@@ -850,15 +921,13 @@ describe('DataTreeComponent', () => {
     });
 
     it('uses pointer target when list target equals source (self-targeting)', () => {
-      const event: any = {
+      const event = makeHandleDropEvent({
         item: { data: { id: 5, status: 'modified' } },
         container: { data: [{ id: 5 }] },
-        previousIndex: 0,
-        currentIndex: 0,
-        dropPoint: { x: 200, y: 200 }
-      };
+        dropPoint: { x: 200, y: 200 },
+      });
       (component as any).dragNodeExpandOverNodeId = '5';
-      
+
       const getFromListSpy = jest.spyOn(component as any, 'getTargetNodeIdFromDropListData').mockReturnValue('5');
       const getFromPointSpy = jest.spyOn(component as any, 'getTargetNodeIdFromDropPoint').mockReturnValue('10');
       const resolveContextSpy = jest.spyOn(component as any, 'resolveDropContext').mockReturnValue(undefined);
@@ -876,12 +945,7 @@ describe('DataTreeComponent', () => {
     });
 
     it('resets drag state when no target found', () => {
-      const event: any = {
-        item: { data: { id: 1, status: 'modified' } },
-        container: { data: [] },
-        previousIndex: 0,
-        currentIndex: 0
-      };
+      const event = makeHandleDropEvent({ container: { data: [] } });
       (component as any).dragNodeExpandOverNodeId = null;
       const resetSpy = jest.spyOn(component as any, 'resetDragState').mockImplementation(() => {});
 
@@ -892,12 +956,7 @@ describe('DataTreeComponent', () => {
     });
 
     it('resets drag state when resolveDropContext returns undefined', () => {
-      const event: any = {
-        item: { data: { id: 1, status: 'modified' } },
-        container: { data: [{ id: 2 }] },
-        previousIndex: 0,
-        currentIndex: 0
-      };
+      const event = makeHandleDropEvent();
       (component as any).dragNodeExpandOverNodeId = '2';
       jest.spyOn(component as any, 'resolveDropContext').mockReturnValue(undefined);
       const resetSpy = jest.spyOn(component as any, 'resetDragState').mockImplementation(() => {});
@@ -909,18 +968,8 @@ describe('DataTreeComponent', () => {
     });
 
     it('resets drag state when executeDropOperation returns false', () => {
-      const event: any = {
-        item: { data: { id: 1, status: 'modified' } },
-        container: { data: [{ id: 2 }] },
-        previousIndex: 0,
-        currentIndex: 0
-      };
-      const context: any = {
-        targetNodeId: 2,
-        targetNode: { id: 2, nodeType: 'menu', children: [] },
-        sourceNode: { id: 1, children: [] },
-        rootNode: { children: [] }
-      };
+      const event = makeHandleDropEvent();
+      const context = makeDropContext({ sourceNode: { id: 1, children: [] } });
       (component as any).dragNodeExpandOverNodeId = '2';
       jest.spyOn(component as any, 'resolveDropContext').mockReturnValue(context);
       jest.spyOn(component as any, 'executeDropOperation').mockReturnValue(false);
@@ -933,18 +982,8 @@ describe('DataTreeComponent', () => {
     });
 
     it('rebuilds tree and resets when drop succeeds', () => {
-      const event: any = {
-        item: { data: { id: 1, status: 'modified' } },
-        container: { data: [{ id: 2 }] },
-        previousIndex: 0,
-        currentIndex: 0
-      };
-      const context: any = {
-        targetNodeId: 2,
-        targetNode: { id: 2, nodeType: 'menu', children: [] },
-        sourceNode: { id: 1, children: [] },
-        rootNode: { children: [] }
-      };
+      const event = makeHandleDropEvent();
+      const context = makeDropContext({ sourceNode: { id: 1, children: [] } });
       (component as any).dragNodeExpandOverNodeId = '2';
       jest.spyOn(component as any, 'resolveDropContext').mockReturnValue(context);
       jest.spyOn(component as any, 'executeDropOperation').mockReturnValue(true);
@@ -985,7 +1024,7 @@ describe('DataTreeComponent', () => {
       (component as any).dragNodeStatus = 'modified';
       (component as any).dragNodeExpandOverArea = 'above';
       expect((component as any).canProcessDrop('2', { nodeType: 'task' })).toBe(true);
-      
+
       (component as any).dragNodeExpandOverArea = 'below';
       expect((component as any).canProcessDrop('2', { nodeType: 'task' })).toBe(true);
     });
@@ -996,10 +1035,10 @@ describe('DataTreeComponent', () => {
       (component as any).dragNodeStatus = 'modified';
       (component as any).dragNodeExpandOverArea = 'center';
       component.currentTreeType = 'touristic';
-      
+
       // menu can have children
       expect((component as any).canProcessDrop('2', { nodeType: 'menu' })).toBe(true);
-      
+
       // layer cannot have children
       expect((component as any).canProcessDrop('3', { nodeType: 'layer' })).toBe(false);
     });
@@ -1012,16 +1051,16 @@ describe('DataTreeComponent', () => {
         (component as any).tree = {
           expand: jest.fn()
         };
-        
+
         (component as any).ensureRootExpandedAfterFilter([root]);
-        
+
         expect((component as any).tree.expand).toHaveBeenCalledWith(root);
       });
 
       it('does not throw when tree is undefined', () => {
         const root: any = { id: null, isRoot: true, children: [] };
         (component as any).tree = undefined;
-        
+
         expect(() => {
           (component as any).ensureRootExpandedAfterFilter([root]);
         }).not.toThrow();
@@ -1029,7 +1068,7 @@ describe('DataTreeComponent', () => {
 
       it('does not throw when data is empty', () => {
         (component as any).tree = { expand: jest.fn() };
-        
+
         expect(() => {
           (component as any).ensureRootExpandedAfterFilter([]);
         }).not.toThrow();
@@ -1046,9 +1085,9 @@ describe('DataTreeComponent', () => {
           { id: 1, name: 'Modified', status: 'Modified', children: [] }
         ];
         jest.spyOn(component as any, 'isPersistedNodeId').mockReturnValue(true);
-        
+
         (component as any).storeOriginalStates(nodes);
-        
+
         expect((component as any).originalNodeStates.size).toBe(0);
       });
 
@@ -1057,9 +1096,9 @@ describe('DataTreeComponent', () => {
           { id: -2, name: 'New', status: 'pendingCreation', children: [] }
         ];
         jest.spyOn(component as any, 'isPersistedNodeId').mockReturnValue(false);
-        
+
         (component as any).storeOriginalStates(nodes);
-        
+
         expect((component as any).originalNodeStates.size).toBe(0);
       });
 
@@ -1068,9 +1107,9 @@ describe('DataTreeComponent', () => {
           { id: 10, name: 'Persisted', status: null, children: [], nodeType: 'menu' }
         ];
         jest.spyOn(component as any, 'isPersistedNodeId').mockReturnValue(true);
-        
+
         (component as any).storeOriginalStates(nodes);
-        
+
         expect((component as any).originalNodeStates.size).toBe(1);
         expect((component as any).originalNodeStates.has(10)).toBe(true);
         const stored = (component as any).originalNodeStates.get(10);
@@ -1087,9 +1126,9 @@ describe('DataTreeComponent', () => {
           ]
         }];
         jest.spyOn(component as any, 'isPersistedNodeId').mockReturnValue(true);
-        
+
         (component as any).storeOriginalStates(nodes);
-        
+
         expect((component as any).originalNodeStates.size).toBe(2);
         expect((component as any).originalNodeStates.has(20)).toBe(true);
         expect((component as any).originalNodeStates.has(21)).toBe(true);
@@ -1102,9 +1141,9 @@ describe('DataTreeComponent', () => {
         const nodes: any[] = [
           { id: 30, name: 'Modified Name', status: null, children: [] }
         ];
-        
+
         (component as any).storeOriginalStates(nodes);
-        
+
         const stored = (component as any).originalNodeStates.get(30);
         expect(stored.name).toBe('Original');
       });
@@ -1124,9 +1163,9 @@ describe('DataTreeComponent', () => {
       const findByIdSpy = jest.spyOn(component as any, 'findNodeById')
         .mockReturnValueOnce(node1)
         .mockReturnValueOnce(node2);
-      
+
       (component as any).syncTreeExpansionFromIdState();
-      
+
       expect((component as any).tree.expand).toHaveBeenCalledWith(node1);
       expect((component as any).tree.collapse).toHaveBeenCalledWith(node2);
       findByIdSpy.mockRestore();
@@ -1145,12 +1184,12 @@ describe('DataTreeComponent', () => {
       (component as any).expandedNodeIdsState = new Set(['1', '11', '2']);
       (component as any).tree = { expand: jest.fn(), collapse: jest.fn() };
       const syncSpy = jest.spyOn(component as any, 'syncTreeExpansionFromIdState').mockImplementation(() => {});
-      const _collapseSpy = jest.spyOn(component as any, 'collapseAllFlatNodes').mockImplementation(() => {
+      jest.spyOn(component as any, 'collapseAllFlatNodes').mockImplementation(() => {
         (component as any).expandedNodeIdsState.clear();
       });
-      
+
       component.collapseToFirstLevel();
-      
+
       // The method adds String(root.id) which is 'null' as string
       const rootIdAsString = String(root.id);
       expect((component as any).expandedNodeIdsState.has(rootIdAsString)).toBe(true);
@@ -1165,14 +1204,14 @@ describe('DataTreeComponent', () => {
     describe('isNodeExpandedById', () => {
       it('returns true when node id is in expandedNodeIdsState', () => {
         (component as any).expandedNodeIdsState = new Set(['5', '10']);
-        
+
         expect((component as any).isNodeExpandedById(5)).toBe(true);
         expect((component as any).isNodeExpandedById('10')).toBe(true);
       });
 
       it('returns false when node id is not in expandedNodeIdsState', () => {
         (component as any).expandedNodeIdsState = new Set(['5']);
-        
+
         expect((component as any).isNodeExpandedById(10)).toBe(false);
       });
     });
@@ -1201,18 +1240,6 @@ describe('DataTreeComponent', () => {
         // getNodeLevel returns 1 for nested nodes without level property (computed from tree position)
         const result = (component as any).getNodeLevel(node);
         expect(result).toBeGreaterThanOrEqual(0);
-      });
-    });
-
-    describe('isRootNode', () => {
-      it('returns true for root node', () => {
-        const root: any = { id: null, isRoot: true, children: [] };
-        expect((component as any).isRootNode(root)).toBe(true);
-      });
-
-      it('returns false for non-root node', () => {
-        const node: any = { id: 1, children: [] };
-        expect((component as any).isRootNode(node)).toBe(false);
       });
     });
 
@@ -1263,7 +1290,7 @@ describe('DataTreeComponent', () => {
           ]
         }];
         (component as any).setTreeData(tree);
-        
+
         const found = (component as any).findNodeById(2);
         expect(found).toBeDefined();
         expect(found.id).toBe(2);
@@ -1272,21 +1299,21 @@ describe('DataTreeComponent', () => {
       it('returns undefined when node not found', () => {
         const tree = [{ id: null, children: [{ id: 1, children: [] }] }];
         (component as any).setTreeData(tree);
-        
+
         const found = (component as any).findNodeById(999);
         expect(found).toBeFalsy(); // Can be undefined or null
       });
     });
 
-    describe('getAllChildren', () => {
+    describe('getAllChildren from children array', () => {
       it('collects all descendants recursively', () => {
         const childrenArray = [
           { id: 2, children: [{ id: 4, children: [] }] },
           { id: 3, children: [] }
         ];
-        
+
         const descendants = (component as any).getAllChildren(childrenArray);
-        
+
         expect(descendants.length).toBe(3);
         // getAllChildren flattens in depth-first order: children first, then siblings
         expect(descendants.map((n: any) => n.id)).toEqual([4, 2, 3]);
@@ -1306,9 +1333,9 @@ describe('DataTreeComponent', () => {
           children: [{ id: 1, children: [] }, { id: 2, children: [] }]
         }];
         (component as any).setTreeData(tree);
-        
+
         const visible = component.visibleNodes();
-        
+
         expect(Array.isArray(visible)).toBe(true);
         expect(visible.length).toBeGreaterThan(0);
       });

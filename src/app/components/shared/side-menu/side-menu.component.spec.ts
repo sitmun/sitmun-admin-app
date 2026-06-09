@@ -1,5 +1,5 @@
-import { HttpClient, HttpHandler } from '@angular/common/http';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { HttpClient, HttpHandler, provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -16,7 +16,6 @@ import { configureLoggerForTests } from '@app/testing/test-helpers';
 import { SideMenuComponent } from './side-menu.component';
 import { APP_ROUTES } from '../../../app-routes';
 
-
 describe('SideMenuComponent', () => {
   let component: SideMenuComponent;
   let fixture: ComponentFixture<SideMenuComponent>;
@@ -24,7 +23,7 @@ describe('SideMenuComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ SideMenuComponent ],
-      imports: [HttpClientTestingModule, MatIconTestingModule, MaterialModule, RouterModule.forRoot(APP_ROUTES, {}),
+      imports: [MatIconTestingModule, MaterialModule, RouterModule.forRoot(APP_ROUTES, {}),
          BrowserAnimationsModule, MatIconTestingModule, TranslateModule.forRoot({
         loader: {
           provide: TranslateLoader,
@@ -34,6 +33,8 @@ describe('SideMenuComponent', () => {
         }
       })],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         HttpClient,
         HttpHandler,
         {

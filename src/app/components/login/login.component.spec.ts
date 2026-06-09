@@ -1,10 +1,9 @@
-import { HttpClientModule} from '@angular/common/http';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { RouterModule } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideRouter, RouterModule } from '@angular/router';
 
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
@@ -16,9 +15,6 @@ import { LoginComponent } from './login.component';
 import { AccountService , AuthService , LoginService , Principal , ExternalConfigurationService } from '../../core';
 import { SitmunFrontendGuiModule } from '../../frontend-gui/src/lib/public_api';
 import { MaterialModule } from '../../material-module';
-
-
-
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -32,16 +28,15 @@ describe('LoginComponent', () => {
   let resourceService: ResourceService;
   let externalService: ExternalService;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
+     
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [ LoginComponent ],
       imports : [
         FormsModule,
         ReactiveFormsModule,
-        HttpClientTestingModule,
-        HttpClientModule,
         SitmunFrontendGuiModule,
-        RouterTestingModule,
         MatIconTestingModule,
         MaterialModule,
         RouterModule,
@@ -55,6 +50,9 @@ describe('LoginComponent', () => {
         })
       ],
       providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
         LoginService,
         AuthService,
         CodeListService,
@@ -81,6 +79,9 @@ describe('LoginComponent', () => {
     externalService= TestBed.inject(ExternalService);
     fixture.detectChanges();
   });
+
+  afterEach(() => fixture?.destroy());
+  afterAll(() => TestBed.resetTestingModule());
 
   it('should create', () => {
     expect(component).toBeTruthy();

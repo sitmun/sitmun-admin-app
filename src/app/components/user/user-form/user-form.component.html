@@ -2,55 +2,103 @@
   entityType="{{ config.labelSingular }}"
   font="{{ config.font }}"
   icon="{{ config.icon }}"
-  [itemName]="entityForm?.get('username')?.value || ''"
-  [isNew]="isNew()"
+  [itemName]="itemName('username')"
+  [isNew]="isNewOrDuplicated()"
   [canSave]="canSaveEntity"
-  [form]="entityForm"
-  entityLabelPrefix="entity.user"
-  [validationFieldLabelKeys]="{ username: 'common.form.identifier' }"
   [dataLoaded]="dataLoaded"
-  [customWarningMessage]="getBuiltInUserWarning()"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>
+
+<app-entity-form-alerts
+  *ngIf="dataLoaded"
+  [form]="entityForm"
+  entityLabelPrefix="entity.user"
+  [fieldLabelKeys]="validationFieldLabelKeys"
+  [warnings]="getUserDisplayWarnings()"
+  [infoMessageKeys]="getBuiltInInfoWarningKeys()"
+  [infoStyle]="useInfoWarningsCardStyle() && !hasRequiredFieldAlerts()">
+</app-entity-form-alerts>
 
 <mat-tab-group
   mat-stretch-tabs="false"
   mat-align-tabs="end"
   [dynamicHeight]="true"
   preserveContent="true">
-  <mat-tab label="{{ 'common.form.details' | translate }}">
-        <form [formGroup]='entityForm' *ngIf="dataLoaded">
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <span class="sitmun-tab-label-with-indicator">
+        {{ 'common.form.details' | translate }}
+        <span
+          *ngIf="detailsTabHasRequiredAlert()"
+          class="sitmun-tab-warn-indicator"
+          [attr.aria-label]="'common.validation.saveDisabledTitle' | translate">
+        </span>
+      </span>
+    </ng-template>
+        <form [formGroup]='entityForm' *ngIf="dataLoaded" class="sitmun-service-form-entity">
           <mat-card class="sitmun-mat-card-margin" appearance="outlined">
-            <mat-card-content>
-              <!-- Login identifier -->
-              <mat-form-field appearance="outline" class="quarter">
-                <mat-label>{{ 'common.form.identifier' | translate }}</mat-label>
-                <input matInput type="text" formControlName="username" [readonly]="isUsernamePublic()">
-              </mat-form-field>
-              <div class="break"></div>
-              <!-- Blocked -->
-              <mat-checkbox formControlName="blocked">
-                {{ 'entity.user.blocked' | translate }}
-              </mat-checkbox>
+            <mat-card-content class="sitmun-service-form-stack">
+              <div class="sitmun-user-form-half-row">
+                <mat-form-field appearance="outline" class="half add-gap" subscriptSizing="dynamic">
+                  <mat-label>{{ 'entity.user.username' | translate }}</mat-label>
+                  <input matInput type="text" formControlName="username" maxlength="50" [readonly]="isUsernamePublic()">
+                  <mat-hint align="end">{{ entityForm.get('username') | characterCount }}</mat-hint>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="half" subscriptSizing="dynamic" *ngIf="!isUsernamePublic()">
+                  <mat-label>{{ 'entity.user.password' | translate }}</mat-label>
+                  <input matInput
+                         formControlName="newPassword"
+                         type="text"
+                         maxlength="50"
+                         (focus)="onPasswordFocus()"
+                         (blur)="onPasswordBlur()"
+                         (input)="onPasswordChange()"
+                         class="password-input">
+                  <mat-hint align="end" *ngIf="isPasswordBeingEdited || !passwordSet">
+                    {{ entityForm.get('newPassword') | characterCount:50 }}
+                  </mat-hint>
+                  <mat-hint align="end" *ngIf="passwordSet && !isPasswordBeingEdited">
+                    {{ 'entity.user.hint.passwordMaxLength' | translate }}
+                  </mat-hint>
+                </mat-form-field>
+              </div>
+              <div class="sitmun-toggle-row">
+                <mat-slide-toggle color="primary" formControlName="administrator">
+                  {{ 'entity.user.administrator' | translate }}
+                </mat-slide-toggle>
+                <p class="sitmun-toggle-hint">{{ 'entity.user.hint.administrator' | translate }}</p>
+              </div>
+              <div class="sitmun-toggle-row">
+                <mat-slide-toggle color="primary" formControlName="blocked">
+                  {{ 'entity.user.blocked' | translate }}
+                </mat-slide-toggle>
+                <p class="sitmun-toggle-hint">{{ 'entity.user.hint.blocked' | translate }}</p>
+              </div>
             </mat-card-content>
           </mat-card>
           <mat-card class="sitmun-mat-card-margin" appearance="outlined" *ngIf="!isUsernamePublic()">
-            <mat-card-content>
-              <!-- First name -->
-              <mat-form-field appearance="outline" class="half add-gap">
-                <mat-label>{{ 'entity.user.firstname' | translate }}</mat-label>
-                <input matInput type="text" formControlName="firstName">
-              </mat-form-field>
-              <!-- Last name -->
-              <mat-form-field appearance="outline" class="half">
-                <mat-label>{{ 'entity.user.lastname' | translate }}</mat-label>
-                <input matInput type="text" formControlName="lastName">
-              </mat-form-field>
+            <mat-card-content class="sitmun-service-form-stack">
+              <div class="sitmun-user-form-half-row">
+                <mat-form-field appearance="outline" class="half add-gap sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
+                  <mat-label>{{ 'entity.user.firstname' | translate }}</mat-label>
+                  <input matInput type="text" formControlName="firstName" maxlength="50">
+                  <mat-hint align="start">{{ 'entity.user.hint.firstName' | translate }}</mat-hint>
+                  <mat-hint align="end">{{ entityForm.get('firstName') | characterCount }}</mat-hint>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="half sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
+                  <mat-label>{{ 'entity.user.lastname' | translate }}</mat-label>
+                  <input matInput type="text" formControlName="lastName" maxlength="50">
+                  <mat-hint align="start">{{ 'entity.user.hint.lastName' | translate }}</mat-hint>
+                  <mat-hint align="end">{{ entityForm.get('lastName') | characterCount }}</mat-hint>
+                </mat-form-field>
+              </div>
               <!-- Email -->
-              <mat-form-field appearance="outline" class="half add-gap">
+              <mat-form-field appearance="outline" class="half add-gap sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
                 <mat-label>{{ 'common.form.email' | translate }}</mat-label>
-                <input matInput type="email" formControlName="email">
+                <input matInput type="email" formControlName="email" maxlength="50">
+                <mat-hint align="start">{{ 'entity.user.hint.email' | translate }}</mat-hint>
+                <mat-hint align="end">{{ entityForm.get('email') | characterCount }}</mat-hint>
                 <mat-error *ngIf="entityForm?.get('email')?.hasError('email')">
                   {{ 'common.error.invalidEmail' | translate }}
                 </mat-error>
@@ -58,37 +106,25 @@
                   {{ 'common.error.invalidEmailFormat' | translate }}
                 </mat-error>
               </mat-form-field>
-              <div class="break"></div>
-              <!-- Password -->
-              <mat-form-field appearance="outline" class="half">
-                <mat-label>{{ 'common.form.password.label' | translate }}</mat-label>
-                <input matInput
-                       formControlName="newPassword"
-                       type="text"
-                       [maxlength]="50"
-                       (input)="onPasswordChange()"
-                       class="password-input">
-                <mat-hint align="end" *ngIf="isPasswordBeingEdited">
-                  {{ entityForm?.get('newPassword') | characterCount }}
-                </mat-hint>
-              </mat-form-field>
-              <div class="break"></div>
-              <!-- Administrator -->
-              <mat-checkbox formControlName="administrator">
-                {{ 'entity.user.administrator' | translate }}
-              </mat-checkbox>
-              <!-- Warnings Section -->
-              <app-warnings-panel
-                [expanded]="true"
-                [warnings]="entityToEdit?.warnings"
-                titleKey="common.warnings.title">
-              </app-warnings-panel>
             </mat-card-content>
           </mat-card>
         </form>
   </mat-tab>
-  <mat-tab label="{{ 'entity.users.role.header' | translate }}">
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <span class="sitmun-tab-label-with-indicator">
+        {{ 'entity.users.role.header' | translate }}
+        <span
+          *ngIf="rolesTabHasWarning()"
+          class="sitmun-tab-warn-indicator"
+          [attr.aria-label]="'common.warnings.title' | translate">
+        </span>
+      </span>
+    </ng-template>
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+      <mat-card-header>
+        <app-card-lead viewerKey="entity.user.card.rolesLead.viewer"></app-card-lead>
+      </mat-card-header>
       <mat-card-content>
         <app-data-grid [changeHeightButton]="true"
                       [allNewElements]="isNewOrDuplicated()"
@@ -103,6 +139,7 @@
                       [undoButton]=true
                       [deleteButton]=true
                       [addButton]=true
+                      [globalSearch]=true
                       [defaultColumnSorting]='userConfigurationsTable.defaultRelationsSorting()'
                       [hideDuplicateButton]=true
                       [hideReplaceButton]=true
@@ -113,25 +150,71 @@
       </mat-card-content>
     </mat-card>
   </mat-tab>
-  <mat-tab label="{{'entity.user.positions.header' | translate }}">
-    <app-data-grid [changeHeightButton]="true"
-                   [allNewElements]="isNew()"
-                   (duplicate)='userPositionsTable.duplicateRelations($event)'
-                   (getAllRows)="userPositionsTable.handleSaveRelations($event)"
-                   [actionButton]=true
-                   [columnDefs]="userPositionsTable.relationsColumnsDefs"
-                   [defaultColumnSorting]='userPositionsTable.defaultRelationsSorting()'
-                   [deleteButton]=true
-                   [discardChangesButton]=true
-                   [redoButton]=true
-                   [undoButton]=true
-                   [eventAddItemsSubscription]='userPositionsTable.addCommandEvent$.asObservable()'
-                   [eventGetAllRowsSubscription]='userPositionsTable.saveCommandEvent$.asObservable()'
-                   [eventRefreshSubscription]='userPositionsTable.refreshCommandEvent$.asObservable()'
-                   [getAll]='userPositionsTable.relationsFetchFn'
-                   [hideReplaceButton]=true
-                   *ngIf="dataLoaded"
-    >
-    </app-data-grid>
+  <mat-tab *ngIf="!isBuiltInAdmin && !isBuiltInPublic">
+    <ng-template mat-tab-label>
+      <span class="sitmun-tab-label-with-indicator">
+        {{ 'entity.user.positions.header' | translate }}
+        <span
+          *ngIf="positionsTabHasWarning()"
+          class="sitmun-tab-warn-indicator"
+          [attr.aria-label]="'common.warnings.title' | translate">
+        </span>
+      </span>
+    </ng-template>
+    <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+      <mat-card-header>
+        <app-card-lead viewerKey="entity.user.card.positionsLead.viewer"></app-card-lead>
+      </mat-card-header>
+      <mat-card-content>
+        <app-data-grid [changeHeightButton]="true"
+                       [allNewElements]="isNewOrDuplicated()"
+                       (duplicate)='userPositionsTable.duplicateRelations($event)'
+                       (getAllRows)="userPositionsTable.handleSaveRelations($event)"
+                       [actionButton]=true
+                       [columnDefs]="userPositionsTable.relationsColumnsDefs"
+                       [defaultColumnSorting]='userPositionsTable.defaultRelationsSorting()'
+                       [deleteButton]=true
+                       [discardChangesButton]=true
+                       [redoButton]=true
+                       [undoButton]=true
+                       [eventAddItemsSubscription]='userPositionsTable.addCommandEvent$.asObservable()'
+                       [eventGetAllRowsSubscription]='userPositionsTable.saveCommandEvent$.asObservable()'
+                       [eventRefreshSubscription]='userPositionsTable.refreshCommandEvent$.asObservable()'
+                       [getAll]='userPositionsTable.relationsFetchFn'
+                       [hideReplaceButton]=true
+                       [addButton]=true
+                       [globalSearch]=true
+                       (add)="userPositionsTable.openDialog($event)"
+                       *ngIf="dataLoaded"
+        >
+        </app-data-grid>
+      </mat-card-content>
+    </mat-card>
+  </mat-tab>
+  <mat-tab label="{{ 'entity.user.applicationsAsContact.header' | translate }}" *ngIf="isEdition()">
+    <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+      <mat-card-header>
+        <app-card-lead viewerKey="entity.user.card.applicationsAsContactLead.viewer"></app-card-lead>
+      </mat-card-header>
+      <mat-card-content>
+        <app-data-grid
+          [allNewElements]="false"
+          [columnDefs]="applicationsAsContactColumnDefs"
+          [getAll]="applicationsAsContactFetchFn"
+          [eventRefreshSubscription]="applicationsAsContactRefresh"
+          [actionButton]="false"
+          [discardChangesButton]="false"
+          [redoButton]="false"
+          [undoButton]="false"
+          [deleteButton]="false"
+          [addButton]="false"
+          [globalSearch]="true"
+          [hideDuplicateButton]="true"
+          [hideReplaceButton]="true"
+          [changeHeightButton]="true"
+          *ngIf="dataLoaded"
+        ></app-data-grid>
+      </mat-card-content>
+    </mat-card>
   </mat-tab>
 </mat-tab-group>

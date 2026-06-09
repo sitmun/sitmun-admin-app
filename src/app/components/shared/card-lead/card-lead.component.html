@@ -1,0 +1,12 @@
+<mat-card-subtitle>
+  <div class="sitmun-card-lead" [class.sitmun-card-lead--stacked]="stacked">
+    <span *ngIf="viewerKey" class="sitmun-card-lead-line">
+      <span class="sitmun-card-lead-prefix">{{ viewerPrefixKey | translate }}</span>
+      <span class="sitmun-card-lead-body" [innerHTML]="viewerKey | translate"></span>
+    </span>
+    <span *ngIf="proxyKey" class="sitmun-card-lead-line">
+      <span class="sitmun-card-lead-prefix">{{ proxyPrefixKey | translate }}</span>
+      <span class="sitmun-card-lead-body" [innerHTML]="proxyKey | translate"></span>
+    </span>
+  </div>
+</mat-card-subtitle>

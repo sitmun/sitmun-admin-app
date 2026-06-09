@@ -11,6 +11,13 @@
   flex-wrap: wrap;
 }
 
+.visible-hints {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+}
+
 .flex-column-gap-16 {
   display: flex;
   gap: 16px;
@@ -124,38 +131,66 @@
   }
 }
 
-// Header with actions aligned horizontally
-.header-with-actions {
+// Detail panel card — toolbar header aligned with data-tree master toolbar
+.form-detail-card {
+  height: 100%;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 24px;
-  
-  .header-title-section {
-    flex: 1;
-    min-width: 0;
-  }
-  
-  .header-actions-section {
-    margin-left: 16px;
+  flex-direction: column;
+
+  .detail-header-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 2;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+  }
+
+  .detail-header-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    min-height: 40px;
+  }
+
+  .detail-header-title-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--mdc-outlined-text-field-input-text-size, 16px);
+    font-weight: var(--mdc-outlined-text-field-input-text-weight, 400);
+    line-height: var(--mdc-outlined-text-field-input-text-line-height, 24px);
+    letter-spacing: var(--mdc-outlined-text-field-input-text-tracking, 0.03125em);
+  }
+
+  .detail-header-type-icon {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  .form-card-content {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+    padding: 16px;
   }
 }
 
 .required-asterisk {
   color: red;
-}
-
-// Read-only content type field: subtle differentiation from editable fields
-.content-type-readonly {
-  .mat-mdc-text-field-wrapper {
-    background-color: rgba(0, 0, 0, 0.04);
-  }
-
-  .node-type-prefix-icon {
-    margin-right: 8px;
-    color: rgba(0, 0, 0, 0.6);
-  }
 }
 
 // View mode option: icon left of label
@@ -201,6 +236,14 @@
   transition: width 0.3s ease;
   min-width: 0;
 
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+
+  &.tree-panel-full {
+    flex: 1;
+  }
+
   > * {
     height: 100%;
     overflow-y: auto;
@@ -243,16 +286,21 @@
 
   .detail-content {
     flex: 1;
-    overflow-y: auto;
+    overflow: hidden;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-detail-card {
+    flex: 1;
+    min-height: 0;
   }
 }
 
-// Ensure formDiv maintains proper layout
-.formDiv {
-  &.resizable-container {
-    gap: 0;
-  }
+// Outer card content padding matches other entity form tabs (Información general, etc.)
+:host > mat-card > mat-card-content {
+  padding: 16px;
 }
 
 // Appearance panel - Material Design compliant structure
@@ -561,5 +609,41 @@
     margin: 0;
     font-family: monospace;
     font-size: 0.875rem;
+  }
+}
+
+.related-entity-link-icon {
+  margin-right: 4px;
+}
+
+.entity-autocomplete-field.entity-field-link-mode {
+  ::ng-deep .mat-mdc-form-field-infix {
+    position: relative;
+  }
+
+  input {
+    color: transparent;
+    caret-color: transparent;
+    cursor: pointer;
+  }
+
+  .entity-field-link-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    z-index: 1;
+
+    a.router-link {
+      pointer-events: auto;
+      display: inline-block;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      vertical-align: bottom;
+    }
   }
 }

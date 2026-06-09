@@ -26,8 +26,10 @@ describe('UserComponent', () => {
   let externalService: ExternalService;
   let httpMock: HttpTestingController;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
+     
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [ UserComponent, EntityListComponent ],
       imports : [MatIconTestingModule, SitmunFrontendGuiModule, MaterialModule, RouterModule,
         TranslateModule.forRoot({
@@ -66,8 +68,11 @@ describe('UserComponent', () => {
   });
 
   afterEach(() => {
+    fixture?.destroy();
     httpMock.verify();
   });
+
+  afterAll(() => TestBed.resetTestingModule());
 
   it('should create', () => {
     expect(component).toBeTruthy();
@@ -91,5 +96,25 @@ describe('UserComponent', () => {
 
   it('should instantiate externalService', () => {
     expect(externalService).toBeTruthy();
+  });
+
+  it('column defs include identifier, name, surname and email only', async () => {
+    await component.postFetchData();
+    const fields = component.entityListConfig.columnDefs.map((c: any) => c.field).filter(Boolean);
+    expect(fields).toContain('username');
+    expect(fields).toContain('firstName');
+    expect(fields).toContain('lastName');
+    expect(fields).toContain('email');
+    expect(fields).not.toContain('blocked');
+    expect(fields).not.toContain('administrator');
+  });
+
+  it('hides selection checkbox for built-in users', async () => {
+    await component.postFetchData();
+    const selectionCol = component.entityListConfig.columnDefs[0] as any;
+    expect(selectionCol.checkboxSelection({ data: { username: 'admin' } })).toBe(false);
+    expect(selectionCol.checkboxSelection({ data: { username: 'public' } })).toBe(false);
+    expect(selectionCol.checkboxSelection({ data: { username: 'bob' } })).toBe(true);
+    expect(selectionCol.checkboxSelection({ data: null })).toBe(false);
   });
 });

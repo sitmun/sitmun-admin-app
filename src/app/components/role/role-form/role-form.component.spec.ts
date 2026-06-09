@@ -1,12 +1,9 @@
 
-import { HttpClientModule} from '@angular/common/http';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
 
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {of} from 'rxjs';
@@ -25,7 +22,6 @@ import {configureLoggerForTests, provideErrorHandlerForTests} from '@app/testing
 
 import { RoleFormComponent } from './role-form.component';
 
-
 describe('RoleFormComponent', () => {
   let component: RoleFormComponent;
   let fixture: ComponentFixture<RoleFormComponent>;
@@ -40,11 +36,12 @@ describe('RoleFormComponent', () => {
   let resourceService: ResourceService;
   let externalService: ExternalService;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
+     
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       declarations: [ RoleFormComponent, FormToolbarComponent ],
-      imports: [FormsModule, ReactiveFormsModule,HttpClientTestingModule, RouterModule.forRoot([], {}), HttpClientModule,
-      SitmunFrontendGuiModule, RouterTestingModule, MaterialModule, RouterModule, MatIconTestingModule, BrowserAnimationsModule,
+      imports: [FormsModule, ReactiveFormsModule,RouterModule.forRoot([], {}), SitmunFrontendGuiModule, MaterialModule, RouterModule, MatIconTestingModule, BrowserAnimationsModule,
       TranslateModule.forRoot({
         loader: {
           provide: TranslateLoader,
@@ -82,8 +79,10 @@ describe('RoleFormComponent', () => {
       component.postFetchData();
     }
     fixture.detectChanges();
-
   });
+
+  afterEach(() => fixture?.destroy());
+  afterAll(() => TestBed.resetTestingModule());
 
   it('should create', () => {
     expect(component).toBeTruthy();
@@ -153,8 +152,6 @@ describe('RoleFormComponent', () => {
     expect(component.entityForm.get('description')).toBeTruthy();
     expect(component.entityForm.get('name')).toBeTruthy();
   });
-
-
 
 });
 

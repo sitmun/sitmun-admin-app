@@ -1,4 +1,4 @@
-import {HttpClientModule} from '@angular/common/http';
+
 import {TestBed, ComponentFixture} from '@angular/core/testing';
 import {Router} from '@angular/router';
 
@@ -23,11 +23,12 @@ describe('CallbackComponent', () => {
   let notificationService: NotificationService;
   let principal: Principal;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
+     
     await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
       imports: [
         CallbackComponent,
-        HttpClientModule,
         TranslateModule.forRoot({
           loader: {
             provide: TranslateLoader,
@@ -56,13 +57,18 @@ describe('CallbackComponent', () => {
         }
       ]
     }).compileComponents();
+  });
 
+  beforeEach(() => {
     fixture = TestBed.createComponent(CallbackComponent);
     component = fixture.componentInstance;
     router = TestBed.inject(Router);
     notificationService = TestBed.inject(NotificationService);
     principal = TestBed.inject(Principal);
   });
+
+  afterEach(() => fixture?.destroy());
+  afterAll(() => TestBed.resetTestingModule());
 
   it('should create', async () => {
     (principal.identity as jest.Mock) = jest.fn().mockResolvedValue({ username: 'user' });

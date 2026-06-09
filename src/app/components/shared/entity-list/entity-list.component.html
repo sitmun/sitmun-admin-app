@@ -12,6 +12,12 @@
     <app-data-grid
       [columnDefs]="columnDefs"
       [getAll]='dataFetchFn'
+      [rowModelMode]="config.rowModelMode ?? 'clientSide'"
+      [pageSize]="config.pageSize"
+      [infiniteBlockFetcher]="config.infiniteBlockFetcher"
+      [infiniteGridHeight]="config.infiniteGridHeight ?? '60vh'"
+      [progressiveLocalFilter]="config.progressiveLocalFilter ?? false"
+      [backendSearch]="config.backendSearch ?? false"
       [globalSearch]="gridOptions.globalSearch"
       [eventRefreshSubscription]='refreshCommandEvent$.asObservable()'
       [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
