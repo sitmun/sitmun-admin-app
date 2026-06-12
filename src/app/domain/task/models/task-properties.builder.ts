@@ -16,6 +16,8 @@ const MANAGED_PROPERTY_KEYS = new Set([
   'filename',
   'headers',
   'queryParams',
+  'templateHtml',
+  'templateEditorState',
 ]);
 
 /** Copies keys not managed by the builder so schemaless properties survive round-trips. */

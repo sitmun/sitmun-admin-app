@@ -1,39 +1,33 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild } from '@angular/core';
 
-type VisualEditableElement = HTMLIFrameElement | HTMLImageElement;
+import { TranslateService } from '@ngx-translate/core';
+import { Editor } from '@tiptap/core';
+import Color from '@tiptap/extension-color';
+import Highlight from '@tiptap/extension-highlight';
+import Link from '@tiptap/extension-link';
+import Table from '@tiptap/extension-table';
+import TableCell from '@tiptap/extension-table-cell';
+import TableHeader from '@tiptap/extension-table-header';
+import TableRow from '@tiptap/extension-table-row';
+import TextAlign from '@tiptap/extension-text-align';
+import TextStyle from '@tiptap/extension-text-style';
+import Underline from '@tiptap/extension-underline';
+import { Node as ProseMirrorNode } from '@tiptap/pm/model';
+import { NodeSelection, Selection } from '@tiptap/pm/state';
+import { CellSelection, findTable, isInTable, selectionCell, TableMap } from '@tiptap/pm/tables';
+import StarterKit from '@tiptap/starter-kit';
+import { html as beautifyHtml } from 'js-beautify';
 
-type VisualEditableTagName = 'iframe' | 'img';
+import { DeletableSelectionExtension } from './deletable-selection.extension';
+import { FontSizeExtension } from './font-size.extension';
+import { HandlebarsBlockExtension, handlebarsBlockHtmlAttribute } from './handlebars-block.extension';
+import { HtmlAttributesExtension } from './html-attributes.extension';
+import { IframeExtension } from './iframe.extension';
+import { SizedImageExtension } from './sized-image.extension';
+import { TemplateHtmlValidatorService, TemplateValidationResult } from './template-html-validator.service';
+import { TranslationLiteralExtension, translationLiteralHtmlAttribute, translationLiteralSelector } from './translation-literal.extension';
 
-type SelectedVisualElementState = {
-  tagName: VisualEditableTagName;
-};
-
-type ResizeOverlayState = {
-  visible: boolean;
-  tagName: VisualEditableTagName;
-  top: number;
-  left: number;
-  width: number;
-  height: number;
-};
-
-type ResizeSessionState = {
-  startClientX: number;
-  startClientY: number;
-  startWidth: number;
-  startHeight: number;
-};
-
-type TemplatePlaceholderKind = 'img' | 'iframe';
-
-const TEMPLATE_PLACEHOLDER_ATTR = 'data-sitmun-template-placeholder';
-const TEMPLATE_PLACEHOLDER_ORIGINAL_SRC_ATTR = 'data-sitmun-original-src';
-const TEMPLATE_PLACEHOLDER_ORIGINAL_STYLE_ATTR = 'data-sitmun-original-style';
-const TEMPLATE_PLACEHOLDER_WRAPPER_ATTR = 'data-sitmun-template-placeholder-wrapper';
-const TEMPLATE_PLACEHOLDER_LABEL_ATTR = 'data-sitmun-template-placeholder-label';
-const TEMPLATE_PLACEHOLDER_DEFAULT_WIDTH = 320;
-const TEMPLATE_PLACEHOLDER_DEFAULT_HEIGHT = 180;
-const TRANSPARENT_GIF_DATA_URL = 'data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=';
+const HANDLEBARS_TABLE_ROW_ATTR = handlebarsBlockHtmlAttribute;
 
 export function normalizeHandlebarsMarkup(html: string): string {
   return (html || '').replace(/\{\{[\s\S]*?}}/g, (placeholder) => {
@@ -45,6 +39,57 @@ export function normalizeHandlebarsMarkup(html: string): string {
   });
 }
 
+export function normalizeEditorColorValue(value: string | null | undefined, fallback: string): string {
+  if (!value) {
+    return fallback;
+  }
+
+  const normalizedValue = value.trim();
+  if (/^#[0-9a-f]{6}$/i.test(normalizedValue)) {
+    return normalizedValue;
+  }
+
+  const shortHexMatch = normalizedValue.match(/^#([0-9a-f]{3})$/i);
+  if (shortHexMatch) {
+    return `#${shortHexMatch[1].split('').map((part) => `${part}${part}`).join('')}`;
+  }
+
+  const rgbMatch = normalizedValue.match(/^rgba?\((\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*[\d.]+)?\)$/i);
+  if (rgbMatch) {
+    return `#${rgbMatch
+      .slice(1, 4)
+      .map((part) => Number(part).toString(16).padStart(2, '0'))
+      .join('')}`;
+  }
+
+  return fallback;
+}
+
+export function protectTableHandlebarsBlocks(html: string): string {
+  return (html || '').replace(
+    /(<(?:tbody|thead|tfoot)\b[^>]*>|<\/tr>)\s*(\{\{[#/][\s\S]*?}})\s*(?=<tr\b|<\/(?:tbody|thead|tfoot)>)/gi,
+    (_match, previousTag: string, block: string) => `${previousTag}<tr ${HANDLEBARS_TABLE_ROW_ATTR}="${encodeURIComponent(block)}"><td><p>Handlebars block</p></td></tr>`,
+  );
+}
+
+export function protectStructuralHandlebarsBlocks(html: string): string {
+  return protectTableHandlebarsBlocks(html || '').replace(
+    /\{\{\s*(?:[#/][^}]+|else)\s*}}/gi,
+    (block) => `<div ${handlebarsBlockHtmlAttribute}="${encodeURIComponent(block)}">${escapeHtml(block)}</div>`,
+  );
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
+}
+
+type SelectedNodeType = 'none' | 'image' | 'iframe' | 'translationLiteral' | 'table';
+type TableSelectionMode = 'none' | 'cell' | 'row' | 'column' | 'table';
+
 @Component({
   selector: 'app-template-editor',
   templateUrl: './template-editor.component.html',
@@ -52,686 +97,945 @@ export function normalizeHandlebarsMarkup(html: string): string {
   standalone: false,
 })
 export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDestroy {
-  private static tableBetterRegistered = false;
+  private static readonly FONT_SIZE_OPTIONS = ['12px', '14px', '16px', '18px', '24px', '32px'];
 
   @Input() html = '';
+  @Input() readonly = false;
   @Output() htmlChange = new EventEmitter<string>();
+  @Output() validationChange = new EventEmitter<TemplateValidationResult>();
 
   @ViewChild('editorHost', { static: true })
   private readonly editorHost!: ElementRef<HTMLDivElement>;
 
-  @ViewChild('visualSurface', { static: true })
-  private readonly visualSurface!: ElementRef<HTMLDivElement>;
-
   editorMode: 'visual' | 'html' = 'visual';
   htmlSource = '';
-  selectedVisualElement: SelectedVisualElementState | null = null;
-  resizeOverlay: ResizeOverlayState | null = null;
-  private quill: any = null;
-  private selectedVisualDomElement: VisualEditableElement | null = null;
-  private resizeSession: ResizeSessionState | null = null;
+  validationErrors: string[] = [];
+  interactionErrors: string[] = [];
+  selectedElementWidth = '';
+  selectedElementHeight = '';
+  selectedTextColor = '#000000';
+  selectedHighlightColor = '#ffffff';
+  selectedFontSize = '';
+  selectedTableCellBackground = '#ffffff';
+  selectedTableCellBorderColor = '#000000';
+  selectedTableCellBorderWidth: string | number = '0';
+  selectedNodeType: SelectedNodeType = 'none';
+  tableSelectionMode: TableSelectionMode = 'none';
+  canDeleteSelection = false;
+  editorFocused = false;
+  componentFocusedWithin = false;
+
+  readonly fontSizeOptions = TemplateEditorComponent.FONT_SIZE_OPTIONS;
+
+  private editor: Editor | null = null;
+  private lastEmittedHtml = '';
+  private lastTablePosition: number | null = null;
   private syncingFromInput = false;
-  private overlayViewportListenersBound = false;
-  private readonly syncEditorDomAfterMouseup = () => {
-    setTimeout(() => this.syncHtmlSourceFromEditorDom(), 0);
-  };
-  private readonly onDocumentMouseMove = (event: MouseEvent) => {
-    this.updateVisualResize(event);
-  };
-  private readonly onDocumentMouseUp = () => {
-    this.endVisualResize();
-  };
-  private readonly onOverlayViewportChange = () => {
-    if (!this.selectedVisualDomElement) {
-      return;
-    }
 
-    this.refreshSelectedVisualOverlay();
-  };
+  constructor(
+    private readonly validator: TemplateHtmlValidatorService,
+    private readonly translateService: TranslateService,
+    private readonly changeDetectorRef: ChangeDetectorRef,
+  ) {}
 
-  async ngAfterViewInit(): Promise<void> {
-    const [{ default: Quill }, { default: QuillTableBetter }] = await Promise.all([
-      import('quill'),
-      import('quill-table-better'),
-    ]);
+  ngAfterViewInit(): void {
+    this.editor = new Editor({
+      element: this.editorHost.nativeElement,
+      editable: !this.readonly,
+      extensions: [
+        StarterKit.configure({
+          codeBlock: false,
+          horizontalRule: false,
+        }),
+        Underline,
+        TextStyle,
+        FontSizeExtension,
+        Color,
+        Highlight.configure({ multicolor: true }),
+        TextAlign.configure({
+          types: ['heading', 'paragraph'],
+          alignments: ['left', 'center', 'right', 'justify'],
+        }),
+        Link.configure({
+          openOnClick: false,
+          HTMLAttributes: {
+            rel: 'noopener noreferrer',
+          },
+        }),
+        SizedImageExtension,
+        Table.configure({
+          resizable: false,
+          allowTableNodeSelection: true,
+        }),
+        TableRow,
+        TableHeader,
+        TableCell,
+        IframeExtension,
+        TranslationLiteralExtension,
+        HandlebarsBlockExtension,
+        HtmlAttributesExtension,
+        DeletableSelectionExtension,
+      ],
+      content: '',
+      onUpdate: () => {
+        if (this.syncingFromInput || this.editorMode !== 'visual') {
+          return;
+        }
 
-    if (!TemplateEditorComponent.tableBetterRegistered) {
-      const Parchment = Quill.import('parchment') as any;
-      const SitmunTableEachAttribute = new Parchment.Attributor(
-        'sitmun-table-each',
-        'data-sitmun-each',
-        { scope: Parchment.Scope.ANY },
-      );
-      Quill.register({
-        'modules/table-better': QuillTableBetter,
-      }, true);
-      Quill.register(SitmunTableEachAttribute, true);
-      TemplateEditorComponent.tableBetterRegistered = true;
-    }
-
-    this.initializeQuill(Quill, QuillTableBetter);
-
-    this.loadHtmlIntoEditor(this.html || '');
-    this.htmlSource = normalizeHandlebarsMarkup(this.html || '');
-    this.ensureOverlayViewportListeners();
-    document.addEventListener('mouseup', this.syncEditorDomAfterMouseup);
-    document.addEventListener('mousemove', this.onDocumentMouseMove);
-    document.addEventListener('mouseup', this.onDocumentMouseUp);
-    this.quill.on('text-change', () => {
-      if (this.syncingFromInput || !this.quill || this.editorMode !== 'visual') {
-        return;
-      }
-
-      const currentHtml = this.getEditorHtml();
-      const normalizedHtml = normalizeHandlebarsMarkup(currentHtml);
-      if (normalizedHtml !== currentHtml) {
-        this.syncingFromInput = true;
-        this.loadHtmlIntoEditor(normalizedHtml);
-        this.syncingFromInput = false;
-      }
-
-      this.htmlSource = normalizedHtml;
-      this.htmlChange.emit(normalizedHtml);
+        this.syncFromVisualEditor();
+        this.syncSelectionState();
+      },
+      onSelectionUpdate: () => {
+        this.syncSelectionState();
+      },
+      onFocus: () => {
+        this.editorFocused = true;
+        this.syncSelectionState();
+      },
+      onBlur: () => {
+        this.editorFocused = false;
+        this.syncSelectionState();
+      },
     });
+
+    this.applyIncomingHtml(this.html || '', true);
+    this.syncSelectionState();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (!this.quill || !changes['html']) {
+    if (!changes['html']) {
       return;
     }
 
     const nextHtml = normalizeHandlebarsMarkup(changes['html'].currentValue || '');
-    this.htmlSource = nextHtml;
-
-    if (this.editorMode === 'html') {
+    if (this.syncingFromInput || nextHtml === this.lastEmittedHtml) {
       return;
     }
 
-    const currentHtml = normalizeHandlebarsMarkup(this.getEditorHtml());
-    if (nextHtml === currentHtml) {
+    this.applyIncomingHtml(nextHtml, false);
+  }
+
+  onComponentFocusIn(): void {
+    this.componentFocusedWithin = true;
+  }
+
+  onComponentFocusOut(event: FocusEvent): void {
+    const currentTarget = event.currentTarget as HTMLElement | null;
+    const nextFocusedElement = event.relatedTarget as Node | null;
+    if (currentTarget?.contains(nextFocusedElement)) {
       return;
     }
 
-    this.syncingFromInput = true;
-    this.loadHtmlIntoEditor(nextHtml);
-    this.syncingFromInput = false;
+    this.componentFocusedWithin = false;
+    this.resetSelectionState();
+    this.changeDetectorRef.detectChanges();
   }
 
   setEditorMode(mode: 'visual' | 'html'): void {
     if (mode === 'html') {
-      this.clearSelectedVisualElement();
-
-      if (this.quill) {
-        this.syncHtmlSourceFromEditorDom();
-      } else {
-        this.htmlSource = normalizeHandlebarsMarkup(this.htmlSource || this.html || '');
+      if (this.editor) {
+        this.htmlSource = this.serializeEditorHtml();
       }
+      this.publishValidation(this.validator.validate(this.htmlSource));
+      this.editorMode = 'html';
+      return;
     }
 
-    this.editorMode = mode;
-
-    if (mode === 'visual' && this.quill) {
-      this.syncingFromInput = true;
-      this.loadHtmlIntoEditor(this.htmlSource);
-      this.syncingFromInput = false;
+    const validation = this.validator.validate(this.htmlSource);
+    this.publishValidation(validation);
+    if (!validation.valid) {
+      this.editorMode = 'html';
+      return;
     }
+
+    this.editorMode = 'visual';
+    this.loadHtmlIntoEditor(this.htmlSource);
   }
 
   onHtmlSourceChanged(html: string): void {
     const normalizedHtml = normalizeHandlebarsMarkup(html);
-    if (normalizedHtml === this.htmlSource) {
-      return;
-    }
-
     this.htmlSource = normalizedHtml;
-    this.htmlChange.emit(normalizedHtml);
+
+    const validation = this.validator.validate(normalizedHtml);
+    this.publishValidation(validation);
+    if (validation.valid) {
+      this.emitHtml(normalizedHtml);
+    }
   }
 
-  onEditorHostClick(event: MouseEvent): void {
-    const target = event.target;
-    if (!(target instanceof HTMLElement)) {
-      this.clearSelectedVisualElement();
+  setParagraph(): void {
+    this.editor?.chain().focus().setParagraph().run();
+  }
+
+  toggleHeading(level: 1 | 2 | 3): void {
+    this.editor?.chain().focus().toggleHeading({ level }).run();
+  }
+
+  toggleBold(): void {
+    this.editor?.chain().focus().toggleBold().run();
+  }
+
+  toggleItalic(): void {
+    this.editor?.chain().focus().toggleItalic().run();
+  }
+
+  toggleUnderline(): void {
+    this.editor?.chain().focus().toggleUnderline().run();
+  }
+
+  toggleBulletList(): void {
+    this.editor?.chain().focus().toggleBulletList().run();
+  }
+
+  toggleOrderedList(): void {
+    this.editor?.chain().focus().toggleOrderedList().run();
+  }
+
+  toggleTextAlign(alignment: 'left' | 'center' | 'right' | 'justify'): void {
+    this.editor?.chain().focus().setTextAlign(alignment).run();
+    this.syncSelectionState();
+  }
+
+  toggleLink(): void {
+    if (!this.editor) {
       return;
     }
 
-    const editableElement = this.resolveVisualEditableElement(target, event);
-    if (editableElement instanceof HTMLIFrameElement || editableElement instanceof HTMLImageElement) {
-      this.selectVisualElement(editableElement);
+    const previousUrl = this.editor.getAttributes('link')['href'] as string | undefined;
+    const nextUrl = window.prompt(this.translateService.instant('entity.task.template.editor.linkPrompt'), previousUrl || 'https://');
+    if (nextUrl == null) {
       return;
     }
 
-    this.clearSelectedVisualElement();
-  }
-
-  onEditorHostKeydown(event: KeyboardEvent): void {
-    if (!this.selectedVisualDomElement || !['Delete', 'Backspace'].includes(event.key)) {
+    if (nextUrl.trim().length === 0) {
+      this.editor.chain().focus().unsetLink().run();
       return;
     }
 
-    event.preventDefault();
-    event.stopPropagation();
-    this.removeSelectedVisualDomElement();
-    this.clearSelectedVisualElement();
-    this.syncHtmlSourceFromEditorDom();
+    this.editor.chain().focus().setLink({ href: nextUrl.trim() }).run();
   }
 
-  selectVisualElement(element: VisualEditableElement): void {
-    this.ensureOverlayViewportListeners();
-    this.selectedVisualDomElement = element;
-    this.selectedVisualElement = {
-      tagName: element.tagName.toLowerCase() as VisualEditableTagName,
-    };
-    this.refreshSelectedVisualOverlay();
-  }
-
-  startVisualResize(event: MouseEvent): void {
-    if (!this.selectedVisualDomElement || !this.resizeOverlay) {
+  insertImage(): void {
+    if (!this.editor) {
       return;
     }
 
-    event.preventDefault();
-    event.stopPropagation();
-    this.resizeSession = {
-      startClientX: event.clientX,
-      startClientY: event.clientY,
-      startWidth: this.resizeOverlay.width,
-      startHeight: this.resizeOverlay.height,
-    };
-  }
-
-  updateVisualResize(event: Pick<MouseEvent, 'clientX' | 'clientY'>): void {
-    if (!this.selectedVisualDomElement || !this.resizeSession) {
+    const src = window.prompt(this.translateService.instant('entity.task.template.editor.imagePrompt'), 'https://');
+    if (!src || src.trim().length === 0) {
       return;
     }
 
-    const nextWidth = Math.max(40, Math.round(this.resizeSession.startWidth + (event.clientX - this.resizeSession.startClientX)));
-    const nextHeight = Math.max(40, Math.round(this.resizeSession.startHeight + (event.clientY - this.resizeSession.startClientY)));
+    this.editor.chain().focus().setImage({ src: src.trim() }).run();
+  }
 
-    this.applyDimensionsToSelectedElement(`${nextWidth}`, `${nextHeight}`);
-    this.resizeOverlay = this.resizeOverlay
-      ? {
-        ...this.resizeOverlay,
-        width: nextWidth,
-        height: nextHeight,
+  insertTable(): void {
+    this.editor?.chain().focus().insertTable({ rows: 1, cols: 1, withHeaderRow: false }).run();
+  }
+
+  addColumnAfter(): void {
+    this.editor?.chain().focus().addColumnAfter().run();
+  }
+
+  addRowAfter(): void {
+    this.editor?.chain().focus().addRowAfter().run();
+  }
+
+  deleteTable(): void {
+    this.deleteCurrentTable();
+    this.syncSelectionState();
+  }
+
+  deleteSelectedElement(): void {
+    if (!this.editor || (!this.canDeleteSelection && !this.isTableContextVisible())) {
+      return;
+    }
+
+    const { selection } = this.editor.state;
+    if (selection instanceof CellSelection) {
+      if (selection.isRowSelection()) {
+        const tableInfo = this.getCurrentTableInfo();
+        if (tableInfo?.rowCount === 1) {
+          this.deleteCurrentTable();
+        } else {
+          this.editor.commands.deleteRow();
+        }
+      } else if (selection.isColSelection()) {
+        const tableInfo = this.getCurrentTableInfo();
+        if (tableInfo?.columnCount === 1) {
+          this.deleteCurrentTable();
+        } else {
+          this.editor.commands.deleteColumn();
+        }
+      } else {
+        const tableInfo = this.getCurrentTableInfo();
+        if (tableInfo?.rowCount === 1 && tableInfo.columnCount === 1) {
+          this.deleteCurrentTable();
+        } else {
+          this.editor.commands.deleteSelection();
+        }
       }
-      : this.resizeOverlay;
-  }
-
-  endVisualResize(): void {
-    if (!this.resizeSession) {
+      this.syncSelectionState();
       return;
     }
 
-    this.resizeSession = null;
-    this.refreshSelectedVisualOverlay();
-    this.syncHtmlSourceFromEditorDom();
-  }
-
-  ngOnDestroy(): void {
-    this.removeOverlayViewportListeners();
-    document.removeEventListener('mouseup', this.syncEditorDomAfterMouseup);
-    document.removeEventListener('mousemove', this.onDocumentMouseMove);
-    document.removeEventListener('mouseup', this.onDocumentMouseUp);
-    this.quill?.off('text-change');
-    this.quill = null;
-  }
-
-  refreshSelectedVisualOverlay(): void {
-    if (!this.selectedVisualDomElement || !this.visualSurface?.nativeElement) {
-      this.resizeOverlay = null;
+    if (this.tableSelectionMode === 'table' || (selection instanceof NodeSelection && selection.node.type.name === 'table')) {
+      this.deleteCurrentTable();
+      this.syncSelectionState();
       return;
     }
 
-    const surfaceRect = this.visualSurface.nativeElement.getBoundingClientRect();
-    const elementRect = this.selectedVisualDomElement.getBoundingClientRect();
-    const appliedWidth = this.readAppliedElementDimension(this.selectedVisualDomElement, 'width');
-    const appliedHeight = this.readAppliedElementDimension(this.selectedVisualDomElement, 'height');
-    const overlayWidth = Math.round(this.resolveOverlayDimension(elementRect.width, appliedWidth, this.selectedVisualDomElement));
-    const overlayHeight = Math.round(this.resolveOverlayDimension(elementRect.height, appliedHeight, this.selectedVisualDomElement));
-    this.resizeOverlay = {
-      visible: true,
-      tagName: this.selectedVisualElement?.tagName || (this.selectedVisualDomElement.tagName.toLowerCase() as VisualEditableTagName),
-      top: Math.round(elementRect.top - surfaceRect.top + this.visualSurface.nativeElement.scrollTop),
-      left: Math.round(elementRect.left - surfaceRect.left + this.visualSurface.nativeElement.scrollLeft),
-      width: overlayWidth,
-      height: overlayHeight,
-    };
-  }
-
-  private syncHtmlSourceFromEditorDom(): void {
-    if (!this.quill || this.syncingFromInput || this.editorMode !== 'visual') {
+    if (this.isTableContextVisible()) {
+      const tableInfo = this.getCurrentTableInfo();
+      if (tableInfo?.rowCount === 1 && tableInfo.columnCount === 1) {
+        this.deleteCurrentTable();
+      } else {
+        this.editor.commands.deleteSelection();
+      }
+      this.syncSelectionState();
       return;
     }
 
-    const normalizedHtml = normalizeHandlebarsMarkup(this.getEditorHtml());
-    if (normalizedHtml === this.htmlSource) {
+    this.editor.chain().focus().deleteSelection().run();
+    this.syncSelectionState();
+  }
+
+  selectCurrentCell(): void {
+    if (!this.editor || !this.isTableContextVisible()) {
       return;
     }
 
-    this.htmlSource = normalizedHtml;
-    this.htmlChange.emit(normalizedHtml);
+    const cell = selectionCell(this.editor.state);
+    this.editor.commands.setCellSelection({ anchorCell: cell.pos, headCell: cell.pos });
+    this.syncSelectionState();
   }
 
-  private clearSelectedVisualElement(): void {
-    this.resizeSession = null;
-    this.selectedVisualDomElement = null;
-    this.selectedVisualElement = null;
-    this.resizeOverlay = null;
-  }
-
-  private loadHtmlIntoEditor(html: string): void {
-    if (!this.quill) {
+  selectCurrentRow(): void {
+    if (!this.editor || !this.isTableContextVisible()) {
       return;
     }
 
-    this.clearSelectedVisualElement();
-
-    const delta = this.quill.clipboard.convert({ html });
-    this.quill.setContents([], 'silent');
-    this.quill.updateContents(delta, 'silent');
-    if (this.quill.root?.querySelectorAll) {
-      this.applyEditorOnlyTemplatePlaceholders(this.quill.root);
-    }
+    const cell = selectionCell(this.editor.state);
+    const transaction = this.editor.state.tr.setSelection(CellSelection.rowSelection(cell));
+    this.editor.view.dispatch(transaction);
+    this.syncSelectionState();
   }
 
-  private resolveVisualEditableElement(target: HTMLElement, event: MouseEvent): VisualEditableElement | null {
-    const directMatch = target.closest('iframe, img');
-    if (directMatch instanceof HTMLIFrameElement || directMatch instanceof HTMLImageElement) {
-      return directMatch;
-    }
-
-    return this.resolveIframeAtPoint(event.clientX, event.clientY);
-  }
-
-  private resolveIframeAtPoint(clientX: number, clientY: number): HTMLIFrameElement | null {
-    if (!Number.isFinite(clientX) || !Number.isFinite(clientY)) {
-      return null;
-    }
-
-    const root = this.quill?.root || this.editorHost?.nativeElement;
-    const iframes = Array.from(root?.querySelectorAll?.('iframe') || []) as HTMLIFrameElement[];
-    return iframes.reverse().find((iframe) => {
-      const rect = iframe.getBoundingClientRect();
-      return clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom;
-    }) || null;
-  }
-
-  private ensureOverlayViewportListeners(): void {
-    if (this.overlayViewportListenersBound || !this.editorHost?.nativeElement || !this.visualSurface?.nativeElement) {
+  selectCurrentColumn(): void {
+    if (!this.editor || !this.isTableContextVisible()) {
       return;
     }
 
-    this.editorHost.nativeElement.addEventListener('scroll', this.onOverlayViewportChange);
-    this.visualSurface.nativeElement.addEventListener('scroll', this.onOverlayViewportChange);
-    window.addEventListener('resize', this.onOverlayViewportChange);
-    this.overlayViewportListenersBound = true;
+    const cell = selectionCell(this.editor.state);
+    const transaction = this.editor.state.tr.setSelection(CellSelection.colSelection(cell));
+    this.editor.view.dispatch(transaction);
+    this.syncSelectionState();
   }
 
-  private removeOverlayViewportListeners(): void {
-    if (!this.overlayViewportListenersBound) {
+  selectCurrentTable(): void {
+    if (!this.editor || !this.isTableContextVisible()) {
       return;
     }
 
-    this.editorHost?.nativeElement.removeEventListener('scroll', this.onOverlayViewportChange);
-    this.visualSurface?.nativeElement.removeEventListener('scroll', this.onOverlayViewportChange);
-    window.removeEventListener('resize', this.onOverlayViewportChange);
-    this.overlayViewportListenersBound = false;
+    const cell = selectionCell(this.editor.state);
+    const table = findTable(cell);
+    if (!table) {
+      return;
+    }
+
+    const transaction = this.editor.state.tr.setSelection(NodeSelection.create(this.editor.state.doc, table.pos));
+    this.editor.view.dispatch(transaction);
+    this.lastTablePosition = table.pos;
+    this.syncSelectionState();
   }
 
-  private initializeQuill(Quill: any, QuillTableBetter: any): void {
-    this.quill = new Quill(this.editorHost.nativeElement, {
-      theme: 'snow',
-      modules: this.buildQuillModules(QuillTableBetter),
+  setTableCellBackground(color: string): void {
+    this.selectedTableCellBackground = color;
+    this.updateSelectedTableCellsStyle({ 'background-color': color });
+  }
+
+  clearTableCellBackground(): void {
+    this.updateSelectedTableCellsStyle({ 'background-color': null });
+  }
+
+  setTableCellBorderColor(color: string): void {
+    this.selectedTableCellBorderColor = color;
+    this.applyTableCellBorder();
+  }
+
+  setTableCellBorderWidth(width: string | number): void {
+    this.selectedTableCellBorderWidth = width;
+    this.applyTableCellBorder();
+  }
+
+  clearTableCellBorder(): void {
+    this.updateSelectedTableCellsStyle({
+      border: null,
+      'border-color': null,
+      'border-style': null,
+      'border-width': null,
     });
   }
 
-  private buildQuillModules(QuillTableBetter: any): Record<string, unknown> {
-    return {
-      table: false,
-      toolbar: [
-        [{ header: [1, 2, 3, false] }],
-        [{ font: [] }, { size: ['small', false, 'large', 'huge'] }],
-        ['bold', 'italic', 'underline'],
-        [{ color: [] }, { background: [] }],
-        [{ list: 'ordered' }, { list: 'bullet' }],
-        ['table-better'],
-        ['link', 'image'],
-        ['clean'],
-      ],
-      'table-better': {
-        language: 'en_US',
-        menus: ['column', 'row', 'merge', 'table', 'cell', 'wrap', 'copy', 'delete'],
-        toolbarTable: true,
-      },
-      keyboard: {
-        bindings: QuillTableBetter.keyboardBindings,
-      },
+  setTextColor(color: string): void {
+    if (!this.editor) {
+      return;
+    }
+
+    this.selectedTextColor = color;
+    this.editor.chain().focus().setColor(color).run();
+    this.syncSelectionState();
+  }
+
+  clearTextColor(): void {
+    this.editor?.chain().focus().unsetColor().run();
+    this.syncSelectionState();
+  }
+
+  setHighlightColor(color: string): void {
+    if (!this.editor) {
+      return;
+    }
+
+    this.selectedHighlightColor = color;
+    this.editor.chain().focus().setHighlight({ color }).run();
+    this.syncSelectionState();
+  }
+
+  clearHighlightColor(): void {
+    this.editor?.chain().focus().unsetHighlight().run();
+    this.syncSelectionState();
+  }
+
+  setFontSize(fontSize: string): void {
+    if (!this.editor) {
+      return;
+    }
+
+    this.selectedFontSize = fontSize;
+    if (!fontSize) {
+      this.editor.chain().focus().unsetFontSize().run();
+    } else {
+      this.editor.chain().focus().setFontSize(fontSize).run();
+    }
+
+    this.syncSelectionState();
+  }
+
+  updateSelectedElementSize(dimension: 'width' | 'height', value: string): void {
+    if (!this.editor || !this.isSizeControlVisible()) {
+      return;
+    }
+
+    const trimmedValue = value.trim();
+    const attrs = {
+      width: dimension === 'width' ? (trimmedValue || null) : (this.selectedElementWidth || null),
+      height: dimension === 'height' ? (trimmedValue || null) : (this.selectedElementHeight || null),
     };
-  }
 
-  private getEditorHtml(): string {
-    if (!this.quill) {
-      return '';
+    if (this.selectedNodeType === 'image') {
+      this.editor.chain().focus().updateAttributes('image', attrs).run();
+    } else if (this.selectedNodeType === 'iframe') {
+      this.editor.chain().focus().updateAttributes('iframe', attrs).run();
     }
 
-    this.quill.getModule('table-better')?.hideTools?.();
-    const rootClone = this.cloneEditorRoot(this.quill.root);
-    this.restoreEditorOnlyTemplatePlaceholders(rootClone);
-    return rootClone.innerHTML;
+    this.syncSelectionState();
   }
 
-  private updateElementDimensionAttribute(element: VisualEditableElement, attribute: 'width' | 'height', value: string): void {
-    const normalizedValue = value.trim();
-    if (normalizedValue) {
-      element.setAttribute(attribute, normalizedValue);
+  formatHtmlSource(): void {
+    this.onHtmlSourceChanged(beautifyHtml(this.htmlSource || '', {
+      indent_size: 2,
+      wrap_line_length: 0,
+      preserve_newlines: false,
+      end_with_newline: false,
+    }));
+  }
+
+  wrapSelectionInTranslationLiteral(): void {
+    if (!this.editor || this.readonly) {
       return;
     }
 
-    element.removeAttribute(attribute);
-  }
-
-  private applyDimensionsToSelectedElement(width: string, height: string): void {
-    if (!this.selectedVisualDomElement) {
+    const { selection } = this.editor.state;
+    if (selection.empty) {
+      this.showInteractionError('entity.task.template.editor.selectBeforeT');
       return;
     }
 
-    this.updateElementDimensionAttribute(this.selectedVisualDomElement, 'width', width);
-    this.updateElementDimensionAttribute(this.selectedVisualDomElement, 'height', height);
-
-    if (this.selectedVisualDomElement instanceof HTMLIFrameElement || this.selectedVisualDomElement instanceof HTMLImageElement) {
-      this.updateElementDimensionStyle(this.selectedVisualDomElement, 'width', width);
-      this.updateElementDimensionStyle(this.selectedVisualDomElement, 'height', height);
-    }
-
-    this.syncImagePlaceholderWrapperDimensions(this.selectedVisualDomElement, width, height);
-
-    this.selectedVisualElement = {
-      tagName: this.selectedVisualDomElement.tagName.toLowerCase() as VisualEditableTagName,
-    };
-  }
-
-  private updateElementDimensionStyle(element: VisualEditableElement, property: 'width' | 'height', value: string): void {
-    const numericValue = Number.parseInt(value.trim(), 10);
-    if (Number.isFinite(numericValue) && numericValue > 0) {
-      element.style[property] = `${numericValue}px`;
+    if (!selection.$from.sameParent || !selection.$from.parent.isTextblock) {
+      this.showInteractionError('entity.task.template.editor.singleBlockT');
       return;
     }
 
-    element.style.removeProperty(property);
-    if (!element.getAttribute('style')) {
-      element.removeAttribute('style');
-    }
-  }
-
-  private readAppliedElementDimension(element: VisualEditableElement, dimension: 'width' | 'height'): number | null {
-    const styleValue = this.readStylePixelDimension(element.style[dimension] || '');
-    if (styleValue) {
-      return styleValue;
+    const domSelection = window.getSelection();
+    if (!domSelection || domSelection.rangeCount === 0) {
+      this.showInteractionError('entity.task.template.editor.noSelection');
+      return;
     }
 
-    const attributeValue = Number.parseInt(element.getAttribute(dimension) || '', 10);
-    return Number.isFinite(attributeValue) && attributeValue > 0 ? attributeValue : null;
-  }
-
-  private resolveOverlayDimension(renderedDimension: number, appliedDimension: number | undefined, element: VisualEditableElement): number {
-    if (element instanceof HTMLImageElement && this.isTemplateImageSource(element) && appliedDimension && renderedDimension < appliedDimension) {
-      return appliedDimension;
+    const range = domSelection.getRangeAt(0);
+    const editorDom = this.editor.view.dom;
+    const commonAncestor = range.commonAncestorContainer instanceof Element
+      ? range.commonAncestorContainer
+      : range.commonAncestorContainer.parentElement;
+    if (!commonAncestor || !editorDom.contains(commonAncestor)) {
+      this.showInteractionError('entity.task.template.editor.selectionOutside');
+      return;
     }
 
-    if (renderedDimension > 24 || !appliedDimension) {
-      return renderedDimension;
-    }
-
-    return appliedDimension;
-  }
-
-  private isTemplateImageSource(element: HTMLImageElement): boolean {
-    return element.getAttribute('src')?.includes('{{') || false;
-  }
-
-  private applyEditorOnlyTemplatePlaceholders(root: ParentNode): void {
-    const editableElements = Array.from(root.querySelectorAll('img, iframe')) as VisualEditableElement[];
-    editableElements.forEach((element) => {
-      if (element.hasAttribute(TEMPLATE_PLACEHOLDER_ATTR)) {
-        return;
-      }
-
-      const originalSrc = element.getAttribute('src');
-      if (!this.isUnresolvedTemplateSource(originalSrc)) {
-        return;
-      }
-
-      if (element instanceof HTMLImageElement) {
-        this.applyImageTemplatePlaceholder(element, originalSrc);
-        return;
-      }
-
-      if (element instanceof HTMLIFrameElement) {
-        this.applyIframeTemplatePlaceholder(element, originalSrc);
-      }
-    });
-  }
-
-  private restoreEditorOnlyTemplatePlaceholders(root: ParentNode): void {
-    const editableElements = Array.from(root.querySelectorAll(`img[${TEMPLATE_PLACEHOLDER_ATTR}], iframe[${TEMPLATE_PLACEHOLDER_ATTR}]`)) as VisualEditableElement[];
-    editableElements.forEach((element) => {
-      const originalSrc = element.getAttribute(TEMPLATE_PLACEHOLDER_ORIGINAL_SRC_ATTR);
-      if (!originalSrc) {
-        return;
-      }
-
-      element.setAttribute('src', originalSrc);
-      element.removeAttribute(TEMPLATE_PLACEHOLDER_ATTR);
-      element.removeAttribute(TEMPLATE_PLACEHOLDER_ORIGINAL_SRC_ATTR);
-      this.restoreEditorOnlyPlaceholderStyles(element);
-      this.unwrapImageTemplatePlaceholder(element);
-      if (element instanceof HTMLIFrameElement) {
-        element.removeAttribute('srcdoc');
-      }
-    });
-  }
-
-  private applyImageTemplatePlaceholder(element: HTMLImageElement, originalSrc: string): void {
-    this.storeOriginalEditorPlaceholderStyle(element);
-    element.setAttribute(TEMPLATE_PLACEHOLDER_ATTR, 'img');
-    element.setAttribute(TEMPLATE_PLACEHOLDER_ORIGINAL_SRC_ATTR, originalSrc);
-    element.setAttribute('src', TRANSPARENT_GIF_DATA_URL);
-    this.wrapImageTemplatePlaceholder(element);
-  }
-
-  private applyIframeTemplatePlaceholder(element: HTMLIFrameElement, originalSrc: string): void {
-    this.storeOriginalEditorPlaceholderStyle(element);
-    element.setAttribute(TEMPLATE_PLACEHOLDER_ATTR, 'iframe');
-    element.setAttribute(TEMPLATE_PLACEHOLDER_ORIGINAL_SRC_ATTR, originalSrc);
-    element.setAttribute('src', 'about:blank');
-    element.setAttribute('srcdoc', this.buildIframeTemplatePlaceholderMarkup(element));
-  }
-
-  private isUnresolvedTemplateSource(src: string | null): boolean {
-    return src?.includes('{{') || false;
-  }
-
-  private buildImageTemplatePlaceholderSrc(element: HTMLImageElement): string {
-    const label = this.resolveTemplatePlaceholderLabel(element, 'Imagen binaria');
-    const width = this.readPlaceholderDimension(element, 'width', TEMPLATE_PLACEHOLDER_DEFAULT_WIDTH);
-    const height = this.readPlaceholderDimension(element, 'height', TEMPLATE_PLACEHOLDER_DEFAULT_HEIGHT);
-    return this.buildSvgPlaceholderDataUrl(label, width, height, 'image');
-  }
-
-  private buildIframeTemplatePlaceholderMarkup(element: HTMLIFrameElement): string {
-    const label = this.resolveTemplatePlaceholderLabel(element, 'Documento embebido');
-    return `<!doctype html><html><body style="margin:0;"><div style="width:100%;height:100%;box-sizing:border-box;display:flex;align-items:center;justify-content:center;padding:12px;border:1px dashed #94a3b8;background:#f8fafc;color:#475569;font:600 14px/1.4 Arial, sans-serif;text-align:center;">${this.escapeHtml(label)}</div></body></html>`;
-  }
-
-  private buildSvgPlaceholderDataUrl(label: string, width: number, height: number, kind: string): string {
-    const safeLabel = this.escapeHtml(label);
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><rect width="100%" height="100%" fill="#f8fafc" stroke="#94a3b8" stroke-dasharray="6 4"/><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#475569">${safeLabel}</text><text x="50%" y="calc(50% + 18px)" text-anchor="middle" dominant-baseline="middle" font-family="Arial, sans-serif" font-size="12" fill="#64748b">${kind}</text></svg>`;
-    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
-  }
-
-  private resolveTemplatePlaceholderLabel(element: HTMLElement, fallback: string): string {
-    return element.getAttribute('alt')
-      || element.getAttribute('title')
-      || element.getAttribute('aria-label')
-      || element.getAttribute('name')
-      || fallback;
-  }
-
-  private readPlaceholderDimension(element: VisualEditableElement, dimension: 'width' | 'height', fallback: number): number {
-    return this.readAppliedElementDimension(element, dimension) || fallback;
-  }
-
-  private escapeHtml(value: string): string {
-    return value
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
-
-  private cloneEditorRoot(root: { innerHTML?: string; cloneNode?: (deep?: boolean) => Node; }): HTMLElement {
-    if (typeof root?.cloneNode === 'function') {
-      return root.cloneNode(true) as HTMLElement;
+    if (commonAncestor.closest(translationLiteralSelector)) {
+      this.showInteractionError('entity.task.template.editor.nestedTError');
+      return;
     }
 
     const container = document.createElement('div');
-    container.innerHTML = root?.innerHTML || '';
-    return container;
-  }
-
-  private storeOriginalEditorPlaceholderStyle(element: VisualEditableElement): void {
-    element.setAttribute(TEMPLATE_PLACEHOLDER_ORIGINAL_STYLE_ATTR, element.getAttribute('style') || '');
-  }
-
-  private wrapImageTemplatePlaceholder(element: HTMLImageElement): void {
-    const wrapper = document.createElement('span');
-    const label = document.createElement('span');
-    const width = this.readPlaceholderDimension(element, 'width', TEMPLATE_PLACEHOLDER_DEFAULT_WIDTH);
-    const height = this.readPlaceholderDimension(element, 'height', TEMPLATE_PLACEHOLDER_DEFAULT_HEIGHT);
-
-    wrapper.setAttribute(TEMPLATE_PLACEHOLDER_WRAPPER_ATTR, 'img');
-    wrapper.setAttribute('style', [
-      'position: relative',
-      'display: inline-block',
-      'line-height: 0',
-      `width: ${width}px`,
-      `height: ${height}px`,
-      'max-width: 100%',
-      'background: #f8fafc',
-      'border: 1px dashed #94a3b8',
-      'box-sizing: border-box',
-      'overflow: hidden',
-    ].join('; '));
-
-    label.setAttribute(TEMPLATE_PLACEHOLDER_LABEL_ATTR, 'img');
-    label.setAttribute('style', [
-      'position: absolute',
-      'inset: 0',
-      'display: flex',
-      'align-items: center',
-      'justify-content: center',
-      'padding: 12px',
-      'box-sizing: border-box',
-      'text-align: center',
-      'color: #475569',
-      'font-family: Arial, sans-serif',
-      'font-size: 12px',
-      'font-weight: 600',
-      'line-height: 1.4',
-      'pointer-events: none',
-      'word-break: break-word',
-    ].join('; '));
-    label.textContent = this.resolveTemplatePlaceholderLabel(element, 'Imagen binaria');
-
-    const parent = element.parentNode;
-    if (!parent) {
+    container.appendChild(range.cloneContents());
+    const selectedHtml = normalizeHandlebarsMarkup(container.innerHTML || domSelection.toString());
+    if (!selectedHtml.trim()) {
+      this.showInteractionError('entity.task.template.editor.invalidSelection');
       return;
     }
 
-    parent.insertBefore(wrapper, element);
-    wrapper.appendChild(element);
-    wrapper.appendChild(label);
+    if (/<\s*t\b/i.test(selectedHtml) || selectedHtml.includes('data-sitmun-translation-literal')) {
+      this.showInteractionError('entity.task.template.editor.nestedTError');
+      return;
+    }
 
-    element.style.display = 'block';
-    element.style.width = '100%';
-    element.style.height = '100%';
-    element.style.opacity = '0';
+    this.interactionErrors = [];
+    this.editor.chain().focus().deleteSelection().insertContent({
+      type: 'translationLiteral',
+      attrs: { html: selectedHtml },
+    }).run();
   }
 
-  private unwrapImageTemplatePlaceholder(element: VisualEditableElement): void {
-    if (!(element instanceof HTMLImageElement)) {
-      return;
-    }
-
-    const wrapper = element.parentElement;
-    if (!wrapper?.hasAttribute(TEMPLATE_PLACEHOLDER_WRAPPER_ATTR)) {
-      return;
-    }
-
-    wrapper.replaceWith(element);
+  isActive(name: string, attributes?: Record<string, unknown>): boolean {
+    return this.editor?.isActive(name, attributes) ?? false;
   }
 
-  private removeSelectedVisualDomElement(): void {
-    if (!this.selectedVisualDomElement) {
-      return;
-    }
-
-    const imageWrapper = this.selectedVisualDomElement instanceof HTMLImageElement
-      ? this.selectedVisualDomElement.parentElement
-      : null;
-
-    if (imageWrapper?.hasAttribute(TEMPLATE_PLACEHOLDER_WRAPPER_ATTR)) {
-      imageWrapper.remove();
-      return;
-    }
-
-    this.selectedVisualDomElement.remove();
+  isTextAlignActive(alignment: 'left' | 'center' | 'right' | 'justify'): boolean {
+    return this.editor?.isActive({ textAlign: alignment }) ?? false;
   }
 
-  private syncImagePlaceholderWrapperDimensions(element: VisualEditableElement, width: string, height: string): void {
-    if (!(element instanceof HTMLImageElement)) {
+  isSizeControlVisible(): boolean {
+    return this.selectedNodeType === 'image' || this.selectedNodeType === 'iframe';
+  }
+
+  isTableContextVisible(): boolean {
+    return this.componentFocusedWithin && !!this.editor && (this.selectedNodeType === 'table' || isInTable(this.editor.state));
+  }
+
+  isTableSelectionActive(mode: Exclude<TableSelectionMode, 'none'>): boolean {
+    return this.tableSelectionMode === mode;
+  }
+
+  ngOnDestroy(): void {
+    this.editor?.destroy();
+    this.editor = null;
+  }
+
+  private applyIncomingHtml(nextHtml: string, initialLoad: boolean): void {
+    this.htmlSource = normalizeHandlebarsMarkup(nextHtml || '');
+    const validation = this.validator.validate(this.htmlSource);
+    this.publishValidation(validation);
+
+    if (!this.editor) {
+      if (!validation.valid) {
+        this.editorMode = 'html';
+      }
       return;
     }
 
-    const wrapper = element.parentElement;
-    if (!wrapper?.hasAttribute(TEMPLATE_PLACEHOLDER_WRAPPER_ATTR)) {
+    if (!validation.valid) {
+      this.editorMode = 'html';
       return;
     }
 
-    this.updateWrapperPlaceholderDimensionStyle(wrapper, 'width', width);
-    this.updateWrapperPlaceholderDimensionStyle(wrapper, 'height', height);
-  }
-
-  private updateWrapperPlaceholderDimensionStyle(wrapper: HTMLElement, property: 'width' | 'height', value: string): void {
-    const numericValue = Number.parseInt(value.trim(), 10);
-    if (Number.isFinite(numericValue) && numericValue > 0) {
-      wrapper.style[property] = `${numericValue}px`;
+    if (this.editorMode === 'visual' || initialLoad) {
+      this.loadHtmlIntoEditor(this.htmlSource);
     }
+
+    this.lastEmittedHtml = this.htmlSource;
   }
 
-  private restoreEditorOnlyPlaceholderStyles(element: VisualEditableElement): void {
-    const originalStyle = element.getAttribute(TEMPLATE_PLACEHOLDER_ORIGINAL_STYLE_ATTR);
-    element.removeAttribute(TEMPLATE_PLACEHOLDER_ORIGINAL_STYLE_ATTR);
-
-    if (originalStyle) {
-      element.setAttribute('style', originalStyle);
+  private syncFromVisualEditor(): void {
+    if (!this.editor) {
       return;
     }
 
-    element.removeAttribute('style');
-    if (!element.getAttribute('style')) {
-      element.removeAttribute('style');
+    const nextHtml = this.serializeEditorHtml();
+    const validation = this.validator.validate(nextHtml);
+    this.publishValidation(validation);
+    if (!validation.valid) {
+      return;
+    }
+
+    this.htmlSource = nextHtml;
+    this.emitHtml(nextHtml);
+  }
+
+  private loadHtmlIntoEditor(html: string): void {
+    if (!this.editor) {
+      return;
+    }
+
+    this.syncingFromInput = true;
+    this.editor.commands.setContent(protectStructuralHandlebarsBlocks(html || ''), false);
+    this.syncingFromInput = false;
+    this.syncSelectionState();
+  }
+
+  private serializeEditorHtml(): string {
+    if (!this.editor) {
+      return normalizeHandlebarsMarkup(this.htmlSource || '');
+    }
+
+    const doc = new DOMParser().parseFromString(this.editor.getHTML(), 'text/html');
+    const handlebarsRows = Array.from(doc.body.querySelectorAll<HTMLTableRowElement>(`tr[${HANDLEBARS_TABLE_ROW_ATTR}]`));
+    for (const row of handlebarsRows) {
+      row.replaceWith(doc.createTextNode(`\n${this.decodeStoredHtml(row.getAttribute(HANDLEBARS_TABLE_ROW_ATTR))}\n`));
+    }
+
+    const handlebarsBlocks = Array.from(doc.body.querySelectorAll<HTMLElement>(`div[${handlebarsBlockHtmlAttribute}]`));
+    for (const block of handlebarsBlocks) {
+      block.replaceWith(doc.createTextNode(this.decodeStoredHtml(block.getAttribute(handlebarsBlockHtmlAttribute))));
+    }
+
+    const translationNodes = Array.from(doc.body.querySelectorAll<HTMLElement>(translationLiteralSelector));
+    for (const node of translationNodes) {
+      const literal = doc.createElement('t');
+      literal.innerHTML = this.decodeStoredHtml(node.getAttribute(translationLiteralHtmlAttribute));
+      node.replaceWith(literal);
+    }
+
+    return normalizeHandlebarsMarkup(doc.body.innerHTML);
+  }
+
+  private publishValidation(validation: TemplateValidationResult): void {
+    this.validationErrors = validation.errors;
+    this.validationChange.emit(validation);
+  }
+
+  private showInteractionError(translationKey: string): void {
+    this.interactionErrors = [this.translateService.instant(translationKey)];
+  }
+
+  private emitHtml(html: string): void {
+    if (html === this.lastEmittedHtml) {
+      return;
+    }
+
+    this.interactionErrors = [];
+    this.lastEmittedHtml = html;
+    this.htmlChange.emit(html);
+  }
+
+  private decodeStoredHtml(value: string | null): string {
+    if (!value) {
+      return '';
+    }
+
+    try {
+      return decodeURIComponent(value);
+    } catch {
+      return value;
     }
   }
 
-  private readStylePixelDimension(styleValue: string): number | null {
-    const normalizedValue = styleValue.trim().toLowerCase();
-    if (!normalizedValue.endsWith('px')) {
+  private syncSelectionState(): void {
+    if (!this.editor) {
+      return;
+    }
+
+    this.editorFocused = this.editor.isFocused;
+
+    if (!this.componentFocusedWithin) {
+      this.resetSelectionState();
+      this.changeDetectorRef.detectChanges();
+      return;
+    }
+
+    const { selection } = this.editor.state;
+    this.canDeleteSelection = !selection.empty || isInTable(this.editor.state);
+    this.selectedNodeType = this.resolveSelectedNodeType(selection);
+    this.tableSelectionMode = this.resolveTableSelectionMode(selection);
+    this.rememberCurrentTablePosition(selection);
+
+    const textStyleAttributes = this.editor.getAttributes('textStyle') as Record<string, string | null | undefined>;
+    const highlightAttributes = this.editor.getAttributes('highlight') as Record<string, string | null | undefined>;
+    this.selectedTextColor = this.normalizeColorValue(textStyleAttributes['color'], '#000000');
+    this.selectedHighlightColor = this.normalizeColorValue(highlightAttributes['color'], '#fff59d');
+    this.selectedFontSize = this.normalizeFontSize(textStyleAttributes['fontSize']);
+    this.syncTableCellStyleState();
+
+    if (!this.isSizeControlVisible()) {
+      this.selectedElementWidth = '';
+      this.selectedElementHeight = '';
+      this.changeDetectorRef.detectChanges();
+      return;
+    }
+
+    const attributes = this.editor.getAttributes(this.selectedNodeType) as Record<string, string | null | undefined>;
+    this.selectedElementWidth = this.normalizeDimensionValue(attributes['width']);
+    this.selectedElementHeight = this.normalizeDimensionValue(attributes['height']);
+    this.changeDetectorRef.detectChanges();
+  }
+
+  private resetSelectionState(): void {
+    this.canDeleteSelection = false;
+    this.selectedNodeType = 'none';
+    this.tableSelectionMode = 'none';
+    this.selectedElementWidth = '';
+    this.selectedElementHeight = '';
+    this.selectedTextColor = '#000000';
+    this.selectedHighlightColor = '#fff59d';
+    this.selectedFontSize = '';
+    this.selectedTableCellBackground = '#ffffff';
+    this.selectedTableCellBorderColor = '#000000';
+    this.selectedTableCellBorderWidth = '1';
+  }
+
+  private resolveSelectedNodeType(selection: Selection): SelectedNodeType {
+    if (!(selection instanceof NodeSelection)) {
+      return 'none';
+    }
+
+    const nodeType = selection.node.type.name;
+    if (nodeType === 'image' || nodeType === 'iframe' || nodeType === 'translationLiteral' || nodeType === 'table') {
+      return nodeType;
+    }
+
+    return 'none';
+  }
+
+  private resolveTableSelectionMode(selection: Selection): TableSelectionMode {
+    if (selection instanceof NodeSelection && selection.node.type.name === 'table') {
+      return 'table';
+    }
+
+    if (!(selection instanceof CellSelection)) {
+      return 'none';
+    }
+
+    if (selection.isRowSelection()) {
+      return 'row';
+    }
+
+    if (selection.isColSelection()) {
+      return 'column';
+    }
+
+    return 'cell';
+  }
+
+  private normalizeColorValue(value: string | null | undefined, fallback: string): string {
+    return normalizeEditorColorValue(value, fallback);
+  }
+
+  private normalizeFontSize(value: string | null | undefined): string {
+    return TemplateEditorComponent.FONT_SIZE_OPTIONS.includes(value || '') ? value || '' : '';
+  }
+
+  private normalizeDimensionValue(value: string | null | undefined): string {
+    if (!value) {
+      return '';
+    }
+
+    return value.replace(/px$/i, '').trim();
+  }
+
+  private applyTableCellBorder(): void {
+    const width = String(this.selectedTableCellBorderWidth ?? '').trim();
+    const numericWidth = width && Number(width) > 0 ? width : '1';
+    this.selectedTableCellBorderWidth = numericWidth;
+    this.updateSelectedTableCellsStyle({ border: `${numericWidth}px solid ${this.selectedTableCellBorderColor}` });
+  }
+
+  private updateSelectedTableCellsStyle(styles: Record<string, string | null>): void {
+    if (!this.editor || !this.isTableContextVisible()) {
+      return;
+    }
+
+    const cells = this.getSelectedTableCells();
+    if (cells.length === 0) {
+      return;
+    }
+
+    let transaction = this.editor.state.tr;
+    for (const cell of cells) {
+      const nextStyle = this.mergeInlineStyle(String(cell.node.attrs['style'] || ''), styles);
+      transaction = transaction.setNodeMarkup(cell.pos, undefined, {
+        ...cell.node.attrs,
+        style: nextStyle || null,
+      });
+    }
+
+    if (transaction.docChanged) {
+      this.editor.view.dispatch(transaction);
+      this.syncSelectionState();
+    }
+  }
+
+  private getSelectedTableCells(): Array<{ node: ProseMirrorNode; pos: number }> {
+    if (!this.editor) {
+      return [];
+    }
+
+    const { selection } = this.editor.state;
+    if (selection instanceof CellSelection) {
+      const cells: Array<{ node: ProseMirrorNode; pos: number }> = [];
+      selection.forEachCell((node, pos) => cells.push({ node, pos }));
+      return cells;
+    }
+
+    const tablePosition = this.getCurrentTablePosition();
+    const tableNode = tablePosition == null ? null : this.editor.state.doc.nodeAt(tablePosition);
+    if (this.tableSelectionMode === 'table' && tableNode?.type.name === 'table') {
+      const cells: Array<{ node: ProseMirrorNode; pos: number }> = [];
+      tableNode.descendants((node, pos) => {
+        if (node.type.name === 'tableCell' || node.type.name === 'tableHeader') {
+          cells.push({ node, pos: tablePosition + 1 + pos });
+        }
+      });
+      return cells;
+    }
+
+    if (isInTable(this.editor.state)) {
+      const cell = selectionCell(this.editor.state);
+      const node = cell.nodeAfter;
+      if (node?.type.name === 'tableCell' || node?.type.name === 'tableHeader') {
+        return [{ node, pos: cell.pos }];
+      }
+    }
+
+    return [];
+  }
+
+  private syncTableCellStyleState(): void {
+    if (!this.editor || !this.isTableContextVisible()) {
+      this.selectedTableCellBackground = '#ffffff';
+      this.selectedTableCellBorderColor = '#000000';
+      this.selectedTableCellBorderWidth = '1';
+      return;
+    }
+
+    const cell = this.getSelectedTableCells()[0];
+    const style = this.parseInlineStyle(String(cell?.node.attrs['style'] || ''));
+    this.selectedTableCellBackground = this.normalizeColorValue(style['background-color'], '#ffffff');
+    this.selectedTableCellBorderColor = this.normalizeColorValue(style['border-color'] || this.extractBorderColor(style['border']), '#000000');
+    this.selectedTableCellBorderWidth = this.extractBorderWidth(style['border-width'] || style['border']) || '1';
+  }
+
+  private parseInlineStyle(style: string): Record<string, string> {
+    return style.split(';').reduce((acc, declaration) => {
+      const separatorIndex = declaration.indexOf(':');
+      if (separatorIndex < 0) {
+        return acc;
+      }
+
+      const property = declaration.slice(0, separatorIndex).trim().toLowerCase();
+      const value = declaration.slice(separatorIndex + 1).trim();
+      if (property && value) {
+        acc[property] = value;
+      }
+      return acc;
+    }, {} as Record<string, string>);
+  }
+
+  private mergeInlineStyle(style: string, updates: Record<string, string | null>): string {
+    const styles = this.parseInlineStyle(style);
+    for (const [property, value] of Object.entries(updates)) {
+      if (value == null || value.trim().length === 0) {
+        delete styles[property];
+      } else {
+        styles[property] = value.trim();
+      }
+    }
+
+    return Object.entries(styles).map(([property, value]) => `${property}: ${value}`).join('; ');
+  }
+
+  private extractBorderColor(value: string | undefined): string | null {
+    const colorMatch = value?.match(/(?:#[0-9a-f]{3,6}\b|rgba?\([^)]*\))/i)?.[0] || null;
+    if (!colorMatch) {
       return null;
     }
 
-    const numericValue = Number.parseInt(normalizedValue, 10);
-    return Number.isFinite(numericValue) && numericValue > 0 ? numericValue : null;
+    return this.normalizeColorValue(colorMatch, '#000000');
+  }
+
+  private extractBorderWidth(value: string | undefined): string | null {
+    return value?.match(/(\d+(?:\.\d+)?)px\b/i)?.[1] || null;
+  }
+
+  private getCurrentTableInfo(): { rowCount: number; columnCount: number } | null {
+    if (!this.editor || !isInTable(this.editor.state)) {
+      return null;
+    }
+
+    const cell = selectionCell(this.editor.state);
+    const table = findTable(cell);
+    if (!table) {
+      return null;
+    }
+
+    const map = TableMap.get(table.node);
+    return {
+      rowCount: map.height,
+      columnCount: map.width,
+    };
+  }
+
+  private deleteCurrentTable(): boolean {
+    if (!this.editor) {
+      return false;
+    }
+
+    const tablePosition = this.getCurrentTablePosition();
+    if (tablePosition == null) {
+      return this.editor.commands.deleteTable();
+    }
+
+    const tableNode = this.editor.state.doc.nodeAt(tablePosition);
+    if (!tableNode || tableNode.type.name !== 'table') {
+      return this.editor.commands.deleteTable();
+    }
+
+    const transaction = this.editor.state.tr.delete(tablePosition, tablePosition + tableNode.nodeSize);
+    this.editor.view.dispatch(transaction);
+    this.lastTablePosition = null;
+    return true;
+  }
+
+  private getCurrentTablePosition(): number | null {
+    if (!this.editor) {
+      return null;
+    }
+
+    const { selection } = this.editor.state;
+    if (selection instanceof NodeSelection && selection.node.type.name === 'table') {
+      return selection.from;
+    }
+
+    if (isInTable(this.editor.state)) {
+      const cell = selectionCell(this.editor.state);
+      return findTable(cell)?.pos ?? null;
+    }
+
+    return this.lastTablePosition;
+  }
+
+  private rememberCurrentTablePosition(selection: Selection): void {
+    if (!this.editor) {
+      return;
+    }
+
+    if (selection instanceof NodeSelection && selection.node.type.name === 'table') {
+      this.lastTablePosition = selection.from;
+      return;
+    }
+
+    if (isInTable(this.editor.state)) {
+      const cell = selectionCell(this.editor.state);
+      this.lastTablePosition = findTable(cell)?.pos ?? this.lastTablePosition;
+    }
   }
 }

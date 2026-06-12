@@ -120,7 +120,7 @@
           </mat-form-field>
 
           <mat-hint *ngIf="excludedAuthenticatedApiTasks > 0" class="warning-hint">
-            Las tareas Web API con autenticación habilitada no se pueden vincular a Plantilla por ahora.
+            {{ 'entity.task.template.apiAuthWarning' | translate }}
           </mat-hint>
           <mat-hint *ngIf="nestingLimitWarning" class="warning-hint">
             {{ nestingLimitWarning }}
@@ -167,6 +167,7 @@
             <h3>{{ 'entity.task.template.editor' | translate }}</h3>
             <app-template-editor
               [html]="entityForm.get('templateHtml')?.value || ''"
+              (validationChange)="onTemplateValidationChanged($event)"
               (htmlChange)="onTemplateHtmlChanged($event)">
             </app-template-editor>
 

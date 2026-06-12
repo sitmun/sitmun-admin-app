@@ -1,10 +1,10 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom, map, of, startWith } from 'rxjs';
@@ -38,15 +38,17 @@ import {
   TerritoryService,
   TranslationService,
 } from '@app/domain';
+import { canKeepOrUpdate, onCreate, onDelete, onUpdatedRelation, Status } from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
 import { ErrorHandlerService } from '@app/services/error-handler.service';
 import { LoadingOverlayService } from '@app/services/loading-overlay.service';
 import { LoggerService } from '@app/services/logger.service';
 import { NotificationService } from '@app/services/notification.service';
 import { UtilsService } from '@app/services/utils.service';
-import { canKeepOrUpdate, onCreate, onDelete, onUpdatedRelation, Status } from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
-import { environment } from '@environments/environment';
 import { magic } from '@environments/constants';
+import { environment } from '@environments/environment';
+
 import { TemplateChildTaskLink } from '../query-execution-card/query-execution-card.component';
+import { TemplateValidationResult } from '../template-editor/template-html-validator.service';
 
 interface LinkedTemplateTask {
   relationId: number | null;
@@ -107,6 +109,7 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
   protected previewDirty = true;
   protected systemVariables = new Map<string, string>();
   protected pendingReferenceAliasChange: PendingReferenceAliasChange | null = null;
+  protected templateValidation: TemplateValidationResult = { valid: true, errors: [] };
   protected linkTaskSearchControl = new FormControl<string | LinkableTemplateTask>('', { nonNullable: true });
   protected filteredLinkableTasks = of<LinkableTemplateTask[]>([]);
   protected readonly displayLinkableTaskWith = (task: LinkableTemplateTask | string): string => this.displayLinkableTask(task);
@@ -528,6 +531,30 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
     this.markPreviewDirty();
   }
 
+  protected onTemplateValidationChanged(validation: TemplateValidationResult) {
+    this.templateValidation = validation;
+
+    const control = this.entityForm?.get('templateHtml');
+    if (!control) return;
+
+    const { _, ...otherErrors } = control.errors || {};
+
+    if (validation.valid) {
+      const hasOtherErrors = Object.keys(otherErrors).length > 0;
+      control.setErrors(hasOtherErrors ? otherErrors : null);
+    } else {
+      control.setErrors({ ...otherErrors, invalidTemplateHtml: true });
+    }
+  }
+
+  override canSave(): boolean {
+    return super.canSave() && this.templateValidation.valid;
+  }
+
+  override get canSaveEntity(): boolean {
+    return super.canSaveEntity && this.templateValidation.valid;
+  }
+
   protected renderPreview() {
     if (!this.entityForm) {
       return;
@@ -569,7 +596,6 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
     const properties = {
       ...TaskPropertiesBuilder.from(this.entityToEdit?.properties)
       .withTemplateHtml(formValues.templateHtml || null)
-      .withTemplateEditorState(TaskPropertiesContract.getTemplateEditorState(this.entityToEdit?.properties))
       .build(),
       childTaskOrderIds: this.linkedTasks.map((linkedTask) => linkedTask.taskId),
     } as TemplateTaskProperties;
@@ -595,18 +621,8 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
         return [];
       }
 
-      if (scope === 'web-api-query' && this.hasAuthentication(task)) {
-        this.excludedAuthenticatedApiTasks += 1;
-        return [];
-      }
-
       return [this.toLinkableTask(task, 'template-task', this.getScopeLabel(scope))];
     });
-  }
-
-  private hasAuthentication(task: TaskProjection): boolean {
-    const authenticationMode = (task.properties as Record<string, unknown> | null)?.['authenticationMode'];
-    return typeof authenticationMode === 'string' && authenticationMode.trim().length > 0;
   }
 
   private getScopeLabel(scope: string): string {

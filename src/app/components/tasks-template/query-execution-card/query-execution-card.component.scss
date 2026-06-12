@@ -79,6 +79,12 @@
   max-height: 400px;
 }
 
+.insert-action-row {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0.5rem 0 0.75rem;
+}
+
 .nested-template-children {
   margin-top: 1rem;
 }
