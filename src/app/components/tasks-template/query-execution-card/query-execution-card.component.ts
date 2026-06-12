@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, Output, QueryList, SimpleChanges, ViewChildren } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+
 import { firstValueFrom } from 'rxjs';
 
 import {
@@ -28,6 +29,7 @@ export interface TemplateChildTaskLink {
 })
 export class QueryExecutionCardComponent implements OnChanges, OnDestroy {
   private static readonly MAX_TEMPLATE_NESTING_LEVEL = 3;
+  private static readonly FLATTENED_FIRST_ROW_FIELD_PATTERN = /^(?:items|rows)\[0]\.(.+)$/;
 
   @Input({ required: true }) task!: TaskProjection;
   @Input() referenceAlias = '';
@@ -138,6 +140,15 @@ export class QueryExecutionCardComponent implements OnChanges, OnDestroy {
     return !this.isBinaryResourceResponse && !!this.response?.rows?.length;
   }
 
+  get canInsertResponseTableSnippet(): boolean {
+    return this.responseTableSnippetColumns.length > 0;
+  }
+
+  get canInsertBinaryContentSnippet(): boolean {
+    return !!this.binaryContentReference
+      && this.isBinaryResourceResponse
+  }
+
   get showTaskResultReference(): boolean {
     return !!this.taskResultReference && !this.isBinaryResourceResponse;
   }
@@ -197,6 +208,18 @@ export class QueryExecutionCardComponent implements OnChanges, OnDestroy {
       return [];
     }
     return Object.keys(this.response.rows[0]);
+  }
+
+  get responseTableSnippetColumns(): string[] {
+    if (!this.response?.rows?.length || this.isBinaryResourceResponse) {
+      return [];
+    }
+
+    if (!this.isFieldValueTable) {
+      return this.responseColumns;
+    }
+
+    return this.extractSnippetColumnsFromFieldValueRows();
   }
 
   get isFieldValueTable(): boolean {
@@ -269,7 +292,11 @@ export class QueryExecutionCardComponent implements OnChanges, OnDestroy {
   }
 
   async copyResponseTable(): Promise<void> {
-    await this.copyPlaceholder(this.buildResponseTableSnippet(this.responseColumns));
+    if (!this.canInsertResponseTableSnippet) {
+      return;
+    }
+
+    await this.copyPlaceholder(this.buildResponseTableSnippet(this.responseTableSnippetColumns));
   }
 
   async copyRenderedHtml(): Promise<void> {
@@ -287,6 +314,14 @@ export class QueryExecutionCardComponent implements OnChanges, OnDestroy {
     }
 
     await this.copyPlaceholder(this.buildBinaryContentSnippet(contentReference));
+  }
+
+  async insertResponseTableSnippet(): Promise<void> {
+    await this.copyResponseTable();
+  }
+
+  async insertBinaryContentSnippet(): Promise<void> {
+    await this.copyBinaryContentSnippet();
   }
 
   stringifyFieldPath(value: unknown): string {
@@ -348,6 +383,24 @@ export class QueryExecutionCardComponent implements OnChanges, OnDestroy {
     const headers = columns.map((column) => `<th>${this.escapeHtml(column)}</th>`).join('');
     const cells = columns.map((column) => `<td>{{${column}}}</td>`).join('');
     return `<table data-sitmun-each="${this.escapeHtml(this.resolvedReferenceAlias)}.rows"><thead><tr>${headers}</tr></thead><tbody><tr>${cells}</tr></tbody></table>`;
+  }
+
+  private extractSnippetColumnsFromFieldValueRows(): string[] {
+    const columns = new Set<string>();
+    for (const row of this.response?.rows || []) {
+      const fieldPath = typeof row['field'] === 'string' ? row['field'] : '';
+      const match = QueryExecutionCardComponent.FLATTENED_FIRST_ROW_FIELD_PATTERN.exec(fieldPath);
+      if (!match) {
+        continue;
+      }
+
+      const fieldName = RegExp(/^[^.[]+/).exec(match[1])?.[0];
+      if (fieldName) {
+        columns.add(fieldName);
+      }
+    }
+
+    return Array.from(columns);
   }
 
   private buildBinaryContentSnippet(contentReference: string): string {

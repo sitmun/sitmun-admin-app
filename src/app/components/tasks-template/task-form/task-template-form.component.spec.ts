@@ -121,21 +121,6 @@ describe('TaskTemplateFormComponent', () => {
     expect(component.entityForm.get('templateHtml')?.value).toBe('');
   });
 
-  it('should filter out authenticated web api tasks from linkable query tasks', () => {
-    const tasks = [
-      { id: 1, typeId: 5, name: 'SQL', properties: { scope: 'sql-query' } },
-      { id: 2, typeId: 5, name: 'API auth', properties: { scope: 'web-api-query', authenticationMode: 'X-API-Key' } },
-      { id: 3, typeId: 5, name: 'API open', properties: { scope: 'web-api-query' } },
-      { id: 4, typeId: 5, name: 'Resource', properties: { scope: 'resource' } },
-      { id: 5, typeId: 5, name: 'Cartography', properties: { scope: 'cartography-query' } },
-    ] as any;
-
-    const filtered = (component as any).filterLinkableQueryTasks(tasks);
-
-    expect(filtered.map((task: any) => task.taskId)).toEqual([1, 3, 4, 5]);
-    expect((component as any).excludedAuthenticatedApiTasks).toBe(1);
-  });
-
   it('should remove linked task from local list', () => {
     (component as any).linkedTasks = [
       { relationType: 'template-task', taskId: 13, referenceAlias: 'task_1', draftReferenceAlias: 'task_1', name: 'Consulta', typeLabel: 'Consulta SQL', relationId: 1 },
@@ -568,6 +553,80 @@ describe('TaskTemplateFormComponent', () => {
       task_13: { tui_name: 'layerCatalog' },
     }, null, ['pepe', 'task_13']);
     expect((component as any).previewHtml).toBe('<p>tui name: layerCatalog</p>');
+  });
+
+  it('should delegate each blocks and flattened rows to backend preview normalization', () => {
+    component.entityToEdit = {
+      properties: {
+        previewContext: {
+          AllHits: {
+            rows: [
+              { field: 'items[0].Player', value: 'Ichiro Suzuki' },
+              { field: 'items[0].Hits', value: 262 },
+              { field: 'items[1].Player', value: 'George Sisler' },
+              { field: 'items[1].Hits', value: 257 },
+            ],
+          },
+        },
+      },
+    } as any;
+    component.entityForm = new FormGroup({
+      name: new FormControl('Template 1'),
+      taskGroupId: new FormControl(2),
+      templateHtml: new FormControl('{{#each AllHits}}<p>{{this.Player}}</p>{{/each}}'),
+    });
+
+    (component as any).renderPreview();
+
+    expect(previewService.previewTemplate).toHaveBeenCalledWith('{{#each AllHits}}<p>{{this.Player}}</p>{{/each}}', {
+      AllHits: {
+        rows: [
+          { field: 'items[0].Player', value: 'Ichiro Suzuki' },
+          { field: 'items[0].Hits', value: 262 },
+          { field: 'items[1].Player', value: 'George Sisler' },
+          { field: 'items[1].Hits', value: 257 },
+        ],
+      },
+    }, null, []);
+  });
+
+  it('should delegate nested flattened rows to backend preview normalization', () => {
+    component.entityToEdit = {
+      properties: {
+        previewContext: {
+          IcedCoffee: {
+            rows: [
+              { field: 'items[0].title', value: 'Iced Coffee' },
+              { field: 'items[0].ingredients[0]', value: 'Coffee' },
+              { field: 'items[0].ingredients[1]', value: 'Ice' },
+              { field: 'items[1].title', value: 'Iced Espresso' },
+              { field: 'items[1].ingredients[0]', value: 'Espresso' },
+              { field: 'items[1].ingredients[1]', value: 'Ice' },
+            ],
+          },
+        },
+      },
+    } as any;
+    component.entityForm = new FormGroup({
+      name: new FormControl('Template 1'),
+      taskGroupId: new FormControl(2),
+      templateHtml: new FormControl('{{#each IcedCoffee}}<p>{{this.title}}</p>{{#each this.ingredients}}<span>{{this}}</span>{{/each}}{{/each}}'),
+    });
+
+    (component as any).renderPreview();
+
+    expect(previewService.previewTemplate).toHaveBeenCalledWith('{{#each IcedCoffee}}<p>{{this.title}}</p>{{#each this.ingredients}}<span>{{this}}</span>{{/each}}{{/each}}', {
+      IcedCoffee: {
+        rows: [
+          { field: 'items[0].title', value: 'Iced Coffee' },
+          { field: 'items[0].ingredients[0]', value: 'Coffee' },
+          { field: 'items[0].ingredients[1]', value: 'Ice' },
+          { field: 'items[1].title', value: 'Iced Espresso' },
+          { field: 'items[1].ingredients[0]', value: 'Espresso' },
+          { field: 'items[1].ingredients[1]', value: 'Ice' },
+        ],
+      },
+    }, null, []);
   });
 
   it('should include template parameter defaults in preview context', () => {

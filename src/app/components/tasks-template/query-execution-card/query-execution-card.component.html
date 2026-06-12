@@ -64,6 +64,11 @@
           <mat-icon>content_copy</mat-icon>
         </button>
       </div>
+      <div class="insert-action-row" *ngIf="canInsertResponseTableSnippet">
+        <button mat-stroked-button type="button" (click)="insertResponseTableSnippet()">
+          {{ 'entity.task.template.insertResponseTable' | translate }}
+        </button>
+      </div>
       <table class="response-table">
         <thead *ngIf="!isFieldValueTable">
           <tr>
@@ -98,6 +103,12 @@
       <a [href]="response.resourceUrl || '#'" target="_blank" rel="noopener noreferrer">{{ response.resourceUrl }}</a>
       <button *ngIf="isBinaryResourceResponse" class="copy-icon-button" mat-icon-button type="button" (click)="copyBinaryContentSnippet()" [attr.aria-label]="'common.copy' | translate">
         <mat-icon>content_copy</mat-icon>
+      </button>
+    </div>
+
+    <div *ngIf="showEmbeddedChildChrome && canInsertBinaryContentSnippet" class="insert-action-row">
+      <button mat-stroked-button type="button" (click)="insertBinaryContentSnippet()">
+        {{ (binaryMimeType.startsWith('image/') ? 'entity.task.template.insertImage' : 'entity.task.template.insertPdfIframe') | translate }}
       </button>
     </div>
 

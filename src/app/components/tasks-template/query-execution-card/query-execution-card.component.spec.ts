@@ -11,6 +11,14 @@ import { TaskTemplatePreviewService } from '@app/domain';
 
 import { QueryExecutionCardComponent } from './query-execution-card.component';
 
+jest.mock('@app/domain', () => ({
+  TaskTemplatePreviewService: class TaskTemplatePreviewService {},
+  TaskPropertiesContract: {
+    getParameters: (properties: { parameters?: unknown } | null | undefined) =>
+      Array.isArray(properties?.parameters) ? properties.parameters : [],
+  },
+}));
+
 describe('QueryExecutionCardComponent', () => {
   let component: QueryExecutionCardComponent;
   let fixture: ComponentFixture<QueryExecutionCardComponent>;
@@ -232,6 +240,32 @@ describe('QueryExecutionCardComponent', () => {
     expect(emitted).toEqual([expected]);
   });
 
+  it('should derive table columns from flattened field value rows', async () => {
+    const emitted: string[] = [];
+    component.placeholderSelected.subscribe((value) => emitted.push(value));
+    component.response = {
+      taskId: 13,
+      status: 'COMPLETED',
+      resultType: 'table',
+      parameters: {},
+      context: {},
+      rows: [
+        { field: 'items[0].title', value: 'Iced Coffee' },
+        { field: 'items[0].description', value: 'Cold coffee' },
+        { field: 'items[0].ingredients[0]', value: 'Coffee' },
+        { field: 'items[0].id', value: 1 },
+        { field: 'items[1].title', value: 'Iced Espresso' },
+      ],
+      resourceUrl: null,
+    };
+
+    await component.copyResponseTable();
+
+    const expected = '<table data-sitmun-each="pepe.rows"><thead><tr><th>title</th><th>description</th><th>ingredients</th><th>id</th></tr></thead><tbody><tr><td>{{title}}</td><td>{{description}}</td><td>{{ingredients}}</td><td>{{id}}</td></tr></tbody></table>';
+    expect(clipboardWriteText).toHaveBeenCalledWith(expected);
+    expect(emitted).toEqual([expected]);
+  });
+
   it('should expose url result reference after executing a resource/url task', async () => {
     component.response = {
       taskId: 13,
@@ -273,6 +307,24 @@ describe('QueryExecutionCardComponent', () => {
     expect(component.showTaskResultReference).toBe(false);
     expect(clipboardWriteText).toHaveBeenCalledWith(expected);
     expect(emitted).toEqual([expected]);
+  });
+
+  it('should only offer embeddable binary insertion for pdf and images', () => {
+    component.response = {
+      taskId: 32319,
+      status: 'COMPLETED',
+      resultType: 'resource',
+      parameters: {},
+      context: {
+        contentUrl: 'https://api.example.org/archive.zip',
+        mimeType: 'application/zip',
+        binary: true,
+      },
+      rows: [{ field: 'value', value: '[contenido binario]' }],
+      resourceUrl: 'https://api.example.org/archive.zip',
+    };
+
+    expect(component.canInsertBinaryContentSnippet).toBe(false);
   });
 
   it('should copy img snippet for binary image responses', async () => {
