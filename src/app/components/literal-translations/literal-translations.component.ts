@@ -47,6 +47,7 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
     id: new FormControl<number | null>(null),
     literal: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     translation: new FormControl('', { nonNullable: true }),
+    sourceLanguage: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
   });
   readonly selectionColumnDef: ColDef<LiteralTranslationItem> = {
     headerName: '',
@@ -75,6 +76,7 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
     {
       field: 'literal',
       headerValueGetter: () => this.translateService.instant('entity.literalTranslation.literalColumn'),
+      filter: true,
       sortable: true,
       flex: 1,
       minWidth: 220,
@@ -83,11 +85,21 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
     {
       field: 'translation',
       headerValueGetter: () => this.translateService.instant('entity.literalTranslation.translationColumn'),
+      filter: true,
       sortable: false,
       flex: 1,
       minWidth: 220,
-      valueGetter: (params) => this.isDefaultLanguageSelected() ? params.data?.literal ?? '' : params.data?.translation ?? '',
+      valueGetter: (params) => this.isSelectedLanguageSourceLanguage(params.data) ? params.data?.literal ?? '' : params.data?.translation ?? '',
       tooltipValueGetter: (params) => params.value,
+    },
+    {
+      field: 'complete',
+      headerName: '',
+      width: 72,
+      maxWidth: 72,
+      cellRenderer: (params: { data: LiteralTranslationItem }) =>
+        `<span class="complete-indicator complete-indicator-${params.data?.complete}" title="${params.data?.complete ? this.translateService.instant('entity.literalTranslation.completeTooltip') : this.translateService.instant('entity.literalTranslation.incompleteTooltip')}"></span>`,
+      cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' },
     },
     {
       colId: 'editAction',
@@ -127,7 +139,7 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
     });
 
     this.form.controls.literal.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((literal) => {
-      if (this.isDefaultLanguageSelected()) {
+      if (this.isEditingSelectedSourceLanguage()) {
         this.form.controls.translation.setValue(literal, { emitEvent: false });
       }
     });
@@ -170,7 +182,8 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
       this.saving = true;
       this.literalTranslationsService.create({
         literal: result.literal,
-        language: this.defaultLanguage,
+        language: result.sourceLanguage,
+        sourceLanguage: result.sourceLanguage,
         translation: result.literal,
         translations: result.translations,
       }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -248,8 +261,8 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
     });
   }
 
-  isDefaultLanguageSelected(): boolean {
-    return this.languageControl.value === this.defaultLanguage;
+  isSelectedLanguageSourceLanguage(item: LiteralTranslationItem | null | undefined): boolean {
+    return !!item?.sourceLanguage && this.languageControl.value === item.sourceLanguage;
   }
 
   isEditing(): boolean {
@@ -308,6 +321,7 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
         id: null,
         literal: '',
         translation: '',
+        sourceLanguage: '',
       },
       { emitEvent: false },
     );
@@ -320,7 +334,8 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
       {
         id: item.id,
         literal: item.literal,
-        translation: this.isDefaultLanguageSelected() ? item.literal : item.translation ?? '',
+        translation: this.isSelectedLanguageSourceLanguage(item) ? item.literal : item.translation ?? '',
+        sourceLanguage: item.sourceLanguage,
       },
       { emitEvent: false },
     );
@@ -334,7 +349,7 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
   }
 
   private syncTranslationControlState(): void {
-    if (this.isDefaultLanguageSelected()) {
+    if (this.isEditingSelectedSourceLanguage()) {
       this.form.controls.translation.setValue(this.form.controls.literal.value, { emitEvent: false });
       this.form.controls.translation.disable({ emitEvent: false });
       return;
@@ -345,9 +360,15 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
   private buildPayload(): LiteralTranslationUpsertPayload {
     return {
       literal: this.form.controls.literal.value,
-      translation: this.isDefaultLanguageSelected() ? null : this.form.controls.translation.value,
+      translation: this.isEditingSelectedSourceLanguage() ? this.form.controls.literal.value : this.form.controls.translation.value,
       language: this.languageControl.value,
+      sourceLanguage: this.form.controls.sourceLanguage.value,
     };
+  }
+
+  private isEditingSelectedSourceLanguage(): boolean {
+    const sourceLanguage = this.form.controls.sourceLanguage.value;
+    return !!sourceLanguage && this.languageControl.value === sourceLanguage;
   }
 
   private resolveInitialLanguage(): string {

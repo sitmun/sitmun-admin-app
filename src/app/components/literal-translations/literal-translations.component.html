@@ -80,13 +80,18 @@
           <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="3" cdkAutosizeMaxRows="6" formControlName="literal"></textarea>
         </mat-form-field>
 
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'entity.literalTranslation.sourceLanguage' | translate }}</mat-label>
+          <input matInput formControlName="sourceLanguage" readonly>
+        </mat-form-field>
+
         <div>
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>{{ 'entity.literalTranslation.translationField' | translate }}</mat-label>
             <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="6" cdkAutosizeMaxRows="10" formControlName="translation"></textarea>
           </mat-form-field>
-          <div *ngIf="isDefaultLanguageSelected()" class="hint-panel">
-            {{ 'entity.literalTranslation.defaultLanguageHint' | translate:{ lang: defaultLanguage } }}
+          <div *ngIf="form.controls.sourceLanguage.value === languageControl.value" class="hint-panel">
+            {{ 'entity.literalTranslation.sourceLanguageHint' | translate:{ lang: form.controls.sourceLanguage.value } }}
           </div>
         </div>
       </mat-card-content>

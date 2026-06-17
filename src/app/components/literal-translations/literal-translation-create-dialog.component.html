@@ -6,6 +6,15 @@
     <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="3" cdkAutosizeMaxRows="6" formControlName="literal"></textarea>
   </mat-form-field>
 
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>{{ 'entity.literalTranslation.sourceLanguage' | translate }}</mat-label>
+    <mat-select [formControl]="sourceLanguageControl">
+      <mat-option *ngFor="let language of data.languages" [value]="language.shortname">
+        {{ language.name }} ({{ language.shortname }})
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
   <div class="language-switcher" role="tablist">
     <button
       *ngFor="let language of data.languages"
@@ -14,7 +23,7 @@
       class="language-switcher-item"
       [class.language-switcher-item-active]="isActiveLanguage(language)"
       (click)="setActiveLanguage(language.shortname)">
-      <span class="language-switcher-status" [class.language-switcher-status-ready]="hasTranslation(language)"></span>
+      <span class="language-switcher-status language-switcher-status-missing" [class.language-switcher-status-ready]="hasTranslation(language)"></span>
       <span class="language-switcher-code">{{ language.shortname }}</span>
       <span>{{ language.name }}</span>
     </button>
@@ -37,8 +46,8 @@
           [formControl]="controlFor(language)"></textarea>
       </mat-form-field>
 
-      <div *ngIf="isDefaultLanguage(language)" class="hint-panel">
-        {{ 'entity.literalTranslation.defaultLanguageHint' | translate:{ lang: data.defaultLanguage } }}
+      <div *ngIf="isSourceLanguage(language)" class="hint-panel">
+        {{ 'entity.literalTranslation.sourceLanguageHint' | translate:{ lang: sourceLanguageControl.value } }}
       </div>
     </ng-container>
   </div>

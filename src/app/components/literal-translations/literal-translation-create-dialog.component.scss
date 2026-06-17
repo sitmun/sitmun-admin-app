@@ -29,11 +29,14 @@
 }
 
 .language-switcher-status {
-  background: #d32f2f;
   border-radius: 999px;
   display: inline-block;
   height: 10px;
   width: 10px;
+}
+
+.language-switcher-status-missing {
+  background: #d32f2f;
 }
 
 .language-switcher-status-ready {
