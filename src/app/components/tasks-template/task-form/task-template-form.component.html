@@ -189,6 +189,16 @@
                 {{ 'entity.task.template.renderPreview' | translate }}
               </button>
             </div>
+            <div class="preview-controls">
+              <mat-form-field appearance="outline" class="preview-language-field">
+                <mat-label>{{ 'entity.language.label' | translate }}</mat-label>
+                <mat-select [formControl]="previewLanguageControl">
+                  <mat-option *ngFor="let language of previewLanguages" [value]="language.shortname">
+                    {{ language.name }} ({{ language.shortname }})
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
             <div class="muted-message preview" [style.visibility]="previewDirty ? 'visible' : 'hidden'">
               {{ 'entity.task.template.previewPending' | translate }}
             </div>

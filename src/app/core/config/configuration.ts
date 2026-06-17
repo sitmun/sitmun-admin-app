@@ -444,6 +444,19 @@ export class Configuration {
     formComponent: 'ConfigurationParameterFormComponent'
   };
 
+  static readonly LITERAL_TRANSLATION: FormConfiguration = {
+    id: 'literalTranslations',
+    labelSingular: 'entity.literalTranslation.label',
+    labelPlural: 'entity.literalTranslation.plural',
+    icon: 'translate',
+    font: 'material-icons-round',
+    route: 'literalTranslations',
+    formRoute: '',
+    duplicateRoute: '',
+    component: 'LiteralTranslationsComponent',
+    formComponent: ''
+  };
+
   /**
    * Get all form configurations as an array
    */
@@ -470,10 +483,11 @@ export class Configuration {
       Configuration.TASK_LOCATOR,
       Configuration.TASK_EDIT,
       Configuration.APPLICATION,
-      Configuration.LANGUAGE,
-      Configuration.TERRITORY_TYPE,
-      Configuration.CODELIST_VALUE,
-      Configuration.CONFIGURATION_PARAMETER
+       Configuration.LANGUAGE,
+       Configuration.LITERAL_TRANSLATION,
+       Configuration.TERRITORY_TYPE,
+       Configuration.CODELIST_VALUE,
+       Configuration.CONFIGURATION_PARAMETER
     ];
   }
 
@@ -539,6 +553,7 @@ export class Configuration {
       [
         Configuration.toMenuItem(Configuration.TASK_UI),
         Configuration.toMenuItem(Configuration.LANGUAGE),
+        Configuration.toMenuItem(Configuration.LITERAL_TRANSLATION),
         Configuration.toMenuItem(Configuration.TERRITORY_TYPE),
         Configuration.toMenuItem(Configuration.CODELIST_VALUE),
         Configuration.toMenuItem(Configuration.CONFIGURATION_PARAMETER)

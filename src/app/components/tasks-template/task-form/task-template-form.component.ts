@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, TemplateRef, ViewChild } from '@angular/core';
+import { Component, QueryList, TemplateRef, ViewChild, ViewChildren } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatDialog } from '@angular/material/dialog';
@@ -15,6 +15,7 @@ import { Configuration } from '@app/core/config/configuration';
 import { MessagesInterceptorStateService } from '@app/core/interceptors/messages.interceptor';
 import {
   CodeListService,
+  Language,
   Role,
   RoleService,
   Task,
@@ -46,8 +47,9 @@ import { NotificationService } from '@app/services/notification.service';
 import { UtilsService } from '@app/services/utils.service';
 import { magic } from '@environments/constants';
 import { environment } from '@environments/environment';
+import { config } from '@config';
 
-import { TemplateChildTaskLink } from '../query-execution-card/query-execution-card.component';
+import { QueryExecutionCardComponent, TemplateChildTaskLink } from '../query-execution-card/query-execution-card.component';
 import { TemplateValidationResult } from '../template-editor/template-html-validator.service';
 
 interface LinkedTemplateTask {
@@ -102,6 +104,8 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
   protected nestingLimitWarning = '';
   protected taskLookup = new Map<number, TaskProjection>();
   protected templateChildTasks = new Map<number, TemplateChildTaskLink[]>();
+  protected previewLanguages: Language[] = [];
+  protected previewLanguageControl = new FormControl(config.defaultLang, { nonNullable: true });
   protected previewHtml = '';
   protected trustedPreviewHtml: SafeHtml = '';
   protected previewPlaceholders: string[] = [];
@@ -123,6 +127,11 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
 
   @ViewChild('newParameterDialog', { static: true })
   private readonly newParameterDialog: TemplateRef<any>;
+
+  @ViewChildren(QueryExecutionCardComponent)
+  private readonly queryExecutionCards?: QueryList<QueryExecutionCardComponent>;
+
+  private previewExecutionContext: Record<string, unknown> = {};
 
   constructor(
     dialog: MatDialog,
@@ -164,6 +173,8 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
     this.rolesTable = this.defineRolesTable();
     this.availabilitiesTable = this.defineAvailabilitiesTable();
     this.parametersTable = this.defineParametersTable();
+    this.previewLanguages = this.resolvePreviewLanguages();
+    this.previewLanguageControl.valueChanges.subscribe(() => this.markPreviewDirty());
   }
 
   override async preFetchData() {
@@ -193,6 +204,7 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
 
     this.taskGroupList = taskGroups;
     this.taskTypeNameTranslated = this.translateService.instant('entity.task.template.label');
+    this.initializePreviewLanguage();
 
     const queryTaskOptions = { params: [{ key: 'type.id', value: magic.taskQueryTypeId }] };
     const templateTaskOptions = { params: [{ key: 'type.id', value: magic.taskTemplateTypeId }] };
@@ -266,6 +278,7 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
     this.previewPlaceholders = [];
     this.previewError = '';
     this.previewDirty = true;
+    this.previewExecutionContext = {};
 
     this.entityForm
       .get('templateHtml')
@@ -377,15 +390,12 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
   }
 
   protected onTaskExecuted(response: TemplateTaskExecutionEvent) {
-    this.entityToEdit.properties = this.entityToEdit.properties || {};
-    const previewContext = ((this.entityToEdit.properties as Record<string, unknown>)['previewContext'] as Record<string, unknown> | undefined) || {};
     const contextWithRows = {
       ...response.context,
       rows: response.rows,
     };
-    previewContext[response.referenceAlias] = contextWithRows;
-    previewContext[response.legacyReferenceAlias] = contextWithRows;
-    (this.entityToEdit.properties as Record<string, unknown>)['previewContext'] = previewContext;
+    this.previewExecutionContext[response.referenceAlias] = contextWithRows;
+    this.previewExecutionContext[response.legacyReferenceAlias] = contextWithRows;
     this.markPreviewDirty();
   }
 
@@ -555,15 +565,15 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
     return super.canSaveEntity && this.templateValidation.valid;
   }
 
-  protected renderPreview() {
+  protected async renderPreview() {
     if (!this.entityForm) {
       return;
     }
 
-    const previewContext = ((this.entityToEdit?.properties as Record<string, unknown> | undefined)?.['previewContext'] as Record<string, unknown> | undefined) || {};
+    await this.refreshPreviewExecutionContext();
     const previewContextWithTemplateParameters = {
       ...this.buildTemplateParameterPreviewContext(),
-      ...previewContext,
+      ...this.previewExecutionContext,
     };
     const templateHtml = String(this.entityForm.get('templateHtml')?.value || '');
 
@@ -572,6 +582,7 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
       previewContextWithTemplateParameters,
       this.entityToEdit?.id ?? null,
       this.buildKnownTaskReferences(),
+      this.previewLanguageControl.value,
     ).subscribe({
       next: (response) => {
         this.previewHtml = response.html;
@@ -599,6 +610,7 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
       .build(),
       childTaskOrderIds: this.linkedTasks.map((linkedTask) => linkedTask.taskId),
     } as TemplateTaskProperties;
+    delete (properties as Record<string, unknown>).previewContext;
 
     return Task.fromObject(
       Object.assign(safeToEdit, formValues, {
@@ -627,6 +639,25 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
 
   private getScopeLabel(scope: string): string {
     return this.translateService.instant(`entity.task.query.scope.${scope}`);
+  }
+
+  private resolvePreviewLanguages(): Language[] {
+    const configuredLanguages = Array.isArray(config.languagesToUse) ? config.languagesToUse : [];
+    return configuredLanguages
+      .filter((language): language is Language => !!language?.shortname)
+      .slice()
+      .sort((left, right) => left.name.localeCompare(right.name));
+  }
+
+  private initializePreviewLanguage(): void {
+    const currentLanguage = this.translateService.currentLang;
+    const selectedLanguage = this.previewLanguages.find((language) => language.shortname === currentLanguage)
+      ? currentLanguage
+      : this.previewLanguages.find((language) => language.shortname === this.previewLanguageControl.value)?.shortname
+        ?? this.previewLanguages[0]?.shortname
+        ?? config.defaultLang;
+
+    this.previewLanguageControl.setValue(selectedLanguage, { emitEvent: false });
   }
 
   private toLinkableTask(task: TaskProjection, relationType: string, typeLabel: string): LinkableTemplateTask {
@@ -828,6 +859,18 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
     this.previewDirty = true;
   }
 
+  private async refreshPreviewExecutionContext(): Promise<void> {
+    const rootCards = (this.queryExecutionCards?.toArray() || []).filter((card) => card.nestingLevel === 0);
+    if (rootCards.length === 0) {
+      return;
+    }
+
+    this.previewExecutionContext = {};
+    for (const card of rootCards) {
+      await card.execute();
+    }
+  }
+
   private appendPlaceholderToTemplate(placeholder: string) {
     const currentHtml = String(this.entityForm.get('templateHtml')?.value || '');
     const blockHtml = this.isBlockHtmlSnippet(placeholder) ? placeholder : `<p>${placeholder}</p>`;
@@ -893,15 +936,12 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
   }
 
   private replaceReferenceAliasInPreviewContext(previousReferenceAlias: string, nextReferenceAlias: string) {
-    this.entityToEdit.properties = this.entityToEdit.properties || {};
-    const previewContext = ((this.entityToEdit.properties as Record<string, unknown>)['previewContext'] as Record<string, unknown> | undefined) || {};
-    if (!(previousReferenceAlias in previewContext)) {
+    if (!(previousReferenceAlias in this.previewExecutionContext)) {
       return;
     }
 
-    previewContext[nextReferenceAlias] = previewContext[previousReferenceAlias];
-    delete previewContext[previousReferenceAlias];
-    (this.entityToEdit.properties as Record<string, unknown>)['previewContext'] = previewContext;
+    this.previewExecutionContext[nextReferenceAlias] = this.previewExecutionContext[previousReferenceAlias];
+    delete this.previewExecutionContext[previousReferenceAlias];
   }
 
   private escapeRegExp(value: string): string {

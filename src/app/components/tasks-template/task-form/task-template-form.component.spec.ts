@@ -40,6 +40,7 @@ describe('TaskTemplateFormComponent', () => {
 
     const translateService = createSpyObj(['instant', 'get']);
     translateService.instant.mockImplementation((key: string) => key);
+    (translateService as any).currentLang = 'ca';
     dialog = createSpyObj(['open']);
     dialog.open.mockReturnValue({
       componentInstance: {},
@@ -333,7 +334,8 @@ describe('TaskTemplateFormComponent', () => {
   });
 
   it('should keep template placeholders unchanged when confirming alias change without replacement', async () => {
-    component.entityToEdit = { properties: { previewContext: { pepe: { value: 1 } } } } as any;
+    component.entityToEdit = { properties: {} } as any;
+    (component as any).previewExecutionContext = { pepe: { value: 1 } };
     component.entityForm = new FormGroup({
       name: new FormControl('Template 1'),
       taskGroupId: new FormControl(2),
@@ -354,8 +356,8 @@ describe('TaskTemplateFormComponent', () => {
     (component as any).confirmPendingReferenceAliasChange(false);
 
     expect(component.entityForm.get('templateHtml')?.value).toBe('<p>{{pepe}}</p><p>{{pepe.url}}</p>');
-    expect((component.entityToEdit as any).properties.previewContext.pepe).toEqual({ value: 1 });
-    expect((component.entityToEdit as any).properties.previewContext.consulta_padron).toBeUndefined();
+    expect((component as any).previewExecutionContext.pepe).toEqual({ value: 1 });
+    expect((component as any).previewExecutionContext.consulta_padron).toBeUndefined();
     expect((component as any).linkedTasks[0].referenceAlias).toBe('consulta_padron');
     expect((component as any).linkedTasks[0].draftReferenceAlias).toBe('consulta_padron');
     expect((component as any).pendingReferenceAliasChange).toBeNull();
@@ -384,7 +386,8 @@ describe('TaskTemplateFormComponent', () => {
   });
 
   it('should replace placeholders in template when renaming a reference alias', async () => {
-    component.entityToEdit = { properties: { previewContext: { pepe: { value: 1 } } } } as any;
+    component.entityToEdit = { properties: {} } as any;
+    (component as any).previewExecutionContext = { pepe: { value: 1 } };
     component.entityForm = new FormGroup({
       name: new FormControl('Template 1'),
       taskGroupId: new FormControl(2),
@@ -399,13 +402,14 @@ describe('TaskTemplateFormComponent', () => {
     (component as any).confirmPendingReferenceAliasChange(true);
 
     expect(component.entityForm.get('templateHtml')?.value).toBe('<p>{{consulta_padron}}</p><p>{{consulta_padron.url}}</p><p>{{#if consulta_padron.enabled}}{{consulta_padron.name}}{{/if}}</p><table data-sitmun-each="consulta_padron.rows"><tbody><tr><td>{{name}}</td><td>{{../consulta_padron.total}}</td></tr></tbody></table>');
-    expect((component.entityToEdit as any).properties.previewContext.consulta_padron).toEqual({ value: 1 });
+    expect((component as any).previewExecutionContext.consulta_padron).toEqual({ value: 1 });
     expect((component as any).linkedTasks[0].referenceAlias).toBe('consulta_padron');
     expect((component as any).linkedTasks[0].draftReferenceAlias).toBe('consulta_padron');
   });
 
   it('should replace placeholders on successive alias changes', async () => {
-    component.entityToEdit = { properties: { previewContext: { pepe: { value: 1 } } } } as any;
+    component.entityToEdit = { properties: {} } as any;
+    (component as any).previewExecutionContext = { pepe: { value: 1 } };
     component.entityForm = new FormGroup({
       name: new FormControl('Template 1'),
       taskGroupId: new FormControl(2),
@@ -423,8 +427,8 @@ describe('TaskTemplateFormComponent', () => {
     (component as any).confirmPendingReferenceAliasChange(true);
 
     expect(component.entityForm.get('templateHtml')?.value).toBe('<p>{{consulta_final}}</p>');
-    expect((component.entityToEdit as any).properties.previewContext.consulta_final).toEqual({ value: 1 });
-    expect((component.entityToEdit as any).properties.previewContext.consulta_padron).toBeUndefined();
+    expect((component as any).previewExecutionContext.consulta_final).toEqual({ value: 1 });
+    expect((component as any).previewExecutionContext.consulta_padron).toBeUndefined();
   });
 
   it('should resolve linked task from lookup map', () => {
@@ -520,19 +524,18 @@ describe('TaskTemplateFormComponent', () => {
       resourceUrl: null,
     });
 
-    expect((component.entityToEdit as any).properties.previewContext.consulta_sql.rows)
+    expect((component as any).previewExecutionContext.consulta_sql.rows)
       .toEqual([{ tui_name: 'layerCatalog' }, { tui_name: 'search' }]);
   });
 
-  it('should render preview only when requested explicitly', () => {
+  it('should render preview only when requested explicitly', async () => {
     component.entityToEdit = {
-      properties: {
-        previewContext: {
-          pepe: { tui_name: 'layerCatalog' },
-          task_13: { tui_name: 'layerCatalog' },
-        },
-      },
+      properties: {},
     } as any;
+    (component as any).previewExecutionContext = {
+      pepe: { tui_name: 'layerCatalog' },
+      task_13: { tui_name: 'layerCatalog' },
+    };
     component.entityForm = new FormGroup({
       name: new FormControl('Template 1'),
       taskGroupId: new FormControl(2),
@@ -546,37 +549,36 @@ describe('TaskTemplateFormComponent', () => {
       placeholders: ['pepe.tui_name'],
     }));
 
-    (component as any).renderPreview();
+    await (component as any).renderPreview();
 
     expect(previewService.previewTemplate).toHaveBeenCalledWith('tui name: {{pepe.tui_name}}', {
       pepe: { tui_name: 'layerCatalog' },
       task_13: { tui_name: 'layerCatalog' },
-    }, null, ['pepe', 'task_13']);
+    }, null, ['pepe', 'task_13'], (component as any).previewLanguageControl.value);
     expect((component as any).previewHtml).toBe('<p>tui name: layerCatalog</p>');
   });
 
-  it('should delegate each blocks and flattened rows to backend preview normalization', () => {
+  it('should delegate each blocks and flattened rows to backend preview normalization', async () => {
     component.entityToEdit = {
-      properties: {
-        previewContext: {
-          AllHits: {
-            rows: [
-              { field: 'items[0].Player', value: 'Ichiro Suzuki' },
-              { field: 'items[0].Hits', value: 262 },
-              { field: 'items[1].Player', value: 'George Sisler' },
-              { field: 'items[1].Hits', value: 257 },
-            ],
-          },
-        },
-      },
+      properties: {},
     } as any;
+    (component as any).previewExecutionContext = {
+      AllHits: {
+        rows: [
+          { field: 'items[0].Player', value: 'Ichiro Suzuki' },
+          { field: 'items[0].Hits', value: 262 },
+          { field: 'items[1].Player', value: 'George Sisler' },
+          { field: 'items[1].Hits', value: 257 },
+        ],
+      },
+    };
     component.entityForm = new FormGroup({
       name: new FormControl('Template 1'),
       taskGroupId: new FormControl(2),
       templateHtml: new FormControl('{{#each AllHits}}<p>{{this.Player}}</p>{{/each}}'),
     });
 
-    (component as any).renderPreview();
+    await (component as any).renderPreview();
 
     expect(previewService.previewTemplate).toHaveBeenCalledWith('{{#each AllHits}}<p>{{this.Player}}</p>{{/each}}', {
       AllHits: {
@@ -587,33 +589,32 @@ describe('TaskTemplateFormComponent', () => {
           { field: 'items[1].Hits', value: 257 },
         ],
       },
-    }, null, []);
+    }, null, [], (component as any).previewLanguageControl.value);
   });
 
-  it('should delegate nested flattened rows to backend preview normalization', () => {
+  it('should delegate nested flattened rows to backend preview normalization', async () => {
     component.entityToEdit = {
-      properties: {
-        previewContext: {
-          IcedCoffee: {
-            rows: [
-              { field: 'items[0].title', value: 'Iced Coffee' },
-              { field: 'items[0].ingredients[0]', value: 'Coffee' },
-              { field: 'items[0].ingredients[1]', value: 'Ice' },
-              { field: 'items[1].title', value: 'Iced Espresso' },
-              { field: 'items[1].ingredients[0]', value: 'Espresso' },
-              { field: 'items[1].ingredients[1]', value: 'Ice' },
-            ],
-          },
-        },
-      },
+      properties: {},
     } as any;
+    (component as any).previewExecutionContext = {
+      IcedCoffee: {
+        rows: [
+          { field: 'items[0].title', value: 'Iced Coffee' },
+          { field: 'items[0].ingredients[0]', value: 'Coffee' },
+          { field: 'items[0].ingredients[1]', value: 'Ice' },
+          { field: 'items[1].title', value: 'Iced Espresso' },
+          { field: 'items[1].ingredients[0]', value: 'Espresso' },
+          { field: 'items[1].ingredients[1]', value: 'Ice' },
+        ],
+      },
+    };
     component.entityForm = new FormGroup({
       name: new FormControl('Template 1'),
       taskGroupId: new FormControl(2),
       templateHtml: new FormControl('{{#each IcedCoffee}}<p>{{this.title}}</p>{{#each this.ingredients}}<span>{{this}}</span>{{/each}}{{/each}}'),
     });
 
-    (component as any).renderPreview();
+    await (component as any).renderPreview();
 
     expect(previewService.previewTemplate).toHaveBeenCalledWith('{{#each IcedCoffee}}<p>{{this.title}}</p>{{#each this.ingredients}}<span>{{this}}</span>{{/each}}{{/each}}', {
       IcedCoffee: {
@@ -626,10 +627,10 @@ describe('TaskTemplateFormComponent', () => {
           { field: 'items[1].ingredients[1]', value: 'Ice' },
         ],
       },
-    }, null, []);
+    }, null, [], (component as any).previewLanguageControl.value);
   });
 
-  it('should include template parameter defaults in preview context', () => {
+  it('should include template parameter defaults in preview context', async () => {
     component.entityToEdit = {
       properties: {
         parameters: [
@@ -637,27 +638,27 @@ describe('TaskTemplateFormComponent', () => {
           { name: 'emptyIgnored', type: 'string', value: '' },
           { variable: 'explicitVar', type: 'string', value: 'abc' },
         ],
-        previewContext: {
-          pepe: { tui_name: 'layerCatalog' },
-        },
       },
     } as any;
+    (component as any).previewExecutionContext = {
+      pepe: { tui_name: 'layerCatalog' },
+    };
     component.entityForm = new FormGroup({
       name: new FormControl('Template 1'),
       taskGroupId: new FormControl(2),
       templateHtml: new FormControl('feature: {{$featureId}} {{pepe.tui_name}}'),
     });
 
-    (component as any).renderPreview();
+    await (component as any).renderPreview();
 
     expect(previewService.previewTemplate).toHaveBeenCalledWith('feature: {{$featureId}} {{pepe.tui_name}}', {
       $featureId: '42',
       $explicitVar: 'abc',
       pepe: { tui_name: 'layerCatalog' },
-    }, null, []);
+    }, null, [], (component as any).previewLanguageControl.value);
   });
 
-  it('should keep preview errors local to the preview panel', () => {
+  it('should keep preview errors local to the preview panel', async () => {
     component.entityToEdit = {
       properties: {},
     } as any;
@@ -672,7 +673,7 @@ describe('TaskTemplateFormComponent', () => {
       },
     })));
 
-    (component as any).renderPreview();
+    await (component as any).renderPreview();
 
     expect((component as any).previewHtml).toBe('');
     expect((component as any).previewError).toBe('Handlebars syntax error');

@@ -5,7 +5,21 @@ import { NodeSelection } from '@tiptap/pm/state';
 export const SizedImageExtension = Image.extend({
   addAttributes() {
     return {
-      ...this.parent?.(),
+      src: {
+        default: null,
+        parseHTML: (element: HTMLElement) => element.getAttribute('src'),
+        renderHTML: (attributes: { src?: string | null }) => attributes.src ? { src: attributes.src } : {},
+      },
+      alt: {
+        default: null,
+        parseHTML: (element: HTMLElement) => element.getAttribute('alt'),
+        renderHTML: (attributes: { alt?: string | null }) => attributes.alt ? { alt: attributes.alt } : {},
+      },
+      title: {
+        default: null,
+        parseHTML: (element: HTMLElement) => element.getAttribute('title'),
+        renderHTML: (attributes: { title?: string | null }) => attributes.title ? { title: attributes.title } : {},
+      },
       width: {
         default: null,
         parseHTML: (element: HTMLElement) => element.getAttribute('width'),
@@ -17,6 +31,20 @@ export const SizedImageExtension = Image.extend({
         renderHTML: (attributes: { height?: string | null }) => attributes.height ? { height: attributes.height } : {},
       },
     };
+  },
+
+  parseHTML() {
+    return [
+      {
+        tag: 'img[src]',
+        getAttrs: (dom: HTMLElement | string) => {
+          if (typeof dom === 'string') return false;
+          const src = dom.getAttribute('src');
+          if (!src) return false;
+          return { src };
+        },
+      },
+    ];
   },
 
   renderHTML({ HTMLAttributes }) {

@@ -17,6 +17,7 @@ import {DashboardComponent} from '@app/components/dashboard/dashboard.component'
 import {ErrorPageComponent} from '@app/components/error-page/error-page.component';
 import {LanguageFormComponent} from '@app/components/language/language-form/language-form.component';
 import {LanguageComponent} from '@app/components/language/language.component';
+import {LiteralTranslationsComponent} from '@app/components/literal-translations/literal-translations.component';
 import {LayersFormComponent} from '@app/components/layers/layers-form/layers-form.component';
 import {LayersComponent} from '@app/components/layers/layers.component';
 import {
@@ -131,6 +132,7 @@ export const APP_ROUTES: Routes = [
       {path: 'application/:id/applicationForm', component: ApplicationFormComponent},
       {path: 'application/:id/applicationForm/:idDuplicate', component: ApplicationFormComponent},
       {path: 'language', component: LanguageComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'literalTranslations', component: LiteralTranslationsComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'language/:id/languageForm', component: LanguageFormComponent},
       {path: 'language/:id/languageForm/:idDuplicate', component: LanguageFormComponent},
       {path: 'territoryType', component: TerritoryTypeComponent, canDeactivate: [CanDeactivateGuard]},

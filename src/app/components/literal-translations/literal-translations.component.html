@@ -1,0 +1,99 @@
+<div class="literal-translations-page">
+  <mat-card appearance="outlined" class="header-card">
+    <mat-card-content class="header-card-content">
+      <div>
+        <h2>{{ 'entity.literalTranslation.plural' | translate }}</h2>
+        <p class="muted">{{ 'entity.literalTranslation.description' | translate }}</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <div class="workspace" [class.workspace-editing]="isEditing()">
+    <mat-card appearance="outlined" class="grid-card">
+      <mat-toolbar class="grid-toolbar">
+        <mat-form-field subscriptSizing="dynamic" appearance="outline" class="toolbar-field search-field">
+          <mat-label>{{ 'common.button.search' | translate }}</mat-label>
+          <input matInput [formControl]="searchControl">
+          <mat-icon matSuffix fontSet="material-icons-round">search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field subscriptSizing="dynamic" appearance="outline" class="toolbar-field language-field">
+          <mat-label>{{ 'entity.literalTranslation.targetLanguage' | translate }}</mat-label>
+          <mat-select [formControl]="languageControl">
+            <mat-option *ngFor="let language of languages" [value]="language.shortname">
+              {{ language.name }} ({{ language.shortname }})
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button
+          type="button"
+          color="primary"
+          mat-mini-fab
+          class="toolbar-button"
+          matTooltip="{{ 'common.button.new' | translate }}"
+          (click)="createNew()">
+          <mat-icon fontSet="material-icons-round">add_circle_outline</mat-icon>
+        </button>
+        <button
+          type="button"
+          color="primary"
+          mat-mini-fab
+          class="toolbar-button"
+          matTooltip="{{ 'common.button.remove' | translate }}"
+          [disabled]="deleting || selectedRows.length === 0"
+          (click)="deleteSelected()">
+          <mat-icon fontSet="material-icons-round">delete</mat-icon>
+        </button>
+      </mat-toolbar>
+
+      <mat-card-content class="grid-card-content">
+        <ag-grid-angular
+          class="ag-theme-material literal-translations-grid"
+          [columnDefs]="columnDefs"
+          [rowModelType]="'infinite'"
+          [cacheBlockSize]="pageSize"
+          [pagination]="false"
+          [rowSelection]="'multiple'"
+          [suppressRowClickSelection]="true"
+          [maxConcurrentDatasourceRequests]="1"
+          [blockLoadDebounceMillis]="100"
+          [maxBlocksInCache]="5"
+          [overlayNoRowsTemplate]="'common.form.noData' | translate"
+          (gridReady)="onGridReady($event)"
+          (cellClicked)="onCellClicked($event)"
+          (selectionChanged)="onSelectionChanged()">
+        </ag-grid-angular>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card #detailCard *ngIf="isEditing()" appearance="outlined" class="detail-card">
+      <mat-card-content class="detail-card-content" [formGroup]="form">
+        <div class="detail-actions">
+          <button mat-flat-button color="primary" type="button" [disabled]="saving" (click)="save()">
+            {{ 'common.button.save' | translate }}
+          </button>
+          <button mat-button type="button" (click)="closeEditor()">{{ 'common.button.cancel' | translate }}</button>
+        </div>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'entity.literalTranslation.literalField' | translate }}</mat-label>
+          <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="3" cdkAutosizeMaxRows="6" formControlName="literal"></textarea>
+        </mat-form-field>
+
+        <div>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'entity.literalTranslation.translationField' | translate }}</mat-label>
+            <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="6" cdkAutosizeMaxRows="10" formControlName="translation"></textarea>
+          </mat-form-field>
+          <div *ngIf="isDefaultLanguageSelected()" class="hint-panel">
+            {{ 'entity.literalTranslation.defaultLanguageHint' | translate:{ lang: defaultLanguage } }}
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div *ngIf="!isEditing()" class="empty-detail-state">
+    {{ 'entity.literalTranslation.selectToEdit' | translate }}
+  </div>
+</div>
