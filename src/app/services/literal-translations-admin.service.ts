@@ -23,6 +23,7 @@ export interface LiteralTranslationUpsertPayload {
   literal: string;
   translation: string | null;
   language: string;
+  sourceLanguage: string;
   translations?: Record<string, string>;
 }
 

@@ -40,8 +40,8 @@ describe('LiteralTranslationsAdminService', () => {
 
     req.flush({
       content: [
-        { id: 7, literal: 'Hola mon', translation: 'Hola mundo' },
-        { id: 8, literal: 'Adios', translation: 'Adios' },
+        { id: 7, literal: 'Hola mon', translation: 'Hola mundo', sourceLanguage: 'ca' },
+        { id: 8, literal: 'Adios', translation: 'Adios', sourceLanguage: 'es' },
       ],
       page: {
         totalElements: 123,
@@ -50,5 +50,25 @@ describe('LiteralTranslationsAdminService', () => {
         totalPages: 3,
       },
     });
+  });
+
+  it('sends source language in create payloads', () => {
+    service.create({
+      literal: 'Hola mon',
+      translation: 'Hola mundo',
+      language: 'es',
+      sourceLanguage: 'ca',
+    }).subscribe();
+
+    const req = httpMock.expectOne((request) => request.url.includes('literal-translations') && request.method === 'POST');
+
+    expect(req.request.body).toEqual({
+      literal: 'Hola mon',
+      translation: 'Hola mundo',
+      language: 'es',
+      sourceLanguage: 'ca',
+    });
+
+    req.flush({ id: 9, literal: 'Hola mon', translation: 'Hola mundo', sourceLanguage: 'ca', complete: false });
   });
 });
