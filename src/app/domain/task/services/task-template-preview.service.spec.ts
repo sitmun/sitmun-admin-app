@@ -24,11 +24,12 @@ describe('TaskTemplatePreviewService', () => {
   });
 
   it('should skip global message interception for template preview requests', () => {
-    service.previewTemplate('<p>{{pepe.name}}</p>', { pepe: { name: 'Layer' } }, 15, ['pepe', 'task_13']).subscribe();
+    service.previewTemplate('<p>{{pepe.name}}</p>', { pepe: { name: 'Layer' } }, 15, ['pepe', 'task_13'], 'fr').subscribe();
 
     const req = httpMock.expectOne((request) => request.url.endsWith('/api/tasks/template/preview'));
 
     expect(req.request.context.get(SKIP_MESSAGES_INTERCEPTOR)).toBe(true);
+    expect(req.request.params.get('lang')).toBe('fr');
     expect(req.request.body).toEqual({
       templateTaskId: 15,
       templateHtml: '<p>{{pepe.name}}</p>',

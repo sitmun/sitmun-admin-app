@@ -30,6 +30,7 @@ import {ErrorPageComponent} from "@app/components/error-page/error-page.componen
 import {DefaultLanguageChangeDialogComponent} from '@app/components/language/default-language-change-dialog/default-language-change-dialog.component';
 import {LanguageFormComponent} from '@app/components/language/language-form/language-form.component';
 import {LanguageComponent} from '@app/components/language/language.component';
+import {LiteralTranslationsComponent} from '@app/components/literal-translations/literal-translations.component';
 import {LayersFormComponent} from '@app/components/layers/layers-form/layers-form.component';
 import {LayersComponent} from '@app/components/layers/layers.component';
 import {
@@ -332,6 +333,8 @@ export function initializeConfiguration(
         }),
         APP_ROUTING,
         BrowserAnimationsModule,
+        CoreModule,
+        LiteralTranslationsComponent,
         NgOptimizedImage,
         CardLeadComponent,
         EntityFormAlertsComponent,

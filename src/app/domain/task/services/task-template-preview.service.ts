@@ -1,4 +1,4 @@
-import { HttpClient, HttpContext } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { Observable } from 'rxjs';
@@ -55,8 +55,10 @@ export class TaskTemplatePreviewService {
     context: Record<string, unknown>,
     templateTaskId?: number | null,
     knownTaskReferences?: string[],
+    language?: string | null,
   ): Observable<TemplatePreviewResponse> {
     const requestContext = new HttpContext().set(SKIP_MESSAGES_INTERCEPTOR, true);
+    const params = language ? new HttpParams().set('lang', language) : undefined;
 
     return this.http.post<TemplatePreviewResponse>(`${environment.apiBaseURL}/api/tasks/template/preview`, {
       templateTaskId: templateTaskId ?? null,
@@ -65,6 +67,7 @@ export class TaskTemplatePreviewService {
       knownTaskReferences: knownTaskReferences ?? [],
     }, {
       context: requestContext,
+      params,
     });
   }
 }
