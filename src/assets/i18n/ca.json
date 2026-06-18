@@ -828,7 +828,7 @@
   "entity.task.query.mimeTypeConsequence": "Si s'estableix el Tipus MIME, el visor descarregarà el contingut binari com un RECURS. En cas contrari, obre l'URL en una nova pestanya.",
   "entity.task.template.emptyTasks": "No hi ha cap consulta definida.",
   "entity.task.template.label": "Plantilla",
-  "entity.task.template.editor": "Editor HTML",
+  "entity.task.template.editor": "Editor",
   "entity.task.template.placeholders": "Utilitzeu {{referencia.camp}} per accedir als camps de resposta, {{referencia.$param}} per accedir als paràmetres enviats, {{referencia.url}} per a tasques URL/Recurs i {{referencia.html}} per a plantilles imbricades.",
   "entity.task.template.backendVariables": "Les variables proporcionades pel backend s'han d'escriure amb aquest format: {{#APP_NAME}}",
   "entity.task.template.translationTooltip": "Comprendre entre etiquetes de traducció <t>",

@@ -828,7 +828,7 @@
   "entity.task.query.mimeTypeConsequence": "Si se establece el Tipo MIME, el visor descargará el contenido binario como un RECURSO. De lo contrario, abre la URL en una nueva pestaña.",
   "entity.task.template.emptyTasks": "Sin consultas definidas.",
   "entity.task.template.label": "Plantilla",
-  "entity.task.template.editor": "Editor HTML",
+  "entity.task.template.editor": "Editor",
   "entity.task.template.placeholders": "Use {{referencia.campo}} para acceder a campos de respuesta, {{referencia.$param}} para acceder a parámetros enviados, {{referencia.url}} para tareas URL/Recurso y {{referencia.html}} para plantillas anidadas.",
   "entity.task.template.backendVariables": "Las variables proporcionadas por backend deben escribirse con este formato: {{#APP_NAME}}",
   "entity.task.template.translationTooltip": "Envolver en etiquetas de traducción <t>",

@@ -828,7 +828,7 @@
   "entity.task.query.mimeTypeConsequence": "Si definís eth Tipe MIME, eth visualizador descargarà eth contengut binari coma un RECORS. En cas contrari, aubre l'URL en ua nauèra pestanha.",
   "entity.task.template.emptyTasks": "No i a cap consulta definida.",
   "entity.task.template.label": "Plantilha",
-  "entity.task.template.editor": "Editor HTML",
+  "entity.task.template.editor": "Editor",
   "entity.task.template.placeholders": "Utilizatz {{referencia.camp}} entàs camps de responsa, {{referencia.$param}} entàs paramètres enviats, {{referencia.url}} entàs trabalhs URL/Recors e {{referencia.html}} entàs plantilhes niades.",
   "entity.task.template.backendVariables": "Es variables proporcionades peth backend s'an d'escríuer damb aguest format: {{#APP_NAME}}",
   "entity.task.template.translationTooltip": "Envolcalla en etiquetes de traduccion <t>",
