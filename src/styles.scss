@@ -335,7 +335,7 @@ app-login .mat-app-background {
 
 
 // Snackbar container overrides
-.mat-mdc-snack-bar-error, .notification-error {
+.mat-mdc-snack-bar-container {
   .mdc-snackbar__surface {
     background-color: transparent !important;
     padding-right: 0 !important;
