@@ -1228,7 +1228,7 @@
   "entity.task.query.scope.resource": "Recors",
   "entity.task.template.emptyTasks": "No i a cap consulta definida.",
   "entity.task.template.label": "Plantilha",
-  "entity.task.template.editor": "Editor HTML",
+  "entity.task.template.editor": "Editor",
   "entity.task.template.placeholders": "Utilizatz {{referencia.camp}} entàs camps de responsa, {{referencia.$param}} entàs paramètres enviats, {{referencia.url}} entàs trabalhs URL/Recors e {{referencia.html}} entàs plantilhes niades.",
   "entity.task.query.missingDeclaredParameters": "Cau declarar es paramètres ena pestanha Paramètres abans de sauvar: {{parameters}}.",
   "entity.task.template.backendVariables": "Es variables proporcionades peth backend s'an d'escríuer damb aguest format: {{#APP_NAME}}",

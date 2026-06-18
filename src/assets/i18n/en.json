@@ -1228,7 +1228,7 @@
   "entity.task.query.scope.resource": "Resource",
   "entity.task.template.emptyTasks": "No queries defined.",
   "entity.task.template.label": "Template",
-  "entity.task.template.editor": "HTML editor",
+  "entity.task.template.editor": "Editor",
   "entity.task.template.placeholders": "Use {{reference.field}} for response fields, {{reference.$param}} for submitted parameters, {{reference.url}} for URL/Resource tasks, and {{reference.html}} for nested templates.",
   "entity.task.query.missingDeclaredParameters": "Parameters must be declared in the Parameters tab before saving: {{parameters}}.",
   "entity.task.template.backendVariables": "Backend-provided variables must use this format: {{#APP_NAME}}",
