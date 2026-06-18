@@ -33,6 +33,10 @@ export class LiteralTranslationsAdminService {
 
   constructor(private readonly http: HttpClient) {}
 
+  fetchCompletionPct(language: string): Observable<number> {
+    return this.http.get<number>(`${this.url}/${language}/completion`)
+  }
+
   fetchPage(request: InfiniteBlockRequest, language: string): Observable<HalPage<LiteralTranslationItem>> {
     let params = new HttpParams()
       .set('lang', language)

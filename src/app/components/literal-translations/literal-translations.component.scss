@@ -113,6 +113,34 @@
   background: #d32f2f;
 }
 
+.language-field .progress-container {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  margin: 0;
+}
+
+::ng-deep .language-field mat-progress-bar {
+  height: 15px !important;
+  --mdc-linear-progress-track-height: 20px;
+  --mdc-linear-progress-active-indicator-height: 20px;
+
+  border-radius: 4px 4px 0 0;
+  overflow: hidden;
+}
+
+.language-field .progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: bold;
+  font-size: 11px;
+  color: #333;
+  z-index: 3;
+  pointer-events: none;
+}
+
 @media (max-width: 1919px) {
   .workspace-editing {
     grid-template-columns: 1fr;
