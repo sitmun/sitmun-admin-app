@@ -107,7 +107,7 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
       width: 72,
       maxWidth: 72,
       sortable: false,
-      cellRenderer: () => '<span class="material-icons-round sitmun-inline-edit-icon">edit</span>',
+      cellRenderer: () => '<span style="padding-top: 66%;" class="material-icons-round sitmun-inline-edit-icon">edit</span>',
       cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' },
     },
   ];
