@@ -363,7 +363,16 @@ app-login .mat-app-background {
 
 
 // Snackbar container overrides
+.mat-mdc-snack-bar-error, .notification-error {
+  .mdc-snackbar__surface {
+    background-color: transparent !important;
+    padding-right: 0 !important;
+  }
 
+  .mdc-snackbar__label {
+    padding: 0 !important;
+  }
+}
 // Ensure Material overlay container (snackbars, dialogs) is above app overlays
 
 //Dialogs
