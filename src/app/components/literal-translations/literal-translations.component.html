@@ -24,6 +24,14 @@
               {{ language.name }} ({{ language.shortname }})
             </mat-option>
           </mat-select>
+          <div class="progress-container">
+            <mat-progress-bar
+              mode="determinate"
+              [value]="langCompletionPct">
+            </mat-progress-bar>
+
+            <span class="progress-text">{{ langCompletionPct| number:'1.0-2' }}%</span>
+          </div>
         </mat-form-field>
 
         <button

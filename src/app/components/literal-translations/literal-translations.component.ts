@@ -4,23 +4,24 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+
+import { AgGridModule } from '@ag-grid-community/angular';
 import { CellClickedEvent, ColDef, GridApi, GridReadyEvent, ModuleRegistry } from '@ag-grid-community/core';
 import { InfiniteRowModelModule } from '@ag-grid-community/infinite-row-model';
-import { AgGridModule } from '@ag-grid-community/angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { debounceTime, forkJoin } from 'rxjs';
 
-import { DialogMessageComponent, DIALOG_EVENTS } from '@app/frontend-gui/src/lib/public_api';
-import { CanComponentDeactivate } from '@app/core/guards/can-deactivate-guard.service';
-import { createInfiniteDatasource } from '@app/core/hal/infinite-datasource';
-import { INFINITE_PAGE_SIZE_DEFAULT } from '@app/core/hal/infinite-page-size';
-import { Language, LanguageService } from '@app/domain';
-import { MaterialModule } from '@app/material-module';
-import { LiteralTranslationItem } from '@app/components/literal-translations/literal-translation.model';
 import {
   LiteralTranslationCreateDialogComponent,
   LiteralTranslationCreateDialogResult,
 } from '@app/components/literal-translations/literal-translation-create-dialog.component';
+import { LiteralTranslationItem } from '@app/components/literal-translations/literal-translation.model';
+import { CanComponentDeactivate } from '@app/core/guards/can-deactivate-guard.service';
+import { createInfiniteDatasource } from '@app/core/hal/infinite-datasource';
+import { INFINITE_PAGE_SIZE_DEFAULT } from '@app/core/hal/infinite-page-size';
+import { Language, LanguageService } from '@app/domain';
+import { DialogMessageComponent, DIALOG_EVENTS } from '@app/frontend-gui/src/lib/public_api';
+import { MaterialModule } from '@app/material-module';
 import {
   LiteralTranslationsAdminService,
   LiteralTranslationUpsertPayload,
@@ -70,6 +71,7 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
   };
 
   languages: Language[] = [];
+  langCompletionPct: number = 0;
   readonly defaultLanguage = config.defaultLang;
   readonly columnDefs: ColDef<LiteralTranslationItem>[] = [
     this.selectionColumnDef,
@@ -136,6 +138,7 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
       this.clearSelection();
       this.syncTranslationControlState();
       this.refreshGrid();
+      this.getCompletionPct();
     });
 
     this.form.controls.literal.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((literal) => {
@@ -191,6 +194,7 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
           this.saving = false;
           this.clearSelection();
           this.refreshGrid();
+          this.getCompletionPct();
           this.snackBar.open(this.translateService.instant('entity.literalTranslation.saveSuccess'), undefined, { duration: 2500 });
         },
         error: () => {
@@ -218,6 +222,7 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
           this.saving = false;
           this.openEditor(item);
           this.refreshGrid();
+          this.getCompletionPct();
           this.snackBar.open(this.translateService.instant('entity.literalTranslation.saveSuccess'), undefined, { duration: 2500 });
         },
       error: () => {
@@ -252,6 +257,7 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
             this.deleting = false;
             this.clearSelection();
             this.refreshGrid();
+            this.getCompletionPct();
             this.snackBar.open(this.translateService.instant('entity.literalTranslation.deleteSuccess'), undefined, { duration: 2500 });
           },
           error: () => {
@@ -306,6 +312,11 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
         },
       ),
     );
+  }
+
+  private getCompletionPct() {
+    this.literalTranslationsService.fetchCompletionPct(this.languageControl.value)
+      .subscribe(pct => this.langCompletionPct = pct);
   }
 
   private clearSelection(): void {
@@ -393,6 +404,7 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
           this.languageControl.setValue(nextLanguage, { emitEvent: false });
           this.syncTranslationControlState();
           this.refreshGrid();
+          this.getCompletionPct();
         },
       });
   }

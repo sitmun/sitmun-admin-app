@@ -177,6 +177,7 @@
   font-family: monospace;
   border: 1px solid rgba(0, 0, 0, 0.12);
   background: #fff;
+  max-width: 100%;
 }
 
 :host ::ng-deep .template-editor-visual-surface--inactive .selectedCell::after {
