@@ -37,8 +37,10 @@ export class TaskTemplatePreviewService {
     parameters: Record<string, unknown>,
     templateTaskId?: number | null,
     childTaskParameters?: Record<string, Record<string, unknown>>,
+    language?: string | null,
   ): Observable<TemplateTaskExecutionResponse> {
     const requestContext = new HttpContext().set(SKIP_MESSAGES_INTERCEPTOR, true);
+    const params = language ? new HttpParams().set('lang', language) : undefined;
 
     return this.http.post<TemplateTaskExecutionResponse>(`${environment.apiBaseURL}/api/tasks/template/execute-child`, {
       templateTaskId: templateTaskId ?? null,
@@ -47,6 +49,7 @@ export class TaskTemplatePreviewService {
       childTaskParameters: childTaskParameters ?? null,
     }, {
       context: requestContext,
+      params,
     });
   }
 

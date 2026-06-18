@@ -38,6 +38,7 @@ export class QueryExecutionCardComponent implements OnChanges, OnDestroy {
   @Input() taskTypeLabelResolver: ((task: TaskProjection) => string) | null = null;
   @Input() nestingLevel = 0;
   @Input() templateRootTaskId: number | null = null;
+  @Input() language: string | null = null;
   @Input() ancestorTaskIds: number[] = [];
   @Output() executed = new EventEmitter<TemplateTaskExecutionEvent>();
   @Output() placeholderSelected = new EventEmitter<string>();
@@ -246,6 +247,7 @@ export class QueryExecutionCardComponent implements OnChanges, OnDestroy {
           this.buildExecutionParameters(),
           this.resolvedTemplateTaskId,
           this.isTemplateTask ? this.collectChildTaskParameters() : undefined,
+          this.language,
         ),
       );
 
