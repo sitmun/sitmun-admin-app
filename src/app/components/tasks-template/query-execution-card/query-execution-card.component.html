@@ -48,6 +48,7 @@
         [templateChildTasks]="templateChildTasks"
         [taskTypeLabelResolver]="taskTypeLabelResolver"
         [templateRootTaskId]="resolvedTemplateTaskId"
+        [language]="language"
         [nestingLevel]="nestingLevel + 1"
         [ancestorTaskIds]="childAncestorTaskIds"
         (executed)="onChildExecuted($event)"

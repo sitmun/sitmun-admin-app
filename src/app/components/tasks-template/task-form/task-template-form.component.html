@@ -150,6 +150,7 @@
                 [templateChildTasks]="templateChildTasks"
                 [taskTypeLabelResolver]="taskTypeLabelResolver"
                 [templateRootTaskId]="entityToEdit?.id ?? null"
+                [language]="previewLanguageControl.value"
                 (executed)="onTaskExecuted($event)"
                 (placeholderSelected)="onPlaceholderSelected($event)">
               </app-query-execution-card>

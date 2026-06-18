@@ -102,7 +102,21 @@ describe('QueryExecutionCardComponent', () => {
 
     await component.execute();
 
-    expect(previewService.executeLinkedTask).toHaveBeenCalledWith(13, {}, null, undefined);
+    expect(previewService.executeLinkedTask).toHaveBeenCalledWith(13, {}, null, undefined, null);
+  });
+
+  it('should pass preview language when executing the task', async () => {
+    component.language = 'fr';
+
+    await component.execute();
+
+    expect(previewService.executeLinkedTask).toHaveBeenCalledWith(
+      13,
+      { param1: 'default-1' },
+      null,
+      undefined,
+      'fr',
+    );
   });
 
   it('should expose translation keys for execution states', () => {
@@ -473,7 +487,7 @@ describe('QueryExecutionCardComponent', () => {
 
     await component.execute();
 
-    expect(previewService.executeLinkedTask).toHaveBeenCalledWith(15, {}, 15, {});
+    expect(previewService.executeLinkedTask).toHaveBeenCalledWith(15, {}, 15, {}, null);
     expect(component.response?.context['html']).toBe('<p>Rendered</p>');
     expect(component.taskResultReference).toBe('{{plantilla_hija.html}}');
   }));
