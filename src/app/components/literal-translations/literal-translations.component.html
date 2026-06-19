@@ -39,6 +39,16 @@
           color="primary"
           mat-mini-fab
           class="toolbar-button"
+          matTooltip="{{ 'agGrid.resetFilter' | translate }}"
+          [disabled]="!hasActiveColumnFilters"
+          (click)="clearFilters()">
+          <mat-icon fontSet="material-icons-round">filter_alt_off</mat-icon>
+        </button>
+        <button
+          type="button"
+          color="primary"
+          mat-mini-fab
+          class="toolbar-button"
           matTooltip="{{ 'common.button.new' | translate }}"
           (click)="createNew()">
           <mat-icon fontSet="material-icons-round">add_circle_outline</mat-icon>
@@ -70,6 +80,7 @@
           [overlayNoRowsTemplate]="'common.form.noData' | translate"
           (gridReady)="onGridReady($event)"
           (cellClicked)="onCellClicked($event)"
+          (filterChanged)="onFilterChanged($event)"
           (selectionChanged)="onSelectionChanged()">
         </ag-grid-angular>
       </mat-card-content>
