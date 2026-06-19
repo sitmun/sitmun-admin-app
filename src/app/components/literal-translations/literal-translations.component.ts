@@ -6,7 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { AgGridModule } from '@ag-grid-community/angular';
-import { CellClickedEvent, ColDef, GridApi, GridReadyEvent, ModuleRegistry } from '@ag-grid-community/core';
+import { CellClickedEvent, ColDef, FilterChangedEvent, GridApi, GridReadyEvent, ModuleRegistry } from '@ag-grid-community/core';
 import { InfiniteRowModelModule } from '@ag-grid-community/infinite-row-model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { debounceTime, forkJoin } from 'rxjs';
@@ -79,6 +79,9 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
       field: 'literal',
       headerValueGetter: () => this.translateService.instant('entity.literalTranslation.literalColumn'),
       filter: true,
+      filterParams: {
+        buttons: ['reset'],
+      },
       sortable: true,
       flex: 1,
       minWidth: 220,
@@ -88,6 +91,9 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
       field: 'translation',
       headerValueGetter: () => this.translateService.instant('entity.literalTranslation.translationColumn'),
       filter: true,
+      filterParams: {
+        buttons: ['reset'],
+      },
       sortable: false,
       flex: 1,
       minWidth: 220,
@@ -120,6 +126,7 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
   editingItemId: number | null = null;
   saving = false;
   deleting = false;
+  hasActiveColumnFilters = false;
 
   constructor(
     private readonly literalTranslationsService: LiteralTranslationsAdminService,
@@ -157,6 +164,10 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
     this.refreshGrid();
   }
 
+  onFilterChanged(event: FilterChangedEvent<LiteralTranslationItem>): void {
+    this.hasActiveColumnFilters = event.api.isAnyFilterPresent();
+  }
+
   onSelectionChanged(): void {
     this.selectedRows = this.gridApi?.getSelectedRows() ?? [];
   }
@@ -166,6 +177,15 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
       return;
     }
     this.openEditor(event.data, true);
+  }
+
+  clearFilters(): void {
+    if (!this.gridApi) {
+      return;
+    }
+
+    this.gridApi.setFilterModel(null);
+    this.hasActiveColumnFilters = false;
   }
 
   createNew(): void {
