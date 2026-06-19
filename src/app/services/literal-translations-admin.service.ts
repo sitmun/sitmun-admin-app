@@ -40,6 +40,7 @@ export class LiteralTranslationsAdminService {
   fetchPage(request: InfiniteBlockRequest, language: string): Observable<HalPage<LiteralTranslationItem>> {
     let params = new HttpParams()
       .set('lang', language)
+      .set('filter', JSON.stringify(request.filterModel))
       .set('page', String(request.page))
       .set('size', String(request.size));
 
