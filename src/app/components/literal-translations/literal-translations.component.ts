@@ -293,6 +293,7 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
               ? ((params: { data: unknown }) => agValueGetter(params as never))
               : undefined;
             return {
+              ...columnDef,
               field: typeof columnDef.field === 'string' ? columnDef.field : undefined,
               colId: columnDef.colId,
               valueGetter,
