@@ -54,7 +54,7 @@
     "@angular-eslint/template-parser": "^19.8.1",
     "@angular/cli": "^19.2.19",
     "@angular/compiler-cli": "^19.2.19",
-    "@babel/core": "^7.26.9",
+    "@babel/core": "^7.29.6",
     "@babel/preset-env": "^7.26.9",
     "@eslint/js": "^9.17.0",
     "@types/jest": "^29.5.14",
