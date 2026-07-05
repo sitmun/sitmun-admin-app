@@ -425,6 +425,7 @@
   "entity.connection.label": "Connection",
   "entity.connection.name": "Name",
   "entity.connection.plural": "Connections",
+  "entity.connection.button.testConnection": "Test connection",
   "entity.connection.test.error.unknown": "Unknown error",
   "entity.connection.test.disabledHint": "Save the connection or enter the password to test unsaved changes.",
   "entity.connection.test.success": "Connection test successful",

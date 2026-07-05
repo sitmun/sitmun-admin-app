@@ -425,6 +425,7 @@
   "entity.connection.label": "Connexió",
   "entity.connection.name": "Nom",
   "entity.connection.plural": "Connexions",
+  "entity.connection.button.testConnection": "Provar connexió",
   "entity.connection.test.error.unknown": "Error desconegut",
   "entity.connection.test.disabledHint": "Deseu la connexió o introduïu la contrasenya per provar canvis no desats.",
   "entity.connection.test.success": "Connexió establerta",

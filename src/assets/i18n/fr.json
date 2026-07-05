@@ -425,6 +425,7 @@
   "entity.connection.label": "Connexion",
   "entity.connection.name": "Nom",
   "entity.connection.plural": "Connexions",
+  "entity.connection.button.testConnection": "Tester la connexion",
   "entity.connection.test.error.unknown": "Erreur inconnue",
   "entity.connection.test.disabledHint": "Enregistrez la connexion ou saisissez le mot de passe pour tester les modifications non enregistrées.",
   "entity.connection.test.success": "Connexion réussie",

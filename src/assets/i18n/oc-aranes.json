@@ -425,6 +425,7 @@
   "entity.connection.label": "Connexion",
   "entity.connection.name": "Nom",
   "entity.connection.plural": "Connexions",
+  "entity.connection.button.testConnection": "Comprova connexió",
   "entity.connection.test.error.unknown": "Error desconegut",
   "entity.connection.test.disabledHint": "Enregistratz la connexion o picatz lo senhal per provar los cambis sens enregistrar.",
   "entity.connection.test.success": "Connexió establerta",

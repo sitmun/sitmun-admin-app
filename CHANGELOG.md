@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Connections**: connection form adds field hints (name, driver, user, password, JDBC URL, validate) and a Tasks tab intro, aligned with service/layer form patterns.
+- **Connections**: connection form adds field hints (name, driver, user, password, JDBC URL, validate), a Tasks tab intro, and quick search on the Tasks relation grid, aligned with service/layer form patterns.
+- **Connections**: connection form test button under the JDBC URL uses the same raised primary pattern as the service form metadata action.
 - **Data grid**: relation-grid label columns (e.g. Name) auto-size to cell content once after load, capped so flex filler columns still expand.
 
 ### Fixed

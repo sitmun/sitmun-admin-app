@@ -71,27 +71,30 @@
             </mat-form-field>
           </div>
 
-          <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
-            <mat-label>{{ 'entity.connection.url' | translate }}</mat-label>
-            <input matInput type="text" formControlName="url" required [maxlength]="250">
-            <mat-hint align="start">{{ 'entity.connection.hint.url' | translate }}</mat-hint>
-            <mat-hint align="end">
-              {{ entityForm.get('url') | characterCount }}
-            </mat-hint>
-          </mat-form-field>
+          <div class="sitmun-connection-form-url-section">
+            <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
+              <mat-label>{{ 'entity.connection.url' | translate }}</mat-label>
+              <input matInput type="text" formControlName="url" required [maxlength]="250">
+              <mat-hint align="start">{{ 'entity.connection.hint.url' | translate }}</mat-hint>
+              <mat-hint align="end">
+                {{ entityForm.get('url') | characterCount }}
+              </mat-hint>
+            </mat-form-field>
 
-          <div class="sitmun-connection-form-validate-row">
-            <button
-              mat-raised-button
-              type="button"
-              [disabled]="!canValidateConnection()"
-              [matTooltip]="!canValidateConnection() ? ('entity.connection.test.disabledHint' | translate) : ''"
-              (click)="validateConnection()"
-              color="primary"
-            >
-              {{ "common.button.validate" | translate }}
-            </button>
-            <p class="sitmun-connection-form-validate-hint">{{ 'entity.connection.hint.validate' | translate }}</p>
+            <div class="sitmun-connection-form-test-block">
+              <button
+                mat-raised-button
+                color="primary"
+                type="button"
+                class="sitmun-connection-form-test-button"
+                [disabled]="!canValidateConnection()"
+                [matTooltip]="!canValidateConnection() ? ('entity.connection.test.disabledHint' | translate) : ''"
+                (click)="validateConnection()"
+              >
+                {{ 'entity.connection.button.testConnection' | translate }}
+              </button>
+              <p class="sitmun-connection-form-validate-hint">{{ 'entity.connection.hint.validate' | translate }}</p>
+            </div>
           </div>
         </mat-card-content>
       </mat-card>
@@ -107,6 +110,7 @@
       </mat-card-header>
       <mat-card-content>
         <app-data-grid [changeHeightButton]="true"
+                       [globalSearch]="true"
                        [allNewElements]="isNewOrDuplicated()"
                        [columnDefs]="tasksTable.relationsColumnsDefs"
                        [getAll]='tasksTable.relationsFetchFn'
