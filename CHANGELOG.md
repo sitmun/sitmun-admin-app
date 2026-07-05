@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Data grid**: relation-grid selection checkbox header/body alignment and flex column fill fixed (missing centered-header CSS; `autoSizeStrategy` now resolved after column prep).
 - **Data grid**: relation-grid status dots visible again (`.sitmun-status-dot` sizing); pending add/modify/delete hints show in the status column; unchanged rows leave the status cell empty.
 - **Dialogs**: picker modals no longer show CSV export; form/picker modal sizing improved app-wide.
+- **Layers**: save maps joined layer CSV fields to `layers`, `queryableLayers`, and `selectableLayers` (trimmed); preserves `spatialSelectionService` relation; load no longer clears selectable layers when queryable is disabled; queryable subset revalidates when the layer set changes; new style dialog maps flat legend fields to nested `legendURL`.
+- **Layers**: style add dialog title, form reset on reopen, filter field order, and `appUrlInput` on style URL; permissions relation updater uses saved entity proxy; removed dead `actionButton` bindings on layers form grids.
 
 ## [1.2.7] - 2026-06-05
 

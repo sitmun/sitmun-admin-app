@@ -14,7 +14,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from '@ngx-translate/core';
-import { firstValueFrom, of} from 'rxjs';
+import { firstValueFrom, of, Subscription} from 'rxjs';
 import {map} from 'rxjs/operators';
 
 import {BaseFormComponent} from '@app/components/base-form.component';
@@ -52,6 +52,12 @@ import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 import {constants} from '@environments/constants';
 
+type StyleDialogValue = CartographyStyle & {
+  url?: string | null;
+  format?: string | null;
+  width?: number | null;
+  height?: number | null;
+};
 
 @Component({
     selector: 'app-layers-form',
@@ -69,11 +75,11 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
   protected readonly territorialFiltersTable: DataTableDefinition<CartographyFilterProjection, CartographyFilterProjection>;
   protected readonly parametersTable: DataTableDefinition<CartographyParameter, CartographyParameter>;
 
-  disableLoadButton = true;
-
   services: any[] = [];
 
   territorialTypes: any[] = [];
+
+  private joinedLayersValidationSub?: Subscription;
 
   @ViewChild('newParameterDialog', {
     static: true
@@ -116,6 +122,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     this.stylesTable = this.defineStylesTable();
     this.territorialFiltersTable = this.defineTerritorialFiltersTable();
     this.parametersTable = this.defineParametersTable();
+    this.destroyRef.onDestroy(() => this.joinedLayersValidationSub?.unsubscribe());
   }
 
   /**
@@ -223,8 +230,8 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     const queryableLayersValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
       if (!control.value) return null;
 
-      const queryableLayers = control.value.split(',').map((layer: string) => layer.trim());
-      const joinedLayers = this.entityForm?.get('joinedLayers')?.value?.split(',').map((layer: string) => layer.trim()) ?? [];
+      const queryableLayers = this.parseLayerList(control.value);
+      const joinedLayers = this.parseLayerList(this.entityForm?.get('joinedLayers')?.value);
 
       // Only validate if there are actual entries
       if (queryableLayers.length === 0) return null;
@@ -289,9 +296,12 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
       this.entityForm.get('joinedSelectableLayers').disable();
       this.entityForm.get('joinedQueryableLayers').setValue(null);
       this.entityForm.get('joinedQueryableLayers').disable();
-    } else if (!this.entityToEdit.queryableFeatureEnabled) {
-      this.entityForm.get('joinedSelectableLayers').setValue(null);
     }
+
+    this.joinedLayersValidationSub?.unsubscribe();
+    this.joinedLayersValidationSub = this.entityForm.get('joinedLayers')?.valueChanges.subscribe(() => {
+      this.entityForm.get('joinedQueryableLayers')?.updateValueAndValidity({ emitEvent: false });
+    });
   }
 
   /**
@@ -307,10 +317,11 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     safeToEdit = Object.assign(safeToEdit, formValuesWithoutAvail, {
       id: id,
       blocked: availableForClients !== true,
-      layers: formValues.joinedLayers ? formValues.joinedLayers.split(',') : [],
-      queryableLayers: formValues.queryableLayers ? formValues.queryableLayers.split(',') : [],
-      selectableLayers: formValues.selectableLayers ? formValues.selectableLayers.split(',') : [],
+      layers: this.parseLayerList(formValues.joinedLayers),
+      queryableLayers: this.parseLayerList(formValues.joinedQueryableLayers),
+      selectableLayers: this.parseLayerList(formValues.joinedSelectableLayers),
       service: this.serviceService.createProxy(formValues.serviceId),
+      spatialSelectionService: this.serviceService.createProxy(formValues.spatialSelectionServiceId),
     });
     return Cartography.fromObject(safeToEdit);
   }
@@ -523,7 +534,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
       })
       .withTemplateDialog('newStyleDialog', () => TemplateDialog.builder()
         .withReference(this.newStyleDialog)
-        .withTitle('entity.cartography.styles.parameters.title')
+        .withTitle('entity.cartography.styles.parameters.header')
         .withForm(new FormGroup({
           name: new FormControl(null, [Validators.required]),
           title: new FormControl(null, [Validators.required]),
@@ -533,7 +544,19 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
           height: new FormControl(null, []),
           url: new FormControl(null, []),
           defaultStyle: new FormControl(false, []),
-        })).build())
+        })).withPreOpenFunction((form: FormGroup) => {
+          form.reset({
+            name: null,
+            title: null,
+            description: null,
+            format: null,
+            width: null,
+            height: null,
+            url: null,
+            defaultStyle: false,
+          });
+        }).build())
+      .withTargetToRelation((items) => items.map(item => this.toCartographyStyle(item as StyleDialogValue)))
       .build()
   }
 
@@ -611,11 +634,12 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
       })
       .withRelationsOrder('name')
       .withRelationsUpdater(async (cartographyGroups: (CartographyGroupProjection & Status)[]) => {
+        const cartography = this.cartographyService.createProxy(this.entityID);
         await onCreate(cartographyGroups).forEach(item => {
-          return item.addRelationEx("members", this.entityToEdit);
+          return item.addRelationEx("members", cartography);
         });
         await onDelete(cartographyGroups).forEach(item => {
-          return item.deleteRelationById("members", this.entityToEdit.id);
+          return item.deleteRelationById("members", this.entityID);
         });
       })
       .withTargetsColumns([
@@ -662,8 +686,8 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
   }
 
   getAvailableLayers(): string {
-    const joinedLayers = this.entityForm?.get('joinedLayers')?.value?.split(',').map(layer => layer.trim()) ?? [];
-    const queryableLayers = this.entityForm?.get('joinedQueryableLayers')?.value?.split(',').map(layer => layer.trim()) ?? [];
+    const joinedLayers = this.parseLayerList(this.entityForm?.get('joinedLayers')?.value);
+    const queryableLayers = this.parseLayerList(this.entityForm?.get('joinedQueryableLayers')?.value);
 
     const availableLayers = joinedLayers.filter(layer => !queryableLayers.includes(layer));
     return availableLayers.join(', ');
@@ -672,5 +696,23 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
   getServiceName(serviceId: number): string {
     const service = this.services.find(s => s.id === serviceId);
     return service ? service.name : '';
+  }
+
+  private parseLayerList(raw: string | null | undefined): string[] {
+    if (raw == null || raw === '') {
+      return [];
+    }
+    return raw.split(',').map(value => value.trim()).filter(Boolean);
+  }
+
+  private toCartographyStyle(item: StyleDialogValue): CartographyStyle {
+    const style = Object.assign(new CartographyStyle(), item);
+    style.legendURL = {
+      format: item.format ?? null,
+      width: item.width ?? null,
+      height: item.height ?? null,
+      onlineResource: item.url ?? item.legendURL?.onlineResource ?? null,
+    };
+    return style;
   }
 }

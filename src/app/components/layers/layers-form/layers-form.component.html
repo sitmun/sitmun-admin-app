@@ -165,7 +165,6 @@
                          [hideReplaceButton]=true
                          [defaultColumnSorting]='territoryAvailabilitiesTable.defaultRelationsSorting()'
                          (getAllRows)="territoryAvailabilitiesTable.handleSaveRelations($event)"
-                         [actionButton]=true
                          (add)="territoryAvailabilitiesTable.openDialog($event)"
                          *ngIf="dataLoaded"
           >
@@ -192,7 +191,6 @@
                          [hideReplaceButton]=true
                          [defaultColumnSorting]='cartographyPermissionsTable.defaultRelationsSorting()'
                          (getAllRows)="cartographyPermissionsTable.handleSaveRelations($event)"
-                         [actionButton]=true
                          (add)="cartographyPermissionsTable.openDialog($event)"
                          *ngIf="dataLoaded"
           >
@@ -218,7 +216,6 @@
                          [hideReplaceButton]=true
                          [defaultColumnSorting]='treesNodesTable.defaultRelationsSorting()'
                          (getAllRows)="treesNodesTable.handleSaveRelations($event)"
-                         [actionButton]=false
                          *ngIf="dataLoaded"
           >
           </app-data-grid>
@@ -278,7 +275,6 @@
                             [hideReplaceButton]=true
                             [defaultColumnSorting]='parametersTable.defaultRelationsSorting()'
                             (getAllRows)="parametersTable.handleSaveRelations($event)"
-                            [actionButton]=true
                             (add)="parametersTable.openTemplateDialog('newParameterDialog')"
                             *ngIf="dataLoaded"
               >
@@ -330,7 +326,6 @@
                            [hideReplaceButton]=true
                            [defaultColumnSorting]='territorialFiltersTable.defaultRelationsSorting()'
                            (getAllRows)="territorialFiltersTable.handleSaveRelations($event)"
-                           [actionButton]=true
                            (add)="territorialFiltersTable.openTemplateDialog('newTerritorialFilterDialog')"
                            *ngIf="dataLoaded"
             >
@@ -411,7 +406,6 @@
                            [hideReplaceButton]=true
                            [defaultColumnSorting]='stylesTable.defaultRelationsSorting()'
                            (getAllRows)="stylesTable.handleSaveRelations($event)"
-                           [actionButton]=true
                            (add)="stylesTable.openTemplateDialog('newStyleDialog')"
                            *ngIf="dataLoaded"
             >
@@ -473,6 +467,13 @@
       <mat-label>{{ 'entity.cartography.styles.parameters.description' | translate }}</mat-label>
       <input matInput type="text" formControlName="description">
     </mat-form-field>
+    <mat-checkbox formControlName="defaultStyle">
+      {{ 'entity.cartography.styles.parameters.defaultStyle' | translate }}
+    </mat-checkbox>
+    <mat-form-field appearance="outline" class="full">
+      <mat-label>{{ 'entity.cartography.styles.parameters.url' | translate }}</mat-label>
+      <input appUrlInput matInput type="text" formControlName="url">
+    </mat-form-field>
     <mat-form-field appearance="outline" class="full">
       <mat-label>{{ 'entity.cartography.styles.parameters.format' | translate }}</mat-label>
       <input matInput type="text" formControlName="format">
@@ -484,10 +485,6 @@
     <mat-form-field appearance="outline" class="full">
       <mat-label>{{ 'entity.cartography.styles.parameters.height' | translate }}</mat-label>
       <input matInput type="number" formControlName="height">
-    </mat-form-field>
-    <mat-form-field appearance="outline" class="full">
-      <mat-label>{{ 'entity.cartography.styles.parameters.url' | translate }}</mat-label>
-      <input matInput type="text" formControlName="url">
     </mat-form-field>
   </form>
 </ng-template>
@@ -506,9 +503,6 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
-    <mat-checkbox formControlName="required">
-      {{ 'entity.cartography.filters.parameters.required' | translate }}
-    </mat-checkbox>
     <mat-form-field appearance="outline" class="full">
       <mat-label>{{ 'entity.cartography.filters.parameters.column' | translate }}</mat-label>
       <input matInput type="text" formControlName="column">
@@ -533,5 +527,8 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
+    <mat-checkbox formControlName="required">
+      {{ 'entity.cartography.filters.parameters.required' | translate }}
+    </mat-checkbox>
   </form>
 </ng-template>
