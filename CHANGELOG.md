@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Connections**: connection form adds field hints (name, driver, user, password, JDBC URL, validate), a Tasks tab intro, and quick search on the Tasks relation grid, aligned with service/layer form patterns.
 - **Connections**: connection form test button under the JDBC URL uses the same raised primary pattern as the service form metadata action.
 - **Data grid**: relation-grid label columns (e.g. Name) auto-size to cell content once after load, capped so flex filler columns still expand.
+- **Layers**: relation tab grids (territories, permissions, trees, parameters, filters, styles) expose client-side quick search via `globalSearch`.
+- **Layers**: relation tab column widths tuned so URL/value-heavy columns expand and narrow fields stay compact.
+- **Layers**: template-dialog grids (parameters, filters, styles) use `newButton` instead of `addButton`.
 - **Dialogs**: template form modals use shared `formDialogs` width (640px); relation picker modals hide export and compute width from column `minWidth` (640px floor).
 
 ### Fixed

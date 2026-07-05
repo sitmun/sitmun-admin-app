@@ -150,6 +150,7 @@
       <mat-card appearance="outlined">
         <mat-card-content>
           <app-data-grid [changeHeightButton]="true"
+                         [globalSearch]="true"
                          [allNewElements]="isNewOrDuplicated()"
                          [columnDefs]="territoryAvailabilitiesTable.relationsColumnsDefs"
                          [getAll]='territoryAvailabilitiesTable.relationsFetchFn'
@@ -176,6 +177,7 @@
       <mat-card appearance="outlined">
         <mat-card-content>
           <app-data-grid [changeHeightButton]="true"
+                         [globalSearch]="true"
                          [allNewElements]="isNewOrDuplicated()"
                          [columnDefs]="cartographyPermissionsTable.relationsColumnsDefs"
                          [getAll]='cartographyPermissionsTable.relationsFetchFn'
@@ -202,6 +204,7 @@
       <mat-card appearance="outlined">
         <mat-card-content>
           <app-data-grid [changeHeightButton]="true"
+                         [globalSearch]="true"
                          [allNewElements]="isNewOrDuplicated()"
                          [columnDefs]="treesNodesTable.relationsColumnsDefs"
                          [getAll]='treesNodesTable.relationsFetchFn'
@@ -260,6 +263,7 @@
           <mat-card appearance="outlined" class="sitmun-mat-card-margin">
             <mat-card-content>
               <app-data-grid [changeHeightButton]="true"
+                            [globalSearch]="true"
                             [allNewElements]="isNewOrDuplicated()"
                             [columnDefs]="parametersTable.relationsColumnsDefs"
                             [getAll]='parametersTable.relationsFetchFn'
@@ -270,12 +274,12 @@
                             [redoButton]=true
                             [undoButton]=true
                             [deleteButton]=true
-                            [addButton]=true
+                            [newButton]=true
                             [hideDuplicateButton]=true
                             [hideReplaceButton]=true
                             [defaultColumnSorting]='parametersTable.defaultRelationsSorting()'
                             (getAllRows)="parametersTable.handleSaveRelations($event)"
-                            (add)="parametersTable.openTemplateDialog('newParameterDialog')"
+                            (new)="parametersTable.openTemplateDialog('newParameterDialog')"
                             *ngIf="dataLoaded"
               >
               </app-data-grid>
@@ -311,6 +315,7 @@
         <mat-card appearance="outlined" class="sitmun-mat-card-margin">
           <mat-card-content>
             <app-data-grid [changeHeightButton]="true"
+                           [globalSearch]="true"
                            [allNewElements]="isNewOrDuplicated()"
                            [columnDefs]="territorialFiltersTable.relationsColumnsDefs"
                            [getAll]='territorialFiltersTable.relationsFetchFn'
@@ -321,12 +326,12 @@
                            [redoButton]=true
                            [undoButton]=true
                            [deleteButton]=true
-                           [addButton]=true
+                           [newButton]=true
                            [hideDuplicateButton]=true
                            [hideReplaceButton]=true
                            [defaultColumnSorting]='territorialFiltersTable.defaultRelationsSorting()'
                            (getAllRows)="territorialFiltersTable.handleSaveRelations($event)"
-                           (add)="territorialFiltersTable.openTemplateDialog('newTerritorialFilterDialog')"
+                           (new)="territorialFiltersTable.openTemplateDialog('newTerritorialFilterDialog')"
                            *ngIf="dataLoaded"
             >
             </app-data-grid>
@@ -391,6 +396,7 @@
         <mat-card appearance="outlined">
           <mat-card-content>
             <app-data-grid [changeHeightButton]="true"
+                           [globalSearch]="true"
                            [allNewElements]="isNewOrDuplicated()"
                            [columnDefs]="stylesTable.relationsColumnsDefs"
                            [getAll]='stylesTable.relationsFetchFn'
@@ -401,12 +407,12 @@
                            [redoButton]=true
                            [undoButton]=true
                            [deleteButton]=true
-                           [addButton]=true
+                           [newButton]=true
                            [hideDuplicateButton]=true
                            [hideReplaceButton]=true
                            [defaultColumnSorting]='stylesTable.defaultRelationsSorting()'
                            (getAllRows)="stylesTable.handleSaveRelations($event)"
-                           (add)="stylesTable.openTemplateDialog('newStyleDialog')"
+                           (new)="stylesTable.openTemplateDialog('newStyleDialog')"
                            *ngIf="dataLoaded"
             >
             </app-data-grid>
