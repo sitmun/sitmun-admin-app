@@ -152,6 +152,11 @@ app-login .mat-app-background {
   max-height: 90vh;
 }
 
+.formDialogs {
+  min-width: min(640px, 90vw);
+  max-width: min(800px, 90vw);
+}
+
 
 [hidden] {
   display: none!important;

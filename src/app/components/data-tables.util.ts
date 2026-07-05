@@ -246,6 +246,9 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
     dialog.preOpenFn(dialog.form);
     const dialogRef = this.targetsDialog.open<DialogFormComponent, DialogFormData, DialogFormResult>(
       DialogFormComponent, {
+        panelClass: 'formDialogs',
+        width: '640px',
+        maxWidth: '90vw',
         data: {
           HTMLReceived: dialog.reference,
           title: dialog.title,

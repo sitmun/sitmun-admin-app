@@ -20,6 +20,7 @@
           [getAll]='getAll'
           [globalSearch]=true
           [hideDuplicateButton]=true
+          [hideExportButton]=true
           [hideReplaceButton]=true
           [nonEditable]='nonEditable'
           [singleSelection]="singleSelectionTable[i]"
@@ -50,6 +51,7 @@
             [currentData]='getCurrentData(i)'
             [hideReplaceButton]=true
             [hideDuplicateButton]=true
+            [hideExportButton]=true
             [fieldRestrictionWithDifferentName]='getFieldRestrictionWithDifferentName(i)'
             (getSelectedRows)='joinRowsReceived($event)'
           >

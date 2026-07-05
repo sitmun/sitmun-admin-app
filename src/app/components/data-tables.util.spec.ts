@@ -1,11 +1,12 @@
 import { MatDialog } from '@angular/material/dialog';
+import { FormControl, FormGroup } from '@angular/forms';
 
 import { firstValueFrom, toArray , of } from 'rxjs';
 
 import { ErrorHandlerService } from '@app/services/error-handler.service';
 import { LoadingOverlayService } from '@app/services/loading-overlay.service';
 
-import { DataTableDefinition } from './data-tables.util';
+import { DataTableDefinition, TemplateDialog } from './data-tables.util';
 
 describe('DataTableDefinitionBuilder', () => {
   let builder: ReturnType<typeof DataTableDefinition.builder>;
@@ -96,6 +97,34 @@ describe('DataTableDefinitionBuilder', () => {
       const result = targetsFetchFn();
       const values = await firstValueFrom(result.pipe(toArray()));
       expect(values).toEqual([testData]);
+    });
+  });
+
+  describe('openTemplateDialog', () => {
+    it('opens DialogFormComponent with formDialogs sizing', () => {
+      const afterClosedSubject = of(null);
+      matDialog.open = jest.fn().mockReturnValue({
+        afterClosed: () => afterClosedSubject
+      });
+
+      const definition = DataTableDefinition.builder(matDialog, errorHandler, loadingService)
+        .withTemplateDialog('testDialog', () => TemplateDialog.builder()
+          .withReference({} as any)
+          .withTitle('dialog.title')
+          .withForm(new FormGroup({ name: new FormControl(null) }))
+          .build())
+        .build();
+
+      definition.openTemplateDialog('testDialog');
+
+      expect(matDialog.open).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          panelClass: 'formDialogs',
+          width: '640px',
+          maxWidth: '90vw',
+        })
+      );
     });
   });
 });
