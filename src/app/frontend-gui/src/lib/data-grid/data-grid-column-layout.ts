@@ -94,6 +94,7 @@ export function prepareClientSideColumnDefs(columnDefs: DataGridColumnDef[]): Da
   const hasFlexGrow = columnDefs.some(
     (col) => !col.checkboxSelection && typeof col.flex === 'number' && col.flex > 0
   );
+  const fallbackFlexIndex = hasFlexGrow ? -1 : findFallbackFlexColumnIndex(columnDefs);
 
   return columnDefs.map((col, index) => {
     if (col.checkboxSelection) {
@@ -139,7 +140,7 @@ export function prepareClientSideColumnDefs(columnDefs: DataGridColumnDef[]): Da
       return processed;
     }
 
-    if (index === columnDefs.length - 1) {
+    if (index === fallbackFlexIndex) {
       processed.flex = 1;
       processed.minWidth = col.minWidth ?? 100;
       delete processed.width;
@@ -152,6 +153,16 @@ export function prepareClientSideColumnDefs(columnDefs: DataGridColumnDef[]): Da
     applyHeaderMinWidth(col, processed);
     return processed;
   });
+}
+
+function findFallbackFlexColumnIndex(columnDefs: DataGridColumnDef[]): number {
+  for (let index = columnDefs.length - 1; index >= 0; index -= 1) {
+    const col = columnDefs[index];
+    if (!col.checkboxSelection && col.field !== 'status') {
+      return index;
+    }
+  }
+  return -1;
 }
 
 /** True when at least one column uses flex grow (clientSide grids that should not auto-size to content). */

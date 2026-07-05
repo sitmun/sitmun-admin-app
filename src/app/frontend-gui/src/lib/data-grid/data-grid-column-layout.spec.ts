@@ -24,6 +24,20 @@ describe('data-grid-column-layout', () => {
     expect(usesFlexColumnLayout(prepared)).toBe(true);
   });
 
+  it('keeps trailing status fixed and grows the previous data column', () => {
+    const prepared = prepareClientSideColumnDefs([
+      {headerName: '', checkboxSelection: true, headerCheckboxSelection: true},
+      {headerName: 'Title', field: 'name', width: 150},
+      {headerName: 'Abstract', field: 'description', width: 150},
+      {headerName: 'Status', field: 'status'},
+    ]);
+
+    expect(prepared[1]).toEqual(expect.objectContaining({field: 'name', flex: 0}));
+    expect(prepared[2]).toEqual(expect.objectContaining({field: 'description', flex: 1}));
+    expect(prepared[3]).toEqual(expect.objectContaining({field: 'status', flex: 0, width: 160}));
+    expect(usesFlexColumnLayout(prepared)).toBe(true);
+  });
+
   it('does not use content-based sizing for prepared relation grids', () => {
     const prepared = prepareClientSideColumnDefs(relationGridSourceDefs);
 
